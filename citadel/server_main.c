@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 		"\n*** Citadel/UX messaging server engine v%d.%02d ***\n"
 		"Copyright (C) 1987-2003 by the Citadel/UX development team.\n"
 		"This program is distributed under the terms of the GNU "
-		General Public License.\n\n",
+		"General Public License.\n\n",
 		(REV_LEVEL/100),
 		(REV_LEVEL%100)
 	);

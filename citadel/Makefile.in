@@ -168,8 +168,10 @@ msgform: msgform.o
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
 install: install-exec install-data install-doc
-	echo Installation is complete.
-	echo Now go to your Citadel directory and run 'setup'.
+	@echo 
+	@echo Installation is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo 
 
 install-data:
 	@for i in help messages network/spoolin network/spoolout \
