@@ -17,9 +17,8 @@ load" to some database gurus.)
 -> Your computer crashed, lost power, etc. and you suspect that your
    databases have become corrupted.
  
--> You want to switch to a different back-end data store.  (Currently, the
-   only data store available is the default GDBM one, but this may change
-   in the not-too-distant future.)
+-> You want to switch to a different back-end data store.  (For example, from
+   GDBM to Berkeley DB)
  
 
  

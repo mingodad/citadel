@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.77  2001/11/17 19:55:08  ajc
+ * Updated some of the documentation
+
  Revision 580.76  2001/11/16 04:43:12  ajc
  * Eliminated the sock_puts_crlf() function and ensured that all SMTP client
    commands are sent out using a single sock_write() call.  There are broken
@@ -2868,4 +2871,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

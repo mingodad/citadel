@@ -10,7 +10,7 @@ Abstract
 History and introduction
 
    From its inception in 1987 until versions 5.1x in 1998,
-   Citadel/UX utilized a built-in data store loosely modelled after Jeff
+   Citadel/UX utilized a built-in data store loosely modeled after Jeff
    Prothero's original Citadel-CP/M design.  But as Citadel systems
    scaled upwards, supporting Internet-connected systems with heavy
    concurrent use, and aspirations of becoming a world-class
@@ -32,13 +32,14 @@ History and introduction
      * Recovery utilities
        
    It is clear that Berkeley DB is a better choice than GDBM for a
-   high-utilization database that requires crash recovery.  Beginning on
-   December 7, 2000, Citadel/UX supports the use of either GDBM or DB as
-   the data store.  As of July 1, 2001, DB has become the default.  We
-   recommend DB in preference to GDBM wherever possible because there is
-   no effective way to recover from corrupted GDBM files.
-   
-   
+   high-utilization database that requires crash recovery.  Citadel/UX can
+   currently be built with either DB or GDBM as the data store; however,
+   THE USE OF GDBM IS DEPRECATED AND STRONGLY DISCOURAGED.  If you are
+   bringing up a new site you should use Berkeley DB, period.  If you are
+   maintaining an existing site using GDBM you should migrate it to Berkeley
+   DB as soon as possible.
+ 
+    
 Building Citadel/UX with DB support
 
    Here are the steps required to get Citadel/UX running with Berkeley
@@ -100,17 +101,15 @@ Care and feeding of your DB-powered Citadel
    You may think that it's going to keep writing to that one log file
    forever, but don't panic; when the log file gets sufficiently large it
    will switch over to another one.  As a general rule of thumb, your
-   archival procedure should be to back up to tape every day, removing log
-   files after backups as described above.  Berkeley DB supports "hot"  
-   backups; in other words, you are permitted to back up your Citadel data
-   without having to first shut down the Citadel server, AS LONG AS YOU 
-   COPY THE DATA FILES BEFORE THE LOG FILES.  One way to ensure this is to 
-   first copy the data files to a temporary directory, then copy the log 
-   files to the same temporary directory, and finally back up and remove 
-   the temporary directory. This temporary-directory procedure also makes 
-   it easy to determine which log files made it onto the backup when 
-   determining what is safe to remove. (See above.)
-
+   archival procedure should be to back up to tape every day.  Berkeley DB
+   supports "hot" backups; in other words, you are permitted to back up your
+   Citadel data without having to first shut down the Citadel server, as long
+   as you copy the data files before the log files.
+   
+   And don't worry about your system filling up with log files; the Citadel
+   server will automatically remove them when they're no longer needed.
+ 
+ 
 References
 
    1. http://uncensored.citadel.org/citadel

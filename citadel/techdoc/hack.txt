@@ -170,23 +170,19 @@ The above discussion should make the function of the fields reasonably clear:
     cycling under control.
 
 (Uncoincidentally) the format used to transmit messages for networking
-purposes is precisely that used on disk, except that there may be any amount
-of garbage between the null ending a message and the <FF> starting the next
-one.  This allows greater compatibility if slight problems crop up. The current
-distribution includes netproc.c, which is basically a database replicator;
+purposes is precisely that used on disk, serialized.  The current
+distribution includes serv_network.c, which is basically a database replicator;
 please see network.txt on its operation and functionality (if any).
 
 			Portability issues
  
- At this point, all hardware-dependent stuff has been removed from the 
-system.  On the server side, most of the OS-dependent stuff has been isolated
-into the sysdep.c source module.  The server should compile on any POSIX
-compliant system with a full pthreads implementation and TCP/IP support.  In
-the future, we may try to port it to non-POSIX systems as well.
+ Citadel/UX is 64-bit clean, architecture-independent, and Year 2000
+compliant.  The software should compile on any POSIX compliant system with
+a full pthreads implementation and TCP/IP support.  In the future we may
+try to port it to non-POSIX systems as well.
  
  On the client side, it's also POSIX compliant.  The client even seems to
-build ok on non-POSIX systems with porting libraries (such as the Cygnus
-Win32 stuff).
+build ok on non-POSIX systems with porting libraries (such as Cygwin).
   
 
                    "Room" records (quickroom)

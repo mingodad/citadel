@@ -9,6 +9,7 @@
      Nathan Bryant      (build system, security, database access, and others)
      Art Cancro         (overall system design and lead developer)
      Brian Costello     (cosmetics, additional commands)
+     Andru Luvisi       (troubleshooting and development assistance)
      Daniel Malament    (string compare function for IMAP server)
      Stu Mark           (IGnet/Open protocol design)
      Ben Mehlman        (additional client features)
