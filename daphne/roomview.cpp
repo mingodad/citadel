@@ -242,10 +242,9 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 	} else if (whichbutton.GetId() == BUTTON_ZAP) {
 		sendcmd = "FORG";		//Zap (forget) room
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
-		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
-		delete this;
-		RoomList->DeleteAllItems();
+		new RoomView(citsock, citMyMDI, "_BASEROOM_"); 
 		RoomList->LoadRoomList();
+		delete this;
 	}
 }
 

@@ -1,4 +1,8 @@
-$Log$
+ $Log$
+ Revision 1.7  1999/11/11 05:41:38  smw
+ Another zap tweak:  After zapping a room the user is taken directly to the
+ Lobby> and has to hit 'goto' to get to the next room.
+
 Revision 1.6  1999/11/11 05:04:57  smw
 Made a slight tweak to the default size of the button bar in roomview.cpp.
 All the buttons (including the new 'zap' button) should show up by
