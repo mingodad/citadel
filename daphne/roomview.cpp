@@ -193,9 +193,9 @@ RoomView::RoomView(
                 wxDefaultPosition);
         wxLayoutConstraints *c5 = new wxLayoutConstraints;
         c5->top.SameAs(enter_button, wxTop);
-        c5->bottom.SameAs(readall_button, wxBottom);
+        c5->bottom.SameAs(enter_button, wxBottom);
         c5->width.AsIs();
-        c5->right.LeftOf(readall_button, 5);
+        c5->right.LeftOf(enter_button, 5);
         zap_button->SetConstraints(c5);
 
         Layout();
