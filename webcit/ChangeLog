@@ -1,4 +1,7 @@
 $Log$
+Revision 213.21  2001/06/06 14:44:25  ajc
+* mime_parser.c: #include <pthread.h> so it compiles cleanly
+
 Revision 213.20  2001/05/31 02:26:22  ajc
 * Fixed login to take you to the Lobby instead of the next room.
 
@@ -569,3 +572,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
