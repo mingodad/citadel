@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.130  2002/03/09 05:02:20  ajc
+ * Attempts to fix the access control crap
+
  Revision 590.129  2002/03/08 05:42:02  ajc
  * Patch to allow invitations and admin access to mailbox rooms.  NEEDS TESTING!
 
@@ -3399,3 +3402,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
