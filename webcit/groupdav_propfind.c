@@ -64,6 +64,40 @@ long locate_message_by_uid(char *uid) {
 }
 
 
+/*
+ * List folders containing interesting groupware objects
+ */
+void groupdav_folder_list(void) {
+	/*
+	 * Be rude.  Completely ignore the XML request and simply send them
+	 * everything we know about.  Let the client sort it out.
+	 */
+	wprintf("HTTP/1.0 207 Multi-Status\n");
+	groupdav_common_headers();
+	wprintf("Content-type: text/xml\n"
+		"\n"
+		"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+     		"<D:multistatus xmlns:D=\"DAV:\">\n"
+	);
+
+	wprintf("        <D:response>\n");
+	wprintf("          <D:href>http://splorph.xand.com/groupdav/Calendar/</D:href>\n");
+	wprintf("          <D:propstat>\n");
+	wprintf("            <D:status>HTTP/1.1 200 OK</D:status>\n");
+	wprintf("            <D:prop>\n");
+	wprintf("             <D:displayname>Calendar</D:displayname>\n");
+	wprintf("             <resourcetype xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">\n");
+	wprintf("               <collection />\n");
+	wprintf("               <G:vevent-collection />\n");
+	wprintf("             <resourcetype>\n");
+	wprintf("            </D:prop>\n");
+	wprintf("          </D:propstat>\n");
+	wprintf("        </D:response>\n");
+
+	wprintf("</D:multistatus>\n");
+
+}
+
 
 
 /*
@@ -87,6 +121,16 @@ void groupdav_propfind(char *dav_pathname) {
 		dav_pathname[strlen(dav_pathname)-1] = 0;
 	}
 	strcpy(dav_roomname, dav_pathname);
+
+
+	/*
+	 * If the room name is blank, the client is requesting a
+	 * folder list.
+	 */
+	if (strlen(dav_roomname) == 0) {
+		groupdav_folder_list();
+		return;
+	}
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
@@ -143,7 +187,9 @@ void groupdav_propfind(char *dav_pathname) {
 					(is_https ? "https" : "http"),
 					WC->http_host);
 			}
-			wprintf("/groupdav/Calendar/");
+			wprintf("/groupdav/");
+			urlescputs(WC->wc_roomname);
+			wprintf("/");
 			for (j=0; j<strlen(uid); ++j) {
 				wprintf("%02X", uid[j]);
 			}
