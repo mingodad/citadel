@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.78  2002/01/20 07:43:07  error
+ * serv_chat.c: Server no longer crashes when CHATLOG can't be opened
+
  Revision 590.77  2002/01/20 05:22:07  error
  * curses client:  allow goodbye message to be seen on some terminals
 
@@ -3206,3 +3209,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

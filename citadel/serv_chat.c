@@ -74,7 +74,8 @@ void allwrite(char *cmdbuf, int flag, char *username)
 	}
 	if ((strcasecmp(cmdbuf, "NOOP")) && (flag != 2)) {
 		fp = fopen(CHATLOG, "a");
-		fprintf(fp, "%s\n", bcast);
+		if (fp != NULL)
+			fprintf(fp, "%s\n", bcast);
 		fclose(fp);
 	}
 	clnew = (struct ChatLine *) mallok(sizeof(struct ChatLine));
