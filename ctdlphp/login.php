@@ -1,6 +1,5 @@
 <?PHP
 	include "ctdlheader.php";
-
 	bbs_page_header();
 
 	ctdl_mesg("hello");

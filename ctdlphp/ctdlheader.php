@@ -9,7 +9,6 @@ function bbs_page_header() {
 
 	establish_citadel_session();
 
-
 	echo <<<LITERAL
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

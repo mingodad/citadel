@@ -26,9 +26,6 @@ function establish_citadel_session() {
 	// flush();
 	$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
 	if (!$clientsocket) {
-		//echo "Socket not present.  Firing up a new proxy.<BR>\n";
-		//flush();
-
 		// It ain't there, dude.  Open up the proxy. (C version)
 		//$cmd = "./sessionproxy " . $sockname ;
 		//exec($cmd);
@@ -41,8 +38,6 @@ function establish_citadel_session() {
 		sleep(2);
 
 		// Ok, now try again.
-		// echo "Connecting to ", $sockname, "...<BR>\n";
-		// flush();
 		$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
 	}
 
