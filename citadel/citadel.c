@@ -824,32 +824,6 @@ void enternew(char *desc, char *buf, int maxlen)
 }
 
 
-void proto_sync_check(void) {		/* FIXME ... remove this */
-	char buf[256];
-	char token[256];
-	FILE *fp;
-
-	safestrncpy(token, tmpnam(NULL), sizeof token);
-	sprintf(buf, "ECHO %s", token);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (!strcmp(&buf[4], token)) return;
-
-	fp = fopen(token, "w");
-	fprintf(fp, "%s\n", buf);
-	while (serv_gets(buf), strcmp(&buf[4], token)) {
-		fprintf(fp, "%s\n", buf);
-	}
-	fclose(fp);
-
-	sprintf(buf, "gedit %s &", token);
-	system(buf);
-	sleep(3);
-	unlink(token);
-}
-
-
-
 
 
 /*
@@ -1058,13 +1032,12 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 	else
 		readmsgs(1, 1, 0);
 
-	do {			/* MAIN LOOP OF PROGRAM */
-
-		proto_sync_check();	/* FIXME ... remove this */
-		mcmd = getcmd(argbuf);
+	/* MAIN COMMAND LOOP */
+	do {
+		mcmd = getcmd(argbuf);		/* Get keyboard command */
 
 #ifdef TIOCGWINSZ
-		check_screen_dims();
+		check_screen_dims();		/* if xterm, get screen size */
 #endif
 
 		if (termn8 == 0)

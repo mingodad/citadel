@@ -99,8 +99,14 @@ char was_a_key_pressed(void) {
 	tv.tv_usec = 0;
 	retval = select(1, &rfds, NULL, NULL, &tv); 
 
+	/* Careful!  Disable keepalives during keyboard polling; we're probably
+	 * in the middle of a data transfer from the server, in which case
+	 * sending a NOOP would throw the client protocol out of sync.
+	 */
 	if (FD_ISSET(0, &rfds)) {
+		set_keepalives(KA_NO);
 		the_character = inkey();
+		set_keepalives(KA_YES);
 	}
 	else {
 		the_character = 0;
@@ -133,9 +139,9 @@ int checkpagin(int lp, int pagin, int height)
 		hit_any_key();
 		set_keepalives(KA_YES);
 		return(0);
-		}
-	return(lp);
 	}
+	return(lp);
+}
 
 
 
