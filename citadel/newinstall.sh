@@ -179,6 +179,7 @@ SRC=/appl/citadel/files/citadel/libical-0.24.RC4.tar.gz
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
 		echo "* libical does not need updating."
+		return;
 		fi
 	fi
 	echo "* Installing libical..."
