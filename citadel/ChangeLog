@@ -1,3 +1,7 @@
+Mon Apr 19 12:11:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* whobbs.c: auto-detect when being called from a webserver, and act
+	  as a CGI (print HTTP headers and HTML output)
+
 1999-04-18 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_chat.c: fixed some potential buffer overruns (thanks dme)
 
