@@ -15,7 +15,6 @@
 #include	<stdarg.h>
 #include 	<unistd.h>
 #include	<string.h>
-#include	<termcap.h>
 #include	<dlfcn.h> 
 #include 	<signal.h>
 #include 	<string.h>
