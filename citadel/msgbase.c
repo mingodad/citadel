@@ -59,38 +59,42 @@
 extern struct config config;
 long config_msgnum;
 
+/*
+ * These are the four-character field headers we use when outputting
+ * messages in Citadel format (as opposed to RFC822 format).
+ */
 char *msgkeys[] = {
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", "", "", "", "", "", "", "", 
-	"", 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+	NULL, 
 	"from",
-	"", "", "",
+	NULL, NULL, NULL,
 	"exti",
 	"rfca",
-	"", 
+	NULL, 
 	"hnod",
 	"msgn",
-	"", "", "",
+	NULL, NULL, NULL,
 	"text",
 	"node",
 	"room",
 	"path",
-	"",
+	NULL,
 	"rcpt",
 	"spec",
 	"time",
 	"subj",
-	"",
-	"",
-	"",
-	"",
-	""
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 /*
@@ -1076,7 +1080,8 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		for (i=0; i<strlen(allkeys); ++i) {
 			k = (int) allkeys[i];
 			if (k != 'M') {
-				if (TheMessage->cm_fields[k] != NULL) {
+				if ( (TheMessage->cm_fields[k] != NULL)
+				   && (msgkeys[k] != NULL) ) {
 					if (k == 'A') {
 						if (do_proto) cprintf("%s=%s\n",
 							msgkeys[k],
@@ -2091,7 +2096,8 @@ static struct CtdlMessage *make_message(
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
 	int format_type,		/* variformat, plain text, MIME... */
-	char *fake_name			/* who we're masquerading as */
+	char *fake_name,		/* who we're masquerading as */
+	char *subject			/* Subject (optional) */
 ) {
 	char dest_node[SIZ];
 	char buf[SIZ];
@@ -2138,6 +2144,13 @@ static struct CtdlMessage *make_message(
 
 	if ( (author == &CC->usersupp) && (CC->cs_inet_email != NULL) ) {
 		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
+	}
+
+	if (subject != NULL) {
+		striplt(subject);
+		if (strlen(subject) > 0) {
+			msg->cm_fields['U'] = strdoop(subject);
+		}
 	}
 
 	msg->cm_fields['M'] = CtdlReadMessageBody("000",
@@ -2363,11 +2376,13 @@ void cmd_ent0(char *entargs)
 	char errmsg[SIZ];
 	int err = 0;
 	struct recptypes *valid = NULL;
+	char subject[SIZ];
 
 	post = extract_int(entargs, 0);
 	extract(recp, entargs, 1);
 	anon_flag = extract_int(entargs, 2);
 	format_type = extract_int(entargs, 3);
+	extract(subject, entargs, 4);
 
 	/* first check to make sure the request is valid. */
 
@@ -2465,7 +2480,8 @@ void cmd_ent0(char *entargs)
 	/* Read in the message from the client. */
 	cprintf("%d send message\n", SEND_LISTING);
 	msg = make_message(&CC->usersupp, recp,
-		CC->quickroom.QRname, anonymous, format_type, masquerade_as);
+		CC->quickroom.QRname, anonymous, format_type,
+		masquerade_as, subject);
 
 	if (msg != NULL) {
 		CtdlSubmitMsg(msg, valid, "");

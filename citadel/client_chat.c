@@ -257,7 +257,7 @@ void page_user()
 			scr_printf("%s\n", &buf[4]);
 			return;
 		}
-		if (client_make_message(temp, touser, 0, 0, 0) != 0) {
+		if (client_make_message(temp, touser, 0, 0, 0, NULL) != 0) {
 			scr_printf("No message sent.\n");
 			return;
 		}

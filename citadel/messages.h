@@ -10,6 +10,7 @@ int client_make_message(char *filename,	/* temporary file name */
 		char *recipient,	/* NULL if it's not mail */
 		int anon_type,		/* see MES_ types in header file */
 		int format_type,
-		int mode);
+		int mode,
+		char *subject);
 void citedit(FILE *);
 int file_checksum(char *filename);

@@ -671,7 +671,8 @@ int client_make_message(char *filename,	/* temporary file name */
 		char *recipient,	/* NULL if it's not mail */
 		int anon_type,		/* see MES_ types in header file */
 		int format_type,
-		int mode)
+		int mode,
+		char *subject)		/* buffer to store subject line */
 {
 	FILE *fp;
 	int a, b, e_ex_code;
@@ -679,6 +680,8 @@ int client_make_message(char *filename,	/* temporary file name */
 	char datestr[SIZ];
 	char header[SIZ];
 	int cksum = 0;
+
+	if (subject != NULL) strcpy(subject, "");
 
 	if (mode == 2)
 		if (strlen(editor_path) == 0) {
@@ -800,6 +803,7 @@ MECR:	if (mode == 2) {
 
 	b = keymenu("Entry command (? for options)",
 		    "<A>bort|<C>ontinue|<S>ave message|<P>rint formatted|"
+		    "add s<U>bject|"
 		    "<R>eplace string|<H>old message");
 
 	if (b == 'a')
@@ -813,6 +817,9 @@ MECR:	if (mode == 2) {
 		if (strlen(recipient) > 0)
 			scr_printf(" to %s", recipient);
 		scr_printf("\n");
+		if (subject != NULL) if (strlen(subject) > 0) {
+			scr_printf("Subject: %s\n", subject);
+		}
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
 			fmout(screenwidth, fp, NULL,
@@ -829,6 +836,12 @@ MECR:	if (mode == 2) {
 	}
 	if (b == 'h') {
 		return (2);
+	}
+	if (b == 'u') {
+		if (subject != NULL) {
+			newprompt("Subject: ", subject, 70);
+		}
+		goto MECR;
 	}
 
 MEFIN:	return (0);
@@ -913,7 +926,8 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	int mode;
 	long highmsg;
 	FILE *fp;
-
+	char subject[SIZ];
+	
 	if (c > 0)
 		mode = 1;
 	else
@@ -969,7 +983,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	/* If it's mail, we've got to check the validity of the recipient... */
 	if (strlen(buf) > 0) {
-		sprintf(cmd, "ENT0 0|%s|%d|%d", buf, b, mode);
+		sprintf(cmd, "ENT0 0|%s|%d|%d|%s", buf, b, mode, subject);
 		serv_puts(cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '2') {
@@ -993,7 +1007,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	}
 
 	/* Now compose the message... */
-	if (client_make_message(temp, buf, b, 0, c) != 0) {
+	if (client_make_message(temp, buf, b, 0, c, subject) != 0) {
 		return (2);
 	}
 
@@ -1011,7 +1025,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	}
 
 	/* Transmit message to the server */
-	sprintf(cmd, "ENT0 1|%s|%d|%d||", buf, b, mode);
+	sprintf(cmd, "ENT0 1|%s|%d|%d|%s|", buf, b, mode, subject);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '4') {
