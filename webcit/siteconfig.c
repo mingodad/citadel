@@ -133,11 +133,7 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
-		case 16:
-			wprintf("<TR><TD>Server-to-server networking password</TD><TD>");
-			wprintf("<INPUT TYPE=\"password\" NAME=\"c_net_password\" MAXLENGTH=\"19\" VALUE=\"%s\">", buf);
-			wprintf("</TD></TR>\n");
-			break;
+
 		case 17:
 			wprintf("<TR><TD>Default user purge time (days)</TD><TD>");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_userpurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
@@ -183,6 +179,22 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
+		case 27:
+			wprintf("<TR><TD>Allow aides to zap (forget) rooms</TD><TD>");
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_aide_zap\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+			wprintf("</TD></TR>\n");
+			break;
+		case 28:
+			wprintf("<TR><TD>IMAP listener port (-1 to disable)</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_imap_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
+		case 29:
+			wprintf("<TR><TD>Network run frequency (in seconds)</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_net_freq\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
+
 		}
 	}
 
@@ -223,7 +235,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_bbs_city"));
 	serv_printf("%s", bstr("c_sysadm"));
 	serv_printf("%s", bstr("c_maxsessions"));
-	serv_printf("%s", bstr("c_net_password"));
+	serv_printf("");  /* networking password -- deprecated */
 	serv_printf("%s", bstr("c_userpurge"));
 	serv_printf("%s", bstr("c_roompurge"));
 	serv_printf("%s", bstr("c_logpages"));
@@ -233,6 +245,10 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_max_workers"));
 	serv_printf("%s", bstr("c_pop3_port"));
 	serv_printf("%s", bstr("c_smtp_port"));
+	serv_printf("");  /* moderation filter level -- not yet implemented */
+	serv_printf("%s", ((!strcasecmp(bstr("c_aide_zap"), "yes") ? "1" : "0")));
+	serv_printf("%s", bstr("c_imap_port"));
+	serv_printf("%s", bstr("c_net_freq"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }

@@ -1,4 +1,7 @@
 $Log$
+Revision 301.8  2001/11/14 03:20:22  ajc
+* Add some more of the newer config settings to the site config screen
+
 Revision 301.7  2001/09/25 03:34:09  ajc
 * Fix for WebCit servers running on port 80: detect Windoze worm-of-the-week
   and bail out without bothering the Citadel server.
@@ -110,7 +113,7 @@ Revision 213.5  2001/04/01 22:13:37  cough
   creation time.
 
 Revision 213.4  2001/02/15 01:21:55  ajc
-* Applied a patch submitted by "cough" to add who-knows-room and
+* Applied a patch submitted by Andru Luvisi to add who-knows-room and
   invite/kickout functionality.
 
 Revision 213.3  2001/01/25 23:10:00  ajc
@@ -432,7 +435,7 @@ Sun Apr 18 23:42:54 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Reworked a lot of the structure, made more HTML "embeddable"
 	* Changed the noframes mode to display "fake" frames using tables
 
-Thu Apr 16 12:00:00 EDT 1999 Nick Grossman <nicl@ulster.net>
+Thu Apr 16 12:00:00 EDT 1999 Nick Grossman <nick@ulster.net>
 	Changed some output formatting (mainly <FONT> tags).
 	Changed who.c to use urlescputs() rather than escputs()
 	in urls so GOTOs and User Profiles work when the string has a
@@ -628,3 +631,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
