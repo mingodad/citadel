@@ -1,0 +1,3 @@
+# WebCit deals exclusively in dynamic content and cannot be spidered.  Go away.
+User-agent: *
+Disallow: /
