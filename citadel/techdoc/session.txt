@@ -520,6 +520,14 @@ seconds since midnight on January 1, 1970, GMT).
  node=   The short node name of the system this message originated on.
  hnod=   The long node name of the system this message originated on.
  zaps=   The id/node of a message which this one zaps (supersedes).
+
+ part=   Information about a MIME part embedded in this message.
+ pref=   Information about a multipart MIME prefix such as "multipart/mixed"
+         or "multipart/alternative".  This will be output immediately prior
+         to the various "part=" lines which make up the multipart section.
+ suff=   Information about a multipart MIME suffix.  This will be output
+         immediately following the various "part=" lines which make up the
+         multipart section.
  
  text    Note that there is no "=" after the word "text".  This string
 signifies that the message text begins on the next line.

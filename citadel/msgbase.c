@@ -708,6 +708,26 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 		name, filename, partnum, disp, cbtype, (long)length);
 }
 
+/* 
+ * Callback function for multipart prefix
+ */
+void list_this_pref(char *name, char *filename, char *partnum, char *disp,
+		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *cbuserdata)
+{
+	cprintf("pref=%s|%s\n", partnum, cbtype);
+}
+
+/* 
+ * Callback function for multipart sufffix
+ */
+void list_this_suff(char *name, char *filename, char *partnum, char *disp,
+		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *cbuserdata)
+{
+	cprintf("suff=%s|%s\n", partnum, cbtype);
+}
+
 
 /*
  * Callback function for mime parser that opens a section for downloading
@@ -1227,12 +1247,16 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if (mode == MT_CITADEL) {
 			mime_parser(mptr, NULL,
-				*list_this_part, NULL, NULL,
+				*list_this_part,
+				*list_this_pref,
+				*list_this_suff,
 				NULL, 0);
 		}
 		else if (mode == MT_MIME) {	/* list parts only */
 			mime_parser(mptr, NULL,
-				*list_this_part, NULL, NULL,
+				*list_this_part,
+				*list_this_pref,
+				*list_this_suff,
 				NULL, 0);
 			if (do_proto) cprintf("000\n");
 			return(om_ok);
