@@ -1,4 +1,9 @@
 $Log$
+Revision 521.3  2004/06/11 03:15:08  ajc
+* When "Add" is clicked without specifying an upload filename, resume
+  composition instead of aborting the post.
+* Add attachments to messages in forward order, not reverse order
+
 Revision 521.2  2004/06/10 03:08:48  ajc
 * Improved the appearance of tabs in the room config screen
 
@@ -1879,4 +1884,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
