@@ -45,6 +45,9 @@
 #define MAXWORDBUF SIZ
 #define NO_REPLY_TO	"nobody ... xxxxxx"
 
+char reply_to[SIZ];
+char reply_subject[SIZ];
+
 struct cittext {
 	struct cittext *next;
 	char text[MAXWORDBUF];
@@ -359,12 +362,13 @@ int read_message(
 	int fr = 0;
 	int nhdr = 0;
 	struct ctdlipcmessage *message = NULL;
-	char reply_to[SIZ];
-	char reply_subject[SIZ];
 	int r;				/* IPC response code */
 
 	sigcaught = 0;
 	sttybbs(1);
+
+	strcpy(reply_to, NO_REPLY_TO);
+	strcpy(reply_subject, "");
 
 	r = CtdlIPCGetSingleMessage(num, (pagin == READ_HEADER ? 1 : 0), 0,
 				    &message, buf);
@@ -376,9 +380,6 @@ int read_message(
 		sttybbs(0);
 		return (0);
 	}
-
-	strcpy(reply_to, NO_REPLY_TO);
-	strcpy(reply_subject, "");
 
 	if (dest) {
 		fprintf(dest, "\n ");
@@ -943,8 +944,6 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	int mode;
 	long highmsg = 0L;
 	FILE *fp;
-	char reply_to[SIZ];
-	char reply_subject[SIZ];
 	char subject[SIZ];
 
 	if (c > 0)
