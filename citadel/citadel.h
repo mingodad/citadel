@@ -110,10 +110,6 @@ struct usersupp {			/* User record                      */
 	};
 
 
-/* this is a mask for all of the bits the user is allowed to change */
-#define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
-			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | US_FLOORS)
-
 /****************************************************************************
  * This is the control record for the message base... 
  */

@@ -68,8 +68,10 @@ struct CtdlServInfo {
 #define US_PAGINATOR	2048		/* Pause after each screen of text  */
 #define US_INTERNET	4096		/* UUCP/Internet mail privileges    */
 #define US_FLOORS	8192		/* User wants to see floors         */
+#define US_COLOR	16384		/* User wants ANSI color support    */
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
-			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | US_FLOORS)
+			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
+			US_FLOORS | US_COLOR )
 
 void serv_puts(char *buf);
 void serv_gets(char *buf);

@@ -41,6 +41,7 @@ extern char *axdefs[7];
 extern char sigcaught;
 extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
+extern int rc_ansi_color;
 
 int struncmp(char *lstr, char *rstr, int len)
 {
@@ -272,6 +273,10 @@ void enter_config(int mode)
 	 if (rc_floor_mode == RC_DEFAULT) {
 	  flags = set_attr(flags,
 		"View rooms by floor",US_FLOORS);
+	  }
+	 if (rc_ansi_color == 3) {
+	  flags = set_attr(flags,
+		"Enable color support",US_COLOR);
 	  }
 	 }
 

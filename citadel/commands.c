@@ -411,6 +411,8 @@ void load_command_set(void) {
 			rc_ansi_color = 1;
 		if (!strncasecmp(&buf[11], "auto", 4)) 
 			rc_ansi_color = 2;	/* autodetect */
+		if (!strncasecmp(&buf[11], "user", 4)) 
+			rc_ansi_color = 3;	/* user config */
 		}
 
 	    if (!struncmp(buf,"username=",9))
@@ -576,6 +578,12 @@ int getcmd(char *argbuf)
 	int got;
 	int this_lazy_cmd;
 	struct citcmd *cptr;
+
+	/* Switch color support on or off if we're in user mode */
+	if (rc_ansi_color == 3) {
+		if (userflags & US_COLOR) enable_color = 1;
+		else enable_color = 0;
+		}
 
 	/* if we're running in idiot mode, display a cute little menu */
 	IFNEXPERT formout("mainmenu");
@@ -942,32 +950,35 @@ void look_for_ansi(void) {
 	else if (rc_ansi_color == 1) {
 		enable_color = 1;
 		}
+	else if (rc_ansi_color == 2) {
 
-	/* otherwise, do the auto-detect */
+		/* otherwise, do the auto-detect */
 
-	strcpy(abuf, "");
+		strcpy(abuf, "");
 
-	time(&now);
-	if ( (now - AnsiDetect) < 2 ) sleep(1);
+		time(&now);
+		if ( (now - AnsiDetect) < 2 ) sleep(1);
 
-	do {
-		FD_ZERO(&rfds);
-		FD_SET(0,&rfds);
-		tv.tv_sec = 0;
-		tv.tv_usec = 1;
+		do {
+			FD_ZERO(&rfds);
+			FD_SET(0,&rfds);
+			tv.tv_sec = 0;
+			tv.tv_usec = 1;
 
-		select(1, &rfds, NULL, NULL, &tv);
-		if (FD_ISSET(0, &rfds)) {
-			abuf[strlen(abuf)+1] = 0;
-			read(0, &abuf[strlen(abuf)], 1);
-			}
-
-		} while (FD_ISSET(0, &rfds));
-
-	for (a=0; a<strlen(abuf); ++a) {
-		if ( (abuf[a] == 27) && (abuf[a+1] == '[')
-		   && (abuf[a+2] == '?') ) {
-			enable_color = 1;
+			select(1, &rfds, NULL, NULL, &tv);
+			if (FD_ISSET(0, &rfds)) {
+				abuf[strlen(abuf)+1] = 0;
+				read(0, &abuf[strlen(abuf)], 1);
+				}
+	
+			} while (FD_ISSET(0, &rfds));
+	
+		for (a=0; a<strlen(abuf); ++a) {
+			if ( (abuf[a] == 27) && (abuf[a+1] == '[')
+		   	&& (abuf[a+2] == '?') ) {
+				enable_color = 1;
+				}
 			}
 		}
+
 	}

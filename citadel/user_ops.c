@@ -109,18 +109,19 @@ void lputuser(struct usersupp *usbuf, char *name) {
  * Index-generating function used by Ctdl[Get|Set]Relationship
  */
 int GenerateRelationshipIndex(	char *IndexBuf,
-				struct usersupp *rel_user,
-				struct quickroom *rel_room) {
+				long RoomID,
+				long RoomGen,
+				long UserID) {
 
 	struct {
-		long RoomID;
-		long RoomGen;
-		long UserID;
+		long iRoomID;
+		long iRoomGen;
+		long iUserID;
 		} TheIndex;
 
-	TheIndex.RoomID = rel_room->QRnumber;
-	TheIndex.RoomGen = rel_room->QRgen;
-	TheIndex.UserID = rel_user->usernum;
+	TheIndex.iRoomID = RoomID;
+	TheIndex.iRoomGen = RoomGen;
+	TheIndex.iUserID = UserID;
 
 	memcpy(IndexBuf, &TheIndex, sizeof(TheIndex));
 	return(sizeof(TheIndex));
@@ -144,7 +145,10 @@ void CtdlSetRelationship(struct visit *newvisit,
         newvisit->v_usernum = rel_user->usernum;
 
 	/* Generate an index */
-	IndexLen = GenerateRelationshipIndex(IndexBuf, rel_user, rel_room);
+	IndexLen = GenerateRelationshipIndex(IndexBuf,
+		rel_room->QRnumber,
+		rel_room->QRgen,
+		rel_user->usernum);
 
 	/* Store the record */
 	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
@@ -164,7 +168,10 @@ void CtdlGetRelationship(struct visit *vbuf,
 	struct cdbdata *cdbvisit;
 
 	/* Generate an index */
-	IndexLen = GenerateRelationshipIndex(IndexBuf, rel_user, rel_room);
+	IndexLen = GenerateRelationshipIndex(IndexBuf,
+		rel_room->QRnumber,
+		rel_room->QRgen,
+		rel_user->usernum);
 
 	/* Clear out the buffer */
 	bzero(vbuf, sizeof(struct visit));
