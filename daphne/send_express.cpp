@@ -168,9 +168,10 @@ SendExpress::SendExpress(	CitClient *sock,
 		ToWhom->Append(touser);
 		ToWhom->SetSelection(0, TRUE);
 	} else {
-		while (pos = xferbuf.Find('\n', FALSE),  (pos >= 0) ) {
-			buf = xferbuf.Left(pos);
-			xferbuf = xferbuf.Mid(pos+1);
+		wxStringTokenizer *wl =
+			new wxStringTokenizer(xferbuf, "\n", FALSE);
+		while (wl->HasMoreToken()) {
+			buf = wl->NextToken();
                 	extract(user, buf, 1);
 			ToWhom->Append(user);
 		}

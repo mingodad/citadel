@@ -90,14 +90,15 @@ void who::LoadWholist(void) {
 	wxString rwho;
 	int i, pos;
 	wxString sess, user, room, host;
+	wxStringTokenizer *wl;
 
 	sendcmd = "RWHO";
 	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 1) return;
 	wholist->DeleteAllItems();
 
-	while (pos = rwho.Find('\n', FALSE), (pos >= 0)) {
-		buf = rwho.Left(pos);
-		rwho = rwho.Mid(pos+1);
+	wl = new wxStringTokenizer(rwho, "\n", FALSE);
+	while (wl->HasMoreToken()) {
+		buf = wl->NextToken();
 		extract(sess, buf, 0);
 		extract(user, buf, 1);
 		extract(room, buf, 2);
