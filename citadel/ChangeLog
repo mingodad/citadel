@@ -1,3 +1,6 @@
+Mon Aug 24 00:45:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added a CtdlGotoRoom() function to the CitadelAPI.
+ 
 Sun Aug 23 21:47:00 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysoputil is finally dead!  Removed it from the build.
 	* Added userpurge.c server extension (initial implementation)

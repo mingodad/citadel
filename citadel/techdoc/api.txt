@@ -132,3 +132,21 @@ a user number which already exists, or which has not yet been assigned.
 on the system; the single argument passed to the function will be the name of
 the user being processed.
 
+ 
+ 
+ 
+  ROOM FUNCTIONS
+  --------------
+ 
+  extern struct CtdlRoomInfo CtdlCurrentRoom;
+ 
+  This structure contains information about the current room.
+ 
+ 
+ 
+ int CtdlGotoRoom(char *RoomName)
+ 
+ Goto any room to which the extension has access.  An extension with
+administrative or privileged access may enter any room on the system.  An
+extension running in the context of an ordinary user may enter any room to
+which the user has access.

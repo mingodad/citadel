@@ -19,6 +19,7 @@ struct CtdlInternalList {
 
 struct CtdlServerHandle CtdlAppHandle;
 struct CtdlServInfo CtdlAppServInfo;
+struct CtdlRoomInfo CtdlCurrentRoom;
 int CtdlErrno = 0;
 
 void logoff(int exitcode) {
@@ -78,7 +79,7 @@ void CtdlInternalExtract(char *dest, char *source, int parmnum)
 	}
 
 /*
- * CtdlInternalExtractInt()  -  CtdlInternalExtract an int parm w/o supplying a buffer
+ * CtdlInternalExtractInt()  -  Extract an int parm w/o supplying a buffer
  */
 int CtdlInternalExtractInt(char *source, int parmnum)
 {
@@ -89,7 +90,7 @@ int CtdlInternalExtractInt(char *source, int parmnum)
 	}
 
 /*
- * CtdlInternalExtractLong()  -  CtdlInternalExtract an long parm w/o supplying a buffer
+ * CtdlInternalExtractLong()  -  Extract an long parm w/o supplying a buffer
  */
 long CtdlInternalExtractLong(char *source, long int parmnum)
 {
@@ -139,9 +140,11 @@ main(int argc, char *argv[])
 	if (argc < 3) exit(1);
 
 	/* Zeroing out the server handle neatly sets the values of
-	 * CtdlAppHandle to sane default values
+	 * CtdlAppHandle to sane default values.  This also holds true
+	 * for the CtdlCurrentRoom.
 	 */
 	bzero(&CtdlAppHandle, sizeof(struct CtdlServerHandle));
+	bzero(&CtdlCurrentRoom, sizeof(struct CtdlRoomInfo));
 
 	/* Now parse the command-line arguments fed to us by the server */
 	for (a=0; a<argc; ++a) switch(a) {
@@ -190,12 +193,8 @@ main(int argc, char *argv[])
 		serv_gets(buf);
 		}
 
-	sprintf(buf, "GOTO %s", CtdlAppHandle.InitialRoom);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		serv_puts("GOTO _BASEROOM_");
-		serv_gets(buf);
+	if (CtdlGotoRoom(CtdlAppHandle.InitialRoom) != 0) {
+		CtdlGotoRoom("_BASEROOM_");
 		}
 
 	/* Now do the loop. */
@@ -398,4 +397,22 @@ int CtdlForEachUser(int (*CallBack)(char *EachUser))  {
 		}
 
 	return(0);
+	}
+
+
+
+/*
+ * Goto a different room
+ */
+int CtdlGotoRoom(char *RoomName) {
+	char buf[256];
+
+	sprintf(buf, "GOTO %s", RoomName);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		CtdlErrno = atoi(buf);
+		return(CtdlErrno);
+		}
+	extract(&CtdlCurrentRoom.RoomName, &buf[4], 0);
 	}

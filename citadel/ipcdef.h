@@ -83,3 +83,6 @@ struct CtdlServerHandle {
 	int AssocClientSession;
 	};
 
+struct CtdlRoomInfo {
+	char RoomName[32];
+	};
