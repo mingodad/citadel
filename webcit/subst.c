@@ -183,7 +183,7 @@ void do_template(void *templatename) {
 				strcpy(inbuf, "");
 			}
 			else {
-				safestrncpy(outbuf, inbuf, pos);
+				strncpy(outbuf, inbuf, pos);
 				outbuf[pos] = 0;
 				wprintf("%s", outbuf);
 				strcpy(inbuf, &inbuf[pos]);
@@ -191,7 +191,7 @@ void do_template(void *templatename) {
 				for (i=strlen(inbuf); i>=0; --i) {
 					if (inbuf[i]=='>') pos = i;
 				}
-				safestrncpy(key, &inbuf[2], pos-2);
+				strncpy(key, &inbuf[2], pos-2);
 				key[pos-2] = 0;
 				print_value_of(key);
 				strcpy(inbuf, &inbuf[pos+1]);
