@@ -1,4 +1,7 @@
  $Log$
+ Revision 621.5  2004/06/03 02:28:16  ajc
+ * citadel_ipc.c: SETR command was missing defaultview and flags2.  Added.
+
  Revision 621.4  2004/05/31 15:19:14  ajc
  * Reworked the security checks for move/copy commands.  Theoretically it's
    performing all the same checks, but the code is far more readable.
@@ -5804,4 +5807,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

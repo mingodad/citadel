@@ -776,12 +776,13 @@ int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct ctdlroom *qret, ch
 	if (!qret) return -2;
 
 	aaa = (char *)malloc(strlen(qret->QRname) + strlen(qret->QRpasswd) +
-			strlen(qret->QRdirname) + 52);
+			strlen(qret->QRdirname) + 64);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "SETR %s|%s|%s|%d|%d|%d|%d",
+	sprintf(aaa, "SETR %s|%s|%s|%d|%d|%d|%d|%d|%d",
 			qret->QRname, qret->QRpasswd, qret->QRdirname,
-			qret->QRflags, forget, qret->QRfloor, qret->QRorder);
+			qret->QRflags, forget, qret->QRfloor, qret->QRorder,
+			qret->QRdefaultview, qret->QRflags2);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
 	return ret;
