@@ -69,9 +69,11 @@ void groupdav_get(char *dav_pathname) {
 	}
 
 	dav_msgnum = locate_message_by_uid(dav_uid);
+	lprintf(9, "* That maps to msgnum %ld\n", dav_msgnum);
 	serv_printf("MSG2 %ld", dav_msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
+		lprintf(9, "* and it was not found.\n");
 		wprintf("HTTP/1.1 404 not found\n");
 		groupdav_common_headers();
 		wprintf(
@@ -84,6 +86,7 @@ void groupdav_get(char *dav_pathname) {
 		return;
 	}
 
+	lprintf(9, "* and it was retrieved successfully.\n");
 	wprintf("HTTP/1.1 200 OK\n");
 	groupdav_common_headers();
 	wprintf("ETag: \"%ld\"\n", dav_msgnum);

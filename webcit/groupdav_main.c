@@ -38,6 +38,58 @@ void groupdav_common_headers(void) {
 }
 
 
+
+/*
+ * string conversion function
+ */
+void euid_escapize(char *target, char *source) {
+	int i;
+	int target_length = 0;
+
+	strcpy(target, "");
+	for (i=0; i<strlen(source); ++i) {
+		if (isalnum(source[i])) {
+			target[target_length] = source[i];
+			target[++target_length] = 0;
+		}
+		else {
+			sprintf(&target[target_length], "_%02X", source[i]);
+			target_length += 3;
+		}
+	}
+}
+
+/*
+ * string conversion function
+ */
+void euid_unescapize(char *target, char *source) {
+	int a, b;
+	char hex[3];
+	int target_length = 0;
+
+	strcpy(target, "");
+
+	for (a = 0; a < strlen(source); ++a) {
+		if (source[a] == '_') {
+			hex[0] = source[a + 1];
+			hex[1] = source[a + 2];
+			hex[2] = 0;
+			b = 0;
+			sscanf(hex, "%02x", &b);
+			target[target_length] = b;
+			target[++target_length] = 0;
+			a += 2;
+		}
+		else {
+			target[target_length] = source[a];
+			target[++target_length] = 0;
+		}
+	}
+}
+
+
+
+
 /*
  * Main entry point for GroupDAV requests
  */
