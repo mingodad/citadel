@@ -42,6 +42,16 @@
 #include "citserver.h"
 #include "msgbase.h"
 
+/*
+ * Contact list in memory
+ */
+struct CtdlICQ_CL {
+	DWORD uin;
+	char name[32];
+	DWORD status;
+};
+
+
 struct ctdl_icq_handle {
 	int icq_Sok;
 	BOOL icq_Russian;
@@ -66,6 +76,8 @@ struct ctdl_icq_handle {
 	WORD icq_ProxyOurPort;
 	time_t icq_LastKeepAlive;	/* ig */
 	char icq_config[256];		/* ig */
+	struct CtdlICQ_CL *icq_cl;	/* ig */
+	int icq_numcl;			/* ig */
 };
 
 /* <ig> */
@@ -75,14 +87,17 @@ struct ctdl_icq_handle {
  */
 #define ICQROOM		"My ICQ Config"
 
-/* MIME type to use for storing a user's ICQ uin, password, etc. */
-#define ICQMIME		"application/x-citadel-icq"
+/* MIME types to use for storing ICQ stuff */
+#define ICQMIME		"application/x-citadel-icq"	/* configuration */
+#define ICQCLMIME	"application/x-citadel-icq-cl"	/* contact list */
 
 /* Citadel server TSD symbol for use by serv_icq */
 unsigned long SYM_CTDL_ICQ;
 #define ThisICQ ((struct ctdl_icq_handle *)CtdlGetUserData(SYM_CTDL_ICQ))
 
 extern struct CitContext *ContextList;
+
+
 /* </ig> */
 
 void (*icq_Logged) (void);
@@ -1839,25 +1854,125 @@ void CtdlICQ_Write_Config(void) {
 
 
 
+
+
+/*
+ * Write our contact list to disk
+ */
+void CtdlICQ_Write_CL(void) {
+	char temp[PATH_MAX];
+	FILE *fp;
+	int i;
+
+	strcpy(temp, tmpnam(NULL));
+
+	fp = fopen(temp, "w");
+	if (fp == NULL) return;
+
+	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
+		fprintf(fp, "%ld|%s|\n",
+			ThisICQ->icq_cl[i].uin,
+			ThisICQ->icq_cl[i].name);
+	}
+	fclose(fp);
+
+	/* this handy API function does all the work for us */
+	CtdlWriteObject(ICQROOM, ICQCLMIME, temp, 1, 0, 1);
+
+	unlink(temp);
+}
+
+
+
+
+
+/*
+ * Callback function for CtdlICQ_Read_CL()
+ */
+void CtdlICQ_Read_CL_Backend(long msgnum) {
+	struct CtdlMessage *msg;
+	int pos;
+	char *ptr, *cont;
+	int i;
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg != NULL) {
+		ptr = msg->cm_fields['M'];
+		pos = pattern2(ptr, "\n\n");
+		if (pos >= 0) {
+			while (pos > 0) {
+				++ptr;
+				--pos;
+			}
+			++ptr;
+			++ptr;
+			for (i=0; i<strlen(ptr); ++i)
+				if (ptr[i]=='\n') ++ThisICQ->icq_numcl;
+			if (ThisICQ->icq_numcl) {
+				ThisICQ->icq_cl = mallok(
+			  		(ThisICQ->icq_numcl *
+					sizeof (struct CtdlICQ_CL)));
+				i=0;
+				while (cont=strtok(ptr, "\n"), cont != NULL) {
+					ThisICQ->icq_cl[i].uin =
+						extract_long(cont, 0);
+					extract(ThisICQ->icq_cl[i].name,
+						cont, 1);
+					ThisICQ->icq_cl[i].status =
+						STATUS_OFFLINE;
+					++i;
+				}
+			}
+		}
+		CtdlFreeMessage(msg);
+	}
+}
+
+
+/*
+ * Read contact list into memory
+ */
+void CtdlICQ_Read_CL(void) {
+	char hold_rm[ROOMNAMELEN];
+	char icq_rm[ROOMNAMELEN];
+	
+	strcpy(hold_rm, CC->quickroom.QRname);
+	MailboxName(icq_rm, &CC->usersupp, ICQROOM);
+	strcpy(ThisICQ->icq_config, "");
+
+	if (getroom(&CC->quickroom, icq_rm) != 0) {
+		getroom(&CC->quickroom, hold_rm);
+		return;
+	}
+
+	/* Free any contact list already in memory */
+	if (ThisICQ->icq_numcl) {
+		phree(ThisICQ->icq_cl);
+		ThisICQ->icq_numcl = 0;
+	}
+
+	/* We want the last (and probably only) list in this room */
+	CtdlForEachMessage(MSGS_LAST, 1, ICQMIME, CtdlICQ_Read_CL_Backend);
+	getroom(&CC->quickroom, hold_rm);
+}
+
+
+
 /*
  * Refresh the contact list
  */
 void CtdlICQ_Refresh_Contact_List(void) {
-	char buf[256];
-	long contact_uin;
+	int i;
 
 	if (ThisICQ->icq_Sok < 0) return;
-
 	icq_ContClear();
 
-	/* FIX
-		if (contact_uin > 0L) {
-			icq_ContAddUser(contact_uin);
-			icq_ContSetVis(contact_uin);
+	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
+		if (ThisICQ->icq_cl[i] > 0L) {
+			icq_ContAddUser(ThisICQ->icq_cl[i]);
+			icq_ContSetVis(ThisICQ->icq_cl[i]);
 		}
 	}
-	*/
-
 
 	icq_SendContactList();
 }
@@ -1961,6 +2076,12 @@ void CtdlICQ_session_logout_hook(void)
 {
 	lprintf(9, "Shutting down ICQ\n");
 	CtdlICQ_Logout_If_Connected();
+
+	/* Free the memory used by the contact list */
+	if (ThisICQ->icq_numcl) {
+		phree(ThisICQ->icq_cl);
+		ThisICQ->icq_numcl = 0;
+	}
 }
 
 
@@ -1998,13 +2119,13 @@ void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
 	int num_delivered;
 
 	sprintf(from, "%ld@icq", uin);
-	num_delivered = PerformXmsgHooks(from, CC->curr_user, msg);
+	num_delivered = PerformXmsgHooks(from, CC->curr_user, (char *)msg);
 	lprintf(9, "Delivered to %d users\n", num_delivered);
 }
 
 
 
-CtdlICQ_InfoReply(unsigned long uin, const char *nick,
+void CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 		const char *first, const char *last,
 		const char *email, char auth) {
 
@@ -2054,6 +2175,7 @@ char *Dynamic_Module_Init(void)
 	icq_Log = CtdlICQlog;
 	icq_RecvMessage = CtdlICQ_Incoming_Message;
 	icq_InfoReply = CtdlICQ_InfoReply;
+	icq_Disconnected = CtdlICQ_Login_If_Possible;
 
 	return "$Id$";
 }
