@@ -3,6 +3,7 @@ void master_startup (void);
 void master_cleanup (void);
 void cleanup_stuff (void *arg);
 void set_wtmpsupp (char *newtext);
+void set_wtmpsupp_to_current_room(void);
 void cmd_info (void);
 void cmd_rchg (char *newroomname);
 void cmd_hchg (char *newhostname);

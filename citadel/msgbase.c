@@ -848,6 +848,7 @@ void make_message(
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
 
+
 	/* If net_type is M_BINARY, split out the destination node. */
 	if (net_type == M_BINARY) {
 		strcpy(dest_node,NODENAME);
@@ -878,7 +879,14 @@ void make_message(
 	   fprintf(fp,"A%s%c",fake_name,0);
 	else
  	   fprintf(fp,"A%s%c",author->fullname,0); 	/* author */
-	fprintf(fp,"O%s%c",CC->quickroom.QRname,0); 	/* room */
+
+	if (CC->quickroom.QRflags & QR_MAILBOX) {	/* room */
+		fprintf(fp,"O%s%c", &CC->quickroom.QRname[11], 0);
+		}
+	else {
+		fprintf(fp,"O%s%c",CC->quickroom.QRname,0);
+		}
+
 	fprintf(fp,"N%s%c",NODENAME,0); 		/* nodename */
 	fprintf(fp,"H%s%c",HUMANNODE,0); 		/* human nodename */
 

@@ -232,12 +232,15 @@ void PurgeStaleRelationships(void) {
 		else {
 			purge = 0;
 			}
+
+		/*
 		lprintf(9, "U/R REL: <%s> <%ld> <%ld> <%d> %s\n",
 			visits[a].v_roomname,
 			visits[a].v_generation,
 			visits[a].v_lastseen,
 			visits[a].v_flags,
 			(purge ? "**purging**" : "") );
+		*/
 
 		if (purge) {
 			memcpy(&visits[a], &visits[a+1],

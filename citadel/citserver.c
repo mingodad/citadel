@@ -146,6 +146,23 @@ void set_wtmpsupp(char *newtext)
 
 
 /*
+ * call set_wtmpsupp() with the name of the current room, modified a bit...
+ */
+void set_wtmpsupp_to_current_room() {
+	if (CC->quickroom.QRflags & QR_PRIVATE) {
+		set_wtmpsupp("<private room>");
+		}
+	else if (CC->quickroom.QRflags & QR_MAILBOX) {
+		set_wtmpsupp(&CC->quickroom.QRname[11]);
+		}
+	else {
+		set_wtmpsupp(CC->quickroom.QRname);
+		}
+	}
+
+
+
+/*
  * cmd_info()  -  tell the client about this server
  */
 void cmd_info(void) {
@@ -297,7 +314,7 @@ void cmd_iden(char *argbuf)
 	   	strncpy(CC->cs_host,from_host,24);
 		CC->cs_host[24] = 0;
 		}
-	set_wtmpsupp(CC->quickroom.QRname);
+	set_wtmpsupp_to_current_room();
 
 	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",
 		dev_code,
@@ -339,7 +356,7 @@ void cmd_stel(char *cmdbuf)
 			CC->cs_flags = CC->cs_flags|CS_STEALTH;
 		}
 
-	set_wtmpsupp(CC->quickroom.QRname);
+	set_wtmpsupp_to_current_room();
 	cprintf("%d Ok\n",OK);
 	}
 

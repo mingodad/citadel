@@ -1,5 +1,7 @@
 Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citserver.c: slight changes to cmd_rchg() and cmd_hchg() [crashes]
+	* citserver.c, msgbase.c, user_ops.c: hide the owner-prefix of mail
+	  rooms in a couple more places: set_wtmpsupp() and make_message()
 
 1998-11-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_upgrade.c: fix uninitialized variable

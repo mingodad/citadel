@@ -372,7 +372,7 @@ void do_citmail(char recp[], int dtype) {
 		strcpy(recp, "");
 		}
 	else {
-		strcpy(targetroom, "Mail");
+		strcpy(targetroom, MAILROOM);
 		}
 
 	time(&now);
@@ -404,7 +404,7 @@ void do_citmail(char recp[], int dtype) {
 		fprintf(temp, "O%s%c", targetroom, 0);
 		}
 	else {
-		fprintf(temp, "OMail%c", 0);
+		fprintf(temp, "O%s%c", MAILROOM, 0);
 		}
 
 	fprintf(temp,"N%s%c", nodebuf, 0);
