@@ -203,12 +203,11 @@ void gotoroom(char *gname, int display_name)
 	printf("Window-target: top\n");
 	output_headers(0);
 
-        wprintf("<HTML><HEAD>\n");
+        wprintf("<HTML><HEAD></HEAD><BODY \n");
 
 	/* automatically fire up a read-new-msgs in the bottom frame */
-	wprintf("<META HTTP-EQUIV=\"Refresh\" CONTENT=\"0;URL=/readnew\">\n");
+	if (display_name) wprintf("onload=location=\"/readnew\" ");
 
-        wprintf("</HEAD><BODY ");
         wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
 	if (display_name != 2) {
