@@ -93,7 +93,7 @@ char floor_mode;
 char curr_floor = 0;		/* number of current floor */
 char floorlist[128][256];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
-volatile int termn8 = 0;	/* Set to nonzero to cause a logoff */
+int termn8 = 0;			/* Set to nonzero to cause a logoff */
 
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 
@@ -1503,11 +1503,13 @@ PWOK:
 			}	/* end switch */
 	} while (termn8 == 0);
 
-      TERMN8:printf("%s logged out.\n", fullname);
-	while (march != NULL)
+TERMN8:	printf("%s logged out.\n", fullname);
+	while (march != NULL) {
 		remove_march(march->march_name, 0);
-	if (mcmd == 30)
+	}
+	if (mcmd == 30) {
 		printf("\n\nType 'off' to hang up, or next user...\n");
+	}
 	snprintf(aaa, sizeof aaa, "LOUT");
 	serv_puts(aaa);
 	serv_gets(aaa);
@@ -1517,4 +1519,4 @@ PWOK:
 	}
 	goto GSTA;
 
-}				/* end main() */
+}	/* end main() */

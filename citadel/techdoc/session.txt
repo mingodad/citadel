@@ -1483,6 +1483,8 @@ of the session to be terminated.
 a client program is prohibited from terminating the session it is currently
 running on.
  
+ See also: REQT
+ 
  
  NSET   (Network SETup commands)
  
@@ -1788,3 +1790,25 @@ exist in the current room, or if the specified moderation level is not within
 acceptable limits, ERROR+ILLEGAL_VALUE is returned.  This command requires at
 least Room Aide access; if the calling user is not an Aide, or a Room Aide for
 the current room, ERROR+HIGHER_ACCESS_REQUIRED is returned.
+ 
+ 
+ REQT   (REQuest client Termination)
+ 
+ Request that the specified client (or all clients) log off.  Aide level
+access is required to run this command, otherwise ERROR+HIGHER_ACCESS_REQUIRED
+is returned.
+ 
+ The REQT command accepts one parameter: the session ID of the client which
+should be terminated, or 0 for all clients.  When successful, the REQT command
+returns OK.
+ 
+ It should be noted that REQT simply transmits an express message to the
+specified client(s) with the EM_GO_AWAY flag set.  Older clients do not honor
+this flag, and it is certainly possible for users to re-program their client
+software to ignore it.  Therefore the effects of the REQT command should be
+considered advisory only.  The recommended implementation practice is to first
+issue a REQT command, then wait a little while (from 30 seconds up to a few
+minutes) for well-behaved clients to voluntarily terminate, and then issue a
+TERM command to forcibly disconnect the client (or perhaps a DOWN command, if
+you are logging off users for the purpose of shutting down the server).
+

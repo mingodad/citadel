@@ -215,6 +215,12 @@ void print_express(void)
 		extract(node, &buf[4], 4);
 	
 		stamp = localtime(&timestamp);
+
+		/* If the page is a Logoff Request, honor it. */
+		if (flags & 2) {
+			termn8 = 1;
+			return;
+		}
 	
 		if (strlen(rc_exp_cmd) > 0) {
 			outpipe = popen(rc_exp_cmd, "w");
@@ -293,10 +299,6 @@ void print_express(void)
 	printf("\n---\n");
 	color(BRIGHT_WHITE);
 
-	/* If the page is a Logoff Request, honor it. */
-	if (flags & 2) {
-		termn8 = 1;
-	}
 
 }
 

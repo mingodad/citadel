@@ -444,6 +444,28 @@ void cmd_gexp(char *argbuf) {
 }
 
 
+/*
+ * Back end support function for send_express_message() and company
+ */
+void add_xmsg_to_context(struct CitContext *ccptr, 
+			struct ExpressMessage *newmsg) 
+{
+	struct ExpressMessage *findend;
+
+	if (ccptr->FirstExpressMessage == NULL) {
+		ccptr->FirstExpressMessage = newmsg;
+	}
+	else {
+		findend = ccptr->FirstExpressMessage;
+		while (findend->next != NULL) {
+			findend = findend->next;
+		}
+		findend->next = newmsg;
+	}
+}
+
+
+
 
 /* 
  * This is the back end to the express message sending function.  
@@ -455,7 +477,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	int message_sent = 0;		/* number of successful sends */
 
 	struct CitContext *ccptr;
-	struct ExpressMessage *newmsg, *findend;
+	struct ExpressMessage *newmsg;
 	char *un;
 	size_t msglen = 0;
 	int do_send = 0;		/* set to 1 to actually page, not
@@ -495,17 +517,9 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					    sizeof newmsg->sender);
 				if (!strcasecmp(x_user, "broadcast"))
 					newmsg->flags |= EM_BROADCAST;
-				newmsg->text = mallok(msglen);
-				safestrncpy(newmsg->text, x_msg, msglen);
+				newmsg->text = strdoop(x_msg);
 
-				if (ccptr->FirstExpressMessage == NULL)
-					ccptr->FirstExpressMessage = newmsg;
-				else {
-					findend = ccptr->FirstExpressMessage;
-					while (findend->next != NULL)
-						findend = findend->next;
-					findend->next = newmsg;
-				}
+				add_xmsg_to_context(ccptr, newmsg);
 
 				/* and log it ... */
 				if (ccptr != CC) {
@@ -658,6 +672,40 @@ void cmd_dexp(char *argbuf)
 	}
 
 
+/*
+ * Request client termination
+ */
+void cmd_reqt(char *argbuf) {
+	struct CitContext *ccptr;
+	int sessions = 0;
+	int which_session;
+	struct ExpressMessage *newmsg;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+	which_session = extract_int(argbuf, 0);
+
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if ((ccptr->cs_pid == which_session) || (which_session == 0)) {
+
+			newmsg = (struct ExpressMessage *)
+				mallok(sizeof (struct ExpressMessage));
+			memset(newmsg, 0,
+				sizeof (struct ExpressMessage));
+			time(&(newmsg->timestamp));
+			safestrncpy(newmsg->sender, CC->usersupp.fullname,
+				    sizeof newmsg->sender);
+			newmsg->flags |= EM_GO_AWAY;
+			newmsg->text = strdoop("Automatic logoff requested.");
+
+			add_xmsg_to_context(ccptr, newmsg);
+			++sessions;
+
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+	cprintf("%d Sent termination request to %d sessions.\n", OK, sessions);
+}
 
 
 
@@ -668,6 +716,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable express messages");
+	CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
 	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
 	return "$Id$";
