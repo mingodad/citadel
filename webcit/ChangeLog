@@ -1,4 +1,10 @@
 $Log$
+Revision 400.47  2002/11/12 05:57:27  ajc
+* Display a nicer looking screen when replying to calendar invitations
+* When displaying day view, don't show all day events twice
+* Day or month view: denote all day events by displaying them inside
+  a grey box.
+
 Revision 400.46  2002/11/12 03:26:39  ajc
 * Tell the user about broken Citadel server connections instead of
   simply printing "Goodbye"
@@ -1098,3 +1104,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
