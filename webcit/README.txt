@@ -61,11 +61,11 @@ any reason.  Open /etc/inittab and add an entry something like this:
  Several command-line options are also available.  Here's the usage for
 the "webserver" program:
   
- webserver [-p localport] [-t tracefile] [remotehost [remoteport]]
+ webserver [-p localport] [-t tracefile] [-c] [remotehost [remoteport]]
  
    *or*
  
- webserver [-p localport] [-t tracefile] uds /your/citadel/directory
+ webserver [-p localport] [-t tracefile] [-c] uds /your/citadel/directory
  
  Explained: 
   
@@ -76,6 +76,13 @@ the "webserver" program:
  
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
+ 
+  -> The "-c" option causes WebCit to output an extra cookie containing the
+     identity of the WebCit server.  The cookie will look like this:
+       Set-cookie: wcserver=your.host.name
+     This is useful if you have a cluster of WebCit servers sitting behind a
+     load balancer, and the load balancer has the ability to use cookies to
+     keep track of which server to send HTTP requests to.
  
   -> remotehost: the name or IP address of the host on which your Citadel/UX
      server is running.  The default is "localhost".  (NOTE: if you run
