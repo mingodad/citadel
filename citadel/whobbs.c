@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "citadel.h"
-
-void attach_to_server(int argc, char **argv);
+#include "ipc.h"
 
 /*
  * num_parms()  -  discover number of parameters...
