@@ -1,4 +1,7 @@
  $Log$
+ Revision 621.0  2004/05/21 01:58:16  ajc
+ * THIS IS 6.21
+
  Revision 620.35  2004/05/20 16:14:08  ajc
  * Changed internal version number to 6.21
  * Added missing VIEW_* defines in citadel.h (they're used only by WebCit
@@ -5785,3 +5788,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
