@@ -192,6 +192,7 @@ void mime_decode(char *partnum,
 			}
 		return;
 	}
+	
 	if ((strcasecmp(encoding, "base64"))
 	    && (strcasecmp(encoding, "quoted-printable"))) {
 		lprintf(9, "ERROR: unknown MIME encoding '%s'\n", encoding);
@@ -201,22 +202,26 @@ void mime_decode(char *partnum,
 	 * Allocate a buffer for the decoded data.  The output buffer is the
 	 * same size as the input buffer; this assumes that the decoded data
 	 * will never be larger than the encoded data.  This is a safe
-	 * assumption with base64, uuencode, and quoted-printable.  Just to
-	 * be safe, we still pad the buffer a bit.
+	 * assumption with base64, uuencode, and quoted-printable.
 	 */
-	decoded = mallok(length + 1024);
+	lprintf(9, "About to allocate %d bytes for decoded part\n",
+		length+2048);
+	decoded = mallok(length+2048);
 	if (decoded == NULL) {
 		lprintf(9, "ERROR: cannot allocate memory.\n");
 		return;
 	}
+	lprintf(9, "Got it!\n");
 
+	lprintf(9, "Decoding %s\n", encoding);
 	if (!strcasecmp(encoding, "base64")) {
-		bytes_decoded = decode_base64(decoded, part_start);
+		bytes_decoded = decode_base64(decoded, part_start, length);
 	}
 	else if (!strcasecmp(encoding, "quoted-printable")) {
 		bytes_decoded = decode_quoted_printable(decoded,
 							part_start, length);
 	}
+	lprintf(9, "Bytes decoded: %d\n", bytes_decoded);
 
 	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),

@@ -245,10 +245,11 @@ void encode_base64(char *dest, char *source)
 
 /* 
  * Convert base64-encoded to binary.  Returns the length of the decoded data.
+ * It will stop after reading 'length' bytes.
  */
-int decode_base64(char *dest, char *source)
+int decode_base64(char *dest, char *source, size_t length)
 {
-    int i;
+    int i, c;
     int dpos = 0;
     int spos = 0;
 
@@ -273,7 +274,10 @@ int decode_base64(char *dest, char *source)
 	byte a[4], b[4], o[3];
 
 	for (i = 0; i < 4; i++) {
-	    int c = source[spos++];
+	    if (spos >= length) {
+		return(dpos);
+	    }
+	    c = source[spos++];
 
 	    if (c == 0) {
 		if (i > 0) {

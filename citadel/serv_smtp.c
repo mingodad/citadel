@@ -158,7 +158,7 @@ void smtp_get_user(char *argbuf) {
 	char buf[SIZ];
 	char username[SIZ];
 
-	decode_base64(username, argbuf);
+	decode_base64(username, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", username);
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		encode_base64(buf, "Password:");
@@ -178,7 +178,7 @@ void smtp_get_user(char *argbuf) {
 void smtp_get_pass(char *argbuf) {
 	char password[SIZ];
 
-	decode_base64(password, argbuf);
+	decode_base64(password, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
 		cprintf("235 Authentication successful.\r\n");

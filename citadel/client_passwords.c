@@ -56,7 +56,7 @@ void get_stored_password(
 	fp = fopen(pwfile, "r");
 	if (fp == NULL) return;
 	while (fgets(buf64, sizeof buf64, fp) != NULL) {
-		decode_base64(buf, buf64);
+		decode_base64(buf, buf64, sizeof(buf64));
 		extract(hostbuf, buf, 0);
 		extract(portbuf, buf, 1);
 		extract(ubuf, buf, 2);
@@ -97,7 +97,7 @@ void set_stored_password(
 	fp = fopen(pwfile, "w");
 	if (fp == NULL) fp = fopen("/dev/null", "w");
 	while (fgets(buf64, sizeof buf64, oldfp) != NULL) {
-		decode_base64(buf, buf64);
+		decode_base64(buf, buf64, sizeof(buf64));
 		extract(hostbuf, buf, 0);
 		extract(portbuf, buf, 1);
 		extract(ubuf, buf, 2);
