@@ -29,6 +29,7 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "user_ops.h"
+#include "room_ops.h"
 #include "parsedate.h"
 
 
@@ -241,6 +242,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char node[256];
 	char name[256];
 	struct quickroom qrbuf;
+	int i;
 
 	/* Split it up */
 	process_rfc822_addr(source, user, node, name);
@@ -258,8 +260,15 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	 */
 	if (!strcasecmp(node, config.c_nodename)) {
 		/* Try all local rooms */
-		if (!strncasecmp(destuser, "room_", 5)) {
-			/* FIX do this here */
+		if (!strncasecmp(user, "room_", 5)) {
+			strcpy(name, &user[5]);
+			for (i=0; i<strlen(name); ++i) 
+				if (name[i]=='_') name[i]=' ';
+			if (getroom(&qrbuf, name) == 0) {
+				strcpy(destuser, qrbuf.QRname);
+				strcpy(desthost, config.c_nodename);
+				return rfc822_room_delivery;
+			}
 		}
 
 		/* Try all local users */

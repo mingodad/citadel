@@ -369,6 +369,16 @@ void smtp_rcpt(char *argbuf) {
 			strcat(SMTP_RECP, "|0\n");
 			return;
 
+		case rfc822_room_delivery:
+			cprintf("250 Delivering to room '%s'\n", user);
+			++SMTP->number_of_recipients;
+			CtdlReallocUserData(SYM_SMTP_RECP,
+				strlen(SMTP_RECP) + 1024 );
+			strcat(SMTP_RECP, "room|");
+			strcat(SMTP_RECP, user);
+			strcat(SMTP_RECP, "|0\n");
+			return;
+
 		case rfc822_no_such_user:
 			cprintf("550 %s: no such user\n", recp);
 			return;
@@ -452,6 +462,13 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 			else {
 				++failed_saves;
 			}
+		}
+
+		/* Delivery to local non-mailbox rooms */
+		if (!strcasecmp(dtype, "room")) {
+			extract(room, buf, 1);
+			CtdlSaveMsgPointerInRoom(room, msgid, 0);
+			++successful_saves;
 		}
 
 		/* Remote delivery */
