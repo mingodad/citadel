@@ -15,6 +15,10 @@
 #endif
 #include <syslog.h>
 #include <dlfcn.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -247,6 +251,26 @@ void cmd_time(void)
 }
 
 /*
+ * Check whether two hostnames match.
+ * "Realname" should be an actual name of a client that is trying to connect;
+ * "testname" should be the value we are comparing it with. The idea is that we
+ * want to compare with both the abbreviated and fully-qualified versions of
+ * "testname;" some people define "localhost" as "localhost.foo.com," etc.
+ */
+static int hostnames_match(const char *realname, const char *testname) {
+	struct hostent *he;
+
+	if (!strcasecmp(realname, testname))
+		return 1;
+
+	if ((he = gethostbyname(testname)) != NULL)
+		if (!strcasecmp(realname, he->h_name))
+			return 1;
+
+	return 0;
+	}
+
+/*
  * check a hostname against the public_clients file
  */
 int is_public_client(char *where)
@@ -254,8 +278,8 @@ int is_public_client(char *where)
 	char buf[256];
 	FILE *fp;
 
-	if (!strcasecmp(where,"localhost")) return(1);
-	if (!strcasecmp(where,config.c_fqdn)) return(1);
+	if (hostnames_match(where,"localhost")) return(1);
+	if (hostnames_match(where,config.c_fqdn)) return(1);
 
 	fp = fopen("public_clients","r");
 	if (fp == NULL) return(0);
@@ -263,7 +287,7 @@ int is_public_client(char *where)
 	while (fgets(buf,256,fp)!=NULL) {
 		while (isspace((buf[strlen(buf)-1]))) 
 			buf[strlen(buf)-1] = 0;
-		if (!strcasecmp(buf,where)) {
+		if (hostnames_match(where,buf)) {
 			fclose(fp);
 			return(1);
 			}
@@ -284,6 +308,8 @@ void cmd_iden(char *argbuf)
 	int rev_level;
 	char desc[256];
 	char from_host[256];
+	struct in_addr addr;
+	struct hostent *he;
 
 	if (num_parms(argbuf)<4) {
 		cprintf("%d usage error\n",ERROR);
@@ -307,7 +333,12 @@ void cmd_iden(char *argbuf)
 
 	if ((strlen(from_host)>0) && 
 	   (is_public_client(CC->cs_host))) {
-	   	strncpy(CC->cs_host,from_host,24);
+		if (inet_aton(from_host, &addr) &&
+		    (he = gethostbyaddr((char*)&addr, sizeof addr, AF_INET)) !=
+		    NULL)
+			strncpy(CC->cs_host,he->h_name,24);
+	   	else
+			strncpy(CC->cs_host,from_host,24);
 		CC->cs_host[24] = 0;
 		}
 	set_wtmpsupp_to_current_room();
