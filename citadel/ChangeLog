@@ -1,4 +1,10 @@
  $Log$
+ Revision 607.17  2003/07/11 22:19:49  ajc
+ * is_public_client() now caches the IP addresses of all hosts in
+   the public_clients file, at server startup and whenever the file is
+   modified.  This eliminates the need to make lots of calls to the
+   resolver library every time.
+
  Revision 607.16  2003/07/10 05:51:46  ajc
  * Added cs_addr field to struct CitContext -- holds a dotted quad string
    of the user's source IP (if applicable).  It's big enough to hold other
@@ -4836,3 +4842,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

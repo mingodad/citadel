@@ -15,6 +15,9 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -371,37 +374,6 @@ void cmd_time(void)
 #endif
 }
 
-/*
- * Check whether two hostnames match.
- * "Realname" should be an actual name of a client that is trying to connect;
- * "testname" should be the value we are comparing it with. The idea is that we
- * want to compare with both the abbreviated and fully-qualified versions of
- * "testname;" some people define "localhost" as "localhost.foo.com," etc.
- */
-static int hostnames_match(const char *realname, const char *testname) {
-	struct hostent *he;
-	int retval = 0;
-
-	if (!strcasecmp(realname, testname)) {
-		return(1);
-	}
-
-#ifdef HAVE_NONREENTRANT_NETDB
-	begin_critical_section(S_NETDB);
-#endif
-
-	if ((he = gethostbyname(testname)) != NULL) {
-		if (!strcasecmp(realname, he->h_name)) {
-			retval = 1;
-		}
-	}
-
-#ifdef HAVE_NONREENTRANT_NETDB
-	end_critical_section(S_NETDB);
-#endif
-
-	return retval;
-}
 
 /*
  * Check originating host against the public_clients file.  This determines
@@ -412,26 +384,68 @@ static int hostnames_match(const char *realname, const char *testname) {
 int is_public_client(void)
 {
 	char buf[SIZ];
+	char addrbuf[SIZ];
 	FILE *fp;
+	int i;
+	struct stat statbuf;
+	static time_t pc_timestamp = 0;
+	static char public_clients[SIZ];
 
-	lprintf(9, "Checking whether %s is a local client\n",  CC->cs_host);
-	if (hostnames_match(CC->cs_host, "localhost")) return(1);
-	if (hostnames_match(CC->cs_host, config.c_fqdn)) return(1);
+#define PUBLIC_CLIENTS "./public_clients"
 
-	lprintf(9, "Checking whether %s is a public client\n", CC->cs_host);
-	fp = fopen("public_clients", "r");
-	if (fp == NULL) return(0);
+	/*
+	 * Check the time stamp on the public_clients file.  If it's been
+	 * updated since the last time we were here (or if this is the first
+	 * time we've been through the loop), read its contents and learn
+	 * the IP addresses of the listed hosts.
+	 */
+	if (stat(PUBLIC_CLIENTS, &statbuf) != 0) {
+		/* No public_clients file exists, so bail out */
+		lprintf(5, "Warning: '%s' does not exist\n", PUBLIC_CLIENTS);
+		return(0);
+	}
 
-	while (fgets(buf, sizeof buf, fp)!=NULL) {
-		while (isspace((buf[strlen(buf)-1]))) 
-			buf[strlen(buf)-1] = 0;
-		if (hostnames_match(CC->cs_host, buf)) {
-			fclose(fp);
+	if (statbuf.st_mtime > pc_timestamp) {
+		begin_critical_section(S_PUBLIC_CLIENTS);
+		lprintf(7, "Loading %s\n", PUBLIC_CLIENTS);
+
+		strcpy(public_clients, "");
+		/* FIXME add localhost */
+		/* FIXME add config.c_fqdn */
+
+		fp = fopen("public_clients", "r");
+		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
+			while (isspace((buf[strlen(buf)-1]))) {
+				buf[strlen(buf)-1] = 0;
+			}
+			if (hostname_to_dotted_quad(addrbuf, buf) == 0) {
+				if ((strlen(public_clients) +
+				   strlen(addrbuf) + 2)
+				   < sizeof(public_clients)) {
+					if (strlen(public_clients) != 0) {
+						strcat(public_clients, "|");
+					}
+					strcat(public_clients, addrbuf);
+				}
+			}
+		}
+		fclose(fp);
+		pc_timestamp = time(NULL);
+		end_critical_section(S_PUBLIC_CLIENTS);
+	}
+
+	lprintf(9, "Checking whether %s is a local or public client\n",
+		CC->cs_addr);
+	for (i=0; i<num_parms(public_clients); ++i) {
+		extract(addrbuf, public_clients, i);
+		if (!strcasecmp(CC->cs_addr, addrbuf)) {
+			lprintf(9, "... yes it is.\n");
 			return(1);
 		}
 	}
 
-	fclose(fp);
+	/* No hits.  This is not a public client. */
+	lprintf(9, "... no it isn't.\n");
 	return(0);
 }
 

@@ -145,3 +145,27 @@ int rbl_check(char *message_to_spammer) {
 	}
 	return(0);
 }
+
+/*
+ * Convert a host name to a dotted quad address. 
+ * Returns zero on success or nonzero on failure.
+ */
+int hostname_to_dotted_quad(char *addr, char *host) {
+	struct hostent *ch;
+	const char *i;
+	int a1, a2, a3, a4;
+
+	ch = gethostbyname(host);
+	if (ch == NULL) {
+		strcpy(addr, "0.0.0.0");
+		return(1);
+	}
+
+	i = (const char *) ch->h_addr_list[0];
+	a1 = ((*i++) & 0xff);
+	a2 = ((*i++) & 0xff);
+	a3 = ((*i++) & 0xff);
+	a4 = ((*i++) & 0xff);
+	sprintf(addr, "%d.%d.%d.%d", a1, a2, a3, a4);
+	return(0);
+}
