@@ -306,3 +306,4 @@ void load_preferences(void);
 void save_preferences(void);
 void get_preference(char *key, char *value);
 void set_preference(char *key, char *value);
+void knrooms(void);

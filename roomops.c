@@ -215,16 +215,13 @@ void listrms(char *variety)
 
 
 /*
- * list all rooms by floor
+ * list all rooms by floor (only should get called from knrooms() because
+ * that's where output_headers() is called from)
  */
 void list_all_rooms_by_floor(void)
 {
 	int a;
 	char buf[SIZ];
-
-	load_floorlist();
-
-	output_headers(1);
 
 	wprintf("<TABLE width=100%% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
@@ -1642,7 +1639,8 @@ void change_view(void) {
 
 
 /*
- * Show the room list in "folders" format
+ * Show the room list in "folders" format.  (only should get called by
+ * knrooms() because that's where output_headers() is called from)
  */
 void folders(void) {
 	char buf[SIZ];
@@ -1667,9 +1665,6 @@ void folders(void) {
 	int floor;
 	int nests = 0;
 
-	load_floorlist();
-
-	output_headers(1);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
 		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
 		"<B>Folder list</B>\n"
@@ -1775,4 +1770,55 @@ void folders(void) {
 
 	free(fold);
 	wDumpContent(1);
+}
+
+
+/* Do either a known rooms list or a folders list, depending on the
+ * user's preference
+ */
+void knrooms() {
+	char listviewpref[SIZ];
+
+	load_floorlist();
+	output_headers(1);
+
+	/* Determine whether the user is trying to change views */
+	strcpy(listviewpref, "rooms");
+	if (bstr("view") != NULL) {
+		set_preference("roomlistview", bstr("view"));
+	}
+
+	get_preference("roomlistview", listviewpref);
+
+	if (!strcasecmp(listviewpref, "folders")) {
+		strcpy(listviewpref, "rooms");
+	}
+
+	/* offer the ability to switch views */
+	wprintf("<FORM NAME=\"roomlistomatic\">\n"
+		"<SELECT NAME=\"newview\" SIZE=\"1\" "
+		"OnChange=\"location.href=roomlistomatic.newview.options"
+		"[selectedIndex].value\">\n");
+
+	wprintf("<OPTION %s VALUE=\"/knrooms&view=rooms\">"
+		"View as room list"
+		"</OPTION>\n",
+		( !strcasecmp(listviewpref, "rooms") ? "SELECTED" : "" )
+	);
+
+	wprintf("<OPTION %s VALUE=\"/knrooms&view=folders\">"
+		"View as folder list"
+		"</OPTION>\n",
+		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
+	);
+
+	wprintf("</SELECT></FORM>\n");
+
+	/* Display the room list in the user's preferred format */
+	if (!strcasecmp(listviewpref, "folders")) {
+		folders();
+	}
+	else {
+		list_all_rooms_by_floor();
+	}
 }
