@@ -117,7 +117,7 @@ main (argc, argv)
   struct tm *tm;
   struct caller *callers = NULL;
   struct caller *callptr = NULL;
-  FILE *fp, *sortpipe;
+  FILE *sortpipe;
   char thegraph[GRANULARITY][73];
   int pc_only = 0;
   char buf[256];

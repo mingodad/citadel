@@ -60,7 +60,6 @@ void cmd_movf(char *cmdbuf)
 	char newpath[256];
 	char newroom[256];
 	char buf[256];
-	FILE *fp;
 	int a;
 	int target_room = (-1);
 	struct quickroom qrbuf;

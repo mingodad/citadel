@@ -343,6 +343,9 @@ void purge_user(char *pname) {
 			}
 		}
 
+	/* delete the userlog entry */
+	cdb_delete(CDB_USERSUPP, pname, strlen(pname));
+
 	/* remove the user's bio file */	
 	sprintf(filename, "./bio/%ld", usbuf.usernum);
 	unlink(filename);
@@ -360,8 +363,7 @@ void purge_user(char *pname) {
 int create_user(char *newusername)
 {
 	struct usersupp usbuf;
-	int a,file;
-	long aa;
+	int a;
 	struct passwd *p = NULL;
 	char username[64];
 
@@ -690,7 +692,6 @@ void cmd_forg(void) {
 void cmd_gnur(void) {
 	struct cdbdata *cdbus;
 	struct usersupp usbuf;
-	FILE *fp;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -832,6 +833,14 @@ void cmd_vali(char *v_args)
 	userbuf.flags = (userbuf.flags & ~US_NEEDVALID);
 
 	lputuser(&userbuf,user);
+
+	/* If the access level was set to zero, delete the user */
+	if (newax == 0) {
+		purge_user(user);
+		cprintf("%d %s Deleted.\n", OK, userbuf.fullname);
+		return;
+		}
+
 	cprintf("%d ok\n",OK);
 	}
 
@@ -877,7 +886,6 @@ void cmd_list(void) {
  */
 void cmd_regi(void) {
 	int a,b,c;
-	FILE *fp;
 	char buf[256];
 
 	char tmpname[256];
@@ -966,7 +974,7 @@ void cmd_chek(void) {
 	int mail = 0;
 	int regis = 0;
 	int vali = 0;
-	int a,file;
+	int a;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);

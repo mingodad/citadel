@@ -594,7 +594,6 @@ void send_message(char *filename, struct smreturn *retbuf, int generate_id)
                 		/* set to 1 to generate an 'I' field */
 {
 
-	int file,a;
 	FILE *fp;
 	long newmsgid;
 

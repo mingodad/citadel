@@ -58,7 +58,6 @@ void put_control() {
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
  */
 long get_new_message_number() {
-
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMhighest;
@@ -72,11 +71,10 @@ long get_new_message_number() {
  * get_new_user_number()  -  Obtain a new, unique ID to be used for a user.
  */
 long get_new_user_number() {
-
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMnextuser;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return(CitControl.MMhighest);
+	return(CitControl.MMnextuser);
 	}

@@ -68,35 +68,35 @@ void open_databases() {
 	int a;
 
 	gdbms[CDB_MSGMAIN] = gdbm_open("msgmain.gdbm", 8192,
-		GDBM_WRCREAT, 0700, NULL);
+		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MSGMAIN] == NULL) {
 		lprintf(2, "Cannot open msgmain: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
 	gdbms[CDB_USERSUPP] = gdbm_open("usersupp.gdbm", 0,
-		GDBM_WRCREAT, 0700, NULL);
+		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_USERSUPP] == NULL) {
 		lprintf(2, "Cannot open usersupp: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
 	gdbms[CDB_QUICKROOM] = gdbm_open("quickroom.gdbm", 0,
-		GDBM_WRCREAT, 0700, NULL);
+		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_QUICKROOM] == NULL) {
 		lprintf(2, "Cannot open quickroom: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
 	gdbms[CDB_FULLROOM] = gdbm_open("fullroom.gdbm", 0,
-		GDBM_WRCREAT, 0700, NULL);
+		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_FULLROOM] == NULL) {
 		lprintf(2, "Cannot open fullroom: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
 	gdbms[CDB_FLOORTAB] = gdbm_open("floortab.gdbm", 0,
-		GDBM_WRCREAT, 0700, NULL);
+		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_FLOORTAB] == NULL) {
 		lprintf(2, "Cannot open floortab: %s\n",
 			gdbm_strerror(gdbm_errno));
