@@ -244,6 +244,7 @@ struct floor {
 #define AIDEROOM	"Aide"
 #define CONFIGROOM	"My Citadel Config"
 
+#define SPOOLMIME	"application/x-citadel-delivery-list"
 
 /*
  * This structure is used to hold all of the fields of a message

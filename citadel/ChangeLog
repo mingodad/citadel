@@ -1,4 +1,7 @@
 $Log$
+Revision 1.437  2000/01/08 22:19:44  ajc
+* Completed spool to outbound delivery queue (still no queue sender implemented)
+
 Revision 1.436  2000/01/08 05:00:09  ajc
 * Reworked some of the data structures to handle multiple recipients
 * Began implementation of the delivery queue
@@ -1524,3 +1527,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

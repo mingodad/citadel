@@ -41,7 +41,6 @@ struct citsmtp {		/* Information about the current session */
 	int delivery_mode;
 };
 
-
 enum {				/* Command states for login authentication */
 	smtp_command,
 	smtp_user,
@@ -403,12 +402,20 @@ void smtp_rcpt(char *argbuf) {
  * Returns 0 on success, nonzero on failure
  */
 int smtp_message_delivery(struct CtdlMessage *msg) {
-	char user[256];
-	char node[256];
-	char name[256];
-	int successful_saves = 0;
-	int failed_saves = 0;
+	char user[1024];
+	char node[1024];
+	char name[1024];
+	char buf[1024];
+	char dtype[1024];
+	char room[1024];
+	int successful_saves = 0;	/* number of successful local saves */
+	int failed_saves = 0;		/* number of failed deliveries */
+	int remote_spools = 0;		/* number of copies to send out */
 	long msgid = (-1L);
+	int i;
+	struct usersupp userbuf;
+	char *instr;			/* Remote delivery instructions */
+	struct CtdlMessage *imsg;
 
 	lprintf(9, "smtp_message_delivery() called\n");
 
@@ -426,10 +433,57 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 		1);
 	++successful_saves;
 
-		/* FIX go thru each local user and save to boxes
-			then stuff remote users in queue list
-			then delete from queue if num remote users is 0
-		*/
+	instr = mallok(1024);
+	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\n",
+		SPOOLMIME, msgid);
+
+	for (i=0; i<SMTP->number_of_recipients; ++i) {
+		extract_token(buf, SMTP_RECP, i, '\n');
+		extract(dtype, buf, 0);
+
+		/* Stuff local mailboxes */
+		if (!strcasecmp(dtype, "local")) {
+			extract(user, buf, 1);
+			if (getuser(&userbuf, user) == 0) {
+				MailboxName(room, &userbuf, MAILROOM);
+				CtdlSaveMsgPointerInRoom(room, msgid, 0);
+				++successful_saves;
+			}
+			else {
+				++failed_saves;
+			}
+		}
+
+		/* Remote delivery */
+		if (!strcasecmp(dtype, "remote")) {
+			extract(user, buf, 1);
+			instr = reallok(instr, strlen(instr) + 1024);
+			sprintf(&instr[strlen(instr)],
+				"remote|%s|0\n",
+				user);
+			++remote_spools;
+		}
+
+	}
+
+	/* If there are remote spools to be done, save the instructions */
+	if (remote_spools > 0) {
+        	imsg = mallok(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['M'] = instr;
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlFreeMessage(imsg);
+	}
+
+	/* If there are no remote spools, delete the message */	
+	else {
+		phree(instr);	/* only needed here, because CtdlSaveMsg()
+				 * would free this buffer otherwise */
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgid, NULL); 
+	}
 
 	return(failed_saves);
 }
@@ -495,7 +549,7 @@ void smtp_data(void) {
 		cprintf("250 Message accepted for delivery.\n");
 	}
 	else {
-		cprintf("550 Internal error.\n");
+		cprintf("550 Internal delivery errors: %d\n", retval);
 	}
 }
 
@@ -577,7 +631,7 @@ void smtp_command_loop(void) {
 	}
 
 	else {
-		cprintf("502 I'm afraid I can't do that, Dave.\n");
+		cprintf("502 I'm sorry Dave, I'm afraid I can't do that.\n");
 	}
 
 }

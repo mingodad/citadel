@@ -1406,7 +1406,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	char content_type[256];			/* We have to learn this */
 	char recipient[256];
 	long newmsgid;
-	char *mptr;
+	char *mptr = NULL;
 	struct usersupp userbuf;
 	int a;
 	struct SuppMsgInfo smi;
@@ -1452,6 +1452,9 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	lprintf(9, "Learning what's inside\n");
+	if (msg->cm_fields['M'] == NULL) {
+		lprintf(1, "ERROR: attempt to save message with NULL body\n");
+	}
 
 	switch (msg->cm_format_type) {
 	case 0:
