@@ -107,7 +107,7 @@ void addurls(char *url)
 			++ptr;
 		strcpy(ptr, "");
 
-		u->url_data = malloc(strlen(up) + 1);
+		u->url_data = malloc(strlen(up) + 2);
 		strcpy(u->url_data, up);
 		u->url_data[b] = 0;
 		unescape_input(u->url_data);
@@ -224,7 +224,7 @@ void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 	char *buf;
 
 	if (strbuf == NULL) return;
-	buf = malloc(2 * strlen(strbuf));
+	buf = malloc( (3 * strlen(strbuf)) + SIZ );
 	stresc(buf, strbuf, nbsp, nolinebreaks);
 	wprintf("%s", buf);
 	free(buf);
@@ -327,7 +327,7 @@ void msgescputs(char *strbuf) {
 	char *outbuf;
 
 	if (strbuf == NULL) return;
-	outbuf = malloc(2 * strlen(strbuf));
+	outbuf = malloc( (3 * strlen(strbuf)) + SIZ);
 	msgesc(outbuf, strbuf);
 	wprintf("%s", outbuf);
 	free(outbuf);
@@ -559,7 +559,7 @@ void output_static(char *what)
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
 		lprintf(3, "Static: %s, %ld bytes\n", what, bytes);
-		bigbuffer = malloc(bytes);
+		bigbuffer = malloc(bytes + 2);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
 
@@ -586,7 +586,7 @@ void output_image()
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		xferbuf = malloc(bytes);
+		xferbuf = malloc(bytes + 2);
 
 		/* Read it from the server */
 		read_server_binary(xferbuf, bytes);
@@ -633,7 +633,7 @@ void output_mimepart()
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		content = malloc(bytes);
+		content = malloc(bytes + 2);
 		extract(content_type, &buf[4], 3);
 		output_headers(0);
 		read_server_binary(content, bytes);
@@ -667,7 +667,7 @@ char *load_mimepart(long msgnum, char *partnum)
 		bytes = extract_long(&buf[4], 0);
 		extract(content_type, &buf[4], 3);
 
-		content = malloc(bytes + 1);
+		content = malloc(bytes + 2);
 		read_server_binary(content, bytes);
 
 		serv_puts("CLOS");

@@ -436,7 +436,7 @@ void worker_entry(void) {
 int lprintf(int loglevel, const char *format, ...)
 {
 	va_list ap;
-	char buf[4096];
+	char buf[32768];
 
 	va_start(ap, format);
 	vsprintf(buf, format, ap);
@@ -445,11 +445,13 @@ int lprintf(int loglevel, const char *format, ...)
 	if (loglevel <= verbosity) {
 		struct timeval tv;
 		struct tm *tim;
+		int sess = 0;
 
 		gettimeofday(&tv, NULL);
 		tim = localtime((time_t *)&(tv.tv_sec));
 
-		if (WC && WC->wc_session) {
+		if (WC) if (WC->wc_session) sess = 1;
+		if (sess) {
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%ld:%d] %s",
 				tim->tm_year + 1900, tim->tm_mon + 1,
