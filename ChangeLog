@@ -1,4 +1,8 @@
 $Log$
+Revision 211.14  2000/04/15 15:43:46  nbryant
+* warning fix for 64-bit compile on ultrasparc. (kids don't try this at home,
+  64-bit gcc on sparc is evil)
+
 Revision 211.13  2000/04/06 20:42:03  nbryant
 * configure.in: fix a typo
 
@@ -418,4 +422,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
