@@ -74,6 +74,15 @@ int num_threads = 0;				/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
 
 /*
+ * This fd_set will be loaded up with all the master sockets, so we can
+ * quickly copy it into a working fd_set every time we need it.
+ */
+fd_set masterfds;
+int masterhighest;
+
+
+
+/*
  * lprintf()  ...   Write logging information
  */
 void lprintf(int loglevel, const char *format, ...) {   
