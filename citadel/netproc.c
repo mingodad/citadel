@@ -1222,7 +1222,7 @@ int main(int argc, char **argv)
 			strcpy(bbs_home_directory, &bbs_home_directory[2]);
 			home_specified = 1;
 			}
-		if (!strcmp(argv[a], "-i")) {
+		else if (!strcmp(argv[a], "-i")) {
 			import_only = 1;
 			}
 		else {
