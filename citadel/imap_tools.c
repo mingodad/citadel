@@ -65,3 +65,21 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 		if (!strcasecmp(buf, MAILROOM)) strcpy(buf, "INBOX");
 	}
 }
+
+
+/*
+ * Parse a parenthesized list of items (as with the FETCH command)
+ */
+int imap_extract_data_items(char *items) {
+	int num_items = 0;
+	int i;
+
+	/* First, convert all whitespace to ordinary space characters */
+	for (i=0; i<strlen(items); ++i) {
+		if (isspace(items[i])) items[i] = ' ';
+	}
+
+	return num_items;
+}
+
+

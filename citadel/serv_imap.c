@@ -171,10 +171,12 @@ void imap_select(int num_parms, char *parms[]) {
 	strcpy(towhere, parms[2]);
 
 	/* IMAP uses the reserved name "INBOX" for the user's default incoming
-	 * mail folder.  Convert this to Citadel's reserved name "_MAIL_".
+	 * mail folder.  Convert this to whatever Citadel is using for the
+	 * default mail room name (usually "Mail>").
 	 */
-	if (!strcasecmp(towhere, "INBOX"))
+	if (!strcasecmp(towhere, "INBOX")) {
 		strcpy(towhere, MAILROOM);
+	}
 
         /* First try a regular match */
         c = getroom(&QRscratch, towhere);
@@ -193,8 +195,9 @@ void imap_select(int num_parms, char *parms[]) {
                 ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
 
                 /* normal clients have to pass through security */
-                if (ra & UA_KNOWN)
+                if (ra & UA_KNOWN) {
                         ok = 1;
+		}
 	}
 
 	/* Fail here if no such room */
@@ -303,7 +306,6 @@ void imap_do_fetch(int lo, int hi, char *items) {
 	cprintf("* lo=%d hi=%d items=<%s>\r\n", lo, hi, items);
 }
 
-
 /*
  * Mark Crispin is a fscking idiot.
  */
@@ -334,9 +336,8 @@ void imap_fetch(int num_parms, char *parms[]) {
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
-	for (i=0; i<strlen(items); ++i) {
-		if (isspace(items[i])) items[i] = ' ';
-	}
+
+	imap_extract_data_items(items);
 
 	imap_do_fetch(lo, hi, items);
 	cprintf("%s OK FETCH completed\r\n", parms[0]);
