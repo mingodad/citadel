@@ -776,7 +776,7 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
-		if (TheMessage->cm_format_type != 4) {
+		if (TheMessage->cm_format_type != FMT_RFC822) {
 			cprintf("%d This is not a MIME message.\n",
 				ERROR);
 		} else if (CC->download_fp != NULL) {
@@ -806,7 +806,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * MIME message, *lie* about it and tell the user it's fixed-format.
 	 */
 	if (mode == MT_CITADEL) {
-		if (TheMessage->cm_format_type == 4)
+		if (TheMessage->cm_format_type == FMT_RFC822)
 			cprintf("type=1\n");
 		else
 			cprintf("type=%d\n", TheMessage->cm_format_type);
@@ -918,7 +918,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	mptr = TheMessage->cm_fields['M'];
 
 	/* Tell the client about the MIME parts in this message */
-	if (TheMessage->cm_format_type == 4) {	/* legacy textual dump */
+	if (TheMessage->cm_format_type == FMT_RFC822) {	/* legacy text dump */
 		if (mode == MT_CITADEL) {
 			mime_parser(mptr, NULL, *list_this_part);
 		}
@@ -939,14 +939,14 @@ void output_message(char *msgid, int mode, int headers_only)
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
 		cprintf("text\n");
-	if ((mode == MT_RFC822) && (TheMessage->cm_format_type != 4))
+	if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822))
 		cprintf("\n");
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
 	 * what message transfer format is in use.
 	 */
-	if (TheMessage->cm_format_type == 1) {
+	if (TheMessage->cm_format_type == FMT_FIXED) {
 		strcpy(buf, "");
 		while (ch = *mptr++, ch > 0) {
 			if (ch == 13)
@@ -970,7 +970,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * for new paragraphs is correct and the client will reformat the
 	 * message to the reader's screen width.
 	 */
-	if (TheMessage->cm_format_type == 0) {
+	if (TheMessage->cm_format_type == FMT_CITADEL) {
 		memfmout(80, mptr, 0);
 	}
 
@@ -979,7 +979,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * this message is format 1 (fixed format), so the callback function
 	 * we use will display those parts as-is.
 	 */
-	if (TheMessage->cm_format_type == 4) {
+	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
 		mime_parser(mptr, NULL, *fixed_output);
@@ -1514,7 +1514,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	if (ReplicationChecks(msg) > 0) return;
 
 	/* Network mail - send a copy to the network program. */
-	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
+	if ((strlen(recipient) > 0) && (mailtype == MES_BINARY)) {
 		lprintf(9, "Sending network spool\n");
 		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
 			(long) getpid(), CC->cs_pid, ++seqnum);
@@ -1555,6 +1555,13 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
 		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
+	}
+
+	/* For internet mail, drop a copy in the outbound queue room */
+	/* FIX  ...  nothing's going to get delivered until we add
+	   some delivery instructions!!! */
+	if (mailtype == MES_INTERNET) {
+		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
 	}
 
 	/* Bump this user's messages posted counter. */
@@ -1615,14 +1622,24 @@ void quickie_message(char *from, char *to, char *room, char *text)
 /*
  * Back end function used by make_message() and similar functions
  */
-char *CtdlReadMessageBody(char *terminator, size_t maxlen) {
+char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
+			size_t maxlen,		/* maximum message length */
+			char *exist		/* if non-null, append to it;
+						   exist is ALWAYS freed  */
+			) {
 	char buf[256];
 	size_t message_len = 0;
 	size_t buffer_len = 0;
 	char *ptr, *append;
 	char *m;
 
-	m = mallok(4096);
+	if (exist == NULL) {
+		m = mallok(4096);
+	}
+	else {
+		m = reallok(exist, strlen(exist) + 4096);
+		if (m == NULL) phree(exist);
+	}
 	if (m == NULL) {
 		while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) ;;
 		return(NULL);
@@ -1741,7 +1758,8 @@ struct CtdlMessage *make_message(
 		msg->cm_fields['D'] = strdoop(dest_node);
 
 
-	msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen);
+	msg->cm_fields['M'] = CtdlReadMessageBody("000",
+						config.c_maxmsglen, NULL);
 
 
 	return(msg);

@@ -187,6 +187,13 @@ enum {
 	MT_DOWNLOAD		/* Download a component */
 };
 
+/*
+ * Message format types in the database
+ */
+#define	FMT_CITADEL	0	/* Citadel vari-format (proprietary) */
+#define FMT_FIXED	1	/* Fixed format (proprietary)        */
+#define FMT_RFC822	4	/* Standard (headers are in M field) */
+
 
 /*
  * Citadel DataBases (define one for each cdb we need to open)

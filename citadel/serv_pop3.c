@@ -1,7 +1,5 @@
 /* $Id$ */
 
-#define POP3_PORT	1110
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

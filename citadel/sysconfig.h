@@ -77,3 +77,12 @@
 #define MAXFLOORS	16		/* Do not set higher than 127       */
 
 /*** END OF STRUCTURE SIZE VARIABLES ***/
+
+
+/* 
+ * These define what port to listen on for various services.
+ * FIX ... put this in a programmable config somewhere
+ */
+#define POP3_PORT		1110
+#define SMTP_PORT		2525
+#define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"

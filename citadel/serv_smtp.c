@@ -1,7 +1,5 @@
 /* $Id$ */
 
-#define SMTP_PORT	2525
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,6 +28,7 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
+#include "genstamp.h"
 
 
 struct citsmtp {		/* Information about the current session */
@@ -40,12 +39,18 @@ struct citsmtp {		/* Information about the current session */
 	char from[256];
 	char recipient[256];
 	int number_of_recipients;
+	int delivery_mode;
 };
 
 enum {				/* Command states for login authentication */
 	smtp_command,
 	smtp_user,
 	smtp_password
+};
+
+enum {				/* Delivery modes */
+	smtp_deliver_local,
+	smtp_deliver_remote
 };
 
 #define SMTP ((struct citsmtp *)CtdlGetUserData(SYM_SMTP))
@@ -348,6 +353,7 @@ void smtp_rcpt(char *argbuf) {
 
 	strcpy(SMTP->recipient, &argbuf[3]);
 	striplt(SMTP->recipient);
+	alias(SMTP->recipient);
 
 	cvt = convert_internet_address(user, node, SMTP->recipient);
 	switch(cvt) {
@@ -428,6 +434,7 @@ void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
 	int retval;
+	char nowstamp[256];
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\n");
@@ -440,7 +447,18 @@ void smtp_data(void) {
 	}
 
 	cprintf("354 Transmit message now; terminate with '.' by itself\n");
-	body = CtdlReadMessageBody(".", config.c_maxmsglen);
+	
+	generate_rfc822_datestamp(nowstamp, time(NULL));
+	body = mallok(4096);
+	if (body != NULL) sprintf(body,
+		"Received: from %s\n"
+		"	by %s;\n"
+		"	%s\n",
+			"FIX.FIX.com",
+			config.c_fqdn,
+			nowstamp);
+	
+	body = CtdlReadMessageBody(".", config.c_maxmsglen, body);
 	if (body == NULL) {
 		cprintf("550 Unable to save message text: internal error.\n");
 		return;
@@ -556,12 +574,13 @@ void smtp_command_loop(void) {
 }
 
 
-
 char *Dynamic_Module_Init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(SMTP_PORT,
 				smtp_greeting,
 				smtp_command_loop);
+	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0);
 	return "$Id$";
 }
+

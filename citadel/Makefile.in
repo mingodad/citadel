@@ -188,14 +188,13 @@ netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
 	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS) $(GDBM)
 
-citmail: citmail.o config.o internetmail.o parsedate.o $(LIBOBJS)
+citmail: citmail.o
 	@echo "*"
 	@echo "*                 ###### IMPORTANT ######"
 	@echo "* To allow Citadel users to receive Internet mail, you must"
 	@echo "* set this program to be your local mail delivery agent."
 	@echo "*"
-	$(CC) citmail.o config.o internetmail.o parsedate.o \
-		$(LIBOBJS) $(LDFLAGS) -o citmail
+	$(CC) citmail.o $(LDFLAGS) -o citmail
 
 mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist

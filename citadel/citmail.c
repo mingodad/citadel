@@ -1,572 +1,296 @@
 /*
- * citmail.c v4.2
+ * 
+ * Completely reworked version of "citmail"
+ * This program attempts to act like a local MDA if you're using sendmail or
+ * some other non-Citadel MTA.  It basically just forwards the message to
+ * the Citadel SMTP listener on some non-standard port.
+ *
  * $Id$
- *
- * This program may be used as a local mail delivery agent, which will allow
- * all Citadel users to receive Internet e-mail.  To enable this functionality,
- * you must tell sendmail, smail, or whatever mailer you are using, that this
- * program is your local mail delivery agent.  This program is a direct
- * replacement for lmail, deliver, or whatever.
- *
- * Usage:
- *
- * citmail <recipient>       - Deliver a message
- * citmail -t <recipient>    - Address test mode (will not deliver)
  *
  */
 
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <string.h>
-#include <time.h>
 #include <pwd.h>
 #include <errno.h>
-#include <syslog.h>
-#include <limits.h>
+#include <stdarg.h>
 #include "citadel.h"
-#include "config.h"
-#include "internetmail.h"
-
-
-extern time_t parsedate(char *p);
-
-
-/* message delivery classes */
-enum {
-	DELIVER_LOCAL,
-	DELIVER_REMOTE,
-	DELIVER_INTERNET,
-	DELIVER_CCITADEL
-};
-	
-
-#undef tolower
-#define tolower(x) isupper(x) ? (x+'a'-'A') : x
-
-char *monthdesc[] =
-{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
- "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
-char ALIASES[128];
-char CIT86NET[128];
-char SENDMAIL[128];
-char FALLBACK[128];
-char GW_DOMAIN[128];
-char TABLEFILE[128];
-char OUTGOING_FQDN[128];
-int RUN_NETPROC = 1;
-
-
-
-#ifndef HAVE_STRERROR
-/*
- * replacement strerror() for systems that don't have it
- */
-char *strerror(int e)
-{
-	static char buf[32];
-
-	snprintf(buf, sizeof buf, "errno = %d", e);
-	return (buf);
-}
+#include "citadel_decls.h"
+#include "ipc.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
 #endif
 
-int haschar(char *st, int ch)
+#ifndef INADDR_NONE
+#define INADDR_NONE 0xffffffff
+#endif
+
+int serv_sock;
+
+
+void strip_trailing_nonprint(char *buf)
 {
-	int a, b;
-	b = 0;
-	for (a = 0; a < strlen(st); ++a)
-		if (st[a] == ch)
-			++b;
-	return (b);
+        while ( (strlen(buf)>0) && (!isprint(buf[strlen(buf) - 1])) )
+                buf[strlen(buf) - 1] = 0;
 }
 
-void strip_trailing_whitespace(char *buf)
+
+
+
+
+
+void timeout(int signum)
 {
-	while (isspace(buf[strlen(buf) - 1]))
-		buf[strlen(buf) - 1] = 0;
+	exit(signum);
 }
 
-/* strip leading and trailing spaces */
-void striplt(char *buf)
-{
-	while ((strlen(buf) > 0) && (buf[0] == 32))
-		strcpy(buf, &buf[1]);
-	while (buf[strlen(buf) - 1] == 32)
-		buf[strlen(buf) - 1] = 0;
-}
 
+int connectsock(char *host, char *service, char *protocol)
+{
+	struct hostent *phe;
+	struct servent *pse;
+	struct protoent *ppe;
+	struct sockaddr_in sin;
+	int s, type;
+
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+
+	pse = getservbyname(service, protocol);
+	if (pse) {
+		sin.sin_port = pse->s_port;
+	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
+		fprintf(stderr, "Can't get %s service entry: %s\n",
+			service, strerror(errno));
+		exit(3);
+	}
+	phe = gethostbyname(host);
+	if (phe) {
+		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
+	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
+		fprintf(stderr, "Can't get %s host entry: %s\n",
+			host, strerror(errno));
+		exit(3);
+	}
+	if ((ppe = getprotobyname(protocol)) == 0) {
+		fprintf(stderr, "Can't get %s protocol entry: %s\n",
+			protocol, strerror(errno));
+		exit(3);
+	}
+	if (!strcmp(protocol, "udp")) {
+		type = SOCK_DGRAM;
+	} else {
+		type = SOCK_STREAM;
+	}
+
+	s = socket(PF_INET, type, ppe->p_proto);
+	if (s < 0) {
+		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
+		exit(3);
+	}
+	signal(SIGALRM, timeout);
+	alarm(30);
+
+	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		fprintf(stderr, "can't connect to %s.%s: %s\n",
+			host, service, strerror(errno));
+		exit(3);
+	}
+	alarm(0);
+	signal(SIGALRM, SIG_IGN);
+
+	return (s);
+}
 
 /*
- * Check to see if a given FQDN really maps to a Citadel network node
+ * convert service and host entries into a six-byte numeric in the format
+ * expected by a SOCKS v4 server
  */
-void host_alias(char host[])
+void numericize(char *buf, char *host, char *service, char *protocol)
 {
+	struct hostent *phe;
+	struct servent *pse;
+	struct sockaddr_in sin;
 
-	int a;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
 
-	/* What name is the local host known by? */
-	/* if (!strcasecmp(host, config.c_fqdn)) { */
-	if (IsHostLocal(host)) {
-		strcpy(host, config.c_nodename);
-		return;
+	pse = getservbyname(service, protocol);
+	if (pse) {
+		sin.sin_port = pse->s_port;
+	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
+		fprintf(stderr, "Can't get %s service entry: %s\n",
+			service, strerror(errno));
+		exit(3);
 	}
-	/* Other hosts in the gateway domain? */
-	for (a = 0; a < strlen(host); ++a) {
-		if ((host[a] == '.') && (!strcasecmp(&host[a + 1], GW_DOMAIN))) {
-			host[a] = 0;
-			for (a = 0; a < strlen(host); ++a) {
-				if (host[a] == '.')
-					host[a] = 0;
-			}
+	buf[1] = (((sin.sin_port) & 0xFF00) >> 8);
+	buf[0] = ((sin.sin_port) & 0x00FF);
+
+	phe = gethostbyname(host);
+	if (phe) {
+		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
+	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
+		fprintf(stderr, "Can't get %s host entry: %s\n",
+			host, strerror(errno));
+		exit(3);
+	}
+	buf[5] = ((sin.sin_addr.s_addr) & 0xFF000000) >> 24;
+	buf[4] = ((sin.sin_addr.s_addr) & 0x00FF0000) >> 16;
+	buf[3] = ((sin.sin_addr.s_addr) & 0x0000FF00) >> 8;
+	buf[2] = ((sin.sin_addr.s_addr) & 0x000000FF);
+}
+
+/*
+ * input binary data from socket
+ */
+void serv_read(char *buf, int bytes)
+{
+	int len, rlen;
+
+	len = 0;
+	while (len < bytes) {
+		rlen = read(serv_sock, &buf[len], bytes - len);
+		if (rlen < 1) {
 			return;
 		}
+		len = len + rlen;
 	}
+}
 
-	/* Otherwise, do nothing... */
+
+/*
+ * send binary to server
+ */
+void serv_write(char *buf, int nbytes)
+{
+	int bytes_written = 0;
+	int retval;
+	while (bytes_written < nbytes) {
+		retval = write(serv_sock, &buf[bytes_written],
+			       nbytes - bytes_written);
+		if (retval < 1) {
+			return;
+		}
+		bytes_written = bytes_written + retval;
+	}
 }
 
 
 
 /*
- * Split an RFC822-style address into userid, host, and full name
+ * input string from socket - implemented in terms of serv_read()
  */
-void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
+void serv_gets(char *buf)
 {
-	int a;
+	int i;
 
-	/* extract full name - first, it's From minus <userid> */
-	strcpy(name, rfc822);
-	for (a = 0; a < strlen(name); ++a)
-		if (name[a] == '<') {
-			do {
-				strcpy(&name[a], &name[a + 1]);
-			} while ((strlen(name) > 0) && (name[a] != '>'));
-			strcpy(&name[a], &name[a + 1]);
-		}
-	/* strip anything to the left of a bang */
-	while ((strlen(name) > 0) && (haschar(name, '!') > 0))
-		strcpy(name, &name[1]);
-
-	/* and anything to the right of a @ or % */
-	for (a = 0; a < strlen(name); ++a) {
-		if (name[a] == '@')
-			name[a] = 0;
-		if (name[a] == '%')
-			name[a] = 0;
+	/* Read one character at a time.
+	 */
+	for (i = 0;; i++) {
+		serv_read(&buf[i], 1);
+		if (buf[i] == '\n' || i == 255)
+			break;
 	}
 
-	/* but if there are parentheses, that changes the rules... */
-	if ((haschar(rfc822, '(') == 1) && (haschar(rfc822, ')') == 1)) {
-		strcpy(name, rfc822);
-		while ((strlen(name) > 0) && (name[0] != '(')) {
-			strcpy(&name[0], &name[1]);
-		}
-		strcpy(&name[0], &name[1]);
-		for (a = 0; a < strlen(name); ++a)
-			if (name[a] == ')')
-				name[a] = 0;
-	}
-	/* but if there are a set of quotes, that supersedes everything */
-	if (haschar(rfc822, 34) == 2) {
-		strcpy(name, rfc822);
-		while ((strlen(name) > 0) && (name[0] != 34)) {
-			strcpy(&name[0], &name[1]);
-		}
-		strcpy(&name[0], &name[1]);
-		for (a = 0; a < strlen(name); ++a)
-			if (name[a] == 34)
-				name[a] = 0;
-	}
-	/* extract user id */
-	strcpy(user, rfc822);
+	/* If we got a long line, discard characters until the newline.
+	 */
+	if (i == 255)
+		while (buf[i] != '\n')
+			serv_read(&buf[i], 1);
 
-	/* first get rid of anything in parens */
-	for (a = 0; a < strlen(user); ++a)
-		if (user[a] == '(') {
-			do {
-				strcpy(&user[a], &user[a + 1]);
-			} while ((strlen(user) > 0) && (user[a] != ')'));
-			strcpy(&user[a], &user[a + 1]);
-		}
-	/* if there's a set of angle brackets, strip it down to that */
-	if ((haschar(user, '<') == 1) && (haschar(user, '>') == 1)) {
-		while ((strlen(user) > 0) && (user[0] != '<')) {
-			strcpy(&user[0], &user[1]);
-		}
-		strcpy(&user[0], &user[1]);
-		for (a = 0; a < strlen(user); ++a)
-			if (user[a] == '>')
-				user[a] = 0;
-	}
-	/* strip anything to the left of a bang */
-	while ((strlen(user) > 0) && (haschar(user, '!') > 0))
-		strcpy(user, &user[1]);
-
-	/* and anything to the right of a @ or % */
-	for (a = 0; a < strlen(user); ++a) {
-		if (user[a] == '@')
-			user[a] = 0;
-		if (user[a] == '%')
-			user[a] = 0;
-	}
-
-
-
-	/* extract node name */
-	strcpy(node, rfc822);
-
-	/* first get rid of anything in parens */
-	for (a = 0; a < strlen(node); ++a)
-		if (node[a] == '(') {
-			do {
-				strcpy(&node[a], &node[a + 1]);
-			} while ((strlen(node) > 0) && (node[a] != ')'));
-			strcpy(&node[a], &node[a + 1]);
-		}
-	/* if there's a set of angle brackets, strip it down to that */
-	if ((haschar(node, '<') == 1) && (haschar(node, '>') == 1)) {
-		while ((strlen(node) > 0) && (node[0] != '<')) {
-			strcpy(&node[0], &node[1]);
-		}
-		strcpy(&node[0], &node[1]);
-		for (a = 0; a < strlen(node); ++a)
-			if (node[a] == '>')
-				node[a] = 0;
-	}
-	/* strip anything to the left of a @ */
-	while ((strlen(node) > 0) && (haschar(node, '@') > 0))
-		strcpy(node, &node[1]);
-
-	/* strip anything to the left of a % */
-	while ((strlen(node) > 0) && (haschar(node, '%') > 0))
-		strcpy(node, &node[1]);
-
-	/* reduce multiple system bang paths to node!user */
-	while ((strlen(node) > 0) && (haschar(node, '!') > 1))
-		strcpy(node, &node[1]);
-
-	/* now get rid of the user portion of a node!user string */
-	for (a = 0; a < strlen(node); ++a)
-		if (node[a] == '!')
-			node[a] = 0;
-
-
-
-	/* strip leading and trailing spaces in all strings */
-	striplt(user);
-	striplt(node);
-	striplt(name);
+	/* Strip all trailing nonprintables (crlf)
+	 */
+	buf[i] = 0;
+	strip_trailing_nonprint(buf);
 }
 
+
 /*
- * Copy line by line, ending at EOF or a "." 
+ * send line to server - implemented in terms of serv_write()
  */
-void loopcopy(FILE * to, FILE * from)
+void serv_puts(char *buf)
 {
+	/* printf("< %s\n", buf); */
+	serv_write(buf, strlen(buf));
+	serv_write("\n", 1);
+}
+
+
+
+
+
+void cleanup(int exitcode) {
 	char buf[1024];
-	char *r;
 
-	while (1) {
-		r = fgets(buf, sizeof(buf), from);
-		if (r == NULL)
-			return;
-		strip_trailing_whitespace(buf);
-		if (!strcmp(buf, "."))
-			return;
-		fprintf(to, "%s\n", buf);
-	}
+	serv_puts("QUIT");
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	exit(exitcode);
 }
 
 
 
-/*
- * pipe message through netproc
- */
-void do_citmail(char recp[], int dtype)
-{
-
-	time_t now;
-	FILE *temp;
-	int a;
-	int format_type = 0;
-	char buf[128];
-	char from[512];
-	char userbuf[256];
-	char frombuf[256];
-	char nodebuf[256];
-	char destsys[256];
-	char subject[256];
-	long message_id = 0L;
-	char targetroom[256];
-	char content_type[256];
-	char *extra_headers = NULL;
-
-
-	if (dtype == DELIVER_REMOTE) {
-
-		/* get the Citadel node name out of the path */
-		strncpy(destsys, recp, sizeof(destsys));
-		for (a = 0; a < strlen(destsys); ++a) {
-			if ((destsys[a] == '!') || (destsys[a] == '.')) {
-				destsys[a] = 0;
-			}
-		}
-
-		/* chop the system name out, so we're left with a user */
-		while (haschar(recp, '!'))
-			strcpy(recp, &recp[1]);
-	}
-	/* Convert underscores to spaces */
-	for (a = 0; a < strlen(recp); ++a)
-		if (recp[a] == '_')
-			recp[a] = ' ';
-
-	/* Are we delivering to a room instead of a user? */
-	if (!strncasecmp(recp, "room ", 5)) {
-		strcpy(targetroom, &recp[5]);
-		strcpy(recp, "");
-	} else {
-		strcpy(targetroom, MAILROOM);
-	}
-
-	time(&now);
-	snprintf(from, sizeof from, "postmaster@%s", config.c_nodename);
-
-	snprintf(buf, sizeof buf, "./network/spoolin/citmail.%d", getpid());
-	temp = fopen(buf, "w");
-
-	strcpy(subject, "");
-	strcpy(nodebuf, config.c_nodename);
-	strcpy(content_type, "text/plain");
-
-	do {
-		if (fgets(buf, 128, stdin) == NULL)
-			strcpy(buf, ".");
-		strip_trailing_whitespace(buf);
-
-		if (!strncasecmp(buf, "Subject: ", 9))
-			strcpy(subject, &buf[9]);
-		else if (!strncasecmp(buf, "Date: ", 6)) {
-			now = parsedate(&buf[6]);
-			if (now < 0L) now = time(NULL);
-		}
-		else if (!strncasecmp(buf, "From: ", 6))
-			strcpy(from, &buf[6]);
-		else if (!strncasecmp(buf, "Content-type: ", 14))
-			strcpy(content_type, &buf[14]);
-		else if (!strncasecmp(buf, "From ", 5)) {	/* ignore */
-		} else {
-			if (extra_headers == NULL) {
-				extra_headers = malloc(strlen(buf) + 2);
-				strcpy(extra_headers, "");
-			} else {
-				extra_headers = realloc(extra_headers,
-							(strlen(extra_headers) + strlen(buf) + 2));
-			}
-			strcat(extra_headers, buf);
-			strcat(extra_headers, "\n");
-		}
-	} while ((strcmp(buf, ".")) && (strcmp(buf, "")));
-
-	process_rfc822_addr(from, userbuf, nodebuf, frombuf);
-
-	if (!strncasecmp(content_type, "text/plain", 10))
-		format_type = 1;	/* plain ASCII message */
-	else
-		format_type = 4;	/* MIME message */
-
-	/* now convert it to Citadel format */
-
-	/* Header bytes */
-	putc(255, temp);	/* 0xFF = start-of-message byte */
-	putc(MES_NORMAL, temp);	/* Non-anonymous message */
-	putc(format_type, temp);	/* Format type */
-
-	/* Origination */
-	fprintf(temp, "P%s@%s%c", userbuf, nodebuf, 0);
-	if (message_id)
-		fprintf(temp, "I%ld%c", message_id, 0);
-	fprintf(temp, "T%ld%c", (long)now, 0);
-	fprintf(temp, "A%s%c", userbuf, 0);
-
-	/* Destination */
-	if (strlen(targetroom) > 0) {
-		fprintf(temp, "O%s%c", targetroom, 0);
-	} else {
-		fprintf(temp, "O%s%c", MAILROOM, 0);
-	}
-
-	fprintf(temp, "N%s%c", nodebuf, 0);
-	fprintf(temp, "H%s%c", frombuf, 0);
-	if (dtype == DELIVER_REMOTE) {
-		fprintf(temp, "D%s%c", destsys, 0);
-	}
-	if (strlen(recp) > 0) {
-		fprintf(temp, "R%s%c", recp, 0);
-	}
-	/* Subject and text */
-	if (strlen(subject) > 0) {
-		fprintf(temp, "U%s%c", subject, 0);
-	}
-	putc('M', temp);
-	if (format_type == 4) {
-		fprintf(temp, "Content-type: %s\n", content_type);
-		if (extra_headers != NULL)
-			fprintf(temp, "%s", extra_headers);
-		fprintf(temp, "\n");
-	}
-	if (extra_headers != NULL)
-		free(extra_headers);
-	if (strcmp(buf, "."))
-		loopcopy(temp, stdin);
-	putc(0, temp);
-	fclose(temp);
-}
-
-
-void do_uudecode(char *target)
-{
-	static char buf[1024];
+int main(int argc, char **argv) {
+	char buf[1024];
+	char fromline[1024];
 	FILE *fp;
 
-	snprintf(buf, sizeof buf, "cd %s; uudecode", target);
-
-	fp = popen(buf, "w");
-	if (fp == NULL)
-		return;
+	fp = tmpfile();
+	if (fp == NULL) return(errno);
+	sprintf(fromline, "From: someone@somewhere.org");
 	while (fgets(buf, 1024, stdin) != NULL) {
 		fprintf(fp, "%s", buf);
+		if (!strncasecmp(buf, "From:", 5)) strcpy(fromline, buf);
 	}
-	pclose(fp);
+	strip_trailing_nonprint(fromline);
 
-}
+	sprintf(buf, "%d", SMTP_PORT);
+	serv_sock = connectsock("localhost", buf, "tcp");
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='2') cleanup(1);
 
-int alias(char *name)
-{
-	FILE *fp;
-	int a;
-	char abuf[256];
+	serv_puts("HELO localhost");
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='2') cleanup(1);
 
-	fp = fopen(ALIASES, "r");
-	if (fp == NULL) {
-		syslog(LOG_ERR, "cannot open %s: %s", ALIASES, strerror(errno));
-		return (2);
+	sprintf(buf, "MAIL %s", fromline);
+	serv_puts(buf);
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='2') cleanup(1);
+
+	sprintf(buf, "RCPT To: %s", argv[1]);
+	serv_puts(buf);
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='2') cleanup(1);
+
+	serv_puts("DATA");
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='3') cleanup(1);
+
+	rewind(fp);
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		strip_trailing_nonprint(buf);
+		serv_puts(buf);
 	}
-	while (fgets(abuf, 256, fp) != NULL) {
-		strip_trailing_whitespace(abuf);
-		for (a = 0; a < strlen(abuf); ++a) {
-			if (abuf[a] == ',') {
-				abuf[a] = 0;
-				if (!strcasecmp(name, abuf)) {
-					strcpy(name, &abuf[a + 1]);
-				}
-			}
-		}
-	}
-	fclose(fp);
-	return (0);
-}
-
-
-void deliver(char recp[], int is_test, int deliver_to_ignet)
-{
-
-	/* various ways we can deliver mail... */
-
-	if (deliver_to_ignet) {
-		syslog(LOG_NOTICE, "to Citadel network user %s", recp);
-		if (is_test == 0)
-			do_citmail(recp, DELIVER_REMOTE);
-	} else if (!strcmp(recp, "uudecode")) {
-		syslog(LOG_NOTICE, "uudecoding to bit bucket directory");
-		if (is_test == 0)
-			do_uudecode(config.c_bucket_dir);
-	} else if (!strcmp(recp, "cit86net")) {
-		syslog(LOG_NOTICE, "uudecoding to Cit86net spool");
-		if (is_test == 0) {
-			do_uudecode(CIT86NET);
-			system("exec ./BatchTranslate86");
-		}
-	} else if (!strcmp(recp, "null")) {
-		syslog(LOG_NOTICE, "zapping nulled message");
-	} else {
-		/* Otherwise, the user is local (or an unknown name was
-		 * specified, in which case we let netproc handle the bounce)
-		 */
-		syslog(LOG_NOTICE, "to Citadel recipient %s", recp);
-		if (is_test == 0)
-			do_citmail(recp, DELIVER_LOCAL);
-	}
-
-}
-
-
-
-int main(int argc, char **argv)
-{
-	int is_test = 0;
-	int deliver_to_ignet = 0;
-	static char recp[1024], buf[1024];
-	static char user[1024], node[1024], name[1024];
-	int a;
-
-	openlog("citmail", LOG_PID, LOG_USER);
-	get_config();
-	LoadInternetConfig();
-
-	if (!strcmp(argv[1], "-t")) {
-		is_test = 1;
-		syslog(LOG_NOTICE, "test mode - will not deliver");
-	}
-	if (is_test == 0) {
-		strcpy(recp, argv[1]);
-	} else {
-		strcpy(recp, argv[2]);
-	}
-
-/*** Non-SMTP delivery mode ***/
-	syslog(LOG_NOTICE, "recp: %s", recp);
-	for (a = 0; a < 2; ++a) {
-		alias(recp);
-	}
-
-	/* did we alias it back to a remote address? */
-	if ((haschar(recp, '%'))
-	    || (haschar(recp, '@'))
-	    || (haschar(recp, '!'))) {
-
-		process_rfc822_addr(recp, user, node, name);
-		host_alias(node);
-
-		/* If there are dots, it's an Internet host, so feed it
-		 * back to an external mail transport agent such as sendmail.
-		 */
-		if (haschar(node, '.')) {
-			snprintf(buf, sizeof buf, SENDMAIL, recp);
-			system(buf);
-			exit(0);
-		}
-		/* Otherwise, we're dealing with Citadel mail. */
-		else {
-			snprintf(recp, sizeof recp, "%s!%s", node, user);
-			deliver_to_ignet = 1;
-		}
-
-	}
-	deliver(recp, is_test, deliver_to_ignet);
-
-	if (RUN_NETPROC) {
-		syslog(LOG_NOTICE, "running netproc");
-		if (system("/bin/true") != 0) {
-			syslog(LOG_ERR, "netproc failed: %s", strerror(errno));
-		}
-	} else {
-		syslog(LOG_NOTICE, "skipping netproc");
-	}
-	exit(0);
+	serv_puts(".");
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0]!='2') cleanup(1);
+	else cleanup(0);
+	return(0);
 }

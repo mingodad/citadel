@@ -1,4 +1,8 @@
 $Log$
+Revision 1.435  2000/01/06 03:50:34  ajc
+* Replaced citmail.c with a new one that simply SMTP-forwards to Citadel
+* Started outbound SMTP queue work
+
 Revision 1.434  1999/12/30 04:56:29  ajc
 * Got initial SMTP delivery working in a very specific situation (delivery
   to a single, local user)
@@ -1514,3 +1518,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
