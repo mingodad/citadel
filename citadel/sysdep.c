@@ -110,9 +110,12 @@ void lprintf(int loglevel, const char *format, ...) {
 	if (loglevel <= verbosity) { 
 		struct timeval tv;
 		struct tm *tim;
+		time_t unixtime;
 
 		gettimeofday(&tv, NULL);
-		tim = localtime(&(tv.tv_sec));
+		/* Promote to time_t; types differ on some OSes (like darwin) */
+		unixtime = tv.tv_sec;
+		tim = localtime(&unixtime);
 		/*
 		 * Log provides millisecond accuracy.  If you need
 		 * microsecond accuracy and your OS supports it, change

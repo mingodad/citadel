@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.30  2002/10/16 08:59:41  error
+ * Don't assume pointer to time_t is compatible with pointer to
+   struct timeval.tv_sec (it isn't on darwin)
+
  Revision 601.29  2002/10/16 02:49:55  ajc
  * CtdlWriteObject() encode in memory instead of on disk (not tested)
 
@@ -4083,4 +4087,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
