@@ -3,13 +3,15 @@
 
 enum {
 	BUTTON_CLOSE,
-	BUTTON_READNEW
+	BUTTON_READNEW,
+	BUTTON_READALL
 };
 
 
 BEGIN_EVENT_TABLE(RoomView, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_CLOSE,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READNEW,		RoomView::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_READALL,		RoomView::OnButtonPressed)
 END_EVENT_TABLE()
 
 
@@ -86,6 +88,19 @@ RoomView::RoomView(
 	c2->width.AsIs();
 	c2->right.LeftOf(close_button, 5);
 	readnew_button->SetConstraints(c2);
+
+	wxButton *readall_button = new wxButton(
+		this,
+		BUTTON_READALL,
+		" Read all messages ",
+		wxDefaultPosition);
+
+	wxLayoutConstraints *c3 = new wxLayoutConstraints;
+	c3->top.SameAs(close_button, wxTop);
+	c3->bottom.SameAs(readnew_button, wxBottom);
+	c3->width.AsIs();
+	c3->right.LeftOf(readnew_button, 5);
+	readall_button->SetConstraints(c3);
 }
 
 
@@ -93,16 +108,16 @@ RoomView::RoomView(
 void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 	if (whichbutton.GetId() == BUTTON_CLOSE) {
 		delete this;
-	}
-
-	if (whichbutton.GetId() == BUTTON_READNEW) {
+	} else if (whichbutton.GetId() == BUTTON_READNEW) {
 		do_readloop("MSGS NEW");
+	} else if (whichbutton.GetId() == BUTTON_READALL) {
+		do_readloop("MSGS ALL");
 	}
 }
 
 
 void RoomView::do_readloop(wxString readcmd) {
-	wxString sendcmd, recvcmd, buf;
+	wxString sendcmd, recvcmd, buf, allmsgs;
 	wxStringList xferbuf, msgbuf;
         int i, r;
 	
@@ -110,14 +125,8 @@ void RoomView::do_readloop(wxString readcmd) {
 		delete message_window;
 		message_window = NULL;
 	}
-	
-	message_window = new wxTextCtrl(
-		this,
-		-1,
-		"Loading messages...\n\n",
-		wxDefaultPosition, wxDefaultSize,
-		wxTE_MULTILINE | wxTE_READONLY
-		);
+
+	message_window = new wxHtmlWindow(this);
 
 	wxLayoutConstraints *m1 = new wxLayoutConstraints;
 	m1->top.Below(banner, 2);
@@ -141,16 +150,19 @@ void RoomView::do_readloop(wxString readcmd) {
 
 
 	// Read the messages into the window, one at a time
-	message_window->SetValue(buf);
+	message_window->SetPage("<html><body>Loading...</body></html>");
+	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
         for (i=0; i<xferbuf.Number(); ++i) {
                 buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
 		sendcmd = "MSG0 " + buf;
 		r = citsock->serv_trans(sendcmd, recvcmd, msgbuf, ThisRoom);
 		if (r == 1) {
 			ListToMultiline(buf, msgbuf);
-			message_window->WriteText(buf);
-			message_window->WriteText("\n\n");
+			allmsgs += buf;
+			allmsgs += "<HR>";
 		}
+		allmsgs += "</HTML>";
+		message_window->SetPage(allmsgs);
         }
 }
 

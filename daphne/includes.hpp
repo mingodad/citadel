@@ -9,7 +9,7 @@
 #include <wx/imaglist.h>
 #include <wx/treectrl.h>
 #include <wx/toolbar.h>
-
+#include <wxhtml/wxhtml.h>
 
 
 #define MAXFLOORS	128
@@ -223,7 +223,7 @@ private:
 	CitClient *citsock;
 	DECLARE_EVENT_TABLE()
 	void do_readloop(wxString readcmd);
-	wxTextCtrl *message_window;
+	wxHtmlWindow *message_window;
         wxPanel *banner;
         wxButton *close_button;
 	wxString ThisRoom;

@@ -1,5 +1,7 @@
-CFLAGS=`wx-config --cflags`
-LFLAGS=`wx-config --libs`
+WXHTML=/usr/local/wxHTML
+
+CFLAGS=`wx-config --cflags` -I$(WXHTML)/include
+LFLAGS=`wx-config --libs` -L$(WXHTML)/lib -lwxhtml
 
 all: daphne
 
