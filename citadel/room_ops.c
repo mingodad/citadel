@@ -676,11 +676,15 @@ void usergoto(char *where, int display_result)
 
 	strcpy(CC->quickroom.QRname, where);
 	getroom(&CC->quickroom, where);
+
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
-	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
+	/* Know the room ... but not if it's the page log room */
+	if (strcasecmp(where, config.c_logpages)) {
+		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
+		}
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);

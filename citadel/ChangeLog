@@ -1,3 +1,6 @@
+Sun Jan 10 13:34:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Fixed access to page log room
+
 Fri Jan  8 12:35:09 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* control.c: include <limits.h> to fix PATH_MAX undefined
 	* serv_chat.c: made the following changes to cmd_sexp() --
