@@ -1,4 +1,7 @@
 $Log$
+Revision 522.16  2004/07/16 19:13:10  ajc
+* tools.c: display 13:00 as 12pm, not 12am
+
 Revision 522.15  2004/07/16 03:14:03  ajc
 * more work on inetconf screen
 
@@ -1977,4 +1980,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
