@@ -192,14 +192,16 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 
 AC_CACHE_CHECK([for ut_type in struct utmp], ac_cv_struct_ut_type,
-[AC_TRY_COMPILE([#include <utmp.h>], [struct utmp ut; ut.ut_type;],
+[AC_TRY_COMPILE([#include <sys/types.h>
+#include <utmp.h>], [struct utmp ut; ut.ut_type;],
 ac_cv_struct_ut_type=yes, ac_cv_struct_ut_type=no)])
 if test $ac_cv_struct_ut_type = yes; then
 	AC_DEFINE(HAVE_UT_TYPE)
 fi
 
 AC_CACHE_CHECK([for ut_host in struct utmp], ac_cv_struct_ut_host,
-[AC_TRY_COMPILE([#include <utmp.h>], [struct utmp ut; ut.ut_host;],
+[AC_TRY_COMPILE([#include <sys/types.h>
+#include <utmp.h>], [struct utmp ut; ut.ut_host;],
 ac_cv_struct_ut_host=yes, ac_cv_struct_ut_host=no)])
 if test $ac_cv_struct_ut_host = yes; then
 	AC_DEFINE(HAVE_UT_HOST)
