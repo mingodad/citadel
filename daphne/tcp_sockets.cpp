@@ -7,9 +7,7 @@
  */
 
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <stdio.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -38,7 +36,8 @@ void TCPsocket::timeout(int signum) {
 	serv_sock = (-1);
 }
 
-int TCPsocket::connectsock(char *host, char *service, char *protocol)
+int TCPsocket::connectsock(const char *host, const char *service,
+			const char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -181,7 +180,6 @@ void TCPsocket::serv_puts(char *string)
 
 
 int TCPsocket::attach(char *host, char *port) {
-	printf("attach() called\n");
 	serv_sock = connectsock(host, port, "tcp");
 	if (serv_sock >= 0) return 0;
 	else return (-1);
@@ -193,7 +191,6 @@ void TCPsocket::detach() {
 }
 
 bool TCPsocket::is_connected(void) {
-	printf("is_connected() called, serv_sock is %d\n", serv_sock);
 	if (serv_sock >= 0) return TRUE;
 	else return FALSE;
 	}

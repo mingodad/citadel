@@ -10,7 +10,7 @@ public:
 	bool is_connected(void);
 private:
 	int serv_sock;
-	int connectsock(char *, char *, char *);
+	int connectsock(const char *, const char *, const char *);
 	void timeout(int);
 };
 

@@ -15,19 +15,6 @@
 int CitClient::attach(const wxString& host, const wxString& port) {
 	wxString ServerReady;
 
-	//if (sock.IsConnected())
-	//	sock.Close();
-	//addr.Hostname(host);
-	//addr.Service(port);
-	//sock.SetNotify(0);
-	//sock.Connect(addr, TRUE);
-	//if (sock.IsConnected()) {
-	//	serv_gets(ServerReady);
-	//	initialize_session();
-	//	return(0);
-	//}
-	//else return(1);
-
 	if (sock.is_connected())
 		sock.detach();
 	if (sock.attach(host, port)==0) {
@@ -40,15 +27,9 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 }
 
 
-
-// constructor
+// constructur
 CitClient::CitClient(void) {
-  //wxSocketHandler::Master();
-  //sock.SetFlags(wxSocketBase::WAITALL);
-  //wxSocketHandler::Master().Register(&sock);
-  //sock.SetNotify(wxSocketBase::REQ_LOST);
 }
-
 
 
 // destructor
@@ -61,11 +42,9 @@ CitClient::~CitClient(void) {
 void CitClient::detach(void) {
 	wxString buf;
 
-	//if (sock.IsConnected()) {
 	if (sock.is_connected()) {
 		serv_puts("QUIT");
 		serv_gets(buf);
-		//sock.Close();
 		sock.detach();
 	}
 }
@@ -73,7 +52,6 @@ void CitClient::detach(void) {
 
 // Is this client connected?  Simply return the IsConnected status of sock.
 bool CitClient::IsConnected(void) {
-	//return sock.IsConnected();
 	return sock.is_connected();
 }
 
@@ -85,20 +63,11 @@ void CitClient::serv_gets(wxString& buf) {
 	
 	sock.serv_gets(charbuf);
 	buf = charbuf;
-
-	//buf.Empty();
-	//do {
-	//	while (sock.IsData()==FALSE) ;;
-	//	sock.Read(charbuf, 1);
-	//	if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
-	//} while(isprint(charbuf[0]));
 }
 
 
 // Write a line of text to the server
 void CitClient::serv_puts(wxString buf) {
-	//sock.Write(buf, strlen(buf));
-	//sock.Write("\n", 1);
 	sock.serv_puts(buf);
 }
 
@@ -117,11 +86,14 @@ int CitClient::serv_trans(
 
 	int first_digit;
 	wxString buf;
+	bool express_messages_waiting = FALSE;
 
 	serv_puts(command);
 	serv_gets(response);
-	// if (response.Length()==0) serv_gets(response);
 	first_digit = (response.GetChar(0)) - '0';
+
+	if (response.GetChar(3) == '*')
+		express_messages_waiting = TRUE;
 
 	if (first_digit == 1) {			// LISTING_FOLLOWS
 		xferbuf.Clear();
@@ -134,6 +106,9 @@ int CitClient::serv_trans(
 	}
 
 
+	if (express_messages_waiting) {
+		// FIX do something here
+	}
 
 	return first_digit;
 }

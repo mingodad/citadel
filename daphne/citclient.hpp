@@ -36,8 +36,6 @@ public:
 private:
 	void serv_gets(wxString& buf);
 	void serv_puts(wxString buf);
-	// wxSocketClient sock = (-1);
-	// wxIPV4address addr;
 	TCPsocket sock;
 	void CitClient::initialize_session(void);
 };
