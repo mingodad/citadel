@@ -258,28 +258,28 @@ void getz(char *buf) {
 
 /*
  * Output all that important stuff that the browser will want to see
+ *
+ * If print_standard_html_head is nonzero, we also get some standard HTML
+ * headers.  If it's set to 2, the session is considered to be closing.
  */
 void output_headers(int print_standard_html_head) {
 
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
+	char cookie[256];
 
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
-	printf("Set-cookie: wc_session=%d\n", wc_session);
 
-	if (strlen(wc_username)>0) printf("Set-cookie: wc_username=%s\n",
-		wc_username);
-	else printf("Set-cookie: wc_username=%s\n", unset);
+	stuff_to_cookie(cookie, wc_session, wc_username, wc_password, wc_roomname);
+	if (print_standard_html_head==2) {
+		printf("X-WebCit-Session: close\n");
+		printf("Set-cookie: webcit=%s\n", unset);
+		}
+	else {
+		printf("Set-cookie: webcit=%s\n", cookie);
+		}
 
-	if (strlen(wc_password)>0) printf("Set-cookie: wc_password=%s\n",
-		wc_password);
-	else printf("Set-cookie: wc_password=%s\n", unset);
-
-	if (strlen(wc_roomname)>0) printf("Set-cookie: wc_roomname=%s\n",
-		wc_roomname);
-	else printf("Set-cookie: wc_roomname=%s\n", unset);
-
-	if (print_standard_html_head) {
+	if (print_standard_html_head > 0) {
         	wprintf("<HTML><HEAD><TITLE>");
 		escputs("WebCit");	 /* FIX -- add BBS name here */
 		wprintf("</TITLE></HEAD>");
@@ -476,6 +476,7 @@ void session_loop(void) {
 	char c_username[256];
 	char c_password[256];
 	char c_roomname[256];
+	char cookie[256];
 
 	strcpy(c_host, defaulthost);
 	strcpy(c_port, defaultport);
@@ -492,12 +493,12 @@ void session_loop(void) {
 	do {
 		getz(buf);
 
-		if (!strncasecmp(buf, "Cookie: wc_username=", 20))
-			strcpy(c_username, &buf[20]);
-		if (!strncasecmp(buf, "Cookie: wc_password=", 20))
-			strcpy(c_password, &buf[20]);
-		if (!strncasecmp(buf, "Cookie: wc_roomname=", 20))
-			strcpy(c_roomname, &buf[20]);
+		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
+			strcpy(cookie, &buf[15]);
+			cookie_to_stuff(cookie, NULL,
+					c_username, c_password, c_roomname);
+			}
+
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
 			}
@@ -860,6 +861,14 @@ void session_loop(void) {
 
 	else if (!strcasecmp(action, "edit_me")) {
 		edit_me();
+		}
+
+	else if (!strcasecmp(action, "display_siteconfig")) {
+		display_siteconfig();
+		}
+
+	else if (!strcasecmp(action, "siteconfig")) {
+		siteconfig();
 		}
 
 	/* When all else fails... */

@@ -20,8 +20,9 @@ distclean: clean
 	rm -f Makefile config.cache config.log config.status
 
 
-webserver: webserver.o context_loop.o $(LIBOBJS)
-	$(CC) webserver.o context_loop.o $(LIBOBJS) $(LIBS) -o webserver
+webserver: webserver.o context_loop.o tools.o cookie_conversion.o $(LIBOBJS)
+	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
+	$(LIBOBJS) $(LIBS) -o webserver
 
 webserver.o: webserver.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" webserver.c
@@ -36,10 +37,10 @@ snprintf.o: snprintf.c
 
 webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o tools.o messages.o userlist.o paging.o sysmsgs.o \
-	mime_parser.o graphics.o netconf.o
+	mime_parser.o graphics.o netconf.o cookie_conversion.o siteconfig.o
 	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o \
-	mime_parser.o graphics.o netconf.o -o webcit
+	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o siteconfig.o \
+	mime_parser.o graphics.o netconf.o cookie_conversion.o -o webcit
 
 webcit.o: webcit.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
@@ -82,6 +83,12 @@ sysmsgs.o: sysmsgs.c webcit.h child.h
 
 mime_parser.o: mime_parser.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c mime_parser.c
+
+cookie_conversion.o: cookie_conversion.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c cookie_conversion.c
+
+siteconfig.o: siteconfig.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c siteconfig.c
 
 netconf.o: netconf.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c netconf.c
