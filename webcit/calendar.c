@@ -107,6 +107,15 @@ void cal_process_object(icalcomponent *cal,
 				</TD></TR>\n"
 			);
 			break;
+		    case ICAL_METHOD_REPLY:
+			wprintf("<TR><TD COLSPAN=2>\n"
+				"<IMG ALIGN=CENTER "
+				"SRC=\"/static/vcalendar.gif\">"
+				"&nbsp;&nbsp;"	
+				"<B>Attendee's reply to your invitation</B>
+				</TD></TR>\n"
+			);
+			break;
 		    case ICAL_METHOD_PUBLISH:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
@@ -186,6 +195,13 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</TD></TR>\n");
 	}
 
+	/* If the component has attendees, iterate through them. */
+	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
+		wprintf("<TR><TD><B>Attendee:</B></TD><TD>");
+		escputs("FIXME display attendee");
+		wprintf("</TD></TR>\n");
+	}
+
 	/* If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	    (c != 0);
@@ -239,6 +255,39 @@ void cal_process_object(icalcomponent *cal,
 			"&nbsp;&nbsp;"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
 				"VALUE=\"Decline\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
+				"VALUE=\"%ld\">"
+			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
+				"VALUE=\"%s\">"
+			"</FORM>"
+			"</TD></TR>\n",
+			msgnum, cal_partnum
+		);
+
+	}
+
+	/* If this is a REPLY, display update button */
+	if (the_method == ICAL_METHOD_REPLY) {
+
+		/***********
+		 * In the future, if we want to validate this object before
+		 * continuing, we can do it this way:
+		serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
+		serv_gets(buf);
+		}
+		 ***********/
+
+		/* Display the update buttons */
+		wprintf("<TR><TD COLSPAN=2>"
+			"Click <i>Update</i> to accept this reply and "
+			"update your calendar."
+			"<FORM METHOD=\"GET\" "
+			"ACTION=\"/handle_rsvp\">\n"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Update\">\n"
+			"&nbsp;&nbsp;"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Ignore\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
 				"VALUE=\"%ld\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
@@ -331,7 +380,58 @@ void respond_to_request(void) {
 
 	wprintf("<A HREF=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
-	wprintf("\">Return to messages</A><BR>\n");
+	wprintf("\"><BR>Return to messages</A><BR>\n");
+
+	wDumpContent(1);
+}
+
+
+
+/*
+ * Handle an incoming RSVP
+ */
+void handle_rsvp(void) {
+	char buf[SIZ];
+
+	output_headers(3);
+
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>Update your calendar with this RSVP</B>"
+		"</FONT></TD></TR></TABLE><BR>\n"
+	);
+
+	serv_printf("ICAL handle_rsvp|%s|%s|%s|",
+		bstr("msgnum"),
+		bstr("cal_partnum"),
+		bstr("sc")
+	);
+	serv_gets(buf);
+
+	if (buf[0] == '2') {
+		wprintf("<TABLE BORDER=0><TR><TD>"
+			"<IMG SRC=\"static/vcalendar.gif\" ALIGN=CENTER>"
+			"</TD><TD>"
+		);
+		if (!strcasecmp(bstr("sc"), "update")) {
+			wprintf("Your calendar has been updated "
+				"to reflect this RSVP."
+			);
+		} else if (!strcasecmp(bstr("sc"), "ignore")) {
+			wprintf("You have chosen to ignore this RSVP. "
+				"Your calendar has <b>not</b> been updated."
+			);
+		}
+		wprintf("</TD></TR></TABLE>\n"
+		);
+	} else {
+		wprintf("<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"%s\n", &buf[4]);
+	}
+
+	wprintf("<A HREF=\"/dotskip?room=");
+	urlescputs(WC->wc_roomname);
+	wprintf("\"><BR>Return to messages</A><BR>\n");
 
 	wDumpContent(1);
 }
