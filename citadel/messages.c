@@ -704,6 +704,9 @@ int client_make_message(char *filename,	/* temporary file name */
 		}
 	}
 	scr_printf("%s\n", header);
+	if (subject != NULL) if (strlen(subject) > 0) {
+		scr_printf("Subject: %s\n", subject);
+	}
 
 	beg = 0L;
 
