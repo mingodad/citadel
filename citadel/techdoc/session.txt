@@ -552,6 +552,7 @@ parts of the listing:
  Line 13 - The "nonce" for this session, for support of APOP-style
            authentication.  If this field is present, clients may authenticate
            in this manner.
+ Line 14 - Set to nonzero if this server supports the QNOP command.
  
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary
@@ -1900,6 +1901,19 @@ views.txt for more information on views.  The sole parameter for this command
 is the type of view requested.  VIEW returns OK on success or ERROR on failure.
    
     
+ QNOP   (Quiet No OPeration)
+ 
+ This command does nothing, similar to the NOOP command.  However, unlike the
+NOOP command, it returns *absolutely no response* at all.  The client has no
+way of knowing that the command executed.  It is intended for sending
+"keepalives" in situations where a full NOOP would cause the client protocol
+to get out of sync.
+ 
+ Naturally, sending this command to a server that doesn't support it is an
+easy way to mess things up.  Therefore, client software should first check
+the output of an INFO command to ensure that the server supports quiet noops.
+ 
+ 
  ASYN   (ASYNchronous message support)
  
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The

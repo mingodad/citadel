@@ -39,7 +39,8 @@ struct CtdlServInfo {
 	char serv_moreprompt[256];
 	int serv_ok_floors;
 	int serv_paging_level;
-	};
+	int serv_supports_qnop;
+};
 
 #define QR_PERMANENT	1		/* Room does not purge              */
 #define QR_INUSE	2		/* Set if in use, clear if avail    */

@@ -61,6 +61,9 @@ void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
 		case 10:	infobuf->serv_ok_floors = atoi(buf);
 				break;
 		case 11:	infobuf->serv_paging_level = atoi(buf);
+				break;
+		case 13:	infobuf->serv_supports_qnop = atoi(buf);
+				break;
 		}
 	    ++a;
 	    }

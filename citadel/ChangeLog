@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.31  2002/05/24 19:58:13  ajc
+ * Fixed the "idle timeout during paginator prompt" bug by reintroducting the
+   concept of a "half keepalive" and sending them during paginator prompts.
+
  Revision 591.30  2002/05/23 03:33:21  ajc
  * Added a GTSN (GeT list of SeeN messages) command
 
@@ -3675,4 +3679,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

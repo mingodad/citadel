@@ -64,13 +64,15 @@ extern char rc_floor_mode;
 extern int rc_ansi_color;
 extern int rc_prompt_control;
 
-void back(int spaces) /* Destructive backspace */
-            {
+/* Destructive backspace */
+void back(int spaces) {
 	int a;
-	for (a=1; a<=spaces; ++a) {
-		scr_putc(8); scr_putc(32); scr_putc(8);
-		}
+	for (a=0; a<spaces; ++a) {
+		scr_putc(8);
+		scr_putc(32);
+		scr_putc(8);
 	}
+}
 
 void hit_any_key(void) {		/* hit any key to continue */
 	int a,b;
@@ -170,8 +172,8 @@ AGUP:	snprintf(buf, sizeof buf, "AGUP %s",who);
 	serv_gets(buf);
 	if (buf[0]!='2') {
 		scr_printf("%s\n",&buf[4]);
-		}
 	}
+}
 
 
 int set_attr(int sval, char *prompt, unsigned int sbit)
@@ -194,7 +196,7 @@ int set_attr(int sval, char *prompt, unsigned int sbit)
 	temp=(temp|sbit);
 	if (!a) temp=(temp^sbit);
 	return(temp);
-	}
+}
 
 /*
  * modes are:  0 - .EC command, 1 - .EC for new user,
@@ -211,7 +213,7 @@ void enter_config(int mode)
 	if (buf[0]!='2') {
 		scr_printf("%s\n",&buf[4]);
 		return;
-		}
+	}
 
 	width = extract_int(&buf[4],0);
 	height = extract_int(&buf[4],1);
@@ -295,35 +297,34 @@ int getstring(FILE *fp, char *string)
 			if (c<0) {
 				string[a]=0;
 				return(-1);
-				}
+			}
 			string[a++]=c;
-			} while(c!=10);
+		} while(c!=10);
 			string[a-1]=0;
-		} while(string[0]=='#');
+	} while(string[0]=='#');
 	return(strlen(string));
-	}
+}
 
-int pattern(char *search, char *patn)	/* Searches for patn in search string */
-              
-            
-{
+
+/* Searches for patn in search string */
+int pattern(char *search, char *patn) {
 	int a,b;
-	for (a=0; a<strlen(search); ++a)
-	{	b=strncasecmp(&search[a],patn,strlen(patn));
+
+	for (a=0; a<strlen(search); ++a) {
+		b=strncasecmp(&search[a],patn,strlen(patn));
 		if (b==0) return(b);
-		}
+	}
 	return(-1);
 }
 
-void interr(int errnum)	/* display internal error as defined in errmsgs */
-            {
+
+/* display internal error as defined in errmsgs */
+void interr(int errnum) {
 	scr_printf("*** INTERNAL ERROR %d\n"
 		"(Press any key to continue)\n", errnum);
 	inkey();
 	logoff(errnum);
 }
-
-
 
 void strproc(char *string)
 {
@@ -335,7 +336,7 @@ void strproc(char *string)
 	for (a=0; a<strlen(string); ++a) {
 		if (string[a]<32) string[a]=32;
 		if (string[a]>126) string[a]=32;
-		}
+	}
 
 	/* Remove leading and trailing blanks */
 	while(string[0]<33) strcpy(string,&string[1]);
@@ -346,8 +347,8 @@ void strproc(char *string)
 		if ((string[a]==32)&&(string[a+1]==32)) {
 			strcpy(&string[a],&string[a+1]);
 			a=0;
-			}
 		}
+	}
 
 	/* remove characters which would interfere with the network */
 	for (a=0; a<strlen(string); ++a) {
@@ -357,9 +358,9 @@ void strproc(char *string)
 		if (string[a]==',') strcpy(&string[a],&string[a+1]);
 		if (string[a]=='%') strcpy(&string[a],&string[a+1]);
 		if (string[a]=='|') strcpy(&string[a],&string[a+1]);
-		}
-
 	}
+
+}
 
 
 #ifndef HAVE_STRERROR
@@ -372,7 +373,7 @@ char *strerror(int e)
 
 	snprintf(buf, sizeof buf, "errno = %d",e);
 	return(buf);
-	}
+}
 #endif
 
 
@@ -386,10 +387,10 @@ void progress(long int curr, long int cmax)
 		scr_printf(".......................................\r");
 		scr_flush();
 		dots_printed = 0;
-		}
+	}
 	else if (curr==cmax) {
 		scr_printf("\r%79s\n","");
-		}
+	}
 	else {
 		a=(curr * 100) / cmax;
 		a=a*78; a=a/100;
@@ -397,9 +398,9 @@ void progress(long int curr, long int cmax)
 			scr_printf("*");
 			++dots_printed;
 			scr_flush();
-			}
 		}
 	}
+}
 
 
 /*
@@ -417,27 +418,27 @@ void locate_host(char *hbuf)
 	if (who==NULL) {
 		strcpy(hbuf,serv_info.serv_fqdn);
 		return;	
-		}
+	}
 	fgets(buf,sizeof buf,who);
 	pclose(who);
 
 	b = 0;
 	for (a=0; a<strlen(buf); ++a) {
 		if ((buf[a]=='(')||(buf[a]==')')) ++b;
-		}
+	}
 	if (b<2) {
 		strcpy(hbuf,serv_info.serv_fqdn);
 		return;
-		}
+	}
 
 	for (a=0; a<strlen(buf); ++a) {
 		if (buf[a]=='(') {
 			strcpy(buf,&buf[a+1]);
-			}
 		}
+	}
 	for (a=0; a<strlen(buf); ++a) {
 		if (buf[a]==')') buf[a] = 0;
-		}
+	}
 
 	if (strlen(buf)==0) strcpy(hbuf,serv_info.serv_fqdn);
 	else strncpy(hbuf,buf,24);
@@ -453,7 +454,7 @@ void locate_host(char *hbuf)
 	    fail:
 		safestrncpy(hbuf, serv_info.serv_fqdn, 24);
 		return;
-		}
+	}
 
 	if (strncmp(tty, "/dev/", 5))
 		goto fail;
@@ -477,11 +478,11 @@ void locate_host(char *hbuf)
 #endif
 			safestrncpy(hbuf, put->ut_line, 24);
 #if defined(HAVE_UT_TYPE) || defined(HAVE_GETUTXLINE)
-		}
+	}
 	else goto fail;
 #endif
 #endif /* HAVE_UTMP_H */
-	}
+}
 
 /*
  * miscellaneous server commands (testing, etc.)
@@ -493,21 +494,21 @@ void misc_server_cmd(char *cmd) {
 	serv_gets(buf);
 	scr_printf("%s\n",buf);
 	if (buf[0]=='1') {
-		set_keepalives(KA_NO);
+		set_keepalives(KA_HALF);
 		while (serv_gets(buf), strcmp(buf,"000")) {
 			scr_printf("%s\n",buf);
-			}
+		}
 		set_keepalives(KA_YES);
 		return;
-		}
+	}
 	if (buf[0]=='4') {
 		do {
 			newprompt("> ",buf,255);
 			serv_puts(buf);
-			} while(strcmp(buf,"000"));
+		} while(strcmp(buf,"000"));
 		return;
-		}
 	}
+}
 
 
 /*
@@ -527,11 +528,11 @@ int file_checksum(char *filename)
 	 */
 	while (ch=getc(fp), ch>=0) {
 		cksum = (cksum + ch);
-		}
+	}
 
 	fclose(fp);
 	return(cksum);
-	}
+}
 
 /*
  * nuke a directory and its contents
@@ -545,13 +546,14 @@ int nukedir(char *dirname)
 	dp = opendir(dirname);
 	if (dp == NULL) {
 		return(errno);
-		}
+	}
 
 	while (d = readdir(dp), d != NULL) {
-		snprintf(filename, sizeof filename, "%s/%s", dirname, d->d_name);
+		snprintf(filename, sizeof filename, "%s/%s",
+			dirname, d->d_name);
 		unlink(filename);
-		}
+	}
 
 	closedir(dp);
 	return(rmdir(dirname));
-	}
+}

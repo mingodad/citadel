@@ -135,7 +135,7 @@ char was_a_key_pressed(void) {
 
 /*
  * Check to see if we need to pause at the end of a screen.
- * If we do, we have to disable server keepalives during the pause because
+ * If we do, we have to switch to half keepalives during the pause because
  * we are probably in the middle of a server operation and the NOOP command
  * would confuse everything.
  */
@@ -154,7 +154,7 @@ int checkpagin(int lp, int pagin, int height)
 
 	if (!pagin) return(0);
 	if (lp>=(height-1)) {
-		set_keepalives(KA_NO);
+		set_keepalives(KA_HALF);
 		hit_any_key();
 		set_keepalives(KA_YES);
 		return(0);
@@ -348,6 +348,10 @@ static void really_do_keepalive(void) {
 	char buf[1024];
 
 	time(&idlet);
+
+	/* If full keepalives are enabled, send a NOOP to the server and
+	 * wait for a response.
+	 */
 	if (keepalives_enabled == KA_YES) {
 		serv_puts("NOOP");
 		serv_gets(buf);
@@ -361,6 +365,14 @@ static void really_do_keepalive(void) {
 				scr_flush();
 			}
 		}
+	}
+
+	/* If half keepalives are enabled, send a QNOP to the server (if the
+	 * server supports it) and then do nothing.
+	 */
+	if ( (keepalives_enabled == KA_HALF)
+	   && (serv_info.serv_supports_qnop > 0) ) {
+		serv_puts("QNOP");
 	}
 }
 

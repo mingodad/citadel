@@ -330,6 +330,7 @@ void cmd_info(void) {
 	cprintf("1\n");	/* 1 = yes, this system supports floors */
 	cprintf("1\n"); /* 1 = we support the extended paging options */
 	cprintf("%s\n", CC->cs_nonce);
+	cprintf("1\n"); /* 1 = yes, this system supports the QNOP command */
 	cprintf("000\n");
 }
 
@@ -891,9 +892,10 @@ void do_command_loop(void) {
 
 	/*
 	 * Let other clients see the last command we executed, and
-	 * update the idle time, but not NOOP, PEXP, or GEXP.
+	 * update the idle time, but not NOOP, QNOP, PEXP, or GEXP.
 	 */
 	if ( (strncasecmp(cmdbuf, "NOOP", 4))
+	   && (strncasecmp(cmdbuf, "QNOP", 4))
 	   && (strncasecmp(cmdbuf, "PEXP", 4))
 	   && (strncasecmp(cmdbuf, "GEXP", 4)) ) {
 		strcpy(CC->lastcmdname, "    ");
@@ -911,6 +913,10 @@ void do_command_loop(void) {
 		   
 	if (!strncasecmp(cmdbuf,"NOOP",4)) {
 		cprintf("%d%cok\n",CIT_OK,CtdlCheckExpress());
+	}
+	
+	else if (!strncasecmp(cmdbuf,"QNOP",4)) {
+		/* do nothing, this command returns no response */
 	}
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {

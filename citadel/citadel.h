@@ -265,8 +265,11 @@ struct floor {
 #define RC_DEFAULT	2		/* setting depends on user config */
 
 /* keepalives */
-#define KA_NO		0		/* no keepalives */
-#define KA_YES		1		/* full keepalives */
+enum {
+	KA_NO,				/* no keepalives */
+	KA_YES,				/* full keepalives */
+	KA_HALF				/* half keepalives */
+};
 
 /* for <;G>oto and <;S>kip commands */
 #define GF_GOTO		0		/* <;G>oto floor mode */
