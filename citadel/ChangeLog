@@ -1,3 +1,6 @@
+1999-05-15 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in: Added untested support for BSDI 4.x.
+
 1999-05-13 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* acconfig.h, configure.in, routines.c: fix for certain SYSV variants
 	  which lack utmp.ut_host

@@ -26,9 +26,12 @@ case "$host" in
 	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
 	dnl for dlopen(), and has a wrapper script to link with shared libs.
 	dnl Also has stupid non-reentrant gethostbyaddr() and friends.
-	i?86-*-bsdi*)
+	*-*-bsdi[123]*)
 		test -z "$CC" -a -x /usr/bin/shlicc2 && CC=shlicc2
 		SO=.mo
+		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
+	;;
+	*-*-bsdi*)
 		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
 	;;
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
@@ -64,7 +67,7 @@ dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
 	case "$host" in
-		i?86-*-bsdi*)
+		*-*-bsdi[123]*)
 		;;
 		mips*-sgi-irix*)
 			PICFLAGS=-fPIC
