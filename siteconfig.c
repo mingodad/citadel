@@ -676,7 +676,7 @@ void siteconfig(void)
 	serv_printf("%s", ((!strcasecmp(bstr("c_aide_zap"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
-	serv_printf("%s", bstr("c_disable_newu"));
+	serv_printf("%s", ((!strcasecmp(bstr("c_disable_newu"), "yes") ? "1" : "0")));
 	serv_printf("1");	/* placeholder -- deprecated */
 	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("%s", bstr("c_ldap_host"));

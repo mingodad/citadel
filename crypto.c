@@ -83,7 +83,7 @@ void init_ssl(void)
 	 * Initialize SSL transport layer
 	 */
 	SSL_library_init();
-	OpenSSL_add_all_algorithms();
+	/* OpenSSL_add_all_algorithms(); */
 	SSL_load_error_strings();
 	ssl_method = SSLv2_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {

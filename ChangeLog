@@ -1,4 +1,9 @@
 $Log$
+Revision 527.1  2004/12/28 03:58:24  ajc
+* Corrected overly-escaped reply-to addresses in "reply" button
+* Repaired toggling of self-service account creation in admin screen
+* Bumped internal version number to 5.28
+
 Revision 527.0  2004/12/07 04:41:37  ajc
 * THIS IS 5.27
 
@@ -2137,3 +2142,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
