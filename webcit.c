@@ -835,11 +835,17 @@ void session_loop(struct httprequest *req)
 	char c_username[SIZ];
 	char c_password[SIZ];
 	char c_roomname[SIZ];
+	char c_httpauth_string[SIZ];
+	char c_httpauth_user[SIZ];
+	char c_httpauth_pass[SIZ];
 	char cookie[SIZ];
 
 	strcpy(c_username, "");
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
+	strcpy(c_httpauth_string, "");
+	strcpy(c_httpauth_user, "");
+	strcpy(c_httpauth_pass, "");
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
@@ -863,6 +869,11 @@ void session_loop(struct httprequest *req)
 			safestrncpy(cookie, &buf[15], sizeof cookie);
 			cookie_to_stuff(cookie, NULL,
 				      c_username, c_password, c_roomname);
+		}
+		else if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
+			CtdlDecodeBase64(c_httpauth_string, &buf[21], strlen(&buf[21]));
+			extract_token(c_httpauth_user, c_httpauth_string, 0, ':');
+			extract_token(c_httpauth_pass, c_httpauth_string, 1, ':');
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
@@ -986,12 +997,31 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 #endif
+
+	/*
+	 * If we're not logged in, but we have HTTP Authentication data,
+	 * try logging in to Citadel using that.
+	 */
+	if ((!WC->logged_in) && (strlen(c_httpauth_user) > 0) && (strlen(c_httpauth_pass) > 0)) {
+		serv_printf("USER %s", c_httpauth_user);
+		serv_gets(buf);
+		if (buf[0] == '3') {
+			serv_printf("PASS %s", c_httpauth_pass);
+			serv_gets(buf);
+			if (buf[0] == '2') {
+				become_logged_in(c_httpauth_user, c_httpauth_pass, buf);
+				strcpy(WC->httpauth_user, c_httpauth_user);
+				strcpy(WC->httpauth_pass, c_httpauth_pass);
+			}
+		}
+	}
+
 	/* 
 	 * The GroupDAV stuff relies on HTTP authentication instead of
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(cmd);
+		groupdav_main(req);
 		goto SKIP_ALL_THIS_CRAP;
 	}
 

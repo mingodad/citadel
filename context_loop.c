@@ -263,6 +263,13 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
+	char httpauth_string[SIZ];
+	char httpauth_user[SIZ];
+	char httpauth_pass[SIZ];
+
+	strcpy(httpauth_string, "");
+	strcpy(httpauth_user, "");
+	strcpy(httpauth_pass, "");
 
 	/*
 	 * Find out what it is that the web browser is asking for
@@ -271,12 +278,27 @@ void context_loop(int sock)
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
 
+		/*
+		 * Browser-based sessions use cookies for session authentication
+		 */
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
 				NULL, NULL, NULL);
 			got_cookie = 1;
 		}
 
+		/*
+		 * GroupDAV-based sessions use HTTP authentication
+		 */
+		if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
+			CtdlDecodeBase64(httpauth_string, &buf[21], strlen(&buf[21]));
+			extract_token(httpauth_user, httpauth_string, 0, ':');
+			extract_token(httpauth_pass, httpauth_string, 1, ':');
+		}
+
+		/*
+		 * Read in the request
+		 */
 		hptr = (struct httprequest *)
 			malloc(sizeof(struct httprequest));
 		if (req == NULL)
@@ -334,10 +356,22 @@ void context_loop(int sock)
 	}
 
 	/*
-	 * See if there's an existing session open with the desired ID
+	 * See if there's an existing session open with the desired ID or user/pass
 	 */
 	TheSession = NULL;
-	if (desired_session != 0) {
+
+	if ( (TheSession == NULL) && (strlen(httpauth_user) > 0) ) {
+		pthread_mutex_lock(&SessionListMutex);
+		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
+			if ( (!strcasecmp(sptr->httpauth_user, httpauth_user))
+			   &&(!strcasecmp(sptr->httpauth_pass, httpauth_pass)) ) {
+				TheSession = sptr;
+			}
+		}
+		pthread_mutex_unlock(&SessionListMutex);
+	}
+
+	if ( (TheSession == NULL) && (desired_session != 0) ) {
 		pthread_mutex_lock(&SessionListMutex);
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 			if (sptr->wc_session == desired_session) {
@@ -358,6 +392,8 @@ void context_loop(int sock)
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 		TheSession->wc_session = GenerateSessionID();
+		strcpy(TheSession->httpauth_user, httpauth_user);
+		strcpy(TheSession->httpauth_pass, httpauth_pass);
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 
 		pthread_mutex_lock(&SessionListMutex);
