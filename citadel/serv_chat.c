@@ -570,15 +570,27 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		logmsg->cm_fields['R'] = strdoop(x_user);
 		logmsg->cm_fields['M'] = strdoop(x_msg);
 
+
+		/* Save a copy of the message in the sender's log room,
+		 * creating the room if necessary.
+		 */
 		MailboxName(roomname, &CC->usersupp, PAGELOGROOM);
 		create_room(roomname, 4, "", 0, 1);
 		msgnum = CtdlSaveMsg(logmsg, "", roomname, MES_LOCAL);
+
+		/* Now save a copy in the global log room, if configured */
 		if (strlen(config.c_logpages) > 0) {
 			create_room(config.c_logpages, 3, "", 0, 1);
 			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0);
 		}
+
+		/* Save a copy in each recipient's log room, creating those
+		 * rooms if necessary.  Note that we create as a type 5 room
+		 * rather than 4, which indicates that it's a personal room
+		 * but we've already supplied the namespace prefix.
+		 */
 		while (sl != NULL) {
-			create_room(sl->roomname, 4, "", 0, 1);
+			create_room(sl->roomname, 5, "", 0, 1);
 			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
 			sptr = sl->next;
 			phree(sl);

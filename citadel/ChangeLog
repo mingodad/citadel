@@ -1,4 +1,10 @@
  $Log$
+ Revision 573.92  2001/02/17 05:53:35  ajc
+ * Repaired the creation of page log rooms in the wrong namespace when the
+   recipient does not yet have his/her log room created.
+ * Rewrite "EXPI messages" to run in two passes: one to gather messages to
+   purge and the next to delete them.  Works better in transactionland.
+
  Revision 573.91  2001/02/14 08:11:27  error
  * citadel.rc: added $Id$ (it's about time!)
 
@@ -2411,3 +2417,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -19,6 +19,9 @@
  * records from a file while the file is being traversed.  The delete operation
  * will succeed, but the traversal is not guaranteed to visit every object if
  * this is done.  Therefore we utilize the two-stage purge.
+ *
+ * When using Berkeley DB, there's another reason for the two-phase purge: we
+ * don't want the entire thing being done as one huge transaction.
  */
 
 
@@ -100,7 +103,12 @@ struct roomref *rr = NULL;
 
 extern struct CitContext *ContextList;
 
-void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
+
+/*
+ * First phase of message purge -- gather the locations of messages which
+ * qualify for purging and write them to a temp file.
+ */
+void GatherPurgeMessages(struct quickroom *qrbuf, void *data) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
@@ -109,6 +117,10 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
         struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
+	FILE *purgelist;
+
+	purgelist = (FILE *)data;
+	fprintf(purgelist, "r=%s\n", qrbuf->QRname);
 
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
@@ -117,7 +129,6 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
 
-	begin_critical_section(S_QUICKROOM);
         cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
 
         if (cdbfr != NULL) {
@@ -129,20 +140,17 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 
 	/* Nothing to do if there aren't any messages */
 	if (num_msgs == 0) {
-		end_critical_section(S_QUICKROOM);
+		if (msglist != NULL) phree(msglist);
 		return;
 	}
 
 	/* If the room is set to expire by count, do that */
 	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
-		while (num_msgs > epbuf.expire_value) {
-			delnum = msglist[0];
-			lprintf(5, "Expiring message %ld\n", delnum);
-			AdjRefCount(delnum, -1); 
-			memcpy(&msglist[0], &msglist[1],
-				(sizeof(long)*(num_msgs - 1)));
-			--num_msgs;
-			++messages_purged;
+		if (num_msgs > epbuf.expire_value) {
+			for (a=0; a<(num_msgs - epbuf.expire_value); ++a) {
+				fprintf(purgelist, "m=%ld\n", msglist[a]);
+				++messages_purged;
+			}
 		}
 	}
 
@@ -161,30 +169,58 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 
 			if ((xtime > 0L)
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {
-				lprintf(5, "Expiring message %ld\n", delnum);
-				AdjRefCount(delnum, -1); 
-				msglist[a] = 0L;
+				fprintf(purgelist, "m=%ld\n", delnum);
 				++messages_purged;
 			}
 		}
 	}
 
-	if (num_msgs > 0) {
-		num_msgs = sort_msglist(msglist, num_msgs);
-	}
-
-	cdb_store(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long),
-		msglist, (num_msgs * sizeof(long)) );
-
 	if (msglist != NULL) phree(msglist);
-
-	end_critical_section(S_QUICKROOM);
 }
 
+
+/*
+ * Second phase of message purge -- read list of msgs from temp file and
+ * delete them.
+ */
+void DoPurgeMessages(FILE *purgelist) {
+	char roomname[ROOMNAMELEN];
+	long msgnum;
+	char buf[SIZ];
+
+	rewind(purgelist);
+	strcpy(roomname, "nonexistent room ___ ___");
+	while (fgets(buf, sizeof buf, purgelist) != NULL) {
+		buf[strlen(buf)-1]=0;
+		if (!strncasecmp(buf, "r=", 2)) {
+			strcpy(roomname, &buf[2]);
+		}
+		if (!strncasecmp(buf, "m=", 2)) {
+			msgnum = atol(&buf[2]);
+			if (msgnum > 0L) {
+				CtdlDeleteMessages(roomname, msgnum, "");
+			}
+		}
+	}
+}
+
+
 void PurgeMessages(void) {
+	FILE *purgelist;
+
 	lprintf(5, "PurgeMessages() called\n");
 	messages_purged = 0;
-	ForEachRoom(DoPurgeMessages, NULL);
+
+	purgelist = tmpfile();
+	if (purgelist == NULL) {
+		lprintf(3, "Can't create purgelist temp file: %s\n",
+			strerror(errno));
+		return;
+	}
+
+	ForEachRoom(GatherPurgeMessages, (void *)purgelist );
+	DoPurgeMessages(purgelist);
+	fclose(purgelist);
 }
 
 
