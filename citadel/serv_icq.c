@@ -1790,6 +1790,7 @@ void CtdlICQ_Read_Config_Backend(long msgnum) {
 	int pos;
 	char *ptr;
 
+	lprintf(9, "Fetching my ICQ configuration (msg %ld)\n", msgnum);
 	msg = CtdlFetchMessage(msgnum);
 	if (msg != NULL) {
 		ptr = msg->cm_fields['M'];
@@ -1804,6 +1805,8 @@ void CtdlICQ_Read_Config_Backend(long msgnum) {
 			safestrncpy(ThisICQ->icq_config, ptr, 256);
 		}
 		CtdlFreeMessage(msg);
+	} else {
+		lprintf(9, "...it ain't there?\n");
 	}
 }
 
@@ -1825,6 +1828,8 @@ void CtdlICQ_Read_Config(void) {
 	}
 
 	/* We want the last (and probably only) config in this room */
+	lprintf(9, "We're in <%s> looking for config\n", 
+		CC->quickroom.QRname);
 	CtdlForEachMessage(MSGS_LAST, 1, ICQMIME, CtdlICQ_Read_Config_Backend);
 	getroom(&CC->quickroom, hold_rm);
 	return;
@@ -1921,6 +1926,7 @@ void CtdlICQ_Read_CL_Backend(long msgnum) {
 					ThisICQ->icq_cl[i].status =
 						STATUS_OFFLINE;
 					++i;
+					ptr = NULL;
 				}
 			}
 		}
@@ -1952,8 +1958,29 @@ void CtdlICQ_Read_CL(void) {
 	}
 
 	/* We want the last (and probably only) list in this room */
-	CtdlForEachMessage(MSGS_LAST, 1, ICQMIME, CtdlICQ_Read_CL_Backend);
+	CtdlForEachMessage(MSGS_LAST, 1, ICQCLMIME, CtdlICQ_Read_CL_Backend);
 	getroom(&CC->quickroom, hold_rm);
+}
+
+
+/* 
+ * Returns a pointer to a CtdlICQ_CL struct for a given uin, creating an
+ * entry in the table if necessary
+ */
+struct CtdlICQ_CL *CtdlICQ_CLent(DWORD uin) {
+	int i;
+
+	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i)
+		if (ThisICQ->icq_cl[i].uin == uin)
+			return (&ThisICQ->icq_cl[i]);
+
+	++ThisICQ->icq_numcl;
+	ThisICQ->icq_cl = reallok(ThisICQ->icq_cl, 
+		(ThisICQ->icq_numcl * sizeof(struct CtdlICQ_CL)) );
+	memset(&ThisICQ->icq_cl[ThisICQ->icq_numcl - 1],
+		0, sizeof(struct CtdlICQ_CL));
+	ThisICQ->icq_cl[ThisICQ->icq_numcl - 1].uin = uin;
+	return(&ThisICQ->icq_cl[ThisICQ->icq_numcl - 1]);
 }
 
 
@@ -1968,9 +1995,9 @@ void CtdlICQ_Refresh_Contact_List(void) {
 	icq_ContClear();
 
 	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
-		if (ThisICQ->icq_cl[i] > 0L) {
-			icq_ContAddUser(ThisICQ->icq_cl[i]);
-			icq_ContSetVis(ThisICQ->icq_cl[i]);
+		if (ThisICQ->icq_cl[i].uin > 0L) {
+			icq_ContAddUser(ThisICQ->icq_cl[i].uin);
+			icq_ContSetVis(ThisICQ->icq_cl[i].uin);
 		}
 	}
 
@@ -2129,32 +2156,145 @@ void CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 		const char *first, const char *last,
 		const char *email, char auth) {
 
-/* FIX do something with this info!! */
-
+	struct CtdlICQ_CL *ptr;
+	
+	ptr = CtdlICQ_CLent(uin);
+	safestrncpy(ptr->name, nick, 32);
+	ptr->status = STATUS_OFFLINE;
+	lprintf(9, "Today we learned that %ld is %s\n", uin, nick);
+	CtdlICQ_Write_CL();
 }
-
 
 
 
 /* send an icq */
 
 int CtdlICQ_Send_Msg(char *from, char *recp, char *msg) {
-	int is_icq = 0;
+	int is_aticq = 0;
 	int i;
+	DWORD target_uin = 0L;
 
-	/* Return quietly if this isn't an ICQ page */
+
+	/* If this is an incoming ICQ from someone on the contact list,
+	 * change the sender from "uin@icq" to the contact name.
+	 */
+	is_aticq = 0;
+	for (i=0; i<strlen(from); ++i)
+		if (!strcasecmp(&from[i], "@icq")) {
+			is_aticq = 1;
+		}
+	if (is_aticq == 1) if (ThisICQ->icq_numcl > 0) {
+		for (i=0; i<ThisICQ->icq_numcl; ++i) {
+			if (ThisICQ->icq_cl[i].uin == atol(from))
+				strcpy(from, ThisICQ->icq_cl[i].name);
+		}
+	}
+
+
+	/* Handle "uin@icq" syntax */
+	is_aticq = 0;
 	for (i=0; i<strlen(recp); ++i)
-		if (!strcasecmp(&recp[i], "@icq")) is_icq = 1;
-	if (atol(recp)==0L) is_icq = 0;
-	if (is_icq == 0) return(0);
+		if (!strcasecmp(&recp[i], "@icq")) {
+			is_aticq = 1;
+		}
+	if (is_aticq == 1) target_uin = atol(recp);
 
-	if (strlen(msg) > 0) icq_SendMessage(atol(recp), msg);
+	/* Handle "nick" syntax */
+	if (target_uin == 0L) if (ThisICQ->icq_numcl > 0) {
+		for (i=0; i<ThisICQ->icq_numcl; ++i) {
+			if (!strcasecmp(ThisICQ->icq_cl[i].name, recp)) {
+				target_uin = ThisICQ->icq_cl[i].uin;
+			}
+		}
+	}
+		
+
+	if (target_uin == 0L) return(0);
+
+	if (strlen(msg) > 0) icq_SendMessage(target_uin, msg);
 	return(1);
 }
 
 
 
+void cmd_icqa(char *argbuf) {
+	long uin;
 
+	uin = extract_long(argbuf, 0);
+	if (uin <= 0L) {
+		cprintf("%d You must supply a uin.\n", ERROR);
+		return;
+	}
+
+	CtdlICQ_Read_CL();
+
+	/* This function is normally used to obtain a relevant pointer, but
+	 * it also creates an entry in the contact list if one isn't there.
+	 */
+	CtdlICQ_CLent(uin);
+
+	/* Save the new contact list and tell the ICQ server about it */
+	CtdlICQ_Write_CL();
+	CtdlICQ_Refresh_Contact_List();
+
+	/* Leave the user clueless as to what happened, because we really
+	 * don't know (and this is why I hate asynchronous protocols).
+	 */
+	cprintf("%d Ok (maybe)\n", OK);
+
+	/* Request more info on this user from the server, which will arrive
+	 * at some time in the future.  Maybe.
+	 */
+	icq_SendInfoReq(uin);
+}
+
+
+/* 
+ * During an RWHO command, we want to append our ICQ information.
+ */
+void CtdlICQ_rwho(void) {
+	int i;
+
+	if (ThisICQ->icq_numcl > 0) for (i=0; i<ThisICQ->icq_numcl; ++i)
+	   if (ThisICQ->icq_cl[i].status != STATUS_OFFLINE)
+		cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
+			0,	/* no session ID */
+			ThisICQ->icq_cl[i].name,
+			icq_ConvertStatus2Str(ThisICQ->icq_cl[i].status),
+			" ",	/* FIX add host */
+			" ",	/* no client */
+			time(NULL),	/* now? */
+			" ",	/* no last command */
+			"ICQ"	/* flags */
+			);
+}
+ 
+
+void CtdlICQ_Status_Update(DWORD uin, DWORD status) {
+	struct CtdlICQ_CL *ptr;
+	
+	ptr = CtdlICQ_CLent(uin);
+	ptr->status = status;
+	if (strlen(ptr->name) == 0) icq_SendInfoReq(ptr->uin);
+}
+
+
+void CtdlICQ_Logged(void) {
+	CtdlICQ_Read_CL();
+	CtdlICQ_Refresh_Contact_List();
+}
+
+
+void CtdlICQ_UserOnline(DWORD uin, DWORD status, DWORD ip,
+			DWORD port, DWORD realip) {
+
+	CtdlICQ_Status_Update(uin, status);
+}
+
+
+void CtdlICQ_UserOffline(DWORD uin) {
+	CtdlICQ_Status_Update(uin, STATUS_OFFLINE);
+}
 
 
 char *Dynamic_Module_Init(void)
@@ -2168,7 +2308,9 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(CtdlICQ_session_logout_hook, EVT_LOGOUT);
 	CtdlRegisterSessionHook(CtdlICQ_session_login_hook, EVT_LOGIN);
 	CtdlRegisterSessionHook(CtdlICQ_after_cmd_hook, EVT_CMD);
+	CtdlRegisterSessionHook(CtdlICQ_rwho, EVT_RWHO);
 	CtdlRegisterProtoHook(cmd_icql, "ICQL", "Log on to ICQ");
+	CtdlRegisterProtoHook(cmd_icqa, "ICQA", "Add ICQ contact");
 	CtdlRegisterXmsgHook(CtdlICQ_Send_Msg);
 
 	/* Tell the code formerly known as icqlib about our callbacks */
@@ -2176,6 +2318,10 @@ char *Dynamic_Module_Init(void)
 	icq_RecvMessage = CtdlICQ_Incoming_Message;
 	icq_InfoReply = CtdlICQ_InfoReply;
 	icq_Disconnected = CtdlICQ_Login_If_Possible;
+	icq_Logged = CtdlICQ_Logged;
+	icq_UserStatusUpdate = CtdlICQ_Status_Update;
+	icq_UserOnline = CtdlICQ_UserOnline;
+	icq_UserOffline = CtdlICQ_UserOffline;
 
 	return "$Id$";
 }

@@ -228,6 +228,9 @@ void CtdlForEachMessage(int mode, long ref,
 						msglist[a] = 0L;
 					}
 				}
+
+	num_msgs = sort_msglist(msglist, num_msgs);
+	
 	/*
 	 * Now iterate through the message list, according to the
 	 * criteria supplied by the caller.
@@ -235,7 +238,8 @@ void CtdlForEachMessage(int mode, long ref,
 	if (num_msgs > 0)
 		for (a = 0; a < num_msgs; ++a) {
 			thismsg = msglist[a];
-			if ((thismsg >= 0)
+			lprintf(9, "Iterating through <%ld>\n", thismsg);
+			if ((thismsg > 0)
 			    && (
 
 				       (mode == MSGS_ALL)
@@ -248,6 +252,7 @@ void CtdlForEachMessage(int mode, long ref,
 				|| ((mode == MSGS_GT) && (thismsg > ref))
 			    )
 			    ) {
+				lprintf(9, "Issuing callback for <%ld>\n", thismsg);
 				CallBack(thismsg);
 			}
 		}
@@ -491,7 +496,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
-		lprintf(9, "CtdlMessage(%ld) failed.\n");
+		lprintf(9, "CtdlFetchMessage(%ld) failed.\n");
 		return NULL;
 	}
 	mptr = dmsgtext->ptr;

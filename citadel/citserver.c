@@ -658,6 +658,12 @@ void cmd_rwho(void) {
 		
 		}
 	}
+
+	/* Now it's magic time.  Before we finish, call any EVT_RWHO hooks
+	 * so that external paging modules such as serv_icq can add more
+	 * content to the Wholist.
+	 */
+	PerformSessionHooks(EVT_RWHO);
 	cprintf("000\n");
 	}
 

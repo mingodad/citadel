@@ -1,4 +1,10 @@
 $Log$
+Revision 1.341  1999/08/01 21:36:30  ajc
+* EXTREME coolness.  The server side of the ICQ metaclient is now working.
+  It is set up using ICQL and ICQA commands, it automatically logs the user
+  onto ICQ along with Citadel, and displays all non-offline ICQ contacts
+  in the Wholist.
+
 Revision 1.340  1999/07/31 07:18:01  ajc
 * Restructured the express message infrastructure, adding a class of function
   hooks for the addition of multiple paging modules with message routing
@@ -1155,4 +1161,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
- 

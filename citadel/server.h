@@ -223,6 +223,7 @@ extern struct SessionFunctionHook *SessionHookTable;
 #define EVT_LOGOUT	4	/* A user is logging out */
 #define EVT_SETPASS	5	/* Setting or changing password */
 #define EVT_CMD		6	/* Called after each server command */
+#define EVT_RWHO	7	/* An RWHO command is being executed */
 
 
 
