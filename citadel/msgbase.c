@@ -758,7 +758,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* ...or if this is a private message, go to the target mailbox. */
 	if (strlen(recipient) > 0) {
-		mailtype = alias(recipient);
+		/* mailtype = alias(recipient); */
 		if (mailtype == M_LOCAL) {
 			if (getuser(&userbuf, recipient)!=0) {
 				mtsflag = 1; /* User not found, goto Aide */
