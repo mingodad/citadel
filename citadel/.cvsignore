@@ -1,8 +1,5 @@
-*.d
-*.mo
-*.ro
-Makefile
 aidepost
+.AppleDouble
 base64
 chkpwd
 citadel
@@ -16,9 +13,13 @@ config.h.in
 config.log
 config.status
 configure
+*.d
 data
+icq
 import
 mailinglist
+Makefile
+*.mo
 msgform
 netmailer
 netpoll
@@ -28,6 +29,7 @@ proxy
 qpdecode
 rcit
 readlog
+*.ro
 sendcommand
 setup
 so_locations
@@ -39,4 +41,3 @@ useradmin
 userlist
 weekly
 whobbs
-icq
