@@ -1,4 +1,8 @@
 $Log$
+Revision 1.412  1999/11/05 03:53:47  ajc
+* Issue 'cancel' messages for vCard when a user is deleted.
+* Try to delete 'cancel' messages locally after they've been distributed.
+
 Revision 1.411  1999/11/03 04:01:20  ajc
 * Fixed buffer overrun problems in cmd_rchg(), cmd_hchg(), and cmd_uchg()
 * Removed my email address as the feedback content from the docs; replaced
@@ -1422,3 +1426,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

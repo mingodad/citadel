@@ -56,7 +56,7 @@ char *msgkeys[] = {
 	"path",
 	"",
 	"rcpt",
-	"",
+	"spec",
 	"time",
 	"subj",
 	"",

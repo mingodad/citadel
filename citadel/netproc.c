@@ -90,6 +90,7 @@ void get_config(void);
 
 struct filterlist *filter = NULL;
 struct syslist *slist = NULL;
+struct msglist *purgelist = NULL;
 
 struct config config;
 extern char bbs_home_directory[];
@@ -1177,6 +1178,54 @@ int ismsgok(FILE *mmfp, char *sysname)
 
 
 
+
+/*
+ * Add a message to the list of messages to be deleted off the local server
+ * at the end of this run.
+ */
+void delete_locally(long msgid, char *roomname) {
+	struct msglist *mptr;
+
+	mptr = (struct msglist *) malloc(sizeof(struct msglist));
+	mptr->next = purgelist;
+	mptr->m_num = msgid;
+	strcpy(mptr->m_rmname, roomname);
+	purgelist = mptr;
+}
+
+
+
+/*
+ * Delete all messages on the purge list from the local server.
+ */
+void process_purgelist(void) {
+	char curr_rm[ROOMNAMELEN];
+	char buf[256];
+	struct msglist *mptr;
+
+
+	strcpy(curr_rm, "__nothing__");
+	while (purgelist != NULL) {
+		if (strcasecmp(curr_rm, purgelist->m_rmname)) {
+			sprintf(buf, "GOTO %s", purgelist->m_rmname);
+			serv_puts(buf);
+			serv_gets(buf);
+			if (buf[0] == '2') extract(curr_rm, &buf[4], 0);
+		}
+		if (strcasecmp(curr_rm, purgelist->m_rmname)) {
+			sprintf(buf, "DELE %ld", purgelist->m_num);
+			serv_puts(buf);
+			serv_gets(buf);
+		}
+		mptr = purgelist->next;
+		free(purgelist);
+		purgelist = mptr;
+	}
+}
+
+
+
+
 /* spool list of messages to a file */
 /* returns # of msgs spooled */
 int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
@@ -1242,6 +1291,9 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 					fprintf(destfp, "%s!", NODENAME);
 				if (a != 'C')
 					fwrite(fbuf, strlen(fbuf) + 1, 1, destfp);
+				if (a == 'S') if (!strcasecmp(fbuf, "CANCEL")) {
+					delete_locally(cmptr->m_num, cmptr->m_rmname);
+				}
 			}
 			if (a == 'M') {
 				fprintf(destfp, "C%s%c",
@@ -1528,6 +1580,9 @@ int main(int argc, char **argv)
 
 	/* Update mail.sysinfo with new information we learned */
 	rewrite_syslist();
+
+	/* Delete any messages which need to be purged locally */
+	process_purgelist();
 
 	/* Close the use table */
 	purge_use_table(use_table);

@@ -379,11 +379,47 @@ void cmd_greg(char *argbuf)
 	}
 
 
+/*
+ * When a user is being deleted, we have to remove his/her vCard.
+ * This is accomplished by issuing a message with 'CANCEL' in the S (special)
+ * field, and the same Extended ID as the existing card.
+ */
+void vcard_purge(char *username, long usernum) {
+	struct CtdlMessage *msg;
+	char buf[256];
 
+	msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	if (msg == NULL) return;
+	memset(msg, 0, sizeof(struct CtdlMessage));
+
+        msg->cm_magic = CTDLMESSAGE_MAGIC;
+        msg->cm_anon_type = MES_NORMAL;
+        msg->cm_format_type = 0;
+        msg->cm_fields['A'] = strdoop(username);
+        msg->cm_fields['O'] = strdoop(ADDRESS_BOOK_ROOM);
+        msg->cm_fields['N'] = strdoop(NODENAME);
+        msg->cm_fields['M'] = strdoop("Purge this vCard\n");
+
+        sprintf(buf,
+                "Citadel vCard: personal card for %s at %s",
+                msg->cm_fields['A'], NODENAME);
+        msg->cm_fields['E'] = strdoop(buf);
+
+	msg->cm_fields['S'] = strdoop("CANCEL");
+
+        CtdlSaveMsg(msg, "", ADDRESS_BOOK_ROOM, MES_LOCAL, 1);
+        CtdlFreeMessage(msg);
+}
+	
+	
+
+
+/*
+ * Session startup, allocate some per-session data
+ */
 void vcard_session_startup_hook(void) {
 	CtdlAllocUserData(SYM_VCARD, sizeof(struct vcard_internal_info));
 }
-
 
 
 char *Dynamic_Module_Init(void)
@@ -394,6 +430,10 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
+	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	create_room(ADDRESS_BOOK_ROOM, 0, "", 0);
 	return "$Id$";
 }
+
+
+

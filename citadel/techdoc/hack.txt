@@ -112,8 +112,11 @@ S       Special field   Only meaningful for messages being spooled over a
                         network.  Usually means that the message isn't really
                         a message, but rather some other network function:
                         -> "S" followed by "FILE" (followed by a null, of
-                        course) means that the message text is actually an
-                        IGnet/Open file transfer.
+                           course) means that the message text is actually an
+                           IGnet/Open file transfer.
+			-> "S" followed by "CANCEL" means that this message
+			   should be deleted from the local message base once
+			   it has been replicated to all network systems.
 T	Date/Time	A 32-bit integer containing the date and time of
                         the message in standard UNIX format (the number
                         of seconds since January 1, 1970 GMT).
