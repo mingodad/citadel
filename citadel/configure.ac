@@ -36,6 +36,7 @@ else
 	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
 	test -d /usr/local/BerkeleyDB.3.2 && db_dir=/usr/local/BerkeleyDB.3.2
 	test -d /usr/local/BerkeleyDB.3.3 && db_dir=/usr/local/BerkeleyDB.3.3
+	test -d /usr/local/BerkeleyDB.4.0 && db_dir=/usr/local/BerkeleyDB.4.0
 fi
 
 if test "x$with_gdbm" = xyes -a "x$with_db" = xyes; then

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.4  2001/12/13 22:36:30  nbryant
+ make configure search for /usr/local/BerkeleyDB.4.0
+
  Revision 590.3  2001/12/13 22:29:57  nbryant
  make it compile with Berkeley DB 4.0.x
 
@@ -2951,3 +2954,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
