@@ -100,7 +100,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Summary<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_inbox) {
@@ -116,7 +116,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Mail<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_calendar) {
@@ -132,7 +132,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Calendar<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_contacts) {
@@ -148,7 +148,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Contacts<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_tasks)  {
@@ -164,7 +164,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Tasks<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_rooms) {
@@ -179,7 +179,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Rooms<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_users) {
@@ -194,7 +194,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Users<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_chat) {
@@ -212,7 +212,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Chat<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_advanced) {
@@ -229,7 +229,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Advanced options<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	if (ib_logoff) {
@@ -244,7 +244,7 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Log off<BR>");
 		}
-		wprintf("</A></SPAN>\n");
+		wprintf("</A></SPAN><BR>\n");
 	}
 
 	wprintf(

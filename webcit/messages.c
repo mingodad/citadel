@@ -368,6 +368,11 @@ void read_message(long msgnum) {
 		return;
 	}
 
+	/* begin everythingamundo table */
+	wprintf("<table width=100% border=1 cellspacing=0 "
+		"cellpadding=0><TR><TD>\n");
+
+	/* begin message header table */
 	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 "
 		"CELLPADDING=1 BGCOLOR=\"#CCCCCC\"><TR><TD>\n");
 
@@ -542,7 +547,7 @@ void read_message(long msgnum) {
 
 	/* Begin body */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
-		"CELLPADDING=0 CELLSPACING=0><TR><TD>");
+		"CELLPADDING=1 CELLSPACING=0><TR><TD>");
 
 	/* 
 	 * Learn the content type
@@ -641,6 +646,9 @@ void read_message(long msgnum) {
 
 ENDBODY:
 	wprintf("</TD></TR></TABLE>\n");
+
+	/* end everythingamundo table */
+	wprintf("</TD></TR></TABLE><BR>\n");
 }
 
 
