@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.74  2001/11/14 02:59:01  ajc
+ * Network run frequency is now a site-definable setting
+
  Revision 580.73  2001/11/13 22:05:23  ajc
  * Re-introduced the ability to enter IGnet mail into the system.
 
@@ -2852,3 +2855,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

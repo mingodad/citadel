@@ -105,6 +105,7 @@ struct config {
 	int c_default_filter;		/* Default moderation filter level  */
 	int c_aide_zap;			/* Are Aides allowed to zap rooms?  */
 	int c_imap_port;		/* IMAP listener port (usually 143) */
+	time_t c_net_freq;		/* how often to run the networker   */
 };
 
 #define NODENAME		config.c_nodename

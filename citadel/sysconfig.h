@@ -92,11 +92,6 @@
 #define SMTP_GIVE_UP		432000	/* 5 days */
 
 /*
- * How often to run the networker
- */
-#define NETWORK_QUEUE_FREQUENCY 3600	/* Once per hour */
-
-/*
  * Who bounced messages appear to be from
  */
 #define BOUNCESOURCE		"Citadel Mail Delivery Subsystem"

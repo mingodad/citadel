@@ -98,6 +98,12 @@ void get_config(void) {
 
 	if (config.c_max_workers < config.c_min_workers)   /* max >= min */
 		config.c_max_workers = config.c_min_workers;
+
+	/* Networking more than once every five minutes just isn't sane */
+	if (config.c_net_freq == 0L)
+		config.c_net_freq = 3600L;	/* once per hour default */
+	if (config.c_net_freq < 300L) 
+		config.c_net_freq = 300L;
 }
 
 

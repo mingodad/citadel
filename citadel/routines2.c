@@ -646,7 +646,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[SIZ];
-	char sc[28][SIZ];
+	char sc[29][SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -661,8 +661,9 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 28)
+			if (a < 29) {
 				strcpy(&sc[a][0], buf);
+			}
 			++a;
 		}
 	}
@@ -686,7 +687,10 @@ void do_system_configuration(void)
 	strprompt("Geographic location of this system", &sc[12][0], 31);
 	strprompt("Name of system administrator", &sc[13][0], 25);
 	strprompt("Paginator prompt", &sc[10][0], 79);
-	/* strprompt("Default moderation filter for new users", &sc[25][0], 4); */
+
+	/* this prompt is commented out until we finish the moderation system
+	strprompt("Default moderation filter for new users", &sc[25][0], 4);
+	*/
 
 	/* Security parameters */
 
@@ -729,11 +733,15 @@ void do_system_configuration(void)
 	strprompt("Maximum message length", &sc[20][0], 20);
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
+
+	/* no longer applicable ... deprecated
 	strprompt("Server-to-server networking password", &sc[15][0], 19);
+	*/
+
+	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
 	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
-
 
 	/* Expiry settings */
 	strprompt("Default user purge time (days)", &sc[16][0], 5);
@@ -770,7 +778,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 28; ++a)
+			for (a = 0; a < 29; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}

@@ -1293,7 +1293,7 @@ void network_do_queue(void) {
 	/*
 	 * Run no more frequently than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < NETWORK_QUEUE_FREQUENCY ) return;
+	if ( (time(NULL) - last_run) < config.c_net_freq ) return;
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run

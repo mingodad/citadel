@@ -186,6 +186,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_default_filter);
 		cprintf("%d\n", config.c_aide_zap);
 		cprintf("%d\n", config.c_imap_port);
+		cprintf("%d\n", config.c_net_freq);
 		cprintf("000\n");
 		}
 
@@ -276,6 +277,8 @@ void cmd_conf(char *argbuf) {
 					config.c_aide_zap = 1;
 				break;
 			case 27: config.c_imap_port = atoi(buf);
+				break;
+			case 28: config.c_net_freq = atol(buf);
 				break;
 			}
 		    ++a;
