@@ -1922,20 +1922,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		msg->cm_fields['T'] = strdoop(aaa);
 	}
 
-	/*
-	 * If no Author, set it to ME ME ME
-	 */
-	if (msg->cm_fields['A'] == NULL) {
-		msg->cm_fields['A'] = strdoop(CC->user.fullname);
-	}
-
-	/*
-	 * If no Node, set it to the local node
-	 */
-	if (msg->cm_fields['N'] == NULL) {
-		msg->cm_fields['N'] = strdoop(config.c_nodename);
-	}
-
 	/* If this message has no path, we generate one.
 	 */
 	if (msg->cm_fields['P'] == NULL) {
