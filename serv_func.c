@@ -171,11 +171,8 @@ void fmout(FILE *fp, char *align)
 void text_to_server(char *ptr, int convert_to_html)
 {
 	char buf[SIZ];
+	char conv[4];
 	int ch, a, pos;
-
-	if (convert_to_html) {
-		serv_puts("<HTML><BODY>");
-	}
 
 	pos = 0;
 	strcpy(buf, "");
@@ -194,6 +191,9 @@ void text_to_server(char *ptr, int convert_to_html)
 			else {
 				if (ptr[pos] != 0) strcat(buf, " ");
 			}
+		} else if ((convert_to_html)&&(strchr("#&;`'|*?-~<>^()[]{}$\\", ch) != NULL)) {
+			sprintf(conv, "%c", ch);
+			stresc(&buf[strlen(buf)], conv, 0);
 		} else {
 			a = strlen(buf);
 			buf[a + 1] = 0;
@@ -210,10 +210,6 @@ void text_to_server(char *ptr, int convert_to_html)
 		}
 	}
 	serv_puts(buf);
-
-	if (convert_to_html) {
-		serv_puts("</BODY></HTML>\n");
-	}
 
 }
 
