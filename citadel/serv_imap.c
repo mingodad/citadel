@@ -1260,7 +1260,7 @@ void imap_command_loop(void)
 	CC->lastcmd = time(NULL);
 	memset(cmdbuf, 0, sizeof cmdbuf);	/* Clear it, just in case */
 	flush_output();
-	if (client_gets(cmdbuf) < 1) {
+	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		lprintf(CTDL_ERR, "IMAP socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;

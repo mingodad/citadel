@@ -713,7 +713,8 @@ void cmd_sexp(char *argbuf)
 			SEND_LISTING, message_sent);
 		x_big_msgbuf = malloc(SIZ);
 		memset(x_big_msgbuf, 0, SIZ);
-		while (client_gets(x_msg), strcmp(x_msg, "000")) {
+		while (client_getln(x_msg, sizeof x_msg),
+		      strcmp(x_msg, "000")) {
 			x_big_msgbuf = realloc(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
 			if (strlen(x_big_msgbuf) > 0)

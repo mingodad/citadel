@@ -622,7 +622,7 @@ void cmd_emsg(char *mname)
 	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
 
-	while (client_gets(buf), strcmp(buf, "000")) {
+	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		fprintf(mfp, "%s\n", buf);
 	}
 
@@ -944,7 +944,7 @@ void do_command_loop(void) {
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_gets(cmdbuf) < 1) {
+	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		lprintf(CTDL_ERR, "Client socket is broken; ending session\n");
 		CC->kill_me = 1;
 		return;

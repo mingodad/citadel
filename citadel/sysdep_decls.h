@@ -55,7 +55,7 @@ void flush_output(void);
 void client_write (char *buf, int nbytes);
 int client_read_to (char *buf, int bytes, int timeout);
 int client_read (char *buf, int bytes);
-int client_gets (char *buf);
+int client_getln (char *buf, int maxbytes);
 void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void *sd_context_loop (struct CitContext *con);

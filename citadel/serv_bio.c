@@ -70,7 +70,7 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 	cprintf("%d  \n",SEND_LISTING);
-	while(client_gets(buf), strcmp(buf,"000")) {
+	while(client_getln(buf, sizeof buf), strcmp(buf,"000")) {
 		if (ftell(fp) < config.c_maxmsglen) {
 			fprintf(fp,"%s\n",buf);
 		}

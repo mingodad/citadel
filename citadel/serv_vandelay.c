@@ -324,47 +324,45 @@ void artv_import_config(void) {
 	char buf[SIZ];
 
 	lprintf(CTDL_DEBUG, "Importing config file\n");
-	client_gets(config.c_nodename);
-	lprintf(CTDL_DEBUG, "c_nodename = %s\n", config.c_nodename);
-	client_gets(config.c_fqdn);
-	client_gets(config.c_humannode);
-	client_gets(config.c_phonenum);
-	client_gets(buf);	config.c_bbsuid = atoi(buf);
-	client_gets(buf);	config.c_creataide = atoi(buf);
-	client_gets(buf);	config.c_sleeping = atoi(buf);
-	client_gets(buf);	config.c_initax = atoi(buf);
-	client_gets(buf);	config.c_regiscall = atoi(buf);
-	client_gets(buf);	config.c_twitdetect = atoi(buf);
-	client_gets(config.c_twitroom);
-	client_gets(config.c_moreprompt);
-	client_gets(buf);	config.c_restrict = atoi(buf);
-	client_gets(config.c_bbs_city);
-	client_gets(config.c_sysadm);
-	lprintf(CTDL_DEBUG, "c_sysadm = %s\n", config.c_sysadm);
-	client_gets(buf);	config.c_setup_level = atoi(buf);
-	client_gets(buf);	config.c_maxsessions = atoi(buf);
-	client_gets(buf);	config.c_port_number = atoi(buf);
-	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
-	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
-	client_gets(buf);	config.c_userpurge = atoi(buf);
-	client_gets(buf);	config.c_roompurge = atoi(buf);
-	client_gets(config.c_logpages);
-	client_gets(buf);	config.c_createax = atoi(buf);
-	client_gets(buf);	config.c_maxmsglen = atol(buf);
-	client_gets(buf);	config.c_min_workers = atoi(buf);
-	client_gets(buf);	config.c_max_workers = atoi(buf);
-	client_gets(buf);	config.c_pop3_port = atoi(buf);
-	client_gets(buf);	config.c_smtp_port = atoi(buf);
-	client_gets(buf);	config.c_purge_hour = atoi(buf);
-	client_gets(buf);	config.c_mbxep.expire_mode = atoi(buf);
-	client_gets(buf);	config.c_mbxep.expire_value = atoi(buf);
-	client_gets(config.c_ldap_host);
-	client_gets(buf);	config.c_ldap_port = atoi(buf);
-	client_gets(config.c_ldap_base_dn);
-	client_gets(config.c_ldap_bind_dn);
-	client_gets(config.c_ldap_bind_pw);
-	client_gets(config.c_ip_addr);
-	client_gets(buf);	config.c_msa_port = atoi(buf);
+	client_getln(config.c_nodename, sizeof config.c_nodename);
+	client_getln(config.c_fqdn, sizeof config.c_fqdn);
+	client_getln(config.c_humannode, sizeof config.c_humannode);
+	client_getln(config.c_phonenum, sizeof config.c_phonenum);
+	client_getln(buf, sizeof buf);	config.c_bbsuid = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_creataide = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_sleeping = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_initax = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_regiscall = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_twitdetect = atoi(buf);
+	client_getln(config.c_twitroom, sizeof config.c_twitroom);
+	client_getln(config.c_moreprompt, sizeof config.c_moreprompt);
+	client_getln(buf, sizeof buf);	config.c_restrict = atoi(buf);
+	client_getln(config.c_bbs_city, sizeof config.c_bbs_city);
+	client_getln(config.c_sysadm, sizeof config.c_sysadm);
+	client_getln(buf, sizeof buf);	config.c_setup_level = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_maxsessions = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_port_number = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_ep.expire_mode = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_ep.expire_value = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_userpurge = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_roompurge = atoi(buf);
+	client_getln(config.c_logpages, sizeof config.c_logpages);
+	client_getln(buf, sizeof buf);	config.c_createax = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_maxmsglen = atol(buf);
+	client_getln(buf, sizeof buf);	config.c_min_workers = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_max_workers = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_pop3_port = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_smtp_port = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_purge_hour = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_mbxep.expire_mode = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_mbxep.expire_value = atoi(buf);
+	client_getln(config.c_ldap_host, sizeof config.c_ldap_host);
+	client_getln(buf, sizeof buf);	config.c_ldap_port = atoi(buf);
+	client_getln(config.c_ldap_base_dn, sizeof config.c_ldap_base_dn);
+	client_getln(config.c_ldap_bind_dn, sizeof config.c_ldap_bind_dn);
+	client_getln(config.c_ldap_bind_pw, sizeof config.c_ldap_bind_pw);
+	client_getln(config.c_ip_addr, sizeof config.c_ip_addr);
+	client_getln(buf, sizeof buf);	config.c_msa_port = atoi(buf);
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
 }
@@ -375,11 +373,11 @@ void artv_import_control(void) {
 	char buf[SIZ];
 
 	lprintf(CTDL_DEBUG, "Importing control file\n");
-	client_gets(buf);	CitControl.MMhighest = atol(buf);
-	client_gets(buf);	CitControl.MMflags = atoi(buf);
-	client_gets(buf);	CitControl.MMnextuser = atol(buf);
-	client_gets(buf);	CitControl.MMnextroom = atol(buf);
-	client_gets(buf);	CitControl.version = atoi(buf);
+	client_getln(buf, sizeof buf);	CitControl.MMhighest = atol(buf);
+	client_getln(buf, sizeof buf);	CitControl.MMflags = atoi(buf);
+	client_getln(buf, sizeof buf);	CitControl.MMnextuser = atol(buf);
+	client_getln(buf, sizeof buf);	CitControl.MMnextroom = atol(buf);
+	client_getln(buf, sizeof buf);	CitControl.version = atoi(buf);
 	put_control();
 	lprintf(CTDL_INFO, "Imported control file\n");
 }
@@ -389,19 +387,19 @@ void artv_import_user(void) {
 	char buf[SIZ];
 	struct ctdluser usbuf;
 
-	client_gets(buf);	usbuf.version = atoi(buf);
-	client_gets(buf);	usbuf.uid = atoi(buf);
-	client_gets(usbuf.password);
-	client_gets(buf);	usbuf.flags = atoi(buf);
-	client_gets(buf);	usbuf.timescalled = atol(buf);
-	client_gets(buf);	usbuf.posted = atol(buf);
-	client_gets(buf);	usbuf.axlevel = atoi(buf);
-	client_gets(buf);	usbuf.usernum = atol(buf);
-	client_gets(buf);	usbuf.lastcall = atol(buf);
-	client_gets(buf);	usbuf.USuserpurge = atoi(buf);
-	client_gets(usbuf.fullname);
-	client_gets(buf);	usbuf.USscreenwidth = atoi(buf);
-	client_gets(buf);	usbuf.USscreenheight = atoi(buf);
+	client_getln(buf, sizeof buf);	usbuf.version = atoi(buf);
+	client_getln(buf, sizeof buf);	usbuf.uid = atoi(buf);
+	client_getln(usbuf.password, sizeof usbuf.password);
+	client_getln(buf, sizeof buf);	usbuf.flags = atoi(buf);
+	client_getln(buf, sizeof buf);	usbuf.timescalled = atol(buf);
+	client_getln(buf, sizeof buf);	usbuf.posted = atol(buf);
+	client_getln(buf, sizeof buf);	usbuf.axlevel = atoi(buf);
+	client_getln(buf, sizeof buf);	usbuf.usernum = atol(buf);
+	client_getln(buf, sizeof buf);	usbuf.lastcall = atol(buf);
+	client_getln(buf, sizeof buf);	usbuf.USuserpurge = atoi(buf);
+	client_getln(usbuf.fullname, sizeof usbuf.fullname);
+	client_getln(buf, sizeof buf);	usbuf.USscreenwidth = atoi(buf);
+	client_getln(buf, sizeof buf);	usbuf.USscreenheight = atoi(buf);
 	putuser(&usbuf);
 }
 
@@ -412,28 +410,28 @@ void artv_import_room(void) {
 	long msgnum;
 	int msgcount = 0;
 
-	client_gets(qrbuf.QRname);
-	client_gets(qrbuf.QRpasswd);
-	client_gets(buf);	qrbuf.QRroomaide = atol(buf);
-	client_gets(buf);	qrbuf.QRhighest = atol(buf);
-	client_gets(buf);	qrbuf.QRgen = atol(buf);
-	client_gets(buf);	qrbuf.QRflags = atoi(buf);
-	client_gets(qrbuf.QRdirname);
-	client_gets(buf);	qrbuf.QRinfo = atol(buf);
-	client_gets(buf);	qrbuf.QRfloor = atoi(buf);
-	client_gets(buf);	qrbuf.QRmtime = atol(buf);
-	client_gets(buf);	qrbuf.QRep.expire_mode = atoi(buf);
-	client_gets(buf);	qrbuf.QRep.expire_value = atoi(buf);
-	client_gets(buf);	qrbuf.QRnumber = atol(buf);
-	client_gets(buf);	qrbuf.QRorder = atoi(buf);
-	client_gets(buf);	qrbuf.QRflags2 = atoi(buf);
-	client_gets(buf);	qrbuf.QRdefaultview = atoi(buf);
+	client_getln(qrbuf.QRname, sizeof qrbuf.QRname);
+	client_getln(qrbuf.QRpasswd, sizeof qrbuf.QRpasswd);
+	client_getln(buf, sizeof buf);	qrbuf.QRroomaide = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRhighest = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRgen = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRflags = atoi(buf);
+	client_getln(qrbuf.QRdirname, sizeof qrbuf.QRdirname);
+	client_getln(buf, sizeof buf);	qrbuf.QRinfo = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRfloor = atoi(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRmtime = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRep.expire_mode = atoi(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRep.expire_value = atoi(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRnumber = atol(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRorder = atoi(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRflags2 = atoi(buf);
+	client_getln(buf, sizeof buf);	qrbuf.QRdefaultview = atoi(buf);
 	putroom(&qrbuf);
 	lprintf(CTDL_INFO, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	while (client_gets(buf), msgnum = atol(buf), msgnum > 0) {
+	while (client_getln(buf, sizeof buf), msgnum = atol(buf), msgnum > 0) {
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0);
 		++msgcount;
 	}
@@ -446,12 +444,12 @@ void artv_import_floor(void) {
         int i;
 	char buf[SIZ];
 
-	client_gets(buf);		i = atoi(buf);
-	client_gets(buf);		flbuf.f_flags = atoi(buf);
-	client_gets(flbuf.f_name);
-	client_gets(buf);		flbuf.f_ref_count = atoi(buf);
-	client_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
-	client_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
+	client_getln(buf, sizeof buf);	i = atoi(buf);
+	client_getln(buf, sizeof buf);	flbuf.f_flags = atoi(buf);
+	client_getln(flbuf.f_name, sizeof flbuf.f_name);
+	client_getln(buf, sizeof buf);	flbuf.f_ref_count = atoi(buf);
+	client_getln(buf, sizeof buf);	flbuf.f_ep.expire_mode = atoi(buf);
+	client_getln(buf, sizeof buf);	flbuf.f_ep.expire_value = atoi(buf);
 	putfloor(&flbuf, i);
 	lprintf(CTDL_INFO, "Imported floor #%d (%s)\n", i, flbuf.f_name);
 }
@@ -465,18 +463,18 @@ void artv_import_visit(void) {
 	int i;
 	int is_textual_seen = 0;
 
-	client_gets(buf);	vbuf.v_roomnum = atol(buf);
-	client_gets(buf);	vbuf.v_roomgen = atol(buf);
-	client_gets(buf);	vbuf.v_usernum = atol(buf);
+	client_getln(buf, sizeof buf);	vbuf.v_roomnum = atol(buf);
+	client_getln(buf, sizeof buf);	vbuf.v_roomgen = atol(buf);
+	client_getln(buf, sizeof buf);	vbuf.v_usernum = atol(buf);
 
-	client_gets(buf);
+	client_getln(buf, sizeof buf);
 	vbuf.v_lastseen = atol(buf);
 	for (i=0; i<strlen(buf); ++i) if (!isdigit(buf[i])) is_textual_seen = 1;
 	if (is_textual_seen)	strcpy(vbuf.v_seen, buf);
 
-	client_gets(vbuf.v_answered);
-	client_gets(buf);	vbuf.v_flags = atoi(buf);
-	client_gets(buf);	vbuf.v_view = atoi(buf);
+	client_getln(vbuf.v_answered, sizeof vbuf.v_answered);
+	client_getln(buf, sizeof buf);	vbuf.v_flags = atoi(buf);
+	client_getln(buf, sizeof buf);	vbuf.v_view = atoi(buf);
 	put_visit(&vbuf);
 	lprintf(CTDL_INFO, "Imported visit %ld/%ld/%ld\n",
 		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
@@ -494,10 +492,10 @@ void artv_import_message(void) {
 	char *mbuf;
 
 	memset(&smi, 0, sizeof(struct MetaData));
-	client_gets(buf);	msgnum = atol(buf);
+	client_getln(buf, sizeof buf);	msgnum = atol(buf);
 				smi.meta_msgnum = msgnum;
-	client_gets(buf);	smi.meta_refcount = atoi(buf);
-	client_gets(smi.meta_content_type);
+	client_getln(buf, sizeof buf);	smi.meta_refcount = atoi(buf);
+	client_getln(smi.meta_content_type, sizeof smi.meta_content_type);
 
 	lprintf(CTDL_INFO, "message #%ld\n", msgnum);
 
@@ -505,7 +503,7 @@ void artv_import_message(void) {
 	strcpy(tempfile, tmpnam(NULL));
 	snprintf(buf, sizeof buf, "./base64 -d >%s", tempfile);
 	fp = popen(buf, "w");
-	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
+	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);
 	}
 	pclose(fp);
@@ -540,12 +538,12 @@ void artv_do_import(void) {
 	unbuffer_output();
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
-	while (client_gets(buf), strcmp(buf, "000")) {
+	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		lprintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);
 
 		if (!strcasecmp(buf, "version")) {
-			client_gets(s_version);
+			client_getln(s_version, sizeof s_version);
 			version = atoi(s_version);
 			if ((version<EXPORT_REV_MIN) || (version>REV_LEVEL)) {
 				lprintf(CTDL_ERR, "Version mismatch in ARTV import; aborting\n");
@@ -563,7 +561,7 @@ void artv_do_import(void) {
 
 	}
 	lprintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
-	while (client_gets(buf), strcmp(buf, "000"))  ;;
+	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
 }
 
 

@@ -1841,7 +1841,7 @@ void cmd_einf(char *ok)
 	cprintf("%d Send info...\n", SEND_LISTING);
 
 	do {
-		client_gets(buf);
+		client_getln(buf, sizeof buf);
 		if (strcmp(buf, "000"))
 			fprintf(fp, "%s\n", buf);
 	} while (strcmp(buf, "000"));

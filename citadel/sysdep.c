@@ -612,11 +612,11 @@ INLINE int client_read(char *buf, int bytes)
 
 
 /*
- * client_gets()   ...   Get a LF-terminated line of text from the client.
+ * client_getln()   ...   Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
  */
-int client_gets(char *buf)
+int client_getln(char *buf, int bufsize)
 {
 	int i, retval;
 
@@ -624,13 +624,13 @@ int client_gets(char *buf)
 	 */
 	for (i = 0;;i++) {
 		retval = client_read(&buf[i], 1);
-		if (retval != 1 || buf[i] == '\n' || i == (SIZ-1))
+		if (retval != 1 || buf[i] == '\n' || i == (bufsize-1))
 			break;
 	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
-	if (i == (SIZ-1))
+	if (i == (bufsize-1))
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(&buf[i], 1);
 

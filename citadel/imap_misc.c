@@ -283,10 +283,10 @@ void imap_append(int num_parms, char *parms[]) {
 
 	/* I think there's supposed to be a trailing CRLF after the
 	 * literal (the message text) is received.  This call to
-	 * client_gets() absorbs it.
+	 * client_getln() absorbs it.
 	 */
 	flush_output();
-	client_gets(buf);
+	client_getln(buf, sizeof buf);
 	lprintf(CTDL_DEBUG, "Trailing CRLF: %s\n", buf);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */

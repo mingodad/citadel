@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.15  2005/02/08 03:33:49  ajc
+ * client_gets(char *buf) has been replaced by
+   client_getln(char *buf, int maxbytes)
+
  Revision 630.14  2005/02/05 22:56:31  ajc
  * More reliable handling of conversion of vCard UID to Citadel Extended ID
    (necessary for GroupDAV URL's to be generated properly in WebCit)
@@ -6356,4 +6360,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

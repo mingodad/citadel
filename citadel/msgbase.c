@@ -568,7 +568,7 @@ void cmd_msgs(char *cmdbuf)
 		template = (struct CtdlMessage *)
 			malloc(sizeof(struct CtdlMessage));
 		memset(template, 0, sizeof(struct CtdlMessage));
-		while(client_gets(buf), strcmp(buf,"000")) {
+		while(client_getln(buf, sizeof buf), strcmp(buf,"000")) {
 			extract(tfield, buf, 0);
 			extract(tvalue, buf, 1);
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
@@ -2254,7 +2254,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 	/* read in the lines of message text one by one */
 	do {
-		if (client_gets(buf) < 1) finished = 1;
+		if (client_getln(buf, sizeof buf) < 1) finished = 1;
 		if (!strcmp(buf, terminator)) finished = 1;
 		if (crlf) {
 			strcat(buf, "\r\n");
