@@ -5,6 +5,7 @@ Sun Dec 13 13:35:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  against broken HTTP connections.
 	* Added a housekeeping thread to periodically remove dead sessions
 	  and kill idle sessions.
+	* messages.c: added "delete message" functionality
 
 Fri Dec 11 21:14:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Brought over message reading and entry functions from old WebCit
