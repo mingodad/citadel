@@ -413,9 +413,58 @@ void network_queue_room(struct quickroom *qrbuf, void *data) {
  * from the inbound queue 
  */
 void network_process_buffer(char *buffer, long size) {
+	struct CtdlMessage *msg;
+	long pos;
+	int field;
+	int a, e;
+	struct usersupp tempUS;
+	char recp[SIZ];
+
+        msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+        memset(msg, 0, sizeof(struct CtdlMessage));
+        msg->cm_magic = CTDLMESSAGE_MAGIC;
+        msg->cm_anon_type = buffer[1];
+        msg->cm_format_type = buffer[2];
+
+	for (pos = 3; pos < size; ++pos) {
+		field = buffer[pos];
+		msg->cm_fields[field] = strdoop(&buffer[pos+1]);
+		pos = pos + strlen(&buffer[(int)pos]);
+	}
+
+	/* Check for message routing */
+	if (msg->cm_fields['D'] != NULL) {
+		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
+
+			/* FIXME route the message, stupid */
+
+		}
+	}
+
+	/* Does it have a recipient?  If so, validate it... */
+	if (msg->cm_fields['D'] != NULL) {
+
+		safestrncpy(recp, msg->cm_fields['D'], sizeof(recp));
+
+                e = alias(recp);        /* alias and mail type */
+                if ((recp[0] == 0) || (e == MES_ERROR)) {
+
+			/* FIXME bounce the msg */
+
+                }
+                else if (e == MES_LOCAL) {
+                        a = getuser(&tempUS, recp);
+                        if (a != 0) {
+
+				/* FIXME bounce the msg */
+
+                        }
+                }
+        }
 
 	/* FIXME ... do something with it! */
 
+	CtdlFreeMessage(msg);
 }
 
 
