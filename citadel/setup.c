@@ -944,6 +944,9 @@ NEW_INST:
 	/* Delete a bunch of old files from Citadel v4; don't need anymore */
 	system("rm -fr ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 
+	/* Delete the old citadel.log file; this facility has been removed */
+	unlink("citadel.log");
+
 	check_services_entry();	/* Check /etc/services */
 	check_inittab_entry();	/* Check /etc/inittab */
 

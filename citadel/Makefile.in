@@ -44,8 +44,8 @@ SERV_MODULES=serv_chat.o \
 	serv_vandelay.o \
 	serv_calendar.o ical_dezonify.o
 
-UTIL_TARGETS=aidepost msgform readlog \
-	stats citmail userlist sendcommand \
+UTIL_TARGETS=aidepost msgform \
+	citmail userlist sendcommand \
 	base64 migratenet$(EXEEXT)
 
 prefix=@prefix@
@@ -79,16 +79,16 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c imap_fetch.c imap_misc.c imap_search.c \
 	imap_store.c imap_tools.c internet_addressing.c ipc_c_tcp.c \
-	locate_host.c logging.c md5.c messages.c migratenet.c \
+	locate_host.c md5.c messages.c migratenet.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
-	readlog.c room_ops.c rooms.c routines.c routines2.c \
+	room_ops.c rooms.c routines.c routines2.c \
 	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \
 	serv_crypto.c serv_expire.c serv_imap.c serv_inetcfg.c \
 	serv_listsub.c serv_mrtg.c serv_netfilter.c serv_network.c \
 	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
-	stats.c support.c sysdep.c tools.c user_ops.c userlist.c \
+	support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c ical_dezonify.c
 
 DEP_FILES=$(SOURCES:.c=.d)
@@ -121,7 +121,7 @@ SERV_OBJS = server_main.o \
 	tools.o $(DATABASE:.c=.o) domain.o \
 	control.o policy.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o \
-	locate_host.o housekeeping.o logging.o mime_parser.o html.o \
+	locate_host.o housekeeping.o mime_parser.o html.o \
 	internet_addressing.o \
 	serv_crypto.o parsedate.o genstamp.o \
 	clientsocket.o $(AUTH) $(SERV_MODULES)
@@ -163,12 +163,6 @@ userlist: userlist.o ipc_c_tcp.o citadel_ipc.o tools.o $(LIBOBJS)
 
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform
-
-readlog: readlog.o config.o
-	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
-
-stats: stats.o ipc_c_tcp.o citadel_ipc.o tools.o config.o
-	$(CC) stats.o ipc_c_tcp.o citadel_ipc.o tools.o config.o $(LDFLAGS) -o stats $(LIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

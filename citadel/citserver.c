@@ -47,7 +47,6 @@
 #include "database.h"
 #include "housekeeping.h"
 #include "user_ops.h"
-#include "logging.h"
 #include "msgbase.h"
 #include "support.h"
 #include "locate_host.h"
@@ -212,10 +211,8 @@ void RemoveContext (struct CitContext *con)
 	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
 	logout(con);
 
-	rec_log(CL_TERMINATE, con->curr_user);
 	unlink(con->temp);
 	lprintf(3, "[%3d] Session ended.\n", con->cs_pid);
-	
 	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
@@ -868,11 +865,10 @@ void begin_session(struct CitContext *con)
 		con->nologin = 1;
 
 	lprintf(3, "Session started.\n");
+	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
-
-	rec_log(CL_CONNECT, "");
 }
 
 

@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.50  2003/05/16 14:59:08  ajc
+ * Removed the old rec_log() facility because the utilities which read its
+   data are crufty, disused, and produce incorrect output.
+ * Updated the documentation for the forthcoming 6.06 release.
+ * public_clients: removed hostnames which crept in from development servers
+
  Revision 605.49  2003/05/16 04:07:37  nbryant
  make configure.ac automagically do the right thing on redhat 9
  remove crappy tolower() hack that was breaking the build on redhat 9
@@ -2290,7 +2296,7 @@
    purge and the next to delete them.  Works better in transactionland.
 
  Revision 573.91  2001/02/14 08:11:27  error
- * citadel.rc: added $Id$ (it's about time!)
+ * citadel.rc: added RCS ID (it's about time!)
 
  Revision 573.90  2001/02/14 04:23:54  ajc
  * Fixed POP3 server responses ending in \n instead of \r\n as they should be.

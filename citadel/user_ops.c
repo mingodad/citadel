@@ -46,7 +46,6 @@
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
-#include "logging.h"
 #include "file_ops.h"
 #include "control.h"
 #include "msgbase.h"
@@ -459,9 +458,6 @@ void session_startup(void)
 
 	/* Enter the lobby */
 	usergoto(config.c_baseroom, 0, 0, NULL, NULL);
-
-	/* Record this login in the Citadel log */
-	rec_log(CL_LOGIN, CC->curr_user);
 }
 
 
@@ -624,7 +620,7 @@ int CtdlTryPassword(char *password)
 		do_login();
 		return pass_ok;
 	} else {
-		rec_log(CL_BADPW, CC->curr_user);
+		lprintf(3, "Bad password specified for <%s>\n", CC->curr_user);
 		return pass_wrong_password;
 	}
 }
@@ -810,10 +806,9 @@ int create_user(char *newusername, int become_user)
 		if (getuser(&CC->usersupp, CC->curr_user)) {
 			return (ERROR + INTERNAL_ERROR);
 		}
-	
-		rec_log(CL_NEWUSER, CC->curr_user);
 	}
 
+	lprintf(3, "New user <%s> created\n", username);
 	return (0);
 }
 
@@ -875,7 +870,6 @@ void cmd_newu(char *cmdbuf)
 	} else {
 		cprintf("%d unknown error\n", ERROR);
 	}
-	rec_log(CL_NEWUSER, CC->curr_user);
 }
 
 
@@ -902,7 +896,7 @@ void cmd_setp(char *new_pw)
 	strcpy(CC->usersupp.password, new_pw);
 	lputuser(&CC->usersupp);
 	cprintf("%d Password changed.\n", CIT_OK);
-	rec_log(CL_PWCHANGE, CC->curr_user);
+	lprintf(3, "Password changed for user <%s>\n", CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
 
@@ -940,7 +934,6 @@ void cmd_creu(char *cmdbuf)
 	} else {
 		cprintf("%d An error occured creating the user account.\n", ERROR);
 	}
-	rec_log(CL_NEWUSER, username);
 }
 
 

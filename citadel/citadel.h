@@ -47,20 +47,18 @@ extern "C" {
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 
-#define NEW_CONFIG
-
 /* Various length constants */
 
-#define UGLISTLEN   100   /* you get a ungoto list of this size */
-#define ROOMNAMELEN	128		/* The size of a roomname string */
-#define NONCE_SIZE	128		/* Added by <bc> to allow for APOP auth 
-					 * it is BIG becuase there is a hostname
-					 * in the nonce, as per the APOP RFC.
-					 */
+#define UGLISTLEN	100	/* you get a ungoto list of this size */
+#define ROOMNAMELEN	128	/* The size of a roomname string */
+#define NONCE_SIZE	128	/* Added by <bc> to allow for APOP auth 
+				 * it is BIG becuase there is a hostname
+				 * in the nonce, as per the APOP RFC.
+				 */
 					 
-#define USERNAME_SIZE	64		/* The size of a username string */
-#define MAX_EDITORS	5		/* # of external editors supported */
-					/* MUST be at least 1 */
+#define USERNAME_SIZE	64	/* The size of a username string */
+#define MAX_EDITORS	5	/* # of external editors supported */
+				/* MUST be at least 1 */
 
 /*
  * Message expiration policy stuff
@@ -143,8 +141,9 @@ struct march {
 #define TWITROOM		config.c_twitroom
 #define RESTRICT_INTERNET	config.c_restrict
 
-/* Defines the actual user record */
- 
+/*
+ * User records
+ */
 struct usersupp {			/* User record                      */
 	int version;			/* Cit vers. which created this rec */
 	uid_t uid;			/* Associate with a unix account?   */
@@ -207,19 +206,8 @@ struct quickroom {
  */
 
 /*
- * Events which might show up in the Citadel Log
+ * Miscellaneous
  */
-#define CL_CONNECT	8		/* Connect to server                */
-#define CL_LOGIN	16		/* CLfullname logged in		    */
-#define CL_NEWUSER	32		/* CLfullname is a new user	    */
-#define CL_BADPW	64		/* Bad attempt at CLfullname's pw   */
-#define CL_TERMINATE	128		/* Logout - proper termination	    */
-#define CL_DROPCARR	256		/* Logout - dropped carrier	    */
-#define CL_SLEEPING	512		/* Logout - sleeping		    */
-#define CL_PWCHANGE	1024		/* CLfullname changed passwords     */
-
-/* Miscellaneous                                                            */
-
 #define MES_NORMAL	65		/* Normal message                   */
 #define MES_ANONONLY	66		/* "****" header                    */
 #define MES_ANONOPT	67		/* "Anonymous" header               */
