@@ -62,6 +62,35 @@ struct serv_info {
 
 
 /*
+ * This struct holds a list of rooms for <G>oto operations.
+ */
+struct march {
+	struct march *next;
+	char march_name[32];
+	int march_floor;
+	int march_order;
+};
+
+/* 
+ * This struct holds a list of rooms for client display.
+ * (oooh, a tree!)
+ */
+struct roomlisting {
+	struct roomlisting *lnext;
+	struct roomlisting *rnext;
+	char rlname[64];
+	unsigned rlflags;
+	int rlfloor;
+	int rlorder;
+};
+
+
+
+
+
+
+
+/*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
  */
@@ -88,6 +117,7 @@ struct wcsession {
         pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
         time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
+	struct march *march;		/* march mode room list */
 };
 
 
