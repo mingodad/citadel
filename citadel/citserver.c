@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <syslog.h>
-#include <dlfcn.h>
+/* #include <dlfcn.h> */
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>

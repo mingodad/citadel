@@ -9,7 +9,13 @@
 #include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
+#endif
+#ifdef HAVE_DL_H
+#include <dl.h>
+#include "hpsux.h"
+#endif
 #include <sys/types.h>
 #include <dirent.h>
 #include <strings.h>
