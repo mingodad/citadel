@@ -325,10 +325,38 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 
 
 /*
- * Strip any non header information out of a chunk of RFC822 data on disk
+ * Strip any non header information out of a chunk of RFC822 data on disk,
+ * then boil it down to just the fields we want.
  */
-void imap_strip_headers(FILE *fp) {
+void imap_strip_headers(FILE *fp, char *section) {
 	char buf[1024];
+	char *which_fields = NULL;
+	int doing_headers = 0;
+	int headers_not = 0;
+	char *parms[SIZ];
+        int num_parms = 0;
+	int i;
+
+	if (!strncasecmp(which_fields, "HEADER.FIELDS", 13))
+		doing_headers = 1;
+	if (!strncasecmp(which_fields, "HEADER.FIELDS.NOT", 17))
+		headers_not = 1;
+
+	which_fields = strdoop(section);
+	for (i=0; i<strlen(which_fields); ++i) {
+		if (which_fields[i]=='(')
+			strcpy(which_fields, &which_fields[i+1]);
+	}
+	for (i=0; i<strlen(which_fields); ++i) {
+		if (which_fields[i]==')')
+			which_fields[i] = 0;
+	}
+	num_parms = imap_parameterize(parms, which_fields);
+	for (i=0; i<num_parms; ++i) {
+		lprintf(9, "parm[%d] = <%s>\n", i, parms[i]);
+	}	/* FIXME do something here! */
+
+	phree(which_fields);
 
 	rewind(fp);
 	while (fgets(buf, sizeof buf, fp) != NULL) {
@@ -406,7 +434,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 1, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
-		imap_strip_headers(tmp);
+		imap_strip_headers(tmp, section);
 	}
 
 	/*
