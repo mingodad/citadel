@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.102  2002/08/26 02:55:09  ajc
+ * Small bugfix for memory bounds checking in the MIME parser
+
  Revision 591.101  2002/08/25 21:23:49  ajc
  * Hide the SMTP queue and the sysconfig rooms.
 
@@ -3935,4 +3938,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

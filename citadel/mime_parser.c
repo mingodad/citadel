@@ -418,7 +418,16 @@ void the_mime_parser(char *partnum,
 				part_end = ptr;
 				++ptr;
 			}
-		} while ( (strcasecmp(ptr, endary)) && (ptr <= content_end) );
+			/* If we pass out of scope in the MIME multipart (by
+			 * hitting the end boundary), force the pointer out
+			 * of scope so this loop ends.
+			 */
+			if (ptr < content_end) {
+				if (!strcasecmp(ptr, endary)) {
+					ptr = content_end++;
+				}
+			}
+		} while (ptr <= content_end);
 		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);

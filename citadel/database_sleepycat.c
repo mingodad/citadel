@@ -154,7 +154,7 @@ void cdb_allocate_tsd(void) {
 	if (pthread_getspecific(tsdkey) != NULL)
 		return;
 
-	tsd = mallok(sizeof *tsd);
+	tsd = mallok(sizeof(struct cdbtsd));
 
 	tsd->tid = NULL;
 
