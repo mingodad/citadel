@@ -1,4 +1,8 @@
 $Log$
+Revision 1.432  1999/12/26 21:50:07  ajc
+* serv_vcard: don't run hooks when not logged in (such as in SMTP sessions)
+* serv_pop3: added.  This is the skeleton for a module implementing POP3.
+
 Revision 1.431  1999/12/23 04:46:23  ajc
 * "Finished" initial hack of RFC822 import
 
@@ -1502,3 +1506,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

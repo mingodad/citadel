@@ -62,6 +62,8 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char buf[256];
 
 
+	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
+
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
@@ -126,6 +128,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	int linelen;
 	long I;
 
+
+	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.

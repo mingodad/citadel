@@ -348,6 +348,14 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	/* If a content type is specified, this becomes a MIME message.  The
+	 * content-type header itself remains in the RFC822 headers, not in
+	 * the Citadel headers, therefore we do not set 'processed' to 1.
+	 */
+	else if (!strcasecmp(key, "Content-type")) {
+		msg->cm_format_type = 4;
+	}
+
 	/* Clean up and move on. */
 	phree(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);
@@ -371,7 +379,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;	/* self check */
 	msg->cm_anon_type = 0;			/* never anonymous */
-	msg->cm_format_type = 4;		/* always MIME */
+	msg->cm_format_type = 1;		/* text unless specified */
 	msg->cm_fields['M'] = rfc822;
 
 	lprintf(9, "Unconverted RFC822 message length = %d\n", strlen(rfc822));

@@ -26,7 +26,8 @@ SERV_ICQ=@SERV_ICQ@
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
-	modules/serv_upgrade$(SO) modules/serv_smtp$(SO) \
+	modules/serv_upgrade$(SO) \
+	modules/serv_smtp$(SO) modules/serv_pop3$(SO) \
 	modules/serv_expire$(SO) $(SERV_ICQ)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
@@ -71,7 +72,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
-	serv_smtp.c internet_addressing.c parsedate.c genstamp.c
+	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -137,6 +138,12 @@ modules/serv_smtp.so: serv_smtp.mo
 
 modules/serv_smtp.mo: serv_smtp.mo
 	ln -f serv_smtp.mo modules
+
+modules/serv_pop3.so: serv_pop3.mo
+	$(LINK_SHARED) -o modules/serv_pop3.so serv_pop3.mo
+
+modules/serv_pop3.mo: serv_pop3.mo
+	ln -f serv_pop3.mo modules
 
 modules/serv_expire.so: serv_expire.mo
 	$(LINK_SHARED) -o modules/serv_expire.so serv_expire.mo
