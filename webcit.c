@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include "webcit.h"
+#include "child.h"
 
 int wc_session;
 char wc_host[256];
@@ -35,8 +36,8 @@ struct webcontent *wlast = NULL;
 struct urlcontent *urlstrings = NULL;
 
 
-void unescape_input(buf)
-char buf[]; {
+void unescape_input(char *buf)
+{
 	int a,b;
 	char hex[3];
 
@@ -71,7 +72,7 @@ void addurls(char *url) {
 		strncpy(buf,up,255);
 		b = (-1);
 		for (a=255; a>=0; --a) if (buf[a]=='=') b=a;
-		if (b<0) goto DONE;
+		if (b<0) return;
 		buf[b]=0;
 	
 		u = (struct urlcontent *)malloc(sizeof(struct urlcontent));
@@ -88,11 +89,11 @@ void addurls(char *url) {
 		for (a=0; a<strlen(up); ++a) {
 			if (!strncmp(ptr,"&",1)) {
 				b=a;
-				goto FOUNDIT;
+				break;
 				}
 			++ptr;
 			}
-FOUNDIT:	ptr = up;
+		ptr = up;
 		for (a=0; a<b; ++a) ++ptr;
 		strcpy(ptr,"");
 		
@@ -103,10 +104,9 @@ FOUNDIT:	ptr = up;
 		up = ptr;
 		++up;
 		}
-DONE:
 	}
 
-void free_urls() {
+void free_urls(void) {
 	struct urlcontent *u;
 
 	while (urlstrings != NULL) {
@@ -148,7 +148,7 @@ void wprintf(const char *format, ...) {
   
 	}
 
-int wContentLength() {
+int wContentLength(void) {
 	struct webcontent *wptr;
 	int len = 0;
 
@@ -159,7 +159,7 @@ int wContentLength() {
 	return(len);
 	}
 
-void wDumpContent() {
+void wDumpContent(void) {
 	struct webcontent *wptr;
 
 	printf("Content-type: text/html\n");
@@ -176,9 +176,8 @@ void wDumpContent() {
 	}
 
 
-void escputs1(strbuf,nbsp)
-char strbuf[];
-int nbsp; {
+void escputs1(char *strbuf, int nbsp)
+{
 	int a;
 
 	for (a=0; a<strlen(strbuf); ++a) {
@@ -198,15 +197,15 @@ int nbsp; {
 		}
 	}
 
-void escputs(strbuf)
-char *strbuf; {
+void escputs(char *strbuf)
+{
 	escputs1(strbuf,0);
 	}
 
 
 
-char *urlesc(strbuf)
-char strbuf[]; {
+char *urlesc(char *strbuf)
+{
 	int a,b,c;
         char *ec = " #&;`'|*?-~<>^()[]{}$\\";
 	static char outbuf[512];
@@ -225,8 +224,8 @@ char strbuf[]; {
 	return(outbuf);
 	}
 
-void urlescputs(strbuf)
-char strbuf[]; {
+void urlescputs(char *strbuf)
+{
 	wprintf("%s",urlesc(strbuf));
 	}
 
@@ -235,8 +234,8 @@ char strbuf[]; {
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
  */
-void url(buf)
-char buf[]; {
+void url(char *buf)
+{
 
 	int pos;
 	int start,end;
@@ -289,7 +288,7 @@ void getz(char *buf) {
 /*
  * Output all that important stuff that the browser will want to see
  */
-void output_headers() {
+void output_headers(void) {
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
 	printf("Set-cookie: wc_session=%d\n", wc_session);
@@ -333,7 +332,7 @@ void output_static(char *what) {
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		printf("Content-length: %d\n", bytes);
+		printf("Content-length: %ld\n", (long)bytes);
 		printf("\n");
 		while (bytes--) {
 			putc(getc(fp), stdout);
@@ -345,7 +344,7 @@ void output_static(char *what) {
 static const char *defaulthost = DEFAULT_HOST;
 static const char *defaultport = DEFAULT_PORT;
 
-void session_loop() {
+void session_loop(void) {
 	char cmd[256];
 	char buf[256];
 	int a, b;

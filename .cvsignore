@@ -1,3 +1,7 @@
-webserver
-webcit
 *.o
+config.cache
+config.log
+config.status
+configure
+webcit
+webserver

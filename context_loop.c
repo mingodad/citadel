@@ -9,6 +9,7 @@
  * $Id$
  */
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -26,6 +27,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include "webcit.h"
+#include "webserver.h"
 
 /*
  * We keep one of these around for each active session
@@ -205,7 +207,7 @@ void *context_loop(int sock) {
 			}
 		} while (strlen(buf) > 0);
 
-	printf("   Reading %d bytes of content\n");
+	printf("   Reading %d bytes of content\n", ContentLength);
 	while(ContentLength--) {
 		read(TheSession->outpipe[0], buf, 1);
 		write(sock, buf, 1);
@@ -256,5 +258,5 @@ void *context_loop(int sock) {
 	/*
 	 * The thread handling this HTTP connection is now finished.
 	 */
-	pthread_exit(NULL);
+	return NULL;
 	}

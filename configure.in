@@ -1,0 +1,42 @@
+dnl Process this file with autoconf to produce a configure script.
+dnl $Id$
+AC_INIT(webserver.c)
+
+dnl Check for Digital Unix; it has a different way of building for pthreads,
+dnl and we can't build pthreads programs with gcc dut to header problems.
+AC_CANONICAL_HOST
+case "$host" in
+	alpha*-dec-osf*)
+		test -z "$CC" && CC=cc
+		LIBS=-pthread
+	;;
+esac
+
+dnl Checks for programs.
+AC_PROG_CC
+test "$GCC" = yes && CFLAGS="$CFLAGS -Wall"
+
+dnl Checks for libraries.
+if test "$LIBS" != -pthread; then
+	AC_CHECK_LIB(pthread, pthread_create)
+	AC_CHECK_LIB(pthreads, pthread_create)
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+dnl AC_HEADER_SYS_WAIT
+dnl AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+dnl AC_HEADER_TIME
+
+dnl Checks for library functions.
+dnl AC_TYPE_SIGNAL
+dnl AC_FUNC_VPRINTF
+dnl AC_CHECK_FUNCS(strerror)
+AC_REPLACE_FUNCS(snprintf)
+
+AC_OUTPUT(Makefile)

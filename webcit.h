@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #define SLEEPING	180			/* TCP connection timeout */
 #define PORT_NUM	32767			/* port number to listen on */
 #define SERVER		"WebCit v2.0 (Velma)"	/* who's in da house */
@@ -69,10 +71,3 @@ extern struct serv_info serv_info;
 extern unsigned room_flags;
 extern char ugname[128];
 extern long uglsn;
-
-
-
-void serv_printf(const char *format, ...);
-char *bstr();
-char *urlesc(char *);
-void urlescputs(char *);
