@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.93  2002/12/25 06:41:44  ajc
+ * ical_dezonify.c: added (function to strip localized timestamps out of
+   a component and replace them with UTC timestamps)
+
  Revision 601.92  2002/12/19 04:51:49  ajc
  * database_cleanup.sh: added
 
@@ -4315,3 +4319,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
