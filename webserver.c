@@ -24,9 +24,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <pthread.h>
-
-#define SLEEPING	180			/* TCP connection timeout */
-#define PORT_NUM	32765			/* port number to listen on */
+#include "webcit.h"
 
 int msock;					/* master listening socket */
 extern void *context_loop(int);
