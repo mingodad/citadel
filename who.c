@@ -33,6 +33,8 @@ void whobbs(void)
 {
 	char buf[SIZ], sess, user[SIZ], room[SIZ], host[SIZ],
 		realroom[SIZ], realhost[SIZ];
+	time_t last_activity;
+	time_t now;
 
 	output_headers(7);
 
@@ -56,6 +58,16 @@ void whobbs(void)
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
 	wprintf("<TH>From host</TH>\n</TR>\n");
+
+	serv_puts("TIME");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		now = extract_long(&buf[4], 0);
+	}
+	else {
+		now = time(NULL);
+	}
+
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -66,6 +78,7 @@ void whobbs(void)
 			extract(host, buf, 3);
 			extract(realroom, buf, 9);
 			extract(realhost, buf, 10);
+			last_activity = extract_long(buf, 5);
 
 			wprintf("<TR>\n\t<TD ALIGN=center>%d", sess);
 			if ((WC->is_aide) &&
@@ -85,7 +98,8 @@ void whobbs(void)
 			wprintf("<A HREF=\"/display_page&recp=");
 			urlescputs(user);
 			wprintf("\">"
-				"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" "
+				"<IMG ALIGN=MIDDLE WIDTH=20 HEIGHT=15 "
+				"SRC=\"/static/page.gif\" "
 				"ALT=\"(p)\""
 				" BORDER=0></A>&nbsp;");
 
@@ -96,6 +110,13 @@ void whobbs(void)
 			wprintf("\">");
 			escputs(user);
 			wprintf("</A>");
+
+			if ((now - last_activity) > 900L) {
+				wprintf("&nbsp;"
+					"<IMG ALIGN=MIDDLE "
+					"SRC=\"/static/idle.gif\" "
+					"ALT=\"[idle]\" BORDER=0>");
+			}
 
 			/* room */
 			wprintf("</TD>\n\t<TD>");
