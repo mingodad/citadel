@@ -1524,7 +1524,7 @@ void display_enter(void)
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("<SCRIPT language=\"JavaScript\" type=\"text/javascript\" "
-		"src=\"static/richtext.js\"></SCRIPT>\n"
+		"src=\"static/richtext_compressed.js\"></SCRIPT>\n"
 		"<SCRIPT language=\"JavaScript\" type=\"text/javascript\">\n"
 		"function submitForm() { \n"
 		"  updateRTE('msgtext'); \n"
@@ -1541,11 +1541,13 @@ void display_enter(void)
 		"</script> \n");
 
 /*
+ * Before we had the richedit widget, we did it this way...
+ *
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
 		"WIDTH=80>");
 	escputs(bstr("msgtext"));
 	wprintf("</TEXTAREA><BR>\n");
-*/
+ */
 
 	/* Enumerate any attachments which are already in place... */
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
