@@ -555,8 +555,8 @@ void ship_to(char *filenm, char *sysnm)	/* send spool file filenm to system sysn
 /*
  * proc_file_transfer()  -  handle a simple file transfer packet
  *
- * FIX  This shouldn't be like this.  What it needs to do is begin an upload
- * FIX  and transmit the file to the server.
+ * FIX  This shouldn't be like this.  What it needs to do is begin
+ * FIX  an upload and transmit the file to the server.
  */
 void proc_file_transfer(char *tname)
 {	/* name of temp file containing the whole message */
