@@ -2289,11 +2289,17 @@ void cmd_ent0(char *entargs)
 			mtsflag = 1;
 		}
 		else if (e == MES_LOCAL) {	/* don't search local file */
+
+
+/*** We can probably do this now.
 			if (!strcasecmp(buf, CC->usersupp.fullname)) {
 				cprintf("%d Can't send mail to yourself!\n",
 					ERROR + NO_SUCH_USER);
 				return;
 			}
+  ***  hi from Stu
+*/
+
 			/* Check to make sure the user exists; also get the correct
 			 * upper/lower casing of the name.
 			 */
