@@ -12,7 +12,7 @@
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
 #
-editor=/usr/local/bin/simped
+# editor=joe
 
 # If you define PRINTCMD, it will be a pipe through which messages are
 # printed when the user hits the <P>rint key after a message.
@@ -139,6 +139,7 @@ cmd=51,1,&.,&Aide,&File,&Delete
 cmd=53,1,&.,&Aide,&File,&Send over net
 cmd=54,1,&.,&Aide,&File,&Move
 cmd=70,2,&.,&Aide,&Message edit:
+cmd=78,1,&.,&Aide,&Post
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online
 cmd=32,0,&.,&Read,&User listing
@@ -171,6 +172,9 @@ cmd=36,0,&.,&Enter,&ASCII message
 cmd=37,0,&.,&Enter,&Configuration
 cmd=38,0,&.,&Enter,a new &Room
 cmd=39,0,&.,&Enter,&Textfile
+cmd=75,0,&.,&Enter,r&Oomname
+cmd=76,0,&.,&Enter,&Hostname
+cmd=77,0,&.,&Enter,&Username
 cmd=40,0,&.,&Enter,file using &Xmodem
 cmd=42,0,&.,&Enter,file using &Ymodem
 cmd=44,0,&.,&Enter,file using &Zmodem
@@ -197,11 +201,15 @@ cmd=65,2,&;,&Aide,&Kill floor
 cmd=68,0,&;,&Known rooms
 cmd=66,0,&.,&Enter,&Bio
 cmd=67,0,&.,&Read,&Bio
+
+
+cmd=79,0,&.,&Wholist,&Long
+
 #
 # Command 69 allows the user to enter a server command directly.  It is
-# primarily for testing and not intended for general use.  Usually there
-# is no need to enable it.
+# intended for testing/debugging.
 cmd=69,0,&@Server command:
+
 #
 # end of command set configuration
 #
