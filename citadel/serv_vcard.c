@@ -54,7 +54,7 @@ unsigned long SYM_VCARD;
 
 
 /*
- * back end function used by vcard_personal_upload()
+ * back end function used by vcard_upload_beforesave()
  */
 void vcard_replace_backend(long msgnum) {
 	lprintf(9, "doing the replace thing for <%ld>\n", msgnum);
@@ -66,9 +66,10 @@ void vcard_replace_backend(long msgnum) {
 /*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
- * function accordingly.
+ * function accordingly (delete the user's existing vCard in the config room
+ * and in the global address book).
  */
-int vcard_personal_upload(struct CtdlMessage *msg) {
+int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
         char hold_rm[ROOMNAMELEN];
@@ -101,6 +102,54 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
         		CtdlForEachMessage(MSGS_ALL, 0,
 				"text/x-vcard", vcard_replace_backend);
         		getroom(&CC->quickroom, hold_rm);	/* return rm */
+			return(0);
+		}
+
+		ptr = strchr((char *)ptr, '\n');
+		if (ptr != NULL) ++ptr;
+	}
+
+	return(0);
+}
+
+
+
+/*
+ * This handler detects whether the user is attempting to save a new
+ * vCard as part of his/her personal configuration, and handles the replace
+ * function accordingly (copy the vCard from the config room to the global
+ * address book).
+ */
+int vcard_upload_aftersave(struct CtdlMessage *msg) {
+	char *ptr;
+	int linelen;
+	long msgid;
+	struct quickroom qrbuf;
+
+	/* If this isn't the configuration room, or if this isn't a MIME
+	 * message, don't bother.
+	 */
+	if (strcasecmp(msg->cm_fields['O'], CONFIGROOM)) return(0);
+	if (msg->cm_format_type != 4) return(0);
+
+	ptr = msg->cm_fields['M'];
+	while (ptr != NULL) {
+	
+		linelen = strcspn(ptr, "\n");
+		if (linelen == 0) return(0);	/* end of headers */	
+		
+		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
+			/* Bingo!  The user is uploading a new vCard, so
+			 * delete the old one.
+			 */
+
+			msgid = atol(msg->cm_fields['I']);
+			if (msgid < 0L) return(0);
+
+			if (getroom(&qrbuf, ADDRESS_BOOK_ROOM) != 0) return(0);
+			AddMessageToRoom(&qrbuf, msgid);
+			AdjRefCount(msgid, +1);
+
 			return(0);
 		}
 
@@ -183,8 +232,8 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
         /* This handy API function does all the work for us.
 	 * NOTE: normally we would want to set that last argument to 1, to
 	 * force the system to delete the user's old vCard.  But it doesn't
-	 * have to, because the vcard_personal_upload() hook above is going to
-	 * notice what we're trying to do, and delete the old vCard.
+	 * have to, because the vcard_upload_beforesave() hook above
+	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
         CtdlWriteObject(CONFIGROOM,	/* which room */
 			"text/x-vcard",	/* MIME type */
@@ -351,7 +400,8 @@ char *Dynamic_Module_Init(void)
 {
 	SYM_VCARD = CtdlGetDynamicSymbol();
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
-	CtdlRegisterMessageHook(vcard_personal_upload, EVT_BEFORESAVE);
+	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
+	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
 	return "$Id$";

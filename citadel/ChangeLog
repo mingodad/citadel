@@ -1,4 +1,8 @@
 $Log$
+Revision 1.379  1999/10/06 23:17:44  ajc
+* vCard upload now copies the user's card to the global address book (but it
+  hangs the server if the target room doesn't exist)
+
 Revision 1.378  1999/10/06 03:51:01  ajc
 * Figured out a way to get the user's vCard to automatically delete in the
   global address book when it's replaced.  Now to find a way to add the new
@@ -1299,4 +1303,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
