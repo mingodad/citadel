@@ -557,12 +557,11 @@ void replace_string(char *filename, long int startpos)
 	}
 
 
-int make_message(char *filename, char *recipient, int anon_type, int format_type, int mode)
-                	/* temporary file name */
-                 	/* NULL if it's not mail */
-              		/* see MES_ types in header file */
-                
-         
+int make_message(char *filename,	/* temporary file name */
+		char *recipient,	/* NULL if it's not mail */
+		int anon_type,		/* see MES_ types in header file */
+		int format_type,
+		int mode)
 { 
 	FILE *fp;
 	int a,b,e_ex_code;
@@ -609,7 +608,7 @@ ME1:	switch(mode) {
 
 	   case 0:
 		fp=fopen(filename,"r+");
-		citedit(fp,beg);
+		citedit(fp, beg);
 		fclose(fp);
 		goto MECR;
 
