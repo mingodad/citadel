@@ -730,13 +730,13 @@ void readloop(char *oper)
 		else wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
 		wprintf("<HR width=100%%>\n");
 	}
-	if ((WC->wc_view == 3) && (maxmsgs > 1)) {
+	if (WC->wc_view == 3) {
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if ((WC->wc_view == 4) && (maxmsgs > 1)) {
-		is_calendar = 1;
+	if (WC->wc_view == 4) {
+		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
