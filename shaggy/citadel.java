@@ -1,3 +1,5 @@
+import javax.swing.JFrame;
+import java.util.*;
 
 public class citadel {
     public final static String	NAME="Shaggy", VERSION="0.1";
@@ -5,6 +7,7 @@ public class citadel {
 
     String		server;
     int			port;
+    Vector 		windows;
 
     citGui		cg;
     net			theNet;
@@ -33,6 +36,7 @@ public class citadel {
 	theNet = new net();
 	serverInfo = null;
 	rf = null;
+	windows = new Vector();
     }
 
     public void showHostBrowser() {
@@ -70,7 +74,13 @@ public class citadel {
     }
 
     public void expressMsg() {
-	System.out.println( "got an express message!" );
+	networkEvent( "GEXP", new CallBack() {
+	    public void run( citReply r ) {
+		if( !r.error() )
+		    new expressWindow(r);
+		if( atoi( r.getArg( 0 ) ) != 0 )
+		    expressMsg();
+	    } } );
     }
 
     public void gotoRoom( String name ) {
@@ -96,6 +106,10 @@ public class citadel {
 
     public void networkEvent( String cmd, CallBack cb ) {
 	networkEvent( cmd, null, cb );
+    }
+
+    public void networkEvent( String cmd, String data ) {
+	networkEvent( cmd, data, null );
     }
 
     public void networkEvent( String cmd, String data, CallBack cb ) {
@@ -172,6 +186,11 @@ public class citadel {
 	if( rf != null )
 	    rf.dispose();
 	rf = null;
+	for( Enumeration e = windows.elements(); e.hasMoreElements(); ) {
+	    JFrame	f = (JFrame)e.nextElement();
+	    f.dispose();
+	}
+
 	cg.showLogoffPanel();
 	networkEvent( "QUIT", new CallBack() {
 	    public void run( citReply r ) {
@@ -188,6 +207,14 @@ public class citadel {
 		if( msg != 0 )
 		    enterRoom( "Mail" );
 	    } } );
+    }
+
+    public void registerWindow( JFrame	win ) {
+	windows.addElement( win );
+    }
+
+    public void removeWindow( JFrame win ) {
+	windows.removeElement( win );
     }
 
     public boolean floors() {

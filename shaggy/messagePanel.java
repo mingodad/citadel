@@ -48,6 +48,8 @@ public class messagePanel extends JPanel {
 		System.out.println( "Zap room" );
 	    } } );
 
+	b.setEnabled( false );
+
 
 	jcb = new JComboBox();
 	jcb.addItem( "Read New" );
@@ -89,8 +91,13 @@ public class messagePanel extends JPanel {
 
 	p.add( "North", blurb = new JTextField() );
 	blurb.setEditable( false );
-	p.add( "Center", new JScrollPane( message = new JTextArea() )  );
+	p.add( "Center", 
+	       new JScrollPane( message = new JTextArea(),
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
 	message.setEditable( false );
+	message.setLineWrap( true );
+	message.setWrapStyleWord( true );
 	add( "Center", p );
     }
 

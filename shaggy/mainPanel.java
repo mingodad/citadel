@@ -37,11 +37,13 @@ public class mainPanel extends JPanel {
 	vp.add( b = new JButton( "Page User" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
+		new pageUserWindow();
 	    }});
 
 	vp.add( b = new JButton( "Who Online" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
+		new whoOnlineWindow();
 	    }});
 
 	vp.add( b = new JButton( "Options" ) );
@@ -49,10 +51,14 @@ public class mainPanel extends JPanel {
 	    public void actionPerformed( ActionEvent e ) {
 	    }});
 
+	b.setEnabled( false );
+
 	vp.add( b = new JButton( "Server Info" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
 	    }});
+
+	b.setEnabled( false );
 
 	vp.add( b = new JButton( "Logoff" ) );
 	b.addActionListener( new ActionListener() {

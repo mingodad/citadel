@@ -2,8 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-/* Quick quick quick hack */
-
 public class enterPanel extends JPanel{
     roomFrame	rf;
     roomInfo	ri;
@@ -15,16 +13,43 @@ public class enterPanel extends JPanel{
 	this.rf = rf;
 	setLayout( new BorderLayout() );
 
-	add( "North", to = new JTextField() );
+	JPanel	p = new JPanel();
+	p.setBorder( BorderFactory.createTitledBorder(
+	             BorderFactory.createEtchedBorder(), "Recipient" ) );
+	p.setLayout( new BorderLayout() );
+
+	p.add( "Center", to = new JTextField() );
+
+	JButton	b = new JButton( "Select" );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		System.out.println( "User list bialog!" );
+	    } } );
+
+	p.add( "East", b );
+
+	add( "North", p );
+
 	to.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
 		msg.requestFocus();
 	    } } );
 
-	add( "Center", msg = new JTextArea() );
+	p = new JPanel();
+	p.setBorder( BorderFactory.createTitledBorder(
+	             BorderFactory.createEtchedBorder(), "Message Text" ) );
+	p.setLayout( new BorderLayout() );
 
-	JPanel	p = new JPanel();
-	JButton	b;
+	p.add( "Center", new JScrollPane( msg = new JTextArea(), 
+		  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		  JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
+
+	msg.setLineWrap( true );
+	msg.setWrapStyleWord( true );
+
+	add( "Center", p );
+
+	p = new JPanel();
 
 	p.add( b = new JButton( "Send" ) );
 	b.addActionListener( new ActionListener() {

@@ -6,11 +6,11 @@ Basic:
 - can log off (shows goodbye, and in application lets you connect to a
   different server)
 
-* can't recieve express messages (GEXP style, will get all messages that
+- can recieve express messages (GEXP style, will get all messages that
   are there.
-* can't send and "reply" to express messages, uses either single or multi
+- can send and "reply" to express messages, uses either single or multi
   depending on server support.
-* no who is online
+- no who is online
 - supports the IDEN command
 - Automaticcaly goes to mail room if you have new messages
 * can't change password or other config stuff
@@ -33,8 +33,7 @@ Basic:
 - forward and  reverse
 - enter messages in room (only type 0)
 - handles Mail room
-* doesn't say anything about having mail or going there first, just lists
-  Mail in the "new" list.
+- checks for mail and opens mail room automatically if you have any new
 * No reply button when in mail room.
 - can see "next" and "prev" message.  (goes through the MSGS list which it
   gets when you first enter the room) no way to jump around (yet?).

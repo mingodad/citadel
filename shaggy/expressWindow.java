@@ -1,52 +1,61 @@
-/* expressWindow.java
- * for showing express messages...
- */
-
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
-public class expressWindow extends Frame {
-  String	user;
-  TextArea	msg;
-  Button	reply, ok;
+public class expressWindow extends JFrame {
+    String	who;
 
-  public expressWindow( citReply r ) {
-    user = r.getArg( 3 );
-    
-    setTitle( user + " : express message" );
+    public expressWindow( citReply r ) {
+	who = r.getArg( 3 );
+	setTitle( who + " : express message" );
 
-    setLayout( new BorderLayout() );
-    NamedPanel	np = new NamedPanel( "Message" );
+	JPanel	p = new JPanel();
+	p.setLayout( new BorderLayout() );
+	p.setBorder( BorderFactory.createTitledBorder( 
+		     BorderFactory.createEtchedBorder(), "Message" ) );
 
-    np.setLayout( new BorderLayout() );
-    np.add( "Center", msg = new TextArea() );
-    msg.append( r.getData() );
+	JTextArea	t = new JTextArea( r.getData() );
+	t.setLineWrap( true );
+	t.setWrapStyleWord( true );
 
-    add( "Center", np );
+	p.add( "Center", new JScrollPane( t ) );
 
-    Panel p = new Panel();
-    p.add( reply = new Button( "Reply" ) );
-    p.add( ok = new Button( "OK" ) );
-    add( "South", p );
+	Container	c = getContentPane();
+	c.setLayout( new BorderLayout() );
+	c.add( "Center", p );
 
-    int		more = citadel.atoi( r.getArg( 0 ) );
-    if( more != 0 ) new expressWindow( citadel.me.getReply( "GEXP" ) );
+	p = new JPanel();
 
-    resize( 300, 300 );
-    show();
-  }
+	JButton	b;
+	p.add( b = new JButton( "Reply" ) );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		new pageUserWindow( who );
+		closeWin();
+	    } } );
 
-  public boolean handleEvent( Event e ) {
-    if( e.id == Event.WINDOW_DESTROY )
-      dispose();
-    return super.handleEvent( e );
-  }
+	p.add( b = new JButton( "Close" ) );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		closeWin();
+	    } } );
 
-  public boolean action( Event e, Object o ) {
-    if( e.target == reply ) {
-      dispose();
-      citadel.me.page_user( user );
-    } else if( e.target == ok )
-      dispose();
-    return super.action( e, o );
-  }
+	c.add( "South", p );
+
+	addWindowListener( new WindowAdapter() {
+	    public void windowClosing( WindowEvent e ) {
+		closeWin();
+	    }
+	} );
+
+	citadel.me.registerWindow( this );
+	pack();
+	show();
+    }
+
+    public void closeWin() {
+	citadel.me.removeWindow( this );
+	dispose();
+	System.out.println( "expressWindow:closeWin" );
+    }
 }

@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
@@ -70,7 +71,7 @@ public class net implements Runnable {
     public void run() {
 	String	server = citadel.me.server;
 	int		port = citadel.me.port;
-	boolean		proxy = false;
+	boolean		proxy = true;
 
 	done = false;
 	try {
@@ -104,6 +105,20 @@ public class net implements Runnable {
 	getReply( "IDEN 0|7|" + citadel.VERSION + "|" + citadel.NAME + " " +
 		  citadel.VERSION + " (" + getArch() + ")|" + getHostName() );
 
+	Thread	t = new Thread() {
+	    public void run() {
+		while( !citadel.me.theNet.done ) {
+		    try {
+			Thread.sleep( 30000 );
+		    } catch( Exception e ) {}
+
+		    System.out.println( "Idle event" );
+		    citadel.me.networkEvent( "NOOP" );
+		}
+	    } };
+
+	t.start();
+
 	MsgCmd	m;
 	while( ((m = (MsgCmd)theQueue.get()) != null) && !done ) {
 	    citReply	r = getReply( m.cmd, m.data );
@@ -118,6 +133,9 @@ public class net implements Runnable {
 	if( !done )
 	    citadel.me.lostNetwork( "Connection closed." );
 
+	try {
+	    t.stop();
+	} catch( Exception e ) {}
     }
 
     public void done() {

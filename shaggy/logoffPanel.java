@@ -15,6 +15,9 @@ public class logoffPanel extends JPanel {
     p.setBorder( BorderFactory.createTitledBorder( 
 		  BorderFactory.createEtchedBorder(), "Goodbye Message" ) );
     p.add( "Center", message = new JTextArea() );
+    message.setLineWrap( true );
+    message.setWrapStyleWord( true );
+
     add( "Center", p );
 
     p = new JPanel();
