@@ -20,18 +20,18 @@ struct parts {
 	char number[16];		/* part number */
 	char name[PATH_MAX];		/* Name */
 	char filename[PATH_MAX];	/* Suggested filename */
-	char mimetype[256];		/* MIME type */
-	char disposition[256];		/* Content disposition */
+	char mimetype[SIZ];		/* MIME type */
+	char disposition[SIZ];		/* Content disposition */
 	unsigned long length;		/* Content length */
 };
 
 
 struct ctdlipcmessage {
-	char msgid[256];		/* Original message ID */
-	char path[256];			/* Return path to sender */
-	char zaps[256];			/* Message ID that this supersedes */
-	char subject[256];		/* Message subject */
-	char email[256];		/* Email address of sender */
+	char msgid[SIZ];		/* Original message ID */
+	char path[SIZ];			/* Return path to sender */
+	char zaps[SIZ];			/* Message ID that this supersedes */
+	char subject[SIZ];		/* Message subject */
+	char email[SIZ];		/* Email address of sender */
 	char author[USERNAME_SIZE];	/* Sender of message */
 	char recipient[USERNAME_SIZE];	/* Recipient of message */
 	char room[ROOMNAMELEN];		/* Originating room */

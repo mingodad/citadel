@@ -574,7 +574,6 @@ void editthisroom(void)
 void ungoto(void)
 {
 	char buf[SIZ];
-	int r;				/* IPC response code */
 
 	if (uglistsize == 0)
 		return;
