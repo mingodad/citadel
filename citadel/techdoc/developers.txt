@@ -1,0 +1,23 @@
+Developer codes:
+
+ 0	The Citadel/UX core development team:
+	Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	Nathan Bryant
+	Brian Costello
+
+	0 = Citadel/UX text based client
+	2 = WinCit
+	4 = WebCit v1
+	5 = "Shaggy" (Java client currently stalled in development)
+
+
+ 1	Brian Ledbetter <brian@amaranth.com>
+
+ 2	Matthew Scott <gldnspud@telcomplus.com>
+ 
+ 3	Jesse Vincent <jrvincent@wesleyan.edu>
+ 
+ 4	Brian Costello <btx@calyx.net>
+ 
+ 5	Robert Abatecola <robert@tsgus.com> 
+ 

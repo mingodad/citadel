@@ -513,18 +513,10 @@ yet, just work with the Citadel development team on the main source tree.
  If everyone follows this scheme, we can avoid a chaotic situation with lots
 of confusion about which client program works with which server, etc.  Client
 software can simply check the server type (and perhaps the revision level)
-to determine ahead of time what commands may be utilized.  The server type
-codes currently defined are:
+to determine ahead of time what commands may be utilized. 
  
- Type             Developer
- ---- ---------------------------------------
- 0    Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
- 1    Brian Ledbetter <brian@amaranth.com>
- 2    Matthew Scott <gldnspud@telcomplus.com>
- 3    Jesse Vincent <jrvincent@wesleyan.edu>
- 4    Brian Costello <btx@calyx.net>
- 5    Robert Abatecola <robert@tsgus.com>
-    
+ Please refer to "developers.txt" for information on what codes belong to whom.
+
   
    
  RDIR   (Read room DIRectory)
