@@ -36,7 +36,6 @@
 
 
 // CitClient represents an application-level connection to a Citadel server.
-class MyClient;
 class CitClient {
 public:
 	CitClient(void);
@@ -87,7 +86,7 @@ public:
 	wxString CurrentRoom;
 
 private:
-	MyClient *sock;					// transport layer
+	wxSocketClient *sock;				// transport layer
 	wxCriticalSection Critter;
 	void serv_gets(wxString& buf);			// session layer
 	void serv_puts(wxString buf);			// session layer
