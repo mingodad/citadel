@@ -126,8 +126,15 @@ void whobbs(void)
 					">(edit)</A>");
 			}
 			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
-			/* username */
+
+
+			/* username (link to user bio/photo page) */
+			wprintf("<A HREF=\"javascript:window.opener.location='/showuser&who=");
+			urlescputs(wlist->username);
+			wprintf("';window.location='/whobbs'\">");
 			escputs(wlist->username);
+			wprintf("</A>");
+
 			/* room */
 			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
 			escputs(wlist->roomname);
