@@ -1323,13 +1323,18 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				dotgoto(ipc, "_MAIL_", 1, 0);
 				break;
 			case 20:
-				updatels(ipc);
-				dotgoto(ipc, argbuf, 0, 0);
+				if (strlen(argbuf) > 0) {
+					updatels(ipc);
+					dotgoto(ipc, argbuf, 0, 0);
+				}
 				break;
 			case 52:
-				if (rc_alt_semantics)
-					updatelsa(ipc);
-				dotgoto(ipc, argbuf, 0, 0);
+				if (strlen(argbuf) > 0) {
+					if (rc_alt_semantics) {
+						updatelsa(ipc);
+					}
+					dotgoto(ipc, argbuf, 0, 0);
+				}
 				break;
 			case 95: /* what exactly is the numbering scheme supposed to be anyway? */
 				dotungoto(ipc, argbuf);
