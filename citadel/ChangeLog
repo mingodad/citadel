@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.53  2002/10/26 06:15:09  ajc
+ * cmd_cflr() - don't allow zero length floor names
+
  Revision 601.52  2002/10/26 06:01:19  ajc
  * Increase size of temp file name buffer in struct CitContext
 
@@ -4165,3 +4168,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -1810,8 +1810,13 @@ void cmd_cflr(char *argbuf)
 	extract(new_floor_name, argbuf, 0);
 	cflr_ok = extract_int(argbuf, 1);
 
-
 	if (CtdlAccessCheck(ac_aide)) return;
+
+	if (strlen(new_floor_name) == 0) {
+		cprintf("%d Blank floor name not allowed.\n",
+			ERROR+ILLEGAL_VALUE);
+		return;
+	}
 
 	for (a = 0; a < MAXFLOORS; ++a) {
 		getfloor(&flbuf, a);
