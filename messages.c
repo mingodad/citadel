@@ -177,6 +177,7 @@ char *oper; {
 			wprintf("</TT><BR>\n");
 			}
 		}
+		wprintf("<BR>");
 	}
 
 
