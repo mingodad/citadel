@@ -139,6 +139,18 @@ void smtp_greeting(void) {
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
 
+
+/*
+ * SMTPS is just like SMTP, except it goes crypto right away.
+ */
+#ifdef HAVE_OPENSSL
+void smtps_greeting(void) {
+	CtdlStartTLS(NULL, NULL, NULL);
+	smtp_greeting();
+}
+#endif
+
+
 /*
  * SMTP MSA port requires authentication.
  */
@@ -1650,6 +1662,14 @@ char *serv_smtp_init(void)
 				smtp_greeting,
 				smtp_command_loop,
 				NULL);
+
+#ifdef HAVE_OPENSSL
+	CtdlRegisterServiceHook(config.c_smtps_port,
+				NULL,
+				smtps_greeting,
+				smtp_command_loop,
+				NULL);
+#endif
 
 	CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
 				NULL,

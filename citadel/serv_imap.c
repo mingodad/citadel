@@ -363,6 +363,16 @@ void imap_greeting(void)
 		config.c_fqdn);
 }
 
+/*
+ * IMAPS is just like IMAP, except it goes crypto right away.
+ */
+#ifdef HAVE_OPENSSL
+void imaps_greeting(void) {
+	CtdlStartTLS(NULL, NULL, NULL);
+	imap_greeting();
+}
+#endif
+
 
 /*
  * implements the LOGIN command (ordinary username/password login)
@@ -1470,6 +1480,10 @@ char *serv_imap_init(void)
 {
 	CtdlRegisterServiceHook(config.c_imap_port,
 				NULL, imap_greeting, imap_command_loop, NULL);
+#ifdef HAVE_OPENSSL
+	CtdlRegisterServiceHook(config.c_imaps_port,
+				NULL, imaps_greeting, imap_command_loop, NULL);
+#endif
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
 	return "$Id$";
 }

@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.5  2005/02/13 04:55:18  ajc
+ * Did the server port hooks etc. for SSL listeners.  For some reason it
+   doesn't work.  :(
+
  Revision 640.4  2005/02/13 04:23:59  ajc
  * Added server and client configuration settings to specify port
    numbers for IMAPS, POP3S, and SMTPS (SSL-encrypted services that start
@@ -6388,4 +6392,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

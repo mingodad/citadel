@@ -96,6 +96,18 @@ void pop3_greeting(void) {
 
 
 /*
+ * POP3S is just like POP3, except it goes crypto right away.
+ */
+#ifdef HAVE_OPENSSL
+void pop3s_greeting(void) {
+	CtdlStartTLS(NULL, NULL, NULL);
+	pop3_greeting();
+}
+#endif
+
+
+
+/*
  * Specify user name (implements POP3 "USER" command)
  */
 void pop3_user(char *argbuf) {
@@ -656,6 +668,13 @@ char *serv_pop3_init(void)
 				pop3_greeting,
 				pop3_command_loop,
 				NULL);
+#ifdef HAVE_OPENSSL
+	CtdlRegisterServiceHook(config.c_pop3s_port,
+				NULL,
+				pop3s_greeting,
+				pop3_command_loop,
+				NULL);
+#endif
 	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
 	return "$Id$";
 }

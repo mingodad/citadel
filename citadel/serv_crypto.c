@@ -460,13 +460,14 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 	int retval, bits, alg_bits;
 
 	if (!ssl_ctx) {
-		cprintf("%s", nosup_response);
+		lprintf(CTDL_CRIT, "SSL failed: no ssl_ctx exists?\n");
+		if (nosup_response != NULL) cprintf("%s", nosup_response);
 		return;
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
 		lprintf(CTDL_CRIT, "SSL_new failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
-		cprintf("%s", error_response);
+		if (error_response != NULL) cprintf("%s", error_response);
 		return;
 	}
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
@@ -474,10 +475,10 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 			ERR_reason_error_string(ERR_get_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
-		cprintf("%s", error_response);
+		if (error_response != NULL) cprintf("%s", error_response);
 		return;
 	}
-	cprintf("%s", ok_response);
+	if (ok_response != NULL) cprintf("%s", ok_response);
 	retval = SSL_accept(CC->ssl);
 	if (retval < 1) {
 		/*
