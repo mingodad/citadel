@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.108  2003/01/14 04:12:26  ajc
+ * Set default view for new user Calendar> rooms to 3 (calendar)
+ * Set default view for new user Tasks> rooms to 4 (tasks)
+
  Revision 601.107  2003/01/13 17:04:19  ajc
  * Add a sample URL view command for Macintosh in the included citadel.rc
 
@@ -4367,4 +4371,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1013,6 +1013,7 @@ void ical_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
+	qr.QRdefaultview = 3;	/* 3 = calendar view */
 	lputroom(&qr);
 
 	/* Set the view to a calendar view */
@@ -1029,6 +1030,7 @@ void ical_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
+	qr.QRdefaultview = 4;	/* 4 = tasks view */
 	lputroom(&qr);
 
 	/* Set the view to a task list view */
