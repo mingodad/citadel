@@ -93,7 +93,7 @@ EnterMessage::EnterMessage(
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
-
+        Layout();
 }
 
 

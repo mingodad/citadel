@@ -118,7 +118,7 @@ RoomView::RoomView(
 	c4->right.LeftOf(readall_button, 5);
 	enter_button->SetConstraints(c4);
 
-
+        Layout();
 
 }
 
@@ -169,6 +169,7 @@ void RoomView::do_readloop(wxString readcmd) {
 
 		buf.Printf("Reading message %d", ++i);
 		citMyMDI->SetStatusText(buf, 0);
+                wxYield();
 
 		buf = xferbuf.Left(pos);
 		xferbuf = xferbuf.Mid(pos+1);
@@ -203,6 +204,7 @@ void RoomView::do_readloop(wxString readcmd) {
 	message_window->SetConstraints(m1);
 
 	message_window->SetPage(allmsgs);
+        Layout();
 }
 
 

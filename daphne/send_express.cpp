@@ -51,7 +51,6 @@ SendExpress::SendExpress(	CitClient *sock,
 
 	wxString sendcmd, recvcmd, buf;
 	wxString xferbuf;
-        int i, pos;
         wxString user;
 
 	citsock = sock;
@@ -160,6 +159,7 @@ SendExpress::SendExpress(	CitClient *sock,
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
+        Layout();
 
         sendcmd = "RWHO";
         if (citsock->serv_trans(sendcmd, recvcmd, xferbuf) != 1) return;
