@@ -247,6 +247,11 @@ void CtdlRegisterServiceHook(int tcp_port,
 	if (sockpath != NULL) {
 		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
 	}
+	else if (tcp_port < 0) {	/* port -1 to disable */
+		lprintf(7, "Service has been manually disabled, skipping\n");
+		phree(newfcn);
+		return;
+	}
 	else {
 		newfcn->msock = ig_tcp_server(tcp_port, config.c_maxsessions);
 	}
