@@ -59,3 +59,12 @@ void variformat_to_html(wxString& outputbuf,
 		outputbuf.Append("</BODY></HTML>\n");
 	}
 }
+
+
+
+
+// Generic exit stuff
+void cleanup(int exitcode) {
+	delete ini;		// Write configuration to disk
+	exit(exitcode);		// Go away.
+}

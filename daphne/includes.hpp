@@ -282,8 +282,7 @@ void load_roomlist(RoomTree *tree, CitClient *citsock);
 void variformat_to_html(wxString& outputbuf,
                         wxString inputbuf,
                         bool add_header_and_footer);
-
-
+void cleanup(int);
 
 
 

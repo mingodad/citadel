@@ -233,7 +233,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 	if (whichbutton.GetId() == BUTTON_EXIT) {
 		sendbuf = "QUIT";
 		citsock->serv_trans(sendbuf);
-		exit(0);
+		cleanup(0);
 	}
 
 	if (whichbutton.GetId() == BUTTON_LOGIN) {

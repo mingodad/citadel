@@ -131,15 +131,21 @@ CitClient *citadel;
 // `Main program' equivalent: the program execution "starts" here
 bool Daphne::OnInit()
 {
+	int w, h;
+	wxString sizestr;
+
 	// Read the configuration file
 	ini = new wxConfig("daphne");
+	ini->SetRecordDefaults(TRUE);
+	ini->Read("/Window Sizes/Main", &sizestr, "600 450");
+	sscanf((const char *)sizestr, "%d %d", &w, &h);
 
 	// Connect to the server
 	citadel = new CitClient();
 
 	// Create the main application window
 	MyFrame *frame = new MyFrame("Daphne",
-                                 wxPoint(10, 10), wxSize(600, 450));
+                                 wxPoint(10, 10), wxSize(w, h));
 	BigMDI = frame;
 
 	// Show it and tell the application that it's our main window
@@ -302,8 +308,7 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	// TRUE is to force the frame to close
 	Close(TRUE);
 
-	// Write configuration back to disk
-	delete ini;
+	cleanup(0);
 }
 
 // User menu handler
@@ -384,9 +389,16 @@ void MyFrame::OnTestWin(wxCommandEvent& unused) {
 
 void MyFrame::OnSize(wxSizeEvent& WXUNUSED(event) )
 {
-    int w, h;
-    GetClientSize(&w, &h);
-    
-    RoomList->SetSize(0, 0, 200, h);
-    GetClientWindow()->SetSize(200, 0, w - 200, h);
+	int w, h;
+	wxString sw, sh;
+
+	// Handle the MDI and roomlist crap
+	GetClientSize(&w, &h);
+	RoomList->SetSize(0, 0, 200, h);
+	GetClientWindow()->SetSize(200, 0, w - 200, h);
+
+	// Remember the size of the window from session to session
+	GetSize(&w, &h);
+	sw.Printf("%d %d", w, h);
+	ini->Write("/Window Sizes/Main", sw);
 }
