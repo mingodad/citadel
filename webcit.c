@@ -475,6 +475,14 @@ void session_loop() {
 		list_all_rooms_by_floor();
 		}
 
+	else if (!strncasecmp(cmd, "GET /gotonext", 13)) {
+		gotonext();
+		}
+
+	else if (!strncasecmp(cmd, "GET /dotgoto", 12)) {
+		dotgoto();
+		}
+
 	else if (!strncasecmp(cmd, "GET /test", 9)) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();

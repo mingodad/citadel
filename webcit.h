@@ -4,7 +4,7 @@
 #define DEVELOPER_ID	0
 #define CLIENT_ID	4
 #define CLIENT_VERSION	200
-#define DEFAULT_HOST	"localhost"
+#define DEFAULT_HOST	"uncnsrd.mt-kisco.ny.us"
 #define DEFAULT_PORT	"citadel"
 #define LB		(1)
 #define RB		(2)
