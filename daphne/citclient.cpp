@@ -20,7 +20,6 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 	sock.SetNotify(0);
 	sock.Connect(addr, TRUE);
 	if (sock.IsConnected()) {
-		sock.WaitForRead(-1, 0);
 		serv_gets(ServerReady);
 		// FIX ... add check for not allowed to log in
 		initialize_session();
@@ -72,6 +71,7 @@ void CitClient::serv_gets(wxString& buf) {
 
 	buf.Empty();
 	do {
+		while (sock.IsData()==FALSE) ;;
 		sock.Read(charbuf, 1);
 		if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
 	} while(isprint(charbuf[0]));
