@@ -149,19 +149,19 @@ void print_value_of(char *keyname) {
 	}
 
 	else if (!strcasecmp(keyname, "SERV_NODENAME")) {
-		wprintf("%s", serv_info.serv_nodename);
+		escputs(serv_info.serv_nodename);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_HUMANNODE")) {
-		wprintf("%s", serv_info.serv_humannode);
+		escputs(serv_info.serv_humannode);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_FQDN")) {
-		wprintf("%s", serv_info.serv_fqdn);
+		escputs(serv_info.serv_fqdn);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_SOFTWARE")) {
-		wprintf("%s", serv_info.serv_software);
+		escputs(serv_info.serv_software);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_REV_LEVEL")) {
@@ -172,7 +172,15 @@ void print_value_of(char *keyname) {
 	}
 
 	else if (!strcasecmp(keyname, "SERV_BBS_CITY")) {
-		wprintf("%s", serv_info.serv_bbs_city);
+		escputs(serv_info.serv_bbs_city);
+	}
+
+	else if (!strcasecmp(keyname, "CURRENT_USER")) {
+		escputs(WC->wc_username);
+	}
+
+	else if (!strcasecmp(keyname, "CURRENT_ROOM")) {
+		escputs(WC->wc_roomname);
 	}
 
 	/* Page-local variables */
