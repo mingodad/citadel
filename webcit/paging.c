@@ -1,16 +1,26 @@
 /* $Id$ */
 
+#include <ctype.h>
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <stdio.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <ctype.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
+
 
 /*
  * display the form for paging (x-messaging) another user
@@ -20,7 +30,7 @@ void display_page(void)
 	char buf[256];
 	char user[256];
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -70,7 +80,7 @@ void page_user(void)
 	char sc[256];
 	char buf[256];
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	strcpy(recp, bstr("recp"));
@@ -102,7 +112,7 @@ void page_user(void)
 void do_chat(void)
 {
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");

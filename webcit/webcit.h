@@ -3,10 +3,10 @@
 #define SLEEPING	180	/* TCP connection timeout */
 #define WEBCIT_TIMEOUT	900	/* WebCit session timeout */
 #define PORT_NUM	2000	/* port number to listen on */
-#define SERVER		"WebCit v2.01"	/* who's in da house */
+#define SERVER		"WebCit v2.50"	/* who's in da house */
 #define DEVELOPER_ID	0
 #define CLIENT_ID	4
-#define CLIENT_VERSION	201
+#define CLIENT_VERSION	250
 #define DEFAULT_HOST	"localhost"
 #define DEFAULT_PORT	"504"
 #define LB		(1)
@@ -34,17 +34,9 @@
 #define QR_MAILBOX	16384	/* Set if this is a private mailbox */
 
 
-/* Browser braindamage check values */
-enum {
-	B_NO,
-	B_YES,
-	B_ASK
-};
-
-
-struct webcontent {
-	struct webcontent *next;
-	char w_data[256];
+struct httprequest {
+	struct httprequest *next;
+	char line[256];
 };
 
 struct urlcontent {
@@ -66,8 +58,15 @@ struct serv_info {
 	int serv_ok_floors;
 };
 
+
+
+/*
+ * One of these is kept for each active Citadel session.
+ * HTTP transactions are bound to one at a time.
+ */
 struct wcsession {
-	int wc_session;
+        struct wcsession *next;		/* Linked list */
+	int wc_session;			/* WebCit session ID */
 	char wc_username[256];
 	char wc_password[256];
 	char wc_roomname[256];
@@ -76,8 +75,8 @@ struct wcsession {
 	int axlevel;
 	int is_aide;
 	int is_room_aide;
+	int http_sock;
 	int serv_sock;
-	struct serv_info serv_info;
 	unsigned room_flags;
 	char ugname[128];
 	long uglsn;
@@ -85,14 +84,133 @@ struct wcsession {
 	char *upload;
 	int new_mail;
 	int need_vali;
+        pthread_mutex_t SessionMutex;	 /* mutex for exclusive access */
+        time_t lastreq;			/* Timestamp of most recent HTTP */
 };
 
-extern struct wcsession *WC;
+
+
+#define WC ((struct wcsession *)pthread_getspecific(MyConKey))
+extern pthread_key_t MyConKey;
 
 struct serv_info serv_info;
 extern char floorlist[128][256];
 extern char *axdefs[];
 
-void stuff_to_cookie(char *, int, char *, char *, char *);
-void cookie_to_stuff(char *, int *, char *, char *, char *);
+
+void stuff_to_cookie(char *cookie, int session,
+			char *user, char *pass, char *room);
+void cookie_to_stuff(char *cookie, int *session,
+			char *user, char *pass, char *room);
 void locate_host(char *, int);
+void become_logged_in(char *, char *, char *);
+void do_login(void);
+void display_login(char *mesg);
+void do_welcome(void);
+void do_logout(void);
+void display_main_menu(void);
+void display_advanced_menu(void);
+void list_all_rooms_by_floor(void);
+void slrp_highest(void);
+void gotonext(void);
+void ungoto(void);
+void get_serv_info(char *, char *);
+int connectsock(char *host, char *service, char *protocol);
+void serv_gets(char *strbuf);
+void serv_puts(char *string);
+void whobbs(void);
+void fmout(FILE * fp);
+void wDumpContent(int);
+void serv_printf(const char *format,...);
+char *bstr(char *key);
+char *urlesc(char *);
+void urlescputs(char *);
+void output_headers(int);
+void wprintf(const char *format,...);
+void extract(char *dest, char *source, int parmnum);
+int extract_int(char *source, int parmnum);
+void output_static(char *what);
+void escputs(char *strbuf);
+void url(char *buf);
+void escputs1(char *strbuf, int nbsp);
+long extract_long(char *source, long int parmnum);
+void dump_vars(void);
+void embed_main_menu(void);
+void serv_read(char *buf, int bytes);
+int haschar(char *, char);
+void readloop(char *oper);
+void text_to_server(char *ptr);
+void display_enter(void);
+void post_message(void);
+void confirm_delete_msg(void);
+void delete_msg(void);
+void confirm_move_msg(void);
+void move_msg(void);
+void userlist(void);
+void showuser(void);
+void display_page(void);
+void page_user(void);
+void do_chat(void);
+void display_private(char *rname, int req_pass);
+void goto_private(void);
+void zapped_list(void);
+void display_zap(void);
+void zap(void);
+void display_error(char *);
+void display_success(char *);
+void display_entroom(void);
+void entroom(void);
+void display_editroom(void);
+void editroom(void);
+void server_to_text(void);
+void save_edit(char *description, char *enter_cmd, int regoto);
+void display_edit(char *description, char *check_cmd,
+		  char *read_cmd, char *save_cmd);
+void gotoroom(char *gname, int display_name);
+void confirm_delete_room(void);
+void delete_room(void);
+void validate(void);
+void display_graphics_upload(char *, char *, char *);
+void do_graphics_upload(char *upl_cmd);
+void serv_read(char *buf, int bytes);
+void serv_gets(char *strbuf);
+void serv_write(char *buf, int nbytes);
+void serv_puts(char *string);
+void serv_printf(const char *format,...);
+void load_floorlist(void);
+void select_floor_to_edit_pic(void);
+void display_reg(int);
+void register_user(void);
+void display_changepw(void);
+void changepw(void);
+void display_edit_node(void);
+void display_netconf(void);
+void display_confirm_unshare(void);
+void display_confirm_delete_node(void);
+void delete_node(void);
+void unshare(void);
+void display_add_node(void);
+void add_node(void);
+void display_share(void);
+void share(void);
+void terminate_session(void);
+void edit_me(void);
+void display_siteconfig(void);
+void siteconfig(void);
+void display_generic(void);
+void do_generic(void);
+void display_menubar(int);
+void embed_room_banner(char *);
+void smart_goto(char *);
+void ExpressMessageCat(char *);
+void worker_entry(void);
+void session_loop(struct httprequest *);
+void mime_parser(char *content,
+                 int ContentLength,
+                 char *ContentType,
+                 void (*CallBack)
+                  (char *cbname,
+                   char *cbfilename,
+                   char *cbencoding,
+                   void *cbcontent,                                                                char *cbtype,                                                                   size_t cblength)
+);

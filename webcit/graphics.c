@@ -1,13 +1,24 @@
+
+#include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
 #include <errno.h>
-#include <time.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
-
 
 void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 {
@@ -19,7 +30,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		display_error(&buf[4]);
 		return;
 	}
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -93,7 +104,7 @@ void select_floor_to_edit_pic(void)
 {
 	int a;
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");

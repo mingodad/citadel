@@ -1,4 +1,9 @@
 $Log$
+Revision 1.109  1999/12/03 05:09:54  ajc
+* Rewrote the HTTP engine and application coupling to run in a worker thread
+  model and to run as a single multithreaded program (eliminated helper
+  processes and pipes).  It currently runs but has many large bugs.
+
 Revision 1.108  1999/12/03 00:18:20  ajc
 * Added ".c.o" rule to Makefile
 
@@ -319,4 +324,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

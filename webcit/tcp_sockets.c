@@ -6,20 +6,31 @@
  * $Id$
  */
 
+
+#include <ctype.h>
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <stdio.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
+#include <pwd.h>
+#include <errno.h>
 #include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
+
+
+
+
 
 char server_is_local = 0;
 

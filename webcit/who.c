@@ -1,16 +1,34 @@
 /* $Id$ */
 
+
+
+
+#include <ctype.h>
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <stdio.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <ctype.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
+
+
+
+
+
+
 
 struct whouser {
 	struct whouser *next;
@@ -31,7 +49,7 @@ void whobbs(void)
 	char buf[256], sess, user[256], room[256], host[256];
 	int foundit;
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -150,7 +168,7 @@ void terminate_session(void)
 			display_error(&buf[4]);
 		}
 	} else {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
@@ -199,7 +217,7 @@ void edit_me(void)
 		whobbs();
 	} else {
 
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");

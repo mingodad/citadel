@@ -10,7 +10,7 @@ srcdir=@srcdir@
 
 # End of configuration section
 
-all: webserver webcit
+all: webserver
 
 .SUFFIXES: .c .o
 
@@ -22,22 +22,19 @@ distclean: clean
 
 
 webserver: webserver.o context_loop.o tools.o \
-	cookie_conversion.o locate_host.o $(LIBOBJS)
+	cookie_conversion.o locate_host.o \
+	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
+	roomops.o messages.o userlist.o paging.o sysmsgs.o \
+	mime_parser.o graphics.o netconf.o siteconfig.o $(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
-	locate_host.o $(LIBOBJS) $(LIBS) -o webserver
+	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
+	roomops.o messages.o userlist.o paging.o sysmsgs.o \
+	locate_host.o siteconfig.o \
+	mime_parser.o graphics.o netconf.o \
+	$(LIBOBJS) $(LIBS) -o webserver
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" $<
-
-
-webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	roomops.o tools.o messages.o userlist.o paging.o sysmsgs.o \
-	mime_parser.o graphics.o netconf.o cookie_conversion.o siteconfig.o \
-	wildmat.o braindamage.o
-	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o siteconfig.o \
-	mime_parser.o graphics.o netconf.o cookie_conversion.o \
-	wildmat.o braindamage.o -o webcit
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status

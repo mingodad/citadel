@@ -38,109 +38,27 @@
 #include "webcit.h"
 #include "webserver.h"
 
-/*
- * We keep one of these around for each active session
- */
-struct wc_session {
-	struct wc_session *next;	/* Next session in list */
-	int session_id;		/* Session ID */
-	pid_t webcit_pid;	/* PID of the webcit process */
-	int inpipe[2];		/* Data from webserver to session */
-	int outpipe[2];		/* Data from session to webserver */
-	pthread_mutex_t critter;	/* Critical section uses pipes */
-	time_t lastreq;		/* Timestamp of most recent http */
-};
-
-struct wc_session *SessionList = NULL;
-extern const char *defaulthost;
-extern const char *defaultport;
-
 /* Only one thread may manipulate SessionList at a time... */
-pthread_mutex_t MasterCritter;
+pthread_mutex_t SessionListMutex;
 
+struct wcsession *SessionList = NULL;
 
-/*
- * Grab a lock on the session, so other threads don't try to access
- * the pipes at the same time.
- */
-static void lock_session(struct wc_session *session)
-{
-	printf("Locking session %d...\n", session->session_id);
-	pthread_mutex_lock(&session->critter);
-	printf("   ...got lock\n");
-}
-
-/*
- * Let go of the lock.
- */
-static void unlock_session(struct wc_session *session)
-{
-	printf("Unlocking.\n");
-	pthread_mutex_unlock(&session->critter);
-}
-
-/*
- * Remove a session context from the list.
- * Set do_lock to 1, to lock the list while manipulating it.  The ONLY
- * situation in which this should _not_ be done is when it's already locked
- * by the caller.
- */
-void remove_session(struct wc_session *TheSession, int do_lock)
-{
-	struct wc_session *sptr;
-
-	printf("Removing session.\n");
-
-	/* Lock the list while manipulating it */
-	if (do_lock)
-		pthread_mutex_lock(&MasterCritter);
-
-	if (SessionList == TheSession) {
-		SessionList = SessionList->next;
-	} else {
-		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			if (sptr->next == TheSession) {
-				sptr->next = TheSession->next;
-			}
-		}
-	}
-
-	if (do_lock)
-		pthread_mutex_unlock(&MasterCritter);
-
-	/* Now finish destroying the session */
-	close(TheSession->inpipe[1]);
-	close(TheSession->outpipe[0]);
-	if (do_lock)
-		unlock_session(TheSession);
-	free(TheSession);
-
-}
-
-
-
+pthread_key_t MyConKey;                         /* TSD key for MySession() */
 
 void do_housekeeping(void)
 {
-	struct wc_session *sptr;
+	struct wcsession *sptr;
 
-	pthread_mutex_lock(&MasterCritter);
+	pthread_mutex_lock(&SessionListMutex);
 
 	/* Kill idle sessions */
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
-			kill(sptr->webcit_pid, 15);
+			/* FIX do something here */
 		}
 	}
 
-	/* Remove dead sessions */
-	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-		if (kill(sptr->webcit_pid, 0)) {
-			remove_session(sptr, 0);
-		}
-	}
-
-	pthread_mutex_unlock(&MasterCritter);
+	pthread_mutex_unlock(&SessionListMutex);
 }
 
 
@@ -156,12 +74,23 @@ void housekeeping_loop(void)
 }
 
 
-
-
-
+/*
+ * Generate a unique WebCit session ID (which is not the same thing as the
+ * Citadel session ID).
+ *
+ * FIX ... we really should check to make sure we're generating a truly
+ * unique session ID by traversing the SessionList.
+ *
+ */
 int GenerateSessionID(void)
 {
-	return getpid();
+	static int seq = (-1);
+
+	if (seq < 0) {
+		seq = (int) time(NULL);
+	}
+		
+	return ++seq;
 }
 
 
@@ -239,42 +168,37 @@ static int lingering_close(int fd)
 	return close(fd);
 }
 
+
+
+
 /*
- * This loop gets called once for every HTTP connection made to WebCit.
+ * This loop gets called once for every HTTP connection made to WebCit.  At
+ * this entry point we have an HTTP socket with a browser allegedly on the
+ * other end, but we have not yet bound to a WebCit session.
+ *
+ * The job of this function is to locate the correct session and bind to it,
+ * or create a session if necessary and bind to it, then run the WebCit
+ * transaction loop.  Afterwards, we unbind from the session.  When this
+ * function returns, the worker thread is then free to handle another
+ * transaction.
  */
-void *context_loop(int sock)
+void context_loop(int sock)
 {
-	char (*req)[256];
+	struct httprequest *req = NULL;
+	struct httprequest *last = NULL;
+	struct httprequest *hptr;
 	char buf[256], hold[256];
-	char browser_host[256];
-	char browser[256];
-	int num_lines = 0;
-	int a;
-	int f;
 	int desired_session = 0;
 	int got_cookie = 0;
-	char str_session[256];
-	struct wc_session *sptr;
-	struct wc_session *TheSession;
-	int ContentLength;
+	struct wcsession *TheSession, *sptr;
 	int CloseSession = 0;
 
-	if ((req = malloc((long) sizeof(char[256][256]))) == NULL) {
-		sprintf(buf, "Can't malloc buffers; dropping connection.\n");
-		fprintf(stderr, "%s", buf);
-		write(sock, buf, strlen(buf));
-		close(sock);
-		pthread_exit(NULL);
-	}
-	bzero(req, sizeof(char[256][256]));	/* clear it out */
-	strcpy(browser, "unknown");
 
-	printf("Reading request from socket %d\n", sock);
+	fprintf(stderr, "Reading request from socket %d\n", sock);
 
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
-	ContentLength = 0;
 	do {
 		req_gets(sock, buf, hold);
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
@@ -282,13 +206,18 @@ void *context_loop(int sock)
 				NULL, NULL, NULL);
 			got_cookie = 1;
 		}
-		else if (!strncasecmp(buf, "Content-length: ", 16)) {
-			ContentLength = atoi(&buf[16]);
-		}
-		else if (!strncasecmp(buf, "User-agent: ", 12)) {
-			strcpy(browser, &buf[12]);
-		}
-		strcpy(&req[num_lines++][0], buf);
+
+		hptr = (struct httprequest *)
+			malloc(sizeof(struct httprequest));
+		if (req == NULL)
+			req = hptr;
+		else
+			last->next = hptr;
+		hptr->next = NULL;
+		last = hptr;
+
+		strcpy(hptr->line, buf);
+
 	} while (strlen(buf) > 0);
 
 
@@ -297,7 +226,7 @@ void *context_loop(int sock)
 	 * set.  If there isn't, the client browser has cookies turned off
 	 * (or doesn't support them) and we have to barf & bail.
 	 */
-	strcpy(buf, &req[0][0]);
+	strcpy(buf, req->line);
 	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
 	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
 	if (buf[1]==' ') buf[1]=0;
@@ -307,12 +236,12 @@ void *context_loop(int sock)
 	 * robots.txt file...
 	 */
 	if (!strncasecmp(buf, "/robots.txt", 11)) {
-		strcpy(&req[0][0], "GET /static/robots.txt HTTP/1.0");
+		strcpy(req->line, "GET /static/robots.txt HTTP/1.0");
 	}
 
 	/* Do the non-root-cookie check now. */
 	else if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
-		strcpy(&req[0][0], "GET /static/nocookies.html HTTP/1.0");
+		strcpy(req->line, "GET /static/nocookies.html HTTP/1.0");
 	}
 
 
@@ -322,25 +251,13 @@ void *context_loop(int sock)
 	 */
 	TheSession = NULL;
 	if (desired_session != 0) {
-		pthread_mutex_lock(&MasterCritter);
+		pthread_mutex_lock(&SessionListMutex);
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			if (sptr->session_id == desired_session) {
+			if (sptr->wc_session == desired_session) {
 				TheSession = sptr;
 			}
 		}
-		pthread_mutex_unlock(&MasterCritter);
-	}
-
-	/*
-	 * Before we trumpet to the universe that the session we're looking
-	 * for actually exists, check first to make sure it's still there.
-	 */
-	if (TheSession != NULL) {
-		if (kill(TheSession->webcit_pid, 0)) {
-			printf("   Session is *DEAD* !!\n");
-			remove_session(TheSession, 1);
-			TheSession = NULL;
-		}
+		pthread_mutex_unlock(&SessionListMutex);
 	}
 
 	/*
@@ -348,130 +265,65 @@ void *context_loop(int sock)
 	 */
 	if (TheSession == NULL) {
 		printf("Creating a new session\n");
-		locate_host(browser_host, sock);
-		TheSession = (struct wc_session *)
-		    malloc(sizeof(struct wc_session));
-		TheSession->session_id = GenerateSessionID();
-		pipe(TheSession->inpipe);
-		pipe(TheSession->outpipe);
-		pthread_mutex_init(&TheSession->critter, NULL);
+		TheSession = (struct wcsession *)
+			malloc(sizeof(struct wcsession));
+		memset(TheSession, 0, sizeof(struct wcsession));
+		TheSession->wc_session = GenerateSessionID();
+		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 
-		pthread_mutex_lock(&MasterCritter);
+		pthread_mutex_lock(&SessionListMutex);
 		TheSession->next = SessionList;
 		SessionList = TheSession;
-		pthread_mutex_unlock(&MasterCritter);
-
-		sprintf(str_session, "%d", TheSession->session_id);
-		f = fork();
-		if (f > 0)
-			TheSession->webcit_pid = f;
-
-		fflush(stdout);
-		fflush(stdin);
-		if (f == 0) {
-
-			/* Hook stdio to the ends of the pipe we're using */
-			dup2(TheSession->inpipe[0], 0);
-			dup2(TheSession->outpipe[1], 1);
-
-			/* Close the ends of the pipes that we're not using */
-			close(TheSession->inpipe[1]);
-			close(TheSession->outpipe[0]);
-
-			/* Close the HTTP socket in this pid; don't need it */
-			close(sock);
-
-			/* Run the actual WebCit session */
-			execlp("./webcit", "webcit", str_session, defaulthost,
-			       defaultport, browser_host, browser, NULL);
-
-			/* Simple page to display if exec fails */
-			printf("HTTP/1.0 404 WebCit Failure\n\n");
-			printf("Server: %s\n", SERVER);
-			printf("X-WebCit-Session: close\n");
-			printf("Content-type: text/html\n");
-			printf("Content-length: 76\n");
-			printf("\n");
-			printf("<HTML><HEAD><TITLE>Error</TITLE></HEAD><BODY>\n");
-			printf("execlp() failed: %s</BODY></HTML>\n", strerror(errno));
-			exit(0);
-		} else {
-			/* Close the ends of the pipes that we're not using */
-			close(TheSession->inpipe[0]);
-			close(TheSession->outpipe[1]);
-		}
+		pthread_mutex_unlock(&SessionListMutex);
 	}
 
-	/* 
-	 * Send the request to the appropriate session...
-	 */
-	lock_session(TheSession);
-	TheSession->lastreq = time(NULL);
-	printf("   Writing %d lines of command\n", num_lines);
-	printf("%s\n", &req[0][0]);
-	for (a = 0; a < num_lines; ++a) {
-		write(TheSession->inpipe[1], &req[a][0], strlen(&req[a][0]));
-		write(TheSession->inpipe[1], "\n", 1);
-	}
-	printf("   Writing %d bytes of content\n", ContentLength);
-	while (ContentLength > 0) {
-		a = ContentLength;
-		if (a > sizeof buf)
-			a = sizeof buf;
-		if (!client_read(sock, buf, a))
-			goto end;
-		if (write(TheSession->inpipe[1], buf, a) != a)
-			goto end;
-		ContentLength -= a;
-	}
 
 	/*
-	 * ...and get the response.
+	 *
+	 * FIX ... check session integrity here before continuing
+	 *
 	 */
-	printf("   Reading response\n");
-	ContentLength = 0;
-	do {
-		gets0(TheSession->outpipe[0], buf);
-		write(sock, buf, strlen(buf));
-		write(sock, "\n", 1);
-		if (!strncasecmp(buf, "Content-length: ", 16))
-			ContentLength = atoi(&buf[16]);
-		if (!strcasecmp(buf, "X-WebCit-Session: close")) {
-			CloseSession = 1;
-		}
-	} while (strlen(buf) > 0);
 
-	printf("   Reading %d bytes of content\n", ContentLength);
 
-	while (ContentLength--) {
-		read(TheSession->outpipe[0], buf, 1);
-		write(sock, buf, 1);
-	}
+
+	/*
+	 * Bind to the session
+	 */
+	pthread_mutex_lock(&TheSession->SessionMutex);
+	pthread_setspecific(MyConKey, (void *)TheSession);
+	TheSession->lastreq = time(NULL);
+	TheSession->http_sock = sock;
+
+	/* 
+	 * Perform the WebCit transaction
+	 */
+	fprintf(stderr, "Transaction: %s\n", req->line);
+	session_loop(req);
+	fprintf(stderr, "Returned from transaction loop\n");
 
 	/*
 	 * If the last response included a "close session" directive,
 	 * remove the context now.
 	 */
 	if (CloseSession) {
-		remove_session(TheSession, 1);
+		/*  FIX   remove_session(TheSession, 1);   */
 	} else {
-end:		unlock_session(TheSession);
-	}
-	free(req);
 
+		pthread_mutex_unlock(&TheSession->SessionMutex);
+	}
+
+	/* Free the request buffer */
+	while (req != NULL) {
+		hptr = req->next;
+		free(req);
+		req = hptr;
+	}
 
 	/*
-	 * Now our HTTP connection is done.  It would be relatively easy
-	 * to support HTTP/1.1 "persistent" connections by looping back to
-	 * the top of this function.  For now, we'll just close.
+	 * Now our HTTP connection is done.  Close the socket and exit this
+	 * function, so the worker thread can handle a new HTTP connection.
 	 */
 	printf("   Closing socket %d ... ret=%d\n", sock,
 	       lingering_close(sock));
-
-	/*
-	 * The thread handling this HTTP connection is now finished.
-	 * Instead of calling pthread_exit(), just return. It does the same
-	 * thing, and supresses a compiler warning.
-	 */
-	return NULL;
+	return;
 }

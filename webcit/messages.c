@@ -1,12 +1,31 @@
+
+
+
+
+#include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
 #include <errno.h>
-#include <time.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
+
+
+
+
 
 char reply_to[512];
 long msgarr[1024];
@@ -221,7 +240,7 @@ void readloop(char *oper)
 	int a;
 	int nummsgs;
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", WC->wc_roomname);
@@ -274,7 +293,7 @@ void post_message(void)
 	char buf[256];
 	static long dont_post = (-1L);
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
@@ -339,7 +358,7 @@ void display_enter(void)
 	long now;
 	struct tm *tm;
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FACE=\"Arial,Helvetica,sans-serif\">");
@@ -408,7 +427,7 @@ void confirm_delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -440,7 +459,7 @@ void delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	if (!strcasecmp(bstr("yesno"), "Yes")) {
@@ -469,7 +488,7 @@ void confirm_move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -517,7 +536,7 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	if (!strcasecmp(bstr("yesno"), "Move")) {
