@@ -752,43 +752,106 @@ void do_system_configuration(void)
 void do_internet_configuration(void) {
 	char buf[256];
 	int num_recs = 0;
+	char **recs = NULL;
 	char ch;
 	int badkey;
-	int i;
+	int i, j;
+	int quitting = 0;
 	
 
 	sprintf(buf, "CONF getsys|%s", INTERNETCFG);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		++num_recs;
+		if (num_recs == 1) recs = malloc(sizeof(char *));
+		else recs = realloc(recs, (sizeof(char *)) * num_recs);
+		recs[num_recs-1] = malloc(256);
+		strcpy(recs[num_recs-1], buf);
 	}
 
-	while (1) {
-		/* do display */
+	do {
+		printf("\n");
+		color(BRIGHT_WHITE);
+		printf("### ");
+		printf("                   Host or domain                  ");
+		printf("   Record type      \n");
+		color(DIM_WHITE);
+		printf("--- ");
+		printf("-------------------------------------------------- ");
+		printf("--------------------\n");
+		for (i=0; i<num_recs; ++i) {
+		color(DIM_WHITE);
+		printf("%3d ", i+1);
+		extract(buf, recs[i], 0);
+		color(BRIGHT_CYAN);
+		printf("%-50s ", buf);
+		extract(buf, recs[i], 1);
+		color(BRIGHT_MAGENTA);
+		printf("%-20s\n", buf);
+		color(DIM_WHITE);
+		}
 
 		keyopt("\n<A>dd <D>elete <S>ave <Q>uit -> ");
-		badkey = 0;
 		do {
+			badkey = 0;
 			ch = inkey();
 			ch = tolower(ch);
+			if ( (ch=='d') && (num_recs == 0) ) ch = 0;
 			switch(ch) {
 				case 'a':
 					printf("Add\n");
+					++num_recs;
+					if (num_recs == 1)
+						recs = malloc(sizeof(char *));
+					else recs = realloc(recs,
+						(sizeof(char *)) * num_recs);
+					newprompt("Enter host name: ",
+						buf, 50);
+					strcat(buf, "|");
+					newprompt("Enter record type: ",
+						&buf[strlen(buf)], 20);
+					recs[num_recs-1] = strdup(buf);
 					break;
 				case 'd':
 					printf("Delete\n");
+					i = intprompt("Delete which one",
+						1, 1, num_recs) - 1;
+					free(recs[i]);
+					--num_recs;
+					for (j=i; j<num_recs; ++j)
+						recs[j] = recs[j+1];
 					break;
 				case 's':
 					printf("Save\n");
-					return;
+					sprintf(buf, "CONF putsys|%s",
+						INTERNETCFG);
+					serv_puts(buf);
+					serv_gets(buf);
+					if (buf[0] == '4') {
+						for (i=0; i<num_recs; ++i) {
+							serv_puts(recs[i]);
+						}
+						serv_puts("000");
+					}
+					else {
+						printf("%s\n", &buf[4]);
+					}
+					quitting = 1;
+					break;
 				case 'q':
 					printf("Quit\n");
-					i = boolprompt("Quit without saving", 0);
-					if (i == 1) return;
+					quitting = boolprompt(
+						"Quit without saving", 0);
 					break;
 				default:
 					badkey = 1;
 			}
 		} while (badkey == 1);
+	} while (quitting == 0);
+
+	if (recs != NULL) {
+		for (i=0; i<num_recs; ++i) free(recs[i]);
+		free(recs);
 	}
 }
