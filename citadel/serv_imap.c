@@ -759,6 +759,13 @@ void imap_create(int num_parms, char *parms[])
 	flags = (ret & 0xff00);	/* upper 8 bits = flags        */
 
 	if (flags & IR_MAILBOX) {
+		if (strncasecmp(parms[2], "INBOX|", 6)) {
+			cprintf("%s NO Personal folders must be created under INBOX\r\n", parms[0]);
+			return;
+		}
+	}
+
+	if (flags & IR_MAILBOX) {
 		newroomtype = 4;	/* private mailbox */
 	} else {
 		newroomtype = 0;	/* public folder */

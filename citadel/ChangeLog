@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.43  2004/02/19 04:12:56  ajc
+ * Instead of doing the silly "Kolab reserved folder names" thing, instead
+   implemented the Cyrus-compatible style of forcing all personal mailbox
+   folders to be subfolders of INBOX.  But only for IMAP.
+
  Revision 614.42  2004/02/18 14:46:05  ajc
  * smtp: EHLO response now includes both "AUTH " and "AUTH=" output, due to
    the requirement to interoperate with brain-dead Microsoft shitware that
@@ -5374,4 +5379,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

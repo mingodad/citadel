@@ -95,10 +95,12 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 {
 	struct floor *fl;
 	int i;
+	char buf2[SIZ];
 
 	/*
 	 * For mailboxes, just do it straight.
-	 * Also handle Kolab-compatible groupware folder names.
+	 * Do the Cyrus-compatible thing: all private folders are
+	 * subfolders of INBOX.
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
 		safestrncpy(buf, qrbuf->QRname, bufsize);
@@ -106,17 +108,9 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		if (!strcasecmp(buf, MAILROOM)) {
 			strcpy(buf, "INBOX");
 		}
-		if (!strcasecmp(buf, USERCALENDARROOM)) {
-			sprintf(buf, "INBOX|%s", USERCALENDARROOM);
-		}
-		if (!strcasecmp(buf, USERCONTACTSROOM)) {
-			sprintf(buf, "INBOX|%s", USERCONTACTSROOM);
-		}
-		if (!strcasecmp(buf, USERTASKSROOM)) {
-			sprintf(buf, "INBOX|%s", USERTASKSROOM);
-		}
-		if (!strcasecmp(buf, USERNOTESROOM)) {
-			sprintf(buf, "INBOX|%s", USERNOTESROOM);
+		else {
+			sprintf(buf2, "INBOX|%s", buf);
+			strcpy(buf, buf2);
 		}
 	}
 	/*
@@ -163,30 +157,14 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 
 	/*
 	 * Convert the crispy idiot's reserved names to our reserved names.
-	 * Also handle Kolab-compatible groupware folder names.
+	 * Also handle Cyrus-compatible folder names.
 	 */
 	if (!strcasecmp(foldername, "INBOX")) {
 		safestrncpy(rbuf, MAILROOM, bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
-	else if ( (!strncasecmp(foldername, "INBOX", 5))
-	      && (!strcasecmp(&foldername[6], USERCALENDARROOM)) ) {
-		safestrncpy(rbuf, USERCALENDARROOM, bufsize);
-		ret = (0 | IR_MAILBOX);
-	}
-	else if ( (!strncasecmp(foldername, "INBOX", 5))
-	      && (!strcasecmp(&foldername[6], USERCONTACTSROOM)) ) {
-		safestrncpy(rbuf, USERCONTACTSROOM, bufsize);
-		ret = (0 | IR_MAILBOX);
-	}
-	else if ( (!strncasecmp(foldername, "INBOX", 5))
-	      && (!strcasecmp(&foldername[6], USERTASKSROOM)) ) {
-		safestrncpy(rbuf, USERTASKSROOM, bufsize);
-		ret = (0 | IR_MAILBOX);
-	}
-	else if ( (!strncasecmp(foldername, "INBOX", 5))
-	      && (!strcasecmp(&foldername[6], USERNOTESROOM)) ) {
-		safestrncpy(rbuf, USERNOTESROOM, bufsize);
+	else if (!strncasecmp(foldername, "INBOX|", 6)) {
+		safestrncpy(rbuf, &foldername[6], bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
 	else if (levels > 1) {
@@ -214,7 +192,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		ret = (0 | IR_MAILBOX);
 	}
 
-	/* Undelimiterizationalize the room name (change '|') */
+	/* Undelimiterizationalisticize the room name (change '|') */
 	for (i=0; i<strlen(rbuf); ++i) {
 		if (rbuf[i] == '|') rbuf[i] = FDELIM;
 	}
