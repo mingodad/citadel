@@ -282,7 +282,7 @@ void pop3_list(char *argbuf) {
 			return;
 		}
 		else {
-			cprintf("+OK %d %d\n",
+			cprintf("+OK %d %d\r\n",
 				which_one,
 				POP3->msgs[which_one-1].rfc822_length
 				);
@@ -320,7 +320,7 @@ void pop3_stat(char *argbuf) {
 		}
 	}
 
-	cprintf("+OK %d %d\n", total_msgs, total_octets);
+	cprintf("+OK %d %d\r\n", total_msgs, total_octets);
 }
 
 
@@ -496,7 +496,7 @@ void pop3_uidl(char *argbuf) {
 			return;
 		}
 		else {
-			cprintf("+OK %d %ld\n",
+			cprintf("+OK %d %ld\r\n",
 				which_one,
 				POP3->msgs[which_one-1].msgnum
 				);

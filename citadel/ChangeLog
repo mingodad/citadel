@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.90  2001/02/14 04:23:54  ajc
+ * Fixed POP3 server responses ending in \n instead of \r\n as they should be.
+   This was causing some clients (such as Pine) to lock up.
+
  Revision 573.89  2001/02/13 04:06:14  ajc
  * Worked out the remaining bugs in IMAP FETCH for the BODYSTRUCTURE and
    BODY[n] data items.  I think.  So much protocol crud, so little time...
@@ -2404,3 +2408,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
