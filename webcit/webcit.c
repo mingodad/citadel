@@ -724,6 +724,23 @@ fclose(fp);
 		editroom();
 		}
 
+	else if (!strcasecmp(action, "display_editinfo")) {
+		display_edit("Room info", "EINF 0", "RINF", "/editinfo");
+		}
+
+	else if (!strcasecmp(action, "editinfo")) {
+		save_edit("Room info", "EINF 1", 1);
+		}
+
+	else if (!strcasecmp(action, "display_editbio")) {
+		sprintf(buf, "RBIO %s", wc_username);
+		display_edit("Your bio", "NOOP", buf, "editbio");
+		}
+
+	else if (!strcasecmp(action, "editbio")) {
+		save_edit("Your bio", "EBIO", 0);
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

@@ -35,9 +35,9 @@ snprintf.o: snprintf.c
 
 
 webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	roomops.o tools.o messages.o userlist.o paging.o
+	roomops.o tools.o messages.o userlist.o paging.o sysmsgs.o
 	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	tools.o roomops.o messages.o userlist.o paging.o -o webcit
+	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o -o webcit
 
 webcit.o: webcit.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
@@ -71,6 +71,9 @@ messages.o: messages.c webcit.h child.h
 
 paging.o: paging.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c paging.c
+
+sysmsgs.o: sysmsgs.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c sysmsgs.c
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status

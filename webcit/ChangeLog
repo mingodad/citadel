@@ -1,3 +1,7 @@
+Mon Dec 28 00:26:01 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added "edit room info file"
+	* Added "edit bio"
+
 Sat Dec 26 23:12:47 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Changed the "auto read new" functionality from a meta refresh tag
 	  to an "onload" directive (the former was causing graphics problems)

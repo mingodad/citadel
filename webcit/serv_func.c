@@ -152,3 +152,29 @@ void text_to_server(char *ptr) {
 	serv_puts(buf);
 	}
 
+
+
+
+
+
+/*
+ * translate server message output to text
+ * (used for editing room info files and such)
+ */
+void server_to_text() {
+	char buf[256]; 
+
+	int count = 0;
+
+	while (serv_gets(buf), strcmp(buf, "000") ) {
+		if ( (buf[0] == 32) && (count > 0) ) {
+			wprintf("\n");
+			}
+		wprintf("%s", buf);
+		++count;
+		}
+	}
+
+
+
+
