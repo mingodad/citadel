@@ -314,3 +314,35 @@ void quiet_mode(void)
 		scr_printf("Quiet mode disabled (other users may page you)\n");
 	}
 }
+
+
+void stealth_mode(void)
+{
+	int qstate;
+	char buf[SIZ];
+
+	serv_puts("STEL 2");
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		scr_printf("%s\n", &buf[4]);
+		return;
+	}
+	qstate = atoi(&buf[4]);
+	if (qstate == 0)
+		qstate = 1;
+	else
+		qstate = 0;
+	snprintf(buf, sizeof buf, "STEL %d", qstate);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		scr_printf("%s\n", &buf[4]);
+		return;
+	}
+	qstate = atoi(&buf[4]);
+	if (qstate) {
+		scr_printf("Stealth mode enabled (you are invisible)\n");
+	} else {
+		scr_printf("Stealth mode disabled (you are listed as online)\n");
+	}
+}

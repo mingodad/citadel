@@ -702,17 +702,15 @@ void cmd_dexp(char *argbuf)
 {
 	int new_state;
 
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	new_state = extract_int(argbuf, 0);
 	if ((new_state == 0) || (new_state == 1)) {
 		CC->disable_exp = new_state;
-		}
-	cprintf("%d %d\n", CIT_OK, CC->disable_exp);
 	}
+
+	cprintf("%d %d\n", CIT_OK, CC->disable_exp);
+}
 
 
 /*

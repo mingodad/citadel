@@ -232,21 +232,19 @@ void cmd_stel(char *cmdbuf)
 	int requested_mode;
 
 	requested_mode = extract_int(cmdbuf,0);
-	if (requested_mode !=0) requested_mode = 1;
 
-	if (CtdlAccessCheck(ac_aide)) return;
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (CC->cs_flags & CS_STEALTH) {
-		if (requested_mode == 0)
-			CC->cs_flags = CC->cs_flags-CS_STEALTH;
-		}
-	else {
-		if (requested_mode == 1)
-			CC->cs_flags = CC->cs_flags|CS_STEALTH;
-		}
-
-	cprintf("%d Ok\n",CIT_OK);
+	if (requested_mode == 1) {
+		CC->cs_flags = CC->cs_flags | CS_STEALTH;
 	}
+	if (requested_mode == 0) {
+		CC->cs_flags = CC->cs_flags & ~CS_STEALTH;
+	}
+
+	cprintf("%d %d\n", CIT_OK,
+		((CC->cs_flags & CS_STEALTH) ? 1 : 0) );
+}
 
 
 

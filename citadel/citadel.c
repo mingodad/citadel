@@ -1612,6 +1612,10 @@ PWOK:
 				quiet_mode();
 				break;
 
+			case 93:
+				stealth_mode();
+				break;
+
 			case 50:
 				enter_config(2);
 				break;

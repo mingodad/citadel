@@ -301,6 +301,7 @@ cmd=79,0,&.,&Wholist,&Long
 cmd=75,0,&.,&Wholist,&Roomname
 cmd=76,0,&.,&Wholist,&Hostname
 cmd=91,0,&.,&Wholist,&Active
+cmd=93,0,&.,&Wholist,&Stealth mode
 
 #
 # Command 69 allows the user to enter a server command directly.  It is

@@ -76,6 +76,8 @@ commands are available:
                                   actual name of the room you're in)
  <.> <W>holist <H>ostname         Masquerade your host name
  <.> <E>nter <U>sername           Masquerade your user name (Aides only)
+ <.> <W>holist <S>tealth mode     Enter/exit "stealth mode" (when in stealth
+                                  mode you are invisible on the wholist)
  
  
  Floor commands (if using floor mode)
