@@ -85,7 +85,7 @@ char *variety; {
 		extract(rmname,buf,0);
 		wprintf("<A HREF=\"/dotgoto&room=");
 		urlescputs(rmname);
-		wprintf("\">");
+		wprintf("\" TARGET=\"top\">");
 		escputs1(rmname,1);
 		f = extract_int(buf,1);
 		if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) wprintf("}");
@@ -190,6 +190,11 @@ int display_name; {
 	char pic[256];
 	static long ls = 0L;
 
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML><BODY>\n");
+
 	if (display_name != 2) {
 		/* store ungoto information */
 		strcpy(ugname,wc_roomname);
@@ -206,6 +211,7 @@ int display_name; {
 		}
 	if (buf[0]!='2') {
 		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+		wDumpContent();
 		return;
 		}
 
@@ -218,26 +224,26 @@ int display_name; {
 	/* Display the room banner */
 
 	if (display_name) {
-		wprintf("<CENTER><TABLE><TR>");
+		wprintf("<CENTER><TABLE border=0><TR>");
 
 		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
 			wprintf("<TD><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" border=0></A></TD>");
 			}
 
-		wprintf("<TD><TABLE border><TR>");
 		wprintf("<TD><H1>%s</H1>",wc_roomname);
-		wprintf("%d new of %d messages</TD>\n",
+		wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
 			extract_int(&buf[4],1),
 			extract_int(&buf[4],2));
+
+		/* FIX add room image here */
 
 		wprintf("<TD>");
 		readinfo(0);
 		wprintf("</TD>");
-		wprintf("</TR></TABLE></TD>\n");
 
 		wprintf("<TD><A HREF=\"/gotonext\">");
-		wprintf("<IMG SRC=\"/dynamic/_roompic_\" border=0></A></TD>");
+		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
 
 		wprintf("</TR></TABLE></CENTER>\n");
 
@@ -249,6 +255,7 @@ int display_name; {
 	ls = extract_long(&buf[4],6);
 
 	strcpy(wc_roomname, wc_roomname);
+	wDumpContent();
 	}
 
 
