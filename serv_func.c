@@ -149,16 +149,22 @@ void fmout(FILE * fp)
 
 
 /*
- * transmit message text (in memory) to the server
+ * Transmit message text (in memory) to the server.
+ * If convert_to_html is set to 1, the message is converted into something
+ * which kind of resembles HTML.
  */
-void text_to_server(char *ptr)
+void text_to_server(char *ptr, int convert_to_html)
 {
 	char buf[SIZ];
 	int ch, a, pos;
 
-	pos = 0;
+	if (convert_to_html) {
+		serv_puts("<HTML><BODY>");
+	}
 
+	pos = 0;
 	strcpy(buf, "");
+
 	while (ptr[pos] != 0) {
 		ch = ptr[pos++];
 		if (ch == 10) {
@@ -167,7 +173,12 @@ void text_to_server(char *ptr)
 				buf[strlen(buf) - 1] = 0;
 			serv_puts(buf);
 			strcpy(buf, "");
-			if (ptr[pos] != 0) strcat(buf, " ");
+			if (convert_to_html) {
+				strcat(buf, "<BR>");
+			}
+			else {
+				if (ptr[pos] != 0) strcat(buf, " ");
+			}
 		} else {
 			a = strlen(buf);
 			buf[a + 1] = 0;
@@ -184,6 +195,11 @@ void text_to_server(char *ptr)
 		}
 	}
 	serv_puts(buf);
+
+	if (convert_to_html) {
+		serv_puts("</BODY></HTML>\n");
+	}
+
 }
 
 

@@ -1,4 +1,7 @@
 $Log$
+Revision 323.45  2002/07/11 03:17:03  ajc
+* hacks to text_to_server() to transmit messages as HTML
+
 Revision 323.44  2002/07/09 04:21:12  ajc
 * 'idle' icon
 
@@ -855,4 +858,6 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
+
 
