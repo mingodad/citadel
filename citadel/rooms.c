@@ -84,7 +84,7 @@ void load_floorlist(void) {
 
 void room_tree_list(struct roomlisting *rp) {
 	static int c = 0;
-	char rmname[32];
+	char rmname[ROOMNAMELEN];
 	int f;
 
 	if (rp == NULL) {

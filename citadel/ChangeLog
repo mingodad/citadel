@@ -1,4 +1,9 @@
 $Log$
+Revision 1.339  1999/07/30 22:20:19  ajc
+* Applied bugfix patches contributed by Vaggelis Tsirkas:
+  * rooms.c: buffer overrun fix
+  * room_ops.c: cmd_rdir() now behaves better when directory doesn't exist
+
 Revision 1.338  1999/07/30 03:32:24  ajc
 * Added strdoop(), a leak-checked version of strdup()
 * Small fixes to new API functions in msgbase.c
@@ -1146,4 +1151,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -882,9 +882,9 @@ void cmd_rdir(void)
 	cprintf("%d %s|%s/files/%s\n",
 	LISTING_FOLLOWS, config.c_fqdn, BBSDIR, CC->quickroom.QRdirname);
 
-	sprintf(buf, "cd %s/files/%s; ls >%s 2>/dev/null",
-		BBSDIR, CC->quickroom.QRdirname, CC->temp);
-	system(buf);
+        sprintf(buf, "ls %s/files/%s  >%s 2> /dev/null",
+                BBSDIR, CC->quickroom.QRdirname, CC->temp);
+        system(buf);
 
 	sprintf(buf, "%s/files/%s/filedir", BBSDIR, CC->quickroom.QRdirname);
 	fd = fopen(buf, "r");
