@@ -1,4 +1,11 @@
  $Log$
+ Revision 572.4  2000/06/04 02:30:56  ajc
+ * CtdlForEachMessage() now returns the number of messages processed.  It also
+   accepts the MSGS_EQ mode, for targeting a specific message number (useful for
+   determining whether the specified message actually exists in a room).
+ * Completed the server side of the moderation system (serv_moderate.c module
+   which implements the MMOD command)
+
  Revision 572.3  2000/06/03 05:47:57  ajc
  * Replaced most of the very repetitive and very redundant access level checks
    in most commands with a single API call:  CtdlAccessLevelCheck()
@@ -1899,4 +1906,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

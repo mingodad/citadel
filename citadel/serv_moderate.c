@@ -41,6 +41,8 @@
 void cmd_mmod(char *argbuf) {
 	long msgnum;
 	int newlevel;
+	struct SuppMsgInfo smi;
+	int is_message_in_room;
 
 	/* user must be at least a Room Aide to moderate */
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -50,10 +52,23 @@ void cmd_mmod(char *argbuf) {
 
 	if ( (newlevel < (-63)) || (newlevel > (+63)) ) {
 		cprintf("%d %d is not a valid moderation level.\n",
-			newlevel, ERROR+ILLEGAL_VALUE);
+			ERROR+ILLEGAL_VALUE, newlevel);
+		return;
 	}
 
-	cprintf("%d FIXME ... actually do this!!!!!!!!\n", OK);
+	is_message_in_room = CtdlForEachMessage(MSGS_EQ, msgnum, (-127),
+				NULL, NULL, NULL);
+	if (!is_message_in_room) {
+		cprintf("%d Message %ld is not in this room.\n",
+			ERROR+ILLEGAL_VALUE, msgnum);
+		return;
+	}
+
+	GetSuppMsgInfo(&smi, msgnum);
+	smi.smi_mod = newlevel;
+	PutSuppMsgInfo(&smi);
+
+	cprintf("%d Message %ld is moderated to %d\n", OK, msgnum, newlevel);
 }
 
 

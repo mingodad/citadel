@@ -265,9 +265,9 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
 
 /*
  * API function to perform an operation for each qualifying message in the
- * current room.
+ * current room.  (Returns the number of messages processed.)
  */
-void CtdlForEachMessage(int mode, long ref,
+int CtdlForEachMessage(int mode, long ref,
 			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
@@ -279,6 +279,7 @@ void CtdlForEachMessage(int mode, long ref,
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
+	int num_processed = 0;
 	long thismsg;
 	struct SuppMsgInfo smi;
 	struct CtdlMessage *msg;
@@ -296,7 +297,7 @@ void CtdlForEachMessage(int mode, long ref,
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
-		return;		/* No messages at all?  No further action. */
+		return 0;	/* No messages at all?  No further action. */
 	}
 
 
@@ -358,12 +359,15 @@ void CtdlForEachMessage(int mode, long ref,
 				       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
 				   || ((mode == MSGS_FIRST) && (a < ref))
 				|| ((mode == MSGS_GT) && (thismsg > ref))
+				|| ((mode == MSGS_EQ) && (thismsg == ref))
 			    )
 			    ) {
-				CallBack(thismsg);
+				if (CallBack) CallBack(thismsg);
+				++num_processed;
 			}
 		}
 	phree(msglist);		/* Clean up */
+	return num_processed;
 }
 
 

@@ -8,6 +8,7 @@
 #define MSGS_FIRST      3
 #define MSGS_LAST       4
 #define MSGS_GT         5
+#define MSGS_EQ		6
 
 /*
  * Flags which may be passed to CtdlSaveMsgPointerInRoom()
@@ -70,7 +71,7 @@ void PutSuppMsgInfo(struct SuppMsgInfo *);
 void AdjRefCount(long, int);
 void simple_listing(long);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
-void CtdlForEachMessage(int mode, long ref,
+int CtdlForEachMessage(int mode, long ref,
 			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,

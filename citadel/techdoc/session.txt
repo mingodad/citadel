@@ -1803,4 +1803,16 @@ Any value other than 0 or 1 will not change the flag, only report its state.
 The command returns ERROR if it fails; otherwise, it returns OK followed by a
 number representing the current state of the flag.
  
+  
+ MMOD   (MODerate a Message)
+  
+ Set or change the moderation level of a message.  The two parameters passed
+to this command should be the message number and the desired moderation level.
+Please refer to the "moderation.txt" document for a description of some
+commonly used moderation levels.
  
+ If the command succeeds, OK is returned.  If the specified message does not
+exist in the current room, or if the specified moderation level is not within
+acceptable limits, ERROR+ILLEGAL_VALUE is returned.  This command requires at
+least Room Aide access; if the calling user is not an Aide, or a Room Aide for
+the current room, ERROR+HIGHER_ACCESS_REQUIRED is returned.
