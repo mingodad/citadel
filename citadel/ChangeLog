@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.25  2004/09/17 04:14:18  ajc
+ * serv_network.c: added a missing \n in log output
+
  Revision 625.24  2004/09/17 03:54:47  ajc
  * citadel-openldap.schema: replaced.  Dunno why it was missing.
  * serv_calendar.c: fixed a return with no value for a function returning
@@ -6091,3 +6094,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

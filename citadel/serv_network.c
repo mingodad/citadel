@@ -290,7 +290,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	 * First try the neighbor nodes
 	 */
 	if (working_ignetcfg == NULL) {
-		lprintf(CTDL_ERR, "working_ignetcfg is NULL!");
+		lprintf(CTDL_ERR, "working_ignetcfg is NULL!\n");
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
 		}
@@ -1735,7 +1735,7 @@ void cmd_netp(char *cmdbuf)
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
-	lprintf(CTDL_NOTICE, "Network node <%s> logged in", CC->net_node);
+	lprintf(CTDL_NOTICE, "Network node <%s> logged in\n", CC->net_node);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
 		CC->net_node);
 }
