@@ -14,9 +14,14 @@
 #include <dirent.h>
 #include <strings.h>
 #include <syslog.h>
+#include <pthread.h>
 #include "dynloader.h"
+#include "citadel.h"
+#include "server.h"
 
 symtab *global_symtab;
+
+struct FunctionHook *HookTable = NULL;
 
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
@@ -167,3 +172,18 @@ void DLoader_Init(char *pathname, symtab **my_symtab)
    
 }
 
+
+
+void CtdlRegisterHook(void *fcn_ptr, int fcn_type) {
+
+	struct FunctionHook *newfcn;
+
+	newfcn = (struct FunctionHook *) malloc(sizeof(struct FunctionHook));
+	newfcn->next = HookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	newfcn->h_type = fcn_type;
+
+	HookTable = newfcn;
+
+	lprintf(5, "Registered a new function (type %d)\n", fcn_type);
+	}

@@ -1,3 +1,8 @@
+Mon Sep 14 20:49:08 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Tried my hand at adding the ability for server extensions to
+	  register various types of "hooks" in addition to just adding
+	  server commands.  This is probably not final.
+
 Tue Sep  8 12:11:56 EDT 1998 Brian Costello <btx@calyx.net>
 	* Added support for dynamic server modules.  Reworked serv_chat.c
 	  to be such a module.

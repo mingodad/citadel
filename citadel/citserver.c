@@ -17,7 +17,6 @@
 #include "config.h"
 #include "database.h"
 #include "housekeeping.h"
-#include "hooks.h"
 #include "user_ops.h"
 #include "logging.h"
 #include "support.h"
@@ -46,11 +45,19 @@ void master_startup(void) {
  * Cleanup routine to be called when the server is shutting down.
  */
 void master_cleanup(void) {
+	struct FunctionHook *fcn;
 
 	/* Cancel all running sessions */
 	lprintf(7, "Cancelling running sessions...\n");
 	while (ContextList != NULL) {
 		kill_session(ContextList->cs_pid);
+		}
+
+	/* Run any cleanup routines registered by loadable modules */
+	for (fcn = HookTable; fcn != NULL; fcn = fcn->next) {
+		if (fcn->h_type == HOOK_CLEANUP) {
+			(*fcn->h_function_pointer)();
+			}
 		}
 
 	/* Close databases */
@@ -61,7 +68,6 @@ void master_cleanup(void) {
 	sysdep_master_cleanup();
 
 	/* Now go away. */
-	hook_cleanup();
 	lprintf(3, "citserver: exiting.\n");
 	exit(0);
 	}
@@ -86,7 +92,7 @@ void cleanup_stuff(void *arg)
 	rec_log(CL_TERMINATE,CC->curr_user);
 	unlink(CC->temp);
 	lprintf(3, "citserver[%3d]: ended.\n",CC->cs_pid);
-	hook_end_session(CC->cs_pid);
+	/* hook_end_session(CC->cs_pid); FIX */
 	syslog(LOG_NOTICE,"session %d ended", CC->cs_pid);
 	
 	/* Deallocate any unsent express messages */
@@ -120,7 +126,7 @@ void set_wtmpsupp(char *newtext)
 	strncpy(CC->cs_room,newtext,19);
 	CC->cs_room[19] = 0;
 	time(&CC->cs_lastupdt);
-	hook_room_name(CC->cs_pid, CC->cs_room);
+	/* hook_room_name(CC->cs_pid, CC->cs_room); FIX */
 	}
 
 
@@ -726,14 +732,14 @@ void *context_loop(struct CitContext *con)
 		}
 
 	lprintf(3, "citserver[%3d]: started.\n", CC->cs_pid);
-	hook_start_session(CC->cs_pid);
+	/* hook_start_session(CC->cs_pid); FIX */
 	rec_log(CL_CONNECT, "");
 
 	do {
 		time(&CC->lastcmd);
 		if (client_gets(cmdbuf) < 1) cleanup(EXIT_NULL);
 		lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
-		hook_command_received(CC->cs_pid, cmdbuf);
+		/* hook_command_received(CC->cs_pid, cmdbuf); FIX */
 
 		/*
 		 * Let other clients see the last command we executed, but

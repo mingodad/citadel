@@ -134,3 +134,26 @@ struct cdbdata {
 	size_t len;
 	char *ptr;
 	};
+
+
+
+/*
+ * Loadable module hook types
+ */
+#define HOOK_START_SESSION	1
+#define HOOK_END_SESSION	2
+#define HOOK_SERVCMD		3
+#define HOOK_CRIT_GET		4
+#define HOOK_CRIT_GOT		5
+#define HOOK_CRIT_END		6
+#define HOOK_LOGIN		7
+#define HOOK_NEWROOM		8
+#define HOOK_CLEANUP		9
+
+struct FunctionHook {
+	struct FunctionHook *next;
+	void *(*h_function_pointer) (void);
+	int h_type;
+	};
+
+extern struct FunctionHook *HookTable;

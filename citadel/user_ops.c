@@ -203,7 +203,7 @@ void session_startup(void) {
 	struct quickroom qr;
 
 	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
-	hook_user_login(CC->cs_pid, CC->curr_user);
+	/* hook_user_login(CC->cs_pid, CC->curr_user); FIX */
 	lgetuser(&CC->usersupp,CC->curr_user);
 	++(CC->usersupp.timescalled);
 	CC->fake_username[0] = '\0';

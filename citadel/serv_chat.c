@@ -35,6 +35,12 @@ extern struct CitContext *ContextList;
 #define MAJOR_VERSION	0
 #define MINOR_VERSION	1
 
+void ChatUnloadingTest(void) {
+	lprintf(9, "--- test of adding an unload hook --- \n");
+	}
+
+
+
 void Dynamic_Module_Init(struct DLModule_Info *info)
 {
    add_symbol("cmd_chat", "CHAT", "Initiates a real-time chat session", &My_Symtab);
@@ -45,6 +51,9 @@ void Dynamic_Module_Init(struct DLModule_Info *info)
    strncpy(info->module_author_email, MODULE_EMAIL, 30);
    info->major_version = MAJOR_VERSION;
    info->minor_version = MINOR_VERSION;
+
+   CtdlRegisterHook(ChatUnloadingTest, HOOK_CLEANUP);
+
 }
 
 void Get_Symtab(symtab **the_symtab)
@@ -52,6 +61,8 @@ void Get_Symtab(symtab **the_symtab)
    (*the_symtab) = My_Symtab;
    return;
 }
+
+
 
 void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 {	

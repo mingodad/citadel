@@ -111,7 +111,7 @@ void begin_critical_section(int which_one)
 	int oldval;
 
 	lprintf(8, "begin_critical_section(%d)\n", which_one);
-	if (CC != NULL) hook_crit_get(CC->cs_pid, which_one);
+	/* if (CC != NULL) hook_crit_get(CC->cs_pid, which_one); FIX */
 
 	/* Don't get interrupted during the critical section */
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
@@ -119,7 +119,7 @@ void begin_critical_section(int which_one)
 	/* Obtain a semaphore */
 	pthread_mutex_lock(&Critters[which_one]);
 
-	if (CC != NULL) hook_crit_got(CC->cs_pid, which_one);
+	/* if (CC != NULL) hook_crit_got(CC->cs_pid, which_one); FIX */
 	}
 
 /*
@@ -130,7 +130,7 @@ void end_critical_section(int which_one)
 	int oldval;
 
 	lprintf(8, "  end_critical_section(%d)\n", which_one);
-	if (CC != NULL) hook_crit_end(CC->cs_pid, which_one);
+	/* if (CC != NULL) hook_crit_end(CC->cs_pid, which_one); FIX */
 
 	/* Let go of the semaphore */
 	pthread_mutex_unlock(&Critters[which_one]);
@@ -660,7 +660,7 @@ int main(int argc, char **argv)
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
-	hook_init();
+	/* hook_init(); FIX */
 
 	/* Databases must be opened *after* config is loaded, otherwise we might
 	 * end up working in the wrong directory.
