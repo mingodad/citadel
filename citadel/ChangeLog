@@ -1,4 +1,7 @@
  $Log$
+ Revision 621.2  2004/05/26 16:53:31  nbryant
+ * configure.ac: check for /usr/local/BerkeleyDB.4.2
+
  Revision 621.1  2004/05/24 01:59:16  ajc
  * serv_network.c: when processing incoming IGnet spool, give the <C> field
    priority over the <R> field.  This allows messages emailed to a network
@@ -5794,3 +5797,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
