@@ -7,7 +7,7 @@
 </head>
 <body>
 <div align="center">
-<h1>Citadel</h1>
+<h1>C I T A D E L</h1>
 <h2>a messaging and collaboration platform for BBS and groupware
 applications</h2>
 Copyright &copy;1987-2004 by the Citadel development team:<br>
@@ -1600,7 +1600,7 @@ with a much smaller thread pool. If you don't know the programming
 theory
 behind multithreaded servers, you should leave these parameters alone.</p>
 <p>The next set of options affect how Citadel behaves on a network.</p>
-<pre>How often to run network jobs (in seconds) [3600]: <br><br>POP3 server port (-1 to disable) [110]:<br><br>IMAP server port (-1 to disable) [143]:<br><br>SMTP server port (-1 to disable) [25]: <br><br>Correct forged From: lines during authenticated SMTP [Yes]:<br><br></pre>
+<pre>How often to run network jobs (in seconds) [3600]: <br><br>POP3 server port (-1 to disable) [110]:<br><br>IMAP server port (-1 to disable) [143]:<br><br>SMTP MTA server port (-1 to disable) [25]: <br><br>SMTP MSA server port (-1 to disable) [587]: <br><br>Correct forged From: lines during authenticated SMTP [Yes]:<br><br></pre>
 <p>"How often to run network jobs" refers to the sharing of content on
 a
 Citadel network. If your system is on a Citadel network, this
@@ -1616,6 +1616,16 @@ are essential, so you'll want to specify the standard port numbers: 25,
 though, then you might want to choose other, unused port numbers, or
 enter -1 for any protocol
 to disable it entirely.</p>
+<p>You'll also notice that you can specify two port numbers for SMTP: one
+for MTA (Mail Transport Agent) and one for MSA (Mail Submission Agent).  The
+traditional ports to use for these purposes are 25 and 587.  If you are
+running an external MTA, such as Postfix (which submits mail to Citadel using
+LMTP) or Sendmail (which submits mail to Citadel using the 'citmail'
+delivery agent), that external MTA will be running on port 25, and you should
+specify "-1" for the Citadel MTA port to disable it.  The MSA port (again,
+usually 587) would be the port used by end-user mail client programs such as
+Aethera, Thunderbird, Eudora, or Outlook, to submit mail into the system.
+All connections to the MSA port <b>must</b> use Authenticated SMTP.</p>
 <p>The question about correcting forged From: lines affects how Citadel
 behaves with authenticated SMTP clients. Citadel does not ever allow
 third-party SMTP relaying from unauthenticated clients -- any incoming
@@ -1698,7 +1708,7 @@ spread out across many servers on a Citadel network)</li>
   <li>Easy-to-configure integration with <a
  href="http://www.spamassassin.org/">SpamAssassin</a> can block spam <i>before</i>
 it enters the mail system</li>
-  <li>Easy-to-configuration integration with most Realtime Blackhole
+  <li>Easy-to-configure integration with most Realtime Blackhole
 Lists (RBL) provide further defense against spammers</li>
 </ul>
 This section of the documentation will demonstrate how to configure
