@@ -18,7 +18,18 @@ function bbs_page_header() {
 	<meta name="Description" content="Citadel BBS">
 	<meta name="Keywords" content="citadel,bbs">
 	<meta name="MSSmartTagsPreventParsing" content="TRUE">
-	<title>FIXME NAME BBS</title>
+	<title>
+LITERAL;
+
+	if ($_SESSION["serv_humannode"]) {
+		echo $_SESSION["serv_humannode"] ;
+	}
+	else {
+		echo "BBS powered by Citadel" ;
+	}
+
+	echo <<<LITERAL
+</title>
 </head>
 
 <body

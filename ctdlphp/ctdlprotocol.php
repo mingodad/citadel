@@ -30,25 +30,79 @@ function serv_puts($buf) {
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
 }
 
+//
+// login_existing_user() -- attempt to login using a supplied username/password
+// Returns an array with two variables:
+// 0. TRUE or FALSE to determine success or failure
+// 1. String error message (if relevant)
+//
+function login_existing_user($user, $pass) {
+	global $clientsocket;
+
+	serv_puts("USER " . $user);
+	$resp = serv_gets();
+	if (substr($resp, 0, 1) != "3") {
+		return array(FALSE, substr($resp, 4));
+	}
+
+	serv_puts("PASS " . $pass);
+	$resp = serv_gets();
+	if (substr($resp, 0, 1) != "2") {
+		return array(FALSE, substr($resp, 4));
+	}
+
+	$_SESSION["username"] = $user;
+	$_SESSION["password"] = $pass;
+
+	return array(TRUE, "Login successful.  Have fun.");
+}
+
+
+//
+// create_new_user() -- attempt to create a new user 
+//                      using a supplied username/password
+// Returns an array with two variables:
+// 0. TRUE or FALSE to determine success or failure
+// 1. String error message (if relevant)
+//
+function create_new_user($user, $pass) {
+	global $clientsocket;
+
+	serv_puts("NEWU " . $user);
+	$resp = serv_gets();
+	if (substr($resp, 0, 1) != "2") {
+		return array(FALSE, substr($resp, 4));
+	}
+
+	serv_puts("SETP " . $pass);
+	$resp = serv_gets();
+	if (substr($resp, 0, 1) != "2") {
+		return array(FALSE, substr($resp, 4));
+	}
+
+	$_SESSION["username"] = $user;
+	$_SESSION["password"] = $pass;
+
+	return array(TRUE, "Login successful.  Have fun.");
+}
+
+
 
 //
 // Learn all sorts of interesting things about the Citadel server to
 // which we are connected.
 //
 function ctdl_get_serv_info() {
-	global $serv_humannode;
-	global $serv_software;
-
 	serv_puts("INFO");
-	serv_gets($buf);
+	$buf = serv_gets();
 	if (substr($buf, 0, 1) == "1") {
 		$i = 0;
 		do {
 			$buf = serv_gets();
-			if ($i == 2) $serv_humannode = $buf;
-			if ($i == 4) $serv_software = $buf;
+			if ($i == 2) $_SESSION["serv_humannode"] = $buf;
+			if ($i == 4) $_SESSION["serv_software"] = $buf;
 			$i = $i + 1;
-		} while ($buf != "000");
+		} while (strcasecmp($buf, "000"));
 	}
 
 }
@@ -77,10 +131,10 @@ function ctdl_mesg($msgname) {
 		echo "<DIV ALIGN=CENTER>\n";
 		do {
 			$buf = serv_gets();
-			if ($buf != "000") {
+			if (strcasecmp($buf, "000")) {
 				echo "<TT>", $buf, "</TT><BR>\n" ;
 			}
-		} while ($buf != "000");
+		} while (strcasecmp($buf, "000"));
 		echo "</DIV>\n";
 	}
 	else {

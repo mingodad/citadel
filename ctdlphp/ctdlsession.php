@@ -42,24 +42,24 @@ function establish_citadel_session() {
 
 		// Ok, now try again.
 		$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
+
+		// Try to log the user back in.
+		if ($clientsocket) {
+
+
+			if ($_SESSION["username"]) {
+				login_existing_user(
+					$_SESSION["username"],
+					$_SESSION["password"]
+				);
+			}
+		}
 	}
 
 	if ($clientsocket) {
-		/*
-		echo "Connected.  Performing echo tests.<BR>\n";
-		flush();
-		$cmd = "ECHO test echo string upon connection\n";
-		fwrite($clientsocket, $cmd);
-		$response = fgets($clientsocket, 4096);
-		echo "Response is: ", $response, "<BR>\n";
-		flush();
-
-		$cmd = "ECHO second test for echo\n";
-		fwrite($clientsocket, $cmd);
-		$response = fgets($clientsocket, 4096);
-		echo "Response is: ", $response, "<BR>\n";
-		flush();
-		*/
+		if (!$_SESSION["serv_humannode"]) {
+			ctdl_get_serv_info();
+		}
 	}
 	else {
 		echo "ERROR: no Citadel socket!<BR>\n";
