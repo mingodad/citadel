@@ -76,8 +76,8 @@ citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 		commands.o client_chat.o serv_info.o tools.o $(SNPRINTF) $(LDFLAGS) \
 		-o citadel
 
-netpoll: netpoll.o config.o ipc_c_tcp.o
-	$(CC) netpoll.o config.o ipc_c_tcp.o $(LDFLAGS) -o netpoll
+netpoll: netpoll.o config.o ipc_c_tcp.o $(SNPRINTF)
+	$(CC) netpoll.o config.o ipc_c_tcp.o $(SNPRINTF) $(LDFLAGS) -o netpoll
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
@@ -114,8 +114,8 @@ modules/serv_upgrade.so: serv_upgrade.mo
 modules/serv_expire.so: serv_expire.mo
 	$(CC) -shared -o modules/serv_expire.so serv_expire.mo
 
-aidepost: aidepost.o config.o
-	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost
+aidepost: aidepost.o config.o $(SNPRINTF)
+	$(CC) aidepost.o config.o $(SNPRINTF) $(LDFLAGS) -o aidepost
 
 #
 # 'netmailer' needs to run setuid because it generates headers for Internet
@@ -125,8 +125,8 @@ aidepost: aidepost.o config.o
 netmailer: netmailer.o internetmail.o config.o
 	$(CC) netmailer.o config.o internetmail.o $(LDFLAGS) -o netmailer
 
-netproc: netproc.o config.o ipc_c_tcp.o
-	$(CC) netproc.o config.o ipc_c_tcp.o $(LDFLAGS) -o netproc
+netproc: netproc.o config.o ipc_c_tcp.o $(SNPRINTF)
+	$(CC) netproc.o config.o ipc_c_tcp.o $(SNPRINTF) $(LDFLAGS) -o netproc
 
 citmail: citmail.o config.o internetmail.o
 	@echo "*"
@@ -148,11 +148,11 @@ netsetup: netsetup.o config.o
 proxy: proxy.o ipc_c_tcp.o
 	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy
 
-whobbs: whobbs.o ipc_c_tcp.o
-	$(CC) whobbs.o ipc_c_tcp.o $(LDFLAGS) -o whobbs
+whobbs: whobbs.o ipc_c_tcp.o $(SNPRINTF)
+	$(CC) whobbs.o ipc_c_tcp.o $(SNPRINTF) $(LDFLAGS) -o whobbs
 
-userlist: userlist.o ipc_c_tcp.o
-	$(CC) userlist.o ipc_c_tcp.o $(LDFLAGS) -o userlist
+userlist: userlist.o ipc_c_tcp.o $(SNPRINTF)
+	$(CC) userlist.o ipc_c_tcp.o $(SNPRINTF) $(LDFLAGS) -o userlist
 
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform

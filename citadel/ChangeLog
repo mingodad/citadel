@@ -1,3 +1,6 @@
+1998-11-10 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: link in snprintf.o where needed
+
 1998-11-09 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* client_chat.c: eliminate calls to sprintf()
 	* commands.h, routines.c, routines2.c: warning fix
