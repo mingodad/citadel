@@ -1,4 +1,9 @@
 $Log$
+Revision 505.19  2004/03/18 04:32:24  ajc
+* Removed the language in README.TXT which told everyone that chat wouldn't
+  work with a non-local Citadel server, because that's no longer true.
+* Removed the old chat applet from the static/ directory
+
 Revision 505.18  2004/03/18 04:00:44  ajc
 * Rounded web boxes now look correct in all browsers.
 
@@ -1735,3 +1740,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
