@@ -133,7 +133,6 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
         char temp[PATH_MAX];
         FILE *fp;
 	char *ser;
-        char config_rm[ROOMNAMELEN];
 
         strcpy(temp, tmpnam(NULL));
 	ser = vcard_serialize(v);
@@ -149,9 +148,8 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 	}
         fclose(fp);
 
-        /* these handy API functions do all the work for us */
-        MailboxName(config_rm, u, CONFIGROOM);
-        CtdlWriteObject(config_rm, "text/x-vcard", temp, 1, 0, 1);
+        /* This handy API function does all the work for us */
+        CtdlWriteObject(CONFIGROOM, "text/x-vcard", temp, u, 0, 1);
 
         unlink(temp);
 }

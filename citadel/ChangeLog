@@ -1,4 +1,8 @@
 $Log$
+Revision 1.375  1999/09/29 21:13:17  ajc
+* CtdlWriteObject() can now store objects in personal rooms for any specified
+  user -- rather than only the current user or non-personal rooms.
+
 Revision 1.374  1999/09/29 17:26:56  ajc
 * serv_vcard.c: fixed crashola bug in cmd_greg()
 * tools.c: simplified and improved the string tokenizer.  Now it runs in a
@@ -1283,4 +1287,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -1916,7 +1916,7 @@ void AdjRefCount(long msgnum, int incr)
 void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *content_type,	/* MIME type of this object */
 			char *tempfilename,	/* Where to fetch it from */
-			int is_mailbox,		/* Private mailbox room? */
+			struct usersupp *is_mailbox,	/* Mailbox room? */
 			int is_binary,		/* Is encoding necessary? */
 			int is_unique		/* Del others of this type? */
 			)
@@ -1931,12 +1931,11 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	struct CtdlMessage *msg;
 	size_t len;
 
-	lprintf(9, "CtdlWriteObject() called\n");
-
-	if (is_mailbox)
-		MailboxName(roomname, &CC->usersupp, req_room);
+	if (is_mailbox != NULL)
+		MailboxName(roomname, is_mailbox, req_room);
 	else
 		safestrncpy(roomname, req_room, sizeof(roomname));
+	lprintf(9, "CtdlWriteObject() to <%s>\n", roomname);
 
 	strcpy(filename, tmpnam(NULL));
 	fp = fopen(filename, "w");

@@ -1829,7 +1829,7 @@ void CtdlICQ_Write_Config(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(ICQROOM, ICQMIME, temp, 1, 0, 1);
+	CtdlWriteObject(ICQROOM, ICQMIME, temp, &CC->usersupp, 0, 1);
 
 	unlink(temp);
 }
@@ -1859,7 +1859,7 @@ void CtdlICQ_Write_CL(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(ICQROOM, ICQCLMIME, temp, 1, 0, 1);
+	CtdlWriteObject(ICQROOM, ICQCLMIME, temp, &CC->usersupp, 0, 1);
 
 	unlink(temp);
 }
