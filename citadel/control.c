@@ -254,7 +254,7 @@ void cmd_conf(char *argbuf) {
 		aide_message(buf);
 
 		if (strlen(config.c_logpages) > 0)
-			create_room(config.c_logpages, 4, "", 0);
+			create_room(config.c_logpages, 3, "", 0);
 		}
 
 	else if (!strcasecmp(cmd, "GETSYS")) {

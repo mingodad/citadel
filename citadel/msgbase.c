@@ -2411,8 +2411,10 @@ char *CtdlGetSysConfig(char *sysconfname) {
 
 	getroom(&CC->quickroom, hold_rm);
 
+	lprintf(9, "eggstracting...\n");
 	if (conf != NULL) do {
 		extract_token(buf, conf, 0, '\n');
+		lprintf(9, "eggstracted <%s>\n", buf);
 		strcpy(conf, &conf[strlen(buf)+1]);
 	} while ( (strlen(conf)>0) && (strlen(buf)>0) );
 
@@ -2427,14 +2429,11 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 
 	fp = fopen(temp, "w");
 	if (fp == NULL) return;
-	fprintf(fp, "Content-type: %s\n\n", sysconfname);
 	fprintf(fp, "%s", sysconfdata);
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp,
-		&CC->usersupp, 0, 1, 0);
-
+	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp, NULL, 0, 1, 0);
 	unlink(temp);
 }
 
