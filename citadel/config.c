@@ -9,11 +9,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 #include "citadel.h"
+#include "config_defs.h"
 
-extern void get_config(void);
 struct config config;
-char bbs_home_directory[256];
+char bbs_home_directory[PATH_MAX];
 int home_specified = 0;
 
 void get_config(void) {

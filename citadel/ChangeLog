@@ -1,3 +1,12 @@
+Sun Aug  2 18:52:05 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* config_defs.h: new file, contains external declarations from config.c
+	* config.c: moved defs to config_defs.h, use PATH_MAX from <limits.h>
+	  for bbs_home_directory
+	* mailinglist.c, support.c: include <string.h>
+	* sysoputil.c: include <string.h>, <limits.h>, "config_defs.h", remove
+	  duplicated defs, replace gets() call with fgets()
+	* user_ops.c: define _XOPEN_SOURCE_EXTENDED
+
 Sat Aug  1 18:32:52 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* ipc_c_tcp.c: fixed order of memcpy parameters after gethostbyname
 

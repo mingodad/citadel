@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <string.h>
 #include "citadel.h"
 
 void LoadInternetConfig();
