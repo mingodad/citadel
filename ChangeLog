@@ -1,4 +1,11 @@
 $Log$
+Revision 603.1  2005/02/21 23:00:04  ajc
+* begin_burst() / end_burst() semantics now apply to all pages which are
+  output using the "include_html_head" option of output_headers() (which
+  is nearly all of them).  This should speed up the network considerably,
+  and also pave the way for another attempt at adding zlib compression
+  back in.
+
 Revision 603.0  2005/02/21 22:00:13  ajc
 * THIS IS 6.03
 
@@ -2426,4 +2433,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
