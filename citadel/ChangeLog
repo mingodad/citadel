@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.24  2004/02/09 22:26:17  error
+ * Exit the citadel client when EOF reached on input - should prevent
+   a process from hanging around when a telnet connection dies unexpectedly
+
  Revision 614.23  2004/02/08 05:29:34  ajc
  * Corrected various small syntax conversion problems that were keeping
    some vCards out of the LDAP directory.
@@ -5301,3 +5305,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

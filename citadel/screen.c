@@ -335,7 +335,8 @@ int scr_getc(int delay)
 #endif
 
 	buf = '\0';
-	read (0, &buf, 1);
+	if (!read (0, &buf, 1))
+		logoff(NULL, 3);
 	return buf;
 }
 

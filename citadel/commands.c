@@ -493,7 +493,7 @@ int inkey(void)
 		/* At this point, there's input, so fetch it.
 		 * (There's a hole in the bucket...)
 		 */
-		a = scr_getc(SCR_NOBLOCK);
+		a = scr_getc(SCR_BLOCK);
 		if (a == 127)
 			a = 8;
 		if (a > 126)
@@ -507,7 +507,7 @@ int inkey(void)
 #ifndef DISABLE_CURSES
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
 		if (a == ERR)
-			a = 0;
+			logoff(NULL, 3);
 #endif
 #endif
 
