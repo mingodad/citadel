@@ -17,7 +17,7 @@
 /*
  * This function needs to get called whenever a PASS or NEWU succeeds
  */
-void become_logged_in(char *user, char *pass, char *serv_response) {
+void become_logged_in(char *user, char *pass) {
 
 	logged_in = 1;
 	strcpy(wc_username, user);
@@ -28,6 +28,7 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 
 void do_login() {
 	char buf[256];
+	char actual_username[256];
 
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
@@ -36,7 +37,8 @@ void do_login() {
 			serv_printf("PASS %s", bstr("pass"));
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				become_logged_in(bstr("name"), bstr("pass"), buf);
+				extract(actual_username, &buf[4], 0);
+				become_logged_in(actual_username, bstr("pass"));
 				}
 			}
 		}
