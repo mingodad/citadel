@@ -1,6 +1,8 @@
 Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Unified the "unpacked database" format for both upgrades and
 	  sidegrades (also see export5.c elsewhere)
+	* citserver.c: clear out cmdbuf before reading a command; some server
+	  commands were accidentally extracting parameters from previous cmds
 
 1998-10-27 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c (client_gets), ipc_c_tcp.c (serv_gets): improved handling
