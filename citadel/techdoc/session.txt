@@ -1718,6 +1718,12 @@ fails for any reason, ERROR is returned.
  26. Default moderation filter level for new users (-63 to +63)
  27. Flag (0 or 1) - allow Aides to zap (forget) rooms
  28. Port number for IMAP service
+ 
+ CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
+arbitrary MIME type (such as application/x-citadel-internet-config) which
+provides a means of storing generic configuration data in the Global System
+Configuration room without the need to add extra get/set commands to the
+server.
 
 
   EXPI   (EXPIre system objects)

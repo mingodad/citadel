@@ -1,4 +1,11 @@
  $Log$
+ Revision 580.22  2001/08/11 19:18:41  ajc
+ * Realized that I am stupid and started implementing server commands to load
+   and save network configurations, when I had already lovingly implemented the
+   CONF GETSYS and CONF PUTSYS commands to store arbitrary configuration sets
+   in the Local System Configuration> room.  Ripped the newer crap out.
+ * Implemented a skeleton of <.A>ide <S>ysconfig <N>etwork on the client side.
+
  Revision 580.21  2001/08/11 03:51:56  ajc
  * Removed the idle timer from the client.  Dialup is dead.
 
@@ -2665,4 +2672,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

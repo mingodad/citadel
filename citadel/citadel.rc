@@ -178,6 +178,7 @@ cmd=78,1,&.,&Aide,&Post
 cmd=80,2,&.,&Aide,&System configuration,&General
 cmd=82,2,&.,&Aide,&System configuration,&Internet
 cmd=83,2,&.,&Aide,&System configuration,check &Message base
+cmd=88,2,&.,&Aide,&System configuration,&Network
 cmd=85,2,&.,&Aide,&Terminate server,&Now
 cmd=86,2,&.,&Aide,&Terminate server,&Scheduled
 cmd=87,1,&.,&Aide,mailing &List management

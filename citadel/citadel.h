@@ -259,6 +259,7 @@ struct floor {
  */
 #define SPOOLMIME	"application/x-citadel-delivery-list"
 #define	INTERNETCFG	"application/x-citadel-internet-config"
+#define IGNETCFG	"application/x-citadel-ignet-config"
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

@@ -1389,6 +1389,10 @@ PWOK:
 				mailing_list_management();
 				break;
 
+			case 88:
+				do_ignet_configuration();
+				break;
+
 			case 6:
 				gotonext();
 				break;

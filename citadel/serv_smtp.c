@@ -101,8 +101,7 @@ void smtp_greeting(void) {
 	CtdlAllocUserData(SYM_SMTP_RECP, SIZ);
 	sprintf(SMTP_RECP, "%s", "");
 
-	cprintf("220 Citadel/UX ESMTP server at %s ready.\r\n",
-		config.c_fqdn);
+	cprintf("220 %s ESMTP Citadel/UX server ready.\r\n", config.c_fqdn);
 }
 
 
@@ -117,7 +116,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 		cprintf("250 Greetings and joyous salutations.\r\n");
 	}
 	else {
-		cprintf("250-Greetings and joyous salutations.\r\n");
+		cprintf("250-Extended greetings and joyous salutations.\r\n");
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250 AUTH=LOGIN\r\n");

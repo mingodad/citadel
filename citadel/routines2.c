@@ -1020,3 +1020,104 @@ void mailing_list_management(void) {
 	unlink(filename);		/* Delete the temporary files */
 	unlink(changefile);
 }
+
+
+/*
+ * IGnet node configuration
+ */
+void do_ignet_configuration(void) {
+	char buf[SIZ];
+	int num_recs = 0;
+	char **recs = NULL;
+	char ch;
+	int badkey;
+	int i, j;
+	int quitting = 0;
+	
+
+	sprintf(buf, "CONF getsys|%s", IGNETCFG);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		++num_recs;
+		if (num_recs == 1) recs = malloc(sizeof(char *));
+		else recs = realloc(recs, (sizeof(char *)) * num_recs);
+		recs[num_recs-1] = malloc(SIZ);
+		strcpy(recs[num_recs-1], buf);
+	}
+
+	do {
+		printf("\n");
+		color(BRIGHT_WHITE);
+		printf("### ");
+		printf("    Node         ");
+		printf("   Secret           \n");
+		color(DIM_WHITE);
+		printf("--- ");
+		printf("---------------- ");
+		printf("--------------------\n");
+		for (i=0; i<num_recs; ++i) {
+		color(DIM_WHITE);
+		printf("%3d ", i+1);
+		extract(buf, recs[i], 0);
+		color(BRIGHT_CYAN);
+		printf("%-16s ", buf);
+		extract(buf, recs[i], 1);
+		color(BRIGHT_MAGENTA);
+		printf("%-16s\n", buf);
+		color(DIM_WHITE);
+		}
+
+		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
+		switch(ch) {
+			case 'a':
+				++num_recs;
+				if (num_recs == 1)
+					recs = malloc(sizeof(char *));
+				else recs = realloc(recs,
+					(sizeof(char *)) * num_recs);
+				newprompt("Enter host name    : ", buf, 16);
+				strcat(buf, "|");
+				newprompt("Enter shared secret: ",
+					&buf[strlen(buf)], 16);
+				recs[num_recs-1] = strdup(buf);
+				break;
+			case 'd':
+				i = intprompt("Delete which one",
+					1, 1, num_recs) - 1;
+				free(recs[i]);
+				--num_recs;
+				for (j=i; j<num_recs; ++j)
+					recs[j] = recs[j+1];
+				break;
+			case 's':
+				sprintf(buf, "CONF putsys|%s", IGNETCFG);
+				serv_puts(buf);
+				serv_gets(buf);
+				if (buf[0] == '4') {
+					for (i=0; i<num_recs; ++i) {
+						serv_puts(recs[i]);
+					}
+					serv_puts("000");
+				}
+				else {
+					printf("%s\n", &buf[4]);
+				}
+				quitting = 1;
+				break;
+			case 'q':
+				quitting = boolprompt(
+					"Quit without saving", 0);
+				break;
+			default:
+				badkey = 1;
+		}
+	} while (quitting == 0);
+
+	if (recs != NULL) {
+		for (i=0; i<num_recs; ++i) free(recs[i]);
+		free(recs);
+	}
+}
+
+
