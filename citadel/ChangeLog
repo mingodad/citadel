@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.145  2002/03/12 19:59:40  ajc
+ * Access control change: do not treat mailboxes as guessname rooms for Aides.
+   Open up INVT/KICK commands to non-Aides for their mailboxes.
+
  Revision 590.144  2002/03/12 04:30:52  nbryant
  if a filesystem node exists at /var/run/egd-pool, try to connect to it as
  the EGD (Entropy Gathering Daemon) or PRNGD (pseudorandom number
@@ -3457,4 +3461,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

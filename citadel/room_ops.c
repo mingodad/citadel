@@ -129,15 +129,10 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	}
 
 	/* Aides get access to everything */
-	if (userbuf->axlevel >= 6) {
+	if ( (userbuf->axlevel >= 6)
+	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		if (vbuf.v_flags & V_FORGET) {
 			retval = retval | UA_GOTOALLOWED;
-		}
-		else {
-			retval = retval | UA_GOTOALLOWED;
-			if ((roombuf->QRflags & QR_MAILBOX) == 0) {
-				retval = retval | UA_KNOWN;
-			}
 		}
 	}
 
