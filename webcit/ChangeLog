@@ -1,4 +1,7 @@
 $Log$
+Revision 528.47  2005/02/09 04:37:32  ajc
+* More GroupDAV fixes and tuning.
+
 Revision 528.46  2005/02/07 22:02:00  ajc
 * groupdav_propfind.c: output all XML on a single line, with no linebreaks,
   and no whitespace between tags.  We have discovered that doing otherwise
@@ -2331,3 +2334,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

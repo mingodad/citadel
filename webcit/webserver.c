@@ -9,8 +9,8 @@
 
 /*
  * Uncomment to dump an HTTP trace to stderr
- */
 #define HTTP_TRACING 1
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -118,6 +118,7 @@ void groupdav_main(struct httprequest *req,
 	char dav_method[SIZ];
 	char dav_pathname[SIZ];
 	char dav_ifmatch[SIZ];
+	int i;
 
 	strcpy(dav_method, "");
 	strcpy(dav_pathname, "");
@@ -153,10 +154,13 @@ void groupdav_main(struct httprequest *req,
 	 * then if all that's left is an asterisk, make it go away entirely.
 	 */
 	if (strlen(dav_ifmatch) > 0) {
+		striplt(dav_ifmatch);
 		if (dav_ifmatch[0] == '\"') {
 			strcpy(dav_ifmatch, &dav_ifmatch[1]);
-			if (strtok(dav_ifmatch, "\"") != NULL) {
-				strcpy(strtok(dav_ifmatch, "\""), "");
+			for (i=0; i<strlen(dav_ifmatch); ++i) {
+				if (dav_ifmatch[i] == '\"') {
+					dav_ifmatch[i] = 0;
+				}
 			}
 		}
 		if (!strcmp(dav_ifmatch, "*")) {
