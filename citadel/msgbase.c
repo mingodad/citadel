@@ -1,4 +1,8 @@
 /* $Id$ */
+/* $Log$
+ * Revision 1.77  1999/07/24 21:25:15  ajc
+ * test of CVS log function
+ * /
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
