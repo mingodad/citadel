@@ -42,6 +42,13 @@ public class messagePanel extends JPanel {
 		parent.enterMessage();
 	    } } );
 
+	vp.add( b = new JButton( "Read Info" ) );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		//		new roomInfoWindow( ri );
+	    } } );
+	b.setEnabled( false );
+
 	vp.add( b = new JButton( "Zap Room" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {

@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -31,7 +32,7 @@ public class mainPanel extends JPanel {
 	vp.add( b = new JButton( "Goto Room" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		System.out.println( "Goto Room" );
+	      citadel.me.enterRoom();
 	    }});
 
 	vp.add( b = new JButton( "Page User" ) );

@@ -24,6 +24,12 @@ public class room {
     System.out.println( "order    : " + order );*/
   }
 
+  public room( String name, String floor ) {
+    this.name = name;
+    this.fname = floor;
+    this.floor = citadel.atoi( floor );
+  }
+
   public boolean hasNew() {
     return nmsgs;
   }

@@ -48,14 +48,13 @@ public class expressWindow extends JFrame {
 	    }
 	} );
 
-	citadel.me.registerWindow( this );
 	pack();
 	show();
+	citadel.me.registerWindow( this );
     }
 
     public void closeWin() {
 	citadel.me.removeWindow( this );
 	dispose();
-	System.out.println( "expressWindow:closeWin" );
     }
 }

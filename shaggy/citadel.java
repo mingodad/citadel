@@ -143,26 +143,33 @@ public class citadel {
 	} );
     }
 
+    public void enterRoom() {
+	new enterRoomWindow();
+    }
+
     public void enterRoom( String s ) {
 	enterRoom( s, null );
     }
 
-    public void enterRoom( String s, String p ) {
-	enterRoom( cg.mp.rooms.getRoom( s ), p );
-    }
-
     public void enterRoom( room r ) {
-	enterRoom( r, null );
+	enterRoom( r.name, null );
     }
 
-    public void enterRoom( final room rm, String pass ) {
-	String	cmd = "GOTO " + rm.name;
+    public void enterRoom( final String roomName, String pass ) {
+	String	cmd = "GOTO " + roomName;
 	if( pass != null )
 	    cmd = cmd + "|" + pass;
 
 	networkEvent( cmd, new CallBack() {
 	    public void run( citReply r ) {
 		if( r.ok() ) {
+		    room	rm = cg.mp.rooms.getRoom( roomName );
+		    if( rm == null ) {	/* didn't know about it before */
+		      rm = new room( roomName, r.getArg( 10 ) );
+		      cg.mp.rooms.rooms.put( roomName, rm );
+		      cg.mp.rooms.addToFloor( rm );
+		    }
+		    
 		    System.out.println( "Going to room: " + rm.name );
 		    rm.setNew( false );
 
@@ -176,7 +183,7 @@ public class citadel {
 		    rf.setRoom( ri );
 		    cg.mp.updateLists( rooms.getFloor().name() );	// hack
 		} else if( r.res_code == 540 ) {
-		    System.out.println( "NEED A PASSWORD FOR THIS ROOM" );
+		    new enterRoomWindow( roomName );
 		}
 	    } } );
     }

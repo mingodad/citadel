@@ -98,7 +98,7 @@ public class whoOnlineWindow extends JFrame {
     public String unpad( String p ) {
 	StringBuffer	s = new StringBuffer( p.substring( 0, Math.min( 29, p.length() ) ) );
 	while( s.charAt( s.length() - 1) == ' ' )
-	    s.deleteCharAt( s.length() -1 );
+	    s.setLength( s.length() -1 );
 	return s.toString();
     }
 	
