@@ -21,6 +21,9 @@ Enter host name: pixel.citadel.org
  (1) localhost       (Alias for this computer)
  (2) gateway domain  (Domain for all Citadel systems)
  (3) smart-host      (Forward all outbound mail to this host)
+ (4) directory      (Consult the Global Address Book)
+ (5) SpamAssassin   (Address of SpamAssassin server)
+
 
 Which one [1]:
 
@@ -41,5 +44,15 @@ addresses are dynamically assigned) a lot of MTA filters will block
 mail from your address. So unless you have a static domain, you'll 
 probably want to send mail through a smart host. Usually your ISP will
 provide you with that information.
+ 
+directory:
+A domain for which you are participating in directory services, perhaps across
+any number of Citadel nodes.  This is new and not fully supported yet.
+
+SpamAssassin:
+You can configure Citadel to use the excellent SpamAssassin software (read
+more at http://www.spamassassin.org to learn about it) to filter out incoming
+spam from your system.  Learn how to do this by reading the documentation
+at http://www.citadel.org/spamassassin.php
 
 All you have to do is save and you're done. 

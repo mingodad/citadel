@@ -1,8 +1,8 @@
                          -----------------------
-                         Citadel/UX version 6.01
+                         Citadel/UX version 6.05
                          -----------------------
  
- Copyright (c) 1987-2002 by the Citadel development team.
+ Copyright (c) 1987-2003 by the Citadel development team.
   
      Steven M. Bellovin (author of public domain 'parsedate' function)
      Nathan Bryant      (build system, security, database access, and others)
@@ -13,7 +13,7 @@
      Daniel Malament    (string compare function for IMAP server)
      Stu Mark           (additional client features, IGnet protocol design)
      Ben Mehlman        (additional client features)
-     Ari Samson         (project management)
+     Ari Samson         (assistance with project management)
      John Walker        (author of public domain base64 encoder/decoder)
      Steve Williams     (documentation)
      Ethan Young        (IGnet protocol design)

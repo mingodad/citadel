@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.104  2003/01/12 05:01:58  ajc
+ * Start marking things for 6.05 release
+
  Revision 601.103  2003/01/12 04:48:23  ajc
  * Display message subjects in magenta instead of white
 
@@ -4355,4 +4358,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
