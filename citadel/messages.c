@@ -43,7 +43,6 @@
 #include "screen.h"
 
 #define MAXWORDBUF SIZ
-#define MAXMSGS 512
 
 struct cittext {
 	struct cittext *next;
@@ -60,7 +59,8 @@ void newprompt(char *prompt, char *str, int len);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
-long msg_arr[MAXMSGS];
+long *msg_arr = NULL;
+int msg_arr_size = 0;
 int num_msgs;
 char rc_alt_semantics;
 extern char room_name[];
@@ -89,8 +89,6 @@ extern int editor_pid;
 
 void ka_sigcatch(int signum)
 {
-	char buf[SIZ];
-
 	alarm(S_KEEPALIVE);
 	signal(SIGALRM, ka_sigcatch);
 	CtdlIPCNoop();
@@ -407,9 +405,10 @@ int read_message(
 			sprintf(buf, "rfca=%s\n", message->email);
 			/* FIXME: output buf */
 		}
-		sprintf(buf, "hnod=%s\nroom=%s\nnode=%s\ntime=%ld\n",
+		sprintf(buf, "hnod=%s\nroom=%s\nnode=%s\ntime=%s",
 				message->hnod, message->room,
-				message->node, message->time);
+				message->node, 
+				asctime(localtime(&message->time)));
 		if (strlen(message->recipient)) {
 			sprintf(buf, "rcpt=%s\n", message->recipient);
 			/* FIXME: output buf */
@@ -1014,6 +1013,13 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
+
+			if ((num_msgs + 1) > msg_arr_size) {
+				msg_arr_size += 512;
+				msg_arr = realloc(msg_arr,
+					((sizeof(long)) * msg_arr_size) );
+			}
+
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
@@ -1183,7 +1189,7 @@ void readmsgs(
 	int r;				/* IPC response code */
 
 	if (c < 0)
-		b = (MAXMSGS - 1);
+		b = (num_msgs - 1);
 	else
 		b = 0;
 
@@ -1211,11 +1217,13 @@ void readmsgs(
 		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
-			if (num_msgs == MAXMSGS) {
-				memcpy(&msg_arr[0], &msg_arr[1],
-				       (sizeof(long) * (MAXMSGS - 1)));
-				--num_msgs;
+
+			if ((num_msgs + 1) > msg_arr_size) {
+				msg_arr_size += 512;
+				msg_arr = realloc(msg_arr,
+					((sizeof(long)) * msg_arr_size) );
 			}
+
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
@@ -1236,7 +1244,7 @@ void readmsgs(
 	for (a = start; ((a < num_msgs) && (a >= 0)); a = a + rdir) {
 		while (msg_arr[a] == 0L) {
 			a = a + rdir;
-			if ((a == MAXMSGS) || (a == (-1)))
+			if ((a == num_msgs) || (a == (-1)))
 				return;
 		}
 
