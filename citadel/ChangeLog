@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.18  2004/02/06 03:58:10  ajc
+ * Added some comments to the sample citadel-slapd.conf
+
  Revision 614.17  2004/02/06 03:52:46  ajc
  * Changed the domain name and password in the sample slapd.conf
 
@@ -5274,3 +5277,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
