@@ -1,4 +1,13 @@
  $Log$
+ Revision 630.1  2005/01/22 03:14:20  ajc
+ * Each message's metadata now has the ability to cache the length of
+   the message when output in RFC822 format.  The POP3 service populates
+   this field the first time it sees each message, and fetches the length
+   from cache on subsequent visits.
+ * Because of this optimization, we no longer need to keep the entire POP3
+   mailbox stored in open temp files during a session.  Each message is
+   opened again when it is fetched.
+
  Revision 630.0  2005/01/21 20:25:08  ajc
  * THIS IS 6.30
 
@@ -6293,4 +6302,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

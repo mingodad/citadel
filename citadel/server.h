@@ -438,14 +438,15 @@ struct visit {
 
 
 /* Supplementary data for a message on disk
- * (These are kept separately from the message itself because they are
- * fields whose values may change at some point after the message is saved.)
+ * These are kept separate from the message itself for one of two reasons:
+ * 1. Either their values may change at some point after initial save, or
+ * 2. They are merely caches of data which exist somewhere else, for speed.
  */
 struct MetaData {
-	long meta_msgnum;	/* Message number in *local* message base */
-	int meta_refcount;	/* Number of rooms which point to this msg */
-	char meta_content_type[64];
-	/* more stuff will be added to this record in the future */
+	long meta_msgnum;		/* Message number in *local* message base */
+	int meta_refcount;		/* Number of rooms pointing to this msg */
+	char meta_content_type[64];	/* Cached MIME content-type */
+	long meta_rfc822_length;	/* Cache of RFC822-translated msg length */
 };
 
 

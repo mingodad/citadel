@@ -7,7 +7,6 @@ struct pop3msg {
 	long msgnum;
 	size_t rfc822_length;
 	int deleted;
-	FILE *temp;
 };
 
 struct citpop3 {		/* Information about the current session */

@@ -2069,7 +2069,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	memset(&smi, 0, sizeof(struct MetaData));
 	smi.meta_msgnum = newmsgid;
 	smi.meta_refcount = 0;
-	safestrncpy(smi.meta_content_type, content_type, 64);
+	safestrncpy(smi.meta_content_type, content_type, sizeof smi.meta_content_type);
 	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */

@@ -70,22 +70,12 @@
  * the POP3 server.
  */
 void pop3_cleanup_function(void) {
-	int i;
 
 	/* Don't do this stuff if this is not a POP3 session! */
 	if (CC->h_command_function != pop3_command_loop) return;
 
 	lprintf(CTDL_DEBUG, "Performing POP3 cleanup hook\n");
-
-	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
-		if (POP3->msgs[i].temp != NULL) {
-			fclose(POP3->msgs[i].temp);
-			POP3->msgs[i].temp = NULL;
-		}
-	}
 	if (POP3->msgs != NULL) free(POP3->msgs);
-
-	lprintf(CTDL_DEBUG, "Finished POP3 cleanup hook\n");
 }
 
 
@@ -136,6 +126,7 @@ void pop3_user(char *argbuf) {
 void pop3_add_message(long msgnum, void *userdata) {
 	FILE *fp;
 	lprintf(CTDL_DEBUG, "in pop3_add_message()\n");
+	struct MetaData smi;
 
 	++POP3->num_msgs;
 	if (POP3->num_msgs < 2) POP3->msgs = malloc(sizeof(struct pop3msg));
@@ -143,14 +134,23 @@ void pop3_add_message(long msgnum, void *userdata) {
 		(POP3->num_msgs * sizeof(struct pop3msg)) ) ;
 	POP3->msgs[POP3->num_msgs-1].msgnum = msgnum;
 	POP3->msgs[POP3->num_msgs-1].deleted = 0;
-	fp = tmpfile();
-	POP3->msgs[POP3->num_msgs-1].temp = fp;
 
-	CtdlRedirectOutput(fp, -1);
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-	CtdlRedirectOutput(NULL, -1);
-
-	POP3->msgs[POP3->num_msgs-1].rfc822_length = ftell(fp);
+	/* We need to know the length of this message when it is printed in
+	 * RFC822 format.  Perhaps we have cached this length in the message's
+	 * metadata record.  If so, great; if not, measure it and then cache
+	 * it for next time.
+	 */
+	GetMetaData(&smi, POP3->num_msgs-1);
+	if (smi.meta_rfc822_length <= 0L) {
+		fp = tmpfile();
+		CtdlRedirectOutput(fp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+		smi.meta_rfc822_length = ftell(fp);
+		fclose(fp);
+		PutMetaData(&smi);
+	}
+	POP3->msgs[POP3->num_msgs-1].rfc822_length = smi.meta_rfc822_length;
 }
 
 
@@ -343,8 +343,6 @@ void pop3_stat(char *argbuf) {
  */
 void pop3_retr(char *argbuf) {
 	int which_one;
-	int ch = 0;
-	size_t bytes_remaining;
 
 	which_one = atoi(argbuf);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
@@ -358,15 +356,7 @@ void pop3_retr(char *argbuf) {
 	}
 
 	cprintf("+OK Message %d:\r\n", which_one);
-	bytes_remaining = POP3->msgs[which_one -1].rfc822_length;
-	rewind(POP3->msgs[which_one - 1].temp);
-	while (bytes_remaining-- > 0) {
-		ch = getc(POP3->msgs[which_one - 1].temp);
-		cprintf("%c", ch);
-	}
-	if (ch != 10) {
-		lprintf(CTDL_WARNING, "Problem: message ends with 0x%2x, not 0x0a\n", ch);
-	}
+	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
 	cprintf(".\r\n");
 }
 
@@ -382,6 +372,7 @@ void pop3_top(char *argbuf) {
 	char *ptr;
 	int in_body = 0;
 	int done = 0;
+	FILE *fp;
 
 	sscanf(argbuf, "%d %d", &which_one, &lines_requested);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
@@ -394,9 +385,18 @@ void pop3_top(char *argbuf) {
 		return;
 	}
 
+	fp = tmpfile();
+	if (fp == NULL) {
+		cprintf("-ERR Internal error: could not create temp file\r\n");
+		return;
+	}
+	CtdlRedirectOutput(fp, -1);
+	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlRedirectOutput(NULL, -1);
+
 	cprintf("+OK Message %d:\r\n", which_one);
-	rewind(POP3->msgs[which_one - 1].temp);
-	while (ptr = fgets(buf, sizeof buf, POP3->msgs[which_one - 1].temp),
+	rewind(fp);
+	while (ptr = fgets(buf, sizeof buf, fp),
 	      ( (ptr!=NULL) && (done == 0))) {
 		if (in_body == 1)
 			if (lines_dumped >= lines_requested) done = 1;
@@ -406,6 +406,7 @@ void pop3_top(char *argbuf) {
 		if ((buf[0]==13)||(buf[0]==10)) in_body = 1;
 	}
 	if (buf[strlen(buf)-1] != 10) cprintf("\n");
+	fclose(fp);
 	cprintf(".\r\n");
 }
 
