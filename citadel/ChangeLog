@@ -3,6 +3,8 @@ Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  sidegrades (also see export5.c elsewhere)
 	* citserver.c: clear out cmdbuf before reading a command; some server
 	  commands were accidentally extracting parameters from previous cmds
+	* rooms.c: removed the warning about the ineffectiveness of kicking
+	  users out of public rooms, because the new server can do lockouts
 
 1998-10-27 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c (client_gets), ipc_c_tcp.c (serv_gets): improved handling

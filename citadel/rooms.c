@@ -679,12 +679,6 @@ void invite(void) {
 void kickout(void) {
 	char aaa[31],bbb[256];
 
-	if ((room_flags & QR_PRIVATE)==0) {
-		printf("Note: this is not a private room.  Kicking a user ");
-		printf("out of this room will only\nhave the same effect ");
-		printf("as if they <Z>apped the room.\n\n");
-		}
-
 	newprompt("Name of user? ",aaa,30);
 	if (aaa[0]==0) return;
 
