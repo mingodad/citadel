@@ -1,13 +1,13 @@
-			Cit/UX Networking Documentation
-			  (A brief overview on setup)
+                      Citadel/UX Networking Documentation
+                          (A brief overview on setup)
                   Written by Steve Williams (Patriot @ splash)
 
 
    Having come this far, you're ready to set up your networked rooms.  In
 and of itself it's not too difficult.  I would suggest telnetting to
-another Cit/UX and checking out what they offer.  Currently,
-uncensored.citadelia.org and dogpound2.citadelia.org are most likely your
-best internet bets, and splash.citadelia.org (login as test) is up, but
+another Citadel/UX and checking out what they offer.  Currently,
+uncnsrd.mt-kisco.ny.us and dogpound2.citadelia.org are most likely your
+best Internet bets, and splash.citadelia.org (login as test) is up, but
 still in development.  Login to one of the above BBS and type 'k'.  Note
 the roomnames with a ) after them.  Here's a list of the Splash BBS rooms:
 
@@ -25,8 +25,8 @@ TrekNet)  Video Games)   Dante's Inferno>  Patriot Is A Twit>  Hug Me Dammit!>
  As noted above you'll see that several (in fact most) of the rooms on
 my bbs are networked rooms.  Basically networking your citadel is a very
 good idea, because not only do you have your own userbase to add to your
-rooms, you also have input from every other networked Cit/UX and some
-other varieties of citadel as well (Cit86, Cit:K2NE, etc), which
+rooms, you also have input from every other networked Citadel/UX and some
+other varieties of Citadel as well (Citadel-86, Cit:K2NE, etc), which
 dramatically increases the topical posting.  So now you're saying, "Ok, I
 know what it is now, how do I set the damned thing up?"  Good question.
 There are several steps to take.  Actually setting up the networked rooms
@@ -46,25 +46,26 @@ currently to accomplish this.  Now, for the step by step:
      bbs and send mail to recipient Sysop), asking to share those rooms with
      you.
 
- 3.  From your Cit/UX home directory (eg. /home/citux/citadel) run the
+ 3.  From your Citadel/UX home directory (eg. /home/citux/citadel) run the
      program ./dnetsetup.  Here it gets a little confusing so I'll paste
      in the actual menus where possible:
 
 
-   lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk
-    x                       Citadel/UX Network Setup                      x
-    x
-    lqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk x
-    x x               EDIT    View or change a network node            x x
-    x x               ADD     Add a new network node                   x x
-    x x               DELETE  Delete a network node                    x x
-    x x               EXIT    Exit from Network Setup                  x x
-    x
-    mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj x
+    **********************************************************************
+    *                       Citadel/UX Network Setup                     *
+    *                                                                    *
+    * ****************************************************************** *
+    * *               EDIT    View or change a network node            * *
+    * *               ADD     Add a new network node                   * *
+    * *               DELETE  Delete a network node                    * *
+    * *               EXIT    Exit from Network Setup                  * *
+    * ****************************************************************** *
+    *                                                                    *
+    **********************************************************************
 
-    tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu
-    x                        <  OK  >      <Cancel>                        x
-    mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj
+    **********************************************************************
+    *                        <  OK  >      <Cancel>                      *
+    **********************************************************************
 
 
 
@@ -73,7 +74,7 @@ currently to accomplish this.  Now, for the step by step:
   As you can see above the menu choices are fairly clear.  Lets go
 through the steps to actually setting this up.
 
- First, you'll need to add your network node.  A node is the other Cit/UX
+ First, you'll need to add your network node.  A node is the other Citadel/UX
 that is going to share rooms with you.
 
  Select A, then type in the name of your remote node, EXACTLY as that node's
@@ -81,8 +82,8 @@ administrator has given it to you.  In the case of SplashBBS that would be:
 
   splash
 
- Note that the standard Cit/UX convention is to use all lowercase.  Using
-uppercase in the set up of your Cit/UX has a tendency to do weird things
+ Note that the standard Citadel/UX convention is to use all lowercase.  Using
+uppercase in the set up of your Citadel/UX has a tendency to do weird things
 like broadcast your net messages in triplicate, for example.
 
 Once you've added your network node, tab down to 'ok' and dnetsetup will
@@ -217,20 +218,20 @@ Ok.
   ~bbs/network/spoolout
 
  netpoll is the command that actually goes out to your remote network node
- and snags new messages.  Once it has them it brings them back into Cit/UX
+ and snags new messages.  Once it has them it brings them back into Citadel/UX
  and parses them out to their proper rooms.  Simple enough.
 
  The command netproc runs by itself, no flags needed.  To run netpoll,
  you need to know a little bit about your remote node.
 
- What port is Cit/UX running on?  (Normally 504, but there are some strange
+ What port is Citadel/UX running on?  (Normally 504, but there are some strange
  people out there)
  What is the networking password?
 
  Once you have those, polling for your messages is easy, provided
  everything's been set up properly.  Syntax for netpoll:
 
- netpoll bbs.address.org Cit/UX port # networking password
+ netpoll bbs.address.org Citadel/UX port # networking password
 
  Eg: netpoll splash.citadelia.org 504 netpswd
 
@@ -271,6 +272,6 @@ Connected to: splash (Splash BBS) Indianapolis, IN
  smw@splash.citadelia.org with the subject Citadel Problems.
 
 
-  Visit splash's Cit/UX system at:splash.citadelia.org, login as test.
+  Visit splash's Citadel/UX system at:splash.citadelia.org, login as test.
 
  -Steve Williams (Patriot)

@@ -4,5 +4,4 @@ Citadel/UX v5.50 showstoppers list
 
 Other things that might be nice to take care of:
 ------------------------------------------------
-* Fix the way netproc handles incoming file transfers. (marked)
 * Don't try to delete a msglist that doesn't exist. (marked)

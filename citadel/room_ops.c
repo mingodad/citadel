@@ -1097,12 +1097,7 @@ void cmd_seta(char *new_ra)
  * Generate an associated file name for a room
  */
 void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix) {
-	int a;
-
-	sprintf(buf, "./prefix/%s.%ld", qrbuf->QRname, qrbuf->QRgen);
-	for (a=0; a<strlen(buf); ++a) {
-		if (buf[a]==32) buf[a]='.';
-		}
+	sprintf(buf, "./%s/%ld", prefix, qrbuf->QRnumber);
 	}
 
 /* 
@@ -1377,7 +1372,7 @@ void cmd_cre8(char *args)
 void cmd_einf(char *ok)
 {	/* enter info file for current room */
 	FILE *fp;
-	char infofilename[64];
+	char infofilename[256];
 	char buf[256];
 
 	if (!(CC->logged_in)) {
@@ -1396,11 +1391,18 @@ void cmd_einf(char *ok)
 		return;
 		}
 
-	cprintf("%d Send info...\n",SEND_LISTING);
-
 	assoc_file_name(infofilename, &CC->quickroom, "info");
+	lprintf(9, "opening\n");
+	fp = fopen(infofilename, "w");
+	lprintf(9, "checking\n");
+	if (fp == NULL) {
+		cprintf("%d Cannot open %s: %s\n",
+			ERROR+INTERNAL_ERROR, infofilename, strerror(errno));
+		return;
+		}
 
-	fp=fopen(infofilename,"w");
+	cprintf("%d Send info...\n", SEND_LISTING);
+
 	do {
 		client_gets(buf);
 		if (strcmp(buf,"000")) fprintf(fp,"%s\n",buf);
