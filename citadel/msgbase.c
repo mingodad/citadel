@@ -2603,5 +2603,3 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp, NULL, 0, 1, 0);
 	unlink(temp);
 }
-
-
