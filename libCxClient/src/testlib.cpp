@@ -12,7 +12,8 @@
  ** 901 express message callback...
  **/
 void		chathook(const char *user, const char *msg) {
-	printf("Chat Message Handler\n");
+
+	printf("------------------------------- Chat Message Handler\n");
 
 	printf("[[[[[[ %s ]]]]]]\n", user);
 	printf("%s\n", msg);
@@ -65,8 +66,8 @@ int		hndl;
 
 			fl = CxLlFlush(fl);
 
-			CxMiExpSend(hndl, "detsaoT","Hello, World");
-			CxMiExpSend(hndl, "detsaoT","How are you?");
+			CxMiExpSend(hndl, "detsaoT","Hello, World.  This is a long diatribe\n on the evils of something\nof which the world may never know.");
+			CxMiExpSend(hndl, "detsaoT","How are you?  I am fine.  If you see the optional potential of the explicit implicity of the file, you'll know what I mean.");
 			CxMiExpSend(hndl, "detsaoT","Blah blah blah.");
 
 
@@ -81,5 +82,4 @@ int		hndl;
 	} else {
 		printf("Unable to connect to '%s'!\n", argv[1]);
 	}
-
 }

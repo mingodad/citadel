@@ -7,8 +7,6 @@ all:
 	@echo -n "."
 	@automake
 	@echo -n "."
-	@./am_edit
-	@echo -n "."
 	@autoconf
 	@echo -n "."
 	@echo "Done!"

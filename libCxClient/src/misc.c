@@ -74,17 +74,37 @@ int		CxMiExpSend(int id, const char *user, const char *msg) {
 char		*xmit, buf[255];
 int		rc;
 
-	DPF((DFA,"Send Express Message"));
-	xmit = (char *)CxMalloc(strlen(user)+strlen(msg) + 7);
+
+	/**
+	 ** Need to check the server revision on this connection
+	 ** handle.  If the server only supports short-style
+	 ** express messages, we're gonna have to implement it
+	 ** that way (and strip out everything after the newline
+	 ** in msg?  or s/\n/ /g...?)
+
+	 ** For reasons specified in session.txt, the following line
+	 ** will never be guaranteed to work.. .
 	sprintf(xmit,"SEXP %s|%s",user, msg);
+
+	 **/
+	xmit = (char *)CxMalloc(strlen(user)+strlen(msg) + 7);
+	sprintf(xmit,"SEXP %s|-",user);
 	CxClSend(id, xmit);
 	CxFree(xmit);
 
-	rc = CxClRecv(id, buf);
-	if( CHECKRC(rc, RC_OK) ) {
+	rc = CxClRecv( id, buf );
+	if( CHECKRC( rc, RC_SENDLIST ) ) {
+		DPF((DFA, "Sending:\n%s\n", msg));
+		CxClSend( id, msg );
+		DPF((DFA, "END STREAM.", msg));
+		CxClSend( id, "000" );
+
+		DPF((DFA,"Express Message accepted by server.")); /** we hope... **/
 		return(0);
 
 	} else {
+		DPF((DFA,"Express Message _rejected_ by server."));
+		DPF((DFA,"(Operation not supported.)"));
 		return(1);
 	}
 }
@@ -117,7 +137,7 @@ int		rc;
 	DPF((DFA,"Checking result = ", rc));
 	if( CHECKRC(rc, RC_LISTING)) {
 
-		DPF((DFA,"Preparing to return"));
+		DPF((DFA,"This is an express message.  Working on receiving..."));
 		toret = (EXPRMESG *) CxMalloc( sizeof(EXPRMESG) );
 		bzero( &toret, sizeof(EXPRMESG) );
 
@@ -131,8 +151,13 @@ int		rc;
 		toret->message = 0L;
 		do {
 			if((rc = CxClRecv(id, buf))) {
-				DPF((DFA, "%s", buf));
-				toret->message = (char *) realloc(toret, strlen(toret->message)+strlen(buf)+1);
+				DPF((DFA, "toret->message @0x%08x", toret->message));
+				DPF((DFA, "+++ %s", buf));
+				if(toret->message) {
+					toret->message = (char *) malloc(strlen(buf)+1);
+				} else {
+					toret->message = (char *) realloc(toret->message, strlen(toret->message)+strlen(buf)+1);
+				}
 				strcat(toret->message, buf);
 			}
 		} while( rc < 0 );
@@ -197,24 +222,38 @@ char		buf[512], *user_buf, *data_buf;
 int		rc;
 
 	DPF((DFA, "*ASYN* Received RC_901 message on CXID %d", id));
-	DPF((DFA, "Raw data: %s\n", (char *)data));
+	DPF((DFA, "Raw data: \"%s\"", (char *)data));
 
+	/**
+	 ** Fetch the sending user's information from the data stream.
+	 **/
 	rc = CxClRecv(id, buf);
 	user_buf = (char *)CxMalloc(strlen(buf)+1);
 	strcpy(user_buf, buf);
 
+	DPF(( DFA, "user_buf @0x%08x", data_buf ));
+	DPF(( DFA, "user_buf: %s", user_buf ));
+
+	DPF(( DFA, "allocating data_buf" ));
 	data_buf = (char *)CxMalloc(1);
 	*(data_buf) = 0;
+	DPF(( DFA, "allocated data_buf @0x%08x", data_buf ));
 
 	/**
-	 ** If this is a multi-line message:
+	 ** If this is a multi-line message, then fetch the message
+	 ** from the datas stream.
 	 **/
 	if(CHECKRC(rc, RC_LISTING)) {
 		do {
+			DPF(( DFA, "data_buf @0x%08x", data_buf ));
+			DPF(( DFA, "data_buf: %s", data_buf ));
 			rc = CxClRecv( id, buf );
-			if(rc<0) {
-				realloc(data_buf, strlen(data_buf)+strlen(buf));
-				strcat(data_buf, buf);
+			if( rc<0 ) {
+				DPF(( DFA, "data_buf szlen %d", strlen(data_buf) + strlen(buf) +1));
+				if( strlen(buf) ) {
+					realloc(data_buf, strlen(data_buf)+strlen(buf)+1);
+					strcat(data_buf, buf);
+				}
 			}
 		} while(rc < 0);
 	}
@@ -222,9 +261,19 @@ int		rc;
 	/**
 	 ** Pass this information off to the user's function.
 	 **/
+	DPF(( DFA, "Completed.  Received the following data:\n: user_buf: %s\n: data_buf: %s\n",
+		user_buf, data_buf ));
+
+	DPF(( DFA, "->_MiExpFunc() -- USERLAND"));
 	_MiExpFunc(user_buf, data_buf);
+	DPF(( DFA, "<-_MiExpFunc() -- /USERLAND"));
+
+	DPF(( DFA, "Freeing pointer user_buf"));
 	CxFree(user_buf);
+	DPF(( DFA, "Freeing pointer data_buf"));
 	CxFree(data_buf);
+
+	DPF(( DFA, "Done!"));
 }
 
 /**
@@ -331,6 +380,10 @@ int		rc;
  ** [Returns]
  **  Success: Ptr to malloc()ed image data.  [*]
  **  Failure; File not found: NULL
+ **
+ ** (Actually, we will probably want to store this in a temp
+ ** file, and return a pointer to the filename.  Unless you want
+ ** to store a 10-meg image in memory, of course... :)
  **/
 char		*CxMiImage(int id, const char *img) {
 
