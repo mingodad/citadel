@@ -31,7 +31,8 @@
  */
 void groupdav_get(char *dav_pathname) {
 	char dav_roomname[SIZ];
-	char dav_msgnum[SIZ];
+	char dav_uid[SIZ];
+	long dav_msgnum = (-1);
 	char buf[SIZ];
 	int found_content_type = 0;
 	int n = 0;
@@ -40,9 +41,9 @@ void groupdav_get(char *dav_pathname) {
 	remove_token(dav_pathname, 0, '/');
 	remove_token(dav_pathname, 0, '/');
 
-	/* Now extract the message number */
+	/* Now extract the message euid */
 	n = num_tokens(dav_pathname, '/');
-	extract_token(dav_msgnum, dav_pathname, n-1, '/');
+	extract_token(dav_uid, dav_pathname, n-1, '/');
 	remove_token(dav_pathname, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */
@@ -67,7 +68,8 @@ void groupdav_get(char *dav_pathname) {
 		return;
 	}
 
-	serv_printf("MSG2 %s", dav_msgnum);
+	dav_msgnum = locate_message_by_uid(dav_uid);
+	serv_printf("MSG2 %ld", dav_msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
 		wprintf("HTTP/1.1 404 not found\n");
@@ -76,7 +78,7 @@ void groupdav_get(char *dav_pathname) {
 			"Content-Type: text/plain\n"
 			"\n"
 			"Object \"%s\" was not found in the \"%s\" folder.\n",
-			dav_msgnum,
+			dav_uid,
 			dav_roomname
 		);
 		return;
@@ -84,7 +86,7 @@ void groupdav_get(char *dav_pathname) {
 
 	wprintf("HTTP/1.1 200 OK\n");
 	groupdav_common_headers();
-	wprintf("ETag: \"%s\"\n", dav_msgnum);
+	wprintf("ETag: \"%ld\"\n", dav_msgnum);
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			found_content_type = 1;
