@@ -194,6 +194,7 @@ void *context_loop(int sock) {
 			/* Close the ends of the pipes that we're not using */
 			close(TheSession->inpipe[1]);
 			close(TheSession->outpipe[0]);
+			close(sock);
 			execlp("./webcit", "webcit", str_session, defaulthost,
 			       defaultport, NULL);
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
@@ -294,8 +295,8 @@ void *context_loop(int sock) {
          */
 
 	free(req);
-        printf("   Closing socket\n");
-	close(sock);
+	printf("   Closing socket %d ... ret=%d\n", sock, close(sock));
+	sleep(15);
 
 	/*
 	 * The thread handling this HTTP connection is now finished.
