@@ -912,6 +912,14 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
+	/*
+	 * Functions which can be performed without logging in
+	 */
+	if (!strcasecmp(action, "listsub")) {
+		do_listsub();
+		goto SKIP_ALL_THIS_CRAP;
+	}
+
 	check_for_express_messages();
 
 	/*
@@ -948,12 +956,20 @@ void session_loop(struct httprequest *req)
 		output_static(buf);
 	} else if (!strcasecmp(action, "image")) {
 		output_image();
+
+	/*
+	 * All functions handled below this point ... make sure we log in
+	 * before doing anything else!
+	 */
 	} else if ((!WC->logged_in) && (!strcasecmp(action, "login"))) {
 		do_login();
 	} else if (!WC->logged_in) {
 		display_login(NULL);
 	}
-	/* Various commands... */
+
+	/*
+	 * Various commands...
+	 */
 
 	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();

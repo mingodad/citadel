@@ -280,7 +280,9 @@ void context_loop(int sock)
 	}
 
 	/* Do the non-root-cookie check now. */
-	else if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
+	else if ( (strcmp(buf, "/"))
+		&& (strncasecmp(buf, "/listsub", 8))
+	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"
 				"?force_close_session=yes HTTP/1.0");
 	}
@@ -317,13 +319,10 @@ void context_loop(int sock)
 		pthread_mutex_unlock(&SessionListMutex);
 	}
 
-
 	/*
-	 *
-	 * FIX ... check session integrity here before continuing
-	 *
+	 * A future improvement might be to check the session integrity
+	 * at this point before continuing.
 	 */
-
 
 	/*
 	 * Bind to the session and perform the transaction
