@@ -1,4 +1,7 @@
 $Log$
+Revision 400.68  2002/12/25 07:06:00  ajc
+* Tweaked the code to work with libical 0.24
+
 Revision 400.67  2002/12/20 04:50:00  ajc
 * When saving a calendar event, increment the SEQUENCE property.
 
@@ -1186,4 +1189,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

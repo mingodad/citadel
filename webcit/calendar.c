@@ -323,8 +323,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	cal = icalcomponent_new_from_string(part_source);
 
 	if (cal == NULL) {
-		wprintf("Error parsing calendar object: %s<BR>\n",
-			icalerror_strerror(icalerrno));
+		wprintf("Error parsing calendar object<BR>\n");
 		return;
 	}
 
