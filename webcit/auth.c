@@ -52,8 +52,8 @@ void output_frameset() {
 
 	wprintf("<HTML><HEAD><TITLE>FrameSet</TITLE></HEAD>\n");
 	wprintf("<FRAMESET cols=\"20%, 80%\">\n");
-	wprintf("    <FRAME src=\"/static/velma.gif\">\n");
-	wprintf("    <FRAME src=\"/thepage\">\n");
+	wprintf("    <FRAME name=\"left\" src=\"/static/velma.gif\">\n");
+	wprintf("    <FRAME name=\"right\" src=\"/nothing\">\n");
 	wprintf("<NOFRAMES>\n");
 	wprintf("ooo!  no frames!  too bad!\n");
 	wprintf("</NOFRAMES>\n");
