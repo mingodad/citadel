@@ -1543,8 +1543,13 @@ void display_enter(void)
 	}
 #endif
 
-	/* Otherwise proceed normally */
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	/* Otherwise proceed normally.  Do a custom room banner with no navbar... */
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	embed_room_banner(NULL, navbar_none);
+	wprintf("</div>\n");
+	wprintf("<div id=\"content\">\n");
+
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
 	serv_gets(buf);
