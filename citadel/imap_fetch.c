@@ -121,99 +121,91 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char buf[SIZ];
 	char *ptr;
-	long headers_size, text_size, total_size;
-	long bytes_remaining = 0;
-	long blocksize;
-	FILE *tmp = NULL;
+	size_t headers_size, text_size, total_size;
+	size_t bytes_to_send;
 
 	/* Cache the most recent RFC822 FETCH because some clients like to
 	 * fetch in pieces, and we don't want to have to go back to the
 	 * message store for each piece.
 	 */
-	if ((IMAP->cached_fetch != NULL) && (IMAP->cached_msgnum == msgnum)) {
+	if ((IMAP->cached_rfc822_data != NULL)
+	   && (IMAP->cached_rfc822_msgnum == msgnum)) {
 		/* Good to go! */
-		tmp = IMAP->cached_fetch;
 	}
-	else if (IMAP->cached_fetch != NULL) {
+	else if (IMAP->cached_rfc822_data != NULL) {
 		/* Some other message is cached -- free it */
-		fclose(IMAP->cached_fetch);
-		IMAP->cached_fetch == NULL;
-		IMAP->cached_msgnum = (-1);
+		free(IMAP->cached_rfc822_data);
+		IMAP->cached_rfc822_data = NULL;
+		IMAP->cached_rfc822_msgnum = (-1);
+		IMAP->cached_rfc822_len = 0;
 	}
 
 	/* At this point, we now can fetch and convert the message iff it's not
 	 * the one we had cached.
 	 */
-	if (tmp == NULL) {
-		tmp = tmpfile();
-		if (tmp == NULL) {
-			lprintf(CTDL_CRIT, "Cannot open temp file: %s\n",
-					strerror(errno));
-			return;
-		}
-	
+	if (IMAP->cached_rfc822_data == NULL) {
 		/*
-		 * Load the message into a temp file for translation
-		 * and measurement
+		 * Load the message into memory for translation & measurement
 		 */
-		CtdlRedirectOutput(tmp);
+		CC->redirect_buffer = malloc(SIZ);
+		CC->redirect_len = 0;
+		CC->redirect_alloc = SIZ;
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-		CtdlRedirectOutput(NULL);
-
-		IMAP->cached_fetch = tmp;
-		IMAP->cached_msgnum = msgnum;
+		IMAP->cached_rfc822_data = CC->redirect_buffer;
+		IMAP->cached_rfc822_len = CC->redirect_len;
+		IMAP->cached_rfc822_msgnum = msgnum;
+		CC->redirect_buffer = NULL;
+		CC->redirect_len = 0;
+		CC->redirect_alloc = 0;
 	}
 
 	/*
 	 * Now figure out where the headers/text break is.  IMAP considers the
 	 * intervening blank line to be part of the headers, not the text.
 	 */
-	rewind(tmp);
-	headers_size = 0L;
+	headers_size = 0;
+	text_size = 0;
+	total_size = 0;
+
+	ptr = IMAP->cached_rfc822_data;
 	do {
-		ptr = fgets(buf, sizeof buf, tmp);
+		ptr = memreadline(ptr, buf, sizeof buf);
 		if (ptr != NULL) {
 			striplt(buf);
 			if (strlen(buf) == 0) {
-				headers_size = ftell(tmp);
+				headers_size = ptr - IMAP->cached_rfc822_data;
 			}
 		}
-	} while ( (headers_size == 0L) && (ptr != NULL) );
-	fseek(tmp, 0L, SEEK_END);
-	total_size = ftell(tmp);
+	} while ( (headers_size == 0) && (ptr != NULL) );
+
+	total_size = IMAP->cached_rfc822_len;
 	text_size = total_size - headers_size;
-	/* lprintf(CTDL_DEBUG, "RFC822: headers=%ld, text=%ld, total=%ld\n",
-		headers_size, text_size, total_size); */
+
+	lprintf(CTDL_DEBUG, "RFC822: headers=%d, text=%d, total=%d\n",
+		headers_size, text_size, total_size);
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
-		cprintf("RFC822.SIZE %ld", total_size);
+		cprintf("RFC822.SIZE %d", total_size);
 		return;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822")) {
-		bytes_remaining = total_size;
-		rewind(tmp);
+		ptr = IMAP->cached_rfc822_data;
+		bytes_to_send = total_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.HEADER")) {
-		bytes_remaining = headers_size;
-		rewind(tmp);
+		ptr = IMAP->cached_rfc822_data;
+		bytes_to_send = headers_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.TEXT")) {
-		bytes_remaining = text_size;
-		fseek(tmp, headers_size, SEEK_SET);
+		ptr = &IMAP->cached_rfc822_data[headers_size];
+		bytes_to_send = text_size;
 	}
 
-	cprintf("%s {%ld}\r\n", whichfmt, bytes_remaining);
-	blocksize = (long)sizeof(buf);
-	while (bytes_remaining > 0L) {
-		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
-		fread(buf, (size_t)blocksize, 1, tmp);
-		client_write(buf, (int)blocksize);
-		bytes_remaining = bytes_remaining - blocksize;
-	}
-
+	cprintf("%s {%d}\r\n", whichfmt, bytes_to_send);
+	client_write(ptr, bytes_to_send);
 }
 
 

@@ -1959,9 +1959,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		break;
 	case 4:
 		strcpy(content_type, "text/plain");
-		mptr = bmstrstr(msg->cm_fields['M'], "Content-type: ", strncasecmp);
+		mptr = bmstrstr(msg->cm_fields['M'],
+				"Content-type: ", strncasecmp);
 		if (mptr != NULL) {
-			strcpy(content_type, &mptr[14]);
+			safestrncpy(content_type, &mptr[14], 
+					sizeof content_type);
 			for (a = 0; a < strlen(content_type); ++a) {
 				if ((content_type[a] == ';')
 				    || (content_type[a] == ' ')
@@ -1974,7 +1976,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	lprintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
+	lprintf(CTDL_DEBUG, "Selected room %s\n",
+		(recps) ? CC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CC->room.QRname);
 	strcpy(actual_rm, CC->room.QRname);
 	if (recps != NULL) {

@@ -21,8 +21,10 @@ struct citimap {
 	char *transmitted_message;	/* for APPEND command... */
 	size_t transmitted_length;
 
-	FILE *cached_fetch;		/* cache our most recent RFC822 FETCH */
-	long cached_msgnum;		/* because the client might ask for it in pieces */
+	/* Cache most recent RFC822 FETCH because client might load in pieces */
+	char *cached_rfc822_data;
+	long cached_rfc822_msgnum;
+	size_t cached_rfc822_len;
 
 	FILE *cached_body;		/* cache our most recent BODY FETCH */
 	char cached_bodypart[SIZ];	/* because the client might ask for it in pieces */

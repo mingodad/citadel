@@ -331,10 +331,10 @@ void imap_cleanup_function(void)
 	imap_free_msgids();
 	imap_free_transmitted_message();
 
-	if (IMAP->cached_fetch != NULL) {
-		fclose(IMAP->cached_fetch);
-		IMAP->cached_fetch = NULL;
-		IMAP->cached_msgnum = (-1);
+	if (IMAP->cached_rfc822_data != NULL) {
+		free(IMAP->cached_rfc822_data);
+		IMAP->cached_rfc822_data = NULL;
+		IMAP->cached_rfc822_msgnum = (-1);
 	}
 
 	if (IMAP->cached_body != NULL) {
@@ -357,8 +357,8 @@ void imap_greeting(void)
 	strcpy(CC->cs_clientname, "IMAP session");
 	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
 	IMAP->authstate = imap_as_normal;
-	IMAP->cached_fetch = NULL;
-	IMAP->cached_msgnum = (-1);
+	IMAP->cached_rfc822_data = NULL;
+	IMAP->cached_rfc822_msgnum = (-1);
 
 	cprintf("* OK %s Citadel IMAP4rev1 server ready\r\n",
 		config.c_fqdn);
