@@ -1,4 +1,7 @@
 $Log$
+Revision 323.34  2002/05/11 22:46:19  error
+* Track whether user-agent is a WAP gateway
+
 Revision 323.33  2002/05/11 15:35:07  error
 * webcit.c: add MIME types for WAP/WML
 
@@ -815,3 +818,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

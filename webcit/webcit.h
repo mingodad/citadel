@@ -147,6 +147,7 @@ struct wcsession {
 	char reply_to[512];		/* reply-to address */
 	long msgarr[1024];		/* for read operations */
 	int fake_frames;
+	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
