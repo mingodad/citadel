@@ -345,7 +345,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 			int do_room_banner,	/* 0=no, 1=yes,                                     */
 						/* 2 = I'm going to embed my own, so don't open the */
-						/*     <div id="text"> either.                      */
+						/*     <div id="content"> either.                   */
 
 			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
 			int refresh30,		/* 1 = automatically refresh page every 30 seconds  */
@@ -416,7 +416,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 	}
 
-	if (do_room_banner != 2) {
+	if (do_room_banner == 1) {
 		wprintf("<div id=\"content\">\n");
 
 

@@ -77,8 +77,6 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	other_inetemail[0] = 0;
 	extrafields[0] = 0;
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-
 	strcpy(whatuser, "");
 
 	if (msgnum >= 0) {
@@ -86,7 +84,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '1') {
-			wDumpContent(1);
+			convenience_page("770000", "Error", &buf[4]);
 			return;
 		}
 		while (serv_gets(buf), strcmp(buf, "000")) {
@@ -103,7 +101,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			wDumpContent(1);
+			convenience_page("770000", "Error", &buf[4]);
 			return;
 		}
 	
@@ -175,12 +173,21 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	}
 
 	/* Display the form */
-	do_template("beginbox_nt");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
-	wprintf("<H2><IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
-		"Contact information for ");
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">"
+		"<img src=\"/static/vcard.gif\">"
+		"Contact information for "
+	);
 	escputs(whatuser);
-	wprintf("</H2>\n");
+	wprintf("</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<TABLE border=0><TR>"
 		"<TD>Prefix</TD>"
@@ -269,7 +276,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"</CENTER></FORM>\n"
 	);
 	
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 

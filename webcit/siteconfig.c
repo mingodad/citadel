@@ -43,12 +43,17 @@ void display_siteconfig(void)
 	int mboxpolicy = 0;
 	int mboxvalue = 0;
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Site configuration</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>");
 
 	whichmenu = bstr("whichmenu");
-
-	svprintf("BOXTITLE", WCS_STRING, "Site configuration");
-	do_template("beginbox_nt");
 
 	if (!strcmp(whichmenu, "")) {
 		wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
@@ -120,8 +125,7 @@ void display_siteconfig(void)
 		);
 
 		wprintf("</TABLE>");
-
-		do_template("endbox");
+		wprintf("</td></tr></table></center>\n");
 		wDumpContent(1);
 		return;
 	}
@@ -659,7 +663,7 @@ void display_siteconfig(void)
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER></FORM>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 

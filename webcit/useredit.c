@@ -290,7 +290,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("</SPAN></TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
-	do_template("beginbox_nt");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
 	escputs(username);
@@ -362,7 +362,7 @@ void display_edituser(char *supplied_username, int is_new) {
 		"<br /><br /></FORM>\n");
 
 	wprintf("</CENTER>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 
 	wDumpContent(1);
 
