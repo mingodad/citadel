@@ -121,9 +121,11 @@ int bytes; {
         while(len<bytes) {
                 rlen = read(serv_sock,&buf[len],bytes-len);
                 if (rlen<1) {
-                        printf("Network error - connection terminated.\n");
-                        printf("%s\n", strerror(errno));
-                        exit(3);
+                        fprintf(stderr, "Server connection broken: %s\n",
+				strerror(errno));
+                        connected = 0;
+			logged_in = 0;
+			return;
                         }
                 len = len + rlen;
                 }
@@ -146,6 +148,7 @@ char strbuf[]; {
 		strbuf[len++] = ch;
 		} while((ch!=10)&&(ch!=13)&&(ch!=0)&&(len<255));
 	strbuf[len-1] = 0;
+	fprintf(stderr, ">%s\n", strbuf);
 	}
 
 
@@ -183,9 +186,11 @@ int nbytes; {
                 retval = write(serv_sock, &buf[bytes_written],
                         nbytes - bytes_written);
                 if (retval < 1) {
-                        printf("Network error - connection terminated.\n");
-                        printf("%s\n", strerror(errno));
-                        exit(3);
+                        fprintf(stderr, "Server connection broken: %s\n",
+				strerror(errno));
+                        connected = 0;
+			logged_in = 0;
+			return;
                         }
                 bytes_written = bytes_written + retval;
                 }
@@ -217,6 +222,7 @@ void serv_printf(const char *format, ...) {
 
 	strcat(buf, "\n");
 	serv_write(buf, strlen(buf));
+	fprintf(stderr, "<%s", buf);
 	}
 
 

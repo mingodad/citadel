@@ -42,3 +42,53 @@ void display_login_page() {
 
 	wDumpContent();
 	}
+
+
+
+
+void output_frameset() {
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+
+	wprintf("<HTML><HEAD><TITLE>FrameSet</TITLE></HEAD>\n");
+	wprintf("<FRAMESET cols=\"20%, 80%\">\n");
+	wprintf("    <FRAME src=\"/static/velma.gif\">\n");
+	wprintf("    <FRAME src=\"/thepage\">\n");
+	wprintf("<NOFRAMES>\n");
+	wprintf("ooo!  no frames!  too bad!\n");
+	wprintf("</NOFRAMES>\n");
+	wprintf("</FRAMESET></HTML>\n");
+	wDumpContent();
+	}
+
+
+
+void do_login() {
+	char buf[256];
+
+	if (!strcasecmp(bstr("action"), "Login")) {
+		serv_printf("USER %s", bstr("name"));
+		serv_gets(buf);
+		if (buf[0]=='3') {
+			serv_printf("PASS %s", bstr("pass"));
+			serv_gets(buf);
+			if (buf[0]=='2') {
+				logged_in = 1;
+				}
+			}
+		}
+
+	if (logged_in) {
+		output_frameset();
+		}
+	else {
+		printf("HTTP/1.0 200 OK\n");
+		output_headers();
+		wprintf("<HTML><HEAD><TITLE>Nope</TITLE></HEAD><BODY>\n");
+		wprintf("Your password was not accepted.\n");
+		wprintf("<HR><A HREF=\"/\">Try again</A>\n");
+		wprintf("</BODY></HTML>\n");
+		}
+
+	wDumpContent();
+	}
