@@ -36,7 +36,7 @@ void strproc(char *string)
 	for (a=0; a<strlen(string); ++a) {
 		if (string[a]<32) string[a]=32;
 		if (string[a]>126) string[a]=32;
-		}
+	}
 
 	/* Remove leading and trailing blanks */
 	while( (string[0]<33) && (strlen(string)>0) )
@@ -49,8 +49,8 @@ void strproc(char *string)
 		if ((string[a]==32)&&(string[a+1]==32)) {
 			strcpy(&string[a],&string[a+1]);
 			a=0;
-			}
 		}
+	}
 
 	/* remove characters which would interfere with the network */
 	for (a=0; a<strlen(string); ++a) {
@@ -60,9 +60,9 @@ void strproc(char *string)
 		while (string[a]==',') strcpy(&string[a],&string[a+1]);
 		while (string[a]=='%') strcpy(&string[a],&string[a+1]);
 		while (string[a]=='|') strcpy(&string[a],&string[a+1]);
-		}
-
 	}
+
+}
 
 
 

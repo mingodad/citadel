@@ -352,6 +352,7 @@ int CtdlLoginExistingUser(char *trythisname)
 {
 	char username[SIZ];
 	int found_user;
+	struct recptypes *valid = NULL;
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, sizeof username);
@@ -361,8 +362,24 @@ int CtdlLoginExistingUser(char *trythisname)
 		return login_already_logged_in;
 	}
 
+	/* First, try to log in as if the supplied name is a display name */
 	found_user = getuser(&CC->user, username);
 
+	/* If that didn't work, try to log in as if the supplied name
+	 * is an e-mail address
+	 */
+	if (found_user != 0) {
+		valid = validate_recipients(trythisname);
+		if (valid != NULL) {
+			if (valid->num_local == 1) {
+				found_user = getuser(&CC->user,
+						valid->recp_local);
+			}
+			phree(valid);
+		}
+	}
+
+	/* Did we find something? */
 	if (found_user == 0) {
 		if (((CC->nologin)) && (CC->user.axlevel < 6)) {
 			return login_too_many_users;
@@ -386,8 +403,7 @@ void cmd_user(char *cmdbuf)
 	int a;
 
 	extract(username, cmdbuf, 0);
-	username[25] = 0;
-	strproc(username);
+	striplt(username);
 
 	a = CtdlLoginExistingUser(username);
 	switch (a) {
