@@ -328,7 +328,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	char buf[SIZ];
-	int delete_existing = 0;
 	icalproperty *prop;
 	icalcomponent *vevent;
 	int created_new_vevent = 0;
@@ -522,18 +521,13 @@ STARTOVER:
 			serv_puts("");
 			serv_puts(icalcomponent_as_ical_string(vevent));
 			serv_puts("000");
-			delete_existing = 1;
 		}
 	}
 
 	/*
-	 * If the user clicked 'Delete' then delete it, period.
+	 * If the user clicked 'Delete' then delete it.
 	 */
-	if (!strcasecmp(bstr("sc"), "Delete")) {
-		delete_existing = 1;
-	}
-
-	if ( (delete_existing) && (msgnum > 0L) ) {
+	if ( (!strcasecmp(bstr("sc"), "Delete")) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_gets(buf);
 	}

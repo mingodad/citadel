@@ -79,7 +79,7 @@ void calendar_month_view_display_events(time_t thetime) {
 
 					if (all_day_event) {
 						wprintf("<TABLE border=0 cellpadding=2><TR>"
-							"<TD BGCOLOR=#AAAAAA>"
+							"<TD BGCOLOR=#CCCCDD>"
 						);
 					}
 
@@ -328,47 +328,14 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#4444FF><TR>\n");
 
-	wprintf("<TD WIDTH=50%% VALIGN=top>");	/* begin stuff-on-the-left */
-
-	wprintf("<CENTER><H3>");
-	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
-		yesterday.year, yesterday.month, yesterday.day
-	);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
-	wprintf("&nbsp;&nbsp;<FONT COLOR=#FFFFFF>"
-		"%s %d, %d"
-		"</FONT>&nbsp;&nbsp;",
-		months[month-1], day, year);
-	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
-		tomorrow.year, tomorrow.month, tomorrow.day
-	);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\""
-		" BORDER=0></A>\n");
-	wprintf("</H3></CENTER>\n");
-
-	wprintf("<CENTER><font color=#FFFFFF>"
-		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
-		"&year=%d&month=%d&day=%d\">"
-		"Add new calendar event</A>"
-		"<BR><BR>\n",
-		year, month, day
-	);
-
-	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
-		"Back to month view</A>\n", year, month);
-
-	wprintf("</FONT></CENTER>\n");
-
-	wprintf("</TD>");			/* end stuff-on-the-left */
-
 	/* Innermost table (contains hours etc.) */
-	wprintf("<TD WIDTH=50%%>"
+	wprintf("<TD WIDTH=80%%>"
 		"<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#4444FF>\n");
 
 	/* Display events before 8:00 (hour=-1 is all-day events) */
 	wprintf("<TR>"
-		"<TD BGCOLOR=FFFFFF VALIGN=TOP></TD>"
+		"<TD BGCOLOR=CCCCDD VALIGN=MIDDLE WIDTH=10%%></TD>"
 		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
 	for (hour = (-1); hour <= 7; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
@@ -377,7 +344,8 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Now the middle of the day... */	
 	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<TR><TD BGCOLOR=FFFFFF ALIGN=RIGHT VALIGN=TOP>");
+		wprintf("<TR HEIGHT=30><TD BGCOLOR=CCCCDD ALIGN=MIDDLE "
+			"VALIGN=MIDDLE WIDTH=10%%>");
 		wprintf("<A HREF=\"/display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			year, month, day, hour
@@ -396,7 +364,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Display events after 5:00... */
 	wprintf("<TR>"
-		"<TD BGCOLOR=FFFFFF VALIGN=TOP></TD>"
+		"<TD BGCOLOR=CCCCDD VALIGN=MIDDLE WIDTH=10%%></TD>"
 		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
 	for (hour = 18; hour <= 23; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
@@ -405,7 +373,55 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	wprintf("</TABLE>"			/* end of innermost table */
-		"</TD></TR></TABLE>"		/* end of inner table */
+		"</TD>"
+	);
+
+	wprintf("<TD WIDTH=20%% VALIGN=top>");	/* begin stuff-on-the-right */
+
+
+	/* Begin todays-date-with-left-and-right-arrows */
+	wprintf("<CENTER><TABLE BORDER=0 CELLSPACING=0 CELLPADDING=1><TR>\n");
+
+	wprintf("<TD>"
+		"<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		yesterday.year, yesterday.month, yesterday.day
+	);
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>"
+		"</TD>\n");
+
+	wprintf("<TD ALIGN=MIDDLE><FONT COLOR=#FFFFFF>"
+		"<H2>%s</H2><H1>%d</H1><H3>%d</H3>"
+		"</FONT></TD>",
+		months[month-1], day, year);
+
+	wprintf("<TD>"
+		"<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		tomorrow.year, tomorrow.month, tomorrow.day
+	);
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\""
+		" BORDER=0></A></TD>\n");
+
+	wprintf("</TR></TABLE></CENTER>\n");
+	/* End todays-date-with-left-and-right-arrows */
+
+	wprintf("<CENTER><font color=#FFFFFF>"
+		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
+		"&year=%d&month=%d&day=%d\">"
+		"Add new calendar event</A>"
+		"<BR><BR>\n",
+		year, month, day
+	);
+
+	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
+		"Back to month view</A>\n", year, month);
+
+	wprintf("</FONT></CENTER>\n");
+
+	wprintf("</TD>");			/* end stuff-on-the-right */
+
+
+
+	wprintf("</TR></TABLE>"			/* end of inner table */
 		"</TD></TR></TABLE>"		/* end of outer table */
 	);
 
