@@ -45,15 +45,15 @@ void do_iconbar(void) {
 	 */
 	int ib_displayas = 0;	/* pictures and text, pictures, text */
 	int ib_logo = 0;	/* Site logo */
-	int ib_summary = 0;	/* Summary page icon */
-	int ib_inbox = 0;	/* Inbox icon */
-	int ib_calendar = 0;	/* Calendar icon */
-	int ib_contacts = 0;	/* Contacts icon */
-	int ib_notes = 0;	/* Notes icon */
-	int ib_tasks = 0;	/* Tasks icon */
+	int ib_summary = 1;	/* Summary page icon */
+	int ib_inbox = 1;	/* Inbox icon */
+	int ib_calendar = 1;	/* Calendar icon */
+	int ib_contacts = 1;	/* Contacts icon */
+	int ib_notes = 1;	/* Notes icon */
+	int ib_tasks = 1;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
-	int ib_chat = 0;	/* Chat icon */
+	int ib_chat = 1;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
 	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
@@ -310,15 +310,15 @@ void display_customize_iconbar(void) {
 	 */
 	int ib_displayas = IB_PICTEXT;	/* pictures and text, pictures, text */
 	int ib_logo = 0;	/* Site logo */
-	int ib_summary = 0;	/* Summary page icon */
-	int ib_inbox = 0;	/* Inbox icon */
-	int ib_calendar = 0;	/* Calendar icon */
-	int ib_contacts = 0;	/* Contacts icon */
-	int ib_notes = 0;	/* Notes icon */
-	int ib_tasks = 0;	/* Tasks icon */
+	int ib_summary = 1;	/* Summary page icon */
+	int ib_inbox = 1;	/* Inbox icon */
+	int ib_calendar = 1;	/* Calendar icon */
+	int ib_contacts = 1;	/* Contacts icon */
+	int ib_notes = 1;	/* Notes icon */
+	int ib_tasks = 1;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
-	int ib_chat = 0;	/* Chat icon */
+	int ib_chat = 1;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
 	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */

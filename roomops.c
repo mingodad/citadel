@@ -2159,6 +2159,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	wprintf("<script type=\"text/javascript\" src=\"/static/menuExpandable3.js\"></script>\n");
 
 	/* BEGIN TREE MENU */
+	wprintf("<div style=\"background: white\">\n");
 	wprintf("<div id=\"mainMenu\">\n");
 	wprintf("<UL id=\"menuList\">\n");
 	levels = 0;
@@ -2506,6 +2507,7 @@ void knrooms() {
 	offer_start_page();
 	wprintf("</FORM></TD></TR></TABLE>\n");
 	wprintf("</div>\n"
+		"</div>\n"
 		"<div id=\"content\">\n");
 
 	/* Display the room list in the user's preferred format */
