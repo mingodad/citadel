@@ -382,7 +382,6 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	 */
 	if (r / 100 != 2) {
 		struct march *march = NULL;
-		int r;	/* IPC result code; hides higher-level r */
 
 		best_match = 0;
 		strcpy(bbb, "");
