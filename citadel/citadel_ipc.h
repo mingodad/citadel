@@ -132,14 +132,17 @@ int CtdlIPCLogout(CtdlIPC *ipc);
 int CtdlIPCTryLogin(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCTryPassword(CtdlIPC *ipc, const char *passwd, char *cret);
 int CtdlIPCTryApopPassword(CtdlIPC *ipc, const char *response, char *cret);
-int CtdlIPCCreateUser(CtdlIPC *ipc, const char *username, int selfservice, char *cret);
+int CtdlIPCCreateUser(CtdlIPC *ipc, const char *username, int selfservice,
+		char *cret);
 int CtdlIPCChangePassword(CtdlIPC *ipc, const char *passwd, char *cret);
-int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march **listing, char *cret);
+int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor,
+		struct march **listing, char *cret);
 int CtdlIPCGetConfig(CtdlIPC *ipc, struct usersupp **uret, char *cret);
 int CtdlIPCSetConfig(CtdlIPC *ipc, struct usersupp *uret, char *cret);
 int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		struct ctdlipcroom **rret, char *cret);
-int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg, const char *template,
+int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg,
+		const char *mtemplate,
 		long **mret, char *cret);
 int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 		struct ctdlipcmessage **mret, char *cret);
@@ -150,55 +153,74 @@ int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret);
 int CtdlIPCInviteUserToRoom(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCKickoutUserFromRoom(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct quickroom **qret, char *cret);
-int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct quickroom *qret, char *cret);
+int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct quickroom *qret,
+		char *cret);
 int CtdlIPCGetRoomAide(CtdlIPC *ipc, char *cret);
 int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret);
-int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr, char *cret);
+int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr,
+		char *cret);
 int CtdlIPCRoomInfo(CtdlIPC *ipc, char **iret, char *cret);
 int CtdlIPCDeleteMessage(CtdlIPC *ipc, long msgnum, char *cret);
-int CtdlIPCMoveMessage(CtdlIPC *ipc, int copy, long msgnum, const char *destroom, char *cret);
+int CtdlIPCMoveMessage(CtdlIPC *ipc, int copy, long msgnum,
+		const char *destroom, char *cret);
 int CtdlIPCDeleteRoom(CtdlIPC *ipc, int for_real, char *cret);
-int CtdlIPCCreateRoom(CtdlIPC *ipc, int for_real, const char *roomname, int type,
-		const char *password, int floor, char *cret);
+int CtdlIPCCreateRoom(CtdlIPC *ipc, int for_real, const char *roomname,
+		int type, const char *password, int floor, char *cret);
 int CtdlIPCForgetRoom(CtdlIPC *ipc, char *cret);
-int CtdlIPCSystemMessage(CtdlIPC *ipc, const char *message, char **mret, char *cret);
+int CtdlIPCSystemMessage(CtdlIPC *ipc, const char *message, char **mret,
+		char *cret);
 int CtdlIPCNextUnvalidatedUser(CtdlIPC *ipc, char *cret);
-int CtdlIPCGetUserRegistration(CtdlIPC *ipc, const char *username, char **rret, char *cret);
-int CtdlIPCValidateUser(CtdlIPC *ipc, const char *username, int axlevel, char *cret);
-int CtdlIPCSetRoomInfo(CtdlIPC *ipc, int for_real, const char *info, char *cret);
+int CtdlIPCGetUserRegistration(CtdlIPC *ipc, const char *username, char **rret,
+		char *cret);
+int CtdlIPCValidateUser(CtdlIPC *ipc, const char *username, int axlevel,
+		char *cret);
+int CtdlIPCSetRoomInfo(CtdlIPC *ipc, int for_real, const char *info,
+		char *cret);
 int CtdlIPCUserListing(CtdlIPC *ipc, char **list, char *cret);
 int CtdlIPCSetRegistration(CtdlIPC *ipc, const char *info, char *cret);
 int CtdlIPCMiscCheck(CtdlIPC *ipc, struct ctdlipcmisc *chek, char *cret);
 int CtdlIPCDeleteFile(CtdlIPC *ipc, const char *filename, char *cret);
-int CtdlIPCMoveFile(CtdlIPC *ipc, const char *filename, const char *destroom, char *cret);
-int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename, const char *destnode, char *cret);
+int CtdlIPCMoveFile(CtdlIPC *ipc, const char *filename, const char *destroom,
+		char *cret);
+int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename,
+		const char *destnode, char *cret);
 int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret);
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		size_t resume, void (*progress_gauge_callback)(long, long),
+		size_t resume,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
 		char *cret);
-int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret);
+int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
+		void **buf,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret);
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret);
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret);
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
-		const char *path, void (*progress_gauge_callback)(long, long),
+		const char *path,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 		const char *save_as,
-		void (*progress_gauge_callback)(long, long), char *cret);
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret);
 int CtdlIPCQueryUsername(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCFloorListing(CtdlIPC *ipc, char **listing, char *cret);
-int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name, char *cret);
-int CtdlIPCDeleteFloor(CtdlIPC *ipc, int for_real, int floornum, char *cret);
-int CtdlIPCEditFloor(CtdlIPC *ipc, int floornum, const char *floorname, char *cret);
-int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid, int revision,
-		const char *software_name, const char *hostname, char *cret);
-int CtdlIPCSendInstantMessage(CtdlIPC *ipc, const char *username, const char *text,
+int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name,
 		char *cret);
+int CtdlIPCDeleteFloor(CtdlIPC *ipc, int for_real, int floornum, char *cret);
+int CtdlIPCEditFloor(CtdlIPC *ipc, int floornum, const char *floorname,
+		char *cret);
+int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid,
+		int revision, const char *software_name, const char *hostname,
+		char *cret);
+int CtdlIPCSendInstantMessage(CtdlIPC *ipc, const char *username,
+		const char *text, char *cret);
 int CtdlIPCGetInstantMessage(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCEnableInstantMessageReceipt(CtdlIPC *ipc, int mode, char *cret);
 int CtdlIPCSetBio(CtdlIPC *ipc, char *bio, char *cret);
-int CtdlIPCGetBio(CtdlIPC *ipc, const char *username, char **listing, char *cret);
+int CtdlIPCGetBio(CtdlIPC *ipc, const char *username, char **listing,
+		char *cret);
 int CtdlIPCListUsersWithBios(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCStealthMode(CtdlIPC *ipc, int mode, char *cret);
 int CtdlIPCTerminateSession(CtdlIPC *ipc, int sid, char *cret);
@@ -243,12 +265,15 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,
 		size_t bytes, char *cret);
 int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret);
 int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
-		void (*progress_gauge_callback)(long, long), char *cret);
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);
 int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
-		void (*progress_gauge_callback)(long, long), char *cret);
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret);
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
-		size_t resume, void (*progress_gauge_callback)(long, long),
+		size_t resume,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command,
 		const char *to_send, size_t bytes_to_send, char **to_receive,

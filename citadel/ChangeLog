@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.36  2002/10/18 10:33:09  error
+ * More signed/unsigned fixes (for the new progress gauge)
+
  Revision 601.35  2002/10/18 07:56:30  error
  * fix self-service account creation at login prompt (accidentally called
    CREU instead of NEWU).
@@ -4106,4 +4109,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

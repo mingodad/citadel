@@ -66,11 +66,11 @@ void setCryptoStatusHook(void (*hook)(char *s)) {
 char express_msgs = 0;
 
 
-static void serv_read(CtdlIPC *ipc, char *buf, int bytes);
-static void serv_write(CtdlIPC *ipc, const char *buf, int nbytes);
+static void serv_read(CtdlIPC *ipc, char *buf, unsigned int bytes);
+static void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes);
 #ifdef HAVE_OPENSSL
-static void serv_read_ssl(CtdlIPC *ipc, char *buf, int bytes);
-static void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes);
+static void serv_read_ssl(CtdlIPC *ipc, char *buf, unsigned int bytes);
+static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes);
 static void ssl_lock(int mode, int n, const char *file, int line);
 static void endtls(SSL *ssl);
 #ifdef THREADED_CLIENT
@@ -403,11 +403,11 @@ int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 /* MSGS */
 /* which is 0 = all, 1 = old, 2 = new, 3 = last, 4 = first, 5 = gt, 6 = lt */
 /* whicharg is number of messages, applies to last, first, gt, lt */
-int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg, const char *template,
-		long **mret, char *cret)
+int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg,
+		const char *mtemplate, long **mret, char *cret)
 {
 	register int ret;
-	register long count = 0;
+	register unsigned long count = 0;
 	static char *proto[] =
 		{ "ALL", "OLD", "NEW", "LAST", "FIRST", "GT", "LT" };
 	char aaa[33];
@@ -421,12 +421,12 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg, const char *templa
 
 	if (which <= 2)
 		sprintf(aaa, "MSGS %s||%d", proto[which],
-				(template) ? 1 : 0);
+				(mtemplate) ? 1 : 0);
 	else
 		sprintf(aaa, "MSGS %s|%d|%d", proto[which], whicharg,
-				(template) ? 1 : 0);
-	if (template) count = strlen(template);
-	ret = CtdlIPCGenericCommand(ipc, aaa, template, count, &bbb, &bbbsize, cret);
+				(mtemplate) ? 1 : 0);
+	if (mtemplate) count = strlen(mtemplate);
+	ret = CtdlIPCGenericCommand(ipc, aaa, mtemplate, count, &bbb, &bbbsize, cret);
 	count = 0;
 	while (strlen(bbb)) {
 		int a;
@@ -1119,7 +1119,8 @@ int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret)
 
 /* OPEN */
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		size_t resume, void (*progress_gauge_callback)(long, long),
+		size_t resume,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1157,8 +1158,10 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 
 
 /* OPNA */
-int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret)
+int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
+		void **buf,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1197,7 +1200,8 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 
 /* OIMG */
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret)
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1234,7 +1238,8 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 
 /* UOPN */
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
-		const char *path, void (*progress_gauge_callback)(long, long),
+		const char *path,
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1266,7 +1271,8 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 /* UIMG */
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 		const char *save_as,
-		void (*progress_gauge_callback)(long, long), char *cret)
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret)
 {
 	register int ret;
 	char *aaa;
@@ -2059,10 +2065,10 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 	register size_t len = 0;
 	char aaa[SIZ];
 
-	if (!buf) return -1;
-	if (!cret) return -1;
-	if (bytes < 1) return -1;
-	if (offset < 0) return -1;
+	if (!buf) return 0;
+	if (!cret) return 0;
+	if (bytes < 1) return 0;
+	if (offset < 0) return 0;
 
 	CtdlIPC_lock(ipc);
 	sprintf(aaa, "READ %d|%d", (int)offset, (int)bytes);
@@ -2079,7 +2085,7 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 		} else {
 			/* We have to read regardless */
 			serv_read(ipc, aaa, len);
-			len = -1;
+			len = 0;
 		}
 	}
 	CtdlIPC_unlock(ipc);
@@ -2116,7 +2122,8 @@ int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats) {
 
 /* READ */
 int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
-	       void (*progress_gauge_callback)(long, long), char *cret)
+	       void (*progress_gauge_callback)(unsigned long, unsigned long),
+	       char *cret)
 {
 	register size_t len;
 
@@ -2132,7 +2139,7 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 		register size_t block;
 
 		block = CtdlIPCPartialRead(ipc, buf, len, 4096, cret);
-		if (block == -1) {
+		if (block == 0) {
 			free(*buf);
 			return 0;
 		}
@@ -2146,7 +2153,8 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 
 /* READ - pipelined */
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
-	       size_t resume, void (*progress_gauge_callback)(long, long),
+	       size_t resume,
+	       void (*progress_gauge_callback)(unsigned long, unsigned long),
 	       char *cret)
 {
 	register size_t len;
@@ -2213,7 +2221,8 @@ int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret)
 
 /* WRIT */
 int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
-		void (*progress_gauge_callback)(long, long), char *cret)
+		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		char *cret)
 {
 	register int ret = -1;
 	register size_t offset = 0;
@@ -2257,7 +2266,8 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 			if (progress_gauge_callback)
 				progress_gauge_callback(offset, bytes);
 			/* Detect short reads and back up if needed */
-			fseek(fd, offset, SEEK_SET);
+			/* offset will never be negative anyway */
+			fseek(fd, (signed)offset, SEEK_SET);
 		} else {
 			break;
 		}
@@ -2496,9 +2506,9 @@ static int uds_connectsock(int *isLocal, char *sockpath)
 /*
  * input binary data from socket
  */
-static void serv_read(CtdlIPC *ipc, char *buf, int bytes)
+static void serv_read(CtdlIPC *ipc, char *buf, unsigned int bytes)
 {
-	int len, rlen;
+	unsigned int len, rlen;
 
 #if defined(HAVE_OPENSSL)
 	if (ipc->ssl) {
@@ -2521,9 +2531,9 @@ static void serv_read(CtdlIPC *ipc, char *buf, int bytes)
 /*
  * send binary to server
  */
-static void serv_write(CtdlIPC *ipc, const char *buf, int nbytes)
+static void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 {
-	int bytes_written = 0;
+	unsigned int bytes_written = 0;
 	int retval;
 
 #if defined(HAVE_OPENSSL)
@@ -2548,7 +2558,7 @@ static void serv_write(CtdlIPC *ipc, const char *buf, int nbytes)
 /*
  * input binary data from encrypted connection
  */
-static void serv_read_ssl(CtdlIPC* ipc, char *buf, int bytes)
+static void serv_read_ssl(CtdlIPC* ipc, char *buf, unsigned int bytes)
 {
 	int len, rlen;
 	char junk[1];
@@ -2589,9 +2599,9 @@ static void serv_read_ssl(CtdlIPC* ipc, char *buf, int bytes)
 /*
  * send binary to server encrypted
  */
-static void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes)
+static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 {
-	int bytes_written = 0;
+	unsigned int bytes_written = 0;
 	int retval;
 	char junk[1];
 
