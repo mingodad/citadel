@@ -1,4 +1,7 @@
 $Log$
+Revision 1.461  2000/02/16 22:06:26  ajc
+* Altered the display and conversion of RFC822 messages
+
 Revision 1.460  2000/02/16 03:43:28  ajc
 * Added the resolver library to the configure script
 
@@ -1629,3 +1632,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

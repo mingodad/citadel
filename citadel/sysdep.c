@@ -956,9 +956,6 @@ void worker_thread(void) {
 
 	++num_threads;
 
-	tv.tv_sec = 60;		/* wake up every minute if no input */
-	tv.tv_usec = 0;
-
 	while (!time_to_die) {
 
 		/* 
@@ -984,6 +981,8 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		}
 		end_critical_section(S_SESSION_TABLE);
 
+		tv.tv_sec = 60;		/* wake up every minute if no input */
+		tv.tv_usec = 0;
 		retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 
 		/* Now figure out who made this select() unblock.

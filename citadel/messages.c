@@ -342,6 +342,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
+	int have_rfca = 0;
 
 	sigcaught = 0;
 	sttybbs(1);
@@ -358,6 +359,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		}
 
 	strcpy(m_subject,"");
+	strcpy(reply_to, "nobody ... xxxxx");
 	printf("\n");
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
@@ -378,7 +380,6 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		return(0);
 		}
 
-	strcpy(reply_to,"nobody...xxxxx");
 	while(serv_gets(buf), struncmp(buf,"text",4)) {
 		if (!struncmp(buf,"nhdr=yes",8)) nhdr=1;
 		if (!struncmp(buf,"from=",5)) {
@@ -405,6 +406,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			strcpy(m_subject,&buf[5]);
 
 		if (!struncmp(buf,"rfca=",5)) {
+			strcpy(reply_to, &buf[5]);
+			have_rfca = 1;
 			color(DIM_WHITE);
 			printf("<");
 			color(BRIGHT_BLUE);
@@ -413,7 +416,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			printf("> ");
 			}
 		if ((!struncmp(buf,"hnod=",5)) 
-		   && (strucmp(&buf[5],serv_info.serv_humannode))) {
+		   && (strucmp(&buf[5],serv_info.serv_humannode))
+		   && (have_rfca == 0) ) {
 			color(DIM_WHITE);
 			printf("(");
 			color(BRIGHT_WHITE);
@@ -422,7 +426,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			printf(") ");
 			}
 		if ((!struncmp(buf,"room=",5))
-		   && (strucmp(&buf[5],room_name))) {
+		   && (strucmp(&buf[5],room_name)) 
+		   && (have_rfca == 0)) {
 			color(DIM_WHITE);
 			printf("in ");
 			color(BRIGHT_MAGENTA);
@@ -432,18 +437,22 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		if (!struncmp(buf,"node=",5)) {
 			if ( (room_flags&QR_NETWORK)
 			   || ((strucmp(&buf[5],serv_info.serv_nodename)
-   			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))))
+   			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))) ) 
 				{
-				color(DIM_WHITE);
-				printf("@");
-				color(BRIGHT_YELLOW);
-				printf("%s ",&buf[5]);
+				if (have_rfca == 0) {
+					color(DIM_WHITE);
+					printf("@");
+					color(BRIGHT_YELLOW);
+					printf("%s ",&buf[5]);
 				}
-			if ((!strucmp(&buf[5],serv_info.serv_nodename))
+			}
+			if (have_rfca == 0) {
+			 if ((!strucmp(&buf[5],serv_info.serv_nodename))
    			   ||(!strucmp(&buf[5],serv_info.serv_fqdn)))
 				{
 				strcpy(reply_to,from);
 				}
+			}
 			else {
 				sprintf(reply_to,"%s @ %s",from,&buf[5]);
 				}

@@ -28,6 +28,7 @@
 #include "tools.h"
 #include "mime_parser.h"
 #include "html.h"
+#include "genstamp.h"
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 #define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
@@ -747,9 +748,8 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
-	int a, i, k;
+	int i, k;
 	char buf[1024];
-	time_t xtime;
 	CIT_UBYTE ch;
 	char allkeys[256];
 	char display_name[256];
@@ -764,6 +764,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	char snode[256];
 	char lnode[256];
 	char mid[256];
+	char datestamp[256];
 	/*                                       */
 
 	lprintf(7, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
@@ -910,16 +911,12 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 				if (i == 'A') {
 					strcpy(luser, mptr);
-				} else if (i == 'P') {
-					cprintf("Path: %s%s", mptr, nl);
-					for (a = 0; a < strlen(mptr); ++a) {
-						if (mptr[a] == '!') {
-							strcpy(mptr, &mptr[a + 1]);
-							a = 0;
-						}
-					}
 					strcpy(suser, mptr);
-				} else if (i == 'U')
+				}
+				else if (i == 'P') {
+					cprintf("Path: %s%s", mptr, nl);
+				}
+				else if (i == 'U')
 					cprintf("Subject: %s%s", mptr, nl);
 				else if (i == 'I')
 					strcpy(mid, mptr);
@@ -933,11 +930,17 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 				else if (i == 'R')
 					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
-					xtime = atol(mptr);
-					cprintf("Date: %s", asctime(localtime(&xtime)));
+					generate_rfc822_datestamp(datestamp,
+								atol(mptr) );
+					cprintf("Date: %s%s", datestamp, nl);
 				}
 			}
 		}
+	}
+
+	for (i=0; i<strlen(suser); ++i) {
+		suser[i] = tolower(suser[i]);
+		if (!isalnum(suser[i])) suser[i]='_';
 	}
 
 	if (mode == MT_RFC822) {
