@@ -91,7 +91,7 @@ struct minfo {
 	long T;
 	char D[512];
 	char C[512];
-	char nexthop[32];
+	char nexthop[512];
 	char H[512];
 	char S[512];
 	char B[512];
