@@ -51,4 +51,8 @@ Goals to achieve during the 6.xx cycle
  * WebCit support for HTTP transactions performed by Kolab clients
    (Status: DONE!  The current WebCit build works with the KDE Kolab klient
    using HTTPS.)
+
+ * Reminder: after the next non-beta version of the Citadel server is
+   released, email the IMAPcopy people for inclusion on their web site.
  
+ * Reminder: send Citadel autoconfig settings to the SquirrelMail people
