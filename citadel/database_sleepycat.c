@@ -33,10 +33,12 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#ifdef HAVE_DB_H
-#include <db.h>
+#ifdef HAVE_DB4_DB_H
+#include <db4/db.h>
 #elif defined(HAVE_DB3_DB_H)
 #include <db3/db.h>
+#elif defined(HAVE_DB_H)
+#include <db.h>
 #else
 #error Neither <db.h> nor <db3/db.h> was found by configure. Install db3-devel.
 #endif

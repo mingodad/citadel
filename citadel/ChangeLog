@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.127  2002/03/05 22:45:40  error
+ * Autoconf fixes for DB4 support
+
  Revision 590.126  2002/03/05 04:47:49  ajc
  * vcard.c: another API update
 
@@ -3390,4 +3393,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
