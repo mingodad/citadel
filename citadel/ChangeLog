@@ -1,4 +1,11 @@
  $Log$
+ Revision 570.13  2000/04/08 00:37:42  nbryant
+  * commands.c: fix color support for black-on-white color terminals such as
+    CDE's dtterm. this just avoids white-on-white text; some color combinations
+    such as yellow-on-white still aren't very legible due to contrast. There's
+    not much I can think to do about that without affecting the look on the
+    white-on-black terminals which probably account for most users.
+
  Revision 570.12  2000/04/07 20:22:34  ajc
  * Fixed am/pm bug in time display
 
@@ -1811,6 +1818,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
-
-

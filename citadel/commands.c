@@ -1105,7 +1105,15 @@ void color(int colornum)
 
 	current_color = colornum;
 	if (enable_color) {
-		printf("\033[3%dm", (colornum % 8));
+		/* Don't switch to black or white explicitly as this confuses
+		 * black-on-white terminals. Instead, output the "original
+		 * pair" sequence.
+		 */
+		if ((colornum & 7) == DIM_WHITE || (colornum & 7) == DIM_BLACK)
+			printf("\033[39;49m");
+		else
+			printf("\033[3%dm", (colornum & 7));
+
 		if ((colornum >= 8) && (is_bold == 0)) {
 			printf("\033[1m");
 			is_bold = 1;
