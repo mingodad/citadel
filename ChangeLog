@@ -1,4 +1,8 @@
 $Log$
+Revision 528.30  2005/02/01 03:49:09  ajc
+* Completed "folder list" PROPFIND, now listing all rooms set to a
+  calendar, tasks, or address view, using the GroupDAV properties.
+
 Revision 528.29  2005/02/01 02:28:32  ajc
 * "time(NULL) mod 60" doesn't work for some reason, so it has been removed.
   When defaulting a new event date/time to now, set the seconds to zero
@@ -2266,4 +2270,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
