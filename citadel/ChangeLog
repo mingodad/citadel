@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.18  2001/08/03 16:53:21  ajc
+ * Added some more "break" statements to the main switch..case loop in
+   citadel.c where they were needed.
+
  Revision 580.17  2001/08/03 16:43:53  ajc
  * database_sleepycat.c: when running txn_checkpoint(), handle DB_INCOMPLETE
    return code as a warning instead of an error worthy of aborting the server.
@@ -2652,4 +2656,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

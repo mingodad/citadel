@@ -1362,6 +1362,7 @@ PWOK:
 						termn8 = 1;
 					}
 				}
+				break;
 
 			case 86:
 				printf("Do you really want to schedule a "
@@ -1382,6 +1383,7 @@ PWOK:
 						}
 					}
 				}
+				break;
 
 			case 87:
 				mailing_list_management();
