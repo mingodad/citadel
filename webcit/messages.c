@@ -837,10 +837,7 @@ void readloop(char *oper)
 	}
 
 	if (is_tasks) {
-		wprintf("</UL>\n"
-			"<A HREF=\"/display_edit_task?msgnum=0\">"
-			"Add new task</A>\n"
-		);
+		wprintf("</UL>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -950,7 +947,18 @@ void readloop(char *oper)
 	}
 	if (is_summary) wprintf("</FORM>\n");
 
-DONE:	wDumpContent(1);
+DONE:
+	if (is_tasks) {
+		wprintf("<A HREF=\"/display_edit_task?msgnum=0\">"
+			"Add new task</A>\n"
+		);
+	}
+
+	if (is_calendar) {
+		do_calendar_view();
+	}
+
+	wDumpContent(1);
 }
 
 
