@@ -125,7 +125,6 @@ void pop3_user(char *argbuf) {
  */
 void pop3_add_message(long msgnum, void *userdata) {
 	FILE *fp;
-	lprintf(CTDL_DEBUG, "in pop3_add_message()\n");
 	struct MetaData smi;
 
 	++POP3->num_msgs;

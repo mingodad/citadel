@@ -1,4 +1,7 @@
  $Log$
+ Revision 630.4  2005/01/25 20:58:07  ajc
+ * serv_pop3.c: minor change to logging output
+
  Revision 630.3  2005/01/25 15:02:12  error
  * Updated SSL/TLS code to actually use the TLS cipher suites
 
@@ -6308,3 +6311,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
