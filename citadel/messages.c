@@ -632,7 +632,7 @@ void replace_string(char *filename, long int startpos)
 		buf[strlen(buf)] = a;
 		if (strlen(buf) >= strlen(srch_str)) {
 			ptr = (&buf[strlen(buf) - strlen(srch_str)]);
-			if (!strncasecmp(ptr, srch_str, strlen(srch_str))) {
+			if (!strncmp(ptr, srch_str, strlen(srch_str))) {
 				strcpy(ptr, rplc_str);
 				++substitutions;
 			}
