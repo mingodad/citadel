@@ -92,7 +92,7 @@ void screen_new(void)
 		start_color();
 		if (rc_ansi_color)
 			enable_color = 1;
-		init_pair(DIM_BLACK, COLOR_BLACK, COLOR_BLACK);
+		/*init_pair(DIM_BLACK, COLOR_BLACK, COLOR_BLACK);*/
 		init_pair(DIM_RED, COLOR_RED, COLOR_BLACK);
 		init_pair(DIM_GREEN, COLOR_GREEN, COLOR_BLACK);
 		init_pair(DIM_YELLOW, COLOR_YELLOW, COLOR_BLACK);
@@ -109,7 +109,7 @@ void screen_new(void)
 		send_ansi_detect();
 		look_for_ansi();
 		cls(0);
-		color(1+DIM_WHITE);
+		color(DIM_WHITE);
 	}
 	screen_set();
 	windows_new();
