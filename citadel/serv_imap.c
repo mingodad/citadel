@@ -311,7 +311,7 @@ void imap_command_loop(void) {
 	}
 
 	else if (IMAP->selected == 0) {
-		cprintf("%s BAD command unrecognized\r\n", parms[0]);
+		cprintf("%s BAD no folder selected\r\n", parms[0]);
 	}
 
 	/* commands requiring the SELECT state */
