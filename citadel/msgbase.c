@@ -483,8 +483,8 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
  * Load a message from disk into memory.
  * (This will replace a big piece of output_message() eventually)
  *
- * NOTE: Caller is responsible for _recursively_ freeing the returned
- * CtdlMessage data structure!
+ * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
+ *       using the CtdlMessageFree() function.
  */
 struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 	struct cdbdata *dmsgtext;
@@ -504,7 +504,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 	mptr = dmsgtext->ptr;
 
 	/* Parse the three bytes that begin EVERY message on disk.
-	 * The first is always 0xFF, the universal start-of-message byte.
+	 * The first is always 0xFF, the on-disk magic number.
 	 * The second is the anonymous/public type byte.
 	 * The third is the format type byte (vari, fixed, or MIME).
 	 */
@@ -518,6 +518,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 	ret = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
 	memset(ret, 0, sizeof(struct CtdlMessage));
 
+	ret->cm_magic = CTDLMESSAGE_MAGIC;
 	ret->cm_anon_type = *mptr++;		/* Anon type byte */
 	ret->cm_format_type = *mptr++;		/* Format type byte */
 
@@ -541,6 +542,24 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 	return(ret);
 }
 
+/*
+ * 'Destructor' for struct CtdlMessage
+ */
+void CtdlFreeMessage(struct CtdlMessage *msg) {
+	int i;
+
+	if (msg == NULL) return;
+	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
+		lprintf(3, "CtdlFreeMessage() -- self-check failed\n");
+		return;
+	}
+
+	for (i=0; i<256; ++i)
+		if (msg->cm_fields[i] != NULL)
+			phree(msg->cm_fields[i]);
+
+	phree(msg);
+}
 
 
 
@@ -548,7 +567,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
  * Get a message off disk.  (return value is the message's timestamp)
  * 
  */
-time_t output_message(char *msgid, int mode, int headers_only)
+void output_message(char *msgid, int mode, int headers_only)
 {
 	long msg_num;
 	int a;
@@ -556,7 +575,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	CIT_UBYTE format_type, anon_flag;
 	char buf[1024];
 	long msg_len;
-	int msg_ok = 0;
+	time_t xtime;
 
 	struct cdbdata *dmsgtext;
 	char *mptr;
@@ -567,15 +586,13 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	char snode[256];
 	char lnode[256];
 	char mid[256];
-	time_t xtime = 0L;
 	/*                                       */
 
 	msg_num = atol(msgid);
 
-
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm)) && (mode != MT_DATE)) {
+	if ( (!(CC->logged_in)) && (!(CC->internal_pgm)) ) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return (xtime);
+		return;
 	}
 
 	/* FIX ... small security issue
@@ -583,22 +600,21 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	 * in the current room, and set msg_ok to 1 only if it is.  This
 	 * functionality is currently missing because I'm in a hurry to replace
 	 * broken production code with nonbroken pre-beta code.  :(   -- ajc
-	 */
-	msg_ok = 1;
-
+	 *
 	if (!msg_ok) {
-		if (mode != MT_DATE)
-			cprintf("%d Message %ld is not in this room.\n",
-				ERROR, msg_num);
-		return (xtime);
+		cprintf("%d Message %ld is not in this room.\n",
+			ERROR, msg_num);
+		return;
 	}
+	 */
+
+
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msg_num, sizeof(long));
 
 	if (dmsgtext == NULL) {
-		if (mode != MT_DATE)
-			cprintf("%d Can't find message %ld\n",
-				(ERROR + INTERNAL_ERROR), msg_num);
-		return (xtime);
+		cprintf("%d Can't find message %ld\n",
+			(ERROR + INTERNAL_ERROR), msg_num);
+		return;
 	}
 	msg_len = (long) dmsgtext->len;
 	mptr = dmsgtext->ptr;
@@ -608,7 +624,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 		cprintf("%d %ld\n", BINARY_FOLLOWS, msg_len);
 		client_write(dmsgtext->ptr, (int) msg_len);
 		cdb_free(dmsgtext);
-		return (xtime);
+		return;
 	}
 	/* Otherwise, we'll start parsing it field by field... */
 	ch = *mptr++;
@@ -616,7 +632,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 		cprintf("%d Illegal message format on disk\n",
 			ERROR + INTERNAL_ERROR);
 		cdb_free(dmsgtext);
-		return (xtime);
+		return;
 	}
 	anon_flag = *mptr++;
 	format_type = *mptr++;
@@ -651,24 +667,9 @@ time_t output_message(char *msgid, int mode, int headers_only)
 			}
 		}
 		cdb_free(dmsgtext);
-		return (xtime);
+		return;
 	}
-	/* Are we just looking for the message date? */
-	if (mode == MT_DATE)
-		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
-			buf[0] = 0;
-			do {
-				buf[strlen(buf) + 1] = 0;
-				rch = *mptr++;
-				buf[strlen(buf)] = rch;
-			} while (rch > 0);
 
-			if (ch == 'T') {
-				xtime = atol(buf);
-				cdb_free(dmsgtext);
-				return (xtime);
-			}
-		}
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
@@ -777,7 +778,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	if (ch == 0) {
 		cprintf("text\n*** ?Message truncated\n000\n");
 		cdb_free(dmsgtext);
-		return (xtime);
+		return;
 	}
 	/* do some sort of MIME output */
 	if (format_type == 4) {
@@ -787,7 +788,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 		if (mode == MT_MIME) {	/* If MT_MIME then it's parts only */
 			cprintf("000\n");
 			cdb_free(dmsgtext);
-			return (xtime);
+			return;
 		}
 	}
 	if (headers_only) {
@@ -799,7 +800,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 		cprintf("mlen=%ld\n", msg_len);
 		cprintf("000\n");
 		cdb_free(dmsgtext);
-		return (xtime);
+		return;
 	}
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
@@ -848,7 +849,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	/* now we're done */
 	cprintf("000\n");
 	cdb_free(dmsgtext);
-	return (xtime);
+	return;
 }
 
 

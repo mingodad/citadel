@@ -113,7 +113,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
-	char msgid[64];
+	struct CtdlMessage *msg;
 	int a;
         struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -164,8 +164,14 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	if (epbuf.expire_mode == EXPIRE_AGE) {
 		for (a=0; a<num_msgs; ++a) {
 			delnum = msglist[a];
-			sprintf(msgid, "%ld", delnum);
-			xtime = output_message(msgid, MT_DATE, 0);
+
+			msg = CtdlFetchMessage(delnum);
+			if (msg != NULL) {
+				xtime = atol(msg->cm_fields['T']);
+				CtdlFreeMessage(msg);
+			} else {
+				xtime = 0L;
+			}
 
 			if ((xtime > 0L)
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {

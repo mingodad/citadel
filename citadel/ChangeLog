@@ -1,4 +1,9 @@
 $Log$
+Revision 1.335  1999/07/28 03:50:24  ajc
+* serv_expire.c: expire-by-age now calls CtdlFetchMessage() instead of
+  calling output_message() in MT_DATE mode.
+* msgbase.c: removed MT_DATE mode ('twas a sleazy hack)
+
 Revision 1.334  1999/07/27 22:47:26  ajc
 * Implemented new data type "CtdlMessage" which will eventually be used as
   widely as possible to represent a message in memory.
@@ -1128,4 +1133,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
-

@@ -6,7 +6,7 @@ void help_subst (char *strbuf, char *source, char *dest);
 void do_help_subst (char *buffer);
 void memfmout (int width, char *mptr, char subst);
 void output_mime_parts(char *);
-time_t output_message (char *, int, int);
+void output_message (char *, int, int);
 void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);
@@ -35,3 +35,4 @@ void CtdlForEachMessage(int mode, long ref,
 int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
+void CtdlFreeMessage(struct CtdlMessage *msg);

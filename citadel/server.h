@@ -155,7 +155,6 @@ enum {
  */
 enum {
 	MT_CITADEL,		/* Citadel proprietary */
-	MT_DATE,		/* We're only looking for the date */
 	MT_RFC822,		/* RFC822 */
 	MT_RAW,			/* IGnet raw format */
 	MT_MIME,		/* MIME-formatted message */
@@ -305,7 +304,9 @@ extern struct TheHeap *heap;
 /*
  * New format for a message in memory
  */
+#define	CTDLMESSAGE_MAGIC		0x159d
 struct CtdlMessage {
+	int cm_magic;			/* Self-check */
 	char cm_anon_type;		/* Anonymous or author-visible */
 	char cm_format_type;		/* Format type */
 	char *cm_fields[256];		/* Data fields */
