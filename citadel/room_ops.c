@@ -459,6 +459,29 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
 	}
 
 
+/*
+ * Back-back-end for all room listing commands
+ */
+void list_roomname(struct quickroom *qrbuf) {
+	char truncated_roomname[ROOMNAMELEN];
+
+	/* For mailbox rooms, chop off the owner prefix */
+	if (qrbuf->QRflags & QR_MAILBOX) {
+		strcpy(truncated_roomname, qrbuf->QRname);
+		strcpy(truncated_roomname, &truncated_roomname[11]);
+		cprintf("%s", truncated_roomname);
+		}
+
+	/* For all other rooms, just display the name in its entirety */
+	else {	
+		cprintf("%s", qrbuf->QRname);
+		}
+
+	/* ...and now the other parameters */
+	cprintf("|%u|%d\n",
+		qrbuf->QRflags,qrbuf->QRfloor);
+	}
+
 
 /* 
  * cmd_lrms()   -  List all accessible rooms, known or forgotten
@@ -468,8 +491,7 @@ void cmd_lrms_backend(struct quickroom *qrbuf) {
 	     & (UA_KNOWN | UA_ZAPPED)))
 	&& ((qrbuf->QRfloor == (CC->FloorBeingSearched))
 	   ||((CC->FloorBeingSearched)<0)) ) 
-		cprintf("%s|%u|%d\n",
-			qrbuf->QRname,qrbuf->QRflags,qrbuf->QRfloor);
+		list_roomname(qrbuf);
 	}
 
 void cmd_lrms(char *argbuf)
@@ -503,8 +525,7 @@ void cmd_lkra_backend(struct quickroom *qrbuf) {
 	     & (UA_KNOWN)))
 	&& ((qrbuf->QRfloor == (CC->FloorBeingSearched))
 	   ||((CC->FloorBeingSearched)<0)) ) 
-		cprintf("%s|%u|%d\n",
-			qrbuf->QRname,qrbuf->QRflags,qrbuf->QRfloor);
+		list_roomname(qrbuf);
 	}
 
 void cmd_lkra(char *argbuf)
@@ -541,8 +562,7 @@ void cmd_lkrn_backend(struct quickroom *qrbuf) {
 	   && (ra & UA_HASNEWMSGS)
 	   && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
 	      ||((CC->FloorBeingSearched)<0)) )
-		cprintf("%s|%u|%d\n",
-			qrbuf->QRname,qrbuf->QRflags,qrbuf->QRfloor);
+		list_roomname(qrbuf);
 	}
 
 void cmd_lkrn(char *argbuf)
@@ -579,8 +599,7 @@ void cmd_lkro_backend(struct quickroom *qrbuf) {
 	   && ((ra & UA_HASNEWMSGS)==0)
 	   && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
 	      ||((CC->FloorBeingSearched)<0)) )
-		cprintf("%s|%u|%d\n",
-			qrbuf->QRname,qrbuf->QRflags,qrbuf->QRfloor);
+		list_roomname(qrbuf);
 	}
 
 void cmd_lkro(char *argbuf)
@@ -617,8 +636,7 @@ void cmd_lzrm_backend(struct quickroom *qrbuf) {
 	   && (ra & UA_ZAPPED)
 	   && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
 	      ||((CC->FloorBeingSearched)<0)) )
-		cprintf("%s|%u|%d\n",
-			qrbuf->QRname,qrbuf->QRflags,qrbuf->QRfloor);
+		list_roomname(qrbuf);
 	}
 
 void cmd_lzrm(char *argbuf)
@@ -654,6 +672,7 @@ void usergoto(char *where, int display_result)
 	int raideflag;
 	int newmailcount = 0;
 	struct visit vbuf;
+	char truncated_roomname[ROOMNAMELEN];
 
 	strcpy(CC->quickroom.QRname, where);
 	getroom(&CC->quickroom, where);
@@ -690,9 +709,14 @@ void usergoto(char *where, int display_result)
 	   || (CC->usersupp.axlevel>=6) )  raideflag = 1;
 	else raideflag = 0;
 
+	strcpy(truncated_roomname, CC->quickroom.QRname);
+	if (CC->quickroom.QRflags & QR_MAILBOX) {
+		strcpy(truncated_roomname, &truncated_roomname[11]);
+		}
+
 	if (display_result) cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
 		OK,check_express(),
-		CC->quickroom.QRname,
+		truncated_roomname,
 		new_messages, total_messages,
 		info,CC->quickroom.QRflags,
 		CC->quickroom.QRhighest,
@@ -717,7 +741,9 @@ void cmd_goto(char *gargs)
 	int c;
 	int ok = 0;
 	int ra;
-	char bbb[ROOMNAMELEN],towhere[256],password[256];
+	char augmented_roomname[256];
+	char towhere[256];
+	char password[256];
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d not logged in\n",ERROR+NOT_LOGGED_IN);
@@ -727,7 +753,6 @@ void cmd_goto(char *gargs)
 	extract(towhere,gargs,0);
 	extract(password,gargs,1);
 
-	c=0;
 	getuser(&CC->usersupp, CC->curr_user);
 
 	if (!strcasecmp(towhere, "_BASEROOM_"))
@@ -740,13 +765,24 @@ void cmd_goto(char *gargs)
 		strcpy(towhere, config.c_twitroom);
 
 
-	/* let internal programs go directly to any room */
-	if (((CC->internal_pgm))&&(!strcasecmp(bbb,towhere))) {
-		usergoto(towhere, 1);
-		return;
+	/* First try a regular match */
+	c = getroom(&QRscratch, towhere);
+
+	/* Then try a mailbox name match */
+	if (c != 0) {
+		MailboxName(augmented_roomname, &CC->usersupp, towhere);
+		c = getroom(&QRscratch, augmented_roomname);
+		if (c == 0) strcpy(towhere, augmented_roomname);
 		}
 
-	if (getroom(&QRscratch, towhere) == 0) {
+	/* And if the room was found... */
+	if (c == 0) {
+
+		/* let internal programs go directly to any room */
+		if (CC->internal_pgm) {
+			usergoto(towhere, 1);
+			return;
+			}
 
 		/* See if there is an existing user/room relationship */
 		ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
