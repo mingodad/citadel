@@ -689,7 +689,8 @@ void cmd_lzrm(char *argbuf)
  * or access control is done here -- the caller should make sure that the
  * specified room exists and is ok to access.
  */
-void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
+void usergoto(char *where, int display_result, int transiently,
+		int *retmsgs, int *retnew)
 {
 	int a;
 	int new_messages = 0;
@@ -718,8 +719,11 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 	begin_critical_section(S_USERSUPP);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	/* Know the room ... but not if it's the page log room */
-	if (strcasecmp(CC->quickroom.QRname, config.c_logpages)) {
+	/* Know the room ... but not if it's the page log room, or if the
+	 * caller specified that we're only entering this room transiently.
+	 */
+	if ((strcasecmp(CC->quickroom.QRname, config.c_logpages))
+	   && (transiently == 0) ) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
@@ -802,11 +806,13 @@ void cmd_goto(char *gargs)
 	char augmented_roomname[SIZ];
 	char towhere[SIZ];
 	char password[SIZ];
+	int transiently = 0;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	extract(towhere, gargs, 0);
 	extract(password, gargs, 1);
+	transiently = extract_int(gargs, 2);
 
 	getuser(&CC->usersupp, CC->curr_user);
 
@@ -839,7 +845,7 @@ void cmd_goto(char *gargs)
 		if (CC->internal_pgm) {
 			memcpy(&CC->quickroom, &QRscratch,
 				sizeof(struct quickroom));
-			usergoto(NULL, 1, NULL, NULL);
+			usergoto(NULL, 1, transiently, NULL, NULL);
 			return;
 		}
 
@@ -856,7 +862,7 @@ void cmd_goto(char *gargs)
 			    ((ra & UA_GOTOALLOWED))) {
 				memcpy(&CC->quickroom, &QRscratch,
 					sizeof(struct quickroom));
-				usergoto(NULL, 1, NULL, NULL);
+				usergoto(NULL, 1, transiently, NULL, NULL);
 				return;
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
@@ -877,7 +883,7 @@ void cmd_goto(char *gargs)
 			} else {
 				memcpy(&CC->quickroom, &QRscratch,
 					sizeof(struct quickroom));
-				usergoto(NULL, 1, NULL, NULL);
+				usergoto(NULL, 1, transiently, NULL, NULL);
 				return;
 			}
 		}
@@ -1469,7 +1475,7 @@ void cmd_kill(char *argbuf)
 	if (kill_ok) {
 		strcpy(deleted_room_name, CC->quickroom.QRname);
 		delete_room(&CC->quickroom);	/* Do the dirty work */
-		usergoto(config.c_baseroom, 0, NULL, NULL); /* Return to the Lobby */
+		usergoto(config.c_baseroom, 0, 0, NULL, NULL); /* Return to the Lobby */
 
 		/* tell the world what we did */
 		snprintf(aaa, sizeof aaa, "%s> killed by %s\n",

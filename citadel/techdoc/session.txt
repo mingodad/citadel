@@ -357,6 +357,12 @@ it completes.  For passworded rooms, access will be denied if the password
 is not supplied or is incorrect, or the command will complete successfully
 if the password is correct.
  
+ The third (and also) optional parameter is a "transient" flag.  Normally,
+when a user enters a private and/or zapped room, the room is added to the
+user's known rooms list.  If the transient flag is set to non-zero, this is
+called a "transient goto" which causes the user to enter the room without
+adding the room to the known rooms list.
+ 
  The possible result codes are:
   
  OK    - The command completed successfully.  User is now in the room.

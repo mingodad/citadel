@@ -410,7 +410,7 @@ void session_startup(void)
 	create_room(SENTITEMS, 4, "", 0, 1, 0);
 
 	/* Enter the lobby */
-	usergoto(config.c_baseroom, 0, NULL, NULL);
+	usergoto(config.c_baseroom, 0, 0, NULL, NULL);
 
 	/* Record this login in the Citadel log */
 	rec_log(CL_LOGIN, CC->curr_user);
@@ -1079,7 +1079,7 @@ int CtdlForgetThisRoom(void) {
 	lputuser(&CC->usersupp);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
-	usergoto(config.c_baseroom, 0, NULL, NULL);
+	usergoto(config.c_baseroom, 0, 0, NULL, NULL);
 	return(0);
 
 }

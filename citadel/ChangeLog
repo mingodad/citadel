@@ -1,4 +1,12 @@
  $Log$
+ Revision 591.48  2002/06/19 21:42:57  ajc
+ * Added support for "transient goto" which allows entry into a private and/or
+   zapped room without putting the room [back] on your known rooms list.  This
+   is useful for the new administrative functions in WebCit (updating a user's
+   vCard without the Aide suddenly having that user's config room on their
+   list).  It's also useful for making a certain pedophile in Sacramento even
+   more suspicious that someone is reading his email.
+
  Revision 591.47  2002/06/18 16:34:06  error
  * room_ops.c: Fix for old room record not being deleted when renaming
    baseroom or aideroom
@@ -3743,3 +3751,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

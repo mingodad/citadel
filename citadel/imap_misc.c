@@ -285,7 +285,7 @@ void imap_append(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(roomname, 0, &msgs, &new);
+	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/* 
 	 * Can we post here?
@@ -312,7 +312,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, &msgs, &new);
+		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	/* We don't need this buffer anymore */

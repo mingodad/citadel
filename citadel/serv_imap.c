@@ -412,7 +412,7 @@ void imap_select(int num_parms, char *parms[]) {
 	 * the number of messages and number of new messages.
 	 */
 	memcpy(&CC->quickroom, &QRscratch, sizeof(struct quickroom));
-	usergoto(NULL, 0, &msgs, &new);
+	usergoto(NULL, 0, 0, &msgs, &new);
 	IMAP->selected = 1;
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
@@ -728,7 +728,7 @@ void imap_status(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(roomname, 0, &msgs, &new);
+	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Tell the client what it wants to know.  In fact, tell it *more* than
@@ -749,7 +749,7 @@ void imap_status(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, &msgs, &new);
+		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	/*
@@ -785,14 +785,14 @@ void imap_subscribe(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(roomname, 0, &msgs, &new);
+	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, &msgs, &new);
+		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK SUBSCRIBE completed\r\n", parms[0]);
@@ -822,7 +822,7 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(roomname, 0, &msgs, &new);
+	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/* 
 	 * Now make the API call to zap the room
@@ -840,7 +840,7 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, &msgs, &new);
+		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 }
 
@@ -871,7 +871,7 @@ void imap_delete(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(roomname, 0, &msgs, &new);
+	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Now delete the room.
@@ -889,7 +889,7 @@ void imap_delete(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, &msgs, &new);
+		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 }
 
