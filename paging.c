@@ -39,7 +39,7 @@ void display_page(void)
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>This will send a page (instant message) "
-		"to %s.<BR><BR>\n", recp);
+		"to %s.\n", recp);
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
 
@@ -50,10 +50,14 @@ void display_page(void)
 	escputs(recp);
 	wprintf("\">\n");
 
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"closewin\" VALUE=\"");
+	escputs(bstr("closewin"));
+	wprintf("\">\n");
+
 	wprintf("Enter message text:<BR>");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
-		"WIDTH=40></TEXTAREA><P>\n");
+		"WIDTH=40></TEXTAREA>\n");
 
 	wprintf("</TD></TR></TABLE><BR>\n");
 
@@ -72,11 +76,13 @@ void page_user(void)
 	char recp[SIZ];
 	char sc[SIZ];
 	char buf[SIZ];
+	char closewin[SIZ];
 
 	output_headers(1);
 
 	strcpy(recp, bstr("recp"));
 	strcpy(sc, bstr("sc"));
+	strcpy(closewin, bstr("closewin"));
 
 	if (strcmp(sc, "Send message")) {
 		wprintf("<EM>Message was not sent.</EM><BR>\n");
@@ -95,6 +101,12 @@ void page_user(void)
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		}
 	}
+	
+	if (!strcasecmp(closewin, "yes")) {
+		wprintf("<CENTER><A HREF=\"javascript:window.close();\">"
+			"[ close window ]</A></CENTER>\n");
+	}
+
 	wDumpContent(1);
 }
 
@@ -154,8 +166,12 @@ void page_popup(void)
 		fmout(NULL);
 	}
 
-	wprintf("<CENTER>"
-		"<A HREF=\"javascript:window.close();\">"
+	wprintf("<CENTER>");
+	wprintf("<A HREF=\"/display_page&closewin=yes&recp=");
+	urlescputs(pagefrom);
+        wprintf("\">[ reply ]</A>&nbsp;&nbsp;&nbsp;\n");
+
+	wprintf("<A HREF=\"javascript:window.close();\">"
 		"[ close window ]</A></B>\n"
 		"</CENTER>");
 
