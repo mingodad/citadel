@@ -101,7 +101,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
         		}
 			VC->msgnum = (-1L);
         		CtdlForEachMessage(MSGS_ALL, 0,
-				"text/x-vcard", vcard_gm_backend);
+				"text/x-vcard", NULL, vcard_gm_backend);
 
 			if (VC->msgnum >= 0) {
 				if (msg->cm_fields['Z'] != NULL)
@@ -209,7 +209,8 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 
         /* We want the last (and probably only) vcard in this room */
 	VC->msgnum = (-1);
-        CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard", vcard_gm_backend);
+        CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
+		NULL, vcard_gm_backend);
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
 	if (VC->msgnum < 0L) return vcard_new();

@@ -376,22 +376,74 @@ user to the arrival of new mail during a session)
  This command obtains a listing of all the messages in the current room
 which the client may request.  This command may be passed a single parameter:
 either "all", "old", or "new" to request all messages, only old messages, or
-new messages.  Or it may be passed two parameters: "last" plus a number, in which
-case that many message pointers will be returned, or "first" plus a number, for
-the corresponding effect.  If no parameters are specified, "all" is assumed.
+new messages.  Or it may be passed two parameters: "last" plus a number, in
+which case that many message pointers will be returned, or "first" plus a
+number, for the corresponding effect.  If no parameters are specified, "all"
+is assumed.
  
- In Citadel/UX 5.00 and above, the client may also specify "gt" plus a number, to
-list all messages in the current room with a message number greater than the one
-specified.
+ In Citadel/UX 5.00 and above, the client may also specify "gt" plus a number,
+to list all messages in the current room with a message number greater than
+the one specified.
+  
+ The third argument, valid only in Citadel/UX 5.60 and above, may be either
+0 or 1.  If it is 1, this command behaves differently: before a listing is
+returned, the client must transmit a list of fields to search for.  The field
+headers are listed below in the writeup for the "MSG0" command.
  
- This command can return two possible results.  An ERROR code may be returned
+ This command can return three possible results.  An ERROR code may be returned
 if no user is currently logged in or if something else went wrong.  Otherwise,
 LISTING_FOLLOWS will be returned, and the listing will consist of zero or
 more message numbers, one per line.  The listing ends, as always, with the
 string "000" alone on a line by itself.  The listed message numbers can be used
-to request messages from the system.
+to request messages from the system.  If "search mode" is being used, the
+server will return START_CHAT_MODE, and the client is expected to transmit
+the search criteria, and then read the message list.
+ 
+ Since this is somewhat complex, here are some examples:
+ 
+ Example 1: Read all new messages
+ 
+ Client:   MSGS NEW
+ Server:   100 Message list...
+           523218
+           523293
+           523295
+           000
+ 
+ Example 2: Read the last five messages
+ 
+ Client:   MSGS LAST|5
+ Server:   100 Message list...
+           523190
+           523211
+           523218
+           523293
+           523295
+           000
+ 
+ Example 3: Read all messages written by "IGnatius T Foobar"
+ 
+ Client:   MSGS ALL|0|1
+ Server:   800 Send template then receive message list
+ Client:   from|IGnatius T Foobar
+           000
+ Server:   518604
+           519366
+           519801
+           520201
+           520268
+           520805
+           520852
+           521579
+           521720
+           522571
+           000
+ 
+ Note that in "search mode" the client may specify any number of search
+criteria.  These criteria are applied with an AND logic.
  
  
+  
  MSG0   (read MeSsaGe, mode 0)
    
  This is a command used to read the text of a message.  "Mode 0" implies that
@@ -433,6 +485,7 @@ seconds since midnight on January 1, 1970, GMT).
  room=   The name of the room the message originated in.
  node=   The short node name of the system this message originated on.
  hnod=   The long node name of the system this message originated on.
+ zaps=   The id/node of a message which this one zaps (supersedes).
  
  text    Note that there is no "=" after the word "text".  This string
 signifies that the message text begins on the next line.

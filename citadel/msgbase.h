@@ -46,8 +46,10 @@ void GetSuppMsgInfo(struct SuppMsgInfo *, long);
 void PutSuppMsgInfo(struct SuppMsgInfo *);
 void AdjRefCount(long, int);
 void simple_listing(long);
+int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
 void CtdlForEachMessage(int mode, long ref,
 			char *content_type,
+			struct CtdlMessage *compare,
                         void (*CallBack) (long msgnum) );
 int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, struct usersupp *,

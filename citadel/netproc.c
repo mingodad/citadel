@@ -865,6 +865,8 @@ void process_zaplist(void) {
 
 		}
 
+	}
+
 	fclose(zaplist);
 
 }

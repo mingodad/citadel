@@ -1,4 +1,8 @@
 $Log$
+Revision 1.383  1999/10/13 04:24:18  ajc
+* Added search-by-header-fields to CtdlForEachMessage(), and then to the
+  server MSGS command.  This will have lots of uses.
+
 Revision 1.382  1999/10/13 01:36:39  ajc
 * Starting some work on network zap (supersede) mode for replication
 
@@ -1304,3 +1308,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

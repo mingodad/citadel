@@ -35,6 +35,37 @@
 
 extern struct config config;
 
+char *msgkeys[] = {
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", 
+	"", 
+	"from",
+	"", "", "", "", "", "", 
+	"hnod",
+	"msgn",
+	"", "", "",
+	"text",
+	"node",
+	"room",
+	"path",
+	"",
+	"rcpt",
+	""
+	"time",
+	"subj",
+	"",
+	"",
+	"",
+	"",
+	"zaps"
+};
+
 /*
  * This function is self explanatory.
  * (What can I say, I'm in a weird mood today...)
@@ -183,12 +214,45 @@ void simple_listing(long msgnum)
 }
 
 
+
+/* Determine if a given message matches the fields in a message template.
+ * Return 0 for a successful match.
+ */
+int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
+	int i;
+
+	/* If there aren't any fields in the template, all messages will
+	 * match.
+	 */
+	if (template == NULL) return(0);
+
+	/* Null messages are bogus. */
+	if (msg == NULL) return(1);
+
+	for (i='A'; i<='Z'; ++i) {
+		if (template->cm_fields[i] != NULL) {
+			if (msg->cm_fields[i] == NULL) {
+				return 1;
+			}
+			if (strcasecmp(msg->cm_fields[i],
+				template->cm_fields[i])) return 1;
+		}
+	}
+
+	/* All compares succeeded: we have a match! */
+	return 0;
+}
+
+
+
+
 /*
  * API function to perform an operation for each qualifying message in the
  * current room.
  */
 void CtdlForEachMessage(int mode, long ref,
 			char *content_type,
+			struct CtdlMessage *compare,
 			void (*CallBack) (long msgnum))
 {
 
@@ -199,6 +263,7 @@ void CtdlForEachMessage(int mode, long ref,
 	int num_msgs = 0;
 	long thismsg;
 	struct SuppMsgInfo smi;
+	struct CtdlMessage *msg;
 
 	/* Learn about the user and room in question */
 	get_mm();
@@ -231,6 +296,24 @@ void CtdlForEachMessage(int mode, long ref,
 				}
 
 	num_msgs = sort_msglist(msglist, num_msgs);
+
+	/* If a template was supplied, filter out the messages which
+	 * don't match.  (This could induce some delays!)
+	 */
+	if (num_msgs > 0) {
+		if (compare != NULL) {
+			for (a = 0; a < num_msgs; ++a) {
+				msg = CtdlFetchMessage(msglist[a]);
+				if (msg != NULL) {
+					if (CtdlMsgCmp(msg, compare)) {
+						msglist[a] = 0L;
+					}
+					CtdlFreeMessage(msg);
+				}
+			}
+		}
+	}
+
 	
 	/*
 	 * Now iterate through the message list, according to the
@@ -268,10 +351,17 @@ void cmd_msgs(char *cmdbuf)
 {
 	int mode = 0;
 	char which[256];
+	char buf[256];
+	char tfield[256];
+	char tvalue[256];
 	int cm_ref = 0;
+	int i;
+	int with_template = 0;
+	struct CtdlMessage *template = NULL;
 
 	extract(which, cmdbuf, 0);
 	cm_ref = extract_int(cmdbuf, 1);
+	with_template = extract_int(cmdbuf, 2);
 
 	mode = MSGS_ALL;
 	strcat(which, "   ");
@@ -290,8 +380,30 @@ void cmd_msgs(char *cmdbuf)
 		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
-	cprintf("%d Message list...\n", LISTING_FOLLOWS);
-	CtdlForEachMessage(mode, cm_ref, NULL, simple_listing);
+
+	if (with_template) {
+		cprintf("%d Send template then receive message list\n",
+			START_CHAT_MODE);
+		template = (struct CtdlMessage *)
+			mallok(sizeof(struct CtdlMessage));
+		memset(template, 0, sizeof(struct CtdlMessage));
+		while(client_gets(buf), strcmp(buf,"000")) {
+			extract(tfield, buf, 0);
+			extract(tvalue, buf, 1);
+			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
+				if (!strcasecmp(tfield, msgkeys[i])) {
+					template->cm_fields[i] =
+						strdoop(tvalue);
+				}
+			}
+		}
+	}
+	else {
+		cprintf("%d Message list...\n", LISTING_FOLLOWS);
+	}
+
+	CtdlForEachMessage(mode, cm_ref, NULL, template, simple_listing);
+	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
 }
 
@@ -613,10 +725,11 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 void output_message(char *msgid, int mode, int headers_only)
 {
 	long msg_num;
-	int a, i;
+	int a, i, k;
 	char buf[1024];
 	time_t xtime;
 	CIT_UBYTE ch;
+	char allkeys[256];
 
 	struct CtdlMessage *TheMessage = NULL;
 
@@ -706,15 +819,6 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
-		if (TheMessage->cm_fields['P']) {
-			cprintf("path=%s\n", TheMessage->cm_fields['P']);
-		}
-		if (TheMessage->cm_fields['I']) {
-			cprintf("msgn=%s\n", TheMessage->cm_fields['I']);
-		}
-		if (TheMessage->cm_fields['T']) {
-			cprintf("time=%s\n", TheMessage->cm_fields['T']);
-		}
 		if (TheMessage->cm_fields['A']) {
 			strcpy(buf, TheMessage->cm_fields['A']);
 			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
@@ -731,24 +835,19 @@ void output_message(char *msgid, int mode, int headers_only)
 			}
 			cprintf("\n");
 		}
-		if (TheMessage->cm_fields['O']) {
-			cprintf("room=%s\n", TheMessage->cm_fields['O']);
+
+		strcpy(allkeys, FORDER);
+		for (i=0; i<strlen(allkeys); ++i) {
+			k = (int) allkeys[i];
+			if ((k != 'A') && (k != 'M')) {
+				if (TheMessage->cm_fields[k] != NULL)
+					cprintf("%s=%s\n",
+						msgkeys[k],
+						TheMessage->cm_fields[k]
+					);
+			}
 		}
-		if (TheMessage->cm_fields['N']) {
-			cprintf("node=%s\n", TheMessage->cm_fields['N']);
-		}
-		if (TheMessage->cm_fields['H']) {
-			cprintf("hnod=%s\n", TheMessage->cm_fields['H']);
-		}
-		if (TheMessage->cm_fields['R']) {
-			cprintf("rcpt=%s\n", TheMessage->cm_fields['R']);
-		}
-		if (TheMessage->cm_fields['U']) {
-			cprintf("subj=%s\n", TheMessage->cm_fields['U']);
-		}
-		if (TheMessage->cm_fields['Z']) {
-			cprintf("zaps=%s\n", TheMessage->cm_fields['Z']);
-		}
+
 	}
 
 	/* begin header processing loop for RFC822 transfer format */
