@@ -11,7 +11,6 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <fcntl.h> /* stu */
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -98,11 +97,6 @@ void mime_decode(char *partnum,
 	size_t blocksize;
 	int write_error = 0;
 
-
-	int stu;
-	int stu2 = 0;
-
-
 	/* If this part is not encoded, send as-is */
 	if (strlen(encoding)==0) {
 		CallBack(name, filename, partnum, part_start,
@@ -145,7 +139,7 @@ void mime_decode(char *partnum,
 		close(sendpipe[1]);	 /* Close the ends we're not using */
 		close(recvpipe[0]);
 		if (!strcasecmp(encoding, "base64"))
-		   execlp("/usr/local/base64/base64", "base64", "-d", NULL);
+		   execlp("./base64", "base64", "-d", NULL);
 		else if (!strcasecmp(encoding, "7bit"))
 		   execlp("/bin/dd", "dd", NULL);
 		lprintf(5, "ERROR: cannot exec decoder for %s\n", encoding);
@@ -185,13 +179,6 @@ void mime_decode(char *partnum,
 		}
 
 	lprintf(9, "Decoded length = %d\n", bytes_recv);
-
-	if (strlen(filename) ==0) sprintf(filename, "noname%d", stu2++);
-	chdir("stu");
-	stu = creat(filename, 0666);
-	write(stu, decoded, bytes_recv);
-	close(stu);
-	chdir("..");
 
 	if (bytes_recv > 0)
 		CallBack(name, filename, partnum, decoded,

@@ -7,6 +7,9 @@ Portions (c) 1998 by:
 	Brian Costello <btx@calyx.net>
 	Nathan Bryant <bryant@cs.usm.maine.edu>
  
+base64 encoding/decoding for MIME parser, public domain by:
+	John Walker <http://www.fourmilab.ch>
+ 
  ------------------------------------------------------------------------------
  
     The entire package is free software; you can redistribute
