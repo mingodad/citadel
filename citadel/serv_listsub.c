@@ -324,13 +324,8 @@ void do_confirm(char *room, char *token) {
 	char *holdbuf = NULL;
 	int linelen = 0;
 	int buflen = 0;
-	char success_message[SIZ];
-	char success_message_to[SIZ];
-	char address_of_list[SIZ];
-	int i;
 
 	strcpy(address_to_unsubscribe, "");
-	strcpy(success_message_to, "");
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
@@ -344,26 +339,6 @@ void do_confirm(char *room, char *token) {
 			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
 		return;
 	}
-
-	/*
-	 * We'll just have this success message ready if we need it
-	 */
-	sprintf(address_of_list, "room_%s@%s", qrbuf.QRname, config.c_fqdn);
-	for (i=0; i<strlen(address_of_list); ++i) {
-		if (isspace(address_of_list[i])) {
-			address_of_list[i] = '_';
-		}
-	}
-	snprintf(success_message, sizeof success_message,
-		"Content-type: text/html\n\n"
-		"<HTML><BODY>"
-		"You have successfully subscribed to the <B>%s</B>\n"
-		"mailing list.<BR><BR>To post to the list, simply send "
-		"an e-mail to <TT>%s</TT>"
-		"</BODY></HTML>\n",
-		qrbuf.QRname,
-		address_of_list
-	);
 
 	/*
 	 * Now start scanning this room's netconfig file for the
@@ -401,7 +376,6 @@ void do_confirm(char *room, char *token) {
 					fseek(ncfp, line_offset, SEEK_SET);
 					fprintf(ncfp, "%s\n", buf);
 					++success;
-					strcpy(success_message_to, email);
 				}
 			}
 			if (!strcasecmp(cmd, "unsubpending")) {
@@ -469,18 +443,6 @@ void do_confirm(char *room, char *token) {
 		}
 		end_critical_section(S_NETCONFIGS);
 		phree(holdbuf);
-	}
-
-	/* Let 'em know it succeeded, and how to post to the list. */
-	if (strlen(success_message_to) > 0) {
-		quickie_message(
-			"Citadel",
-			success_message_to,
-			NULL,
-			success_message,
-			FMT_RFC822,
-			"Your subscription is complete"
-		);
 	}
 
 	/*

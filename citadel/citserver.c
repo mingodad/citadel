@@ -210,11 +210,6 @@ void RemoveContext (struct CitContext *con)
 	
 	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
 
-	/* If we have a message in cache, free it */
-	if (CC->cached_msg != NULL) {
-		phree(CC->cached_msg);
-	}
-	
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
 

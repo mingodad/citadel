@@ -694,6 +694,7 @@ void network_spoolout_room(char *room_to_spool) {
 	size_t miscsize = 0;
 	size_t linesize = 0;
 	int skipthisline = 0;
+	int i;
 
 	lprintf(7, "Spooling <%s>\n", room_to_spool);
 	if (getroom(&CC->quickroom, room_to_spool) != 0) {
@@ -787,13 +788,20 @@ void network_spoolout_room(char *room_to_spool) {
 		network_spool_msg, &sc);
 
 	/* If we wrote a digest, deliver it and then close it */
+	snprintf(buf, sizeof buf, "room_%s@%s",
+		CC->quickroom.QRname, config.c_fqdn);
+	for (i=0; i<strlen(buf); ++i) {
+		buf[i] = tolower(buf[i]);
+		if (isspace(buf[i])) buf[i] = '_';
+	}
 	if (sc.digestfp != NULL) {
 		fprintf(sc.digestfp,	" -----------------------------------"
 					"------------------------------------"
 					"-------\n"
 					"You are subscribed to the '%s' "
-					"list.\n",
-					CC->quickroom.QRname
+					"list.\n"
+					"To post to the list: %s\n",
+					CC->quickroom.QRname, buf
 		);
 		network_deliver_digest(&sc);	/* deliver and close */
 	}

@@ -620,8 +620,6 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	struct cdbdata *cdbrec;
 	char key[SIZ];
 
-	lprintf(9, "CtdlDirectoryLookup(%s)\n", internet_addr);
-
 	if (IsDirectory(internet_addr) == 0) return(-1);
 
 	directory_key(key, internet_addr);
@@ -629,10 +627,8 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	if (cdbrec != NULL) {
 		safestrncpy(target, cdbrec->ptr, SIZ);
 		cdb_free(cdbrec);
-		lprintf(9, "Looked up as <%s>\n", target);
 		return(0);
 	}
 
-	lprintf(9, "Lookup failed\n");
 	return(-1);
 }

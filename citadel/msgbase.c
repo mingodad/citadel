@@ -1056,21 +1056,9 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	 */
 
 	/*
-	 * Fetch the message from disk.  We also keep the most recently
-	 * read message in memory, in case we want to read it again, or fetch
-	 * MIME parts out of it, or whatever.
+	 * Fetch the message from disk.
 	 */
-	if ( (CC->cached_msg != NULL) && (CC->cached_msgnum == msg_num) ) {
-		TheMessage = CC->cached_msg;
-	}
-	else {
-		TheMessage = CtdlFetchMessage(msg_num);
-		if (CC->cached_msg != NULL) {
-			phree(CC->cached_msg); /* FIXME efence? */
-		}
-		CC->cached_msg = TheMessage;
-		CC->cached_msgnum = msg_num;
-	}
+	TheMessage = CtdlFetchMessage(msg_num);
 
 	if (TheMessage == NULL) {
 		if (do_proto) cprintf("%d Can't locate msg %ld on disk\n",
@@ -1082,8 +1070,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			TheMessage, msg_num, mode,
 			headers_only, do_proto, crlf);
 
-	/* don't free the memory; we're keeping it in the cache */
-	/* CtdlFreeMessage(TheMessage); */
+	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
 }

@@ -145,8 +145,6 @@ struct CitContext {
 	char fake_hostname[64];			/* Fake hostname <bc> */
 	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
 
-	struct CtdlMessage *cached_msg;
-	long cached_msgnum;
 	char preferred_formats[SIZ];		/* Preferred MIME formats */
 
 	/* Dynamically allocated session data */
