@@ -37,31 +37,38 @@ void output_html(void) {
 	char *ptr;
 	char *msgstart;
 	char *msgend;
-	int total_length = 1;
+	int buffer_length = 1;
 	int line_length = 0;
+	int content_length = 0;
 
 	msg = strdup("");
-	msgstart = msg;
-	msgend = msg;
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
-		total_length = total_length + line_length + 1;
-		msg = realloc(msg, total_length + 1);
-		strcpy(msgend, buf);
-		msgend[line_length++] = '\n' ;
-		msgend[line_length] = 0;
-		msgend = &msgend[line_length];
+		buffer_length = content_length + line_length + 2;
+		msg = realloc(msg, buffer_length);
+		if (msg == NULL) {
+			wprintf("<B>realloc() error!  "
+				"couldn't get %d bytes: %s</B><BR><BR>\n",
+				buffer_length + 1,
+				strerror(errno));
+			return;
+		}
+		strcpy(&msg[content_length], buf);
+		content_length += line_length;
+		strcpy(&msg[content_length], "\n");
+		content_length += 1;
 	}
 
 	ptr = msg;
 	msgstart = msg;
-	/* msgend is already set correctly */
+	msgend = &msg[content_length];
 
 	while (ptr < msgend) {
 
 		/* Advance to next tag */
 		ptr = strchr(ptr, '<');
+		if ((ptr == NULL) || (ptr >= msgend)) break;
 		++ptr;
 		if ((ptr == NULL) || (ptr >= msgend)) break;
 
@@ -100,5 +107,6 @@ void output_html(void) {
 
 	/* Now give back the memory */
 	free(msg);
+
 }
 

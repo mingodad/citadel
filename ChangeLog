@@ -1,4 +1,7 @@
 $Log$
+Revision 323.52  2002/07/25 04:01:58  ajc
+* Final cleanup of changes (finally located and fixed the bug)
+
 Revision 323.51  2002/07/24 04:14:23  ajc
 * Minor code cleanup of last night's changes
 
@@ -878,4 +881,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
