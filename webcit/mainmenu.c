@@ -96,6 +96,9 @@ wprintf("Page another user</A>\n");
 wprintf("<LI><A HREF=\"/chat\">");
 wprintf("Chat with other online users</A>\n");
 
+wprintf("<LI><A HREF=\"/display_generic\">\n");
+wprintf("<FONT SIZE=-2>Generic server command</FONT></A>\n");
+
 wprintf("</UL>\n");
 
 wprintf("</TD><TD>");
@@ -210,6 +213,106 @@ void display_advanced_menu(void) {
 	output_headers(1);
 	embed_advanced_menu();
 	embed_main_menu();
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+/*
+ * Display the screen to enter a generic server command
+ */
+void display_generic(void) {
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+	
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Enter a server command</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+	wprintf("This screen allows you to enter Citadel server commands which are\n");
+	wprintf("not supported by WebCit.  If you do not know what that means,\n");
+	wprintf("then this screen will not be of much use to you.<BR>\n");
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_generic\">\n");
+
+	wprintf("Enter command:<BR>\n");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><BR>\n");
+
+	wprintf("Command input (if requesting SEND_LISTING transfer mode):<BR>\n");
+	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA>\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+
+	wprintf("</FORM></CENTER>\n");
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+void do_generic(void) {
+	char buf[256];
+	char gcontent[256];
+	char *junk;
+	size_t len;
+
+	if (strcasecmp(bstr("sc"), "Send command")) {
+		display_main_menu();
+		return;
+		}
+
+	serv_printf("%s", bstr("g_cmd"));
+	serv_gets(buf);
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Server command results</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<TABLE border=0><TR><TD>Command:</TD><TD><TT>");
+	escputs(bstr("g_cmd"));
+	wprintf("</TT></TD></TR><TR><TD>Result:</TD><TD><TT>");
+	escputs(buf);
+	wprintf("</TT></TD></TR></TABLE><BR>\n");
+
+	if (buf[0]=='8') {
+		serv_printf("\n\n000");
+		}
+
+	if ( (buf[0]=='1') || (buf[0]=='8') ) {
+		while(serv_gets(gcontent), strcmp(gcontent, "000")) {
+			escputs(gcontent);
+			wprintf("<BR>\n");
+			}
+		wprintf("000");
+		}
+
+	if (buf[0]=='4') {
+		text_to_server(bstr("g_input"));
+		serv_puts("000");
+		}
+
+	if (buf[0]=='6') {
+		len = atol(&buf[4]);
+		junk = malloc(len);
+		serv_read(junk, len);
+		free(junk);
+		}
+
+	if (buf[0]=='7') {
+		len = atol(&buf[4]);
+		junk = malloc(len);
+		bzero(junk, len);
+		serv_write(junk, len);
+		free(junk);
+		}
+
+	wprintf("<HR>");
+	wprintf("<A HREF=\"/display_generic\">Enter another command</A><BR>\n");
+	wprintf("<A HREF=\"/display_advanced\">Return to menu</A>\n");
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}
