@@ -250,6 +250,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			}
 		}
 	}
+
 	wprintf("<TR><TD><B>Organizer</B></TD><TD>");
 	escputs(organizer_string);
 	if (organizer_is_me) {
@@ -269,7 +270,29 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</TD></TR>\n");
 
-	/* Attendees (do more with this later) */
+	/* Transparency */
+	wprintf("<TR><TD><B>Show time as:</B></TD><TD>");
+
+	p = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY);
+	if (p == NULL) {
+		/* No transparency found.  Default to opaque (busy). */
+		p = icalproperty_new_transp(ICAL_TRANSP_OPAQUE);
+		if (p != NULL) {
+			icalcomponent_add_property(vevent, p);
+		}
+	}
+
+	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
+	if (0) wprintf(" CHECKED");
+	wprintf(">Free&nbsp;&nbsp;");
+
+	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
+	if (0) wprintf(" CHECKED");
+	wprintf(">Busy");
+
+	wprintf("</TD></TR>\n");
+
+	/* Attendees */
 	wprintf("<TR><TD><B>Attendes</B><BR>"
 		"<FONT SIZE=-2>(Separate multiple attendees with commas)"
 		"</FONT></TD><TD>"
