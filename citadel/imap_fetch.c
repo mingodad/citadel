@@ -41,16 +41,68 @@
 #include "imap_fetch.h"
 
 
+
+/*
+ * Individual field functions for imap_do_fetch_msg() ...
+ */
+
+
+
+void imap_fetch_uid(int seq) {
+	cprintf("UID %ld", IMAP->msgids[seq-1]);
+}
+
+
 /*
  * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
  * individual message, once it has been successfully loaded from disk.
  */
 void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			int num_items, char **itemlist) {
+	int i;
 
-	cprintf("* %d FETCH ", seq);
-	/* FIXME obviously we must do something here */
-	cprintf("\r\n");
+	cprintf("* %d FETCH (", seq);
+
+	for (i=0; i<num_items; ++i) {
+
+		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
+			/* FIXME do something here */
+		}
+		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "FLAGS")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
+			/* FIXME do something here */
+		}
+		else if (!strcasecmp(itemlist[i], "UID")) {
+			imap_fetch_uid(seq);
+		}
+
+		if (i != num_items-1) cprintf(" ");
+	}
+
+	cprintf(")\r\n");
 }
 
 
