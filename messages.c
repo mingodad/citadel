@@ -120,6 +120,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	char buf[SIZ];
 	char *name;
 
+	char *thisname, *thisvalue;
+
 	if (!full) {
 		wprintf("<TD>");
 		name = vcard_get_prop(v, "n", 1, 0, 0);
@@ -136,28 +138,34 @@ void display_parsed_vcard(struct vCard *v, int full) {
 
 	wprintf("<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		if (!strcasecmp(v->prop[i].name, "n")) {
+
+		thisname = strdup(v->prop[i].name);
+		thisvalue = strdup(v->prop[i].value);
+
+		/* FIXME handle base64 and qp encodings here */
+
+		if (!strcasecmp(thisname, "n")) {
 			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD BGCOLOR=\"#FFFFFF\">"
 			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
 			"<TD><FONT SIZE=+1><B>");
-			escputs(v->prop[i].value);
+			escputs(thisvalue);
 			wprintf("</B></FONT></TD></TR>\n");
 		}
-		else if (!strcasecmp(v->prop[i].name, "email;internet")) {
+		else if (!strcasecmp(thisname, "email;internet")) {
 			wprintf("<TR><TD>Internet e-mail:</TD>"
 				"<TD>"
 				"<A HREF=\"/display_enter"
 				"?force_room=_MAIL_&recp=");
-			urlescputs(v->prop[i].value);
+			urlescputs(thisvalue);
 			wprintf("\">");
-			escputs(v->prop[i].value);
+			escputs(thisvalue);
 			wprintf("</A></TD></TR>\n");
 		}
-		else if (!strcasecmp(v->prop[i].name, "adr")) {
+		else if (!strcasecmp(thisname, "adr")) {
 			wprintf("<TR><TD>Address:</TD><TD>");
-			for (j=0; j<num_tokens(v->prop[i].value, ';'); ++j) {
-				extract_token(buf, v->prop[i].value, j, ';');
+			for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
+				extract_token(buf, thisvalue, j, ';');
 				if (strlen(buf) > 0) {
 					escputs(buf);
 					wprintf("<BR>");
@@ -165,11 +173,11 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 			wprintf("</TD></TR>\n");
 		}
-		else if (!strncasecmp(v->prop[i].name, "tel;", 4)) {
+		else if (!strncasecmp(thisname, "tel;", 4)) {
 			wprintf("<TR><TD>%s telephone:</TD><TD>",
-				&v->prop[i].name[4]);
-			for (j=0; j<num_tokens(v->prop[i].value, ';'); ++j) {
-				extract_token(buf, v->prop[i].value, j, ';');
+				&thisname[4]);
+			for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
+				extract_token(buf, thisvalue, j, ';');
 				if (strlen(buf) > 0) {
 					escputs(buf);
 					wprintf("<BR>");
@@ -179,11 +187,15 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		}
 		else {
 			wprintf("<TR><TD>");
-			escputs(v->prop[i].name);
+			escputs(thisname);
 			wprintf("</TD><TD>");
-			escputs(v->prop[i].value);
+			escputs(thisvalue);
 			wprintf("</TD></TR>\n");
 		}
+
+		free(thisname);
+		free(thisvalue);
+
 	}
 	wprintf("</TABLE>\n");
 }
