@@ -1594,12 +1594,14 @@ void cmd_cre8(char *args)
 	char aaa[SIZ];
 	unsigned newflags;
 	struct floor *fl;
+	int avoid_access = 0;
 
 	cre8_ok = extract_int(args, 0);
 	extract(new_room_name, args, 1);
 	new_room_name[ROOMNAMELEN - 1] = 0;
 	new_room_type = extract_int(args, 2);
 	extract(new_room_pass, args, 3);
+	avoid_access = extract_int(args, 5);
 	new_room_pass[9] = 0;
 	new_room_floor = 0;
 
@@ -1654,7 +1656,8 @@ void cmd_cre8(char *args)
 
 	/* Check to make sure the requested room name doesn't already exist */
 	newflags = create_room(new_room_name,
-			   new_room_type, new_room_pass, new_room_floor, 0, 0);
+				new_room_type, new_room_pass, new_room_floor,
+				0, avoid_access);
 	if (newflags == 0) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, new_room_name);

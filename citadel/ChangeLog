@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.49  2002/06/19 21:52:13  ajc
+ * Support a transient room create as well
+
  Revision 591.48  2002/06/19 21:42:57  ajc
  * Added support for "transient goto" which allows entry into a private and/or
    zapped room without putting the room [back] on your known rooms list.  This
@@ -3751,4 +3754,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
