@@ -302,6 +302,7 @@ void context_loop(int sock)
 	/* Do the non-root-cookie check now. */
 	else if ( (strcmp(buf, "/"))
 		&& (strncasecmp(buf, "/listsub", 8))
+		&& (strncasecmp(buf, "/freebusy", 9))
 	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"
 				"?force_close_session=yes HTTP/1.0");

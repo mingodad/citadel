@@ -874,4 +874,47 @@ void save_event(void) {
 	}
 }
 
+
+
+
+
+/*
+ * freebusy display (for client software)
+ */
+void do_freebusy(char *req) {
+	char who[SIZ];
+	char buf[SIZ];
+	char *fb;
+
+	extract_token(who, req, 1, ' ');
+	if (!strncasecmp(who, "/freebusy/", 10)) {
+		strcpy(who, &who[10]);
+	}
+	unescape_input(who);
+
+	if ( (!strcasecmp(&who[strlen(who)-4], ".vcf"))
+	   || (!strcasecmp(&who[strlen(who)-4], ".vcf")) ) {
+		who[strlen(who)-4] = 0;
+	}
+
+	lprintf(9, "freebusy requested for <%s>\n", who);
+	serv_printf("ICAL freebusy|%s", who);
+	serv_gets(buf);
+
+	if (buf[0] != '1') {
+		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
+		output_headers(0);
+		wprintf("Content-Type: text/plain\n");
+		wprintf("\n");
+		wprintf("%s\n", &buf[4]);
+		return;
+	}
+
+	fb = read_server_text();
+	http_transmit_thing(fb, strlen(fb), "text/calendar");
+	free(fb);
+}
+
+
+
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
