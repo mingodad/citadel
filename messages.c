@@ -1548,7 +1548,9 @@ void display_enter(void)
 	wprintf("<div id=\"banner\">\n");
 	embed_room_banner(NULL, navbar_none);
 	wprintf("</div>\n");
-	wprintf("<div id=\"content\">\n");
+	wprintf("<div id=\"content\">\n"
+		"<div id=\"fix_scrollbar_bug\">"
+		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
@@ -1581,7 +1583,7 @@ void display_enter(void)
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
 	/* begin message entry screen */
-	wprintf("<div style=\"position:absolute; left:1%%; width:96%%; height:100%%\">\n");
+	// wprintf("<div style=\"position:absolute; left:1%%; width:96%%; height:100%%\">\n");
 
 	wprintf("<form enctype=\"multipart/form-data\" "
 		"method=\"POST\" action=\"/post\" "
@@ -1612,11 +1614,7 @@ void display_enter(void)
 	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"sc\" value=\"Cancel\">\n");
 
-	/* begin richedit box */
-	wprintf("<div style=\"position:absolute; left:0%%; width:100%%; "
-		"top:15%; height:75%%\">\n");
-
-	wprintf("<script type=\"text/javascript\" "
+	wprintf("<center><script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
 		"<script type=\"text/javascript\">\n"
 		"function submitForm() { \n"
@@ -1626,16 +1624,12 @@ void display_enter(void)
 		"  \n"
 		"initRTE(\"static/\", \"static/\", \"\"); \n"
 		"</script> \n"
-		"<noscript>JAVAscript MUST BE ENABLED.</noscript> \n"
+		"<noscript>JavaScript must be enabled.</noscript> \n"
 		"<script type=\"text/javascript\"> \n"
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
-	wprintf("', '100%%', '80%%', true, false); \n"
-		"</script> \n");
-	wprintf("</div>\n");	/* end richedit box */
-
-	/* Here comes the "do attachments" section on the bottom */
-	wprintf("<div style=\"position:absolute; bottom:0px; left:0px; width:100%%\">\n");
+	wprintf("', '96%%', '200', true, false); \n"
+		"</script></center><br />\n");
 
 	/* Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"/static/attachment.gif\" border=0 "
@@ -1657,11 +1651,9 @@ void display_enter(void)
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 
-	wprintf("</div>\n");	/* end attachments section */
-
 	wprintf("</form>\n");
 
-	wprintf("</div>\n");
+	wprintf("</td></tr></table></div>\n");
 DONE:	wDumpContent(1);
 }
 
