@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.61  2002/01/15 06:20:18  error
+ * Modules can now unregister any of their hooks (though none yet take
+   advantage of this).
+
  Revision 590.60  2002/01/14 08:49:13  error
  * Fixed bug in cmd_cre8() causing protocol to get out of sync when creating
    a new room
@@ -3151,3 +3155,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -13,6 +13,7 @@
 #include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
@@ -72,6 +73,29 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 	ProtoHookList = p;
 	lprintf(5, "Registered server command %s (%s)\n", cmd, desc);
 }
+
+
+void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
+{
+	struct ProtoFunctionHook *cur, *p;
+
+	for (cur = ProtoHookList; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				handler == cur->handler &&
+				!strcmp(cmd, cur->cmd)) {
+			lprintf(5, "Unregistered server command %s (%s)\n",
+					cmd, cur->desc);
+			p = cur->next;
+			if (cur == ProtoHookList) {
+				ProtoHookList = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
 
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
@@ -164,6 +188,27 @@ void CtdlRegisterLogHook(void (*fcn_ptr) (char *), int loglevel)
 }
 
 
+void CtdlUnregisterLogHook(void (*fcn_ptr) (char *), int loglevel)
+{
+	struct LogFunctionHook *cur, *p;
+
+	for (cur = LogHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer &&
+				loglevel == cur->loglevel) {
+			lprintf(5, "Unregistered logging function\n");
+			p = cur->next;
+			if (cur == LogHookTable) {
+				LogHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
+
 void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 {
 
@@ -176,6 +221,26 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 	CleanupHookTable = newfcn;
 
 	lprintf(5, "Registered a new cleanup function\n");
+}
+
+
+void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
+{
+	struct CleanupFunctionHook *cur, *p;
+
+	for (cur = CleanupHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer) {
+			lprintf(5, "Unregistered cleanup function\n");
+			p = cur->next;
+			if (cur == CleanupHookTable) {
+				CleanupHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
 }
 
 
@@ -196,6 +261,28 @@ void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 }
 
 
+void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
+{
+	struct SessionFunctionHook *cur, *p;
+
+	for (cur = SessionHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer &&
+				EventType == cur->eventtype) {
+			lprintf(5, "Unregistered session function (type %d)\n",
+					EventType);
+			p = cur->next;
+			if (cur == SessionHookTable) {
+				SessionHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
+
 void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 {
 
@@ -210,6 +297,28 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 
 	lprintf(5, "Registered a new user function (type %d)\n",
 		EventType);
+}
+
+
+void CtdlUnregisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
+{
+	struct UserFunctionHook *cur, *p;
+
+	for (cur = UserHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer &&
+				EventType == cur->eventtype) {
+			lprintf(5, "Unregistered user function (type %d)\n",
+					EventType);
+			p = cur->next;
+			if (cur == UserHookTable) {
+				UserHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
 }
 
 
@@ -231,6 +340,29 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 }
 
 
+void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
+		int EventType)
+{
+	struct MessageFunctionHook *cur, *p;
+
+	for (cur = MessageHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				handler == cur->h_function_pointer &&
+				EventType == cur->eventtype) {
+			lprintf(5, "Unregistered message function (type %d)\n",
+					EventType);
+			p = cur->next;
+			if (cur == MessageHookTable) {
+				MessageHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
+
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
@@ -244,6 +376,29 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 	XmsgHookTable = newfcn;
 	lprintf(5, "Registered a new x-msg function (priority %d)\n", order);
 }
+
+
+void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
+{
+	struct XmsgFunctionHook *cur, *p;
+
+	for (cur = XmsgHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer &&
+				order == cur->order) {
+			lprintf(5, "Unregistered x-msg function "
+					"(priority %d)\n", order);
+			p = cur->next;
+			if (cur == XmsgHookTable) {
+				XmsgHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
 
 void CtdlRegisterServiceHook(int tcp_port,
 			char *sockpath,
@@ -287,6 +442,39 @@ void CtdlRegisterServiceHook(int tcp_port,
 	}
 }
 
+
+void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
+			void (*h_greeting_function) (void),
+			void (*h_command_function) (void) )
+{
+	struct ServiceFunctionHook *cur, *p;
+
+	for (cur = ServiceHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				!(sockpath && cur->sockpath &&
+					strcmp(sockpath, cur->sockpath)) &&
+				h_greeting_function == cur->h_greeting_function &&
+				h_command_function == cur->h_command_function &&
+				tcp_port == cur->tcp_port) {
+			close(cur->msock);
+			if (sockpath) {
+				lprintf(5, "Closed UNIX domain socket %s\n",
+						sockpath);
+			} else if (tcp_port) {
+				lprintf(5, "Closed TCP port %d\n", tcp_port);
+			} else {
+				lprintf(5, "Unregistered unknown service\n");
+			}
+			p = cur->next;
+			if (cur == ServiceHookTable) {
+				ServiceHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
 
 
 void PerformSessionHooks(int EventType)
@@ -374,7 +562,7 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 		 * deliveries to local users simultaneously signed onto
 		 * remote services.
 		 */
-		if (total_sent) goto DONE;
+		if (total_sent) break;
 	}
-DONE:	return total_sent;
+	return total_sent;
 }
