@@ -1,4 +1,8 @@
 $Log$
+Revision 301.7  2001/09/25 03:34:09  ajc
+* Fix for WebCit servers running on port 80: detect Windoze worm-of-the-week
+  and bail out without bothering the Citadel server.
+
 Revision 301.6  2001/08/22 16:38:06  ajc
 * Added the "-c" command line option to generate optional cookies indicating
   the host name of the server.  This makes it easy to put a cluster of WebCit
@@ -624,4 +628,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
