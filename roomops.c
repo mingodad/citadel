@@ -1098,6 +1098,9 @@ void display_editroom(void)
 				" <A HREF=\"/toggle_self_service?newval=0&"
 				"tab=listserv\">"
 				"Click to disable.</A><BR>\n"
+				"The URL for subscribe/unsubscribe is: "
+				"<TT>http://%s/listsub</TT><BR>\n",
+				WC->http_host
 			);
 		}
 		else {
