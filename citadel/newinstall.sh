@@ -81,6 +81,7 @@ MAKEOPTS="-j2"
 # We're now exporting a bunch of environment variables, and here's a list:
 # CITADEL_INSTALLER	Set to "web" to indicate this script
 # CITADEL		Directory where Citadel is installed
+# WEBCIT		Directory where WebCit is installed
 # SUPPORT		Directory where support programs are installed
 # LDAP_CONFIG		Location of the slapd.conf file
 # DISTRO_MAJOR		Linux distribution name, if applicable
@@ -90,6 +91,7 @@ MAKEOPTS="-j2"
 # MAKE			Make program being used
 # CFLAGS		C compiler flags
 # LDFLAGS		Linker flags
+# IS_UPGRADE		Set to "yes" if upgrading an existing Citadel
 
 # Let Citadel setup recognize the Citadel installer
 CITADEL_INSTALLER=web
@@ -254,11 +256,10 @@ install_sources () {
 	if [ -f $CITADEL/citadel.config ]
 	then
 		$MAKE upgrade 2>&1 >>$LOG || die
-		$CITADEL/setup -q
+		IS_UPGRADE=yes
 	else
 		$MAKE install 2>&1 >>$LOG || die
 		useradd -c Citadel -s /bin/false -r -d $CITADEL citadel 2>&1 >>$LOG || die
-		$CITADEL/setup
 	fi
 
 	echo "* Installing WebCit..."
@@ -270,6 +271,24 @@ install_sources () {
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
 }
+
+
+do_config () {
+	echo "* Configuring your system ..."
+
+	if [ x$IS_UPGRADE == xyes ] ; then
+		echo Upgrading your existing Citadel installation.
+		#$CITADEL/setup -q || die
+		$CITADEL/setup || die
+	else
+		echo This is a new Citadel installation.
+		$CITADEL/setup || die
+	fi
+
+	$WEBCIT/setup || die
+}
+
+
 
 ##### END Functions #####
 
@@ -355,11 +374,6 @@ else
 fi
 
 # 5. Do post-installation setup
-	cd $CITADEL
-	./setup || die
-
-	cd $WEBCIT
-	./setup || die
-
 	rm -fr $BUILD
+	do_config
 ##### END main #####

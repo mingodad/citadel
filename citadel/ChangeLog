@@ -1,4 +1,8 @@
  $Log$
+ Revision 624.3  2004/08/16 04:19:14  ajc
+ * newinstall.sh: more intelligent auto-run of setup programs
+ * setup.c: change inittab question to be more newbie-friendly
+
  Revision 624.2  2004/08/15 05:04:36  ajc
  * newinstall.sh: various tweaks to make it more reliable
 
@@ -5977,3 +5981,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

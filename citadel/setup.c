@@ -439,8 +439,9 @@ void check_inittab_entry(void)
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
-		"There is no '%s' entry in /etc/inittab.\n"
-		"Would you like to add one?",
+		"Do you want this computer configured to start the Citadel\n"
+		"service automatically?  (If you answer yes, an entry in\n"
+		"/etc/inittab pointing to %s will be added.)\n",
 		looking_for);
 	if (yesno(question) == 0)
 		return;
