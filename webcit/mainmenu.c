@@ -135,10 +135,7 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/whobbs\">"
 		"<span class=\"mainmenu\">"
-		"Who is online?</span></A>"
-		"<span class=\"menudesc\">"
-		" (users <EM>currently</EM> logged on)"
-		"</span><br />\n"
+		"Who is online now?</span></A><br />\n"
 	);
 
 	wprintf("<A HREF=\"#\" onClick=\"window.open('/chat', "
@@ -153,7 +150,7 @@ void display_main_menu(void)
 	wprintf("</i></span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_generic\">\n");
-	wprintf("<span class=\"menudesc\">"
+	wprintf("<span class=\"mainmenu\">"
 		"Generic server command</span></A>\n");
 
 	do_template("endbox");
@@ -166,8 +163,7 @@ void display_main_menu(void)
 	wprintf("<A HREF=\"/display_reg\">"
 		"<span class=\"mainmenu\">"
 		"Update your contact information "
-		"</span><span class=\"menudesc\">"
-		"(name, address, etc.)</span></A><br />\n");
+		"</span><br />\n");
 
 	wprintf("<A HREF=\"/display_changepw\">"
 		"<span class=\"mainmenu\">"
@@ -175,10 +171,7 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/display_editbio\">"
 		"<span class=\"mainmenu\">"
-		"Enter your 'bio' "
-		"</span><span class=\"menudesc\">"
-		"(a few words about yourself)"
-		"</span></A><br />\n");
+		"Enter your 'bio'</span></a><br />\n");
 
 	wprintf("<A HREF=\"/display_editpic\">"
 		"<span class=\"mainmenu\">"
@@ -253,9 +246,7 @@ void display_main_menu(void)
 
 			wprintf("<A HREF=\"/display_inetconf\">"
 				"<span class=\"mainmenu\">"
-				"Internet configuration "
-				"</span><span class=\"menudesc\">"
-				"(domain names, etc.)</span></A><br />\n");
+				"Internet and domain configuration</span></a><br />\n");
 		}
 		do_template("endbox");
 	}
