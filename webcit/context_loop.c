@@ -84,6 +84,24 @@ void req_gets(int sock, char *buf, char *hold) {
 		}
 	}
 
+/*
+ * Grab a lock on the session, so other threads don't try to access
+ * the pipes at the same time.
+ */
+static void lock_session(struct wc_session *session) {
+        printf("Locking session %d...\n", session->session_id);
+        pthread_mutex_lock(&session->critter);
+        printf("   ...got lock\n");
+	}
+
+/*
+ * Let go of the lock.
+ */
+static void unlock_session(struct wc_session *session) {
+	printf("Unlocking.\n");
+	pthread_mutex_unlock(&session->critter);
+	}
+
 extern const char *defaulthost;
 extern const char *defaultport;
 
@@ -135,6 +153,7 @@ void *context_loop(int sock) {
 		for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
 			if (sptr->session_id == desired_session) {
 				TheSession = sptr;
+				lock_session(TheSession);
 				}
 			}
 		pthread_mutex_unlock(&MasterCritter);
@@ -152,14 +171,19 @@ void *context_loop(int sock) {
 		pipe(TheSession->inpipe);
 		pipe(TheSession->outpipe);
 		pthread_mutex_init(&TheSession->critter, NULL);
+		lock_session(TheSession);
 		TheSession->next = SessionList;
 		SessionList = TheSession;
+		pthread_mutex_unlock(&MasterCritter);
 		sprintf(str_session, "%d", TheSession->session_id);
 		f = fork();
 		fflush(stdout); fflush(stdin);
 		if (f==0) {
 			dup2(TheSession->inpipe[0], 0);
 			dup2(TheSession->outpipe[1], 1);
+			/* Close the ends of the pipes that we're not using */
+			close(TheSession->inpipe[1]);
+			close(TheSession->outpipe[0]);
 			execlp("./webcit", "webcit", str_session, defaulthost,
 			       defaultport, NULL);
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
@@ -171,16 +195,10 @@ void *context_loop(int sock) {
 			printf("<BODY>execlp() failed</BODY></HTML>\n");
 			exit(0);
 			}
-		pthread_mutex_unlock(&MasterCritter);
+		/* Close the ends of the pipes that we're not using */
+		close(TheSession->inpipe[0]);
+		close(TheSession->outpipe[1]);
 		}
-
-	/*
-	 * Grab a lock on the session, so other threads don't try to access
-	 * the pipes at the same time.
-	 */
-	printf("Locking session %d...\n", TheSession->session_id);
-	pthread_mutex_lock(&TheSession->critter);
-	printf("   ...got lock\n");
 
 	/* 
 	 * Send the request to the appropriate session...
@@ -227,13 +245,7 @@ void *context_loop(int sock) {
 	printf("   Closing socket\n");
 	close(sock);
 
-	/*
-	 * Let go of the lock
-	 */
-	printf("Unlocking.\n");
-	pthread_mutex_unlock(&TheSession->critter);
-
-
+	unlock_session(TheSession);
 
 	/*
 	 * If the last response included a "close session" directive,
@@ -242,6 +254,8 @@ void *context_loop(int sock) {
 	if (CloseSession) {
 		printf("Removing session.\n");
 		pthread_mutex_lock(&MasterCritter);
+
+		lock_session(TheSession);
 
 		if (SessionList==TheSession) {
 			SessionList = SessionList->next;
@@ -253,13 +267,16 @@ void *context_loop(int sock) {
 					}
 				}
 			}
-	
+
+		close(TheSession->inpipe[1]);
+		close(TheSession->outpipe[0]);
+		unlock_session(TheSession);
 		free(TheSession);
 	
 		pthread_mutex_unlock(&MasterCritter);
 		}
 
-
+	free(req);
 
 	/*
 	 * The thread handling this HTTP connection is now finished.
