@@ -118,7 +118,9 @@ void edituser(void)
 	userpurge = extract_int(&buf[4], 8);
 
 	val_user(who, 0); /* Display registration */
-	strprompt("Password", pass, 19);
+	if (boolprompt("Change password", 0)) {
+		strprompt("Password", pass, 19);
+	}
 	axlevel = intprompt("Access level", axlevel, 0, 6);
 	timescalled = intprompt("Times called", timescalled, 0, INT_MAX);
 	posted = intprompt("Messages posted", posted, 0, INT_MAX);

@@ -911,6 +911,7 @@ all remaining lines:
  Line 8:  Telephone number
  Line 9:  Access level
  Line 10: Internet e-mail address
+ Line 11: Country
  
  Users without Aide privileges may retrieve their own registration using
 this command.  This can be accomplished either by passing the user's own
@@ -977,6 +978,7 @@ SEND_LISTING is returned, and the server will expect the following information
  Line 5:  ZIP Code
  Line 6:  Telephone number
  Line 7:  e-mail address
+ Line 8:  Country
  
  
  CHEK   (CHEcK various things)

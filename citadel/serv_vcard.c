@@ -284,6 +284,7 @@ void cmd_regi(char *argbuf) {
 	char tmpstate[256];
 	char tmpzip[256];
 	char tmpaddress[512];
+	char tmpcountry[256];
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -295,6 +296,7 @@ void cmd_regi(char *argbuf) {
 	strcpy(tmpcity, "");
 	strcpy(tmpstate, "");
 	strcpy(tmpzip, "");
+	strcpy(tmpcountry, "USA");
 
 	cprintf("%d Send registration...\n", SEND_LISTING);
 	a=0;
@@ -314,10 +316,11 @@ void cmd_regi(char *argbuf) {
 			}
 		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf);
 		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
+		if (a==7) strcpy(tmpcountry, buf);
 		++a;
 		}
-	sprintf(tmpaddress, ";;%s;%s;%s;%s;USA",
-		tmpaddr, tmpcity, tmpstate, tmpzip);
+	sprintf(tmpaddress, ";;%s;%s;%s;%s;%s",
+		tmpaddr, tmpcity, tmpstate, tmpzip, tmpcountry);
 	vcard_set_prop(my_vcard, "adr", tmpaddress);
 	vcard_write_user(&CC->usersupp, my_vcard);
 	vcard_free(my_vcard);
@@ -401,6 +404,11 @@ void cmd_greg(char *argbuf)
 
 	s = vcard_get_prop(v, "email;internet", 0);
 	cprintf("%s\n", s ? s : " ");
+	s = vcard_get_prop(v, "adr", 0);
+	sprintf(adr, "%s", s ? s : " ");/* address... */
+
+	extract_token(buf, adr, 6, ';');
+	cprintf("%s\n", buf);				/* country */
 	cprintf("000\n");
 	}
 

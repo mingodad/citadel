@@ -86,6 +86,7 @@ void entregis(void)
 	char tmpzip[256];
 	char tmpphone[256];
 	char tmpemail[256];
+	char tmpcountry[256];
 	int a;
 
 	strcpy(tmpname, "");
@@ -95,6 +96,7 @@ void entregis(void)
 	strcpy(tmpzip, "");
 	strcpy(tmpphone, "");
 	strcpy(tmpemail, "");
+	strcpy(tmpcountry, "");
 
 	serv_puts("GREG _SELF_");
 	serv_gets(buf);
@@ -115,14 +117,17 @@ void entregis(void)
 				strcpy(tmpphone, buf);
 			if (a == 9)
 				strcpy(tmpemail, buf);
+			if (a == 10)
+				strcpy(tmpcountry, buf);
 			++a;
 		}
 	}
 	strprompt("REAL name", tmpname, 29);
 	strprompt("Address", tmpaddr, 24);
 	strprompt("City/town", tmpcity, 14);
-	strprompt("State", tmpstate, 2);
-	strprompt("ZIP Code", tmpzip, 10);
+	strprompt("State/province", tmpstate, 2);
+	strprompt("ZIP/Postal Code", tmpzip, 10);
+	strprompt("Country", tmpcountry, 31);
 	strprompt("Telephone number", tmpphone, 14);
 	strprompt("Email address", tmpemail, 31);
 
@@ -140,6 +145,7 @@ void entregis(void)
 	serv_puts(tmpzip);
 	serv_puts(tmpphone);
 	serv_puts(tmpemail);
+	serv_puts(tmpcountry);
 	serv_puts("000");
 	printf("\n");
 }
@@ -452,6 +458,8 @@ void val_user(char *user, int do_validate)
 			if (a == 9)
 				ax = atoi(buf);
 			if (a == 10)
+				printf("%s\n", buf);
+			if (a == 11)
 				printf("%s\n", buf);
 		} while (strcmp(buf, "000"));
 		printf("Current access level: %d (%s)\n", ax, axdefs[ax]);

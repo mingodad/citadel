@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.38  2000/12/05 05:32:58  ajc
+ * Added support for non-USA country identities in vCard and registration
+ * User edit now asks whether it should prompt to change the password
+
  Revision 573.37  2000/12/03 04:12:21  ajc
  * Finished (mostly) the Sleepycat DB backend ... added transaction logging
 
@@ -2176,4 +2180,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
