@@ -502,32 +502,6 @@ void post_message(void)
 
 
 
-
-
-
-
-/*
- * prompt for a recipient (to be called from display_enter() only)
- */
-void prompt_for_recipient()
-{
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Send private e-mail</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_enter\">\n");
-	wprintf("Enter recipient: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"recp\" MAXLENGTH=\"64\"><BR>\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Enter message\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</FORM></CENTER>\n");
-}
-
-
-
 /*
  * display the message entry screen
  */
@@ -549,7 +523,7 @@ void display_enter(void)
 		if (strlen(bstr("recp")) > 0) {
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		}
-		prompt_for_recipient();
+		do_template("prompt_for_recipient.html");
 		goto DONE;
 	}
 	if (buf[0] != '2') {
