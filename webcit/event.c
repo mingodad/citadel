@@ -87,11 +87,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	/* Begin output */
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
-		"<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
-		"<SPAN CLASS=\"titlebar\">Edit event</SPAN>"
-		"</TD></TR></TABLE><BR>\n"
-	);
+	do_template("beginbox_nt");
+	wprintf("<h3>&nbsp;<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
+		"&nbsp;Add or edit an event</h3>\n");
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
@@ -238,7 +236,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("<TR><TD><B>Notes</B></TD><TD>\n"
 		"<TEXTAREA NAME=\"description\" wrap=soft "
-		"ROWS=10 COLS=80 WIDTH=80>\n"
+		"ROWS=5 COLS=80 WIDTH=80>\n"
 	);
 	p = icalcomponent_get_first_property(vevent, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
@@ -328,7 +326,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	/* Attendees */
 	wprintf("<TR><TD><B>Attendees</B><BR>"
-		"<FONT SIZE=-2>(Separate multiple attendees with commas)"
+		"<FONT SIZE=-2>(One per line)"
 		"</FONT></TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
 		"ROWS=3 COLS=80 WIDTH=80>\n",
@@ -342,7 +340,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			/* screen name or email address */
 			strcpy(attendee_string, &attendee_string[7]);
 			striplt(attendee_string);
-			if (i++) wprintf(", ");
+			if (i++) wprintf("\n");
 			escputs(attendee_string);
 			wprintf(" ");
 
@@ -394,6 +392,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		</SCRIPT>
 	");
 
+	do_template("endbox");
 	wDumpContent(1);
 
 	if (created_new_vevent) {
@@ -603,8 +602,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		stripout(form_attendees, '(', ')');
 
 		/* Now iterate! */
-		for (i=0; i<num_tokens(form_attendees, ','); ++i) {
-			extract_token(buf, form_attendees, i, ',');
+		for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
+			extract_token(buf, form_attendees, i, '\n');
 			striplt(buf);
 			if (strlen(buf) > 0) {
 				lprintf(9, "Attendee: <%s>\n", buf);
@@ -636,8 +635,8 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 				strcpy(attendee_string, &attendee_string[7]);
 				striplt(attendee_string);
 				foundit = 0;
-				for (i=0; i<num_tokens(form_attendees, ','); ++i) {
-					extract_token(buf, form_attendees, i, ',');
+				for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
+					extract_token(buf, form_attendees, i, '\n');
 					striplt(buf);
 					if (!strcasecmp(buf, attendee_string)) ++foundit;
 				}
