@@ -2,10 +2,31 @@
  * tools.c -- Miscellaneous routines 
  */
 
-#include <stdio.h>
+
+
+#include <ctype.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
+
+
+
 
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
@@ -100,7 +121,7 @@ long extract_long(char *source, long int parmnum)
  */
 int haschar(st, ch)
 char st[];
-int ch;
+char ch;
 {
 	int a, b;
 	b = 0;

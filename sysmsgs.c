@@ -1,12 +1,32 @@
+
+
+#include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <ctype.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
+
+
+
+
+
+
+
 
 /*
  * display the form for editing something (room info, bio, etc)
@@ -23,7 +43,7 @@ void display_edit(char *description, char *check_cmd,
 		display_error(&buf[4]);
 		return;
 	}
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -60,7 +80,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	char buf[256];
 
 	if (strcmp(bstr("sc"), "Save")) {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		wprintf("Cancelled.  %s was not saved.<BR>\n", description);
 		wDumpContent(1);
@@ -78,7 +98,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	if (regoto) {
 		smart_goto(WC->wc_roomname);
 	} else {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		wprintf("%s has been saved.\n", description);
 		wDumpContent(1);

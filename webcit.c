@@ -8,19 +8,29 @@
  * $Id$
  */
 
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
-#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/stat.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <string.h>
+#include <pwd.h>
+#include <errno.h>
 #include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
-#include "mime_parser.h"
+
+
 
 int TransactionCount = 0;
 char *ExpressMessages = NULL;
@@ -30,17 +40,12 @@ char *ExpressMessages = NULL;
  */
 int fake_frames = 0;
 
-struct webcontent *wlist = NULL;
-struct webcontent *wlast = NULL;
-
 struct urlcontent *urlstrings = NULL;
 
 static const char *defaulthost = DEFAULT_HOST;
 static const char *defaultport = DEFAULT_PORT;
 
 
-
-struct wcsession *WC = NULL; 	/* FIX take this out when multithreaded */
 
 void unescape_input(char *buf)
 {
@@ -158,40 +163,18 @@ char *bstr(char *key)
 void wprintf(const char *format,...)
 {
 	va_list arg_ptr;
-	struct webcontent *wptr;
-
-	wptr = (struct webcontent *) malloc(sizeof(struct webcontent));
-	wptr->next = NULL;
-	if (wlist == NULL) {
-		wlist = wptr;
-		wlast = wptr;
-	} else {
-		wlast->next = wptr;
-		wlast = wptr;
-	}
+	char wbuf[1024];
 
 	va_start(arg_ptr, format);
-	vsprintf(wptr->w_data, format, arg_ptr);
+	vsprintf(wbuf, format, arg_ptr);
 	va_end(arg_ptr);
+
+	write(WC->http_sock, wbuf, strlen(wbuf));
 }
 
-int wContentLength(void)
-{
-	struct webcontent *wptr;
-	int len = 0;
-
-	for (wptr = wlist; wptr != NULL; wptr = wptr->next) {
-		len = len + strlen(wptr->w_data);
-	}
-
-	return (len);
-}
 
 /*
- * wDumpContent() takes all the stuff that's been queued up using
- * the wprintf() and escputs() functions, and sends it out to the browser.
- * By queuing instead of transmitting as it's generated, we're able to
- * calculate a Content-length: header.
+ * wDumpContent() wraps up an HTTP session, closes tags, etc.
  *
  * print_standard_html_footer should be set to 0 to transmit only, 1 to
  * append the main menu and closing tags, or 2 to
@@ -199,8 +182,6 @@ int wContentLength(void)
  */
 void wDumpContent(int print_standard_html_footer)
 {
-	struct webcontent *wptr;
-
 	if (fake_frames) {
 		wprintf("<CENTER><FONT SIZE=-1>"
 			"<TABLE border=0 width=100%><TR>"
@@ -228,17 +209,8 @@ void wDumpContent(int print_standard_html_footer)
 		}
 		wprintf("</BODY></HTML>\n");
 	}
-	printf("Content-type: text/html\n");
-	printf("Content-length: %d\n", wContentLength());
-	printf("\n");
 
-	while (wlist != NULL) {
-		fwrite(wlist->w_data, strlen(wlist->w_data), 1, stdout);
-		wptr = wlist->next;
-		free(wlist);
-		wlist = wptr;
-	}
-	wlast = NULL;
+
 }
 
 
@@ -310,37 +282,6 @@ void urlescputs(char *strbuf)
 
 
 /*
- * Get a line of text from the webserver (which originally came from the
- * user's browser), checking for sanity etc.
- */
-char *getz(char *buf)
-{
-	int e = 0;
-
-	bzero(buf, 256);
-
-	/* If fgets() fails, it's because the webserver crashed, so kill off
-	 * the session too.
-	 */
-	if (fgets(buf, 256, stdin) == NULL) {
-		e = errno;
-		fprintf(stderr, "webcit: exit code %d (%s)\n",
-			e, strerror(e));
-		fflush(stderr);
-		exit(e);
-		
-	/* Otherwise, strip out nonprintables and resume our happy day.
-	 */
-	} else {
-		while ((strlen(buf) > 0) && (!isprint(buf[strlen(buf) - 1])))
-			buf[strlen(buf) - 1] = 0;
-		return buf;
-	}
-}
-
-
-
-/*
  * Output all that important stuff that the browser will want to see
  *
  * print_standard_html_head values:
@@ -355,21 +296,24 @@ void output_headers(int print_standard_html_head)
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
 
-	printf("Server: %s\n", SERVER);
-	printf("Connection: close\n");
+	wprintf("Content-type: text/html\n");
+	wprintf("Server: %s\n", SERVER);
+	wprintf("Connection: close\n");
 
 	if (print_standard_html_head > 0) {
-		printf("Pragma: no-cache\n");
-		printf("Cache-Control: no-store\n");
+		wprintf("Pragma: no-cache\n");
+		wprintf("Cache-Control: no-store\n");
 	}
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
 	if (print_standard_html_head == 2) {
-		printf("X-WebCit-Session: close\n");
-		printf("Set-cookie: webcit=%s\n", unset);
+		wprintf("X-WebCit-Session: close\n");
+		wprintf("Set-cookie: webcit=%s\n", unset);
 	} else {
-		printf("Set-cookie: webcit=%s\n", cookie);
+		wprintf("Set-cookie: webcit=%s\n", cookie);
 	}
+
+	wprintf("\n");
 
 	if (print_standard_html_head > 0) {
 		wprintf("<HTML><HEAD><TITLE>");
@@ -462,36 +406,32 @@ void output_static(char *what)
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
-		printf("HTTP/1.0 404 %s\n", strerror(errno));
-		output_headers(0);
-		printf("Content-Type: text/plain\n");
-		sprintf(buf, "%s: %s\n", what, strerror(errno));
-		printf("Content-length: %d\n", strlen(buf));
-		printf("\n");
-		fwrite(buf, strlen(buf), 1, stdout);
+		wprintf("HTTP/1.0 404 %s\n", strerror(errno));
+		wprintf("Content-Type: text/plain\n");
+		wprintf("\n");
+		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(0);
 
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
-			printf("Content-type: image/gif\n");
+			wprintf("Content-type: image/gif\n");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
-			printf("Content-type: text/plain\n");
+			wprintf("Content-type: text/plain\n");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
-			printf("Content-type: image/jpeg\n");
+			wprintf("Content-type: image/jpeg\n");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
-			printf("Content-type: text/html\n");
+			wprintf("Content-type: text/html\n");
 		else
-			printf("Content-type: application/octet-stream\n");
+			wprintf("Content-type: application/octet-stream\n");
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		printf("Content-length: %ld\n", (long) bytes);
+		wprintf("Content-length: %ld\n", (long) bytes);
 		printf("\n");
 		while (bytes--) {
-			putc(getc(fp), stdout);
+			wprintf("%c", getc(fp) );
 		}
-		fflush(stdout);
 		fclose(fp);
 	}
 }
@@ -509,11 +449,11 @@ void output_image()
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(0);
-		printf("Content-type: image/gif\n");
-		printf("Content-length: %ld\n", (long) bytes);
-		printf("\n");
+		wprintf("Content-type: image/gif\n");
+		wprintf("Content-length: %ld\n", (long) bytes);
+		wprintf("\n");
 
 		while (bytes > (off_t) 0) {
 			thisblock = (off_t) sizeof(xferbuf);
@@ -524,7 +464,7 @@ void output_image()
 			if (buf[0] == '6')
 				thisblock = extract_long(&buf[4], 0);
 			serv_read(xferbuf, (int) thisblock);
-			fwrite(xferbuf, thisblock, 1, stdout);
+			write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
 		}
@@ -532,13 +472,11 @@ void output_image()
 		serv_puts("CLOS");
 		serv_gets(buf);
 	} else {
-		printf("HTTP/1.0 404 %s\n", strerror(errno));
+		wprintf("HTTP/1.0 404 %s\n", strerror(errno));
 		output_headers(0);
-		printf("Content-Type: text/plain\n");
-		sprintf(buf, "Error retrieving image\n");
-		printf("Content-length: %d\n", strlen(buf));
-		printf("\n");
-		fwrite(buf, strlen(buf), 1, stdout);
+		wprintf("Content-Type: text/plain\n");
+		wprintf("\n");
+		wprintf("Error retrieving image\n");
 	}
 
 }
@@ -549,7 +487,7 @@ void output_image()
  */
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -628,7 +566,10 @@ void upload_handler(char *name, char *filename, char *encoding,
 }
 
 
-void session_loop(char *browser_host, char *user_agent)
+/*
+ * Entry point for WebCit transaction
+ */
+void session_loop(struct httprequest *req)
 {
 	char cmd[256];
 	char action[256];
@@ -637,6 +578,9 @@ void session_loop(char *browser_host, char *user_agent)
 	int ContentLength = 0;
 	char ContentType[512];
 	char *content;
+	struct httprequest *hptr;
+	char browser_host[256];
+	char user_agent[256];
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -657,32 +601,38 @@ void session_loop(char *browser_host, char *user_agent)
 	WC->upload_length = 0;
 	WC->upload = NULL;
 
-	if (getz(cmd) == NULL)
-		return;
+	hptr = req;
+	if (hptr == NULL) return;
+
+	strcpy(cmd, hptr->line);
+	hptr = hptr->next;
 	extract_action(action, cmd);
 
-	do {
-		if (getz(buf) == NULL)
-			return;
+	while (hptr != NULL) {
+		strcpy(buf, hptr->line);
+		hptr = hptr->next;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			strcpy(cookie, &buf[15]);
 			cookie_to_stuff(cookie, NULL,
 				      c_username, c_password, c_roomname);
 		}
-		if (!strncasecmp(buf, "Content-length: ", 16)) {
+		else if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
 		}
-		if (!strncasecmp(buf, "Content-type: ", 14)) {
+		else if (!strncasecmp(buf, "Content-type: ", 14)) {
 			strcpy(ContentType, &buf[14]);
 		}
-	} while (strlen(buf) > 0);
+		else if (!strncasecmp(buf, "User-agent: ", 12)) {
+			strcpy(user_agent, &buf[12]);
+		}
+	}
 
 	++TransactionCount;
 
 	if (ContentLength > 0) {
 		content = malloc(ContentLength + 1);
-		fread(content, ContentLength, 1, stdin);
+		read(WC->http_sock, content, ContentLength);
 
 		content[ContentLength] = 0;
 
@@ -707,7 +657,7 @@ void session_loop(char *browser_host, char *user_agent)
 			cmd[a] = 0;
 		}
 	/*
-	 * If we're not WC->connected to a Citadel server, try to hook up the
+	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.  Preference is given to the host and port specified
 	 * by browser cookies, if cookies have been supplied.
 	 */
@@ -723,6 +673,7 @@ void session_loop(char *browser_host, char *user_agent)
 
 		WC->connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
+		locate_host(browser_host, WC->http_sock);
 		get_serv_info(browser_host, user_agent);
 	}
 	check_for_express_messages();
@@ -919,7 +870,7 @@ void session_loop(char *browser_host, char *user_agent)
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
 	} else if (!strcasecmp(action, "diagnostics")) {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
@@ -946,45 +897,5 @@ void session_loop(char *browser_host, char *user_agent)
 	if (WC->upload_length > 0) {
 		free(WC->upload);
 		WC->upload_length = 0;
-	}
-}
-
-int main(int argc, char *argv[])
-{
-
-	char browser[256];
-	int bd;
-
-	if (argc != 6) {
-		fprintf(stderr,
-			"webcit: usage error (argc must be 6, not %d)\n",
-			argc);
-		return 1;
-	}
-
-	WC = (struct wcsession *) malloc(sizeof(struct wcsession));
-	memset(WC, 0, sizeof(struct wcsession));
-
-
-
-	WC->wc_session = atoi(argv[1]);
-	defaulthost = argv[2];
-	defaultport = argv[3];
-
-	strcpy(WC->wc_username, "");
-	strcpy(WC->wc_password, "");
-	strcpy(WC->wc_roomname, "");
-
-	/* Clear out serv_info and temporarily set the value of serv_humannode
-	 * to a default value, because it'll be used in HTML page titles
-	 */
-	memset(&serv_info, 0, sizeof(serv_info));
-	strcpy(serv_info.serv_humannode, "WebCit");
-
-	strcpy(browser, argv[5]);
-	bd = browser_braindamage_check(browser);
-
-	while (1) {
-		session_loop(argv[4], browser);
 	}
 }

@@ -1,15 +1,31 @@
 /* $Id$ */
 
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <stdio.h>
+
+
+
 #include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <limits.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <string.h>
+#include <pwd.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
-#include "child.h"
+
+
+
 
 
 /* 
@@ -191,7 +207,7 @@ void embed_advanced_menu(void)
  */
 void display_main_menu(void)
 {
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	embed_main_menu();
 	wDumpContent(2);
@@ -200,7 +216,7 @@ void display_main_menu(void)
 
 void display_advanced_menu(void)
 {
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	embed_advanced_menu();
 	embed_main_menu();
@@ -213,7 +229,7 @@ void display_advanced_menu(void)
  */
 void display_generic(void)
 {
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
@@ -253,7 +269,7 @@ void do_generic(void)
 		return;
 	}
 
-	printf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	serv_printf("%s", bstr("g_cmd"));
@@ -316,7 +332,7 @@ void display_menubar(int as_single_page) {
 	char buf[256];
 
 	if (as_single_page) {
-		printf("HTTP/1.0 200 OK\n");
+		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(0);
 		wprintf("<HTML>\n"
 			"<HEAD>\n"

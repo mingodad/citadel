@@ -44,10 +44,17 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 int msock;			/* master listening socket */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
-extern pthread_mutex_t MasterCritter;
+extern pthread_mutex_t SessionListMutex;
+extern pthread_key_t MyConKey;
+
+
+
+
 
 const char *defaulthost = DEFAULT_HOST;
 const char *defaultport = DEFAULT_PORT;
+
+pthread_mutex_t AcceptQueue;
 
 /*
  * This is a generic function to set up a master socket for listening on
@@ -230,9 +237,6 @@ void start_daemon(int do_close_stdio)
  */
 int main(int argc, char **argv)
 {
-	struct sockaddr_in fsin;	/* Data for master socket */
-	int alen;		/* Data for master socket */
-	int ssock;		/* Descriptor for master socket */
 	pthread_t SessThread;	/* Thread descriptor */
 	pthread_attr_t attr;	/* Thread attributes */
 	int a, i;		/* General-purpose variables */
@@ -264,11 +268,20 @@ int main(int argc, char **argv)
 			defaultport = argv[optind];
 	}
 	/* Tell 'em who's in da house */
-	printf("WebCit version 2.01\n");
-	printf("Copyright (C) 1996-1999.  All rights reserved.\n\n");
+	fprintf(stderr, SERVER "\n"
+		"Copyright (C) 1996-1999.  All rights reserved.\n\n");
 
 	if (chdir(WEBCITDIR) != 0)
 		perror("chdir");
+
+        /*
+         * Set up a place to put thread-specific data.
+         * We only need a single pointer per thread - it points to the
+         * wcsession struct to which the thread is currently bound.
+         */
+        if (pthread_key_create(&MyConKey, NULL) != 0) {
+                fprintf(stderr, "Can't create TSD key: %s\n", strerror(errno));
+        }
 
 	/*
 	 * Bind the server to our favorite port.
@@ -280,9 +293,8 @@ int main(int argc, char **argv)
 	printf("Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
-	pthread_mutex_init(&MasterCritter, NULL);
-
-
+	pthread_mutex_init(&SessionListMutex, NULL);
+	pthread_mutex_init(&AcceptQueue, NULL);
 
 	/*
 	 * Start up the housekeeping thread
@@ -294,35 +306,57 @@ int main(int argc, char **argv)
 
 
 
-	/* 
-	 * Endless loop.  Listen on the master socket.  When a connection
-	 * comes in, create a socket, a context, and a thread.
-	 */
-	while (1) {
+	/* FIX make this variable */
+	for (i=0; i<10; ++i) {
+
+		/* set attributes for the new thread */
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+		/* now create the thread */
+		if (pthread_create(&SessThread, &attr,
+				(void *(*)(void *)) worker_entry, NULL)
+		    != 0) {
+			printf("webcit: can't create thread: %s\n",
+			       strerror(errno));
+		}
+	}
+
+	/* now become a worker thread too */
+	worker_entry();
+	pthread_exit(NULL);
+}
+
+
+/*
+ * Entry point for worker threads
+ */
+void worker_entry(void) {
+	int ssock;
+	struct sockaddr_in fsin;
+	int alen;
+	int i = 0;
+	int time_to_die = 0;
+
+	do {
+		/* Only one thread can accept at a time */
+		pthread_mutex_lock(&AcceptQueue);
 		ssock = accept(msock, (struct sockaddr *) &fsin, &alen);
+		pthread_mutex_unlock(&AcceptQueue);
+
 		printf("New connection on socket %d\n", ssock);
 		if (ssock < 0) {
 			printf("webcit: accept() failed: %s\n",
-			       strerror(errno));
+		       	strerror(errno));
 		} else {
 			/* Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
-				   &i, sizeof(i));
-
-			/* set attributes for the new thread */
-			pthread_attr_init(&attr);
-			pthread_attr_setdetachstate(&attr,
-						PTHREAD_CREATE_DETACHED);
-
-			/* now create the thread */
-			if (pthread_create(&SessThread, &attr,
-					(void *(*)(void *)) context_loop,
-					   (void *) ssock)
-			    != 0) {
-				printf("webcit: can't create thread: %s\n",
-				       strerror(errno));
-			}
+			   	&i, sizeof(i));
+			context_loop(ssock);
 		}
-	}
+
+	} while (!time_to_die);
+
+	pthread_exit(NULL);
 }
