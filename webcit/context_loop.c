@@ -129,6 +129,7 @@ int req_gets(int sock, char *buf, char *hold)
 	int a;
 
 	if (strlen(hold) == 0) {
+		strcpy(buf, "");
 		a = client_gets(sock, buf);
 		if (a<1) return(-1);
 	} else {
@@ -213,8 +214,13 @@ void context_loop(int sock)
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
+	memset(hold, 0, sizeof(hold));
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
+		fprintf(stderr, "%sReq: %s%s\n",
+			( (req==NULL) ? "\033[32m" : "" ) ,
+			buf,
+			( (req==NULL) ? "\033[0m" : "" )  );
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
 				NULL, NULL, NULL);
@@ -307,7 +313,6 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	fprintf(stderr, "%s\n", req->line);
 	session_loop(req);		/* perform the requested transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 

@@ -620,6 +620,7 @@ void session_loop(struct httprequest *req)
 	}
 
 	if (ContentLength > 0) {
+		fprintf(stderr, "Content length: %d\n", ContentLength);
 		content = malloc(ContentLength + 1);
 		read(WC->http_sock, content, ContentLength);
 

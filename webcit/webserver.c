@@ -170,7 +170,7 @@ int client_gets(int sock, char *buf)
 			retval = client_read(sock, &buf[i], 1);
 
 	/*
-	 * Strip any trailing not-printable characters.
+	 * Strip any trailing non-printable characters.
 	 */
 	buf[i] = 0;
 	while ((strlen(buf) > 0) && (!isprint(buf[strlen(buf) - 1]))) {
