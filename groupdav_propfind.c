@@ -67,14 +67,14 @@ void groupdav_folder_list(void) {
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\n");
+	wprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
-	wprintf("Content-type: text/xml\n");
+	wprintf("Content-type: text/xml\r\n");
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-     		"<D:multistatus xmlns:D=\"DAV:\">\n"
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+     		"<D:multistatus xmlns:D=\"DAV:\">\r\n"
 	);
 
 	serv_puts("LKRA");
@@ -91,7 +91,7 @@ void groupdav_folder_list(void) {
 		 */
 		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
 
-			wprintf(" <D:response>\n");
+			wprintf(" <D:response>\r\n");
 
 			wprintf("  <D:href>");
 			if (strlen(WC->http_host) > 0) {
@@ -101,35 +101,35 @@ void groupdav_folder_list(void) {
 			}
 			wprintf("/groupdav/");
 			urlescputs(roomname);
-			wprintf("/</D:href>\n");
+			wprintf("/</D:href>\r\n");
 
-			wprintf("  <D:propstat>\n");
-			wprintf("   <D:status>HTTP/1.1 200 OK</D:status>\n");
-			wprintf("   <D:prop>\n");
+			wprintf("  <D:propstat>\r\n");
+			wprintf("   <D:status>HTTP/1.1 200 OK</D:status>\r\n");
+			wprintf("   <D:prop>\r\n");
 			wprintf("    <D:displayname>");
 			escputs(		roomname);
-			wprintf(			"</D:displayname>\n");
+			wprintf(			"</D:displayname>\r\n");
 			wprintf("    <D:resourcetype><D:collection/>");
 
 			switch(view) {
 				case VIEW_CALENDAR:
-					wprintf("        <G:vevent-collection />\n");
+					wprintf("        <G:vevent-collection />\r\n");
 					break;
 				case VIEW_TASKS:
-					wprintf("        <G:vtodo-collection />\n");
+					wprintf("        <G:vtodo-collection />\r\n");
 					break;
 				case VIEW_ADDRESSBOOK:
-					wprintf("        <G:vcard-collection />\n");
+					wprintf("        <G:vcard-collection />\r\n");
 					break;
 			}
 
-			wprintf(				"</D:resourcetype>\n");
-			wprintf("   </D:prop>\n");
-			wprintf("  </D:propstat>\n");
-			wprintf(" </D:response>\n");
+			wprintf(				"</D:resourcetype>\r\n");
+			wprintf("   </D:prop>\r\n");
+			wprintf("  </D:propstat>\r\n");
+			wprintf(" </D:response>\r\n");
 		}
 	}
-	wprintf("</D:multistatus>\n\n\n");
+	wprintf("</D:multistatus>\r\n\r\n\r\n");
 
 	end_burst();
 }
@@ -174,12 +174,12 @@ void groupdav_propfind(char *dav_pathname) {
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\n");
+		wprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"There is no folder called \"%s\" on this server.\n",
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
 		return;
@@ -190,14 +190,14 @@ void groupdav_propfind(char *dav_pathname) {
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\n");
+	wprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
-	wprintf("Content-type: text/xml\n");
+	wprintf("Content-type: text/xml\r\n");
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-     		"<D:multistatus xmlns:D=\"DAV:\">\n"
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+     		"<D:multistatus xmlns:D=\"DAV:\">\r\n"
 	);
 
 	serv_puts("MSGS ALL");
@@ -219,7 +219,7 @@ void groupdav_propfind(char *dav_pathname) {
 		}
 
 		if (strlen(uid) > 0) {
-			wprintf(" <D:response>\n");
+			wprintf(" <D:response>\r\n");
 			wprintf("  <D:href>");
 			if (strlen(WC->http_host) > 0) {
 				wprintf("%s://%s",
@@ -230,16 +230,16 @@ void groupdav_propfind(char *dav_pathname) {
 			urlescputs(WC->wc_roomname);
 			euid_escapize(encoded_uid, uid);
 			wprintf("/%s", encoded_uid);
-			wprintf("</D:href>\n");
-			wprintf("   <D:propstat>\n");
-			wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");
-			wprintf("    <D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>\n", msgs[i]);
-			wprintf("   </D:propstat>\n");
-			wprintf(" </D:response>\n");
+			wprintf("</D:href>\r\n");
+			wprintf("   <D:propstat>\r\n");
+			wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\r\n");
+			wprintf("    <D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>\r\n", msgs[i]);
+			wprintf("   </D:propstat>\r\n");
+			wprintf(" </D:response>\r\n");
 		}
 	}
 
-	wprintf("</D:multistatus>\n\n\n");
+	wprintf("</D:multistatus>\r\n\r\n\r\n");
 	end_burst();
 
 	if (msgs != NULL) {
