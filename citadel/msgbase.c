@@ -1227,7 +1227,7 @@ void check_repl(long msgnum) {
 	}
 
 	/* Existing isn't newer?  Then delete the old one(s). */
-	CtdlDeleteMessages(&CC->quickroom.QRname, msgnum, NULL);
+	CtdlDeleteMessages(CC->quickroom.QRname, msgnum, NULL);
 }
 
 
