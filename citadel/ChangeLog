@@ -1,3 +1,8 @@
+$Log$
+Revision 1.327  1999/07/24 21:32:01  ajc
+Test of automatically updating ChangeLog
+
+
 Thu Jul 22 22:26:50 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Moved message deletion into new API function CtdlDeleteMessages()
 	* Added CtdlWriteObject() to store generic data in the msgbase

@@ -5,38 +5,8 @@
  * written implementation of the Mirabilis ICQ client protocol.  The library
  * has been modified rather than merely utilized because we need it to be
  * threadsafe in order to tie it into the Citadel server.
-
- $Id$
- $Log$
- Revision 1.3  1999/07/24 21:26:01  ajc
- n more log
-
- Revision 1.2  1999/07/23 04:27:45  ajc
- Added CtdlWriteObject() to store generic data in the msgbase
-
- Revision 1.1  1999/07/19 04:12:49  ajc
-         * serv_icq.c, serv_icq.mk: added (separate makefile is temporary)
-
- Revision 1.16  1998/12/08 16:00:59  denis
- Cleaned up a little before releasing
-
- Revision 1.15  1998/11/25 19:18:16  denis
- Added close icq_ProxySok in icq_Disconnect
-
- Revision 1.14  1998/11/25 09:48:49  denis
- icq_GetProxySok and icq_HandleProxyResponse methods added
- Connection terminated support added
-
- Revision 1.13  1998/11/19 12:22:48  denis
- SOCKS support cleaned a little
- icq_RecvUrl renamed to icq_RecvURL
- icq_ProxyAuth added for Username/Password Authentication
- URL/Description order inverted
- icq_Quit splitted to icq_Logout and icq_Disconnect
- icq_ProxyName and icq_ProxyPass range checking added
-
- Revision 1.12  1998/11/18 16:21:29  denis
- Fixed SOCKS5 proxy support
+ *
+ * $Id$
  */
 
 #include "serv_icq.h"
@@ -90,10 +60,19 @@ struct ctdl_icq_handle {
 };
 
 /* <ig> */
+
+/* ICQROOM is the name of the room in which each user's ICQ configuration
+ * and contact lists will be stored.  (It's a personal room.)
+ */
 #define ICQROOM		"My ICQ Config"
+
+/* MIME type to use for storing a user's ICQ uin, password, etc. */
 #define ICQMIME		"application/x-citadel-icq"
+
+/* Citadel server TSD symbol for use by serv_icq */
 unsigned long SYM_CTDL_ICQ;
 #define ThisICQ ((struct ctdl_icq_handle *)CtdlGetUserData(SYM_CTDL_ICQ))
+
 extern struct CitContext *ContextList;
 #define MODULE_NAME 	"ICQ metaclient"
 #define MODULE_AUTHOR	"Art Cancro"
