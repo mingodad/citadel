@@ -18,7 +18,9 @@ all: $(TARGETS)
 
 .SUFFIXES: .ro .mo .d
 
-CLIENT_TARGETS=citadel whobbs
+SUFFIX=@SUFFIX@
+
+CLIENT_TARGETS=citadel$(SUFFIX) whobbs$(SUFFIX)
 SERVER_TARGETS=citserver setup
 SERV_MODULES=modules/serv_chat.so \
 	modules/serv_upgrade.so modules/serv_expire.so
@@ -73,7 +75,7 @@ serv_modules: $(SERV_MODULES)
 #
 #
 
-citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+citadel$(SUFFIX): ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF) $(LDFLAGS) \
@@ -154,7 +156,7 @@ netsetup: netsetup.o config.o
 proxy: proxy.o ipc_c_tcp.o
 	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy
 
-whobbs: whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
+whobbs$(SUFFIX): whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) -o whobbs
 
 sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(SNPRINTF)

@@ -26,6 +26,9 @@ case "$host" in
 		SERVER_LDFLAGS=-pthread
 		TARGETS="client server utils serv_modules"
 	;;
+	i?86-pc-cygwin32)
+		SUFFIX=.exe
+	;;
 esac
 
 dnl Checks for programs.
@@ -92,7 +95,7 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(curses.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h)
+AC_CHECK_HEADERS(curses.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h pthread.h gdbm.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -106,7 +109,7 @@ AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(snprintf mkdir mktime rmdir select socket strerror)
+AC_CHECK_FUNCS(snprintf mkdir mkfifo mktime rmdir select socket strerror)
 
 dnl Tell the Makefile whether we need to use our snprintf() replacement.
 if test "$ac_cv_func_snprintf" = no; then
@@ -119,5 +122,6 @@ AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SNPRINTF)
 AC_SUBST(PICFLAGS)
+AC_SUBST(SUFFIX)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile weekly)

@@ -24,9 +24,13 @@
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
+#include <stdarg.h>
 #include "citadel.h"
 #include "citadel_decls.h"
 #include "ipc.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 /*
  * If server_is_local is set to nonzero, the client assumes that it is running

@@ -9,6 +9,7 @@
  *
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -17,7 +18,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include "citadel.h"
 #include "mime_parser.h"
 #include "sysdep_decls.h"

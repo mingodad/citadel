@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 199506L
 #endif
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -20,7 +21,9 @@
 #include <string.h>
 #include <syslog.h>
 #include <limits.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
@@ -34,7 +37,6 @@
 #include "msgbase.h"
 #include "config.h"
 #include "dynloader.h"
-#include "sysdep.h"
 #include "tools.h"
 
 

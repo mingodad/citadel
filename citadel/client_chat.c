@@ -22,6 +22,7 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#include <stdarg.h>
 #include "citadel.h"
 #include "client_chat.h"
 #include "commands.h"
@@ -29,6 +30,9 @@
 #include "ipc.h"
 #include "citadel_decls.h"
 #include "tools.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 

@@ -15,6 +15,7 @@
  * conditions to occur.  (Deadlock is bad.  Eliminate.)
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -22,8 +23,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
+#ifdef HAVE_GDBM_H
 #include <gdbm.h>
+#endif
 #include "citadel.h"
 #include "server.h"
 #include "database.h"

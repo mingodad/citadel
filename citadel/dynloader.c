@@ -9,6 +9,7 @@
  ******************************************************/
 
 
+#include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
@@ -16,7 +17,9 @@
 #include <dirent.h>
 #include <strings.h>
 #include <syslog.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <limits.h>
 #include "dynloader.h"
 #include "citadel.h"

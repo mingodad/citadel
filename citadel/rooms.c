@@ -1,6 +1,7 @@
 /* Citadel/UX room-oriented routines */
 /* $Id$ */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -12,10 +13,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <stdarg.h>
 #include "citadel.h"
 #include "rooms.h"
 #include "commands.h"
 #include "tools.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
@@ -595,9 +600,10 @@ void download_to_local_disk(char *filename, long total_bytes)
 void download(int proto)
 {
 	char buf[256];
-	char dbuf[4096];
 	char filename[256];
 	long total_bytes = 0L;
+#ifdef HAVE_MKFIFO
+	char dbuf[4096];
 	long transmitted_bytes = 0L;
 	long aa,bb;
 	int a,b;
@@ -605,6 +611,7 @@ void download(int proto)
 	FILE *tpipe = NULL;
 	int proto_pid;
 	int broken = 0;
+#endif
 
 	if ((room_flags & QR_DOWNLOAD) == 0) {
 		printf("*** You cannot download from this room.\n");
@@ -628,6 +635,7 @@ void download(int proto)
 		return;
 		}
 
+#ifdef HAVE_MKFIFO
 	/* Meta-download for public clients */
 	mkdir(tempdir,0700);
 	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename);
@@ -708,6 +716,7 @@ void download(int proto)
 
 	putc(7,stdout);
 	exit(0);	/* transfer control back to the main program */
+#endif
 	}
 
 

@@ -3,6 +3,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -12,7 +13,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"

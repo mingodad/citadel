@@ -3,6 +3,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -16,12 +17,16 @@
 #include <pwd.h>
 #include <setjmp.h>
 #include <errno.h>
+#include <stdarg.h>
 #include "citadel.h"
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
 #include "tools.h"
 #include "messages.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);

@@ -20,6 +20,7 @@
 #include <signal.h>
 #include <pwd.h>
 #include <setjmp.h>
+#include <stdarg.h>
 
 #include "citadel.h"
 #include "axdefs.h"
@@ -33,6 +34,9 @@
 #include "client_chat.h"
 #include "citadel_decls.h"
 #include "tools.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 struct march {
 	struct march *next;

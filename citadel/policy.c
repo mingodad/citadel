@@ -1,10 +1,13 @@
 /* $Id$ */
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <time.h>
 #include <limits.h>
 #include "citadel.h"

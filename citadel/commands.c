@@ -32,12 +32,16 @@
 
 #include <signal.h>
 #include <errno.h>
+#include <stdarg.h>
 #include "citadel.h"
 #include "commands.h"
 #include "messages.h"
 #include "citadel_decls.h"
 #include "routines.h"
 #include "routines2.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 struct citcmd {
 	struct citcmd *next;

@@ -3,6 +3,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -13,8 +14,9 @@
 #include <limits.h>
 #include <netdb.h>
 #include <string.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#include "sysdep.h"
+#endif
 #include "citadel.h"
 #include "server.h"
 #include "locate_host.h"

@@ -5,6 +5,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -13,7 +14,9 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"

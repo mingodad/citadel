@@ -4,6 +4,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -16,11 +17,15 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <stdarg.h>
 #include "citadel.h"
 #include "messages.h"
 #include "commands.h"
 #include "rooms.h"
 #include "tools.h"
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 #define MAXWORDBUF 256
 #define MAXMSGS 512

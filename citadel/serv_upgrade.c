@@ -7,6 +7,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -19,7 +20,9 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include "citadel.h"
 #include "server.h"
 #include <syslog.h>
