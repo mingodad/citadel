@@ -87,6 +87,7 @@ int sock_connect(char *host, char *service, char *protocol)
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(3, "can't connect to %s:%s: %s\n",
 			host, service, strerror(errno));
+		close(s);
 		return(-1);
 	}
 

@@ -2487,6 +2487,7 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	}
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		close(s);
 		return -1;
 	}
 
@@ -2508,6 +2509,7 @@ static int uds_connectsock(int *isLocal, char *sockpath)
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		close(s);
 		return -1;
 	}
 

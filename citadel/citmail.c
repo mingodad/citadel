@@ -65,6 +65,7 @@ int uds_connectsock(char *sockpath)
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
 		fprintf(stderr, "can't connect: %s\n",
 			strerror(errno));
+		close(s);
 		exit(3);
 	}
 

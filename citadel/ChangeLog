@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.39  2003/04/26 21:55:15  ajc
+ * Anytime a socket connect() fails, CLOSE THE SOCKET before erroring out.
+   Not doing so causes a file descriptor leak.
+
  Revision 605.38  2003/04/26 04:22:51  ajc
  * Removal of individual "remote" lines from message delivery instruction sets
    was corrupting the end of the set, rendering the "bounceto" line unusable
@@ -4646,3 +4650,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
