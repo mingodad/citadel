@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.43  2000/12/08 17:06:33  ajc
+ * Wrap txn_begin and txn_end in S_DATABASE mutex
+
  Revision 573.42  2000/12/07 20:21:39  ajc
  * begin/end transaction in master_startup()
 
@@ -2194,3 +2197,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

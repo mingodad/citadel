@@ -394,7 +394,9 @@ struct cdbdata *cdb_next_item(int cdb)
 void cdb_begin_transaction(void) {
 
 #ifdef TRANSACTION_BASED
+	begin_critical_section(S_DATABASE);
 	txn_begin(dbenv, NULL, &MYTID, 0);
+	end_critical_section(S_DATABASE);
 #else
 	MYTID = NULL;
 #endif
@@ -402,6 +404,8 @@ void cdb_begin_transaction(void) {
 
 void cdb_end_transaction(void) {
 #ifdef TRANSACTION_BASED
+	begin_critical_section(S_DATABASE);
 	txn_commit(MYTID, 0);
+	end_critical_section(S_DATABASE);
 #endif
 }
