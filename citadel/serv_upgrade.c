@@ -73,7 +73,7 @@ void fpgetfield(FILE *fp, char *string)
 void import_message(long msgnum, long msglen) {
 	char *msgtext;
 
-	msgtext = malloc(msglen);
+	msgtext = mallok(msglen);
 	if (msgtext == NULL) {
 		lprintf(3, "ERROR: cannot allocate memory\n");
 		lprintf(3, "Your data files are now corrupt.\n");
@@ -83,7 +83,7 @@ void import_message(long msgnum, long msglen) {
 
 	fread(msgtext, msglen, 1, imfp);
 	cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), msgtext, msglen);
-	free(msgtext);
+	phree(msgtext);
 	}
 
 void imp_floors(void) {
@@ -188,7 +188,7 @@ void imp_rooms(void) {
 					msglen = atol(tval);
 					import_message(msgnum, msglen);
 					++num_msgs;
-					msglist = realloc(msglist,
+					msglist = reallok(msglist,
 						(sizeof(long)*num_msgs) );
 					msglist[num_msgs - 1] = msgnum;
 					}
@@ -206,7 +206,7 @@ void imp_rooms(void) {
 					CC->num_msgs = num_msgs;
 					put_msglist(&qr);
 					}
-				free(msglist);
+				phree(msglist);
 				}
 
 			}

@@ -169,7 +169,7 @@ void close_databases(void) {
 
 	for (a=0; a<MAXKEYS; ++a) {
 		if (dtkey[a].dptr != NULL) {
-			free(dtkey[a].dptr);
+			phree(dtkey[a].dptr);
 			}
 		}
 
@@ -245,7 +245,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen) {
 		return NULL;
 		}
 
-	tempcdb = (struct cdbdata *) malloc(sizeof(struct cdbdata));
+	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	if (tempcdb == NULL) {
 		lprintf(2, "Cannot allocate memory!\n");
 		}
@@ -261,8 +261,8 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen) {
  * more complex stuff with other database managers in the future).
  */
 void cdb_free(struct cdbdata *cdb) {
-	free(cdb->ptr);
-	free(cdb);
+	phree(cdb->ptr);
+	phree(cdb);
 	}
 
 
@@ -275,7 +275,7 @@ void cdb_free(struct cdbdata *cdb) {
 void cdb_rewind(int cdb) {
 
 	if (dtkey[CC->cs_pid].dptr != NULL) {
-		free(dtkey[CC->cs_pid].dptr);
+		phree(dtkey[CC->cs_pid].dptr);
 		}
 
 	begin_critical_section(S_DATABASE);
@@ -301,11 +301,11 @@ struct cdbdata *cdb_next_item(int cdb) {
 	dret = gdbm_fetch(gdbms[cdb], dtkey[CC->cs_pid]);
 	end_critical_section(S_DATABASE);
 	if (dret.dptr == NULL) {	/* bad read */
-		free(dtkey[CC->cs_pid].dptr);
+		phree(dtkey[CC->cs_pid].dptr);
 		return NULL;
 		}
 
-	cdbret = (struct cdbdata *) malloc(sizeof(struct cdbdata));
+	cdbret = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	cdbret->len = dret.dsize;
 	cdbret->ptr = dret.dptr;
 

@@ -197,7 +197,7 @@ void DoPurgeRooms(struct quickroom *qrbuf) {
 
 	if (age > purge_secs) {
 		
-		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
+		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
 		pptr->next = RoomPurgeList;
 		strcpy(pptr->name, qrbuf->QRname);
 		RoomPurgeList = pptr;
@@ -221,7 +221,7 @@ int PurgeRooms(void) {
 			delete_room(&qrbuf);
 			}
 		pptr = RoomPurgeList->next;
-		free(RoomPurgeList);
+		phree(RoomPurgeList);
 		RoomPurgeList = pptr;
 		++num_rooms_purged;
 		}
@@ -275,7 +275,7 @@ void do_user_purge(struct usersupp *us) {
 	if (us->timescalled == 0) purge = 1;
 
 	if (purge == 1) {
-		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
+		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
 		strcpy(pptr->name, us->fullname);
 		UserPurgeList = pptr;
@@ -297,7 +297,7 @@ int PurgeUsers(void) {
 	while (UserPurgeList != NULL) {
 		purge_user(UserPurgeList->name);
 		pptr = UserPurgeList->next;
-		free(UserPurgeList);
+		phree(UserPurgeList);
 		UserPurgeList = pptr;
 		++num_users_purged;
 		}
@@ -309,7 +309,7 @@ int PurgeUsers(void) {
 void AddValidUser(struct usersupp *usbuf) {
 	struct ValidUser *vuptr;
 
-	vuptr = (struct ValidUser *)malloc(sizeof(struct ValidUser));
+	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
 	vuptr->next = ValidUserList;
 	vuptr->vu_usernum = usbuf->usernum;
 	ValidUserList = vuptr;
@@ -318,7 +318,7 @@ void AddValidUser(struct usersupp *usbuf) {
 void AddValidRoom(struct quickroom *qrbuf) {
 	struct ValidRoom *vrptr;
 
-	vrptr = (struct ValidRoom *)malloc(sizeof(struct ValidRoom));
+	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
 	vrptr->next = ValidRoomList;
 	vrptr->vr_roomnum = qrbuf->QRnumber;
 	vrptr->vr_roomgen = qrbuf->QRgen;
@@ -384,7 +384,7 @@ int PurgeVisits(void) {
 		/* Put the record on the purge list if it's dead */
 		if ((RoomIsValid==0) || (UserIsValid==0)) {
 			vptr = (struct VPurgeList *)
-				malloc(sizeof(struct VPurgeList));
+				mallok(sizeof(struct VPurgeList));
 			vptr->next = VisitPurgeList;
 			vptr->vp_roomnum = vbuf.v_roomnum;
 			vptr->vp_roomgen = vbuf.v_roomgen;
@@ -397,14 +397,14 @@ int PurgeVisits(void) {
 	/* Free the valid room/gen combination list */
 	while (ValidRoomList != NULL) {
 		vrptr = ValidRoomList->next;
-		free(ValidRoomList);
+		phree(ValidRoomList);
 		ValidRoomList = vrptr;
 		}
 
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
 		vuptr = ValidUserList->next;
-		free(ValidUserList);
+		phree(ValidUserList);
 		ValidUserList = vuptr;
 		}
 
@@ -416,7 +416,7 @@ int PurgeVisits(void) {
 				VisitPurgeList->vp_usernum);
 		cdb_delete(CDB_VISIT, IndexBuf, IndexLen);
 		vptr = VisitPurgeList->next;
-		free(VisitPurgeList);
+		phree(VisitPurgeList);
 		VisitPurgeList = vptr;
 		++purged;
 		}

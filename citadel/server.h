@@ -1,6 +1,10 @@
 /* $Id$ */
 typedef pthread_t THREAD;
 
+/* Uncomment this if you want to track memory leaks.
+ * (Don't do this unless you're a developer!)
+ */
+#define DEBUG_MEMORY_LEAKS
 
 struct ExpressMessage {
 	struct ExpressMessage *next;
@@ -208,3 +212,34 @@ struct visit {
 #define UA_GOTOALLOWED          4
 #define UA_HASNEWMSGS           8
 #define UA_ZAPPED		16
+
+
+
+/* Built-in debuggable stuff for checking for memory leaks */
+#ifdef DEBUG_MEMORY_LEAKS
+
+#define mallok(howbig)	tracked_malloc(howbig, __FILE__, __LINE__)
+#define phree(whichptr)	tracked_free(whichptr)
+#define reallok(whichptr,howbig)	tracked_realloc(whichptr,howbig)
+
+void *tracked_malloc(size_t, char *, int);
+void tracked_free(void *);
+void *tracked_realloc(void *, size_t);
+void dump_tracked(void);
+
+struct TheHeap {
+        struct TheHeap *next;
+        char h_file[32];
+        int h_line;
+        void *h_ptr;
+        };
+
+extern struct TheHeap *heap;
+
+#else
+
+#define mallok(howbig)	malloc(howbig)
+#define phree(whichptr)	free(whichptr)
+#define reallok(whichptr,howbig)	realloc(whichptr,howbig)
+
+#endif

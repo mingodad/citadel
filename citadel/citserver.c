@@ -111,12 +111,12 @@ void cleanup_stuff(void *arg)
 	while (CC->FirstExpressMessage != NULL) {
 		emptr = CC->FirstExpressMessage;
 		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
-		free(emptr);
+		phree(emptr);
 		}
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Deallocate any message list we might have in memory */
-	if (CC->msglist != NULL) free(CC->msglist);
+	if (CC->msglist != NULL) phree(CC->msglist);
 
 	/* Now get rid of the session and context */
 	lprintf(7, "cleanup_stuff() calling RemoveContext(%d)\n", CC->cs_pid);
@@ -377,13 +377,13 @@ void cmd_mesg(char *mname)
 	extract(buf,mname,0);
 
 
-	dirs[0]=malloc(64);
-	dirs[1]=malloc(64);
+	dirs[0]=mallok(64);
+	dirs[1]=mallok(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
 	mesg_locate(targ,buf,2,dirs);
-	free(dirs[0]);
-	free(dirs[1]);
+	phree(dirs[0]);
+	phree(dirs[1]);
 
 
 	if (strlen(targ)==0) {
@@ -432,13 +432,13 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 		}
 
-	dirs[0]=malloc(64);
-	dirs[1]=malloc(64);
+	dirs[0]=mallok(64);
+	dirs[1]=mallok(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
 	mesg_locate(targ,buf,2,dirs);
-	free(dirs[0]);
-	free(dirs[1]);
+	phree(dirs[0]);
+	phree(dirs[1]);
 
 	if (strlen(targ)==0) {
 		snprintf(targ, sizeof targ, "./help/%s", buf);
@@ -1100,6 +1100,12 @@ void *context_loop(struct CitContext *con)
 		else if (!strncasecmp(cmdbuf, "CONF", 4)) {
 			cmd_conf(&cmdbuf[5]);
 			}
+
+#ifdef DEBUG_MEMORY_LEAKS
+		else if (!strncasecmp(cmdbuf, "LEAK", 4)) {
+			dump_tracked();
+			}
+#endif
 
 		else if (!DLoader_Exec_Cmd(cmdbuf))
 			{

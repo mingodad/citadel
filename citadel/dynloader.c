@@ -43,7 +43,7 @@ struct ProtoFunctionHook
 
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc)
 {
-  struct ProtoFunctionHook *p = malloc(sizeof *p);
+  struct ProtoFunctionHook *p = mallok(sizeof *p);
   
   if (p == NULL)
     {
@@ -127,7 +127,7 @@ void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel) {
 	struct LogFunctionHook *newfcn;
 
 	newfcn = (struct LogFunctionHook *)
-		malloc(sizeof(struct LogFunctionHook));
+		mallok(sizeof(struct LogFunctionHook));
 	newfcn->next = LogHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->loglevel = loglevel;
@@ -142,7 +142,7 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr)(void)) {
 	struct CleanupFunctionHook *newfcn;
 
 	newfcn = (struct CleanupFunctionHook *)
-		malloc(sizeof(struct CleanupFunctionHook));
+		mallok(sizeof(struct CleanupFunctionHook));
 	newfcn->next = CleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	CleanupHookTable = newfcn;
@@ -156,7 +156,7 @@ void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType) {
 	struct SessionFunctionHook *newfcn;
 
 	newfcn = (struct SessionFunctionHook *)
-		malloc(sizeof(struct SessionFunctionHook));
+		mallok(sizeof(struct SessionFunctionHook));
 	newfcn->next = SessionHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
@@ -172,7 +172,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType) {
 	struct UserFunctionHook *newfcn;
 
 	newfcn = (struct UserFunctionHook *)
-		malloc(sizeof(struct UserFunctionHook));
+		mallok(sizeof(struct UserFunctionHook));
 	newfcn->next = UserHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;

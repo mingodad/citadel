@@ -287,7 +287,7 @@ void get_msglist(struct quickroom *whichroom) {
 	struct cdbdata *cdbfr;
 
 	if (CC->msglist != NULL) {
-		free(CC->msglist);
+		phree(CC->msglist);
 		}
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
@@ -297,7 +297,7 @@ void get_msglist(struct quickroom *whichroom) {
 		return;
 		}
 
-	CC->msglist = malloc(cdbfr->len);
+	CC->msglist = mallok(cdbfr->len);
 	memcpy(CC->msglist, cdbfr->ptr, cdbfr->len);
 	CC->num_msgs = cdbfr->len / sizeof(long);
 	cdb_free(cdbfr);
@@ -349,7 +349,7 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 		num_msgs = 0;
 		}
 	else {
-		msglist = malloc(cdbfr->len);
+		msglist = mallok(cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		cdb_free(cdbfr);
@@ -357,7 +357,7 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 	
 	/* Now add the new message */
 	++num_msgs;
-	msglist = realloc(msglist,
+	msglist = reallok(msglist,
 		(num_msgs * sizeof(long)) );
 
 	if (msglist == NULL) {
@@ -1173,7 +1173,7 @@ void delete_room(struct quickroom *qrbuf) {
 		cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
 		}
 	put_msglist(qrbuf);
-	free(CC->msglist);
+	phree(CC->msglist);
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 	delete_msglist(qrbuf);

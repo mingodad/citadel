@@ -87,7 +87,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 		fclose(fp);
 		}
 
-	clnew = (struct ChatLine *) malloc(sizeof(struct ChatLine));
+	clnew = (struct ChatLine *) mallok(sizeof(struct ChatLine));
 	memset(clnew, 0, sizeof(struct ChatLine));
 	if (clnew == NULL) {
 		fprintf(stderr, "citserver: cannot alloc chat line: %s\n",
@@ -130,7 +130,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 		if ( (now - ChatQueue->chat_time) < 120L ) goto DONE_FREEING;
 		clptr = ChatQueue;
 		ChatQueue = ChatQueue->next;
-		free(clptr);
+		phree(clptr);
 		}
 DONE_FREEING:	end_critical_section(S_CHATQUEUE);
 	}
@@ -378,7 +378,7 @@ void cmd_pexp(char *argbuf) /* arg unused */ {
 		begin_critical_section(S_SESSION_TABLE);
 		emptr = CC->FirstExpressMessage;
 		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
-		free(emptr);
+		phree(emptr);
 		end_critical_section(S_SESSION_TABLE);
 		}
 	cprintf("000\n");
@@ -446,7 +446,7 @@ void cmd_sexp(char *argbuf)
 		   || (!strcasecmp(x_user, "broadcast")) ) {
 			strcpy(ccptr->last_pager, CC->curr_user);
 			emnew = (struct ExpressMessage *)
-				malloc(sizeof(struct ExpressMessage));
+				mallok(sizeof(struct ExpressMessage));
 			emnew->next = NULL;
 			sprintf(emnew->em_text, "%s from %s:\n %s\n",
 				( (!strcasecmp(x_user, "broadcast")) ? "Broadcast message" : "Message" ),

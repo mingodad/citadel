@@ -663,7 +663,7 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 	if (generate_id) {
 		sprintf(msgidbuf, "I%ld", newmsgid);
 		actual_length = message_length + strlen(msgidbuf) + 1;
-		actual_message = malloc(actual_length);
+		actual_message = mallok(actual_length);
 		memcpy(actual_message, message_in_memory, 3);
 		memcpy(&actual_message[3], msgidbuf, (strlen(msgidbuf)+1) );
 		memcpy(&actual_message[strlen(msgidbuf)+4],
@@ -688,7 +688,7 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 	end_critical_section(S_MSGMAIN);
 
 	if (generate_id) {
-		free(actual_message);
+		phree(actual_message);
 		}
 
 	/* Finally, return the pointers */
@@ -758,7 +758,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	templen = statbuf.st_size;
 
 	/* Now read it into memory */
-	message_in_memory = (char *) malloc(templen);
+	message_in_memory = (char *) mallok(templen);
 	if (message_in_memory == NULL) {
 		lprintf(2, "Can't allocate memory to save message!\n");
 		return;
@@ -769,7 +769,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	fclose(fp);
 
 	newmsgid = send_message(message_in_memory, templen, generate_id);
-	free(message_in_memory);
+	phree(message_in_memory);
 	if (newmsgid <= 0L) return;
 
 	strcpy(actual_rm, CC->quickroom.QRname);

@@ -52,6 +52,10 @@
 #include "snprintf.h"
 #endif
 
+#ifdef DEBUG_MEMORY_LEAKS
+struct TheHeap *heap = NULL;
+#endif
+
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
@@ -79,6 +83,74 @@ void lprintf(int loglevel, const char *format, ...) {
 
 	PerformLogHooks(loglevel, buf);
 	}   
+
+
+
+#ifdef DEBUG_MEMORY_LEAKS
+void *tracked_malloc(size_t tsize, char *tfile, int tline) {
+	void *ptr;
+	struct TheHeap *hptr;
+
+	ptr = malloc(tsize);
+	if (ptr == NULL) return(NULL);
+
+	hptr = (struct TheHeap *) malloc(sizeof(struct TheHeap));
+	strcpy(hptr->h_file, tfile);
+	hptr->h_line = tline;
+	hptr->next = heap;
+	hptr->h_ptr = ptr;
+	heap = hptr;
+	return ptr;
+	}
+
+
+void tracked_free(void *ptr) {
+	struct TheHeap *hptr, *freeme;
+
+	if (heap->h_ptr == ptr) {
+		hptr = heap->next;
+		free(heap);
+		heap = hptr;
+		}
+	else {
+		for (hptr=heap; hptr->next!=NULL; hptr=hptr->next) {
+			if (hptr->next->h_ptr == ptr) {
+				freeme = hptr->next;
+				hptr->next = hptr->next->next;
+				free(freeme);
+				}
+			}
+		}
+
+	free(ptr);
+	}
+
+void *tracked_realloc(void *ptr, size_t size) {
+	void *newptr;
+	struct TheHeap *hptr;
+	
+	newptr = realloc(ptr, size);
+
+	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
+		if (hptr->h_ptr == ptr) hptr->h_ptr = newptr;
+		}
+
+	return newptr;
+	}
+
+
+void dump_tracked() {
+	struct TheHeap *hptr;
+
+	cprintf("%d Here's what's allocated...\n", LISTING_FOLLOWS);	
+	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
+		cprintf("%20s %5d\n",
+			hptr->h_file, hptr->h_line);
+		}
+	cprintf("000\n");
+	}
+#endif
+
 
 
 /*
@@ -238,7 +310,7 @@ struct CitContext *CreateNewContext(void) {
 	struct CitContext *me;
 
 	lprintf(9, "CreateNewContext: calling malloc()\n");
-	me = (struct CitContext *) malloc(sizeof(struct CitContext));
+	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		pthread_exit(NULL);
@@ -304,7 +376,7 @@ void RemoveContext(struct CitContext *con)
 		}
 
 	lprintf(9, "Freeing session context...\n");	
-	free(con);
+	phree(con);
 	lprintf(9, "...done.\n");
 	end_critical_section(S_SESSION_TABLE);
 
