@@ -631,8 +631,6 @@ void session_loop(struct httprequest *req)
 				ContentLength - BytesRead);
 			if (a <= 0) BytesRead = ContentLength;
 			else BytesRead += a;
-			fprintf(stderr, "Block: %-5d  Read: %-5d  Need: %-5d\n",
-				a, BytesRead, ContentLength);
 		}
 
 		if (!strncasecmp(ContentType,
