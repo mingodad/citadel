@@ -89,8 +89,7 @@ void pop3_greeting(void) {
 	strcpy(CC->cs_clientname, "POP3 session");
 	CC->internal_pgm = 1;
 	POP3 = malloc(sizeof(struct citpop3));
-	POP3->msgs = NULL;
-	POP3->num_msgs = 0;
+	memset(POP3, 0, sizeof(struct citpop3));
 
 	cprintf("+OK Citadel POP3 server %s\r\n",
 		CC->cs_nonce);
