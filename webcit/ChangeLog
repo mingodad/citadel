@@ -1,8 +1,10 @@
 $Log$
+Revision 528.7  2005/01/14 04:53:54  ajc
+*** empty log message ***
+
 Revision 528.6  2005/01/14 04:53:12  ajc
 * Got the three-pane model working not only with web browsers, but also
-  with the disgusting abomination called Internet Explorer.  It is my
-  sincere hope that a tsunami wipes out Redmond.
+  with the disgusting abomination called Internet Explorer.
 
 Revision 528.5  2005/01/13 18:38:08  ajc
 * Insert a newline between </div> and <div id="text">
