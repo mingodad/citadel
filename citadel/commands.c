@@ -126,9 +126,11 @@ void set_keepalives(int s)
  * This loop handles the "keepalive" messages sent to the server when idling.
  */
 
+static time_t idlet = 0;
 static void really_do_keepalive(void) {
 	char buf[256];
 
+	time(&idlet);
 	if (keepalives_enabled != KA_NO) {
 		serv_puts("NOOP");
 		if (keepalives_enabled == KA_YES) {
@@ -179,13 +181,11 @@ static void async_ka_exec(void)
 
 static void do_keepalive(void)
 {
-	static time_t idlet = 0;
 	time_t now;
 
 	time(&now);
 	if ((now - idlet) < ((long) S_KEEPALIVE))
 		return;
-	time(&idlet);
 
 	/* Do a space-backspace to keep telnet sessions from idling out */
 	printf(" %c", 8);

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.484  2000/03/11 19:22:19  nbryant
+ * commands.c: improved timing of background keepalives if connection is
+               lagged
+
 Revision 1.483  2000/03/11 05:08:48  nbryant
  * commands.c: oops, that mutex stuff wasn't necessary
 
@@ -1717,4 +1721,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
