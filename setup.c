@@ -385,6 +385,9 @@ void check_inittab_entry(void)
 	char looking_for[SIZ];
 	char question[128];
 	char entryname[5];
+	char listenport[128];
+	char hostname[128];
+	char portname[128];
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, sizeof looking_for, "%s/webserver ", WEBCITDIR);
@@ -401,6 +404,31 @@ void check_inittab_entry(void)
 		looking_for);
 	if (yesno(question) == 0)
 		return;
+
+	snprintf(question, sizeof question,
+		"On which port do you want WebCit to listen for HTTP "
+		"requests?\n\nYou can use the standard port (80) if you are "
+		"not running another web server\n(such as Apache), otherwise "
+		"select another port.");
+	sprintf(listenport, "2000");
+	set_value(question, listenport);
+
+	/* Find out where Citadel is. */
+	snprintf(question, sizeof question,
+		"Is the Citadel service running on the same host as WebCit?");
+	if (yesno(question)) {
+		sprintf(hostname, "uds");
+		sprintf(portname, "/usr/local/citadel");
+		set_value("In what directory is Citadel installed?", portname);
+	}
+	else {
+		sprintf(hostname, "127.0.0.1");
+		sprintf(portname, "504");
+		set_value("Enter the host name or IP address of your "
+			"Citadel server.", hostname);
+		set_value("Enter the port number on which Citadel is "
+			"running (usually 504)", portname);
+	}
 
 	/* Generate a unique entry name for /etc/inittab */
 	snprintf(entryname, sizeof entryname, "c0");
@@ -425,8 +453,8 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the WebCit server...\n");
-		fprintf(infp, "%s:2345:respawn:%s -h%s\n",
-			entryname, looking_for, setup_directory);
+		fprintf(infp, "%s:2345:respawn:%s %s %s\n",
+			entryname, looking_for, hostname, portname);
 		fclose(infp);
 		strcpy(init_entry, entryname);
 	}
@@ -469,11 +497,8 @@ int discover_ui(void)
 int main(int argc, char *argv[])
 {
 	int a;
-	int curr;
 	char aaa[128];
-	FILE *fp;
 	int info_only = 0;
-	gid_t gid;
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -515,21 +540,22 @@ int main(int argc, char *argv[])
 		cleanup(errno);
 	}
 
-	/* See if we need to shut down the Citadel service. */
+	/* See if we need to shut down the WebCit service. */
 	for (a=0; a<=3; ++a) {
 		progress("Shutting down the WebCit service...", a, 3);
 		if (a == 0) shutdown_service();
 		sleep(1);
 	}
 
-	/* Make sure it's stopped. */
+	/* Make sure it's stopped.  FIXME put back in
 	if (test_server() == 0) {
 		important_message("WebCit Setup",
-			"The Citadel service is still running.\n"
+			"The WebCit service is still running.\n"
 			"Please stop the service manually and run "
 			"setup again.");
 		cleanup(1);
 	}
+	*/
 
 	/* Now begin. */
 	switch (setup_type) {
