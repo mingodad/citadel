@@ -1,4 +1,7 @@
 $Log$
+Revision 528.16  2005/01/22 22:50:51  ajc
+* removed descriptions in non-main menus
+
 Revision 528.15  2005/01/20 21:24:27  ajc
 * When viewing a calendar room, the "Read all messages" link in the
   room banner has been replaced by "Day view" and "Month view" links.
@@ -2209,4 +2212,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
