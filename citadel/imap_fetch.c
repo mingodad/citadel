@@ -163,9 +163,9 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 
 /*
  * Load a specific part of a message into the temp file to be output to a
- * client.  FIXME we can handle parts like "2" and "2.1" but we still have
- * to handle parts like "2.MIME" and "2.HEADER" (the latter maybe not ...
- * Mark Crispy's server doesn't seem to)
+ * client.  FIXME we can handle parts like "2" and "2.1" and even "2.MIME"
+ * but we still can't handle "2.HEADER" (which might not be a problem, because
+ * we currently don't have the ability to break out nested RFC822's anyway).
  *
  * Note: mime_parser() was called with dont_decode set to 1, so we have the
  * luxury of simply spewing without having to re-encode.
@@ -210,6 +210,25 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 }
 
 
+/*
+ * Implements the ENVELOPE fetch item
+ * 
+ * FIXME ... we have to actually do something useful here.
+ */
+void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
+	cprintf("ENVELOPE (");
+	cprintf("NIL ");	/* date */
+	cprintf("NIL ");	/* subject */
+	cprintf("NIL ");	/* from */
+	cprintf("NIL ");	/* sender */
+	cprintf("NIL ");	/* reply-to */
+	cprintf("NIL ");	/* to */
+	cprintf("NIL ");	/* cc */
+	cprintf("NIL ");	/* bcc */
+	cprintf("NIL ");	/* in-reply-to */
+	cprintf("NIL");		/* message-id */
+	cprintf(")\r\n");
+}
 
 
 
@@ -352,7 +371,7 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			/* FIXME do something here */
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
-			/* FIXME do something here */
+			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "FLAGS")) {
 			imap_fetch_flags(msg);

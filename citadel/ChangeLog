@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.22  2000/11/07 20:47:21  ajc
+ * imap_fetch.c: added a skeleton "ENVELOPE" fetch.  Currently sends NIL's.
+
  Revision 573.21  2000/11/07 15:54:53  ajc
  * xx FETCH n:n BODY[pn.MIME] now works
 
@@ -2122,4 +2125,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
