@@ -639,8 +639,7 @@ void display_addressbook(long msgnum, char alpha) {
 /* 
  * load message pointers from the server
  */
-int load_msg_ptrs(servcmd)
-char *servcmd;
+int load_msg_ptrs(char *servcmd)
 {
 	char buf[SIZ];
 	int nummsgs;
@@ -654,6 +653,7 @@ char *servcmd;
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		WC->msgarr[nummsgs] = atol(buf);
+		/* FIXME check for overflow */
 		++nummsgs;
 	}
 	return (nummsgs);

@@ -167,7 +167,7 @@ struct wcsession {
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
 	char reply_to[SIZ];		/* reply-to address */
-	long msgarr[1024];		/* for read operations */
+	long msgarr[4096];		/* for read operations */
 	int fake_frames;
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
@@ -354,6 +354,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
 void do_calendar_view(void);
+int load_msg_ptrs(char *servcmd);
 
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);
