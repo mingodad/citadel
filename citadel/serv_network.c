@@ -86,6 +86,68 @@ struct NetMap *the_netmap = NULL;
 
 
 
+/*
+ * network_talking_to()  --  concurrency checker
+ */
+int network_talking_to(char *nodename, int oper) {
+
+	static char *nttlist = NULL;
+	char *ptr = NULL;
+	int i;
+	char buf[SIZ];
+	int retval = 0;
+
+	begin_critical_section(S_NTTLIST);
+
+	switch(oper) {
+
+		case NTT_ADD:
+			if (nttlist == NULL) nttlist = stdroop("");
+			if (nttlist == NULL) return;
+			nttlist = (char *)reallok(nttlist,
+				(strlen(nttlist) + strlen(nodename) + 3) );
+			strcat(nttlist, "|");
+			strcat(nttlist, nodename);
+			break;
+
+		case NTT_REMOVE:
+			if (nttlist == NULL) break;
+			if (strlen(nttlist) == 0) break;
+			ptr = mallok(strlen(nttlist));
+			if (ptr == NULL) break;
+			strcpy(ptr, "");
+			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
+				extract(buf, nttlist, i);
+				if ( (strlen(buf) > 0)
+				     && (strcasecmp(buf, nodename)) ) {
+						strcat(ptr, buf);
+						strcat(ptr, "|");
+				}
+			}
+			phree(nttlist);
+			nttlist = ptr;
+			break;
+
+		case NTT_CHECK:
+			if (nttlist == NULL) break;
+			if (strlen(nttlist) == 0) break;
+			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
+				extract(buf, nttlist, i);
+				if (!strcasecmp(buf, nodename)) ++retval;
+			break;
+	}
+
+	lprintf(9, "nttlist=<%s>\n", nttlist);
+	end_critical_section(S_NTTLIST);
+	return(retval);
+}
+
+
+
+
+
+
+
 /* 
  * Read the network map from its configuration file into memory.
  */
