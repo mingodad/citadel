@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.83  2001/12/01 19:23:26  ajc
+ * clientsocket.c: implement socket timeouts for read operations
+
  Revision 580.82  2001/12/01 17:00:23  ajc
  * serv_smtp.c: when multiple MX's are the same preference, randomize them
 
@@ -2889,4 +2892,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

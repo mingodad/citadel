@@ -567,7 +567,7 @@ int client_read_to(char *buf, int bytes, int timeout)
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
  */
-int client_read(char *buf, int bytes)
+inline int client_read(char *buf, int bytes)
 {
 	return(client_read_to(buf, bytes, config.c_sleeping));
 }

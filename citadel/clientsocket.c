@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -33,6 +34,7 @@
 #include "snprintf.h"
 #endif
 #include "sysdep_decls.h"
+#include <clientsocket.h>
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -91,23 +93,52 @@ int sock_connect(char *host, char *service, char *protocol)
 	return (s);
 }
 
+
+
+/*
+ * sock_read_to() - input binary data from socket, with a settable timeout.
+ * Returns the number of bytes read, or -1 for error.
+ */
+int sock_read_to(int sock, char *buf, int bytes, int timeout)
+{
+	int len,rlen;
+	fd_set rfds;
+	struct timeval tv;
+	int retval;
+
+	len = 0;
+	while(len<bytes) {
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
+		tv.tv_sec = timeout;
+		tv.tv_usec = 0;
+
+		retval = select(sock+1, &rfds, NULL, NULL, &tv);
+
+		if (FD_ISSET(sock, &rfds) == 0) {	/* timed out */
+			lprintf(9, "sock_read() timed out.\n");
+			return(-1);
+		}
+
+		rlen = read(sock, &buf[len], bytes-len);
+		if (rlen<1) {
+			lprintf(2, "sock_read() failed: %s\n",
+				strerror(errno));
+			return(-1);
+		}
+		len = len + rlen;
+	}
+	return(bytes);
+}
+
+
 /*
  * sock_read() - input binary data from socket.
  * Returns the number of bytes read, or -1 for error.
  */
-int sock_read(int sock, char *buf, int bytes)
+inline int sock_read(int sock, char *buf, int bytes)
 {
-	int len, rlen;
-
-	len = 0;
-	while (len < bytes) {
-		rlen = read(sock, &buf[len], bytes - len);
-		if (rlen < 1) {
-			return (-1);
-		}
-		len = len + rlen;
-	}
-	return (len);
+	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT);
 }
 
 
