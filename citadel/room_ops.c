@@ -377,7 +377,7 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 		msglist, num_msgs * sizeof(long));
 
 	/* And finally, free up the memory we used. */
-	free(msglist);
+	phree(msglist);
 	return(highest_msg);
 	}
 
