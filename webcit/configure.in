@@ -3,7 +3,7 @@ dnl $Id$
 AC_INIT(webserver.c)
 
 dnl Check for Digital Unix; it has a different way of building for pthreads,
-dnl and we can't build pthreads programs with gcc dut to header problems.
+dnl and we can't build pthreads programs with gcc due to header problems.
 AC_CANONICAL_HOST
 case "$host" in
 	alpha*-dec-osf*)
