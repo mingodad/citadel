@@ -63,7 +63,7 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	for (; *ch->h_addr_list; ch->h_addr_list++)
 		if (!memcmp(*ch->h_addr_list, addr,
 			    sizeof *addr)) {
-			safestrncpy(tbuf, ch->h_name, 25);
+			safestrncpy(tbuf, ch->h_name, 63);
 			goto end;
 		}
 	goto bad_dns;		/* they were spoofing. report a numeric IP
@@ -75,6 +75,6 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	end_critical_section(S_NETDB);
 #endif
 
-	tbuf[25] = 0;
+	tbuf[63] = 0;
 	lprintf(9, "locate_host() exiting\n");
 }

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.21  2001/12/28 11:06:53  error
+ * More server support for hostnames up to 63 characters (oops I missed a spot)
+
  Revision 590.20  2001/12/28 09:39:10  error
  * Client support for hostnames up to 63 characters: truncated at 24 in
    short who list, full display in long who list.
@@ -3012,4 +3015,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
