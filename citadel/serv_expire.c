@@ -67,18 +67,23 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
 	
-	/* lprintf(9, "ExpirePolicy for <%s> is <%d> <%d>\n",
+	/*
+	lprintf(9, "ExpirePolicy for <%s> is <%d> <%d>\n",
 		qrbuf->QRname, epbuf.expire_mode, epbuf.expire_value);
-	 */
+	*/
 
 	/* If the room is set to never expire messages ... do nothing */
 	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
 
+	begin_critical_section(S_QUICKROOM);
 	get_msglist(qrbuf);
 	
 	/* Nothing to do if there aren't any messages */
-	if (CC->num_msgs == 0) return;
+	if (CC->num_msgs == 0) {
+		end_critical_section(S_QUICKROOM);
+		return;
+		}
 
 	/* If the room is set to expire by count, do that */
 	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
@@ -109,9 +114,11 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 		}
 	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
 	put_msglist(qrbuf);
+	end_critical_section(S_QUICKROOM);
 	}
 
 void PurgeMessages(void) {
+	lprintf(5, "PurgeMessages() called\n");
 	ForEachRoom(DoPurgeMessages);
 	}
 
@@ -170,9 +177,11 @@ void do_user_purge(struct usersupp *us) {
 
 
 
-void PurgeUsers(void) {
+int PurgeUsers(void) {
 	struct PurgedUser *pptr;
+	int num_users_purged = 0;
 
+	lprintf(5, "PurgeUsers() called\n");
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge);
 		}
@@ -182,14 +191,50 @@ void PurgeUsers(void) {
 		pptr = plist->next;
 		free(plist);
 		plist = pptr;
+		++num_users_purged;
 		}
 
+	lprintf(5, "Purged %d users.\n", num_users_purged);
+	return(num_users_purged);
+	}
+
+
+void cmd_expi(char *argbuf) {
+	char cmd[256];
+	int retval;
+
+
+	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if ((!is_room_aide()) && (!(CC->internal_pgm)) ) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	extract(cmd, argbuf, 0);
+	if (!strcasecmp(cmd, "users")) {
+		retval = PurgeUsers();
+		cprintf("%d Purged %d users.\n", OK, retval);
+		return;
+		}
+	else if (!strcasecmp(cmd, "messages")) {
+		PurgeMessages();
+		cprintf("%d Finished purging messages.\n", OK);
+		return;
+		}
+	else {
+		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
+		return;
+		}
 	}
 
 
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
-   CtdlRegisterCleanupHook(PurgeMessages);
-   CtdlRegisterCleanupHook(PurgeUsers);
+   CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
    return &info;
 }

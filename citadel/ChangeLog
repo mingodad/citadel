@@ -3,6 +3,8 @@ Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citserver.c, msgbase.c, user_ops.c: hide the owner-prefix of mail
 	  rooms in a couple more places: set_wtmpsupp() and make_message()
 	* sysdep.c: added an fflush() to lprintf() for "tail -f"-able logs
+	* serv_expire.c: purge ops are now a command instead of a cleanup
+	  function.  This is probably temporary as well.
 
 1998-11-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_upgrade.c: fix uninitialized variable

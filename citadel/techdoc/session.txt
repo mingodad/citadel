@@ -1677,3 +1677,19 @@ fails for any reason, ERROR is returned.
  15. Number of maximum concurrent sessions allowed on the server
  16. Password for server-to-server networking
  17. Default purge time (in days) for users
+ 
+  
+ 
+ EXPI   (EXPIre system objects)
+ 
+ Begins purge operations for objects which, according to site policy, are
+"old" and should be removed.  EXPI should be called with one argument, one of:
+ 
+    "messages"     (purge old messages out of each room)
+    "users"        (purge old users from the userlog)
+  
+ EXPI returns OK (probably after a long delay while it does its work) if it
+succeeds; otherwise it returns an ERROR code.
+ 
+ This command is probably temporary, until we can work some sort of scheduler
+into the system.  It is implemented in the serv_expire module.
