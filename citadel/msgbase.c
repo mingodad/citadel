@@ -2470,6 +2470,9 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
  */
 int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 
+	/* Do not allow twits to send Internet mail */
+	if (who->axlevel <= 2) return(0);
+
 	/* Globally enabled? */
 	if (config.c_restrict == 0) return(1);
 

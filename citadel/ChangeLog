@@ -1,4 +1,8 @@
  $Log$
+ Revision 623.10  2004/07/25 16:20:04  error
+ * msgbase.c: CtdlCheckInternetMailPermission(): Do not allow twits to send
+   Internet mail (they shouldn't be sending ANYTHING at all)
+
  Revision 623.9  2004/07/25 16:18:43  error
  * citadel.spec: update version number
 
@@ -5938,3 +5942,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
