@@ -15,6 +15,7 @@
 #include "bitmaps/who.xpm"
 #include "bitmaps/chat.xpm"
 #include "bitmaps/xglobe.xpm"
+#include "bitmaps/goto.xpm"
 #endif
 
 
@@ -61,6 +62,7 @@ private:
 	void OnEditMenu(wxCommandEvent& cmd);
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnRoomsMenu(wxCommandEvent& cmd);
+/*	void OnDoChat(wxCommandEvent& event); */
         void MyFrame::OnSize(wxSizeEvent& event);
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
@@ -102,6 +104,7 @@ enum
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
+/*	EVT_MENU(	IG_Chat,		MyFrame::OnDoChat)*/
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_Term,		MyFrame::DoTerm)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
@@ -244,7 +247,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 // The toolbar for this application.
 void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	int i;
-	wxBitmap* bitmaps[5];
+	wxBitmap* bitmaps[6];
 
 // wxGTK seems to do the right thing by itself, while wxMSW wants to be
 // told how big the toolbar icons are going to be, otherwise it defaults to
@@ -261,12 +264,14 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[3] = new wxBitmap("bitmaps/chat.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[4] = new wxBitmap("bitmaps/xglobe.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[5] = new wxBitmap("bitmaps/goto.bmp",   wxBITMAP_TYPE_BMP);
 #else
 	bitmaps[0] = new wxBitmap(globe_xpm);
 	bitmaps[1] = new wxBitmap(mail_xpm);
 	bitmaps[2] = new wxBitmap(who_xpm);
 	bitmaps[3] = new wxBitmap(chat_xpm);
 	bitmaps[4] = new wxBitmap(xglobe_xpm);
+	bitmaps[5] = new wxBitmap(goto_xpm);
 #endif
 
 	toolBar->AddTool(MENU_CONNECT,
@@ -287,6 +292,14 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 			(wxObject *)NULL,
 			"Open your e-mail inbox");
 			
+	toolBar->AddTool(RMENU_GOTO,
+			*bitmaps[5],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"Goto next room");
+
 	toolBar->AddSeparator();
 
 	toolBar->AddTool(UMENU_WHO,
@@ -303,7 +316,7 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 			FALSE,
 			-1, -1,
 			(wxObject *)NULL,
-			"Real-time chat");
+			"Real-time chat"); 
 			
         toolBar->AddTool(IG_Term,
 		        *bitmaps[4],
@@ -338,6 +351,12 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	cleanup(0);
 }
 
+/* // IG_Chat
+
+void MyFrame::OnDoChat(wxCommandEvent& unused) {
+	new ChatWindow(citadel, this);
+	sendcmd="CHAT";
+}*/
 
 // doterm(inate session)
 
@@ -453,6 +472,7 @@ void MyFrame::OnGotoMail(wxCommandEvent& unused) {
 
 void MyFrame::OnTestWin(wxCommandEvent& unused) {
 	new TestWindow(citadel, this);
+/*	sendcmd="CHAT"; */
 }
 
 void MyFrame::OnSize(wxSizeEvent& WXUNUSED(event) )

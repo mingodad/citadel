@@ -175,6 +175,21 @@ private:
 	DECLARE_EVENT_TABLE()
 };
 
+// Just testing...
+class DoChat : public wxMDIChildFrame {
+public:
+        ChatWindow(CitClient *sock, wxMDIParentFrame *MyMDI);
+private:
+        wxPanel *panel;
+        wxTextCtrl *sendcmd;
+        wxTextCtrl *recvcmd;
+        wxTextCtrl *xfercmd;
+        wxButton *cmd_button;
+        wxButton *close_button;
+        void OnButtonPressed(wxCommandEvent& whichbutton);
+        CitClient *citsock;
+        DECLARE_EVENT_TABLE()
+};
 
 
 
