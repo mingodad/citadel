@@ -2,6 +2,8 @@
 #define _XOPEN_SOURCE
 /* needed for str[n]casecmp() on some systems if the above is defined */
 #define _XOPEN_SOURCE_EXTENDED
+/* needed to enable threads on some systems if the above are defined */
+#define _POSIX_C_SOURCE 199506L
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,6 +15,7 @@
 #include <sys/time.h>
 #include <string.h>
 #include <syslog.h>
+#include <limits.h>
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"

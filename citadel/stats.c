@@ -344,7 +344,9 @@ main (int argc, char **argv)
 	}
       prompt ();
 
-    PC_ONLY_HERE:
+    PC_ONLY_HERE:; /* yes this semicolon is necessary; the DEC C compiler
+		      complains that a label must be followed by an actual
+		      statement. */
 
 
 /*

@@ -121,7 +121,7 @@ int connectsock(char *host, char *service, char *protocol)
  * convert service and host entries into a six-byte numeric in the format
  * expected by a SOCKS v4 server
  */
-void numericize(unsigned char *buf, char *host, char *service, char *protocol)
+void numericize(char *buf, char *host, char *service, char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -234,7 +234,7 @@ void attach_to_server(int argc, char **argv)
 	char cithost[256];	int host_copied = 0;
 	char citport[256];	int port_copied = 0;
 	char socks4[256];
-	unsigned char buf[256];
+	char buf[256];
 	struct passwd *p;
 
 	strcpy(cithost,DEFAULT_HOST);	/* default host */

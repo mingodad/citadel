@@ -32,3 +32,4 @@ configure
 config.log
 config.cache
 sysdep.h.in
+so_locations

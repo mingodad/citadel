@@ -30,6 +30,7 @@ dnl Checks for programs.
 AC_PROG_CC
 if test "$GCC" = yes; then
 	CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
+	SERVER_LDFLAGS=-rdynamic
 fi
 AC_PROG_RANLIB
 
@@ -67,5 +68,6 @@ AC_CHECK_FUNCS(mkdir mktime rmdir select socket strerror)
 
 AC_SUBST(CURSES)
 AC_SUBST(TARGETS)
+AC_SUBST(SERVER_LDFLAGS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile)
