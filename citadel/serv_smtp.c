@@ -136,7 +136,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
-		cprintf("250 AUTH=LOGIN\r\n");
+		cprintf("250-AUTH=LOGIN\r\n");
 		cprintf("250 ENHANCEDSTATUSCODES\r\n");
 	}
 }
@@ -376,7 +376,7 @@ void smtp_mail(char *argbuf) {
 	 */
 	if (CC->logged_in) {
 		strcpy(SMTP->from, CC->cs_inet_email);
-		cprintf("250 2.0.0 Sender ok <%s>\r\n", SMTP->from);
+		cprintf("250 2.1.0 Sender ok <%s>\r\n", SMTP->from);
 		SMTP->message_originated_locally = 1;
 		return;
 	}
@@ -451,7 +451,7 @@ void smtp_rcpt(char *argbuf) {
 		}
 	}
 
-	cprintf("250 2.0.0 RCPT ok <%s>\r\n", recp);
+	cprintf("250 2.1.5 RCPT ok <%s>\r\n", recp);
 	if (strlen(SMTP->recipients) > 0) {
 		strcat(SMTP->recipients, ",");
 	}
@@ -483,7 +483,7 @@ void smtp_data(void) {
 		return;
 	}
 
-	cprintf("354 Transmit message now; terminate with '.' by itself\r\n");
+	cprintf("354 Transmit message now - terminate with '.' by itself\r\n");
 	
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	body = mallok(4096);

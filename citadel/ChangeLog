@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.44  2003/04/30 16:16:13  ajc
+ * Minor fix to ESMTP greeting (missing '-' screwed up pipelining)
+
  Revision 605.43  2003/04/30 15:46:27  ajc
  * Added the ENHANCEDSTATUSCODES extention to ESMTP.
 
@@ -4665,4 +4668,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
