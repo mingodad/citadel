@@ -36,6 +36,13 @@ char *days[] = {
 	"Thursday", "Friday", "Saturday"
 };
 
+char *hourname[] = {
+	"12am", "1am", "2am", "3am", "4am", "5am", "6am",
+	"7am", "8am", "9am", "10am", "11am", "12pm",
+	"1pm", "2pm", "3pm", "4pm", "5pm", "6pm",
+	"7pm", "8pm", "9pm", "10pm", "11pm"
+};
+
 #ifdef HAVE_ICAL_H
 
 /*
@@ -118,9 +125,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("Hour: ");
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
+		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
 			((tm->tm_hour == i) ? "SELECTED" : ""),
-			i, i
+			i, hourname[i]
 		);
 	}
 	wprintf("</SELECT>\n");
@@ -128,7 +135,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("Minute: ");
 	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
+		wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
 			((tm->tm_min == i) ? "SELECTED" : ""),
 			i, i
 		);

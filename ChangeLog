@@ -1,4 +1,8 @@
 $Log$
+Revision 400.65  2002/12/17 05:01:39  ajc
+* Prettied up the calendar day view layout
+* Hour/minute editing fields now use am/pm hours and 2-digit minutes
+
 Revision 400.64  2002/12/16 04:43:30  ajc
 * Correctly handle local time zone when figuring out which day and time to
   display events on calendar month/day views.  This also seems to have
@@ -1173,3 +1177,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
