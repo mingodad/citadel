@@ -137,7 +137,6 @@ public class citadel {
   }
 
   public void login() {
-    rooms.loadFloorInfo();
     cp.login();
   }
 

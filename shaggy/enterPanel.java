@@ -54,7 +54,7 @@ public class enterPanel extends Panel {
 
     msg.setText( "" );
 
-    np.setLabel( room );
+    np.setLabel( room + " (" + citadel.me.rooms.getRoomsFloorName( room  )+")" );
     this.room = room;
     this.recip = r;
 
