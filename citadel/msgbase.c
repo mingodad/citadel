@@ -527,10 +527,10 @@ int CtdlForEachMessage(int mode, long ref,
 void cmd_msgs(char *cmdbuf)
 {
 	int mode = 0;
-	char which[SIZ];
-	char buf[SIZ];
-	char tfield[SIZ];
-	char tvalue[SIZ];
+	char which[16];
+	char buf[256];
+	char tfield[256];
+	char tvalue[256];
 	int cm_ref = 0;
 	int i;
 	int with_template = 0;
@@ -1025,7 +1025,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 		void *cbuserdata)
 {
 	int i;
-	char buf[SIZ];
+	char buf[128];
 	int add_newline = 0;
 	char *text_content;
 	struct ma_info *ma;

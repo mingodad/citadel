@@ -514,8 +514,8 @@ void list_roomname(struct ctdlroom *qrbuf, int ra, int view)
 	/* For my own mailbox rooms, chop off the owner prefix */
 	if ( (qrbuf->QRflags & QR_MAILBOX)
 	     && (atol(qrbuf->QRname) == CC->user.usernum) ) {
-		strcpy(truncated_roomname, qrbuf->QRname);
-		strcpy(truncated_roomname, &truncated_roomname[11]);
+		safestrncpy(truncated_roomname, qrbuf->QRname, sizeof truncated_roomname);
+		safestrncpy(truncated_roomname, &truncated_roomname[11], sizeof truncated_roomname);
 		cprintf("%s", truncated_roomname);
 	}
 	/* For all other rooms, just display the name in its entirety */
@@ -848,10 +848,10 @@ void usergoto(char *where, int display_result, int transiently,
 	else
 		raideflag = 0;
 
-	strcpy(truncated_roomname, CC->room.QRname);
+	safestrncpy(truncated_roomname, CC->room.QRname, sizeof truncated_roomname);
 	if ( (CC->room.QRflags & QR_MAILBOX)
 	   && (atol(CC->room.QRname) == CC->user.usernum) ) {
-		strcpy(truncated_roomname, &truncated_roomname[11]);
+		safestrncpy(truncated_roomname, &truncated_roomname[11], sizeof truncated_roomname);
 	}
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
@@ -1027,9 +1027,9 @@ void cmd_whok(void)
  */
 void cmd_rdir(void)
 {
-	char buf[SIZ];
-	char flnm[SIZ];
-	char comment[SIZ];
+	char buf[256];
+	char flnm[256];
+	char comment[256];
 	FILE *ls, *fd;
 	struct stat statbuf;
 
@@ -1067,7 +1067,7 @@ void cmd_rdir(void)
 			snprintf(buf, sizeof buf, "%s/files/%s/%s",
 				BBSDIR, CC->room.QRdirname, flnm);
 			stat(buf, &statbuf);
-			strcpy(comment, "");
+			safestrncpy(comment, "", sizeof comment);
 			fseek(fd, 0L, 0);
 			while ((fgets(buf, sizeof buf, fd) != NULL)
 			       && (strlen(comment) == 0)) {
@@ -1135,7 +1135,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	struct floor *fl;
 	struct floor flbuf;
 	long owner = 0L;
-	char actual_old_name[SIZ];
+	char actual_old_name[ROOMNAMELEN];
 
 	lprintf(CTDL_DEBUG, "CtdlRenameRoom(%s, %s, %d)\n",
 		old_name, new_name, new_floor);
@@ -1170,7 +1170,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 
 	else {
 		/* Rename it */
-		strcpy(actual_old_name, qrbuf.QRname);
+		safestrncpy(actual_old_name, qrbuf.QRname, sizeof actual_old_name);
 		if (qrbuf.QRflags & QR_MAILBOX) {
 			owner = atol(qrbuf.QRname);
 		}
@@ -1265,7 +1265,7 @@ void cmd_setr(char *args)
 	if (CC->room.QRflags & QR_MAILBOX) {
 		sprintf(new_name, "%010ld.", atol(CC->room.QRname) );
 	} else {
-		strcpy(new_name, "");
+		safestrncpy(new_name, "", sizeof new_name);
 	}
 	extract_token(&new_name[strlen(new_name)], args, 0, '|', (sizeof new_name - strlen(new_name)));
 
@@ -1574,10 +1574,10 @@ void cmd_kill(char *argbuf)
 	}
 	if (kill_ok) {
 		if (CC->room.QRflags & QR_MAILBOX) {
-			strcpy(deleted_room_name, &CC->room.QRname[11]);
+			safestrncpy(deleted_room_name, &CC->room.QRname[11], sizeof deleted_room_name);
 		}
 		else {
-			strcpy(deleted_room_name, CC->room.QRname);
+			safestrncpy(deleted_room_name, CC->room.QRname, sizeof deleted_room_name);
 		}
 
 		/* Do the dirty work */

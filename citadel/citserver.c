@@ -299,7 +299,7 @@ int is_public_client(void)
 		begin_critical_section(S_PUBLIC_CLIENTS);
 		lprintf(CTDL_INFO, "Loading %s\n", PUBLIC_CLIENTS);
 
-		strcpy(public_clients, "127.0.0.1");
+		safestrncpy(public_clients, "127.0.0.1", sizeof public_clients);
 		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
 			strcat(public_clients, "|");
 			strcat(public_clients, addrbuf);
@@ -417,10 +417,8 @@ void cmd_mesg(char *mname)
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
-	dirs[0]=malloc(64);
-	dirs[1]=malloc(64);
-	strcpy(dirs[0],"messages");
-	strcpy(dirs[1],"help");
+	dirs[0] = strdup("messages");
+	dirs[1] = strdup("help");
 	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
 	mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
 	if (strlen(targ) == 0) {

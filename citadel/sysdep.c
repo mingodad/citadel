@@ -676,7 +676,7 @@ int client_getln(char *buf, int bufsize)
 	buf[i] = 0;
 	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
 		buf[strlen(buf)-1] = 0;
-	if (retval < 0) strcpy(buf, "000");
+	if (retval < 0) safestrncpy(buf, "000", bufsize);
 	return(retval);
 }
 
