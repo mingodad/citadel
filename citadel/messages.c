@@ -75,8 +75,6 @@ extern int rc_force_mail_prompts;
 
 extern int editor_pid;
 
-int lines_printed;
-
 void ka_sigcatch(int signum) {
 	char buf[256];
 	alarm(S_KEEPALIVE);

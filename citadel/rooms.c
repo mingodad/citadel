@@ -716,22 +716,22 @@ void roomdir(void) {
 	serv_puts("RDIR");
 	serv_gets(buf);
 	if (buf[0]!='1') {
-		printf("%s\n",&buf[4]);
+		pprintf("%s\n",&buf[4]);
 		return;
 		}
 
 	extract(comment,&buf[4],0);
 	extract(flnm,&buf[4],1);
-	printf("\nDirectory of %s on %s\n",flnm,comment);
-	printf("-----------------------\n");
+	pprintf("\nDirectory of %s on %s\n",flnm,comment);
+	pprintf("-----------------------\n");
 	while (serv_gets(buf), strcmp(buf,"000")) {
 		extract(flnm,buf,0);
 		extract(flsz,buf,1);
 		extract(comment,buf,2);
 		if (strlen(flnm)<=14)
-	    		printf("%-14s %8s %s\n",flnm,flsz,comment);
+	    		pprintf("%-14s %8s %s\n",flnm,flsz,comment);
 		else
-			printf("%s\n%14s %8s %s\n",flnm,"",flsz,comment);
+			pprintf("%s\n%14s %8s %s\n",flnm,"",flsz,comment);
 		}
 	}
 

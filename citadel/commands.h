@@ -50,7 +50,10 @@ void keyopt(char *);
 char keymenu(char *menuprompt, char *menustring);
 void async_ka_start(void);
 void async_ka_end(void);
+void pprintf(const char *format, ...);
+
 
 extern int num_urls;
 extern char urls[MAXURLS][256];
 extern char rc_url_cmd[256];
+extern int lines_printed;

@@ -67,6 +67,9 @@ char rc_url_cmd[256];
 char *gl_string;
 int next_lazy_cmd = 5;
 
+int lines_printed = 0;		/* line count for paginator */
+extern int screenwidth, screenheight;
+
 struct citcmd *cmdlist = NULL;
 
 
@@ -75,6 +78,34 @@ char keepalives_enabled = KA_YES;	/* send NOOPs to server when idle */
 int ok_to_interrupt = 0;		/* print express msgs asynchronously */
 time_t AnsiDetect;			/* when did we send the detect code? */
 int enable_color = 0;			/* nonzero for ANSI color */
+
+
+
+
+
+/*
+ * pprintf()  ...   paginated version of printf()
+ */
+void pprintf(const char *format, ...) {   
+        va_list arg_ptr;
+	static char buf[4096];	/* static for performance, change if needed */
+	int i;
+  
+        va_start(arg_ptr, format);   
+        vsprintf(buf, format, arg_ptr);   
+        va_end(arg_ptr);   
+
+	for (i=0; i<strlen(buf); ++i) {
+		putc(buf[i], stdout);
+		if (buf[i]==10) {
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed,
+				(userflags & US_PAGINATOR),
+				screenheight);
+		}
+	}
+}   
+
 
 
 /*
@@ -234,6 +265,7 @@ int inkey(void)
 	char inbuf[2];
 
 	fflush(stdout);
+	lines_printed = 0;
 	time(&start_time);
 
 	do {

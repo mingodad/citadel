@@ -185,43 +185,37 @@ void userlist(char *patn)
 	char fl[256];
 	struct tm *tmbuf;
 	time_t lc;
-	int linecount = 2;
 
 	serv_puts("LIST");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("%s\n", &buf[4]);
+		pprintf("%s\n", &buf[4]);
 		return;
 	}
 	sigcaught = 0;
 	sttybbs(SB_YES_INTR);
-	printf("       User Name           Num  L  LastCall  Calls Posts\n");
-	printf("------------------------- ----- - ---------- ----- -----\n");
+	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
+	pprintf("------------------------- ----- - ---------- ----- -----\n");
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (sigcaught == 0) {
 		    extract(fl, buf, 0);
 		    if (pattern(fl, patn) >= 0) {
-			printf("%-25s ", fl);
-			printf("%5ld %d ", extract_long(buf, 2),
+			pprintf("%-25s ", fl);
+			pprintf("%5ld %d ", extract_long(buf, 2),
 			       extract_int(buf, 1));
 			lc = extract_long(buf, 3);
 			tmbuf = (struct tm *) localtime(&lc);
-			printf("%02d/%02d/%04d ",
+			pprintf("%02d/%02d/%04d ",
 			       (tmbuf->tm_mon + 1),
 			       tmbuf->tm_mday,
 			       (tmbuf->tm_year + 1900));
-			printf("%5ld %5ld\n", extract_long(buf, 4), extract_long(buf, 5));
-
-			++linecount;
-			linecount = checkpagin(linecount,
-				    ((userflags & US_PAGINATOR) ? 1 : 0),
-					       screenheight);
+			pprintf("%5ld %5ld\n", extract_long(buf, 4), extract_long(buf, 5));
 		    }
 
 		}
 	}
 	sttybbs(SB_NO_INTR);
-	printf("\n");
+	pprintf("\n");
 }
 
 
@@ -754,7 +748,6 @@ void who_is_online(int longlist)
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
-	int linecount = 2;
 
 	if (longlist) {
 		serv_puts("TIME");
@@ -766,9 +759,9 @@ void who_is_online(int longlist)
 		}
 	} else {
 		color(BRIGHT_WHITE);
-		printf("FLG ###        User Name                 Room                 From host\n");
+		pprintf("FLG ###        User Name                 Room                 From host\n");
 		color(DIM_WHITE);
-		printf("--- --- ------------------------- -------------------- ------------------------\n");
+		pprintf("--- --- ------------------------- -------------------- ------------------------\n");
 	}
 	serv_puts("RWHO");
 	serv_gets(buf);
@@ -785,36 +778,31 @@ void who_is_online(int longlist)
 				idlehours = idletime / 3600;
 				idlemins = (idletime - (idlehours * 3600)) / 60;
 				idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
-				printf("\nFlags: %-3s  Sess# %-3d  Name: %-25s  Room: %s\n",
+				pprintf("\nFlags: %-3s  Sess# %-3d  Name: %-25s  Room: %s\n",
 				       flags, extract_int(buf, 0), username, roomname);
-				printf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
+				pprintf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
 				       fromhost, clientsoft,
 				       (long) idlehours, (long) idlemins, (long) idlesecs);
 
-				linecount += 3;
 			} else {
 				if (extract_int(buf, 0) == last_session) {
-					printf("        ");
+					pprintf("        ");
 				} else {
 					color(BRIGHT_MAGENTA);
-					printf("%-3s ", flags);
+					pprintf("%-3s ", flags);
 					color(DIM_WHITE);
-					printf("%-3d ", extract_int(buf, 0));
+					pprintf("%-3d ", extract_int(buf, 0));
 				}
 				last_session = extract_int(buf, 0);
 				color(BRIGHT_CYAN);
-				printf("%-25s ", username);
+				pprintf("%-25s ", username);
 				color(BRIGHT_MAGENTA);
 				roomname[20] = 0;
-				printf("%-20s ", roomname);
+				pprintf("%-20s ", roomname);
 				color(BRIGHT_CYAN);
-				printf("%-24s\n", fromhost);
+				pprintf("%-24s\n", fromhost);
 				color(DIM_WHITE);
-				++linecount;
 			}
-			linecount = checkpagin(linecount,
-				    ((userflags & US_PAGINATOR) ? 1 : 0),
-					       screenheight);
 		}
 	}
 }

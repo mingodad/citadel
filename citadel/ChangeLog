@@ -1,4 +1,10 @@
  $Log$
+ Revision 570.17  2000/04/09 17:51:18  ajc
+ * Added pprintf() (paginated version of printf) to the client-side API.  Now
+   any client side function can be paginated simply by changing all of the
+   printf's to pprintf's.  I've already done this for the user list and wholist
+   (removing the old style pagination) and for "read directory."
+
  Revision 570.16  2000/04/08 04:52:48  ajc
  * Another minor stoopid little time display fix
 
@@ -1835,4 +1841,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

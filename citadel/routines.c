@@ -303,7 +303,7 @@ void interr(int errnum)	/* display internal error as defined in errmsgs */
  */
 int checkpagin(int lp, int pagin, int height)
 {
-	if (pagin!=1) return(0);
+	if (!pagin) return(0);
 	if (lp>=(height-1)) {
 		set_keepalives(KA_NO);
 		hit_any_key();
