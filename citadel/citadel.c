@@ -34,7 +34,6 @@
 #include "ipc.h"
 #include "client_chat.h"
 #include "client_passwords.h"
-#include "client_icq.h"
 #include "citadel_decls.h"
 #include "tools.h"
 #ifndef HAVE_SNPRINTF
@@ -1372,10 +1371,6 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 
 			case 56:
 				page_user();
-				break;
-
-			case 81:
-				setup_icq();
 				break;
 
 			}	/* end switch */
