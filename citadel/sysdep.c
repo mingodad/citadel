@@ -350,7 +350,7 @@ void cprintf(const char *format, ...) {
         int rc;   
    
         va_start(arg_ptr, format);   
-        rc = vsprintf(buf, format, arg_ptr);   
+        rc = vsnprintf(buf, sizeof buf, format, arg_ptr);   
         va_end(arg_ptr);   
   
 	client_write(buf, strlen(buf)); 
@@ -423,6 +423,7 @@ int client_gets(char *buf)
 			buf[strlen(buf) + 1] = 0;
 			retval = client_read(&buf[strlen(buf)], 1);
 			}
+		else break;
 		} while ( (buf[strlen(buf)-1] != 10) && (retval==1) );
 
 	/* Strip the trailing newline.
