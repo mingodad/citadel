@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <syslog.h>
+#include <dlfcn.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -187,6 +188,19 @@ void cmd_uchg(char *newusername)
    }
    cprintf("%d\n",OK);
 }
+
+/*
+ * returns an asterisk if there are any express messages waiting,
+ * space otherwise.
+ */
+char check_express(void) {
+	if (CC->FirstExpressMessage == NULL) {
+		return(' ');
+		}
+	else {
+		return('*');
+		}
+	}
 
 void cmd_time(void)
 {
@@ -662,6 +676,11 @@ void cmd_extn(char *argbuf) {
  */
 void *context_loop(struct CitContext *con)
 {
+	void *fcn_handle;
+	void (*h_cmd_chat)(char *);
+	void (*cmd_pexp)(void);
+	void (*cmd_sexp)(char *);
+	char *dl_error;
 	char cmdbuf[256];
 	int session_num;
 
@@ -1016,17 +1035,77 @@ void *context_loop(struct CitContext *con)
 			cmd_ipgm(&cmdbuf[5]);
 			}
 
-		else if (!strncasecmp(cmdbuf,"CHAT",4)) {
-			cmd_chat(&cmdbuf[5]);
+		else if (!strncasecmp(cmdbuf,"CHAT",4)) 
+		{
+			syslog(LOG_NOTICE, "Opening chat connection");
+			if (!(fcn_handle = dlopen("/usr/bbs/CVS/citadel/serv_chat.so", RTLD_LAZY)))
+			{
+			   dl_error = dlerror();
+			   syslog(LOG_NOTICE, "WARNING: chat subsystem mod failed to load! (%s)", dl_error);
+			   exit(1);
 			}
+			
+			h_cmd_chat = dlsym(fcn_handle, "cmd_chat");
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "Error: %s", dl_error);
+			   exit(1);
+			}
+			(*h_cmd_chat)(&cmdbuf[5]);
+			dlclose(fcn_handle);
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "dlclose Error: %s", dl_error);
+			   exit(1);
+			}
+		}
 
-		else if (!strncasecmp(cmdbuf,"PEXP",4)) {
-			cmd_pexp();
+		else if (!strncasecmp(cmdbuf,"PEXP",4)) 
+		{
+			if (!(fcn_handle = dlopen("serv_chat.so", RTLD_LAZY)))
+			{
+			   dl_error = dlerror();
+			   syslog(LOG_NOTICE, "WARNING: chat subsystem mod failed to load! (%s)", dl_error);
+			   exit(1);
 			}
-
-		else if (!strncasecmp(cmdbuf,"SEXP",4)) {
-			cmd_sexp(&cmdbuf[5]);
+			
+			cmd_pexp = dlsym(fcn_handle, "cmd_pexp");
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "Error: %s", dl_error);
+			   exit(1);
 			}
+			(*cmd_pexp)();
+			dlclose(fcn_handle);
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "dlclose Error: %s", dl_error);
+			   exit(1);
+			}
+		}
+		else if (!strncasecmp(cmdbuf,"SEXP",4)) 
+		{
+			if (!(fcn_handle = dlopen("serv_chat.so", RTLD_LAZY)))
+			{
+			   dl_error = dlerror();
+			   syslog(LOG_NOTICE, "WARNING: chat subsystem mod failed to load! (%s)", dl_error);
+			   exit(1);
+			}
+			
+			cmd_sexp = dlsym(fcn_handle, "cmd_sexp");
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "Error: %s", dl_error);
+			   exit(1);
+			}
+			(*cmd_sexp)(&cmdbuf[5]);
+			dlclose(fcn_handle);
+			if ((dl_error = dlerror()) != NULL)
+			{
+			   syslog(LOG_NOTICE, "dlclose Error: %s", dl_error);
+			   exit(1);
+			}
+		}
 
 		else if (!strncasecmp(cmdbuf,"EBIO",4)) {
 			cmd_ebio();
