@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.110  2002/02/13 15:48:55  ajc
+ * Allow the READ command to return packets bigger than 1 byte.  (ooops!)
+
  Revision 590.109  2002/02/12 20:15:25  ajc
  * Threw in a few more #ifdef's so the client build doesn't barf on
    non-curses systems
@@ -3331,3 +3334,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
