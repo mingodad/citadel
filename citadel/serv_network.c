@@ -110,6 +110,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct namelist *nptr;
 	int err;
 	char *instr = NULL;
+	int instr_len = 0;
 	struct CtdlMessage *imsg;
 
 	sc = (struct SpoolControl *)userdata;
@@ -124,7 +125,8 @@ void network_spool_msg(long msgnum, void *userdata) {
 	if (err != 0) return;
 
 	lprintf(9, "Generating delivery instructions\n");
-	instr = mallok(2048);	/* FIXME this won't be enough */
+	instr_len = 4096;
+	instr = mallok(instr_len);
 	sprintf(instr,
 		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 		"bounceto|postmaster@%s\n" ,
@@ -138,19 +140,22 @@ void network_spool_msg(long msgnum, void *userdata) {
 	imsg->cm_fields['A'] = strdoop("Citadel");
 	imsg->cm_fields['M'] = instr;
 
-
-	/* FIXME generate delivery instructions for each recipient */
+	/* Generate delivery instructions for each recipient */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+		if (instr_len - strlen(instr) < 256) {
+			instr_len = instr_len * 2;
+			instr = reallok(instr, instr_len);
+		}
 		sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
 			nptr->name);
 	}
 
-	/* FIXME save delivery instructions in spoolout room */
+	/* Save delivery instructions in spoolout room */
 	CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 	CtdlFreeMessage(imsg);
 
-	/* FIXME update lastseen */
-
+	/* update lastsent */
+	sc->lastsent = msgnum;
 }
 
 
@@ -201,16 +206,16 @@ void network_spoolout_current_room(void) {
 	fclose(fp);
 
 
-
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL, network_spool_msg, &sc);
-
+	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
+		network_spool_msg, &sc);
 
 
 	/* Now rewrite the config file */
 	fp = fopen(filename, "w");
 	if (fp == NULL) {
-		lprintf(1, "ERROR: cannot open %s: %s\n", filename, strerror(errno));
+		lprintf(1, "ERROR: cannot open %s: %s\n",
+			filename, strerror(errno));
 	}
 	else {
 		fprintf(fp, "lastsent|%ld\n", sc.lastsent);
