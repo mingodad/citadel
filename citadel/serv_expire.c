@@ -175,7 +175,7 @@ void PurgeMessages(void) {
 
 
 void DoPurgeRooms(struct quickroom *qrbuf) {
-	time_t now, age;
+	time_t age, purge_secs;
 	struct PurgeList *pptr;
 
 	/* Any of these attributes render a room non-purgable */
@@ -185,12 +185,16 @@ void DoPurgeRooms(struct quickroom *qrbuf) {
 	if (qrbuf->QRflags & QR_MAILBOX) return;
 	if (is_noneditable(qrbuf)) return;
 
+	/* If we don't know the modification date, be safe and don't purge */
+	if (qrbuf->QRmtime <= (time_t)0) return;
+
 	/* Otherwise, check the date of last modification */
-	time(&now);
-	age = now - (qrbuf->QRmtime);
+	age = time(NULL) - (qrbuf->QRmtime);
+	purge_secs = (time_t)config.c_roompurge * (time_t)86400;
+	if (purge_secs <= (time_t)0) return;
 	lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
-	if ( (qrbuf->QRmtime > 0L)
-	   && (age > (time_t)(config.c_roompurge * 86400L))) {
+
+	if (age > purge_secs) {
 		
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = RoomPurgeList;
