@@ -76,7 +76,11 @@ void groupdav_propfind(char *dav_pathname) {
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
 		wprintf(" <D:response>\n");
-		wprintf("  <D:href>%s/groupdav/Calendar/%s</D:href>\n", WC->http_host, buf);
+		wprintf("  <D:href>%s://%s/groupdav/Calendar/%s</D:href>\n",
+			(is_https ? "https" : "http"),
+			WC->http_host,
+			buf
+		);
 		wprintf("   <D:propstat>\n");
 		wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");
 		wprintf("    <D:prop><D:getetag>\"%s\"</D:getetag></D:prop>\n", buf);

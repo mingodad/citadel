@@ -48,7 +48,11 @@ void groupdav_main(struct httprequest *req) {
 	char dav_pathname[SIZ];
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
-		lprintf(9, "> %s\n", rptr->line);
+		lprintf(9, "> %s\n", rptr->line);	/* FIXME we can eventually remove this trace */
+		if (!strncasecmp(rptr->line, "Host: ", 6)) {
+                        safestrncpy(WC->http_host, &rptr->line[6], sizeof WC->http_host);
+                }
+
 	}
 
 	if (!WC->logged_in) {
