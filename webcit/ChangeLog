@@ -1,4 +1,8 @@
 $Log$
+Revision 510.12  2004/06/02 02:07:54  ajc
+* setup.c: updated the setup script to configure two /etc/inittab entries,
+  one for http and one for https.
+
 Revision 510.11  2004/06/01 21:46:47  ajc
 * crypto.c: when an SSL connection errors out (and closes) unexpectedly
   during a read or write operation, do not attempt to finish the operation
@@ -1852,4 +1856,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

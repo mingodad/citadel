@@ -386,6 +386,7 @@ void check_inittab_entry(void)
 	char looking_for[SIZ];
 	char question[SIZ];
 	char entryname[5];
+	char entryname2[5];
 	char http_port[128];
 	char https_port[128];
 	char hostname[128];
@@ -448,7 +449,7 @@ void check_inittab_entry(void)
 		}
 	}
 
-	/* Generate a unique entry name for /etc/inittab */
+	/* Generate unique entry names for /etc/inittab */
 	snprintf(entryname, sizeof entryname, "c0");
 	do {
 		++entryname[1];
@@ -464,6 +465,7 @@ void check_inittab_entry(void)
 		snprintf(buf, sizeof buf,
 		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
 	} while (system(buf) == 0);
+	
 
 	/* Now write it out to /etc/inittab */
 	infp = fopen("/etc/inittab", "a");
@@ -471,14 +473,13 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the WebCit server...\n");
-#ifdef HAVE_OPENSSL
-		fprintf(infp, "%s:2345:respawn:%s -p%s -s%s %s %s\n",
-			entryname, looking_for,
-			http_port, https_port, hostname, portname);
-#else
-		fprintf(infp, "%s:2345:respawn:%s -p%s %s %s\n",
+		fprintf(infp, "h%s:2345:respawn:%s -p%s %s %s\n",
 			entryname, looking_for,
 			http_port, hostname, portname);
+#ifdef HAVE_OPENSSL
+		fprintf(infp, "s%s:2345:respawn:%s -p%s -s %s %s\n",
+			entryname, looking_for,
+			https_port, hostname, portname);
 #endif
 		fclose(infp);
 		strcpy(init_entry, entryname);
