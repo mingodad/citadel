@@ -61,6 +61,8 @@ char *server_cookie = NULL;
 
 char *ctdlhost = DEFAULT_HOST;
 char *ctdlport = DEFAULT_PORT;
+int setup_wizard = 0;
+char wizard_filename[PATH_MAX];
 
 /*
  * This is a generic function to set up a master socket for listening on
