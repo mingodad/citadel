@@ -26,7 +26,7 @@ sit amet, turpis. Aliquam ipsum magna, vulputate sit amet, iaculis eget,
 molestie rutrum, felis. Curabitur ante metus, rutrum in, vestibulum nec,
 faucibus sit amet, magna. In pretium lacus eget mi.</p>
 
-<a href="index.php">Page One</a><BR>
+<a href="login.php">Page One</a><BR>
 <a href="page3.php">Page Three</a><BR>
 
 LITERAL;
