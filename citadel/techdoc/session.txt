@@ -1642,3 +1642,37 @@ the list of available policies.
  The value of <which> must be one of: "room" "floor" "site"
  
  If successful, GPEX returns OK; otherwise, an ERROR code is returned.
+ 
+ 
+ 
+ CONF   (get or set global CONFiguration options)
+ 
+ Retrieves or sets various system-wide configuration and policy options.  This
+command is only available to Aides.  The sole parameter accepted is a command,
+which should be either GET or SET.  If the GET command succeeds, CONF will
+return LISTING_FOLLOWS followed by the fields described below, one line at a
+time.  If the SET command succeeds, CONF will return SEND_LISTING and expect
+the fields described below, one line at a time (don't worry about other fields
+being added in the future; if a 'short' configuration list is sent, the missing
+values at the end will be left unchanged on the system).  If either command
+fails for any reason, ERROR is returned.
+ 
+ The configuration lines are as follows:
+ 
+ 1. Node name
+ 2. Fully qualified domain name
+ 3. Human-readable node name
+ 4. Landline telephone number of this system
+ 5. Flag (0 or 1) - creator of private room automatically becomes room aide
+ 6. Server connection idle timeout (in seconds)
+ 7. Initial access level for new users
+ 8. Flag (0 or 1) - require registration for new users
+ 9. Flag (0 or 1) - automatically move Problem User messages to twit room
+ 10. Name of twit room
+ 11. Text of <more> prompt
+ 12. Flag (0 or 1) - restrict access to Internet mail
+ 13. Geographic location of this system
+ 14. Name of the system administrator
+ 15. Number of maximum concurrent sessions allowed on the server
+ 16. Password for server-to-server networking
+ 17. Default purge time (in days) for users

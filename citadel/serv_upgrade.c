@@ -368,8 +368,6 @@ void imp_config(void) {
 			config.c_twitdetect = atoi(value);
 		if (!strcasecmp(key, "c_twitroom"))
 			strcpy(config.c_twitroom, value);
-		if (!strcasecmp(key, "c_defent"))
-			config.c_defent = atoi(value);
 		if (!strcasecmp(key, "c_moreprompt"))
 			strcpy(config.c_moreprompt, value);
 		if (!strcasecmp(key, "c_restrict"))
@@ -648,7 +646,6 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "c_regiscall%c%d%c", 0, config.c_regiscall, 0);
 	fprintf(exfp, "c_twitdetect%c%d%c", 0, config.c_twitdetect, 0);
 	fprintf(exfp, "c_twitroom%c%s%c", 0, config.c_twitroom, 0);
-	fprintf(exfp, "c_defent%c%d%c", 0, config.c_defent, 0);
 	fprintf(exfp, "c_moreprompt%c%s%c", 0, config.c_moreprompt, 0);
 	fprintf(exfp, "c_restrict%c%d%c", 0, config.c_restrict, 0);
 	fprintf(exfp, "c_bbs_city%c%s%c", 0, config.c_bbs_city, 0);

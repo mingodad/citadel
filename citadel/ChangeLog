@@ -1,3 +1,8 @@
+Fri Nov  6 20:22:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* citadel.h (and related files): removed defunct parameters,
+	  c_defent and c_msgbase (erase your test bbs)
+	* Began implementing CONF server command for site-global configs
+
 1998-11-05 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* snprintf.c: warning fix propagated over from gcit
 

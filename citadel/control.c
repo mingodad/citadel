@@ -22,8 +22,10 @@
 #include "server.h"
 #include "control.h"
 #include "sysdep_decls.h"
+#include "support.h"
 
 struct CitControl CitControl;
+struct config config;
 
 /*
  * get_control  -  read the control record into memory.
@@ -80,4 +82,60 @@ long get_new_user_number(void) {
 	put_control();
 	end_critical_section(S_CONTROL);
 	return(CitControl.MMnextuser);
+	}
+
+
+
+/* 
+ * Get or set global configuration options
+ */
+void cmd_conf(char *argbuf) {
+	char cmd[256];
+	char buf[256];
+	int a;
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->usersupp.axlevel < 6) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	extract(cmd, argbuf, 0);
+	if (!strcasecmp(cmd, "GET")) {
+		cprintf("%d Configuration...\n", LISTING_FOLLOWS);
+		cprintf("%s\n", config.c_nodename);
+		cprintf("%s\n", config.c_fqdn);
+		cprintf("%s\n", config.c_humannode);
+		cprintf("%s\n", config.c_phonenum);
+		cprintf("%d\n", config.c_creataide);
+		cprintf("%d\n", config.c_sleeping);
+		cprintf("%d\n", config.c_initax);
+		cprintf("%d\n", config.c_regiscall);
+		cprintf("%d\n", config.c_twitdetect);
+		cprintf("%s\n", config.c_twitroom);
+		cprintf("%s\n", config.c_moreprompt);
+		cprintf("%d\n", config.c_restrict);
+		cprintf("%s\n", config.c_bbs_city);
+		cprintf("%s\n", config.c_sysadm);
+		cprintf("%d\n", config.c_maxsessions);
+		cprintf("%s\n", config.c_net_password);
+		cprintf("%d\n", config.c_userpurge);
+		cprintf("000\n");
+		}
+
+	/*	
+	else if (!strcasecmp(cmd, "SET")) {
+		cprintf("%d Send configuration...\n");
+		}
+	*/
+
+	else {
+		cprintf("%d The only valid options are GET and SET.\n",
+			ERROR+ILLEGAL_VALUE);
+		}
 	}

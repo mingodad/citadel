@@ -115,8 +115,6 @@ void imp_config() {
 			config.c_twitdetect = atoi(value);
 		if (!strcasecmp(key, "c_twitroom"))
 			strcpy(config.c_twitroom, value);
-		if (!strcasecmp(key, "c_defent"))
-			config.c_defent = atoi(value);
 		if (!strcasecmp(key, "c_moreprompt"))
 			strcpy(config.c_moreprompt, value);
 		if (!strcasecmp(key, "c_restrict"))

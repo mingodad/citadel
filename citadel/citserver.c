@@ -28,6 +28,7 @@
 #include "file_ops.h"
 #include "dynloader.h"
 #include "policy.h"
+#include "control.h"
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
@@ -1065,6 +1066,10 @@ void *context_loop(struct CitContext *con)
 
 		else if (!strncasecmp(cmdbuf, "SPEX", 4)) {
 			cmd_spex(&cmdbuf[5]);
+			}
+
+		else if (!strncasecmp(cmdbuf, "CONF", 4)) {
+			cmd_conf(&cmdbuf[5]);
 			}
 
 		else if (!DLoader_Exec_Cmd(cmdbuf))
