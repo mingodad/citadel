@@ -380,9 +380,9 @@ int ig_uds_server(char *sockpath, int queue_len)
  * called this function.  If there's no such binding (for example, if it's
  * called by the housekeeper thread) then a generic 'master' CC is returned.
  *
- * It's inlined because it's used *VERY* frequently.
+ * This function is used *VERY* frequently and must be kept small.
  */
-INLINE struct CitContext *MyContext(void) {
+struct CitContext *MyContext(void) {
 
 	register struct CitContext *c;
 

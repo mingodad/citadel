@@ -46,7 +46,7 @@ void begin_critical_section (int which_one);
 void end_critical_section (int which_one);
 int ig_tcp_server (char *ip_addr, int port_number, int queue_len);
 int ig_uds_server(char *sockpath, int queue_len);
-INLINE struct CitContext *MyContext (void);
+struct CitContext *MyContext (void);
 struct CitContext *CreateNewContext (void);
 void InitMyContext (struct CitContext *con);
 void buffer_output(void);
