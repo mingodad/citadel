@@ -1293,6 +1293,11 @@ void post_mime_to_server(void) {
 	struct wc_attachment *att;
 	char *encoded;
 	size_t encoded_length;
+	int is_html = 0;
+
+	if (!strcasecmp(bstr("msg_format"), "html")) {
+		is_html = 1;
+	}
 	
 	/* If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
@@ -1315,7 +1320,15 @@ void post_mime_to_server(void) {
 
 	serv_puts("Content-type: text/html");
 	serv_puts("");
-	text_to_server(bstr("msgtext"), 1);
+	serv_puts("<HTML><BODY>\n");
+	if (is_html) {
+		text_to_server(bstr("msgtext"), 0);
+	}
+	else {
+		text_to_server(bstr("msgtext"), 1);
+	}
+	serv_puts("</BODY></HTML>\n");
+	
 
 	if (is_multipart) {
 
@@ -1494,8 +1507,18 @@ void display_enter(void)
 		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
 	escputs(bstr("subject"));
 	wprintf("\" MAXLENGTH=70>"
-		"&nbsp;&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
+		"&nbsp;"
+	);
+
+	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
+	if (strcasecmp(bstr("msg_format"), "html")) wprintf("CHECKED ");
+	wprintf("VALUE=\"text\">text&nbsp;\n");
+
+	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
+	if (!strcasecmp(bstr("msg_format"), "html")) wprintf("CHECKED ");
+	wprintf("VALUE=\"html\">HTML&nbsp;\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
