@@ -33,11 +33,11 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v5.21"	/* who's in da house */
+#define SERVER			"WebCit v5.22"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		521		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	611		/* min required Citadel vers */
+#define CLIENT_VERSION		522		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	622		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */

@@ -665,7 +665,7 @@ void summarize_message(long msgnum) {
 	memset(&summ, 0, sizeof(summ));
 	strcpy(summ.subj, "(no subject)");
 
-	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	sprintf(buf, "MSG0 %ld|3", msgnum);	/* ask for headers only with no MIME */
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') return;
@@ -973,6 +973,8 @@ void readloop(char *oper)
 	char ab_alpha = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
+	time_t started = 0L;	/* FIXME */
+	time_t finished = 0L;	/* FIXME */
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -1046,6 +1048,7 @@ void readloop(char *oper)
 		wprintf("<UL>");
 	}
 
+	started = time(NULL);
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
 
@@ -1203,7 +1206,8 @@ void readloop(char *oper)
 		wprintf("</TD></TR></TABLE></CENTER>\n");
 	    }
 	}
-
+	finished = time(NULL);
+	wprintf("Completed this operation in %ld seconds.<BR>\n", finished - started); /* FIXME */
 
 	/*
 	 * If we're not currently looking at ALL requested
