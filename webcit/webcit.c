@@ -417,7 +417,7 @@ void output_image() {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(0, "");
 		printf("Content-type: image/gif\n");
-		printf("Content-length: %ld\n", bytes);
+		printf("Content-length: %ld\n", (long)bytes);
 		printf("\n");
 
 		while (bytes > (off_t)0) {

@@ -413,6 +413,8 @@ end:		unlock_session(TheSession);
 
 	/*
 	 * The thread handling this HTTP connection is now finished.
+	 * Instead of calling pthread_exit(), just return. It does the same
+	 * thing, and supresses a compiler warning.
 	 */
-	pthread_exit(NULL);
+	return NULL;
 	}
