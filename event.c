@@ -46,8 +46,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	icalproperty *attendee = NULL;
 	char attendee_string[SIZ];
 	char buf[SIZ];
-	int i;
 	int organizer_is_me = 0;
+	int i;
 	int sequence = 0;
 
 	now = time(NULL) % 60;		/* mod 60 to force :00 seconds */
