@@ -699,7 +699,7 @@ void cmd_read(char *cmdbuf)
 	}
 
 	fseek(CC->download_fp, start_pos, 0);
-	fread(buf, bytes, 1, CC->download_fp);
+	bytes = fread(buf, bytes, 1, CC->download_fp);
 	cprintf("%d %d\n", BINARY_FOLLOWS, bytes);
 	client_write(buf, bytes);
 }
