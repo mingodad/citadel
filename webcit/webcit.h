@@ -497,4 +497,4 @@ extern char *ascmonths[];
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
 
-void groupdav_main(char *);
+void groupdav_main(struct httprequest *);
