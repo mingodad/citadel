@@ -1,4 +1,19 @@
  $Log$
+ Revision 605.49  2003/05/16 04:07:37  nbryant
+ make configure.ac automagically do the right thing on redhat 9
+ remove crappy tolower() hack that was breaking the build on redhat 9
+ (because the kerberized openssl includes ctype.h)
+
+ before anyone yells at me, i did a little cvs archaeology on the tolower
+ thing, and it appears to have been in the Citadel source base since,
+ roughly, the Epoch. I doubt that the hack is needed any longer, and using
+ the OS's tolower() will handle extended charsets.
+
+ Anyone who is stupid enough to be using an OS with such a horribly broken
+ tolower() can just scratch their head and figure things out for
+ themselves. Citadel needs higher barriers to entry, there are too many
+ weirdos on the IGnet lately. :-)
+
  Revision 605.48  2003/05/13 03:22:04  ajc
  * Implemented the IMAP STARTTLS command as specified in RFC 2595.
 
@@ -4686,3 +4701,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -47,15 +47,6 @@ extern "C" {
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 
-/*
- * This is a better implementation of tolower() than that found on some
- * systems (there are operating systems out there on which tolower() will
- * screw up if you give it a character that is already lower case).
- */
-#ifdef  tolower
-#undef	tolower
-#endif
-#define tolower(x)	( ((x>='A')&&(x<='Z')) ? (x+'a'-'A') : x )
 #define NEW_CONFIG
 
 /* Various length constants */

@@ -197,6 +197,8 @@ if test "$check_pthread" != no; then
 	AC_CHECK_LIB(pthreads, pthread_create)
 fi
 
+test -d /usr/kerberos/include && CPPFLAGS="$CPPFLAGS -I/usr/kerberos/include"
+
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
 	saved_LIBS="$LIBS"
