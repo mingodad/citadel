@@ -1,0 +1,24 @@
+
+	Citadel/UX 5.53 and later include support for Pluggable Authentication
+Modules (PAM.) However, we don't recommend enabling this feature (./configure
+--with-pam) unless you understand exactly how it will affect your system's
+security. Specifically, the system administrator must supply a configuration
+for every authentication service which uses PAM. We have automated this process
+for Linux by supplying a file which is placed in /etc/pam.d during the
+installation process, but not on other systems, for 2 reasons:
+
+	1) Other systems don't have /etc/pam.d; instead they use one big
+configuration file, usually /etc/pamconfig. It's not quite as trivial to
+automatically modify this file in a safe and secure fashion.
+
+	2) Other systems have a different set of available authentication
+modules; they are likely to lack all three of the ones we use in the Linux
+configuration. We don't have enough information about the features of the
+authentication modules on other platforms to be able to provide secure
+configurations.
+
+	That said, the configuration we've provided should work on at least
+Red Hat Linux 4.2-5.2, (although we don't recommend building Citadel/UX on Red
+Hat 4.x due to libc thread-safety issues) and if you understand PAM
+configuration on your system, feel free to build Citadel/UX with PAM support,
+as long as you realize that YOU'RE ON YOUR OWN.
