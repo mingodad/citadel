@@ -1,4 +1,7 @@
 $Log$
+Revision 524.4  2004/10/05 01:59:31  ajc
+* localtime_r() fixes
+
 Revision 524.3  2004/10/03 02:56:35  ajc
 * Added a pthread_attr_destroy() in the appropriate place (thanks fleeb!)
 
@@ -2090,4 +2093,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
