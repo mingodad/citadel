@@ -1,4 +1,11 @@
 $Log$
+Revision 400.12  2002/09/15 03:40:13  ajc
+* calendar.c: added
+* When a text/calendar MIME type is discovered in a message, send it to
+  the (currently skeleton) parser in calendar.c
+* calendar.c: skeleton parser for calendar objects which currently just
+  creates an icalcomponent object and frees it.
+
 Revision 400.11  2002/09/15 03:16:24  ajc
 * Changed decode_base64() to CtdlDecodeBase64() to avoid conflict with
   function namespace in libical
@@ -974,4 +981,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
