@@ -19,6 +19,9 @@
 /* Ancient curses implementations, this needs testing. Anybody got XENIX? */
 #define _vwprintw vwprintw
 #endif
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 #include "citadel.h"
 #include "commands.h"
 #include "screen.h"
@@ -61,7 +64,7 @@ void status_line(const char *humannode, const char *bbs_city,
 			waddch(statuswindow, ACS_VLINE);
 			sln_printf(" %d unread mail", newmailcount);
 		}
-		mvwinch(statuswindow, 0, 0);
+		sln_printf("\n");
 	}
 #endif /* HAVE_CURSES_H */
 }
@@ -209,13 +212,23 @@ int sln_printf(char *fmt, ...)
 {
 	va_list ap;
 	register int retval;
+#ifdef HAVE_CURSES_H
+	static char buf[4096];
+#endif
 
 	va_start(ap, fmt);
 #ifdef HAVE_CURSES_H
 	if (statuswindow) {
-		retval = _vwprintw(statuswindow, fmt, ap);
-		if (fmt[strlen(fmt) - 1] == '\n')
-			wrefresh(mainwindow);
+		register char *i;
+		
+		retval = vsnprintf(buf, 4096, fmt, ap);
+		for (i = buf; *i; i++) {
+			if (*i == '\r' || *i == '\n')
+				wclrtoeol(statuswindow);
+			sln_putc(*i);
+			if (*i == '\r' || *i == '\n')
+				mvwinch(statuswindow, 0, 0);
+		}
 	} else
 #endif
 		retval = vprintf(fmt, ap);
@@ -231,15 +244,20 @@ int sln_printf_if(char *fmt, ...)
 {
 	register int retval = 1;
 #ifdef HAVE_CURSES_H
+	static char buf[4096];
 	va_list ap;
 
 	va_start(ap, fmt);
 	if (statuswindow) {
-		retval = _vwprintw(statuswindow, fmt, ap);
-		if (fmt[strlen(fmt) - 1] == '\r' ||
-		    fmt[strlen(fmt) - 1] == '\n') {
-			mvwinch(statuswindow, 0, 0);
-			wrefresh(mainwindow);
+		register char *i;
+		
+		retval = vsnprintf(buf, 4096, fmt, ap);
+		for (i = buf; *i; i++) {
+			if (*i == '\r' || *i == '\n')
+				wclrtoeol(statuswindow);
+			sln_putc(*i);
+			if (*i == '\r' || *i == '\n')
+				mvwinch(statuswindow, 0, 0);
 		}
 	}
 	va_end(ap);
@@ -268,6 +286,26 @@ int scr_putc(int c)
 		return ((waddch(mainwindow, c) == OK) ? c : EOF);
 #endif
 	return putc(c, stdout);
+}
+
+
+int sln_putc(int c)
+{
+#ifdef HAVE_CURSES_H
+	if (statuswindow)
+		return ((waddch(statuswindow, c) == OK) ? c : EOF);
+#endif
+	return putc(c, stdout);
+}
+
+
+int sln_putc_if(int c)
+{
+#ifdef HAVE_CURSES_H
+	if (statuswindow)
+		return ((waddch(statuswindow, c) == OK) ? c : EOF);
+#endif
+	return 1;
 }
 
 

@@ -12,6 +12,7 @@ int sln_printf(char *fmt, ...);
 int sln_printf_if(char *fmt, ...);
 int scr_getc(void);
 int scr_putc(int c);
+int sln_putc(int c);
 int scr_color(int colornum);
 void scr_flush(void);
 void err_flush(void);
