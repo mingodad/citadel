@@ -539,7 +539,7 @@ void display_enter(void)
 
 	output_headers(1);
 
-	wprintf("<FACE=\"Arial,Helvetica,sans-serif\">");
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
@@ -562,7 +562,10 @@ void display_enter(void)
 	strcpy(buf, (char *) asctime(tm));
 	buf[strlen(buf) - 1] = 0;
 	strcpy(&buf[16], &buf[19]);
-	wprintf("</CENTER><FONT COLOR=\"440000\"><B> %s ", &buf[4]);
+	wprintf("</CENTER><FONT COLOR=\"440000\">\n"
+		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \">");
+		/* "onLoad=workspace.msgtext.Focus(); >"); FIXME */
+	wprintf("<B> %s ", &buf[4]);
 	wprintf("from %s ", WC->wc_username);
 	if (strlen(bstr("recp")) > 0)
 		wprintf("to %s ", bstr("recp"));
