@@ -1,4 +1,13 @@
 <?PHP
+
+// $Id$
+//
+// The login form displayed in login.php submits to this page.
+// 
+// Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
+// This program is released under the terms of the GNU General Public License.
+//
+
 	include "ctdlheader.php";
 	bbs_page_header();
 

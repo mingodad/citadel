@@ -1,7 +1,6 @@
 <?PHP
 
-//
-// ctdlsession.php
+// $Id$
 //
 // This gets called from within the header functions.  It establishes or
 // connects to a PHP session, and then connects to Citadel if necessary.

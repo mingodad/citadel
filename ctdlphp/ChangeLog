@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.6  2003/11/02 02:39:30  ajc
+ * Added a proper CVS ID and Copyright disclaimer to every file.  Other
+   developers and webmasters working on the project, please add your own
+   identities to the copyright notice of any module you work on.
+
  Revision 1.5  2003/11/01 23:29:04  ajc
  * Allow the session proxy to time out after 15 minutes.
  * This program now requires PHP v4.3.0 or newer due to bugs in the socket
@@ -20,5 +25,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-
-

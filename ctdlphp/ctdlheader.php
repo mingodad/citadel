@@ -1,5 +1,14 @@
 <?PHP
 
+// $Id$
+//
+// Header and footer code to be included on every page.  Not only does it
+// contain some common markup, but it also includes some code glue that holds
+// the session together.
+//
+// Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
+// This program is released under the terms of the GNU General Public License.
+
 include "ctdlsession.php";
 include "ctdlprotocol.php";
 
