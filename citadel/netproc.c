@@ -7,6 +7,9 @@
 /* How long it takes for an old node to drop off the network map */
 #define EXPIRY_TIME	(2592000L)
 
+/* How long we keep recently arrived messages in the use table */
+#define USE_TIME	(604800L)
+
 /* Where do we keep our lock file? */
 #define LOCKFILE	"/var/lock/LCK.netproc"
 
@@ -738,16 +741,41 @@ int already_received(GDBM_FILE ut, struct minfo *msginfo) {
 
 
 /*
- * Purge any old entries out of the use table
+ * Purge any old entries out of the use table.
+ * 
+ * Yes, you're reading this correctly: it keeps traversing the table until
+ * it manages to do a complete pass without deleting any records.  Read the
+ * gdbm man page to find out why.
+ *
  */
 void purge_use_table(GDBM_FILE ut) {
+	datum mkey, nextkey, therec;
+	int purged_anything = 0;
+	time_t rec_timestamp, now;
 
-/* FIX ... this isn't even close to being finished yet.
- * Here's what still needs to be done:
- * 4. Purge entries more than a few days old
- */
+	now = time(NULL);
 
+	do {
+		purged_anything = 0;
+		mkey = gdbm_firstkey(ut);
+		while (mkey.dptr != NULL) {
+			therec = gdbm_fetch(ut, mkey);
+			if (therec.dptr != NULL) {
+				memcpy(&rec_timestamp, therec.dptr,
+					sizeof(time_t));
+				free(therec.dptr);
 
+				if ((now - rec_timestamp) > USE_TIME) {
+					gdbm_delete(ut, mkey);
+					purged_anything = 1;
+				}
+
+			}
+			nextkey = gdbm_nextkey(ut, mkey);
+			free(mkey.dptr);
+			mkey = nextkey;
+		}
+	} while (purged_anything != 0);
 }
 
 
@@ -919,7 +947,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 			/* Check the use table; reject message if it's been here before */
 			if (already_received(use_table, &minfo)) {
 				syslog(LOG_NOTICE, "rejected duplicate message");
-				fprintf(duplist, "#%ld fm <%s> in <%s> @ <%s>",
+				fprintf(duplist, "#%ld fm <%s> in <%s> @ <%s>\n",
 			       		minfo.I, minfo.A, minfo.O, minfo.N);
 			}
 
@@ -1033,24 +1061,27 @@ ENDSTR:			fclose(fp);
 
 	/*
 	 * If dups were rejected, post a message saying so
-	 * FIX ... this doesn't work because a not-logged-in internal_pgm can't do ENT0
 	 */
 	if (ftell(duplist)!=0L) {
-		sprintf(buf, "GOTO %s", AIDEROOM);
-		serv_puts(buf);
-		serv_gets(buf);
-		serv_puts("ENT0 1||0|1|Citadel");
-		serv_gets(buf);
-		if (buf[0]=='4') {
-			serv_puts("The following duplicate messages were rejected:\n");
+		fp = fopen("./network/spoolin/ctdl_rejects", "ab");
+		if (fp != NULL) {
+			fprintf(fp, "%cA%c", 255, 1);
+			fprintf(fp, "T%ld%c", time(NULL), 0);
+			fprintf(fp, "ACitadel%c", 0);
+			fprintf(fp, "OAide%cM", 0);
+			fprintf(fp, "The following duplicate messages"
+				" were rejected:\n \n");
 			rewind(duplist);
 			while (fgets(buf, sizeof(buf), duplist) != NULL) {
 				buf[strlen(buf)-1] = 0;
-				serv_puts(buf);
+				fprintf(fp, " %s\n", buf);
 			}
-			serv_puts("000");
+			fprintf(fp, "%c", 0);
+			pclose(fp);
 		}
 	}
+
+	fclose(duplist);
 
 }
 
