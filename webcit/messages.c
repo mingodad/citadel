@@ -22,8 +22,8 @@ char buf[];
 	int pos;
 	int start, end;
 	char ench;
-	char urlbuf[1024];
-	char outbuf[1024];
+	char urlbuf[256];
+	char outbuf[256];
 
 	start = (-1);
 	end = strlen(buf);
@@ -251,7 +251,7 @@ void readloop(char *oper)
 		read_message(msgarr[a], oper);
 	}
 
-DONE:	wDumpContent(1);
+      DONE:wDumpContent(1);
 }
 
 
