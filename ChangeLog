@@ -1,4 +1,7 @@
 $Log$
+Revision 212.0  2000/05/23 20:35:52  ajc
+* Tagged for the 2.12 release
+
 Revision 211.19  2000/05/18 02:33:39  ajc
 * Don't call whobbs() directly after changing masq room/host, it screws up the
   refresh.  It now calls an HTTP redirect page instead.
