@@ -1313,7 +1313,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		cprintf("Organization: %s%s", lnode, nl);
 
 		/* Blank line signifying RFC822 end-of-headers */
-		cprintf("%s", nl);
+		if (TheMessage->cm_format_type != FMT_RFC822) {
+			cprintf("%s", nl);
+		}
 	}
 
 	/* end header processing loop ... at this point, we're in the text */
@@ -1335,19 +1337,48 @@ START_TEXT:
 			 * Citadel and RFC822 headers exist.  Preference should
 			 * probably be given to the RFC822 headers.
 			 */
+			int done_rfc822_hdrs = 0;
 			while (ch=*(mptr++), ch!=0) {
-				if (ch==13) ;
-				else if (ch==10) cprintf("%s", nl);
-				else cprintf("%c", ch);
+				if (ch==13) {
+					/* do nothing */
+				}
+				else if (ch==10) {
+					if (!done_rfc822_hdrs) {
+						if (headers_only != HEADERS_NONE) {
+							cprintf("%s", nl);
+						}
+					}
+					else {
+						if (headers_only != HEADERS_ONLY) {
+							cprintf("%s", nl);
+						}
+					}
+					if ((*(mptr) == 13) || (*(mptr) == 10)) {
+						done_rfc822_hdrs = 1;
+					}
+				}
+				else {
+					if (done_rfc822_hdrs) {
+						if (headers_only != HEADERS_NONE) {
+							cprintf("%c", ch);
+						}
+					}
+					else {
+						if (headers_only != HEADERS_ONLY) {
+							cprintf("%c", ch);
+						}
+					}
+					if ((*mptr == 13) || (*mptr == 10)) {
+						done_rfc822_hdrs = 1;
+					}
+				}
 			}
-			if (do_proto) cprintf("000\n");
-			return(om_ok);
+			goto DONE;
 		}
 	}
 
 	if (headers_only == HEADERS_ONLY) {
-		if (do_proto) cprintf("000\n");
-		return(om_ok);
+		goto DONE;
 	}
 
 	/* signify start of msg text */
@@ -1417,7 +1448,7 @@ START_TEXT:
 		}
 	}
 
-	/* now we're done */
+DONE:	/* now we're done */
 	if (do_proto) cprintf("000\n");
 	return(om_ok);
 }
