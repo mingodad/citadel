@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.9  2002/04/14 22:42:49  ajc
+ * Began implementing RENAME command in IMAP.
+
  Revision 591.8  2002/04/14 22:27:05  ajc
  * Added access control checking to CtdlRenameRoom()
 
@@ -3599,4 +3602,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -901,26 +901,25 @@ void imap_delete(int num_parms, char *parms[]) {
  *
  */
 void imap_rename(int num_parms, char *parms[]) {
-	char oldroom[ROOMNAMELEN];
-	char newroom[ROOMNAMELEN];
-	struct quickroom qrbuf;
+	char old_room[ROOMNAMELEN];
+	char new_room[ROOMNAMELEN];
 	int oldr, newr;
+	int new_floor;
+	int r;
 
-	oldr = imap_roomname(oldroom, sizeof oldroom, parms[2]);
-	newr = imap_roomname(newroom, sizeof newroom, parms[3]);
+	oldr = imap_roomname(old_room, sizeof old_room, parms[2]);
+	newr = imap_roomname(new_room, sizeof new_room, parms[3]);
+	new_floor = (newr & 0xFF);
 
-	if (getroom(&qrbuf, oldroom) != 0) {
-		cprintf("%s NO folder not found\r\n", parms[0]);
+	r = CtdlRenameRoom(old_room, new_room, new_floor);
+
+	if (r != crr_ok) {
+		cprintf("%s NO error %d (FIXME do more here)\r\n",
+			parms[0], r);
 		return;
 	}
 
-	if (getroom(&qrbuf, newroom) == 0) {
-		cprintf("%s NO name already in use\r\n", parms[0]);
-		return;
-	}
-
-	cprintf("%s NO RENAME FIXME\r\n", parms[0]);
-	/* cprintf("%s OK RENAME completed\r\n", parms[0]); */
+	cprintf("%s OK RENAME completed (FIXME do subfolders)\r\n", parms[0]);
 }
 
 
