@@ -55,6 +55,8 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	citsock = sock;
 
+	who_refresh *ref = new who_refresh(this);
+
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
 
@@ -109,4 +111,20 @@ void who::LoadWholist(void) {
 		wholist->SetItem(i, 2, room);
 		wholist->SetItem(i, 3, host);
 	}
+}
+
+
+
+
+who_refresh::who_refresh(who *parent_who)
+	: wxTimer() {
+
+	which_who = parent_who;		// Know which instance to refresh
+
+	Start(30000, FALSE);		// Call every 30 seconds
+}
+
+
+void who_refresh::Notify(void) {
+	which_who->LoadWholist();
 }

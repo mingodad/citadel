@@ -92,13 +92,11 @@ void CitClient::serv_gets(wxString& buf) {
 	//	sock.Read(charbuf, 1);
 	//	if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
 	//} while(isprint(charbuf[0]));
-	printf("<%s\n", (const char *)buf);
 }
 
 
 // Write a line of text to the server
 void CitClient::serv_puts(wxString buf) {
-	printf(">%s\n", (const char *)buf);
 	//sock.Write(buf, strlen(buf));
 	//sock.Write("\n", 1);
 	sock.serv_puts(buf);
@@ -160,7 +158,7 @@ void CitClient::initialize_session(void)  {
 	wxString *infoptr;
 	wxString infoline;
 
-	sendcmd = "IDEN 0|6|000|Daphne";
+	sendcmd = "IDEN 0|6|001|Daphne";
 	serv_trans(sendcmd);
 
 	sendcmd = "INFO";
