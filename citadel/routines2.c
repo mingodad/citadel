@@ -841,16 +841,20 @@ void do_internet_configuration(CtdlIPC *ipc)
 		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
 		switch(ch) {
 			case 'a':
-				++num_recs;
-				if (num_recs == 1)
-					recs = malloc(sizeof(char *));
-				else recs = realloc(recs,
-					(sizeof(char *)) * num_recs);
 				newprompt("Enter host name: ",
 					buf, 50);
-				strcat(buf, "|");
-				get_inet_rec_type(ipc, &buf[strlen(buf)]);
-				recs[num_recs-1] = strdup(buf);
+				striplt(buf);
+				if (strlen(buf) > 0) {
+					++num_recs;
+					if (num_recs == 1)
+						recs = malloc(sizeof(char *));
+					else recs = realloc(recs,
+						(sizeof(char *)) * num_recs);
+					strcat(buf, "|");
+					get_inet_rec_type(ipc,
+							&buf[strlen(buf)]);
+					recs[num_recs-1] = strdup(buf);
+				}
 				break;
 			case 'd':
 				i = intprompt("Delete which one",

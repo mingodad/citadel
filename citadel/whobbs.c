@@ -142,9 +142,9 @@ int main(int argc, char **argv)
 			printf("%c", 
 				((s_pid == my_pid) ? '*' : ' '));
 			if (www) printf("</TD><TD>");
-			printf("%-25s", s_user);
+			printf("%-26s", s_user);
 			if (www) printf("</TD><TD>");
-			printf("%-20s ", s_room);
+			printf("%-19s ", s_room);
 			if (www) printf("</TD><TD>");
 			printf("%-24s\n", s_host);
 			if (www) printf("</TD><TD>%s</TD></TR>\n", s_client);

@@ -5,6 +5,7 @@
  *
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -120,13 +121,14 @@ int getmx(char *mxbuf, char *dest) {
 			u_char bytes[1024];
 			HEADER header;
     } answer;
+#else
+	char buf[SIZ];
+	FILE *fp;
 #endif
 
 	int ret;
 	unsigned char *startptr, *endptr, *ptr;
 	char expanded_buf[1024];
-	char buf[SIZ];
-	FILE *fp;
 	unsigned short pref, type;
 	int n = 0;
 	int qdcount;
