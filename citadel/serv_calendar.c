@@ -1883,8 +1883,12 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 
 
 void ical_session_startup(void) {
-	CtdlAllocUserData(SYM_CIT_ICAL, sizeof(struct cit_ical));
+	CIT_ICAL = malloc(sizeof(struct cit_ical));
 	memset(CIT_ICAL, 0, sizeof(struct cit_ical));
+}
+
+void ical_session_shutdown(void) {
+	free(CIT_ICAL);
 }
 
 
@@ -1901,6 +1905,7 @@ char *serv_calendar_init(void)
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
 	CtdlRegisterSessionHook(ical_session_startup, EVT_START);
+	CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
 #endif
 	return "$Id$";
 }

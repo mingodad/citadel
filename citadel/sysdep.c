@@ -1004,12 +1004,7 @@ do_select:	force_purge = 0;
 
 			if (FD_ISSET(serviceptr->msock, &readfds)) {
 				ssock = accept(serviceptr->msock, NULL, 0);
-				if (ssock < 0) {
-					lprintf(CTDL_CRIT,
-						"citserver: accept(): %s\n",
-						strerror(errno));
-				}
-				else {
+				if (ssock >= 0) {
 					lprintf(CTDL_DEBUG,
 						"New client socket %d\n",
 						ssock);

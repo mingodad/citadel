@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.27  2005/03/18 21:25:06  ajc
+ * Finished removing all the "dynamic session data" stuff in order to
+   boost reliability, improve performance, and reduce complexity.
+
  Revision 641.26  2005/03/12 05:42:35  ajc
  * Trying to fix a memory bug somewhere.
  * While working on the above, noticed that the way we did the per-session
@@ -731,7 +735,7 @@
 
  Revision 621.6  2004/06/03 02:49:14  ajc
  * html.c: allow parsing of tags even when they're qualified
-           (i.e. <TAG foo=bar> instead of just <TAG> )
+	   (i.e. <TAG foo=bar> instead of just <TAG> )
  * html.c: handle escaped decimal characters (such as &#39; for an apostrophe)
 
  Revision 621.5  2004/06/03 02:28:16  ajc
@@ -1866,11 +1870,11 @@
 
  Revision 605.45  2003/05/02 04:02:47  ajc
  * setup.c: allow specification of the Citadel system account by either
-            username or uid
+	    username or uid
  * setup.c: tell init to re-read /etc/inittab by sending a SIGHUP to pid 1
-            instead of hunting around for the correct init or telinit command
+	    instead of hunting around for the correct init or telinit command
  * docs/citadel.html: documented the above change, and also rewrote some
-                      other stuff to be less BBS-specific
+		      other stuff to be less BBS-specific
 
  Revision 605.44  2003/04/30 16:16:13  ajc
  * Minor fix to ESMTP greeting (missing '-' screwed up pipelining)
@@ -4559,9 +4563,9 @@
 
  Revision 572.23  2000/08/09 17:14:34  ajc
  msgbase.c: fixed a bug in
-            remove_any_whitespace_to_the_left_or_right_of_at_symbol() that was
-            causing the <R>eply function to fail on names with whitespace in
-            certain parts of the string.  This closes Bug #56.
+	    remove_any_whitespace_to_the_left_or_right_of_at_symbol() that was
+	    causing the <R>eply function to fail on names with whitespace in
+	    certain parts of the string.  This closes Bug #56.
 
  Revision 572.22  2000/08/05 04:24:00  ajc
  * Added [idle] to client wholist display for sessions idle >15 minutes
@@ -4821,7 +4825,7 @@ Revision 1.485  2000/03/11 20:26:03  ajc
 
 Revision 1.484  2000/03/11 19:22:19  nbryant
  * commands.c: improved timing of background keepalives if connection is
-               lagged
+	       lagged
 
 Revision 1.483  2000/03/11 05:08:48  nbryant
  * commands.c: oops, that mutex stuff wasn't necessary
@@ -4979,7 +4983,7 @@ Revision 1.446  2000/01/17 17:09:23  ajc
 
 Revision 1.445  2000/01/17 05:38:14  ajc
 * citserver.c: cleanup hook functions are now run under the proper context,
-               even when initiated by the housekeeper thread
+	       even when initiated by the housekeeper thread
 * serv_pop3.c: establish a place to hold the message list
 
 Revision 1.444  2000/01/17 04:26:39  ajc
@@ -5260,7 +5264,7 @@ Revision 1.375  1999/09/29 21:13:17  ajc
 Revision 1.374  1999/09/29 17:26:56  ajc
 * serv_vcard.c: fixed crashola bug in cmd_greg()
 * tools.c: simplified and improved the string tokenizer.  Now it runs in a
-           single pass with no intermediate buffer.
+	   single pass with no intermediate buffer.
 
 Revision 1.373  1999/09/28 03:27:37  ajc
 * Fully migrated cmd_greg() and cmd_regi() into serv_vcard (still has bugs)
@@ -5797,8 +5801,8 @@ Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 		- Defined format type 4 for MIME
 		- msgbase.c: *temporary* hacks in output_message() for Type 4
 		- citmail.c: added more robust header parsing, and support
-		             for Type 4.  Also eliminated the crappy built-in
-		             SMTP server.
+			     for Type 4.  Also eliminated the crappy built-in
+			     SMTP server.
 		- Updated some of the technical documentation
 
 Sun Jan 10 13:34:36 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
@@ -6451,8 +6455,8 @@ Mon Aug 24 23:45:01 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citadelapi.c: Added CtdlForEachRoom() function
 
 Mon Aug 24 20:04:04 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
-        * Makefile.in: new target `cleaner' does the same as `realclean' 
-          without removing sysdep.h
+	* Makefile.in: new target `cleaner' does the same as `realclean' 
+	  without removing sysdep.h
 	* proto.h: is bad. eliminate. I've moved the prototypes into several
 	  header files, one per .c file
 
@@ -6532,15 +6536,12 @@ Sun Jul 19 17:26:12 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* .cvsignore: added userlist
 
 Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
-        * Finished migrating everything to the new data store.
-        * Replaced the binary "calllog" with the ASCII "citadel.log"
-        * Began converting broken utilities that depend on the old data store
+	* Finished migrating everything to the new data store.
+	* Replaced the binary "calllog" with the ASCII "citadel.log"
+	* Began converting broken utilities that depend on the old data store
 
 Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: removed msgstats
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
-
-

@@ -168,27 +168,6 @@ void master_cleanup(int exitcode) {
 }
 
 
-/*
- * Free any per-session data allocated by modules or whatever
- */
-void deallocate_user_data(struct CitContext *con)
-{
-	struct CtdlSessData *ptr;
-	int i;
-
-	while (con->FirstSessData != NULL) {
-		lprintf(CTDL_DEBUG, "Deallocating user data symbol #%d\n", i++);
-		if (con->FirstSessData->sym_data != NULL) {
-			free(con->FirstSessData->sym_data);
-		}
-		ptr = con->FirstSessData->next;
-		free(con->FirstSessData);
-		con->FirstSessData = ptr;
-	}
-}
-
-
-
 
 /*
  * Terminate a session and remove its context data structure.
@@ -220,10 +199,8 @@ void RemoveContext (struct CitContext *con)
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Run any cleanup routines registered by loadable modules.
-	 * Note 1: This must occur *before* deallocate_user_data() because the
-	 *         cleanup functions might touch dynamic session data.
-	 * Note 2: We have to "become_session()" because the cleanup functions
-	 *         might make references to "CC" assuming it's the right one.
+	 * Note: We have to "become_session()" because the cleanup functions
+	 *       might make references to "CC" assuming it's the right one.
 	 */
 	become_session(con);
 	PerformSessionHooks(EVT_STOP);
@@ -236,9 +213,6 @@ void RemoveContext (struct CitContext *con)
 	unlink(con->temp);
 	lprintf(CTDL_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
-	/* Deallocate any user-data attached to this session */
-	deallocate_user_data(con);
-
 	/* If the client is still connected, blow 'em away. */
 	lprintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
@@ -250,81 +224,6 @@ void RemoveContext (struct CitContext *con)
 
 	lprintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
-
-
-
-
-
-/*
- * Return a pointer to some generic per-session user data.
- * (This function returns NULL if the requested symbol is not allocated.)
- *
- * NOTE: we use critical sections for allocating and de-allocating these,
- *       but not for locating one.
- */
-void *CtdlGetUserData(unsigned long requested_sym) 
-{
-	struct CtdlSessData *ptr;
-
-	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)
-		if (ptr->sym_id == requested_sym)
-			return(ptr->sym_data);
-
-	lprintf(CTDL_ERR, "ERROR! CtdlGetUserData(%ld) symbol not allocated\n",
-		requested_sym);
-	return NULL;
-}
-
-
-/*
- * Allocate some generic per-session user data.
- */
-void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
-{
-	struct CtdlSessData *ptr;
-
-	lprintf(CTDL_DEBUG, "CtdlAllocUserData(%ld) called\n", requested_sym);
-
-	/* Fail silently if the symbol is already registered. */
-	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
-		if (ptr->sym_id == requested_sym) {
-			return;
-		}
-	}
-
-	/* Grab us some memory!  Dem's good eatin' !!  */
-	ptr = malloc(sizeof(struct CtdlSessData));
-	ptr->sym_id = requested_sym;
-	ptr->sym_data = malloc(num_bytes);
-	memset(ptr->sym_data, 0, num_bytes);
-
-	begin_critical_section(S_SESSION_TABLE);
-	ptr->next = CC->FirstSessData;
-	CC->FirstSessData = ptr;
-	end_critical_section(S_SESSION_TABLE);
-
-	lprintf(CTDL_DEBUG, "CtdlAllocUserData(%ld) finished\n", requested_sym);
-}
-
-
-/* 
- * Change the size of a buffer allocated with CtdlAllocUserData()
- */
-void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes)
-{
-	struct CtdlSessData *ptr;
-
-	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
-		if (ptr->sym_id == requested_sym) {
-			ptr->sym_data = realloc(ptr->sym_data, num_bytes);
-			return;
-		}
-	}
-
-	lprintf(CTDL_ERR, "CtdlReallocUserData() ERROR: symbol %ld not found!\n",
-		requested_sym);
-}
-
 
 
 
@@ -776,7 +675,8 @@ void cmd_ipgm(char *argbuf)
 	 */
 	if (!CC->is_local_socket) {
 		sleep(5);
-		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
+		cprintf("%d Authentication failed.\n",
+			ERROR + PASSWORD_REQUIRED);
 	}
 	else if (secret == config.c_ipgm_secret) {
 		CC->internal_pgm = 1;
@@ -786,15 +686,21 @@ void cmd_ipgm(char *argbuf)
 	}
 	else {
 		sleep(5);
-		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
+		cprintf("%d Authentication failed.\n",
+			ERROR + PASSWORD_REQUIRED);
 		lprintf(CTDL_ERR, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
 
-	/* Now change the ipgm secret for the next round. */
+	/* Now change the ipgm secret for the next round.
+	 * (Disabled because it breaks concurrent scripts.  The fact that
+	 * we no longer accept IPGM over the network should be sufficient
+	 * to prevent brute-force attacks.  If you don't agree, uncomment
+	 * this block.)
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
+	*/
 }
 
 
@@ -905,7 +811,6 @@ void begin_session(struct CitContext *con)
 	con->cs_flags = 0;
 	con->upload_type = UPL_FILE;
 	con->dl_is_net = 0;
-	con->FirstSessData = NULL;
 
 	con->nologin = 0;
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))

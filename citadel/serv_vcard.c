@@ -65,14 +65,6 @@
 #include "vcard.h"
 #include "serv_ldap.h"
 
-struct vcard_internal_info {
-	long msgnum;
-};
-
-/* Message number symbol used internally by these functions */
-#define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
-
-
 /*
  * set global flag calling for an aide to validate new users
  */
@@ -488,8 +480,11 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 /*
  * back end function used for callbacks
  */
-void vcard_gu_backend(long msgnum, void *userdata) {
-	VC->msgnum = msgnum;
+void vcard_gu_backend(long supplied_msgnum, void *userdata) {
+	long *msgnum;
+
+	msgnum = (long *) userdata;
+	*msgnum = supplied_msgnum;
 }
 
 
@@ -502,6 +497,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
         char config_rm[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 	struct vCard *v;
+	long VCmsgnum;
 
         strcpy(hold_rm, CC->room.QRname);	/* save current room */
         MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
@@ -512,14 +508,14 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
         }
 
         /* We want the last (and probably only) vcard in this room */
-	VC->msgnum = (-1);
+	VCmsgnum = (-1);
         CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
-		NULL, vcard_gu_backend, NULL);
+		NULL, vcard_gu_backend, (void *)&VCmsgnum );
         getroom(&CC->room, hold_rm);	/* return to saved room */
 
-	if (VC->msgnum < 0L) return vcard_new();
+	if (VCmsgnum < 0L) return vcard_new();
 
-	msg = CtdlFetchMessage(VC->msgnum, 1);
+	msg = CtdlFetchMessage(VCmsgnum, 1);
 	if (msg == NULL) return vcard_new();
 
 	v = vcard_load(msg->cm_fields['M']);
@@ -947,14 +943,6 @@ void vcard_create_room(void)
 
 
 /*
- * Session startup, allocate some per-session data
- */
-void vcard_session_startup_hook(void) {
-	CtdlAllocUserData(SYM_VCARD, sizeof(struct vcard_internal_info));
-}
-
-
-/*
  * When a user logs in...
  */
 void vcard_session_login_hook(void) {
@@ -974,7 +962,6 @@ char *serv_vcard_init(void)
 {
 	struct ctdlroom qr;
 
-	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);

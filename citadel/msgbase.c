@@ -51,9 +51,6 @@
 #include "genstamp.h"
 #include "internet_addressing.h"
 
-#define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
-#define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
-
 extern struct config config;
 long config_msgnum;
 
@@ -762,7 +759,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 		return;
 
 	/* ...or if this is not the desired section */
-	if (strcasecmp(desired_section, partnum))
+	if (strcasecmp(CC->download_desired_section, partnum))
 		return;
 
 	CC->download_fp = tmpfile();
@@ -915,12 +912,15 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 {
-		lprintf(CTDL_DEBUG, "fixed_output_pre() type=<%s>\n", cbtype);	
-		if (!strcasecmp(cbtype, "multipart/alternative")) {
-			++ma->is_ma;
-			ma->did_print = 0;
-			return;
-		}
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
+	lprintf(CTDL_DEBUG, "fixed_output_pre() type=<%s>\n", cbtype);	
+	if (!strcasecmp(cbtype, "multipart/alternative")) {
+		++ma->is_ma;
+		ma->did_print = 0;
+		return;
+	}
 }
 
 /*
@@ -930,12 +930,15 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 {
-		lprintf(CTDL_DEBUG, "fixed_output_post() type=<%s>\n", cbtype);	
-		if (!strcasecmp(cbtype, "multipart/alternative")) {
-			--ma->is_ma;
-			ma->did_print = 0;
-			return;
-		}
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
+	lprintf(CTDL_DEBUG, "fixed_output_post() type=<%s>\n", cbtype);	
+	if (!strcasecmp(cbtype, "multipart/alternative")) {
+		--ma->is_ma;
+		ma->did_print = 0;
+	return;
+	}
 }
 
 /*
@@ -948,6 +951,9 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		char *ptr;
 		char *wptr;
 		size_t wlen;
+		struct ma_info *ma;
+	
+		ma = (struct ma_info *)cbuserdata;
 
 		lprintf(CTDL_DEBUG, "fixed_output() type=<%s>\n", cbtype);	
 
@@ -997,6 +1003,9 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 {
 	char buf[SIZ];
 	int i;
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
 
 	if (ma->is_ma > 0) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
@@ -1019,6 +1028,9 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 	char buf[SIZ];
 	int add_newline = 0;
 	char *text_content;
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
 
 	/* This is not the MIME part you're looking for... */
 	if (strcasecmp(partnum, ma->chosen_part)) return;
@@ -1132,6 +1144,7 @@ int CtdlOutputPreLoadedMsg(
 	char *nl;	/* newline string */
 	int suppress_f = 0;
 	int subject_found = 0;
+	struct ma_info *ma;
 
 	/* buffers needed for RFC822 translation */
 	char suser[SIZ];
@@ -1170,9 +1183,10 @@ int CtdlOutputPreLoadedMsg(
 		} else {
 			/* Parse the message text component */
 			mptr = TheMessage->cm_fields['M'];
-			mime_parser(mptr, NULL,
-				*mime_download, NULL, NULL,
-				NULL, 0);
+			ma = malloc(sizeof(struct ma_info));
+			memset(ma, 0, sizeof(struct ma_info));
+			mime_parser(mptr, NULL, *mime_download, NULL, NULL, (void *)ma, 0);
+			free(ma);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
 			 */
@@ -1180,7 +1194,7 @@ int CtdlOutputPreLoadedMsg(
 				if (do_proto) cprintf(
 					"%d Section %s not found.\n",
 					ERROR + FILE_NOT_FOUND,
-					desired_section);
+					CC->download_desired_section);
 			}
 		}
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
@@ -1465,16 +1479,17 @@ START_TEXT:
 	 * we use will display those parts as-is.
 	 */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
-		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
-		memset(ma, 0, sizeof(struct ma_info));
 
 		if (mode == MT_MIME) {
+			ma = malloc(sizeof(struct ma_info));
+			memset(ma, 0, sizeof(struct ma_info));
 			strcpy(ma->chosen_part, "1");
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
-				*fixed_output_post, NULL, 0);
+				*fixed_output_post, (void *)ma, 0);
 			mime_parser(mptr, NULL,
-				*output_preferred, NULL, NULL, NULL, 0);
+				*output_preferred, NULL, NULL, (void *)ma, 0);
+			free(ma);
 		}
 		else {
 			mime_parser(mptr, NULL,
@@ -1591,11 +1606,11 @@ void cmd_msgp(char *cmdbuf)
 void cmd_opna(char *cmdbuf)
 {
 	long msgid;
-
-	CtdlAllocUserData(SYM_DESIRED_SECTION, SIZ);
+	char desired_section[SIZ];
 
 	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
+	safestrncpy(CC->download_desired_section, desired_section, sizeof CC->download_desired_section);
 
 	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1);
 }			

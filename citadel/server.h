@@ -32,28 +32,6 @@ struct CtdlMessage {
 
 
 /*
- * Generic per-session variable or data structure storage
- */
-struct CtdlSessData {
-	struct CtdlSessData *next;
-	unsigned long sym_id;
-	void *sym_data;
-};
-
-/*
- * Static user data symbol types.  Server extensions can ask for dynamic
- * extensions to per-session data, but the symbol ID has to be listed here.
- */
-enum {
-	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
-	SYM_MA_INFO,			/* Handles multipart/alternative */
-	SYM_CIT_ICAL,			/* Used by the calendar service */
-	SYM_VCARD,			/* vCard handling requires this */
-	SYM_MAX
-};
-
-
-/*
  * Here's the big one... the Citadel context structure.
  *
  * This structure keeps track of all information relating to a running 
@@ -106,6 +84,7 @@ struct CitContext {
 	char cs_inet_email[SIZ];/* Return address of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
+	char download_desired_section[128];
 	FILE *upload_fp;
 	char upl_file[PATH_MAX];
 	char upl_path[PATH_MAX];
@@ -145,12 +124,13 @@ struct CitContext {
 	char preferred_formats[SIZ];		/* Preferred MIME formats */
 
 	/* Dynamically allocated session data */
-	struct CtdlSessData *FirstSessData;
 	struct citimap *IMAP;
 	struct citpop3 *POP3;
 	struct citsmtp *SMTP;
 	char *SMTP_RECPS;
 	char *SMTP_ROOMS;
+	struct cit_ical *CIT_ICAL;		/* calendaring data */
+	struct ma_info *ma;			/* multipart/alternative data */
 };
 
 typedef struct CitContext t_context;
