@@ -497,7 +497,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		fp = fopen(CC->temp, "wb");
 		fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
 		fprintf(fp, "Psysop%c", 0);
-		fprintf(fp, "T%ld%c", time(NULL), 0);
+		fprintf(fp, "T%ld%c", (long)time(NULL), 0);
 		fprintf(fp, "A%s%c", lun, 0);
 		fprintf(fp, "R%s%c", x_user, 0);
 		fprintf(fp, "O%s%c", config.c_logpages, 0);
