@@ -1,3 +1,13 @@
 Daphne requires WxWindows 2.1.10 or greater.  The current source was
 compiled under RedHat Linux 5.2 with WxWindows 2.1.10.  WxWindows is
 available at http://www.wxwindows.org
+
+
+ This program IS functional.  All functions (except chat) work.  On the
+current bugs/todo list:
+
+ 
+ Fix chat
+ Allow for choice of system to 'connect' to.
+ Sysop/Aide functionality
+ 
