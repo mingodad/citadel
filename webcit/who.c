@@ -58,16 +58,12 @@ void whobbs(void)
 	);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Users currently on ");
+	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\">&nbsp;&nbsp;<B>Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER>\n"
-		"Click on a name to read user info.  Click on "
-		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
-		"BORDER=0> to send "
-		"a page (instant message) to that user.<BR>"
-		"<TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
+	wprintf("<CENTER><TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
@@ -159,7 +155,11 @@ void whobbs(void)
 			wlist = wptr;
 		}
 	}
-	wprintf("</TABLE></CENTER>\n");
+	wprintf("</TABLE>\n"
+		"Click on a name to read user info.  Click on "
+		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
+		"BORDER=0> to send "
+		"a page (instant message) to that user.<BR></CENTER>\n");
 	wDumpContent(1);
 }
 

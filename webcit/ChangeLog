@@ -1,4 +1,7 @@
 $Log$
+Revision 213.14  2001/05/22 00:32:17  ajc
+* cosmetics
+
 Revision 213.13  2001/05/22 00:02:18  ajc
 * Another attempt to fix the fd leak
 
@@ -547,4 +550,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
