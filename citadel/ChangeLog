@@ -1,5 +1,8 @@
 1998-08-25 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* room_ops.c: include time.h
+	* userlist.c, whobbs.c, serv_chat.c, user_ops.c, sysdep.c, stats.c,
+	  citadel_decls.h, commands.c, messages.h, routines.h, routines2.h:
+	  remove duplicated declarations
 
 Mon Aug 24 23:45:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: Removed yesno_s()
