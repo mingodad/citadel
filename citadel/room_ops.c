@@ -618,8 +618,6 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 	long *msglist = NULL;
 	int num_msgs = 0;
 
-	lprintf(9, "usergoto() called for <%s>\n", where);
-
 	strcpy(CC->quickroom.QRname, where);
 	getroom(&CC->quickroom, where);
 
@@ -679,6 +677,8 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
+	lprintf(9, "<%s> %d new of %d total messages\n",
+		CC->quickroom.QRname, new_messages, total_messages);
 
 	if (display_result)
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
