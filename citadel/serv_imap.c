@@ -305,6 +305,11 @@ void imap_cleanup_function(void)
 	if (CC->h_command_function != imap_command_loop)
 		return;
 
+	/* If there is a mailbox selected, auto-expunge it. */
+	if (IMAP->selected) {
+		imap_do_expunge();
+	}
+
 	lprintf(CTDL_DEBUG, "Performing IMAP cleanup hook\n");
 	imap_free_msgids();
 	imap_free_transmitted_message();
@@ -513,7 +518,6 @@ void imap_select(int num_parms, char *parms[])
 	if (!ok) {
 		cprintf("%s NO ... no such room, or access denied\r\n",
 			parms[0]);
-		/* IMAP->selected = 0; */
 		return;
 	}
 
@@ -564,8 +568,9 @@ int imap_do_expunge(void)
 	int num_expunged = 0;
 
 	lprintf(CTDL_DEBUG, "imap_do_expunge() called\n");
-	if (IMAP->selected == 0)
+	if (IMAP->selected == 0) {
 		return (0);
+	}
 
 	if (IMAP->num_msgs > 0)
 		for (i = 0; i < IMAP->num_msgs; ++i) {
@@ -573,11 +578,6 @@ int imap_do_expunge(void)
 				CtdlDeleteMessages(CC->room.QRname,
 						   IMAP->msgids[i], "");
 				++num_expunged;
-				lprintf(CTDL_DEBUG, "%ld ... deleted\n",
-					IMAP->msgids[i]);
-			} else {
-				lprintf(CTDL_DEBUG, "%ld ... not deleted\n",
-					IMAP->msgids[i]);
 			}
 		}
 
@@ -585,6 +585,7 @@ int imap_do_expunge(void)
 		imap_rescan_msgids();
 	}
 
+	lprintf(9, "Expunged %d messages.\n", num_expunged);
 	return (num_expunged);
 }
 
@@ -608,7 +609,9 @@ void imap_close(int num_parms, char *parms[])
 {
 
 	/* Yes, we always expunge on close. */
-	imap_do_expunge();
+	if (IMAP->selected) {
+		imap_do_expunge();
+	}
 
 	IMAP->selected = 0;
 	IMAP->readonly = 0;
@@ -1296,7 +1299,9 @@ void imap_command_loop(void)
 	}
 
 	else if (!strcasecmp(parms[1], "LOGOUT")) {
-		imap_do_expunge();	/* yes, we auto-expunge */
+		if (IMAP->selected) {
+			imap_do_expunge();	/* yes, we auto-expunge */
+		}
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
 		cprintf("%s OK thank you for using Citadel IMAP\r\n",
 			parms[0]);

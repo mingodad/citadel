@@ -1,4 +1,10 @@
  $Log$
+ Revision 622.1  2004/06/24 02:34:39  ajc
+ * serv_imap.c: when an IMAP socket breaks while a folder is selected,
+   auto-expunge the folder before closing it.  Fixes the "mysteriously
+   reappearing deleted messages" for clients that just drop the session
+   without issuing a CLOSE when the user closes the window.
+
  Revision 622.0  2004/06/19 03:20:22  ajc
  * THIS IS 6.22
 
@@ -5869,4 +5875,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

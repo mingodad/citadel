@@ -322,6 +322,9 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	int num_msgs = 0;
 	char vset[SIZ];
 
+	lprintf(CTDL_DEBUG, "CtdlSetSeen(%ld, %d, %d)\n",
+		target_msgnum, target_setting, which_set);
+
 	/* Learn about the user and room in question */
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
