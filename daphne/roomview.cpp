@@ -7,7 +7,8 @@ enum {
 	BUTTON_CLOSE,
 	BUTTON_READNEW,
 	BUTTON_READALL,
-	BUTTON_ENTER
+	BUTTON_ENTER,
+	BUTTON_ZAP
 };
 
 
@@ -18,6 +19,7 @@ BEGIN_EVENT_TABLE(RoomView, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_READNEW,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READALL,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_ENTER,		RoomView::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_ZAP,		RoomView::OnButtonPressed)
 END_EVENT_TABLE()
 
 
@@ -184,6 +186,18 @@ RoomView::RoomView(
 	c4->right.LeftOf(readall_button, 5);
 	enter_button->SetConstraints(c4);
 
+        wxButton *zap_button = new wxButton(
+                this,
+                BUTTON_ZAP,
+                " Zap ",
+                wxDefaultPosition);
+        wxLayoutConstraints *c5 = new wxLayoutConstraints;
+        c5->top.SameAs(enter_button, wxTop);
+        c5->bottom.SameAs(readall_button, wxBottom);
+        c5->width.AsIs();
+        c5->right.LeftOf(readall_button, 5);
+        zap_button->SetConstraints(c5);
+
         Layout();
 	wxYield();
 
@@ -225,6 +239,13 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
 		delete this;
+	} else if (whichbutton.GetId() == BUTTON_ZAP) {
+		sendcmd = "FORG";		//Zap (forget) room
+		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
+		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
+		delete this;
+		RoomList->DeleteAllItems();
+		RoomList->LoadRoomList();
 	}
 }
 

@@ -15,7 +15,8 @@ enum {
 	RI_NOTHING,
 	RI_ROOM,
 	RI_CURRUSER,
-	RI_SERVPROPS
+	RI_SERVPROPS,
+	RI_ZAPPED
 };
 
 
@@ -96,6 +97,7 @@ void RoomTree::LoadRoomList(void) {
 	wxTreeItemId prev;
 	int i, pos, floornum, where;
 	int mailfloor;
+	int zapfloor;
 	unsigned int roomflags;
 
 	prev = null_item;
@@ -121,7 +123,10 @@ void RoomTree::LoadRoomList(void) {
 		-1,
 		new RoomItem(citsock->curr_user, FALSE, RI_CURRUSER)
 		);
+
 		
+
+
 	sendcmd = "LFLR";
 	// Bail out silently if we can't retrieve the floor list
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
@@ -191,6 +196,36 @@ void RoomTree::LoadRoomList(void) {
 			);
 	}
 
+
+	zapfloor = AppendItem(
+		GetRootItem(),
+		"Zapped Rooms",
+		1,
+		-1,
+		new RoomItem("Zapped Rooms", TRUE, RI_ZAPPED)
+		);
+
+	sendcmd = "LZRM";
+
+	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
+	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
+		buf = transbuf.Left(pos);
+		transbuf = transbuf.Mid(pos+1);
+		extract(roomname, buf, 0);
+		roomflags = extract_int(buf, 1);
+                floornum = extract_int(buf, 2);
+                        where = zapfloor;
+                AppendItem(
+                        where,
+                        roomname,
+                        4,
+                        -1,
+                        new RoomItem(roomname, FALSE, RI_ROOM)
+                        );
+        }
+
+
+
 	wxTreeItemId sp = AppendItem(
 		GetRootItem(),
 		"Global settings",
@@ -251,6 +286,13 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	case RI_ROOM:
 		new RoomView(citsock, citMyMDI, r->RoomName);
 		break;
+
+	case RI_ZAPPED:
+		new RoomView(citsock, citMyMDI, r->RoomName);
+		DeleteAllItems();
+		LoadRoomList();
+		break;
+
 
 	case RI_SERVPROPS:
 		if (CurrServProps == NULL) {
