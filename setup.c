@@ -39,7 +39,7 @@ int setup_type;
 char setup_directory[SIZ];
 char init_entry[SIZ];
 int using_web_installer = 0;
-
+char suggested_url[SIZ];
 
 /*
  * Set an entry in inittab to the desired state
@@ -466,6 +466,7 @@ void check_inittab_entry(void)
 #endif
 	char hostname[128];
 	char portname[128];
+	struct utsname my_utsname;
 
 	/* Determine the fully qualified path name of webserver */
 	snprintf(looking_for, sizeof looking_for, "%s/webserver", setup_directory);
@@ -490,6 +491,8 @@ void check_inittab_entry(void)
 		"select another port.");
 	sprintf(http_port, "2000");
 	set_value(question, http_port);
+	uname(&my_utsname);
+	sprintf(suggested_url, "http://%s:%s/", my_utsname.nodename, http_port);
 
 #ifdef HAVE_OPENSSL
 	snprintf(question, sizeof question,
@@ -591,8 +594,9 @@ int discover_ui(void)
 int main(int argc, char *argv[])
 {
 	int a;
-	char aaa[128];
+	char aaa[256];
 	int info_only = 0;
+	strcpy(suggested_url, "http://<your_host_name>:<port>/");
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -670,8 +674,10 @@ int main(int argc, char *argv[])
 			if (a == 0) start_the_service();
 			sleep(1);
 		}
-		important_message("Setup finished",
-			"Setup is finished.  You may now log in.");
+		sprintf(aaa,
+			"Setup is finished.  You may now log in.\n"
+			"Point your web browser at %s\n", suggested_url);
+		important_message("Setup finished", aaa);
 	}
 	else {
 		important_message("Setup finished",

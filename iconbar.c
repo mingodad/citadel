@@ -216,7 +216,7 @@ void do_iconbar(void) {
 			"SRC=\"/static/users-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Users");
+			wprintf("Who is online?");
 		}
 		wprintf("</A></li>\n");
 	}
@@ -487,7 +487,7 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/users-icon.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Users</B><br />"
+		"<B>Who is online?</B><br />"
 		"Clicking this icon displays a list of all users "
 		"currently logged in."
 		"</TD></TR>\n",

@@ -43,29 +43,32 @@ void display_floorconfig(char *prepend_html)
 	char floorname[SIZ];
 	int refcount;
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
-
+        output_headers(1, 1, 2, 0, 0, 0, 0);
+        wprintf("<div id=\"banner\">\n"
+                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+                "<SPAN CLASS=\"titlebar\">Add/change/delete floors</SPAN>"
+                "</TD></TR></TABLE>\n"
+                "</div>\n<div id=\"content\">\n"
+        );
+                                                                                                                             
 	if (prepend_html != NULL) {
+		wprintf("<br /><b><i>");
 		client_write(prepend_html, strlen(prepend_html));
+		wprintf("</i></b><br /><br />\n");
 	}
 
-	serv_printf("LFLR");	/* FIXME put a real test here */
+	serv_printf("LFLR");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("<div id=\"banner\">\n");
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
         	wprintf("</TD></TR></TABLE>\n");
-		wprintf("</div>\n<div id=\"content\">\n");
         	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
-	svprintf("BOXTITLE", WCS_STRING, "Floor configuration");
-	do_template("beginbox");
-
-	wprintf("<TABLE BORDER=1 WIDTH=100%>\n"
+	wprintf("<center><TABLE BORDER=1 WIDTH=99%% bgcolor=\"#ffffff\">\n"
 		"<TR><TH>Floor number</TH>"
 		"<TH>Floor name</TH>"
 		"<TH>Number of rooms</TH></TR>\n"
@@ -114,8 +117,7 @@ void display_floorconfig(char *prepend_html)
 		"</FORM></TD>"
 		"<TD>&nbsp;</TD></TR>\n");
 
-	wprintf("</TABLE>\n");
-	do_template("endbox");
+	wprintf("</table></center>\n");
 	wDumpContent(1);
 }
 
@@ -132,11 +134,10 @@ void delete_floor(void) {
 	serv_gets(buf);
 
 	if (buf[0] == '2') {
-		sprintf(message, "<B><I>Floor has been deleted."
-				"</I></B><br /><br />\n");
+		sprintf(message, "Floor has been deleted.");
 	}
 	else {
-		sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
+		sprintf(message, "%s", &buf[4]);
 	}
 
 	display_floorconfig(message);
@@ -153,7 +154,11 @@ void create_floor(void) {
 	serv_printf("CFLR %s|1", floorname);
 	serv_gets(buf);
 
-	sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
+	if (buf[0] == '2') {
+		sprintf(message, "New floor has been created.");
+	} else {
+		sprintf(message, "%s", &buf[4]);
+	}
 
 	display_floorconfig(message);
 }
@@ -171,7 +176,7 @@ void rename_floor(void) {
 	serv_printf("EFLR %d|%s", floornum, floorname);
 	serv_gets(buf);
 
-	sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
+	sprintf(message, "%s", &buf[4]);
 
 	display_floorconfig(message);
 }

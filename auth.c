@@ -125,6 +125,10 @@ void do_login(void)
 		}
 	}
 	if (!strcasecmp(bstr("action"), "New User")) {
+		if (strlen(bstr("pass")) == 0) {
+			display_login("Blank passwords are not allowed.");
+			return;
+		}
 		serv_printf("NEWU %s", bstr("name"));
 		serv_gets(buf);
 		if (buf[0] == '2') {
@@ -219,8 +223,14 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Validate new users</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+															     
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
 		if (strlen(bstr("axlevel")) > 0) {
@@ -239,8 +249,7 @@ void validate(void)
 		return;
 	}
 
-	wprintf("<center>");
-	do_template("beginbox_nt");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<center>");
 
 	strcpy(user, &buf[4]);
@@ -286,8 +295,7 @@ void validate(void)
 	wprintf("<br />\n");
 
 	wprintf("</CENTER>\n");
-	do_template("endbox");
-	wprintf("</CENTER>\n");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 
@@ -334,10 +342,24 @@ void display_changepw(void)
 {
 	char buf[SIZ];
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Change your password</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
-	svprintf("BOXTITLE", WCS_STRING, "Change your password");
-	do_template("beginbox");
+	if (strlen(WC->ImportantMessage) > 0) {
+		do_template("beginbox_nt");
+		wprintf("<SPAN CLASS=\"errormsg\">"
+			"%s</SPAN><br />\n", WC->ImportantMessage);
+		do_template("endbox");
+		strcpy(WC->ImportantMessage, "");
+	}
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+
 	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");
 	serv_gets(buf);
@@ -345,7 +367,7 @@ void display_changepw(void)
 		fmout(NULL, "CENTER");
 	}
 
-	wprintf("<FORM ACTION=\"changepw\" METHOD=\"POST\">\n");
+	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\" onLoad=\"document.changepwform.action.disabled = true\">\n");
 	wprintf("<CENTER>"
 		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
 		"BGCOLOR=\"#EEEEEE\">"
@@ -353,12 +375,13 @@ void display_changepw(void)
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
 	wprintf("<TR><TD>Enter it again to confirm:</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
+
 	wprintf("</TABLE><br />\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n"
+	wprintf("<INPUT type=\"submit\" name=\"action\" value=\"Change\">"
 		"&nbsp;"
-		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER>\n");
-	do_template("endbox");
+		"<INPUT type=\"submit\" name=\"action\" value=\"Cancel\">\n");
+	wprintf("</form></center>\n");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 
@@ -376,17 +399,31 @@ void changepw(void)
 		display_main_menu();
 		return;
 	}
+
 	strcpy(newpass1, bstr("newpass1"));
 	strcpy(newpass2, bstr("newpass2"));
 
 	if (strcasecmp(newpass1, newpass2)) {
 		strcpy(WC->ImportantMessage, 
 			"They don't match.  Password was not changed.");
-		display_main_menu();
+		display_changepw();
 		return;
 	}
+
+	if (strlen(newpass1) == 0) {
+		strcpy(WC->ImportantMessage, 
+			"Blank passwords are not allowed.");
+		display_changepw();
+		return;
+	}
+
 	serv_printf("SETP %s", newpass1);
 	serv_gets(buf);
-	strcpy(WC->ImportantMessage, &buf[4]);
-	display_main_menu();
+	sprintf(WC->ImportantMessage, "%s", &buf[4]);
+	if (buf[0] == '2') {
+		display_main_menu();
+	}
+	else {
+		display_changepw();
+	}
 }

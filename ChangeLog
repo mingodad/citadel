@@ -1,4 +1,23 @@
 $Log$
+Revision 602.3  2005/02/17 04:48:26  ajc
+* After setup is complete, tell them how to log in.
+* Don't allow the creation of accounts with blank passwords.
+* Don't allow users to change to a blank password.
+* Fixed the positioning of a few more screens that accidentally got
+  partially hidden underneath the iconbar.
+* Boldfaced the "Password changed." and other prompts.
+* Removed the unreadable blue-on-blue links in the calendar day
+  view.  They're redundant anyway, now: "Add new calendar event" and
+  "month view" are both in the banner bar.
+* "New messages / All messages" are now "Read new messages / Read all
+  messages"
+* "Save message" button is now "Post message" for public room posts,
+  and "Send message" for email.
+* "Message has been posted" is now "Message has been sent" for email.
+* Swapped positions of "Add users" and "Edit users" boxes.
+* vCard editor: "Other Internet email addresses" is now "aliases"
+* Renamed the "Users" button to "Who is online?"
+
 Revision 602.2  2005/02/16 05:40:31  ajc
 * More display fixes
 
@@ -2365,4 +2384,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
