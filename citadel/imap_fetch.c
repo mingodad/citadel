@@ -491,7 +491,6 @@ void imap_fetch_bodystructure_post(
 /*
  * Output the info for a MIME part in the format required by BODYSTRUCTURE.
  *
- * FIXME .... this needs oodles of work to get completed.
  */
 void imap_fetch_bodystructure_part(
 		char *name, char *filename, char *partnum, char *disp,
@@ -546,9 +545,7 @@ void imap_fetch_bodystructure_part(
 	cprintf(" ");
 
 	cprintf("%ld ", length);	/* bytes */
-	cprintf("NIL ");		/* lines */
-	cprintf("NIL NIL NIL)");	/* I don't know what this is */
-
+	cprintf("NIL) ");		/* lines */
 }
 
 
@@ -558,7 +555,6 @@ void imap_fetch_bodystructure_part(
  * you're going to shoot a MIME?  Do you need a reason to shoot Mark Crispin?
  * No, and no.)
  *
- * FIXME finish the implementation
  */
 void imap_fetch_bodystructure (long msgnum, char *item,
 		struct CtdlMessage *msg) {
@@ -566,7 +562,6 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	char buf[1024];
 	long lines = 0L;
 	long bytes = 0L;
-
 
 	/* For non-RFC822 (ordinary Citadel) messages, this is short and
 	 * sweet...

@@ -408,7 +408,7 @@ void imap_list(int num_parms, char *parms[]) {
 
 
 /*
- * Implements the CREATE command (FIXME not finished yet)
+ * Implements the CREATE command
  *
  */
 void imap_create(int num_parms, char *parms[]) {

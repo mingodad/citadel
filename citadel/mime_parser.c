@@ -75,6 +75,18 @@ char *memreadline(char *start, char *buf, int maxlen)
 	}
 }
 
+
+/*
+ * For non-multipart messages, we need to generate a quickie partnum of "1"
+ * to return to callback functions.  Some callbacks demand it.
+ */
+char *fixed_partnum(char *supplied_partnum) {
+	if (supplied_partnum == NULL) return "1";
+	if (strlen(supplied_partnum)==0) return "1";
+	return supplied_partnum;
+}
+
+
 /*
  * Given a message or message-part body and a length, handle any necessary
  * decoding and pass the request up the stack.
@@ -142,7 +154,7 @@ void mime_decode(char *partnum,
 	/* If this part is not encoded, send as-is */
 	if ( (strlen(encoding) == 0) || (dont_decode)) {
 		if (CallBack != NULL) {
-			CallBack(name, filename, partnum,
+			CallBack(name, filename, fixed_partnum(partnum),
 				disposition, part_start,
 				content_type, length, encoding, userdata);
 			}
@@ -223,8 +235,9 @@ void mime_decode(char *partnum,
 	}
 
 	if (bytes_recv > 0) if (CallBack != NULL) {
-		CallBack(name, filename, partnum, disposition, decoded,
-			 content_type, bytes_recv, "binary", userdata);
+		CallBack(name, filename, fixed_partnum(partnum),
+			disposition, decoded,
+			content_type, bytes_recv, "binary", userdata);
 	}
 
 	phree(decoded);
@@ -362,7 +375,8 @@ void the_mime_parser(char *partnum,
 		}
 		/*
 		if (CallBack != NULL) {
-			CallBack("", "", partnum, "", NULL, content_type,
+			CallBack("", "", fixed_partnum(partnum),
+				"", NULL, content_type,
 				0, encoding, userdata);
 		}
 		 */

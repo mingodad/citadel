@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.89  2001/02/13 04:06:14  ajc
+ * Worked out the remaining bugs in IMAP FETCH for the BODYSTRUCTURE and
+   BODY[n] data items.  I think.  So much protocol crud, so little time...
+
  Revision 573.88  2001/02/13 01:18:44  ajc
  * imap fetch
 
@@ -2400,4 +2404,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
