@@ -1,5 +1,5 @@
                   SESSION LAYER PROTOCOL FOR CITADEL/UX
-         (c) 1995-2003 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-2004 by Art Cancro et. al.    All Rights Reserved
 
 
  INTRODUCTION
@@ -1261,7 +1261,22 @@ two arguments: the node name of the calling system, and the "shared secret"
 password for that connection.  If the authentication succeeds, NETP will
 return OK, otherwise, it returns ERROR.
 
-
+ 
+ NSYN   (Network SYNchronize room)
+ 
+ This command can be used to synchronize the contents of a room on the
+network.  It is only usable by Aides.  It accepts one argument: the name of
+a network node (which must be a valid one).
+ 
+ When NSYN is run, the *entire* contents of the current room will be spooled
+to the specified node, without regard to whether any of the messages have
+already undergone network processing.  It is up to the receiving node to
+check for duplicates (the Citadel networker does handle this) and avoid
+posting them twice.
+ 
+ The command returns OK upon success or ERROR if the user is not an Aide.
+  
+ 
  NUOP   (Network Upload OPen file)
 
  Open a network spool file for uploading.  The client must have already

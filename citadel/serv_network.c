@@ -842,6 +842,53 @@ void network_spoolout_room(char *room_to_spool) {
 }
 
 
+
+/*
+ * Send the *entire* contents of the current room to one specific network node,
+ * ignoring anything we know about which messages have already undergone
+ * network processing.  This can be used to bring a new node into sync.
+ */
+int network_sync_to(char *target_node) {
+	struct SpoolControl sc;
+	int num_spooled = 0;
+
+	/* Concise syntax because we don't need a full linked-list */
+	sc.ignet_push_shares = (struct namelist *)
+		mallok(sizeof(struct namelist));
+	sc.ignet_push_shares->next = NULL;
+	safestrncpy(sc.ignet_push_shares->name,
+		target_node,
+		sizeof sc.ignet_push_shares->name);
+
+	/* Send ALL messages */
+	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
+		network_spool_msg, &sc);
+
+	/* Concise cleanup because we know there's only one node in the sc */
+	phree(sc.ignet_push_shares);
+
+	lprintf(7, "Synchronized %d messages to <%s>\n",
+		num_spooled, target_node);
+	return(num_spooled);
+}
+
+
+/*
+ * Implements the NSYN command
+ */
+void cmd_nsyn(char *argbuf) {
+	int num_spooled;
+	char target_node[SIZ];
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	extract(target_node, argbuf, 0);
+	num_spooled = network_sync_to(target_node);
+	cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
+}
+
+
+
 /*
  * Batch up and send all outbound traffic from the current room
  */
@@ -1005,7 +1052,6 @@ void network_process_buffer(char *buffer, long size) {
 	char *oldpath = NULL;
 	char filename[SIZ];
 	FILE *fp;
-	char buf[SIZ];
 	char nexthop[SIZ];
 
 	/* Set default target room to trash */
@@ -1080,20 +1126,12 @@ void network_process_buffer(char *buffer, long size) {
 	}
 
 	/*
-	 * Check to see if we already have a copy of this message
+	 * Check to see if we already have a copy of this message, and
+	 * abort its processing if so.  (We used to post a warning to Aide>
+	 * every time this happened, but the network is now so densely
+	 * connected that it's inevitable.)
 	 */
 	if (network_usetable(msg) != 0) {
-		snprintf(buf, sizeof buf,
-			"Loopzapper rejected message <%s> "
-			"from <%s> in <%s> @ <%s>\n",
-			((msg->cm_fields['I']!=NULL)?(msg->cm_fields['I']):""),
-			((msg->cm_fields['A']!=NULL)?(msg->cm_fields['A']):""),
-			((msg->cm_fields['O']!=NULL)?(msg->cm_fields['O']):""),
-			((msg->cm_fields['N']!=NULL)?(msg->cm_fields['N']):"")
-		);
-		aide_message(buf);
-		CtdlFreeMessage(msg);
-		msg = NULL;
 		return;
 	}
 
@@ -1604,6 +1642,7 @@ char *serv_network_init(void)
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
+	CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	return "$Id$";
 }

@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.19  2004/02/06 04:40:50  ajc
+ * Suppress posting of messages to Aide> when the loopzapper catches dupes.
+ * New command NSYN to sync the entire contents of a room to a specified
+   network node.  This will be used to bring new nodes in sync with existing
+   nodes.
+
  Revision 614.18  2004/02/06 03:58:10  ajc
  * Added some comments to the sample citadel-slapd.conf
 
@@ -5277,4 +5283,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
