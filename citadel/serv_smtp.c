@@ -371,7 +371,7 @@ void smtp_rcpt(char *argbuf) {
 	alias(recp);
 
 	cvt = convert_internet_address(user, node, recp);
-	sprintf(recp, "%s@%s", user, node);
+	snprintf(recp, sizeof recp, "%s@%s", user, node);
 	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 
 	switch(cvt) {
@@ -440,7 +440,7 @@ void smtp_rcpt(char *argbuf) {
  */
 void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *dest) {
 	struct ser_ret smr;
-	char *hold_R, *hold_D;
+	char *hold_R, *hold_D, *hold_O;
 	FILE *fp;
 	char filename[256];
 	static int seq = 0;
@@ -449,16 +449,20 @@ void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *dest) {
 
 	hold_R = msg->cm_fields['R'];
 	hold_D = msg->cm_fields['D'];
+	hold_O = msg->cm_fields['O'];
 	msg->cm_fields['R'] = user;
 	msg->cm_fields['D'] = dest;
+	msg->cm_fields['O'] = MAILROOM;
 
 	serialize_message(&smr, msg);
 
 	msg->cm_fields['R'] = hold_R;
 	msg->cm_fields['D'] = hold_D;
+	msg->cm_fields['O'] = hold_O;
 
 	if (smr.len != 0) {
-		sprintf(filename, "./network/spoolin/%s.%04x.%04x",
+		snprintf(filename, sizeof filename,
+			"./network/spoolin/%s.%04x.%04x",
 			dest, getpid(), ++seq);
 		lprintf(9, "spool file name is <%s>\n", filename);
 		fp = fopen(filename, "wb");
@@ -500,6 +504,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	if (msg->cm_fields['A']==NULL) msg->cm_fields['A'] = strdoop(user);
 	if (msg->cm_fields['N']==NULL) msg->cm_fields['N'] = strdoop(node);
 	if (msg->cm_fields['H']==NULL) msg->cm_fields['H'] = strdoop(name);
+	if (msg->cm_fields['O']==NULL) msg->cm_fields['O'] = strdoop(MAILROOM);
 
 	/* Save the message in the queue */
 	msgid = CtdlSaveMsg(msg,
@@ -510,7 +515,8 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	++successful_saves;
 
 	instr = mallok(1024);
-	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+	snprintf(instr, 1024,
+			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s\n",
 		SPOOLMIME, msgid, time(NULL),
 		SMTP->from );
@@ -550,7 +556,8 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 		if (!strcasecmp(dtype, "remote")) {
 			extract(user, buf, 1);
 			instr = reallok(instr, strlen(instr) + 1024);
-			sprintf(&instr[strlen(instr)],
+			snprintf(&instr[strlen(instr)],
+				strlen(instr) + 1024,
 				"remote|%s|0\n",
 				user);
 			++remote_spools;
@@ -606,7 +613,7 @@ void smtp_data(void) {
 	generate_rfc822_datestamp(nowstamp, time(NULL));
 	body = mallok(4096);
 
-	if (body != NULL) sprintf(body,
+	if (body != NULL) snprintf(body, 4096,
 		"Received: from %s\n"
 		"	by %s;\n"
 		"	%s\n",
@@ -832,7 +839,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
-		sprintf(dsn, "No MX hosts found for <%s>", node);
+		snprintf(dsn, 256, "No MX hosts found for <%s>", node);
 		return;
 	}
 
@@ -840,9 +847,9 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 		extract(buf, mxhosts, mx);
 		lprintf(9, "Trying <%s>\n", buf);
 		sock = sock_connect(buf, "25", "tcp");
-		sprintf(dsn, "Could not connect: %s", strerror(errno));
+		snprintf(dsn, 256, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) lprintf(9, "Connected!\n");
-		if (sock < 0) sprintf(dsn, "%s", strerror(errno));
+		if (sock < 0) snprintf(dsn, 256, "%s", strerror(errno));
 		if (sock >= 0) break;
 	}
 
@@ -874,7 +881,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a HELO command */
-	sprintf(buf, "HELO %s", config.c_fqdn);
+	snprintf(buf, sizeof buf, "HELO %s", config.c_fqdn);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
@@ -898,7 +905,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* HELO succeeded, now try the MAIL From: command */
-	sprintf(buf, "MAIL From: %s", mailfrom);
+	snprintf(buf, sizeof buf, "MAIL From: %s", mailfrom);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
@@ -922,7 +929,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* MAIL succeeded, now try the RCPT To: command */
-	sprintf(buf, "RCPT To: %s", addr);
+	snprintf(buf, sizeof buf, "RCPT To: %s", addr);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
@@ -1362,7 +1369,8 @@ void smtp_do_procmsg(long msgnum) {
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
 		msg->cm_fields['M'] = malloc(strlen(instr)+256);
-		sprintf(msg->cm_fields['M'],
+		snprintf(msg->cm_fields['M'],
+			strlen(instr)+256,
 			"Content-type: %s\n\n%s\nattempted|%ld\n",
 			SPOOLMIME, instr, time(NULL) );
 		phree(instr);
