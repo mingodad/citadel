@@ -91,11 +91,11 @@ int extract_int(wxString inputbuf, int parmnum) {
 
 void InitTreeIcons(void) {
 	TreeIcons = new wxImageList(16, 16);
-	cout << TreeIcons->Add(wxICON(root));
-	cout << TreeIcons->Add(wxICON(floor));
-	cout << TreeIcons->Add(wxICON(newroom));
-	cout << TreeIcons->Add(wxICON(oldroom));
-	cout << TreeIcons->Add(wxICON(mailroom));
+	TreeIcons->Add(wxICON(root));
+	TreeIcons->Add(wxICON(floor));
+	TreeIcons->Add(wxICON(newroom));
+	TreeIcons->Add(wxICON(oldroom));
+	TreeIcons->Add(wxICON(mailroom));
 }
 
 
@@ -104,6 +104,7 @@ void InitTreeIcons(void) {
 void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 	wxString sendcmd, recvcmd, buf, floorname, roomname;
 	wxStringList transbuf;
+	wxTreeItemId item;
 	int i, floornum;
 
 	if (TreeIcons == NULL) InitTreeIcons();
@@ -136,10 +137,25 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 			NULL);
 	}
 
-	// Load the rooms into the tree
-	// FIX (do this in two passes, one for LKRN and one for LKRO)
+	// Load the rooms with new messages into the tree
+	sendcmd = "LKRN";
+	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
+        for (i=0; i<transbuf.Number(); ++i) {
+                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+		extract(roomname, buf, 0);
+		floornum = extract_int(buf, 2);
+		item = tree->AppendItem(
+			floorboards[floornum],
+			roomname,
+			2,
+			-1,
+			NULL);
+		tree->SetItemBold(item, TRUE);
+		tree->SetItemBold(floorboards[floornum], TRUE);
+	}
 
-	sendcmd = "LKRA";
+	// Load the rooms with new messages into the tree
+	sendcmd = "LKRO";
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
         for (i=0; i<transbuf.Number(); ++i) {
                 buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
@@ -152,4 +168,5 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 			-1,
 			NULL);
 	}
+
 }
