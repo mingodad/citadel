@@ -213,6 +213,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputMsg(msgnum, MT_RFC822, 1, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
+		fprintf(tmp, "\r\n");	/* add the trailing newline */
 	}
 
 
