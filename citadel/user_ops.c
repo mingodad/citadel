@@ -280,7 +280,6 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 {
 	struct cdbdata *cdbus;
 
-	cdb_begin_transaction();
 	cdb_rewind(CDB_USERSUPP);
 
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
@@ -290,11 +289,10 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 			sizeof(struct usersupp) : cdbus->len));
 		cdb_free(cdbus);
 		if (usbuf->usernum == number) {
-			cdb_end_transaction();
+			cdb_close_cursor(CDB_USERSUPP);
 			return (0);
 		}
 	}
-	cdb_end_transaction();
 	return (-1);
 }
 
@@ -1006,7 +1004,6 @@ void cmd_gnur(void)
 	/* There are unvalidated users.  Traverse the usersupp database,
 	 * and return the first user we find that needs validation.
 	 */
-	cdb_begin_transaction();
 	cdb_rewind(CDB_USERSUPP);
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		memset(&usbuf, 0, sizeof(struct usersupp));
@@ -1017,11 +1014,10 @@ void cmd_gnur(void)
 		if ((usbuf.flags & US_NEEDVALID)
 		    && (usbuf.axlevel > 0)) {
 			cprintf("%d %s\n", MORE_DATA, usbuf.fullname);
-			cdb_end_transaction();
+			cdb_close_cursor(CDB_USERSUPP);
 			return;
 		}
 	}
-	cdb_end_transaction();
 
 	/* If we get to this point, there are no more unvalidated users.
 	 * Therefore we clear the "users need validation" flag.

@@ -570,6 +570,13 @@ void cdb_free(struct cdbdata *cdb)
 	phree(cdb);
 }
 
+void cdb_close_cursor(int cdb)
+{
+	if (MYCURSORS[cdb] != NULL)
+		cclose(MYCURSORS[cdb]);
+
+	MYCURSORS[cdb] = NULL;
+}
 
 /* 
  * Prepare for a sequential search of an entire database.

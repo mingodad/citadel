@@ -278,6 +278,28 @@ void cdb_free(struct cdbdata *cdb)
 	phree(cdb);
 }
 
+void cdb_close_cursor(cdb)
+{
+        while (max_keys <= CC->cs_pid) {
+                ++max_keys;
+                if (dtkey == NULL) {
+                        dtkey = (datum *)
+                            mallok((sizeof(datum) * max_keys));
+                } else {
+                        dtkey = (datum *)
+                            reallok(dtkey, (sizeof(datum) * max_keys));
+                }
+                dtkey[max_keys - 1].dsize = 0;
+                dtkey[max_keys - 1].dptr = NULL;
+        }
+
+        if (dtkey[CC->cs_pid].dptr != NULL) {
+                phree(dtkey[CC->cs_pid].dptr);
+        }
+	dtkey[CC->cs_pid].dptr = NULL;
+	dtkey[CC->cs_pid].dsize = 0;
+}
+
 
 /* 
  * Prepare for a sequential search of an entire database.  (In the gdbm model,

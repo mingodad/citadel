@@ -1,4 +1,12 @@
  $Log$
+ Revision 580.15  2001/07/29 22:24:04  nbryant
+  - added a new function to the database interface, cdb_close_cursor().  always
+ call this when you're finished with a traversal but didn't bother reading all
+ the way to the end.
+
+  - removed several cdb_begin_transaction()/cdb_end_transaction() calls that are
+ no longer needed because of the read-only cursor support.
+
  Revision 580.14  2001/07/29 20:56:09  nbryant
  change ForEachRoom to use read-only cursors by default. it can be overridden to
  still use read/write cursors by doing:
@@ -2633,3 +2641,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
