@@ -249,6 +249,7 @@ install-exec: all weekly
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
 		fi \
 	done
+	chmod 4755 $(root)$(prefix)/citmail
 	@if test -f $(root)$(prefix)/chkpwd; then \
 		echo chmod u+s $(root)$(prefix)/chkpwd; \
 		chmod u+s $(root)$(prefix)/chkpwd; \

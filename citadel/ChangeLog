@@ -1,3 +1,7 @@
+Wed Apr 14 21:32:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Makefile.in: chmod 4755 citmail to prevent citmail from aborting
+	  when called from sendmail due to citadel.config security check
+
 1999-04-13 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* dynloader.c: OpenBSD places underscores in front of symbol names
 
