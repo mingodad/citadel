@@ -464,7 +464,6 @@ void do_login()
 {
 	(CC->logged_in) = 1;
 	session_startup();
-	logged_in_response();
 }
 
 
@@ -531,6 +530,7 @@ void cmd_pass(char *buf)
 			cprintf("%d Wrong password.\n", ERROR);
 			return;
 		case pass_ok:
+			logged_in_response();
 			return;
 		cprintf("%d Can't find user record!\n",
 			ERROR+INTERNAL_ERROR);

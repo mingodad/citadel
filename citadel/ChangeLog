@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.2  2000/09/21 04:16:44  ajc
+ * Fixed logged_in_response() so it only displays responses during Citadel
+   protocol sessions.  (This was affecting POP etc.)
+
  Revision 573.1  2000/09/11 22:05:04  ajc
  * citadel.c: accept -h <host> and -p arguments, so citadel can be called
    directly by telnetd, bypassing /bin/login.  It works, but not recommended at
@@ -2056,3 +2060,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
