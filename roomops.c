@@ -1410,12 +1410,12 @@ void zap(void)
 		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			/* ExpressMessageCat(&buf[4]);   FIXME    */
+			/* ExpressMessageCat(&buf[4]); */
 		} else {
 			serv_puts("FORG");
 			serv_gets(buf);
 			if (buf[0] != '2') {
-				/* ExpressMessageCat(&buf[4]);  FIXME   */
+				/* ExpressMessageCat(&buf[4]); */
 			} else {
 				strcpy(final_destination, "_BASEROOM_");
 			}

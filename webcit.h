@@ -190,7 +190,7 @@ void fmout(FILE * fp);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
 char *bstr(char *key);
-char *urlesc(char *);
+void urlesc(char *, char *);
 void urlescputs(char *);
 void output_headers(int);
 void wprintf(const char *format,...);
