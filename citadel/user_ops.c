@@ -26,8 +26,7 @@
 #include "file_ops.h"
 #include "control.h"
 #include "msgbase.h"
-
-extern struct config config;
+#include "config.h"
 
 
 /*
