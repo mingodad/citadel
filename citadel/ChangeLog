@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.20  2004/09/11 03:13:04  error
+ * Remove calls to the broken flush_output() while I try to figure out what's
+   wrong with it.  Replaced with unbuffer_output() which does work.
+
  Revision 625.19  2004/09/10 02:54:26  ajc
  * Added flush_output() calls to IMAP modules.  (Do we need them?  Are we
    buffering IMAP output?  Should we?)
@@ -6073,4 +6077,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1798,6 +1798,8 @@ void cmd_einf(char *ok)
 	char infofilename[SIZ];
 	char buf[SIZ];
 
+	unbuffer_output();
+
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if (atoi(ok) == 0) {
@@ -1814,7 +1816,6 @@ void cmd_einf(char *ok)
 		return;
 	}
 	cprintf("%d Send info...\n", SEND_LISTING);
-	flush_output();
 
 	do {
 		client_gets(buf);

@@ -55,6 +55,8 @@ void cmd_ebio(char *cmdbuf) {
 	char buf[SIZ];
 	FILE *fp;
 
+	unbuffer_output();
+
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR + NOT_LOGGED_IN);
 		return;
@@ -68,7 +70,6 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 	cprintf("%d  \n",SEND_LISTING);
-	flush_output();
 	while(client_gets(buf), strcmp(buf,"000")) {
 		if (ftell(fp) < config.c_maxmsglen) {
 			fprintf(fp,"%s\n",buf);

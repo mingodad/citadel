@@ -593,6 +593,8 @@ void cmd_emsg(char *mname)
 	char *dirs[2];
 	int a;
 
+	unbuffer_output();
+
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(buf,mname,0);
@@ -619,7 +621,6 @@ void cmd_emsg(char *mname)
 		return;
 	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
-	flush_output();
 
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(mfp, "%s\n", buf);

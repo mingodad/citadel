@@ -214,8 +214,8 @@ void cmd_conf(char *argbuf)
 	}
 
 	else if (!strcasecmp(cmd, "SET")) {
+		unbuffer_output();
 		cprintf("%d Send configuration...\n", SEND_LISTING);
-		flush_output();
 		a = 0;
 		while (client_gets(buf), strcmp(buf, "000")) {
 			switch (a) {
@@ -403,8 +403,8 @@ void cmd_conf(char *argbuf)
 
 	else if (!strcasecmp(cmd, "PUTSYS")) {
 		extract(confname, argbuf, 1);
+		unbuffer_output();
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		flush_output();
 		confptr = CtdlReadMessageBody("000",
 				config.c_maxmsglen, NULL, 0);
 		CtdlPutSysConfig(confname, confptr);

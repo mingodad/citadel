@@ -535,8 +535,9 @@ void artv_do_import(void) {
 	char s_version[SIZ];
 	int version;
 
+	unbuffer_output();
+
 	cprintf("%d sock it to me\n", SEND_LISTING);
-	flush_output();
 	while (client_gets(buf), strcmp(buf, "000")) {
 
 		lprintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);

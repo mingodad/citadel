@@ -376,6 +376,8 @@ void cmd_snet(char *argbuf) {
 	char buf[SIZ];
 	FILE *fp;
 
+	unbuffer_output();
+
 	if (CtdlAccessCheck(ac_room_aide)) return;
 	safestrncpy(tempfilename, tmpnam(NULL), sizeof tempfilename);
 	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
@@ -389,7 +391,6 @@ void cmd_snet(char *argbuf) {
 	}
 
 	cprintf("%d %s\n", SEND_LISTING, tempfilename);
-	flush_output();
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(fp, "%s\n", buf);
 	}
