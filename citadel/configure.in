@@ -14,12 +14,15 @@ AC_ARG_ENABLE(ansi-color, [  --enable-ansi-color     enable ANSI color (default 
 	AC_DEFINE(ANSI_COLOR)
 fi])
 
+dnl By default, we only build the client (citadel and whobbs) unless we can
+dnl figure out how to build with POSIX threads.
 TARGETS=client
 
+dnl Check for Digital Unix: it has a different way of building for pthreads,
+dnl and we can't build pthreads programs with gcc due to header problems.
 AC_CANONICAL_HOST
 case "$host" in
 	alpha*-dec-osf*)
-		dnl We can't use gcc on Digital UNIX due to header file probs
 		if test -z "$CC"; then
 			CC=cc
 		fi
@@ -32,17 +35,32 @@ dnl Checks for programs.
 AC_PROG_CC
 if test "$GCC" = yes; then
 	CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
+	dnl pass -rdynamic to the linker to enable dlopen() modules to
+	dnl refer to symbols in the main executable (applies to citserver)
 	SERVER_LDFLAGS=-rdynamic
 fi
 AC_PROG_RANLIB
 
 dnl Checks for libraries.
+
+dnl libdl, libgdbm, and libcrypt are only used in the server, so the
+dnl Makefile only passes $(LIBS) to that target. If other programs start
+dnl requiring additional libraries, we'll have to use other variables, as is
+dnl done with curses.
+
+dnl We only need crypt() if we're using autologin. FIXME: implement shadow
+dnl passwords and/or PAM...
 if test "$enable_autologin" != no; then
 	AC_CHECK_LIB(crypt, crypt)
 fi
+
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(gdbm, gdbm_open)
 AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
+
+dnl Check for libpthread(s) if we're not using Digital UNIX. (On which the
+dnl -pthread flag takes care of this.) If we find one of the libraries, then
+dnl set up the TARGETS variable to build the server as well as the client.
 if test "$SERVER_LDFLAGS" != -pthread; then
 	AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"
 		TARGETS="client server utils serv_modules"])
@@ -69,14 +87,19 @@ AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(snprintf mkdir mktime rmdir select socket strerror)
+
+dnl Enable autologin if the feature is requested (which is the default) and
+dnl a crypt() function is available.
 if test "$enable_autologin" != no; then
 	AC_CHECK_FUNC(crypt, AC_DEFINE(ENABLE_AUTOLOGIN))
 fi
 
+dnl Tell the Makefile whether we need to use our snprintf() replacement.
 if test "$ac_cv_func_snprintf" = no; then
 	SNPRINTF=snprintf.o
 fi
 
+dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(CURSES)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
