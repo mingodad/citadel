@@ -333,9 +333,9 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	}
 
 	else if (!strcasecmp(key, "From")) {
-		user = mallok(strlen(value));
-		node = mallok(strlen(value));
-		name = mallok(strlen(value));
+		user = mallok(1024);
+		node = mallok(1024);
+		name = mallok(1024);
 		process_rfc822_addr(value, user, node, name);
 		lprintf(9, "Converted to <%s@%s> (%s)\n", user, node, name);
 		if (msg->cm_fields['A'] == NULL)

@@ -1,0 +1,63 @@
+Description of the custom MIME type "application/x-citadel-delivery-list"
+
+ This MIME type may be found in the outbound queue room on Citadel systems,
+which is typically called "__CitadelSMTPspoolout__".  The room is flagged as
+private, but we will eventually hide it even to Aides.  
+ 
+ Messages in this format contain delivery instructions.  Therefore, for each
+message in the queue to be delivered to one or more recipients, there will be
+*two* messages in the room: one containing the actual message, and the other
+containing delivery instructions.  It is expected that the instructions
+message may be replaced at any time (using an Extended ID field) if delivery
+to only some of the recipients has been accomplished.
+ 
+ Citadel keeps reference counts of each message on disk.  Therefore if a
+message contains a mixture of local and remote recipients, there may be two
+or more references to the message itself, one of them being the one in the
+queue.
+  
+ A delivery list contains one or more lines of text, each line containing
+a single instruction (usually a recipient).  Fields are separated by the
+vertical bar character ("|") and there will always be at least one field on
+each line.
+ 
+ 
+ 
+ INSTRUCTION:  msgid
+ SYNTAX:       msgid|0000000
+ DESCRIPTION:  
+    Defines the actual message for which we are providing delivery
+    instructions.  This instruction must precede all the others.  When
+    all deliveries have either succeeded or failed, both the instructions and
+    the copy of the message itself in the queue room should be deleted.  The
+    second parameter specifies the message ID in the local database.
+ 
+ 
+ INSTRUCTION:  local
+ SYNTAX:       local|Friko Mumjiboolean|0
+ DESCRIPTION:
+    Indicates the name of a recipient on the local system to which the
+    message must be delivered.  Almost never seen because most code delivers
+    directly.
+ 
+ 
+ INSTRUCTION:  room
+ SYNTAX:       room|Lobby|0
+ DESCRIPTION:
+    Indicates the name of a room on the local system to which the message
+    must be copied.  Same implications as 'local'.
+ 
+ 
+ INSTRUCTION:  remote
+ SYNTAX:       remote|billg@microsoft.com|0
+ DESCRIPTION:
+    Names a recipient on a remote system to which the message should be
+    delivered.  (FIX ... this is where we have to keep track of multiple
+    delivery attempts and transient errors)
+ 
+ 
+ INSTRUCTION:  ignet
+ SYNTAX:       ignet|uncnsrd|Lobby|0
+ DESCRIPTION:
+    Names a room on another Citadel node to which this message needs to be
+    spooled over the network.

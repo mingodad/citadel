@@ -25,6 +25,8 @@ void rec_log(unsigned int lrtype, char *name) {
 
 	time(&now);
 	fp = fopen("citadel.log", "a");
-	fprintf(fp, "%ld|%u|%s\n", (long)now, lrtype, name);
-	fclose(fp);
+	if (fp != NULL) {
+		fprintf(fp, "%ld|%u|%s\n", (long)now, lrtype, name);
+		fclose(fp);
 	}
+}
