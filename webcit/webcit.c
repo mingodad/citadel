@@ -1112,8 +1112,6 @@ void session_loop(struct httprequest *req)
 		create_user();
 	} else if (!strcasecmp(action, "changeview")) {
 		change_view();
-	} else if (!strcasecmp(action, "folders")) {
-		folders();
 	} else if (!strcasecmp(action, "do_stuff_to_msgs")) {
 		do_stuff_to_msgs();
 	} else if (!strcasecmp(action, "change_start_page")) {

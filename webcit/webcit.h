@@ -242,7 +242,6 @@ void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
 void display_advanced_menu(void);
-void list_all_rooms_by_floor(void);
 void slrp_highest(void);
 void gotonext(void);
 void ungoto(void);
