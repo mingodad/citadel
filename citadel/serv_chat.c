@@ -82,7 +82,7 @@ void allwrite(char *cmdbuf, int flag, char *username)
 			fprintf(fp, "%s\n", bcast);
 		fclose(fp);
 	}
-	clnew = (struct ChatLine *) mallok(sizeof(struct ChatLine));
+	clnew = (struct ChatLine *) malloc(sizeof(struct ChatLine));
 	memset(clnew, 0, sizeof(struct ChatLine));
 	if (clnew == NULL) {
 		fprintf(stderr, "citserver: cannot alloc chat line: %s\n",
@@ -120,7 +120,7 @@ void allwrite(char *cmdbuf, int flag, char *username)
 	while ((ChatQueue != NULL) && (now - ChatQueue->chat_time >= 120L)) {
 		clptr = ChatQueue;
 		ChatQueue = ChatQueue->next;
-		phree(clptr);
+		free(clptr);
 	}
 	end_critical_section(S_CHATQUEUE);
 }
@@ -417,8 +417,8 @@ void delete_express_messages(void) {
 	while (CC->FirstExpressMessage != NULL) {
 		ptr = CC->FirstExpressMessage->next;
 		if (CC->FirstExpressMessage->text != NULL)
-			phree(CC->FirstExpressMessage->text);
-		phree(CC->FirstExpressMessage);
+			free(CC->FirstExpressMessage->text);
+		free(CC->FirstExpressMessage);
 		CC->FirstExpressMessage = ptr;
 		}
 	end_critical_section(S_SESSION_TABLE);
@@ -458,8 +458,8 @@ void cmd_pexp(char *argbuf)
 			memfmout(80, ptr->text, 0, "\n");
 
 		holdptr = ptr->next;
-		if (ptr->text != NULL) phree(ptr->text);
-		phree(ptr);
+		if (ptr->text != NULL) free(ptr->text);
+		free(ptr);
 		ptr = holdptr;
 	}
 	cprintf("000\n");
@@ -492,10 +492,10 @@ void cmd_gexp(char *argbuf) {
 	if (ptr->text != NULL) {
 		memfmout(80, ptr->text, 0, "\n");
 		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
-		phree(ptr->text);
+		free(ptr->text);
 		}
 	cprintf("000\n");
-	phree(ptr);
+	free(ptr);
 }
 
 /*
@@ -577,7 +577,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		    || (CC->user.axlevel >= 6)) ) {
 			if (do_send) {
 				newmsg = (struct ExpressMessage *)
-					mallok(sizeof (struct ExpressMessage));
+					malloc(sizeof (struct ExpressMessage));
 				memset(newmsg, 0,
 					sizeof (struct ExpressMessage));
 				time(&(newmsg->timestamp));
@@ -585,7 +585,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					    sizeof newmsg->sender);
 				if (!strcasecmp(x_user, "broadcast"))
 					newmsg->flags |= EM_BROADCAST;
-				newmsg->text = strdoop(x_msg);
+				newmsg->text = strdup(x_msg);
 
 				add_xmsg_to_context(ccptr, newmsg);
 
@@ -608,16 +608,16 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	/* Log the page to disk if configured to do so  */
 	if ( (do_send) && (message_sent) ) {
 
-		logmsg = mallok(sizeof(struct CtdlMessage));
+		logmsg = malloc(sizeof(struct CtdlMessage));
 		memset(logmsg, 0, sizeof(struct CtdlMessage));
 		logmsg->cm_magic = CTDLMESSAGE_MAGIC;
 		logmsg->cm_anon_type = MES_NORMAL;
 		logmsg->cm_format_type = 0;
-		logmsg->cm_fields['A'] = strdoop(lun);
-		logmsg->cm_fields['N'] = strdoop(NODENAME);
-		logmsg->cm_fields['O'] = strdoop(PAGELOGROOM);
-		logmsg->cm_fields['R'] = strdoop(x_user);
-		logmsg->cm_fields['M'] = strdoop(x_msg);
+		logmsg->cm_fields['A'] = strdup(lun);
+		logmsg->cm_fields['N'] = strdup(NODENAME);
+		logmsg->cm_fields['O'] = strdup(PAGELOGROOM);
+		logmsg->cm_fields['R'] = strdup(x_user);
+		logmsg->cm_fields['M'] = strdup(x_msg);
 
 
 		/* Save a copy of the message in the sender's log room,
@@ -641,7 +641,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 			create_room(sl->roomname, 5, "", 0, 1, 1);
 			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
 			sptr = sl->next;
-			phree(sl);
+			free(sl);
 			sl = sptr;
 		}
 
@@ -695,10 +695,10 @@ void cmd_sexp(char *argbuf)
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
 			SEND_LISTING, message_sent);
-		x_big_msgbuf = mallok(SIZ);
+		x_big_msgbuf = malloc(SIZ);
 		memset(x_big_msgbuf, 0, SIZ);
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {
-			x_big_msgbuf = reallok(x_big_msgbuf,
+			x_big_msgbuf = realloc(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
 			if (strlen(x_big_msgbuf) > 0)
 			   if (x_big_msgbuf[strlen(x_big_msgbuf)] != '\n')
@@ -706,7 +706,7 @@ void cmd_sexp(char *argbuf)
 			strcat(x_big_msgbuf, x_msg);
 		}
 		PerformXmsgHooks(lun, x_user, x_big_msgbuf);
-		phree(x_big_msgbuf);
+		free(x_big_msgbuf);
 
 		/* This loop handles inline pages */
 	} else {
@@ -767,14 +767,14 @@ void cmd_reqt(char *argbuf) {
 		if ((ccptr->cs_pid == which_session) || (which_session == 0)) {
 
 			newmsg = (struct ExpressMessage *)
-				mallok(sizeof (struct ExpressMessage));
+				malloc(sizeof (struct ExpressMessage));
 			memset(newmsg, 0,
 				sizeof (struct ExpressMessage));
 			time(&(newmsg->timestamp));
 			safestrncpy(newmsg->sender, CC->user.fullname,
 				    sizeof newmsg->sender);
 			newmsg->flags |= EM_GO_AWAY;
-			newmsg->text = strdoop("Automatic logoff requested.");
+			newmsg->text = strdup("Automatic logoff requested.");
 
 			add_xmsg_to_context(ccptr, newmsg);
 			++sessions;

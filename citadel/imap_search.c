@@ -107,7 +107,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 			if (bmstrstr(fieldptr, itemlist[pos+1], strncasecmp)) {
 				match = 1;
 			}
-			phree(fieldptr);
+			free(fieldptr);
 		}
 		pos += 2;
 	}
@@ -135,7 +135,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 			if (bmstrstr(fieldptr, itemlist[pos+1], strncasecmp)) {
 				match = 1;
 			}
-			phree(fieldptr);
+			free(fieldptr);
 		}
 		pos += 2;
 	}

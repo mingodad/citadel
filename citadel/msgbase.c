@@ -211,11 +211,11 @@ int alias(char *name)
 		extract_token(buf, ignetcfg, i, '\n');
 		extract_token(testnode, buf, 0, '|');
 		if (!strcasecmp(node, testnode)) {
-			phree(ignetcfg);
+			free(ignetcfg);
 			return(MES_IGNET);
 		}
 	}
-	phree(ignetcfg);
+	free(ignetcfg);
 
 	/*
 	 * Then try nodes that are two or more hops away.
@@ -225,11 +225,11 @@ int alias(char *name)
 		extract_token(buf, ignetmap, i, '\n');
 		extract_token(testnode, buf, 0, '|');
 		if (!strcasecmp(node, testnode)) {
-			phree(ignetmap);
+			free(ignetmap);
 			return(MES_IGNET);
 		}
 	}
-	phree(ignetmap);
+	free(ignetmap);
 
 	/* If we get to this point it's an invalid node name */
 	return (MES_ERROR);
@@ -328,7 +328,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
+		msglist = malloc(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -391,7 +391,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	if (which_set == ctdlsetseen_answered) strcpy(vbuf.v_answered, newseen);
 
 	lprintf(CTDL_DEBUG, " after optimize: %s\n", newseen);
-	phree(msglist);
+	free(msglist);
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }
 
@@ -428,7 +428,7 @@ int CtdlForEachMessage(int mode, long ref,
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
+		msglist = malloc(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -515,7 +515,7 @@ int CtdlForEachMessage(int mode, long ref,
 				++num_processed;
 			}
 		}
-	phree(msglist);		/* Clean up */
+	free(msglist);		/* Clean up */
 	return num_processed;
 }
 
@@ -563,7 +563,7 @@ void cmd_msgs(char *cmdbuf)
 		cprintf("%d Send template then receive message list\n",
 			START_CHAT_MODE);
 		template = (struct CtdlMessage *)
-			mallok(sizeof(struct CtdlMessage));
+			malloc(sizeof(struct CtdlMessage));
 		memset(template, 0, sizeof(struct CtdlMessage));
 		while(client_gets(buf), strcmp(buf,"000")) {
 			extract(tfield, buf, 0);
@@ -571,7 +571,7 @@ void cmd_msgs(char *cmdbuf)
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
 				if (!strcasecmp(tfield, msgkeys[i])) {
 					template->cm_fields[i] =
-						strdoop(tvalue);
+						strdup(tvalue);
 				}
 			}
 		}
@@ -807,7 +807,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 		cdb_free(dmsgtext);
 		return NULL;
 	}
-	ret = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	ret = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	memset(ret, 0, sizeof(struct CtdlMessage));
 
 	ret->cm_magic = CTDLMESSAGE_MAGIC;
@@ -824,7 +824,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 		if (field_length == 0)
 			break;
 		field_header = *mptr++;
-		ret->cm_fields[field_header] = mallok(field_length);
+		ret->cm_fields[field_header] = malloc(field_length);
 		strcpy(ret->cm_fields[field_header], mptr);
 
 		while (*mptr++ != 0);	/* advance to next field */
@@ -835,7 +835,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 
 	/* Always make sure there's something in the msg text field */
 	if (ret->cm_fields['M'] == NULL)
-		ret->cm_fields['M'] = strdoop("<no text>\n");
+		ret->cm_fields['M'] = strdup("<no text>\n");
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(ret, EVT_BEFOREREAD) > 0) {
@@ -873,11 +873,11 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL) {
-			phree(msg->cm_fields[i]);
+			free(msg->cm_fields[i]);
 		}
 
 	msg->cm_magic = 0;	/* just in case */
-	phree(msg);
+	free(msg);
 }
 
 
@@ -958,7 +958,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 			if (ptr[wlen-1] != '\n') {
 				cprintf("\n");
 			}
-			phree(ptr);
+			free(ptr);
 		}
 		else if (strncasecmp(cbtype, "multipart/", 10)) {
 			cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
@@ -1544,7 +1544,7 @@ void cmd_msg3(char *cmdbuf)
 
 	cprintf("%d %ld\n", BINARY_FOLLOWS, (long)smr.len);
 	client_write(smr.ser, smr.len);
-	phree(smr.ser);
+	free(smr.ser);
 }
 
 
@@ -1649,7 +1649,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
                 msglist = NULL;
                 num_msgs = 0;
         } else {
-                msglist = mallok(cdbfr->len);
+                msglist = malloc(cdbfr->len);
                 if (msglist == NULL)
                         lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
                 num_msgs = cdbfr->len / sizeof(long);
@@ -1673,7 +1673,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 
         /* Now add the new message */
         ++num_msgs;
-        msglist = reallok(msglist,
+        msglist = realloc(msglist,
                           (num_msgs * sizeof(long)));
 
         if (msglist == NULL) {
@@ -1692,7 +1692,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
                   msglist, num_msgs * sizeof(long));
 
         /* Free up the memory we used. */
-        phree(msglist);
+        free(msglist);
 
 	/* Update the highest-message pointer and unlock the room. */
 	CC->room.QRhighest = highest_msg;
@@ -1733,7 +1733,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 
 	/* Generate an ID if we don't have one already */
 	if (msg->cm_fields['I']==NULL) {
-		msg->cm_fields['I'] = strdoop(msgidbuf);
+		msg->cm_fields['I'] = strdup(msgidbuf);
 	}
 	
         serialize_message(&smr, msg);
@@ -1761,7 +1761,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 	}
 
 	/* Free the memory we used for the serialized message */
-        phree(smr.ser);
+        free(smr.ser);
 
 	/* Return the *local* message ID to the caller
 	 * (even if we're storing an incoming network message)
@@ -1793,7 +1793,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
 	lprintf(CTDL_DEBUG, "serialize_message() calling malloc(%ld)\n", (long)ret->len);
-	ret->ser = mallok(ret->len);
+	ret->ser = malloc(ret->len);
 	if (ret->ser == NULL) {
 		ret->len = 0;
 		return;
@@ -1868,7 +1868,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	memset(template, 0, sizeof(struct CtdlMessage));
-	template->cm_fields['E'] = strdoop(msg->cm_fields['E']);
+	template->cm_fields['E'] = strdup(msg->cm_fields['E']);
 
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl, NULL);
 
@@ -1921,7 +1921,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (msg->cm_fields['T'] == NULL) {
 		lprintf(CTDL_DEBUG, "Generating timestamp\n");
 		snprintf(aaa, sizeof aaa, "%ld", (long)time(NULL));
-		msg->cm_fields['T'] = strdoop(aaa);
+		msg->cm_fields['T'] = strdup(aaa);
 	}
 
 	/* If this message has no path, we generate one.
@@ -1929,7 +1929,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (msg->cm_fields['P'] == NULL) {
 		lprintf(CTDL_DEBUG, "Generating path\n");
 		if (msg->cm_fields['A'] != NULL) {
-			msg->cm_fields['P'] = strdoop(msg->cm_fields['A']);
+			msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
 			for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
 				if (isspace(msg->cm_fields['P'][a])) {
 					msg->cm_fields['P'][a] = ' ';
@@ -1937,7 +1937,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 		}
 		else {
-			msg->cm_fields['P'] = strdoop("unknown");
+			msg->cm_fields['P'] = strdup("unknown");
 		}
 	}
 
@@ -2016,7 +2016,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * If this message has no O (room) field, generate one.
 	 */
 	if (msg->cm_fields['O'] == NULL) {
-		msg->cm_fields['O'] = strdoop(CC->room.QRname);
+		msg->cm_fields['O'] = strdup(CC->room.QRname);
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
@@ -2117,8 +2117,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 		hold_R = msg->cm_fields['R'];
 		hold_D = msg->cm_fields['D'];
-		msg->cm_fields['R'] = mallok(SIZ);
-		msg->cm_fields['D'] = mallok(SIZ);
+		msg->cm_fields['R'] = malloc(SIZ);
+		msg->cm_fields['D'] = malloc(SIZ);
 		extract_token(msg->cm_fields['R'], recipient, 0, '@');
 		extract_token(msg->cm_fields['D'], recipient, 1, '@');
 		
@@ -2132,11 +2132,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				fwrite(smr.ser, smr.len, 1, network_fp);
 				fclose(network_fp);
 			}
-			phree(smr.ser);
+			free(smr.ser);
 		}
 
-		phree(msg->cm_fields['R']);
-		phree(msg->cm_fields['D']);
+		free(msg->cm_fields['R']);
+		free(msg->cm_fields['D']);
 		msg->cm_fields['R'] = hold_R;
 		msg->cm_fields['D'] = hold_D;
 	}
@@ -2154,7 +2154,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_internet > 0) {
 		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-		instr = mallok(SIZ * 2);
+		instr = malloc(SIZ * 2);
 		snprintf(instr, SIZ * 2,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n",
@@ -2169,12 +2169,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				 "remote|%s|0||\n", recipient);
 		}
 
-        	imsg = mallok(sizeof(struct CtdlMessage));
+        	imsg = malloc(sizeof(struct CtdlMessage));
 		memset(imsg, 0, sizeof(struct CtdlMessage));
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
-		imsg->cm_fields['A'] = strdoop("Citadel");
+		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['M'] = instr;
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
@@ -2194,26 +2194,26 @@ void quickie_message(char *from, char *to, char *room, char *text,
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
 
-	msg = mallok(sizeof(struct CtdlMessage));
+	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = format_type;
-	msg->cm_fields['A'] = strdoop(from);
-	if (room != NULL) msg->cm_fields['O'] = strdoop(room);
-	msg->cm_fields['N'] = strdoop(NODENAME);
+	msg->cm_fields['A'] = strdup(from);
+	if (room != NULL) msg->cm_fields['O'] = strdup(room);
+	msg->cm_fields['N'] = strdup(NODENAME);
 	if (to != NULL) {
-		msg->cm_fields['R'] = strdoop(to);
+		msg->cm_fields['R'] = strdup(to);
 		recp = validate_recipients(to);
 	}
 	if (subject != NULL) {
-		msg->cm_fields['U'] = strdoop(subject);
+		msg->cm_fields['U'] = strdup(subject);
 	}
-	msg->cm_fields['M'] = strdoop(text);
+	msg->cm_fields['M'] = strdup(text);
 
 	CtdlSubmitMsg(msg, recp, room);
 	CtdlFreeMessage(msg);
-	if (recp != NULL) phree(recp);
+	if (recp != NULL) free(recp);
 }
 
 
@@ -2237,7 +2237,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	int finished = 0;
 
 	if (exist == NULL) {
-		m = mallok(4096);
+		m = malloc(4096);
 		m[0] = 0;
 		buffer_len = 4096;
 		message_len = 0;
@@ -2245,9 +2245,9 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	else {
 		message_len = strlen(exist);
 		buffer_len = message_len + 4096;
-		m = reallok(exist, buffer_len);
+		m = realloc(exist, buffer_len);
 		if (m == NULL) {
-			phree(exist);
+			free(exist);
 			return m;
 		}
 	}
@@ -2274,7 +2274,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	
 			/* augment the buffer if we have to */
 			if ((message_len + linelen) >= buffer_len) {
-				ptr = reallok(m, (buffer_len * 2) );
+				ptr = realloc(m, (buffer_len * 2) );
 				if (ptr == NULL) {	/* flush if can't allocate */
 					flushing = 1;
 				} else {
@@ -2325,7 +2325,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	char buf[SIZ];
 	struct CtdlMessage *msg;
 
-	msg = mallok(sizeof(struct CtdlMessage));
+	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = type;
@@ -2337,41 +2337,41 @@ struct CtdlMessage *CtdlMakeMessage(
 	striplt(recipient);
 
 	snprintf(buf, sizeof buf, "cit%ld", author->usernum);	/* Path */
-	msg->cm_fields['P'] = strdoop(buf);
+	msg->cm_fields['P'] = strdup(buf);
 
 	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
-	msg->cm_fields['T'] = strdoop(buf);
+	msg->cm_fields['T'] = strdup(buf);
 
 	if (fake_name[0])					/* author */
-		msg->cm_fields['A'] = strdoop(fake_name);
+		msg->cm_fields['A'] = strdup(fake_name);
 	else
-		msg->cm_fields['A'] = strdoop(author->fullname);
+		msg->cm_fields['A'] = strdup(author->fullname);
 
 	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
-		msg->cm_fields['O'] = strdoop(&CC->room.QRname[11]);
+		msg->cm_fields['O'] = strdup(&CC->room.QRname[11]);
 	}
 	else {
-		msg->cm_fields['O'] = strdoop(CC->room.QRname);
+		msg->cm_fields['O'] = strdup(CC->room.QRname);
 	}
 
-	msg->cm_fields['N'] = strdoop(NODENAME);		/* nodename */
-	msg->cm_fields['H'] = strdoop(HUMANNODE);		/* hnodename */
+	msg->cm_fields['N'] = strdup(NODENAME);		/* nodename */
+	msg->cm_fields['H'] = strdup(HUMANNODE);		/* hnodename */
 
 	if (recipient[0] != 0) {
-		msg->cm_fields['R'] = strdoop(recipient);
+		msg->cm_fields['R'] = strdup(recipient);
 	}
 	if (dest_node[0] != 0) {
-		msg->cm_fields['D'] = strdoop(dest_node);
+		msg->cm_fields['D'] = strdup(dest_node);
 	}
 
 	if ( (author == &CC->user) && (strlen(CC->cs_inet_email) > 0) ) {
-		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
+		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
 	}
 
 	if (subject != NULL) {
 		striplt(subject);
 		if (strlen(subject) > 0) {
-			msg->cm_fields['U'] = strdoop(subject);
+			msg->cm_fields['U'] = strdup(subject);
 		}
 	}
 
@@ -2685,7 +2685,7 @@ void cmd_ent0(char *entargs)
 		if (valid->num_error > 0) {
 			cprintf("%d %s\n",
 				ERROR + NO_SUCH_USER, valid->errormsg);
-			phree(valid);
+			free(valid);
 			return;
 		}
 		if (valid->num_internet > 0) {
@@ -2693,7 +2693,7 @@ void cmd_ent0(char *entargs)
 				cprintf("%d You do not have permission "
 					"to send Internet mail.\n",
 					ERROR + HIGHER_ACCESS_REQUIRED);
-				phree(valid);
+				free(valid);
 				return;
 			}
 		}
@@ -2702,7 +2702,7 @@ void cmd_ent0(char *entargs)
 		   && (CC->user.axlevel < 4) ) {
 			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
-			phree(valid);
+			free(valid);
 			return;
 		}
 	
@@ -2711,7 +2711,7 @@ void cmd_ent0(char *entargs)
 		    && (!CC->internal_pgm)) {
 			cprintf("%d You don't have access to Internet mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
-			phree(valid);
+			free(valid);
 			return;
 		}
 
@@ -2738,7 +2738,7 @@ void cmd_ent0(char *entargs)
 	if (post == 0) {
 		cprintf("%d %s\n", CIT_OK,
 			((valid != NULL) ? valid->display_recp : "") );
-		phree(valid);
+		free(valid);
 		return;
 	}
 
@@ -2764,7 +2764,7 @@ void cmd_ent0(char *entargs)
 		CtdlFreeMessage(msg);
 	}
 	CC->fake_postname[0] = '\0';
-	phree(valid);
+	free(valid);
 	return;
 }
 
@@ -2802,8 +2802,8 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
 
 	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
-		dellist = mallok(cdbfr->len);
+		msglist = malloc(cdbfr->len);
+		dellist = malloc(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -2856,8 +2856,8 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	}
 
 	/* Now free the memory we used, and go away. */
-	if (msglist != NULL) phree(msglist);
-	if (dellist != NULL) phree(dellist);
+	if (msglist != NULL) free(msglist);
+	if (dellist != NULL) free(dellist);
 	lprintf(CTDL_DEBUG, "%d message(s) deleted.\n", num_deleted);
 	return (num_deleted);
 }
@@ -3110,16 +3110,16 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	rewind(fp);
 	lprintf(CTDL_DEBUG, "Raw length is %ld\n", (long)raw_length);
 
-	raw_message = mallok((size_t)raw_length + 2);
+	raw_message = malloc((size_t)raw_length + 2);
 	fread(raw_message, (size_t)raw_length, 1, fp);
 	fclose(fp);
 
 	if (is_binary) {
-		encoded_message = mallok((size_t)
+		encoded_message = malloc((size_t)
 			(((raw_length * 134) / 100) + 4096 ) );
 	}
 	else {
-		encoded_message = mallok((size_t)(raw_length + 4096));
+		encoded_message = malloc((size_t)(raw_length + 4096));
 	}
 
 	sprintf(encoded_message, "Content-type: %s\n", content_type);
@@ -3151,18 +3151,18 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		);
 	}
 
-	phree(raw_message);
+	free(raw_message);
 
 	lprintf(CTDL_DEBUG, "Allocating\n");
-	msg = mallok(sizeof(struct CtdlMessage));
+	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 4;
-	msg->cm_fields['A'] = strdoop(CC->user.fullname);
-	msg->cm_fields['O'] = strdoop(req_room);
-	msg->cm_fields['N'] = strdoop(config.c_nodename);
-	msg->cm_fields['H'] = strdoop(config.c_humannode);
+	msg->cm_fields['A'] = strdup(CC->user.fullname);
+	msg->cm_fields['O'] = strdup(req_room);
+	msg->cm_fields['N'] = strdup(config.c_nodename);
+	msg->cm_fields['H'] = strdup(config.c_humannode);
 	msg->cm_flags = flags;
 	
 	msg->cm_fields['M'] = encoded_message;
@@ -3223,7 +3223,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	else {
         	msg = CtdlFetchMessage(msgnum);
         	if (msg != NULL) {
-                	conf = strdoop(msg->cm_fields['M']);
+                	conf = strdup(msg->cm_fields['M']);
                 	CtdlFreeMessage(msg);
 		}
 		else {
@@ -3269,19 +3269,19 @@ int CtdlIsMe(char *addr) {
 	if (recp == NULL) return(0);
 
 	if (recp->num_local == 0) {
-		phree(recp);
+		free(recp);
 		return(0);
 	}
 
 	for (i=0; i<recp->num_local; ++i) {
 		extract(addr, recp->recp_local, i);
 		if (!strcasecmp(addr, CC->user.fullname)) {
-			phree(recp);
+			free(recp);
 			return(1);
 		}
 	}
 
-	phree(recp);
+	free(recp);
 	return(0);
 }
 

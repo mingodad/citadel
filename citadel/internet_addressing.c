@@ -309,7 +309,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	if (colonpos < 0) return(0);	/* no colon? not a valid header line */
 
-	key = mallok((end - beg) + 2);
+	key = malloc((end - beg) + 2);
 	safestrncpy(key, &rfc822[beg], (end-beg)+1);
 	key[colonpos - beg] = 0;
 	value = &key[(colonpos - beg) + 1];
@@ -327,7 +327,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		if (parsed_date < 0L) parsed_date = time(NULL);
 		snprintf(buf, sizeof buf, "%ld", (long)parsed_date );
 		if (msg->cm_fields['T'] == NULL)
-			msg->cm_fields['T'] = strdoop(buf);
+			msg->cm_fields['T'] = strdup(buf);
 		processed = 1;
 	}
 
@@ -336,22 +336,22 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		lprintf(CTDL_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
-			msg->cm_fields['A'] = strdoop(name);
+			msg->cm_fields['A'] = strdup(name);
 		processed = 1;
 		if (msg->cm_fields['F'] == NULL)
-			msg->cm_fields['F'] = strdoop(addr);
+			msg->cm_fields['F'] = strdup(addr);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Subject")) {
 		if (msg->cm_fields['U'] == NULL)
-			msg->cm_fields['U'] = strdoop(value);
+			msg->cm_fields['U'] = strdup(value);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "To")) {
 		if (msg->cm_fields['R'] == NULL)
-			msg->cm_fields['R'] = strdoop(value);
+			msg->cm_fields['R'] = strdup(value);
 		processed = 1;
 	}
 
@@ -361,7 +361,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		}
 
 		if (msg->cm_fields['I'] == NULL) {
-			msg->cm_fields['I'] = strdoop(value);
+			msg->cm_fields['I'] = strdup(value);
 
 			/* Strip angle brackets */
 			while (haschar(msg->cm_fields['I'], '<') > 0) {
@@ -377,7 +377,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	}
 
 	/* Clean up and move on. */
-	phree(key);	/* Don't free 'value', it's actually the same buffer */
+	free(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);
 }
 
@@ -397,7 +397,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	char buf[SIZ];
 	int converted;
 
-	msg = mallok(sizeof(struct CtdlMessage));
+	msg = malloc(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
 
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -471,7 +471,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields['T'] == NULL) {
 		snprintf(buf, sizeof buf, "%ld", (long)time(NULL));
-		msg->cm_fields['T'] = strdoop(buf);
+		msg->cm_fields['T'] = strdup(buf);
 	}
 
 	lprintf(CTDL_DEBUG, "RFC822 length remaining after conversion = %ld\n",
@@ -513,7 +513,7 @@ char *rfc822_fetch_field(char *rfc822, char *fieldname) {
 	if (field_start == NULL) return(NULL);
 	if (field_start > end_of_headers) return(NULL);
 
-	fieldbuf = mallok(SIZ);
+	fieldbuf = malloc(SIZ);
 	strcpy(fieldbuf, "");
 
 	ptr = field_start;

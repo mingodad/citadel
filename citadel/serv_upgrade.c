@@ -60,7 +60,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	 */
 	if (qrbuf != NULL) {
 		ptr = (struct RoomProcList *)
-			mallok(sizeof (struct RoomProcList));
+			malloc(sizeof (struct RoomProcList));
 		if (ptr == NULL) return;
 
 		safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
@@ -86,7 +86,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 
 		ptr = rplist;
 		rplist = rplist->next;
-		phree(ptr);
+		free(ptr);
 	}
 }
 
@@ -115,7 +115,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	 */
 	if (usbuf != NULL) {
 		ptr = (struct UserProcList *)
-			mallok(sizeof (struct UserProcList));
+			malloc(sizeof (struct UserProcList));
 		if (ptr == NULL) return;
 
 		safestrncpy(ptr->user, usbuf->fullname, sizeof ptr->user);
@@ -136,7 +136,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 
 		ptr = uplist;
 		uplist = uplist->next;
-		phree(ptr);
+		free(ptr);
 	}
 }
 

@@ -152,7 +152,7 @@ static void check_handles(void *arg) {
 static void dest_tsd(void *arg) {
 	if (arg != NULL) {
 		check_handles(arg);
-		phree(arg);
+		free(arg);
 	}
 }
 
@@ -170,7 +170,7 @@ void cdb_allocate_tsd(void) {
 	if (pthread_getspecific(tsdkey) != NULL)
 		return;
 
-	tsd = mallok(sizeof(struct cdbtsd));
+	tsd = malloc(sizeof(struct cdbtsd));
 
 	tsd->tid = NULL;
 
@@ -463,7 +463,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb) {
 
 	sourceLen = (uLongf) zheader.compressed_len;
 	destLen = (uLongf) zheader.uncompressed_len;
-	uncompressed_data = mallok(zheader.uncompressed_len);
+	uncompressed_data = malloc(zheader.uncompressed_len);
 
 	if (uncompress(	(Bytef *) uncompressed_data,
 			&destLen,
@@ -474,7 +474,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb) {
 		abort();
 	}
 
-	phree(cdb->ptr);
+	free(cdb->ptr);
 	cdb->len = (size_t) destLen;
 	cdb->ptr = uncompressed_data;
 }
@@ -519,7 +519,7 @@ int cdb_store(int cdb,
 		buffer_len = ( (cdatalen * 101) / 100 ) + 100
 				+ sizeof(struct CtdlCompressHeader) ;
 		destLen = (uLongf) buffer_len;
-		compressed_data = mallok(buffer_len);
+		compressed_data = malloc(buffer_len);
 		if (compress2(
 			(Bytef *) (compressed_data +
 					sizeof(struct CtdlCompressHeader)),
@@ -553,7 +553,7 @@ int cdb_store(int cdb,
 	  abort();
 	}
 #ifdef HAVE_ZLIB
-      if (compressing) phree(compressed_data);
+      if (compressing) free(compressed_data);
 #endif
       return ret;
       
@@ -586,7 +586,7 @@ int cdb_store(int cdb,
 	{
 	  txcommit(tid);
 #ifdef HAVE_ZLIB
-	  if (compressing) phree(compressed_data);
+	  if (compressing) free(compressed_data);
 #endif
 	  return ret;
 	}
@@ -714,7 +714,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
     }
 
   if (ret != 0) return NULL;
-  tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
+  tempcdb = (struct cdbdata *) malloc(sizeof(struct cdbdata));
 
   if (tempcdb == NULL)
     {
@@ -737,8 +737,8 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
  */
 void cdb_free(struct cdbdata *cdb)
 {
-	phree(cdb->ptr);
-	phree(cdb);
+	free(cdb->ptr);
+	free(cdb);
 }
 
 void cdb_close_cursor(int cdb)
@@ -801,7 +801,7 @@ struct cdbdata *cdb_next_item(int cdb)
 		return NULL;		/* presumably, end of file */
 	}
 
-	cdbret = (struct cdbdata *) mallok(sizeof(struct cdbdata));
+	cdbret = (struct cdbdata *) malloc(sizeof(struct cdbdata));
 	cdbret->len = data.size;
 	cdbret->ptr = data.data;
 #ifdef HAVE_ZLIB

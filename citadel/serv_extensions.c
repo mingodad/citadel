@@ -50,7 +50,7 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 	struct ProtoFunctionHook *p;
 
 	p = (struct ProtoFunctionHook *)
-		mallok(sizeof(struct ProtoFunctionHook));
+		malloc(sizeof(struct ProtoFunctionHook));
 
 	if (p == NULL) {
 		fprintf(stderr, "can't malloc new ProtoFunctionHook\n");
@@ -80,7 +80,7 @@ void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
 			if (cur == ProtoHookList) {
 				ProtoHookList = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -133,7 +133,7 @@ void CtdlRegisterLogHook(void (*fcn_ptr) (char *), int loglevel)
 	struct LogFunctionHook *newfcn;
 
 	newfcn = (struct LogFunctionHook *)
-	    mallok(sizeof(struct LogFunctionHook));
+	    malloc(sizeof(struct LogFunctionHook));
 	newfcn->next = LogHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->loglevel = loglevel;
@@ -157,7 +157,7 @@ void CtdlUnregisterLogHook(void (*fcn_ptr) (char *), int loglevel)
 			if (cur == LogHookTable) {
 				LogHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -170,7 +170,7 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 	struct CleanupFunctionHook *newfcn;
 
 	newfcn = (struct CleanupFunctionHook *)
-	    mallok(sizeof(struct CleanupFunctionHook));
+	    malloc(sizeof(struct CleanupFunctionHook));
 	newfcn->next = CleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	CleanupHookTable = newfcn;
@@ -192,7 +192,7 @@ void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 			if (cur == CleanupHookTable) {
 				CleanupHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -205,7 +205,7 @@ void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 	struct SessionFunctionHook *newfcn;
 
 	newfcn = (struct SessionFunctionHook *)
-	    mallok(sizeof(struct SessionFunctionHook));
+	    malloc(sizeof(struct SessionFunctionHook));
 	newfcn->next = SessionHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
@@ -231,7 +231,7 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 			if (cur == SessionHookTable) {
 				SessionHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -244,7 +244,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 	struct UserFunctionHook *newfcn;
 
 	newfcn = (struct UserFunctionHook *)
-	    mallok(sizeof(struct UserFunctionHook));
+	    malloc(sizeof(struct UserFunctionHook));
 	newfcn->next = UserHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
@@ -270,7 +270,7 @@ void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 			if (cur == UserHookTable) {
 				UserHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -284,7 +284,7 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 	struct MessageFunctionHook *newfcn;
 
 	newfcn = (struct MessageFunctionHook *)
-	    mallok(sizeof(struct MessageFunctionHook));
+	    malloc(sizeof(struct MessageFunctionHook));
 	newfcn->next = MessageHookTable;
 	newfcn->h_function_pointer = handler;
 	newfcn->eventtype = EventType;
@@ -311,7 +311,7 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 			if (cur == MessageHookTable) {
 				MessageHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -323,7 +323,7 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 	struct NetprocFunctionHook *newfcn;
 
 	newfcn = (struct NetprocFunctionHook *)
-	    mallok(sizeof(struct NetprocFunctionHook));
+	    malloc(sizeof(struct NetprocFunctionHook));
 	newfcn->next = NetprocHookTable;
 	newfcn->h_function_pointer = handler;
 	NetprocHookTable = newfcn;
@@ -345,7 +345,7 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 			if (cur == NetprocHookTable) {
 				NetprocHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -357,7 +357,7 @@ void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 	struct DeleteFunctionHook *newfcn;
 
 	newfcn = (struct DeleteFunctionHook *)
-	    mallok(sizeof(struct DeleteFunctionHook));
+	    malloc(sizeof(struct DeleteFunctionHook));
 	newfcn->next = DeleteHookTable;
 	newfcn->h_function_pointer = handler;
 	DeleteHookTable = newfcn;
@@ -379,7 +379,7 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 			if (cur == DeleteHookTable) {
 				DeleteHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -392,7 +392,7 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 	struct XmsgFunctionHook *newfcn;
 
 	newfcn = (struct XmsgFunctionHook *)
-	    mallok(sizeof(struct XmsgFunctionHook));
+	    malloc(sizeof(struct XmsgFunctionHook));
 	newfcn->next = XmsgHookTable;
 	newfcn->order = order;
 	newfcn->h_function_pointer = fcn_ptr;
@@ -416,7 +416,7 @@ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 			if (cur == XmsgHookTable) {
 				XmsgHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}
@@ -432,7 +432,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	char message[SIZ];
 
 	newfcn = (struct ServiceFunctionHook *)
-	    mallok(sizeof(struct ServiceFunctionHook));
+	    malloc(sizeof(struct ServiceFunctionHook));
 	newfcn->next = ServiceHookTable;
 	newfcn->tcp_port = tcp_port;
 	newfcn->sockpath = sockpath;
@@ -445,7 +445,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
 		lprintf(CTDL_INFO, "Service has been manually disabled, skipping\n");
-		phree(newfcn);
+		free(newfcn);
 		return;
 	}
 	else {
@@ -461,7 +461,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	else {
 		strcat(message, "FAILED.");
 		lprintf(CTDL_CRIT, "%s\n", message);
-		phree(newfcn);
+		free(newfcn);
 	}
 }
 
@@ -493,7 +493,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			if (cur == ServiceHookTable) {
 				ServiceHookTable = p;
 			}
-			phree(cur);
+			free(cur);
 			cur = p;
 		}
 	}

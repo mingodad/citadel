@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 		end_critical_section(S_WORKER_LIST);
 		if ((i = pthread_join(wnp->tid, NULL)))
 			lprintf(CTDL_CRIT, "pthread_join: %s\n", strerror(i));
-		phree(wnp);
+		free(wnp);
 		begin_critical_section(S_WORKER_LIST);
 	}
 	end_critical_section(S_WORKER_LIST);

@@ -69,7 +69,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	strcpy(outbuf, "");
 
 	outptr_buffer_size = strlen(inptr) + SIZ;
-	outptr = mallok(outptr_buffer_size);
+	outptr = malloc(outptr_buffer_size);
 	if (outptr == NULL) return NULL;
 	strcpy(outptr, "");
 	output_len = 0;

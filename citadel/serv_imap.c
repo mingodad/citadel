@@ -81,12 +81,12 @@ struct irlparms {
 void imap_free_msgids(void)
 {
 	if (IMAP->msgids != NULL) {
-		phree(IMAP->msgids);
+		free(IMAP->msgids);
 		IMAP->msgids = NULL;
 		IMAP->num_msgs = 0;
 	}
 	if (IMAP->flags != NULL) {
-		phree(IMAP->flags);
+		free(IMAP->flags);
 		IMAP->flags = NULL;
 	}
 }
@@ -98,7 +98,7 @@ void imap_free_msgids(void)
 void imap_free_transmitted_message(void)
 {
 	if (IMAP->transmitted_message != NULL) {
-		phree(IMAP->transmitted_message);
+		free(IMAP->transmitted_message);
 		IMAP->transmitted_message = NULL;
 		IMAP->transmitted_length = 0;
 	}
@@ -142,18 +142,18 @@ void imap_add_single_msgid(long msgnum, void *userdata)
 
 	IMAP->num_msgs = IMAP->num_msgs + 1;
 	if (IMAP->msgids == NULL) {
-		IMAP->msgids = mallok(IMAP->num_msgs * sizeof(long)
+		IMAP->msgids = malloc(IMAP->num_msgs * sizeof(long)
 				      * REALLOC_INCREMENT);
 	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
-		IMAP->msgids = reallok(IMAP->msgids,
+		IMAP->msgids = realloc(IMAP->msgids,
 				       (IMAP->num_msgs +
 					REALLOC_INCREMENT) * sizeof(long));
 	}
 	if (IMAP->flags == NULL) {
-		IMAP->flags = mallok(IMAP->num_msgs * sizeof(long)
+		IMAP->flags = malloc(IMAP->num_msgs * sizeof(long)
 				     * REALLOC_INCREMENT);
 	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
-		IMAP->flags = reallok(IMAP->flags,
+		IMAP->flags = realloc(IMAP->flags,
 				      (IMAP->num_msgs +
 				       REALLOC_INCREMENT) * sizeof(long));
 	}
@@ -212,7 +212,7 @@ void imap_rescan_msgids(void)
 	 */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
+		msglist = malloc(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -285,7 +285,7 @@ void imap_rescan_msgids(void)
 	}
 
 	if (num_msgs != 0)
-		phree(msglist);
+		free(msglist);
 }
 
 
@@ -1121,7 +1121,7 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data)
 					 sizeof newroomname,
 					 newfoldername) & 0xFF;
 
-		irlp = (struct irl *) mallok(sizeof(struct irl));
+		irlp = (struct irl *) malloc(sizeof(struct irl));
 		strcpy(irlp->irl_newroom, newroomname);
 		strcpy(irlp->irl_oldroom, qrbuf->QRname);
 		irlp->irl_newfloor = newfloor;
@@ -1214,7 +1214,7 @@ void imap_rename(int num_parms, char *parms[])
 			}
 			irlp = irl;
 			irl = irl->next;
-			phree(irlp);
+			free(irlp);
 		}
 	}
 

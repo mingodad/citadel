@@ -375,7 +375,7 @@ int CtdlLoginExistingUser(char *trythisname)
 				found_user = getuser(&CC->user,
 						valid->recp_local);
 			}
-			phree(valid);
+			free(valid);
 		}
 	}
 
@@ -1577,7 +1577,7 @@ int InitialMailCheck()
         cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
 
         if (cdbfr != NULL) {
-                msglist = mallok(cdbfr->len);
+                msglist = malloc(cdbfr->len);
                 memcpy(msglist, cdbfr->ptr, cdbfr->len);
                 num_msgs = cdbfr->len / sizeof(long);
                 cdb_free(cdbfr);
@@ -1591,7 +1591,7 @@ int InitialMailCheck()
                         }
                 }
         if (msglist != NULL)
-                phree(msglist);
+                free(msglist);
 
         return (num_newmsgs);
 }

@@ -108,7 +108,7 @@ void init_ssl(void)
 		return;
 	}
 	SSLCritters =
-	    mallok(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
+	    malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
 	if (!SSLCritters) {
 		lprintf(CTDL_EMERG, "citserver: can't allocate memory!!\n");
 		/* Nothing's been initialized, just die */
@@ -117,7 +117,7 @@ void init_ssl(void)
 		int a;
 
 		for (a = 0; a < CRYPTO_num_locks(); a++) {
-			SSLCritters[a] = mallok(sizeof(pthread_mutex_t));
+			SSLCritters[a] = malloc(sizeof(pthread_mutex_t));
 			if (!SSLCritters[a]) {
 				lprintf(CTDL_EMERG,
 					"citserver: can't allocate memory!!\n");

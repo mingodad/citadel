@@ -57,7 +57,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	
 	if (msg->cm_fields['M']==NULL) return;
-	conf = strdoop(msg->cm_fields['M']);
+	conf = strdup(msg->cm_fields['M']);
 
 	if (conf != NULL) {
 		do {
@@ -65,7 +65,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 			strcpy(conf, &conf[strlen(buf)+1]);
 		} while ( (strlen(conf)>0) && (strlen(buf)>0) );
 
-		if (inetcfg != NULL) phree(inetcfg);
+		if (inetcfg != NULL) free(inetcfg);
 		inetcfg = conf;
 	}
 }
@@ -82,20 +82,20 @@ void spamstrings_setTo(struct CtdlMessage *msg) {
 	while (spamstrings != NULL) {
 		sptr = spamstrings;
 		spamstrings = spamstrings->next;
-		phree(sptr->string);
-		phree(sptr);
+		free(sptr->string);
+		free(sptr);
 	}
 
 	/* Read in the new list */
 	if (msg->cm_fields['M']==NULL) return;
-	conf = strdoop(msg->cm_fields['M']);
+	conf = strdup(msg->cm_fields['M']);
 	if (conf == NULL) return;
 
 	n = num_tokens(conf, '\n');
 	for (i=0; i<n; ++i) {
 		extract_token(buf, conf, i, '\n');
-		sptr = mallok(sizeof(struct spamstrings_t));
-		sptr->string = strdoop(buf);
+		sptr = malloc(sizeof(struct spamstrings_t));
+		sptr->string = strdup(buf);
 		sptr->next = spamstrings;
 		spamstrings = sptr;
 	}

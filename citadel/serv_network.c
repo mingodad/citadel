@@ -103,7 +103,7 @@ struct FilterList *load_filter_list(void) {
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
 		extract_token(buf, serialized_list, i, '\n');
-		nptr = (struct FilterList *) mallok(sizeof(struct FilterList));
+		nptr = (struct FilterList *) malloc(sizeof(struct FilterList));
 		extract(nptr->fl_user, buf, 0);
 		striplt(nptr->fl_user);
 		extract(nptr->fl_room, buf, 1);
@@ -116,7 +116,7 @@ struct FilterList *load_filter_list(void) {
 		 */
 		if (strlen(nptr->fl_user) + strlen(nptr->fl_room)
 		   + strlen(nptr->fl_node) == 0) {
-			phree(nptr);
+			free(nptr);
 		}
 		else {
 			nptr->next = newlist;
@@ -124,7 +124,7 @@ struct FilterList *load_filter_list(void) {
 		}
 	}
 
-	phree(serialized_list);
+	free(serialized_list);
 	return newlist;
 }
 
@@ -132,7 +132,7 @@ struct FilterList *load_filter_list(void) {
 void free_filter_list(struct FilterList *fl) {
 	if (fl == NULL) return;
 	free_filter_list(fl->next);
-	phree(fl);
+	free(fl);
 }
 
 
@@ -202,7 +202,7 @@ void read_network_map(void) {
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
 		extract_token(buf, serialized_map, i, '\n');
-		nmptr = (struct NetMap *) mallok(sizeof(struct NetMap));
+		nmptr = (struct NetMap *) malloc(sizeof(struct NetMap));
 		extract(nmptr->nodename, buf, 0);
 		nmptr->lastcontact = extract_long(buf, 1);
 		extract(nmptr->nexthop, buf, 2);
@@ -210,7 +210,7 @@ void read_network_map(void) {
 		the_netmap = nmptr;
 	}
 
-	phree(serialized_map);
+	free(serialized_map);
 }
 
 
@@ -221,11 +221,11 @@ void write_network_map(void) {
 	char *serialized_map = NULL;
 	struct NetMap *nmptr;
 
-	serialized_map = strdoop("");
+	serialized_map = strdup("");
 
 	if (the_netmap != NULL) {
 		for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
-			serialized_map = reallok(serialized_map,
+			serialized_map = realloc(serialized_map,
 						(strlen(serialized_map)+SIZ) );
 			if (strlen(nmptr->nodename) > 0) {
 				snprintf(&serialized_map[strlen(serialized_map)],
@@ -239,12 +239,12 @@ void write_network_map(void) {
 	}
 
 	CtdlPutSysConfig(IGNETMAP, serialized_map);
-	phree(serialized_map);
+	free(serialized_map);
 
 	/* Now free the list */
 	while (the_netmap != NULL) {
 		nmptr = the_netmap->next;
-		phree(the_netmap);
+		free(the_netmap);
 		the_netmap = nmptr;
 	}
 }
@@ -430,7 +430,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	 	 * allocate...
 	 	 */
 		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-		instr = mallok(instr_len);
+		instr = malloc(instr_len);
 		if (instr == NULL) {
 			lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
 				(long)instr_len);
@@ -451,12 +451,12 @@ void network_spool_msg(long msgnum, void *userdata) {
 		/*
 	 	 * Generate a message from the instructions
 	 	 */
-       		imsg = mallok(sizeof(struct CtdlMessage));
+       		imsg = malloc(sizeof(struct CtdlMessage));
 		memset(imsg, 0, sizeof(struct CtdlMessage));
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
-		imsg->cm_fields['A'] = strdoop("Citadel");
+		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['M'] = instr;
 	
 		/* Save delivery instructions in spoolout room */
@@ -490,14 +490,14 @@ void network_spool_msg(long msgnum, void *userdata) {
 			 * sending a message to another IGnet node
 			 */
 			if (msg->cm_fields['P'] == NULL) {
-				msg->cm_fields['P'] = strdoop("username");
+				msg->cm_fields['P'] = strdup("username");
 			}
 			newpath_len = strlen(msg->cm_fields['P']) +
 				 strlen(config.c_nodename) + 2;
-			newpath = mallok(newpath_len);
+			newpath = malloc(newpath_len);
 			snprintf(newpath, newpath_len, "%s!%s",
 				 config.c_nodename, msg->cm_fields['P']);
-			phree(msg->cm_fields['P']);
+			free(msg->cm_fields['P']);
 			msg->cm_fields['P'] = newpath;
 
 			/*
@@ -505,9 +505,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 			 * on the far end by setting the C field correctly
 			 */
 			if (msg->cm_fields['C'] != NULL) {
-				phree(msg->cm_fields['C']);
+				free(msg->cm_fields['C']);
 			}
-			msg->cm_fields['C'] = strdoop(CC->room.QRname);
+			msg->cm_fields['C'] = strdup(CC->room.QRname);
 
 			/*
 			 * Determine if this message is set to be deleted
@@ -562,7 +562,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					}
 				}
 			}
-			phree(sermsg.ser);
+			free(sermsg.ser);
 			CtdlFreeMessage(msg);
 		}
 	}
@@ -598,27 +598,27 @@ void network_deliver_digest(struct SpoolControl *sc) {
 		return;
 	}
 
-	msg = mallok(sizeof(struct CtdlMessage));
+	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_format_type = FMT_RFC822;
 	msg->cm_anon_type = MES_NORMAL;
 
 	sprintf(buf, "%ld", time(NULL));
-	msg->cm_fields['T'] = strdoop(buf);
-	msg->cm_fields['A'] = strdoop(CC->room.QRname);
-	msg->cm_fields['U'] = strdoop(CC->room.QRname);
+	msg->cm_fields['T'] = strdup(buf);
+	msg->cm_fields['A'] = strdup(CC->room.QRname);
+	msg->cm_fields['U'] = strdup(CC->room.QRname);
 	sprintf(buf, "room_%s@%s", CC->room.QRname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
 		if (isspace(buf[i])) buf[i]='_';
 		buf[i] = tolower(buf[i]);
 	}
-	msg->cm_fields['F'] = strdoop(buf);
+	msg->cm_fields['F'] = strdup(buf);
 
 	fseek(sc->digestfp, 0L, SEEK_END);
 	msglen = ftell(sc->digestfp);
 
-	msg->cm_fields['M'] = mallok(msglen + 1);
+	msg->cm_fields['M'] = malloc(msglen + 1);
 	fseek(sc->digestfp, 0L, SEEK_SET);
 	fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
 	msg->cm_fields['M'][msglen] = 0;
@@ -642,7 +642,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
  	 * allocate...
  	 */
 	lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-	instr = mallok(instr_len);
+	instr = malloc(instr_len);
 	if (instr == NULL) {
 		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
 			(long)instr_len);
@@ -663,12 +663,12 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	/*
  	 * Generate a message from the instructions
  	 */
-  	imsg = mallok(sizeof(struct CtdlMessage));
+  	imsg = malloc(sizeof(struct CtdlMessage));
 	memset(imsg, 0, sizeof(struct CtdlMessage));
 	imsg->cm_magic = CTDLMESSAGE_MAGIC;
 	imsg->cm_anon_type = MES_NORMAL;
 	imsg->cm_format_type = FMT_RFC822;
-	imsg->cm_fields['A'] = strdoop("Citadel");
+	imsg->cm_fields['A'] = strdup("Citadel");
 	imsg->cm_fields['M'] = instr;
 
 	/* Save delivery instructions in spoolout room */
@@ -720,21 +720,21 @@ void network_spoolout_room(char *room_to_spool) {
 		}
 		else if (!strcasecmp(instr, "listrecp")) {
 			nptr = (struct namelist *)
-				mallok(sizeof(struct namelist));
+				malloc(sizeof(struct namelist));
 			nptr->next = sc.listrecps;
 			extract(nptr->name, buf, 1);
 			sc.listrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "digestrecp")) {
 			nptr = (struct namelist *)
-				mallok(sizeof(struct namelist));
+				malloc(sizeof(struct namelist));
 			nptr->next = sc.digestrecps;
 			extract(nptr->name, buf, 1);
 			sc.digestrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
 			nptr = (struct namelist *)
-				mallok(sizeof(struct namelist));
+				malloc(sizeof(struct namelist));
 			nptr->next = sc.ignet_push_shares;
 			extract(nptr->name, buf, 1);
 			sc.ignet_push_shares = nptr;
@@ -813,14 +813,14 @@ void network_spoolout_room(char *room_to_spool) {
 		while (sc.listrecps != NULL) {
 			fprintf(fp, "listrecp|%s\n", sc.listrecps->name);
 			nptr = sc.listrecps->next;
-			phree(sc.listrecps);
+			free(sc.listrecps);
 			sc.listrecps = nptr;
 		}
 		/* Do the same for digestrecps */
 		while (sc.digestrecps != NULL) {
 			fprintf(fp, "digestrecp|%s\n", sc.digestrecps->name);
 			nptr = sc.digestrecps->next;
-			phree(sc.digestrecps);
+			free(sc.digestrecps);
 			sc.digestrecps = nptr;
 		}
 		while (sc.ignet_push_shares != NULL) {
@@ -833,13 +833,13 @@ void network_spoolout_room(char *room_to_spool) {
 					sc.ignet_push_shares->name);
 			}
 			nptr = sc.ignet_push_shares->next;
-			phree(sc.ignet_push_shares);
+			free(sc.ignet_push_shares);
 			sc.ignet_push_shares = nptr;
 		}
 		if (sc.misc != NULL) {
 			fwrite(sc.misc, strlen(sc.misc), 1, fp);
 		}
-		phree(sc.misc);
+		free(sc.misc);
 
 		fclose(fp);
 	}
@@ -860,7 +860,7 @@ int network_sync_to(char *target_node) {
 	/* Concise syntax because we don't need a full linked-list */
 	memset(&sc, 0, sizeof(struct SpoolControl));
 	sc.ignet_push_shares = (struct namelist *)
-		mallok(sizeof(struct namelist));
+		malloc(sizeof(struct namelist));
 	sc.ignet_push_shares->next = NULL;
 	safestrncpy(sc.ignet_push_shares->name,
 		target_node,
@@ -871,7 +871,7 @@ int network_sync_to(char *target_node) {
 		network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
-	phree(sc.ignet_push_shares);
+	free(sc.ignet_push_shares);
 
 	lprintf(CTDL_INFO, "Synchronized %d messages to <%s>\n",
 		num_spooled, target_node);
@@ -901,7 +901,7 @@ void cmd_nsyn(char *argbuf) {
 void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 	struct RoomProcList *ptr;
 
-	ptr = (struct RoomProcList *) mallok(sizeof (struct RoomProcList));
+	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
 	if (ptr == NULL) return;
 
 	safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
@@ -929,7 +929,7 @@ void network_learn_topology(char *node, char *path) {
 	}
 
 	/* If we got here then it's not in the map, so add it. */
-	nmptr = (struct NetMap *) mallok(sizeof (struct NetMap));
+	nmptr = (struct NetMap *) malloc(sizeof (struct NetMap));
 	strcpy(nmptr->nodename, node);
 	nmptr->lastcontact = time(NULL);
 	extract_token(nmptr->nexthop, path, 0, '!');
@@ -963,46 +963,46 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	 * Give it a fresh message ID
 	 */
 	if (msg->cm_fields['I'] != NULL) {
-		phree(msg->cm_fields['I']);
+		free(msg->cm_fields['I']);
 	}
 	snprintf(buf, sizeof buf, "%ld.%04lx.%04x@%s",
 		(long)time(NULL), (long)getpid(), ++serialnum, config.c_fqdn);
-	msg->cm_fields['I'] = strdoop(buf);
+	msg->cm_fields['I'] = strdup(buf);
 
 	/*
 	 * FIXME ... right now we're just sending a bounce; we really want to
 	 * include the text of the bounced message.
 	 */
 	if (msg->cm_fields['M'] != NULL) {
-		phree(msg->cm_fields['M']);
+		free(msg->cm_fields['M']);
 	}
-	msg->cm_fields['M'] = strdoop(reason);
+	msg->cm_fields['M'] = strdup(reason);
 	msg->cm_format_type = 0;
 
 	/*
 	 * Turn the message around
 	 */
 	if (msg->cm_fields['R'] == NULL) {
-		phree(msg->cm_fields['R']);
+		free(msg->cm_fields['R']);
 	}
 
 	if (msg->cm_fields['D'] == NULL) {
-		phree(msg->cm_fields['D']);
+		free(msg->cm_fields['D']);
 	}
 
 	snprintf(recipient, sizeof recipient, "%s@%s",
 		msg->cm_fields['A'], msg->cm_fields['N']);
 
 	if (msg->cm_fields['A'] == NULL) {
-		phree(msg->cm_fields['A']);
+		free(msg->cm_fields['A']);
 	}
 
 	if (msg->cm_fields['N'] == NULL) {
-		phree(msg->cm_fields['N']);
+		free(msg->cm_fields['N']);
 	}
 
-	msg->cm_fields['A'] = strdoop(BOUNCESOURCE);
-	msg->cm_fields['N'] = strdoop(config.c_nodename);
+	msg->cm_fields['A'] = strdup(BOUNCESOURCE);
+	msg->cm_fields['N'] = strdup(config.c_nodename);
 	
 
 	/* prepend our node to the path */
@@ -1011,17 +1011,17 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 		msg->cm_fields['P'] = NULL;
 	}
 	else {
-		oldpath = strdoop("unknown_user");
+		oldpath = strdup("unknown_user");
 	}
 	size = strlen(oldpath) + SIZ;
-	msg->cm_fields['P'] = mallok(size);
+	msg->cm_fields['P'] = malloc(size);
 	snprintf(msg->cm_fields['P'], size, "%s!%s", config.c_nodename, oldpath);
-	phree(oldpath);
+	free(oldpath);
 
 	/* Now submit the message */
 	valid = validate_recipients(recipient);
 	if (valid != NULL) if (valid->num_error > 0) {
-		phree(valid);
+		free(valid);
 		valid = NULL;
 	}
 	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
@@ -1036,7 +1036,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	CtdlSubmitMsg(msg, valid, force_room);
 
 	/* Clean up */
-	if (valid != NULL) phree(valid);
+	if (valid != NULL) free(valid);
 	CtdlFreeMessage(msg);
 	lprintf(CTDL_DEBUG, "leaving network_bounce()\n");
 }
@@ -1076,7 +1076,7 @@ void network_process_buffer(char *buffer, long size) {
 	strcpy(target_room, TWITROOM);
 
 	/* Load the message into memory */
-        msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+        msg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
         memset(msg, 0, sizeof(struct CtdlMessage));
         msg->cm_magic = CTDLMESSAGE_MAGIC;
         msg->cm_anon_type = buffer[1];
@@ -1084,7 +1084,7 @@ void network_process_buffer(char *buffer, long size) {
 
 	for (pos = 3; pos < size; ++pos) {
 		field = buffer[pos];
-		msg->cm_fields[field] = strdoop(&buffer[pos+1]);
+		msg->cm_fields[field] = strdup(&buffer[pos+1]);
 		pos = pos + strlen(&buffer[(int)pos]);
 	}
 
@@ -1103,13 +1103,13 @@ void network_process_buffer(char *buffer, long size) {
 					msg->cm_fields['P'] = NULL;
 				}
 				else {
-					oldpath = strdoop("unknown_user");
+					oldpath = strdup("unknown_user");
 				}
 				size = strlen(oldpath) + SIZ;
-				msg->cm_fields['P'] = mallok(size);
+				msg->cm_fields['P'] = malloc(size);
 				snprintf(msg->cm_fields['P'], size, "%s!%s",
 					config.c_nodename, oldpath);
-				phree(oldpath);
+				free(oldpath);
 
 				/* serialize the message */
 				serialize_message(&sermsg, msg);
@@ -1126,7 +1126,7 @@ void network_process_buffer(char *buffer, long size) {
 						sermsg.len, 1, fp);
 					fclose(fp);
 				}
-				phree(sermsg.ser);
+				free(sermsg.ser);
 				CtdlFreeMessage(msg);
 				return;
 			}
@@ -1167,7 +1167,7 @@ void network_process_buffer(char *buffer, long size) {
 "A message you sent could not be delivered due to an invalid address.\n"
 "Please check the address and try sending the message again.\n");
 			msg = NULL;
-			phree(recp);
+			free(recp);
 			return;
                 }
 		strcpy(target_room, "");	/* no target room if mail */
@@ -1187,11 +1187,11 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* Strip out fields that are only relevant during transit */
 	if (msg->cm_fields['D'] != NULL) {
-		phree(msg->cm_fields['D']);
+		free(msg->cm_fields['D']);
 		msg->cm_fields['D'] = NULL;
 	}
 	if (msg->cm_fields['C'] != NULL) {
-		phree(msg->cm_fields['C']);
+		free(msg->cm_fields['C']);
 		msg->cm_fields['C'] = NULL;
 	}
 
@@ -1201,7 +1201,7 @@ void network_process_buffer(char *buffer, long size) {
         	CtdlSubmitMsg(msg, recp, target_room);
 	}
 	CtdlFreeMessage(msg);
-	phree(recp);
+	free(recp);
 }
 
 
@@ -1215,12 +1215,12 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 
 	hold_pos = ftell(fp);
 	size = msgend - msgstart + 1;
-	buffer = mallok(size);
+	buffer = malloc(size);
 	if (buffer != NULL) {
 		fseek(fp, msgstart, SEEK_SET);
 		fread(buffer, size, 1, fp);
 		network_process_buffer(buffer, size);
-		phree(buffer);
+		free(buffer);
 	}
 
 	fseek(fp, hold_pos, SEEK_SET);
@@ -1614,7 +1614,7 @@ void network_do_queue(void) {
 			network_spoolout_room(rplist->name);
 			ptr = rplist;
 			rplist = rplist->next;
-			phree(ptr);
+			free(ptr);
 		}
 	}
 
@@ -1705,7 +1705,7 @@ int netconfig_aftersave(struct CtdlMessage *msg) {
 		if (!strncasecmp(ptr, "Content-type: ", 14)) {
 			if (!strncasecmp(&ptr[14], IGNETCFG,
 		   	   strlen(IGNETCFG))) {
-				if (ignetcfg != NULL) phree(ignetcfg);
+				if (ignetcfg != NULL) free(ignetcfg);
 				ignetcfg = NULL;
 			}
 		}

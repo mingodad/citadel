@@ -83,7 +83,7 @@ void pop3_cleanup_function(void) {
 			POP3->msgs[i].temp = NULL;
 		}
 	}
-	if (POP3->msgs != NULL) phree(POP3->msgs);
+	if (POP3->msgs != NULL) free(POP3->msgs);
 
 	lprintf(CTDL_DEBUG, "Finished POP3 cleanup hook\n");
 }
@@ -138,8 +138,8 @@ void pop3_add_message(long msgnum, void *userdata) {
 	lprintf(CTDL_DEBUG, "in pop3_add_message()\n");
 
 	++POP3->num_msgs;
-	if (POP3->num_msgs < 2) POP3->msgs = mallok(sizeof(struct pop3msg));
-	else POP3->msgs = reallok(POP3->msgs, 
+	if (POP3->num_msgs < 2) POP3->msgs = malloc(sizeof(struct pop3msg));
+	else POP3->msgs = realloc(POP3->msgs, 
 		(POP3->num_msgs * sizeof(struct pop3msg)) ) ;
 	POP3->msgs[POP3->num_msgs-1].msgnum = msgnum;
 	POP3->msgs[POP3->num_msgs-1].deleted = 0;

@@ -1,10 +1,5 @@
 /* $Id$ */
 
-/* Uncomment this if you want to track memory leaks.
- * This incurs some overhead, so don't use it unless you're debugging the code!
- */
-/* #define DEBUG_MEMORY_LEAKS */
-
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -437,41 +432,6 @@ struct MetaData {
 	char meta_content_type[64];
 	/* more stuff will be added to this record in the future */
 };
-
-
-
-/* Built-in debuggable stuff for checking for memory leaks */
-#ifdef DEBUG_MEMORY_LEAKS
-
-#define mallok(howbig)		tracked_malloc(howbig, __FILE__, __LINE__)
-#define phree(whichptr)			tracked_free(whichptr)
-#define reallok(whichptr,howbig)	tracked_realloc(whichptr,howbig)
-#define strdoop(orig)		tracked_strdup(orig, __FILE__, __LINE__)
-
-void *tracked_malloc(size_t, char *, int);
-void tracked_free(void *);
-void *tracked_realloc(void *, size_t);
-void dump_tracked(void);
-char *tracked_strdup(const char *, char *, int);
-
-struct TheHeap {
-	struct TheHeap *next;
-	char h_file[32];
-	int h_line;
-	void *h_ptr;
-};
-
-extern struct TheHeap *heap;
-
-#else
-
-#define mallok(howbig)			malloc(howbig)
-#define phree(whichptr)			free(whichptr)
-#define reallok(whichptr,howbig)	realloc(whichptr,howbig)
-#define strdoop(orig)			strdup(orig)
-
-
-#endif
 
 
 /* 

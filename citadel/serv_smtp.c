@@ -417,8 +417,8 @@ void smtp_expn(char *argbuf) {
 /*
  * Implements the RSET (reset state) command.
  * Currently this just zeroes out the state buffer.  If pointers to data
- * allocated with mallok() are ever placed in the state buffer, we have to
- * be sure to phree() them first!
+ * allocated with malloc() are ever placed in the state buffer, we have to
+ * be sure to free() them first!
  *
  * Set do_response to nonzero to output the SMTP RSET response code.
  */
@@ -566,7 +566,7 @@ void smtp_rcpt(char *argbuf) {
 	   && (!SMTP->is_lmtp) ) {
 		if (rbl_check(message_to_spammer)) {
 			cprintf("550 %s\r\n", message_to_spammer);
-			/* no need to phree(valid), it's not allocated yet */
+			/* no need to free(valid), it's not allocated yet */
 			return;
 		}
 	}
@@ -574,7 +574,7 @@ void smtp_rcpt(char *argbuf) {
 	valid = validate_recipients(recp);
 	if (valid->num_error > 0) {
 		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
-		phree(valid);
+		free(valid);
 		return;
 	}
 
@@ -582,7 +582,7 @@ void smtp_rcpt(char *argbuf) {
 		if ( (SMTP->message_originated_locally == 0)
 		   && (SMTP->is_lmtp == 0) ) {
 			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
-			phree(valid);
+			free(valid);
 			return;
 		}
 	}
@@ -624,7 +624,7 @@ void smtp_data(void) {
 	cprintf("354 Transmit message now - terminate with '.' by itself\r\n");
 	
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
-	body = mallok(4096);
+	body = malloc(4096);
 
 	if (body != NULL) snprintf(body, 4096,
 		"Received: from %s (%s [%s])\n"
@@ -656,16 +656,16 @@ void smtp_data(void) {
 	 * is read with a Citadel client.
 	 */
 	if ( (CC->logged_in) && (config.c_rfc822_strict_from == 0) ) {
-		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
-		if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
-		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
-		if (msg->cm_fields['F'] != NULL) phree(msg->cm_fields['F']);
-		if (msg->cm_fields['O'] != NULL) phree(msg->cm_fields['O']);
-		msg->cm_fields['A'] = strdoop(CC->user.fullname);
-		msg->cm_fields['N'] = strdoop(config.c_nodename);
-		msg->cm_fields['H'] = strdoop(config.c_humannode);
-		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
-        	msg->cm_fields['O'] = strdoop(MAILROOM);
+		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
+		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
+		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
+		if (msg->cm_fields['F'] != NULL) free(msg->cm_fields['F']);
+		if (msg->cm_fields['O'] != NULL) free(msg->cm_fields['O']);
+		msg->cm_fields['A'] = strdup(CC->user.fullname);
+		msg->cm_fields['N'] = strdup(config.c_nodename);
+		msg->cm_fields['H'] = strdup(config.c_humannode);
+		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+        	msg->cm_fields['O'] = strdup(MAILROOM);
 	}
 
 	/* Submit the message into the Citadel system. */
@@ -680,7 +680,7 @@ void smtp_data(void) {
 	if (scan_errors > 0) {	/* We don't want this message! */
 
 		if (msg->cm_fields['0'] == NULL) {
-			msg->cm_fields['0'] = strdoop(
+			msg->cm_fields['0'] = strdup(
 				"5.7.1 Message rejected by filter");
 		}
 
@@ -713,7 +713,7 @@ void smtp_data(void) {
 	}
 
 	CtdlFreeMessage(msg);
-	phree(valid);
+	free(valid);
 	smtp_data_clear();	/* clear out the buffers now */
 }
 
@@ -1166,24 +1166,24 @@ void smtp_do_bounce(char *instr) {
 
 
 
-	bmsg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (bmsg == NULL) return;
 	memset(bmsg, 0, sizeof(struct CtdlMessage));
 
         bmsg->cm_magic = CTDLMESSAGE_MAGIC;
         bmsg->cm_anon_type = MES_NORMAL;
         bmsg->cm_format_type = 1;
-        bmsg->cm_fields['A'] = strdoop("Citadel");
-        bmsg->cm_fields['O'] = strdoop(MAILROOM);
-        bmsg->cm_fields['N'] = strdoop(config.c_nodename);
+        bmsg->cm_fields['A'] = strdup("Citadel");
+        bmsg->cm_fields['O'] = strdup(MAILROOM);
+        bmsg->cm_fields['N'] = strdup(config.c_nodename);
 
-	if (give_up) bmsg->cm_fields['M'] = strdoop(
+	if (give_up) bmsg->cm_fields['M'] = strdup(
 "A message you sent could not be delivered to some or all of its recipients\n"
 "due to prolonged unavailability of its destination(s).\n"
 "Giving up on the following addresses:\n\n"
 );
 
-        else bmsg->cm_fields['M'] = strdoop(
+        else bmsg->cm_fields['M'] = strdup(
 "A message you sent could not be delivered to some or all of its recipients.\n"
 "The following addresses were undeliverable:\n\n"
 );
@@ -1224,7 +1224,7 @@ void smtp_do_bounce(char *instr) {
 					"(%s:%d)\n", __FILE__, __LINE__);
 			}
 
-			bmsg->cm_fields['M'] = reallok(bmsg->cm_fields['M'],
+			bmsg->cm_fields['M'] = realloc(bmsg->cm_fields['M'],
 				strlen(bmsg->cm_fields['M']) + 1024 );
 			strcat(bmsg->cm_fields['M'], addr);
 			strcat(bmsg->cm_fields['M'], ": ");
@@ -1264,7 +1264,7 @@ void smtp_do_bounce(char *instr) {
 
 		/* Free up the memory we used */
 		if (valid != NULL) {
-			phree(valid);
+			free(valid);
 		}
 	}
 
@@ -1351,7 +1351,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
-	instr = strdoop(msg->cm_fields['M']);
+	instr = strdup(msg->cm_fields['M']);
 	CtdlFreeMessage(msg);
 
 	/* Strip out the headers amd any other non-instruction line */
@@ -1393,7 +1393,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 */
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
 		lprintf(CTDL_DEBUG, "Retry time not yet reached.\n");
-		phree(instr);
+		free(instr);
 		return;
 	}
 
@@ -1403,7 +1403,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 */
 	if (text_msgid < 0L) {
 		lprintf(CTDL_ERR, "SMTP: no 'msgid' directive found!\n");
-		phree(instr);
+		free(instr);
 		return;
 	}
 
@@ -1436,11 +1436,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid);
 			if (status != 2) {
 				if (results == NULL) {
-					results = mallok(1024);
+					results = malloc(1024);
 					memset(results, 0, 1024);
 				}
 				else {
-					results = reallok(results,
+					results = realloc(results,
 						strlen(results) + 1024);
 				}
 				snprintf(&results[strlen(results)], 1024,
@@ -1451,9 +1451,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	}
 
 	if (results != NULL) {
-		instr = reallok(instr, strlen(instr) + strlen(results) + 2);
+		instr = realloc(instr, strlen(instr) + strlen(results) + 2);
 		strcat(instr, results);
-		phree(results);
+		free(results);
 	}
 
 
@@ -1481,7 +1481,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 */
 	if (incomplete_deliveries_remaining > 0) {
 		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, "");
-        	msg = mallok(sizeof(struct CtdlMessage));
+        	msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
@@ -1493,7 +1493,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"attempted|%ld\n"
 			"retry|%ld\n",
 			SPOOLMIME, instr, (long)time(NULL), (long)retry );
-		phree(instr);
+		free(instr);
 		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(msg);
 	}

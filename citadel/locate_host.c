@@ -60,9 +60,9 @@ bad_dns:
 				   section */
 	}
 	/* check if the forward DNS agrees; if not, they're spoofing */
-	j = strdoop(ch->h_name);
+	j = strdup(ch->h_name);
 	ch = gethostbyname(j);
-	phree(j);
+	free(j);
 	if (ch == NULL)
 		goto bad_dns;
 

@@ -42,7 +42,7 @@
 struct vCard *vcard_new() {
 	struct vCard *v;
 
-	v = (struct vCard *) mallok(sizeof(struct vCard));
+	v = (struct vCard *) malloc(sizeof(struct vCard));
 	if (v == NULL) return v;
 
 	v->magic = CTDL_VCARD_MAGIC;
@@ -58,10 +58,10 @@ struct vCard *vcard_new() {
  */
 void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 	++v->numprops;
-	v->prop = reallok(v->prop,
+	v->prop = realloc(v->prop,
 		(v->numprops * sizeof(char *) * 2) );
-	v->prop[v->numprops-1].name = strdoop(propname);
-	v->prop[v->numprops-1].value = strdoop(propvalue);
+	v->prop[v->numprops-1].name = strdup(propname);
+	v->prop[v->numprops-1].value = strdup(propvalue);
 }
 
 
@@ -77,7 +77,7 @@ struct vCard *vcard_load(char *vtext) {
 	int i;
 	int colonpos, nlpos;
 
-	mycopy = strdoop(vtext);
+	mycopy = strdup(vtext);
 	if (mycopy == NULL) return NULL;
 
 	/* First, fix this big pile o' vCard to make it more parseable.
@@ -104,8 +104,8 @@ struct vCard *vcard_load(char *vtext) {
 		nlpos = pattern2(ptr, "\n");
 
 		if ((nlpos > colonpos) && (colonpos > 0)) {
-			namebuf = mallok(colonpos + 1);
-			valuebuf = mallok(nlpos - colonpos + 1);
+			namebuf = malloc(colonpos + 1);
+			valuebuf = malloc(nlpos - colonpos + 1);
 			strncpy(namebuf, ptr, colonpos);
 			namebuf[colonpos] = 0;
 			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
@@ -118,14 +118,14 @@ struct vCard *vcard_load(char *vtext) {
 
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
 				++v->numprops;
-				v->prop = reallok(v->prop,
+				v->prop = realloc(v->prop,
 					(v->numprops * sizeof(char *) * 2) );
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
 			} 
 			else {
-				phree(namebuf);
-				phree(valuebuf);
+				free(namebuf);
+				free(valuebuf);
 			}
 
 		}
@@ -136,7 +136,7 @@ struct vCard *vcard_load(char *vtext) {
 		if (*ptr == '\n') ++ptr;
 	}
 
-	phree(mycopy);
+	free(mycopy);
 	return v;
 }
 
@@ -185,14 +185,14 @@ void vcard_free(struct vCard *v) {
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
 	
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		phree(v->prop[i].name);
-		phree(v->prop[i].value);
+		free(v->prop[i].name);
+		free(v->prop[i].value);
 	}
 
-	if (v->prop != NULL) phree(v->prop);
+	if (v->prop != NULL) free(v->prop);
 	
 	memset(v, 0, sizeof(struct vCard));
-	phree(v);
+	free(v);
 }
 
 
@@ -209,20 +209,20 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	/* If this key is already present, replace it */
 	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
-			phree(v->prop[i].name);
-			phree(v->prop[i].value);
-			v->prop[i].name = strdoop(name);
-			v->prop[i].value = strdoop(value);
+			free(v->prop[i].name);
+			free(v->prop[i].value);
+			v->prop[i].name = strdup(name);
+			v->prop[i].value = strdup(value);
 			return;
 		}
 	}
 
 	/* Otherwise, append it */
 	++v->numprops;
-	v->prop = reallok(v->prop,
+	v->prop = realloc(v->prop,
 		(v->numprops * sizeof(char *) * 2) );
-	v->prop[v->numprops-1].name = strdoop(name);
-	v->prop[v->numprops-1].value = strdoop(value);
+	v->prop[v->numprops-1].name = strdup(name);
+	v->prop[v->numprops-1].value = strdup(value);
 }
 
 
@@ -248,7 +248,7 @@ char *vcard_serialize(struct vCard *v)
 			strlen(v->prop[i].value) + 4;
 	}
 
-	ser = mallok(len);
+	ser = malloc(len);
 	if (ser == NULL) return NULL;
 
 	strcpy(ser, "begin:vcard\r\n");

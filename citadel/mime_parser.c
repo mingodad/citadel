@@ -203,7 +203,7 @@ void mime_decode(char *partnum,
 	 * will never be larger than the encoded data.  This is a safe
 	 * assumption with base64, uuencode, and quoted-printable.
 	 */
-	decoded = mallok(length+2048);
+	decoded = malloc(length+2048);
 	if (decoded == NULL) {
 		return;
 	}
@@ -222,7 +222,7 @@ void mime_decode(char *partnum,
 			content_type, bytes_decoded, "binary", userdata);
 	}
 
-	phree(decoded);
+	free(decoded);
 }
 
 /*
@@ -293,34 +293,34 @@ void the_mime_parser(char *partnum,
 	ptr = content_start;
 	content_length = 0;
 
-	boundary = mallok(SIZ);
+	boundary = malloc(SIZ);
 	memset(boundary, 0, SIZ);
 
-	startary = mallok(SIZ);
+	startary = malloc(SIZ);
 	memset(startary, 0, SIZ);
 
-	endary = mallok(SIZ);
+	endary = malloc(SIZ);
 	memset(endary, 0, SIZ);
 
-	header = mallok(SIZ);
+	header = malloc(SIZ);
 	memset(header, 0, SIZ);
 
-	content_type = mallok(SIZ);
+	content_type = malloc(SIZ);
 	memset(content_type, 0, SIZ);
 
-	encoding = mallok(SIZ);
+	encoding = malloc(SIZ);
 	memset(encoding, 0, SIZ);
 
-	content_type_name = mallok(SIZ);
+	content_type_name = malloc(SIZ);
 	memset(content_type_name, 0, SIZ);
 
-	content_disposition_name = mallok(SIZ);
+	content_disposition_name = malloc(SIZ);
 	memset(content_disposition_name, 0, SIZ);
 
-	filename = mallok(SIZ);
+	filename = malloc(SIZ);
 	memset(filename, 0, SIZ);
 
-	disposition = mallok(SIZ);
+	disposition = malloc(SIZ);
 	memset(disposition, 0, SIZ);
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
@@ -487,16 +487,16 @@ void the_mime_parser(char *partnum,
 	}
 
 end_parser:	/* free the buffers!  end the oppression!! */
-	phree(boundary);
-	phree(startary);
-	phree(endary);	
-	phree(header);
-	phree(content_type);
-	phree(encoding);
-	phree(content_type_name);
-	phree(content_disposition_name);
-	phree(filename);
-	phree(disposition);
+	free(boundary);
+	free(startary);
+	free(endary);	
+	free(header);
+	free(content_type);
+	free(encoding);
+	free(content_type_name);
+	free(content_disposition_name);
+	free(filename);
+	free(disposition);
 }
 
 

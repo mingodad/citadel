@@ -151,7 +151,7 @@ int getmx(char *mxbuf, char *dest) {
 		C_IN, T_MX, (unsigned char *)answer.bytes, sizeof(answer)  );
 
 	if (ret < 0) {
-		mxrecs = mallok(sizeof(struct mx));
+		mxrecs = malloc(sizeof(struct mx));
 		mxrecs[0].pref = 0;
 		strcpy(mxrecs[0].host, dest);
 		num_mxrecs = 1;
@@ -204,10 +204,10 @@ int getmx(char *mxbuf, char *dest) {
 	
 				++num_mxrecs;
 				if (mxrecs == NULL) {
-					mxrecs = mallok(sizeof(struct mx));
+					mxrecs = malloc(sizeof(struct mx));
 				}
 				else {
-					mxrecs = reallok(mxrecs,
+					mxrecs = realloc(mxrecs,
 					    (sizeof(struct mx) * num_mxrecs) );
 				}
 	
@@ -229,6 +229,6 @@ int getmx(char *mxbuf, char *dest) {
 		strcat(mxbuf, mxrecs[n].host);
 		strcat(mxbuf, "|");
 	}
-	phree(mxrecs);
+	free(mxrecs);
 	return(num_mxrecs);
 }

@@ -72,10 +72,6 @@
 #include "snprintf.h"
 #endif
 
-#ifdef DEBUG_MEMORY_LEAKS
-struct TheHeap *heap = NULL;
-#endif
-
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
@@ -173,89 +169,6 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 	PerformLogHooks(loglevel, buf);
 }   
 
-
-
-#ifdef DEBUG_MEMORY_LEAKS
-void *tracked_malloc(size_t tsize, char *tfile, int tline) {
-	void *ptr;
-	struct TheHeap *hptr;
-
-	ptr = malloc(tsize);
-	if (ptr == NULL) {
-		lprintf(CTDL_ALERT, "DANGER!  mallok(%d) at %s:%d failed!\n",
-			tsize, tfile, tline);
-		return(NULL);
-	}
-
-	hptr = (struct TheHeap *) malloc(sizeof(struct TheHeap));
-	strcpy(hptr->h_file, tfile);
-	hptr->h_line = tline;
-	hptr->next = heap;
-	hptr->h_ptr = ptr;
-	heap = hptr;
-	return ptr;
-}
-
-char *tracked_strdup(const char *orig, char *tfile, int tline) {
-	char *s;
-
-	s = tracked_malloc( (strlen(orig)+1), tfile, tline);
-	if (s == NULL) return NULL;
-
-	strcpy(s, orig);
-	return s;
-}
-
-void tracked_free(void *ptr) {
-	struct TheHeap *hptr, *freeme;
-
-	if (heap->h_ptr == ptr) {
-		hptr = heap->next;
-		free(heap);
-		heap = hptr;
-	}
-	else {
-		for (hptr=heap; hptr->next!=NULL; hptr=hptr->next) {
-			if (hptr->next->h_ptr == ptr) {
-				freeme = hptr->next;
-				hptr->next = hptr->next->next;
-				free(freeme);
-			}
-		}
-	}
-
-	free(ptr);
-}
-
-void *tracked_realloc(void *ptr, size_t size) {
-	void *newptr;
-	struct TheHeap *hptr;
-	
-	newptr = realloc(ptr, size);
-
-	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
-		if (hptr->h_ptr == ptr) hptr->h_ptr = newptr;
-	}
-
-	return newptr;
-}
-
-
-void dump_tracked() {
-	struct TheHeap *hptr;
-
-	cprintf("%d Here's what's allocated...\n", LISTING_FOLLOWS);	
-	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
-		cprintf("%20s %5d\n",
-			hptr->h_file, hptr->h_line);
-	}
-#ifdef __GNUC__
-        malloc_stats();
-#endif
-
-	cprintf("000\n");
-}
-#endif
 
 
 /*
@@ -461,7 +374,7 @@ INLINE struct CitContext *MyContext(void) {
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me, *ptr;
 
-	me = (struct CitContext *) mallok(sizeof(struct CitContext));
+	me = (struct CitContext *) malloc(sizeof(struct CitContext));
 	if (me == NULL) {
 		lprintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
 		return NULL;
@@ -524,7 +437,7 @@ void buffer_output(void) {
 	if (CC->buffering == 0) {
 		CC->buffering = 1;
 		CC->buffer_len = 0;
-		CC->output_buffer = mallok(SIZ);
+		CC->output_buffer = malloc(SIZ);
 	}
 }
 
@@ -535,7 +448,7 @@ void unbuffer_output(void) {
 	if (CC->buffering == 1) {
 		CC->buffering = 0;
 		client_write(CC->output_buffer, CC->buffer_len);
-		phree(CC->output_buffer);
+		free(CC->output_buffer);
 		CC->output_buffer = NULL;
 		CC->buffer_len = 0;
 	}
@@ -569,7 +482,7 @@ void client_write(char *buf, int nbytes)
 	if (CC->buffering) {
 		old_buffer_len = CC->buffer_len;
 		CC->buffer_len += nbytes;
-		CC->output_buffer = reallok(CC->output_buffer, CC->buffer_len);
+		CC->output_buffer = realloc(CC->output_buffer, CC->buffer_len);
 		memcpy(&CC->output_buffer[old_buffer_len], buf, nbytes);
 		return;
 	}
@@ -805,7 +718,7 @@ void create_worker(void) {
 	struct worker_node *n;
 	pthread_attr_t attr;
 
-	n = mallok(sizeof(struct worker_node));
+	n = malloc(sizeof(struct worker_node));
 	if (n == NULL) {
 		lprintf(CTDL_EMERG, "can't allocate worker_node, exiting\n");
 		time_to_die = -1;
@@ -907,7 +820,7 @@ void dead_session_purge(void) {
 			if ((*node)->tid == self) {
 				tmp = *node;
 				*node = (*node)->next;
-				phree(tmp);
+				free(tmp);
 				break;
 			}
 

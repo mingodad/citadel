@@ -243,7 +243,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 							if (me_attend) icalproperty_free(me_attend);
 							me_attend = icalproperty_new_clone(attendee);
 						}
-						phree(recp);
+						free(recp);
 					}
 				}
 			}
@@ -302,11 +302,11 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	}
 
 	/* Now generate the reply message and send it out. */
-	serialized_reply = strdoop(icalcomponent_as_ical_string(the_reply));
+	serialized_reply = strdup(icalcomponent_as_ical_string(the_reply));
 	icalcomponent_free(the_reply);	/* don't need this anymore */
 	if (serialized_reply == NULL) return;
 
-	reply_message_text = mallok(strlen(serialized_reply) + SIZ);
+	reply_message_text = malloc(strlen(serialized_reply) + SIZ);
 	if (reply_message_text != NULL) {
 		sprintf(reply_message_text,
 			"Content-type: text/calendar\r\n\r\n%s\r\n",
@@ -325,7 +325,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			CtdlFreeMessage(msg);
 		}
 	}
-	phree(serialized_reply);
+	free(serialized_reply);
 }
 
 
@@ -635,9 +635,9 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	 * the event, this will work.
 	 */
 	template = (struct CtdlMessage *)
-		mallok(sizeof(struct CtdlMessage));
+		malloc(sizeof(struct CtdlMessage));
 	memset(template, 0, sizeof(struct CtdlMessage));
-	template->cm_fields['E'] = strdoop(uid);
+	template->cm_fields['E'] = strdup(uid);
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
 	CtdlFreeMessage(template);
@@ -678,13 +678,13 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	ical_merge_attendee_reply(original_event, cal);
 
 	/* Serialize it */
-	serialized_event = strdoop(icalcomponent_as_ical_string(original_event));
+	serialized_event = strdup(icalcomponent_as_ical_string(original_event));
 	icalcomponent_free(original_event);	/* Don't need this anymore. */
 	if (serialized_event == NULL) return(2);
 
 	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
 
-	message_text = mallok(strlen(serialized_event) + SIZ);
+	message_text = malloc(strlen(serialized_event) + SIZ);
 	if (message_text != NULL) {
 		sprintf(message_text,
 			"Content-type: text/calendar\r\n\r\n%s\r\n",
@@ -706,7 +706,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 			CIT_ICAL->avoid_sending_invitations = 0;
 		}
 	}
-	phree(serialized_event);
+	free(serialized_event);
 	return(0);
 }
 
@@ -1200,13 +1200,13 @@ void ical_freebusy(char *who) {
 
 	/* Serialize it */
 	lprintf(CTDL_DEBUG, "Serializing\n");
-	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
+	serialized_request = strdup(icalcomponent_as_ical_string(encaps));
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
 	cprintf("%d Here is the free/busy data:\n", LISTING_FOLLOWS);
 	if (serialized_request != NULL) {
 		client_write(serialized_request, strlen(serialized_request));
-		phree(serialized_request);
+		free(serialized_request);
 	}
 	cprintf("\n000\n");
 
@@ -1438,11 +1438,11 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent_add_component(encaps, the_request);
 
 	/* Serialize it */
-	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
+	serialized_request = strdup(icalcomponent_as_ical_string(encaps));
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
 
-	request_message_text = mallok(strlen(serialized_request) + SIZ);
+	request_message_text = malloc(strlen(serialized_request) + SIZ);
 	if (request_message_text != NULL) {
 		sprintf(request_message_text,
 			"Content-type: text/calendar\r\n\r\n%s\r\n",
@@ -1462,7 +1462,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			CtdlFreeMessage(msg);
 		}
 	}
-	phree(serialized_request);
+	free(serialized_request);
 }
 
 
@@ -1633,21 +1633,21 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 				);
 				if (strlen(imm.uid) > 0) {
 					if (msg->cm_fields['E'] != NULL) {
-						phree(msg->cm_fields['E']);
+						free(msg->cm_fields['E']);
 					}
-					msg->cm_fields['E'] = strdoop(imm.uid);
+					msg->cm_fields['E'] = strdup(imm.uid);
 				}
 				if (strlen(imm.subject) > 0) {
 					if (msg->cm_fields['U'] != NULL) {
-						phree(msg->cm_fields['U']);
+						free(msg->cm_fields['U']);
 					}
-					msg->cm_fields['U'] = strdoop(imm.subject);
+					msg->cm_fields['U'] = strdup(imm.subject);
 				}
 				if (imm.dtstart > 0) {
 					if (msg->cm_fields['T'] != NULL) {
-						phree(msg->cm_fields['T']);
+						free(msg->cm_fields['T']);
 					}
-					msg->cm_fields['T'] = strdoop("000000000000000000");
+					msg->cm_fields['T'] = strdup("000000000000000000");
 					sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
 				}
 				return 0;

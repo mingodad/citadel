@@ -83,9 +83,9 @@ int spam_filter(struct CtdlMessage *msg) {
 
 	if (spam_strings_found) {
 		if (msg->cm_fields['0'] != NULL) {
-			phree(msg->cm_fields['0']);
+			free(msg->cm_fields['0']);
 		}
-		msg->cm_fields['0'] = strdoop("Unsolicited spam rejected");
+		msg->cm_fields['0'] = strdup("Unsolicited spam rejected");
 		return(spam_strings_found);
 	}
 
@@ -164,9 +164,9 @@ int spam_assassin(struct CtdlMessage *msg) {
 
 	if (is_spam) {
 		if (msg->cm_fields['0'] != NULL) {
-			phree(msg->cm_fields['0']);
+			free(msg->cm_fields['0']);
 		}
-		msg->cm_fields['0'] = strdoop(
+		msg->cm_fields['0'] = strdup(
 			"5.7.1 Message rejected by SpamAssassin");
 	}
 

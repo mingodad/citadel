@@ -113,14 +113,14 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	do {
 		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
 		if (s != NULL) {
-			addr = strdoop(s);
+			addr = strdup(s);
 			striplt(addr);
 			if (strlen(addr) > 0) {
 				if (callback != NULL) {
 					callback(addr, citadel_address);
 				}
 			}
-			phree(addr);
+			free(addr);
 			found_something = 1;
 		}
 		else {
@@ -229,7 +229,7 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
 		if (s != NULL) {
 			continue_searching = 1;
-			addr = strdoop(s);
+			addr = strdup(s);
 			striplt(addr);
 			if (strlen(addr) > 0) {
 				if (IsDirectory(addr)) {
@@ -240,7 +240,7 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 					);
 				}
 			}
-			phree(addr);
+			free(addr);
 		}
 		else {
 			continue_searching = 0;
@@ -320,16 +320,16 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * replication always works correctly
 			 */
                         if (msg->cm_fields['E'] != NULL)
-                                phree(msg->cm_fields['E']);
+                                free(msg->cm_fields['E']);
 
                         if (msg->cm_fields['A'] != NULL)
-                                phree(msg->cm_fields['A']);
+                                free(msg->cm_fields['A']);
 
-			msg->cm_fields['A'] = strdoop(usbuf.fullname);
+			msg->cm_fields['A'] = strdup(usbuf.fullname);
 
                         snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
                                 msg->cm_fields['A'], NODENAME);
-                        msg->cm_fields['E'] = strdoop(buf);
+                        msg->cm_fields['E'] = strdup(buf);
 
 			/* Now allow the save to complete. */
 			return(0);
@@ -477,7 +477,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 		fprintf(fp, "begin:vcard\r\nend:vcard\r\n");
 	} else {
 		fwrite(ser, strlen(ser), 1, fp);
-		phree(ser);
+		free(ser);
 	}
         fclose(fp);
 
@@ -717,23 +717,23 @@ void vcard_purge(struct ctdluser *usbuf) {
 	struct CtdlMessage *msg;
 	char buf[SIZ];
 
-	msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	msg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (msg == NULL) return;
 	memset(msg, 0, sizeof(struct CtdlMessage));
 
         msg->cm_magic = CTDLMESSAGE_MAGIC;
         msg->cm_anon_type = MES_NORMAL;
         msg->cm_format_type = 0;
-        msg->cm_fields['A'] = strdoop(usbuf->fullname);
-        msg->cm_fields['O'] = strdoop(ADDRESS_BOOK_ROOM);
-        msg->cm_fields['N'] = strdoop(NODENAME);
-        msg->cm_fields['M'] = strdoop("Purge this vCard\n");
+        msg->cm_fields['A'] = strdup(usbuf->fullname);
+        msg->cm_fields['O'] = strdup(ADDRESS_BOOK_ROOM);
+        msg->cm_fields['N'] = strdup(NODENAME);
+        msg->cm_fields['M'] = strdup("Purge this vCard\n");
 
         snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
 			msg->cm_fields['A'], NODENAME);
-        msg->cm_fields['E'] = strdoop(buf);
+        msg->cm_fields['E'] = strdup(buf);
 
-	msg->cm_fields['S'] = strdoop("CANCEL");
+	msg->cm_fields['S'] = strdup("CANCEL");
 
         CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
         CtdlFreeMessage(msg);

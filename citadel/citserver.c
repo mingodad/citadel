@@ -161,9 +161,9 @@ void deallocate_user_data(struct CitContext *con)
 		lprintf(CTDL_DEBUG, "Deallocating user data symbol %ld\n",
 			con->FirstSessData->sym_id);
 		if (con->FirstSessData->sym_data != NULL)
-			phree(con->FirstSessData->sym_data);
+			free(con->FirstSessData->sym_data);
 		ptr = con->FirstSessData->next;
-		phree(con->FirstSessData);
+		free(con->FirstSessData);
 		con->FirstSessData = ptr;
 	}
 	end_critical_section(S_SESSION_TABLE);
@@ -240,7 +240,7 @@ void RemoveContext (struct CitContext *con)
 	/* This is where we used to check for scheduled shutdowns. */
 
 	/* Free up the memory used by this context */
-	phree(con);
+	free(con);
 
 	lprintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
@@ -287,9 +287,9 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 	}
 
 	/* Grab us some memory!  Dem's good eatin' !!  */
-	ptr = mallok(sizeof(struct CtdlSessData));
+	ptr = malloc(sizeof(struct CtdlSessData));
 	ptr->sym_id = requested_sym;
-	ptr->sym_data = mallok(num_bytes);
+	ptr->sym_data = malloc(num_bytes);
 	memset(ptr->sym_data, 0, num_bytes);
 
 	begin_critical_section(S_SESSION_TABLE);
@@ -310,7 +310,7 @@ void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes)
 
 	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
 		if (ptr->sym_id == requested_sym) {
-			ptr->sym_data = reallok(ptr->sym_data, num_bytes);
+			ptr->sym_data = realloc(ptr->sym_data, num_bytes);
 			return;
 		}
 	}
@@ -534,8 +534,8 @@ void cmd_mesg(char *mname)
 
 	extract(buf,mname,0);
 
-	dirs[0]=mallok(64);
-	dirs[1]=mallok(64);
+	dirs[0]=malloc(64);
+	dirs[1]=malloc(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
 	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
@@ -547,8 +547,8 @@ void cmd_mesg(char *mname)
 			mesg_locate(targ,sizeof targ,buf,2,(const char **)dirs);
 		}	
 	}
-	phree(dirs[0]);
-	phree(dirs[1]);
+	free(dirs[0]);
+	free(dirs[1]);
 
 	if (strlen(targ)==0) {
 		cprintf("%d '%s' not found.\n",ERROR + FILE_NOT_FOUND, mname);
@@ -592,13 +592,13 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-	dirs[0]=mallok(64);
-	dirs[1]=mallok(64);
+	dirs[0]=malloc(64);
+	dirs[1]=malloc(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
 	mesg_locate(targ,sizeof targ,buf,2,(const char**)dirs);
-	phree(dirs[0]);
-	phree(dirs[1]);
+	free(dirs[0]);
+	free(dirs[1]);
 
 	if (strlen(targ)==0) {
 		snprintf(targ, sizeof targ, "./help/%s", buf);
@@ -1302,12 +1302,6 @@ void do_command_loop(void) {
 	else if (!strncasecmp(cmdbuf, "ISME", 4)) {
 		cmd_isme(&cmdbuf[5]);
 	}
-
-#ifdef DEBUG_MEMORY_LEAKS
-	else if (!strncasecmp(cmdbuf, "LEAK", 4)) {
-		dump_tracked();
-	}
-#endif
 
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {
 		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);

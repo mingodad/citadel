@@ -398,7 +398,7 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Sender");
 	if (fieldptr != NULL) {
 		imap_output_envelope_addr(fieldptr);
-		phree(fieldptr);
+		free(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
@@ -408,7 +408,7 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Reply-to");
 	if (fieldptr != NULL) {
 		imap_output_envelope_addr(fieldptr);
-		phree(fieldptr);
+		free(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
@@ -420,18 +420,18 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	/* Cc */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
 	imap_output_envelope_addr(fieldptr);
-	if (fieldptr != NULL) phree(fieldptr);
+	if (fieldptr != NULL) free(fieldptr);
 
 	/* Bcc */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
 	imap_output_envelope_addr(fieldptr);
-	if (fieldptr != NULL) phree(fieldptr);
+	if (fieldptr != NULL) free(fieldptr);
 
 	/* In-reply-to */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
 	imap_strout(fieldptr);
 	cprintf(" ");
-	if (fieldptr != NULL) phree(fieldptr);
+	if (fieldptr != NULL) free(fieldptr);
 
 	/* message ID */
 	imap_strout(msg->cm_fields['I']);
@@ -456,7 +456,7 @@ void imap_strip_headers(FILE *fp, char *section) {
 	int ok = 0;
 	int done_headers = 0;
 
-	which_fields = strdoop(section);
+	which_fields = strdup(section);
 
 	if (!strncasecmp(which_fields, "HEADER.FIELDS", 13))
 		doing_headers = 1;
@@ -474,7 +474,7 @@ void imap_strip_headers(FILE *fp, char *section) {
 	num_parms = imap_parameterize(parms, which_fields);
 
 	fseek(fp, 0L, SEEK_END);
-	boiled_headers = mallok((size_t)(ftell(fp) + 256L));
+	boiled_headers = malloc((size_t)(ftell(fp) + 256L));
 	strcpy(boiled_headers, "");
 
 	rewind(fp);
@@ -515,8 +515,8 @@ void imap_strip_headers(FILE *fp, char *section) {
 	ftruncate(fileno(fp), ftell(fp));
 	fflush(fp);
 	rewind(fp);
-	phree(which_fields);
-	phree(boiled_headers);
+	free(which_fields);
+	free(boiled_headers);
 }
 
 

@@ -65,9 +65,9 @@ int network_talking_to(char *nodename, int operation) {
 	switch(operation) {
 
 		case NTT_ADD:
-			if (nttlist == NULL) nttlist = strdoop("");
+			if (nttlist == NULL) nttlist = strdup("");
 			if (nttlist == NULL) break;
-			nttlist = (char *)reallok(nttlist,
+			nttlist = (char *)realloc(nttlist,
 				(strlen(nttlist) + strlen(nodename) + 3) );
 			strcat(nttlist, "|");
 			strcat(nttlist, nodename);
@@ -76,7 +76,7 @@ int network_talking_to(char *nodename, int operation) {
 		case NTT_REMOVE:
 			if (nttlist == NULL) break;
 			if (strlen(nttlist) == 0) break;
-			ptr = mallok(strlen(nttlist));
+			ptr = malloc(strlen(nttlist));
 			if (ptr == NULL) break;
 			strcpy(ptr, "");
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
@@ -87,7 +87,7 @@ int network_talking_to(char *nodename, int operation) {
 						strcat(ptr, "|");
 				}
 			}
-			phree(nttlist);
+			free(nttlist);
 			nttlist = ptr;
 			break;
 

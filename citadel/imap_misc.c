@@ -156,7 +156,7 @@ void imap_print_express_messages(void) {
 	while (ptr != NULL) {
 		stamp = localtime(&(ptr->timestamp));
 		size = strlen(ptr->text) + SIZ;
-		dumpomatic = mallok(size);
+		dumpomatic = malloc(size);
 		strcpy(dumpomatic, "");
 		if (ptr->flags && EM_BROADCAST)
 			strcat(dumpomatic, "Broadcast message ");
@@ -188,8 +188,8 @@ void imap_print_express_messages(void) {
 			strcat(dumpomatic, ptr->text);
 
 		holdptr = ptr->next;
-		if (ptr->text != NULL) phree(ptr->text);
-		phree(ptr);
+		if (ptr->text != NULL) free(ptr->text);
+		free(ptr);
 		ptr = holdptr;
 
 		for (i=0; i<strlen(dumpomatic); ++i) {
@@ -199,7 +199,7 @@ void imap_print_express_messages(void) {
 		}
 
 		cprintf("* OK [ALERT] %s\r\n", dumpomatic);
-		phree(dumpomatic);
+		free(dumpomatic);
 	}
 	cprintf("000\n");
 }
@@ -242,7 +242,7 @@ void imap_append(int num_parms, char *parms[]) {
 	}
 
 	imap_free_transmitted_message();	/* just in case. */
-	IMAP->transmitted_message = mallok(literal_length + 1);
+	IMAP->transmitted_message = malloc(literal_length + 1);
 	if (IMAP->transmitted_message == NULL) {
 		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
 		return;
@@ -327,12 +327,12 @@ void imap_append(int num_parms, char *parms[]) {
          */
         if (CC->logged_in) {
 	   if ( (CC->room.QRflags & QR_MAILBOX) == 0) {
-                if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
-                if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
-                if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
-                msg->cm_fields['A'] = strdoop(CC->user.fullname);
-                msg->cm_fields['N'] = strdoop(config.c_nodename);
-                msg->cm_fields['H'] = strdoop(config.c_humannode);
+                if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
+                if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
+                if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
+                msg->cm_fields['A'] = strdup(CC->user.fullname);
+                msg->cm_fields['N'] = strdup(config.c_nodename);
+                msg->cm_fields['H'] = strdup(config.c_humannode);
 	    }
         }
 

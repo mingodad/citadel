@@ -77,7 +77,7 @@ void CopyNewUserGreetings(void) {
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 
 	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
+		msglist = malloc(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -90,7 +90,7 @@ void CopyNewUserGreetings(void) {
 	}
 
 	/* Now free the memory we used, and go away. */
-	if (msglist != NULL) phree(msglist);
+	if (msglist != NULL) free(msglist);
 }
 
 

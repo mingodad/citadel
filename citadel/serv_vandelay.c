@@ -211,7 +211,7 @@ void artv_export_message(long msgnum) {
 	fwrite(smr.ser, smr.len, 1, fp);
 	pclose(fp);
 
-	phree(smr.ser);
+	free(smr.ser);
 
 	fp = fopen(tempfile, "r");
 	unlink(tempfile);
@@ -504,14 +504,14 @@ void artv_import_message(void) {
 	fclose(fp);
 	lprintf(CTDL_DEBUG, "msglen = %ld\n", msglen);
 
-	mbuf = mallok(msglen);
+	mbuf = malloc(msglen);
 	fp = fopen(tempfile, "rb");
 	fread(mbuf, msglen, 1, fp);
 	fclose(fp);
 
         cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), mbuf, msglen);
 
-	phree(mbuf);
+	free(mbuf);
 	unlink(tempfile);
 
 	PutMetaData(&smi);

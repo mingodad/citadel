@@ -391,7 +391,7 @@ void cmd_conf(char *argbuf)
 			if (confptr[strlen(confptr) - 1] != 10)
 				client_write("\n", 1);
 			cprintf("000\n");
-			phree(confptr);
+			free(confptr);
 		} else {
 			cprintf("%d No such configuration.\n",
 				ERROR + ILLEGAL_VALUE);
@@ -404,7 +404,7 @@ void cmd_conf(char *argbuf)
 		confptr = CtdlReadMessageBody("000",
 				config.c_maxmsglen, NULL, 0);
 		CtdlPutSysConfig(confname, confptr);
-		phree(confptr);
+		free(confptr);
 	}
 
 	else {

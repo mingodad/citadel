@@ -140,7 +140,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
         cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
 
         if (cdbfr != NULL) {
-        	msglist = mallok(cdbfr->len);
+        	msglist = malloc(cdbfr->len);
         	memcpy(msglist, cdbfr->ptr, cdbfr->len);
         	num_msgs = cdbfr->len / sizeof(long);
         	cdb_free(cdbfr);
@@ -148,7 +148,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 
 	/* Nothing to do if there aren't any messages */
 	if (num_msgs == 0) {
-		if (msglist != NULL) phree(msglist);
+		if (msglist != NULL) free(msglist);
 		return;
 	}
 
@@ -183,7 +183,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 		}
 	}
 
-	if (msglist != NULL) phree(msglist);
+	if (msglist != NULL) free(msglist);
 }
 
 
@@ -235,7 +235,7 @@ void PurgeMessages(void) {
 void AddValidUser(struct ctdluser *usbuf, void *data) {
 	struct ValidUser *vuptr;
 
-	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
+	vuptr = (struct ValidUser *)malloc(sizeof(struct ValidUser));
 	vuptr->next = ValidUserList;
 	vuptr->vu_usernum = usbuf->usernum;
 	ValidUserList = vuptr;
@@ -244,7 +244,7 @@ void AddValidUser(struct ctdluser *usbuf, void *data) {
 void AddValidRoom(struct ctdlroom *qrbuf, void *data) {
 	struct ValidRoom *vrptr;
 
-	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
+	vrptr = (struct ValidRoom *)malloc(sizeof(struct ValidRoom));
 	vrptr->next = ValidRoomList;
 	vrptr->vr_roomnum = qrbuf->QRnumber;
 	vrptr->vr_roomgen = qrbuf->QRgen;
@@ -293,7 +293,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 	} /* !QR_MAILBOX */
 
 	if (do_purge) {
-		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
+		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = RoomPurgeList;
 		strcpy(pptr->name, qrbuf->QRname);
 		RoomPurgeList = pptr;
@@ -323,29 +323,29 @@ int PurgeRooms(void) {
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
 		vuptr = ValidUserList->next;
-		phree(ValidUserList);
+		free(ValidUserList);
 		ValidUserList = vuptr;
 	}
 
 
-	transcript = mallok(SIZ);
+	transcript = malloc(SIZ);
 	strcpy(transcript, "The following rooms have been auto-purged:\n");
 
 	while (RoomPurgeList != NULL) {
 		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
-			transcript=reallok(transcript, strlen(transcript)+SIZ);
+			transcript=realloc(transcript, strlen(transcript)+SIZ);
 			snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
 				qrbuf.QRname);
 			delete_room(&qrbuf);
 		}
 		pptr = RoomPurgeList->next;
-		phree(RoomPurgeList);
+		free(RoomPurgeList);
 		RoomPurgeList = pptr;
 		++num_rooms_purged;
 	}
 
 	if (num_rooms_purged > 0) aide_message(transcript);
-	phree(transcript);
+	free(transcript);
 
 	lprintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
@@ -363,7 +363,7 @@ void do_uid_user_purge(struct ctdluser *us, void *data) {
 	if ((us->uid != (-1)) && (us->uid != BBSUID)) {
 		if (getpwuid(us->uid) == NULL) {
 			pptr = (struct PurgeList *)
-				mallok(sizeof(struct PurgeList));
+				malloc(sizeof(struct PurgeList));
 			pptr->next = UserPurgeList;
 			strcpy(pptr->name, us->fullname);
 			UserPurgeList = pptr;
@@ -433,7 +433,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	if (us->timescalled == 0) purge = 1;
 
 	if (purge == 1) {
-		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
+		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
 		strcpy(pptr->name, us->fullname);
 		UserPurgeList = pptr;
@@ -454,22 +454,22 @@ int PurgeUsers(void) {
 	}
 	ForEachUser(do_uid_user_purge, NULL);
 
-	transcript = mallok(SIZ);
+	transcript = malloc(SIZ);
 	strcpy(transcript, "The following users have been auto-purged:\n");
 
 	while (UserPurgeList != NULL) {
-		transcript=reallok(transcript, strlen(transcript)+SIZ);
+		transcript=realloc(transcript, strlen(transcript)+SIZ);
 		snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
 			UserPurgeList->name);
 		purge_user(UserPurgeList->name);
 		pptr = UserPurgeList->next;
-		phree(UserPurgeList);
+		free(UserPurgeList);
 		UserPurgeList = pptr;
 		++num_users_purged;
 	}
 
 	if (num_users_purged > 0) aide_message(transcript);
-	phree(transcript);
+	free(transcript);
 
 	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
@@ -534,7 +534,7 @@ int PurgeVisits(void) {
 		/* Put the record on the purge list if it's dead */
 		if ((RoomIsValid==0) || (UserIsValid==0)) {
 			vptr = (struct VPurgeList *)
-				mallok(sizeof(struct VPurgeList));
+				malloc(sizeof(struct VPurgeList));
 			vptr->next = VisitPurgeList;
 			vptr->vp_roomnum = vbuf.v_roomnum;
 			vptr->vp_roomgen = vbuf.v_roomgen;
@@ -547,14 +547,14 @@ int PurgeVisits(void) {
 	/* Free the valid room/gen combination list */
 	while (ValidRoomList != NULL) {
 		vrptr = ValidRoomList->next;
-		phree(ValidRoomList);
+		free(ValidRoomList);
 		ValidRoomList = vrptr;
 	}
 
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
 		vuptr = ValidUserList->next;
-		phree(ValidUserList);
+		free(ValidUserList);
 		ValidUserList = vuptr;
 	}
 
@@ -566,7 +566,7 @@ int PurgeVisits(void) {
 				VisitPurgeList->vp_usernum);
 		cdb_delete(CDB_VISIT, IndexBuf, IndexLen);
 		vptr = VisitPurgeList->next;
-		phree(VisitPurgeList);
+		free(VisitPurgeList);
 		VisitPurgeList = vptr;
 		++purged;
 	}
@@ -596,7 +596,7 @@ int PurgeUseTable(void) {
                 cdb_free(cdbut);
 
 		if ( (time(NULL) - ut.ut_timestamp) > USETABLE_RETAIN ) {
-			uptr = (struct UPurgeList *) mallok(sizeof(struct UPurgeList));
+			uptr = (struct UPurgeList *) malloc(sizeof(struct UPurgeList));
 			if (uptr != NULL) {
 				uptr->next = ul;
 				safestrncpy(uptr->up_key, ut.ut_msgid, SIZ);
@@ -612,7 +612,7 @@ int PurgeUseTable(void) {
 	while (ul != NULL) {
 		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
 		uptr = ul->next;
-		phree(ul);
+		free(ul);
 		ul = uptr;
 	}
 
@@ -664,7 +664,7 @@ void purge_databases(void) {
 void do_fsck_msg(long msgnum, void *userdata) {
 	struct ctdlroomref *ptr;
 
-	ptr = (struct ctdlroomref *)mallok(sizeof(struct ctdlroomref));
+	ptr = (struct ctdlroomref *)malloc(sizeof(struct ctdlroomref));
 	ptr->next = rr;
 	ptr->msgnum = msgnum;
 	rr = ptr;
@@ -732,7 +732,7 @@ void cmd_fsck(char *argbuf) {
 	cprintf("Freeing memory...\n");
 	while (rr != NULL) {
 		ptr = rr->next;
-		phree(rr);
+		free(rr);
 		rr = ptr;
 	}
 

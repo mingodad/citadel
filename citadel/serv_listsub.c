@@ -395,7 +395,7 @@ void do_confirm(char *room, char *token) {
 	 * that address.
 	 */
 	if (strlen(address_to_unsubscribe) > 0) {
-		holdbuf = mallok(SIZ);
+		holdbuf = malloc(SIZ);
 		begin_critical_section(S_NETCONFIGS);
 		ncfp = fopen(filename, "r+");
 		if (ncfp != NULL) {
@@ -426,7 +426,7 @@ void do_confirm(char *room, char *token) {
 				}
 				else {	/* Not relevant, so *keep* it! */
 					linelen = strlen(buf);
-					holdbuf = reallok(holdbuf,
+					holdbuf = realloc(holdbuf,
 						(buflen + linelen + 2) );
 					strcpy(&holdbuf[buflen], buf);
 					buflen += linelen;
@@ -442,7 +442,7 @@ void do_confirm(char *room, char *token) {
 			fclose(ncfp);
 		}
 		end_critical_section(S_NETCONFIGS);
-		phree(holdbuf);
+		free(holdbuf);
 	}
 
 	/*

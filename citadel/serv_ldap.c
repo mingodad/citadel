@@ -274,13 +274,13 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	 * with Kolab.
 	 */
 	num_attrs = 1;
-	attrs = mallok( (sizeof(LDAPMod *) * num_attrs) );
-	attrs[0] = mallok(sizeof(LDAPMod));
+	attrs = malloc( (sizeof(LDAPMod *) * num_attrs) );
+	attrs[0] = malloc(sizeof(LDAPMod));
 	memset(attrs[0], 0, sizeof(LDAPMod));
 	attrs[0]->mod_op	= LDAP_MOD_ADD;
 	attrs[0]->mod_type	= "objectclass";
-	attrs[0]->mod_values	= mallok(3 * sizeof(char *));
-	attrs[0]->mod_values[0]	= strdoop("inetOrgPerson");
+	attrs[0]->mod_values	= malloc(3 * sizeof(char *));
+	attrs[0]->mod_values[0]	= strdup("inetOrgPerson");
 	attrs[0]->mod_values[1]	= NULL;
 
 	/* Convert the vCard fields to LDAP properties */
@@ -293,36 +293,36 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 		}
 
 		if (!strcasecmp(v->prop[i].name, "fn")) {
-			attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 			attrs[num_attrs-1]->mod_type		= "cn";
-			attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
 			attrs[num_attrs-1]->mod_values[1]	= NULL;
 			have_cn = 1;
 		}
 
 		if (!strcasecmp(v->prop[i].name, "title")) {
-			attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 			attrs[num_attrs-1]->mod_type		= "title";
-			attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
 			attrs[num_attrs-1]->mod_values[1]	= NULL;
 		}
 
 		if (!strcasecmp(v->prop[i].name, "org")) {
-			attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 			attrs[num_attrs-1]->mod_type		= "o";
-			attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
 			attrs[num_attrs-1]->mod_values[1]	= NULL;
 		}
 
@@ -345,40 +345,40 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 				extract_token(state, v->prop[i].value, 4, ';');
 				extract_token(zipcode, v->prop[i].value, 5, ';');
 
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 				attrs[num_attrs-1]->mod_type		= "street";
-				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdoop(street);
+				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdup(street);
 				attrs[num_attrs-1]->mod_values[1]	= NULL;
 
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 				attrs[num_attrs-1]->mod_type		= "l";
-				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdoop(city);
+				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdup(city);
 				attrs[num_attrs-1]->mod_values[1]	= NULL;
 
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 				attrs[num_attrs-1]->mod_type		= "st";
-				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdoop(state);
+				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdup(state);
 				attrs[num_attrs-1]->mod_values[1]	= NULL;
 
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 				attrs[num_attrs-1]->mod_type		= "postalcode";
-				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdoop(zipcode);
+				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdup(zipcode);
 				attrs[num_attrs-1]->mod_values[1]	= NULL;
 			}
 		}
@@ -388,22 +388,22 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 			++num_phones;
 			/* The first 'tel' property creates the 'telephoneNumber' attribute */
 			if (num_phones == 1) {
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 				phone_attr = num_attrs-1;
-				attrs[phone_attr] = mallok(sizeof(LDAPMod));
+				attrs[phone_attr] = malloc(sizeof(LDAPMod));
 				memset(attrs[phone_attr], 0, sizeof(LDAPMod));
 				attrs[phone_attr]->mod_op		= LDAP_MOD_ADD;
 				attrs[phone_attr]->mod_type		= "telephoneNumber";
-				attrs[phone_attr]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[phone_attr]->mod_values[0]	= strdoop(v->prop[i].value);
+				attrs[phone_attr]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[phone_attr]->mod_values[0]	= strdup(v->prop[i].value);
 				attrs[phone_attr]->mod_values[1]	= NULL;
 			}
 			/* Subsequent 'tel' properties *add to* the 'telephoneNumber' attribute */
 			else {
-				attrs[phone_attr]->mod_values = reallok(attrs[phone_attr]->mod_values,
+				attrs[phone_attr]->mod_values = realloc(attrs[phone_attr]->mod_values,
 								     num_phones * sizeof(char *));
 				attrs[phone_attr]->mod_values[num_phones-1]
-									= strdoop(v->prop[i].value);
+									= strdup(v->prop[i].value);
 				attrs[phone_attr]->mod_values[num_phones]
 									= NULL;
 			}
@@ -418,33 +418,33 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 
 			/* The first email address creates the 'mail' attribute */
 			if (num_emails == 1) {
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 				attrs[num_attrs-1]->mod_type		= "mail";
-				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
 				attrs[num_attrs-1]->mod_values[1]	= NULL;
 			}
 			/* The second email address creates the 'alias' attribute */
 			else if (num_emails == 2) {
-				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 				alias_attr = num_attrs-1;
-				attrs[alias_attr] = mallok(sizeof(LDAPMod));
+				attrs[alias_attr] = malloc(sizeof(LDAPMod));
 				memset(attrs[alias_attr], 0, sizeof(LDAPMod));
 				attrs[alias_attr]->mod_op		= LDAP_MOD_ADD;
 				attrs[alias_attr]->mod_type		= "alias";
-				attrs[alias_attr]->mod_values		= mallok(2 * sizeof(char *));
-				attrs[alias_attr]->mod_values[0]	= strdoop(v->prop[i].value);
+				attrs[alias_attr]->mod_values		= malloc(2 * sizeof(char *));
+				attrs[alias_attr]->mod_values[0]	= strdup(v->prop[i].value);
 				attrs[alias_attr]->mod_values[1]	= NULL;
 			}
 			/* Subsequent email addresses *add to* the 'alias' attribute */
 			else if (num_emails > 2) {
-				attrs[alias_attr]->mod_values = reallok(attrs[alias_attr]->mod_values,
+				attrs[alias_attr]->mod_values = realloc(attrs[alias_attr]->mod_values,
 								     num_emails * sizeof(char *));
 				attrs[alias_attr]->mod_values[num_emails-2]
-									= strdoop(v->prop[i].value);
+									= strdup(v->prop[i].value);
 				attrs[alias_attr]->mod_values[num_emails-1]
 									= NULL;
 			}
@@ -456,48 +456,48 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	vcard_free(v);	/* Don't need this anymore. */
 
 	/* "sn" (surname) based on info in vCard */
-	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 	attrs[num_attrs-1]->mod_type		= "sn";
-	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdoop(sn);
+	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdup(sn);
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* "givenname" (first name) based on info in vCard */
 	if (strlen(givenname) == 0) strcpy(givenname, "_");
 	if (strlen(sn) == 0) strcpy(sn, "_");
-	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 	attrs[num_attrs-1]->mod_type		= "givenname";
-	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdoop(givenname);
+	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdup(givenname);
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* "uid" is a Kolab compatibility thing.  We just do cituser@citnode */
-	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 	attrs[num_attrs-1]->mod_type		= "uid";
-	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdoop(uid);
+	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdup(uid);
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* Add a "cn" (Common Name) attribute based on the user's screen name,
 	 * but only there was no 'fn' (full name) property in the vCard	
 	 */
 	if (!have_cn) {
-		attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-		attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+		attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+		attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 		memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
 		attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
 		attrs[num_attrs-1]->mod_type		= "cn";
-		attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
-		attrs[num_attrs-1]->mod_values[0]	= strdoop(msg->cm_fields['A']);
+		attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+		attrs[num_attrs-1]->mod_values[0]	= strdup(msg->cm_fields['A']);
 		attrs[num_attrs-1]->mod_values[1]	= NULL;
 	}
 	
@@ -534,20 +534,20 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 			/* First, free the value strings */
 			if (attrs[i]->mod_values != NULL) {
 				for (j=0; attrs[i]->mod_values[j] != NULL; ++j) {
-					phree(attrs[i]->mod_values[j]);
+					free(attrs[i]->mod_values[j]);
 				}
 			}
 
 			/* Free the value strings pointer list */	
 			if (attrs[i]->mod_values != NULL) {
-				phree(attrs[i]->mod_values);
+				free(attrs[i]->mod_values);
 			}
 
 			/* Now free the LDAPMod struct itself. */
-			phree(attrs[i]);
+			free(attrs[i]);
 		}
 	}
-	phree(attrs);
+	free(attrs);
 	lprintf(CTDL_DEBUG, "LDAP write operation complete.\n");
 }
 

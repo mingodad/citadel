@@ -350,11 +350,11 @@ struct floor *cgetfloor(int floor_num) {
 
 	if (fetch_new) {
 		lprintf(CTDL_DEBUG, "fetch_new is active ... going to disk\n");
-		fl = mallok(sizeof(struct floor));
+		fl = malloc(sizeof(struct floor));
 		getfloor(fl, floor_num);
 		begin_critical_section(S_FLOORCACHE);
 		if (floorcache[floor_num] != NULL) {
-			phree(floorcache[floor_num]);
+			free(floorcache[floor_num]);
 		}
 		floorcache[floor_num] = fl;
 		end_critical_section(S_FLOORCACHE);
@@ -373,8 +373,8 @@ void putfloor(struct floor *flbuf, int floor_num)
 	/* If we've cached this, clear it out, 'cuz it's WRONG now! */
 	begin_critical_section(S_FLOORCACHE);
 	if (floorcache[floor_num] != NULL) {
-		phree(floorcache[floor_num]);
-		floorcache[floor_num] = mallok(sizeof(struct floor));
+		free(floorcache[floor_num]);
+		floorcache[floor_num] = malloc(sizeof(struct floor));
 		memcpy(floorcache[floor_num], flbuf, sizeof(struct floor));
 	}
 	end_critical_section(S_FLOORCACHE);
@@ -805,7 +805,7 @@ void usergoto(char *where, int display_result, int transiently,
 	get_mm();
         cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
         if (cdbfr != NULL) {
-        	msglist = mallok(cdbfr->len);
+        	msglist = malloc(cdbfr->len);
         	memcpy(msglist, cdbfr->ptr, cdbfr->len);
         	num_msgs = cdbfr->len / sizeof(long);
         	cdb_free(cdbfr);
@@ -820,7 +820,7 @@ void usergoto(char *where, int display_result, int transiently,
 		}
 	}
 
-	if (msglist != NULL) phree(msglist);
+	if (msglist != NULL) free(msglist);
 
 	if (CC->room.QRflags & QR_MAILBOX)
 		rmailflag = 1;
