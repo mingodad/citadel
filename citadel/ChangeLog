@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.20  2003/03/17 04:03:14  ajc
+ * Supply a NULL argument as the second argument to accept() instead of an
+   empty buffer whose contents we never even look at.
+
  Revision 605.19  2003/03/16 05:07:12  ajc
  * Fixed the bug that caused freebusy publishes to crash.
 
@@ -4562,4 +4566,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -932,8 +932,6 @@ void *worker_thread(void *arg) {
 	int retval;
 	struct CitContext *con= NULL;	/* Temporary context pointer */
 	struct ServiceFunctionHook *serviceptr;
-	struct sockaddr_in fsin;	/* Data for master socket */
-	int alen;			/* Data for master socket */
 	int ssock;			/* Descriptor for client socket */
 	struct timeval tv;
 
@@ -1000,9 +998,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		     serviceptr = serviceptr->next ) {
 
 			if (FD_ISSET(serviceptr->msock, &readfds)) {
-				alen = sizeof fsin;
-				ssock = accept(serviceptr->msock,
-					(struct sockaddr *)&fsin, &alen);
+				ssock = accept(serviceptr->msock, NULL, 0);
 				if (ssock < 0) {
 					lprintf(2, "citserver: accept(): %s\n",
 						strerror(errno));
