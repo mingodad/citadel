@@ -47,6 +47,7 @@
 #include "citadel_decls.h"
 #include "tools.h"
 #include "acconfig.h"
+#include "client_crypto.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -977,14 +978,18 @@ int main(int argc, char **argv)
 	      strncpy(nonce, sptr, NONCE_SIZE);
 	   }
 	}
-	
+
 	get_serv_info(telnet_client_host);
 
+	if (!starttls()) {
+		printf("Session will not be encrypted.\n");
+	}
+	
 	look_for_ansi();
 	cls(0);
 	color(7);
 
-	printf("%-23s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
+	printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
 	       serv_info.serv_bbs_city);
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
