@@ -1,5 +1,5 @@
 /*
- * citmail.c v4.0
+ * citmail.c v4.1
  *
  * This program may be used as a local mail delivery agent, which will allow
  * all Citadel users to receive Internet e-mail.  To enable this functionality,
@@ -368,19 +368,18 @@ void do_citmail(char recp[], int dtype) {
 
 		/* chop the system name out, so we're left with a user */
 		while (haschar(recp,'!')) strcpy(recp,&recp[1]);
+		}
 
-		/* now convert underscores to spaces */
-		for (a=0; a<strlen(recp); ++a) if (recp[a]=='_') recp[a]=' ';
+	/* Convert underscores to spaces */
+	for (a=0; a<strlen(recp); ++a) if (recp[a]=='_') recp[a]=' ';
 
-		/* Are we delivering to a room instead of a user? */
-		if (!strncasecmp(recp, "room ", 5)) {
-			strcpy(targetroom, &recp[5]);
-			strcpy(recp, "");
-			}
-		else {
-			strcpy(targetroom, "");
-			}
-
+	/* Are we delivering to a room instead of a user? */
+	if (!strncasecmp(recp, "room ", 5)) {
+		strcpy(targetroom, &recp[5]);
+		strcpy(recp, "");
+		}
+	else {
+		strcpy(targetroom, "Mail");
 		}
 
 	time(&now);

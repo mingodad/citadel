@@ -50,8 +50,8 @@ int getuser(struct usersupp *usbuf, char name[]) {
 		}
 
 	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
-	if (cdbus == NULL) {	/* not found */
-		return(1);
+	if (cdbus == NULL) {
+		return(1);	/* user not found */
 		}
 
 	memcpy(usbuf, cdbus->ptr, cdbus->len);
@@ -87,7 +87,8 @@ void putuser(struct usersupp *usbuf, char *name)
 		lowercase_name[a] = tolower(name[a]);
 		}
 
-	cdb_store(CDB_USERSUPP, lowercase_name, strlen(lowercase_name),
+	cdb_store(CDB_USERSUPP,
+		lowercase_name, strlen(lowercase_name),
 		usbuf, sizeof(struct usersupp));
 
 	}
@@ -96,8 +97,7 @@ void putuser(struct usersupp *usbuf, char *name)
 /*
  * lputuser()  -  same as putuser() but locks the record
  */
-void lputuser(struct usersupp *usbuf, char *name)
-{
+void lputuser(struct usersupp *usbuf, char *name) {
 	putuser(usbuf,name);
 	end_critical_section(S_USERSUPP);
 	}
@@ -117,8 +117,12 @@ int is_aide(void) {
  */
 int is_room_aide(void) {
 	if ( (CC->usersupp.axlevel >= 6)
-		|| (CC->quickroom.QRroomaide == CC->usersupp.usernum) ) return(1);
-	else return(0);
+	   || (CC->quickroom.QRroomaide == CC->usersupp.usernum) ) {
+		return(1);
+		}
+	else {
+		return(0);
+		}
 	}
 
 /*
@@ -1112,10 +1116,12 @@ void cmd_agup(char *cmdbuf) {
 		}
 
 	extract(requested_user, cmdbuf, 0);
+	lprintf(9, "Requesting <%s>\n", requested_user);
 	if (getuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 		}
+	lprintf(9, "getuser() returned zero\n");
 
 	cprintf("%d %s|%s|%u|%d|%d|%d|%ld\n", 
 		OK,
@@ -1126,6 +1132,8 @@ void cmd_agup(char *cmdbuf) {
 		usbuf.posted,
 		(int)usbuf.axlevel,
 		usbuf.usernum);
+
+	lprintf(9, "Done.\n");
 	}
 
 

@@ -9,6 +9,8 @@
 
 struct CtdlServerHandle CtdlAppHandle;
 struct CtdlServInfo CtdlAppServInfo;
+int CtdlErrno = 0;
+
 void CtdlMain();
 
 void logoff(exitcode) {
@@ -109,4 +111,27 @@ char *argv[]; {
 	/* Clean up gracefully and exit. */
 	serv_puts("QUIT");
 	exit(0);
+	}
+
+
+int CtdlGetLastError() {
+	return CtdlErrno;
+	}
+
+
+int CtdlSendExpressMessage(char *ToUser, char *MsgText) {
+	char buf[256];
+
+	if (strlen(ToUser) + strlen(MsgText) > 248) {
+		CtdlErrno = ERROR + TOO_BIG;
+		return CtdlErrno;
+		}
+
+	sprintf(buf, "SEXP %s|%s", ToUser, MsgText);
+	serv_puts(buf);
+	serv_gets(buf);
+	
+	CtdlErrno = atoi(buf);
+	if (CtdlErrno == OK) CtdlErrno = 0;
+	return CtdlErrno;
 	}

@@ -1053,33 +1053,41 @@ void *context_loop(struct CitContext *con)
 		else if (!strncasecmp(cmdbuf, "UIMG", 4)) {
 			cmd_uimg(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "UCHG", 4)) {
 			cmd_uchg(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "TIME", 4)) {
 			cmd_time(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "HCHG", 4)) {
 			cmd_hchg(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "RCHG", 4)) {
 			cmd_rchg(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "EXTN", 4)) {
 			cmd_extn(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "AGUP", 4)) {
 			cmd_agup(&cmdbuf[5]);
 			}
+
 		else if (!strncasecmp(cmdbuf, "ASUP", 4)) {
 			cmd_asup(&cmdbuf[5]);
 			}
+
 		else {
 			cprintf("%d Unrecognized or unsupported command.\n",
 				ERROR);
 			}
 
-		} while(strncasecmp(cmdbuf,"QUIT",4));
+		} while(strncasecmp(cmdbuf, "QUIT", 4));
 
 	cleanup(EXIT_NORMAL);
 	return(NULL);
