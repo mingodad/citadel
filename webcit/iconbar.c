@@ -48,6 +48,7 @@ void do_iconbar(void) {
 	int ib_tasks = 0;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
+	int ib_chat = 0;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
 	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
@@ -69,12 +70,11 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
 		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
+		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
 		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
 		if (!strcasecmp(key, "ib_logoff")) ib_logoff = atoi(value);
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
-
 	}
-
 
 	output_headers(11);
 	do_template("beginbox_nt");
@@ -197,6 +197,21 @@ void do_iconbar(void) {
 		wprintf("</A></SPAN>\n");
 	}
 
+	if (ib_chat) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/chat\" TITLE=\"Chat with other users in this room\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/chat-icon.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Chat<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
+
 	if (ib_advanced) {
 		wprintf("<SPAN CLASS=\"iconbar_link\">"
 			"<A HREF=\"/display_main_menu\" "
@@ -275,6 +290,7 @@ void display_customize_iconbar(void) {
 	int ib_tasks = 0;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
+	int ib_chat = 0;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
 	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
@@ -296,10 +312,10 @@ void display_customize_iconbar(void) {
 		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
 		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
+		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
 		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
 		if (!strcasecmp(key, "ib_logoff")) ib_logoff = atoi(value);
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
-
 	}
 
 	output_headers(3);
@@ -431,6 +447,19 @@ void display_customize_iconbar(void) {
 	);
 
 	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+		"<INPUT TYPE=\"checkbox\" NAME=\"ib_chat\" VALUE=\"yes\" %s>"
+		"</TD><TD>"
+		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
+		"SRC=\"/static/chat-icon.gif\" ALT=\"&nbsp;\">"
+		"</TD><TD>"
+		"<B>Chat</B><BR>"
+		"Clicking this icon enters real-time chat mode "
+		"with other users in the same room."
+		"</TD></TR>\n",
+		(ib_chat ? "CHECKED" : "")
+	);
+
+	wprintf("<TR><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_advanced\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -443,7 +472,7 @@ void display_customize_iconbar(void) {
 		(ib_advanced ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
+	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logoff\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -456,7 +485,7 @@ void display_customize_iconbar(void) {
 		"</TD></TR>\n",
 		(ib_logoff ? "CHECKED" : "")
 	);
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_citadel\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -495,6 +524,7 @@ void commit_iconbar(void) {
 		"ib_tasks",
 		"ib_rooms",
 		"ib_users",
+		"ib_chat",
 		"ib_advanced",
 		"ib_logoff",
 		"ib_citadel"

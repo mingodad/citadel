@@ -121,7 +121,9 @@ void do_chat(void)
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Real-time chat</SPAN>\n"
+		"<SPAN CLASS=\"titlebar\">"
+		"<IMG SRC=\"/static/chat-icon.gif\" WIDTH=16 HEIGHT=16 ALIGN=MIDDLE>"
+		"Real-time chat</SPAN>\n"
 		"</TD></TR></TABLE>\n"
 		"<IFRAME WIDTH=100%% HEIGHT=200 SRC=\"/chat_recv\" "
 		"NAME=\"chat_recv\">\n"
@@ -227,6 +229,7 @@ int setup_chat_socket(void) {
 						serv_gets(buf);
 						if (buf[0] == '8') {
 							good_chatmode = 1;
+							serv_puts("/help");
 						}
 					}
 				}
