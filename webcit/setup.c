@@ -415,6 +415,7 @@ void check_inittab_entry(void)
 	sprintf(http_port, "2000");
 	set_value(question, http_port);
 
+#ifdef HAVE_OPENSSL
 	snprintf(question, sizeof question,
 		"On which port do you want WebCit to listen for HTTPS "
 		"requests?\n\nYou can use the standard port (443) if you are "
@@ -422,6 +423,7 @@ void check_inittab_entry(void)
 		"select another port.");
 	sprintf(https_port, "443");
 	set_value(question, https_port);
+#endif
 
 	/* Find out where Citadel is. */
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
@@ -469,9 +471,15 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the WebCit server...\n");
+#ifdef HAVE_OPENSSL
 		fprintf(infp, "%s:2345:respawn:%s -p%s -s%s %s %s\n",
 			entryname, looking_for,
 			http_port, https_port, hostname, portname);
+#else
+		fprintf(infp, "%s:2345:respawn:%s -p%s %s %s\n",
+			entryname, looking_for,
+			http_port, hostname, portname);
+#endif
 		fclose(infp);
 		strcpy(init_entry, entryname);
 	}
