@@ -70,14 +70,15 @@ int ig_tcp_server(int port_number, int queue_len)
 	sin.sin_addr.s_addr = INADDR_ANY;
 
 	if (port_number == 0) {
-		printf("webcit: Cannot start: no port number specified.\n");
+		fprintf(stderr,
+			"webcit: Cannot start: no port number specified.\n");
 		exit(1);
 	}
 	sin.sin_port = htons((u_short) port_number);
 
 	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
 	if (s < 0) {
-		printf("webcit: Can't create a socket: %s\n",
+		fprintf(stderr, "webcit: Can't create a socket: %s\n",
 		       strerror(errno));
 		exit(errno);
 	}
@@ -86,11 +87,11 @@ int ig_tcp_server(int port_number, int queue_len)
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		printf("webcit: Can't bind: %s\n", strerror(errno));
+		fprintf(stderr, "webcit: Can't bind: %s\n", strerror(errno));
 		exit(errno);
 	}
 	if (listen(s, queue_len) < 0) {
-		printf("webcit: Can't listen: %s\n", strerror(errno));
+		fprintf(stderr, "webcit: Can't listen: %s\n", strerror(errno));
 		exit(errno);
 	}
 	return (s);
@@ -108,9 +109,8 @@ void client_write(int sock, char *buf, int nbytes)
 		retval = write(sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
-			printf("client_write() failed: %s\n",
+			fprintf(stderr, "client_write() failed: %s\n",
 			       strerror(errno));
-			pthread_exit(NULL);
 		}
 		bytes_written = bytes_written + retval;
 	}
@@ -161,9 +161,8 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		rlen = read(sock, &buf[len], bytes - len);
 		if (rlen < 1) {
-			printf("client_read() failed: %s\n",
+			fprintf(stderr, "client_read() failed: %s\n",
 			       strerror(errno));
-			pthread_exit(NULL);
 		}
 		len = len + rlen;
 	}
@@ -288,9 +287,9 @@ int main(int argc, char **argv)
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
-	printf("Attempting to bind to port %d...\n", port);
+	fprintf(stderr, "Attempting to bind to port %d...\n", port);
 	msock = ig_tcp_server(port, 5);
-	printf("Listening on socket %d\n", msock);
+	fprintf(stderr, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);
@@ -317,7 +316,7 @@ int main(int argc, char **argv)
 		if (pthread_create(&SessThread, &attr,
 				(void *(*)(void *)) worker_entry, NULL)
 		    != 0) {
-			printf("webcit: can't create thread: %s\n",
+			fprintf(stderr, "webcit: can't create thread: %s\n",
 			       strerror(errno));
 		}
 	}
@@ -344,9 +343,8 @@ void worker_entry(void) {
 		ssock = accept(msock, (struct sockaddr *) &fsin, &alen);
 		pthread_mutex_unlock(&AcceptQueue);
 
-		printf("New connection on socket %d\n", ssock);
 		if (ssock < 0) {
-			printf("webcit: accept() failed: %s\n",
+			fprintf(stderr, "webcit: accept() failed: %s\n",
 		       	strerror(errno));
 		} else {
 			/* Set the SO_REUSEADDR socket option */

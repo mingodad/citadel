@@ -240,7 +240,6 @@ void readloop(char *oper)
 	int a;
 	int nummsgs;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", WC->wc_roomname);
@@ -293,7 +292,6 @@ void post_message(void)
 	char buf[256];
 	static long dont_post = (-1L);
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
@@ -358,7 +356,6 @@ void display_enter(void)
 	long now;
 	struct tm *tm;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<FACE=\"Arial,Helvetica,sans-serif\">");
@@ -427,7 +424,6 @@ void confirm_delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -459,7 +455,6 @@ void delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	if (!strcasecmp(bstr("yesno"), "Yes")) {
@@ -488,7 +483,6 @@ void confirm_move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -536,7 +530,6 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	if (!strcasecmp(bstr("yesno"), "Move")) {

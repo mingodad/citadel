@@ -49,7 +49,6 @@ void userlist(void)
 			strcpy(bptr->name, buf);
 			bio = bptr;
 		}
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	serv_puts("LIST");
@@ -114,7 +113,6 @@ void showuser(void)
 	char buf[256];
 	int have_pic;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 

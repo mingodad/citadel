@@ -287,7 +287,7 @@ void context_loop(int sock)
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
-		printf("Creating a new session\n");
+		fprintf(stderr, "Creating a new session\n");
 		TheSession = (struct wcsession *)
 			malloc(sizeof(struct wcsession));
 		memset(TheSession, 0, sizeof(struct wcsession));
