@@ -2,6 +2,7 @@ Tue Aug 18 00:42:33 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: `clean' target no longer rm's sysdep.h; new target
 	  `realclean' removes everything clean does, plus sysdep.h, plus
 	  target binaries.
+	* Configure: add -Wstrict-prototypes to CFLAGS for gcc systems
 	* *.[ch]: protoized. Added several new header files containing
 	  prototypes and other external declarations; many duplicated
 	  declarations still should be moved to header files. proto.h must die
