@@ -33,7 +33,7 @@ RoomView::RoomView(
 			roomname
 			) {
 
-	wxString sendcmd, recvcmd;
+	wxString sendcmd, recvcmd, xferbuf, buf;
 
 	citsock = sock;
 	citMyMDI = MyMDI;
@@ -53,6 +53,7 @@ RoomView::RoomView(
 	banner = new wxPanel(this, -1);
 	banner->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
 	banner->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+
 	wxLayoutConstraints *b1 = new wxLayoutConstraints;
 	b1->top.SameAs(this, wxTop, 2);
 	b1->left.SameAs(this, wxLeft, 2);
@@ -63,12 +64,22 @@ RoomView::RoomView(
 	wxStaticText *rname = new wxStaticText(banner, -1, ThisRoom);
 	rname->SetFont(wxFont(18, wxDEFAULT, wxNORMAL, wxNORMAL));
 	rname->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+
 	wxLayoutConstraints *b2 = new wxLayoutConstraints;
 	b2->top.SameAs(banner, wxTop, 1);
 	b2->left.SameAs(banner, wxLeft, 1);
 	b2->width.PercentOf(banner, wxWidth, 50);
 	b2->height.PercentOf(banner, wxHeight, 50);
 	rname->SetConstraints(b2);
+
+	wxHtmlWindow *roominfo = new wxHtmlWindow(banner);
+
+	wxLayoutConstraints *b3 = new wxLayoutConstraints;
+	b3->top.SameAs(banner, wxTop);
+	b3->bottom.SameAs(banner, wxBottom);
+	b3->right.SameAs(banner, wxRight);
+	b3->left.PercentOf(banner, wxWidth, 67);
+	roominfo->SetConstraints(b3);
 
 	close_button = new wxButton(
 		this,
@@ -150,6 +161,21 @@ RoomView::RoomView(
 
         Layout();
 	wxYield();
+
+	sendcmd = "RINF";
+	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom) == 1) {
+		variformat_to_html(buf, xferbuf, FALSE);
+	} else {
+		buf = " ";
+	}
+
+	wxString hbuf;
+	hbuf = "<HTML><BODY TEXT=#FFFF00 BGCOLOR=#000077>";
+	hbuf += "<FONT SIZE=-1>";
+	hbuf += buf;
+	hbuf += "</FONT></BODY></HTML>";
+	roominfo->SetPage(hbuf);
+
 	do_readloop("MSGS NEW");	// FIX make this configurable
 }
 

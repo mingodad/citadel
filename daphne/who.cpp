@@ -88,7 +88,7 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 void who::LoadWholist(void) {
 	wxString sendcmd, recvcmd, buf;
 	wxString rwho;
-	int i, pos;
+	int i = 0;
 	wxString sess, user, room, host;
 	wxStringTokenizer *wl;
 
@@ -107,6 +107,7 @@ void who::LoadWholist(void) {
 		wholist->SetItem(i, 1, user);
 		wholist->SetItem(i, 2, room);
 		wholist->SetItem(i, 3, host);
+		++i;
 	}
 }
 

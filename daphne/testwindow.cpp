@@ -171,6 +171,7 @@ TestWindow::TestWindow(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c8->bottom.Above(cmd_button, -5);
 	xfercmd->SetConstraints(c8);
 
+	cmd_button->SetDefault();
         SetAutoLayout(TRUE);
         Show(TRUE);
         Layout();

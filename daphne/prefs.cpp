@@ -13,8 +13,6 @@ enum
 {
 	BUTTON_SAVE,
 	BUTTON_CANCEL,
-	TAB_SERVER,
-	TAB_MESSAGES
 };
 
 // ----------------------------------------------------------------------------

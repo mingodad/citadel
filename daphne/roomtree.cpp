@@ -11,21 +11,29 @@
 
 wxTreeItemId null_item;
 
+enum {
+	RI_NOTHING,
+	RI_ROOM,
+	RI_SERVPROPS
+};
+
 
 class RoomItem : public wxTreeItemData {
 public:
-	RoomItem(wxString name, bool newmsgs);
+	RoomItem(wxString name, bool newmsgs, int typ);
 	wxString RoomName;
 	bool HasNewMessages;
 	wxTreeItemId nextroom;
+	int NodeType;
 };
 
-RoomItem::RoomItem(wxString name, bool newmsgs)
+RoomItem::RoomItem(wxString name, bool newmsgs, int typ)
 	: wxTreeItemData() {
 
 	RoomName = name;
 	HasNewMessages = newmsgs;
 	nextroom = null_item;
+	NodeType = typ;
 }
 
 
@@ -54,6 +62,7 @@ RoomTree::RoomTree(wxMDIParentFrame *parent, CitClient *sock)
 
 	citsock = sock;
 	citMyMDI = parent;
+	CurrServProps = NULL;
 	InitTreeIcons();
 
 }
@@ -132,7 +141,7 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			2,
 			-1,
-			new RoomItem(roomname, TRUE)
+			new RoomItem(roomname, TRUE, RI_ROOM)
 			);
 		SetItemBold(item, TRUE);
 		SetItemBold(floorboards[floornum], TRUE);
@@ -156,9 +165,35 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			3,
 			-1,
-			new RoomItem(roomname, FALSE)
+			new RoomItem(roomname, FALSE, RI_ROOM)
 			);
 	}
+
+	wxTreeItemId sp = AppendItem(
+		GetRootItem(),
+		"Global settings",
+		-1,
+		-1,
+		new RoomItem("Global settings", FALSE, RI_NOTHING)
+		);
+
+	AppendItem(sp, "Identity", 
+		-1,
+		-1,
+		new RoomItem("Identity", FALSE, RI_SERVPROPS)
+		);
+
+	AppendItem(sp, "Network", 
+		-1,
+		-1,
+		new RoomItem("Network", FALSE, RI_SERVPROPS)
+		);
+
+	AppendItem(sp, "Security", 
+		-1,
+		-1,
+		new RoomItem("Security", FALSE, RI_SERVPROPS)
+		);
 
 	// Demo of traversal -- do not use
 	// while (march_next != null_item) {
@@ -179,15 +214,30 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 
 	itemId = GetSelection();
 
-	// Don't do this unless it's a *room* the user clicked on.
+	// Don't do this unless it's a leaf node the user clicked on.
 	if (itemId == GetRootItem()) return;
 	for (i=0; i<MAXFLOORS; ++i)
 		if (itemId == floorboards[i]) return;
 
-	// Ok, it's a room, so go there.
+	// Ok, it's a leaf node...
 	r = (RoomItem *)GetItemData(itemId);
 
-	new RoomView(citsock, citMyMDI, r->RoomName);
+	switch (r->NodeType) {
+
+	case RI_ROOM:
+		new RoomView(citsock, citMyMDI, r->RoomName);
+		break;
+
+	case RI_SERVPROPS:
+		if (CurrServProps == NULL) {
+			CurrServProps = new ServProps(
+				citsock, citMyMDI, r->RoomName);
+		} else {
+			CurrServProps->ChangePanel(r->RoomName);
+		}
+		break;
+
+	}
 }
 
 wxString RoomTree::GetNextRoom(void) {

@@ -215,6 +215,27 @@ private:
 
 
 
+// Global server properties
+
+class ServProps : public wxMDIChildFrame {
+public:
+	ServProps(	CitClient *sock,
+			wxMDIParentFrame *MyMDI,
+			wxString WhichPanel);
+	void ChangePanel(wxString WhichPanel);
+private:
+	void OnButtonPressed(wxCommandEvent& whichbutton);
+	CitClient *citsock;
+	wxMDIParentFrame *citMyMDI;
+	wxPanel *identity_panel, *network_panel, *security_panel;
+	wxString ServerConfigStrings[20];
+	void LoadServerConfigStrings(void);
+	void SaveServerConfigStrings(void);
+	DECLARE_EVENT_TABLE()
+};
+
+
+
 // The ever-present tree of floors and rooms
 
 class RoomTree : public wxTreeCtrl {
@@ -231,6 +252,7 @@ private:
 	wxTreeItemId floorboards[MAXFLOORS];
 	wxImageList *TreeIcons;
 	wxTreeItemId march_next;
+	ServProps *CurrServProps;
 	DECLARE_EVENT_TABLE()
 };
 
@@ -253,6 +275,23 @@ private:
 };
 
 
+class SelectUser : public wxPanel {
+public:
+	SelectUser(CitClient *, wxWindow *, wxString,
+		wxString, unsigned int, wxTextCtrl *);
+private:
+	void OnButtonPressed(wxCommandEvent& whichbutton);
+	void AddLocalUsers(wxTreeCtrl *, CitClient *);
+	wxButton select_button;
+	wxButton cancel_button;
+	CitClient *citsock;
+	wxTextCtrl *target_textctrl;
+	wxTreeCtrl *TheTree;
+	DECLARE_EVENT_TABLE()
+};
+
+
+
 class EnterMessage : public wxMDIChildFrame {
 public:
 	EnterMessage(CitClient *sock, wxMDIParentFrame *MyMDI,
@@ -260,12 +299,14 @@ public:
 private:
 	void OnCancel(wxCommandEvent& whichbutton);
 	void OnSave(wxCommandEvent& whichbutton);
+	void OnFind(wxCommandEvent& whichbutton);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	wxString ThisRoom;
 	wxChoice *fromname;
 	wxTextCtrl *toname;
 	wxTextCtrl *TheMessage;
+	SelectUser *finduser_panel;
 	DECLARE_EVENT_TABLE()
 };
 
@@ -288,8 +329,6 @@ public:
 private:
 	int format_type;
 };
-
-
 
 
 

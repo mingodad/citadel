@@ -2,13 +2,15 @@
 
 enum {
 	BUTTON_SAVE,
-	BUTTON_CANCEL
+	BUTTON_CANCEL,
+	BUTTON_FIND
 };
 
 
 BEGIN_EVENT_TABLE(EnterMessage, wxMDIChildFrame)
 	EVT_BUTTON(BUTTON_CANCEL,	EnterMessage::OnCancel)
 	EVT_BUTTON(BUTTON_SAVE,		EnterMessage::OnSave)
+	EVT_BUTTON(BUTTON_FIND,		EnterMessage::OnFind)
 END_EVENT_TABLE()
 
 
@@ -29,6 +31,7 @@ EnterMessage::EnterMessage(
 	citsock = sock;
 	citMyMDI = MyMDI;
 	ThisRoom = roomname;
+	finduser_panel = (SelectUser *) NULL;
 
         wxButton *cancel_button = new wxButton(
                 this,
@@ -99,7 +102,11 @@ EnterMessage::EnterMessage(
 	c9->height.AsIs();
 	toname->SetConstraints(c9);
 
-	wxButton *findrecp = new wxButton(this, -1, " Find ");
+        wxButton *findrecp = new wxButton(
+                this,
+                BUTTON_FIND,
+                " Find "
+		);
 
 	wxLayoutConstraints *d1 = new wxLayoutConstraints;
 	d1->centreY.SameAs(toname, wxCentreY);
@@ -130,6 +137,26 @@ EnterMessage::EnterMessage(
 
 void EnterMessage::OnCancel(wxCommandEvent& whichbutton) {
 	delete this;
+}
+
+
+// The user clicked "Find" ... so we have to go looking for a recipient.
+// Shove a FindUser panel right in front of everything else.
+//
+void EnterMessage::OnFind(wxCommandEvent& whichbutton) {
+	finduser_panel = new SelectUser(citsock, this,
+				"Please select a recipient",
+				"Recipients",
+				0,
+				toname);
+
+	wxLayoutConstraints *f1 = new wxLayoutConstraints;
+	f1->centreX.SameAs(this, wxCentreX);
+	f1->centreY.SameAs(this, wxCentreY);
+	f1->width.SameAs(this, wxWidth);
+	f1->height.SameAs(this, wxHeight);
+	finduser_panel->SetConstraints(f1);
+	Layout();
 }
 
 
