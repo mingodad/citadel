@@ -1,4 +1,7 @@
 $Log$
+Revision 1.357  1999/09/01 01:51:48  ajc
+* Added the ability to handle embedded URL's from the text client
+
 Revision 1.356  1999/09/01 01:02:47  ajc
 * Implemented "maximum message length" in global system config
 
@@ -1214,3 +1217,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

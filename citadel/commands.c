@@ -39,6 +39,7 @@
 #include "citadel_decls.h"
 #include "routines.h"
 #include "routines2.h"
+#include "tools.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -59,6 +60,9 @@ int rc_allow_attachments;
 int rc_display_message_numbers;
 int rc_force_mail_prompts;
 int rc_ansi_color;
+int num_urls = 0;
+char urls[MAXURLS][256];
+char rc_url_cmd[256];
 
 char *gl_string;
 int next_lazy_cmd = 5;
@@ -412,6 +416,7 @@ void load_command_set(void)
 	rc_display_message_numbers = 0;
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
+	strcpy(rc_url_cmd, "");
 
 	/* now try to open the citadel.rc file */
 
@@ -471,11 +476,11 @@ void load_command_set(void)
 			rc_force_mail_prompts = atoi(&buf[19]);
 		}
 		if (!struncmp(buf, "ansi_color=", 11)) {
-			if (!strncasecmp(&buf[11], "on", 2))
+			if (!struncmp(&buf[11], "on", 2))
 				rc_ansi_color = 1;
-			if (!strncasecmp(&buf[11], "auto", 4))
+			if (!struncmp(&buf[11], "auto", 4))
 				rc_ansi_color = 2;	/* autodetect */
-			if (!strncasecmp(&buf[11], "user", 4))
+			if (!struncmp(&buf[11], "user", 4))
 				rc_ansi_color = 3;	/* user config */
 		}
 		if (!struncmp(buf, "username=", 9))
@@ -483,6 +488,9 @@ void load_command_set(void)
 
 		if (!struncmp(buf, "password=", 9))
 			strcpy(rc_password, &buf[9]);
+
+		if (!struncmp(buf, "urlcmd=", 7))
+			strcpy(rc_url_cmd, &buf[7]);
 
 		if (!struncmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);
@@ -882,6 +890,8 @@ int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char su
 	char buffer[512];
 	int eof_flag = 0;
 
+	num_urls = 0;	/* Start with a clean slate of embedded URL's */
+
 	if (starting_lp >= 0) {
 		lines_printed = starting_lp;
 	}
@@ -893,7 +903,8 @@ int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char su
 	sigcaught = 0;
 	sttybbs(1);
 
-      FMTA:while ((eof_flag == 0) && (strlen(buffer) < 126)) {
+FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
+	
 		if (sigcaught)
 			goto OOPS;
 		if (fp != NULL) {	/* read from file */
@@ -919,6 +930,18 @@ int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char su
 			buffer[d] = 10;
 			buffer[d + 1] = 0;
 		}
+	}
+
+	if ( (!struncmp(buffer, "http://", 7))
+	   || (!struncmp(buffer, "ftp://", 6)) ) {
+		safestrncpy(urls[num_urls], buffer, 255);
+		for (a=0; a<strlen(urls[num_urls]); ++a) {
+			b = urls[num_urls][a];
+			if ( (b==' ') || (b==')') || (b=='>') || (b==10)
+			   || (b==13) || (b==9) )
+				urls[num_urls][a] = 0;
+		}
+		++num_urls;
 	}
 
 	buffer[strlen(buffer) + 1] = 0;

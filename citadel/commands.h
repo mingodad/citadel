@@ -22,6 +22,8 @@
 #define COLOR_PUSH	16	/* Save current color */
 #define COLOR_POP	17	/* Restore saved color */
 
+#define MAXURLS		50	/* Max embedded URL's per message */
+
 /*
  * declarations
  */
@@ -45,3 +47,7 @@ extern int enable_color;
 int yesno(void);
 int yesno_d(int d);
 void keyopt(char *);
+
+extern int num_urls;
+extern char urls[MAXURLS][256];
+extern char rc_url_cmd[256];

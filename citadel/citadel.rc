@@ -78,6 +78,13 @@ allow_attachments=0
 #
 #password=mypassword
 
+# If URLCMD is defined, users can hit 'U' after reading a message which
+# contains embedded URL's, and the command will be executed.  Usually this
+# will be used to remote-control a web browser.  (Do not enable this command
+# for 'safe' public clients.)
+#
+#urlcmd=netscape -remote "openURL(%s)"
+
 
 # COMMAND SET CONFIGURATION
 #

@@ -904,6 +904,31 @@ int line,qstart,qend;
 	}
 
 
+
+/*
+ * List the URL's which were embedded in the previous message
+ */
+void list_urls() {
+	int i;
+	char cmd[256];
+
+	if (num_urls == 0) {
+		printf("There were no URL's in the previous message.\n\n");
+		return;
+	}
+
+	for (i=0; i<num_urls; ++i) {
+		printf("%3d %s\n", i+1, urls[i]);
+	}
+
+	i = intprompt("Display which one", 1, 1, num_urls);
+
+	sprintf(cmd, rc_url_cmd, urls[i-1]);
+	system(cmd);
+	printf("\n");
+}
+
+
 void readmsgs(int c, int rdir, int q)	/* read contents of a room */
       		/* 0=Read all  1=Read new  2=Read old 3=Read last q */
          	/* 1=Forward (-1)=Reverse */
@@ -1041,10 +1066,12 @@ RMSGREAD:	fflush(stdout);
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
 /* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
 /* can't file if not allowed */	if ((e=='f')&&(rc_allow_attachments==0)) e=0;
+/* link only if browser avail*/	if ((e=='u')&&(strlen(rc_url_cmd)==0)) e=0;
 				} while((e!='a')&&(e!='n')&&(e!='s')
 					&&(e!='d')&&(e!='m')&&(e!='p')
 					&&(e!='q')&&(e!='b')&&(e!='h')
-					&&(e!='r')&&(e!='f')&&(e!='?'));
+					&&(e!='r')&&(e!='f')&&(e!='?')
+					&&(e!='u'));
 			switch(e) {
 				case 's':	printf("Stop\r");	break;
 				case 'a':	printf("Again\r");	break;
@@ -1057,6 +1084,7 @@ RMSGREAD:	fflush(stdout);
 				case 'h':	printf("Header\r");	break;
 				case 'r':	printf("Reply\r");	break;
 				case 'f':	printf("File\r");	break;
+				case 'u':	printf("URL's\r");	break;
 				case '?':	printf("? <help>\r");	break;
 				}
 			if (userflags & US_DISAPPEAR)
@@ -1085,6 +1113,8 @@ RMSGREAD:	fflush(stdout);
 					printf(" R  Reply to this message\n");
 				if (rc_allow_attachments)
 					printf(" F  (save attachments to a file)\n");
+				if (strlen(rc_url_cmd)>0)
+					printf(" U  (list URL's for display)\n");
 				printf("\n");
 				goto RMSGREAD;
 		   case 'p':	fflush(stdout);
@@ -1148,6 +1178,8 @@ RMSGREAD:	fflush(stdout);
 		   case 'h':	read_message(msg_arr[a],READ_HEADER);
 				goto RMSGREAD;
 		   case 'r':	entmsg(1,(DEFAULT_ENTRY==46 ? 2 : 0));
+				goto RMSGREAD;
+		   case 'u':	list_urls();
 				goto RMSGREAD;
 			}
 		} /* end for loop */
