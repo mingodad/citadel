@@ -75,6 +75,7 @@ int rc_force_mail_prompts;
 int rc_remember_passwords;
 int rc_ansi_color;
 int num_urls = 0;
+int rc_prompt_control = 0;
 char urls[MAXURLS][SIZ];
 char rc_url_cmd[SIZ];
 
@@ -688,7 +689,9 @@ void load_command_set(void)
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
 	rc_encrypt = RC_DEFAULT;
+#ifdef HAVE_CURSES_H
 	rc_screen = RC_DEFAULT;
+#endif
 	rc_alt_semantics = 0;
 
 	/* now try to open the citadel.rc file */
@@ -699,11 +702,11 @@ void load_command_set(void)
 		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {
-		ccfile = fopen("/usr/local/lib/citadel.rc", "r");
-	}
-	if (ccfile == NULL) {
 		snprintf(buf, sizeof buf, "%s/citadel.rc", BBSDIR);
 		ccfile = fopen(buf, "r");
+	}
+	if (ccfile == NULL) {
+		ccfile = fopen("/etc/citadel.rc", "r");
 	}
 	if (ccfile == NULL) {
 		ccfile = fopen("./citadel.rc", "r");
@@ -725,12 +728,14 @@ void load_command_set(void)
 				rc_encrypt = RC_DEFAULT;
 		}
 
+#ifdef HAVE_CURSES_H
 		if (!strncasecmp(buf, "fullscreen=", 11)) {
 			if (!strcasecmp(&buf[11], "yes"))
 				rc_screen = RC_YES;
 			else if (!strcasecmp(&buf[11], "no"))
 				rc_screen = RC_NO;
 		}
+#endif
 
 		if (!strncasecmp(buf, "editor=", 7))
 			strcpy(editor_path, &buf[7]);
@@ -774,6 +779,12 @@ void load_command_set(void)
 				rc_ansi_color = 2;	/* autodetect */
 			if (!strncasecmp(&buf[11], "user", 4))
 				rc_ansi_color = 3;	/* user config */
+		}
+		if (!strncasecmp(buf, "prompt_control=", 15)) {
+			if (!strncasecmp(&buf[15], "on", 2))
+				rc_prompt_control = 1;
+			if (!strncasecmp(&buf[15], "user", 4))
+				rc_prompt_control = 3;	/* user config */
 		}
 		if (!strncasecmp(buf, "username=", 9))
 			strcpy(rc_username, &buf[9]);

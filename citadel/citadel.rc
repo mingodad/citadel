@@ -5,8 +5,8 @@
 #
 # The standard client looks for this file in:
 # 1. $HOME/.citadelrc
-# 2. /usr/local/lib/citadel.rc
-# 3. <compiled BBSDIR>/citadel.rc
+# 2. <compiled BBSDIR>/citadel.rc
+# 3. /etc/citadel.rc
 # 4. <current directory>/citadel.rc
 
 # Set ENCRYPT to yes to force SSL/TLS encryption when connecting to a
@@ -16,7 +16,7 @@
 # systems on the same machine as the client.
 encrypt=default
 
-# Set FULLSCREN to yes to (attempt to) use full-screen curses mode.
+# Set FULLSCREEN to yes to (attempt to) use full-screen curses mode.
 # This mode presents a status line and a few other niceties.  Some
 # people might not like this, so you can turn it off here or with the
 # -s command line option.  The default is to use full screen if the
@@ -52,6 +52,12 @@ local_screen_dimensions=1
 # attempted.  If it is set to "user" then it's a user-configurable option.
 #
 ansi_color=user
+
+# PROMPT_CONTROL should be set to on/off/user to control whether the <N>ext
+# and <S>top keys are active when displaying the paginator prompt.  If it
+# is set to "user" then it's a user-configurable option.
+#
+prompt_control=user
 
 # If DISPLAY_MESSAGE_NUMBERS is set to 1, then messages will be displayed
 # with their message numbers in the header.  This is ugly but some

@@ -70,6 +70,7 @@ extern char sigcaught;
 extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
 extern int rc_ansi_color;
+extern int rc_prompt_control;
 
 void back(int spaces) /* Destructive backspace */
             {
@@ -92,10 +93,13 @@ void hit_any_key(void) {		/* hit any key to continue */
 		scr_putc(' ');
 	scr_putc(13);
 	sttybbs(1);
-	if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
-		b = STOP_KEY;
-	if (b == 'n' || b == 'N')
-		b = NEXT_KEY;
+	if ( (rc_prompt_control == 1)
+	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
+		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
+			b = STOP_KEY;
+		if (b == 'n' || b == 'N')
+			b = NEXT_KEY;
+	}
 	if (b==NEXT_KEY) sigcaught = SIGINT;
 	if (b==STOP_KEY) sigcaught = SIGQUIT;
 }
@@ -222,6 +226,10 @@ void enter_config(int mode)
 	    flags = set_attr(flags,"Use 'disappearing' prompts",US_DISAPPEAR);
 	 flags = set_attr(flags,
 		"Pause after each screenful of text",US_PAGINATOR);
+	 if ( (rc_prompt_control == 3) && (flags & US_PAGINATOR) ) {
+		flags = set_attr(flags,
+		"<N>ext and <S>top work at paginator prompt", US_PROMPTCTL);
+	 }
 	 if (rc_floor_mode == RC_DEFAULT) {
 	  flags = set_attr(flags,
 		"View rooms by floor",US_FLOORS);

@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.109  2002/02/12 20:15:25  ajc
+ * Threw in a few more #ifdef's so the client build doesn't barf on
+   non-curses systems
+ * Added rc_prompt_control (<N>ext/<S>top active at paginator: on/off/user)
+
  Revision 590.108  2002/02/11 15:52:10  ajc
  * Don't crash when deleting "purge this vCard" messages
 
@@ -3326,4 +3331,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -69,6 +69,7 @@ struct CtdlServInfo {
 #define US_EXPERT	32		/* Experienced user		    */
 #define US_UNLISTED	64		/* Unlisted userlog entry           */
 #define US_NOPROMPT	128		/* Don't prompt after each message  */
+#define US_PROMPTCTL	256		/* <N>ext & <S>top work at prompt   */
 #define US_DISAPPEAR	512		/* Use "disappearing msg prompts"   */
 #define US_REGIS	1024		/* Registered user                  */
 #define US_PAGINATOR	2048		/* Pause after each screen of text  */
@@ -77,7 +78,7 @@ struct CtdlServInfo {
 #define US_COLOR	16384		/* User wants ANSI color support    */
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
-			US_FLOORS | US_COLOR )
+			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
 void serv_puts(char *buf);
 void serv_gets(char *buf);

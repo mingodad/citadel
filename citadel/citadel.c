@@ -915,7 +915,9 @@ int main(int argc, char **argv)
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
 
 	arg_encrypt = RC_DEFAULT;
+#ifdef HAVE_CURSES_H
 	arg_screen = RC_DEFAULT;
+#endif
 
 	/* 
 	 * Handle command line options as if we were called like /bin/login
@@ -935,11 +937,15 @@ int main(int argc, char **argv)
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-s")) {
+#ifdef HAVE_CURSES_H
 			arg_screen = RC_NO;
+#endif
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-S")) {
+#ifdef HAVE_CURSES_H
 			arg_screen = RC_YES;
+#endif
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-p")) {
