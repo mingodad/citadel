@@ -160,7 +160,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	h0->top.Below(humannode, 10);
 	h0->bottom.Above(username, -10);
 	h0->left.SameAs(this, wxLeft, 10);
-	h0->right.SameAs(this, wxRight, -20);
+	h0->width.SameAs(this, wxWidth, -20);
 	hello->SetConstraints(h0);
 
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;
@@ -245,7 +245,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 			sendbuf = "PASS ";
 			sendbuf += password->GetValue();
 			r = citsock->serv_trans(sendbuf, recvbuf);
-			if (r != 3) {
+			if (r != 2) {
 				wxMessageDialog nopass(this,
 					recvbuf,
 					"Error",

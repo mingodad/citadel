@@ -98,7 +98,7 @@ int CitClient::serv_trans(
 
 	serv_puts(command);
 	serv_gets(response);
-	if (response.Length()==0) serv_gets(response);  //FIX vile sleazy hack
+	// if (response.Length()==0) serv_gets(response);
 	first_digit = (response.GetChar(0)) - '0';
 
 	if (first_digit == 1) {			// LISTING_FOLLOWS
