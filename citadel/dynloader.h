@@ -1,5 +1,10 @@
 /* $Id$ */
 
+#ifndef DYNLOADER_H
+#define DYNLOADER_H
+
+#include "server.h"
+
 void DLoader_Init(char *pathname);
 int DLoader_Exec_Cmd(char *cmdbuf);
 char *Dynamic_Module_Init(void);
@@ -27,3 +32,4 @@ void CtdlRegisterServiceHook(int tcp_port,
                         void (*h_greeting_function) (void),
                         void (*h_command_function) (void) ) ;
 
+#endif /* DYNLOADER_H */

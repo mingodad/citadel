@@ -5,6 +5,10 @@
  * to users on the Citadel system.
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -32,6 +36,7 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"

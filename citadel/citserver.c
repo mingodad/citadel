@@ -5,6 +5,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -36,6 +40,7 @@
 #include <arpa/inet.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "config.h"
@@ -48,7 +53,6 @@
 #include "locate_host.h"
 #include "room_ops.h"
 #include "file_ops.h"
-#include "dynloader.h"
 #include "policy.h"
 #include "control.h"
 #include "tools.h"

@@ -22,22 +22,24 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 CX=@CX@
 
+SMTP=@SMTP@
+
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
-SERVER_TARGETS=citserver setup $(CHKPWD)
-SERV_MODULES=modules/serv_chat.la modules/serv_vcard.la \
-	modules/serv_upgrade.la \
-	modules/serv_smtp.la \
-	modules/serv_pop3.la \
-	modules/serv_imap.la \
-	modules/serv_network.la \
-	modules/serv_pas2.la \
-	modules/serv_inetcfg.la \
-	modules/serv_rwho.la \
-	modules/serv_moderate.la \
-	modules/serv_bio.la \
-	modules/serv_expire.la \
-	modules/serv_vandelay.la \
-	modules/serv_ical.la
+SERVER_TARGETS=libcitserver.la citserver setup $(CHKPWD)
+SERV_MODULES=modules/libchat.la modules/libvcard.la \
+	modules/libupgrade.la \
+	$(SMTP) \
+	modules/libpop3.la \
+	modules/libimap.la \
+	modules/libnetwork.la \
+	modules/libpas2.la \
+	modules/libinetcfg.la \
+	modules/librwho.la \
+	modules/libmoderate.la \
+	modules/libbio.la \
+	modules/libexpire.la \
+	modules/libvandelay.la \
+	modules/libical.la
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
@@ -70,11 +72,13 @@ YACC=@YACC@
 DATABASE=@DATABASE@
 
 LIBTOOL=./libtool
-LTSHARE=$(LIBTOOL) $(CC) -rpath $(prefix)/modules -module -avoid-version
+LTSHARE=cd modules && ../$(LIBTOOL) $(CC) -rpath $(prefix)/modules -no-undefined -avoid-version -module
 
 # End configuration section
 
 VPATH=$(srcdir)
+
+DOMAIN=@DOMAIN@
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c $(DATABASE) dynloader.c file_ops.c \
@@ -87,10 +91,10 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
-	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
+	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	serv_moderate.c client_passwords.c imap_misc.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
-	serv_network.c serv_pas2.c serv_ical.c md5.c
+	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -102,6 +106,7 @@ utils: $(UTIL_TARGETS)
 
 serv_modules: $(SERV_MODULES)
 	@cd modules && mods=`echo .libs/*.s[ol]` && test "$$mods" != '.libs/*.s[ol]' && ln -sf $$mods . || true
+	@cd modules && mods=`echo .libs/*.dll` && test "$$mods" != '.libs/*.dll' && ln -sf $$mods . || true
 
 #
 #
@@ -130,18 +135,22 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 #
 #
 
-SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
-	msgbase.ro config.ro sysdep.ro locate_host.ro housekeeping.ro \
-	$(DATABASE:.c=.ro) control.ro logging.ro policy.ro dynloader.ro tools.ro \
-	mime_parser.ro html.ro internet_addressing.ro \
-	parsedate.ro genstamp.ro clientsocket.ro \
-	$(AUTH) $(LIBOBJS:.o=.ro)
+SERV_OBJS = server_main.ro
 
 parsedate.ro: parsedate.c
 
-citserver: $(SERV_OBJS) $(LIBTOOL)
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(SERV_OBJS) $(LDFLAGS) $(PTHREAD_LIBS) \
-	$(LIBS) $(NETLIBS) $(GDBM) $(RESOLV) -o citserver
+LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABASE:.c=.lo) \
+	control.lo policy.lo config.lo support.lo room_ops.lo file_ops.lo msgbase.lo \
+	locate_host.lo housekeeping.lo logging.lo mime_parser.lo html.lo internet_addressing.lo \
+	parsedate.lo genstamp.lo clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
+
+libcitserver.la: $(LIBSERV_OBJS)
+	$(LIBTOOL) $(CC) -rpath $(prefix) -no-undefined -avoid-version \
+	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM)
+
+citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
+	$(LIBTOOL) --mode=link $(CC) $(SERV_OBJS) $(LDFLAGS) $(PTHREAD_LIBS) \
+	$(LIBS) $(NETLIBS) $(RESOLV) libcitserver.la -o citserver
 
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
@@ -150,58 +159,59 @@ citserver: $(SERV_OBJS) $(LIBTOOL)
 	@test -d modules || mkdir -p modules
 	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
-modules/serv_chat.la: serv_chat.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_chat.la serv_chat.lo
+modules/libchat.la: serv_chat.lo libcitserver.la $(LIBTOOL)
+	$(LTSHARE) -o libchat.la ../serv_chat.lo ../libcitserver.la
 
-modules/serv_test.la: serv_test.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_test.la serv_test.lo
+modules/libtest.la: serv_test.lo libcitserver.la $(LIBTOOL)
+	$(LTSHARE) -o libtest.la ../serv_test.lo ../libcitserver.la
 
-modules/serv_pop3.la: serv_pop3.lo md5.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_pop3.la serv_pop3.lo md5.lo
+modules/libpop3.la: serv_pop3.lo md5.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libpop3.la ../serv_pop3.lo ../md5.lo ../libcitserver.la
 
-modules/serv_inetcfg.la: serv_inetcfg.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_inetcfg.la serv_inetcfg.lo
+modules/libinetcfg.la: serv_inetcfg.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libinetcfg.la ../serv_inetcfg.lo ../libcitserver.la
 
-modules/serv_rwho.la: serv_rwho.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_rwho.la serv_rwho.lo
+modules/librwho.la: serv_rwho.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o librwho.la ../serv_rwho.lo ../libcitserver.la
 
-modules/serv_moderate.la: serv_moderate.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_moderate.la serv_moderate.lo
+modules/libmoderate.la: serv_moderate.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libmoderate.la ../serv_moderate.lo ../libcitserver.la
 
-modules/serv_bio.la: serv_bio.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_bio.la serv_bio.lo
+modules/libbio.la: serv_bio.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libbio.la ../serv_bio.lo ../libcitserver.la
 
-modules/serv_expire.la: serv_expire.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_expire.la serv_expire.lo
+modules/libexpire.la: serv_expire.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libexpire.la ../serv_expire.lo ../libcitserver.la
 
-modules/serv_vandelay.la: serv_vandelay.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_vandelay.la serv_vandelay.lo
+modules/libvandelay.la: serv_vandelay.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libvandelay.la ../serv_vandelay.lo ../libcitserver.la
 
-modules/serv_network.la: serv_network.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_network.la serv_network.lo
+modules/libnetwork.la: serv_network.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libnetwork.la ../serv_network.lo ../libcitserver.la
 
-modules/serv_upgrade.la: serv_upgrade.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_upgrade.la serv_upgrade.lo
+modules/libupgrade.la: serv_upgrade.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libupgrade.la ../serv_upgrade.lo ../libcitserver.la
 
-modules/serv_vcard.la: serv_vcard.lo vcard.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_vcard.la serv_vcard.lo vcard.lo
+modules/libvcard.la: serv_vcard.lo vcard.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libvcard.la ../serv_vcard.lo ../vcard.lo ../libcitserver.la
 
-modules/serv_smtp.la: serv_smtp.lo domain.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_smtp.la serv_smtp.lo domain.lo
+modules/libsmtp.la: serv_smtp.lo domain.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libsmtp.la ../serv_smtp.lo ../domain.lo ../libcitserver.la
 
-modules/serv_imap.la: serv_imap.lo imap_tools.lo imap_fetch.lo \
-	imap_search.lo imap_store.lo imap_misc.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_imap.la imap_tools.lo serv_imap.lo \
-		imap_fetch.lo imap_search.lo imap_store.lo imap_misc.lo
 
-aidepost: aidepost.o config.o $(LIBOBJS)
-	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost
+modules/libimap.la: serv_imap.lo imap_tools.lo imap_fetch.lo \
+	imap_search.lo imap_store.lo imap_misc.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libimap.la ../imap_tools.lo ../serv_imap.lo \
+		../imap_fetch.lo ../imap_search.lo ../imap_store.lo ../imap_misc.lo ../libcitserver.la
 
-modules/serv_pas2.la: serv_pas2.lo md5.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_pas2.la serv_pas2.lo md5.lo
+aidepost: aidepost.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) aidepost.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o aidepost
 
-modules/serv_ical.la: serv_ical.lo $(LIBTOOL)
-	$(LTSHARE) -o modules/serv_ical.la serv_ical.lo
+modules/libpas2.la: serv_pas2.lo md5.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libpas2.la ../serv_pas2.lo ../md5.lo ../libcitserver.la
+
+modules/libical.la: serv_ical.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libical.la ../serv_ical.lo ../libcitserver.la
 
 
 
@@ -236,8 +246,8 @@ netsetup: netsetup.o config.o
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(NETLIBS)
 
-sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
-	$(CC) sendcommand.o ipc_c_tcp.o tools.o config.o \
+sendcommand: sendcommand.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o libcitserver.la \
 	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS)
 
 qpdecode: qpdecode.o
@@ -259,8 +269,8 @@ readlog: readlog.o config.o
 rcit: rcit.o config.o
 	$(CC) rcit.o config.o $(LDFLAGS) -o rcit
 
-stats: stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
-	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
+stats: stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
@@ -292,11 +302,15 @@ install-exec: all weekly
 	@for i in bio bitbucket files images info modules userpics; do \
 		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
-	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
-		 $(SERV_MODULES) ; do \
+	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS); do \
 		if test -f $$i; then \
 			echo $(LIBTOOL) --mode=install $(INSTALL) $$i $(root)$(prefix)/$$i; \
 			$(LIBTOOL) --mode=install $(INSTALL) $$i $(root)$(prefix)/$$i; \
+		fi \
+	done
+	@for i in $(SERV_MODULES) ; do \
+		if test -f $$i; then \
+			(cd modules && ../$(LIBTOOL) --mode=install $(INSTALL) `basename $$i` $(root)$(prefix)/$$i) ; \
 		fi \
 	done
 	@for i in utilsmenu weekly dnetsetup; do \
@@ -323,7 +337,7 @@ distclean: cleaner
 
 .c.d:
 	@echo Checking dependencies for $<
-	@$(CC) -M $(CPPFLAGS) $(PTHREAD_DEFS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@
+	@$(CC) -M $(CPPFLAGS) $(PTHREAD_DEFS) $< | sed -e 's!$*.o!$*.o $*.ro $*.lo $@!' > $@
 	@test -s $@ || rm -f $@
 
 Makefile: $(srcdir)/Makefile.in config.status

@@ -8,6 +8,25 @@
 /*
  * New format for a message in memory
  */
+
+#ifndef SERVER_H
+#define SERVER_H
+
+#ifdef __CYGWIN__
+
+#ifdef IN_LIBCIT
+#define DLEXP __declspec(dllexport)
+#else
+#define DLEXP __declspec(dllimport)
+#endif
+
+#else
+#define DLEXP
+
+#endif /* __CYGWIN__ */
+
+#include "citadel.h"
+
 #define	CTDLMESSAGE_MAGIC		0x159d
 struct CtdlMessage {
 	int cm_magic;			/* Self-check */
@@ -129,9 +148,9 @@ enum {
 struct CitContext *MyContext(void);
 #define CC ((struct CitContext *)MyContext())
 
-extern struct CitContext *ContextList;
-extern int ScheduledShutdown;
-extern struct CitControl CitControl;
+extern DLEXP struct CitContext *ContextList;
+extern DLEXP int ScheduledShutdown;
+extern DLEXP struct CitControl CitControl;
 
 
 struct ExpressMessage {
@@ -229,13 +248,13 @@ struct LogFunctionHook {
 	int loglevel;
 	void (*h_function_pointer) (char *);
 };
-extern struct LogFunctionHook *LogHookTable;
+extern DLEXP struct LogFunctionHook *LogHookTable;
 
 struct CleanupFunctionHook {
 	struct CleanupFunctionHook *next;
 	void (*h_function_pointer) (void);
 };
-extern struct CleanupFunctionHook *CleanupHookTable;
+extern DLEXP struct CleanupFunctionHook *CleanupHookTable;
 
 
 
@@ -251,7 +270,7 @@ struct SessionFunctionHook {
 	void (*h_function_pointer) (void);
 	int eventtype;
 };
-extern struct SessionFunctionHook *SessionHookTable;
+extern DLEXP struct SessionFunctionHook *SessionHookTable;
 
 /* 
  * Event types can't be enum'ed, because they must remain consistent between
@@ -279,7 +298,7 @@ struct UserFunctionHook {
 	void (*h_function_pointer) (char *username, long usernum);
 	int eventtype;
 };
-extern struct UserFunctionHook *UserHookTable;
+extern DLEXP struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
@@ -293,7 +312,7 @@ struct MessageFunctionHook {
 	int (*h_function_pointer) (struct CtdlMessage *msg);
 	int eventtype;
 };
-extern struct MessageFunctionHook *MessageHookTable;
+extern DLEXP struct MessageFunctionHook *MessageHookTable;
 
 #define EVT_BEFOREREAD	200
 #define EVT_BEFORESAVE	201
@@ -311,7 +330,7 @@ struct XmsgFunctionHook {
 	int (*h_function_pointer) (char *, char *, char *);
 	int order;
 };
-extern struct XmsgFunctionHook *XmsgHookTable;
+extern DLEXP struct XmsgFunctionHook *XmsgHookTable;
 
 /* Priority levels for paging functions (lower is better) */
 enum {
@@ -335,7 +354,7 @@ struct ServiceFunctionHook {
 	void (*h_command_function) (void) ;
 	int msock;
 };
-extern struct ServiceFunctionHook *ServiceHookTable;
+extern DLEXP struct ServiceFunctionHook *ServiceHookTable;
 
 
 
@@ -394,7 +413,7 @@ struct TheHeap {
 	void *h_ptr;
 };
 
-extern struct TheHeap *heap;
+extern DLEXP struct TheHeap *heap;
 
 #else
 
@@ -421,3 +440,5 @@ struct ser_ret {
 /*                         ***************	Semi-important fields */
 /*                                        * 	Message text (MUST be last) */
 #define FORDER	"IPTAFONHRDBCEGJKLQSUVWXYZM"
+
+#endif /* SERVER_H */

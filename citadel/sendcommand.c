@@ -32,13 +32,11 @@
 #include "citadel.h"
 #include "tools.h"
 #include "ipc.h"
+#include "server.h"
+#include "dynloader.h"
 #include "config.h"
 
 #define LOCKFILE "/tmp/LCK.sendcommand"
-
-struct config config;
-extern int home_specified;
-
 
 /*
  * make sure only one copy of sendcommand runs at a time, using lock files

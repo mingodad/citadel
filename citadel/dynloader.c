@@ -6,6 +6,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,7 +102,11 @@ void DLoader_Init(char *pathname)
 	while ((dptr = readdir(dir)) != NULL) {
 		if (strlen(dptr->d_name) < 4)
 			continue;
+#ifndef __CYGWIN__
 		if (strcasecmp(&dptr->d_name[strlen(dptr->d_name)-3], ".so"))
+#else
+		if (strcasecmp(&dptr->d_name[strlen(dptr->d_name)-4], ".dll"))
+#endif
 			continue;
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);

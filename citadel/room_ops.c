@@ -4,6 +4,11 @@
  * Server functions which perform operations on room objects.
  *
  */
+
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,6 +31,7 @@
 #include <errno.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "database.h"
 #include "config.h"
 #include "room_ops.h"

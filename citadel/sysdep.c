@@ -12,6 +12,9 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -54,13 +57,13 @@
 #endif
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "database.h"
 #include "housekeeping.h"
-#include "dynloader.h"
 #include "tools.h"
 
 #ifdef HAVE_SYS_SELECT_H
@@ -89,7 +92,7 @@ int num_sessions = 0;				/* Current number of sessions */
 fd_set masterfds;				/* Master sockets etc. */
 int masterhighest;
 
-static pthread_t initial_thread;		/* tid for main() thread */
+pthread_t initial_thread;		/* tid for main() thread */
 
 
 /*
@@ -759,17 +762,14 @@ int convert_login(char NameToConvert[]) {
 	}
 }
 
-static struct worker_node {
-	pthread_t tid;
-	struct worker_node *next;
-} *worker_list = NULL;
+struct worker_node *worker_list = NULL;
 
 
 /*
  * create a worker thread. this function must always be called from within
  * an S_WORKER_LIST critical section!
  */
-static void create_worker(void) {
+void create_worker(void) {
 	int ret;
 	struct worker_node *n = mallok(sizeof *n);
 
@@ -933,196 +933,6 @@ void init_master_fdset(void) {
 		}
 	}
 	lprintf(9, "masterhighest = %d\n", masterhighest);
-}
-
-
-
-/*
- * Here's where it all begins.
- */
-int main(int argc, char **argv)
-{
-	char tracefile[128];		/* Name of file to log traces to */
-	int a, i;			/* General-purpose variables */
-	struct passwd *pw;
-	int drop_root_perms = 1;
-	char *moddir;
-	struct worker_node *wnp;
-        
-	/* specify default port name and trace file */
-	strcpy(tracefile, "");
-
-	/* initialize the master context */
-	InitializeMasterCC();
-
-	/* parse command-line arguments */
-	for (a=1; a<argc; ++a) {
-
-		/* -t specifies where to log trace messages to */
-		if (!strncmp(argv[a], "-t", 2)) {
-			strcpy(tracefile, argv[a]);
-			strcpy(tracefile, &tracefile[2]);
-			freopen(tracefile, "r", stdin);
-			freopen(tracefile, "w", stdout);
-			freopen(tracefile, "w", stderr);
-		}
-
-		/* run in the background if -d was specified */
-		else if (!strcmp(argv[a], "-d")) {
-			start_daemon( (strlen(tracefile) > 0) ? 0 : 1 ) ;
-		}
-
-		/* -x specifies the desired logging level */
-		else if (!strncmp(argv[a], "-x", 2)) {
-			verbosity = atoi(&argv[a][2]);
-		}
-
-		else if (!strncmp(argv[a], "-h", 2)) {
-			safestrncpy(bbs_home_directory, &argv[a][2],
-				    sizeof bbs_home_directory);
-			home_specified = 1;
-		}
-
-		else if (!strncmp(argv[a], "-f", 2)) {
-			do_defrag = 1;
-		}
-
-		/* -r tells the server not to drop root permissions. don't use
-		 * this unless you know what you're doing. this should be
-		 * removed in the next release if it proves unnecessary. */
-		else if (!strcmp(argv[a], "-r"))
-			drop_root_perms = 0;
-
-		/* any other parameter makes it crash and burn */
-		else {
-			lprintf(1,	"citserver: usage: "
-					"citserver [-tTraceFile] [-d] [-f]"
-					" [-xLogLevel] [-hHomeDir]\n");
-			exit(1);
-		}
-
-	}
-
-	/* Tell 'em who's in da house */
-	lprintf(1,
-"\nMultithreaded message server for Citadel/UX\n"
-"Copyright (C) 1987-2001 by the Citadel/UX development team.\n"
-"Citadel/UX is free software, covered by the GNU General Public License, and\n"
-"you are welcome to change it and/or distribute copies of it under certain\n"
-"conditions.  There is absolutely no warranty for this software.  Please\n"
-"read the 'COPYING.txt' file for details.\n\n");
-
-	/* Initialize... */
-	init_sysdep();
-	openlog("citserver", LOG_PID, LOG_USER);
-
-	/* Load site-specific parameters */
-	lprintf(7, "Loading citadel.config\n");
-	get_config();
-
-
-	/*
-	 * Do non system dependent startup functions.
-	 */
-	master_startup();
-
-	/*
-	 * Bind the server to a Unix-domain socket.
-	 */
-	CtdlRegisterServiceHook(0,
-				"citadel.socket",
-				citproto_begin_session,
-				do_command_loop);
-
-	/*
-	 * Bind the server to our favorite TCP port (usually 504).
-	 */
-	CtdlRegisterServiceHook(config.c_port_number,
-				NULL,
-				citproto_begin_session,
-				do_command_loop);
-
-	/*
-	 * Load any server-side modules (plugins) available here.
-	 */
-	lprintf(7, "Initializing loadable modules\n");
-	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
-		sprintf(moddir, "%s/modules", bbs_home_directory);
-		DLoader_Init(moddir);
-		free(moddir);
-	}
-
-	/*
-	 * The rescan pipe exists so that worker threads can be woken up and
-	 * told to re-scan the context list for fd's to listen on.  This is
-	 * necessary, for example, when a context is about to go idle and needs
-	 * to get back on that list.
-	 */
-	if (pipe(rescan)) {
-		lprintf(1, "Can't create rescan pipe!\n");
-		exit(errno);
-	}
-
-	init_master_fdset();
-
-	/*
-	 * Now that we've bound the sockets, change to the BBS user id and its
-	 * corresponding group ids
-	 */
-	if (drop_root_perms) {
-		if ((pw = getpwuid(BBSUID)) == NULL)
-			lprintf(1, "WARNING: getpwuid(%d): %s\n"
-				   "Group IDs will be incorrect.\n", BBSUID,
-				strerror(errno));
-		else {
-			initgroups(pw->pw_name, pw->pw_gid);
-			if (setgid(pw->pw_gid))
-				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
-					strerror(errno));
-		}
-		lprintf(7, "Changing uid to %d\n", BBSUID);
-		if (setuid(BBSUID) != 0) {
-			lprintf(3, "setuid() failed: %s\n", strerror(errno));
-		}
-	}
-
-	/* We want to check for idle sessions once per minute */
-	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
-
-	/*
-	 * Now create a bunch of worker threads.
-	 */
-	lprintf(9, "Starting %d worker threads\n", config.c_min_workers-1);
-	begin_critical_section(S_WORKER_LIST);
-	for (i=0; i<(config.c_min_workers-1); ++i) {
-		create_worker();
-	}
-	end_critical_section(S_WORKER_LIST);
-
-	/* Now this thread can become a worker as well. */
-	initial_thread = pthread_self();
-	worker_thread(NULL);
-
-	/* Server is exiting. Wait for workers to shutdown. */
-	lprintf(7, "Waiting for worker threads to shut down\n");
-
-	begin_critical_section(S_WORKER_LIST);
-	while (worker_list != NULL) {
-		wnp = worker_list;
-		worker_list = wnp->next;
-
-		/* avoid deadlock with an exiting thread */
-		end_critical_section(S_WORKER_LIST);
-		if ((i = pthread_join(wnp->tid, NULL)))
-			lprintf(1, "pthread_join: %s\n", strerror(i));
-		phree(wnp);
-		begin_critical_section(S_WORKER_LIST);
-	}
-	end_critical_section(S_WORKER_LIST);
-
-	master_cleanup();
-
-	return(0);
 }
 
 

@@ -5,6 +5,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

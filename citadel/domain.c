@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <stdio.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
 #include "sysdep_decls.h"

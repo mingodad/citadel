@@ -19,6 +19,10 @@
 /* SUPPRESS 593 on yynewstate *//* Label was not used */
 /* SUPPRESS 595 on yypvt *//* Automatic variable may be used before set */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 
 #include <stdio.h>

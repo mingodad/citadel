@@ -31,13 +31,13 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include <syslog.h>
 #include "serv_chat.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "dynloader.h"
 #include "tools.h"
 #include "msgbase.h"
 #include "user_ops.h"
@@ -46,7 +46,6 @@
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
 
-extern struct CitContext *ContextList;
 
 
 

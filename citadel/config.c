@@ -6,6 +6,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -15,6 +19,8 @@
 #include <string.h>
 #include <limits.h>
 #include "citadel.h"
+#include "server.h"
+#include "dynloader.h"
 #include "config.h"
 
 struct config config;
@@ -53,10 +59,12 @@ void get_config(void) {
 		perror("citadel.config");
 		exit(1);
 	}
+#ifndef __CYGWIN__
 	if (st.st_uid != BBSUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
 		fprintf(stderr, "check the permissions on citadel.config\n");
 		exit(1);
 	}
+#endif
 	fclose(cfp);
 
 	if (config.c_setup_level < REV_MIN) {

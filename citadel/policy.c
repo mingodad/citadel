@@ -4,6 +4,10 @@
  * Functions which manage policy for rooms (such as message expiry)
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,6 +30,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
+#include "dynloader.h"
 #include "config.h"
 #include "room_ops.h"
 #include "sysdep_decls.h"

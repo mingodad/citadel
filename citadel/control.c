@@ -5,6 +5,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -32,6 +36,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
+#include "dynloader.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "config.h"

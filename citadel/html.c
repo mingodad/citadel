@@ -4,6 +4,10 @@
  * Functions which handle translation between HTML and plain text
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -29,6 +33,7 @@
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "control.h"
 #include "sysdep_decls.h"
 #include "support.h"

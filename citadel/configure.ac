@@ -101,6 +101,7 @@ if test "$GCC" = yes; then
 	esac
 fi
 AC_LIBTOOL_DLOPEN
+AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
@@ -173,7 +174,7 @@ if test "$enable_autologin" != no; then
 			AC_DEFINE(ENABLE_CHKPWD)
 			CHKPWD=chkpwd
 		else
-			AUTH=auth.ro
+			AUTH=auth.lo
 		fi
 	fi
 fi
@@ -218,6 +219,10 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
 AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
+
+AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c])
+AC_SUBST(SMTP)
+AC_SUBST(DOMAIN)
 
 dnl some systems require -pthread, -D_REENTRANT, etc to be passed to cc if we
 dnl include pthread.h:

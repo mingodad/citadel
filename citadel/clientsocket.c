@@ -8,6 +8,10 @@
  *
  */
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -23,6 +27,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"
+#include "server.h"
+#include "dynloader.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif

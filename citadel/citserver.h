@@ -1,4 +1,7 @@
 /* $Id$ */
+
+#include "dynloader.h"
+
 void master_startup (void);
 void master_cleanup (void);
 void RemoveContext (struct CitContext *);
@@ -28,7 +31,7 @@ void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);
-extern int do_defrag;
+extern DLEXP int do_defrag;
 char CtdlCheckExpress(void);
 
 int CtdlAccessCheck(int);

@@ -18,6 +18,10 @@
 
 /*****************************************************************************/
 
+#ifdef DLL_EXPORT
+#define IN_LIBCIT
+#endif
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -32,10 +36,10 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "citserver.h"
 #include "database.h"
 #include "sysdep_decls.h"
-#include "dynloader.h"
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */

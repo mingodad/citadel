@@ -3,6 +3,8 @@
  *
  */
 
+#include "server.h"
+
 struct internet_address_list {
 	struct internet_address_list *next;
 	char ial_user[SIZ];
@@ -39,4 +41,4 @@ enum {
 	hostalias_gatewaydomain
 };
 
-extern char *inetcfg;
+extern DLEXP char *inetcfg;

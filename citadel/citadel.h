@@ -6,6 +6,10 @@
  */
 
 /* system customizations are in sysconfig.h */
+
+#ifndef CITADEL_H
+#define CITADEL_H
+
 #include "sysdep.h"
 #include "sysconfig.h"
 #include "ipcdef.h"
@@ -266,3 +270,5 @@ struct floor {
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L
 #endif
+
+#endif /* CITADEL_H */

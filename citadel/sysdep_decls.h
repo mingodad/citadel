@@ -1,4 +1,7 @@
 /* $Id$ */
+
+#include "dynloader.h"
+
 void lprintf (int loglevel, const char *format, ...);
 void init_sysdep (void);
 void begin_critical_section (int which_one);
@@ -22,6 +25,17 @@ int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);
 inline void become_session(struct CitContext *which_con);
 void CtdlRedirectOutput(FILE *fp, int sock);
+void InitializeMasterCC(void);
+void init_master_fdset(void);
+void create_worker(void);
 
-extern int num_sessions;
-extern volatile int time_to_die;
+extern DLEXP int num_sessions;
+extern DLEXP volatile int time_to_die;
+extern DLEXP int verbosity;
+extern DLEXP int rescan[];
+extern DLEXP pthread_t initial_thread;
+
+extern DLEXP struct worker_node {
+        pthread_t tid;
+        struct worker_node *next;
+} *worker_list;
