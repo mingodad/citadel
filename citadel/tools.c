@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include "tools.h"
 
@@ -213,4 +214,63 @@ void decode_base64(char *dest, char *source)
 	    return;
 	}
     }
+}
+
+
+
+/*
+ * Strip leading and trailing spaces from a string
+ */
+void striplt(char *buf)
+{
+        while ((strlen(buf) > 0) && (buf[0] == 32))
+                strcpy(buf, &buf[1]);
+        while (buf[strlen(buf) - 1] == 32)
+                buf[strlen(buf) - 1] = 0;
+}
+
+
+
+
+
+/* 
+ * Return the number of occurances of character ch in string st
+ */ 
+int haschar(char *st, int ch)
+{
+	int a, b;
+	b = 0;
+	for (a = 0; a < strlen(st); ++a)
+		if (st[a] == ch)
+			++b;
+	return (b);
+}
+
+
+
+
+/*
+ * Compare two strings, insensitive to case, punctuation, and non-alnum chars
+ */
+int collapsed_strcmp(char *s1, char *s2) {
+	char *c1, *c2;
+	int i, ret;
+
+	c1 = strdup(s1);
+	c2 = strdup(s2);
+
+	for (i=0; i<strlen(c1); ++i) {
+		if (isupper(c1[i])) c1[i]=tolower(c1[i]);
+		while (!isalnum(c1[i])) strcpy(&c1[i], &c1[i+1]);
+	}
+
+	for (i=0; i<strlen(c2); ++i) {
+		if (isupper(c2[i])) c2[i]=tolower(c2[i]);
+		while (!isalnum(c2[i])) strcpy(&c2[i], &c2[i+1]);
+	}
+
+	ret = strcmp(c1, c2);
+	free(c1);
+	free(c2);
+	return(ret);
 }

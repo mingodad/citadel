@@ -64,7 +64,7 @@ struct CitContext {
 	char temp[32];		/* temp file name */
 	int nologin;		/* not allowed to log in */
 
-	char net_node[32];
+	char net_node[32];	/* Is the client another Citadel server? */
 	int client_socket;
 	int cs_pid;		/* session ID */
 	time_t cs_lastupdt;	/* time of last update */
@@ -72,7 +72,7 @@ struct CitContext {
 	time_t lastidle;	/* For computing idle time */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
-	void (*h_command_function) (void) ;	/* proto command function */
+	void (*h_command_function) (void) ;	/* service command function */
 
 	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
@@ -99,7 +99,10 @@ struct CitContext {
 	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
 
 	int FloorBeingSearched;	/* This is used by cmd_lrms() etc.   */
-	struct CtdlSessData *FirstSessData;
+
+	struct CtdlSessData *FirstSessData;	/* Allocated session data */
+	char buffer1[256];		/* General-purpose workspace */
+	char buffer2[256];		/* General-purpose workspace */
 };
 
 typedef struct CitContext t_context;

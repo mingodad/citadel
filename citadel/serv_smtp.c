@@ -36,6 +36,7 @@ struct citsmtp {
 	struct usersupp vrfy_buffer;
 	int vrfy_count;
 	char vrfy_match[256];
+	char from[256];
 };
 
 enum {
@@ -88,6 +89,7 @@ void smtp_help(void) {
 	cprintf("214-    EXPN\n");
 	cprintf("214-    HELO\n");
 	cprintf("214-    HELP\n");
+	cprintf("214-    MAIL\n");
 	cprintf("214-    NOOP\n");
 	cprintf("214-    QUIT\n");
 	cprintf("214-    RSET\n");
@@ -247,7 +249,54 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
+	if (CC->logged_in) logout(CC);
 	cprintf("250 Zap!\n");
+}
+
+
+
+/*
+ * Implements the "MAIL From:" command
+ */
+void smtp_mail(char *argbuf) {
+	char user[256];
+	char node[256];
+	int cvt;
+
+	if (strlen(SMTP->from) != 0) {
+		cprintf("503 Only one sender permitted\n");
+		return;
+	}
+
+	if (strncasecmp(argbuf, "From:", 5)) {
+		cprintf("501 Syntax error\n");
+		return;
+	}
+
+	strcpy(SMTP->from, &argbuf[5]);
+	striplt(SMTP->from);
+
+	if (strlen(SMTP->from) == 0) {
+		cprintf("501 Empty sender name is not permitted\n");
+		return;
+	}
+
+
+	/* If this SMTP connection is from a logged-in user, make sure that
+	 * the user only sends email from his/her own address.
+	 */
+	if (CC->logged_in) {
+		lprintf(9, "Me-checking <%s>\n", SMTP->from);
+		cvt = convert_internet_address(user, node, SMTP->from);
+		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
+		if ( (cvt != 0) || (strcasecmp(user, CC->usersupp.fullname))) {
+			cprintf("550 <%s> is not your address.\n", SMTP->from);
+			strcpy(SMTP->from, "");
+			return;
+		}
+	}
+
+	cprintf("250 Sender ok.  Groovy.\n");
 }
 
 
@@ -294,6 +343,10 @@ void smtp_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "HELP", 4)) {
 		smtp_help();
+	}
+
+	else if (!strncasecmp(cmdbuf, "MAIL", 4)) {
+		smtp_mail(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
