@@ -670,7 +670,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 			*imap_fetch_bodystructure_pre,	/* pre-multi */
 			*imap_fetch_bodystructure_post,	/* post-multi */
 			NULL,
-			0);
+			1);	/* don't decode -- we want it as-is */
 }
 
 
