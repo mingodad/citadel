@@ -437,7 +437,7 @@ void session_startup(void)
 {
 	int i;
 
-	syslog(LOG_NOTICE, "session %d: user <%s> logged in",
+	syslog(LOG_NOTICE, "Session %d: %s logged in",
 	       CC->cs_pid, CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);
@@ -936,20 +936,25 @@ void cmd_setp(char *new_pw)
 
 
 /*
- * cmd_creu()  -  administratively create a new user account (do not log in to it)
+ * cmd_creu() - administratively create a new user account (do not log in to it)
  */
 void cmd_creu(char *cmdbuf)
 {
 	int a;
 	char username[SIZ];
+	char password[SIZ];
+	struct ctdluser tmp;
 
 	if (CtdlAccessCheck(ac_aide)) {
 		return;
 	}
 
 	extract(username, cmdbuf, 0);
+	extract(password, cmdbuf, 1);
 	username[25] = 0;
+	password[31] = 0;
 	strproc(username);
+	strproc(password);
 
 	if (strlen(username) == 0) {
 		cprintf("%d You must supply a user name.\n", ERROR);
@@ -959,7 +964,14 @@ void cmd_creu(char *cmdbuf)
 	a = create_user(username, 0);
 
 	if (a == 0) {
-		cprintf("%d ok\n", CIT_OK);
+		if (strlen(password) > 0) {
+			lgetuser(&tmp, username);
+			safestrncpy(tmp.password, new_pw, sizeof(tmp.password));
+			lputuser(&tmp);
+		}
+		cprintf("%d User '%s' created %s.\n", CIT_OK, username,
+				(strlen(password) > 0) ? "and password set" :
+				"with no password");
 		return;
 	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n",

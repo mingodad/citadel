@@ -205,16 +205,16 @@ ERROR.
 
  CREU   (CREate new User account)
 
- This command creates a new user account AND DOES NOT LOG IT IN.  The argument to
-this command will be the name of the account.  No case conversion is done
-on the name.  Note that the new account is installed with a default
-configuration, and no password.  This command returns OK if the account was created,
-or ERROR if another user already exists with this name.
+ This command creates a new user account AND DOES NOT LOG IT IN.  The first
+argument to this command will be the name of the account.  No case conversion
+is done on the name.  Note that the new account is installed with a default
+configuration, and no password.  The second argument is optional, and will be
+an initial password for the user.  This command returns OK if the account was
+created, or ERROR if another user already exists with this name.
 
  Please note that CREU is intended to be used for activities in which a system
-administrator is creating user accounts.  For self-service user account creation,
-use the NEWU command.
-
+administrator is creating user accounts.  For self-service user account
+creation, use the NEWU command.
 
 
  LKRN   (List Known Rooms with New messages)
