@@ -6,6 +6,8 @@ Sun Jan  3 20:05:31 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  be required.  No big deal due to shared code segments.
 	* Added "change password"
 	* Added networking configuration screens.  These still need testing.
+	* Added a "kill session" link to each line of the wholist when
+	  logged in as an aide, and the screens to perform this operation.
 
 Thu Dec 31 21:53:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Final cvs commit for 1998 (an awful year, I'm glad to see it over).

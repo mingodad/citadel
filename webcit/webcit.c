@@ -868,6 +868,10 @@ void session_loop(void) {
 		share();
 		}
 
+	else if (!strcasecmp(action, "terminate_session")) {
+		terminate_session();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
