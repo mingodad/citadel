@@ -158,12 +158,37 @@ void imap_select(int num_parms, char *parms[]) {
 	 * the number of messages and number of new messages.
 	 */
 	usergoto(QRscratch.QRname, 0, &msgs, &new);
+	IMAP->selected = 1;
 
+	if (!strcasecmp(parms[1], "EXAMINE")) {
+		IMAP->readonly = 1;
+	}
+	else {
+		IMAP->readonly = 0;
+	}
+
+	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
-	cprintf("%s OK [FIXME] SELECT completed\r\n", parms[0]);
+	cprintf("%s OK [%s] %s completed\r\n",
+		parms[0],
+		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"),
+		parms[1]);
 }
+
+
+
+/*
+ * implements the CLOSE command
+ */
+void imap_close(int num_parms, char *parms[]) {
+	IMAP->selected = 0;
+	IMAP->readonly = 0;
+	cprintf("%s OK CLOSE completed\r\n", parms[0]);
+}
+
+
 
 
 /* 
@@ -200,7 +225,8 @@ void imap_command_loop(void) {
 
 	/* commands which may be executed in any state */
 
-	if (!strcasecmp(parms[1], "NOOP")) {
+	if ( (!strcasecmp(parms[1], "NOOP"))
+	   || (!strcasecmp(parms[1], "CHECK")) ) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			parms[0]);
 	}
@@ -224,10 +250,24 @@ void imap_command_loop(void) {
 		cprintf("%s BAD Not logged in.\r\n", parms[0]);
 	}
 
-	/*  commands requiring the client to be logged in */
+	/* commands requiring the client to be logged in */
 
 	else if (!strcasecmp(parms[1], "SELECT")) {
 		imap_select(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "EXAMINE")) {
+		imap_select(num_parms, parms);
+	}
+
+	else if (IMAP->selected == 0) {
+		cprintf("%s BAD command unrecognized\r\n", parms[0]);
+	}
+
+	/* commands requiring the SELECT state */
+
+	else if (!strcasecmp(parms[1], "CLOSE")) {
+		imap_close(num_parms, parms);
 	}
 
 	/* end of commands */
