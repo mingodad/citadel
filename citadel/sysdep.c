@@ -103,9 +103,6 @@ int syslog_facility = (-1);
 
 /*
  * lprintf()  ...   Write logging information
- * 
- * Note: the variable "buf" below needs to be large enough to handle any
- * log data sent through this function.  BE CAREFUL!
  */
 extern int running_as_daemon;
 static int enable_syslog = 1;
@@ -118,15 +115,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		va_end(arg_ptr);
 	}
 
-	if (enable_syslog && LogHookTable == 0) return;
-
-	/* legacy output code; hooks get processed first */
-	char buf[SIZ];
-	va_start(arg_ptr, format);   
-		vsnprintf(buf, sizeof(buf), format, arg_ptr);   
-	va_end(arg_ptr);   
-	PerformLogHooks(loglevel, buf);
-
+	/* stderr output code */
 	if (enable_syslog || running_as_daemon) return;
 
 	/* if we run in forground and syslog is disabled, log to terminal */
@@ -141,18 +130,21 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		localtime_r(&unixtime, &tim);
 		if (CC->cs_pid != 0) {
 			fprintf(stderr,
-				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] %s",
+				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
 				tim.tm_year + 1900, tim.tm_mon + 1,
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec,
-				CC->cs_pid, buf);
+				CC->cs_pid);
 		} else {
 			fprintf(stderr,
-				"%04d/%02d/%02d %2d:%02d:%02d.%06ld %s",
+				"%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
 				tim.tm_year + 1900, tim.tm_mon + 1,
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec, (long)tv.tv_usec, buf);
+				tim.tm_sec, (long)tv.tv_usec);
 		}
+		va_start(arg_ptr, format);   
+			vfprintf(stderr, format, arg_ptr);   
+		va_end(arg_ptr);   
 		fflush(stderr);
 	}
 }   

@@ -28,7 +28,6 @@
 #include "snprintf.h"
 #endif
 
-struct LogFunctionHook *LogHookTable = NULL;
 struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
@@ -126,43 +125,6 @@ void initialize_server_extensions(void)
 	serv_vcard_init();
 }
 
-
-
-void CtdlRegisterLogHook(void (*fcn_ptr) (char *), int loglevel)
-{
-
-	struct LogFunctionHook *newfcn;
-
-	newfcn = (struct LogFunctionHook *)
-	    malloc(sizeof(struct LogFunctionHook));
-	newfcn->next = LogHookTable;
-	newfcn->h_function_pointer = fcn_ptr;
-	newfcn->loglevel = loglevel;
-	LogHookTable = newfcn;
-
-	lprintf(CTDL_INFO, "Registered a new logging function\n");
-}
-
-
-void CtdlUnregisterLogHook(void (*fcn_ptr) (char *), int loglevel)
-{
-	struct LogFunctionHook *cur, *p;
-
-	for (cur = LogHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer &&
-				loglevel == cur->loglevel) {
-			lprintf(CTDL_INFO, "Unregistered logging function\n");
-			p = cur->next;
-			if (cur == LogHookTable) {
-				LogHookTable = p;
-			}
-			free(cur);
-			cur = p;
-		}
-	}
-}
 
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
@@ -516,17 +478,6 @@ void PerformSessionHooks(int EventType)
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			(*fcn->h_function_pointer) ();
-		}
-	}
-}
-
-void PerformLogHooks(int loglevel, char *logmsg)
-{
-	struct LogFunctionHook *fcn;
-
-	for (fcn = LogHookTable; fcn != NULL; fcn = fcn->next) {
-		if (fcn->loglevel >= loglevel) {
-			(*fcn->h_function_pointer) (logmsg);
 		}
 	}
 }

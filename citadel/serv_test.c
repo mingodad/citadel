@@ -65,12 +65,6 @@ void LoginTest(void) {
 	lprintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
-void LogTest(char *buf) {
-	fprintf(stderr,"%c[1m%s%c[0m", 27, buf, 27);
-	fflush(stderr);
-	}
-
-
 char *serv_test_init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
@@ -78,6 +72,5 @@ char *serv_test_init(void)
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
-   CtdlRegisterLogHook(LogTest, 1);
    return "$Id$";
 }

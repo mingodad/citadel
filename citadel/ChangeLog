@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.12  2005/02/17 16:13:59  ajc
+ * Removed "Log Hooks."  This enabled the removal of a buf[SIZ] in lprintf,
+   where it can potentially blow lots of stacks.
+
  Revision 640.11  2005/02/17 03:52:16  ajc
  * setup.c: clarify some of the messages
 
@@ -6414,3 +6418,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

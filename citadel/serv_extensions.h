@@ -39,10 +39,6 @@ void initialize_server_extensions(void);
 int DLoader_Exec_Cmd(char *cmdbuf);
 char *Dynamic_Module_Init(void);
 
-void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel);
-void CtdlUnregisterLogHook(void (*fcn_ptr)(char *), int loglevel);
-void PerformLogHooks(int loglevel, char *logmsg);
-
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void PerformSessionHooks(int EventType);
