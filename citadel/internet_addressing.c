@@ -315,11 +315,9 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char buf[256];
 	int passes = 0;
 	char sourcealias[1024];
-	int msgtype = 0;
 
 	safestrncpy(sourcealias, source, sizeof(sourcealias) );
-	msgtype = alias(sourcealias);
-	lprintf(9, "msgtype(1) for <%s> is %d\n", msgtype, user);
+	alias(sourcealias);
 
 REALIAS:
 	/* Split it up */
@@ -350,8 +348,7 @@ REALIAS:
 		 * a few times, in case we accidentally hit an alias loop
 		 */
 		strcpy(sourcealias, user);
-		msgtype = alias(user);
-		lprintf(9, "msgtype(2) for <%s> is %d\n", msgtype, user);
+		alias(user);
 		if ( (strcasecmp(user, sourcealias)) && (++passes < 3) )
 			goto REALIAS;
 
@@ -380,7 +377,8 @@ REALIAS:
 
 	strcpy(destuser, user);
 	strcpy(desthost, node);
-	if (msgtype == MES_BINARY) return(rfc822_address_on_citadel_network);
+	if (hostalias == hostalias_gatewaydomain)
+		return(rfc822_address_on_citadel_network);
 	return(rfc822_address_nonlocal);
 }
 

@@ -86,8 +86,8 @@
  * These define what port to listen on for various services.
  * FIXME ... put this in a programmable config somewhere
  */
-#define POP3_PORT		1110
-#define SMTP_PORT		2525
+#define POP3_PORT		110
+#define SMTP_PORT		25
 
 /*
  * SMTP delivery retry and give-up times

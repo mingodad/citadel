@@ -438,15 +438,19 @@ void smtp_rcpt(char *argbuf) {
  * (This is kind of ugly.  IGnet should be done using clean server-to-server
  * code instead of the old style spool.)
  */
-void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *room) {
+void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *dest) {
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
 	FILE *fp;
+	char filename[256];
+	static int seq = 0;
+
+	lprintf(9, "smtp_deliver_ignet(msg, %s, %s)\n", user, dest);
 
 	hold_R = msg->cm_fields['R'];
 	hold_D = msg->cm_fields['D'];
 	msg->cm_fields['R'] = user;
-	msg->cm_fields['D'] = room;
+	msg->cm_fields['D'] = dest;
 
 	serialize_message(&smr, msg);
 
@@ -454,7 +458,10 @@ void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *room) {
 	msg->cm_fields['D'] = hold_D;
 
 	if (smr.len != 0) {
-		fp = fopen(tmpnam("./network/spoolin/"), "wb");
+		sprintf(filename, "./network/spoolin/%s.%04x.%04x",
+			dest, getpid(), ++seq);
+		lprintf(9, "spool file name is <%s>\n", filename);
+		fp = fopen(filename, "wb");
 		if (fp != NULL) {
 			fwrite(smr.ser, smr.len, 1, fp);
 			fclose(fp);
@@ -534,7 +541,9 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 
 		/* Delivery over the local Citadel network (IGnet) */
 		if (!strcasecmp(dtype, "ignet")) {
-			smtp_deliver_ignet(msg, user, room);
+			extract(user, buf, 1);
+			extract(node, buf, 2);
+			smtp_deliver_ignet(msg, user, node);
 		}
 
 		/* Remote delivery */

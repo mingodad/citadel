@@ -268,3 +268,4 @@ struct minfo {
 	char nexthop[512];
 	};
 
+#define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
