@@ -163,6 +163,16 @@ void display_main_menu(void)
 	svprintf("BOXTITLE", WCS_STRING, "Your info");
 	do_template("beginbox");
 
+	wprintf("<A HREF=\"/display_reg\">"
+		"<span class=\"mainmenu\">"
+		"Update your contact information "
+		"</span><span class=\"menudesc\">"
+		"(name, address, etc.)</span></A><BR>\n");
+
+	wprintf("<A HREF=\"/display_changepw\">"
+		"<span class=\"mainmenu\">"
+		"Change your password</span></A><BR>\n");
+
 	wprintf("<A HREF=\"/display_editbio\">"
 		"<span class=\"mainmenu\">"
 		"Enter your 'bio' "
@@ -172,17 +182,7 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/display_editpic\">"
 		"<span class=\"mainmenu\">"
-		"Edit your online photo</span></a><BR>\n");
-
-	wprintf("<A HREF=\"/display_reg\">"
-		"<span class=\"mainmenu\">"
-		"Re-enter your registration info "
-		"</span><span class=\"menudesc\">"
-		"(name, address, etc.)</span></A><BR>\n");
-
-	wprintf("<A HREF=\"/display_changepw\">"
-		"<span class=\"mainmenu\">"
-		"Change your password</span></A>\n");
+		"Edit your online photo</span></a>\n");
 
 	do_template("endbox");
 
@@ -190,6 +190,12 @@ void display_main_menu(void)
 
 	svprintf("BOXTITLE", WCS_STRING, "Advanced room commands");
 	do_template("beginbox");
+
+	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
+		wprintf("<A HREF=\"/display_editroom\">"
+			"<span class=\"mainmenu\">"
+			"Edit or delete this room</span></A><BR>\n");
+	}
 
 	wprintf("<A HREF=\"/display_private\">"
 		"<span class=\"mainmenu\">"
@@ -219,10 +225,6 @@ void display_main_menu(void)
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		svprintf("BOXTITLE", WCS_STRING, "Administrative functions");
 		do_template("beginbox");
-
-		wprintf("<A HREF=\"/display_editroom\">"
-			"<span class=\"mainmenu\">"
-			"Edit or delete this room</span></A><BR>\n");
 
 		wprintf("<A HREF=\"/display_siteconfig\">"
 			"<span class=\"mainmenu\">"
