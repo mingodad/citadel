@@ -1933,12 +1933,21 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	do_template("beginbox_nt");
 	levels = 0;
 	oldlevels = 0;
+
 	for (i=0; i<max_folders; ++i) {
 
 		levels = num_tokens(fold[i].name, '|');
+
+		if (levels > oldlevels) for (t=0; t<(levels-oldlevels); ++t) {
+			wprintf("<UL>\n");
+		}
+		if (levels < oldlevels) for (t=0; t<(oldlevels-levels); ++t) {
+			wprintf("</UL>\n");
+		}
+		wprintf("<LI>");
+
 		oldlevels = levels;
 
-		for (t=0; t<levels; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
 		if (fold[i].selectable) {
 			wprintf("<A HREF=\"/dotgoto?room=");
 			urlescputs(fold[i].room);
@@ -1968,7 +1977,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 			wprintf(" (INBOX)");
 		}
-		wprintf("<BR>\n");
+		wprintf("</LI>\n");
 	}
 	do_template("endbox");
 }
