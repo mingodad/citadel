@@ -1148,7 +1148,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 	char *listing = NULL;
 	int r;
 
-	r = CtdlIPCGetSystemConfigByType(ipc, IGNETCFG, listing, buf);
+	r = CtdlIPCGetSystemConfigByType(ipc, IGNETCFG, &listing, buf);
 	if (r / 100 == 1) while (*listing && strlen(listing)) {
 		extract_token(buf, listing, 0, '\n');
 		remove_token(listing, 0, '\n');
@@ -1270,7 +1270,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 	char *listing = NULL;
 	int r;
 
-	r = CtdlIPCGetSystemConfigByType(ipc, FILTERLIST, listing, buf);
+	r = CtdlIPCGetSystemConfigByType(ipc, FILTERLIST, &listing, buf);
 	if (r / 100 == 1) while (*listing && strlen(listing)) {
 		extract_token(buf, listing, 0, '\n');
 		remove_token(listing, 0, '\n');

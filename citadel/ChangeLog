@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.73  2004/03/12 19:35:13  error
+ * routines2.c: Fix two typos
+
  Revision 614.72  2004/03/12 19:32:09  error
  * routines2.c: Convert multiple functions to use new IPC code (almost done!)
 
@@ -5487,4 +5490,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
