@@ -1,0 +1,11 @@
+ -----------------------------------------------------------------------
+ Room cmds:    <K>nown rooms, <G>oto next room, <.G>oto a specific room,
+               <S>kip this room, <A>bandon this room, <Z>ap this room,
+               <U>ngoto (move back)
+ Message cmds: <N>ew msgs, <F>orward read, <R>everse read, <O>ld msgs,
+               <L>ast five msgs, <E>nter a message
+ General cmds: <?> help, <T>erminate, <C>hat, <W>ho is online
+ Misc:         <X> toggle eXpert mode, <D>irectory, <*> doorway
+
+  (Type .Help SUMMARY for extended commands, <X> to disable this menu)
+ -----------------------------------------------------------------------

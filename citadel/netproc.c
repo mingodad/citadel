@@ -1,0 +1,1341 @@
+/*
+ * Citadel/UX Intelligent Network Processor for IGnet/Open networks v3.6
+ * Designed and written by Art Cancro @ Uncensored Communications Group
+ * See copyright.txt for copyright information
+ */
+
+/*
+ * Specify where netproc should log to, and the mode for opening the file.
+ * If you are logging to a file, NPLOGMODE should be a; if you are logging to
+ * a device or fifo it should be w.
+ */
+#define NPLOGFILE	"./netproc.log" 
+#define NPLOGMODE	"a"
+
+/* How long it takes for an old node to drop off the network map */
+#define EXPIRY_TIME	(2592000L)
+
+/* Where do we keep our lock file? */
+#define LOCKFILE	"/var/lock/LCK.netproc"
+
+/* Path to the 'uudecode' utility (needed for network file transfers) */
+#define UUDECODE	"/usr/bin/uudecode"
+
+/* Uncomment the DEBUG def to see noisy traces */
+/* #define DEBUG 1 */
+
+
+#include "sysdep.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <time.h>
+#include <signal.h>
+#include <errno.h>
+#include "citadel.h"
+
+/* A list of users you wish to filter out of incoming traffic can be kept
+ * in ./network/filterlist -- messages from these users will be automatically
+ * moved to FILTERROOM.  Normally this will be the same as TWITROOM (the
+ * room problem user messages are moved to) but you can override this by
+ * specifying a different room name here.
+ */
+#ifndef FILTERROOM
+#define FILTERROOM TWITROOM
+#endif
+
+struct msglist {
+	struct msglist *next;
+	long m_num;
+	char m_rmname[20];
+	};
+
+struct rmlist {
+	struct rmlist *next;
+	char rm_name[20];
+	long rm_lastsent;
+	};
+
+struct filterlist {
+	struct filterlist *next;
+	char f_person[64];
+	char f_room[64];
+	char f_system[64];
+	};
+
+struct syslist {
+	struct syslist *next;
+	char s_name[16];
+	char s_type[4];
+	char s_nexthop[128];
+	long s_lastcontact;
+	char s_humannode[64];
+	char s_phonenum[32];
+	char s_gdom[64];
+	};
+
+struct minfo {
+	char A[512];
+	char E[512];
+	long I;
+	char N[512];
+	char O[512];
+	char R[512];
+	long T;
+	char D[512];
+	char C[512];
+	char nexthop[32];
+	char H[512];
+	char S[512];
+	char B[512];
+	char G[512];
+	};
+
+
+void attach_to_server();
+void serv_read();
+void serv_write();
+void get_config();
+
+struct filterlist *filter = NULL;
+char roomnames[MAXROOMS][20];
+char roomdirs[MAXROOMS][15];
+struct syslist *slist = NULL;
+
+struct config config;
+extern char bbs_home_directory[];
+extern int home_specified;
+
+int struncmp(lstr,rstr,len)
+char lstr[],rstr[];
+int len; {
+	int pos = 0;
+	char lc,rc;
+	while (pos<len) {
+		lc=tolower(lstr[pos]);
+		rc=tolower(rstr[pos]);
+		if ((lc==0)&&(rc==0)) return(0);
+		if (lc<rc) return(-1);
+		if (lc>rc) return(1);
+		pos=pos+1;
+		}
+	return(0);
+	}
+
+/* redefine strucmp, just in case we're using an old version of citadel.h
+ * that has it as a separate routine
+ */
+#ifndef strucmp
+#undef strucmp
+#endif
+#define strucmp(lstr,rstr) struncmp(lstr,rstr,32767)
+
+
+#ifdef NO_STRERROR
+/*
+ * replacement strerror() for systems that don't have it
+ */
+char *strerror(e)
+int e; {
+	static char buf[32];
+
+	sprintf(buf,"errno = %d",e);
+	return(buf);
+	}
+#endif
+
+
+void strip_trailing_whitespace(buf)
+char buf[]; {
+	while(isspace(buf[strlen(buf)-1]))
+		buf[strlen(buf)-1]=0;
+	}
+
+
+/*
+ * for performance optimization, netproc loads the list of room names (and
+ * their corresponding directory names, if applicable) into a table in memory.
+ */
+int load_roomnames() {
+	FILE *fp;
+	struct quickroom qbuf;
+	int i;
+
+	fp=fopen("./quickroom","rb");
+	if (fp==NULL) return(1);
+	for (i=0; i<MAXROOMS; ++i) {
+		if (fread((char *)&qbuf,sizeof(struct quickroom),1,fp)!=1)
+			return(1);
+		strcpy(roomnames[i],qbuf.QRname);
+		if (qbuf.QRflags & QR_DIRECTORY)
+			strcpy(roomdirs[i],qbuf.QRdirname);
+		else
+			strcpy(roomdirs[i],config.c_bucket_dir);
+		}
+	fclose(fp);
+	return(0);
+	}
+
+/*
+ * we also load the network/mail.sysinfo table into memory, make changes
+ * as we learn more about the network from incoming messages, and write
+ * the table back to disk when we're done.
+ */
+int load_syslist() {
+	FILE *fp;
+	struct syslist *stemp;
+	char insys = 0;
+	char buf[128];
+
+	fp=fopen("network/mail.sysinfo","rb");
+	if (fp==NULL) return(1);
+
+	while(1) {
+		if (fgets(buf,128,fp)==NULL) {
+			fclose(fp);
+			return(0);
+			}
+		buf[strlen(buf)-1] = 0;
+		while (isspace(buf[0])) strcpy(buf,&buf[1]);
+		if (buf[0]=='#') buf[0]=0;
+		if ( (insys==0) && (strlen(buf)!=0) ) {
+			insys = 1;
+			stemp =(struct syslist *)malloc(sizeof(struct syslist));
+			stemp->next = slist;
+			slist = stemp;
+			strcpy(slist->s_name,buf);
+			strcpy(slist->s_type,"bin");
+			strcpy(slist->s_nexthop,"Mail");
+			slist->s_lastcontact = 0L;
+			strcpy(slist->s_humannode,"");
+			strcpy(slist->s_phonenum,"");
+			strcpy(slist->s_gdom,"");
+			}
+		else if ( (insys==1) && (strlen(buf)==0) ) {
+			insys = 0;
+			}
+		else if ( (insys==1) && (!strncmp(buf,"bin",3)) ) {
+			strcpy(slist->s_type,"bin");
+			strcpy(slist->s_nexthop,&buf[4]);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"use",3)) ) {
+			strcpy(slist->s_type,"use");
+			strcpy(slist->s_nexthop,&buf[4]);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"uum",3)) ) {
+			strcpy(slist->s_type,"uum");
+			strcpy(slist->s_nexthop,&buf[4]);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"lastcontact",11)) ) {
+			sscanf(&buf[12],"%ld",&slist->s_lastcontact);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"humannode",9)) ) {
+			strcpy(slist->s_humannode,&buf[10]);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"phonenum",8)) ) {
+			strcpy(slist->s_phonenum,&buf[9]);
+			}
+		else if ( (insys==1) && (!strncmp(buf,"gdom",4)) ) {
+			strcpy(slist->s_gdom,&buf[5]);
+			}
+		}
+	}
+
+/* now we have to set up two "special" nodes on the list: one
+ * for the local node, and one for an Internet gateway
+ */
+void setup_special_nodes() {
+	struct syslist *stemp,*slocal;
+
+	slocal = NULL;
+	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
+		if (!strucmp(stemp->s_name,config.c_nodename)) slocal=stemp;
+		}
+	if (slocal==NULL) {
+		slocal =(struct syslist *)malloc(sizeof(struct syslist));
+		slocal->next = slist;
+		slist = slocal;
+		}
+	strcpy(slocal->s_name,config.c_nodename);
+	strcpy(slocal->s_type,"bin");
+	strcpy(slocal->s_nexthop,"Mail");
+	time(&slocal->s_lastcontact);
+	strcpy(slocal->s_humannode,config.c_humannode);
+	strcpy(slocal->s_phonenum,config.c_phonenum);
+
+	slocal = NULL;
+	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
+		if (!strucmp(stemp->s_name,"internet")) slocal=stemp;
+		}
+	if (slocal==NULL) {
+		slocal =(struct syslist *)malloc(sizeof(struct syslist));
+		slocal->next = slist;
+		slist = slocal;
+		}
+	strcpy(slocal->s_name,"internet");
+	strcpy(slocal->s_type,"uum");
+	strcpy(slocal->s_nexthop,"%s");
+	time(&slocal->s_lastcontact);
+	strcpy(slocal->s_humannode,"Internet Gateway");
+	strcpy(slocal->s_phonenum,"");
+	strcpy(slocal->s_gdom,"");
+
+	}
+
+/*
+ * here's the routine to write the table back to disk.
+ */
+void rewrite_syslist() {
+	struct syslist *stemp;
+	FILE *newfp;
+	long now;
+
+	time(&now);
+	newfp=fopen("network/mail.sysinfo","w");
+	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
+		if (!strucmp(stemp->s_name,config.c_nodename)) {
+			time(&stemp->s_lastcontact);
+			strcpy(stemp->s_type,"bin");
+			strcpy(stemp->s_humannode,config.c_humannode);
+			strcpy(stemp->s_phonenum,config.c_phonenum);
+			}
+	    /* remove systems we haven't heard from in a while */
+	    if ( (stemp->s_lastcontact == 0L) 
+		 || (now - stemp->s_lastcontact < EXPIRY_TIME) ) {
+		fprintf(newfp,"%s\n%s %s\n",
+			stemp->s_name,stemp->s_type,stemp->s_nexthop);
+		if (strlen(stemp->s_phonenum) > 0) 
+			fprintf(newfp,"phonenum %s\n",stemp->s_phonenum);
+		if (strlen(stemp->s_gdom) > 0) 
+			fprintf(newfp,"gdom %s\n",stemp->s_gdom);
+		if (strlen(stemp->s_humannode) > 0) 
+			fprintf(newfp,"humannode %s\n",stemp->s_humannode);
+		if (stemp->s_lastcontact > 0L)
+			fprintf(newfp,"lastcontact %ld %s",
+				stemp->s_lastcontact,
+				asctime(localtime(&stemp->s_lastcontact)));
+		fprintf(newfp,"\n");
+		}
+	    }
+	fclose(newfp);
+	/* now free the list */
+	while (slist!=NULL) {
+		stemp = slist;
+		slist = slist->next;
+		free(stemp);
+		}
+	}
+
+
+/* call this function with the node name of a system and it returns a pointer
+ * to its syslist structure.
+ */
+struct syslist *get_sys_ptr(sysname)
+char *sysname; {
+	static char sysnambuf[16];
+	static struct syslist *sysptrbuf = NULL;
+	struct syslist *stemp;
+
+	if ( (!strcmp(sysname,sysnambuf))
+		&& (sysptrbuf!=NULL) )  return(sysptrbuf);
+
+	strcpy(sysnambuf,sysname);
+	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
+		if (!strcmp(sysname,stemp->s_name)) {
+			sysptrbuf = stemp;
+			return(stemp);
+			}
+		}
+	sysptrbuf = NULL;
+	return(NULL);
+	}
+
+
+/*
+ * make sure only one copy of netproc runs at a time, using lock files
+ */
+int set_lockfile() {
+	FILE *lfp;
+	int ok = 1;
+	int onppid;
+	char buf[64];
+
+	if (access(LOCKFILE,0)==0) {
+
+	/* 
+	 * if the /proc filesystem is available, we can further check to
+	 * make sure that the process that wrote the lock file is actually
+	 * running, and didn't simply terminate and not clean up after itself
+	 */
+#ifdef HAVE_PROC_FS
+		lfp = fopen(LOCKFILE,"r");
+		fscanf(lfp,"%d",&onppid);
+		fclose(lfp);
+		sprintf(buf,"/proc/%d/cmdline",onppid);
+		if (access(buf,0)==0) ok = 0;
+#else
+		ok = 0;
+#endif
+		}
+
+	if (ok == 0) return(1);
+	lfp=fopen(LOCKFILE,"w");
+	fprintf(lfp,"%d\n",getpid());
+	fclose(lfp);
+	return(0);
+	}
+
+void remove_lockfile() {
+	unlink(LOCKFILE);
+	}
+
+/*
+ * Why both cleanup() and nq_cleanup() ?  Notice the alarm() call in
+ * cleanup() .  If for some reason netproc hangs waiting for the server
+ * to clean up, the alarm clock goes off and the program exits anyway.
+ * The cleanup() routine makes a check to ensure it's not reentering, in
+ * case the ipc module looped it somehow.
+ */
+void nq_cleanup(e)
+int e; {
+	remove_lockfile();
+	exit(e);
+	}
+
+void cleanup(e)
+int e; {
+	static int nested = 0;
+
+	alarm(30);
+	signal(SIGALRM,nq_cleanup);
+	if (nested++ < 1) serv_puts("QUIT");
+	nq_cleanup(e);
+	}
+
+/*
+ * This is implemented as a function rather than as a macro because the
+ * client-side IPC modules expect logoff() to be defined.  They call logoff()
+ * when a problem connecting or staying connected to the server occurs.
+ */
+void logoff(e)
+int e; {
+	cleanup(e);
+	}
+
+/*
+ * If there is a kill file in place, this function will process it.
+ */
+void load_filterlist() {
+	FILE *fp;
+	struct filterlist *fbuf;
+	char sbuf[256];
+	int a,p;
+	fp=fopen("./network/filterlist","r");
+	if (fp==NULL) return;
+	while (fgets(sbuf,256,fp)!=NULL) {
+		if (sbuf[0]!='#') {
+			sbuf[strlen(sbuf)-1]=0;
+			fbuf=(struct filterlist *)
+				malloc((long)sizeof(struct filterlist));
+			fbuf->next = filter;
+			filter = fbuf;
+			strcpy(fbuf->f_person,"*");
+			strcpy(fbuf->f_room,"*");
+			strcpy(fbuf->f_system,"*");
+			p = (-1);
+			for (a=strlen(sbuf); a>=0; --a) if (sbuf[a]==',') p=a;
+			if (p>=0) {
+				sbuf[p] = 0;
+				strcpy(fbuf->f_person,sbuf);
+				strcpy(sbuf,&sbuf[p+1]);
+				}
+			for (a=strlen(sbuf); a>=0; --a) if (sbuf[a]==',') p=a;
+			if (p>=0) {
+				sbuf[p] = 0;
+				strcpy(fbuf->f_room,sbuf);
+				strcpy(sbuf,&sbuf[p+1]);
+				}
+			strcpy(fbuf->f_system,sbuf);
+			}
+		}
+	fclose(fp);
+	}
+
+/* returns 1 if user/message/room combination is in the kill file */
+int is_banned(k_person,k_room,k_system)
+char *k_person,*k_room,*k_system; {
+	struct filterlist *fptr;
+
+	for (fptr=filter; fptr!=NULL; fptr=fptr->next) if (
+	 ((!strucmp(fptr->f_person,k_person))||(!strcmp(fptr->f_person,"*")))
+	&&
+	 ((!strucmp(fptr->f_room,k_room))||(!strcmp(fptr->f_room,"*")))
+	&&
+	 ((!strucmp(fptr->f_system,k_system))||(!strcmp(fptr->f_system,"*")))
+	) return(1);
+
+	return(0);
+	}
+
+int get_sysinfo_type(name)	/* determine routing from sysinfo file */
+char name[]; {
+	struct syslist *stemp;
+GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
+	    if (!strucmp(stemp->s_name,name)) {
+		if (!strucmp(stemp->s_type,"use")) {
+			strcpy(name,stemp->s_nexthop);
+			goto GETSN;
+			}
+		if (!strucmp(stemp->s_type,"bin")) {
+			return(M_BINARY);
+			}
+		if (!strucmp(stemp->s_type,"uum")) {
+			return(M_INTERNET);
+			}
+		}
+	    }
+	printf("netproc: cannot find system '%s' in mail.sysinfo\n",name);
+	return(-1);
+	}
+
+
+void fpgetfield(fp,string)
+FILE *fp;
+char string[]; {
+	int a,b;
+
+	strcpy(string,"");
+	a=0;
+	do {
+		b=getc(fp);
+		if (b<1) {
+			string[a]=0;
+			return;
+			}
+		string[a]=b;
+		++a;
+		} while (b!=0);
+	}
+
+
+
+/*
+ * Load all of the fields of a message, except the actual text, into a
+ * table in memory (so we know how to process the message).
+ */
+void msgfind(msgfile,buffer)
+char *msgfile;
+struct minfo *buffer; {
+	int b,e,mtype,aflag;
+	char bbb[1024];
+	char userid[1024];
+	FILE *fp;
+		
+	strcpy(userid,"");
+	fp=fopen(msgfile,"rb");
+	if (fp==NULL) {
+		fprintf(stderr,"Can't open message file: %s\n",strerror(errno));
+		return;
+		}
+	e=getc(fp);
+	if (e!=255) {
+		fprintf(stdout,"Incorrect message format\n");
+		goto END;
+		}
+	mtype=getc(fp); aflag=getc(fp);
+	buffer->I=0L;
+	buffer->R[0]=0;
+	buffer->E[0]=0;
+	buffer->H[0]=0;
+	buffer->S[0]=0;
+	buffer->B[0]=0;
+	buffer->G[0]=0;
+
+BONFGM:	b=getc(fp); if (b<0) goto END;
+	if (b=='M') goto END;
+	fpgetfield(fp,bbb);
+	while ((bbb[0]==' ')&&(strlen(bbb)>1)) strcpy(bbb,&bbb[1]);
+	if (b=='A') {
+		strcpy(buffer->A,bbb);
+		if (strlen(userid)==0) {
+			strcpy(userid,bbb);
+			for (e=0; e<strlen(userid); ++e)
+				if (userid[e]==' ') userid[e]='_';
+			}
+		}
+	if (b=='O') strcpy(buffer->O,bbb);
+	if (b=='C') strcpy(buffer->C,bbb);
+	if (b=='N') strcpy(buffer->N,bbb);
+	if (b=='S') strcpy(buffer->S,bbb);
+	if (b=='P') {
+		/* extract the user id from the path */
+		for (e=0; e<strlen(bbb); ++e)
+			if (bbb[e]=='!') strcpy(userid,&bbb[e+1]);
+
+		/* now find the next hop */
+		for (e=0; e<strlen(bbb); ++e) if (bbb[e]=='!') bbb[e]=0;
+		strcpy(buffer->nexthop,bbb);
+		}
+	if (b=='R') {
+		for (e=0; e<strlen(bbb); ++e) if (bbb[e]=='_') bbb[e]=' ';
+		strcpy(buffer->R,bbb);
+		}
+	if (b=='D') strcpy(buffer->D,bbb);
+	if (b=='T') buffer->T=atol(bbb);
+	if (b=='I') buffer->I=atol(bbb);
+	if (b=='H') strcpy(buffer->H,bbb);
+	if (b=='B') strcpy(buffer->B,bbb);
+	if (b=='G') strcpy(buffer->G,bbb);
+	if (b=='E') strcpy(buffer->E,bbb);
+	goto BONFGM;
+
+END:	if (buffer->I==0L) buffer->I=buffer->T;
+	fclose(fp);
+	}
+
+void ship_to(filenm,sysnm)	/* send spool file filenm to system sysnm */
+char *filenm;
+char *sysnm; {
+	char sysflnm[100];
+	char commbuf1[100];
+	char commbuf2[100];
+	FILE *sysflfd;
+
+#ifdef DEBUG
+	fprintf(stdout,"netproc: shipping %s to %s\n",filenm,sysnm);
+#endif
+	sprintf(sysflnm,"./network/systems/%s",sysnm);
+	sysflfd=fopen(sysflnm,"r");
+	if (sysflfd==NULL) fprintf(stdout,"netproc: cannot open %s\n",sysflnm);
+	fgets(commbuf1,99,sysflfd);
+	commbuf1[strlen(commbuf1)-1] = 0;
+	fclose(sysflfd);
+	sprintf(commbuf2,commbuf1,filenm);
+	system(commbuf2);
+	}
+
+/*
+ * proc_file_transfer()  -  handle a simple file transfer packet
+ */
+void proc_file_transfer(tname)
+char *tname; {	/* name of temp file containing the whole message */
+	char buf[128];
+	char dest_dir[32];
+	FILE *tfp,*uud;
+	int a,b;
+
+	printf("netproc: processing network file transfer...\n");
+	strcpy(dest_dir,config.c_bucket_dir);
+
+	tfp=fopen(tname,"rb");
+	if (tfp==NULL) printf("netproc: cannot open %s\n",tname);
+	getc(tfp); getc(tfp); getc(tfp);
+	do {
+		a=getc(tfp);
+		if (a!='M') {
+			fpgetfield(tfp,buf);
+			if (a=='O') for (b=0; b<MAXROOMS; ++b) {
+				if (!strucmp(buf,roomnames[b]))
+					strcpy(dest_dir,roomdirs[b]);
+				}
+			}
+		} while ((a!='M')&&(a>=0));
+	if (a!='M') {
+		fclose(tfp);
+		printf("netproc: no message text for file transfer\n");
+		return;
+		}
+
+	sprintf(buf,"cd %s/files/%s; exec %s",bbs_home_directory,dest_dir,UUDECODE);
+	uud=(FILE *)popen(buf,"w");
+	if (uud==NULL) {
+		printf("netproc: cannot open uudecode pipe\n");
+		fclose(tfp);
+		return;
+		}
+
+	fgets(buf,128,tfp);
+	buf[strlen(buf)-1] = 0;
+	for (a=0; a<strlen(buf); ++a) if (buf[a]=='/') buf[a]='_';
+	fprintf(uud,"%s\n",buf);
+	printf("netproc: %s\n",buf);
+	while(a=getc(tfp), a>0) putc(a,uud);
+	fclose(tfp);
+	pclose(uud);
+	return;
+	}
+
+
+/* send a bounce message */
+void bounce(bminfo)
+struct minfo *bminfo; {
+
+	FILE *bounce;
+	char bfilename[64];
+	static int bseq = 1;
+	long now;
+
+	sprintf(bfilename,"./network/spoolin/bounce.%d.%d",getpid(),bseq++);
+	bounce = fopen(bfilename,"wb");
+	time(&now);
+		
+	fprintf(bounce,"%c%c%c",0xFF,MES_NORMAL,0);
+	fprintf(bounce,"Ppostmaster%c",0);
+	fprintf(bounce,"T%ld%c",now,0);
+	fprintf(bounce,"APostmaster%c",0);
+	fprintf(bounce,"OMail%c",0);
+	fprintf(bounce,"N%s%c",config.c_nodename,0);
+	fprintf(bounce,"H%s%c",config.c_humannode,0);
+
+	if (strlen(bminfo->E) > 0) {
+		fprintf(bounce,"R%s%c",bminfo->E,0);
+		}
+	else {
+		fprintf(bounce,"R%s%c",bminfo->A,0);
+		}
+
+	fprintf(bounce,"D%s%c",bminfo->N,0);
+	fprintf(bounce,"M%s could not deliver your mail to:\n",
+		config.c_humannode);
+	fprintf(bounce," \n %s\n \n",bminfo->R);
+	fprintf(bounce," because there is no such user on this system.\n");
+	fprintf(bounce," (Unsent message does *not* follow.  ");
+	fprintf(bounce,"Help to conserve bandwidth.)\n%c",0);
+	fclose(bounce);
+	}
+
+
+
+/*
+ * process incoming files in ./network/spoolin
+ */
+void inprocess() {
+	FILE *fp,*message,*testfp,*ls;
+	static struct minfo minfo;
+	struct recentmsg recentmsg;
+	char tname[128],aaa[1024],iname[256],sfilename[256],pfilename[256];
+	int a,b;
+	struct syslist *stemp;
+	char *ptr = NULL;
+	char buf[256];
+	long msglen;
+	int bloklen;
+
+	sprintf(tname,"/tmp/net.t%d",getpid());	/* temp file name */
+	sprintf(iname,"/tmp/net.i%d",getpid());	/* temp file name */
+
+	load_filterlist();
+
+	chdir(bbs_home_directory);
+	
+	/* Let the shell do the dirty work. Get all data from spoolin */
+    do {
+	sprintf(aaa,"cd %s/network/spoolin; ls",bbs_home_directory);
+	ls=popen(aaa,"r");
+	if (ls==NULL) {
+		fprintf(stderr,"netproc: could not open dir cmd: %s\n",
+			strerror(errno));
+		}
+	if (ls!=NULL) {
+		do {
+			ptr=fgets(sfilename,256,ls);
+			if (ptr!=NULL) sfilename[strlen(sfilename)-1] = 0;
+			} while( (ptr!=NULL)&&((!strcmp(sfilename,"."))
+				 ||(!strcmp(sfilename,".."))));
+		if (ptr!=NULL) printf("netproc: processing %s\n",sfilename);
+		pclose(ls);
+		}
+
+      if (ptr!=NULL) {
+	sprintf(pfilename,"%s/network/spoolin/%s",bbs_home_directory,sfilename);
+	fprintf(stderr,"netproc: processing <%s>\n", pfilename);
+	fflush(stderr);
+	
+	fp=fopen(pfilename,"r");
+	if(fp == NULL) {
+	    fprintf(stderr, "netproc: cannot open <%s>: %s\n",
+			pfilename,strerror(errno));
+	    fflush(stderr);
+	    fp = fopen("/dev/null","r");
+	    }
+		
+NXMSG:	/* Seek to the beginning of the next message */
+	do {
+		a=getc(fp);
+		} while((a!=255)&&(a>=0));
+	if (a<0) goto ENDSTR;
+	message=fopen(tname,"wb");
+	putc(255,message);
+	do {
+		do {
+			a=getc(fp);
+			putc(a,message);
+			} while(a>0);
+		a=getc(fp);
+		putc(a,message);
+		} while ((a!='M') && (a>0));
+	do {
+		a=getc(fp);
+		putc(a,message);
+		} while(a>0);
+	msglen = ftell(fp);
+	fclose(message);
+
+	/* process the individual mesage */
+	minfo.D[0]=0;
+	minfo.C[0]=0;
+	minfo.B[0]=0;
+	minfo.G[0]=0;
+	minfo.R[0]=0;
+	msgfind(tname,&minfo);
+	strncpy(recentmsg.RMnodename,minfo.N,9);
+	recentmsg.RMnodename[9]=0;
+	recentmsg.RMnum=minfo.I;
+	printf("netproc: #%ld fm <%s> in <%s> @ <%s>\n",
+		minfo.I,minfo.A,minfo.O,minfo.N);
+	if (strlen(minfo.R)>0) {
+		printf("         to <%s>",minfo.R);
+		if (strlen(minfo.D)>0) {
+			printf(" @ <%s>",minfo.D);
+			}
+		printf("\n");
+		}
+	fflush(stdout);
+	if (!strucmp(minfo.D,FQDN)) strcpy(minfo.D,NODENAME);
+
+	/* this routine updates our info on the system that sent the message */
+	stemp = get_sys_ptr(minfo.N);
+	if ((stemp == NULL) && (get_sys_ptr(minfo.nexthop) != NULL)) {
+		/* add non-neighbor system to map */
+		printf("Adding non-neighbor system <%s> to map\n", slist->s_name);
+		stemp = (struct syslist *)malloc((long)sizeof(struct syslist));
+		stemp->next = slist;
+		slist = stemp;
+		strcpy(slist->s_name,minfo.N);
+		strcpy(slist->s_type,"use");
+		strcpy(slist->s_nexthop,minfo.nexthop);
+		time(&slist->s_lastcontact);
+		}
+	else if ((stemp == NULL) && (!strucmp(minfo.N,minfo.nexthop))) {
+		/* add neighbor system to map */
+		printf("Adding neighbor system <%s> to map\n", slist->s_name);
+		sprintf(aaa,"%s/network/systems/%s",bbs_home_directory,minfo.N);
+		testfp=fopen(aaa,"r");
+		if (testfp!=NULL) {
+			fclose(testfp);
+			stemp = (struct syslist *)
+				malloc((long)sizeof(struct syslist));
+			stemp->next = slist;
+			slist = stemp;
+			strcpy(slist->s_name,minfo.N);
+			strcpy(slist->s_type,"bin");
+			strcpy(slist->s_nexthop,"Mail");
+			time(&slist->s_lastcontact);
+			}
+		}
+	/* now update last contact and long node name if we can */
+	if (stemp!=NULL) {
+		time(&stemp->s_lastcontact);
+		if (strlen(minfo.H) > 0) strcpy(stemp->s_humannode,minfo.H);
+		if (strlen(minfo.B) > 0) strcpy(stemp->s_phonenum,minfo.B);
+		if (strlen(minfo.G) > 0) strcpy(stemp->s_gdom,minfo.G);
+		}
+
+	/* route the message if necessary */
+	if ((strucmp(minfo.D,NODENAME))&&(minfo.D[0]!=0)) { 
+		a = get_sysinfo_type(minfo.D);
+		printf("netproc: routing message to system <%s>\n",minfo.D);
+		fflush(stdout);
+		if (a==M_INTERNET) {
+			if (fork()==0) {
+				printf("netproc: netmailer %s\n", tname);
+				fflush(stdout);
+				execlp("./netmailer","netmailer",
+					tname,NULL);
+				printf("netproc: error running netmailer: %s\n",
+					strerror(errno));
+				fflush(stdout);
+				exit(errno);
+				}
+			else while (wait(&b)!=(-1));
+			}
+		else if (a==M_BINARY) {
+			ship_to(tname,minfo.D);
+			}
+		else {
+			/* message falls into the bit bucket? */
+			}
+		}
+
+	/* check to see if it's a file transfer */
+	else if (!struncmp(minfo.S,"FILE",4)) {
+		proc_file_transfer(tname);
+		}
+
+	/* otherwise process it as a normal message */
+	else {
+
+		if (!strucmp(minfo.R, "postmaster")) {
+			strcpy(minfo.R, "");
+			strcpy(minfo.C, "Aide");
+			}
+
+		if (strlen(minfo.R) > 0) {
+			sprintf(buf,"GOTO _MAIL_");
+			}
+		if (is_banned(minfo.A,minfo.C,minfo.N)) {
+			sprintf(buf,"GOTO %s", FILTERROOM);
+			}
+		else {
+			if (strlen(minfo.C) > 0) {
+				sprintf(buf,"GOTO %s", minfo.C);
+				}
+			else {
+				sprintf(buf,"GOTO %s", minfo.O);
+				}
+			}
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			puts(buf); fflush(stdout);
+			sprintf(buf,"GOTO _BITBUCKET_");
+			serv_puts(buf);
+			serv_gets(buf);
+			}
+
+		/* Open the temporary file containing the message */
+		message = fopen(tname, "rb");
+		if (message == NULL) {
+			fprintf(stderr, "netproc: cannot open %s: %s\n",
+				tname, strerror(errno));
+			unlink(tname);
+			goto NXMSG;
+			}
+
+		/* Measure the message */
+		fseek(message, 0L, 2);
+		msglen = ftell(fp);
+		fseek(message, 0L, 0);
+
+		/* Transmit the message to the server */
+		sprintf(buf, "ENT3 1|%s|%ld", minfo.R, msglen);
+		printf("< %s\n", buf);
+		serv_puts(buf);
+		serv_gets(buf);
+		printf("> %s\n", buf);
+		if (!strncmp(buf, "570", 3)) {
+			/* no such user, do a bounce */
+			bounce(&minfo);
+			}
+		if (buf[0] == '7') {
+			/* Always use the server's idea of the message length,
+			 * even though they should both be identical */
+			msglen = atol(&buf[4]);
+			while (msglen > 0L) {
+				bloklen = ((msglen >= 255L) ? 255 : ((int)msglen));
+				if (fread(buf, bloklen, 1, message) < 1) {
+					fprintf(stderr, "netproc: error trying to read %d bytes: %s\n",
+						bloklen, strerror(errno));
+					fflush(stderr);
+					}
+				serv_write(buf, bloklen);
+				msglen = msglen - (long)bloklen;
+				}
+			serv_puts("NOOP");
+			serv_gets(buf);
+			}
+		else {
+			puts(buf);
+			fflush(stdout);	
+			}
+
+		fclose(message);
+		}
+
+	unlink(tname);
+	goto NXMSG;
+
+ENDSTR:	fclose(fp);
+	unlink(pfilename);
+	}
+      } while(ptr!=NULL);
+    unlink(iname);
+    }
+
+
+int checkpath(path,sys)	/* Checks to see whether its ok to send */
+char path[];		/* Returns 1 for ok, send message	*/
+char sys[]; {		/* Returns 0 if message already there	*/
+	int a;
+	char sys2[512];
+	strcpy(sys2,sys);
+	strcat(sys2,"!");
+
+#ifdef DEBUG
+	printf("netproc: checkpath <%s> <%s> ... ",path,sys);
+#endif
+	for (a=0; a<strlen(path); ++a) {
+		if (!strncmp(&path[a],sys2,strlen(sys2))) return(0);
+		}
+	return(1);
+	}
+
+/*
+ * implement split horizon algorithm
+ */
+int ismsgok(mpos,mmfp,sysname)
+long mpos;
+FILE *mmfp;
+char *sysname; {
+	int a;
+	int ok = 0;		/* fail safe - no path, don't send it */
+	char fbuf[256];
+
+	fseek(mmfp,mpos,0);
+	if (getc(mmfp)!=255) return(0);
+	getc(mmfp); getc(mmfp);
+
+	while (a=getc(mmfp),((a!='M')&&(a!=0))) {
+		fpgetfield(mmfp,fbuf);
+		if (a=='P') {
+			ok = checkpath(fbuf,sysname);
+			}
+		}
+#ifdef DEBUG
+	printf("%s\n", ((ok)?"SEND":"(no)") );
+#endif
+	return(ok);
+	}
+
+int spool_out(cmlist,destfp,sysname)	/* spool list of messages to a file */
+struct msglist *cmlist;			/* returns # of msgs spooled */
+FILE *destfp; 
+char *sysname;
+{
+	struct msglist *cmptr;
+	FILE *mmfp;
+	char mmtemp[128];
+	char fbuf[128];
+	int a;
+	int msgs_spooled = 0;
+	long msg_len;
+	int blok_len;
+
+	char buf[256];
+	char curr_rm[256];
+
+	strcpy(curr_rm, "");
+	sprintf(mmtemp, "/tmp/net.m%d", getpid());
+
+	/* for each message in the list... */
+	for (cmptr=cmlist; cmptr!=NULL; cmptr=cmptr->next) {
+
+		/* make sure we're in the correct room... */
+		if (strucmp(curr_rm, cmptr->m_rmname)) {
+			sprintf(buf, "GOTO %s", cmptr->m_rmname);
+			serv_puts(buf);
+			serv_gets(buf);
+			if (buf[0] == '2') {
+				strcpy(curr_rm, cmptr->m_rmname);
+				}
+			else {
+				fprintf(stderr,"%s\n", buf);
+				}
+			}
+
+		/* download the message from the server... */
+		mmfp = fopen(mmtemp, "wb");
+		sprintf(buf, "MSG3 %ld", cmptr->m_num);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]=='6') {			/* read the msg */
+			msg_len = atol(&buf[4]);
+			while (msg_len > 0L) {
+				blok_len = ((msg_len >= 256L) ? 256 : (int)msg_len);
+				serv_read(buf, blok_len);
+				fwrite(buf, blok_len, 1, mmfp);
+				msg_len = msg_len - (long)blok_len;
+				}
+			}
+		else {					/* or print the err */
+			fprintf(stderr, "%s\n", buf);
+			}
+		fclose(mmfp);
+	
+		mmfp = fopen(mmtemp,"rb");
+
+		if (ismsgok(0L,mmfp,sysname)) {
+			++msgs_spooled;
+			fflush(stdout);
+			fseek(mmfp,0L,0);
+			fread(fbuf,3,1,mmfp);
+			fwrite(fbuf,3,1,destfp);
+			while (a=getc(mmfp),((a!=0)&&(a!='M'))) {
+				if (a!='C') putc(a,destfp);
+				fpgetfield(mmfp,fbuf);
+				if (a=='P') fprintf(destfp,"%s!",NODENAME);
+				if (a!='C')
+					fwrite(fbuf,strlen(fbuf)+1,1,destfp);
+				}
+			if (a=='M') {
+				fprintf(destfp, "C%s%c",
+					cmptr->m_rmname, 0);
+				putc('M',destfp);
+				do {
+					a=getc(mmfp);
+					putc(a,destfp);
+					} while(a>0);
+				}
+			}
+		fclose(mmfp);
+		}
+
+	unlink(mmtemp);
+	return(msgs_spooled);
+	}
+
+void outprocess(sysname) /* send new room messages to sysname */
+char *sysname; {
+	char sysflnm[64];
+	char srmname[32];
+	char shiptocmd[128];
+	char lbuf[64];
+	char tempflnm[64];
+	char buf[256];
+	struct msglist *cmlist = NULL;
+	struct rmlist *crmlist = NULL;
+	struct rmlist *rmptr,*rmptr2;
+	struct msglist *cmptr,*cmptr2;
+	FILE *sysflfp,*tempflfp;
+	int outgoing_msgs;
+	long thismsg;
+
+	sprintf(tempflnm,"/tmp/%s.%d",NODENAME,getpid());
+	tempflfp=fopen(tempflnm,"w");
+	if (tempflfp==NULL) return;
+
+
+/*
+ * Read system file for node in question and put together room list
+ */
+	sprintf(sysflnm,"%s/network/systems/%s",bbs_home_directory,sysname);
+	sysflfp=fopen(sysflnm,"r");
+	if (sysflfp==NULL) return;
+	fgets(shiptocmd,128,sysflfp); shiptocmd[strlen(shiptocmd)-1]=0;
+	while(!feof(sysflfp)) {
+		if (fgets(srmname,32,sysflfp)==NULL) break;
+		srmname[strlen(srmname)-1]=0;
+		fgets(lbuf,32,sysflfp);
+		rmptr=(struct rmlist *)malloc(sizeof(struct rmlist));
+		rmptr->next = NULL;
+		strcpy(rmptr->rm_name,srmname);
+		strip_trailing_whitespace(rmptr->rm_name);
+		rmptr->rm_lastsent = atol(lbuf);
+		if (crmlist==NULL) crmlist=rmptr;
+		else if (!strucmp(rmptr->rm_name,"control")) {
+			/* control has to be first in room list */
+			rmptr->next = crmlist;
+			crmlist = rmptr;
+			}
+		else {
+			rmptr2=crmlist;
+			while (rmptr2->next != NULL) rmptr2=rmptr2->next;
+			rmptr2->next=rmptr;
+			}
+		}
+	fclose(sysflfp);
+
+/*
+ * Assemble list of messages to be spooled
+ */
+	for (rmptr=crmlist; rmptr!=NULL; rmptr=rmptr->next) {
+
+		sprintf(buf,"GOTO %s",rmptr->rm_name);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]!='2') {
+			fprintf(stderr, "%s\n", buf);
+			}
+		else {
+			sprintf(buf, "MSGS GT|%ld", rmptr->rm_lastsent);
+			serv_puts(buf);
+			serv_gets(buf);
+			if (buf[0]=='1') while (serv_gets(buf), strcmp(buf,"000")) {
+				thismsg = atol(buf);
+				if ( thismsg > (rmptr->rm_lastsent) ) {
+					rmptr->rm_lastsent = thismsg;
+					
+				cmptr=(struct msglist *)
+				      malloc(sizeof(struct msglist));
+					cmptr->next = NULL;
+					cmptr->m_num = thismsg;
+					strcpy(cmptr->m_rmname, rmptr->rm_name);
+	
+					if (cmlist == NULL) cmlist = cmptr;
+					else {
+						cmptr2 = cmlist;
+						while (cmptr2->next != NULL)
+						cmptr2 = cmptr2->next;
+						cmptr2->next = cmptr;
+						}
+					}
+				}
+			else {		/* print error from "msgs all" */
+				fprintf(stderr, "%s\n", buf);
+				}
+			}
+		}
+
+	outgoing_msgs=0; cmptr2=cmlist;	/* this loop counts the messages */
+	while (cmptr2!=NULL) {
+		++outgoing_msgs;
+		cmptr2 = cmptr2->next;
+		}
+	printf("netproc: %d messages to be spooled to %s\n",
+		outgoing_msgs,sysname);
+	fflush(stdout);
+
+/*
+ * Spool out the messages, but only if there are any.
+ */
+	fflush(stdout);
+	if (outgoing_msgs!=0) outgoing_msgs=spool_out(cmlist,tempflfp,sysname);
+	printf("netproc: %d messages actually spooled\n",
+		outgoing_msgs);
+	fflush(stdout);
+
+/*
+ * Deallocate list of spooled messages.
+ */
+	while(cmlist!=NULL) {
+		cmptr=cmlist->next;
+		free(cmlist);
+		cmlist=cmptr;
+		}
+
+/*
+ * Rewrite system file and deallocate room list.
+ */
+	printf("Spooling...\n");
+	fflush(stdout);
+	sysflfp=fopen(sysflnm,"w");
+	fprintf(sysflfp,"%s\n",shiptocmd);
+	for (rmptr=crmlist; rmptr!=NULL; rmptr=rmptr->next)  
+		fprintf(sysflfp,"%s\n%ld\n",rmptr->rm_name,rmptr->rm_lastsent);
+	fclose(sysflfp);
+	while(crmlist!=NULL) {
+		rmptr=crmlist->next;
+		free(crmlist);
+		crmlist=rmptr;
+		}
+
+/* 
+ * Close temporary file, ship it out, and return
+ */
+	fclose(tempflfp);
+	if (outgoing_msgs!=0) ship_to(tempflnm,sysname);
+	unlink(tempflnm);
+	}
+
+
+/*
+ * Connect netproc to the Citadel server running on this computer.
+ */
+void np_attach_to_server() {
+	char buf[256];
+	char portname[8];
+	char *args[] = { "netproc", "localhost", NULL, NULL } ;
+
+	printf("Attaching to server...\n");
+	sprintf(portname, "%d", config.c_port_number);
+	args[2] = portname;
+	attach_to_server(3, args);
+	serv_gets(buf);
+	printf("%s\n",&buf[4]);
+	sprintf(buf,"IPGM %d", config.c_ipgm_secret);
+	serv_puts(buf);
+	serv_gets(buf);
+	printf("%s\n",&buf[4]);
+	if (buf[0]!='2') {
+		cleanup(2);
+		}
+	}
+
+
+
+/*
+ * main
+ */
+void main(argc,argv)
+int argc;
+char *argv[];
+{
+	char allst[32];
+	FILE *allfp;
+	int a;
+
+
+	strcpy(bbs_home_directory, BBSDIR);
+
+	/*
+	 * Change directories if specified
+	 */
+	if (argv > 0) for (a=1; a<argc; ++a) {
+		if (!strncmp(argv[a], "-h", 2)) {
+			strcpy(bbs_home_directory, argv[a]);
+			strcpy(bbs_home_directory, &bbs_home_directory[2]);
+			home_specified = 1;
+			}
+		else {
+			fprintf(stderr, "netproc: usage: netproc [-hHomeDir]\n");
+			exit(1);
+			}
+		}
+
+	get_config();
+
+	/* write all messages to the log from this point onward */
+	freopen(NPLOGFILE,NPLOGMODE,stdout);
+	freopen(NPLOGFILE,NPLOGMODE,stderr);
+
+	if (set_lockfile()!=0) {
+		fprintf(stderr,"netproc: lock file exists: already running\n");
+		cleanup(1);
+		}
+
+	signal(SIGINT,cleanup);
+	signal(SIGQUIT,cleanup);
+	signal(SIGHUP,cleanup);
+	signal(SIGTERM,cleanup);
+
+	printf("netproc: started.  pid=%d\n",getpid());
+	fflush(stdout);
+	np_attach_to_server();
+	fflush(stdout);
+
+	if (load_roomnames()!=0) fprintf(stdout,"netproc: cannot load rooms\n");
+	if (load_syslist()!=0) fprintf(stdout,"netproc: cannot load sysinfo\n");
+	setup_special_nodes();
+
+	inprocess();	/* first collect incoming stuff */
+
+	allfp=(FILE *)popen("cd ./network/systems; ls","r");
+	if (allfp!=NULL) {
+		while (fgets(allst,32,allfp)!=NULL) {
+			allst[strlen(allst)-1] = 0;
+			outprocess(allst);
+			}
+		pclose(allfp);
+		}
+
+	inprocess();	/* incoming again in case anything new was generated */
+	rewrite_syslist();
+	printf("netproc: processing ended.\n");
+	cleanup(0);
+	}
+

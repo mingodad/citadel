@@ -1,0 +1,189 @@
+# Makefile for Citadel/UX
+#
+# NOTE: normally you should not have to modify the Makefile.  All
+# system-dependent configuration is in the "configure" script, which
+# uses "Makefile.in" to generate a "Makefile".  In the rare instance
+# that you have to modify something here, please take note:
+# 1. Edit Makefile.in, -not- Makefile.
+# 2. Send e-mail to ajc@uncnsrd.mt-kisco.ny.us and let me know what you
+#    did, so any necessary changes can be put into the next release.
+#
+########################################################################
+
+client: citadel whobbs
+
+server: citserver setup
+
+utils: aidepost netmailer netproc netsetup useradmin msgform \
+msgstats readlog rcit stats sysoputil citmail netpoll mailinglist
+
+#
+#
+
+citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+	commands.o client_chat.o
+	$(CC) $(CFLAGS) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
+	messages.o commands.o client_chat.o $(LFLAGS) -o citadel
+
+netpoll: netpoll.c config.o ipc_c_tcp.o
+	$(CC) $(CFLAGS) netpoll.c config.o ipc_c_tcp.o $(LFLAGS) -o netpoll
+
+ipc_c_tcp.o: ipc_c_tcp.c sysdep.h
+	$(CC) $(CFLAGS) -c ipc_c_tcp.c
+
+ipc_c_socks4.o: ipc_c_socks4.c sysdep.h
+	$(CC) $(CFLAGS) -c ipc_c_socks4.c
+
+citadel.o: citadel.c axdefs.h citadel.h
+	$(CC) -O $(CFLAGS) -c citadel.c
+
+rooms.o: rooms.c citadel.h
+	$(CC) -O $(CFLAGS) -c rooms.c
+
+messages.o: messages.c citadel.h
+	$(CC) -O $(CFLAGS) -c messages.c
+
+commands.o: commands.c citadel.h
+	$(CC) -O $(CFLAGS) -c commands.c
+
+routines.o: routines.c citadel.h
+	$(CC) -O $(CFLAGS) -c routines.c
+
+routines2.o: routines2.c citadel.h
+	$(CC) -O $(CFLAGS) -c routines2.c
+
+client_chat.o: client_chat.c citadel.h
+	$(CC) -O $(CFLAGS) -c client_chat.c
+
+
+#
+#
+
+citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
+	msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
+	hooks.o housekeeping.o database.o control.o
+	$(CC) $(CFLAGS) citserver.o user_ops.o room_ops.o file_ops.o support.o \
+		msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
+		hooks.o housekeeping.o database.o control.o \
+		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
+
+citserver.o: citserver.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c citserver.c
+
+user_ops.o: user_ops.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c user_ops.c
+
+room_ops.o: room_ops.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c room_ops.c
+
+file_ops.o: file_ops.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c file_ops.c
+
+support.o: support.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c support.c
+
+msgbase.o: msgbase.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c msgbase.c
+
+locate_host.o: locate_host.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
+
+serv_chat.o: serv_chat.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c serv_chat.c
+
+hooks.o: hooks.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c hooks.c
+
+housekeeping.o: housekeeping.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c housekeeping.c
+
+database.o: database.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c database.c
+
+control.o: control.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c control.c
+
+config.o: config.c citadel.h axdefs.h
+	$(CC) -O $(CFLAGS) -D_REENTRANT -c config.c
+
+sysdep.o: sysdep.c citadel.h
+	$(CC) -O $(CFLAGS) -D_REENTRANT -c sysdep.c
+
+aidepost: aidepost.c config.o citadel.h
+	$(CC) -O $(CFLAGS) aidepost.c config.o $(LFLAGS) -o aidepost
+
+#
+# 'netmailer' needs to run setuid because it generates headers for Internet
+# mail.  If it is not run setuid, all outgoing mail may always show as coming
+# from your BBSUID rather than the actual sending user.
+#
+netmailer: netmailer.c internetmail.o config.o citadel.h
+	$(CC) -O $(CFLAGS) netmailer.c config.o internetmail.o $(LFLAGS) -o netmailer
+	chmod 4755 netmailer
+
+internetmail.o: internetmail.c
+	$(CC) -O $(CFLAGS) -c internetmail.c
+
+netproc: netproc.o config.o ipc_c_tcp.o citadel.h
+	$(CC) -O $(CFLAGS) netproc.o config.o ipc_c_tcp.o \
+		$(LFLAGS) -o netproc
+
+netproc.o: netproc.c citadel.h
+	$(CC) -O $(CFLAGS) -c netproc.c
+
+citmail: citmail.c config.o internetmail.o citadel.h
+	#
+	#                 ###### IMPORTANT ######
+	# To allow Citadel users to receive Internet mail, you must
+	# set this program to be your local mail delivery agent.
+	#
+	$(CC) -O $(CFLAGS) citmail.c config.o internetmail.o $(LFLAGS) -o citmail
+	chmod 4755 citmail
+
+mailinglist: mailinglist.c config.o internetmail.o citadel.h
+	$(CC) -O $(CFLAGS) mailinglist.c config.o internetmail.o \
+		$(LFLAGS) -o mailinglist
+
+setup: setup.c citadel.h
+	$(CC) -O $(CFLAGS) setup.c $(CURSES) $(LFLAGS) -o setup
+
+netsetup: netsetup.c config.o citadel.h
+	$(CC) -O $(CFLAGS) netsetup.c config.o $(LFLAGS) -o netsetup
+
+whobbs: whobbs.c ipc_c_tcp.o
+	$(CC) -O $(CFLAGS) whobbs.c ipc_c_tcp.o $(LFLAGS) -o whobbs
+
+useradmin: useradmin.c config.o citadel.h axdefs.h
+	$(CC) -O $(CFLAGS) useradmin.c config.o $(CURSES) $(LFLAGS) -o useradmin
+	chmod 4750 useradmin
+
+msgform: msgform.c
+	$(CC) -O $(CFLAGS) msgform.c $(LFLAGS) -o msgform
+
+msgstats: msgstats.c config.o citadel.h
+	$(CC) -O $(CFLAGS) msgstats.c config.o $(LFLAGS) -o msgstats
+
+readlog: readlog.c config.o citadel.h
+	$(CC) -O $(CFLAGS) readlog.c config.o $(LFLAGS) -o readlog
+
+rcit: rcit.c config.o citadel.h
+	$(CC) -O $(CFLAGS) rcit.c config.o $(LFLAGS) -o rcit
+	# 
+	# NOTE: TO RECEIVE CITADEL TRAFFIC VIA THE RCIT PROGRAM (ESPECIALLY
+	# IF YOU ARE GATEWAYING TO USENET) YOU MUST LINK RNEWS TO RCIT:
+	#ln -s rcit /usr/bin/rnews
+	# 
+
+stats: stats.c config.o citadel.h
+	$(CC) -O $(CFLAGS) stats.c config.o $(LFLAGS) -o stats
+
+sysoputil: sysoputil.c config.o citadel.h
+	$(CC) -O $(CFLAGS) sysoputil.c config.o $(LFLAGS) -o sysoputil
+	chmod 4750 sysoputil
+
+citadel.h: sysdep.h sysconfig.h ipcdef.h server.h
+	touch citadel.h
+
+clean:
+	find . -name \*.[o] -print -exec rm -f {} \;
+	rm -f sysdep.h

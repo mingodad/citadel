@@ -1,0 +1,30 @@
+                         Citadel/UX release 5.01
+
+Copyright (c) 1987-1998 by:
+        Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+
+Portions contributed by:
+	Brian Costello <btx@calyx.net>
+
+ ------------------------------------------------------------------------------
+ 
+    The entire package is free software; you can redistribute
+    and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation; either version 2 of the 
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  
+    Feedback concerning Citadel/UX goes to: ajc@uncnsrd.mt-kisco.ny.us 
+ 
+    The home of Citadel/UX is UNCENSORED! BBS:
+                    telnet://uncnsrd.mt-kisco.ny.us
+                    http://uncnsrd.mt-kisco.ny.us
+                    914-244-3252 (modem)

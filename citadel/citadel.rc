@@ -1,0 +1,207 @@
+#
+# citadel.rc
+#
+# This file allows full customization of the user interface.
+#
+# The standard client looks for this file in:
+# 1. $HOME/.citadelrc
+# 2. /usr/local/lib/citadel.rc
+# 3. <compiled BBSDIR>/citadel.rc
+
+# Set EDITOR to the name of an external editor to be used for entering
+# messages.  If you want the external editor to be used by default, be sure
+# to reflect this in the command set below.
+#
+editor=/usr/local/bin/simped
+
+# If you define PRINTCMD, it will be a pipe through which messages are
+# printed when the user hits the <P>rint key after a message.
+#
+#printcmd=lpr
+
+# If you define EXPCMD, it will be a pipe through which any incoming
+# express messages will be printed.
+#expcmd=xmessage -title "Express Message" -center -buttons OK -file -
+
+# If LOCAL_SCREEN_DIMENSIONS is set to 1, then the screen dimensions will
+# be requested from the underlying operating system instead of asking the
+# user.  This works when the user has his/her own copy of the client, it
+# works for xterms, it sometimes works for telnet sessions, but it doesn't
+# work for dialup connections.  Generally you should set this to 1 for a
+# private copy of the client or 0 for a shared copy of the client.
+#
+local_screen_dimensions=0
+
+# USE_FLOORS determines whether the user sees floors, or a flat room space.
+# Set it to YES to always use floors, NO to never use floors, or DEFAULT
+# to use the setting in the user's configuration (which is normally the case).
+#
+use_floors=DEFAULT
+
+# BEEP should be set to 1 if you wish the terminal to beep when an express
+# message (page) comes in, otherwise set it to 0.
+#
+beep=1
+
+# If you set the USERNAME variable, the value you set here will automatically
+# be passed to the "Enter your name:" prompt.
+#
+#username=My User Name
+
+# If you set the PASSWORD variable, the value you set here will automatically
+# be passed to all prompts which request a password ... including the prompt
+# which asks for a password when creating a new user.
+#
+#password=mypassword
+
+
+# COMMAND SET CONFIGURATION
+#
+# All lines starting with "cmd=" are considered to be commands.  This allows
+# mapping of keytstrokes to various functions of the client.
+#
+# Format of each line:
+# cmd_num,access,keystrokes
+#
+# Keep a copy of the original version of this file around as a reference
+# for the command numbers.  They are not documented anywhere else.
+#
+# Access is:  0 (all users), 1 (aides or room aides), 2 (aides only).
+# Please be aware that it is futile to attempt to gain unauthorized access to
+# the administrative functions of the system by changing all the access levels
+# to 0.  If you do this, you'll simply be able to enter a lot of commands that
+# will fail at the server ... so don't bother trying. :-)
+#
+# The actual key to be pressed should be prefaced with an & (ampersand)
+# character.  Ampersands are interesting and useful characters and you should
+# use them as much as possible.  Commands requiring more than one keystroke
+# should be entered as multiple fields.
+#
+# If the last keystroke string ends with a : (colon), then the command
+# will finish by allowing the user to enter a string.
+#
+# In keystroke names, the string ^r will be replaced by the name of the
+# current room.  The string ^c will be replaced by a comma.
+#
+# Commands may contain no more than five keystrokes.
+#
+# Note that the following characters are illegal in commands:
+#  , (comma)    : (colon)     ^ (caret)     & (ampersand)
+#
+#
+cmd=1,0,&? (Help)
+cmd=1,0,&Help
+cmd=2,0,&*Doorway
+cmd=3,0,&Chat
+#
+# If you want to use an external editor by default, set <E>nter message
+# to command #46 (external editor) instead of #4 (built-in editor).
+cmd=4,0,&Enter message
+#
+cmd=5,0,&Goto
+cmd=6,0,&Skip ^r
+cmd=7,0,&Zap (forget) room
+cmd=8,0,&Known rooms
+cmd=9,0,&Last five msgs
+cmd=10,0,read &Forward
+cmd=11,0,read &Reverse
+cmd=12,0,read &Old
+cmd=13,0,read &New
+cmd=14,0,read &Directory
+cmd=15,0,&Terminate
+cmd=16,0,&Ungoto
+cmd=17,0,&Who is online
+cmd=47,0,&Abandon ^r^c goto...
+cmd=50,0,toggle e&Xpert mode
+cmd=49,0,read &Info file
+cmd=18,2,&! <shell>
+cmd=19,0,&.,list &Zapped rooms
+cmd=52,0,&.,&Skip ^r^c goto:
+cmd=56,0,&Page a user
+cmd=58,0,&Mail
+#
+# We implement both <.G>oto and <J>ump commands which do the same thing, in
+# order to please a wider audience of users.  Remove one if you want to.
+#
+cmd=20,0,&Jump:
+cmd=20,0,&.,&Goto:
+#
+cmd=21,0,&.,&Help:
+cmd=22,1,&.,&Aide,&Kill this room
+cmd=23,1,&.,&Aide,&Edit this room
+cmd=24,1,&.,&Aide,&Who knows room
+cmd=25,2,&.,&Aide,edit &User
+cmd=26,2,&.,&Aide,&Validate new users
+cmd=48,1,&.,&Aide,enter &Info file
+cmd=27,1,&.,&Aide,&Room,&Invite user
+cmd=28,1,&.,&Aide,&Room,&Kick out user
+cmd=51,1,&.,&Aide,&File,&Delete
+cmd=53,1,&.,&Aide,&File,&Send over net
+cmd=54,1,&.,&Aide,&File,&Move
+cmd=70,2,&.,&Aide,&Message edit:
+cmd=29,0,&.,&Terminate,and &Quit
+cmd=30,0,&.,&Terminate,and &Stay online
+cmd=32,0,&.,&Read,&User listing
+cmd=33,0,&.,&Read,&Textfile formatted
+#
+# Command 55 allows the user to save a downloaded file directly to the
+# computer running the client software.  It is appropriate for a copy of
+# this client running on the user's own computer.  It is NOT appropriate for
+# public copies of the client that people will be dialing into.
+#
+#cmd=55,0,&.,&Read,&File
+#
+# Commands 34, 43, and 45 are appropriate for public copies of the client for
+# dialup use.  They transfer downloaded files to a temporary file and then
+# send them along to a dialup user using the popular protocols.
+#
+cmd=34,0,&.,&Read,file using &Xmodem
+cmd=43,0,&.,&Read,file using &Ymodem
+cmd=45,0,&.,&Read,file using &Zmodem
+cmd=31,0,&.,&Read,&File unformatted
+#
+cmd=13,0,&.,&Read,&New messages
+cmd=12,0,&.,&Read,&Old msgs reverse
+cmd=71,0,&.,read &Last:
+cmd=9,0,&.,&Read,&Last five msgs
+cmd=14,0,&.,&Read,&Directory
+cmd=49,0,&.,&Read,&Info file
+cmd=35,0,&.,&Enter,&Password
+cmd=36,0,&.,&Enter,&ASCII message
+cmd=37,0,&.,&Enter,&Configuration
+cmd=38,0,&.,&Enter,a new &Room
+cmd=39,0,&.,&Enter,&Textfile
+cmd=40,0,&.,&Enter,file using &Xmodem
+cmd=42,0,&.,&Enter,file using &Ymodem
+cmd=44,0,&.,&Enter,file using &Zmodem
+#
+# Command 57 is the local-file-upload command for users with their own
+# copy of the clientware.  Commands 72-74 are for image uploads.
+#
+#cmd=57,0,&.,&Enter,&File
+#cmd=72,0,&.,&Enter,&Image,user &Picture
+#cmd=73,0,&.,&Enter,&Image,&Room banner
+#cmd=74,0,&.,&Enter,&Image,&Floor label
+#
+cmd=41,0,&.,&Enter,re&Gistration
+cmd=4,0,&.,&Enter,&Message
+cmd=46,0,&.,&Enter,message with &Editor
+#
+cmd=59,0,&;,&Configure floor mode
+cmd=60,0,&;,&Goto floor:
+cmd=61,0,&;,&Skip to floor:
+cmd=62,0,&;,&Zap (forget) floor
+cmd=63,2,&;,&Aide,&Create floor
+cmd=64,2,&;,&Aide,&Edit floor
+cmd=65,2,&;,&Aide,&Kill floor
+cmd=68,0,&;,&Known rooms
+cmd=66,0,&.,&Enter,&Bio
+cmd=67,0,&.,&Read,&Bio
+#
+# Command 69 allows the user to enter a server command directly.  It is
+# primarily for testing and not intended for general use.  Usually there
+# is no need to enable it.
+cmd=69,0,&@Server command:
+#
+# end of command set configuration
+#

@@ -1,0 +1,9 @@
+# Room name cross-reference for bidirectional mailing list gateway
+#
+# Each line is in the form:
+# <mailing list posting address>,<Cit/UX room name>
+#
+# (Yes, this implies that you can't cross-reference a room that has a
+# comma in its name.)
+#
+gnu-win32@cygnus.com,Cygnus

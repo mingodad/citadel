@@ -1,0 +1,265 @@
+                          Citadel/UX Network Manual
+                 See copyright.doc for copyright information
+  
+     
+  OVERVIEW
+   
+   The fundamental structure of the networker is fairly simple, however, it
+has enough features to make it a bit complicated. This is probably the most
+difficult part of the entire Citadel/UX package. So before we dive in head
+first, let's look at the various network files and directories.
+  
+ netproc.c                    Does all of the actual network processing.
+ rcit.c                       Feeds standard input into the networker, also
+                              has the ability to translate UseNet news format
+                              into Citadel/UX binary format.
+ netmailer.c                  Called by the main program when a user sends a
+                              network mail message.
+ citmail.c                    A patch to allow Citadel/UX users to receive
+                              mail through the normal UUCP mail facility.
+ cux2ascii.c                  A filter which translates Citadel/UX binary
+                              format to UseNet news format.
+ network                      Directory in which all network files reside.
+ network/systems              Contains network info for each neighboring system
+ network/systems/sysname      Network file for a node called "sysname".
+ network/mail.aliases         Aliases for the mailer.
+ network/rnews.xref           Cross-references room names to newsgroup names.
+ network/mail.sysinfo         Contains routing information for network mail.
+ network/filterlist           The "kill file" for your system.
+   
+  
+  SETUP
+  
+  There are three options in setup which must be properly set. The
+first is NODENAME, which must be the same as your uucp system name. The second
+is HUMANNODE, which is the "long" full name of your system (for documentation).
+The third is FQDN, which is your system's fully qualified domain name.  If
+you don't have a domain, just set this value to your NODENAME followed by the
+string ".UUCP" (a traditional convention, even if you're not on a UUCP net).
+     
+ 
+   SETTING UP SYSTEMS FILES
+   
+   For each of your neighboring Citadel/UX systems you must create a systems
+file. The file is called network/systems/sysname, where sysname is the other
+system's node name. The first line contains a command that transfers a spool
+file to the network/spoolin directory on the remote system. The string "%s"
+will be replaced by the name of the spool file by netproc. You may only use
+%s ONCE in the command line. Usually, some sort of UUCP transfer will be used
+to do the transfer, but you may use any facility you want, *** as long as the
+file ends up in the network/spoolin directory on the remote system ***. In
+a typical system, you will probably use uux to pipe the file through the
+command "rcit -c" on the remote system. When the remote system receives this
+command, it will copy standard input to the network/spoolin directory, and
+then begin processing the file as soon as it is there.
+   After the command line you should enter the names of all the rooms you
+intend to share with this system. Each room name should be followed by a
+line containing a zero - this extra field is the "last message sent" (which
+will be updated by netproc when it is run). Here is a sample systems file for
+a node called uncnsrd:
+  
+cat %s |uux - uncnsrd!rcit -c
+Network Test
+0
+Gateway
+0
+The Room
+0
+   
+  The rooms "Network Test", "Gateway", and "The Room" will be spooled to
+the remote system. These rooms should be designated as network rooms with
+the .<A>ide <E>ditRoom command.
+   
+  
+  USING NETPROC
+  
+   Calling netproc with no arguments simply looks in the network/spoolin
+directory for newly arrived messages, and posts them if it finds any.
+   To batch new messages and send them off to a remote system, the usage
+  
+ netproc sysname
+  
+ will do outbound network processing for system "sysname". It is recommended
+that you use the cron program to handle your network processing on a routine
+basis automatically.  Arrange with your netneighbors for both of your systems
+to batch new messages before actual polls take place, to guarantee that
+messages travel across the network as quickly as possible.
+   
+   
+  NETWORKING WITH A USENET NEWS SITE
+   
+   Two filters are provided that will allow a room to be equivalent to a
+UseNet newsgroup. rcit, when called without the -c argument, will assume
+that standard input is in the news format, and convert it before processing.
+Likewise, the filter cux2ascii.c converts Citadel format to news format,
+allowing you to use command lines such as
+   
+ cat %s |cux2ascii |uux - uunet!rnews
+   
+  ...the remote system need not be a Citadel/UX. By default, room names are
+the same as the newsgroup names. However, if you wish the room name to be
+different, you may specify so in the network/rnews.xref file. Here is a
+sample of this file:
+       
+comp.unix.wizards,UNIX wizards
+alt.drugs,Drugs and Narcotics
+alt.music,Music
+   
+  It is rather simple, each line taking the form of newsgroupname,sysname.
+There may not be any spaces in the newsgroup name, but there may be spaces
+in the corresponding room name.
+ 
+ 
+  USING CITADEL/UX AS YOUR LOCAL E-MAIL SYSTEM
+   
+   To use Citadel/UX as your local mail system, simply define the "citmail"
+program as your *local* mail delivery agent.  You can plug citmail into any
+popular mail routing system, including sendmail, smail, MMDF, etc.
+
+   Once you are using citmail as your local mail delivery agent, all users
+on your BBS may receive mail.  They can use addresses like
+"my_user_name@yoursite.com" (note the spaces in the user's name are replaced
+by underscores) or "cit1234@yoursite.com" (where 1234 is the user's user
+number).
+  
+   Messages may be posted by mail if you have this program installed.  Simply
+use the prefix "room_" -- for example, a message addressed to
+"room_hot_pink_amoebas@uncnsrd.mt-kisco.ny.us would be posted in the room "Hot
+Pink Amoebas" at the target system.
+ 
+   PLEASE NOTE that for your BBS users to be able to send mail, you should
+check the mailer command at the top of "netmailer.c" to be sure that it is
+the correct mailer command for your system.  You might need a command like
+"sendmail %s" for SMTP or "rmail %s" for UUCP.
+   
+     
+  MAIL ALIASES
+   
+   The file network/mail.aliases is a simple list of aliases for the various
+mailers to use. Each line takes the form
+  
+alias,name
+  
+   Obviously, neither the alias nor the name can contain commas. The name
+may also be the system name "sysop", where messages sent to sysop will
+be posted in the Aide> room. 
+   
+   
+  CITADEL/UX NETWORK MAIL
+   
+   Citadel/UX has the ability to transport mail in a simple and
+transparent fashion not unlike the way public messages are sent. Users may
+enter recipient names exactly as they appear on top of messages (i.e.,
+user name @ system name). In addition, mail routing is provided, allowing
+users to send mail to systems which do not directly connect with their own.
+   
+  When entering a message in the Mail> room, a user may type a recipient
+name on the local system, or on a remote system. If the recipient is not
+local, citadel.c calls netmailer.c, which is a standalone program that handles
+network mail.  This runs in a multithreaded mode, allowing netmailer to run in
+the background while the user goes on to do something else.
+ 
+ 
+  INTELLIGENT NETWORK PROCESSING AND THE MAIL.SYSINFO FILE
+ 
+  There is (or soon will be) a file in your network directory called
+"mail.sysinfo".  In earlier releases of the network software, the system
+administrator had to manually configure this file.  Starting with netproc
+version 2.1, the system should now create and configure the file automatically.
+Note that all information may not appear in the file immediately.  When a
+message arrives from a system on the network, your system will attempt to
+add that system to its network map.  If the originating system is one of your
+netneighbors, it will look for a systems file in the network/systems directory
+to determine whether it is a valid neighbor.  If the originating system is
+not a neighbor, but the message arrived via a valid neighbor, your map will
+be updated accordingly, with an entry for the new system showing the next hop
+to get there.
+ 
+  So, under normal circumstances you shouldn't have to configure this file at
+all.  But if you need to do something special, or if for some reason netproc
+detects the topology wrong, here's how to configure mail.sysinfo.  There
+are three types of entries in this file. A "use" entry tells the system which
+neighbor to route a message through to get to a particular non-neighboring
+system. A "bin" entry tells the system that a particular neighbor supports
+net mail. If there are systems that either do not have the netmailer or are
+not running Citadel/UX, but can be reached by regular electronic mail, you
+can use the "uum" command. Type "uum" followed by an address (for the user
+name, use a %s which will be replaced by the user name at the remote
+system. Here is a sample network map, where our system is called "myself"
+and all systems have Citadel/UX EXCEPT for "gateway" and "mailsys":
+     
+                gateway---mailsys          _____testbbs
+                /                         / 
+           othersys ----- myself ----- thebox
+              /                          \_______theirsys
+          funboard
+   
+   In this example, our neighbors are "othersys" and "thebox". othersys
+also connects to funboard, and thebox connects to testbbs and theirsys. If
+everyone supports netmail, the network/mail.sysinfo file would look like this:
+   
+funboard
+use othersys
+
+testbbs
+use thebox
+
+theirsys
+use thebox
+
+othersys
+bin Mail
+
+theirsys
+bin Mail
+
+gateway
+uum othersys!gateway!%s
+
+mailsys
+uum othersys!gateway!mailsys!%s
+   
+  (Keep in mind that your file will contain additional system-generated
+information.)
+ 
+  The "bin" entries specify neighbors, the "use" entries specify routing, and
+the "uum" entries specify regular UUCP mail. The method of delivery is totally
+transparent to the user, who only needs to enter the recipient as user@sysname.
+Note that netproc will probably stuff lots of other info into each entry.
+  
+    
+  THE KILL FILE
+   
+   Tired of idiots lowering the quality of the net?  You can set up a "kill
+file" in ./network/filterlist that can be used to filter out messages from
+any user, room, or system (or any combination).  The three fields should be
+separated by commas, and the name "*" may be used as a wildcard in any field.
+Examples:
+ 
+ # Filter out user "The Idiot" in "Idiot Room" at "idiotbbs"
+ #
+ The Idiot,Idiot Room,idiotbbs
+ 
+ # Filter out the same user, but in every room
+ # 
+ The Idiot,*,idiotbbs
+ 
+ # Filter out all messages from a system we don't like
+ #
+ *,*,idiotbbs
+ 
+ # Filter out messages in a certain room from a certain system
+ #
+ *,The Room,idiotbbs
+ 
+   You could also put a "*" wildcard in all three fields, essentially
+disabling all incoming messages.  Obviously you don't want to do this.
+  
+ 
+  CONCLUSION
+   
+   That should cover everything you need to get running. By the way, gateway
+software for StoneHenge and NYTI FordBoard systems is available upon special
+request.  And, a Cit86Net gateway is now available.  For the latest version
+of this program, or to leave comments/suggestions, call my board  -  
+UNCENSORED! BBS at (914) 244-3252 (modem) or uncnsrd.mt-kisco.ny.us (Internet).

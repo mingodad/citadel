@@ -1,0 +1,57 @@
+# Citadel/UX Utilities Menu (shell script)
+# version 1.00 - March 1989
+# see copyright.doc for copyright information
+
+while true
+do
+	clear
+	echo
+	echo
+	echo "                    Citadel/UX Utilities Menu"
+	cat <<!!
+
+ a. Citadel/UX login                     g. Mail utilities
+ b. Sysop utilities                      h. Read call log
+ c. Calling statistics                   i. List last 20 users
+ d. Message file statistics              j. Who is logged in
+ e. User administration                  k. Setup and configuration
+ f. User list with passwords             q. Quit
+
+!!
+	echo "Please enter your selection:"
+	read x
+	case $x in
+		[a,A])	citadel
+			;;
+		[b,B])	sysoputil
+			;;
+		[c,C])	stats 
+			read y
+			;;
+		[d,D])	msgstats |more -cw
+			;;
+		[e,E])	useradmin
+			;;
+		[f,F])	clear
+			userlist -p |more -cw
+			;;
+		[g,G])	mailutil
+			;;
+		[h,H])	readlog |more -cw
+			;;
+		[i,I])	readlog -t |more -cw
+			;;
+		[j,J])	whobbs |more -cw
+			;;
+		[k,K])  clear
+			setup
+			;;
+		[q,Q])	clear
+			break;;
+		!)	sh
+			;;
+		*)	echo "Selection $x is not available"
+			sleep 1
+			;;
+		esac
+	done

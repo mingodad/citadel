@@ -1,0 +1,335 @@
+/*
+ * ipc_c_std.c
+ * 
+ * Citadel/UX client/server IPC - client module using TCP/IP
+ *
+ * version 1.3
+ *
+ */
+
+#define DEFAULT_HOST	"127.0.0.1"
+#define DEFAULT_PORT	"citadel"
+
+
+#include "sysdep.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <string.h>
+#include <pwd.h>
+#include <errno.h>
+
+void logoff();
+
+/*
+ * If server_is_local is set to nonzero, the client assumes that it is running
+ * on the same computer as the server.  Several things happen when this is
+ * the case, including the ability to map a specific tty to a particular login
+ * session in the "<W>ho is online" listing, the ability to run external
+ * programs, and the ability to download files directly off the disk without
+ * having to first fetch them from the server.
+ * Set the flag to 1 if this IPC is local (as is the case with pipes, or a
+ * network session to the local machine) or 0 if the server is executing on
+ * a remote computer.
+ */
+char server_is_local = 0;
+
+#ifndef INADDR_NONE
+#define INADDR_NONE 0xffffffff
+#endif
+
+int serv_sock;
+
+u_long inet_addr();
+
+void timeout() {
+	printf("\rConnection timed out.\n");
+	logoff(3);
+	}
+
+int connectsock(host,service,protocol)
+char *host;
+char *service;
+char *protocol; {
+	struct hostent *phe;
+	struct servent *pse;
+	struct protoent *ppe;
+	struct sockaddr_in sin;
+	int s,type;
+
+	bzero((char *)&sin,sizeof(sin));
+	sin.sin_family = AF_INET;
+
+	pse=getservbyname(service,protocol);
+	if (pse) {
+		sin.sin_port = pse->s_port;
+		}
+	else if ((sin.sin_port = htons((u_short)atoi(service))) == 0) {
+		fprintf(stderr,"Can't get %s service entry: %s\n",
+			service,strerror(errno));
+		logoff(3);
+		}
+	
+	phe=gethostbyname(host);
+	if (phe) {
+		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
+		}
+	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
+		fprintf(stderr,"Can't get %s host entry: %s\n",
+			host,strerror(errno));
+		logoff(3);
+		}
+
+	if ((ppe=getprotobyname(protocol))==0) {
+		fprintf(stderr,"Can't get %s protocol entry: %s\n",
+			protocol,strerror(errno));
+		logoff(3);
+		}
+
+	if (!strcmp(protocol,"udp")) {
+		type = SOCK_DGRAM;
+		}
+	else {
+		type = SOCK_STREAM;
+		}
+
+	s = socket(PF_INET,type,ppe->p_proto);
+	if (s<0) {
+		fprintf(stderr,"Can't create socket: %s\n",strerror(errno));
+		logoff(3);
+		}
+
+
+	signal(SIGALRM,timeout);
+	alarm(30);
+
+	if (connect(s,(struct sockaddr *)&sin,sizeof(sin))<0) {
+		fprintf(stderr,"can't connect to %s.%s: %s\n",
+			host,service,strerror(errno));
+		logoff(3);
+		}
+
+	alarm(0);
+	signal(SIGALRM,SIG_IGN);
+
+	return(s);
+	}
+
+/*
+ * convert service and host entries into a six-byte numeric in the format
+ * expected by a SOCKS v4 server
+ */
+void numericize(buf,host,service,protocol)
+unsigned char buf[];
+char *host;
+char *service;
+char *protocol; {
+	struct hostent *phe;
+	struct servent *pse;
+	struct sockaddr_in sin;
+
+	bzero((char *)&sin,sizeof(sin));
+	sin.sin_family = AF_INET;
+
+	pse=getservbyname(service,protocol);
+	if (pse) {
+		sin.sin_port = pse->s_port;
+		}
+	else if ((sin.sin_port = htons((u_short)atoi(service))) == 0) {
+		fprintf(stderr,"Can't get %s service entry: %s\n",
+			service,strerror(errno));
+		logoff(3);
+		}
+
+	buf[1] = (((sin.sin_port) & 0xFF00) >> 8);
+	buf[0] = ((sin.sin_port) & 0x00FF);
+	
+	phe=gethostbyname(host);
+	if (phe) {
+		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
+		}
+	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
+		fprintf(stderr,"Can't get %s host entry: %s\n",
+			host,strerror(errno));
+		logoff(3);
+		}
+	buf[5] = ((sin.sin_addr.s_addr) & 0xFF000000) >> 24;
+	buf[4] = ((sin.sin_addr.s_addr) & 0x00FF0000) >> 16;
+	buf[3] = ((sin.sin_addr.s_addr) & 0x0000FF00) >> 8;
+	buf[2] = ((sin.sin_addr.s_addr) & 0x000000FF) ;
+	}
+
+/*
+ * input binary data from socket
+ */
+void serv_read(buf,bytes)
+char buf[];
+int bytes; {
+	int len,rlen;
+
+	len = 0;
+	while(len<bytes) {
+		rlen = read(serv_sock,&buf[len],bytes-len);
+		if (rlen<1) {
+			printf("\rNetwork error - connection terminated.\n");
+			printf("%s\n", strerror(errno));
+			logoff(3);
+			}
+		len = len + rlen;
+		}
+	}
+
+
+/*
+ * send binary to server
+ */
+void serv_write(buf, nbytes)
+char buf[];
+int nbytes; {
+	int bytes_written = 0;
+	int retval;
+	while (bytes_written < nbytes) {
+		retval = write(serv_sock, &buf[bytes_written],
+			nbytes - bytes_written);
+		if (retval < 1) {
+			printf("\rNetwork error - connection terminated.\n");
+			printf("%s\n", strerror(errno));
+			logoff(3);
+			}
+		bytes_written = bytes_written + retval;
+		}
+	}
+
+
+
+/*
+ * input string from socket - implemented in terms of serv_read()
+ */
+void serv_gets(buf)
+char buf[]; {
+	buf[0] = 0;
+	do {
+		buf[strlen(buf) + 1] = 0;
+		if (strlen(buf) < 255) serv_read(&buf[strlen(buf)], 1);
+		} while (buf[strlen(buf)-1] != 10);
+	if (strlen(buf) > 0) buf[strlen(buf)-1] = 0;
+	/* printf("> %s\n", buf); */
+	}
+
+
+/*
+ * send line to server - implemented in terms of serv_write()
+ */
+void serv_puts(buf)
+char *buf; {
+	/* printf("< %s\n", buf); */
+	serv_write(buf, strlen(buf));
+	serv_write("\n", 1);
+	}
+
+
+/*
+ * attach to server
+ */
+void attach_to_server(argc,argv)
+int argc;
+char *argv[]; {
+	int a;
+	char cithost[256];	int host_copied = 0;
+	char citport[256];	int port_copied = 0;
+	char socks4[256];
+	unsigned char buf[256];
+	struct passwd *p;
+
+	strcpy(cithost,DEFAULT_HOST);	/* default host */
+	strcpy(citport,DEFAULT_PORT);	/* default port */
+	strcpy(socks4,"");		/* SOCKS v4 server */
+
+	for (a = 0; a < argc; ++a) {
+		if (a == 0) {
+			/* do nothing */
+			}
+		else if (!strcmp(argv[a],"-s")) {
+			strcpy(socks4,argv[++a]);
+			}
+		else if (host_copied == 0) {
+			host_copied = 1;
+			strcpy(cithost,argv[a]);
+			}
+		else if (port_copied == 0) {
+			port_copied = 1;
+			strcpy(citport,argv[a]);
+			}
+
+/*
+		else {
+			fprintf(stderr,"%s: usage: ",argv[0]);
+			fprintf(stderr,"%s [host] [port] ",argv[0]);
+			fprintf(stderr,"[-s socks_server]\n");
+			logoff(2);
+			}
+*/
+		}
+
+	server_is_local = 0;
+	if ( (!strcmp(cithost,"localhost"))
+   	   || (!strcmp(cithost,"127.0.0.1")) ) server_is_local = 1;
+
+	/* if not using a SOCKS proxy server, make the connection directly */
+	if (strlen(socks4)==0) {
+		serv_sock = connectsock(cithost,citport,"tcp");
+		return;
+		}
+
+	/* if using SOCKS, connect first to the proxy... */
+	serv_sock = connectsock(socks4,"1080","tcp");
+	printf("Connected to SOCKS proxy at %s.\n",socks4);
+	printf("Attaching to server...\r");
+	fflush(stdout);
+
+	sprintf(buf,"%c%c",
+		4,			/* version 4 */
+		1);			/* method = connect */
+	serv_write(buf,2);
+
+	numericize(buf,cithost,citport,"tcp");
+	serv_write(buf,6);		/* port and address */
+
+	p = (struct passwd *) getpwuid(getuid());
+	serv_write(p->pw_name, strlen(p->pw_name)+1);
+					/* user name */
+
+	serv_read(buf,8);		/* get response */
+
+	if (buf[1] != 90) {
+		printf("SOCKS server denied this proxy request.\n");
+		logoff(3);
+		}
+
+	}
+
+/*
+ * return the file descriptor of the server socket so we can select() on it.
+ */
+int getsockfd() {
+	return serv_sock;
+	}
+
+
+/*
+ * return one character
+ */
+char serv_getc() {
+	char buf[2];
+	char ch;
+
+	serv_read(buf, 1);
+	ch = (int) buf[0];
+
+	return(ch);
+	}

@@ -1,0 +1,18 @@
+The following commands are available only to Aides.  A subset of these
+commands are available to room aides when they are currently in the room
+they are room aide for.
+   
+ .<A>ide <E>dit Room                - edit current room's parameters
+ .<A>ide <F>ile <D>elete            - delete a file from the directory
+ .<A>ide <F>ile <M>ove              - move a file to another room
+ .<A>ide <F>ile <S>end over net     - send a file across the network
+ .<A>ide enter <I>nfo file          - create/change this room's info file
+ .<A>ide <K>ill Room                - delete the current room
+ .<A>ide <R>oom <I>nvite user       - add user to invitation-only room
+ .<A>ide <R>oom <K>ick out user     - delete user from invitation-only room
+ .<A>ide <U>ser edit                - change a user's access level
+ .<A>ide <V>alidate new users       - process new user registration
+ .<A>ide <W>ho knows room           - lists users with access to current room
+ 
+ In addition, the <M>ove and <D>elete commands are available at the
+message prompt.

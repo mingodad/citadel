@@ -1,0 +1,48 @@
+Extended commands are available using the period ( . ) key. To use
+a dot command, press the . key, and then enter the first letter of
+each word in the command. The words will appear as you enter the keys.
+You can also backspace over partially entered commands. The following
+commands are available:
+ 
+ .<E>nter message using <A>scii     - raw mode message input
+ .<E>nter <B>io                     - tell everyone about yourself
+ .<E>nter <C>onfiguration           - set up your account statistics
+ .<E>nter message with <E>ditor     - (installation dependent)
+ .<E>nter re<G>istration            - enter your name, address, etc.
+ .<E>nter <M>essage                 - enter message with the Citadel editor
+ .<E>nter <P>assword                - change your password
+ .<E>nter <R>oom                    - create a new room
+ .<E>nter <T>extfile                - ASCII upload
+ .<E>nter file using <X>modem       - protocol upload
+ .<E>nter file using <Y>modem       - protocol upload
+ .<E>nter file using <Z>modem       - protocol upload
+    
+ .<R>ead <B>io                      - read other users' bios
+ .<R>ead <D>irectory                - directory of current room
+ .<R>ead <F>ile unformatted         - raw ASCII download
+ .<R>ead <I>nfo file                - read info file for this room
+ .<R>ead <L>ast five messages       - same as <L>
+ .<R>ead <N>ew messages             - same as <N>
+ .<R>ead <O>ld messages             - same as <O>
+ .<R>ead <R>everse                  - same as <R>
+ .<R>ead <T>extfile paginated       - prints a textfile with page prompts
+ .<R>ead <U>ser List                - lists users with accounts on system
+ .<R>ead file using <X>modem        - protocol download
+ .<R>ead file using <Y>modem        - protocol download
+ .<R>ead file using <Z>modem        - protocol download
+    
+ .<G>oto room: (type roomname)      - jump to a specific room
+                                      (you only need to type enough of the
+                                      room name to make it unique)
+ .<S>kip, goto: (type roomname)     - skip current room, jump to another
+ .<H>elp file: (type filename)      - read a help file
+ .<T>erminate and <Q>uit            - log out immediately without prompts
+ .<T>erminate and <S>tay online     - log out and allow another user to log in
+ .<Z>apped room list                - list all zapped (forgotten) rooms
+
+ Floor commands (if using floor mode)
+ ;<C>onfigure floor mode            - turn floor mode on or off
+ ;<G>oto floor:                     - jump to a specific floor
+ ;<K>nown rooms                     - list all rooms on all floors
+ ;<S>kip to floor:                  - skip current floor, jump to another
+ ;<Z>ap floor                       - zap (forget) all rooms on this floor

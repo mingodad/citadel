@@ -1,0 +1,12 @@
+Title:          Citadel/UX
+Version:        5.01
+Description:    An implementation of the Citadel BBS program for Unix systems.
+		This is the de facto standard Unix version of Citadel, and is
+                now an advanced client/server application.
+Author:         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Maintained-by:  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Maintained-at:  uncnsrd.mt-kisco.ny.us, ftp.tux.org
+Platforms:      Any reasonably compliant POSIX (Unix, Linux, etc.) type
+                system with a TCP/IP stack and POSIX Threads (pthreads).
+Copying-Policy: Freely Redistributable
+Keywords:       Citadel Citadel/UX UNIX room-based BBS IGnet IGnet/Open

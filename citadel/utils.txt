@@ -1,0 +1,226 @@
+                        Citadel/UX Utilities Manual 
+                 See copyright.doc for copyright information
+   
+   
+ OVERVIEW
+    
+   The following utilities will be discussed in this document:
+ aidepost   Post standard input to the Aide> room. NOTE: called by chat.c
+ whobbs     Who is on the system (connected to the server, actually.)
+ msgstats   Print lowest & highest message numbers, and current file position
+ stats      Print the calling statistics & graph.
+ mailutil   Mailbox utilities
+ msgform    Format a binary message to the screen (stdin or in a file)
+ userlist   Print the userlist.
+ readlog    Read the caller log
+ useradmin  Full-screen user account editor. NOTE: requires the "curses" lib
+ sysoputil  Various and sundry sysop utilities.
+   
+   It is up to you to decide which utilities should be made accessible only
+to sysops. It is important that you set the file permissions correctly. All
+utilities should have access to the BBS data files, whether through ownership
+or set-user-id. In addition, aidepost should be accessible by the chat program,
+and userlist & whobbs should be accessible by citadel. I will attempt to
+address each program individually.
+   
+   
+  AIDEPOST
+  
+   The nature of this program is rather simple. Standard input (stdin) is
+converted into a message, filed in the main message file (msgmain), and posted
+in the Aide> room. This is useful for keeping transcripts of system activity
+that has to do with the BBS. You may also wish to have a really BIG msgmain
+file, and have all of your normal system logs go in there also. 
+   
+    
+  WHOBBS
+   
+   This program is similar to the "who" command.  It lists all of the users
+who are currently connected to your BBS server, either locally or across a
+network.  Unless you're running a standalone system, "who" and "whobbs" will
+probably not have a one-to-one correspondence (unlike earlier versions of the
+system).
+ 
+   One thing to keep in mind is that the "whobbs" utility actually opens a
+connection to the server.  If the server is maxed out, whobbs will still be
+able to provide a listing, because it doesn't need to log in to execute the
+RWHO command.  Note that whobbs does not list its own session.
+ 
+   Running the <W>ho is online command from the client does *not* call this
+utility.  It has this functionality built in.
+   
+   
+  MSGSTATS
+   
+   This program displays the lowest and highest message numbers which currently
+exist in the master file, the current file pointer (what byte in msgmain the
+next message entered will start at), and whether the file is locked or
+unlocked. Normally the file will only be locked for a second or two during a
+message <S>ave, or network processing, but if there is a glitch somewhere and
+the file remains locked, this program will tell you so and you can use the
+unlock option in sysoputil.
+ 
+   As of release 3.23, message base locking is a lot more reliable, because
+it uses file-locking system calls if they are available.  But, if you're
+running on a brain-damaged kernel that doesn't have file locking, and your
+message base appears to be locked up, this will tell you.
+ 
+   This utility now also provides information on the total number of
+messages currently on the system, and the average message length.
+   
+   
+  STATS
+  
+   (NOTE: this program no longer uses the "curses" library.)   It prints
+various statistics on the screen based on the calllog file, such as number
+of connects, number of logins, number of logouts, number of disconnects,
+bad password attempts, etc. All statistics are provided in three figures:
+times per call, times per day, and total times.
+   After this screen appears, you may press return for the next screen. This
+is a graphic representation of system usage, broken down into 20 minute
+segments of the day.  This will show you when your peak usage is.
+   Press return again and the stats program will list your system's top
+20 callers.
+   The final screen lists the twenty users with the highest post per call
+ratios.  Unline the other screens, this statistic is extracted from the user
+file itself rather than the call log.
+ 
+ stats may be called with the "-b" option to run in batch mode.  In this case,
+it skips all the prompts and just prints everything out in one bulk output.
+Or it may be called with the "-p" option to only print the Post-to-Call
+ratios and nothing else.
+  
+  
+  MAILUTIL
+   
+    This utility allows you to perform various operations on a user's
+mailbox.  Note that reading people's mail is, of course, unethical, and
+possibly illegal.
+   
+  MSGFORM
+  
+   On occasion, I have had messages in Citadel/UX binary format that I have
+wanted to view. Or needed a way to view a network spool file. Or wanted to
+directly examine parts of msgmain. This program is a simple message formatter.
+   msgform reads standard input, scanning for binary messages, starting
+with an <FF> byte and ending after the final NULL, and print as many as it
+finds until it encounters EOF.
+   You could use this utility along with netproc to provide printouts or
+archives of certain rooms.
+    
+   
+  USERLIST
+  
+   This is a program to print the userlist. There are two flags that may be
+set when running this program. When called without any arguments, userlist
+will display all users (except those who have chosen to be unlisted), their
+user numbers, times called, messages posted, screen width, and date of their
+most recent call.
+
+   Setting the -p option (only allowed by root as distributed; you may wish
+to change this) also displays passwords, and lists all users regardless of
+whether they are unlisted.
+
+   Setting the -n option causes the next argument after -n to be a user
+number to search for.
+ 
+   You can also elect to sort the output by user name or user number by
+specifying the -su or -sn flags.
+   
+   
+  READLOG
+  
+   Called without any arguments, readlog dumps the contents of the calllog
+file. This file records all times the Citadel/UX program has been started, and
+at what baud rate, as well as logins, proper logouts, loss of carrier (SIGHUP),
+bad password attempts, and new user logins.
+   Readlog called with the -t argument displays a list of the names of the
+last twenty users who have logged in.
+   
+    
+  USERADMIN
+  
+   Useradmin is a full-screen program to view and edit any user's account.
+The program will prompt for a user name. After you enter the name, various
+parameters of the user's account will appear on the screen. To change one
+of the parameters, simply enter its number.
+ 
+  1. User name - you may change a user's name at any time.  If you do this,
+the hash table to the user file will be rewritten when you exit useradmin.
+  2. User number - if you change a user's number, keep in mind that the user's
+account will no longer be attached to any other records which are indexed by
+user number, such as registration, room aide assignments, etc.  These must be
+changed as well.
+  3. UID attachment - if you wish to attach a BBS account to an /etc/passwd
+account, simply make the uid's the same. Likewise, if a user is to no longer
+have an account in /etc/passwd, simply set this to the same as BBSUID. Note
+that the user's "full name" in /etc/passwd MUST be the same as their BBS login
+name, otherwise a new (and probably unwanted) account will be created.
+  4. Password          - these four fields are self explanatory.
+  5. Screen width
+  6. Times called
+  7. Messages posted
+  8. Last call - Date and time of last call. If you select this,
+it will not prompt for a new time, but set it to the current time.
+  9. Access Level - choose from the standard access levels:
+       0 = Marked for deletion
+       1 = New unvalidated user
+       2 = Problem user
+       3 = Validated user without network privileges
+       4 = Validated user with network privileges
+       5 = Preferred user
+       6 = Aide
+   
+  The rest are boolean flags. Selecting them will toggle the options.
+ 10. Permanent user (do not scroll off)
+ 11. Print last old message on new message request
+ 12. Expert mode (supress automatic hints)
+ 13. Do not list in .RU command
+ 14. Prompting after each message
+ 15. Registered in the registration file
+ 16. Pause after each screenful of text
+   
+  In addition, if the user is registered, you can type -1 to make the
+corresponding record in the registration file appear on the screen. 
+   When you are finished examining or editing an account, type 0 to exit. It
+will ask you if you wish to save the changes.
+   
+   
+  SYSOPUTIL
+   
+   This program handles some of the sysop functions of the system. It can
+be called three ways: sysoputil by itself brings up the menu. Also:
+ sysoputil -u      Execute option 7 (user purge) and exit
+ sysoputil -r      Execute option 1 (room purge) and exit
+ sysoputil -g      Execute option 2 (registration list) and exit
+ sysoputil -h	   Execute option 3 (rewrite hash table) and exit
+  
+  The menu choices are as follows:
+ 
+  1. Purge old rooms. This will delete any rooms which have not been written
+to (posted in) in two weeks. Notification of purged rooms is posted in the
+Aide> room (using the aidepost utility).
+ 2. Read registration file. This will partially list the registration file
+to the screen (partially: street address is omitted).
+ 3. Rewrite hash table.  Under normal conditions, the hash table of user
+names is updated whenever usersupp is updated.  If the system for some
+reason doesn't know about any users, but they're right there for you to see
+when you run userlist, chances are the hash table is out of sync.  This will
+hardly ever happen unless the disk was full, or you've been tinkering with
+usersupp, or if you're upgrading from a non-hashing version of Citadel.  This
+option will rewrite the hash table from scratch.
+ 4. Unlock message file. The msgmain file is locked during message saves to
+prevent two users from writing to the file at once. If there is some sort of
+crash or bug and it remains locked, this will unlock it.
+ 5. Sort the userlog by user ID.
+ 6. Sort the userlog by user name.  (Sorting the userlog is a purely cosmetic
+option, and will not at all affect the performance of the system.)
+ 7. Purge old users. This will delete any users which have not called in
+two months. Notification of purged users is posted in the Aide> room (using
+the aidepost utility).
+ 9. Quit
+   
+   
+   That should cover all of the included utilities. Comments, suggestions,
+etc. may be sent to ajc@uncnsrd.mt-kisco.ny.us or call UNCENSORED! BBS at
+(914) 244-3252 (modem) or uncnsrd.mt-kisco.ny.us (Internet).

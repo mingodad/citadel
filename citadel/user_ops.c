@@ -1,0 +1,1067 @@
+#define _XOPEN_SOURCE	/* needed to properly enable crypt() stuff on some systems */
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <pwd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <string.h>
+#include <syslog.h>
+#include <pthread.h>
+#include "citadel.h"
+#include "server.h"
+#include "proto.h"
+
+extern struct config config;
+
+
+/*
+ * pwcrypt()  -  simple password encryption
+ */
+void pwcrypt(char *text, int code)
+{
+	int a;
+	for (a=0; a<strlen(text); ++a) text[a]=(text[a]^(((code|128)^a)&0xFF));
+	}
+
+
+/*
+ * hash()  -  hash table function for user lookup
+ */
+int hash(char *str)
+{
+	int h = 0;
+	int i;
+
+	for (i=0; i<strlen(str); ++i) h=h+((i+1)*tolower(str[i]));
+	return(h);
+	}
+
+
+/*
+ * getuser()  -  retrieve named user into supplied buffer.
+ *               returns 0 on success
+ */
+int getuser(struct usersupp *usbuf, char name[]) {
+
+	char lowercase_name[32];
+	int a;
+	struct cdbdata *cdbus;
+
+	bzero(usbuf, sizeof(struct usersupp));
+	for (a=0; a<=strlen(name); ++a) {
+		lowercase_name[a] = tolower(name[a]);
+		}
+
+	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
+	if (cdbus == NULL) {	/* not found */
+		return(1);
+		}
+
+	memcpy(usbuf, cdbus->ptr, cdbus->len);
+	cdb_free(cdbus);
+	return(0);
+	}
+
+
+/*
+ * lgetuser()  -  same as getuser() but locks the record
+ */
+int lgetuser(struct usersupp *usbuf, char *name)
+{
+	int retcode;
+
+	retcode = getuser(usbuf,name);
+	if (retcode == 0) {
+		begin_critical_section(S_USERSUPP);
+		}
+	return(retcode);
+	}
+
+
+/*
+ * putuser()  -  write user buffer into the correct place on disk
+ */
+void putuser(struct usersupp *usbuf, char *name)
+{
+	char lowercase_name[32];
+	int a;
+
+	for (a=0; a<=strlen(name); ++a) {
+		lowercase_name[a] = tolower(name[a]);
+		}
+
+	cdb_store(CDB_USERSUPP, lowercase_name, strlen(lowercase_name),
+		usbuf, sizeof(struct usersupp));
+
+	}
+
+
+/*
+ * lputuser()  -  same as putuser() but locks the record
+ */
+void lputuser(struct usersupp *usbuf, char *name)
+{
+	putuser(usbuf,name);
+	end_critical_section(S_USERSUPP);
+	}
+
+
+/*
+ * Is the user currently logged in an Aide?
+ */
+int is_aide(void) {
+	if (CC->usersupp.axlevel >= 6) return(1);
+	else return(0);
+	}
+
+
+/*
+ * Is the user currently logged in an Aide *or* the room aide for this room?
+ */
+int is_room_aide(void) {
+	if ( (CC->usersupp.axlevel >= 6)
+		|| (CC->quickroom.QRroomaide == CC->usersupp.usernum) ) return(1);
+	else return(0);
+	}
+
+/*
+ * getuserbynumber()  -  get user by number
+ *			 returns 0 if user was found
+ */
+int getuserbynumber(struct usersupp *usbuf, long int number)
+{
+	struct cdbdata *cdbus;
+
+	cdb_rewind(CDB_USERSUPP);
+
+	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+		bzero(usbuf, sizeof(struct usersupp));
+		memcpy(usbuf, cdbus->ptr, cdbus->len);
+		cdb_free(cdbus);
+		if (usbuf->usernum == number) {
+			return(0);
+			}
+		}
+	return(-1);
+	}
+
+
+/*
+ * USER cmd
+ */
+void cmd_user(char *cmdbuf)
+{
+	char username[256];
+	char autoname[256];
+	int found_user = 0;
+	struct passwd *p;
+	int a;
+
+	extract(username,cmdbuf,0);
+	username[25] = 0;
+	strproc(username);
+
+	if ((CC->logged_in)) {
+		cprintf("%d Already logged in.\n",ERROR);
+		return;
+		}
+
+	found_user = getuser(&CC->usersupp,username);
+	if (found_user != 0) {
+		p = (struct passwd *)getpwnam(username);
+		if (p!=NULL) {
+			strcpy(autoname,p->pw_gecos);
+			for (a=0; a<strlen(autoname); ++a)
+				if (autoname[a]==',') autoname[a]=0;
+			found_user = getuser(&CC->usersupp,autoname);
+			}
+		}
+	if (found_user == 0) {
+		if (((CC->nologin)) && (CC->usersupp.axlevel < 6)) {
+			cprintf("%d %s: Too many users are already online (maximum is %d)\n",
+			ERROR+MAX_SESSIONS_EXCEEDED,
+			config.c_nodename,config.c_maxsessions);
+			}
+		else {
+			strcpy(CC->curr_user,CC->usersupp.fullname);
+			cprintf("%d Password required for %s\n",
+				MORE_DATA,CC->curr_user);
+			}
+		}
+	else {
+		cprintf("%d %s not found.\n",ERROR,username);
+		}
+	}
+
+
+
+/*
+ * session startup code which is common to both cmd_pass() and cmd_newu()
+ */
+void session_startup(void) {
+	int a;
+	struct quickroom qr;
+
+	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
+	hook_user_login(CC->cs_pid, CC->curr_user);
+	lgetuser(&CC->usersupp,CC->curr_user);
+	++(CC->usersupp.timescalled);
+	/* <bc> */
+	CC->fake_username[0] = '\0';
+	CC->fake_postname[0] = '\0';
+	CC->fake_hostname[0] = '\0';
+	CC->fake_roomname[0] = '\0';
+	CC->last_pager[0] = '\0';
+	/* <bc> */
+	time(&CC->usersupp.lastcall);
+
+	/* If this user's name is the name of the system administrator
+	 * (as specified in setup), automatically assign access level 6.
+	 */
+	if (!strucmp(CC->usersupp.fullname, config.c_sysadm)) {
+		CC->usersupp.axlevel = 6;
+		}
+
+/* A room's generation number changes each time it is recycled. Users are kept
+ * out of private rooms or forget rooms by matching the generation numbers. To
+ * avoid an accidental matchup, unmatched numbers are set to -1 here.
+ */
+	for (a=0; a<MAXROOMS; ++a) {
+		getroom(&qr,a);
+		if (CC->usersupp.generation[a] != qr.QRgen)
+					CC->usersupp.generation[a]=(-1);
+		if (CC->usersupp.forget[a] != qr.QRgen)
+					CC->usersupp.forget[a]=(-1);
+		}
+
+	lputuser(&CC->usersupp,CC->curr_user);
+
+	cprintf("%d %s|%d|%d|%d|%u|%ld\n",OK,CC->usersupp.fullname,CC->usersupp.axlevel,
+		CC->usersupp.timescalled,CC->usersupp.posted,CC->usersupp.flags,
+		CC->usersupp.usernum);
+	usergoto(0,0);		/* Enter the lobby */	
+	rec_log(CL_LOGIN,CC->curr_user);
+	}
+
+
+
+/* 
+ * misc things to be taken care of when a user is logged out
+ */
+void logout(struct CitContext *who)
+{
+	who->logged_in = 0;
+	if (who->download_fp != NULL) {
+		fclose(who->download_fp);
+		who->download_fp = NULL;
+		}
+	if (who->upload_fp != NULL) {
+		abort_upl(who);
+		}
+	}
+
+
+void cmd_pass(char *buf)
+{
+	char password[256];
+	int code;
+	struct passwd *p;
+
+	extract(password,buf,0);
+
+	if ((CC->logged_in)) {
+		cprintf("%d Already logged in.\n",ERROR);
+		return;
+		}
+	if (!strcmp(CC->curr_user,"")) {
+		cprintf("%d You must send a name with USER first.\n",ERROR);
+		return;
+		}
+	if (getuser(&CC->usersupp,CC->curr_user)) {
+		cprintf("%d Can't find user record!\n",ERROR+INTERNAL_ERROR);
+		return;
+		}
+
+	code = (-1);
+	if (CC->usersupp.USuid == BBSUID) {
+		strproc(password);
+		pwcrypt(CC->usersupp.password,config.c_pwcrypt);
+		strproc(CC->usersupp.password);
+		code = strucmp(CC->usersupp.password,password);
+		pwcrypt(CC->usersupp.password,config.c_pwcrypt);
+		}
+	else {
+		p = (struct passwd *)getpwuid(CC->usersupp.USuid);
+#ifdef ENABLE_AUTOLOGIN
+		if (p!=NULL) {
+			if (!strcmp(p->pw_passwd,
+			   (char *)crypt(password,p->pw_passwd))) {
+				code = 0;
+				lgetuser(&CC->usersupp, CC->curr_user);
+				strcpy(CC->usersupp.password, password);
+				pwcrypt(CC->usersupp.password, config.c_pwcrypt);
+				lputuser(&CC->usersupp, CC->curr_user);
+				}
+			}
+#endif
+		}
+
+	if (!code) {
+		(CC->logged_in) = 1;
+		session_startup();
+		}
+	else {
+		cprintf("%d Wrong password.\n",ERROR);
+		rec_log(CL_BADPW,CC->curr_user);
+		}
+	}
+
+
+/*
+ * purge related files when removing or overwriting a user record
+ */
+void purge_user(pnum)
+long pnum; {
+	char filename[64];
+
+	/* remove the user's bio file */	
+	sprintf(filename, "./bio/%ld", pnum);
+	unlink(filename);
+
+	/* remove the user's picture */
+	sprintf(filename, "./userpics/%ld.gif", pnum);
+	unlink(filename);
+	
+	}
+
+
+/*
+ * create_user()  -  back end processing to create a new user
+ */
+int create_user(char *newusername)
+{
+	struct usersupp usbuf;
+	int a,file;
+	long aa;
+	struct passwd *p = NULL;
+	char username[64];
+
+	strcpy(username, newusername);
+	strproc(username);
+
+#ifdef ENABLE_AUTOLOGIN
+	p = (struct passwd *)getpwnam(username);
+#endif
+	if (p != NULL) {
+		strcpy(username, p->pw_gecos);
+		for (a=0; a<strlen(username); ++a) {
+			if (username[a] == ',') username[a] = 0;
+			}
+		CC->usersupp.USuid = p->pw_uid;
+		}
+	else {
+		CC->usersupp.USuid = BBSUID;
+		}
+
+	if (!getuser(&usbuf,username)) {
+		return(ERROR+ALREADY_EXISTS);
+		}
+
+	strcpy(CC->curr_user,username);
+	strcpy(CC->usersupp.fullname,username);
+	(CC->logged_in) = 1;
+
+	for (a=0; a<MAXROOMS; ++a) {
+		CC->usersupp.lastseen[a]=0L;
+		CC->usersupp.generation[a]=(-1);
+		CC->usersupp.forget[a]=(-1);
+		}
+	for (a=0; a<MAILSLOTS; ++a) {
+		CC->usersupp.mailnum[a]=0L;
+		}
+	strcpy(CC->usersupp.password,"");
+
+	/* These are the default flags on new accounts */
+	CC->usersupp.flags =
+		US_NEEDVALID|US_LASTOLD|US_DISAPPEAR|US_PAGINATOR|US_FLOORS;
+
+	CC->usersupp.timescalled = 0;
+	CC->usersupp.posted = 0;
+	CC->usersupp.axlevel = INITAX;
+	CC->usersupp.USscreenwidth = 80;
+	CC->usersupp.USscreenheight = 24;
+	time(&CC->usersupp.lastcall);
+	strcpy(CC->usersupp.USname, "");
+	strcpy(CC->usersupp.USaddr, "");
+	strcpy(CC->usersupp.UScity, "");
+	strcpy(CC->usersupp.USstate, "");
+	strcpy(CC->usersupp.USzip, "");
+	strcpy(CC->usersupp.USphone, "");
+
+	/* fetch a new user number */
+	CC->usersupp.usernum = get_new_user_number();
+
+	if (CC->usersupp.usernum == 1L) {
+		CC->usersupp.axlevel = 6;
+		}
+
+	/* add user to userlog */
+	putuser(&CC->usersupp,CC->curr_user);
+	if (getuser(&CC->usersupp,CC->curr_user)) {
+		return(ERROR+INTERNAL_ERROR);
+		}
+	rec_log(CL_NEWUSER,CC->curr_user);
+	return(0);
+	}
+
+
+
+
+/*
+ * cmd_newu()  -  create a new user account
+ */
+void cmd_newu(char *cmdbuf)
+{
+	int a;
+	char username[256];
+
+	if ((CC->logged_in)) {
+		cprintf("%d Already logged in.\n",ERROR);
+		return;
+		}
+
+	if ((CC->nologin)) {
+		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
+		ERROR+MAX_SESSIONS_EXCEEDED,
+		config.c_nodename,config.c_maxsessions);
+		}
+
+	extract(username,cmdbuf,0);
+	username[25] = 0;
+	strproc(username);
+
+	if (strlen(username)==0) {
+		cprintf("%d You must supply a user name.\n",ERROR);
+		return;
+		}
+
+	a = create_user(username);
+	if ((!strucmp(username, "bbs")) ||
+	    (!strucmp(username, "new")) ||
+	    (!strucmp(username, ".")))
+	{
+	   cprintf("%d '%s' is an invalid login name.\n", ERROR);
+	   return;
+	}
+	if (a==ERROR+ALREADY_EXISTS) {
+		cprintf("%d '%s' already exists.\n",
+			ERROR+ALREADY_EXISTS,username);
+		return;
+		}
+	else if (a==ERROR+INTERNAL_ERROR) {
+		cprintf("%d Internal error - user record disappeared?\n",
+			ERROR+INTERNAL_ERROR);
+		return;
+		}
+	else if (a==0) {
+		session_startup();
+		}
+	else {
+		cprintf("%d unknown error\n",ERROR);
+		}
+	rec_log(CL_NEWUSER,CC->curr_user);
+	}
+
+
+
+/*
+ * set password
+ */
+void cmd_setp(char *new_pw)
+{
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+	if (CC->usersupp.USuid != BBSUID) {
+		cprintf("%d Not allowed.  Use the 'passwd' command.\n",ERROR);
+		return;
+		}
+	strproc(new_pw);
+	if (strlen(new_pw)==0) {
+		cprintf("%d Password unchanged.\n",OK);
+		return;
+		}
+	lgetuser(&CC->usersupp,CC->curr_user);
+	strcpy(CC->usersupp.password,new_pw);
+	pwcrypt(CC->usersupp.password,config.c_pwcrypt);
+	lputuser(&CC->usersupp,CC->curr_user);
+	cprintf("%d Password changed.\n",OK);
+	rec_log(CL_PWCHANGE,CC->curr_user);
+	}
+
+/*
+ * get user parameters
+ */
+void cmd_getu(void) {
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+	getuser(&CC->usersupp,CC->curr_user);
+	cprintf("%d %d|%d|%d\n",OK,CC->usersupp.USscreenwidth,
+		CC->usersupp.USscreenheight,(CC->usersupp.flags & US_USER_SET));
+	}
+
+/*
+ * set user parameters
+ */
+void cmd_setu(char *new_parms)
+{
+
+	if (num_parms(new_parms)!=3) {
+		cprintf("%d Usage error.\n",ERROR);
+		return;
+		}	
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+	lgetuser(&CC->usersupp,CC->curr_user);
+	CC->usersupp.USscreenwidth = extract_int(new_parms,0);
+	CC->usersupp.USscreenheight = extract_int(new_parms,1);
+	CC->usersupp.flags = CC->usersupp.flags & (~US_USER_SET);
+	CC->usersupp.flags = CC->usersupp.flags | 
+		(extract_int(new_parms,2) & US_USER_SET);
+	lputuser(&CC->usersupp,CC->curr_user);
+	cprintf("%d Ok\n",OK);
+	}
+
+/*
+ * set last read pointer
+ */
+void cmd_slrp(char *new_ptr)
+{
+	long newlr;
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->curr_rm < 0) {
+		cprintf("%d No current room.\n",ERROR);
+		return;
+		}
+
+	if (!struncmp(new_ptr,"highest",7)) {
+		newlr = CC->quickroom.QRhighest;
+		}
+	else {
+		newlr = atol(new_ptr);
+		}
+
+	lgetuser(&CC->usersupp, CC->curr_user);
+	CC->usersupp.lastseen[CC->curr_rm] = newlr;
+	lputuser(&CC->usersupp, CC->curr_user);
+	cprintf("%d %ld\n",OK,newlr);
+	}
+
+
+/*
+ * INVT and KICK commands
+ */
+void cmd_invt_kick(char *iuser, int op)
+            		/* user name */
+        {		/* 1 = invite, 0 = kick out */
+	struct usersupp USscratch;
+	char bbb[256];
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->curr_rm < 0) {
+		cprintf("%d No current room.\n",ERROR);
+		return;
+		}
+
+	if (is_room_aide()==0) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	if ( (op==1) && ((CC->quickroom.QRflags&QR_PRIVATE)==0) ) {
+		cprintf("%d Not a private room.\n",ERROR+NOT_HERE);
+		return;
+		}
+
+	if (lgetuser(&USscratch,iuser)!=0) {
+		cprintf("%d No such user.\n",ERROR);
+		return;
+		}
+
+	if (op==1) {
+		USscratch.generation[CC->curr_rm]=CC->quickroom.QRgen;
+		USscratch.forget[CC->curr_rm]=(-1);
+		}
+
+	if (op==0) {
+		USscratch.generation[CC->curr_rm]=(-1);
+		USscratch.forget[CC->curr_rm]=CC->quickroom.QRgen;
+		}
+
+	lputuser(&USscratch,iuser);
+
+	/* post a message in Aide> saying what we just did */
+	sprintf(bbb,"%s %s %s> by %s",
+		iuser,
+		((op == 1) ? "invited to" : "kicked out of"),
+		CC->quickroom.QRname,
+		CC->usersupp.fullname);
+	aide_message(bbb);
+
+	if ((op==0)&&((CC->quickroom.QRflags&QR_PRIVATE)==0)) {
+		cprintf("%d Ok. (Not a private room, <Z>ap effect only)\n",OK);
+		}
+	else {
+		cprintf("%d Ok.\n",OK);
+		}
+	return;
+	}
+
+
+/*
+ * forget (Zap) the current room
+ */
+void cmd_forg(void) {
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->curr_rm < 0) {
+		cprintf("%d No current room.\n",ERROR);
+		return;
+		}
+
+	if (CC->curr_rm < 3) {
+		cprintf("%d You cannot forget this room.\n",ERROR+NOT_HERE);
+		return;
+		}
+
+	if (is_aide()) {
+		cprintf("%d Aides cannot forget rooms.\n",ERROR);
+		return;
+		}
+
+	lgetuser(&CC->usersupp,CC->curr_user);
+	CC->usersupp.forget[CC->curr_rm] = CC->quickroom.QRgen;
+	CC->usersupp.generation[CC->curr_rm] = (-1);
+	lputuser(&CC->usersupp,CC->curr_user);
+	cprintf("%d Ok\n",OK);
+	CC->curr_rm = (-1);
+	}
+
+/*
+ * Get Next Unregistered User
+ */
+void cmd_gnur(void) {
+	struct cdbdata *cdbus;
+	struct usersupp usbuf;
+	FILE *fp;
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->usersupp.axlevel < 6) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	if ((CitControl.MMflags&MM_VALID)==0) {
+		cprintf("%d There are no unvalidated users.\n",OK);
+		return;
+		}
+
+	/* There are unvalidated users.  Traverse the usersupp database,
+	 * and return the first user we find that needs validation.
+	 */
+	cdb_rewind(CDB_USERSUPP);
+	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+		bzero(&usbuf, sizeof(struct usersupp));
+		memcpy(&usbuf, cdbus->ptr, cdbus->len);
+		cdb_free(cdbus);
+		if ((usbuf.flags & US_NEEDVALID)
+		   &&(usbuf.axlevel > 0)) {
+			cprintf("%d %s\n",MORE_DATA,usbuf.fullname);
+			return;
+			}
+		} 
+
+	/* If we get to this point, there are no more unvalidated users.
+	 * Therefore we clear the "users need validation" flag.
+	 */
+
+	begin_critical_section(S_CONTROL);
+	get_control();
+	CitControl.MMflags = CitControl.MMflags&(~MM_VALID);
+	put_control();
+	end_critical_section(S_CONTROL);
+	cprintf("%d *** End of registration.\n",OK);
+
+
+	}
+
+
+/*
+ * get registration info for a user
+ */
+void cmd_greg(char *who)
+{
+	struct usersupp usbuf;
+	int a,b;
+	char pbuf[32];
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (!strucmp(who,"_SELF_")) strcpy(who,CC->curr_user);
+
+	if ((CC->usersupp.axlevel < 6) && (strucmp(who,CC->curr_user))) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	if (getuser(&usbuf,who) != 0) {
+		cprintf("%d '%s' not found.\n",ERROR+NO_SUCH_USER,who);
+		return;
+		}
+
+	cprintf("%d %s\n",LISTING_FOLLOWS,usbuf.fullname);
+	cprintf("%ld\n",usbuf.usernum);
+	pwcrypt(usbuf.password,PWCRYPT);
+	cprintf("%s\n",usbuf.password);
+	cprintf("%s\n",usbuf.USname);
+	cprintf("%s\n",usbuf.USaddr);
+	cprintf("%s\n%s\n%s\n",
+		usbuf.UScity,usbuf.USstate,usbuf.USzip);
+	strcpy(pbuf,usbuf.USphone);
+	usbuf.USphone[0]=0;
+	for (a=0; a<strlen(pbuf); ++a) {
+		if ((pbuf[a]>='0')&&(pbuf[a]<='9')) {
+			b=strlen(usbuf.USphone);
+			usbuf.USphone[b]=pbuf[a];
+			usbuf.USphone[b+1]=0;
+			}
+		}
+	while(strlen(usbuf.USphone)<10) {
+		strcpy(pbuf,usbuf.USphone);
+		strcpy(usbuf.USphone," ");
+		strcat(usbuf.USphone,pbuf);
+		}
+
+	cprintf("(%c%c%c) %c%c%c-%c%c%c%c\n",
+		usbuf.USphone[0],usbuf.USphone[1],
+		usbuf.USphone[2],usbuf.USphone[3],
+		usbuf.USphone[4],usbuf.USphone[5],
+		usbuf.USphone[6],usbuf.USphone[7],
+		usbuf.USphone[8],usbuf.USphone[9]);
+
+	cprintf("%d\n",usbuf.axlevel);
+	cprintf("%s\n",usbuf.USemail);
+	cprintf("000\n");
+	}
+
+/*
+ * validate a user
+ */
+void cmd_vali(char *v_args)
+{
+	char user[256];
+	int newax;
+	struct usersupp userbuf;
+
+	extract(user,v_args,0);
+	newax = extract_int(v_args,1);
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	if (CC->usersupp.axlevel < 6) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	if (lgetuser(&userbuf,user)!=0) {
+		cprintf("%d '%s' not found.\n",ERROR+NO_SUCH_USER,user);
+		return;
+		}
+
+	userbuf.axlevel = newax;
+	userbuf.flags = (userbuf.flags & ~US_NEEDVALID);
+
+	lputuser(&userbuf,user);
+	cprintf("%d ok\n",OK);
+	}
+
+
+
+/* 
+ *  List users
+ */
+void cmd_list(void) {
+	struct usersupp usbuf;
+	struct cdbdata *cdbus;
+
+	cdb_rewind(CDB_USERSUPP);
+	cprintf("%d \n",LISTING_FOLLOWS);
+
+	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+		bzero(&usbuf, sizeof(struct usersupp));
+		memcpy(&usbuf, cdbus->ptr, cdbus->len);
+		cdb_free(cdbus);
+
+	    if (usbuf.axlevel > 0) {
+		if ((CC->usersupp.axlevel>=6)
+		   ||((usbuf.flags&US_UNLISTED)==0)
+		   ||((CC->internal_pgm))) {
+			cprintf("%s|%d|%ld|%ld|%d|%d|",
+				usbuf.fullname,
+				usbuf.axlevel,
+				usbuf.usernum,
+				usbuf.lastcall,
+				usbuf.timescalled,
+				usbuf.posted);
+			pwcrypt(usbuf.password,config.c_pwcrypt);
+			if (CC->usersupp.axlevel >= 6) cprintf("%s",usbuf.password);
+			cprintf("\n");
+			}
+		    }
+		}
+	cprintf("000\n");
+	}
+
+/*
+ * enter registration info
+ */
+void cmd_regi(void) {
+	int a,b,c;
+	FILE *fp;
+	char buf[256];
+
+	char tmpname[256];
+	char tmpaddr[256];
+	char tmpcity[256];
+	char tmpstate[256];
+	char tmpzip[256];
+	char tmpphone[256];
+	char tmpemail[256];
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	strcpy(tmpname,"");
+	strcpy(tmpaddr,"");
+	strcpy(tmpcity,"");
+	strcpy(tmpstate,"");
+	strcpy(tmpzip,"");
+	strcpy(tmpphone,"");
+	strcpy(tmpemail,"");
+
+	cprintf("%d Send registration...\n",SEND_LISTING);
+	a=0;
+	while (client_gets(buf), strcmp(buf,"000")) {
+		if (a==0) strcpy(tmpname,buf);
+		if (a==1) strcpy(tmpaddr,buf);
+		if (a==2) strcpy(tmpcity,buf);
+		if (a==3) strcpy(tmpstate,buf);
+		if (a==4) {
+			for (c=0; c<strlen(buf); ++c) {
+				if ((buf[c]>='0')&&(buf[c]<='9')) {
+					b=strlen(tmpzip);
+					tmpzip[b]=buf[c];
+					tmpzip[b+1]=0;
+					}
+				}
+			}
+		if (a==5) {
+			for (c=0; c<strlen(buf); ++c) {
+				if ((buf[c]>='0')&&(buf[c]<='9')) {
+					b=strlen(tmpphone);
+					tmpphone[b]=buf[c];
+					tmpphone[b+1]=0;
+					}
+				}
+			}
+		if (a==6) strncpy(tmpemail,buf,31);
+		++a;
+		}
+
+	tmpname[29]=0;
+	tmpaddr[24]=0;
+	tmpcity[14]=0;
+	tmpstate[2]=0;
+	tmpzip[9]=0;
+	tmpphone[10]=0;
+	tmpemail[31]=0;
+
+	lgetuser(&CC->usersupp,CC->curr_user);
+	strcpy(CC->usersupp.USname,tmpname);
+	strcpy(CC->usersupp.USaddr,tmpaddr);
+	strcpy(CC->usersupp.UScity,tmpcity);
+	strcpy(CC->usersupp.USstate,tmpstate);
+	strcpy(CC->usersupp.USzip,tmpzip);
+	strcpy(CC->usersupp.USphone,tmpphone);
+	strcpy(CC->usersupp.USemail,tmpemail);
+	CC->usersupp.flags=(CC->usersupp.flags|US_REGIS|US_NEEDVALID);
+	lputuser(&CC->usersupp,CC->curr_user);
+
+	/* set global flag calling for validation */
+	begin_critical_section(S_CONTROL);
+	get_control();
+	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
+	put_control();
+	end_critical_section(S_CONTROL);
+	cprintf("%d *** End of registration.\n",OK);
+	}
+
+
+/*
+ * assorted info we need to check at login
+ */
+void cmd_chek(void) {
+	int mail = 0;
+	int regis = 0;
+	int vali = 0;
+	int a,file;
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	getuser(&CC->usersupp,CC->curr_user); /* no lock is needed here */
+	if ((REGISCALL!=0)&&((CC->usersupp.flags&US_REGIS)==0)) regis = 1;
+
+	if (CC->usersupp.axlevel >= 6) {
+		get_control();
+		if (CitControl.MMflags&MM_VALID) vali = 1;
+		}
+
+	mail=0;				/* check for mail */
+	for (a=0; a<MAILSLOTS; ++a)
+		if ((CC->usersupp.mailnum[a])>(CC->usersupp.lastseen[1]))
+			++mail;
+
+	cprintf("%d %d|%d|%d\n",OK,mail,regis,vali);
+	}
+
+
+/*
+ * check to see if a user exists
+ */
+void cmd_qusr(char *who)
+{
+	struct usersupp usbuf;
+
+	if (getuser(&usbuf,who) == 0) {
+		cprintf("%d %s\n",OK,usbuf.fullname);
+		}
+	else {
+		cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
+		}
+	}
+
+
+/*
+ * enter user bio
+ */
+void cmd_ebio(void) {
+	char buf[256];
+	FILE *fp;
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	sprintf(buf,"./bio/%ld",CC->usersupp.usernum);
+	fp = fopen(buf,"w");
+	if (fp == NULL) {
+		cprintf("%d Cannot create file\n",ERROR);
+		return;
+		}
+	cprintf("%d  \n",SEND_LISTING);
+	while(client_gets(buf), strcmp(buf,"000")) {
+		fprintf(fp,"%s\n",buf);
+		}
+	fclose(fp);
+	}
+
+/*
+ * read user bio
+ */
+void cmd_rbio(char *cmdbuf)
+{
+	struct usersupp ruser;
+	char buf[256];
+	FILE *fp;
+
+	extract(buf,cmdbuf,0);
+	if (getuser(&ruser,buf)!=0) {
+		cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
+		return;
+		}
+	sprintf(buf,"./bio/%ld",ruser.usernum);
+	
+	fp = fopen(buf,"r");
+	if (fp == NULL) {
+		cprintf("%d %s has no bio on file.\n",
+			ERROR+FILE_NOT_FOUND,ruser.fullname);
+		return;
+		}
+	cprintf("%d  \n",LISTING_FOLLOWS);
+	while (fgets(buf,256,fp)!=NULL) cprintf("%s",buf);
+	fclose(fp);
+	cprintf("000\n");
+	}
+
+/*
+ * list of users who have entered bios
+ */
+void cmd_lbio(void) {
+	char buf[256];
+	FILE *ls;
+	struct usersupp usbuf;
+
+	ls=popen("cd ./bio; ls","r");
+	if (ls==NULL) {
+		cprintf("%d Cannot open listing.\n",ERROR+FILE_NOT_FOUND);
+		return;
+		}
+
+	cprintf("%d\n",LISTING_FOLLOWS);
+	while (fgets(buf,255,ls)!=NULL)
+		if (getuserbynumber(&usbuf,atol(buf))==0)
+			cprintf("%s\n",usbuf.fullname);
+	pclose(ls);
+	cprintf("000\n");
+	}

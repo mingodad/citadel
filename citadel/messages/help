@@ -1,0 +1,31 @@
+                          ^variantname Help Menu
+  
+ ?         Help. (Typing a '?' will give you a menu almost anywhere)
+ A         Abandon this room where you stopped reading, goto next room.
+ C         Chat (multiuser chat, where available)
+ D         Prints directory, if there is one in the current room.
+ E         Enter a message.
+ F         Read all messages in the room, forward.
+ G         Goto next room which has UNREAD messages.
+ H         Help. Same as '?'
+ I         Reads the Information file for this room.
+ K         List of Known rooms.
+ L         Reads the last five messages in the room.
+ N         Reads all new messages in the room.
+ O         Reads all old messages, backwards.
+ P         Page another user (send an express message)
+ R         Reads all messages in the room, in reverse order.
+ S         Skips current room without making its messages old.
+ T         Terminate (logout)
+ U         Ungoto (returns to the last room you were in)
+ W         Displays who is currently logged in.
+ X         Toggle eXpert mode (menus and help blurbs on/off)
+ Z         Zap (forget) room. (Removes the room from your list)
+ *         Enter any locally installed 'doors'.
+   
+ In addition, there are dot commands. You hit the . (dot), then press the
+first letter of each word of the command. As you hit the letters, the words
+pop onto your screen. Exceptions: after you hit .Help or .Goto, the remainder
+of the command is a help file name or room name.
+    
+      *** USE  .<H>elp ?  or  .<H>elp SUMMARY  for additional help *** 

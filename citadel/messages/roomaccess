@@ -1,0 +1,17 @@
+Most rooms are public. Anyone on the system may get into a public room.
+Private rooms may take several forms:
+ 
+ Guess-name: to gain access to this type of room, a user need only know
+the room's name. No hints are given by the system.
+ 
+ Passworded: same as guess-name but the user must also know a password
+to get access.
+ 
+ Invitation-only: users may only gain access to this type of room if
+an aide gives it to them. 
+ 
+   Once a user has access to a private room, it shows up on the known
+rooms list and acts the same as any other room. Aides may kick users out
+of any type of private room, and out of excludable rooms.
+ 
+ Before making it private, think about it. Does it really NEED to be private?
