@@ -125,6 +125,13 @@ AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
 
 dnl Checks for system services.
 
+dnl Check the size of various builtin types; see typesize.h (error)
+AC_CHECK_SIZEOF(char, 0)
+AC_CHECK_SIZEOF(short, 0)
+AC_CHECK_SIZEOF(int, 0)
+AC_CHECK_SIZEOF(long, 0)
+dnl AC_CHECK_SIZEOF(long long, 0)
+
 dnl Checks for libraries.
 
 dnl We want to test for the following in libc before checking for their
@@ -381,13 +388,6 @@ AC_HEADER_TIME
 
 dnl defined in acinclude.m4:
 CIT_STRUCT_TM
-
-dnl Check the size of various builtin types; see typesize.h (error)
-AC_CHECK_SIZEOF(char, 0)
-AC_CHECK_SIZEOF(short, 0)
-AC_CHECK_SIZEOF(int, 0)
-AC_CHECK_SIZEOF(long, 0)
-dnl AC_CHECK_SIZEOF(long long, 0)
 
 AC_CACHE_CHECK([for ut_type in struct utmp], ac_cv_struct_ut_type,
 [AC_TRY_COMPILE([#include <sys/types.h>
