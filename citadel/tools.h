@@ -15,7 +15,7 @@ int is_msg_in_mset(char *mset, long msgnum);
 char *memreadline(char *start, char *buf, int maxlen);
 
 #ifndef HAVE_STRNCASECMP
-int strncasecmp(char *, char *, int)
+int strncasecmp(char *, char *, int);
 #endif
 #ifndef HAVE_STRCASECMP
 #define strcasecmp(x,y) strncasecmp(x,y,INT_MAX);

@@ -377,7 +377,7 @@ if test "x$with_zlib" != xno ; then
 	)])
 fi
 
-if test "x$ok_zlib" != xno ; then
+if test "x$ok_zlib" = xyes ; then
 	LIBS="-lz $LIBS"
 	AC_DEFINE(HAVE_ZLIB)
 fi
@@ -392,7 +392,7 @@ if test "x$with_libical" != xno ; then
 	)])
 fi
 
-if test "x$ok_libical" != xno ; then
+if test "x$ok_libical" = xyes ; then
 	LIBS="-lical $LIBS"
 	AC_DEFINE(HAVE_LIBICAL)
 fi
