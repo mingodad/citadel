@@ -140,8 +140,10 @@ void imap_uidcopy(int num_parms, char *parms[]) {
 void imap_print_express_messages(void) {
 	struct ExpressMessage *ptr, *holdptr;
 	char *dumpomatic = NULL;
+	char tmp[SIZ];
 	int i;
 	size_t size, size2;
+	struct tm *stamp;
 
 	if (CC->FirstExpressMessage == NULL) {
 		return;
@@ -152,6 +154,7 @@ void imap_print_express_messages(void) {
 	end_critical_section(S_SESSION_TABLE);
 
 	while (ptr != NULL) {
+		stamp = localtime(&(ptr->timestamp));
 		size = strlen(ptr->text) + SIZ;
 		dumpomatic = mallok(size);
 		strcpy(dumpomatic, "");
@@ -164,9 +167,23 @@ void imap_print_express_messages(void) {
 		else
 			strcat(dumpomatic, "Message ");
 
+		/* Timestamp.  Can this be improved? */
+		if (stamp->tm_hour == 0 || stamp->tm_hour == 12)
+			sprintf(tmp, "at 12:%02d%cm",
+				stamp->tm_min, 
+				stamp->tm_hour ? 'p' : 'a');
+		else if (stamp->tm_hour > 12)		/* pm */
+			sprintf(tmp, "at %d:%02dpm",
+				stamp->tm_hour - 12,
+				stamp->tm_min);
+		else					/* am */
+			sprintf(tmp, "at %d:%02dam",
+				stamp->tm_hour, stamp->tm_min);
+		strcat(dumpomatic, tmp);
+
 		size2 = strlen(dumpomatic);
 		snprintf(&dumpomatic[size2], size - size2,
-			"from %s:\n", ptr->sender);
+			" from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
 			strcat(dumpomatic, ptr->text);
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.4  2002/04/05 22:31:59  error
+ * Send time-of-day with pages sent via IMAP
+
  Revision 591.3  2002/04/05 14:34:02  ajc
  * Minor tweak to nested folder algorithm to handle nesting in mail root
 
@@ -3582,3 +3585,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
