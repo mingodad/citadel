@@ -828,8 +828,8 @@ void session_loop(struct httprequest *req)
 	int ContentLength = 0;
 	int BytesRead = 0;
 	char ContentType[512];
-	char *content;
-	char *content_end;
+	char *content = NULL;
+	char *content_end = NULL;
 	struct httprequest *hptr;
 	char browser_host[SIZ];
 	char user_agent[SIZ];
@@ -1027,7 +1027,8 @@ void session_loop(struct httprequest *req)
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(req);		/* do GroupDAV stuff */
+						/* do GroupDAV stuff */
+		groupdav_main(req, ContentType, ContentLength, content);
 		if (!WC->logged_in) {
 			WC->killthis = 1;	/* If not logged in, don't */
 		}				/* keep the session active */

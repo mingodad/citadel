@@ -1,0 +1,167 @@
+/*
+ * $Id$
+ *
+ * Handles GroupDAV PUT requests.
+ *
+ */
+
+#include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <limits.h>
+#include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <time.h>
+#include <pthread.h>
+#include "webcit.h"
+#include "webserver.h"
+#include "groupdav.h"
+
+
+/*
+ * The pathname is always going to be /groupdav/room_name/euid
+ */
+void groupdav_put(char *dav_pathname, char *dav_ifmatch,
+		char *dav_content_type, char *dav_content
+) {
+	char dav_roomname[SIZ];
+	char dav_uid[SIZ];
+	long new_msgnum = (-1L);
+	long old_msgnum = (-1L);
+	char buf[SIZ];
+	int n = 0;
+
+	/* First, break off the "/groupdav/" prefix */
+	remove_token(dav_pathname, 0, '/');
+	remove_token(dav_pathname, 0, '/');
+
+	/* Now extract the message euid */
+	n = num_tokens(dav_pathname, '/');
+	extract_token(dav_uid, dav_pathname, n-1, '/');
+	remove_token(dav_pathname, n-1, '/');
+
+	/* What's left is the room name.  Remove trailing slashes. */
+	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
+		dav_pathname[strlen(dav_pathname)-1] = 0;
+	}
+	strcpy(dav_roomname, dav_pathname);
+
+	/* Go to the correct room. */
+	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+		gotoroom(dav_roomname);
+	}
+	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+		wprintf("HTTP/1.1 404 not found\n");
+		groupdav_common_headers();
+		wprintf(
+			"Content-Type: text/plain\n"
+			"\n"
+			"There is no folder called \"%s\" on this server.\n",
+			dav_roomname
+		);
+		return;
+	}
+
+	/*
+	 * If an HTTP If-Match: header is present, the client is attempting
+	 * to replace an existing item.  We have to check to see if the
+	 * message number associated with the supplied uid matches what the
+	 * client is expecting.  If not, the server probably contains a newer
+	 * version, so we fail...
+	 */
+	if (strlen(dav_ifmatch) > 0) {
+		old_msgnum = locate_message_by_uid(dav_uid);
+		if (atol(dav_ifmatch) != old_msgnum) {
+			wprintf("HTTP/1.1 412 Precondition Failed\n");
+			groupdav_common_headers();
+			wprintf("Content-Length: 0\n\n");
+			return;
+		}
+	}
+
+	/*
+	 * We are cleared for upload!  We use the new calling syntax for ENT0
+	 * which allows a confirmation to be sent back to us.  That's how we
+	 * extract the message ID.
+	 */
+	serv_puts("ENT0 1|||4|||1|");
+	serv_gets(buf);
+	if (buf[0] != '8') {
+		wprintf("HTTP/1.1 502 Bad Gateway\n");
+		groupdav_common_headers();
+		wprintf("Content-type: text/plain\n"
+			"\n"
+			"%s\n", &buf[4]
+		);
+		return;
+	}
+
+	/* Send the content to the Citadel server */
+	serv_printf("Content-type: %s\n\n", dav_content_type);
+	serv_puts(dav_content);
+	serv_puts("\n000\n");
+
+	/* Fetch the reply from the Citadel server */
+	n = 0;
+	strcpy(dav_uid, "");
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		switch(n++) {
+			case 0:
+				new_msgnum = atol(buf);
+				break;
+			case 2:
+				strcpy(dav_uid, buf);
+			default:
+				break;
+		}
+	}
+
+	/* Tell the client what happened. */
+
+	/* Citadel failed in some way? */
+	if (new_msgnum < 0L) {
+		wprintf("HTTP/1.1 502 Bad Gateway\n");
+		groupdav_common_headers();
+		wprintf("Content-length: 0\n\n");
+		return;
+	}
+
+	/* We created this item for the first time. */
+	if (old_msgnum < 0L) {
+		wprintf("HTTP/1.1 201 Created\n");
+		groupdav_common_headers();
+		wprintf("Content-Length: 0\n");
+		wprintf("Location: ");
+		if (strlen(WC->http_host) > 0) {
+			wprintf("%s://%s",
+				(is_https ? "https" : "http"),
+				WC->http_host);
+		}
+		wprintf("/groupdav/");
+		urlescputs(dav_roomname);
+		wprintf("/%s\n", dav_uid);
+		wprintf("\n");
+		return;
+	}
+
+	/* We modified an existing item. */
+	wprintf("HTTP/1.1 204 No Content\n");
+	groupdav_common_headers();
+	wprintf("Content-Length: 0\n\n");
+
+	/* The item we replaced has probably already been deleted by
+	 * the Citadel server, but we'll do this anyway, just in case.
+	 */
+	serv_printf("DELE %ld", old_msgnum);
+	serv_gets(buf);
+
+	return;
+}

@@ -1,4 +1,7 @@
 $Log$
+Revision 528.34  2005/02/01 23:15:50  ajc
+* Completed GroupDAV PUT.  Untested.
+
 Revision 528.33  2005/02/01 19:52:29  ajc
 * Bumped the internal version number to 6.01
 * Set the minimum required Citadel version to 6.40, because we need the
@@ -2284,4 +2287,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
