@@ -33,6 +33,7 @@ char arg_screen;
 
 extern int screenheight;
 extern int screenwidth;
+extern int rc_ansi_color;
 extern void check_screen_dims(void);
 #endif
 
@@ -81,18 +82,10 @@ void screen_new(void)
 		nonl();
 		intrflush(stdscr, FALSE);
 		keypad(stdscr, TRUE);
-	} else
-#endif /* HAVE_CURSES_H */
-	{
-		send_ansi_detect();
-		look_for_ansi();
-		cls(0);
-		color(1+DIM_WHITE);
-	}
-#ifdef HAVE_CURSES_H
-	if (myscreen) {
 		/* Setup all our colors */
 		start_color();
+		if (rc_ansi_color)
+			enable_color = 1;
 		init_pair(1+DIM_BLACK, COLOR_BLACK, COLOR_BLACK);
 		init_pair(1+DIM_RED, COLOR_RED, COLOR_BLACK);
 		init_pair(1+DIM_GREEN, COLOR_GREEN, COLOR_BLACK);
@@ -102,8 +95,14 @@ void screen_new(void)
 		init_pair(1+DIM_CYAN, COLOR_CYAN, COLOR_BLACK);
 		init_pair(1+DIM_WHITE, COLOR_WHITE, COLOR_BLACK);
 		init_pair(17, COLOR_WHITE, COLOR_BLUE);
-	}
+	} else
 #endif /* HAVE_CURSES_H */
+	{
+		send_ansi_detect();
+		look_for_ansi();
+		cls(0);
+		color(1+DIM_WHITE);
+	}
 	screen_set();
 	windows_new();
 }
