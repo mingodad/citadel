@@ -1,4 +1,8 @@
 $Log$
+Revision 400.84  2003/01/15 17:34:04  ajc
+* event.c: fixed a misspelling
+* config.guess, config.sub: updated using latest from ftp.gnu.org
+
 Revision 400.83  2003/01/14 04:21:27  ajc
 * Only offer views which make sense for the default view of a room
 
@@ -1240,4 +1244,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

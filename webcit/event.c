@@ -311,7 +311,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("</TD></TR>\n");
 
 	/* Attendees */
-	wprintf("<TR><TD><B>Attendes</B><BR>"
+	wprintf("<TR><TD><B>Attendees</B><BR>"
 		"<FONT SIZE=-2>(Separate multiple attendees with commas)"
 		"</FONT></TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
