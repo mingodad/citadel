@@ -2217,7 +2217,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			if ((dmsgnum == 0L) || (msglist[i] == dmsgnum)) {
 				delete_this |= 0x01;
 			}
-			if (strlen(content_type) > 0) {
+			if (strlen(content_type) == 0) {
 				delete_this |= 0x02;
 			} else {
 				GetSuppMsgInfo(&smi, msglist[i]);

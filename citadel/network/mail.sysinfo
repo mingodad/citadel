@@ -1,3 +1,17 @@
+bin Mail
+bin Mail
+phonenum netproc[14852]: Adding neighbor system <bin Mail> to map
+gdom system <bin Mail> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 954257820 Tue Mar 28 10:37:00 2000
+
+bin Mail
+bin Mail
+phonenum netproc[4535]: Adding neighbor system <ctestsys> to map
+gdom ystem <ctestsys> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 953919421 Fri Mar 24 12:37:01 2000
+
 ctestsys
 use uncnsrd
 phonenum US 612 470 9635
@@ -15,28 +29,22 @@ lastcontact 953519823 Sun Mar 19 21:37:03 2000
 internet
 uum %s
 humannode Internet Gateway
-lastcontact 953559424 Mon Mar 20 08:37:04 2000
+lastcontact 954265024 Tue Mar 28 12:37:04 2000
 
 uncnsrd
 bin Mail
 phonenum US 914 244 3252
 humannode Uncensored
-lastcontact 953343423 Fri Mar 17 20:37:03 2000
+lastcontact 953980623 Sat Mar 25 05:37:03 2000
 
 test
 bin Mail
-
-tux
-bin Mail
-phonenum US 800 555 1212
-humannode My System
-lastcontact 951540103 Fri Feb 25 23:41:43 2000
 
 tesseract
 bin Mail
 phonenum US 800 555 1212
 humannode Tesseract Project
-lastcontact 953559424 Mon Mar 20 08:37:04 2000
+lastcontact 954265024 Tue Mar 28 12:37:04 2000
 
 pixel
 use uncnsrd
@@ -50,7 +58,7 @@ use uncnsrd
 phonenum netproc[4026]: Adding non-neighbor system <pixel> to map
 gdom or system <pixel> to map
 humannode Barbaria
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
+lastcontact 953775424 Wed Mar 22 20:37:04 2000
 
 haven
 use uncnsrd
@@ -78,7 +86,7 @@ use uncnsrd
 phonenum US (609) 953 8159
 gdom NJ
 humannode The Amiga Zone
-lastcontact 952720625 Fri Mar 10 15:37:05 2000
+lastcontact 953764623 Wed Mar 22 17:37:03 2000
 
 gateway
 use uncnsrd
@@ -113,14 +121,14 @@ use uncnsrd
 phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
 gdom or system <sbn> to map
 humannode Dog Pound BBS II
-lastcontact 953339823 Fri Mar 17 19:37:03 2000
+lastcontact 953771823 Wed Mar 22 19:37:03 2000
 
 jacs
 use uncnsrd
 phonenum US6093461224
 gdom NJ
 humannode JACS
-lastcontact 952839428 Sun Mar 12 00:37:08 2000
+lastcontact 953678224 Tue Mar 21 17:37:04 2000
 
 rundale
 use uncnsrd
@@ -142,4 +150,32 @@ phonenum netproc[4026]: Adding non-neighbor system <catchat> to map
 gdom or system <catchat> to map
 humannode The Future BBS
 lastcontact 952979823 Mon Mar 13 15:37:03 2000
+
+bin Mail
+bin Mail
+phonenum netproc[4444]: Adding neighbor system <future> to map
+gdom ystem <future> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 953915821 Fri Mar 24 11:37:01 2000
+
+bin Mail
+bin Mail
+phonenum netproc[4627]: Adding neighbor system <bin Mail> to map
+gdom ystem <bin Mail> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 953923020 Fri Mar 24 13:37:00 2000
+
+bin Mail
+bin Mail
+phonenum netproc[4963]: Adding neighbor system <bin Mail> to map
+gdom ystem <bin Mail> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 953937420 Fri Mar 24 17:37:00 2000
+
+bin Mail
+bin Mail
+phonenum netproc[12030]: Adding neighbor system <bin Mail> to map
+gdom system <bin Mail> to map
+humannode ¸”ˆóÿ¿Œóÿ¿
+lastcontact 954167821 Mon Mar 27 09:37:01 2000
 
