@@ -142,7 +142,7 @@ void whobbs(void)
 	}
 	wprintf("</TABLE>\n<BR><BR>\n");
 	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
-	wprintf("<B><A HREF=\"/mainmenu\" TARGET=\"_top\">Close window</A></B>\n");
+	wprintf("<B><A HREF=\"javascript:window.close()\">Close window</A></B>\n");
 	wprintf("</TD></TR>\n</TABLE></FONT>\n</CENTER>");
 
 	wDumpContent(1);

@@ -1,4 +1,7 @@
 $Log$
+Revision 212.6  2000/08/30 03:20:22  ajc
+* Put the wholist back into its own window.
+
 Revision 212.5  2000/07/06 03:46:29  ajc
 * Fixed the count in 'there are xxx messages remaining."  (Closes bug #61)
 
@@ -464,3 +467,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
