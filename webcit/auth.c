@@ -32,7 +32,7 @@ void display_login(char *mesg) {
 	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
 
 	/* FIX replace with the correct image */
-	wprintf("<IMG SRC=\"/static/velma.gif\">");
+	wprintf("<IMG SRC=\"/image&name=hello\">");
 	wprintf("</TD><TD><CENTER>\n");
 
 	if (mesg != NULL) {
