@@ -18,6 +18,8 @@ void create_floor(void);
 void edit_floor(void);
 void kill_floor(void);
 void enter_bio(void);
+void download_to_local_disk(char *, long);
+
 
 /* 
  * This struct holds a list of rooms for client display.

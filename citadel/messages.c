@@ -19,6 +19,8 @@
 #include "citadel.h"
 #include "messages.h"
 #include "commands.h"
+#include "rooms.h"
+#include "tools.h"
 
 #define MAXWORDBUF 256
 #define MAXMSGS 512
@@ -895,6 +897,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	char pagin;
 	char cmd[256];
 	char targ[ROOMNAMELEN];
+	char filename[256];
 
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
@@ -994,6 +997,7 @@ RMSGREAD:	fflush(stdout);
 			printf("(%d) ",num_msgs-a-1);
 			if (is_mail==1) printf("<R>eply ");
 			if (strlen(printcmd)>0) printf("<P>rint ");
+			if (rc_allow_attachments) printf("<F>ile ");
 		printf("<B>ack <A>gain <Q>uote <H>eader <N>ext <S>top -> ");
 			do {
 				lines_printed = 2;
@@ -1007,10 +1011,11 @@ RMSGREAD:	fflush(stdout);
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
 /* can't move from Mail> */	if ((e=='m')&&(is_mail==1)) e=0;
 /* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
+/* can't file if not allowed */	if ((e=='f')&&(rc_allow_attachments==0)) e=0;
 				} while((e!='a')&&(e!='n')&&(e!='s')
 					&&(e!='d')&&(e!='m')&&(e!='p')
 					&&(e!='q')&&(e!='b')&&(e!='h')
-					&&(e!='r'));
+					&&(e!='r')&&(e!='f'));
 			switch(e) {
 				case 's':	printf("Stop\r");	break;
 				case 'a':	printf("Again\r");	break;
@@ -1022,6 +1027,8 @@ RMSGREAD:	fflush(stdout);
 				case 'b':	printf("Back\r");	break;
 				case 'h':	printf("Header\r");	break;
 				case 'r':	printf("Reply\r");	break;
+				case 'f':	printf("File attachment\r");
+									break;
 				}
 			if (userflags & US_DISAPPEAR)
 				printf("%75s\r","");
@@ -1061,6 +1068,21 @@ RMSGREAD:	fflush(stdout);
 					}
 				if (cmd[0]!='2') goto RMSGREAD;
 				break;
+		   case 'f':	newprompt("Which section? ", filename,
+					((sizeof filename) -1));
+				snprintf(cmd, sizeof cmd,
+					"OPNA %ld|%s", msg_arr[a], filename);
+				serv_puts(cmd);
+				serv_gets(cmd);
+				if (cmd[0]=='2') {
+					extract(filename, &cmd[4], 2);
+					download_to_local_disk(filename,
+						extract_int(&cmd[4], 0));
+					}
+				else {
+					printf("%s\n",&cmd[4]);
+					}
+				goto RMSGREAD;
 		   case 'd':	printf("*** Delete this message? ");
 				if (yesno()==1) {
 					sprintf(cmd,"DELE %ld",msg_arr[a]);

@@ -525,18 +525,75 @@ void ungoto(void) {
 	}
 
 
+/* Here's the code for simply transferring the file to the client,
+ * for folks who have their own clientware.  It's a lot simpler than
+ * the [XYZ]modem code below...
+ * (This function assumes that a download file is already open on the server)
+ */
+void download_to_local_disk(char *filename, long total_bytes)
+{
+	char buf[256];
+	char dbuf[4096];
+	long transmitted_bytes = 0L;
+	long aa,bb;
+	FILE *savefp;
+	int broken = 0;
+	int packet;
+
+	printf("Enter the name of the directory to save '%s'\n",
+		filename);
+	printf("to, or press return for the current directory.\n");
+	newprompt("Directory: ",dbuf,256);
+	if (strlen(dbuf)==0) strcpy(dbuf,".");
+	strcat(dbuf,"/");
+	strcat(dbuf,filename);
+	
+	savefp = fopen(dbuf,"w");
+	if (savefp == NULL) {
+		printf("Cannot open '%s': %s\n",dbuf,strerror(errno));
+		/* close the download file at the server */
+		serv_puts("CLOS");
+		serv_gets(buf);
+		if (buf[0]!='2') {
+			printf("%s\n",&buf[4]);
+			}
+		return;
+		}
+	progress(0,total_bytes);
+	while ( (transmitted_bytes < total_bytes) && (broken == 0) ) {
+		bb = total_bytes - transmitted_bytes;
+		aa = ((bb < 4096) ? bb : 4096);
+		sprintf(buf,"READ %ld|%ld",transmitted_bytes,aa);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]!='6') {
+			printf("%s\n",&buf[4]);
+			return;
+			}
+		packet = extract_int(&buf[4],0);
+		serv_read(dbuf,packet);
+		if (fwrite(dbuf,packet,1,savefp) < 1) broken = 1;
+		transmitted_bytes = transmitted_bytes + (long)packet;
+		progress(transmitted_bytes,total_bytes);
+		}
+	fclose(savefp);
+	/* close the download file at the server */
+	serv_puts("CLOS");
+	serv_gets(buf);
+	if (buf[0]!='2') {
+		printf("%s\n",&buf[4]);
+		}
+	return;
+	}
+
+
 /*
  * download()  -  download a file or files.  The argument passed to this
  *                function determines which protocol to use.
+ *  proto - 0 = paginate, 1 = xmodem, 2 = raw, 3 = ymodem, 4 = zmodem, 5 = save
  */
 void download(int proto)
 {
-
-/*
-  - 0 = paginate, 1 = xmodem, 2 = raw, 3 = ymodem, 4 = zmodem, 5 = save
-*/
-
-
 	char buf[256];
 	char dbuf[4096];
 	char filename[256];
@@ -546,7 +603,6 @@ void download(int proto)
 	int a,b;
 	int packet;
 	FILE *tpipe = NULL;
-	FILE *savefp = NULL;
 	int proto_pid;
 	int broken = 0;
 
@@ -566,59 +622,13 @@ void download(int proto)
 		}
 	total_bytes = extract_long(&buf[4],0);
 
-
-	/* Here's the code for simply transferring the file to the client,
-	 * for folks who have their own clientware.  It's a lot simpler than
-	 * the [XYZ]modem code below...
-	 */
+	/* Save to local disk, for folks with their own copy of the client */
 	if (proto == 5) {
-		printf("Enter the name of the directory to save '%s'\n",
-			filename);
-		printf("to, or press return for the current directory.\n");
-		newprompt("Directory: ",dbuf,256);
-		if (strlen(dbuf)==0) strcpy(dbuf,".");
-		strcat(dbuf,"/");
-		strcat(dbuf,filename);
-		
-		savefp = fopen(dbuf,"w");
-		if (savefp == NULL) {
-			printf("Cannot open '%s': %s\n",dbuf,strerror(errno));
-			/* close the download file at the server */
-			serv_puts("CLOS");
-			serv_gets(buf);
-			if (buf[0]!='2') {
-				printf("%s\n",&buf[4]);
-				}
-			return;
-			}
-		progress(0,total_bytes);
-		while ( (transmitted_bytes < total_bytes) && (broken == 0) ) {
-			bb = total_bytes - transmitted_bytes;
-			aa = ((bb < 4096) ? bb : 4096);
-			sprintf(buf,"READ %ld|%ld",transmitted_bytes,aa);
-			serv_puts(buf);
-			serv_gets(buf);
-			if (buf[0]!='6') {
-				printf("%s\n",&buf[4]);
-				return;
-				}
-			packet = extract_int(&buf[4],0);
-			serv_read(dbuf,packet);
-			if (fwrite(dbuf,packet,1,savefp) < 1) broken = 1;
-			transmitted_bytes = transmitted_bytes + (long)packet;
-			progress(transmitted_bytes,total_bytes);
-			}
-		fclose(savefp);
-		/* close the download file at the server */
-		serv_puts("CLOS");
-		serv_gets(buf);
-		if (buf[0]!='2') {
-			printf("%s\n",&buf[4]);
-			}
+		download_to_local_disk(filename, total_bytes);
 		return;
 		}
 
-
+	/* Meta-download for public clients */
 	mkdir(tempdir,0700);
 	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename);
 	mkfifo(buf, 0777);

@@ -1,10 +1,12 @@
 Priority items
 --------------
-* There's a memory leak in the server.  Fix it.
+* There's a memory leak in the server.  Fix it.  (Is there?)
 
 Important items
 ---------------
 * In the client, make <G>oto go directly to Mail> when there's new mail.
+* In the client, when a user hits <F>ile to download an attachment, list the
+  available attachments before prompting for which one to download.
 
 Honeydew items
 --------------
