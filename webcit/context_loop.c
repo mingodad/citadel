@@ -256,9 +256,9 @@ void *context_loop(int sock) {
 	/* FIX ... This is a weird problem, exhibited on Linux 2.1.130...
 	 * the socket doesn't linger properly before closing, so we implement
 	 * a ten-second delay before closing the socket.
-	 */
 	printf("   Lingering...\n");
 	sleep(10);
+	 */
 
 	printf("   Closing socket\n");
 	close(sock);

@@ -509,7 +509,7 @@ void session_loop(void) {
 		}
 
 	else if (!logged_in) {
-		display_login();
+		display_login(NULL);
 		}
 
 	/* Various commands... */
