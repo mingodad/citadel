@@ -14,6 +14,7 @@
 #include "bitmaps/mail.xpm"
 #include "bitmaps/who.xpm"
 #include "bitmaps/chat.xpm"
+#include "bitmaps/xglobe.xpm"
 #endif
 
 
@@ -52,6 +53,7 @@ public:
 	void OnAbout(wxCommandEvent& event);
 	void OnDoCmd(wxCommandEvent& event);
 	void GotoNewRoom(wxTreeEvent& event);
+	void DoTerm(wxCommandEvent& event);
 private:
 	void OnConnect(wxCommandEvent& event);
 	void OnGotoMail(wxCommandEvent& event);
@@ -78,6 +80,7 @@ enum
 {
 	DO_NOTHING,
 	IG_Quit,
+	IG_Term,
 	IG_About,
 	IG_Text,
 	MENU_CONNECT,
@@ -100,6 +103,7 @@ enum
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
+	EVT_MENU(	IG_Term,		MyFrame::DoTerm)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
 	EVT_MENU(	EMENU_PREFS,		MyFrame::OnEditMenu)
@@ -193,7 +197,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->Append(MENU_CONNECT, "&Connect");
 	menuFile->Append(MENU_TESTWIN, "Add &Test window");
 	menuFile->AppendSeparator(); 
+	menuFile->Append(IG_Term, "&Disconnect");
 	menuFile->Append(IG_Quit, "E&xit");
+
 
 	wxMenu *menuEdit = new wxMenu;
 	menuEdit->Append(EMENU_PREFS, "&Preferences...");
@@ -238,7 +244,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 // The toolbar for this application.
 void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	int i;
-	wxBitmap* bitmaps[4];
+	wxBitmap* bitmaps[5];
 
 // wxGTK seems to do the right thing by itself, while wxMSW wants to be
 // told how big the toolbar icons are going to be, otherwise it defaults to
@@ -254,11 +260,13 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	bitmaps[1] = new wxBitmap("bitmaps/mail.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[3] = new wxBitmap("bitmaps/chat.bmp",	wxBITMAP_TYPE_BMP);
+	bitmaps[4] = new wxBitmap("bitmaps/xglobe.bmp", wxBITMAP_TYPE_BMP);
 #else
 	bitmaps[0] = new wxBitmap(globe_xpm);
 	bitmaps[1] = new wxBitmap(mail_xpm);
 	bitmaps[2] = new wxBitmap(who_xpm);
 	bitmaps[3] = new wxBitmap(chat_xpm);
+	bitmaps[4] = new wxBitmap(xglobe_xpm);
 #endif
 
 	toolBar->AddTool(MENU_CONNECT,
@@ -297,9 +305,17 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 			(wxObject *)NULL,
 			"Real-time chat");
 			
+        toolBar->AddTool(IG_Term,
+		        *bitmaps[4],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"Disconnect");
+
 	toolBar->Realize();
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 5; i++)
 		delete bitmaps[i];
 }
 
@@ -321,6 +337,19 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 
 	cleanup(0);
 }
+
+
+// Testing for doterm
+
+void MyFrame::DoTerm(wxCommandEvent& WXUNUSED(event))
+{
+
+        // Kill the client connection
+        citadel->detach();
+	BigMDI->SetStatusText("Not connected");	
+	
+}
+
 
 
 // Edit menu handler
@@ -393,7 +422,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	} else {
 		retval = citadel->attach(DefaultHost, DefaultPort);
 		if (retval == 0) {
-    			SetStatusText("Connected to " + citadel->HumanNode, 0);
+			SetStatusText("Connected to " + citadel->HumanNode, 0);
 			new UserLogin(citadel, this);
 		} else {
 			wxMessageBox("Could not connect to server.", "Error");

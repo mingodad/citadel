@@ -1,5 +1,10 @@
 $Log$
+Revision 1.2  1999/11/07 18:42:52  smw
+Removed all 'cout' commands
+changed 'exit' commands to 'close' on the userlogin menu
+updated daphne so that disconnecting from the server doesn't
+shut down the program.
+
 Revision 1.1  1999/11/07 17:56:38  ajc
 * Began the ChangeLog for this project.
-
 

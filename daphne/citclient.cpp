@@ -21,14 +21,14 @@ int CitClient::attach(wxString host, wxString port) {
         sock->SetNotify(0);
         sock->Connect(addr, TRUE);
         if (sock->IsConnected()) {
-                cout << "Connect succeeded\n" ;
+/*                cout << "Connect succeeded\n" ; */
                 serv_gets(ServerReady);
                 initialize_session();
 		curr_host = host;	// Remember host and port, in case
 		curr_port = port;	// we need to auto-reconnect later
                 return(0);
         } else {
-                cout << "Connect failed\n" ;
+               /* cout << "Connect failed\n" ;*/
                 return(1);
         }
 }
@@ -96,7 +96,7 @@ void CitClient::serv_gets(wxString& buf) {
 		if (nl_pos < 0) {
 			sock->Read(&charbuf[nbytes], (sizeof(charbuf)-nbytes) );
 			nbytes += sock->LastCount();
-			cout << "Read " << sock->LastCount() << " bytes \n";
+		/*	cout << "Read " << sock->LastCount() << " bytes \n";*/
 		}
 		for (i=nbytes; i>=0; --i)
 			if (charbuf[i] == 10) nl_pos = i;
@@ -116,7 +116,7 @@ void CitClient::serv_gets(wxString& buf) {
         GetLine(sock, buf);
 */
 
-	cout << "> " << buf << "(len=" << buf.Len() << ")\n";
+/*	cout << "> " << buf << "(len=" << buf.Len() << ")\n"; */
 }
 
 
@@ -127,7 +127,7 @@ void CitClient::serv_gets(wxString& buf) {
 // Write a line of text to the server
 void CitClient::serv_puts(wxString buf) {
 
-        cout << "< " << buf << "\n" ;
+       /* cout << "< " << buf << "\n" ; */
         sock->Write((const char *)buf, buf.Len());
         sock->Write("\n", 1);
 }
@@ -169,14 +169,14 @@ int CitClient::serv_trans(
 
 	// If a mutex is to be wrapped around this function in the future,
 	// it must begin HERE.
-	cout << "Beginning transaction\n";
+/*	cout << "Beginning transaction\n"; */
 	Critter.Enter();
 	// wxBeginBusyCursor();
 
 	serv_puts(command);
 
 	if (IsConnected() == FALSE) {
-		wxSleep(5);	// Give a crashed server some time to restart
+		wxSleep(20);	// Give a crashed server some time to restart
 		reconnect_session();
 		serv_puts(command);
 	}
@@ -219,16 +219,16 @@ int CitClient::serv_trans(
 
 	// If a mutex is to be wrapped around this function in the future,
 	// it must end HERE.
-	cout << "Ending transaction...\n";
+/*	cout << "Ending transaction...\n"; */
 	// wxEndBusyCursor();
 	Critter.Leave();
-	cout << "...done.\n";
+/*	cout << "...done.\n"; */
 
 	if (express_messages_waiting) {
 		download_express_messages();
 	}
 
-	cout << "serv_trans() returning " << first_digit << "\n";
+/*	cout << "serv_trans() returning " << first_digit << "\n"; */
 	return first_digit;
 }
 
@@ -343,19 +343,19 @@ void CitClient::reconnect_session(void) {
 
 	if (attach(curr_host, curr_port) != 0) {
 		// FIX do this more elegantly
-		cout << "Could not re-establish session (1)\n";
+	/*	cout << "Could not re-establish session (1)\n"; */
 	}
 
 	sendcmd = "USER " + curr_user;
 	if (serv_trans(sendcmd) != 3) {
 		// FIX do this more elegantly
-		cout << "Could not re-establish session (2)\n";
+	/*	cout << "Could not re-establish session (2)\n"; */
 	}
 
 	sendcmd = "PASS " + curr_pass;
 	if (serv_trans(sendcmd) != 2) {
 		// FIX do this more elegantly
-		cout << "Could not re-establish session (3)\n";
+	/*	cout << "Could not re-establish session (3)\n"; */
 	}
 }
 

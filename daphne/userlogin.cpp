@@ -122,13 +122,13 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	exit_button = new wxButton(
 		this,
 		BUTTON_EXIT,
-		"Exit",
+		"Close",
 		wxPoint(300,300),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
 		"exit_button"
-		);
+		); 
 
 	wxHtmlWindow *hello = new wxHtmlWindow(this);
 
@@ -228,9 +228,15 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 	int r;
 
 	if (whichbutton.GetId() == BUTTON_EXIT) {
+		if (citadel->IsConnected()) {
 		sendbuf = "QUIT";
 		citsock->serv_trans(sendbuf);
-		cleanup(0);
+		BigMDI->SetStatusText("Not connected");
+		delete this; 
+	      }	else {
+		BigMDI->SetStatusText("Not connected");
+		delete this; }
+
 	}
 
 	if (whichbutton.GetId() == BUTTON_LOGIN) {
