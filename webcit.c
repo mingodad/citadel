@@ -1039,6 +1039,8 @@ void session_loop(struct httprequest *req)
 		select_user_to_edit(NULL);
 	} else if (!strcasecmp(action, "display_edituser")) {
 		display_edituser(NULL);
+	} else if (!strcasecmp(action, "edituser")) {
+		edituser();
 	} else if (!strcasecmp(action, "create_user")) {
 		create_user();
 	} else if (!strcasecmp(action, "diagnostics")) {

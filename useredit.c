@@ -88,6 +88,7 @@ void select_user_to_edit(char *message)
 void display_edituser(char *supplied_username) {
 	char buf[SIZ];
 	char error_message[SIZ];
+	time_t now;
 
 	char username[SIZ];
 	char password[SIZ];
@@ -98,6 +99,7 @@ void display_edituser(char *supplied_username) {
 	long usernum;
 	time_t lastcall;
 	int purgedays;
+	int i;
 
 	if (supplied_username != NULL) {
 		strcpy(username, supplied_username);
@@ -133,7 +135,12 @@ void display_edituser(char *supplied_username) {
 	escputs(username);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
+		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
+	escputs(username);
+	wprintf("\">\n");
+
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"flags\" VALUE=\"%d\">\n", flags);
 
 	wprintf("<CENTER><TABLE>");
 
@@ -141,11 +148,6 @@ void display_edituser(char *supplied_username) {
 		"<INPUT TYPE=\"password\" NAME=\"password\" VALUE=\"");
 	escputs(password);
 	wprintf("\" MAXLENGTH=\"20\"></TD></TR>\n");
-
-	wprintf("<TR><TD>Flags (FIXME)</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"flags\" VALUE=\"");
-	wprintf("%d", flags);
-	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
 
 	wprintf("<TR><TD>Times logged in</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"timescalled\" VALUE=\"");
@@ -157,22 +159,38 @@ void display_edituser(char *supplied_username) {
 	wprintf("%d", msgsposted);
 	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
 
-	wprintf("<TR><TD>Access level (FIXME) </TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"axlevel\" VALUE=\"");
-	wprintf("%d", axlevel);
-	wprintf("\" MAXLENGTH=\"1\"></TD></TR>\n");
+	wprintf("<TR><TD>Access level</TD><TD>"
+		"<SELECT NAME=\"axlevel\">\n");
+	for (i=0; i<7; ++i) {
+		wprintf("<OPTION ");
+		if (axlevel == i) {
+			wprintf("SELECTED ");
+		}
+		wprintf("VALUE=\"%d\">%d - %s</OPTION>\n",
+			i, i, axdefs[i]);
+	}
+	wprintf("</SELECT></TD></TR>\n");
 
 	wprintf("<TR><TD>User ID number</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"usernum\" VALUE=\"");
 	wprintf("%ld", usernum);
 	wprintf("\" MAXLENGTH=\"7\"></TD></TR>\n");
 
+	now = time(NULL);
 	wprintf("<TR><TD>Date/time of last login</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"lastcall\" VALUE=\"");
-	escputs(asctime(localtime(&lastcall)));
-	wprintf("\" MAXLENGTH=\"30\"></TD></TR>\n");
+		"<SELECT NAME=\"lastcall\">\n");
 
-	wprintf("<TR><TD>Purge days (FIXME) </TD><TD>"
+	wprintf("<OPTION SELECTED VALUE=\"%ld\">", lastcall);
+	escputs(asctime(localtime(&lastcall)));
+	wprintf("</OPTION>\n");
+
+	wprintf("<OPTION VALUE=\"%ld\">", now);
+	escputs(asctime(localtime(&now)));
+	wprintf("</OPTION>\n");
+
+	wprintf("</SELECT></TD></TR>");
+
+	wprintf("<TR><TD>Auto-purge after days</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"purgedays\" VALUE=\"");
 	wprintf("%d", purgedays);
 	wprintf("\" MAXLENGTH=\"5\"></TD></TR>\n");
@@ -188,6 +206,44 @@ void display_edituser(char *supplied_username) {
 	wDumpContent(1);
 
 }
+
+
+
+void edituser(void) {
+	char message[SIZ];
+	char buf[SIZ];
+
+	if (strcasecmp(bstr("action"), "OK")) {
+		strcpy(message, "Edit user cancelled.");
+	}
+
+	else {
+
+		serv_printf("ASUP %s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			bstr("username"),
+			bstr("password"),
+			bstr("flags"),
+			bstr("timescalled"),
+			bstr("msgsposted"),
+			bstr("axlevel"),
+			bstr("usernum"),
+			bstr("lastcall"),
+			bstr("purgedays")
+		);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			sprintf(message,
+				"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+				"%s<BR><BR>\n", &buf[4]);
+		}
+		else {
+			strcpy(message, "");
+		}
+	}
+
+	select_user_to_edit(message);
+}
+
 
 
 
@@ -212,3 +268,4 @@ void create_user(void) {
 	}
 
 }
+
