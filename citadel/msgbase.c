@@ -2024,10 +2024,18 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 	if (exist == NULL) {
 		m = mallok(4096);
+		m[0] = 0;
+		buffer_len = 4096;
+		message_len = 0;
 	}
 	else {
-		m = reallok(exist, strlen(exist) + 4096);
-		if (m == NULL) phree(exist);
+		message_len = strlen(exist);
+		buffer_len = message_len + 4096;
+		m = reallok(exist, buffer_len);
+		if (m == NULL) {
+			phree(exist);
+			return m;
+		}
 	}
 
 	/* flush the input if we have nowhere to store it */
@@ -2036,12 +2044,6 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		return(NULL);
 	}
 
-	/* otherwise read it into memory */
-	else {
-		buffer_len = 4096;
-		m[0] = 0;
-		message_len = 0;
-	}
 	/* read in the lines of message text one by one */
 	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
 
