@@ -55,6 +55,10 @@ void imap_free_msgids(void) {
 		IMAP->msgids = NULL;
 		IMAP->num_msgs = 0;
 	}
+	if (IMAP->flags != NULL) {
+		phree(IMAP->flags);
+		IMAP->flags = NULL;
+	}
 }
 
 
@@ -74,7 +78,15 @@ void imap_add_single_msgid(long msgnum, void *userdata) {
 		IMAP->msgids = reallok(IMAP->msgids,
 			IMAP->num_msgs * sizeof(long));
 	}
+	if (IMAP->flags == NULL) {
+		IMAP->flags = mallok(IMAP->num_msgs * sizeof(long));
+	}
+	else {
+		IMAP->flags = reallok(IMAP->flags,
+			IMAP->num_msgs * sizeof(long));
+	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
+	IMAP->flags[IMAP->num_msgs - 1] = 0;
 }
 
 
