@@ -323,7 +323,7 @@ FMTA:	if (subst) {
 		}
 	goto FMTA;
 
-FMTEND:	cprintf("\n");
+FMTEND:	cprintf("%s\n", aaa);
 	}
 
 
