@@ -630,7 +630,7 @@ void imap_namespace(int num_parms, char *parms[])
 	cprintf("* NAMESPACE ");
 
 	/* All personal folders are subordinate to INBOX. */
-	cprintf("((\"INBOX|\" \"|\")) ");
+	cprintf("((\"INBOX/\" \"/\")) ");
 
 	/* Other users' folders ... coming soon! FIXME */
 	cprintf("NIL ");
@@ -642,9 +642,9 @@ void imap_namespace(int num_parms, char *parms[])
 		if (fl->f_flags & F_INUSE) {
 			if (floors > 0) cprintf(" ");
 			cprintf("(");
-			sprintf(buf, "%s|", fl->f_name);
+			sprintf(buf, "%s/", fl->f_name);
 			imap_strout(buf);
-			cprintf(" \"|\")");
+			cprintf(" \"/\")");
 			++floors;
 		}
 	}
@@ -670,7 +670,7 @@ void imap_list_floors(char *cmd, char *pattern)
 		if (fl->f_flags & F_INUSE) {
 			if (imap_mailbox_matches_pattern
 			    (pattern, fl->f_name)) {
-				cprintf("* %s (\\NoSelect) \"|\" ", cmd);
+				cprintf("* %s (\\NoSelect) \"/\" ", cmd);
 				imap_strout(fl->f_name);
 				cprintf("\r\n");
 			}
@@ -699,7 +699,7 @@ void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LSUB () \"|\" ");
+			cprintf("* LSUB () \"/\" ");
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -720,7 +720,7 @@ void imap_lsub(int num_parms, char *parms[])
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	if (strlen(parms[3]) == 0) {
-		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
+		cprintf("* LIST (\\Noselect) \"/\" \"\"\r\n");
 	}
 
 	else {
@@ -750,7 +750,7 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LIST () \"|\" ");
+			cprintf("* LIST () \"/\" ");
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -771,7 +771,7 @@ void imap_list(int num_parms, char *parms[])
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	if (strlen(parms[3]) == 0) {
-		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
+		cprintf("* LIST (\\Noselect) \"/\" \"\"\r\n");
 	}
 
 	else {
@@ -814,7 +814,7 @@ void imap_create(int num_parms, char *parms[])
 	flags = (ret & 0xff00);	/* upper 8 bits = flags        */
 
 	if (flags & IR_MAILBOX) {
-		if (strncasecmp(parms[2], "INBOX|", 6)) {
+		if (strncasecmp(parms[2], "INBOX/", 6)) {
 			cprintf("%s NO Personal folders must be created under INBOX\r\n", parms[0]);
 			lprintf(CTDL_DEBUG, "not subordinate to inbox\n");
 			return;
@@ -1110,9 +1110,9 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data)
 	/* Rename subfolders */
 	if ((!strncasecmp(foldername, irlparms->oldname,
 			  strlen(irlparms->oldname))
-	     && (foldername[strlen(irlparms->oldname)] == '|'))) {
+	     && (foldername[strlen(irlparms->oldname)] == '/'))) {
 
-		sprintf(newfoldername, "%s|%s",
+		sprintf(newfoldername, "%s/%s",
 			irlparms->newname,
 			&foldername[strlen(irlparms->oldname) + 1]
 		    );

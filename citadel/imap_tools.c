@@ -96,6 +96,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	struct floor *fl;
 	int i;
 	char buf2[SIZ];
+	int sfstart = 0;
 
 	/*
 	 * For mailboxes, just do it straight.
@@ -107,10 +108,12 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		strcpy(buf, &buf[11]);
 		if (!strcasecmp(buf, MAILROOM)) {
 			strcpy(buf, "INBOX");
+			sfstart = 5;
 		}
 		else {
-			sprintf(buf2, "INBOX|%s", buf);
+			sprintf(buf2, "INBOX/%s", buf);
 			strcpy(buf, buf2);
+			sfstart = 6;
 		}
 	}
 	/*
@@ -118,16 +121,19 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	 */
 	else {
 		fl = cgetfloor(qrbuf->QRfloor);
-		snprintf(buf, bufsize, "%s|%s",
+		snprintf(buf, bufsize, "%s/%s",
 			 fl->f_name,
 			 qrbuf->QRname);
+		sfstart = strlen(fl->f_name) + 1;
 	}
 
 	/*
-	 * Replace delimiter characters with "|" for pseudo-folder-delimiting
+	 * Replace delimiter characters with "/" for pseudo-folder-delimiting
+	 * and replace actual slashes with "|" because they're illegal here.
 	 */
-	for (i=0; i<strlen(buf); ++i) {
-		if (buf[i] == FDELIM) buf[i] = '|';
+	for (i=sfstart; i<strlen(buf); ++i) {
+		if (buf[i] == FDELIM) buf[i] = '/';
+		else if (buf[i] == '/') buf[i] = '|';
 	}
 }
 
@@ -153,7 +159,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	int ret = (-1);
 
 	if (foldername == NULL) return(-1);
-	levels = num_parms(foldername);
+	levels = num_tokens(foldername, '/');
 
 	/*
 	 * Convert the crispy idiot's reserved names to our reserved names.
@@ -163,12 +169,12 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		safestrncpy(rbuf, MAILROOM, bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
-	else if (!strncasecmp(foldername, "INBOX|", 6)) {
+	else if (!strncasecmp(foldername, "INBOX/", 6)) {
 		safestrncpy(rbuf, &foldername[6], bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
 	else if (levels > 1) {
-		extract(floorname, foldername, 0);
+		extract_token(floorname, foldername, 0, '/');
 		strcpy(roomname, &foldername[strlen(floorname)+1]);
 		for (i = 0; i < MAXFLOORS; ++i) {
 			fl = cgetfloor(i);
@@ -192,21 +198,11 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		ret = (0 | IR_MAILBOX);
 	}
 
-	/* Undelimiterizationalisticize the room name (change '|') */
+	/* Undelimiterizationalisticize the room name (change '/' and '|') */
 	for (i=0; i<strlen(rbuf); ++i) {
-		if (rbuf[i] == '|') rbuf[i] = FDELIM;
+		if (rbuf[i] == '/') rbuf[i] = FDELIM;
+		else if (rbuf[i] == '|') rbuf[i] = '/';
 	}
-
-
-/*** This doesn't work.
-	char buf[SIZ];
-	if (ret & IR_MAILBOX) {
-		if (atol(rbuf) == 0L) {
-			strcpy(buf, rbuf);
-			sprintf(rbuf, "%010ld.%s", CC->user.usernum, buf);
-		}
-	}
- ***/
 
 	lprintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
@@ -285,7 +281,7 @@ int imap_is_message_set(char *buf)
 #define WILDMAT_TRUE	1
 #define WILDMAT_FALSE	0
 #define WILDMAT_ABORT	-1
-#define WILDMAT_DELIM 	'|'
+#define WILDMAT_DELIM 	'/'
 
 /*
  * Match text and p, return TRUE, FALSE, or ABORT.

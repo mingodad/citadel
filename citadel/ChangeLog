@@ -1,4 +1,9 @@
  $Log$
+ Revision 620.5  2004/03/31 02:19:09  ajc
+ * Change the IMAP folder delimiter from "|" to "/" because more than a few
+   client programs don't follow RFC2060 strictly enough to work with
+   non-"/" delimiters.  Actual slashes in room names appear as "|" in IMAP.
+
  Revision 620.4  2004/03/30 03:11:07  ajc
  * control.c: when config.c_maxsessions is unset or negative, set it to 0
    instead of setting it to 1 when it is 0 or negative.  The default should
@@ -5651,4 +5656,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
