@@ -1,4 +1,10 @@
 $Log$
+Revision 410.2  2003/03/13 05:20:23  ajc
+* Various changes to the calendar service to handle messages containing
+  fully encapsulated VCALENDAR components instead of only unencapsulated
+  VEVENT subcomponents.  We have to move in this direction for compatibility
+  with other products.
+
 Revision 410.1  2003/03/01 22:07:19  ajc
 * New user registration, as well as existing user re-registration, now
   uses the vCard editing screen.
@@ -1279,5 +1285,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-

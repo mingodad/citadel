@@ -32,6 +32,8 @@
 
 /*
  * Display an event by itself (for editing)
+ *
+ * ok
  */
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent;
@@ -56,6 +58,21 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
+		/* If we're looking at a fully encapsulated VCALENDAR
+		 * rather than a VTODO component, attempt to use the first
+		 * relevant VTODO subcomponent.  If there is none, the
+		 * NULL returned by icalcomponent_get_first_component() will
+		 * tell the next iteration of this function to create a
+		 * new one.
+		 */
+		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
+			display_edit_individual_event(
+				icalcomponent_get_first_component(
+					vevent, ICAL_VTODO_COMPONENT
+				), msgnum
+			);
+			return;
+		}
 	}
 	else {
 		vevent = icalcomponent_new(ICAL_VEVENT_COMPONENT);
@@ -387,6 +404,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 /*
  * Save an edited event
+ * 
+ * ok
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	char buf[SIZ];
@@ -406,6 +425,21 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
+		/* If we're looking at a fully encapsulated VCALENDAR
+		 * rather than a VTODO component, attempt to use the first
+		 * relevant VTODO subcomponent.  If there is none, the
+		 * NULL returned by icalcomponent_get_first_component() will
+		 * tell the next iteration of this function to create a
+		 * new one.
+		 */
+		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
+			save_individual_event(
+				icalcomponent_get_first_component(
+					vevent, ICAL_VTODO_COMPONENT
+				), msgnum
+			);
+			return;
+		}
 	}
 	else {
 		vevent = icalcomponent_new(ICAL_VEVENT_COMPONENT);
