@@ -20,6 +20,8 @@ struct citimap {
 	unsigned int *flags;
 	char *transmitted_message;	/* for APPEND command... */
 	size_t transmitted_length;
+	FILE *cached_fetch;		/* cache our most recent RFC822 FETCH */
+	long cached_msgnum;		/* because the client might ask for it in pieces */
 };
 
 /*

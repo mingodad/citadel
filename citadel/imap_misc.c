@@ -211,8 +211,11 @@ void imap_print_express_messages(void) {
  */
 void imap_append(int num_parms, char *parms[]) {
 	size_t literal_length;
+	size_t bytes_transferred;
+	size_t stripped_length = 0;
 	struct CtdlMessage *msg;
-	int ret;
+	int ret = 0;
+	size_t blksize;
 	char roomname[ROOMNAMELEN];
 	char buf[SIZ];
 	char savedroom[ROOMNAMELEN];
@@ -249,7 +252,27 @@ void imap_append(int num_parms, char *parms[]) {
 	cprintf("+ Transmit message now.\r\n");
 	lprintf(CTDL_DEBUG, "imap_append() expecting %d bytes\n",
 		literal_length);
-	ret = client_read(IMAP->transmitted_message, literal_length);
+
+	bytes_transferred = 0;
+
+	do {
+		blksize = literal_length - bytes_transferred;
+		if (blksize > SIZ) blksize = SIZ;
+
+		ret = client_read(&IMAP->transmitted_message[bytes_transferred], blksize);
+		if (ret < 1) {
+			bytes_transferred = literal_length;	/* bail out */
+		}
+		else {
+			bytes_transferred += blksize;		/* keep going */
+		}
+		lprintf(CTDL_DEBUG, "Received %d of %d bytes (%d%%)\n",
+			bytes_transferred,
+			literal_length,
+			((bytes_transferred * 100) / literal_length)
+		);
+	} while (bytes_transferred < literal_length);
+
 	IMAP->transmitted_message[literal_length] = 0;
 	if (ret != 1) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
@@ -266,13 +289,13 @@ void imap_append(int num_parms, char *parms[]) {
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
 	lprintf(CTDL_DEBUG, "Converting newline format\n");
+	stripped_length = 0;
 	for (i=0; i<literal_length; ++i) {
-		if (!strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
-			strcpy(&IMAP->transmitted_message[i],
-				&IMAP->transmitted_message[i+1]);
-			--literal_length;
+		if (strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
+			IMAP->transmitted_message[stripped_length++] = IMAP->transmitted_message[i];
 		}
 	}
+	literal_length = stripped_length;
 
 	lprintf(CTDL_DEBUG, "Converting message format\n");
         msg = convert_internet_message(IMAP->transmitted_message);

@@ -63,8 +63,6 @@ struct imap_fetch_part {
  * Individual field functions for imap_do_fetch_msg() ...
  */
 
-
-
 void imap_fetch_uid(int seq) {
 	cprintf("UID %ld", IMAP->msgids[seq-1]);
 }
@@ -115,31 +113,51 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.SIZE"	size of translated message
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
-void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
+void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char buf[1024];
 	char *ptr;
 	long headers_size, text_size, total_size;
 	long bytes_remaining = 0;
 	long blocksize;
-	FILE *tmp;
+	FILE *tmp = NULL;
 
-	tmp = tmpfile();
-	if (tmp == NULL) {
-		lprintf(CTDL_CRIT, "Cannot open temp file: %s\n",
-				strerror(errno));
-		return;
+	/* Cache the most recent RFC822 FETCH because some clients like to
+	 * fetch in pieces, and we don't want to have to go back to the
+	 * message store for each piece.
+	 */
+	if ((IMAP->cached_fetch != NULL) && (IMAP->cached_msgnum == msgnum)) {
+		/* Good to go! */
+		tmp = IMAP->cached_fetch;
+	}
+	else if ((IMAP->cached_fetch != NULL) && (IMAP->cached_msgnum != msgnum)) {
+		/* Some other message is cached -- free it */
+		fclose(IMAP->cached_fetch);
+		IMAP->cached_fetch == NULL;
+		IMAP->cached_msgnum = (-1);
+		tmp = NULL;
 	}
 
-	/*
-	 * Load the message into a temp file for translation
-	 * and measurement
+	/* At this point, we now can fetch and convert the message iff it's not
+	 * the one we had cached.
 	 */
-	CtdlRedirectOutput(tmp, -1);
-	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
-				HEADERS_ALL, 0, 1);
-	CtdlRedirectOutput(NULL, -1);
-	if (!is_valid_message(msg)) {
-		lprintf(CTDL_ERR, "WARNING: output clobbered the message!\n");
+	if (tmp == NULL) {
+		tmp = tmpfile();
+		if (tmp == NULL) {
+			lprintf(CTDL_CRIT, "Cannot open temp file: %s\n",
+					strerror(errno));
+			return;
+		}
+	
+		/*
+	 	* Load the message into a temp file for translation
+	 	* and measurement
+	 	*/
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+
+		IMAP->cached_fetch = tmp;
+		IMAP->cached_msgnum = msgnum;
 	}
 
 	/*
@@ -163,7 +181,6 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
 		cprintf("RFC822.SIZE %ld", total_size);
-		fclose(tmp);
 		return;
 	}
 
@@ -191,7 +208,6 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 		bytes_remaining = bytes_remaining - blocksize;
 	}
 
-	fclose(tmp);
 }
 
 
@@ -839,22 +855,35 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 }
 
 
-
-
-
-
 /*
  * imap_do_fetch() calls imap_do_fetch_msg() to output the data of an
- * individual message, once it has been successfully loaded from disk.
+ * individual message, once it has been selected for output.
  */
-void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
+void imap_do_fetch_msg(int seq,
 			int num_items, char **itemlist) {
 	int i;
+	struct CtdlMessage *msg = NULL;
+
 
 	cprintf("* %d FETCH (", seq);
 
 	for (i=0; i<num_items; ++i) {
 
+		if (!strcasecmp(itemlist[i], "RFC822")) {
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		}
+		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		}
+
+		/* Not an RFC822.* fetch item?  Load the message into memory. */
+		msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
 		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
 			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
 					0, msg);
@@ -876,18 +905,6 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
 			imap_fetch_internaldate(msg);
 		}
-		else if (!strcasecmp(itemlist[i], "RFC822")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
-		}
-		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
-		}
-		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
-		}
-		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
-		}
 		else if (!strcasecmp(itemlist[i], "UID")) {
 			imap_fetch_uid(seq);
 		}
@@ -896,6 +913,9 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	cprintf(")\r\n");
+	if (msg != NULL) {
+		CtdlFreeMessage(msg);
+	}
 }
 
 
@@ -906,18 +926,12 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
  */
 void imap_do_fetch(int num_items, char **itemlist) {
 	int i;
-	struct CtdlMessage *msg;
 
-	if (IMAP->num_msgs > 0)
-	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] & IMAP_SELECTED) {
-		msg = CtdlFetchMessage(IMAP->msgids[i]);
-		if (msg != NULL) {
-			imap_do_fetch_msg(i+1, msg, num_items, itemlist);
-			CtdlFreeMessage(msg);
-		}
-		else {
-			cprintf("* %d FETCH <internal error>\r\n", i+1);
+	if (IMAP->num_msgs > 0) {
+		for (i = 0; i < IMAP->num_msgs; ++i) {
+			if (IMAP->flags[i] & IMAP_SELECTED) {
+				imap_do_fetch_msg(i+1, num_items, itemlist);
+			}
 		}
 	}
 }
