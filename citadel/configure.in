@@ -38,6 +38,7 @@ if test "$GCC" = yes; then
 	dnl pass -rdynamic to the linker to enable dlopen() modules to
 	dnl refer to symbols in the main executable (applies to citserver)
 	SERVER_LDFLAGS=-rdynamic
+	PICFLAGS=-fPIC
 fi
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -107,5 +108,6 @@ AC_SUBST(CURSES)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SNPRINTF)
+AC_SUBST(PICFLAGS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile)

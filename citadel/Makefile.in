@@ -33,6 +33,7 @@ CC=@CC@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
+PICFLAGS=@PICFLAGS@
 CURSES=@CURSES@
 SNPRINTF=@SNPRINTF@
 PTHREAD_DEFS=-D_REENTRANT
@@ -101,8 +102,7 @@ modules/serv_chat.so: serv_chat.mo
 	$(CC) -shared -o modules/serv_chat.so serv_chat.mo
 
 .c.mo:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c $< \
-		-o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) $(PICFLAGS) -DPIC -c $< -o $@
 
 modules/serv_test.so: serv_test.mo
 	$(CC) -shared -o modules/serv_test.so serv_test.mo

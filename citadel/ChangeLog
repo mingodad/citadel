@@ -6,6 +6,7 @@
 	* Makefile.in: added `install' target, `clean' removes
 	  *.mo, rebuild configure when configure.in changes.
 	* configure.in: check for install and autoconf
+	* configure.in, Makefile.in: only pass -fPIC to gcc
 
 Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Unified the "unpacked database" format for both upgrades and
