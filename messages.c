@@ -1047,6 +1047,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 			wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
 				addrbook[i].ab_msgnum);
 			wprintf("&maxmsgs=1&summary=0&alpha=%s\">", bstr("alpha"));
+			vcard_n_prettyize(addrbook[i].ab_name);
 			escputs(addrbook[i].ab_name);
 			wprintf("</A></TD>\n");
 			++displayed;
