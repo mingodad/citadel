@@ -213,6 +213,7 @@ struct wcsession {
 	int num_cal;
 #endif
 	struct wc_attachment *first_attachment;
+	char ImportantMessage[SIZ];
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -251,7 +252,7 @@ int tcp_connectsock(char *, char *);
 void serv_gets(char *strbuf);
 void serv_puts(char *string);
 void whobbs(void);
-void fmout(FILE * fp);
+void fmout(FILE *fp, char *align);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
 char *bstr(char *key);
@@ -289,7 +290,6 @@ void goto_private(void);
 void zapped_list(void);
 void display_zap(void);
 void zap(void);
-void display_error(char *);
 void display_success(char *);
 void display_entroom(void);
 void entroom(void);

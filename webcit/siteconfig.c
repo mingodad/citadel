@@ -225,7 +225,8 @@ void siteconfig(void)
 	serv_printf("CONF set");
 	serv_gets(buf);
 	if (buf[0] != '4') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	serv_printf("%s", bstr("c_nodename"));

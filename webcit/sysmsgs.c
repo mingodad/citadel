@@ -40,7 +40,8 @@ void display_edit(char *description, char *check_cmd,
 	serv_gets(buf);
 
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	output_headers(headers_type);
@@ -78,15 +79,16 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	char buf[SIZ];
 
 	if (strcmp(bstr("sc"), "Save")) {
-		output_headers(1);
-		wprintf("Cancelled.  %s was not saved.<BR>\n", description);
-		wDumpContent(1);
+		sprintf(WC->ImportantMessage,
+			"Cancelled.  %s was not saved.\n", description);
+		display_main_menu();
 		return;
 	}
 	serv_puts(enter_cmd);
 	serv_gets(buf);
 	if (buf[0] != '4') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	text_to_server(bstr("msgtext"), 0);
@@ -95,8 +97,9 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	if (regoto) {
 		smart_goto(WC->wc_roomname);
 	} else {
-		output_headers(1);
-		wprintf("%s has been saved.\n", description);
-		wDumpContent(1);
+		sprintf(WC->ImportantMessage,
+			"%s has been saved.\n", description);
+		display_main_menu();
+		return;
 	}
 }

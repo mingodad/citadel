@@ -274,7 +274,8 @@ void add_node(void)
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
 		} else {
-			display_error(&buf[4]);
+			strcpy(WC->ImportantMessage, &buf[4]);
+			display_netconf();
 		}
 	}
 }

@@ -100,14 +100,14 @@ void get_serv_info(char *browser_host, char *user_agent)
  * If fp is non-null, it is considered to be the file handle to read the
  * text from.  Otherwise, text is read from the server.
  */
-void fmout(FILE * fp)
+void fmout(FILE *fp, char *align)
 {
 
 	int intext = 0;
 	int bq = 0;
 	char buf[SIZ];
 
-	wprintf("<DIV ALIGN=JUSTIFY>\n");
+	wprintf("<DIV ALIGN=%s>\n", align);
 	while (1) {
 		if (fp == NULL)
 			serv_gets(buf);
