@@ -3,6 +3,8 @@
 	  and port
 	* converted to autoconf and began port to Digital UNIX
 	* warning fixes
+	* context_loop.c: moved the monster 64k buffer array off the stack
+	* tcp_sockets.c: getservbyname() doesn't set errno.
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix

@@ -91,7 +91,7 @@ extern const char *defaultport;
  * This loop gets called once for every HTTP connection made to WebCit.
  */
 void *context_loop(int sock) {
-	char req[256][256];
+	char (*req)[256];
 	char buf[256], hold[256];
 	int num_lines = 0;
 	int a;
@@ -102,6 +102,12 @@ void *context_loop(int sock) {
 	struct wc_session *TheSession;
 	int ContentLength;
 	int CloseSession = 0;
+
+	if ((req = malloc(sizeof(char[256][256]))) == NULL) {
+		printf("Can't malloc buffers; dropping connection.\n");
+		close (sock);
+		return NULL;
+		}
 
 	printf("Reading request from socket %d\n", sock);
 
