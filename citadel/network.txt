@@ -72,18 +72,19 @@ the .<A>ide <E>ditRoom command.
    
   
   USING NETPROC
-  
-   Calling netproc with no arguments simply looks in the network/spoolin
-directory for newly arrived messages, and posts them if it finds any.
-   To batch new messages and send them off to a remote system, the usage
-  
- netproc sysname
-  
- will do outbound network processing for system "sysname". It is recommended
+   
+   
+   Calling netproc with no arguments causes it to look in the network/spoolin
+directory for newly arrived messages, and posts them if it finds any.  It then
+automatically batches up new messages on your system to be sent to your net
+neighbors, and exports those messages to them.  It is recommended
 that you use the cron program to handle your network processing on a routine
 basis automatically.  Arrange with your netneighbors for both of your systems
 to batch new messages before actual polls take place, to guarantee that
 messages travel across the network as quickly as possible.
+ 
+   Calling netproc with the -i flag causes it to skip the export phase, and
+handle incoming messages only.
    
    
   NETWORKING WITH A USENET NEWS SITE

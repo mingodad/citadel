@@ -232,7 +232,7 @@ END:	putc(0,mout);
 	fclose(mout);
 	unlink(tname);
 	if (compressed_input) pclose(minput);
-	if (!spool_only) execlp("./netproc","netproc",NULL);
+	if (!spool_only) execlp("./netproc", "netproc", "-i", NULL);
 	exit(0);
 }
 

@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	snprintf(movecmd, sizeof movecmd, "/bin/mv %s %s", temptmp, tempspool);
 	system(movecmd);
 
-	execlp("./netproc","netproc",NULL);
+	execlp("./netproc", "netproc", "-i", NULL);
 	fprintf(stderr,"aidepost: could not run netproc\n");
 	exit(1);
 	}

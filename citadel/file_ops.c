@@ -220,7 +220,7 @@ void cmd_netf(char *cmdbuf)
 	fclose(ofp);
 
 	cprintf("%d File '%s' has been sent to %s.\n",OK,filename,destsys);
-	system("nohup ./netproc >/dev/null 2>&1 &");
+	system("nohup ./netproc -i >/dev/null 2>&1 &");
 	return;
 	}
 

@@ -267,5 +267,6 @@ int main(int argc, char **argv)
 	pclose(rmail);
   
 	unlink(temp);		/* get rid of the ASCII file */
+	execlp("./netproc", "netproc", "-i", NULL);
 	exit(0);		/* go back to the main program */
 	}

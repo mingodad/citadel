@@ -825,7 +825,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 		sprintf(aaa,"./network/spoolin/netmail.%04x.%04x.%04x",
 			getpid(), CC->cs_pid, ++seqnum);
 		copy_file(mtmp,aaa);
-		system("exec nohup ./netproc >/dev/null 2>&1 &");
+		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
 		}
 
 	/* Bump this user's messages posted counter. */

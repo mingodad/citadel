@@ -1227,6 +1227,7 @@ int main(int argc, char **argv)
 	char allst[32];
 	FILE *allfp;
 	int a;
+	int import_only = 0;	/* if set to 1, don't export anything */
 
 
 	strcpy(bbs_home_directory, BBSDIR);
@@ -1240,8 +1241,12 @@ int main(int argc, char **argv)
 			strcpy(bbs_home_directory, &bbs_home_directory[2]);
 			home_specified = 1;
 			}
+		if (!strcmp(argv[a], "-i")) {
+			import_only = 1;
+			}
 		else {
-			fprintf(stderr, "netproc: usage: netproc [-hHomeDir]\n");
+			fprintf(stderr, "netproc: usage: ");
+			fprintf(stderr, "netproc [-hHomeDir] [-i]\n");
 			exit(1);
 			}
 		}
@@ -1272,16 +1277,19 @@ int main(int argc, char **argv)
 
 	inprocess();	/* first collect incoming stuff */
 
-	allfp=(FILE *)popen("cd ./network/systems; ls","r");
-	if (allfp!=NULL) {
-		while (fgets(allst,32,allfp)!=NULL) {
-			allst[strlen(allst)-1] = 0;
-			outprocess(allst);
+	if (import_only != 1) {
+		allfp=(FILE *)popen("cd ./network/systems; ls","r");
+		if (allfp!=NULL) {
+			while (fgets(allst,32,allfp)!=NULL) {
+				allst[strlen(allst)-1] = 0;
+				outprocess(allst);
+				}
+			pclose(allfp);
 			}
-		pclose(allfp);
+		/* import again in case anything new was generated */
+		inprocess();
 		}
 
-	inprocess();	/* incoming again in case anything new was generated */
 	rewrite_syslist();
 	printf("netproc: processing ended.\n");
 	cleanup(0);

@@ -682,7 +682,7 @@ int main(int argc, char **argv)
 		}
 	
 	closelog();
-	if (RUN_NETPROC) execlp("./netproc","netproc",NULL);
+	if (RUN_NETPROC) execlp("./netproc", "netproc", "-i", NULL);
 	exit(0);
 	}
 
