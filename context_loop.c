@@ -49,6 +49,8 @@ struct wc_session {
 	};
 
 struct wc_session *SessionList = NULL;
+extern const char *defaulthost;
+extern const char *defaultport;
 
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t MasterCritter;
@@ -147,8 +149,33 @@ static int lingering_close(int fd) {
 	return close(fd);
 	}
 
-extern const char *defaulthost;
-extern const char *defaultport;
+/*
+ * Remove a session context from the list
+ */
+void remove_session(struct wc_session *TheSession) {
+	struct wc_session *sptr;
+
+	printf("Removing session.\n");
+	pthread_mutex_lock(&MasterCritter);
+
+	if (SessionList==TheSession) {
+		SessionList = SessionList->next;
+		}
+	else {
+		for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
+			if (sptr->next == TheSession) {
+				sptr->next = TheSession->next;
+				}
+			}
+		}
+
+	close(TheSession->inpipe[1]);
+	close(TheSession->outpipe[0]);
+	unlock_session(TheSession);
+	free(TheSession);
+
+	pthread_mutex_unlock(&MasterCritter);
+	}
 
 /*
  * This loop gets called once for every HTTP connection made to WebCit.
@@ -293,30 +320,10 @@ void *context_loop(int sock) {
 	 * remove the context now.
 	 */
 	if (CloseSession) {
-		printf("Removing session.\n");
-		pthread_mutex_lock(&MasterCritter);
-
-		if (SessionList==TheSession) {
-			SessionList = SessionList->next;
-			}
-		else {
-			for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
-				if (sptr->next == TheSession) {
-					sptr->next = TheSession->next;
-					}
-				}
-			}
-
-		close(TheSession->inpipe[1]);
-		close(TheSession->outpipe[0]);
-		unlock_session(TheSession);
-		free(TheSession);
-	
-		pthread_mutex_unlock(&MasterCritter);
+		remove_session(TheSession);
 		}
 	else {
-	end:
-		unlock_session(TheSession);
+end:		unlock_session(TheSession);
 		}
 	free(req);
 
