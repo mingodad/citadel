@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.0  2003/12/30 04:13:40  ajc
+ * THIS IS 6.14
+
  Revision 613.12  2003/12/30 04:13:31  ajc
  * Commented out one of the supplied .RU commands in citadel.rc
 
