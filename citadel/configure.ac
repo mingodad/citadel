@@ -31,6 +31,8 @@ AC_ARG_WITH(ssl,
 )
 AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
+AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
+
 if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
 	db_dir="$with_gdbm"
 	with_gdbm=yes
@@ -362,6 +364,19 @@ if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
                 [LIBS="-lgdbm $LIBS"
                 DATABASE=database.c
                 with_db=no])
+fi
+
+dnl Checks for the zlib compression library.
+if test "x$with_zlib" != xno ; then
+	AC_CHECK_HEADERS(zlib.h,
+		[AC_CHECK_LIB(z, zlibVersion,
+			[ok_zlib=yes],,
+	)])
+fi
+
+if test "x$ok_zlib" != xno ; then
+	LIBS="-lz $LIBS"
+	AC_DEFINE(HAVE_ZLIB)
 fi
 
 dnl Checks for header files.
