@@ -155,7 +155,7 @@ int req_gets(int sock, char *buf, char *hold)
  * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
  */
 
-static int lingering_close(int fd)
+int lingering_close(int fd)
 {
 	char buf[256];
 	int i;
@@ -320,10 +320,4 @@ void context_loop(int sock)
 		free(req);
 		req = hptr;
 	}
-
-	/*
-	 * Now our HTTP connection is done.  Close the socket and exit this
-	 * function, so the worker thread can handle a new HTTP connection.
-	 */
-	lingering_close(sock);
 }

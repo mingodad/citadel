@@ -296,7 +296,6 @@ int main(int argc, char **argv)
 		spawn_another_worker_thread();
 	}
 
-
 	/* now the original thread becomes an ordinary worker thread */
 	worker_entry();
 	return 0;
@@ -335,7 +334,12 @@ void worker_entry(void) {
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 			   	&i, sizeof(i));
+
+			/* Perform an HTTP transaction... */
 			context_loop(ssock);
+
+			/* ...and close the socket. */
+			lingering_close(ssock);
 		}
 
 	} while (!time_to_die);

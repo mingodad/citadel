@@ -701,12 +701,14 @@ void session_loop(struct httprequest *req)
 
 		if (WC->serv_sock < 0) {
 			do_logout();
+			goto SKIP_ALL_THIS_CRAP;
 		}
-
-		WC->connected = 1;
-		serv_gets(buf);	/* get the server welcome message */
-		locate_host(browser_host, WC->http_sock);
-		get_serv_info(browser_host, user_agent);
+		else {
+			WC->connected = 1;
+			serv_gets(buf);	/* get the server welcome message */
+			locate_host(browser_host, WC->http_sock);
+			get_serv_info(browser_host, user_agent);
+		}
 	}
 
 	check_for_express_messages();
@@ -923,6 +925,7 @@ void session_loop(struct httprequest *req)
 		display_main_menu();
 	}
 
+SKIP_ALL_THIS_CRAP:
 	fflush(stdout);
 	if (content != NULL) {
 		free(content);
