@@ -296,6 +296,7 @@ void imap_append(int num_parms, char *parms[]) {
 		}
 	}
 	literal_length = stripped_length;
+	IMAP->transmitted_message[literal_length] = 0;	/* reterminate it */
 
 	lprintf(CTDL_DEBUG, "Converting message format\n");
         msg = convert_internet_message(IMAP->transmitted_message);

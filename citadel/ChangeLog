@@ -1,4 +1,9 @@
  $Log$
+ Revision 622.5  2004/06/28 17:09:20  ajc
+ * Properly re-terminate messages posted via IMAP APPEND.  The newline
+   conversion process was shortening the text but not adjusting string
+   termination, causing extra message snippets to appear.
+
  Revision 622.4  2004/06/24 20:38:06  ajc
  * updated serv_vandelay.c to include new "c_ip_addr" config
 
@@ -5886,4 +5891,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
