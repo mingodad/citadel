@@ -78,7 +78,8 @@ void chatmode(CtdlIPC *ipc)
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	scr_printf("Entering chat mode (type /quit to exit, /help for other cmds)\n");
+	scr_printf("Entering chat mode "
+		"(type /quit to exit, /help for other cmds)\n");
 	set_keepalives(KA_NO);
 	last_transmit = time(NULL);
 
@@ -97,19 +98,17 @@ void chatmode(CtdlIPC *ipc)
 		FD_SET(CtdlIPC_getsockfd(ipc), &rfds);
 		tv.tv_sec = S_KEEPALIVE;
 		tv.tv_usec = 0;
-		retval = select(CtdlIPC_getsockfd(ipc) + 1, &rfds, NULL, NULL, &tv);
+		retval = select(CtdlIPC_getsockfd(ipc) + 1, &rfds,
+			NULL, NULL, &tv);
 
+		/* If there's data from the server... */
 		if (FD_ISSET(CtdlIPC_getsockfd(ipc), &rfds)) {
-			ch = CtdlIPC_get(ipc);
-			if (ch == 10) {
-				recv_complete_line = 1;
-				goto RCL;	/* ugly, but we've gotta get out! */
-			} else {
-				buf[strlen(buf) + 1] = 0;
-				buf[strlen(buf)] = ch;
-			}
-			goto RCL;
+			CtdlIPC_getline(ipc, buf);
+			recv_complete_line = 1;
+			goto RCL;	/* ugly, but we've gotta get out! */
 		}
+
+		/* If there's data from the keyboard... */
 		if (FD_ISSET(0, &rfds)) {
 			ch = scr_getc(SCR_BLOCK);
 			if ((ch == 10) || (ch == 13)) {
@@ -125,13 +124,15 @@ void chatmode(CtdlIPC *ipc)
 				wbuf[strlen(wbuf)] = ch;
 			}
 		}
+
 		/* if the user hit return, send the line */
-	      RCL:if (send_complete_line) {
+RCL:		if (send_complete_line) {
 			CtdlIPC_putline(ipc, wbuf);
 			last_transmit = time(NULL);
 			strcpy(wbuf, "");
 			send_complete_line = 0;
 		}
+
 		/* if it's time to word wrap, send a partial line */
 		if (strlen(wbuf) >= (77 - strlen(fullname))) {
 			pos = 0;
@@ -151,6 +152,7 @@ void chatmode(CtdlIPC *ipc)
 				strcpy(wbuf, &wbuf[pos + 1]);
 			}
 		}
+
 		if (recv_complete_line) {
 			sln_printf("\r%79s\r", "");
 			if (!strcmp(buf, "000")) {
@@ -159,17 +161,15 @@ void chatmode(CtdlIPC *ipc)
 				sln_flush();
 				set_keepalives(KA_YES);
 
-				/* Some users complained about the client and server
-				 * losing protocol synchronization when exiting chat.
-				 * This little dialog forces everything to be
-				 * hunky-dory.
+				/* Some users complained about the client and
+				 * server losing protocol synchronization when
+				 * exiting chat.  This little dialog forces
+				 * everything to be hunky-dory.
 				 */
 				CtdlIPC_putline(ipc, "ECHO __ExitingChat__");
 				do {
 					CtdlIPC_getline(ipc, buf);
 				} while (strcmp(buf, "200 __ExitingChat__"));
-
-
 				return;
 			}
 			if (num_parms(buf) >= 2) {

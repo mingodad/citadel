@@ -1,4 +1,8 @@
  $Log$
+ Revision 610.6  2003/09/02 14:49:05  ajc
+ * Improve client chat mode reliability and performance by assuming that all
+   server output will be in complete lines.  (This is a safe assumption.)
+
  Revision 610.5  2003/09/02 04:04:39  ajc
  * Don't try to directly spool to non-neighbor nodes
 
@@ -4986,4 +4990,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
