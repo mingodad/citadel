@@ -1081,11 +1081,18 @@ void cmd_ent3(char *entargs)
 		return;
 		}
 
+	/* See if there's a recipient, but make sure it's a real one */
+	extract(recp, entargs, 1);
+	for (a=0; a<strlen(recp); ++a)
+		if (!isprint(recp[a]))
+			strcpy(&recp[a], &recp[a+1]);
+	while (isspace(recp[0])) strcpy(recp, &recp[1]);
+	while (isspace(recp[strlen(recp)-1])) recp[strlen(recp)-1] = 0;
+
 	/* If we're in Mail, check the recipient */
-	if (CC->quickroom.QRflags & QR_MAILBOX) {
-		extract(recp, entargs, 1);
+	if (strlen(recp) > 0) {
 		e=alias(recp);			/* alias and mail type */
-		if ((buf[0]==0) || (e==M_ERROR)) {
+		if ((recp[0]==0) || (e==M_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);
 			return;
@@ -1093,7 +1100,8 @@ void cmd_ent3(char *entargs)
 		if (e == M_LOCAL) {
 			a = getuser(&tempUS,recp);
 			if (a!=0) {
-				cprintf("%d No such user.\n", ERROR+NO_SUCH_USER);
+				cprintf("%d No such user.\n",
+					ERROR+NO_SUCH_USER);
 				return;
 				}
 			}

@@ -1,3 +1,9 @@
+Thu Nov 12 23:59:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Rewrote cmd_rchg() and also increased the size of the "fakename"
+	  buffer.  Overruns are probably what was causing the crashes.
+	* Changed the way cmd_ent3() handles mail messages; the previous code
+	  rerouted all private mail to the trash.
+
 Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citserver.c: slight changes to cmd_rchg() and cmd_hchg() [crashes]
 	* citserver.c, msgbase.c, user_ops.c: hide the owner-prefix of mail
