@@ -188,6 +188,8 @@ install_ical () {
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
 	echo $SUM >$SUMFILE
+	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
+	rm -f $WEBCIT/webcit-easyinstall.sum 2>/dev/null
 }
 
 install_db () {
@@ -211,6 +213,7 @@ install_db () {
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
 	echo $SUM >$SUMFILE
+	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
 }
 
 install_ldap () {
@@ -240,6 +243,7 @@ install_ldap () {
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
 	echo $SUM >$SUMFILE
+	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
 }
 
 
