@@ -1,4 +1,8 @@
 $Log$
+Revision 1.434  1999/12/30 04:56:29  ajc
+* Got initial SMTP delivery working in a very specific situation (delivery
+  to a single, local user)
+
 Revision 1.433  1999/12/29 04:44:00  ajc
 * client_chat.c: display "No message sent" if a send page is aborted.
   Closes bug #2 in bugzilla.
@@ -1510,5 +1514,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
-

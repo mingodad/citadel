@@ -1420,28 +1420,30 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 * giving it one, right now.
 	 */
 	if (msg->cm_fields['T'] == NULL) {
+		lprintf(9, "Generating timestamp\n");
 		sprintf(aaa, "%ld", time(NULL));
 		msg->cm_fields['T'] = strdoop(aaa);
 	}
 
-	lprintf(9, "checkpoint 1      \n");
 	/* If this message has no path, we generate one.
 	 */
-	if (msg->cm_fields['A'] == NULL) {
-		msg->cm_fields['A'] = strdoop("unknown user");
-	}
 	if (msg->cm_fields['P'] == NULL) {
-		msg->cm_fields['P'] = strdoop(msg->cm_fields['A']);
-		for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
-			if (isspace(msg->cm_fields['P'][a])) {
-				msg->cm_fields['P'][a] = ' ';
+		lprintf(9, "Generating path\n");
+		if (msg->cm_fields['A'] != NULL) {
+			msg->cm_fields['P'] = strdoop(msg->cm_fields['A']);
+			for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
+				if (isspace(msg->cm_fields['P'][a])) {
+					msg->cm_fields['P'][a] = ' ';
+				}
 			}
+		}
+		else {
+			msg->cm_fields['P'] = strdoop("unknown");
 		}
 	}
 
 	strcpy(force_room, force);
 
-	lprintf(9, "checkpoint 2      \n");
 	/* Strip non-printable characters out of the recipient name */
 	strcpy(recipient, rec);
 	for (a = 0; a < strlen(recipient); ++a)
@@ -1449,8 +1451,8 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 			strcpy(&recipient[a], &recipient[a + 1]);
 
 	/* Learn about what's inside, because it's what's inside that counts */
+	lprintf(9, "Learning what's inside\n");
 
-	lprintf(9, "checkpoint 3      \n");
 	switch (msg->cm_format_type) {
 	case 0:
 		strcpy(content_type, "text/x-citadel-variformat");
@@ -1480,41 +1482,40 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 	}
 
-	lprintf(9, "checkpoint 4      \n");
 	/* Goto the correct room */
+	lprintf(9, "Switching rooms\n");
 	strcpy(hold_rm, CC->quickroom.QRname);
 	strcpy(actual_rm, CC->quickroom.QRname);
 
-	lprintf(9, "checkpoint 5      \n");
 	/* If the user is a twit, move to the twit room for posting */
-	if ( (CC->logged_in) && (TWITDETECT) ) {
+	lprintf(9, "Handling twit stuff\n");
+	if (TWITDETECT) {
 		if (CC->usersupp.axlevel == 2) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
 		}
 	}
 
-	lprintf(9, "checkpoint 6      \n");
 	/* ...or if this message is destined for Aide> then go there. */
 	if (strlen(force_room) > 0) {
 		strcpy(actual_rm, force_room);
 	}
 
-	lprintf(9, "checkpoint 7      \n");
+	lprintf(9, "Possibly relocating\n");
 	if (strcasecmp(actual_rm, CC->quickroom.QRname))
 		getroom(&CC->quickroom, actual_rm);
 
-	lprintf(9, "checkpoint 8      \n");
 	/* Perform "before save" hooks (aborting if any return nonzero) */
+	lprintf(9, "Performing before-save hooks\n");
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return;
 
-	lprintf(9, "checkpoint 9      \n");
 	/* If this message has an Extended ID, perform replication checks */
+	lprintf(9, "Performing replication checks\n");
 	if (ReplicationChecks(msg) > 0) return;
 
-	lprintf(9, "checkpoint 10     \n");
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
+		lprintf(9, "Sending network spool\n");
 		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
 			(long) getpid(), CC->cs_pid, ++seqnum);
 		lprintf(9, "Saving a copy to %s\n", aaa);
@@ -1523,8 +1524,8 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 			lprintf(2, "ERROR: %s\n", strerror(errno));
 	}
 
-	lprintf(9, "checkpoint 11     \n");
 	/* Save it to disk */
+	lprintf(9, "Saving to disk\n");
 	newmsgid = send_message(msg, generate_id, network_fp);
 	if (network_fp != NULL) {
 		fclose(network_fp);
@@ -1533,11 +1534,11 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	if (newmsgid <= 0L) return;
 
-	lprintf(9, "checkpoint 12     \n");
 	/* Write a supplemental message info record.  This doesn't have to
 	 * be a critical section because nobody else knows about this message
 	 * yet.
 	 */
+	lprintf(9, "Creating SuppMsgInfo record\n");
 	memset(&smi, 0, sizeof(struct SuppMsgInfo));
 	smi.smi_msgnum = newmsgid;
 	smi.smi_refcount = 0;
@@ -1545,9 +1546,9 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	PutSuppMsgInfo(&smi);
 
 	/* Now figure out where to store the pointers */
+	lprintf(9, "Storing pointers\n");
 
 
-	lprintf(9, "checkpoint 13     \n");
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
@@ -1556,31 +1557,29 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 	}
 
-	lprintf(9, "checkpoint 14     \n");
 	/* Bump this user's messages posted counter. */
-	if (CC->logged_in) {
-		lgetuser(&CC->usersupp, CC->curr_user);
-		CC->usersupp.posted = CC->usersupp.posted + 1;
-		lputuser(&CC->usersupp);
-	}
+	lprintf(9, "Updating user\n");
+	lgetuser(&CC->usersupp, CC->curr_user);
+	CC->usersupp.posted = CC->usersupp.posted + 1;
+	lputuser(&CC->usersupp);
 
-	lprintf(9, "checkpoint 15     \n");
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
 	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
 		if (getuser(&userbuf, recipient) == 0) {
+			lprintf(9, "Delivering private mail\n");
 			MailboxName(actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
 	}
 
-	lprintf(9, "checkpoint 16     \n");
 	/* Perform "after save" hooks */
+	lprintf(9, "Performing after-save hooks\n");
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
 
-	lprintf(9, "checkpoint 17     \n");
 	/* */
+	lprintf(9, "Returning to original room\n");
 	if (strcasecmp(hold_rm, CC->quickroom.QRname))
 		getroom(&CC->quickroom, hold_rm);
 }

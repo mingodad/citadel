@@ -336,8 +336,8 @@ void smtp_rcpt(char *argbuf) {
 		return;
 	}
 
-	if (strlen(SMTP->recipient) > 0) {
-		cprintf("550 Only one recipient allowed (FIX)\n");
+	if (SMTP->number_of_recipients > 0) {
+		cprintf("552 Only one recipient allowed (FIX)\n");
 		return;
 	}
 
@@ -353,6 +353,7 @@ void smtp_rcpt(char *argbuf) {
 	switch(cvt) {
 		case rfc822_address_locally_validated:
 			cprintf("250 %s is a valid recipient.\n", user);
+			++SMTP->number_of_recipients;
 			return;
 		case rfc822_no_such_user:
 			cprintf("550 %s: no such user\n", SMTP->recipient);
@@ -367,15 +368,67 @@ void smtp_rcpt(char *argbuf) {
 
 
 
+
+/*
+ * Back end for smtp_data()  ... this does the actual delivery of the message
+ * Returns 0 on success, nonzero on failure
+ */
+int smtp_message_delivery(struct CtdlMessage *msg) {
+	char user[256];
+	char node[256];
+	char name[256];
+	int successful_saves = 0;
+	int failed_saves = 0;
+	long msgid = (-1L);
+	int cvt;
+
+	lprintf(9, "smtp_message_delivery() called\n");
+
+	/* Fill in 'from' fields with envelope information if missing */
+	process_rfc822_addr(SMTP->from, user, node, name);
+	if (msg->cm_fields['A']==NULL) msg->cm_fields['A'] = strdoop(user);
+	if (msg->cm_fields['N']==NULL) msg->cm_fields['N'] = strdoop(node);
+	if (msg->cm_fields['H']==NULL) msg->cm_fields['H'] = strdoop(name);
+
+	/* Stuff the boxes */
+	/* FIX modify to handle multiple recipients */
+	cvt = convert_internet_address(user, node, SMTP->recipient);
+	switch(cvt) {
+		case rfc822_address_locally_validated:
+			lprintf(9, "Delivering to %s\n", user);
+
+			if (msgid < 0L) {
+				CtdlSaveMsg(msg,
+					user,
+					"",
+					MES_LOCAL,
+					1);
+			}
+			else {
+				/* FIX copy the msgid to another room */
+			}
+
+			++successful_saves;
+			break;
+
+		case rfc822_no_such_user:
+			++failed_saves;
+			break;
+	}
+
+	return(failed_saves);
+}
+
+
+
 /*
  * Implements the DATA command
  */
 void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
-	FILE *fp;
+	int retval;
 
-/*
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\n");
 		return;
@@ -385,8 +438,6 @@ void smtp_data(void) {
 		cprintf("503 Need RCPT command first.\n");
 		return;
 	}
-
-*/
 
 	cprintf("354 Transmit message now; terminate with '.' by itself\n");
 	body = CtdlReadMessageBody(".", config.c_maxmsglen);
@@ -398,13 +449,27 @@ void smtp_data(void) {
 	lprintf(9, "Converting message...\n");
 	msg = convert_internet_message(body);
 
-	/*   FIX do something with it!  */
-	lprintf(9, "Saving message...\n");
-	CtdlSaveMsg(msg, "", BASEROOM, MES_LOCAL, 1);
+	/* If the user is locally authenticated, FORCE the From: header to
+	 * show up as the real sender
+	 */
+	if (CC->logged_in) {
+		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
+		if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
+		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
+		msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+		msg->cm_fields['N'] = strdoop(config.c_nodename);
+		msg->cm_fields['H'] = strdoop(config.c_humannode);
+	}
 
+	retval = smtp_message_delivery(msg);
 	CtdlFreeMessage(msg);
 
-	cprintf("599 command unfinished but message saved\n");
+	if (!retval) {
+		cprintf("250 Message accepted for delivery.\n");
+	}
+	else {
+		cprintf("550 Internal error.\n");
+	}
 }
 
 
@@ -485,7 +550,7 @@ void smtp_command_loop(void) {
 	}
 
 	else {
-		cprintf("500 I'm afraid I can't do that, Dave.\n");
+		cprintf("502 I'm afraid I can't do that, Dave.\n");
 	}
 
 }
