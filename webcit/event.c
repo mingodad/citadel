@@ -263,20 +263,27 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			event_start.minute = 0;
 			event_start.second = 0;
 		}
-		lprintf(9, "dtstart: %s\n",
-			icaltime_as_ical_string(event_start)
-		);
 
-	/* FIXME.  Somewhere between here and when we save the event, we are
-	 * somehow losing the "is_date" setting of dtstart.  The problem might
-	 * be with WebCit or it might be in libical.  Check to see if this
-	 * problem goes away when we upgrade libical.  --IG
-	 */
 
-		icalcomponent_add_property(vevent,
-			icalproperty_new_dtstart(event_start)
-		);
-	
+		/* The following odd-looking snippet of code looks like it
+		 * takes some unnecessary steps.  It is done this way because
+		 * libical incorrectly turns an "all day event" into a normal
+		 * event starting at midnight (i.e. it serializes as date/time
+		 * instead of just date) unless icalvalue_new_date() is used.
+		 * So we force it, if this is an all day event.
+		 */
+		prop = icalproperty_new_dtstart(event_start);
+		if (all_day_event) {
+			icalproperty_set_value(prop,
+				icalvalue_new_date(event_start)
+			);
+		}
+
+		if (prop) icalcomponent_add_property(vevent, prop);
+		else icalproperty_free(prop);
+
+
+
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DTEND_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);

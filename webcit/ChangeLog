@@ -1,4 +1,7 @@
 $Log$
+Revision 400.49  2002/11/14 04:59:40  ajc
+* Correctly serialize and save all day events using date instead of date/time
+
 Revision 400.48  2002/11/13 04:49:23  ajc
 * "All day event" shows as a single checkbox, instead of one for the start
   time and one for the end time.  Added nifty JavaScript to zero and shade
@@ -1109,3 +1112,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
