@@ -1,4 +1,8 @@
 $Log$
+Revision 502.1  2003/10/24 02:50:19  ajc
+* Clicking "Enter Message" in a room with an Address Book view opens
+  a blank vCard entry screen.
+
 Revision 502.0  2003/10/23 03:16:50  ajc
 * THIS IS 5.02
 
@@ -1616,3 +1620,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

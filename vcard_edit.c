@@ -29,7 +29,10 @@
 #include "vcard.h"
 
 
-
+/* Edit the vCard component of a MIME message.  Supply the message number
+ * and MIME part number to fetch.  Or, specify -1 for the message number
+ * to start with a blank card.
+ */
 void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char buf[SIZ];
 	char *serialized_vcard = NULL;
@@ -76,91 +79,94 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	output_headers(3);
 
 	strcpy(whatuser, "");
-	sprintf(buf, "MSG0 %ld|1", msgnum);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		wDumpContent(1);
-		return;
-	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "from=", 5)) {
-			strcpy(whatuser, &buf[5]);
+
+	if (msgnum >= 0) {
+		sprintf(buf, "MSG0 %ld|1", msgnum);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] != '1') {
+			wDumpContent(1);
+			return;
 		}
-		else if (!strncasecmp(buf, "node=", 5)) {
-			strcat(whatuser, " @ ");
-			strcat(whatuser, &buf[5]);
-		}
-	}
-
-	sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		wDumpContent(1);
-		return;
-	}
-
-	total_len = atoi(&buf[4]);
-	serialized_vcard = malloc(total_len + 1);
-
-	read_server_binary(serialized_vcard, total_len);
-
-	serv_puts("CLOS");
-	serv_gets(buf);
-	serialized_vcard[total_len + 1] = 0;
-
-	v = vcard_load(serialized_vcard);
-	free(serialized_vcard);
-
-	/* Populate the variables for our form */
-	i = 0;
-	while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
-		value = vcard_get_prop(v, "", 0, i++, 0);
-
-		if (!strcasecmp(key, "n")) {
-			extract_token(lastname, value, 0, ';');
-			extract_token(firstname, value, 1, ';');
-			extract_token(middlename, value, 2, ';');
-			extract_token(prefix, value, 3, ';');
-			extract_token(suffix, value, 4, ';');
-		}
-
-		else if (!strcasecmp(key, "adr")) {
-			extract_token(pobox, value, 0, ';');
-			extract_token(extadr, value, 1, ';');
-			extract_token(street, value, 2, ';');
-			extract_token(city, value, 3, ';');
-			extract_token(state, value, 4, ';');
-			extract_token(zipcode, value, 5, ';');
-			extract_token(country, value, 6, ';');
-		}
-
-		else if (!strcasecmp(key, "tel;home")) {
-			extract_token(hometel, value, 0, ';');
-		}
-
-		else if (!strcasecmp(key, "tel;work")) {
-			extract_token(worktel, value, 0, ';');
-		}
-
-		else if (!strcasecmp(key, "email;internet")) {
-			if (inetemail[0] != 0) {
-				strcat(inetemail, "\n");
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			if (!strncasecmp(buf, "from=", 5)) {
+				strcpy(whatuser, &buf[5]);
 			}
-			strcat(inetemail, value);
+			else if (!strncasecmp(buf, "node=", 5)) {
+				strcat(whatuser, " @ ");
+				strcat(whatuser, &buf[5]);
+			}
 		}
-
-		else {
-			strcat(extrafields, key);
-			strcat(extrafields, ":");
-			strcat(extrafields, value);
-			strcat(extrafields, "\n");
-		}
-
-	}
 	
-	vcard_free(v);
+		sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			wDumpContent(1);
+			return;
+		}
+	
+		total_len = atoi(&buf[4]);
+		serialized_vcard = malloc(total_len + 1);
+	
+		read_server_binary(serialized_vcard, total_len);
+	
+		serv_puts("CLOS");
+		serv_gets(buf);
+		serialized_vcard[total_len + 1] = 0;
+	
+		v = vcard_load(serialized_vcard);
+		free(serialized_vcard);
+	
+		/* Populate the variables for our form */
+		i = 0;
+		while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
+			value = vcard_get_prop(v, "", 0, i++, 0);
+	
+			if (!strcasecmp(key, "n")) {
+				extract_token(lastname, value, 0, ';');
+				extract_token(firstname, value, 1, ';');
+				extract_token(middlename, value, 2, ';');
+				extract_token(prefix, value, 3, ';');
+				extract_token(suffix, value, 4, ';');
+			}
+	
+			else if (!strcasecmp(key, "adr")) {
+				extract_token(pobox, value, 0, ';');
+				extract_token(extadr, value, 1, ';');
+				extract_token(street, value, 2, ';');
+				extract_token(city, value, 3, ';');
+				extract_token(state, value, 4, ';');
+				extract_token(zipcode, value, 5, ';');
+				extract_token(country, value, 6, ';');
+			}
+	
+			else if (!strcasecmp(key, "tel;home")) {
+				extract_token(hometel, value, 0, ';');
+			}
+	
+			else if (!strcasecmp(key, "tel;work")) {
+				extract_token(worktel, value, 0, ';');
+			}
+	
+			else if (!strcasecmp(key, "email;internet")) {
+				if (inetemail[0] != 0) {
+					strcat(inetemail, "\n");
+				}
+				strcat(inetemail, value);
+			}
+	
+			else {
+				strcat(extrafields, key);
+				strcat(extrafields, ":");
+				strcat(extrafields, value);
+				strcat(extrafields, "\n");
+			}
+	
+		}
+	
+		vcard_free(v);
+	}
 
 	/* Display the form */
 	do_template("beginbox_nt");
