@@ -4,10 +4,12 @@ WXDIR           = /wx
 WXHTMLDIR       = /wxhtml
 
 TARGET          = daphne
-MY_OBJECTS      = citclient.o roomtree.o userlogin.o \
-                enter.o roomview.o utils.o \
-                express_message.o send_express.o who.o \
-                main.o tcp_sockets.o message.o testwindow.o
+
+MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
+		prefs.o roomtree.o roomview.o selectuser.o send_express.o \
+		servprops.o tcp_sockets.o testwindow.o userlogin.o \
+		utils.o who.o
+
 MY_LIBS         = $(WXHTMLDIR)/lib/libwxhtml.a
 
 EXTRAINC        = -I$(WXHTMLDIR)/include
