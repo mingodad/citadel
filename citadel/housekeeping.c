@@ -40,7 +40,7 @@ void terminate_idle_sessions(void) {
 
 
 /*
- * Main housekeeping function.
+ * Main housekeeping function.  This gets run whenever a session terminates.
  */
 void do_housekeeping() {
 
@@ -62,4 +62,32 @@ void do_housekeeping() {
 	end_critical_section(S_HOUSEKEEPING);
 	}
 
+
+
+/*
+ * Check (and fix) floor reference counts.  This doesn't need to be done
+ * very often, since the counts should remain correct during normal operation.
+ */
+void check_ref_counts() {
+	int ref[MAXFLOORS];
+	struct quickroom qrbuf;
+	struct floor flbuf;
+	int a;
+
+	for (a=0; a<MAXFLOORS; ++a) ref[a] = 0;
+		
+	for (a=0; a<MAXROOMS; ++a) {
+		getroom(&qrbuf, a);
+		if (qrbuf.QRflags & QR_INUSE) {
+			++ref[(int)qrbuf.QRfloor];
+			}
+		}
+
+	for (a=0; a<MAXFLOORS; ++a) {
+		lgetfloor(&flbuf, a);
+		flbuf.f_ref_count = ref[a];
+		if (ref[a] > 0) flbuf.f_flags = flbuf.f_flags | QR_INUSE ;
+		lputfloor(&flbuf, a);
+		}
+	}	
 

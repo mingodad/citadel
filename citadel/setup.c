@@ -1,6 +1,6 @@
 /*
  * Citadel/UX setup program
- * v3.3 / by Art Cancro
+ * v4.0 / by Art Cancro
  * see copyright.txt for copyright information
  *
  * *** YOU MUST EDIT sysconfig.h >BEFORE< COMPILING SETUP ***
@@ -553,97 +553,6 @@ long cmax; {
 	}
 
 
-void cre8floors() {
-	int a,main_ref_count;
-	FILE *fp;
-	struct quickroom quickroom;
-	struct floor floor_rec;
-
-	/*
-	 * first, put all existing rooms on floor 0 (the main floor) and
-	 * count the room records that are in use so we can set the main
-	 * floor's reference count
-	 */
-	main_ref_count = 0;
-	fp = fopen("quickroom", "rb+");
-	for (a=0; a<MAXROOMS; ++a) {
-		progress("Preparing room files for addition of floors",
-			(long)a,
-			(long)MAXROOMS-1);
-		fseek(fp, (a*((long)sizeof(struct quickroom))), 0);
-		fread((char *)&quickroom,sizeof(struct quickroom),1,fp);
-		if (quickroom.QRflags & QR_INUSE) ++main_ref_count;
-		quickroom.QRfloor = 0;
-		fseek(fp, (a*((long)sizeof(struct quickroom))), 0);
-		fwrite((char *)&quickroom,sizeof(struct quickroom),1,fp);
-		}
-	fclose(fp);
-
-	/* Open a new floortab file */
-	fp=fopen("floortab","wb");
-
-	/* Create the main floor */
-	floor_rec.f_flags = (F_INUSE);
-	strcpy(floor_rec.f_name, "Main Floor");
-	floor_rec.f_ref_count = main_ref_count;
-	floor_rec.f_reserved = 0;
-	fwrite((char *)&floor_rec,sizeof(struct floor),1,fp);
-
-
-	/* make the remaining floors blanks */
-	floor_rec.f_flags = 0;
-	strcpy(floor_rec.f_name, "");
-	floor_rec.f_ref_count = 0;
-	floor_rec.f_reserved = 0;
-
-	for (a=1; a<MAXFLOORS; ++a) {
-		progress("Creating floor table (floortab)",
-			(long)a,
-			(long)MAXFLOORS-1
-			);
-		fwrite((char *)&floor_rec,sizeof(struct floor),1,fp);
-		}
-	fclose(fp);
-
-	}
-
-
-/*
- * check (and fix) floor reference counts
- */
-void check_ref_counts() {
-	int ref[MAXFLOORS];
-	int a;
-	FILE *fp;
-	struct quickroom qrbuf;
-	struct floor flbuf;
-
-	for (a=0; a<MAXFLOORS; ++a) ref[a] = 0;
-
-	fp = fopen("quickroom","rb");
-	for (a=0; a<MAXROOMS; ++a) {
-		progress("Checking reference counts - phase 1 of 2",
-			a,MAXROOMS-1);
-		fread((char *)&qrbuf,sizeof(struct quickroom),1,fp);
-		if (qrbuf.QRflags & QR_INUSE) {
-			++ref[(int)qrbuf.QRfloor];
-			}
-		}
-	fclose(fp);
-
-	fp = fopen("floortab","rb+");
-	for (a=0; a<MAXFLOORS; ++a) {
-		progress("Checking reference counts - phase 2 of 2",
-			a,MAXFLOORS-1);
-		fseek(fp,(long)a*(long)sizeof(struct floor),0);
-		fread((char *)&flbuf,sizeof(struct floor),1,fp);
-		flbuf.f_ref_count = ref[a];
-		fseek(fp,(long)a*(long)sizeof(struct floor),0);
-		fwrite((char *)&flbuf,sizeof(struct floor),1,fp);
-		}
-	fclose(fp);
-	}	
-
 
 /*
  * check_services_entry()  -- Make sure "citadel" is in /etc/services
@@ -1151,16 +1060,12 @@ void main(int argc, char *argv[]) {
 		strcpy(config.c_phonenum,"US 800 555 1212");
 	if (config.c_initax == 0)
 		config.c_initax = 1;
-	/* if (config.c_regiscall == 0)
-		config.c_regiscall = 1; */
 	if (strlen(config.c_moreprompt)==0)
 		strcpy(config.c_moreprompt,"<more>");
 	if (strlen(config.c_twitroom)==0)
 		strcpy(config.c_twitroom,"Trashcan");
 	if (strlen(config.c_bucket_dir)==0)
 		strcpy(config.c_bucket_dir,"bitbucket");
-	if (config.c_msgbase == 0L)
-		config.c_msgbase = 2000000;
 	if (strlen(config.c_net_password)==0)
 		strcpy(config.c_net_password,"netpassword");
 	if (config.c_port_number == 0) {
@@ -1224,7 +1129,6 @@ NEW_INST:
 	write_config_to_disk();
 
 	system("mkdir info 2>/dev/null");		/* Create these */
-	system("mkdir rooms 2>/dev/null");
 	system("mkdir bio 2>/dev/null");
 	system("mkdir userpics 2>/dev/null");
 	system("mkdir messages 2>/dev/null");
@@ -1251,7 +1155,6 @@ NEW_INST:
 		if (yesno_s("Create call log?")==1) cre8clog();
 		}
 
-	check_ref_counts();		/* Check reference counts */
 	check_services_entry();		/* Check /etc/services */
 	check_inittab_entry();		/* Check /etc/inittab */
 

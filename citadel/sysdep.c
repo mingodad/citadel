@@ -430,8 +430,6 @@ int client_gets(char *buf)
 void sysdep_master_cleanup(void) {
 	lprintf(3, "Closing master socket %d\n", msock);
 	close(msock);
-	lprintf(7, "Closing databases\n");
-	close_databases();
 	}
 
 /*
@@ -656,6 +654,9 @@ int main(int argc, char **argv)
 	 */
 	lprintf(7, "Opening databases\n");
 	open_databases();
+
+	lprintf(7, "Checking floor reference counts\n");
+	check_ref_counts();
 
 	/*
 	 * Bind the server to our favourite port.

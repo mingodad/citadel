@@ -49,16 +49,32 @@ void rec_log(unsigned int lrtype, char *name)
 	end_critical_section(S_CALLLOG);
 	}
 
+
+/*
+ * Various things that need to be initialized at startup
+ */
+void master_startup() {
+	lprintf(7, "Opening databases\n");
+	open_databases();
+
+	lprintf(7, "Checking floor reference counts\n");
+	check_ref_counts();
+	}
+
 /*
  * Cleanup routine to be called when the server is shutting down.
  */
-void master_cleanup(void) {
+void master_cleanup() {
 
 	/* Cancel all running sessions */
 	lprintf(7, "Cancelling running sessions...\n");
 	while (ContextList != NULL) {
 		kill_session(ContextList->cs_pid);
 		}
+
+	/* Close databases */
+	lprintf(7, "Closing databases\n");
+	close_databases();
 
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();

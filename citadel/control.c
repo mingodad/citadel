@@ -49,6 +49,7 @@ void put_control() {
 	fp = fopen("citadel.control", "wb");
 	if (fp != NULL) {
 		fwrite(&CitControl, sizeof(struct CitControl), 1, fp);
+		fclose(fp);
 		}
 	}
 
