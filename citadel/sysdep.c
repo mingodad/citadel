@@ -70,7 +70,7 @@ int msock;					/* master listening socket */
 int verbosity = 9;				/* Logging level */
 
 struct CitContext masterCC;
-
+int rescan[2];					/* The Rescan Pipe */
 
 /*
  * lprintf()  ...   Write logging information
@@ -244,72 +244,16 @@ void init_sysdep(void) {
  */
 void begin_critical_section(int which_one)
 {
-#ifdef HAVE_PTHREAD_CANCEL
-	int oldval;
-#else
-	sigset_t set;
-#endif
-
-	/* lprintf(8, "begin_critical_section(%d)\n", which_one); */
-
-	if (!pthread_equal(pthread_self(), main_thread_id)) {
-		/* Keep a count of how many critical sections this thread has
-		 * open, so that end_critical_section() doesn't enable
-		 * cancellation prematurely. */
-		if (CC != NULL) CC->n_crit++;
-#ifdef HAVE_PTHREAD_CANCEL
-		/* Don't get interrupted during the critical section */
-		pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
-#else
-		/* We're faking cancellation with signals. Block SIGUSR1 while
-		 * we're in the critical section. */
-		sigemptyset(&set);
-		sigaddset(&set, SIGUSR1);
-		pthread_sigmask(SIG_BLOCK, &set, NULL);
-#endif
-		}
-
-	/* Obtain a semaphore */
 	pthread_mutex_lock(&Critters[which_one]);
-
-	}
+}
 
 /*
  * Release a semaphore lock to end a critical section.
  */
 void end_critical_section(int which_one)
 {
-#ifdef HAVE_PTHREAD_CANCEL
-	int oldval;
-#else
-	sigset_t set;
-#endif
-
-	/* lprintf(8, "  end_critical_section(%d)\n", which_one); */
-
-	/* Let go of the semaphore */
 	pthread_mutex_unlock(&Critters[which_one]);
-
-	if (!pthread_equal(pthread_self(), main_thread_id))
-	if (CC != NULL)
-	if (!--CC->n_crit) {
-#ifdef HAVE_PTHREAD_CANCEL
-		/* If a cancel was sent during the critical section, do it now.
-		 * Then re-enable thread cancellation.
-		 */
-		pthread_testcancel();
-		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
-		pthread_testcancel();
-#else
-		/* We're faking it. Unblock SIGUSR1; signals sent during the
-		 * critical section should now be able to kill us. */
-		sigemptyset(&set);
-		sigaddset(&set, SIGUSR1);
-		pthread_sigmask(SIG_UNBLOCK, &set, NULL);
-#endif
-		}
-
-	}
+}
 
 
 
@@ -359,26 +303,6 @@ int ig_tcp_server(int port_number, int queue_len)
 	}
 
 
-/*
- * Return a pointer to a thread's own CitContext structure (old)
- * NOTE: this version of MyContext() is commented out because it is no longer
- * in use.  It was written before I discovered TSD keys.  This
- * version pounds through the context list until it finds the one matching
- * the currently running thread.  It remains here, commented out, in case it
- * is needed for future ports to threading libraries which have the equivalent
- * of pthread_self() but not pthread_key_create() and its ilk.
- *
- * struct CitContext *MyContext() {
- *	struct CitContext *ptr;
- *	THREAD me;
- *
- *	me = pthread_self();
- *	for (ptr=ContextList; ptr!=NULL; ptr=ptr->next) {
- *		if (ptr->mythread == me) return(ptr);
- *		}
- *	return(NULL);
- *	}
- */
 
 /*
  * Return a pointer to a thread's own CitContext structure (new)
@@ -400,35 +324,21 @@ struct CitContext *CreateNewContext(void) {
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
-		pthread_exit(NULL);
+		return NULL;
 		}
 	memset(me, 0, sizeof(struct CitContext));
+
+	/* The new context will be created already in the CON_EXECUTING state
+	 * in order to prevent another thread from grabbing it while it's
+	 * being set up.
+	 */
+	me->state = CON_EXECUTING;
 
 	begin_critical_section(S_SESSION_TABLE);
 	me->next = ContextList;
 	ContextList = me;
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
-	}
-
-/*
- * Add a thread's thread ID to the context
- */
-void InitMyContext(struct CitContext *con)
-{
-#ifdef HAVE_PTHREAD_CANCEL
-	int oldval;
-#endif
-
-	con->mythread = pthread_self();
-#ifdef HAVE_PTHREAD_CANCEL
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldval);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
-#endif
-	if (pthread_setspecific(MyConKey, (void *)con) != 0) {
-		lprintf(1, "ERROR!  pthread_setspecific() failed: %s\n",
-			strerror(errno));
-		}
 	}
 
 /*
@@ -555,11 +465,12 @@ int client_read_to(char *buf, int bytes, int timeout)
 	while(len<bytes) {
 		FD_ZERO(&rfds);
 		FD_SET(CC->client_socket, &rfds);
-		tv.tv_sec = timeout;
+		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 
 		retval = select( (CC->client_socket)+1, 
 					&rfds, NULL, NULL, &tv);
+
 		if (FD_ISSET(CC->client_socket, &rfds) == 0) {
 			return(0);
 			}
@@ -627,60 +538,23 @@ void sysdep_master_cleanup(void) {
 	close(msock);
 	}
 
-/*
- * Cleanup routine to be called when one thread is shutting down.
- */
-void cleanup(int exit_code)
-{
-	/* Terminate the thread.
-	 * Its cleanup handler will call cleanup_stuff()
-	 */
-	lprintf(7, "Calling pthread_exit()\n");
-	pthread_exit(NULL);
-	}
 
 /*
  * Terminate another session.
  */
 void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
-	THREAD killme = 0;
 
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
-			killme = ptr->mythread;
+			ptr->state = CON_DYING;
 			}
 		}
 	end_critical_section(S_SESSION_TABLE);
-
-	if (killme != 0) {
-#ifdef HAVE_PTHREAD_CANCEL
-		pthread_cancel(killme);
-#else
-		pthread_kill(killme, SIGUSR1);
-#ifdef __FreeBSD__
-		/* there's a very stupid bug in the user threads package on
-		   FreeBSD 3.1 which prevents a signal from being properly
-		   dispatched to a thread that's in a blocking syscall. the
-		   first signal interrupts the syscall, the second one actually
-		   gets delivered. */
-		pthread_kill(killme, SIGUSR1);
-#endif
-#endif
-		}
 	}
 
 
-/*
- * The system-dependent wrapper around the main context loop.
- */
-void *sd_context_loop(struct CitContext *con) {
-	pthread_cleanup_push(*cleanup_stuff, NULL);
-	context_loop(con);
-	pthread_cleanup_pop(0);
-	return NULL;
-	}
 
 
 /*
@@ -798,17 +672,10 @@ int convert_login(char NameToConvert[]) {
  */
 int main(int argc, char **argv)
 {
-	struct sockaddr_in fsin;	/* Data for master socket */
-	int alen;			/* Data for master socket */
-	int ssock;			/* Descriptor for master socket */
-	THREAD SessThread;		/* Thread descriptor */
 	THREAD HousekeepingThread;	/* Thread descriptor */
         pthread_attr_t attr;		/* Thread attributes */
-	struct CitContext *con;		/* Temporary context pointer */
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
-	fd_set readfds;
-	struct timeval tv;
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	char *moddir;
@@ -934,55 +801,203 @@ int main(int argc, char **argv)
 			strerror(errno));
 	}
 
-	/* 
-	 * Endless loop.  Listen on the master socket.  When a connection
-	 * comes in, create a socket, a context, and a thread.
-	 */	
+
+	/*
+	 * The rescan pipe exists so that worker threads can be woken up and
+	 * told to re-scan the context list for fd's to listen on.  This is
+	 * necessary, for example, when a context is about to go idle and needs
+	 * to get back on that list.
+	 */
+	if (pipe(rescan)) {
+		lprintf(1, "Can't create rescan pipe!\n");
+		exit(errno);
+	}
+
+	/*
+	 * Now create a bunch of worker threads.
+	 */
+	for (i=0; i<(NUM_WORKER_THREADS-1); ++i) {
+		pthread_attr_init(&attr);
+       		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		if (pthread_create(&HousekeepingThread, &attr,
+	   	   (void* (*)(void*)) worker_thread, NULL) != 0) {
+			lprintf(1, "Can't create worker thead: %s\n",
+			strerror(errno));
+		}
+	}
+
+	/* Now this thread can become a worker as well. */
+	worker_thread();
+
+	return(0);
+}
+
+
+
+
+
+
+
+/* 
+ * This loop just keeps going and going and going...
+ */	
+void worker_thread(void) {
+	int i;
+	char junk;
+	int numselect = 0;
+	int highest;
+	struct CitContext *ptr;
+	struct CitContext *bind_me = NULL;
+	fd_set readfds;
+	int retval;
+	struct CitContext *con= NULL;	/* Temporary context pointer */
+	struct sockaddr_in fsin;	/* Data for master socket */
+	int alen;			/* Data for master socket */
+	int ssock;			/* Descriptor for master socket */
+
 	while (!time_to_die) {
-		/* we need to check if a signal has been delivered. because
-		 * syscalls may be restartable across signals, we call
-		 * select with a timeout of 1 second and repeatedly check for
-		 * time_to_die... */
+
+		/* 
+		 * In a stupid environment, we would have all idle threads
+		 * calling select() and then they'd all wake up at once.  We
+		 * solve this problem by putting the select() in a critical
+		 * section, so only one thread has the opportunity to wake
+		 * up.  If we wake up on the master socket, create a new
+		 * session context; otherwise, just bind the thread to the
+		 * context we want and go on our merry way.
+		 */
+
+		begin_critical_section(S_I_WANNA_SELECT);
+		lprintf(9, "Worker thread %2d woke up\n", getpid());
+
+SETUP_FD:
 		FD_ZERO(&readfds);
 		FD_SET(msock, &readfds);
-		tv.tv_sec = 1;
-		tv.tv_usec = 0;
-		if (select(msock + 1, &readfds, NULL, NULL, &tv) <= 0)
-			continue;
-		alen = sizeof fsin;
-		ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
-		if (ssock < 0) {
-			lprintf(2, "citserver: accept() failed: %s\n",
-				strerror(errno));
-			}
-		else {
-			lprintf(7, "citserver: Client socket %d\n", ssock);
-			con = CreateNewContext();
-			con->client_socket = ssock;
+		highest = msock;
+		FD_SET(rescan[0], &readfds);
+		if (rescan[0] > highest) highest = rescan[0];
+		numselect = 2;
 
-			/* Set the SO_REUSEADDR socket option */
-			i = 1;
-			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
-				&i, sizeof(i));
-
-			/* set attributes for the new thread */
-		        pthread_attr_init(&attr);
-        		pthread_attr_setdetachstate(&attr,
-				PTHREAD_CREATE_DETACHED);
-
-			/* now create the thread */
-			if (pthread_create(&SessThread, &attr,
-					   (void* (*)(void*)) sd_context_loop,
-					   con)
-			    != 0) {
-				lprintf(1,
-					"citserver: can't create thread: %s\n",
-					strerror(errno));
-				}
-
+		begin_critical_section(S_SESSION_TABLE);
+		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+			if (ptr->state == CON_IDLE) {
+				FD_SET(ptr->client_socket, &readfds);
+				if (ptr->client_socket > highest)
+					highest = ptr->client_socket;
+				++numselect;
 			}
 		}
-	master_cleanup();
-	return 0;
+		end_critical_section(S_SESSION_TABLE);
+
+		lprintf(9, "Thread %2d can wake up on %d different fd's\n",
+			getpid(), numselect);
+		retval = select(highest + 1, &readfds, NULL, NULL, NULL);
+		lprintf(9, "select() returned %d\n", retval);
+
+		/* Now figure out who made this select() unblock.
+		 * First, check for an error or exit condition.
+		 */
+		if (retval < 0) {
+			end_critical_section(S_I_WANNA_SELECT);
+			lprintf(9, "Exiting (%s)\n", errno);
+			time_to_die = 1;
+		}
+
+		/* Next, check to see if it's a new client connecting
+		 * on the master socket.
+		 */
+		else if (FD_ISSET(msock, &readfds)) {
+			lprintf(9, "It's the master socket!\n");
+			alen = sizeof fsin;
+			ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
+			if (ssock < 0) {
+				lprintf(2, "citserver: accept() failed: %s\n",
+					strerror(errno));
+			}
+			else {
+				lprintf(7, "citserver: New client socket %d\n",
+					ssock);
+
+				/* New context will be created already set up
+				 * in the CON_EXECUTING state.
+				 */
+				con = CreateNewContext();
+
+				/* Assign our new socket number to it. */
+				con->client_socket = ssock;
+	
+				/* Set the SO_REUSEADDR socket option */
+				i = 1;
+				setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
+					&i, sizeof(i));
+
+				pthread_setspecific(MyConKey, (void *)con);
+				begin_session(con);
+				/* do_command_loop(); */
+				pthread_setspecific(MyConKey, (void *)NULL);
+				con->state = CON_IDLE;
+				goto SETUP_FD;
+			}
+		}
+
+		/* If the rescan pipe went active, someone is telling this
+		 * thread that the &readfds needs to be refreshed with more
+		 * current data.
+		 */
+		else if (FD_ISSET(rescan[0], &readfds)) {
+			lprintf(9, "rescanning\n");
+			read(rescan[0], &junk, 1);
+			goto SETUP_FD;
+		}
+
+		/* It must be a client socket.  Find a context that has data
+		 * waiting on its socket *and* is in the CON_IDLE state.
+		 */
+		else {
+			bind_me = NULL;
+			begin_critical_section(S_SESSION_TABLE);
+			for (ptr = ContextList;
+			    ( (ptr != NULL) && (bind_me == NULL) );
+			    ptr = ptr->next) {
+				if ( (FD_ISSET(ptr->client_socket, &readfds))
+				   && (ptr->state == CON_IDLE) ) {
+					bind_me = con;
+				}
+			}
+			if (bind_me != NULL) {
+				/* Found one.  Stake a claim to it before
+				 * letting anyone else touch the context list.
+				 */
+				bind_me->state = CON_EXECUTING;
+			}
+
+			end_critical_section(S_SESSION_TABLE);
+			end_critical_section(S_I_WANNA_SELECT);
+
+			/* We're bound to a session, now do *one* command */
+			if (bind_me != NULL) {
+				lprintf(9, "Binding thread to session %d\n",
+					bind_me->client_socket);
+				pthread_setspecific(MyConKey, (void *)bind_me);
+				do_command_loop();
+				pthread_setspecific(MyConKey, (void *)NULL);
+				if (bind_me->state == CON_DYING) {
+					RemoveContext(bind_me);
+				} 
+				else {
+					bind_me->state = CON_IDLE;
+				}
+				write(rescan[1], &junk, 1);
+			}
+			else {
+				lprintf(9, "Thread %02d found nothing to do!\n",
+					getpid());
+			}
+
+		}
+
 	}
+
+	pthread_exit(NULL);
+}
 

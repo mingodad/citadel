@@ -1,7 +1,7 @@
 /* $Id$ */
 void master_startup (void);
 void master_cleanup (void);
-void cleanup_stuff (void *arg);
+void cleanup (int);
 void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);
 void cmd_info (void);
@@ -22,12 +22,13 @@ void cmd_ipgm (char *argbuf);
 void cmd_down (void);
 void cmd_scdn (char *argbuf);
 void cmd_extn (char *argbuf);
-void *context_loop (struct CitContext *con);
 void deallocate_user_data(struct CitContext *con);
 void *CtdlGetUserData(unsigned long requested_sym);
 void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);
 int CtdlGetDynamicSymbol(void);
 void enter_housekeeping_cmd(char *);
+void do_command_loop(void);
+void begin_session(struct CitContext *con);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);

@@ -56,6 +56,8 @@ struct CitContext {
 	struct usersupp usersupp;	/* Database record buffers */
 	struct quickroom quickroom;
 
+	int state;		/* thread state (see CON_ values below) */
+
 	char curr_user[32];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */
@@ -63,8 +65,6 @@ struct CitContext {
 	int nologin;		/* not allowed to log in */
 
 	char net_node[32];
-	THREAD mythread;
-	int n_crit;		/* number of critical sections open */
 	int client_socket;
 	int cs_pid;		/* session ID */
 	time_t cs_lastupdt;	/* time of last update */
@@ -102,6 +102,14 @@ struct CitContext {
 };
 
 typedef struct CitContext t_context;
+
+/* Values for CitContext.state */
+enum {
+	CON_IDLE,		/* This context is doing nothing */
+	CON_EXECUTING,		/* This context is bound to a thread */
+	CON_DYING		/* This context is being terminated */
+};
+
 
 #define CS_STEALTH	1	/* stealth mode */
 #define CS_CHAT		2	/* chat mode */
@@ -153,6 +161,7 @@ enum {
 	S_DATABASE,
 	S_NETDB,
 	S_SUPPMSGMAIN,
+	S_I_WANNA_SELECT,
 	MAX_SEMAPHORES
 };
 
