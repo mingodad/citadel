@@ -92,10 +92,7 @@ the "webserver" program:
      keep track of which server to send HTTP requests to.
  
   -> remotehost: the name or IP address of the host on which your Citadel/UX
-     server is running.  The default is "localhost".  (NOTE: if you run
-     WebCit and the Citadel/UX server on different hosts, the real-time chat
-     screen will not work, due to the Java security model.  Only the chat
-     window is written as a Java applet; everything else is plain HTML.)
+     server is running.  The default is "localhost".
  
   -> remoteport: the port number on which your Citadel/UX server is running.
      The default is port 504, the IANA-designated standard port for Citadel.
