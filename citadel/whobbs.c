@@ -43,17 +43,17 @@ void escapize(char buf[]) {
 int main(int argc, char **argv)
 {
 	char buf[512];
-	char nodetitle[256];
+	char nodetitle[SIZ];
 	int a;
 	int www = 0;
 	int s_pid = 0;
 	int my_pid = 0;
-	char hostbuf[256];
-	char portbuf[256];
-	char s_user[256];
-	char s_room[256];
-	char s_host[256];
-	char s_client[256];
+	char hostbuf[SIZ];
+	char portbuf[SIZ];
+	char s_user[SIZ];
+	char s_room[SIZ];
+	char s_host[SIZ];
+	char s_client[SIZ];
 
 	/* If this environment variable is set, we assume that the program
 	 * is being called as a cgi-bin from a webserver and will output

@@ -102,7 +102,7 @@ int pattern2(char *search, char *patn)
 void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
 {
 	int a;
-	char buf[256];
+	char buf[SIZ];
 	FILE *ls;
 
 	for (a=0; a<numdirs; ++a) {

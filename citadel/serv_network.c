@@ -39,8 +39,8 @@
 
 
 void cmd_gnet(char *argbuf) {
-	char filename[256];
-	char buf[256];
+	char filename[SIZ];
+	char buf[SIZ];
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -63,9 +63,9 @@ void cmd_gnet(char *argbuf) {
 
 
 void cmd_snet(char *argbuf) {
-	char tempfilename[256];
-	char filename[256];
-	char buf[256];
+	char tempfilename[SIZ];
+	char filename[SIZ];
+	char buf[SIZ];
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -137,7 +137,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 	/* Generate delivery instructions for each recipient */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		if (instr_len - strlen(instr) < 256) {
+		if (instr_len - strlen(instr) < SIZ) {
 			instr_len = instr_len * 2;
 			instr = reallok(instr, instr_len);
 		}
@@ -160,9 +160,9 @@ void network_spool_msg(long msgnum, void *userdata) {
  * Batch up and send all outbound traffic from the current room
  */
 void network_spoolout_current_room(void) {
-	char filename[256];
-	char buf[256];
-	char instr[256];
+	char filename[SIZ];
+	char buf[SIZ];
+	char instr[SIZ];
 	FILE *fp;
 	struct SpoolControl sc;
 	/* struct namelist *digestrecps = NULL; */

@@ -60,8 +60,8 @@ struct march *march = NULL;
 char temp[PATH_MAX];		/* Name of general temp file */
 char temp2[PATH_MAX];		/* Name of general temp file */
 char tempdir[PATH_MAX];		/* Name of general temp dir */
-char editor_path[256];		/* path to external editor */
-char printcmd[256];		/* print command */
+char editor_path[SIZ];		/* path to external editor */
+char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[32];
 jmp_buf nextbuf;
@@ -86,12 +86,12 @@ char sigcaught = 0;
 char have_xterm = 0;		/* are we running on an xterm? */
 char rc_username[32];
 char rc_password[32];
-char hostbuf[256];
-char portbuf[256];
+char hostbuf[SIZ];
+char portbuf[SIZ];
 char rc_floor_mode;
 char floor_mode;
 char curr_floor = 0;		/* number of current floor */
-char floorlist[128][256];	/* names of floors */
+char floorlist[128][SIZ];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
 int termn8 = 0;			/* Set to nonzero to cause a logoff */
 
@@ -159,7 +159,7 @@ void catch_sigcont(int signum)
 
 void formout(char *name)
 {				/* display a file */
-	char cmd[256];
+	char cmd[SIZ];
 	snprintf(cmd, sizeof cmd, "MESG %s", name);
 	serv_puts(cmd);
 	serv_gets(cmd);
@@ -175,8 +175,8 @@ void formout(char *name)
 
 void userlist(char *patn)
 {
-	char buf[256];
-	char fl[256];
+	char buf[SIZ];
+	char fl[SIZ];
 	struct tm *tmbuf;
 	time_t lc;
 
@@ -303,7 +303,7 @@ char *pop_march(int desired_floor)
  */
 void dotgoto(char *towhere, int display_name)
 {
-	char aaa[256], bbb[256], psearch[256];
+	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
 	static long ls = 0L;
 	int newmailcount;
 	static int oldmailcount = (-1);
@@ -430,7 +430,7 @@ void dotgoto(char *towhere, int display_name)
  */
 void gotonext(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	struct march *mptr, *mptr2;
 	char next_room[ROOMNAMELEN];
 
@@ -490,7 +490,7 @@ void gotonext(void)
  */
 void forget_all_rooms_on(int ffloor)
 {
-	char buf[256];
+	char buf[SIZ];
 	struct march *flist, *fptr;
 
 	printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
@@ -557,7 +557,7 @@ void gotofloor(char *towhere, int mode)
 {
 	int a, tofloor;
 	struct march *mptr;
-	char buf[256], targ[256];
+	char buf[SIZ], targ[SIZ];
 
 	if (floorlist[0][0] == 0)
 		load_floorlist();
@@ -680,7 +680,7 @@ int set_password(void)
 {
 	char pass1[20];
 	char pass2[20];
-	char buf[256];
+	char buf[SIZ];
 
 	if (strlen(rc_password) > 0) {
 		strcpy(pass1, rc_password);
@@ -742,10 +742,10 @@ void get_serv_info(char *supplied_hostname)
  */
 void who_is_online(int longlist)
 {
-	char buf[256], username[256], roomname[256], fromhost[256];
-	char flags[256];
-	char actual_user[256], actual_room[256], actual_host[256];
-	char tbuf[256], clientsoft[256];
+	char buf[SIZ], username[SIZ], roomname[SIZ], fromhost[SIZ];
+	char flags[SIZ];
+	char actual_user[SIZ], actual_room[SIZ], actual_host[SIZ];
+	char tbuf[SIZ], clientsoft[SIZ];
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
@@ -862,7 +862,7 @@ int main(int argc, char **argv)
 	char *sptr, *sptr2;	/* USed to extract the nonce */
 	char hexstring[MD5_HEXSTRING_SIZE];
 	int stored_password = 0;
-	char password[256];
+	char password[SIZ];
 
 	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */

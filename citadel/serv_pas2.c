@@ -23,7 +23,7 @@
 
 void cmd_pas2(char *argbuf)
 {
-	char pw[256];
+	char pw[SIZ];
 	char hexstring[MD5_HEXSTRING_SIZE];
 	
 

@@ -197,8 +197,8 @@ int main(int argc, char **argv)
 	FILE *fp, *rmail;
 	char sbuf[200], rbuf[200], cstr[100], fstr[128];
 	char nbuf[64], pbuf[128], rmname[128], buf[128];
-	char datestamp[256];
-	char subject[256];
+	char datestamp[SIZ];
+	char subject[SIZ];
 	time_t mid_buf;
 	time_t now;
 	int mlist = 0;

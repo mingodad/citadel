@@ -1,7 +1,7 @@
 
 struct namelist {
 	struct namelist *next;
-	char name[256];
+	char name[SIZ];
 };
 
 struct SpoolControl {

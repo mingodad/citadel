@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdio.h>
+#include "citadel.h"
 #include "tools.h"
 #include "commands.h"
 
@@ -42,9 +43,9 @@ void get_stored_password(
 
 	char pwfile[PATH_MAX];
 	FILE *fp;
-	char buf[256];
-	char buf64[256];
-	char hostbuf[256], portbuf[256], ubuf[256], pbuf[256];
+	char buf[SIZ];
+	char buf64[SIZ];
+	char hostbuf[SIZ], portbuf[SIZ], ubuf[SIZ], pbuf[SIZ];
 
 	strcpy(username, "");
 	strcpy(password, "");
@@ -83,9 +84,9 @@ void set_stored_password(
 
 	char pwfile[PATH_MAX];
 	FILE *fp, *oldfp;
-	char buf[256];
-	char buf64[256];
-	char hostbuf[256], portbuf[256], ubuf[256], pbuf[256];
+	char buf[SIZ];
+	char buf64[SIZ];
+	char hostbuf[SIZ], portbuf[SIZ], ubuf[SIZ], pbuf[SIZ];
 
 	determine_pwfilename(pwfile);
 	if (strlen(pwfile)==0) return;

@@ -29,7 +29,7 @@
 #include "snprintf.h"
 #endif
 
-#define MAXWORDBUF 256
+#define MAXWORDBUF SIZ
 #define MAXMSGS 512
 
 struct cittext {
@@ -78,7 +78,7 @@ extern int editor_pid;
 
 void ka_sigcatch(int signum)
 {
-	char buf[256];
+	char buf[SIZ];
 	alarm(S_KEEPALIVE);
 	signal(SIGALRM, ka_sigcatch);
 	serv_puts("NOOP");
@@ -335,10 +335,10 @@ int read_message(
 	long num,   /* message number */
 	char pagin) /* 0 = normal read, 1 = read with pagination, 2 = header */
 {
-	char buf[256];
-	char m_subject[256];
-	char from[256], node[256], rfca[256];
-	char now[256];
+	char buf[SIZ];
+	char m_subject[SIZ];
+	char from[SIZ], node[SIZ], rfca[SIZ];
+	char now[SIZ];
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
@@ -762,7 +762,7 @@ MEABT2:	unlink(filename);
  */
 void transmit_message(FILE *fp)
 {
-	char buf[256];
+	char buf[SIZ];
 	int ch, a;
 	long msglen;
 	time_t lasttick;
@@ -820,7 +820,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		int c)		/* */
 {
 	char buf[300];
-	char cmd[256];
+	char cmd[SIZ];
 	int a, b;
 	int need_recp = 0;
 	int mode;
@@ -1027,7 +1027,7 @@ void process_quote(void)
 void list_urls()
 {
 	int i;
-	char cmd[256];
+	char cmd[SIZ];
 
 	if (num_urls == 0) {
 		printf("There were no URL's in the previous message.\n\n");
@@ -1062,9 +1062,9 @@ void readmsgs(
 	int hold_color = 0;
 	char prtfile[PATH_MAX];
 	char pagin;
-	char cmd[256];
+	char cmd[SIZ];
 	char targ[ROOMNAMELEN];
-	char filename[256];
+	char filename[SIZ];
 
 	if (c < 0)
 		b = (MAXMSGS - 1);
@@ -1408,7 +1408,7 @@ void edit_system_message(char *which_message)
  */
 void check_message_base(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	printf
 	    ("Please read the documentation before running this command.\n"

@@ -162,7 +162,7 @@ void imap_login(int num_parms, char *parms[]) {
  * Implements the AYTHENTICATE command
  */
 void imap_authenticate(int num_parms, char *parms[]) {
-	char buf[256];
+	char buf[SIZ];
 
 	if (num_parms != 3) {
 		cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
@@ -184,7 +184,7 @@ void imap_authenticate(int num_parms, char *parms[]) {
 }
 
 void imap_auth_login_user(char *cmd) {
-	char buf[256];
+	char buf[SIZ];
 
 	decode_base64(buf, cmd);
 	CtdlLoginExistingUser(buf);
@@ -195,7 +195,7 @@ void imap_auth_login_user(char *cmd) {
 }
 
 void imap_auth_login_pass(char *cmd) {
-	char buf[256];
+	char buf[SIZ];
 
 	decode_base64(buf, cmd);
 	if (CtdlTryPassword(buf) == pass_ok) {
@@ -226,8 +226,8 @@ void imap_capability(int num_parms, char *parms[]) {
  * implements the SELECT command
  */
 void imap_select(int num_parms, char *parms[]) {
-	char towhere[256];
-	char augmented_roomname[256];
+	char towhere[SIZ];
+	char augmented_roomname[SIZ];
 	int c = 0;
 	int ok = 0;
 	int ra = 0;
@@ -323,7 +323,7 @@ void imap_close(int num_parms, char *parms[]) {
  * may or may not be the desired behavior in the future.
  */
 void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
-	char buf[256];
+	char buf[SIZ];
 	int ra;
 
 	/* Only list rooms to which the user has access!! */
@@ -351,7 +351,7 @@ void imap_lsub(int num_parms, char *parms[]) {
  * Back end for imap_list()
  */
 void imap_list_listroom(struct quickroom *qrbuf, void *data) {
-	char buf[256];
+	char buf[SIZ];
 	int ra;
 
 	/* Only list rooms to which the user has access!! */
@@ -380,8 +380,8 @@ void imap_list(int num_parms, char *parms[]) {
  * Main command loop for IMAP sessions.
  */
 void imap_command_loop(void) {
-	char cmdbuf[256];
-	char *parms[256];
+	char cmdbuf[SIZ];
+	char *parms[SIZ];
 	int num_parms;
 
 	time(&CC->lastcmd);

@@ -284,12 +284,12 @@ int PurgeRooms(void) {
 	}
 
 
-	transcript = mallok(256);
+	transcript = mallok(SIZ);
 	strcpy(transcript, "The following rooms have been auto-purged:\n");
 
 	while (RoomPurgeList != NULL) {
 		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
-			transcript=reallok(transcript, strlen(transcript)+256);
+			transcript=reallok(transcript, strlen(transcript)+SIZ);
 			sprintf(&transcript[strlen(transcript)], " %s\n",
 				qrbuf.QRname);
 			delete_room(&qrbuf);
@@ -383,11 +383,11 @@ int PurgeUsers(void) {
 		ForEachUser(do_user_purge, NULL);
 	}
 
-	transcript = mallok(256);
+	transcript = mallok(SIZ);
 	strcpy(transcript, "The following users have been auto-purged:\n");
 
 	while (UserPurgeList != NULL) {
-		transcript=reallok(transcript, strlen(transcript)+256);
+		transcript=reallok(transcript, strlen(transcript)+SIZ);
 		sprintf(&transcript[strlen(transcript)], " %s\n",
 			UserPurgeList->name);
 		purge_user(UserPurgeList->name);
@@ -505,7 +505,7 @@ int PurgeVisits(void) {
 
 
 void cmd_expi(char *argbuf) {
-	char cmd[256];
+	char cmd[SIZ];
 	int retval;
 
 	if (CtdlAccessCheck(ac_aide)) return;

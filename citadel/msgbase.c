@@ -385,10 +385,10 @@ int CtdlForEachMessage(int mode, long ref,
 void cmd_msgs(char *cmdbuf)
 {
 	int mode = 0;
-	char which[256];
-	char buf[256];
-	char tfield[256];
-	char tvalue[256];
+	char which[SIZ];
+	char buf[SIZ];
+	char tfield[SIZ];
+	char tvalue[SIZ];
 	int cm_ref = 0;
 	int i;
 	int with_template = 0;
@@ -452,7 +452,7 @@ void cmd_msgs(char *cmdbuf)
  */
 void help_subst(char *strbuf, char *source, char *dest)
 {
-	char workbuf[256];
+	char workbuf[SIZ];
 	int p;
 
 	while (p = pattern2(strbuf, source), (p >= 0)) {
@@ -499,7 +499,7 @@ void memfmout(
 	int old = 0;
 	CIT_UBYTE ch;
 	char aaa[140];
-	char buffer[256];
+	char buffer[SIZ];
 
 	strcpy(aaa, "");
 	old = 255;
@@ -708,7 +708,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 	if (is_valid_message(msg) == 0) return;
 
-	for (i = 0; i < 256; ++i)
+	for (i = 0; i < SIZ; ++i)
 		if (msg->cm_fields[i] != NULL) {
 			phree(msg->cm_fields[i]);
 		}
@@ -845,19 +845,19 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	int i, k;
 	char buf[1024];
 	CIT_UBYTE ch;
-	char allkeys[256];
-	char display_name[256];
+	char allkeys[SIZ];
+	char display_name[SIZ];
 	char *mptr;
 	char *nl;	/* newline string */
 
 	/* buffers needed for RFC822 translation */
-	char suser[256];
-	char luser[256];
-	char fuser[256];
-	char snode[256];
-	char lnode[256];
-	char mid[256];
-	char datestamp[256];
+	char suser[SIZ];
+	char luser[SIZ];
+	char fuser[SIZ];
+	char snode[SIZ];
+	char lnode[SIZ];
+	char mid[SIZ];
+	char datestamp[SIZ];
 	/*                                       */
 
 	sprintf(mid, "%ld", msg_num);
@@ -969,7 +969,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
 		cprintf("X-UIDL: %ld%s", msg_num, nl);
-		for (i = 0; i < 256; ++i) {
+		for (i = 0; i < SIZ; ++i) {
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];
 
@@ -1215,7 +1215,7 @@ void cmd_opna(char *cmdbuf)
 {
 	long msgid;
 
-	CtdlAllocUserData(SYM_DESIRED_SECTION, 256);
+	CtdlAllocUserData(SYM_DESIRED_SECTION, SIZ);
 
 	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
@@ -1359,7 +1359,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 {
 	long newmsgid;
 	long retval;
-	char msgidbuf[256];
+	char msgidbuf[SIZ];
         struct ser_ret smr;
 
 	/* Get a new message number */
@@ -1537,8 +1537,8 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
-	char content_type[256];			/* We have to learn this */
-	char recipient[256];
+	char content_type[SIZ];			/* We have to learn this */
+	char recipient[SIZ];
 	long newmsgid;
 	char *mptr = NULL;
 	struct usersupp userbuf;
@@ -1823,7 +1823,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			char *exist		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			) {
-	char buf[256];
+	char buf[SIZ];
 	int linelen;
 	size_t message_len = 0;
 	size_t buffer_len = 0;
@@ -1907,7 +1907,7 @@ struct CtdlMessage *make_message(
 
 	int a;
 	char dest_node[32];
-	char buf[256];
+	char buf[SIZ];
 	struct CtdlMessage *msg;
 
 	msg = mallok(sizeof(struct CtdlMessage));
@@ -1980,16 +1980,16 @@ struct CtdlMessage *make_message(
 void cmd_ent0(char *entargs)
 {
 	int post = 0;
-	char recipient[256];
+	char recipient[SIZ];
 	int anon_flag = 0;
 	int format_type = 0;
-	char newusername[256];
+	char newusername[SIZ];
 	struct CtdlMessage *msg;
 	int a, b;
 	int e = 0;
 	int mtsflag = 0;
 	struct usersupp tempUS;
-	char buf[256];
+	char buf[SIZ];
 
 	post = extract_int(entargs, 0);
 	extract(recipient, entargs, 1);
@@ -2127,7 +2127,7 @@ void cmd_ent0(char *entargs)
  */
 void cmd_ent3(char *entargs)
 {
-	char recp[256];
+	char recp[SIZ];
 	int a;
 	int e = 0;
 	int valid_msg = 1;
@@ -2338,7 +2338,7 @@ void cmd_dele(char *delstr)
 void cmd_move(char *args)
 {
 	long num;
-	char targ[256];
+	char targ[SIZ];
 	struct quickroom qtemp;
 	int err;
 	int is_copy = 0;
@@ -2480,7 +2480,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 
 	FILE *fp, *tempfp;
 	char filename[PATH_MAX];
-	char cmdbuf[256];
+	char cmdbuf[SIZ];
 	char ch;
 	struct quickroom qrbuf;
 	char roomname[ROOMNAMELEN];
@@ -2579,7 +2579,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	long msgnum;
 	char *conf;
 	struct CtdlMessage *msg;
-	char buf[256];
+	char buf[SIZ];
 	
 	strcpy(hold_rm, CC->quickroom.QRname);
 	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) {

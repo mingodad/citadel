@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.59  2000/12/27 20:19:51  ajc
+ * The size constant "256" which shows up everywhere as a buffer size has now
+   been changed to SIZ.  And, SIZ has been defined now as 1024, not 256, because
+   we need 1024 byte buffers for most Internet protocols.
+
  Revision 573.58  2000/12/27 05:09:58  ajc
  * Added a skeleton IMAP "SEARCH" command (based on the FETCH logic)
 
@@ -2248,4 +2253,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

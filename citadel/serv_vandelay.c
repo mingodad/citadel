@@ -35,8 +35,8 @@
 
 #define END_OF_MESSAGE	"---eom---dbd---"
 
-char artv_tempfilename1[256];
-char artv_tempfilename2[256];
+char artv_tempfilename1[PATH_MAX];
+char artv_tempfilename2[PATH_MAX];
 FILE *artv_global_message_list;
 
 void artv_export_users_backend(struct usersupp *usbuf, void *data) {
@@ -99,7 +99,7 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 
 
 void artv_export_rooms(void) {
-	char cmd[256];
+	char cmd[SIZ];
 	artv_global_message_list = fopen(artv_tempfilename1, "w");
 	ForEachRoom(artv_export_rooms_backend, NULL);
 	fclose(artv_global_message_list);
@@ -168,8 +168,8 @@ void artv_export_message(long msgnum) {
 	struct CtdlMessage *msg;
 	struct ser_ret smr;
 	FILE *fp;
-	char buf[256];
-	char tempfile[256];
+	char buf[SIZ];
+	char tempfile[SIZ];
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;	/* fail silently */
@@ -206,7 +206,7 @@ void artv_export_message(long msgnum) {
 
 
 void artv_export_messages(void) {
-	char buf[256];
+	char buf[SIZ];
 	long msgnum;
 	int count = 0;
 
@@ -289,7 +289,7 @@ void artv_do_export(void) {
 
 
 void artv_import_config(void) {
-	char buf[256];
+	char buf[SIZ];
 
 	lprintf(9, "Importing config file\n");
 	client_gets(config.c_nodename);
@@ -335,7 +335,7 @@ void artv_import_config(void) {
 
 
 void artv_import_control(void) {
-	char buf[256];
+	char buf[SIZ];
 
 	lprintf(9, "Importing control file\n");
 	client_gets(buf);	CitControl.MMhighest = atol(buf);
@@ -349,7 +349,7 @@ void artv_import_control(void) {
 
 
 void artv_import_user(void) {
-	char buf[256];
+	char buf[SIZ];
 	struct usersupp usbuf;
 
 	client_gets(buf);	usbuf.version = atoi(buf);
@@ -371,7 +371,7 @@ void artv_import_user(void) {
 
 
 void artv_import_room(void) {
-	char buf[256];
+	char buf[SIZ];
 	struct quickroom qrbuf;
 	long msgnum;
 	int msgcount = 0;
@@ -406,7 +406,7 @@ void artv_import_room(void) {
 void artv_import_floor(void) {
         struct floor flbuf;
         int i;
-	char buf[256];
+	char buf[SIZ];
 
 	client_gets(buf);		i = atoi(buf);
 	client_gets(buf);		flbuf.f_flags = atoi(buf);
@@ -423,7 +423,7 @@ void artv_import_floor(void) {
  */
 void artv_import_visit(void) {
 	struct visit vbuf;
-	char buf[256];
+	char buf[SIZ];
 
 	client_gets(buf);	vbuf.v_roomnum = atol(buf);
 	client_gets(buf);	vbuf.v_roomgen = atol(buf);
@@ -442,8 +442,8 @@ void artv_import_message(void) {
 	long msgnum;
 	int msglen;
 	FILE *fp;
-	char buf[256];
-	char tempfile[256];
+	char buf[SIZ];
+	char tempfile[SIZ];
 	char *mbuf;
 
 	memset(&smi, 0, sizeof(struct SuppMsgInfo));
@@ -489,8 +489,8 @@ void artv_import_message(void) {
 
 
 void artv_do_import(void) {
-	char buf[256];
-	char s_version[256];
+	char buf[SIZ];
+	char s_version[SIZ];
 	int version;
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
@@ -523,7 +523,7 @@ void artv_do_import(void) {
 
 
 void cmd_artv(char *cmdbuf) {
-	char cmd[256];
+	char cmd[SIZ];
 	static int is_running = 0;
 
 	if (CtdlAccessCheck(ac_aide)) return;	/* FIXME should be intpgm */

@@ -45,7 +45,7 @@ extern struct CitContext *ContextList;
 void allwrite(char *cmdbuf, int flag, char *username)
 {
 	FILE *fp;
-	char bcast[256];
+	char bcast[SIZ];
 	char *un;
 	struct ChatLine *clptr, *clnew;
 	time_t now;
@@ -217,7 +217,7 @@ void do_chat_listing(int allflag)
 
 void cmd_chat(char *argbuf)
 {
-	char cmdbuf[256];
+	char cmdbuf[SIZ];
 	char *un;
 	char *strptr1;
 	int MyLastMsg, ThisLastMsg;
@@ -583,8 +583,8 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 void cmd_sexp(char *argbuf)
 {
 	int message_sent = 0;
-	char x_user[256];
-	char x_msg[256];
+	char x_user[SIZ];
+	char x_msg[SIZ];
 	char *lun;		/* <bc> */
 	char *x_big_msgbuf = NULL;
 
@@ -621,8 +621,8 @@ void cmd_sexp(char *argbuf)
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
 			SEND_LISTING, message_sent);
-		x_big_msgbuf = mallok(256);
-		memset(x_big_msgbuf, 0, 256);
+		x_big_msgbuf = mallok(SIZ);
+		memset(x_big_msgbuf, 0, SIZ);
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {
 			x_big_msgbuf = reallok(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);

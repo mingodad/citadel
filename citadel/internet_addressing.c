@@ -35,8 +35,8 @@
 
 
 struct trynamebuf {
-	char buffer1[256];
-	char buffer2[256];
+	char buffer1[SIZ];
+	char buffer2[SIZ];
 };
 
 char *inetcfg = NULL;
@@ -49,8 +49,8 @@ char *inetcfg = NULL;
 int CtdlHostAlias(char *fqdn) {
 	int config_lines;
 	int i;
-	char buf[256];
-	char host[256], type[256];
+	char buf[SIZ];
+	char host[SIZ], type[SIZ];
 
 	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
@@ -305,14 +305,14 @@ void try_name(struct usersupp *us, void *data) {
  */
 int convert_internet_address(char *destuser, char *desthost, char *source)
 {
-	char user[256];
-	char node[256];
-	char name[256];
+	char user[SIZ];
+	char node[SIZ];
+	char name[SIZ];
 	struct quickroom qrbuf;
 	int i;
 	int hostalias;
 	struct trynamebuf tnb;
-	char buf[256];
+	char buf[SIZ];
 	int passes = 0;
 	char sourcealias[1024];
 
@@ -400,7 +400,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	int i;
 	int colonpos = (-1);
 	int processed = 0;
-	char buf[256];
+	char buf[SIZ];
 	char user[1024];
 	char node[1024];
 	char name[1024];
@@ -495,7 +495,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	struct CtdlMessage *msg;
 	int pos, beg, end;
 	int done;
-	char buf[256];
+	char buf[SIZ];
 	int converted;
 
 	msg = mallok(sizeof(struct CtdlMessage));

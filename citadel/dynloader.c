@@ -82,7 +82,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 void DLoader_Init(char *pathname)
 {
 	void *fcn_handle;
-	char dl_error[256];
+	char dl_error[SIZ];
 	DIR *dir;
 	int i;
 	struct dirent *dptr;
@@ -240,7 +240,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 			void (*h_command_function) (void) )
 {
 	struct ServiceFunctionHook *newfcn;
-	char message[256];
+	char message[SIZ];
 
 	newfcn = (struct ServiceFunctionHook *)
 	    mallok(sizeof(struct ServiceFunctionHook));

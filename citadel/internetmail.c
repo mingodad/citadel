@@ -41,7 +41,7 @@ void StripLeadingAndTrailingWhitespace(char *str)
 
 void LoadInternetConfig(void)
 {
-	char ParamName[256], ParamValue[256], buf[256];
+	char ParamName[SIZ], ParamValue[SIZ], buf[SIZ];
 	FILE *conf;
 	int a, eqpos;
 
@@ -51,7 +51,7 @@ void LoadInternetConfig(void)
 		syslog(LOG_NOTICE, "Couldn't load internetmail.config");
 		exit(1);
 	}
-	while (fgets(buf, 256, conf) != NULL) {
+	while (fgets(buf, sizeof buf, conf) != NULL) {
 		if (strlen(buf) > 0)
 			buf[strlen(buf) - 1] = 0;
 		strcpy(ParamName, "");

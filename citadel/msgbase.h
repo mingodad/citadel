@@ -32,14 +32,14 @@ enum {
 
 
 struct ma_info {
-	char prefix[256];	/* Prefix for a multipart/alternative */
+	char prefix[SIZ];	/* Prefix for a multipart/alternative */
 	int is_ma;		/* Set to 1 if we are using this stuff */
 	int did_print;		/* One alternative has been displayed */
 };
 
 
 struct repl {			/* Info for replication checking */
-	char extended_id[256];
+	char extended_id[SIZ];
 	time_t highest;
 };
 

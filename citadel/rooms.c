@@ -65,12 +65,12 @@ extern int ugnum;
 extern long uglsn;
 extern char ugname[];
 
-extern char floorlist[128][256];
+extern char floorlist[128][SIZ];
 
 
 void load_floorlist(void) {
 	int a;
-	char buf[256];
+	char buf[SIZ];
 
 	for (a=0; a<128; ++a) floorlist[a][0] = 0;
 
@@ -155,7 +155,7 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
  */
 void listrms(char *variety)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	struct roomlisting *rl = NULL;
 	struct roomlisting *rp;
@@ -228,7 +228,7 @@ void list_other_floors(void) {
  */
 void knrooms(int kn_floor_mode)
 {
-	char buf[256];
+	char buf[SIZ];
 	int a;
 
 	load_floorlist();
@@ -305,7 +305,7 @@ int set_room_attr(int ibuf, char *prompt, unsigned int sbit)
 int select_floor(int rfloor)
 {
 	int a, newfloor;
-	char floorstr[256];
+	char floorstr[SIZ];
 
 	if (floor_mode == 1) {
 		if (floorlist[(int)curr_floor][0]==0) load_floorlist();
@@ -313,7 +313,7 @@ int select_floor(int rfloor)
 		do {
 			newfloor = (-1);
 			safestrncpy(floorstr,floorlist[rfloor],sizeof floorstr);
-			strprompt("Which floor",floorstr,256);
+			strprompt("Which floor",floorstr,SIZ);
 			for (a=0; a<128; ++a) {
 				if (!strcasecmp(floorstr,&floorlist[a][0]))
 					newfloor = a;
@@ -349,7 +349,7 @@ void editthisroom(void) {
 	unsigned rflags;
 	int rbump;
 	char raide[32];
-	char buf[256];
+	char buf[SIZ];
 	int rfloor;
 	int rorder;
 	int expire_mode = 0;
@@ -512,7 +512,7 @@ void editthisroom(void) {
  * un-goto the previous room
  */
 void ungoto(void) { 
-	char buf[256];
+	char buf[SIZ];
 	
 	if (!strcmp(ugname,"")) return;
 	snprintf(buf,sizeof buf,"GOTO %s",ugname);
@@ -539,14 +539,14 @@ void ungoto(void) {
  */
 void download_to_local_disk(char *supplied_filename, long total_bytes)
 {
-	char buf[256];
+	char buf[SIZ];
 	char dbuf[4096];
 	long transmitted_bytes = 0L;
 	long aa,bb;
 	FILE *savefp;
 	int broken = 0;
 	int packet;
-	char filename[256];
+	char filename[SIZ];
 
 	strcpy(filename, supplied_filename);
 	if (strlen(filename)==0) {
@@ -556,7 +556,7 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 	printf("Enter the name of the directory to save '%s'\n",
 		filename);
 	printf("to, or press return for the current directory.\n");
-	newprompt("Directory: ",dbuf,256);
+	newprompt("Directory: ", dbuf, sizeof dbuf);
 	if (strlen(dbuf)==0) strcpy(dbuf,".");
 	strcat(dbuf,"/");
 	strcat(dbuf,filename);
@@ -607,10 +607,10 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
  */
 void download(int proto)
 {
-	char buf[256];
-	char filename[256];
-	char tempname[256];
-	char transmit_cmd[256];
+	char buf[SIZ];
+	char filename[SIZ];
+	char tempname[SIZ];
+	char transmit_cmd[SIZ];
 	long total_bytes = 0L;
 	char dbuf[4096];
 	long transmitted_bytes = 0L;
@@ -691,10 +691,10 @@ void download(int proto)
  * read directory of this room
  */
 void roomdir(void) {
-	char flnm[256];
+	char flnm[SIZ];
 	char flsz[32];
-	char comment[256];
-	char buf[256];
+	char comment[SIZ];
+	char buf[SIZ];
 
 	serv_puts("RDIR");
 	serv_gets(buf);
@@ -723,7 +723,7 @@ void roomdir(void) {
  * add a user to a private room
  */
 void invite(void) {
-	char aaa[31],bbb[256];
+	char aaa[31],bbb[SIZ];
 
 	if ((room_flags & QR_PRIVATE)==0) {
 		printf("This is not a private room.\n");
@@ -744,7 +744,7 @@ void invite(void) {
  * kick a user out of a room
  */
 void kickout(void) {
-	char aaa[31],bbb[256];
+	char aaa[31],bbb[SIZ];
 
 	newprompt("Name of user? ",aaa,30);
 	if (aaa[0]==0) return;
@@ -780,7 +780,7 @@ void killroom(void) {
 	}
 
 void forget(void) {	/* forget the current room */
-	char cmd[256];
+	char cmd[SIZ];
 
 	printf("Are you sure you want to forget this room? ");
 	if (yesno()==0) return;
@@ -801,7 +801,7 @@ void forget(void) {	/* forget the current room */
  * create a new room
  */
 void entroom(void) {
-	char cmd[256];
+	char cmd[SIZ];
 	char new_room_name[ROOMNAMELEN];
 	int new_room_type;
 	char new_room_pass[10];
@@ -873,7 +873,7 @@ void entroom(void) {
 
 
 void readinfo(void) {	/* read info file for current room */
-	char cmd[256];
+	char cmd[SIZ];
 	
 	sprintf(cmd,"RINF");
 	serv_puts(cmd);
@@ -891,7 +891,7 @@ void readinfo(void) {	/* read info file for current room */
  * <W>ho knows room...
  */
 void whoknows(void) {
-	char buf[256];
+	char buf[SIZ];
 	serv_puts("WHOK");
 	serv_gets(buf);
 	if (buf[0]!='1') {
@@ -907,7 +907,7 @@ void whoknows(void) {
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 {
 	FILE *fp;
-	char cmd[256];
+	char cmd[SIZ];
 	int b,cksum,editor_exit;
 
 
@@ -994,7 +994,7 @@ void enterinfo(void) {		/* edit info file for current room */
 	}
 
 void enter_bio(void) {
-	char cmd[256];
+	char cmd[SIZ];
 	snprintf(cmd,sizeof cmd,"RBIO %s",fullname);
 	do_edit("your Bio",cmd,"NOOP","EBIO");
 	}
@@ -1003,8 +1003,8 @@ void enter_bio(void) {
  * create a new floor
  */
 void create_floor(void) {
-	char buf[256];
-	char newfloorname[256];
+	char buf[SIZ];
+	char newfloorname[SIZ];
 
 	serv_puts("CFLR xx|0");
 	serv_gets(buf);
@@ -1029,7 +1029,7 @@ void create_floor(void) {
  * edit the current floor
  */
 void edit_floor(void) {
-	char buf[256];
+	char buf[SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
 
@@ -1098,7 +1098,7 @@ void edit_floor(void) {
  */
 void kill_floor(void) {
 	int floornum_to_delete,a;
-	char buf[256];
+	char buf[SIZ];
 
 	if (floorlist[(int)curr_floor][0]==0) load_floorlist();
 	do {

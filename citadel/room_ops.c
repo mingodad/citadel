@@ -714,9 +714,9 @@ void cmd_goto(char *gargs)
 	int c;
 	int ok = 0;
 	int ra;
-	char augmented_roomname[256];
-	char towhere[256];
-	char password[256];
+	char augmented_roomname[SIZ];
+	char towhere[SIZ];
+	char password[SIZ];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -815,9 +815,9 @@ void cmd_whok(void)
  */
 void cmd_rdir(void)
 {
-	char buf[256];
-	char flnm[256];
-	char comment[256];
+	char buf[SIZ];
+	char flnm[SIZ];
+	char comment[SIZ];
 	FILE *ls, *fd;
 	struct stat statbuf;
 
@@ -849,7 +849,7 @@ void cmd_rdir(void)
 		fd = fopen("/dev/null", "r");
 
 	ls = fopen(CC->temp, "r");
-	while (fgets(flnm, 256, ls) != NULL) {
+	while (fgets(flnm, sizeof flnm, ls) != NULL) {
 		flnm[strlen(flnm) - 1] = 0;
 		if (strcasecmp(flnm, "filedir")) {
 			sprintf(buf, "%s/files/%s/%s",
@@ -857,7 +857,7 @@ void cmd_rdir(void)
 			stat(buf, &statbuf);
 			strcpy(comment, "");
 			fseek(fd, 0L, 0);
-			while ((fgets(buf, 256, fd) != NULL)
+			while ((fgets(buf, sizeof buf, fd) != NULL)
 			       && (strlen(comment) == 0)) {
 				buf[strlen(buf) - 1] = 0;
 				if ((!strncasecmp(buf, flnm, strlen(flnm)))
@@ -907,7 +907,7 @@ void cmd_getr(void)
  */
 void cmd_setr(char *args)
 {
-	char buf[256];
+	char buf[SIZ];
 	struct floor flbuf;
 	char old_name[ROOMNAMELEN];
 	int old_floor;
@@ -1041,7 +1041,7 @@ void cmd_seta(char *new_ra)
 {
 	struct usersupp usbuf;
 	long newu;
-	char buf[256];
+	char buf[SIZ];
 	int post_notice;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -1086,7 +1086,7 @@ void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix)
 void cmd_rinf(void)
 {
 	char filename[128];
-	char buf[256];
+	char buf[SIZ];
 	FILE *info_fp;
 
 	assoc_file_name(filename, &CC->quickroom, "info");
@@ -1097,7 +1097,7 @@ void cmd_rinf(void)
 		return;
 	}
 	cprintf("%d Info:\n", LISTING_FOLLOWS);
-	while (fgets(buf, 256, info_fp) != NULL) {
+	while (fgets(buf, sizeof buf, info_fp) != NULL) {
 		if (strlen(buf) > 0)
 			buf[strlen(buf) - 1] = 0;
 		cprintf("%s\n", buf);
@@ -1257,11 +1257,11 @@ unsigned create_room(char *new_room_name,
 void cmd_cre8(char *args)
 {
 	int cre8_ok;
-	char new_room_name[256];
+	char new_room_name[SIZ];
 	int new_room_type;
-	char new_room_pass[256];
+	char new_room_pass[SIZ];
 	int new_room_floor;
-	char aaa[256];
+	char aaa[SIZ];
 	unsigned newflags;
 	struct quickroom qrbuf;
 	struct floor flbuf;
@@ -1363,8 +1363,8 @@ void cmd_cre8(char *args)
 void cmd_einf(char *ok)
 {				/* enter info file for current room */
 	FILE *fp;
-	char infofilename[256];
-	char buf[256];
+	char infofilename[SIZ];
+	char buf[SIZ];
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -1428,7 +1428,7 @@ void cmd_lflr(void)
  */
 void cmd_cflr(char *argbuf)
 {
-	char new_floor_name[256];
+	char new_floor_name[SIZ];
 	struct floor flbuf;
 	int cflr_ok;
 	int free_slot = (-1);

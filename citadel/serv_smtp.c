@@ -43,11 +43,11 @@
 
 struct citsmtp {		/* Information about the current session */
 	int command_state;
-	char helo_node[256];
+	char helo_node[SIZ];
 	struct usersupp vrfy_buffer;
 	int vrfy_count;
-	char vrfy_match[256];
-	char from[256];
+	char vrfy_match[SIZ];
+	char from[SIZ];
 	int number_of_recipients;
 	int delivery_mode;
 	int message_originated_locally;
@@ -88,7 +88,7 @@ void smtp_greeting(void) {
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
-	CtdlAllocUserData(SYM_SMTP_RECP, 256);
+	CtdlAllocUserData(SYM_SMTP_RECP, SIZ);
 	sprintf(SMTP_RECP, "%s", "");
 
 	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\r\n",
@@ -139,8 +139,8 @@ void smtp_help(void) {
  *
  */
 void smtp_get_user(char *argbuf) {
-	char buf[256];
-	char username[256];
+	char buf[SIZ];
+	char username[SIZ];
 
 	decode_base64(username, argbuf);
 	lprintf(9, "Trying <%s>\n", username);
@@ -160,7 +160,7 @@ void smtp_get_user(char *argbuf) {
  *
  */
 void smtp_get_pass(char *argbuf) {
-	char password[256];
+	char password[SIZ];
 
 	decode_base64(password, argbuf);
 	lprintf(9, "Trying <%s>\n", password);
@@ -181,7 +181,7 @@ void smtp_get_pass(char *argbuf) {
  *
  */
 void smtp_auth(char *argbuf) {
-	char buf[256];
+	char buf[SIZ];
 
 	if (strncasecmp(argbuf, "login", 5) ) {
 		cprintf("550 We only support LOGIN authentication.\r\n");
@@ -311,8 +311,8 @@ void smtp_data_clear(void) {
  * Implements the "MAIL From:" command
  */
 void smtp_mail(char *argbuf) {
-	char user[256];
-	char node[256];
+	char user[SIZ];
+	char node[SIZ];
 	int cvt;
 
 	if (strlen(SMTP->from) != 0) {
@@ -377,9 +377,9 @@ void smtp_mail(char *argbuf) {
  */
 void smtp_rcpt(char *argbuf) {
 	int cvt;
-	char user[256];
-	char node[256];
-	char recp[256];
+	char user[SIZ];
+	char node[SIZ];
+	char recp[SIZ];
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
@@ -469,7 +469,7 @@ void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *dest) {
 	struct ser_ret smr;
 	char *hold_R, *hold_D, *hold_O;
 	FILE *fp;
-	char filename[256];
+	char filename[SIZ];
 	static int seq = 0;
 
 	lprintf(9, "smtp_deliver_ignet(msg, %s, %s)\n", user, dest);
@@ -622,7 +622,7 @@ void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
 	int retval;
-	char nowstamp[256];
+	char nowstamp[SIZ];
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\r\n");
@@ -688,7 +688,7 @@ void smtp_data(void) {
  * Main command loop for SMTP sessions.
  */
 void smtp_command_loop(void) {
-	char cmdbuf[256];
+	char cmdbuf[SIZ];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -786,7 +786,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	int num_mxhosts;
 	int mx;
 	int i;
-	char user[256], node[256], name[256];
+	char user[SIZ], node[SIZ], name[SIZ];
 	char buf[1024];
 	char mailfrom[1024];
 	int lp, rp;
@@ -867,7 +867,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
-		snprintf(dsn, 256, "No MX hosts found for <%s>", node);
+		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
 		return;
 	}
 
@@ -875,9 +875,9 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 		extract(buf, mxhosts, mx);
 		lprintf(9, "Trying <%s>\n", buf);
 		sock = sock_connect(buf, "25", "tcp");
-		snprintf(dsn, 256, "Could not connect: %s", strerror(errno));
+		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) lprintf(9, "Connected!\n");
-		if (sock < 0) snprintf(dsn, 256, "%s", strerror(errno));
+		if (sock < 0) snprintf(dsn, SIZ, "%s", strerror(errno));
 		if (sock >= 0) break;
 	}
 
@@ -1404,9 +1404,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['M'] = malloc(strlen(instr)+256);
+		msg->cm_fields['M'] = malloc(strlen(instr)+SIZ);
 		snprintf(msg->cm_fields['M'],
-			strlen(instr)+256,
+			strlen(instr)+SIZ,
 			"Content-type: %s\n\n%s\n"
 			"attempted|%ld\n"
 			"retry|%ld\n",

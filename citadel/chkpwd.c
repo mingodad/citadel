@@ -23,7 +23,7 @@ int main(void)
 {
   uid_t uid;
   struct passwd *pw;
-  char buf[256];
+  char buf[SIZ];
 
   get_config();
   uid = getuid();

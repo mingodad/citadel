@@ -21,8 +21,8 @@ void logoff(int code)
 	}
 
 void userlist(void) { 
-	char buf[256];
-	char fl[256];
+	char buf[SIZ];
+	char fl[SIZ];
 	struct tm *tmbuf;
 	time_t lc;
 
@@ -54,8 +54,8 @@ void userlist(void) {
 
 int main(int argc, char **argv)
 {
-	char buf[256];
-	char hostbuf[256], portbuf[256];
+	char buf[SIZ];
+	char hostbuf[SIZ], portbuf[SIZ];
 
 	attach_to_server(argc, argv, hostbuf, portbuf);
 	serv_gets(buf);

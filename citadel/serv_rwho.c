@@ -150,7 +150,7 @@ void cmd_rwho(char *argbuf) {
  */
 void cmd_rchg(char *argbuf)
 {
-	char newroomname[256];
+	char newroomname[SIZ];
 
 	extract(newroomname, argbuf, 0);
 	newroomname[ROOMNAMELEN-1] = 0;
@@ -169,7 +169,7 @@ void cmd_rchg(char *argbuf)
  */
 void cmd_hchg(char *argbuf)
 {
-	char newhostname[256];
+	char newhostname[SIZ];
 
 	extract(newhostname, argbuf, 0);
 	if (strlen(newhostname) > 0) {
@@ -189,7 +189,7 @@ void cmd_hchg(char *argbuf)
 void cmd_uchg(char *argbuf)
 {
 
-	char newusername[256];
+	char newusername[SIZ];
 
 	extract(newusername, argbuf, 0);
 

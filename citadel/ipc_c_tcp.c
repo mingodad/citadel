@@ -272,14 +272,14 @@ void serv_puts(char *buf)
 void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 {
 	int a;
-	char cithost[256];
+	char cithost[SIZ];
 	int host_copied = 0;
-	char citport[256];
+	char citport[SIZ];
 	int port_copied = 0;
-	char socks4[256];
-	char buf[256];
+	char socks4[SIZ];
+	char buf[SIZ];
 	struct passwd *p;
-	char sockpath[256];
+	char sockpath[SIZ];
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */

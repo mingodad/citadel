@@ -40,7 +40,7 @@ static int inbuf(void)
     if (ateof) {
 	return FALSE;
     }
-    l = fread(iobuf, 1, 256, fi);     /* Read input buffer */
+    l = fread(iobuf, 1, sizeof iobuf, fi);     /* Read input buffer */
     if (l <= 0) {
 	if (ferror(fi)) {
 	    exit(1);

@@ -98,7 +98,7 @@ void pop3_greeting(void) {
  * Specify user name (implements POP3 "USER" command)
  */
 void pop3_user(char *argbuf) {
-	char username[256];
+	char username[SIZ];
 
 	if (CC->logged_in) {
 		cprintf("-ERR You are already logged in.\r\n");
@@ -189,7 +189,7 @@ void pop3_login(void)
 
 void pop3_apop(char *argbuf)
 {
-   char username[256];
+   char username[SIZ];
    char userdigest[MD5_HEXSTRING_SIZE];
    char realdigest[MD5_HEXSTRING_SIZE];
    char *sptr;
@@ -245,7 +245,7 @@ void pop3_apop(char *argbuf)
  * Authorize with password (implements POP3 "PASS" command)
  */
 void pop3_pass(char *argbuf) {
-	char password[256];
+	char password[SIZ];
 
 	strcpy(password, argbuf);
 	striplt(password);
@@ -525,7 +525,7 @@ void pop3_uidl(char *argbuf) {
  * Main command loop for POP3 sessions.
  */
 void pop3_command_loop(void) {
-	char cmdbuf[256];
+	char cmdbuf[SIZ];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */

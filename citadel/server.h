@@ -87,10 +87,10 @@ struct CitContext {
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
-	char upl_file[256];
-	char upl_path[256];
-	char upl_comment[256];
-	char upl_filedir[256];
+	char upl_file[SIZ];
+	char upl_path[SIZ];
+	char upl_comment[SIZ];
+	char upl_filedir[SIZ];
 	char dl_is_net;
 	char upload_type;
 
@@ -150,7 +150,7 @@ struct ChatLine {
 	struct ChatLine *next;
 	int chat_seq;
 	time_t chat_time;
-	char chat_text[256];
+	char chat_text[SIZ];
 	char chat_username[USERNAME_SIZE];
 	char chat_room[ROOMNAMELEN];
 };

@@ -45,7 +45,7 @@ void receive_spool(void)
 {
 	long download_len;
 	long bytes_received;
-	char buf[256];
+	char buf[SIZ];
 	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
 	long plen;
@@ -95,7 +95,7 @@ void receive_spool(void)
  */
 void transmit_spool(char *remote_nodename)
 {
-	char buf[256];
+	char buf[SIZ];
 	char pbuf[4096];
 	long plen;
 	long bytes_to_write, thisblock;
@@ -148,7 +148,7 @@ ABORTUPL:
 
 int main(int argc, char **argv)
 {
-	char buf[256];
+	char buf[SIZ];
 	char remote_nodename[32];
 	int a;
 

@@ -60,7 +60,7 @@ void pprintf(const char *format, ...);
 
 
 extern int num_urls;
-extern char urls[MAXURLS][256];
-extern char rc_url_cmd[256];
+extern char urls[MAXURLS][SIZ];
+extern char rc_url_cmd[SIZ];
 extern int lines_printed;
 extern int rc_remember_passwords;

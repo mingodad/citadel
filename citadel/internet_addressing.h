@@ -5,9 +5,9 @@
 
 struct internet_address_list {
 	struct internet_address_list *next;
-	char ial_user[256];
-	char ial_node[256];
-	char ial_name[256];
+	char ial_user[SIZ];
+	char ial_node[SIZ];
+	char ial_name[SIZ];
 };
 
 

@@ -90,10 +90,10 @@ void progress(long int curr, long int max)
 
 int main(int argc, char **argv)
 {
-	char hostbuf[256], portbuf[256];
+	char hostbuf[SIZ], portbuf[SIZ];
 	time_t LogTime, now;
 	unsigned int LogType;
-	char LogName[256];
+	char LogName[SIZ];
 	int a, b, lowest;
 	float p, q;
 	long timeon[72];
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	FILE *sortpipe;
 	char thegraph[GRANULARITY][73];
 	int pc_only = 0;
-	char buf[256];
+	char buf[SIZ];
 	FILE *logfp;
 	char *fakeargs[4];
 
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 		if (!batch_mode) {
 			printf("Scanning call log, please wait...\n");
 		}
-		while (fgets(buf, 256, logfp) != NULL) {
+		while (fgets(buf, sizeof buf, logfp) != NULL) {
 			buf[strlen(buf) - 1] = 0;
 			strcat(buf, "| ");
 

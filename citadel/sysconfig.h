@@ -88,6 +88,11 @@
 
 
 /*
+ * Command buffer size (do not change!)
+ */
+#define SIZ		1024
+
+/*
  * SMTP delivery retry and give-up times
  */
 #define	SMTP_RETRY_INTERVAL	900	/* retry sends every 15 minutes */

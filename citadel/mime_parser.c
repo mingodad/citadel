@@ -231,21 +231,21 @@ void the_mime_parser(char *partnum,
 
 	char *ptr;
 	char *part_start, *part_end;
-	char buf[256];
-	char header[256];
-	char boundary[256];
-	char startary[256];
-	char endary[256];
-	char content_type[256];
-	char encoding[256];
-	char disposition[256];
-	char name[256];
-	char filename[256];
+	char buf[SIZ];
+	char header[SIZ];
+	char boundary[SIZ];
+	char startary[SIZ];
+	char endary[SIZ];
+	char content_type[SIZ];
+	char encoding[SIZ];
+	char disposition[SIZ];
+	char name[SIZ];
+	char filename[SIZ];
 	int is_multipart;
 	int part_seq = 0;
 	int i;
 	size_t length;
-	char nested_partnum[256];
+	char nested_partnum[SIZ];
 
 	lprintf(9, "the_mime_parser() called\n");
 	ptr = content_start;

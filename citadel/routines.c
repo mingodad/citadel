@@ -88,9 +88,9 @@ void hit_any_key(void) {		/* hit any key to continue */
  */
 void edituser(void)
 {
-	char buf[256];
-	char who[256];
-	char pass[256];
+	char buf[SIZ];
+	char who[SIZ];
+	char pass[SIZ];
 	int flags;
 	int timescalled;
 	int posted;
@@ -372,7 +372,7 @@ void progress(long int curr, long int cmax)
 void locate_host(char *hbuf)
 {
 #ifndef HAVE_UTMP_H
-	char buf[256];
+	char buf[SIZ];
 	FILE *who;
 	int a,b;
 
@@ -381,7 +381,7 @@ void locate_host(char *hbuf)
 		strcpy(hbuf,serv_info.serv_fqdn);
 		return;	
 		}
-	fgets(buf,256,who);
+	fgets(buf,sizeof buf,who);
 	pclose(who);
 
 	b = 0;
@@ -450,7 +450,7 @@ void locate_host(char *hbuf)
  * miscellaneous server commands (testing, etc.)
  */
 void misc_server_cmd(char *cmd) {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts(cmd);
 	serv_gets(buf);
@@ -503,7 +503,7 @@ int nukedir(char *dirname)
 {
 	DIR *dp;
 	struct dirent *d;
-	char filename[256];
+	char filename[SIZ];
 
 	dp = opendir(dirname);
 	if (dp == NULL) {

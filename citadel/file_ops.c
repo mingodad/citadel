@@ -62,11 +62,11 @@ void cmd_delf(char *filename)
  */
 void cmd_movf(char *cmdbuf)
 {
-	char filename[256];
-	char pathname[256];
-	char newpath[256];
-	char newroom[256];
-	char buf[256];
+	char filename[SIZ];
+	char pathname[SIZ];
+	char newpath[SIZ];
+	char newroom[SIZ];
+	char buf[SIZ];
 	int a;
 	struct quickroom qrbuf;
 
@@ -130,7 +130,7 @@ void cmd_movf(char *cmdbuf)
  */
 void cmd_netf(char *cmdbuf)
 {
-	char pathname[256],filename[256],destsys[256],buf[256],outfile[256];
+	char pathname[SIZ],filename[SIZ],destsys[SIZ],buf[SIZ],outfile[SIZ];
 	int a,e;
 	time_t now;
 	FILE *ofp;
@@ -229,8 +229,8 @@ void OpenCmdResult(char *filename, char *mime_type) {
  */
 void cmd_open(char *cmdbuf)
 {
-	char filename[256];
-	char pathname[256];
+	char filename[SIZ];
+	char pathname[SIZ];
 	int a;
 
 	extract(filename,cmdbuf,0);
@@ -274,8 +274,8 @@ void cmd_open(char *cmdbuf)
  */
 void cmd_oimg(char *cmdbuf)
 {
-	char filename[256];
-	char pathname[256];
+	char filename[SIZ];
+	char pathname[SIZ];
 	struct usersupp usbuf;
 	char which_user[32];
 	int which_floor;
@@ -390,7 +390,7 @@ void cmd_uopn(char *cmdbuf)
 void cmd_uimg(char *cmdbuf)
 {
 	int is_this_for_real;
-	char basenm[256];
+	char basenm[SIZ];
 	int which_floor;
 	int a;
 
@@ -459,7 +459,7 @@ void cmd_uimg(char *cmdbuf)
  * close the download file
  */
 void cmd_clos(void) {
-	char buf[256];
+	char buf[SIZ];
 	
 	if (CC->download_fp == NULL) {
 		cprintf("%d You don't have a download file open.\n",ERROR);
@@ -610,7 +610,7 @@ void cmd_writ(char *cmdbuf)
  */
 void cmd_netp(char *cmdbuf)
 {
-	char buf[256];
+	char buf[SIZ];
 	
 	extract(buf,cmdbuf,1);
 	if (strcasecmp(buf,config.c_net_password)) {
@@ -626,7 +626,7 @@ void cmd_netp(char *cmdbuf)
  */
 void cmd_ndop(char *cmdbuf)
 {
-	char pathname[256];
+	char pathname[SIZ];
 	struct stat statbuf;
 
 	if (strlen(CC->net_node)==0) {

@@ -378,7 +378,7 @@ static int hostnames_match(const char *realname, const char *testname) {
  */
 int is_public_client(char *where)
 {
-	char buf[256];
+	char buf[SIZ];
 	FILE *fp;
 
 	lprintf(9, "Checking whether %s is a public client\n", where);
@@ -389,7 +389,7 @@ int is_public_client(char *where)
 	fp = fopen("public_clients","r");
 	if (fp == NULL) return(0);
 
-	while (fgets(buf,256,fp)!=NULL) {
+	while (fgets(buf, sizeof buf, fp)!=NULL) {
 		while (isspace((buf[strlen(buf)-1]))) 
 			buf[strlen(buf)-1] = 0;
 		if (hostnames_match(where,buf)) {
@@ -411,8 +411,8 @@ void cmd_iden(char *argbuf)
 	int dev_code;
 	int cli_code;
 	int rev_level;
-	char desc[256];
-	char from_host[256];
+	char desc[SIZ];
+	char from_host[SIZ];
 	struct in_addr addr;
 	int do_lookup = 0;
 
@@ -477,8 +477,8 @@ void cmd_iden(char *argbuf)
 void cmd_mesg(char *mname)
 {
 	FILE *mfp;
-	char targ[256];
-	char buf[256];
+	char targ[SIZ];
+	char buf[SIZ];
 	char *dirs[2];
 
 	extract(buf,mname,0);
@@ -523,8 +523,8 @@ void cmd_mesg(char *mname)
 void cmd_emsg(char *mname)
 {
 	FILE *mfp;
-	char targ[256];
-	char buf[256];
+	char targ[SIZ];
+	char buf[SIZ];
 	char *dirs[2];
 	int a;
 
@@ -829,7 +829,7 @@ void citproto_begin_session() {
  * This loop recognizes all server commands.
  */
 void do_command_loop(void) {
-	char cmdbuf[256];
+	char cmdbuf[SIZ];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */

@@ -93,8 +93,8 @@ void logoff(int e)
  */
 void np_attach_to_server(void)
 {
-	char hostbuf[256], portbuf[256];
-	char buf[256];
+	char hostbuf[SIZ], portbuf[SIZ];
+	char buf[SIZ];
 	char *args[] =
 	{"sendcommand", NULL};
 
@@ -119,8 +119,8 @@ void np_attach_to_server(void)
 int main(int argc, char **argv)
 {
 	int a;
-	char cmd[256];
-	char buf[256];
+	char cmd[SIZ];
+	char buf[SIZ];
 
 	strcpy(bbs_home_directory, BBSDIR);
 

@@ -41,7 +41,6 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
-PROXY_TARGETS=proxy
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -81,7 +80,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c $(DATABASE) dynloader.c file_ops.c \
 	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
 	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
-	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
+	netpoll.c netproc.c netsetup.c policy.c rcit.c readlog.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -292,9 +291,6 @@ chkpwd: chkpwd.o auth.o config.o
 netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
 
-proxy: proxy.o ipc_c_tcp.o
-	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy $(NETLIBS)
-
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(NETLIBS)
 
@@ -355,7 +351,7 @@ install-exec: all weekly
 		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
 	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
-		 $(PROXY_TARGETS) $(SERV_MODULES) ; do \
+		 $(SERV_MODULES) ; do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
@@ -377,7 +373,7 @@ clean:
 
 cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
-		modules/*.[ms]o $(PROXY_TARGETS) so_locations
+		modules/*.[ms]o so_locations
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f

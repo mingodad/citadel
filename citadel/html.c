@@ -36,8 +36,8 @@
  * do_citaformat = set to 1 to indent newlines with spaces
  */
 char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
-	char inbuf[256];
-	char outbuf[256];
+	char inbuf[SIZ];
+	char outbuf[SIZ];
 	char tag[1024];
 	int done_reading = 0;
 	char *inptr;
@@ -50,7 +50,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	strcpy(inbuf, "");
 	strcpy(outbuf, "");
 
-	outptr = mallok(strlen(inptr) + 256);
+	outptr = mallok(strlen(inptr) + SIZ);
 	if (outptr == NULL) return NULL;
 	strcpy(outptr, "");
 	outlen = 0;

@@ -77,7 +77,7 @@ int main(void)
     int in_header;
     int is_good;
     char listaddr[512];
-    char mailcmd[256];
+    char mailcmd[SIZ];
     FILE *nm;
     char tempfile[64];
 

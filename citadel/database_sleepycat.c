@@ -87,7 +87,7 @@ void open_databases(void)
 {
 	int ret;
 	int i;
-	char dbfilename[256];
+	char dbfilename[SIZ];
 	u_int32_t flags = 0;
 
 	lprintf(9, "open_databases() starting\n");

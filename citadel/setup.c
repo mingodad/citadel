@@ -460,8 +460,8 @@ void check_services_entry(void)
 void check_inittab_entry(void)
 {
 	FILE *infp;
-	char buf[256];
-	char looking_for[256];
+	char buf[SIZ];
+	char looking_for[SIZ];
 	char question[128];
 	char *ptr;
 	int have_entry = 0;
@@ -477,7 +477,7 @@ void check_inittab_entry(void)
 	if (infp == NULL) {
 		return;
 	} else {
-		while (fgets(buf, 256, infp) != NULL) {
+		while (fgets(buf, sizeof buf, infp) != NULL) {
 			buf[strlen(buf) - 1] = 0;
 			ptr = strtok(buf, ":");
 			ptr = strtok(NULL, ":");
@@ -539,7 +539,7 @@ void set_str_val(int msgpos, char str[])
 {
 	char buf[4096];
 	char tempfile[64];
-	char setupmsg[256];
+	char setupmsg[SIZ];
 
 	strcpy(tempfile, tmpnam(NULL));
 	strcpy(setupmsg, "");

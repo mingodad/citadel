@@ -57,7 +57,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
         char config_rm[ROOMNAMELEN];
-	char buf[256];
+	char buf[SIZ];
 
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
@@ -276,15 +276,15 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
  */
 void cmd_regi(char *argbuf) {
 	int a,b,c;
-	char buf[256];
+	char buf[SIZ];
 	struct vCard *my_vcard;
 
-	char tmpaddr[256];
-	char tmpcity[256];
-	char tmpstate[256];
-	char tmpzip[256];
-	char tmpaddress[512];
-	char tmpcountry[256];
+	char tmpaddr[SIZ];
+	char tmpcity[SIZ];
+	char tmpstate[SIZ];
+	char tmpzip[SIZ];
+	char tmpaddress[SIZ];
+	char tmpcountry[SIZ];
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -347,9 +347,9 @@ void cmd_greg(char *argbuf)
 	struct usersupp usbuf;
 	struct vCard *v;
 	char *s;
-	char who[256];
-	char adr[256];
-	char buf[256];
+	char who[SIZ];
+	char adr[SIZ];
+	char buf[SIZ];
 
 	extract(who, argbuf, 0);
 
@@ -420,7 +420,7 @@ void cmd_greg(char *argbuf)
  */
 void vcard_purge(char *username, long usernum) {
 	struct CtdlMessage *msg;
-	char buf[256];
+	char buf[SIZ];
 
 	msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
 	if (msg == NULL) return;

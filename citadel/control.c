@@ -126,11 +126,11 @@ long get_new_room_number(void) {
  * Get or set global configuration options
  */
 void cmd_conf(char *argbuf) {
-	char cmd[256];
-	char buf[256];
+	char cmd[SIZ];
+	char buf[SIZ];
 	int a;
 	char *confptr;
-	char confname[256];
+	char confname[SIZ];
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);

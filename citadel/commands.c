@@ -56,15 +56,15 @@ struct citcmd {
 
 
 int rc_exp_beep;
-char rc_exp_cmd[256];
+char rc_exp_cmd[1024];
 int rc_allow_attachments;
 int rc_display_message_numbers;
 int rc_force_mail_prompts;
 int rc_remember_passwords;
 int rc_ansi_color;
 int num_urls = 0;
-char urls[MAXURLS][256];
-char rc_url_cmd[256];
+char urls[MAXURLS][1024];
+char rc_url_cmd[1024];
 
 char *gl_string;
 int next_lazy_cmd = 5;
@@ -183,7 +183,7 @@ void pprintf(const char *format, ...) {
  */
 void print_express(void)
 {
-	char buf[256];
+	char buf[1024];
 	FILE *outpipe;
 	time_t timestamp;
 	struct tm *stamp;
@@ -314,7 +314,7 @@ void set_keepalives(int s)
 
 static time_t idlet = 0;
 static void really_do_keepalive(void) {
-	char buf[256];
+	char buf[1024];
 
 	time(&idlet);
 	if (keepalives_enabled == KA_YES) {
@@ -657,7 +657,7 @@ int lkey(void)
 void load_command_set(void)
 {
 	FILE *ccfile;
-	char buf[256];
+	char buf[1024];
 	struct citcmd *cptr;
 	struct citcmd *lastcmd = NULL;
 	int a, d;
@@ -701,7 +701,7 @@ void load_command_set(void)
 		perror("commands: cannot open citadel.rc");
 		logoff(errno);
 	}
-	while (fgets(buf, 256, ccfile) != NULL) {
+	while (fgets(buf, sizeof buf, ccfile) != NULL) {
 		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
 			buf[strlen(buf) - 1] = 0;
 
@@ -829,7 +829,7 @@ char *cmd_expand(char *strbuf, int mode)
 {
 	int a;
 	static char exp[64];
-	char buf[256];
+	char buf[1024];
 
 	strcpy(exp, strbuf);
 
@@ -1409,7 +1409,7 @@ char keymenu(char *menuprompt, char *menustring) {
 	int i, c, a;
 	int choices;
 	int do_prompt = 0;
-	char buf[256];
+	char buf[1024];
 	int ch;
 	int display_prompt = 1;
 

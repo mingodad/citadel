@@ -78,15 +78,15 @@ int room_prompt(int qrflags)
 void entregis(void)
 {				/* register with name and address */
 
-	char buf[256];
-	char tmpname[256];
-	char tmpaddr[256];
-	char tmpcity[256];
-	char tmpstate[256];
-	char tmpzip[256];
-	char tmpphone[256];
-	char tmpemail[256];
-	char tmpcountry[256];
+	char buf[SIZ];
+	char tmpname[SIZ];
+	char tmpaddr[SIZ];
+	char tmpcity[SIZ];
+	char tmpstate[SIZ];
+	char tmpzip[SIZ];
+	char tmpphone[SIZ];
+	char tmpemail[SIZ];
+	char tmpcountry[SIZ];
 	int a;
 
 	strcpy(tmpname, "");
@@ -152,7 +152,7 @@ void entregis(void)
 
 void updatels(void)
 {				/* make all messages old in current room */
-	char buf[256];
+	char buf[SIZ];
 	serv_puts("SLRP HIGHEST");
 	serv_gets(buf);
 	if (buf[0] != '2')
@@ -164,7 +164,7 @@ void updatels(void)
  */
 void updatelsa(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	sprintf(buf, "SLRP %ld", highest_msg_read);
 	serv_puts(buf);
 	serv_gets(buf);
@@ -178,7 +178,7 @@ void updatelsa(void)
  */
 void do_upload(int fd)
 {
-	char buf[256];
+	char buf[SIZ];
 	char tbuf[4096];
 	long transmitted_bytes, total_bytes;
 	int bytes_to_send;
@@ -220,10 +220,10 @@ void do_upload(int fd)
  */
 void cli_upload(void)
 {
-	char flnm[256];
+	char flnm[SIZ];
 	char desc[151];
-	char buf[256];
-	char tbuf[256];
+	char buf[SIZ];
+	char tbuf[SIZ];
 	int a;
 	int fd;
 
@@ -268,8 +268,8 @@ void cli_upload(void)
  */
 void cli_image_upload(char *keyname)
 {
-	char flnm[256];
-	char buf[256];
+	char flnm[SIZ];
+	char buf[SIZ];
 	int fd;
 
 	sprintf(buf, "UIMG 0|%s", keyname);
@@ -301,9 +301,9 @@ void cli_image_upload(char *keyname)
  */
 void upload(int c)
 {				/* c = upload mode */
-	char flnm[256];
+	char flnm[SIZ];
 	char desc[151];
-	char buf[256];
+	char buf[SIZ];
 	char tbuf[4096];
 	int xfer_pid;
 	int a, b;
@@ -384,7 +384,7 @@ void upload(int c)
 	sprintf(buf, "cd %s; ls", tempdir);
 	lsfp = popen(buf, "r");
 	if (lsfp != NULL) {
-		while (fgets(flnm, 256, lsfp) != NULL) {
+		while (fgets(flnm, sizeof flnm, lsfp) != NULL) {
 			flnm[strlen(flnm) - 1] = 0;
 			sprintf(buf, "%s/%s", tempdir, flnm);
 			fd = open(buf, O_RDONLY);
@@ -427,8 +427,8 @@ void upload(int c)
 void val_user(char *user, int do_validate)
 {
 	int a;
-	char cmd[256];
-	char buf[256];
+	char cmd[SIZ];
+	char buf[SIZ];
 	int ax = 0;
 
 	sprintf(cmd, "GREG %s", user);
@@ -482,8 +482,8 @@ void val_user(char *user, int do_validate)
 
 void validate(void)
 {				/* validate new users */
-	char cmd[256];
-	char buf[256];
+	char cmd[SIZ];
+	char buf[SIZ];
 	int finished = 0;
 
 	do {
@@ -524,7 +524,7 @@ void subshell(void)
 void deletefile(void)
 {
 	char filename[32];
-	char cmd[256];
+	char cmd[SIZ];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
@@ -540,7 +540,7 @@ void deletefile(void)
  */
 void netsendfile(void)
 {
-	char filename[32], destsys[20], cmd[256];
+	char filename[32], destsys[20], cmd[SIZ];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
@@ -560,7 +560,7 @@ void movefile(void)
 {
 	char filename[64];
 	char newroom[ROOMNAMELEN];
-	char cmd[256];
+	char cmd[SIZ];
 
 	newprompt("Filename: ", filename, 63);
 	if (strlen(filename) == 0)
@@ -579,7 +579,7 @@ void movefile(void)
  */
 void list_bio(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	int pos = 1;
 
 	serv_puts("LBIO");
@@ -605,8 +605,8 @@ void list_bio(void)
  */
 void read_bio(void)
 {
-	char who[256];
-	char buf[256];
+	char who[SIZ];
+	char buf[SIZ];
 
 	do {
 		newprompt("Read bio for who ('?' for list) : ", who, 25);
@@ -632,8 +632,8 @@ void read_bio(void)
  */
 void do_system_configuration(void)
 {
-	char buf[256];
-	char sc[28][256];
+	char buf[SIZ];
+	char sc[28][SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -794,7 +794,7 @@ void get_inet_rec_type(char *buf) {
  * Internet mail configuration
  */
 void do_internet_configuration(void) {
-	char buf[256];
+	char buf[SIZ];
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
@@ -810,7 +810,7 @@ void do_internet_configuration(void) {
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
-		recs[num_recs-1] = malloc(256);
+		recs[num_recs-1] = malloc(SIZ);
 		strcpy(recs[num_recs-1], buf);
 	}
 

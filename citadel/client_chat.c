@@ -42,12 +42,12 @@ void getline(char *, int);
 
 void chatmode(void)
 {
-	char wbuf[256];
-	char buf[256];
-	char c_user[256];
-	char c_text[256];
-	char c_room[256];
-	char last_user[256];
+	char wbuf[SIZ];
+	char buf[SIZ];
+	char c_user[SIZ];
+	char c_text[SIZ];
+	char c_room[SIZ];
+	char last_user[SIZ];
 	int send_complete_line;
 	int recv_complete_line;
 	char ch;
@@ -217,7 +217,7 @@ void chatmode(void)
 void page_user()
 {
 	static char last_paged[32] = "";
-	char buf[256], touser[256], msg[256];
+	char buf[SIZ], touser[SIZ], msg[SIZ];
 	FILE *pagefp;
 
 	strcpy(touser, last_paged);
@@ -255,7 +255,7 @@ void page_user()
 		serv_gets(buf);
 		if (buf[0] == '4') {
 			strcpy(last_paged, touser);
-			while (fgets(buf, 256, pagefp) != NULL) {
+			while (fgets(buf, sizeof buf, pagefp) != NULL) {
 				buf[strlen(buf) - 1] = 0;
 				serv_puts(buf);
 			}
@@ -274,7 +274,7 @@ void page_user()
 void quiet_mode(void)
 {
 	int qstate;
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("DEXP 2");
 	serv_gets(buf);

@@ -408,7 +408,7 @@ void load_filterlist(void)
 	fp = fopen("./network/filterlist", "r");
 	if (fp == NULL)
 		return;
-	while (fgets(sbuf, 256, fp) != NULL) {
+	while (fgets(sbuf, sizeof sbuf, fp) != NULL) {
 		if (sbuf[0] != '#') {
 			sbuf[strlen(sbuf) - 1] = 0;
 			fbuf = (struct filterlist *)

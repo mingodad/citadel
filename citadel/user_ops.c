@@ -286,7 +286,7 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
  */
 int CtdlLoginExistingUser(char *username)
 {
-	char autoname[256];
+	char autoname[SIZ];
 	int found_user = 0;
 	struct passwd *p;
 	int a;
@@ -326,7 +326,7 @@ int CtdlLoginExistingUser(char *username)
  */
 void cmd_user(char *cmdbuf)
 {
-	char username[256];
+	char username[SIZ];
 	int a;
 
 	extract(username, cmdbuf, 0);
@@ -521,7 +521,7 @@ int CtdlTryPassword(char *password)
 
 void cmd_pass(char *buf)
 {
-	char password[256];
+	char password[SIZ];
 	int a;
 
 	extract(password, buf, 0);
@@ -684,7 +684,7 @@ int create_user(char *newusername)
 void cmd_newu(char *cmdbuf)
 {
 	int a;
-	char username[256];
+	char username[SIZ];
 
 	if ((CC->logged_in)) {
 		cprintf("%d Already logged in.\n", ERROR);
@@ -852,7 +852,7 @@ void cmd_invt_kick(char *iuser, int op)
 			/* user name */
 {				/* 1 = invite, 0 = kick out */
 	struct usersupp USscratch;
-	char bbb[256];
+	char bbb[SIZ];
 	struct visit vbuf;
 
 	if (CtdlAccessCheck(ac_room_aide))
@@ -974,7 +974,7 @@ void cmd_gnur(void)
  */
 void cmd_vali(char *v_args)
 {
-	char user[256];
+	char user[SIZ];
 	int newax;
 	struct usersupp userbuf;
 
@@ -1116,7 +1116,7 @@ void cmd_qusr(char *who)
 void cmd_agup(char *cmdbuf)
 {
 	struct usersupp usbuf;
-	char requested_user[256];
+	char requested_user[SIZ];
 
 	if (CtdlAccessCheck(ac_aide)) {
 		return;
@@ -1148,7 +1148,7 @@ void cmd_agup(char *cmdbuf)
 void cmd_asup(char *cmdbuf)
 {
 	struct usersupp usbuf;
-	char requested_user[256];
+	char requested_user[SIZ];
 	int np;
 	int newax;
 	int deleted = 0;

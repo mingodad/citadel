@@ -27,8 +27,8 @@
 int get_smarthosts(char *mxbuf) {
 	int config_lines;
 	int i;
-	char buf[256];
-	char host[256], type[256];
+	char buf[SIZ];
+	char host[SIZ], type[SIZ];
 	int total_smarthosts = 0;
 
 	if (inetcfg == NULL) return(0);

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include "tools.h"
+#include "citadel.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -143,7 +144,7 @@ void remove_token(char *source, int parmnum, char separator)
  */
 int extract_int(char *source, int parmnum)
 {
-	char buf[256];
+	char buf[SIZ];
 	
 	extract_token(buf, source, parmnum, '|');
 	return(atoi(buf));
@@ -154,7 +155,7 @@ int extract_int(char *source, int parmnum)
  */
 long extract_long(char *source, long int parmnum)
 {
-	char buf[256];
+	char buf[SIZ];
 	
 	extract_token(buf, source, parmnum, '|');
 	return(atol(buf));

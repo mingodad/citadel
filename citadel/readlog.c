@@ -21,9 +21,9 @@ main (int argc, char **argv)
 {
   time_t LogTime;
   unsigned int LogType;
-  char LogName[256];
+  char LogName[SIZ];
 
-  char buf[256];
+  char buf[SIZ];
   char aaa[100];
   struct tm *tm;
   char *tstring;
@@ -39,7 +39,7 @@ main (int argc, char **argv)
     }
   else
     {
-      while (fgets (buf, 256, logfp) != NULL)
+      while (fgets (buf, sizeof buf, logfp) != NULL)
 	{
 	  buf[strlen (buf) - 1] = 0;
 	  strcat(buf, " ");

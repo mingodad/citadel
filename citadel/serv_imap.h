@@ -11,7 +11,7 @@ void imap_command_loop(void);
 
 struct citimap {
 	int authstate;
-	char authseq[256];
+	char authseq[SIZ];
 	int selected;		/* set to 1 if in the SELECTED state */
 	int readonly;		/* mailbox is open read only */
 	int num_msgs;		/* Number of messages being mapped */

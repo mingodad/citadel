@@ -42,7 +42,7 @@
  * enter user bio
  */
 void cmd_ebio(char *cmdbuf) {
-	char buf[256];
+	char buf[SIZ];
 	FILE *fp;
 
 	if (!(CC->logged_in)) {
@@ -69,7 +69,7 @@ void cmd_ebio(char *cmdbuf) {
 void cmd_rbio(char *cmdbuf)
 {
 	struct usersupp ruser;
-	char buf[256];
+	char buf[SIZ];
 	FILE *fp;
 
 	extract(buf,cmdbuf,0);
@@ -86,7 +86,7 @@ void cmd_rbio(char *cmdbuf)
 		return;
 	}
 	cprintf("%d  \n",LISTING_FOLLOWS);
-	while (fgets(buf,256,fp)!=NULL) cprintf("%s",buf);
+	while (fgets(buf,sizeof buf,fp)!=NULL) cprintf("%s",buf);
 	fclose(fp);
 	cprintf("000\n");
 }
@@ -95,7 +95,7 @@ void cmd_rbio(char *cmdbuf)
  * list of users who have entered bios
  */
 void cmd_lbio(char *cmdbuf) {
-	char buf[256];
+	char buf[SIZ];
 	FILE *ls;
 	struct usersupp usbuf;
 

@@ -461,7 +461,7 @@ void client_write(char *buf, int nbytes)
  */
 void cprintf(const char *format, ...) {   
         va_list arg_ptr;   
-        char buf[256];   
+        char buf[SIZ];   
    
         va_start(arg_ptr, format);   
         if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
@@ -636,7 +636,7 @@ void cmd_nset(char *cmdbuf)
 	FILE *netsetup;
 	int ch;
 	int a, b;
-	char netsetup_args[3][256];
+	char netsetup_args[3][SIZ];
 
 	if (CC->usersupp.axlevel < 6) {
 		cprintf("%d Higher access required.\n", 

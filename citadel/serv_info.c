@@ -17,7 +17,7 @@
 #include "serv_info.h"
 
 void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
-	char buf[256];
+	char buf[SIZ];
 	int a;
 
 	/* fetch info */	

@@ -21,7 +21,7 @@ struct roomshare {
 
 struct netnode {
 	char nn_nodename[32];
-	char nn_spoolcmd[256];
+	char nn_spoolcmd[SIZ];
 	struct roomshare *nn_first;
 	};
 
@@ -33,8 +33,8 @@ struct config config;
 struct netnode *load_node(char *nodename)
 {
 	FILE *fp;
-	char buf[256];
-	char filename[256];
+	char buf[SIZ];
+	char filename[SIZ];
 	struct netnode *newnn;
 	struct roomshare *newrs;
 
@@ -73,7 +73,7 @@ void save_node(struct netnode *nnptr)
 {
 
 	FILE *fp;
-	char filename[256];
+	char filename[SIZ];
 	struct roomshare *rsptr = NULL;
 	
 	sprintf(filename, "./network/systems/%s", nnptr->nn_nodename);
@@ -118,7 +118,7 @@ void display_usage(void) {
  */
 void display_nodelist(void) {
 	FILE *ls;
-	char buf[256];
+	char buf[SIZ];
 
 	ls = (FILE *) popen("cd ./network/systems; ls", "r");
 	if (ls == NULL) {
@@ -141,7 +141,7 @@ void display_nodelist(void) {
 void add_node(char *NewNodeName)
 {
 	FILE *fp;
-	char sysfilename[256];
+	char sysfilename[SIZ];
 
 	sprintf(sysfilename, "./network/systems/%s", NewNodeName);
 
@@ -169,8 +169,8 @@ void add_node(char *NewNodeName)
 void delete_node(char *NodeName)
 {
 	FILE *fp;
-	char sysfilename[256];
-	char spooloutfilename[256];
+	char sysfilename[SIZ];
+	char spooloutfilename[SIZ];
 
 	sprintf(sysfilename, "./network/systems/%s", NodeName);
 	sprintf(spooloutfilename, "./network/spoolout/%s", NodeName);
@@ -197,8 +197,8 @@ void delete_node(char *NodeName)
 void do_roomlist(char *NodeName)
 {
 	FILE *fp;
-	char sysfilename[256];
-	char buf[256];
+	char sysfilename[SIZ];
+	char buf[SIZ];
 
 	sprintf(sysfilename, "./network/systems/%s", NodeName);
 
@@ -225,8 +225,8 @@ void do_roomlist(char *NodeName)
 void show_spool_cmd(char *NodeName)
 {
 	FILE *fp;
-	char sysfilename[256];
-	char buf[256];
+	char sysfilename[SIZ];
+	char buf[SIZ];
 
 	sprintf(sysfilename, "./network/systems/%s", NodeName);
 

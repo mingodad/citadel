@@ -45,7 +45,7 @@
 
 
 struct imap_fetch_part {
-	char desired_section[256];
+	char desired_section[SIZ];
 	FILE *output_fp;
 };
 
@@ -64,7 +64,7 @@ void imap_fetch_flags(struct CtdlMessage *msg) {
 }
 
 void imap_fetch_internaldate(struct CtdlMessage *msg) {
-	char buf[256];
+	char buf[SIZ];
 	time_t msgdate;
 
 	if (msg->cm_fields['T'] != NULL) {
@@ -256,7 +256,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
  * so we don't have to check for that condition like we do elsewhere.
  */
 void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
-	char datestringbuf[256];
+	char datestringbuf[SIZ];
 	time_t msgdate;
 	char *fieldptr = NULL;
 
@@ -791,7 +791,7 @@ void imap_pick_range(char *range, int is_uid) {
  */
 void imap_fetch(int num_parms, char *parms[]) {
 	char items[1024];
-	char *itemlist[256];
+	char *itemlist[SIZ];
 	int num_items;
 	int i;
 
@@ -823,7 +823,7 @@ void imap_fetch(int num_parms, char *parms[]) {
  */
 void imap_uidfetch(int num_parms, char *parms[]) {
 	char items[1024];
-	char *itemlist[256];
+	char *itemlist[SIZ];
 	int num_items;
 	int i;
 	int have_uid_item = 0;

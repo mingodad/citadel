@@ -55,7 +55,7 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
 void cmd_gpex(char *argbuf) {
 	struct ExpirePolicy exp;
 	struct floor flbuf;
-	char which[256];
+	char which[SIZ];
 
 	extract(which, argbuf, 0);
 	if (!strcasecmp(which, "room")) {
@@ -83,7 +83,7 @@ void cmd_gpex(char *argbuf) {
 void cmd_spex(char *argbuf) {
 	struct ExpirePolicy exp;
 	struct floor flbuf;
-	char which[256];
+	char which[SIZ];
 
 	memset(&exp, 0, sizeof(struct ExpirePolicy));
 	extract(which, argbuf, 0);

@@ -41,7 +41,7 @@
 
 void inetcfg_setTo(struct CtdlMessage *msg) {
 	char *conf;
-	char buf[256];
+	char buf[SIZ];
 
 	if (msg->cm_fields['M']==NULL) return;
 	conf = strdoop(msg->cm_fields['M']);
