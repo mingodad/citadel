@@ -45,6 +45,19 @@ struct wcsession *SessionList = NULL;
 
 pthread_key_t MyConKey;                         /* TSD key for MySession() */
 
+
+void free_attachments(struct wcsession *sess) {
+	struct wc_attachment *att;
+
+	while (sess->first_attachment != NULL) {
+		att = sess->first_attachment;
+		sess->first_attachment = sess->first_attachment->next;
+		free(att->data);
+		free(att);
+	}
+}
+
+
 void do_housekeeping(void)
 {
 	struct wcsession *sptr, *ss, *session_to_kill;
@@ -88,6 +101,7 @@ BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 			if (session_to_kill->preferences != NULL) {
 				free(session_to_kill->preferences);
 			}
+			free_attachments(session_to_kill);
 			pthread_mutex_unlock(&session_to_kill->SessionMutex);
 			free(session_to_kill);
 		}

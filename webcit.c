@@ -684,18 +684,36 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, size_t length,
 			char *encoding, void *userdata)
 {
+	struct urlcontent *u;
 
 	lprintf(5, "UPLOAD HANDLER CALLED\n");
-	lprintf(5, "    name = %s\n", name);
-	lprintf(5, "filename = %s\n", filename);
-	lprintf(5, "encoding = %s\n", encoding);
-	lprintf(5, "    type = %s\n", cbtype);
-	lprintf(5, "  length = %ld\n", (long)length);
+	lprintf(5, "       name = %s\n", name);
+	lprintf(5, "   filename = %s\n", filename);
+	lprintf(5, "   encoding = %s\n", encoding);
+	lprintf(5, "       type = %s\n", cbtype);
+	lprintf(5, "     length = %ld\n", (long)length);
+	lprintf(5, "disposition = %s\n", disp);
 
-	if (length > 0) {
+	/* Form fields */
+	if ( (length > 0) && (strlen(cbtype) == 0) ) {
+		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
+		u->next = WC->urlstrings;
+		WC->urlstrings = u;
+		safestrncpy(u->url_key, name, sizeof(u->url_key));
+		u->url_data = malloc(length + 1);
+		memcpy(u->url_data, content, length);
+		u->url_data[length] = 0;
+	}
+
+	/* Uploaded files */
+	if ( (length > 0) && (strlen(cbtype) > 0) ) {
 		WC->upload = malloc(length);
 		if (WC->upload != NULL) {
 			WC->upload_length = length;
+			safestrncpy(WC->upload_filename, filename,
+					sizeof(WC->upload_filename));
+			safestrncpy(WC->upload_content_type, cbtype,
+					sizeof(WC->upload_content_type));
 			memcpy(WC->upload, content, length);
 		}
 		else {
@@ -703,6 +721,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 				strerror(errno));
 		}
 	}
+
 }
 
 
@@ -725,6 +744,7 @@ void session_loop(struct httprequest *req)
 	struct httprequest *hptr;
 	char browser_host[SIZ];
 	char user_agent[SIZ];
+	int body_start;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -779,12 +799,16 @@ void session_loop(struct httprequest *req)
 
 	if (ContentLength > 0) {
 		lprintf(5, "Content length: %d\n", ContentLength);
-		content = malloc(ContentLength + 1);
-		memset(content, 0, ContentLength+1);
-		BytesRead = 0;
+		content = malloc(ContentLength + SIZ);
+		memset(content, 0, ContentLength + SIZ);
+		sprintf(content, "Content-type: %s\n"
+				"Content-length: %d\n\n",
+				ContentType, ContentLength);
+		body_start = strlen(content);
 
+		BytesRead = 0;
 		while (BytesRead < ContentLength) {
-			a=read(WC->http_sock, &content[BytesRead],
+			a=read(WC->http_sock, &content[BytesRead+body_start],
 				ContentLength - BytesRead);
 			if (a <= 0) BytesRead = ContentLength;
 			else BytesRead += a;
@@ -792,7 +816,7 @@ void session_loop(struct httprequest *req)
 
 		if (!strncasecmp(ContentType,
 			      "application/x-www-form-urlencoded", 33)) {
-			addurls(content);
+			addurls(&content[body_start]);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength;
 			mime_parser(content, content_end, *upload_handler,
