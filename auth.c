@@ -88,7 +88,6 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 	strcpy(wc_password, pass);
 	axlevel = extract_int(&serv_response[4], 1);
 	if (axlevel >=6) is_aide = 1;
-	fprintf(stderr, "become_logged_in(%s,%s)\n", user, pass);
 	}
 
 

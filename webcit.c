@@ -303,7 +303,6 @@ void output_headers(int print_standard_html_head) {
 			ExpressMessages = NULL;
 			}
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
-		wprintf("<FONT SIZE=-2>heloooooooooooo!  isn't it a beautiful day?<BR></FONT>\n");
 		}
 
 	}
@@ -626,7 +625,7 @@ fclose(fp);
 
 	else if (!strcasecmp(action, "dotgoto")) {
 		slrp_highest();
-		dotgoto();
+		gotoroom(bstr("room"), 1);
 		}
 
 	else if (!strcasecmp(action, "termquit")) {
@@ -740,6 +739,14 @@ fclose(fp);
 
 	else if (!strcasecmp(action, "editbio")) {
 		save_edit("Your bio", "EBIO", 0);
+		}
+
+	else if (!strcasecmp(action, "confirm_delete_room")) {
+		confirm_delete_room();
+		}
+
+	else if (!strcasecmp(action, "delete_room")) {
+		delete_room();
 		}
 
 	/* When all else fails... */
