@@ -26,12 +26,15 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
 
 
 
 void load_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
+
+	lprintf(9, "entering load_preferences()\n");
 
 	serv_printf("GOTO My Citadel Config");
 	serv_gets(buf);
@@ -77,12 +80,14 @@ void load_preferences(void) {
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_gets(buf);
+	lprintf(9, "exiting load_preferences()\n");
 }
 
 void save_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
 
+	lprintf(9, "entering save_preferences()\n");
 	serv_printf("GOTO My Citadel Config");
 	serv_gets(buf);
 	if (buf[0] != '2') { /* try to create the config room if not there */
@@ -119,6 +124,7 @@ void save_preferences(void) {
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_gets(buf);
+	lprintf(9, "exiting save_preferences()\n");
 }
 
 void get_preference(char *key, char *value) {
@@ -127,6 +133,7 @@ void get_preference(char *key, char *value) {
 	char buf[SIZ];
 	char thiskey[SIZ];
 
+	lprintf(9, "entering get_preference(%s)\n", key);
 	strcpy(value, "");
 
 	num_prefs = num_tokens(WC->preferences, '\n');
@@ -137,6 +144,7 @@ void get_preference(char *key, char *value) {
 			extract_token(value, buf, 1, '|');
 		}
 	}
+	lprintf(9, "exiting get_preference() = %s\n", value);
 }
 
 void set_preference(char *key, char *value) {
@@ -146,28 +154,30 @@ void set_preference(char *key, char *value) {
 	char thiskey[SIZ];
 	char *newprefs = NULL;
 
+	lprintf(9, "entering set_preference(%s, %s)\n", key, value);
 	num_prefs = num_tokens(WC->preferences, '\n');
 	for (i=0; i<num_prefs; ++i) {
 		extract_token(buf, WC->preferences, i, '\n');
-		extract_token(thiskey, buf, 0, '|');
-		if (strcasecmp(thiskey, key)) {
-			if (newprefs == NULL) newprefs = strdup("");
-			else {
+		if (num_tokens(buf, '|') == 2) {
+			extract_token(thiskey, buf, 0, '|');
+			if (strcasecmp(thiskey, key)) {
+				if (newprefs == NULL) newprefs = strdup("");
 				newprefs = realloc(newprefs,
-						strlen(newprefs) + SIZ );
+					strlen(newprefs) + SIZ );
+				strcat(newprefs, buf);
+				strcat(newprefs, "\n");
 			}
-			strcat(newprefs, buf);
-			strcat(newprefs, "\n");
 		}
 	}
 
 
 	if (newprefs == NULL) newprefs = strdup("");
-	else {
-		newprefs = realloc(newprefs,
-				strlen(newprefs) + SIZ );
-	}
+	newprefs = realloc(newprefs, strlen(newprefs) + SIZ);
 	sprintf(&newprefs[strlen(newprefs)], "%s|%s\n", key, value);
 
+	free(WC->preferences);
+	WC->preferences = newprefs;
+
 	save_preferences();
+	lprintf(9, "exiting set_preference()\n");
 }

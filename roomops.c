@@ -1665,12 +1665,6 @@ void folders(void) {
 	int floor;
 	int nests = 0;
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Folder list</B>\n"
-		"</TD></TR></TABLE><BR>\n"
-	);
-
 	/* Start with the mailboxes */
 	max_folders = 1;
 	alloc_folders = 1;
@@ -1779,23 +1773,37 @@ void folders(void) {
 void knrooms() {
 	char listviewpref[SIZ];
 
+	output_headers(3);
 	load_floorlist();
-	output_headers(1);
 
 	/* Determine whether the user is trying to change views */
-	strcpy(listviewpref, "rooms");
 	if (bstr("view") != NULL) {
-		set_preference("roomlistview", bstr("view"));
+		if (strlen(bstr("view")) > 0) {
+			set_preference("roomlistview", bstr("view"));
+		}
 	}
 
 	get_preference("roomlistview", listviewpref);
 
-	if (!strcasecmp(listviewpref, "folders")) {
+	if (strcasecmp(listviewpref, "folders")) {
 		strcpy(listviewpref, "rooms");
 	}
 
+	/* title bar */
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+	);
+	if (!strcasecmp(listviewpref, "rooms")) {
+		wprintf("Room list");
+	}
+	if (!strcasecmp(listviewpref, "folders")) {
+		wprintf("Folder list");
+	}
+	wprintf("</B></TD>\n");
+
+
 	/* offer the ability to switch views */
-	wprintf("<FORM NAME=\"roomlistomatic\">\n"
+	wprintf("<TD><FORM NAME=\"roomlistomatic\">\n"
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
@@ -1812,7 +1820,8 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("</SELECT></FORM>\n");
+	wprintf("</SELECT></FORM></TD>\n"
+		"</TR></TABLE><BR>\n");
 
 	/* Display the room list in the user's preferred format */
 	if (!strcasecmp(listviewpref, "folders")) {
