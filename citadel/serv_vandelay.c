@@ -503,7 +503,7 @@ void artv_do_import(void) {
 			version = atoi(s_version);
 			if ((version < REV_MIN) || (version > REV_LEVEL)) {
 				lprintf(7, "Version mismatch - aborting\n");
-				goto artv_flush_import;
+				break;
 			}
 		}
 		else if (!strcasecmp(buf, "config")) artv_import_config();
@@ -513,9 +513,8 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
 		else if (!strcasecmp(buf, "message")) artv_import_message();
-		else goto artv_flush_import;
+		else break;
 	}
-artv_flush_import:
 	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_gets(buf), strcmp(buf, "000"))  ;;
 }

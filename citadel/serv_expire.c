@@ -112,7 +112,7 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
-	
+
 	/* If the room is set to never expire messages ... do nothing */
 	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
@@ -126,7 +126,7 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
         	num_msgs = cdbfr->len / sizeof(long);
         	cdb_free(cdbfr);
 	}
-	
+
 	/* Nothing to do if there aren't any messages */
 	if (num_msgs == 0) {
 		end_critical_section(S_QUICKROOM);
@@ -172,7 +172,7 @@ void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 	if (num_msgs > 0) {
 		num_msgs = sort_msglist(msglist, num_msgs);
 	}
-	
+
 	cdb_store(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long),
 		msglist, (num_msgs * sizeof(long)) );
 
@@ -218,38 +218,37 @@ void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
 	 * it.  Bypass any other rules.
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
+		/* if user not found, do_purge will be 1 */
+		do_purge = 1;
 		for (vuptr=ValidUserList; vuptr!=NULL; vuptr=vuptr->next) {
 			if (vuptr->vu_usernum == atol(qrbuf->QRname)) {
 				do_purge = 0;
-				goto BYPASS;
 			}
 		}
-		/* user not found */
-		do_purge = 1;
-		goto BYPASS;
 	}
+	else {
+		/* Any of these attributes render a room non-purgable */
+		if (qrbuf->QRflags & QR_PERMANENT) return;
+		if (qrbuf->QRflags & QR_DIRECTORY) return;
+		if (qrbuf->QRflags & QR_NETWORK) return;
+		if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
+		if (is_noneditable(qrbuf)) return;
 
-	/* Any of these attributes render a room non-purgable */
-	if (qrbuf->QRflags & QR_PERMANENT) return;
-	if (qrbuf->QRflags & QR_DIRECTORY) return;
-	if (qrbuf->QRflags & QR_NETWORK) return;
-	if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
-	if (is_noneditable(qrbuf)) return;
+		/* If we don't know the modification date, be safe and don't purge */
+		if (qrbuf->QRmtime <= (time_t)0) return;
 
-	/* If we don't know the modification date, be safe and don't purge */
-	if (qrbuf->QRmtime <= (time_t)0) return;
+		/* If no room purge time is set, be safe and don't purge */
+		if (config.c_roompurge < 0) return;
 
-	/* If no room purge time is set, be safe and don't purge */
-	if (config.c_roompurge < 0) return;
+		/* Otherwise, check the date of last modification */
+		age = time(NULL) - (qrbuf->QRmtime);
+		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
+		if (purge_secs <= (time_t)0) return;
+		lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
+		if (age > purge_secs) do_purge = 1;
+	} /* !QR_MAILBOX */
 
-	/* Otherwise, check the date of last modification */
-	age = time(NULL) - (qrbuf->QRmtime);
-	purge_secs = (time_t)config.c_roompurge * (time_t)86400;
-	if (purge_secs <= (time_t)0) return;
-	lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
-	if (age > purge_secs) do_purge = 1;
-
-BYPASS:	if (do_purge) {
+	if (do_purge) {
 		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
 		pptr->next = RoomPurgeList;
 		strcpy(pptr->name, qrbuf->QRname);
@@ -257,7 +256,7 @@ BYPASS:	if (do_purge) {
 	}
 
 }
-	
+
 
 
 int PurgeRooms(void) {
@@ -489,7 +488,7 @@ int PurgeVisits(void) {
 		VisitPurgeList = vptr;
 		++purged;
 	}
-	
+
 	return(purged);
 }
 

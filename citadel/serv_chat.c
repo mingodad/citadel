@@ -98,16 +98,11 @@ void allwrite(char *cmdbuf, int flag, char *username)
 	}
 
 	/* Then, before releasing the lock, free the expired messages */
-	while (1) {
-		if (ChatQueue == NULL)
-			goto DONE_FREEING;
-		if ((now - ChatQueue->chat_time) < 120L)
-			goto DONE_FREEING;
+	while ((ChatQueue != NULL) && (now - ChatQueue->chat_time >= 120L)) {
 		clptr = ChatQueue;
 		ChatQueue = ChatQueue->next;
 		phree(clptr);
 	}
-DONE_FREEING:
 	end_critical_section(S_CHATQUEUE);
 }
 
