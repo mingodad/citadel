@@ -50,8 +50,8 @@ SendExpress::SendExpress(	CitClient *sock,
 			) {
 
 	wxString sendcmd, recvcmd, buf;
-	wxStringList xferbuf;
-        int i;
+	wxString xferbuf;
+        int i, pos;
         wxString user;
 
 	citsock = sock;
@@ -168,8 +168,9 @@ SendExpress::SendExpress(	CitClient *sock,
 		ToWhom->Append(touser);
 		ToWhom->SetSelection(0, TRUE);
 	} else {
-        	for (i=0; i<xferbuf.Number(); ++i) {
-                	buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+		while (pos = xferbuf.Find('\n', FALSE),  (pos >= 0) ) {
+			buf = xferbuf.Left(pos);
+			xferbuf = xferbuf.Mid(pos+1);
                 	extract(user, buf, 1);
 			ToWhom->Append(user);
 		}
@@ -180,14 +181,13 @@ SendExpress::SendExpress(	CitClient *sock,
 
 
 void SendExpress::OnButtonPressed(wxCommandEvent& whichbutton) {
-	wxString target_user, sendcmd, recvcmd;
-	wxStringList msg;
+	wxString target_user, sendcmd, recvcmd, msg;
 
 	if (whichbutton.GetId() == BUTTON_CANCEL) {
 		delete this;
 	} else if (whichbutton.GetId() == BUTTON_SEND) {
 		target_user = ToWhom->GetStringSelection();
-		MultilineToList(msg, TheMessage->GetValue());
+		msg = TheMessage->GetValue();
 		sendcmd = "SEXP " + target_user + "|-" ;
 		if (citsock->serv_trans(sendcmd, recvcmd, msg) != 4) {
 			wxMessageBox(recvcmd.Mid(4),

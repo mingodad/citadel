@@ -75,10 +75,9 @@ void RoomTree::InitTreeIcons(void) {
 // Load a tree with a room list
 //
 void RoomTree::LoadRoomList(void) {
-	wxString sendcmd, recvcmd, buf, floorname, roomname;
-	wxStringList transbuf;
+	wxString sendcmd, recvcmd, buf, floorname, roomname, transbuf;
 	wxTreeItemId item;
-	int i, floornum;
+	int i, pos, floornum;
 
 	// First, clear it out.
 	DeleteAllItems();
@@ -98,8 +97,9 @@ void RoomTree::LoadRoomList(void) {
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
 
 	// Load the floors one by one onto the tree
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
+		buf = transbuf.Left(pos);
+		transbuf = transbuf.Mid(pos+1);
 		extract(floorname, buf, 1);
 		floornum = extract_int(buf, 0);
 		floorboards[floornum] = AppendItem(
@@ -113,8 +113,9 @@ void RoomTree::LoadRoomList(void) {
 	// Load the rooms with new messages into the tree
 	sendcmd = "LKRN";
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
+		buf = transbuf.Left(pos);
+		transbuf = transbuf.Mid(pos+1);
 		extract(roomname, buf, 0);
 		floornum = extract_int(buf, 2);
 		item = AppendItem(
@@ -131,8 +132,9 @@ void RoomTree::LoadRoomList(void) {
 	// Load the rooms with new messages into the tree
 	sendcmd = "LKRO";
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
+		buf = transbuf.Left(pos);
+		transbuf = transbuf.Mid(pos+1);
 		extract(roomname, buf, 0);
 		floornum = extract_int(buf, 2);
 		AppendItem(

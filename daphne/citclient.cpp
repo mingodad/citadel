@@ -77,12 +77,11 @@ void CitClient::serv_puts(wxString buf) {
 int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
-			wxStringList& xferbuf,
+			wxString& xferbuf,
 			wxString desired_room
 			) {
 
-	int first_digit;
-        int i;
+        int first_digit, i, pos;
 	wxString buf, pw, junk;
 	bool express_messages_waiting = FALSE;
 
@@ -107,15 +106,31 @@ int CitClient::serv_trans(
 		express_messages_waiting = TRUE;
 
 	if (first_digit == 1) {			// LISTING_FOLLOWS
-		xferbuf.Clear();
+		xferbuf.Empty();
 		while (serv_gets(buf), buf != "000") {
-			xferbuf.Add(buf);
+			xferbuf.Append(buf + "\n");
 		}
 	} else if (first_digit == 4) {		// SEND_LISTING
-        	for (i=0; i<xferbuf.Number(); ++i) {
-                	buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
-			serv_puts(buf);
-        	}
+		buf = xferbuf;
+		while (buf.Length() > 0) {
+			pos = buf.Find('\n', FALSE);
+			if ((pos < 0) && (buf.Length() < 250)) {
+				serv_puts(buf + "\n");
+				buf.Empty();
+			} else if ((pos < 250) && (pos >= 0)) {
+				serv_puts(buf.Left(pos+1));
+				buf = buf.Mid(pos+1);
+			} else {
+				pos = buf.Left(250).Find(' ', TRUE);
+				if ((pos < 250) && (pos >= 0)) {
+					serv_puts(buf.Left(pos) + "\n");
+					buf = buf.Mid(pos+1);
+				} else {
+					serv_puts(buf.Left(250) + "\n");
+					buf = buf.Mid(pos);
+				}
+			}
+		}
 		serv_puts("000");
 	}
 
@@ -133,13 +148,13 @@ int CitClient::serv_trans(
 int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
-			wxStringList& xferbuf
+			wxString& xferbuf
 			) {
 	return serv_trans(command, response, xferbuf, "");
 }
 
 int CitClient::serv_trans(wxString& command, wxString& response) {
-	wxStringList junklist;
+	wxString junklist;
 	return serv_trans(command, response, junklist);
 }
 
@@ -155,7 +170,7 @@ int CitClient::serv_trans(wxString& command) {
 
 void CitClient::download_express_messages(void) {
 	wxString sendcmd, recvcmd, x_user, x_sys;
-	wxStringList xferbuf;
+	wxString xferbuf;
 
 	sendcmd = "GEXP";
 	while (serv_trans(sendcmd, recvcmd, xferbuf) == 1) {
@@ -169,10 +184,10 @@ void CitClient::download_express_messages(void) {
 
 // Set up some things that we do at the beginning of every session
 void CitClient::initialize_session(void)  {
-	wxStringList info;
+	wxString info;
 	wxString sendcmd;
 	wxString recvcmd;
-	int i;
+	int i, pos;
 	wxString *infoptr;
 	wxString infoline;
 
@@ -183,10 +198,12 @@ void CitClient::initialize_session(void)  {
 
 	sendcmd = "INFO";
 	if (serv_trans(sendcmd, recvcmd, info)==1) {
-		for (i=0; i<info.Number(); ++i) {
-			infoptr = (wxString *) info.Nth(i)->GetData();
-			infoline.Printf("%s", infoptr);
+		i = 0;
+		while (pos = info.Find('\n', FALSE),  (pos >= 0) ) {
+			infoline = info.Left(pos);
+			info = info.Mid(pos+1);
 			switch(i) {
+
 			case 0:		SessionID	= atoi(infoline);
 			case 1:		NodeName	= infoline;
 			case 2:		HumanNode	= infoline;
@@ -200,6 +217,8 @@ void CitClient::initialize_session(void)  {
 			case 10:	UseFloors	= ((atoi(infoline)>0)
 							? TRUE : FALSE);
 			case 11:	PagingLevel	= atoi(infoline);
+
+			++i;
 			}
 		}
 	}

@@ -105,12 +105,11 @@ void EnterMessage::OnCancel(wxCommandEvent& whichbutton) {
 
 void EnterMessage::OnSave(wxCommandEvent& whichbutton) {
 	wxString sendcmd, recvcmd;
-	wxStringList msgbuf;
-
-	MultilineToList(msgbuf, TheMessage->GetValue());
 
 	sendcmd = "ENT0 1";
-	if (citsock->serv_trans(sendcmd, recvcmd, msgbuf, ThisRoom) == 4) {
+	if (citsock->serv_trans(sendcmd, recvcmd,
+				TheMessage->GetValue(),
+				ThisRoom) == 4) {
 		delete this;
 	}
 }

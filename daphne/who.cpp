@@ -87,16 +87,17 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 // Load up the control
 void who::LoadWholist(void) {
 	wxString sendcmd, recvcmd, buf;
-	wxStringList rwho;
-	int i;
+	wxString rwho;
+	int i, pos;
 	wxString sess, user, room, host;
 
 	sendcmd = "RWHO";
 	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 1) return;
 	wholist->DeleteAllItems();
 
-	for (i=0; i<rwho.Number(); ++i) {
-		buf.Printf("%s", (wxString *)rwho.Nth(i)->GetData());
+	while (pos = rwho.Find('\n', FALSE), (pos >= 0)) {
+		buf = rwho.Left(pos);
+		rwho = rwho.Mid(pos+1);
 		extract(sess, buf, 0);
 		extract(user, buf, 1);
 		extract(room, buf, 2);

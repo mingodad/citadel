@@ -55,8 +55,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 			"UserLogin"
 			) {
 
-	wxString sendcmd, recvcmd;
-	wxStringList xferbuf;
+	wxString sendcmd, recvcmd, xferbuf;
 	wxPanel *banner;
 
 	citsock = sock;
@@ -223,8 +222,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	sendcmd = "MESG hello";
 	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf)==1) {
-		ListToMultiline(recvcmd, xferbuf);
-		hello->SetValue(recvcmd);
+		hello->SetValue(xferbuf);
 	}
 
 

@@ -45,7 +45,7 @@ express_message::express_message(
 			CitClient *sock,
 			wxString sender,
 			wxString sendsys,
-			wxStringList msg)
+			wxString msg)
        		: wxFrame(
 			NULL,	//parent
 			-1,	//window id
@@ -57,12 +57,9 @@ express_message::express_message(
 			) {
 
 	wxString more_informative_title;
-	wxString stringized_message;
 
 	citsock = sock;
 	reply_to = sender;
-
-	ListToMultiline(stringized_message, msg);
 
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
@@ -97,7 +94,7 @@ express_message::express_message(
 	wxTextCtrl *msgbox = new wxTextCtrl(
 		this,
 		-1,
-		stringized_message,
+		msg,
 		wxDefaultPosition,
 		wxDefaultSize,
 		wxTE_MULTILINE | wxTE_READONLY,

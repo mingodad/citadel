@@ -44,13 +44,13 @@ public:
 	int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
-			wxStringList& xferbuf,
+			wxString& xferbuf,
 			wxString desired_room
                         );
 	int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
-			wxStringList& xferbuf
+			wxString& xferbuf
                         );
 	int CitClient::serv_trans(wxString& command, wxString& response);
 	int CitClient::serv_trans(wxString& command);
@@ -105,7 +105,7 @@ private:
 class express_message : public wxFrame {
 public:
 	express_message(CitClient *sock, wxString sender,
-		wxString sendsys, wxStringList msg);
+		wxString sendsys, wxString msg);
 private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
@@ -272,8 +272,6 @@ private:
 
 // Stuff from utils.cpp
 
-void ListToMultiline(wxString& outputbuf, wxStringList inputlist);
-void MultilineToList(wxStringList& outputlist, wxString inputbuf);
 void extract(wxString& outputbuf, wxString inputbuf, int parmnum);
 int extract_int(wxString inputbuf, int parmnum);
 void load_roomlist(RoomTree *tree, CitClient *citsock);

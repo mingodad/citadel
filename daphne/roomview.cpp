@@ -139,8 +139,8 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 
 void RoomView::do_readloop(wxString readcmd) {
 	wxString sendcmd, recvcmd, buf, allmsgs;
-	wxStringList xferbuf, msgbuf;
-        int i, r;
+	wxString xferbuf;
+        int i, r, pos;
 	CitMessage *message;
 	
 	if (message_window != NULL) {
@@ -164,12 +164,14 @@ void RoomView::do_readloop(wxString readcmd) {
 
 	// Read the messages into the window, one at a time
 	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
-        for (i=0; i<xferbuf.Number(); ++i) {
+	i = 0;
+	while (pos = xferbuf.Find('\n', FALSE), (pos >= 0)) {
 
-		buf.Printf("Reading %d of %d", i+1, xferbuf.Number());
+		buf.Printf("Reading message %d", ++i);
 		citMyMDI->SetStatusText(buf, 0);
 
-                buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+		buf = xferbuf.Left(pos);
+		xferbuf = xferbuf.Mid(pos+1);
 
 		sendcmd = "MSG0 " + buf;
 		message = new CitMessage(citsock, sendcmd, ThisRoom);

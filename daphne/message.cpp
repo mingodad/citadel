@@ -4,8 +4,8 @@
 CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 
 	wxString sendcmd, recvcmd, buf, key;
-	wxStringList xferbuf;
-	int i;
+	wxString xferbuf;
+	int i, pos;
 	bool in_text = FALSE;		// true if reading the message body
 
 	room.Empty();
@@ -21,9 +21,10 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
                 return;
 	}
 
-        for (i=0; i<xferbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
-
+	while (pos = xferbuf.Find('\n', FALSE),  (pos >= 0) ) {
+		buf = xferbuf.Left(pos);
+		xferbuf = xferbuf.Mid(pos+1);
+		
 		// Break out important information if in the header
 		if (!in_text) {
 			key = buf.Left(4);
