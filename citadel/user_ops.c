@@ -358,7 +358,7 @@ int CtdlLoginExistingUser(char *trythisname)
 	struct recptypes *valid = NULL;
 
 	if (trythisname == NULL) return login_not_found;
-	safestrncpy(username, trythisname, USERNAME_SIZE-1);
+	safestrncpy(username, trythisname, USERNAME_SIZE);
 	strproc(username);
 
 	if ((CC->logged_in)) {
@@ -372,7 +372,7 @@ int CtdlLoginExistingUser(char *trythisname)
 	 * is an e-mail address
 	 */
 	if (found_user != 0) {
-		valid = validate_recipients(trythisname);
+		valid = validate_recipients(username);
 		if (valid != NULL) {
 			if (valid->num_local == 1) {
 				found_user = getuser(&CC->user,
