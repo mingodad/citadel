@@ -751,6 +751,8 @@ void session_loop(struct httprequest *req)
 	WC->upload_length = 0;
 	WC->upload = NULL;
 
+	WC->is_wap = 0;
+
 	hptr = req;
 	if (hptr == NULL) return;
 
@@ -775,6 +777,10 @@ void session_loop(struct httprequest *req)
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			strcpy(user_agent, &buf[12]);
+		}
+		/* Only WAP gateways explicitly name this content-type */
+		else if (strstr(buf, "text/vnd.wap.wml")) {
+			WC->is_wap = 1;
 		}
 	}
 
