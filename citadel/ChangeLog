@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.131  2003/02/13 21:52:13  ajc
+ * IMAP service: fixed bug that was causing the wrong messages (usually *all*
+   messages) to be flagged when a STORE or COPY operation was performed.
+
  Revision 601.130  2003/02/13 20:13:51  ajc
  * Applied "multi editor" patch supplied by georbit
 
@@ -4462,3 +4466,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

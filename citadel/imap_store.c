@@ -118,7 +118,7 @@ void imap_do_store(int num_items, char **itemlist) {
 	
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if (IMAP->flags[i] && IMAP_SELECTED) {
+			if (IMAP->flags[i] & IMAP_SELECTED) {
 				imap_do_store_msg(i, oper, bits_to_twiddle);
 			}
 		}

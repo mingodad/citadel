@@ -68,7 +68,7 @@ int imap_do_copy(char *destination_folder) {
 
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if (IMAP->flags[i] && IMAP_SELECTED) {
+			if (IMAP->flags[i] & IMAP_SELECTED) {
 				CtdlCopyMsgToRoom(
 					IMAP->msgids[i], roomname);
 			}
