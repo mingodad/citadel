@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.22  2003/07/14 17:12:28  ajc
+ * Replaced strcpy() with safestrcpy() in cmd_setp()
+
  Revision 607.21  2003/07/14 03:07:05  ajc
  * ipgm_secret is no longer set during setup.  Now it is set at server startup
    and automatically changes whenever an IPGM command is executed.
@@ -4859,4 +4862,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -896,7 +896,7 @@ void cmd_setp(char *new_pw)
 		return;
 	}
 	lgetuser(&CC->user, CC->curr_user);
-	strcpy(CC->user.password, new_pw);
+	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
 	lputuser(&CC->user);
 	cprintf("%d Password changed.\n", CIT_OK);
 	lprintf(3, "Password changed for user <%s>\n", CC->curr_user);
