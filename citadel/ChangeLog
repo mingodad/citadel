@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.66  2001/01/14 14:55:39  ajc
+ * Changed the format of <.W>holist <L>ong
+
  Revision 573.65  2001/01/13 06:40:26  nbryant
  merged remaining changes from TRANSACTIONS (using cvs update -j TRANSACTIONS)
  which should now be considered closed.
@@ -2315,4 +2318,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
