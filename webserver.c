@@ -52,7 +52,6 @@ int ig_tcp_server(int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
 	int s, i;
-	struct linger WebLinger = { 1, 9000 };
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -75,7 +74,6 @@ int ig_tcp_server(int port_number, int queue_len)
 	/* Set some socket options that make sense. */
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-	setsockopt(s, SOL_SOCKET, SO_LINGER, &WebLinger, sizeof(WebLinger));
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		printf("webcit: Can't bind: %s\n", strerror(errno));
@@ -249,6 +247,7 @@ int main(int argc, char **argv)
         pthread_attr_t attr;		/* Thread attributes */
 	int a, i;			/* General-purpose variables */
 	int port = PORT_NUM;		/* Port to listen on */
+	struct linger WebLinger = { 1, 9000 };
 
 	/* Parse command line */
 	while ((a = getopt(argc, argv, "hp:")) != EOF)
@@ -300,6 +299,8 @@ int main(int argc, char **argv)
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 				&i, sizeof(i));
+			setsockopt(ssock, SOL_SOCKET, SO_LINGER,
+				&WebLinger, sizeof(struct linger));
 
 			/* set attributes for the new thread */
 		        pthread_attr_init(&attr);
