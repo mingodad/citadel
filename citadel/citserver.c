@@ -460,7 +460,7 @@ void cmd_iden(char *argbuf)
 		}
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
-			CC->cs_host[24] = 0;
+			CC->cs_host[sizeof CC->cs_host - 1] = 0;
 		}
 	}
 

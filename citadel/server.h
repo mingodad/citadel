@@ -106,7 +106,7 @@ struct CitContext {
 	int cs_clienttyp;	/* client type code */
 	int cs_clientver;	/* client version number */
 	char cs_clientname[32];	/* name of client software */
-	char cs_host[26];	/* host logged in from */
+	char cs_host[64];	/* host logged in from */
 
 	/* Beginning of cryptography - session nonce */
 	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */

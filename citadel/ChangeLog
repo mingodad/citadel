@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.19  2001/12/28 09:28:04  error
+ * Server support for hostnames up to 63 characters
+
  Revision 590.18  2001/12/26 05:01:30  ajc
  * Added a new developer ID for Anticlimactic Teleservices
 
@@ -3005,4 +3008,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -59,7 +59,7 @@ void cmd_rwho(char *argbuf) {
 	int aide;
 	char un[40];
 	char real_room[ROOMNAMELEN], room[ROOMNAMELEN];
-	char host[40], flags[5];
+	char host[64], flags[5];
 	
 	aide = CC->usersupp.axlevel >= 6;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
