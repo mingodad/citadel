@@ -1,3 +1,9 @@
+Wed Apr 14 17:56:18 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	http://www.webreference.com/dhtml/column18/menuFrLoad.html
+	How to cause "onLoad=" to cause a sibling frame to refresh without
+	having to use the nonportable HTTP "Window-Target:" directive.  Began
+	implementation of this; it should allow portable NS/IE compatibility.
+
 Wed Apr  7 21:51:33 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented "access level required to create rooms"
 
