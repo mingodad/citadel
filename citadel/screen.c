@@ -69,9 +69,9 @@ void status_line(const char *humannode, const char *bbs_city,
 			sln_printf("%s on ", room_name);
 		if (humannode)
 			sln_printf("%s ", humannode);
-		if (newmailcount > -1) {
+		if (newmailcount > 0) {
 			waddch(statuswindow, ACS_VLINE);
-			sln_printf(" Mail: %d new ", newmailcount);
+			sln_printf(" %d new mail ", newmailcount);
 		}
 		sln_printf("\n");
 	}
@@ -279,7 +279,7 @@ int sln_printf_if(char *fmt, ...)
 
 int scr_getc(int delay)
 {
-  char buf;
+  unsigned char buf;
 
 #ifdef HAVE_CURSES_H
 	if (mainwindow) {
@@ -288,8 +288,8 @@ int scr_getc(int delay)
 	}
 #endif
 
-  buf = '\0';
-  read (0, &buf, 1);
+	buf = '\0';
+	read (0, &buf, 1);
 	return buf;
 }
 

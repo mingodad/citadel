@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.16  2002/10/02 04:07:27  error
+ * status_line() now shows "new mail" only when there is new mail
+
  Revision 601.15  2002/10/01 04:00:13  ajc
  * html.c: speed improvement in html-to-ascii converter
  * messages.c: MASSIVE speed improvement in message output
@@ -4040,4 +4043,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
