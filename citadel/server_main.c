@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 			freopen(tracefile, "r", stdin);
 			freopen(tracefile, "w", stdout);
 			freopen(tracefile, "w", stderr);
+			chmod(tracefile, 0600);
 		}
 
 		/* run in the background if -d was specified */
