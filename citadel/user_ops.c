@@ -244,7 +244,6 @@ void session_startup(void) {
 	}
 
 
-
 /* 
  * misc things to be taken care of when a user is logged out
  */
@@ -585,6 +584,9 @@ void cmd_slrp(char *new_ptr)
 
 	if (!strncasecmp(new_ptr,"highest",7)) {
 		newlr = CC->quickroom.QRhighest;
+/* FIX ... if the current room is 1 (Mail), newlr needs to be set to the
+ * number of the highest mail message
+ */
 		}
 	else {
 		newlr = atol(new_ptr);
@@ -1001,12 +1003,7 @@ void cmd_chek(void) {
 	int mail = 0;
 	int regis = 0;
 	int vali = 0;
-	int a;
-	struct cdbdata *cdbmb;
-	long *mailbox;
-	int num_mails;
 	
-
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
@@ -1022,17 +1019,7 @@ void cmd_chek(void) {
 
 
 	/* check for mail */
-	mail = 0;
-	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
-	if (cdbmb != NULL) {
-		num_mails = cdbmb->len / sizeof(long);
-		mailbox = (long *) cdbmb->ptr;
-		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
-			if (mailbox[a] > (CC->usersupp.lastseen[1])) ++mail;
-			}
-		cdb_free(cdbmb);
-		}
-
+	mail = NewMailCount();
 
 	cprintf("%d %d|%d|%d\n",OK,mail,regis,vali);
 	}
@@ -1205,4 +1192,28 @@ void cmd_asup(char *cmdbuf) {
 			}
 		}
 	cprintf("%d Ok\n", OK);
+	}
+
+
+/*
+ * Count the number of new mail messages the user has
+ */
+int NewMailCount() {
+	int num_newmsgs = 0;
+	struct cdbdata *cdbmb;
+	int num_mails;
+	long *mailbox;
+	int a;
+
+	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
+	if (cdbmb != NULL) {
+		num_mails = cdbmb->len / sizeof(long);
+		mailbox = (long *) cdbmb->ptr;
+		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
+			if (mailbox[a] > (CC->usersupp.lastseen[1]))
+				++num_newmsgs;
+			}
+		cdb_free(cdbmb);
+		}
+	return(num_newmsgs);
 	}

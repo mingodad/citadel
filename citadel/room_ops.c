@@ -50,10 +50,19 @@ int is_known(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
  */
 int has_newmsgs(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
 {
-	if (roombuf->QRhighest > (userbuf->lastseen[roomnum]) )
-		return(1);
-	else return(0);
+	if (roomnum == 1) {
+		return ( (NewMailCount() > 0) ? 1 : 0 );
+		}
+	else {
+		if (roombuf->QRhighest > (userbuf->lastseen[roomnum]) ) {
+			return(1);
+			}
+		else {
+			return(0);
+			}
+		}
 	}
+
 
 /*
  * is_zapped()  -  returns nonzero if room is on forgotten rooms list
@@ -495,9 +504,6 @@ void usergoto(int where, int display_result)
 	int rmailflag;
 	int raideflag;
 	int newmailcount = 0;
-	struct cdbdata *cdbmb;
-	int num_mails;
-	long *mailbox;
 
 	CC->curr_rm=where;
 	getroom(&CC->quickroom,CC->curr_rm);
@@ -507,18 +513,7 @@ void usergoto(int where, int display_result)
 	lputuser(&CC->usersupp,CC->curr_user);
 
 	/* check for new mail */
-	newmailcount = 0;
-
-	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
-	if (cdbmb != NULL) {
-		num_mails = cdbmb->len / sizeof(long);
-		mailbox = (long *) cdbmb->ptr;
-		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
-			if (mailbox[a] > (CC->usersupp.lastseen[1]))
-				++newmailcount;
-			}
-		cdb_free(cdbmb);
-		}
+	newmailcount = NewMailCount();
 
 	/* set info to 1 if the user needs to read the room's info file */
 	if (CC->quickroom.QRinfo > CC->usersupp.lastseen[CC->curr_rm]) info = 1;

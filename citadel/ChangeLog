@@ -1,3 +1,6 @@
+Thu Sep 17 22:55:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Various changes to allow "new messages" to work correctly with Mail
+
 Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* server.h, dynloader.c, citserver.c, user_ops.c: reduced the number
 	  of hook types by inventing an EventType field to the Session hook.

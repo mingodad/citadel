@@ -33,3 +33,4 @@ void cmd_rbio (char *cmdbuf);
 void cmd_lbio (void);
 void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
+int NewMailCount(void);
