@@ -2115,8 +2115,8 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	if (boxes_per_column < 1) boxes_per_column = 1;
 
 	/* Outer table (for columnization) */
-	wprintf("<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
-		"<tr><td valign=top width=33%%>");
+	wprintf("<TABLE BORDER=0 WIDTH=96%% CELLPADDING=5>"
+		"<tr><td valign=top>");
 
 	levels = 0;
 	oldlevels = 0;
@@ -2133,7 +2133,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			if ((num_boxes % boxes_per_column) == 0) {
 				++current_column;
 				if (current_column < columns) {
-					wprintf("</td><td valign=top width=33%%>\n");
+					wprintf("</td><td valign=top>\n");
 				}
 			}
 		}
