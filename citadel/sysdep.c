@@ -347,13 +347,12 @@ void client_write(char *buf, int nbytes)
 void cprintf(const char *format, ...) {   
         va_list arg_ptr;   
         char buf[256];   
-        int rc;   
    
         va_start(arg_ptr, format);   
-        rc = vsnprintf(buf, sizeof buf, format, arg_ptr);   
-        va_end(arg_ptr);   
-  
+        if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
+		buf[sizeof buf - 2] = '\n';
 	client_write(buf, strlen(buf)); 
+	va_end(arg_ptr);
 	}   
 
 

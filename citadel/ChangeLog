@@ -1,3 +1,6 @@
+1998-10-16 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* sysdep.c (cprintf): generate a newline on truncated buffer
+
 Thu Oct 15 19:27:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: reimplemented cmd_move()
 	  room_ops.c: wrote AddMessageToRoom() which is used for both entering
