@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "mime_parser.h"
 
 /*
  * String to unset the cookie.
@@ -561,8 +562,9 @@ void extract_action(char *actbuf, char *cmdbuf)
 }
 
 
-void upload_handler(char *name, char *filename, char *encoding,
-		    void *content, char *cbtype, size_t length)
+void upload_handler(char *name, char *filename, char *partnum, char *disp,
+			void *content, char *cbtype, size_t length,
+			char *encoding, void *userdata)
 {
 
 	fprintf(stderr, "UPLOAD HANDLER CALLED\n");
@@ -595,6 +597,7 @@ void session_loop(struct httprequest *req)
 	int BytesRead;
 	char ContentType[512];
 	char *content;
+	char *content_end;
 	struct httprequest *hptr;
 	char browser_host[256];
 	char user_agent[256];
@@ -662,8 +665,9 @@ void session_loop(struct httprequest *req)
 			      "application/x-www-form-urlencoded", 33)) {
 			addurls(content);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
-			mime_parser(content, ContentLength, ContentType,
-				    *upload_handler);
+			content_end = content + ContentLength;
+			mime_parser(content, content_end, *upload_handler,
+					NULL, NULL, NULL, 0);
 		}
 	} else {
 		content = NULL;

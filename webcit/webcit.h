@@ -269,15 +269,6 @@ void embed_room_banner(char *);
 void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
-void mime_parser(char *content,
-                 int ContentLength,
-                 char *ContentType,
-                 void (*CallBack)
-                  (char *cbname,
-                   char *cbfilename,
-                   char *cbencoding,
-                   void *cbcontent,                                                                char *cbtype,                                                                   size_t cblength)
-);
 void fmt_date(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
