@@ -185,7 +185,6 @@ void session_loop() {
 
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
-			fprintf(stderr, "ContentLength is %d\n", ContentLength);
 			}
 
 		} while(strlen(buf)>0);
