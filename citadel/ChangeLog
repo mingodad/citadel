@@ -1,4 +1,8 @@
  $Log$
+ Revision 626.16  2004/11/02 02:47:10  ajc
+ * Easy Install: put the log directly in /tmp instead of in the build
+   directory so it doesn't get deleted on a failed install.
+
  Revision 626.15  2004/10/23 14:33:44  ajc
  * serv_notes.c: finished.  When saving a message in a room whose view
    is set to "notes," look for an X-KOrg-Note-Id: header, and if one is
@@ -6178,3 +6182,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

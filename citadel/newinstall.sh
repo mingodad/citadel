@@ -70,7 +70,9 @@
 SUPPORT=/usr/local/ctdlsupport
 CITADEL=/usr/local/citadel
 WEBCIT=/usr/local/webcit
-BUILD=/tmp/citadel-build.$$
+WORKDIR=/tmp
+BUILD=$WORKDIR/citadel-build.$$
+LOG=$WORKDIR/citadel-install-log.txt
 export SUPPORT CITADEL WEBCIT
 
 MAKEOPTS=""
@@ -110,13 +112,13 @@ WEBCIT_SOURCE=webcit-easyinstall.tar.gz
 
 SETUP="Citadel Easy Install"
 
-LOG=$BUILD/log.txt
 
 ##### BEGIN Functions #####
 
 die () {
 	echo Easy Install is aborting.
 	echo Please report this problem to the Citadel developers.
+	echo Log file: $LOG
 	rm -fr $BUILD
 	exit 1
 }
