@@ -1,8 +1,13 @@
- $Log$
- Revision 1.10  1999/11/15 05:05:13  smw
- Added some checks for connectivity.  The roomview commands were locking
- Daphne if the program wasn't connected.  Now it's not.  All nice and
- stable.
+$Log$
+Revision 1.11  1999/11/15 05:22:11  smw
+On disconnect, changed the SetStatusText() to "" for 1, and 2 to blank
+the 2nd and 3rd status fields.  Also fixed zap again.  Replaced the
+'zapped rooms' floor in the roomtree.cpp.
+
+Revision 1.10  1999/11/15 05:05:13  smw
+Added some checks for connectivity.  The roomview commands were locking
+Daphne if the program wasn't connected.  Now it's not.  All nice and
+stable.
 
 Revision 1.9  1999/11/15 04:19:18  smw
 Killed the refresh timer in who.cpp

@@ -15,8 +15,8 @@ enum {
 	RI_NOTHING,
 	RI_ROOM,
 	RI_CURRUSER,
-	RI_SERVPROPS
-/*	RI_ZAPPED */
+	RI_SERVPROPS,
+	RI_ZAPPED 
 };
 
 
@@ -97,7 +97,7 @@ void RoomTree::LoadRoomList(void) {
 	wxTreeItemId prev;
 	int i, pos, floornum, where;
 	int mailfloor;
-/*	int zapfloor; */
+	int zapfloor; 
 	unsigned int roomflags;
 
 	prev = null_item;
@@ -195,7 +195,7 @@ void RoomTree::LoadRoomList(void) {
 	}
 
 
-/*	// Create a bogus floor for zapped rooms
+	// Create a bogus floor for zapped rooms
 
 	zapfloor = AppendItem(
 		GetRootItem(),
@@ -225,7 +225,7 @@ void RoomTree::LoadRoomList(void) {
                         );
         }
 
-*/
+
 
 	wxTreeItemId sp = AppendItem(
 		GetRootItem(),
@@ -290,10 +290,10 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 		RoomList->LoadRoomList();
 		break;
 
-/*	case RI_ZAPPED:
+	case RI_ZAPPED:
 		RoomList->DeleteAllItems();
 		RoomList->LoadRoomList(); 
-		break; */
+		break; 
 
 
 	case RI_SERVPROPS:
