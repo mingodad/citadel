@@ -448,11 +448,6 @@ int inkey(void)
 			tv.tv_usec = 0;
 
 			time(&now);
-			if (((now - start_time) > SLEEPING)
-			    && (SLEEPING != 0) && (getppid() == 1)) {
-				printf("Sleeping? Call again.\n");
-				logoff(SIGALRM);
-			}
 			select(1, &rfds, NULL, NULL, &tv);
 		} while (!FD_ISSET(0, &rfds));
 

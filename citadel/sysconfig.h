@@ -28,17 +28,8 @@
  */
 #define CHATLOG		"chat.log"
 
-/*
- * SLEEPING refers to the watchdog timer.  If a user sits idle without typing
- * anything for this number of seconds, the session will automatically be
- * logged out.  Set it to zero to disable this feature.
- * Note: the watchdog timer only functions when the parent is 1 (init) - in
- * other words, only if Citadel is the login shell. 
- */
-#define SLEEPING	180
-
 /* 
- * S_KEEPALIVE is also a watchdog timer, except it is used to send "keep
+ * S_KEEPALIVE is a watchdog timer.  It is used to send "keep
  * alive" messages to the server to prevent the server from assuming the
  * client is dead and terminating the session.  30 seconds is the recommended
  * value; I can't think of any good reason to change it.
