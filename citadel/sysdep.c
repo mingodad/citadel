@@ -977,7 +977,7 @@ do_select:	force_purge = 0;
 						strerror(errno));
 				}
 				else {
-					lprintf(CTDL_NOTICE,
+					lprintf(CTDL_DEBUG,
 						"New client socket %d\n",
 						ssock);
 

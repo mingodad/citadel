@@ -236,7 +236,7 @@ void RemoveContext (struct CitContext *con)
 	logout(con);
 
 	unlink(con->temp);
-	lprintf(CTDL_NOTICE, "Session %d: ended.\n", con->cs_pid);
+	lprintf(CTDL_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);

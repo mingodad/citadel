@@ -903,7 +903,7 @@ int network_sync_to(char *target_node) {
 	/* Concise cleanup because we know there's only one node in the sc */
 	free(sc.ignet_push_shares);
 
-	lprintf(CTDL_INFO, "Synchronized %d messages to <%s>\n",
+	lprintf(CTDL_NOTICE, "Synchronized %d messages to <%s>\n",
 		num_spooled, target_node);
 	return(num_spooled);
 }
@@ -1428,7 +1428,10 @@ void receive_spool(int sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	lprintf(CTDL_DEBUG, "%s\n", buf);
+	if (download_len > 0)
+		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>",
+				download_len, remote_nodename);
+	lprintf(CTDL_DEBUG, "%s", buf);
 	snprintf(buf, sizeof buf, "mv %s ./network/spoolin/%s.%ld",
 		tempfilename, remote_nodename, (long) getpid());
 	system(buf);
@@ -1444,7 +1447,7 @@ void transmit_spool(int sock, char *remote_nodename)
 	char buf[SIZ];
 	char pbuf[4096];
 	long plen;
-	long bytes_to_write, thisblock;
+	long bytes_to_write, thisblock, bytes_written;
 	int fd;
 	char sfname[128];
 
@@ -1458,14 +1461,13 @@ void transmit_spool(int sock, char *remote_nodename)
 	snprintf(sfname, sizeof sfname, "./network/spoolout/%s", remote_nodename);
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
-		if (errno == ENOENT) {
-			lprintf(CTDL_INFO, "Nothing to send.\n");
-		} else {
+		if (errno != ENOENT) {
 			lprintf(CTDL_CRIT, "cannot open upload file locally: %s\n",
 				strerror(errno));
 		}
 		return;
 	}
+	bytes_written = 0;
 	while (plen = (long) read(fd, pbuf, IGNET_PACKET_SIZE), plen > 0L) {
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
@@ -1485,7 +1487,8 @@ void transmit_spool(int sock, char *remote_nodename)
 					close(fd);
 					return;
 				}
-				bytes_to_write = bytes_to_write - thisblock;
+				bytes_to_write -= thisblock;
+				bytes_written += thisblock;
 			} else {
 				goto ABORTUPL;
 			}
@@ -1496,6 +1499,8 @@ ABORTUPL:
 	close(fd);
 	if (sock_puts(sock, "UCLS 1") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
+	lprintf(CTDL_NOTICE, "Sent %ld octets to <%s>",
+			bytes_written, remote_nodename);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
 		unlink(sfname);
@@ -1513,7 +1518,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
-	lprintf(CTDL_INFO, "Polling node <%s> at %s:%s\n", node, host, port);
+	lprintf(CTDL_NOTICE, "Connecting to <%s> at %s:%s\n", node, host, port);
 
 	sock = sock_connect(host, port, "tcp");
 	if (sock < 0) {
@@ -1645,10 +1650,10 @@ void network_do_queue(void) {
 	 * Go ahead and run the queue
 	 */
 	if (full_processing) {
-		lprintf(CTDL_INFO, "network: loading outbound queue\n");
+		lprintf(CTDL_DEBUG, "network: loading outbound queue\n");
 		ForEachRoom(network_queue_room, NULL);
 
-		lprintf(CTDL_INFO, "network: running outbound queue\n");
+		lprintf(CTDL_DEBUG, "network: running outbound queue\n");
 		while (rplist != NULL) {
 			network_spoolout_room(rplist->name);
 			ptr = rplist;
@@ -1657,7 +1662,7 @@ void network_do_queue(void) {
 		}
 	}
 
-	lprintf(CTDL_INFO, "network: processing inbound queue\n");
+	lprintf(CTDL_DEBUG, "network: processing inbound queue\n");
 	network_do_spoolin();
 
 	/* Save the network map back to disk */
@@ -1669,7 +1674,7 @@ void network_do_queue(void) {
 
 	network_purge_spoolout();
 
-	lprintf(CTDL_INFO, "network: queue run completed\n");
+	lprintf(CTDL_DEBUG, "network: queue run completed\n");
 
 	if (full_processing) {
 		last_run = time(NULL);
@@ -1692,43 +1697,43 @@ void cmd_netp(char *cmdbuf)
 	char secret[SIZ];
 	char nexthop[SIZ];
 
+	/* Authenticate */
+	extract(node, cmdbuf, 0);
+	extract(pass, cmdbuf, 1);
+
 	if (doing_queue) {
-		lprintf(CTDL_DEBUG, "spooling - try again in a few minutes");
+		lprintf(CTDL_WARNING, "Network node <%s> refused - spooling", node);
 		cprintf("%d spooling - try again in a few minutes\n",
 			ERROR + RESOURCE_BUSY);
 		return;
 	}
-
-	/* Authenticate */
-	extract(node, cmdbuf, 0);
-	extract(pass, cmdbuf, 1);
 
 	/* load the IGnet Configuration to check node validity */
 	load_working_ignetcfg();
 	v = is_valid_node(nexthop, secret, node);
 
 	if (v != 0) {
-		lprintf(CTDL_DEBUG, "authentication failed (node)");
+		lprintf(CTDL_WARNING, "Unknown node <%s>", node);
 		cprintf("%d authentication failed\n",
 			ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		lprintf(CTDL_DEBUG, "authentication failed (password)");
+		lprintf(CTDL_WARNING, "Bad password for network node <%s>", node);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		lprintf(CTDL_DEBUG, "already talking to you");
+		lprintf(CTDL_WARNING, "Duplicate session for network node <%s>", node);
 		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
 		return;
 	}
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
-	lprintf(CTDL_DEBUG, "authenticated ok");
+	lprintf(CTDL_NOTICE, "Network node <%s> logged in", CC->net_node);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
 		CC->net_node);
 }

@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.4  2004/08/28 14:21:25  error
+ * Change the logging level of some messages and add a couple of new ones to
+   show when a network node is connecting.
+
  Revision 625.3  2004/08/28 02:42:44  ajc
  * setup.c: when run from the Easy Install script, auto-configure slapd
    and put it into /etc/inittab
@@ -6011,4 +6015,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
