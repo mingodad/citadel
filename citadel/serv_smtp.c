@@ -66,7 +66,7 @@ struct citsmtp {		/* Information about the current session */
 	int number_of_rooms;
 	int delivery_mode;
 	int message_originated_locally;
-	struct recptypes *valid;
+	struct recptypes valid;
 };
 
 enum {				/* Command states for login authentication */
@@ -325,7 +325,7 @@ void smtp_data_clear(void) {
 	SMTP->number_of_recipients = 0;
 	SMTP->delivery_mode = 0;
 	SMTP->message_originated_locally = 0;
-	memset(SMTP->valid, 0, sizeof(struct recptypes));
+	memset(&SMTP->valid, 0, sizeof(struct recptypes));
 }
 
 
@@ -420,29 +420,30 @@ void smtp_rcpt(char *argbuf) {
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
 	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 
+	/* FIXME possible buffer overflow type of issues here. */
 	switch(cvt) {
 		case rfc822_address_locally_validated:
-			SMTP->valid.num_local += 1;
-			strcat
-			return;
-		case rfc822_address_on_citadel_network:
-			cprintf("250 %s is a valid recipient.\r\n", user);
-			CtdlReallocUserData(SYM_SMTP_RECPS,
-				strlen(SMTP_RECPS) + 1024 );
-			if (strlen(SMTP_RECPS) > 0) {
-				strcat(SMTP_RECPS, "|");
+			cprintf("250 %s is a valid local user.\r\n", user);
+			if (SMTP->valid.num_local > 0) {
+				strcat(SMTP->valid.recp_local, "|");
 			}
-			strcat(SMTP_RECPS, user);
+			strcat(SMTP->valid.recp_local, user);
+			SMTP->valid.num_local += 1;
 			return;
 
 		case rfc822_room_delivery:
 			cprintf("250 Delivering to room '%s'\r\n", user);
-			CtdlReallocUserData(SYM_SMTP_ROOMS,
-				strlen(SMTP_ROOMS) + 1024 );
-			if (strlen(SMTP_ROOMS) > 0) {
-				strcat(SMTP_ROOMS, "|");
+			cprintf("250 %s is a valid recipient.\r\n", user);
+			if (SMTP->valid.num_room > 0) {
+				strcat(SMTP->valid.recp_room, "|");
 			}
-			strcat(SMTP_RECPS, user);
+			strcat(SMTP->valid.recp_room, user);
+			SMTP->valid.num_room += 1;
+			return;
+
+		case rfc822_address_on_citadel_network:
+			cprintf("250 Delivering to room '%s'\r\n", user);
+			/* FIXME */
 			return;
 
 		case rfc822_no_such_user:
@@ -455,12 +456,8 @@ void smtp_rcpt(char *argbuf) {
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
-				CtdlReallocUserData(SYM_SMTP_RECPS,
-					strlen(SMTP_RECPS) + 1024 );
-				if (strlen(SMTP_RECPS) > 0) {
-					strcat(SMTP_RECPS, "|");
-				}
-				strcat(SMTP_RECPS, user);
+
+
 				return;
 			}
 			return;
@@ -471,110 +468,6 @@ void smtp_rcpt(char *argbuf) {
 
 
 
-/*
- * Back end for smtp_data()  ... this does the actual delivery of the message
- * Returns 0 on success, nonzero on failure
- */
-int smtp_message_delivery(struct CtdlMessage *msg) {
-	char user[1024];
-	char node[1024];
-	char name[1024];
-	char buf[1024];
-	char dtype[1024];
-	char room[1024];
-	int successful_saves = 0;	/* number of successful local saves */
-	int failed_saves = 0;		/* number of failed deliveries */
-	int remote_spools = 0;		/* number of copies to send out */
-	long msgid = (-1L);
-	int i;
-	struct usersupp userbuf;
-	char *instr;			/* Remote delivery instructions */
-	struct CtdlMessage *imsg;
-
-	lprintf(9, "smtp_message_delivery() called\n");
-
-	/* Fill in 'from' fields with envelope information if missing */
-	process_rfc822_addr(SMTP->from, user, node, name);
-	if (msg->cm_fields['A']==NULL) msg->cm_fields['A'] = strdoop(user);
-	if (msg->cm_fields['N']==NULL) msg->cm_fields['N'] = strdoop(node);
-	if (msg->cm_fields['H']==NULL) msg->cm_fields['H'] = strdoop(name);
-	if (msg->cm_fields['O']==NULL) msg->cm_fields['O'] = strdoop(MAILROOM);
-
-	/* Save the message in the queue */
-	msgid = CtdlSubmitMsg(msg,
-		NULL,
-		SMTP_SPOOLOUT_ROOM);
-	++successful_saves;
-
-	valid = validate_recipients(char *recipients) ;
-
-	for (i=0; i<SMTP->number_of_recipients; ++i) {
-		extract_token(buf, SMTP_RECP, i, '\n');
-		extract(dtype, buf, 0);
-
-		/* Stuff local mailboxes */
-		if (!strcasecmp(dtype, "local")) {
-			extract(user, buf, 1);
-			if (getuser(&userbuf, user) == 0) {
-				MailboxName(room, &userbuf, MAILROOM);
-				CtdlSaveMsgPointerInRoom(room, msgid, 0);
-				++successful_saves;
-			}
-			else {
-				++failed_saves;
-			}
-		}
-
-		/* Delivery to local non-mailbox rooms */
-		if (!strcasecmp(dtype, "room")) {
-			extract(room, buf, 1);
-			CtdlSaveMsgPointerInRoom(room, msgid, 0);
-			++successful_saves;
-		}
-
-		/* Delivery over the local Citadel network (IGnet) */
-		if (!strcasecmp(dtype, "ignet")) {
-			extract(user, buf, 1);
-			extract(node, buf, 2);
-			smtp_deliver_ignet(msg, user, node);
-		}
-
-		/* Remote delivery */
-		if (!strcasecmp(dtype, "remote")) {
-			extract(user, buf, 1);
-			instr = reallok(instr, strlen(instr) + 1024);
-			snprintf(&instr[strlen(instr)],
-				strlen(instr) + 1024,
-				"remote|%s|0\n",
-				user);
-			++remote_spools;
-		}
-
-	}
-
-	/* If there are remote spools to be done, save the instructions */
-	if (remote_spools > 0) {
-        	imsg = mallok(sizeof(struct CtdlMessage));
-		memset(imsg, 0, sizeof(struct CtdlMessage));
-		imsg->cm_magic = CTDLMESSAGE_MAGIC;
-		imsg->cm_anon_type = MES_NORMAL;
-		imsg->cm_format_type = FMT_RFC822;
-		imsg->cm_fields['M'] = instr;
-		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
-		CtdlFreeMessage(imsg);
-	}
-
-	/* If there are no remote spools, delete the message */	
-	else {
-		phree(instr);	/* only needed here, because CtdlSubmitMsg()
-				 * would free this buffer otherwise */
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgid, ""); 
-	}
-
-	return(failed_saves);
-}
-
-
 
 /*
  * Implements the DATA command
@@ -582,7 +475,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
-	int retval;
+	long msgnum;
 	char nowstamp[SIZ];
 
 	if (strlen(SMTP->from) == 0) {
@@ -631,14 +524,14 @@ void smtp_data(void) {
 	}
 
 	/* Submit the message into the Citadel system. */
-	retval = smtp_message_delivery(msg);
+	msgnum = CtdlSubmitMsg(msg, &SMTP->valid, "");
 	CtdlFreeMessage(msg);
 
-	if (!retval) {
+	if (msgnum > 0L) {
 		cprintf("250 Message accepted.\r\n");
 	}
 	else {
-		cprintf("550 Internal delivery errors: %d\r\n", retval);
+		cprintf("550 Internal delivery error\r\n");
 	}
 
 	smtp_data_clear();	/* clear out the buffers now */
@@ -1036,7 +929,6 @@ void smtp_do_bounce(char *instr) {
 	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
 	int give_up = 0;
-	int mes_type = 0;
 
 	lprintf(9, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
@@ -1474,7 +1366,6 @@ void cmd_smtp(char *argbuf) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
-	SYM_SMTP_RECP = CtdlGetDynamicSymbol();
 
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* On the net... */
 				NULL,
