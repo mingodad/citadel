@@ -10,6 +10,7 @@ Mon Oct 12 15:27:21 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* rooms.c: fix several exploitable buffer overruns
 	* sysdep.c: fix infinite loop when long lines are received from the
 	  client; fix exploitable buffer overrun in cprintf()
+	* ipc_c_tcp.c: fix infinite loop on long line from server
 	* .cvsignore: add *.ro
 
 Sun Oct 11 23:17:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>

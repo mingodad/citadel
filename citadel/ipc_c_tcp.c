@@ -208,6 +208,7 @@ void serv_gets(char *buf)
 	do {
 		buf[strlen(buf) + 1] = 0;
 		if (strlen(buf) < 255) serv_read(&buf[strlen(buf)], 1);
+		else break;
 		} while (buf[strlen(buf)-1] != 10);
 	if (strlen(buf) > 0) buf[strlen(buf)-1] = 0;
 	/* printf("> %s\n", buf); */
