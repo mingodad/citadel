@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
+#include "sysdep_decls.h"
 #include "domain.h"
 
 #define SMART_HOST	"gatekeeper.wdcs.com"
@@ -20,7 +21,6 @@
 int getmx(char *mxbuf, char *dest) {
 	char answer[1024];
 	int ret;
-	int i;
 
 
 	/* If we're configured to send all mail to a smart-host, then our

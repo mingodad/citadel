@@ -670,18 +670,36 @@ void smtp_command_loop(void) {
 
 
 /*
+ * smtp_try()
+ *
+ * Called by smtp_do_procmsg() to attempt delivery to one SMTP host
+ *
+ */
+void smtp_try(char *key, char *addr, int *status, char *dsn) {
+
+	*status = 3;
+	strcpy(dsn, "smtp_try() is not finished yet");
+}
+
+
+
+/*
  * smtp_do_procmsg()
  *
  * Called by smtp_do_queue() to handle an individual message.
  */
 void smtp_do_procmsg(long msgnum) {
 	struct CtdlMessage *msg;
-	char *instr;
+	char *instr = NULL;
+	char *results = NULL;
 	int i;
 	int lines;
-	char buf[256];
-	char key[256];
-	long msgid = (-1);
+	int status;
+	char buf[1024];
+	char key[1024];
+	char addr[1024];
+	char dsn[1024];
+	long text_msgid = (-1);
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
@@ -689,12 +707,13 @@ void smtp_do_procmsg(long msgnum) {
 		return;
 	}
 
-	instr = msg->cm_fields['M'];
+	instr = strdoop(msg->cm_fields['M']);
+	CtdlFreeMessage(msg);
 
 	/* Strip out the headers amd any other non-instruction line */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, '\n');
+		extract_token(buf, instr, i, '\n');
 		if (num_tokens(buf, '|') < 2) {
 			lprintf(9, "removing <%s>\n", buf);
 			remove_token(instr, i, '|');
@@ -706,19 +725,68 @@ void smtp_do_procmsg(long msgnum) {
 	/* Learn the message ID */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, '\n');
+		extract_token(buf, instr, i, '\n');
 		extract(key, buf, 0);
 		if (!strcasecmp(key, "msgid")) {
-			msgid = extract_long(buf, 1);
+			text_msgid = extract_long(buf, 1);
 		}
 	}
 
+	if (text_msgid < 0L) {
+		lprintf(3, "SMTP: no 'msgid' directive found!\n", msgnum);
+		phree(instr);
+		return;
+	}
 
-/****** FIX    this is nowhere near done   *******/
+	/* Plow through the instructions looking for 'remote' directives and
+	 * a status of 0 (no delivery yet attempted) or 3 (transient errors
+	 * were experienced and it's time to try again)
+	 */
+	lines = num_tokens(instr, '\n');
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, i, '\n');
+		extract(key, buf, 0);
+		extract(addr, buf, 1);
+		status = extract_int(buf, 2);
+		extract(dsn, buf, 3);
+		if ( (!strcasecmp(key, "remote"))
+		   && ((status==0)||(status==3)) ) {
+			remove_token(instr, i, '\n');
+			--i;
+			--lines;
+			lprintf(9, "SMTP: Trying <%s>\n", addr);
+			smtp_try(key, addr, &status, dsn);
+			if (status != 2) {
+				if (results == NULL) {
+					results = mallok(1024);
+					memset(results, 0, 1024);
+				}
+				else {
+					results = reallok(results,
+						strlen(results) + 1024);
+				}
+				sprintf(&results[strlen(results)],
+					"%s|%s|%d|%s\n",
+					key, addr, status, dsn);
+			}
+		}
+	}
 
+	if (results != NULL) {
+		instr = reallok(instr, strlen(instr) + strlen(results) + 2);
+		strcat(instr, results);
+		phree(results);
+	}
 
-
-
+	/* Delete the instructions and replace with the updated ones */
+	CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
+        msg = mallok(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = FMT_RFC822;
+	msg->cm_fields['M'] = instr;
+	CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
 	CtdlFreeMessage(msg);
 }
 

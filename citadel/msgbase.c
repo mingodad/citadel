@@ -1529,6 +1529,8 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	struct SuppMsgInfo smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
+	struct CtdlMessage *imsg;
+	char *instr;
 
 	lprintf(9, "CtdlSaveMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -1678,10 +1680,25 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
-	/* FIX  ...  nothing's going to get delivered until we add
-	   some delivery instructions!!! */
 	if (mailtype == MES_INTERNET) {
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
+
+		/* And generate delivery instructions */
+		lprintf(9, "Generating delivery instructions\n");
+		instr = mallok(2048);
+		sprintf(instr,
+			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"remote|%s|0||\n",
+			SPOOLMIME, newmsgid, time(NULL), recipient );
+
+        	imsg = mallok(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['M'] = instr;
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlFreeMessage(imsg);
 	}
 
 	/* Bump this user's messages posted counter. */
