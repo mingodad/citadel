@@ -5,7 +5,7 @@
  INTRODUCTION
  ------------
 
- This is an attempt to document the session layer protocol used by the
+ This is an attempt to document the application layer protocol used by the
 Citadel system, beginning with version 4.00, which is the first version
 to implement a client/server paradigm.  It is intended as a resource for
 programmers who intend to develop their own Citadel clients, but it may have
@@ -30,7 +30,7 @@ what you did, so that your new commands can be added to this document.
  CONNECTING TO A SERVER
  ----------------------
 
- The protocols used below the session layer are beyond the scope of this
+ The protocols used below the application layer are beyond the scope of this
 document, but we will briefly cover the methodology employed by Citadel.
 
  Citadel offers Citadel BBS service using TCP/IP.  It does so via a
@@ -38,7 +38,7 @@ multithreaded server listening on a TCP port.  Local connections may also
 be made using the same protocol using Unix domain sockets.
 
  The port number officially assigned to Citadel by the IANA is 504/tcp.  Since
-our session layer assumes a clean, reliable, sequenced connection, the use
+our application layer assumes a clean, reliable, sequenced connection, the use
 of UDP would render the server unstable and unusable, so we stick with TCP.
 
 
@@ -49,7 +49,7 @@ of UDP would render the server unstable and unusable, so we stick with TCP.
 connection to a server process, and when a command is sent, the client must
 read the response, and then transfer data or change modes if necessary.
 
- The session layer is very much like other Internet protocols such as SMTP
+ The application layer is very much like other Internet protocols such as SMTP
 or NNTP.  A client program sends one-line commands to the server, and the
 server responds with a three-digit numeric result code followed by a message
 describing what happened.  This cycle continues until the end of the
