@@ -816,9 +816,11 @@ case 7:
 	set_int_val(curr, &config.c_bbsuid);
 	break;
 
+/*
 case 8:
 	set_int_val(curr, &config.c_pwcrypt);
 	break;
+*/
 
 case 9:
 	set_char_val(curr, &config.c_creataide);

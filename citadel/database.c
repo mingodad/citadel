@@ -115,7 +115,6 @@ void open_databases() {
 		dtkey[a].dptr = NULL;
 		}
 
-
 	}
 
 
