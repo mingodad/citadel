@@ -4,3 +4,7 @@ struct namelist {
 	char name[256];
 };
 
+struct SpoolControl {
+	long lastsent;
+	struct namelist *listrecps;
+};

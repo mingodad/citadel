@@ -102,6 +102,37 @@ void cmd_snet(char *argbuf) {
 
 
 
+/*
+ * Spools out one message from the list.
+ */
+void network_spool_msg(long msgnum, void *userdata) {
+	struct SpoolControl *sc;
+	struct namelist *nptr;
+	int err;
+
+	sc = (struct SpoolControl *)userdata;
+
+	/* If no recipients, bail out now.
+	 * (May need to tweak this when we add other types of targets)
+	 */
+	if (sc->listrecps == NULL) return;
+	
+	/* First, copy it to the spoolout room */
+	err = CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, msgnum, 0);
+	if (err != 0) return;
+
+	/* FIXME generate delivery instructions for each recipient */
+	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+	}
+
+	/* FIXME save delivery instructions in spoolout room */
+
+	/* FIXME update lastseen */
+
+}
+
+
+
 
 /*
  * Batch up and send all outbound traffic from the current room
@@ -111,11 +142,11 @@ void network_spoolout_current_room(void) {
 	char buf[256];
 	char instr[256];
 	FILE *fp;
-	long lastsent = 0L;
-	struct namelist *listrecps = NULL;
+	struct SpoolControl sc;
 	/* struct namelist *digestrecps = NULL; */
 	struct namelist *nptr;
 
+	memset(&sc, 0, sizeof(struct SpoolControl));
 	assoc_file_name(filename, &CC->quickroom, "netconfigs");
 
 	fp = fopen(filename, "r");
@@ -133,14 +164,14 @@ void network_spoolout_current_room(void) {
 
 		extract(instr, buf, 0);
 		if (!strcasecmp(instr, "lastsent")) {
-			lastsent = extract_long(buf, 1);
+			sc.lastsent = extract_long(buf, 1);
 		}
 		else if (!strcasecmp(instr, "listrecp")) {
 			nptr = (struct namelist *)
 				mallok(sizeof(struct namelist));
-			nptr->next = listrecps;
+			nptr->next = sc.listrecps;
 			extract(nptr->name, buf, 1);
-			listrecps = nptr;
+			sc.listrecps = nptr;
 		}
 
 
@@ -148,31 +179,28 @@ void network_spoolout_current_room(void) {
 	fclose(fp);
 
 
+
 	/* Do something useful */
-
-
-
-
+	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL, network_spool_msg, &sc);
 
 
 
 	/* Now rewrite the config file */
 	fp = fopen(filename, "w");
 	if (fp == NULL) {
-		lprintf(1, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
+		lprintf(1, "ERROR: cannot open %s: %s\n", filename, strerror(errno));
 	}
 	else {
-		fprintf(fp, "lastsent|%ld\n", lastsent);
+		fprintf(fp, "lastsent|%ld\n", sc.lastsent);
 
 		/* Write out the listrecps while freeing from memory at the
 		 * same time.  Am I clever or what?  :)
 		 */
-		while (listrecps != NULL) {
-			fprintf(fp, "listrecp|%s\n", listrecps->name);
-			nptr = listrecps->next;
-			phree(listrecps);
-			listrecps = nptr;
+		while (sc.listrecps != NULL) {
+			fprintf(fp, "listrecp|%s\n", sc.listrecps->name);
+			nptr = sc.listrecps->next;
+			phree(sc.listrecps);
+			sc.listrecps = nptr;
 		}
 
 		fclose(fp);
