@@ -368,6 +368,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	int processed = 0;
 	char buf[256];
 	char *user, *node, *name;
+	time_t parsed_date;
 
 	rfc822 = msg->cm_fields['M'];	/* M field contains rfc822 text */
 	for (i = end; i >= beg; --i) {
@@ -387,7 +388,10 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	/* Here's the big rfc822-to-citadel loop. */
 
 	if (!strcasecmp(key, "Date")) {
-		sprintf(buf, "%ld", parsedate(value) );
+		parsed_date = parsedate(value);
+		lprintf(9, "Parsed date is %s",
+			asctime(localtime(&parsed_date)));
+		sprintf(buf, "%ld", parsed_date );
 		if (msg->cm_fields['T'] == NULL)
 			msg->cm_fields['T'] = strdoop(buf);
 		processed = 1;
@@ -474,12 +478,11 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		/* At this point we have a field.  Are we interested in it? */
 		converted = convert_field(msg, beg, end);
 
-		/******
+		/* Strip the field out of the RFC822 header if we used it */
 		if (converted) {
 			strcpy(&rfc822[beg], &rfc822[pos]);
 			pos = beg;
 		}
-		********/
 
 		/* If we've hit the end of the message, bail out */
 		if (pos > strlen(rfc822)) done = 1;
