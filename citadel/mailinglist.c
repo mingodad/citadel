@@ -42,109 +42,118 @@ int RUN_NETPROC = 1;
  * Consult the mailinglists table to find out where we should send the
  * mailing list postings to.
  */
-void xref(char *room, char *listaddr)		/* xref table */
-             
-                 {
-	FILE *fp;
-	int a;
-	char buf[128];
-	
-	strcpy(listaddr, "");
-	fp=fopen(TABLEFILE, "r");
-	while (fgets(buf,128,fp)!=NULL) {
-		buf[strlen(buf)-1]=0;
-		for (a=0; a<strlen(buf); ++a) {
-			if ( (buf[a]==',') && (!strcasecmp(&buf[a+1],room)) ) {
-				strcpy(listaddr,buf);
-				listaddr[a] = 0;
-				}
-			}
-		}
-	fclose(fp);
-	return;
+void xref(char *room, char *listaddr)
+{				/* xref table */
+    FILE *fp;
+    int a;
+    char buf[128];
+
+    strcpy(listaddr, "");
+    fp = fopen(TABLEFILE, "r");
+    while (fgets(buf, 128, fp) != NULL) {
+	buf[strlen(buf) - 1] = 0;
+	for (a = 0; a < strlen(buf); ++a) {
+	    if ((buf[a] == ',') && (!strcasecmp(&buf[a + 1], room))) {
+		strcpy(listaddr, buf);
+		listaddr[a] = 0;
+	    }
 	}
+    }
+    fclose(fp);
+    return;
+}
 
 
 /*
  * The main loop.  We don't need any command-line parameters to this program.
  */
-int main(void) {
+int main(void)
+{
 
-	char header[3];
-	char fields[32][1024];
-	int num_fields;
-	int ch, p, a;
-	int in_header;
-	int is_good;
-	char listaddr[512];
-	char mailcmd[256];
-	FILE *nm;
-	char tempfile[64];
+    char header[3];
+    char fields[32][1024];
+    int num_fields;
+    int ch, p, a, i;
+    int in_header;
+    int is_good;
+    char listaddr[512];
+    char mailcmd[256];
+    FILE *nm;
+    char tempfile[64];
 
-	get_config();
-	LoadInternetConfig();
-	sprintf(tempfile, tmpnam(NULL));
+    get_config();
+    LoadInternetConfig();
+    sprintf(tempfile, tmpnam(NULL));
 
-	while(1) {
+    while (1) {
 
-		/* seek to the next message */
-		is_good = 0;
+	/* seek to the next message */
+	is_good = 0;
+	do {
+	    if (feof(stdin)) {
+		unlink(tempfile);
+		exit(0);
+	    }
+	} while (getc(stdin) != 255);
+
+	header[0] = 255;
+	header[1] = getc(stdin);
+	header[2] = getc(stdin);
+	in_header = 1;
+	num_fields = 0;
+
+	do {
+	    fields[num_fields][0] = getc(stdin);
+	    if (fields[num_fields][0] != 'M') {
+		p = 1;
 		do {
-			if (feof(stdin)) {
-				unlink(tempfile);
-				exit(0);
-				}
-			} while (getc(stdin) != 255);
+		    ch = getc(stdin);
+		    fields[num_fields][p++] = ch;
+		} while ((ch != 0) && (!feof(stdin)));
 
-		header[0] = 255;
-		header[1] = getc(stdin);
-		header[2] = getc(stdin);
-		in_header = 1;
-		num_fields = 0;
+		/**********************************************************/
+		/* Only send messages which originated on the Citadel net */
+		/* (In other words, from node names with no dots in them) */
 
-		do {
-			fields[num_fields][0] = getc(stdin);
-			if (fields[num_fields][0] != 'M') {
-				p = 1;
-				do {
-					ch = getc(stdin);
-					fields[num_fields][p++] = ch;
-					} while ((ch!=0) && (!feof(stdin)));
-				if (fields[num_fields][0] == 'N') {
-					if (!strcmp(&fields[num_fields][1],
-						NODENAME)) {
-							is_good = 1;
-							}
-					}
-				if (fields[num_fields][0] == 'O') {
-					xref(&fields[num_fields][1], listaddr);
-					}
-				if (fields[num_fields][0]!='R') ++num_fields;
-				}
-			else {
-				/* flush the message out to the next program */
-
-				nm =  fopen(tempfile, "wb");
-				fprintf(nm, "%c%c%c",
-					header[0], header[1], header[2]);
-				for (a=0; a<num_fields; ++a) {
-					fprintf(nm, "%s%c", &fields[a][0], 0);
-					}
-				fprintf(nm, "R%s%c", listaddr, 0);
-			
-				putc('M', nm);
-				do {
-					ch = getc(stdin);
-					putc(ch, nm);
-					} while ((ch!=0) && (!feof(stdin)));
-				in_header = 0;
-				fclose(nm);
-				if (is_good) {
-					sprintf(mailcmd, "exec netmailer %s mlist", tempfile);
-					system(mailcmd);
-					is_good = 0;
-					}
-				}
-			} while (in_header);
+		if (fields[num_fields][0] == 'N') {
+		    is_good = 1;
+		    for (i = 1; i < strlen(&fields[num_fields][1]); ++i) {
+			if (fields[num_fields][i] == '.') {
+			    is_good = 0;
+			}
+		    }
 		}
-	}
+		/**********************************************************/
+
+		if (fields[num_fields][0] == 'O') {
+		    xref(&fields[num_fields][1], listaddr);
+		}
+		if (fields[num_fields][0] != 'R')
+		    ++num_fields;
+	    } else {
+		/* flush the message out to the next program */
+
+		nm = fopen(tempfile, "wb");
+		fprintf(nm, "%c%c%c",
+			header[0], header[1], header[2]);
+		for (a = 0; a < num_fields; ++a) {
+		    fprintf(nm, "%s%c", &fields[a][0], 0);
+		}
+		fprintf(nm, "R%s%c", listaddr, 0);
+
+		putc('M', nm);
+		do {
+		    ch = getc(stdin);
+		    putc(ch, nm);
+		} while ((ch != 0) && (!feof(stdin)));
+		in_header = 0;
+		fclose(nm);
+		if (is_good) {
+		    sprintf(mailcmd, "exec netmailer %s mlist", tempfile);
+		    system(mailcmd);
+		    is_good = 0;
+		}
+	    }
+	} while (in_header);
+    }
+}

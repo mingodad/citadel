@@ -1,4 +1,8 @@
 $Log$
+Revision 1.350  1999/08/21 05:15:34  ajc
+* mailinglist.c, netmailer.c: fixed to allow list submissions from all posters
+  on a Citadel network rather than only on the local system.
+
 Revision 1.349  1999/08/08 00:25:45  ajc
 * Made one more byte available in locate_host() and in all the structs which
   its output gets written to (client can display 24 positions but we were only
@@ -1191,3 +1195,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
