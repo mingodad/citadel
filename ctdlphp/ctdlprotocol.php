@@ -335,4 +335,76 @@ function ctdl_msgs($mode, $count) {
 }
 
 
+// Load a message from the server.
+function ctdl_fetch_message($msgnum) {
+	global $clientsocket;
+
+	serv_puts("MSG4 " . $msgnum);
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) != "1") {
+		return array(FALSE, substr($response, 4), NULL);
+	}
+
+	$fields = array();
+	while (strcmp($buf = serv_gets(), "000")) {
+		if (substr($buf, 0, 4) == "text") {
+			// We're in the text body.  New loop here.
+			$fields["text"] = ctdl_msg4_from_server();
+			return array(TRUE, substr($response, 4), $fields);
+		}
+		else {
+			$fields[substr($buf, 0, 4)] = substr($buf, 5);
+		}
+	}
+
+	// Message terminated prematurely (no text body)
+	return array(FALSE, substr($response, 4), $fields);
+}
+
+// Support function for ctdl_fetch_message().  This handles the text body
+// portion of the message, converting various formats to HTML as
+// appropriate.
+function ctdl_msg4_from_server() {
+
+	$txt = "";
+	$msgformat = "text/plain";
+	$in_body = FALSE;
+
+	$previous_line = "";
+	while (strcmp($buf = serv_gets(), "000")) {
+		if ($in_body == FALSE) {
+			if (strlen($buf) == 0) {
+				$in_body = TRUE;
+			}
+			else {
+				if (!strncasecmp($buf, "content-type: ", 14)) {
+					$msgformat = substr($buf, 14);
+				}
+			}
+		}
+		else {
+			if (!strcasecmp($msgformat, "text/html")) {
+				$txt .= $buf;
+			}
+			else if (!strcasecmp($msgformat, "text/plain")) {
+				$txt .= "<TT>" . htmlspecialchars($buf) . "</TT><BR>\n" ;
+			}
+			else if (!strcasecmp($msgformat, "text/x-citadel-variformat")) {
+				if (substr($previous_line, 0, 1) == " ") {
+					$txt .= "<BR>\n" ;
+				}
+				$txt .= htmlspecialchars($buf);
+			}
+			else {
+				$txt .= htmlspecialchars($buf);
+			}
+			$previous_line = $buf;
+		}
+	}
+
+	return($txt);
+}
+
+
 ?>

@@ -16,6 +16,7 @@
 //
 include "ctdlsession.php";
 include "ctdlprotocol.php";
+include "ctdlelements.php";
 
 function bbs_page_header() {
 

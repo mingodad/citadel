@@ -9,7 +9,7 @@
 	echo "response: " . htmlspecialchars($response) . "<BR>\n" ;
 
         if ($num_msgs > 0) foreach ($msgs as $msgnum) {
-		echo $msgnum . ", " ;
+		display_message($msgnum);
 	}
 
 ?>
