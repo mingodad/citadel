@@ -1,4 +1,8 @@
 $Log$
+Revision 410.16  2003/05/01 03:11:35  ajc
+* When static content is requested, fetch it without trying to connect
+  to Citadel first.
+
 Revision 410.15  2003/04/30 05:00:00  ajc
 * Added the ability to compose messages with file attachments uploaded from
   the browser
@@ -1348,4 +1352,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
