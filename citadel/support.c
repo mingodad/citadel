@@ -112,7 +112,6 @@ void mesg_locate(char *targ, size_t n, const char *searchfor,
 	int a;
 	char buf[SIZ];
 	struct stat test;
-	FILE *ls;
 
 	for (a=0; a<numdirs; ++a) {
 		snprintf(buf, sizeof buf, "%s/%s", dirs[a], searchfor);

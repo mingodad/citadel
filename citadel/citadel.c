@@ -773,6 +773,61 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 
 
 
+/*
+ * Record compare function for SortOnlineUsers()
+ */
+int idlecmp(const void *rec1, const void *rec2) {
+	time_t i1, i2;
+
+	i1 = extract_long(rec1, 5);
+	i2 = extract_long(rec2, 5);
+
+	if (i1 < i2) return(1);
+	if (i1 > i2) return(-1);
+	return(0);
+}
+
+
+/*
+ * Sort the list of online users by idle time.
+ * This function frees the supplied buffer, and returns a new one
+ * to the caller.  The caller is responsible for freeing the returned buffer.
+ */
+char *SortOnlineUsers(char *listing) {
+	int rows;
+	char *sortbuf;
+	char *retbuf;
+	char buf[SIZ];
+	int i;
+
+	rows = num_tokens(listing, '\n');
+	sortbuf = malloc(rows * SIZ);
+	if (sortbuf == NULL) return(listing);
+	retbuf = malloc(rows * SIZ);
+	if (retbuf == NULL) {
+		free(sortbuf);
+		return(listing);
+	}
+
+	/* Copy the list into a fixed-record-size array for sorting */
+	for (i=0; i<rows; ++i) {
+		memset(buf, 0, SIZ);
+		extract_token(buf, listing, i, '\n');
+		memcpy(&sortbuf[i*SIZ], buf, SIZ);
+	}
+
+	/* Do the sort */
+	qsort(sortbuf, rows, SIZ, idlecmp);
+
+	/* Copy back to a \n delimited list */
+	strcpy(retbuf, "");
+	for (i=0; i<rows; ++i) {
+		strcat(retbuf, &sortbuf[i*SIZ]);
+		if (i<(rows-1)) strcat(retbuf, "\n");
+	}
+	return(retbuf);
+}
+
 
 
 /*
@@ -803,6 +858,7 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 		pprintf("--- --- ------------------------- -------------------- ------------------------\n");
 	}
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
+	listing = SortOnlineUsers(listing);
 	if (r / 100 == 1) {
 		while (strlen(listing) > 0) {
 			int isidle = 0;
