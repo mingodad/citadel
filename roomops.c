@@ -2045,7 +2045,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 		levels = num_tokens(fold[i].name, '|');
 
-		if ((levels == 1) && (oldlevels == 2)) {
+		if ((levels == 1) && (oldlevels > 1)) {
 
 			/* End inner box */
 			do_template("endbox");
