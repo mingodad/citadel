@@ -67,16 +67,23 @@ something like this:
  Several command-line options are also available.  Here's the usage for
 the "webserver" program:
   
- webserver [-p http_port] [-s] [-t tracefile] [-c] [remotehost [remoteport]]
+ webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+           [-c] [remotehost [remoteport]]
  
    *or*
  
- webserver [-p http_port] [-s] [-t tracefile] [-c] uds /your/citadel/directory
+ webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+           [-c] uds /your/citadel/directory
  
  Explained: 
   
+  -> ip_addr: the IP address on which you wish your WebCit server to run.
+     You can leave this out, in which case WebCit will listen on all
+     available network interfaces.  Normally this will be the case, but if
+     you are running multiple Citadel systems on one host, it can be useful.
+ 
   -> http_port: the TCP port on which you wish your WebCit server to run.
-     this can be any port number at all; there is no standard.  Naturally,
+     This can be any port number at all; there is no standard.  Naturally,
      you'll want to create a link to this port on your system's regular web
      pages (presumably on an Apache server running on port 80).  Or, if you
      are installing WebCit on a dedicated server, then you might choose to
