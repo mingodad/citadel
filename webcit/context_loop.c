@@ -119,6 +119,7 @@ extern const char *defaultport;
 void *context_loop(int sock) {
 	char (*req)[256];
 	char buf[256], hold[256];
+	char http_method[256];
 	int num_lines = 0;
 	int a;
 	int f;
@@ -153,6 +154,11 @@ void *context_loop(int sock) {
 			}
 		strcpy(&req[num_lines++][0], buf);
 		} while(strlen(buf)>0);
+
+	strcpy(http_method, &req[0][0]);
+	for (a=0; a<strlen(http_method); ++a) {
+		if (isspace(http_method[a])) http_method[a]=0;
+		}
 
 	/*
 	 * See if there's an existing session open with the desired ID
@@ -230,9 +236,6 @@ void *context_loop(int sock) {
 			ContentLength -= a;
 			}
 
-		/* Discard the CRLF following the POST data. Yes, this is
-		 * necessary. No, you don't want to know why. */
-		if (!client_read(sock, buf, 2)) goto end;
 		}	
 
 	/*
@@ -287,16 +290,21 @@ void *context_loop(int sock) {
 	end:
 		unlock_session(TheSession);
 		}
+	free(req);
+
+
+	/* Discard the CRLF following the POST data. Yes, this is
+	 * necessary. No, you don't want to know why. */
+	if (!strcasecmp(http_method, "POST")) {
+		client_read(sock, buf, 2);
+		}
 
         /*
          * Now our HTTP connection is done.  It would be relatively easy
          * to support HTTP/1.1 "persistent" connections by looping back to
          * the top of this function.  For now, we'll just close.
          */
-
-	free(req);
 	printf("   Closing socket %d ... ret=%d\n", sock, close(sock));
-	sleep(15);
 
 	/*
 	 * The thread handling this HTTP connection is now finished.
