@@ -242,6 +242,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		wprintf(" <FONT SIZE=-1><I>"
 			"(you are the organizer)</I></FONT>\n");
 	}
+
+	/*
+	 * Transmit the organizer as a hidden field.   We don't want the user
+	 * to be able to change it, but we do want it fed back to the server,
+	 * especially if this is a new event and there is no organizer already
+	 * in the calendar object.
+	 */
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"organizer\" VALUE=\"");
+	escputs(organizer_string);
+	wprintf("\">");
+
 	wprintf("</TD></TR>\n");
 
 	/* Attendees (do more with this later) */
@@ -328,6 +339,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	int i;
 	int foundit;
 	char form_attendees[SIZ];
+	char organizer_string[SIZ];
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -432,6 +444,22 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			icalcomponent_add_property(vevent,
 				icalproperty_new_uid(buf)
 			);
+		}
+
+		/* Set the organizer, only if one does not already exist *and*
+		 * the form is supplying one
+		 */
+		strcpy(buf, bstr("organizer"));
+		if ( (icalcomponent_get_first_property(vevent,
+		   ICAL_ORGANIZER_PROPERTY) == NULL) 
+		   && (strlen(buf) > 0) ) {
+
+			/* set new organizer */
+			sprintf(organizer_string, "MAILTO:%s", buf);
+			icalcomponent_add_property(vevent,
+                        	icalproperty_new_organizer(organizer_string)
+			);
+
 		}
 
 		/*

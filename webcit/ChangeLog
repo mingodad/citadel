@@ -1,4 +1,7 @@
 $Log$
+Revision 400.60  2002/11/30 21:34:51  ajc
+* Submit organizer in a hidden field, in case the server needs it
+
 Revision 400.59  2002/11/30 04:46:46  ajc
 * First cut at adding/removing attendees to an event
   (Actual invitations should be sent by the Citadel server)
@@ -1154,4 +1157,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
