@@ -161,7 +161,7 @@ void wprintf(const char *format,...)
 	vsprintf(wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	write(WC->http_sock, wbuf, strlen(wbuf));
+	client_write(wbuf, strlen(wbuf));
 }
 
 
@@ -463,7 +463,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 		(long) length,
 		SERVER
 	);
-	write(WC->http_sock, thing, (size_t)length);
+	client_write(thing, (size_t)length);
 }
 
 
@@ -798,7 +798,7 @@ void session_loop(struct httprequest *req)
 	char buf[SIZ];
 	int a, b;
 	int ContentLength = 0;
-	int BytesRead;
+	int BytesRead = 0;
 	char ContentType[512];
 	char *content;
 	char *content_end;
@@ -866,6 +866,7 @@ void session_loop(struct httprequest *req)
 				ContentType, ContentLength);
 		body_start = strlen(content);
 
+/***** old version
 		BytesRead = 0;
 		while (BytesRead < ContentLength) {
 			a=read(WC->http_sock, &content[BytesRead+body_start],
@@ -873,6 +874,10 @@ void session_loop(struct httprequest *req)
 			if (a <= 0) BytesRead = ContentLength;
 			else BytesRead += a;
 		}
+*******/
+
+		/* Now we're daring and read it all at once. */
+		client_read(WC->http_sock, &content[BytesRead+body_start], ContentLength);
 
 		if (!strncasecmp(ContentType,
 			      "application/x-www-form-urlencoded", 33)) {
