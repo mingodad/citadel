@@ -1286,7 +1286,6 @@ int fmout(
 	char old = 0;		/* The previous character */
 	int column = 0;		/* Current column */
 	size_t i;		/* Generic counter */
-	size_t g = 0;
 
 	num_urls = 0;	/* Start with a clean slate of embedded URL's */
 

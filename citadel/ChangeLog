@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.103  2003/01/12 04:48:23  ajc
+ * Display message subjects in magenta instead of white
+
  Revision 601.102  2003/01/06 09:17:10  error
  * Remove non (yet) existent sstring.c dependency from Makefile.in
 
@@ -4352,3 +4355,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

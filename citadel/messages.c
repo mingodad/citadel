@@ -539,8 +539,6 @@ int read_message(CtdlIPC *ipc,
 			 message->author, message->node);
 	}
 
-	if (pagin == 1 && !dest)
-		color(BRIGHT_WHITE);
 	if (!dest) {
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
@@ -554,12 +552,17 @@ int read_message(CtdlIPC *ipc,
 				fprintf(dest, "Subject: %s\n",
 							message->subject);
 			} else {
+				color(BRIGHT_MAGENTA);
 				scr_printf("Subject: %s\n", message->subject);
 				++lines_printed;
 				lines_printed = checkpagin(lines_printed,
 						pagin, screenheight);
 			}
 		}
+	}
+
+	if (pagin == 1 && !dest) {
+		color(BRIGHT_WHITE);
 	}
 
 	/******* end of header output, start of message text output *******/
