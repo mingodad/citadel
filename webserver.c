@@ -413,9 +413,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "hi:p:t:cs")) != EOF)
+	while ((a = getopt(argc, argv, "hi:p:t:x:cs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "hi:p:t:c")) != EOF)
+	while ((a = getopt(argc, argv, "hi:p:t:x:c")) != EOF)
 #endif
 		switch (a) {
 		case 'i':
