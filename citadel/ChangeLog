@@ -1,6 +1,7 @@
 Sun Dec 13 17:40:08 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c, citserver.c: (hopefully) fixed a session table concurrency
 	  bug which was causing the server to occasionally crash.
+	* removed serv_test.so from the default build
 
 Fri Dec 11 18:50:00 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: default value for maxsessions is now 0 (no limit)

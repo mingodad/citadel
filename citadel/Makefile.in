@@ -20,7 +20,7 @@ all: $(TARGETS)
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=modules/serv_chat.so modules/serv_test.so \
+SERV_MODULES=modules/serv_chat.so \
 	modules/serv_upgrade.so modules/serv_expire.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist sendcommand
