@@ -1,7 +1,7 @@
 Begin3
 Title:          Citadel/UX
-Version:        5.50 (development snapshot)
-Entered-date:	Tue Jun  2 11:25:59 EDT 1998
+Version:        5.50alpha1
+Entered-date:	Tue Nov 10 23:35:34 EST 1998
 Description:    An implementation of the Citadel BBS program for Unix systems.
 		This is the de facto standard Unix version of Citadel, and is
                 now an advanced client/server application.
