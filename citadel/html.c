@@ -32,8 +32,12 @@
 
 /*
  * Convert HTML to plain text.
+ *
+ * inputmsg      = pointer to raw HTML message
+ * screenwidth   = desired output screenwidth
+ * do_citaformat = set to 1 to indent newlines with spaces
  */
-char *html_to_ascii(char *inputmsg, int screenwidth) {
+char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	char inbuf[256];
 	char outbuf[256];
 	char tag[1024];
@@ -96,6 +100,10 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 				if (nest > 0) --nest;
 				
 				if (!strcasecmp(tag, "P")) {
+					strcat(outbuf, "\n\n");
+				}
+
+				if (!strcasecmp(tag, "/DIV")) {
 					strcat(outbuf, "\n\n");
 				}
 
@@ -220,9 +228,10 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 			if (strlen(outbuf)>0)
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
-
 					strncat(outptr, outbuf, i+1);
-
+					strcat(outptr, "\n");
+					if (do_citaformat)
+						strcat(outptr, " ");
 					strcpy(outbuf, &outbuf[i+1]);
 					i = 0;
 					did_out = 1;
@@ -237,16 +246,17 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 				if (outbuf[i]==32) rb = i;
 			}
 			if (rb>=0) {
-
 				strncat(outptr, outbuf, rb);
 				strcat(outptr, "\n");
-
+				if (do_citaformat)
+					strcat(outptr, " ");
 				strcpy(outbuf, &outbuf[rb+1]);
 			} else {
 
 				strncat(outptr, outbuf, screenwidth-2);
 				strcat(outptr, "\n");
-
+				if (do_citaformat)
+					strcat(outptr, " ");
 				strcpy(outbuf, &outbuf[screenwidth-2]);
 			}
 		}

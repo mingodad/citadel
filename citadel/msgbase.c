@@ -446,7 +446,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		client_write(content, length);
 	}
 	else if (!strcasecmp(cbtype, "text/html")) {
-		ptr = html_to_ascii(content, 80);	/* FIX */
+		ptr = html_to_ascii(content, 80, 1);
 		client_write(ptr, strlen(ptr));
 		phree(ptr);
 	}

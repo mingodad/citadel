@@ -7,6 +7,8 @@
  * Copyright (c) 1998-1999 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
+ * $Id$
+ *
  */
 
 #include "sysdep.h"
@@ -29,22 +31,25 @@
 
 
 
-void extract_key(char *target, char *source, char *key) {
+void extract_key(char *target, char *source, char *key)
+{
 	int a, b;
 
 	strcpy(target, source);
-	for (a=0; a<strlen(target); ++a) {
+	for (a = 0; a < strlen(target); ++a) {
 		if ((!strncasecmp(&target[a], key, strlen(key)))
-		   && (target[a+strlen(key)]=='=')) {
-			strcpy(target, &target[a+strlen(key)+1]);
-			if (target[0]==34) strcpy(target, &target[1]);
-			for (b=0; b<strlen(target); ++b)
-				if (target[b]==34) target[b]=0;
+		    && (target[a + strlen(key)] == '=')) {
+			strcpy(target, &target[a + strlen(key) + 1]);
+			if (target[0] == 34)
+				strcpy(target, &target[1]);
+			for (b = 0; b < strlen(target); ++b)
+				if (target[b] == 34)
+					target[b] = 0;
 			return;
-			}
 		}
-	strcpy(target, "");
 	}
+	strcpy(target, "");
+}
 
 
 
@@ -52,46 +57,48 @@ void extract_key(char *target, char *source, char *key) {
  * Utility function to "readline" from memory
  * (returns new pointer)
  */
-char *memreadline(char *start, char *buf, int maxlen) {
+char *memreadline(char *start, char *buf, int maxlen)
+{
 	char ch;
 	char *ptr;
 
 	ptr = start;
 	memset(buf, 0, maxlen);
 
-	while(1) {
+	while (1) {
 		ch = *ptr++;
-		if ((ch==10)||(ch==0)) {
-			if (strlen(buf)>0)
-				if (buf[strlen(buf)-1]==13)
-					buf[strlen(buf)-1] = 0;
+		if ((ch == 10) || (ch == 0)) {
+			if (strlen(buf) > 0)
+				if (buf[strlen(buf) - 1] == 13)
+					buf[strlen(buf) - 1] = 0;
 			return ptr;
-			}
-		if (strlen(buf) < (maxlen-1)) {
-			buf[strlen(buf)+1] = 0;
+		}
+		if (strlen(buf) < (maxlen - 1)) {
+			buf[strlen(buf) + 1] = 0;
 			buf[strlen(buf)] = ch;
-			}
 		}
 	}
+}
 
 /*
  * Given a message or message-part body and a length, handle any necessary
  * decoding and pass the request up the stack.
  */
 void mime_decode(char *partnum,
-		char *part_start, size_t length,
-		char *content_type, char *encoding,
-		char *disposition,
-		char *name, char *filename,
-		void (*CallBack)
-			(char *cbname,
-			char *cbfilename,
-			char *cbpartnum,
-			char *cbdisp,
-			void *cbcontent,
-			char *cbtype,
-			size_t cblength)
-		) {
+		 char *part_start, size_t length,
+		 char *content_type, char *encoding,
+		 char *disposition,
+		 char *name, char *filename,
+		 void (*CallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength)
+)
+{
 
 	char *decoded;
 	struct stat statbuf;
@@ -106,23 +113,24 @@ void mime_decode(char *partnum,
 	lprintf(9, "mime_decode() called\n");
 
 	/* Some encodings aren't really encodings */
-	if (!strcasecmp(encoding, "7bit"))	strcpy(encoding, "");
-	if (!strcasecmp(encoding, "8bit"))	strcpy(encoding, "");
-	if (!strcasecmp(encoding, "binary"))	strcpy(encoding, "");
+	if (!strcasecmp(encoding, "7bit"))
+		strcpy(encoding, "");
+	if (!strcasecmp(encoding, "8bit"))
+		strcpy(encoding, "");
+	if (!strcasecmp(encoding, "binary"))
+		strcpy(encoding, "");
 
 	/* If this part is not encoded, send as-is */
-	if (strlen(encoding)==0) {
+	if (strlen(encoding) == 0) {
 		CallBack(name, filename, partnum, disposition, part_start,
-			content_type, length);
+			 content_type, length);
 		return;
-		}
-
-	if ( (strcasecmp(encoding, "base64"))
-	     && (strcasecmp(encoding, "quoted-printable"))  ) {
+	}
+	if ((strcasecmp(encoding, "base64"))
+	    && (strcasecmp(encoding, "quoted-printable"))) {
 		lprintf(5, "ERROR: unknown MIME encoding '%s'\n", encoding);
 		return;
-		}
-
+	}
 	/*
 	 * Allocate a buffer for the decoded data.  The output buffer is the
 	 * same size as the input buffer; this assumes that the decoded data
@@ -134,67 +142,70 @@ void mime_decode(char *partnum,
 	if (decoded == NULL) {
 		lprintf(5, "ERROR: cannot allocate memory.\n");
 		return;
-		}
-	if (pipe(sendpipe) != 0) return;
-	if (pipe(recvpipe) != 0) return;
+	}
+	if (pipe(sendpipe) != 0)
+		return;
+	if (pipe(recvpipe) != 0)
+		return;
 
 	childpid = fork();
 	if (childpid < 0) {
 		phree(decoded);
 		return;
-		}
-
+	}
 	if (childpid == 0) {
 		close(2);
 		/* send stdio to the pipes */
-		if (dup2(sendpipe[0], 0)<0) lprintf(5, "ERROR dup2()\n");
-		if (dup2(recvpipe[1], 1)<0) lprintf(5, "ERROR dup2()\n");
-		close(sendpipe[1]);	 /* Close the ends we're not using */
+		if (dup2(sendpipe[0], 0) < 0)
+			lprintf(5, "ERROR dup2()\n");
+		if (dup2(recvpipe[1], 1) < 0)
+			lprintf(5, "ERROR dup2()\n");
+		close(sendpipe[1]);	/* Close the ends we're not using */
 		close(recvpipe[0]);
 		if (!strcasecmp(encoding, "base64"))
-		   execlp("./base64", "base64", "-d", NULL);
+			execlp("./base64", "base64", "-d", NULL);
 		else if (!strcasecmp(encoding, "quoted-printable"))
-		   execlp("./qpdecode", "qpdecode", NULL);
+			execlp("./qpdecode", "qpdecode", NULL);
 		lprintf(5, "ERROR: cannot exec decoder for %s\n", encoding);
 		exit(1);
-		}
-
-	close(sendpipe[0]);	 /* Close the ends we're not using  */
+	}
+	close(sendpipe[0]);	/* Close the ends we're not using  */
 	close(recvpipe[1]);
 
-	while ( (bytes_sent < length) && (write_error == 0) ) {
+	while ((bytes_sent < length) && (write_error == 0)) {
 		/* Empty the input pipe FIRST */
-		while (fstat(recvpipe[0], &statbuf), (statbuf.st_size > 0) ) {
+		while (fstat(recvpipe[0], &statbuf), (statbuf.st_size > 0)) {
 			blocksize = read(recvpipe[0], &decoded[bytes_recv],
-				statbuf.st_size);
-			if (blocksize < 0) 
+					 statbuf.st_size);
+			if (blocksize < 0)
 				lprintf(5, "ERROR: cannot read from pipe\n");
 			else
 				bytes_recv = bytes_recv + blocksize;
-			}
+		}
 		/* Then put some data into the output pipe */
 		blocksize = length - bytes_sent;
-		if (blocksize > 2048) blocksize = 2048;
-		if (write(sendpipe[1], &part_start[bytes_sent], blocksize) <0) {
+		if (blocksize > 2048)
+			blocksize = 2048;
+		if (write(sendpipe[1], &part_start[bytes_sent], blocksize) < 0) {
 			lprintf(5, "ERROR: cannot write to pipe: %s\n",
 				strerror(errno));
 			write_error = 1;
-			}
-		bytes_sent = bytes_sent + blocksize;
 		}
+		bytes_sent = bytes_sent + blocksize;
+	}
 	close(sendpipe[1]);
 	/* Empty the input pipe */
-	while ( (blocksize = read(recvpipe[0], &decoded[bytes_recv], 1)),
-	      (blocksize > 0) )  {
+	while ((blocksize = read(recvpipe[0], &decoded[bytes_recv], 1)),
+	       (blocksize > 0)) {
 		bytes_recv = bytes_recv + blocksize;
-		}
+	}
 
 	if (bytes_recv > 0)
 		CallBack(name, filename, partnum, disposition, decoded,
-			content_type, bytes_recv);
+			 content_type, bytes_recv);
 
 	phree(decoded);
-	}
+}
 
 /*
  * Break out the components of a multipart message
@@ -203,16 +214,17 @@ void mime_decode(char *partnum,
  * considered to have ended when the parser encounters a 0x00 byte.
  */
 void the_mime_parser(char *partnum,
-		char *content_start, char *content_end,
-		void (*CallBack)
-			(char *cbname,
-			char *cbfilename,
-			char *cbpartnum,
-			char *cbdisp,
-			void *cbcontent,
-			char *cbtype,
-			size_t cblength)
-		) {
+		     char *content_start, char *content_end,
+		     void (*CallBack)
+		      (char *cbname,
+		       char *cbfilename,
+		       char *cbpartnum,
+		       char *cbdisp,
+		       void *cbcontent,
+		       char *cbtype,
+		       size_t cblength)
+)
+{
 
 	char *ptr;
 	char *part_start, *part_end;
@@ -244,45 +256,51 @@ void the_mime_parser(char *partnum,
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		if (*ptr == 0) return; /* premature end of message */
+		if (*ptr == 0)
+			return;	/* premature end of message */
 		if (content_end != NULL)
-			if (ptr >= content_end) return;
+			if (ptr >= content_end)
+				return;
 
-		for (i=0; i<strlen(buf); ++i)
-			if (isspace(buf[i])) buf[i]=' ';
+		for (i = 0; i < strlen(buf); ++i)
+			if (isspace(buf[i]))
+				buf[i] = ' ';
 		if (!isspace(buf[0])) {
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(name, content_type, "name");
-				}
+			}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
 				strcpy(disposition, &header[21]);
 				extract_key(filename, disposition, "filename");
-				}
+			}
 			if (!strncasecmp(header,
-				"Content-transfer-encoding: ", 27))
-					strcpy(encoding, &header[27]);
-			if (strlen(boundary)==0)
+				      "Content-transfer-encoding: ", 27))
+				strcpy(encoding, &header[27]);
+			if (strlen(boundary) == 0)
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
-			}
-		if ((strlen(header)+strlen(buf)+2)<sizeof(header))
+		}
+		if ((strlen(header) + strlen(buf) + 2) < sizeof(header))
 			strcat(header, buf);
-		} while ((strlen(buf) > 0) && (*ptr != 0));
+	} while ((strlen(buf) > 0) && (*ptr != 0));
 
-	for (i=0; i<strlen(disposition); ++i) 
-		if (disposition[i]==';') disposition[i] = 0;
-	while (isspace(disposition[0])) strcpy(disposition, &disposition[1]);
-	for (i=0; i<strlen(content_type); ++i) 
-		if (content_type[i]==';') content_type[i] = 0;
-	while (isspace(content_type[0])) strcpy(content_type, &content_type[1]);
+	for (i = 0; i < strlen(disposition); ++i)
+		if (disposition[i] == ';')
+			disposition[i] = 0;
+	while (isspace(disposition[0]))
+		strcpy(disposition, &disposition[1]);
+	for (i = 0; i < strlen(content_type); ++i)
+		if (content_type[i] == ';')
+			content_type[i] = 0;
+	while (isspace(content_type[0]))
+		strcpy(content_type, &content_type[1]);
 
 	if (strlen(boundary) > 0) {
 		is_multipart = 1;
-		}
-	else {
+	} else {
 		is_multipart = 0;
-		}
+	}
 
 	/* If this is a multipart message, then recursively process it */
 	part_start = NULL;
@@ -292,38 +310,48 @@ void the_mime_parser(char *partnum,
 		do {
 			part_end = ptr;
 			ptr = memreadline(ptr, buf, sizeof buf);
-			if (*ptr == 0) return; /* premature end of message */
+			if (*ptr == 0)
+				return;		/* premature end of message */
 			if (content_end != NULL)
-				if (ptr >= content_end) return;
+				if (ptr >= content_end)
+					return;
 			if ((!strcasecmp(buf, startary))
-			    ||(!strcasecmp(buf, endary))) {
+			    || (!strcasecmp(buf, endary))) {
 				if (part_start != NULL) {
 					sprintf(nested_partnum, "%s.%d",
 						partnum, ++part_seq);
 					the_mime_parser(nested_partnum,
-							part_start, part_end,
+						    part_start, part_end,
 							CallBack);
-					}
-				part_start = ptr;
 				}
-			} while (strcasecmp(buf, endary));
-		}
+				part_start = ptr;
+			}
+		} while (strcasecmp(buf, endary));
+	}
 
 	/* If it's not a multipart message, then do something with it */
 	if (!is_multipart) {
 		part_start = ptr;
 		length = 0;
-		while ((*ptr != 0)&&((content_end==NULL)||(ptr<content_end))) {
+		while ((*ptr != 0)
+		      && ((content_end == NULL) || (ptr < content_end))) {
 			++length;
 			part_end = ptr++;
-			}
-		mime_decode(partnum,
-				part_start, length,
-				content_type, encoding, disposition,
-				name, filename, CallBack);
 		}
-	
+		mime_decode(partnum,
+			    part_start, length,
+			    content_type, encoding, disposition,
+			    name, filename, CallBack);
 	}
+
+	/* Otherwise, merely tell the client about our multipartedness */
+	else {
+		CallBack("", "", partnum, "", NULL, content_type, 0);
+	}
+
+}
+
+
 
 /*
  * Entry point for the MIME parser.
@@ -332,16 +360,17 @@ void the_mime_parser(char *partnum,
  * considered to have ended when the parser encounters a 0x00 byte.
  */
 void mime_parser(char *content_start, char *content_end,
-		void (*CallBack)
-			(char *cbname,
-			char *cbfilename,
-			char *cbpartnum,
-			char *cbdisp,
-			void *cbcontent,
-			char *cbtype,
-			size_t cblength)
-		) {
+		 void (*CallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength)
+)
+{
 
 	lprintf(9, "mime_parser() called\n");
 	the_mime_parser("1", content_start, content_end, CallBack);
-	}
+}

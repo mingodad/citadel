@@ -1,4 +1,7 @@
 $Log$
+Revision 1.354  1999/08/29 21:12:24  ajc
+* Made some changes to the output of MIME (especially multipart) messages.
+
 Revision 1.353  1999/08/29 19:56:43  ajc
 * HTML updates
 
@@ -1204,4 +1207,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
