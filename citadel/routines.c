@@ -139,6 +139,10 @@ void edituser(void)
 		strprompt("Password", pass, 19);
 	}
 	axlevel = intprompt("Access level", axlevel, 0, 6);
+	if (boolprompt("Ask user to register again", !(flags & US_REGIS)))
+		flags &= ~US_REGIS;
+	else
+		flags |= US_REGIS;
 	timescalled = intprompt("Times called", timescalled, 0, INT_MAX);
 	posted = intprompt("Messages posted", posted, 0, INT_MAX);
 	lastcall = (boolprompt("Set last call to now", 0)?time(NULL):lastcall);
