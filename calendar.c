@@ -232,7 +232,7 @@ void cal_process_object(icalcomponent *cal,
 		serv_gets(buf);
 		if (buf[0] == '1') {
 			while (serv_gets(buf), strcmp(buf, "000")) {
-				extract(conflict_name, buf, 3);
+				extract_token(conflict_name, buf, 3, '|', sizeof conflict_name);
 				is_update = extract_int(buf, 4);
 				wprintf("<TR><TD><B><I>%s</I></B></TD>"
 					"<TD>"
@@ -780,10 +780,10 @@ void display_using_handler(long msgnum,
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
-			extract(mime_filename, &buf[5], 1);
-			extract(mime_partnum, &buf[5], 2);
-			extract(mime_disposition, &buf[5], 3);
-			extract(mime_content_type, &buf[5], 4);
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_content_type, "text/calendar")) {
@@ -913,7 +913,7 @@ void do_freebusy(char *req) {
 	char buf[SIZ];
 	char *fb;
 
-	extract_token(who, req, 1, ' ');
+	extract_token(who, req, 1, ' ', sizeof who);
 	if (!strncasecmp(who, "/freebusy/", 10)) {
 		strcpy(who, &who[10]);
 	}

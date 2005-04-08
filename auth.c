@@ -77,7 +77,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 	char buf[SIZ];
 
 	WC->logged_in = 1;
-	extract(WC->wc_username, &serv_response[4], 0);
+	extract_token(WC->wc_username, &serv_response[4], 0, '|', sizeof WC->wc_username);
 	strcpy(WC->wc_password, pass);
 	WC->axlevel = extract_int(&serv_response[4], 1);
 	if (WC->axlevel >= 6) {
@@ -92,7 +92,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 		WC->new_mail = extract_int(&buf[4], 0);
 		WC->need_regi = extract_int(&buf[4], 1);
 		WC->need_vali = extract_int(&buf[4], 2);
-		extract(WC->cs_inet_email, &buf[4], 3);
+		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
 	}
 }
 
@@ -154,10 +154,10 @@ void do_login(void)
 void do_welcome(void)
 {
 	char buf[SIZ];
+#ifdef XXX_NOT_FINISHED_YET_XXX
 	FILE *fp;
 	int i;
 
-#ifdef XXX_NOT_FINISHED_YET_XXX
 	/*
 	 * See if we have to run the first-time setup wizard
 	 */
@@ -193,7 +193,7 @@ void do_welcome(void)
 	/*
 	 * Go to the user's preferred start page
 	 */
-	get_preference("startpage", buf);
+	get_preference("startpage", buf, sizeof buf);
 	if (strlen(buf)==0) {
 		strcpy(buf, "/dotskip&room=_BASEROOM_");
 		set_preference("startpage", buf);

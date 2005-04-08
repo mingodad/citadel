@@ -298,7 +298,7 @@ void context_loop(int sock)
 		 */
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
-				NULL, NULL, NULL);
+				NULL, 0, NULL, 0, NULL, 0);
 			got_cookie = 1;
 		}
 
@@ -307,8 +307,8 @@ void context_loop(int sock)
 		 */
 		if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
 			CtdlDecodeBase64(httpauth_string, &buf[21], strlen(&buf[21]));
-			extract_token(httpauth_user, httpauth_string, 0, ':');
-			extract_token(httpauth_pass, httpauth_string, 1, ':');
+			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
+			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
 		}
 
 		/*

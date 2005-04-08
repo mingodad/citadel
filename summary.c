@@ -85,12 +85,12 @@ void new_messages_section(void) {
 
 	wprintf("<TABLE BORDER=0 WIDTH=100%%>\n");
 	for (i=0; i<number_of_rooms_to_check; ++i) {
-		extract(room, rooms_to_check, i);
+		extract_token(room, rooms_to_check, i, '|', sizeof room);
 
 		serv_printf("GOTO %s", room);
 		serv_gets(buf);
 		if (buf[0] == '2') {
-			extract(room, &buf[4], 0);
+			extract_token(room, &buf[4], 0, '|', sizeof room);
 			wprintf("<TR><TD><A HREF=\"/dotgoto?room=");
 			urlescputs(room);
 			wprintf("\">");
@@ -119,7 +119,7 @@ void wholist_section(void) {
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
-		extract(user, buf, 1);
+		extract_token(user, buf, 1, '|', sizeof user);
 		escputs(user);
 		wprintf("<br />\n");
 	}

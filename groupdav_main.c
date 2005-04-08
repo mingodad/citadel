@@ -150,8 +150,8 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	extract_token(dav_method, req->line, 0, ' ');
-	extract_token(dav_pathname, req->line, 1, ' ');
+	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
+	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
 	unescape_input(dav_pathname);
 
 	/*

@@ -73,30 +73,36 @@ int num_tokens(char *source, char tok)
 }
 
 /*
- * extract_token()  -  a smarter string tokenizer
+ * extract_token() - a string tokenizer
  */
-void extract_token(char *dest, char *source, int parmnum, char separator)
+void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	int i;
-	int len;
-	int curr_parm;
+	char *d;		/* dest */
+	const char *s;		/* source */
+	int count = 0;
+	int len = 0;
 
 	strcpy(dest, "");
-	len = 0;
-	curr_parm = 0;
 
-	if (strlen(source) == 0) {
-		return;
-	}
-
-	for (i = 0; i < strlen(source); ++i) {
-		if (source[i] == separator) {
-			++curr_parm;
-		} else if (curr_parm == parmnum) {
-			dest[len + 1] = 0;
-			dest[len++] = source[i];
+	/* Locate desired parameter */
+	s = source;
+	while (count < parmnum) {
+		/* End of string, bail! */
+		if (!*s) {
+			s = NULL;
+			break;
 		}
+		if (*s == separator) {
+			count++;
+		}
+		s++;
 	}
+	if (!s) return;		/* Parameter not found */
+
+	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
+		*d = *s;
+	}
+	*d = 0;
 }
 
 
@@ -146,33 +152,24 @@ void remove_token(char *source, int parmnum, char separator)
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(char *source, int parmnum)
+int extract_int(const char *source, int parmnum)
 {
-	char buf[SIZ];
-
-	extract_token(buf, source, parmnum, '|');
-	return (atoi(buf));
+	char buf[32];
+	
+	extract_token(buf, source, parmnum, '|', sizeof buf);
+	return(atoi(buf));
 }
 
 /*
  * extract_long()  -  extract an long parm w/o supplying a buffer
  */
-long extract_long(char *source, long int parmnum)
+long extract_long(const char *source, int parmnum)
 {
-	char buf[SIZ];
-
-	extract_token(buf, source, parmnum, '|');
-	return (atol(buf));
+	char buf[32];
+	
+	extract_token(buf, source, parmnum, '|', sizeof buf);
+	return(atol(buf));
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -326,8 +323,7 @@ void striplt(char *buf)
  * Determine whether the specified message number is contained within the
  * specified set.
  */
-int is_msg_in_mset(char *mset, long msgnum)
-{
+int is_msg_in_mset(char *mset, long msgnum) {
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
@@ -337,28 +333,28 @@ int is_msg_in_mset(char *mset, long msgnum)
 	 * Now set it for all specified messages.
 	 */
 	num_sets = num_tokens(mset, ',');
-	for (s = 0; s < num_sets; ++s) {
-		extract_token(setstr, mset, s, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, mset, s, ',', sizeof setstr);
 
-		extract_token(lostr, setstr, 0, ':');
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
 		if (num_tokens(setstr, ':') >= 2) {
-			extract_token(histr, setstr, 1, ':');
+			extract_token(histr, setstr, 1, ':', sizeof histr);
 			if (!strcmp(histr, "*")) {
-				snprintf(histr, sizeof histr, "%ld",
-					 LONG_MAX);
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 			}
-		} else {
+		} 
+		else {
 			strcpy(histr, lostr);
 		}
 		lo = atol(lostr);
 		hi = atol(histr);
 
-		if ((msgnum >= lo) && (msgnum <= hi))
-			return (1);
+		if ((msgnum >= lo) && (msgnum <= hi)) return(1);
 	}
 
-	return (0);
+	return(0);
 }
+
 
 
 /*

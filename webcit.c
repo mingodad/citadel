@@ -653,7 +653,7 @@ void output_mimepart()
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
-		extract(content_type, &buf[4], 3);
+		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 		output_headers(0, 0, 0, 0, 0, 0, 0);
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
@@ -684,7 +684,7 @@ char *load_mimepart(long msgnum, char *partnum)
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		extract(content_type, &buf[4], 3);
+		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 
 		content = malloc(bytes + 2);
 		read_server_binary(content, bytes);
@@ -904,7 +904,7 @@ void session_loop(struct httprequest *req)
 
 	strcpy(cmd, hptr->line);
 	hptr = hptr->next;
-	extract_token(method, cmd, 0, ' ');
+	extract_token(method, cmd, 0, ' ', sizeof method);
 	extract_action(action, cmd);
 
 	while (hptr != NULL) {
@@ -914,12 +914,14 @@ void session_loop(struct httprequest *req)
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			safestrncpy(cookie, &buf[15], sizeof cookie);
 			cookie_to_stuff(cookie, NULL,
-				      c_username, c_password, c_roomname);
+					c_username, sizeof c_username,
+					c_password, sizeof c_password,
+					c_roomname, sizeof c_roomname);
 		}
 		else if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
 			CtdlDecodeBase64(c_httpauth_string, &buf[21], strlen(&buf[21]));
-			extract_token(c_httpauth_user, c_httpauth_string, 0, ':');
-			extract_token(c_httpauth_pass, c_httpauth_string, 1, ':');
+			extract_token(c_httpauth_user, c_httpauth_string, 0, ':', sizeof c_httpauth_user);
+			extract_token(c_httpauth_pass, c_httpauth_string, 1, ':', sizeof c_httpauth_pass);
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);

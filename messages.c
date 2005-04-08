@@ -204,10 +204,10 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 
 			thisname = strdup(v->prop[i].name);
-			extract_token(firsttoken, thisname, 0, ';');
+			extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
 	
 			for (j=0; j<num_tokens(thisname, ';'); ++j) {
-				extract_token(buf, thisname, j, ';');
+				extract_token(buf, thisname, j, ';', sizeof buf);
 				if (!strcasecmp(buf, "encoding=quoted-printable")) {
 					is_qp = 1;
 					remove_token(thisname, j, ';');
@@ -274,7 +274,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				if (strlen(phone) > 0) strcat(phone, "<br />");
 				strcat(phone, thisvalue);
 				for (j=0; j<num_tokens(thisname, ';'); ++j) {
-					extract_token(buf, thisname, j, ';');
+					extract_token(buf, thisname, j, ';', sizeof buf);
 					if (!strcasecmp(buf, "tel"))
 						strcat(phone, "");
 					else if (!strcasecmp(buf, "work"))
@@ -294,7 +294,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				if (pass == 2) {
 					wprintf("<TR><TD>Address:</TD><TD>");
 					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
-						extract_token(buf, thisvalue, j, ';');
+						extract_token(buf, thisvalue, j, ';', sizeof buf);
 						if (strlen(buf) > 0) {
 							escputs(buf);
 							if (j<3) wprintf("<br />");
@@ -505,10 +505,10 @@ void read_message(long msgnum) {
 		}
 
 		if (!strncasecmp(buf, "part=", 5)) {
-			extract(mime_filename, &buf[5], 1);
-			extract(mime_partnum, &buf[5], 2);
-			extract(mime_disposition, &buf[5], 3);
-			extract(mime_content_type, &buf[5], 4);
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_disposition, "attachment")) {
@@ -821,10 +821,10 @@ void display_addressbook(long msgnum, char alpha) {
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
-			extract(mime_filename, &buf[5], 1);
-			extract(mime_partnum, &buf[5], 2);
-			extract(mime_disposition, &buf[5], 3);
-			extract(mime_content_type, &buf[5], 4);
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
@@ -874,7 +874,7 @@ void lastfirst_firstlast(char *namebuf) {
 	i = num_tokens(namebuf, ' ');
 	if (i < 2) return;
 
-	extract_token(lastname, namebuf, i-1, ' ');
+	extract_token(lastname, namebuf, i-1, ' ', sizeof lastname);
 	remove_token(namebuf, i-1, ' ');
 	strcpy(firstname, namebuf);
 	sprintf(namebuf, "%s; %s", lastname, firstname);
@@ -913,10 +913,10 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
-			extract(mime_filename, &buf[5], 1);
-			extract(mime_partnum, &buf[5], 2);
-			extract(mime_disposition, &buf[5], 3);
-			extract(mime_content_type, &buf[5], 4);
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
@@ -1787,7 +1787,7 @@ void confirm_move_msg(void)
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(targ, buf, 0);
+			extract_token(targ, buf, 0, '|', sizeof targ);
 			wprintf("<OPTION>");
 			escputs(targ);
 			wprintf("\n");

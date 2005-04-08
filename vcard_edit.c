@@ -127,11 +127,11 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			value = vcard_get_prop(v, "", 0, i++, 0);
 	
 			if (!strcasecmp(key, "n")) {
-				extract_token(lastname, value, 0, ';');
-				extract_token(firstname, value, 1, ';');
-				extract_token(middlename, value, 2, ';');
-				extract_token(prefix, value, 3, ';');
-				extract_token(suffix, value, 4, ';');
+				extract_token(lastname, value, 0, ';', sizeof lastname);
+				extract_token(firstname, value, 1, ';', sizeof firstname);
+				extract_token(middlename, value, 2, ';', sizeof middlename);
+				extract_token(prefix, value, 3, ';', sizeof prefix);
+				extract_token(suffix, value, 4, ';', sizeof suffix);
 			}
 
 			else if (!strcasecmp(key, "title")) {
@@ -143,21 +143,21 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			}
 	
 			else if (!strcasecmp(key, "adr")) {
-				extract_token(pobox, value, 0, ';');
-				extract_token(extadr, value, 1, ';');
-				extract_token(street, value, 2, ';');
-				extract_token(city, value, 3, ';');
-				extract_token(state, value, 4, ';');
-				extract_token(zipcode, value, 5, ';');
-				extract_token(country, value, 6, ';');
+				extract_token(pobox, value, 0, ';', sizeof pobox);
+				extract_token(extadr, value, 1, ';', sizeof extadr);
+				extract_token(street, value, 2, ';', sizeof street);
+				extract_token(city, value, 3, ';', sizeof city);
+				extract_token(state, value, 4, ';', sizeof state);
+				extract_token(zipcode, value, 5, ';', sizeof zipcode);
+				extract_token(country, value, 6, ';', sizeof country);
 			}
 	
 			else if (!strcasecmp(key, "tel;home")) {
-				extract_token(hometel, value, 0, ';');
+				extract_token(hometel, value, 0, ';', sizeof hometel);
 			}
 	
 			else if (!strcasecmp(key, "tel;work")) {
-				extract_token(worktel, value, 0, ';');
+				extract_token(worktel, value, 0, ';', sizeof worktel);
 			}
 	
 			else if (!strcasecmp(key, "email;internet")) {
@@ -372,7 +372,7 @@ void submit_vcard(void) {
 
 	serv_printf("email;internet:%s\n", bstr("primary_inetemail"));	
 	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
-		extract_token(buf, bstr("other_inetemail"), i, '\n');
+		extract_token(buf, bstr("other_inetemail"), i, '\n', sizeof buf);
 		if (strlen(buf) > 0) {
 			serv_printf("email;internet:%s", buf);
 		}

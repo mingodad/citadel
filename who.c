@@ -84,11 +84,11 @@ void whobbs(void)
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			sess = extract_int(buf, 0);
-			extract(user, buf, 1);
-			extract(room, buf, 2);
-			extract(host, buf, 3);
-			extract(realroom, buf, 9);
-			extract(realhost, buf, 10);
+			extract_token(user, buf, 1, '|', sizeof user);
+			extract_token(room, buf, 2, '|', sizeof room);
+			extract_token(host, buf, 3, '|', sizeof host);
+			extract_token(realroom, buf, 9, '|', sizeof realroom);
+			extract_token(realhost, buf, 10, '|', sizeof realhost);
 			last_activity = extract_long(buf, 5);
 
 			bg = 1 - bg;

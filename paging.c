@@ -169,7 +169,7 @@ void page_popup(void)
 
 	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
 
-		extract(pagefrom, &buf[4], 3);
+		extract_token(pagefrom, &buf[4], 3, '|', sizeof pagefrom);
 
 		wprintf("<table border=1 bgcolor=\"#880000\"><tr><td>");
 		wprintf("<span class=\"titlebar\">Instant message from ");
@@ -341,9 +341,9 @@ void chat_recv(void) {
 		);
 
 		for (i=0; i<num_tokens(output_data, '\n'); ++i) {
-			extract_token(buf, output_data, i, '\n');
-			extract_token(cl_user, buf, 0, '|');
-			extract_token(cl_text, buf, 1, '|');
+			extract_token(buf, output_data, i, '\n', sizeof buf);
+			extract_token(cl_user, buf, 0, '|', sizeof cl_user);
+			extract_token(cl_text, buf, 1, '|', sizeof cl_text);
 
 			if (strcasecmp(cl_text, "NOOP")) {
 
