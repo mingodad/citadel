@@ -179,7 +179,7 @@ FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
         	serv_gets(buf);
         	if (buf[0] == '1') {
                 	while (serv_gets(buf), strcmp(buf, "000")) {
-				extract(sroom, buf, 0);
+				extract_token(sroom, buf, 0, '|', sizeof sroom);
 				self = extract_int(buf, 4) & QR2_SELFLIST ;
 				if (self) {
 					wprintf("<OPTION VALUE=\"");

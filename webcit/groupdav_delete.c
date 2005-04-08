@@ -42,7 +42,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 
 	/* Now extract the message euid */
 	n = num_tokens(dav_pathname, '/');
-	extract_token(dav_uid, dav_pathname, n-1, '/');
+	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
 	remove_token(dav_pathname, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */

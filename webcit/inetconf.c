@@ -84,8 +84,8 @@ void display_inetconf(void)
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
 
-		extract(ename, buf, 0);
-		extract(etype, buf, 1);
+		extract_token(ename, buf, 0, '|', sizeof ename);
+		extract_token(etype, buf, 1, '|', sizeof etype);
 		which = (-1);
 		for (i=0; i<ic_max; ++i) {
 			if (!strcasecmp(etype, ic_keyword[i])) {
@@ -128,7 +128,7 @@ void display_inetconf(void)
 		if (strlen(ic_spec[which]) > 0) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
 				wprintf("<TR><TD ALIGN=LEFT>");
-				extract_token(buf, ic_spec[which], i, '\n');
+				extract_token(buf, ic_spec[which], i, '\n', sizeof buf);
 				escputs(buf);
 				wprintf("</TD><TD ALIGN=RIGHT>"
 					"<A HREF=\"/save_inetconf?oper=delete&ename=");
@@ -174,8 +174,8 @@ void save_inetconf(void) {
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
-		extract(ename, buf, 0);
-		extract(etype, buf, 1);
+		extract_token(ename, buf, 0, '|', sizeof ename);
+		extract_token(etype, buf, 1, '|', sizeof etype);
 		if (strlen(buf) == 0) {
 			/* skip blank lines */
 		}

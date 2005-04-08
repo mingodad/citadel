@@ -62,10 +62,10 @@ void set_init_entry(char *which_entry, char *new_state) {
 	while(fgets(buf, sizeof buf, fp) != NULL) {
 
 		if (num_tokens(buf, ':') == 4) {
-			extract_token(entry, buf, 0, ':');
-			extract_token(levels, buf, 1, ':');
-			extract_token(state, buf, 2, ':');
-			extract_token(prog, buf, 3, ':'); /* includes 0x0a LF */
+			extract_token(entry, buf, 0, ':', sizeof entry);
+			extract_token(levels, buf, 1, ':', sizeof levels);
+			extract_token(state, buf, 2, ':', sizeof state);
+			extract_token(prog, buf, 3, ':', sizeof prog); /* includes 0x0a LF */
 
 			if (!strcmp(entry, which_entry)) {
 				strcpy(state, new_state);
@@ -120,8 +120,8 @@ void shutdown_service(void) {
 	} else {
 		while (fgets(buf, sizeof buf, infp) != NULL) {
 			buf[strlen(buf) - 1] = 0;
-			extract_token(entry, buf, 0, ':');	
-			extract_token(prog, buf, 3, ':');
+			extract_token(entry, buf, 0, ':', sizeof entry);
+			extract_token(prog, buf, 3, ':', sizeof prog);
 			if (!strncasecmp(prog, looking_for,
 			   strlen(looking_for))) {
 				++have_entry;
@@ -213,7 +213,7 @@ int yesno(char *question)
 		newtCenteredWindow(76, 10, "Question");
 		form = newtForm(NULL, NULL, 0);
 		for (i=0; i<num_tokens(question, '\n'); ++i) {
-			extract_token(buf, question, i, '\n');
+			extract_token(buf, question, i, '\n', sizeof buf);
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
 		yesbutton = newtButton(10, 5, "Yes");
@@ -288,7 +288,7 @@ void set_value(char *prompt, char str[])
 		newtCenteredWindow(76, 10, "WebCit setup");
 		form = newtForm(NULL, NULL, 0);
 		for (i=0; i<num_tokens(prompt, '\n'); ++i) {
-			extract_token(buf, prompt, i, '\n');
+			extract_token(buf, prompt, i, '\n', sizeof buf);
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
 		newtFormAddComponent(form, newtEntry(1, 8, str, 74, &result,
@@ -334,7 +334,7 @@ void important_message(char *title, char *msgtext)
 		newtCenteredWindow(76, 10, title);
 		form = newtForm(NULL, NULL, 0);
 		for (i=0; i<num_tokens(msgtext, '\n'); ++i) {
-			extract_token(buf, msgtext, i, '\n');
+			extract_token(buf, msgtext, i, '\n', sizeof buf);
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
 		newtFormAddComponent(form, newtButton(35, 5, "OK"));

@@ -64,7 +64,10 @@ int xtoi(char *in, size_t len)
 /*
  * Extract all that fun stuff out of the cookie.
  */
-void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *room)
+void cookie_to_stuff(char *cookie, int *session,
+		char *user, size_t user_len,
+		char *pass, size_t pass_len,
+		char *room, size_t room_len)
 {
 	char buf[SIZ];
 	int i, len;
@@ -79,9 +82,9 @@ void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *r
 	if (session != NULL)
 		*session = extract_int(buf, 0);
 	if (user != NULL)
-		extract(user, buf, 1);
+		extract_token(user, buf, 1, '|', user_len);
 	if (pass != NULL)
-		extract(pass, buf, 2);
+		extract_token(pass, buf, 2, '|', pass_len);
 	if (room != NULL)
-		extract(room, buf, 3);
+		extract_token(room, buf, 3, '|', room_len);
 }

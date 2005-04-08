@@ -59,11 +59,11 @@ void do_iconbar(void) {
 	/*
 	 */
 
-	get_preference("iconbar", iconbar);
+	get_preference("iconbar", iconbar, sizeof iconbar);
 	for (i=0; i<num_tokens(iconbar, ','); ++i) {
-		extract_token(buf, iconbar, i, ',');
-		extract_token(key, buf, 0, '=');
-		extract_token(value, buf, 1, '=');
+		extract_token(buf, iconbar, i, ',', sizeof buf);
+		extract_token(key, buf, 0, '=', sizeof key);
+		extract_token(value, buf, 1, '=', sizeof value);
 
 		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
 		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
@@ -338,11 +338,11 @@ void display_customize_iconbar(void) {
 	/*
 	 */
 
-	get_preference("iconbar", iconbar);
+	get_preference("iconbar", iconbar, sizeof iconbar);
 	for (i=0; i<num_tokens(iconbar, ','); ++i) {
-		extract_token(buf, iconbar, i, ',');
-		extract_token(key, buf, 0, '=');
-		extract_token(value, buf, 1, '=');
+		extract_token(buf, iconbar, i, ',', sizeof buf);
+		extract_token(key, buf, 0, '=', sizeof key);
+		extract_token(value, buf, 1, '=', sizeof value);
 
 		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
 		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);

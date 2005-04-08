@@ -77,7 +77,7 @@ void userlist(void)
 	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		extract(fl, buf, 0);
+		extract_token(fl, buf, 0, '|', sizeof fl);
 		has_bio = 0;
 		for (bptr = bio; bptr != NULL; bptr = bptr->next) {
 			if (!strcasecmp(fl, bptr->name))

@@ -77,7 +77,7 @@ void display_floorconfig(char *prepend_html)
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		floornum = extract_int(buf, 0);
-		extract(floorname, buf, 1);
+		extract_token(floorname, buf, 1, '|', sizeof floorname);
 		refcount = extract_int(buf, 2);
 
 		wprintf("<TR><TD><TABLE border=0><TR><TD>%d", floornum);

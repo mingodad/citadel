@@ -98,7 +98,7 @@ void groupdav_folder_list(void) {
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
 
-		extract(roomname, buf, 0);
+		extract_token(roomname, buf, 0, '|', sizeof roomname);
 		view = extract_int(buf, 6);
 
 		/*

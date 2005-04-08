@@ -42,7 +42,7 @@ void edit_node(void) {
 			serv_gets(buf);
 			if (buf[0] == '1') {
 				while (serv_gets(buf), strcmp(buf, "000")) {
-					extract(cnode, buf, 0);
+					extract_token(cnode, buf, 0, '|', sizeof cnode);
 					if (strcasecmp(node, cnode)) {
 						fprintf(fp, "%s\n", buf);
 					}
@@ -125,10 +125,10 @@ void display_edit_node(void)
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(cnode, buf, 0);
-			extract(csecret, buf, 1);
-			extract(chost, buf, 2);
-			extract(cport, buf, 3);
+			extract_token(cnode, buf, 0, '|', sizeof cnode);
+			extract_token(csecret, buf, 1, '|', sizeof csecret);
+			extract_token(chost, buf, 2, '|', sizeof chost);
+			extract_token(cport, buf, 3, '|', sizeof cport);
 
 			if (!strcasecmp(node, cnode)) {
 				wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
@@ -185,7 +185,7 @@ void display_netconf(void)
 	if (buf[0] == '1') {
 		wprintf("<CENTER><TABLE border=0>\n");
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(node, buf, 0);
+			extract_token(node, buf, 0, '|', sizeof node);
 			wprintf("<TR><TD><FONT SIZE=+1>");
 			escputs(node);
 			wprintf("</FONT></TD>");
@@ -240,7 +240,7 @@ void delete_node(void)
 		serv_gets(buf);
 		if (buf[0] == '1') {
 			while (serv_gets(buf), strcmp(buf, "000")) {
-				extract(cnode, buf, 0);
+				extract_token(cnode, buf, 0, '|', sizeof cnode);
 				if (strcasecmp(node, cnode)) {
 					fprintf(fp, "%s\n", buf);
 				}

@@ -236,7 +236,6 @@ struct wcsession {
 	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
 };
 
-#define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
 #define num_parms(source)		num_tokens(source, '|')
 
 /* Per-session data */
@@ -262,7 +261,9 @@ void do_setup_wizard(void);
 void stuff_to_cookie(char *cookie, int session,
 			char *user, char *pass, char *room);
 void cookie_to_stuff(char *cookie, int *session,
-			char *user, char *pass, char *room);
+                char *user, size_t user_len,
+                char *pass, size_t pass_len,
+                char *room, size_t room_len);
 void locate_host(char *, int);
 void become_logged_in(char *, char *, char *);
 void do_login(void);
@@ -304,8 +305,8 @@ void url(char *buf);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, char *strbuf);
 void msgescputs(char *strbuf);
-long extract_long(char *source, long int parmnum);
-int extract_int(char *source, int parmnum);
+int extract_int(const char *source, int parmnum);
+long extract_long(const char *source, int parmnum);
 void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
@@ -388,7 +389,7 @@ void do_template(void *templatename);
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
 int num_tokens (char *source, char tok);
-void extract_token(char *dest, char *source, int parmnum, char separator);
+void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
 int pattern2(char *search, char *patn);
@@ -407,7 +408,7 @@ void folders(void);
 void do_stuff_to_msgs(void);
 void load_preferences(void);
 void save_preferences(void);
-void get_preference(char *key, char *value);
+void get_preference(char *key, char *value, size_t value_len);
 void set_preference(char *key, char *value);
 void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);

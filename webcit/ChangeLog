@@ -1,4 +1,7 @@
 $Log$
+Revision 610.1  2005/04/08 19:36:56  ajc
+* Moved to the new string tokenizer API
+
 Revision 610.0  2005/04/04 17:50:04  ajc
 * THIS IS 6.10 (unfinished first time install wizard has been disabled)
 
@@ -2502,3 +2505,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

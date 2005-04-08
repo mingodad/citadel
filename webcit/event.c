@@ -614,7 +614,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 		/* Now iterate! */
 		for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
-			extract_token(buf, form_attendees, i, '\n');
+			extract_token(buf, form_attendees, i, '\n', sizeof buf);
 			striplt(buf);
 			if (strlen(buf) > 0) {
 				lprintf(9, "Attendee: <%s>\n", buf);
@@ -647,7 +647,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 				striplt(attendee_string);
 				foundit = 0;
 				for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
-					extract_token(buf, form_attendees, i, '\n');
+					extract_token(buf, form_attendees, i, '\n', sizeof buf);
 					striplt(buf);
 					if (!strcasecmp(buf, attendee_string)) ++foundit;
 				}

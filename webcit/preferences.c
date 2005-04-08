@@ -132,7 +132,7 @@ void save_preferences(void) {
 	serv_gets(buf);
 }
 
-void get_preference(char *key, char *value) {
+void get_preference(char *key, char *value, size_t value_len) {
 	int num_prefs;
 	int i;
 	char buf[SIZ];
@@ -142,10 +142,10 @@ void get_preference(char *key, char *value) {
 
 	num_prefs = num_tokens(WC->preferences, '\n');
 	for (i=0; i<num_prefs; ++i) {
-		extract_token(buf, WC->preferences, i, '\n');
-		extract_token(thiskey, buf, 0, '|');
+		extract_token(buf, WC->preferences, i, '\n', sizeof buf);
+		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 		if (!strcasecmp(thiskey, key)) {
-			extract_token(value, buf, 1, '|');
+			extract_token(value, buf, 1, '|', value_len);
 		}
 	}
 }
@@ -159,9 +159,9 @@ void set_preference(char *key, char *value) {
 
 	num_prefs = num_tokens(WC->preferences, '\n');
 	for (i=0; i<num_prefs; ++i) {
-		extract_token(buf, WC->preferences, i, '\n');
+		extract_token(buf, WC->preferences, i, '\n', sizeof buf);
 		if (num_tokens(buf, '|') == 2) {
-			extract_token(thiskey, buf, 0, '|');
+			extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 			if (strcasecmp(thiskey, key)) {
 				if (newprefs == NULL) newprefs = strdup("");
 				newprefs = realloc(newprefs,

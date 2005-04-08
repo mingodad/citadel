@@ -63,7 +63,7 @@ void load_floorlist(void)
 		return;
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		extract(floorlist[extract_int(buf, 0)], buf, 1);
+		extract_token(floorlist[extract_int(buf, 0)], buf, 1, '|', sizeof floorlist[0]);
 	}
 }
 
@@ -180,7 +180,7 @@ void listrms(char *variety)
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		++num_rooms;
 		rp = malloc(sizeof(struct roomlisting));
-		extract(rp->rlname, buf, 0);
+		extract_token(rp->rlname, buf, 0, '|', sizeof rp->rlname);
 		rp->rlflags = extract_int(buf, 1);
 		rp->rlfloor = extract_int(buf, 2);
 		rp->rlorder = extract_int(buf, 3);
@@ -546,7 +546,7 @@ void gotoroom(char *gname)
 	if (buf[0] != '2') {
 		return;
 	}
-	extract(WC->wc_roomname, &buf[4], 0);
+	extract_token(WC->wc_roomname, &buf[4], 0, '|', sizeof WC->wc_roomname);
 	WC->room_flags = extract_int(&buf[4], 4);
 	/* highest_msg_read = extract_int(&buf[4],6);
 	   maxmsgnum = extract_int(&buf[4],5);
@@ -630,7 +630,7 @@ void gotonext(void)
 			while (serv_gets(buf), strcmp(buf, "000")) {
 				mptr = (struct march *) malloc(sizeof(struct march));
 				mptr->next = NULL;
-				extract(mptr->march_name, buf, 0);
+				extract_token(mptr->march_name, buf, 0, '|', sizeof mptr->march_name);
 				mptr->march_floor = extract_int(buf, 2);
 				mptr->march_order = extract_int(buf, 3);
 				if (WC->march == NULL) {
@@ -747,9 +747,9 @@ int self_service(int newval) {
 	serv_gets(buf);
 	if (buf[0] != '2') return(0);
 
-	extract(name, &buf[4], 0);
-	extract(password, &buf[4], 1);
-	extract(dirname, &buf[4], 2);
+	extract_token(name, &buf[4], 0, '|', sizeof name);
+	extract_token(password, &buf[4], 1, '|', sizeof password);
+	extract_token(dirname, &buf[4], 2, '|', sizeof dirname);
 	flags = extract_int(&buf[4], 3);
 	floor = extract_int(&buf[4], 4);
 	order = extract_int(&buf[4], 5);
@@ -826,9 +826,9 @@ void display_editroom(void)
 		display_main_menu();
 		return;
 	}
-	extract(er_name, &buf[4], 0);
-	extract(er_password, &buf[4], 1);
-	extract(er_dirname, &buf[4], 2);
+	extract_token(er_name, &buf[4], 0, '|', sizeof er_name);
+	extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
+	extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
 	er_flags = extract_int(&buf[4], 3);
 	er_floor = extract_int(&buf[4], 4);
 
@@ -1082,7 +1082,7 @@ void display_editroom(void)
 		if (buf[0] != '2') {
 			wprintf("<EM>%s</EM>\n", &buf[4]);
 		} else {
-			extract(er_roomaide, &buf[4], 0);
+			extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
 			wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
 		}
 	
@@ -1106,7 +1106,7 @@ void display_editroom(void)
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
 		serv_gets(buf);
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(node, buf, 0);
+			extract_token(node, buf, 0, '|', sizeof node);
 			not_shared_with = realloc(not_shared_with,
 					strlen(not_shared_with) + 32);
 			strcat(not_shared_with, node);
@@ -1116,9 +1116,9 @@ void display_editroom(void)
 		serv_puts("GNET");
 		serv_gets(buf);
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(cmd, buf, 0);
-			extract(node, buf, 1);
-			extract(remote_room, buf, 2);
+			extract_token(cmd, buf, 0, '|', sizeof cmd);
+			extract_token(node, buf, 1, '|', sizeof node);
+			extract_token(remote_room, buf, 2, '|', sizeof remote_room);
 			if (!strcasecmp(cmd, "ignet_push_share")) {
 				shared_with = realloc(shared_with,
 						strlen(shared_with) + 32);
@@ -1132,10 +1132,10 @@ void display_editroom(void)
 		}
 
 		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
-			extract_token(buf, shared_with, i, '\n');
-			extract_token(node, buf, 0, '|');
+			extract_token(buf, shared_with, i, '\n', sizeof buf);
+			extract_token(node, buf, 0, '|', sizeof node);
 			for (j=0; j<num_tokens(not_shared_with, '\n'); ++j) {
-				extract_token(cmd, not_shared_with, j, '\n');
+				extract_token(cmd, not_shared_with, j, '\n', sizeof cmd);
 				if (!strcasecmp(node, cmd)) {
 					remove_token(not_shared_with, j, '\n');
 				}
@@ -1157,9 +1157,9 @@ void display_editroom(void)
 		);
 
 		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
-			extract_token(buf, shared_with, i, '\n');
-			extract_token(node, buf, 0, '|');
-			extract_token(remote_room, buf, 1, '|');
+			extract_token(buf, shared_with, i, '\n', sizeof buf);
+			extract_token(node, buf, 0, '|', sizeof node);
+			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
 			if (strlen(node) > 0) {
 				wprintf("<FORM METHOD=\"POST\" "
 					"ACTION=\"/netedit\">"
@@ -1201,7 +1201,7 @@ void display_editroom(void)
 		);
 
 		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
-			extract_token(node, not_shared_with, i, '\n');
+			extract_token(node, not_shared_with, i, '\n', sizeof node);
 			if (strlen(node) > 0) {
 				wprintf("<FORM METHOD=\"POST\" "
 					"ACTION=\"/netedit\">"
@@ -1259,9 +1259,9 @@ void display_editroom(void)
 		serv_puts("GNET");
 		serv_gets(buf);
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(cmd, buf, 0);
+			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "listrecp")) {
-				extract(recp, buf, 1);
+				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
 				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
@@ -1288,9 +1288,9 @@ void display_editroom(void)
 		serv_puts("GNET");
 		serv_gets(buf);
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(cmd, buf, 0);
+			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "digestrecp")) {
-				extract(recp, buf, 1);
+				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
 				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
@@ -1462,9 +1462,9 @@ void editroom(void)
 		display_editroom();
 		return;
 	}
-	extract(er_name, &buf[4], 0);
-	extract(er_password, &buf[4], 1);
-	extract(er_dirname, &buf[4], 2);
+	extract_token(er_name, &buf[4], 0, '|', sizeof er_name);
+	extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
+	extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
 	er_flags = extract_int(&buf[4], 3);
 
 	strcpy(er_roomaide, bstr("er_roomaide"));
@@ -1474,7 +1474,7 @@ void editroom(void)
 		if (buf[0] != '2') {
 			strcpy(er_roomaide, "");
 		} else {
-			extract(er_roomaide, &buf[4], 0);
+			extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
 		}
 	}
 	strcpy(buf, bstr("er_name"));
@@ -1607,7 +1607,7 @@ void do_invt_kick(void) {
 		escputs(&buf[4]);
 		return;
         }
-        extract(room, &buf[4], 0);
+        extract_token(room, &buf[4], 0, '|', sizeof room);
 
         strcpy(username, bstr("username"));
 
@@ -1658,7 +1658,7 @@ void display_whok(void)
 		escputs(&buf[4]);
 		return;
         }
-        extract(room, &buf[4], 0);
+        extract_token(room, &buf[4], 0, '|', sizeof room);
 
         
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
@@ -1673,7 +1673,7 @@ void display_whok(void)
         serv_gets(buf);
         if (buf[0] == '1') {
                 while (serv_gets(buf), strcmp(buf, "000")) {
-                        extract(username, buf, 0);
+                        extract_token(username, buf, 0, '|', sizeof username);
                         wprintf("<OPTION>");
                         escputs(username);
                         wprintf("\n");
@@ -1845,9 +1845,9 @@ void er_set_default_view(int newview) {
 	serv_gets(buf);
 	if (buf[0] != '2') return;
 
-	extract(rm_name, &buf[4], 0);
-	extract(rm_pass, &buf[4], 1);
-	extract(rm_dir, &buf[4], 2);
+	extract_token(rm_name, &buf[4], 0, '|', sizeof rm_name);
+	extract_token(rm_pass, &buf[4], 1, '|', sizeof rm_pass);
+	extract_token(rm_dir, &buf[4], 2, '|', sizeof rm_dir);
 	rm_bits1 = extract_int(&buf[4], 3);
 	rm_floor = extract_int(&buf[4], 4);
 	rm_listorder = extract_int(&buf[4], 5);
@@ -2106,10 +2106,10 @@ void netedit(void) {
 
 	/* This loop works for add *or* remove.  Spiffy, eh? */
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		extract(cmpa0, buf, 0);
-		extract(cmpa1, buf, 1);
-		extract(cmpb0, line, 0);
-		extract(cmpb1, line, 1);
+		extract_token(cmpa0, buf, 0, '|', sizeof cmpa0);
+		extract_token(cmpa1, buf, 1, '|', sizeof cmpa1);
+		extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
+		extract_token(cmpb1, line, 1, '|', sizeof cmpb1);
 		if ( (strcasecmp(cmpa0, cmpb0)) 
 		   || (strcasecmp(cmpa1, cmpb1)) ) {
 			fprintf(fp, "%s\n", buf);
@@ -2261,7 +2261,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else {
 			wprintf("<SPAN CLASS=\"roomlist_old\">");
 		}
-		extract(buf, fold[i].name, levels-1);
+		extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 		escputs(buf);
 		wprintf("</SPAN>");
 
@@ -2339,7 +2339,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		if (levels == 1) {
 
 			/* Begin inner box */
-			extract(buf, fold[i].name, levels-1);
+			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 			stresc(boxtitle, buf, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			do_template("beginbox");
@@ -2365,7 +2365,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			else {
 				wprintf("<SPAN CLASS=\"roomlist_old\">");
 			}
-			extract(buf, fold[i].name, levels-1);
+			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 			escputs(buf);
 			wprintf("</SPAN>");
 			if (fold[i].selectable) {
@@ -2422,7 +2422,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 				alloc_folders * sizeof(struct folder));
 		}
 		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract(fold[max_folders].name, buf, 1);
+		extract_token(fold[max_folders].name, buf, 1, '|', sizeof fold[max_folders].name);
 		++max_folders;
 		++num_floors;
 	}
@@ -2437,7 +2437,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 				alloc_folders * sizeof(struct folder));
 		}
 		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract(fold[max_folders].room, buf, 0);
+		extract_token(fold[max_folders].room, buf, 0, '|', sizeof fold[max_folders].room);
 		ra_flags = extract_int(buf, 5);
 		flags = extract_int(buf, 1);
 		fold[max_folders].floor = extract_int(buf, 2);
@@ -2515,7 +2515,7 @@ void knrooms() {
 		}
 	}
 
-	get_preference("roomlistview", listviewpref);
+	get_preference("roomlistview", listviewpref, sizeof listviewpref);
 
 	if ( (strcasecmp(listviewpref, "folders"))
 	   && (strcasecmp(listviewpref, "table")) ) {

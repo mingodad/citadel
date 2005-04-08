@@ -81,7 +81,7 @@ void select_user_to_edit(char *message, char *preselect)
         serv_gets(buf);
         if (buf[0] == '1') {
                 while (serv_gets(buf), strcmp(buf, "000")) {
-                        extract(username, buf, 0);
+                        extract_token(username, buf, 0, '|', sizeof username);
                         wprintf("<OPTION");
 			if (preselect != NULL)
 			   if (!strcasecmp(username, preselect))
@@ -143,8 +143,8 @@ TRYAGAIN:
 		if (buf[0]=='1') {
 			while(serv_gets(buf), strcmp(buf, "000")) {
 				if (!strncasecmp(buf, "part=", 5)) {
-					extract(partnum, &buf[5], 2);
-					extract(content_type, &buf[5], 4);
+					extract_token(partnum, &buf[5], 2, '|', sizeof partnum);
+					extract_token(content_type, &buf[5], 4, '|', sizeof content_type);
 					if (!strcasecmp(content_type,
 					   "text/x-vcard")) {
 						vcard_msgnum = stuff->msgnum;
@@ -262,8 +262,8 @@ void display_edituser(char *supplied_username, int is_new) {
 		return;
 	}
 
-	extract(username, &buf[4], 0);
-	extract(password, &buf[4], 1);
+	extract_token(username, &buf[4], 0, '|', sizeof username);
+	extract_token(password, &buf[4], 1, '|', sizeof password);
 	flags = extract_int(&buf[4], 2);
 	timescalled = extract_int(&buf[4], 3);
 	msgsposted = extract_int(&buf[4], 4);
