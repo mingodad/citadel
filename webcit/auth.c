@@ -78,7 +78,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 
 	WC->logged_in = 1;
 	extract_token(WC->wc_username, &serv_response[4], 0, '|', sizeof WC->wc_username);
-	strcpy(WC->wc_password, pass);
+	safestrncpy(WC->wc_password, pass, sizeof WC->wc_password);
 	WC->axlevel = extract_int(&serv_response[4], 1);
 	if (WC->axlevel >= 6) {
 		WC->is_aide = 1;
@@ -195,7 +195,7 @@ void do_welcome(void)
 	 */
 	get_preference("startpage", buf, sizeof buf);
 	if (strlen(buf)==0) {
-		strcpy(buf, "/dotskip&room=_BASEROOM_");
+		safestrncpy(buf, "/dotskip&room=_BASEROOM_", sizeof buf);
 		set_preference("startpage", buf);
 	}
 	http_redirect(buf);
@@ -216,9 +216,9 @@ void do_logout(void)
 {
 	char buf[SIZ];
 
-	strcpy(WC->wc_username, "");
-	strcpy(WC->wc_password, "");
-	strcpy(WC->wc_roomname, "");
+	safestrncpy(WC->wc_username, "", sizeof WC->wc_username);
+	safestrncpy(WC->wc_password, "", sizeof WC->wc_password);
+	safestrncpy(WC->wc_roomname, "", sizeof WC->wc_roomname);
 
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0, 0);
@@ -267,7 +267,7 @@ void validate(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 															     
-	strcpy(buf, bstr("user"));
+	safestrncpy(buf, bstr("user"), sizeof buf);
 	if (strlen(buf) > 0)
 		if (strlen(bstr("axlevel")) > 0) {
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
@@ -289,7 +289,7 @@ void validate(void)
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<center>");
 
-	strcpy(user, &buf[4]);
+	safestrncpy(user, &buf[4], sizeof user);
 	serv_printf("GREG %s", user);
 	serv_getln(cmd, sizeof cmd);
 	if (cmd[0] == '1') {
@@ -392,7 +392,7 @@ void display_changepw(void)
 		wprintf("<SPAN CLASS=\"errormsg\">"
 			"%s</SPAN><br />\n", WC->ImportantMessage);
 		do_template("endbox");
-		strcpy(WC->ImportantMessage, "");
+		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 	}
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
@@ -432,25 +432,28 @@ void changepw(void)
 	char newpass1[32], newpass2[32];
 
 	if (strcmp(bstr("action"), "Change")) {
-		strcpy(WC->ImportantMessage, 
-			"Cancelled.  Password was not changed.");
+		safestrncpy(WC->ImportantMessage, 
+			"Cancelled.  Password was not changed.",
+			sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
 	}
 
-	strcpy(newpass1, bstr("newpass1"));
-	strcpy(newpass2, bstr("newpass2"));
+	safestrncpy(newpass1, bstr("newpass1"), sizeof newpass1);
+	safestrncpy(newpass2, bstr("newpass2"), sizeof newpass2);
 
 	if (strcasecmp(newpass1, newpass2)) {
-		strcpy(WC->ImportantMessage, 
-			"They don't match.  Password was not changed.");
+		safestrncpy(WC->ImportantMessage, 
+			"They don't match.  Password was not changed.",
+			sizeof WC->ImportantMessage);
 		display_changepw();
 		return;
 	}
 
 	if (strlen(newpass1) == 0) {
-		strcpy(WC->ImportantMessage, 
-			"Blank passwords are not allowed.");
+		safestrncpy(WC->ImportantMessage, 
+			"Blank passwords are not allowed.",
+			sizeof WC->ImportantMessage);
 		display_changepw();
 		return;
 	}
