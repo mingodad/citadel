@@ -1,4 +1,11 @@
  $Log$
+ Revision 645.1  2005/04/11 16:31:57  ajc
+ * Database logs are now kept in the "data_logs" directory instead of in
+   the "data" directory.  If no "data_logs" directory is found, a symlink
+   to "data" will be created, in order to preserve access to any existing
+   log files -- a savvy sysadmin (or a storage management wizard script)
+   will know what to do if a different location is desirable.
+
  Revision 645.0  2005/04/01 03:02:44  ajc
  * THIS IS 6.45
 
@@ -6576,4 +6583,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

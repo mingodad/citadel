@@ -55,6 +55,7 @@
 #include "database.h"
 #include "msgbase.h"
 #include "sysdep_decls.h"
+#include "tools.h"
 #include "config.h"
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
@@ -284,6 +285,7 @@ void open_databases(void)
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
 	char dbdirname[PATH_MAX];
+	char dblogname[PATH_MAX];
 	DIR *dp;
 	struct dirent *d;
 	char filename[PATH_MAX];
@@ -291,6 +293,8 @@ void open_databases(void)
 
 	getcwd(dbdirname, sizeof dbdirname);
 	strcat(dbdirname, "/data");
+	getcwd(dblogname, sizeof dblogname);
+	strcat(dblogname, "/data_logs");
 
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
 	lprintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
@@ -306,6 +310,13 @@ void open_databases(void)
 	mkdir(dbdirname, 0700);
 	chmod(dbdirname, 0700);
 	chown(dbdirname, BBSUID, (-1) );
+
+	/*	
+	 * By default, keep database logs in the same directory.  A savvy
+	 * system administrator will know what to do if he/she wants to put
+	 * them elsewhere.
+	 */
+	symlink("data", dblogname);
 
 	lprintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
@@ -334,10 +345,22 @@ void open_databases(void)
 		exit(ret);
 	}
 
+	if ((ret = dbenv->set_data_dir(dbenv, dbdirname))) {
+		lprintf(CTDL_EMERG, "cdb_*: set_data_dir: %s\n", db_strerror(ret));
+		dbenv->close(dbenv, 0);
+		exit(ret);
+	}
+
+	if ((ret = dbenv->set_lg_dir(dbenv, dblogname))) {
+		lprintf(CTDL_EMERG, "cdb_*: set_lg_dir: %s\n", db_strerror(ret));
+		dbenv->close(dbenv, 0);
+		exit(ret);
+	}
+
         flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_TXN|
 		DB_INIT_LOCK|DB_THREAD;
-	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n", dbdirname, flags);
-        ret = dbenv->open(dbenv, dbdirname, flags, 0);
+	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, NULL, %d, 0)\n", flags);
+        ret = dbenv->open(dbenv, NULL, flags, 0);
 	if (ret) {
 		lprintf(CTDL_DEBUG, "cdb_*: dbenv->open: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
