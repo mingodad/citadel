@@ -30,7 +30,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	char buf[SIZ];
 
 	serv_puts(check_cmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -97,7 +97,7 @@ void do_graphics_upload(char *upl_cmd)
 		return;
 	}
 	serv_puts(upl_cmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -107,11 +107,11 @@ void do_graphics_upload(char *upl_cmd)
 	while (bytes_remaining) {
 		thisblock = ((bytes_remaining > 4096) ? 4096 : bytes_remaining);
 		serv_printf("WRIT %d", thisblock);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '7') {
 			strcpy(WC->ImportantMessage, &buf[4]);
 			serv_puts("UCLS 0");
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			display_main_menu();
 			return;
 		}
@@ -122,7 +122,7 @@ void do_graphics_upload(char *upl_cmd)
 	}
 
 	serv_puts("UCLS 1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != 'x') {
 		display_success(&buf[4]);
 		return;

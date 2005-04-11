@@ -229,9 +229,9 @@ void cal_process_object(icalcomponent *cal,
 		/* Check for conflicts */
 		lprintf(9, "Checking server calendar for conflicts...\n");
 		serv_printf("ICAL conflicts|%ld|%s|", msgnum, cal_partnum);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
-			while (serv_gets(buf), strcmp(buf, "000")) {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				extract_token(conflict_name, buf, 3, '|', sizeof conflict_name);
 				is_update = extract_int(buf, 4);
 				wprintf("<TR><TD><B><I>%s</I></B></TD>"
@@ -288,7 +288,7 @@ void cal_process_object(icalcomponent *cal,
 		 * In the future, if we want to validate this object before
 		 * continuing, we can do it this way:
 		serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		}
 		 ***********/
 
@@ -366,7 +366,7 @@ void respond_to_request(void) {
 		bstr("cal_partnum"),
 		bstr("sc")
 	);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
@@ -424,7 +424,7 @@ void handle_rsvp(void) {
 		bstr("cal_partnum"),
 		bstr("sc")
 	);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
@@ -713,7 +713,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			serv_puts("Content-type: text/calendar");
 			serv_puts("");
@@ -738,7 +738,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	if ( (delete_existing) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 
 	if (created_new_vtodo) {
@@ -775,10 +775,10 @@ void display_using_handler(long msgnum,
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
 			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
@@ -926,7 +926,7 @@ void do_freebusy(char *req) {
 
 	lprintf(9, "freebusy requested for <%s>\n", who);
 	serv_printf("ICAL freebusy|%s", who);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '1') {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);

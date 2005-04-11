@@ -42,7 +42,7 @@ icalcomponent *get_freebusy_for_user(char *who) {
 	icalcomponent *fb = NULL;
 
 	serv_printf("ICAL freebusy|%s", who);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		serialized_fb = read_server_text();
 	}

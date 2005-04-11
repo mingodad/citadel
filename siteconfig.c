@@ -162,7 +162,7 @@ void display_siteconfig(void)
 	}
 
 	serv_printf("CONF get");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
@@ -177,7 +177,7 @@ void display_siteconfig(void)
 	wprintf("<TABLE border=0>\n");
 
 	i = 0;
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch (++i) {
 		case 1:
 			if (!strcasecmp(whichmenu, "general")) {
@@ -599,14 +599,14 @@ void display_siteconfig(void)
 	}
 
 	serv_puts("GPEX site");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		sitepolicy = extract_int(&buf[4], 0);
 		sitevalue = extract_int(&buf[4], 1);
 	}
 
 	serv_puts("GPEX mailboxes");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		mboxpolicy = extract_int(&buf[4], 0);
 		mboxvalue = extract_int(&buf[4], 1);
@@ -678,7 +678,7 @@ void siteconfig(void)
 		return;
 	}
 	serv_printf("CONF set");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_siteconfig();
@@ -729,9 +729,9 @@ void siteconfig(void)
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	serv_printf("SPEX mailboxes|%d|%d", atoi(bstr("mboxpolicy")), atoi(bstr("mboxvalue")));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	strcpy(WC->ImportantMessage, "System configuration has been updated.");
 	display_siteconfig();

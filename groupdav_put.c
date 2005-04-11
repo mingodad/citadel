@@ -119,7 +119,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * extract the message ID.
 	 */
 	serv_puts("ENT0 1|||4|||1|");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '8') {
 		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
@@ -138,7 +138,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	/* Fetch the reply from the Citadel server */
 	n = 0;
 	strcpy(dav_uid, "");
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch(n++) {
 			case 0: new_msgnum = atol(buf);
 				break;
@@ -194,7 +194,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * the Citadel server, but we'll do this anyway, just in case.
 	 */
 	serv_printf("DELE %ld", old_msgnum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	return;
 }

@@ -45,11 +45,11 @@ void get_serv_info(char *browser_host, char *user_agent)
 		user_agent,
 		browser_host
 	);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	/* Tell the server what kind of richtext we prefer */
 	serv_puts("MSGP text/html|text/plain");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	/* Tell the server that when we save a calendar event, we
@@ -57,17 +57,17 @@ void get_serv_info(char *browser_host, char *user_agent)
 	 * instead of by the client.
 	 */
 	serv_puts("ICAL sgi|1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 #endif
 
 	/* Now ask the server to tell us a little bit about itself... */
 	serv_puts("INFO");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1')
 		return;
 
 	a = 0;
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch (a) {
 		case 0:
 			serv_info.serv_pid = atoi(buf);
@@ -122,7 +122,7 @@ void fmout(FILE *fp, char *align)
 	wprintf("<DIV ALIGN=%s>\n", align);
 	while (1) {
 		if (fp == NULL)
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 		if (fp != NULL) {
 			if (fgets(buf, SIZ, fp) == NULL)
 				strcpy(buf, "000");
@@ -226,7 +226,7 @@ void server_to_text()
 
 	int count = 0;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if ((buf[0] == 32) && (count > 0)) {
 			wprintf("\n");
 		}
@@ -254,7 +254,7 @@ void read_server_binary(char *buffer, size_t total_len) {
 			if (thisblock == 0) return;
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '6') {
 			thisblock = (size_t)atoi(&buf[4]);
 			if (!WC->connected) return;
@@ -288,7 +288,7 @@ char *read_server_text(void) {
 	strcpy(text, "");
 	bytes_allocated = SIZ;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		linelen = strlen(buf);
 		buf[linelen] = '\n';
 		buf[linelen+1] = 0;

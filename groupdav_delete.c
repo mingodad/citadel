@@ -91,7 +91,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	 * Ok, attempt to delete the item.
 	 */
 	serv_printf("DELE %ld", dav_msgnum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		wprintf("HTTP/1.1 204 No Content\r\n");	/* success */
 		groupdav_common_headers();

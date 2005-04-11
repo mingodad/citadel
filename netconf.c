@@ -39,9 +39,9 @@ void edit_node(void) {
 		fp = tmpfile();
 		if (fp != NULL) {
 			serv_puts("CONF getsys|application/x-citadel-ignet-config");
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '1') {
-				while (serv_gets(buf), strcmp(buf, "000")) {
+				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 					extract_token(cnode, buf, 0, '|', sizeof cnode);
 					if (strcasecmp(node, cnode)) {
 						fprintf(fp, "%s\n", buf);
@@ -56,7 +56,7 @@ void edit_node(void) {
 			rewind(fp);
 
 			serv_puts("CONF putsys|application/x-citadel-ignet-config");
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '4') {
 				while (fgets(buf, sizeof buf, fp) != NULL) {
 					buf[strlen(buf)-1] = 0;
@@ -122,9 +122,9 @@ void display_edit_node(void)
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cnode, buf, 0, '|', sizeof cnode);
 			extract_token(csecret, buf, 1, '|', sizeof csecret);
 			extract_token(chost, buf, 2, '|', sizeof chost);
@@ -181,10 +181,10 @@ void display_netconf(void)
 	wprintf("<SPAN CLASS=\"titlebar\">Currently configured nodes</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		wprintf("<CENTER><TABLE border=0>\n");
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(node, buf, 0, '|', sizeof node);
 			wprintf("<TR><TD><FONT SIZE=+1>");
 			escputs(node);
@@ -237,9 +237,9 @@ void delete_node(void)
 	fp = tmpfile();
 	if (fp != NULL) {
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
-			while (serv_gets(buf), strcmp(buf, "000")) {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				extract_token(cnode, buf, 0, '|', sizeof cnode);
 				if (strcasecmp(node, cnode)) {
 					fprintf(fp, "%s\n", buf);
@@ -249,7 +249,7 @@ void delete_node(void)
 		rewind(fp);
 
 		serv_puts("CONF putsys|application/x-citadel-ignet-config");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			while (fgets(buf, sizeof buf, fp) != NULL) {
 				buf[strlen(buf)-1] = 0;
@@ -276,7 +276,7 @@ void add_node(void)
 	if (!strcmp(sc, "Add")) {
 		sprintf(buf, "NSET addnode|%s", node);
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
 			output_headers(1, 1, 0, 0, 0, 0, 0);
 			server_to_text();

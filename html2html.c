@@ -51,7 +51,7 @@ void output_html(void) {
 	msg = strdup("");
 	sprintf(new_window, "<A TARGET=\"%s\" HREF=", TARGET);
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
 		buffer_length = content_length + line_length + 2;
 		msg = realloc(msg, buffer_length);

@@ -87,7 +87,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 	load_preferences();
 
 	serv_puts("CHEK");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		WC->new_mail = extract_int(&buf[4], 0);
 		WC->need_regi = extract_int(&buf[4], 1);
@@ -107,10 +107,10 @@ void do_login(void)
 	}
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
 			serv_printf("PASS %s", bstr("pass"));
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
 				become_logged_in(bstr("name"),
 						 bstr("pass"), buf);
@@ -129,11 +129,11 @@ void do_login(void)
 			return;
 		}
 		serv_printf("NEWU %s", bstr("name"));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			become_logged_in(bstr("name"), bstr("pass"), buf);
 			serv_printf("SETP %s", bstr("pass"));
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 		} else {
 			display_login(&buf[4]);
 			return;
@@ -225,7 +225,7 @@ void do_logout(void)
 
 	wprintf("<center>");
 	serv_puts("MESG goodbye");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (WC->serv_sock >= 0) {
 		if (buf[0] == '1') {
@@ -271,13 +271,13 @@ void validate(void)
 	if (strlen(buf) > 0)
 		if (strlen(bstr("axlevel")) > 0) {
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
 				wprintf("<b>%s</b><br />\n", &buf[4]);
 			}
 		}
 	serv_puts("GNUR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '3') {
 		wprintf("<b>%s</b><br />\n", &buf[4]);
@@ -291,11 +291,11 @@ void validate(void)
 
 	strcpy(user, &buf[4]);
 	serv_printf("GREG %s", user);
-	serv_gets(cmd);
+	serv_getln(cmd, sizeof cmd);
 	if (cmd[0] == '1') {
 		a = 0;
 		do {
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			++a;
 			if (a == 1)
 				wprintf("User #%s<br /><H1>%s</H1>",
@@ -400,7 +400,7 @@ void display_changepw(void)
 
 	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		fmout(NULL, "CENTER");
 	}
@@ -456,7 +456,7 @@ void changepw(void)
 	}
 
 	serv_printf("SETP %s", newpass1);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
 	if (buf[0] == '2') {
 		safestrncpy(WC->wc_password, buf, sizeof WC->wc_password);

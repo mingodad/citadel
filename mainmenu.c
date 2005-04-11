@@ -313,7 +313,7 @@ void do_generic(void)
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	serv_printf("%s", bstr("g_cmd"));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	svprintf("BOXTITLE", WCS_STRING, "Server command results");
 	do_template("beginbox");
@@ -328,7 +328,7 @@ void do_generic(void)
 		serv_printf("\n\n000");
 	}
 	if ((buf[0] == '1') || (buf[0] == '8')) {
-		while (serv_gets(gcontent), strcmp(gcontent, "000")) {
+		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
 			escputs(gcontent);
 			wprintf("<br />\n");
 		}

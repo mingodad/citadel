@@ -53,11 +53,11 @@ long locate_message_by_uid(char *uid) {
 	euid_unescapize(decoded_uid, uid);
 
 	serv_puts("MSGS ALL|0|1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '8') {
 		serv_printf("exti|%s", decoded_uid);
 		serv_puts("000");
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			retval = atol(buf);
 		}
 	}
@@ -95,8 +95,8 @@ void groupdav_folder_list(void) {
 	);
 
 	serv_puts("LKRA");
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		extract_token(roomname, buf, 0, '|', sizeof roomname);
 		view = extract_int(buf, 6);
@@ -229,8 +229,8 @@ void groupdav_propfind(char *dav_pathname) {
 	);
 
 	serv_puts("MSGS ALL");
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(msgnum), strcmp(msgnum, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(msgnum, sizeof msgnum), strcmp(msgnum, "000")) {
 		msgs = realloc(msgs, ++num_msgs * sizeof(long));
 		msgs[num_msgs-1] = atol(msgnum);
 	}
@@ -239,8 +239,8 @@ void groupdav_propfind(char *dav_pathname) {
 
 		strcpy(uid, "");
 		serv_printf("MSG0 %ld|3", msgs[i]);
-		serv_gets(buf);
-		if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (!strncasecmp(buf, "exti=", 5)) {
 				strcpy(uid, &buf[5]);
 			}

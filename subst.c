@@ -114,7 +114,7 @@ void pvo_do_cmd(char *servcmd) {
 	char buf[SIZ];
 
 	serv_puts(servcmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	switch(buf[0]) {
 		case '2':

@@ -78,9 +78,9 @@ void select_user_to_edit(char *message, char *preselect)
 		"<FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10 STYLE=\"width:100%%\">\n");
         serv_puts("LIST");
-        serv_gets(buf);
+        serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
-                while (serv_gets(buf), strcmp(buf, "000")) {
+                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
                         extract_token(username, buf, 0, '|', sizeof username);
                         wprintf("<OPTION");
 			if (preselect != NULL)
@@ -128,8 +128,8 @@ long locate_user_vcard(char *username, long usernum) {
 TRYAGAIN:
 	/* Search for the user's vCard */
 	serv_puts("MSGS ALL");
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		ptr = malloc(sizeof(struct stuff_t));
 		ptr->msgnum = atol(buf);
 		ptr->next = stuff;
@@ -139,9 +139,9 @@ TRYAGAIN:
 	/* Iterate through the message list looking for vCards */
 	while (stuff != NULL) {
 		serv_printf("MSG0 %ld|2", stuff->msgnum);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') {
-			while(serv_gets(buf), strcmp(buf, "000")) {
+			while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				if (!strncasecmp(buf, "part=", 5)) {
 					extract_token(partnum, &buf[5], 2, '|', sizeof partnum);
 					extract_token(content_type, &buf[5], 4, '|', sizeof content_type);
@@ -162,7 +162,7 @@ TRYAGAIN:
 	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			serv_puts("Content-type: text/x-vcard");
 			serv_puts("");
@@ -189,12 +189,12 @@ void display_edit_address_book_entry(char *username, long usernum) {
 	/* Locate the user's config room, creating it if necessary */
 	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
 	serv_printf("GOTO %s||1", roomname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		serv_printf("CRE8 1|%s|5|||1|", roomname);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		serv_printf("GOTO %s||1", roomname);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(error_message,
 				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
@@ -253,7 +253,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	}
 
 	serv_printf("AGUP %s", username);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
@@ -395,7 +395,7 @@ void edituser(void) {
 			bstr("lastcall"),
 			bstr("purgedays")
 		);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(message,
 				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
@@ -423,7 +423,7 @@ void delete_user(char *username) {
 	char message[SIZ];
 
 	serv_printf("ASUP %s|0|0|0|0|0|", username);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
@@ -446,7 +446,7 @@ void create_user(void) {
 	strcpy(username, bstr("username"));
 
 	serv_printf("CREU %s", username);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		/* sprintf(error_message, "<b>User has been created.</b>");

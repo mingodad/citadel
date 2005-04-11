@@ -35,7 +35,7 @@ void display_edit(char *description, char *check_cmd,
 	char buf[SIZ];
 
 	serv_puts(check_cmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
@@ -61,7 +61,7 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n");
 	serv_puts(read_cmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1')
 		server_to_text();
 	wprintf("</TEXTAREA><br /><br />\n");
@@ -89,7 +89,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		return;
 	}
 	serv_puts(enter_cmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();

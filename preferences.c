@@ -34,28 +34,28 @@ void load_preferences(void) {
 	long msgnum = 0L;
 
 	serv_printf("GOTO %s", USERCONFIGROOM);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') return;
 	
 	serv_puts("MSGS ALL|0|1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '8') {
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		msgnum = atol(buf);
 	}
 
 	if (msgnum > 0L) {
 		serv_printf("MSG0 %ld", msgnum);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
-			while (serv_gets(buf),
+			while (serv_getln(buf, sizeof buf),
 				(strcmp(buf, "text") && strcmp(buf, "000"))) {
 			}
 			if (!strcmp(buf, "text")) {
-				while (serv_gets(buf), strcmp(buf, "000")) {
+				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 					if (WC->preferences == NULL) {
 						WC->preferences = malloc(SIZ);
 						strcpy(WC->preferences, "");
@@ -76,7 +76,7 @@ void load_preferences(void) {
 
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 }
 
 /*
@@ -87,12 +87,12 @@ int goto_config_room(void) {
 	char buf[SIZ];
 
 	serv_printf("GOTO %s", USERCONFIGROOM);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') { /* try to create the config room if not there */
 		serv_printf("CRE8 1|%s|4|0", USERCONFIGROOM);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		serv_printf("GOTO %s", USERCONFIGROOM);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') return(1);
 	}
 	return(0);
@@ -105,22 +105,22 @@ void save_preferences(void) {
 
 	if (goto_config_room() != 0) return;	/* oh well. */
 	serv_puts("MSGS ALL|0|1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '8') {
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		msgnum = atol(buf);
 	}
 
 	if (msgnum > 0L) {
 		serv_printf("DELE %ld", msgnum);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
 		serv_puts(WC->preferences);
 		serv_puts("");
@@ -129,7 +129,7 @@ void save_preferences(void) {
 
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 }
 
 void get_preference(char *key, char *value, size_t value_len) {

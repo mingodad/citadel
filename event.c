@@ -273,7 +273,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			striplt(organizer_string);
 			lprintf(9, "ISME %s\n", organizer_string);
 			serv_printf("ISME %s", organizer_string);
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			lprintf(9, "%s\n", buf);
 			if (buf[0] == '2') {
 				organizer_is_me = 1;
@@ -673,14 +673,14 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		lprintf(9, "Serializing it for saving\n");
 		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Save")) ) {
 			serv_puts("ENT0 1|||4|||1|");
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '8') {
 				serv_puts("Content-type: text/calendar");
 				serv_puts("");
 				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			}
-			while (serv_gets(buf), strcmp(buf, "000")) {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				lprintf(9, "ENT0 REPLY: %s\n", buf);
 			}
 			icalcomponent_free(encaps);
@@ -706,7 +706,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 	lprintf(9, "Checking to see if we have to delete an old event\n");
 	if ( (!strcasecmp(bstr("sc"), "Delete")) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 
 	if (created_new_vevent) {
