@@ -87,7 +87,7 @@ void addurls(char *url)
 		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
 		u->next = WC->urlstrings;
 		WC->urlstrings = u;
-		strcpy(u->url_key, buf);
+		safestrncpy(u->url_key, buf, sizeof u->url_key);
 
 		/* now chop that part off */
 		for (a = 0; a <= b; ++a)
@@ -109,7 +109,7 @@ void addurls(char *url)
 		strcpy(ptr, "");
 
 		u->url_data = malloc(strlen(up) + 2);
-		strcpy(u->url_data, up);
+		safestrncpy(u->url_data, up, sizeof u->url_data);
 		u->url_data[b] = 0;
 		unescape_input(u->url_data);
 		up = ptr;
@@ -441,7 +441,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 				"%s</SPAN><br />\n", WC->ImportantMessage);
 			do_template("endbox");
 			wprintf("</div>\n");
-			strcpy(WC->ImportantMessage, "");
+			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 		}
 
 	}
@@ -528,12 +528,12 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 
 void output_static(char *what)
 {
-	char buf[4096];
+	char buf[256];
 	FILE *fp;
 	struct stat statbuf;
 	off_t bytes;
 	char *bigbuffer;
-	char content_type[SIZ];
+	char content_type[128];
 
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
@@ -544,40 +544,38 @@ void output_static(char *what)
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
-			strcpy(content_type, "image/gif");
+			safestrncpy(content_type, "image/gif", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
-			strcpy(content_type, "text/plain");
+			safestrncpy(content_type, "text/plain", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".css", 4))
-			strcpy(content_type, "text/css");
+			safestrncpy(content_type, "text/css", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
-			strcpy(content_type, "image/jpeg");
+			safestrncpy(content_type, "image/jpeg", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".png", 4))
-			strcpy(content_type, "image/png");
+			safestrncpy(content_type, "image/png", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".ico", 4))
-			strcpy(content_type, "image/x-icon");
+			safestrncpy(content_type, "image/x-icon", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
-			strcpy(content_type, "text/html");
+			safestrncpy(content_type, "text/html", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".htm", 4))
-			strcpy(content_type, "text/html");
+			safestrncpy(content_type, "text/html", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))
-			strcpy(content_type, "text/vnd.wap.wml");
+			safestrncpy(content_type, "text/vnd.wap.wml", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wmls", 5))
-			strcpy(content_type, "text/vnd.wap.wmlscript");
+			safestrncpy(content_type, "text/vnd.wap.wmlscript", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wmlc", 5))
-			strcpy(content_type, "application/vnd.wap.wmlc");
+			safestrncpy(content_type, "application/vnd.wap.wmlc", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 6], ".wmlsc", 6))
-			strcpy(content_type, "application/vnd.wap.wmlscriptc");
+			safestrncpy(content_type, "application/vnd.wap.wmlscriptc", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wbmp", 5))
-			strcpy(content_type, "image/vnd.wap.wbmp");
+			safestrncpy(content_type, "image/vnd.wap.wbmp", sizeof content_type);
 		else if (!strncasecmp(&what[strlen(what) - 3], ".js", 3))
-			strcpy(content_type, "text/javascript");
+			safestrncpy(content_type, "text/javascript", sizeof content_type);
 		else
-			strcpy(content_type, "application/octet-stream");
+			safestrncpy(content_type, "application/octet-stream", sizeof content_type);
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		/* lprintf(3, "Static: %s, (%s; %ld bytes)\r\n",
-			what, content_type, bytes); */
 		bigbuffer = malloc(bytes + 2);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
@@ -757,8 +755,9 @@ void offer_start_page(void) {
 void change_start_page(void) {
 
 	if (bstr("startpage") == NULL) {
-		strcpy(WC->ImportantMessage,
-			"startpage set to null");
+		safestrncpy(WC->ImportantMessage,
+			"startpage set to null",
+			sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
 	}
@@ -886,12 +885,12 @@ void session_loop(struct httprequest *req)
 	char c_httpauth_pass[SIZ];
 	char cookie[SIZ];
 
-	strcpy(c_username, "");
-	strcpy(c_password, "");
-	strcpy(c_roomname, "");
-	strcpy(c_httpauth_string, "");
-	strcpy(c_httpauth_user, DEFAULT_HTTPAUTH_USER);
-	strcpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS);
+	safestrncpy(c_username, "", sizeof c_username);
+	safestrncpy(c_password, "", sizeof c_password);
+	safestrncpy(c_roomname, "", sizeof c_roomname);
+	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
+	safestrncpy(c_httpauth_user, DEFAULT_HTTPAUTH_USER, sizeof c_httpauth_user);
+	safestrncpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS, sizeof c_httpauth_pass);
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
@@ -902,13 +901,13 @@ void session_loop(struct httprequest *req)
 	hptr = req;
 	if (hptr == NULL) return;
 
-	strcpy(cmd, hptr->line);
+	safestrncpy(cmd, hptr->line, sizeof cmd);
 	hptr = hptr->next;
 	extract_token(method, cmd, 0, ' ', sizeof method);
 	extract_action(action, cmd);
 
 	while (hptr != NULL) {
-		strcpy(buf, hptr->line);
+		safestrncpy(buf, hptr->line, sizeof buf);
 		hptr = hptr->next;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
@@ -949,7 +948,7 @@ void session_loop(struct httprequest *req)
 				ContentType, ContentLength);
 		body_start = strlen(content);
 
-		/* Be daring and read it all at once. */
+		/* Read the entire input data at once. */
 		client_read(WC->http_sock, &content[BytesRead+body_start],
 			ContentLength);
 
@@ -983,7 +982,7 @@ void session_loop(struct httprequest *req)
 
 	/* Static content can be sent without connecting to Citadel. */
 	if (!strcasecmp(action, "static")) {
-		strcpy(buf, &cmd[12]);
+		safestrncpy(buf, &cmd[12], sizeof buf);
 		for (a = 0; a < strlen(buf); ++a)
 			if (isspace(buf[a]))
 				buf[a] = 0;
@@ -1061,8 +1060,8 @@ void session_loop(struct httprequest *req)
 			if (buf[0] == '2') {
 				become_logged_in(c_httpauth_user,
 						c_httpauth_pass, buf);
-				strcpy(WC->httpauth_user, c_httpauth_user);
-				strcpy(WC->httpauth_pass, c_httpauth_pass);
+				safestrncpy(WC->httpauth_user, c_httpauth_user, sizeof WC->httpauth_user);
+				safestrncpy(WC->httpauth_pass, c_httpauth_pass, sizeof WC->httpauth_pass);
 			}
 		}
 	}
@@ -1118,7 +1117,7 @@ void session_loop(struct httprequest *req)
 		serv_printf("GOTO %s", c_roomname);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			strcpy(WC->wc_roomname, c_roomname);
+			safestrncpy(WC->wc_roomname, c_roomname, sizeof WC->wc_roomname);
 		}
 	}
 

@@ -421,13 +421,13 @@ int main(int argc, char **argv)
 #endif
 		switch (a) {
 		case 'i':
-			strcpy(ip_addr, optarg);
+			safestrncpy(ip_addr, optarg, sizeof ip_addr);
 			break;
 		case 'p':
 			port = atoi(optarg);
 			break;
 		case 't':
-			strcpy(tracefile, optarg);
+			safestrncpy(tracefile, optarg, sizeof tracefile);
 			freopen(tracefile, "w", stdout);
 			freopen(tracefile, "w", stderr);
 			freopen(tracefile, "r", stdin);
@@ -436,10 +436,11 @@ int main(int argc, char **argv)
 			verbosity = atoi(optarg);
 			break;
 		case 'c':
-			server_cookie = malloc(SIZ);
+			server_cookie = malloc(256);
 			if (server_cookie != NULL) {
-				strcpy(server_cookie,
-				       "Set-cookie: wcserver=");
+				safestrncpy(server_cookie,
+				       "Set-cookie: wcserver=",
+					256);
 				if (gethostname
 				    (&server_cookie[strlen(server_cookie)],
 				     200) != 0) {

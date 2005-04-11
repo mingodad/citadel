@@ -81,7 +81,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	org[0] = 0;
 	extrafields[0] = 0;
 
-	strcpy(whatuser, "");
+	safestrncpy(whatuser, "", sizeof whatuser);
 
 	if (msgnum >= 0) {
 		sprintf(buf, "MSG0 %ld|1", msgnum);
@@ -93,7 +93,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		}
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (!strncasecmp(buf, "from=", 5)) {
-				strcpy(whatuser, &buf[5]);
+				safestrncpy(whatuser, &buf[5], sizeof whatuser);
 			}
 			else if (!strncasecmp(buf, "node=", 5)) {
 				strcat(whatuser, " @ ");
@@ -135,11 +135,11 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			}
 
 			else if (!strcasecmp(key, "title")) {
-				strcpy(title, value);
+				safestrncpy(title, value, sizeof title);
 			}
 	
 			else if (!strcasecmp(key, "org")) {
-				strcpy(org, value);
+				safestrncpy(org, value, sizeof org);
 			}
 	
 			else if (!strcasecmp(key, "adr")) {
@@ -162,7 +162,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	
 			else if (!strcasecmp(key, "email;internet")) {
 				if (primary_inetemail[0] == 0) {
-					strcpy(primary_inetemail, value);
+					safestrncpy(primary_inetemail, value, sizeof primary_inetemail);
 				}
 				else {
 					if (other_inetemail[0] != 0) {

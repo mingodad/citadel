@@ -245,7 +245,7 @@ char *vcard_serialize(struct vCard *v)
 	ser = malloc(len);
 	if (ser == NULL) return NULL;
 
-	strcpy(ser, "begin:vcard\r\n");
+	safestrncpy(ser, "begin:vcard\r\n", len);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		strcat(ser, v->prop[i].name);
 		strcat(ser, ":");
