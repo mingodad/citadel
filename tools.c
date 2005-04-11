@@ -82,7 +82,7 @@ void extract_token(char *dest, const char *source, int parmnum, char separator, 
 	int count = 0;
 	int len = 0;
 
-	strcpy(dest, "");
+	dest[0] = 0;
 
 	/* Locate desired parameter */
 	s = source;
@@ -200,7 +200,7 @@ void fmt_date(char *buf, time_t thetime)
 	struct tm *tm;
 	int hour;
 
-	strcpy(buf, "");
+	buf[0] = 0;
 	tm = localtime(&thetime);
 	hour = tm->tm_hour;
 	if (hour == 0)
@@ -226,7 +226,7 @@ void fmt_time(char *buf, time_t thetime)
 	struct tm *tm;
 	int hour;
 
-	strcpy(buf, "");
+	buf[0] = 0;
 	tm = localtime(&thetime);
 	hour = tm->tm_hour;
 	if (hour == 0)
@@ -249,7 +249,7 @@ void httpdate(char *buf, time_t thetime)
 {
 	struct tm *tm;
 
-	strcpy(buf, "");
+	buf[0] = 0;
 	tm = localtime(&thetime);
 
 	sprintf(buf, "%s, %02d %s %4d %02d:%02d:%02d",

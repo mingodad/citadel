@@ -169,7 +169,7 @@ void serv_getln(char *strbuf, int bufsize)
 	char buf[2];
 
 	len = 0;
-	strcpy(strbuf, "");
+	strbuf[0] = 0;
 	do {
 		serv_read(&buf[0], 1);
 		ch = buf[0];
