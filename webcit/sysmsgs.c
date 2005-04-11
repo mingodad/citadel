@@ -38,7 +38,7 @@ void display_edit(char *description, char *check_cmd,
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
 	}
@@ -91,7 +91,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	serv_puts(enter_cmd);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
 	}

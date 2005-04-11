@@ -246,10 +246,10 @@ void display_edituser(char *supplied_username, int is_new) {
 	int i;
 
 	if (supplied_username != NULL) {
-		strcpy(username, supplied_username);
+		safestrncpy(username, supplied_username, sizeof username);
 	}
 	else {
-		strcpy(username, bstr("username") );
+		safestrncpy(username, bstr("username"), sizeof username);
 	}
 
 	serv_printf("AGUP %s", username);
@@ -379,7 +379,7 @@ void edituser(void) {
 	is_new = atoi(bstr("is_new"));
 
 	if (strcasecmp(bstr("action"), "OK")) {
-		strcpy(message, "Edit user cancelled.");
+		safestrncpy(message, "Edit user cancelled.", sizeof message);
 	}
 
 	else {
@@ -402,7 +402,7 @@ void edituser(void) {
 				"%s<br /><br />\n", &buf[4]);
 		}
 		else {
-			strcpy(message, "");
+			safestrncpy(message, "", sizeof message);
 		}
 	}
 
@@ -430,7 +430,7 @@ void delete_user(char *username) {
 			"%s<br /><br />\n", &buf[4]);
 	}
 	else {
-		strcpy(message, "");
+		safestrncpy(message, "", sizeof message);
 	}
 	select_user_to_edit(message, bstr("username"));
 }
@@ -443,7 +443,7 @@ void create_user(void) {
 	char error_message[SIZ];
 	char username[SIZ];
 
-	strcpy(username, bstr("username"));
+	safestrncpy(username, bstr("username"), sizeof username);
 
 	serv_printf("CREU %s", username);
 	serv_getln(buf, sizeof buf);

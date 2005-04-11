@@ -680,7 +680,7 @@ void siteconfig(void)
 	serv_printf("CONF set");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
 		display_siteconfig();
 		return;
 	}
@@ -733,6 +733,7 @@ void siteconfig(void)
 	serv_printf("SPEX mailboxes|%d|%d", atoi(bstr("mboxpolicy")), atoi(bstr("mboxvalue")));
 	serv_getln(buf, sizeof buf);
 
-	strcpy(WC->ImportantMessage, "System configuration has been updated.");
+	safestrncpy(WC->ImportantMessage, "System configuration has been updated.",
+		sizeof WC->ImportantMessage);
 	display_siteconfig();
 }

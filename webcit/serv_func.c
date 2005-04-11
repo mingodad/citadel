@@ -74,28 +74,28 @@ void get_serv_info(char *browser_host, char *user_agent)
 			WC->ctdl_pid = serv_info.serv_pid;
 			break;
 		case 1:
-			strcpy(serv_info.serv_nodename, buf);
+			safestrncpy(serv_info.serv_nodename, buf, sizeof serv_info.serv_nodename);
 			break;
 		case 2:
-			strcpy(serv_info.serv_humannode, buf);
+			safestrncpy(serv_info.serv_humannode, buf, sizeof serv_info.serv_humannode);
 			break;
 		case 3:
-			strcpy(serv_info.serv_fqdn, buf);
+			safestrncpy(serv_info.serv_fqdn, buf, sizeof serv_info.serv_fqdn);
 			break;
 		case 4:
-			strcpy(serv_info.serv_software, buf);
+			safestrncpy(serv_info.serv_software, buf, sizeof serv_info.serv_software);
 			break;
 		case 5:
 			serv_info.serv_rev_level = atoi(buf);
 			break;
 		case 6:
-			strcpy(serv_info.serv_bbs_city, buf);
+			safestrncpy(serv_info.serv_bbs_city, buf, sizeof serv_info.serv_bbs_city);
 			break;
 		case 7:
-			strcpy(serv_info.serv_sysadm, buf);
+			safestrncpy(serv_info.serv_sysadm, buf, sizeof serv_info.serv_sysadm);
 			break;
 		case 9:
-			strcpy(serv_info.serv_moreprompt, buf);
+			safestrncpy(serv_info.serv_moreprompt, buf, sizeof serv_info.serv_moreprompt);
 			break;
 		case 14:
 			serv_info.serv_supports_ldap = atoi(buf);
@@ -125,7 +125,7 @@ void fmout(FILE *fp, char *align)
 			serv_getln(buf, sizeof buf);
 		if (fp != NULL) {
 			if (fgets(buf, SIZ, fp) == NULL)
-				strcpy(buf, "000");
+				safestrncpy(buf, "000", sizeof buf);
 			buf[strlen(buf) - 1] = 0;
 		}
 		if (!strcmp(buf, "000")) {
@@ -176,7 +176,7 @@ void text_to_server(char *ptr, int convert_to_html)
 	int ch, a, pos;
 
 	pos = 0;
-	strcpy(buf, "");
+	buf[0] = 0;
 
 	while (ptr[pos] != 0) {
 		ch = ptr[pos++];
@@ -185,7 +185,7 @@ void text_to_server(char *ptr, int convert_to_html)
 			  && (strlen(buf) > 1) )
 				buf[strlen(buf) - 1] = 0;
 			serv_puts(buf);
-			strcpy(buf, "");
+			buf[0] = 0;
 			if (convert_to_html) {
 				strcat(buf, "<br />");
 			}
@@ -202,11 +202,11 @@ void text_to_server(char *ptr, int convert_to_html)
 			if ((ch == 32) && (strlen(buf) > 200)) {
 				buf[a] = 0;
 				serv_puts(buf);
-				strcpy(buf, "");
+				buf[0] = 0;
 			}
 			if (strlen(buf) > 250) {
 				serv_puts(buf);
-				strcpy(buf, "");
+				buf[0] = 0;
 			}
 		}
 	}
@@ -285,7 +285,7 @@ char *read_server_text(void) {
 	if (text == NULL) {
 		return(NULL);
 	}
-	strcpy(text, "");
+	text[0] = 0;
 	bytes_allocated = SIZ;
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
