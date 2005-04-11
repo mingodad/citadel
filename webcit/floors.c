@@ -58,7 +58,7 @@ void display_floorconfig(char *prepend_html)
 	}
 
 	serv_printf("LFLR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
@@ -75,7 +75,7 @@ void display_floorconfig(char *prepend_html)
 		"<TH>Number of rooms</TH></TR>\n"
 	);
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		floornum = extract_int(buf, 0);
 		extract_token(floorname, buf, 1, '|', sizeof floorname);
 		refcount = extract_int(buf, 2);
@@ -132,7 +132,7 @@ void delete_floor(void) {
 	floornum = atoi(bstr("floornum"));
 
 	serv_printf("KFLR %d|1", floornum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		sprintf(message, "Floor has been deleted.");
@@ -153,7 +153,7 @@ void create_floor(void) {
 	strcpy(floorname, bstr("floorname"));
 
 	serv_printf("CFLR %s|1", floorname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		sprintf(message, "New floor has been created.");
@@ -175,7 +175,7 @@ void rename_floor(void) {
 	strcpy(floorname, bstr("floorname"));
 
 	serv_printf("EFLR %d|%s", floornum, floorname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	sprintf(message, "%s", &buf[4]);
 

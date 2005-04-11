@@ -71,7 +71,7 @@ void do_listsub(void)
 			subtype,
 			WC->http_host
 		);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			wprintf("<CENTER><H1>Confirmation request sent</H1>"
 				"You are subscribing <TT>");
@@ -108,7 +108,7 @@ void do_listsub(void)
 			email,
 			WC->http_host
 		);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			wprintf("<CENTER><H1>Confirmation request sent</H1>"
 				"You are unsubscribing <TT>");
@@ -144,7 +144,7 @@ void do_listsub(void)
 			room,
 			token
 		);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			wprintf("<CENTER><H1>Confirmation successful!</H1>");
 		}
@@ -176,9 +176,9 @@ FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
         		"<SELECT NAME=\"room\" SIZE=1>\n");
 
         	serv_puts("LPRM");
-        	serv_gets(buf);
+        	serv_getln(buf, sizeof buf);
         	if (buf[0] == '1') {
-                	while (serv_gets(buf), strcmp(buf, "000")) {
+                	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				extract_token(sroom, buf, 0, '|', sizeof sroom);
 				self = extract_int(buf, 4) & QR2_SELFLIST ;
 				if (self) {

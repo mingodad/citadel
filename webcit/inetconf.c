@@ -81,8 +81,8 @@ void display_inetconf(void)
 	ic_misc = strdup("");
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		extract_token(ename, buf, 0, '|', sizeof ename);
 		extract_token(etype, buf, 1, '|', sizeof etype);
@@ -172,8 +172,8 @@ void save_inetconf(void) {
 
 	strcpy(newconfig, "");
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(ename, buf, 0, '|', sizeof ename);
 		extract_token(etype, buf, 1, '|', sizeof etype);
 		if (strlen(buf) == 0) {
@@ -192,7 +192,7 @@ void save_inetconf(void) {
 	}
 
 	serv_printf("CONF PUTSYS|application/x-citadel-internet-config");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
 		serv_puts(newconfig);
 		if (!strcasecmp(bstr("oper"), "add")) {

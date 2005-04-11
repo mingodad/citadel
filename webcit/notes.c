@@ -33,14 +33,14 @@ void display_note(long msgnum) {
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/note.gif\">\n");
 
 	serv_printf("MSG0 %ld", msgnum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("%s<br />\n", &buf[4]);
 		return;
 	}
 
 	strcpy(notetext, "");
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		/* Fill the buffer to at least 256 characters */
 		if ( (in_text) && (strlen(notetext) < 256) ) {

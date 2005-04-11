@@ -469,7 +469,7 @@ void check_for_instant_messages()
 	char buf[SIZ];
 
 	serv_puts("NOOP");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[3] == '*') WC->HaveInstantMessages = 1;
 }
 
@@ -602,7 +602,7 @@ void output_image()
 	off_t bytes;
 
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		xferbuf = malloc(bytes + 2);
@@ -610,7 +610,7 @@ void output_image()
 		/* Read it from the server */
 		read_server_binary(xferbuf, bytes);
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 
 		/* Write it to the browser */
 		http_transmit_thing(xferbuf, (size_t)bytes, "image/gif", 0);
@@ -649,7 +649,7 @@ void output_mimepart()
 	char *content = NULL;
 	
 	serv_printf("OPNA %s|%s", bstr("msgnum"), bstr("partnum"));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
@@ -657,7 +657,7 @@ void output_mimepart()
 		output_headers(0, 0, 0, 0, 0, 0, 0);
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		http_transmit_thing(content, bytes, content_type, 0);
 		free(content);
 	} else {
@@ -681,7 +681,7 @@ char *load_mimepart(long msgnum, char *partnum)
 	char *content;
 	
 	serv_printf("OPNA %ld|%s", msgnum, partnum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
@@ -690,7 +690,7 @@ char *load_mimepart(long msgnum, char *partnum)
 		read_server_binary(content, bytes);
 
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		content[bytes] = 0;	/* null terminate for good measure */
 		return(content);
 	}
@@ -1012,7 +1012,7 @@ void session_loop(struct httprequest *req)
 		}
 		else {
 			WC->connected = 1;
-			serv_gets(buf);	/* get the server welcome message */
+			serv_getln(buf, sizeof buf);	/* get the server welcome message */
 			locate_host(browser_host, WC->http_sock);
 			get_serv_info(browser_host, user_agent);
 			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
@@ -1054,10 +1054,10 @@ void session_loop(struct httprequest *req)
 	   && (strlen(c_httpauth_user) > 0)
 	   && (strlen(c_httpauth_pass) > 0)) {
 		serv_printf("USER %s", c_httpauth_user);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
 			serv_printf("PASS %s", c_httpauth_pass);
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
 				become_logged_in(c_httpauth_user,
 						c_httpauth_pass, buf);
@@ -1101,10 +1101,10 @@ void session_loop(struct httprequest *req)
 	   && (strlen(c_username) > 0)
 	   && (strlen(c_password) > 0)) {
 		serv_printf("USER %s", c_username);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
 			serv_printf("PASS %s", c_password);
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
 				become_logged_in(c_username, c_password, buf);
 			}
@@ -1116,7 +1116,7 @@ void session_loop(struct httprequest *req)
 	 */
 	if ((strlen(WC->wc_roomname) == 0) && (strlen(c_roomname) > 0)) {
 		serv_printf("GOTO %s", c_roomname);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			strcpy(WC->wc_roomname, c_roomname);
 		}

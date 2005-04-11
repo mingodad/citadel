@@ -104,7 +104,7 @@ void page_user(void)
 		wprintf("<EM>Message was not sent.</EM><br />\n");
 	} else {
 		serv_printf("SEXP %s|-", recp);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 
 		if (buf[0] == '4') {
 			text_to_server(bstr("msgtext"), 0);
@@ -137,7 +137,7 @@ void do_chat(void)
 
 	/* First, check to make sure we're still allowed in this room. */
 	serv_printf("GOTO %s", WC->wc_roomname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		smart_goto("_BASEROOM_");
 		return;
@@ -167,7 +167,7 @@ void page_popup(void)
 	char buf[SIZ];
 	char pagefrom[SIZ];
 
-	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
+	while (serv_puts("GEXP"), serv_getln(buf, sizeof buf), buf[0]=='1') {
 
 		extract_token(pagefrom, &buf[4], 3, '|', sizeof pagefrom);
 
@@ -219,19 +219,19 @@ int setup_chat_socket(void) {
 		WC->serv_sock = WC->chat_sock;
 		WC->chat_sock = i;
 
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			serv_printf("USER %s", WC->wc_username);
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '3') {
 				serv_printf("PASS %s", WC->wc_password);
-				serv_gets(buf);
+				serv_getln(buf, sizeof buf);
 				if (buf[0] == '2') {
 					serv_printf("GOTO %s", WC->wc_roomname);
-					serv_gets(buf);
+					serv_getln(buf, sizeof buf);
 					if (buf[0] == '2') {
 						serv_puts("CHAT");
-						serv_gets(buf);
+						serv_getln(buf, sizeof buf);
 						if (buf[0] == '8') {
 							good_chatmode = 1;
 						}
@@ -303,7 +303,7 @@ void chat_recv(void) {
 			WC->serv_sock = WC->chat_sock;
 			WC->chat_sock = i;
 	
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 
 			if (!strcmp(buf, "000")) {
 				strcpy(buf, ":|exiting chat mode");

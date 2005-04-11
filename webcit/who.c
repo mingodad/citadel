@@ -71,7 +71,7 @@ void whobbs(void)
 	wprintf("<TH>From host</TH>\n</TR>\n");
 
 	serv_puts("TIME");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		now = extract_long(&buf[4], 0);
 	}
@@ -80,9 +80,9 @@ void whobbs(void)
 	}
 
 	serv_puts("RWHO");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			sess = extract_int(buf, 0);
 			extract_token(user, buf, 1, '|', sizeof user);
 			extract_token(room, buf, 2, '|', sizeof room);
@@ -175,7 +175,7 @@ void terminate_session(void)
 	char buf[SIZ];
 
 	serv_printf("TERM %s", bstr("which_session"));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	whobbs();
 }
 
@@ -189,15 +189,15 @@ void edit_me(void)
 
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Change host name")) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Change user name")) {
 		serv_printf("UCHG %s", bstr("fake_username"));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Cancel")) {
 		http_redirect("/whobbs");

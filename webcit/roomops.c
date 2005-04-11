@@ -57,12 +57,12 @@ void load_floorlist(void)
 		floorlist[a][0] = 0;
 
 	serv_puts("LFLR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		strcpy(floorlist[0], "Main Floor");
 		return;
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(floorlist[extract_int(buf, 0)], buf, 1, '|', sizeof floorlist[0]);
 	}
 }
@@ -172,12 +172,12 @@ void listrms(char *variety)
 
 	/* Ask the server for a room list */
 	serv_puts(variety);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("&nbsp;");
 		return;
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		++num_rooms;
 		rp = malloc(sizeof(struct roomlisting));
 		extract_token(rp->rlname, buf, 0, '|', sizeof rp->rlname);
@@ -246,7 +246,7 @@ void readinfo(void)
 	char buf[SIZ];
 
 	serv_puts("RINF");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		fmout(NULL, "CENTER");
 	}
@@ -264,14 +264,14 @@ void embed_room_graphic(void) {
 	char buf[SIZ];
 
 	serv_puts("OIMG _roompic_");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		wprintf("<TD BGCOLOR=\"#444455\">");
 		wprintf("<IMG HEIGHT=64 SRC=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
 		wprintf("\"></TD>");
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 
 }
@@ -340,7 +340,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	 */
 	if (got == NULL) {
 		serv_printf("GOTO %s", WC->wc_roomname);
-		serv_gets(fakegot);
+		serv_getln(fakegot, sizeof fakegot);
 		got = fakegot;
 	}
 
@@ -538,10 +538,10 @@ void gotoroom(char *gname)
 
 	/* move to the new room */
 	serv_printf("GOTO %s", gname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		serv_puts("GOTO _BASEROOM_");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 	if (buf[0] != '2') {
 		return;
@@ -625,9 +625,9 @@ void gotonext(void)
 
 	if (WC->march == NULL) {
 		serv_puts("LKRN");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1')
-			while (serv_gets(buf), strcmp(buf, "000")) {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				mptr = (struct march *) malloc(sizeof(struct march));
 				mptr->next = NULL;
 				extract_token(mptr->march_name, buf, 0, '|', sizeof mptr->march_name);
@@ -689,7 +689,7 @@ void slrp_highest(void)
 
 	/* set pointer */
 	serv_puts("SLRP HIGHEST");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		return;
@@ -709,14 +709,14 @@ void ungoto(void)
 		return;
 	}
 	serv_printf("GOTO %s", WC->ugname);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		smart_goto(WC->wc_roomname);
 		return;
 	}
 	if (WC->uglsn >= 0L) {
 		serv_printf("SLRP %ld", WC->uglsn);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 	strcpy(buf, WC->ugname);
 	strcpy(WC->ugname, "");
@@ -744,7 +744,7 @@ int self_service(int newval) {
 	int flags, floor, order, view, flags2;
 
 	serv_puts("GETR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') return(0);
 
 	extract_token(name, &buf[4], 0, '|', sizeof name);
@@ -777,7 +777,7 @@ int self_service(int newval) {
 		serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
 			name, password, dirname, flags,
 			floor, order, view, flags2);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	}
 
 	return(newval);
@@ -819,7 +819,7 @@ void display_editroom(void)
 
 	load_floorlist();
 	serv_puts("GETR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
@@ -1078,7 +1078,7 @@ void display_editroom(void)
 	
 		wprintf("<LI>Room aide: \n");
 		serv_puts("GETA");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			wprintf("<EM>%s</EM>\n", &buf[4]);
 		} else {
@@ -1104,8 +1104,8 @@ void display_editroom(void)
 
 		/* Learn the current configuration */
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
-		serv_gets(buf);
-		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(node, buf, 0, '|', sizeof node);
 			not_shared_with = realloc(not_shared_with,
 					strlen(not_shared_with) + 32);
@@ -1114,8 +1114,8 @@ void display_editroom(void)
 		}
 
 		serv_puts("GNET");
-		serv_gets(buf);
-		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			extract_token(node, buf, 1, '|', sizeof node);
 			extract_token(remote_room, buf, 2, '|', sizeof remote_room);
@@ -1257,8 +1257,8 @@ void display_editroom(void)
 			"</i><br /><br />\n");
 
 		serv_puts("GNET");
-		serv_gets(buf);
-		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "listrecp")) {
 				extract_token(recp, buf, 1, '|', sizeof recp);
@@ -1286,8 +1286,8 @@ void display_editroom(void)
 			"</i><br /><br />\n");
 
 		serv_puts("GNET");
-		serv_gets(buf);
-		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "digestrecp")) {
 				extract_token(recp, buf, 1, '|', sizeof recp);
@@ -1338,14 +1338,14 @@ void display_editroom(void)
 	if (!strcmp(tab, "expire")) {
 
 		serv_puts("GPEX room");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			roompolicy = extract_int(&buf[4], 0);
 			roomvalue = extract_int(&buf[4], 1);
 		}
 		
 		serv_puts("GPEX floor");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			floorpolicy = extract_int(&buf[4], 0);
 			floorvalue = extract_int(&buf[4], 1);
@@ -1455,7 +1455,7 @@ void editroom(void)
 		return;
 	}
 	serv_puts("GETR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
@@ -1470,7 +1470,7 @@ void editroom(void)
 	strcpy(er_roomaide, bstr("er_roomaide"));
 	if (strlen(er_roomaide) == 0) {
 		serv_puts("GETA");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			strcpy(er_roomaide, "");
 		} else {
@@ -1569,7 +1569,7 @@ void editroom(void)
 	sprintf(buf, "SETR %s|%s|%s|%u|%d|%d",
 	     er_name, er_password, er_dirname, er_flags, bump, er_floor);
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_editroom();
@@ -1580,7 +1580,7 @@ void editroom(void)
 	if (strlen(er_roomaide) > 0) {
 		sprintf(buf, "SETA %s", er_roomaide);
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			strcpy(WC->ImportantMessage, &buf[4]);
 			display_main_menu();
@@ -1601,7 +1601,7 @@ void do_invt_kick(void) {
         char buf[SIZ], room[SIZ], username[SIZ];
 
         serv_puts("GETR");
-        serv_gets(buf);
+        serv_getln(buf, sizeof buf);
 
         if (buf[0] != '2') {
 		escputs(&buf[4]);
@@ -1614,7 +1614,7 @@ void do_invt_kick(void) {
         if (!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
                 serv_puts(buf);
-                serv_gets(buf);
+                serv_getln(buf, sizeof buf);
 
                 if (buf[0] != '2') {
                         strcpy(WC->ImportantMessage, &buf[4]);
@@ -1628,7 +1628,7 @@ void do_invt_kick(void) {
 	if (!strcmp(bstr("sc"), "Invite")) {
                 sprintf(buf, "INVT %s", username);
                 serv_puts(buf);
-                serv_gets(buf);
+                serv_getln(buf, sizeof buf);
 
                 if (buf[0] != '2') {
                         strcpy(WC->ImportantMessage, &buf[4]);
@@ -1652,7 +1652,7 @@ void display_whok(void)
         char buf[SIZ], room[SIZ], username[SIZ];
 
         serv_puts("GETR");
-        serv_gets(buf);
+        serv_getln(buf, sizeof buf);
 
         if (buf[0] != '2') {
 		escputs(&buf[4]);
@@ -1670,9 +1670,9 @@ void display_whok(void)
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
-        serv_gets(buf);
+        serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
-                while (serv_gets(buf), strcmp(buf, "000")) {
+                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
                         extract_token(username, buf, 0, '|', sizeof username);
                         wprintf("<OPTION>");
                         escputs(username);
@@ -1711,7 +1711,7 @@ void display_entroom(void)
 	char buf[SIZ];
 
 	serv_puts("CRE8 0");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
@@ -1815,7 +1815,7 @@ void display_entroom(void)
 	wprintf("</CENTER>\n");
 	wprintf("</FORM>\n<hr />");
 	serv_printf("MESG roomaccess");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		fmout(NULL, "CENTER");
 	}
@@ -1842,7 +1842,7 @@ void er_set_default_view(int newview) {
 	int rm_bits2;
 
 	serv_puts("GETR");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') return;
 
 	extract_token(rm_name, &buf[4], 0, '|', sizeof rm_name);
@@ -1857,7 +1857,7 @@ void er_set_default_view(int newview) {
 		rm_name, rm_pass, rm_dir, rm_bits1, rm_floor,
 		rm_listorder, newview, rm_bits2
 	);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 }
 
 
@@ -1900,7 +1900,7 @@ void entroom(void)
 	sprintf(buf, "CRE8 1|%s|%d|%s|%d|%d|%d", 
 		er_name, er_num_type, er_password, er_floor, 0, er_view);
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -1977,7 +1977,7 @@ void goto_private(void)
 	strcat(buf, "|");
 	strcat(buf, bstr("gr_pass"));
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
 		smart_goto(bstr("gr_name"));
@@ -2035,10 +2035,10 @@ void zap(void)
 
 	if (!strcasecmp(bstr("sc"), "OK")) {
 		serv_printf("GOTO %s", WC->wc_roomname);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			serv_puts("FORG");
-			serv_gets(buf);
+			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
 				strcpy(final_destination, "_BASEROOM_");
 			}
@@ -2057,7 +2057,7 @@ void delete_room(void)
 	char buf[SIZ];
 
 	serv_puts("KILL 1");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -2097,7 +2097,7 @@ void netedit(void) {
 	}
 
 	serv_puts("GNET");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		fclose(fp);
 		display_editroom();
@@ -2105,7 +2105,7 @@ void netedit(void) {
 	}
 
 	/* This loop works for add *or* remove.  Spiffy, eh? */
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(cmpa0, buf, 0, '|', sizeof cmpa0);
 		extract_token(cmpa1, buf, 1, '|', sizeof cmpa1);
 		extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
@@ -2118,7 +2118,7 @@ void netedit(void) {
 
 	rewind(fp);
 	serv_puts("SNET");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		fclose(fp);
 		display_editroom();
@@ -2180,7 +2180,7 @@ void do_change_view(int newview) {
 	char buf[SIZ];
 
 	serv_printf("VIEW %d", newview);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	WC->wc_view = newview;
 	smart_goto(WC->wc_roomname);
 }
@@ -2414,8 +2414,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 
 	/* Then add floors */
 	serv_puts("LFLR");
-	serv_gets(buf);
-	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (max_folders >= alloc_folders) {
 			alloc_folders = max_folders + 100;
 			fold = realloc(fold,
@@ -2429,8 +2429,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 
 	/* Now add rooms */
 	serv_puts("LKRA");
-	serv_gets(buf);
-	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (max_folders >= alloc_folders) {
 			alloc_folders = max_folders + 100;
 			fold = realloc(fold,
@@ -2583,13 +2583,13 @@ void set_room_policy(void) {
 	}
 
 	serv_printf("SPEX room|%d|%d", atoi(bstr("roompolicy")), atoi(bstr("roomvalue")));
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	strcpy(WC->ImportantMessage, &buf[4]);
 
 	if (WC->axlevel >= 6) {
 		strcat(WC->ImportantMessage, "<br />\n");
 		serv_printf("SPEX floor|%d|%d", atoi(bstr("floorpolicy")), atoi(bstr("floorvalue")));
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		strcat(WC->ImportantMessage, &buf[4]);
 	}
 

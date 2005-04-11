@@ -86,12 +86,12 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	if (msgnum >= 0) {
 		sprintf(buf, "MSG0 %ld|1", msgnum);
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '1') {
 			convenience_page("770000", "Error", &buf[4]);
 			return;
 		}
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (!strncasecmp(buf, "from=", 5)) {
 				strcpy(whatuser, &buf[5]);
 			}
@@ -103,7 +103,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	
 		sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			convenience_page("770000", "Error", &buf[4]);
 			return;
@@ -115,7 +115,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		read_server_binary(serialized_vcard, total_len);
 	
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		serialized_vcard[total_len] = 0;
 	
 		v = vcard_load(serialized_vcard);
@@ -342,7 +342,7 @@ void submit_vcard(void) {
 
 	sprintf(buf, "ENT0 1|||4||");
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		edit_vcard();
 		return;

@@ -46,9 +46,9 @@ void userlist(void)
 	int bg = 0;
 
 	serv_puts("LBIO");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1')
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			bptr = (struct namelist *) malloc(sizeof(struct namelist));
 			bptr->next = bio;
 			strcpy(bptr->name, buf);
@@ -65,7 +65,7 @@ void userlist(void)
 	);
 
 	serv_puts("LIST");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
@@ -76,7 +76,7 @@ void userlist(void)
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(fl, buf, 0, '|', sizeof fl);
 		has_bio = 0;
 		for (bptr = bio; bptr != NULL; bptr = bptr->next) {
@@ -139,11 +139,11 @@ void showuser(void)
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		have_pic = 1;
 		serv_puts("CLOS");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 	} else {
 		have_pic = 0;
 	}
@@ -156,7 +156,7 @@ void showuser(void)
 	}
 	wprintf("</TD><TD><H1>%s</H1></TD></TR></TABLE></CENTER>\n", who);
 	serv_printf("RBIO %s", who);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		fmout(NULL, "JUSTIFY");
 	}

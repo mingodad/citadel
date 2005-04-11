@@ -163,7 +163,7 @@ void serv_read(char *buf, int bytes)
 /*
  * input string from pipe
  */
-void serv_gets(char *strbuf)
+void serv_getln(char *strbuf, int bufsize)
 {
 	int ch, len;
 	char buf[2];
@@ -174,7 +174,7 @@ void serv_gets(char *strbuf)
 		serv_read(&buf[0], 1);
 		ch = buf[0];
 		strbuf[len++] = ch;
-	} while ((ch != 10) && (ch != 0) && (len < (SIZ-1)));
+	} while ((ch != 10) && (ch != 0) && (len < (bufsize-1)));
 	if (strbuf[len-1] == 10) strbuf[--len] = 0;
 	if (strbuf[len-1] == 13) strbuf[--len] = 0;
 #ifdef SERV_TRACE

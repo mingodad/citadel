@@ -433,7 +433,7 @@ void read_message(long msgnum) {
 	strcpy(mime_http, "");
 
 	serv_printf("MSG4 %ld", msgnum);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("<STRONG>ERROR:</STRONG> %s<br />\n", &buf[4]);
 		return;
@@ -451,7 +451,7 @@ void read_message(long msgnum) {
 	wprintf("<SPAN CLASS=\"message_header\">");
 	strcpy(m_subject, "");
 
-	while (serv_gets(buf), strcasecmp(buf, "text")) {
+	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<I>unexpected end of message</I><br /><br />\n");
 			wprintf("</SPAN>\n");
@@ -614,7 +614,7 @@ void read_message(long msgnum) {
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
-	while (serv_gets(buf), (strlen(buf) > 0)) {
+	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<I>unexpected end of message</I><br /><br />\n");
 			goto ENDBODY;
@@ -632,7 +632,7 @@ void read_message(long msgnum) {
 
 	/* Boring old 80-column fixed format text gets handled this way... */
 	else if (!strcasecmp(mime_content_type, "text/plain")) {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
 			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
 			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
@@ -663,7 +663,7 @@ void read_message(long msgnum) {
 	else {
 		wprintf("I don't know how to display %s<br />\n",
 			mime_content_type);
-		while (serv_gets(buf), strcmp(buf, "000")) { }
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
 
@@ -732,10 +732,10 @@ void summarize_message(long msgnum, int is_new) {
 
 	sprintf(buf, "MSG0 %ld|3", msgnum);	/* ask for headers only with no MIME */
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(summ.from, &buf[5]);
 		}
@@ -816,10 +816,10 @@ void display_addressbook(long msgnum, char alpha) {
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
 			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
@@ -908,10 +908,10 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
 			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
@@ -1071,12 +1071,12 @@ int load_msg_ptrs(char *servcmd)
 	nummsgs = 0;
 	maxload = sizeof(WC->msgarr) / sizeof(long) ;
 	serv_puts(servcmd);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		return (nummsgs);
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (nummsgs < maxload) {
 			WC->msgarr[nummsgs] = atol(buf);
 			++nummsgs;
@@ -1159,7 +1159,7 @@ void readloop(char *oper)
 	strcpy(old_msgs, "");
 	if (is_summary) {
 		serv_puts("GTSN");
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			strcpy(old_msgs, &buf[4]);
 		}
@@ -1551,7 +1551,7 @@ void post_message(void)
 			bstr("recp"),
 			bstr("subject") );
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			post_mime_to_server();
 			if (strlen(bstr("recp")) > 0) {
@@ -1624,7 +1624,7 @@ void display_enter(void)
 
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
 	if (!strncmp(buf, "570", 3)) {
 		if (strlen(bstr("recp")) > 0) {
@@ -1745,7 +1745,7 @@ void delete_msg(void)
 
 	sprintf(buf, "DELE %ld", msgid);
 	serv_puts(buf);
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	wprintf("<EM>%s</EM><br />\n", &buf[4]);
 
 	wDumpContent(1);
@@ -1784,9 +1784,9 @@ void confirm_move_msg(void)
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");
 	serv_puts("LKRA");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(targ, buf, 0, '|', sizeof targ);
 			wprintf("<OPTION>");
 			escputs(targ);
@@ -1819,7 +1819,7 @@ void move_msg(void)
 	if (!strcasecmp(bstr("yesno"), "Move")) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 	} else {
 		wprintf("<EM>Message not moved.</EM><br />\n");
@@ -1847,9 +1847,9 @@ void do_stuff_to_msgs(void) {
 
 
 	serv_puts("MSGS ALL");
-	serv_gets(buf);
+	serv_getln(buf, sizeof buf);
 
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		ptr = malloc(sizeof(struct stuff_t));
 		ptr->msgnum = atol(buf);
 		ptr->next = stuff;
@@ -1865,7 +1865,7 @@ void do_stuff_to_msgs(void) {
 
 			if (!strcasecmp(sc, "Delete selected")) {
 				serv_printf("DELE %ld", stuff->msgnum);
-				serv_gets(buf);
+				serv_getln(buf, sizeof buf);
 			}
 
 		}

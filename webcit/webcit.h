@@ -279,7 +279,7 @@ void ungoto(void);
 void get_serv_info(char *, char *);
 int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
-void serv_gets(char *strbuf);
+void serv_getln(char *strbuf, int bufsize);
 void serv_puts(char *string);
 void whobbs(void);
 void fmout(FILE *fp, char *align);

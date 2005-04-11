@@ -88,7 +88,7 @@ void new_messages_section(void) {
 		extract_token(room, rooms_to_check, i, '|', sizeof room);
 
 		serv_printf("GOTO %s", room);
-		serv_gets(buf);
+		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			extract_token(room, &buf[4], 0, '|', sizeof room);
 			wprintf("<TR><TD><A HREF=\"/dotgoto?room=");
@@ -117,8 +117,8 @@ void wholist_section(void) {
 	svprintf("BOXTITLE", WCS_STRING, "Who's&nbsp;online&nbsp;now");
 	do_template("beginbox");
 	serv_puts("RWHO");
-	serv_gets(buf);
-	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(user, buf, 1, '|', sizeof user);
 		escputs(user);
 		wprintf("<br />\n");
