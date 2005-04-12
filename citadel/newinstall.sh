@@ -224,7 +224,7 @@ install_ldap () {
 	echo "* Downloading OpenLDAP..."
 	$WGET $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing OpenLDAP..."
-	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
+	CFLAGS="-I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
 	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
 	export CFLAGS CPPFLAGS LDFLAGS
@@ -282,7 +282,7 @@ install_sources () {
 		IS_UPGRADE=no
 	fi
 
-	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
+	CFLAGS="-I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
 	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
 	export CFLAGS CPPFLAGS LDFLAGS
