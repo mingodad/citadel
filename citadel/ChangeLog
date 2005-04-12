@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.2  2005/04/12 21:19:52  ajc
+ * 'make install' now installs citadel-openldap.schema
+
  Revision 645.1  2005/04/11 16:31:57  ajc
  * Database logs are now kept in the "data_logs" directory instead of in
    the "data" directory.  If no "data_logs" directory is found, a symlink
@@ -6583,3 +6586,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
