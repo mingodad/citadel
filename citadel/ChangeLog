@@ -1,4 +1,9 @@
  $Log$
+ Revision 645.3  2005/04/13 17:03:07  ajc
+ * Reverted database changes because the cull_logs function wasn't working
+   with the separate log directory.
+ * citmail.c: started some fixes to make it able to work from
+
  Revision 645.2  2005/04/12 21:19:52  ajc
  * 'make install' now installs citadel-openldap.schema
 
@@ -6586,4 +6591,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

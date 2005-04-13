@@ -171,15 +171,24 @@ int main(int argc, char **argv) {
 	char buf[1024];
 	char fromline[1024];
 	FILE *fp;
+	int i;
+	struct passwd *pw;
 
 	get_config();
 
+	pw = getpwuid(getuid());
+
 	fp = tmpfile();
 	if (fp == NULL) return(errno);
-	snprintf(fromline, sizeof fromline, "From: someone@somewhere.org");
+	snprintf(fromline, sizeof fromline, "From: %s@%s",
+		pw->pw_name,
+		config.c_fqdn
+	);
 	while (fgets(buf, 1024, stdin) != NULL) {
 		fprintf(fp, "%s", buf);
-		if (!strncasecmp(buf, "From:", 5)) strcpy(fromline, buf);
+		if (!strncasecmp(buf, "From:", 5)) {
+			strcpy(fromline, buf);
+		}
 	}
 	strip_trailing_nonprint(fromline);
 
@@ -199,10 +208,14 @@ int main(int argc, char **argv) {
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 
-	snprintf(buf, sizeof buf, "RCPT To: %s", argv[1]);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
+	for (i=1; i<argc; ++i) {
+		if (argv[i][0] != '-') {
+			snprintf(buf, sizeof buf, "RCPT To: %s", argv[i]);
+			serv_puts(buf);
+			serv_gets(buf);
+			/* if (buf[0]!='2') cleanup(1); */
+		}
+	}
 
 	serv_puts("DATA");
 	serv_gets(buf);
