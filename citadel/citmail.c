@@ -173,6 +173,8 @@ int main(int argc, char **argv) {
 	FILE *fp;
 	int i;
 	struct passwd *pw;
+	int from_header = 0;
+	int in_body = 0;
 
 	get_config();
 
@@ -185,10 +187,19 @@ int main(int argc, char **argv) {
 		config.c_fqdn
 	);
 	while (fgets(buf, 1024, stdin) != NULL) {
-		fprintf(fp, "%s", buf);
+		if ( ( (buf[0] == 13) || (buf[0] == 10)) && (in_body == 0) ) {
+			in_body = 1;
+			if (from_header == 0) {
+				fprintf(fp, "%s%s", fromline, buf);
+			}
+		}
 		if (!strncasecmp(buf, "From:", 5)) {
 			strcpy(fromline, buf);
+			if (in_body == 0) {
+				from_header = 1;
+			}
 		}
+		fprintf(fp, "%s", buf);
 	}
 	strip_trailing_nonprint(fromline);
 

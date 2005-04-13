@@ -519,7 +519,9 @@ void smtp_mail(char *argbuf) {
 
 	strcpy(SMTP->from, &argbuf[5]);
 	striplt(SMTP->from);
-	stripallbut(SMTP->from, '<', '>');
+	if (haschar(SMTP->from, '<') > 0) {
+		stripallbut(SMTP->from, '<', '>');
+	}
 
 	/* We used to reject empty sender names, until it was brought to our
 	 * attention that RFC1123 5.2.9 requires that this be allowed.  So now

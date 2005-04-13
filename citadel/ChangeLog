@@ -1,4 +1,9 @@
  $Log$
+ Revision 645.4  2005/04/13 20:42:44  ajc
+ * citmail.c: changes to citmail to make it usable as a /usr/sbin/sendmail
+   replacement; i.e. /bin/mail calls /usr/sbin/sendmail which sends mail
+   through Citadel.
+
  Revision 645.3  2005/04/13 17:03:07  ajc
  * Reverted database changes because the cull_logs function wasn't working
    with the separate log directory.
@@ -6591,3 +6596,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
