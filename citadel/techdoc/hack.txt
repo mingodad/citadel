@@ -27,7 +27,7 @@ this file look something like this:
 struct ctdluser {                       /* User record                      */
         int version;                    /* Cit vers. which created this rec */
         uid_t uid;                      /* Associate with a unix account?   */
-        char password[32];              /* password (for BBS-only users)    */
+        char password[32];              /* password (for Citadel-only users)*/
         unsigned flags;                 /* See US_ flags below              */
         long timescalled;               /* Total number of logins           */
         long posted;                    /* Number of messages posted (ever) */
@@ -293,14 +293,14 @@ U       Subject         Optional.  Developers may choose whether they wish to
 Let <FF> be a 0xFF byte, and <0> be a null (0x00) byte.  Then a message
 which prints as...
 
-Apr 12, 1988 23:16 From Test User In Network Test> @lifesys (Life BBS)
+Apr 12, 1988 23:16 From Test User In Network Test> @lifesys (Life Central)
 Have a nice day!
 
  might be stored as...
 <FF><40><0>I12345<0>Pneighbor!lifesys!test_user<0>T576918988<0>    (continued)
 -----------|Mesg ID#|--Message Path---------------|--Date------
 
-AThe Test User<0>ONetwork Test<0>Nlifesys<0>HLife BBS<0>MHave a nice day!<0>
+AThe Test User<0>ONetwork Test<0>Nlifesys<0>HLife Central<0>MHave a nice day!<0>
 |-----Author-----|-Room name-----|-nodename-|Human Name-|--Message text-----
 
  Weird things can happen if fields are missing, especially if you use the

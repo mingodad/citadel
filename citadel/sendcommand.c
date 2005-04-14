@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 	char cmd[SIZ];
 	char buf[SIZ];
 
-	strcpy(bbs_home_directory, BBSDIR);
+	strcpy(ctdl_home_directory, CTDLDIR);
 
 	strcpy(cmd, "");
 	/*
@@ -151,8 +151,8 @@ int main(int argc, char **argv)
 	 */
 	for (a = 1; a < argc; ++a) {
 		if (!strncmp(argv[a], "-h", 2)) {
-			strcpy(bbs_home_directory, argv[a]);
-			strcpy(bbs_home_directory, &bbs_home_directory[2]);
+			strcpy(ctdl_home_directory, argv[a]);
+			strcpy(ctdl_home_directory, &ctdl_home_directory[2]);
 			home_specified = 1;
 		} else {
 			if (strlen(cmd) > 0)
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "sendcommand: started (pid=%d) "
 			"running in %s\n",
 			(int) getpid(),
-			bbs_home_directory);
+			ctdl_home_directory);
 	fflush(stderr);
 	np_attach_to_server();
 	fflush(stderr);

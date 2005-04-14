@@ -2,7 +2,7 @@
            Description of the files in the "netconfigs" directory
 
  These files contain a set of network configurations for a room.  They are
-stored in the directory $BBSDIR/netconfigs and are named according to each
+stored in the directory $CTDLDIR/netconfigs and are named according to each
 room's internal ID number.  When a room is deleted, its network configuration
 file is deleted as well.
   

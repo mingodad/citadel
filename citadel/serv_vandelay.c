@@ -264,7 +264,7 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_fqdn);
 	cprintf("%s\n", config.c_humannode);
 	cprintf("%s\n", config.c_phonenum);
-	cprintf("%ld\n", (long)config.c_bbsuid);
+	cprintf("%ld\n", (long)config.c_ctdluid);
 	cprintf("%d\n", config.c_creataide);
 	cprintf("%d\n", config.c_sleeping);
 	cprintf("%d\n", config.c_initax);
@@ -273,7 +273,7 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_twitroom);
 	cprintf("%s\n", config.c_moreprompt);
 	cprintf("%d\n", config.c_restrict);
-	cprintf("%s\n", config.c_bbs_city);
+	cprintf("%s\n", config.c_site_location);
 	cprintf("%s\n", config.c_sysadm);
 	cprintf("%d\n", config.c_setup_level);
 	cprintf("%d\n", config.c_maxsessions);
@@ -331,7 +331,7 @@ void artv_import_config(void) {
 	client_getln(config.c_fqdn, sizeof config.c_fqdn);
 	client_getln(config.c_humannode, sizeof config.c_humannode);
 	client_getln(config.c_phonenum, sizeof config.c_phonenum);
-	client_getln(buf, sizeof buf);	config.c_bbsuid = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_ctdluid = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_creataide = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_sleeping = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_initax = atoi(buf);
@@ -340,7 +340,7 @@ void artv_import_config(void) {
 	client_getln(config.c_twitroom, sizeof config.c_twitroom);
 	client_getln(config.c_moreprompt, sizeof config.c_moreprompt);
 	client_getln(buf, sizeof buf);	config.c_restrict = atoi(buf);
-	client_getln(config.c_bbs_city, sizeof config.c_bbs_city);
+	client_getln(config.c_site_location, sizeof config.c_site_location);
 	client_getln(config.c_sysadm, sizeof config.c_sysadm);
 	client_getln(buf, sizeof buf);	config.c_setup_level = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_maxsessions = atoi(buf);

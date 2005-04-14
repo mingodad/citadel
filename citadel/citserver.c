@@ -218,7 +218,7 @@ void cmd_info(void) {
 	cprintf("%s\n", config.c_fqdn);
 	cprintf("%s\n", CITADEL);
 	cprintf("%d\n", REV_LEVEL);
-	cprintf("%s\n", config.c_bbs_city);
+	cprintf("%s\n", config.c_site_location);
 	cprintf("%s\n", config.c_sysadm);
 	cprintf("%d\n", SERVER_TYPE);
 	cprintf("%s\n", config.c_moreprompt);

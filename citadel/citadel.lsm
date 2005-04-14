@@ -7,7 +7,7 @@ Description: The Citadel messaging platform for Unix systems.
 	messaging and groupware applications, including Internet e-mail
 	through SMTP, POP3 and IMAP, instant messaging, and caledaring
 	and scheduling.
-Keywords: citadel citadel/ux bbs ignet smtp pop3 imap calendar messaging mail
+Keywords: citadel citadel/ux groupware bbs ignet smtp pop3 imap calendar messaging mail
 Author: Art Cancro <ajc@uncensored.citadel.org>
 Maintained-by: Citadel Developers <devel@citadel.org>
 Primary-site: http://www.citadel.org/

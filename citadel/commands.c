@@ -768,7 +768,7 @@ void load_command_set(void)
 		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {
-		snprintf(buf, sizeof buf, "%s/citadel.rc", BBSDIR);
+		snprintf(buf, sizeof buf, "%s/citadel.rc", CTDLDIR);
 		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {
@@ -1215,13 +1215,13 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 /*
  * set tty modes.  commands are:
  * 
- * 01- set to bbs mode
+ * 01- set to Citadel mode
  * 2 - save current settings for later restoral
  * 3 - restore saved settings
  */
 #ifdef HAVE_TERMIOS_H
-void sttybbs(int cmd)
-{				/* SysV version of sttybbs() */
+void stty_ctdl(int cmd)
+{				/* SysV version of stty_ctdl() */
 	struct termios live;
 	static struct termios saved_settings;
 	static int last_cmd = 0;
@@ -1264,8 +1264,8 @@ void sttybbs(int cmd)
 
 }
 #else
-void sttybbs(int cmd)
-{				/* BSD version of sttybbs() */
+void stty_ctdl(int cmd)
+{				/* BSD version of stty_ctdl() */
 	struct sgttyb live;
 	static struct sgttyb saved_settings;
 	static int last_cmd = 0;

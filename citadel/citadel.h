@@ -93,7 +93,7 @@ struct config {
 	char c_fqdn[64];		/* Fully Qualified Domain Name      */
 	char c_humannode[21];		/* Long name of system              */
 	char c_phonenum[16];		/* Dialup number of system          */
-	uid_t c_bbsuid;			/* UID of the bbs-only user         */
+	uid_t c_ctdluid;		/* UID under which we run Citadel   */
 	char c_creataide;		/* room creator = room aide  flag   */
 	int c_sleeping;			/* watchdog timer setting           */
 	char c_initax;			/* initial access level             */
@@ -103,7 +103,7 @@ struct config {
 	char c_moreprompt[80];		/* paginator prompt                 */
 	char c_restrict;		/* restrict Internet mail flag      */
 	long c_niu_1;			/* (not in use)                     */
-	char c_bbs_city[32];		/* physical location of server      */
+	char c_site_location[32];		/* physical location of server      */
 	char c_sysadm[26];		/* name of system administrator     */
 	char c_niu_2[15];		/* (not in use)                     */
 	int c_setup_level;		/* what rev level we've setup to    */
@@ -161,7 +161,7 @@ struct march {
 #define FQDN			config.c_fqdn
 #define HUMANNODE		config.c_humannode
 #define PHONENUM		config.c_phonenum
-#define BBSUID			config.c_bbsuid
+#define CTDLUID			config.c_ctdluid
 #define CREATAIDE		config.c_creataide
 #define REGISCALL		config.c_regiscall
 #define TWITDETECT		config.c_twitdetect
@@ -174,7 +174,7 @@ struct march {
 struct ctdluser {			/* User record                      */
 	int version;			/* Cit vers. which created this rec */
 	uid_t uid;			/* Associate with a unix account?   */
-	char password[32];		/* password (for BBS-only users)    */
+	char password[32];		/* password (for Citadel-only users)*/
 	unsigned flags;			/* See US_ flags below              */
 	long timescalled;		/* Total number of logins           */
 	long posted;			/* Number of messages posted (ever) */
@@ -269,9 +269,9 @@ struct floor {
 #define READ_HEADER	2
 #define READ_MSGBODY	3
 
-/* commands we can send to the sttybbs() routine */
-#define SB_NO_INTR	0		/* set to bbs mode, i/q disabled */
-#define SB_YES_INTR	1		/* set to bbs mode, i/q enabled */
+/* commands we can send to the stty_ctdl() routine */
+#define SB_NO_INTR	0		/* set to Citadel client mode, i/q disabled */
+#define SB_YES_INTR	1		/* set to Citadel client mode, i/q enabled */
 #define SB_SAVE		2		/* save settings */
 #define SB_RESTORE	3		/* restore settings */
 #define SB_LAST		4		/* redo the last command sent */
@@ -320,7 +320,7 @@ enum {
 /*
  * Views
  */
-#define	VIEW_BBS		0	/* Traditional Citadel BBS view */
+#define	VIEW_BBS		0	/* Bulletin board view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
 #define VIEW_CALENDAR		3	/* Calendar view */

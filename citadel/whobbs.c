@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
 		logoff(atoi(buf));
 		}
-	strcpy(nodetitle, "this BBS");
+	strcpy(nodetitle, "this Citadel site");
 	r = CtdlIPCServerInfo(ipc, buf);
 	if (r / 100 == 1) {
 		my_pid = ipc->ServInfo.pid;

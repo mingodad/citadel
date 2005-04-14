@@ -82,12 +82,12 @@ void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 	color(DIM_RED);
 	scr_printf("%s\r", ipc->ServInfo.moreprompt);
 	color(COLOR_POP);
-	sttybbs(0);
+	stty_ctdl(0);
 	b=inkey();
 	for (a=0; a<strlen(ipc->ServInfo.moreprompt); ++a)
 		scr_putc(' ');
 	scr_putc(13);
-	sttybbs(1);
+	stty_ctdl(1);
 	if ( (rc_prompt_control == 1)
 	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
 		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
@@ -401,7 +401,7 @@ void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
 
 	if (curr >= cmax) {
 		sln_printf("\r%79s\r","");
-		status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
+		status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
 			room_name, secure, 0);
 	} else {
 		/* a will be range 0-50 rather than 0-100 */

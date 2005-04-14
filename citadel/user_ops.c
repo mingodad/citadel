@@ -589,8 +589,8 @@ static int validpw(uid_t uid, const char *pass)
 		}
 		close(pipev[0]);
 
-		execl(BBSDIR "/chkpwd", BBSDIR "/chkpwd", NULL);
-		perror(BBSDIR "/chkpwd");
+		execl(CTDLDIR "/chkpwd", CTDLDIR "/chkpwd", NULL);
+		perror(CTDLDIR "/chkpwd");
 		exit(1);
 	}
 
@@ -646,10 +646,10 @@ int CtdlTryPassword(char *password)
 
 
 #ifdef ENABLE_AUTOLOGIN
-	/* A uid of BBSUID or -1 indicates that this user exists only in
+	/* A uid of CTDLUID or -1 indicates that this user exists only in
 	 * Citadel, not in the underlying operating system.
 	 */
-	if ( (CC->user.uid == BBSUID) || (CC->user.uid == (-1)) ) {
+	if ( (CC->user.uid == CTDLUID) || (CC->user.uid == (-1)) ) {
 		strproc(password);
 		strproc(CC->user.password);
 		code = strcasecmp(CC->user.password, password);
@@ -938,7 +938,7 @@ void cmd_setp(char *new_pw)
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
 	}
-	if ( (CC->user.uid != BBSUID) && (CC->user.uid != (-1)) ) {
+	if ( (CC->user.uid != CTDLUID) && (CC->user.uid != (-1)) ) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR + NOT_HERE);
 		return;
 	}

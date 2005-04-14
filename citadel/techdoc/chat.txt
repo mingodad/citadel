@@ -29,7 +29,7 @@ leader or whoever created the room is the conference leader.  The conference
 leader(s) can invite new people to the room, and kick & ban people out of
 the room.
 
-Messages should be able to be sent to anyone on the bbs from the page system
+Messages should be able to be sent to any logged in user from the page system
 to the chat system and vice versa.
 
 This can be implemented with the current citadel clients.  [I can't send a

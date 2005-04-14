@@ -30,7 +30,7 @@
  * declarations
  */
 void load_command_set(void);
-void sttybbs(int cmd);
+void stty_ctdl(int cmd);
 void newprompt(char *prompt, char *str, int len);
 void strprompt(char *prompt, char *str, int len);
 int boolprompt(char *prompt, int prev_val);

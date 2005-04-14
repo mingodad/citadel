@@ -10,7 +10,7 @@
 #endif
 #endif
 
-void status_line(const char *humannode, const char *bbs_city,
+void status_line(const char *humannode, const char *site_location,
 		 const char *room_name, int secure, int newmailcount);
 void screen_new(void);
 void screen_delete(void);

@@ -345,7 +345,7 @@ void upload(CtdlIPC *ipc, int c)
 		chdir(tempdir);
 		switch (c) {
 		case 0:
-			sttybbs(0);
+			stty_ctdl(0);
 			scr_printf("Receiving %s - press Ctrl-D to end.\n", flnm);
 			fp = fopen(flnm, "w");
 			do {
@@ -362,17 +362,17 @@ void upload(CtdlIPC *ipc, int c)
 			exit(0);
 		case 1:
 			screen_reset();
-			sttybbs(3);
+			stty_ctdl(3);
 			execlp("rx", "rx", flnm, NULL);
 			exit(1);
 		case 2:
 			screen_reset();
-			sttybbs(3);
+			stty_ctdl(3);
 			execlp("rb", "rb", NULL);
 			exit(1);
 		case 3:
 			screen_reset();
-			sttybbs(3);
+			stty_ctdl(3);
 			execlp("rz", "rz", NULL);
 			exit(1);
 		}
@@ -380,7 +380,7 @@ void upload(CtdlIPC *ipc, int c)
 		do {
 			b = ka_wait(&a);
 		} while ((b != xfer_pid) && (b != (-1)));
-	sttybbs(0);
+	stty_ctdl(0);
 	screen_set();
 
 	if (a != 0) {
@@ -512,7 +512,7 @@ void subshell(void)
 	int a, b;
 
 	screen_reset();
-	sttybbs(SB_RESTORE);
+	stty_ctdl(SB_RESTORE);
 	a = fork();
 	if (a == 0) {
 		signal(SIGINT, SIG_DFL);
@@ -524,7 +524,7 @@ void subshell(void)
 	do {
 		b = ka_wait(NULL);
 	} while ((a != b) && (a != (-1)));
-	sttybbs(0);
+	stty_ctdl(0);
 	screen_set();
 }
 
@@ -1077,7 +1077,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 
 	e_ex_code = 1;	/* start with a failed exit code */
 	screen_reset();
-	sttybbs(SB_RESTORE);
+	stty_ctdl(SB_RESTORE);
 	editor_pid = fork();
 	cksum = file_checksum(filename);
 	if (editor_pid == 0) {
@@ -1092,7 +1092,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 			b = ka_wait(&e_ex_code);
 		} while ((b != editor_pid) && (b >= 0));
 	editor_pid = (-1);
-	sttybbs(0);
+	stty_ctdl(0);
 	screen_set();
 	}
 

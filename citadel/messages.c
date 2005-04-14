@@ -59,7 +59,7 @@ struct cittext {
 	char text[MAXWORDBUF];
 };
 
-void sttybbs(int cmd);
+void stty_ctdl(int cmd);
 int haschar(const char *st, int ch);
 void getline(char *string, int lim);
 int file_checksum(char *filename);
@@ -402,7 +402,7 @@ int read_message(CtdlIPC *ipc,
 	has_images = 0;
 
 	sigcaught = 0;
-	sttybbs(1);
+	stty_ctdl(1);
 
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
@@ -415,7 +415,7 @@ int read_message(CtdlIPC *ipc,
 		++lines_printed;
 		lines_printed =
 		    checkpagin(lines_printed, pagin, screenheight);
-		sttybbs(0);
+		stty_ctdl(0);
 		return (0);
 	}
 
@@ -462,7 +462,7 @@ int read_message(CtdlIPC *ipc,
 			}
 		}
 		pprintf("\n");
-		sttybbs(0);
+		stty_ctdl(0);
 		return (0);
 	}
 
@@ -729,7 +729,7 @@ int read_message(CtdlIPC *ipc,
 
 	if (pagin == 1 && !dest)
 		color(DIM_WHITE);
-	sttybbs(0);
+	stty_ctdl(0);
 	return (fr);
 }
 
@@ -914,7 +914,7 @@ ME1:	switch (mode) {
 	default:	/* allow 2+ modes */
 		e_ex_code = 1;	/* start with a failed exit code */
 		screen_reset();
-		sttybbs(SB_RESTORE);
+		stty_ctdl(SB_RESTORE);
 		editor_pid = fork();
 		cksum = file_checksum(filename);
 		if (editor_pid == 0) {
@@ -932,7 +932,7 @@ ME1:	switch (mode) {
 				b = ka_wait(&e_ex_code);
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
-		sttybbs(0);
+		stty_ctdl(0);
 		screen_set();
 		break;
 	}
@@ -1561,9 +1561,9 @@ RMSGREAD:	scr_flush();
 			if (f == 0) {
 				freopen(prtfile, "r", stdin);
 				screen_reset();
-				sttybbs(SB_RESTORE);
+				stty_ctdl(SB_RESTORE);
 				ka_system(printcmd);
-				sttybbs(SB_NO_INTR);
+				stty_ctdl(SB_NO_INTR);
 				screen_set();
 				unlink(prtfile);
 				exit(0);

@@ -56,7 +56,7 @@ int is_curses_enabled(void) {
  * status_line() is a convenience function for writing a "typical"
  * status line to the window.
  */
-void status_line(const char *humannode, const char *bbs_city,
+void status_line(const char *humannode, const char *site_location,
 		 const char *room_name, int secure, int newmailcount)
 {
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
@@ -477,7 +477,7 @@ int scr_set_windowsize(CtdlIPC* ipc)
 		wresize(statuswindow, 1, screenwidth);
 #endif
 		mvwin(statuswindow, screenheight, 0);
-		status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
+		status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
 				room_name, secure, -1);
 		wnoutrefresh(mainwindow);
 		wnoutrefresh(statuswindow);

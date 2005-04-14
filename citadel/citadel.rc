@@ -5,7 +5,7 @@
 #
 # The standard client looks for this file in:
 # 1. $HOME/.citadelrc
-# 2. <compiled BBSDIR>/citadel.rc
+# 2. <compiled CTDLDIR>/citadel.rc
 # 3. /etc/citadel.rc
 # 4. <current directory>/citadel.rc
 

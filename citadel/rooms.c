@@ -34,7 +34,7 @@
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
 
-void sttybbs(int cmd);
+void stty_ctdl(int cmd);
 void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto);
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 int pattern(char *search, char *patn);
@@ -825,9 +825,9 @@ void download(CtdlIPC *ipc, int proto)
 		snprintf(transmit_cmd, sizeof transmit_cmd, "exec cat %s", tempname);
 
 	screen_reset();
-	sttybbs(SB_RESTORE);
+	stty_ctdl(SB_RESTORE);
 	system(transmit_cmd);
-	sttybbs(SB_NO_INTR);
+	stty_ctdl(SB_NO_INTR);
 	screen_set();
 
 	/* clean up the temporary directory */
@@ -1138,7 +1138,7 @@ void do_edit(CtdlIPC *ipc,
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
 		putenv(tmp);
 		screen_reset();
-		sttybbs(SB_RESTORE);
+		stty_ctdl(SB_RESTORE);
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);
@@ -1152,7 +1152,7 @@ void do_edit(CtdlIPC *ipc,
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
 		scr_printf("Executed %s\n", editor_paths[0]);
-		sttybbs(0);
+		stty_ctdl(0);
 		screen_set();
 	} else {
 		scr_printf("Entering %s.  "

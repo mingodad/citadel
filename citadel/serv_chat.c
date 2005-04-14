@@ -319,7 +319,7 @@ void cmd_chat(char *argbuf)
 					if (is_room_aide()) {
 						cprintf(":|/kick   (kick another user out of this room) \n");
 					}
-					cprintf(":|/quit   (return to the BBS) \n");
+					cprintf(":|/quit   (exit from this chat) \n");
 					cprintf(":|\n");
 					ok_cmd = 1;
 				}

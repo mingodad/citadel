@@ -305,7 +305,7 @@ void open_databases(void)
          */
 	mkdir(dbdirname, 0700);
 	chmod(dbdirname, 0700);
-	chown(dbdirname, BBSUID, (-1) );
+	chown(dbdirname, CTDLUID, (-1) );
 
 	lprintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
@@ -393,7 +393,7 @@ void open_databases(void)
 				snprintf(filename, sizeof filename, "%s/%s",
 					dbdirname, d->d_name);
 				chmod(filename, 0600);
-				chown(filename, BBSUID, (-1) );
+				chown(filename, CTDLUID, (-1) );
 			}
 		}
 		closedir(dp);

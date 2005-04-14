@@ -102,7 +102,7 @@ void bump_mailbox_generation_numbers(void) {
 
 
 /* 
- * Back end processing function for convert_bbsuid_to_minusone()
+ * Back end processing function for convert_ctdluid_to_minusone()
  */
 void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	static struct UserProcList *uplist = NULL;
@@ -128,7 +128,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 
 		if (lgetuser(&us, uplist->user) == 0) {
 			lprintf(CTDL_DEBUG, "Processing <%s>...\n", uplist->user);
-			if (us.uid == BBSUID) {
+			if (us.uid == CTDLUID) {
 				us.uid = (-1);
 			}
 			lputuser(&us);
@@ -141,9 +141,9 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 }
 
 /*
- * quick fix to change all BBSUID users to (-1)
+ * quick fix to change all CTDLUID users to (-1)
  */
-void convert_bbsuid_to_minusone(void) {
+void convert_ctdluid_to_minusone(void) {
 	lprintf(CTDL_WARNING, "Applying uid changes\n");
 	ForEachUser(cbtm_backend, NULL);
 	cbtm_backend(NULL, NULL);
@@ -206,7 +206,7 @@ void check_server_upgrades(void) {
 		bump_mailbox_generation_numbers();
 	}
 	if ((CitControl.version > 000) && (CitControl.version < 608)) {
-		convert_bbsuid_to_minusone();
+		convert_ctdluid_to_minusone();
 	}
 
 	CitControl.version = REV_LEVEL;

@@ -1,5 +1,5 @@
-/* define this to the bbs home directory */
-#undef BBSDIR
+/* define this to the Citadel home directory */
+#undef CTDLDIR
 
 /* define this to enable the autologin feature */
 #undef ENABLE_AUTOLOGIN

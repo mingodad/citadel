@@ -109,7 +109,7 @@ front ends.
 /usr/local/citadel/userlist
 /usr/local/citadel/utilsmenu
 %pre server
-# Add the "bbs" user
+# Add the Citadel user
 /usr/sbin/useradd -c "Citadel" -s /bin/false -r -d /usr/local/citadel \
 		citadel 2> /dev/null || :
 %post server

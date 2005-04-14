@@ -39,7 +39,7 @@ struct CtdlServInfo {
 	char fqdn[64];
 	char software[64];
 	int rev_level;
-	char bbs_city[64];
+	char site_location[64];
 	char sysadm[64];
 	char moreprompt[256];
 	int ok_floors;

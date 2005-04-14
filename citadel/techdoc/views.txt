@@ -6,7 +6,7 @@ in a Citadel client.  And we don't enforce things either.  But there's a need
 to make things look the way the user wants to see them.  For example, we might
 always choose to see a room full of private mail as a summary (one line per
 message) rather than always dumping out the entire contents like we do on a
-typical BBS room.  An address book room might look better as a tabbed view
+typical message room.  An address book room might look better as a tabbed view
 or something, rather than as a bunch of messages with vCards attached to them.
 
  This is why we define "views" for a room.  It gives the client software a
@@ -18,7 +18,7 @@ is in the room record as room.QRdefaultview (and is also an integer).
  
  The values currently defined are:
 
-#define	VIEW_BBS		0	/* Traditional Citadel BBS view */
+#define	VIEW_BBS		0	/* Bulletin board view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
 #define VIEW_CALENDAR		3	/* Calendar view */

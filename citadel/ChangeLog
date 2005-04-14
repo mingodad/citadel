@@ -1,4 +1,9 @@
  $Log$
+ Revision 645.5  2005/04/14 15:53:55  ajc
+ * Variable names, comments, documentation, etc...  removed the acronym 'BBS'
+   in places where functionality is not specific to the use of Citadel as
+   a BBS platform.
+
  Revision 645.4  2005/04/13 20:42:44  ajc
  * citmail.c: changes to citmail to make it usable as a /usr/sbin/sendmail
    replacement; i.e. /bin/mail calls /usr/sbin/sendmail which sends mail
@@ -446,7 +451,7 @@
  Revision 626.9  2004/10/12 02:17:49  ajc
  * Cleaned up some things that generated compiler warnings
  * crypto keys directory is now relative to the server's working directory,
-   not to the compiled-in BBSDIR
+   not to the compiled-in CTDLDIR
  * Re-ordered the security checks in CtdlAccessCheck()
 
  Revision 626.8  2004/10/06 21:23:21  error
@@ -1794,7 +1799,7 @@
 
  Revision 607.10  2003/06/28 05:12:56  ajc
  * Bump internal version number to 6.08
- * Use (-1) instead of BBSUID as the uid of user records which exist only
+ * Use (-1) instead of CTDLUID as the uid of user records which exist only
    in Citadel and not in the system password database.  serv_upgrade also
    changes this setting for ALL such users, the first time the server is run
    after upgrading to 6.08
@@ -2187,7 +2192,7 @@
 
  Revision 601.115  2003/01/17 04:36:04  ajc
  * whobbs.c: fix bad call to CtdlGetServInfo() so we can get our session ID
-   and the name of the BBS
+   and the name of the Citadel site
 
  Revision 601.114  2003/01/16 21:16:23  error
  * CtdlIPCGetMessages(): Fix message read failing on first attempt to read
@@ -4530,10 +4535,10 @@
    null string)
 
  Revision 573.4  2000/09/28 10:27:38  error
- * commands.c: changed sttybbs() to support HP/UX termios VMIN and VTIME
+ * commands.c: changed stty_ctdl() to support HP/UX termios VMIN and VTIME
 
  Revision 573.3  2000/09/24 22:01:45  ajc
- * ipc_c_tcp.c: don't hardcode BBSDIR path for unix domain sockets
+ * ipc_c_tcp.c: don't hardcode CTDLDIR path for unix domain sockets
 
  Revision 573.2  2000/09/21 04:16:44  ajc
  * Fixed logged_in_response() so it only displays responses during Citadel
@@ -4566,7 +4571,7 @@
  * Fixed oopseth in control.c that might call fileno(NULL)
 
  Revision 572.36  2000/09/01 13:37:16  ajc
- * control.c: chown citadel.control to bbsuid when opening/creating as root
+ * control.c: chown citadel.control to ctdluid when opening/creating as root
 
  Revision 572.35  2000/09/01 03:55:44  ajc
  * Fixed a few more references to the deprecated uncnsrd.mt-kisco.ny.us name
@@ -4848,8 +4853,8 @@
  Revision 1.489  2000/03/16 17:58:54  smw
  Created a docs directory.
  Moved install.txt to docs.
- Added inetmailsetup.txt (BBS server side e-mail)
- Added inetmailsetupmx.txt (local mail AND bbs e-mail
+ Added inetmailsetup.txt (Citadel server side e-mail)
+ Added inetmailsetupmx.txt (local mail AND Citadel e-mail
  Added inetsiteconfig.txt (describes the .asi command)
  Added siteconfig.txt (describes .asg)
  Added chat.txt (describes changes and new chat functionality)
@@ -5158,7 +5163,7 @@ Revision 1.416  1999/11/17 04:15:05  ajc
 
 Revision 1.415  1999/11/15 03:17:39  ajc
 * Put lockfile in /tmp instead of in /var/lock.   The latter is not guaranteed
-  to exist, nor is it guaranteed to be writable by BBSUID
+  to exist, nor is it guaranteed to be writable by CTDLUID
   (Resolves bug #11 from the Bugzilla repository)
 
 Revision 1.414  1999/11/15 03:07:24  ajc
@@ -5616,7 +5621,7 @@ Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 
 1999-05-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: fixed excessive paranoia; it used to refuse to run when
-	  invoked by root and BBSUID != 0
+	  invoked by root and CTDLUID != 0
 	* Makefile.in: ignore errors while installing /etc/pam.d/citadel
 
 1999-04-27 Art Cancro <ajc@uncensored.citadel.org>
@@ -5744,7 +5749,7 @@ Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 
 1999-03-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* config.c: error checking in put_config()
-	* setup.c: chgrp files to the login group associated with BBSUID
+	* setup.c: chgrp files to the login group associated with CTDLUID
 	* sysdep.c: copyright 1987-1999; drop root perms; load modules and call
 	  master_startup() after dropping perms
 
@@ -5837,7 +5842,7 @@ Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Added some more code to the unfinished MIME parser
 	* Changed module loading path to simply "modules" because after calling
-	  get_config(), the cwd is guaranteed to be the correct BBS directory.
+	  get_config(), the cwd is guaranteed to be the correct Citadel directory.
 
 Tue Jan 19 21:28:29 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed a bug in the user editing command (client side)
@@ -6069,7 +6074,7 @@ Sun Nov  8 13:19:36 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 
 Fri Nov  6 20:22:20 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citadel.h (and related files): removed defunct parameters,
-	  c_defent and c_msgbase (erase your test bbs)
+	  c_defent and c_msgbase (erase your test system)
 	* Implemented CONF server command for site-global configs
 	* Shuffled yesno() and yesno_d() from routines.c to commands.c
 	* commands.c: implemented boolprompt()
@@ -6089,7 +6094,7 @@ Wed Nov  4 10:53:13 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 
 Mon Nov  2 12:59:03 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: looks for 'citadel', 'bbs', or 'guest' in /etc/passwd to
-	  try to get a default for bbsuid if it's currently set to 0
+	  try to get a default for ctdluid if it's currently set to 0
 	* citmail.c: changed usersupp.eternal to usersupp.usernum (why didn't
 	  it complain about this before?)
 	* serv_upgrade.c: began writing an "export" command to do sidegrades
@@ -6572,7 +6577,7 @@ Sun Aug  2 21:09:09 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 Sun Aug  2 18:52:05 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* config_defs.h: new file, contains external declarations from config.c
 	* config.c: moved defs to config_defs.h, use PATH_MAX from <limits.h>
-	  for bbs_home_directory
+	  for ctdl_home_directory
 	* mailinglist.c, support.c: include <string.h>
 	* sysoputil.c: include <string.h>, <limits.h>, "config_defs.h", remove
 	  duplicated defs, replace gets() call with fgets()

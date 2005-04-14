@@ -33,7 +33,7 @@ what you did, so that your new commands can be added to this document.
  The protocols used below the application layer are beyond the scope of this
 document, but we will briefly cover the methodology employed by Citadel.
 
- Citadel offers Citadel BBS service using TCP/IP.  It does so via a
+ Citadel offers its client protocol using TCP/IP.  It does so via a
 multithreaded server listening on a TCP port.  Local connections may also
 be made using the same protocol using Unix domain sockets.
 
@@ -586,12 +586,12 @@ backward compatibility.  The current implementation defines the following
 parts of the listing:
 
  Line 1  - Your unique session ID on the server
- Line 2  - The node name of the server BBS
- Line 3  - Human-readable node name of the server BBS
+ Line 2  - The node name of the Citadel server
+ Line 3  - Human-readable node name of the Citadel server
  Line 4  - The fully-qualified domain name (FQDN) of the server
  Line 5  - The name of the server software, i.e. "Citadel 4.00"
  Line 6  - (The revision level of the server code) * 100
- Line 7  - The geographical location of the BBS (city and state if in the US)
+ Line 7  - The geographical location of the site (city and state if in the US)
  Line 8  - The name of the system administrator
  Line 9  - A number identifying the server type (see below)
  Line 10 - The text of the system's paginator prompt
@@ -610,7 +610,7 @@ parts of the listing:
 compatibility in a scenario in which developers have added proprietary
 features to their servers or clients.  We are attempting to avoid a future
 situation in which users need to keep different client software around for
-each BBS they use.  *Please*, if you are a developer and plan to add
+each Citadel they use.  *Please*, if you are a developer and plan to add
 proprietary features:
 
  -> Your client programs should still be able to utilize servers other than
@@ -645,7 +645,7 @@ contain three fields: a filename, the length of the file, and a description.
  The server message contained on the same line with LISTING_FOLLOWS will
 contain the name of the system and the name of the directory, such as:
 
-  uncensored.citadel.org|/usr/bbs/files/my_room_directory
+  uncensored.citadel.org|/usr/local/citadel/files/my_room_directory
 
 
  SLRP   (Set Last-message-Read Pointer)
@@ -1292,7 +1292,7 @@ images which are likely to exist on most servers:
  NETP   (authenticate as network session with connection NET Password)
 
  This command is used by client software to identify itself as a transport
-session for IGnet/Open BBS to BBS networking.  It should be called with
+session for Citadel site-to-site networking.  It should be called with
 two arguments: the node name of the calling system, and the "shared secret"
 password for that connection.  If the authentication succeeds, NETP will
 return OK, otherwise, it returns ERROR.
@@ -1319,7 +1319,7 @@ posting them twice.
 identified itself as a network session using the NETP command.  If the command
 returns OK, the client may begin transmitting IGnet/Open spool data using
 a series of WRIT commands.  When a UCLS command is issued, the spooled data
-is entered into the BBS if the argument to UCLS is 1 or discarded if the
+is entered into the server if the argument to UCLS is 1 or discarded if the
 argument to UCLS is 0.  If the client has not authenticated itself with a
 NETP command, ERROR+HIGHER_ACCESS_REQUIRED will be returned.
 
@@ -1459,7 +1459,7 @@ will be a regular server command.
  The Citadel server understands the following commands:
  /quit   -   Exit from chat mode (causes the server to do an 000 end)
  /who    -   List users currently in chat
- /whobbs -   List users currently in chat and on the bbs
+ /whobbs -   List users currently in chat and elsewhere
  /me     -   Do an irc-style action.
  /join   -   Join a new "room" in which all messages are only heard by
              people in that room.

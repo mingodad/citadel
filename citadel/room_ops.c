@@ -1049,13 +1049,13 @@ void cmd_rdir(void)
 		return;
 	}
 	cprintf("%d %s|%s/files/%s\n",
-	LISTING_FOLLOWS, config.c_fqdn, BBSDIR, CC->room.QRdirname);
+	LISTING_FOLLOWS, config.c_fqdn, CTDLDIR, CC->room.QRdirname);
 
         snprintf(buf, sizeof buf, "ls %s/files/%s  >%s 2> /dev/null",
-                BBSDIR, CC->room.QRdirname, CC->temp);
+                CTDLDIR, CC->room.QRdirname, CC->temp);
         system(buf);
 
-	snprintf(buf, sizeof buf, "%s/files/%s/filedir", BBSDIR, CC->room.QRdirname);
+	snprintf(buf, sizeof buf, "%s/files/%s/filedir", CTDLDIR, CC->room.QRdirname);
 	fd = fopen(buf, "r");
 	if (fd == NULL)
 		fd = fopen("/dev/null", "r");
@@ -1065,7 +1065,7 @@ void cmd_rdir(void)
 		flnm[strlen(flnm) - 1] = 0;
 		if (strcasecmp(flnm, "filedir")) {
 			snprintf(buf, sizeof buf, "%s/files/%s/%s",
-				BBSDIR, CC->room.QRdirname, flnm);
+				CTDLDIR, CC->room.QRdirname, flnm);
 			stat(buf, &statbuf);
 			safestrncpy(comment, "", sizeof comment);
 			fseek(fd, 0L, 0);

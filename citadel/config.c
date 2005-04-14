@@ -24,7 +24,7 @@
 #include "config.h"
 
 struct config config;
-char bbs_home_directory[PATH_MAX] = BBSDIR;
+char ctdl_home_directory[PATH_MAX] = CTDLDIR;
 int home_specified = 0;
 
 /*
@@ -36,12 +36,12 @@ void get_config(void) {
 	FILE *cfp;
 	struct stat st;
 
-	if (chdir(home_specified ? bbs_home_directory : BBSDIR) != 0) {
+	if (chdir(home_specified ? ctdl_home_directory : CTDLDIR) != 0) {
 		fprintf(stderr,
 			"This program could not be started.\n"
 		 	"Unable to change directory to %s\n"
 			"Error: %s\n",
-			(home_specified ? bbs_home_directory : BBSDIR),
+			(home_specified ? ctdl_home_directory : CTDLDIR),
 			strerror(errno));
 		exit(1);
 	}
@@ -50,7 +50,7 @@ void get_config(void) {
 		fprintf(stderr, "This program could not be started.\n"
 			"Unable to open %s/citadel.config\n"
 			"Error: %s\n",
-			(home_specified ? bbs_home_directory : BBSDIR),
+			(home_specified ? ctdl_home_directory : CTDLDIR),
 			strerror(errno));
 		exit(1);
 	}
@@ -60,7 +60,7 @@ void get_config(void) {
 		exit(1);
 	}
 #ifndef __CYGWIN__
-	if (st.st_uid != BBSUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
+	if (st.st_uid != CTDLUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
 		fprintf(stderr, "check the permissions on citadel.config\n");
 		exit(1);
 	}

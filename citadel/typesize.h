@@ -28,7 +28,7 @@
 #define _CITADEL_UX_TYPESIZE_H
 
 /* Include sysdep.h if not already included */
-#ifndef BBSDIR
+#ifndef CTDLDIR
 # include "sysdep.h"
 #endif
 

@@ -101,8 +101,8 @@ int main(int argc, char **argv)
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
-			safestrncpy(bbs_home_directory, &argv[a][2],
-				    sizeof bbs_home_directory);
+			safestrncpy(ctdl_home_directory, &argv[a][2],
+				    sizeof ctdl_home_directory);
 			home_specified = 1;
 		}
 
@@ -201,17 +201,17 @@ int main(int argc, char **argv)
 	 * Load any server-side extensions available here.
 	 */
 	lprintf(CTDL_INFO, "Initializing server extensions\n");
-	size = strlen(bbs_home_directory) + 9;
+	size = strlen(ctdl_home_directory) + 9;
 	initialize_server_extensions();
 
 	/*
-	 * Now that we've bound the sockets, change to the BBS user id and its
+	 * Now that we've bound the sockets, change to the Citadel user id and its
 	 * corresponding group ids
 	 */
 	if (drop_root_perms) {
-		if ((pw = getpwuid(BBSUID)) == NULL)
+		if ((pw = getpwuid(CTDLUID)) == NULL)
 			lprintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
-				   "Group IDs will be incorrect.\n", (long)BBSUID,
+				   "Group IDs will be incorrect.\n", (long)CTDLUID,
 				strerror(errno));
 		else {
 			initgroups(pw->pw_name, pw->pw_gid);
@@ -219,8 +219,8 @@ int main(int argc, char **argv)
 				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw->pw_gid,
 					strerror(errno));
 		}
-		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)BBSUID);
-		if (setuid(BBSUID) != 0) {
+		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)CTDLUID);
+		if (setuid(CTDLUID) != 0) {
 			lprintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
 #if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)

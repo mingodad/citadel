@@ -285,7 +285,7 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 		{"LKRA", "LKRN", "LKRO", "LZRM", "LRMS", "LPRM" };
 	char aaa[SIZ];
 	char *bbb = NULL;
-	size_t bbbsize;
+	size_t bbb_len;
 
 	if (!listing) return -2;
 	if (*listing) return -2;	/* Free the listing first */
@@ -294,7 +294,7 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 	if (floor < -1) return -2;	/* Can't validate upper bound, sorry */
 
 	sprintf(aaa, "%s %d", proto[which], floor);
-	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, &bbb, &bbbsize, cret);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, &bbb, &bbb_len, cret);
 	if (ret / 100 == 1) {
 		struct march *mptr;
 
@@ -426,7 +426,7 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
 		{ "ALL", "OLD", "NEW", "LAST", "FIRST", "GT", "LT" };
 	char aaa[33];
 	char *bbb = NULL;
-	size_t bbbsize;
+	size_t bbb_len;
 
 	if (!cret) return -2;
 	if (!mret) return -2;
@@ -440,7 +440,7 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
 		sprintf(aaa, "MSGS %s|%d|%d", proto[which], whicharg,
 				(mtemplate) ? 1 : 0);
 	if (mtemplate) count = strlen(mtemplate);
-	ret = CtdlIPCGenericCommand(ipc, aaa, mtemplate, count, &bbb, &bbbsize, cret);
+	ret = CtdlIPCGenericCommand(ipc, aaa, mtemplate, count, &bbb, &bbb_len, cret);
 	if (ret / 100 != 1)
 		return ret;
 	count = 0;
@@ -471,7 +471,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 	register int ret;
 	char aaa[SIZ];
 	char *bbb = NULL;
-	size_t bbbsize;
+	size_t bbb_len;
 	int multipart_hunting = 0;
 	char multipart_prefix[128];
 
@@ -483,7 +483,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 
 	strcpy(mret[0]->content_type, "");
 	sprintf(aaa, "MSG%d %ld|%d", as_mime, msgnum, headers);
-	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, &bbb, &bbbsize, cret);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, &bbb, &bbb_len, cret);
 	if (ret / 100 == 1) {
 		if (as_mime != 2) {
 			strcpy(mret[0]->mime_chosen, "1");	/* Default chosen-part is "1" */
@@ -645,7 +645,7 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 					break;
 			case 5:		ipc->ServInfo.rev_level = atoi(buf);
 					break;
-			case 6:		strcpy(ipc->ServInfo.bbs_city,buf);
+			case 6:		strcpy(ipc->ServInfo.site_location,buf);
 					break;
 			case 7:		strcpy(ipc->ServInfo.sysadm,buf);
 					break;
@@ -2924,7 +2924,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
 			snprintf(sockpath, sizeof sockpath, "%s%s",
-				BBSDIR, "/citadel.socket");
+				CTDLDIR, "/citadel.socket");
 		}
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s%s",

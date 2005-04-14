@@ -796,7 +796,7 @@ void edit_value(int curr)
 {
 	int i;
 	struct passwd *pw;
-	char bbsuidname[SIZ];
+	char ctdluidname[SIZ];
 
 	switch (curr) {
 
@@ -806,23 +806,23 @@ void edit_value(int curr)
 
 	case 2:
 #ifdef __CYGWIN__
-		config.c_bbsuid = 0;	/* XXX Windows hack, prob. insecure */
+		config.c_ctdluid = 0;	/* XXX Windows hack, prob. insecure */
 #else
-		i = config.c_bbsuid;
+		i = config.c_ctdluid;
 		pw = getpwuid(i);
 		if (pw == NULL) {
 			set_int_val(curr, &i);
-			config.c_bbsuid = i;
+			config.c_ctdluid = i;
 		}
 		else {
-			strcpy(bbsuidname, pw->pw_name);
-			set_str_val(curr, bbsuidname);
-			pw = getpwnam(bbsuidname);
+			strcpy(ctdluidname, pw->pw_name);
+			set_str_val(curr, ctdluidname);
+			pw = getpwnam(ctdluidname);
 			if (pw != NULL) {
-				config.c_bbsuid = pw->pw_uid;
+				config.c_ctdluid = pw->pw_uid;
 			}
-			else if (atoi(bbsuidname) > 0) {
-				config.c_bbsuid = atoi(bbsuidname);
+			else if (atoi(ctdluidname) > 0) {
+				config.c_ctdluid = atoi(ctdluidname);
 			}
 		}
 #endif
@@ -938,7 +938,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, BBSDIR);
+	strcpy(setup_directory, CTDLDIR);
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
 		strcpy(setup_directory, getenv("CITADEL"));
 	}
@@ -1049,20 +1049,20 @@ int main(int argc, char *argv[])
 	if (config.c_sleeping == 0) {
 		config.c_sleeping = 900;
 	}
-	if (config.c_bbsuid == 0) {
+	if (config.c_ctdluid == 0) {
 		pw = getpwnam("citadel");
 		if (pw != NULL)
-			config.c_bbsuid = pw->pw_uid;
+			config.c_ctdluid = pw->pw_uid;
 	}
-	if (config.c_bbsuid == 0) {
+	if (config.c_ctdluid == 0) {
 		pw = getpwnam("bbs");
 		if (pw != NULL)
-			config.c_bbsuid = pw->pw_uid;
+			config.c_ctdluid = pw->pw_uid;
 	}
-	if (config.c_bbsuid == 0) {
+	if (config.c_ctdluid == 0) {
 		pw = getpwnam("guest");
 		if (pw != NULL)
-			config.c_bbsuid = pw->pw_uid;
+			config.c_ctdluid = pw->pw_uid;
 	}
 	if (config.c_createax == 0) {
 		config.c_createax = 3;
@@ -1100,7 +1100,7 @@ int main(int argc, char *argv[])
 	}
 
 	/*
-	   if (setuid(config.c_bbsuid) != 0) {
+	   if (setuid(config.c_ctdluid) != 0) {
 	   important_message("Citadel Setup",
 	   "Failed to change the user ID to your Citadel user.");
 	   cleanup(errno);
@@ -1183,21 +1183,21 @@ NEW_INST:
 	disable_other_mta("hula");
 #endif
 
-	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
+	if ((pw = getpwuid(config.c_ctdluid)) == NULL)
 		gid = getgid();
 	else
 		gid = pw->pw_gid;
 
 	progress("Setting file permissions", 0, 4);
-	chown(".", config.c_bbsuid, gid);
+	chown(".", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 1, 4);
-	chown("citadel.config", config.c_bbsuid, gid);
+	chown("citadel.config", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
 		"find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
-		(long)config.c_bbsuid, (long)gid);
+		(long)config.c_ctdluid, (long)gid);
 	system(aaa);
 	sleep(1);
 	progress("Setting file permissions", 3, 4);

@@ -271,7 +271,7 @@ void cmd_netf(char *cmdbuf)
 	}
 	snprintf(outfile, sizeof outfile,
 		 "%s/network/spoolin/nsf.%04lx.%04x",
-		 BBSDIR, (long)getpid(), ++seq);
+		 CTDLDIR, (long)getpid(), ++seq);
 	ofp = fopen(outfile, "a");
 	if (ofp == NULL) {
 		cprintf("%d internal error\n", ERROR + INTERNAL_ERROR);
@@ -601,7 +601,7 @@ void cmd_clos(void)
 
 	if (CC->dl_is_net == 1) {
 		CC->dl_is_net = 0;
-		snprintf(buf, sizeof buf, "%s/network/spoolout/%s", BBSDIR,
+		snprintf(buf, sizeof buf, "%s/network/spoolout/%s", CTDLDIR,
 			 CC->net_node);
 		unlink(buf);
 	}
@@ -760,7 +760,7 @@ void cmd_ndop(char *cmdbuf)
 	}
 
 	snprintf(pathname, sizeof pathname, "%s/network/spoolout/%s",
-		 BBSDIR, CC->net_node);
+		 CTDLDIR, CC->net_node);
 
 	/* first open the file in append mode in order to create a
 	 * zero-length file if it doesn't already exist 
@@ -808,7 +808,7 @@ void cmd_nuop(char *cmdbuf)
 
 	snprintf(CC->upl_path, sizeof CC->upl_path,
 		 "%s/network/spoolin/%s.%04lx.%04x",
-		 BBSDIR, CC->net_node, (long)getpid(), ++seq);
+		 CTDLDIR, CC->net_node, (long)getpid(), ++seq);
 
 	CC->upload_fp = fopen(CC->upl_path, "r");
 	if (CC->upload_fp != NULL) {

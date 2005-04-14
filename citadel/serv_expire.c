@@ -360,7 +360,7 @@ void do_uid_user_purge(struct ctdluser *us, void *data) {
 #ifdef ENABLE_AUTOLOGIN
 	struct PurgeList *pptr;
 
-	if ((us->uid != (-1)) && (us->uid != BBSUID)) {
+	if ((us->uid != (-1)) && (us->uid != CTDLUID)) {
 		if (getpwuid(us->uid) == NULL) {
 			pptr = (struct PurgeList *)
 				malloc(sizeof(struct PurgeList));

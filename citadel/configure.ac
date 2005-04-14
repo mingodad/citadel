@@ -6,9 +6,9 @@ AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
-	AC_DEFINE_UNQUOTED(BBSDIR, "$ac_default_prefix")
+	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix")
 else
-	AC_DEFINE_UNQUOTED(BBSDIR, "$prefix")
+	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix")
 fi
 
 AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled if possible)])

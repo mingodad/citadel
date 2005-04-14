@@ -147,7 +147,7 @@ void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code)
 		kill(0 - getpgrp(), SIGKILL);
 	}
 	color(ORIGINAL_PAIR);	/* Restore the old color settings */
-	sttybbs(SB_RESTORE);	/* return the old terminal settings */
+	stty_ctdl(SB_RESTORE);	/* return the old terminal settings */
 	/* 
 	 * uncomment the following if you need to know why Citadel exited
 	printf("*** Exit code %d at %s:%d\n", code, file, line);
@@ -174,7 +174,7 @@ void dropcarr(int signum)
  */
 void catch_sigcont(int signum)
 {
-	sttybbs(SB_LAST);
+	stty_ctdl(SB_LAST);
 	signal(SIGCONT, catch_sigcont);
 }
 
@@ -484,7 +484,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			system(rc_gotmail_cmd);
 		}
 	}
-	status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
+	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
 			room_name, secure, newmailcount);
 }
 
@@ -1054,9 +1054,9 @@ int main(int argc, char **argv)
 		logoff(NULL, 3);
 	}
 
-	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
+	stty_ctdl(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */
-	sttybbs(SB_NO_INTR);	/* Install the new ones */
+	stty_ctdl(SB_NO_INTR);	/* Install the new ones */
 	/* signal(SIGHUP, dropcarr);FIXME */	/* Cleanup gracefully if carrier is dropped */
 	signal(SIGPIPE, dropcarr);	/* Cleanup gracefully if local conn. dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
@@ -1111,8 +1111,8 @@ int main(int argc, char **argv)
 		if (!strcmp(argv[a], "-p")) {
 			struct stat st;
 		
-			if (chdir(BBSDIR) < 0) {
-				perror("can't change to " BBSDIR);
+			if (chdir(CTDLDIR) < 0) {
+				perror("can't change to " CTDLDIR);
 				logoff(NULL, 3);
 			}
 
@@ -1122,7 +1122,7 @@ int main(int argc, char **argv)
 			 * guaranteed to have the uid/gid we want.
 			 */
 			if (!getuid() || !getgid()) {
-				if (stat(BBSDIR "/citadel.config", &st) < 0) {
+				if (stat(CTDLDIR "/citadel.config", &st) < 0) {
 					perror("couldn't stat citadel.config");
 					logoff(NULL, 3);
 				}
@@ -1203,10 +1203,10 @@ int main(int argc, char **argv)
 
 	get_serv_info(ipc, telnet_client_host);
 	scr_printf("%-24s\n%s\n%s\n", ipc->ServInfo.software, ipc->ServInfo.humannode,
-		   ipc->ServInfo.bbs_city);
+		   ipc->ServInfo.site_location);
 	scr_flush();
 
-	status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city, NULL,
+	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location, NULL,
 		    secure, -1);
 
 	screenwidth = 80;	/* default screen dimensions */
@@ -1695,12 +1695,12 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			case 2:
 				if (ipc->isLocal) {
 					screen_reset();
-					sttybbs(SB_RESTORE);
+					stty_ctdl(SB_RESTORE);
 					snprintf(aaa, sizeof aaa, "USERNAME=\042%s\042; export USERNAME;"
 						 "exec ./subsystem %ld %d %d", fullname,
 						 usernum, screenwidth, axlevel);
 					ka_system(aaa);
-					sttybbs(SB_NO_INTR);
+					stty_ctdl(SB_NO_INTR);
 					screen_set();
 				} else {
 					scr_printf("*** Can't run doors when server is not local.\n");
@@ -1859,7 +1859,7 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 	CtdlIPCLogout(ipc);
 	if ((mcmd == 29) || (mcmd == 15)) {
 		screen_delete();
-		sttybbs(SB_RESTORE);
+		stty_ctdl(SB_RESTORE);
 		formout(ipc, "goodbye");
 		logoff(ipc, 0);
 	}

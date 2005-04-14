@@ -66,13 +66,13 @@ void get_control(void)
 	if (control_fp == NULL) {
 		control_fp = fopen("citadel.control", "rb+");
 		if (control_fp != NULL) {
-			fchown(fileno(control_fp), config.c_bbsuid, -1);
+			fchown(fileno(control_fp), config.c_ctdluid, -1);
 		}
 	}
 	if (control_fp == NULL) {
 		control_fp = fopen("citadel.control", "wb+");
 		if (control_fp != NULL) {
-			fchown(fileno(control_fp), config.c_bbsuid, -1);
+			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			fwrite(&CitControl, sizeof(struct CitControl),
 			       1, control_fp);
@@ -176,7 +176,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_twitroom);
 		cprintf("%s\n", config.c_moreprompt);
 		cprintf("%d\n", config.c_restrict);
-		cprintf("%s\n", config.c_bbs_city);
+		cprintf("%s\n", config.c_site_location);
 		cprintf("%s\n", config.c_sysadm);
 		cprintf("%d\n", config.c_maxsessions);
 		cprintf("xxx\n"); /* placeholder -- field no longer in use */
@@ -276,8 +276,8 @@ void cmd_conf(char *argbuf)
 					config.c_restrict = 1;
 				break;
 			case 12:
-				safestrncpy(config.c_bbs_city, buf,
-					    sizeof config.c_bbs_city);
+				safestrncpy(config.c_site_location, buf,
+					    sizeof config.c_site_location);
 				break;
 			case 13:
 				safestrncpy(config.c_sysadm, buf,
