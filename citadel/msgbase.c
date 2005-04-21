@@ -2042,6 +2042,27 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	newmsgid = send_message(msg);
 	if (newmsgid <= 0L) return(-5);
 
+	/* Measure how big this message will be when displayed as RFC822.
+	 * Both POP and IMAP use this, and it's best to just take the hit now
+	 * instead of having to potentially measure thousands of messages when
+	 * a mailbox is opened later.
+	 */
+
+	if (CC->redirect_buffer != NULL) {
+		lprintf(CTDL_ALERT, "CC->redirect_buffer is not NULL during message submission!\n");
+		abort();
+	}
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputPreLoadedMsg(msg, 0L, MT_RFC822, HEADERS_ALL, 0, 1);
+	smi.meta_rfc822_length = CC->redirect_len;
+	free(CC->redirect_buffer);
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
+	lprintf(CTDL_DEBUG, "Storing meta rfc822 length of %ld\n", smi.meta_rfc822_length);
+
 	/* Write a supplemental message info record.  This doesn't have to
 	 * be a critical section because nobody else knows about this message
 	 * yet.
