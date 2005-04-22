@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.7  2005/04/22 00:52:03  ajc
+ * small fix to previous commit
+
  Revision 645.6  2005/04/21 17:28:51  ajc
  * msgbase.c: when committing a new message to the store, save its RFC822
    length to the metadata record immediately.  This will eliminate the need
@@ -6606,3 +6609,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

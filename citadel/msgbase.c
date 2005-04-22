@@ -2042,7 +2042,19 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	newmsgid = send_message(msg);
 	if (newmsgid <= 0L) return(-5);
 
-	/* Measure how big this message will be when displayed as RFC822.
+	/* Write a supplemental message info record.  This doesn't have to
+	 * be a critical section because nobody else knows about this message
+	 * yet.
+	 */
+	lprintf(CTDL_DEBUG, "Creating MetaData record\n");
+	memset(&smi, 0, sizeof(struct MetaData));
+	smi.meta_msgnum = newmsgid;
+	smi.meta_refcount = 0;
+	safestrncpy(smi.meta_content_type, content_type,
+			sizeof smi.meta_content_type);
+
+	/* As part of the new metadata record, measure how
+	 * big this message will be when displayed as RFC822.
 	 * Both POP and IMAP use this, and it's best to just take the hit now
 	 * instead of having to potentially measure thousands of messages when
 	 * a mailbox is opened later.
@@ -2061,17 +2073,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
-	lprintf(CTDL_DEBUG, "Storing meta rfc822 length of %ld\n", smi.meta_rfc822_length);
 
-	/* Write a supplemental message info record.  This doesn't have to
-	 * be a critical section because nobody else knows about this message
-	 * yet.
-	 */
-	lprintf(CTDL_DEBUG, "Creating MetaData record\n");
-	memset(&smi, 0, sizeof(struct MetaData));
-	smi.meta_msgnum = newmsgid;
-	smi.meta_refcount = 0;
-	safestrncpy(smi.meta_content_type, content_type, sizeof smi.meta_content_type);
 	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */
@@ -2084,7 +2086,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((!CC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
 			lprintf(CTDL_ERR, "ERROR saving message pointer!\n");
-			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom,
+							newmsgid, 0);
 		}
 	}
 
@@ -2098,8 +2101,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_room > 0)
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
-		extract_token(recipient, recps->recp_room, i, '|', sizeof recipient);
-		lprintf(CTDL_DEBUG, "Delivering to local room <%s>\n", recipient);
+		extract_token(recipient, recps->recp_room, i,
+					'|', sizeof recipient);
+		lprintf(CTDL_DEBUG, "Delivering to room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
 	}
 
@@ -2115,17 +2119,20 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_local > 0)
 	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
-		extract_token(recipient, recps->recp_local, i, '|', sizeof recipient);
+		extract_token(recipient, recps->recp_local, i,
+					'|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
-			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
+			MailboxName(actual_rm, sizeof actual_rm,
+					&userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 			BumpNewMailCounter(userbuf.usernum);
 		}
 		else {
 			lprintf(CTDL_DEBUG, "No user <%s>\n", recipient);
-			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom,
+							newmsgid, 0);
 		}
 	}
 
@@ -2144,7 +2151,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_ignet > 0)
 	  for (i=0; i<num_tokens(recps->recp_ignet, '|'); ++i) {
-		extract_token(recipient, recps->recp_ignet, i, '|', sizeof recipient);
+		extract_token(recipient, recps->recp_ignet, i,
+				'|', sizeof recipient);
 
 		hold_R = msg->cm_fields['R'];
 		hold_D = msg->cm_fields['D'];
