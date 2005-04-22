@@ -361,7 +361,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "UID")) {
-		if (is_msg_in_mset(itemlist[pos+1], IMAP->msgids[seq-1])) {
+		if (is_msg_in_sequence_set(itemlist[pos+1], IMAP->msgids[seq-1])) {
 			match = 1;
 		}
 		pos += 2;

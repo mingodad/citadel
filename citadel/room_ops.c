@@ -152,7 +152,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */
-	if (is_msg_in_mset(vbuf.v_seen, roombuf->QRhighest) == 0) {
+	if (is_msg_in_sequence_set(vbuf.v_seen, roombuf->QRhighest) == 0) {
 		retval = retval | UA_HASNEWMSGS;
 	}
 
@@ -829,7 +829,7 @@ void usergoto(char *where, int display_result, int transiently,
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
 		if (msglist[a] > 0L) {
 			++total_messages;
-			if (is_msg_in_mset(vbuf.v_seen, msglist[a]) == 0) {
+			if (is_msg_in_sequence_set(vbuf.v_seen, msglist[a]) == 0) {
 				++new_messages;
 			}
 		}

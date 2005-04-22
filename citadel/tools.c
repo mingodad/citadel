@@ -409,17 +409,14 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 
 /*
  * Determine whether the specified message number is contained within the
- * specified set.
+ * specified sequence set.
  */
-int is_msg_in_mset(char *mset, long msgnum) {
+int is_msg_in_sequence_set(char *mset, long msgnum) {
 	int num_sets;
 	int s;
-	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	long lo, hi;
 
-	/*
-	 * Now set it for all specified messages.
-	 */
 	num_sets = num_tokens(mset, ',');
 	for (s=0; s<num_sets; ++s) {
 		extract_token(setstr, mset, s, ',', sizeof setstr);

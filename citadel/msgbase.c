@@ -349,7 +349,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 			is_seen = target_setting;
 		}
 		else {
-			if (is_msg_in_mset(vset, msglist[i])) {
+			if (is_msg_in_sequence_set(vset, msglist[i])) {
 				is_seen = 1;
 			}
 		}
@@ -490,7 +490,7 @@ int CtdlForEachMessage(int mode, long ref,
 	if (num_msgs > 0)
 		for (a = 0; a < num_msgs; ++a) {
 			thismsg = msglist[a];
-			is_seen = is_msg_in_mset(vbuf.v_seen, thismsg);
+			is_seen = is_msg_in_sequence_set(vbuf.v_seen, thismsg);
 			if (is_seen) lastold = thismsg;
 			if ((thismsg > 0L)
 			    && (

@@ -188,7 +188,7 @@ int pop3_grab_mailbox(void) {
         CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	POP3->lastseen = (-1);
 	if (POP3->num_msgs) for (i=0; i<POP3->num_msgs; ++i) {
-		if (is_msg_in_mset(vbuf.v_seen,
+		if (is_msg_in_sequence_set(vbuf.v_seen,
 		   (POP3->msgs[POP3->num_msgs-1].msgnum) )) {
 			POP3->lastseen = i;
 		}

@@ -108,30 +108,81 @@ void imap_free_transmitted_message(void)
 
 
 /*
- * Set the \\Seen flag for messages which aren't new
+ * Set the \Seen, \Recent. and \Answered flags, based on the sequence
+ * sets stored in the visit record for this user/room.  Note that we have
+ * to parse each sequence set manually here, because calling the utility
+ * function is_msg_in_sequence_set() over and over again is too expensive.
  */
 void imap_set_seen_flags(void)
 {
 	struct visit vbuf;
 	int i;
+	int num_sets;
+	int s;
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];
+	long lo, hi;
 
+	if (IMAP->num_msgs < 1) return;
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
-	if (IMAP->num_msgs > 0) {
+
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_SEEN;
+		IMAP->flags[i] |= IMAP_RECENT;
+		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_ANSWERED;
+	}
+
+	/* Do the "\Seen" flag.  (Any message not "\Seen" is considered "\Recent".) */
+	num_sets = num_tokens(vbuf.v_seen, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, vbuf.v_seen, s, ',', sizeof setstr);
+
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':', sizeof histr);
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
+			}
+		} 
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
 		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
+			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)) {
 				IMAP->flags[i] |= IMAP_SEEN;
+				IMAP->flags[i] = IMAP->flags[i] & ~IMAP_RECENT;
 			}
-			else {
-				IMAP->flags[i] |= IMAP_RECENT;
+		}
+	}
+
+	/* Do the ANSWERED flag */
+	num_sets = num_tokens(vbuf.v_answered, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, vbuf.v_answered, s, ',', sizeof setstr);
+
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':', sizeof histr);
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 			}
-			if (is_msg_in_mset
-			    (vbuf.v_answered, IMAP->msgids[i])) {
+		} 
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
+		for (i = 0; i < IMAP->num_msgs; ++i) {
+			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)) {
 				IMAP->flags[i] |= IMAP_ANSWERED;
 			}
 		}
 	}
-}
 
+}
 
 
 
@@ -175,8 +226,6 @@ void imap_load_msgids(void)
 			   imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();
-	/* lprintf(CTDL_DEBUG, "imap_load_msgids() mapped %d messages\n",
-		IMAP->num_msgs); */
 }
 
 
@@ -194,7 +243,6 @@ void imap_rescan_msgids(void)
 	long *msglist = NULL;
 	int num_msgs = 0;
 	int num_recent = 0;
-
 
 	if (IMAP->selected == 0) {
 		lprintf(CTDL_ERR,

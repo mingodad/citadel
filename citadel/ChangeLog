@@ -1,4 +1,11 @@
  $Log$
+ Revision 645.8  2005/04/22 04:26:34  ajc
+ * is_msg_is_mset() has been renamed to is_msg_in_sequence_set() because
+   "sequence set" is now the official terminology as of RFC3501.
+ * imap_set_seen_flags() no longer calls is_msg_in_sequence_set() for each
+   message and for each flag.  It's just too expensive.  We now parse each
+   flag's sequence set manually, marking the relevant messages as we go.
+
  Revision 645.7  2005/04/22 00:52:03  ajc
  * small fix to previous commit
 
@@ -6609,4 +6616,6 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
+
 
