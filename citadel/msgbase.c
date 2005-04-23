@@ -1411,9 +1411,9 @@ START_TEXT:
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 			mime_parser(mptr, NULL,
-				*list_this_part,
-				*list_this_pref,
-				*list_this_suff,
+				(do_proto ? *list_this_part : NULL),
+				(do_proto ? *list_this_pref : NULL),
+				(do_proto ? *list_this_suff : NULL),
 				NULL, 0);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */

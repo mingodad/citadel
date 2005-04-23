@@ -1,4 +1,11 @@
  $Log$
+ Revision 645.11  2005/04/23 04:38:26  ajc
+ * Substantially improved the appearance of mailing list digests.
+   Superfluous RFC822 headers no longer appear, and all messages are
+   converted to plain text using the preferred_formats framework.
+ * CtdlOutputPreLoadedMsg() -- fixed bug that caused Citadel protocol
+   headers to appear for MIME prefix, suffix, etc. even when do_proto is 0.
+
  Revision 645.10  2005/04/23 02:04:11  ajc
  * serv_imap.c: don't respond "OK DELETE completed" until after the room
    delete operation actually completes.
@@ -6623,4 +6630,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -435,6 +435,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	int delete_after_send = 0;	/* Set to 1 to delete after spooling */
 	long list_msgnum = 0L;
 	int ok_to_participate = 0;
+	char *end_of_headers = NULL;
 
 	sc = (struct SpoolControl *)userdata;
 
@@ -498,13 +499,51 @@ void network_spool_msg(long msgnum, void *userdata) {
 	 * Process digest recipients
 	 */
 	if ((sc->digestrecps != NULL) && (sc->digestfp != NULL)) {
-		fprintf(sc->digestfp,	" -----------------------------------"
-					"------------------------------------"
-					"-------\n");
-		CtdlRedirectOutput(sc->digestfp);
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 0);
-		CtdlRedirectOutput(NULL);
-		sc->num_msgs_spooled += 1;
+		msg = CtdlFetchMessage(msgnum, 1);
+		if (msg != NULL) {
+			fprintf(sc->digestfp,	" -----------------------------------"
+						"------------------------------------"
+						"-------\n");
+			fprintf(sc->digestfp, "From: ");
+			if (msg->cm_fields['A'] != NULL) {
+				fprintf(sc->digestfp, "%s ", msg->cm_fields['A']);
+			}
+			if (msg->cm_fields['F'] != NULL) {
+				fprintf(sc->digestfp, "<%s> ", msg->cm_fields['F']);
+			}
+			else if (msg->cm_fields['N'] != NULL) {
+				fprintf(sc->digestfp, "@%s ", msg->cm_fields['N']);
+			}
+			fprintf(sc->digestfp, "\n");
+			if (msg->cm_fields['U'] != NULL) {
+				fprintf(sc->digestfp, "Subject: %s\n", msg->cm_fields['U']);
+			}
+
+			CC->redirect_buffer = malloc(SIZ);
+			CC->redirect_len = 0;
+			CC->redirect_alloc = SIZ;
+
+			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
+			CtdlOutputPreLoadedMsg(msg, 0L, MT_MIME, HEADERS_NONE, 0, 0);
+
+			end_of_headers = bmstrstr(CC->redirect_buffer, "\n\r\n", strncmp);
+			if (end_of_headers == NULL) {
+				end_of_headers = bmstrstr(CC->redirect_buffer, "\n\n", strncmp);
+			}
+			if (end_of_headers == NULL) {
+				end_of_headers = CC->redirect_buffer;
+			}
+			striplt(end_of_headers);
+			fprintf(sc->digestfp, "\n%s\n", end_of_headers);
+
+			free(CC->redirect_buffer);
+			CC->redirect_buffer = NULL;
+			CC->redirect_len = 0;
+			CC->redirect_alloc = 0;
+
+			sc->num_msgs_spooled += 1;
+			free(msg);
+		}
 	}
 
 	/*
@@ -1276,11 +1315,11 @@ void network_process_buffer(char *buffer, long size) {
 	strcpy(target_room, TWITROOM);
 
 	/* Load the message into memory */
-        msg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
-        memset(msg, 0, sizeof(struct CtdlMessage));
-        msg->cm_magic = CTDLMESSAGE_MAGIC;
-        msg->cm_anon_type = buffer[1];
-        msg->cm_format_type = buffer[2];
+	msg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = buffer[1];
+	msg->cm_format_type = buffer[2];
 
 	for (pos = 3; pos < size; ++pos) {
 		field = buffer[pos];
@@ -1378,7 +1417,7 @@ void network_process_buffer(char *buffer, long size) {
 			msg = NULL;
 			free(recp);
 			return;
-                }
+		}
 		strcpy(target_room, "");	/* no target room if mail */
 	}
 
@@ -1404,7 +1443,7 @@ void network_process_buffer(char *buffer, long size) {
 	/* save the message into a room */
 	if (PerformNetprocHooks(msg, target_room) == 0) {
 		msg->cm_flags = CM_SKIP_HOOKS;
-        	CtdlSubmitMsg(msg, recp, target_room);
+		CtdlSubmitMsg(msg, recp, target_room);
 	}
 	CtdlFreeMessage(msg);
 	free(recp);
@@ -1856,7 +1895,7 @@ void network_do_queue(void) {
 
 /*
  * cmd_netp() - authenticate to the server as another Citadel node polling
- *              for network traffic
+ *	      for network traffic
  */
 void cmd_netp(char *cmdbuf)
 {
