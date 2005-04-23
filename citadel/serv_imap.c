@@ -1161,8 +1161,8 @@ void imap_delete(int num_parms, char *parms[])
 	 * Now delete the room.
 	 */
 	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->room)) {
-		cprintf("%s OK DELETE completed\r\n", parms[0]);
 		delete_room(&CC->room);
+		cprintf("%s OK DELETE completed\r\n", parms[0]);
 	} else {
 		cprintf("%s NO Can't delete this folder.\r\n", parms[0]);
 	}
