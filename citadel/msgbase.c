@@ -306,7 +306,6 @@ void CtdlGetSeen(char *buf, int which_set) {
  * Manipulate the "seen msgs" string (or other message set strings)
  */
 void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
-	char newseen[SIZ];
 	struct cdbdata *cdbfr;
 	int i;
 	int is_seen = 0;
@@ -317,6 +316,10 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	long *msglist;
 	int num_msgs = 0;
 	char vset[SIZ];
+	char *is_set;	/* actually an array of booleans */
+	int num_sets;
+	int s;
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 
 	lprintf(CTDL_DEBUG, "CtdlSetSeen(%ld, %d, %d)\n",
 		target_msgnum, target_setting, which_set);
@@ -335,12 +338,42 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 		return;	/* No messages at all?  No further action. */
 	}
 
+	is_set = malloc(num_msgs * sizeof(char));
+	memset(is_set, 0, (num_msgs * sizeof(char)) );
+
 	/* Decide which message set we're manipulating */
-	if (which_set == ctdlsetseen_seen) strcpy(vset, vbuf.v_seen);
-	if (which_set == ctdlsetseen_answered) strcpy(vset, vbuf.v_answered);
+	if (which_set == ctdlsetseen_seen) safestrncpy(vset, vbuf.v_seen, sizeof vset);
+	if (which_set == ctdlsetseen_answered) safestrncpy(vset, vbuf.v_answered, sizeof vset);
 
 	lprintf(CTDL_DEBUG, "before optimize: %s\n", vset);
-	strcpy(newseen, "");
+
+	/* Translate the existing sequence set into an array of booleans */
+	num_sets = num_tokens(vset, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, vset, s, ',', sizeof setstr);
+
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':', sizeof histr);
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
+			}
+		}
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
+		for (i = 0; i < num_msgs; ++i) {
+			if ((msglist[i] >= lo) && (msglist[i] <= hi)) {
+				is_set[i] = 1;
+			}
+		}
+	}
+
+	/* Now translate the array of booleans back into a sequence set */
+	strcpy(vset, "");
 
 	for (i=0; i<num_msgs; ++i) {
 		is_seen = 0;
@@ -349,7 +382,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 			is_seen = target_setting;
 		}
 		else {
-			if (is_msg_in_sequence_set(vset, msglist[i])) {
+			if (is_set[i]) {
 				is_seen = 1;
 			}
 		}
@@ -362,21 +395,21 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
 			size_t tmp;
 
-			if ( (strlen(newseen) + 20) > SIZ) {
-				strcpy(newseen, &newseen[20]);
-				newseen[0] = '*';
+			if ( (strlen(vset) + 20) > sizeof vset) {
+				strcpy(vset, &vset[20]);
+				vset[0] = '*';
 			}
-			tmp = strlen(newseen);
+			tmp = strlen(vset);
 			if (tmp > 0) {
-				strcat(newseen, ",");
+				strcat(vset, ",");
 				tmp++;
 			}
 			if (lo == hi) {
-				snprintf(&newseen[tmp], sizeof newseen - tmp,
+				snprintf(&vset[tmp], sizeof vset - tmp,
 					 "%ld", lo);
 			}
 			else {
-				snprintf(&newseen[tmp], sizeof newseen - tmp,
+				snprintf(&vset[tmp], sizeof vset - tmp,
 					 "%ld:%ld", lo, hi);
 			}
 			lo = (-1L);
@@ -386,10 +419,11 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	}
 
 	/* Decide which message set we're manipulating */
-	if (which_set == ctdlsetseen_seen) strcpy(vbuf.v_seen, newseen);
-	if (which_set == ctdlsetseen_answered) strcpy(vbuf.v_answered, newseen);
+	if (which_set == ctdlsetseen_seen) safestrncpy(vbuf.v_seen, vset, sizeof vbuf.v_seen);
+	if (which_set == ctdlsetseen_answered) safestrncpy(vbuf.v_answered, vset, sizeof vbuf.v_answered);
+	free(is_set);
 
-	lprintf(CTDL_DEBUG, " after optimize: %s\n", newseen);
+	lprintf(CTDL_DEBUG, " after optimize: %s\n", vset);
 	free(msglist);
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }
@@ -522,7 +556,7 @@ int CtdlForEachMessage(int mode, long ref,
 
 /*
  * cmd_msgs()  -  get list of message #'s in this room
- *                implements the MSGS server command using CtdlForEachMessage()
+ *		implements the MSGS server command using CtdlForEachMessage()
  */
 void cmd_msgs(char *cmdbuf)
 {
@@ -627,10 +661,10 @@ void do_help_subst(char *buffer)
 
 /*
  * memfmout()  -  Citadel text formatter and paginator.
- *             Although the original purpose of this routine was to format
- *             text to the reader's screen width, all we're really using it
- *             for here is to format text out to 80 columns before sending it
- *             to the client.  The client software may reformat it again.
+ *	     Although the original purpose of this routine was to format
+ *	     text to the reader's screen width, all we're really using it
+ *	     for here is to format text out to 80 columns before sending it
+ *	     to the client.  The client software may reformat it again.
  */
 void memfmout(
 	int width,		/* screen width to use */
@@ -1215,7 +1249,7 @@ int CtdlOutputPreLoadedMsg(
 
 	/* nhdr=yes means that we're only displaying headers, no body */
 	if ( (TheMessage->cm_anon_type == MES_ANONONLY)
-           && (mode == MT_CITADEL)
+	   && (mode == MT_CITADEL)
 	   && (do_proto)
 	   ) {
 		cprintf("nhdr=yes\n");
@@ -1626,10 +1660,10 @@ void cmd_opna(char *cmdbuf)
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	int i;
 	char hold_rm[ROOMNAMELEN];
-        struct cdbdata *cdbfr;
-        int num_msgs;
-        long *msglist;
-        long highest_msg = 0L;
+	struct cdbdata *cdbfr;
+	int num_msgs;
+	long *msglist;
+	long highest_msg = 0L;
 	struct CtdlMessage *msg = NULL;
 
 	lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
@@ -1674,25 +1708,25 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
-        if (cdbfr == NULL) {
-                msglist = NULL;
-                num_msgs = 0;
-        } else {
-                msglist = malloc(cdbfr->len);
-                if (msglist == NULL)
-                        lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
-                num_msgs = cdbfr->len / sizeof(long);
-                memcpy(msglist, cdbfr->ptr, cdbfr->len);
-                cdb_free(cdbfr);
-        }
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+	if (cdbfr == NULL) {
+		msglist = NULL;
+		num_msgs = 0;
+	} else {
+		msglist = malloc(cdbfr->len);
+		if (msglist == NULL)
+			lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
+		num_msgs = cdbfr->len / sizeof(long);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		cdb_free(cdbfr);
+	}
 
 
 	/* Make sure the message doesn't already exist in this room.  It
 	 * is absolutely taboo to have more than one reference to the same
 	 * message in a room.
 	 */
-        if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 		if (msglist[i] == msgid) {
 			lputroom(&CC->room);	/* unlock the room */
 			getroom(&CC->room, hold_rm);
@@ -1702,27 +1736,27 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		}
 	}
 
-        /* Now add the new message */
-        ++num_msgs;
-        msglist = realloc(msglist, (num_msgs * sizeof(long)));
+	/* Now add the new message */
+	++num_msgs;
+	msglist = realloc(msglist, (num_msgs * sizeof(long)));
 
-        if (msglist == NULL) {
-                lprintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
-        }
-        msglist[num_msgs - 1] = msgid;
+	if (msglist == NULL) {
+		lprintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
+	}
+	msglist[num_msgs - 1] = msgid;
 
-        /* Sort the message list, so all the msgid's are in order */
-        num_msgs = sort_msglist(msglist, num_msgs);
+	/* Sort the message list, so all the msgid's are in order */
+	num_msgs = sort_msglist(msglist, num_msgs);
 
-        /* Determine the highest message number */
-        highest_msg = msglist[num_msgs - 1];
+	/* Determine the highest message number */
+	highest_msg = msglist[num_msgs - 1];
 
-        /* Write it back to disk. */
-        cdb_store(CDB_MSGLISTS, &CC->room.QRnumber, (int)sizeof(long),
-                  msglist, (int)(num_msgs * sizeof(long)));
+	/* Write it back to disk. */
+	cdb_store(CDB_MSGLISTS, &CC->room.QRnumber, (int)sizeof(long),
+		  msglist, (int)(num_msgs * sizeof(long)));
 
-        /* Free up the memory we used. */
-        free(msglist);
+	/* Free up the memory we used. */
+	free(msglist);
 
 	/* Update the highest-message pointer and unlock the room. */
 	CC->room.QRhighest = highest_msg;
@@ -1736,7 +1770,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 
 	/* Return success. */
 	if (msg != NULL) CtdlFreeMessage(msg);
-        return (0);
+	return (0);
 }
 
 
@@ -1753,7 +1787,7 @@ long send_message(struct CtdlMessage *msg) {
 	long newmsgid;
 	long retval;
 	char msgidbuf[256];
-        struct ser_ret smr;
+	struct ser_ret smr;
 	int is_bigmsg = 0;
 	char *holdM = NULL;
 
@@ -1776,17 +1810,17 @@ long send_message(struct CtdlMessage *msg) {
 	}
 
 	/* Serialize our data structure for storage in the database */	
-        serialize_message(&smr, msg);
+	serialize_message(&smr, msg);
 
 	if (is_bigmsg) {
 		msg->cm_fields['M'] = holdM;
 	}
 
-        if (smr.len == 0) {
-                cprintf("%d Unable to serialize message\n",
-                        ERROR + INTERNAL_ERROR);
-                return (-1L);
-        }
+	if (smr.len == 0) {
+		cprintf("%d Unable to serialize message\n",
+			ERROR + INTERNAL_ERROR);
+		return (-1L);
+	}
 
 	/* Write our little bundle of joy into the message base */
 	if (cdb_store(CDB_MSGMAIN, &newmsgid, (int)sizeof(long),
@@ -1806,7 +1840,7 @@ long send_message(struct CtdlMessage *msg) {
 	}
 
 	/* Free the memory we used for the serialized message */
-        free(smr.ser);
+	free(smr.ser);
 
 	/* Return the *local* message ID to the caller
 	 * (even if we're storing an incoming network message)
@@ -2165,7 +2199,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (smr.len > 0) {
 			snprintf(submit_filename, sizeof submit_filename,
 				"./network/spoolin/netmail.%04lx.%04x.%04x",
-                        	(long) getpid(), CC->cs_pid, ++seqnum);
+				(long) getpid(), CC->cs_pid, ++seqnum);
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
 				fwrite(smr.ser, smr.len, 1, network_fp);
@@ -2208,7 +2242,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				 "remote|%s|0||\n", recipient);
 		}
 
-        	imsg = malloc(sizeof(struct CtdlMessage));
+		imsg = malloc(sizeof(struct CtdlMessage));
 		memset(imsg, 0, sizeof(struct CtdlMessage));
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
@@ -3114,7 +3148,7 @@ void PutMetaData(struct MetaData *smibuf)
 
 /*
  * AdjRefCount  -  change the reference count for a message;
- *                 delete the message if it reaches zero
+ *		 delete the message if it reaches zero
  */
 void AdjRefCount(long msgnum, int incr)
 {
@@ -3305,10 +3339,10 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		conf = NULL;
 	}
 	else {
-        	msg = CtdlFetchMessage(msgnum, 1);
-        	if (msg != NULL) {
-                	conf = strdup(msg->cm_fields['M']);
-                	CtdlFreeMessage(msg);
+		msg = CtdlFetchMessage(msgnum, 1);
+		if (msg != NULL) {
+			conf = strdup(msg->cm_fields['M']);
+			CtdlFreeMessage(msg);
 		}
 		else {
 			conf = NULL;

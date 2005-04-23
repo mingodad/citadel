@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.9  2005/04/23 01:59:58  ajc
+ * Big performance optimization on CtdlSetSeen()
+
  Revision 645.8  2005/04/22 04:26:34  ajc
  * is_msg_is_mset() has been renamed to is_msg_in_sequence_set() because
    "sequence set" is now the official terminology as of RFC3501.
@@ -6616,6 +6619,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
-
-
