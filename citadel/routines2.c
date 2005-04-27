@@ -647,13 +647,14 @@ void do_system_configuration(CtdlIPC *ipc)
 #define NUM_CONFIGS 42
 
 	char buf[SIZ];
-	char sc[NUM_CONFIGS][SIZ];
+	char sc[NUM_CONFIGS][256];
 	char *resp = NULL;
 	struct ExpirePolicy *site_expirepolicy = NULL;
 	struct ExpirePolicy *mbx_expirepolicy = NULL;
 	int a;
 	int logpages = 0;
 	int r;			/* IPC response code */
+	int server_configs = 0;
 
 	/* Clear out the config buffers */
 	memset(&sc[0][0], 0, sizeof(sc));
@@ -661,14 +662,11 @@ void do_system_configuration(CtdlIPC *ipc)
 	/* Fetch the current config */
 	r = CtdlIPCGetSystemConfig(ipc, &resp, buf);
 	if (r / 100 == 1) {
-		a = 0;
-		while (strlen(resp)) {
-			extract_token(buf, resp, 0, '\n', sizeof buf);
-			remove_token(resp, 0, '\n');
+		server_configs = num_tokens(resp, '\n');
+		for (a=0; a<server_configs; ++a) {
 			if (a < NUM_CONFIGS) {
-				strcpy(&sc[a][0], buf);
+				extract_token(&sc[a][0], resp, a, '\n', sizeof sc[a]);
 			}
-			++a;
 		}
 	}
 	if (resp) free(resp);
@@ -692,28 +690,28 @@ void do_system_configuration(CtdlIPC *ipc)
 	/* Security parameters */
 
 	snprintf(sc[7], sizeof sc[7], "%d", (boolprompt(
-				    "Require registration for new users",
-						    atoi(&sc[7][0]))));
+		"Require registration for new users",
+		atoi(&sc[7][0]))));
 	snprintf(sc[29], sizeof sc[29], "%d", (boolprompt(
-	      "Disable self-service user account creation",
-						     atoi(&sc[29][0]))));
+		"Disable self-service user account creation",
+		atoi(&sc[29][0]))));
 	strprompt("Initial access level for new users", &sc[6][0], 1);
 	strprompt("Access level required to create rooms", &sc[19][0], 1);
 	snprintf(sc[4], sizeof sc[4], "%d", (boolprompt(
-						    "Automatically give room aide privs to a user who creates a private room",
-						    atoi(&sc[4][0]))));
+		"Automatically give room aide privs to a user who creates a private room",
+		atoi(&sc[4][0]))));
 
 	snprintf(sc[8], sizeof sc[8], "%d", (boolprompt(
-		 "Automatically move problem user messages to twit room",
-						    atoi(&sc[8][0]))));
+		"Automatically move problem user messages to twit room",
+		atoi(&sc[8][0]))));
 
 	strprompt("Name of twit room", &sc[9][0], ROOMNAMELEN);
 	snprintf(sc[11], sizeof sc[11], "%d", (boolprompt(
-	      "Restrict Internet mail to only those with that privilege",
-						     atoi(&sc[11][0]))));
+		"Restrict Internet mail to only those with that privilege",
+		atoi(&sc[11][0]))));
 	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
-	      "Allow Aides to Zap (forget) rooms",
-						     atoi(&sc[26][0]))));
+		"Allow Aides to Zap (forget) rooms",
+		atoi(&sc[26][0]))));
 
 	if (strlen(&sc[18][0]) > 0) logpages = 1;
 	else logpages = 0;

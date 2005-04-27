@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.12  2005/04/27 19:22:57  ajc
+ * .ASG command: made better use of memory to avoid crashes
+
  Revision 645.11  2005/04/23 04:38:26  ajc
  * Substantially improved the appearance of mailing list digests.
    Superfluous RFC822 headers no longer appear, and all messages are
@@ -6630,3 +6633,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
