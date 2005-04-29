@@ -193,7 +193,6 @@ void RemoveContext (struct CitContext *con)
 	lprintf(CTDL_DEBUG, "Calling logout(%d)\n", con->cs_pid);
 	logout(con);
 
-	unlink(con->temp);
 	lprintf(CTDL_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
 	/* If the client is still connected, blow 'em away. */
@@ -761,13 +760,12 @@ void begin_session(struct CitContext *con)
 	strcpy(con->lastcmdname, "    ");
 	strcpy(con->cs_clientname, "(unknown)");
 	strcpy(con->curr_user, NLI);
-	strcpy(con->net_node,"");
+	strcpy(con->net_node, "");
 	strcpy(con->fake_username, "");
 	strcpy(con->fake_postname, "");
 	strcpy(con->fake_hostname, "");
 	strcpy(con->fake_roomname, "");
 	generate_nonce(con);
-	safestrncpy(con->temp, tmpnam(NULL), sizeof con->temp);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_host[sizeof con->cs_host - 1] = 0;

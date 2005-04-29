@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.14  2005/04/29 16:50:03  ajc
+ * Significantly reduced the memory footprint of struct CitContext.
+
  Revision 645.13  2005/04/29 16:26:00  ajc
  * Removed the CtdlRedirectOutput() API, as we are no longer using it.
    (Oh happy day; no more temp files!)
@@ -6637,3 +6640,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

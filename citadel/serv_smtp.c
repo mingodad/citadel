@@ -537,7 +537,7 @@ void smtp_mail(char *argbuf) {
 	 * to be the user's Internet e-mail address as Citadel knows it.
 	 */
 	if (CC->logged_in) {
-		strcpy(SMTP->from, CC->cs_inet_email);
+		safestrncpy(SMTP->from, CC->cs_inet_email, sizeof SMTP->from);
 		cprintf("250 2.1.0 Sender ok <%s>\r\n", SMTP->from);
 		SMTP->message_originated_locally = 1;
 		return;

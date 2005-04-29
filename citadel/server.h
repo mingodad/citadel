@@ -54,12 +54,11 @@ struct CitContext {
 	char curr_user[USERNAME_SIZE];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */
-	char temp[PATH_MAX];	/* temp file name */
 	int nologin;		/* not allowed to log in */
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	int curr_view;		/* The view type for the current user/room */
 
-	char net_node[PATH_MAX];/* Is the client another Citadel server? */
+	char net_node[32]	;/* Is the client another Citadel server? */
 	time_t previous_login;	/* Date/time of previous login */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
@@ -78,14 +77,14 @@ struct CitContext {
 	char cs_addr[64];	/* address logged in from */
 
 	/* The Internet type of thing */
-	char cs_inet_email[SIZ];/* Return address of outbound Internet mail */
+	char cs_inet_email[128];/* Return address of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	char download_desired_section[128];
 	FILE *upload_fp;
-	char upl_file[PATH_MAX];
+	char upl_file[256];
 	char upl_path[PATH_MAX];
-	char upl_comment[SIZ];
+	char upl_comment[256];
 	char upl_filedir[PATH_MAX];
 	char dl_is_net;
 	char upload_type;
@@ -120,7 +119,7 @@ struct CitContext {
 	char fake_hostname[64];			/* Fake hostname <bc> */
 	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
 
-	char preferred_formats[SIZ];		/* Preferred MIME formats */
+	char preferred_formats[256];		/* Preferred MIME formats */
 
 	/* Dynamically allocated session data */
 	struct citimap *IMAP;

@@ -1032,8 +1032,10 @@ void cmd_rdir(void)
 	char comment[256];
 	FILE *ls, *fd;
 	struct stat statbuf;
+	char tempfilename[PATH_MAX];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
+	tmpnam(tempfilename);
 	
 	getroom(&CC->room, CC->room.QRname);
 	getuser(&CC->user, CC->curr_user);
@@ -1052,7 +1054,7 @@ void cmd_rdir(void)
 	LISTING_FOLLOWS, config.c_fqdn, CTDLDIR, CC->room.QRdirname);
 
         snprintf(buf, sizeof buf, "ls %s/files/%s  >%s 2> /dev/null",
-                CTDLDIR, CC->room.QRdirname, CC->temp);
+                CTDLDIR, CC->room.QRdirname, tempfilename);
         system(buf);
 
 	snprintf(buf, sizeof buf, "%s/files/%s/filedir", CTDLDIR, CC->room.QRdirname);
@@ -1060,7 +1062,7 @@ void cmd_rdir(void)
 	if (fd == NULL)
 		fd = fopen("/dev/null", "r");
 
-	ls = fopen(CC->temp, "r");
+	ls = fopen(tempfilename, "r");
 	while (fgets(flnm, sizeof flnm, ls) != NULL) {
 		flnm[strlen(flnm) - 1] = 0;
 		if (strcasecmp(flnm, "filedir")) {
@@ -1083,7 +1085,7 @@ void cmd_rdir(void)
 	}
 	fclose(ls);
 	fclose(fd);
-	unlink(CC->temp);
+	unlink(tempfilename);
 
 	cprintf("000\n");
 }
