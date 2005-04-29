@@ -1346,9 +1346,9 @@ int CtdlOutputPreLoadedMsg(
 					safestrncpy(lnode, mptr, sizeof lnode);
 				else if (i == 'F')
 					safestrncpy(fuser, mptr, sizeof fuser);
-				else if (i == 'O')
+				/* else if (i == 'O')
 					cprintf("X-Citadel-Room: %s%s",
-						mptr, nl);
+						mptr, nl); */
 				else if (i == 'N')
 					safestrncpy(snode, mptr, sizeof snode);
 				else if (i == 'R')
@@ -1383,16 +1383,20 @@ int CtdlOutputPreLoadedMsg(
 		cprintf(">%s", nl);
 
 		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
-			cprintf("From: x@x.org (----)%s", nl);
+			// cprintf("From: x@x.org (----)%s", nl);
+			cprintf("From: \"----\" <x@x.org>%s", nl);
 		}
 		else if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONOPT)) {
-			cprintf("From: x@x.org (anonymous)%s", nl);
+			// cprintf("From: x@x.org (anonymous)%s", nl);
+			cprintf("From: \"anonymous\" <x@x.org>%s", nl);
 		}
 		else if (strlen(fuser) > 0) {
-			cprintf("From: %s (%s)%s", fuser, luser, nl);
+			// cprintf("From: %s (%s)%s", fuser, luser, nl);
+			cprintf("From: \"%s\" <%s>%s", luser, fuser, nl);
 		}
 		else {
-			cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+			// cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+			cprintf("From: \"%s\" <%s@%s>%s", luser, suser, snode, nl);
 		}
 
 		cprintf("Organization: %s%s", lnode, nl);

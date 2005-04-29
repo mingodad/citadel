@@ -1,4 +1,7 @@
  $Log$
+ Revision 645.16  2005/04/29 22:02:20  ajc
+ * More IMAP tuning
+
  Revision 645.15  2005/04/29 20:47:45  ajc
  * More complex cache handling for IMAP fetch operations -- now we can
    fetch/cache "just the headers" and remember whether we did so, so we can
@@ -6646,3 +6649,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

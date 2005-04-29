@@ -176,7 +176,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_ONLY),
 			0, 1);
-		if (!need_body) printf("\r\n");	/* extra trailing newline */
+		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
 		IMAP->cached_rfc822_data = CC->redirect_buffer;
 		IMAP->cached_rfc822_len = CC->redirect_len;
 		IMAP->cached_rfc822_msgnum = msgnum;
