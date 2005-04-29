@@ -535,11 +535,6 @@ void client_write(char *buf, int nbytes)
 		return;
 	}
 
-	if (CC->redirect_fp != NULL) {
-		fwrite(buf, (size_t)nbytes, (size_t)1, CC->redirect_fp);
-		return;
-	}
-
 #ifndef HAVE_TCP_BUFFERING
 	/* If we're buffering for later, do that now. */
 	if (CC->buffering) {
@@ -887,18 +882,6 @@ void dead_session_purge(int force) {
 
 
 
-
-
-/*
- * Redirect a session's output to a file.
- * This function may be called with a file handle.
- * Call with NULL to return output to its normal client socket.
- */
-void CtdlRedirectOutput(FILE *fp)
-{
-	if (fp != NULL) CC->redirect_fp = fp;
-	else CC->redirect_fp = NULL;
-}
 
 
 /*

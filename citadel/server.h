@@ -96,8 +96,7 @@ struct CitContext {
 	/* Beginning of cryptography - session nonce */
 	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
 
-	/* Redirect this session's output to somewhere else? */
-	FILE *redirect_fp;		/* a file instead (will go away) */
+	/* Redirect this session's output to a memory buffer? */
 	char *redirect_buffer;		/* the buffer */
 	size_t redirect_len;		/* length of data in buffer */
 	size_t redirect_alloc;		/* length of allocated buffer */
