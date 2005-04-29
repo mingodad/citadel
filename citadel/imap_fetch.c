@@ -120,6 +120,16 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	size_t bytes_to_send = 0;
 	struct MetaData smi;
 	int need_to_rewrite_metadata = 0;
+	int need_body = 0;
+
+	/* Determine whether this particular fetch operation requires
+	 * us to fetch the message body from disk.  If not, we can save
+	 * on some disk operations...
+	 */
+	if ( (!strcasecmp(whichfmt, "RFC822"))
+	   || (!strcasecmp(whichfmt, "RFC822.TEXT")) ) {
+		need_body = 1;
+	}
 
 	/* If this is an RFC822.SIZE fetch, first look in the message's
 	 * metadata record to see if we've saved that information.
@@ -131,14 +141,18 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 			return;
 		}
 		need_to_rewrite_metadata = 1;
+		need_body = 1;
 	}
 	
 	/* Cache the most recent RFC822 FETCH because some clients like to
 	 * fetch in pieces, and we don't want to have to go back to the
-	 * message store for each piece.
+	 * message store for each piece.  We also burn the cache if the
+	 * client requests something that involves reading the message
+	 * body, but we haven't fetched the body yet.
 	 */
 	if ((IMAP->cached_rfc822_data != NULL)
-	   && (IMAP->cached_rfc822_msgnum == msgnum)) {
+	   && (IMAP->cached_rfc822_msgnum == msgnum)
+	   && (IMAP->cached_rfc822_withbody || (!need_body)) ) {
 		/* Good to go! */
 	}
 	else if (IMAP->cached_rfc822_data != NULL) {
@@ -159,14 +173,18 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlOutputMsg(msgnum, MT_RFC822,
+			(need_body ? HEADERS_ALL : HEADERS_ONLY),
+			0, 1);
+		if (!need_body) printf("\r\n");	/* extra trailing newline */
 		IMAP->cached_rfc822_data = CC->redirect_buffer;
 		IMAP->cached_rfc822_len = CC->redirect_len;
 		IMAP->cached_rfc822_msgnum = msgnum;
+		IMAP->cached_rfc822_withbody = need_body;
 		CC->redirect_buffer = NULL;
 		CC->redirect_len = 0;
 		CC->redirect_alloc = 0;
-		if (need_to_rewrite_metadata) {
+		if ( (need_to_rewrite_metadata) && (IMAP->cached_rfc822_len > 0) ) {
 			smi.meta_rfc822_length = (long)IMAP->cached_rfc822_len;
 			PutMetaData(&smi);
 		}
@@ -180,19 +198,26 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	text_size = 0;
 	total_size = 0;
 
-	ptr = IMAP->cached_rfc822_data;
-	do {
-		ptr = memreadline(ptr, buf, sizeof buf);
-		if (*ptr != 0) {
-			striplt(buf);
-			if (strlen(buf) == 0) {
-				headers_size = ptr - IMAP->cached_rfc822_data;
+	if (need_body) {
+		ptr = IMAP->cached_rfc822_data;
+		do {
+			ptr = memreadline(ptr, buf, sizeof buf);
+			if (*ptr != 0) {
+				striplt(buf);
+				if (strlen(buf) == 0) {
+					headers_size = ptr - IMAP->cached_rfc822_data;
+				}
 			}
-		}
-	} while ( (headers_size == 0) && (*ptr != 0) );
+		} while ( (headers_size == 0) && (*ptr != 0) );
 
-	total_size = IMAP->cached_rfc822_len;
-	text_size = total_size - headers_size;
+		total_size = IMAP->cached_rfc822_len;
+		text_size = total_size - headers_size;
+	}
+	else {
+		headers_size = IMAP->cached_rfc822_len;
+		total_size = IMAP->cached_rfc822_len;
+		text_size = 0;
+	}
 
 	lprintf(CTDL_DEBUG, "RFC822: headers=%d, text=%d, total=%d\n",
 		headers_size, text_size, total_size);
@@ -447,7 +472,6 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	cprintf(")");
 }
 
-
 /*
  * This function is called only when CC->redirect_buffer contains a set of
  * RFC822 headers with no body attached.  Its job is to strip that set of
@@ -539,6 +563,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	int is_partial = 0;
 	size_t pstart, pbytes;
 	int loading_body_now = 0;
+	int need_body = 1;
 
 	/* extract section */
 	safestrncpy(section, item, sizeof section);
@@ -546,12 +571,16 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		stripallbut(section, '[', ']');
 	}
 	/* lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((strlen(section)==0) ? "(empty)" : "") ); */
+	if (!strncasecmp(section, "HEADER", 6)) {
+		need_body = 0;
+	}
 
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
 	 */
 	if (IMAP->cached_body != NULL) {
 		if ((IMAP->cached_bodymsgnum != msgnum)
+		   || ( (IMAP->cached_body_withbody) || (!need_body) )
 		   || (strcasecmp(IMAP->cached_bodypart, section)) ) {
 			free(IMAP->cached_body);
 			IMAP->cached_body_len = 0;
@@ -575,7 +604,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
 		loading_body_now = 1;
-		msg = CtdlFetchMessage(msgnum, 1);
+		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
 	}
 
 	/* Now figure out what the client wants, and get it */
@@ -623,6 +652,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		IMAP->cached_body = CC->redirect_buffer;
 		IMAP->cached_body_len = CC->redirect_len;
 		IMAP->cached_bodymsgnum = msgnum;
+		IMAP->cached_body_withbody = need_body;
 		strcpy(IMAP->cached_bodypart, section);
 		CC->redirect_buffer = NULL;
 		CC->redirect_len = 0;

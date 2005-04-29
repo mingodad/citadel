@@ -878,6 +878,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * body so other code doesn't barf.
 	 */
 	if ( (ret->cm_fields['M'] == NULL) && (with_body) ) {
+		lprintf(CTDL_DEBUG, "** FETCHING BIG MESSAGE **\n"); /* FIXME */
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
 			ret->cm_fields['M'] = strdup(dmsgtext->ptr);
@@ -1130,11 +1131,11 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* FIXME: check message id against msglist for this room */
 
 	/*
-	 * Fetch the message from disk.  If we're in sooper-fast headers
+	 * Fetch the message from disk.  If we're in any sort of headers
 	 * only mode, request that we don't even bother loading the body
 	 * into memory.
 	 */
-	if (headers_only == HEADERS_FAST) {
+	if ( (headers_only == HEADERS_FAST) || (headers_only == HEADERS_ONLY) ) {
 		TheMessage = CtdlFetchMessage(msg_num, 0);
 	}
 	else {

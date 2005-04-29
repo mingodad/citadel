@@ -91,6 +91,7 @@ void imap_free_msgids(void)
 		free(IMAP->flags);
 		IMAP->flags = NULL;
 	}
+	IMAP->last_mtime = (-1);
 }
 
 
@@ -250,6 +251,12 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
+	/* Check to see if the room's contents have changed.  If not, we can avoid rescan */
+	getroom(&CC->room, CC->room.QRname);
+	if (IMAP->last_mtime == CC->room.QRmtime) {	/* No changes! */
+		return;
+	}
+
 	/* Load the *current* message list from disk, so we can compare it
 	 * to what we have in memory.
 	 */
@@ -339,8 +346,10 @@ void imap_rescan_msgids(void)
 		cprintf("* %d RECENT\r\n", num_recent);
 	}
 
-	if (num_msgs != 0)
+	if (num_msgs != 0) {
 		free(msglist);
+	}
+	IMAP->last_mtime = CC->room.QRmtime;
 }
 
 
@@ -373,6 +382,7 @@ void imap_cleanup_function(void)
 		free(IMAP->cached_rfc822_data);
 		IMAP->cached_rfc822_data = NULL;
 		IMAP->cached_rfc822_msgnum = (-1);
+		IMAP->cached_rfc822_withbody = 0;
 	}
 
 	if (IMAP->cached_body != NULL) {
@@ -400,6 +410,7 @@ void imap_greeting(void)
 	IMAP->authstate = imap_as_normal;
 	IMAP->cached_rfc822_data = NULL;
 	IMAP->cached_rfc822_msgnum = (-1);
+	IMAP->cached_rfc822_withbody = 0;
 
 	cprintf("* OK %s Citadel IMAP4rev1 server ready\r\n",
 		config.c_fqdn);
@@ -612,6 +623,7 @@ void imap_select(int num_parms, char *parms[])
 	}
 
 	imap_load_msgids();
+	IMAP->last_mtime = CC->room.QRmtime;
 
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);

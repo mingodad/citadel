@@ -17,6 +17,7 @@ struct citimap {
 	int readonly;			/* mailbox is open read only */
 	int num_msgs;			/* Number of messages being mapped */
 	int num_alloc;			/* Number of messages for which we've allocated space */
+	time_t last_mtime;		/* For checking whether the room was modified... */
 	long *msgids;
 	unsigned int *flags;
 	char *transmitted_message;	/* for APPEND command... */
@@ -26,12 +27,14 @@ struct citimap {
 	char *cached_rfc822_data;
 	long cached_rfc822_msgnum;
 	size_t cached_rfc822_len;
+	char cached_rfc822_withbody;	/* 1 = body cached; 0 = only headers cached */
 
 	/* Cache most recent BODY FETCH because client might load in pieces */
 	char *cached_body;
 	size_t cached_body_len;
 	char cached_bodypart[SIZ];
 	long cached_bodymsgnum;
+	char cached_body_withbody;	/* 1 = body cached; 0 = only headers cached */
 };
 
 /*

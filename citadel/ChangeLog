@@ -1,4 +1,10 @@
  $Log$
+ Revision 645.15  2005/04/29 20:47:45  ajc
+ * More complex cache handling for IMAP fetch operations -- now we can
+   fetch/cache "just the headers" and remember whether we did so, so we can
+   burn the cache if the client then comes around and requests something
+   that requires the body.  Still needs some testing and tuning.
+
  Revision 645.14  2005/04/29 16:50:03  ajc
  * Significantly reduced the memory footprint of struct CitContext.
 
@@ -6640,4 +6646,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
