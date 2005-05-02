@@ -1,4 +1,11 @@
  $Log$
+ Revision 645.17  2005/05/02 16:09:52  ajc
+ * serv_imap.c: implemented the RFC 3501 suggestion that the initial
+   greeting, and the response to the LOGIN command, include an output
+   of the server's CAPABILITY string.  I find this to be gratuitous but
+   the UW IMAP server does it, so we are also doing it in order to better
+   interoperate with clients which make assumptions...
+
  Revision 645.16  2005/04/29 22:02:20  ajc
  * More IMAP tuning
 
@@ -6649,4 +6656,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

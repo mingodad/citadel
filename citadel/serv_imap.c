@@ -397,6 +397,29 @@ void imap_cleanup_function(void)
 }
 
 
+/*
+ * Does the actual work of the CAPABILITY command (because we need to
+ * output this stuff in other places as well)
+ */
+void imap_output_capability_string(void) {
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE AUTH=LOGIN");
+#ifdef HAVE_OPENSSL
+	if (!CC->redirect_ssl) cprintf(" STARTTLS");
+#endif
+}
+
+/*
+ * implements the CAPABILITY command
+ */
+void imap_capability(int num_parms, char *parms[])
+{
+	cprintf("* ");
+	imap_output_capability_string();
+	cprintf("\r\n");
+	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
+}
+
+
 
 /*
  * Here's where our IMAP session begins its happy day.
@@ -412,8 +435,9 @@ void imap_greeting(void)
 	IMAP->cached_rfc822_msgnum = (-1);
 	IMAP->cached_rfc822_withbody = 0;
 
-	cprintf("* OK %s Citadel IMAP4rev1 server ready\r\n",
-		config.c_fqdn);
+	cprintf("* OK [");
+	imap_output_capability_string();
+	cprintf("] %s IMAP4rev1 %s ready\r\n", config.c_fqdn, CITADEL);
 }
 
 /*
@@ -439,7 +463,9 @@ void imap_login(int num_parms, char *parms[])
 
 	if (CtdlLoginExistingUser(parms[2]) == login_ok) {
 		if (CtdlTryPassword(parms[3]) == pass_ok) {
-			cprintf("%s OK login successful\r\n", parms[0]);
+			cprintf("%s OK [", parms[0]);
+			imap_output_capability_string();
+			cprintf("] Hello, %s\r\n", CC->user.fullname);
 			return;
 		}
 	}
@@ -506,23 +532,6 @@ void imap_auth_login_pass(char *cmd)
 	IMAP->authstate = imap_as_normal;
 	return;
 }
-
-
-/*
- * implements the CAPABILITY command
- */
-void imap_capability(int num_parms, char *parms[])
-{
-	cprintf("* CAPABILITY IMAP4 IMAP4REV1 NAMESPACE AUTH=LOGIN");
-
-#ifdef HAVE_OPENSSL
-	cprintf(" STARTTLS");
-#endif
-
-	cprintf("\r\n");
-	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
-}
-
 
 
 /*
@@ -628,6 +637,9 @@ void imap_select(int num_parms, char *parms[])
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 
+	cprintf("* OK [UIDVALIDITY 0] UID validity status\r\n");
+	cprintf("* OK [UIDNEXT %ld] Predicted next UID\r\n", CitControl.MMhighest + 1);
+
 	/* Note that \Deleted is a valid flag, but not a permanent flag,
 	 * because we don't maintain its state across sessions.  Citadel
 	 * automatically expunges mailboxes when they are de-selected.
@@ -636,7 +648,6 @@ void imap_select(int num_parms, char *parms[])
 	cprintf("* OK [PERMANENTFLAGS (\\Seen \\Answered)] "
 		"permanent flags\r\n");
 
-	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
 		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"), parms[1]);
