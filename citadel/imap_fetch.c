@@ -1184,14 +1184,12 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 			if (is_uid) {	/* fetch by sequence number */
 				if ( (IMAP->msgids[i-1]>=lo)
 				   && (IMAP->msgids[i-1]<=hi)) {
-					IMAP->flags[i-1] =
-						IMAP->flags[i-1] | IMAP_SELECTED;
+					IMAP->flags[i-1] |= IMAP_SELECTED;
 				}
 			}
 			else {		/* fetch by uid */
 				if ( (i>=lo) && (i<=hi)) {
-					IMAP->flags[i-1] =
-						IMAP->flags[i-1] | IMAP_SELECTED;
+					IMAP->flags[i-1] |= IMAP_SELECTED;
 				}
 			}
 		}
