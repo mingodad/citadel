@@ -394,7 +394,7 @@ void imap_output_envelope_addr(char *addr) {
  * Note that the imap_strout() function can cleverly output NULL fields as NIL,
  * so we don't have to check for that condition like we do elsewhere.
  */
-void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
+void imap_fetch_envelope(struct CtdlMessage *msg) {
 	char datestringbuf[SIZ];
 	time_t msgdate;
 	char *fieldptr = NULL;
@@ -901,6 +901,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg = NULL;
+	int body_loaded = 0;
 
 	cprintf("* %d FETCH (", seq);
 
@@ -941,16 +942,29 @@ void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 		/* Otherwise, load the message into memory.
 		 */
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			if ((msg != NULL) && (!body_loaded)) {
+				CtdlFreeMessage(msg);	/* need the whole thing */
+				msg = NULL;
+			}
+			if (msg == NULL) {
+				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+				body_loaded = 1;
+			}
 			imap_fetch_bodystructure(IMAP->msgids[seq-1],
 					itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
-			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
+			if (msg == NULL) {
+				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 0);
+				body_loaded = 0;
+			}
+			imap_fetch_envelope(msg);
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			if (msg == NULL) {
+				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 0);
+				body_loaded = 0;
+			}
 			imap_fetch_internaldate(msg);
 		}
 
@@ -1192,7 +1206,7 @@ void imap_pick_range(char *supplied_range, int is_uid) {
  */
 void imap_fetch(int num_parms, char *parms[]) {
 	char items[SIZ];
-	char *itemlist[SIZ];
+	char *itemlist[512];
 	int num_items;
 	int i;
 
@@ -1224,7 +1238,7 @@ void imap_fetch(int num_parms, char *parms[]) {
  */
 void imap_uidfetch(int num_parms, char *parms[]) {
 	char items[SIZ];
-	char *itemlist[SIZ];
+	char *itemlist[512];
 	int num_items;
 	int i;
 	int have_uid_item = 0;
@@ -1249,12 +1263,16 @@ void imap_uidfetch(int num_parms, char *parms[]) {
 	}
 
 	/* If the "UID" item was not included, we include it implicitly
-	 * because this is a UID FETCH command
+	 * (at the beginning) because this is a UID FETCH command
 	 */
 	for (i=0; i<num_items; ++i) {
 		if (!strcasecmp(itemlist[i], "UID")) ++have_uid_item;
 	}
-	if (have_uid_item == 0) itemlist[num_items++] = "UID";
+	if (have_uid_item == 0) {
+		memmove(&itemlist[1], &itemlist[0], (sizeof(itemlist[0]) * num_items));
+		++num_items;
+		itemlist[0] = "UID";
+	}
 
 	imap_do_fetch(num_items, itemlist);
 	cprintf("%s OK UID FETCH completed\r\n", parms[0]);

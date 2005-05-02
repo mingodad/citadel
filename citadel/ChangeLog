@@ -1,4 +1,9 @@
  $Log$
+ Revision 645.18  2005/05/02 20:52:42  ajc
+ * More IMAP optimizations, including the application of our latest "don't
+   fetch the message body" trick to ENVELOPE and INTERNALDATE fetches, to
+   make MS-Outbreak spread email viruses faster.
+
  Revision 645.17  2005/05/02 16:09:52  ajc
  * serv_imap.c: implemented the RFC 3501 suggestion that the initial
    greeting, and the response to the LOGIN command, include an output
@@ -6656,3 +6661,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

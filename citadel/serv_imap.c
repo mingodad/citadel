@@ -637,7 +637,7 @@ void imap_select(int num_parms, char *parms[])
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 
-	cprintf("* OK [UIDVALIDITY 0] UID validity status\r\n");
+	cprintf("* OK [UIDVALIDITY 1] UID validity status\r\n");
 	cprintf("* OK [UIDNEXT %ld] Predicted next UID\r\n", CitControl.MMhighest + 1);
 
 	/* Note that \Deleted is a valid flag, but not a permanent flag,
