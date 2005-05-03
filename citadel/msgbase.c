@@ -878,7 +878,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * body so other code doesn't barf.
 	 */
 	if ( (ret->cm_fields['M'] == NULL) && (with_body) ) {
-		lprintf(CTDL_DEBUG, "** FETCHING BIG MESSAGE **\n"); /* FIXME */
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
 			ret->cm_fields['M'] = strdup(dmsgtext->ptr);

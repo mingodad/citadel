@@ -903,6 +903,7 @@ void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	struct CtdlMessage *msg = NULL;
 	int body_loaded = 0;
 
+	buffer_output();
 	cprintf("* %d FETCH (", seq);
 
 	for (i=0; i<num_items; ++i) {
@@ -972,6 +973,7 @@ void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	}
 
 	cprintf(")\r\n");
+	unbuffer_output();
 	if (msg != NULL) {
 		CtdlFreeMessage(msg);
 	}
