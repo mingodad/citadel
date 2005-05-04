@@ -1,11 +1,9 @@
 /*
  * $Id$
  *
- * Implements the SEARCH command in IMAP.
- * You guessed it ... more gratuitous complexity in the protocol.
+ * Implements IMAP's gratuitously complex SEARCH command.
  *
  */
-
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -51,7 +49,6 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "genstamp.h"
-
 
 
 /*
@@ -446,6 +443,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	int i;
 
+	buffer_output();
 	cprintf("* SEARCH ");
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
@@ -460,6 +458,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 		}
 	}
 	cprintf("\r\n");
+	unbuffer_output();
 }
 
 
