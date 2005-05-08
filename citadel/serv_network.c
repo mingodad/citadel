@@ -1922,7 +1922,7 @@ void cmd_netp(char *cmdbuf)
 	v = is_valid_node(nexthop, secret, node);
 
 	if (v != 0) {
-		lprintf(CTDL_WARNING, "Unknown node <%s>", node);
+		lprintf(CTDL_WARNING, "Unknown node <%s>\n", node);
 		cprintf("%d authentication failed\n",
 			ERROR + PASSWORD_REQUIRED);
 		return;
