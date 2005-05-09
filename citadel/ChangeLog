@@ -1,4 +1,10 @@
  $Log$
+ Revision 645.20  2005/05/09 22:17:30  ajc
+ * Interactive room deletions are now deferred.  The server reconfigures the
+   room to be a mailbox owned by a nonexistent user and immediately returns
+   control back to the client.  Later, THE DREADED AUTO-PURGER will see the
+   dangling room and erase its contents.
+
  Revision 645.19  2005/05/08 03:43:22  ajc
  * Set the internal version number to 6.46 in preparation for a release
 
@@ -6664,3 +6670,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

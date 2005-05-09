@@ -1479,7 +1479,46 @@ void cmd_rinf(void)
 }
 
 /*
+ * Asynchronously schedule a room for deletion.  The room will appear
+ * deleted to the user(s), but it won't actually get purged from the
+ * database until THE DREADED AUTO-PURGER makes its next run.
+ */
+void schedule_room_for_deletion(struct ctdlroom *qrbuf)
+{
+	char old_name[ROOMNAMELEN];
+	static int seq = 0;
+
+	lprintf(CTDL_NOTICE, "Scheduling room <%s> for deletion\n",
+		qrbuf->QRname);
+
+	safestrncpy(old_name, qrbuf->QRname, sizeof old_name);
+
+	getroom(qrbuf, qrbuf->QRname);
+
+	/* Turn the room into a private mailbox owned by a user who doesn't
+	 * exist.  This will immediately make the room invisible to everyone,
+	 * and qualify the room for purging.
+	 */
+	snprintf(qrbuf->QRname, sizeof qrbuf->QRname, "9999999999.%08lx.%04d.%s",
+		time(NULL),
+		++seq,
+		old_name
+	);
+	qrbuf->QRflags |= QR_MAILBOX;
+	time(&qrbuf->QRgen);	/* Use a timestamp as the new generation number  */
+
+	putroom(qrbuf);
+
+	b_deleteroom(old_name);
+}
+
+
+
+/*
  * Back end processing to delete a room and everything associated with it
+ * (This one is synchronous and should only get called by THE DREADED
+ * AUTO-PURGER in serv_expire.c.  All user-facing code should call
+ * the asynchronous schedule_room_for_deletion() instead.)
  */
 void delete_room(struct ctdlroom *qrbuf)
 {
@@ -1582,7 +1621,7 @@ void cmd_kill(char *argbuf)
 		}
 
 		/* Do the dirty work */
-		delete_room(&CC->room);
+		schedule_room_for_deletion(&CC->room);
 
 		/* Return to the Lobby */
 		usergoto(config.c_baseroom, 0, 0, NULL, NULL);
