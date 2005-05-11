@@ -109,7 +109,7 @@ void addurls(char *url)
 		strcpy(ptr, "");
 
 		u->url_data = malloc(strlen(up) + 2);
-		safestrncpy(u->url_data, up, sizeof u->url_data);
+		safestrncpy(u->url_data, up, strlen(up) + 1);
 		u->url_data[b] = 0;
 		unescape_input(u->url_data);
 		up = ptr;
