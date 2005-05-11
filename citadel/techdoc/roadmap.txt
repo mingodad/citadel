@@ -34,9 +34,10 @@ Goals to achieve during the 6.xx cycle
   times).
 
   After several false starts, it appears that the emerging standard will be
-  the draft GroupDAV specification.  Citadel will support GroupDAV, providing
-  out-of-the-box compatibility with upcoming versions of Evolution,
-  KOrganizer, and any other client which follows the standard.
+  the draft GroupDAV specification.  Citadel now supports GroupDAV, providing
+  out-of-the-box compatibility with Kontact (as of KDE 3.4), Evolution
+  (connector now in testing), Thunderbird (connector currently being
+  developed), and any other client which follows the standard.
 
 
  Short-term TODO list
@@ -53,10 +54,6 @@ Goals to achieve during the 6.xx cycle
   to do would be to simply deny the operation.  This should probably be done
   across the entire Citadel system rather than only in IMAP.
 
-* Reminder: after the next non-beta version of the Citadel server is
-  released, email the IMAPcopy people for inclusion on their web site.
-  (Follow-up: we've done this twice now and received no answer.)
- 
 * Land a book deal with O'Reilly.  :)
  
 
