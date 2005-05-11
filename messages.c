@@ -500,7 +500,7 @@ void read_message(long msgnum) {
 		if (!strncasecmp(buf, "rcpt=", 5))
 			wprintf("to %s ", &buf[5]);
 		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, atol(&buf[5]));
+			fmt_date(now, atol(&buf[5]), 0);
 			wprintf("%s ", now);
 		}
 
@@ -730,7 +730,8 @@ void summarize_message(long msgnum, int is_new) {
 	memset(&summ, 0, sizeof(summ));
 	strcpy(summ.subj, "(no subject)");
 
-	sprintf(buf, "MSG0 %ld|3", msgnum);	/* ask for headers only with no MIME */
+	/* ask for headers only with no MIME */
+	sprintf(buf, "MSG0 %ld|3", msgnum);
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
@@ -742,11 +743,11 @@ void summarize_message(long msgnum, int is_new) {
 		if (!strncasecmp(buf, "subj=", 5)) {
 			strcpy(summ.subj, &buf[5]);
 		}
-		if (!strncasecmp(buf, "rfca=", 5)) {
+		/* if (!strncasecmp(buf, "rfca=", 5)) {
 			strcat(summ.from, " <");
 			strcat(summ.from, &buf[5]);
 			strcat(summ.from, ">");
-		}
+		} */
 
 		if (!strncasecmp(buf, "node=", 5)) {
 			if ( ((WC->room_flags & QR_NETWORK)
@@ -763,7 +764,7 @@ void summarize_message(long msgnum, int is_new) {
 		}
 
 		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(summ.date, atol(&buf[5]));
+			fmt_date(summ.date, atol(&buf[5]), 1);	/* brief */
 		}
 	}
 
@@ -1642,7 +1643,7 @@ void display_enter(void)
 	}
 
 	now = time(NULL);
-	fmt_date(buf, now);
+	fmt_date(buf, now, 0);
 	strcat(&buf[strlen(buf)], " <I>from</I> ");
 	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
 	if (strlen(bstr("recp")) > 0) {

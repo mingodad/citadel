@@ -195,25 +195,51 @@ char ch;
 /*
  * Format a date/time stamp for output 
  */
-void fmt_date(char *buf, time_t thetime)
+void fmt_date(char *buf, time_t thetime, int brief)
 {
-	struct tm *tm;
+	struct tm tm;
+	struct tm today_tm;
+	time_t today_timet;
 	int hour;
 
-	buf[0] = 0;
-	tm = localtime(&thetime);
-	hour = tm->tm_hour;
+	today_timet = time(NULL);
+	localtime_r(&today_timet, &today_tm);
+
+	localtime_r(&thetime, &tm);
+	hour = tm.tm_hour;
 	if (hour == 0)
 		hour = 12;
 	else if (hour > 12)
 		hour = hour - 12;
 
-	sprintf(buf, "%s %d %d %2d:%02d%s",
-		ascmonths[tm->tm_mon],
-		tm->tm_mday,
-		tm->tm_year + 1900,
-		hour, tm->tm_min, ((tm->tm_hour >= 12) ? "pm" : "am")
-	    );
+	buf[0] = 0;
+
+	if (brief) {
+
+		if ((tm.tm_year == today_tm.tm_year)
+		  &&(tm.tm_mon == today_tm.tm_mon)
+		  &&(tm.tm_mday == today_tm.tm_mday)) {
+			sprintf(buf, "%2d:%02d%s",
+				hour, tm.tm_min,
+				((tm.tm_hour >= 12) ? "pm" : "am")
+			);
+		}
+		else {
+			sprintf(buf, "%s %d %d",
+				ascmonths[tm.tm_mon],
+				tm.tm_mday,
+				tm.tm_year + 1900
+			);
+		}
+	}
+	else {
+		sprintf(buf, "%s %d %d %2d:%02d%s",
+			ascmonths[tm.tm_mon],
+			tm.tm_mday,
+			tm.tm_year + 1900,
+			hour, tm.tm_min, ((tm.tm_hour >= 12) ? "pm" : "am")
+		);
+	}
 }
 
 
@@ -525,7 +551,7 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 				return (dpos);
 			}
 			if (dtable[c] & 0x80) {
-				/* Ignoring errors: discard invalid character. */
+				/* Ignoring errors: discard invalid character */
 				i--;
 				continue;
 			}

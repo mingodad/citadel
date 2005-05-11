@@ -649,7 +649,7 @@ void do_tasks_view(void) {
 		wprintf("</TD>\n");
 
 		due = get_task_due_date(WC->disp_cal[i].cal);
-		fmt_date(buf, due);
+		fmt_date(buf, due, 0);
 		wprintf("<TD><FONT");
 		if (due < time(NULL)) {
 			wprintf(" COLOR=\"#FF0000\"");

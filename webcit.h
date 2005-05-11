@@ -374,7 +374,7 @@ void display_menubar(int);
 void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
-void fmt_date(char *buf, time_t thetime);
+void fmt_date(char *buf, time_t thetime, int brief);
 void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);

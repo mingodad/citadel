@@ -169,7 +169,7 @@ void cal_process_object(icalcomponent *cal,
 			}
 			else {
 				tt = icaltime_as_timet(t);
-				fmt_date(buf, tt);
+				fmt_date(buf, tt, 0);
 				wprintf("<TR><TD><B>Starting date/time:"
 					"</B></TD><TD>"
 					"%s</TD></TR>", buf
@@ -181,7 +181,7 @@ void cal_process_object(icalcomponent *cal,
 		if (p != NULL) {
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
-			fmt_date(buf, tt);
+			fmt_date(buf, tt, 0);
 			wprintf("<TR><TD><B>Ending date/time:</B></TD><TD>"
 				"%s</TD></TR>", buf
 			);
