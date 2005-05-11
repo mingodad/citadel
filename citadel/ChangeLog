@@ -1,4 +1,7 @@
  $Log$
+ Revision 646.0  2005/05/11 17:06:04  ajc
+ * THIS IS 6.46
+
  Revision 645.20  2005/05/09 22:17:30  ajc
  * Interactive room deletions are now deferred.  The server reconfigures the
    room to be a mailbox owned by a nonexistent user and immediately returns
