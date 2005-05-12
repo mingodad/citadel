@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.0  2005/05/12 16:54:10  ajc
+ * THIS IS 6.47
+
  Revision 646.1  2005/05/12 16:53:18  ajc
  * Fixed a minor bug discovered in SMTP at one site
 
