@@ -973,6 +973,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	} while (scan_done == 0);
 	if (strlen(mailfrom)==0) strcpy(mailfrom, "someone@somewhere.org");
+	stripallbut(mailfrom, '<', '>');
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);

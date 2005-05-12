@@ -1,4 +1,7 @@
  $Log$
+ Revision 646.1  2005/05/12 16:53:18  ajc
+ * Fixed a minor bug discovered in SMTP at one site
+
  Revision 646.0  2005/05/11 17:06:04  ajc
  * THIS IS 6.46
 
@@ -6673,4 +6676,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
