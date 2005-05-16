@@ -225,10 +225,16 @@ void enter_config(CtdlIPC *ipc, int mode)
 
 	if (mode == 0 || mode == 1) {
 
+		/* Does anyone still use dialup connections with manual
+		 * screen dimensions setting anymore?  For now we'll keep
+		 * the system's ability to set these, but remove the prompts
+		 * because they're spurious for nearly everyone.
+		 * 
 		user->USscreenwidth = intprompt("Enter your screen width",
 						user->USscreenwidth, 20, 255);
 		user->USscreenheight = intprompt("Enter your screen height",
 						 user->USscreenheight, 3, 255);
+		 */
  
 		user->flags = set_attr(ipc, user->flags,
 				       "Are you an experienced Citadel user",

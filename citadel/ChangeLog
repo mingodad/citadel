@@ -1,4 +1,12 @@
  $Log$
+ Revision 647.3  2005/05/16 18:48:45  ajc
+ * Don't prompt the user for screen dimensions anymore.  Nobody is using
+   dialup terminals with arbitrary screen sizes anymore; nearly everyone (or
+   more likely, *absolutely* everyone) is now using networked displays which
+   can be automatically queried for their screen dimensions.  For now, we'll
+   keep the screen size properties in the database and in the protocol, but
+   the prompts have been commented out.
+
  Revision 647.2  2005/05/16 18:25:56  ajc
  * Avoid re-creating the default-named baseroom (Lobby) upon subsequent
    startups after it's been renamed to something else.
@@ -6688,3 +6696,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
