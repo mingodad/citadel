@@ -1,4 +1,9 @@
  $Log$
+ Revision 647.1  2005/05/16 16:59:39  ajc
+ * Default expire policy is now 'manual' (no automatic expiry of messages
+   under any circumstances).  Implemented as per David Given's suggestion
+   that we should operate using the element of least surprise.
+
  Revision 647.0  2005/05/12 16:54:10  ajc
  * THIS IS 6.47
 
@@ -6679,3 +6684,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

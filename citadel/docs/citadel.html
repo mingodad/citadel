@@ -1304,6 +1304,11 @@ messages around forever (or until they are manually deleted), until
 they become a certain number of days old, or until a certain number of
 additional messages are posted in the room, at which time the oldest
 ones will scroll out.</p>
+<p>When a new Citadel system is first installed, the default system-wide
+expire policy is set to 'manual' -- no automatic purging of messages
+takes place anywhere.  For public message boards, you will probably want
+to set some sort of automatic expire policy, in order to prevent your
+message base from growing forever.</p>
 <p>You will notice that you can also fall back to the default expire
 policy for the floor upon which the room resides. This is the default
 setting. You can change the floor's default with the <tt><b>;A</b>ide <b>E</b>dit

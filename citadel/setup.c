@@ -1075,10 +1075,11 @@ int main(int argc, char *argv[])
 	}
 	/* We need a system default message expiry policy, because this is
 	 * the top level and there's no 'higher' policy to fall back on.
+	 * By default, do not expire messages at all.
 	 */
 	if (config.c_ep.expire_mode == 0) {
-		config.c_ep.expire_mode = EXPIRE_NUMMSGS;
-		config.c_ep.expire_value = 150;
+		config.c_ep.expire_mode = EXPIRE_MANUAL;
+		config.c_ep.expire_value = 0;
 	}
 
 	/*
