@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
 	if (strlen(config.c_twitroom) == 0)
 		strcpy(config.c_twitroom, "Trashcan");
 	if (strlen(config.c_baseroom) == 0)
-		strcpy(config.c_baseroom, "Lobby");
+		strcpy(config.c_baseroom, BASEROOM);
 	if (strlen(config.c_aideroom) == 0)
 		strcpy(config.c_aideroom, "Aide");
 	if (config.c_port_number == 0) {

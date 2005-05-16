@@ -1,4 +1,8 @@
  $Log$
+ Revision 647.2  2005/05/16 18:25:56  ajc
+ * Avoid re-creating the default-named baseroom (Lobby) upon subsequent
+   startups after it's been renamed to something else.
+
  Revision 647.1  2005/05/16 16:59:39  ajc
  * Default expire policy is now 'manual' (no automatic expiry of messages
    under any circumstances).  Implemented as per David Given's suggestion
@@ -6684,4 +6688,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
