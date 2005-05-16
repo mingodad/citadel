@@ -123,6 +123,7 @@ void initialize_server_extensions(void)
 	serv_upgrade_init();
 	serv_vandelay_init();
 	serv_vcard_init();
+	serv_fulltext_init();
 }
 
 

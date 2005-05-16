@@ -32,6 +32,7 @@ SERV_MODULES=serv_chat.o \
 	serv_mrtg.o \
 	serv_imap.o imap_fetch.o imap_misc.o imap_search.o \
 		imap_store.o imap_tools.o \
+	serv_fulltext.o ft_wordbreaker.o \
 	serv_network.o \
 	serv_listsub.o \
 	serv_netfilter.o \
@@ -95,7 +96,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
-	whobbs.c vcard.c serv_notes.c
+	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 

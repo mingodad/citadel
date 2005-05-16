@@ -166,6 +166,8 @@ struct CitControl {
 	long MMnextuser;		/* highest user number on system    */
 	long MMnextroom;		/* highest room number on system    */
 	int version;			/* Server-hosted upgrade level      */
+	int fulltext_wordbreaker;	/* ID of wordbreaker in use         */
+	long MMfulltext;		/* highest message number indexed   */
 };
 
 extern struct CitContext *ContextList;
