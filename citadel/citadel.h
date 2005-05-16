@@ -188,17 +188,6 @@ struct ctdluser {			/* User record                      */
 };
 
 
-/*
- * This is the control record for the message base... 
- */
-struct CitControl {
-	long MMhighest;			/* highest message number in file   */
-	unsigned MMflags;		/* Global system flags              */
-	long MMnextuser;		/* highest user number on system    */
-	long MMnextroom;		/* highest room number on system    */
-	int version;			/* Server-hosted upgrade level      */
-};
-
 /* Bits which may appear in CitControl.MMflags.  Note that these don't
  * necessarily pertain to the message base -- it's just a good place to
  * store any global flags.

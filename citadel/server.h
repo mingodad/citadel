@@ -157,6 +157,17 @@ enum {
 struct CitContext *MyContext(void);
 #define CC MyContext()
 
+/*
+ * This is the control record for the message base... 
+ */
+struct CitControl {
+	long MMhighest;			/* highest message number in file   */
+	unsigned MMflags;		/* Global system flags              */
+	long MMnextuser;		/* highest user number on system    */
+	long MMnextroom;		/* highest room number on system    */
+	int version;			/* Server-hosted upgrade level      */
+};
+
 extern struct CitContext *ContextList;
 extern int ScheduledShutdown;
 extern struct CitControl CitControl;

@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.4  2005/05/16 20:03:33  ajc
+ * definition of struct CitControl moved from citadel.h to server.h
+
  Revision 647.3  2005/05/16 18:48:45  ajc
  * Don't prompt the user for screen dimensions anymore.  Nobody is using
    dialup terminals with arbitrary screen sizes anymore; nearly everyone (or
@@ -6696,4 +6699,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
