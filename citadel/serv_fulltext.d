@@ -56,4 +56,4 @@ serv_fulltext.o serv_fulltext/.o serv_fulltext.d: serv_fulltext.c sysdep.h /usr/
   /usr/include/openssl/ssl23.h sysdep_decls.h /usr/include/pthread.h \
   /usr/include/sched.h /usr/include/bits/initspin.h citserver.h \
   serv_extensions.h support.h config.h database.h msgbase.h control.h \
-  tools.h serv_fulltext.h ft_wordbreaker.h
+  room_ops.h tools.h serv_fulltext.h ft_wordbreaker.h
