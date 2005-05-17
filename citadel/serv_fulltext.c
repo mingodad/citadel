@@ -85,8 +85,11 @@ void ft_index_message(long msgnum, int op) {
 				cdb_bucket = malloc(sizeof(struct cdbdata));
 				cdb_bucket->len = 0;
 				cdb_bucket->ptr = malloc(sizeof(long));
+				num_msgs = 0;
 			}
-			num_msgs = cdb_bucket->len / sizeof(long);
+			else {
+				num_msgs = cdb_bucket->len / sizeof(long);
+			}
 
 			++num_msgs;
 			cdb_bucket->ptr = realloc(cdb_bucket->ptr, num_msgs*sizeof(long) );
@@ -235,7 +238,10 @@ void cmd_srch(char *argbuf) {
 	char search_string[256];
 	int num_tokens = 0;
 	int *tokens = NULL;
-	int i;
+	int i, j;
+	struct cdbdata *cdb_bucket;
+	int num_msgs;
+	long *msgs;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
@@ -245,7 +251,16 @@ void cmd_srch(char *argbuf) {
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
-			cprintf("FIXME search for token %d\n", tokens[i]);
+			/* search for tokens[i] */
+			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(int));
+			if (cdb_bucket != NULL) {
+				num_msgs = cdb_bucket->len / sizeof(long);
+				msgs = (long *)cdb_bucket->ptr;
+				cdb_free(cdb_bucket);
+				for (j=0; j<num_msgs; ++j) {
+					cprintf("Token <%d> is in msg <%ld>\n", tokens[i], msgs[j]);
+				}
+			}
 
 		}
 		free(tokens);
