@@ -60,6 +60,8 @@ void ft_index_message(long msgnum, int op) {
 	int num_tokens = 0;
 	int *tokens = NULL;
 	int i;
+	struct cdbdata *cdb_bucket;
+	int num_msgs;
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
@@ -71,10 +73,26 @@ void ft_index_message(long msgnum, int op) {
 
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
-			/* FIXME do something with this */
-			lprintf(CTDL_DEBUG, "msg %ld, token %d\n",
-				msgnum, tokens[i]);
+
+			/* Add the message to the relevant token bucket */
+			lprintf(CTDL_DEBUG, "msg %ld, token %d\n", msgnum, tokens[i]);
+
+			/* FIXME lock the file */
+			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(long));
+			if (cdb_bucket == NULL) {
+				cdb_bucket = malloc(sizeof(struct cdbdata));
+				cdb_bucket->len = 0;
+				cdb_bucket->ptr = malloc(sizeof(long));
 			}
+			num_msgs = cdb_bucket->len / sizeof(long);
+
+			/* FIXME finish this */
+
+			cdb_free(cdb_bucket);
+
+			/* FIXME unlock the file */
+		}
+
 		free(tokens);
 	}
 }
@@ -128,8 +146,15 @@ int longcmp(const void *rec1, const void *rec2) {
  */
 void do_fulltext_indexing(void) {
 	int i;
+	static time_t last_index = 0L;
 
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started\n");
+	/*
+	 * Make sure we don't run the indexer too frequently.
+	 * FIXME move the setting into config
+	 */
+	if ( (time(NULL) - last_index) < 300L) {
+		return;
+	}
 
 	/*
 	 * Check to see whether the fulltext index is up to date; if there
@@ -140,19 +165,22 @@ void do_fulltext_indexing(void) {
 	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n",
 		CitControl.MMfulltext);
 	if (CitControl.MMfulltext >= CitControl.MMhighest) {
-		lprintf(CTDL_DEBUG, "Nothing to do!\n");
+		/* nothing to do! */
 		return;
 	}
-	
-	/*
-	 * Make sure we don't run the indexer too frequently.
-	 * FIXME write this...
-	 */
 
+	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started\n");
+	
 	/*
 	 * If we've switched wordbreaker modules, burn the index and start
 	 * over.  FIXME write this...
 	 */
+	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
+		lprintf(CTDL_INFO, "(re)initializing full text index\n");
+		cdb_trunc(CDB_FULLTEXT);
+		CitControl.MMfulltext = 0L;
+		put_control();
+	}
 
 	/*
 	 * Now go through each room and find messages to index.
