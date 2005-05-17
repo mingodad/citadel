@@ -44,3 +44,20 @@
 #include "ft_wordbreaker.h"
 
 
+void wordbreaker(char *text, int *num_tokens, int **tokens) {
+
+	int wb_num_tokens = 0;
+	int wb_num_alloc = 0;
+	int *wb_tokens = NULL;
+
+	wb_num_tokens = 3;
+	wb_tokens = malloc(wb_num_tokens * sizeof(int));
+
+	wb_tokens[0] = 6;
+	wb_tokens[1] = 7;	/* FIXME this obviously isn't a wordbreaker */
+	wb_tokens[2] = 8;
+
+	*num_tokens = wb_num_tokens;
+	*tokens = wb_tokens;
+}
+

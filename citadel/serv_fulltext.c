@@ -52,13 +52,46 @@ int ft_num_msgs = 0;
 int ft_num_alloc = 0;
 
 
+/*
+ * Index or de-index a message.  (op == 1 to index, 0 to de-index)
+ */
+void ft_index_message(long msgnum, int op) {
+	struct CtdlMessage *msg;
+	int num_tokens = 0;
+	int *tokens = NULL;
+	int i;
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) return;
+
+	if (msg->cm_fields['M'] != NULL) {
+		wordbreaker(msg->cm_fields['M'], &num_tokens, &tokens);
+	}
+	CtdlFreeMessage(msg);
+
+	if (num_tokens > 0) {
+		for (i=0; i<num_tokens; ++i) {
+			/* FIXME do something with this */
+			lprintf(CTDL_DEBUG, "msg %ld, token %d\n",
+				msgnum, tokens[i]);
+			}
+		free(tokens);
+	}
+}
+
+
+
+/*
+ * Add a message to the list of those to be indexed.
+ */
 void ft_index_msg(long msgnum, void *userdata) {
 
 	if ((msgnum > CitControl.MMfulltext) && (msgnum <= ft_newhighest)) {
 		++ft_num_msgs;
 		if (ft_num_msgs > ft_num_alloc) {
 			ft_num_alloc += 1024;
-			ft_newmsgs = realloc(ft_newmsgs, (ft_num_alloc * sizeof(long)));
+			ft_newmsgs = realloc(ft_newmsgs,
+				(ft_num_alloc * sizeof(long)));
 		}
 		ft_newmsgs[ft_num_msgs - 1] = msgnum;
 	}
@@ -90,7 +123,9 @@ int longcmp(const void *rec1, const void *rec2) {
 }
 
 
-
+/*
+ * Begin the fulltext indexing process.  (Called as an EVT_TIMER event)
+ */
 void do_fulltext_indexing(void) {
 	int i;
 
@@ -100,8 +135,10 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	lprintf(CTDL_DEBUG, "CitControl.MMhighest  = %ld\n", CitControl.MMhighest);
-	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n", CitControl.MMfulltext);
+	lprintf(CTDL_DEBUG, "CitControl.MMhighest  = %ld\n",
+		CitControl.MMhighest);
+	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n",
+		CitControl.MMfulltext);
 	if (CitControl.MMfulltext >= CitControl.MMhighest) {
 		lprintf(CTDL_DEBUG, "Nothing to do!\n");
 		return;
@@ -121,25 +158,27 @@ void do_fulltext_indexing(void) {
 	 * Now go through each room and find messages to index.
 	 */
 	ft_newhighest = CitControl.MMhighest;
-	ForEachRoom(ft_index_room, NULL);				/* merge ptrs */
+	ForEachRoom(ft_index_room, NULL);	/* load all msg pointers */
 
 	if (ft_num_msgs > 0) {
-		qsort(ft_newmsgs, ft_num_msgs, sizeof(long), longcmp);	/* sort */
-		if (i>1) for (i=0; i<(ft_num_msgs-1); ++i) {		/* purge dups */
+		qsort(ft_newmsgs, ft_num_msgs, sizeof(long), longcmp);
+		if (i>1) for (i=0; i<(ft_num_msgs-1); ++i) { /* purge dups */
 			if (ft_newmsgs[i] == ft_newmsgs[i+1]) {
-				memmove(&ft_newmsgs[i], &ft_newmsgs[i+1], ((ft_num_msgs - i)*sizeof(long)));
+				memmove(&ft_newmsgs[i], &ft_newmsgs[i+1],
+					((ft_num_msgs - i)*sizeof(long)));
 				--ft_num_msgs;
 			}
 		}
 
 		/* Here it is ... do each message! */
 		for (i=0; i<ft_num_msgs; ++i) {
-			lprintf(CTDL_DEBUG, "FIXME INDEX %ld\n", ft_newmsgs[i]);
+			ft_index_message(ft_newmsgs[i], 1);
 		}
 
 		free(ft_newmsgs);
 		ft_num_msgs = 0;
 		ft_num_alloc = 0;
+		ft_newmsgs = NULL;
 	}
 
 	lprintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
