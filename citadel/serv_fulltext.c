@@ -62,6 +62,7 @@ void ft_index_message(long msgnum, int op) {
 	int i;
 	struct cdbdata *cdb_bucket;
 	int num_msgs;
+	long *msgs;
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
@@ -75,10 +76,11 @@ void ft_index_message(long msgnum, int op) {
 		for (i=0; i<num_tokens; ++i) {
 
 			/* Add the message to the relevant token bucket */
-			lprintf(CTDL_DEBUG, "msg %ld, token %d\n", msgnum, tokens[i]);
+
+			/* FIXME do "if op=1" ... */
 
 			/* FIXME lock the file */
-			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(long));
+			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(int));
 			if (cdb_bucket == NULL) {
 				cdb_bucket = malloc(sizeof(struct cdbdata));
 				cdb_bucket->len = 0;
@@ -86,7 +88,13 @@ void ft_index_message(long msgnum, int op) {
 			}
 			num_msgs = cdb_bucket->len / sizeof(long);
 
-			/* FIXME finish this */
+			++num_msgs;
+			cdb_bucket->ptr = realloc(cdb_bucket->ptr, num_msgs*sizeof(long) );
+			msgs = (long *) cdb_bucket->ptr;
+			msgs[num_msgs - 1] = msgnum;
+
+			cdb_store(CDB_FULLTEXT, &tokens[i], sizeof(int),
+				cdb_bucket->ptr, num_msgs*sizeof(long) );
 
 			cdb_free(cdb_bucket);
 
@@ -209,8 +217,40 @@ void do_fulltext_indexing(void) {
 		ft_newmsgs = NULL;
 	}
 
+	/* Save our place so we don't have to do this again */
+	CitControl.MMfulltext = ft_newhighest;
+	CitControl.fulltext_wordbreaker = FT_WORDBREAKER_ID;
+	put_control();
+	last_index = time(NULL);
+
 	lprintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
 	return;
+}
+
+
+/*
+ * Tentative form of our search command
+ */
+void cmd_srch(char *argbuf) {
+	char search_string[256];
+	int num_tokens = 0;
+	int *tokens = NULL;
+	int i;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
+	wordbreaker(search_string, &num_tokens, &tokens);
+
+	cprintf("%d msgs matching search words:\n", LISTING_FOLLOWS);
+	if (num_tokens > 0) {
+		for (i=0; i<num_tokens; ++i) {
+
+			cprintf("FIXME search for token %d\n", tokens[i]);
+
+		}
+		free(tokens);
+	}
+	cprintf("000\n");
 }
 
 
@@ -219,5 +259,6 @@ void do_fulltext_indexing(void) {
 char *serv_fulltext_init(void)
 {
 	CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
+        CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
 	return "$Id$";
 }
