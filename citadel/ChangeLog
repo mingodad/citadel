@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.6  2005/05/17 16:25:23  ajc
+ * Completed the wordbreaker for the fulltext indexer.
+
  Revision 647.5  2005/05/17 04:04:46  ajc
  * More glue code for the fulltext indexer.
 
@@ -6702,4 +6705,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

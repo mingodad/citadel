@@ -11,4 +11,10 @@
  */
 #define	FT_WORDBREAKER_ID	0x0001
 
+/*
+ * Minimum and maximum length of words to index
+ */
+#define WB_MIN			3
+#define WB_MAX			40
+
 void wordbreaker(char *text, int *num_tokens, int **tokens);

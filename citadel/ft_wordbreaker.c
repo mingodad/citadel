@@ -28,6 +28,7 @@
 #endif
 
 #include <sys/wait.h>
+#include <ctype.h>
 #include <string.h>
 #include <limits.h>
 #include "citadel.h"
@@ -42,6 +43,7 @@
 #include "control.h"
 #include "tools.h"
 #include "ft_wordbreaker.h"
+#include "crc16.h"
 
 
 void wordbreaker(char *text, int *num_tokens, int **tokens) {
@@ -50,12 +52,66 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 	int wb_num_alloc = 0;
 	int *wb_tokens = NULL;
 
-	wb_num_tokens = 3;
-	wb_tokens = malloc(wb_num_tokens * sizeof(int));
+	char *ptr;
+	char *word_start;
+	char *word_end;
+	char ch;
+	int word_len;
+	char word[256];
+	int i;
+	int word_crc;
 
-	wb_tokens[0] = 6;
-	wb_tokens[1] = 7;	/* FIXME this obviously isn't a wordbreaker */
-	wb_tokens[2] = 8;
+	if (text == NULL) {		/* no NULL text please */
+		*num_tokens = 0;
+		*tokens = NULL;
+		return;
+	}
+
+	if (text[0] == 0) {		/* no empty text either */
+		*num_tokens = 0;
+		*tokens = NULL;
+		return;
+	}
+
+	ptr = text;
+	word_start = NULL;
+	while (ptr++, *ptr) {
+		ch = *ptr;
+		if (isalnum(ch)) {
+			if (!word_start) {
+				word_start = ptr;
+			}
+		}
+		else {
+			if (word_start) {
+				word_end = ptr;
+				--word_end;
+
+				/* extract the word */
+				word_len = word_end - word_start + 1;
+				safestrncpy(word, word_start, sizeof word);
+				word[word_len] = 0;
+				word_start = NULL;
+
+				/* are we ok with the length? */
+				if ( (word_len >= WB_MIN)
+				   && (word_len <= WB_MAX) ) {
+					for (i=0; i<word_len; ++i) {
+						word[i] = tolower(word[i]);
+					}
+					word_crc = (int)
+						CalcCRC16Bytes(word_len, word);
+
+					++wb_num_tokens;
+					if (wb_num_tokens > wb_num_alloc) {
+						wb_num_alloc += 512;
+						wb_tokens = realloc(wb_tokens, (sizeof(int) * wb_num_alloc));
+					}
+					wb_tokens[wb_num_tokens - 1] = word_crc;
+				}
+			}
+		}
+	}
 
 	*num_tokens = wb_num_tokens;
 	*tokens = wb_tokens;

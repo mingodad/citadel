@@ -24,7 +24,8 @@ ft_wordbreaker.o ft_wordbreaker/.o ft_wordbreaker.d: ft_wordbreaker.c sysdep.h /
   /usr/include/asm/errno.h /usr/include/sys/time.h \
   /usr/include/sys/wait.h /usr/include/sys/resource.h \
   /usr/include/bits/resource.h /usr/include/bits/waitflags.h \
-  /usr/include/bits/waitstatus.h /usr/include/string.h \
+  /usr/include/bits/waitstatus.h /usr/include/ctype.h \
+  /usr/include/string.h \
   /usr/lib/gcc/i386-redhat-linux/3.4.2/include/limits.h \
   /usr/lib/gcc/i386-redhat-linux/3.4.2/include/syslimits.h \
   /usr/include/limits.h /usr/include/bits/posix1_lim.h \
@@ -56,4 +57,4 @@ ft_wordbreaker.o ft_wordbreaker/.o ft_wordbreaker.d: ft_wordbreaker.c sysdep.h /
   /usr/include/openssl/ssl23.h sysdep_decls.h /usr/include/pthread.h \
   /usr/include/sched.h /usr/include/bits/initspin.h citserver.h \
   serv_extensions.h support.h config.h database.h msgbase.h control.h \
-  tools.h ft_wordbreaker.h
+  tools.h ft_wordbreaker.h crc16.h
