@@ -301,8 +301,8 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 				if (num_ret_msgs > num_ret_alloc) {
 					num_ret_alloc += 64;
 					ret_msgs = realloc(ret_msgs, (num_ret_alloc*sizeof(long)) );
-					ret_msgs[num_ret_msgs - 1] = all_msgs[j];
 				}
+				ret_msgs[num_ret_msgs - 1] = all_msgs[j];
 
 			}
 		}
@@ -328,7 +328,8 @@ void cmd_srch(char *argbuf) {
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
 	ft_search(&num_msgs, &msgs, search_string);
 
-	cprintf("%d %d msgs match all search words:\n", LISTING_FOLLOWS, num_msgs);
+	cprintf("%d %d msgs match all search words:\n",
+		LISTING_FOLLOWS, num_msgs);
 	if (num_msgs > 0) {
 		for (i=0; i<num_msgs; ++i) {
 			cprintf("%ld\n", msgs[i]);
