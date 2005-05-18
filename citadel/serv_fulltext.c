@@ -252,10 +252,11 @@ void do_fulltext_indexing(void) {
 
 
 /*
- * Tentative form of our search command
+ * API call to perform searches.
+ * (This one does the "all of these words" search.)
+ * Caller is responsible for freeing the message list.
  */
-void cmd_srch(char *argbuf) {
-	char search_string[256];
+void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 	int num_tokens = 0;
 	int *tokens = NULL;
 	int i, j;
@@ -264,12 +265,11 @@ void cmd_srch(char *argbuf) {
 	long *msgs;
 	int num_all_msgs = 0;
 	long *all_msgs = NULL;
+	int num_ret_msgs = 0;
+	int num_ret_alloc = 0;
+	long *ret_msgs = NULL;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
-	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
 	wordbreaker(search_string, &num_tokens, &tokens);
-
-	cprintf("%d msgs matching search words:\n", LISTING_FOLLOWS);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -296,12 +296,45 @@ void cmd_srch(char *argbuf) {
 		 */
 		if (num_all_msgs >= num_tokens) for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
 			if (all_msgs[j] == all_msgs[j+num_tokens-1]) {
-				cprintf("%ld\n", all_msgs[j]);
+
+				++num_ret_msgs;
+				if (num_ret_msgs > num_ret_alloc) {
+					num_ret_alloc += 64;
+					ret_msgs = realloc(ret_msgs, (num_ret_alloc*sizeof(long)) );
+					ret_msgs[num_ret_msgs - 1] = all_msgs[j];
+				}
+
 			}
 		}
 
 		free(all_msgs);
 	}
+	
+	*fts_num_msgs = num_ret_msgs;
+	*fts_msgs = ret_msgs;
+}
+
+
+/*
+ * Tentative form of a search command
+ */
+void cmd_srch(char *argbuf) {
+	int num_msgs = 0;
+	long *msgs = NULL;
+	int i;
+	char search_string[256];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
+	ft_search(&num_msgs, &msgs, search_string);
+
+	cprintf("%d %d msgs match all search words:\n", LISTING_FOLLOWS, num_msgs);
+	if (num_msgs > 0) {
+		for (i=0; i<num_msgs; ++i) {
+			cprintf("%ld\n", msgs[i]);
+		}
+	}
+	if (msgs != NULL) free(msgs);
 	cprintf("000\n");
 }
 
