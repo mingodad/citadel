@@ -133,7 +133,7 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 		for (i=0; i<(wb_num_tokens-1); ++i) {
 			if (wb_tokens[i] == wb_tokens[i+1]) {
 				memmove(&wb_tokens[i], &wb_tokens[i+1],
-					((wb_num_tokens - i)*sizeof(int)));
+					((wb_num_tokens - i - 1)*sizeof(int)));
 				--wb_num_tokens;
 			}
 		}

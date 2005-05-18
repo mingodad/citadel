@@ -118,16 +118,27 @@ void ft_index_message(long msgnum, int op) {
 			}
 
 			if (op == 0) {	/* remove from index */
-				/* FIXME do this */
+				if (num_msgs >= 1) {
+				msgs = (long *) cdb_bucket->ptr;
+					for (j=0; j<num_msgs; ++j) {
+						if (msgs[j] == msgnum) {
+							lprintf(CTDL_DEBUG, "nix0ring %ld\n", msgs[j]);
+							memmove(&msgs[j], &msgs[j+1],
+								((num_msgs - j - 1)*sizeof(long)));
+							--num_msgs;
+						}
+					}
+				}
 			}
 
 			/* sort and purge dups */
-			if (num_msgs > 1) {
+			if ( (op == 1) && (num_msgs > 1) ) {
+				msgs = (long *) cdb_bucket->ptr;
 				qsort(msgs, num_msgs, sizeof(long), longcmp);
 				for (j=0; j<(num_msgs-1); ++j) {
 					if (msgs[j] == msgs[j+1]) {
 						memmove(&msgs[j], &msgs[j+1],
-							((num_msgs - j)*sizeof(long)));
+							((num_msgs - j - 1)*sizeof(long)));
 						--num_msgs;
 					}
 				}
@@ -224,7 +235,7 @@ void do_fulltext_indexing(void) {
 		for (i=0; i<(ft_num_msgs-1); ++i) { /* purge dups */
 			if (ft_newmsgs[i] == ft_newmsgs[i+1]) {
 				memmove(&ft_newmsgs[i], &ft_newmsgs[i+1],
-					((ft_num_msgs - i)*sizeof(long)));
+					((ft_num_msgs - i - 1)*sizeof(long)));
 				--ft_num_msgs;
 			}
 		}
@@ -280,8 +291,11 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 				msgs = (long *)cdb_bucket->ptr;
 
 				num_all_msgs += num_msgs;
-				all_msgs = realloc(all_msgs, num_all_msgs*sizeof(long) );
-				memcpy(&all_msgs[num_all_msgs - num_msgs], msgs, num_msgs*sizeof(long) );
+				if (num_all_msgs > 0) {
+					all_msgs = realloc(all_msgs, num_all_msgs*sizeof(long) );
+					memcpy(&all_msgs[num_all_msgs - num_msgs], msgs,
+						num_msgs*sizeof(long) );
+				}
 
 				cdb_free(cdb_bucket);
 			}

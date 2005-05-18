@@ -3181,12 +3181,16 @@ void AdjRefCount(long msgnum, int incr)
 	 */
 	if (smi.meta_refcount == 0) {
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
-		/* ft_index_message(msgnum, 0);	 remove from fulltext index */
+
+		/* Remove from fulltext index */
+		ft_index_message(msgnum, 0);
+
+		/* Remove from message base */
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
 		cdb_delete(CDB_BIGMSGS, &delnum, (int)sizeof(long));
 
-		/* We have to delete the metadata record too! */
+		/* Remove metadata record */
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
 	}
