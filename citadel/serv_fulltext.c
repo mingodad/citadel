@@ -122,7 +122,6 @@ void ft_index_message(long msgnum, int op) {
 				msgs = (long *) cdb_bucket->ptr;
 					for (j=0; j<num_msgs; ++j) {
 						if (msgs[j] == msgnum) {
-							lprintf(CTDL_DEBUG, "nix0ring %ld\n", msgs[j]);
 							memmove(&msgs[j], &msgs[j+1],
 								((num_msgs - j - 1)*sizeof(long)));
 							--num_msgs;
