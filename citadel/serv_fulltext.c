@@ -81,6 +81,10 @@ void ft_index_message(long msgnum, int op) {
 	int num_msgs;
 	long *msgs;
 
+	lprintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
+		(op ? "adding" : "removing") , msgnum
+	);
+
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
@@ -94,8 +98,6 @@ void ft_index_message(long msgnum, int op) {
 
 			/* Add the message to the relevant token bucket */
 
-			/* FIXME do "if op=1" ... */
-
 			/* FIXME lock the file */
 			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(int));
 			if (cdb_bucket == NULL) {
@@ -108,13 +110,16 @@ void ft_index_message(long msgnum, int op) {
 				num_msgs = cdb_bucket->len / sizeof(long);
 			}
 
-			++num_msgs;
-			cdb_bucket->ptr = realloc(cdb_bucket->ptr, num_msgs*sizeof(long) );
-			msgs = (long *) cdb_bucket->ptr;
-			msgs[num_msgs - 1] = msgnum;
+			if (op == 1) {	/* add to index */
+				++num_msgs;
+				cdb_bucket->ptr = realloc(cdb_bucket->ptr, num_msgs*sizeof(long) );
+				msgs = (long *) cdb_bucket->ptr;
+				msgs[num_msgs - 1] = msgnum;
+			}
 
-			/* lprintf(CTDL_DEBUG, "bucket <%5d> position <%2d> msg <%ld>\n",
-				tokens[i], num_msgs-1, msgnum); */
+			if (op == 0) {	/* remove from index */
+				/* FIXME do this */
+			}
 
 			/* sort and purge dups */
 			if (num_msgs > 1) {

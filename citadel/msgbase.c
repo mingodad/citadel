@@ -50,6 +50,7 @@
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
+#include "serv_fulltext.h"
 
 extern struct config config;
 long config_msgnum;
@@ -3176,9 +3177,11 @@ void AdjRefCount(long msgnum, int incr)
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).
+	 * FIXME ... defer this so it doesn't keep the user waiting.
 	 */
 	if (smi.meta_refcount == 0) {
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
+		/* ft_index_message(msgnum, 0);	 remove from fulltext index */
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
 		cdb_delete(CDB_BIGMSGS, &delnum, (int)sizeof(long));
