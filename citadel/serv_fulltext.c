@@ -257,6 +257,8 @@ void cmd_srch(char *argbuf) {
 	struct cdbdata *cdb_bucket;
 	int num_msgs;
 	long *msgs;
+	int num_all_msgs = 0;
+	long *all_msgs = NULL;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
@@ -271,14 +273,29 @@ void cmd_srch(char *argbuf) {
 			if (cdb_bucket != NULL) {
 				num_msgs = cdb_bucket->len / sizeof(long);
 				msgs = (long *)cdb_bucket->ptr;
-				for (j=0; j<num_msgs; ++j) {
-					cprintf("Token <%d> is in msg <%ld>\n", tokens[i], msgs[j]);
-				}
+
+				num_all_msgs += num_msgs;
+				all_msgs = realloc(all_msgs, num_all_msgs*sizeof(long) );
+				memcpy(&all_msgs[num_all_msgs - num_msgs], msgs, num_msgs*sizeof(long) );
+
 				cdb_free(cdb_bucket);
 			}
 
 		}
 		free(tokens);
+		qsort(all_msgs, num_all_msgs, sizeof(long), longcmp);
+
+		/*
+		 * At this point, if a message appears num_tokens times in the
+		 * list, then it contains all of the search tokens.
+		 */
+		if (num_all_msgs >= num_tokens) for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
+			if (all_msgs[j] == all_msgs[j+num_tokens-1]) {
+				cprintf("%ld\n", all_msgs[j]);
+			}
+		}
+
+		free(all_msgs);
 	}
 	cprintf("000\n");
 }

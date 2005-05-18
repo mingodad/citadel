@@ -1,4 +1,9 @@
  $Log$
+ Revision 647.9  2005/05/18 04:02:54  ajc
+ * Completed the "search for all of these words" functionality.  All we need
+   to do now is genericize its calling syntax so it can be called from the
+   IMAP service.
+
  Revision 647.8  2005/05/18 03:22:27  ajc
  * Finished the indexer and the first part of the search function...
 
@@ -6712,3 +6717,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
