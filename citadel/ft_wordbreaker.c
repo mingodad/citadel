@@ -45,6 +45,20 @@
 #include "ft_wordbreaker.h"
 #include "crc16.h"
 
+/*
+ * Compare function
+ */
+int intcmp(const void *rec1, const void *rec2) {
+	int i1, i2;
+
+	i1 = *(const int *)rec1;
+	i2 = *(const int *)rec2;
+
+	if (i1 > i2) return(1);
+	if (i1 < i2) return(-1);
+	return(0);
+}
+
 
 void wordbreaker(char *text, int *num_tokens, int **tokens) {
 
@@ -109,6 +123,18 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 					wb_tokens = realloc(wb_tokens, (sizeof(int) * wb_num_alloc));
 				}
 				wb_tokens[wb_num_tokens - 1] = word_crc;
+			}
+		}
+	}
+
+	/* sort and purge dups */
+	if (wb_num_tokens > 1) {
+		qsort(wb_tokens, wb_num_tokens, sizeof(int), intcmp);
+		for (i=0; i<(wb_num_tokens-1); ++i) {
+			if (wb_tokens[i] == wb_tokens[i+1]) {
+				memmove(&wb_tokens[i], &wb_tokens[i+1],
+					((wb_num_tokens - i)*sizeof(int)));
+				--wb_num_tokens;
 			}
 		}
 	}

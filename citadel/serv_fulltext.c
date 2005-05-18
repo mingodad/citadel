@@ -53,13 +53,30 @@ int ft_num_alloc = 0;
 
 
 /*
+ * Compare function
+ */
+int longcmp(const void *rec1, const void *rec2) {
+	long i1, i2;
+
+	i1 = *(const long *)rec1;
+	i2 = *(const long *)rec2;
+
+	if (i1 > i2) return(1);
+	if (i1 < i2) return(-1);
+	return(0);
+}
+
+
+
+
+/*
  * Index or de-index a message.  (op == 1 to index, 0 to de-index)
  */
 void ft_index_message(long msgnum, int op) {
 	struct CtdlMessage *msg;
 	int num_tokens = 0;
 	int *tokens = NULL;
-	int i;
+	int i, j;
 	struct cdbdata *cdb_bucket;
 	int num_msgs;
 	long *msgs;
@@ -84,7 +101,7 @@ void ft_index_message(long msgnum, int op) {
 			if (cdb_bucket == NULL) {
 				cdb_bucket = malloc(sizeof(struct cdbdata));
 				cdb_bucket->len = 0;
-				cdb_bucket->ptr = malloc(sizeof(long));
+				cdb_bucket->ptr = NULL;
 				num_msgs = 0;
 			}
 			else {
@@ -96,8 +113,23 @@ void ft_index_message(long msgnum, int op) {
 			msgs = (long *) cdb_bucket->ptr;
 			msgs[num_msgs - 1] = msgnum;
 
+			/* lprintf(CTDL_DEBUG, "bucket <%5d> position <%2d> msg <%ld>\n",
+				tokens[i], num_msgs-1, msgnum); */
+
+			/* sort and purge dups */
+			if (num_msgs > 1) {
+				qsort(msgs, num_msgs, sizeof(long), longcmp);
+				for (j=0; j<(num_msgs-1); ++j) {
+					if (msgs[j] == msgs[j+1]) {
+						memmove(&msgs[j], &msgs[j+1],
+							((num_msgs - j)*sizeof(long)));
+						--num_msgs;
+					}
+				}
+			}
+
 			cdb_store(CDB_FULLTEXT, &tokens[i], sizeof(int),
-				cdb_bucket->ptr, num_msgs*sizeof(long) );
+				msgs, (num_msgs*sizeof(long)) );
 
 			cdb_free(cdb_bucket);
 
@@ -138,21 +170,6 @@ void ft_index_room(struct ctdlroom *qrbuf, void *data)
 
 
 /*
- * Compare function
- */
-int longcmp(const void *rec1, const void *rec2) {
-	long i1, i2;
-
-	i1 = *(const long *)rec1;
-	i2 = *(const long *)rec2;
-
-	if (i1 > i2) return(1);
-	if (i1 < i2) return(-1);
-	return(0);
-}
-
-
-/*
  * Begin the fulltext indexing process.  (Called as an EVT_TIMER event)
  */
 void do_fulltext_indexing(void) {
@@ -171,10 +188,8 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	lprintf(CTDL_DEBUG, "CitControl.MMhighest  = %ld\n",
-		CitControl.MMhighest);
-	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n",
-		CitControl.MMfulltext);
+	lprintf(CTDL_DEBUG, "CitControl.MMhighest  = %ld\n", CitControl.MMhighest);
+	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n", CitControl.MMfulltext);
 	if (CitControl.MMfulltext >= CitControl.MMhighest) {
 		/* nothing to do! */
 		return;
@@ -201,7 +216,7 @@ void do_fulltext_indexing(void) {
 
 	if (ft_num_msgs > 0) {
 		qsort(ft_newmsgs, ft_num_msgs, sizeof(long), longcmp);
-		if (i>1) for (i=0; i<(ft_num_msgs-1); ++i) { /* purge dups */
+		for (i=0; i<(ft_num_msgs-1); ++i) { /* purge dups */
 			if (ft_newmsgs[i] == ft_newmsgs[i+1]) {
 				memmove(&ft_newmsgs[i], &ft_newmsgs[i+1],
 					((ft_num_msgs - i)*sizeof(long)));
@@ -256,10 +271,10 @@ void cmd_srch(char *argbuf) {
 			if (cdb_bucket != NULL) {
 				num_msgs = cdb_bucket->len / sizeof(long);
 				msgs = (long *)cdb_bucket->ptr;
-				cdb_free(cdb_bucket);
 				for (j=0; j<num_msgs; ++j) {
 					cprintf("Token <%d> is in msg <%ld>\n", tokens[i], msgs[j]);
 				}
+				cdb_free(cdb_bucket);
 			}
 
 		}
