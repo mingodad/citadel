@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.11  2005/05/19 03:42:29  ajc
+ * Bound the full text index to IMAP search
+
  Revision 647.10  2005/05/18 22:09:01  ajc
  * Finished the indexer *and* deindexer!  The search API is now working
    flawlessly too.  Now all we have to do is glue it to IMAP and other
@@ -6722,3 +6725,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

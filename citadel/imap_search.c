@@ -49,6 +49,7 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "genstamp.h"
+#include "serv_fulltext.h"
 
 
 /*
@@ -441,13 +442,50 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
  * validated and boiled down the request a bit.
  */
 void imap_do_search(int num_items, char **itemlist, int is_uid) {
-	int i;
+	int i, j, k;
+	int fts_num_msgs = 0;
+	long *fts_msgs = NULL;
+	int is_in_list = 0;
 
+	/* If there is a BODY search criterion in the query, use our full
+	 * text index to disqualify messages that don't have any chance of
+	 * matching.
+	 */
+	for (i=0; i<(num_items-1); ++i) {
+		if (!strcasecmp(itemlist[i], "BODY")) {
+			ft_search(&fts_num_msgs, &fts_msgs, itemlist[i+1]);
+			if (fts_num_msgs > 0) {
+				for (j=0; j < IMAP->num_msgs; ++j) {
+					if (IMAP->flags[j] & IMAP_SELECTED) {
+						is_in_list = 0;
+						for (k=0; k<fts_num_msgs; ++k) {
+							if (IMAP->msgids[j] == fts_msgs[k]) {
+								++is_in_list;
+							}
+						}
+					}
+					if (!is_in_list) {
+						IMAP->flags[j] = IMAP->flags[j] & ~IMAP_SELECTED;
+					}
+				}
+			}
+			else {		/* no hits on the index; disqualify every message */
+				for (j=0; j < IMAP->num_msgs; ++j) {
+					IMAP->flags[j] = IMAP->flags[j] & ~IMAP_SELECTED;
+				}
+			}
+			if (fts_msgs) {
+				free(fts_msgs);
+			}
+		}
+	}
+
+	/* Now go through the messages and apply all search criteria. */
 	buffer_output();
 	cprintf("* SEARCH ");
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_SELECTED) {
+	  if (IMAP->flags[i] & IMAP_SELECTED) {
 		if (imap_do_search_msg(i+1, NULL, num_items, itemlist, is_uid)) {
 			if (is_uid) {
 				cprintf("%ld ", IMAP->msgids[i]);
@@ -473,6 +511,10 @@ void imap_search(int num_parms, char *parms[]) {
 		return;
 	}
 
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		IMAP->flags[i] |= IMAP_SELECTED;
+	}
+
 	for (i=1; i<num_parms; ++i) {
 		if (imap_is_message_set(parms[i])) {
 			imap_pick_range(parms[i], 0);
@@ -492,6 +534,10 @@ void imap_uidsearch(int num_parms, char *parms[]) {
 	if (num_parms < 4) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
 		return;
+	}
+
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		IMAP->flags[i] |= IMAP_SELECTED;
 	}
 
 	for (i=1; i<num_parms; ++i) {
