@@ -1,4 +1,10 @@
  $Log$
+ Revision 647.12  2005/05/19 21:10:03  ajc
+ * Altered the full text indexer to output messages as text before running
+   through the wordbreaker.  This prevents the inclusion of encoded base64
+   strings in the index, and also allows legitimate text encoded inside
+   base64 to be decoded and then indexed.
+
  Revision 647.11  2005/05/19 03:42:29  ajc
  * Bound the full text index to IMAP search
 
@@ -6725,4 +6731,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

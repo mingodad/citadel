@@ -73,26 +73,35 @@ int longcmp(const void *rec1, const void *rec2) {
  * Index or de-index a message.  (op == 1 to index, 0 to de-index)
  */
 void ft_index_message(long msgnum, int op) {
-	struct CtdlMessage *msg;
 	int num_tokens = 0;
 	int *tokens = NULL;
 	int i, j;
 	struct cdbdata *cdb_bucket;
 	int num_msgs;
 	long *msgs;
+	char *msgtext;
 
 	lprintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
 		(op ? "adding" : "removing") , msgnum
 	);
 
-	msg = CtdlFetchMessage(msgnum, 1);
-	if (msg == NULL) return;
+	/* Output the message as text before indexing it, so we don't end up
+	 * indexing a bunch of encoded base64, etc.
+	 */
+	lprintf(CTDL_DEBUG, "Fetching...\n");
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputMsg(msgnum, MT_CITADEL, HEADERS_ALL, 0, 1);
+	msgtext = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
+	lprintf(CTDL_DEBUG, "Wordbreaking...\n");
+	wordbreaker(msgtext, &num_tokens, &tokens);
+	free(msgtext);
 
-	if (msg->cm_fields['M'] != NULL) {
-		wordbreaker(msg->cm_fields['M'], &num_tokens, &tokens);
-	}
-	CtdlFreeMessage(msg);
-
+	lprintf(CTDL_DEBUG, "Indexing...\n");
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -122,8 +131,7 @@ void ft_index_message(long msgnum, int op) {
 				msgs = (long *) cdb_bucket->ptr;
 					for (j=0; j<num_msgs; ++j) {
 						if (msgs[j] == msgnum) {
-							memmove(&msgs[j], &msgs[j+1],
-								((num_msgs - j - 1)*sizeof(long)));
+							memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
 							--num_msgs;
 						}
 					}
@@ -136,8 +144,7 @@ void ft_index_message(long msgnum, int op) {
 				qsort(msgs, num_msgs, sizeof(long), longcmp);
 				for (j=0; j<(num_msgs-1); ++j) {
 					if (msgs[j] == msgs[j+1]) {
-						memmove(&msgs[j], &msgs[j+1],
-							((num_msgs - j - 1)*sizeof(long)));
+						memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
 						--num_msgs;
 					}
 				}
@@ -190,6 +197,7 @@ void ft_index_room(struct ctdlroom *qrbuf, void *data)
 void do_fulltext_indexing(void) {
 	int i;
 	static time_t last_index = 0L;
+	static time_t last_progress = 0L;
 
 	/*
 	 * Make sure we don't run the indexer too frequently.
@@ -203,11 +211,8 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	lprintf(CTDL_DEBUG, "CitControl.MMhighest  = %ld\n", CitControl.MMhighest);
-	lprintf(CTDL_DEBUG, "CitControl.MMfulltext = %ld\n", CitControl.MMfulltext);
 	if (CitControl.MMfulltext >= CitControl.MMhighest) {
-		/* nothing to do! */
-		return;
+		return;		/* nothing to do! */
 	}
 
 	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started\n");
@@ -241,6 +246,14 @@ void do_fulltext_indexing(void) {
 
 		/* Here it is ... do each message! */
 		for (i=0; i<ft_num_msgs; ++i) {
+			if ((time(NULL) - last_progress) > 10) {
+				lprintf(CTDL_DEBUG,
+					"Indexed %d of %d messages (%d%%)\n",
+						i, ft_num_msgs,
+						((i*100) / ft_num_msgs)
+				);
+				last_progress = time(NULL);
+			}
 			ft_index_message(ft_newmsgs[i], 1);
 		}
 
@@ -284,16 +297,18 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 		for (i=0; i<num_tokens; ++i) {
 
 			/* search for tokens[i] */
-			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(int));
+			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i],
+								sizeof(int));
 			if (cdb_bucket != NULL) {
 				num_msgs = cdb_bucket->len / sizeof(long);
 				msgs = (long *)cdb_bucket->ptr;
 
 				num_all_msgs += num_msgs;
 				if (num_all_msgs > 0) {
-					all_msgs = realloc(all_msgs, num_all_msgs*sizeof(long) );
-					memcpy(&all_msgs[num_all_msgs - num_msgs], msgs,
-						num_msgs*sizeof(long) );
+					all_msgs = realloc(all_msgs,
+						num_all_msgs*sizeof(long) );
+					memcpy(&all_msgs[num_all_msgs-num_msgs],
+						msgs, num_msgs*sizeof(long) );
 				}
 
 				cdb_free(cdb_bucket);
@@ -307,13 +322,15 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 		 * At this point, if a message appears num_tokens times in the
 		 * list, then it contains all of the search tokens.
 		 */
-		if (num_all_msgs >= num_tokens) for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
+		if (num_all_msgs >= num_tokens)
+		   for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
 			if (all_msgs[j] == all_msgs[j+num_tokens-1]) {
 
 				++num_ret_msgs;
 				if (num_ret_msgs > num_ret_alloc) {
 					num_ret_alloc += 64;
-					ret_msgs = realloc(ret_msgs, (num_ret_alloc*sizeof(long)) );
+					ret_msgs = realloc(ret_msgs,
+						(num_ret_alloc*sizeof(long)) );
 				}
 				ret_msgs[num_ret_msgs - 1] = all_msgs[j];
 
@@ -358,6 +375,6 @@ void cmd_srch(char *argbuf) {
 char *serv_fulltext_init(void)
 {
 	CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
-        CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
+	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
 	return "$Id$";
 }
