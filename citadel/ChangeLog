@@ -1,4 +1,9 @@
  $Log$
+ Revision 647.13  2005/05/20 01:20:24  ajc
+ * Cull logs immediately after a successful db checkpoint instead of only
+   once every 24 hours.  During big db write operations (such as building
+   the full text index) they were just piling up too much.
+
  Revision 647.12  2005/05/19 21:10:03  ajc
  * Altered the full text indexer to output messages as text before running
    through the wordbreaker.  This prevents the inclusion of encoded base64
@@ -6731,3 +6736,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

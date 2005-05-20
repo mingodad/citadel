@@ -210,8 +210,6 @@ static void cdb_cull_logs(void) {
 	char **file, **list;
 	char errmsg[SIZ];
 
-	lprintf(CTDL_INFO, "Database log file cull started.\n");
-
 	flags = DB_ARCH_ABS;
 
 	/* Get the list of names. */
@@ -250,7 +248,7 @@ static void cdb_cull_logs(void) {
  */
 static void cdb_checkpoint(void) {
 	int ret;
-	static time_t last_cull = 0L;
+	/* static time_t last_cull = 0L; */
 
 	ret = dbenv->txn_checkpoint(dbenv,
 				MAX_CHECKPOINT_KBYTES,
@@ -263,11 +261,14 @@ static void cdb_checkpoint(void) {
 		abort();
 	}
 
-	/* Cull the logs if we haven't done so for 24 hours */
+	/* After a successful checkpoint, we can cull the unused logs */
+	cdb_cull_logs();
+
+	/* Cull the logs if we haven't done so for 24 hours
 	if ((time(NULL) - last_cull) > 86400L) {
 		last_cull = time(NULL);
 		cdb_cull_logs();
-	}
+	} */
 
 }
 
