@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.16  2005/05/20 16:22:33  ajc
+ *** empty log message ***
+
  Revision 647.15  2005/05/20 16:14:43  ajc
  * Dramatically improved the time it takes to goto (or select) a room which
    contains a very long and complex seen/unseen list.  Our test folder,
@@ -29,7 +32,7 @@
 
  Revision 647.9  2005/05/18 04:02:54  ajc
  * Completed the "search for all of these words" functionality.  All we need
-   to do now is genericize its calling syntax so it can be called from the
+   to do now is generalize its calling syntax so it can be called from the
    IMAP service.
 
  Revision 647.8  2005/05/18 03:22:27  ajc
@@ -40,10 +43,10 @@
    Still need to add de-indexing so deleted messages are removed from index.
 
  Revision 647.6  2005/05/17 16:25:23  ajc
- * Completed the wordbreaker for the fulltext indexer.
+ * Completed the wordbreaker for the full text indexer.
 
  Revision 647.5  2005/05/17 04:04:46  ajc
- * More glue code for the fulltext indexer.
+ * Began some glue code for the full text indexer.
 
  Revision 647.4  2005/05/16 20:03:33  ajc
  * definition of struct CitControl moved from citadel.h to server.h
@@ -6745,4 +6748,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
