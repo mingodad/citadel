@@ -155,9 +155,9 @@ int main (int argc, char *argv[]) {
 			if (itemptr->data->title != NULL) {
 				MD5Update(&md5context, itemptr->data->title, strlen(itemptr->data->title));
 			}
-			if (itemptr->data->description != NULL) {
-				MD5Update(&md5context, itemptr->data->description, strlen(itemptr->data->description));
-			}
+			//if (itemptr->data->description != NULL) {
+				//MD5Update(&md5context, itemptr->data->description, strlen(itemptr->data->description));
+			//}
 			if (itemptr->data->link != NULL) {
 				MD5Update(&md5context, itemptr->data->link, strlen(itemptr->data->link));
 			}
