@@ -52,7 +52,7 @@ case "$yesno" in
 		exit
 esac
 
-for x in 00 01 02 03 04 05 06 07 08
+for x in 00 01 02 03 04 05 06 07 08 09
 do
 	filename=cdb.$x
 	echo Dumping $filename
@@ -60,10 +60,10 @@ do
 	rm -f ./data/$filename
 done
 
-echo Removing log files
+echo Removing old databases
 rm -f ./data/*
 
-for x in 00 01 02 03 04 05 06 07 08
+for x in 00 01 02 03 04 05 06 07 08 09
 do
 	filename=cdb.$x
 	echo Loading $filename
