@@ -1,4 +1,10 @@
  $Log$
+ Revision 647.15  2005/05/20 16:14:43  ajc
+ * Dramatically improved the time it takes to goto (or select) a room which
+   contains a very long and complex seen/unseen list.  Our test folder,
+   containing 359 new of 3162 messages, formerly took 22 seconds to select;
+   now it takes 1 to 2 seconds.
+
  Revision 647.14  2005/05/20 02:37:17  ajc
  * Performance-optimized the full text indexer.
 
@@ -6739,3 +6745,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

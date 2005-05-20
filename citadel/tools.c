@@ -414,7 +414,7 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 int is_msg_in_sequence_set(char *mset, long msgnum) {
 	int num_sets;
 	int s;
-	char setstr[SIZ], lostr[SIZ], histr[SIZ];
+	char setstr[128], lostr[128], histr[128];
 	long lo, hi;
 
 	num_sets = num_tokens(mset, ',');

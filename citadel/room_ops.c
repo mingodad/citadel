@@ -766,6 +766,7 @@ void usergoto(char *where, int display_result, int transiently,
 {
 	int a;
 	int new_messages = 0;
+	int old_messages = 0;
 	int total_messages = 0;
 	int info = 0;
 	int rmailflag;
@@ -777,6 +778,10 @@ void usergoto(char *where, int display_result, int transiently,
 	long *msglist = NULL;
 	int num_msgs = 0;
 	unsigned int original_v_flags;
+	int num_sets;
+	int s;
+	char setstr[128], lostr[64], histr[64];
+	long lo, hi;
 
 	/* If the supplied room name is NULL, the caller wants us to know that
 	 * it has already copied the room record into CC->room, so
@@ -825,14 +830,38 @@ void usergoto(char *where, int display_result, int transiently,
         	cdb_free(cdbfr);
 	}
 
-	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
-		if (msglist[a] > 0L) {
-			++total_messages;
-			if (is_msg_in_sequence_set(vbuf.v_seen, msglist[a]) == 0) {
-				++new_messages;
+	lprintf(CTDL_DEBUG, " *** START COUNT *** \n");
+	total_messages = 0;
+	for (a=0; a<num_msgs; ++a) {
+		if (msglist[a] > 0L) ++total_messages;
+	}
+	new_messages = num_msgs;
+	num_sets = num_tokens(vbuf.v_seen, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, vbuf.v_seen, s, ',', sizeof setstr);
+
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':', sizeof histr);
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
+			}
+		} 
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
+		for (a=0; a<num_msgs; ++a) if (msglist[a] > 0L) {
+			if ((msglist[a] >= lo) && (msglist[a] <= hi)) {
+				++old_messages;
+				msglist[a] = 0L;
 			}
 		}
 	}
+	lprintf(CTDL_DEBUG, " ***  END  COUNT *** \n");
+	new_messages = total_messages - old_messages;
 
 	if (msglist != NULL) free(msglist);
 
