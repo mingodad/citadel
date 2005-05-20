@@ -84,6 +84,7 @@ struct RoomProcList *rplist = NULL;
  * We build a map of network nodes during processing.
  */
 struct NetMap *the_netmap = NULL;
+int netmap_changed = 0;
 char *working_ignetcfg = NULL;
 
 /*
@@ -233,6 +234,7 @@ void read_network_map(void) {
 	}
 
 	free(serialized_map);
+	netmap_changed = 0;
 }
 
 
@@ -243,25 +245,28 @@ void write_network_map(void) {
 	char *serialized_map = NULL;
 	struct NetMap *nmptr;
 
-	serialized_map = strdup("");
 
-	if (the_netmap != NULL) {
-		for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
-			serialized_map = realloc(serialized_map,
-						(strlen(serialized_map)+SIZ) );
-			if (strlen(nmptr->nodename) > 0) {
-				snprintf(&serialized_map[strlen(serialized_map)],
-					SIZ,
-					"%s|%ld|%s\n",
-					nmptr->nodename,
-					(long)nmptr->lastcontact,
-					nmptr->nexthop);
+	if (netmap_changed) {
+		serialized_map = strdup("");
+	
+		if (the_netmap != NULL) {
+			for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+				serialized_map = realloc(serialized_map,
+							(strlen(serialized_map)+SIZ) );
+				if (strlen(nmptr->nodename) > 0) {
+					snprintf(&serialized_map[strlen(serialized_map)],
+						SIZ,
+						"%s|%ld|%s\n",
+						nmptr->nodename,
+						(long)nmptr->lastcontact,
+						nmptr->nexthop);
+				}
 			}
 		}
-	}
 
-	CtdlPutSysConfig(IGNETMAP, serialized_map);
-	free(serialized_map);
+		CtdlPutSysConfig(IGNETMAP, serialized_map);
+		free(serialized_map);
+	}
 
 	/* Now free the list */
 	while (the_netmap != NULL) {
@@ -269,6 +274,7 @@ void write_network_map(void) {
 		free(the_netmap);
 		the_netmap = nmptr;
 	}
+	netmap_changed = 0;
 }
 
 
@@ -1163,6 +1169,7 @@ void network_learn_topology(char *node, char *path) {
 		if (!strcasecmp(nmptr->nodename, node)) {
 			extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 			nmptr->lastcontact = time(NULL);
+			++netmap_changed;
 			return;
 		}
 	}
@@ -1174,6 +1181,7 @@ void network_learn_topology(char *node, char *path) {
 	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 	nmptr->next = the_netmap;
 	the_netmap = nmptr;
+	++netmap_changed;
 }
 
 
@@ -1522,17 +1530,18 @@ void network_process_file(char *filename) {
 void network_do_spoolin(void) {
 	DIR *dp;
 	struct dirent *d;
-	char filename[SIZ];
+	char filename[256];
 
 	dp = opendir("./network/spoolin");
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
-		snprintf(filename, sizeof filename,
-			"./network/spoolin/%s", d->d_name);
-		network_process_file(filename);
+		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
+			snprintf(filename, sizeof filename,
+				"./network/spoolin/%s", d->d_name);
+			network_process_file(filename);
+		}
 	}
-
 
 	closedir(dp);
 }
@@ -1545,8 +1554,8 @@ void network_do_spoolin(void) {
 void network_purge_spoolout(void) {
 	DIR *dp;
 	struct dirent *d;
-	char filename[SIZ];
-	char nexthop[SIZ];
+	char filename[256];
+	char nexthop[256];
 	int i;
 
 	dp = opendir("./network/spoolout");
