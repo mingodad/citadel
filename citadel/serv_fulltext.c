@@ -88,7 +88,6 @@ void ft_index_message(long msgnum, int op) {
 	/* Output the message as text before indexing it, so we don't end up
 	 * indexing a bunch of encoded base64, etc.
 	 */
-	lprintf(CTDL_DEBUG, "Fetching...\n");
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
@@ -97,11 +96,11 @@ void ft_index_message(long msgnum, int op) {
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
-	lprintf(CTDL_DEBUG, "Wordbreaking...\n");
+	lprintf(CTDL_DEBUG, "Wordbreaking message %ld...\n", msgnum);
 	wordbreaker(msgtext, &num_tokens, &tokens);
 	free(msgtext);
 
-	lprintf(CTDL_DEBUG, "Indexing...\n");
+	lprintf(CTDL_DEBUG, "Indexing message %ld...\n", msgnum);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -133,12 +132,20 @@ void ft_index_message(long msgnum, int op) {
 						if (msgs[j] == msgnum) {
 							memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
 							--num_msgs;
+							--j;
 						}
 					}
 				}
 			}
 
-			/* sort and purge dups */
+			/* sort and purge dups 
+			 *
+			 * This whole section is commented out because it's
+			 * no longer needed -- since the tokenizer already
+			 * does a merge/purge on the tokens it returns, and
+			 * we're guaranteed to always be indexing a message
+			 * with a number higher than any already in the index.
+			 * 
 			if ( (op == 1) && (num_msgs > 1) ) {
 				msgs = (long *) cdb_bucket->ptr;
 				qsort(msgs, num_msgs, sizeof(long), longcmp);
@@ -146,9 +153,11 @@ void ft_index_message(long msgnum, int op) {
 					if (msgs[j] == msgs[j+1]) {
 						memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
 						--num_msgs;
+						--j;
 					}
 				}
 			}
+			*/
 
 			cdb_store(CDB_FULLTEXT, &tokens[i], sizeof(int),
 				msgs, (num_msgs*sizeof(long)) );
@@ -241,6 +250,7 @@ void do_fulltext_indexing(void) {
 				memmove(&ft_newmsgs[i], &ft_newmsgs[i+1],
 					((ft_num_msgs - i - 1)*sizeof(long)));
 				--ft_num_msgs;
+				--i;
 			}
 		}
 
