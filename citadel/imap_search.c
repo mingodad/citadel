@@ -449,9 +449,9 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 
 	/* If there is a BODY search criterion in the query, use our full
 	 * text index to disqualify messages that don't have any chance of
-	 * matching.
+	 * matching.  (Only do this if the index is enabled!!)
 	 */
-	for (i=0; i<(num_items-1); ++i) {
+        if (config.c_enable_fulltext) for (i=0; i<(num_items-1); ++i) {
 		if (!strcasecmp(itemlist[i], "BODY")) {
 			ft_search(&fts_num_msgs, &fts_msgs, itemlist[i+1]);
 			if (fts_num_msgs > 0) {

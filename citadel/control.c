@@ -194,7 +194,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_imap_port);
 		cprintf("%ld\n", config.c_net_freq);
 		cprintf("%d\n", config.c_disable_newu);
-		cprintf("1\n");	/* no longer in use */
+		cprintf("%d\n", config.c_enable_fulltext);
 		cprintf("%d\n", config.c_purge_hour);
 #ifdef HAVE_LDAP
 		cprintf("%s\n", config.c_ldap_host);
@@ -344,7 +344,7 @@ void cmd_conf(char *argbuf)
 					config.c_disable_newu = 1;
 				break;
 			case 30:
-				/* no longer in use */
+				config.c_enable_fulltext = atoi(buf);
 				break;
 			case 31:
 				if ((config.c_purge_hour >= 0)

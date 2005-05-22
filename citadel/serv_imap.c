@@ -251,7 +251,10 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
-	/* Check to see if the room's contents have changed.  If not, we can avoid rescan */
+	/*
+	 * Check to see if the room's contents have changed.
+	 * If not, we can avoid this rescan.
+	 */
 	getroom(&CC->room, CC->room.QRname);
 	if (IMAP->last_mtime == CC->room.QRmtime) {	/* No changes! */
 		return;
@@ -291,9 +294,10 @@ void imap_rescan_msgids(void)
 			if (message_still_exists == 0) {
 				cprintf("* %d EXPUNGE\r\n", i + 1);
 
-				/* Here's some nice stupid nonsense.  When a message
-				 * is expunged, we have to slide all the existing
-				 * messages up in the message array.
+				/* Here's some nice stupid nonsense.  When a
+				 * message is expunged, we have to slide all
+				 * the existing messages up in the message
+				 * array.
 				 */
 				--IMAP->num_msgs;
 				memcpy(&IMAP->msgids[i],
@@ -323,12 +327,13 @@ void imap_rescan_msgids(void)
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
-	if (num_msgs > 0)
+	if (num_msgs > 0) {
 		for (j = 0; j < num_msgs; ++j) {
 			if (msglist[j] > original_highest) {
 				imap_add_single_msgid(msglist[j], NULL);
 			}
 		}
+	}
 	imap_set_seen_flags();
 
 	/*

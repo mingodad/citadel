@@ -172,6 +172,10 @@ void update_config(void) {
 		strcpy(config.c_ip_addr, "0.0.0.0");
 	}
 
+	if (CitControl.version < 650) {
+		config.c_enable_fulltext = 0;
+	}
+
 	put_config();
 }
 

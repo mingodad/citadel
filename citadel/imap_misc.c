@@ -331,7 +331,7 @@ void imap_append(int num_parms, char *parms[]) {
 
 	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
+		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);
 		return;
 	}

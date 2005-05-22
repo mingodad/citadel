@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.18  2005/05/22 16:12:25  ajc
+ * Full text indexer is now switchable on/off
+
  Revision 647.17  2005/05/20 20:02:50  ajc
  * The IGnet map is now rewritten to disk only when it changes.
  * When processing inbound network spool, ignore "." and ".." instead of
@@ -6753,3 +6756,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

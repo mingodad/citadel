@@ -44,6 +44,7 @@
 #include "room_ops.h"
 #include "user_ops.h"
 #include "file_ops.h"
+#include "config.h"
 #include "control.h"
 #include "tools.h"
 #include "mime_parser.h"
@@ -52,7 +53,6 @@
 #include "internet_addressing.h"
 #include "serv_fulltext.h"
 
-extern struct config config;
 long config_msgnum;
 
 
@@ -343,10 +343,16 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	memset(is_set, 0, (num_msgs * sizeof(char)) );
 
 	/* Decide which message set we're manipulating */
-	if (which_set == ctdlsetseen_seen) safestrncpy(vset, vbuf.v_seen, sizeof vset);
-	if (which_set == ctdlsetseen_answered) safestrncpy(vset, vbuf.v_answered, sizeof vset);
+	switch(which_set) {
+		case ctdlsetseen_seen:
+			safestrncpy(vset, vbuf.v_seen, sizeof vset);
+			break;
+		case ctdlsetseen_answered:
+			safestrncpy(vset, vbuf.v_answered, sizeof vset);
+			break;
+	}
 
-	lprintf(CTDL_DEBUG, "before optimize: %s\n", vset);
+	/* lprintf(CTDL_DEBUG, "before optimize: %s\n", vset); */
 
 	/* Translate the existing sequence set into an array of booleans */
 	num_sets = num_tokens(vset, ',');
@@ -420,11 +426,18 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	}
 
 	/* Decide which message set we're manipulating */
-	if (which_set == ctdlsetseen_seen) safestrncpy(vbuf.v_seen, vset, sizeof vbuf.v_seen);
-	if (which_set == ctdlsetseen_answered) safestrncpy(vbuf.v_answered, vset, sizeof vbuf.v_answered);
+	switch (which_set) {
+		case ctdlsetseen_seen:
+			safestrncpy(vbuf.v_seen, vset, sizeof vbuf.v_seen);
+			break;
+		case ctdlsetseen_answered:
+			safestrncpy(vbuf.v_answered, vset,
+						sizeof vbuf.v_answered);
+			break;
+	}
 	free(is_set);
 
-	lprintf(CTDL_DEBUG, " after optimize: %s\n", vset);
+	/* lprintf(CTDL_DEBUG, " after optimize: %s\n", vset); */
 	free(msglist);
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }
@@ -2147,7 +2160,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Bump this user's messages posted counter. */
-	lprintf(CTDL_DEBUG, "Updating user\n");
+	lprintf(CTDL_DEBUG, "Updating user (FIXME defer this)\n");
 	lgetuser(&CC->user, CC->curr_user);
 	CC->user.posted = CC->user.posted + 1;
 	lputuser(&CC->user);
@@ -3167,13 +3180,11 @@ void AdjRefCount(long msgnum, int incr)
 	 */
 	begin_critical_section(S_SUPPMSGMAIN);
 	GetMetaData(&smi, msgnum);
-	lprintf(CTDL_DEBUG, "Ref count for message <%ld> before write is <%d>\n",
-		msgnum, smi.meta_refcount);
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	lprintf(CTDL_DEBUG, "Ref count for message <%ld> after write is <%d>\n",
-		msgnum, smi.meta_refcount);
+	lprintf(CTDL_DEBUG, "msg %ld ref count incr %d, is now %d\n",
+		msgnum, incr, smi.meta_refcount);
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).

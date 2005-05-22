@@ -829,6 +829,9 @@ void do_system_configuration(CtdlIPC *ipc)
 
 	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
 	strprompt("Hour to run purges (0-23)", &sc[31][0], 2);
+	snprintf(sc[30], sizeof sc[30], "%d", (boolprompt(
+		"Enable full text search index (warning: resource intensive)",
+		atoi(&sc[30][0]))));
 
 	/* Save it */
 	scr_printf("Save this configuration? ");

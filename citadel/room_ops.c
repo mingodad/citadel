@@ -830,7 +830,6 @@ void usergoto(char *where, int display_result, int transiently,
         	cdb_free(cdbfr);
 	}
 
-	lprintf(CTDL_DEBUG, " *** START COUNT *** \n");
 	total_messages = 0;
 	for (a=0; a<num_msgs; ++a) {
 		if (msglist[a] > 0L) ++total_messages;
@@ -860,7 +859,6 @@ void usergoto(char *where, int display_result, int transiently,
 			}
 		}
 	}
-	lprintf(CTDL_DEBUG, " ***  END  COUNT *** \n");
 	new_messages = total_messages - old_messages;
 
 	if (msglist != NULL) free(msglist);

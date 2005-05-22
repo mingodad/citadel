@@ -209,6 +209,13 @@ void do_fulltext_indexing(void) {
 	static time_t last_progress = 0L;
 
 	/*
+	 * Don't do this if the site doesn't have it enabled.
+	 */
+	if (!config.c_enable_fulltext) {
+		return;
+	}
+
+	/*
 	 * Make sure we don't run the indexer too frequently.
 	 * FIXME move the setting into config
 	 */
@@ -365,6 +372,12 @@ void cmd_srch(char *argbuf) {
 	char search_string[256];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	if (!config.c_enable_fulltext) {
+		cprintf("%d Full text index is not enabled on this server.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+	}
+
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
 	ft_search(&num_msgs, &msgs, search_string);
 
