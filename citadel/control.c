@@ -399,6 +399,14 @@ void cmd_conf(char *argbuf)
 
 		if (strlen(config.c_logpages) > 0)
 			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+
+		/* If full text indexing has been disabled, invalidate the
+		 * index so it doesn't try to use it later.
+		 */
+		if (!config.c_enable_fulltext == 0) {
+			CitControl.fulltext_wordbreaker = 0;
+			put_control();
+		}
 	}
 
 	else if (!strcasecmp(cmd, "GETSYS")) {

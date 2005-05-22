@@ -113,26 +113,33 @@ void imap_free_transmitted_message(void)
  * sets stored in the visit record for this user/room.  Note that we have
  * to parse each sequence set manually here, because calling the utility
  * function is_msg_in_sequence_set() over and over again is too expensive.
+ *
+ * first_msg should be set to 0 to rescan the flags for every message in the
+ * room, or some other value if we're only interested in an incremental
+ * update.
  */
-void imap_set_seen_flags(void)
+void imap_set_seen_flags(int first_msg)
 {
 	struct visit vbuf;
 	int i;
 	int num_sets;
 	int s;
-	char setstr[SIZ], lostr[SIZ], histr[SIZ];
+	char setstr[64], lostr[64], histr[64];
 	long lo, hi;
 
 	if (IMAP->num_msgs < 1) return;
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
-	for (i = 0; i < IMAP->num_msgs; ++i) {
+	for (i = first_msg; i < IMAP->num_msgs; ++i) {
 		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_SEEN;
 		IMAP->flags[i] |= IMAP_RECENT;
 		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_ANSWERED;
 	}
 
-	/* Do the "\Seen" flag.  (Any message not "\Seen" is considered "\Recent".) */
+	/*
+	 * Do the "\Seen" flag.
+	 * (Any message not "\Seen" is considered "\Recent".)
+	 */
 	num_sets = num_tokens(vbuf.v_seen, ',');
 	for (s=0; s<num_sets; ++s) {
 		extract_token(setstr, vbuf.v_seen, s, ',', sizeof setstr);
@@ -150,8 +157,8 @@ void imap_set_seen_flags(void)
 		lo = atol(lostr);
 		hi = atol(histr);
 
-		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)) {
+		for (i = first_msg; i < IMAP->num_msgs; ++i) {
+			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)){
 				IMAP->flags[i] |= IMAP_SEEN;
 				IMAP->flags[i] = IMAP->flags[i] & ~IMAP_RECENT;
 			}
@@ -176,8 +183,8 @@ void imap_set_seen_flags(void)
 		lo = atol(lostr);
 		hi = atol(histr);
 
-		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)) {
+		for (i = first_msg; i < IMAP->num_msgs; ++i) {
+			if ((IMAP->msgids[i] >= lo) && (IMAP->msgids[i] <= hi)){
 				IMAP->flags[i] |= IMAP_ANSWERED;
 			}
 		}
@@ -200,8 +207,10 @@ void imap_add_single_msgid(long msgnum, void *userdata)
 	++IMAP->num_msgs;
 	if (IMAP->num_msgs > IMAP->num_alloc) {
 		IMAP->num_alloc += REALLOC_INCREMENT;
-		IMAP->msgids = realloc(IMAP->msgids, (IMAP->num_alloc * sizeof(long)));
-		IMAP->flags = realloc(IMAP->flags, (IMAP->num_alloc * sizeof(long)));
+		IMAP->msgids = realloc(IMAP->msgids,
+					(IMAP->num_alloc * sizeof(long)) );
+		IMAP->flags = realloc(IMAP->flags,
+					(IMAP->num_alloc * sizeof(long)) );
 	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
 	IMAP->flags[IMAP->num_msgs - 1] = 0;
@@ -221,12 +230,16 @@ void imap_load_msgids(void)
 		return;
 	}
 
+	TRACE;
 	imap_free_msgids();	/* If there was already a map, free it */
+	TRACE;
 
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
 			   imap_add_single_msgid, NULL);
 
-	imap_set_seen_flags();
+	TRACE;
+	imap_set_seen_flags(0);
+	TRACE;
 }
 
 
@@ -238,7 +251,7 @@ void imap_rescan_msgids(void)
 
 	int original_num_msgs = 0;
 	long original_highest = 0L;
-	int i, j;
+	int i, j, jstart;
 	int message_still_exists;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -251,6 +264,7 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
+	TRACE;
 	/*
 	 * Check to see if the room's contents have changed.
 	 * If not, we can avoid this rescan.
@@ -260,6 +274,7 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
+	TRACE;
 	/* Load the *current* message list from disk, so we can compare it
 	 * to what we have in memory.
 	 */
@@ -277,19 +292,24 @@ void imap_rescan_msgids(void)
 		num_msgs = 0;
 	}
 
+	TRACE;
 	/*
 	 * Check to see if any of the messages we know about have been expunged
 	 */
-	if (IMAP->num_msgs > 0)
+	if (IMAP->num_msgs > 0) {
+		jstart = 0;
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 
 			message_still_exists = 0;
-			if (num_msgs > 0)
-				for (j = 0; j < num_msgs; ++j) {
+			if (num_msgs > 0) {
+				for (j = jstart; j < num_msgs; ++j) {
 					if (msglist[j] == IMAP->msgids[i]) {
 						message_still_exists = 1;
+						jstart = j;
+						break;
 					}
 				}
+			}
 
 			if (message_still_exists == 0) {
 				cprintf("* %d EXPUNGE\r\n", i + 1);
@@ -313,7 +333,9 @@ void imap_rescan_msgids(void)
 			}
 
 		}
+	}
 
+	TRACE;
 	/*
 	 * Remember how many messages were here before we re-scanned.
 	 */
@@ -324,6 +346,7 @@ void imap_rescan_msgids(void)
 		original_highest = 0L;
 	}
 
+	TRACE;
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
@@ -334,8 +357,9 @@ void imap_rescan_msgids(void)
 			}
 		}
 	}
-	imap_set_seen_flags();
+	imap_set_seen_flags(original_num_msgs);
 
+	TRACE;
 	/*
 	 * If new messages have arrived, tell the client about them.
 	 */
@@ -351,6 +375,7 @@ void imap_rescan_msgids(void)
 		cprintf("* %d RECENT\r\n", num_recent);
 	}
 
+	TRACE;
 	if (num_msgs != 0) {
 		free(msglist);
 	}
@@ -620,15 +645,20 @@ void imap_select(int num_parms, char *parms[])
 	}
 
 	/* If we already had some other folder selected, auto-expunge it */
+	TRACE;
 	imap_do_expunge();
 
 	/*
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
+	TRACE;
 	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
+	TRACE;
 	usergoto(NULL, 0, 0, &msgs, &new);
+	TRACE;
 	IMAP->selected = 1;
+	TRACE;
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
 		IMAP->readonly = 1;
@@ -636,8 +666,11 @@ void imap_select(int num_parms, char *parms[])
 		IMAP->readonly = 0;
 	}
 
+	TRACE;
 	imap_load_msgids();
+	TRACE;
 	IMAP->last_mtime = CC->room.QRmtime;
+	TRACE;
 
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);

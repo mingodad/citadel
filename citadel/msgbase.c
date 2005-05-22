@@ -3194,7 +3194,9 @@ void AdjRefCount(long msgnum, int incr)
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
 
 		/* Remove from fulltext index */
-		ft_index_message(msgnum, 0);
+		if (config.c_enable_fulltext) {
+			ft_index_message(msgnum, 0);
+		}
 
 		/* Remove from message base */
 		delnum = msgnum;
