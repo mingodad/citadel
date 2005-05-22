@@ -474,7 +474,14 @@ void display_siteconfig(void)
 			}
 			break;
 		case 31:
-			/* placeholder -- there is no option 31 */
+			if (!strcasecmp(whichmenu, "general")) {
+				wprintf("<TR><TD>Enable full text index (warning: resource intensive)</TD><TD>");
+				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_enable_fulltext\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_enable_fulltext\" VALUE=\"%s\">", buf);
+			}
 			break;
 		case 32:
 			if (!strcasecmp(whichmenu, "tuning")) {
@@ -714,7 +721,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
 	serv_printf("%s", ((!strcasecmp(bstr("c_disable_newu"), "yes") ? "1" : "0")));
-	serv_printf("1");	/* placeholder -- deprecated */
+	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("%s", bstr("c_ldap_host"));
 	serv_printf("%s", bstr("c_ldap_port"));
