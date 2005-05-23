@@ -194,7 +194,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_imap_port);
 		cprintf("%ld\n", config.c_net_freq);
 		cprintf("%d\n", config.c_disable_newu);
-		cprintf("%d\n", config.c_enable_fulltext);
+		cprintf("1\n");	/* niu */
 		cprintf("%d\n", config.c_purge_hour);
 #ifdef HAVE_LDAP
 		cprintf("%s\n", config.c_ldap_host);
@@ -214,6 +214,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_imaps_port);
 		cprintf("%d\n", config.c_pop3s_port);
 		cprintf("%d\n", config.c_smtps_port);
+		cprintf("%d\n", config.c_enable_fulltext);
 		cprintf("000\n");
 	}
 
@@ -344,7 +345,7 @@ void cmd_conf(char *argbuf)
 					config.c_disable_newu = 1;
 				break;
 			case 30:
-				config.c_enable_fulltext = atoi(buf);
+				/* niu */
 				break;
 			case 31:
 				if ((config.c_purge_hour >= 0)
@@ -387,6 +388,9 @@ void cmd_conf(char *argbuf)
 				break;
 			case 41:
 				config.c_smtps_port = atoi(buf);
+				break;
+			case 42:
+				config.c_enable_fulltext = atoi(buf);
 				break;
 			}
 			++a;

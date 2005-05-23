@@ -1,4 +1,9 @@
  $Log$
+ Revision 647.20  2005/05/23 19:26:04  ajc
+ * Move the location of the "enable full text index" configuration item to
+   a new location.  Reusing an old location was a stupid idea because old
+   clients can inadvertently switch it on.
+
  Revision 647.19  2005/05/23 14:07:39  ajc
  * serv_imap.c: improve SELECT time by fetching the msglist directly out of
    the database instead of doing a CtdlForEachMessage() loop.
@@ -6760,3 +6765,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

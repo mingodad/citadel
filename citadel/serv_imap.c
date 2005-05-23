@@ -231,9 +231,7 @@ void imap_load_msgids(void)
 		return;
 	}
 
-	TRACE;
 	imap_free_msgids();	/* If there was already a map, free it */
-	TRACE;
 
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
@@ -250,9 +248,7 @@ void imap_load_msgids(void)
 		memset(IMAP->flags, 0, (IMAP->num_alloc * sizeof(long)) );
 	}
 
-	TRACE;
 	imap_set_seen_flags(0);
-	TRACE;
 }
 
 
@@ -277,7 +273,6 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
-	TRACE;
 	/*
 	 * Check to see if the room's contents have changed.
 	 * If not, we can avoid this rescan.
@@ -287,7 +282,6 @@ void imap_rescan_msgids(void)
 		return;
 	}
 
-	TRACE;
 	/* Load the *current* message list from disk, so we can compare it
 	 * to what we have in memory.
 	 */
@@ -305,7 +299,6 @@ void imap_rescan_msgids(void)
 		num_msgs = 0;
 	}
 
-	TRACE;
 	/*
 	 * Check to see if any of the messages we know about have been expunged
 	 */
@@ -348,7 +341,6 @@ void imap_rescan_msgids(void)
 		}
 	}
 
-	TRACE;
 	/*
 	 * Remember how many messages were here before we re-scanned.
 	 */
@@ -359,7 +351,6 @@ void imap_rescan_msgids(void)
 		original_highest = 0L;
 	}
 
-	TRACE;
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
@@ -372,7 +363,6 @@ void imap_rescan_msgids(void)
 	}
 	imap_set_seen_flags(original_num_msgs);
 
-	TRACE;
 	/*
 	 * If new messages have arrived, tell the client about them.
 	 */
@@ -388,7 +378,6 @@ void imap_rescan_msgids(void)
 		cprintf("* %d RECENT\r\n", num_recent);
 	}
 
-	TRACE;
 	if (num_msgs != 0) {
 		free(msglist);
 	}
@@ -658,20 +647,15 @@ void imap_select(int num_parms, char *parms[])
 	}
 
 	/* If we already had some other folder selected, auto-expunge it */
-	TRACE;
 	imap_do_expunge();
 
 	/*
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
-	TRACE;
 	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
-	TRACE;
 	usergoto(NULL, 0, 0, &msgs, &new);
-	TRACE;
 	IMAP->selected = 1;
-	TRACE;
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
 		IMAP->readonly = 1;
@@ -679,11 +663,8 @@ void imap_select(int num_parms, char *parms[])
 		IMAP->readonly = 0;
 	}
 
-	TRACE;
 	imap_load_msgids();
-	TRACE;
 	IMAP->last_mtime = CC->room.QRmtime;
-	TRACE;
 
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);

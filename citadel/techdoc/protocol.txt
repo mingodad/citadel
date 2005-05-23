@@ -1821,6 +1821,7 @@ fails for any reason, ERROR is returned.
  40. Port number for IMAPS (SSL-encrypted IMAP)
  41. Port number for POP3S (SSL-encrypted POP3)
  42. Port number for SMTPS (SSL-encrypted SMTP)
+ 43. Flag (0 or 1) - enable full text search index
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
