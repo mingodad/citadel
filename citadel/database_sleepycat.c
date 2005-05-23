@@ -873,7 +873,7 @@ void cdb_end_transaction(void)
  */
 void cdb_trunc(int cdb)
 {
-	//DB_TXN *tid;
+	/* DB_TXN *tid; */
 	int ret;
 	u_int32_t count;
 
@@ -886,14 +886,14 @@ void cdb_trunc(int cdb)
 			     "attempt to write during r/o cursor");
 
 	      retry:
-		//txbegin(&tid);
+		/* txbegin(&tid); */
 
 		if ((ret = dbp[cdb]->truncate(dbp[cdb],	/* db */
 					      NULL,	/* transaction ID */
 					      &count,	/* #rows deleted */
 					      0))) {	/* flags */
 			if (ret == DB_LOCK_DEADLOCK) {
-				//txabort(tid);
+				/* txabort(tid); */
 				goto retry;
 			} else {
 				lprintf(CTDL_EMERG,
@@ -902,7 +902,7 @@ void cdb_trunc(int cdb)
 				abort();
 			}
 		} else {
-			//txcommit(tid);
+			/* txcommit(tid); */
 		}
 	}
 }
