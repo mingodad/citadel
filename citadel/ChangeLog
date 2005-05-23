@@ -1,4 +1,7 @@
  $Log$
+ Revision 647.21  2005/05/23 19:31:52  ajc
+ * test
+
  Revision 647.20  2005/05/23 19:26:04  ajc
  * Move the location of the "enable full text index" configuration item to
    a new location.  Reusing an old location was a stupid idea because old
@@ -6765,4 +6768,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
