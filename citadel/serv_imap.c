@@ -223,6 +223,7 @@ void imap_add_single_msgid(long msgnum, void *userdata)
  */
 void imap_load_msgids(void)
 {
+	struct cdbdata *cdbfr;
 
 	if (IMAP->selected == 0) {
 		lprintf(CTDL_ERR,
@@ -234,8 +235,20 @@ void imap_load_msgids(void)
 	imap_free_msgids();	/* If there was already a map, free it */
 	TRACE;
 
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
-			   imap_add_single_msgid, NULL);
+	/* Load the message list */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		IMAP->msgids = malloc(cdbfr->len);
+		memcpy(IMAP->msgids, cdbfr->ptr, cdbfr->len);
+		IMAP->num_msgs = cdbfr->len / sizeof(long);
+		IMAP->num_alloc = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	}
+
+	if (IMAP->num_msgs) {
+		IMAP->flags = malloc(IMAP->num_alloc * sizeof(long));
+		memset(IMAP->flags, 0, (IMAP->num_alloc * sizeof(long)) );
+	}
 
 	TRACE;
 	imap_set_seen_flags(0);

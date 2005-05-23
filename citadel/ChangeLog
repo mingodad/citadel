@@ -1,4 +1,8 @@
  $Log$
+ Revision 647.19  2005/05/23 14:07:39  ajc
+ * serv_imap.c: improve SELECT time by fetching the msglist directly out of
+   the database instead of doing a CtdlForEachMessage() loop.
+
  Revision 647.18  2005/05/22 16:12:25  ajc
  * Full text indexer is now switchable on/off
 
@@ -6756,4 +6760,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
