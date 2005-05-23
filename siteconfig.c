@@ -474,17 +474,10 @@ void display_siteconfig(void)
 			}
 			break;
 		case 31:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>Enable full text index (warning: resource intensive)</TD><TD>");
-				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_enable_fulltext\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_enable_fulltext\" VALUE=\"%s\">", buf);
-			}
+			/* niu */
 			break;
 		case 32:
-			if (!strcasecmp(whichmenu, "tuning")) {
+			if (!strcasecmp(whichmenu, "purger")) {
 				wprintf("<TR><TD>Hour to run database auto-purge</TD><TD>");
 				wprintf("<SELECT NAME=\"c_purge_hour\" SIZE=\"1\">\n");
 				for (j=0; j<=23; ++j) {
@@ -600,6 +593,16 @@ void display_siteconfig(void)
 			}
 			else {
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_smtps_port\" VALUE=\"%s\">", buf);
+			}
+			break;
+		case 43:
+			if (!strcasecmp(whichmenu, "general")) {
+				wprintf("<TR><TD>Enable full text index (warning: resource intensive)</TD><TD>");
+				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_enable_fulltext\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_enable_fulltext\" VALUE=\"%s\">", buf);
 			}
 			break;
 		}
@@ -721,7 +724,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
 	serv_printf("%s", ((!strcasecmp(bstr("c_disable_newu"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
+	serv_printf("1");
 	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("%s", bstr("c_ldap_host"));
 	serv_printf("%s", bstr("c_ldap_port"));
@@ -733,6 +736,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_imaps_port"));
 	serv_printf("%s", bstr("c_pop3s_port"));
 	serv_printf("%s", bstr("c_smtps_port"));
+	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
