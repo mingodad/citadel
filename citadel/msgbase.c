@@ -2160,7 +2160,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Bump this user's messages posted counter. */
-	lprintf(CTDL_DEBUG, "Updating user (FIXME defer this)\n");
+	lprintf(CTDL_DEBUG, "Updating user\n");
 	lgetuser(&CC->user, CC->curr_user);
 	CC->user.posted = CC->user.posted + 1;
 	lputuser(&CC->user);
