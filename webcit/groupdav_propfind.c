@@ -91,7 +91,7 @@ void groupdav_folder_list(void) {
 	begin_burst();
 
 	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<D:multistatus xmlns:D=\"DAV:\">"
+     		"<D:multistatus xmlns:D=\"DAV:\"xmlns:G=\"http://groupdav.org/\">"
 	);
 
 	serv_puts("LKRA");
@@ -225,8 +225,9 @@ void groupdav_propfind(char *dav_pathname) {
 	begin_burst();
 
 	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<D:multistatus xmlns:D=\"DAV:\">"
+     		"<D:multistatus xmlns:D=\"DAV:\"xmlns:G=\"http://groupdav.org/\">"
 	);
+     		//"<D:multistatus xmlns:D=\"DAV:\">"
 
 	serv_puts("MSGS ALL");
 	serv_getln(buf, sizeof buf);
