@@ -30,11 +30,10 @@
  * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_put(char *dav_pathname, char *dav_ifmatch,
-		char *supplied_content_type, char *dav_content
+		char *dav_content_type, char *dav_content
 ) {
 	char dav_roomname[SIZ];
 	char dav_uid[SIZ];
-	char dav_content_type[SIZ];
 	long new_msgnum = (-2L);
 	long old_msgnum = (-1L);
 	char buf[SIZ];
@@ -70,28 +69,6 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		);
 		return;
 	}
-
-	/**********************
-	 * Ugly hack to mess with the content type.  KOrganizer is either
-	 * not supplying one, or supplying the wrong one.
-	 * (Commented out because Reinhold has fixed this bug in KOrg.)
-	strcpy(dav_content_type, supplied_content_type);
-	lprintf(9, "Supplied content type: %s\n", dav_content_type);
-	switch (WC->wc_view) {
-		case VIEW_ADDRESSBOOK:
-			strcpy(dav_content_type, "text/x-vcard");
-			break;
-		case VIEW_CALENDAR:
-			strcpy(dav_content_type, "text/calendar");
-			break;
-		case VIEW_TASKS:
-			strcpy(dav_content_type, "text/calendar");
-			break;
-		default:
-			break;
-	}
-	lprintf(9, "  Forced content type: %s\n", dav_content_type);
-	******************/
 
 	/*
 	 * If an HTTP If-Match: header is present, the client is attempting
@@ -170,6 +147,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		wprintf("HTTP/1.1 201 Created\r\n");
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
+		wprintf("ETag: \"%ld\"\r\n", new_msgnum);
 		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
 		if (strlen(WC->http_host) > 0) {
@@ -188,6 +166,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	wprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
+	wprintf("ETag: \"%ld\"\r\n", new_msgnum);
 	wprintf("Content-Length: 0\r\n\r\n");
 
 	/* The item we replaced has probably already been deleted by
