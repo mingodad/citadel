@@ -40,7 +40,6 @@
 # WebCit       5.27                    Latest
 # libical      0.24.RC4                Latest
 # Berkeley DB  4.3.21                  Stable
-# OpenLDAP     2.1.30 stable-20040329  Stable
 
 
 ###############################################################################
@@ -84,7 +83,6 @@ MAKEOPTS=""
 # CITADEL		Directory where Citadel is installed
 # WEBCIT		Directory where WebCit is installed
 # SUPPORT		Directory where support programs are installed
-# LDAP_CONFIG		Location of the slapd.conf file
 # SLAPD_BINARY		Location of the slapd binary
 # DISTRO_MAJOR		Linux distribution name, if applicable
 # DISTRO_MINOR		Linux distribution name, if applicable
@@ -106,7 +104,6 @@ DOWNLOAD_SITE=http://easyinstall.citadel.org
 DB_SOURCE=db-4.3.21.NC.tar.gz
 # DB_PATCHES=db-x.x.x.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
-LDAP_SOURCE=openldap-stable-20040329.tgz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
 WEBCIT_SOURCE=webcit-easyinstall.tar.gz
 
@@ -209,41 +206,6 @@ install_db () {
 	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
 }
 
-install_ldap () {
-	cd $BUILD 2>&1 >>$LOG || die
-	$WGET $DOWNLOAD_SITE/ldap-easyinstall.sum
-	SUM=`cat ldap-easyinstall.sum`
-	SUMFILE=$SUPPORT/etc/ldap-easyinstall.sum
-	if [ -r $SUMFILE ] ; then
-		OLDSUM=`cat $SUMFILE`
-		if [ $SUM = $OLDSUM ] ; then
-			echo "* OpenLDAP does not need updating."
-			return
-		fi
-	fi
-	echo "* Downloading OpenLDAP..."
-	$WGET $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
-	echo "* Installing OpenLDAP..."
-	CFLAGS="-I${SUPPORT}/include"
-	CPPFLAGS="${CFLAGS}"
-	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
-	export CFLAGS CPPFLAGS LDFLAGS
-	cd $BUILD 2>&1 >>$LOG || die
-	( gzip -dc $LDAP_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/openldap-2.1.29 2>&1 >>$LOG || die
-	./configure --prefix=$SUPPORT --enable-bdb 2>&1 >>$LOG || die
-	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
-	LDAP_CONFIG=$SUPPORT/etc/openldap/slapd.conf
-	export LDAP_CONFIG
-	SLAPD_BINARY=$SUPPORT/libexec/slapd
-	export SLAPD_BINARY
-	$MAKE install 2>&1 >>$LOG || die
-	echo "  Complete."
-	echo $SUM >$SUMFILE
-	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
-}
-
-
 install_prerequisites () {
 
 	# Create the support directories if they don't already exist
@@ -265,10 +227,6 @@ install_prerequisites () {
 	if [ -z "$OK_DB" ]
 	then
 		install_db
-	fi
-	if [ -z "$OK_LDAP" ]
-	then
-		install_ldap
 	fi
 }
 
@@ -308,9 +266,9 @@ install_sources () {
 		cd $BUILD/citadel 2>&1 >>$LOG || die
 		if [ -z "$OK_DB" ]
 		then
-			./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+			./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 		else
-			./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+			./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 		fi
 		$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 		if [ $IS_UPGRADE = yes ]
