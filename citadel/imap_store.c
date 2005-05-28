@@ -92,6 +92,9 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 		);
 	}
 
+	lprintf(CTDL_DEBUG, "imap_do_store_msg(%d, %s, %d)\n",
+		seq, oper, bits_to_twiddle);
+
 	/* 'silent' is actually the value returned from a strncasecmp() so
 	 * we want that option only if its value is zero.  Seems backwards
 	 * but that's the way it's supposed to be.
