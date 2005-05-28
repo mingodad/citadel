@@ -713,7 +713,8 @@ int imap_do_expunge(void)
 		imap_rescan_msgids();
 	}
 
-	lprintf(CTDL_DEBUG, "Expunged %d messages.\n", num_expunged);
+	lprintf(CTDL_DEBUG, "Expunged %d messages from <%s>\n",
+		num_expunged, CC->room.QRname);
 	return (num_expunged);
 }
 
