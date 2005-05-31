@@ -106,8 +106,9 @@ void ft_index_message(long msgnum, int op) {
 
 			/* Add the message to the relevant token bucket */
 
-			/* FIXME lock the file */
-			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i], sizeof(int));
+			/* FIXME do we need to lock the file here? */
+			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i],
+								sizeof(int));
 			if (cdb_bucket == NULL) {
 				cdb_bucket = malloc(sizeof(struct cdbdata));
 				cdb_bucket->len = 0;
@@ -120,7 +121,8 @@ void ft_index_message(long msgnum, int op) {
 
 			if (op == 1) {	/* add to index */
 				++num_msgs;
-				cdb_bucket->ptr = realloc(cdb_bucket->ptr, num_msgs*sizeof(long) );
+				cdb_bucket->ptr = realloc(cdb_bucket->ptr,
+							num_msgs*sizeof(long));
 				msgs = (long *) cdb_bucket->ptr;
 				msgs[num_msgs - 1] = msgnum;
 			}
@@ -138,33 +140,12 @@ void ft_index_message(long msgnum, int op) {
 				}
 			}
 
-			/* sort and purge dups 
-			 *
-			 * This whole section is commented out because it's
-			 * no longer needed -- since the tokenizer already
-			 * does a merge/purge on the tokens it returns, and
-			 * we're guaranteed to always be indexing a message
-			 * with a number higher than any already in the index.
-			 * 
-			if ( (op == 1) && (num_msgs > 1) ) {
-				msgs = (long *) cdb_bucket->ptr;
-				qsort(msgs, num_msgs, sizeof(long), longcmp);
-				for (j=0; j<(num_msgs-1); ++j) {
-					if (msgs[j] == msgs[j+1]) {
-						memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
-						--num_msgs;
-						--j;
-					}
-				}
-			}
-			*/
-
 			cdb_store(CDB_FULLTEXT, &tokens[i], sizeof(int),
 				msgs, (num_msgs*sizeof(long)) );
 
 			cdb_free(cdb_bucket);
 
-			/* FIXME unlock the file */
+			/* FIXME do we need to unlock the file here? */
 		}
 
 		free(tokens);
@@ -235,7 +216,7 @@ void do_fulltext_indexing(void) {
 	
 	/*
 	 * If we've switched wordbreaker modules, burn the index and start
-	 * over.  FIXME write this...
+	 * over.
 	 */
 	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
 		lprintf(CTDL_INFO, "(re)initializing full text index\n");
