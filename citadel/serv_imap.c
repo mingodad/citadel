@@ -677,7 +677,7 @@ void imap_select(int num_parms, char *parms[])
 	 * automatically expunges mailboxes when they are de-selected.
 	 */
 	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");
-	cprintf("* OK [PERMANENTFLAGS (\\Seen \\Answered)] "
+	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen \\Answered)] "
 		"permanent flags\r\n");
 
 	cprintf("%s OK [%s] %s completed\r\n",
