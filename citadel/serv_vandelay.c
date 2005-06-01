@@ -302,6 +302,13 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_imaps_port);
 	cprintf("%d\n", config.c_pop3s_port);
 	cprintf("%d\n", config.c_smtps_port);
+	cprintf("%d\n", config.c_rfc822_strict_from);
+	cprintf("%d\n", config.c_aide_zap);
+	cprintf("%d\n", config.c_imap_port);
+	cprintf("%ld\n", config.c_net_freq);
+	cprintf("%d\n", config.c_disable_newu);
+	cprintf("%s\n", config.c_baseroom);
+	cprintf("%s\n", config.c_aideroom);
 
 	/* Export the control file */
 	get_control();
@@ -369,6 +376,14 @@ void artv_import_config(void) {
 	client_getln(buf, sizeof buf);	config.c_imaps_port = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_pop3s_port = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_smtps_port = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_rfc822_strict_from = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_aide_zap = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_imap_port = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_net_freq = atol(buf);
+	client_getln(buf, sizeof buf);	config.c_disable_newu = atoi(buf);
+	client_getln(config.c_baseroom, sizeof config.c_baseroom);
+	client_getln(config.c_aideroom, sizeof config.c_aideroom);
+	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
 }
@@ -384,6 +399,7 @@ void artv_import_control(void) {
 	client_getln(buf, sizeof buf);	CitControl.MMnextuser = atol(buf);
 	client_getln(buf, sizeof buf);	CitControl.MMnextroom = atol(buf);
 	client_getln(buf, sizeof buf);	CitControl.version = atoi(buf);
+	CitControl.MMfulltext = (-1L);	/* always flush */
 	put_control();
 	lprintf(CTDL_INFO, "Imported control file\n");
 }
