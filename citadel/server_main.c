@@ -241,6 +241,9 @@ int main(int argc, char **argv)
 	}
 	end_critical_section(S_WORKER_LIST);
 
+	/* Create the indexer thread. */
+	create_indexer_thread();
+
 	/* Now this thread can become a worker as well. */
 	worker_thread(NULL);
 

@@ -253,6 +253,14 @@ void do_fulltext_indexing(void) {
 				last_progress = time(NULL);
 			}
 			ft_index_message(ft_newmsgs[i], 1);
+
+			/* Check to see if we need to quit early */
+			if (time_to_die) {
+				lprintf(CTDL_DEBUG, "Indexer quitting early\n");
+				ft_newhighest = ft_newmsgs[i];
+				break;
+			}
+
 		}
 
 		free(ft_newmsgs);
@@ -270,6 +278,31 @@ void do_fulltext_indexing(void) {
 	lprintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
 	return;
 }
+
+/*
+ * Main loop for the indexer thread.
+ */
+void *indexer_thread(void *arg) {
+	struct CitContext indexerCC;
+
+	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
+
+	memset(&indexerCC, 0, sizeof(struct CitContext));
+	indexerCC.internal_pgm = 1;
+	indexerCC.cs_pid = 0;
+	pthread_setspecific(MyConKey, (void *)&indexerCC );
+
+	cdb_allocate_tsd();
+
+	while (!time_to_die) {
+		do_fulltext_indexing();
+		sleep(1);
+	}
+
+	lprintf(CTDL_DEBUG, "indexer_thread() exiting\n");
+	pthread_exit(NULL);
+}
+
 
 
 /*
@@ -378,7 +411,6 @@ void cmd_srch(char *argbuf) {
 
 char *serv_fulltext_init(void)
 {
-	CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
 	return "$Id$";
 }

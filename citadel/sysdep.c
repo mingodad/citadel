@@ -66,6 +66,7 @@
 #include "housekeeping.h"
 #include "tools.h"
 #include "serv_crypto.h"
+#include "serv_fulltext.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -97,6 +98,7 @@ struct CitContext masterCC;
 time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
+pthread_t indexer_thread_tid;
 
 int syslog_facility = (-1);
 int enable_syslog = 0;
@@ -410,8 +412,7 @@ struct CitContext *MyContext(void) {
  * Initialize a new context and place it in the list.  The session number
  * used to be the PID (which is why it's called cs_pid), but that was when we
  * had one process per session.  Now we just assign them sequentially, starting
- * at 1 (don't change it to 0 because masterCC uses 0) and re-using them when
- * sessions terminate.
+ * at 1 (don't change it to 0 because masterCC uses 0).
  */
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me;
@@ -787,12 +788,13 @@ void create_worker(void) {
 		return;
 	}
 
-	/* Our per-thread stacks need to be bigger than the default size, otherwise
-	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
-	 * 64-bit Linux.
+	/* Our per-thread stacks need to be bigger than the default size,
+	 * otherwise the MIME parser crashes on FreeBSD, and the IMAP service
+	 * crashes on 64-bit Linux.
 	 */
-	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
-		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n", strerror(ret));
+	if ((ret = pthread_attr_setstacksize(&attr, THREADSTACKSIZE))) {
+		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n",
+			strerror(ret));
 		time_to_die = -1;
 		pthread_attr_destroy(&attr);
 		return;
@@ -807,6 +809,41 @@ void create_worker(void) {
 
 	n->next = worker_list;
 	worker_list = n;
+	pthread_attr_destroy(&attr);
+}
+
+
+/*
+ * Create the indexer thread and begin its operation.
+ */
+void create_indexer_thread(void) {
+	int ret;
+	pthread_attr_t attr;
+
+	if ((ret = pthread_attr_init(&attr))) {
+		lprintf(CTDL_EMERG, "pthread_attr_init: %s\n", strerror(ret));
+		time_to_die = -1;
+		return;
+	}
+
+	/* Our per-thread stacks need to be bigger than the default size,
+	 * otherwise the MIME parser crashes on FreeBSD, and the IMAP service
+	 * crashes on 64-bit Linux.
+	 */
+	if ((ret = pthread_attr_setstacksize(&attr, THREADSTACKSIZE))) {
+		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n",
+			strerror(ret));
+		time_to_die = -1;
+		pthread_attr_destroy(&attr);
+		return;
+	}
+
+	if ((ret = pthread_create(&indexer_thread_tid, &attr, indexer_thread, NULL) != 0))
+	{
+		lprintf(CTDL_ALERT, "Can't create indexer thread: %s\n",
+			strerror(ret));
+	}
+
 	pthread_attr_destroy(&attr);
 }
 

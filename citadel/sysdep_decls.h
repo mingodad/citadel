@@ -41,6 +41,8 @@ void lprintf (enum LogLevel loglevel, const char *format, ...);
 void cprintf (const char *format, ...);
 #endif
 
+extern pthread_key_t MyConKey;			/* TSD key for MyContext() */
+
 extern int enable_syslog;
 
 void init_sysdep (void);
@@ -95,3 +97,6 @@ void tracked_free(void *ptr);
 char *tracked_strdup(const char *s, char *file, int line);
 void dump_heap(void);
 #endif
+
+void create_indexer_thread(void);
+extern pthread_t indexer_thread_tid;

@@ -148,6 +148,10 @@ void master_cleanup(int exitcode) {
 		(*fcn->h_function_pointer)();
 	}
 
+	/* Shut down the indexer thread */
+	lprintf(CTDL_INFO, "Waiting for the indexer thread to shut down\n");
+	pthread_join(indexer_thread_tid, NULL);
+
 	/* Close databases */
 	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();
