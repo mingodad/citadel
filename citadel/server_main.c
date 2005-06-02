@@ -234,7 +234,8 @@ int main(int argc, char **argv)
 	/*
 	 * Now create a bunch of worker threads.
 	 */
-	lprintf(CTDL_DEBUG, "Starting %d worker threads\n", config.c_min_workers-1);
+	lprintf(CTDL_DEBUG, "Starting %d worker threads\n",
+		config.c_min_workers-1);
 	begin_critical_section(S_WORKER_LIST);
 	for (i=0; i<(config.c_min_workers-1); ++i) {
 		create_worker();
@@ -244,11 +245,12 @@ int main(int argc, char **argv)
 	/* Create the indexer thread. */
 	create_indexer_thread();
 
-	/* Now this thread can become a worker as well. */
-	worker_thread(NULL);
-
-	/* Server is exiting. Wait for workers to shutdown. */
-	lprintf(CTDL_INFO, "Server is shutting down.\n");
+	/* This thread is now useless.  It can't be turned into a worker
+	 * thread because its stack is too small, but it can't be killed
+	 * either because the whole server process would exit.  So we just
+	 * join to the first worker thread and exit when it exits.
+	 */
+	pthread_join(worker_list->tid, NULL);
 	master_cleanup(0);
 	return(0);
 }
