@@ -62,23 +62,43 @@
 int imap_do_copy(char *destination_folder) {
 	int i;
 	char roomname[ROOMNAMELEN];
+	struct ctdlroom qrbuf;
+
+	if (IMAP->num_msgs < 1) {
+		return(0);
+	}
 
 	i = imap_grabroom(roomname, destination_folder, 0);
 	if (i != 0) return(i);
 
-	if (IMAP->num_msgs > 0) {
-		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if (IMAP->flags[i] & IMAP_SELECTED) {
-				CtdlCopyMsgToRoom(
-					IMAP->msgids[i],
-					roomname
-				);
-			}
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_SELECTED) {
+			CtdlCopyMsgToRoom(IMAP->msgids[i], roomname);
+		}
+	}
+
+	/* Set the flags... */
+	i = getroom(&qrbuf, roomname);
+	if (i != 0) return(i);
+
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_SELECTED) {
+			CtdlSetSeen(IMAP->msgids[i],
+				((IMAP->flags[i] & IMAP_SEEN) ? 1 : 0),
+				ctdlsetseen_seen,
+				NULL, &qrbuf
+			);
+			CtdlSetSeen(IMAP->msgids[i],
+				((IMAP->flags[i] & IMAP_ANSWERED) ? 1 : 0),
+				ctdlsetseen_answered,
+				NULL, &qrbuf
+			);
 		}
 	}
 
 	return(0);
 }
+
 
 
 /*
@@ -227,10 +247,12 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 		extract_token(this_flag, flags, i, ' ', sizeof this_flag);
 		if (this_flag[0] == '\\') strcpy(this_flag, &this_flag[1]);
 		if (!strcasecmp(this_flag, "Seen")) {
-			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen);
+			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen,
+				NULL, NULL);
 		}
 		if (!strcasecmp(this_flag, "Answered")) {
-			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_answered);
+			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_answered,
+				NULL, NULL);
 		}
 	}
 }
@@ -325,7 +347,7 @@ void imap_append(int num_parms, char *parms[]) {
 	IMAP->transmitted_message[literal_length] = 0;	/* reterminate it */
 
 	lprintf(CTDL_DEBUG, "Converting message format\n");
-        msg = convert_internet_message(IMAP->transmitted_message);
+	msg = convert_internet_message(IMAP->transmitted_message);
 	IMAP->transmitted_message = NULL;
 	IMAP->transmitted_length = 0;
 
@@ -345,23 +367,23 @@ void imap_append(int num_parms, char *parms[]) {
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
-        /* If the user is locally authenticated, FORCE the From: header to
-         * show up as the real sender.  FIXME do we really want to do this?
+	/* If the user is locally authenticated, FORCE the From: header to
+	 * show up as the real sender.  FIXME do we really want to do this?
 	 * Probably should make it site-definable or even room-definable.
 	 *
 	 * For now, we allow "forgeries" if the room is one of the user's
 	 * private mailboxes.
-         */
-        if (CC->logged_in) {
+	 */
+	if (CC->logged_in) {
 	   if ( (CC->room.QRflags & QR_MAILBOX) == 0) {
-                if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
-                if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
-                if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
-                msg->cm_fields['A'] = strdup(CC->user.fullname);
-                msg->cm_fields['N'] = strdup(config.c_nodename);
-                msg->cm_fields['H'] = strdup(config.c_humannode);
+		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
+		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
+		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
+		msg->cm_fields['A'] = strdup(CC->user.fullname);
+		msg->cm_fields['N'] = strdup(config.c_nodename);
+		msg->cm_fields['H'] = strdup(config.c_humannode);
 	    }
-        }
+	}
 
 	/* 
 	 * Can we post here?
@@ -376,7 +398,7 @@ void imap_append(int num_parms, char *parms[]) {
 	else {
 		/* Yes ... go ahead and post! */
 		if (msg != NULL) {
-                	new_msgnum = CtdlSubmitMsg(msg, NULL, "");
+			new_msgnum = CtdlSubmitMsg(msg, NULL, "");
 		}
 		if (new_msgnum >= 0L) {
 			cprintf("%s OK APPEND completed\r\n", parms[0]);

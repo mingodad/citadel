@@ -306,7 +306,8 @@ void CtdlGetSeen(char *buf, int which_set) {
 /*
  * Manipulate the "seen msgs" string (or other message set strings)
  */
-void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
+void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
+		struct ctdluser *which_user, struct ctdlroom *which_room) {
 	struct cdbdata *cdbfr;
 	int i;
 	int is_seen = 0;
@@ -326,7 +327,10 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 		target_msgnum, target_setting, which_set);
 
 	/* Learn about the user and room in question */
-	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+	CtdlGetRelationship(&vbuf,
+		((which_user != NULL) ? which_user : &CC->user),
+		((which_room != NULL) ? which_room : &CC->room)
+	);
 
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
@@ -439,7 +443,10 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 
 	/* lprintf(CTDL_DEBUG, " after optimize: %s\n", vset); */
 	free(msglist);
-	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+	CtdlSetRelationship(&vbuf,
+		((which_user != NULL) ? which_user : &CC->user),
+		((which_room != NULL) ? which_room : &CC->room)
+	);
 }
 
 

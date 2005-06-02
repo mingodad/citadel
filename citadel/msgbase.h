@@ -132,7 +132,8 @@ enum {
 	ctdlsetseen_seen,
 	ctdlsetseen_answered
 };
-void CtdlSetSeen(long target_msgnum, int target_setting, int which_set);
+void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
+		struct ctdluser *which_user, struct ctdlroom *which_room);
 void CtdlGetSeen(char *buf, int which_set);
 
 struct recptypes *validate_recipients(char *recipients);

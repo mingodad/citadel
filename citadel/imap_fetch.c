@@ -681,7 +681,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
 	if (is_peek == 0) {
-		CtdlSetSeen(msgnum, 1, ctdlsetseen_seen);
+		CtdlSetSeen(msgnum, 1, ctdlsetseen_seen, NULL, NULL);
 	}
 }
 

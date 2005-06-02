@@ -81,14 +81,16 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 
 	if (bits_to_twiddle & IMAP_SEEN) {
 		CtdlSetSeen(IMAP->msgids[seq],
-				((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0),
-				ctdlsetseen_seen
+			((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0),
+			ctdlsetseen_seen,
+			NULL, NULL
 		);
 	}
 	if (bits_to_twiddle & IMAP_ANSWERED) {
 		CtdlSetSeen(IMAP->msgids[seq],
-				((IMAP->flags[seq] & IMAP_ANSWERED) ? 1 : 0),
-				ctdlsetseen_answered
+			((IMAP->flags[seq] & IMAP_ANSWERED) ? 1 : 0),
+			ctdlsetseen_answered,
+			NULL, NULL
 		);
 	}
 
