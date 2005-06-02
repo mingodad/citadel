@@ -1,4 +1,7 @@
 $Log$
+Revision 611.1  2005/06/02 16:10:08  ajc
+* tools.c: generated uuid's no longer contain "{" and "}" characters.
+
 Revision 611.0  2005/05/26 04:38:09  ajc
 * THIS IS 6.11
 
@@ -2540,4 +2543,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
