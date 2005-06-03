@@ -368,13 +368,26 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 				/* 
 				 * Set the EUID of the message to the UID of the vCard.
-				 * Also set the Subject if there isn't already one.
 				 */
 				if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
 				s = vcard_get_prop(v, "UID", 0, 0, 0);
                         	if (s != NULL) {
 					msg->cm_fields['E'] = strdup(s);
 					if (msg->cm_fields['U'] == NULL) {
+						msg->cm_fields['U'] = strdup(s);
+					}
+				}
+
+				/*
+				 * If the message has no Subject, set it to the name in
+				 * the vCard.
+				 */
+				if (msg->cm_fields['U'] == NULL) {
+					s = vcard_get_prop(v, "FN", 0, 0, 0);
+					if (s == NULL) {
+						s = vcard_get_prop(v, "N", 0, 0, 0);
+					}
+					if (s != NULL) {
 						msg->cm_fields['U'] = strdup(s);
 					}
 				}

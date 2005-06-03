@@ -1707,14 +1707,11 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 			}
 			if (p != NULL) {
 				strcpy(imm->uid, icalproperty_get_comment(p));
-				strcpy(imm->subject,
-						icalproperty_get_comment(p));
+				/* strcpy(imm->subject, icalproperty_get_comment(p)); old aethera hack */
 			}
 			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
-				strcat(imm->subject, " ");
-				strcat(imm->subject,
-						icalproperty_get_comment(p));
+				strcpy(imm->subject, icalproperty_get_comment(p));
 			}
 			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
 			if (p != NULL) {
