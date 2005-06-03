@@ -379,17 +379,17 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 				}
 
 				/*
-				 * If the message has no Subject, set it to the name in
-				 * the vCard.
+				 * Set the Subject to the name in the vCard.
 				 */
-				if (msg->cm_fields['U'] == NULL) {
-					s = vcard_get_prop(v, "FN", 0, 0, 0);
-					if (s == NULL) {
-						s = vcard_get_prop(v, "N", 0, 0, 0);
+				s = vcard_get_prop(v, "FN", 0, 0, 0);
+				if (s == NULL) {
+					s = vcard_get_prop(v, "N", 0, 0, 0);
+				}
+				if (s != NULL) {
+					if (msg->cm_fields['U'] != NULL) {
+						free(msg->cm_fields['U']);
 					}
-					if (s != NULL) {
-						msg->cm_fields['U'] = strdup(s);
-					}
+					msg->cm_fields['U'] = strdup(s);
 				}
 
 				/* Re-serialize it back into the msg body */
