@@ -8,11 +8,11 @@
 <body>
 <div align="center">
 <h1>C I T A D E L</h1>
-<h2>a messaging and collaboration platform for BBS and groupware
+<h2>a messaging and collaboration platform for BBS bbnd groupware
 applications</h2>
 Copyright &copy;1987-2005 by the Citadel development team:<br>
 <br>
-<table cellpadding="2" cellspacing="2" border="0" align="center">
+<table align="center" border="0" cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
       <td valign="top">Clint Adams<br>
@@ -142,7 +142,7 @@ the web:<br>
   <li>UNCENSORED! BBS, the home of Citadel: <a
  href="http://uncensored.citadel.org">http://uncensored.citadel.org</a></li>
 </ul>
-<hr width="100%" size="2">
+<hr size="2" width="100%">
 <h2 align="center">Table of Contents</h2>
 <ol>
   <li><a href="#GPL">License</a></li>
@@ -247,7 +247,7 @@ LDAP Connector for Citadel</a><br>
   </ol>
 </ol>
 <br>
-<hr width="100%" size="2"><br>
+<hr size="2" width="100%"><br>
 <h2 align="center"><a name="GPL"></a>GNU General Public License<br>
 </h2>
 </div>
@@ -552,7 +552,7 @@ DAMAGES. </p>
 <p align="justify"> </p>
 <h3>END OF TERMS AND CONDITIONS</h3>
 <br>
-<hr width="100%" size="2"><br>
+<hr size="2" width="100%"><br>
 <div align="center">
 <h2><a name="Installation"></a>Installation</h2>
 </div>
@@ -1004,7 +1004,7 @@ command). </li>
 </ul>
 </div>
 <div align="center">
-<hr width="100%" size="2">
+<hr size="2" width="100%">
 <h2><a name="sysop"></a>System Administration</h2>
 </div>
 <div align="justify">
@@ -1304,9 +1304,10 @@ messages around forever (or until they are manually deleted), until
 they become a certain number of days old, or until a certain number of
 additional messages are posted in the room, at which time the oldest
 ones will scroll out.</p>
-<p>When a new Citadel system is first installed, the default system-wide
+<p>When a new Citadel system is first installed, the default
+system-wide
 expire policy is set to 'manual' -- no automatic purging of messages
-takes place anywhere.  For public message boards, you will probably want
+takes place anywhere. For public message boards, you will probably want
 to set some sort of automatic expire policy, in order to prevent your
 message base from growing forever.</p>
 <p>You will notice that you can also fall back to the default expire
@@ -1572,7 +1573,8 @@ rooms, because the review of content is considered one of their roles.
 If you wish to change these policies, the next two options allow you
 to. You may 'Allow Aides to Zap (forget) rooms', in which case they may
 use the <tt><b>Z</b>ap</tt> command just like any other user.
-Aides may also <tt><b>.G</b>oto</tt> any private mailbox belonging to any
+Aides may also <tt><b>.G</b>oto</tt> any private mailbox belonging to
+any
 user, using a special room name format.</p>
 <p>If your local security and/or privacy policy dictates that you keep
 a
@@ -1585,7 +1587,7 @@ only the sender and recipient of each individual message will receive a
 copy.</p>
 <p>The next set of options deals with the tuning of your system. It is
 usually safe to leave these untouched.</p>
-<pre>Server connection idle timeout (in seconds) [900]: <br>Maximum concurrent sessions [20]: <br>Maximum message length [2147483647]: <br>Minimum number of worker threads [5]: <br>Maximum number of worker threads [256]: <br></pre>
+<pre>Server connection idle timeout (in seconds) [900]: <br>Maximum concurrent sessions [20]: <br>Maximum message length [10000000]: <br>Minimum number of worker threads [5]: <br>Maximum number of worker threads [256]: <br></pre>
 <p>The 'Server connection idle timeout' is for the connection between
 client and server software. It is <b>not</b> an idle timer for the
 user interface. 900 seconds (15 minutes) is the default and a sane
@@ -1611,15 +1613,14 @@ with a much smaller thread pool. If you don't know the programming
 theory
 behind multithreaded servers, you should leave these parameters alone.</p>
 <p>The next set of options affect how Citadel behaves on a network.</p>
-<pre>How often to run network jobs (in seconds) [3600]: <br><br>POP3 server port (-1 to disable) [110]:<br><br>IMAP server port (-1 to disable) [143]:<br><br>SMTP MTA server port (-1 to disable) [25]: <br><br>SMTP MSA server port (-1 to disable) [587]: <br><br>Correct forged From: lines during authenticated SMTP [Yes]:<br><br></pre>
-<p>"How often to run network jobs" refers to the sharing of content on
-a
-Citadel network. If your system is on a Citadel network, this
-configuration
-item dictates how often the Citadel server will contact other Citadel
-servers to send and receive messages. In reality, this will happen more
-frequently than you specify, because other Citadel servers will be
-contacting yours at regular intervals as well.</p>
+<pre>Server IP address (0.0.0.0 for 'any') [0.0.0.0]:<br>POP3 server port (-1 to disable) [110]:<br>POP3S server port (-1 to disable) [995]:<br>IMAP server port (-1 to disable) [143]:<br>IMAPS server port (-1 to disable) [993]:<br>SMTP MTA server port (-1 to disable) [25]:<br>SMTP MSA server port (-1 to disable) [587]:<br>SMTPS server port (-1 to disable) [465]:<br>Correct forged From: lines during authenticated SMTP [Yes]:<br></pre>
+<p>"Server IP address" refers to the IP address on <span
+ style="font-style: italic;">your server</span> to which Citadel's
+protocol services should be bound.&nbsp; Normally you will leave this
+set to 0.0.0.0, which will cause Citadel to listen on all of your
+server's interfaces.&nbsp; However, if you are running multiple
+Citadels on a server with multiple IP addresses, this is where you
+would specify which one to bind this instance of Citadel to.</p>
 <p>Then you can specify TCP port numbers for the SMTP, POP3, and IMAP
 services. For a system being used primarily for Internet e-mail, these
 are essential, so you'll want to specify the standard port numbers: 25,
@@ -1627,16 +1628,39 @@ are essential, so you'll want to specify the standard port numbers: 25,
 though, then you might want to choose other, unused port numbers, or
 enter -1 for any protocol
 to disable it entirely.</p>
-<p>You'll also notice that you can specify two port numbers for SMTP: one
-for MTA (Mail Transport Agent) and one for MSA (Mail Submission Agent).  The
-traditional ports to use for these purposes are 25 and 587.  If you are
-running an external MTA, such as Postfix (which submits mail to Citadel using
+<p>You'll also notice that you can specify two port numbers for SMTP:
+one
+for MTA (Mail Transport Agent) and one for MSA (Mail Submission Agent).
+The
+traditional ports to use for these purposes are 25 and 587. If you are
+running an external MTA, such as Postfix (which submits mail to Citadel
+using
 LMTP) or Sendmail (which submits mail to Citadel using the 'citmail'
-delivery agent), that external MTA will be running on port 25, and you should
-specify "-1" for the Citadel MTA port to disable it.  The MSA port (again,
-usually 587) would be the port used by end-user mail client programs such as
-Aethera, Thunderbird, Eudora, or Outlook, to submit mail into the system.
-All connections to the MSA port <b>must</b> use Authenticated SMTP.</p>
+delivery agent), that external MTA will be running on port 25, and you
+should
+specify "-1" for the Citadel MTA port to disable it. The MSA port
+(again,
+usually 587) would be the port used by end-user mail client programs
+such as
+Aethera, Thunderbird, Eudora, or Outlook, to submit mail into the
+system.
+All connections to the MSA port <b>must</b> use Authenticated SMTP.<br>
+</p>
+<p>The protocols ending in "S" (POP3S, IMAPS, and SMTPS) are
+SSL-encrypted.&nbsp; Although all of these protocols support the
+STARTTLS command, older client software sometimes requires connecting
+to "always encrypted" server ports.&nbsp; Usually when you are looking
+at a client program that gives you a choice of "SSL or TLS," the SSL
+option will connect to one of these dedicated ports, while the TLS
+option will connect to the unencrypted port and then issue a STARTTLS
+command to begin encryption.&nbsp; (It is worth noting that this is <span
+ style="font-style: italic;">not</span> the proper use of the acronyms
+SSL and TLS, but that's how they're usually used in many client
+programs.)<br>
+</p>
+<p>All of the default port numbers, including the encrypted ones, are
+the standard ones.<br>
+</p>
 <p>The question about correcting forged From: lines affects how Citadel
 behaves with authenticated SMTP clients. Citadel does not ever allow
 third-party SMTP relaying from unauthenticated clients -- any incoming
@@ -1658,10 +1682,16 @@ sense dictates that this is a good idea. Nevertheless, if you want to
 suppress
 this behavior, answer 'No' at the prompt (the default is 'Yes') and the
 headers
-will never be altered.</p>
+will never be altered.<br>
+<span style="font-family: monospace;"><br>
+Connect this Citadel to an LDAP directory [No]: No</span><br>
+</p>
+<p>The LDAP configuration options are discussed elsewhere in this
+document.<br>
+</p>
 <p>The final set of options configures system-wide defaults for the
 auto-purger:</p>
-<pre>Default user purge time (days) [120]: <br><br>Default room purge time (days) [30]: <br><br>System default message expire policy (? for list) [2]: <br><br>Keep how many messages online? [150]:<br><br>Mailbox default message expire policy (? for list) [1]: <br><br></pre>
+<pre>Default user purge time (days) [120]: <br>Default room purge time (days) [30]: <br>System default message expire policy (? for list) [0]: <br>Keep how many messages online? [150]:<br>Mailbox default message expire policy (? for list) [0]:<br>How often to run network jobs (in seconds) [1800]:<br>Enable full text search index (warning: resource intensive) [Yes]: Yes<br>Hour to run purges (0-23) [4]:<br></pre>
 <p>Any user who does not log in for the period specified in 'Default
 user purge time' will be deleted the next time a purge is run. This
 setting may be modified on a per-user basis.</p>
@@ -1681,12 +1711,39 @@ want
 to. This can allow you, for example, to set a policy under which old
 messages scroll out of public rooms, but private mail stays online
 indefinitely
-until deleted by the mailbox owners.</p>
-<pre>Save this configuration? No<br></pre>
+until deleted by the mailbox owners.<br>
+</p>
+<p>"How often to run network jobs" refers to the sharing of content on
+a
+Citadel network. If your system is on a Citadel network, this
+configuration
+item dictates how often the Citadel server will contact other Citadel
+servers to send and receive messages. In reality, this will happen more
+frequently than you specify, because other Citadel servers will be
+contacting yours at regular intervals as well.<br>
+</p>
+<p>"Hour to run purges" determines when expired and/or deleted objects
+are purged from the database.&nbsp; These purge operations are
+typically run overnight and automatically, sometime during whatever
+hour you specify.&nbsp; If your site is much busier at night than
+during the day, you may choose to have the auto-purger run during the
+day.</p>
+<p>"Enable full text search index," if enabled, instructs the server to
+build and maintain a searchable index of all messages on the
+system.&nbsp; This is a time and resource intensive process -- it could
+take days to build the index if you enable it on a large
+database.&nbsp; Once enabled, however, it will be updated incrementally
+and will not have any noticeable impact on the interactive response
+time of your system.&nbsp; The full text index is currently only
+searchable when using IMAP clients; other search facilities will be
+made available in the near future.<br>
+<span style="font-family: monospace;"></span></p>
+<p><span style="font-family: monospace;">Save this configuration? No</span><br>
+</p>
 <p>When you're done, enter 'Yes' to confirm the changes, or 'No' to
 discard the changes.</p>
 </div>
-<hr width="100%" size="2">
+<hr size="2" width="100%">
 <h2 align="center"><a name="Configuring_Citadel_for_Internet_e-mail"></a>Configuring
 Citadel for Internet e-mail</h2>
 <div align="justify">
@@ -1982,7 +2039,7 @@ you simply click on (or paste into your browser if you can't click on
 URL's
 in your e-mail software) and the confirmation is automatically
 completed.</p>
-<hr width="100%" size="2">
+<hr size="2" width="100%">
 <center>
 <h2><a name="Building_or_joining_a_Citadel_network"></a>Building or
 joining a Citadel network</h2>
@@ -2316,8 +2373,10 @@ Authority
 when you order the certificate. </li>
   <li>When the certificate is received, simply save it as <tt>citadel.cer</tt>
 and restart the Citadel server. </li>
-  <li>If your certificate authority delivers a 'chained' certificate (one
-with intermediate certificate authorities), simply append the intermediate
+  <li>If your certificate authority delivers a 'chained' certificate
+(one
+with intermediate certificate authorities), simply append the
+intermediate
 certificate after your server's own certificate in the <tt>citadel.cer</tt>
 file.</li>
 </ul>
