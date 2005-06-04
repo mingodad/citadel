@@ -259,23 +259,16 @@ void cal_process_object(icalcomponent *cal,
 		lprintf(9, "...done.\n");
 
 		/* Display the Accept/Decline buttons */
-		wprintf("<TR><TD COLSPAN=2>"
-			"<FORM METHOD=\"GET\" "
-			"ACTION=\"/respond_to_request\">\n"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Accept\">\n"
-			"&nbsp;&nbsp;"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Tentative\">\n"
-			"&nbsp;&nbsp;"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Decline\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
-				"VALUE=\"%ld\">"
-			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
-				"VALUE=\"%s\">"
-			"</FORM>"
-			"</TD></TR>\n",
+		wprintf("<TR><TD>How would you like to respond to this invitation?</td>"
+			"<td><FONT SIZE=+1>"
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">Accept</a>"
+			" | "
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">Tentative</a>"
+			" | "
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">Decline</a>"
+			"</FONT></TD></TR>\n",
+			msgnum, cal_partnum,
+			msgnum, cal_partnum,
 			msgnum, cal_partnum
 		);
 
@@ -293,21 +286,14 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/* Display the update buttons */
-		wprintf("<TR><TD COLSPAN=2>"
+		wprintf("<TR><TD>"
 			"Click <i>Update</i> to accept this reply and "
 			"update your calendar."
-			"<FORM METHOD=\"GET\" "
-			"ACTION=\"/handle_rsvp\">\n"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Update\">\n"
-			"&nbsp;&nbsp;"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Ignore\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
-				"VALUE=\"%ld\">"
-			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
-				"VALUE=\"%s\">"
-			"</FORM>"
+			"</td><td><font size=+1>"
+			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Update\">Update</a>"
+			" | "
+			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Ignore\">Ignore</a>"
+			"</font>"
 			"</TD></TR>\n",
 			msgnum, cal_partnum
 		);
