@@ -741,7 +741,9 @@ void summarize_message(long msgnum, int is_new) {
 			strcpy(summ.from, &buf[5]);
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
-			strcpy(summ.subj, &buf[5]);
+			if (strlen(&buf[5]) > 0) {
+				strcpy(summ.subj, &buf[5]);
+			}
 		}
 		/* if (!strncasecmp(buf, "rfca=", 5)) {
 			strcat(summ.from, " <");
