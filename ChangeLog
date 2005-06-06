@@ -1,4 +1,7 @@
 $Log$
+Revision 611.3  2005/06/06 16:20:36  ajc
+* GroupDAV URI escape character is now '%' in order to be consistent...
+
 Revision 611.2  2005/06/04 04:07:36  ajc
 * Calendar invitations: changed "Accept/Tentative/Decline" buttons to
   links in order to avoid them being in nested forms.
@@ -2547,4 +2550,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
