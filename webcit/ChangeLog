@@ -1,4 +1,8 @@
 $Log$
+Revision 611.4  2005/06/06 23:50:17  ajc
+* Made some changes to the calendar/uuid logic to fix a bug that caused
+  duplicate entries for an event to appear in some situations
+
 Revision 611.3  2005/06/06 16:20:36  ajc
 * GroupDAV URI escape character is now '%' in order to be consistent...
 
@@ -2550,3 +2554,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

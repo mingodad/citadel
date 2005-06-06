@@ -295,6 +295,7 @@ void cal_process_object(icalcomponent *cal,
 			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Ignore\">Ignore</a>"
 			"</font>"
 			"</TD></TR>\n",
+			msgnum, cal_partnum,
 			msgnum, cal_partnum
 		);
 

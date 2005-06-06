@@ -1746,11 +1746,13 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	/* First determine if this is a calendar or tasks room */
 	if ( (CC->curr_view != VIEW_CALENDAR)
 	   &&(CC->curr_view != VIEW_TASKS) ) {
+		lprintf(CTDL_DEBUG, "*** FIXME FOOFOO NOT SAVING FOOFOO FIXME ***\n");
 		return(0);		/* Not a vCalendar-centric room */
 	}
 
 	/* It must be an RFC822 message! */
 	if (msg->cm_format_type != 4) {
+		lprintf(CTDL_DEBUG, "*** FIXME BARBAR NOT SAVING BARBAR FIXME ***\n");
 		return 1;	/* You tried to save a non-RFC822 message! */
 	}
 	

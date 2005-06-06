@@ -2078,7 +2078,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	lprintf(CTDL_DEBUG, "Final selection: %s\n", actual_rm);
 	if (strcasecmp(actual_rm, CC->room.QRname)) {
-		getroom(&CC->room, actual_rm);
+		/* getroom(&CC->room, actual_rm); */
+		usergoto(actual_rm, 0, 1, NULL, NULL);
 	}
 
 	/*
@@ -2242,7 +2243,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* Go back to the room we started from */
 	lprintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CC->room.QRname))
-		getroom(&CC->room, hold_rm);
+		/* getroom(&CC->room, hold_rm); */
+		usergoto(hold_rm, 0, 1, NULL, NULL);
 
 	/* For internet mail, generate delivery instructions.
 	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
