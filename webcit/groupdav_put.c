@@ -83,7 +83,8 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
-			lprintf(9, "HTTP/1.1 412 Precondition Failed\r\n");
+			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
+				atol(dav_ifmatch), old_msgnum);
 			groupdav_common_headers();
 			wprintf("Content-Length: 0\r\n\r\n");
 			return;
