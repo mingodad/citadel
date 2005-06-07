@@ -1,5 +1,15 @@
 /* $Id$ */
 
+/*
+ * Uncomment to dump an HTTP trace to stderr
+#define HTTP_TRACING 1
+ */
+
+#ifdef HTTP_TRACING
+#undef HAVE_ZLIB_H
+#undef HAVE_ZLIB
+#endif
+
 #ifdef HAVE_ZLIB_H
 #include <zlib.h>
 #endif

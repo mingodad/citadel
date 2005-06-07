@@ -286,16 +286,12 @@ void context_loop(int sock)
 
 		/*
 		 * Can we compress?
-		 * (Don't compress if HTTP_TRACING is active, because
-		 * the compressed data obviously doesn't log well.)
 		 */
-#ifndef HTTP_TRACING
 		if (!strncasecmp(buf, "Accept-encoding:", 16)) {
 			if (strstr(&buf[16], "gzip")) {
 				gzip_ok = 1;
 			}
 		}
-#endif /* HTTP_TRACING */
 
 		/*
 		 * Browser-based sessions use cookies for session authentication

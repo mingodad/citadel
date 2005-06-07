@@ -7,10 +7,6 @@
  *
  */
 
-/*
- * Uncomment to dump an HTTP trace to stderr
- */
-#define HTTP_TRACING 1
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -275,7 +271,6 @@ void end_burst(void)
 	WC->burst_len = 0;
 	WC->burst = NULL;
 
-#ifndef HTTP_TRACING
 #ifdef HAVE_ZLIB
 	/* Handle gzip compression */
 	if (WC->gzip_ok) {
@@ -298,7 +293,6 @@ void end_burst(void)
 		}
 	}
 #endif				/* HAVE_ZLIB */
-#endif				/*  HTTP_TRACING */
 
 	wprintf("Content-length: %d\r\n\r\n", the_len);
 	client_write(the_data, the_len);
