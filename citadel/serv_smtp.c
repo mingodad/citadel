@@ -1213,6 +1213,7 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_fields['A'] = strdup("Citadel");
         bmsg->cm_fields['O'] = strdup(MAILROOM);
         bmsg->cm_fields['N'] = strdup(config.c_nodename);
+        bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
 
 	if (give_up) bmsg->cm_fields['M'] = strdup(
 "A message you sent could not be delivered to some or all of its recipients\n"

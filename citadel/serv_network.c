@@ -1248,9 +1248,13 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 		free(msg->cm_fields['N']);
 	}
 
+	if (msg->cm_fields['U'] == NULL) {
+		free(msg->cm_fields['U']);
+	}
+
 	msg->cm_fields['A'] = strdup(BOUNCESOURCE);
 	msg->cm_fields['N'] = strdup(config.c_nodename);
-	
+	msg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
 
 	/* prepend our node to the path */
 	if (msg->cm_fields['P'] != NULL) {
