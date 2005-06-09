@@ -336,7 +336,7 @@ do_config () {
 # 1. Gather information about the target system
 
 [ -n "$MAKE" ] && [ -x `which gmake` ] && MAKE=`which gmake`
-[ -z "$MAKE" ] && [ -x `which make` ] && MAKE=`which make`
+##### FIXME: non-GNU make does not work #####[ -z "$MAKE" ] && [ -x `which make` ] && MAKE=`which make`
 clear
 
 os=`uname`
@@ -349,6 +349,7 @@ os=`uname`
 
 echo MAKE is $MAKE
 echo WGET is $WGET 
+export MAKE WGET
 
 # 1A. Do we use the native packaging system or build our own copy of Citadel?
 
