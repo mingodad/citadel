@@ -1196,7 +1196,7 @@ void imap_delete(int num_parms, char *parms[])
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name, or access denied\r\n",
 			parms[0]);
