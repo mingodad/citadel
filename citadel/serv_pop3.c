@@ -122,7 +122,7 @@ void pop3_user(char *argbuf) {
 	strcpy(username, argbuf);
 	striplt(username);
 
-	lprintf(CTDL_DEBUG, "Trying <%s>\n", username);
+	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
@@ -277,7 +277,7 @@ void pop3_pass(char *argbuf) {
 	strcpy(password, argbuf);
 	striplt(password);
 
-	lprintf(CTDL_DEBUG, "Trying <%s>\n", password);
+	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", password); */
 	if (CtdlTryPassword(password) == pass_ok) {
 		pop3_login();
 	}
@@ -599,7 +599,12 @@ void pop3_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(CTDL_INFO, "POP3: %s\r\n", cmdbuf);
+	if (!strncasecmp(cmdbuf, "PASS", 4)) {
+		lprintf(CTDL_INFO, "POP3: PASS...\r\n");
+	}
+	else {
+		lprintf(CTDL_INFO, "POP3: %s\r\n", cmdbuf);
+	}
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
