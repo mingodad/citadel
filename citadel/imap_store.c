@@ -227,7 +227,6 @@ void imap_uidstore(int num_parms, char *parms[]) {
 
 	strcpy(items, "");
 	for (i=4; i<num_parms; ++i) {
-		lprintf(9, "item %d: %s\n", i, parms[i]);
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
