@@ -102,7 +102,7 @@ void cal_process_object(icalcomponent *cal,
 		    case ICAL_METHOD_REQUEST:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/vcalendar.gif\">"
+				"SRC=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>Meeting invitation</B>"
 				"</TD></TR>\n"
@@ -111,7 +111,7 @@ void cal_process_object(icalcomponent *cal,
 		    case ICAL_METHOD_REPLY:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/vcalendar.gif\">"
+				"SRC=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>Attendee's reply to your invitation</B>"
 				"</TD></TR>\n"
@@ -120,7 +120,7 @@ void cal_process_object(icalcomponent *cal,
 		    case ICAL_METHOD_PUBLISH:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/vcalendar.gif\">"
+				"SRC=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>Published event</B>"
 				"</TD></TR>\n"
@@ -357,7 +357,7 @@ void respond_to_request(void) {
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<IMG SRC=\"static/vcalendar.gif\" ALIGN=CENTER>"
+			"<IMG SRC=\"static/calarea_48x.gif\" ALIGN=CENTER>"
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "accept")) {
@@ -415,7 +415,7 @@ void handle_rsvp(void) {
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<IMG SRC=\"static/vcalendar.gif\" ALIGN=CENTER>"
+			"<IMG SRC=\"static/calarea_48x.gif\" ALIGN=CENTER>"
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "update")) {

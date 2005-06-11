@@ -283,7 +283,7 @@ void embed_newmail_button(void) {
 	if ( (WC->new_mail > WC->remember_new_mail) && (WC->new_mail>0) ) {
 		wprintf(
 			"<A HREF=\"/dotgoto?room=_MAIL_\">"
-			"<IMG SRC=\"/static/mail.gif\" border=0 "
+			"<IMG SRC=\"/static/privatemess_32x.gif\" border=0 "
 			"ALT=\"You have new mail\">"
 			"<br /><SPAN CLASS=\"youhavemail\">"
 			"%d new mail</SPAN></A>", WC->new_mail);

@@ -42,7 +42,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
 		"<td>"
 		"<span class=\"titlebar\">"
-		"<img src=\"/static/users-icon.gif\">"
+		"<img src=\"/static/usermanag_48x.gif\">"
 		"Edit or delete users"
 		"</span></td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"

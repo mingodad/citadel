@@ -53,7 +53,7 @@ void whobbs(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<IMG SRC=\"/static/usermanag_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");

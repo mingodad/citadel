@@ -189,7 +189,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
-		"<img src=\"/static/vcard.gif\">"
+		"<img src=\"/static/savecontact_48x.gif\">"
 		"Edit contact information"
 		"</SPAN>"
 		"</TD></TR></TABLE>\n"
