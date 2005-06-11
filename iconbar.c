@@ -112,7 +112,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-				"SRC=\"/static/summary.gif\">");
+				"SRC=\"/static/summscreen_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Summary");
@@ -128,7 +128,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-				"SRC=\"/static/mail.gif\">");
+				"SRC=\"/static/privatemess_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Mail");
@@ -144,7 +144,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcalendar.gif\">");
+			"SRC=\"/static/calarea_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Calendar");
@@ -160,7 +160,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcard.gif\">");
+			"SRC=\"/static/savecontact_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Contacts");
@@ -176,7 +176,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/note.gif\">");
+			"SRC=\"/static/storenotes_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Notes");
@@ -192,7 +192,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/tasks.gif\">");
+			"SRC=\"/static/taskmanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Tasks");
@@ -207,7 +207,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/rooms-icon.gif\">");
+			"SRC=\"/static/chatrooms_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Rooms");
@@ -222,7 +222,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/users-icon.gif\">");
+			"SRC=\"/static/usermanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Who is online?");
@@ -240,7 +240,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/chat-icon.gif\">");
+			"SRC=\"/static/citadelchat_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Chat");
@@ -257,7 +257,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/advanced-icon.gif\">");
+			"SRC=\"/static/advanpage_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Advanced");
@@ -273,7 +273,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/advanced-icon.gif\">");
+			"SRC=\"/static/advanpage_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Administration");
@@ -409,7 +409,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_summary\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/summary.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/summscreen_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Summary</B><br />"
 		"Your summary page"
@@ -422,7 +422,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_inbox\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/mail.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/privatemess_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Mail (inbox)</B><br />"
 		"A shortcut to your e-mail Inbox."
@@ -436,7 +436,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/vcard.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/savecontact_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Contacts</B><br />"
 		"Your personal address book."
@@ -450,7 +450,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/note.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/storenotes_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Notes</B><br />"
 		"Your personal notes."
@@ -465,7 +465,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/vcalendar.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/calarea_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Calendar</B><br />"
 		"A shortcut to your personal calendar."
@@ -478,7 +478,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/tasks.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/taskmanag/48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Tasks</B><br />"
 		"A shortcut to your personal task list."
@@ -492,7 +492,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_rooms\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/rooms-icon.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/chatrooms_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Rooms</B><br />"
 		"Clicking this icon displays a list of all accesible "
@@ -506,7 +506,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_users\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/users-icon.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/usermanag_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Who is online?</B><br />"
 		"Clicking this icon displays a list of all users "
@@ -520,7 +520,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_chat\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/chat-icon.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/citadelchat_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Chat</B><br />"
 		"Clicking this icon enters real-time chat mode "
@@ -535,7 +535,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/advanpage_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Advanced options</B><br />"
 		"Access to the complete menu of Citadel functions."
@@ -613,7 +613,7 @@ void commit_iconbar(void) {
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 	wprintf(
 		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
-		"<IMG SRC=\"/static/advanced-icon.gif\">"
+		"<IMG SRC=\"/static/advanpage_48x.gif\">"
 		"&nbsp;"
 		"Your icon bar has been updated.  Please select any of its "
 		"choices to continue."

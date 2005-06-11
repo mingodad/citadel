@@ -333,7 +333,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (pass == 1) {
 			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
+			"<IMG ALIGN=CENTER SRC=\"/static/savecontact_48x.gif\">"
 			"<FONT SIZE=+1><B>");
 			escputs(displayname);
 			wprintf("</B></FONT>");
