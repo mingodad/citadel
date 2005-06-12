@@ -780,7 +780,8 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	sprintf(buf, "%ld", time(NULL));
 	msg->cm_fields['T'] = strdup(buf);
 	msg->cm_fields['A'] = strdup(CC->room.QRname);
-	msg->cm_fields['U'] = strdup(CC->room.QRname);
+	snprintf(buf, sizeof buf, "[%s]", CC->room.QRname);
+	msg->cm_fields['U'] = strdup(buf);
 	sprintf(buf, "room_%s@%s", CC->room.QRname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
 		if (isspace(buf[i])) buf[i]='_';
