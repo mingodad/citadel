@@ -370,66 +370,58 @@ td li.frameset, .elements li.frameset {
 	input#toggler, .toolbar { display: none }
 }
 
-<!-- begin tree view styles -->
+<!-- begin nanotree styles -->
 
-#mainMenu {
-  border: 1px solid #CCC;
-  color: #000;
+.treetitle {
+	padding:2px;
+	cursor:default;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+	color: #000000;
+}
+.editednode {
+	padding:2px;
+	cursor:default;
+	background-color: #FFFFFF;;
+	color: #000000;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.editednodeinput {
+	background-color: #FFFFFF;;
+	color: #000000;
+	
+	width: 150px;
+	height: 17px;
+	
+	border-style: solid;
+	border-width: 1px;
+	border-color: #000000;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.treetitleselectedfocused {
+	padding:2px;
+	cursor:default;
+	background-color: highlight;
+	color: highlighttext;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.treetitleselectedblured {
+	padding:2px;
+	cursor:default;
+	background-color: menu;
+	color: windowtext;
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
 }
 
-#menuList {
-  margin: 0px;
-  padding: 10px 0px 10px 15px;
-}
-
-li.menubar {
-  background: url(/static/plus.gif) no-repeat 0em 0.3em;
-  font-size: 12px;
-  line-height: 1.5em;
-  list-style: none outside;
-}
-
-.menu, .submenu {
-  display: none;
-  margin-left: 15px;
-  padding: 0px;
-}
-
-.menu li, .submenu li {
-  background: url(/static/square.gif) no-repeat 0em 0.3em;
-  list-style: none outside;
-}
-
-a.actuator {
-  background-color: transparent;
-  color: #000;
-  font-size: 12px;
-  padding-left: 15px;
-  text-decoration: none;
-}
-
-a.actuator:hover {
-  text-decoration: underline;
-}
-
-.menu li a, .submenu li a {
-  background-color: transparent;
-  color: #000;
-  font-size: 12px;
-  padding-left: 15px;
-  text-decoration: none;
-}
-
-.menu li a:hover, submenu li a:hover {
-  /*border-bottom: 1px dashed #000;*/
-  text-decoration: underline;
-}
-
-span.key {
-  text-decoration: underline;
-}
-
-<!-- end tree view styles -->
+<!-- end nanotree styles -->
 
 </style>
 

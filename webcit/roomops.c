@@ -2208,13 +2208,39 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	int actnum = 0;
 	int has_subfolders = 0;
 
-	/* Include the menu expanding/collapsing code */
-	wprintf("<script type=\"text/javascript\" src=\"/static/menuExpandable3.js\"></script>\n");
+	/* include NanoTree */
+	wprintf("<script type=\"text/javascript\" language=\"JavaScript\" src=\"static/nanotree.js\">\n");
+
+	/* initialize NanoTree */
+	wprintf("<script type=\"text/javascript\" language=\"JavaScript\">			\n"
+		"	showRootNode = true;							\n"
+		"	sortNodes = false;							\n"
+		"	dragable = false;							\n"
+		"	lookAndFeel = WINDOWS_XP;						\n"
+		"										\n"
+		"	function do_nanotree_init() {						\n"
+		"		container = document.getElementById('roomlist_div');		\n"
+		"		showTree('');							\n"
+		"	}									\n"
+		"										\n"
+		"	function standardClick(treeNode) {					\n"
+		"		/* FIXME call a dotgoto function here */			\n"
+		"	}									\n"
+		"										\n"
+		"	function nodeEdited(treeNode) {						\n"
+		"		/* FIXME can we make use of this? */				\n"
+		"	}									\n"
+		"										\n"
+		"	var closedGif = 'static/' + getLookAndFeelPath() + '/folder_closed.gif';\n"
+		"	var openGif = 'static/' + getLookAndFeelPath() + '/folder_open.gif';	\n"
+		"	var pageIcon = 'static/page16x16.gif';					\n"
+		"	var userIcon = 'static/user_16x16.gif';					\n"
+		"	var helpIcon = 'static/help_16x16.gif';					\n"
+		"</script>									\n"
+	);
 
 	/* BEGIN TREE MENU */
-	wprintf("<div style=\"background: white\">\n");
-	wprintf("<div id=\"mainMenu\">\n");
-	wprintf("<UL id=\"menuList\">\n");
+	wprintf("<UL>\n");
 	levels = 0;
 	oldlevels = 0;
 
@@ -2237,10 +2263,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 
 		if (has_subfolders) {
-			wprintf("<LI");
-			if (levels == 1) wprintf(" class=\"menubar\"");
-			wprintf(">");
-			wprintf("<A href=\"#\" id=\"actuator%d\" class=\"actuator\"></a>\n", actnum);
+			wprintf("<LI>(has subfolders)");
 		}
 		else {
 			wprintf("<LI>");
@@ -2275,21 +2298,19 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		wprintf("\n");
 
 		if (has_subfolders) {
-			wprintf("<UL id=\"menu%d\" class=\"%s\">\n",
-				actnum++,
-				( (levels == 1) ? "menu" : "submenu")
-			);
+			wprintf("<UL>\n");
 		}
 
 		oldlevels = levels;
 	}
 	wprintf("</UL></UL>\n");
+/*
 	wprintf("<img src=\"/static/blank.gif\" onLoad = ' \n");
 	for (i=0; i<actnum; ++i) {
 		wprintf(" initializeMenu(\"menu%d\", \"actuator%d\");\n", i, i);
 	}
 	wprintf(" ' > \n");
-	wprintf("</DIV>\n");
+ */
 	/* END TREE MENU */
 }
 
