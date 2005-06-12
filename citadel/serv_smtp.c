@@ -92,6 +92,7 @@ struct citsmtp {		/* Information about the current session */
 	int delivery_mode;
 	int message_originated_locally;
 	int is_lmtp;
+	int is_unfiltered;
 	int is_msa;
 };
 
@@ -165,6 +166,16 @@ void smtp_msa_greeting(void) {
 void lmtp_greeting(void) {
 	smtp_greeting();
 	SMTP->is_lmtp = 1;
+}
+
+
+/*
+ * We also have an unfiltered LMTP socket that bypasses spam filters.
+ */
+void lmtp_unfiltered_greeting(void) {
+	smtp_greeting();
+	SMTP->is_lmtp = 1;
+	SMTP->is_unfiltered = 1;
 }
 
 
@@ -454,6 +465,7 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(int do_response) {
 	int is_lmtp;
+	int is_unfiltered;
 
 	/*
 	 * Our entire SMTP state is discarded when a RSET command is issued,
@@ -461,6 +473,7 @@ void smtp_rset(int do_response) {
 	 * we save it for later.
 	 */
 	is_lmtp = SMTP->is_lmtp;
+	is_unfiltered = SMTP->is_unfiltered;
 
 	memset(SMTP, 0, sizeof(struct citsmtp));
 
@@ -479,6 +492,7 @@ void smtp_rset(int do_response) {
 	 * Reinstate this little piece of information we saved (see above).
 	 */
 	SMTP->is_lmtp = is_lmtp;
+	SMTP->is_unfiltered = is_unfiltered;
 
 	if (do_response) {
 		cprintf("250 2.0.0 Zap!\r\n");
@@ -724,7 +738,12 @@ void smtp_data(void) {
 	 * submission (such as virus checkers or spam filters), call them now
 	 * and give them an opportunity to reject the message.
 	 */
-	scan_errors = PerformMessageHooks(msg, EVT_SMTPSCAN);
+	if (SMTP->is_unfiltered) {
+		scan_errors = 0;
+	}
+	else {
+		scan_errors = PerformMessageHooks(msg, EVT_SMTPSCAN);
+	}
 
 	if (scan_errors > 0) {	/* We don't want this message! */
 
@@ -1689,6 +1708,12 @@ char *serv_smtp_init(void)
 	CtdlRegisterServiceHook(0,			/* local LMTP */
 				"lmtp.socket",
 				lmtp_greeting,
+				smtp_command_loop,
+				NULL);
+
+	CtdlRegisterServiceHook(0,			/* local LMTP */
+				"lmtp-unfiltered.socket",
+				lmtp_unfiltered_greeting,
 				smtp_command_loop,
 				NULL);
 

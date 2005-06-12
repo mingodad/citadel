@@ -1945,8 +1945,17 @@ server, while keeping the existing Unix mailboxes intact.&nbsp;
 However, it is beyond the scope of this document to detail the finer
 points of the configuration of Postfix or any other mailer, so refer to
 the documentation to those programs and keep in mind that Citadel has
-LMTP support.<span style="font-family: monospace;"><br>
-</span></p>
+LMTP support.<span style="font-family: monospace;"></p>
+<p>There are actually <i>two</i> LMTP sockets.  One is called
+<tt>lmtp.socket</tt> and the other is called <tt>lmtp-unfiltered.socket</tt>
+(both are found in your Citadel directory).  The difference should be
+obvious: messages submitted via <tt>lmtp.socket</tt> are subject to any
+spam filtering you may have configured (such as SpamAssassin), while messages
+submitted via <tt>lmtp-unfiltered.socket</tt> will bypass the filters.  You
+would use the filtered socket when receiving mail from an external MTA such
+as Postfix, but you might want to use the unfiltered socket with utilities
+such as fetchmail.</p>
+<br>
 <p>For outbound mail, you
 can either allow Citadel to perform
 deliveries directly
