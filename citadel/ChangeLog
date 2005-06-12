@@ -1,68 +1,71 @@
 $Log$
+Revision 651.0  2005/06/12 03:46:30  ajc
+* THIS IS 6.51
+
 Revision 647.42  2005/06/12 03:31:33  ajc
 * ChangeLog: restored automatic prepending of CVS commit log messages
   to the top of this file.  Somehow it got lost somewhere around 647.20
 
 Revision 647.41  2005/06/12 03:30:20  ajc
 * Test
-----------------------------
+
 revision 647.40
 date: 2005/06/12 03:24:15;  author: ajc;  state: Exp;  lines: +0 -1
 * When delivering list digests, put the name of the room in [brackets]
   in the subject line.  This makes lots of other software happy.  (We
   need to do this for non-digest list subscribers too.)
-----------------------------
+
 revision 647.39
 date: 2005/06/12 01:15:33;  author: ajc;  state: Exp;  lines: +1 -0
 * Provide separate filtered and unfiltered LMTP sockets.
-----------------------------
+
 revision 647.38
 date: 2005/06/09 20:10:02;  author: ajc;  state: Exp;  lines: +0 -1
 * Easy Install requires gmake
-----------------------------
+
 revision 647.37
 date: 2005/06/09 03:35:58;  author: ajc;  state: Exp;  lines: +1 -0
 * Allow IMAP DELETE of a zapped/forgotten/unsubscribed room
-----------------------------
+
 revision 647.36
 date: 2005/06/09 03:20:21;  author: ajc;  state: Exp;  lines: +0 -1
 * Do not log IMAP/POP/SMTP password commands
-----------------------------
+
 revision 647.35
 date: 2005/06/07 21:45:14;  author: ajc;  state: Exp;  lines: +1 -0
 * bounce messages need subjects
-----------------------------
+
 revision 647.34
 date: 2005/06/06 23:50:01;  author: ajc;  state: Exp;  lines: +0 -1
 * Made some changes to the calendar/uuid logic to fix a bug that caused
   duplicate entries for an event to appear in some situations
-----------------------------
+
 revision 647.33
 date: 2005/06/03 22:26:03;  author: ajc;  state: Exp;  lines: +1 -0
 * When saving a vCard to a dedicated contacts room, always set the subject
   to the name in the vCard.
-----------------------------
+
 revision 647.32
 date: 2005/06/03 22:22:36;  author: ajc;  state: Exp;  lines: +0 -1
 * Removed old Aethera hacks
-----------------------------
+
 revision 647.31
 date: 2005/06/03 04:01:27;  author: ajc;  state: Exp;  lines: +1 -0
 * Documentation update
-----------------------------
+
 revision 647.30
 date: 2005/06/02 19:32:30;  author: ajc;  state: Exp;  lines: +0 -1
 * Set the correct flags in the target room after an IMAP COPY command.
-----------------------------
+
 revision 647.29
 date: 2005/06/02 16:09:32;  author: ajc;  state: Exp;  lines: +1 -0
 * tools.c: generated uuid's no longer contain "{" and "}" characters.
-----------------------------
+
 revision 647.28
 date: 2005/06/02 03:39:44;  author: ajc;  state: Exp;  lines: +0 -1
 * Do not turn the initial thread into a worker thread after initialization.
   Its stack size is too small, which could cause crashes.
-----------------------------
+
 revision 647.27
 date: 2005/06/01 22:32:57;  author: ajc;  state: Exp;  lines: +1 -0
 * Implemented a workaround for the IMAP "expungebob bug."  Specifically, since
@@ -72,12 +75,12 @@ date: 2005/06/01 22:32:57;  author: ajc;  state: Exp;  lines: +1 -0
   Thunderbird) to misbehave -- they were simply electing not to transmit the
   flag at all.  As a workaround, \Deleted is now advertised as a
   PERMANENTFLAGS flag, even though it technically isn't.
-----------------------------
+
 revision 647.26
 date: 2005/06/01 18:31:50;  author: ajc;  state: Exp;  lines: +0 -1
 * serv_vandelay.c: updated the export format to include some of the config
   items we missed.
-----------------------------
+
 revision 647.25
 date: 2005/06/01 05:23:26;  author: ajc;  state: Exp;  lines: +1 -0
 * The full text indexer now runs in its own dedicated thread instead of
@@ -87,29 +90,29 @@ date: 2005/06/01 05:23:26;  author: ajc;  state: Exp;  lines: +1 -0
   thread and patiently wait for it to complete before exiting.  These changes
   all put together mean that citserver will not hang when it is terminated
   during an indexing operation.
-----------------------------
+
 revision 647.24
 date: 2005/05/27 23:46:57;  author: ajc;  state: Exp;  lines: +0 -1
 * Removed OpenLDAP from Easy Install, because it was just too problematic.
-----------------------------
+
 revision 647.23
 date: 2005/05/26 04:25:29;  author: ajc;  state: Exp;  lines: +1 -0
 * Applied xmlns and etag patches sent in by Johannes Schneider that improve
   GroupDAV support.
 * Located and fixed a MIME Content-type bug that I accidentally created
   while removing a temporary hack that was in place during the last KDE beta.
-----------------------------
+
 revision 647.22
 date: 2005/05/23 19:33:56;  author: ajc;  state: Exp;  lines: +0 -1
 * database_sleepycat.c: cdb_truncate() no longer encapsulated in a
   transaction.  Truncating a database in Citadel is always synchronous,
   and with big tables (such as when the full text indexer is switched off
   or reinitialized) it was running out of memory.
-----------------------------
+
 revision 647.21
 date: 2005/05/23 19:31:52;  author: ajc;  state: Exp;  lines: +5 -1
 * test
-----------------------------
+
  Revision 647.20  2005/05/23 19:26:04  ajc
  * Move the location of the "enable full text index" configuration item to
    a new location.  Reusing an old location was a stupid idea because old
@@ -4829,15 +4832,14 @@ date: 2005/05/23 19:31:52;  author: ajc;  state: Exp;  lines: +5 -1
 
  Revision 572.39  2000/09/04 03:59:15  ajc
  IO's changes:
- ----------------------------
+ 
  revision 572.4
  date: 2000/09/03 06:36:01;  author: error;  state: Exp;  lines: +5 -1
  Added HP/UX linker flag for dynamic modules to work
- ----------------------------
+ 
  revision 572.3
  date: 2000/09/01 06:50:00;  author: error;  state: Exp;  lines: +8 -1
  Changed to use integer macros from typesize.h for specific bit widths
- ----------------------------
 
  Revision 572.38  2000/09/01 20:17:08  ajc
  * msgbase.c: cmd_opna() - increase desired_section buffer from 64 to 256 bytes
