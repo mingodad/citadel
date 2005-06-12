@@ -743,6 +743,9 @@ void summarize_message(long msgnum, int is_new) {
 		if (!strncasecmp(buf, "subj=", 5)) {
 			if (strlen(&buf[5]) > 0) {
 				strcpy(summ.subj, &buf[5]);
+				if (strlen(summ.subj) > 75) {
+					strcpy(&summ.subj[72], "...");
+				}
 			}
 		}
 		/* if (!strncasecmp(buf, "rfca=", 5)) {
@@ -768,6 +771,10 @@ void summarize_message(long msgnum, int is_new) {
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(summ.date, atol(&buf[5]), 1);	/* brief */
 		}
+	}
+	
+	if (strlen(summ.from) > 25) {
+		strcpy(&summ.from[22], "...");
 	}
 
 	wprintf("<TD>");
@@ -1218,9 +1225,9 @@ void readloop(char *oper)
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
-			"<TD><I>Subject</I></TD>"
-			"<TD><I>Sender</I></TD>"
-			"<TD><I>Date</I></TD>"
+			"<TD align=center><b><i>Subject</i></b></TD>"
+			"<TD align=center><b><i>Sender</i></b></TD>"
+			"<TD align=center><b><i>Date</i></b></TD>"
 			"<TD></TD>"
 			"</TR>\n"
 		);
@@ -1338,11 +1345,13 @@ void readloop(char *oper)
 		}
 
 		wprintf("<A HREF=\"/%s?startmsg=%ld"
-			"&maxmsgs=999999&summary=1\">"
+			"&maxmsgs=%d&summary=1\">"
 			"Summary"
 			"</A>",
 			oper,
-			WC->msgarr[0]);
+			WC->msgarr[0],
+			DEFAULT_MAXMSGS
+		);
 
 		wprintf("</td></tr></table></div>\n");
 	    }
@@ -1380,7 +1389,7 @@ void readloop(char *oper)
 				lo, hi);
 		}
 		wprintf("<OPTION VALUE=\"/%s?startmsg=%ld"
-			"&maxmsgs=999999&summary=%d\">"
+			"&maxmsgs=9999999&summary=%d\">"
 			"ALL"
 			"</OPTION> ",
 			oper,

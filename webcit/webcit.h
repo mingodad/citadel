@@ -219,7 +219,7 @@ struct wcsession {
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
 	char reply_to[SIZ];		/* reply-to address */
-	long msgarr[4096];		/* for read operations */
+	long msgarr[10000];		/* for read operations */
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
 	int HaveInstantMessages;	/* Nonzero if incoming msgs exist */
