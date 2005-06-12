@@ -1,7 +1,10 @@
 $Log$
+Revision 647.42  2005/06/12 03:31:33  ajc
+* ChangeLog: restored automatic prepending of CVS commit log messages
+  to the top of this file.  Somehow it got lost somewhere around 647.20
+
 Revision 647.41  2005/06/12 03:30:20  ajc
 * Test
-
 ----------------------------
 revision 647.40
 date: 2005/06/12 03:24:15;  author: ajc;  state: Exp;  lines: +0 -1
