@@ -1,4 +1,7 @@
 $Log$
+Revision 611.9  2005/06/12 18:34:50  ajc
+* Removed some unreferenced files from the static/ directory.
+
 Revision 611.8  2005/06/12 17:01:00  ajc
 * Increase maximum viewable message count from 4096 to 10000
 * Summary view now truncates subject to 75 characters, and sender
@@ -2570,4 +2573,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
