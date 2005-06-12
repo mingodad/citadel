@@ -1165,7 +1165,9 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "ungoto")) {
 		ungoto();
 	} else if (!strcasecmp(action, "dotgoto")) {
-		slrp_highest();
+		if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
+			slrp_highest();
+		}
 		smart_goto(bstr("room"));
 	} else if (!strcasecmp(action, "dotskip")) {
 		smart_goto(bstr("room"));

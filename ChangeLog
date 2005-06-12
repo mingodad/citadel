@@ -1,4 +1,9 @@
 $Log$
+Revision 611.7  2005/06/12 16:03:11  ajc
+* When viewing a mailbox (view == VIEW_MAILBOX), messages are marked as
+  seen when they are viewed, and Goto does not automatically mark the
+  remaining messages as seen.
+
 Revision 611.6  2005/06/11 22:29:07  ajc
 * Integrated the first batch of new icons.
 
@@ -2560,4 +2565,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
