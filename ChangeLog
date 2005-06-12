@@ -1,4 +1,9 @@
 $Log$
+Revision 611.10  2005/06/12 22:02:45  ajc
+* Began replacing the old, sux0r-prone tree view with NanoTree.
+  WARNING: This isn't finished, but I'm committing it anyway because I have
+  to move to a different computer.  DON'T RUN THIS.
+
 Revision 611.9  2005/06/12 18:34:50  ajc
 * Removed some unreferenced files from the static/ directory.
 
@@ -2573,3 +2578,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
