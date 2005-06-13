@@ -2205,41 +2205,11 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
 	int levels, oldlevels;
 	int i, t;
-	int actnum = 0;
+	int nodenum = 1;
 	int has_subfolders = 0;
 
-	/* include NanoTree */
-	wprintf("<script type=\"text/javascript\" language=\"JavaScript\" src=\"static/nanotree.js\">\n");
-
-	/* initialize NanoTree */
-	wprintf("<script type=\"text/javascript\" language=\"JavaScript\">			\n"
-		"	showRootNode = true;							\n"
-		"	sortNodes = false;							\n"
-		"	dragable = false;							\n"
-		"	lookAndFeel = WINDOWS_XP;						\n"
-		"										\n"
-		"	function do_nanotree_init() {						\n"
-		"		container = document.getElementById('roomlist_div');		\n"
-		"		showTree('');							\n"
-		"	}									\n"
-		"										\n"
-		"	function standardClick(treeNode) {					\n"
-		"		/* FIXME call a dotgoto function here */			\n"
-		"	}									\n"
-		"										\n"
-		"	function nodeEdited(treeNode) {						\n"
-		"		/* FIXME can we make use of this? */				\n"
-		"	}									\n"
-		"										\n"
-		"	var closedGif = 'static/' + getLookAndFeelPath() + '/folder_closed.gif';\n"
-		"	var openGif = 'static/' + getLookAndFeelPath() + '/folder_open.gif';	\n"
-		"	var pageIcon = 'static/page16x16.gif';					\n"
-		"	var userIcon = 'static/user_16x16.gif';					\n"
-		"	var helpIcon = 'static/help_16x16.gif';					\n"
-		"</script>									\n"
-	);
-
 	/* BEGIN TREE MENU */
+	wprintf("<div id=\"roomlist_div\"></div>\n");
 	wprintf("<UL>\n");
 	levels = 0;
 	oldlevels = 0;
@@ -2304,13 +2274,31 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		oldlevels = levels;
 	}
 	wprintf("</UL></UL>\n");
-/*
-	wprintf("<img src=\"/static/blank.gif\" onLoad = ' \n");
-	for (i=0; i<actnum; ++i) {
-		wprintf(" initializeMenu(\"menu%d\", \"actuator%d\");\n", i, i);
-	}
-	wprintf(" ' > \n");
- */
+
+	/* include NanoTree */
+	wprintf("<script type=\"text/javascript\" src=\"static/nanotree.js\"></script>\n");
+
+	/* initialize NanoTree */
+	wprintf("<script type=\"text/javascript\">				\n"
+		"	showRootNode = true;					\n"
+		"	sortNodes = false;					\n"
+		"	dragable = false;					\n"
+		"								\n"
+		"	function standardClick(treeNode) {			\n"
+		"	}							\n"
+		"								\n"
+		"	var closedGif = 'static/folder_closed.gif';		\n"
+		"	var openGif = 'static/folder_open.gif';			\n"
+		"	var pageIcon = 'static/page16x16.gif';			\n"
+		"	var userIcon = 'static/user_16x16.gif';			\n"
+		"	var helpIcon = 'static/help_16x16.gif';			\n"
+		"								\n"
+		"	rootNode = new TreeNode(1, 'RootNode');			\n"
+		"								\n"
+		"	container = document.getElementById('roomlist_div');	\n"
+		"	showTree('');						\n"
+		"</script>\n"
+	);
 	/* END TREE MENU */
 }
 
