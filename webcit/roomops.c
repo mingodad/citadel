@@ -2203,17 +2203,38 @@ void change_view(void) {
  */
 void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
-	int levels, oldlevels;
-	int i, t;
-	int nodenum = 1;
+	int levels;
+	int i;
 	int has_subfolders = 0;
+	int *parents;
+
+	parents = malloc(max_folders * sizeof(int));
 
 	/* BEGIN TREE MENU */
-	wprintf("<div id=\"roomlist_div\"></div>\n");
-	wprintf("<UL>\n");
-	levels = 0;
-	oldlevels = 0;
+	wprintf("<div id=\"roomlist_div\">Loading folder list...</div>\n");
 
+	/* include NanoTree */
+	wprintf("<script type=\"text/javascript\" src=\"static/nanotree.js\"></script>\n");
+
+	/* initialize NanoTree */
+	wprintf("<script type=\"text/javascript\">			\n"
+		"	showRootNode = false;				\n"
+		"	sortNodes = false;				\n"
+		"	dragable = false;				\n"
+		"							\n"
+		"	function standardClick(treeNode) {		\n"
+		"	}						\n"
+		"							\n"
+		"	var closedGif = 'static/folder_closed.gif';	\n"
+		"	var openGif = 'static/folder_open.gif';		\n"
+		"	var pageIcon = 'static/page16x16.gif';		\n"
+		"	var userIcon = 'static/user_16x16.gif';		\n"
+		"	var helpIcon = 'static/help_16x16.gif';		\n"
+		"							\n"
+		"	rootNode = new TreeNode(1, 'root node - hide');	\n"
+	);
+
+	levels = 0;
 	for (i=0; i<max_folders; ++i) {
 
 		has_subfolders = 0;
@@ -2225,19 +2246,9 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 
 		levels = num_tokens(fold[i].name, '|');
+		parents[levels] = i;
 
-		if ( (levels < oldlevels) || ((levels==1)&&(i!=0)) ) {
-			for (t=0; t<(oldlevels-levels); ++t) {
-				wprintf("</UL>\n");
-			}
-		}
-
-		if (has_subfolders) {
-			wprintf("<LI>(has subfolders)");
-		}
-		else {
-			wprintf("<LI>");
-		}
+		wprintf("var node%d = new TreeNode(%d, '", i, i);
 
 		if (fold[i].selectable) {
 			wprintf("<A HREF=\"/dotgoto?room=");
@@ -2258,47 +2269,31 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		escputs(buf);
 		wprintf("</SPAN>");
 
-		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
-			wprintf(" (INBOX)");
-		}
-
-		if (fold[i].selectable) {
-			wprintf("</A>");
-		}
-		wprintf("\n");
-
+		wprintf("</a>', ");
 		if (has_subfolders) {
-			wprintf("<UL>\n");
+			wprintf("new Array(closedGif, openGif)");
 		}
+		else {
+			wprintf("pageIcon");
+		}
+		wprintf(", '");
+		urlescputs(fold[i].name);
+		wprintf("');\n");
 
-		oldlevels = levels;
+		if (levels < 2) {
+			wprintf("rootNode.addChild(node%d);\n", i);
+		}
+		else {
+			wprintf("node%d.addChild(node%d);\n", parents[levels-1], i);
+		}
 	}
-	wprintf("</UL></UL>\n");
 
-	/* include NanoTree */
-	wprintf("<script type=\"text/javascript\" src=\"static/nanotree.js\"></script>\n");
-
-	/* initialize NanoTree */
-	wprintf("<script type=\"text/javascript\">				\n"
-		"	showRootNode = true;					\n"
-		"	sortNodes = false;					\n"
-		"	dragable = false;					\n"
-		"								\n"
-		"	function standardClick(treeNode) {			\n"
-		"	}							\n"
-		"								\n"
-		"	var closedGif = 'static/folder_closed.gif';		\n"
-		"	var openGif = 'static/folder_open.gif';			\n"
-		"	var pageIcon = 'static/page16x16.gif';			\n"
-		"	var userIcon = 'static/user_16x16.gif';			\n"
-		"	var helpIcon = 'static/help_16x16.gif';			\n"
-		"								\n"
-		"	rootNode = new TreeNode(1, 'RootNode');			\n"
-		"								\n"
-		"	container = document.getElementById('roomlist_div');	\n"
-		"	showTree('');						\n"
+	wprintf("container = document.getElementById('roomlist_div');	\n"
+		"showTree('');	\n"
 		"</script>\n"
 	);
+
+	free(parents);
 	/* END TREE MENU */
 }
 
