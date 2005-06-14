@@ -32,6 +32,7 @@ struct folder {
 	int hasnewmsgs;
 	int is_mailbox;
 	int selectable;
+	int view;
 };
 
 char *viewdefs[] = {
@@ -2227,9 +2228,6 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		"							\n"
 		"	var closedGif = 'static/folder_closed.gif';	\n"
 		"	var openGif = 'static/folder_open.gif';		\n"
-		"	var pageIcon = 'static/page16x16.gif';		\n"
-		"	var userIcon = 'static/user_16x16.gif';		\n"
-		"	var helpIcon = 'static/help_16x16.gif';		\n"
 		"							\n"
 		"	rootNode = new TreeNode(1, 'root node - hide');	\n"
 	);
@@ -2273,8 +2271,23 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		if (has_subfolders) {
 			wprintf("new Array(closedGif, openGif)");
 		}
+		else if (fold[i].view == VIEW_ADDRESSBOOK) {
+			wprintf("'static/savecontact_16x.gif'");
+		}
+		else if (fold[i].view == VIEW_CALENDAR) {
+			wprintf("'static/calarea_16x.gif'");
+		}
+		else if (fold[i].view == VIEW_TASKS) {
+			wprintf("'static/taskmanag_16x.gif'");
+		}
+		else if (fold[i].view == VIEW_NOTES) {
+			wprintf("'static/storenotes_16x.gif'");
+		}
+		else if (fold[i].view == VIEW_MAILBOX) {
+			wprintf("'static/privatemess_16x.gif'");
+		}
 		else {
-			wprintf("pageIcon");
+			wprintf("'static/chatrooms_16x.gif'");
 		}
 		wprintf(", '");
 		urlescputs(fold[i].name);
@@ -2450,6 +2463,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 		if (flags & QR_MAILBOX) {
 			fold[max_folders].is_mailbox = 1;
 		}
+		fold[max_folders].view = extract_int(buf, 6);
 		room_to_folder(fold[max_folders].name,
 				fold[max_folders].room,
 				fold[max_folders].floor,
