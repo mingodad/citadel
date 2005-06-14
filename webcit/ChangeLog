@@ -1,4 +1,9 @@
 $Log$
+Revision 611.13  2005/06/14 03:21:57  ajc
+* When no icon is present on the server for a room, display the default
+  icon for that room's current view.
+* Replace "graphic" with "icon" throughout the system messages.
+
 Revision 611.12  2005/06/14 01:59:43  ajc
 * 16x16 icons in the new tree view.  Nice!
 
@@ -2585,4 +2590,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

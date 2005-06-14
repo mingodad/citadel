@@ -41,7 +41,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Set/change your photo</SPAN>"
+		"<SPAN CLASS=\"titlebar\">Image upload</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
