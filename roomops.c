@@ -256,9 +256,9 @@ void readinfo(void)
 
 
 
-/* Display room graphic.  The server doesn't actually
+/* Display room banner icon.  The server doesn't actually
  * need the room name, but we supply it in order to
- * keep the browser from using a cached graphic from 
+ * keep the browser from using a cached icon from 
  * another room.
  */
 void embed_room_graphic(void) {
@@ -273,6 +273,49 @@ void embed_room_graphic(void) {
 		wprintf("\"></TD>");
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
+	}
+	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/savecontact_48x.gif"
+			"\">\n"
+		);
+	}
+	else if (WC->wc_view == VIEW_CALENDAR) {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/calarea_48x.gif"
+			"\">\n"
+		);
+	}
+	else if (WC->wc_view == VIEW_TASKS) {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/taskmanag_48x.gif"
+			"\">\n"
+		);
+	}
+	else if (WC->wc_view == VIEW_NOTES) {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/storenotes_48x.gif"
+			"\">\n"
+		);
+		wprintf("'static/storenotes_16x.gif'");
+	}
+	else if (WC->wc_view == VIEW_MAILBOX) {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/privatemess_48x.gif"
+			"\">\n"
+		);
+	}
+	else {
+		wprintf("<td bgcolor=\"#444455\">"
+			"<img height=48 width=48 src=\""
+			"static/chatrooms_48x.gif"
+			"\">\n"
+		);
 	}
 
 }
@@ -952,7 +995,7 @@ void display_editroom(void)
 			"onClick=\"return confirm('Are you sure you want to delete this room?');\">\n"
 			"Delete this room</A>\n"
 			"<LI><A HREF=\"/display_editroompic\">\n"
-			"Set or change the graphic for this room's banner</A>\n"
+			"Set or change the icon for this room's banner</A>\n"
 			"<LI><A HREF=\"/display_editinfo\">\n"
 			"Edit this room's Info file</A>\n"
 			"</UL>");

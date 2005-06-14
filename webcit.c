@@ -1245,7 +1245,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "editpic")) {
 		do_graphics_upload("UIMG 1|_userpic_");
 	} else if (!strcasecmp(action, "display_editroompic")) {
-		display_graphics_upload("the graphic for this room",
+		display_graphics_upload("the icon for this room",
 					"UIMG 0|_roompic_",
 					"/editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
@@ -1259,7 +1259,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_editfloorpic")) {
 		sprintf(buf, "UIMG 0|_floorpic_|%s",
 			bstr("which_floor"));
-		display_graphics_upload("the graphic for this floor",
+		display_graphics_upload("the icon for this floor",
 					buf,
 					"/editfloorpic");
 	} else if (!strcasecmp(action, "editfloorpic")) {

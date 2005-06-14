@@ -399,7 +399,7 @@ void display_customize_iconbar(void) {
 		"SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Site logo</B><br />"
-		"A graphic describing this site"
+		"An icon describing this site"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_logo ? "CHECKED" : "")
@@ -552,7 +552,7 @@ void display_customize_iconbar(void) {
 		"SRC=\"/static/citadel-logo.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Citadel logo</B><br />"
-		"Displays the &quot;Powered by Citadel&quot; graphic"
+		"Displays the &quot;Powered by Citadel&quot; icon"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_citadel ? "CHECKED" : "")
