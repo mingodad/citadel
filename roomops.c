@@ -267,52 +267,45 @@ void embed_room_graphic(void) {
 	serv_puts("OIMG _roompic_");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("<TD BGCOLOR=\"#444455\">");
 		wprintf("<IMG HEIGHT=64 SRC=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
-		wprintf("\"></TD>");
+		wprintf("\">");
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
 	}
 	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/savecontact_48x.gif"
 			"\">\n"
 		);
 	}
 	else if (WC->wc_view == VIEW_CALENDAR) {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/calarea_48x.gif"
 			"\">\n"
 		);
 	}
 	else if (WC->wc_view == VIEW_TASKS) {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/taskmanag_48x.gif"
 			"\">\n"
 		);
 	}
 	else if (WC->wc_view == VIEW_NOTES) {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/storenotes_48x.gif"
 			"\">\n"
 		);
 		wprintf("'static/storenotes_16x.gif'");
 	}
 	else if (WC->wc_view == VIEW_MAILBOX) {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/privatemess_48x.gif"
 			"\">\n"
 		);
 	}
 	else {
-		wprintf("<td bgcolor=\"#444455\">"
-			"<img height=48 width=48 src=\""
+		wprintf("<img height=48 width=48 src=\""
 			"static/chatrooms_48x.gif"
 			"\">\n"
 		);
