@@ -907,6 +907,7 @@ void do_freebusy(char *req) {
 	unescape_input(who);
 
 	if ( (!strcasecmp(&who[strlen(who)-4], ".vcf"))
+	   || (!strcasecmp(&who[strlen(who)-4], ".ifb"))
 	   || (!strcasecmp(&who[strlen(who)-4], ".vfb")) ) {
 		who[strlen(who)-4] = 0;
 	}

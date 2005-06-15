@@ -1,4 +1,7 @@
 $Log$
+Revision 619.1  2005/06/15 03:56:56  ajc
+* Accept ".ifb" as a valid extension for requesting free/busy
+
 Revision 619.0  2005/06/15 01:52:33  ajc
 * THIS IS 6.19
 
@@ -2600,3 +2603,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
