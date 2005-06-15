@@ -1,4 +1,7 @@
 $Log$
+Revision 611.15  2005/06/15 01:50:29  ajc
+* Bumped the internal version number to 6.19
+
 Revision 611.14  2005/06/14 14:47:48  ajc
 * Moved the <td> and </td> in the room icon out of roomops.c and
   into static/roombanner.html, since every room will have an icon now.
@@ -2594,4 +2597,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
