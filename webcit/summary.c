@@ -212,6 +212,8 @@ void server_info_section(void) {
 	escputs(serv_info.serv_humannode);
 	wprintf(", running ");
 	escputs(serv_info.serv_software);
+	wprintf(" with ");
+	escputs(SERVER);
 	wprintf(", and located in ");
 	escputs(serv_info.serv_bbs_city);
 	wprintf(".<br />\nYour system administrator is ");

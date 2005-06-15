@@ -276,38 +276,37 @@ void embed_room_graphic(void) {
 	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/savecontact_48x.gif"
-			"\">\n"
+			"\">"
 		);
 	}
 	else if (WC->wc_view == VIEW_CALENDAR) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/calarea_48x.gif"
-			"\">\n"
+			"\">"
 		);
 	}
 	else if (WC->wc_view == VIEW_TASKS) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/taskmanag_48x.gif"
-			"\">\n"
+			"\">"
 		);
 	}
 	else if (WC->wc_view == VIEW_NOTES) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/storenotes_48x.gif"
-			"\">\n"
+			"\">"
 		);
-		wprintf("'static/storenotes_16x.gif'");
 	}
 	else if (WC->wc_view == VIEW_MAILBOX) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/privatemess_48x.gif"
-			"\">\n"
+			"\">"
 		);
 	}
 	else {
 		wprintf("<img height=48 width=48 src=\""
 			"static/chatrooms_48x.gif"
-			"\">\n"
+			"\">"
 		);
 	}
 

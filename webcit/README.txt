@@ -1,13 +1,14 @@
                         WEBCIT for the Citadel System
-                               version 6.10
+                               version 6.19
  
-   Copyright (C) 1996-2004 by the authors.  Portions written by:
+   Copyright (C) 1996-2005 by the authors.  Portions written by:
 	Art Cancro
 	Nathan Bryant
 	Nick Grossman
 	Andru Luvisi
         Kevin Roth
 	Dave Lindquist
+	Martin Mouritzen
  
 This program is free software released under the terms of the GNU General
 Public License.  Please read COPYING.txt for more licensing information.
