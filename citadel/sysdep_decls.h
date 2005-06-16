@@ -98,5 +98,6 @@ char *tracked_strdup(const char *s, char *file, int line);
 void dump_heap(void);
 #endif
 
-void create_indexer_thread(void);
+void create_maintenance_threads(void);
 extern pthread_t indexer_thread_tid;
+extern pthread_t checkpoint_thread_tid;

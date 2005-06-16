@@ -253,8 +253,6 @@ static void cdb_cull_logs(void)
 		}
 		free(list);
 	}
-
-	lprintf(CTDL_INFO, "Database log file cull ended.\n");
 }
 
 
@@ -264,8 +262,15 @@ static void cdb_cull_logs(void)
 static void cdb_checkpoint(void)
 {
 	int ret;
-	/* static time_t last_cull = 0L; */
+	static time_t last_run = 0L;
 
+	/* Only do a checkpoint once per minute. */
+	if ((time(NULL) - last_run) < 60L) {
+		return;
+	}
+	last_run = time(NULL);
+
+	lprintf(CTDL_DEBUG, "-- db checkpoint --\n");
 	ret = dbenv->txn_checkpoint(dbenv,
 				    MAX_CHECKPOINT_KBYTES,
 				    MAX_CHECKPOINT_MINUTES, 0);
@@ -278,13 +283,31 @@ static void cdb_checkpoint(void)
 
 	/* After a successful checkpoint, we can cull the unused logs */
 	cdb_cull_logs();
+}
 
-	/* Cull the logs if we haven't done so for 24 hours
-	   if ((time(NULL) - last_cull) > 86400L) {
-	   last_cull = time(NULL);
-	   cdb_cull_logs();
-	   } */
 
+/*
+ * Main loop for the checkpoint thread.
+ */
+void *checkpoint_thread(void *arg) {
+	struct CitContext checkpointCC;
+
+	lprintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
+
+	memset(&checkpointCC, 0, sizeof(struct CitContext));
+	checkpointCC.internal_pgm = 1;
+	checkpointCC.cs_pid = 0;
+	pthread_setspecific(MyConKey, (void *)&checkpointCC );
+
+	cdb_allocate_tsd();
+
+	while (!time_to_die) {
+		cdb_checkpoint();
+		sleep(1);
+	}
+
+	lprintf(CTDL_DEBUG, "checkpoint_thread() exiting\n");
+	pthread_exit(NULL);
 }
 
 /*
@@ -406,7 +429,6 @@ void open_databases(void)
 	}
 
 	cdb_allocate_tsd();
-	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
 
 	/* Now make sure we own all the files, because in a few milliseconds
 	 * we're going to drop root privs.

@@ -152,6 +152,10 @@ void master_cleanup(int exitcode) {
 	lprintf(CTDL_INFO, "Waiting for the indexer thread to shut down\n");
 	pthread_join(indexer_thread_tid, NULL);
 
+	/* Shut down the checkpoint thread */
+	lprintf(CTDL_INFO, "Waiting for the checkpoint thread to shut down\n");
+	pthread_join(checkpoint_thread_tid, NULL);
+
 	/* Close databases */
 	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();

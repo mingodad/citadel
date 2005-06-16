@@ -99,6 +99,7 @@ time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
 pthread_t indexer_thread_tid;
+pthread_t checkpoint_thread_tid;
 
 int syslog_facility = (-1);
 int enable_syslog = 0;
@@ -815,8 +816,9 @@ void create_worker(void) {
 
 /*
  * Create the indexer thread and begin its operation.
+ * Then create the checkpoint thread and begin its operation.
  */
-void create_indexer_thread(void) {
+void create_maintenance_threads(void) {
 	int ret;
 	pthread_attr_t attr;
 
@@ -838,10 +840,12 @@ void create_indexer_thread(void) {
 		return;
 	}
 
-	if ((ret = pthread_create(&indexer_thread_tid, &attr, indexer_thread, NULL) != 0))
-	{
-		lprintf(CTDL_ALERT, "Can't create indexer thread: %s\n",
-			strerror(ret));
+	if ((ret = pthread_create(&indexer_thread_tid, &attr, indexer_thread, NULL) != 0)) {
+		lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
+	}
+
+	if ((ret = pthread_create(&checkpoint_thread_tid, &attr, checkpoint_thread, NULL) != 0)) {
+		lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
 	}
 
 	pthread_attr_destroy(&attr);

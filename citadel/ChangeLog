@@ -1,4 +1,7 @@
 $Log$
+Revision 651.1  2005/06/16 02:42:58  ajc
+* There is now a dedicated thread for doing database checkpoints.
+
 Revision 651.0  2005/06/12 03:46:30  ajc
 * THIS IS 6.51
 
@@ -6878,3 +6881,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
