@@ -164,8 +164,7 @@ void whobbs(void)
 		"<div align=center>"
 		"Click on a name to read user info.  Click on "
 		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
-		"BORDER=0> to send "
-		"a page (instant message) to that user.</div>\n");
+		"BORDER=0> to send an instant message to that user.</div>\n");
 	wDumpContent(1);
 }
 
