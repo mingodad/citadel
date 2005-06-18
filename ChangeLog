@@ -1,4 +1,10 @@
 $Log$
+Revision 619.4  2005/06/18 22:58:56  ajc
+* Installed the 16x16 "users" icon as favicon.ico, mainly for performance
+  reasons -- the browser will cache favicon.ico and won't keep asking for
+  it over and over again, eliminating a second HTTP transaction every time
+  the user clicks on something.
+
 Revision 619.3  2005/06/18 22:48:32  ajc
 *** empty log message ***
 
@@ -2611,4 +2617,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
