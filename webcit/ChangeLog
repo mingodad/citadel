@@ -1,4 +1,7 @@
 $Log$
+Revision 619.3  2005/06/18 22:48:32  ajc
+*** empty log message ***
+
 Revision 619.2  2005/06/18 22:18:29  ajc
 * Replaced the most recent batch of icons with a "better" set which was
   sent by the design house.  I don't know what the difference is, but
@@ -2608,3 +2611,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

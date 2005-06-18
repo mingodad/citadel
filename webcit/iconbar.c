@@ -257,7 +257,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/advanpage_32x.gif\">");
+			"SRC=\"/static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Advanced");
@@ -273,7 +273,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/advanpage_32x.gif\">");
+			"SRC=\"/static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Administration");
@@ -535,7 +535,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/advanpage_48x.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Advanced options</B><br />"
 		"Access to the complete menu of Citadel functions."
@@ -613,7 +613,7 @@ void commit_iconbar(void) {
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 	wprintf(
 		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
-		"<IMG SRC=\"/static/advanpage_48x.gif\">"
+		"<IMG SRC=\"/static/advanpage2_48x.gif\">"
 		"&nbsp;"
 		"Your icon bar has been updated.  Please select any of its "
 		"choices to continue."
