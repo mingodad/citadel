@@ -166,7 +166,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/prevdate_32x.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
 		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
@@ -177,7 +177,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/nextdate_32x.gif\" BORDER=0></A>\n");
 
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -403,7 +403,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TD ALIGN=CENTER>");
 	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>");
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/prevdate_32x.gif\" BORDER=0></A>");
 	wprintf("</TD>");
 
 	/* Today's date */
@@ -418,7 +418,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TD ALIGN=CENTER>");
 	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\""
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/nextdate_32x.gif\""
 		" BORDER=0></A>\n");
 	wprintf("</TD>");
 

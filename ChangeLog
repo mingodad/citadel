@@ -1,4 +1,7 @@
 $Log$
+Revision 619.5  2005/06/19 04:11:52  ajc
+* Integrated the second batch of new icons.
+
 Revision 619.4  2005/06/18 22:58:56  ajc
 * Installed the 16x16 "users" icon as favicon.ico, mainly for performance
   reasons -- the browser will cache favicon.ico and won't keep asking for
@@ -2617,3 +2620,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -288,7 +288,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 		wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/exit-icon.gif\">");
+			"SRC=\"/static/logoff_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Log off");

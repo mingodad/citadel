@@ -410,7 +410,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		if (navbar_style == navbar_default) wprintf(
 			"<td>"
 			"<a href=\"/ungoto\">"
-			"<img align=\"middle\" src=\"/static/back.gif\" border=\"0\">"
+			"<img align=\"middle\" src=\"/static/ungoto2_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">Ungoto</span></A>"
 			"</td>\n"
 		);
@@ -419,7 +419,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			wprintf(
 				"<td>"
 				"<A HREF=\"/readnew\">"
-				"<img align=\"middle\" src=\"/static/readmsgs.gif\" border=\"0\">"
+				"<img align=\"middle\" src=\"/static/newmess2_24x.gif\" border=\"0\">"
 				"<span class=\"navbar_link\">Read new messages</span></A>"
 				"</td>\n"
 			);
@@ -442,7 +442,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd?calview=day\">"
-						"<img align=\"middle\" src=\"/static/day_view.gif\" "
+						"<img align=\"middle\" src=\"/static/taskday2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"Day view"
@@ -451,7 +451,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd?calview=month\">"
-						"<img align=\"middle\" src=\"/static/month_view.gif\" "
+						"<img align=\"middle\" src=\"/static/monthview_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"Month view"
@@ -506,27 +506,51 @@ void embed_room_banner(char *got, int navbar_style) {
 		}
 
 		if (navbar_style == navbar_default) {
-			wprintf(
-				"<td>"
-				"<A HREF=\"/display_enter\">"
-				"<img align=\"middle\" src=\"/static/enter.gif\" border=\"0\">"
-				"<span class=\"navbar_link\">"
-			);
 			switch(WC->wc_view) {
 				case VIEW_ADDRESSBOOK:
-					wprintf("Add new contact");
+					wprintf(
+						"<td><A HREF=\"/display_enter\">"
+						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"Add new contact"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_CALENDAR:
-					wprintf("Add new event");
+					wprintf(
+						"<td><A HREF=\"/display_enter\">"
+						"<img align=\"middle\" src=\"/static/addevent_24x.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"Add new event"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_TASKS:
-					wprintf("Add new task");
+					wprintf(
+						"<td><A HREF=\"/display_enter\">"
+						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"Add new task"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_NOTES:
-					wprintf("Add new note");
+					wprintf(
+						"<td><A HREF=\"/display_enter\">"
+						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"Add new note"
+						"</span></a></td>\n"
+					);
 					break;
 				default:
-					wprintf("Enter a message");
+					wprintf(
+						"<td><A HREF=\"/display_enter\">"
+						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"Enter a message"
+						"</span></a></td>\n"
+					);
 					break;
 			}
 			wprintf("</span></a></td>\n");
@@ -536,8 +560,8 @@ void embed_room_banner(char *got, int navbar_style) {
 			"<td>"
 			"<A HREF=\"/skip\" "
 			"TITLE=\"Leave all messages marked as unread, go to next room with unread messages\">"
-			"<span class=\"navbar_link\">Skip this room</span>"
-			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
+			"<img align=\"middle\" src=\"/static/skipthisroom_24x.gif\" border=\"0\">"
+			"<span class=\"navbar_link\">Skip this room</span></a>"
 			"</td>\n"
 		);
 
@@ -545,8 +569,8 @@ void embed_room_banner(char *got, int navbar_style) {
 			"<td>"
 			"<A HREF=\"/gotonext\" "
 			"TITLE=\"Mark all messages as read, go to next room with unread messages\">"
-			"<span class=\"navbar_link\">Goto next room</span>"
-			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
+			"<img align=\"middle\" src=\"/static/markngo_24x.gif\" border=\"0\">"
+			"<span class=\"navbar_link\">Goto next room</span></a>"
 			"</td>\n"
 		);
 
