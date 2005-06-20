@@ -1,0 +1,417 @@
+<style type="text/css">
+
+* html {
+	overflow: hidden;
+}
+
+body {
+	margin:0;
+	padding: 0 0 0 0;
+	height: 100%;
+	overflow: auto;
+	background-image:url(/static/body-background.gif);
+	color: #000000;
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 10pt;
+}
+
+#iconbar {
+	position:fixed;
+	display:block;
+	top:0px;
+	left:0px;
+	width: 15%;
+	height:100%;
+	background: #ffffee;
+}
+
+* html #iconbar {
+	position:absolute;
+	display:block;
+	top:0px;
+	left:0px;
+	width: 15%;
+	height:100%;
+	background: #ffffff;
+}
+
+#banner {
+	position:fixed;
+	display:block;
+	top:0px;
+	left: 15%;
+	width: 85%;
+	height: 15%;
+	background: #444455;
+}
+
+* html #banner {
+	position:absolute;
+	display:block;
+	top:0px;
+	left: 15%;
+	width: 85%;
+	height: 15%;
+	background: #444455;
+}
+
+#page_popup {
+	position:absolute;
+	top:100px; left:100px;
+	background-color: #880000;
+	z-index: 2;
+}
+
+#content {
+	position:fixed;
+	display:block;
+	top: 15%;
+	left: 15%;
+	width: 85%;
+	height: 85%;
+	overflow: auto;
+	/* overflow-x: hidden; */
+}
+
+* html #content {
+	position:absolute;
+	display:block;
+	top: 15%;
+	left: 15%;
+	width: 85%;
+	height: 85%;
+	overflow: auto;
+	/* overflow-x: hidden; */
+}
+
+#fix_scrollbar_bug {
+	margin-right:1px;		/* Gecko */
+	width: expression('97%');	/* Only IE6 understands 'expression' and it also has the weird scrollbarbug */
+}
+
+#button {
+	width: 100%;
+	padding: 0 0 1em 0;
+	margin-bottom: 1em;
+	background-color: #ffffee;
+	color: #aaaaaa;
+	font-size: 8pt;
+}
+
+#button ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+#button li {
+	border-bottom: 1px solid #aaaaaa;
+	margin: 0;
+}
+
+#button img {
+	vertical-align: middle;
+	padding-left: 2px;
+	padding-right: 5px;
+}
+
+#button li a {
+	display: block;
+	background-color: #ffffee;
+	color: #000000;
+	text-decoration: none;
+	width: 100%;
+}
+
+html>body #button li a {
+	width: auto;
+}
+
+#button li a:hover {
+	//background-color: #ddddff;
+	background-image:url(/static/body-background.gif);
+	color: #000000;
+}
+
+a:link {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:active {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.menubar_link {
+	font-size: 9pt;
+}
+
+.navbar_link {
+	font-size: 7pt;
+	color: #FFFFEE;
+}
+
+.titlebar {
+	font-size: 12pt;
+	color: #FFFFEE;
+}
+
+.mainmenu {
+	font-size: 10pt;
+	font-weight: bold;
+	color: #880000;
+}
+
+.menudesc {
+	font-size: 8pt;
+	color: #000088;
+}
+
+.message_header {
+	font-size: 10pt;
+	color: #000000;
+}
+
+.message_subject {
+	font-size: 10pt;
+	color: #000000;
+	font-style: italic;
+}
+
+.tablabel {
+	font-size: 10pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+.boxlabel {
+	font-size: 7pt;
+	font-weight: bold;
+	color: #FFFFEE;
+}
+
+.youhavemail {
+	font-size: 6pt;
+	font-style: italic;
+	color: #000044;
+}
+
+.customize {
+	font-size: 8pt;
+	font-style: italic;
+	color: #000044;
+	background-color: #DDDDCC;
+}
+
+.room_banner_room_name {
+	font-size: 14pt;
+	font-weight: bold;
+	color: #FFFFEE;
+}
+
+.room_banner_room_info {
+	font-size: 6pt;
+	color: #FFFFEE;
+}
+
+.room_banner_new_messages {
+	font-size: 10pt;
+	color: #DDDDCC;
+}
+
+.room_banner_start_page {
+	font-size: 7pt;
+	color: #DDDDCC;
+}
+
+.menubar_bg {
+	background-color: #FF0000;
+}
+
+.roomlist_floor {
+	font-size: 12pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+.roomlist_new {
+	font-size: 10pt;
+	color: #880000;
+	font-weight: bold;
+}
+
+.roomlist_old {
+	font-size: 10pt;
+	color: #000088;
+}
+
+blockquote {
+	margin-left: 8%;
+	margin-right: 8%;
+	border: thin ridge #dc143c;
+}
+
+blockquote pre {
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+var sub {
+	font-style: normal;
+}
+
+.note {
+	font-size: 85%;
+	margin-left: 10%;
+}
+
+.toolbar {
+	text-align: center;
+}
+
+.toolbar IMG {
+	float: right;
+}
+
+.errormsg {
+	color: #AA0000;
+	background: none;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.warning {
+	color: #FF4500;
+	background: none;
+	text-decoration: none;
+}
+
+.error strong {
+	color: #DC143C;
+	background: #FFD700;
+	text-decoration: none;
+}
+
+.warning strong {
+	color: #FF4500;
+	background: #FFD700;
+	text-decoration: none;
+}
+
+.warning a:link, .warning a:visited, .warning a:active {
+	color: #FF4500;
+	background: none;
+	text-decoration: underline;
+}
+
+.error a:link, .error a:visited, .error a:active {
+	color: #DC143C;
+	background: none;
+	text-decoration: underline;
+}
+
+.error strong a:link, .error strong a:visited, .error strong a:active {
+	color: #DC143C;
+	background: #FFD700;
+}
+
+.warning strong a:link, .warning strong a:visited, .warning strong a:active {
+	color: #FF4500;
+	background: #FFD700;
+}
+
+colgroup.entity {
+	text-align: center;
+}
+
+.default {
+	text-decoration: underline;
+	font-style: normal;
+}
+
+.required {
+	font-weight: bold;
+}
+
+td li.transitional, .elements li.transitional {
+	font-weight: lighter;
+	color: #696969;
+	background: none;
+}
+
+td li.frameset, .elements li.frameset {
+	font-weight: lighter;
+	color: #808080;
+	background: none;
+}
+
+@media print {
+	input#toggler, .toolbar { display: none }
+}
+
+<!-- begin nanotree styles -->
+
+.treetitle {
+	padding:2px;
+	cursor:default;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+	color: #000000;
+}
+.editednode {
+	padding:2px;
+	cursor:default;
+	background-color: #FFFFFF;;
+	color: #000000;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.editednodeinput {
+	background-color: #FFFFFF;;
+	color: #000000;
+	
+	width: 150px;
+	height: 17px;
+	
+	border-style: solid;
+	border-width: 1px;
+	border-color: #000000;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.treetitleselectedfocused {
+	padding:2px;
+	cursor:default;
+	background-color: highlight;
+	color: highlighttext;
+	
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+.treetitleselectedblured {
+	padding:2px;
+	cursor:default;
+	background-color: menu;
+	color: windowtext;
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 11px;
+}
+
+<!-- end nanotree styles -->
+
+</style>
