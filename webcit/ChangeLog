@@ -1,4 +1,10 @@
 $Log$
+Revision 619.6  2005/06/20 03:47:44  ajc
+* inetconf.c: in save_inetconf(), eliminate sizeof(x) where x is a pointer
+  to a heap-allocated buffer rather than a char[xxx].  This fixes a problem
+  reported by at least one site where the Internet configuration screen
+  was malfunctioning.
+
 Revision 619.5  2005/06/19 04:11:52  ajc
 * Integrated the second batch of new icons.
 
@@ -2620,4 +2626,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
