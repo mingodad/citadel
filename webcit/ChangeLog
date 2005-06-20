@@ -1,4 +1,9 @@
 $Log$
+Revision 619.7  2005/06/20 20:38:50  ajc
+* The main stylesheet is now in a separate file in the static/ directory.
+  Something we did recently must have fixed the caching problem, because it's
+  only being fetched once now (or "now once" if you're Pennsylvania Dutch).
+
 Revision 619.6  2005/06/20 03:47:44  ajc
 * inetconf.c: in save_inetconf(), eliminate sizeof(x) where x is a pointer
   to a heap-allocated buffer rather than a char[xxx].  This fixes a problem
@@ -2626,3 +2631,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
