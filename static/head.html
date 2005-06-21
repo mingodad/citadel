@@ -8,28 +8,6 @@
 <meta http-equiv="expired" content="28-May-1971 18:10:00 GMT" />
 <meta name="MSSmartTagsPreventParsing" content="TRUE" />
 <link href="/static/webcit.css" rel="stylesheet" type="text/css">
-
-<script language="JavaScript">
-
-var browserType;
-
-if (document.layers) {browserType = "nn4"}
-if (document.all) {browserType = "ie"}
-if (window.navigator.userAgent.toLowerCase().match("gecko")) {
-	browserType= "gecko"
-}
-
-function hide_page_popup() {
-	if (browserType == "gecko" )
-		document.poppedLayer = eval('document.getElementById(\'page_popup\')');
-	else if (browserType == "ie")
-		document.poppedLayer = eval('document.all[\'page_popup\']');
-	else
-		document.poppedLayer = eval('document.layers[\'`page_popup\']');
-document.poppedLayer.style.visibility = "hidden";
-}
-
-</script>
-
+<script type="text/javascript" src="static/wclib.js"></script>
 </head>
 <body>

@@ -1,4 +1,9 @@
 $Log$
+Revision 619.8  2005/06/21 02:27:37  ajc
+* Moved some JavaScript functions out of head.html and into a new wclib.js
+  file, which can be included and cached.  This will form the basis for a
+  new WebCit JavaScript function library.
+
 Revision 619.7  2005/06/20 20:38:50  ajc
 * The main stylesheet is now in a separate file in the static/ directory.
   Something we did recently must have fixed the caching problem, because it's
@@ -2631,4 +2636,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

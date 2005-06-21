@@ -300,7 +300,7 @@ void do_iconbar(void) {
 		"<li><div align=\"center\">"
 		"<A HREF=\"/display_customize_iconbar\" "
 		"TITLE=\"Customize this menu\" "
-		">customize this menu</A>"
+		">customize this menu"
 		"</A></div></li>\n"
 	);
 
