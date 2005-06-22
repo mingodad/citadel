@@ -215,6 +215,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_pop3s_port);
 		cprintf("%d\n", config.c_smtps_port);
 		cprintf("%d\n", config.c_enable_fulltext);
+		cprintf("%d\n", config.c_auto_cull);
 		cprintf("000\n");
 	}
 
@@ -391,6 +392,9 @@ void cmd_conf(char *argbuf)
 				break;
 			case 42:
 				config.c_enable_fulltext = atoi(buf);
+				break;
+			case 43:
+				config.c_auto_cull = atoi(buf);
 				break;
 			}
 			++a;

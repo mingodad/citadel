@@ -176,6 +176,10 @@ void update_config(void) {
 		config.c_enable_fulltext = 0;
 	}
 
+	if (CitControl.version < 652) {
+		config.c_auto_cull = 1;
+	}
+
 	put_config();
 }
 

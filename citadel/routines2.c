@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 43
+#define NUM_CONFIGS 44
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][256];
@@ -731,6 +731,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Maximum message length", &sc[20][0], 20);
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
+	snprintf(sc[43], sizeof sc[43], "%d", (boolprompt(
+		"Automatically delete committed database logs",
+		atoi(&sc[43][0]))));
 
 	strprompt("Server IP address (0.0.0.0 for 'any')", &sc[37][0], 15);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);

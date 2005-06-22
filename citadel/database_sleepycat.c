@@ -282,7 +282,9 @@ static void cdb_checkpoint(void)
 	}
 
 	/* After a successful checkpoint, we can cull the unused logs */
-	cdb_cull_logs();
+	if (config.c_auto_cull) {
+		cdb_cull_logs();
+	}
 }
 
 

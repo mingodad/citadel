@@ -66,6 +66,7 @@ struct config {
 	int c_imaps_port;		/* IMAPS listener port (usually 993)*/
 	int c_pop3s_port;		/* POP3S listener port (usually 995)*/
 	int c_smtps_port;		/* SMTPS listener port (usually 465)*/
+	char c_auto_cull;		/* Cull db logs automatically?      */
 };
 
 

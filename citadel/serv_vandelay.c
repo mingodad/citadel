@@ -309,6 +309,7 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_disable_newu);
 	cprintf("%s\n", config.c_baseroom);
 	cprintf("%s\n", config.c_aideroom);
+	cprintf("%d\n", config.c_auto_cull);
 
 	/* Export the control file */
 	get_control();
@@ -383,6 +384,7 @@ void artv_import_config(void) {
 	client_getln(buf, sizeof buf);	config.c_disable_newu = atoi(buf);
 	client_getln(config.c_baseroom, sizeof config.c_baseroom);
 	client_getln(config.c_aideroom, sizeof config.c_aideroom);
+	client_getln(buf, sizeof buf);	config.c_auto_cull = atoi(buf);
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
