@@ -255,6 +255,15 @@ static void cdb_cull_logs(void)
 	}
 }
 
+/*
+ * Manually initiate log file cull.
+ */
+void cmd_cull(char *argbuf) {
+	if (CtdlAccessCheck(ac_internal)) return;
+	cdb_cull_logs();
+	cprintf("%d Database log file cull completed.\n", CIT_OK);
+}
+
 
 /*
  * Request a checkpoint of the database.
@@ -449,6 +458,8 @@ void open_databases(void)
 	}
 
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() finished\n");
+
+	CtdlRegisterProtoHook(cmd_cull, "CULL", "Cull database logs");
 }
 
 
