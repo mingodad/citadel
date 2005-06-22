@@ -605,6 +605,16 @@ void display_siteconfig(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_enable_fulltext\" VALUE=\"%s\">", buf);
 			}
 			break;
+		case 44:
+			if (!strcasecmp(whichmenu, "tuning")) {
+				wprintf("<TR><TD>Automatically delete committed database logs</TD><TD>");
+				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_auto_cull\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_auto_cull\" VALUE=\"%s\">", buf);
+			}
+			break;
 		}
 	}
 
@@ -737,6 +747,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_pop3s_port"));
 	serv_printf("%s", bstr("c_smtps_port"));
 	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((!strcasecmp(bstr("c_auto_cull"), "yes") ? "1" : "0")));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));

@@ -1,4 +1,7 @@
 $Log$
+Revision 619.9  2005/06/22 03:04:22  ajc
+* siteconfig.c: add "auto db log cull" setting now in Citadel 6.52
+
 Revision 619.8  2005/06/21 02:27:37  ajc
 * Moved some JavaScript functions out of head.html and into a new wclib.js
   file, which can be included and cached.  This will form the basis for a
@@ -2636,3 +2639,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
