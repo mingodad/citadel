@@ -8,7 +8,7 @@
 <body>
 <div align="center">
 <h1>C I T A D E L</h1>
-<h2>a messaging and collaboration platform for BBS bbnd groupware
+<h2>a messaging and collaboration platform for BBS and groupware
 applications</h2>
 Copyright &copy;1987-2005 by the Citadel development team:<br>
 <br>
@@ -215,6 +215,9 @@ interval</a></li>
   <li><a href="#Database_maintenance">Database maintenance</a></li>
   <ol>
     <li><a href="#Introduction_">Introduction</a></li>
+    <li><a href="#Backing_up_your_Citadel_database">Backing up your
+Citadel database</a><br>
+    </li>
     <li><a href="#Database_repair">Database repair</a></li>
     <li><a href="#ImportingExporting_your_Citadel">Importing/Exporting
 your Citadel database</a><br>
@@ -1587,7 +1590,7 @@ only the sender and recipient of each individual message will receive a
 copy.</p>
 <p>The next set of options deals with the tuning of your system. It is
 usually safe to leave these untouched.</p>
-<pre>Server connection idle timeout (in seconds) [900]: <br>Maximum concurrent sessions [20]: <br>Maximum message length [10000000]: <br>Minimum number of worker threads [5]: <br>Maximum number of worker threads [256]: <br></pre>
+<pre>Server connection idle timeout (in seconds) [900]: <br>Maximum concurrent sessions [20]: <br>Maximum message length [10000000]: <br>Minimum number of worker threads [5]: <br>Maximum number of worker threads [256]: <br>Automatically delete committed database logs [Yes]:<br></pre>
 <p>The 'Server connection idle timeout' is for the connection between
 client and server software. It is <b>not</b> an idle timer for the
 user interface. 900 seconds (15 minutes) is the default and a sane
@@ -1611,7 +1614,16 @@ worker thread model, Citadel can handle a large number of concurrent
 sessions
 with a much smaller thread pool. If you don't know the programming
 theory
-behind multithreaded servers, you should leave these parameters alone.</p>
+behind multithreaded servers, you should leave these parameters alone.<br>
+</p>
+<p>'Automatically delete committed database logs' is a <span
+ style="font-style: italic;">crucial</span> setting which affects your
+system's disk utilization and backup recoverability.&nbsp; Please refer
+to the <a href="#Database_maintenance">database maintenance</a>
+section of this document to learn how the presence or absence of
+database logs affect your ability to reliably backup your Citadel
+system.<br>
+</p>
 <p>The next set of options affect how Citadel behaves on a network.</p>
 <pre>Server IP address (0.0.0.0 for 'any') [0.0.0.0]:<br>POP3 server port (-1 to disable) [110]:<br>POP3S server port (-1 to disable) [995]:<br>IMAP server port (-1 to disable) [143]:<br>IMAPS server port (-1 to disable) [993]:<br>SMTP MTA server port (-1 to disable) [25]:<br>SMTP MSA server port (-1 to disable) [587]:<br>SMTPS server port (-1 to disable) [465]:<br>Correct forged From: lines during authenticated SMTP [Yes]:<br></pre>
 <p>"Server IP address" refers to the IP address on <span
@@ -1945,15 +1957,20 @@ server, while keeping the existing Unix mailboxes intact.&nbsp;
 However, it is beyond the scope of this document to detail the finer
 points of the configuration of Postfix or any other mailer, so refer to
 the documentation to those programs and keep in mind that Citadel has
-LMTP support.<span style="font-family: monospace;"></p>
-<p>There are actually <i>two</i> LMTP sockets.  One is called
+LMTP support.<span style="font-family: monospace;"></span></p>
+<p>There are actually <i>two</i> LMTP sockets. One is called
 <tt>lmtp.socket</tt> and the other is called <tt>lmtp-unfiltered.socket</tt>
-(both are found in your Citadel directory).  The difference should be
-obvious: messages submitted via <tt>lmtp.socket</tt> are subject to any
-spam filtering you may have configured (such as SpamAssassin), while messages
-submitted via <tt>lmtp-unfiltered.socket</tt> will bypass the filters.  You
-would use the filtered socket when receiving mail from an external MTA such
-as Postfix, but you might want to use the unfiltered socket with utilities
+(both are found in your Citadel directory). The difference should be
+obvious: messages submitted via <tt>lmtp.socket</tt> are subject to
+any
+spam filtering you may have configured (such as SpamAssassin), while
+messages
+submitted via <tt>lmtp-unfiltered.socket</tt> will bypass the filters.
+You
+would use the filtered socket when receiving mail from an external MTA
+such
+as Postfix, but you might want to use the unfiltered socket with
+utilities
 such as fetchmail.</p>
 <br>
 <p>For outbound mail, you
@@ -2201,19 +2218,77 @@ record manager. &nbsp;It is robust, high-performance, and transactional.<br>
 A few small data files are kept in your main Citadel directory, but the
 databases are in the <tt>data/</tt> subdirectory. &nbsp;The files with
 names that begin with "cdb" are the databases themselves; the files
-with names that begin with "log" are the journals. &nbsp;Journal files
-will come and go as you use your system; when the database engine has
-determined that a particular log file is no longer needed, the file
-will automatically be deleted. &nbsp;Nevertheless, you should always
-ensure that there is ample disk space for the files to grow.<br>
+with names that begin with "log" are the logs (sometimes referred to as
+"journals").&nbsp; Log files will continue to appear as you use your
+system; each will grow to approximately 10 megabytes in size before a
+new one is started.&nbsp; There is a system configuration setting
+(found in <span style="font-family: monospace;"><span
+ style="font-weight: bold;">.A</span>ide <span
+ style="font-weight: bold;">S</span>ystem-configuration <span
+ style="font-weight: bold;">G</span>eneral</span> in the text mode
+client, or in <span style="font-family: monospace;">Administration
+--&gt; Edit site-wide configuration --&gt; Tuning</span> in the WebCit
+client) which specifies "Automatically delete committed database
+logs."&nbsp; If you have this option enabled, Citadel will
+automatically delete any log files whose contents have been fully
+committed to the database files.<br>
 <br>
-There is no need to shut down Citadel during backups. &nbsp;The data
-store may be backed up "hot." &nbsp;The makers of Berkeley DB suggest
-that you should back up the data files <i>first</i> and the log files <i>second</i>.
-&nbsp;This is the only method that will guarantee that a database which
-is being changed while you back it up will still be usable when you
-restore it
-from the tape later.<br>
+For more insight into how the database and log files work, you may wish
+to read the <a
+ href="http://www.sleepycat.com/docs/ref/transapp/archival.html">Berkeley
+DB documentation</a> on this subject.<br>
+<br>
+<h3><a name="Backing_up_your_Citadel_database"></a>Backing up your
+Citadel database</h3>
+<span style="font-weight: bold;">Please read this section carefully.</span><br>
+<br>
+There are two backup strategies you can use, depending on your site's
+availability requirements and disk space availability.<br>
+<h5>Strategy #1: Standard backup</h5>
+The standard (or "offline") backup is used when your Citadel server is
+configured to automatically delete committed database logs.&nbsp; The
+backup procedure is as follows:<br>
+<ol>
+  <li>Shut down the Citadel server.</li>
+  <li>Back up all files (database files, log files, etc.) to tape or
+some other backup media.</li>
+  <li>Start the Citadel server.</li>
+</ol>
+<span style="font-style: italic;">Advantage:</span> very little disk
+space is consumed by the logs.<br>
+<span style="font-style: italic;">Disadvantage:</span> Citadel is not
+available during backups.<br>
+<br>
+<h5>Strategy #2: "Hot" backup</h5>
+The "hot backup" procedure is used when your Citadel server is
+configured <span style="font-weight: bold;">not</span> to
+automatically delete committed database logs.&nbsp; The backup
+procedure is as follows:<br>
+<ol>
+  <li>Back up all files.&nbsp; Make sure the database files (<span
+ style="font-family: monospace;">cdb.*</span>) are backed up <span
+ style="font-style: italic;">before</span> the log files (<span
+ style="font-family: monospace;">log.*</span>).&nbsp; This will usually
+be the case, because the database files tend to appear first in both
+alphabetical and on-disk ordering of the <span
+ style="font-family: monospace;">data/</span> directory.</li>
+  <li>After verifying that your backup completed successfully, delete
+the committed log files with a command like this:</li>
+</ol>
+<span style="font-family: monospace;">db_archive -d -h
+/usr/local/citadel/data</span><br>
+<br>
+<span style="font-style: italic;">Advantage:</span> Citadel continues
+to run normally during backups.<span style="font-style: italic;"><br>
+Disadvantage:</span> Much disk space is consumed by the log files,
+particularly if the full text indexer is turned on.<br>
+<br>
+<br>
+It is up to you to decide which backup strategy to use.&nbsp; <span
+ style="font-weight: bold;">Warning: if you configure Citadel to
+automatically delete committed database logs, and do not shut the
+Citadel service down during backups, there is no guarantee that your
+backups will be usable!</span><br>
 <br>
 <h3><a name="Database_repair"></a>Database repair</h3>
 Although Citadel's data store is quite reliable, database corruption
