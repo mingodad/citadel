@@ -159,7 +159,6 @@ void groupdav_main(struct httprequest *req,
 	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
 		strcpy(ds, ds+1);
 	}
-	lprintf(9, "dav_pathname: %s\n", dav_pathname);
 
 	/*
 	 * If there's an If-Match: header, strip out the quotes if present, and
