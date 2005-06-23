@@ -123,6 +123,7 @@ void groupdav_main(struct httprequest *req,
 	char dav_method[SIZ];
 	char dav_pathname[SIZ];
 	char dav_ifmatch[SIZ];
+	char *ds;
 	int i;
 
 	strcpy(dav_method, "");
@@ -153,6 +154,12 @@ void groupdav_main(struct httprequest *req,
 	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
 	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
 	unescape_input(dav_pathname);
+	
+	/* Remove any stray double-slashes in pathname */
+	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
+		strcpy(ds, ds+1);
+	}
+	lprintf(9, "dav_pathname: %s\n", dav_pathname);
 
 	/*
 	 * If there's an If-Match: header, strip out the quotes if present, and
