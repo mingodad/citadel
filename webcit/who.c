@@ -112,7 +112,7 @@ void whobbs(void)
 			wprintf("</TD>");
 
 			/* (link to page this user) */
-			wprintf("<TD><A HREF=\"/display_page&recp=");
+			wprintf("<TD><A HREF=\"/display_page?recp=");
 			urlescputs(user);
 			wprintf("\">"
 				"<IMG ALIGN=MIDDLE WIDTH=20 HEIGHT=15 "

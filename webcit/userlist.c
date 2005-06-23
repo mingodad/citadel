@@ -160,7 +160,7 @@ void showuser(void)
 	if (buf[0] == '1') {
 		fmout(NULL, "JUSTIFY");
 	}
-	wprintf("<br /><A HREF=\"/display_page&recp=");
+	wprintf("<br /><A HREF=\"/display_page?recp=");
 	urlescputs(who);
 	wprintf("\">"
 		"<IMG SRC=\"/static/page.gif\" ALIGN=MIDDLE BORDER=0>"
