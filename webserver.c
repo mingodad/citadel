@@ -408,14 +408,18 @@ int main(int argc, char **argv)
 	int port = PORT_NUM;	/* Port to listen on */
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
+	char *webcitdir = WEBCITDIR;
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "hi:p:t:x:cs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:cs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "hi:p:t:x:c")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:c")) != EOF)
 #endif
 		switch (a) {
+		case 'h':
+			webcitdir = strdup(optarg);
+			break;
 		case 'i':
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
 			break;
@@ -467,12 +471,15 @@ int main(int argc, char **argv)
 	}
 	/* Tell 'em who's in da house */
 	lprintf(1, SERVER "\n"
-		"Copyright (C) 1996-2005 by the Citadel/UX development team.\n"
-		"This software is distributed under the terms of the GNU General Public\n"
-		"License.  If you paid for this software, someone is ripping you off.\n\n");
+		"Copyright (C) 1996-2005 by the Citadel development team.\n"
+		"This software is distributed under the terms of the "
+		"GNU General Public License.\n\n"
+	);
 
-	if (chdir(WEBCITDIR) != 0)
+	lprintf(9, "Changing directory to %s\n", webcitdir);
+	if (chdir(webcitdir) != 0) {
 		perror("chdir");
+	}
 
 	/*
 	 * Set up a place to put thread-specific data.
