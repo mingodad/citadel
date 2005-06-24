@@ -2588,7 +2588,7 @@ void knrooms() {
 	/* Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
 		if (strlen(bstr("view")) > 0) {
-			set_preference("roomlistview", bstr("view"));
+			set_preference("roomlistview", bstr("view"), 1);
 		}
 	}
 

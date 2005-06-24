@@ -315,7 +315,9 @@ void calendar_day_view_display_events(int year, int month,
 void calendar_day_view(int year, int month, int day) {
 	int hour;
 	struct icaltimetype today, yesterday, tomorrow;
+	char calhourformat[16];
 
+	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 
 	/* Figure out the dates for "yesterday" and "tomorrow" links */
 
@@ -365,10 +367,17 @@ void calendar_day_view(int year, int month, int day) {
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			year, month, day, hour
 		);
-		wprintf("%d:00%s</A> ",
-			(hour <= 12 ? hour : hour-12),
-			(hour < 12 ? "am" : "pm")
-		);
+
+		if (!strcasecmp(calhourformat, "24")) {
+			wprintf("%2d:00</A> ", hour);
+		}
+		else {
+			wprintf("%d:00%s</A> ",
+				(hour <= 12 ? hour : hour-12),
+				(hour < 12 ? "am" : "pm")
+			);
+		}
+
 		wprintf("</TD><TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
 
 		/* put the data here, stupid */

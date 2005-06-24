@@ -1,4 +1,10 @@
 $Log$
+Revision 619.12  2005/06/24 19:58:02  ajc
+* Added a "preferences and settings" screen for each user.
+* Removed the javascript date output stuff because it's not granular
+  or international enough.
+* All dates and times can now be 12 or 24 hours.
+
 Revision 619.11  2005/06/24 15:17:48  ajc
 * The date/time stamp of messages are now output using JavaScript's
   toLocaleString() function, observing the browser's locale and timezone
@@ -2648,4 +2654,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

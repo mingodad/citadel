@@ -762,7 +762,7 @@ void change_start_page(void) {
 		return;
 	}
 
-	set_preference("startpage", bstr("startpage"));
+	set_preference("startpage", bstr("startpage"), 1);
 
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 	do_template("newstartpage");
@@ -1359,6 +1359,10 @@ void session_loop(struct httprequest *req)
 		save_inetconf();
 	} else if (!strcasecmp(action, "setup_wizard")) {
 		do_setup_wizard();
+	} else if (!strcasecmp(action, "display_preferences")) {
+		display_preferences();
+	} else if (!strcasecmp(action, "set_preferences")) {
+		set_preferences();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0, 0);
 
