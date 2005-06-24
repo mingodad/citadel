@@ -416,6 +416,7 @@ void read_message(long msgnum) {
 	char node[SIZ];
 	char rfca[SIZ];
 	char reply_to[512];
+	char now[SIZ];
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
@@ -499,9 +500,8 @@ void read_message(long msgnum) {
 		if (!strncasecmp(buf, "rcpt=", 5))
 			wprintf("to %s ", &buf[5]);
 		if (!strncasecmp(buf, "time=", 5)) {
-			wprintf("<script type=\"text/javascript\">"
-				"output_datetime(%s);"
-				"</script> ", &buf[5]);
+			fmt_date(now, atol(&buf[5]), 0);
+			wprintf("%s ", now);
 		}
 
 		if (!strncasecmp(buf, "part=", 5)) {
@@ -1663,7 +1663,7 @@ void display_enter(void)
 	}
 
 	now = time(NULL);
-	strcpy(buf, "");
+	fmt_date(buf, now, 0);
 	strcat(&buf[strlen(buf)], " <I>from</I> ");
 	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
 	if (strlen(bstr("recp")) > 0) {
@@ -1686,11 +1686,7 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n",
 		now);
 
-	/* header bar */
-	wprintf("<script type=\"text/javascript\">"
-		"output_datetime(%ld);"
-		"</script> ", now);
-	wprintf("%s<br>\n", buf);
+	wprintf("%s<br>\n", buf);	/* header bar */
 	wprintf("<img src=\"static/enter.gif\" align=middle alt=\" \">");
 		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
 	wprintf("<font size=-1>Subject (optional):</font>"

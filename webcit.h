@@ -419,7 +419,7 @@ void do_stuff_to_msgs(void);
 void load_preferences(void);
 void save_preferences(void);
 void get_preference(char *key, char *value, size_t value_len);
-void set_preference(char *key, char *value);
+void set_preference(char *key, char *value, int save_to_server);
 void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);
 char *safestrncpy(char *dest, const char *src, size_t n);
@@ -452,7 +452,8 @@ void set_room_policy(void);
 void display_inetconf(void);
 void save_inetconf(void);
 void generate_uuid(char *);
-
+void display_preferences(void);
+void set_preferences(void);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);

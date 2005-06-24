@@ -136,9 +136,14 @@ void display_main_menu(void)
 	svprintf("BOXTITLE", WCS_STRING, "Your info");
 	do_template("beginbox");
 
+	wprintf("<A HREF=\"/display_preferences\">"
+		"<span class=\"mainmenu\">"
+		"Change your preferences and settings"
+		"</span><br />\n");
+
 	wprintf("<A HREF=\"/display_reg\">"
 		"<span class=\"mainmenu\">"
-		"Update your contact information "
+		"Update your contact information"
 		"</span><br />\n");
 
 	wprintf("<A HREF=\"/display_changepw\">"

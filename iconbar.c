@@ -608,7 +608,7 @@ void commit_iconbar(void) {
 		}
 	}
 
-	set_preference("iconbar", iconbar);
+	set_preference("iconbar", iconbar, 1);
 
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 	wprintf(

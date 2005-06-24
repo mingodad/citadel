@@ -72,6 +72,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	struct tm tm;
 	const int span = 10;
 	int all_day_event = 0;
+	char calhourformat[16];
+
+	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 
 	now = time(NULL);
 	localtime_r(&now, &tm_now);
@@ -129,10 +132,20 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("Hour: ");
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-			((tm.tm_hour == i) ? "SELECTED" : ""),
-			i, hourname[i]
-		);
+
+		if (!strcasecmp(calhourformat, "24")) {
+			wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
+				((tm.tm_hour == i) ? "SELECTED" : ""),
+				i, i
+			);
+		}
+		else {
+			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
+				((tm.tm_hour == i) ? "SELECTED" : ""),
+				i, hourname[i]
+			);
+		}
+
 	}
 	wprintf("</SELECT>\n");
 
