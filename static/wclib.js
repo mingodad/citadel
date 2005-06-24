@@ -27,3 +27,12 @@ function hide_page_popup() {
 		document.poppedLayer = eval('document.layers[\'`page_popup\']');
 document.poppedLayer.style.visibility = "hidden";
 }
+
+
+// Given a unix timestamp, outputs a date/time using the browser's
+// timezone and locale.
+function output_datetime(unixtimestamp) {
+	var now = new Date();
+	now.setTime(unixtimestamp * 1000);
+	document.write(now.toLocaleString());
+}

@@ -1,4 +1,9 @@
 $Log$
+Revision 619.11  2005/06/24 15:17:48  ajc
+* The date/time stamp of messages are now output using JavaScript's
+  toLocaleString() function, observing the browser's locale and timezone
+  instead of the web server's.
+
 Revision 619.10  2005/06/23 04:01:59  ajc
 * groupdav_main.c: remove double slashes in path name
   (suggested by Johannes Schneider)
@@ -2643,3 +2648,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
