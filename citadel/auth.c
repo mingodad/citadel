@@ -3,6 +3,7 @@
  *
  * system-level password checking for autologin
  * by Nathan Bryant, March 1999
+ * updated by Trey van Riper, June 2005
  *
  */
 
@@ -79,6 +80,7 @@ static int conv(int num_msg, const struct pam_message **msg,
 }
 #endif /* HAVE_PAM_START */
 
+
 /*
  * validpw(): check that `pass' is the correct password for `uid'
  *            returns zero if no, nonzero if yes
@@ -87,46 +89,51 @@ static int conv(int num_msg, const struct pam_message **msg,
 int validpw(uid_t uid, const char *pass)
 {
 #ifdef HAVE_PAM_START
-  struct pam_conv pc;
-  struct appdata data;
-  pam_handle_t *ph;
-  int i;
+	struct pam_conv pc;
+	struct appdata data;
+	pam_handle_t *ph;
+	int i;
 #else
-  char *crypted_pwd;
+	char *crypted_pwd;
 #ifdef HAVE_GETSPNAM
-  struct spwd *sp;
+	struct spwd *sp;
 #endif
 #endif
-  struct passwd *pw;
-  int retval = 0;
+	struct passwd *pw;
+	int retval = 0;
+	int flags = 0;
 
-  if ((pw = getpwuid(uid)) == NULL)
-    return retval;
+#ifdef PAM_DATA_SILENT
+	flags = flags | PAM_DATA_SILENT
+#endif /* PAM_DATA_SILENT */
+	    if ((pw = getpwuid(uid)) == NULL)
+		return retval;
 
 #ifdef HAVE_PAM_START
-  pc.conv = conv;
-  pc.appdata_ptr = &data;
-  data.name = pw->pw_name;
-  data.pw = pass;
-  if (pam_start("citadel", pw->pw_name, &pc, &ph) != PAM_SUCCESS)
-    return retval;
+	pc.conv = conv;
+	pc.appdata_ptr = &data;
+	data.name = pw->pw_name;
+	data.pw = pass;
+	if (pam_start("citadel", pw->pw_name, &pc, &ph) != PAM_SUCCESS)
+		return retval;
 
-  if ((i = pam_authenticate(ph, PAM_SILENT)) == PAM_SUCCESS)
-    if ((i = pam_acct_mgmt(ph, PAM_SILENT)) == PAM_SUCCESS)
-      retval = -1;
+	if ((i = pam_authenticate(ph, flags)) == PAM_SUCCESS)
+		if ((i = pam_acct_mgmt(ph, flags)) == PAM_SUCCESS)
+			retval = -1;
 
-  pam_end(ph, i | PAM_DATA_SILENT);
+	pam_end(ph, i | flags);
 #else
-  crypted_pwd = pw->pw_passwd;
+	crypted_pwd = pw->pw_passwd;
 
 #ifdef HAVE_GETSPNAM
-  if ((sp = getspnam(pw->pw_name)) != NULL)
-    crypted_pwd = sp->sp_pwdp;
+	if ((sp = getspnam(pw->pw_name)) != NULL)
+		crypted_pwd = sp->sp_pwdp;
 #endif
 
-  if (!strcmp(crypt(pass, crypted_pwd), crypted_pwd))
-    retval = -1;
-#endif /* HAVE_PAM_START */
+	if (!strcmp(crypt(pass, crypted_pwd), crypted_pwd))
+		retval = -1;
+#endif				/* HAVE_PAM_START */
 
-  return retval;
+	return retval;
 }
+

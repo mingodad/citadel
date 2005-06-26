@@ -1,4 +1,7 @@
 $Log$
+Revision 651.4  2005/06/26 22:19:20  ajc
+* auth.c: applied fleeb's patch to validpw() to clean up FreeBSD compatibility
+
 Revision 651.3  2005/06/22 03:45:17  ajc
 * Documented the auto-log-cull as it relates to backup strategies
 
@@ -6888,4 +6891,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
