@@ -103,11 +103,14 @@ int validpw(uid_t uid, const char *pass)
 	int retval = 0;
 	int flags = 0;
 
+	flags = 0;	/* silences compiler warning */
+
 #ifdef PAM_DATA_SILENT
-	flags = flags | PAM_DATA_SILENT
+	flags = ( flags | PAM_DATA_SILENT ) ;
 #endif /* PAM_DATA_SILENT */
-	    if ((pw = getpwuid(uid)) == NULL)
+	if ((pw = getpwuid(uid)) == NULL) {
 		return retval;
+	}
 
 #ifdef HAVE_PAM_START
 	pc.conv = conv;
