@@ -1464,7 +1464,7 @@ void post_mime_to_server(void) {
 		serv_printf("--%s", boundary);
 	}
 
-	serv_puts("Content-type: text/html");
+	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("");
 	serv_puts("<HTML><BODY>\n");
 	text_to_server(bstr("msgtext"), 0);
