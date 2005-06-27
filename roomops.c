@@ -404,7 +404,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	if (navbar_style != navbar_none) {
 
 		wprintf("<div style=\"position:absolute; bottom:0px; left:0px\">\n"
-			"<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%%\"><tr>\n");
+			"<table width=\"100%%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n");
 
 
 		if (navbar_style == navbar_default) wprintf(

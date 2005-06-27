@@ -363,7 +363,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	httpdate(httpnow, time(NULL));
 
 	if (do_httpheaders) {
-		wprintf("Content-type: text/html\r\n"
+		wprintf("Content-type: text/html; charset=utf-8\r\n"
 			"Server: %s / %s\n"
 			"Connection: close\r\n",
 			SERVER, serv_info.serv_software
@@ -455,7 +455,7 @@ void http_redirect(char *whichpage) {
 	wprintf("HTTP/1.0 302 Moved Temporarily\n");
 	wprintf("Location: %s\r\n", whichpage);
 	wprintf("URI: %s\r\n", whichpage);
-	wprintf("Content-type: text/html\r\n\r\n");
+	wprintf("Content-type: text/html; charset=utf-8\r\n\r\n");
 	wprintf("<html><body>\n");
 	wprintf("you really want to be <A HREF=\"%s\">here</A> now\n",
 		whichpage);
