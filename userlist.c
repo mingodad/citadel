@@ -38,8 +38,8 @@ void userlist(void)
 {
 	char buf[SIZ];
 	char fl[SIZ];
-	struct tm *tmbuf;
-	long lc;
+	struct tm tmbuf;
+	time_t lc;
 	struct namelist *bio = NULL;
 	struct namelist *bptr;
 	int has_bio;
@@ -100,11 +100,11 @@ void userlist(void)
 			extract_long(buf, 2),
 			extract_int(buf, 1));
 		lc = extract_long(buf, 3);
-		tmbuf = (struct tm *) localtime(&lc);
+		localtime_r(&lc, &tmbuf);
 		wprintf("%02d/%02d/%04d ",
-			(tmbuf->tm_mon + 1),
-			tmbuf->tm_mday,
-			(tmbuf->tm_year + 1900));
+			(tmbuf.tm_mon + 1),
+			tmbuf.tm_mday,
+			(tmbuf.tm_year + 1900));
 
 
 		wprintf("</TD><TD>%ld</TD><TD>%5ld</TD></TR>\n",

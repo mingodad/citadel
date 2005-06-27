@@ -1,4 +1,7 @@
 $Log$
+Revision 619.14  2005/06/27 22:15:38  ajc
+* Header file adjustments to make it work on FreeBSD
+
 Revision 619.13  2005/06/27 17:38:06  ajc
 * HTML pages are now output as "Content-type: text/html; charset=utf-8"
   UTF-8 is going to be the standard character set for the Citadel system.
@@ -2658,4 +2661,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

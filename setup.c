@@ -7,23 +7,39 @@
  *
  */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <netdb.h>
-#include <errno.h>
-#include <limits.h>
-#include <pwd.h>
 
+#include <ctype.h>
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <stdio.h>
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <pthread.h>
+#include <signal.h>
+#include <sys/utsname.h>
 #include "webcit.h"
+#include "webserver.h"
+
 
 #ifdef HAVE_NEWT
 #include <newt.h>
