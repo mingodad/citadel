@@ -588,7 +588,7 @@ processing) </li>
 the system. It is mandatory that the sysop have "root" access to the
 operating system. The following are required to install Citadel: </p>
 <ul>
-  <li>A Unix operating system (Linux, BSD, Solaris, Tru64, HP/UX) </li>
+  <li>A unix-like operating system (Linux, FreeBSD, Solaris, etc.) </li>
   <li>C compiler (<a href="http://gcc.gnu.org/">GCC</a> with <a
  href="http://www.gnu.org/software/make/make.html">gmake</a> is the
 recommended build environment) </li>
@@ -601,22 +601,26 @@ newer (if you want the calendar service to work)<br>
   <li>Enough disk space to hold all of the programs and data </li>
 </ul>
 <p>If you are running Citadel on a Linux system, it is STRONGLY
-recommended that you run it on a recent distribution (such as <a
- href="http://www.redhat.com">Red Hat</a> 7.3 or newer). A new-ish
+recommended that you run it on a recent distribution (such as Fedora
+Core 3 or newer). A new-ish
 distribution will have most or all of the prerequisite tools and
 libraries already integrated for you.</p>
-<h3>Now available:</h3>
+<h3>Other pieces which complete the Citadel system:</h3>
 <ul>
   <li>"WebCit", a gateway program to allow full access to Citadel via
 the World Wide Web. Interactive access through any Web browser. </li>
   <li>Access to Citadel via <i>any</i> standards-compliant e-mail
 program, thanks to Citadel's built-in SMTP, POP, and IMAP services.
 You can use Mozilla, Netscape, Evolution, Eudora, Pine, Outlook, etc.
-with Citadel. </li>
+with Citadel.</li>
+  <li>Access to Citadel's calendar and address book functions using any
+GroupDAV-enabled PIM client (requires WebCit).<br>
+  </li>
 </ul>
 <h3>Coming soon:</h3>
 <ul>
-  <li>Newer and better GUI-based clients.</li>
+  <li>More integration with third-party software.<br>
+  </li>
 </ul>
 <h3><a name="Everything_in_its_place..."></a>Everything in its place...</h3>
 <p>Hopefully you've unpacked the distribution archive into its own
@@ -648,11 +652,11 @@ will use <tt>/usr/local/citadel</tt>) and the shell should be either
 "citadel" in
 that directory, or a script that will start up the citadel client.
 Example:</p>
-<pre>bbs::100:1:Citadel Login:/usr/local/citadel:/usr/local/citadel/citadel<br></pre>
+<pre>citadel::100:1:Citadel Login:/usr/local/citadel:/usr/local/citadel/citadel<br></pre>
 <p>When you run setup later, you will be required to tell it the
 username or user ID of the account you created is, so it knows what
-user to run as. If you create an account called <tt>bbs</tt>, <tt>guest</tt>,
-or <tt>citadel</tt>, the setup program will automatically pick up the
+user to run as. If you create an account called <tt>citadel, bbs</tt>,
+or <tt>guest</tt>, the setup program will automatically pick up the
 user ID by default.</p>
 <p>For all other users in /etc/passwd (or in some other name service
 such as NIS), Citadel will automatically set up
@@ -791,8 +795,9 @@ else in your system. The variable <tt>PRINTCMD</tt> in <tt>citadel.rc</tt>
 specifies what command you use to print. Text is sent to the standard
 input (stdin) of the print command.</p>
 <p>So if you did this:</p>
-<pre>printcmd="nl|pr|lpr -Plocal"<br></pre>
-<p>...that would add line numbers, then paginate, then print on the
+<pre>printcmd="a2ps -o - |lpr -Plocal"<br></pre>
+<p>...that would convert the printed text to PostScript, then print on
+the
 printer named "local". There's tons of stuff you can do with this
 feature. For example, you could use a command like <tt>cat
 &lt;&lt;$HOME/archive</tt> to save copies of important messages in a
@@ -997,7 +1002,7 @@ install</tt> ?? </li>
 </ul>
 <p>To report a problem, you can log on to <a
  href="http://uncensored.citadel.org">UNCENSORED!</a> or any other BBS
-on the Citadel network which carries the <tt>Citadel&gt;</tt> room.
+on the Citadel network which carries the <tt>Citadel/UX&gt;</tt> room.
 Please DO NOT e-mail the developers directly. Post a request for help
 on the BBS, with all of the following information: </p>
 <ul>
@@ -1750,7 +1755,10 @@ day.</p>
 build and maintain a searchable index of all messages on the
 system.&nbsp; This is a time and resource intensive process -- it could
 take days to build the index if you enable it on a large
-database.&nbsp; Once enabled, however, it will be updated incrementally
+database.&nbsp; It is also fairly memory intensive; we do not recommend
+that you enable the index unless your host system has at least 512 MB
+of memory.&nbsp; Once enabled, however, it will be updated
+incrementally
 and will not have any noticeable impact on the interactive response
 time of your system.&nbsp; The full text index is currently only
 searchable when using IMAP clients; other search facilities will be
@@ -2281,7 +2289,8 @@ alphabetical and on-disk ordering of the <span
   <li>After verifying that your backup completed successfully, delete
 the committed log files with a command like this:</li>
 </ol>
-<span style="font-family: monospace;">/usr/local/citadel/sendcommand &quot;CULL&quot;</span><br>
+<span style="font-family: monospace;">/usr/local/citadel/sendcommand
+"CULL"</span><br>
 <br>
 <span style="font-style: italic;">Advantage:</span> Citadel continues
 to run normally during backups.<span style="font-style: italic;"><br>
@@ -2679,10 +2688,7 @@ require textual input will read it from stdin. Commands which generate
 textual output will be sent to stdout.</p>
 <p>This utility is intended to be used to enable Citadel server
 commands to
-be executed from shell scripts. Review the script called <tt>weekly</tt>
-which ships with the Citadel distribution for an example of how this
-can
-be used.</p>
+be executed from shell scripts.</p>
 <p><b>NOTE:</b> be sure that this utility is not world-executable. It
 connects to the server in privileged mode, and therefore could present
 a security hole

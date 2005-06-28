@@ -1,4 +1,7 @@
 $Log$
+Revision 651.5  2005/06/28 02:58:19  ajc
+* docs update
+
 Revision 651.4  2005/06/26 22:19:20  ajc
 * auth.c: applied fleeb's patch to validpw() to clean up FreeBSD compatibility
 
@@ -6891,3 +6894,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
