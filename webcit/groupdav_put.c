@@ -148,7 +148,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		wprintf("HTTP/1.1 201 Created\r\n");
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
-		wprintf("ETag: \"%ld\"\r\n", new_msgnum);
+		wprintf("etag: \"%ld\"\r\n", new_msgnum);
 		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
 		if (strlen(WC->http_host) > 0) {
@@ -167,7 +167,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	wprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	wprintf("ETag: \"%ld\"\r\n", new_msgnum);
+	wprintf("etag: \"%ld\"\r\n", new_msgnum);
 	wprintf("Content-Length: 0\r\n\r\n");
 
 	/* The item we replaced has probably already been deleted by
