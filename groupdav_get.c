@@ -87,7 +87,7 @@ void groupdav_get(char *dav_pathname) {
 
 	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
-	wprintf("ETag: \"%ld\"\r\n", dav_msgnum);
+	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "Date: ", 6)) {
 			wprintf("%s\r\n", buf);

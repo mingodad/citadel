@@ -1,4 +1,8 @@
 $Log$
+Revision 619.15  2005/06/28 14:12:38  ajc
+* GroupDAV HTTP header "ETag:" is now output as "etag:" in order to deal with
+  a case-sensitivity bug in the Kontact client.
+
 Revision 619.14  2005/06/27 22:15:38  ajc
 * Header file adjustments to make it work on FreeBSD
 
@@ -2661,3 +2665,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
