@@ -1,4 +1,11 @@
 $Log$
+Revision 619.19  2005/06/29 17:55:32  ajc
+* Any HTTP method other than GET or POST is now routed directly to the
+  GroupDAV code.  This will eventually allow requests such as "PROPFIND /"
+  to work.
+* GroupDAV requests not beginning with "/groupdav" now automatically have
+  that prefix prepended to them.
+
 Revision 619.18  2005/06/29 15:25:00  ajc
 * Added an experimental OPTIONS method.  This is not required by GroupDAV,
   but it is an experiment to see whether we can use the same code framework
@@ -2679,3 +2686,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
