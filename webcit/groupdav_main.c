@@ -180,6 +180,16 @@ void groupdav_main(struct httprequest *req,
 	}
 
 	/*
+	 * The OPTIONS method is not required by GroupDAV.  This is an
+	 * experiment to determine what might be involved in supporting
+	 * other variants of DAV in the future.
+	 */
+	if (!strcasecmp(dav_method, "OPTIONS")) {
+		groupdav_options(dav_pathname);
+		return;
+	}
+
+	/*
 	 * The PROPFIND method is basically used to list all objects in a
 	 * room, or to list all relevant rooms on the server.
 	 */

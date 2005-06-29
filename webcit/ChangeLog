@@ -1,4 +1,9 @@
 $Log$
+Revision 619.18  2005/06/29 15:25:00  ajc
+* Added an experimental OPTIONS method.  This is not required by GroupDAV,
+  but it is an experiment to see whether we can use the same code framework
+  to implement other DAV variants in the future.
+
 Revision 619.17  2005/06/29 03:12:28  ajc
 * Bumped internal version number to 6.20
 
@@ -2674,4 +2679,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
