@@ -159,31 +159,28 @@ void groupdav_folder_list(void) {
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
 void groupdav_propfind(char *dav_pathname) {
-	char dav_roomname[SIZ];
-	char msgnum[SIZ];
-	char buf[SIZ];
-	char uid[SIZ];
-	char encoded_uid[SIZ];
+	char dav_roomname[256];
+	char dav_uid[256];
+	char msgnum[256];
+	long dav_msgnum = (-1);
+	char buf[256];
+	char uid[256];
+	char encoded_uid[256];
 	long *msgs = NULL;
 	int num_msgs = 0;
 	int i;
-	char datestring[SIZ];
+	char datestring[256];
 	time_t now;
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
+	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
+	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
-	/* First, break off the "/groupdav/" prefix */
-	remove_token(dav_pathname, 0, '/');
-	remove_token(dav_pathname, 0, '/');
-
-	/* What's left is the room name.  Remove trailing slashes. */
-	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
-		dav_pathname[strlen(dav_pathname)-1] = 0;
-	}
-	strcpy(dav_roomname, dav_pathname);
-
+	lprintf(9, "dav_pathname: %s\n", dav_pathname);
+	lprintf(9, "dav_roomname: %s\n", dav_roomname);
+	lprintf(9, "     dav_uid: %s\n", dav_uid);
 
 	/*
 	 * If the room name is blank, the client is requesting a
@@ -211,7 +208,72 @@ void groupdav_propfind(char *dav_pathname) {
 		return;
 	}
 
+	/* If dav_uid is non-empty, client is requesting a PROPFIND on
+	 * a specific item in the room.  This is not valid GroupDAV, but
+	 * we try to honor it anyway because some clients are expecting
+	 * it to work...
+	 */
+	if (strlen(dav_uid) > 0) {
+
+		dav_msgnum = locate_message_by_uid(dav_uid);
+		if (dav_msgnum < 0) {
+			wprintf("HTTP/1.1 404 not found\r\n");
+			groupdav_common_headers();
+			wprintf(
+				"Content-Type: text/plain\r\n"
+				"\r\n"
+				"Object \"%s\" was not found in the \"%s\" folder.\r\n",
+				dav_uid,
+				dav_roomname
+			);
+			return;
+		}
+
+	 	/* Be rude.  Completely ignore the XML request and simply send them
+		 * everything we know about (which is going to simply be the ETag and
+		 * nothing else).  Let the client-side parser sort it out.
+		 */
+		wprintf("HTTP/1.0 207 Multi-Status\r\n");
+		groupdav_common_headers();
+		wprintf("Date: %s\r\n", datestring);
+		wprintf("Content-type: text/xml\r\n");
+		wprintf("Content-encoding: identity\r\n");
+	
+		begin_burst();
+	
+		wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+     			"<D:multistatus xmlns:D=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
+		);
+
+		wprintf("<D:response>");
+
+		wprintf("<D:href>");
+		if (strlen(WC->http_host) > 0) {
+			wprintf("%s://%s",
+				(is_https ? "https" : "http"),
+				WC->http_host);
+		}
+		wprintf("/groupdav/");
+		urlescputs(WC->wc_roomname);
+		euid_escapize(encoded_uid, dav_uid);
+		wprintf("/%s", encoded_uid);
+		wprintf("</D:href>");
+		wprintf("<D:propstat>");
+		wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
+		wprintf("<D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>", dav_msgnum);
+		wprintf("</D:propstat>");
+
+		wprintf("</D:response>\n");
+		wprintf("</D:multistatus>\n");
+		end_burst();
+		return;
+	}
+
+
 	/*
+	 * We got to this point, which means that the client is requesting
+	 * a 'collection' (i.e. a list of all items in the room).
+	 *
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
@@ -227,7 +289,6 @@ void groupdav_propfind(char *dav_pathname) {
 	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
      		"<D:multistatus xmlns:D=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
-     		//"<D:multistatus xmlns:D=\"DAV:\">"
 
 	serv_puts("MSGS ALL");
 	serv_getln(buf, sizeof buf);
