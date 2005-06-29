@@ -1081,14 +1081,15 @@ void session_loop(struct httprequest *req)
 
 
 	/*
-	 * If this isn't a GroupDAV session, it's an ordinary browser
-	 * connecting to the user interface.  Only allow GET and POST
-	 * methods.
+	 * Automatically send requests with any method other than GET or
+	 * POST to the GroupDAV code as well.
 	 */
 	if ((strcasecmp(method, "GET")) && (strcasecmp(method, "POST"))) {
-		wprintf("HTTP/1.1 405 Method Not Allowed\r\n");
-		groupdav_common_headers();
-		wprintf("Content-Length: 0\r\n\r\n");
+		groupdav_main(req, ContentType, /* do GroupDAV methods */
+			ContentLength, content+body_start);
+		if (!WC->logged_in) {
+			WC->killthis = 1;	/* If not logged in, don't */
+		}				/* keep the session active */
 		goto SKIP_ALL_THIS_CRAP;
 	}
 

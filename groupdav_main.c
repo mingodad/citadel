@@ -120,9 +120,10 @@ void groupdav_main(struct httprequest *req,
 			char *dav_content
 ) {
 	struct httprequest *rptr;
-	char dav_method[SIZ];
-	char dav_pathname[SIZ];
-	char dav_ifmatch[SIZ];
+	char dav_method[256];
+	char dav_pathname[256];
+	char dav_ifmatch[256];
+	char buf[256];
 	char *ds;
 	int i;
 
@@ -154,6 +155,15 @@ void groupdav_main(struct httprequest *req,
 	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
 	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
 	unescape_input(dav_pathname);
+
+	/* If the request does not begin with "/groupdav", prepend it.  If
+	 * we happen to introduce a double-slash, that's ok; we'll strip it
+	 * in the next step.
+	 */
+	if (strncasecmp(dav_pathname, "/groupdav", 9)) {
+		snprintf(buf, sizeof buf, "/groupdav/%s", dav_pathname);
+		safestrncpy(dav_pathname, buf, sizeof dav_pathname);
+	}
 	
 	/* Remove any stray double-slashes in pathname */
 	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
