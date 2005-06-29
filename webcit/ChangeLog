@@ -1,4 +1,7 @@
 $Log$
+Revision 619.17  2005/06/29 03:12:28  ajc
+* Bumped internal version number to 6.20
+
 Revision 619.16  2005/06/29 03:10:10  ajc
 * PROPFIND on an individual item inside a room now works (it simply
   spews the href and etag properties, regardless of what the request
@@ -2671,3 +2674,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
