@@ -1,4 +1,8 @@
 $Log$
+Revision 651.6  2005/07/01 22:07:27  ajc
+* CtdlSetSeen() -- when new vset overflows its size, trim it in such a way
+  so that it doesn't mark the oldest messages as new.
+
 Revision 651.5  2005/06/28 02:58:19  ajc
 * docs update
 
@@ -6894,4 +6898,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

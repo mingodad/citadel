@@ -309,11 +309,13 @@ void CtdlGetSeen(char *buf, int which_set) {
 void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 		struct ctdluser *which_user, struct ctdlroom *which_room) {
 	struct cdbdata *cdbfr;
-	int i;
+	int i, j;
 	int is_seen = 0;
 	int was_seen = 1;
 	long lo = (-1L);
 	long hi = (-1L);
+	long t = (-1L);
+	int trimming = 0;
 	struct visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
@@ -356,7 +358,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 			break;
 	}
 
-	/* lprintf(CTDL_DEBUG, "before optimize: %s\n", vset); */
+	lprintf(CTDL_DEBUG, "before optimize: %s\n", vset);
 
 	/* Translate the existing sequence set into an array of booleans */
 	num_sets = num_tokens(vset, ',');
@@ -406,9 +408,20 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
 			size_t tmp;
 
-			if ( (strlen(vset) + 20) > sizeof vset) {
-				strcpy(vset, &vset[20]);
-				vset[0] = '*';
+			j=9;
+			trimming = 0;
+			while ( (strlen(vset) + 20) > sizeof vset) {
+				remove_token(vset, 0, ',');
+				trimming = 1;
+				if (j--) break; /* loop no more than 9 times */
+			}
+			if ( (trimming) && (which_set == ctdlsetseen_seen) ) {
+				t = atol(vset);
+				if (t<2) t=2;
+				--t;
+				snprintf(lostr, sizeof lostr,
+					"1:%ld,%s", t, vset);
+				safestrncpy(vset, lostr, sizeof vset);
 			}
 			tmp = strlen(vset);
 			if (tmp > 0) {
@@ -441,7 +454,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	}
 	free(is_set);
 
-	/* lprintf(CTDL_DEBUG, " after optimize: %s\n", vset); */
+	lprintf(CTDL_DEBUG, " after optimize: %s\n", vset);
 	free(msglist);
 	CtdlSetRelationship(&vbuf,
 		((which_user != NULL) ? which_user : &CC->user),
