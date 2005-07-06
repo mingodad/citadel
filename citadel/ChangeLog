@@ -1,4 +1,7 @@
 $Log$
+Revision 652.0  2005/07/06 02:28:38  ajc
+* THIS IS 6.52
+
 Revision 651.8  2005/07/06 02:28:20  ajc
 * citadel.lsm: removed.  Nobody uses the Linux Software Map anymore.
 * Updated internal version number to 6.52
