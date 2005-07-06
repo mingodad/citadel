@@ -2154,6 +2154,13 @@ asynchronous messages as they arrive, before doing anything else.
 
 
 
+ SRCH   (SeaRCH the message base)
+ 
+ This command's implementation is incomplete and will be documented when it
+is finished.
+
+
+
 
  ASYNCHRONOUS MESSAGES
  ---------------------

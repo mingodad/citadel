@@ -45,7 +45,7 @@ Developer codes (and where known, client codes)
         Client  Name            Status          Description
 	0       libcitadel      in development  Client-side API library
 	1       D.O.C.          dead            Dave's Own Citadel look-alike
-	8	stress		in development	Citadel server stress tester
+	8	stress		deployed	Citadel server stress tester
 	16      Courier         in development  GTK+ Unix/Win32 Client
  
  69     Anticlimactic Teleservices

@@ -33,7 +33,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel 6.51"
+#define CITADEL	"Citadel 6.52"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having

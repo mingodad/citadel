@@ -1,4 +1,8 @@
 $Log$
+Revision 651.8  2005/07/06 02:28:20  ajc
+* citadel.lsm: removed.  Nobody uses the Linux Software Map anymore.
+* Updated internal version number to 6.52
+
 Revision 651.7  2005/07/06 01:53:34  ajc
 * imap_fetch.c: additional self-check to avoid attempting to fetch messages
   with UID's lower than 1.  Hopefully this fixes bug #150.
@@ -6902,4 +6906,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
