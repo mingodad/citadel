@@ -311,7 +311,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	struct cdbdata *cdbfr;
 	int i, j;
 	int is_seen = 0;
-	int was_seen = 1;
+	int was_seen = 0;
 	long lo = (-1L);
 	long hi = (-1L);
 	long t = (-1L);
@@ -324,6 +324,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
+	size_t tmp;
 
 	lprintf(CTDL_DEBUG, "CtdlSetSeen(%ld, %d, %d)\n",
 		target_msgnum, target_setting, which_set);
@@ -358,7 +359,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 			break;
 	}
 
-	lprintf(CTDL_DEBUG, "before optimize: %s\n", vset);
+	/* lprintf(CTDL_DEBUG, "before optimize: %s\n", vset); */
 
 	/* Translate the existing sequence set into an array of booleans */
 	num_sets = num_tokens(vset, ',');
@@ -387,6 +388,8 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 
 	/* Now translate the array of booleans back into a sequence set */
 	strcpy(vset, "");
+	lo = (-1L);
+	hi = (-1L);
 
 	for (i=0; i<num_msgs; ++i) {
 		is_seen = 0;
@@ -395,19 +398,18 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 			is_seen = target_setting;
 		}
 		else {
-			if (is_set[i]) {
-				is_seen = 1;
-			}
+			is_seen = is_set[i];
 		}
 
-		if (is_seen == 1) {
+		if (is_seen) {
 			if (lo < 0L) lo = msglist[i];
 			hi = msglist[i];
 		}
+
 		if (  ((is_seen == 0) && (was_seen == 1))
 		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
-			size_t tmp;
 
+			/* begin trim-o-matic code */
 			j=9;
 			trimming = 0;
 			while ( (strlen(vset) + 20) > sizeof vset) {
@@ -423,17 +425,19 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 					"1:%ld,%s", t, vset);
 				safestrncpy(vset, lostr, sizeof vset);
 			}
+			/* end trim-o-matic code */
+
 			tmp = strlen(vset);
 			if (tmp > 0) {
 				strcat(vset, ",");
-				tmp++;
+				++tmp;
 			}
 			if (lo == hi) {
-				snprintf(&vset[tmp], sizeof vset - tmp,
+				snprintf(&vset[tmp], (sizeof vset) - tmp,
 					 "%ld", lo);
 			}
 			else {
-				snprintf(&vset[tmp], sizeof vset - tmp,
+				snprintf(&vset[tmp], (sizeof vset) - tmp,
 					 "%ld:%ld", lo, hi);
 			}
 			lo = (-1L);
@@ -454,7 +458,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	}
 	free(is_set);
 
-	lprintf(CTDL_DEBUG, " after optimize: %s\n", vset);
+	/* lprintf(CTDL_DEBUG, " after optimize: %s\n", vset); */
 	free(msglist);
 	CtdlSetRelationship(&vbuf,
 		((which_user != NULL) ? which_user : &CC->user),

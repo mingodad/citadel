@@ -1,4 +1,8 @@
 $Log$
+Revision 652.1  2005/07/06 21:41:17  ajc
+* Fixed bug #149 (incorrect sequence set optimization, resulting in
+  messages being marked as read/unread incorrectly during IMAP sessions)
+
 Revision 652.0  2005/07/06 02:28:38  ajc
 * THIS IS 6.52
 
@@ -6909,3 +6913,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
