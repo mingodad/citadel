@@ -1,4 +1,7 @@
 $Log$
+Revision 653.0  2005/07/06 21:41:52  ajc
+* THIS IS 6.53
+
 Revision 652.1  2005/07/06 21:41:17  ajc
 * Fixed bug #149 (incorrect sequence set optimization, resulting in
   messages being marked as read/unread incorrectly during IMAP sessions)
