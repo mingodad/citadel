@@ -903,6 +903,10 @@ void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	struct CtdlMessage *msg = NULL;
 	int body_loaded = 0;
 
+	/* Don't attempt to fetch bogus messages or UID's */
+	if (seq < 1) return;
+	if (IMAP->msgids[seq-1] < 1L) return;
+
 	buffer_output();
 	cprintf("* %d FETCH (", seq);
 

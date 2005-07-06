@@ -1,4 +1,8 @@
 $Log$
+Revision 651.7  2005/07/06 01:53:34  ajc
+* imap_fetch.c: additional self-check to avoid attempting to fetch messages
+  with UID's lower than 1.  Hopefully this fixes bug #150.
+
 Revision 651.6  2005/07/01 22:07:27  ajc
 * CtdlSetSeen() -- when new vset overflows its size, trim it in such a way
   so that it doesn't mark the oldest messages as new.
@@ -6898,3 +6902,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
