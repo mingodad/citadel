@@ -1,4 +1,8 @@
 $Log$
+Revision 653.1  2005/07/09 11:30:18  ajc
+* Removed trailing space at the end of the list of messages returned by
+  an IMAP SEARCH command.
+
 Revision 653.0  2005/07/06 21:41:52  ajc
 * THIS IS 6.53
 
@@ -6916,4 +6920,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

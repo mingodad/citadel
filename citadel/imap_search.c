@@ -446,6 +446,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	int fts_num_msgs = 0;
 	long *fts_msgs = NULL;
 	int is_in_list = 0;
+	int num_results = 0;
 
 	/* If there is a BODY search criterion in the query, use our full
 	 * text index to disqualify messages that don't have any chance of
@@ -487,12 +488,16 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	 for (i = 0; i < IMAP->num_msgs; ++i)
 	  if (IMAP->flags[i] & IMAP_SELECTED) {
 		if (imap_do_search_msg(i+1, NULL, num_items, itemlist, is_uid)) {
+			if (num_results != 0) {
+				cprintf(" ");
+			}
 			if (is_uid) {
-				cprintf("%ld ", IMAP->msgids[i]);
+				cprintf("%ld", IMAP->msgids[i]);
 			}
 			else {
-				cprintf("%d ", i+1);
+				cprintf("%d", i+1);
 			}
+			++num_results;
 		}
 	}
 	cprintf("\r\n");
