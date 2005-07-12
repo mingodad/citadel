@@ -1,4 +1,7 @@
 $Log$
+Revision 619.20  2005/07/12 22:10:52  ajc
+* Icon update
+
 Revision 619.19  2005/06/29 17:55:32  ajc
 * Any HTTP method other than GET or POST is now routed directly to the
   GroupDAV code.  This will eventually allow requests such as "PROPFIND /"
@@ -2686,4 +2689,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
