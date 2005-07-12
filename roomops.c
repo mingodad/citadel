@@ -275,7 +275,7 @@ void embed_room_graphic(void) {
 	}
 	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
 		wprintf("<img height=48 width=48 src=\""
-			"static/savecontact_48x.gif"
+			"static/viewcontacts_48x.gif"
 			"\">"
 		);
 	}
@@ -451,7 +451,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd?calview=month\">"
-						"<img align=\"middle\" src=\"/static/monthview_24x.gif\" "
+						"<img align=\"middle\" src=\"/static/monthview2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"Month view"
@@ -510,7 +510,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_ADDRESSBOOK:
 					wprintf(
 						"<td><A HREF=\"/display_enter\">"
-						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"<img align=\"middle\" src=\"/static/addnewcontact_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"Add new contact"
 						"</span></a></td>\n"
@@ -528,7 +528,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_TASKS:
 					wprintf(
 						"<td><A HREF=\"/display_enter\">"
-						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"Add new task"
 						"</span></a></td>\n"
@@ -537,7 +537,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_NOTES:
 					wprintf(
 						"<td><A HREF=\"/display_enter\">"
-						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"Add new note"
 						"</span></a></td>\n"
@@ -546,7 +546,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				default:
 					wprintf(
 						"<td><A HREF=\"/display_enter\">"
-						"<img align=\"middle\" src=\"/static/enter.gif\" "
+						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"Enter a message"
 						"</span></a></td>\n"
@@ -2331,7 +2331,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("new Array(closedGif, openGif)");
 		}
 		else if (fold[i].view == VIEW_ADDRESSBOOK) {
-			wprintf("'static/savecontact_16x.gif'");
+			wprintf("'static/viewcontacts_16x.gif'");
 		}
 		else if (fold[i].view == VIEW_CALENDAR) {
 			wprintf("'static/calarea_16x.gif'");

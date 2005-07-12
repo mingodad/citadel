@@ -333,7 +333,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (pass == 1) {
 			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER SRC=\"/static/savecontact_48x.gif\">"
+			"<IMG ALIGN=CENTER SRC=\"/static/viewcontacts_48x.gif\">"
 			"<FONT SIZE=+1><B>");
 			escputs(displayname);
 			wprintf("</B></FONT>");
@@ -1687,7 +1687,7 @@ void display_enter(void)
 		now);
 
 	wprintf("%s<br>\n", buf);	/* header bar */
-	wprintf("<img src=\"static/enter.gif\" align=middle alt=\" \">");
+	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
 		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
 	wprintf("<font size=-1>Subject (optional):</font>"
 		"<input type=\"text\" name=\"subject\" value=\"");

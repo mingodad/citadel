@@ -160,7 +160,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/savecontact_32x.gif\">");
+			"SRC=\"/static/viewcontacts_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Contacts");
@@ -436,7 +436,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/savecontact_48x.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/viewcontacts_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Contacts</B><br />"
 		"Your personal address book."
