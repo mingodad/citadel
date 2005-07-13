@@ -510,8 +510,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Edit task</SPAN>"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
+		"<TD><IMG SRC=\"/static/taskmanag_48x.gif\"></TD>"
+		"<td><SPAN CLASS=\"titlebar\">Edit task</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
