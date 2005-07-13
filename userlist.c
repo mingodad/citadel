@@ -129,8 +129,9 @@ void showuser(void)
 
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">User profile</SPAN>"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
+		"<TD><IMG SRC=\"/static/usermanag_48x.gif\"></TD>"
+		"<td align=left><SPAN CLASS=\"titlebar\">User profile</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -163,8 +164,8 @@ void showuser(void)
 	wprintf("<br /><A HREF=\"/display_page?recp=");
 	urlescputs(who);
 	wprintf("\">"
-		"<IMG SRC=\"/static/page.gif\" ALIGN=MIDDLE BORDER=0>"
-		"&nbsp;&nbsp;"
+		"<IMG SRC=\"/static/citadelchat_24x.gif\" "
+		"ALIGN=MIDDLE BORDER=0>&nbsp;&nbsp;"
 		"Click here to send an instant message to ");
 	escputs(who);
 	wprintf("</A>\n");

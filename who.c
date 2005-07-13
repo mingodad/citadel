@@ -115,8 +115,8 @@ void whobbs(void)
 			wprintf("<TD><A HREF=\"/display_page?recp=");
 			urlescputs(user);
 			wprintf("\">"
-				"<IMG ALIGN=MIDDLE WIDTH=20 HEIGHT=15 "
-				"SRC=\"/static/page.gif\" "
+				"<IMG ALIGN=MIDDLE "
+				"SRC=\"/static/citadelchat_24x.gif\" "
 				"ALT=\"(p)\""
 				" BORDER=0></A>&nbsp;");
 			wprintf("</TD>");
@@ -169,7 +169,7 @@ void whobbs(void)
 	wprintf("</TABLE></div>\n"
 		"<div align=center>"
 		"Click on a name to read user info.  Click on "
-		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
+		"<IMG ALIGN=MIDDLE SRC=\"/static/citadelchat_16x.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send an instant message to that user.</div>\n");
 	wDumpContent(1);
 }

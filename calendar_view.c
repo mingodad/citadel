@@ -651,6 +651,8 @@ void do_tasks_view(void) {
 			WC->disp_cal[i].cal_msgnum );
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
+		wprintf("<IMG ALIGN=MIDDLE "
+			"SRC=\"/static/taskmanag_16x.gif\" BORDER=0>&nbsp;");
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_comment(p));
 		}
