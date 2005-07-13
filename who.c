@@ -126,8 +126,14 @@ void whobbs(void)
 			if ((now - last_activity) > 900L) {
 				wprintf("&nbsp;"
 					"<IMG ALIGN=MIDDLE "
-					"SRC=\"/static/idle.gif\" "
+					"SRC=\"/static/inactiveuser_24x.gif\" "
 					"ALT=\"[idle]\" BORDER=0>");
+			}
+			else {
+				wprintf("&nbsp;"
+					"<IMG ALIGN=MIDDLE "
+					"SRC=\"/static/activeuser_24x.gif\" "
+					"ALT=\"[active]\" BORDER=0>");
 			}
 			wprintf("</TD>\n\t<TD>");
 

@@ -431,7 +431,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd\">"
-						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"<img align=\"middle\" src=\"/static/viewcontacts_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"View contacts"
@@ -462,7 +462,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd\">"
-						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"<img align=\"middle\" src=\"/static/taskmanag_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"View tasks"
@@ -473,7 +473,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd\">"
-						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"<img align=\"middle\" src=\"/static/viewnotes_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"View notes"
@@ -484,7 +484,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd\">"
-						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"<img align=\"middle\" src=\"/static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"View message list"
@@ -495,7 +495,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					wprintf(
 						"<td>"
 						"<A HREF=\"/readfwd\">"
-						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"<img align=\"middle\" src=\"/static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"Read all messages"
@@ -537,7 +537,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_NOTES:
 					wprintf(
 						"<td><A HREF=\"/display_enter\">"
-						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
+						"<img align=\"middle\" src=\"/static/enternewnote_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"Add new note"
 						"</span></a></td>\n"

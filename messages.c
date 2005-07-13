@@ -517,7 +517,7 @@ void read_message(long msgnum) {
 					"<A HREF=\"/output_mimepart?"
 					"msgnum=%ld&partnum=%s\" "
 					"TARGET=\"wc.%ld.%s\">"
-					"<IMG SRC=\"/static/attachment.gif\" "
+					"<IMG SRC=\"/static/diskette_24x.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
 					"Part %s: %s (%s, %d bytes)</A><br />\n",
 					msgnum, mime_partnum,
@@ -1723,7 +1723,7 @@ void display_enter(void)
 		"</script></center><br />\n");
 
 	/* Enumerate any attachments which are already in place... */
-	wprintf("<img src=\"/static/attachment.gif\" border=0 "
+	wprintf("<img src=\"/static/diskette_24x.gif\" border=0 "
 		"align=middle height=16 width=16> Attachments: ");
 	wprintf("<select name=\"which_attachment\" size=1>");
 	for (att = WC->first_attachment; att != NULL; att = att->next) {

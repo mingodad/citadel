@@ -478,7 +478,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/taskmanag/48x.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/taskmanag_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Tasks</B><br />"
 		"A shortcut to your personal task list."
