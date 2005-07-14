@@ -1,4 +1,8 @@
 $Log$
+Revision 619.24  2005/07/14 04:21:53  ajc
+* More intelligent JavaScript to handle the greying out of end date and
+  start/end times when "all day event" is selected.
+
 Revision 619.23  2005/07/14 04:02:18  ajc
 * Fix bug #147 (date sometimes saved incorrectly for all day events due
   to timezone differences)
@@ -2699,4 +2703,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
