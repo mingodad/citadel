@@ -163,25 +163,37 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 }
 
 
-struct icaltimetype icaltime_from_webform(char *prefix) {
-	struct icaltimetype t;
-	time_t tt;
-	struct tm tm;
-	char vname[SIZ];
+void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
+	char vname[32];
+        time_t tt;
+        struct tm tm;
+	struct icaltimetype t2;
 
-	tt = time(NULL);
-	localtime_r(&tt, &tm);
+        tt = time(NULL);
+        localtime_r(&tt, &tm);
 
-	sprintf(vname, "%s_month", prefix);	tm.tm_mon = atoi(bstr(vname)) - 1;
-	sprintf(vname, "%s_day", prefix);	tm.tm_mday = atoi(bstr(vname));
-	sprintf(vname, "%s_year", prefix);	tm.tm_year = atoi(bstr(vname)) - 1900;
-	sprintf(vname, "%s_hour", prefix);	tm.tm_hour = atoi(bstr(vname));
-	sprintf(vname, "%s_minute", prefix);	tm.tm_min = atoi(bstr(vname));
+        sprintf(vname, "%s_month", prefix);     tm.tm_mon = atoi(bstr(vname)) - 1;
+        sprintf(vname, "%s_day", prefix);       tm.tm_mday = atoi(bstr(vname));
+        sprintf(vname, "%s_year", prefix);      tm.tm_year = atoi(bstr(vname)) - 1900;
+        sprintf(vname, "%s_hour", prefix);      tm.tm_hour = atoi(bstr(vname));
+        sprintf(vname, "%s_minute", prefix);    tm.tm_min = atoi(bstr(vname));
 
-	tt = mktime(&tm);
-	t = icaltime_from_timet(tt, 0);
-	t = icaltime_normalize(t);
-	return(t);
+        tt = mktime(&tm);
+        t2 = icaltime_from_timet(tt, 0);
+	memcpy(t, &t2, sizeof(struct icaltimetype));
+}
+
+
+void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
+	char vname[32];
+
+	memset(t, 0, sizeof(struct icaltimetype));
+
+        sprintf(vname, "%s_month", prefix);     t->month = atoi(bstr(vname));
+        sprintf(vname, "%s_day", prefix);       t->day = atoi(bstr(vname));
+        sprintf(vname, "%s_year", prefix);      t->year = atoi(bstr(vname));
+	t->is_utc = 1;
+	t->is_date = 1;
 }
 
 

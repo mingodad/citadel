@@ -420,7 +420,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent, *encaps;
 	int created_new_vevent = 0;
 	int all_day_event = 0;
-	struct icaltimetype event_start;
+	struct icaltimetype event_start, t;
 	icalproperty *attendee = NULL;
 	char attendee_string[SIZ];
 	int i;
@@ -495,14 +495,12 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			all_day_event = 0;
 		}
 
-		event_start = icaltime_from_webform("dtstart");
 		if (all_day_event) {
-			event_start.is_date = 1;
-			event_start.hour = 0;
-			event_start.minute = 0;
-			event_start.second = 0;
+			icaltime_from_webform_dateonly(&event_start, "dtstart");
 		}
-
+		else {
+			icaltime_from_webform(&event_start, "dtstart");
+		}
 
 		/* The following odd-looking snippet of code looks like it
 		 * takes some unnecessary steps.  It is done this way because
@@ -533,9 +531,9 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		}
 
 		if (all_day_event == 0) {
+			icaltime_from_webform(&t, "dtend");	
 			icalcomponent_add_property(vevent,
-				icalproperty_new_dtend(icaltime_normalize(
-					icaltime_from_webform("dtend"))
+				icalproperty_new_dtend(icaltime_normalize(t)
 				)
 			);
 		}

@@ -597,6 +597,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	int created_new_vtodo = 0;
 	int i;
 	int sequence = 0;
+	struct icaltimetype t;
 
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
@@ -646,10 +647,9 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
+		icaltime_from_webform(&t, "dtstart");
 		icalcomponent_add_property(vtodo,
-			icalproperty_new_dtstart(
-				icaltime_from_webform("dtstart")
-			)
+			icalproperty_new_dtstart(t)
 		);
 	
 		while (prop = icalcomponent_get_first_property(vtodo,
@@ -657,10 +657,9 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
+		icaltime_from_webform(&t, "due");
 		icalcomponent_add_property(vtodo,
-			icalproperty_new_due(
-				icaltime_from_webform("due")
-			)
+			icalproperty_new_due(t)
 		);
 
 		/* Give this task a UID if it doesn't have one. */
