@@ -92,6 +92,35 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</div>\n<div id=\"content\">\n"
 	);
 
+	wprintf("<script type=\"text/javascript\">"
+		"function grey_all_day() { "
+			"if (document.EventForm.alldayevent.checked) {"
+				"document.EventForm.dtstart_hour.value='0';"
+				"document.EventForm.dtstart_hour.disabled = true;"
+				"document.EventForm.dtstart_minute.value='0';"
+				"document.EventForm.dtstart_minute.disabled = true;"
+				"document.EventForm.dtend_hour.value='0';"
+				"document.EventForm.dtend_hour.disabled = true;"
+				"document.EventForm.dtend_minute.value='0';"
+				"document.EventForm.dtend_minute.disabled = true;"
+				"document.EventForm.dtend_month.disabled = true;"
+				"document.EventForm.dtend_day.disabled = true;"
+				"document.EventForm.dtend_year.disabled = true;"
+			"}"
+			"else {"
+				"document.EventForm.dtstart_hour.disabled = false;"
+				"document.EventForm.dtstart_minute.disabled = false;"
+				"document.EventForm.dtend_hour.disabled = false;"
+				"document.EventForm.dtend_minute.disabled = false;"
+				"document.EventForm.dtend_month.disabled = false;"
+				"document.EventForm.dtend_day.disabled = false;"
+				"document.EventForm.dtend_year.disabled = false;"
+			"}"
+		"}"
+		"</script>\n"
+	);
+
+
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
@@ -179,33 +208,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
 	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"alldayevent\" "
-		"VALUE=\"yes\" onClick=\""
-""
-"			if (this.checked) { "
-"				this.form.dtstart_hour.value='0'; "
-"				this.form.dtstart_hour.disabled = true; "
-"				this.form.dtstart_minute.value='0'; "
-"				this.form.dtstart_minute.disabled = true; "
-"				this.form.dtend_hour.value='0'; "
-"				this.form.dtend_hour.disabled = true; "
-"				this.form.dtend_minute.value='0'; "
-"				this.form.dtend_minute.disabled = true; "
-"				this.form.dtend_month.disabled = true; "
-"				this.form.dtend_day.disabled = true; "
-"				this.form.dtend_year.disabled = true; "
-"			} "
-"			else { "
-"				this.form.dtstart_hour.disabled = false; "
-"				this.form.dtstart_minute.disabled = false; "
-"				this.form.dtend_hour.disabled = false; "
-"				this.form.dtend_minute.disabled = false; "
-"				this.form.dtend_month.disabled = false; "
-"				this.form.dtend_day.disabled = false; "
-"				this.form.dtend_year.disabled = false; "
-"			} "
-" "
-" "
-"		\" %s >All day event",
+		"VALUE=\"yes\" onClick=\"grey_all_day();\""
+		" %s >All day event",
 		(t_start.is_date ? "CHECKED" : "" )
 	);
 
@@ -374,35 +378,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</FORM>\n");
 	
+	wprintf("</td></tr></table></div>\n");
 	wprintf("<script type=\"text/javascript\">"
-		"<!--"
-			"if (document.EventForm.alldayevent.checked) {"
-				"document.EventForm.dtstart_hour.value='0';"
-				"document.EventForm.dtstart_hour.disabled = true;"
-				"document.EventForm.dtstart_minute.value='0';"
-				"document.EventForm.dtstart_minute.disabled = true;"
-				"document.EventForm.dtend_hour.value='0';"
-				"document.EventForm.dtend_hour.disabled = true;"
-				"document.EventForm.dtend_minute.value='0';"
-				"document.EventForm.dtend_minute.disabled = true;"
-				"document.EventForm.dtend_month.disabled = true;"
-				"document.EventForm.dtend_day.disabled = true;"
-				"document.EventForm.dtend_year.disabled = true;"
-			"}"
-			"else {"
-				"document.EventForm.dtstart_hour.disabled = false;"
-				"document.EventForm.dtstart_minute.disabled = false;"
-				"document.EventForm.dtend_hour.disabled = false;"
-				"document.EventForm.dtend_minute.disabled = false;"
-				"document.EventForm.dtend_month.disabled = false;"
-				"document.EventForm.dtend_day.disabled = false;"
-				"document.EventForm.dtend_year.disabled = false;"
-			"}"
-		"//-->"
+		"grey_all_day();"
 		"</script>\n"
 	);
-
-	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 
 	if (created_new_vevent) {
