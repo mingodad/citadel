@@ -275,11 +275,13 @@ void the_mime_parser(char *partnum,
 {
 
 	char *ptr;
+	char *srch = NULL;
 	char *part_start, *part_end = NULL;
 	char buf[SIZ];
 	char *header;
 	char *boundary;
 	char *startary;
+	size_t startary_len = 0;
 	char *endary;
 	char *next_boundary;
 	char *content_type;
@@ -409,10 +411,20 @@ void the_mime_parser(char *partnum,
 		/* Figure out where the boundaries are */
 		snprintf(startary, SIZ, "--%s", boundary);
 		snprintf(endary, SIZ, "--%s--", boundary);
+		startary_len = strlen(startary);
 
 		part_start = NULL;
 		do {
-			next_boundary = bmstrstr(ptr, startary, strncmp);
+	
+			/* next_boundary = bmstrstr(ptr, startary, memcmp); */
+			next_boundary = NULL;
+			for (srch=ptr; srch<content_end; ++srch) {
+				if (!memcmp(srch, startary, startary_len)) {
+					next_boundary = srch;
+					srch = content_end;
+				}
+			}
+
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
 				part_end = next_boundary;
 				--part_end;
@@ -438,8 +450,8 @@ void the_mime_parser(char *partnum,
 			}
 
 			if (next_boundary != NULL) {
-				/* If we pass out of scope, don't attempt to read
-				 * past the end boundary. */
+				/* If we pass out of scope, don't attempt to
+				 * read past the end boundary. */
 				if (!strcmp(next_boundary, endary)) {
 					ptr = content_end;
 				}

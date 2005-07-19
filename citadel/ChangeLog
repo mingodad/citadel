@@ -1,4 +1,10 @@
 $Log$
+Revision 653.4  2005/07/19 17:30:13  ajc
+* Fixed a bug in the MIME parser that was causing it to prematurely go
+  out of scope when binary parts are included.  (8-bit MIME is not yet
+  explicitly supported in the Citadel server, but WebCit uses this to
+  handle data coming in via the POST method.)
+
 Revision 653.3  2005/07/19 14:21:51  ajc
 * mime_parser.c: don't default to Content-type: text/plain; charset=us-ascii
   because there are places where those fields actually need to be empty (in
@@ -6929,3 +6935,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
