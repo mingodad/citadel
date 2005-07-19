@@ -789,7 +789,7 @@ void memfmout(
  * Callback function for mime parser that simply lists the part
  */
 void list_this_part(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 
@@ -801,7 +801,7 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
  * Callback function for multipart prefix
  */
 void list_this_pref(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 	cprintf("pref=%s|%s\n", partnum, cbtype);
@@ -811,7 +811,7 @@ void list_this_pref(char *name, char *filename, char *partnum, char *disp,
  * Callback function for multipart sufffix
  */
 void list_this_suff(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 	cprintf("suff=%s|%s\n", partnum, cbtype);
@@ -822,8 +822,8 @@ void list_this_suff(char *name, char *filename, char *partnum, char *disp,
  * Callback function for mime parser that opens a section for downloading
  */
 void mime_download(char *name, char *filename, char *partnum, char *disp,
-		   void *content, char *cbtype, size_t length, char *encoding,
-		   void *cbuserdata)
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, void *cbuserdata)
 {
 
 	/* Silently go away if there's already a download open... */
@@ -981,7 +981,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
  *
  */
 void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length, char *encoding,
+	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata)
 {
 	struct ma_info *ma;
@@ -999,7 +999,7 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
  * Post callback function for multipart/alternative
  */
 void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length, char *encoding,
+	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata)
 {
 	struct ma_info *ma;
@@ -1017,7 +1017,7 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
  * Inline callback function for mime parser that wants to display text
  */
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length, char *encoding,
+	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata)
 	{
 		char *ptr;
@@ -1070,7 +1070,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
  * we're going to send.
  */
 void choose_preferred(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length, char *encoding,
+	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata)
 {
 	char buf[1024];
@@ -1093,7 +1093,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
  * Now that we've chosen our preferred part, output it.
  */
 void output_preferred(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length, char *encoding,
+	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata)
 {
 	int i;
@@ -1138,7 +1138,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 
 	/* No translations required or possible: output as text/plain */
 	cprintf("Content-type: text/plain\n\n");
-	fixed_output(name, filename, partnum, disp, content, cbtype,
+	fixed_output(name, filename, partnum, disp, content, cbtype, cbcharset,
 			length, encoding, cbuserdata);
 }
 

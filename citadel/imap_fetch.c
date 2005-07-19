@@ -258,7 +258,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
  * luxury of simply spewing without having to re-encode.
  */
 void imap_load_part(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length, char *encoding,
+		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 	char mbuf2[SIZ];
@@ -274,6 +274,8 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 
 	if (!strcasecmp(desired_section, mbuf2)) {
 		cprintf("Content-type: %s", cbtype);
+		if (strlen(cbcharset) > 0)
+			cprintf("; charset=\"%s\"", cbcharset);
 		if (strlen(name) > 0)
 			cprintf("; name=\"%s\"", name);
 		cprintf("\r\n");
@@ -690,7 +692,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
  */
 void imap_fetch_bodystructure_pre(
 		char *name, char *filename, char *partnum, char *disp,
-		void *content, char *cbtype, size_t length, char *encoding,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata
 		) {
 
@@ -704,7 +706,7 @@ void imap_fetch_bodystructure_pre(
  */
 void imap_fetch_bodystructure_post(
 		char *name, char *filename, char *partnum, char *disp,
-		void *content, char *cbtype, size_t length, char *encoding,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata
 		) {
 
@@ -730,7 +732,7 @@ void imap_fetch_bodystructure_post(
  */
 void imap_fetch_bodystructure_part(
 		char *name, char *filename, char *partnum, char *disp,
-		void *content, char *cbtype, size_t length, char *encoding,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata
 		) {
 
@@ -757,7 +759,17 @@ void imap_fetch_bodystructure_part(
 	imap_strout(cbsubtype);
 	cprintf(" ");
 
-	cprintf("(\"CHARSET\" \"US-ASCII\"");
+	if (cbcharset == NULL) {
+		cprintf("(\"CHARSET\" \"US-ASCII\"");
+	}
+	else if (strlen(cbcharset) == 0) {
+		cprintf("(\"CHARSET\" \"US-ASCII\"");
+	}
+	else {
+		cprintf("(\"CHARSET\" ");
+		imap_strout(cbcharset);
+		cprintf(")");
+	}
 
 	if (name != NULL) if (strlen(name)>0) {
 		cprintf(" \"NAME\" ");

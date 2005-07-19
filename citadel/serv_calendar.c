@@ -337,7 +337,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
  * and turns them into calendar objects
  */
 void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
-		void *content, char *cbtype, size_t length, char *encoding,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata) {
 
 	struct ical_respond_data *ird = NULL;
@@ -495,7 +495,7 @@ struct original_event_container {
  * to fetch the object being updated)
  */
 void ical_locate_original_event(char *name, char *filename, char *partnum, char *disp,
-		void *content, char *cbtype, size_t length, char *encoding,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		void *cbuserdata) {
 
 	struct original_event_container *oec = NULL;
@@ -1664,7 +1664,7 @@ void ical_saving_vevent(icalcomponent *cal) {
  * and the start time (becomes message date/time).
  */
 void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
-		char *disp, void *content, char *cbtype, size_t length,
+		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
 		char *encoding, void *cbuserdata)
 {
 	icalcomponent *cal, *nested_event, *nested_todo;
@@ -1806,7 +1806,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
  * Things we need to do after saving a calendar event.
  */
 void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
-		char *disp, void *content, char *cbtype, size_t length,
+		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
 		char *encoding, void *cbuserdata)
 {
 	icalcomponent *cal;
