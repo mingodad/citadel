@@ -640,8 +640,11 @@ void read_message(long msgnum) {
 		}
 	}
 
+	/*
 	wprintf("Content-type: %s<br />\n", mime_content_type);
 	wprintf("Charset: %s<br />\n", mime_charset);
+	PUT CHARSET TRANSLATOR HERE
+	*/
 
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
