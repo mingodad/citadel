@@ -405,23 +405,25 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
  */
 void read_message(long msgnum) {
 	char buf[SIZ];
-	char mime_partnum[SIZ];
-	char mime_filename[SIZ];
-	char mime_content_type[SIZ];
-	char mime_disposition[SIZ];
+	char mime_partnum[256];
+	char mime_filename[256];
+	char mime_content_type[256];
+	char mime_charset[256];
+	char mime_disposition[256];
 	int mime_length;
 	char mime_http[SIZ];
-	char m_subject[SIZ];
-	char from[SIZ];
-	char node[SIZ];
-	char rfca[SIZ];
+	char m_subject[256];
+	char from[256];
+	char node[256];
+	char rfca[256];
 	char reply_to[512];
-	char now[SIZ];
+	char now[256];
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
-	char vcard_partnum[SIZ];
-	char cal_partnum[SIZ];
+	int i = 0;
+	char vcard_partnum[256];
+	char cal_partnum[256];
 	char *part_source = NULL;
 
 	strcpy(from, "");
@@ -431,6 +433,8 @@ void read_message(long msgnum) {
 	strcpy(vcard_partnum, "");
 	strcpy(cal_partnum, "");
 	strcpy(mime_http, "");
+	strcpy(mime_content_type, "text/plain");
+	strcpy(mime_charset, "us-ascii");
 
 	serv_printf("MSG4 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
@@ -622,8 +626,22 @@ void read_message(long msgnum) {
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			safestrncpy(mime_content_type, &buf[14],
 				sizeof(mime_content_type));
+			for (i=0; i<strlen(mime_content_type); ++i) {
+				if (!strncasecmp(&mime_content_type[i], "charset=", 8)) {
+					safestrncpy(mime_charset, &mime_content_type[i+8],
+						sizeof mime_charset);
+				}
+			}
+			for (i=0; i<strlen(mime_content_type); ++i) {
+				if (mime_content_type[i] == ';') {
+					mime_content_type[i] = 0;
+				}
+			}
 		}
 	}
+
+	wprintf("Content-type: %s<br />\n", mime_content_type);
+	wprintf("Charset: %s<br />\n", mime_charset);
 
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
@@ -665,7 +683,6 @@ void read_message(long msgnum) {
 			mime_content_type);
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
-
 
 	/* Afterwards, offer links to download attachments 'n' such */
 	if (strlen(mime_http) > 0) {
