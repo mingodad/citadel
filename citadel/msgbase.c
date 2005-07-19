@@ -1120,8 +1120,11 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 				++add_newline;
 			}
 
-			cprintf("Content-type: %s\n", cbtype);
-			cprintf("Content-length: %d\n",
+			cprintf("Content-type: %s", cbtype);
+			if (strlen(cbcharset) > 0) {
+				cprintf("; charset=%s", cbcharset);
+			}
+			cprintf("\nContent-length: %d\n",
 				(int)(length + add_newline) );
 			if (strlen(encoding) > 0) {
 				cprintf("Content-transfer-encoding: %s\n", encoding);
