@@ -1,4 +1,9 @@
 $Log$
+Revision 653.3  2005/07/19 14:21:51  ajc
+* mime_parser.c: don't default to Content-type: text/plain; charset=us-ascii
+  because there are places where those fields actually need to be empty (in
+  WebCit, actually, but I don't want to fork the mime parser).
+
 Revision 653.2  2005/07/19 04:10:01  ajc
 * Updated the MIME parser API to include the "charset" portion of
   the content type.
@@ -6924,4 +6929,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

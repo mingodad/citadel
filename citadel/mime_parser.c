@@ -389,13 +389,6 @@ void the_mime_parser(char *partnum,
 		*(strchr(content_type, ';')) = '\0';
 	striplt(content_type);
 
-	if (!strlen(content_type)) {
-		strcpy(content_type, "text/plain");
-	}
-	if (!strlen(charset)) {
-		strcpy(charset, "us-ascii");
-	}
-
 	if (strlen(boundary) > 0) {
 		is_multipart = 1;
 	} else {
