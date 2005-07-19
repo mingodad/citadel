@@ -168,7 +168,7 @@ void do_listsub(void)
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
+FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
 			"<TABLE BORDER=0>\n"
 		);
 

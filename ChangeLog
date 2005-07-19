@@ -1,4 +1,11 @@
 $Log$
+Revision 619.27  2005/07/19 17:05:23  ajc
+* Removed the last couple of places where forms were submitted using
+  the GET method.  POST is just so technologically cleaner that we should
+  use it all the time.
+* Fixed a bug in the MIME parser that was causing it to not be 8-bit
+  clean.
+
 Revision 619.26  2005/07/19 14:23:04  ajc
 * mime_parser.c: don't default Content-type: to text/plain, because when
   an HTTP POST operation is performed, the content type is expected to
@@ -2712,3 +2719,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
