@@ -274,6 +274,8 @@ void cookie_to_stuff(char *cookie, int *session,
                 char *user, size_t user_len,
                 char *pass, size_t pass_len,
                 char *room, size_t room_len);
+char *bmstrstr(char *text, char *pattern,
+        int (*cmpfunc)(const char *, const char *, size_t) );
 void locate_host(char *, int);
 void become_logged_in(char *, char *, char *);
 void do_login(void);

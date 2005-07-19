@@ -11,21 +11,6 @@
 #define SIZ	4096
 #endif
 
-#ifndef mallok
-#define mallok(x) malloc(x)
-#endif
-
-#ifndef phree
-#define phree(x) free(x)
-#endif
-
-#ifndef reallok
-#define reallok(x,y) realloc(x,y)
-#endif
-
-#ifndef strdoop
-#define strdoop(x) strdup(x)
-#endif
 
 /* 
  * Declarations for functions in the parser
@@ -41,6 +26,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
+			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
 			void *cbuserdata),
@@ -51,6 +37,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
+			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
 			void *cbuserdata),
@@ -61,6 +48,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
+			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
 			void *cbuserdata),

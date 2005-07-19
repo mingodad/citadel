@@ -3,41 +3,23 @@
  *
  * This is the MIME parser for Citadel.  Sometimes it actually works.
  *
- * Copyright (c) 1998-2003 by Art Cancro
+ * Copyright (c) 1998-2005 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
  */
 
-#include <ctype.h>
+
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <stdio.h>
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <ctype.h>
 #include <string.h>
-#include <pwd.h>
+#include <sys/stat.h>
 #include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
+
 #include "webcit.h"
-#include "webserver.h"
 
 #include "mime_parser.h"
 
@@ -82,7 +64,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	char buf[SIZ];
 	int buf_length = 0;
 	int soft_line_break = 0;
-	int ch;
+	unsigned int ch;
 	int decoded_length = 0;
 	int i;
 
@@ -145,7 +127,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
  */
 void mime_decode(char *partnum,
 		 char *part_start, size_t length,
-		 char *content_type, char *encoding,
+		 char *content_type, char *charset, char *encoding,
 		 char *disposition,
 		 char *name, char *filename,
 		 void (*CallBack)
@@ -155,6 +137,7 @@ void mime_decode(char *partnum,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -165,6 +148,7 @@ void mime_decode(char *partnum,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -175,6 +159,7 @@ void mime_decode(char *partnum,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -199,7 +184,7 @@ void mime_decode(char *partnum,
 		if (CallBack != NULL) {
 			CallBack(name, filename, fixed_partnum(partnum),
 				disposition, part_start,
-				content_type, length, encoding, userdata);
+				content_type, charset, length, encoding, userdata);
 			}
 		return;
 	}
@@ -214,7 +199,7 @@ void mime_decode(char *partnum,
 	 * will never be larger than the encoded data.  This is a safe
 	 * assumption with base64, uuencode, and quoted-printable.
 	 */
-	decoded = mallok(length+2048);
+	decoded = malloc(length+2048);
 	if (decoded == NULL) {
 		return;
 	}
@@ -230,10 +215,10 @@ void mime_decode(char *partnum,
 	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),
 			disposition, decoded,
-			content_type, bytes_decoded, "binary", userdata);
+			content_type, charset, bytes_decoded, "binary", userdata);
 	}
 
-	phree(decoded);
+	free(decoded);
 }
 
 /*
@@ -251,6 +236,7 @@ void the_mime_parser(char *partnum,
 		       char *cbdisp,
 		       void *cbcontent,
 		       char *cbtype,
+		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
 		       void *cbuserdata),
@@ -261,6 +247,7 @@ void the_mime_parser(char *partnum,
 		       char *cbdisp,
 		       void *cbcontent,
 		       char *cbtype,
+		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
 		       void *cbuserdata),
@@ -271,6 +258,7 @@ void the_mime_parser(char *partnum,
 		       char *cbdisp,
 		       void *cbcontent,
 		       char *cbtype,
+		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
 		       void *cbuserdata),
@@ -286,7 +274,9 @@ void the_mime_parser(char *partnum,
 	char *boundary;
 	char *startary;
 	char *endary;
+	char *next_boundary;
 	char *content_type;
+	char *charset;
 	size_t content_length;
 	char *encoding;
 	char *disposition;
@@ -303,34 +293,37 @@ void the_mime_parser(char *partnum,
 	ptr = content_start;
 	content_length = 0;
 
-	boundary = mallok(SIZ);
+	boundary = malloc(SIZ);
 	memset(boundary, 0, SIZ);
 
-	startary = mallok(SIZ);
+	startary = malloc(SIZ);
 	memset(startary, 0, SIZ);
 
-	endary = mallok(SIZ);
+	endary = malloc(SIZ);
 	memset(endary, 0, SIZ);
 
-	header = mallok(SIZ);
+	header = malloc(SIZ);
 	memset(header, 0, SIZ);
 
-	content_type = mallok(SIZ);
+	content_type = malloc(SIZ);
 	memset(content_type, 0, SIZ);
 
-	encoding = mallok(SIZ);
+	charset = malloc(SIZ);
+	memset(charset, 0, SIZ);
+
+	encoding = malloc(SIZ);
 	memset(encoding, 0, SIZ);
 
-	content_type_name = mallok(SIZ);
+	content_type_name = malloc(SIZ);
 	memset(content_type_name, 0, SIZ);
 
-	content_disposition_name = mallok(SIZ);
+	content_disposition_name = malloc(SIZ);
 	memset(content_disposition_name, 0, SIZ);
 
-	filename = mallok(SIZ);
+	filename = malloc(SIZ);
 	memset(filename, 0, SIZ);
 
-	disposition = mallok(SIZ);
+	disposition = malloc(SIZ);
 	memset(disposition, 0, SIZ);
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
@@ -346,13 +339,17 @@ void the_mime_parser(char *partnum,
 			goto end_parser;
 		}
 
-		for (i = 0; i < strlen(buf); ++i)
-			if (isspace(buf[i]))
+		for (i = 0; i < strlen(buf); ++i) {
+			if (isspace(buf[i])) {
 				buf[i] = ' ';
+			}
+		}
+
 		if (!isspace(buf[0])) {
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(content_type_name, content_type, "name");
+				extract_key(charset, content_type, "charset");
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
@@ -385,6 +382,13 @@ void the_mime_parser(char *partnum,
 		*(strchr(content_type, ';')) = '\0';
 	striplt(content_type);
 
+	if (!strlen(content_type)) {
+		strcpy(content_type, "text/plain");
+	}
+	if (!strlen(charset)) {
+		strcpy(charset, "us-ascii");
+	}
+
 	if (strlen(boundary) > 0) {
 		is_multipart = 1;
 	} else {
@@ -398,56 +402,63 @@ void the_mime_parser(char *partnum,
 		/* Tell the client about this message's multipartedness */
 		if (PreMultiPartCallBack != NULL) {
 			PreMultiPartCallBack("", "", partnum, "",
-				NULL, content_type,
+				NULL, content_type, charset,
 				0, encoding, userdata);
 		}
 
 		/* Figure out where the boundaries are */
 		snprintf(startary, SIZ, "--%s", boundary);
 		snprintf(endary, SIZ, "--%s--", boundary);
+
+		part_start = NULL;
 		do {
-			if ( (!strncasecmp(ptr, startary, strlen(startary)))
-			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
-				if (part_start != NULL) {
-					if (strlen(partnum) > 0) {
-						snprintf(nested_partnum,
-							 sizeof nested_partnum,
-							 "%s.%d", partnum,
-							 ++part_seq);
-					}
-					else {
-						snprintf(nested_partnum,
-							 sizeof nested_partnum,
-							 "%d", ++part_seq);
-					}
-					the_mime_parser(nested_partnum,
-						    part_start, part_end,
-							CallBack,
-							PreMultiPartCallBack,
-							PostMultiPartCallBack,
-							userdata,
-							dont_decode);
+			next_boundary = bmstrstr(ptr, startary, strncmp);
+			if ( (part_start != NULL) && (next_boundary != NULL) ) {
+				part_end = next_boundary;
+				--part_end;
+
+				if (strlen(partnum) > 0) {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%s.%d", partnum,
+						 ++part_seq);
 				}
-				ptr = memreadline(ptr, buf, SIZ);
-				part_start = ptr;
+				else {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%d", ++part_seq);
+				}
+				the_mime_parser(nested_partnum,
+					    part_start, part_end,
+						CallBack,
+						PreMultiPartCallBack,
+						PostMultiPartCallBack,
+						userdata,
+						dont_decode);
+			}
+
+			if (next_boundary != NULL) {
+				/* If we pass out of scope, don't attempt to read
+				 * past the end boundary. */
+				if (!strcmp(next_boundary, endary)) {
+					ptr = content_end;
+				}
+				else {
+					/* Set up for the next part. */
+					part_start = strstr(next_boundary, "\n");
+					++part_start;
+					ptr = part_start;
+				}
 			}
 			else {
-				part_end = ptr;
-				++ptr;
+				/* Invalid end of multipart.  Bail out! */
+				ptr = content_end;
 			}
-			/* If we pass out of scope in the MIME multipart (by
-			 * hitting the end boundary), force the pointer out
-			 * of scope so this loop ends.
-			 */
-			if (ptr < content_end) {
-				if (!strcasecmp(ptr, endary)) {
-					ptr = content_end++;
-				}
-			}
-		} while (ptr <= content_end);
+		} while ( (ptr < content_end) && (next_boundary != NULL) );
+
 		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
-				content_type, 0, encoding, userdata);
+				content_type, charset, 0, encoding, userdata);
 		}
 		goto end_parser;
 	}
@@ -461,9 +472,9 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
-		/* fix an off-by-one error */
-		--part_end;
-		--length;
+                /* fix an off-by-one error */
+                --part_end;
+                --length;
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
@@ -483,23 +494,24 @@ void the_mime_parser(char *partnum,
 		
 		mime_decode(partnum,
 			    part_start, length,
-			    content_type, encoding, disposition,
+			    content_type, charset, encoding, disposition,
 			    name, filename,
 			    CallBack, NULL, NULL,
 			    userdata, dont_decode);
 	}
 
 end_parser:	/* free the buffers!  end the oppression!! */
-	phree(boundary);
-	phree(startary);
-	phree(endary);	
-	phree(header);
-	phree(content_type);
-	phree(encoding);
-	phree(content_type_name);
-	phree(content_disposition_name);
-	phree(filename);
-	phree(disposition);
+	free(boundary);
+	free(startary);
+	free(endary);	
+	free(header);
+	free(content_type);
+	free(charset);
+	free(encoding);
+	free(content_type_name);
+	free(content_disposition_name);
+	free(filename);
+	free(disposition);
 }
 
 
@@ -520,6 +532,7 @@ void mime_parser(char *content_start,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -531,6 +544,7 @@ void mime_parser(char *content_start,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -542,6 +556,7 @@ void mime_parser(char *content_start,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
+		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
@@ -557,4 +572,3 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
-
