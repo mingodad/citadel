@@ -817,8 +817,8 @@ void extract_action(char *actbuf, char *cmdbuf)
 
 
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
-			void *content, char *cbtype, char *cbcharset, size_t length,
-			char *encoding, void *userdata)
+			void *content, char *cbtype, char *cbcharset,
+			size_t length, char *encoding, void *userdata)
 {
 	struct urlcontent *u;
 
