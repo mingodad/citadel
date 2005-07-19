@@ -1995,7 +1995,7 @@ void display_private(char *rname, int req_pass)
 	wprintf("so you don't have to keep returning here.\n");
 	wprintf("<br /><br />");
 
-	wprintf("<FORM METHOD=\"GET\" ACTION=\"/goto_private\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/goto_private\">\n");
 
 	wprintf("<table border=\"0\" cellspacing=\"5\" "
 		"cellpadding=\"5\" BGCOLOR=\"#EEEEEE\">\n"
@@ -2071,7 +2071,7 @@ void display_zap(void)
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<br />\n");
 
-	wprintf("<FORM METHOD=\"GET\" ACTION=\"/zap\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
