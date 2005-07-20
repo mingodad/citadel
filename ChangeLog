@@ -1,4 +1,9 @@
 $Log$
+Revision 619.28  2005/07/20 04:26:24  ajc
+* Detect libiconv on the host system and link it in if present.
+* If libiconv is present, convert foreign charsets to UTF-8 on the fly
+  when outputting text/plain messages.  (Still need to do text/html.)
+
 Revision 619.27  2005/07/19 17:05:23  ajc
 * Removed the last couple of places where forms were submitted using
   the GET method.  POST is just so technologically cleaner that we should
@@ -2719,4 +2724,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
