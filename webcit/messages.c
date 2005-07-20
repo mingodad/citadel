@@ -23,6 +23,11 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
@@ -425,6 +430,14 @@ void read_message(long msgnum) {
 	char vcard_partnum[256];
 	char cal_partnum[256];
 	char *part_source = NULL;
+#ifdef HAVE_ICONV
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;                   /* Buffer of characters to be converted */
+	char *obuf;                   /* Buffer for converted characters      */
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	char *osav;                   /* Saved pointer to output buffer       */
+#endif
 
 	strcpy(from, "");
 	strcpy(node, "");
@@ -640,11 +653,16 @@ void read_message(long msgnum) {
 		}
 	}
 
-	/*
-	wprintf("Content-type: %s<br />\n", mime_content_type);
-	wprintf("Charset: %s<br />\n", mime_charset);
-	PUT CHARSET TRANSLATOR HERE
-	*/
+	/* Set up a character set conversion if we need to (and if we can) */
+#ifdef HAVE_ICONV
+	if ( (strcasecmp(mime_charset, "us-ascii"))
+	   && (strcasecmp(mime_charset, "UTF-8")) ) {
+		ic = iconv_open("UTF-8", mime_charset);
+		if (ic == (iconv_t)(-1) ) {
+			lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+		}
+	}
+#endif
 
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
@@ -656,6 +674,21 @@ void read_message(long msgnum) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
 			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
+
+#ifdef HAVE_ICONV
+			if (ic != (iconv_t)(-1) ) {
+				ibuf = buf;
+				ibuflen = strlen(ibuf);
+				obuflen = SIZ;
+				obuf = (char *) malloc(obuflen);
+				osav = obuf;
+				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+				osav[SIZ-obuflen] = 0;
+				safestrncpy(buf, osav, sizeof buf);
+				free(osav);
+			}
+#endif
+
 			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
@@ -733,6 +766,12 @@ ENDBODY:
 	/* end everythingamundo table */
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div><br />\n");
+
+#ifdef HAVE_ICONV
+	if (ic != (iconv_t)(-1) ) {
+		iconv_close(ic);
+	}
+#endif
 }
 
 
