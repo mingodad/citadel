@@ -28,7 +28,7 @@ void cmd_vali (char *v_args);
 void ForEachUser(void (*CallBack)(struct ctdluser *EachUser, void *out_data),
 	void *in_data);
 void ListThisUser(struct ctdluser *usbuf, void *data);
-void cmd_list (void);
+void cmd_list (char *);
 void cmd_chek (void);
 void cmd_qusr (char *who);
 void cmd_agup (char *cmdbuf);

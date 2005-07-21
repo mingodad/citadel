@@ -1059,7 +1059,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"LIST",4)) {
-		cmd_list();
+		cmd_list(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"CHEK",4)) {

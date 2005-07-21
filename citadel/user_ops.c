@@ -1355,6 +1355,13 @@ void ForEachUser(void (*CallBack) (struct ctdluser * EachUser, void *out_data),
  */
 void ListThisUser(struct ctdluser *usbuf, void *data)
 {
+	char *searchstring;
+
+	searchstring = (char *)data;
+	if (bmstrstr(usbuf->fullname, searchstring, strncasecmp) == NULL) {
+		return;
+	}
+
 	if (usbuf->axlevel > 0) {
 		if ((CC->user.axlevel >= 6)
 		    || ((usbuf->flags & US_UNLISTED) == 0)
@@ -1374,12 +1381,15 @@ void ListThisUser(struct ctdluser *usbuf, void *data)
 }
 
 /* 
- *  List users
+ *  List users (searchstring may be empty to list all users)
  */
-void cmd_list(void)
+void cmd_list(char *cmdbuf)
 {
+	char searchstring[256];
+	extract_token(searchstring, cmdbuf, 0, '|', sizeof searchstring);
+	striplt(searchstring);
 	cprintf("%d \n", LISTING_FOLLOWS);
-	ForEachUser(ListThisUser, NULL);
+	ForEachUser(ListThisUser, (void *)searchstring );
 	cprintf("000\n");
 }
 

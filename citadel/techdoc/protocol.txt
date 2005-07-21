@@ -1068,6 +1068,12 @@ fields on each line are as follows:
 
  Unlisted entries will also be listed to Aides logged into the server, but
 not to ordinary users.
+ 
+ The LIST command accepts an optional single argument, which is a simple,
+case-insensitive search string.  If this argument is present, only usernames
+in which the search string is present will be returned.  It is a simple
+substring search, not a regular expression search.  If this string is empty
+or not present, all users will be returned.
 
 
  REGI   (send REGIstration)

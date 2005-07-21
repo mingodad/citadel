@@ -1,4 +1,7 @@
 $Log$
+Revision 653.6  2005/07/21 15:02:27  ajc
+* Server-side LIST command now accepts a search string.
+
 Revision 653.5  2005/07/19 20:04:31  ajc
 * MSG4 command now outputs content type *and* charset
 
@@ -6938,3 +6941,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
