@@ -1,4 +1,9 @@
 $Log$
+Revision 653.7  2005/07/21 17:20:55  ajc
+* <.R>ead <U>ser-list now takes advantage of the server-side string match
+  if available.  It still filters on the client side as well, in case the
+  server is older and sent back the whole list.
+
 Revision 653.6  2005/07/21 15:02:27  ajc
 * Server-side LIST command now accepts a search string.
 
@@ -6941,4 +6946,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1021,15 +1021,23 @@ int CtdlIPCSetRoomInfo(CtdlIPC *ipc, int for_real, const char *info, char *cret)
 
 
 /* LIST */
-int CtdlIPCUserListing(CtdlIPC *ipc, char **listing, char *cret)
+int CtdlIPCUserListing(CtdlIPC *ipc, char *searchstring, char **listing, char *cret)
 {
 	size_t bytes;
+	char *cmd;
+	int ret;
 
 	if (!cret) return -1;
 	if (!listing) return -1;
 	if (*listing) return -1;
+	if (!searchstring) return -1;
 
-	return CtdlIPCGenericCommand(ipc, "LIST", NULL, 0, listing, &bytes, cret);
+	cmd = malloc(strlen(searchstring) + 10);
+	sprintf(cmd, "LIST %s", searchstring);
+
+	ret = CtdlIPCGenericCommand(ipc, cmd, NULL, 0, listing, &bytes, cret);
+	free(cmd);
+	return(ret);
 }
 
 

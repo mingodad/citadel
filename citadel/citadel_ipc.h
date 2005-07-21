@@ -231,7 +231,7 @@ int CtdlIPCValidateUser(CtdlIPC *ipc, const char *username, int axlevel,
 		char *cret);
 int CtdlIPCSetRoomInfo(CtdlIPC *ipc, int for_real, const char *info,
 		char *cret);
-int CtdlIPCUserListing(CtdlIPC *ipc, char **list, char *cret);
+int CtdlIPCUserListing(CtdlIPC *ipc, char *searchstring, char **list, char *cret);
 int CtdlIPCSetRegistration(CtdlIPC *ipc, const char *info, char *cret);
 int CtdlIPCMiscCheck(CtdlIPC *ipc, struct ctdlipcmisc *chek, char *cret);
 int CtdlIPCDeleteFile(CtdlIPC *ipc, const char *filename, char *cret);

@@ -302,8 +302,8 @@ cmd=30,0,&.,&Terminate,and &Stay online
 # the trailing colon allows the user to enter a few characters to search for
 # users with a partial match.
 #
-cmd=32,0,&.,&Read,&User listing
-#cmd=32,0,&.,&Read,&User listing:
+#cmd=32,0,&.,&Read,&User listing
+cmd=32,0,&.,&Read,&User listing:
 
 cmd=33,0,&.,&Read,&Textfile formatted
 #

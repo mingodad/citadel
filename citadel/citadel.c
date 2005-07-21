@@ -211,7 +211,7 @@ void userlist(CtdlIPC *ipc, char *patn)
 	int r;				/* IPC response code */
 	char *listing = NULL;
 
-	r = CtdlIPCUserListing(ipc, &listing, buf);
+	r = CtdlIPCUserListing(ipc, patn, &listing, buf);
 	if (r / 100 != 1) {
 		pprintf("%s\n", buf);
 		return;

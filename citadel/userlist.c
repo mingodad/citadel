@@ -39,7 +39,7 @@ void userlist(CtdlIPC *ipc) {
 	char *listing = NULL;
 	int r;
 
-	r = CtdlIPCUserListing(ipc, &listing, buf);
+	r = CtdlIPCUserListing(ipc, "", &listing, buf);
 	if (r / 100 != 1) {
 		printf("%s\n", buf);
 		return;
