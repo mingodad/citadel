@@ -1,4 +1,8 @@
 $Log$
+Revision 619.30  2005/07/22 04:03:30  ajc
+* HTML messages in foreign character sets are now converted to UTF-8 for
+  display.
+
 Revision 619.29  2005/07/22 03:40:22  ajc
 * Handle display of RFC2047-encoded subjects and senders by converting
   them to UTF-8 (all WebCit pages are output as UTF-8).  Resolves bug #136.
@@ -2728,4 +2732,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

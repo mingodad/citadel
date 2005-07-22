@@ -24,14 +24,21 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
 
 
 /*
+ * Sanitize and enhance an HTML message for display.
+ * Also convert weird character sets to UTF-8 if necessary.
  */
-void output_html(void) {
+void output_html(char *charset) {
 	char buf[SIZ];
 	char *msg;
 	char *ptr;
@@ -47,6 +54,14 @@ void output_html(void) {
 	int alevel = 0;
 	int i;
 	int linklen;
+#ifdef HAVE_ICONV
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;                   /* Buffer of characters to be converted */
+	char *obuf;                   /* Buffer for converted characters      */
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	char *osav;                   /* Saved pointer to output buffer       */
+#endif
 
 	msg = strdup("");
 	sprintf(new_window, "<A TARGET=\"%s\" HREF=", TARGET);
@@ -67,6 +82,29 @@ void output_html(void) {
 		strcpy(&msg[content_length], "\n");
 		content_length += 1;
 	}
+
+#ifdef HAVE_ICONV
+	if ( (strcasecmp(charset, "us-ascii"))
+	   && (strcasecmp(charset, "UTF-8")) ) {
+		ic = iconv_open("UTF-8", charset);
+		if (ic == (iconv_t)(-1) ) {
+			lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+		}
+	}
+	if (ic != (iconv_t)(-1) ) {
+		ibuf = msg;
+		ibuflen = content_length;
+		obuflen = content_length + (content_length / 2) ;
+		obuf = (char *) malloc(obuflen);
+		osav = obuf;
+		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+		content_length = content_length + (content_length / 2) - obuflen;
+		osav[content_length] = 0;
+		free(msg);
+		msg = osav;
+		iconv_close(ic);
+	}
+#endif
 
 	ptr = msg;
 	msgstart = msg;

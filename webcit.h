@@ -429,7 +429,7 @@ void display_addressbook(long msgnum, char alpha);
 void offer_start_page(void);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
 void change_start_page(void);
-void output_html(void);
+void output_html(char *);
 void display_floorconfig(char *);
 void delete_floor(void);
 void create_floor(void);
