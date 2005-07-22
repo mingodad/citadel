@@ -217,7 +217,7 @@ void do_iconbar(void) {
 
 	if (ib_users) {
 		wprintf("<li>"
-			"<A HREF=\"/whobbs\" TITLE=\"See who is online right now\" "
+			"<A HREF=\"/who\" TITLE=\"See who is online right now\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {

@@ -1,4 +1,9 @@
 $Log$
+Revision 619.31  2005/07/22 15:07:29  ajc
+* 'whobbs' is now 'who'
+* Refactored the wholist code to have its inner div output by a separate
+  function, in anticipation of possible ajax functionality being added
+
 Revision 619.30  2005/07/22 04:03:30  ajc
 * HTML messages in foreign character sets are now converted to UTF-8 for
   display.
@@ -2732,3 +2737,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
