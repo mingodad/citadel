@@ -1,4 +1,8 @@
 $Log$
+Revision 619.29  2005/07/22 03:40:22  ajc
+* Handle display of RFC2047-encoded subjects and senders by converting
+  them to UTF-8 (all WebCit pages are output as UTF-8).  Resolves bug #136.
+
 Revision 619.28  2005/07/20 04:26:24  ajc
 * Detect libiconv on the host system and link it in if present.
 * If libiconv is present, convert foreign charsets to UTF-8 on the fly
@@ -2724,3 +2728,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

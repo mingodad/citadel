@@ -42,6 +42,74 @@ struct addrbookent {
 };
 
 
+
+#ifdef HAVE_ICONV
+/* Handle subjects with RFC2047 encoding, such as:
+ * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
+ */
+void utf8ify_rfc822_string(char *buf) {
+	char *start, *end;
+	char newbuf[1024];
+	char charset[128];
+	char encoding[16];
+	char istr[1024];
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;                   /* Buffer of characters to be converted */
+	char *obuf;                   /* Buffer for converted characters      */
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	char *isav;                   /* Saved pointer to input buffer        */
+	char *osav;                   /* Saved pointer to output buffer       */
+
+	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
+		((start != NULL) && (end != NULL) && (end > start)) )
+	{
+		extract_token(charset, start, 1, '?', sizeof charset);
+		extract_token(encoding, start, 2, '?', sizeof encoding);
+		extract_token(istr, start, 3, '?', sizeof istr);
+
+		strcpy(start, "");
+		++end;
+		++end;
+
+		ibuf = malloc(1024);
+		isav = ibuf;
+		if (!strcasecmp(encoding, "B")) {	/* base64 */
+			ibuflen = CtdlDecodeBase64(ibuf, istr, strlen(istr));
+		}
+		else if (!strcasecmp(encoding, "Q")) {	/* quoted-printable */
+			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, strlen(istr));
+		}
+		else {
+			strcpy(ibuf, istr);		/* huh? */
+			ibuflen = strlen(istr);
+		}
+
+		ic = iconv_open("UTF-8", charset);
+		if (ic != (iconv_t)(-1) ) {
+			obuf = malloc(1024);
+			obuflen = 1024;
+			obuf = (char *) malloc(obuflen);
+			osav = obuf;
+			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+			osav[1024-obuflen] = 0;
+			snprintf(newbuf, sizeof newbuf, "%s%s%s", buf, osav, end);
+			strcpy(buf, newbuf);
+			free(osav);
+			iconv_close(ic);
+		}
+		else {
+			snprintf(newbuf, sizeof newbuf, "%s(unreadable)%s", buf, end);
+			strcpy(buf, newbuf);
+		}
+
+		free(isav);
+	}
+
+}
+#endif
+
+
 /*
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
@@ -483,6 +551,9 @@ void read_message(long msgnum) {
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
 			wprintf("from <A HREF=\"/showuser&who=");
+#ifdef HAVE_ICONV
+			utf8ify_rfc822_string(from);
+#endif
 			urlescputs(from);
 			wprintf("\">");
 			escputs(from);
@@ -588,6 +659,9 @@ void read_message(long msgnum) {
 	}
 
 	wprintf("</SPAN>");
+#ifdef HAVE_ICONV
+	utf8ify_rfc822_string(m_subject);
+#endif
 	if (strlen(m_subject) > 0) {
 		wprintf("<br />"
 			"<SPAN CLASS=\"message_subject\">"
@@ -802,6 +876,10 @@ void summarize_message(long msgnum, int is_new) {
 		if (!strncasecmp(buf, "subj=", 5)) {
 			if (strlen(&buf[5]) > 0) {
 				strcpy(summ.subj, &buf[5]);
+#ifdef HAVE_ICONV
+				/* Handle subjects with RFC2047 encoding */
+				utf8ify_rfc822_string(summ.subj);
+#endif
 				if (strlen(summ.subj) > 75) {
 					strcpy(&summ.subj[72], "...");
 				}
@@ -832,6 +910,10 @@ void summarize_message(long msgnum, int is_new) {
 		}
 	}
 	
+#ifdef HAVE_ICONV
+	/* Handle senders with RFC2047 encoding */
+	utf8ify_rfc822_string(summ.from);
+#endif
 	if (strlen(summ.from) > 25) {
 		strcpy(&summ.from[22], "...");
 	}
