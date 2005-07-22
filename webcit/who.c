@@ -27,14 +27,10 @@
 
 
 
-
-
-
 /*
- * who is on?
+ * Display inner div of Wholist
  */
-void whobbs(void)
-{
+void who_inner_div(void) {
 	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
 		realroom[SIZ], realhost[SIZ];
 	int sess;
@@ -42,28 +38,7 @@ void whobbs(void)
 	time_t now;
 	int bg = 0;
 
-	output_headers(1, 1, 2, 0, 1, 0, 0);
-
-	wprintf("<script type=\"text/javascript\">\n"
-		"function ConfirmKill() { \n"
-		"return confirm('Do you really want to kill this session?');\n"
-		"}\n"
-		"</script>\n"
-	);
-
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<IMG SRC=\"/static/usermanag_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
-	escputs(serv_info.serv_humannode);
-	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
-	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n"
-		"<div id=\"content\">\n");
-
-	wprintf("<div id=\"fix_scrollbar_bug\">"
-		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">"
+	wprintf("<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">"
 		"<tr>\n");
 	wprintf("<TH COLSPAN=3>&nbsp;</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
@@ -166,8 +141,42 @@ void whobbs(void)
 			wprintf("</TD>\n</TR>");
 		}
 	}
-	wprintf("</TABLE></div>\n"
-		"<div align=center>"
+	wprintf("</TABLE>");
+}
+
+
+
+/*
+ * who is on?
+ */
+void who(void)
+{
+	output_headers(1, 1, 2, 0, 1, 0, 0);
+
+	wprintf("<script type=\"text/javascript\">\n"
+		"function ConfirmKill() { \n"
+		"return confirm('Do you really want to kill this session?');\n"
+		"}\n"
+		"</script>\n"
+	);
+
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<IMG SRC=\"/static/usermanag_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
+	escputs(serv_info.serv_humannode);
+	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
+	offer_start_page();
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\">\n");
+
+	wprintf("<div id=\"fix_scrollbar_bug\">");
+	who_inner_div();	/* Actual data handled by another function */
+	wprintf("</div>\n");
+
+	wprintf("<div align=center>"
 		"Click on a name to read user info.  Click on "
 		"<IMG ALIGN=MIDDLE SRC=\"/static/citadelchat_16x.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send an instant message to that user.</div>\n");
@@ -181,7 +190,7 @@ void terminate_session(void)
 
 	serv_printf("TERM %s", bstr("which_session"));
 	serv_getln(buf, sizeof buf);
-	whobbs();
+	who();
 }
 
 
@@ -195,17 +204,17 @@ void edit_me(void)
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/whobbs");
+		http_redirect("/who");
 	} else if (!strcasecmp(bstr("sc"), "Change host name")) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/whobbs");
+		http_redirect("/who");
 	} else if (!strcasecmp(bstr("sc"), "Change user name")) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/whobbs");
+		http_redirect("/who");
 	} else if (!strcasecmp(bstr("sc"), "Cancel")) {
-		http_redirect("/whobbs");
+		http_redirect("/who");
 	} else {
 
 		output_headers(1, 1, 0, 0, 0, 0, 0);

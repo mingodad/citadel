@@ -293,7 +293,7 @@ int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 void serv_getln(char *strbuf, int bufsize);
 void serv_puts(char *string);
-void whobbs(void);
+void who(void);
 void fmout(FILE *fp, char *align);
 void wDumpContent(int);
 void serv_printf(const char *format,...);

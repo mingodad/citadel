@@ -1157,8 +1157,8 @@ void session_loop(struct httprequest *req)
 		display_aide_menu();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
-	} else if (!strcasecmp(action, "whobbs")) {
-		whobbs();
+	} else if (!strcasecmp(action, "who")) {
+		who();
 	} else if (!strcasecmp(action, "knrooms")) {
 		knrooms();
 	} else if (!strcasecmp(action, "gotonext")) {
