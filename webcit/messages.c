@@ -784,7 +784,7 @@ void read_message(long msgnum) {
 
 	else /* HTML is fun, but we've got to strip it first */
 	if (!strcasecmp(mime_content_type, "text/html")) {
-		output_html();
+		output_html(mime_charset);
 	}
 
 	/* Unknown weirdness */
