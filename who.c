@@ -228,7 +228,7 @@ void who(void)
 " <script type=\"text/javascript\">					\n"
 "	ajaxEngine.registerRequest('getWholist', 'who_inner_html');\n"
 "	ajaxEngine.registerAjaxElement('fix_scrollbar_bug');	\n"
-"	setInterval(\"ajaxEngine.sendRequest('getWholist', 'junk='+Math.random());\", 3000);	\n"
+"	setInterval(\"ajaxEngine.sendRequest('getWholist', 'junk='+Math.random());\", 30000);	\n"
 "</script>\n"
 	);
 
