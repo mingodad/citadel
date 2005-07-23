@@ -779,43 +779,6 @@ void display_success(char *successmessage)
 
 
 
-void extract_action(char *actbuf, char *cmdbuf)
-{
-	int i;
-
-	strcpy(actbuf, cmdbuf);
-
-	/*
-	 * First strip out the http method
-	 */
-	remove_token(actbuf, 0, ' ');
-	if (actbuf[0] == ' ') strcpy(actbuf, &actbuf[1]);
-	if (actbuf[0] == '/') strcpy(actbuf, &actbuf[1]);
-
-	/*
-	 * Now kill invalid (for webcit) characters
-	 */
-	for (i = 0; i < strlen(actbuf); ++i) {
-		if (actbuf[i] == ' ') {
-			actbuf[i] = 0;
-			i = 0;
-		}
-		if (actbuf[i] == '/') {
-			actbuf[i] = 0;
-			i = 0;
-		}
-		if (actbuf[i] == '?') {
-			actbuf[i] = 0;
-			i = 0;
-		}
-		if (actbuf[i] == '&') {
-			actbuf[i] = 0;
-			i = 0;
-		}
-	}
-}
-
-
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
 			size_t length, char *encoding, void *userdata)
@@ -862,9 +825,12 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
  */
 void session_loop(struct httprequest *req)
 {
-	char cmd[SIZ];
-	char method[SIZ];
-	char action[SIZ];
+	char cmd[1024];
+	char method[128];
+	char action[128];
+	char arg1[128];
+	char arg2[128];
+	char arg3[128];
 	char buf[SIZ];
 	int a, b;
 	int ContentLength = 0;
@@ -907,7 +873,27 @@ void session_loop(struct httprequest *req)
 	safestrncpy(cmd, hptr->line, sizeof cmd);
 	hptr = hptr->next;
 	extract_token(method, cmd, 0, ' ', sizeof method);
-	extract_action(action, cmd);
+
+	/* Figure out the action */
+	extract_token(action, cmd, 1, '/', sizeof action);
+	if (strstr(action, "?")) *strstr(action, "?") = 0;
+	if (strstr(action, "&")) *strstr(action, "&") = 0;
+	if (strstr(action, " ")) *strstr(action, " ") = 0;
+
+	extract_token(arg1, cmd, 2, '/', sizeof arg1);
+	if (strstr(arg1, "?")) *strstr(arg1, "?") = 0;
+	if (strstr(arg1, "&")) *strstr(arg1, "&") = 0;
+	if (strstr(arg1, " ")) *strstr(arg1, " ") = 0;
+
+	extract_token(arg2, cmd, 3, '/', sizeof arg2);
+	if (strstr(arg2, "?")) *strstr(arg2, "?") = 0;
+	if (strstr(arg2, "&")) *strstr(arg2, "&") = 0;
+	if (strstr(arg2, " ")) *strstr(arg2, " ") = 0;
+
+	extract_token(arg3, cmd, 4, '/', sizeof arg3);
+	if (strstr(arg3, "?")) *strstr(arg3, "?") = 0;
+	if (strstr(arg3, "&")) *strstr(arg3, "&") = 0;
+	if (strstr(arg3, " ")) *strstr(arg3, " ") = 0;
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
@@ -983,9 +969,10 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
+
 	/* Static content can be sent without connecting to Citadel. */
 	if (!strcasecmp(action, "static")) {
-		safestrncpy(buf, &cmd[12], sizeof buf);
+		safestrncpy(buf, arg1, sizeof buf);
 		for (a = 0; a < strlen(buf); ++a)
 			if (isspace(buf[a]))
 				buf[a] = 0;
@@ -1159,6 +1146,8 @@ void session_loop(struct httprequest *req)
 		display_main_menu();
 	} else if (!strcasecmp(action, "who")) {
 		who();
+	} else if (!strcasecmp(action, "who_inner_html")) {
+		who_inner_html();
 	} else if (!strcasecmp(action, "knrooms")) {
 		knrooms();
 	} else if (!strcasecmp(action, "gotonext")) {
