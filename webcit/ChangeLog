@@ -1,4 +1,7 @@
 $Log$
+Revision 619.32  2005/07/23 04:18:40  ajc
+* New AJAX-based wholist refresh
+
 Revision 619.31  2005/07/22 15:07:29  ajc
 * 'whobbs' is now 'who'
 * Refactored the wholist code to have its inner div output by a separate
@@ -2737,4 +2740,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -294,6 +294,7 @@ int tcp_connectsock(char *, char *);
 void serv_getln(char *strbuf, int bufsize);
 void serv_puts(char *string);
 void who(void);
+void who_inner_html(void);
 void fmout(FILE *fp, char *align);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
