@@ -9,15 +9,23 @@
         Kevin Roth
 	Dave Lindquist
 	Martin Mouritzen
+
+   This program is open source software released under the terms of the GNU
+   General Public License.  Please read COPYING.txt for more licensing
+   information.
  
-This program is free software released under the terms of the GNU General
-Public License.  Please read COPYING.txt for more licensing information.
- 
+   WebCit bundles the Rico Ajax Engine, written by Darren James, Bill Scott,
+   et. al. [http://www.openrico.org].  These components are licensed to you
+   under the terms of the Apache 2.0 License.
+
+   WebCit bundles the Prototype JavaScript Framework, writen by Sam
+   Stephenson [http://prototype.conio.net].  These components are licensed to
+   you under the terms of an MIT-style license.
  
  INTRODUCTION
  ------------
  
- Citadel is a sophisticated BBS and groupware package which allows multiple
+ Citadel is a sophisticated groupware and BBS package which allows multiple
 users to simultaneously access the system using a variety of user interfaces.
 This package (WebCit) is a "middleware" package which presents an HTML/HTTP
 user interface to the Citadel system.
@@ -122,7 +130,7 @@ the "webserver" program:
  GRAPHICS
  --------
  
- WebCit contains a small amount of graphics (buttons, etc.) which are kept
+ WebCit contains a small amount of graphics (icons, etc.) which are kept
 in its "static" subdirectory.  All site-specific graphics, however, are
 fetched from the Citadel server.
  
