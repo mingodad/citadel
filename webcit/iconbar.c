@@ -98,9 +98,8 @@ void do_iconbar(void) {
 		"<li><div align=\"center\">"
 		"<A HREF=\"http://www.citadel.org\" "
 		"title=\"Find out more about Citadel\" target=\"aboutcit\">"
-		"<img border=\"0\" width=\"48\" height=\"48\" "
-		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
-		"CITADEL</A>"
+		"<img border=\"0\" "
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\"></a>"
 		"</div></li>\n"
 	);
 
