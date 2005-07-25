@@ -579,6 +579,15 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 						strcpy(mret[0]->content_type,
 							&mret[0]->content_type[14]);
 						striplt(mret[0]->content_type);
+
+						/* strip out ";charset=" portion.  FIXME do something with
+						 * the charset (like... convert it) instead of just throwing
+						 * it away
+						 */
+						if (strstr(mret[0]->content_type, ";") != NULL) {
+							strcpy(strstr(mret[0]->content_type, ";"), "");
+						}
+
 					}
 					remove_token(bbb, 0, '\n');
 				} while ((bbb[0] != 0) && (bbb[0] != '\n'));
