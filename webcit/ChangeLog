@@ -1,4 +1,7 @@
 $Log$
+Revision 619.34  2005/07/25 19:22:30  ajc
+* mailbox summary sort by subject/sender/date
+
 Revision 619.33  2005/07/24 04:25:42  ajc
 * Replaced the old Citadel logo with a new one
   designed by Lisa Aurigemma (vermilion).
@@ -2744,4 +2747,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

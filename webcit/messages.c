@@ -849,19 +849,41 @@ ENDBODY:
 }
 
 
-void summarize_message(long msgnum, int is_new) {
+void display_summarized(int num) {
+	char datebuf[64];
+
+	wprintf("<TD>");
+	if (WC->summ[num].is_new) wprintf("<B>");
+	wprintf("<A HREF=\"/readfwd?startmsg=%ld"
+		"&maxmsgs=1&summary=0\">", 
+		WC->msgarr[num]);
+	escputs(WC->summ[num].subj);
+	wprintf("</A>");
+	if (WC->summ[num].is_new) wprintf("</B>");
+	wprintf("</TD><TD>");
+	if (WC->summ[num].is_new) wprintf("<B>");
+	escputs(WC->summ[num].from);
+	if (WC->summ[num].is_new) wprintf("</B>");
+	wprintf(" </TD><TD>");
+	if (WC->summ[num].is_new) wprintf("<B>");
+	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
+	escputs(datebuf);
+	if (WC->summ[num].is_new) wprintf("</B>");
+	wprintf(" </TD>");
+	wprintf("<TD>"
+		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
+		"</TD>\n"
+	);
+}
+
+
+void summarize_message(int num, long msgnum, int is_new) {
 	char buf[SIZ];
 
-	struct {
-		char date[SIZ];
-		char from[SIZ];
-		char to[SIZ];
-		char subj[SIZ];
-		int hasattachments;
-	} summ;
-
-	memset(&summ, 0, sizeof(summ));
-	strcpy(summ.subj, "(no subject)");
+	memset(&WC->summ[num], 0, sizeof(struct message_summary));
+	safestrncpy(WC->summ[num].subj, "(no subject)", sizeof WC->summ[num].subj);
+	WC->summ[num].is_new = is_new;
+	WC->summ[num].msgnum = msgnum;
 
 	/* ask for headers only with no MIME */
 	sprintf(buf, "MSG0 %ld|3", msgnum);
@@ -871,75 +893,48 @@ void summarize_message(long msgnum, int is_new) {
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "from=", 5)) {
-			strcpy(summ.from, &buf[5]);
+			safestrncpy(WC->summ[num].from, &buf[5], sizeof WC->summ[num].from);
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
 			if (strlen(&buf[5]) > 0) {
-				strcpy(summ.subj, &buf[5]);
+				safestrncpy(WC->summ[num].subj, &buf[5],
+					sizeof WC->summ[num].subj);
 #ifdef HAVE_ICONV
 				/* Handle subjects with RFC2047 encoding */
-				utf8ify_rfc822_string(summ.subj);
+				utf8ify_rfc822_string(WC->summ[num].subj);
 #endif
-				if (strlen(summ.subj) > 75) {
-					strcpy(&summ.subj[72], "...");
+				if (strlen(WC->summ[num].subj) > 75) {
+					strcpy(&WC->summ[num].subj[72], "...");
 				}
 			}
 		}
-		/* if (!strncasecmp(buf, "rfca=", 5)) {
-			strcat(summ.from, " <");
-			strcat(summ.from, &buf[5]);
-			strcat(summ.from, ">");
-		} */
 
 		if (!strncasecmp(buf, "node=", 5)) {
 			if ( ((WC->room_flags & QR_NETWORK)
 			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
 			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
 			) {
-				strcat(summ.from, " @ ");
-				strcat(summ.from, &buf[5]);
+				strcat(WC->summ[num].from, " @ ");
+				strcat(WC->summ[num].from, &buf[5]);
 			}
 		}
 
 		if (!strncasecmp(buf, "rcpt=", 5)) {
-			strcpy(summ.to, &buf[5]);
+			safestrncpy(WC->summ[num].to, &buf[5], sizeof WC->summ[num].to);
 		}
 
 		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(summ.date, atol(&buf[5]), 1);	/* brief */
+			WC->summ[num].date = atol(&buf[5]);
 		}
 	}
 	
 #ifdef HAVE_ICONV
 	/* Handle senders with RFC2047 encoding */
-	utf8ify_rfc822_string(summ.from);
+	utf8ify_rfc822_string(WC->summ[num].from);
 #endif
-	if (strlen(summ.from) > 25) {
-		strcpy(&summ.from[22], "...");
+	if (strlen(WC->summ[num].from) > 25) {
+		strcpy(&WC->summ[num].from[22], "...");
 	}
-
-	wprintf("<TD>");
-	if (is_new) wprintf("<B>");
-	wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-		"&maxmsgs=1&summary=0\">", 
-		msgnum);
-	escputs(summ.subj);
-	wprintf("</A>");
-	if (is_new) wprintf("</B>");
-	wprintf("</TD><TD>");
-	if (is_new) wprintf("<B>");
-	escputs(summ.from);
-	if (is_new) wprintf("</B>");
-	wprintf(" </TD><TD>");
-	if (is_new) wprintf("<B>");
-	escputs(summ.date);
-	if (is_new) wprintf("</B>");
-	wprintf(" </TD>");
-	wprintf("<TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
-		"</TD>\n");
-
-	return;
 }
 
 
@@ -953,17 +948,10 @@ void display_addressbook(long msgnum, char alpha) {
 	int mime_length;
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
-
-	struct {
-		char date[SIZ];
-		char from[SIZ];
-		char to[SIZ];
-		char subj[SIZ];
-		int hasattachments;
-	} summ;
+	struct message_summary summ;
 
 	memset(&summ, 0, sizeof(summ));
-	strcpy(summ.subj, "(no subject)");
+	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
@@ -1042,20 +1030,13 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
 	int i;
-
-	struct {
-		char date[SIZ];
-		char from[SIZ];
-		char to[SIZ];
-		char subj[SIZ];
-		int hasattachments;
-	} summ;
+	struct message_summary summ;
 
 	if (namebuf == NULL) return;
 	strcpy(namebuf, "");
 
 	memset(&summ, 0, sizeof(summ));
-	strcpy(summ.subj, "(no subject)");
+	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
@@ -1236,6 +1217,36 @@ int load_msg_ptrs(char *servcmd)
 	return (nummsgs);
 }
 
+ 
+int summcmp_subj(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+	return strcasecmp(summ1->subj, summ2->subj);
+}
+
+int summcmp_sender(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+	return strcasecmp(summ1->from, summ2->from);
+}
+
+int summcmp_date(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+
+	if (summ1->date < summ2->date) return -1;
+	else if (summ1->date > summ2->date) return +1;
+	else return 0;
+}
 
 /*
  * command loop for reading messages
@@ -1267,11 +1278,15 @@ void readloop(char *oper)
 	int bg = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
+	char *sortby = NULL;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
 	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
+	sortby = bstr("sortby");
+	if (strlen(sortby) == 0) sortby = "msgid";
+	if (strcasecmp(sortby, "msgid")) maxmsgs = 9999999;
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
@@ -1350,12 +1365,50 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
+	if (is_summary) {
+		if (WC->num_summ != 0) {
+			WC->num_summ = 0;
+			free(WC->summ);
+		}
+		WC->num_summ = nummsgs;
+		WC->summ = malloc(WC->num_summ*sizeof(struct message_summary));
+		for (a = 0; a < nummsgs; ++a) {
+			/* Gather summary information */
+			summarize_message(a, WC->msgarr[a], is_new);
+
+			/* Are you a new message, or an old message? */
+			if (is_summary) {
+				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
+					WC->summ[a].is_new = 0;
+				}
+				else {
+					WC->summ[a].is_new = 1;
+				}
+			}
+		}
+	}
+
 	if (startmsg == 0L) startmsg = WC->msgarr[0];
 	remaining_messages = 0;
 
 	for (a = 0; a < nummsgs; ++a) {
 		if (WC->msgarr[a] >= startmsg) {
 			++remaining_messages;
+		}
+	}
+
+	if (is_summary) {
+		if (!strcasecmp(sortby, "subject")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_subj);
+		}
+		else if (!strcasecmp(sortby, "sender")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_sender);
+		}
+		else if (!strcasecmp(sortby, "date")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_date);
 		}
 	}
 
@@ -1366,27 +1419,20 @@ void readloop(char *oper)
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
-			"<TD align=center><b><i>Subject</i></b></TD>"
-			"<TD align=center><b><i>Sender</i></b></TD>"
-			"<TD align=center><b><i>Date</i></b></TD>"
+			"<TD align=center><b><i>Subject</i></b>%s</TD>"
+			"<TD align=center><b><i>Sender</i></b>%s</TD>"
+			"<TD align=center><b><i>Date</i></b>%s</TD>"
 			"<TD></TD>"
 			"</TR>\n"
+			,
+			(!strcasecmp(sortby, "subject") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>"),
+			(!strcasecmp(sortby, "sender") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>"),
+			(!strcasecmp(sortby, "date") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>")
 		);
 	}
 
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
-
-			/* Are you a new message, or an old message? */
-			is_new = 0;
-			if (is_summary) {
-				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
-					is_new = 0;
-				}
-				else {
-					is_new = 1;
-				}
-			}
 
 			/* Learn which msgs "Prev" & "Next" buttons go to */
 			pn_current = WC->msgarr[a];
@@ -1403,7 +1449,7 @@ void readloop(char *oper)
 
 			/* Display the message */
 			if (is_summary) {
-				summarize_message(WC->msgarr[a], is_new);
+				display_summarized(a);
 			}
 			else if (is_addressbook) {
 				fetch_ab_name(WC->msgarr[a], buf);
@@ -1562,6 +1608,12 @@ DONE:
 
 	wDumpContent(1);
 	if (addrbook != NULL) free(addrbook);
+
+	/* free the summary */
+	if (WC->num_summ != 0) {
+		WC->num_summ = 0;
+		free(WC->summ);
+	}
 
 	/* If we got here via a mailbox view and are reading a single
 	 * message, mark it as "seen." We do this after rendering the web page

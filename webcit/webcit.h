@@ -181,6 +181,16 @@ struct wc_attachment {
 	char *data;
 };
 
+struct message_summary {
+	time_t date;
+	long msgnum;
+	char from[128];
+	char to[128];
+	char subj[128];
+	int hasattachments;
+	int is_new;
+};
+
 /*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
@@ -219,7 +229,11 @@ struct wcsession {
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
 	char reply_to[SIZ];		/* reply-to address */
+
 	long msgarr[10000];		/* for read operations */
+	int num_summ;
+	struct message_summary *summ;
+
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
 	int HaveInstantMessages;	/* Nonzero if incoming msgs exist */
@@ -523,7 +537,6 @@ void end_burst(void);
 
 extern char *ascmonths[];
 void http_datestring(char *buf, size_t n, time_t xtime);
-
 
 /* Views (from citadel.h) */
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */
