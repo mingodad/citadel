@@ -1,4 +1,9 @@
 $Log$
+Revision 619.35  2005/07/26 03:46:27  ajc
+* The new sorting options broke the delete-message checkboxes.  Fixed.
+* Sorting options are now selectable in either direction, and are
+  persistent across sessions.
+
 Revision 619.34  2005/07/25 19:22:30  ajc
 * mailbox summary sort by subject/sender/date
 
@@ -2747,3 +2752,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
