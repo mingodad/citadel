@@ -1330,7 +1330,10 @@ void readloop(char *oper)
 	}
 	if (strlen(sortby) == 0) sortby = sortpref_value;
 	if (strlen(sortby) == 0) sortby = "msgid";
-	if (strcasecmp(sortby, "msgid")) maxmsgs = 9999999;
+	if ( (strcasecmp(sortby, "msgid")) & (maxmsgs != 1) ) {
+		startmsg = 1;
+		maxmsgs = 9999999;
+	}
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
