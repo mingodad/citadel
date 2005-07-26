@@ -872,7 +872,8 @@ void display_summarized(int num) {
 	wprintf(" </TD>");
 	wprintf("<TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
-		"</TD>\n"
+		"</TD>\n",
+		WC->summ[num].msgnum
 	);
 }
 
@@ -1227,6 +1228,15 @@ int summcmp_subj(const void *s1, const void *s2) {
 	return strcasecmp(summ1->subj, summ2->subj);
 }
 
+int summcmp_rsubj(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+	return strcasecmp(summ2->subj, summ1->subj);
+}
+
 int summcmp_sender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1234,6 +1244,15 @@ int summcmp_sender(const void *s1, const void *s2) {
 	summ1 = (struct message_summary *)s1;
 	summ2 = (struct message_summary *)s2;
 	return strcasecmp(summ1->from, summ2->from);
+}
+
+int summcmp_rsender(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+	return strcasecmp(summ2->from, summ1->from);
 }
 
 int summcmp_date(const void *s1, const void *s2) {
@@ -1245,6 +1264,18 @@ int summcmp_date(const void *s1, const void *s2) {
 
 	if (summ1->date < summ2->date) return -1;
 	else if (summ1->date > summ2->date) return +1;
+	else return 0;
+}
+
+int summcmp_rdate(const void *s1, const void *s2) {
+	struct message_summary *summ1;
+	struct message_summary *summ2;
+	
+	summ1 = (struct message_summary *)s1;
+	summ2 = (struct message_summary *)s2;
+
+	if (summ1->date < summ2->date) return +1;
+	else if (summ1->date > summ2->date) return -1;
 	else return 0;
 }
 
@@ -1279,12 +1310,25 @@ void readloop(char *oper)
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	char *sortby = NULL;
+	char sortpref_name[128];
+	char sortpref_value[128];
+	char *subjsort_button;
+	char *sendsort_button;
+	char *datesort_button;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
 	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
+
+	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WC->wc_roomname);
+	get_preference(sortpref_name, sortpref_value, sizeof sortpref_value);
+
 	sortby = bstr("sortby");
+	if ( (strlen(sortby) > 0) && (strcasecmp(sortby, sortpref_value)) ) {
+		set_preference(sortpref_name, sortby, 1);
+	}
+	if (strlen(sortby) == 0) sortby = sortpref_value;
 	if (strlen(sortby) == 0) sortby = "msgid";
 	if (strcasecmp(sortby, "msgid")) maxmsgs = 9999999;
 
@@ -1402,32 +1446,75 @@ void readloop(char *oper)
 			qsort(WC->summ, WC->num_summ,
 				sizeof(struct message_summary), summcmp_subj);
 		}
+		else if (!strcasecmp(sortby, "rsubject")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_rsubj);
+		}
 		else if (!strcasecmp(sortby, "sender")) {
 			qsort(WC->summ, WC->num_summ,
 				sizeof(struct message_summary), summcmp_sender);
+		}
+		else if (!strcasecmp(sortby, "rsender")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_rsender);
 		}
 		else if (!strcasecmp(sortby, "date")) {
 			qsort(WC->summ, WC->num_summ,
 				sizeof(struct message_summary), summcmp_date);
 		}
+		else if (!strcasecmp(sortby, "rdate")) {
+			qsort(WC->summ, WC->num_summ,
+				sizeof(struct message_summary), summcmp_rdate);
+		}
 	}
 
 	wprintf("<form name=\"msgomatic\" "
 		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
+
+	if (!strcasecmp(sortby, "subject")) {
+		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rsubject\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+	}
+	else if (!strcasecmp(sortby, "rsubject")) {
+		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+	}
+	else {
+		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+	}
+
+	if (!strcasecmp(sortby, "sender")) {
+		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rsender\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+	}
+	else if (!strcasecmp(sortby, "rsender")) {
+		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+	}
+	else {
+		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+	}
+
+	if (!strcasecmp(sortby, "date")) {
+		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rdate\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+	}
+	else if (!strcasecmp(sortby, "rdate")) {
+		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+	}
+	else {
+		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+	}
+
 	if (is_summary) {
 		wprintf("<div id=\"fix_scrollbar_bug\">"
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
-			"<TD align=center><b><i>Subject</i></b>%s</TD>"
-			"<TD align=center><b><i>Sender</i></b>%s</TD>"
-			"<TD align=center><b><i>Date</i></b>%s</TD>"
+			"<TD align=center><b><i>Subject</i></b> %s</TD>"
+			"<TD align=center><b><i>Sender</i></b> %s</TD>"
+			"<TD align=center><b><i>Date</i></b> %s</TD>"
 			"<TD></TD>"
 			"</TR>\n"
 			,
-			(!strcasecmp(sortby, "subject") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>"),
-			(!strcasecmp(sortby, "sender") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>"),
-			(!strcasecmp(sortby, "date") ? "" : " <a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>")
+			subjsort_button,
+			sendsort_button,
+			datesort_button
 		);
 	}
 
