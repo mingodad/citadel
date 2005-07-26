@@ -142,7 +142,13 @@ int alias(char *name)
 	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
-	fp = fopen("network/mail.aliases", "r");
+	fp = fopen(
+#ifndef HAVE_ETG_DIR
+			   "network/"
+#else
+			   ETC_DIR
+#endif
+			   "mail.aliases", "r");
 	if (fp == NULL) {
 		fp = fopen("/dev/null", "r");
 	}
@@ -237,7 +243,13 @@ void get_mm(void)
 {
 	FILE *fp;
 
-	fp = fopen("citadel.control", "r");
+	fp = fopen(
+#ifndef HAVE_RUN_DIR
+			   "."
+#else
+			   RUN_DIR
+#endif
+			   "/citadel.control", "r");
 	if (fp == NULL) {
 		lprintf(CTDL_CRIT, "Cannot open citadel.control: %s\n",
 			strerror(errno));
@@ -2244,8 +2256,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		serialize_message(&smr, msg);
 		if (smr.len > 0) {
 			snprintf(submit_filename, sizeof submit_filename,
-				"./network/spoolin/netmail.%04lx.%04x.%04x",
-				(long) getpid(), CC->cs_pid, ++seqnum);
+#ifndef HAVE_SPOOL_DIR
+					 CTDLDIR
+#else
+					 SPOOL_DIR
+#endif
+					 "/network/spoolin/netmail.%04lx.%04x.%04x",
+					 (long) getpid(), CC->cs_pid, ++seqnum);
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
 				fwrite(smr.ser, smr.len, 1, network_fp);

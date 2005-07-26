@@ -61,8 +61,8 @@ void init_ssl(void)
 	X509_NAME *name = NULL;
 	FILE *fp;
 
-	if (!access("/var/run/egd-pool", F_OK))
-		RAND_egd("/var/run/egd-pool");
+	if (!access(EGD_POOL, F_OK))
+		RAND_egd(EGD_POOL);
 
 	if (!RAND_status()) {
 		lprintf(CTDL_CRIT,

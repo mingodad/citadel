@@ -183,7 +183,12 @@ int main(int argc, char **argv)
 	 * Bind the server to a Unix-domain socket.
 	 */
 	CtdlRegisterServiceHook(0,
-				"citadel.socket",
+#ifndef HAVE_RUN_DIR
+					 "."
+#else
+					 RUN_DIR
+#endif
+				"/citadel.socket",
 				citproto_begin_session,
 				do_command_loop,
 				do_async_loop);

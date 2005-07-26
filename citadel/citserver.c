@@ -288,7 +288,11 @@ int is_public_client(void)
 	static time_t pc_timestamp = 0;
 	static char public_clients[SIZ];
 
+#ifndef HAVE_ETC
 #define PUBLIC_CLIENTS "./public_clients"
+#else
+#define PUBLIC_CLIENTS ETC_DIR"/public_clients"
+#endif
 
 	/*
 	 * Check the time stamp on the public_clients file.  If it's been
@@ -312,7 +316,13 @@ int is_public_client(void)
 			strcat(public_clients, addrbuf);
 		}
 
-		fp = fopen("public_clients", "r");
+		fp = fopen(
+#ifndef HAVE_ETC
+				   "."
+#else
+				   ETC_DIR
+#endif
+				   "/public_clients", "r");
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
 			for (i=0; i<strlen(buf); ++i) {
 				if (buf[i] == '#') buf[i] = 0;
@@ -424,8 +434,16 @@ void cmd_mesg(char *mname)
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
-	dirs[0] = strdup("messages");
-	dirs[1] = strdup("help");
+	dirs[0] = strdup(
+#ifdef HAVE_DATA_DIR
+					 DATA_DIR"/"
+#endif
+					 "messages");
+	dirs[1] = strdup(
+#ifdef HAVE_DATA_DIR
+					 DATA_DIR"/"
+#endif
+					 "help");
 	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
 	mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
 	if (strlen(targ) == 0) {
@@ -482,14 +500,28 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-	dirs[0] = strdup("messages");
-	dirs[1] = strdup("help");
+	dirs[0] = strdup(
+#ifdef HAVE_DATA_DIR
+					 DATA_DIR"/"
+#endif
+					 "messages");
+	dirs[1] = strdup(
+#ifdef HAVE_DATA_DIR
+					 DATA_DIR"/"
+#endif
+					 "help");
 	mesg_locate(targ, sizeof targ, buf, 2, (const char**)dirs);
 	free(dirs[0]);
 	free(dirs[1]);
 
 	if (strlen(targ)==0) {
-		snprintf(targ, sizeof targ, "./help/%s", buf);
+		snprintf(targ, sizeof targ, 
+#ifndef HAVE_DATA_DIR
+			 "." /* FIXME: should here be CTDLDIR ? */
+#else
+			 DATA_DIR
+#endif
+				 "/help/%s", buf);
 	}
 
 	mfp = fopen(targ,"w");

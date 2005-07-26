@@ -111,7 +111,13 @@ void np_attach_to_server(void)
 	int r;
 
 	strcpy(hostbuf, UDS);	/* Only run on a unix domain socket */
-	strcpy(portbuf, ".");	/* IPGM will refuse to run on the network */
+	strcpy(portbuf, 
+#ifndef HAVE_RUN_DIR
+		   "."	/* IPGM will refuse to run on the network */
+#else
+		   ""
+#endif
+		   );
 	fprintf(stderr, "Attaching to server...\n");
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
 	if (!ipc) {

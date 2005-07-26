@@ -45,7 +45,13 @@ void get_config(void) {
 			strerror(errno));
 		exit(1);
 	}
-	cfp = fopen("citadel.config", "rb");
+	cfp = fopen(
+#ifndef HAVE_ETC_DIR
+				"."
+#else
+				ETC_DIR
+#endif
+				"/citadel.config", "rb");
 	if (cfp == NULL) {
 		fprintf(stderr, "This program could not be started.\n"
 			"Unable to open %s/citadel.config\n"
@@ -116,7 +122,13 @@ void put_config(void)
 {
 	FILE *cfp;
 
-	if ((cfp = fopen("citadel.config", "rb+")) == NULL)
+	if ((cfp = fopen(
+#ifndef HAVE_ETC_DIR
+					 "."
+#else
+					 ETC_DIR
+#endif
+					 "/citadel.config", "rb+")) == NULL)
 		perror("citadel.config");
 	else {
 		fwrite((char *) &config, sizeof(struct config), 1, cfp);

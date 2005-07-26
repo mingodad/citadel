@@ -11,6 +11,63 @@ else
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix")
 fi
 
+dnl Checks for the Datadir
+AC_ARG_WITH(datadir, 
+		    [  --with-datadir          directory to store the databases under],
+			[ if test "x$withval" != "xno" ; then
+					      AC_DEFINE(HAVE_DATA_DIR)
+						  AC_DEFINE_UNQUOTED(DATA_DIR, "$withval")
+			  fi
+			]
+)
+
+dnl Checks for the spooldir
+AC_ARG_WITH(spooldir, 
+			[  --with-spooldir         directory to keep queues under],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_SPOOL_DIR)
+						AC_DEFINE_UNQUOTED(SPOOL_DIR,"$withval")
+			   fi
+			]
+)
+
+
+
+dnl Checks for the Configdir
+AC_ARG_WITH(sysconfdir, 
+			[  --with-sysconfdir       directory to store the configs under],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_ETC_DIR)
+						AC_DEFINE_UNQUOTED(ETC_DIR, "$withval")
+			  fi
+			]
+)
+
+
+dnl Checks for the run-dir for the sockets
+AC_ARG_WITH(rundir, 
+			[  --with-rundir       directory to store the configs under],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_RUN_DIR)
+						AC_DEFINE_UNQUOTED(RUN_DIR, "$withval")
+			  fi
+			]
+)
+
+
+dnl Checks for the Pseudo Random Generator sockets TODO: this keeps being default.
+AC_DEFINE_UNQUOTED(EGD_POOL, "/var/run/egd-pool")
+AC_ARG_WITH(egdpool, 
+			[  --with-egdpool       the socket from Pseudo Random Generator, defaults to /var/run/egd-pool],
+			[ if test "x$withval" != "xno" ; then
+						AC_DEFINE_UNQUOTED(EGD_POOL, "$withval")
+			  fi
+			]
+)
+
+
+
+
 AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled if possible)])
 AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 
@@ -23,7 +80,7 @@ AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt befo
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
 AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
 AC_ARG_WITH(ssl,
-	[  --with-ssl=PATH     Specify path to OpenSSL installation ],
+	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
 	[
 		if test "x$withval" != "xno" ; then
 			tryssldir=$withval
@@ -35,7 +92,7 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
-AC_ARG_WITH(with_newt, [  --with-newt          use newt window library])
+AC_ARG_WITH(with_newt, [  --with-newt             use newt window library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -117,6 +174,7 @@ case "$host" in
 	;;
 esac
 dnl DEFS="$DEFS $PTHREAD_DEFS"
+
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -377,7 +435,6 @@ if test "x$with_db" != xno; then
 				  the path]]))
 
 fi
-
 
 dnl Checks for the zlib compression library.
 if test "x$with_zlib" != xno ; then

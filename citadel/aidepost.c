@@ -98,7 +98,12 @@ int main(int argc, char **argv)
 	}
 
 	snprintf(tempspool, sizeof tempspool,
-		"./network/spoolin/ap.%04lx",
+#ifndef HAVE_SPOOL_DIR
+			 CTDLDIR
+#else
+			 SPOOL_DIR
+#endif
+			 "/network/spoolin/ap.%04lx",
 		(long)getpid());
 
 	unlink(tempspool);

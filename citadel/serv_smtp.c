@@ -1706,16 +1706,26 @@ char *serv_smtp_init(void)
 				NULL);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-				"lmtp.socket",
-				lmtp_greeting,
-				smtp_command_loop,
-				NULL);
+#ifndef HAVE_RUN_DIR
+							"."
+#else
+							RUN_DIR
+#endif
+							"/lmtp.socket",
+							lmtp_greeting,
+							smtp_command_loop,
+							NULL);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-				"lmtp-unfiltered.socket",
-				lmtp_unfiltered_greeting,
-				smtp_command_loop,
-				NULL);
+#ifndef HAVE_RUN_DIR
+							"."
+#else
+							RUN_DIR
+#endif
+							"/lmtp-unfiltered.socket",
+							lmtp_unfiltered_greeting,
+							smtp_command_loop,
+							NULL);
 
 	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);

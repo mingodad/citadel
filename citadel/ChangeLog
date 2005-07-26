@@ -1,4 +1,9 @@
 $Log$
+Revision 653.9  2005/07/26 02:49:25  ajc
+* Applied a patch sent in by Wilfried Goesgens which allows the various
+  program and data directories to be set to any location on the host
+  system.  This will allow packagers to do FSSTND-type configurations.
+
 Revision 653.8  2005/07/25 17:37:36  ajc
 * citadel_ipc.c: when performing a MSG4 command, don't return the
   charset as part of the content-type string.
@@ -6950,4 +6955,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

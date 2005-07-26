@@ -64,13 +64,25 @@ void get_control(void)
 	 */
 	memset(&CitControl, 0, sizeof(struct CitControl));
 	if (control_fp == NULL) {
-		control_fp = fopen("citadel.control", "rb+");
+		control_fp = fopen(
+#ifndef HAVE_RUN_DIR
+						   "."
+#else
+						   RUN_DIR
+#endif
+						   "/citadel.control", "rb+");
 		if (control_fp != NULL) {
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 		}
 	}
 	if (control_fp == NULL) {
-		control_fp = fopen("citadel.control", "wb+");
+		control_fp = fopen(
+#ifndef HAVE_RUN_DIR
+						   "."
+#else
+						   RUN_DIR
+#endif
+						   "/citadel.control", "wb+");
 		if (control_fp != NULL) {
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));

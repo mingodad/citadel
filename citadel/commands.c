@@ -768,7 +768,13 @@ void load_command_set(void)
 		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {
-		snprintf(buf, sizeof buf, "%s/citadel.rc", CTDLDIR);
+		snprintf(buf, sizeof buf, 
+#ifndef HAVE_ETC_DIR
+				 CTDLDIR
+#else
+				 ETC_DIR
+#endif
+				 "/citadel.rc");
 		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {

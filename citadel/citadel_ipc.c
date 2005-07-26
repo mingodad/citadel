@@ -1931,8 +1931,8 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret)
 	SSL_set_session_id_context(temp_ssl, "Citadel SID", 14);
 #endif
 
-	if (!access("/var/run/egd-pool", F_OK))
-		RAND_egd("/var/run/egd-pool");
+	if (!access(EGD_POOL, F_OK))
+		RAND_egd(EGD_POOL);
 
 	if (!RAND_status()) {
 		error_printf("PRNG not properly seeded\n");
@@ -2941,11 +2941,22 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
 			snprintf(sockpath, sizeof sockpath, "%s%s",
-				CTDLDIR, "/citadel.socket");
+#ifndef HAVE_RUN_DIR
+					 CTDLDIR
+#else
+					 RUN_DIR
+#endif
+					 , "/citadel.socket");
 		}
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s%s",
-				citport, "/citadel.socket");
+				citport, 
+#ifndef HAVE_RUN_DIR
+					 CTDLDIR
+#else
+					 RUN_DIR
+#endif
+					 "/citadel.socket");
 		}
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {

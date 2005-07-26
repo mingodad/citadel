@@ -203,7 +203,13 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-	serv_sock = uds_connectsock("lmtp.socket");
+	serv_sock = uds_connectsock(
+#ifndef HAVE_RUN_DIR
+						   "."
+#else
+						   RUN_DIR
+#endif
+						   "/lmtp.socket");
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 

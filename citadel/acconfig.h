@@ -42,3 +42,22 @@
 
 /* define this if you have the resolv.h header file. */
 #undef HAVE_RESOLV_H
+
+/* define, if the user suplied a data-directory to use. */
+#undef HAVE_DATA_DIR
+#undef DATA_DIR
+
+/* define, if the user suplied a spool-directory to use. */
+#undef HAVE_SPOOL_DIR
+#undef SPOOL_DIR
+
+/* define, where the config should go in unix style */
+#undef HAVE_ETC_DIR
+#undef ETC_DIR
+
+/* define, where the config should go in unix style */
+#undef HAVE_RUN_DIR
+#undef RUN_DIR
+
+
+#undef EGD_POOL 

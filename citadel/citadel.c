@@ -1122,7 +1122,13 @@ int main(int argc, char **argv)
 			 * guaranteed to have the uid/gid we want.
 			 */
 			if (!getuid() || !getgid()) {
-				if (stat(CTDLDIR "/citadel.config", &st) < 0) {
+				if (stat(
+#ifndef HAVE_ETC_DIR
+						 CTDLDIR 
+#else
+						 ETC_DIR
+#endif
+						 "/citadel.config", &st) < 0) {
 					perror("couldn't stat citadel.config");
 					logoff(NULL, 3);
 				}

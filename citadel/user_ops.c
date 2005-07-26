@@ -756,11 +756,23 @@ int purge_user(char pname[])
 	cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
 
 	/* remove the user's bio file */
-	snprintf(filename, sizeof filename, "./bio/%ld", usbuf.usernum);
+	snprintf(filename, sizeof filename, 
+#ifndef HAVE_DATA_DIR
+			 "." /* FIXME: should here be CTDLDIR ? */
+#else
+			 DATA_DIR
+#endif
+			 "/bio/%ld", usbuf.usernum);
 	unlink(filename);
 
 	/* remove the user's picture */
-	snprintf(filename, sizeof filename, "./userpics/%ld.gif", usbuf.usernum);
+	snprintf(filename, sizeof filename, 
+#ifndef HAVE_DATA_DIR
+			 "." /* FIXME: should here be CTDLDIR ? */
+#else
+			 DATA_DIR
+#endif
+			 "/userpics/%ld.gif", usbuf.usernum);
 	unlink(filename);
 
 	return (0);

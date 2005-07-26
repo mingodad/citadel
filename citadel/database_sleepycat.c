@@ -338,9 +338,12 @@ void open_databases(void)
 	struct dirent *d;
 	char filename[PATH_MAX];
 
-
+#ifndef HAVE_DATA_DIR
 	getcwd(dbdirname, sizeof dbdirname);
 	strcat(dbdirname, "/data");
+#else
+	strcat(dbdirname, DATA_DIR"/data");
+#endif
 
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
 	lprintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);

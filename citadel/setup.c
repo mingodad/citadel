@@ -848,7 +848,13 @@ void write_config_to_disk(void)
 	FILE *fp;
 	int fd;
 
-	if ((fd = creat("citadel.config", S_IRUSR | S_IWUSR)) == -1) {
+	if ((fd = creat(
+#ifndef HAVE_ETC_DIR
+					"."
+#else
+					ETC_DIR
+#endif
+					"/citadel.config", S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 	}
@@ -992,7 +998,13 @@ int main(int argc, char *argv[])
 	 * completely new copy.
 	 */
 
-	if ((a = open("citadel.config", O_WRONLY | O_CREAT | O_APPEND,
+	if ((a = open(
+#ifndef HAVE_ETC_DIR
+				  "."
+#else
+				  ETC_DIR
+#endif
+				  "/citadel.config", O_WRONLY | O_CREAT | O_APPEND,
 		      S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot append citadel.config");
 		cleanup(errno);
@@ -1007,7 +1019,13 @@ int main(int argc, char *argv[])
 	fclose(fp);
 
 	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen("citadel.config", "rb");
+	fp = fopen(
+#ifndef HAVE_ETC_DIR
+			   "."
+#else
+			   ETC_DIR
+#endif
+			   "/citadel.config", "rb");
 	if (fp == NULL) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(errno);
@@ -1193,7 +1211,13 @@ NEW_INST:
 	chown(".", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 1, 4);
-	chown("citadel.config", config.c_ctdluid, gid);
+	chown(
+#ifndef HAVE_ETC_DIR
+		  "."
+#else
+		  ETC_DIR
+#endif
+		  "/citadel.config", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
@@ -1202,7 +1226,13 @@ NEW_INST:
 	system(aaa);
 	sleep(1);
 	progress("Setting file permissions", 3, 4);
-	chmod("citadel.config", S_IRUSR | S_IWUSR);
+	chmod(
+#ifndef HAVE_ETC_DIR
+		  "."
+#else
+		  ETC_DIR
+#endif
+		  "/citadel.config", S_IRUSR | S_IWUSR);
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
