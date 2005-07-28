@@ -1,4 +1,7 @@
 $Log$
+Revision 653.10  2005/07/28 03:22:19  ajc
+* Added a "macintosh readme" written by Mathew McBride
+
 Revision 653.9  2005/07/26 02:49:25  ajc
 * Applied a patch sent in by Wilfried Goesgens which allows the various
   program and data directories to be set to any location on the host
@@ -6955,3 +6958,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
