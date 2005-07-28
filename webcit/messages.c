@@ -1551,13 +1551,20 @@ void readloop(char *oper)
 		wprintf("<div id=\"message_list\">"
 
 			"<div id=\"fix_scrollbar_bug\">\n"
+
+			"<form name=\"msgomatic\" "
+			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
+
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
 			"<TD align=center><b><i>Subject</i></b> %s</TD>"
 			"<TD align=center><b><i>Sender</i></b> %s</TD>"
 			"<TD align=center><b><i>Date</i></b> %s</TD>"
-			"<TD></TD>"
+			"<TD><INPUT TYPE=\"submit\" NAME=\"sc\" "
+			"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
+			" font-size: 6pt;\" "
+			"VALUE=\"Delete\"></TD>"
 			"</TR>\n"
 			,
 			subjsort_button,
@@ -1622,7 +1629,8 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></div>\n");		/* end of 'fix_scrollbar_bug' div */
+		wprintf("</table></form>"
+			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
 		/* Put the data transfer hidden iframe in a hidden div, to make it *really* hidden */
@@ -2218,7 +2226,7 @@ void do_stuff_to_msgs(void) {
 		sprintf(buf, "msg_%ld", stuff->msgnum);
 		if (!strcasecmp(bstr(buf), "yes")) {
 
-			if (!strcasecmp(sc, "Delete selected")) {
+			if (!strcasecmp(sc, "Delete")) {
 				serv_printf("DELE %ld", stuff->msgnum);
 				serv_getln(buf, sizeof buf);
 			}
