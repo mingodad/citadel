@@ -335,7 +335,7 @@ void embed_newmail_button(void) {
 void embed_view_o_matic(void) {
 	int i;
 
-	wprintf("<FORM NAME=\"viewomatic\">\n"
+	wprintf("<form name=\"viewomatic\" action=\"/changeview\">\n"
 		"<span class=\"room_banner_new_messages\">View as: "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
 		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
@@ -553,7 +553,6 @@ void embed_room_banner(char *got, int navbar_style) {
 					);
 					break;
 			}
-			wprintf("</span></a></td>\n");
 		}
 
 		if (navbar_style == navbar_default) wprintf(

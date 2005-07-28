@@ -25,6 +25,22 @@ function hide_page_popup() {
 		document.poppedLayer = eval('document.all[\'page_popup\']');
 	else
 		document.poppedLayer = eval('document.layers[\'`page_popup\']');
-document.poppedLayer.style.visibility = "hidden";
+
+	document.poppedLayer.style.visibility = "hidden";
 }
 
+function hide_imsg_popup_old() {
+	if (browserType == "gecko" )
+		document.poppedLayer = eval('document.getElementById(\'important_message\')');
+	else if (browserType == "ie")
+		document.poppedLayer = eval('document.all[\'important_message\']');
+	else
+		document.poppedLayer = eval('document.layers[\'`important_message\']');
+
+	document.poppedLayer.style.visibility = "hidden";
+}
+
+function hide_imsg_popup() {
+	new Effect.FadeTo('important_message', 0.0, 500, 5, {complete:function() { hide_imsg_popup_old();}});
+	// we still do it the old way afterwards, just in case the browser didn't dazzle us enough
+}
