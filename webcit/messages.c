@@ -476,7 +476,7 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 /*
  * I wanna SEE that message!
  */
-void read_message(long msgnum) {
+void read_message(long msgnum, int suppress_buttons) {
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -672,30 +672,37 @@ void read_message(long msgnum) {
 	wprintf("</TD>\n");
 
 	/* start msg buttons */
-	wprintf("<TD ALIGN=RIGHT>\n");
+	if (!suppress_buttons) {
+		wprintf("<td align=right>\n");
 
-	/* Reply */
-	wprintf("<a href=\"/display_enter?recp=");
-	urlescputs(reply_to);
-	wprintf("?subject=");
-	if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-	urlescputs(m_subject);
-	wprintf("\">[Reply]</a> ");
+		/* Reply */
+		wprintf("<a href=\"/display_enter?recp=");
+		urlescputs(reply_to);
+		wprintf("?subject=");
+		if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+		urlescputs(m_subject);
+		wprintf("\">[Reply]</a> ");
 
-	if (WC->is_room_aide)  {
+		if (WC->is_room_aide)  {
+		
+			/* Move */
+			wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[Move]</a> ",
+				msgnum);
 	
-		/* Move */
-		wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[Move]</a> ",
-			msgnum);
+			/* Delete */
+			wprintf("<a href=\"/delete_msg?msgid=%ld\" "
+				"onClick=\"return confirm('Delete this message?');\">"
+				"[Delete]</a> ", msgnum);
+				
+		}
 
-		/* Delete */
-		wprintf("<a href=\"/delete_msg?msgid=%ld\" "
-			"onClick=\"return confirm('Delete this message?');\">"
-			"[Delete]</a>", msgnum);
-			
+		wprintf("<a href=\"/msg?msgnum=%ld?print_it=yes\" target=\"msgloader1\">"
+			"[Print]</a>", msgnum);
+
+		wprintf("</td>");
 	}
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</TR></TABLE>\n");
 
 	/* Begin body */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
@@ -858,10 +865,12 @@ void embed_message(void) {
 	long msgnum = 0L;
 	char *sourceiframe;
 	char *targetdiv;
+	char *print_it;
 
 	msgnum = atol(bstr("msgnum"));
 	sourceiframe = bstr("sourceiframe");
 	targetdiv = bstr("targetdiv");
+	print_it = bstr("print_it");
 
 	output_headers(1, 0, 0, 0, 0, 1, 0);
 	begin_burst();
@@ -887,8 +896,11 @@ void embed_message(void) {
 	if (strlen(targetdiv) > 0) {
 		wprintf(" onLoad='loaded_now_copy_it();'");
 	}
+	if (!strcasecmp(print_it, "yes")) {
+		wprintf(" onLoad='window.print();'");
+	}
 	wprintf(">\n");
-	read_message(msgnum);
+	read_message(msgnum, (!strcasecmp(print_it, "yes") ? 1 : 0) );
 	wprintf("</body></html>\n");
 	wDumpContent(0);
 }
@@ -1612,7 +1624,7 @@ void readloop(char *oper)
 				display_note(WC->msgarr[a]);
 			}
 			else {
-				read_message(WC->msgarr[a]);
+				read_message(WC->msgarr[a], 0);
 			}
 
 			/* If a tabular view, finish the line */
@@ -1632,12 +1644,6 @@ void readloop(char *oper)
 		wprintf("</table></form>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
-
-		/* Put the data transfer hidden iframe in a hidden div, to make it *really* hidden */
-		wprintf("<div display=\"hidden\">\n"
-			"<iframe name=\"msgloader1\" id=\"msgloader1\" width=\"1\"></iframe>\n"
-			"</div>\n"
-		);
 
 		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
 	}
@@ -1750,11 +1756,13 @@ DONE:
 		do_addrbook_view(addrbook, num_ab);	/* Render the address book */
 	}
 
-	/* Note: wDumpContent() will output one additional </div> tag.
-	 * Which div it is the end of depends on what mode we're viewing in.
-	 * If we're in summary mode, it's the end of the preview pane.
-	 * Otherwise it's the end of the usual content div.
-	 */
+	/* Put the data transfer hidden iframe in a hidden div, to make it *really* hidden */
+	wprintf("</div>"
+		"<div display=\"hidden\">\n"
+		"<iframe name=\"msgloader1\" id=\"msgloader1\" width=\"1\"></iframe>\n"
+	);
+
+	/* Note: wDumpContent() will output one additional </div> tag. */
 	wDumpContent(1);
 	if (addrbook != NULL) free(addrbook);
 

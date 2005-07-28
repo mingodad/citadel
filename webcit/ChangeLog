@@ -1,4 +1,9 @@
 $Log$
+Revision 619.39  2005/07/28 04:06:31  ajc
+* "Print" button on each message.  It even uses a hidden iframe to
+  eliminate the "here's the printable view" window; the user goes straight
+  to the browser's print dialog.  Slick!
+
 Revision 619.38  2005/07/28 03:40:04  ajc
 * "Delete selected" button is now "Delete" and it works again
 
@@ -2763,3 +2768,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
