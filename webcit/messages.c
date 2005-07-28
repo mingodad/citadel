@@ -337,7 +337,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				if (strlen(mailto) > 0) strcat(mailto, "<br />");
 				strcat(mailto,
 					"<A HREF=\"/display_enter"
-					"?force_room=_MAIL_&recp=");
+					"?force_room=_MAIL_?recp=");
 				urlesc(&mailto[strlen(mailto)], thisvalue);
 				strcat(mailto, "\">");
 				urlesc(&mailto[strlen(mailto)], thisvalue);
@@ -550,7 +550,7 @@ void read_message(long msgnum) {
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
-			wprintf("from <A HREF=\"/showuser&who=");
+			wprintf("from <A HREF=\"/showuser?who=");
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
 #endif
@@ -603,7 +603,7 @@ void read_message(long msgnum) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<A HREF=\"/output_mimepart?"
-					"msgnum=%ld&partnum=%s\" "
+					"msgnum=%ld?partnum=%s\" "
 					"TARGET=\"wc.%ld.%s\">"
 					"<IMG SRC=\"/static/diskette_24x.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
@@ -619,7 +619,7 @@ void read_message(long msgnum) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<IMG SRC=\"/output_mimepart?"
-					"msgnum=%ld&partnum=%s\">",
+					"msgnum=%ld?partnum=%s\">",
 					msgnum, mime_partnum);
 			}
 
@@ -677,7 +677,7 @@ void read_message(long msgnum) {
 	/* Reply */
 	wprintf("<a href=\"/display_enter?recp=");
 	urlescputs(reply_to);
-	wprintf("&subject=");
+	wprintf("?subject=");
 	if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 	urlescputs(m_subject);
 	wprintf("\">[Reply]</a> ");
@@ -810,7 +810,7 @@ void read_message(long msgnum) {
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
 				wprintf("<A HREF=\"/edit_vcard?"
-					"msgnum=%ld&partnum=%s\">",
+					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[edit]</A>");
 			}
@@ -849,14 +849,60 @@ ENDBODY:
 }
 
 
+
+/*
+ * Unadorned HTML output of an individual message, suitable
+ * for placing in a hidden iframe, for printing, or whatever
+ */
+void embed_message(void) {
+	long msgnum = 0L;
+	char *sourceiframe;
+	char *targetdiv;
+
+	msgnum = atol(bstr("msgnum"));
+	sourceiframe = bstr("sourceiframe");
+	targetdiv = bstr("targetdiv");
+
+	output_headers(1, 0, 0, 0, 0, 1, 0);
+	begin_burst();
+
+	wprintf("<html><head>");
+
+	/* If we're loading into a hidden iframe, chances are the caller told us
+	 * about a target div somewhere that we need to copy into when we're done.
+	 */
+	if (strlen(targetdiv) > 0) wprintf(
+"									\n"
+" <script type=\"text/javascript\">					\n"
+"	function loaded_now_copy_it() {					\n"
+"		parent.document.getElementById(\"%s\").innerHTML = parent.frames['%s'].document.body.innerHTML;	\n"
+"	}											\n"
+"</script>\n",
+		targetdiv,
+		sourceiframe
+	);
+
+	wprintf("</head>");
+	wprintf("<body");
+	if (strlen(targetdiv) > 0) {
+		wprintf(" onLoad='loaded_now_copy_it();'");
+	}
+	wprintf(">\n");
+	read_message(msgnum);
+	wprintf("</body></html>\n");
+	wDumpContent(0);
+}
+
+
+
+
 void display_summarized(int num) {
 	char datebuf[64];
 
 	wprintf("<TD>");
 	if (WC->summ[num].is_new) wprintf("<B>");
-	wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-		"&maxmsgs=1&summary=0\">", 
-		WC->msgarr[num]);
+	wprintf("<A HREF=\"/msg?msgnum=%ld?sourceiframe=msgloader1?targetdiv=preview_pane\" target=\"msgloader1\">",
+		WC->summ[num].msgnum);
 	escputs(WC->summ[num].subj);
 	wprintf("</A>");
 	if (WC->summ[num].is_new) wprintf("</B>");
@@ -987,7 +1033,7 @@ void display_addressbook(long msgnum, char alpha) {
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
 				wprintf("<A HREF=\"/edit_vcard?"
-					"msgnum=%ld&partnum=%s\">",
+					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[edit]</A>");
 			}
@@ -1179,7 +1225,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	
 			wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
 				addrbook[i].ab_msgnum);
-			wprintf("&maxmsgs=1&summary=0&alpha=%s\">", bstr("alpha"));
+			wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
 			vcard_n_prettyize(addrbook[i].ab_name);
 			escputs(addrbook[i].ab_name);
 			wprintf("</A></TD>\n");
@@ -1330,10 +1376,6 @@ void readloop(char *oper)
 	}
 	if (strlen(sortby) == 0) sortby = sortpref_value;
 	if (strlen(sortby) == 0) sortby = "msgid";
-	if ( (strcasecmp(sortby, "msgid")) & (maxmsgs != 1) ) {
-		startmsg = 1;
-		maxmsgs = 9999999;
-	}
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
@@ -1358,11 +1400,13 @@ void readloop(char *oper)
 	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		strcpy(cmd, "MSGS ALL");
-		maxmsgs = 32767;
+		maxmsgs = 9999999;
 	}
 
 	if (is_summary) {
 		strcpy(cmd, "MSGS ALL");
+		startmsg = 1;
+		maxmsgs = 9999999;
 	}
 
 	/* Are we doing a summary view?  If so, we need to know old messages
@@ -1471,41 +1515,42 @@ void readloop(char *oper)
 		}
 	}
 
-	wprintf("<form name=\"msgomatic\" "
-		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
-
 	if (!strcasecmp(sortby, "subject")) {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rsubject\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsubject\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsubject")) {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "sender")) {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rsender\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsender\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsender")) {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "date")) {
-		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=rdate\"><img border=\"0\" src=\"/static/down_pointer.gif\"></img></a>" ;
+		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rdate")) {
-		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/up_pointer.gif\"></img></a>" ;
+		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		datesort_button = "<a href=\"/readfwd?startmsg=1&maxmsgs=9999999&summary=1&sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\"></img></a>" ;
+		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
 	}
 
 	if (is_summary) {
-		wprintf("<div id=\"fix_scrollbar_bug\">"
+		wprintf("</div>");		/* end of 'content' div */
+
+		wprintf("<div id=\"message_list\">"
+
+			"<div id=\"fix_scrollbar_bug\">\n"
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
@@ -1577,7 +1622,16 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></div>\n");
+		wprintf("</table></div>\n");		/* end of 'fix_scrollbar_bug' div */
+		wprintf("</div>");			/* end of 'message_list' div */
+
+		/* Put the data transfer hidden iframe in a hidden div, to make it *really* hidden */
+		wprintf("<div display=\"hidden\">\n"
+			"<iframe name=\"msgloader1\" id=\"msgloader1\" width=\"1\"></iframe>\n"
+			"</div>\n"
+		);
+
+		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -1596,16 +1650,11 @@ void readloop(char *oper)
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, nummsgs);
 
-		if (is_summary) {
-			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Delete selected\">\n");
-		}
-
 		if (pn_previous > 0L) {
 			wprintf("<A HREF=\"/%s"
 				"?startmsg=%ld"
-				"&maxmsgs=1"
-				"&summary=0\">"
+				"?maxmsgs=1"
+				"?summary=0\">"
 				"Previous</A> \n",
 					oper,
 					pn_previous );
@@ -1614,15 +1663,15 @@ void readloop(char *oper)
 		if (pn_next > 0L) {
 			wprintf("<A HREF=\"/%s"
 				"?startmsg=%ld"
-				"&maxmsgs=1"
-				"&summary=0\">"
+				"?maxmsgs=1"
+				"?summary=0\">"
 				"Next</A> \n",
 					oper,
 					pn_next );
 		}
 
 		wprintf("<A HREF=\"/%s?startmsg=%ld"
-			"&maxmsgs=%d&summary=1\">"
+			"?maxmsgs=%d?summary=1\">"
 			"Summary"
 			"</A>",
 			oper,
@@ -1640,11 +1689,14 @@ void readloop(char *oper)
 	 */
 	if (num_displayed > 1) {
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
-	      && (!is_notes) && (!is_singlecard)) {
+	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
+
+		wprintf("<form name=\"msgomatic\" "
+			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n");
 
 		wprintf("Reading #", lowest_displayed, highest_displayed);
 
-		wprintf("<SELECT NAME=\"whichones\" SIZE=\"1\" "
+		wprintf("<select name=\"whichones\" size=\"1\" "
 			"OnChange=\"location.href=msgomatic.whichones.options"
 			"[selectedIndex].value\">\n");
 
@@ -1652,36 +1704,30 @@ void readloop(char *oper)
 		lo = b+1;
 		hi = b+maxmsgs;
 		if (hi > nummsgs) hi = nummsgs;
-			wprintf("<OPTION %s VALUE="
+			wprintf("<option %s value="
 				"\"/%s"
 				"?startmsg=%ld"
-				"&maxmsgs=%d"
-				"&summary=%d\">"
-				"%d-%d</OPTION> \n",
-				((WC->msgarr[b] == startmsg) ? "SELECTED" : ""),
+				"?maxmsgs=%d"
+				"?summary=%d\">"
+				"%d-%d</option> \n",
+				((WC->msgarr[b] == startmsg) ? "selected" : ""),
 				oper,
 				WC->msgarr[b],
 				maxmsgs,
 				is_summary,
 				lo, hi);
 		}
-		wprintf("<OPTION VALUE=\"/%s?startmsg=%ld"
-			"&maxmsgs=9999999&summary=%d\">"
+		wprintf("<option value=\"/%s?startmsg=%ld"
+			"?maxmsgs=9999999?summary=%d\">"
 			"ALL"
-			"</OPTION> ",
+			"</option> ",
 			oper,
 			WC->msgarr[0], is_summary);
 
-		wprintf("</SELECT> of %d messages.", nummsgs);
-
-		if (is_summary) {
-			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Delete selected\">\n");
-		}
-
+		wprintf("</select> of %d messages.", nummsgs);
+		wprintf("</form>\n");
 	    }
 	}
-	wprintf("</form>\n");
 
 DONE:
 	if (is_tasks) {
@@ -1696,6 +1742,11 @@ DONE:
 		do_addrbook_view(addrbook, num_ab);	/* Render the address book */
 	}
 
+	/* Note: wDumpContent() will output one additional </div> tag.
+	 * Which div it is the end of depends on what mode we're viewing in.
+	 * If we're in summary mode, it's the end of the preview pane.
+	 * Otherwise it's the end of the usual content div.
+	 */
 	wDumpContent(1);
 	if (addrbook != NULL) free(addrbook);
 

@@ -176,7 +176,7 @@ void wprintf(const char *format,...)
 void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
-		wprintf("</DIV>\n");	/* end of "text" div */
+		wprintf("</div>\n");	/* end of "text" div */
 		do_template("trailing");
 	}
 
@@ -419,6 +419,16 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			page_popup();
 			wprintf("</div>\n");
 		}
+		if (strlen(WC->ImportantMessage) > 0) {
+			wprintf("<div id=\"important_message\">\n");
+			wprintf("<SPAN CLASS=\"imsg\">"
+				"%s</SPAN><br />\n", WC->ImportantMessage);
+			wprintf("</div>\n");
+			wprintf("<script type=\"text/javascript\">\n"
+				"	 setTimeout('hide_imsg_popup()', 2000);	\n"
+				"</script>\n");
+			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
+		}
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
 			do_iconbar();
@@ -433,17 +443,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	if (do_room_banner == 1) {
 		wprintf("<div id=\"content\">\n");
-
-		if (strlen(WC->ImportantMessage) > 0) {
-			wprintf("<div id=\"fix_scrollbar_bug\">\n");
-			do_template("beginbox_nt");
-			wprintf("<SPAN CLASS=\"errormsg\">"
-				"%s</SPAN><br />\n", WC->ImportantMessage);
-			do_template("endbox");
-			wprintf("</div>\n");
-			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
-		}
-
 	}
 }
 
@@ -1174,6 +1173,8 @@ void session_loop(struct httprequest *req)
 		readloop("readfwd");
 	} else if (!strcasecmp(action, "headers")) {
 		readloop("headers");
+	} else if (!strcasecmp(action, "msg")) {
+		embed_message();
 	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {

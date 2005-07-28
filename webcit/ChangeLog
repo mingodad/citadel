@@ -1,4 +1,8 @@
 $Log$
+Revision 619.37  2005/07/28 03:16:30  ajc
+* Awesome new 2-pane layout with ajax functionality for mailbox view.
+* Slick new fade-out effect for "important message" boxes.
+
 Revision 619.36  2005/07/26 04:08:41  ajc
 * Previous checkin broke viewing of individual messages while in
   mailbox summary mode.  Fixed.
@@ -2756,3 +2760,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

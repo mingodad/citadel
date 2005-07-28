@@ -119,7 +119,7 @@ void fmout(FILE *fp, char *align)
 	int bq = 0;
 	char buf[SIZ];
 
-	wprintf("<DIV ALIGN=%s>\n", align);
+	wprintf("<div align=%s>\n", align);
 	while (1) {
 		if (fp == NULL)
 			serv_getln(buf, sizeof buf);
@@ -131,7 +131,7 @@ void fmout(FILE *fp, char *align)
 		if (!strcmp(buf, "000")) {
 			if (bq == 1)
 				wprintf("</I>");
-			wprintf("</DIV><br />\n");
+			wprintf("</div><br />\n");
 			return;
 		}
 		if ((intext == 1) && (isspace(buf[0]))) {
