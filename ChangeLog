@@ -1,4 +1,7 @@
 $Log$
+Revision 619.38  2005/07/28 03:40:04  ajc
+* "Delete selected" button is now "Delete" and it works again
+
 Revision 619.37  2005/07/28 03:16:30  ajc
 * Awesome new 2-pane layout with ajax functionality for mailbox view.
 * Slick new fade-out effect for "important message" boxes.
@@ -2760,4 +2763,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
