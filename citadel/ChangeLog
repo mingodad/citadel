@@ -1,4 +1,7 @@
 $Log$
+Revision 653.11  2005/07/29 01:50:58  ajc
+* Create network/ directory hierarchy if it doesn't exist
+
 Revision 653.10  2005/07/28 03:22:19  ajc
 * Added a "macintosh readme" written by Mathew McBride
 
@@ -6958,4 +6961,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

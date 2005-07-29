@@ -31,6 +31,7 @@
 #include <signal.h>
 #include <pwd.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #if TIME_WITH_SYS_TIME
@@ -727,14 +728,18 @@ void network_spool_msg(long msgnum, void *userdata) {
 							 CTDLDIR
 #else
 							 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 							 "/network/spoolout/%s",
 							 mptr->remote_nodename);
+					lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
 						fwrite(sermsg.ser,
 							sermsg.len, 1, fp);
 						fclose(fp);
+					}
+					else {
+						lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
 					}
 
 					/* free the serialized version */
@@ -1380,13 +1385,17 @@ void network_process_buffer(char *buffer, long size) {
 						 CTDLDIR
 #else
 						 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 						 "/network/spoolout/%s", nexthop);
+				lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
 					fwrite(sermsg.ser,
 						sermsg.len, 1, fp);
 					fclose(fp);
+				}
+				else {
+					lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
 				}
 				free(sermsg.ser);
 				CtdlFreeMessage(msg);
@@ -1552,7 +1561,7 @@ void network_do_spoolin(void) {
 				 CTDLDIR
 #else
 				 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 				 "/network/spoolin");
 	if (dp == NULL) return;
 
@@ -1563,7 +1572,7 @@ void network_do_spoolin(void) {
 					 CTDLDIR
 #else
 					 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 					 "/network/spoolin/%s", d->d_name);
 			network_process_file(filename);
 		}
@@ -1589,7 +1598,7 @@ void network_purge_spoolout(void) {
 				 CTDLDIR
 #else
 				 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 				 "/network/spoolout");
 	if (dp == NULL) return;
 
@@ -1601,7 +1610,7 @@ void network_purge_spoolout(void) {
 				 CTDLDIR
 #else
 				 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 				 "/network/spoolout/%s", d->d_name);
 
 		strcpy(nexthop, "");
@@ -1693,7 +1702,7 @@ void receive_spool(int sock, char *remote_nodename) {
 			 CTDLDIR
 #else
 			 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 			 "/network/spoolin/%s.%ld",
 			 tempfilename, remote_nodename, (long) getpid());
 	system(buf);
@@ -1725,7 +1734,7 @@ void transmit_spool(int sock, char *remote_nodename)
 			 CTDLDIR
 #else
 			 SPOOL_DIR
-#endif HAVE_SPOOL_DIR
+#endif /* HAVE_SPOOL_DIR */
 			 "/network/spoolout/%s", remote_nodename);
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
@@ -1873,6 +1882,24 @@ void network_poll_other_citadel_nodes(int full_poll) {
 
 
 
+/*
+ * It's ok if these directories already exist.  Just fail silently.
+ */
+void create_spool_dirs(void) {
+#ifndef HAVE_SPOOL_DIR
+	mkdir(CTDLDIR "/network", 0700);
+	mkdir(CTDLDIR "/network/systems", 0700);
+	mkdir(CTDLDIR "/network/spoolin", 0700);
+	mkdir(CTDLDIR "/network/spoolout", 0700);
+#else
+	mkdir(SPOOL_DIR "/network", 0700);
+	mkdir(SPOOL_DIR "/network/systems", 0700);
+	mkdir(SPOOL_DIR "/network/spoolin", 0700);
+	mkdir(SPOOL_DIR "/network/spoolout", 0700);
+#endif /* HAVE_SPOOL_DIR */
+}
+
+
 
 
 
@@ -1893,6 +1920,8 @@ void network_do_queue(void) {
 	if ( (time(NULL) - last_run) < config.c_net_freq ) {
 		full_processing = 0;
 	}
+
+	create_spool_dirs();
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -2011,13 +2040,12 @@ void cmd_netp(char *cmdbuf)
 		CC->net_node);
 }
 
-
-
 /*
  * Module entry point
  */
 char *serv_network_init(void)
 {
+	create_spool_dirs();
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
