@@ -1,4 +1,8 @@
 $Log$
+Revision 619.41  2005/07/29 16:26:04  ajc
+* omit check for gnu libiconv -- the iconv functionality is built into
+  most operating systems now.
+
 Revision 619.40  2005/07/29 04:37:29  ajc
 * fixed a bug in subject iconv ing
 
@@ -2771,3 +2775,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
