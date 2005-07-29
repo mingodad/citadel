@@ -68,9 +68,9 @@ void utf8ify_rfc822_string(char *buf) {
 		extract_token(encoding, start, 2, '?', sizeof encoding);
 		extract_token(istr, start, 3, '?', sizeof istr);
 
-		strcpy(start, "");
+		/*strcpy(start, "");
 		++end;
-		++end;
+		++end;*/
 
 		ibuf = malloc(1024);
 		isav = ibuf;
@@ -93,6 +93,16 @@ void utf8ify_rfc822_string(char *buf) {
 			osav = obuf;
 			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
 			osav[1024-obuflen] = 0;
+
+			end = start;
+			end++;
+			strcpy(start, "");
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			strcpy(end, &end[1]);
+
 			snprintf(newbuf, sizeof newbuf, "%s%s%s", buf, osav, end);
 			strcpy(buf, newbuf);
 			free(osav);
