@@ -2940,23 +2940,14 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
-			snprintf(sockpath, sizeof sockpath, "%s%s",
-#ifndef HAVE_RUN_DIR
-					 CTDLDIR
+#ifdef HAVE_RUN_DIR
+			snprintf(sockpath, sizeof sockpath, RUNDIR "/citadel.socket");
 #else
-					 RUN_DIR
+			snprintf(sockpath, sizeof sockpath, CTDLDIR "/citadel.socket");
 #endif
-					 , "/citadel.socket");
 		}
 		else {
-			snprintf(sockpath, sizeof sockpath, "%s%s",
-				citport, 
-#ifndef HAVE_RUN_DIR
-					 CTDLDIR
-#else
-					 RUN_DIR
-#endif
-					 "/citadel.socket");
+			snprintf(sockpath, sizeof sockpath, "%s/%s", citport, "citadel.socket");
 		}
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {

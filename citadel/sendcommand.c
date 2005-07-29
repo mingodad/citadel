@@ -102,23 +102,17 @@ void logoff(int e)
 /*
  * Connect sendcommand to the Citadel server running on this computer.
  */
-void np_attach_to_server(void)
+void np_attach_to_server(char *host, char *port)
 {
-	char hostbuf[SIZ], portbuf[SIZ];
 	char buf[SIZ];
+	char hostbuf[256], portbuf[256];
 	char *args[] =
 	{"sendcommand", NULL};
 	int r;
 
-	strcpy(hostbuf, UDS);	/* Only run on a unix domain socket */
-	strcpy(portbuf, 
-#ifndef HAVE_RUN_DIR
-		   "."	/* IPGM will refuse to run on the network */
-#else
-		   ""
-#endif
-		   );
 	fprintf(stderr, "Attaching to server...\n");
+	strcpy(hostbuf, host);
+	strcpy(portbuf, port);
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
 	if (!ipc) {
 		fprintf(stderr, "Can't connect: %s\n", strerror(errno));
@@ -149,7 +143,7 @@ int main(int argc, char **argv)
 	char cmd[SIZ];
 	char buf[SIZ];
 
-	strcpy(ctdl_home_directory, CTDLDIR);
+	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	strcpy(cmd, "");
 	/*
@@ -179,7 +173,7 @@ int main(int argc, char **argv)
 			(int) getpid(),
 			ctdl_home_directory);
 	fflush(stderr);
-	np_attach_to_server();
+	np_attach_to_server(UDS, ctdl_home_directory);
 	fflush(stderr);
 	setIPCDeathHook(sendcommand_die);
 
