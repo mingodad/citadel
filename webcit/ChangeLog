@@ -1,4 +1,7 @@
 $Log$
+Revision 619.40  2005/07/29 04:37:29  ajc
+* fixed a bug in subject iconv ing
+
 Revision 619.39  2005/07/28 04:06:31  ajc
 * "Print" button on each message.  It even uses a hidden iframe to
   eliminate the "here's the printable view" window; the user goes straight
@@ -2768,4 +2771,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
