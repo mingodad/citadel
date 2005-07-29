@@ -1581,7 +1581,7 @@ void network_do_spoolin(void) {
 	closedir(dp);
 }
 
-
+#ifdef ___DISABLED___
 /*
  * Delete any files in the outbound queue that were intended
  * to be sent to nodes which no longer exist.
@@ -1624,7 +1624,7 @@ void network_purge_spoolout(void) {
 
 	closedir(dp);
 }
-
+#endif	/* ___DISABLED___ */
 
 
 /*
@@ -1776,7 +1776,7 @@ ABORTUPL:
 	close(fd);
 	if (sock_puts(sock, "UCLS 1") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
-	lprintf(CTDL_NOTICE, "Sent %ld octets to <%s>",
+	lprintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n",
 			bytes_written, remote_nodename);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
@@ -1974,7 +1974,7 @@ void network_do_queue(void) {
 	free_filter_list(filterlist);
 	filterlist = NULL;
 
-	network_purge_spoolout();
+	/* network_purge_spoolout(); */
 
 	lprintf(CTDL_DEBUG, "network: queue run completed\n");
 
