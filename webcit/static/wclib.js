@@ -41,6 +41,6 @@ function hide_imsg_popup_old() {
 }
 
 function hide_imsg_popup() {
-	new Effect.FadeTo('important_message', 0.0, 500, 5, {complete:function() { hide_imsg_popup_old();}});
+	new Effect.FadeTo('important_message', 0.0, 1000, 10, {complete:function() { hide_imsg_popup_old(); }} );
 	// we still do it the old way afterwards, just in case the browser didn't dazzle us enough
 }
