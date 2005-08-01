@@ -1,4 +1,7 @@
 $Log$
+Revision 653.13  2005/08/01 20:45:26  ajc
+* citadel_ipc.c: RUN_DIR not RUNDIR in line 2944
+
 Revision 653.12  2005/07/29 03:50:52  ajc
 * Temporarily disabling network_purge_spoolout() because it may be
   removing files it shouldn't.
@@ -6965,4 +6968,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

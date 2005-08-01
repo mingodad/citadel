@@ -2941,7 +2941,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
 #ifdef HAVE_RUN_DIR
-			snprintf(sockpath, sizeof sockpath, RUNDIR "/citadel.socket");
+			snprintf(sockpath, sizeof sockpath, RUN_DIR "/citadel.socket");
 #else
 			snprintf(sockpath, sizeof sockpath, CTDLDIR "/citadel.socket");
 #endif
