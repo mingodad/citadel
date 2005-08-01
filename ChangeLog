@@ -1,4 +1,7 @@
 $Log$
+Revision 619.42  2005/08/01 02:28:55  ajc
+* Made the ImportantMessage div less obtrusive
+
 Revision 619.41  2005/07/29 16:26:04  ajc
 * omit check for gnu libiconv -- the iconv functionality is built into
   most operating systems now.
@@ -2775,4 +2778,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
