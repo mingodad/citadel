@@ -2257,7 +2257,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (smr.len > 0) {
 			snprintf(submit_filename, sizeof submit_filename,
 #ifndef HAVE_SPOOL_DIR
-					 CTDLDIR
+					 "."
 #else
 					 SPOOL_DIR
 #endif

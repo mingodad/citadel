@@ -138,7 +138,7 @@ void cmd_delf(char *filename)
 	}
 	snprintf(pathname, sizeof pathname, 
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -277,7 +277,7 @@ void cmd_netf(char *cmdbuf)
 	}
 	snprintf(outfile, sizeof outfile,
 #ifndef HAVE_SPOOL_DIR
-			 CTDLDIR
+			 "."
 #else
 			 SPOOL_DIR
 #endif
@@ -313,7 +313,7 @@ void cmd_netf(char *cmdbuf)
 	snprintf(buf, sizeof buf,
 			 "cd "
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -393,7 +393,7 @@ void cmd_open(char *cmdbuf)
 
 	snprintf(pathname, sizeof pathname,
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -444,7 +444,7 @@ void cmd_oimg(char *cmdbuf)
 		}
 		snprintf(pathname, sizeof pathname, 
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -454,7 +454,7 @@ void cmd_oimg(char *cmdbuf)
 		which_floor = extract_int(cmdbuf, 1);
 		snprintf(pathname, sizeof pathname,
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -470,7 +470,7 @@ void cmd_oimg(char *cmdbuf)
 		}
 		snprintf(pathname, sizeof pathname, 
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -525,7 +525,7 @@ void cmd_uopn(char *cmdbuf)
 	}
 	snprintf(CC->upl_path, sizeof CC->upl_path, 
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -533,7 +533,7 @@ void cmd_uopn(char *cmdbuf)
 			 CC->room.QRdirname, CC->upl_file);
 	snprintf(CC->upl_filedir, sizeof CC->upl_filedir,
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -594,7 +594,7 @@ void cmd_uimg(char *cmdbuf)
 	if (CC->user.axlevel >= 6) {
 		snprintf(CC->upl_path, sizeof CC->upl_path, 
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -605,7 +605,7 @@ void cmd_uimg(char *cmdbuf)
 	if (!strcasecmp(basenm, "_userpic_")) {
 		snprintf(CC->upl_path, sizeof CC->upl_path,
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -617,7 +617,7 @@ void cmd_uimg(char *cmdbuf)
 		which_floor = extract_int(cmdbuf, 2);
 		snprintf(CC->upl_path, sizeof CC->upl_path,
 #ifndef HAVE_DATA_DIR
-				 "." /* FIXME: should here be CTDLDIR ? */
+				 "."
 #else
 				 DATA_DIR
 #endif
@@ -670,7 +670,7 @@ void cmd_clos(void)
 		CC->dl_is_net = 0;
 		snprintf(buf, sizeof buf, 
 #ifndef HAVE_SPOOL_DIR
-				 CTDLDIR
+				 "."
 #else
 				 SPOOL_DIR
 #endif
@@ -834,7 +834,7 @@ void cmd_ndop(char *cmdbuf)
 
 	snprintf(pathname, sizeof pathname, 
 #ifndef HAVE_SPOOL_DIR
-			 CTDLDIR
+			 "."
 #else
 			 SPOOL_DIR
 #endif
@@ -887,7 +887,7 @@ void cmd_nuop(char *cmdbuf)
 
 	snprintf(CC->upl_path, sizeof CC->upl_path,
 #ifndef HAVE_SPOOL_DIR
-			 CTDLDIR
+			 "."
 #else
 			 SPOOL_DIR
 #endif

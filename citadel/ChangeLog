@@ -1,4 +1,7 @@
 $Log$
+Revision 653.16  2005/08/02 03:40:15  ajc
+* Removed instances of hard-coded CTDLDIR; this breaks -h
+
 Revision 653.15  2005/08/02 03:05:31  ajc
 * Added in Wilfried Goesgens' debian/ build directory.
 
@@ -6974,3 +6977,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

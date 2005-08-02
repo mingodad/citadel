@@ -517,7 +517,7 @@ void cmd_emsg(char *mname)
 	if (strlen(targ)==0) {
 		snprintf(targ, sizeof targ, 
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif

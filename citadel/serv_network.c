@@ -725,7 +725,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					/* write it to the spool file */
 					snprintf(filename, sizeof filename,
 #ifndef HAVE_SPOOL_DIR
-							 CTDLDIR
+							 "."
 #else
 							 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1382,7 +1382,7 @@ void network_process_buffer(char *buffer, long size) {
 				}
 				snprintf(filename, sizeof filename,
 #ifndef HAVE_SPOOL_DIR
-						 CTDLDIR
+						 "."
 #else
 						 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1558,7 +1558,7 @@ void network_do_spoolin(void) {
 
 	dp = opendir(
 #ifndef HAVE_SPOOL_DIR
-				 CTDLDIR
+				 "."
 #else
 				 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1569,7 +1569,7 @@ void network_do_spoolin(void) {
 		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
 			snprintf(filename, sizeof filename,
 #ifndef HAVE_SPOOL_DIR
-					 CTDLDIR
+					 "."
 #else
 					 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1581,7 +1581,6 @@ void network_do_spoolin(void) {
 	closedir(dp);
 }
 
-#ifdef ___DISABLED___
 /*
  * Delete any files in the outbound queue that were intended
  * to be sent to nodes which no longer exist.
@@ -1595,7 +1594,7 @@ void network_purge_spoolout(void) {
 
 	dp = opendir(
 #ifndef HAVE_SPOOL_DIR
-				 CTDLDIR
+				 "."
 #else
 				 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1607,7 +1606,7 @@ void network_purge_spoolout(void) {
 			continue;
 		snprintf(filename, sizeof filename,
 #ifndef HAVE_SPOOL_DIR
-				 CTDLDIR
+				 "."
 #else
 				 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1624,7 +1623,6 @@ void network_purge_spoolout(void) {
 
 	closedir(dp);
 }
-#endif	/* ___DISABLED___ */
 
 
 /*
@@ -1699,7 +1697,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	/* TODO: make move inline. forking is verry expensive. */
 	snprintf(buf, sizeof buf, "mv %s "
 #ifndef HAVE_SPOOL_DIR
-			 CTDLDIR
+			 "."
 #else
 			 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1731,7 +1729,7 @@ void transmit_spool(int sock, char *remote_nodename)
 
 	snprintf(sfname, sizeof sfname, 
 #ifndef HAVE_SPOOL_DIR
-			 CTDLDIR
+			 "."
 #else
 			 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
@@ -1780,6 +1778,7 @@ ABORTUPL:
 			bytes_written, remote_nodename);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
+		lprintf(CTDL_DEBUG, "Removing <%s>\n", sfname);
 		unlink(sfname);
 	}
 }
@@ -1862,7 +1861,7 @@ void network_poll_other_citadel_nodes(int full_poll) {
 			if (poll == 0) {
 				snprintf(spoolfile, sizeof spoolfile,
 #ifndef HAVE_SPOOL_DIR
-						 CTDLDIR
+						 "."
 #else
 						 SPOOL_DIR
 #endif
@@ -1887,10 +1886,10 @@ void network_poll_other_citadel_nodes(int full_poll) {
  */
 void create_spool_dirs(void) {
 #ifndef HAVE_SPOOL_DIR
-	mkdir(CTDLDIR "/network", 0700);
-	mkdir(CTDLDIR "/network/systems", 0700);
-	mkdir(CTDLDIR "/network/spoolin", 0700);
-	mkdir(CTDLDIR "/network/spoolout", 0700);
+	mkdir("./network", 0700);
+	mkdir("./network/systems", 0700);
+	mkdir("./network/spoolin", 0700);
+	mkdir("./network/spoolout", 0700);
 #else
 	mkdir(SPOOL_DIR "/network", 0700);
 	mkdir(SPOOL_DIR "/network/systems", 0700);
@@ -1974,7 +1973,7 @@ void network_do_queue(void) {
 	free_filter_list(filterlist);
 	filterlist = NULL;
 
-	/* network_purge_spoolout(); */
+	network_purge_spoolout();
 
 	lprintf(CTDL_DEBUG, "network: queue run completed\n");
 

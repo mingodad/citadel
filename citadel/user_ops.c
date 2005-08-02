@@ -758,7 +758,7 @@ int purge_user(char pname[])
 	/* remove the user's bio file */
 	snprintf(filename, sizeof filename, 
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -768,7 +768,7 @@ int purge_user(char pname[])
 	/* remove the user's picture */
 	snprintf(filename, sizeof filename, 
 #ifndef HAVE_DATA_DIR
-			 "." /* FIXME: should here be CTDLDIR ? */
+			 "."
 #else
 			 DATA_DIR
 #endif

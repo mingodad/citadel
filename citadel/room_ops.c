@@ -1078,7 +1078,7 @@ void cmd_rdir(void)
 	}
 	cprintf("%d %s|"
 #ifndef HAVE_DATA_DIR
-			CTDLDIR
+			"."
 #else
 			DATA_DIR
 #endif
@@ -1087,7 +1087,7 @@ void cmd_rdir(void)
 
 	snprintf(buf, sizeof buf, "ls "
 #ifndef HAVE_DATA_DIR
-			 CTDLDIR
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -1097,7 +1097,7 @@ void cmd_rdir(void)
 
 	snprintf(buf, sizeof buf, 
 #ifndef HAVE_DATA_DIR
-			 CTDLDIR
+			 "."
 #else
 			 DATA_DIR
 #endif
@@ -1112,7 +1112,7 @@ void cmd_rdir(void)
 		if (strcasecmp(flnm, "filedir")) {
 			snprintf(buf, sizeof buf, 
 #ifndef HAVE_DATA_DIR
-					 CTDLDIR
+					 "."
 #else
 					 DATA_DIR
 #endif
@@ -1425,7 +1425,7 @@ void cmd_setr(char *args)
 	if (CC->room.QRflags & QR_DIRECTORY) {
 		snprintf(buf, sizeof buf, 
 #ifndef HAVE_DATA_DIR
-				 CTDLDIR
+				 "."
 #else
 				 DATA_DIR
 #endif
