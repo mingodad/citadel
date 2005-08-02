@@ -139,21 +139,12 @@ if test "x$with_iconv" != xno ; then
 fi
 
 if test "x$ok_iconv" = xyes ; then
-
-	AC_TRY_RUN(
-		[
-#include <iconv.h>
-main() {
-	iconv_t i;
-	
-	i = iconv_open("UTF-8", "US-ASCII");
-	if (i == (-1)) return(1);
-	return(iconv_close(i));
-}
-		], 
-		[
-			AC_DEFINE(HAVE_ICONV)
-		]
+	AC_CHECK_LIB([iconv], [iconv], [
+		AC_DEFINE(HAVE_ICONV)
+		LIBS="-liconv $LIBS"
+	],
+		[ AC_CHECK_FUNC([iconv], [AC_DEFINE(HAVE_ICONV)] ]
+		)
 	)
 fi
 
