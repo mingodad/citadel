@@ -1,0 +1,9 @@
+debian/tmp/usr/sbin/citserver
+debian/tmp/usr/sbin/chkpwd
+debian/tmp/usr/sbin/aidepost
+debian/tmp/usr/sbin/msgform
+debian/tmp/usr/sbin/citmail
+debian/tmp/usr/sbin/userlist
+debian/tmp/usr/sbin/sendcommand
+debian/tmp/usr/sbin/base64
+debian/tmp/usr/lib/citadel-server/setup

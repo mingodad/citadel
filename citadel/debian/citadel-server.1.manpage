@@ -1,0 +1,68 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH CITADEL SECTION "July 23, 2005"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+citadel \- The favorite BBS System grown up to a fullfeatured Groupware
+.SH SYNOPSIS
+.B citadel
+.RI [ options ] " files" ...
+.br
+.B bar
+.RI [ options ] " files" ...
+.SH DESCRIPTION
+For more information see the citadel-doc package, www.citadel.org, or
+for post configuring your citadel server, use citadel-webcit with your 
+browser, log in as the user you specified at the debconf prompt, and
+review the Points under the Administration menu.
+.B citadel
+and
+.B bar
+commands.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBcitadel\fP is a program that...
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+For a complete description, see the documentation under /usr/share/doc.
+If you have further issues, please consult the documentation at http://citadel.org 
+or log in to 
+https://uncensored.citadel.org.  In 'The Home of Citadel' floor;
+For issues concerning the Debian Packages, see the Citadel packages room, 
+For issues concerning citadel itself see the Citadel/UX room.
+Feel welcome to join the discussion.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.SH SEE ALSO
+.BR bar (1),
+.BR baz (1).
+.br
+The programs are documented fully by
+.IR "The Rise and Fall of a Fooish Bar" ,
+available via the Info system.
+.SH AUTHOR
+citadel was written by <upstream author>.
+.PP
+This manual page was written by Wilfried Goesgens <dothebart@uncensored.citadel.org>
+for the Debian project (but may be used by others).

@@ -1,0 +1,27 @@
+Template: citadel/ServerIPAddress
+Type: string
+Default: 0.0.0.0
+Description: Listen IP for Citadel
+  Specify the IP address on which your server will run.  If you
+  specify 0.0.0.0, Citadel will listen on all addresses.  
+  You can usually skip this unless you are running multiple 
+  instances of Citadel on the same computer.
+
+
+Template: citadel/Administrator
+Type: string
+Default: Administrator
+Description: Citadel Administrator
+  Enter the name of the Citadeladministrator (which is probably
+  you).  When an account is created with this name, it will
+  automatically be given administrator-level access.
+
+
+Template: citadel/Installnote
+Type: note
+Description: Citadel/UX
+  For post configuring your Citadel Server, use citadel-webcit with your 
+  browser, log in as the user you specified as the Administrator, and
+  review the Points under the Administration menu. If you have further
+  questions review www.citadel.org, specialy the FAQ and Documentation
+  section.

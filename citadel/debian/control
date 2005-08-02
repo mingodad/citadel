@@ -1,0 +1,52 @@
+Source: citadel
+Section: mail
+Priority: optional
+Maintainer: Wilfried Goesgens <w.goesgens@chaosindutries.de>
+Build-Depends: debhelper (>= 4.0.0), libical-dev, autotools-dev, zlib1g-dev , libical-dev, libssl-dev, libncurses5-dev, libdb4.2-dev, libldap2-dev, libsasl2-dev, libgnutls11-dev, libgcrypt11-dev, 
+Standards-Version: 3.6.1
+
+Package: citadel-server
+Architecture: any
+Pre-Depends: debconf
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, libical, libssl0.9.7, libncurses5, libdb4.2, libldap2, libsasl2, libgnutls11, libgcrypt11, libc6, libgpg-error0, ucf
+Suggests: citadel-mta
+Description: Citadel is the good old BBS system grown up to a Groupware.
+ Citadel is a different kind of messaging and collaboration platform. While 
+ others focus on automating business processes, Citadel focuses on 
+ connecting communities of people together. Users love Citadel because it's 
+ software that helps them work, play, stay in touch... without calling 
+ attention to itself.
+
+Package: citadel-doc
+Architecture: all
+Description: Documentation for citadel, the BBS and Groupware
+ Citadel is a different kind of messaging and collaboration platform. While 
+ others focus on automating business processes, Citadel focuses on 
+ connecting communities of people together. Users love Citadel because it's 
+ software that helps them work, play, stay in touch... without calling 
+ attention to itself.
+
+Package: citadel-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ucf
+Description: This is the commandline-client to the citadel BBS system.
+ Citadel is a different kind of messaging and collaboration platform. While 
+ others focus on automating business processes, Citadel focuses on 
+ connecting communities of people together. Users love Citadel because it's 
+ software that helps them work, play, stay in touch... without calling 
+ attention to itself.
+
+Package: citadel-mta
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server 
+Conflicts: mail-transport-agent, smail
+Provides: mail-transport-agent
+Description: MTA component of the citadel BBS system.
+ Citadel is a different kind of messaging and collaboration platform. While 
+ others focus on automating business processes, Citadel focuses on 
+ connecting communities of people together. Users love Citadel because it's 
+ software that helps them work, play, stay in touch... without calling 
+ attention to itself.
+ This Package provides /usr/bin/sendmail, and the MTA Component. if you 
+ want to use citadel in konjunction with another MTA system, don't install 
+ this package.
