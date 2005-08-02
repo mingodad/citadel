@@ -17,6 +17,8 @@ AC_ARG_WITH(datadir,
 			[ if test "x$withval" != "xno" ; then
 					      AC_DEFINE(HAVE_DATA_DIR)
 						  AC_DEFINE_UNQUOTED(DATA_DIR, "$withval")
+						  MAKE_DATA_DIR=$withval
+						  AC_SUBST(MAKE_DATA_DIR)
 			  fi
 			]
 )
@@ -27,10 +29,11 @@ AC_ARG_WITH(spooldir,
 			[ if test "x$withval" != "xno" ; then
 					    AC_DEFINE(HAVE_SPOOL_DIR)
 						AC_DEFINE_UNQUOTED(SPOOL_DIR,"$withval")
+						MAKE_SPOOL_DIR=$withval
+						AC_SUBST(MAKE_SPOOL_DIR)
 			   fi
 			]
 )
-
 
 
 dnl Checks for the Configdir
@@ -39,6 +42,8 @@ AC_ARG_WITH(sysconfdir,
 			[ if test "x$withval" != "xno" ; then
 					    AC_DEFINE(HAVE_ETC_DIR)
 						AC_DEFINE_UNQUOTED(ETC_DIR, "$withval")
+						MAKE_ETC_DIR=$withval
+						AC_SUBST(MAKE_ETC_DIR)
 			  fi
 			]
 )
@@ -46,10 +51,12 @@ AC_ARG_WITH(sysconfdir,
 
 dnl Checks for the run-dir for the sockets
 AC_ARG_WITH(rundir, 
-			[  --with-rundir       directory to store the configs under],
+			[  --with-rundir           directory to store the configs under],
 			[ if test "x$withval" != "xno" ; then
 					    AC_DEFINE(HAVE_RUN_DIR)
 						AC_DEFINE_UNQUOTED(RUN_DIR, "$withval")
+						MAKE_RUN_DIR=$withval
+						AC_SUBST(MAKE_RUN_DIR)
 			  fi
 			]
 )
@@ -58,13 +65,22 @@ AC_ARG_WITH(rundir,
 dnl Checks for the Pseudo Random Generator sockets TODO: this keeps being default.
 AC_DEFINE_UNQUOTED(EGD_POOL, "/var/run/egd-pool")
 AC_ARG_WITH(egdpool, 
-			[  --with-egdpool       the socket from Pseudo Random Generator, defaults to /var/run/egd-pool],
+			[  --with-egdpool          the socket from Pseudo Random Generator, defaults to /var/run/egd-pool],
 			[ if test "x$withval" != "xno" ; then
 						AC_DEFINE_UNQUOTED(EGD_POOL, "$withval")
 			  fi
 			]
 )
 
+
+AC_ARG_WITH(docdir,
+			[  --with-docdir           where to install the documentation. default: /usr/local/citadel/],
+			[ if test "x$withval" != "xno" ; then
+					MAKE_DOC_DIR=$withval
+					AC_SUBST(MAKE_DOC_DIR)
+			  fi
+			]
+)
 
 
 

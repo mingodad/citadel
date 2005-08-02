@@ -14,7 +14,11 @@
 
 TARGETS=@TARGETS@
 CHKPWD=@CHKPWD@
-
+RUN_DIR=@MAKE_RUN_DIR@
+SPOOL_DIR=@MAKE_SPOOL_DIR@
+ETC_DIR=@MAKE_ETC_DIR@
+DATA_DIR=@MAKE_DATA_DIR@
+DOC_DIR=@MAKE_DOC_DIR@
 all: $(TARGETS)
 
 .SUFFIXES: .o .d .c
@@ -181,6 +185,12 @@ install: install-exec install-data install-doc
 	@echo Now go to your Citadel directory and run 'setup'.
 	@echo 
 
+install-new: install-exec-new install-data-new install-doc-new
+	@echo 
+	@echo Installation is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo 
+
 upgrade: install-exec install-doc
 	@echo
 	@echo Upgrade is complete.
@@ -202,6 +212,33 @@ install-data:
 		$(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
 	fi
 
+install-data-new:
+	@for i in network/spoolin network/spoolout network/systems; do \
+		$(srcdir)/mkinstalldirs $(root)$(RUN_DIR)/$$i; \
+	done
+	$(srcdir)/mkinstalldirs $(root)$(ETC_DIR)/
+	$(INSTALL_DATA) $(srcdir)/public_clients $(root)$(ETC_DIR)/public_clients
+	$(INSTALL_DATA) $(srcdir)/citadel.rc $(root)$(ETC_DIR)/citadel.rc
+	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(root)$(ETC_DIR)/mail.aliases$
+
+	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/help
+	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/messages
+	@for i in  \
+		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v CVS`; do \
+		echo $(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
+	done
+	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/spoolin
+	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/spoolout
+	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/systems
+	-@if test -d $(root)/etc/pam.d; then \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
+	fi
+	@for i in bio bitbucket files images info userpics; do \
+		$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/$$i; \
+	done
+
 install-doc:
 	@$(srcdir)/mkinstalldirs $(root)$(prefix)/docs
 	@for i in `find $(srcdir)/docs -type f | grep -v CVS`; do \
@@ -215,6 +252,19 @@ install-doc:
 	done
 	echo $(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
 	$(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
+
+install-doc-new:
+	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/docs
+	@for i in `find $(srcdir)/docs -type f | grep -v CVS`; do \
+		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+	done
+	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/techdoc
+	@for i in `find $(srcdir)/techdoc -type f | grep -v CVS`; do \
+		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+	done
+	$(INSTALL_DATA) README.txt $(root)$(DOC_DIR)/README.txt
 
 install-exec: all
 	@for i in bio bitbucket files images info userpics; do \
@@ -235,6 +285,35 @@ install-exec: all
 	@if test x`find $(root)$(prefix)/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
 		echo chmod u+s $(root)$(prefix)/chkpwd; \
 		chmod u+s $(root)$(prefix)/chkpwd; \
+	fi
+
+install-exec-new: all
+	$(srcdir)/mkinstalldirs $(root)/usr/sbin; 
+	$(srcdir)/mkinstalldirs $(root)/usr/bin; 
+	$(srcdir)/mkinstalldirs $(root)$(DOC_DIR); 
+	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(root)/usr/sbin/$$i; \
+			$(INSTALL) $$i $(root)/usr/sbin/$$i; \
+		fi \
+	done
+
+	$(INSTALL) citmail $(root)/usr/sbin/sendmail;
+	@for i in $(CLIENT_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(root)/usr/bin/$$i; \
+			$(INSTALL) $$i $(root)/usr/bin/$$i; \
+		fi \
+	done
+	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
+		if test -f $(srcdir)/$$i; then \
+			echo $(INSTALL) $(srcdir)/$$i $(root)$(DOC_DIR)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(root)$(DOC_DIR)/$$i; \
+		fi \
+	done
+	@if test x`find $(root)/usr/sbin/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
+		echo chmod u+s $(root)/usr/sbin/chkpwd; \
+		chmod u+s $(root)usr/sbin/chkpwd; \
 	fi
 
 clean:
