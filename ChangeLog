@@ -1,4 +1,7 @@
 $Log$
+Revision 619.43  2005/08/02 02:38:34  ajc
+* new iconv check for both libiconv and built-in iconv
+
 Revision 619.42  2005/08/01 02:28:55  ajc
 * Made the ImportantMessage div less obtrusive
 
@@ -2778,3 +2781,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
