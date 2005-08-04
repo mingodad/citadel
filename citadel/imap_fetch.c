@@ -768,7 +768,6 @@ void imap_fetch_bodystructure_part(
 	else {
 		cprintf("(\"CHARSET\" ");
 		imap_strout(cbcharset);
-		cprintf(")");
 	}
 
 	if (name != NULL) if (strlen(name)>0) {

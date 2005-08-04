@@ -1,4 +1,8 @@
 $Log$
+Revision 653.17  2005/08/04 04:22:09  ajc
+* imap_fetch.c: removed a spurious ')' character from the output
+  of the 'charset' field.
+
 Revision 653.16  2005/08/02 03:40:15  ajc
 * Removed instances of hard-coded CTDLDIR; this breaks -h
 
@@ -6977,4 +6981,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

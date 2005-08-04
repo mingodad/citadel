@@ -503,7 +503,9 @@ void the_mime_parser(char *partnum,
 		else {
 			name = content_type_name;
 		}
-		
+	
+		lprintf(CTDL_DEBUG, "mime_decode part=%s, len=%d, type=%s, charset=%s, encoding=%s\n",
+			partnum, length, content_type, charset, encoding);
 		mime_decode(partnum,
 			    part_start, length,
 			    content_type, charset, encoding, disposition,
