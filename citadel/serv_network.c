@@ -755,7 +755,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 	/* Delete this message if delete-after-send is set */
 	if (delete_after_send) {
-		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "", 0);
 	}
 
 }

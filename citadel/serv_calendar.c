@@ -428,7 +428,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		/* Now that we've processed this message, we don't need it
 		 * anymore.  So delete it.
 		 */
-		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "", 1);
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);
@@ -779,7 +779,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 		/* Now that we've processed this message, we don't need it
 		 * anymore.  So delete it.  (Maybe make this optional?)
 		 */
-		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "", 1);
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);

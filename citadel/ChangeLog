@@ -1,4 +1,10 @@
 $Log$
+Revision 654.1  2005/08/05 21:31:01  ajc
+* Any "delete message" operation which is synchronous to a client is now
+  deferred.  This is accomplished by copying the message pointer to
+  the __CitadelDeletedMessages__ room, which keeps the reference count at
+  least 1.  THE DREADED AUTO-PURGER can sweep it up later.
+
 Revision 654.0  2005/08/05 16:22:38  ajc
 * THIS IS 6.54
 
@@ -6988,4 +6994,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

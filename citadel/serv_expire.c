@@ -206,7 +206,7 @@ void DoPurgeMessages(FILE *purgelist) {
 		if (!strncasecmp(buf, "m=", 2)) {
 			msgnum = atol(&buf[2]);
 			if (msgnum > 0L) {
-				CtdlDeleteMessages(roomname, msgnum, "");
+				CtdlDeleteMessages(roomname, msgnum, "", 0);
 			}
 		}
 	}

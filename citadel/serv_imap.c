@@ -704,7 +704,7 @@ int imap_do_expunge(void)
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (IMAP->flags[i] & IMAP_DELETED) {
 				CtdlDeleteMessages(CC->room.QRname,
-						   IMAP->msgids[i], "");
+						   IMAP->msgids[i], "", 1);
 				++num_expunged;
 			}
 		}

@@ -112,6 +112,27 @@ void master_startup(void) {
                 lputroom(&qrbuf);
         }
 
+	/*
+	 * Create a room in which we can deposit "deleted" messages for
+	 * deferred deletion.  This will silently fail if the room already
+	 * exists, and that's perfectly ok, because we want it to exist.
+	 */
+	create_room(DELETED_MSGS_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
+
+	/*
+	 * Make sure it's set to be a "system room" so it doesn't show up
+	 * in the <K>nown rooms list for Aides.  Also set the message expire
+	 * policy to "by count, 1 message" so everything gets deleted all
+	 * the time (we can't set it to 0 because that's invalid, so we keep
+	 * a single message around).
+	 */
+	if (lgetroom(&qrbuf, DELETED_MSGS_ROOM) == 0) {
+		qrbuf.QRflags2 |= QR2_SYSTEM;
+		qrbuf.QRep.expire_mode = EXPIRE_NUMMSGS;
+		qrbuf.QRep.expire_value = 1;
+		lputroom(&qrbuf);
+	}
+
 	lprintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
