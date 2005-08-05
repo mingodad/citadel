@@ -1,4 +1,7 @@
 $Log$
+Revision 621.0  2005/08/05 16:28:24  ajc
+* THIS IS 6.21
+
 Revision 619.43  2005/08/02 02:38:34  ajc
 * new iconv check for both libiconv and built-in iconv
 
