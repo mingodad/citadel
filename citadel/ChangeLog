@@ -1,4 +1,8 @@
 $Log$
+Revision 654.2  2005/08/08 14:28:41  ajc
+* CtdlForEachMessage() -- avoid scanning v_seen sequence set for each message
+  during a MSGS_ALL fetch, because the results don't matter.
+
 Revision 654.1  2005/08/05 21:31:01  ajc
 * Any "delete message" operation which is synchronous to a client is now
   deferred.  This is accomplished by copying the message pointer to
@@ -6994,3 +6998,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
