@@ -1,4 +1,7 @@
 $Log$
+Revision 654.3  2005/08/08 14:57:19  ajc
+* Added a new "with header summary" mode to the MSGS command.
+
 Revision 654.2  2005/08/08 14:28:41  ajc
 * CtdlForEachMessage() -- avoid scanning v_seen sequence set for each message
   during a MSGS_ALL fetch, because the results don't matter.
@@ -6998,4 +7001,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

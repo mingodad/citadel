@@ -260,10 +260,38 @@ void get_mm(void)
 }
 
 
-
+/*
+ * Back end for the MSGS command: output message number only.
+ */
 void simple_listing(long msgnum, void *userdata)
 {
 	cprintf("%ld\n", msgnum);
+}
+
+
+
+/*
+ * Back end for the MSGS command: output header summary.
+ */
+void headers_listing(long msgnum, void *userdata)
+{
+	struct CtdlMessage *msg;
+
+	msg = CtdlFetchMessage(msgnum, 0);
+	if (msg < 0L) {
+		cprintf("%ld|0|||||\n", msgnum);
+		return;
+	}
+
+	cprintf("%ld|%s|%s|%s|%s|%s|\n",
+		msgnum,
+		(msg->cm_fields['T'] ? msg->cm_fields['T'] : "0"),
+		(msg->cm_fields['A'] ? msg->cm_fields['A'] : ""),
+		(msg->cm_fields['N'] ? msg->cm_fields['N'] : ""),
+		(msg->cm_fields['F'] ? msg->cm_fields['F'] : ""),
+		(msg->cm_fields['U'] ? msg->cm_fields['U'] : "")
+	);
+	CtdlFreeMessage(msg);
 }
 
 
@@ -625,10 +653,12 @@ void cmd_msgs(char *cmdbuf)
 	int i;
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
+	int with_headers = 0;
 
 	extract_token(which, cmdbuf, 0, '|', sizeof which);
 	cm_ref = extract_int(cmdbuf, 1);
 	with_template = extract_int(cmdbuf, 2);
+	with_headers = extract_int(cmdbuf, 3);
 
 	mode = MSGS_ALL;
 	strcat(which, "   ");
@@ -668,11 +698,16 @@ void cmd_msgs(char *cmdbuf)
 		buffer_output();
 	}
 	else {
-		cprintf("%d Message list...\n", LISTING_FOLLOWS);
+		cprintf("%d  \n", LISTING_FOLLOWS);
 	}
 
-	CtdlForEachMessage(mode, cm_ref,
-		NULL, template, simple_listing, NULL);
+	CtdlForEachMessage(mode,
+			cm_ref,
+			NULL,
+			template,
+			(with_headers ? headers_listing : simple_listing),
+			NULL
+	);
 	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
 }
