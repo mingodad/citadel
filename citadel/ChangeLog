@@ -1,4 +1,8 @@
 $Log$
+Revision 654.6  2005/08/09 21:58:57  ajc
+* Removed the ./help/? hack; replaced with actual "show directory" code
+  in the server.
+
 Revision 654.5  2005/08/09 16:28:32  ajc
 * setup.c: added "exim4" to the list of non-Citadel MTA's which can be
   disabled during setup.
@@ -7009,3 +7013,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

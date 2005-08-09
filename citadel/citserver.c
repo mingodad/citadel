@@ -32,6 +32,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <dirent.h>
 #include <errno.h>
 #include <limits.h>
 /* #include <dlfcn.h> */
@@ -452,6 +453,8 @@ void cmd_mesg(char *mname)
 	char buf[256];
 	char buf2[256];
 	char *dirs[2];
+	DIR *dp;
+	struct dirent *d;
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
@@ -465,15 +468,39 @@ void cmd_mesg(char *mname)
 					 DATA_DIR"/"
 #endif
 					 "help");
-	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
-	mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
-	if (strlen(targ) == 0) {
-		snprintf(buf2, sizeof buf2, "%s.%d", buf, CC->cs_clientdev);
+	snprintf(buf2, sizeof buf2, "%s.%d.%d",
+		buf, CC->cs_clientdev, CC->cs_clienttyp);
+
+	/* If the client requested "?" then produce a listing */
+	if (!strcmp(buf, "?")) {
+		cprintf("%d %s\n",LISTING_FOLLOWS,buf);
+		dp = opendir(dirs[1]);
+		if (dp != NULL) {
+			while (d = readdir(dp), d != NULL) {
+				if (d->d_name[0] != '.') {
+					cprintf(" %s\n", d->d_name);
+				}
+			}
+			closedir(dp);
+		}
+		cprintf("000\n");
+	}
+
+	/* Otherwise, look for the requested file by name. */
+	else {
 		mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
 		if (strlen(targ) == 0) {
-			mesg_locate(targ, sizeof targ, buf, 2, (const char **)dirs);
-		}	
+			snprintf(buf2, sizeof buf2, "%s.%d",
+							buf, CC->cs_clientdev);
+			mesg_locate(targ, sizeof targ, buf2, 2,
+							(const char **)dirs);
+			if (strlen(targ) == 0) {
+				mesg_locate(targ, sizeof targ, buf, 2,
+							(const char **)dirs);
+			}	
+		}
 	}
+
 	free(dirs[0]);
 	free(dirs[1]);
 
