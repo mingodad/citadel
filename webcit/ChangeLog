@@ -1,4 +1,8 @@
 $Log$
+Revision 621.1  2005/08/09 01:13:29  ajc
+* Mailbox summary view is now generated using the server's
+  new "message list with headers summary" mode.
+
 Revision 621.0  2005/08/05 16:28:24  ajc
 * THIS IS 6.21
 
@@ -2784,4 +2788,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

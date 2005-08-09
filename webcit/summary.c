@@ -144,7 +144,7 @@ void tasks_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL");
+		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 	}
 
 	if (num_msgs < 1) {
@@ -182,7 +182,7 @@ void calendar_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL");
+		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 	}
 
 	if (num_msgs < 1) {

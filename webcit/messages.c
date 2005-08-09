@@ -946,65 +946,6 @@ void display_summarized(int num) {
 }
 
 
-void summarize_message(int num, long msgnum, int is_new) {
-	char buf[SIZ];
-
-	memset(&WC->summ[num], 0, sizeof(struct message_summary));
-	safestrncpy(WC->summ[num].subj, "(no subject)", sizeof WC->summ[num].subj);
-	WC->summ[num].is_new = is_new;
-	WC->summ[num].msgnum = msgnum;
-
-	/* ask for headers only with no MIME */
-	sprintf(buf, "MSG0 %ld|3", msgnum);
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "from=", 5)) {
-			safestrncpy(WC->summ[num].from, &buf[5], sizeof WC->summ[num].from);
-		}
-		if (!strncasecmp(buf, "subj=", 5)) {
-			if (strlen(&buf[5]) > 0) {
-				safestrncpy(WC->summ[num].subj, &buf[5],
-					sizeof WC->summ[num].subj);
-#ifdef HAVE_ICONV
-				/* Handle subjects with RFC2047 encoding */
-				utf8ify_rfc822_string(WC->summ[num].subj);
-#endif
-				if (strlen(WC->summ[num].subj) > 75) {
-					strcpy(&WC->summ[num].subj[72], "...");
-				}
-			}
-		}
-
-		if (!strncasecmp(buf, "node=", 5)) {
-			if ( ((WC->room_flags & QR_NETWORK)
-			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
-			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-			) {
-				strcat(WC->summ[num].from, " @ ");
-				strcat(WC->summ[num].from, &buf[5]);
-			}
-		}
-
-		if (!strncasecmp(buf, "rcpt=", 5)) {
-			safestrncpy(WC->summ[num].to, &buf[5], sizeof WC->summ[num].to);
-		}
-
-		if (!strncasecmp(buf, "time=", 5)) {
-			WC->summ[num].date = atol(&buf[5]);
-		}
-	}
-	
-#ifdef HAVE_ICONV
-	/* Handle senders with RFC2047 encoding */
-	utf8ify_rfc822_string(WC->summ[num].from);
-#endif
-	if (strlen(WC->summ[num].from) > 25) {
-		strcpy(&WC->summ[num].from[22], "...");
-	}
-}
 
 
 
@@ -1263,11 +1204,28 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 /* 
  * load message pointers from the server
  */
-int load_msg_ptrs(char *servcmd)
+int load_msg_ptrs(char *servcmd, int with_headers)
 {
-	char buf[SIZ];
+	char buf[1024];
+	time_t datestamp;
+	char displayname[128];
+	char nodename[128];
+	char inetaddr[128];
+	char subject[256];
 	int nummsgs;
 	int maxload = 0;
+
+	int num_summ_alloc = 0;
+
+	if (with_headers) {
+		if (WC->num_summ != 0) {
+			free(WC->summ);
+			WC->num_summ = 0;
+		}
+	}
+	num_summ_alloc = 100;
+	WC->num_summ = 0;
+	WC->summ = malloc(num_summ_alloc * sizeof(struct message_summary));
 
 	nummsgs = 0;
 	maxload = sizeof(WC->msgarr) / sizeof(long) ;
@@ -1279,8 +1237,59 @@ int load_msg_ptrs(char *servcmd)
 	}
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (nummsgs < maxload) {
-			WC->msgarr[nummsgs] = atol(buf);
+			WC->msgarr[nummsgs] = extract_long(buf, 0);
+			datestamp = extract_long(buf, 1);
+			extract_token(displayname, buf, 2, '|', sizeof displayname);
+			extract_token(nodename, buf, 3, '|', sizeof nodename);
+			extract_token(inetaddr, buf, 4, '|', sizeof inetaddr);
+			extract_token(subject, buf, 5, '|', sizeof subject);
 			++nummsgs;
+
+			if (with_headers) {
+				if (nummsgs > num_summ_alloc) {
+					num_summ_alloc *= 2;
+					WC->summ = realloc(WC->summ, num_summ_alloc * sizeof(struct message_summary));
+				}
+				++WC->num_summ;
+
+				memset(&WC->summ[nummsgs-1], 0, sizeof(struct message_summary));
+				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
+				safestrncpy(WC->summ[nummsgs-1].subj, "(no subject)", sizeof WC->summ[nummsgs-1].subj);
+				if (strlen(displayname) > 0) {
+					safestrncpy(WC->summ[nummsgs-1].from, displayname, sizeof WC->summ[nummsgs-1].from);
+				}
+				if (strlen(subject) > 0) {
+				safestrncpy(WC->summ[nummsgs-1].subj, subject,
+					sizeof WC->summ[nummsgs-1].subj);
+				}
+#ifdef HAVE_ICONV
+				/* Handle subjects with RFC2047 encoding */
+				utf8ify_rfc822_string(WC->summ[nummsgs-1].subj);
+#endif
+				if (strlen(WC->summ[nummsgs-1].subj) > 75) {
+					strcpy(&WC->summ[nummsgs-1].subj[72], "...");
+				}
+
+				if (strlen(nodename) > 0) {
+					if ( ((WC->room_flags & QR_NETWORK)
+					   || ((strcasecmp(nodename, serv_info.serv_nodename)
+					   && (strcasecmp(nodename, serv_info.serv_fqdn)))))
+					) {
+						strcat(WC->summ[nummsgs-1].from, " @ ");
+						strcat(WC->summ[nummsgs-1].from, nodename);
+					}
+				}
+
+				WC->summ[nummsgs-1].date = datestamp;
+	
+#ifdef HAVE_ICONV
+				/* Handle senders with RFC2047 encoding */
+				utf8ify_rfc822_string(WC->summ[nummsgs-1].from);
+#endif
+				if (strlen(WC->summ[nummsgs-1].from) > 25) {
+					strcpy(&WC->summ[nummsgs-1].from[22], "...");
+				}
+			}
 		}
 	}
 	return (nummsgs);
@@ -1355,7 +1364,6 @@ void readloop(char *oper)
 	char cmd[SIZ];
 	char buf[SIZ];
 	char old_msgs[SIZ];
-	int is_new = 0;
 	int a, b;
 	int nummsgs;
 	long startmsg;
@@ -1426,7 +1434,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		strcpy(cmd, "MSGS ALL");
+		strcpy(cmd, "MSGS ALL|||1");	/* fetch header summary */
 		startmsg = 1;
 		maxmsgs = 9999999;
 	}
@@ -1462,7 +1470,7 @@ void readloop(char *oper)
 		maxmsgs = 32767;
 	}
 
-	nummsgs = load_msg_ptrs(cmd);
+	nummsgs = load_msg_ptrs(cmd, is_summary);
 	if (nummsgs == 0) {
 
 		if ((!is_tasks) && (!is_calendar) && (!is_notes)) {
@@ -1479,16 +1487,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		if (WC->num_summ != 0) {
-			WC->num_summ = 0;
-			free(WC->summ);
-		}
-		WC->num_summ = nummsgs;
-		WC->summ = malloc(WC->num_summ*sizeof(struct message_summary));
 		for (a = 0; a < nummsgs; ++a) {
-			/* Gather summary information */
-			summarize_message(a, WC->msgarr[a], is_new);
-
 			/* Are you a new message, or an old message? */
 			if (is_summary) {
 				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
