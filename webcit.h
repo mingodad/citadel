@@ -46,7 +46,7 @@
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		621		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	640		/* min required Citadel vers */
+#define MINIMUM_CIT_VERSION	655		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -462,7 +462,7 @@ void do_calendar_view(void);
 void do_tasks_view(void);
 void free_calendar_buffer(void);
 void calendar_summary_view(void);
-int load_msg_ptrs(char *servcmd);
+int load_msg_ptrs(char *servcmd, int with_headers);
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void free_attachments(struct wcsession *sess);
