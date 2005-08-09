@@ -1,4 +1,8 @@
 $Log$
+Revision 654.4  2005/08/09 14:13:36  ajc
+* newinstall.sh: hunt for both 'make' and 'gmake', but this time make sure
+  that the make in question is actually GNU Make, regardless of its name
+
 Revision 654.3  2005/08/08 14:57:19  ajc
 * Added a new "with header summary" mode to the MSGS command.
 
@@ -7001,3 +7005,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

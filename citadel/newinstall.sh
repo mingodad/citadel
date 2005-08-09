@@ -335,16 +335,26 @@ do_config () {
 
 # 1. Gather information about the target system
 
-# FIXME: non-GNU make does not work
+# Non-GNU make does not work.
+# This probably ought to be fixed, but for now we will simply require GNU make.
 
-gmake -v || {
+MAKE=xx
+if gmake -v 2>&1 | grep -i GNU ; then
+	MAKE=`which gmake`
+else
+	if make -v 2>&1 | grep -i GNU ; then
+		MAKE=`which make`
+	fi
+fi
+
+if [ $MAKE == xx ] ; then
 	echo
 	echo 'Easy Install requires GNU Make (gmake), which was not found.'
 	echo 'Please install gmake and try again.'
 	echo
 	exit 1
-}
-MAKE=`which gmake`
+fi
+
 export MAKE
 
 clear
