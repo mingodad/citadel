@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 44
+#define NUM_CONFIGS 46
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][256];
@@ -753,6 +753,12 @@ void do_system_configuration(CtdlIPC *ipc)
 		a);
 	a = (a ? 0 : 1);
 	snprintf(sc[25], sizeof sc[25], "%d", a);
+	snprintf(sc[45], sizeof sc[45], "%d", (boolprompt(
+		"Allow unauthenticated SMTP clients to spoof my domains",
+		atoi(&sc[45][0]))));
+	snprintf(sc[44], sizeof sc[44], "%d", (boolprompt(
+		"Instantly expunge deleted IMAP messages",
+		atoi(&sc[44][0]))));
 
 	/* LDAP settings */
 	if (ipc->ServInfo.supports_ldap) {

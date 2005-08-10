@@ -562,9 +562,9 @@ void smtp_mail(char *argbuf) {
 	}
 
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
-	 * this system.
+	 * this system (unless, of course, c_allow_spoofing is enabled)
 	 */
-	else {
+	else if (config.c_allow_spoofing == 0) {
 		process_rfc822_addr(SMTP->from, user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
 			cprintf("550 5.1.8 "

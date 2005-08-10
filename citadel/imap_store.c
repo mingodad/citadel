@@ -163,14 +163,13 @@ void imap_do_store(int num_items, char **itemlist) {
 		}
 	}
 
-#ifdef INSTANT_EXPUNGE
 	/*
-	 * The following two commands implement "instant expunge"
-	 * which is experimental.
+	 * The following two commands implement "instant expunge" if enabled.
 	 */
-	imap_do_expunge();
-	imap_rescan_msgids();
-#endif /* INSTANT_EXPUNGE */
+	if (config.c_instant_expunge) {
+		imap_do_expunge();
+		imap_rescan_msgids();
+	}
 
 }
 

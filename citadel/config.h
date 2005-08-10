@@ -67,6 +67,8 @@ struct config {
 	int c_pop3s_port;		/* POP3S listener port (usually 995)*/
 	int c_smtps_port;		/* SMTPS listener port (usually 465)*/
 	char c_auto_cull;		/* Cull db logs automatically?      */
+	char c_instant_expunge;		/* IMAP instant expunge deleted msgs*/
+	char c_allow_spoofing;		/* SMTP allow spoofing of my domains*/
 };
 
 

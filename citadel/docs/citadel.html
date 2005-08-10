@@ -1642,7 +1642,7 @@ database logs affect your ability to reliably backup your Citadel
 system.<br>
 </p>
 <p>The next set of options affect how Citadel behaves on a network.</p>
-<pre>Server IP address (0.0.0.0 for 'any') [0.0.0.0]:<br>POP3 server port (-1 to disable) [110]:<br>POP3S server port (-1 to disable) [995]:<br>IMAP server port (-1 to disable) [143]:<br>IMAPS server port (-1 to disable) [993]:<br>SMTP MTA server port (-1 to disable) [25]:<br>SMTP MSA server port (-1 to disable) [587]:<br>SMTPS server port (-1 to disable) [465]:<br>Correct forged From: lines during authenticated SMTP [Yes]:<br></pre>
+<pre>Server IP address (0.0.0.0 for 'any') [0.0.0.0]:<br>POP3 server port (-1 to disable) [110]:<br>POP3S server port (-1 to disable) [995]:<br>IMAP server port (-1 to disable) [143]:<br>IMAPS server port (-1 to disable) [993]:<br>SMTP MTA server port (-1 to disable) [25]:<br>SMTP MSA server port (-1 to disable) [587]:<br>SMTPS server port (-1 to disable) [465]:<br>Correct forged From: lines during authenticated SMTP [Yes]:<br>Allow unauthenticated SMTP clients to spoof my domains [No]: No<br>Instantly expunge deleted IMAP messages [No]: Yes<br></pre>
 <p>"Server IP address" refers to the IP address on <span
  style="font-style: italic;">your server</span> to which Citadel's
 protocol services should be bound.&nbsp; Normally you will leave this
@@ -1711,7 +1711,27 @@ sense dictates that this is a good idea. Nevertheless, if you want to
 suppress
 this behavior, answer 'No' at the prompt (the default is 'Yes') and the
 headers
-will never be altered.<br>
+will never be altered.</p>
+<p>&quot;Instant expunge&quot; affects what happens when IMAP users delete
+messages.  As you may already know, messages are not <i>truly</i> deleted
+when an IMAP client sends a delete command; they are only <i>marked for
+deletion</i>.  The IMAP client must also send an &quot;expunge&quot; command
+to actually delete the message.  The Citadel server automatically expunges
+messages when the client logs out or selects a different folder, but if you
+select the Instant Expunge option, an expunge operation will automatically
+follow any delete operation (and the client will be notified, preventing any
+mailbox state problems).  This is a good option to select, for example, if you
+have users who leave their IMAP client software open all the time and are
+wondering why their deleted messages show up again when they log in from a
+different location (such as WebCit).</p>
+<p>&quot;Allow spoofing&quot; refers to the security level applied to
+non-authenticated SMTP clients.  Normally, when another host connects to
+Citadel via SMTP to deliver mail, Citadel will reject any attempt to send
+mail whose sender (From) address matches one of your host's own domains.  This
+forces your legitimate users to authenticate properly, and prevents foreign
+hosts (such as spammers) from forging mail from your domains.  If, however,
+this behavior is creating a problem for you, you can select this option to
+bypass this particular security check.<br>
 <span style="font-family: monospace;"><br>
 Connect this Citadel to an LDAP directory [No]: No</span><br>
 </p>

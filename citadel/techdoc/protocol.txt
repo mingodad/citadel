@@ -1833,6 +1833,9 @@ fails for any reason, ERROR is returned.
  41. Port number for POP3S (SSL-encrypted POP3)
  42. Port number for SMTPS (SSL-encrypted SMTP)
  43. Flag (0 or 1) - enable full text search index
+ 44. Flag (0 or 1) - automatically cull database log files
+ 45. Flag (0 or 1) - enable IMAP "instant expunge" of deleted messages
+ 46. Flag (0 or 1) - allow unauthenticated SMTP clients to spoof my domains
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
