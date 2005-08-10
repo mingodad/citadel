@@ -47,7 +47,7 @@ case "$1" in
     # Configure this package.  If the package must prompt the user for
     # information, do it here.
     if ! getent group citadel >/dev/null; then 
-		groupadd --system citadel
+		groupadd citadel
 	fi
 	if ! getent passwd citadel >/dev/null; then 
 		adduser --system --ingroup citadel --home /var/lib/citadel \
@@ -55,6 +55,7 @@ case "$1" in
 			--disabled-password citadel
 	fi
 	mkdir -p /etc/citadel
+	chown citadel:citadel /etc/citadel
     # Activate menu-methods script
     #: chmod a+x /etc/menu-methods/foo
 

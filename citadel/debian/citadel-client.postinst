@@ -15,7 +15,16 @@ case "$1" in
   configure)
     # Configure this package.  If the package must prompt the user for
     # information, do it here.
-	:
+    if ! getent group citadel >/dev/null; then 
+		groupadd citadel
+	fi
+	if ! getent passwd citadel >/dev/null; then 
+		adduser --system --ingroup citadel --home /var/lib/citadel \
+			--gecos "Citadel system user" --shell /bin/sh \
+			--disabled-password citadel
+	fi
+	mkdir -p /etc/citadel
+	chown citadel:citadel /etc/citadel
 	gunzip -c  /usr/share/doc/citadel-client/examples/citadel.rc.gz> /tmp/citadel.rc
 	ucf /tmp/citadel.rc /etc/citadel/citadel.rc
 	rm -f /tmp/citadel.rc
