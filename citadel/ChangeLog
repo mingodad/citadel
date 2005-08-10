@@ -1,4 +1,9 @@
 $Log$
+Revision 654.8  2005/08/10 15:39:35  ajc
+* Experimental "instant expunge" option.  For now, you have to put
+  -DINSTANT_EXPUNGE into the CFLAGS line of your Makefile.  If we decide to
+  keep this it will become a site config option.
+
 Revision 654.7  2005/08/10 02:44:56  ajc
 * Applied changes to debian files sent in by WG
 
@@ -7016,3 +7021,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
