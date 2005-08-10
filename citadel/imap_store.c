@@ -162,6 +162,16 @@ void imap_do_store(int num_items, char **itemlist) {
 			}
 		}
 	}
+
+#ifdef INSTANT_EXPUNGE
+	/*
+	 * The following two commands implement "instant expunge"
+	 * which is experimental.
+	 */
+	imap_do_expunge();
+	imap_rescan_msgids();
+#endif /* INSTANT_EXPUNGE */
+
 }
 
 
@@ -200,16 +210,6 @@ void imap_store(int num_parms, char *parms[]) {
 	}
 
 	imap_do_store(num_items, itemlist);
-
-#ifdef INSTANT_EXPUNGE
-	/*
-	 * The following two commands implement "instant expunge"
-	 * which is experimental.
-	 */
-	imap_do_expunge();
-	imap_rescan_msgids();
-#endif /* INSTANT_EXPUNGE */
-
 	cprintf("%s OK STORE completed\r\n", parms[0]);
 }
 

@@ -1,4 +1,8 @@
 $Log$
+Revision 654.9  2005/08/10 21:10:54  ajc
+* moved "instant expunge" to imap_do_store() so that it gets called from
+  both STORE and UID STORE commands.
+
 Revision 654.8  2005/08/10 15:39:35  ajc
 * Experimental "instant expunge" option.  For now, you have to put
   -DINSTANT_EXPUNGE into the CFLAGS line of your Makefile.  If we decide to
@@ -7021,4 +7025,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
