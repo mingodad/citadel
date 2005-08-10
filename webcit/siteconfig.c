@@ -615,6 +615,26 @@ void display_siteconfig(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_auto_cull\" VALUE=\"%s\">", buf);
 			}
 			break;
+		case 45:
+			if (!strcasecmp(whichmenu, "network")) {
+				wprintf("<TR><TD>Instantly expunge deleted messages in IMAP</TD><TD>");
+				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_instant_expunge\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_instant_expunge\" VALUE=\"%s\">", buf);
+			}
+			break;
+		case 46:
+			if (!strcasecmp(whichmenu, "network")) {
+				wprintf("<TR><TD>Allow unauthenticated SMTP clients to spoof my domains</TD><TD>");
+				wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_allow_spoofing\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_allow_spoofing\" VALUE=\"%s\">", buf);
+			}
+			break;
 		}
 	}
 
@@ -748,6 +768,8 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_smtps_port"));
 	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
 	serv_printf("%s", ((!strcasecmp(bstr("c_auto_cull"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((!strcasecmp(bstr("c_instant_expunge"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((!strcasecmp(bstr("c_allow_spoofing"), "yes") ? "1" : "0")));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));

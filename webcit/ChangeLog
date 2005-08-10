@@ -1,4 +1,8 @@
 $Log$
+Revision 621.2  2005/08/10 21:55:04  ajc
+* siteconfig.c: added support for "instant expunge" and "allow spoofing"
+  global configuration options.
+
 Revision 621.1  2005/08/09 01:13:29  ajc
 * Mailbox summary view is now generated using the server's
   new "message list with headers summary" mode.
@@ -2788,3 +2792,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
