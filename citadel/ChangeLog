@@ -1,4 +1,8 @@
 $Log$
+Revision 654.11  2005/08/11 13:55:26  ajc
+* Attempt to fix broken build of our replacement strcpy() on gcc2.96 by
+  issuing an #undef strcpy (it's a macro in that environment)
+
 Revision 654.10  2005/08/10 21:47:41  ajc
 * Added "instant expunge" and "allow spoofing" site config options.
 
@@ -7028,4 +7032,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

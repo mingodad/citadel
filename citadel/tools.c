@@ -618,6 +618,9 @@ char *bmstrstr(char *text, char *pattern,
 /*
  * In our world, we want strcpy() to be able to work with overlapping strings.
  */
+#ifdef strcpy
+#undef strcpy
+#endif
 char *strcpy(char *dest, const char *src) {
 	memmove(dest, src, (strlen(src) + 1) );
 	return(dest);
