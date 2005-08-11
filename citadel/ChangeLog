@@ -1,4 +1,8 @@
 $Log$
+Revision 654.12  2005/08/11 23:12:26  ajc
+* debian/citadel-server.postinst: remove reference to '?' file
+  (patch sent in by W. Goesgens)
+
 Revision 654.11  2005/08/11 13:55:26  ajc
 * Attempt to fix broken build of our replacement strcpy() on gcc2.96 by
   issuing an #undef strcpy (it's a macro in that environment)
@@ -7032,3 +7036,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
