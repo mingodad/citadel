@@ -1,4 +1,7 @@
 $Log$
+Revision 621.3  2005/08/11 23:15:03  ajc
+* Added debian build directory (submitted by W. Goesgens)
+
 Revision 621.2  2005/08/10 21:55:04  ajc
 * siteconfig.c: added support for "instant expunge" and "allow spoofing"
   global configuration options.
@@ -2792,4 +2795,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
