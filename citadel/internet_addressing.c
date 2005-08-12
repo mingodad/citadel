@@ -610,12 +610,12 @@ void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
  * On success: returns 0, and Citadel address stored in 'target'
  * On failure: returns nonzero
  */
-int CtdlDirectoryLookup(char *target, char *internet_addr) {
+int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen) {
 	struct cdbdata *cdbrec;
 	char key[SIZ];
 
 	/* Dump it in there unchanged, just for kicks */
-	strcpy(target, internet_addr);
+	safestrncpy(target, internet_addr, targbuflen);
 
 	/* Only do lookups for addresses with hostnames in them */
 	if (num_tokens(internet_addr, '@') != 2) return(-1);
@@ -626,7 +626,7 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	directory_key(key, internet_addr);
 	cdbrec = cdb_fetch(CDB_DIRECTORY, key, strlen(key) );
 	if (cdbrec != NULL) {
-		safestrncpy(target, cdbrec->ptr, SIZ);
+		safestrncpy(target, cdbrec->ptr, targbuflen);
 		cdb_free(cdbrec);
 		return(0);
 	}

@@ -174,7 +174,7 @@ int alias(char *name)
 	fclose(fp);
 
 	/* Hit the Global Address Book */
-	if (CtdlDirectoryLookup(aaa, name) == 0) {
+	if (CtdlDirectoryLookup(aaa, name, sizeof aaa) == 0) {
 		strcpy(name, aaa);
 	}
 

@@ -128,7 +128,6 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 /*
  * Callback for vcard_add_to_directory()
  * (Lotsa ugly nested callbacks.  Oh well.)
- * This little shim function makes sure we're not 
  */
 void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	char buf[SIZ];
@@ -139,7 +138,7 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	 */
 	if (CC->logged_in) {
 		lprintf(CTDL_DEBUG, "Checking for <%s>...\n", internet_addr);
-		if (CtdlDirectoryLookup(buf, internet_addr) == 0) {
+		if (CtdlDirectoryLookup(buf, internet_addr, sizeof buf) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
 				/* This address belongs to someone else.
 				 * Bail out silently without saving.
@@ -915,7 +914,7 @@ void cmd_qdir(char *argbuf) {
 
 	extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
 
-	if (CtdlDirectoryLookup(citadel_addr, internet_addr) != 0) {
+	if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) != 0) {
 		cprintf("%d %s was not found.\n",
 			ERROR + NO_SUCH_USER, internet_addr);
 		return;

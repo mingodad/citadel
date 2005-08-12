@@ -21,7 +21,7 @@ int IsDirectory(char *addr);
 void CtdlDirectoryInit(void);
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
 void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
-int CtdlDirectoryLookup(char *target, char *internet_addr);
+int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen);
 struct CtdlMessage *convert_internet_message(char *rfc822);
 int CtdlHostAlias(char *fqdn);
 
