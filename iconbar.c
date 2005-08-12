@@ -137,7 +137,7 @@ void do_iconbar(void) {
 
 	if (ib_calendar) {
 		wprintf("<li>"
-			"<A HREF=\"/dotgoto?room=Calendar\" "
+			"<A HREF=\"/dotgoto?room=_CALENDAR_\" "
 			"TITLE=\"Go to your personal calendar\" "
 			">"
 		);
@@ -153,7 +153,7 @@ void do_iconbar(void) {
 
 	if (ib_contacts) {
 		wprintf("<li>"
-			"<A HREF=\"/dotgoto?room=Contacts\" "
+			"<A HREF=\"/dotgoto?room=_CONTACTS_\" "
 			"TITLE=\"Go to your personal address book\" "
 			">"
 		);
@@ -169,7 +169,7 @@ void do_iconbar(void) {
 
 	if (ib_notes) {
 		wprintf("<li>"
-			"<A HREF=\"/dotgoto?room=Notes\" "
+			"<A HREF=\"/dotgoto?room=_NOTES_\" "
 			"TITLE=\"Go to your personal notes\" "
 			">"
 		);
@@ -185,7 +185,7 @@ void do_iconbar(void) {
 
 	if (ib_tasks)  {
 		wprintf("<li>"
-			"<A HREF=\"/dotgoto?room=Tasks\" "
+			"<A HREF=\"/dotgoto?room=_TASKS_\" "
 			"TITLE=\"Go to your personal task list\" "
 			">"
 		);
