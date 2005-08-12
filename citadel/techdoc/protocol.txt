@@ -375,10 +375,14 @@ GOTO command to _BASEROOM_ is guaranteed to succeed.  This is useful to
 allow client software to return to the base room when it doesn't know
 where else to go.
 
- There are also two additional reserved room names:
- "_MAIL_" translates to the system's designated room for e-mail messages.
- "_BITBUCKET_" goes to whatever room has been chosen for messages
-without a home.
+ There are also several additional reserved room names:
+ "_MAIL_" goes to the user's inbox (i.e. the Mail> room).
+ "_BITBUCKET_" goes to a room that has been chosen for messages without a home.
+ "_CALENDAR_" goes to the user's primary personal calendar.
+ "_CONTACTS_" goes to the user's primary personal address book.
+ "_NOTES_" goes to the user's primary personal notes room.
+ "_TASKS_" goes to the user's primary personal task list.
+ 
 
  The second (and optional) parameter is a password, if one is required for
 access to the room.  This allows for all types of rooms to be accessed via

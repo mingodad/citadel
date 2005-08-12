@@ -932,15 +932,30 @@ void cmd_goto(char *gargs)
 
 	getuser(&CC->user, CC->curr_user);
 
-	if (!strcasecmp(towhere, "_BASEROOM_"))
+	/*
+	 * Handle some of the macro named rooms
+	 */
+	if (!strcasecmp(towhere, "_BASEROOM_")) {
 		safestrncpy(towhere, config.c_baseroom, sizeof towhere);
-
-	if (!strcasecmp(towhere, "_MAIL_"))
+	}
+	else if (!strcasecmp(towhere, "_MAIL_")) {
 		safestrncpy(towhere, MAILROOM, sizeof towhere);
-
-	if (!strcasecmp(towhere, "_BITBUCKET_"))
+	}
+	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
 		safestrncpy(towhere, config.c_twitroom, sizeof towhere);
-
+	}
+	else if (!strcasecmp(towhere, "_CALENDAR_")) {
+		safestrncpy(towhere, USERCALENDARROOM, sizeof towhere);
+	}
+	else if (!strcasecmp(towhere, "_TASKS_")) {
+		safestrncpy(towhere, USERTASKSROOM, sizeof towhere);
+	}
+	else if (!strcasecmp(towhere, "_CONTACTS_")) {
+		safestrncpy(towhere, USERCONTACTSROOM, sizeof towhere);
+	}
+	else if (!strcasecmp(towhere, "_NOTES_")) {
+		safestrncpy(towhere, USERNOTESROOM, sizeof towhere);
+	}
 
 	/* First try a regular match */
 	c = getroom(&QRscratch, towhere);

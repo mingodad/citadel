@@ -1,4 +1,7 @@
 $Log$
+Revision 654.13  2005/08/12 02:12:31  ajc
+* Added more room name macros
+
 Revision 654.12  2005/08/11 23:12:26  ajc
 * debian/citadel-server.postinst: remove reference to '?' file
   (patch sent in by W. Goesgens)
@@ -7036,4 +7039,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
