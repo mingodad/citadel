@@ -5,29 +5,6 @@
  *
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
-
-#ifdef HAVE_ICONV
-#include <iconv.h>
-#endif
-
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
@@ -1993,7 +1970,10 @@ void display_enter(void)
 	}
 #endif
 
-	/* Otherwise proceed normally.  Do a custom room banner with no navbar... */
+	/*
+	 * Otherwise proceed normally.
+`	 * Do a custom room banner with no navbar...
+	 */
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	embed_room_banner(NULL, navbar_none);

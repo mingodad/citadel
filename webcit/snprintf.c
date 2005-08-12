@@ -23,10 +23,7 @@
  * Written July 1997 by Sten Gunterberg (gunterberg@ergon.ch)
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
+#include "webcit.h"
 #include "webserver.h"
 
 static int needed(const char *fmt, va_list argp)

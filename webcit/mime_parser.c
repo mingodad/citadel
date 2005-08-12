@@ -8,20 +8,8 @@
  *
  */
 
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <errno.h>
-
 #include "webcit.h"
 #include "webserver.h"
-
 #include "mime_parser.h"
 
 

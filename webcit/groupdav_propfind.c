@@ -15,22 +15,6 @@
  *
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <limits.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <time.h>
-#include <pthread.h>
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"

@@ -8,32 +8,6 @@
  *
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <stdio.h>
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
-#include <netinet/in.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
 #include "webcit.h"
 #include "webserver.h"
 

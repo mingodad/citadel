@@ -4,28 +4,7 @@
  * Functions which implement the chat and paging facilities.
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <sys/poll.h>
-#include <sys/time.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
 #include "webcit.h"
-
 
 /*
  * display the form for paging (x-messaging) another user

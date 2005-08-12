@@ -10,30 +10,8 @@
 #define SERV_TRACE 1
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
 #include "webcit.h"
 #include "webserver.h"
-
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

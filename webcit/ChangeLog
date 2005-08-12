@@ -1,4 +1,8 @@
 $Log$
+Revision 621.5  2005/08/12 21:53:31  ajc
+* All OS-level includes are now included from webcit.h instead of from
+  each individual .c file.  This will keep the build cleaner.
+
 Revision 621.4  2005/08/12 01:01:27  ajc
 * The iconbar and summary screen now connect to the user's primary
   groupware rooms using the new macros: _CALENDAR_, _TASKS_, _NOTES_,
@@ -2802,4 +2806,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
