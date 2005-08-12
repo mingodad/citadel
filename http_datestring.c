@@ -6,11 +6,7 @@
  *
  */
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-# include <time.h>
+#include "webcit.h"
 
 static char *httpdate_months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",

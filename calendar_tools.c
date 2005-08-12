@@ -4,25 +4,6 @@
  * Miscellaneous functions which handle calendar components.
  */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <limits.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <signal.h>
-#include <time.h>
 #include "webcit.h"
 #include "webserver.h"
 

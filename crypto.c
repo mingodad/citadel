@@ -6,14 +6,6 @@
 
 #ifdef HAVE_OPENSSL
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <pthread.h>
-
-#include <sys/time.h>
 #include "webcit.h"
 #include "webserver.h"
 
