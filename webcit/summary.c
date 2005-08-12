@@ -139,8 +139,8 @@ void tasks_section(void) {
 	svprintf("BOXTITLE", WCS_STRING, "Tasks");
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	gotoroom("Tasks");
-	if (strcasecmp(WC->wc_roomname, "Tasks")) {
+	gotoroom("_TASKS_");
+	if (WC->wc_view != VIEW_TASKS) {
 		num_msgs = 0;
 	}
 	else {
@@ -177,8 +177,8 @@ void calendar_section(void) {
 	svprintf("BOXTITLE", WCS_STRING, "Today&nbsp;on&nbsp;your&nbsp;calendar");
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	gotoroom("Calendar");
-	if (strcasecmp(WC->wc_roomname, "Calendar")) {
+	gotoroom("_CALENDAR_");
+	if (WC->wc_view != VIEW_CALENDAR) {
 		num_msgs = 0;
 	}
 	else {

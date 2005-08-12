@@ -1,4 +1,11 @@
 $Log$
+Revision 621.4  2005/08/12 01:01:27  ajc
+* The iconbar and summary screen now connect to the user's primary
+  groupware rooms using the new macros: _CALENDAR_, _TASKS_, _NOTES_,
+  and _CONTACTS_, in order to facilitate those rooms potentially having
+  different names on some hosts (such as, perhaps, the same names but in
+  different languages).
+
 Revision 621.3  2005/08/11 23:15:03  ajc
 * Added debian build directory (submitted by W. Goesgens)
 
@@ -2795,3 +2802,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
