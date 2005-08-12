@@ -42,9 +42,6 @@ Goals to achieve during the 6.xx cycle
 
  Short-term TODO list
  --------------------
-* Configuration front ends (particularly in WebCit) for the new feature
-  that allows a shared room to have different names at each end of the link.
- 
 * Support recurring events in the calendar service.  (These currently can
   be submitted via external clients such as Aethera, but they aren't handled
   properly by WebCit and they don't show up in freebusy.)
@@ -70,3 +67,6 @@ Goals to achieve during the 6.xx cycle
 * Move the WebCit presentation mode from frames to CSS.
   (Status: completed as of 2005jan25.  This was a prerequisite to DAV-enabling
   the WebCit service.)
+
+* Configuration front ends (particularly in WebCit) for the new feature
+  that allows a shared room to have different names at each end of the link.
