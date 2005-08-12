@@ -3,8 +3,22 @@ we want to be going.  It's something to consult when sitting down to write
 some code and deciding what to work on.
 
 
-Goals to achieve during the 6.xx cycle
---------------------------------------
+ Goals achieved during the 6.xx cycle
+ ------------------------------------
+
+* WebCit support for HTTP/HTTPS transactions performed by Kolab1 clients
+  (The current WebCit build works with the Kolab1 klient, and with Aethera,
+  both using HTTPS.)
+ 
+* RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
+  (If anyone knows of clients that make use of this, let us know / test it)
+
+* Move the WebCit presentation mode from frames to CSS.
+  (Status: completed as of 2005jan25.  This was a prerequisite to DAV-enabling
+  the WebCit service.)
+
+* Configuration front ends (particularly in WebCit) for the new feature
+  that allows a shared room to have different names at each end of the link.
 
 * Address books
 
@@ -13,16 +27,8 @@ Goals to achieve during the 6.xx cycle
   can use them, and Kolab-compatible clients seem to be able to access them
   seamlessly as well.
  
-  We should integrate the address books more tightly into Citadel dialogs
-  such as recipient auto-completion, etc.
- 
-* Better UI presentation for delegated access to mailboxes.  (In IMAP this
-  will be easy because of "other users namespace" support.)
-
-* Additional LDAP integration
- 
-  Status: the current implementation can populate an external LDAP directory
-  with Citadel user data.
+* LDAP integration: the current implementation can populate an external LDAP
+  directory with Citadel user data.
 
 * Calendar service
  
@@ -40,8 +46,18 @@ Goals to achieve during the 6.xx cycle
   developed), and any other client which follows the standard.
 
 
- Short-term TODO list
- --------------------
+ Goals to achieve during the 7.xx cycle
+ --------------------------------------
+
+* Internationalization: multiple language support, at least for WebCit.
+
+* AJAX everywhere.  Dazzling richness in our web interface is a must-have.
+
+* Per-user auto-handling of inbound mail.  Simple handlers such as an "out
+  of office reply" should be easy for users to set up.  More complex handlers
+  such as the automatic sorting of inbound mail into various folders based
+  on sender, subject, etc. should also be possible.
+
 * Support recurring events in the calendar service.  (These currently can
   be submitted via external clients such as Aethera, but they aren't handled
   properly by WebCit and they don't show up in freebusy.)
@@ -51,22 +67,12 @@ Goals to achieve during the 6.xx cycle
   to do would be to simply deny the operation.  This should probably be done
   across the entire Citadel system rather than only in IMAP.
 
+* Address books: build dialogs to integrate personal address books into
+  mail recipient boxes, auto-completion, etc.  Use AJAX for this.
+
+* Better UI presentation for delegated access to mailboxes.  (In IMAP this
+  will be easy because of "other users namespace" support.)
+
+* Support for Microsoft Outlook (to be handled by a third party plugin).
+
 * Land a book deal with O'Reilly.  :)
- 
-
- Items recently removed from TODO list
- -------------------------------------
-
-* WebCit support for HTTP/HTTPS transactions performed by Kolab1 clients
-  (The current WebCit build works with the Kolab1 klient, and with Aethera,
-  both using HTTPS.)
- 
-* RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
-  (If anyone knows of clients that make use of this, let us know / test it)
-
-* Move the WebCit presentation mode from frames to CSS.
-  (Status: completed as of 2005jan25.  This was a prerequisite to DAV-enabling
-  the WebCit service.)
-
-* Configuration front ends (particularly in WebCit) for the new feature
-  that allows a shared room to have different names at each end of the link.
