@@ -1781,6 +1781,9 @@ void post_mime_to_server(void) {
 	char *encoded;
 	size_t encoded_length;
 
+	/* RFC2045 requires this, and some clients look for it... */
+	serv_puts("MIME-Version: 1.0");
+
 	/* If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
 		is_multipart = 1;
