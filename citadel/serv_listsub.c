@@ -158,7 +158,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	urlesc(urlroom, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
-		"Content-type: text/html\n\n"
+		"Content-type: text/html\nMIME-Version: 1.0\n\n"
 		"<HTML><BODY>"
 		"Someone (probably you) has submitted a request to subscribe\n"
 		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
@@ -270,7 +270,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	urlesc(urlroom, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
-		"Content-type: text/html\n\n"
+		"Content-type: text/html\nMIME-Version: 1.0\n\n"
 		"<HTML><BODY>"
 		"Someone (probably you) has submitted a request "
 		"to unsubscribe\n"
