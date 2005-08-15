@@ -1,4 +1,8 @@
 $Log$
+Revision 621.6  2005/08/15 16:49:02  ajc
+* post_mime_to_server() now includes "MIME-Version: 1.0" as required
+  by RCC2045.  Some clients look for this.  (Thanks to Shayne for this one)
+
 Revision 621.5  2005/08/12 21:53:31  ajc
 * All OS-level includes are now included from webcit.h instead of from
   each individual .c file.  This will keep the build cleaner.
@@ -2806,3 +2810,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
