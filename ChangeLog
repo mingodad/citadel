@@ -1,8 +1,10 @@
-2005-08-16  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* configure.in (AC_OUTPUT): Add intl/Makefile,
-
 $Log$
+Revision 621.8  2005/08/16 20:51:08  ajc
+* More gettext/i18n crap
+
+2005-08-16  gettextize  <bug-gnu-gettext@gnu.org>
+* configure.in (AC_OUTPUT): Add intl/Makefile,
+
 Revision 621.7  2005/08/16 20:14:25  ajc
 * This is an attempt to gettextize the WebCit build.
 
@@ -2817,4 +2819,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
