@@ -38,6 +38,21 @@
 #endif
 
 
+#ifdef ENABLE_NLS
+#ifdef HAVE_LIBINTL_H
+#include <libintl.h>
+#endif
+#define _(string) gettext(string)
+#define P_(singular, plural, number) ngettext(singular, plural, number)
+#else
+#define _(string) (string)
+#define P_(singular, plural, number) (number == 1 ? singular : plural)
+#endif
+#define gettext_noop(string) (string)
+#define N_(string) gettext_noop(string)
+        /* Mark a string that will be sent to gettext() later. */
+
+
 /*
  * Uncomment to dump an HTTP trace to stderr
 #define HTTP_TRACING 1
