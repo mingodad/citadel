@@ -64,8 +64,9 @@ void cal_process_object(icalcomponent *cal,
 	icalproperty *p;
 	struct icaltimetype t;
 	time_t tt;
-	char buf[SIZ];
-	char conflict_name[SIZ];
+	char buf[256];
+	char conflict_name[256];
+	char conflict_message[256];
 	int is_update = 0;
 
 	/* Leading HTML for the display of this object */
@@ -188,7 +189,7 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("<TR><TD><B>");
 		wprintf(_("Attendee:"));
 		wprintf("</B></TD><TD>");
-		strcpy(buf, icalproperty_get_attendee(p));
+		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
 			/* screen name or email address */
@@ -223,26 +224,24 @@ void cal_process_object(icalcomponent *cal,
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				extract_token(conflict_name, buf, 3, '|', sizeof conflict_name);
 				is_update = extract_int(buf, 4);
-				wprintf("<TR><TD><B><I>%s</I></B></TD>"
-					"<TD>"
-					"%s "
-					"<I>&quot;",
 
+				if (is_update) {
+					snprintf(conflict_message, sizeof conflict_message,
+						_("This is an update of '%s' which is already in your calendar."), conflict_name);
+				}
+				else {
+					snprintf(conflict_message, sizeof conflict_message,
+						_("This event would conflict with '%s' which is already in your calendar."), conflict_name);
+				}
+
+				wprintf("<TR><TD><B><I>%s</I></B></TD><td>",
 					(is_update ?
 						_("Update:") :
 						_("CONFLICT:")
-					),
-
-					(is_update ?
-						"This is an update of" :
-						"This event would conflict with"
 					)
-		
 				);
-				escputs(conflict_name);
-				wprintf("&quot;</I> "
-					"which is already in your calendar."
-					"</TD></TR>\n");
+				escputs(conflict_message);
+				wprintf("</TD></TR>\n");
 			}
 		}
 		lprintf(9, "...done.\n");
