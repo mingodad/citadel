@@ -381,6 +381,14 @@ int main(int argc, char **argv)
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
 	char *webcitdir = WEBCITDIR;
+	char *locale = NULL;
+
+	/* initialize the International Bright Young Thing */
+#ifdef ENABLE_NLS
+	locale = setlocale(LC_ALL, "");
+	bindtextdomain(PACKAGE, LOCALEDIR);
+	textdomain(PACKAGE);
+#endif
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
