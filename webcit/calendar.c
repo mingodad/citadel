@@ -15,29 +15,29 @@
  */
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 
-	wprintf("<I>This message contains calendaring/scheduling information,"
+	wprintf(_("<I>This message contains calendaring/scheduling information,"
 		" but support for calendars is not available on this "
 		"particular system.  Please ask your system administrator to "
 		"install a new version of the Citadel web service with "
-		"calendaring enabled.</I><br />\n"
+		"calendaring enabled.</I><br />\n")
 	);
 
 }
 
 void display_calendar(long msgnum) {
-	wprintf("<i>"
+	wprintf(_("<i>"
 		"Cannot display calendar item.  You are seeing this error "
 		"because your WebCit service has not been installed with "
 		"calendar support.  Please contact your system administrator."
-		"</i><br />\n");
+		"</i><br />\n"));
 }
 
 void display_task(long msgnum) {
-	wprintf("<i>"
+	wprintf(_("<i>"
 		"Cannot display to-do item.  You are seeing this error "
 		"because your WebCit service has not been installed with "
 		"calendar support.  Please contact your system administrator."
-		"</i><br />\n");
+		"</i><br />\n"));
 }
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
@@ -81,50 +81,54 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
-			wprintf("<TR><TD COLSPAN=2>\n"
-				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/calarea_48x.gif\">"
+			wprintf("<tr><td colspan=\"2\">\n"
+				"<img align=\"center\" "
+				"src=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Meeting invitation</B>"
-				"</TD></TR>\n"
-			);
+				"<B>");
+			wprintf(_("Meeting invitation"));
+			wprintf("</B></TD></TR>\n");
 			break;
 		    case ICAL_METHOD_REPLY:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Attendee's reply to your invitation</B>"
-				"</TD></TR>\n"
-			);
+				"<B>");
+			wprintf(_("Attendee's reply to your invitation"));
+			wprintf("</B></TD></TR>\n");
 			break;
 		    case ICAL_METHOD_PUBLISH:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Published event</B>"
-				"</TD></TR>\n"
-			);
+				"<B>");
+			wprintf(_("Published event"));
+			wprintf("</B></TD></TR>\n");
 			break;
 		    default:
-			wprintf("<TR><TD COLSPAN=2>"
-				"I don't know what to do with this.</TD></TR>"
-				"\n");
+			wprintf("<TR><TD COLSPAN=2>");
+			wprintf(_("This is an unknown type of calendar item."));
+			wprintf("</TD></TR>\n");
 			break;
 		}
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>Summary:</B></TD><TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Summary:"));
+		wprintf("</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>Location:</B></TD><TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Location:"));
+		wprintf("</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
 	}
@@ -141,8 +145,9 @@ void cal_process_object(icalcomponent *cal,
 			t = icalproperty_get_dtstart(p);
 
 			if (t.is_date) {
-				wprintf("<TR><TD><B>Date:"
-					"</B></TD><TD>"
+				wprintf("<TR><TD><B>");
+				wprintf(_("Date:"));
+				wprintf("</B></TD><TD>"
 					"%s %d, %d</TD></TR>",
 					months[t.month - 1],
 					t.day, t.year
@@ -151,10 +156,9 @@ void cal_process_object(icalcomponent *cal,
 			else {
 				tt = icaltime_as_timet(t);
 				fmt_date(buf, tt, 0);
-				wprintf("<TR><TD><B>Starting date/time:"
-					"</B></TD><TD>"
-					"%s</TD></TR>", buf
-				);
+				wprintf("<TR><TD><B>");
+				wprintf(_("Starting date/time:"));
+				wprintf("</B></TD><TD>%s</TD></TR>", buf);
 			}
 		}
 	
@@ -163,23 +167,27 @@ void cal_process_object(icalcomponent *cal,
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
 			fmt_date(buf, tt, 0);
-			wprintf("<TR><TD><B>Ending date/time:</B></TD><TD>"
-				"%s</TD></TR>", buf
-			);
+			wprintf("<TR><TD><B>");
+			wprintf(_("Ending date/time:"));
+			wprintf("</B></TD><TD>%s</TD></TR>", buf);
 		}
 
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>Description:</B></TD><TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Description:"));
+		wprintf("</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
 	}
 
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		wprintf("<TR><TD><B>Attendee:</B></TD><TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Attendee:"));
+		wprintf("</B></TD><TD>");
 		strcpy(buf, icalproperty_get_attendee(p));
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
@@ -221,8 +229,8 @@ void cal_process_object(icalcomponent *cal,
 					"<I>&quot;",
 
 					(is_update ?
-						"Update:" :
-						"CONFLICT:"
+						_("Update:") :
+						_("CONFLICT:")
 					),
 
 					(is_update ?

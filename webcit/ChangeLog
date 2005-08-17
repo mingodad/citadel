@@ -1,4 +1,8 @@
 $Log$
+Revision 621.11  2005/08/17 17:56:32  ajc
+* availability.c: prepared for i18n
+* calendar.c: began preparing for i18n
+
 Revision 621.10  2005/08/17 17:44:59  ajc
 * auth.c: prepared for internationalization
 
@@ -2826,3 +2830,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -119,7 +119,7 @@ void check_individual_attendee(char *attendee_string,
 	/* Set to 'unknown' right from the beginning.  Unless we learn
 	 * something else, that's what we'll go with.
 	 */
-	strcpy(annotation, "availability unknown");
+	strcpy(annotation, _("availability unknown"));
 
 	fbc = get_freebusy_for_user(attendee_string);
 	if (fbc == NULL) {
@@ -139,7 +139,7 @@ void check_individual_attendee(char *attendee_string,
 	/* Iterate through all FREEBUSY's looking for conflicts. */
 	if (fb != NULL) {
 
-		strcpy(annotation, "free");
+		strcpy(annotation, _("free"));
 
 		for (thisfb = icalcomponent_get_first_property(fb, ICAL_FREEBUSY_PROPERTY);
 		    thisfb != NULL;
@@ -149,7 +149,7 @@ void check_individual_attendee(char *attendee_string,
 			period = icalproperty_get_freebusy(thisfb);
 			if (ical_ctdl_is_overlap(period.start, period.end,
 			   event_start, event_end)) {
-				strcpy(annotation, "BUSY");
+				strcpy(annotation, _("BUSY"));
 			}
 
 		}
