@@ -1,4 +1,7 @@
 $Log$
+Revision 621.12  2005/08/17 22:18:00  ajc
+* calendar.c: altered conflict reporting strings for better i18n
+
 Revision 621.11  2005/08/17 17:56:32  ajc
 * availability.c: prepared for i18n
 * calendar.c: began preparing for i18n
@@ -2830,4 +2833,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
