@@ -1,4 +1,7 @@
 $Log$
+Revision 621.10  2005/08/17 17:44:59  ajc
+* auth.c: prepared for internationalization
+
 Revision 621.9  2005/08/17 03:43:20  ajc
 * More work to get the gettext stuff working, although I really don't
   know what I'm doing here
@@ -2823,4 +2826,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -5,7 +5,6 @@
  *
  */
 
-
 #include "webcit.h"
 
 char *axdefs[] =
@@ -34,8 +33,28 @@ void display_login(char *mesg)
 		svprintf("mesg", WCS_STRING, "%s", buf);
 	}
 
+	svprintf("LOGIN_INSTRUCTIONS", WCS_STRING,
+		_("<ul>"
+		"<li><b>If you already have an account on %s</b>, "
+		"enter your user name and password and click &quot;Login.&quot; "
+		"<li><b>If you are a new user</b>, enter the name and password "
+		"you wish to use, "
+		"and click &quot;New User.&quot; "
+		"<li>Please log off properly when finished. "
+		"<li>You must use a browser that supports <i>frames</i> and "
+		"<i>cookies</i>. "
+		"<li>Also keep in mind that if your browser is "
+		"configured to block pop-up windows, you will not be able "
+		"to receive any instant messages.<br />"
+		"</ul>"),
+		serv_info.serv_humannode
+	);
+
+	svprintf("LOGIN_BUTTON", WCS_STRING, "%s", _("Login"));
+	svprintf("NEWUSER_BUTTON", WCS_STRING, "%s", _("New User"));
+	svprintf("EXIT_BUTTON", WCS_STRING, "%s", _("Exit"));
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
-	svprintf("BOXTITLE", WCS_STRING, "%s - powered by Citadel",
+	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by Citadel"),
 		serv_info.serv_humannode);
 
 	do_template("login");
@@ -82,11 +101,11 @@ void do_login(void)
 {
 	char buf[SIZ];
 
-	if (!strcasecmp(bstr("action"), "Exit")) {
+	if (strlen(bstr("exit_action")) > 0) {
 		do_logout();
 		return;
 	}
-	if (!strcasecmp(bstr("action"), "Login")) {
+	if (strlen(bstr("login_action")) > 0) {
 		serv_printf("USER %s", bstr("name"));
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
@@ -104,9 +123,9 @@ void do_login(void)
 			return;
 		}
 	}
-	if (!strcasecmp(bstr("action"), "New User")) {
+	if (strlen(bstr("newuser_action")) > 0) {
 		if (strlen(bstr("pass")) == 0) {
-			display_login("Blank passwords are not allowed.");
+			display_login(_("Blank passwords are not allowed."));
 			return;
 		}
 		serv_printf("NEWU %s", bstr("name"));
@@ -127,7 +146,7 @@ void do_login(void)
 			do_welcome();
 		}
 	} else {
-		display_login("Your password was not accepted.");
+		display_login(_("Your password was not accepted."));
 	}
 
 }
@@ -216,15 +235,16 @@ void do_logout(void)
 		}
 	}
 	else {
-		wprintf("This program was unable to connect or stay "
+		wprintf(_("This program was unable to connect or stay "
 			"connected to the Citadel server.  Please report "
-			"this problem to your system administrator."
+			"this problem to your system administrator.")
 		);
 	}
 
 	wprintf("<hr /><a href=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
-		"<a href=\"javascript:window.close();\">Close window</A>"
-		"</center>\n");
+		"<a href=\"javascript:window.close();\">");
+	wprintf(_("Close window"));
+	wprintf("</a></center>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
@@ -243,11 +263,10 @@ void validate(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Validate new users</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
-															     
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Validate new users"));
+	wprintf("</SPAN></TD></TR></TABLE>\n</div>\n<div id=\"content\">\n");
+
 	safestrncpy(buf, bstr("user"), sizeof buf);
 	if (strlen(buf) > 0)
 		if (strlen(bstr("axlevel")) > 0) {
@@ -296,14 +315,16 @@ void validate(void)
 			if (a == 8)
 				wprintf("%s<br />\n", buf);
 			if (a == 9)
-				wprintf("Current access level: %d (%s)\n",
+				wprintf(_("Current access level: %d (%s)\n"),
 					atoi(buf), axdefs[atoi(buf)]);
 		} while (strcmp(buf, "000"));
 	} else {
 		wprintf("<H1>%s</H1>%s<br />\n", user, &cmd[4]);
 	}
 
-	wprintf("<hr />Select access level for this user:<br />\n");
+	wprintf("<hr />");
+	wprintf(_("Select access level for this user:"));
+	wprintf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
 		wprintf("<A HREF=\"/validate&user=");
 		urlescputs(user);
@@ -363,7 +384,9 @@ void display_changepw(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Change your password</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Change your password"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -390,15 +413,19 @@ void display_changepw(void)
 	wprintf("<CENTER>"
 		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
 		"BGCOLOR=\"#EEEEEE\">"
-		"<TR><TD>Enter new password:</TD>\n");
+		"<TR><TD>");
+	wprintf(_("Enter new password:"));
+	wprintf("</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
-	wprintf("<TR><TD>Enter it again to confirm:</TD>\n");
+	wprintf("<TR><TD>");
+	wprintf(_("Enter it again to confirm:"));
+	wprintf("</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
 
 	wprintf("</TABLE><br />\n");
-	wprintf("<INPUT type=\"submit\" name=\"action\" value=\"Change\">"
-		"&nbsp;"
-		"<INPUT type=\"submit\" name=\"action\" value=\"Cancel\">\n");
+	wprintf("<INPUT type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
+	wprintf("&nbsp;");
+	wprintf("<INPUT type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
 	wprintf("</form></center>\n");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
@@ -412,9 +439,9 @@ void changepw(void)
 	char buf[SIZ];
 	char newpass1[32], newpass2[32];
 
-	if (strcmp(bstr("action"), "Change")) {
+	if (strlen(bstr("change_action")) == 0) {
 		safestrncpy(WC->ImportantMessage, 
-			"Cancelled.  Password was not changed.",
+			_("Cancelled.  Password was not changed."),
 			sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
@@ -425,7 +452,7 @@ void changepw(void)
 
 	if (strcasecmp(newpass1, newpass2)) {
 		safestrncpy(WC->ImportantMessage, 
-			"They don't match.  Password was not changed.",
+			_("They don't match.  Password was not changed."),
 			sizeof WC->ImportantMessage);
 		display_changepw();
 		return;
@@ -433,7 +460,7 @@ void changepw(void)
 
 	if (strlen(newpass1) == 0) {
 		safestrncpy(WC->ImportantMessage, 
-			"Blank passwords are not allowed.",
+			_("Blank passwords are not allowed."),
 			sizeof WC->ImportantMessage);
 		display_changepw();
 		return;
