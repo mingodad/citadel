@@ -77,24 +77,26 @@ void do_iconbar(void) {
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
 		"<li><div align=\"center\">"
 		"<A HREF=\"http://www.citadel.org\" "
-		"title=\"Find out more about Citadel\" target=\"aboutcit\">"
+		"title=\"%s\" target=\"aboutcit\">"
 		"<img border=\"0\" "
-		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\"></a>"
-		"</div></li>\n"
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"%s\"></a>"
+		"</div></li>\n",
+		_("Find out more about Citadel"),
+		_("CITADEL")
 	);
 
 
 	if (ib_summary) {
 		wprintf("<li><A HREF=\"/summary\" "
-			"TITLE=\"Your summary page\" "
-			">"
+			"TITLE=\"%s\" "
+			">", _("Your summary page")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 				"SRC=\"/static/summscreen_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Summary");
+			wprintf(_("Summary"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -102,15 +104,16 @@ void do_iconbar(void) {
 	if (ib_inbox) {
 		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_MAIL_\" "
-			"TITLE=\"Go to your e-mail inbox\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Go to your email inbox")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 				"SRC=\"/static/privatemess_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Mail");
+			wprintf(_("Mail"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -118,15 +121,16 @@ void do_iconbar(void) {
 	if (ib_calendar) {
 		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_CALENDAR_\" "
-			"TITLE=\"Go to your personal calendar\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Go to your personal calendar")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/calarea_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Calendar");
+			wprintf(_("Calendar"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -134,15 +138,16 @@ void do_iconbar(void) {
 	if (ib_contacts) {
 		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_CONTACTS_\" "
-			"TITLE=\"Go to your personal address book\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Go to your personal address book")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/viewcontacts_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Contacts");
+			wprintf(_("Contacts"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -150,15 +155,16 @@ void do_iconbar(void) {
 	if (ib_notes) {
 		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_NOTES_\" "
-			"TITLE=\"Go to your personal notes\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Go to your personal notes")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/storenotes_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Notes");
+			wprintf(_("Notes"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -166,45 +172,47 @@ void do_iconbar(void) {
 	if (ib_tasks)  {
 		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_TASKS_\" "
-			"TITLE=\"Go to your personal task list\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Go to your personal task list")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/taskmanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Tasks");
+			wprintf(_("Tasks"));
 		}
 		wprintf("</A></li>\n");
 	}
 
 	if (ib_rooms) {
 		wprintf("<li>"
-			"<A HREF=\"/knrooms\" TITLE=\"List all of your "
-			"accessible rooms\" >"
+			"<A HREF=\"/knrooms\" TITLE=\"%s\" >",
+			_("List all of your accessible rooms")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/chatrooms_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Rooms");
+			wprintf(_("Rooms"));
 		}
 		wprintf("</A></li>\n");
 	}
 
 	if (ib_users) {
 		wprintf("<li>"
-			"<A HREF=\"/who\" TITLE=\"See who is online right now\" "
-			">"
+			"<A HREF=\"/who\" TITLE=\"%s\" "
+			">",
+			_("See who is online right now")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/usermanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Who is online?");
+			wprintf(_("Who is online?"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -222,7 +230,7 @@ void do_iconbar(void) {
 			"SRC=\"/static/citadelchat_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Chat");
+			wprintf(_("Chat"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -230,16 +238,16 @@ void do_iconbar(void) {
 	if (ib_advanced) {
 		wprintf("<li>"
 			"<A HREF=\"/display_main_menu\" "
-			"TITLE=\"Advanced Options Menu: Advanced Room commands, "
-			"Account Info, and Chat\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Advanced");
+			wprintf(_("Advanced"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -247,30 +255,34 @@ void do_iconbar(void) {
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<li>"
 			"<A HREF=\"/display_aide_menu\" "
-			"TITLE=\"Room and system administration functions\" "
-			">"
+			"TITLE=\"%s\" "
+			">",
+			_("Room and system administration functions")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Administration");
+			wprintf(_("Administration"));
 		}
 		wprintf("</A></li>\n");
 	}
 
 	if (1) {
 		wprintf("<li>"
-			"<A HREF=\"/termquit\" TITLE=\"Log off\" "
-			"onClick=\"return confirm('Log off now?');\">"
+			"<A HREF=\"/termquit\" TITLE=\"%s\" "
+			"onClick=\"return confirm('%s');\">",
+			_("Log off"),
+			_("Log off now?")
+			
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 		wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
 			"SRC=\"/static/logoff_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Log off");
+			wprintf(_("Log off"));
 		}
 		wprintf("</A></li>\n");
 	}
@@ -278,9 +290,11 @@ void do_iconbar(void) {
 	wprintf(
 		"<li><div align=\"center\">"
 		"<A HREF=\"/display_customize_iconbar\" "
-		"TITLE=\"Customize this menu\" "
-		">customize this menu"
-		"</A></div></li>\n"
+		"TITLE=\"%s\" "
+		">%s"
+		"</A></div></li>\n",
+		_("Customize this menu"),
+		_("customize this menu")
 	);
 
 	wprintf("</ul>\n"
@@ -341,7 +355,9 @@ void display_customize_iconbar(void) {
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Customize the icon bar</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Customize the icon bar"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -351,23 +367,24 @@ void display_customize_iconbar(void) {
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/commit_iconbar\">\n");
 
-	wprintf("<CENTER>"
-		"Display icons as: ");
+	wprintf("<CENTER>");
+	wprintf(_("Display icons as:"));
+	wprintf(" ");
 	for (i=0; i<=2; ++i) {
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"ib_displayas\" VALUE=\"%d\"", i);
 		if (ib_displayas == i) wprintf(" CHECKED");
 		wprintf(">");
-		if (i == IB_PICTEXT) wprintf("pictures and text");
-		if (i == IB_PICONLY) wprintf("pictures only");
-		if (i == IB_TEXTONLY) wprintf("text only");
+		if (i == IB_PICTEXT)	wprintf(_("pictures and text"));
+		if (i == IB_PICONLY)	wprintf(_("pictures only"));
+		if (i == IB_TEXTONLY)	wprintf(_("text only"));
 		wprintf("\n");
 	}
 	wprintf("<br /><br />\n");
 
-	wprintf("Select the icons you would like to see displayed "
-		"in the &quot;icon bar&quot; menu on the left side of the "
-		"screen.</CENTER><br />\n"
-	);
+	wprintf(_("Select the icons you would like to see displayed "
+		"in the 'icon bar' menu on the left side of the "
+		"screen."));
+	wprintf("</CENTER><br />\n");
 
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
@@ -377,11 +394,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Site logo</B><br />"
-		"An icon describing this site"
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_logo ? "CHECKED" : "")
+		(ib_logo ? "CHECKED" : ""),
+		_("Site logo"),
+		_("An icon describing this site")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -390,11 +409,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/summscreen_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Summary</B><br />"
-		"Your summary page"
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_summary ? "CHECKED" : "")
+		(ib_summary ? "CHECKED" : ""),
+		_("Summary"),
+		_("Your summary page")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -403,11 +424,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/privatemess_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Mail (inbox)</B><br />"
-		"A shortcut to your e-mail Inbox."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_inbox ? "CHECKED" : "")
+		(ib_inbox ? "CHECKED" : ""),
+		_("Mail (inbox)"),
+		_("A shortcut to your email Inbox")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -417,11 +440,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/viewcontacts_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Contacts</B><br />"
-		"Your personal address book."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_contacts ? "CHECKED" : "")
+		(ib_contacts ? "CHECKED" : ""),
+		_("Contacts"),
+		_("Your personal address book")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -431,11 +456,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/storenotes_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Notes</B><br />"
-		"Your personal notes."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_notes ? "CHECKED" : "")
+		(ib_notes ? "CHECKED" : ""),
+		_("Notes"),
+		_("Your personal notes")
 	);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
@@ -446,11 +473,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/calarea_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Calendar</B><br />"
-		"A shortcut to your personal calendar."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_calendar ? "CHECKED" : "")
+		(ib_calendar ? "CHECKED" : ""),
+		_("Calendar"),
+		_("A shortcut to your personal calendar")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -459,11 +488,13 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/taskmanag_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Tasks</B><br />"
-		"A shortcut to your personal task list."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_tasks ? "CHECKED" : "")
+		(ib_tasks ? "CHECKED" : ""),
+		_("Tasks"),
+		_("A shortcut to your personal task list")
 	);
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
@@ -473,12 +504,14 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/chatrooms_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Rooms</B><br />"
-		"Clicking this icon displays a list of all accesible "
-		"rooms (or folders) available."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_rooms ? "CHECKED" : "")
+		(ib_rooms ? "CHECKED" : ""),
+		_("Rooms"),
+		_("Clicking this icon displays a list of all accesible "
+		"rooms (or folders) available.")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -487,12 +520,14 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/usermanag_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Who is online?</B><br />"
-		"Clicking this icon displays a list of all users "
-		"currently logged in."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_users ? "CHECKED" : "")
+		(ib_users ? "CHECKED" : ""),
+		_("Who is online?"),
+		_("Clicking this icon displays a list of all users "
+		"currently logged in.")
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -501,12 +536,15 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/citadelchat_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Chat</B><br />"
-		"Clicking this icon enters real-time chat mode "
-		"with other users in the same room."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_chat ? "CHECKED" : "")
+		(ib_chat ? "CHECKED" : ""),
+		_("Chat"),
+		_("Clicking this icon enters real-time chat mode "
+		"with other users in the same room.")
+		
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -516,11 +554,14 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Advanced options</B><br />"
-		"Access to the complete menu of Citadel functions."
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_advanced ? "CHECKED" : "")
+		(ib_advanced ? "CHECKED" : ""),
+		_("Advanced options"),
+		_("Access to the complete menu of Citadel functions.")
+
 	);
 
 	wprintf("<TR bgcolor=%s><TD>"
@@ -530,19 +571,23 @@ void display_customize_iconbar(void) {
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/citadel-logo.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
-		"<B>Citadel logo</B><br />"
-		"Displays the &quot;Powered by Citadel&quot; icon"
+		"<B>%s</B><br />"
+		"%s"
 		"</TD></TR>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
-		(ib_citadel ? "CHECKED" : "")
+		(ib_citadel ? "CHECKED" : ""),
+		_("Citadel logo"),
+		_("Displays the 'Powered by Citadel' icon")
 	);
 
 	wprintf("</TABLE><br />\n"
 		"<CENTER>"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
+		"<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">"
-		"</CENTER></FORM>\n"
+		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
+		"</CENTER></FORM>\n",
+		_("Save changes"),
+		_("Cancel")
 	);
 
 	wprintf("</td></tr></table></div>\n");
@@ -570,7 +615,7 @@ void commit_iconbar(void) {
 		"ib_citadel"
 	};
 
-	if (strcmp(bstr("sc"), "OK")) {
+	if (strlen(bstr("ok_button")) == 0) {
 		display_main_menu();
 		return;
 	}
@@ -593,10 +638,9 @@ void commit_iconbar(void) {
 	wprintf(
 		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
 		"<IMG SRC=\"/static/advanpage2_48x.gif\">"
-		"&nbsp;"
-		"Your icon bar has been updated.  Please select any of its "
-		"choices to continue."
-		"</td></tr></table>\n"
-	);
+		"&nbsp;");
+	wprintf(_("Your icon bar has been updated.  Please select any of its "
+		"choices to continue."));
+	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
 }
