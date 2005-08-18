@@ -1,4 +1,7 @@
 $Log$
+Revision 621.14  2005/08/18 16:17:25  ajc
+* calendar_tools.c: i18n
+
 Revision 621.13  2005/08/18 14:36:54  ajc
 * calendar.c: finished preparing strings for i18n
 * sysmsgs.c: Save/Cancel buttons now have different element names, so we
@@ -2841,4 +2844,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
