@@ -92,7 +92,7 @@
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		621		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	655		/* min required Citadel vers */
+#define MINIMUM_CIT_VERSION	654		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -416,7 +416,7 @@ void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner);
-void gotoroom(char *gname);
+int gotoroom(char *gname);
 void confirm_delete_room(void);
 void delete_room(void);
 void validate(void);
@@ -553,6 +553,7 @@ void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
+void display_rss(const char *roomname);
 
 void embed_room_banner(char *, int);
 /* navbar types that can be passed to embed_room_banner */
