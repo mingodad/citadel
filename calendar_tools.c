@@ -7,14 +7,30 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/* FIXME ... this needs to be internationalized */
 char *months[] = {
-	"January", "February", "March", "April", "May", "June", "July",
-	"August", "September", "October", "November", "December"
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"
 };
 
 char *days[] = {
-	"Sunday", "Monday", "Tuesday", "Wednesday",
-	"Thursday", "Friday", "Saturday"
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday"
 };
 
 char *hourname[] = {
@@ -71,7 +87,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 		localtime_r(&tt, &tm);
 	}
 
-	wprintf("Month: ");
+	wprintf(_("Month: "));
 	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=11; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
@@ -82,7 +98,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	}
 	wprintf("</SELECT>\n");
 
-	wprintf("Day: ");
+	wprintf(_("Day: "));
 	wprintf("<SELECT NAME=\"%s_day\" SIZE=\"1\">\n", prefix);
 	for (i=1; i<=31; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
@@ -92,7 +108,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	}
 	wprintf("</SELECT>\n");
 
-	wprintf("Year: ");
+	wprintf(_("Year: "));
 	wprintf("<SELECT NAME=\"%s_year\" SIZE=\"1\">\n", prefix);
 	if ((this_year - t->year) > span) {
 		wprintf("<OPTION SELECTED VALUE=\"%d\">%d</OPTION>\n",
@@ -110,7 +126,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	}
 	wprintf("</SELECT>\n");
 
-	wprintf("Hour: ");
+	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 
@@ -130,7 +146,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	}
 	wprintf("</SELECT>\n");
 
-	wprintf("Minute: ");
+	wprintf(_("Minute: "));
 	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
 		if ( (i % 5 == 0) || (tm.tm_min == i) ) {
@@ -185,7 +201,7 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 	icalparameter *partstat_param;
 	icalparameter_partstat partstat;
 
-	strcpy(buf, "(status unknown)");
+	strcpy(buf, _("(status unknown)"));
 
 	partstat_param = icalproperty_get_first_parameter(
 				attendee,
@@ -201,28 +217,28 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 			strcpy(buf, "(x)");
 			break;
 		case ICAL_PARTSTAT_NEEDSACTION:
-			strcpy(buf, "(needs action)");
+			strcpy(buf, _("(needs action)"));
 			break;
 		case ICAL_PARTSTAT_ACCEPTED:
-			strcpy(buf, "(accepted)");
+			strcpy(buf, _("(accepted)"));
 			break;
 		case ICAL_PARTSTAT_DECLINED:
-			strcpy(buf, "(declined)");
+			strcpy(buf, _("(declined)"));
 			break;
 		case ICAL_PARTSTAT_TENTATIVE:
-			strcpy(buf, "(tenative)");
+			strcpy(buf, _("(tenative)"));
 			break;
 		case ICAL_PARTSTAT_DELEGATED:
-			strcpy(buf, "(delegated)");
+			strcpy(buf, _("(delegated)"));
 			break;
 		case ICAL_PARTSTAT_COMPLETED:
-			strcpy(buf, "(completed)");
+			strcpy(buf, _("(completed)"));
 			break;
 		case ICAL_PARTSTAT_INPROCESS:
-			strcpy(buf, "(in process)");
+			strcpy(buf, _("(in process)"));
 			break;
 		case ICAL_PARTSTAT_NONE:
-			strcpy(buf, "(none)");
+			strcpy(buf, _("(none)"));
 			break;
 	}
 }
