@@ -757,6 +757,19 @@ void display_success(char *successmessage)
 }
 
 
+/* Authorization required page */
+/* This is probably temporary and should be revisited */
+void authorization_required(const char *message)
+{
+	wprintf("HTTP/1.0 401 Authorization Required\r\n");
+	wprintf("WWW-Authenticate: Basic realm=\"\"\r\n", serv_info.serv_humannode);
+	wprintf("Content-Type: text/html\r\n\r\n");
+	wprintf("<h1>Authorization Required</h1>\r\n");
+	wprintf("The resource you requested requires a valid username and password.");
+	wprintf("I could not log you in: %s\n", message);
+	wDumpContent(0);
+}
+
 
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
@@ -1031,8 +1044,18 @@ void session_loop(struct httprequest *req)
 						c_httpauth_pass, buf);
 				safestrncpy(WC->httpauth_user, c_httpauth_user, sizeof WC->httpauth_user);
 				safestrncpy(WC->httpauth_pass, c_httpauth_pass, sizeof WC->httpauth_pass);
+			} else {
+				/* Should only display when password is wrong */
+				authorization_required(&buf[4]);
+				goto SKIP_ALL_THIS_CRAP;
 			}
 		}
+	}
+
+	/* This needs to run early */
+	if (!strcasecmp(action, "rss")) {
+		display_rss(bstr("room"));
+		goto SKIP_ALL_THIS_CRAP;
 	}
 
 	/* 
