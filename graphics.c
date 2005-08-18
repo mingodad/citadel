@@ -22,7 +22,9 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Image upload</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Image upload"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -39,18 +41,20 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	urlescputs(bstr("which_room"));
 	wprintf("\">\n");
 
-	wprintf("You can upload any image directly from your computer,\n");
-	wprintf("as long as it is in GIF format (JPEG, PNG, etc. won't\n");
-	wprintf("work).<br /><br />\n");
+	wprintf(_("You can upload any image directly from your computer, "
+		"as long as it is in GIF format (JPEG, PNG, etc. won't "
+		"work)."));
+	wprintf("<br /><br />\n");
 
-	wprintf("Please select a file to upload:<br /><br />\n");
+	wprintf(_("Please select a file to upload:"));
+	wprintf("<br /><br />\n");
 	wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
 	wprintf("<br /><br />");
-	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Upload\">\n");
+	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"upload_button\" VALUE=\"%s\">\n", _("Upload"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");
+	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"%s\">\n", _("Reset form"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Cancel\">\n");
+	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
 	wprintf("</FORM>\n");
 	wprintf("</CENTER>\n");
 	wprintf("</td></tr></table></div>\n");
@@ -64,16 +68,16 @@ void do_graphics_upload(char *upl_cmd)
 	int pos = 0;
 	int thisblock;
 
-	if (!strcasecmp(bstr("sc"), "Cancel")) {
+	if (strlen(bstr("cancel_button")) > 0) {
 		strcpy(WC->ImportantMessage,
-			"Graphics upload cancelled.");
+			_("Graphics upload has been cancelled."));
 		display_main_menu();
 		return;
 	}
 
 	if (WC->upload_length == 0) {
 		strcpy(WC->ImportantMessage,
-			"You didn't upload a file.");
+			_("You didn't upload a file."));
 		display_main_menu();
 		return;
 	}

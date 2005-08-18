@@ -48,10 +48,11 @@ void output_html(char *charset) {
 		buffer_length = content_length + line_length + 2;
 		msg = realloc(msg, buffer_length);
 		if (msg == NULL) {
-			wprintf("<B>realloc() error!  "
-				"couldn't get %d bytes: %s</B><br /><br />\n",
+			wprintf("<B>");
+			wprintf(_("realloc() error! couldn't get %d bytes: %s"),
 				buffer_length + 1,
 				strerror(errno));
+			wprintf("</B><br /><br />\n");
 			return;
 		}
 		strcpy(&msg[content_length], buf);
