@@ -46,9 +46,9 @@ void display_edit(char *description, char *check_cmd,
 	if (buf[0] == '1')
 		server_to_text();
 	wprintf("</TEXTAREA><br /><br />\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"Save\">");
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"Cancel\"><br />\n");
 
 	wprintf("</FORM></CENTER>\n");
 	do_template("endbox");
@@ -63,7 +63,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 {
 	char buf[SIZ];
 
-	if (strcmp(bstr("sc"), "Save")) {
+	if (strlen(bstr("save_button")) == 0) {
 		sprintf(WC->ImportantMessage,
 			"Cancelled.  %s was not saved.\n", description);
 		display_main_menu();
