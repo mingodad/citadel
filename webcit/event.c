@@ -68,7 +68,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Add or edit an event</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Add or edit an event"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -132,7 +134,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	/* Put it in a borderless table so it lines up nicely */
 	wprintf("<TABLE border=0 width=100%%>\n");
 
-	wprintf("<TR><TD><B>Summary</B></TD><TD>\n"
+	wprintf("<TR><TD><B>");
+	wprintf(_("Summary"));
+	wprintf("</B></TD><TD>\n"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_SUMMARY_PROPERTY);
@@ -141,7 +145,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	wprintf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD><B>Location</B></TD><TD>\n"
+	wprintf("<TR><TD><B>");
+	wprintf(_("Location"));
+	wprintf("</B></TD><TD>\n"
 		"<INPUT TYPE=\"text\" NAME=\"location\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_LOCATION_PROPERTY);
@@ -150,7 +156,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	wprintf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD><B>Start</B></TD><TD>\n");
+	wprintf("<TR><TD><B>");
+	wprintf(_("Start"));
+	wprintf("</B></TD><TD>\n");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t_start = icalproperty_get_dtstart(p);
@@ -190,8 +198,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"alldayevent\" "
 		"VALUE=\"yes\" onClick=\"grey_all_day();\""
-		" %s >All day event",
-		(t_start.is_date ? "CHECKED" : "" )
+		" %s >%s",
+		(t_start.is_date ? "CHECKED" : "" ),
+		_("All day event")
 	);
 
 	wprintf("</TD></TR>\n");
@@ -200,7 +209,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	 * the start time (the hour/minute/second will be set to midnight).
 	 * Otherwise extract or create it.
 	 */
-	wprintf("<TR><TD><B>End</B></TD><TD>\n");
+	wprintf("<TR><TD><B>");
+	wprintf(_("End"));
+	wprintf("</B></TD><TD>\n");
 	if (t_start.is_date) {
 		t_end = t_start;
 	}
@@ -225,7 +236,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	display_icaltimetype_as_webform(&t_end, "dtend");
 	wprintf("</TD></TR>\n");
 
-	wprintf("<TR><TD><B>Notes</B></TD><TD>\n"
+	wprintf("<TR><TD><B>");
+	wprintf(_("Notes"));
+	wprintf("</B></TD><TD>\n"
 		"<TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=5 COLS=80 WIDTH=80>\n"
 	);
@@ -266,11 +279,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		}
 	}
 
-	wprintf("<TR><TD><B>Organizer</B></TD><TD>");
+	wprintf("<TR><TD><B>");
+	wprintf(_("Organizer"));
+	wprintf("</B></TD><TD>");
 	escputs(organizer_string);
 	if (organizer_is_me) {
-		wprintf(" <FONT SIZE=-1><I>"
-			"(you are the organizer)</I></FONT>\n");
+		wprintf(" <FONT SIZE=-1><I>");
+		wprintf(_("(you are the organizer)"));
+		wprintf("</I></FONT>\n");
 	}
 
 	/*
@@ -286,7 +302,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("</TD></TR>\n");
 
 	/* Transparency */
-	wprintf("<TR><TD><B>Show time as:</B></TD><TD>");
+	wprintf("<TR><TD><B>");
+	wprintf(_("Show time as:"));
+	wprintf("</B></TD><TD>");
 
 	p = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY);
 	if (p == NULL) {
@@ -306,19 +324,25 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
 	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_TRANSPARENT)
 		wprintf(" CHECKED");
-	wprintf(">Free&nbsp;&nbsp;");
+	wprintf(">");
+	wprintf(_("Free"));
+	wprintf("&nbsp;&nbsp;");
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
 	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_OPAQUE)
 		wprintf(" CHECKED");
-	wprintf(">Busy");
+	wprintf(">");
+	wprintf(_("Busy"));
 
 	wprintf("</TD></TR>\n");
 
 	/* Attendees */
-	wprintf("<TR><TD><B>Attendees</B><br />"
-		"<FONT SIZE=-2>(One per line)"
-		"</FONT></TD><TD>"
+	wprintf("<TR><TD><B>");
+	wprintf(_("Attendees"));
+	wprintf("</B><br />"
+		"<FONT SIZE=-2>");
+	wprintf(_("(One per line)"));
+	wprintf("</FONT></TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
 		"ROWS=3 COLS=80 WIDTH=80>\n",
 		(organizer_is_me ? "" : "DISABLED ")
@@ -346,15 +370,19 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	/* Done with properties. */
 	wprintf("</TABLE>\n<CENTER>"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Check attendee availability\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"check_button\" "
+				"VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
-		"</CENTER>\n"
+		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
+		"</CENTER>\n",
+		_("Save"),
+		_("Delete"),
+		_("Check attendee availability"),
+		_("Cancel")
 	);
 
 	wprintf("</FORM>\n");
@@ -414,8 +442,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		created_new_vevent = 1;
 	}
 
-	if ( (!strcasecmp(bstr("sc"), "Save"))
-	   || (!strcasecmp(bstr("sc"), "Check attendee availability")) ) {
+	if ( (strlen(bstr("save_button")) > 0)
+	   || (strlen(bstr("check_button")) > 0) ) {
 
 		/* Replace values in the component with ones from the form */
 
@@ -630,7 +658,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 
 		/* If the user clicked 'Save' then save it to the server. */
 		lprintf(9, "Serializing it for saving\n");
-		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Save")) ) {
+		if ( (encaps != NULL) && (strlen(bstr("save_button")) > 0) ) {
 			serv_puts("ENT0 1|||4|||1|");
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '8') {
@@ -646,7 +674,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		}
 
 		/* Or, check attendee availability if the user asked for that. */
-		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Check attendee availability")) ) {
+		if ( (encaps != NULL) && (strlen(bstr("check_button")) > 0) ) {
 
 			/* Call this function, which does the real work */
 			check_attendee_availability(encaps);
@@ -663,7 +691,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 	 * If the user clicked 'Delete' then delete it.
 	 */
 	lprintf(9, "Checking to see if we have to delete an old event\n");
-	if ( (!strcasecmp(bstr("sc"), "Delete")) && (msgnum > 0L) ) {
+	if ( (strlen(bstr("delete_button")) > 0) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_getln(buf, sizeof buf);
 	}
@@ -673,7 +701,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 	}
 
 	/* If this was a save or deelete, go back to the calendar view. */
-	if (strcasecmp(bstr("sc"), "Check attendee availability")) {
+	if (strlen(bstr("check_button")) == 0) {
 		readloop("readfwd");
 	}
 }

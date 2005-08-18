@@ -10,11 +10,15 @@
 #ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
 void do_calendar_view(void) {	/* stub for non-libical builds */
-	wprintf("<CENTER><I>Calendar view not available</I></CENTER><br />\n");
+	wprintf("<CENTER><I>");
+	wprintf(_("The calendar view is not available."));
+	wprintf("</I></CENTER><br />\n");
 }
 
 void do_tasks_view(void) {	/* stub for non-libical builds */
-	wprintf("<CENTER><I>Tasks view not available</I></CENTER><br />\n");
+	wprintf("<CENTER><I>");
+	wprintf(_("The tasks view is not available."));
+	wprintf("</I></CENTER><br />\n");
 }
 
 #else	/* WEBCIT_WITH_CALENDAR_SERVICE */
@@ -606,8 +610,11 @@ void do_tasks_view(void) {
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">\n<tr>\n"
-		"<TH>Name of task</TH>\n"
-		"<TH>Date due</TH></TR>\n"
+		"<TH>");
+	wprintf(_("Name of task"));
+	wprintf("</TH><TH>");
+	wprintf(_("Date due"));
+	wprintf("</TH></TR>\n"
 	);
 
 	/* Sort them if necessary */

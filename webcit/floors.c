@@ -27,7 +27,9 @@ void display_floorconfig(char *prepend_html)
         output_headers(1, 1, 2, 0, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">Add/change/delete floors</SPAN>"
+                "<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Add/change/delete floors"));
+	wprintf("</SPAN>"
                 "</TD></TR></TABLE>\n"
                 "</div>\n<div id=\"content\">\n"
         );
@@ -42,7 +44,9 @@ void display_floorconfig(char *prepend_html)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-        	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
+        	wprintf("<SPAN CLASS=\"titlebar\">");
+		wprintf(_("Error"));
+		wprintf("</SPAN>\n");
         	wprintf("</TD></TR></TABLE>\n");
         	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
@@ -51,10 +55,13 @@ void display_floorconfig(char *prepend_html)
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE BORDER=1 WIDTH=100%% bgcolor=\"#ffffff\">\n"
-		"<TR><TH>Floor number</TH>"
-		"<TH>Floor name</TH>"
-		"<TH>Number of rooms</TH></TR>\n"
-	);
+		"<TR><TH>");
+	wprintf(_("Floor number"));
+	wprintf("</TH><TH>");
+	wprintf(_("Floor name"));
+	wprintf("</TH><TH>");
+	wprintf(_("Number of rooms"));
+	wprintf("</TH></TR>\n");
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		floornum = extract_int(buf, 0);
@@ -65,15 +72,15 @@ void display_floorconfig(char *prepend_html)
 		if (refcount == 0) {
 			wprintf("</TD><TD>"
 				"<A HREF=\"/delete_floor?floornum=%d\">"
-				"<FONT SIZE=-1>(delete floor)</A>"
-				"</FONT><br />", floornum
-			);
+				"<FONT SIZE=-1>", floornum);
+			wprintf(_("(delete floor)"));
+			wprintf("</A></FONT><br />");
 		}
 		wprintf("<FONT SIZE=-1>"
 			"<A HREF=\"/display_editfloorpic&"
-			"which_floor=%d\">(edit graphic)</A>",
-			floornum);
-		wprintf("</TD></TR></TABLE>");
+			"which_floor=%d\">", floornum);
+		wprintf(_("(edit graphic)"));
+		wprintf("</A></TD></TR></TABLE>");
 		wprintf("</TD>");
 
 		wprintf("<TD>"
@@ -84,8 +91,8 @@ void display_floorconfig(char *prepend_html)
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
 		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
-			"VALUE=\"Change name\">"
-			"</FORM></TD>");
+			"VALUE=\"%s\">"
+			"</FORM></TD>", _("Change name"));
 
 		wprintf("<TD>%d</TD></TR>\n", refcount);
 	}
@@ -95,9 +102,9 @@ void display_floorconfig(char *prepend_html)
 		"<INPUT TYPE=\"text\" NAME=\"floorname\" "
 		"MAXLENGTH=\"250\">\n"
 		"<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
-		"VALUE=\"Create new floor\">"
+		"VALUE=\"%s\">"
 		"</FORM></TD>"
-		"<TD>&nbsp;</TD></TR>\n");
+		"<TD>&nbsp;</TD></TR>\n", _("Create new floor"));
 
 	wprintf("</table></div>\n");
 	wDumpContent(1);
@@ -116,7 +123,7 @@ void delete_floor(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		sprintf(message, "Floor has been deleted.");
+		sprintf(message, _("Floor has been deleted."));
 	}
 	else {
 		sprintf(message, "%s", &buf[4]);
@@ -137,7 +144,7 @@ void create_floor(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		sprintf(message, "New floor has been created.");
+		sprintf(message, _("New floor has been created."));
 	} else {
 		sprintf(message, "%s", &buf[4]);
 	}
