@@ -1,4 +1,12 @@
 $Log$
+Revision 621.13  2005/08/18 14:36:54  ajc
+* calendar.c: finished preparing strings for i18n
+* sysmsgs.c: Save/Cancel buttons now have different element names, so we
+  can do a "which element has a nonzero length" check instead of a "what
+  is the value of this element" check.  This is vital because the value
+  equals the label, and the label will change if the language changes.
+  This must be done throughout the system.
+
 Revision 621.12  2005/08/17 22:18:00  ajc
 * calendar.c: altered conflict reporting strings for better i18n
 
@@ -2833,3 +2841,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

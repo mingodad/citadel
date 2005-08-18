@@ -249,15 +249,15 @@ void cal_process_object(icalcomponent *cal,
 		/* Display the Accept/Decline buttons */
 		wprintf("<TR><TD>How would you like to respond to this invitation?</td>"
 			"<td><FONT SIZE=+1>"
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">Accept</a>"
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
 			" | "
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">Tentative</a>"
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">%s</a>"
 			" | "
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">Decline</a>"
+			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">%s</a>"
 			"</FONT></TD></TR>\n",
-			msgnum, cal_partnum,
-			msgnum, cal_partnum,
-			msgnum, cal_partnum
+			msgnum, cal_partnum, _("Accept"),
+			msgnum, cal_partnum, _("Tentative"),
+			msgnum, cal_partnum, _("Decline")
 		);
 
 	}
@@ -275,16 +275,16 @@ void cal_process_object(icalcomponent *cal,
 
 		/* Display the update buttons */
 		wprintf("<TR><TD>"
-			"Click <i>Update</i> to accept this reply and "
-			"update your calendar."
+			"%s"
 			"</td><td><font size=+1>"
-			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Update\">Update</a>"
+			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Update\">%s</a>"
 			" | "
-			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Ignore\">Ignore</a>"
+			"<a href=\"/handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Ignore\">%s</a>"
 			"</font>"
 			"</TD></TR>\n",
-			msgnum, cal_partnum,
-			msgnum, cal_partnum
+			_("Click <i>Update</i> to accept this reply and update your calendar."),
+			msgnum, cal_partnum, _("Update"),
+			msgnum, cal_partnum, _("Ignore")
 		);
 
 	}
@@ -307,7 +307,8 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	cal = icalcomponent_new_from_string(part_source);
 
 	if (cal == NULL) {
-		wprintf("Error parsing calendar object<br />\n");
+		wprintf(_("There was an error parsing this calendar item."));
+		wprintf("<br />\n");
 		return;
 	}
 
@@ -331,7 +332,9 @@ void respond_to_request(void) {
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Respond to meeting request</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Respond to meeting request"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 	);
 	wprintf("</div>\n<div id=\"content\">\n");
@@ -349,21 +352,21 @@ void respond_to_request(void) {
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "accept")) {
-			wprintf("You have accepted this meeting invitation.  "
-				"It has been entered into your calendar, "
+			wprintf(_("You have accepted this meeting invitation.  "
+				"It has been entered into your calendar.")
 			);
 		} else if (!strcasecmp(bstr("sc"), "tentative")) {
-			wprintf("You have tentatively accepted this meeting invitation.  "
-				"It has been 'pencilled in' to your calendar, "
+			wprintf(_("You have tentatively accepted this meeting invitation.  "
+				"It has been 'pencilled in' to your calendar.")
 			);
 		} else if (!strcasecmp(bstr("sc"), "decline")) {
-			wprintf("You have declined this meeting invitation.  "
-				"It has <b>not</b> been entered into your calendar, "
+			wprintf(_("You have declined this meeting invitation.  "
+				"It has <b>not</b> been entered into your calendar.")
 			);
 		}
-		wprintf("and a reply has been sent to the meeting organizer."
-			"</TD></TR></TABLE>\n"
-		);
+		wprintf(" ");
+		wprintf(_("A reply has been sent to the meeting organizer."));
+		wprintf("</TD></TR></TABLE>\n");
 	} else {
 		wprintf("<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 			"%s\n", &buf[4]);
@@ -371,7 +374,9 @@ void respond_to_request(void) {
 
 	wprintf("<A HREF=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
-	wprintf("\"><br />Return to messages</A><br />\n");
+	wprintf("\"><br />");
+	wprintf(_("Return to messages"));
+	wprintf("</A><br />\n");
 
 	wDumpContent(1);
 }
@@ -388,8 +393,9 @@ void handle_rsvp(void) {
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">"
-		"Update your calendar with this RSVP</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Update your calendar with this RSVP"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -407,12 +413,10 @@ void handle_rsvp(void) {
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "update")) {
-			wprintf("Your calendar has been updated "
-				"to reflect this RSVP."
-			);
+			wprintf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
-			wprintf("You have chosen to ignore this RSVP. "
-				"Your calendar has <b>not</b> been updated."
+			wprintf(_("You have chosen to ignore this RSVP. "
+				"Your calendar has <b>not</b> been updated.")
 			);
 		}
 		wprintf("</TD></TR></TABLE>\n"
@@ -424,7 +428,9 @@ void handle_rsvp(void) {
 
 	wprintf("<A HREF=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
-	wprintf("\"><br />Return to messages</A><br />\n");
+	wprintf("\"><br />");
+	wprintf(_("Return to messages"));
+	wprintf("</A><br />\n");
 
 	wDumpContent(1);
 }
@@ -500,7 +506,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
 		"<TD><IMG SRC=\"/static/taskmanag_48x.gif\"></TD>"
-		"<td><SPAN CLASS=\"titlebar\">Edit task</SPAN>"
+		"<td><SPAN CLASS=\"titlebar\">");
+	wprintf(_("Edit task"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -514,7 +522,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	wprintf("<TABLE border=0>\n");
 
-	wprintf("<TR><TD>Summary:</TD><TD>"
+	wprintf("<TR><TD>");
+	wprintf(_("Summary:"));
+	wprintf("</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
@@ -523,7 +533,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	}
 	wprintf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD>Start date:</TD><TD>");
+	wprintf("<TR><TD>");
+	wprintf(_("Start date:"));
+	wprintf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_dtstart(p);
@@ -534,7 +546,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	display_icaltimetype_as_webform(&t, "dtstart");
 	wprintf("</TD></TR>\n");
 
-	wprintf("<TR><TD>Due date:</TD><TD>");
+	wprintf("<TR><TD>");
+	wprintf(_("Due date:"));
+	wprintf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_due(p);
@@ -544,7 +558,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	}
 	display_icaltimetype_as_webform(&t, "due");
 	wprintf("</TD></TR>\n");
-	wprintf("<TR><TD>Description:</TD><TD>");
+	wprintf("<TR><TD>");
+	wprintf(_("Description:"));
+	wprintf("</TD><TD>");
 	wprintf("<TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n"
 	);
@@ -555,12 +571,15 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
-		"</CENTER>\n"
+		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
+		"</CENTER>\n",
+		_("Save"),
+		_("Delete"),
+		_("Cancel")
 	);
 
 	wprintf("</FORM>\n");
@@ -610,7 +629,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		created_new_vtodo = 1;
 	}
 
-	if (!strcasecmp(bstr("sc"), "Save")) {
+	if (strlen(bstr("save_button")) > 0) {
 
 		/* Replace values in the component with ones from the form */
 
@@ -707,7 +726,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	/*
 	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
-	if (!strcasecmp(bstr("sc"), "Delete")) {
+	if (strlen(bstr("delete_button")) > 0) {
 		delete_existing = 1;
 	}
 
