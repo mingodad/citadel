@@ -567,10 +567,11 @@ void embed_room_banner(char *got, int navbar_style) {
  * back end routine to take the session to a new room
  *
  */
-void gotoroom(char *gname)
+int gotoroom(char *gname)
 {
 	char buf[SIZ];
 	static long ls = (-1L);
+	int err = 0;
 
 	/* store ungoto information */
 	strcpy(WC->ugname, WC->wc_roomname);
@@ -580,11 +581,15 @@ void gotoroom(char *gname)
 	serv_printf("GOTO %s", gname);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
+		buf[3] = 0;
+		err = atoi(buf);
 		serv_puts("GOTO _BASEROOM_");
 		serv_getln(buf, sizeof buf);
 	}
 	if (buf[0] != '2') {
-		return;
+		buf[3] = 0;
+		err = atoi(buf);
+		return err;
 	}
 	extract_token(WC->wc_roomname, &buf[4], 0, '|', sizeof WC->wc_roomname);
 	WC->room_flags = extract_int(&buf[4], 4);
@@ -604,6 +609,8 @@ void gotoroom(char *gname)
 	remove_march(WC->wc_roomname);
 	if (!strcasecmp(gname, "_BASEROOM_"))
 		remove_march(gname);
+
+	return err;
 }
 
 
