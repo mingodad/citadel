@@ -324,8 +324,10 @@ extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
 extern int is_https;
+extern char request_method[];
 extern int setup_wizard;
 extern char wizard_filename[];
+extern time_t if_modified_since;
 void do_setup_wizard(void);
 
 void stuff_to_cookie(char *cookie, int session,
@@ -405,6 +407,7 @@ void zapped_list(void);
 void display_zap(void);
 void zap(void);
 void display_success(char *);
+void authorization_required(const char *message);
 void display_entroom(void);
 void entroom(void);
 void display_editroom(void);
@@ -451,6 +454,7 @@ void session_loop(struct httprequest *);
 void fmt_date(char *buf, time_t thetime, int brief);
 void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
+time_t httpdate_to_timestamp(const char *buf);
 void end_webcit_session(void);
 void page_popup(void);
 void chat_recv(void);

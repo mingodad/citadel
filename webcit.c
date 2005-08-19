@@ -12,6 +12,8 @@
 #include "webserver.h"
 #include "mime_parser.h"
 
+char request_method[128];
+
 /*
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
@@ -818,7 +820,6 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 void session_loop(struct httprequest *req)
 {
 	char cmd[1024];
-	char method[128];
 	char action[128];
 	char arg1[128];
 	char arg2[128];
@@ -864,7 +865,7 @@ void session_loop(struct httprequest *req)
 
 	safestrncpy(cmd, hptr->line, sizeof cmd);
 	hptr = hptr->next;
-	extract_token(method, cmd, 0, ' ', sizeof method);
+	extract_token(request_method, cmd, 0, ' ', sizeof request_method);
 
 	/* Figure out the action */
 	extract_token(action, cmd, 1, '/', sizeof action);
@@ -1076,7 +1077,7 @@ void session_loop(struct httprequest *req)
 	 * Automatically send requests with any method other than GET or
 	 * POST to the GroupDAV code as well.
 	 */
-	if ((strcasecmp(method, "GET")) && (strcasecmp(method, "POST"))) {
+	if ((strcasecmp(request_method, "GET")) && (strcasecmp(request_method, "POST"))) {
 		groupdav_main(req, ContentType, /* do GroupDAV methods */
 			ContentLength, content+body_start);
 		if (!WC->logged_in) {

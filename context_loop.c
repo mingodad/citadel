@@ -285,6 +285,10 @@ void context_loop(int sock)
 			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
 		}
 
+		if (!strncasecmp(buf, "If-Modified-Since: ", 19)) {
+			if_modified_since = httpdate_to_timestamp(&buf[19]);
+		}
+
 		/*
 		 * Read in the request
 		 */
