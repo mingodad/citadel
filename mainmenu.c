@@ -18,7 +18,7 @@ void display_main_menu(void)
 		"<TABLE WIDTH=100%%>"
 		"<TR><TD COLSPAN=2>\n");
 
-	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
+	svprintf("BOXTITLE", WCS_STRING, _("Basic commands"));
 	do_template("beginbox");
 
 	wprintf("\n"
@@ -26,85 +26,90 @@ void display_main_menu(void)
 		"<TR>"
 		"<TD>");	/* start of first column */
 
-	wprintf("<A HREF=\"/knrooms\">"
-		"<span class=\"mainmenu\">"
-		"List known rooms</span></A><br />"
-		"<span class=\"menudesc\">"
-		"Where can I go from here?</span><br />\n"
-	);
+	wprintf("<A HREF=\"/knrooms\"><span class=\"mainmenu\">");
+	wprintf(_("List known rooms"));
+	wprintf("</span></A><br /><span class=\"menudesc\">");
+	wprintf(_("Where can I go from here?"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/gotonext\">"
-		"<span class=\"mainmenu\">"
-		"Goto next room</span></A><br />"
-		"<span class=\"menudesc\">"
-		"...with <EM>unread</EM> messages"
-		"</span><br />\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Goto next room"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("...with <EM>unread</EM> messages"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/skip\">"
-		"<span class=\"mainmenu\">"
-		"Skip to next room</span></a><br />"
-		"<span class=\"menudesc\">"
-		"(come back here later)"
-		"</span>\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Skip to next room"));
+	wprintf("</span></a><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("(come back here later)"));
+	wprintf("</span>\n");
 
 	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<br />"
 			"<A HREF=\"/ungoto\">"
-			"<span class=\"mainmenu\">"
-			"Ungoto</span></A><br />"
-			"<span class=\"menudesc\">"
-			"(oops! Back to %s)"
-			"</span>\n", WC->ugname
-		);
+			"<span class=\"mainmenu\">");
+		wprintf(_("Ungoto"));
+		wprintf("</span></A><br />"
+			"<span class=\"menudesc\">");
+		wprintf(_("(oops! Back to %s)"));
+		wprintf("</span>\n", WC->ugname);
 	}
 
 	wprintf("</TD><TD>\n");	/* start of second column */
 
 	wprintf("<A HREF=\"/readnew\">"
-		"<span class=\"mainmenu\">"
-		"Read new messages</span></A><br />"
-		"<span class=\"menudesc\">"
-		"...in this room</span><br />\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Read new messages"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("...in this room"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/readfwd\">"
-		"<span class=\"mainmenu\">"
-		"Read all messages</span></A><br />"
-		"<span class=\"menudesc\">"
-		"...old <EM>and</EM> new</span><br />\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Read all messages"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("...old <EM>and</EM> new"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/display_enter\">"
-		"<span class=\"mainmenu\">"
-		"Enter a message</span></A><br />"
-		"<span class=\"menudesc\">"
-		"(post in this room)</span>\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Enter a message"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("(post in this room)"));
+	wprintf("</span>\n");
 
 	wprintf("</TD><TD>");	/* start of third column */
 
 	wprintf("<A HREF=\"/summary\">"
-		"<span class=\"mainmenu\">"
-		"Summary page</span></A><br />"
-		"<span class=\"menudesc\">"
-		"Summary of my account</span><br />\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Summary page"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("Summary of my account"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/userlist\">\n"
-		"<span class=\"mainmenu\">"
-		"User list</span></A><br />"
-		"<span class=\"menudesc\">"
-		"(all registered users)</span><br />\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("User list"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("(all registered users)"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/termquit\" TARGET=\"_top\">"
-		"<span class=\"mainmenu\">"
-		"Log off</span></A><br />"
-		"<span class=\"menudesc\">"
-		"Bye!</span>\n"
-	);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Log off"));
+	wprintf("</span></A><br />"
+		"<span class=\"menudesc\">");
+	wprintf(_("Bye!"));
+	wprintf("</span>\n");
 
 	wprintf("</TD></TR></TABLE>\n");
 	do_template("endbox");
@@ -116,56 +121,63 @@ void display_main_menu(void)
 	do_template("beginbox");
 
 	wprintf("<A HREF=\"/display_preferences\">"
-		"<span class=\"mainmenu\">"
-		"Change your preferences and settings"
-		"</span><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Change your preferences and settings"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/display_reg\">"
-		"<span class=\"mainmenu\">"
-		"Update your contact information"
-		"</span><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Update your contact information"));
+	wprintf("</span><br />\n");
 
 	wprintf("<A HREF=\"/display_changepw\">"
-		"<span class=\"mainmenu\">"
-		"Change your password</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Change your password"));
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_editbio\">"
-		"<span class=\"mainmenu\">"
-		"Enter your 'bio'</span></a><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Enter your 'bio'"));
+	wprintf("</span></a><br />\n");
 
 	wprintf("<A HREF=\"/display_editpic\">"
-		"<span class=\"mainmenu\">"
-		"Edit your online photo</span></a>\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Edit your online photo"));
+	wprintf("</span></a>\n");
 
 	do_template("endbox");
 
 	wprintf("</TD><TD>");
 
-	svprintf("BOXTITLE", WCS_STRING, "Advanced room commands");
+	svprintf("BOXTITLE", WCS_STRING, _("Advanced room commands"));
 	do_template("beginbox");
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<A HREF=\"/display_editroom\">"
-			"<span class=\"mainmenu\">"
-			"Edit or delete this room</span></A><br />\n");
+			"<span class=\"mainmenu\">");
+		wprintf(_("Edit or delete this room"));
+		wprintf("</span></A><br />\n");
 	}
 
 	wprintf("<A HREF=\"/display_private\">"
-		"<span class=\"mainmenu\">"
-		"Go to a &quot;hidden&quot; room</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Go to a 'hidden' room"));
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_entroom\">"
-		"<span class=\"mainmenu\">"
-		"Create a new room</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Create a new room"));
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_zap\">"
-		"<span class=\"mainmenu\">"
-		"Zap (forget) this room (%s)</span></A><br />\n",
-		WC->wc_roomname);
+		"<span class=\"mainmenu\">");
+	wprintf(_("Zap (forget) this room (%s)"), WC->wc_roomname);
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/zapped_list\">"
-		"<span class=\"mainmenu\">"
-		"List all forgotten rooms</span></A>\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("List all forgotten rooms"));
+	wprintf("</span></A>\n");
 
 	do_template("endbox");
 
@@ -182,7 +194,9 @@ void display_aide_menu(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">System Administration Menu</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("System Administration Menu"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -190,47 +204,50 @@ void display_aide_menu(void)
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr valign=top><td>");
 
-	svprintf("BOXTITLE", WCS_STRING, "Global Configuration");
+	svprintf("BOXTITLE", WCS_STRING, _("Global Configuration"));
 	do_template("beginbox");
 
 	wprintf("<A HREF=\"/display_siteconfig\">"
-		"<span class=\"mainmenu\">"
-		"Edit site-wide configuration</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Edit site-wide configuration"));
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_inetconf\">"
-		"<span class=\"mainmenu\">"
-		"Domain names and Internet mail configuration</span></a><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Domain names and Internet mail configuration"));
+	wprintf("</span></a><br />\n");
 
 	wprintf("<A HREF=\"/display_netconf\">"
-		"<span class=\"mainmenu\">"
-		"Configure replication with other Citadel servers"
-		"</span></A>\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Configure replication with other Citadel servers"));
+	wprintf("</span></A>\n");
 
 	do_template("endbox");
 
 	wprintf("</td><td>");
 
-	svprintf("BOXTITLE", WCS_STRING, "User account management");
+	svprintf("BOXTITLE", WCS_STRING, _("User account management"));
 	do_template("beginbox");
 
 	wprintf("<A HREF=\"/select_user_to_edit\">"
-		"<span class=\"mainmenu\">"
-		"Add, change, delete user accounts"
-		"</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Add, change, delete user accounts"));
+	wprintf("</span></A><br />\n");
 
 	wprintf("<A HREF=\"/validate\">"
-		"<span class=\"mainmenu\">"
-		"Validate new users</span></A><br />\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Validate new users"));
+	wprintf("</span></A><br />\n");
 
 	do_template("endbox");
 
-	svprintf("BOXTITLE", WCS_STRING, "Rooms and Floors");
+	svprintf("BOXTITLE", WCS_STRING, _("Rooms and Floors"));
 	do_template("beginbox");
 
 	wprintf("<A HREF=\"/display_floorconfig\">"
-		"<span class=\"mainmenu\">"
-		"Add, change, or delete floors"
-		"</span></A>\n");
+		"<span class=\"mainmenu\">");
+	wprintf(_("Add, change, or delete floors"));
+	wprintf("</span></A>\n");
 
 	do_template("endbox");
 
@@ -250,8 +267,9 @@ void display_generic(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Enter a server command</SPAN>"
-		"</TD></TR></TABLE>\n"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Enter a server command"));
+	wprintf("</SPAN></TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
@@ -259,20 +277,22 @@ void display_generic(void)
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>");
-	wprintf("This screen allows you to enter Citadel server commands which are\n");
-	wprintf("not supported by WebCit.  If you do not know what that means,\n");
-	wprintf("then this screen will not be of much use to you.<br />\n");
+	wprintf(_("This screen allows you to enter Citadel server commands which are "
+		"not supported by WebCit.  If you do not know what that means, "
+		"then this screen will not be of much use to you."));
+	wprintf("<br />\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_generic\">\n");
 
-	wprintf("Enter command:<br />\n");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><br />\n");
+	wprintf(_("Enter command:"));
+	wprintf("<br /><INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><br />\n");
 
-	wprintf("Command input (if requesting SEND_LISTING transfer mode):<br />\n");
-	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA><br />\n");
+	wprintf(_("Command input (if requesting SEND_LISTING transfer mode):"));
+	wprintf("<br /><TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA><br />\n");
 
-	wprintf("<FONT SIZE=-2>Detected host header is http://%s</FONT>\n",
-		WC->http_host);
+	wprintf("<FONT SIZE=-2>");
+	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), WC->http_host);
+	wprintf("</FONT>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");

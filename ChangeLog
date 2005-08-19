@@ -1,4 +1,7 @@
 $Log$
+Revision 621.18  2005/08/19 21:46:48  ajc
+* inetconf.c, listsub.c, part of mainmenu.c: i18n
+
 Revision 621.17  2005/08/19 16:56:00  ajc
 * inetconf.c: partial i18n
 
@@ -2853,4 +2856,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
