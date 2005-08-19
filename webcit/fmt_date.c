@@ -145,6 +145,86 @@ void httpdate(char *buf, time_t thetime)
 }
 
 
+/*
+ * Break down the timestamp used in HTTP headers
+ * Should read rfc1123 and rfc850 dates OK
+ * FIXME won't read asctime
+ * Doesn't understand timezone, but we only should be using GMT/UTC anyway
+ */
+time_t httpdate_to_timestamp(const char *buf)
+{
+	time_t t = 0;
+	struct tm tt;
+	char *c;
 
+lprintf(3, "datestamp %s\n", buf);
+	/* Skip day of week, to number */
+	for (c = buf; *c < '0' && *c > '9'; c++)
+		;
 
+	/* Get day of month */
+	tt.tm_mday = 0;
+	for (; *c != ' ' && *c != '-'; c++)
+		tt.tm_mday += 10 * (*c - '0');
+	c++;
 
+	/* Get month */
+	switch (*c) {
+	case 'A':	/* April, August */
+		tt.tm_mon = (c[1] == 'p') ? 3 : 7;
+		break;
+	case 'D':	/* December */
+		tt.tm_mon = 11;
+		break;
+	case 'F':	/* February */
+		tt.tm_mon = 1;
+		break;
+	case 'M':	/* March, May */
+		tt.tm_mon = (c[2] == 'r') ? 2 : 4;
+		break;
+	case 'J':	/* January, June, July */
+		tt.tm_mon = (c[2] == 'n') ? ((c[1] == 'a') ? 0 : 5) : 6;
+		break;
+	case 'N':	/* November */
+		tt.tm_mon = 10;
+		break;
+	case 'O':	/* October */
+		tt.tm_mon = 9;
+		break;
+	case 'S':	/* September */
+		tt.tm_mon = 8;
+		break;
+	default:
+		return 0;
+		break;	/* NOTREACHED */
+	}
+	c += 4;
+
+	/* Get year */
+	for (; *c != ' '; c++)
+		tt.tm_year += 10 * (*c - '0');
+	c++;
+	/* Y2K business for rfc850 dates */
+	if (tt.tm_year > 69)
+		tt.tm_year += 1900;
+	else
+		tt.tm_year += 2000;
+
+	/* Get hour */
+	for (; *c != ':'; c++)
+		tt.tm_hour += 10 * (*c - '0');
+	c++;
+
+	/* Get minute */
+	for (; *c != ':'; c++)
+		tt.tm_min += 10 * (*c - '0');
+	c++;
+
+	/* Get second */
+	for (; *c && *c != ' '; c++)
+		tt.tm_sec += 10 * (*c - '0');
+
+	/* Got everything; let's go */
+	t = mktime(&tt);
+	return t;
+}

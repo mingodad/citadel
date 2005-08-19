@@ -7,6 +7,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+
+time_t if_modified_since;
+
+
 void display_rss(const char *roomname)
 {
 	int nummsgs;
@@ -33,13 +37,11 @@ void display_rss(const char *roomname)
 	char content_type[256];
 	char charset[256];
 
-	lprintf(3, "Running RSS reader\n");
 	if (!WC->logged_in) {
-		authorization_required();
+		authorization_required("Not logged in");
 		return;
 	}
 
-	lprintf(3, "Going to a room %s\n", roomname);
 	if (gotoroom(roomname)) {
 		wprintf("HTTP/1.0 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");
@@ -48,7 +50,6 @@ void display_rss(const char *roomname)
 		return;
 	}
 
-	lprintf(3, "Loading up all the messages\n");
 	nummsgs = load_msg_ptrs("MSGS LAST|50", 0);
 	if (nummsgs == 0) {
 		wprintf("HTTP/1.0 404 Not Found\r\n");
@@ -58,12 +59,14 @@ void display_rss(const char *roomname)
 		return;
 	}
 
-	lprintf(3, "Getting date of the last one\n");
 	/* Read time of last message immediately */
 	serv_printf("MSG4 %ld", WC->msgarr[nummsgs - 1]);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcasecmp(buf, "000")) {
+			if (!strncasecmp(buf, "msgn=", 5)) {
+				strcpy(msgn, &buf[5]);
+			}
 			if (!strncasecmp(buf, "time=", 5)) {
 				now = atol(&buf[5]);
 				gmtime_r(&now, &now_tm);
@@ -72,14 +75,37 @@ void display_rss(const char *roomname)
 		}
 	}
 
+	lprintf(3, "If modified since %ld Last modified %ld\n", if_modified_since, now);
+	if (if_modified_since > 0 && if_modified_since > now) {
+		wprintf("HTTP/1.0 304 Not Modified\r\n");
+		wprintf("Last-Modified: %s\r\n", date);
+		now = time(NULL);
+		gmtime_r(&now, &now_tm);
+		strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", &now_tm);
+		wprintf("Date: %s\r\n", date);
+/*		if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
+		wDumpContent(0);
+		return;
+	}
+
 	/* Do RSS header */
-	output_headers(0, 0, 0, 0, 0, 0, 0);
+	wprintf("HTTP/1.0 200 OK\r\n");
+	wprintf("Last-Modified: %s\r\n", date);
+/*	if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
 	wprintf("Content-Type: application/rss+xml\r\n");
+	wprintf("$erver: %s\r\n", SERVER);
+	wprintf("Connection: close\r\n");
 	wprintf("\r\n");
+	if (!strcasecmp(request_method, "HEAD"))
+		return;
+
 	wprintf("<?xml version=\"1.0\"?>\n");
 	wprintf("<rss version=\"2.0\">\n");
 	wprintf("   <channel>\n");
 	wprintf("   <title>%s - %s</title>\n", WC->wc_roomname, serv_info.serv_humannode);
+	wprintf("   <link>%s://%s:%d/dotgoto?room=", (is_https ? "https" : "http"), WC->http_host, PORT_NUM);
+	escputs(roomname);
+	wprintf("</link>\n");
 	wprintf("   <description>");
 	/* Get room info for description */
 	serv_puts("RINF");
@@ -94,7 +120,7 @@ void display_rss(const char *roomname)
 	}
 	wprintf("</description>\n");
 	if (now) {
-		wprintf("   <pubDate>%s</pubDate>\n", buf);
+		wprintf("   <pubDate>%s</pubDate>\n", date);
 	}
 	wprintf("   <generator>%s</generator>\n", SERVER);
 	wprintf("   <docs>http://blogs.law.harvard.edu/tech/rss</docs>\n");
@@ -102,7 +128,6 @@ void display_rss(const char *roomname)
 
 	/* Read all messages and output as RSS items */
 	for (a = 0; a < nummsgs; ++a) {
-		lprintf(3, "Sending message %d of %d\n", a+1, nummsgs);
 		/* Read message and output each as RSS item */
 		serv_printf("MSG4 %ld", WC->msgarr[a]);
 		serv_getln(buf, sizeof buf);
@@ -119,7 +144,6 @@ void display_rss(const char *roomname)
 
 		while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 			if (!strcmp(buf, "000")) {
-				lprintf(3, "ENDITEM 1\n");
 				goto ENDITEM;	/* screw it */
 			} else if (!strncasecmp(buf, "from=", 5)) {
 				strcpy(from, &buf[5]);
@@ -167,7 +191,6 @@ void display_rss(const char *roomname)
 		strcpy(content_type, "text/plain");
 		while (serv_getln(buf, sizeof buf), strlen(buf) > 0) {
 			if (!strcmp(buf, "000")) {
-				lprintf(3, "ENDBODY 1\n");
 				goto ENDBODY;
 			}
 			if (!strncasecmp(buf, "Content-type: ", 14)) {
@@ -275,7 +298,6 @@ void display_rss(const char *roomname)
 ENDBODY:
 		wprintf("   </item>\n");
 ENDITEM:
-		lprintf(3, "Finished message %d of %d\n", a+1, nummsgs);
 		now = 0L;
 	}
 
