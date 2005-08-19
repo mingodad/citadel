@@ -28,33 +28,30 @@ void display_inetconf(void)
 	};
 	char *ic_spec[ic_max];
 	char *ic_misc;
+	char *ic_keyword[ic_max];
+	char *ic_boxtitle[ic_max];
+	char *ic_desc[ic_max];
 
-	char *ic_keyword[] = {
-		"localhost",
-		"directory",
-		"gatewaydomain",
-		"smarthost",
-		"rbl",
-		"spamassassin",
-	};
+	ic_keyword[0] = _("localhost");
+	ic_keyword[1] = _("directory");
+	ic_keyword[2] = _("gatewaydomain");
+	ic_keyword[3] = _("smarthost");
+	ic_keyword[4] = _("rbl");
+	ic_keyword[5] = _("spamassassin");
 
-	char *ic_boxtitle[] = {
-		"Local host aliases",
-		"Directory domains",
-		"Gateway domains",
-		"Smart hosts",
-		"RBL hosts",
-		"SpamAssassin hosts",
-	};
+	ic_boxtitle[0] = _("Local host aliases");
+	ic_boxtitle[1] = _("Directory domains");
+	ic_boxtitle[2] = _("Gateway domains");
+	ic_boxtitle[3] = _("Smart hosts");
+	ic_boxtitle[4] = _("RBL hosts");
+	ic_boxtitle[5] = _("SpamAssassin hosts");
 
-	char *ic_desc[] = {
-		"(domains for which this host receives mail)",
-		"(domains mapped with the Global Address Book)",
-		"(domains whose subdomains match Citadel hosts)",
-		"(if present, forward all outbound mail to one of these hosts)",
-		"(hosts running a Realtime Blackhole List)",
-		"(hosts running the SpamAssassin service)",
-	};
+	ic_desc[0] = _("(domains for which this host receives mail)");
+	ic_desc[1] = _("(domains mapped with the Global Address Book)");
+	ic_desc[2] = _("(domains whose subdomains match Citadel hosts)");
+	ic_desc[3] = _("(if present, forward all outbound mail to one of these hosts)");
+	ic_desc[4] = _("(hosts running a Realtime Blackhole List)");
+	ic_desc[5] = _("(hosts running the SpamAssassin service)");
 
 	for (i=0; i<ic_max; ++i) {
 		ic_spec[i] = strdup("");
@@ -90,7 +87,9 @@ void display_inetconf(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Internet configuration</SPAN>\n");
+	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Internet configuration"));
+	wprintf("</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
