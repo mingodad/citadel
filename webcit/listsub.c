@@ -14,11 +14,13 @@
  */
 void do_listsub(void)
 {
-	char cmd[SIZ];
-	char room[SIZ];
-	char token[SIZ];
-	char email[SIZ];
-	char subtype[SIZ];
+	char cmd[256];
+	char room[256];
+	char token[256];
+	char email[256];
+	char subtype[256];
+	char escaped_email[256];
+	char escaped_room[256];
 
 	char buf[SIZ];
 	int self;
@@ -28,7 +30,9 @@ void do_listsub(void)
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
 
-	wprintf("<HTML><HEAD><TITLE>List subscription</TITLE></HEAD><BODY>\n");
+	wprintf("<HTML><HEAD><TITLE>");
+	wprintf(_("List subscription"));
+	wprintf("</TITLE></HEAD><BODY>\n");
 
 	strcpy(cmd, bstr("cmd"));
 	strcpy(room, bstr("room"));
@@ -38,9 +42,9 @@ void do_listsub(void)
 
 	wprintf("<CENTER>"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">List subscribe/unsubscribe</SPAN>\n"
-		"</TD></TR></TABLE><br />\n"
-	);
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("List subscribe/unsubscribe"));
+	wprintf("</SPAN></TD></TR></TABLE><br />\n");
 
 	/*
 	 * Subscribe command
@@ -54,12 +58,15 @@ void do_listsub(void)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			wprintf("<CENTER><H1>Confirmation request sent</H1>"
-				"You are subscribing <TT>");
-			escputs(email);
-			wprintf("</TT> to the &quot;");
-			escputs(room);
-			wprintf("&quot; mailing list.  The listserver has "
+			stresc(escaped_email, email, 0, 0);
+			stresc(escaped_room, room, 0, 0);
+
+			wprintf("<CENTER><H1>");
+			wprintf(_("Confirmation request sent"));
+			wprintf("</H1>");
+			wprintf(_("You are subscribing <TT>%s"
+				"</TT> to the <b>%s</b> mailing list.  "
+				"The listserver has "
 				"sent you an e-mail with one additional "
 				"Web link for you to click on to confirm "
 				"your subscription.  This extra step is for "
@@ -68,9 +75,9 @@ void do_listsub(void)
 				"without your consent.<br /><br />"
 				"Please click on the link which is being "
 				"e-mailed to you and your subscription will "
-				"be confirmed.<br />\n"
-				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
-			);
+				"be confirmed.<br />\n"),
+				escaped_email, escaped_room);
+			wprintf("<A HREF=\"/listsub\">%s</A></CENTER>\n", _("Go back..."));
 		}
 		else {
 			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"

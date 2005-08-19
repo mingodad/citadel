@@ -114,10 +114,11 @@ void display_inetconf(void)
 					"<A HREF=\"/save_inetconf?oper=delete&ename=");
 				escputs(buf);
 				wprintf("&etype=%s\" ", ic_keyword[which]);
-				wprintf("onClick=\"return confirm('Delete ");
-				jsescputs(buf);
-				wprintf("?');\">");
-				wprintf("<font size=-1>(Delete)</font></a></TD></TR>\n");
+				wprintf("onClick=\"return confirm('%s');\">",
+					_("Delete this entry?"));
+				wprintf("<font size=-1>");
+				wprintf(_("(Delete)"));
+				wprintf("</font></a></TD></TR>\n");
 			}
 		}
 		wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_inetconf\">\n"
@@ -163,7 +164,7 @@ void save_inetconf(void) {
 		   &&   (!strcasecmp(etype, bstr("etype")))
 		   &&	(!strcasecmp(bstr("oper"), "delete"))
 		) {
-			sprintf(WC->ImportantMessage, "%s deleted.", ename);
+			sprintf(WC->ImportantMessage, _("%s has been deleted."), ename);
 		}
 		else {
 			if (strlen(newconfig) > 0) strcat(newconfig, "\n");
