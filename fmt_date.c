@@ -158,7 +158,6 @@ time_t httpdate_to_timestamp(const char *buf)
 	char *c;
 	char tz[256];
 
-lprintf(3, "Datestamp: %s\n", buf);
 	/* Skip day of week, to number */
 	for (c = buf; *c != ' '; c++)
 		;
