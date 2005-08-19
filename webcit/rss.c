@@ -118,7 +118,7 @@ void display_rss(const char *roomname)
 			serv_getln(buf, sizeof buf);
 			if (!strcmp(buf, "000"))
 				break;
-			wprintf("%s", buf);
+			wprintf("%s\n", buf);
 		}
 	}
 	wprintf("</description>\n");
