@@ -157,15 +157,14 @@ time_t httpdate_to_timestamp(const char *buf)
 	struct tm tt;
 	char *c;
 
-lprintf(3, "datestamp %s\n", buf);
 	/* Skip day of week, to number */
-	for (c = buf; *c < '0' && *c > '9'; c++)
+	for (c = buf; *c != ' '; c++)
 		;
+	c++;
 
 	/* Get day of month */
-	tt.tm_mday = 0;
-	for (; *c != ' ' && *c != '-'; c++)
-		tt.tm_mday += 10 * (*c - '0');
+	tt.tm_mday = atoi(c);
+	for (; *c != ' ' && *c != '-'; c++);
 	c++;
 
 	/* Get month */
@@ -195,36 +194,35 @@ lprintf(3, "datestamp %s\n", buf);
 		tt.tm_mon = 8;
 		break;
 	default:
-		return 0;
+		return 42;
 		break;	/* NOTREACHED */
 	}
 	c += 4;
 
+	tt.tm_year = 0;
 	/* Get year */
-	for (; *c != ' '; c++)
-		tt.tm_year += 10 * (*c - '0');
+	tt.tm_year = atoi(c);
+	for (; *c != ' '; c++);
 	c++;
-	/* Y2K business for rfc850 dates */
-	if (tt.tm_year > 69)
-		tt.tm_year += 1900;
-	else
-		tt.tm_year += 2000;
+	if (tt.tm_year >= 1900)
+		tt.tm_year -= 1900;
 
 	/* Get hour */
-	for (; *c != ':'; c++)
-		tt.tm_hour += 10 * (*c - '0');
+	tt.tm_hour = atoi(c);
+	for (; *c != ':'; c++);
 	c++;
 
 	/* Get minute */
-	for (; *c != ':'; c++)
-		tt.tm_min += 10 * (*c - '0');
+	tt.tm_min = atoi(c);
+	for (; *c != ':'; c++);
 	c++;
 
 	/* Get second */
-	for (; *c && *c != ' '; c++)
-		tt.tm_sec += 10 * (*c - '0');
+	tt.tm_sec = atoi(c);
+	for (; *c && *c != ' '; c++);
 
 	/* Got everything; let's go */
+	tt.tm_isdst = 0;
 	t = mktime(&tt);
 	return t;
 }
