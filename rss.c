@@ -50,7 +50,7 @@ void display_rss(const char *roomname)
 		return;
 	}
 
-	nummsgs = load_msg_ptrs("MSGS LAST|50", 0);
+	nummsgs = load_msg_ptrs("MSGS LAST|15", 0);
 	if (nummsgs == 0) {
 		wprintf("HTTP/1.0 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");

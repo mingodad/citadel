@@ -156,7 +156,9 @@ time_t httpdate_to_timestamp(const char *buf)
 	time_t t = 0;
 	struct tm tt;
 	char *c;
+	char tz[256];
 
+lprintf(3, "Datestamp: %s\n", buf);
 	/* Skip day of week, to number */
 	for (c = buf; *c != ' '; c++)
 		;
@@ -222,7 +224,15 @@ time_t httpdate_to_timestamp(const char *buf)
 	for (; *c && *c != ' '; c++);
 
 	/* Got everything; let's go */
-	tt.tm_isdst = 0;
+	/* First, change to UTC */
+	if (getenv("TZ"))
+		sprintf(tz, "TZ=%s", getenv("TZ"));
+	else
+		strcpy(tz, "TZ=");
+	putenv("TZ=UTC");
+	tzset();
 	t = mktime(&tt);
+	putenv(tz);
+	tzset();
 	return t;
 }
