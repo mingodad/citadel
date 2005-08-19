@@ -1,4 +1,7 @@
 $Log$
+Revision 621.17  2005/08/19 16:56:00  ajc
+* inetconf.c: partial i18n
+
 Revision 621.16  2005/08/18 22:08:26  ajc
 * iconbar.c: i18n
 
@@ -2850,3 +2853,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
