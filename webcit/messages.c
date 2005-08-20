@@ -338,11 +338,11 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					if (!strcasecmp(buf, "tel"))
 						strcat(phone, "");
 					else if (!strcasecmp(buf, "work"))
-						strcat(phone, " (work)");
+						strcat(phone, _(" (work)"));
 					else if (!strcasecmp(buf, "home"))
-						strcat(phone, " (home)");
+						strcat(phone, _(" (home)"));
 					else if (!strcasecmp(buf, "cell"))
-						strcat(phone, " (cell)");
+						strcat(phone, _(" (cell)"));
 					else {
 						strcat(phone, " (");
 						strcat(phone, buf);
@@ -352,7 +352,9 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 			else if (!strcasecmp(firsttoken, "adr")) {
 				if (pass == 2) {
-					wprintf("<TR><TD>Address:</TD><TD>");
+					wprintf("<TR><TD>");
+					wprintf(_("Address:"));
+					wprintf("</TD><TD>");
 					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
 						extract_token(buf, thisvalue, j, ';', sizeof buf);
 						if (strlen(buf) > 0) {
@@ -410,9 +412,13 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			wprintf("</TD></TR>\n");
 		
 			if (strlen(phone) > 0)
-				wprintf("<TR><TD>Telephone:</TD><TD>%s</TD></TR>\n", phone);
+				wprintf("<TR><TD>");
+				wprintf(_("Telephone:"));
+				wprintf("</TD><TD>%s</TD></TR>\n", phone);
 			if (strlen(mailto) > 0)
-				wprintf("<TR><TD>E-mail:</TD><TD>%s</TD></TR>\n", mailto);
+				wprintf("<TR><TD>");
+				wprintf(_("E-mail:"));
+				wprintf("</TD><TD>%s</TD></TR>\n", mailto);
 		}
 
 	}
@@ -507,7 +513,9 @@ void read_message(long msgnum, int suppress_buttons) {
 	serv_printf("MSG4 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("<STRONG>ERROR:</STRONG> %s<br />\n", &buf[4]);
+		wprintf("<STRONG>");
+		wprintf(_("ERROR:"));
+		wprintf("</STRONG> %s<br />\n", &buf[4]);
 		return;
 	}
 
@@ -525,7 +533,9 @@ void read_message(long msgnum, int suppress_buttons) {
 
 	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>unexpected end of message</I><br /><br />\n");
+			wprintf("<I>");
+			wprintf(_("unexpected end of message"));
+			wprintf("</I><br /><br />\n");
 			wprintf("</SPAN>\n");
 			return;
 		}
@@ -537,7 +547,8 @@ void read_message(long msgnum, int suppress_buttons) {
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
-			wprintf("from <A HREF=\"/showuser?who=");
+			wprintf(_("from "));
+			wprintf("<A HREF=\"/showuser?who=");
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
 #endif
@@ -546,15 +557,19 @@ void read_message(long msgnum, int suppress_buttons) {
 			escputs(from);
 			wprintf("</A> ");
 		}
-		if (!strncasecmp(buf, "subj=", 5))
+		if (!strncasecmp(buf, "subj=", 5)) {
 			strcpy(m_subject, &buf[5]);
+		}
 		if ((!strncasecmp(buf, "hnod=", 5))
-		    && (strcasecmp(&buf[5], serv_info.serv_humannode)))
+		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
 			wprintf("(%s) ", &buf[5]);
+		}
 		if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], WC->wc_roomname))
-		    && (strlen(&buf[5])>0) )
-			wprintf("in %s> ", &buf[5]);
+		    && (strlen(&buf[5])>0) ) {
+			wprintf(_("in "));
+			wprintf("%s> ", &buf[5]);
+		}
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			strcpy(rfca, &buf[5]);
 			wprintf("&lt;");
@@ -572,8 +587,10 @@ void read_message(long msgnum, int suppress_buttons) {
 				wprintf("@%s ", &buf[5]);
 			}
 		}
-		if (!strncasecmp(buf, "rcpt=", 5))
-			wprintf("to %s ", &buf[5]);
+		if (!strncasecmp(buf, "rcpt=", 5)) {
+			wprintf(_("to "));
+			wprintf("%s ", &buf[5]);
+		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
 			wprintf("%s ", now);
@@ -651,9 +668,9 @@ void read_message(long msgnum, int suppress_buttons) {
 #endif
 	if (strlen(m_subject) > 0) {
 		wprintf("<br />"
-			"<SPAN CLASS=\"message_subject\">"
-			"Subject: %s"
-			"</SPAN>", m_subject
+			"<SPAN CLASS=\"message_subject\">");
+		wprintf(_("Subject:"));
+		wprintf(" %s</SPAN>", m_subject
 		);
 	}
 	wprintf("</TD>\n");
@@ -668,23 +685,22 @@ void read_message(long msgnum, int suppress_buttons) {
 		wprintf("?subject=");
 		if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 		urlescputs(m_subject);
-		wprintf("\">[Reply]</a> ");
+		wprintf("\">[%s]</a> ", _("Reply"));
 
 		if (WC->is_room_aide)  {
-		
 			/* Move */
-			wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[Move]</a> ",
-				msgnum);
+			wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[%s]</a> ",
+				msgnum, _("Move"));
 	
 			/* Delete */
 			wprintf("<a href=\"/delete_msg?msgid=%ld\" "
-				"onClick=\"return confirm('Delete this message?');\">"
-				"[Delete]</a> ", msgnum);
-				
+				"onClick=\"return confirm('%s');\">"
+				"[%s]</a> ", msgnum, _("Delete this message?"), _("Delete")
+			);
 		}
 
 		wprintf("<a href=\"/msg?msgnum=%ld?print_it=yes\" target=\"msgloader1\">"
-			"[Print]</a>", msgnum);
+			"[%s]</a>", msgnum, _("Print"));
 
 		wprintf("</td>");
 	}
@@ -701,7 +717,9 @@ void read_message(long msgnum, int suppress_buttons) {
 	strcpy(mime_content_type, "text/plain");
 	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>unexpected end of message</I><br /><br />\n");
+			wprintf("<I>");
+			wprintf(_("unexpected end of message"));
+			wprintf("</I><br /><br />\n");
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
@@ -783,8 +801,8 @@ void read_message(long msgnum, int suppress_buttons) {
 
 	/* Unknown weirdness */
 	else {
-		wprintf("I don't know how to display %s<br />\n",
-			mime_content_type);
+		wprintf(_("I don't know how to display %s"), mime_content_type);
+		wprintf("<br />\n", mime_content_type);
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
@@ -806,7 +824,7 @@ void read_message(long msgnum, int suppress_buttons) {
 				wprintf("<A HREF=\"/edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("[edit]</A>");
+				wprintf("[%s]</A>", _("edit"));
 			}
 
 			/* In all cases, display the full card */
@@ -938,7 +956,7 @@ void display_addressbook(long msgnum, char alpha) {
 	struct message_summary summ;
 
 	memset(&summ, 0, sizeof(summ));
-	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
+	safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
@@ -975,7 +993,7 @@ void display_addressbook(long msgnum, char alpha) {
 				wprintf("<A HREF=\"/edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("[edit]</A>");
+				wprintf("[%s]</A>", _("edit"));
 			}
 
 			free(vcard_source);
@@ -1061,7 +1079,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	for (i=0; i<strlen(namebuf); ++i) {
 		if (namebuf[i] != ';') return;
 	}
-	strcpy(namebuf, "(no name)");
+	strcpy(namebuf, _("(no name)"));
 }
 
 
@@ -1106,7 +1124,9 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	char tablast_label[SIZ];
 
 	if (num_ab == 0) {
-		wprintf("<I>This address book is empty.</I>\n");
+		wprintf("<I>");
+		wprintf(_("This address book is empty."));
+		wprintf("</I>\n");
 		return;
 	}
 
@@ -1231,7 +1251,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 
 				memset(&WC->summ[nummsgs-1], 0, sizeof(struct message_summary));
 				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
-				safestrncpy(WC->summ[nummsgs-1].subj, "(no subject)", sizeof WC->summ[nummsgs-1].subj);
+				safestrncpy(WC->summ[nummsgs-1].subj, _("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
 				if (strlen(displayname) > 0) {
 					safestrncpy(WC->summ[nummsgs-1].from, displayname, sizeof WC->summ[nummsgs-1].from);
 				}
@@ -1451,13 +1471,15 @@ void readloop(char *oper)
 	if (nummsgs == 0) {
 
 		if ((!is_tasks) && (!is_calendar) && (!is_notes)) {
+			wprintf("<em>");
 			if (!strcmp(oper, "readnew")) {
-				wprintf("<EM>No new messages.</EM>\n");
+				wprintf(_("No new messages."));
 			} else if (!strcmp(oper, "readold")) {
-				wprintf("<EM>No old messages.</EM>\n");
+				wprintf(_("No old messages."));
 			} else {
-				wprintf("<EM>No messages here.</EM>\n");
+				wprintf(_("No messages here."));
 			}
+			wprintf("</em>\n");
 		}
 
 		goto DONE;
@@ -1556,18 +1578,18 @@ void readloop(char *oper)
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
-			"<TD align=center><b><i>Subject</i></b> %s</TD>"
-			"<TD align=center><b><i>Sender</i></b> %s</TD>"
-			"<TD align=center><b><i>Date</i></b> %s</TD>"
+			"<TD align=center><b><i>%s</i></b> %s</TD>"
+			"<TD align=center><b><i>%s</i></b> %s</TD>"
+			"<TD align=center><b><i>%s</i></b> %s</TD>"
 			"<TD><INPUT TYPE=\"submit\" NAME=\"sc\" "
 			"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
 			" font-size: 6pt;\" "
 			"VALUE=\"Delete\"></TD>"
 			"</TR>\n"
 			,
-			subjsort_button,
-			sendsort_button,
-			datesort_button
+			_("Subject"),	subjsort_button,
+			_("Sender"),	sendsort_button,
+			_("Date"),	datesort_button
 		);
 	}
 
@@ -1645,19 +1667,19 @@ void readloop(char *oper)
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 
 		wprintf("<div id=\"fix_scrollbar_bug\">"
-			"<table border=0 width=100%% bgcolor=\"#dddddd\"><tr><td>"
-			"Reading #%d of %d messages.</TD>\n"
-			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
-			lowest_displayed, nummsgs);
+			"<table border=0 width=100%% bgcolor=\"#dddddd\"><tr><td>");
+		wprintf(_("Reading #%d of %d messages."), lowest_displayed, nummsgs);
+		wprintf("</TD><TD ALIGN=RIGHT><FONT SIZE=+1>");
 
 		if (pn_previous > 0L) {
 			wprintf("<A HREF=\"/%s"
 				"?startmsg=%ld"
 				"?maxmsgs=1"
 				"?summary=0\">"
-				"Previous</A> \n",
+				"%s</A> \n",
 					oper,
-					pn_previous );
+					pn_previous,
+					_("Previous"));
 		}
 
 		if (pn_next > 0L) {
@@ -1665,18 +1687,20 @@ void readloop(char *oper)
 				"?startmsg=%ld"
 				"?maxmsgs=1"
 				"?summary=0\">"
-				"Next</A> \n",
+				"%s</A> \n",
 					oper,
-					pn_next );
+					pn_next,
+					_("Next"));
 		}
 
 		wprintf("<A HREF=\"/%s?startmsg=%ld"
 			"?maxmsgs=%d?summary=1\">"
-			"Summary"
+			"%s"
 			"</A>",
 			oper,
 			WC->msgarr[0],
-			DEFAULT_MAXMSGS
+			DEFAULT_MAXMSGS,
+			_("Summary")
 		);
 
 		wprintf("</td></tr></table></div>\n");
@@ -1694,7 +1718,7 @@ void readloop(char *oper)
 		wprintf("<form name=\"msgomatic\" "
 			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n");
 
-		wprintf("Reading #", lowest_displayed, highest_displayed);
+		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
 			"OnChange=\"location.href=msgomatic.whichones.options"
@@ -1724,7 +1748,8 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0], is_summary);
 
-		wprintf("</select> of %d messages.", nummsgs);
+		wprintf("</select> ");
+		wprintf(_("of %d messages."), nummsgs);
 		wprintf("</form>\n");
 	    }
 	}
@@ -2159,9 +2184,9 @@ void confirm_move_msg(void)
 	wprintf("</SELECT>\n");
 	wprintf("<br />\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Move\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"Move\">");
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Cancel\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"Cancel\">");
 	wprintf("</form></CENTER>\n");
 
 	wprintf("</CENTER>\n");
@@ -2179,7 +2204,7 @@ void move_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	if (!strcasecmp(bstr("yesno"), "Move")) {
+	if (strlen(bstr("move_button")) > 0) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);

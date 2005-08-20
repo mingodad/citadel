@@ -293,9 +293,9 @@ void display_generic(void)
 	wprintf("<FONT SIZE=-2>");
 	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), WC->http_host);
 	wprintf("</FONT>\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc_button\" VALUE=\"%s\">", _("Send command"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\"><br />\n", _("Cancel"));
 
 	wprintf("</FORM></CENTER>\n");
 	wprintf("</td></tr></table></div>\n");
@@ -309,7 +309,7 @@ void do_generic(void)
 	char *junk;
 	size_t len;
 
-	if (strcasecmp(bstr("sc"), "Send command")) {
+	if (strlen(bstr("sc_button")) == 0) {
 		display_main_menu();
 		return;
 	}
