@@ -1,4 +1,7 @@
 $Log$
+Revision 621.20  2005/08/21 05:02:17  ajc
+* messages.c: renamed some elements
+
 Revision 621.19  2005/08/20 04:37:50  ajc
 * mainmenu.c: i18n
 * messages.c: partially i18n
@@ -2860,4 +2863,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
