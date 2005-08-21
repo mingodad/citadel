@@ -1921,10 +1921,10 @@ void post_message(void)
 		return;
 	}
 
-	if (!strcasecmp(bstr("sc"), "Cancel")) {
+	if (strlen(bstr("cancel_button")) > 0) {
 		sprintf(WC->ImportantMessage, 
 			"Cancelled.  Message was not posted.");
-	} else if (!strcasecmp(bstr("attach"), "Add")) {
+	} else if (strlen(bstr("attach_button")) > 0) {
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
@@ -2063,14 +2063,14 @@ void display_enter(void)
 		"&nbsp;"
 	);
 
-	wprintf("<input type=\"submit\" name=\"sc\" value=\"");
+	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (strlen(bstr("recp")) > 0) {
 		wprintf("Send message");
 	} else {
 		wprintf("Post message");
 	}
 	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"sc\" value=\"Cancel\">\n");
+		"<input type=\"submit\" name=\"cancel_button\" value=\"Cancel\">\n");
 
 	wprintf("<center><script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
@@ -2107,7 +2107,7 @@ void display_enter(void)
 	wprintf("&nbsp;&nbsp;&nbsp;"
 		"Attach file: <input NAME=\"attachfile\" "
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
-		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
+		"<input type=\"submit\" name=\"attach_button\" value=\"Add\">\n");
 
 	wprintf("</form>\n");
 
