@@ -1,4 +1,8 @@
 $Log$
+Revision 654.17  2005/08/21 06:16:37  ajc
+* html.c: don't transform <32 or >126 characters to question marks.  We
+  like foreign character sets now.
+
 Revision 654.16  2005/08/15 16:36:46  ajc
 * Added a "MIME-Version:" header in a couple of places
 
@@ -7048,4 +7052,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
