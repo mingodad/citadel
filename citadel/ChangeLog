@@ -1,4 +1,8 @@
 $Log$
+Revision 654.18  2005/08/21 19:40:50  ajc
+* techdoc/protocol.txt: document that unless otherwise specified,
+  everything in the Citadel system is UTF-8.
+
 Revision 654.17  2005/08/21 06:16:37  ajc
 * html.c: don't transform <32 or >126 characters to question marks.  We
   like foreign character sets now.
@@ -7052,3 +7056,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

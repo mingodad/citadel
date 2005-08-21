@@ -42,6 +42,17 @@ our application layer assumes a clean, reliable, sequenced connection, the use
 of UDP would render the server unstable and unusable, so we stick with TCP.
 
 
+ CHARACTER SETS
+ --------------
+ 
+ The native character set for the Citadel system is UTF-8.  Unless otherwise
+specified, all data elements are expected to be in the UTF-8 character set.
+Specifically, all non-MIME messages should be assumed to be in UTF-8.  MIME
+messages may be in whatever character set is specified by the MIME header, of
+course; however, some clients (such as WebCit) will automatically convert
+messages from other character sets before displaying them.
+ 
+ 
  GENERAL INFORMATION ABOUT THE SERVER
  ------------------------------------
 
@@ -2175,11 +2186,22 @@ asynchronous messages as they arrive, before doing anything else.
  SRCH   (SeaRCH the message base)
  
  This command's implementation is incomplete and will be documented when it
-is finished.
-
-
-
-
+is finished.  The current implementation accepts a search string as its sole
+argument, and will respond with LISTING_FOLLOWS followed by a list of
+messages (globally, not just in the current room) which contain ALL of the
+words in the search string.  If the client desires an "exact phrase" match,
+it must then slow-search the text of each returned message for the exact
+string.  The client should also compare the returned message numbers against
+those which actually exist in the room or rooms being searched.  In
+particular, clients should avoid telling the user about messages which exist
+only in rooms to which the user does not have access.
+ 
+ Again, keep in mind that this is a temporary implementation and is not
+guaranteed to continue to exist in this form.
+ 
+ 
+ 
+ 
  ASYNCHRONOUS MESSAGES
  ---------------------
 
