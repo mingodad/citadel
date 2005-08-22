@@ -18,7 +18,9 @@ void display_page(void)
         output_headers(1, 1, 2, 0, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">Send instant message</SPAN>"
+                "<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Send instant message"));
+	wprintf("</SPAN>"
                 "</TD></TR></TABLE>\n"
                 "</div>\n<div id=\"content\">\n"
         );
@@ -26,7 +28,7 @@ void display_page(void)
         wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-	wprintf("Send an instant message to: ");
+	wprintf(_("Send an instant message to: "));
 	escputs(recp);
 	wprintf("<br>\n");
 
@@ -42,15 +44,16 @@ void display_page(void)
 	escputs(bstr("closewin"));
 	wprintf("\">\n");
 
-	wprintf("Enter message text:<br />");
+	wprintf(_("Enter message text:"));
+	wprintf("<br />");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
 		"WIDTH=40></TEXTAREA>\n");
 
 	wprintf("</TD></TR></TABLE><br />\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send message\">");
-	wprintf("<br /><A HREF=\"javascript:window.close();\"Cancel</A>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
+	wprintf("<br /><A HREF=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
 
 	wprintf("</FORM></CENTER>\n");
 	wprintf("</td></tr></table></div>\n");
@@ -63,24 +66,26 @@ void display_page(void)
 void page_user(void)
 {
 	char recp[SIZ];
-	char sc[SIZ];
 	char buf[SIZ];
 	char closewin[SIZ];
 
         output_headers(1, 1, 2, 0, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">Add or edit an event</SPAN>"
+                "<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Add or edit an event"));
+	wprintf("</SPAN>"
                 "</TD></TR></TABLE>\n"
                 "</div>\n<div id=\"content\">\n"
         );
                                                                                                                              
 	strcpy(recp, bstr("recp"));
-	strcpy(sc, bstr("sc"));
 	strcpy(closewin, bstr("closewin"));
 
-	if (strcmp(sc, "Send message")) {
-		wprintf("<EM>Message was not sent.</EM><br />\n");
+	if (strlen(bstr("send_button")) == 0) {
+		wprintf("<EM>");
+		wprintf(_("Message was not sent."));
+		wprintf("</EM><br />\n");
 	} else {
 		serv_printf("SEXP %s|-", recp);
 		serv_getln(buf, sizeof buf);
@@ -88,7 +93,8 @@ void page_user(void)
 		if (buf[0] == '4') {
 			text_to_server(bstr("msgtext"), 0);
 			serv_puts("000");
-			wprintf("<EM>Message has been sent to ");
+			wprintf("<EM>");
+			wprintf(_("Message has been sent to "));
 			escputs(recp);
 			wprintf(".</EM><br />\n");
 		}
@@ -98,8 +104,9 @@ void page_user(void)
 	}
 	
 	if (!strcasecmp(closewin, "yes")) {
-		wprintf("<CENTER><A HREF=\"javascript:window.close();\">"
-			"[ close window ]</A></CENTER>\n");
+		wprintf("<CENTER><A HREF=\"javascript:window.close();\">");
+		wprintf(_("[ close window ]"));
+		wprintf("</A></CENTER>\n");
 	}
 
 	wDumpContent(1);
@@ -151,13 +158,16 @@ void page_popup(void)
 		extract_token(pagefrom, &buf[4], 3, '|', sizeof pagefrom);
 
 		wprintf("<table border=1 bgcolor=\"#880000\"><tr><td>");
-		wprintf("<span class=\"titlebar\">Instant message from ");
+		wprintf("<span class=\"titlebar\">");
+		wprintf(_("Instant message from "));
 		escputs(pagefrom);
 		wprintf("</span></td></tr><tr><td><font color=\"#FFFFFF\">");
 		fmout(NULL, "LEFT");
 		wprintf("</font></td></tr>"
 			"<tr><td><div align=center><font color=\"#FFFFFF\">"
-			"<a href=\"javascript:hide_page_popup()\">[ close window ]</a>"
+			"<a href=\"javascript:hide_page_popup()\">");
+		wprintf(_("[ close window ]"));
+		wprintf("</a>"
 			"</font></div>"
 			"</td></tr>"
 			"</table>\n");
@@ -260,7 +270,8 @@ void chat_recv(void) {
 	);
 
 	if (setup_chat_socket() != 0) {
-		wprintf("Error setting up chat socket</BODY></HTML>\n");
+		wprintf(_("An error occurred while setting up the chat socket."));
+		wprintf("</BODY></HTML>\n");
 		wDumpContent(0);
 		return;
 	}
@@ -285,7 +296,8 @@ void chat_recv(void) {
 			serv_getln(buf, sizeof buf);
 
 			if (!strcmp(buf, "000")) {
-				strcpy(buf, ":|exiting chat mode");
+				strcpy(buf, ":|");
+				strcat(buf, _("Now exiting chat mode."));
 				end_chat_now = 1;
 			}
 			
@@ -407,62 +419,59 @@ void chat_send(void) {
 		strcpy(send_this, "");
 	}
 
-	if (bstr("sendbutton") != NULL) {
-
-		if (!strcasecmp(bstr("sendbutton"), "Help")) {
-			strcpy(send_this, "/help");
-		}
-
-		if (!strcasecmp(bstr("sendbutton"), "List Users")) {
-			strcpy(send_this, "/who");
-		}
-
-		if (!strcasecmp(bstr("sendbutton"), "Exit")) {
-			strcpy(send_this, "/quit");
-		}
-
-		if (setup_chat_socket() != 0) {
-			wprintf("Error setting up chat socket</BODY></HTML>\n");
-			wDumpContent(0);
-			return;
-		}
-
-		/* Temporarily swap the serv and chat sockets during chat talk */
-		i = WC->serv_sock;
-		WC->serv_sock = WC->chat_sock;
-		WC->chat_sock = i;
-
-		while (strlen(send_this) > 0) {
-			if (strlen(send_this) < 67) {
-				serv_puts(send_this);
-				strcpy(send_this, "");
-			}
-			else {
-				for (i=55; i<67; ++i) {
-					if (send_this[i] == ' ') break;
-				}
-				strncpy(buf, send_this, i);
-				buf[i] = 0;
-				strcpy(send_this, &send_this[i]);
-				serv_puts(buf);
-			}
-		}
-
-		/* Unswap the sockets. */
-		i = WC->serv_sock;
-		WC->serv_sock = WC->chat_sock;
-		WC->chat_sock = i;
-
+	if (strlen(bstr("help_button")) > 0) {
+		strcpy(send_this, "/help");
 	}
+
+	if (strlen(bstr("list_button")) > 0) {
+		strcpy(send_this, "/who");
+	}
+
+	if (strlen(bstr("exit_button")) > 0) {
+		strcpy(send_this, "/quit");
+	}
+
+	if (setup_chat_socket() != 0) {
+		wprintf(_("An error occurred while setting up the chat socket."));
+		wprintf("</BODY></HTML>\n");
+		wDumpContent(0);
+		return;
+	}
+
+	/* Temporarily swap the serv and chat sockets during chat talk */
+	i = WC->serv_sock;
+	WC->serv_sock = WC->chat_sock;
+	WC->chat_sock = i;
+
+	while (strlen(send_this) > 0) {
+		if (strlen(send_this) < 67) {
+			serv_puts(send_this);
+			strcpy(send_this, "");
+		}
+		else {
+			for (i=55; i<67; ++i) {
+				if (send_this[i] == ' ') break;
+			}
+			strncpy(buf, send_this, i);
+			buf[i] = 0;
+			strcpy(send_this, &send_this[i]);
+			serv_puts(buf);
+		}
+	}
+
+	/* Unswap the sockets. */
+	i = WC->serv_sock;
+	WC->serv_sock = WC->chat_sock;
+	WC->chat_sock = i;
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/chat_send\" NAME=\"chatsendform\">\n");
 	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
 		"NAME=\"send_this\">\n", SIZ-10);
 	wprintf("<br />");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Send\">\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Help\">\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"List Users\">\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Exit\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">\n", _("Send"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"help_button\" VALUE=\"%s\">\n", _("Help"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"list_button\" VALUE=\"%s\">\n", _("List users"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"exit_button\" VALUE=\"%s\">\n", _("Exit"));
 	wprintf("</FORM>\n");
 
 	wprintf("</BODY></HTML>\n");

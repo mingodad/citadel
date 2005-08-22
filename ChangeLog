@@ -1,4 +1,9 @@
 $Log$
+Revision 621.22  2005/08/22 04:33:30  ajc
+* paging.c preferences.c roomops.c : i18n
+* Also changed various "OK" buttons to labels more descriptive of
+  their actual functions.
+
 Revision 621.21  2005/08/22 01:02:42  ajc
 * messages.c: finished i18n
 * webcit.h: minimum required Citadel server version is now 6.55; this is
@@ -2869,4 +2874,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
