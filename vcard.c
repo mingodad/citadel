@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * vCard data type implementation for Citadel/UX
+ * vCard data type implementation for the Citadel system.
  *
  * Copyright (C) 1999-2005 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General

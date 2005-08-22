@@ -17,8 +17,9 @@ struct namelist {
  */
 void userlist(void)
 {
-	char buf[SIZ];
-	char fl[SIZ];
+	char buf[256];
+	char fl[256];
+	char title[256];
 	struct tm tmbuf;
 	time_t lc;
 	struct namelist *bio = NULL;
@@ -38,8 +39,9 @@ void userlist(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">User list for ");
-	escputs(serv_info.serv_humannode);
+		"<SPAN CLASS=\"titlebar\">");
+	snprintf(title, sizeof title, _("User list for %s"), serv_info.serv_humannode);
+	escputs(title);
 	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
@@ -54,8 +56,8 @@ void userlist(void)
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
-	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
-	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
+	wprintf(_("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>"
+		"<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"));
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(fl, buf, 0, '|', sizeof fl);
@@ -102,8 +104,8 @@ DONE:	wDumpContent(1);
  */
 void showuser(void)
 {
-	char who[SIZ];
-	char buf[SIZ];
+	char who[256];
+	char buf[256];
 	int have_pic;
 
 	strcpy(who, bstr("who"));
@@ -112,7 +114,9 @@ void showuser(void)
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
 		"<TD><IMG SRC=\"/static/usermanag_48x.gif\"></TD>"
-		"<td align=left><SPAN CLASS=\"titlebar\">User profile</SPAN>"
+		"<td align=left><SPAN CLASS=\"titlebar\">");
+	wprintf(_("User profile"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -146,9 +150,9 @@ void showuser(void)
 	urlescputs(who);
 	wprintf("\">"
 		"<IMG SRC=\"/static/citadelchat_24x.gif\" "
-		"ALIGN=MIDDLE BORDER=0>&nbsp;&nbsp;"
-		"Click here to send an instant message to ");
-	escputs(who);
+		"ALIGN=MIDDLE BORDER=0>&nbsp;&nbsp;");
+	snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
+	escputs(buf);
 	wprintf("</A>\n");
 
 	wprintf("</td></tr></table></div>\n");
