@@ -24,7 +24,9 @@ void display_siteconfig(void)
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Site configuration</SPAN>"
+		"<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Site configuration"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -43,9 +45,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=general\">"
-			"<B>General</B><br />"
-			"General site configuration items"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("General"),
+			_("General site configuration items")
 		);
 
 		wprintf("<TR><TD>"
@@ -54,9 +58,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=access\">"
-			"<B>Access</B><br />"
-			"Access controls and site policy settings"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("Access"),
+			_("Access controls and site policy settings")
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
@@ -65,9 +71,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=network\">"
-			"<B>Network</B><br />"
-			"Network services"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("Network"),
+			_("Network services")
 		);
 
 		wprintf("<TR><TD>"
@@ -76,9 +84,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=tuning\">"
-			"<B>Tuning</B><br />"
-			"Advanced server fine-tuning controls"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("Tuning"),
+			_("Advanced server fine-tuning controls")
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
@@ -87,9 +97,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=ldap\">"
-			"<B>Directory</B><br />"
-			"Configure the LDAP connector for Citadel"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("Directory"),
+			_("Configure the LDAP connector for Citadel")
 		);
 
 		wprintf("<TR><TD>"
@@ -98,9 +110,11 @@ void display_siteconfig(void)
 			"SRC=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=purger\">"
-			"<B>Auto-purger</B><br />"
-			"Configure automatic expiry of old messages"
-			"</A></TD></TR>\n"
+			"<B>%s</B><br />"
+			"%s"
+			"</A></TD></TR>\n",
+			_("Auto-purger"),
+			_("Configure automatic expiry of old messages")
 		);
 
 		wprintf("</TABLE>");
@@ -110,40 +124,56 @@ void display_siteconfig(void)
 	}
 
 	if (!strcasecmp(whichmenu, "general")) {
-		wprintf("<CENTER><H2>General site configuration items</H2></CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("General site configuration items"));
+		wprintf("</h2></div>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "access")) {
-		wprintf("<CENTER><H2>Access controls and site policy settings</H2></CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("Access controls and site policy settings"));
+		wprintf("</h2></div>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "network")) {
-		wprintf("<CENTER><H2>Network services</H2>"
-			"Changes made on this screen will not take effect until you restart the Citadel server."
-			"</CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("Network services"));
+		wprintf("</h2>");
+		wprintf(_("Changes made on this screen will not take effect "
+			"until you restart the Citadel server."));
+		wprintf("</div>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "tuning")) {
-		wprintf("<CENTER><H2>Advanced server fine-tuning controls</H2></CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("Advanced server fine-tuning controls"));
+		wprintf("</h2></div>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "ldap")) {
-		wprintf("<CENTER><H2>Citadel LDAP connector configuration</H2>"
-			"Changes made on this screen will not take effect until you restart the Citadel server."
-			"</CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("Citadel LDAP connector configuration"));
+		wprintf("</h2>");
+		wprintf(_("Changes made on this screen will not take effect "
+			"until you restart the Citadel server."));
+		wprintf("</div>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "purger")) {
-		wprintf("<CENTER><H2>Message auto-purger settings</H2>"
-			"These settings may be overridden on a per-floor or per-room basis."
-			"</CENTER>\n");
+		wprintf("<div align="center"><h2>");
+		wprintf(_("Message auto-purger settings"));
+		wprintf("</h2>");
+		wprintf(_("These settings may be overridden on a per-floor or per-room basis."));
+		wprintf("</div>\n");
 	}
 
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-        	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
+        	wprintf("<SPAN CLASS=\"titlebar\">");
+		wprintf(_("Error"));
+		wprintf("</SPAN>\n");
         	wprintf("</TD></TR></TABLE><br />\n");
         	wprintf("%s<br />\n", &buf[4]);
 		do_template("endbox");
@@ -159,7 +189,9 @@ void display_siteconfig(void)
 		switch (++i) {
 		case 1:
 			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>Node name</TD><TD>");
+				wprintf("<TR><TD>");
+				wprintf(_("Node name"));
+				wprintf("</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}
@@ -169,7 +201,9 @@ void display_siteconfig(void)
 			break;
 		case 2:
 			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>Fully qualified domain name</TD><TD>");
+				wprintf("<TR><TD>");
+				wprintf(_("Fully qualified domain name"));
+				wprintf("</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_fqdn\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}
@@ -179,7 +213,9 @@ void display_siteconfig(void)
 			break;
 		case 3:
 			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>Human-readable node name</TD><TD>");
+				wprintf("<TR><TD>");
+				wprintf(_("Human-readable node name"));
+				wprintf("</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_humannode\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}
@@ -189,7 +225,9 @@ void display_siteconfig(void)
 			break;
 		case 4:
 			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>Landline telephone number</TD><TD>");
+				wprintf("<TR><TD>");
+				wprintf(_("Telephone number"));
+				wprintf("</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_phonenum\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}
@@ -677,11 +715,11 @@ void display_siteconfig(void)
 		wprintf("<INPUT TYPE=\"hidden\" NAME=\"mboxvalue\" VALUE=\"%d\">\n", mboxvalue);
 	}
 
-	wprintf("</TABLE><CENTER>");
+	wprintf("</TABLE><div align="center">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER></FORM>\n");
+	wprintf("</div></FORM>\n");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
