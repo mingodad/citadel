@@ -1,4 +1,7 @@
 $Log$
+Revision 621.23  2005/08/22 16:53:11  ajc
+* rss.c: i18n
+
 Revision 621.22  2005/08/22 04:33:30  ajc
 * paging.c preferences.c roomops.c : i18n
 * Also changed various "OK" buttons to labels more descriptive of
@@ -2874,3 +2877,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
