@@ -178,7 +178,8 @@ void display_preferences(void)
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<IMG SRC=\"/static/advanpage2_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Preferences and settings");
+	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;");
+	wprintf(_("Preferences and settings"));
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
@@ -196,37 +197,52 @@ void display_preferences(void)
 
 
 	get_preference("roomlistview", buf, sizeof buf);
-	wprintf("<tr><td>Room list view</td><td>");
+	wprintf("<tr><td>");
+	wprintf(_("Room list view"));
+	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"folders\"");
 	if (!strcasecmp(buf, "folders")) wprintf(" checked");
-	wprintf(">Tree (folders) view<br></input>\n");
+	wprintf(">");
+	wprintf(_("Tree (folders) view"));
+	wprintf("<br></input>\n");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"rooms\"");
 	if (!strcasecmp(buf, "rooms")) wprintf(" checked");
-	wprintf(">Table (rooms) view<br></input>\n");
+	wprintf(">");
+	wprintf(_("Table (rooms) view"));
+	wprintf("<br></input>\n");
 
 	wprintf("</td></tr>\n");
 
 
 	get_preference("calhourformat", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "12");
-	wprintf("<tr><td>Calendar hour format</td><td>");
+	wprintf("<tr><td>");
+	wprintf(_("Calendar hour format"));
+	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"12\"");
 	if (!strcasecmp(buf, "12")) wprintf(" checked");
-	wprintf(">12 hour (am/pm)<br></input>\n");
+	wprintf(">");
+	wprintf(_("12 hour (am/pm)"));
+	wprintf("<br></input>\n");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"24\"");
 	if (!strcasecmp(buf, "24")) wprintf(" checked");
-	wprintf(">24 hour<br></input>\n");
+	wprintf(">");
+	wprintf(_("24 hour"));
+	wprintf("<br></input>\n");
 
 	wprintf("</td></tr>\n");
 
 	wprintf("</table>\n"
-		"<input type=\"submit\" name=\"action\" value=\"Change\">"
+		"<input type=\"submit\" name=\"change_button\" value=\"%s\">"
 		"&nbsp;"
-		"<INPUT type=\"submit\" name=\"action\" value=\"Cancel\">\n");
+		"<INPUT type=\"submit\" name=\"cancel_button\" value=\"%s\">\n",
+		_("Change"),
+		_("Cancel")
+	);
 
 	wprintf("</form></center>\n");
 
@@ -242,9 +258,9 @@ void display_preferences(void)
  */
 void set_preferences(void)
 {
-	if (strcmp(bstr("action"), "Change")) {
+	if (strlen(bstr("change_button")) == 0) {
 		safestrncpy(WC->ImportantMessage, 
-			"Cancelled.  No settings were changed.",
+			_("Cancelled.  No settings were changed."),
 			sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
