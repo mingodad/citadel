@@ -13,14 +13,29 @@ void output_date(void) {
 	struct tm tm;
 	time_t now;
 
-	static char *wdays[] = {
-		"Sunday", "Monday", "Tuesday", "Wednesday",
-		"Thursday", "Friday", "Saturday"
-	};
-	static char *months[] = {
-		"January", "February", "March", "April", "May", "June", "July",
-		"August", "September", "October", "November", "December"
-	};
+	static char *wdays[7];
+	static char *months[12];
+
+	wdays[0] = _("Sunday");
+	wdays[1] = _("Monday");
+	wdays[2] = _("Tuesday");
+	wdays[3] = _("Wednesday");
+	wdays[4] = _("Thursday");
+	wdays[5] = _("Friday");
+	wdays[6] = _("Saturday");
+
+	months[0] = _("January");
+	months[1] = _("February");
+	months[2] = _("March");
+	months[3] = _("April");
+	months[4] = _("May");
+	months[5] = _("June");
+	months[6] = _("July");
+	months[7] = _("August");
+	months[8] = _("September");
+	months[9] = _("October");
+	months[10] = _("November");
+	months[12] = _("December");
 
 	time(&now);
 	localtime_r(&now, &tm);
@@ -42,7 +57,7 @@ void output_date(void) {
 void dummy_section(void) {
 	svprintf("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
 	do_template("beginbox");
-	wprintf("(nothing)");
+	wprintf(_("(nothing)"));
 	do_template("endbox");
 }
 
@@ -57,7 +72,7 @@ void new_messages_section(void) {
 	int number_of_rooms_to_check;
 	char *rooms_to_check = "Mail|Lobby";
 
-	svprintf("BOXTITLE", WCS_STRING, "Messages");
+	svprintf("BOXTITLE", WCS_STRING, _("Messages"));
 	do_template("beginbox");
 
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
@@ -94,7 +109,7 @@ void wholist_section(void) {
 	char buf[SIZ];
 	char user[SIZ];
 
-	svprintf("BOXTITLE", WCS_STRING, "Who's&nbsp;online&nbsp;now");
+	svprintf("BOXTITLE", WCS_STRING, _("Who's&nbsp;online&nbsp;now"));
 	do_template("beginbox");
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
@@ -116,7 +131,7 @@ void tasks_section(void) {
 	int i;
 #endif
 
-	svprintf("BOXTITLE", WCS_STRING, "Tasks");
+	svprintf("BOXTITLE", WCS_STRING, _("Tasks"));
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_TASKS_");
@@ -128,7 +143,9 @@ void tasks_section(void) {
 	}
 
 	if (num_msgs < 1) {
-		wprintf("<i>(None)</i><br />\n");
+		wprintf("<i>");
+		wprintf(_("(None)"));
+		wprintf("</i><br />\n");
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
@@ -139,7 +156,9 @@ void tasks_section(void) {
 	calendar_summary_view();
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<I>(This server does not support task lists)</I>\n");
+	wprintf("<I>");
+	wprintf(_("(This server does not support task lists)"));
+	wprintf("</I>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
@@ -154,7 +173,7 @@ void calendar_section(void) {
 	int i;
 #endif
 
-	svprintf("BOXTITLE", WCS_STRING, "Today&nbsp;on&nbsp;your&nbsp;calendar");
+	svprintf("BOXTITLE", WCS_STRING, _("Today&nbsp;on&nbsp;your&nbsp;calendar"));
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_CALENDAR_");
@@ -166,7 +185,9 @@ void calendar_section(void) {
 	}
 
 	if (num_msgs < 1) {
-		wprintf("<i>(Nothing)</i><br />\n");
+		wprintf("<i>");
+		wprintf(_("(Nothing)"));
+		wprintf("</i><br />\n");
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
@@ -176,29 +197,30 @@ void calendar_section(void) {
 	}
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<I>(This server does not support calendars)</I>\n");
+	wprintf("<I>");
+	wprintf(_("(This server does not support calendars)"));
+	wprintf("</I>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
-
 
 /*
  * Server info section (fluff, really)
  */
 void server_info_section(void) {
-	svprintf("BOXTITLE", WCS_STRING, "About&nbsp;this&nbsp;server");
+	char message[512];
+
+	svprintf("BOXTITLE", WCS_STRING, _("About&nbsp;this&nbsp;server"));
 	do_template("beginbox");
-	wprintf("You are connected to ");
-	escputs(serv_info.serv_humannode);
-	wprintf(", running ");
-	escputs(serv_info.serv_software);
-	wprintf(" with ");
-	escputs(SERVER);
-	wprintf(", and located in ");
-	escputs(serv_info.serv_bbs_city);
-	wprintf(".<br />\nYour system administrator is ");
-	escputs(serv_info.serv_sysadm);
-	wprintf(".\n");
+
+	snprintf(message, sizeof message,
+		_("You are connected to %s, running %s with %s, and located in %s.  Your system administrator is %s."),
+		serv_info.serv_humannode,
+		serv_info.serv_software,
+		SERVER,
+		serv_info.serv_bbs_city,
+		serv_info.serv_sysadm);
+	escputs(message);
 	do_template("endbox");
 }
 
@@ -207,14 +229,17 @@ void server_info_section(void) {
  * Display this user's summary page
  */
 void summary(void) {
+	char title[256];
 
 	output_headers(1, 1, 2, 0, 1, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
 		"<TD><IMG SRC=\"/static/summscreen_48x.gif\"></TD><TD>"
 		"<SPAN CLASS=\"titlebar\">"
-		"Summary page for ");
-	escputs(WC->wc_username);
+	);
+
+	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_username);
+	escputs(title);
 	wprintf("</SPAN></TD><TD>\n");
 	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
 	output_date();
