@@ -1,4 +1,10 @@
 $Log$
+Revision 621.29  2005/08/22 21:22:00  ajc
+* vcard_edit.c webcit.c webserver.c who.c : i18n
+* This should complete the internationalization of the entire WebCit
+  package.  Testing must be done, and then of course we must have someone
+  do a translation so we can see if this thing works.
+
 Revision 621.28  2005/08/22 20:27:26  ajc
 * userlist.c: i18n
 * vcard.c: minor change to comments in code
@@ -2893,3 +2899,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

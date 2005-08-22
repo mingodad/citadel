@@ -1,13 +1,12 @@
 /*
  * $Id$
  *
- * Handles editing of vCard objects.
+ * Handles on-screen editing of vCard objects.
  *
  */
 
 #include "webcit.h"
 #include "vcard.h"
-
 
 /* Edit the vCard component of a MIME message.  Supply the message number
  * and MIME part number to fetch.  Or, specify -1 for the message number
@@ -69,7 +68,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '1') {
-			convenience_page("770000", "Error", &buf[4]);
+			convenience_page("770000", _("Error"), &buf[4]);
 			return;
 		}
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -170,9 +169,9 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
-		"<img src=\"/static/savecontact_48x.gif\">"
-		"Edit contact information"
-		"</SPAN>"
+		"<img src=\"/static/savecontact_48x.gif\">");
+	wprintf(_("Edit contact information"));
+	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -182,11 +181,13 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<TABLE border=0><TR>"
-		"<TD>Prefix</TD>"
-		"<TD>First</TD>"
-		"<TD>Middle</TD>"
-		"<TD>Last</TD>"
-		"<TD>Suffix</TD></TR>\n");
+		"<TD>%s</TD>"
+		"<TD>%s</TD>"
+		"<TD>%s</TD>"
+		"<TD>%s</TD>"
+		"<TD>%s</TD></TR>\n",
+		_("Prefix"), _("First"), _("Middle"), _("Last"), _("Suffix")
+	);
 	wprintf("<TR><TD><INPUT TYPE=\"text\" NAME=\"prefix\" "
 		"VALUE=\"%s\" MAXLENGTH=\"5\" SIZE=\"5\"></TD>",
 		prefix);
@@ -206,13 +207,15 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
 	wprintf("<tr><td>");
 
-	wprintf("Title:<br>"
+	wprintf(_("Title:"));
+	wprintf("<br>"
 		"<INPUT TYPE=\"text\" NAME=\"title\" "
 		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
 		title
 	);
 
-	wprintf("Organization:<br>"
+	wprintf(_("Organization:"));
+	wprintf("<br>"
 		"<INPUT TYPE=\"text\" NAME=\"org\" "
 		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
 		org
@@ -221,11 +224,15 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("</td><td>");
 
 	wprintf("<table border=0>");
-	wprintf("<tr><td>PO box:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("PO box:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"pobox\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		pobox);
-	wprintf("<tr><td>Address:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("Address:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"extadr\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		extadr);
@@ -233,19 +240,27 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"<INPUT TYPE=\"text\" NAME=\"street\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		street);
-	wprintf("<tr><td>City:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("City:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"city\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		city);
-	wprintf("<tr><td>State:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("State:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"state\" "
 		"VALUE=\"%s\" MAXLENGTH=\"2\"></td></tr>\n",
 		state);
-	wprintf("<tr><td>ZIP code:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("ZIP code:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"zipcode\" "
 		"VALUE=\"%s\" MAXLENGTH=\"10\"></td></tr>\n",
 		zipcode);
-	wprintf("<tr><td>Country:</td><td>"
+	wprintf("<tr><td>");
+	wprintf(_("Country:"));
+	wprintf("</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"country\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\" WIDTH=\"5\"></td></tr>\n",
 		country);
@@ -253,11 +268,15 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf("</table>\n");
 
-	wprintf("<TABLE BORDER=0><TR><TD>Home telephone:</TD>"
+	wprintf("<TABLE BORDER=0><TR><TD>");
+	wprintf(_("Home telephone:"));
+	wprintf("</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"hometel\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>\n",
 		hometel);
-	wprintf("<TD>Work telephone:</TD>"
+	wprintf("<TD>");
+	wprintf(_("Work telephone:"));
+	wprintf("</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"worktel\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
@@ -266,13 +285,16 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<tr><td>");
 
 	wprintf("<TABLE border=0><TR>"
-		"<TD VALIGN=TOP>Primary Internet e-mail address<br />"
+		"<TD VALIGN=TOP>");
+	wprintf(_("Primary Internet e-mail address"));
+	wprintf("<br />"
 		"<INPUT TYPE=\"text\" NAME=\"primary_inetemail\" "
 		"SIZE=40 MAXLENGTH=40 VALUE=\"");
 	escputs(primary_inetemail);
 	wprintf("\"><br />"
-		"</TD><TD VALIGN=TOP>"
-		"Internet e-mail aliases<br />"
+		"</TD><TD VALIGN=TOP>");
+	wprintf(_("Internet e-mail aliases"));
+	wprintf("<br />"
 		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
 	escputs(other_inetemail);
 	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
@@ -288,10 +310,12 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("\">\n");
 
 	wprintf("<CENTER>\n"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
+		"<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">"
-		"</CENTER></FORM>\n"
+		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
+		"</CENTER></FORM>\n",
+		_("Save changes"),
+		_("Cancel")
 	);
 	
 	wprintf("</td></tr></table></div>\n");
@@ -316,7 +340,7 @@ void submit_vcard(void) {
 	char buf[SIZ];
 	int i;
 
-	if (strcmp(bstr("sc"), "OK")) { 
+	if (strlen(bstr("ok_button")) == 0) { 
 		readloop("readnew");
 		return;
 	}

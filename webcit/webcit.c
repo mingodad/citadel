@@ -437,9 +437,8 @@ void http_redirect(char *whichpage) {
 	wprintf("Location: %s\r\n", whichpage);
 	wprintf("URI: %s\r\n", whichpage);
 	wprintf("Content-type: text/html; charset=utf-8\r\n\r\n");
-	wprintf("<html><body>\n");
-	wprintf("you really want to be <A HREF=\"%s\">here</A> now\n",
-		whichpage);
+	wprintf("<html><body>");
+	wprintf("Go <A HREF=\"%s\">here</A>.", whichpage);
 	wprintf("</body></html>\n");
 }
 
@@ -596,22 +595,10 @@ void output_image()
 		free(xferbuf);
 
 	} else {
-
 		/* Instead of an ugly 404, send a 1x1 transparent GIF
 		 * when there's no such image on the server.
 		 */
 		output_static("blank.gif");
-
-		/*
-		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0, 0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\r\n"
-			"\r\n"
-			"Error retrieving image: %s\n",
-			&buf[4]
-		);
-		*/
-
 	}
 
 
@@ -619,6 +606,8 @@ void output_image()
 }
 
 /*
+ * Generic function to output an arbitrary MIME part from an arbitrary
+ * message number on the server.
  */
 void output_mimepart()
 {
@@ -644,7 +633,7 @@ void output_mimepart()
 		output_headers(0, 0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
-		wprintf("Error retrieving part: %s\n", &buf[4]);
+		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
 	}
 
 }
@@ -723,10 +712,9 @@ void url_do_template(void) {
 void offer_start_page(void) {
 	wprintf("<A HREF=\"/change_start_page?startpage=");
 	urlescputs(WC->this_page);
-	wprintf("\">"
-		"<FONT SIZE=-2 COLOR=\"#AAAAAA\">Make this my start page</FONT>"
-		"</A>"
-	);
+	wprintf("\"><FONT SIZE=-2 COLOR=\"#AAAAAA\">");
+	wprintf(_("Make this my start page"));
+	wprintf("</FONT></A>");
 }
 
 
@@ -737,7 +725,7 @@ void change_start_page(void) {
 
 	if (bstr("startpage") == NULL) {
 		safestrncpy(WC->ImportantMessage,
-			"startpage set to null",
+			_("You no longer have a start page selected."),
 			sizeof WC->ImportantMessage);
 		display_main_menu();
 		return;
@@ -766,9 +754,11 @@ void authorization_required(const char *message)
 	wprintf("HTTP/1.0 401 Authorization Required\r\n");
 	wprintf("WWW-Authenticate: Basic realm=\"\"\r\n", serv_info.serv_humannode);
 	wprintf("Content-Type: text/html\r\n\r\n");
-	wprintf("<h1>Authorization Required</h1>\r\n");
-	wprintf("The resource you requested requires a valid username and password.");
-	wprintf("I could not log you in: %s\n", message);
+	wprintf("<h1>");
+	wprintf(_("Authorization Required"));
+	wprintf("</h1>\r\n");
+	wprintf(_("The resource you requested requires a valid username and password. "
+		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
 }
 
@@ -998,11 +988,11 @@ void session_loop(struct httprequest *req)
 			locate_host(browser_host, WC->http_sock);
 			get_serv_info(browser_host, user_agent);
 			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
-				wprintf("You are connected to a Citadel "
-					"server running Citadel %d.%02d;\nin "
-					"order to run this version of WebCit "
+				wprintf(_("You are connected to a Citadel "
+					"server running Citadel %d.%02d. \n"
+					"In order to run this version of WebCit "
 					"you must also have Citadel %d.%02d or"
-					" newer.\n\n\n",
+					" newer.\n\n\n"),
 						serv_info.serv_rev_level / 100,
 						serv_info.serv_rev_level % 100,
 						MINIMUM_CIT_VERSION / 100,
@@ -1222,14 +1212,14 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
 	} else if (!strcasecmp(action, "display_editinfo")) {
-		display_edit("Room info", "EINF 0", "RINF", "/editinfo", 1);
+		display_edit(_("Room info"), "EINF 0", "RINF", "/editinfo", 1);
 	} else if (!strcasecmp(action, "editinfo")) {
-		save_edit("Room info", "EINF 1", 1);
+		save_edit(_("Room info"), "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
 		sprintf(buf, "RBIO %s", WC->wc_username);
-		display_edit("Your bio", "NOOP", buf, "editbio", 3);
+		display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
 	} else if (!strcasecmp(action, "editbio")) {
-		save_edit("Your bio", "EBIO", 0);
+		save_edit(_("Your bio"), "EBIO", 0);
 	} else if (!strcasecmp(action, "confirm_move_msg")) {
 		confirm_move_msg();
 	} else if (!strcasecmp(action, "delete_room")) {
@@ -1237,13 +1227,13 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "validate")) {
 		validate();
 	} else if (!strcasecmp(action, "display_editpic")) {
-		display_graphics_upload("your photo",
+		display_graphics_upload(_("your photo"),
 					"UIMG 0|_userpic_",
 					"/editpic");
 	} else if (!strcasecmp(action, "editpic")) {
 		do_graphics_upload("UIMG 1|_userpic_");
 	} else if (!strcasecmp(action, "display_editroompic")) {
-		display_graphics_upload("the icon for this room",
+		display_graphics_upload(_("the icon for this room"),
 					"UIMG 0|_roompic_",
 					"/editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
@@ -1257,7 +1247,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_editfloorpic")) {
 		sprintf(buf, "UIMG 0|_floorpic_|%s",
 			bstr("which_floor"));
-		display_graphics_upload("the icon for this floor",
+		display_graphics_upload(_("the icon for this floor"),
 					buf,
 					"/editfloorpic");
 	} else if (!strcasecmp(action, "editfloorpic")) {
@@ -1363,8 +1353,7 @@ void session_loop(struct httprequest *req)
 		set_preferences();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0, 0);
-
-		wprintf("You're in session %d<hr />\n", WC->wc_session);
+		wprintf("Session: %d<hr />\n", WC->wc_session);
 		wprintf("Command: <br /><PRE>\n");
 		escputs(cmd);
 		wprintf("</PRE><hr />\n");
