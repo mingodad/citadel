@@ -1,4 +1,7 @@
 $Log$
+Revision 621.26  2005/08/22 19:26:09  ajc
+* subst.c summary.c sysmsgs.c : i18n
+
 Revision 621.25  2005/08/22 19:06:52  ajc
 * siteconfig.c: i18n
 
@@ -2883,4 +2886,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

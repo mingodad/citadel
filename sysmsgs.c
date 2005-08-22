@@ -30,12 +30,13 @@ void display_edit(char *description, char *check_cmd,
 		output_headers(1, 1, 0, 0, 0, 0, 0);
 	}
 
-	svprintf("BOXTITLE", WCS_STRING, "Edit %s", description);
+	svprintf("BOXTITLE", WCS_STRING, _("Edit %s"), description);
 	do_template("beginbox");
 
-	wprintf("<CENTER>Enter %s below.  Text is formatted to\n", description);
-	wprintf("the <EM>reader's</EM> screen width.  To defeat the\n");
-	wprintf("formatting, indent a line at least one space.  \n");
+	wprintf("<div align=\"center\">");
+	wprintf(_("Enter %s below.  Text is formatted to "
+		"the reader's screen width.  To defeat the "
+		"formatting, indent a line at least one space."), description);
 	wprintf("<br />");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"%s\">\n", save_cmd);
@@ -46,11 +47,11 @@ void display_edit(char *description, char *check_cmd,
 	if (buf[0] == '1')
 		server_to_text();
 	wprintf("</TEXTAREA><br /><br />\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"Save\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"Cancel\"><br />\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\"><br />\n", _("Cancel"));
 
-	wprintf("</FORM></CENTER>\n");
+	wprintf("</FORM></div>\n");
 	do_template("endbox");
 	wDumpContent(1);
 }
@@ -65,7 +66,8 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 
 	if (strlen(bstr("save_button")) == 0) {
 		sprintf(WC->ImportantMessage,
-			"Cancelled.  %s was not saved.\n", description);
+			_("Cancelled.  %s was not saved."),
+			description);
 		display_main_menu();
 		return;
 	}
@@ -83,7 +85,8 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		smart_goto(WC->wc_roomname);
 	} else {
 		sprintf(WC->ImportantMessage,
-			"%s has been saved.\n", description);
+			_("%s has been saved."),
+			description);
 		display_main_menu();
 		return;
 	}
