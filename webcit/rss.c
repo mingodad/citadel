@@ -38,7 +38,7 @@ void display_rss(const char *roomname)
 	char charset[256];
 
 	if (!WC->logged_in) {
-		authorization_required("Not logged in");
+		authorization_required(_("Not logged in"));
 		return;
 	}
 
@@ -57,7 +57,7 @@ void display_rss(const char *roomname)
 		wprintf("HTTP/1.0 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");
 		wprintf("\r\n");
-		wprintf("Error retrieving RSS feed: couldn't find messages\n");
+		wprintf(_("Error retrieving RSS feed: couldn't find messages\n"));
 		return;
 	}
 
