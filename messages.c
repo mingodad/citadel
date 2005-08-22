@@ -1581,15 +1581,16 @@ void readloop(char *oper)
 			"<TD align=center><b><i>%s</i></b> %s</TD>"
 			"<TD align=center><b><i>%s</i></b> %s</TD>"
 			"<TD align=center><b><i>%s</i></b> %s</TD>"
-			"<TD><INPUT TYPE=\"submit\" NAME=\"sc\" "
+			"<TD><INPUT TYPE=\"submit\" NAME=\"delete_button\" "
 			"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
 			" font-size: 6pt;\" "
-			"VALUE=\"Delete\"></TD>"
+			"VALUE=\"%s\"></TD>"
 			"</TR>\n"
 			,
 			_("Subject"),	subjsort_button,
 			_("Sender"),	sendsort_button,
-			_("Date"),	datesort_button
+			_("Date"),	datesort_button,
+			_("Delete")
 		);
 	}
 
@@ -1923,14 +1924,14 @@ void post_message(void)
 
 	if (strlen(bstr("cancel_button")) > 0) {
 		sprintf(WC->ImportantMessage, 
-			"Cancelled.  Message was not posted.");
+			_("Cancelled.  Message was not posted."));
 	} else if (strlen(bstr("attach_button")) > 0) {
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
 		sprintf(WC->ImportantMessage, 
-			"Automatically cancelled because you have already "
-			"saved this message.");
+			_("Automatically cancelled because you have already "
+			"saved this message."));
 	} else {
 		sprintf(buf, "ENT0 1|%s|0|4|%s",
 			bstr("recp"),
@@ -1940,10 +1941,10 @@ void post_message(void)
 		if (buf[0] == '4') {
 			post_mime_to_server();
 			if (strlen(bstr("recp")) > 0) {
-				sprintf(WC->ImportantMessage, "Message has been sent.\n");
+				sprintf(WC->ImportantMessage, _("Message has been sent.\n"));
 			}
 			else {
-				sprintf(WC->ImportantMessage, "Message has been posted.\n");
+				sprintf(WC->ImportantMessage, _("Message has been posted.\n"));
 			}
 			dont_post = atol(bstr("postseq"));
 		} else {
@@ -2031,13 +2032,13 @@ void display_enter(void)
 
 	now = time(NULL);
 	fmt_date(buf, now, 0);
-	strcat(&buf[strlen(buf)], " <I>from</I> ");
+	strcat(&buf[strlen(buf)], _(" <I>from</I> "));
 	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
 	if (strlen(bstr("recp")) > 0) {
-		strcat(&buf[strlen(buf)], " <I>to</I> ");
+		strcat(&buf[strlen(buf)], _(" <I>to</I> "));
 		stresc(&buf[strlen(buf)], bstr("recp"), 1, 1);
 	}
-	strcat(&buf[strlen(buf)], " <I>in</I> ");
+	strcat(&buf[strlen(buf)], _(" <I>in</I> "));
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
 	/* begin message entry screen */
@@ -2056,7 +2057,9 @@ void display_enter(void)
 	wprintf("%s<br>\n", buf);	/* header bar */
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
 		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
-	wprintf("<font size=-1>Subject (optional):</font>"
+	wprintf("<font size=-1>");
+	wprintf(_("Subject (optional):"));
+	wprintf("</font>"
 		"<input type=\"text\" name=\"subject\" value=\"");
 	escputs(bstr("subject"));
 	wprintf("\" size=40 maxlength=70>"
@@ -2065,12 +2068,12 @@ void display_enter(void)
 
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (strlen(bstr("recp")) > 0) {
-		wprintf("Send message");
+		wprintf(_("Send message"));
 	} else {
-		wprintf("Post message");
+		wprintf(_("Post message"));
 	}
 	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"Cancel\">\n");
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 
 	wprintf("<center><script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
@@ -2107,7 +2110,7 @@ void display_enter(void)
 	wprintf("&nbsp;&nbsp;&nbsp;"
 		"Attach file: <input NAME=\"attachfile\" "
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
-		"<input type=\"submit\" name=\"attach_button\" value=\"Add\">\n");
+		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 
 	wprintf("</form>\n");
 
@@ -2158,12 +2161,15 @@ void confirm_move_msg(void)
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
 	wprintf("<font size=+1 color=\"#ffffff\"");
-	wprintf("<b>Confirm move of message</b>\n");
+	wprintf("<b>");
+	wprintf(_("Confirm move of message"));
+	wprintf("</b>\n");
 	wprintf("</font></td></tr></table></div>\n");
 
 	wprintf("<CENTER>");
 
-	wprintf("Move this message to:<br />\n");
+	wprintf(_("Move this message to:"));
+	wprintf("<br />\n");
 
 	wprintf("<form METHOD=\"POST\" ACTION=\"/move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
@@ -2184,9 +2190,9 @@ void confirm_move_msg(void)
 	wprintf("</SELECT>\n");
 	wprintf("<br />\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"Move\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"%s\">", _("Move"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"Cancel\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
 	wprintf("</form></CENTER>\n");
 
 	wprintf("</CENTER>\n");
@@ -2210,7 +2216,9 @@ void move_msg(void)
 		serv_getln(buf, sizeof buf);
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 	} else {
-		wprintf("<EM>Message not moved.</EM><br />\n");
+		wprintf("<EM>");
+		wprintf(_("The message was not moved."));
+		wprintf("</EM><br />\n");
 	}
 
 	wDumpContent(1);
@@ -2222,8 +2230,7 @@ void move_msg(void)
  * (such as deleting them).
  */
 void do_stuff_to_msgs(void) {
-	char buf[SIZ];
-	char sc[SIZ];
+	char buf[256];
 
 	struct stuff_t {
 		struct stuff_t *next;
@@ -2232,6 +2239,7 @@ void do_stuff_to_msgs(void) {
 
 	struct stuff_t *stuff = NULL;
 	struct stuff_t *ptr;
+	int delete_button_pressed = 0;
 
 
 	serv_puts("MSGS ALL");
@@ -2244,14 +2252,16 @@ void do_stuff_to_msgs(void) {
 		stuff = ptr;
 	}
 
-	strcpy(sc, bstr("sc"));
+	if (strlen(bstr("delete_button")) > 0) {
+		delete_button_pressed = 1;
+	}
 
 	while (stuff != NULL) {
 
 		sprintf(buf, "msg_%ld", stuff->msgnum);
 		if (!strcasecmp(bstr(buf), "yes")) {
 
-			if (!strcasecmp(sc, "Delete")) {
+			if (delete_button_pressed) {
 				serv_printf("DELE %ld", stuff->msgnum);
 				serv_getln(buf, sizeof buf);
 			}
