@@ -451,12 +451,12 @@ int main(int argc, char **argv)
 	}
 	/* Tell 'em who's in da house */
 	lprintf(1, SERVER "\n");
-	lprintf(1, _("Copyright (C) 1996-2005 by the Citadel development team.\n"
+	lprintf(1, "Copyright (C) 1996-2005 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
-		"GNU General Public License.\n\n")
+		"GNU General Public License.\n\n"
 	);
 
-	lprintf(9, _("Changing directory to %s\n"), webcitdir);
+	lprintf(9, "Changing directory to %s\n", webcitdir);
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
 	}

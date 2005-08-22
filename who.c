@@ -22,9 +22,9 @@ void who_inner_div(void) {
 	wprintf("<table border=\"0\" cellspacing=\"0\" width=\"100%%\" bgcolor=\"#FFFFFF\">"
 		"<tr>\n");
 	wprintf("<th colspan=\"3\"> </th>\n");
-	wprintf("<th>User Name</th>\n");
-	wprintf("<th>Room</th>");
-	wprintf("<th>From host</th>\n</tr>\n");
+	wprintf("<th>%s</th>\n", _("User name"));
+	wprintf("<th>%s</th>", _("Room"));
+	wprintf("<th>%s</th>\n</tr>\n", _("From host"));
 
 	serv_puts("TIME");
 	serv_getln(buf, sizeof buf);
@@ -57,12 +57,10 @@ void who_inner_div(void) {
 			if ((WC->is_aide) &&
 			    (sess != WC->ctdl_pid)) {
 				wprintf(" <a href=\"/terminate_session?which_session=%d", sess);
-				wprintf("\" onClick=\"return ConfirmKill();\" "
-				">[kill]</a>");
+				wprintf("\" onClick=\"return ConfirmKill();\">%s</a>", _("(kill)"));
 			}
 			if (sess == WC->ctdl_pid) {
-				wprintf(" <a href=\"/edit_me\" "
-					">[edit]</a>");
+				wprintf(" <a href=\"/edit_me\">%s</a>", _("(edit)"));
 			}
 			wprintf("</td>");
 
@@ -82,13 +80,13 @@ void who_inner_div(void) {
 				wprintf(" "
 					"<img align=\"middle\" "
 					"src=\"/static/inactiveuser_24x.gif\" "
-					"alt=\"[idle]\" border=\"0\" />");
+					"alt=\"(idle)\" border=\"0\" />");
 			}
 			else {
 				wprintf(" "
 					"<img align=\"middle\" "
 					"src=\"/static/activeuser_24x.gif\" "
-					"alt=\"[active]\" border=\"0\" />");
+					"alt=\"(active)\" border=\"0\" />");
 			}
 			wprintf("</td>\n<td>");
 
@@ -160,16 +158,15 @@ void who_inner_html(void) {
  */
 void who(void)
 {
-	/*
-	output_headers(1, 1, 2, 0, 1, 0, 0); old refresh30 version
-	*/
+	char title[256];
+
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 
 	wprintf("<script type=\"text/javascript\">\n"
 		"function ConfirmKill() { \n"
-		"return confirm('Do you really want to kill this session?');\n"
+		"return confirm('%s');\n"
 		"}\n"
-		"</script>\n"
+		"</script>\n", _("Do you really want to kill this session?")
 	);
 
 	wprintf("<div id=\"banner\">\n");
@@ -178,8 +175,11 @@ void who(void)
 		"ALIGN=MIDDLE "
 		">");
 		/* "onLoad=\"javascript:bodyOnLoad()\" " */
-	wprintf("<SPAN CLASS=\"titlebar\"> Users currently on ");
-	escputs(serv_info.serv_humannode);
+	wprintf("<SPAN CLASS=\"titlebar\"> ");
+
+	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
+	escputs(title);
+
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
@@ -191,28 +191,27 @@ void who(void)
 	who_inner_div();	/* Actual data handled by another function */
 	wprintf("</div>\n");
 
-	wprintf("<div id=\"instructions\" align=center>"
-		"Click on a name to read user info.  Click on "
-		"<IMG ALIGN=MIDDLE SRC=\"/static/citadelchat_16x.gif\" "
-		"ALT=\"(p)\" BORDER=0>"
-		" to send an instant message to that user.</div>\n");
+	wprintf("<div id=\"instructions\" align=center>");
+	wprintf(_("Click on a name to read user info.  Click on %s "
+		"to send an instant message to that user."),
+		"<img align=\"middle\" src=\"/static/citadelchat_16x.gif\" alt=\"(p)\" border=\"0\">"
+	);
+	wprintf("</div>\n");
 
 	/* JavaScript to make the ajax refresh happen:
 	 * 1. Register the request 'getWholist' which calls the WebCit action 'who_inner_html'
 	 * 2. Register the 'fix_scrollbar_bug' div as one we're interested in ajaxifying
 	 * 3. setInterval to make the ajax refresh happen every 30 seconds.  The random number
-	 *    in the request is there to prevent IE from caching the XML even though it's been
-	 *    told not to.  Die, Microsoft, Die.
+	 *    in the request is there to prevent the eternally moronic Internet Explorer from
+	 *    caching the XML even though it's been told not to.
 	 */
 	wprintf(
-"									\n"
-" <script type=\"text/javascript\">					\n"
-"	ajaxEngine.registerRequest('getWholist', 'who_inner_html');\n"
-"	ajaxEngine.registerAjaxElement('fix_scrollbar_bug');	\n"
-"	setInterval(\"ajaxEngine.sendRequest('getWholist', 'junk='+Math.random());\", 30000);	\n"
-"</script>\n"
+		"<script type=\"text/javascript\">								\n"
+		"	ajaxEngine.registerRequest('getWholist', 'who_inner_html');				\n"
+		"	ajaxEngine.registerAjaxElement('fix_scrollbar_bug');					\n"
+		"	setInterval(\"ajaxEngine.sendRequest('getWholist', 'junk='+Math.random());\", 30000);	\n"
+		"</script>											\n"
 	);
-
 
 	wDumpContent(1);
 }
@@ -235,63 +234,72 @@ void edit_me(void)
 {
 	char buf[SIZ];
 
-	if (!strcasecmp(bstr("sc"), "Change room name")) {
+	if (strlen(bstr("change_room_name_button")) > 0) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("/who");
-	} else if (!strcasecmp(bstr("sc"), "Change host name")) {
+	} else if (strlen(bstr("change_host_name_button")) > 0) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("/who");
-	} else if (!strcasecmp(bstr("sc"), "Change user name")) {
+	} else if (strlen(bstr("change_user_name_button")) > 0) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("/who");
-	} else if (!strcasecmp(bstr("sc"), "Cancel")) {
+	} else if (strlen(bstr("cancel_button")) > 0) {
 		http_redirect("/who");
 	} else {
-
 		output_headers(1, 1, 0, 0, 0, 0, 0);
 
 		wprintf("<div id=\"banner\">\n");
 		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 		wprintf("<SPAN CLASS=\"titlebar\">");
-		wprintf("Edit your session display");
+		wprintf(_("Edit your session display"));
 		wprintf("</SPAN></TD></TR></TABLE>\n");
 		wprintf("</div>\n<div id=\"content\">\n");
 
-		wprintf("This screen allows you to change the way your\n");
-		wprintf("session appears in the 'Who is online' listing.\n");
-		wprintf("To turn off any 'fake' name you've previously\n");
-		wprintf("set, simply click the appropriate 'change' button\n");
-		wprintf("without typing anything in the corresponding box.\n");
+		wprintf(_("This screen allows you to change the way your "
+			"session appears in the 'Who is online' listing. "
+			"To turn off any 'fake' name you've previously "
+			"set, simply click the appropriate 'change' button "
+			"without typing anything in the corresponding box. "));
 		wprintf("<br />\n");
 
 		wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
 
 		wprintf("<TABLE border=0 width=100%%>\n");
 
-		wprintf("<TR><TD><B>Room name:</B></TD>\n<TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Room name:"));
+		wprintf("</B></TD>\n<TD>");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
 		wprintf("</TD>\n<TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"change_room_name_button\" VALUE=\"%s\">",
+			_("Change room name"));
 		wprintf("</TD>\n</TR>\n");
 
-		wprintf("<TR><TD><B>Host name:</B></TD><TD>");
+		wprintf("<TR><TD><B>");
+		wprintf(_("Host name:"));
+		wprintf("</B></TD><TD>");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
 		wprintf("</TD>\n<TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"change_host_name_button\" VALUE=\"%s\">",
+			_("Change host name"));
 		wprintf("</TD>\n</TR>\n");
 
 		if (WC->is_aide) {
-			wprintf("<TR><TD><B>User name:</B></TD><TD>");
+			wprintf("<TR><TD><B>");
+			wprintf(_("User name:"));
+			wprintf("</B></TD><TD>");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
 			wprintf("</TD>\n<TD ALIGN=center>");
-			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
+			wprintf("<INPUT TYPE=\"submit\" NAME=\"change_user_name_button\" VALUE=\"%s\">",
+				_("Change user name"));
 			wprintf("</TD>\n</TR>\n");
 		}
 		wprintf("<TR><TD> </TD><TD> </TD><TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">",
+			_("Cancel"));
 		wprintf("</TD></TR></TABLE>\n");
 		wprintf("</FORM></CENTER>\n");
 		wDumpContent(1);
