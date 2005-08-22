@@ -1,4 +1,10 @@
 $Log$
+Revision 621.21  2005/08/22 01:02:42  ajc
+* messages.c: finished i18n
+* webcit.h: minimum required Citadel server version is now 6.55; this is
+  required in order to gain access to the new version of the MSGS command
+  that includes a header summary.
+
 Revision 621.20  2005/08/21 05:02:17  ajc
 * messages.c: renamed some elements
 
@@ -2863,3 +2869,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
