@@ -1,4 +1,12 @@
 $Log$
+Revision 654.19  2005/08/23 04:00:01  ajc
+* Mailing list messages are now customized with a To: header for each
+  recipient.  This uses more overhead but makes delivery more reliable.
+  We also prepend [List name] to the subject.
+* The undocumented client-side mailing list participation option received
+  a similar update.  We now set an explicit To: header in there as well,
+  because some lists demand it.
+
 Revision 654.18  2005/08/21 19:40:50  ajc
 * techdoc/protocol.txt: document that unless otherwise specified,
   everything in the Citadel system is UTF-8.
@@ -7056,4 +7064,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
