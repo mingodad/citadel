@@ -1,4 +1,11 @@
 $Log$
+Revision 654.20  2005/08/29 20:49:50  ajc
+* imap_fetch.c: fixed a bug in the IMAP FETCH BODY code that was causing the
+  "most recently fetched message" cache to be burned even when it shouldn't
+  have been.  This was causing abominally slow message load time when a message
+  contains attachments and the MUA is a client such as Thunderbird that does
+  partial fetches.
+
 Revision 654.19  2005/08/23 04:00:01  ajc
 * Mailing list messages are now customized with a To: header for each
   recipient.  This uses more overhead but makes delivery more reliable.
@@ -7064,3 +7071,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -566,6 +566,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	size_t pstart, pbytes;
 	int loading_body_now = 0;
 	int need_body = 1;
+	int burn_the_cache = 0;
 
 	/* extract section */
 	safestrncpy(section, item, sizeof section);
@@ -581,9 +582,17 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * same message again.
 	 */
 	if (IMAP->cached_body != NULL) {
-		if ((IMAP->cached_bodymsgnum != msgnum)
-		   || ( (IMAP->cached_body_withbody) || (!need_body) )
-		   || (strcasecmp(IMAP->cached_bodypart, section)) ) {
+		if (IMAP->cached_bodymsgnum != msgnum) {
+			burn_the_cache = 1;
+		}
+		else if ( (!IMAP->cached_body_withbody) && (need_body) ) {
+			burn_the_cache = 1;
+		}
+		else if (strcasecmp(IMAP->cached_bodypart, section)) {
+			burn_the_cache = 1;
+		}
+		if (burn_the_cache) {
+			/* Yup, go ahead and burn the cache. */
 			free(IMAP->cached_body);
 			IMAP->cached_body_len = 0;
 			IMAP->cached_body = NULL;
