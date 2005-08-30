@@ -1,4 +1,9 @@
 $Log$
+Revision 621.31  2005/08/30 04:30:53  ajc
+* messages.c: teh b0rken Intarweb Exploder was printing the screen rather
+  than the hidden iframe when user selects "Print" message.  Applied a
+  workaround.
+
 Revision 621.30  2005/08/23 02:57:04  ajc
 * Added some files to the po/ directory, but I really don't know what I'm
   doing here...
@@ -2903,3 +2908,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

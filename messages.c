@@ -699,7 +699,7 @@ void read_message(long msgnum, int suppress_buttons) {
 			);
 		}
 
-		wprintf("<a href=\"/msg?msgnum=%ld?print_it=yes\" target=\"msgloader1\">"
+		wprintf("<a href=\"/msg?msgnum=%ld?sourceiframe=msgloader1?print_it=yes\" target=\"msgloader1\">"
 			"[%s]</a>", msgnum, _("Print"));
 
 		wprintf("</td>");
@@ -890,9 +890,21 @@ void embed_message(void) {
 " <script type=\"text/javascript\">					\n"
 "	function loaded_now_copy_it() {					\n"
 "		parent.document.getElementById(\"%s\").innerHTML = parent.frames['%s'].document.body.innerHTML;	\n"
-"	}											\n"
+"	}								\n"
 "</script>\n",
 		targetdiv,
+		sourceiframe
+	);
+
+	if (!strcasecmp(print_it, "yes")) wprintf(
+"									\n"
+" <script type=\"text/javascript\">					\n"
+"	function loaded_now_print_it() {				\n"
+"		parent.frames['%s'].focus();				\n"
+"		parent.frames['%s'].print();				\n"
+"	}								\n"
+"</script>\n",
+		sourceiframe,
 		sourceiframe
 	);
 
@@ -902,7 +914,7 @@ void embed_message(void) {
 		wprintf(" onLoad='loaded_now_copy_it();'");
 	}
 	if (!strcasecmp(print_it, "yes")) {
-		wprintf(" onLoad='window.print();'");
+		wprintf(" onLoad='loaded_now_print_it();'");
 	}
 	wprintf(">\n");
 	read_message(msgnum, (!strcasecmp(print_it, "yes") ? 1 : 0) );
