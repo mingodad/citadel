@@ -1960,8 +1960,9 @@ void post_message(void)
 			}
 			dont_post = atol(bstr("postseq"));
 		} else {
-			sprintf(WC->ImportantMessage, 
-				"%s", &buf[4]);
+			sprintf(WC->ImportantMessage, "%s", &buf[4]);
+			display_enter();
+			return;
 		}
 	}
 
@@ -1980,6 +1981,8 @@ void display_enter(void)
 	char buf[SIZ];
 	long now;
 	struct wc_attachment *att;
+	int recipient_required = 0;
+	int recipient_bad = 0;
 
 	if (strlen(bstr("force_room")) > 0) {
 		gotoroom(bstr("force_room"));
@@ -2028,16 +2031,12 @@ void display_enter(void)
 	serv_getln(buf, sizeof buf);
 
 	if (!strncmp(buf, "570", 3)) {
+		recipient_required = 1;
 		if (strlen(bstr("recp")) > 0) {
-			svprintf("RECPERROR", WCS_STRING,
-				"<SPAN CLASS=\"errormsg\">%s</SPAN><br />\n",
-				&buf[4]
-			);
+			recipient_bad = 1;
 		}
-		do_template("prompt_for_recipient");
-		goto DONE;
 	}
-	if (buf[0] != '2') {
+	else if (buf[0] != '2') {
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
 	}
@@ -2054,7 +2053,6 @@ void display_enter(void)
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
 	/* begin message entry screen */
-	// wprintf("<div style=\"position:absolute; left:1%%; width:96%%; height:100%%\">\n");
 
 	wprintf("<form enctype=\"multipart/form-data\" "
 		"method=\"POST\" action=\"/post\" "
@@ -2066,17 +2064,29 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n",
 		now);
 
-	wprintf("%s<br>\n", buf);	/* header bar */
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
+	wprintf("%s<br>\n", buf);	/* header bar */
+
+	wprintf("<table border=\"0\" width=\"100%%\">\n");
+	if (recipient_required) {
+		wprintf("<tr><td>");
+		wprintf("<font size=-1>");
+		wprintf(_("To:"));
+		wprintf("</font>");
+		wprintf("</td><td>"
+			"<input type=\"text\" name=\"recp\" value=\"");
+		escputs(bstr("recp"));
+		wprintf("\" size=50 maxlength=70></td><td></td></tr>\n");
+	}
+
+	wprintf("<tr><td>");
 	wprintf("<font size=-1>");
 	wprintf(_("Subject (optional):"));
-	wprintf("</font>"
+	wprintf("</font>");
+	wprintf("</td><td>"
 		"<input type=\"text\" name=\"subject\" value=\"");
 	escputs(bstr("subject"));
-	wprintf("\" size=40 maxlength=70>"
-		"&nbsp;"
-	);
+	wprintf("\" size=50 maxlength=70></td><td>\n");
 
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (strlen(bstr("recp")) > 0) {
@@ -2086,6 +2096,7 @@ void display_enter(void)
 	}
 	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wprintf("</td></tr></table>\n");
 
 	wprintf("<center><script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"

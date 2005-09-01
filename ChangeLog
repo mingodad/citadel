@@ -1,4 +1,11 @@
 $Log$
+Revision 621.32  2005/09/01 03:54:32  ajc
+* The "prompt for recipient" screen is now gone.  When the user is posting
+  from a room requiring a recipient, a "To:" line now appears above the
+  "Subject:" line.  Entering an invalid recipient causes the message entry
+  screen to loop back to itself, with the form contents still intact, and
+  the ImportantMessage box set to the error message.
+
 Revision 621.31  2005/08/30 04:30:53  ajc
 * messages.c: teh b0rken Intarweb Exploder was printing the screen rather
   than the hidden iframe when user selects "Print" message.  Applied a
@@ -2908,4 +2915,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
