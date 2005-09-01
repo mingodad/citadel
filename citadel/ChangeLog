@@ -1,4 +1,8 @@
 $Log$
+Revision 654.21  2005/09/01 22:07:08  ajc
+* citserver.c: change to usage of strdup() to work on RH9 where it's
+  a macro
+
 Revision 654.20  2005/08/29 20:49:50  ajc
 * imap_fetch.c: fixed a bug in the IMAP FETCH BODY code that was causing the
   "most recently fetched message" cache to be burned even when it shouldn't
@@ -7071,4 +7075,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

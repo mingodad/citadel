@@ -458,16 +458,18 @@ void cmd_mesg(char *mname)
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
-	dirs[0] = strdup(
 #ifdef HAVE_DATA_DIR
-					 DATA_DIR"/"
+	dirs[0] = strdup(DATA_DIR "/messages");
+#else
+	dirs[0] = strdup("messages");
 #endif
-					 "messages");
-	dirs[1] = strdup(
+
 #ifdef HAVE_DATA_DIR
-					 DATA_DIR"/"
+	dirs[1] = strdup(DATA_DIR "/help");
+#else
+	dirs[1] = strdup("help");
 #endif
-					 "help");
+
 	snprintf(buf2, sizeof buf2, "%s.%d.%d",
 		buf, CC->cs_clientdev, CC->cs_clienttyp);
 
@@ -548,16 +550,18 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-	dirs[0] = strdup(
 #ifdef HAVE_DATA_DIR
-					 DATA_DIR"/"
+	dirs[0] = strdup(DATA_DIR "/messages");
+#else
+	dirs[0] = strdup("messages");
 #endif
-					 "messages");
-	dirs[1] = strdup(
+
 #ifdef HAVE_DATA_DIR
-					 DATA_DIR"/"
+	dirs[1] = strdup(DATA_DIR "/help");
+#else
+	dirs[1] = strdup("help");
 #endif
-					 "help");
+
 	mesg_locate(targ, sizeof targ, buf, 2, (const char**)dirs);
 	free(dirs[0]);
 	free(dirs[1]);
