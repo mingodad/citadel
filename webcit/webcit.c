@@ -407,7 +407,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 				"%s</SPAN><br />\n", WC->ImportantMessage);
 			wprintf("</div>\n");
 			wprintf("<script type=\"text/javascript\">\n"
-				"	 setTimeout('hide_imsg_popup()', 2000);	\n"
+				"	 setTimeout('hide_imsg_popup()', 3000);	\n"
 				"</script>\n");
 			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 		}
