@@ -438,7 +438,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 	int send = 1;
 	int delete_after_send = 0;	/* Set to 1 to delete after spooling */
 	int ok_to_participate = 0;
-	char *end_of_headers = NULL;
 	struct recptypes *valid;
 
 	sc = (struct SpoolControl *)userdata;
@@ -508,17 +507,10 @@ void network_spool_msg(long msgnum, void *userdata) {
 			CC->redirect_alloc = SIZ;
 
 			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
-			CtdlOutputPreLoadedMsg(msg, 0L, MT_MIME, HEADERS_NONE, 0, 0);
+			CtdlOutputPreLoadedMsg(msg, 0L, MT_CITADEL, HEADERS_NONE, 0, 0);
 
-			end_of_headers = bmstrstr(CC->redirect_buffer, "\n\r\n", strncmp);
-			if (end_of_headers == NULL) {
-				end_of_headers = bmstrstr(CC->redirect_buffer, "\n\n", strncmp);
-			}
-			if (end_of_headers == NULL) {
-				end_of_headers = CC->redirect_buffer;
-			}
-			striplt(end_of_headers);
-			fprintf(sc->digestfp, "\n%s\n", end_of_headers);
+			striplt(CC->redirect_buffer);
+			fprintf(sc->digestfp, "\n%s\n", CC->redirect_buffer);
 
 			free(CC->redirect_buffer);
 			CC->redirect_buffer = NULL;

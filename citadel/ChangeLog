@@ -1,4 +1,8 @@
 $Log$
+Revision 654.22  2005/09/02 03:50:42  ajc
+* serv_network.c: fixed a bug in digest generation that was causing the
+  tops of some messages to be cut off.
+
 Revision 654.21  2005/09/01 22:07:08  ajc
 * citserver.c: change to usage of strdup() to work on RH9 where it's
   a macro
@@ -7075,3 +7079,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
