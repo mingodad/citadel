@@ -2089,7 +2089,7 @@ void display_enter(void)
 	wprintf("\" size=50 maxlength=70></td><td>\n");
 
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-	if (strlen(bstr("recp")) > 0) {
+	if (recipient_required) {
 		wprintf(_("Send message"));
 	} else {
 		wprintf(_("Post message"));
