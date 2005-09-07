@@ -94,8 +94,10 @@ bad_dns:
 }
 
 
+/*
+ * RBL check written by Edward S. Marshall [http://rblcheck.sourceforge.net]
+ */
 #define RESULT_SIZE 4096 /* What is the longest result text we support? */
-
 int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	int a, b, c;
 	char *result = NULL;
