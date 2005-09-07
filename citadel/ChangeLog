@@ -1,4 +1,8 @@
 $Log$
+Revision 654.23  2005/09/07 03:08:06  ajc
+* When rejecting a message due to RBL, give the alleged spammers the
+  relevant TXT record if there is one.  Hopefully.  This needs testing.
+
 Revision 654.22  2005/09/02 03:50:42  ajc
 * serv_network.c: fixed a bug in digest generation that was causing the
   tops of some messages to be cut off.
@@ -7079,4 +7083,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
