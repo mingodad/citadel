@@ -1,4 +1,10 @@
 $Log$
+Revision 654.24  2005/09/08 03:25:09  ajc
+* messages.c: break up long lines (preferably by substituting spaces with
+  newlines) to avoid sending messages to the server containing lines with
+  more than 1024 characters, to avoid having the server truncate those
+  lines.
+
 Revision 654.23  2005/09/07 03:08:06  ajc
 * When rejecting a message due to RBL, give the alleged spammers the
   relevant TXT record if there is one.  Hopefully.  This needs testing.
@@ -7083,3 +7089,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

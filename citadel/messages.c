@@ -942,8 +942,9 @@ MECR:	if (mode >= 2) {
 			err_printf("*** Aborted message.\n");
 			e_ex_code = 1;
 		}
-		if (e_ex_code == 0)
+		if (e_ex_code == 0) {
 			goto MEFIN;
+		}
 		goto MEABT2;
 	}
 
@@ -952,16 +953,14 @@ MECR:	if (mode >= 2) {
 		    "add s<U>bject|"
 		    "<R>eplace string|<H>old message");
 
-	if (b == 'a')
-		goto MEABT;
-	if (b == 'c')
-		goto ME1;
-	if (b == 's')
-		goto MEFIN;
+	if (b == 'a') goto MEABT;
+	if (b == 'c') goto ME1;
+	if (b == 's') goto MEFIN;
 	if (b == 'p') {
 		scr_printf(" %s from %s", datestr, fullname);
-		if (strlen(recipient) > 0)
+		if (strlen(recipient) > 0) {
 			scr_printf(" to %s", recipient);
+		}
 		scr_printf("\n");
 		if (subject != NULL) if (strlen(subject) > 0) {
 			scr_printf("Subject: %s\n", subject);
@@ -1072,6 +1071,29 @@ void check_msg_arr_size(void) {
 }
 
 
+/*
+ * break_big_lines()  -  break up lines that are >1024 characters
+ *                       otherwise the server will truncate
+ */
+void break_big_lines(char *msg) {
+	char *ptr;
+	char *break_here;
+
+	if (msg == NULL) {
+		return;
+	}
+
+	ptr = msg;
+	while (strlen(ptr) > 1000) {
+		break_here = strchr(&ptr[900], ' ');
+		if ((break_here == NULL) || (break_here > &ptr[999])) {
+			break_here = &ptr[999];
+		}
+		*break_here = '\n';
+		ptr = break_here++;
+	}
+}
+
 
 /*
  * entmsg()  -  edit and create a message
@@ -1120,8 +1142,9 @@ int entmsg(CtdlIPC *ipc,
 	 * in this room, but a recipient needs to be specified.
 	 */
 	need_recp = 0;
-	if (r / 10 == 57)
+	if (r / 10 == 57) {
 		need_recp = 1;
+	}
 
 	/* If the user is a dumbass, tell them how to type. */
 	if ((userflags & US_EXPERT) == 0) {
@@ -1205,6 +1228,11 @@ int entmsg(CtdlIPC *ipc,
 	}
 
 	if (fp) fclose(fp);
+
+	/* Break lines that are >1024 characters, otherwise the server
+	 * will truncate them.
+	 */
+	break_big_lines(message.text);
 
 	/* Transmit message to the server */
 	r = CtdlIPCPostMessage(ipc, 1, &message, buf);
