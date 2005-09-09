@@ -491,13 +491,13 @@ char *rfc822_fetch_field(char *rfc822, char *fieldname) {
 	snprintf(fieldhdr, sizeof fieldhdr, "%s:", fieldname);
 
 	/* Locate the end of the headers, so we don't run past that point */
-	end_of_headers = bmstrstr(rfc822, "\n\r\n", strncmp);
+	end_of_headers = strcasestr(rfc822, "\n\r\n");
 	if (end_of_headers == NULL) {
-		end_of_headers = bmstrstr(rfc822, "\n\n", strncmp);
+		end_of_headers = strcasestr(rfc822, "\n\n");
 	}
 	if (end_of_headers == NULL) return (NULL);
 
-	field_start = bmstrstr(rfc822, fieldhdr, strncasecmp);
+	field_start = strcasestr(rfc822, fieldhdr);
 	if (field_start == NULL) return(NULL);
 	if (field_start > end_of_headers) return(NULL);
 

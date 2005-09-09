@@ -415,8 +415,6 @@ void the_mime_parser(char *partnum,
 
 		part_start = NULL;
 		do {
-	
-			/* next_boundary = bmstrstr(ptr, startary, memcmp); */
 			next_boundary = NULL;
 			for (srch=ptr; srch<content_end; ++srch) {
 				if (!memcmp(srch, startary, startary_len)) {
