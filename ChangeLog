@@ -1,4 +1,7 @@
 $Log$
+Revision 621.36  2005/09/09 19:47:29  ajc
+* Removed some dead code
+
 Revision 621.35  2005/09/09 04:43:37  ajc
 *** empty log message ***
 
@@ -2929,3 +2932,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
