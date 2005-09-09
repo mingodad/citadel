@@ -1,11 +1,13 @@
 $Log$
+Revision 621.35  2005/09/09 04:43:37  ajc
+*** empty log message ***
+
 Revision 621.34  2005/09/09 04:43:22  ajc
 * Checked in a copy of the "script.aculo.us" library by Thomas Fuchs.
   NOTE: I had to search-and-replace "Effect" to "ScriptaculousEffect" in
   all of their files, to avoid a conflict with the name "Effect" in Rico.
 * Implemented recipient autocompletion when composing mail, using the
   script.aculo.us drop-down box and an ajax fetch.  Cool!!
-Copyright (c) 2005 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 
 Revision 621.33  2005/09/06 14:44:28  ajc
 * Altered the logic which determines whether to display a "Post message"
