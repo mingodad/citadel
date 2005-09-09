@@ -23,6 +23,11 @@
    Stephenson [http://prototype.conio.net].  These components are licensed to
    you under the terms of an MIT-style license.
 
+   WebCit bundles the script.aculo.us JavaScript library, written by
+   Thomas Fuchs [http://script.aculo.us, http://mir.aculo.us].  These
+   components are licensed to you under the terms of an MIT-style license.
+
+
    The Citadel logo was designed by Lisa Aurigemma.
  
  INTRODUCTION
