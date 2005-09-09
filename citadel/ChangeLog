@@ -1,4 +1,10 @@
 $Log$
+Revision 654.25  2005/09/09 19:44:21  ajc
+* New bmstrcasestr() function to perform very fast case-insensitive
+  substring searches using the Boyer-Moore algorithm.  Like its predecessor,
+  it is based on the one written by Urs Jannsen; unlike its predecessor, it
+  actually works.
+
 Revision 654.24  2005/09/08 03:25:09  ajc
 * messages.c: break up long lines (preferably by substituting spaces with
   newlines) to avoid sending messages to the server containing lines with
@@ -7089,4 +7095,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

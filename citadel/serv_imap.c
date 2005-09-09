@@ -1386,7 +1386,7 @@ void imap_command_loop(void)
 	if (IMAP->authstate == imap_as_expecting_password) {
 		lprintf(CTDL_INFO, "IMAP: <password>\n");
 	}
-	else if (strcasestr(cmdbuf, " LOGIN ")) {
+	else if (bmstrcasestr(cmdbuf, " LOGIN ")) {
 		lprintf(CTDL_INFO, "IMAP: LOGIN...\n");
 	}
 	else {

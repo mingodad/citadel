@@ -1370,7 +1370,7 @@ void ListThisUser(struct ctdluser *usbuf, void *data)
 	char *searchstring;
 
 	searchstring = (char *)data;
-	if (strcasestr(usbuf->fullname, searchstring) == NULL) {
+	if (bmstrcasestr(usbuf->fullname, searchstring) == NULL) {
 		return;
 	}
 

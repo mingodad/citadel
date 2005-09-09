@@ -31,3 +31,4 @@ char *CtdlTempFileName(char *prefix1, int prefix2);
 FILE *CtdlTempFile(void);
 char *ascmonths[12];
 void generate_uuid(char *buf);
+char *bmstrcasestr(char *text, char *pattern);
