@@ -1351,6 +1351,8 @@ void session_loop(struct httprequest *req)
 		display_preferences();
 	} else if (!strcasecmp(action, "set_preferences")) {
 		set_preferences();
+	} else if (!strcasecmp(action, "recp_autocomplete")) {
+		recp_autocomplete();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0, 0);
 		wprintf("Session: %d<hr />\n", WC->wc_session);
@@ -1362,6 +1364,7 @@ void session_loop(struct httprequest *req)
 		wprintf("</PRE><hr />\n");
 		wDumpContent(1);
 	}
+
 	/* When all else fais, display the main menu. */
 	else {
 		display_main_menu();

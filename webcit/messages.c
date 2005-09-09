@@ -2054,6 +2054,11 @@ void display_enter(void)
 
 	/* begin message entry screen */
 
+
+	wprintf(
+	"<style> div.auto_complete { width: 350px; background: #fff; } div.auto_complete ul { border:1px solid #888; margin:0; padding:0; width:100%; list-style-type:none; } div.auto_complete ul li { margin:0; padding:3px; } div.auto_complete ul li.selected { background-color: #ffb; } div.auto_complete ul strong.highlight { color: #800; margin:0; padding:0; } </style> \n "
+	);
+
 	wprintf("<form enctype=\"multipart/form-data\" "
 		"method=\"POST\" action=\"/post\" "
 		"name=\"enterform\""
@@ -2074,9 +2079,19 @@ void display_enter(void)
 		wprintf(_("To:"));
 		wprintf("</font>");
 		wprintf("</td><td>"
-			"<input type=\"text\" name=\"recp\" value=\"");
+			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_name\" value=\"");
 		escputs(bstr("recp"));
-		wprintf("\" size=50 maxlength=70></td><td></td></tr>\n");
+		wprintf("\" size=50 maxlength=70>");
+	
+		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
+	
+		wprintf("<script type=\"text/javascript\">					"
+			" new Ajax.Autocompleter('recp_name', 'recp_name_choices',		"
+			"       '/recp_autocomplete', {} );				"
+			"</script>\n								"
+		);
+
+		wprintf("</td><td></td></tr>\n");
 	}
 
 	wprintf("<tr><td>");
