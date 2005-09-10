@@ -464,8 +464,6 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 }
 
 
-
-
 /*
  * I wanna SEE that message!
  */
@@ -686,6 +684,15 @@ void read_message(long msgnum, int suppress_buttons) {
 		if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 		urlescputs(m_subject);
 		wprintf("\">[%s]</a> ", _("Reply"));
+
+		/* Forward (FIXME do this)
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"/display_enter?pullquote=%ld?subject=", msgnum);
+			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
+			urlescputs(m_subject);
+			wprintf("\">[%s]</a> ", _("Forward"));
+		}
+		*/
 
 		if (WC->is_room_aide)  {
 			/* Move */
@@ -2056,7 +2063,7 @@ void display_enter(void)
 
 
 	wprintf(
-	"<style> div.auto_complete { width: 350px; background: #fff; } div.auto_complete ul { border:1px solid #888; margin:0; padding:0; width:100%; list-style-type:none; } div.auto_complete ul li { margin:0; padding:3px; } div.auto_complete ul li.selected { background-color: #ffb; } div.auto_complete ul strong.highlight { color: #800; margin:0; padding:0; } </style> \n "
+	"<style> div.auto_complete { width: 350px; background: #fff; } div.auto_complete ul { border:1px solid #888; margin:0; padding:0; width:100%; list-style-type:none; } div.auto_complete ul li { margin:0; padding:3px; } div.auto_complete ul li.selected { background-color: #ffc; } div.auto_complete ul strong.highlight { color: #800; margin:0; padding:0; } </style> \n "
 	);
 
 	wprintf("<form enctype=\"multipart/form-data\" "
@@ -2127,6 +2134,9 @@ void display_enter(void)
 		"<script type=\"text/javascript\"> \n"
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
+	if (atol(bstr("pullquote")) > 0L) {
+		wprintf("FIXME pullquote=%s", bstr("pullquote"));
+	}
 	wprintf("', '96%%', '200', true, false); \n"
 		"</script></center><br />\n");
 
