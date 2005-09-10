@@ -685,7 +685,7 @@ void read_message(long msgnum, int suppress_buttons) {
 		urlescputs(m_subject);
 		wprintf("\">[%s]</a> ", _("Reply"));
 
-		/* Forward (FIXME do this)
+		/* Forward  (FIXME uncomment when this is done)
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"/display_enter?pullquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
