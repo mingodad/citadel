@@ -1,9 +1,11 @@
 $Log$
+Revision 621.37  2005/09/10 03:23:05  ajc
+* Determined where to insert a "Forward" button and the functionality it
+  implements.  In order to complete this function we will need a
+  form-sanitized output mode for read_message().
+
 Revision 621.36  2005/09/09 19:47:29  ajc
 * Removed some dead code
-
-Revision 621.35  2005/09/09 04:43:37  ajc
-*** empty log message ***
 
 Revision 621.34  2005/09/09 04:43:22  ajc
 * Checked in a copy of the "script.aculo.us" library by Thomas Fuchs.
@@ -2932,4 +2934,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
