@@ -1,4 +1,8 @@
 $Log$
+Revision 654.26  2005/09/10 18:46:48  ajc
+* Functions such as imap_fetch_internaldate() now return quietly with no
+  output, instead of crashing, if passed a NULL message pointer.
+
 Revision 654.25  2005/09/09 19:44:21  ajc
 * New bmstrcasestr() function to perform very fast case-insensitive
   substring searches using the Boyer-Moore algorithm.  Like its predecessor,
@@ -7095,3 +7099,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

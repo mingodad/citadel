@@ -92,6 +92,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	time_t msgdate;
 
+	if (!msg) return;
 	if (msg->cm_fields['T'] != NULL) {
 		msgdate = atol(msg->cm_fields['T']);
 	}
@@ -115,7 +116,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  */
 void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char buf[SIZ];
-	char *ptr;
+	char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send = 0;
 	struct MetaData smi;
@@ -304,6 +305,8 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 void imap_output_envelope_from(struct CtdlMessage *msg) {
 	char user[SIZ], node[SIZ], name[SIZ];
 
+	if (!msg) return;
+
 	/* For anonymous messages, it's so easy! */
 	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONONLY)) {
 		cprintf("((\"----\" NIL \"x\" \"x.org\")) ");
@@ -400,6 +403,8 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	char datestringbuf[SIZ];
 	time_t msgdate;
 	char *fieldptr = NULL;
+
+	if (!msg) return;
 
 	/* Parse the message date into an IMAP-format date string */
 	if (msg->cm_fields['T'] != NULL) {
