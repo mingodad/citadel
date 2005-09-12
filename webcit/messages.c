@@ -1006,7 +1006,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
 #endif
-			escputs(from);
+			msgescputs(from);
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
 			strcpy(m_subject, &buf[5]);
@@ -1024,7 +1024,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			strcpy(rfca, &buf[5]);
 			wprintf("&lt;");
-			escputs(rfca);
+			msgescputs(rfca);
 			wprintf("&gt; ");
 		}
 
@@ -1067,7 +1067,9 @@ void pullquote_message(long msgnum, int forward_attachments) {
 #endif
 	if (strlen(m_subject) > 0) {
 		wprintf(_("Subject:"));
-		wprintf(" %s<br />", m_subject);
+		wprintf(" ");
+		msgescputs(m_subject);
+		wprintf("<br />");
 	}
 
 	/*
@@ -1150,7 +1152,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 			}
 			wprintf("<TT>");
 			url(buf);
-			escputs(buf);
+			msgescputs(buf);
 			wprintf("</TT><br />");
 		}
 		wprintf("</I><br />");
