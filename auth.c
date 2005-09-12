@@ -229,7 +229,7 @@ void do_logout(void)
 
 	if (WC->serv_sock >= 0) {
 		if (buf[0] == '1') {
-			fmout(NULL, "CENTER");
+			fmout("CENTER");
 		} else {
 			wprintf("Goodbye\n");
 		}
@@ -406,7 +406,7 @@ void display_changepw(void)
 	serv_puts("MESG changepw");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout(NULL, "CENTER");
+		fmout("CENTER");
 	}
 
 	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");

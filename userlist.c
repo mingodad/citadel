@@ -144,7 +144,7 @@ void showuser(void)
 	serv_printf("RBIO %s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout(NULL, "JUSTIFY");
+		fmout("JUSTIFY");
 	}
 	wprintf("<br /><A HREF=\"/display_page?recp=");
 	urlescputs(who);

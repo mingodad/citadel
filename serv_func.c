@@ -89,32 +89,17 @@ void get_serv_info(char *browser_host, char *user_agent)
 
 
 /* 
- * Function to spit out Citadel variformat text in HTML
- * If fp is non-null, it is considered to be the file handle to read the
- * text from.  Otherwise, text is read from the server.
+ * Read Citadel variformat text and spit it out as HTML.
  */
-void fmout(FILE *fp, char *align)
+void fmout(char *align)
 {
-
 	int intext = 0;
 	int bq = 0;
 	char buf[SIZ];
 
 	wprintf("<div align=%s>\n", align);
-	while (1) {
-		if (fp == NULL)
-			serv_getln(buf, sizeof buf);
-		if (fp != NULL) {
-			if (fgets(buf, SIZ, fp) == NULL)
-				safestrncpy(buf, "000", sizeof buf);
-			buf[strlen(buf) - 1] = 0;
-		}
-		if (!strcmp(buf, "000")) {
-			if (bq == 1)
-				wprintf("</I>");
-			wprintf("</div><br />\n");
-			return;
-		}
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+
 		if ((intext == 1) && (isspace(buf[0]))) {
 			wprintf("<br />");
 		}
@@ -139,6 +124,52 @@ void fmout(FILE *fp, char *align)
 
 		escputs(buf);
 		wprintf("\n");
+	}
+	if (bq == 1) {
+		wprintf("</I>");
+	}
+	wprintf("</div><br />\n");
+}
+
+
+
+
+/* 
+ * Read Citadel variformat text and spit it out as HTML in a form
+ * suitable for embedding in another message (forward/quote).
+ * (NO LINEBREAKS ALLOWED HERE!)
+ */
+void pullquote_fmout(void) {
+	int intext = 0;
+	int bq = 0;
+	char buf[SIZ];
+
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+
+		if ((intext == 1) && (isspace(buf[0]))) {
+			wprintf("<br />");
+		}
+		intext = 1;
+
+		/* Quoted text should be displayed in italics and in a
+		 * different colour.  This code understands Citadel-style
+		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
+		 */
+		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
+			wprintf("<BLOCKQUOTE>");
+			bq = 1;
+		} else if ((bq == 1) && (strncmp(buf, " >", 2))) {
+			wprintf("</BLOCKQUOTE>");
+			bq = 0;
+		}
+		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
+			strcpy(buf, &buf[2]);
+		}
+
+		msgescputs(buf);
+	}
+	if (bq == 1) {
+		wprintf("</I>");
 	}
 }
 
