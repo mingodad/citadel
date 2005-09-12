@@ -2466,6 +2466,16 @@ void display_enter(void)
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 
+	/* Seth asked for these to be at the top *and* bottom... */
+	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
+	if (recipient_required) {
+		wprintf(_("Send message"));
+	} else {
+		wprintf(_("Post message"));
+	}
+	wprintf("\">&nbsp;"
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+
 	wprintf("</form>\n");
 
 	wprintf("</td></tr></table></div>\n");
