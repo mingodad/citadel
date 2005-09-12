@@ -1,4 +1,9 @@
 $Log$
+Revision 621.38  2005/09/12 04:08:05  ajc
+* Built an initial version of the "forward message" function.  It works
+  perfectly on the message text now, but we cannot consider it finished
+  until it also forwards attachments.
+
 Revision 621.37  2005/09/10 03:23:05  ajc
 * Determined where to insert a "Forward" button and the functionality it
   implements.  In order to complete this function we will need a
@@ -2934,3 +2939,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

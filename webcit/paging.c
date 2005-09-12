@@ -162,7 +162,7 @@ void page_popup(void)
 		wprintf(_("Instant message from "));
 		escputs(pagefrom);
 		wprintf("</span></td></tr><tr><td><font color=\"#FFFFFF\">");
-		fmout(NULL, "LEFT");
+		fmout("LEFT");
 		wprintf("</font></td></tr>"
 			"<tr><td><div align=center><font color=\"#FFFFFF\">"
 			"<a href=\"javascript:hide_page_popup()\">");

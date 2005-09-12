@@ -230,7 +230,7 @@ void readinfo(void)
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout(NULL, "CENTER");
+		fmout("CENTER");
 	}
 }
 
@@ -1945,7 +1945,7 @@ void display_entroom(void)
 	serv_printf("MESG roomaccess");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout(NULL, "CENTER");
+		fmout("CENTER");
 	}
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);

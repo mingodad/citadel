@@ -103,7 +103,7 @@ void pvo_do_cmd(char *servcmd) {
 			wprintf("%s\n", &buf[4]);
 			break;
 		case '1':
-			fmout(NULL, "CENTER");
+			fmout("CENTER");
 			break;
 		case '4':
 			wprintf("%s\n", &buf[4]);

@@ -566,7 +566,7 @@ void read_message(long msgnum, int suppress_buttons) {
 		    && (strcasecmp(&buf[5], WC->wc_roomname))
 		    && (strlen(&buf[5])>0) ) {
 			wprintf(_("in "));
-			wprintf("%s> ", &buf[5]);
+			wprintf("%s&gt; ", &buf[5]);
 		}
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			strcpy(rfca, &buf[5]);
@@ -685,14 +685,13 @@ void read_message(long msgnum, int suppress_buttons) {
 		urlescputs(m_subject);
 		wprintf("\">[%s]</a> ", _("Reply"));
 
-		/* Forward  (FIXME uncomment when this is done)
+		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"/display_enter?pullquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
 			urlescputs(m_subject);
 			wprintf("\">[%s]</a> ", _("Forward"));
 		}
-		*/
 
 		if (WC->is_room_aide)  {
 			/* Move */
@@ -759,11 +758,12 @@ void read_message(long msgnum, int suppress_buttons) {
 
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
-		fmout(NULL, "JUSTIFY");
+		fmout("JUSTIFY");
 	}
 
 	/* Boring old 80-column fixed format text gets handled this way... */
-	else if (!strcasecmp(mime_content_type, "text/plain")) {
+	else if ( (!strcasecmp(mime_content_type, "text/plain"))
+	        || (!strcasecmp(mime_content_type, "text")) ) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
 			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
@@ -928,6 +928,263 @@ void embed_message(void) {
 	wprintf("</body></html>\n");
 	wDumpContent(0);
 }
+
+
+
+
+/*
+ * Read message in simple, JavaScript-embeddable form for 'forward'
+ * or 'reply quoted' operations.
+ *
+ * NOTE: it is VITALLY IMPORTANT that we output no single-quotes or linebreaks
+ *       in this function.  Doing so would throw a JavaScript error in the
+ *       'supplied text' argument to the editor.
+ */
+void pullquote_message(long msgnum) {
+	char buf[SIZ];
+	char mime_partnum[256];
+	char mime_filename[256];
+	char mime_content_type[256];
+	char mime_charset[256];
+	char mime_disposition[256];
+	int mime_length;
+	char mime_http[SIZ];
+	char m_subject[256];
+	char from[256];
+	char node[256];
+	char rfca[256];
+	char reply_to[512];
+	char now[256];
+	int format_type = 0;
+	int nhdr = 0;
+	int bq = 0;
+	int i = 0;
+	char vcard_partnum[256];
+	char cal_partnum[256];
+	char *part_source = NULL;
+#ifdef HAVE_ICONV
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;                   /* Buffer of characters to be converted */
+	char *obuf;                   /* Buffer for converted characters      */
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	char *osav;                   /* Saved pointer to output buffer       */
+#endif
+
+	strcpy(from, "");
+	strcpy(node, "");
+	strcpy(rfca, "");
+	strcpy(reply_to, "");
+	strcpy(vcard_partnum, "");
+	strcpy(cal_partnum, "");
+	strcpy(mime_http, "");
+	strcpy(mime_content_type, "text/plain");
+	strcpy(mime_charset, "us-ascii");
+
+	serv_printf("MSG4 %ld", msgnum);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '1') {
+		wprintf(_("ERROR:"));
+		wprintf("%s<br />", &buf[4]);
+		return;
+	}
+
+	strcpy(m_subject, "");
+
+	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
+		if (!strcmp(buf, "000")) {
+			wprintf(_("unexpected end of message"));
+			return;
+		}
+		if (!strncasecmp(buf, "nhdr=yes", 8))
+			nhdr = 1;
+		if (nhdr == 1)
+			buf[0] = '_';
+		if (!strncasecmp(buf, "type=", 5))
+			format_type = atoi(&buf[5]);
+		if (!strncasecmp(buf, "from=", 5)) {
+			strcpy(from, &buf[5]);
+			wprintf(_("from "));
+#ifdef HAVE_ICONV
+			utf8ify_rfc822_string(from);
+#endif
+			escputs(from);
+		}
+		if (!strncasecmp(buf, "subj=", 5)) {
+			strcpy(m_subject, &buf[5]);
+		}
+		if ((!strncasecmp(buf, "hnod=", 5))
+		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
+			wprintf("(%s) ", &buf[5]);
+		}
+		if ((!strncasecmp(buf, "room=", 5))
+		    && (strcasecmp(&buf[5], WC->wc_roomname))
+		    && (strlen(&buf[5])>0) ) {
+			wprintf(_("in "));
+			wprintf("%s&gt; ", &buf[5]);
+		}
+		if (!strncasecmp(buf, "rfca=", 5)) {
+			strcpy(rfca, &buf[5]);
+			wprintf("&lt;");
+			escputs(rfca);
+			wprintf("&gt; ");
+		}
+
+		if (!strncasecmp(buf, "node=", 5)) {
+			strcpy(node, &buf[5]);
+			if ( ((WC->room_flags & QR_NETWORK)
+			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
+			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
+			&& (strlen(rfca)==0)
+			) {
+				wprintf("@%s ", &buf[5]);
+			}
+		}
+		if (!strncasecmp(buf, "rcpt=", 5)) {
+			wprintf(_("to "));
+			wprintf("%s ", &buf[5]);
+		}
+		if (!strncasecmp(buf, "time=", 5)) {
+			fmt_date(now, atol(&buf[5]), 0);
+			wprintf("%s ", now);
+		}
+
+		if (!strncasecmp(buf, "part=", 5)) {
+			/*
+			 * FIXME
+			 *
+			 * We must forward the attachments.  This is to be done
+			 * by downloading each attachment of the original
+			 * message and inserting it into the new message's
+			 * attachment chain.
+			 */
+		}
+
+	}
+
+	wprintf("<br>");
+
+#ifdef HAVE_ICONV
+	utf8ify_rfc822_string(m_subject);
+#endif
+	if (strlen(m_subject) > 0) {
+		wprintf(_("Subject:"));
+		wprintf(" %s<br />", m_subject);
+	}
+
+	/*
+	 * Begin body
+	 */
+	wprintf("<br>");
+
+	/* 
+	 * Learn the content type
+	 */
+	strcpy(mime_content_type, "text/plain");
+	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
+		if (!strcmp(buf, "000")) {
+			wprintf(_("unexpected end of message"));
+			goto ENDBODY;
+		}
+		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			safestrncpy(mime_content_type, &buf[14],
+				sizeof(mime_content_type));
+			for (i=0; i<strlen(mime_content_type); ++i) {
+				if (!strncasecmp(&mime_content_type[i], "charset=", 8)) {
+					safestrncpy(mime_charset, &mime_content_type[i+8],
+						sizeof mime_charset);
+				}
+			}
+			for (i=0; i<strlen(mime_content_type); ++i) {
+				if (mime_content_type[i] == ';') {
+					mime_content_type[i] = 0;
+				}
+			}
+		}
+	}
+
+	/* Set up a character set conversion if we need to (and if we can) */
+#ifdef HAVE_ICONV
+	if ( (strcasecmp(mime_charset, "us-ascii"))
+	   && (strcasecmp(mime_charset, "UTF-8")) ) {
+		ic = iconv_open("UTF-8", mime_charset);
+		if (ic == (iconv_t)(-1) ) {
+			lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+		}
+	}
+#endif
+
+	/* Messages in legacy Citadel variformat get handled thusly... */
+	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
+		pullquote_fmout();
+	}
+
+	/* Boring old 80-column fixed format text gets handled this way... */
+	else if (!strcasecmp(mime_content_type, "text/plain")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
+			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
+
+#ifdef HAVE_ICONV
+			if (ic != (iconv_t)(-1) ) {
+				ibuf = buf;
+				ibuflen = strlen(ibuf);
+				obuflen = SIZ;
+				obuf = (char *) malloc(obuflen);
+				osav = obuf;
+				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+				osav[SIZ-obuflen] = 0;
+				safestrncpy(buf, osav, sizeof buf);
+				free(osav);
+			}
+#endif
+
+			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
+				buf[strlen(buf) - 1] = 0;
+			if ((bq == 0) &&
+		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
+				wprintf("<BLOCKQUOTE>");
+				bq = 1;
+			} else if ((bq == 1) &&
+			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
+				wprintf("</BLOCKQUOTE>");
+				bq = 0;
+			}
+			wprintf("<TT>");
+			url(buf);
+			escputs(buf);
+			wprintf("</TT><br />");
+		}
+		wprintf("</I><br />");
+	}
+
+	/* HTML just gets escaped and stuffed back into the editor */
+	else if (!strcasecmp(mime_content_type, "text/html")) {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			msgescputs(buf);
+		}
+	}
+
+	/* Unknown weirdness ... don't know how to handle this content type */
+	else {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
+	}
+
+	if (part_source) {
+		free(part_source);
+		part_source = NULL;
+	}
+
+ENDBODY:
+	/* end of body handler */
+#ifdef HAVE_ICONV
+	if (ic != (iconv_t)(-1) ) {
+		iconv_close(ic);
+	}
+#endif
+}
+
+
 
 
 
@@ -2135,7 +2392,8 @@ void display_enter(void)
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
 	if (atol(bstr("pullquote")) > 0L) {
-		wprintf("FIXME pullquote=%s", bstr("pullquote"));
+		wprintf("<br><div align=center><i>--- original message ---</i></div><br>");
+		pullquote_message(atol(bstr("pullquote")));
 	}
 	wprintf("', '96%%', '200', true, false); \n"
 		"</script></center><br />\n");
