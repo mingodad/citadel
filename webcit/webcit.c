@@ -640,6 +640,7 @@ void output_mimepart()
 
 
 /*
+ * Read any MIME part of a message, from the server, into memory.
  */
 char *load_mimepart(long msgnum, char *partnum)
 {

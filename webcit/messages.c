@@ -940,7 +940,7 @@ void embed_message(void) {
  *       in this function.  Doing so would throw a JavaScript error in the
  *       'supplied text' argument to the editor.
  */
-void pullquote_message(long msgnum) {
+void pullquote_message(long msgnum, int forward_attachments) {
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -949,6 +949,9 @@ void pullquote_message(long msgnum) {
 	char mime_disposition[256];
 	int mime_length;
 	char mime_http[SIZ];
+	char *attachments = NULL;
+	int num_attachments = 0;
+	struct wc_attachment *att, *aptr;
 	char m_subject[256];
 	char from[256];
 	char node[256];
@@ -959,9 +962,6 @@ void pullquote_message(long msgnum) {
 	int nhdr = 0;
 	int bq = 0;
 	int i = 0;
-	char vcard_partnum[256];
-	char cal_partnum[256];
-	char *part_source = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;                   /* Buffer of characters to be converted */
@@ -975,8 +975,6 @@ void pullquote_message(long msgnum) {
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
-	strcpy(vcard_partnum, "");
-	strcpy(cal_partnum, "");
 	strcpy(mime_http, "");
 	strcpy(mime_content_type, "text/plain");
 	strcpy(mime_charset, "us-ascii");
@@ -1049,15 +1047,15 @@ void pullquote_message(long msgnum) {
 			wprintf("%s ", now);
 		}
 
+		/*
+		 * Save attachment info for later.  We can't start downloading them
+		 * yet because we're in the middle of a server transaction.
+		 */
 		if (!strncasecmp(buf, "part=", 5)) {
-			/*
-			 * FIXME
-			 *
-			 * We must forward the attachments.  This is to be done
-			 * by downloading each attachment of the original
-			 * message and inserting it into the new message's
-			 * attachment chain.
-			 */
+			++num_attachments;
+			attachments = realloc(attachments, (num_attachments * 1024));
+			strcat(attachments, &buf[5]);
+			strcat(attachments, "\n");
 		}
 
 	}
@@ -1170,13 +1168,59 @@ void pullquote_message(long msgnum) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
-	if (part_source) {
-		free(part_source);
-		part_source = NULL;
-	}
-
 ENDBODY:
 	/* end of body handler */
+
+	/*
+	 * If there were attachments, we have to download them and insert them
+	 * into the attachment chain for the forwarded message we are composing.
+	 */
+	if (num_attachments) {
+		for (i=0; i<num_attachments; ++i) {
+			extract_token(buf, attachments, i, '\n', sizeof buf);
+                        extract_token(mime_filename, buf, 1, '|', sizeof mime_filename);
+                        extract_token(mime_partnum, buf, 2, '|', sizeof mime_partnum);
+                        extract_token(mime_disposition, buf, 3, '|', sizeof mime_disposition);
+                        extract_token(mime_content_type, buf, 4, '|', sizeof mime_content_type);
+                        mime_length = extract_int(buf, 5);
+
+			/*
+			 * tracing  ... uncomment if necessary
+			 *
+			lprintf(9, "fwd filename: %s\n", mime_filename);
+			lprintf(9, "fwd partnum : %s\n", mime_partnum);
+			lprintf(9, "fwd conttype: %s\n", mime_content_type);
+			lprintf(9, "fwd dispose : %s\n", mime_disposition);
+			lprintf(9, "fwd length  : %d\n", mime_length);
+			 */
+
+			if ( (!strcasecmp(mime_disposition, "inline"))
+			   || (!strcasecmp(mime_disposition, "attachment")) ) {
+		
+				/* Create an attachment struct from this mime part... */
+				att = malloc(sizeof(struct wc_attachment));
+				memset(att, 0, sizeof(struct wc_attachment));
+				att->length = mime_length;
+				strcpy(att->content_type, mime_content_type);
+				strcpy(att->filename, mime_filename);
+				att->next = NULL;
+				att->data = load_mimepart(msgnum, mime_partnum);
+		
+				/* And add it to the list. */
+				if (WC->first_attachment == NULL) {
+					WC->first_attachment = att;
+				}
+				else {
+					aptr = WC->first_attachment;
+					while (aptr->next != NULL) aptr = aptr->next;
+					aptr->next = att;
+				}
+			}
+
+		}
+		free(attachments);
+	}
+
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
 		iconv_close(ic);
@@ -2177,8 +2221,8 @@ void post_message(void)
 			aptr->next = att;
 		}
 
-		/* Netscape sends a simple filename, which is what we want,
-		 * but Satan's browser sends an entire pathname.  Reduce
+		/* Mozilla sends a simple filename, which is what we want,
+		 * but Satan's Browser sends an entire pathname.  Reduce
 		 * the path to just a filename if we need to.
 		 */
 		while (num_tokens(att->filename, '/') > 1) {
@@ -2392,8 +2436,10 @@ void display_enter(void)
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
 	if (atol(bstr("pullquote")) > 0L) {
-		wprintf("<br><div align=center><i>--- original message ---</i></div><br>");
-		pullquote_message(atol(bstr("pullquote")));
+		wprintf("<br><div align=center><i>");
+		wprintf(_("--- forwarded message ---"));
+		wprintf("</i></div><br>");
+		pullquote_message(atol(bstr("pullquote")), 1);
 	}
 	wprintf("', '96%%', '200', true, false); \n"
 		"</script></center><br />\n");
