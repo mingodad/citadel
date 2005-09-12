@@ -304,6 +304,8 @@ void msgesc(char *target, char *strbuf)
 			strcat(target, " ");
 		else if (strbuf[a] == '\r')
 			strcat(target, " ");
+		else if (strbuf[a] == '\'')
+			strcat(target, "&#39;");
 		else {
 			strncat(target, &strbuf[a], 1);
 		}

@@ -1,4 +1,8 @@
 $Log$
+Revision 621.40  2005/09/12 19:03:44  ajc
+* When forwarding a message, properly escape the quoted headers (especially
+  the subject) for insertion into the editor.
+
 Revision 621.39  2005/09/12 18:20:21  ajc
 * The "forward" button is now working, and it forwards the attachments.
 
@@ -2942,3 +2946,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
