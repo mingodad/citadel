@@ -1,4 +1,7 @@
 $Log$
+Revision 625.0  2005/09/13 14:02:32  ajc
+* THIS IS 6.25
+
 Revision 621.41  2005/09/12 20:57:58  ajc
 * Save/Cancel buttons are now at the top *and* bottom of the message
   entry screen.  Evidently some users seem to want this.
