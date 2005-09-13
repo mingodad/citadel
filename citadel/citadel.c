@@ -1428,7 +1428,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				{
 					/* Only m.author is used */
 					struct ctdlipcmessage m;
-					newprompt("What do you want your username to be? ", m.author, USERNAME_SIZE - 1);
+					newprompt("What do you want your username to be? ",
+						m.author, USERNAME_SIZE - 1);
+					m.text = "";
 					r = CtdlIPCPostMessage(ipc, 2, &m, aaa);
 					if (r / 100 != 2)
 						scr_printf("%s\n", aaa);

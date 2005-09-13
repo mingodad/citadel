@@ -1,4 +1,7 @@
 $Log$
+Revision 654.27  2005/09/13 03:56:37  ajc
+* Don't crash when user hits <.A>ide <P>ost
+
 Revision 654.26  2005/09/10 18:46:48  ajc
 * Functions such as imap_fetch_internaldate() now return quietly with no
   output, instead of crashing, if passed a NULL message pointer.
@@ -7099,4 +7102,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
