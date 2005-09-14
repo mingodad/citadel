@@ -71,5 +71,8 @@ gmon.out
 images
 info
 network
+network/spoolin
+network/spoolout
+network/systems
 userpics
 citadel.pid
