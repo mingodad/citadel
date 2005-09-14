@@ -50,7 +50,8 @@ SERV_MODULES=serv_chat.o \
 	serv_vandelay.o \
 	serv_calendar.o \
 	ical_dezonify.o \
-	serv_ldap.o
+	serv_ldap.o \
+	serv_autocompletion.o
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -90,7 +91,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c ical_dezonify.c imap_fetch.c imap_misc.c \
 	imap_search.c imap_store.c imap_tools.c internet_addressing.c \
-	ipc_c_tcp.c locate_host.c md5.c messages.c  \
+	ipc_c_tcp.c locate_host.c md5.c messages.c  serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c \
 	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \

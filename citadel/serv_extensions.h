@@ -33,6 +33,7 @@ char *serv_upgrade_init(void);
 char *serv_vandelay_init(void);
 char *serv_vcard_init(void);
 char *serv_fulltext_init(void);
+char *serv_autocompletion_init(void);
 /*
  */
 

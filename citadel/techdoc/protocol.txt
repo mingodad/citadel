@@ -2183,6 +2183,17 @@ asynchronous messages as they arrive, before doing anything else.
 
 
 
+ AUTO   (AUTOcompletion of email addresses)
+ 
+ The AUTO command is used by clients which want to request a list of email
+recipients whose names or email addresses match a partial string supplied by
+the client.  This string is the only parameter passed to this command.  The
+command will return ERROR if no user is logged in or if no address book could
+be found; otherwise, it returns LISTING_FOLLOWS followed by zero or more
+candidate recipients.
+
+
+
  SRCH   (SeaRCH the message base)
  
  This command's implementation is incomplete and will be documented when it

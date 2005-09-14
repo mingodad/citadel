@@ -101,29 +101,30 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 
 void initialize_server_extensions(void)
 {
-	serv_bio_init();
-	serv_calendar_init();
-	serv_notes_init();
-	serv_ldap_init();
-	serv_chat_init();
-	serv_expire_init();
-	serv_imap_init();
-	serv_inetcfg_init();
-	serv_listsub_init();
-	serv_mrtg_init();
-	serv_netfilter_init();
-	serv_network_init();
-	serv_newuser_init();
-	serv_pas2_init();
-	serv_pop3_init();
-	serv_rwho_init();
-	serv_smtp_init();
-	serv_spam_init();
-	/* serv_test_init(); */
-	serv_upgrade_init();
-	serv_vandelay_init();
-	serv_vcard_init();
-	serv_fulltext_init();
+	lprintf(CTDL_INFO, "%s\n", serv_bio_init());
+	lprintf(CTDL_INFO, "%s\n", serv_calendar_init());
+	lprintf(CTDL_INFO, "%s\n", serv_notes_init());
+	lprintf(CTDL_INFO, "%s\n", serv_ldap_init());
+	lprintf(CTDL_INFO, "%s\n", serv_chat_init());
+	lprintf(CTDL_INFO, "%s\n", serv_expire_init());
+	lprintf(CTDL_INFO, "%s\n", serv_imap_init());
+	lprintf(CTDL_INFO, "%s\n", serv_inetcfg_init());
+	lprintf(CTDL_INFO, "%s\n", serv_listsub_init());
+	lprintf(CTDL_INFO, "%s\n", serv_mrtg_init());
+	lprintf(CTDL_INFO, "%s\n", serv_netfilter_init());
+	lprintf(CTDL_INFO, "%s\n", serv_network_init());
+	lprintf(CTDL_INFO, "%s\n", serv_newuser_init());
+	lprintf(CTDL_INFO, "%s\n", serv_pas2_init());
+	lprintf(CTDL_INFO, "%s\n", serv_pop3_init());
+	lprintf(CTDL_INFO, "%s\n", serv_rwho_init());
+	lprintf(CTDL_INFO, "%s\n", serv_smtp_init());
+	lprintf(CTDL_INFO, "%s\n", serv_spam_init());
+	/* lprintf(CTDL_INFO, "%s\n", serv_test_init()); */
+	lprintf(CTDL_INFO, "%s\n", serv_upgrade_init());
+	lprintf(CTDL_INFO, "%s\n", serv_vandelay_init());
+	lprintf(CTDL_INFO, "%s\n", serv_vcard_init());
+	lprintf(CTDL_INFO, "%s\n", serv_fulltext_init());
+	lprintf(CTDL_INFO, "%s\n", serv_autocompletion_init());
 }
 
 
