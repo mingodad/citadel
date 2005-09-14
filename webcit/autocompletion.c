@@ -27,7 +27,7 @@ void recp_autocomplete(void) {
 	wprintf("<ul>");
 
 
-	serv_printf("LIST %s", bstr("recp"));
+	serv_printf("AUTO %s", bstr("recp"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
