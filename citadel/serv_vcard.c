@@ -8,13 +8,6 @@
  */
 
 /*
- * Where we keep messages containing the vCards that source our directory.  It
- * makes no sense to change this, because you'd have to change it on every
- * system on the network.  That would be stupid.
- */
-#define ADDRESS_BOOK_ROOM	"Global Address Book"
-
-/*
  * Format of the "Exclusive ID" field of the message containing a user's
  * vCard.  Doesn't matter what it really looks like as long as it's both
  * unique and consistent (because we use it for replication checking to

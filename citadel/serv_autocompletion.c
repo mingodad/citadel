@@ -172,19 +172,24 @@ void cmd_auto(char *argbuf) {
 	}
 
 	strcpy(hold_rm, CC->room.QRname);       /* save current room */
-
-	if (getroom(&CC->room, USERCONTACTSROOM) != 0) {
-		getroom(&CC->room, hold_rm);
-		lprintf(CTDL_CRIT, "cannot get user contacts room\n");
-		cprintf("%d Your address book was not found.\n", ERROR + ROOM_NOT_FOUND);
-		return;
-	}
-
 	cprintf("%d try these:\n", LISTING_FOLLOWS);
-	CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL, hunt_for_autocomplete, search_string);
-	cprintf("000\n");
 
-	getroom(&CC->room, hold_rm);    /* return to saved room */
+	/* Take a spin through the user's personal address book */
+	if (getroom(&CC->room, USERCONTACTSROOM) == 0) {
+		CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL,
+					hunt_for_autocomplete, search_string);
+	}
+	
+	/* FIXME try the global address book */
+	if (getroom(&CC->room, ADDRESS_BOOK_ROOM) == 0) {
+		CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL,
+					hunt_for_autocomplete, search_string);
+	}
+	
+	cprintf("000\n");
+	if (strcmp(&CC->room.QRname, hold_rm)) {
+		getroom(&CC->room, hold_rm);    /* return to saved room */
+	}
 }
 
 

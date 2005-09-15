@@ -114,6 +114,14 @@
 #define DELETED_MSGS_ROOM	"__CitadelDeletedMessages__"
 
 /*
+ * Where we keep messages containing the vCards that source our directory.  It
+ * makes no sense to change this, because you'd have to change it on every
+ * system on the network.  That would be stupid.
+ */
+#define ADDRESS_BOOK_ROOM	"Global Address Book"
+
+
+/*
  * How long (in seconds) to retain message entries in the use table
  */
 #define USETABLE_RETAIN		604800L		/* 7 days */
