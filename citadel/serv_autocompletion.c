@@ -54,6 +54,32 @@
 #endif
 
 
+
+/*
+ * Convert a structured name into a friendly name.  Caller must free the
+ * returned pointer.
+ */
+char *n_to_fn(char *value) {
+	char *nnn = NULL;
+	int i;
+
+	nnn = malloc(strlen(value) + 10);
+	strcpy(nnn, "");
+	extract_token(&nnn[strlen(nnn)] , value, 3, ';', 999);	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 1, ';', 999);	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 2, ';', 999);	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 0, ';', 999);	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 4, ';', 999);	strcat(nnn, " ");
+	for (i=0; i<strlen(nnn); ++i) {
+		if (!strncmp(&nnn[i], "  ", 2)) strcpy(&nnn[i], &nnn[i+1]);
+	}
+	striplt(nnn);
+	return(nnn);
+}
+
+
+
+
 /*
  * Back end for cmd_auto()
  */
@@ -61,6 +87,10 @@ void hunt_for_autocomplete(long msgnum, void *data) {
 	char *search_string;
 	struct CtdlMessage *msg;
 	struct vCard *v;
+	char *value = NULL;
+	char *value2 = NULL;
+	int i = 0;
+	char *nnn = NULL;
 
 	search_string = (char *) data;
 
@@ -71,12 +101,55 @@ void hunt_for_autocomplete(long msgnum, void *data) {
 	CtdlFreeMessage(msg);
 
 	/*
-	 * Try to match from a display name or something like that
+	 * Try to match from a friendly name (the "fn" field).  If there is a
+	 * match, return the entry in the form of:  Display Name <user@domain.org>
 	 */
-	if (
-		(bmstrcasestr(vcard_get_prop(v, "n", 0, 0, 0), search_string))
-	) {
-		cprintf("%s\n", vcard_get_prop(v, "email", 1, 0, 0));
+	value = vcard_get_prop(v, "fn", 0, 0, 0);
+	if (value != NULL) if (bmstrcasestr(value, search_string)) {
+		value2 = vcard_get_prop(v, "email", 1, 0, 0);
+		if (value2 == NULL) value2 = "";
+		cprintf("%s <%s>\n", value, value2);
+		vcard_free(v);
+		return;
+	}
+
+	/*
+	 * Try to match from a structured name (the "n" field).  If there is a
+	 * match, return the entry in the form of:  Display Name <user@domain.org>
+	 */
+	value = vcard_get_prop(v, "n", 0, 0, 0);
+	if (value != NULL) if (bmstrcasestr(value, search_string)) {
+
+		value2 = vcard_get_prop(v, "email", 1, 0, 0);
+		if (value2 == NULL) value2 = "";
+		nnn = n_to_fn(value);
+		cprintf("%s <%s>\n", nnn, value2);
+		free(nnn);
+		vcard_free(v);
+		return;
+	}
+
+	/*
+	 * Try a partial match on all listed email addresses.
+	 */
+	i = 0;
+	while (value = vcard_get_prop(v, "email", 1, i++, 0), value != NULL) {
+		if (bmstrcasestr(value, search_string)) {
+			if (vcard_get_prop(v, "fn", 0, 0, 0)) {
+				cprintf("%s <%s>\n", vcard_get_prop(v, "fn", 0, 0, 0), value);
+			}
+			else if (vcard_get_prop(v, "n", 0, 0, 0)) {
+				nnn = n_to_fn(vcard_get_prop(v, "n", 0, 0, 0));
+				cprintf("%s <%s>\n", nnn, value);
+				free(nnn);
+			
+			}
+			else {
+				cprintf("%s\n", value);
+			}
+			vcard_free(v);
+			return;
+		}
 	}
 
 	vcard_free(v);
