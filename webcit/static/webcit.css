@@ -112,23 +112,45 @@ body {
 	overflow: auto;
 }
 
-#preview_pane {
+#ml_slider {
 	position:fixed;
 	display:block;
 	top: 40%;
 	left: 15%;
 	width: 85%;
-	height: 60%;
+	height: 1%;
+	overflow: none;
+	background: #444455;
+}
+
+* html #ml_slider {
+	position:absolute;
+	display:block;
+	top: 40%;
+	left: 15%;
+	width: 85%;
+	height: 1%;
+	overflow: none;
+	background: #444455;
+}
+
+#preview_pane {
+	position:fixed;
+	display:block;
+	top: 41%;
+	left: 15%;
+	width: 85%;
+	height: 59%;
 	overflow: auto;
 }
 
 * html #preview_pane {
 	position:absolute;
 	display:block;
-	top: 40%;
+	top: 41%;
 	left: 15%;
 	width: 85%;
-	height: 60%;
+	height: 59%;
 	overflow: auto;
 }
 

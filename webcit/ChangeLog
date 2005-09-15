@@ -1,4 +1,9 @@
 $Log$
+Revision 625.2  2005/09/15 21:29:42  ajc
+* Made the message list div slightly larger, the preview pane equally
+  smaller, and stuck a separator bar in between them that will someday
+  be draggable.
+
 Revision 625.1  2005/09/14 03:53:43  ajc
 * Autocompletion now fetches candidate addresses using the AUTO server
   command being built for Citadel 6.56
@@ -2957,4 +2962,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
