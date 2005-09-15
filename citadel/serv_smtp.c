@@ -1087,7 +1087,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* MAIL succeeded, now try the RCPT To: command */
-	snprintf(buf, sizeof buf, "RCPT To: <%s>\r\n", addr);
+	snprintf(buf, sizeof buf, "RCPT To: <%s@%s>\r\n", user, node);
 	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {

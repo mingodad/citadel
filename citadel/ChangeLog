@@ -1,4 +1,9 @@
 $Log$
+Revision 655.3  2005/09/15 18:36:29  ajc
+* serv_smtp.c: Allow the use of *any* RFC822-compliant address format,
+  including Name <user@node>, or user@node (Name), by stripping down the
+  address before doing RCPT To: in the SMTP client.
+
 Revision 655.2  2005/09/15 03:31:09  ajc
 * cmd_auto() (used by WebCit address autocompletion) now queries the
   fn, n, and all email fields in the vCards in user's Contacts room.
@@ -7114,3 +7119,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
