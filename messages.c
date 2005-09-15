@@ -1976,6 +1976,8 @@ void readloop(char *oper)
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
+		wprintf("<div id=\"ml_slider\"></div>");	/* slider */
+
 		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
 	}
 
