@@ -98,7 +98,7 @@ body {
 	top: 15%;
 	left: 15%;
 	width: 85%;
-	height: 20%;
+	height: 25%;
 	overflow: auto;
 }
 
@@ -108,27 +108,27 @@ body {
 	top: 15%;
 	left: 15%;
 	width: 85%;
-	height: 20%;
+	height: 25%;
 	overflow: auto;
 }
 
 #preview_pane {
 	position:fixed;
 	display:block;
-	top: 35%;
+	top: 40%;
 	left: 15%;
 	width: 85%;
-	height: 65%;
+	height: 60%;
 	overflow: auto;
 }
 
 * html #preview_pane {
 	position:absolute;
 	display:block;
-	top: 35%;
+	top: 40%;
 	left: 15%;
 	width: 85%;
-	height: 65%;
+	height: 60%;
 	overflow: auto;
 }
 
