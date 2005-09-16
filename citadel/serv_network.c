@@ -470,7 +470,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				msg->cm_fields['R'] = strdup(nptr->name);
 
 				valid = validate_recipients(nptr->name);
-				CtdlSubmitMsg(msg, valid, "");
+				CtdlSubmitMsg(msg, valid, NULL, NULL, "");
 				free(valid);
 
 			}
@@ -573,7 +573,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					msg->cm_fields['R'] = strdup(nptr->name);
 	
 					valid = validate_recipients(nptr->name);
-					CtdlSubmitMsg(msg, valid, "");
+					CtdlSubmitMsg(msg, valid, NULL, NULL, "");
 					free(valid);
 				}
 			
@@ -748,7 +748,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
 
-	msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
+	msgnum = CtdlSubmitMsg(msg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
 	CtdlFreeMessage(msg);
 
 	/* Now generate the delivery instructions */
@@ -794,7 +794,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	imsg->cm_fields['M'] = instr;
 
 	/* Save delivery instructions in spoolout room */
-	CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
+	CtdlSubmitMsg(imsg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
 	CtdlFreeMessage(imsg);
 }
 
@@ -1233,7 +1233,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	if ( (valid == NULL) && (strlen(force_room) == 0) ) {
 		strcpy(force_room, config.c_aideroom);
 	}
-	CtdlSubmitMsg(msg, valid, force_room);
+	CtdlSubmitMsg(msg, valid, NULL, NULL, force_room);
 
 	/* Clean up */
 	if (valid != NULL) free(valid);
@@ -1413,7 +1413,7 @@ void network_process_buffer(char *buffer, long size) {
 	/* save the message into a room */
 	if (PerformNetprocHooks(msg, target_room) == 0) {
 		msg->cm_flags = CM_SKIP_HOOKS;
-		CtdlSubmitMsg(msg, recp, target_room);
+		CtdlSubmitMsg(msg, recp, NULL, NULL, target_room);
 	}
 	CtdlFreeMessage(msg);
 	free(recp);

@@ -254,7 +254,7 @@ E	Exclusive ID	A persistent alphanumeric Message ID used for
 			message should be dropped.
 F	rFc822 address	For Internet mail, this is the delivery address of the
 			message author.
-H	HumanNodeName	Human-readable name of system message originated on.
+H	Human node name	Human-readable name of system message originated on.
 I	Original ID	A 32-bit integer containing the message ID on the
 			system the message *originated* on.
 M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
@@ -276,12 +276,12 @@ S       Special field   Only meaningful for messages being spooled over a
 			-> "S" followed by "CANCEL" means that this message
 			   should be deleted from the local message base once
 			   it has been replicated to all network systems.
-T	Date/Time	A 32-bit integer containing the date and time of
+T	date/Time	A 32-bit integer containing the date and time of
                         the message in standard UNIX format (the number
                         of seconds since January 1, 1970 GMT).
-U       Subject         Optional.  Developers may choose whether they wish to
-                        generate or display subject fields.  Citadel does
-                        not generate them, but it does print them when found.
+U       sUbject         Optional.  Developers may choose whether they wish to
+                        generate or display subject fields.
+Y	carbon copY	Optional, and only in Mail messages.
 0	Error		This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are
 			expected to fill in this field when rejecting a message

@@ -907,7 +907,7 @@ void citproto_begin_session() {
  * This loop recognizes all server commands.
  */
 void do_command_loop(void) {
-	char cmdbuf[1024];
+	char cmdbuf[SIZ];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */

@@ -800,9 +800,9 @@ perform this operation at the beginning of an "enter message" command
 in vain that will not be permitted to be saved.  If it is set to 2, the
 server will accept an "apparent" post name if the user is privileged enough.
 This post name is arg 5.
-  1  -  Recipient.  This argument is utilized only for private mail messages.
-It is ignored for public messages.  It contains, of course, the name of the
-recipient of the message.
+  1  -  Recipient (To: field).  This argument is utilized only for private
+mail.  It is ignored for public messages.  It contains, of course, the name
+of the recipient(s) of the message.
   2  -  Anonymous flag.  This argument is ignored unless the room allows
 anonymous messages.  In such rooms, this flag may be set to 1 to flag a
 message as anonymous, otherwise 0 for a normal message.
@@ -816,6 +816,12 @@ This is an Aide only command.
 you set this to nonzero, ENT0 will reply with a confirmation message after
 you submit the message text.  The reply code for the ENT0 command will be
 START_CHAT_MODE instead of SEND_LISTING.
+  7  -  Recipient (Cc: field).  This argument is utilized only for private
+mail.  It is ignored for public messages.  It contains, of course, the name
+of the recipient(s) of the message.
+  8  -  Recipient (Bcc: field).  This argument is utilized only for private
+mail.  It is ignored for public messages.  It contains, of course, the name
+of the recipient(s) of the message.
 
  Possible result codes:
   OK  -  The request is valid.  (Client did not set the "post" flag, so the
