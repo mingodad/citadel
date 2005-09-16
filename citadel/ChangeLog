@@ -1,4 +1,9 @@
 $Log$
+Revision 655.6  2005/09/16 20:21:38  ajc
+* CC: and BCC: delivery are working (tested using message submittal
+  from WebCit) -- still missing the insertion of Y (CC) header field, and
+  the handling of CC in IMAP.
+
 Revision 655.5  2005/09/16 04:23:21  ajc
 * Cc: and Bcc: support.  Not finished yet.
 
@@ -7127,4 +7132,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

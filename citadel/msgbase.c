@@ -2888,16 +2888,14 @@ void cmd_ent0(char *entargs)
 
 		valid_to = validate_recipients(recp);
 		if (valid_to->num_error > 0) {
-			cprintf("%d %s\n",
-				ERROR + NO_SUCH_USER, valid_to->errormsg);
+			cprintf("%d Invalid recipient (To)\n", ERROR + NO_SUCH_USER);
 			free(valid_to);
 			return;
 		}
 
 		valid_cc = validate_recipients(cc);
 		if (valid_cc->num_error > 0) {
-			cprintf("%d %s\n",
-				ERROR + NO_SUCH_USER, valid_cc->errormsg);
+			cprintf("%d Invalid recipient (CC)\n", ERROR + NO_SUCH_USER);
 			free(valid_to);
 			free(valid_cc);
 			return;
@@ -2905,7 +2903,7 @@ void cmd_ent0(char *entargs)
 
 		valid_bcc = validate_recipients(bcc);
 		if (valid_bcc->num_error > 0) {
-			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_bcc->errormsg);
+			cprintf("%d Invalid recipient (BCC)\n", ERROR + NO_SUCH_USER);
 			free(valid_to);
 			free(valid_cc);
 			free(valid_bcc);
@@ -2917,7 +2915,7 @@ void cmd_ent0(char *entargs)
 			free(valid_to);
 			free(valid_cc);
 			free(valid_bcc);
-			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_to->errormsg);
+			cprintf("%d At least one recipient is required.\n", ERROR + NO_SUCH_USER);
 			return;
 		}
 
