@@ -140,6 +140,7 @@ struct recptypes *validate_recipients(char *recipients);
 struct CtdlMessage *CtdlMakeMessage(
         struct ctdluser *author,        /* author's user structure */
         char *recipient,                /* NULL if it's not mail */
+        char *recp_cc,	                /* NULL if it's not mail */
         char *room,                     /* room where it's going */
         int type,                       /* see MES_ types in header file */
         int format_type,                /* variformat, plain text, MIME... */

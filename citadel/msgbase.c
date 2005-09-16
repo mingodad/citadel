@@ -2501,6 +2501,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 struct CtdlMessage *CtdlMakeMessage(
 	struct ctdluser *author,	/* author's user structure */
 	char *recipient,		/* NULL if it's not mail */
+	char *recp_cc,			/* NULL if it's not mail */
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
 	int format_type,		/* variformat, plain text, MIME... */
@@ -2522,6 +2523,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	strcpy(dest_node, "");
 
 	striplt(recipient);
+	striplt(recp_cc);
 
 	snprintf(buf, sizeof buf, "cit%ld", author->usernum);	/* Path */
 	msg->cm_fields['P'] = strdup(buf);
@@ -2546,6 +2548,9 @@ struct CtdlMessage *CtdlMakeMessage(
 
 	if (recipient[0] != 0) {
 		msg->cm_fields['R'] = strdup(recipient);
+	}
+	if (recp_cc[0] != 0) {
+		msg->cm_fields['Y'] = strdup(recp_cc);
 	}
 	if (dest_node[0] != 0) {
 		msg->cm_fields['D'] = strdup(dest_node);
@@ -3005,7 +3010,7 @@ void cmd_ent0(char *entargs)
 		cprintf("%d send message\n", SEND_LISTING);
 	}
 
-	msg = CtdlMakeMessage(&CC->user, recp,
+	msg = CtdlMakeMessage(&CC->user, recp, cc,
 		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);
 

@@ -315,7 +315,9 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			serialized_reply
 		);
 
-		msg = CtdlMakeMessage(&CC->user, organizer_string,
+		msg = CtdlMakeMessage(&CC->user,
+			organizer_string,	/* to */
+			"",			/* cc */
 			CC->room.QRname, 0, FMT_RFC822,
 			"",
 			summary_string,		/* Use summary for subject */
@@ -689,6 +691,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 		);
 
 		msg = CtdlMakeMessage(&CC->user,
+			"",			/* No recipient */
 			"",			/* No recipient */
 			roomname,
 			0, FMT_RFC822,
@@ -1581,6 +1584,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 		);
 
 		msg = CtdlMakeMessage(&CC->user,
+			"",			/* No single recipient here */
 			"",			/* No single recipient here */
 			CC->room.QRname, 0, FMT_RFC822,
 			"",

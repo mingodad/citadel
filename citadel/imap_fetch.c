@@ -457,10 +457,16 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	/* To */
 	imap_output_envelope_addr(msg->cm_fields['R']);
 
-	/* Cc */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
-	imap_output_envelope_addr(fieldptr);
-	if (fieldptr != NULL) free(fieldptr);
+	/* Cc (we do it this way because there might be a legacy non-Citadel Cc: field present) */
+	fieldptr = msg->cm_fields['Y'];
+	if (fieldptr != NULL) {
+		imap_output_envelope_addr(fieldptr);
+	}
+	else {
+		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+		imap_output_envelope_addr(fieldptr);
+		if (fieldptr != NULL) free(fieldptr);
+	}
 
 	/* Bcc */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");

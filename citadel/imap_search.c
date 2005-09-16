@@ -151,12 +151,20 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+		fieldptr = msg->cm_fields['Y'];
 		if (fieldptr != NULL) {
 			if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
 				match = 1;
 			}
-			free(fieldptr);
+		}
+		else {
+			fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+			if (fieldptr != NULL) {
+				if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
+					match = 1;
+				}
+				free(fieldptr);
+			}
 		}
 		pos += 2;
 	}
