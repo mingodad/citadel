@@ -477,6 +477,7 @@ void read_message(long msgnum, int suppress_buttons) {
 	int mime_length;
 	char mime_http[SIZ];
 	char m_subject[256];
+	char m_cc[1024];
 	char from[256];
 	char node[256];
 	char rfca[256];
@@ -528,6 +529,7 @@ void read_message(long msgnum, int suppress_buttons) {
 
 	wprintf("<SPAN CLASS=\"message_header\">");
 	strcpy(m_subject, "");
+	strcpy(m_cc, "");
 
 	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
@@ -556,7 +558,10 @@ void read_message(long msgnum, int suppress_buttons) {
 			wprintf("</A> ");
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
-			strcpy(m_subject, &buf[5]);
+			safestrncpy(m_subject, &buf[5], sizeof m_subject);
+		}
+		if (!strncasecmp(buf, "cccc=", 5)) {
+			safestrncpy(m_cc, &buf[5], sizeof m_cc);
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
@@ -587,7 +592,8 @@ void read_message(long msgnum, int suppress_buttons) {
 		}
 		if (!strncasecmp(buf, "rcpt=", 5)) {
 			wprintf(_("to "));
-			wprintf("%s ", &buf[5]);
+			escputs(&buf[5]);
+			wprintf(" ");
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
@@ -662,14 +668,24 @@ void read_message(long msgnum, int suppress_buttons) {
 
 	wprintf("</SPAN>");
 #ifdef HAVE_ICONV
+	utf8ify_rfc822_string(m_cc);
 	utf8ify_rfc822_string(m_subject);
 #endif
+	if (strlen(m_cc) > 0) {
+		wprintf("<br />"
+			"<SPAN CLASS=\"message_subject\">");
+		wprintf(_("CC:"));
+		wprintf(" ");
+		escputs(m_cc);
+		wprintf("</SPAN>");
+	}
 	if (strlen(m_subject) > 0) {
 		wprintf("<br />"
 			"<SPAN CLASS=\"message_subject\">");
 		wprintf(_("Subject:"));
-		wprintf(" %s</SPAN>", m_subject
-		);
+		wprintf(" ");
+		escputs(m_subject);
+		wprintf("</SPAN>");
 	}
 	wprintf("</TD>\n");
 
@@ -2257,7 +2273,7 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		sprintf(buf, "ENT0 1|%s|0|4|%s||%s|%s",
+		sprintf(buf, "ENT0 1|%s|0|4|%s|||%s|%s",
 			bstr("recp"),
 			bstr("subject"),
 			bstr("cc"),
@@ -2344,7 +2360,7 @@ void display_enter(void)
 		"<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
-	sprintf(buf, "ENT0 0|%s|0|0|||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
+	sprintf(buf, "ENT0 0|%s|0|0||||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 
