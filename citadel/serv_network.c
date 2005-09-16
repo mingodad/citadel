@@ -470,7 +470,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				msg->cm_fields['R'] = strdup(nptr->name);
 
 				valid = validate_recipients(nptr->name);
-				CtdlSubmitMsg(msg, valid, NULL, NULL, "");
+				CtdlSubmitMsg(msg, valid, "");
 				free(valid);
 
 			}
@@ -573,7 +573,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					msg->cm_fields['R'] = strdup(nptr->name);
 	
 					valid = validate_recipients(nptr->name);
-					CtdlSubmitMsg(msg, valid, NULL, NULL, "");
+					CtdlSubmitMsg(msg, valid, "");
 					free(valid);
 				}
 			
@@ -748,7 +748,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
 
-	msgnum = CtdlSubmitMsg(msg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
+	msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 	CtdlFreeMessage(msg);
 
 	/* Now generate the delivery instructions */
@@ -794,7 +794,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	imsg->cm_fields['M'] = instr;
 
 	/* Save delivery instructions in spoolout room */
-	CtdlSubmitMsg(imsg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
+	CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 	CtdlFreeMessage(imsg);
 }
 
@@ -1220,7 +1220,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 
 	/* Now submit the message */
 	valid = validate_recipients(recipient);
-	if (valid != NULL) if (valid->num_error > 0) {
+	if (valid != NULL) if (valid->num_error != 0) {
 		free(valid);
 		valid = NULL;
 	}
@@ -1233,7 +1233,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	if ( (valid == NULL) && (strlen(force_room) == 0) ) {
 		strcpy(force_room, config.c_aideroom);
 	}
-	CtdlSubmitMsg(msg, valid, NULL, NULL, force_room);
+	CtdlSubmitMsg(msg, valid, force_room);
 
 	/* Clean up */
 	if (valid != NULL) free(valid);
@@ -1380,7 +1380,7 @@ void network_process_buffer(char *buffer, long size) {
 	/* Otherwise, does it have a recipient?  If so, validate it... */
 	else if (msg->cm_fields['R'] != NULL) {
 		recp = validate_recipients(msg->cm_fields['R']);
-		if (recp != NULL) if (recp->num_error > 0) {
+		if (recp != NULL) if (recp->num_error != 0) {
 			network_bounce(msg,
 "A message you sent could not be delivered due to an invalid address.\n"
 "Please check the address and try sending the message again.\n");
@@ -1413,7 +1413,7 @@ void network_process_buffer(char *buffer, long size) {
 	/* save the message into a room */
 	if (PerformNetprocHooks(msg, target_room) == 0) {
 		msg->cm_flags = CM_SKIP_HOOKS;
-		CtdlSubmitMsg(msg, recp, NULL, NULL, target_room);
+		CtdlSubmitMsg(msg, recp, target_room);
 	}
 	CtdlFreeMessage(msg);
 	free(recp);

@@ -625,7 +625,7 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	valid = validate_recipients(recp);
-	if (valid->num_error > 0) {
+	if (valid->num_error != 0) {
 		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
 		free(valid);
 		return;
@@ -756,7 +756,7 @@ void smtp_data(void) {
 	}
 	
 	else {			/* Ok, we'll accept this message. */
-		msgnum = CtdlSubmitMsg(msg, valid, NULL, NULL, "");
+		msgnum = CtdlSubmitMsg(msg, valid, "");
 		if (msgnum > 0L) {
 			sprintf(result, "250 2.0.0 Message accepted.\r\n");
 		}
@@ -1309,14 +1309,14 @@ void smtp_do_bounce(char *instr) {
 		valid = validate_recipients(bounceto);
 		if (valid != NULL) {
 			if (valid->num_error == 0) {
-				CtdlSubmitMsg(bmsg, valid, NULL, NULL, "");
+				CtdlSubmitMsg(bmsg, valid, "");
 				successful_bounce = 1;
 			}
 		}
 
 		/* If not, post it in the Aide> room */
 		if (successful_bounce == 0) {
-			CtdlSubmitMsg(bmsg, NULL, NULL, NULL, config.c_aideroom);
+			CtdlSubmitMsg(bmsg, NULL, config.c_aideroom);
 		}
 
 		/* Free up the memory we used */
@@ -1550,7 +1550,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"attempted|%ld\n"
 			"retry|%ld\n",
 			SPOOLMIME, instr, (long)time(NULL), (long)retry );
-		CtdlSubmitMsg(msg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
+		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(msg);
 	}
 

@@ -84,8 +84,7 @@ void cmd_msgp (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
-long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *,
-		struct recptypes *, struct recptypes *, char *);
+long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *);
 void quickie_message (char *, char *, char *, char *, int, char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);

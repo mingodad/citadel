@@ -323,7 +323,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	
 		if (msg != NULL) {
 			valid = validate_recipients(organizer_string);
-			CtdlSubmitMsg(msg, valid, NULL, NULL, "");
+			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
 		}
 	}
@@ -698,7 +698,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	
 		if (msg != NULL) {
 			CIT_ICAL->avoid_sending_invitations = 1;
-			CtdlSubmitMsg(msg, NULL, NULL, NULL, roomname);
+			CtdlSubmitMsg(msg, NULL, roomname);
 			CtdlFreeMessage(msg);
 			CIT_ICAL->avoid_sending_invitations = 0;
 		}
@@ -1589,7 +1589,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	
 		if (msg != NULL) {
 			valid = validate_recipients(attendees_string);
-			CtdlSubmitMsg(msg, valid, NULL, NULL, "");
+			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
 		}
 	}

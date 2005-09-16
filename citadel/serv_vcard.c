@@ -811,7 +811,7 @@ void vcard_purge(struct ctdluser *usbuf) {
 
 	msg->cm_fields['S'] = strdup("CANCEL");
 
-        CtdlSubmitMsg(msg, NULL, NULL, NULL, ADDRESS_BOOK_ROOM);
+        CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
         CtdlFreeMessage(msg);
 }
 

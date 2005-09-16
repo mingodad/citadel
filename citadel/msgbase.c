@@ -2034,13 +2034,13 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 
+
+
 /*
  * Save a message to disk and submit it into the delivery system.
  */
 long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
-		struct recptypes *recps_to,	/* To: recipients (if mail) */
-		struct recptypes *recps_cc,	/* Cc: recipients (if mail) */
-		struct recptypes *recps_bcc,	/* Bcc: recipients (if mail) */
+		struct recptypes *recps,	/* recipients (if mail) */
 		char *force			/* force a particular room? */
 ) {
 	char submit_filename[128];
@@ -2061,9 +2061,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char *instr;
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
-	int is_internet_mail = 0;
-	int force_to_sent = 0;			/* Force to 'sent items' room */
-	size_t tmp;
 
 	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2133,16 +2130,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	force_to_sent = 0;
-	if (recps_to) force_to_sent = 1;
-	if (recps_cc) force_to_sent = 1;
-	if (recps_bcc) force_to_sent = 1;
+	lprintf(CTDL_DEBUG, "Selected room %s\n",
+		(recps) ? CC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CC->room.QRname);
 	strcpy(actual_rm, CC->room.QRname);
-	if (force_to_sent) {
+	if (recps != NULL) {
 		strcpy(actual_rm, SENTITEMS);
 	}
-	lprintf(CTDL_DEBUG, "Selected room %s\n", actual_rm);
 
 	/* If the user is a twit, move to the twit room for posting */
 	lprintf(CTDL_DEBUG, "Handling twit stuff: %s\n",
@@ -2226,7 +2220,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if ((!CC->internal_pgm) || ((recps_to == NULL) && (recps_cc == NULL) && (recps_bcc == NULL))) {
+	if ((!CC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
 			lprintf(CTDL_ERR, "ERROR saving message pointer!\n");
 			CtdlSaveMsgPointerInRoom(config.c_aideroom,
@@ -2235,20 +2229,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
-	is_internet_mail = 0;
-	if (recps_to != NULL)	is_internet_mail = recps_to->num_internet;
-	if (recps_cc != NULL)	is_internet_mail = recps_cc->num_internet;
-	if (recps_bcc != NULL)	is_internet_mail = recps_bcc->num_internet;
-	if (is_internet_mail) {
+	if (recps != NULL)
+	 if (recps->num_internet > 0) {
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
 	}
 
-	/* If other rooms are specified in the To: field, drop them there too. */
-	/******* FIXME FIXME ADD CC AND BCC HERE *********/
-	if (recps_to != NULL)
-	 if (recps_to->num_room > 0)
-	  for (i=0; i<num_tokens(recps_to->recp_room, '|'); ++i) {
-		extract_token(recipient, recps_to->recp_room, i,
+	/* If other rooms are specified, drop them there too. */
+	if (recps != NULL)
+	 if (recps->num_room > 0)
+	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
+		extract_token(recipient, recps->recp_room, i,
 					'|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering to room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
@@ -2263,11 +2253,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
-	/******* FIXME FIXME ADD CC AND BCC HERE *********/
-	if (recps_to != NULL)
-	 if (recps_to->num_local > 0)
-	  for (i=0; i<num_tokens(recps_to->recp_local, '|'); ++i) {
-		extract_token(recipient, recps_to->recp_local, i,
+	if (recps != NULL)
+	 if (recps->num_local > 0)
+	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
+		extract_token(recipient, recps->recp_local, i,
 					'|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
@@ -2296,11 +2285,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * node.  We'll revisit this again in a year or so when everyone has
 	 * a network spool receiver that can handle the new style messages.
 	 */
-	/******* FIXME FIXME ADD CC AND BCC HERE *********/
-	if (recps_to != NULL)
-	 if (recps_to->num_ignet > 0)
-	  for (i=0; i<num_tokens(recps_to->recp_ignet, '|'); ++i) {
-		extract_token(recipient, recps_to->recp_ignet, i,
+	if (recps != NULL)
+	 if (recps->num_ignet > 0)
+	  for (i=0; i<num_tokens(recps->recp_ignet, '|'); ++i) {
+		extract_token(recipient, recps->recp_ignet, i,
 				'|', sizeof recipient);
 
 		hold_R = msg->cm_fields['R'];
@@ -2343,43 +2331,24 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* For internet mail, generate delivery instructions.
 	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
 	 * not happen because the delivery instructions message does not
-	 * have any recipients.
+	 * contain a recipient.
 	 */
-	if (is_internet_mail) {
+	if (recps != NULL)
+	 if (recps->num_internet > 0) {
 		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-		instr = malloc(SIZ * 4);
-		snprintf(instr, SIZ * 4,
+		instr = malloc(SIZ * 2);
+		snprintf(instr, SIZ * 2,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
 			msg->cm_fields['A'], msg->cm_fields['N']
 		);
 
-	  	if (recps_to) if (strlen(recps_to->recp_internet) > 0) {
-			for (i=0; i<num_tokens(recps_to->recp_internet, '|'); ++i) {
-				tmp = strlen(instr);
-				extract_token(recipient, recps_to->recp_internet, i, '|', sizeof recipient);
-				snprintf(&instr[tmp], SIZ * 4 - tmp,
-				 	"remote|%s|0||\n", recipient);
-			}
-		}
-
-	  	if (recps_cc) if (strlen(recps_cc->recp_internet) > 0) {
-			for (i=0; i<num_tokens(recps_cc->recp_internet, '|'); ++i) {
-				tmp = strlen(instr);
-				extract_token(recipient, recps_cc->recp_internet, i, '|', sizeof recipient);
-				snprintf(&instr[tmp], SIZ * 4 - tmp,
-				 	"remote|%s|0||\n", recipient);
-			}
-		}
-
-	  	if (recps_bcc) if (strlen(recps_bcc->recp_internet) > 0) {
-			for (i=0; i<num_tokens(recps_bcc->recp_internet, '|'); ++i) {
-				tmp = strlen(instr);
-				extract_token(recipient, recps_bcc->recp_internet, i, '|', sizeof recipient);
-				snprintf(&instr[tmp], SIZ * 4 - tmp,
-				 	"remote|%s|0||\n", recipient);
-			}
+	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
+			size_t tmp = strlen(instr);
+			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
+			snprintf(&instr[tmp], SIZ * 2 - tmp,
+				 "remote|%s|0||\n", recipient);
 		}
 
 		imsg = malloc(sizeof(struct CtdlMessage));
@@ -2389,12 +2358,17 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['M'] = instr;
-		CtdlSubmitMsg(imsg, NULL, NULL, NULL, SMTP_SPOOLOUT_ROOM);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
 
 	return(newmsgid);
 }
+
+
+
+
+
 
 
 
@@ -2424,7 +2398,7 @@ void quickie_message(char *from, char *to, char *room, char *text,
 	}
 	msg->cm_fields['M'] = strdup(text);
 
-	CtdlSubmitMsg(msg, recp, NULL, NULL, room);
+	CtdlSubmitMsg(msg, recp, room);
 	CtdlFreeMessage(msg);
 	if (recp != NULL) free(recp);
 }
@@ -2659,10 +2633,11 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 }
 
 
-
 /*
  * Validate recipients, count delivery types and errors, and handle aliasing
  * FIXME check for dupes!!!!!
+ * Returns 0 if all addresses are ok, -1 if no addresses were specified,
+ * or the number of addresses found invalid.
  */
 struct recptypes *validate_recipients(char *recipients) {
 	struct recptypes *ret;
@@ -2821,7 +2796,7 @@ struct recptypes *validate_recipients(char *recipients) {
 
 	if ((ret->num_local + ret->num_internet + ret->num_ignet +
 	   ret->num_room + ret->num_error) == 0) {
-		++ret->num_error;
+		ret->num_error = (-1);
 		strcpy(ret->errormsg, "No recipients specified.");
 	}
 
@@ -2854,6 +2829,7 @@ void cmd_ent0(char *entargs)
 	int anonymous = 0;
 	char errmsg[SIZ];
 	int err = 0;
+	struct recptypes *valid = NULL;
 	struct recptypes *valid_to = NULL;
 	struct recptypes *valid_cc = NULL;
 	struct recptypes *valid_bcc = NULL;
@@ -2906,6 +2882,8 @@ void cmd_ent0(char *entargs)
 
 		if (CC->user.axlevel < 2) {
 			strcpy(recp, "sysop");
+			strcpy(cc, "");
+			strcpy(bcc, "");
 		}
 
 		valid_to = validate_recipients(recp);
@@ -2927,11 +2905,19 @@ void cmd_ent0(char *entargs)
 
 		valid_bcc = validate_recipients(bcc);
 		if (valid_bcc->num_error > 0) {
-			cprintf("%d %s\n",
-				ERROR + NO_SUCH_USER, valid_bcc->errormsg);
+			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_bcc->errormsg);
 			free(valid_to);
 			free(valid_cc);
 			free(valid_bcc);
+			return;
+		}
+
+		/* Recipient required, but none were specified */
+		if ( (valid_to->num_error < 0) && (valid_cc->num_error < 0) && (valid_bcc->num_error < 0) ) {
+			free(valid_to);
+			free(valid_cc);
+			free(valid_bcc);
+			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_to->errormsg);
 			return;
 		}
 
@@ -2998,6 +2984,11 @@ void cmd_ent0(char *entargs)
 		return;
 	}
 
+	/* We don't need these anymore because we'll do it differently below */
+	free(valid_to);
+	free(valid_cc);
+	free(valid_bcc);
+
 	/* Handle author masquerading */
 	if (CC->fake_postname[0]) {
 		strcpy(masquerade_as, CC->fake_postname);
@@ -3015,12 +3006,38 @@ void cmd_ent0(char *entargs)
 	} else {
 		cprintf("%d send message\n", SEND_LISTING);
 	}
+
 	msg = CtdlMakeMessage(&CC->user, recp,
 		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);
 
+	/* Put together one big recipients struct containing to/cc/bcc all in
+	 * one.  This is for the envelope.
+	 */
+	char *all_recps = malloc(SIZ * 3);
+	strcpy(all_recps, recp);
+	if (strlen(cc) > 0) {
+		if (strlen(all_recps) > 0) {
+			strcat(all_recps, ",");
+		}
+		strcat(all_recps, cc);
+	}
+	if (strlen(bcc) > 0) {
+		if (strlen(all_recps) > 0) {
+			strcat(all_recps, ",");
+		}
+		strcat(all_recps, bcc);
+	}
+	if (strlen(all_recps) > 0) {
+		valid = validate_recipients(all_recps);
+	}
+	else {
+		valid = NULL;
+	}
+	free(all_recps);
+
 	if (msg != NULL) {
-		msgnum = CtdlSubmitMsg(msg, valid_to, valid_cc, valid_bcc, "");
+		msgnum = CtdlSubmitMsg(msg, valid, "");
 
 		if (do_confirm) {
 			cprintf("%ld\n", msgnum);
@@ -3041,9 +3058,9 @@ void cmd_ent0(char *entargs)
 		CtdlFreeMessage(msg);
 	}
 	CC->fake_postname[0] = '\0';
-	free(valid_to);
-	free(valid_cc);
-	free(valid_bcc);
+	if (valid != NULL) {
+		free(valid);
+	}
 	return;
 }
 
@@ -3498,7 +3515,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		);
 	}
 	/* Now write the data */
-	CtdlSubmitMsg(msg, NULL, NULL, NULL, roomname);
+	CtdlSubmitMsg(msg, NULL, roomname);
 	CtdlFreeMessage(msg);
 }
 
