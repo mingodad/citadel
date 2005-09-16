@@ -11,6 +11,25 @@
 time_t if_modified_since;
 
 
+void display_rss_control(const char *reply_to, const char *subject)
+{
+	wprintf("<div style=\"align: right;\"><p>\n");
+	wprintf("<a href=\"/display_enter?recp=");
+	urlescputs(reply_to);
+	wprintf("&subject=");
+	if (strncasecmp(subject, "Re: ", 3)) wprintf("Re:%20");
+	urlescputs(subject);
+	wprintf("\">[%s]</a> \n", _("Reply"));
+	wprintf("<a href=\"/display_enter?recp=");
+	urlescputs(reply_to);
+	wprintf("&force_room=_MAIL_&subject=");
+	if (strncasecmp(subject, "Re: ", 3)) wprintf("Re:%20");
+	urlescputs(subject);
+	wprintf("\">[%s]</a>\n", _("Email"));
+	wprintf("</p></div>\n");
+}
+
+
 void display_rss(const char *roomname)
 {
 	int nummsgs;
@@ -250,6 +269,7 @@ void display_rss(const char *roomname)
 				escputs(buf);
 				wprintf("\n");
 			}
+			display_rss_control(from, subj);
 			wprintf("]]></description>\n");
 		}
 		/* Boring old 80-column fixed format text gets handled this way... */
@@ -289,6 +309,7 @@ void display_rss(const char *roomname)
 				escputs(buf);
 				wprintf("</tt><br />\n");
 			}
+			display_rss_control(from, subj);
 			wprintf("]]></description>\n");
 		}
 		/* HTML is fun, but we've got to strip it first */

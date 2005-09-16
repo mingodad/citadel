@@ -718,6 +718,11 @@ void offer_start_page(void) {
 	wprintf("\"><FONT SIZE=-2 COLOR=\"#AAAAAA\">");
 	wprintf(_("Make this my start page"));
 	wprintf("</FONT></A>");
+	wprintf("<br/><a href=\"/rss?room=");
+	urlescputs(WC->wc_roomname);
+	wprintf("\" title=\"RSS 2.0 feed for ");
+	escputs(WC->wc_roomname);
+	wprintf("\"><img alt=\"RSS\" src=\"/static/xml_button.gif\"/></a>\n");
 }
 
 

@@ -1,4 +1,7 @@
 $Log$
+Revision 625.3  2005/09/16 01:20:00  error
+Add Reply and Email links; and an RSS link in the header
+
 Revision 625.2  2005/09/15 21:29:42  ajc
 * Made the message list div slightly larger, the preview pane equally
   smaller, and stuck a separator bar in between them that will someday
@@ -2962,3 +2965,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
