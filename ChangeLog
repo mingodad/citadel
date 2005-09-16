@@ -1,4 +1,8 @@
 $Log$
+Revision 625.4  2005/09/16 02:36:01  ajc
+* The 'To:' box accepts more characters now
+* Removed the border from the new 'XML' button
+
 Revision 625.3  2005/09/16 01:20:00  error
 Add Reply and Email links; and an RSS link in the header
 
@@ -2965,4 +2969,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

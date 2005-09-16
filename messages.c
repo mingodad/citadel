@@ -2393,7 +2393,7 @@ void display_enter(void)
 		wprintf("</td><td>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_name\" value=\"");
 		escputs(bstr("recp"));
-		wprintf("\" size=50 maxlength=70>");
+		wprintf("\" size=50 maxlength=300>");
 	
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 	
