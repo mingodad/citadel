@@ -1,4 +1,7 @@
 $Log$
+Revision 625.5  2005/09/16 04:34:46  ajc
+* Initial hack of Cc: and Bcc: support
+
 Revision 625.4  2005/09/16 02:36:01  ajc
 * The 'To:' box accepts more characters now
 * Removed the border from the new 'XML' button
@@ -2969,3 +2972,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -2257,14 +2257,20 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		sprintf(buf, "ENT0 1|%s|0|4|%s",
+		sprintf(buf, "ENT0 1|%s|0|4|%s||%s|%s",
 			bstr("recp"),
-			bstr("subject") );
+			bstr("subject"),
+			bstr("cc"),
+			bstr("bcc")
+		);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			post_mime_to_server();
-			if (strlen(bstr("recp")) > 0) {
+			if ( (strlen(bstr("recp")) > 0)
+			   || (strlen(bstr("cc")) > 0)
+			   || (strlen(bstr("bcc")) > 0)
+			) {
 				sprintf(WC->ImportantMessage, _("Message has been sent.\n"));
 			}
 			else {
@@ -2338,13 +2344,13 @@ void display_enter(void)
 		"<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
-	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
+	sprintf(buf, "ENT0 0|%s|0|0|||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 
 	if (!strncmp(buf, "570", 3)) {
 		recipient_required = 1;
-		if (strlen(bstr("recp")) > 0) {
+		if (strlen(bstr("recp")) + strlen(bstr("cc")) + strlen(bstr("bcc")) > 0) {
 			recipient_bad = 1;
 		}
 	}
@@ -2376,16 +2382,14 @@ void display_enter(void)
 		"name=\"enterform\""
 		"onSubmit=\"return submitForm();\""
 		">\n");
-	wprintf("<input type=\"hidden\" name=\"recp\" value=\"%s\">\n",
-		bstr("recp"));
-	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n",
-		now);
+	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
 	wprintf("%s<br>\n", buf);	/* header bar */
 
 	wprintf("<table border=\"0\" width=\"100%%\">\n");
 	if (recipient_required) {
+
 		wprintf("<tr><td>");
 		wprintf("<font size=-1>");
 		wprintf(_("To:"));
@@ -2393,17 +2397,47 @@ void display_enter(void)
 		wprintf("</td><td>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_name\" value=\"");
 		escputs(bstr("recp"));
-		wprintf("\" size=50 maxlength=300>");
-	
+		wprintf("\" size=50 maxlength=1000>");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
-	
 		wprintf("<script type=\"text/javascript\">					"
 			" new Ajax.Autocompleter('recp_name', 'recp_name_choices',		"
 			"       '/recp_autocomplete', {} );				"
 			"</script>\n								"
 		);
-
 		wprintf("</td><td></td></tr>\n");
+
+		wprintf("<tr><td>");
+		wprintf("<font size=-1>");
+		wprintf(_("CC:"));
+		wprintf("</font>");
+		wprintf("</td><td>"
+			"<input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_name\" value=\"");
+		escputs(bstr("cc"));
+		wprintf("\" size=50 maxlength=1000>");
+		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
+		wprintf("<script type=\"text/javascript\">					"
+			" new Ajax.Autocompleter('cc_name', 'cc_name_choices',		"
+			"       '/recp_autocomplete', {} );				"
+			"</script>\n								"
+		);
+		wprintf("</td><td></td></tr>\n");
+
+		wprintf("<tr><td>");
+		wprintf("<font size=-1>");
+		wprintf(_("BCC:"));
+		wprintf("</font>");
+		wprintf("</td><td>"
+			"<input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_name\" value=\"");
+		escputs(bstr("bcc"));
+		wprintf("\" size=50 maxlength=1000>");
+		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
+		wprintf("<script type=\"text/javascript\">					"
+			" new Ajax.Autocompleter('cc_name', 'bcc_name_choices',		"
+			"       '/recp_autocomplete', {} );				"
+			"</script>\n								"
+		);
+		wprintf("</td><td></td></tr>\n");
+
 	}
 
 	wprintf("<tr><td>");
