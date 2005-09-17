@@ -521,7 +521,7 @@ void save_inetconf(void);
 void generate_uuid(char *);
 void display_preferences(void);
 void set_preferences(void);
-void recp_autocomplete(void);
+void recp_autocomplete(char *);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);
