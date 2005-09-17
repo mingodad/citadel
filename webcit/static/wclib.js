@@ -44,3 +44,11 @@ function hide_imsg_popup() {
 	// new Effect.FadeTo('important_message', 0.0, 1000, 20, {complete:function() { hide_imsg_popup_old(); }} );
 	hide_imsg_popup_old();	// Do it the old way for now, to avoid library conflicts
 }
+
+
+// This function activates the ajax-powered recipient autocompleters on the message entry screen.
+function activate_entmsg_autocompleters() {
+	new Ajax.Autocompleter('cc_id', 'cc_name_choices', '/cc_autocomplete', {} );
+	new Ajax.Autocompleter('bcc_id', 'bcc_name_choices', '/bcc_autocomplete', {} );
+	new Ajax.Autocompleter('recp_id', 'recp_name_choices', '/recp_autocomplete', {} );
+}

@@ -2350,7 +2350,7 @@ void display_enter(void)
 
 	/*
 	 * Otherwise proceed normally.
-`	 * Do a custom room banner with no navbar...
+	 * Do a custom room banner with no navbar...
 	 */
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
@@ -2433,17 +2433,11 @@ void display_enter(void)
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
 		wprintf("</td><td></td></tr>\n");
 
-		/* Initialize the autocomplete ajax helpers */
-		wprintf("<script type=\"text/javascript\">				\n"
-			" new Ajax.Autocompleter('cc_id', 'cc_name_choices',		\n"
-			"       '/cc_autocomplete', {} );				\n"
-			" new Ajax.Autocompleter('bcc_id', 'bcc_name_choices',		\n"
-			"       '/bcc_autocomplete', {} );				\n"
-			" new Ajax.Autocompleter('recp_id', 'recp_name_choices',	\n"
-			"       '/recp_autocomplete', {} );				\n"
-			"</script>							\n"
+		/* Initialize the autocomplete ajax helpers (found in wclib.js) */
+		wprintf("<script type=\"text/javascript\">	\n"
+			" activate_entmsg_autocompleters();	\n"
+			"</script>				\n"
 		);
-
 	}
 
 	wprintf("<tr><td>");
