@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Temporary RSS feed suck-o-matic script for Uncensored.
+# Example RSS feed suck-o-matic script.
 #
 # This script is UNSUPPORTED.  It is part of a technology preview for
 # functionality which will eventually ship as part of the Citadel system. 
 
 # Paths to the RSS2CTDL binary and to the Citadel directory
 PROG=/usr/local/rss2ctdl/rss2ctdl
-CTDL=/appl/citadel
+CTDL=/usr/local/citadel
 
 # Do one of these for each feed.  You need the URL of the feed, the name
 # of the room to dump it into, and a domain name to stamp onto messages
