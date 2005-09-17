@@ -48,6 +48,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 
 	if (brief) {
 
+		/* If date == today, show only the time */
 		if ((tm.tm_year == today_tm.tm_year)
 		  &&(tm.tm_mon == today_tm.tm_mon)
 		  &&(tm.tm_mday == today_tm.tm_mday)) {
@@ -63,6 +64,28 @@ void fmt_date(char *buf, time_t thetime, int brief)
 				);
 			}
 		}
+
+		/* Otherwise, for messages up to 6 months old, show the
+		 * month and day, and the time */
+		else if (today_timet - thetime < 15552000) {
+			if (!strcasecmp(calhourformat, "24")) {
+				sprintf(buf, "%s %d %2d:%02d",
+					ascmonths[tm.tm_mon],
+					tm.tm_mday,
+					tm.tm_hour, tm.tm_min
+				);
+			}
+			else {
+				sprintf(buf, "%s %d %2d:%02d%s",
+					ascmonths[tm.tm_mon],
+					tm.tm_mday,
+					hour, tm.tm_min,
+					((tm.tm_hour >= 12) ? "pm" : "am")
+				);
+			}
+		}
+
+		/* older than 6 months, show only the date */
 		else {
 			sprintf(buf, "%s %d %d",
 				ascmonths[tm.tm_mon],
