@@ -127,7 +127,7 @@ int main (int argc, char *argv[]) {
 		exit(1);
 	}
 
-	sprintf(tmp, "%s/network/spoolin/rssfeed.%ld", argv[4], time(NULL));
+	sprintf(tmp, "%s/network/spoolin/rssfeed.%08lx.%04x", argv[4], time(NULL), getpid());
 	fp = fopen(tmp, "w");
 	if (fp == NULL) {
 		fprintf(stderr, "%s: cannot open %s: %s\n",
@@ -136,62 +136,72 @@ int main (int argc, char *argv[]) {
 	}
 
 	for (itemptr = new_ptr->items; itemptr != NULL; itemptr = itemptr->next_ptr) {
-		fprintf(stderr, "--> %s\n", itemptr->data->title);
-		fprintf(stderr, "    Date: %s\n", itemptr->data->date);
-		fprintf(fp, "%c", 255);			/* Start of message */
-		fprintf(fp, "A");			/* Non-anonymous */
-		fprintf(fp, "%c", 4);			/* MIME */
-		fprintf(fp, "Prss%c", 0);		/* path */
-
-		/* The message ID will be an MD5 hash of the GUID.
-		 * If there is no GUID present, we construct a message ID based
-		 * on an MD5 hash of each item.  Citadel's loopzapper will automatically
-		 * reject items with message ID's which have already been submitted.
+	
+		/* Reject items more than 6 days old, because the loopzapper only keeps 7 days
+		 * worth of data.
 		 */
-		MD5Init(&md5context);
-		if (itemptr->data->guid != NULL) {
-			MD5Update(&md5context, itemptr->data->guid, strlen(itemptr->data->guid));
+		if ( (itemptr->data->date != 0L) && (time(NULL) - itemptr->data->date >= 518400L) ) {
+			fprintf(stderr, "REJECTED: %s\n", itemptr->data->title);
 		}
-		else {
+
+		if ( (itemptr->data->date == 0L) || (time(NULL) - itemptr->data->date < 518400L) ) {
+
+			fprintf(stderr, "ACCEPTED: %s\n", itemptr->data->title);
+			fprintf(fp, "%c", 255);			/* Start of message */
+			fprintf(fp, "A");			/* Non-anonymous */
+			fprintf(fp, "%c", 4);			/* MIME */
+			fprintf(fp, "Prss%c", 0);		/* path */
+	
+			/* The message ID will be an MD5 hash of the GUID.
+			 * If there is no GUID present, we construct a message ID based
+			 * on an MD5 hash of each item.  Citadel's loopzapper will automatically
+			 * reject items with message ID's which have already been submitted.
+			 */
+			MD5Init(&md5context);
+			if (itemptr->data->guid != NULL) {
+				MD5Update(&md5context, itemptr->data->guid, strlen(itemptr->data->guid));
+			}
+			else {
+				if (itemptr->data->title != NULL) {
+					MD5Update(&md5context, itemptr->data->title, strlen(itemptr->data->title));
+				}
+				//if (itemptr->data->description != NULL) {
+					//MD5Update(&md5context, itemptr->data->description, strlen(itemptr->data->description));
+				//}
+				if (itemptr->data->link != NULL) {
+					MD5Update(&md5context, itemptr->data->link, strlen(itemptr->data->link));
+				}
+			}
+			MD5Final(md5msgid, &md5context);
+			CvtHex(md5msgid, md5context_hex);
+	
+			fprintf(fp, "I%s@%s%c", md5context_hex, argv[3], 0);	/* ID */ 
+	
+			fprintf(fp, "T%ld%c",  time(NULL),  0);	/* time */
+			fprintf(fp, "Arss%c", 0);		/* author */
+			fprintf(fp, "O%s%c", argv[2], 0);	/* room */
+			fprintf(fp, "C%s%c", argv[2], 0);	/* room */
+			fprintf(fp, "N%s%c", argv[3], 0);	/* orig node */
+			if (itemptr->data->guid != NULL) {
+				fprintf(fp, "E%s%c", itemptr->data->guid, 0);	/* guid=euid*/
+			}
 			if (itemptr->data->title != NULL) {
-				MD5Update(&md5context, itemptr->data->title, strlen(itemptr->data->title));
+				fprintf(fp, "U%s%c", itemptr->data->title, 0);	/* subject */
 			}
-			//if (itemptr->data->description != NULL) {
-				//MD5Update(&md5context, itemptr->data->description, strlen(itemptr->data->description));
-			//}
+	
+			fprintf(fp, "M");			/* msg text */
+			fprintf(fp, "Content-type: text/html\r\n\r\n");
+			fprintf(fp, "<HTML><BODY>\r\n");
+			fprintf(fp, "%s\n", itemptr->data->description);
 			if (itemptr->data->link != NULL) {
-				MD5Update(&md5context, itemptr->data->link, strlen(itemptr->data->link));
+				fprintf(fp, "<BR><BR>\r\n");
+				fprintf(fp, "<A HREF=\"%s\">%s</A>\n",
+					itemptr->data->link,
+					itemptr->data->link);
 			}
+			fprintf(fp, "</BODY></HTML>\r\n");
+			fprintf(fp, "%c", 0);
 		}
-		MD5Final(md5msgid, &md5context);
-		CvtHex(md5msgid, md5context_hex);
-
-		fprintf(fp, "I%s@%s%c", md5context_hex, argv[3], 0);	/* ID */ 
-
-		fprintf(fp, "T%ld%c",  time(NULL),  0);	/* time */
-		fprintf(fp, "Arss%c", 0);		/* author */
-		fprintf(fp, "O%s%c", argv[2], 0);	/* room */
-		fprintf(fp, "C%s%c", argv[2], 0);	/* room */
-		fprintf(fp, "N%s%c", argv[3], 0);	/* orig node */
-		if (itemptr->data->guid != NULL) {
-			fprintf(fp, "E%s%c", itemptr->data->guid, 0);	/* guid=euid*/
-		}
-		if (itemptr->data->title != NULL) {
-			fprintf(fp, "U%s%c", itemptr->data->title, 0);	/* subject */
-		}
-
-		fprintf(fp, "M");			/* msg text */
-		fprintf(fp, "Content-type: text/html\r\n\r\n");
-		fprintf(fp, "<HTML><BODY>\r\n");
-		fprintf(fp, "%s\n", itemptr->data->description);
-		if (itemptr->data->link != NULL) {
-			fprintf(fp, "<BR><BR>\r\n");
-			fprintf(fp, "<A HREF=\"%s\">%s</A>\n",
-				itemptr->data->link,
-				itemptr->data->link);
-		}
-		fprintf(fp, "</BODY></HTML>\r\n");
-		fprintf(fp, "%c", 0);
 	}
 
 	fclose(fp);

@@ -23,6 +23,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <time.h>
 #include "netio.h"
 
 /* Set your charset here. ISO-8859-1 is default. */
@@ -63,7 +64,7 @@ struct newsdata {
 	char *link;
 	char *guid;							/* Not always present */
 	char *description;
-	char *date;							/* not always present */
+	time_t date;							/* not always present */
 };
 
 extern struct feed *first_ptr;
