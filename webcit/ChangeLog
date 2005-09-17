@@ -1,4 +1,8 @@
 $Log$
+Revision 625.6  2005/09/17 03:00:06  ajc
+* Fixed the autocompletion for CC: and BCC:
+* Moved the autocompletion styles into the stylesheet where they belong
+
 Revision 625.5  2005/09/16 04:34:46  ajc
 * Initial hack of Cc: and Bcc: support
 
@@ -2972,4 +2976,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -1360,7 +1360,11 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "set_preferences")) {
 		set_preferences();
 	} else if (!strcasecmp(action, "recp_autocomplete")) {
-		recp_autocomplete();
+		recp_autocomplete(bstr("recp"));
+	} else if (!strcasecmp(action, "cc_autocomplete")) {
+		recp_autocomplete(bstr("cc"));
+	} else if (!strcasecmp(action, "bcc_autocomplete")) {
+		recp_autocomplete(bstr("bcc"));
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0, 0);
 		wprintf("Session: %d<hr />\n", WC->wc_session);

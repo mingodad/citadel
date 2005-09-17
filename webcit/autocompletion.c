@@ -6,11 +6,10 @@
 
 #include "webcit.h"
 
-
 /*
  * Recipient autocompletion results
  */
-void recp_autocomplete(void) {
+void recp_autocomplete(char *partial) {
 	char buf[1024];
 	char name[128];
 
@@ -26,8 +25,7 @@ void recp_autocomplete(void) {
 
 	wprintf("<ul>");
 
-
-	serv_printf("AUTO %s", bstr("recp"));
+	serv_printf("AUTO %s", partial);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {

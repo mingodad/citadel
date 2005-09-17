@@ -9,7 +9,7 @@ body {
 	padding: 0 0 0 0;
 	height: 100%;
 	overflow: auto;
-	background-image:url(/static/body-background.gif);
+	background-image: url(/static/body-background.gif);
 	color: #000000;
 	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-weight: normal;
@@ -490,5 +490,38 @@ td li.frameset, .elements li.frameset {
 }
 
 <!-- end nanotree styles -->
+
+<!-- begin address autocompleter styles -->
+
+div.auto_complete {
+	width: 350px;
+	background: #fff;
+}
+
+div.auto_complete ul {
+	border:1px solid #888;
+	margin:0;
+	padding:0;
+	width:100%;
+	list-style-type: none;
+	background: #fff;
+}
+
+div.auto_complete ul li {
+	margin:0;
+	padding:3px;
+}
+
+div.auto_complete ul li.selected {
+	background-color: #ffc;
+} 
+
+div.auto_complete ul strong.highlight {
+	color: #800;
+	margin:0;
+	padding:0;
+}
+
+<!-- end address autocompleter styles -->
 
 </style>
