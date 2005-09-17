@@ -1,4 +1,9 @@
 $Log$
+Revision 625.7  2005/09/17 13:18:05  ajc
+* fmt_date.c: changes to "brief" mode.  It now displays time only if the
+  date is today, month/day/time if the date is within the last six months,
+  and date only for anything older.
+
 Revision 625.6  2005/09/17 03:00:06  ajc
 * Fixed the autocompletion for CC: and BCC:
 * Moved the autocompletion styles into the stylesheet where they belong
@@ -2976,3 +2981,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
