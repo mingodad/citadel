@@ -137,6 +137,7 @@ int main (int argc, char *argv[]) {
 
 	for (itemptr = new_ptr->items; itemptr != NULL; itemptr = itemptr->next_ptr) {
 		fprintf(stderr, "--> %s\n", itemptr->data->title);
+		fprintf(stderr, "    Date: %s\n", itemptr->data->date);
 		fprintf(fp, "%c", 255);			/* Start of message */
 		fprintf(fp, "A");			/* Non-anonymous */
 		fprintf(fp, "%c", 4);			/* MIME */

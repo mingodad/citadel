@@ -63,6 +63,7 @@ struct newsdata {
 	char *link;
 	char *guid;							/* Not always present */
 	char *description;
+	char *date;							/* not always present */
 };
 
 extern struct feed *first_ptr;

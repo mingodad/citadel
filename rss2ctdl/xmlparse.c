@@ -44,7 +44,6 @@ void parse_rdf10_channel(struct feed *feed, xmlDocPtr doc, xmlNodePtr node) {
 	/* Free everything before we write to it again. */
 	free (feed->title);
 	free (feed->link);
-	free (feed->description);
 		
 	if (feed->items != NULL) {
 		while (feed->items->next_ptr != NULL) {
@@ -53,6 +52,7 @@ void parse_rdf10_channel(struct feed *feed, xmlDocPtr doc, xmlNodePtr node) {
 			free (feed->items->prev_ptr->data->link);
 			free (feed->items->prev_ptr->data->guid);
 			free (feed->items->prev_ptr->data->description);
+			free (feed->items->prev_ptr->data->date);
 			free (feed->items->prev_ptr->data);
 			free (feed->items->prev_ptr);
 		}
@@ -60,6 +60,7 @@ void parse_rdf10_channel(struct feed *feed, xmlDocPtr doc, xmlNodePtr node) {
 		free (feed->items->data->link);
 		free (feed->items->data->guid);
 		free (feed->items->data->description);
+		free (feed->items->data->date);
 		free (feed->items->data);
 		free (feed->items);
 	}
@@ -119,6 +120,7 @@ void parse_rdf20_channel(struct feed *feed, xmlDocPtr doc, xmlNodePtr node)
 			free (feed->items->prev_ptr->data->link);
 			free (feed->items->prev_ptr->data->guid);
 			free (feed->items->prev_ptr->data->description);
+			free (feed->items->prev_ptr->data->date);
 			free (feed->items->prev_ptr->data);
 			free (feed->items->prev_ptr);
 		}
@@ -126,17 +128,18 @@ void parse_rdf20_channel(struct feed *feed, xmlDocPtr doc, xmlNodePtr node)
 		free (feed->items->data->link);
 		free (feed->items->data->guid);
 		free (feed->items->data->description);
+		free (feed->items->data->date);
 		free (feed->items->data);
 		free (feed->items);
 	}
 	
-	/* Im Augenblick haben wir noch keine Items, also die Liste auf NULL setzen. */
+	/* At the moment we have still no Items, so set the list to NULL. */
 	feed->items = NULL;
 	feed->title = NULL;
 	feed->link = NULL;
 	feed->description = NULL;
 	
-	/* Alle Tags im <channel> Tag durchgehen und die Informationen extrahieren */
+	/* Go through all tags in <channel> and extract the information. */
 	for (cur = node; cur != NULL; cur = cur->next) {
 		if (cur->type != XML_ELEMENT_NODE)
 			continue;
@@ -191,6 +194,7 @@ void parse_rdf10_item(struct feed *feed, xmlDocPtr doc, xmlNodePtr node)
 	item->data->link = NULL;
 	item->data->guid = NULL;
 	item->data->description = NULL;
+	item->data->date = NULL;
 	item->data->readstatus = 0;
 	item->data->parent = feed;
 		
@@ -242,6 +246,16 @@ void parse_rdf10_item(struct feed *feed, xmlDocPtr doc, xmlNodePtr node)
 			item->data->description = xmlNodeListGetString(doc, cur->children, 1);
 			CleanupString (item->data->description, 0);
 		}
+		else if (xmlStrcmp(cur->name, "date") == 0) {
+			item->data->date = xmlNodeListGetString(doc, cur->children, 1);
+			CleanupString (item->data->date, 0);
+		}
+		/* pubDate will be in the form of: Thu, 15 Sep 2005 14:32:44 +0000 */
+		else if (xmlStrcmp(cur->name, "pubDate") == 0) {
+			item->data->date = xmlNodeListGetString(doc, cur->children, 1);
+			CleanupString (item->data->date, 0);
+		}
+		/* RSS style date will be in the form of: 2005-09-17T06:18:00+00:00 */
 		else if (xmlStrcmp(cur->name, "readstatus") == 0) {
 			/* Will cause memory leak otherwise, xmlNodeListGetString must be freed. */
 			readstatusstring = xmlNodeListGetString(doc, cur->children, 1);
@@ -305,6 +319,7 @@ int DeXML (struct feed *cur_ptr) {
 			copy->data->link = NULL;
 			copy->data->guid = NULL;
 			copy->data->description = NULL;
+			copy->data->date = NULL;
 			copy->data->readstatus = cur_item->data->readstatus;
 			if (cur_item->data->link != NULL)
 				copy->data->link = strdup (cur_item->data->link);
