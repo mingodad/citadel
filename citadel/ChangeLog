@@ -1,4 +1,12 @@
 $Log$
+Revision 655.8  2005/09/18 17:50:05  ajc
+* serv_network.c: use a stat() call to determine the mtime of spoolin, and
+  skip the scan if it hasn't been touched since the last time we looked.
+* serv_network.c: don't create network/systems/ directory.  We haven't used
+  that in ages.
+* serv_network.c: only attempt to create directories at startup, not at
+  every queue run.  Also, chown() them to the citadel user.
+
 Revision 655.7  2005/09/16 20:40:44  ajc
 * CC: support for message creation, and IMAP.  Not tested.
 
@@ -7135,4 +7143,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

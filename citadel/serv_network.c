@@ -4,7 +4,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (C) 2000-2002 by Art Cancro and others.
+ * Copyright (C) 2000-2005 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
@@ -70,7 +70,7 @@
 #include "snprintf.h"
 #endif
 
-/* Nonzero while we are doing outbound network processing */
+/* Nonzero while we are doing network processing */
 static int doing_queue = 0;
 
 /*
@@ -1492,15 +1492,33 @@ void network_process_file(char *filename) {
 void network_do_spoolin(void) {
 	DIR *dp;
 	struct dirent *d;
+	struct stat statbuf;
 	char filename[256];
-
-	dp = opendir(
+	static time_t last_spoolin_mtime = 0L;
+	const char *spoolin_dirname = 
 #ifndef HAVE_SPOOL_DIR
 				 "."
 #else
 				 SPOOL_DIR
 #endif /* HAVE_SPOOL_DIR */
-				 "/network/spoolin");
+				 "/network/spoolin";
+
+	/*
+	 * Check the spoolin directory's modification time.  If it hasn't
+	 * been touched, we don't need to scan it.
+	 */
+	if (stat(spoolin_dirname, &statbuf)) return;
+	if (statbuf.st_mtime == last_spoolin_mtime) {
+		lprintf(CTDL_DEBUG, "network: nothing in inbound queue\n");
+		return;
+	}
+	last_spoolin_mtime = statbuf.st_mtime;
+	lprintf(CTDL_DEBUG, "network: processing inbound queue\n");
+
+	/*
+	 * Ok, there's something interesting in there, so scan it.
+	 */
+	dp = opendir(spoolin_dirname);
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
@@ -1825,14 +1843,18 @@ void network_poll_other_citadel_nodes(int full_poll) {
 void create_spool_dirs(void) {
 #ifndef HAVE_SPOOL_DIR
 	mkdir("./network", 0700);
-	mkdir("./network/systems", 0700);
+	chown("./network", CTDLUID, (-1));
 	mkdir("./network/spoolin", 0700);
+	chown("./network/spoolin", CTDLUID, (-1));
 	mkdir("./network/spoolout", 0700);
+	chown("./network/spoolout", CTDLUID, (-1));
 #else
 	mkdir(SPOOL_DIR "/network", 0700);
-	mkdir(SPOOL_DIR "/network/systems", 0700);
+	chown(SPOOL_DIR "./network", CTDLUID, (-1));
 	mkdir(SPOOL_DIR "/network/spoolin", 0700);
+	chown(SPOOL_DIR "./network/spoolin", CTDLUID, (-1));
 	mkdir(SPOOL_DIR "/network/spoolout", 0700);
+	chown(SPOOL_DIR "./network/spoolout", CTDLUID, (-1));
 #endif /* HAVE_SPOOL_DIR */
 }
 
@@ -1857,8 +1879,6 @@ void network_do_queue(void) {
 	if ( (time(NULL) - last_run) < config.c_net_freq ) {
 		full_processing = 0;
 	}
-
-	create_spool_dirs();
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -1901,7 +1921,7 @@ void network_do_queue(void) {
 		}
 	}
 
-	lprintf(CTDL_DEBUG, "network: processing inbound queue\n");
+	/* If there is anything in the inbound queue, process it */
 	network_do_spoolin();
 
 	/* Save the network map back to disk */
