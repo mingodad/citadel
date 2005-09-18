@@ -482,7 +482,8 @@ void read_message(long msgnum, int suppress_buttons) {
 	char node[256];
 	char rfca[256];
 	char reply_to[512];
-	char now[256];
+	char reply_all[4096];
+	char now[64];
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
@@ -503,6 +504,7 @@ void read_message(long msgnum, int suppress_buttons) {
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
+	strcpy(reply_all, "");
 	strcpy(vcard_partnum, "");
 	strcpy(cal_partnum, "");
 	strcpy(mime_http, "");
@@ -562,6 +564,11 @@ void read_message(long msgnum, int suppress_buttons) {
 		}
 		if (!strncasecmp(buf, "cccc=", 5)) {
 			safestrncpy(m_cc, &buf[5], sizeof m_cc);
+			if (strlen(reply_all) > 0) {
+				strcat(reply_all, ", ");
+			}
+			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
+				(sizeof reply_all - strlen(reply_all)) );
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
@@ -594,6 +601,11 @@ void read_message(long msgnum, int suppress_buttons) {
 			wprintf(_("to "));
 			escputs(&buf[5]);
 			wprintf(" ");
+			if (strlen(reply_all) > 0) {
+				strcat(reply_all, ", ");
+			}
+			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
+				(sizeof reply_all - strlen(reply_all)) );
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
@@ -700,6 +712,18 @@ void read_message(long msgnum, int suppress_buttons) {
 		if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 		urlescputs(m_subject);
 		wprintf("\">[%s]</a> ", _("Reply"));
+
+		/* ReplyAll */
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"/display_enter?recp=");
+			urlescputs(reply_to);
+			wprintf("?cc=");
+			urlescputs(reply_all);
+			wprintf("?subject=");
+			if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+			urlescputs(m_subject);
+			wprintf("\">[%s]</a> ", _("ReplyAll"));
+		}
 
 		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
@@ -2360,29 +2384,48 @@ void display_enter(void)
 		"<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
-	sprintf(buf, "ENT0 0|%s|0|0||||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
-	serv_puts(buf);
+	/* First test to see whether this is a room that requires recipients to be entered */
+	serv_puts("ENT0 0");
 	serv_getln(buf, sizeof buf);
-
-	if (!strncmp(buf, "570", 3)) {
+	if (!strncmp(buf, "570", 3)) {		/* 570 means that we need a recipient here */
 		recipient_required = 1;
-		if (strlen(bstr("recp")) + strlen(bstr("cc")) + strlen(bstr("bcc")) > 0) {
-			recipient_bad = 1;
-		}
 	}
-	else if (buf[0] != '2') {
+	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
 	}
+
+	/* Now check our actual recipients if there are any */
+	if (recipient_required) {
+		sprintf(buf, "ENT0 0|%s|0|0||||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
+		serv_puts(buf);
+		serv_getln(buf, sizeof buf);
+
+		if (!strncmp(buf, "570", 3)) {	/* 570 means we have an invalid recipient listed */
+			if (strlen(bstr("recp")) + strlen(bstr("cc")) + strlen(bstr("bcc")) > 0) {
+				recipient_bad = 1;
+			}
+		}
+		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
+			wprintf("<EM>%s</EM><br />\n", &buf[4]);
+			goto DONE;
+		}
+	}
+
+	/* If we got this far, we can display the message entry screen. */
 
 	now = time(NULL);
 	fmt_date(buf, now, 0);
 	strcat(&buf[strlen(buf)], _(" <I>from</I> "));
 	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
+
+	/* Don't need this anymore, it's in the input box below
 	if (strlen(bstr("recp")) > 0) {
 		strcat(&buf[strlen(buf)], _(" <I>to</I> "));
 		stresc(&buf[strlen(buf)], bstr("recp"), 1, 1);
 	}
+	*/
+
 	strcat(&buf[strlen(buf)], _(" <I>in</I> "));
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
