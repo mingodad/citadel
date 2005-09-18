@@ -1,4 +1,7 @@
 $Log$
+Revision 625.15  2005/09/18 21:47:49  ajc
+*** empty log message ***
+
 Revision 625.14  2005/09/18 16:00:14  ajc
 * Discovered that Prototype makes it easy to auto-refresh, so I switched
   the wholist and summary refresh code to use that API instead of doing it
@@ -3023,3 +3026,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
