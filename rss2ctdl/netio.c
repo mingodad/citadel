@@ -61,7 +61,9 @@ extern char *proxyname;						/* Hostname of proxyserver. */
 extern unsigned short proxyport;			/* Port on proxyserver to use. */
 
 /* Masquerade as Firefox on Linux to increase the share of both in web server statistics. */
-char *useragent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0";
+/* char *useragent = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0"; */
+/* On second thought, let's be honest about this. */
+char *useragent = "Citadel RSS Service/0.1 (multiple subscribers) (+http://www.citadel.org/)";
 
 /* Waits NET_TIMEOUT seconds for the socket to return data.
  *
