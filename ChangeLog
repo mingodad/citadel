@@ -1,4 +1,8 @@
 $Log$
+Revision 625.10  2005/09/18 03:15:15  ajc
+* Remove spurious "No new messages" message when viewing an
+  empty address book.
+
 Revision 625.9  2005/09/18 00:53:15  ajc
 * "Reply All" button
 
@@ -2989,3 +2993,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
