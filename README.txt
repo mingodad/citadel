@@ -15,10 +15,6 @@
    General Public License.  Please read COPYING.txt for more licensing
    information.
  
-   WebCit bundles the Rico Ajax Engine, written by Darren James, Bill Scott,
-   et. al. [http://www.openrico.org].  These components are licensed to you
-   under the terms of the Apache 2.0 License.
-
    WebCit bundles the Prototype JavaScript Framework, writen by Sam
    Stephenson [http://prototype.conio.net].  These components are licensed to
    you under the terms of an MIT-style license.
@@ -27,8 +23,8 @@
    Thomas Fuchs [http://script.aculo.us, http://mir.aculo.us].  These
    components are licensed to you under the terms of an MIT-style license.
 
-
    The Citadel logo was designed by Lisa Aurigemma.
+
  
  INTRODUCTION
  ------------
