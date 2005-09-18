@@ -1486,9 +1486,9 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	char tablast_label[SIZ];
 
 	if (num_ab == 0) {
-		wprintf("<I>");
+		wprintf("<br /><br /><br /><div align=\"center\"><i>");
 		wprintf(_("This address book is empty."));
-		wprintf("</I>\n");
+		wprintf("</i></div>\n");
 		return;
 	}
 
@@ -1832,7 +1832,7 @@ void readloop(char *oper)
 	nummsgs = load_msg_ptrs(cmd, is_summary);
 	if (nummsgs == 0) {
 
-		if ((!is_tasks) && (!is_calendar) && (!is_notes)) {
+		if ((!is_tasks) && (!is_calendar) && (!is_notes) && (!is_addressbook)) {
 			wprintf("<em>");
 			if (!strcmp(oper, "readnew")) {
 				wprintf(_("No new messages."));
