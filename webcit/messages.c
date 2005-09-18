@@ -411,14 +411,16 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 			wprintf("</TD></TR>\n");
 		
-			if (strlen(phone) > 0)
-				wprintf("<TR><TD>");
+			if (strlen(phone) > 0) {
+				wprintf("<tr><td>");
 				wprintf(_("Telephone:"));
-				wprintf("</TD><TD>%s</TD></TR>\n", phone);
-			if (strlen(mailto) > 0)
-				wprintf("<TR><TD>");
+				wprintf("</td><td>%s</td></tr>\n", phone);
+			}
+			if (strlen(mailto) > 0) {
+				wprintf("<tr><td>");
 				wprintf(_("E-mail:"));
-				wprintf("</TD><TD>%s</TD></TR>\n", mailto);
+				wprintf("</td><td>%s</td></tr>\n", mailto);
+			}
 		}
 
 	}
