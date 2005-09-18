@@ -168,22 +168,16 @@ void who(void)
 	wprintf("</div>\n");
 
 	/* JavaScript to make the ajax refresh happen:
-	 * * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.Updater
-	 * * It wants: 1. The div being updated
-	 * *           2. The URL of the update source
-	 * *           3. Other flags (such as the HTTP method)
-	 *
-	 * * setInterval() makes it auto-run this code every 30,000 milliseconds (30 seconds)
-	 *
-	 * The random number parameter forces b0rken MSIE to fetch a new page instead of going to
-	 * its cache, even though it's been specifically told not to cache.
-	 *
+	 * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.PeriodicalUpdater
+	 * It wants: 1. The div being updated
+	 *           2. The URL of the update source
+	 *           3. Other flags (such as the HTTP method and the refresh frequency)
 	 */
 	wprintf(
-		"<script type=\"text/javascript\">							\n"
-		" setInterval(\" new Ajax.Updater('fix_scrollbar_bug', '/who_inner_html',		"
-		"		{method: 'get', parameters: Math.random() }); 	\", 30000);		\n"
-		"</script>										\n"
+		"<script type=\"text/javascript\">					"
+		" new Ajax.PeriodicalUpdater('fix_scrollbar_bug', '/who_inner_html',	"
+		"                            { method: 'get', frequency: 30 }  );	"
+		"</script>							 	\n"
 	);
 	wDumpContent(1);
 }

@@ -1,4 +1,13 @@
 $Log$
+Revision 625.14  2005/09/18 16:00:14  ajc
+* Discovered that Prototype makes it easy to auto-refresh, so I switched
+  the wholist and summary refresh code to use that API instead of doing it
+  myself.
+* Switched all HTTP/1.0 HTTP/1.1.  I don't know if this is going to break
+  anything (it shouldn't -- I'm not knowingly depending upon any features
+  of HTTP/1.0), but it *fixes* the problem of Internet Exploder caching
+  pages even when it's told not to.
+
 Revision 625.13  2005/09/18 15:02:29  ajc
 * summary.c: summary screen is now updated using ajax instead of refreshing
   the whole page.  Not only does this look cleaner, but it also has the
@@ -3014,4 +3023,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
