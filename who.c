@@ -133,7 +133,7 @@ void who_inner_html(void) {
 		"Server: %s\r\n"
 		"Connection: close\r\n"
 		"Pragma: no-cache\r\n"
-		"Cache-Control: no-store, no-cache, must-revalidate\r\n",
+		"Cache-Control: no-cache\r\n",
 		SERVER);
 	begin_burst();
 
@@ -196,12 +196,14 @@ void who(void)
 	 *
 	 * * setInterval() makes it auto-run this code every 30,000 milliseconds (30 seconds)
 	 *
-	 * FIXME b0rken IE is still caching it
+	 * The random number parameter forces b0rken MSIE to fetch a new page instead of going to
+	 * its cache, even though it's been specifically told not to cache.
+	 *
 	 */
 	wprintf(
 		"<script type=\"text/javascript\">							\n"
 		" setInterval(\" new Ajax.Updater('fix_scrollbar_bug', '/who_inner_html',		"
-		"			{method: 'get'}); 			\", 30000);		\n"
+		"		{method: 'get', parameters: Math.random() }); 	\", 3000);		\n"
 		"</script>										\n"
 	);
 	wDumpContent(1);

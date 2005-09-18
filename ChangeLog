@@ -1,4 +1,9 @@
 $Log$
+Revision 625.12  2005/09/18 14:30:05  ajc
+* Added a "random number" parameter to the wholist ajax refresh request,
+  because b0rken MSIE still insists on fetching from its cache even though
+  it's been explicitly told not to.
+
 Revision 625.11  2005/09/18 04:04:32  ajc
 * Switched the wholist updater to Prototype's AJAX updater, instead of
   using Rico's wrapper around it.  It's actually simpler and doesn't seem
@@ -2999,5 +3004,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
