@@ -107,6 +107,7 @@
 #define USERCALENDARROOM	"Calendar"
 #define USERTASKSROOM		"Tasks"
 #define USERCONTACTSROOM	"Contacts"
+#define USERCOLLECTEDROOM	"Collected Addresses"
 #define USERNOTESROOM		"Notes"
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"

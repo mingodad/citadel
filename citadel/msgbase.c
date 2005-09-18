@@ -1479,19 +1479,15 @@ int CtdlOutputPreLoadedMsg(
 		cprintf(">%s", nl);
 
 		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
-			// cprintf("From: x@x.org (----)%s", nl);
 			cprintf("From: \"----\" <x@x.org>%s", nl);
 		}
 		else if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONOPT)) {
-			// cprintf("From: x@x.org (anonymous)%s", nl);
 			cprintf("From: \"anonymous\" <x@x.org>%s", nl);
 		}
 		else if (strlen(fuser) > 0) {
-			// cprintf("From: %s (%s)%s", fuser, luser, nl);
 			cprintf("From: \"%s\" <%s>%s", luser, fuser, nl);
 		}
 		else {
-			// cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
 			cprintf("From: \"%s\" <%s@%s>%s", luser, suser, snode, nl);
 		}
 
@@ -2033,9 +2029,6 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 
-
-
-
 /*
  * Save a message to disk and submit it into the delivery system.
  */
@@ -2061,6 +2054,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char *instr;
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
+	char *collected_addresses = NULL;
 
 	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2360,6 +2354,15 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_fields['M'] = instr;
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
+	}
+
+	/*
+	 * Any addresses to collect?  (FIXME do something with them!!)
+	 */
+	collected_addresses = harvest_collected_addresses(msg);
+	if (collected_addresses != NULL) {
+		lprintf(CTDL_DEBUG, "FIXME collected addresses: %s\n", collected_addresses);
+		free(collected_addresses);
 	}
 
 	return(newmsgid);

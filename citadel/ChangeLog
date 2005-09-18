@@ -1,4 +1,9 @@
 $Log$
+Revision 655.9  2005/09/18 19:34:26  ajc
+* When submitting a message, harvest non-local addresses for potential
+  inclusion in a user's Collected Addresses book.  Note: we don't actually
+  do anything with these addresses yet.  That comes next.
+
 Revision 655.8  2005/09/18 17:50:05  ajc
 * serv_network.c: use a stat() call to determine the mtime of spoolin, and
   skip the scan if it hasn't been touched since the last time we looked.
@@ -7143,3 +7148,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

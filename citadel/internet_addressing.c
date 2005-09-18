@@ -356,6 +356,12 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "CC")) {
+		if (msg->cm_fields['Y'] == NULL)
+			msg->cm_fields['Y'] = strdup(value);
+		processed = 1;
+	}
+
 	else if (!strcasecmp(key, "Message-ID")) {
 		if (msg->cm_fields['I'] != NULL) {
 			lprintf(CTDL_WARNING, "duplicate message id\n");
@@ -632,4 +638,72 @@ int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen) {
 	}
 
 	return(-1);
+}
+
+
+/*
+ * Harvest any email addresses that someone might want to have in their
+ * "collected addresses" book.
+ */
+char *harvest_collected_addresses(struct CtdlMessage *msg) {
+	char *coll = NULL;
+	char addr[256];
+	char user[256], node[256], name[256];
+	int is_harvestable;
+	int i, j, h;
+	int field = 0;
+
+	if (msg == NULL) return(NULL);
+
+	is_harvestable = 1;
+	strcpy(addr, "");	
+	if (msg->cm_fields['A'] != NULL) {
+		strcat(addr, msg->cm_fields['A']);
+	}
+	if (msg->cm_fields['F'] != NULL) {
+		strcat(addr, " <");
+		strcat(addr, msg->cm_fields['F']);
+		strcat(addr, ">");
+		if (IsDirectory(msg->cm_fields['F'])) {
+			is_harvestable = 0;
+		}
+	}
+
+	if (is_harvestable) {
+		coll = strdup(addr);
+	}
+	else {
+		coll = strdup("");
+	}
+
+	if (coll == NULL) return(NULL);
+
+	/* Scan both the R (To) and Y (CC) fields */
+	for (i = 0; i < 2; ++i) {
+		if (i == 0) field = 'R' ;
+		if (i == 1) field = 'Y' ;
+
+		if (msg->cm_fields[field] != NULL) {
+			for (j=0; j<num_tokens(msg->cm_fields[field], ','); ++j) {
+				extract_token(addr, msg->cm_fields[field], j, ',', sizeof addr);
+				process_rfc822_addr(addr, user, node, name);
+				h = CtdlHostAlias(node);
+				if ( (h != hostalias_localhost) && (h != hostalias_directory) ) {
+					coll = realloc(coll, strlen(coll) + strlen(addr) + 4);
+					if (coll == NULL) return(NULL);
+					if (strlen(coll) > 0) {
+						strcat(coll, ",");
+					}
+					striplt(addr);
+					strcat(coll, addr);
+				}
+			}
+		}
+	}
+
+	if (strlen(coll) == 0) {
+		free(coll);
+		return(NULL);
+	}
+	return(coll);
 }

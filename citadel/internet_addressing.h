@@ -24,6 +24,7 @@ void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
 int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen);
 struct CtdlMessage *convert_internet_message(char *rfc822);
 int CtdlHostAlias(char *fqdn);
+char *harvest_collected_addresses(struct CtdlMessage *msg);
 
 /* 
  * Values that can be returned by CtdlHostAlias()
