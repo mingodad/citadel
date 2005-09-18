@@ -54,7 +54,7 @@ void edit_node(void) {
 
 void display_add_node(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
@@ -93,7 +93,7 @@ void display_edit_node(void)
 
 	strcpy(node, bstr("node"));
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
@@ -157,7 +157,7 @@ void display_netconf(void)
 	char buf[SIZ];
 	char node[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
@@ -208,7 +208,7 @@ void display_confirm_delete_node(void)
 {
 	char node[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
@@ -285,7 +285,7 @@ void add_node(void)
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
-			output_headers(1, 1, 0, 0, 0, 0, 0);
+			output_headers(1, 1, 0, 0, 0, 0);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">");
 			wprintf(_("Back to menu"));

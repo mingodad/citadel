@@ -336,7 +336,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 						/*     <div id="content"> either.                   */
 
 			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
-			int refresh30,		/* 1 = automatically refresh page every 30 seconds  */
 			int suppress_check,	/* 1 = suppress check for instant messages          */
 			int cache		/* 1 = allow browser to cache this page             */
 ) {
@@ -382,16 +381,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	if (do_htmlhead) {
 		/* wprintf("\n"); */
 		begin_burst();
-
-		if (refresh30) {
-			svprintf("REFRESHTAG", WCS_STRING, "%s",
-				"<meta http-equiv=\"refresh\" content=\"30\" />\n");
-		}
-		else {
-			svprintf("REFRESHTAG", WCS_STRING, "%s",
-				"<meta http-equiv=\"refresh\" content=\"500363689;\" />\n");
-		}
-
 		do_template("head");
 	}
 
@@ -464,7 +453,7 @@ void check_for_instant_messages()
 void http_transmit_thing(char *thing, size_t length, char *content_type,
 			 int is_static) {
 
-	output_headers(0, 0, 0, 0, 0, 0, is_static);
+	output_headers(0, 0, 0, 0, 0, is_static);
 
 	wprintf("Content-type: %s\r\n"
 		"Server: %s\r\n"
@@ -624,7 +613,7 @@ void output_mimepart()
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
 		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
-		output_headers(0, 0, 0, 0, 0, 0, 0);
+		output_headers(0, 0, 0, 0, 0, 0);
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
@@ -632,7 +621,7 @@ void output_mimepart()
 		free(content);
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0, 0, 0, 0, 0, 0, 0);
+		output_headers(0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
 		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
@@ -678,7 +667,7 @@ char *load_mimepart(long msgnum, char *partnum)
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
 	wprintf("HTTP/1.0 200 OK\n");
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
 	wprintf("<SPAN CLASS=\"titlebar\">%s</SPAN>\n", titlebarmsg);
@@ -695,7 +684,7 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
  * Display a blank page.
  */
 void blank_page(void) {
-	output_headers(1, 1, 0, 0, 1, 0, 0);
+	output_headers(1, 1, 0, 0, 0, 0);
 	wDumpContent(2);
 }
 
@@ -741,7 +730,7 @@ void change_start_page(void) {
 
 	set_preference("startpage", bstr("startpage"), 1);
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 0, 0, 0, 0);
 	do_template("newstartpage");
 	wDumpContent(1);
 }
@@ -809,6 +798,25 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 
 }
 
+/*
+ * Convenience functions to wrap around asynchronous ajax responses
+ */
+void begin_ajax_response(void) {
+        output_headers(0, 0, 0, 0, 0, 0);
+
+        wprintf("Content-type: text/html; charset=UTF-8\r\n"
+                "Server: %s\r\n"
+                "Connection: close\r\n"
+                "Pragma: no-cache\r\n"
+                "Cache-Control: no-cache\r\n",
+                SERVER);
+        begin_burst();
+}
+
+void end_ajax_response(void) {
+        wprintf("\r\n");
+        wDumpContent(0);
+}
 
 
 
@@ -1148,7 +1156,9 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "who")) {
 		who();
 	} else if (!strcasecmp(action, "who_inner_html")) {
-		who_inner_html();
+		begin_ajax_response();
+		who_inner_div();
+		end_ajax_response();
 	} else if (!strcasecmp(action, "knrooms")) {
 		knrooms();
 	} else if (!strcasecmp(action, "gotonext")) {
@@ -1341,6 +1351,10 @@ void session_loop(struct httprequest *req)
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();
+	} else if (!strcasecmp(action, "summary_inner_div")) {
+		begin_ajax_response();
+		summary_inner_div();
+		end_ajax_response();
 	} else if (!strcasecmp(action, "iconbar")) {
 		do_iconbar();
 	} else if (!strcasecmp(action, "display_customize_iconbar")) {
@@ -1366,7 +1380,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "bcc_autocomplete")) {
 		recp_autocomplete(bstr("bcc"));
 	} else if (!strcasecmp(action, "diagnostics")) {
-		output_headers(1, 1, 1, 0, 0, 0, 0);
+		output_headers(1, 1, 1, 0, 0, 0);
 		wprintf("Session: %d<hr />\n", WC->wc_session);
 		wprintf("Command: <br /><PRE>\n");
 		escputs(cmd);

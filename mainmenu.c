@@ -12,7 +12,7 @@
  */
 void display_main_menu(void)
 {
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE WIDTH=100%%>"
@@ -191,7 +191,7 @@ void display_main_menu(void)
  */
 void display_aide_menu(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -264,7 +264,7 @@ void display_aide_menu(void)
  */
 void display_generic(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -314,7 +314,7 @@ void do_generic(void)
 		return;
 	}
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 0, 0, 0, 0);
 
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
@@ -373,7 +373,7 @@ void do_generic(void)
 void display_menubar(int as_single_page) {
 
 	if (as_single_page) {
-		output_headers(0, 0, 0, 0, 0, 0, 0);
+		output_headers(0, 0, 0, 0, 0, 0);
 		wprintf("<HTML>\n"
 			"<HEAD>\n"
 			"<TITLE>MenuBar</TITLE>\n"

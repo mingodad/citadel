@@ -124,34 +124,13 @@ void who_inner_div(void) {
 
 
 /*
- * AJAX-response version of wholist inner html
- */
-void who_inner_html(void) {
-	output_headers(0, 0, 0, 0, 0, 0, 0);
-
-	wprintf("Content-type: text/html; charset=UTF-8\r\n"
-		"Server: %s\r\n"
-		"Connection: close\r\n"
-		"Pragma: no-cache\r\n"
-		"Cache-Control: no-cache\r\n",
-		SERVER);
-	begin_burst();
-
-	who_inner_div();
-
-	wprintf("\r\n");
-	wDumpContent(0);
-}
-
-
-/*
  * who is on?
  */
 void who(void)
 {
 	char title[256];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<script type=\"text/javascript\">\n"
 		"function ConfirmKill() { \n"
@@ -203,7 +182,7 @@ void who(void)
 	wprintf(
 		"<script type=\"text/javascript\">							\n"
 		" setInterval(\" new Ajax.Updater('fix_scrollbar_bug', '/who_inner_html',		"
-		"		{method: 'get', parameters: Math.random() }); 	\", 3000);		\n"
+		"		{method: 'get', parameters: Math.random() }); 	\", 30000);		\n"
 		"</script>										\n"
 	);
 	wDumpContent(1);
@@ -242,7 +221,7 @@ void edit_me(void)
 	} else if (strlen(bstr("cancel_button")) > 0) {
 		http_redirect("/who");
 	} else {
-		output_headers(1, 1, 0, 0, 0, 0, 0);
+		output_headers(1, 1, 0, 0, 0, 0);
 
 		wprintf("<div id=\"banner\">\n");
 		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");

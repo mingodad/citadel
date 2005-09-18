@@ -24,10 +24,10 @@ void display_edit(char *description, char *check_cmd,
 		return;
 	}
 	if (with_room_banner) {
-		output_headers(1, 1, 1, 0, 0, 0, 0);
+		output_headers(1, 1, 1, 0, 0, 0);
 	}
 	else {
-		output_headers(1, 1, 0, 0, 0, 0, 0);
+		output_headers(1, 1, 0, 0, 0, 0);
 	}
 
 	svprintf("BOXTITLE", WCS_STRING, _("Edit %s"), description);

@@ -1,4 +1,14 @@
 $Log$
+Revision 625.13  2005/09/18 15:02:29  ajc
+* summary.c: summary screen is now updated using ajax instead of refreshing
+  the whole page.  Not only does this look cleaner, but it also has the
+  happy side effect of not reloading all of the images.
+* webcit.c: new API calls begin_ajax_response() and end_ajax_response() for
+  wrapping inner div's
+* webcit.c: removed the "refresh30" parameter from output_headers() and
+  from all code that calls it.  We don't need it anymore; refreshing the
+  entire page is, like, sooooo 2004.  :)
+
 Revision 625.12  2005/09/18 14:30:05  ajc
 * Added a "random number" parameter to the wholist ajax refresh request,
   because b0rken MSIE still insists on fetching from its cache even though
@@ -3004,3 +3014,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

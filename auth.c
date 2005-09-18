@@ -25,7 +25,7 @@ void display_login(char *mesg)
 {
 	char buf[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div style=\"position:absolute; top:20px; left:20px; right:20px\">\n");
 
 	if (mesg != NULL) if (strlen(mesg) > 0) {
@@ -221,7 +221,7 @@ void do_logout(void)
 	safestrncpy(WC->wc_roomname, "", sizeof WC->wc_roomname);
 
 	/* Calling output_headers() this way causes the cookies to be un-set */
-	output_headers(1, 1, 0, 1, 0, 0, 0);
+	output_headers(1, 1, 0, 1, 0, 0);
 
 	wprintf("<center>");
 	serv_puts("MESG goodbye");
@@ -260,7 +260,7 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -381,7 +381,7 @@ void display_changepw(void)
 {
 	char buf[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");

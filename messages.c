@@ -924,7 +924,7 @@ void embed_message(void) {
 	targetdiv = bstr("targetdiv");
 	print_it = bstr("print_it");
 
-	output_headers(1, 0, 0, 0, 0, 1, 0);
+	output_headers(1, 0, 0, 0, 1, 0);
 	begin_burst();
 
 	wprintf("<html><head>");
@@ -1766,7 +1766,7 @@ void readloop(char *oper)
 	if (strlen(sortby) == 0) sortby = sortpref_value;
 	if (strlen(sortby) == 0) sortby = "msgid";
 
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	/* When in summary mode, always show ALL messages instead of just
 	 * new or old.  Otherwise, show what the user asked for.
@@ -2376,7 +2376,7 @@ void display_enter(void)
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
 	 */
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	embed_room_banner(NULL, navbar_none);
 	wprintf("</div>\n");
@@ -2575,7 +2575,7 @@ void delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	sprintf(buf, "DELE %ld", msgid);
 	serv_puts(buf);
@@ -2599,7 +2599,7 @@ void confirm_move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
@@ -2651,7 +2651,7 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	if (strlen(bstr("move_button")) > 0) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));

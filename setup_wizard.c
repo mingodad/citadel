@@ -26,7 +26,7 @@ void do_setup_wizard(void)
 		return;
 	}
 
-	output_headers(1, 1, 2, 0, 1, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");

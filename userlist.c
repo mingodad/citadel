@@ -36,7 +36,7 @@ void userlist(void)
 			strcpy(bptr->name, buf);
 			bio = bptr;
 		}
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -110,7 +110,7 @@ void showuser(void)
 
 	strcpy(who, bstr("who"));
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
 		"<TD><IMG SRC=\"/static/usermanag_48x.gif\"></TD>"
