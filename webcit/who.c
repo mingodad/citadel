@@ -124,31 +124,22 @@ void who_inner_div(void) {
 
 
 /*
- * XML-encapsulated version of wholist inner html
+ * AJAX-response version of wholist inner html
  */
 void who_inner_html(void) {
 	output_headers(0, 0, 0, 0, 0, 0, 0);
 
-	wprintf("Content-type: text/xml;charset=UTF-8\r\n"
+	wprintf("Content-type: text/html; charset=UTF-8\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n"
 		"Pragma: no-cache\r\n"
-		"Cache-Control: no-store\r\n",
+		"Cache-Control: no-store, no-cache, must-revalidate\r\n",
 		SERVER);
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		"<ajax-response>\r\n"
-		"<response type=\"element\" id=\"fix_scrollbar_bug\">\r\n"
-	);
-
 	who_inner_div();
 
-	wprintf("</response>\r\n"
-		"</ajax-response>\r\n"
-		"\r\n"
-	);
-
+	wprintf("\r\n");
 	wDumpContent(0);
 }
 
@@ -174,7 +165,6 @@ void who(void)
 	wprintf("<IMG SRC=\"/static/usermanag_48x.gif\" ALT=\" \" "
 		"ALIGN=MIDDLE "
 		">");
-		/* "onLoad=\"javascript:bodyOnLoad()\" " */
 	wprintf("<SPAN CLASS=\"titlebar\"> ");
 
 	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
@@ -188,7 +178,7 @@ void who(void)
 	wprintf("<div id=\"content\">\n");
 
 	wprintf("<div style=\"display:inline\" id=\"fix_scrollbar_bug\">");
-	who_inner_div();	/* Actual data handled by another function */
+	who_inner_div();
 	wprintf("</div>\n");
 
 	wprintf("<div id=\"instructions\" align=center>");
@@ -199,20 +189,21 @@ void who(void)
 	wprintf("</div>\n");
 
 	/* JavaScript to make the ajax refresh happen:
-	 * 1. Register the request 'getWholist' which calls the WebCit action 'who_inner_html'
-	 * 2. Register the 'fix_scrollbar_bug' div as one we're interested in ajaxifying
-	 * 3. setInterval to make the ajax refresh happen every 30 seconds.  The random number
-	 *    in the request is there to prevent the eternally moronic Internet Explorer from
-	 *    caching the XML even though it's been told not to.
+	 * * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.Updater
+	 * * It wants: 1. The div being updated
+	 * *           2. The URL of the update source
+	 * *           3. Other flags (such as the HTTP method)
+	 *
+	 * * setInterval() makes it auto-run this code every 30,000 milliseconds (30 seconds)
+	 *
+	 * FIXME b0rken IE is still caching it
 	 */
 	wprintf(
-		"<script type=\"text/javascript\">								\n"
-		"	ajaxEngine.registerRequest('getWholist', 'who_inner_html');				\n"
-		"	ajaxEngine.registerAjaxElement('fix_scrollbar_bug');					\n"
-		"	setInterval(\"ajaxEngine.sendRequest('getWholist', 'junk='+Math.random());\", 30000);	\n"
-		"</script>											\n"
+		"<script type=\"text/javascript\">							\n"
+		" setInterval(\" new Ajax.Updater('fix_scrollbar_bug', '/who_inner_html',		"
+		"			{method: 'get'}); 			\", 30000);		\n"
+		"</script>										\n"
 	);
-
 	wDumpContent(1);
 }
 

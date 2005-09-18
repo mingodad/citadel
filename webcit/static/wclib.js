@@ -29,7 +29,7 @@ function hide_page_popup() {
 	document.poppedLayer.style.visibility = "hidden";
 }
 
-function hide_imsg_popup_old() {
+function hide_imsg_popup() {
 	if (browserType == "gecko" )
 		document.poppedLayer = eval('document.getElementById(\'important_message\')');
 	else if (browserType == "ie")
@@ -39,12 +39,6 @@ function hide_imsg_popup_old() {
 
 	document.poppedLayer.style.visibility = "hidden";
 }
-
-function hide_imsg_popup() {
-	// new Effect.FadeTo('important_message', 0.0, 1000, 20, {complete:function() { hide_imsg_popup_old(); }} );
-	hide_imsg_popup_old();	// Do it the old way for now, to avoid library conflicts
-}
-
 
 // This function activates the ajax-powered recipient autocompleters on the message entry screen.
 function activate_entmsg_autocompleters() {

@@ -1,4 +1,10 @@
 $Log$
+Revision 625.11  2005/09/18 04:04:32  ajc
+* Switched the wholist updater to Prototype's AJAX updater, instead of
+  using Rico's wrapper around it.  It's actually simpler and doesn't seem
+  to require strict XML, which are both wins.
+* Removed Rico from the build.
+
 Revision 625.10  2005/09/18 03:15:15  ajc
 * Remove spurious "No new messages" message when viewing an
   empty address book.
@@ -2993,4 +2999,5 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
 
