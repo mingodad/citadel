@@ -63,7 +63,7 @@ void display_rss(const char *roomname)
 
 	if (gotoroom(roomname)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
-		wprintf("HTTP/1.0 404 Not Found\r\n");
+		wprintf("HTTP/1.1 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");
 		wprintf("\r\n");
 		wprintf("Error retrieving RSS feed: couldn't find room\n");
@@ -73,7 +73,7 @@ void display_rss(const char *roomname)
 	nummsgs = load_msg_ptrs("MSGS LAST|15", 0);
 	if (nummsgs == 0) {
 		lprintf(3, "RSS: No messages found\n");
-		wprintf("HTTP/1.0 404 Not Found\r\n");
+		wprintf("HTTP/1.1 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");
 		wprintf("\r\n");
 		wprintf(_("Error retrieving RSS feed: couldn't find messages\n"));
@@ -98,7 +98,7 @@ void display_rss(const char *roomname)
 
 	if (if_modified_since > 0 && if_modified_since > now) {
 		lprintf(3, "RSS: Feed not updated since the last time you looked\n");
-		wprintf("HTTP/1.0 304 Not Modified\r\n");
+		wprintf("HTTP/1.1 304 Not Modified\r\n");
 		wprintf("Last-Modified: %s\r\n", date);
 		now = time(NULL);
 		gmtime_r(&now, &now_tm);
@@ -111,7 +111,7 @@ void display_rss(const char *roomname)
 
 	/* Do RSS header */
 	lprintf(3, "RSS: Yum yum! This feed is tasty!\n");
-	wprintf("HTTP/1.0 200 OK\r\n");
+	wprintf("HTTP/1.1 200 OK\r\n");
 	wprintf("Last-Modified: %s\r\n", date);
 /*	if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
 	wprintf("Content-Type: application/rss+xml\r\n");

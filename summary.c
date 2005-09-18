@@ -297,10 +297,10 @@ void summary(void) {
 	wprintf("</div>\n");
 
 	wprintf(
-		"<script type=\"text/javascript\">							\n"
-		" setInterval(\" new Ajax.Updater('content', '/summary_inner_div',			"
-		"		{method: 'get', parameters: Math.random() }); 	\", 60000);		\n"
-		"</script>										\n"
+		"<script type=\"text/javascript\">					"
+		" new Ajax.PeriodicalUpdater('content', '/summary_inner_div',		"
+		"                            { method: 'get', frequency: 60 }  );	"
+		"</script>							 	\n"
 	);
 
 	wDumpContent(1);

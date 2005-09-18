@@ -924,7 +924,7 @@ void do_freebusy(char *req) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '1') {
-		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
+		wprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");

@@ -66,7 +66,7 @@ void groupdav_folder_list(void) {
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\r\n");
+	wprintf("HTTP/1.1 207 Multi-Status\r\n");
 	groupdav_common_headers();
 	wprintf("Date: %s\r\n", datestring);
 	wprintf("Content-type: text/xml\r\n");
@@ -217,7 +217,7 @@ void groupdav_propfind(char *dav_pathname) {
 		 * everything we know about (which is going to simply be the ETag and
 		 * nothing else).  Let the client-side parser sort it out.
 		 */
-		wprintf("HTTP/1.0 207 Multi-Status\r\n");
+		wprintf("HTTP/1.1 207 Multi-Status\r\n");
 		groupdav_common_headers();
 		wprintf("Date: %s\r\n", datestring);
 		wprintf("Content-type: text/xml\r\n");
@@ -262,7 +262,7 @@ void groupdav_propfind(char *dav_pathname) {
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\r\n");
+	wprintf("HTTP/1.1 207 Multi-Status\r\n");
 	groupdav_common_headers();
 	wprintf("Date: %s\r\n", datestring);
 	wprintf("Content-type: text/xml\r\n");

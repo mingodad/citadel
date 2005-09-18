@@ -342,7 +342,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	char cookie[SIZ];
 	char httpnow[SIZ];
 
-	wprintf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.1 200 OK\n");
 	httpdate(httpnow, time(NULL));
 
 	if (do_httpheaders) {
@@ -424,7 +424,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
  * Generic function to do an HTTP redirect.  Easy and fun.
  */
 void http_redirect(char *whichpage) {
-	wprintf("HTTP/1.0 302 Moved Temporarily\n");
+	wprintf("HTTP/1.1 302 Moved Temporarily\n");
 	wprintf("Location: %s\r\n", whichpage);
 	wprintf("URI: %s\r\n", whichpage);
 	wprintf("Content-type: text/html; charset=utf-8\r\n\r\n");
@@ -509,7 +509,7 @@ void output_static(char *what)
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
-		wprintf("HTTP/1.0 404 %s\n", strerror(errno));
+		wprintf("HTTP/1.1 404 %s\n", strerror(errno));
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
@@ -620,7 +620,7 @@ void output_mimepart()
 		http_transmit_thing(content, bytes, content_type, 0);
 		free(content);
 	} else {
-		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
+		wprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
@@ -666,7 +666,7 @@ char *load_mimepart(long msgnum, char *partnum)
  */
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
-	wprintf("HTTP/1.0 200 OK\n");
+	wprintf("HTTP/1.1 200 OK\n");
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
@@ -748,7 +748,7 @@ void display_success(char *successmessage)
 /* This is probably temporary and should be revisited */
 void authorization_required(const char *message)
 {
-	wprintf("HTTP/1.0 401 Authorization Required\r\n");
+	wprintf("HTTP/1.1 401 Authorization Required\r\n");
 	wprintf("WWW-Authenticate: Basic realm=\"\"\r\n", serv_info.serv_humannode);
 	wprintf("Content-Type: text/html\r\n\r\n");
 	wprintf("<h1>");

@@ -325,7 +325,7 @@ void context_loop(int sock)
 	 */
 	if (!strncasecmp(buf, "/robots.txt", 11)) {
 		strcpy(req->line, "GET /static/robots.txt"
-				"?force_close_session=yes HTTP/1.0");
+				"?force_close_session=yes HTTP/1.1");
 	}
 	else if (!strncasecmp(buf, "/favicon.ico", 12)) {
 		strcpy(req->line, "GET /static/favicon.ico");
@@ -344,7 +344,7 @@ void context_loop(int sock)
 		&& (strncasecmp(buf, "/rss", 4))
 	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"
-				"?force_close_session=yes HTTP/1.0");
+				"?force_close_session=yes HTTP/1.1");
 	}
 
 	/*
