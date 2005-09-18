@@ -3,7 +3,7 @@
  *
  * vCard implementation for Citadel
  *
- * Copyright (C) 1999 by Art Cancro
+ * Copyright (C) 1999-2005 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
@@ -30,11 +30,13 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <string.h>
 
 #include "citadel.h"
 #include "server.h"
 #include "support.h"
 #include "vcard.h"
+#include "tools.h"
 
 /* 
  * Constructor (empty vCard)
@@ -262,3 +264,64 @@ char *vcard_serialize(struct vCard *v)
 
 	return ser;
 }
+
+
+
+/*
+ * Convert FN (Friendly Name) into N (Name)
+ */
+void vcard_fn_to_n(char *vname, char *n, size_t vname_size) {
+	char lastname[256];
+	char firstname[256];
+	char middlename[256];
+	char honorific_prefixes[256];
+	char honorific_suffixes[256];
+	char buf[256];
+
+	safestrncpy(buf, n, sizeof buf);
+
+	/* Try to intelligently convert the screen name to a
+	 * fully expanded vCard name based on the number of
+	 * words in the name
+	 */
+	safestrncpy(lastname, "", sizeof lastname);
+	safestrncpy(firstname, "", sizeof firstname);
+	safestrncpy(middlename, "", sizeof middlename);
+	safestrncpy(honorific_prefixes, "", sizeof honorific_prefixes);
+	safestrncpy(honorific_suffixes, "", sizeof honorific_suffixes);
+
+	/* Honorific suffixes */
+	if (num_tokens(buf, ',') > 1) {
+		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',',
+			sizeof honorific_suffixes);
+		remove_token(buf, (num_tokens(buf, ',') - 1), ',');
+	}
+
+	/* Find a last name */
+	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof lastname);
+	remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+
+	/* Find honorific prefixes */
+	if (num_tokens(buf, ' ') > 2) {
+		extract_token(honorific_prefixes, buf, 0, ' ', sizeof honorific_prefixes);
+		remove_token(buf, 0, ' ');
+	}
+
+	/* Find a middle name */
+	if (num_tokens(buf, ' ') > 1) {
+		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof middlename);
+		remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+	}
+
+	/* Anything left is probably the first name */
+	safestrncpy(firstname, buf, sizeof firstname);
+	striplt(firstname);
+
+	/* Compose the structured name */
+	snprintf(vname, vname_size, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
+		honorific_prefixes, honorific_suffixes);
+}
+
+
+
+

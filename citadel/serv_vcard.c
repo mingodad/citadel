@@ -707,65 +707,17 @@ void cmd_greg(char *argbuf)
 }
 
 
+
 /*
  * When a user is being created, create his/her vCard.
  */
 void vcard_newuser(struct ctdluser *usbuf) {
-	char buf[256];
 	char vname[256];
-
-	char lastname[256];
-	char firstname[256];
-	char middlename[256];
-	char honorific_prefixes[256];
-	char honorific_suffixes[256];
-
-	struct vCard *v;
+	char buf[256];
 	int i;
+	struct vCard *v;
 
-	/* Try to intelligently convert the screen name to a
-	 * fully expanded vCard name based on the number of
-	 * words in the name
-	 */
-	safestrncpy(lastname, "", sizeof lastname);
-	safestrncpy(firstname, "", sizeof firstname);
-	safestrncpy(middlename, "", sizeof middlename);
-	safestrncpy(honorific_prefixes, "", sizeof honorific_prefixes);
-	safestrncpy(honorific_suffixes, "", sizeof honorific_suffixes);
-
-	safestrncpy(buf, usbuf->fullname, sizeof buf);
-
-	/* Honorific suffixes */
-	if (num_tokens(buf, ',') > 1) {
-		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',',
-			sizeof honorific_suffixes);
-		remove_token(buf, (num_tokens(buf, ',') - 1), ',');
-	}
-
-	/* Find a last name */
-	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof lastname);
-	remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
-
-	/* Find honorific prefixes */
-	if (num_tokens(buf, ' ') > 2) {
-		extract_token(honorific_prefixes, buf, 0, ' ', sizeof honorific_prefixes);
-		remove_token(buf, 0, ' ');
-	}
-
-	/* Find a middle name */
-	if (num_tokens(buf, ' ') > 1) {
-		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof middlename);
-		remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
-	}
-
-	/* Anything left is probably the first name */
-	safestrncpy(firstname, buf, sizeof firstname);
-	striplt(firstname);
-
-	/* Compose the structured name */
-	snprintf(vname, sizeof vname, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
-		honorific_prefixes, honorific_suffixes);
-
+	vcard_fn_to_n(vname, usbuf->fullname, sizeof vname);
 	lprintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
 
 	/* Create and save the vCard */

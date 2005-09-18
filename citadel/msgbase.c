@@ -2036,13 +2036,17 @@ int ReplicationChecks(struct CtdlMessage *msg) {
  */
 struct vCard *vcard_new_from_rfc822_addr(char *addr) {
 	struct vCard *v;
-	char user[256], node[256], name[256], email[256];
+	char user[256], node[256], name[256], email[256], n[256];
 
 	v = vcard_new();
 	if (v == NULL) return(NULL);
 
 	process_rfc822_addr(addr, user, node, name);
 	vcard_set_prop(v, "fn", name, 0);
+
+	vcard_fn_to_n(n, name, sizeof n);
+	vcard_set_prop(v, "n", n, 0);
+
 	snprintf(email, sizeof email, "%s@%s", user, node);
 	vcard_set_prop(v, "email;internet", email, 0);
 
@@ -2067,12 +2071,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	long newmsgid;
 	char *mptr = NULL;
 	struct ctdluser userbuf;
-	int a, i;
+	int a, i, j;
 	struct MetaData smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
 	struct CtdlMessage *imsg = NULL;
 	struct CtdlMessage *vmsg = NULL;
+	long vmsgnum = (-1L);
 	char *ser = NULL;
 	struct vCard *v = NULL;
 	char *instr;
@@ -2413,7 +2418,28 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					free(ser);
 				}
 				vcard_free(v);
-				CtdlSubmitMsg(vmsg, NULL, "Aide");	/* FIXME */
+
+				if (recps->num_local > 0) {
+					for (j=0; j<num_tokens(recps->recp_local, '|'); ++j) {
+						extract_token(recipient, recps->recp_local, j,
+							'|', sizeof recipient);
+						lprintf(CTDL_DEBUG, "Adding contact for <%s>\n", recipient);
+						if (getuser(&userbuf, recipient) == 0) {
+							MailboxName(actual_rm, sizeof actual_rm,
+								&userbuf, USERCONTACTSROOM);
+
+							if (vmsgnum < 0L) {
+								vmsgnum = CtdlSubmitMsg(vmsg,
+											NULL, actual_rm);
+							}
+							else {
+								CtdlSaveMsgPointerInRoom(actual_rm,
+												vmsgnum, 0);
+							}
+
+						}
+					}
+				}
 				CtdlFreeMessage(vmsg);
 			}
 		}

@@ -1,4 +1,7 @@
 $Log$
+Revision 655.11  2005/09/18 21:51:44  ajc
+* File the auto-generated vCards into the users' address books.
+
 Revision 655.10  2005/09/18 20:33:13  ajc
 * Now harvesting addresses, converting them to vCards, and storing them in
   the Aide> room.  All that's left to do now is file the messages in the
@@ -7153,3 +7156,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
