@@ -24,7 +24,7 @@ void display_floorconfig(char *prepend_html)
 	char floorname[SIZ];
 	int refcount;
 
-        output_headers(1, 1, 2, 0, 0, 0, 0);
+        output_headers(1, 1, 2, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
                 "<SPAN CLASS=\"titlebar\">");

@@ -354,7 +354,7 @@ int tcp_connectsock(char *, char *);
 void serv_getln(char *strbuf, int bufsize);
 void serv_puts(char *string);
 void who(void);
-void who_inner_html(void);
+void who_inner_div(void);
 void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
@@ -368,7 +368,6 @@ void output_headers(    int do_httpheaders,
 			int do_htmlhead,
 			int do_room_banner,
 			int unset_cookies,
-			int refresh30,
 			int suppress_check,
 			int cache);
 void wprintf(const char *format,...);
@@ -502,6 +501,7 @@ void rename_floor(void);
 void do_listsub(void);
 void toggle_self_service(void);
 void summary(void);
+void summary_inner_div(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum);
@@ -522,6 +522,8 @@ void generate_uuid(char *);
 void display_preferences(void);
 void set_preferences(void);
 void recp_autocomplete(char *);
+void begin_ajax_response(void);
+void end_ajax_response(void);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);

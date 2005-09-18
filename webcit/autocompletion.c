@@ -13,7 +13,7 @@ void recp_autocomplete(char *partial) {
 	char buf[1024];
 	char name[128];
 
-	output_headers(0, 0, 0, 0, 0, 0, 0);
+	output_headers(0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html\r\n"
 		"Server: %s\r\n"

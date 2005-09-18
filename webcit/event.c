@@ -65,7 +65,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 
 	/* Begin output */
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");

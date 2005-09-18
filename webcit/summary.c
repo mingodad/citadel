@@ -224,30 +224,7 @@ void server_info_section(void) {
 	do_template("endbox");
 }
 
-
-/*
- * Display this user's summary page
- */
-void summary(void) {
-	char title[256];
-
-	output_headers(1, 1, 2, 0, 1, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
-		"<TD><IMG SRC=\"/static/summscreen_48x.gif\"></TD><TD>"
-		"<SPAN CLASS=\"titlebar\">"
-	);
-
-	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_username);
-	escputs(title);
-	wprintf("</SPAN></TD><TD>\n");
-	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
-	output_date();
-	wprintf("</SPAN><br />");
-	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
-
+void summary_inner_div(void) {
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware
 	 * clients seem to want to do three columns, so we'll do three
@@ -284,6 +261,47 @@ void summary(void) {
 	/*
 	 * End of columns
 	 */
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</td></tr></table>");
+}
+
+
+/*
+ * Display this user's summary page
+ */
+void summary(void) {
+	char title[256];
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
+		"<TD><IMG SRC=\"/static/summscreen_48x.gif\"></TD><TD>"
+		"<SPAN CLASS=\"titlebar\">"
+	);
+
+	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_username);
+	escputs(title);
+	wprintf("</SPAN></TD><TD>\n");
+	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
+	output_date();
+	wprintf("</SPAN><br />");
+	offer_start_page();
+	wprintf("</TD></TR></TABLE>\n");
+
+	/*
+	 * You guessed it ... we're going to refresh using ajax.
+	 * In the future we might consider updating individual sections of the summary
+	 * instead of the whole thing.
+	 */
+	wprintf("</div>\n<div id=\"content\">\n");
+	summary_inner_div();
+	wprintf("</div>\n");
+
+	wprintf(
+		"<script type=\"text/javascript\">							\n"
+		" setInterval(\" new Ajax.Updater('content', '/summary_inner_div',			"
+		"		{method: 'get', parameters: Math.random() }); 	\", 60000);		\n"
+		"</script>										\n"
+	);
+
 	wDumpContent(1);
 }

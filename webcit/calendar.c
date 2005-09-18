@@ -328,7 +328,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 void respond_to_request(void) {
 	char buf[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
@@ -389,7 +389,7 @@ void respond_to_request(void) {
 void handle_rsvp(void) {
 	char buf[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
@@ -502,7 +502,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		created_new_vtodo = 1;
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
 		"<TD><IMG SRC=\"/static/taskmanag_48x.gif\"></TD>"
@@ -925,7 +925,7 @@ void do_freebusy(char *req) {
 
 	if (buf[0] != '1') {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0, 0, 0, 0, 0, 0, 0);
+		output_headers(0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
 		wprintf("%s\n", &buf[4]);

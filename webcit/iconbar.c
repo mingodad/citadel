@@ -352,7 +352,7 @@ void display_customize_iconbar(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -634,7 +634,7 @@ void commit_iconbar(void) {
 
 	set_preference("iconbar", iconbar, 1);
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 0, 0, 0, 0);
 	wprintf(
 		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
 		"<IMG SRC=\"/static/advanpage2_48x.gif\">"

@@ -206,7 +206,7 @@ void listrms(char *variety)
  */
 void zapped_list(void)
 {
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
 	do_template("beginbox");
@@ -886,7 +886,7 @@ void display_editroom(void)
 	er_flags = extract_int(&buf[4], 3);
 	er_floor = extract_int(&buf[4], 4);
 
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	/* print the tabbed dialog */
 	wprintf("<br />"
@@ -1835,7 +1835,7 @@ void display_entroom(void)
 		return;
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -2044,7 +2044,7 @@ void entroom(void)
  */
 void display_private(char *rname, int req_pass)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
@@ -2123,7 +2123,7 @@ void goto_private(void)
 		display_private(bstr("gr_name"), 1);
 		return;
 	}
-	output_headers(1, 1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("%s\n", &buf[4]);
 	wDumpContent(1);
 	return;
@@ -2135,7 +2135,7 @@ void goto_private(void)
  */
 void display_zap(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
@@ -2660,7 +2660,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 void knrooms() {
 	char listviewpref[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	load_floorlist();
 
 	/* Determine whether the user is trying to change views */

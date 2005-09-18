@@ -172,7 +172,7 @@ void set_preference(char *key, char *value, int save_to_server) {
  */
 void display_preferences(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0);
 	char buf[256];
 
 	wprintf("<div id=\"banner\">\n");

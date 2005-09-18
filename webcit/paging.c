@@ -15,7 +15,7 @@ void display_page(void)
 
 	strcpy(recp, bstr("recp"));
 
-        output_headers(1, 1, 2, 0, 0, 0, 0);
+        output_headers(1, 1, 2, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
                 "<SPAN CLASS=\"titlebar\">");
@@ -69,7 +69,7 @@ void page_user(void)
 	char buf[SIZ];
 	char closewin[SIZ];
 
-        output_headers(1, 1, 2, 0, 0, 0, 0);
+        output_headers(1, 1, 2, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
                 "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
                 "<SPAN CLASS=\"titlebar\">");
@@ -257,7 +257,7 @@ void chat_recv(void) {
 	char cl_text[SIZ];
 	char *output_data = NULL;
 
-	output_headers(0, 0, 0, 0, 0, 0, 0);
+	output_headers(0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html; charset=utf-8\n");
 	wprintf("\n");
@@ -405,7 +405,7 @@ void chat_send(void) {
 	char send_this[SIZ];
 	char buf[SIZ];
 
-	output_headers(0, 0, 0, 0, 0, 0, 0);
+	output_headers(0, 0, 0, 0, 0, 0);
 	wprintf("Content-type: text/html; charset=utf-8\n");
 	wprintf("\n");
 	wprintf("<HTML>"
