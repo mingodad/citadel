@@ -52,6 +52,7 @@
 #include "genstamp.h"
 #include "internet_addressing.h"
 #include "serv_fulltext.h"
+#include "vcard.h"
 
 long config_msgnum;
 
@@ -2029,6 +2030,26 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 
+/* 
+ * Turn an arbitrary RFC822 address into a struct vCard for possible
+ * inclusion into an address book.
+ */
+struct vCard *vcard_new_from_rfc822_addr(char *addr) {
+	struct vCard *v;
+	char user[256], node[256], name[256], email[256];
+
+	v = vcard_new();
+	if (v == NULL) return(NULL);
+
+	process_rfc822_addr(addr, user, node, name);
+	vcard_set_prop(v, "fn", name, 0);
+	snprintf(email, sizeof email, "%s@%s", user, node);
+	vcard_set_prop(v, "email;internet", email, 0);
+
+	return(v);
+}
+
+
 /*
  * Save a message to disk and submit it into the delivery system.
  */
@@ -2051,6 +2072,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
 	struct CtdlMessage *imsg = NULL;
+	struct CtdlMessage *vmsg = NULL;
+	char *ser = NULL;
+	struct vCard *v = NULL;
 	char *instr;
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
@@ -2357,14 +2381,44 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/*
-	 * Any addresses to collect?  (FIXME do something with them!!)
+	 * Any addresses to harvest for someone's address book?
+	 * (Don't do this if this is not a message with recipients, otherwise we will
+	 * send this function into infinite recursion!!!!!)
 	 */
-	collected_addresses = harvest_collected_addresses(msg);
-	if (collected_addresses != NULL) {
-		lprintf(CTDL_DEBUG, "FIXME collected addresses: %s\n", collected_addresses);
-		free(collected_addresses);
+	if (recps != NULL) {
+		collected_addresses = harvest_collected_addresses(msg);
 	}
 
+	if (collected_addresses != NULL) {
+		for (i=0; i<num_tokens(collected_addresses, ','); ++i) {
+
+			/* Make a vCard out of each address */
+			extract_token(recipient, collected_addresses, i, ',', sizeof recipient);
+			striplt(recipient);
+			v = vcard_new_from_rfc822_addr(recipient);
+			if (v != NULL) {
+				vmsg = malloc(sizeof(struct CtdlMessage));
+				memset(vmsg, 0, sizeof(struct CtdlMessage));
+				vmsg->cm_magic = CTDLMESSAGE_MAGIC;
+				vmsg->cm_anon_type = MES_NORMAL;
+				vmsg->cm_format_type = FMT_RFC822;
+				vmsg->cm_fields['A'] = strdup("Citadel");
+				vmsg->cm_fields['E'] = strdup(recipient);	/* this handles dups */
+				ser = vcard_serialize(v);
+				if (ser != NULL) {
+					vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
+					sprintf(vmsg->cm_fields['M'],
+						"Content-type: text/x-vcard"
+						"\r\n\r\n%s\r\n", ser);
+					free(ser);
+				}
+				vcard_free(v);
+				CtdlSubmitMsg(vmsg, NULL, "Aide");	/* FIXME */
+				CtdlFreeMessage(vmsg);
+			}
+		}
+		free(collected_addresses);
+	}
 	return(newmsgid);
 }
 
@@ -3385,7 +3439,6 @@ void AdjRefCount(long msgnum, int incr)
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).
-	 * FIXME ... defer this so it doesn't keep the user waiting.
 	 */
 	if (smi.meta_refcount == 0) {
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
