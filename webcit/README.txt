@@ -96,13 +96,13 @@ the "webserver" program:
      available network interfaces.  Normally this will be the case, but if
      you are running multiple Citadel systems on one host, it can be useful.
  
-  -> http_port: the TCP port on which you wish your WebCit server to run.
-     This can be any port number at all; there is no standard.  Naturally,
-     you'll want to create a link to this port on your system's regular web
-     pages (presumably on an Apache server running on port 80).  Or, if you
-     are installing WebCit on a dedicated server, then you might choose to
-     use port 80 after all.
- 
+  -> http_port: the TCP port on which you wish your WebCit server to run.  If
+     you are installing WebCit on a dedicated server, you can use the
+     standard port 80.  Otherwise, if port 80 is already occupied by some
+     other web service (probably Apache), then you'll need to select a
+     different port.  If you do not specify a port number, WebCit will attempt
+     to use port 2000.
+     
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
  
@@ -134,7 +134,7 @@ the "webserver" program:
  GRAPHICS
  --------
  
- WebCit contains a small amount of graphics (icons, etc.) which are kept
+ WebCit contains graphics, templates, JavaScript code, etc. which are kept
 in its "static" subdirectory.  All site-specific graphics, however, are
 fetched from the Citadel server.
  
