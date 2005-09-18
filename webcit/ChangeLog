@@ -1,13 +1,16 @@
 $Log$
+Revision 625.9  2005/09/18 00:53:15  ajc
+* "Reply All" button
+
 Revision 625.8  2005/09/17 16:44:30  ajc
 * The JavaScript code to activate the ajax-powered recipient autocompleters
   has been moved to a function in wclib.js (it's still activated from an
   inline script in messages.c)
 
 Revision 625.7  2005/09/17 13:18:05  ajc
-* fmt_date.c: changes to "brief" mode.  It now displays time only if the
+* fmt_date.c: changes to "brief" mode.  It now displays time-only if the
   date is today, month/day/time if the date is within the last six months,
-  and date only for anything older.
+  and date-only for anything older.
 
 Revision 625.6  2005/09/17 03:00:06  ajc
 * Fixed the autocompletion for CC: and BCC:
