@@ -469,7 +469,7 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 /*
  * I wanna SEE that message!
  */
-void read_message(long msgnum, int suppress_buttons) {
+void read_message(long msgnum, int printable_view) {
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -523,9 +523,11 @@ void read_message(long msgnum, int suppress_buttons) {
 	}
 
 	/* begin everythingamundo table */
-	wprintf("<div id=\"fix_scrollbar_bug\">\n");
-	wprintf("<table width=100%% border=1 cellspacing=0 "
-		"cellpadding=0><TR><TD>\n");
+	if (!printable_view) {
+		wprintf("<div id=\"fix_scrollbar_bug\">\n");
+		wprintf("<table width=100%% border=1 cellspacing=0 "
+			"cellpadding=0><TR><TD>\n");
+	}
 
 	/* begin message header table */
 	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 "
@@ -704,7 +706,7 @@ void read_message(long msgnum, int suppress_buttons) {
 	wprintf("</TD>\n");
 
 	/* start msg buttons */
-	if (!suppress_buttons) {
+	if (!printable_view) {
 		wprintf("<td align=right>\n");
 
 		/* Reply */
@@ -747,8 +749,8 @@ void read_message(long msgnum, int suppress_buttons) {
 			);
 		}
 
-		wprintf("<a href=\"/msg?msgnum=%ld?sourceiframe=msgloader1?print_it=yes\" target=\"msgloader1\">"
-			"[%s]</a>", msgnum, _("Print"));
+		wprintf("<a href=\"#\" onClick=\"window.open('/printmsg?msgnum=%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"[%s]</a>", msgnum, msgnum, _("Print"));
 
 		wprintf("</td>");
 	}
@@ -899,8 +901,10 @@ ENDBODY:
 	wprintf("</TD></TR></TABLE>\n");
 
 	/* end everythingamundo table */
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><br />\n");
+	if (!printable_view) {
+		wprintf("</TD></TR></TABLE>\n");
+		wprintf("</div><br />\n");
+	}
 
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
@@ -917,60 +921,39 @@ ENDBODY:
  */
 void embed_message(void) {
 	long msgnum = 0L;
-	char *sourceiframe;
-	char *targetdiv;
-	char *print_it;
 
 	msgnum = atol(bstr("msgnum"));
-	sourceiframe = bstr("sourceiframe");
-	targetdiv = bstr("targetdiv");
-	print_it = bstr("print_it");
-
-	output_headers(1, 0, 0, 0, 1, 0);
-	begin_burst();
-
-	wprintf("<html><head>");
-
-	/* If we're loading into a hidden iframe, chances are the caller told us
-	 * about a target div somewhere that we need to copy into when we're done.
-	 */
-	if (strlen(targetdiv) > 0) wprintf(
-"									\n"
-" <script type=\"text/javascript\">					\n"
-"	function loaded_now_copy_it() {					\n"
-"		parent.document.getElementById(\"%s\").innerHTML = parent.frames['%s'].document.body.innerHTML;	\n"
-"	}								\n"
-"</script>\n",
-		targetdiv,
-		sourceiframe
-	);
-
-	if (!strcasecmp(print_it, "yes")) wprintf(
-"									\n"
-" <script type=\"text/javascript\">					\n"
-"	function loaded_now_print_it() {				\n"
-"		parent.frames['%s'].focus();				\n"
-"		parent.frames['%s'].print();				\n"
-"	}								\n"
-"</script>\n",
-		sourceiframe,
-		sourceiframe
-	);
-
-	wprintf("</head>");
-	wprintf("<body");
-	if (strlen(targetdiv) > 0) {
-		wprintf(" onLoad='loaded_now_copy_it();'");
-	}
-	if (!strcasecmp(print_it, "yes")) {
-		wprintf(" onLoad='loaded_now_print_it();'");
-	}
-	wprintf(">\n");
-	read_message(msgnum, (!strcasecmp(print_it, "yes") ? 1 : 0) );
-	wprintf("</body></html>\n");
-	wDumpContent(0);
+	begin_ajax_response();
+	read_message(msgnum, 0);
+	end_ajax_response();
 }
 
+
+/*
+ * Printable view of a message
+ */
+void print_message(void) {
+	long msgnum = 0L;
+
+	msgnum = atol(bstr("msgnum"));
+        output_headers(0, 0, 0, 0, 0, 0);
+
+        wprintf("Content-type: text/html\r\n"
+                "Server: %s\r\n"
+                "Connection: close\r\n",
+                SERVER);
+        begin_burst();
+
+	wprintf("\r\n\r\n<html>\n"
+		"<head><title>Printable view</title></head>\n"
+		"<body onLoad=\" window.print(); window.close(); \">\n"
+	);
+	
+	read_message(msgnum, 1);
+
+	wprintf("\n</body></html>\n\n");
+	wDumpContent(0);
+}
 
 
 
@@ -1282,10 +1265,7 @@ void display_summarized(int num) {
 
 	wprintf("<TD>");
 	if (WC->summ[num].is_new) wprintf("<B>");
-	wprintf("<A HREF=\"/msg?msgnum=%ld?sourceiframe=msgloader1?targetdiv=preview_pane\" target=\"msgloader1\">",
-		WC->summ[num].msgnum);
 	escputs(WC->summ[num].subj);
-	wprintf("</A>");
 	if (WC->summ[num].is_new) wprintf("</B>");
 	wprintf("</TD><TD>");
 	if (WC->summ[num].is_new) wprintf("<B>");
@@ -1969,9 +1949,13 @@ void readloop(char *oper)
 			/* If a tabular view, set up the line */
 			if (is_summary) {
 				bg = 1 - bg;
-				wprintf("<TR BGCOLOR=\"#%s\">",
+				wprintf("<tr bgcolor=\"#%s\" ",
 					(bg ? "DDDDDD" : "FFFFFF")
 				);
+
+				wprintf("onClick=\" new Ajax.Updater('preview_pane', '/msg', { method: 'get', parameters: 'msgnum=%ld' } ); \" ", WC->summ[a].msgnum);
+
+				wprintf(">");
 			}
 
 			/* Display the message */
