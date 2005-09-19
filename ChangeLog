@@ -1,4 +1,8 @@
 $Log$
+Revision 625.16  2005/09/19 02:07:17  ajc
+* Renamed 'ScriptaculousEffect' back to 'Effect' because there is no
+  longer any namespace conflict.
+
 Revision 625.15  2005/09/18 21:47:49  ajc
 *** empty log message ***
 
@@ -3026,4 +3030,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

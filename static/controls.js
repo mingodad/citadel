@@ -76,10 +76,10 @@ Autocompleter.Base.prototype = {
         update.style.position = 'absolute';
         Position.clone(element, update, {setHeight: false, offsetTop: element.offsetHeight});
       }
-      new ScriptaculousEffect.Appear(update,{duration:0.15});
+      new Effect.Appear(update,{duration:0.15});
     };
     this.options.onHide = this.options.onHide || 
-    function(element, update){ new ScriptaculousEffect.Fade(update,{duration:0.15}) };
+    function(element, update){ new Effect.Fade(update,{duration:0.15}) };
 
     if (typeof(this.options.tokens) == 'string') 
       this.options.tokens = new Array(this.options.tokens);
@@ -463,7 +463,7 @@ Ajax.InPlaceEditor.prototype = {
       okText: "ok",
       rows: 1,
       onComplete: function(transport, element) {
-        new ScriptaculousEffect.Highlight(element, {startcolor: this.options.highlightcolor});
+        new Effect.Highlight(element, {startcolor: this.options.highlightcolor});
       },
       onFailure: function(transport) {
         alert("Error communicating with the server: " + transport.responseText.stripTags());
@@ -656,7 +656,7 @@ Ajax.InPlaceEditor.prototype = {
     }
     Element.removeClassName(this.element, this.options.hoverClassName)
     if (this.saving) return;
-    this.effect = new ScriptaculousEffect.Highlight(this.element, {
+    this.effect = new Effect.Highlight(this.element, {
       startcolor: this.options.highlightcolor,
       endcolor: this.options.highlightendcolor,
       restorecolor: this.originalBackground

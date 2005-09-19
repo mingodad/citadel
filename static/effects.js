@@ -22,7 +22,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var ScriptaculousEffect = {
+var Effect = {
   tagifyText: function(element) {
     var tagifyStyle = "position:relative";
     if(/MSIE/.test(navigator.userAgent)) tagifyStyle += ";zoom:1"; 
@@ -60,41 +60,41 @@ var ScriptaculousEffect = {
   }
 };
 
-var ScriptaculousEffect2 = ScriptaculousEffect; // deprecated
+var Effect2 = Effect; // deprecated
 
 /* ------------- transitions ------------- */
 
-ScriptaculousEffect.Transitions = {}
+Effect.Transitions = {}
 
-ScriptaculousEffect.Transitions.linear = function(pos) {
+Effect.Transitions.linear = function(pos) {
   return pos;
 }
-ScriptaculousEffect.Transitions.sinoidal = function(pos) {
+Effect.Transitions.sinoidal = function(pos) {
   return (-Math.cos(pos*Math.PI)/2) + 0.5;
 }
-ScriptaculousEffect.Transitions.reverse  = function(pos) {
+Effect.Transitions.reverse  = function(pos) {
   return 1-pos;
 }
-ScriptaculousEffect.Transitions.flicker = function(pos) {
+Effect.Transitions.flicker = function(pos) {
   return ((-Math.cos(pos*Math.PI)/4) + 0.75) + Math.random(0.25);
 }
-ScriptaculousEffect.Transitions.wobble = function(pos) {
+Effect.Transitions.wobble = function(pos) {
   return (-Math.cos(pos*Math.PI*(9*pos))/2) + 0.5;
 }
-ScriptaculousEffect.Transitions.pulse = function(pos) {
+Effect.Transitions.pulse = function(pos) {
   return (Math.floor(pos*10) % 2 == 0 ? 
     (pos*10-Math.floor(pos*10)) : 1-(pos*10-Math.floor(pos*10)));
 }
-ScriptaculousEffect.Transitions.none = function(pos) {
+Effect.Transitions.none = function(pos) {
   return 0;
 }
-ScriptaculousEffect.Transitions.full = function(pos) {
+Effect.Transitions.full = function(pos) {
   return 1;
 }
 
 /* ------------- core effects ------------- */
 
-ScriptaculousEffect.Queue = {
+Effect.Queue = {
   effects:  [],
   interval: null,
   findLast: function() {
@@ -146,13 +146,13 @@ ScriptaculousEffect.Queue = {
   }
 }
 
-ScriptaculousEffect.Base = function() {};
-ScriptaculousEffect.Base.prototype = {
+Effect.Base = function() {};
+Effect.Base.prototype = {
   setOptions: function(options) {
     this.options = Object.extend({
-      transition: ScriptaculousEffect.Transitions.sinoidal,
+      transition: Effect.Transitions.sinoidal,
       duration:   1.0,   // seconds
-      fps:        25.0,  // max. 25fps due to ScriptaculousEffect.Queue implementation
+      fps:        25.0,  // max. 25fps due to Effect.Queue implementation
       sync:       false, // true for combining
       from:       0.0,
       to:         1.0,
@@ -167,7 +167,7 @@ ScriptaculousEffect.Base.prototype = {
     this.startOn      = this.options.delay*1000;
     this.finishOn     = this.startOn + (this.options.duration*1000);
     if(this.options.beforeStart) this.options.beforeStart(this);
-    if(!this.options.sync) ScriptaculousEffect.Queue.add(this);
+    if(!this.options.sync) Effect.Queue.add(this);
   },
   loop: function(timePos) {
     if(timePos >= this.startOn) {
@@ -199,13 +199,13 @@ ScriptaculousEffect.Base.prototype = {
     if(this.options.afterUpdate) this.options.afterUpdate(this);  
   },
   cancel: function() {
-    if(!this.options.sync) ScriptaculousEffect.Queue.remove(this);
+    if(!this.options.sync) Effect.Queue.remove(this);
     this.state = 'finished';
   }
 }
 
-ScriptaculousEffect.Parallel = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.Parallel.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.Parallel = Class.create();
+Object.extend(Object.extend(Effect.Parallel.prototype, Effect.Base.prototype), {
   initialize: function(effects) {
     this.effects = effects || [];
     this.start(arguments[1]);
@@ -225,8 +225,8 @@ Object.extend(Object.extend(ScriptaculousEffect.Parallel.prototype, Scriptaculou
 // Internet Explorer caveat: works only on elements that have
 // a 'layout', meaning having a given width or height. 
 // There is no way to safely set this automatically.
-ScriptaculousEffect.Opacity = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.Opacity.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.Opacity = Class.create();
+Object.extend(Object.extend(Effect.Opacity.prototype, Effect.Base.prototype), {
   initialize: function(element) {
     this.element = $(element);
     var options = Object.extend({
@@ -250,8 +250,8 @@ Object.extend(Object.extend(ScriptaculousEffect.Opacity.prototype, Scriptaculous
   }
 });
 
-ScriptaculousEffect.MoveBy = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.MoveBy.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.MoveBy = Class.create();
+Object.extend(Object.extend(Effect.MoveBy.prototype, Effect.Base.prototype), {
   initialize: function(element, toTop, toLeft) {
     this.element      = $(element);
     this.toTop        = toTop;
@@ -274,8 +274,8 @@ Object.extend(Object.extend(ScriptaculousEffect.MoveBy.prototype, ScriptaculousE
   }
 });
 
-ScriptaculousEffect.Scale = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.Scale.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.Scale = Class.create();
+Object.extend(Object.extend(Effect.Scale.prototype, Effect.Base.prototype), {
   initialize: function(element, percent) {
     this.element = $(element)
     var options = Object.extend({
@@ -333,8 +333,8 @@ Object.extend(Object.extend(ScriptaculousEffect.Scale.prototype, ScriptaculousEf
   }
 });
 
-ScriptaculousEffect.Highlight = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.Highlight.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.Highlight = Class.create();
+Object.extend(Object.extend(Effect.Highlight.prototype, Effect.Base.prototype), {
   initialize: function(element) {
     this.element = $(element);
     var options = Object.extend({
@@ -378,8 +378,8 @@ Object.extend(Object.extend(ScriptaculousEffect.Highlight.prototype, Scriptaculo
   }
 });
 
-ScriptaculousEffect.ScrollTo = Class.create();
-Object.extend(Object.extend(ScriptaculousEffect.ScrollTo.prototype, ScriptaculousEffect.Base.prototype), {
+Effect.ScrollTo = Class.create();
+Object.extend(Object.extend(Effect.ScrollTo.prototype, Effect.Base.prototype), {
   initialize: function(element) {
     this.element = $(element);
     this.start(arguments[1] || {});
@@ -404,7 +404,7 @@ Object.extend(Object.extend(ScriptaculousEffect.ScrollTo.prototype, Scriptaculou
 
 /* ------------- combination effects ------------- */
 
-ScriptaculousEffect.Fade = function(element) {
+Effect.Fade = function(element) {
   var options = Object.extend({
   from: 1.0,
   to:   0.0,
@@ -412,10 +412,10 @@ ScriptaculousEffect.Fade = function(element) {
     { Element.hide(effect.element);
       effect.setOpacity(1); } 
   }, arguments[1] || {});
-  return new ScriptaculousEffect.Opacity(element,options);
+  return new Effect.Opacity(element,options);
 }
 
-ScriptaculousEffect.Appear = function(element) {
+Effect.Appear = function(element) {
   var options = Object.extend({
   from: 0.0,
   to:   1.0,
@@ -425,13 +425,13 @@ ScriptaculousEffect.Appear = function(element) {
   afterUpdate: function(effect)  
     { Element.show(effect.element); }
   }, arguments[1] || {});
-  return new ScriptaculousEffect.Opacity(element,options);
+  return new Effect.Opacity(element,options);
 }
 
-ScriptaculousEffect.Puff = function(element) {
-  return new ScriptaculousEffect.Parallel(
-   [ new ScriptaculousEffect.Scale(element, 200, { sync: true, scaleFromCenter: true }), 
-     new ScriptaculousEffect.Opacity(element, { sync: true, to: 0.0, from: 1.0 } ) ], 
+Effect.Puff = function(element) {
+  return new Effect.Parallel(
+   [ new Effect.Scale(element, 200, { sync: true, scaleFromCenter: true }), 
+     new Effect.Opacity(element, { sync: true, to: 0.0, from: 1.0 } ) ], 
      Object.extend({ duration: 1.0, 
       beforeUpdate: function(effect) 
        { effect.effects[0].element.style.position = 'absolute'; },
@@ -441,10 +441,10 @@ ScriptaculousEffect.Puff = function(element) {
    );
 }
 
-ScriptaculousEffect.BlindUp = function(element) {
+Effect.BlindUp = function(element) {
   element = $(element);
   Element.makeClipping(element);
-  return new ScriptaculousEffect.Scale(element, 0, 
+  return new Effect.Scale(element, 0, 
     Object.extend({ scaleContent: false, 
       scaleX: false, 
       afterFinish: function(effect) 
@@ -456,12 +456,12 @@ ScriptaculousEffect.BlindUp = function(element) {
   );
 }
 
-ScriptaculousEffect.BlindDown = function(element) {
+Effect.BlindDown = function(element) {
   element = $(element);
   element.style.height = '0px';
   Element.makeClipping(element);
   Element.show(element);
-  return new ScriptaculousEffect.Scale(element, 100, 
+  return new Effect.Scale(element, 100, 
     Object.extend({ scaleContent: false, 
       scaleX: false, 
       scaleMode: 'contents',
@@ -473,13 +473,13 @@ ScriptaculousEffect.BlindDown = function(element) {
   );
 }
 
-ScriptaculousEffect.SwitchOff = function(element) {
-  return new ScriptaculousEffect.Appear(element,
+Effect.SwitchOff = function(element) {
+  return new Effect.Appear(element,
     { duration: 0.4,
-     transition: ScriptaculousEffect.Transitions.flicker,
+     transition: Effect.Transitions.flicker,
      afterFinish: function(effect)
       { effect.element.style.overflow = 'hidden';
-        new ScriptaculousEffect.Scale(effect.element, 1, 
+        new Effect.Scale(effect.element, 1, 
          { duration: 0.3, scaleFromCenter: true,
           scaleX: false, scaleContent: false,
           afterUpdate: function(effect) { 
@@ -491,10 +491,10 @@ ScriptaculousEffect.SwitchOff = function(element) {
     } );
 }
 
-ScriptaculousEffect.DropOut = function(element) {
-  return new ScriptaculousEffect.Parallel(
-    [ new ScriptaculousEffect.MoveBy(element, 100, 0, { sync: true }), 
-      new ScriptaculousEffect.Opacity(element, { sync: true, to: 0.0, from: 1.0 } ) ], 
+Effect.DropOut = function(element) {
+  return new Effect.Parallel(
+    [ new Effect.MoveBy(element, 100, 0, { sync: true }), 
+      new Effect.Opacity(element, { sync: true, to: 0.0, from: 1.0 } ) ], 
     Object.extend(
       { duration: 0.5, 
         afterFinish: function(effect)
@@ -502,30 +502,30 @@ ScriptaculousEffect.DropOut = function(element) {
       }, arguments[1] || {}));
 }
 
-ScriptaculousEffect.Shake = function(element) {
-  return new ScriptaculousEffect.MoveBy(element, 0, 20, 
+Effect.Shake = function(element) {
+  return new Effect.MoveBy(element, 0, 20, 
     { duration: 0.05, afterFinish: function(effect) {
-  new ScriptaculousEffect.MoveBy(effect.element, 0, -40, 
+  new Effect.MoveBy(effect.element, 0, -40, 
     { duration: 0.1, afterFinish: function(effect) { 
-  new ScriptaculousEffect.MoveBy(effect.element, 0, 40, 
+  new Effect.MoveBy(effect.element, 0, 40, 
     { duration: 0.1, afterFinish: function(effect) {  
-  new ScriptaculousEffect.MoveBy(effect.element, 0, -40, 
+  new Effect.MoveBy(effect.element, 0, -40, 
     { duration: 0.1, afterFinish: function(effect) {  
-  new ScriptaculousEffect.MoveBy(effect.element, 0, 40, 
+  new Effect.MoveBy(effect.element, 0, 40, 
     { duration: 0.1, afterFinish: function(effect) {  
-  new ScriptaculousEffect.MoveBy(effect.element, 0, -20, 
+  new Effect.MoveBy(effect.element, 0, -20, 
     { duration: 0.05, afterFinish: function(effect) {  
   }}) }}) }}) }}) }}) }});
 }
 
-ScriptaculousEffect.SlideDown = function(element) {
+Effect.SlideDown = function(element) {
   element = $(element);
   element.style.height   = '0px';
   Element.makeClipping(element);
   Element.cleanWhitespace(element);
   Element.makePositioned(element.firstChild);
   Element.show(element);
-  return new ScriptaculousEffect.Scale(element, 100, 
+  return new Effect.Scale(element, 100, 
    Object.extend({ scaleContent: false, 
     scaleX: false, 
     scaleMode: 'contents',
@@ -539,13 +539,13 @@ ScriptaculousEffect.SlideDown = function(element) {
   );
 }
   
-ScriptaculousEffect.SlideUp = function(element) {
+Effect.SlideUp = function(element) {
   element = $(element);
   Element.makeClipping(element);
   Element.cleanWhitespace(element);
   Element.makePositioned(element.firstChild);
   Element.show(element);
-  return new ScriptaculousEffect.Scale(element, 0, 
+  return new Effect.Scale(element, 0, 
    Object.extend({ scaleContent: false, 
     scaleX: false, 
     afterUpdate: function(effect) 
@@ -560,12 +560,12 @@ ScriptaculousEffect.SlideUp = function(element) {
   );
 }
 
-ScriptaculousEffect.Squish = function(element) {
- return new ScriptaculousEffect.Scale(element, 0, 
+Effect.Squish = function(element) {
+ return new Effect.Scale(element, 0, 
    { afterFinish: function(effect) { Element.hide(effect.element); } });
 }
 
-ScriptaculousEffect.Grow = function(element) {
+Effect.Grow = function(element) {
   element = $(element);
   var options = arguments[1] || {};
   
@@ -575,9 +575,9 @@ ScriptaculousEffect.Grow = function(element) {
   Element.show(element);
   
   var direction = options.direction || 'center';
-  var moveTransition = options.moveTransition || ScriptaculousEffect.Transitions.sinoidal;
-  var scaleTransition = options.scaleTransition || ScriptaculousEffect.Transitions.sinoidal;
-  var opacityTransition = options.opacityTransition || ScriptaculousEffect.Transitions.full;
+  var moveTransition = options.moveTransition || Effect.Transitions.sinoidal;
+  var scaleTransition = options.scaleTransition || Effect.Transitions.sinoidal;
+  var opacityTransition = options.opacityTransition || Effect.Transitions.full;
   
   var initialMoveX, initialMoveY;
   var moveX, moveY;
@@ -610,21 +610,21 @@ ScriptaculousEffect.Grow = function(element) {
       break;
   }
   
-  return new ScriptaculousEffect.MoveBy(element, initialMoveY, initialMoveX, { 
+  return new Effect.MoveBy(element, initialMoveY, initialMoveX, { 
     duration: 0.01, 
     beforeUpdate: function(effect) { $(element).style.height = '0px'; },
     afterFinish: function(effect) {
-      new ScriptaculousEffect.Parallel(
-        [ new ScriptaculousEffect.Opacity(element, { sync: true, to: 1.0, from: 0.0, transition: opacityTransition }),
-          new ScriptaculousEffect.MoveBy(element, moveY, moveX, { sync: true, transition: moveTransition }),
-          new ScriptaculousEffect.Scale(element, 100, { 
+      new Effect.Parallel(
+        [ new Effect.Opacity(element, { sync: true, to: 1.0, from: 0.0, transition: opacityTransition }),
+          new Effect.MoveBy(element, moveY, moveX, { sync: true, transition: moveTransition }),
+          new Effect.Scale(element, 100, { 
             scaleMode: { originalHeight: originalHeight, originalWidth: originalWidth }, 
             sync: true, scaleFrom: 0, scaleTo: 100, transition: scaleTransition })],
         options); }
     });
 }
 
-ScriptaculousEffect.Shrink = function(element) {
+Effect.Shrink = function(element) {
   element = $(element);
   var options = arguments[1] || {};
   
@@ -634,9 +634,9 @@ ScriptaculousEffect.Shrink = function(element) {
   Element.show(element);
 
   var direction = options.direction || 'center';
-  var moveTransition = options.moveTransition || ScriptaculousEffect.Transitions.sinoidal;
-  var scaleTransition = options.scaleTransition || ScriptaculousEffect.Transitions.sinoidal;
-  var opacityTransition = options.opacityTransition || ScriptaculousEffect.Transitions.none;
+  var moveTransition = options.moveTransition || Effect.Transitions.sinoidal;
+  var scaleTransition = options.scaleTransition || Effect.Transitions.sinoidal;
+  var opacityTransition = options.opacityTransition || Effect.Transitions.none;
   
   var moveX, moveY;
   
@@ -662,34 +662,34 @@ ScriptaculousEffect.Shrink = function(element) {
       break;
   }
   
-  return new ScriptaculousEffect.Parallel(
-    [ new ScriptaculousEffect.Opacity(element, { sync: true, to: 0.0, from: 1.0, transition: opacityTransition }),
-      new ScriptaculousEffect.Scale(element, 0, { sync: true, transition: moveTransition }),
-      new ScriptaculousEffect.MoveBy(element, moveY, moveX, { sync: true, transition: scaleTransition }) ],
+  return new Effect.Parallel(
+    [ new Effect.Opacity(element, { sync: true, to: 0.0, from: 1.0, transition: opacityTransition }),
+      new Effect.Scale(element, 0, { sync: true, transition: moveTransition }),
+      new Effect.MoveBy(element, moveY, moveX, { sync: true, transition: scaleTransition }) ],
     options);
 }
 
-ScriptaculousEffect.Pulsate = function(element) {
+Effect.Pulsate = function(element) {
   element = $(element);
   var options    = arguments[1] || {};
-  var transition = options.transition || ScriptaculousEffect.Transitions.sinoidal;
-  var reverser   = function(pos){ return transition(1-ScriptaculousEffect.Transitions.pulse(pos)) };
+  var transition = options.transition || Effect.Transitions.sinoidal;
+  var reverser   = function(pos){ return transition(1-Effect.Transitions.pulse(pos)) };
   reverser.bind(transition);
-  return new ScriptaculousEffect.Opacity(element, 
+  return new Effect.Opacity(element, 
     Object.extend(Object.extend({  duration: 3.0,
        afterFinish: function(effect) { Element.show(effect.element); }
     }, options), {transition: reverser}));
 }
 
-ScriptaculousEffect.Fold = function(element) {
+Effect.Fold = function(element) {
  element = $(element);
  element.style.overflow = 'hidden';
- return new ScriptaculousEffect.Scale(element, 5, Object.extend({   
+ return new Effect.Scale(element, 5, Object.extend({   
    scaleContent: false,
    scaleTo: 100,
    scaleX: false,
    afterFinish: function(effect) {
-   new ScriptaculousEffect.Scale(element, 1, { 
+   new Effect.Scale(element, 1, { 
      scaleContent: false, 
      scaleTo: 0,
      scaleY: false,
@@ -697,7 +697,7 @@ ScriptaculousEffect.Fold = function(element) {
  }}, arguments[1] || {}));
 }
 
-// old: new ScriptaculousEffect.ContentZoom(element, percent)
+// old: new Effect.ContentZoom(element, percent)
 // new: Element.setContentZoom(element, percent) 
 
 Element.setContentZoom = function(element, percent) {
