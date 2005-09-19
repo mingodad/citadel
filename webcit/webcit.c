@@ -1187,6 +1187,8 @@ void session_loop(struct httprequest *req)
 		readloop("headers");
 	} else if (!strcasecmp(action, "msg")) {
 		embed_message();
+	} else if (!strcasecmp(action, "printmsg")) {
+		print_message();
 	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {

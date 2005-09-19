@@ -1,4 +1,11 @@
 $Log$
+Revision 625.17  2005/09/19 02:56:21  ajc
+* Two-pane mail reading now uses Ajax instead of a hidden iframe, and it's
+  very crisp and responsive.
+* "Print message" function now opens up a new window for the print
+  preview.  I just couldn't figure out a way to keep the b0rken IE from
+  printing the screen instead of the message.
+
 Revision 625.16  2005/09/19 02:07:17  ajc
 * Renamed 'ScriptaculousEffect' back to 'Effect' because there is no
   longer any namespace conflict.
@@ -3030,3 +3037,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
