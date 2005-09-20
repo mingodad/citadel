@@ -12,8 +12,6 @@
 #include "webserver.h"
 #include "mime_parser.h"
 
-char request_method[128];
-
 /*
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
@@ -831,6 +829,7 @@ void session_loop(struct httprequest *req)
 	char arg2[128];
 	char arg3[128];
 	char buf[SIZ];
+	char request_method[128];
 	int a, b;
 	int ContentLength = 0;
 	int BytesRead = 0;
@@ -1061,7 +1060,7 @@ void session_loop(struct httprequest *req)
 
 	/* This needs to run early */
 	if (!strcasecmp(action, "rss")) {
-		display_rss(bstr("room"));
+		display_rss(bstr("room"), request_method);
 		goto SKIP_ALL_THIS_CRAP;
 	}
 

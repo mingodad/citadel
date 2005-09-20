@@ -324,7 +324,6 @@ extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
 extern int is_https;
-extern char request_method[];
 extern int setup_wizard;
 extern char wizard_filename[];
 extern time_t if_modified_since;
@@ -560,7 +559,7 @@ void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
-void display_rss(const char *roomname);
+void display_rss(char *roomname, char *request_method);
 
 void embed_room_banner(char *, int);
 /* navbar types that can be passed to embed_room_banner */
@@ -586,6 +585,9 @@ int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
 
+#ifdef HAVE_ICONV
+void utf8ify_rfc822_string(char *buf);
+#endif
 
 void begin_burst(void);
 void end_burst(void);
