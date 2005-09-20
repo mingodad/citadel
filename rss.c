@@ -11,7 +11,7 @@
 time_t if_modified_since;
 
 
-void display_rss_control(const char *reply_to, const char *subject)
+void display_rss_control(char *reply_to, char *subject)
 {
 	wprintf("<div style=\"align: right;\"><p>\n");
 	wprintf("<a href=\"/display_enter?recp=");
@@ -30,7 +30,7 @@ void display_rss_control(const char *reply_to, const char *subject)
 }
 
 
-void display_rss(const char *roomname)
+void display_rss(char *roomname, char *request_method)
 {
 	int nummsgs;
 	int a, b;
@@ -61,7 +61,7 @@ void display_rss(const char *roomname)
 		return;
 	}
 
-	if (gotoroom(roomname)) {
+	if (gotoroom((char *)roomname)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
 		wprintf("HTTP/1.1 404 Not Found\r\n");
 		wprintf("Content-Type: text/html\r\n");
