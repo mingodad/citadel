@@ -1,4 +1,10 @@
 $Log$
+Revision 625.19  2005/09/21 04:00:53  ajc
+* Downloading attachments now gives the browser a better hint as to what
+  it should name the file.
+* Downloading attachments is now supported even when the MIME part is
+  stupidly listed as "inline" rather than "attachment."
+
 Revision 625.18  2005/09/20 21:59:22  ajc
 * webcit.c: moved request_method[] out of the global scope (yikes!!!)
 * rss.c: removed "const" from function declarations to silence
@@ -3042,3 +3048,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
