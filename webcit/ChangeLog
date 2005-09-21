@@ -1,4 +1,8 @@
 $Log$
+Revision 625.20  2005/09/21 13:25:53  ajc
+* The RSS/XML button is temporarily commented out in order to prevent
+  users from selecting this possibly unfinished feature.
+
 Revision 625.19  2005/09/21 04:00:53  ajc
 * Downloading attachments now gives the browser a better hint as to what
   it should name the file.
@@ -3048,4 +3052,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
