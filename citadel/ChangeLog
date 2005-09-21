@@ -1,4 +1,8 @@
 $Log$
+Revision 655.12  2005/09/21 04:27:34  ajc
+* When reading messages in MT_MIME mode from a Citadel client, don't
+  list MIME parts that are part of a multipart/alternative group.
+
 Revision 655.11  2005/09/18 21:51:44  ajc
 * File the auto-generated vCards into the users' address books.
 
@@ -7156,4 +7160,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -846,9 +846,13 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
-
-	cprintf("part=%s|%s|%s|%s|%s|%ld\n",
-		name, filename, partnum, disp, cbtype, (long)length);
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
+	if (ma->is_ma == 0) {
+		cprintf("part=%s|%s|%s|%s|%s|%ld\n",
+			name, filename, partnum, disp, cbtype, (long)length);
+	}
 }
 
 /* 
@@ -858,7 +862,16 @@ void list_this_pref(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
-	cprintf("pref=%s|%s\n", partnum, cbtype);
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
+	if (!strcasecmp(cbtype, "multipart/alternative")) {
+		++ma->is_ma;
+	}
+
+	if (ma->is_ma == 0) {
+		cprintf("pref=%s|%s\n", partnum, cbtype);
+	}
 }
 
 /* 
@@ -868,7 +881,15 @@ void list_this_suff(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    void *cbuserdata)
 {
-	cprintf("suff=%s|%s\n", partnum, cbtype);
+	struct ma_info *ma;
+	
+	ma = (struct ma_info *)cbuserdata;
+	if (ma->is_ma == 0) {
+		cprintf("suff=%s|%s\n", partnum, cbtype);
+	}
+	if (!strcasecmp(cbtype, "multipart/alternative")) {
+		--ma->is_ma;
+	}
 }
 
 
@@ -1273,7 +1294,7 @@ int CtdlOutputPreLoadedMsg(
 	char *nl;	/* newline string */
 	int suppress_f = 0;
 	int subject_found = 0;
-	struct ma_info *ma;
+	struct ma_info ma;
 
 	/* Buffers needed for RFC822 translation.  These are all filled
 	 * using functions that are bounds-checked, and therefore we can
@@ -1314,10 +1335,7 @@ int CtdlOutputPreLoadedMsg(
 		} else {
 			/* Parse the message text component */
 			mptr = TheMessage->cm_fields['M'];
-			ma = malloc(sizeof(struct ma_info));
-			memset(ma, 0, sizeof(struct ma_info));
-			mime_parser(mptr, NULL, *mime_download, NULL, NULL, (void *)ma, 0);
-			free(ma);
+			mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
 			 */
@@ -1508,11 +1526,12 @@ START_TEXT:
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
+			memset(&ma, 0, sizeof(struct ma_info));
 			mime_parser(mptr, NULL,
 				(do_proto ? *list_this_part : NULL),
 				(do_proto ? *list_this_pref : NULL),
 				(do_proto ? *list_this_suff : NULL),
-				NULL, 0);
+				(void *)&ma, 0);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
 			/* FIXME ... we have to put some code in here to avoid
@@ -1613,24 +1632,22 @@ START_TEXT:
 	 * we use will display those parts as-is.
 	 */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
-		ma = malloc(sizeof(struct ma_info));
-		memset(ma, 0, sizeof(struct ma_info));
+		memset(&ma, 0, sizeof(struct ma_info));
 
 		if (mode == MT_MIME) {
-			strcpy(ma->chosen_part, "1");
+			strcpy(ma.chosen_part, "1");
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
-				*fixed_output_post, (void *)ma, 0);
+				*fixed_output_post, (void *)&ma, 0);
 			mime_parser(mptr, NULL,
-				*output_preferred, NULL, NULL, (void *)ma, 0);
+				*output_preferred, NULL, NULL, (void *)&ma, 0);
 		}
 		else {
 			mime_parser(mptr, NULL,
 				*fixed_output, *fixed_output_pre,
-				*fixed_output_post, (void *)ma, 0);
+				*fixed_output_post, (void *)&ma, 0);
 		}
 
-		free(ma);
 	}
 
 DONE:	/* now we're done */
