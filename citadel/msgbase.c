@@ -2053,7 +2053,8 @@ int ReplicationChecks(struct CtdlMessage *msg) {
  */
 struct vCard *vcard_new_from_rfc822_addr(char *addr) {
 	struct vCard *v;
-	char user[256], node[256], name[256], email[256], n[256];
+	char user[256], node[256], name[256], email[256], n[256], uid[256];
+	int i;
 
 	v = vcard_new();
 	if (v == NULL) return(NULL);
@@ -2066,6 +2067,13 @@ struct vCard *vcard_new_from_rfc822_addr(char *addr) {
 
 	snprintf(email, sizeof email, "%s@%s", user, node);
 	vcard_set_prop(v, "email;internet", email, 0);
+
+	snprintf(uid, sizeof uid, "collected: %s %s@%s", name, user, node);
+	for (i=0; i<strlen(uid); ++i) {
+		if (isspace(uid[i])) uid[i] = '_';
+		uid[i] = tolower(uid[i]);
+	}
+	vcard_set_prop(v, "UID", uid, 0);
 
 	return(v);
 }
@@ -2425,7 +2433,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				vmsg->cm_anon_type = MES_NORMAL;
 				vmsg->cm_format_type = FMT_RFC822;
 				vmsg->cm_fields['A'] = strdup("Citadel");
-				vmsg->cm_fields['E'] = strdup(recipient);	/* this handles dups */
+				vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 0, 0, 0));
 				ser = vcard_serialize(v);
 				if (ser != NULL) {
 					vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
