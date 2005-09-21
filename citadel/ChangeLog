@@ -1,4 +1,7 @@
 $Log$
+Revision 655.15  2005/09/21 20:07:18  ajc
+* Set the To: field for digests as well
+
 Revision 655.14  2005/09/21 16:56:17  ajc
 * The "To: line of a mailing list message is now set to the address of the
   list instead of the address of the recipient.
@@ -7169,3 +7172,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

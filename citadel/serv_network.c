@@ -456,7 +456,11 @@ void network_deliver_digest(struct SpoolControl *sc) {
 		buf[i] = tolower(buf[i]);
 	}
 	msg->cm_fields['F'] = strdup(buf);
+	msg->cm_fields['R'] = strdup(buf);
 
+	/*
+	 * Go fetch the contents of the digest
+	 */
 	fseek(sc->digestfp, 0L, SEEK_END);
 	msglen = ftell(sc->digestfp);
 
@@ -477,7 +481,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
-		instr_len = instr_len + strlen(nptr->name);
+		instr_len = instr_len + strlen(nptr->name) + 2;
 	}
 	
 	/*
@@ -541,7 +545,7 @@ void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		instr_len = instr_len + strlen(nptr->name);
+		instr_len = instr_len + strlen(nptr->name) + 2;
 	}
 	
 	/*
@@ -634,8 +638,8 @@ void network_spool_msg(long msgnum, void *userdata) {
 			if (msg->cm_fields['R'] != NULL) {
 				free(msg->cm_fields['R']);
 			}
-			msg->cm_fields['R'] = malloc(SIZ);
-			snprintf(msg->cm_fields['R'], SIZ,
+			msg->cm_fields['R'] = malloc(256);
+			snprintf(msg->cm_fields['R'], 256,
 				"room_%s@%s", CC->room.QRname,
 				config.c_fqdn);
 			for (i=0; i<strlen(msg->cm_fields['R']); ++i) {
