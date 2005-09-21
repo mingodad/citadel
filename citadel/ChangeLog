@@ -1,4 +1,8 @@
 $Log$
+Revision 655.14  2005/09/21 16:56:17  ajc
+* The "To: line of a mailing list message is now set to the address of the
+  list instead of the address of the recipient.
+
 Revision 655.13  2005/09/21 13:21:31  ajc
 * Don't harvest incoming addresses.  A few hours of operation of this in a
   production environment proved that it's stupid.  This feature has been
@@ -7165,4 +7169,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
