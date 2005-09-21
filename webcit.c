@@ -598,14 +598,14 @@ void output_image()
  * Generic function to output an arbitrary MIME part from an arbitrary
  * message number on the server.
  */
-void output_mimepart()
+void mimepart(char *msgnum, char *partnum)
 {
 	char buf[SIZ];
 	off_t bytes;
 	char content_type[SIZ];
 	char *content = NULL;
 	
-	serv_printf("OPNA %s|%s", bstr("msgnum"), bstr("partnum"));
+	serv_printf("OPNA %s|%s", msgnum, partnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
@@ -1312,8 +1312,8 @@ void session_loop(struct httprequest *req)
 		do_generic();
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
-	} else if (!strcasecmp(action, "output_mimepart")) {
-		output_mimepart();
+	} else if (!strcasecmp(action, "mimepart")) {
+		mimepart(arg1, arg2);
 	} else if (!strcasecmp(action, "edit_vcard")) {
 		edit_vcard();
 	} else if (!strcasecmp(action, "submit_vcard")) {

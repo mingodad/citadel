@@ -623,28 +623,26 @@ void read_message(long msgnum, int printable_view) {
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
-			if (!strcasecmp(mime_disposition, "attachment")) {
-				snprintf(&mime_http[strlen(mime_http)],
-					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<A HREF=\"/output_mimepart?"
-					"msgnum=%ld?partnum=%s\" "
-					"TARGET=\"wc.%ld.%s\">"
-					"<IMG SRC=\"/static/diskette_24x.gif\" "
-					"BORDER=0 ALIGN=MIDDLE>\n"
-					"Part %s: %s (%s, %d bytes)</A><br />\n",
-					msgnum, mime_partnum,
-					msgnum, mime_partnum,
-					mime_partnum, mime_filename,
-					mime_content_type, mime_length);
-			}
-
 			if ((!strcasecmp(mime_disposition, "inline"))
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<IMG SRC=\"/output_mimepart?"
-					"msgnum=%ld?partnum=%s\">",
-					msgnum, mime_partnum);
+					"<IMG SRC=\"/mimepart/%ld/%s/%s\">",
+					msgnum, mime_partnum, mime_filename);
+			}
+			else if ( (!strcasecmp(mime_disposition, "attachment")) 
+			     || (!strcasecmp(mime_disposition, "inline")) ) {
+				snprintf(&mime_http[strlen(mime_http)],
+					(sizeof(mime_http) - strlen(mime_http) - 1),
+					"<A HREF=\"/mimepart/%ld/%s/%s\" "
+					"TARGET=\"wc.%ld.%s\">"
+					"<IMG SRC=\"/static/diskette_24x.gif\" "
+					"BORDER=0 ALIGN=MIDDLE>\n"
+					"Part %s: %s (%s, %d bytes)</A><br />\n",
+					msgnum, mime_partnum, mime_filename,
+					msgnum, mime_partnum,
+					mime_partnum, mime_filename,
+					mime_content_type, mime_length);
 			}
 
 			/*** begin handler prep ***/
