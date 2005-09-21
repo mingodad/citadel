@@ -2414,10 +2414,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * Any addresses to harvest for someone's address book?
 	 * (Don't do this if this is not a message with recipients, otherwise we will
 	 * send this function into infinite recursion!!!!!)
-	 */
 	if (recps != NULL) {
 		collected_addresses = harvest_collected_addresses(msg);
 	}
+	 * FIXME do this differently
+	 */
 
 	if (collected_addresses != NULL) {
 		for (i=0; i<num_tokens(collected_addresses, ','); ++i) {

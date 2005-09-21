@@ -1,4 +1,9 @@
 $Log$
+Revision 655.13  2005/09/21 13:21:31  ajc
+* Don't harvest incoming addresses.  A few hours of operation of this in a
+  production environment proved that it's stupid.  This feature has been
+  disabled; we will harvest outgoing addresses instead.
+
 Revision 655.12  2005/09/21 04:27:34  ajc
 * When reading messages in MT_MIME mode from a Citadel client, don't
   list MIME parts that are part of a multipart/alternative group.
@@ -7160,3 +7165,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
