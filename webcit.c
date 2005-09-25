@@ -13,6 +13,13 @@
 #include "mime_parser.h"
 
 /*
+ * Subdirectories from which the client may request static content
+ */
+char *static_content_dirs[] = {
+	"static"
+};
+
+/*
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
  * the exact minute.  :)
@@ -497,15 +504,13 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 
 void output_static(char *what)
 {
-	char buf[256];
 	FILE *fp;
 	struct stat statbuf;
 	off_t bytes;
 	char *bigbuffer;
 	char content_type[128];
 
-	sprintf(buf, "static/%s", what);
-	fp = fopen(buf, "rb");
+	fp = fopen(what, "rb");
 	if (fp == NULL) {
 		wprintf("HTTP/1.1 404 %s\n", strerror(errno));
 		wprintf("Content-Type: text/plain\r\n");
@@ -587,7 +592,7 @@ void output_image()
 		/* Instead of an ugly 404, send a 1x1 transparent GIF
 		 * when there's no such image on the server.
 		 */
-		output_static("blank.gif");
+		output_static("static/blank.gif");
 	}
 
 
@@ -832,6 +837,7 @@ void session_loop(struct httprequest *req)
 	char arg3[128];
 	char buf[SIZ];
 	char request_method[128];
+	char pathname[512];
 	int a, b;
 	int ContentLength = 0;
 	int BytesRead = 0;
@@ -842,6 +848,7 @@ void session_loop(struct httprequest *req)
 	char browser_host[SIZ];
 	char user_agent[SIZ];
 	int body_start = 0;
+	int is_static = 0;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -873,24 +880,25 @@ void session_loop(struct httprequest *req)
 	safestrncpy(cmd, hptr->line, sizeof cmd);
 	hptr = hptr->next;
 	extract_token(request_method, cmd, 0, ' ', sizeof request_method);
+	extract_token(pathname, cmd, 1, ' ', sizeof request_method);
 
 	/* Figure out the action */
-	extract_token(action, cmd, 1, '/', sizeof action);
+	extract_token(action, pathname, 1, '/', sizeof action);
 	if (strstr(action, "?")) *strstr(action, "?") = 0;
 	if (strstr(action, "&")) *strstr(action, "&") = 0;
 	if (strstr(action, " ")) *strstr(action, " ") = 0;
 
-	extract_token(arg1, cmd, 2, '/', sizeof arg1);
+	extract_token(arg1, pathname, 2, '/', sizeof arg1);
 	if (strstr(arg1, "?")) *strstr(arg1, "?") = 0;
 	if (strstr(arg1, "&")) *strstr(arg1, "&") = 0;
 	if (strstr(arg1, " ")) *strstr(arg1, " ") = 0;
 
-	extract_token(arg2, cmd, 3, '/', sizeof arg2);
+	extract_token(arg2, pathname, 3, '/', sizeof arg2);
 	if (strstr(arg2, "?")) *strstr(arg2, "?") = 0;
 	if (strstr(arg2, "&")) *strstr(arg2, "&") = 0;
 	if (strstr(arg2, " ")) *strstr(arg2, " ") = 0;
 
-	extract_token(arg3, cmd, 4, '/', sizeof arg3);
+	extract_token(arg3, pathname, 4, '/', sizeof arg3);
 	if (strstr(arg3, "?")) *strstr(arg3, "?") = 0;
 	if (strstr(arg3, "&")) *strstr(arg3, "&") = 0;
 	if (strstr(arg3, " ")) *strstr(arg3, " ") = 0;
@@ -971,11 +979,24 @@ void session_loop(struct httprequest *req)
 
 
 	/* Static content can be sent without connecting to Citadel. */
-	if (!strcasecmp(action, "static")) {
-		safestrncpy(buf, arg1, sizeof buf);
-		for (a = 0; a < strlen(buf); ++a)
-			if (isspace(buf[a]))
+	is_static = 0;
+	for (a=0; a<(sizeof(static_content_dirs) / sizeof(char *)); ++a) {
+		if (!strcasecmp(action, static_content_dirs[a])) {
+			is_static = 1;
+		}
+	}
+	if (is_static) {
+		snprintf(buf, sizeof buf, "%s/%s/%s/%s", action, arg1, arg2, arg3);
+		for (a=0; a<4; ++a) {
+			if (buf[strlen(buf)-1] == '/') {
+				buf[strlen(buf)-1] = 0;
+			}
+		}
+		for (a = 0; a < strlen(buf); ++a) {
+			if (isspace(buf[a])) {
 				buf[a] = 0;
+			}
+		}
 		output_static(buf);
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
 	}

@@ -1,4 +1,8 @@
 $Log$
+Revision 625.21  2005/09/25 20:58:56  ajc
+* Generalized the way we handle static content directories so that we may
+  have more than one of them (i.e. not just "static/")
+
 Revision 625.20  2005/09/21 13:25:53  ajc
 * The RSS/XML button is temporarily commented out in order to prevent
   users from selecting this possibly unfinished feature.
@@ -3052,3 +3056,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
