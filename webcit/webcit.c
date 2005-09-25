@@ -835,6 +835,8 @@ void session_loop(struct httprequest *req)
 	char arg1[128];
 	char arg2[128];
 	char arg3[128];
+	char arg4[128];
+	char arg5[128];
 	char buf[SIZ];
 	char request_method[128];
 	char pathname[512];
@@ -902,6 +904,16 @@ void session_loop(struct httprequest *req)
 	if (strstr(arg3, "?")) *strstr(arg3, "?") = 0;
 	if (strstr(arg3, "&")) *strstr(arg3, "&") = 0;
 	if (strstr(arg3, " ")) *strstr(arg3, " ") = 0;
+
+	extract_token(arg4, pathname, 4, '/', sizeof arg4);
+	if (strstr(arg4, "?")) *strstr(arg4, "?") = 0;
+	if (strstr(arg4, "&")) *strstr(arg4, "&") = 0;
+	if (strstr(arg4, " ")) *strstr(arg4, " ") = 0;
+
+	extract_token(arg5, pathname, 4, '/', sizeof arg5);
+	if (strstr(arg5, "?")) *strstr(arg5, "?") = 0;
+	if (strstr(arg5, "&")) *strstr(arg5, "&") = 0;
+	if (strstr(arg5, " ")) *strstr(arg5, " ") = 0;
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
@@ -986,7 +998,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 	if (is_static) {
-		snprintf(buf, sizeof buf, "%s/%s/%s/%s", action, arg1, arg2, arg3);
+		snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s", action, arg1, arg2, arg3, arg4, arg5);
 		for (a=0; a<4; ++a) {
 			if (buf[strlen(buf)-1] == '/') {
 				buf[strlen(buf)-1] = 0;
