@@ -607,3 +607,4 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 /* These should be empty, but we have them for testing */
 #define DEFAULT_HTTPAUTH_USER	""
 #define DEFAULT_HTTPAUTH_PASS	""
+
