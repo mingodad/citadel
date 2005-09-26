@@ -7,7 +7,6 @@
 	Wilifried Goesgens
 	Nick Grossman
 	Andru Luvisi
-        Kevin Roth
 	Dave Lindquist
 	Martin Mouritzen
 
@@ -22,6 +21,11 @@
    WebCit bundles the script.aculo.us JavaScript library, written by
    Thomas Fuchs [http://script.aculo.us, http://mir.aculo.us].  These
    components are licensed to you under the terms of an MIT-style license.
+
+   WebCit bundles the TinyMCE text editor, written by Moxiecode Systems AB
+   (http://tinymce.moxiecode.com/tinymce/docs/credits.html).  This component
+   is licensed to you under the terms of the GNU Lesser General Public
+   License.
 
    The Citadel logo was designed by Lisa Aurigemma.
 

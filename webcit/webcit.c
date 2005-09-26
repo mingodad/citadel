@@ -16,7 +16,8 @@
  * Subdirectories from which the client may request static content
  */
 char *static_content_dirs[] = {
-	"static"
+	"static",
+	"tiny_mce"
 };
 
 /*
@@ -512,6 +513,7 @@ void output_static(char *what)
 
 	fp = fopen(what, "rb");
 	if (fp == NULL) {
+		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
 		wprintf("HTTP/1.1 404 %s\n", strerror(errno));
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
@@ -554,6 +556,7 @@ void output_static(char *what)
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
 
+		lprintf(9, "output_static('%s')  %s\n", what, content_type);
 		http_transmit_thing(bigbuffer, (size_t)bytes, content_type, 1);
 		free(bigbuffer);
 	}
@@ -837,6 +840,8 @@ void session_loop(struct httprequest *req)
 	char arg3[128];
 	char arg4[128];
 	char arg5[128];
+	char arg6[128];
+	char arg7[128];
 	char buf[SIZ];
 	char request_method[128];
 	char pathname[512];
@@ -905,15 +910,25 @@ void session_loop(struct httprequest *req)
 	if (strstr(arg3, "&")) *strstr(arg3, "&") = 0;
 	if (strstr(arg3, " ")) *strstr(arg3, " ") = 0;
 
-	extract_token(arg4, pathname, 4, '/', sizeof arg4);
+	extract_token(arg4, pathname, 5, '/', sizeof arg4);
 	if (strstr(arg4, "?")) *strstr(arg4, "?") = 0;
 	if (strstr(arg4, "&")) *strstr(arg4, "&") = 0;
 	if (strstr(arg4, " ")) *strstr(arg4, " ") = 0;
 
-	extract_token(arg5, pathname, 4, '/', sizeof arg5);
+	extract_token(arg5, pathname, 6, '/', sizeof arg5);
 	if (strstr(arg5, "?")) *strstr(arg5, "?") = 0;
 	if (strstr(arg5, "&")) *strstr(arg5, "&") = 0;
 	if (strstr(arg5, " ")) *strstr(arg5, " ") = 0;
+
+	extract_token(arg6, pathname, 7, '/', sizeof arg6);
+	if (strstr(arg6, "?")) *strstr(arg6, "?") = 0;
+	if (strstr(arg6, "&")) *strstr(arg6, "&") = 0;
+	if (strstr(arg6, " ")) *strstr(arg6, " ") = 0;
+
+	extract_token(arg7, pathname, 8, '/', sizeof arg7);
+	if (strstr(arg7, "?")) *strstr(arg7, "?") = 0;
+	if (strstr(arg7, "&")) *strstr(arg7, "&") = 0;
+	if (strstr(arg7, " ")) *strstr(arg7, " ") = 0;
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
@@ -998,8 +1013,9 @@ void session_loop(struct httprequest *req)
 		}
 	}
 	if (is_static) {
-		snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s", action, arg1, arg2, arg3, arg4, arg5);
-		for (a=0; a<4; ++a) {
+		snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
+			action, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		for (a=0; a<8; ++a) {
 			if (buf[strlen(buf)-1] == '/') {
 				buf[strlen(buf)-1] = 0;
 			}

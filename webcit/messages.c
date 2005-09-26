@@ -2417,7 +2417,6 @@ void display_enter(void)
 	wprintf("<form enctype=\"multipart/form-data\" "
 		"method=\"POST\" action=\"/post\" "
 		"name=\"enterform\""
-		"onSubmit=\"return submitForm();\""
 		">\n");
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
 
@@ -2486,19 +2485,10 @@ void display_enter(void)
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 	wprintf("</td></tr></table>\n");
 
-	wprintf("<center><script type=\"text/javascript\" "
-		"src=\"static/richtext.js\"></script>\n"
-		"<script type=\"text/javascript\">\n"
-		"function submitForm() { \n"
-		"  updateRTE('msgtext'); \n"
-		"  return true; \n"
-		"} \n"
-		"  \n"
-		"initRTE(\"static/\", \"static/\", \"\"); \n"
-		"</script> \n"
-		"<noscript>JavaScript must be enabled.</noscript> \n"
-		"<script type=\"text/javascript\"> \n"
-		"writeRichText('msgtext', '");
+	wprintf("<center>");
+
+	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
+
 	msgescputs(bstr("msgtext"));
 	if (atol(bstr("pullquote")) > 0L) {
 		wprintf("<br><div align=center><i>");
@@ -2506,8 +2496,21 @@ void display_enter(void)
 		wprintf("</i></div><br>");
 		pullquote_message(atol(bstr("pullquote")), 1);
 	}
-	wprintf("', '96%%', '200', true, false); \n"
-		"</script></center><br />\n");
+	wprintf("</textarea>");
+	wprintf("</center><br />\n");
+
+	/*
+	 * The following script embeds the TinyMCE richedit control, and automatically
+	 * transforms the textarea into a richedit textarea.
+	 */
+	wprintf(
+		"<script language=\"javascript\" type=\"text/javascript\" src=\"tiny_mce/tiny_mce.js\"></script>\n"
+		"<script language=\"javascript\" type=\"text/javascript\">"
+		"tinyMCE.init({"
+		"	mode : \"textareas\", width : \"100%%\" "
+		"});"
+		"</script>\n"
+	);
 
 	/* Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"/static/diskette_24x.gif\" border=0 "
