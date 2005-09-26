@@ -1,4 +1,7 @@
 $Log$
+Revision 625.23  2005/09/26 03:10:10  ajc
+* Updated "make install" to handle the multi static thing
+
 Revision 625.22  2005/09/26 02:45:06  ajc
 * Removed the Kevin Roth rich text editor and replaced it with TinyMCE.
 
@@ -3059,3 +3062,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
