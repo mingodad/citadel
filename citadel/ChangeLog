@@ -1,4 +1,7 @@
 $Log$
+Revision 655.16  2005/09/26 21:46:08  ajc
+* Attempt to save *outgoing* email addresses to the address book.
+
 Revision 655.15  2005/09/21 20:07:18  ajc
 * Set the To: field for digests as well
 
@@ -7172,4 +7175,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

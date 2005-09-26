@@ -2096,7 +2096,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	long newmsgid;
 	char *mptr = NULL;
 	struct ctdluser userbuf;
-	int a, i, j;
+	int a, i;
 	struct MetaData smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
@@ -2414,11 +2414,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * Any addresses to harvest for someone's address book?
 	 * (Don't do this if this is not a message with recipients, otherwise we will
 	 * send this function into infinite recursion!!!!!)
-	if (recps != NULL) {
-		collected_addresses = harvest_collected_addresses(msg);
-	}
 	 * FIXME do this differently
 	 */
+	if ( (CC->logged_in) && (recps != NULL) ) {
+		collected_addresses = harvest_collected_addresses(msg);
+	}
 
 	if (collected_addresses != NULL) {
 		for (i=0; i<num_tokens(collected_addresses, ','); ++i) {
@@ -2445,27 +2445,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				}
 				vcard_free(v);
 
-				if (recps->num_local > 0) {
-					for (j=0; j<num_tokens(recps->recp_local, '|'); ++j) {
-						extract_token(recipient, recps->recp_local, j,
-							'|', sizeof recipient);
-						lprintf(CTDL_DEBUG, "Adding contact for <%s>\n", recipient);
-						if (getuser(&userbuf, recipient) == 0) {
-							MailboxName(actual_rm, sizeof actual_rm,
-								&userbuf, USERCONTACTSROOM);
-
-							if (vmsgnum < 0L) {
-								vmsgnum = CtdlSubmitMsg(vmsg,
-											NULL, actual_rm);
-							}
-							else {
-								CtdlSaveMsgPointerInRoom(actual_rm,
-												vmsgnum, 0);
-							}
-
-						}
-					}
-				}
+				lprintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
+				MailboxName(actual_rm, sizeof actual_rm, &CC->user, USERCONTACTSROOM);
+				vmsgnum = CtdlSubmitMsg(vmsg, NULL, actual_rm);
 				CtdlFreeMessage(vmsg);
 			}
 		}
