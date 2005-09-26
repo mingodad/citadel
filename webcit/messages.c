@@ -2229,6 +2229,7 @@ void post_message(void)
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 
+	lprintf(9, "msgtext: %s\n", bstr("msgtext"));
 	if (WC->upload_length > 0) {
 
 		/* There's an attachment.  Save it to this struct... */
