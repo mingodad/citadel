@@ -1,4 +1,7 @@
 $Log$
+Revision 625.22  2005/09/26 02:45:06  ajc
+* Removed the Kevin Roth rich text editor and replaced it with TinyMCE.
+
 Revision 625.21  2005/09/25 20:58:56  ajc
 * Generalized the way we handle static content directories so that we may
   have more than one of them (i.e. not just "static/")
@@ -3056,4 +3059,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
