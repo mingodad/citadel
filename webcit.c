@@ -774,8 +774,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 {
 	struct urlcontent *u;
 
-	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n",
-		name, cbtype, length);
+	/* lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n",
+		name, cbtype, length); */
 
 	/* Form fields */
 	if ( (length > 0) && (strlen(cbtype) == 0) ) {

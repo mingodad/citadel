@@ -2507,7 +2507,7 @@ void display_enter(void)
 		"<script language=\"javascript\" type=\"text/javascript\" src=\"tiny_mce/tiny_mce.js\"></script>\n"
 		"<script language=\"javascript\" type=\"text/javascript\">"
 		"tinyMCE.init({"
-		"	mode : \"textareas\", width : \"100%%\" "
+		"	mode : \"textareas\", width : \"100%%\", browsers : \"msie,gecko\" "
 		"});"
 		"</script>\n"
 	);
