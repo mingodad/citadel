@@ -304,6 +304,7 @@ struct wcsession {
 	size_t burst_len;
 	char *burst;
 	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
+	int is_mailbox;			/* the current room is a private mailbox */
 };
 
 #define num_parms(source)		num_tokens(source, '|')

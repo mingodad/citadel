@@ -602,7 +602,8 @@ int gotoroom(char *gname)
 	WC->room_flags = extract_int(&buf[4], 4);
 	/* highest_msg_read = extract_int(&buf[4],6);
 	   maxmsgnum = extract_int(&buf[4],5);
-	   is_mail = (char) extract_int(&buf[4],7); */
+	 */
+	WC->is_mailbox = extract_int(&buf[4],7);
 	ls = extract_long(&buf[4], 6);
 	WC->wc_floor = extract_int(&buf[4], 10);
 	WC->wc_view = extract_int(&buf[4], 11);

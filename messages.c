@@ -735,7 +735,8 @@ void read_message(long msgnum, int printable_view) {
 			wprintf("\">[%s]</a> ", _("Forward"));
 		}
 
-		if (WC->is_room_aide)  {
+		/* If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
+		if ( (WC->is_room_aide) || (WC->is_mailbox) ) {
 			/* Move */
 			wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[%s]</a> ",
 				msgnum, _("Move"));

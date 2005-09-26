@@ -1,4 +1,8 @@
 $Log$
+Revision 625.25  2005/09/26 21:56:31  ajc
+* Offer the [Move] and [Delete] buttons not only for aide/roomaide, but
+  also whenever we are in a mailbox room owned by the user.
+
 Revision 625.24  2005/09/26 18:00:51  ajc
 * Upgraded TinyMCE to version 2.0RC3.  This fixes a conflict with
   the prototype.js library.
@@ -3066,3 +3070,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
