@@ -22,5 +22,6 @@ alt_image : 'Alternative image',
 mouseover : 'for mouse over',
 mouseout : 'for mouse out',
 misc : 'Miscellaneous',
-example_img : 'Appearance&nbsp;preview&nbsp;image'
+example_img : 'Appearance&nbsp;preview&nbsp;image',
+missing_alt : 'Are you sure you want to continue without including an Image Description? Without  it the image may not be accessible to some users with disabilities, or to those using a text browser, or browsing the Web with images turned off.'
 });

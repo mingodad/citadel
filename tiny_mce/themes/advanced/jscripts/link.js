@@ -49,6 +49,9 @@ function insertLink() {
 		var style_class = document.forms[0].styleSelect.value;
 		var dummy;
 
+		if (target == '_self')
+			target = '';
+
 		window.opener.tinyMCE.insertLink(href, target, title, dummy, style_class);
 		tinyMCEPopup.close();
 	}

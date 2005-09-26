@@ -25,7 +25,7 @@ insert_image_align_absmiddle : 'Centrado horizontal',
 insert_image_align_absbottom : 'Centrado abajo',
 insert_image_align_left : 'Izquierda',
 insert_image_align_right : 'Derecha',
-insert_image_delta_height'] = 10;
+insert_image_delta_height : 10,
 theme_font_size : '-- Font size --',
 theme_fontdefault : '-- Font family --',
 theme_block : '-- Format --',

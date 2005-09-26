@@ -10,18 +10,16 @@ function init() {
 	var rowtype = trElm.parentNode.nodeName.toLowerCase();
 	var align = tinyMCE.getAttrib(trElm, 'align');
 	var valign = tinyMCE.getAttrib(trElm, 'valign');
-	var height = tinyMCE.getAttrib(trElm, 'height');
+	var height = trimSize(getStyle(trElm, 'height', 'height'));
 	var className = tinyMCE.getVisualAidClass(tinyMCE.getAttrib(trElm, 'class'), false);
-	var bordercolor = tinyMCE.getAttrib(trElm, 'bordercolor');
-	var bgcolor = tinyMCE.getAttrib(trElm, 'bgcolor');
-	var backgroundimage = getStyle(trElm, st, 'background', 'background-image').replace(new RegExp("url\\('?([^']*)'?\\)", 'gi'), "$1");;
+	var bgcolor = convertRGBToHex(getStyle(trElm, 'bgcolor', 'backgroundColor'));
+	var backgroundimage = getStyle(trElm, 'background', 'backgroundImage').replace(new RegExp("url\\('?([^']*)'?\\)", 'gi'), "$1");;
 	var id = tinyMCE.getAttrib(trElm, 'id');
 	var lang = tinyMCE.getAttrib(trElm, 'lang');
 	var dir = tinyMCE.getAttrib(trElm, 'dir');
 
 	// Setup form
 	addClassesToList('class', 'table_row_styles');
-	formObj.bordercolor.value = bordercolor;
 	formObj.bgcolor.value = bgcolor;
 	formObj.backgroundimage.value = backgroundimage;
 	formObj.height.value = height;
@@ -38,7 +36,6 @@ function init() {
 	if (isVisible('backgroundimagebrowser'))
 		document.getElementById('backgroundimage').style.width = '180px';
 
-	updateColor('bordercolor_pick', 'bordercolor');
 	updateColor('bgcolor_pick', 'bgcolor');
 }
 
@@ -95,13 +92,24 @@ function updateRow(tr_elm, skip_id, skip_parent) {
 
 	tr_elm.setAttribute('align', getSelectValue(formObj, 'align'));
 	tr_elm.setAttribute('vAlign', getSelectValue(formObj, 'valign'));
-	tr_elm.setAttribute('height', formObj.height.value);
-	tr_elm.setAttribute('borderColor', formObj.bordercolor.value);
-	tr_elm.setAttribute('bgColor', formObj.bgcolor.value);
 	tr_elm.setAttribute('lang', formObj.lang.value);
 	tr_elm.setAttribute('dir', getSelectValue(formObj, 'dir'));
 	tr_elm.setAttribute('style', tinyMCE.serializeStyle(tinyMCE.parseStyle(formObj.style.value)));
 	tinyMCE.setAttrib(tr_elm, 'class', getSelectValue(formObj, 'class'));
+
+	// Clear deprecated attributes
+	tr_elm.setAttribute('background', '');
+	tr_elm.setAttribute('bgColor', '');
+	tr_elm.setAttribute('height', '');
+
+	// Set styles
+	tr_elm.style.height = getCSSSize(formObj.height.value);
+	tr_elm.style.backgroundColor = formObj.bgcolor.value;
+
+	if (formObj.backgroundimage.value != "")
+		tr_elm.style.backgroundImage = "url('" + formObj.backgroundimage.value + "')";
+	else
+		tr_elm.style.backgroundImage = '';
 
 	// Setup new rowtype
 	if (curRowType != rowtype && !skip_parent) {
@@ -137,15 +145,6 @@ function updateRow(tr_elm, skip_id, skip_parent) {
 	}
 }
 
-function getStyle(elm, st, attrib, style) {
-	var val = tinyMCE.getAttrib(elm, attrib);
-
-	if (typeof(style) == 'undefined')
-		style = attrib;
-
-	return val == '' ? (st[style] ? st[style].replace('px', '') : '') : val;
-}
-
 function changedBackgroundImage() {
 	var formObj = document.forms[0];
 	var st = tinyMCE.parseStyle(formObj.style.value);
@@ -163,4 +162,34 @@ function changedStyle() {
 		formObj.backgroundimage.value = st['background-image'].replace(new RegExp("url\\('?([^']*)'?\\)", 'gi'), "$1");
 	else
 		formObj.backgroundimage.value = '';
+
+	if (st['height'])
+		formObj.height.value = trimSize(st['height']);
+
+	if (st['background-color']) {
+		formObj.bgcolor.value = st['background-color'];
+		updateColor('bgcolor_pick','bgcolor');
+	}
+}
+
+function changedSize() {
+	var formObj = document.forms[0];
+	var st = tinyMCE.parseStyle(formObj.style.value);
+
+	var height = formObj.height.value;
+	if (height != "")
+		st['height'] = getCSSSize(height);
+	else
+		st['height'] = "";
+
+	formObj.style.value = tinyMCE.serializeStyle(st);
+}
+
+function changedColor() {
+	var formObj = document.forms[0];
+	var st = tinyMCE.parseStyle(formObj.style.value);
+
+	st['background-color'] = formObj.bgcolor.value;
+
+	formObj.style.value = tinyMCE.serializeStyle(st);
 }

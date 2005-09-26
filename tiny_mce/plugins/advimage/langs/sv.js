@@ -22,5 +22,6 @@ alt_image : 'Alternativ bild',
 mouseover : 'n&auml;r pekaren &auml;r &ouml;ver',
 mouseout : 'n&auml;r pekaren &auml;r utanf&ouml;r',
 misc : '&Ouml;vrigt',
-example_img : 'F&ouml;rhandsgransknings bild'
+example_img : 'F&ouml;rhandsgransknings bild',
+missing_alt : '&Auml;r du s&auml;ker p&aring; att du vill forts&auml;tta utan att skriva en bild beskrivning. Utan en alternativ beskrivning &auml;r bilden inte handikapanpassad.'
 });

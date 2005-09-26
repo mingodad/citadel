@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-tinyMCE.importPluginLanguagePack('advlink', 'en,de,sv,zh_cn,cs,fa,fr_ca,fr,pl,pt_br,nl');
+tinyMCE.importPluginLanguagePack('advlink', 'en,de,sv,zh_cn,cs,fa,fr_ca,fr,pl,pt_br,nl,he,no');
 
 function TinyMCE_advlink_getInfo() {
 	return {
@@ -14,7 +14,7 @@ function TinyMCE_advlink_getInfo() {
 function TinyMCE_advlink_getControlHTML(control_name) {
 	switch (control_name) {
 		case "link":
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceAdvLink\');" onmousedown="return false;"><img id="{$editor_id}_advlink" src="{$themeurl}/images/link.gif" title="{$lang_link_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>';
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceAdvLink\');" target="_self" onmousedown="return false;"><img id="{$editor_id}_advlink" src="{$themeurl}/images/link.gif" title="{$lang_link_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>';
 	}
 
 	return "";

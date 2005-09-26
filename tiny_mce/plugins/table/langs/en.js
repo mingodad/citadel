@@ -65,5 +65,11 @@ row_all : 'Update all rows in table',
 thead : 'Table Head',
 tbody : 'Table Body',
 tfoot : 'Table Foot',
-del : 'Delete table'
+del : 'Delete table',
+scope : 'Scope',
+row : 'Row',
+col : 'Col',
+rowgroup : 'Row Group',
+colgroup : 'Col Group',
+missing_scope: 'Are you sure you want to continue without specifying a scope for this table header cell. Without it, it may be difficult for some users with disabilities to understand the content or data displayed of the table.'
 });

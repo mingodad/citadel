@@ -47,9 +47,9 @@
 							  </tr>
 							  <tr>
 								<td><label id="widthlabel" for="width">{$lang_table_width}</label></td>
-								<td><input name="width" type="text" id="width" value="" size="4" maxlength="4" /></td>
+								<td><input name="width" type="text" id="width" value="" size="4" maxlength="4" onchange="changedSize();" /></td>
 								<td><label id="heightlabel" for="height">{$lang_table_height}</label></td>
-								<td><input name="height" type="text" id="height" value="" size="4" maxlength="4" /></td>
+								<td><input name="height" type="text" id="height" value="" size="4" maxlength="4" onchange="changedSize();" /></td>
 							  </tr>
 							  <tr>
 								<td><label id="classlabel" for="class">{$lang_class_name}</label></td>
@@ -117,7 +117,7 @@
 							<td>
 								<table border="0" cellpadding="0" cellspacing="0">
 									<tr>
-										<td><input id="bordercolor" name="bordercolor" type="text" value="" size="9" onchange="updateColor('bordercolor_pick','bordercolor');" /></td>
+										<td><input id="bordercolor" name="bordercolor" type="text" value="" size="9" onchange="updateColor('bordercolor_pick','bordercolor');changedColor();" /></td>
 										<td><script language="javascript" type="text/javascript">renderColorPicker('bordercolor_pick','bordercolor');</script></td>
 									</tr>
 								</table>
@@ -129,7 +129,7 @@
 							<td>
 								<table border="0" cellpadding="0" cellspacing="0">
 									<tr>
-										<td><input id="bgcolor" name="bgcolor" type="text" value="" size="9" onchange="updateColor('bgcolor_pick','bgcolor');" /></td>
+										<td><input id="bgcolor" name="bgcolor" type="text" value="" size="9" onchange="updateColor('bgcolor_pick','bgcolor');changedColor();" /></td>
 										<td><script language="javascript" type="text/javascript">renderColorPicker('bgcolor_pick','bgcolor');</script></td>
 									</tr>
 								</table>

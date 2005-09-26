@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-tinyMCE.importPluginLanguagePack('save', 'en,sv,zh_cn,cs,fa,fr_ca,fr,de,pl,pt_br,nl,he');
+tinyMCE.importPluginLanguagePack('save', 'en,sv,zh_cn,cs,fa,fr_ca,fr,de,pl,pt_br,nl,he,no,hu');
 
 function TinyMCE_save_getInfo() {
 	return {
@@ -17,7 +17,7 @@ function TinyMCE_save_getInfo() {
 function TinyMCE_save_getControlHTML(control_name) {
 	switch (control_name) {
 		case "save":
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceSave\');" onmousedown="return false;"><img id="{$editor_id}_save" src="{$pluginurl}/images/save.gif" title="{$lang_save_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.switchClass(this,\'mceButtonNormal\');" onmousedown="tinyMCE.switchClass(this,\'mceButtonDown\');" /></a>';
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceSave\');" target="_self" onmousedown="return false;"><img id="{$editor_id}_save" src="{$pluginurl}/images/save.gif" title="{$lang_save_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.switchClass(this,\'mceButtonNormal\');" onmousedown="tinyMCE.switchClass(this,\'mceButtonDown\');" /></a>';
 	}
 
 	return "";

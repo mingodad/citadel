@@ -9,13 +9,14 @@ searchreplace_search_title : 'Suchen',
 searchreplace_replace_title : 'Suchen/Ersetzen',
 searchreplace_allreplaced : 'Die Suche wurde abgeschlossen. Alle Vorkommen wurden ersetzt.',
 searchreplace_findwhat : 'Suchen nach',
-searchreplace_replacewith : 'Ersetzem durch',
+searchreplace_replacewith : 'Ersetzen durch',
 searchreplace_direction : 'Suchrichtung',
 searchreplace_up : 'R&uuml;ckw&auml;rts',
 searchreplace_down : 'Vorw&auml;rts',
 searchreplace_case : 'Gro&szlig;-/Kleinschreibung beachten',
-searchreplace_findnext : 'Weiter suchen',
+searchreplace_findnext : 'Weitersuchen',
 searchreplace_replace : 'Ersetzen',
 searchreplace_replaceall : 'Alle ersetzen',
-searchreplace_cancel : 'Abbrechen'
+searchreplace_cancel : 'Abbrechen',
+searchreplace_replace_delta_width : 50
 });

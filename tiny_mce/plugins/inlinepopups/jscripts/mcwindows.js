@@ -64,6 +64,8 @@ MCWindows.prototype.eventDispatcher = function(e) {
 
 		for (var n in mcWindows.windows) {
 			var win = mcWindows.windows[n];
+			if (typeof(win) == 'function')
+				continue;
 
 			if (win.headElement == elm || win.resizeElement == elm) {
 				win.focus();
@@ -408,10 +410,6 @@ MCWindow.prototype.onMouseMove = function(e) {
 	}
 };
 
-function debug(msg) {
-	document.getElementById('debug').value += msg + "\n";
-}
-
 MCWindow.prototype.onMouseUp = function(e) {
 	mcWindows.action = "none";
 };
@@ -422,6 +420,8 @@ MCWindow.prototype.onFocus = function(e) {
 
 	for (var n in mcWindows.windows) {
 		var win = mcWindows.windows[n];
+		if (typeof(win) == 'function')
+			continue;
 
 		if (winRef.name == win.id) {
 			win.focus();

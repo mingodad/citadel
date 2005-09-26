@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-//tinyMCE.importPluginLanguagePack('contextmenu', 'en,zh_cn,cs,fa,fr_ca,fr,de');
+//tinyMCE.importPluginLanguagePack('contextmenu', 'en,zh_cn,cs,fa,fr_ca,fr,de,no');
 if (!tinyMCE.settings['contextmenu_skip_plugin_css'])
 	tinyMCE.loadCSS(tinyMCE.baseURL + "/plugins/contextmenu/css/contextmenu.css");
 
