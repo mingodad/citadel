@@ -1,4 +1,4 @@
-// DE lang variables by Tobias Heer
+// DE lang variables
 
 tinyMCE.addToLang('',{
 preview_desc : 'Vorschau'

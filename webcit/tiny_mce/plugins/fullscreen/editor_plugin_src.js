@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-tinyMCE.importPluginLanguagePack('fullscreen', 'en,sv,cs,fr_ca,zh_cn');
+tinyMCE.importPluginLanguagePack('fullscreen', 'en,sv,cs,fr_ca,zh_cn,da,he,no,de,hu');
 
 function TinyMCE_fullscreen_getInfo() {
 	return {

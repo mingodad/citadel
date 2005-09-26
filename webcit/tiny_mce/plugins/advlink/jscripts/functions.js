@@ -433,12 +433,13 @@ function insertAction() {
 function setAllAttribs(elm) {
 	var formObj = document.forms[0];
 	var href = formObj.href.value;
+	var target = getSelectValue(formObj, 'targetlist');
 
 	href = convertURL(href, elm);
 
 	setAttrib(elm, 'href', href);
 	setAttrib(elm, 'title');
-	setAttrib(elm, 'target', getSelectValue(formObj, 'targetlist'));
+	setAttrib(elm, 'target', target == '_self' ? '' : target);
 	setAttrib(elm, 'id');
 	setAttrib(elm, 'style');
 	setAttrib(elm, 'class', getSelectValue(formObj, 'classlist'));

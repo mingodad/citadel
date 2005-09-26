@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-tinyMCE.importPluginLanguagePack('preview', 'cs,de,el,en,fr_ca,it,ko,pt,sv,zh_cn,fa,fr,pl,pt_br,nl');
+tinyMCE.importPluginLanguagePack('preview', 'cs,de,el,en,fr_ca,it,ko,pt,sv,zh_cn,fa,fr,pl,pt_br,nl,da,he,no,hu');
 
 function TinyMCE_preview_getInfo() {
 	return {
@@ -17,7 +17,7 @@ function TinyMCE_preview_getInfo() {
 function TinyMCE_preview_getControlHTML(control_name) {
 	switch (control_name) {
 		case "preview":
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePreview\');" onmousedown="return false;"><img id="{$editor_id}_preview" src="{$pluginurl}/images/preview.gif" title="{$lang_preview_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreAndSwitchClass(this,\'mceButtonDown\');" /></a>';
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePreview\');" target="_self" onmousedown="return false;"><img id="{$editor_id}_preview" src="{$pluginurl}/images/preview.gif" title="{$lang_preview_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreAndSwitchClass(this,\'mceButtonDown\');" /></a>';
 	}
 
 	return "";

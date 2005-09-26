@@ -25,7 +25,7 @@ insert_image_align_absmiddle : 'Absoluut Midden',
 insert_image_align_absbottom : 'Absoluut Onder',
 insert_image_align_left : 'Links',
 insert_image_align_right : 'Rechts',
-insert_image_delta_height'] = 0;
+insert_image_delta_height : 0,
 theme_font_size : '-- Font size --',
 theme_fontdefault : '-- Font family --',
 theme_block : '-- Format --',

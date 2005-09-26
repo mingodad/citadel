@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */ 
-tinyMCE.importPluginLanguagePack('paste', 'en,sv,cs,zh_cn,fr_ca'); 
+tinyMCE.importPluginLanguagePack('paste', 'en,sv,cs,zh_cn,fr_ca,da,he,no,de,hu'); 
 
 function TinyMCE_paste_getInfo() {
 	return {
@@ -37,13 +37,13 @@ function TinyMCE_paste_handleEvent(e) {
 function TinyMCE_paste_getControlHTML(control_name) { 
 	switch (control_name) { 
 		case "pastetext": 
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePasteText\', true);" onmousedown="return false;"><img id="{$editor_id}pastetext" src="{$pluginurl}/images/pastetext.gif" title="{$lang_paste_text_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePasteText\', true);" target="_self" onmousedown="return false;"><img id="{$editor_id}pastetext" src="{$pluginurl}/images/pastetext.gif" title="{$lang_paste_text_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
 
 		case "pasteword": 
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePasteWord\', true);" onmousedown="return false;"><img id="{$editor_id}pasteword" src="{$pluginurl}/images/pasteword.gif" title="{$lang_paste_word_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mcePasteWord\', true);" target="_self" onmousedown="return false;"><img id="{$editor_id}pasteword" src="{$pluginurl}/images/pasteword.gif" title="{$lang_paste_word_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
 
 		case "selectall": 
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceSelectAll\');" onmousedown="return false;"><img id="{$editor_id}selectall" src="{$pluginurl}/images/selectall.gif" title="{$lang_selectall_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceSelectAll\');" target="_self" onmousedown="return false;"><img id="{$editor_id}selectall" src="{$pluginurl}/images/selectall.gif" title="{$lang_selectall_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreClass(this);" /></a>'; 
 	} 
 
 	return ''; 

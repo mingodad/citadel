@@ -1,5 +1,5 @@
 /* Import plugin specific language pack */
-tinyMCE.importPluginLanguagePack('template', 'en'); // <- Add a comma separated list of all supported languages
+tinyMCE.importPluginLanguagePack('template', 'en,he,no'); // <- Add a comma separated list of all supported languages
 
 /****
  * Steps for creating a plugin from this template:
@@ -40,7 +40,7 @@ function TinyMCE_template_initInstance(inst) {
 function TinyMCE_template_getControlHTML(control_name) {
 	switch (control_name) {
 		case "template":
-			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceTemplate\', true);" onmousedown="return false;"><img id="{$editor_id}_template" src="{$pluginurl}/images/template.gif" title="{$lang_template_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreAndSwitchClass(this,\'mceButtonDown\');" /></a>';
+			return '<a href="javascript:tinyMCE.execInstanceCommand(\'{$editor_id}\',\'mceTemplate\', true);" target="_self" onmousedown="return false;"><img id="{$editor_id}_template" src="{$pluginurl}/images/template.gif" title="{$lang_template_desc}" width="20" height="20" class="mceButtonNormal" onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');" onmouseout="tinyMCE.restoreClass(this);" onmousedown="tinyMCE.restoreAndSwitchClass(this,\'mceButtonDown\');" /></a>';
 	}
 
 	return "";

@@ -12,7 +12,7 @@
 function renderColorPicker(id, target_form_element) {
 	var html = "";
 
-	html += '<a id="' + id + '_link" href="javascript:tinyMCEPopup.pickColor(event,\'' + target_form_element +'\');" onmousedown="return false;">';
+	html += '<a id="' + id + '_link" href="javascript:void(0);" onkeydown="pickColor(event,\'' + target_form_element +'\');" onmousedown="pickColor(event,\'' + target_form_element +'\');return false;">';
 	html += '<img id="' + id + '" src="../../themes/advanced/images/color.gif"';
 	html += ' onmouseover="tinyMCE.switchClass(this,\'mceButtonOver\');"';
 	html += ' onmouseout="tinyMCE.restoreClass(this);"';
@@ -21,6 +21,11 @@ function renderColorPicker(id, target_form_element) {
 	html += ' class="mceButtonNormal" alt="' + tinyMCE.getLang('lang_browse') + '" /></a>';
 
 	document.write(html);
+}
+
+function pickColor(e, target_form_element) {
+	if ((e.keyCode == 32 || e.keyCode == 13) || e.type == "mousedown")
+		tinyMCEPopup.pickColor(e, target_form_element);
 }
 
 function updateColor(img_id, form_element_id) {
@@ -135,4 +140,64 @@ function isVisible(element_id) {
 	var elm = document.getElementById(element_id);
 
 	return elm && elm.style.display != "none";
+}
+
+function convertRGBToHex(col) {
+	var re = new RegExp("rgb\\s*\\(\\s*([0-9]+).*,\\s*([0-9]+).*,\\s*([0-9]+).*\\)", "gi");
+
+	var rgb = col.replace(re, "$1,$2,$3").split(',');
+	if (rgb.length == 3) {
+		r = parseInt(rgb[0]).toString(16);
+		g = parseInt(rgb[1]).toString(16);
+		b = parseInt(rgb[2]).toString(16);
+
+		r = r.length == 1 ? '0' + r : r;
+		g = g.length == 1 ? '0' + g : g;
+		b = b.length == 1 ? '0' + b : b;
+
+		return "#" + r + g + b;
+	}
+
+	return col;
+}
+
+function convertHexToRGB(col) {
+	if (col.indexOf('#') != -1) {
+		col = col.replace(new RegExp('[^0-9A-F]', 'gi'), '');
+
+		r = parseInt(col.substring(0, 2), 16);
+		g = parseInt(col.substring(2, 4), 16);
+		b = parseInt(col.substring(4, 6), 16);
+
+		return "rgb(" + r + "," + g + "," + b + ")";
+	}
+
+	return col;
+}
+
+function trimSize(size) {
+	return size.replace(new RegExp('[^0-9%]', 'gi'), '');
+}
+
+function getCSSSize(size) {
+	size = trimSize(size);
+
+	if (size == "")
+		return "";
+
+	return size.indexOf('%') != -1 ? size : size + "px";
+}
+
+function getStyle(elm, attrib, style) {
+	var val = tinyMCE.getAttrib(elm, attrib);
+
+	if (val != '')
+		return '' + val;
+
+	if (typeof(style) == 'undefined')
+		style = attrib;
+
+	val = eval('elm.style.' + style);
+
+	return val == null ? '' : '' + val;
 }

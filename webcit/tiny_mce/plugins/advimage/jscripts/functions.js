@@ -38,15 +38,6 @@ function getImageSrc(str) {
 	return "";
 }
 
-function getStyle(elm, st, attrib, style) {
-	var val = tinyMCE.getAttrib(elm, attrib);
-
-	if (typeof(style) == 'undefined')
-		style = attrib;
-
-	return val == '' ? (st[style] ? st[style].replace('px', '') : '') : val;
-}
-
 function init() {
 	tinyMCEPopup.resizeToInnerSize();
 
@@ -97,11 +88,11 @@ function init() {
 		formObj.src.value    = src;
 		formObj.alt.value    = tinyMCE.getAttrib(elm, 'alt');
 		formObj.title.value  = tinyMCE.getAttrib(elm, 'title');
-		formObj.border.value = getStyle(elm, style, 'border', 'border-width');
+		formObj.border.value = trimSize(getStyle(elm, 'border', 'borderWidth'));
 		formObj.vspace.value = tinyMCE.getAttrib(elm, 'vspace');
 		formObj.hspace.value = tinyMCE.getAttrib(elm, 'hspace');
-		formObj.width.value  = getStyle(elm, style, 'width');
-		formObj.height.value = getStyle(elm, style, 'height');
+		formObj.width.value  = trimSize(getStyle(elm, 'width'));
+		formObj.height.value = trimSize(getStyle(elm, 'height'));
 		formObj.onmouseoversrc.value = onmouseoversrc;
 		formObj.onmouseoutsrc.value  = onmouseoutsrc;
 		formObj.id.value  = tinyMCE.getAttrib(elm, 'id');
@@ -113,9 +104,9 @@ function init() {
 
 		// Select by the values
 		if (tinyMCE.isMSIE)
-			selectByValue(formObj, 'align', getStyle(elm, style, 'align', 'styleFloat'));
+			selectByValue(formObj, 'align', getStyle(elm, 'align', 'styleFloat'));
 		else
-			selectByValue(formObj, 'align', getStyle(elm, style, 'align', 'cssFloat'));
+			selectByValue(formObj, 'align', getStyle(elm, 'align', 'cssFloat'));
 
 		selectByValue(formObj, 'classlist', tinyMCE.getAttrib(elm, 'class'));
 		selectByValue(formObj, 'imagelistsrc', src);
@@ -228,6 +219,20 @@ function insertAction() {
 	var src = formObj.src.value;
 	var onmouseoversrc = formObj.onmouseoversrc.value;
 	var onmouseoutsrc = formObj.onmouseoutsrc.value;
+
+	if (tinyMCE.getParam("accessibility_warnings")) {
+		if (formObj.alt.value == "") {
+			var answer = confirm(tinyMCE.getLang('lang_advimage_missing_alt', '', true));
+			if (answer == true) {
+				formObj.alt.value = " ";
+			}
+		} else {
+			var answer = true;
+		}
+
+		if (!answer)
+			return;
+	}
 
 	// Fix output URLs
 	src = convertURL(src, tinyMCE.imgElement);

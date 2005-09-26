@@ -66,5 +66,11 @@ row_all : 'Updatera alla rader i tabellen',
 thead : 'Tabell Huvud',
 tbody : 'Tabell Kropp',
 tfoot : 'Tabell Fot',
-del : 'Tabort tabell'
+del : 'Tabort tabell',
+scope : 'Scope',
+row : 'Rad',
+col : 'Kolumn',
+rowgroup : 'Rad grupp',
+colgroup : 'Kolumn grupp',
+missing_scope: '&Auml;r du s&auml;ker p&aring; att du vill forts&auml;tta utan att specifisera ett scope, utan denna kan det bli sv&aring;rt f&ouml;r handikappade att f&ouml;rst&aring; tabellen.'
 });
