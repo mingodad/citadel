@@ -325,9 +325,14 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				strcat(mailto,
 					"<A HREF=\"/display_enter"
 					"?force_room=_MAIL_?recp=");
+
+				urlesc(&mailto[strlen(mailto)], displayname);
+				urlesc(&mailto[strlen(mailto)], " <");
 				urlesc(&mailto[strlen(mailto)], thisvalue);
+				urlesc(&mailto[strlen(mailto)], ">");
+
 				strcat(mailto, "\">");
-				urlesc(&mailto[strlen(mailto)], thisvalue);
+				stresc(&mailto[strlen(mailto)], thisvalue, 1, 1);
 				strcat(mailto, "</A>");
 			}
 			else if (!strcasecmp(firsttoken, "tel")) {
