@@ -66,7 +66,18 @@ struct recptypes {
 	char display_recp[SIZ];
 };
 
+/*
+ * This is a list of "harvested" email addresses that we might want to
+ * stick into someone's address book.  But we defer this operaiton so
+ * it can be done asynchronously.
+ */
+struct addresses_to_be_filed {
+	struct addresses_to_be_filed *next;
+	char *roomname;
+	char *collected_addresses;
+};
 
+extern struct addresses_to_be_filed *atbf;
 
 int alias (char *name);
 void get_mm (void);

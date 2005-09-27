@@ -55,7 +55,7 @@
 #include "vcard.h"
 
 long config_msgnum;
-
+struct addresses_to_be_filed *atbf = NULL;
 
 /* 
  * This really belongs in serv_network.c, but I don't know how to export
@@ -2047,38 +2047,6 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 
-/* 
- * Turn an arbitrary RFC822 address into a struct vCard for possible
- * inclusion into an address book.
- */
-struct vCard *vcard_new_from_rfc822_addr(char *addr) {
-	struct vCard *v;
-	char user[256], node[256], name[256], email[256], n[256], uid[256];
-	int i;
-
-	v = vcard_new();
-	if (v == NULL) return(NULL);
-
-	process_rfc822_addr(addr, user, node, name);
-	vcard_set_prop(v, "fn", name, 0);
-
-	vcard_fn_to_n(n, name, sizeof n);
-	vcard_set_prop(v, "n", n, 0);
-
-	snprintf(email, sizeof email, "%s@%s", user, node);
-	vcard_set_prop(v, "email;internet", email, 0);
-
-	snprintf(uid, sizeof uid, "collected: %s %s@%s", name, user, node);
-	for (i=0; i<strlen(uid); ++i) {
-		if (isspace(uid[i])) uid[i] = '_';
-		uid[i] = tolower(uid[i]);
-	}
-	vcard_set_prop(v, "UID", uid, 0);
-
-	return(v);
-}
-
-
 /*
  * Save a message to disk and submit it into the delivery system.
  */
@@ -2101,14 +2069,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
 	struct CtdlMessage *imsg = NULL;
-	struct CtdlMessage *vmsg = NULL;
-	long vmsgnum = (-1L);
-	char *ser = NULL;
-	struct vCard *v = NULL;
 	char *instr;
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
 	char *collected_addresses = NULL;
+	struct addresses_to_be_filed *aptr = NULL;
 
 	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2412,46 +2377,20 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/*
 	 * Any addresses to harvest for someone's address book?
-	 * (Don't do this if this is not a message with recipients, otherwise we will
-	 * send this function into infinite recursion!!!!!)
-	 * FIXME do this differently
 	 */
 	if ( (CC->logged_in) && (recps != NULL) ) {
 		collected_addresses = harvest_collected_addresses(msg);
 	}
 
 	if (collected_addresses != NULL) {
-		for (i=0; i<num_tokens(collected_addresses, ','); ++i) {
-
-			/* Make a vCard out of each address */
-			extract_token(recipient, collected_addresses, i, ',', sizeof recipient);
-			striplt(recipient);
-			v = vcard_new_from_rfc822_addr(recipient);
-			if (v != NULL) {
-				vmsg = malloc(sizeof(struct CtdlMessage));
-				memset(vmsg, 0, sizeof(struct CtdlMessage));
-				vmsg->cm_magic = CTDLMESSAGE_MAGIC;
-				vmsg->cm_anon_type = MES_NORMAL;
-				vmsg->cm_format_type = FMT_RFC822;
-				vmsg->cm_fields['A'] = strdup("Citadel");
-				vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 0, 0, 0));
-				ser = vcard_serialize(v);
-				if (ser != NULL) {
-					vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
-					sprintf(vmsg->cm_fields['M'],
-						"Content-type: text/x-vcard"
-						"\r\n\r\n%s\r\n", ser);
-					free(ser);
-				}
-				vcard_free(v);
-
-				lprintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
-				MailboxName(actual_rm, sizeof actual_rm, &CC->user, USERCONTACTSROOM);
-				vmsgnum = CtdlSubmitMsg(vmsg, NULL, actual_rm);
-				CtdlFreeMessage(vmsg);
-			}
-		}
-		free(collected_addresses);
+		begin_critical_section(S_ATBF);
+		aptr = (struct addresses_to_be_filed *) malloc(sizeof(struct addresses_to_be_filed));
+		aptr->next = atbf;
+		MailboxName(actual_rm, sizeof actual_rm, &CC->user, USERCONTACTSROOM);
+		aptr->roomname = strdup(actual_rm);
+		aptr->collected_addresses = collected_addresses;
+		atbf = aptr;
+		end_critical_section(S_ATBF);
 	}
 	return(newmsgid);
 }

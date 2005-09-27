@@ -1,4 +1,9 @@
 $Log$
+Revision 655.17  2005/09/27 04:18:45  ajc
+* Auto-add *recipient* addresses to Contacts.  This is done asynchronously
+  because we do have to scan the address book to make sure we don't
+  already have the address recorded.
+
 Revision 655.16  2005/09/26 21:46:08  ajc
 * Attempt to save *outgoing* email addresses to the address book.
 
@@ -7175,3 +7180,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

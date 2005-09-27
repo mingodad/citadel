@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <pwd.h>
 #include <errno.h>
+#include <ctype.h>
 #include <sys/types.h>
 
 #if TIME_WITH_SYS_TIME
@@ -170,27 +171,27 @@ void vcard_add_to_directory(long msgnum, void *data) {
  * Initialize Global Adress Book
  */
 void cmd_igab(char *argbuf) {
-        char hold_rm[ROOMNAMELEN];
+	char hold_rm[ROOMNAMELEN];
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-        strcpy(hold_rm, CC->room.QRname);	/* save current room */
+	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-        if (getroom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
-                getroom(&CC->room, hold_rm);
+	if (getroom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
+		getroom(&CC->room, hold_rm);
 		cprintf("%d cannot get address book room\n", ERROR + ROOM_NOT_FOUND);
 		return;
-        }
+	}
 
 	/* Empty the existing database first.
 	 */
 	CtdlDirectoryInit();
 
-        /* We want *all* vCards in this room */
-        CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard",
+	/* We want *all* vCards in this room */
+	CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
-        getroom(&CC->room, hold_rm);	/* return to saved room */
+	getroom(&CC->room, hold_rm);	/* return to saved room */
 	cprintf("%d Directory has been rebuilt.\n", CIT_OK);
 }
 
@@ -353,8 +354,8 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 				/* Enforce local UID policy if applicable */
 				if (yes_my_citadel_config) {
-                        		snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
-                                		msg->cm_fields['A'], NODENAME);
+					snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
+						msg->cm_fields['A'], NODENAME);
 					vcard_set_prop(v, "UID", buf, 0);
 				}
 
@@ -363,7 +364,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 				 */
 				if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
 				s = vcard_get_prop(v, "UID", 0, 0, 0);
-                        	if (s != NULL) {
+				if (s != NULL) {
 					msg->cm_fields['E'] = strdup(s);
 					if (msg->cm_fields['U'] == NULL) {
 						msg->cm_fields['U'] = strdup(s);
@@ -498,25 +499,25 @@ void vcard_gu_backend(long supplied_msgnum, void *userdata) {
  * and return an empty vCard.
  */
 struct vCard *vcard_get_user(struct ctdluser *u) {
-        char hold_rm[ROOMNAMELEN];
-        char config_rm[ROOMNAMELEN];
+	char hold_rm[ROOMNAMELEN];
+	char config_rm[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 	struct vCard *v;
 	long VCmsgnum;
 
-        strcpy(hold_rm, CC->room.QRname);	/* save current room */
-        MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
+	strcpy(hold_rm, CC->room.QRname);	/* save current room */
+	MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
 
-        if (getroom(&CC->room, config_rm) != 0) {
-                getroom(&CC->room, hold_rm);
-                return vcard_new();
-        }
+	if (getroom(&CC->room, config_rm) != 0) {
+		getroom(&CC->room, hold_rm);
+		return vcard_new();
+	}
 
-        /* We want the last (and probably only) vcard in this room */
+	/* We want the last (and probably only) vcard in this room */
 	VCmsgnum = (-1);
-        CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
+	CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
 		NULL, vcard_gu_backend, (void *)&VCmsgnum );
-        getroom(&CC->room, hold_rm);	/* return to saved room */
+	getroom(&CC->room, hold_rm);	/* return to saved room */
 
 	if (VCmsgnum < 0L) return vcard_new();
 
@@ -536,30 +537,30 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
  * Write our config to disk
  */
 void vcard_write_user(struct ctdluser *u, struct vCard *v) {
-        char temp[PATH_MAX];
-        FILE *fp;
+	char temp[PATH_MAX];
+	FILE *fp;
 	char *ser;
 
-        strcpy(temp, tmpnam(NULL));
+	strcpy(temp, tmpnam(NULL));
 	ser = vcard_serialize(v);
 
-        fp = fopen(temp, "w");
-        if (fp == NULL) return;
+	fp = fopen(temp, "w");
+	if (fp == NULL) return;
 	if (ser == NULL) {
 		fprintf(fp, "begin:vcard\r\nend:vcard\r\n");
 	} else {
 		fwrite(ser, strlen(ser), 1, fp);
 		free(ser);
 	}
-        fclose(fp);
+	fclose(fp);
 
-        /* This handy API function does all the work for us.
+	/* This handy API function does all the work for us.
 	 * NOTE: normally we would want to set that last argument to 1, to
 	 * force the system to delete the user's old vCard.  But it doesn't
 	 * have to, because the vcard_upload_beforesave() hook above
 	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
-        CtdlWriteObject(USERCONFIGROOM,	/* which room */
+	CtdlWriteObject(USERCONFIGROOM,	/* which room */
 			"text/x-vcard",	/* MIME type */
 			temp,		/* temp file */
 			u,		/* which user */
@@ -567,7 +568,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 			0,		/* don't delete others of this type */
 			0);		/* no flags */
 
-        unlink(temp);
+	unlink(temp);
 }
 
 
@@ -721,7 +722,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	lprintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
 
 	/* Create and save the vCard */
-        v = vcard_new();
+	v = vcard_new();
 	if (v == NULL) return;
 	sprintf(buf, "%s@%s", usbuf->fullname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
@@ -749,22 +750,22 @@ void vcard_purge(struct ctdluser *usbuf) {
 	if (msg == NULL) return;
 	memset(msg, 0, sizeof(struct CtdlMessage));
 
-        msg->cm_magic = CTDLMESSAGE_MAGIC;
-        msg->cm_anon_type = MES_NORMAL;
-        msg->cm_format_type = 0;
-        msg->cm_fields['A'] = strdup(usbuf->fullname);
-        msg->cm_fields['O'] = strdup(ADDRESS_BOOK_ROOM);
-        msg->cm_fields['N'] = strdup(NODENAME);
-        msg->cm_fields['M'] = strdup("Purge this vCard\n");
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = 0;
+	msg->cm_fields['A'] = strdup(usbuf->fullname);
+	msg->cm_fields['O'] = strdup(ADDRESS_BOOK_ROOM);
+	msg->cm_fields['N'] = strdup(NODENAME);
+	msg->cm_fields['M'] = strdup("Purge this vCard\n");
 
-        snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
+	snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
 			msg->cm_fields['A'], NODENAME);
-        msg->cm_fields['E'] = strdup(buf);
+	msg->cm_fields['E'] = strdup(buf);
 
 	msg->cm_fields['S'] = strdup("CANCEL");
 
-        CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
-        CtdlFreeMessage(msg);
+	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
+	CtdlFreeMessage(msg);
 }
 
 
@@ -915,6 +916,154 @@ void vcard_session_login_hook(void) {
 }
 
 
+/* 
+ * Turn an arbitrary RFC822 address into a struct vCard for possible
+ * inclusion into an address book.
+ */
+struct vCard *vcard_new_from_rfc822_addr(char *addr) {
+	struct vCard *v;
+	char user[256], node[256], name[256], email[256], n[256], uid[256];
+	int i;
+
+	v = vcard_new();
+	if (v == NULL) return(NULL);
+
+	process_rfc822_addr(addr, user, node, name);
+	vcard_set_prop(v, "fn", name, 0);
+
+	vcard_fn_to_n(n, name, sizeof n);
+	vcard_set_prop(v, "n", n, 0);
+
+	snprintf(email, sizeof email, "%s@%s", user, node);
+	vcard_set_prop(v, "email;internet", email, 0);
+
+	snprintf(uid, sizeof uid, "collected: %s %s@%s", name, user, node);
+	for (i=0; i<strlen(uid); ++i) {
+		if (isspace(uid[i])) uid[i] = '_';
+		uid[i] = tolower(uid[i]);
+	}
+	vcard_set_prop(v, "UID", uid, 0);
+
+	return(v);
+}
+
+
+
+/*
+ * This is called by store_harvested_addresses() to remove from the
+ * list any addresses we already have in our address book.
+ */
+void strip_addresses_already_have(long msgnum, void *userdata) {
+	char *collected_addresses;
+	struct CtdlMessage *msg;
+	struct vCard *v;
+	char *value = NULL;
+	int i, j;
+	char addr[256], user[256], node[256], name[256];
+
+	collected_addresses = (char *)userdata;
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) return;
+	v = vcard_load(msg->cm_fields['M']);
+	CtdlFreeMessage(msg);
+
+	i = 0;
+	while (value = vcard_get_prop(v, "email", 1, i++, 0), value != NULL) {
+
+		for (j=0; j<num_tokens(collected_addresses, ','); ++j) {
+			extract_token(addr, collected_addresses, j, ',', sizeof addr);
+
+			/* Remove the address if we already have it! */
+			process_rfc822_addr(addr, user, node, name);
+			snprintf(addr, sizeof addr, "%s@%s", user, node);
+			if (!strcasecmp(value, addr)) {
+				remove_token(collected_addresses, j, ',');
+			}
+		}
+
+	}
+
+	vcard_free(v);
+}
+
+
+
+/*
+ * Back end function for store_harvested_addresses()
+ */
+void store_this_ha(struct addresses_to_be_filed *aptr) {
+	struct CtdlMessage *vmsg = NULL;
+	long vmsgnum = (-1L);
+	char *ser = NULL;
+	struct vCard *v = NULL;
+	char recipient[256];
+	int i;
+
+	/* First remove any addresses we already have in the address book */
+	usergoto(aptr->roomname, 0, 0, NULL, NULL);
+	CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL,
+		strip_addresses_already_have, aptr->collected_addresses);
+
+	if (strlen(aptr->collected_addresses) > 0)
+	   for (i=0; i<num_tokens(aptr->collected_addresses, ','); ++i) {
+
+		/* Make a vCard out of each address */
+		extract_token(recipient, aptr->collected_addresses, i, ',', sizeof recipient);
+		striplt(recipient);
+		v = vcard_new_from_rfc822_addr(recipient);
+		if (v != NULL) {
+			vmsg = malloc(sizeof(struct CtdlMessage));
+			memset(vmsg, 0, sizeof(struct CtdlMessage));
+			vmsg->cm_magic = CTDLMESSAGE_MAGIC;
+			vmsg->cm_anon_type = MES_NORMAL;
+			vmsg->cm_format_type = FMT_RFC822;
+			vmsg->cm_fields['A'] = strdup("Citadel");
+			vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 0, 0, 0));
+			ser = vcard_serialize(v);
+			if (ser != NULL) {
+				vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
+				sprintf(vmsg->cm_fields['M'],
+					"Content-type: text/x-vcard"
+					"\r\n\r\n%s\r\n", ser);
+				free(ser);
+			}
+			vcard_free(v);
+
+			lprintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
+			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname);
+			CtdlFreeMessage(vmsg);
+		}
+	}
+
+	free(aptr->roomname);
+	free(aptr->collected_addresses);
+	free(aptr);
+}
+
+
+/*
+ * When a user sends a message, we may harvest one or more email addresses
+ * from the recipient list to be added to the user's address book.  But we
+ * want to do this asynchronously so it doesn't keep the user waiting.
+ */
+void store_harvested_addresses(void) {
+
+	struct addresses_to_be_filed *aptr = NULL;
+
+	if (atbf == NULL) return;
+
+	begin_critical_section(S_ATBF);
+	while (atbf != NULL) {
+		aptr = atbf;
+		atbf = atbf->next;
+		end_critical_section(S_ATBF);
+		store_this_ha(aptr);
+		begin_critical_section(S_ATBF);
+	}
+	end_critical_section(S_ATBF);
+}
+
 
 char *serv_vcard_init(void)
 {
@@ -932,6 +1081,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
+	CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
 
 	/* Create the Global ADdress Book room if necessary */
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
