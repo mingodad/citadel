@@ -31,12 +31,12 @@ void utf8ify_rfc822_string(char *buf) {
 	char encoding[16];
 	char istr[1024];
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /* Buffer of characters to be converted */
-	char *obuf;                   /* Buffer for converted characters      */
-	size_t ibuflen;               /* Length of input buffer               */
-	size_t obuflen;               /* Length of output buffer              */
-	char *isav;                   /* Saved pointer to input buffer        */
-	char *osav;                   /* Saved pointer to output buffer       */
+	char *ibuf;		   /* Buffer of characters to be converted */
+	char *obuf;		   /* Buffer for converted characters      */
+	size_t ibuflen;	       /* Length of input buffer	       */
+	size_t obuflen;	       /* Length of output buffer	      */
+	char *isav;		   /* Saved pointer to input buffer	*/
+	char *osav;		   /* Saved pointer to output buffer       */
 
 	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
 		((start != NULL) && (end != NULL) && (end > start)) )
@@ -500,11 +500,11 @@ void read_message(long msgnum, int printable_view) {
 	char *part_source = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /* Buffer of characters to be converted */
-	char *obuf;                   /* Buffer for converted characters      */
-	size_t ibuflen;               /* Length of input buffer               */
-	size_t obuflen;               /* Length of output buffer              */
-	char *osav;                   /* Saved pointer to output buffer       */
+	char *ibuf;		   /* Buffer of characters to be converted */
+	char *obuf;		   /* Buffer for converted characters      */
+	size_t ibuflen;	       /* Length of input buffer	       */
+	size_t obuflen;	       /* Length of output buffer	      */
+	char *osav;		   /* Saved pointer to output buffer       */
 #endif
 
 	strcpy(from, "");
@@ -833,7 +833,7 @@ void read_message(long msgnum, int printable_view) {
 
 	/* Boring old 80-column fixed format text gets handled this way... */
 	else if ( (!strcasecmp(mime_content_type, "text/plain"))
-	        || (!strcasecmp(mime_content_type, "text")) ) {
+		|| (!strcasecmp(mime_content_type, "text")) ) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
 			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
@@ -962,13 +962,13 @@ void print_message(void) {
 	long msgnum = 0L;
 
 	msgnum = atol(bstr("msgnum"));
-        output_headers(0, 0, 0, 0, 0, 0);
+	output_headers(0, 0, 0, 0, 0, 0);
 
-        wprintf("Content-type: text/html\r\n"
-                "Server: %s\r\n"
-                "Connection: close\r\n",
-                SERVER);
-        begin_burst();
+	wprintf("Content-type: text/html\r\n"
+		"Server: %s\r\n"
+		"Connection: close\r\n",
+		SERVER);
+	begin_burst();
 
 	wprintf("\r\n\r\n<html>\n"
 		"<head><title>Printable view</title></head>\n"
@@ -1015,11 +1015,11 @@ void pullquote_message(long msgnum, int forward_attachments) {
 	int i = 0;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /* Buffer of characters to be converted */
-	char *obuf;                   /* Buffer for converted characters      */
-	size_t ibuflen;               /* Length of input buffer               */
-	size_t obuflen;               /* Length of output buffer              */
-	char *osav;                   /* Saved pointer to output buffer       */
+	char *ibuf;		   /* Buffer of characters to be converted */
+	char *obuf;		   /* Buffer for converted characters      */
+	size_t ibuflen;	       /* Length of input buffer	       */
+	size_t obuflen;	       /* Length of output buffer	      */
+	char *osav;		   /* Saved pointer to output buffer       */
 #endif
 
 	strcpy(from, "");
@@ -1231,11 +1231,11 @@ ENDBODY:
 	if ( (forward_attachments) && (num_attachments) ) {
 		for (i=0; i<num_attachments; ++i) {
 			extract_token(buf, attachments, i, '\n', sizeof buf);
-                        extract_token(mime_filename, buf, 1, '|', sizeof mime_filename);
-                        extract_token(mime_partnum, buf, 2, '|', sizeof mime_partnum);
-                        extract_token(mime_disposition, buf, 3, '|', sizeof mime_disposition);
-                        extract_token(mime_content_type, buf, 4, '|', sizeof mime_content_type);
-                        mime_length = extract_int(buf, 5);
+			extract_token(mime_filename, buf, 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, buf, 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, buf, 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, buf, 4, '|', sizeof mime_content_type);
+			mime_length = extract_int(buf, 5);
 
 			/*
 			 * tracing  ... uncomment if necessary
@@ -2620,15 +2620,15 @@ void confirm_move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
-		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
-	wprintf("<font size=+1 color=\"#ffffff\"");
-	wprintf("<b>");
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Confirm move of message"));
-	wprintf("</b>\n");
-	wprintf("</font></td></tr></table></div>\n");
+	wprintf("</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<CENTER>");
 
@@ -2672,20 +2672,17 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0);
-
 	if (strlen(bstr("move_button")) > 0) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
+		sprintf(WC->ImportantMessage, "%s", &buf[4]);
 	} else {
-		wprintf("<EM>");
-		wprintf(_("The message was not moved."));
-		wprintf("</EM><br />\n");
+		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
 	}
 
-	wDumpContent(1);
+	readloop("readnew");
+
 }
 
 /*
