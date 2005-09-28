@@ -326,10 +326,21 @@ a:hover {
 	color: #000088;
 }
 
+/* Quote Levels Colors */
 blockquote {
-	margin-left: 8%;
-	margin-right: 8%;
-	border: thin ridge #dc143c;
+	color: navy !important; background-color: RGB(245,245,245) !important; 
+}
+blockquote blockquote {
+	color: maroon !important; background-color: RGB(235,235,235) !important;
+}
+blockquote blockquote blockquote {
+	color: green !important; background-color: RGB(225,225,225) !important;
+}
+blockquote blockquote blockquote blockquote {
+	color: purple !important; background-color: RGB(215,215,215) !important;
+}
+blockquote blockquote blockquote blockquote blockquote {
+	color: teal !important; background-color: RGB(205,205,205) !important;
 }
 
 blockquote pre {

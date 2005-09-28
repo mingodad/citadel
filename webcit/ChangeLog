@@ -1,4 +1,11 @@
 $Log$
+Revision 625.27  2005/09/28 03:19:13  ajc
+* "Reply" and "ReplyAll" now quote the original message, but only when
+  it's private mail.
+* For non-mail, a "ReplyQuoted" button is now present.
+* "Move" and "Delete" are now present for a user's mailbox rooms.
+* Improved the <blockquote> style.
+
 Revision 625.26  2005/09/27 02:12:13  ajc
 * When clicking on an email address in a vCard to send the person an
   email message, use the display name plus the email address.
@@ -3074,3 +3081,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
