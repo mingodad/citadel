@@ -713,16 +713,38 @@ void read_message(long msgnum, int printable_view) {
 		wprintf("<td align=right>\n");
 
 		/* Reply */
-		wprintf("<a href=\"/display_enter?recp=");
-		urlescputs(reply_to);
-		wprintf("?subject=");
-		if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-		urlescputs(m_subject);
-		wprintf("\">[%s]</a> ", _("Reply"));
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			wprintf("<a href=\"/display_enter");
+			if (WC->is_mailbox) {
+				wprintf("?replyquote=%ld", msgnum);
+			}
+			wprintf("?recp=");
+			urlescputs(reply_to);
+			wprintf("?subject=");
+			if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+			urlescputs(m_subject);
+			wprintf("\">[%s]</a> ", _("Reply"));
+		}
+
+		/* ReplyQuoted */
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			if (!WC->is_mailbox) {
+				wprintf("<a href=\"/display_enter");
+				wprintf("?replyquote=%ld", msgnum);
+				wprintf("?recp=");
+				urlescputs(reply_to);
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+				wprintf("\">[%s]</a> ", _("ReplyQuoted"));
+			}
+		}
 
 		/* ReplyAll */
 		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"/display_enter?recp=");
+			wprintf("<a href=\"/display_enter");
+			wprintf("?replyquote=%ld", msgnum);
+			wprintf("?recp=");
 			urlescputs(reply_to);
 			wprintf("?cc=");
 			urlescputs(reply_all);
@@ -734,7 +756,7 @@ void read_message(long msgnum, int printable_view) {
 
 		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"/display_enter?pullquote=%ld?subject=", msgnum);
+			wprintf("<a href=\"/display_enter?fwdquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
 			urlescputs(m_subject);
 			wprintf("\">[%s]</a> ", _("Forward"));
@@ -1206,7 +1228,7 @@ ENDBODY:
 	 * If there were attachments, we have to download them and insert them
 	 * into the attachment chain for the forwarded message we are composing.
 	 */
-	if (num_attachments) {
+	if ( (forward_attachments) && (num_attachments) ) {
 		for (i=0; i<num_attachments; ++i) {
 			extract_token(buf, attachments, i, '\n', sizeof buf);
                         extract_token(mime_filename, buf, 1, '|', sizeof mime_filename);
@@ -2496,11 +2518,17 @@ void display_enter(void)
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
 	msgescputs(bstr("msgtext"));
-	if (atol(bstr("pullquote")) > 0L) {
+	if (atol(bstr("fwdquote")) > 0L) {
 		wprintf("<br><div align=center><i>");
 		wprintf(_("--- forwarded message ---"));
 		wprintf("</i></div><br>");
-		pullquote_message(atol(bstr("pullquote")), 1);
+		pullquote_message(atol(bstr("fwdquote")), 1);
+	}
+	else if (atol(bstr("replyquote")) > 0L) {
+		wprintf("<br>"
+			"<blockquote>");
+		pullquote_message(atol(bstr("replyquote")), 0);
+		wprintf("</blockquote>");
 	}
 	wprintf("</textarea>");
 	wprintf("</center><br />\n");
