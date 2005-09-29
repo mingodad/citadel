@@ -1,4 +1,7 @@
 $Log$
+Revision 625.30  2005/09/29 04:10:40  ajc
+* sig is done, but need to add proper handling of linebreaks
+
 Revision 625.29  2005/09/29 02:54:17  ajc
 * Began implementing the "signature" feature.  It doesn't work yet.
 
@@ -3087,4 +3090,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

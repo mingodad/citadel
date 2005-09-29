@@ -7,6 +7,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "groupdav.h"
 
 
 
@@ -173,6 +174,7 @@ void set_preference(char *key, char *value, int save_to_server) {
 void display_preferences(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
+	char ebuf[300];
 	char buf[256];
 
 	wprintf("<div id=\"banner\">\n");
@@ -241,7 +243,7 @@ void display_preferences(void)
 	wprintf("</td></tr>\n");
 
 	/*
-	 * Calendar hour format
+	 * Signature
 	 */
 	get_preference("use_sig", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "no");
@@ -249,21 +251,34 @@ void display_preferences(void)
 	wprintf(_("Attach signature to email messages?"));
 	wprintf("</td><td>");
 
-	wprintf("<input type=\"radio\" name=\"use_sig\" VALUE=\"no\"");
+	wprintf("	<script type=\"text/javascript\">					"
+		"	function show_or_hide_sigbox() {					"
+		"		if ( $F('yes_sig') ) {						"
+		"			$('signature_box').style.display = 'inline';		"
+		"		}								"
+		"		else {								"
+		"			$('signature_box').style.display = 'none';		"
+		"		}								"
+		"	}									"
+		"	</script>								"
+	);
+
+	wprintf("<input type=\"radio\" id=\"no_sig\" name=\"use_sig\" VALUE=\"no\"");
 	if (!strcasecmp(buf, "no")) wprintf(" checked");
-	wprintf(">");
+	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("No signature"));
 	wprintf("<br></input>\n");
 
-	wprintf("<input type=\"radio\" name=\"use_sig\" VALUE=\"yes\"");
+	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
 	if (!strcasecmp(buf, "yes")) wprintf(" checked");
-	wprintf(">");
+	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("Use this signature:"));
 	wprintf("<div id=\"signature_box\">"
 		"<br><textarea name=\"signature\" cols=\"40\" rows=\"5\">"
 	);
-	get_preference("signature", buf, sizeof buf);
-	msgescputs(buf);
+	get_preference("signature", ebuf, sizeof ebuf);
+	euid_unescapize(buf, ebuf);
+	escputs(buf);
 	wprintf("</textarea>"
 		"</div>"
 	);
@@ -272,6 +287,10 @@ void display_preferences(void)
 
 	wprintf("</td></tr>\n");
 
+	wprintf("	<script type=\"text/javascript\">	"
+		"	show_or_hide_sigbox();			"
+		"	</script>				"
+	);
 
 
 	wprintf("</table>\n"
@@ -296,6 +315,8 @@ void display_preferences(void)
  */
 void set_preferences(void)
 {
+	char ebuf[300];
+
 	if (strlen(bstr("change_button")) == 0) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Cancelled.  No settings were changed."),
@@ -310,7 +331,9 @@ void set_preferences(void)
 	set_preference("roomlistview", bstr("roomlistview"), 0);
 	set_preference("calhourformat", bstr("calhourformat"), 0);
 	set_preference("use_sig", bstr("use_sig"), 0);
-	set_preference("signature", bstr("signature"), 1);
+
+	euid_escapize(ebuf, bstr("signature"));
+	set_preference("signature", ebuf, 1);
 
 	display_main_menu();
 }

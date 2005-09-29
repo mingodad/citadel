@@ -8,6 +8,7 @@
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
+#include "groupdav.h"
 
 
 /* Address book entry (keep it short and sweet, it's just a quickie lookup
@@ -2349,10 +2350,12 @@ void post_message(void)
 void display_enter(void)
 {
 	char buf[SIZ];
+	char ebuf[SIZ];
 	long now;
 	struct wc_attachment *att;
 	int recipient_required = 0;
 	int recipient_bad = 0;
+	int i;
 
 	if (strlen(bstr("force_room")) > 0) {
 		gotoroom(bstr("force_room"));
@@ -2517,19 +2520,36 @@ void display_enter(void)
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
+	/* If we're continuing from a previous edit, put our partially-composed message back... */
 	msgescputs(bstr("msgtext"));
+
+	/* If we're forwarding a message, insert it here... */
 	if (atol(bstr("fwdquote")) > 0L) {
 		wprintf("<br><div align=center><i>");
 		wprintf(_("--- forwarded message ---"));
 		wprintf("</i></div><br>");
 		pullquote_message(atol(bstr("fwdquote")), 1);
 	}
+
+	/* If we're replying quoted, insert the quote here... */
 	else if (atol(bstr("replyquote")) > 0L) {
 		wprintf("<br>"
 			"<blockquote>");
 		pullquote_message(atol(bstr("replyquote")), 0);
 		wprintf("</blockquote>");
 	}
+
+	/* Insert our signature if appropriate... */
+	if ( (WC->is_mailbox) && (strcmp(bstr("sig_inserted"), "yes")) ) {
+		get_preference("use_sig", buf, sizeof buf);
+		if (!strcasecmp(buf, "yes")) {
+			get_preference("signature", ebuf, sizeof ebuf);
+			euid_unescapize(buf, ebuf);
+			wprintf("<br>--<br>");
+			msgescputs(buf);
+		}
+	}
+
 	wprintf("</textarea>");
 	wprintf("</center><br />\n");
 
@@ -2575,6 +2595,11 @@ void display_enter(void)
 	}
 	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+
+	/* Make sure we only insert our signature once */
+	if (strcmp(bstr("sig_inserted"), "yes")) {
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"sig_inserted\" VALUE=\"yes\">\n");
+	}
 
 	wprintf("</form>\n");
 
@@ -2636,9 +2661,7 @@ void confirm_move_msg(void)
 	wprintf("<br />\n");
 
 	wprintf("<form METHOD=\"POST\" ACTION=\"/move_msg\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
-		bstr("msgid"));
-
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");
 	serv_puts("LKRA");
