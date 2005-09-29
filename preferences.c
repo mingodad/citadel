@@ -195,7 +195,9 @@ void display_preferences(void)
 		"method=\"post\">\n"
 		"<table border=0 cellspacing=5 cellpadding=5>\n");
 
-
+	/*
+	 * Room list view
+	 */
 	get_preference("roomlistview", buf, sizeof buf);
 	wprintf("<tr><td>");
 	wprintf(_("Room list view"));
@@ -215,7 +217,9 @@ void display_preferences(void)
 
 	wprintf("</td></tr>\n");
 
-
+	/*
+	 * Calendar hour format
+	 */
 	get_preference("calhourformat", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "12");
 	wprintf("<tr><td>");
@@ -235,6 +239,40 @@ void display_preferences(void)
 	wprintf("<br></input>\n");
 
 	wprintf("</td></tr>\n");
+
+	/*
+	 * Calendar hour format
+	 */
+	get_preference("use_sig", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "no");
+	wprintf("<tr><td>");
+	wprintf(_("Attach signature to email messages?"));
+	wprintf("</td><td>");
+
+	wprintf("<input type=\"radio\" name=\"use_sig\" VALUE=\"no\"");
+	if (!strcasecmp(buf, "no")) wprintf(" checked");
+	wprintf(">");
+	wprintf(_("No signature"));
+	wprintf("<br></input>\n");
+
+	wprintf("<input type=\"radio\" name=\"use_sig\" VALUE=\"yes\"");
+	if (!strcasecmp(buf, "yes")) wprintf(" checked");
+	wprintf(">");
+	wprintf(_("Use this signature:"));
+	wprintf("<div id=\"signature_box\">"
+		"<br><textarea name=\"signature\" cols=\"40\" rows=\"5\">"
+	);
+	get_preference("signature", buf, sizeof buf);
+	msgescputs(buf);
+	wprintf("</textarea>"
+		"</div>"
+	);
+
+	wprintf("<br></input>\n");
+
+	wprintf("</td></tr>\n");
+
+
 
 	wprintf("</table>\n"
 		"<input type=\"submit\" name=\"change_button\" value=\"%s\">"
@@ -270,7 +308,9 @@ void set_preferences(void)
 	 * we don't send the prefs file to the server repeatedly
 	 */
 	set_preference("roomlistview", bstr("roomlistview"), 0);
-	set_preference("calhourformat", bstr("calhourformat"), 1);
+	set_preference("calhourformat", bstr("calhourformat"), 0);
+	set_preference("use_sig", bstr("use_sig"), 0);
+	set_preference("signature", bstr("signature"), 1);
 
 	display_main_menu();
 }
