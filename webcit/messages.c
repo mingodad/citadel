@@ -2546,16 +2546,29 @@ void display_enter(void)
 			get_preference("signature", ebuf, sizeof ebuf);
 			euid_unescapize(buf, ebuf);
 			wprintf("<br>--<br>");
-			ebuf[0] = 0;
 			for (i=0; i<strlen(buf); ++i) {
 				if (buf[i] == '\n') {
-					strcat(ebuf, "<br>");
+					wprintf("<br>");
+				}
+				else if (buf[i] == '<') {
+					wprintf("&lt;");
+				}
+				else if (buf[i] == '>') {
+					wprintf("&gt;");
+				}
+				else if (buf[i] == '&') {
+					wprintf("&amp;");
+				}
+				else if (buf[i] == '\"') {
+					wprintf("&quot;");
+				}
+				else if (buf[i] == '\'') {
+					wprintf("&#39;");
 				}
 				else if (isprint(buf[i])) {
-					sprintf(&ebuf[strlen(ebuf)], "%c", buf[i]);
+					wprintf("%c", buf[i]);
 				}
 			}
-			msgescputs(ebuf);
 		}
 	}
 
