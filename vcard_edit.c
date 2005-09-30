@@ -19,27 +19,28 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	struct vCard *v;
 	int i;
 	char *key, *value;
-	char whatuser[SIZ];
+	char whatuser[256];
 
-	char lastname[SIZ];
-	char firstname[SIZ];
-	char middlename[SIZ];
-	char prefix[SIZ];
-	char suffix[SIZ];
-	char pobox[SIZ];
-	char extadr[SIZ];
-	char street[SIZ];
-	char city[SIZ];
-	char state[SIZ];
-	char zipcode[SIZ];
-	char country[SIZ];
-	char hometel[SIZ];
-	char worktel[SIZ];
-	char primary_inetemail[SIZ];
+	char lastname[256];
+	char firstname[256];
+	char middlename[256];
+	char prefix[256];
+	char suffix[256];
+	char pobox[256];
+	char extadr[256];
+	char street[256];
+	char city[256];
+	char state[256];
+	char zipcode[256];
+	char country[256];
+	char hometel[256];
+	char worktel[256];
+	char primary_inetemail[256];
 	char other_inetemail[SIZ];
 	char extrafields[SIZ];
-	char title[SIZ];
-	char org[SIZ];
+	char displayname[256];
+	char title[256];
+	char org[256];
 
 	lastname[0] = 0;
 	firstname[0] = 0;
@@ -112,6 +113,10 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 				extract_token(middlename, value, 2, ';', sizeof middlename);
 				extract_token(prefix, value, 3, ';', sizeof prefix);
 				extract_token(suffix, value, 4, ';', sizeof suffix);
+			}
+
+			else if (!strcasecmp(key, "fn")) {
+				safestrncpy(displayname, value, sizeof displayname);
 			}
 
 			else if (!strcasecmp(key, "title")) {
@@ -206,6 +211,13 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
 	wprintf("<tr><td>");
+
+	wprintf(_("Display name:"));
+	wprintf("<br>"
+		"<INPUT TYPE=\"text\" NAME=\"displayname\" "
+		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		displayname
+	);
 
 	wprintf(_("Title:"));
 	wprintf("<br>"
@@ -363,6 +375,7 @@ void submit_vcard(void) {
 		bstr("prefix"),
 		bstr("suffix") );
 	serv_printf("title:%s", bstr("title") );
+	serv_printf("fn:%s", bstr("displayname") );
 	serv_printf("org:%s", bstr("org") );
 	serv_printf("adr:%s;%s;%s;%s;%s;%s;%s",
 		bstr("pobox"),
