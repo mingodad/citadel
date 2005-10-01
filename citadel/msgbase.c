@@ -53,6 +53,7 @@
 #include "internet_addressing.h"
 #include "serv_fulltext.h"
 #include "vcard.h"
+#include "euidindex.h"
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;

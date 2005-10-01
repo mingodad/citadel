@@ -43,6 +43,7 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "serv_upgrade.h"
+#include "euidindex.h"
 
 
 
@@ -225,5 +226,6 @@ void check_server_upgrades(void) {
 char *serv_upgrade_init(void)
 {
 	check_server_upgrades();
+	rebuild_euid_index();	/* FIXME */
 	return "$Id$";
 }

@@ -263,6 +263,7 @@ enum {
 	CDB_USETABLE,		/* network use table             */
 	CDB_BIGMSGS,		/* larger message bodies         */
 	CDB_FULLTEXT,		/* full text search index        */
+	CDB_EUIDINDEX,		/* locate msgs by EUID           */
 	MAXCDB			/* total number of CDB's defined */
 };
 

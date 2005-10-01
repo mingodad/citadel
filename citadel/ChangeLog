@@ -1,4 +1,7 @@
 $Log$
+Revision 655.18  2005/10/01 05:18:57  ajc
+* Began writing code to index messages by euid per room
+
 Revision 655.17  2005/09/27 04:18:45  ajc
 * Auto-add *recipient* addresses to Contacts.  This is done asynchronously
   because we do have to scan the address book to make sure we don't
@@ -7180,4 +7183,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
