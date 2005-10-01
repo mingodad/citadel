@@ -1946,6 +1946,7 @@ void readloop(char *oper)
 			"<form name=\"msgomatic\" "
 			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
 
+			"<span class=\"mailbox_summary\">"
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
@@ -2025,7 +2026,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></form>"
+		wprintf("</table></span></form>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
