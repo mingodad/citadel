@@ -11,15 +11,6 @@
 #define MSGS_EQ		6
 
 /*
- * Flags which may be passed to CtdlSaveMsgPointerInRoom()
- */
-#define SM_VERIFY_GOODNESS	1	/* Verify this is a real msg number */
-#define SM_DO_REPL_CHECK	2	/* Perform replication checks */
-#define SM_DONT_BUMP_REF	4	/* Don't bump reference count
-					   (use with extreme care!!!!!!) */
-
-
-/*
  * Possible return codes from CtdlOutputMsg()
  */
 enum {
@@ -117,8 +108,8 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);
-int ReplicationChecks(struct CtdlMessage *);
-int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags);
+void ReplicationChecks(struct CtdlMessage *);
+int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
 char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf);
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);

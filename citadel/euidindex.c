@@ -47,7 +47,32 @@
 
 
 long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
-	return(0);
+	char *key;
+	int key_len;
+	struct cdbdata *cdb_euid;
+	long msgnum = (-1L);
+
+	lprintf(CTDL_DEBUG, "Searching for EUID <%s> in <%s>\n", euid, qrbuf->QRname);
+
+	key_len = strlen(euid) + sizeof(long) + 1;
+	key = malloc(key_len);
+	memcpy(key, &qrbuf->QRnumber, sizeof(long));
+	strcpy(&key[sizeof(long)], euid);
+
+	cdb_euid = cdb_fetch(CDB_EUIDINDEX, key, key_len);
+	free(key);
+
+	if (cdb_euid == NULL) {
+		return(-1L);
+	}
+
+	if (cdb_euid->len == sizeof(long)) {
+		msgnum = *(long *)cdb_euid->ptr;
+	}
+
+	cdb_free(cdb_euid);
+	lprintf(CTDL_DEBUG, "returning msgnum==%ld\n", msgnum);
+	return(msgnum);
 }
 
 void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
@@ -62,6 +87,7 @@ void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 	strcpy(&key[sizeof(long)], euid);
 
 	cdb_store(CDB_EUIDINDEX, key, key_len, &msgnum, sizeof(long));
+	free(key);
 }
 
 

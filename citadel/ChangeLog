@@ -1,4 +1,11 @@
 $Log$
+Revision 655.19  2005/10/02 04:40:58  ajc
+* The EUID index is now built, and replication checks are being performed
+  using it.  It is much faster now because we don't have to scan the entire
+  room anymore.  We still need to do two things:
+  1. Write a server command to fetch messages by EUID instead of msgnum
+  2. Find a way to purge stale EUID index records.
+
 Revision 655.18  2005/10/01 05:18:57  ajc
 * Began writing code to index messages by euid per room
 
@@ -7183,3 +7190,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

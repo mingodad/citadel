@@ -37,6 +37,10 @@ WARNING #3:
   Please try "db_recover -c" from the data/ directory first.  Use this tool
   only if that one fails to fix your problem.
 
+WARNING #4:
+  You must have an amount of free space on your disk that is at least twice
+  the size of your database.
+
 !
 
 echo -n "Do you want to continue? "
@@ -52,7 +56,7 @@ case "$yesno" in
 		exit
 esac
 
-for x in 00 01 02 03 04 05 06 07 08 09
+for x in 00 01 02 03 04 05 06 07 08 09 0a
 do
 	filename=cdb.$x
 	echo Dumping $filename

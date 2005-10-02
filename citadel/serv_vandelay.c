@@ -43,6 +43,7 @@
 #include "user_ops.h"
 #include "room_ops.h"
 #include "control.h"
+#include "euidindex.h"
 
 #define END_OF_MESSAGE	"---eom---dbd---"
 
@@ -460,7 +461,7 @@ void artv_import_room(void) {
 	 * one per line terminated by a 0.
 	 */
 	while (client_getln(buf, sizeof buf), msgnum = atol(buf), msgnum > 0) {
-		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0);
+		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0, NULL);
 		++msgcount;
 	}
 	lprintf(CTDL_INFO, "(%d messages)\n", msgcount);
@@ -590,6 +591,7 @@ void artv_do_import(void) {
 	}
 	lprintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
+	rebuild_euid_index();
 }
 
 

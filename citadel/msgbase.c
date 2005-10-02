@@ -1772,8 +1772,14 @@ void cmd_opna(char *cmdbuf)
  * Save a message pointer into a specified room
  * (Returns 0 for success, nonzero for failure)
  * roomname may be NULL to use the current room
+ *
+ * Note that the 'supplied_msg' field may be set to NULL, in which case
+ * the message will be fetched from disk, by number, if we need to perform
+ * replication checks.  This adds an additional database read, so if the
+ * caller already has the message in memory then it should be supplied.
  */
-int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
+int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
+				struct CtdlMessage *supplied_msg) {
 	int i;
 	char hold_rm[ROOMNAMELEN];
 	struct cdbdata *cdbfr;
@@ -1782,37 +1788,34 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	long highest_msg = 0L;
 	struct CtdlMessage *msg = NULL;
 
-	lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
-		roomname, msgid, flags);
+	lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(roomname=%s, msgid=%ld, do_repl_check=%d)\n",
+		roomname, msgid, do_repl_check);
 
 	strcpy(hold_rm, CC->room.QRname);
 
 	/* We may need to check to see if this message is real */
-	if (  (flags & SM_VERIFY_GOODNESS)
-	   || (flags & SM_DO_REPL_CHECK)
-	   ) {
-		msg = CtdlFetchMessage(msgid, 1);
+	if (do_repl_check) {
+		if (supplied_msg != NULL) {
+			msg = supplied_msg;
+		}
+		else {
+			msg = CtdlFetchMessage(msgid, 0);
+		}
 		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
 	}
 
 	/* Perform replication checks if necessary */
-	if ( (flags & SM_DO_REPL_CHECK) && (msg != NULL) ) {
+	if ( (do_repl_check) && (msg != NULL) ) {
 
 		if (getroom(&CC->room,
 		   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   	   != 0) {
 			lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-			if (msg != NULL) CtdlFreeMessage(msg);
+			if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
 			return(ERROR + ROOM_NOT_FOUND);
 		}
 
-		if (ReplicationChecks(msg) != 0) {
-			getroom(&CC->room, hold_rm);
-			if (msg != NULL) CtdlFreeMessage(msg);
-			lprintf(CTDL_DEBUG,
-				"Did replication, and newer exists\n");
-			return(0);
-		}
+		ReplicationChecks(msg);
 	}
 
 	/* Now the regular stuff */
@@ -1820,7 +1823,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
 		lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-		if (msg != NULL) CtdlFreeMessage(msg);
+		if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
@@ -1846,7 +1849,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (msglist[i] == msgid) {
 			lputroom(&CC->room);	/* unlock the room */
 			getroom(&CC->room, hold_rm);
-			if (msg != NULL) CtdlFreeMessage(msg);
+			if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
 			free(msglist);
 			return(ERROR + ALREADY_EXISTS);
 		}
@@ -1880,12 +1883,17 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	getroom(&CC->room, hold_rm);
 
 	/* Bump the reference count for this message. */
-	if ((flags & SM_DONT_BUMP_REF)==0) {
-		AdjRefCount(msgid, +1);
+	AdjRefCount(msgid, +1);
+
+	/* If the message has an Exclusive ID, index that... */
+	if (msg != NULL) {
+		if (msg->cm_fields['E'] != NULL) {
+			index_message_by_euid(msg->cm_fields['E'], &CC->room, msgid);
+		}
 	}
 
 	/* Return success. */
-	if (msg != NULL) CtdlFreeMessage(msg);
+	if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
 	return (0);
 }
 
@@ -2013,37 +2021,23 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 
 
 /*
- * Back end for the ReplicationChecks() function
+ * Check to see if any messages already exist in the current room which
+ * carry the same Exclusive ID as this one.  If any are found, delete them.
  */
-void check_repl(long msgnum, void *userdata) {
-	lprintf(CTDL_DEBUG, "check_repl() replacing message %ld\n", msgnum);
-	CtdlDeleteMessages(CC->room.QRname, msgnum, "", 0);
-}
-
-
-/*
- * Check to see if any messages already exist which carry the same Exclusive ID
- * as this one.  If any are found, delete them.
- *
- */
-int ReplicationChecks(struct CtdlMessage *msg) {
-	struct CtdlMessage *template;
-	int abort_this = 0;
+void ReplicationChecks(struct CtdlMessage *msg) {
+	long old_msgnum = (-1L);
 
 	/* No exclusive id?  Don't do anything. */
-	if (msg->cm_fields['E'] == NULL) return 0;
-	if (strlen(msg->cm_fields['E']) == 0) return 0;
+	if (msg == NULL) return;
+	if (msg->cm_fields['E'] == NULL) return;
+	if (strlen(msg->cm_fields['E']) == 0) return;
 	lprintf(CTDL_DEBUG, "Exclusive ID: <%s>\n", msg->cm_fields['E']);
 
-	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
-	memset(template, 0, sizeof(struct CtdlMessage));
-	template->cm_fields['E'] = strdup(msg->cm_fields['E']);
-
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl, NULL);
-
-	CtdlFreeMessage(template);
-	lprintf(CTDL_DEBUG, "ReplicationChecks() returning %d\n", abort_this);
-	return(abort_this);
+	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
+	if (old_msgnum > 0L) {
+		lprintf(CTDL_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
+		CtdlDeleteMessages(CC->room.QRname, old_msgnum, "", 0);
+	}
 }
 
 
@@ -2186,7 +2180,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* If this message has an Exclusive ID, perform replication checks */
 	lprintf(CTDL_DEBUG, "Performing replication checks\n");
-	if (ReplicationChecks(msg) > 0) return(-4);
+	ReplicationChecks(msg);
 
 	/* Save it to disk */
 	lprintf(CTDL_DEBUG, "Saving to disk\n");
@@ -2235,17 +2229,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
 	if ((!CC->internal_pgm) || (recps == NULL)) {
-		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
+		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 1, msg) != 0) {
 			lprintf(CTDL_ERR, "ERROR saving message pointer!\n");
-			CtdlSaveMsgPointerInRoom(config.c_aideroom,
-							newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
 		}
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
 	if (recps != NULL)
 	 if (recps->num_internet > 0) {
-		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
+		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0, msg);
 	}
 
 	/* If other rooms are specified, drop them there too. */
@@ -2255,7 +2248,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		extract_token(recipient, recps->recp_room, i,
 					'|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering to room <%s>\n", recipient);
-		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
+		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0, msg);
 	}
 
 	/* Bump this user's messages posted counter. */
@@ -2277,13 +2270,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, sizeof actual_rm,
 					&userbuf, MAILROOM);
-			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
 		}
 		else {
 			lprintf(CTDL_DEBUG, "No user <%s>\n", recipient);
-			CtdlSaveMsgPointerInRoom(config.c_aideroom,
-							newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
 		}
 	}
 
@@ -3258,8 +3250,7 @@ void cmd_dele(char *delstr)
 int CtdlCopyMsgToRoom(long msgnum, char *dest) {
 	int err;
 
-	err = CtdlSaveMsgPointerInRoom(dest, msgnum,
-		(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
+	err = CtdlSaveMsgPointerInRoom(dest, msgnum, 1, NULL);
 	if (err != 0) return(err);
 
 	return(0);

@@ -639,7 +639,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		/* Now save a copy in the global log room, if configured */
 		if (strlen(config.c_logpages) > 0) {
 			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
-			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0);
+			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
 		}
 
 		/* Save a copy in each recipient's log room, creating those
@@ -649,7 +649,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		 */
 		while (sl != NULL) {
 			create_room(sl->roomname, 5, "", 0, 1, 1, VIEW_BBS);
-			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
+			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0, NULL);
 			sptr = sl->next;
 			free(sl);
 			sl = sptr;

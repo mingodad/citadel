@@ -217,6 +217,9 @@ void check_server_upgrades(void) {
 	if ((CitControl.version > 000) && (CitControl.version < 608)) {
 		convert_ctdluid_to_minusone();
 	}
+	if ((CitControl.version > 000) && (CitControl.version < 657)) {
+		rebuild_euid_index();
+	}
 
 	CitControl.version = REV_LEVEL;
 	put_control();
@@ -226,6 +229,5 @@ void check_server_upgrades(void) {
 char *serv_upgrade_init(void)
 {
 	check_server_upgrades();
-	rebuild_euid_index();	/* FIXME */
 	return "$Id$";
 }

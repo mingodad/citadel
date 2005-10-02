@@ -455,8 +455,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			vcard_free(v);
 
 			/* Put it in the Global Address Book room... */
-			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,
-				(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
+			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I, 1, msg);
 
 			/* ...and also in the directory database. */
 			vcard_add_to_directory(I, NULL);
