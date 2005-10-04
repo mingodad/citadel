@@ -1,4 +1,11 @@
 $Log$
+Revision 655.20  2005/10/04 16:38:17  ajc
+* CtdlOutputPreLoadedMsg() calling syntax has changed.  It no longer needs
+  the message number, because it is being supplied a preloaded message.
+* msgbase.c: fixed a problem where HEADERS_NONE mode was broken when
+  outputting a message in RFC822 format.  This was breaking IMAP commands
+  such as xx FETCH nn BODY[TEXT]
+
 Revision 655.19  2005/10/02 04:40:58  ajc
 * The EUID index is now built, and replication checks are being performed
   using it.  It is much faster now because we don't have to scan the entire
@@ -7190,4 +7197,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

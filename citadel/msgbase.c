@@ -1265,7 +1265,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	}
 	
 	retcode = CtdlOutputPreLoadedMsg(
-			TheMessage, msg_num, mode,
+			TheMessage, mode,
 			headers_only, do_proto, crlf);
 
 	CtdlFreeMessage(TheMessage);
@@ -1280,7 +1280,6 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
  */
 int CtdlOutputPreLoadedMsg(
 		struct CtdlMessage *TheMessage,
-		long msg_num,
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
@@ -1309,12 +1308,11 @@ int CtdlOutputPreLoadedMsg(
 	char mid[100];
 	char datestamp[100];
 
-	lprintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %ld, %d, %d, %d, %d\n",
+	lprintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %d, %d, %d, %d\n",
 		((TheMessage == NULL) ? "NULL" : "not null"),
-		msg_num,
 		mode, headers_only, do_proto, crlf);
 
-	snprintf(mid, sizeof mid, "%ld", msg_num);
+	strcpy(mid, "unknown");
 	nl = (crlf ? "\r\n" : "\n");
 
 	if (!is_valid_message(TheMessage)) {
@@ -1351,7 +1349,7 @@ int CtdlOutputPreLoadedMsg(
 	}
 
 	/* now for the user-mode message reading loops */
-	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
+	if (do_proto) cprintf("%d msg:\n", LISTING_FOLLOWS);
 
 	/* Does the caller want to skip the headers? */
 	if (headers_only == HEADERS_NONE) goto START_TEXT;
@@ -1535,46 +1533,36 @@ START_TEXT:
 				(void *)&ma, 0);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
-			/* FIXME ... we have to put some code in here to avoid
-			 * printing duplicate header information when both
-			 * Citadel and RFC822 headers exist.  Preference should
-			 * probably be given to the RFC822 headers.
-			 */
-			int done_rfc822_hdrs = 0;
-			while (ch=*(mptr++), ch!=0) {
+			char *start_of_text = NULL;
+			start_of_text = strstr(mptr, "\n\r\n");
+			if (start_of_text == NULL) start_of_text = strstr(mptr, "\n\n");
+			if (start_of_text == NULL) start_of_text = mptr;
+			++start_of_text;
+			start_of_text = strstr(start_of_text, "\n");
+			++start_of_text;
+			while (ch=*mptr, ch!=0) {
 				if (ch==13) {
 					/* do nothing */
 				}
-				else if (ch==10) {
-					if (!done_rfc822_hdrs) {
-						if (headers_only != HEADERS_NONE) {
-							cprintf("%s", nl);
+				else switch(headers_only) {
+					case HEADERS_NONE:
+						if (mptr >= start_of_text) {
+							if (ch == 10) cprintf("%s", nl);
+							else cprintf("%c", ch);
 						}
-					}
-					else {
-						if (headers_only != HEADERS_ONLY) {
-							cprintf("%s", nl);
+						break;
+					case HEADERS_ONLY:
+						if (mptr < start_of_text) {
+							if (ch == 10) cprintf("%s", nl);
+							else cprintf("%c", ch);
 						}
-					}
-					if ((*(mptr) == 13) || (*(mptr) == 10)) {
-						done_rfc822_hdrs = 1;
-					}
+						break;
+					default:
+						if (ch == 10) cprintf("%s", nl);
+						else cprintf("%c", ch);
+						break;
 				}
-				else {
-					if (done_rfc822_hdrs) {
-						if (headers_only != HEADERS_NONE) {
-							cprintf("%c", ch);
-						}
-					}
-					else {
-						if (headers_only != HEADERS_ONLY) {
-							cprintf("%c", ch);
-						}
-					}
-					if ((*mptr == 13) || (*mptr == 10)) {
-						done_rfc822_hdrs = 1;
-					}
-				}
+				++mptr;
 			}
 			goto DONE;
 		}
@@ -2212,7 +2200,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputPreLoadedMsg(msg, 0L, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
 	smi.meta_rfc822_length = CC->redirect_len;
 	free(CC->redirect_buffer);
 	CC->redirect_buffer = NULL;

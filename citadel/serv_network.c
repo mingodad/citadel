@@ -683,7 +683,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 			CC->redirect_alloc = SIZ;
 
 			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
-			CtdlOutputPreLoadedMsg(msg, 0L, MT_CITADEL, HEADERS_NONE, 0, 0);
+			CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0);
 
 			striplt(CC->redirect_buffer);
 			fprintf(sc->digestfp, "\n%s\n", CC->redirect_buffer);
