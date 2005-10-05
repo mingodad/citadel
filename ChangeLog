@@ -1,4 +1,7 @@
 $Log$
+Revision 625.33  2005/10/05 17:54:08  error
+* Show the ThreadSSL in the debugging logs.
+
 Revision 625.32  2005/09/30 20:57:27  ajc
 * Added "Display Name" (or as vCard calls it, "friendly name" or "fn") to
   the vCard editing screen.
@@ -3097,3 +3100,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
