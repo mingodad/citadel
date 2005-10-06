@@ -36,14 +36,10 @@ long locate_message_by_uid(char *uid) {
 	/* Decode the uid */
 	euid_unescapize(decoded_uid, uid);
 
-	serv_puts("MSGS ALL|0|1");
+	serv_puts("EUID %s", decoded_uid);
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '8') {
-		serv_printf("exti|%s", decoded_uid);
-		serv_puts("000");
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			retval = atol(buf);
-		}
+	if (buf[0] == '2') {
+		retval = extract_long(&buf[4], 0);
 	}
 	return(retval);
 }
