@@ -1,4 +1,7 @@
 $Log$
+Revision 655.24  2005/10/06 19:16:31  ajc
+* Added the EUID command to search for a message by EUID
+
 Revision 655.23  2005/10/06 17:14:41  ajc
 * newinstall.sh: prefer curl over wget
 
@@ -7208,4 +7211,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

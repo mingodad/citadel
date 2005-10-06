@@ -181,3 +181,25 @@ void rebuild_euid_index(void) {
 	ForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate the room names */
 	rebuild_euid_index_for_room(NULL, NULL);	/* now do indexing on them */
 }
+
+
+
+/*
+ * Server command to fetch a message number given an euid.
+ */
+void cmd_euid(char *cmdbuf) {
+	char euid[256];
+	long msgnum;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	extract_token(euid, cmdbuf, 0, '|', sizeof euid);
+	msgnum = locate_message_by_euid(euid, &CC->room);
+
+	if (msgnum > 0L) {
+		cprintf("%d %ld\n", CIT_OK, msgnum);
+	}
+	else {
+		cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
+	}
+}

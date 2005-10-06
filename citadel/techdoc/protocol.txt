@@ -2215,6 +2215,25 @@ only in rooms to which the user does not have access.
  
  Again, keep in mind that this is a temporary implementation and is not
 guaranteed to continue to exist in this form.
+
+
+EUID   (get message number using an EUID)}
+
+ Returns the message number, if present, of the message in the current room
+which is indexed using the supplied EUID (exclusive message ID).  There can be
+only one message in a room with any given EUID; if another message arrives
+with the same EUID, the existing one is replaced.  This makes it possible to
+reference things like calendar items using an immutable URL that does not
+change even when the message number changes due to an update.
+
+ The format of this command is:  EUID <euid>
+
+ If successful, EUID returns OK followed by a message number.  The message is
+*not* guaranteed to exist, because EUID indices are not immediately removed
+when a message is deleted.
+ If no message exists in the current room with the supplied EUID, the command
+returns ERROR+MESSAGE_NOT_FOUND.
+
  
  
  

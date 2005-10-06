@@ -58,6 +58,7 @@
 #include "policy.h"
 #include "control.h"
 #include "tools.h"
+#include "euidindex.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -1036,6 +1037,10 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"RDIR",4)) {
 		cmd_rdir();
+	}
+
+	else if (!strncasecmp(cmdbuf,"EUID",4)) {
+		cmd_euid(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"MSG0",4)) {
