@@ -361,10 +361,7 @@ clear
 
 os=`uname`
 
-#[ -n "$WGET" ] && [ -x `which wget` ] && WGET=`which wget`
-#[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ -O
-
-[ -n "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ -O
+[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ -O
 [ -z "$WGET" ] && [ -x `which wget` ] && WGET=`which wget`
 
 echo MAKE is $MAKE

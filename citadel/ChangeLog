@@ -1,4 +1,7 @@
 $Log$
+Revision 655.23  2005/10/06 17:14:41  ajc
+* newinstall.sh: prefer curl over wget
+
 Revision 655.22  2005/10/06 04:09:19  ajc
 * THE DREADED AUTO-PURGER now purges euid index records which point to
   messages that no longer exist.
@@ -7205,3 +7208,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
