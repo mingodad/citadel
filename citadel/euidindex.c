@@ -45,6 +45,19 @@
 #include "tools.h"
 #include "euidindex.h"
 
+/*
+ * The structure of an EUID *index* is:
+ *
+ * |----room_number----|----------EUID-------------|
+ *    (sizeof long)       (actual length of euid)
+ *
+ *
+ * The structure of an EUID *record* is:
+ *
+ * |-----msg_number----|----room_number----|----------EUID-------------|
+ *    (sizeof long)       (sizeof long)       (actual length of euid)
+ *
+ */
 
 long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
 	char *key;
@@ -63,21 +76,24 @@ long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
 	free(key);
 
 	if (cdb_euid == NULL) {
-		return(-1L);
+		msgnum = (-1L);
 	}
-
-	if (cdb_euid->len == sizeof(long)) {
-		msgnum = *(long *)cdb_euid->ptr;
+	else {
+		/* The first (sizeof long) of the record is what we're
+		 * looking for.  Throw away the rest.
+		 */
+		memcpy(&msgnum, cdb_euid->ptr, sizeof(long));
+		cdb_free(cdb_euid);
 	}
-
-	cdb_free(cdb_euid);
-	lprintf(CTDL_DEBUG, "returning msgnum==%ld\n", msgnum);
+	lprintf(CTDL_DEBUG, "returning msgnum = %ld\n", msgnum);
 	return(msgnum);
 }
 
 void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 	char *key;
 	int key_len;
+	char *data;
+	int data_len;
 
 	lprintf(CTDL_DEBUG, "Indexing message #%ld <%s> in <%s>\n", msgnum, euid, qrbuf->QRname);
 
@@ -86,8 +102,15 @@ void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 	memcpy(key, &qrbuf->QRnumber, sizeof(long));
 	strcpy(&key[sizeof(long)], euid);
 
-	cdb_store(CDB_EUIDINDEX, key, key_len, &msgnum, sizeof(long));
+	data_len = sizeof(long) + key_len;
+	data = malloc(data_len);
+
+	memcpy(data, &msgnum, sizeof(long));
+	memcpy(&data[sizeof(long)], key, key_len);
+
+	cdb_store(CDB_EUIDINDEX, key, key_len, data, data_len);
 	free(key);
+	free(data);
 }
 
 
@@ -144,8 +167,7 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
  * Globally rebuild the EUID indices in every room.
  */
 void rebuild_euid_index(void) {
-	cdb_trunc(CDB_EUIDINDEX);
-
-	ForEachRoom(rebuild_euid_index_for_room, NULL);
-	rebuild_euid_index_for_room(NULL, NULL);
+	cdb_trunc(CDB_EUIDINDEX);			/* delete the old indices */
+	ForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate the room names */
+	rebuild_euid_index_for_room(NULL, NULL);	/* now do indexing on them */
 }

@@ -1865,6 +1865,13 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	/* Free up the memory we used. */
 	free(msglist);
 
+	/* If the message has an Exclusive ID, index that... */
+	if (msg != NULL) {
+		if (msg->cm_fields['E'] != NULL) {
+			index_message_by_euid(msg->cm_fields['E'], &CC->room, msgid);
+		}
+	}
+
 	/* Update the highest-message pointer and unlock the room. */
 	CC->room.QRhighest = highest_msg;
 	lputroom(&CC->room);
@@ -1872,13 +1879,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 
 	/* Bump the reference count for this message. */
 	AdjRefCount(msgid, +1);
-
-	/* If the message has an Exclusive ID, index that... */
-	if (msg != NULL) {
-		if (msg->cm_fields['E'] != NULL) {
-			index_message_by_euid(msg->cm_fields['E'], &CC->room, msgid);
-		}
-	}
 
 	/* Return success. */
 	if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
@@ -2019,7 +2019,8 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	if (msg == NULL) return;
 	if (msg->cm_fields['E'] == NULL) return;
 	if (strlen(msg->cm_fields['E']) == 0) return;
-	lprintf(CTDL_DEBUG, "Exclusive ID: <%s>\n", msg->cm_fields['E']);
+	lprintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
+		msg->cm_fields['E'], CC->room.QRname);
 
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {

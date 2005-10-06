@@ -1,4 +1,8 @@
 $Log$
+Revision 655.21  2005/10/06 03:36:05  ajc
+* Changed the format of the euidindex record to contain the record's key.
+  This will allow us to auto-purge stale records later.
+
 Revision 655.20  2005/10/04 16:38:17  ajc
 * CtdlOutputPreLoadedMsg() calling syntax has changed.  It no longer needs
   the message number, because it is being supplied a preloaded message.
@@ -7197,3 +7201,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

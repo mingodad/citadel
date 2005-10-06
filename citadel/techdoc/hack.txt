@@ -8,8 +8,8 @@ system works internally.  For details you're going to have to dig through the
 code, but this'll get you started. 
 
 
-                            Database tables
- 
+ DATABASE TABLES
+ ---------------
 
  As you probably already know by now, Citadel uses a group of tables stored
 with a record manager (usually Berkeley DB).  Since we're using a record
@@ -310,15 +310,42 @@ place.  The H field looks better when it is placed immediately after the N
 field.
 
 
+ EUID (EXCLUSIVE MESSAGE ID'S)
+ -----------------------------
+
+ This is where the groupware magic happens.  Any message in any room may have
+a field called the Exclusive message ID, or EUID.  We keep an index in the
+table CDB_EUIDINDEX which knows the message number of any item that has an
+EUID.  This allows us to do two things:
+ 
+ 1. If a subsequent message arrives with the same EUID, it automatically
+*deletes* the existing one, because the new one is considered a replacement
+for the existing one.
+ 2. If we know the EUID of the item we're looking for, we can fetch it by EUID
+and get the most up-to-date version, even if it's been updated several times.
+
+ This functionality is made more useful by server-side hooks.  For example,
+when we save a vCard to an address book room, or an iCalendar item to a
+calendar room, our server modules detect this condition, and automatically set
+the EUID of the message to the UUID of the vCard or iCalendar item.  Therefore
+when you save an updated version of an address book entry or a calendar item,
+the old one is automatically deleted.
 
 
 
-			    Networking
+ NETWORKING (REPLICATION)
+ ------------------------
 
 Citadel nodes network by sharing one or more rooms. Any Citadel node
 can choose to share messages with any other Citadel node, through the sending
 of spool files.  The sending system takes all messages it hasn't sent yet, and
 spools them to the recieving system, which posts them in the rooms.
+
+The EUID discussion above is extremely relevant, because EUID is carried over
+the network as well, and the replacement rules are followed over the network
+as well.  Therefore, when a message containing an EUID is saved in a networked
+room, it replaces any existing message with the same EUID *on every node in
+the network*.
 
 Complexities arise primarily from the possibility of densely connected
 networks: one does not wish to accumulate multiple copies of a given
@@ -333,9 +360,12 @@ message.  If no path field is present, it generates one.
 With the path present, all the networker has to do to assure that it doesn't
 send another system a message it's already received is check the <P>ath field
 for that system's name somewhere in the bang path.  If it's present, the system
-has already seen the message, so we don't send it.  (Note that the current
-implementation does not allow for "loops" in the network -- if you build your
-net this way you will see lots of duplicate messages.)
+has already seen the message, so we don't send it.
+
+We also keep a small database, called the "use table," containing the ID's of
+all messages we've seen recently.  If the same message arrives a second or
+subsequent time, we will find its ID in the use table, indicating that we
+already have a copy of that message.  It will therefore be discarded.
 
 The above discussion should make the function of the fields reasonably clear:
 
@@ -349,8 +379,8 @@ distribution includes serv_network.c, which is basically a database replicator;
 please see network.txt on its operation and functionality (if any).
 
 
-
-			Portability issues
+ PORTABILITY ISSUES
+ ------------------
  
  Citadel is 64-bit clean, architecture-independent, and Year 2000
 compliant.  The software should compile on any POSIX compliant system with
@@ -362,9 +392,8 @@ build ok on non-POSIX systems with porting libraries (such as Cygwin).
   
 
 
- 
-
-		     SUPPORTING PRIVATE MAIL
+ SUPPORTING PRIVATE MAIL
+ -----------------------
 
    Can one have an elegant kludge?  This must come pretty close.
  
@@ -385,7 +414,8 @@ regular.
 
 
 
-		   PASSWORDS AND NAME VALIDATION
+ PASSWORDS AND NAME VALIDATION
+ -----------------------------
  
   This has changed a couple of times over the course of Citadel's history.  At
 this point it's very simple, again due to the fact that record managers are

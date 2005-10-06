@@ -217,7 +217,7 @@ void check_server_upgrades(void) {
 	if ((CitControl.version > 000) && (CitControl.version < 608)) {
 		convert_ctdluid_to_minusone();
 	}
-	if ((CitControl.version > 000) && (CitControl.version < 657)) {
+	if ((CitControl.version > 000) && (CitControl.version < 658)) {
 		rebuild_euid_index();
 	}
 
