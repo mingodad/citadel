@@ -46,19 +46,24 @@
 #include "euidindex.h"
 
 /*
- * The structure of an EUID *index* is:
+ * The structure of an euidindex record *key* is:
  *
  * |----room_number----|----------EUID-------------|
  *    (sizeof long)       (actual length of euid)
  *
  *
- * The structure of an EUID *record* is:
+ * The structure of an euidindex record *value* is:
  *
  * |-----msg_number----|----room_number----|----------EUID-------------|
  *    (sizeof long)       (sizeof long)       (actual length of euid)
  *
  */
 
+
+/*
+ * Locate a message in a given room with a given euid, and return
+ * its message number.
+ */
 long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
 	char *key;
 	int key_len;
@@ -89,6 +94,11 @@ long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
 	return(msgnum);
 }
 
+
+/*
+ * Store the euid index for a message, which has presumably just been
+ * stored in this room by the caller.
+ */
 void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 	char *key;
 	int key_len;

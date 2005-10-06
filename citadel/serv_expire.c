@@ -97,7 +97,13 @@ struct ctdlroomref {
 
 struct UPurgeList {
 	struct UPurgeList *next;
-	char up_key[SIZ];
+	char up_key[256];
+};
+
+struct EPurgeList {
+	struct EPurgeList *next;
+	int ep_keylen;
+	char *ep_key;
 };
 
 
@@ -604,7 +610,7 @@ int PurgeUseTable(void) {
 			uptr = (struct UPurgeList *) malloc(sizeof(struct UPurgeList));
 			if (uptr != NULL) {
 				uptr->next = ul;
-				safestrncpy(uptr->up_key, ut.ut_msgid, SIZ);
+				safestrncpy(uptr->up_key, ut.ut_msgid, sizeof uptr->up_key);
 				ul = uptr;
 			}
 			++purged;
@@ -622,6 +628,61 @@ int PurgeUseTable(void) {
 	}
 
 	lprintf(CTDL_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
+	return(purged);
+}
+
+
+
+/*
+ * Purge the EUID Index of old records.
+ *
+ */
+int PurgeEuidIndexTable(void) {
+	int purged = 0;
+	struct cdbdata *cdbei;
+	struct EPurgeList *el = NULL;
+	struct EPurgeList *eptr; 
+	long msgnum;
+	struct CtdlMessage *msg;
+
+	/* Phase 1: traverse through the table, discovering old records... */
+	lprintf(CTDL_DEBUG, "Purge EUID index: phase 1\n");
+	cdb_rewind(CDB_EUIDINDEX);
+	while(cdbei = cdb_next_item(CDB_EUIDINDEX), cdbei != NULL) {
+
+		memcpy(&msgnum, cdbei->ptr, sizeof(long));
+
+		msg = CtdlFetchMessage(msgnum, 0);
+		if (msg != NULL) {
+			CtdlFreeMessage(msg);	/* it still exists, so do nothing */
+		}
+		else {
+			eptr = (struct EPurgeList *) malloc(sizeof(struct EPurgeList));
+			if (eptr != NULL) {
+				eptr->next = el;
+				eptr->ep_keylen = cdbei->len - sizeof(long);
+				eptr->ep_key = malloc(cdbei->len);
+				memcpy(eptr->ep_key, &cdbei->ptr[sizeof(long)], eptr->ep_keylen);
+				el = eptr;
+			}
+			++purged;
+		}
+
+                cdb_free(cdbei);
+
+	}
+
+	/* Phase 2: delete the records */
+	lprintf(CTDL_DEBUG, "Purge euid index: phase 2\n");
+	while (el != NULL) {
+		cdb_delete(CDB_EUIDINDEX, el->ep_key, el->ep_keylen);
+		free(el->ep_key);
+		eptr = el->next;
+		free(el);
+		el = eptr;
+	}
+
+	lprintf(CTDL_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -657,6 +718,9 @@ void purge_databases(void) {
 
 	retval = PurgeUseTable();
 	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
+
+	retval = PurgeEuidIndexTable();
+	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 
 	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
 

@@ -1,4 +1,8 @@
 $Log$
+Revision 655.22  2005/10/06 04:09:19  ajc
+* THE DREADED AUTO-PURGER now purges euid index records which point to
+  messages that no longer exist.
+
 Revision 655.21  2005/10/06 03:36:05  ajc
 * Changed the format of the euidindex record to contain the record's key.
   This will allow us to auto-purge stale records later.
@@ -7201,4 +7205,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

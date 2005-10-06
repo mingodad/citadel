@@ -1776,8 +1776,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	long highest_msg = 0L;
 	struct CtdlMessage *msg = NULL;
 
-	lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(roomname=%s, msgid=%ld, do_repl_check=%d)\n",
-		roomname, msgid, do_repl_check);
+	/*lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(roomname=%s, msgid=%ld, do_repl_check=%d)\n",
+		roomname, msgid, do_repl_check);*/
 
 	strcpy(hold_rm, CC->room.QRname);
 
@@ -2019,8 +2019,8 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	if (msg == NULL) return;
 	if (msg->cm_fields['E'] == NULL) return;
 	if (strlen(msg->cm_fields['E']) == 0) return;
-	lprintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
-		msg->cm_fields['E'], CC->room.QRname);
+	/*lprintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
+		msg->cm_fields['E'], CC->room.QRname);*/
 
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {
@@ -2066,7 +2066,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * giving it one, right now.
 	 */
 	if (msg->cm_fields['T'] == NULL) {
-		lprintf(CTDL_DEBUG, "Generating timestamp\n");
 		snprintf(generated_timestamp, sizeof generated_timestamp, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdup(generated_timestamp);
 	}
@@ -2074,7 +2073,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this message has no path, we generate one.
 	 */
 	if (msg->cm_fields['P'] == NULL) {
-		lprintf(CTDL_DEBUG, "Generating path\n");
 		if (msg->cm_fields['A'] != NULL) {
 			msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
 			for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
@@ -2096,7 +2094,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Learn about what's inside, because it's what's inside that counts */
-	lprintf(CTDL_DEBUG, "Learning what's inside\n");
 	if (msg->cm_fields['M'] == NULL) {
 		lprintf(CTDL_ERR, "ERROR: attempt to save message with NULL body\n");
 		return(-2);
@@ -2127,8 +2124,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	lprintf(CTDL_DEBUG, "Selected room %s\n",
-		(recps) ? CC->room.QRname : SENTITEMS);
+	lprintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CC->room.QRname);
 	strcpy(actual_rm, CC->room.QRname);
 	if (recps != NULL) {
@@ -2136,12 +2132,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* If the user is a twit, move to the twit room for posting */
-	lprintf(CTDL_DEBUG, "Handling twit stuff: %s\n",
-			(CC->user.axlevel == 2) ? config.c_twitroom : "OK");
 	if (TWITDETECT) {
 		if (CC->user.axlevel == 2) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
+			lprintf(CTDL_DEBUG, "Diverting to twit room\n");
 		}
 	}
 
