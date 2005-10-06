@@ -24,7 +24,7 @@
 # If you're seeing this in your browser, it's probably not what you want.
 # You can either save it to disk and run it, or do it the easy way:
 #
-# wget -q -O - http://easyinstall.citadel.org/install | sh
+# curl http://easyinstall.citadel.org/install | sh
 #
 # Note that this script installs software on your system and so it requires
 # root privileges.  Feel free to inspect the script to make sure we didn't
@@ -35,11 +35,11 @@
 # not to keep the source code around.  You can always download it again later.
 #
 # We install the following versions in this release:
-# Package      Version                 Status
-# Citadel      6.27                    Latest
-# WebCit       5.27                    Latest
-# libical      0.24.RC4                Latest
-# Berkeley DB  4.3.21                  Stable
+# Package                    Status
+# Citadel                    Latest
+# WebCit                     Latest
+# libical                    Latest
+# Berkeley DB                Stable
 
 
 ###############################################################################
