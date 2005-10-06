@@ -1,4 +1,8 @@
 $Log$
+Revision 625.34  2005/10/06 19:34:08  ajc
+* GroupDAV locate_message_by_uid() now uses the EUID command on the Citadel
+  server.  Fast fast.
+
 Revision 625.33  2005/10/05 17:54:08  error
 * Show the ThreadSSL in the debugging logs.
 
@@ -3100,4 +3104,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
