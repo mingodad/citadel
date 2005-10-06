@@ -36,7 +36,7 @@ long locate_message_by_uid(char *uid) {
 	/* Decode the uid */
 	euid_unescapize(decoded_uid, uid);
 
-	serv_puts("EUID %s", decoded_uid);
+	serv_printf("EUID %s", decoded_uid);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		retval = extract_long(&buf[4], 0);
