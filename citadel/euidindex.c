@@ -190,16 +190,35 @@ void rebuild_euid_index(void) {
 void cmd_euid(char *cmdbuf) {
 	char euid[256];
 	long msgnum;
+        struct cdbdata *cdbfr;
+        long *msglist = NULL;
+        int num_msgs = 0;
+	int i;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	extract_token(euid, cmdbuf, 0, '|', sizeof euid);
 	msgnum = locate_message_by_euid(euid, &CC->room);
-
-	if (msgnum > 0L) {
-		cprintf("%d %ld\n", CIT_OK, msgnum);
-	}
-	else {
+	if (msgnum <= 0L) {
 		cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
+		return;
 	}
+
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+                num_msgs = cdbfr->len / sizeof(long);
+                msglist = (long *) cdbfr->ptr;
+                for (i = 0; i < num_msgs; ++i) {
+                        if (msglist[i] == msgnum) {
+				cdb_free(cdbfr);
+				cprintf("%d %ld\n", CIT_OK, msgnum);
+				return;
+			}
+		}
+                cdb_free(cdbfr);
+	}
+
+	cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
 }
+
+

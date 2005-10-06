@@ -2228,9 +2228,7 @@ change even when the message number changes due to an update.
 
  The format of this command is:  EUID <euid>
 
- If successful, EUID returns OK followed by a message number.  The message is
-*not* guaranteed to exist, because EUID indices are not immediately removed
-when a message is deleted.
+ If successful, EUID returns OK followed by a message number.
  If no message exists in the current room with the supplied EUID, the command
 returns ERROR+MESSAGE_NOT_FOUND.
 

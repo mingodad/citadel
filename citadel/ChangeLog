@@ -1,4 +1,8 @@
 $Log$
+Revision 655.25  2005/10/06 19:47:00  ajc
+* Change to EUID command syntax: returned msg num is now guaranteed to
+  exist.
+
 Revision 655.24  2005/10/06 19:16:31  ajc
 * Added the EUID command to search for a message by EUID
 
@@ -7211,3 +7215,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
