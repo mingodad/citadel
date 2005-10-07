@@ -38,6 +38,7 @@ void utf8ify_rfc822_string(char *buf) {
 	size_t obuflen;	       /* Length of output buffer	      */
 	char *isav;		   /* Saved pointer to input buffer	*/
 	char *osav;		   /* Saved pointer to output buffer       */
+	int passes = 0;
 
 	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
 		((start != NULL) && (end != NULL) && (end > start)) )
@@ -87,11 +88,28 @@ void utf8ify_rfc822_string(char *buf) {
 			iconv_close(ic);
 		}
 		else {
+			end = start;
+			end++;
+			strcpy(start, "");
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			remove_token(end, 0, '?');
+			strcpy(end, &end[1]);
+
 			snprintf(newbuf, sizeof newbuf, "%s(unreadable)%s", buf, end);
 			strcpy(buf, newbuf);
 		}
 
 		free(isav);
+
+		/* Since spammers will go to all sorts of absurd lengths to get their
+		 * messages through, there are LOTS of corrupt headers out there.
+		 * So, prevent a really badly formed RFC2047 header from throwing
+		 * this function into an infinite loop.
+		 */
+		++passes;
+		if (passes > 20) return;
 	}
 
 }

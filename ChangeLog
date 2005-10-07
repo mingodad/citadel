@@ -1,4 +1,6 @@
-$Log$
+Fri Oct  7 17:37:16 EDT 2005 ajc
+* messages.c: fix infinite loop in utf8ify-header
+
 Revision 625.34  2005/10/06 19:34:08  ajc
 * GroupDAV locate_message_by_uid() now uses the EUID command on the Citadel
   server.  Fast fast.
