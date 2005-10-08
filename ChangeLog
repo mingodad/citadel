@@ -1,5 +1,3 @@
-$Log: $
-
 Fri Oct  7 23:09:28 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Makefile: change "CVS" to ".svn" to avoid errors during make install
 
