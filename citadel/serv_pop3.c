@@ -595,7 +595,7 @@ void pop3_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		lprintf(CTDL_ERR, "POP3 socket is broken.  Ending session.\r\n");
+		lprintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}

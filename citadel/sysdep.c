@@ -624,8 +624,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 		rlen = read(CC->client_socket, &buf[len], bytes-len);
 		if (rlen<1) {
-			lprintf(CTDL_ERR, "client_read() failed: %s\n",
-				strerror(errno));
+			/* The socket has been disconnected! */
 			CC->kill_me = 1;
 			return(-1);
 		}

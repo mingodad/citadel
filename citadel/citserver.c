@@ -913,7 +913,7 @@ void do_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		lprintf(CTDL_ERR, "Client socket is broken; ending session\n");
+		lprintf(CTDL_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
