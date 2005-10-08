@@ -204,7 +204,7 @@ install-data:
 		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
 	@for i in citadel.rc public_clients \
-		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v CVS`; do \
+		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
@@ -225,7 +225,7 @@ install-data-new:
 	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/help
 	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/messages
 	@for i in  \
-		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v CVS`; do \
+		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
 	done
@@ -242,12 +242,12 @@ install-data-new:
 
 install-doc:
 	@$(srcdir)/mkinstalldirs $(root)$(prefix)/docs
-	@for i in `find $(srcdir)/docs -type f | grep -v CVS`; do \
+	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
 	@$(srcdir)/mkinstalldirs $(root)$(prefix)/techdoc
-	@for i in `find $(srcdir)/techdoc -type f | grep -v CVS`; do \
+	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
@@ -256,12 +256,12 @@ install-doc:
 
 install-doc-new:
 	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/docs
-	@for i in `find $(srcdir)/docs -type f | grep -v CVS`; do \
+	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
 	done
 	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/techdoc
-	@for i in `find $(srcdir)/techdoc -type f | grep -v CVS`; do \
+	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
 	done

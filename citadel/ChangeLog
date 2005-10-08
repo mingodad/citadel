@@ -1,4 +1,7 @@
-$Log$
+Fri Oct  7 23:07:38 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Makefile.in: change "CVS" references to ".svn" to avoid errors
+  during install.
+
 Revision 655.25  2005/10/06 19:47:00  ajc
 * Change to EUID command syntax: returned msg num is now guaranteed to
   exist.
