@@ -68,15 +68,15 @@ $(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
 install:
 	test -d $(root)$(prefix) || mkdir $(root)$(prefix)
 	test -d $(root)$(prefix)/static || mkdir $(root)$(prefix)/static
-	for i in `find tiny_mce -type d | grep -v CVS` \
+	for i in `find tiny_mce -type d | grep -v .svn` \
 		; do \
 		test -d $(root)$(prefix)/$$i || mkdir $(root)$(prefix)/$$i; \
 	done
 	for i in \
 		webserver \
 		setup \
-		`find static -type f | grep -v CVS` \
-		`find tiny_mce -type f | grep -v CVS` \
+		`find static -type f | grep -v .svn` \
+		`find tiny_mce -type f | grep -v .svn` \
 		; do \
 		$(INSTALL) $$i $(root)$(prefix)/$$i; \
 	done
