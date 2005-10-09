@@ -1,3 +1,8 @@
+Sun Oct  9 00:31:33 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Removed new mail notification from the room banner, and placed it into
+  the Mail button on the iconbar instead.  However, this is still broken
+  because the server's new mail notification is insufficient for this...
+
 Sun Oct  9 00:12:11 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * serv_crypto.c: don't attempt to continue reading/writing an SSL context
   that has already been closed.  Doing so crashes the webserver, which
@@ -3114,4 +3119,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

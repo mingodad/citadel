@@ -294,24 +294,6 @@ void embed_room_graphic(void) {
 }
 
 
-/* Let the user know if new mail has arrived 
- */
-void embed_newmail_button(void) {
-	if ( (WC->new_mail > WC->remember_new_mail) && (WC->new_mail>0) ) {
-		wprintf(
-			"<A HREF=\"/dotgoto?room=_MAIL_\">"
-			"<IMG SRC=\"/static/privatemess_32x.gif\" border=0 "
-			"ALT=\"");
-		wprintf(_("You have new mail"));
-			wprintf("\">"
-			"<br /><SPAN CLASS=\"youhavemail\">");
-		wprintf(_("%d new mail"), WC->new_mail);
-		wprintf("</SPAN></A>");
-		WC->remember_new_mail = WC->new_mail;
-	}
-}
-
-
 
 /*
  * Display the current view and offer an option to change it
@@ -380,7 +362,6 @@ void embed_room_banner(char *got, int navbar_style) {
 	svprintf("TOTALMSGS", WCS_STRING, "%d", extract_int(&got[4], 2));
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
-	svcallback("YOUHAVEMAIL", embed_newmail_button);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
 	svcallback("START", offer_start_page);
 
