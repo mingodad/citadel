@@ -1,3 +1,8 @@
+Sun Oct  9 00:12:11 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* serv_crypto.c: don't attempt to continue reading/writing an SSL context
+  that has already been closed.  Doing so crashes the webserver, which
+  some people consider a Bad Thing  :)
+
 Fri Oct  7 23:09:28 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Makefile: change "CVS" to ".svn" to avoid errors during make install
 
