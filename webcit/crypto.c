@@ -363,6 +363,8 @@ int starttls(int sock) {
  */
 void endtls(void)
 {
+	if (THREADSSL == NULL) return;
+
 	lprintf(5, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
 	SSL_free(THREADSSL);
@@ -390,16 +392,18 @@ void client_write_ssl(char *buf, int nbytes)
 	int nremain;
 	char junk[1];
 
+	if (THREADSSL == NULL) return;
+
 	nremain = nbytes;
 
 	while (nremain > 0) {
 		if (SSL_want_write(THREADSSL)) {
 			if ((SSL_read(THREADSSL, junk, 0)) < 1) {
-				lprintf(9, "SSL_read in client_write: %s\n", ERR_reason_error_string(ERR_get_error()));
+				lprintf(9, "SSL_read in client_write: %s\n",
+						ERR_reason_error_string(ERR_get_error()));
 			}
 		}
-		retval =
-		    SSL_write(THREADSSL, &buf[nbytes - nremain], nremain);
+		retval = SSL_write(THREADSSL, &buf[nbytes - nremain], nremain);
 		if (retval < 1) {
 			long errval;
 
@@ -410,8 +414,9 @@ void client_write_ssl(char *buf, int nbytes)
 				continue;
 			}
 			lprintf(9, "SSL_write got error %ld, ret %d\n", errval, retval);
-			if (retval == -1)
+			if (retval == -1) {
 				lprintf(9, "errno is %d\n", errno);
+			}
 			endtls();
 			return;
 		}
@@ -433,6 +438,8 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 #endif
 	int len, rlen;
 	char junk[1];
+
+	if (THREADSSL == NULL) return(0);
 
 	len = 0;
 	while (len < bytes) {
