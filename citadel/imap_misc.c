@@ -71,6 +71,24 @@ int imap_do_copy(char *destination_folder) {
 	i = imap_grabroom(roomname, destination_folder, 0);
 	if (i != 0) return(i);
 
+	/*
+	 * Optimization note ... ajc 2005oct09
+	 * 
+	 * As we can see below, we're going to end up making lots of
+	 * repeated calls to CtdlCopyMsgToRoom() if the user selects
+	 * multiple messages and then does a copy or move operation.
+	 *
+	 * The plan (documented in this comment so I don't forget what I was
+	 * going to do) is to refactor CtdlCopyMsgToRoom() so that it accepts
+	 * a list of message ID's instead of a single one.  Then we can alter
+	 * the code which appears below, to copy all the message pointers in
+	 * one shot.
+	 * 
+	 * But the REAL resource waster is further down, where we call
+	 * the CtdlSetSeen() API for each message moved.  That's a HUGE
+	 * performance drag.  Fix that too.
+	 *
+	 */
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_SELECTED) {
 			CtdlCopyMsgToRoom(IMAP->msgids[i], roomname);
