@@ -65,11 +65,16 @@ char *n_to_fn(char *value) {
 
 	nnn = malloc(strlen(value) + 10);
 	strcpy(nnn, "");
-	extract_token(&nnn[strlen(nnn)] , value, 3, ';', 999);	strcat(nnn, " ");
-	extract_token(&nnn[strlen(nnn)] , value, 1, ';', 999);	strcat(nnn, " ");
-	extract_token(&nnn[strlen(nnn)] , value, 2, ';', 999);	strcat(nnn, " ");
-	extract_token(&nnn[strlen(nnn)] , value, 0, ';', 999);	strcat(nnn, " ");
-	extract_token(&nnn[strlen(nnn)] , value, 4, ';', 999);	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 3, ';', 999);
+	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 1, ';', 999);
+	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 2, ';', 999);
+	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 0, ';', 999);
+	strcat(nnn, " ");
+	extract_token(&nnn[strlen(nnn)] , value, 4, ';', 999);
+	strcat(nnn, " ");
 	for (i=0; i<strlen(nnn); ++i) {
 		if (!strncmp(&nnn[i], "  ", 2)) strcpy(&nnn[i], &nnn[i+1]);
 	}
@@ -101,8 +106,9 @@ void hunt_for_autocomplete(long msgnum, void *data) {
 	CtdlFreeMessage(msg);
 
 	/*
-	 * Try to match from a friendly name (the "fn" field).  If there is a
-	 * match, return the entry in the form of:  Display Name <user@domain.org>
+	 * Try to match from a friendly name (the "fn" field).  If there is
+	 * a match, return the entry in the form of:
+	 *     Display Name <user@domain.org>
 	 */
 	value = vcard_get_prop(v, "fn", 0, 0, 0);
 	if (value != NULL) if (bmstrcasestr(value, search_string)) {
@@ -114,8 +120,9 @@ void hunt_for_autocomplete(long msgnum, void *data) {
 	}
 
 	/*
-	 * Try to match from a structured name (the "n" field).  If there is a
-	 * match, return the entry in the form of:  Display Name <user@domain.org>
+	 * Try to match from a structured name (the "n" field).  If there is
+	 * a match, return the entry in the form of:
+	 *     Display Name <user@domain.org>
 	 */
 	value = vcard_get_prop(v, "n", 0, 0, 0);
 	if (value != NULL) if (bmstrcasestr(value, search_string)) {
@@ -167,7 +174,8 @@ void cmd_auto(char *argbuf) {
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
 	if (strlen(search_string) == 0) {
-		cprintf("%d You supplied an empty partial.\n", ERROR + ILLEGAL_VALUE);
+		cprintf("%d You supplied an empty partial.\n",
+			ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -195,6 +203,6 @@ void cmd_auto(char *argbuf) {
 
 char *serv_autocompletion_init(void)
 {
-	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Perform recipient autocompletion");
+	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
 	return "$Id$";
 }
