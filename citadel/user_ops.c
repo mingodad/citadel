@@ -1111,7 +1111,8 @@ void cmd_seen(char *argbuf) {
 	target_msgnum = extract_long(argbuf, 0);
 	target_setting = extract_int(argbuf, 1);
 
-	CtdlSetSeen(target_msgnum, target_setting, ctdlsetseen_seen, NULL, NULL);
+	CtdlSetSeen(&target_msgnum, 1, target_setting,
+			ctdlsetseen_seen, NULL, NULL);
 	cprintf("%d OK\n", CIT_OK);
 }
 

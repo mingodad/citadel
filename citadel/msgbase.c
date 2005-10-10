@@ -348,10 +348,11 @@ void CtdlGetSeen(char *buf, int which_set) {
 /*
  * Manipulate the "seen msgs" string (or other message set strings)
  */
-void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
+void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
+		int target_setting, int which_set,
 		struct ctdluser *which_user, struct ctdlroom *which_room) {
 	struct cdbdata *cdbfr;
-	int i, j;
+	int i, j, k;
 	int is_seen = 0;
 	int was_seen = 0;
 	long lo = (-1L);
@@ -368,8 +369,9 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	size_t tmp;
 
-	lprintf(CTDL_DEBUG, "CtdlSetSeen(%ld, %d, %d)\n",
-		target_msgnum, target_setting, which_set);
+	lprintf(CTDL_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %d, %d)\n",
+		num_target_msgnums, target_msgnums[0],
+		target_setting, which_set);
 
 	/* Learn about the user and room in question */
 	CtdlGetRelationship(&vbuf,
@@ -434,13 +436,13 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set,
 	hi = (-1L);
 
 	for (i=0; i<num_msgs; ++i) {
-		is_seen = 0;
 
-		if (msglist[i] == target_msgnum) {
-			is_seen = target_setting;
-		}
-		else {
-			is_seen = is_set[i];
+		is_seen = is_set[i];	/* Default to existing setting */
+
+		for (k=0; k<num_target_msgnums; ++k) {
+			if (msglist[i] == target_msgnums[k]) {
+				is_seen = target_setting;
+			}
 		}
 
 		if (is_seen) {
@@ -1751,7 +1753,8 @@ void cmd_opna(char *cmdbuf)
 
 	msgid = extract_long(cmdbuf, 0);
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
-	safestrncpy(CC->download_desired_section, desired_section, sizeof CC->download_desired_section);
+	safestrncpy(CC->download_desired_section, desired_section,
+		sizeof CC->download_desired_section);
 	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1);
 }			
 
@@ -1776,7 +1779,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	long highest_msg = 0L;
 	struct CtdlMessage *msg = NULL;
 
-	/*lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(roomname=%s, msgid=%ld, do_repl_check=%d)\n",
+	/*lprintf(CTDL_DEBUG,
+		"CtdlSaveMsgPointerInRoom(room=%s, msgid=%ld, repl=%d)\n",
 		roomname, msgid, do_repl_check);*/
 
 	strcpy(hold_rm, CC->room.QRname);
@@ -1799,7 +1803,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   	   != 0) {
 			lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-			if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
+			if ( (msg != NULL) && (msg != supplied_msg) ) {
+				CtdlFreeMessage(msg);
+			}
 			return(ERROR + ROOM_NOT_FOUND);
 		}
 
@@ -1811,7 +1817,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
 		lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-		if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
+		if ( (msg != NULL) && (msg != supplied_msg) ) {
+			CtdlFreeMessage(msg);
+		}
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
@@ -1821,8 +1829,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		num_msgs = 0;
 	} else {
 		msglist = malloc(cdbfr->len);
-		if (msglist == NULL)
+		if (msglist == NULL) {
 			lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
+		}
 		num_msgs = cdbfr->len / sizeof(long);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		cdb_free(cdbfr);
@@ -1837,7 +1846,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		if (msglist[i] == msgid) {
 			lputroom(&CC->room);	/* unlock the room */
 			getroom(&CC->room, hold_rm);
-			if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
+			if ( (msg != NULL) && (msg != supplied_msg) ) {
+				CtdlFreeMessage(msg);
+			}
 			free(msglist);
 			return(ERROR + ALREADY_EXISTS);
 		}
@@ -1868,7 +1879,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	/* If the message has an Exclusive ID, index that... */
 	if (msg != NULL) {
 		if (msg->cm_fields['E'] != NULL) {
-			index_message_by_euid(msg->cm_fields['E'], &CC->room, msgid);
+			index_message_by_euid(msg->cm_fields['E'],
+						&CC->room, msgid);
 		}
 	}
 
@@ -1881,7 +1893,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	AdjRefCount(msgid, +1);
 
 	/* Return success. */
-	if ( (msg != NULL) && (msg != supplied_msg) ) CtdlFreeMessage(msg);
+	if ( (msg != NULL) && (msg != supplied_msg) ) {
+		CtdlFreeMessage(msg);
+	}
 	return (0);
 }
 

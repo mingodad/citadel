@@ -1,3 +1,6 @@
+Sun Oct  9 22:37:44 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+ * CtdlSetSeen() now accepts a list of message numbers instead of just one.
+
 Sat Oct  8 18:40:50 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Replaced the various "socket is broken" messages with the message
   "Client disconnected: ending session."  The previous messages were concerning

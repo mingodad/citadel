@@ -101,12 +101,12 @@ int imap_do_copy(char *destination_folder) {
 
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_SELECTED) {
-			CtdlSetSeen(IMAP->msgids[i],
+			CtdlSetSeen(&IMAP->msgids[i], 1,
 				((IMAP->flags[i] & IMAP_SEEN) ? 1 : 0),
 				ctdlsetseen_seen,
 				NULL, &qrbuf
 			);
-			CtdlSetSeen(IMAP->msgids[i],
+			CtdlSetSeen(&IMAP->msgids[i], 1,
 				((IMAP->flags[i] & IMAP_ANSWERED) ? 1 : 0),
 				ctdlsetseen_answered,
 				NULL, &qrbuf
@@ -265,11 +265,11 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 		extract_token(this_flag, flags, i, ' ', sizeof this_flag);
 		if (this_flag[0] == '\\') strcpy(this_flag, &this_flag[1]);
 		if (!strcasecmp(this_flag, "Seen")) {
-			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen,
+			CtdlSetSeen(&new_msgnum, 1, 1, ctdlsetseen_seen,
 				NULL, NULL);
 		}
 		if (!strcasecmp(this_flag, "Answered")) {
-			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_answered,
+			CtdlSetSeen(&new_msgnum, 1, 1, ctdlsetseen_answered,
 				NULL, NULL);
 		}
 	}
