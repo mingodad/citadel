@@ -63,45 +63,17 @@
  * We also implement the ".SILENT" protocol option here.  :(
  */
 void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
-	int silent = 0;
+
 
 	if (!strncasecmp(oper, "FLAGS", 5)) {
 		IMAP->flags[seq] &= IMAP_MASK_SYSTEM;
 		IMAP->flags[seq] |= bits_to_twiddle;
-		silent = strncasecmp(&oper[5], ".SILENT", 7);
 	}
 	else if (!strncasecmp(oper, "+FLAGS", 6)) {
 		IMAP->flags[seq] |= bits_to_twiddle;
-		silent = strncasecmp(&oper[6], ".SILENT", 7);
 	}
 	else if (!strncasecmp(oper, "-FLAGS", 6)) {
 		IMAP->flags[seq] &= (~bits_to_twiddle);
-		silent = strncasecmp(&oper[6], ".SILENT", 7);
-	}
-
-	if (bits_to_twiddle & IMAP_SEEN) {
-		CtdlSetSeen(&IMAP->msgids[seq], 1,
-			((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0),
-			ctdlsetseen_seen,
-			NULL, NULL
-		);
-	}
-	if (bits_to_twiddle & IMAP_ANSWERED) {
-		CtdlSetSeen(&IMAP->msgids[seq], 1,
-			((IMAP->flags[seq] & IMAP_ANSWERED) ? 1 : 0),
-			ctdlsetseen_answered,
-			NULL, NULL
-		);
-	}
-
-	/* 'silent' is actually the value returned from a strncasecmp() so
-	 * we want that option only if its value is zero.  Seems backwards
-	 * but that's the way it's supposed to be.
-	 */
-	if (silent) {
-		cprintf("* %d FETCH (", seq+1);
-		imap_fetch_flags(seq);
-		cprintf(")\r\n");
 	}
 }
 
@@ -118,13 +90,33 @@ void imap_do_store(int num_items, char **itemlist) {
 	char flag[32];
 	char whichflags[256];
 	char num_flags;
+	int silent = 0;
+	long *ss_msglist;
+	int num_ss = 0;
+	int last_item_twiddled = (-1);
 
 	if (num_items < 2) return;
 	oper = itemlist[0];
+	if (bmstrcasestr(oper, ".SILENT")) {
+		silent = 1;
+	}
 
+	/*
+	 * ss_msglist is an array of message numbers to manipulate.  We
+	 * are going to supply this array to CtdlSetSeen() later.
+	 */
+	ss_msglist = malloc(IMAP->num_msgs * sizeof(long));
+	if (ss_msglist == NULL) return;
+
+	/*
+	 * Ok, go ahead and parse the flags.
+	 */
 	for (i=1; i<num_items; ++i) {
 		strcpy(whichflags, itemlist[i]);
-		if (whichflags[0]=='(') safestrncpy(whichflags, &whichflags[1], sizeof whichflags);
+		if (whichflags[0]=='(') {
+			safestrncpy(whichflags, &whichflags[1], 
+				sizeof whichflags);
+		}
 		if (whichflags[strlen(whichflags)-1]==')') {
 			whichflags[strlen(whichflags)-1]=0;
 		}
@@ -158,10 +150,45 @@ void imap_do_store(int num_items, char **itemlist) {
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (IMAP->flags[i] & IMAP_SELECTED) {
+				last_item_twiddled = i;
+
+				ss_msglist[num_ss++] = IMAP->msgids[i];
 				imap_do_store_msg(i, oper, bits_to_twiddle);
+
+				if (!silent) {
+					cprintf("* %d FETCH (", i+1);
+					imap_fetch_flags(i);
+					cprintf(")\r\n");
+				}
+
 			}
 		}
 	}
+
+	/*
+	 * Now manipulate the database -- all in one shot.
+	 */
+	if ( (last_item_twiddled >= 0) && (num_ss > 0) ) {
+
+		if (bits_to_twiddle & IMAP_SEEN) {
+			CtdlSetSeen(ss_msglist, num_ss,
+				((IMAP->flags[last_item_twiddled] & IMAP_SEEN) ? 1 : 0),
+				ctdlsetseen_seen,
+				NULL, NULL
+			);
+		}
+
+		if (bits_to_twiddle & IMAP_ANSWERED) {
+			CtdlSetSeen(ss_msglist, num_ss,
+				((IMAP->flags[last_item_twiddled] & IMAP_ANSWERED) ? 1 : 0),
+				ctdlsetseen_answered,
+				NULL, NULL
+			);
+		}
+
+	}
+
+	free(ss_msglist);
 
 	/*
 	 * The following two commands implement "instant expunge" if enabled.

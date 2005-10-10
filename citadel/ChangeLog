@@ -1,3 +1,6 @@
+Mon Oct 10 00:22:49 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* IMAP STORE now calls CtdlSetSeen() with an entire list of message numbers.
+
 Sun Oct  9 22:37:44 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
  * CtdlSetSeen() now accepts a list of message numbers instead of just one.
 
