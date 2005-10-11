@@ -1,3 +1,7 @@
+Mon Oct 10 23:01:44 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Removed an extraneous reference to 'ThreadSSL' in webserver.c that was
+  causing the build to fail on non-SSL systems
+
 Sun Oct  9 00:31:33 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Removed new mail notification from the room banner, and placed it into
   the Mail button on the iconbar instead.  However, this is still broken
