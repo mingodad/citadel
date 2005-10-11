@@ -575,9 +575,6 @@ int lprintf(int loglevel, const char *format, ...)
 {
 	va_list ap;
 
-	if (ThreadSSL) {
-		fprintf(stderr, "[%d] ", ThreadSSL);
-	}
 	if (loglevel <= verbosity) {
 		va_start(ap, format);
 		vfprintf(stderr, format, ap);
