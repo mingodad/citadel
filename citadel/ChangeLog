@@ -1,3 +1,7 @@
+Tue Oct 11 12:55:43 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* The "set the flags" portion of IMAP COPY now sets the flags of all messages
+  in bulk, instead of one message at a time.  Big performance boost.
+
 Tue Oct 11 01:09:59 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Fixed a problem with replication.  I believe we've got it now but it needs
   another round of testing.

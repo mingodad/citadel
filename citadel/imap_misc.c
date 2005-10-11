@@ -64,6 +64,7 @@ int imap_do_copy(char *destination_folder) {
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
 	struct timeval tv1, tv2, tv3;
+	int num_selected = 0;
 
 	if (IMAP->num_msgs < 1) {
 		return(0);
@@ -85,46 +86,83 @@ int imap_do_copy(char *destination_folder) {
 	 * the code which appears below, to copy all the message pointers in
 	 * one shot.
 	 * 
-	 * But the REAL resource waster is further down, where we call
-	 * the CtdlSetSeen() API for each message moved.  That's a HUGE
-	 * performance drag.  Fix that too.
-	 *
 	 */
 	gettimeofday(&tv1, NULL);
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_SELECTED) {
+			++num_selected;
 			CtdlCopyMsgToRoom(IMAP->msgids[i], roomname);
+		}
+	}
+
+	/* Don't bother wasting any more time if there were no messages. */
+	if (num_selected == 0) {
+		return(0);
+	}
+
+	/* Enumerate lists of messages for which flags are toggled */
+	long *seen_yes = NULL;
+	int num_seen_yes = 0;
+	long *seen_no = NULL;
+	int num_seen_no = 0;
+	long *answ_yes = NULL;
+	int num_answ_yes = 0;
+	long *answ_no = NULL;
+	int num_answ_no = 0;
+
+	seen_yes = malloc(num_selected * sizeof(long));
+	seen_no = malloc(num_selected * sizeof(long));
+	answ_yes = malloc(num_selected * sizeof(long));
+	answ_no = malloc(num_selected * sizeof(long));
+
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_SELECTED) {
+			if (IMAP->flags[i] & IMAP_SEEN) {
+				seen_yes[num_seen_yes++] = IMAP->msgids[i];
+			}
+			if ((IMAP->flags[i] & IMAP_SEEN) == 0) {
+				seen_no[num_seen_no++] = IMAP->msgids[i];
+			}
+			if (IMAP->flags[i] & IMAP_ANSWERED) {
+				answ_yes[num_answ_yes++] = IMAP->msgids[i];
+			}
+			if ((IMAP->flags[i] & IMAP_ANSWERED) == 0) {
+				answ_no[num_answ_no++] = IMAP->msgids[i];
+			}
 		}
 	}
 
 	/* Set the flags... */
 	gettimeofday(&tv2, NULL);
 	i = getroom(&qrbuf, roomname);
-	if (i != 0) return(i);
-
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_SELECTED) {
-			CtdlSetSeen(&IMAP->msgids[i], 1,
-				((IMAP->flags[i] & IMAP_SEEN) ? 1 : 0),
-				ctdlsetseen_seen,
-				NULL, &qrbuf
-			);
-			CtdlSetSeen(&IMAP->msgids[i], 1,
-				((IMAP->flags[i] & IMAP_ANSWERED) ? 1 : 0),
-				ctdlsetseen_answered,
-				NULL, &qrbuf
-			);
-		}
+	if (i == 0) {
+		CtdlSetSeen(seen_yes, num_seen_yes, 1,
+			ctdlsetseen_seen, NULL, &qrbuf
+		);
+		CtdlSetSeen(seen_no, num_seen_no, 0,
+			ctdlsetseen_seen, NULL, &qrbuf
+		);
+		CtdlSetSeen(answ_yes, num_answ_yes, 1,
+			ctdlsetseen_answered, NULL, &qrbuf
+		);
+		CtdlSetSeen(answ_no, num_answ_no, 0,
+			ctdlsetseen_answered, NULL, &qrbuf
+		);
 	}
+
+	free(seen_yes);
+	free(seen_no);
+	free(answ_yes);
+	free(answ_no);
 
 	gettimeofday(&tv3, NULL);
 	lprintf(CTDL_DEBUG, "Copying the pointers took %ld microseconds\n",
-		(tv2.tv_usec + (tv2.tv_sec * 1000))
-		- (tv1.tv_usec + (tv1.tv_sec * 1000))
+		(tv2.tv_usec + (tv2.tv_sec * 1000000))
+		- (tv1.tv_usec + (tv1.tv_sec * 1000000))
 	);
 	lprintf(CTDL_DEBUG, "Setting the flags took %ld microseconds\n",
-		(tv3.tv_usec + (tv3.tv_sec * 1000))
-		- (tv2.tv_usec + (tv2.tv_sec * 1000))
+		(tv3.tv_usec + (tv3.tv_sec * 1000000))
+		- (tv2.tv_usec + (tv2.tv_sec * 1000000))
 	);
 	return(0);
 }
