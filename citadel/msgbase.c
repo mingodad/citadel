@@ -1807,7 +1807,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		cdb_free(cdbfr);
 	}
 
-
 	/* Make sure the message doesn't already exist in this room.  It
 	 * is absolutely taboo to have more than one reference to the same
 	 * message in a room.
@@ -1842,7 +1841,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 
 	/* Free up the memory we used. */
 	free(msglist);
-
 
 	/* Update the highest-message pointer and unlock the room. */
 	CC->room.QRhighest = highest_msg;
