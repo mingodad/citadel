@@ -1785,40 +1785,11 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 
 	strcpy(hold_rm, CC->room.QRname);
 
-	/* We may need to check to see if this message is real */
-	if (do_repl_check) {
-		if (supplied_msg != NULL) {
-			msg = supplied_msg;
-		}
-		else {
-			msg = CtdlFetchMessage(msgid, 0);
-		}
-		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
-	}
-
-	/* Perform replication checks if necessary */
-	if ( (do_repl_check) && (msg != NULL) ) {
-		if (getroom(&CC->room,
-		   ((roomname != NULL) ? roomname : CC->room.QRname) )
-	   	   != 0) {
-			lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-			if ( (msg != NULL) && (msg != supplied_msg) ) {
-				CtdlFreeMessage(msg);
-			}
-			return(ERROR + ROOM_NOT_FOUND);
-		}
-
-		ReplicationChecks(msg);
-	}
-
 	/* Now the regular stuff */
 	if (lgetroom(&CC->room,
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
 		lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
-		if ( (msg != NULL) && (msg != supplied_msg) ) {
-			CtdlFreeMessage(msg);
-		}
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
@@ -1845,9 +1816,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		if (msglist[i] == msgid) {
 			lputroom(&CC->room);	/* unlock the room */
 			getroom(&CC->room, hold_rm);
-			if ( (msg != NULL) && (msg != supplied_msg) ) {
-				CtdlFreeMessage(msg);
-			}
 			free(msglist);
 			return(ERROR + ALREADY_EXISTS);
 		}
@@ -1875,6 +1843,26 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 	/* Free up the memory we used. */
 	free(msglist);
 
+
+	/* Update the highest-message pointer and unlock the room. */
+	CC->room.QRhighest = highest_msg;
+	lputroom(&CC->room);
+
+	/* Perform replication checks if necessary */
+	if ( (DoesThisRoomNeedEuidIndexing(&CC->room)) && (do_repl_check) ) {
+		if (supplied_msg != NULL) {
+			msg = supplied_msg;
+		}
+		else {
+			msg = CtdlFetchMessage(msgid, 0);
+		}
+
+		if (msg != NULL) {
+			ReplicationChecks(msg);
+		}
+
+	}
+
 	/* If the message has an Exclusive ID, index that... */
 	if (msg != NULL) {
 		if (msg->cm_fields['E'] != NULL) {
@@ -1883,18 +1871,18 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		}
 	}
 
-	/* Update the highest-message pointer and unlock the room. */
-	CC->room.QRhighest = highest_msg;
-	lputroom(&CC->room);
+	/* Free up the memory we may have allocated */
+	if ( (msg != NULL) && (msg != supplied_msg) ) {
+		CtdlFreeMessage(msg);
+	}
+
+	/* Go back to the room we were in before we wandered here... */
 	getroom(&CC->room, hold_rm);
 
 	/* Bump the reference count for this message. */
 	AdjRefCount(msgid, +1);
 
 	/* Return success. */
-	if ( (msg != NULL) && (msg != supplied_msg) ) {
-		CtdlFreeMessage(msg);
-	}
 	return (0);
 }
 
