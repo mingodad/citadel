@@ -63,6 +63,7 @@ int imap_do_copy(char *destination_folder) {
 	int i;
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
+	struct timeval tv1, tv2, tv3;
 
 	if (IMAP->num_msgs < 1) {
 		return(0);
@@ -89,6 +90,7 @@ int imap_do_copy(char *destination_folder) {
 	 * performance drag.  Fix that too.
 	 *
 	 */
+	gettimeofday(&tv1, NULL);
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_SELECTED) {
 			CtdlCopyMsgToRoom(IMAP->msgids[i], roomname);
@@ -96,6 +98,7 @@ int imap_do_copy(char *destination_folder) {
 	}
 
 	/* Set the flags... */
+	gettimeofday(&tv2, NULL);
 	i = getroom(&qrbuf, roomname);
 	if (i != 0) return(i);
 
@@ -114,6 +117,15 @@ int imap_do_copy(char *destination_folder) {
 		}
 	}
 
+	gettimeofday(&tv3, NULL);
+	lprintf(CTDL_DEBUG, "Copying the pointers took %ld microseconds\n",
+		(tv2.tv_usec + (tv2.tv_sec * 1000))
+		- (tv1.tv_usec + (tv1.tv_sec * 1000))
+	);
+	lprintf(CTDL_DEBUG, "Setting the flags took %ld microseconds\n",
+		(tv3.tv_usec + (tv3.tv_sec * 1000))
+		- (tv2.tv_usec + (tv2.tv_sec * 1000))
+	);
 	return(0);
 }
 

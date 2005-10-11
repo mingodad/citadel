@@ -1798,7 +1798,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 
 	/* Perform replication checks if necessary */
 	if ( (do_repl_check) && (msg != NULL) ) {
-
 		if (getroom(&CC->room,
 		   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   	   != 0) {
@@ -2029,6 +2028,11 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 void ReplicationChecks(struct CtdlMessage *msg) {
 	long old_msgnum = (-1L);
 
+	if (DoesThisRoomNeedEuidIndexing(&CC->room) == 0) return;
+
+	lprintf(CTDL_DEBUG, "Performing replication checks in <%s>\n",
+		CC->room.QRname);
+
 	/* No exclusive id?  Don't do anything. */
 	if (msg == NULL) return;
 	if (msg->cm_fields['E'] == NULL) return;
@@ -2176,9 +2180,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(CTDL_DEBUG, "Performing before-save hooks\n");
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-3);
 
-	/* If this message has an Exclusive ID, perform replication checks */
-	lprintf(CTDL_DEBUG, "Performing replication checks\n");
-	ReplicationChecks(msg);
+	/*
+	 * If this message has an Exclusive ID, and the room is replication
+	 * checking enabled, then do replication checks.
+	 */
+	if (DoesThisRoomNeedEuidIndexing(&CC->room)) {
+		ReplicationChecks(msg);
+	}
 
 	/* Save it to disk */
 	lprintf(CTDL_DEBUG, "Saving to disk\n");

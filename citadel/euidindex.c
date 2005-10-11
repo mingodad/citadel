@@ -60,6 +60,30 @@
  */
 
 
+
+/*
+ * Return nonzero if the supplied room is one which should have
+ * an EUID index.
+ */
+int DoesThisRoomNeedEuidIndexing(struct ctdlroom *qrbuf) {
+
+	switch(qrbuf->QRdefaultview) {
+		case VIEW_BBS:		return(0);
+		case VIEW_MAILBOX:	return(0);
+		case VIEW_ADDRESSBOOK:	return(1);
+		case VIEW_CALENDAR:	return(1);
+		case VIEW_TASKS:	return(1);
+		case VIEW_NOTES:	return(1);
+	}
+	
+	return(0);
+}
+
+
+
+
+
+
 /*
  * Locate a message in a given room with a given euid, and return
  * its message number.
@@ -162,9 +186,14 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
 
 	while (rplist != NULL) {
 		if (getroom(&qr, rplist->name) == 0) {
-			lprintf(CTDL_DEBUG, "Rebuilding EUID index for <%s>\n", rplist->name);
-			usergoto(rplist->name, 0, 0, NULL, NULL);
-			CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, rebuild_euid_index_for_msg, NULL);
+			if (DoesThisRoomNeedEuidIndexing(&qr)) {
+				lprintf(CTDL_DEBUG,
+					"Rebuilding EUID index for <%s>\n",
+					rplist->name);
+				usergoto(rplist->name, 0, 0, NULL, NULL);
+				CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
+					rebuild_euid_index_for_msg, NULL);
+			}
 		}
 		ptr = rplist;
 		rplist = rplist->next;
@@ -177,9 +206,9 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
  * Globally rebuild the EUID indices in every room.
  */
 void rebuild_euid_index(void) {
-	cdb_trunc(CDB_EUIDINDEX);			/* delete the old indices */
-	ForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate the room names */
-	rebuild_euid_index_for_room(NULL, NULL);	/* now do indexing on them */
+	cdb_trunc(CDB_EUIDINDEX);		/* delete the old indices */
+	ForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate rm names */
+	rebuild_euid_index_for_room(NULL, NULL);	/* and index them */
 }
 
 

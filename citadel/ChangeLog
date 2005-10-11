@@ -1,3 +1,8 @@
+Tue Oct 11 00:45:02 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Replication checks and EUID indexing are now only enabled for rooms whose
+  default view is set to a groupware type of room.  This speeds up the saving
+  and moving of messages for message and mail rooms.
+
 Mon Oct 10 00:22:49 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * IMAP STORE now calls CtdlSetSeen() with an entire list of message numbers.
 
