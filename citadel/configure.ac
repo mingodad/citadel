@@ -84,7 +84,7 @@ AC_ARG_WITH(docdir,
 
 
 
-AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled if possible)])
+AC_ARG_ENABLE(autologin, [  --enable-autologin      enable autologin (default is disabled)])
 AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
@@ -261,7 +261,7 @@ AC_CHECK_LIB(rt, sched_yield)
 dnl Determine the system's authentication capabilities, if autologin is
 dnl requested. We currently support PAM, standard getpwnam(), and getspnam()
 dnl (Linux shadow passwords)
-if test "$enable_autologin" != no; then
+if test "$enable_autologin" = yes; then
 	if test "$with_pam" = yes; then
 		save_LIBS=$LIBS
 		AC_CHECK_LIB(pam, pam_start, [chkpwd_LIBS="-lpam $chkpwd_LIBS"

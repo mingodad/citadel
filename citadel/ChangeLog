@@ -1,3 +1,9 @@
+Tue Oct 11 23:13:53 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Default for autologin is now DISABLED!  If you are upgrading an existing
+  site and are using this function, you must --enable-autologin
+* newinstall.sh: --enable-autologin if upgrading an existing installation
+  that we think is set to autologin.  It checks for chkpwd to find out.
+
 Tue Oct 11 12:55:43 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * The "set the flags" portion of IMAP COPY now sets the flags of all messages
   in bulk, instead of one message at a time.  Big performance boost.
