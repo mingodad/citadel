@@ -136,13 +136,25 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "BODY")) {
-		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
-			need_to_free_msg = 1;
-		}
-		if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
+
+		/* If fulltext indexing is active, on this server,
+		 *  all messages have already been qualified.
+		 */
+		if (config.c_enable_fulltext) {
 			match = 1;
 		}
+
+		/* Otherwise, we have to do a slow search. */
+		else {
+			if (msg == NULL) {
+				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+				need_to_free_msg = 1;
+			}
+			if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
+				match = 1;
+			}
+		}
+
 		pos += 2;
 	}
 

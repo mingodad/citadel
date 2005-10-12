@@ -1,3 +1,8 @@
+Wed Oct 12 17:32:05 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* imap_search.c: when fulltext index is enabled, avoid doing a slow search
+  on each message when BODY is requested.  Messages are already qualified
+  by the indexer.
+
 Wed Oct 12 10:30:22 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * html.c: added support for some additional character entity references.
 
@@ -7252,4 +7257,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
