@@ -220,9 +220,25 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		/* Convert &; tags to the forbidden characters */
 		if (strlen(outbuf)>0) for (i=0; i<strlen(outbuf); ++i) {
 
+			/* Character entity references */
 			if (!strncasecmp(&outbuf[i], "&nbsp;", 6)) {
 				outbuf[i] = ' ';
 				strcpy(&outbuf[i+1], &outbuf[i+6]);
+			}
+
+			if (!strncasecmp(&outbuf[i], "&ensp;", 6)) {
+				outbuf[i] = ' ';
+				strcpy(&outbuf[i+1], &outbuf[i+6]);
+			}
+
+			if (!strncasecmp(&outbuf[i], "&emsp;", 6)) {
+				outbuf[i] = ' ';
+				strcpy(&outbuf[i+1], &outbuf[i+6]);
+			}
+
+			if (!strncasecmp(&outbuf[i], "&thinsp;", 8)) {
+				outbuf[i] = ' ';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
 			}
 
 			else if (!strncasecmp(&outbuf[i], "&lt;", 4)) {
@@ -244,6 +260,16 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				strcpy(&outbuf[i+1], &outbuf[i+6]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&lsquo;", 7)) {
+				outbuf[i] = '`';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&rsquo;", 7)) {
+				outbuf[i] = '\'';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
 			else if (!strncasecmp(&outbuf[i], "&copy;", 6)) {
 				outbuf[i] = '(';
 				outbuf[i+1] = 'c';
@@ -251,11 +277,60 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				strcpy(&outbuf[i+3], &outbuf[i+6]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&hellip;", 8)) {
+				outbuf[i] = '.';
+				outbuf[i+1] = '.';
+				outbuf[i+2] = '.';
+				strcpy(&outbuf[i+3], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&trade;", 7)) {
+				outbuf[i] = '(';
+				outbuf[i+1] = 't';
+				outbuf[i+2] = 'm';
+				outbuf[i+3] = ')';
+				strcpy(&outbuf[i+4], &outbuf[i+7]);
+			}
+
 			else if (!strncasecmp(&outbuf[i], "&reg;", 5)) {
 				outbuf[i] = '(';
 				outbuf[i+1] = 'r';
 				outbuf[i+2] = ')';
 				strcpy(&outbuf[i+3], &outbuf[i+5]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&frac14;", 8)) {
+				outbuf[i] = '1';
+				outbuf[i+1] = '/';
+				outbuf[i+2] = '4';
+				strcpy(&outbuf[i+3], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&frac12;", 8)) {
+				outbuf[i] = '1';
+				outbuf[i+1] = '/';
+				outbuf[i+2] = '2';
+				strcpy(&outbuf[i+3], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&frac34;", 8)) {
+				outbuf[i] = '3';
+				outbuf[i+1] = '/';
+				outbuf[i+2] = '4';
+				strcpy(&outbuf[i+3], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&ndash;", 7)) {
+				outbuf[i] = '-';
+				outbuf[i+1] = '-';
+				strcpy(&outbuf[i+2], &outbuf[i+7]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&mdash;", 7)) {
+				outbuf[i] = '-';
+				outbuf[i+1] = '-';
+				outbuf[i+2] = '-';
+				strcpy(&outbuf[i+3], &outbuf[i+7]);
 			}
 
 			/* two-digit decimal equivalents */

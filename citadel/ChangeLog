@@ -1,3 +1,6 @@
+Wed Oct 12 10:30:22 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* html.c: added support for some additional character entity references.
+
 Tue Oct 11 23:13:53 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Default for autologin is now DISABLED!  If you are upgrading an existing
   site and are using this function, you must --enable-autologin
