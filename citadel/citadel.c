@@ -219,7 +219,7 @@ void userlist(CtdlIPC *ipc, char *patn)
 
 	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
 	pprintf("------------------------- ----- - ---------- ----- -----\n");
-	while (strlen(listing) > 0) {
+	if (listing != NULL) while (strlen(listing) > 0) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 

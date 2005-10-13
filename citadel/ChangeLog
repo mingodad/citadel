@@ -1,3 +1,8 @@
+Thu Oct 13 00:02:23 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* citadel.c: don't crash when <.R>ead <U>serlist results in an empty
+  list.  The ClientIPC API returns NULL if the search returned no results,
+  which we have to handle.  This resolves Bugzilla issue #154.
+
 Wed Oct 12 23:30:18 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * newinstall.sh: once again, prefer wget over curl.  At least one user
   reported a problem where the -O option to curl was not available.  Also
