@@ -1,3 +1,7 @@
+Wed Oct 12 23:58:15 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Rooms view -- render properly when empty floors exist
+  [fixes bugzilla issue # 156]
+
 Mon Oct 10 23:01:44 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Removed an extraneous reference to 'ThreadSSL' in webserver.c that was
   causing the build to fail on non-SSL systems
