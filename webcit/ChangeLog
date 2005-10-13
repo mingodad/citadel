@@ -1,3 +1,9 @@
+Thu Oct 13 15:30:08 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* <tr> and </tr> tags for each row in a mailbox summary view, are now
+  output by display_summarized() instead of by readloop().  This makes the
+  code easier to read and refactors it slightly in preparation for some evil
+  plans...
+
 Wed Oct 12 23:58:15 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Rooms view -- render properly when empty floors exist
   [fixes bugzilla issue # 156]

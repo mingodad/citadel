@@ -1308,6 +1308,15 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
+	wprintf("<tr bgcolor=\"#%s\" ",
+		((num % 2) ? "DDDDDD" : "FFFFFF")
+	);
+
+
+
+	wprintf("onClick=\" new Ajax.Updater('preview_pane', '/msg', { method: 'get', parameters: 'msgnum=%ld' } ); \" ", WC->summ[num].msgnum);
+	wprintf(">");
+
 	wprintf("<TD>");
 	if (WC->summ[num].is_new) wprintf("<B>");
 	escputs(WC->summ[num].subj);
@@ -1327,6 +1336,8 @@ void display_summarized(int num) {
 		"</TD>\n",
 		WC->summ[num].msgnum
 	);
+
+	wprintf("</tr>");
 }
 
 
@@ -1768,7 +1779,6 @@ void readloop(char *oper)
 	long pn_previous = 0L;
 	long pn_current = 0L;
 	long pn_next = 0L;
-	int bg = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	char *sortby = NULL;
@@ -1992,18 +2002,6 @@ void readloop(char *oper)
 			if (a > 0) pn_previous = WC->msgarr[a-1];
 			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
 
-			/* If a tabular view, set up the line */
-			if (is_summary) {
-				bg = 1 - bg;
-				wprintf("<tr bgcolor=\"#%s\" ",
-					(bg ? "DDDDDD" : "FFFFFF")
-				);
-
-				wprintf("onClick=\" new Ajax.Updater('preview_pane', '/msg', { method: 'get', parameters: 'msgnum=%ld' } ); \" ", WC->summ[a].msgnum);
-
-				wprintf(">");
-			}
-
 			/* Display the message */
 			if (is_summary) {
 				display_summarized(a);
@@ -2028,11 +2026,6 @@ void readloop(char *oper)
 			}
 			else {
 				read_message(WC->msgarr[a], 0);
-			}
-
-			/* If a tabular view, finish the line */
-			if (is_summary) {
-				wprintf("</TR>\n");
 			}
 
 			if (lowest_displayed < 0) lowest_displayed = a;
