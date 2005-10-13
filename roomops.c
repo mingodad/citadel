@@ -2433,8 +2433,10 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
  * Boxes and rooms and lists ... oh my!
  */
 void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
-	char buf[SIZ];
-	char boxtitle[SIZ];
+	char buf[256];
+	char floor_name[256];
+	char old_floor_name[256];
+	char boxtitle[256];
 	int levels, oldlevels;
 	int i, t;
 	int num_boxes = 0;
@@ -2442,6 +2444,9 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	int boxes_per_column = 0;
 	int current_column = 0;
 	int nf;
+
+	strcpy(floor_name, "");
+	strcpy(old_floor_name, "");
 
 	nf = num_floors;
 	while (nf % columns != 0) ++nf;
@@ -2457,9 +2462,11 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	for (i=0; i<max_folders; ++i) {
 
 		levels = num_tokens(fold[i].name, '|');
+		extract_token(floor_name, fold[i].name, 0,
+			'|', sizeof floor_name);
 
-		if ((levels == 1) && (oldlevels > 1)) {
-
+		if ( (strcasecmp(floor_name, old_floor_name))
+		   && (strlen(old_floor_name) > 0) ) {
 			/* End inner box */
 			do_template("endbox");
 
@@ -2471,15 +2478,13 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 				}
 			}
 		}
+		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
-
 			/* Begin inner box */
-			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
-			stresc(boxtitle, buf, 1, 0);
+			stresc(boxtitle, floor_name, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			do_template("beginbox");
-
 		}
 
 		oldlevels = levels;
