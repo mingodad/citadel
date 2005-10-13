@@ -366,8 +366,8 @@ clear
 
 os=`uname`
 
-[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ -O
 [ -z "$WGET" ] && [ -x `which wget` ] && WGET=`which wget`
+[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ --remote-name
 
 echo MAKE is $MAKE
 echo WGET is $WGET 
