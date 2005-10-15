@@ -1311,8 +1311,7 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<tr id=\"m%ld\" bgcolor=\"#%s\" ",
-		WC->summ[num].msgnum,
+	wprintf("<tr bgcolor=\"#%s\" ",
 		((num % 2) ? "DDDDDD" : "FFFFFF")
 	);
 
