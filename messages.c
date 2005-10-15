@@ -2049,13 +2049,13 @@ void readloop(char *oper)
 
 		/* Now register each message (whose element ID is "m9999",
 		 * where "9999" is the message number) as draggable.
-		 */
 		wprintf("<script type=\"text/javascript\">\n");
 		for (a = 0; a < nummsgs; ++a) {
 			wprintf("new Draggable('m%ld',{revert:true});\n",
 		                WC->summ[a].msgnum);
 		}
 		wprintf("</script>\n");
+		 */
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
