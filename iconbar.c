@@ -115,9 +115,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Mail"));
 			if (WC->new_mail != WC->remember_new_mail) {
+/*
 				if (WC->new_mail > 0) {
 					wprintf(" <b>(%d)</b>", WC->new_mail);
 				}
+*/
 				WC->remember_new_mail = WC->new_mail;
 			}
 		}
