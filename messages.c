@@ -1803,7 +1803,7 @@ void readloop(char *oper)
 		set_preference(sortpref_name, sortby, 1);
 	}
 	if (strlen(sortby) == 0) sortby = sortpref_value;
-	if (strlen(sortby) == 0) sortby = "msgid";
+	if (strlen(sortby) == 0) sortby = "rdate";
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -1963,7 +1963,7 @@ void readloop(char *oper)
 		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
+		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
 	}
 
 	if (is_summary) {
