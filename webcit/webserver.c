@@ -286,11 +286,11 @@ int client_read(int sock, char *buf, int bytes)
 
 
 /*
- * client_gets()   ...   Get a LF-terminated line of text from the client.
+ * client_getln()   ...   Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
  */
-int client_gets(int sock, char *buf)
+int client_getln(int sock, char *buf, int bufsiz)
 {
 	int i, retval;
 
@@ -298,13 +298,13 @@ int client_gets(int sock, char *buf)
 	 */
 	for (i = 0;; i++) {
 		retval = client_read(sock, &buf[i], 1);
-		if (retval != 1 || buf[i] == '\n' || i == 255)
+		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
 	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
-	if (i == 255)
+	if (i == (bufsiz-1))
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(sock, &buf[i], 1);
 

@@ -597,6 +597,7 @@ void read_message(long msgnum, int printable_view) {
 			}
 			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
 				(sizeof reply_all - strlen(reply_all)) );
+			lprintf(9, "REPLY_ALL: %s\n", reply_all);	// FIXME
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
@@ -767,9 +768,11 @@ void read_message(long msgnum, int printable_view) {
 			urlescputs(reply_to);
 			wprintf("?cc=");
 			urlescputs(reply_all);
-			wprintf("?subject=");
-			if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-			urlescputs(m_subject);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
 			wprintf("\">[%s]</a> ", _("ReplyAll"));
 		}
 
@@ -1308,11 +1311,10 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<tr bgcolor=\"#%s\" ",
+	wprintf("<tr id=\"m%ld\" bgcolor=\"#%s\" ",
+		WC->summ[num].msgnum,
 		((num % 2) ? "DDDDDD" : "FFFFFF")
 	);
-
-
 
 	wprintf("onClick=\" new Ajax.Updater('preview_pane', '/msg', { method: 'get', parameters: 'msgnum=%ld' } ); \" ", WC->summ[num].msgnum);
 	wprintf(">");
@@ -1333,11 +1335,11 @@ void display_summarized(int num) {
 	wprintf(" </TD>");
 	wprintf("<TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
-		"</TD>\n",
+		"</TD>",
 		WC->summ[num].msgnum
 	);
 
-	wprintf("</tr>");
+	wprintf("</tr>\n");
 }
 
 
@@ -2044,6 +2046,16 @@ void readloop(char *oper)
 		wprintf("<div id=\"ml_slider\"></div>");	/* slider */
 
 		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
+
+		/* Now register each message (whose element ID is "m9999",
+		 * where "9999" is the message number) as draggable.
+		 */
+		wprintf("<script type=\"text/javascript\">\n");
+		for (a = 0; a < nummsgs; ++a) {
+			wprintf("new Draggable('m%ld',{revert:true});\n",
+		                WC->summ[a].msgnum);
+		}
+		wprintf("</script>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user

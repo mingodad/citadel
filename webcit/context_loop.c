@@ -145,7 +145,7 @@ int req_gets(int sock, char *buf, char *hold)
 
 	if (strlen(hold) == 0) {
 		strcpy(buf, "");
-		a = client_gets(sock, buf);
+		a = client_getln(sock, buf, SIZ);
 		if (a<1) return(-1);
 	} else {
 		safestrncpy(buf, hold, SIZ);
