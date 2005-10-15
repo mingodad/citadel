@@ -235,7 +235,7 @@ void escputs(char *strbuf)
 void urlesc(char *outbuf, char *strbuf)
 {
 	int a, b, c;
-	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
+	char *ec = " #&;`'|*?-~<>^()[]{}$\"\\";
 
 	strcpy(outbuf, "");
 
@@ -834,7 +834,7 @@ void end_ajax_response(void) {
 void session_loop(struct httprequest *req)
 {
 	char cmd[1024];
-	char action[128];
+	char action[1024];
 	char arg1[128];
 	char arg2[128];
 	char arg3[128];
@@ -844,7 +844,7 @@ void session_loop(struct httprequest *req)
 	char arg7[128];
 	char buf[SIZ];
 	char request_method[128];
-	char pathname[512];
+	char pathname[1024];
 	int a, b;
 	int ContentLength = 0;
 	int BytesRead = 0;
@@ -887,7 +887,7 @@ void session_loop(struct httprequest *req)
 	safestrncpy(cmd, hptr->line, sizeof cmd);
 	hptr = hptr->next;
 	extract_token(request_method, cmd, 0, ' ', sizeof request_method);
-	extract_token(pathname, cmd, 1, ' ', sizeof request_method);
+	extract_token(pathname, cmd, 1, ' ', sizeof pathname);
 
 	/* Figure out the action */
 	extract_token(action, pathname, 1, '/', sizeof action);
