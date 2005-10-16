@@ -1,3 +1,9 @@
+Sun Oct 16 00:23:19 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* msgbase.c: alias() now handles addresses such as 
+  Display Name <user@host.org>
+  ...when user@host.org resolves to a user on the local Citadel server
+  or network, without trying to loop out and back in again via SMTP.
+
 Sun Oct 16 00:11:16 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Handle email addresses with commas inside quotes, such as
   "Cancro, Art" <ajc@uncensored.citadel.org>

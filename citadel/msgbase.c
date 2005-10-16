@@ -143,6 +143,7 @@ int alias(char *name)
 
 	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
+	stripallbut(name, '<', '>');
 
 	fp = fopen(
 #ifndef HAVE_ETG_DIR
