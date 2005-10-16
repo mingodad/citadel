@@ -1,3 +1,8 @@
+Sun Oct 16 00:11:16 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* Handle email addresses with commas inside quotes, such as
+  "Cancro, Art" <ajc@uncensored.citadel.org>
+  ...without thinking that the comma is a separator between addresses
+
 Thu Oct 13 00:02:23 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * citadel.c: don't crash when <.R>ead <U>serlist results in an empty
   list.  The ClientIPC API returns NULL if the search returned no results,

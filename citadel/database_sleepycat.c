@@ -778,12 +778,18 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
 
 /*
- * Free a cdbdata item (ok, this is really no big deal, but we might need to do
- * more complex stuff with other database managers in the future).
+ * Free a cdbdata item.
+ *
+ * Note that we only free the 'ptr' portion if it is not NULL.  This allows
+ * other code to assume ownership of that memory simply by storing the
+ * pointer elsewhere and then setting 'ptr' to NULL.  cdb_free() will then
+ * avoid freeing it.
  */
 void cdb_free(struct cdbdata *cdb)
 {
-	free(cdb->ptr);
+	if (cdb->ptr) {
+		free(cdb->ptr);
+	}
 	free(cdb);
 }
 

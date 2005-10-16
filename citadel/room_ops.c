@@ -824,8 +824,8 @@ void usergoto(char *where, int display_result, int transiently,
 	get_mm();
         cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
         if (cdbfr != NULL) {
-        	msglist = malloc(cdbfr->len);
-        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* usergoto() now owns this memory */
         	num_msgs = cdbfr->len / sizeof(long);
         	cdb_free(cdbfr);
 	}

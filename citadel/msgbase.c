@@ -382,8 +382,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = malloc(cdbfr->len);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* CtdlSetSeen() now owns this memory */
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
@@ -543,8 +543,8 @@ int CtdlForEachMessage(int mode, long ref,
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = malloc(cdbfr->len);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* CtdlForEachMessage() now owns this memory */
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
@@ -1798,12 +1798,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		msglist = NULL;
 		num_msgs = 0;
 	} else {
-		msglist = malloc(cdbfr->len);
-		if (msglist == NULL) {
-			lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
-		}
+		msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* CtdlSaveMsgPointerInRoom() now owns this memory */
 		num_msgs = cdbfr->len / sizeof(long);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		cdb_free(cdbfr);
 	}
 
@@ -2659,10 +2656,11 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
  * Returns 0 if all addresses are ok, -1 if no addresses were specified,
  * or the number of addresses found invalid.
  */
-struct recptypes *validate_recipients(char *recipients) {
+struct recptypes *validate_recipients(char *supplied_recipients) {
 	struct recptypes *ret;
-	char this_recp[SIZ];
-	char this_recp_cooked[SIZ];
+	char recipients[SIZ];
+	char this_recp[256];
+	char this_recp_cooked[256];
 	char append[SIZ];
 	int num_recps;
 	int i, j;
@@ -2670,6 +2668,7 @@ struct recptypes *validate_recipients(char *recipients) {
 	int invalid;
 	struct ctdluser tempUS;
 	struct ctdlroom tempQR;
+	int in_quotes = 0;
 
 	/* Initialize */
 	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
@@ -2682,28 +2681,42 @@ struct recptypes *validate_recipients(char *recipients) {
 	ret->num_error = 0;
 	ret->num_room = 0;
 
-	if (recipients == NULL) {
-		num_recps = 0;
-	}
-	else if (strlen(recipients) == 0) {
-		num_recps = 0;
+	if (supplied_recipients == NULL) {
+		strcpy(recipients, "");
 	}
 	else {
-		/* Change all valid separator characters to commas */
-		for (i=0; i<strlen(recipients); ++i) {
-			if ((recipients[i] == ';') || (recipients[i] == '|')) {
-				recipients[i] = ',';
+		safestrncpy(recipients, supplied_recipients, sizeof recipients);
+	}
+
+	/* Change all valid separator characters to commas */
+	for (i=0; i<strlen(recipients); ++i) {
+		if ((recipients[i] == ';') || (recipients[i] == '|')) {
+			recipients[i] = ',';
+		}
+	}
+
+	/* Now start extracting recipients... */
+
+	while (strlen(recipients) > 0) {
+
+		for (i=0; i<=strlen(recipients); ++i) {
+			if (recipients[i] == '\"') in_quotes = 1 - in_quotes;
+			if ( ( (recipients[i] == ',') && (!in_quotes) ) || (recipients[i] == 0) ) {
+				safestrncpy(this_recp, recipients, i+1);
+				this_recp[i] = 0;
+				if (recipients[i] == ',') {
+					strcpy(recipients, &recipients[i+1]);
+				}
+				else {
+					strcpy(recipients, "");
+				}
+				break;
 			}
 		}
 
-		/* Count 'em up */
-		num_recps = num_tokens(recipients, ',');
-	}
-
-	if (num_recps > 0) for (i=0; i<num_recps; ++i) {
-		extract_token(this_recp, recipients, i, ',', sizeof this_recp);
 		striplt(this_recp);
-		lprintf(CTDL_DEBUG, "Evaluating recipient #%d <%s>\n", i, this_recp);
+		lprintf(CTDL_DEBUG, "Evaluating recipient #%d: %s\n", num_recps, this_recp);
+		++num_recps;
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
@@ -3117,9 +3130,9 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
 
 	if (cdbfr != NULL) {
-		msglist = malloc(cdbfr->len);
 		dellist = malloc(cdbfr->len);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* CtdlDeleteMessages() now owns this memory */
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	}
