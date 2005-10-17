@@ -1,3 +1,6 @@
+Mon Oct 17 10:59:55 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* THIS IS 6.60
+
 Sun Oct 16 00:23:19 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * msgbase.c: alias() now handles addresses such as 
   Display Name <user@host.org>
@@ -168,7 +171,7 @@ Revision 655.2  2005/09/15 03:31:09  ajc
   fn, n, and all email fields in the vCards in user's Contacts room.
 
 Revision 655.1  2005/09/14 03:48:32  ajc
-* Bumped internal version number to 5.66
+* Bumped internal version number to 6.56
 * Checked in an initial but incomplete version of the AUTO command
   (to be used for address autocompletion)
 
