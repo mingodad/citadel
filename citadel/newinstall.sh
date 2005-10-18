@@ -102,7 +102,7 @@ export CITADEL_INSTALLER
 DOWNLOAD_SITE=http://easyinstall.citadel.org
 
 # Original source code packages.
-DB_SOURCE=db-4.3.21.NC.tar.gz
+DB_SOURCE=db-4.3.29.NC.tar.gz
 # DB_PATCHES=db-x.x.x.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
@@ -196,9 +196,9 @@ install_db () {
 	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing Berkeley DB..."
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/db-4.3.21.NC 2>&1 >>$LOG || die
+	cd $BUILD/db-4.3.29.NC 2>&1 >>$LOG || die
 	#patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
-	cd $BUILD/db-4.3.21.NC/build_unix 2>&1 >>$LOG || die
+	cd $BUILD/db-4.3.29.NC/build_unix 2>&1 >>$LOG || die
 	../dist/configure --prefix=$SUPPORT --disable-compat185 --disable-cxx --disable-debug --disable-dump185 --disable-java --disable-rpc --disable-tcl --disable-test --without-rpm 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
