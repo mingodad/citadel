@@ -79,7 +79,9 @@ void ft_flush_cache(void) {
 
 	for (i=0; i<65536; ++i) {
 		if ((time(NULL) - last_update) > 5L) {
-			lprintf(5, "Flushing index cache to disk (%d of 65536)\n", i);
+			lprintf(5, "Flushing index cache to disk (%d%% complete)\n",
+				(i * 100 / 65536)
+			);
 			last_update = time(NULL);
 		}
 		if (ftc_msgs[i] != NULL) {
