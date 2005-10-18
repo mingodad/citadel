@@ -2265,7 +2265,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 		else {
 			lprintf(CTDL_DEBUG, "No user <%s>\n", recipient);
-			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom,
+				newmsgid, 0, msg);
 		}
 	}
 
@@ -2342,7 +2343,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
 			size_t tmp = strlen(instr);
-			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
+			extract_token(recipient, recps->recp_internet,
+				i, '|', sizeof recipient);
 			snprintf(&instr[tmp], SIZ * 2 - tmp,
 				 "remote|%s|0||\n", recipient);
 		}
@@ -2367,9 +2369,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	if (collected_addresses != NULL) {
 		begin_critical_section(S_ATBF);
-		aptr = (struct addresses_to_be_filed *) malloc(sizeof(struct addresses_to_be_filed));
+		aptr = (struct addresses_to_be_filed *)
+			malloc(sizeof(struct addresses_to_be_filed));
 		aptr->next = atbf;
-		MailboxName(actual_rm, sizeof actual_rm, &CC->user, USERCONTACTSROOM);
+		MailboxName(actual_rm, sizeof actual_rm,
+			&CC->user, USERCONTACTSROOM);
 		aptr->roomname = strdup(actual_rm);
 		aptr->collected_addresses = collected_addresses;
 		atbf = aptr;

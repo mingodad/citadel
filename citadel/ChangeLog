@@ -1,3 +1,8 @@
+Tue Oct 18 13:11:38 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* serv_fulltext.c: index records are now cached in memory.  This
+  significantly speeds up indexing of an existing message base.  We
+  flush the cache to disk when finished.
+
 Mon Oct 17 22:10:57 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * Easy Install now uses db-4.3.29
 

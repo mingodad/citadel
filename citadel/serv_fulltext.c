@@ -52,6 +52,10 @@ int ft_num_msgs = 0;
 int ft_num_alloc = 0;
 
 
+int ftc_num_msgs[65536];
+long *ftc_msgs[65536];
+
+
 /*
  * Compare function
  */
@@ -66,7 +70,28 @@ int longcmp(const void *rec1, const void *rec2) {
 	return(0);
 }
 
+/*
+ * Flush our index cache out to disk.
+ */
+void ft_flush_cache(void) {
+	int i;
+	time_t last_update = 0L;
 
+	for (i=0; i<65536; ++i) {
+		if ((time(NULL) - last_update) > 5L) {
+			lprintf(5, "Flushing index cache to disk (%d of 65536)\n", i);
+			last_update = time(NULL);
+		}
+		if (ftc_msgs[i] != NULL) {
+			cdb_store(CDB_FULLTEXT, &i, sizeof(int), ftc_msgs[i],
+				(ftc_num_msgs[i] * sizeof(long)));
+			ftc_num_msgs[i] = 0;
+			free(ftc_msgs[i]);
+			ftc_msgs[i] = NULL;
+		}
+	}
+	lprintf(5, "Cache flush has been completed\n");
+}
 
 
 /*
@@ -77,9 +102,8 @@ void ft_index_message(long msgnum, int op) {
 	int *tokens = NULL;
 	int i, j;
 	struct cdbdata *cdb_bucket;
-	int num_msgs;
-	long *msgs;
 	char *msgtext;
+	int tok;
 
 	lprintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
 		(op ? "adding" : "removing") , msgnum
@@ -106,44 +130,43 @@ void ft_index_message(long msgnum, int op) {
 
 			/* Add the message to the relevant token bucket */
 
-			/* FIXME do we need to lock the file here? */
-			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i],
-								sizeof(int));
-			if (cdb_bucket == NULL) {
-				cdb_bucket = malloc(sizeof(struct cdbdata));
-				cdb_bucket->len = 0;
-				cdb_bucket->ptr = NULL;
-				num_msgs = 0;
-			}
-			else {
-				num_msgs = cdb_bucket->len / sizeof(long);
+			/* search for tokens[i] */
+			tok = tokens[i];
+
+			/* fetch the bucket, Liza */
+			if (ftc_msgs[tok] == NULL) {
+				cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tok, sizeof(int));
+				if (cdb_bucket != NULL) {
+					ftc_num_msgs[tok] = cdb_bucket->len / sizeof(long);
+					ftc_msgs[tok] = (long *)cdb_bucket->ptr;
+					cdb_bucket->ptr = NULL;
+					cdb_free(cdb_bucket);
+				}
+				else {
+					ftc_num_msgs[tok] = 0;
+					ftc_msgs[tok] = malloc(sizeof(long));
+				}
 			}
 
+
 			if (op == 1) {	/* add to index */
-				++num_msgs;
-				cdb_bucket->ptr = realloc(cdb_bucket->ptr,
-							num_msgs*sizeof(long));
-				msgs = (long *) cdb_bucket->ptr;
-				msgs[num_msgs - 1] = msgnum;
+				++ftc_num_msgs[tok];
+				ftc_msgs[tok] = realloc(ftc_msgs[tok],
+							ftc_num_msgs[tok]*sizeof(long));
+				ftc_msgs[tok][ftc_num_msgs[tok] - 1] = msgnum;
 			}
 
 			if (op == 0) {	/* remove from index */
-				if (num_msgs >= 1) {
-				msgs = (long *) cdb_bucket->ptr;
-					for (j=0; j<num_msgs; ++j) {
-						if (msgs[j] == msgnum) {
-							memmove(&msgs[j], &msgs[j+1], ((num_msgs - j - 1)*sizeof(long)));
-							--num_msgs;
+				if (ftc_num_msgs[tok] >= 1) {
+					for (j=0; j<ftc_num_msgs[tok]; ++j) {
+						if (ftc_msgs[tok][j] == msgnum) {
+							memmove(&ftc_msgs[tok][j], &ftc_msgs[tok][j+1], ((ftc_num_msgs[tok] - j - 1)*sizeof(long)));
+							--ftc_num_msgs[tok];
 							--j;
 						}
 					}
 				}
 			}
-
-			cdb_store(CDB_FULLTEXT, &tokens[i], sizeof(int),
-				msgs, (num_msgs*sizeof(long)) );
-
-			cdb_free(cdb_bucket);
 
 			/* FIXME do we need to unlock the file here? */
 		}
@@ -270,6 +293,7 @@ void do_fulltext_indexing(void) {
 	}
 
 	/* Save our place so we don't have to do this again */
+	ft_flush_cache();
 	CitControl.MMfulltext = ft_newhighest;
 	CitControl.fulltext_wordbreaker = FT_WORDBREAKER_ID;
 	put_control();
@@ -315,34 +339,40 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 	int *tokens = NULL;
 	int i, j;
 	struct cdbdata *cdb_bucket;
-	int num_msgs;
-	long *msgs;
 	int num_all_msgs = 0;
 	long *all_msgs = NULL;
 	int num_ret_msgs = 0;
 	int num_ret_alloc = 0;
 	long *ret_msgs = NULL;
+	int tok;
 
 	wordbreaker(search_string, &num_tokens, &tokens);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
 			/* search for tokens[i] */
-			cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tokens[i],
-								sizeof(int));
-			if (cdb_bucket != NULL) {
-				num_msgs = cdb_bucket->len / sizeof(long);
-				msgs = (long *)cdb_bucket->ptr;
+			tok = tokens[i];
 
-				num_all_msgs += num_msgs;
-				if (num_all_msgs > 0) {
-					all_msgs = realloc(all_msgs,
-						num_all_msgs*sizeof(long) );
-					memcpy(&all_msgs[num_all_msgs-num_msgs],
-						msgs, num_msgs*sizeof(long) );
+			/* fetch the bucket, Liza */
+			if (ftc_msgs[tok] == NULL) {
+				cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tok, sizeof(int));
+				if (cdb_bucket != NULL) {
+					ftc_num_msgs[tok] = cdb_bucket->len / sizeof(long);
+					ftc_msgs[tok] = (long *)cdb_bucket->ptr;
+					cdb_bucket->ptr = NULL;
+					cdb_free(cdb_bucket);
 				}
+				else {
+					ftc_num_msgs[tok] = 0;
+					ftc_msgs[tok] = malloc(sizeof(long));
+				}
+			}
 
-				cdb_free(cdb_bucket);
+			num_all_msgs += ftc_num_msgs[tok];
+			if (num_all_msgs > 0) {
+				all_msgs = realloc(all_msgs, num_all_msgs*sizeof(long) );
+				memcpy(&all_msgs[num_all_msgs-ftc_num_msgs[tok]],
+					ftc_msgs[tok], ftc_num_msgs[tok]*sizeof(long) );
 			}
 
 		}
@@ -370,7 +400,7 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 
 		free(all_msgs);
 	}
-	
+
 	*fts_num_msgs = num_ret_msgs;
 	*fts_msgs = ret_msgs;
 }
@@ -406,11 +436,20 @@ void cmd_srch(char *argbuf) {
 	cprintf("000\n");
 }
 
+/*
+ * Zero out our index cache.
+ */
+void initialize_ft_cache(void) {
+	memset(ftc_num_msgs, 0, (65536 * sizeof(int)));
+	memset(ftc_msgs, 0, (65536 * sizeof(long *)));
+}
+
 
 /*****************************************************************************/
 
 char *serv_fulltext_init(void)
 {
+	initialize_ft_cache();
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
 	return "$Id$";
 }
