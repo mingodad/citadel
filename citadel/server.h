@@ -289,6 +289,12 @@ struct CleanupFunctionHook {
 };
 extern struct CleanupFunctionHook *CleanupHookTable;
 
+struct FixedOutputHook {
+	struct FixedOutputHook *next;
+	char content_type[64];
+	void (*h_function_pointer) (char *, int);
+};
+extern struct FixedOutputHook *FixedOutputTable;
 
 
 

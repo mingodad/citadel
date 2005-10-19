@@ -36,6 +36,7 @@ struct MessageFunctionHook *MessageHookTable = NULL;
 struct NetprocFunctionHook *NetprocHookTable = NULL;
 struct DeleteFunctionHook *DeleteHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
+struct FixedOutputHook *FixedOutputTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -351,6 +352,60 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 }
 
 
+
+
+void CtdlRegisterFixedOutputHook(char *content_type, void (*handler)(char *, int) )
+{
+	struct FixedOutputHook *newfcn;
+
+	newfcn = (struct FixedOutputHook *)
+	    malloc(sizeof(struct FixedOutputHook));
+	newfcn->next = FixedOutputTable;
+	newfcn->h_function_pointer = handler;
+	safestrncpy(newfcn->content_type, content_type, sizeof newfcn->content_type);
+	FixedOutputTable = newfcn;
+
+	lprintf(CTDL_INFO, "Registered a new fixed output function for %s\n", newfcn->content_type);
+}
+
+
+void CtdlUnregisterFixedOutputHook(char *content_type)
+{
+	struct FixedOutputHook *cur, *p;
+
+	for (cur = FixedOutputTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL && (!strcasecmp(content_type, cur->content_type))) {
+			lprintf(CTDL_INFO, "Unregistered fixed output function for %s\n", content_type);
+			p = cur->next;
+			if (cur == FixedOutputTable) {
+				FixedOutputTable = p;
+			}
+			free(cur);
+			cur = p;
+		}
+	}
+}
+
+/* returns nonzero if we found a hook and used it */
+int PerformFixedOutputHooks(char *content_type, char *content, int content_length)
+{
+	struct FixedOutputHook *fcn;
+
+	for (fcn = FixedOutputTable; fcn != NULL; fcn = fcn->next) {
+		lprintf(CTDL_DEBUG, "comparing %s to %s\n", content_type, fcn->content_type);
+		if (!strcasecmp(content_type, fcn->content_type)) {
+			(*fcn->h_function_pointer) (content, content_length);
+			return(1);
+		}
+	}
+	return(0);
+}
+
+
+
+
+
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
@@ -553,6 +608,8 @@ void PerformDeleteHooks(char *room, long msgnum)
 		(*fcn->h_function_pointer) (room, msgnum);
 	}
 }
+
+
 
 
 

@@ -1140,6 +1140,9 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		}
 		free(ptr);
 	}
+	else if (PerformFixedOutputHooks(cbtype, content, length)) {
+		/* above function returns nonzero if it handled the part */
+	}
 	else if (strncasecmp(cbtype, "multipart/", 10)) {
 		cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
 			partnum, filename, cbtype, (long)length);

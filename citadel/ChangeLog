@@ -1,3 +1,11 @@
+Wed Oct 19 13:30:16 EDT 2005 ajc
+* New type of server hook: CtdlRegisterFixedOutputHook().  This is for
+  extending the fixed_output() function for arbitrary new MIME types.  The
+  usefulness of this for end users is limited, since no clients use MSG0
+  anymore.  The real purpose of converting various MIME types to text is to
+  make them visible to the full text indexer.
+* serv_vcard.c: registered a fixed output hook for text/x-vcard.
+
 Tue Oct 18 22:46:41 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * msgbase.c, messages.c, html.c: conversion of HTML to plain text now accepts
   a maximum source length.  MSG0 output of multipart messages was running

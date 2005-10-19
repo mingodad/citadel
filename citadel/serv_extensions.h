@@ -79,12 +79,18 @@ void CtdlRegisterServiceHook(int tcp_port,
                         void (*h_greeting_function) (void),
                         void (*h_command_function) (void),
                         void (*h_async_function) (void)
-	) ;
+);
 void CtdlUnregisterServiceHook(int tcp_port,
 			char *sockpath,
                         void (*h_greeting_function) (void),
                         void (*h_command_function) (void),
                         void (*h_async_function) (void)
-	) ;
+);
+
+void CtdlRegisterFixedOutputHook(char *content_type,
+			void (*output_function) (char *supplied_data, int len)
+);
+void CtdlUnRegisterFixedOutputHook(char *content_type);
+int PerformFixedOutputHooks(char *, char *, int);
 
 #endif /* SERV_EXTENSIONS_H */

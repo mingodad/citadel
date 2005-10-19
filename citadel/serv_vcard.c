@@ -1064,6 +1064,33 @@ void store_harvested_addresses(void) {
 }
 
 
+/* 
+ * Function to output a vCard as plain text.  Nobody uses MSG0 anymore, so
+ * really this is just so we expose the vCard data to the full text indexer.
+ */
+void vcard_fixed_output(char *ptr, int len) {
+	char *serialized_vcard;
+	struct vCard *v;
+	char *key, *value;
+	int i = 0;
+
+	cprintf("vCard:\n");
+	serialized_vcard = malloc(len + 1);
+	safestrncpy(serialized_vcard, ptr, len+1);
+	v = vcard_load(serialized_vcard);
+	free(serialized_vcard);
+
+	i = 0;
+	while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
+		value = vcard_get_prop(v, "", 0, i++, 0);
+		cprintf("%20s : %s\n", key, value);
+	}
+
+	vcard_free(v);
+}
+
+
+
 char *serv_vcard_init(void)
 {
 	struct ctdlroom qr;
@@ -1081,6 +1108,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
 	CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
+	CtdlRegisterFixedOutputHook("text/x-vcard", vcard_fixed_output);
 
 	/* Create the Global ADdress Book room if necessary */
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
