@@ -75,10 +75,10 @@ int longcmp(const void *rec1, const void *rec2) {
  */
 void ft_flush_cache(void) {
 	int i;
-	time_t last_update = 0L;
+	time_t last_update = 0;
 
 	for (i=0; i<65536; ++i) {
-		if ((time(NULL) - last_update) > 5L) {
+		if ((time(NULL) - last_update) >= 10) {
 			lprintf(5, "Flushing index cache to disk (%d%% complete)\n",
 				(i * 100 / 65536)
 			);

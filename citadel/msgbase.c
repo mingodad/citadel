@@ -1078,8 +1078,8 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
  * Post callback function for multipart/alternative
  */
 void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata)
+	  	void *content, char *cbtype, char *cbcharset, size_t length,
+		char *encoding, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -1096,52 +1096,55 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
  * Inline callback function for mime parser that wants to display text
  */
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata)
-	{
-		char *ptr;
-		char *wptr;
-		size_t wlen;
-		struct ma_info *ma;
-	
-		ma = (struct ma_info *)cbuserdata;
+	  	void *content, char *cbtype, char *cbcharset, size_t length,
+		char *encoding, void *cbuserdata)
+{
+	char *ptr;
+	char *wptr;
+	size_t wlen;
+	struct ma_info *ma;
 
-		lprintf(CTDL_DEBUG, "fixed_output() type=<%s>\n", cbtype);	
+	ma = (struct ma_info *)cbuserdata;
 
-		/*
-		 * If we're in the middle of a multipart/alternative scope and
-		 * we've already printed another section, skip this one.
-		 */	
-	   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
-			lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n", partnum, cbtype);
-			return;
-		}
-		ma->did_print = 1;
-	
-		if ( (!strcasecmp(cbtype, "text/plain")) 
-		   || (strlen(cbtype)==0) ) {
-			wptr = content;
-			if (length > 0) {
-				client_write(wptr, length);
-				if (wptr[length-1] != '\n') {
-					cprintf("\n");
-				}
-			}
-		}
-		else if (!strcasecmp(cbtype, "text/html")) {
-			ptr = html_to_ascii(content, 80, 0);
-			wlen = strlen(ptr);
-			client_write(ptr, wlen);
-			if (ptr[wlen-1] != '\n') {
+	lprintf(CTDL_DEBUG,
+		"fixed_output() part %s: %s (%s) (%ld bytes)\n",
+		partnum, filename, cbtype, (long)length);
+
+	/*
+	 * If we're in the middle of a multipart/alternative scope and
+	 * we've already printed another section, skip this one.
+	 */	
+   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
+		lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n",
+			partnum, cbtype);
+		return;
+	}
+	ma->did_print = 1;
+
+	if ( (!strcasecmp(cbtype, "text/plain")) 
+	   || (strlen(cbtype)==0) ) {
+		wptr = content;
+		if (length > 0) {
+			client_write(wptr, length);
+			if (wptr[length-1] != '\n') {
 				cprintf("\n");
 			}
-			free(ptr);
-		}
-		else if (strncasecmp(cbtype, "multipart/", 10)) {
-			cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
-				partnum, filename, cbtype, (long)length);
 		}
 	}
+	else if (!strcasecmp(cbtype, "text/html")) {
+		ptr = html_to_ascii(content, length, 80, 0);
+		wlen = strlen(ptr);
+		client_write(ptr, wlen);
+		if (ptr[wlen-1] != '\n') {
+			cprintf("\n");
+		}
+		free(ptr);
+	}
+	else if (strncasecmp(cbtype, "multipart/", 10)) {
+		cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
+			partnum, filename, cbtype, (long)length);
+	}
+}
 
 /*
  * The client is elegant and sophisticated and wants to be choosy about
@@ -1149,8 +1152,8 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
  * we're going to send.
  */
 void choose_preferred(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata)
+	  	void *content, char *cbtype, char *cbcharset, size_t length,
+		char *encoding, void *cbuserdata)
 {
 	char buf[1024];
 	int i;
@@ -1172,8 +1175,8 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
  * Now that we've chosen our preferred part, output it.
  */
 void output_preferred(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata)
+	  	void *content, char *cbtype, char *cbcharset, size_t length,
+		char *encoding, void *cbuserdata)
 {
 	int i;
 	char buf[128];

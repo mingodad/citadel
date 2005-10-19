@@ -52,7 +52,7 @@
  * screenwidth   = desired output screenwidth
  * do_citaformat = set to 1 to indent newlines with spaces
  */
-char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
+char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat) {
 	char inbuf[SIZ];
 	char outbuf[SIZ];
 	char tag[1024];
@@ -64,10 +64,12 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	int i, j, ch, did_out, rb, scanch;
 	int nest = 0;		/* Bracket nesting level */
 	int blockquote = 0;	/* BLOCKQUOTE nesting level */
+	int bytes_processed = 0;
 
 	inptr = inputmsg;
 	strcpy(inbuf, "");
 	strcpy(outbuf, "");
+	if (msglen == 0) msglen = strlen(inputmsg);
 
 	outptr_buffer_size = strlen(inptr) + SIZ;
 	outptr = malloc(outptr_buffer_size);
@@ -85,6 +87,11 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				inbuf[strlen(inbuf)] = ch;
 			} 
 			else {
+				done_reading = 1;
+			}
+
+			++bytes_processed;
+			if (bytes_processed > msglen) {
 				done_reading = 1;
 			}
 

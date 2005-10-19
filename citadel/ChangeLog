@@ -1,3 +1,12 @@
+Tue Oct 18 22:46:41 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
+* msgbase.c, messages.c, html.c: conversion of HTML to plain text now accepts
+  a maximum source length.  MSG0 output of multipart messages was running
+  right past the end of the HTML and into, for example, a subsequent base64
+  encoded attachment, which was then output -- or worse, indexed.
+* Since everyone's fulltext indices probably contain a lot of base64 junk, the
+  FT_WORDBREAKER_ID has been bumped.  This will force an index rebuild on any
+  sites that are upgraded.
+
 Tue Oct 18 13:11:38 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * serv_fulltext.c: index records are now cached in memory.  This
   significantly speeds up indexing of an existing message base.  We
@@ -845,7 +854,7 @@ date: 2005/05/23 19:31:52;  author: ajc;  state: Exp;  lines: +5 -1
  * database_cleanup.sh: add more warnings about how dangerous this tool is
 
  Revision 641.5  2005/02/26 16:27:54  ajc
- * setup.c: added "hula" to the list of non-Citadel MTA's which can be
+ * setup.c: added more items to the list of non-Citadel MTA's which can be
    disabled during setup.
 
  Revision 641.4  2005/02/25 17:59:12  ajc

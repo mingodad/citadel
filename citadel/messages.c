@@ -612,7 +612,7 @@ int read_message(CtdlIPC *ipc,
 	 * of the client screen.
 	 */
 	if (!strcasecmp(message->content_type, "text/html")) {
-		converted_text = html_to_ascii(message->text, screenwidth, 0);
+		converted_text = html_to_ascii(message->text, 0, screenwidth, 0);
 		if (converted_text != NULL) {
 			free(message->text);
 			message->text = converted_text;
