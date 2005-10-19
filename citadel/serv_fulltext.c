@@ -79,7 +79,8 @@ void ft_flush_cache(void) {
 
 	for (i=0; i<65536; ++i) {
 		if ((time(NULL) - last_update) >= 10) {
-			lprintf(5, "Flushing index cache to disk (%d%% complete)\n",
+			lprintf(CTDL_INFO,
+				"Flushing index cache to disk (%d%% complete)\n",
 				(i * 100 / 65536)
 			);
 			last_update = time(NULL);
@@ -92,7 +93,7 @@ void ft_flush_cache(void) {
 			ftc_msgs[i] = NULL;
 		}
 	}
-	lprintf(5, "Cache flush has been completed\n");
+	lprintf(CTDL_INFO, "Flushed index cache to disk (100%% complete)\n");
 }
 
 
