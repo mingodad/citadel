@@ -1,3 +1,8 @@
+Thu Oct 20 17:55:12 EDT 2005 ajc
+* ft_wordbreaker.c: added a list of "noise words" to ignore.  This is
+  admittedly EN/US specific, so if anyone wants to contribute noise words
+  for other languages...
+
 Wed Oct 19 22:55:19 EDT 2005 ajc
 * serv_calendar.c: registered a fixed output hook for text/calendar.
 

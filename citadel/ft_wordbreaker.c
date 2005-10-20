@@ -46,6 +46,119 @@
 #include "crc16.h"
 
 /*
+ * Noise words are not included in search indices.
+ * NOTE: if the noise word list is altered in any way, the FT_WORDBREAKER_ID
+ * must also be changed, so that the index is rebuilt.
+ */
+static char *noise_words[] = {
+	"about",
+	"after",
+	"all",
+	"also",
+	"an",
+	"and",
+	"another",
+	"any",
+	"are",
+	"as",
+	"at",
+	"be",
+	"because",
+	"been",
+	"before",
+	"being",
+	"between",
+	"both",
+	"but",
+	"by",
+	"came",
+	"can",
+	"come",
+	"could",
+	"did",
+	"do",
+	"each",
+	"for",
+	"from",
+	"get",
+	"got",
+	"had",
+	"has",
+	"have",
+	"he",
+	"her",
+	"here",
+	"him",
+	"himself",
+	"his",
+	"how",
+	"if",
+	"in",
+	"into",
+	"is",
+	"it",
+	"like",
+	"make",
+	"many",
+	"me",
+	"might",
+	"more",
+	"most",
+	"much",
+	"must",
+	"my",
+	"never",
+	"now",
+	"of",
+	"on",
+	"only",
+	"or",
+	"other",
+	"our",
+	"out",
+	"over",
+	"said",
+	"same",
+	"see",
+	"should",
+	"since",
+	"some",
+	"still",
+	"such",
+	"take",
+	"than",
+	"that",
+	"the",
+	"their",
+	"them",
+	"then",
+	"there",
+	"these",
+	"they",
+	"this",
+	"those",
+	"through",
+	"to",
+	"too",
+	"under",
+	"up",
+	"very",
+	"was",
+	"way",
+	"we",
+	"well",
+	"were",
+	"what",
+	"where",
+	"which",
+	"while",
+	"with",
+	"would",
+	"you",
+	"your"
+};
+
+/*
  * Compare function
  */
 int intcmp(const void *rec1, const void *rec2) {
@@ -107,6 +220,14 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 			safestrncpy(word, word_start, sizeof word);
 			word[word_len] = 0;
 			word_start = NULL;
+
+			/* disqualify noise words */
+			for (i=0; i<(sizeof(noise_words)/sizeof(char *)); ++i) {
+				if (!strcasecmp(word, noise_words[i])) {
+					word_len = 0;
+					break;
+				}
+			}
 
 			/* are we ok with the length? */
 			if ( (word_len >= WB_MIN)
