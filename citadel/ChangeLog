@@ -1,3 +1,6 @@
+Wed Oct 19 22:55:19 EDT 2005 ajc
+* serv_calendar.c: registered a fixed output hook for text/calendar.
+
 Wed Oct 19 13:30:16 EDT 2005 ajc
 * New type of server hook: CtdlRegisterFixedOutputHook().  This is for
   extending the fixed_output() function for arbitrary new MIME types.  The

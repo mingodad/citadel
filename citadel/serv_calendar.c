@@ -1893,6 +1893,143 @@ void ical_session_shutdown(void) {
 }
 
 
+/*
+ * Back end for ical_fixed_output()
+ */
+void ical_fixed_output_backend(icalcomponent *cal,
+			int recursion_level
+) {
+	icalcomponent *c;
+	icalproperty *method = NULL;
+	icalproperty_method the_method = ICAL_METHOD_NONE;
+	icalproperty *p;
+	struct icaltimetype t;
+	time_t tt;
+	char buf[256];
+
+	/* Look for a method */
+	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
+
+	/* See what we need to do with this */
+	if (method != NULL) {
+		the_method = icalproperty_get_method(method);
+		switch(the_method) {
+		    case ICAL_METHOD_REQUEST:
+			cprintf("Meeting invitation\n");
+			break;
+		    case ICAL_METHOD_REPLY:
+			cprintf("Attendee's reply to your invitation\n");
+			break;
+		    case ICAL_METHOD_PUBLISH:
+			cprintf("Published event\n");
+			break;
+		    default:
+			cprintf("This is an unknown type of calendar item.\n");
+			break;
+		}
+	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
+	if (p != NULL) {
+		cprintf("Summary: %s\n", (const char *)icalproperty_get_comment(p));
+	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
+	if (p != NULL) {
+		cprintf("Location: %s\n", (const char *)icalproperty_get_comment(p));
+	}
+
+	/*
+	 * Only show start/end times if we're actually looking at the VEVENT
+	 * component.  Otherwise it shows bogus dates for things like timezone.
+	 */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
+
+      		p = icalcomponent_get_first_property(cal,
+						ICAL_DTSTART_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+
+			if (t.is_date) {
+				cprintf("Date: %s %d, %d\n",
+					ascmonths[t.month - 1],
+					t.day, t.year
+				);
+			}
+			else {
+				tt = icaltime_as_timet(t);
+				fmt_date(buf, sizeof buf, tt, 0);
+				cprintf("Starting date/time: %s\n", buf);
+			}
+		}
+	
+      		p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtend(p);
+			tt = icaltime_as_timet(t);
+			fmt_date(buf, sizeof buf, tt, 0);
+			cprintf("Ending date/time: %s\n", buf);
+		}
+
+	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
+	if (p != NULL) {
+		cprintf("Description: %s\n", (const char *)icalproperty_get_comment(p));
+	}
+
+	/* If the component has attendees, iterate through them. */
+	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
+		cprintf("Attendee: ");
+		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
+		if (!strncasecmp(buf, "MAILTO:", 7)) {
+
+			/* screen name or email address */
+			strcpy(buf, &buf[7]);
+			striplt(buf);
+			cprintf("%s ", buf);
+		}
+		cprintf("\n");
+	}
+
+	/* If the component has subcomponents, recurse through them. */
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+		/* Recursively process subcomponent */
+		ical_fixed_output_backend(c, recursion_level+1);
+	}
+}
+
+
+
+/*
+ * Function to output a calendar item  as plain text.  Nobody uses MSG0
+ * anymore, so really this is just so we expose the vCard data to the full
+ * text indexer.
+ */
+void ical_fixed_output(char *ptr, int len) {
+	icalcomponent *cal;
+	char *stringy_cal;
+
+	stringy_cal = malloc(len + 1);
+	safestrncpy(stringy_cal, ptr, len + 1);
+	cal = icalcomponent_new_from_string(stringy_cal);
+	free(stringy_cal);
+
+	if (cal == NULL) {
+		cprintf("There was an error parsing this calendar item.\n");
+		return;
+	}
+
+	ical_dezonify(cal);
+	ical_fixed_output_backend(cal, 0);
+
+	/* Free the memory we obtained from libical's constructor */
+	icalcomponent_free(cal);
+}
+
+
 #endif	/* CITADEL_WITH_CALENDAR_SERVICE */
 
 /*
@@ -1907,6 +2044,7 @@ char *serv_calendar_init(void)
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
 	CtdlRegisterSessionHook(ical_session_startup, EVT_START);
 	CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
+	CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
 #endif
 	return "$Id$";
 }

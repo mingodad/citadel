@@ -393,7 +393,6 @@ int PerformFixedOutputHooks(char *content_type, char *content, int content_lengt
 	struct FixedOutputHook *fcn;
 
 	for (fcn = FixedOutputTable; fcn != NULL; fcn = fcn->next) {
-		lprintf(CTDL_DEBUG, "comparing %s to %s\n", content_type, fcn->content_type);
 		if (!strcasecmp(content_type, fcn->content_type)) {
 			(*fcn->h_function_pointer) (content, content_length);
 			return(1);
