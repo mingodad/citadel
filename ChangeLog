@@ -1,3 +1,8 @@
+Fri Oct 21 15:25:49 EDT 2005 ajc
+* Handle embedded message/rfc822 submessages, using the new form of MSG4 on
+  the Citadel server that can extract these for us.  There is still a bug or
+  two in this to be fixed...
+
 Mon Oct 17 11:12:50 EDT 2005 Art Cancro <ajc@uncensored.citadel.org>
 * THIS IS 6.30
 
