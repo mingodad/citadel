@@ -195,7 +195,7 @@ void cmd_auto(char *argbuf) {
 	}
 	
 	cprintf("000\n");
-	if (strcmp(&CC->room.QRname, hold_rm)) {
+	if (strcmp(CC->room.QRname, hold_rm)) {
 		getroom(&CC->room, hold_rm);    /* return to saved room */
 	}
 }

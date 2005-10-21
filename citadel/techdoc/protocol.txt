@@ -1877,6 +1877,15 @@ will output RFC822-like MIME part headers such as "Content-type:" and
 "Content-length:".  MIME formats are chosen and/or converted based on the
 client's preferred format settings, which are set using the MSGP command,
 described below.
+ 
+ The MSG4 command also accepts an optional second argument, which may be the
+MIME part specifier of an encapsulated message/rfc822 message.  This is useful
+for fetching the encapsulated message instead of the top-level message, for
+example, when someone has forwarded a message as an attachment.  Note that the
+only way for the client to know the part specifier is to fetch the top-level
+message and then look for attachments of type message/rfc822, and then call
+MSG4 again with that part specifier.
+
 
 
 

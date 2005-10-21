@@ -117,12 +117,15 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
-		int crlf);
+		int crlf,		/* 0=LF, 1=CRLF */
+		char *section		/* output a message/rfc822 section */
+);
 int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
-		int crlf);
+		int crlf		/* 0=LF, 1=CRLF */
+);
 int CtdlCopyMsgToRoom(long msgnum, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);

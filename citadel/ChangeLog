@@ -1,3 +1,8 @@
+Fri Oct 21 15:12:45 EDT 2005 ajc
+* MSG4 (and CtdlOutputMsg() as well) now accepts an optional MIME part
+  specifier, allowing the client to fetch an encapsulated message
+  attached as message/rfc822 instead of the top-level message.
+
 Thu Oct 20 17:55:12 EDT 2005 ajc
 * ft_wordbreaker.c: added a list of "noise words" to ignore.  This is
   admittedly EN/US specific, so if anyone wants to contribute noise words

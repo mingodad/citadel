@@ -7,10 +7,6 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #if defined(__linux) || defined(__sun) /* needed for crypt(): */
 #define _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 1

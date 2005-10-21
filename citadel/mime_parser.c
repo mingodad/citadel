@@ -1,16 +1,12 @@
 /*
  * $Id$
  *
- * This is the MIME parser for Citadel.  Sometimes it actually works.
+ * This is the MIME parser for Citadel.
  *
  * Copyright (c) 1998-2005 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
  */
-
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -482,9 +478,9 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
-                /* fix an off-by-one error */
-                --part_end;
-                --length;
+		/* fix an off-by-one error */
+		--part_end;
+		--length;
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
@@ -504,12 +500,16 @@ void the_mime_parser(char *partnum,
 	
 		/* lprintf(CTDL_DEBUG, "mime_decode part=%s, len=%d, type=%s, charset=%s, encoding=%s\n",
 			partnum, length, content_type, charset, encoding); */
+
+		/* Ok, we've got a non-multipart part here, so do something with it.
+		 */
 		mime_decode(partnum,
-			    part_start, length,
-			    content_type, charset, encoding, disposition,
-			    name, filename,
-			    CallBack, NULL, NULL,
-			    userdata, dont_decode);
+			part_start, length,
+			content_type, charset, encoding, disposition,
+			name, filename,
+			CallBack, NULL, NULL,
+			userdata, dont_decode
+		);
 	}
 
 end_parser:	/* free the buffers!  end the oppression!! */

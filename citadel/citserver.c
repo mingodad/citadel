@@ -5,10 +5,6 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -1293,22 +1289,6 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "ISME", 4)) {
 		cmd_isme(&cmdbuf[5]);
-	}
-
-	else if (!strncasecmp(cmdbuf, "FUCK", 4)) {
-		cprintf("100\n");
-
-		struct CtdlMessage *msg;
-		msg = CtdlFetchMessage(3115, 1);
-		cprintf("\nCtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);\n--\n");
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
-		cprintf("--\nCtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1);\n--\n");
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1);
-		cprintf("--\nCtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);\n--\n");
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
-		cprintf("--\n");
-		cprintf("000\n");
-		CtdlFreeMessage(msg);
 	}
 
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {

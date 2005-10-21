@@ -940,7 +940,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
 	msgtext = CC->redirect_buffer;
 	msg_size = CC->redirect_len;
 	CC->redirect_buffer = NULL;

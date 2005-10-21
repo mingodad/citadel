@@ -1231,6 +1231,37 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 }
 
 
+struct encapmsg {
+	char desired_section[64];
+	char *msg;
+	size_t msglen;
+};
+
+
+/*
+ * Callback function for
+ */
+void extract_encapsulated_message(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, void *cbuserdata)
+{
+	struct encapmsg *encap;
+
+	encap = (struct encapmsg *)cbuserdata;
+
+	/* Only proceed if this is the desired section... */
+	if (!strcasecmp(encap->desired_section, partnum)) {
+		encap->msglen = length;
+		encap->msg = malloc(length + 2);
+		memcpy(encap->msg, content, length);
+		return;
+	}
+
+}
+
+
+
+
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
  * 
@@ -1239,13 +1270,17 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
-		int crlf		/* Use CRLF newlines instead of LF? */
+		int crlf,		/* Use CRLF newlines instead of LF? */
+		char *section		/* NULL or a message/rfc822 section */
 ) {
 	struct CtdlMessage *TheMessage = NULL;
 	int retcode = om_no_such_msg;
+	struct encapmsg encap;
 
-	lprintf(CTDL_DEBUG, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
-		msg_num, mode);
+	lprintf(CTDL_DEBUG, "CtdlOutputMsg() msgnum=%ld, mode=%d, section=%s\n", 
+		msg_num, mode,
+		(section ? section : "<>")
+	);
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		if (do_proto) cprintf("%d Not logged in.\n",
@@ -1272,11 +1307,45 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			ERROR + MESSAGE_NOT_FOUND, msg_num);
 		return(om_no_such_msg);
 	}
-	
-	retcode = CtdlOutputPreLoadedMsg(
-			TheMessage, mode,
-			headers_only, do_proto, crlf);
 
+	/* Here is the weird form of this command, to process only an
+	 * encapsulated message/rfc822 section.
+	 */
+	if (section) {
+		memset(&encap, 0, sizeof encap);
+		safestrncpy(encap.desired_section, section, sizeof encap.desired_section);
+		mime_parser(TheMessage->cm_fields['M'],
+			NULL,
+			*extract_encapsulated_message,
+			NULL, NULL, (void *)&encap, 0
+		);
+		CtdlFreeMessage(TheMessage);
+		TheMessage = NULL;
+
+		if (encap.msg) {
+			encap.msg[encap.msglen] = 0;
+			TheMessage = convert_internet_message(encap.msg);
+			encap.msg = NULL;	/* no free() here, TheMessage owns it now */
+
+			/* Now we let it fall through to the bottom of this
+			 * function, because TheMessage now contains the
+			 * encapsulated message instead of the top-level
+			 * message.  Isn't that neat?
+			 */
+
+		}
+		else {
+			if (do_proto) cprintf("%d msg %ld has no part %s\n",
+				ERROR + MESSAGE_NOT_FOUND, msg_num, section);
+			retcode = om_no_such_msg;
+		}
+
+	}
+
+	/* Ok, output the message now */
+	retcode = CtdlOutputPreLoadedMsg(
+		TheMessage, mode,
+		headers_only, do_proto, crlf);
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -1666,7 +1735,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL);
 	return;
 }
 
@@ -1682,7 +1751,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL);
 }
 
 
@@ -1732,9 +1801,11 @@ void cmd_msg3(char *cmdbuf)
 void cmd_msg4(char *cmdbuf)
 {
 	long msgid;
+	char section[64];
 
 	msgid = extract_long(cmdbuf, 0);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0);
+	extract_token(section, cmdbuf, 1, '|', sizeof section);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) );
 }
 
 
@@ -1762,7 +1833,7 @@ void cmd_opna(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL);
 }			
 
 
