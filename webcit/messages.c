@@ -491,9 +491,9 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 
 
 /*
- * I wanna SEE that message!
+ * I wanna SEE that message!  (Optional 'section' for encapsulated message/rfc822 submessage)
  */
-void read_message(long msgnum, int printable_view) {
+void read_message(long msgnum, int printable_view, char *section) {
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -502,6 +502,7 @@ void read_message(long msgnum, int printable_view) {
 	char mime_disposition[256];
 	int mime_length;
 	char mime_http[SIZ];
+	char mime_submessages[256];
 	char m_subject[256];
 	char m_cc[1024];
 	char from[256];
@@ -536,8 +537,9 @@ void read_message(long msgnum, int printable_view) {
 	strcpy(mime_http, "");
 	strcpy(mime_content_type, "text/plain");
 	strcpy(mime_charset, "us-ascii");
+	strcpy(mime_submessages, "");
 
-	serv_printf("MSG4 %ld", msgnum);
+	serv_printf("MSG4 %ld|%s", msgnum, section);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		wprintf("<STRONG>");
@@ -648,7 +650,13 @@ void read_message(long msgnum, int printable_view) {
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
-			if ((!strcasecmp(mime_disposition, "inline"))
+			if (!strcasecmp(mime_content_type, "message/rfc822")) {
+				if (strlen(mime_submessages) > 0) {
+					strcat(mime_submessages, "|");
+				}
+				strcat(mime_submessages, mime_partnum);
+			}
+			else if ((!strcasecmp(mime_disposition, "inline"))
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
@@ -905,6 +913,19 @@ void read_message(long msgnum, int printable_view) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
+	/* If there are attached submessages, display them now... */
+	if (strlen(mime_submessages) > 0) {
+		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
+			extract_token(buf, mime_submessages, i, '|', sizeof buf);
+			/* use printable_view to suppress buttons */
+			wprintf("<blockquote>");
+			read_message(msgnum, 1, buf);
+			wprintf("</blockquote>");
+		}
+	}
+
+
+
 	/* Afterwards, offer links to download attachments 'n' such */
 	if (strlen(mime_http) > 0) {
 		wprintf("%s", mime_http);
@@ -972,7 +993,7 @@ void embed_message(void) {
 
 	msgnum = atol(bstr("msgnum"));
 	begin_ajax_response();
-	read_message(msgnum, 0);
+	read_message(msgnum, 0, "");
 	end_ajax_response();
 }
 
@@ -997,7 +1018,7 @@ void print_message(void) {
 		"<body onLoad=\" window.print(); window.close(); \">\n"
 	);
 	
-	read_message(msgnum, 1);
+	read_message(msgnum, 1, "");
 
 	wprintf("\n</body></html>\n\n");
 	wDumpContent(0);
@@ -2026,7 +2047,7 @@ void readloop(char *oper)
 				display_note(WC->msgarr[a]);
 			}
 			else {
-				read_message(WC->msgarr[a], 0);
+				read_message(WC->msgarr[a], 0, "");
 			}
 
 			if (lowest_displayed < 0) lowest_displayed = a;

@@ -92,7 +92,7 @@
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		630		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	658		/* min required Citadel vers */
+#define MINIMUM_CIT_VERSION	661		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
