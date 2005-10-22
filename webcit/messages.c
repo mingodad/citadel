@@ -671,11 +671,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 					"TARGET=\"wc.%ld.%s\">"
 					"<IMG SRC=\"/static/diskette_24x.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
-					"Part %s: %s (%s, %d bytes)</A><br />\n",
+					"%s (%s, %d bytes)</A><br />\n",
 					msgnum, mime_partnum, mime_filename,
 					msgnum, mime_partnum,
-					mime_partnum, mime_filename,
-					mime_content_type, mime_length);
+					mime_filename,
+					mime_content_type, mime_length
+				);
 			}
 
 			/*** begin handler prep ***/
@@ -847,11 +848,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/* Set up a character set conversion if we need to (and if we can) */
 #ifdef HAVE_ICONV
+	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
 	if ( (strcasecmp(mime_charset, "us-ascii"))
-	   && (strcasecmp(mime_charset, "UTF-8")) ) {
+	   && (strcasecmp(mime_charset, "UTF-8"))
+	   && (strcasecmp(mime_charset, ""))
+	) {
 		ic = iconv_open("UTF-8", mime_charset);
 		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n", __FILE__, __LINE__, mime_charset, strerror(errno));
 		}
 	}
 #endif
@@ -914,7 +918,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/* If there are attached submessages, display them now... */
-	if (strlen(mime_submessages) > 0) {
+	if ( (strlen(mime_submessages) > 0) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
 			/* use printable_view to suppress buttons */
@@ -925,9 +929,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 
-
 	/* Afterwards, offer links to download attachments 'n' such */
-	if (strlen(mime_http) > 0) {
+	if ( (strlen(mime_http) > 0) && (!section[0]) ) {
 		wprintf("%s", mime_http);
 	}
 
@@ -1200,10 +1203,12 @@ void pullquote_message(long msgnum, int forward_attachments) {
 	/* Set up a character set conversion if we need to (and if we can) */
 #ifdef HAVE_ICONV
 	if ( (strcasecmp(mime_charset, "us-ascii"))
-	   && (strcasecmp(mime_charset, "UTF-8")) ) {
+	   && (strcasecmp(mime_charset, "UTF-8"))
+	   && (strcasecmp(mime_charset, ""))
+	) {
 		ic = iconv_open("UTF-8", mime_charset);
 		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+			lprintf(5, "%s:%d iconv_open() failed: %s\n", __FILE__, __LINE__, strerror(errno));
 		}
 	}
 #endif

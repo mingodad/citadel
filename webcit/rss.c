@@ -232,10 +232,10 @@ void display_rss(char *roomname, char *request_method)
 
 		/* Set up a character set conversion if we need to */
 #ifdef HAVE_ICONV
-		if (strcasecmp(charset, "us-ascii") && strcasecmp(charset, "utf-8")) {
+		if (strcasecmp(charset, "us-ascii") && strcasecmp(charset, "utf-8") && strcasecmp(charset, "") ) {
 			ic = iconv_open("UTF-8", charset);
 			if (ic == (iconv_t)(-1)) {
-				lprintf(5, "iconv_open() failed: %s\n", strerror(errno));
+				lprintf(5, "%s:%d iconv_open() failed: %s\n", __FILE__, __LINE__, strerror(errno));
 				goto ENDBODY;
 			}
 		}
