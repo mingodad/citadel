@@ -32,7 +32,7 @@ enum {
 struct ma_info {
 	int is_ma;		/* Set to 1 if we are using this stuff */
 	int did_print;		/* One alternative has been displayed */
-	char chosen_part[SIZ];	/* Which part of a m/a did we choose? */
+	char chosen_part[128];	/* Which part of a m/a did we choose? */
 };
 
 

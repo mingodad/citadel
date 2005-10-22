@@ -1168,7 +1168,11 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 			if (!strcasecmp(buf, cbtype)) {
-				strcpy(ma->chosen_part, partnum);
+				if (num_tokens(partnum, '.') < 3) {
+					lprintf(CTDL_DEBUG, "REPLACING MA <%s> WITH <%s>\n",
+						ma->chosen_part, partnum);
+					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
+				}
 			}
 		}
 	}

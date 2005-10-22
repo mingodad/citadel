@@ -1,3 +1,8 @@
+Sat Oct 22 00:46:52 EDT 2005 ajc
+* mime_parser.c: recurse into message/rfc822 parts as if they were
+  multipart, because we may need to extract attachments from the embedded
+  submessage, etc.  (uuuuunnnhhhh...)
+
 Fri Oct 21 15:12:45 EDT 2005 ajc
 * MSG4 (and CtdlOutputMsg() as well) now accepts an optional MIME part
   specifier, allowing the client to fetch an encapsulated message

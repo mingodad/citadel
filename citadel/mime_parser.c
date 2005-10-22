@@ -498,8 +498,8 @@ void the_mime_parser(char *partnum,
 			name = content_type_name;
 		}
 	
-		/* lprintf(CTDL_DEBUG, "mime_decode part=%s, len=%d, type=%s, charset=%s, encoding=%s\n",
-			partnum, length, content_type, charset, encoding); */
+		lprintf(CTDL_DEBUG, "mime_decode part=%s, len=%d, type=%s, charset=%s, encoding=%s\n",
+			partnum, length, content_type, charset, encoding);
 
 		/* Ok, we've got a non-multipart part here, so do something with it.
 		 */
@@ -510,6 +510,46 @@ void the_mime_parser(char *partnum,
 			CallBack, NULL, NULL,
 			userdata, dont_decode
 		);
+
+		/*
+		 * Now if it's an encapsulated message/rfc822 then we have to recurse into it
+		 */
+		if (!strcasecmp(content_type, "message/rfc822")) {
+
+			if (PreMultiPartCallBack != NULL) {
+				PreMultiPartCallBack("", "", partnum, "",
+					NULL, content_type, charset,
+					0, encoding, userdata);
+			}
+			if (CallBack != NULL) {
+				if (strlen(partnum) > 0) {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%s.%d", partnum,
+						 ++part_seq);
+				}
+				else {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%d", ++part_seq);
+				}
+				the_mime_parser(nested_partnum,
+					part_start, part_end,
+					CallBack,
+					PreMultiPartCallBack,
+					PostMultiPartCallBack,
+					userdata,
+					dont_decode
+				);
+			}
+			if (PostMultiPartCallBack != NULL) {
+				PostMultiPartCallBack("", "", partnum, "", NULL,
+					content_type, charset, 0, encoding, userdata);
+			}
+
+
+		}
+
 	}
 
 end_parser:	/* free the buffers!  end the oppression!! */
