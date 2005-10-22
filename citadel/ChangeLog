@@ -1,3 +1,8 @@
+Sat Oct 22 00:48:47 EDT 2005 ajc
+* msgbase.c: allow multipart/alternative part-swapping only at the top
+  level, because if we recursed into another one then it's going to stomp
+  all over our preferred part.  (even more uuuuunnnhhhhh...)
+
 Sat Oct 22 00:46:52 EDT 2005 ajc
 * mime_parser.c: recurse into message/rfc822 parts as if they were
   multipart, because we may need to extract attachments from the embedded
