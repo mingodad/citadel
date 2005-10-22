@@ -1313,7 +1313,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* Here is the weird form of this command, to process only an
 	 * encapsulated message/rfc822 section.
 	 */
-	if (section) {
+	if (section) if (strlen(section)>0) if (strcmp(section, "0")) {
 		memset(&encap, 0, sizeof encap);
 		safestrncpy(encap.desired_section, section, sizeof encap.desired_section);
 		mime_parser(TheMessage->cm_fields['M'],
