@@ -1,3 +1,8 @@
+Sat Oct 22 01:01:02 EDT 2005 ajc
+* More changes required to be able to do embedded message/rfc822 and still be
+  able to view the attachments in the embedded submessage.   Yow.
+* Brought over the updated MIME parser from the Citadel package.
+
 Fri Oct 21 15:25:49 EDT 2005 ajc
 * Handle embedded message/rfc822 submessages, using the new form of MSG4 on
   the Citadel server that can extract these for us.  There is still a bug or
