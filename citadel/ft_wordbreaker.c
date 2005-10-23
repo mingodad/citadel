@@ -218,7 +218,13 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 			/* extract the word */
 			word_len = word_end - word_start + 1;
 			safestrncpy(word, word_start, sizeof word);
-			word[word_len] = 0;
+			if (word_len >= sizeof word) {
+				lprintf(CTDL_DEBUG, "Invalid word length: %d\n", word_len);
+				word[(sizeof word_len) - 1] = 0;
+			}
+			else {
+				word[word_len] = 0;
+			}
 			word_start = NULL;
 
 			/* disqualify noise words */

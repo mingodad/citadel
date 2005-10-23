@@ -127,7 +127,7 @@ void ft_index_message(long msgnum, int op) {
 	wordbreaker(msgtext, &num_tokens, &tokens);
 	free(msgtext);
 
-	lprintf(CTDL_DEBUG, "Indexing message %ld...\n", msgnum);
+	lprintf(CTDL_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -136,39 +136,44 @@ void ft_index_message(long msgnum, int op) {
 			/* search for tokens[i] */
 			tok = tokens[i];
 
-			/* fetch the bucket, Liza */
-			if (ftc_msgs[tok] == NULL) {
-				cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tok, sizeof(int));
-				if (cdb_bucket != NULL) {
-					ftc_num_msgs[tok] = cdb_bucket->len / sizeof(long);
-					ftc_msgs[tok] = (long *)cdb_bucket->ptr;
-					cdb_bucket->ptr = NULL;
-					cdb_free(cdb_bucket);
+			if ( (tok >= 0) && (tok <= 65535) ) {
+				/* fetch the bucket, Liza */
+				if (ftc_msgs[tok] == NULL) {
+					cdb_bucket = cdb_fetch(CDB_FULLTEXT, &tok, sizeof(int));
+					if (cdb_bucket != NULL) {
+						ftc_num_msgs[tok] = cdb_bucket->len / sizeof(long);
+						ftc_msgs[tok] = (long *)cdb_bucket->ptr;
+						cdb_bucket->ptr = NULL;
+						cdb_free(cdb_bucket);
+					}
+					else {
+						ftc_num_msgs[tok] = 0;
+						ftc_msgs[tok] = malloc(sizeof(long));
+					}
 				}
-				else {
-					ftc_num_msgs[tok] = 0;
-					ftc_msgs[tok] = malloc(sizeof(long));
+	
+	
+				if (op == 1) {	/* add to index */
+					++ftc_num_msgs[tok];
+					ftc_msgs[tok] = realloc(ftc_msgs[tok],
+								ftc_num_msgs[tok]*sizeof(long));
+					ftc_msgs[tok][ftc_num_msgs[tok] - 1] = msgnum;
 				}
-			}
-
-
-			if (op == 1) {	/* add to index */
-				++ftc_num_msgs[tok];
-				ftc_msgs[tok] = realloc(ftc_msgs[tok],
-							ftc_num_msgs[tok]*sizeof(long));
-				ftc_msgs[tok][ftc_num_msgs[tok] - 1] = msgnum;
-			}
-
-			if (op == 0) {	/* remove from index */
-				if (ftc_num_msgs[tok] >= 1) {
-					for (j=0; j<ftc_num_msgs[tok]; ++j) {
-						if (ftc_msgs[tok][j] == msgnum) {
-							memmove(&ftc_msgs[tok][j], &ftc_msgs[tok][j+1], ((ftc_num_msgs[tok] - j - 1)*sizeof(long)));
-							--ftc_num_msgs[tok];
-							--j;
+	
+				if (op == 0) {	/* remove from index */
+					if (ftc_num_msgs[tok] >= 1) {
+						for (j=0; j<ftc_num_msgs[tok]; ++j) {
+							if (ftc_msgs[tok][j] == msgnum) {
+								memmove(&ftc_msgs[tok][j], &ftc_msgs[tok][j+1], ((ftc_num_msgs[tok] - j - 1)*sizeof(long)));
+								--ftc_num_msgs[tok];
+								--j;
+							}
 						}
 					}
 				}
+			}
+			else {
+				lprintf(CTDL_ALERT, "Invalid token %d !!\n", tok);
 			}
 
 			/* FIXME do we need to unlock the file here? */
