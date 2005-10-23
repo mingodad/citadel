@@ -1,3 +1,7 @@
+Sat Oct 22 22:55:49 EDT 2005 ajc
+* Set a maximum number of messages which may be indexed before we force
+  a cache flush to disk.  Currently 2500.
+
 Sat Oct 22 00:48:47 EDT 2005 ajc
 * msgbase.c: allow multipart/alternative part-swapping only at the top
   level, because if we recursed into another one then it's going to stomp

@@ -287,6 +287,13 @@ void do_fulltext_indexing(void) {
 				break;
 			}
 
+			/* Check to see if we have to maybe flush to disk */
+			if (i >= FT_MAX_CACHE) {
+				lprintf(CTDL_DEBUG, "Time to flush.\n");
+				ft_newhighest = ft_newmsgs[i];
+				break;
+			}
+
 		}
 
 		free(ft_newmsgs);

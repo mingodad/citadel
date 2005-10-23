@@ -135,3 +135,10 @@
 #define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
 
 #define THREADSTACKSIZE		1048576
+
+/*
+ * How many messages may the full text indexer scan before flushing its
+ * tables to disk?
+ */
+#define FT_MAX_CACHE		2500
+#
