@@ -1,3 +1,6 @@
+Sun Oct 23 23:28:23 EDT 2005 ajc
+* "day start" and "day end" preferences for calendar day view.
+
 Sun Oct 23 01:37:00 EDT 2005 ajc
 * ft_wordbreaker.c: don't clobber memory when reading in tokens bigger
   than the token word buffer.
