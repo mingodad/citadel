@@ -3,7 +3,7 @@
  *
  * This module handles self-service subscription/unsubscription to mail lists.
  *
- * Copyright (C) 2002 by Art Cancro and others.
+ * Copyright (C) 2002-2005 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  */
@@ -163,8 +163,8 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		"Someone (probably you) has submitted a request to subscribe\n"
 		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
 		"Please click here to confirm this request:<BR>\n"
-		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
-		"http://%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
+		"<A HREF=\"%s?room=%s&token=%s&cmd=confirm\">"
+		"%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
 		"If this request has been submitted in error and you do not\n"
 		"wish to receive the '%s' mailing list, simply do nothing,\n"
 		"and you will not receive any further mailings.\n"
@@ -276,8 +276,8 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 		"to unsubscribe\n"
 		"&lt;%s&gt; from the <B>%s</B> mailing list.<BR><BR>\n"
 		"Please click here to confirm this request:<BR>\n"
-		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
-		"http://%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
+		"<A HREF=\"%s?room=%s&token=%s&cmd=confirm\">"
+		"%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
 		"If this request has been submitted in error and you do\n"
 		"<i>not</i> wish to unsubscribe from the "
 		"'%s' mailing list, simply do nothing,\n"

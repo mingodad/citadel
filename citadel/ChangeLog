@@ -1,3 +1,8 @@
+Mon Oct 24 11:19:47 EDT 2005 ajc
+* serv_listsub.c: web subscription/confirmation address no longer has http://
+  prepended to it.  This means that clients now must supply that.  This was
+  done because we can no longer assume http -- it was breaking on https.
+
 Sun Oct 23 23:28:23 EDT 2005 ajc
 * "day start" and "day end" preferences for calendar day view.
 
