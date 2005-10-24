@@ -1,3 +1,8 @@
+Mon Oct 24 11:58:53 EDT 2005 ajc
+* List sub/unsub confirmation -- Citadel now wants http:// or https://
+  prepended as part of the 'submitted subscribe url' so we are now doing
+  that.
+
 Sat Oct 22 01:01:02 EDT 2005 ajc
 * More changes required to be able to do embedded message/rfc822 and still be
   able to view the attachments in the embedded submessage.   Yow.
