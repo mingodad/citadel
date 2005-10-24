@@ -85,7 +85,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	FILE *ncfp;
 	char filename[256];
 	char token[256];
-	char confirmation_request[512];
+	char confirmation_request[2048];
 	char buf[512];
 	char urlroom[ROOMNAMELEN];
 	char scancmd[64];
@@ -198,7 +198,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	char filename[256];
 	char token[256];
 	char buf[512];
-	char confirmation_request[512];
+	char confirmation_request[2048];
 	char urlroom[ROOMNAMELEN];
 	char scancmd[256];
 	char scanemail[256];
