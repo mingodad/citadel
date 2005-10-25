@@ -20,10 +20,6 @@
  * Written July 1997 by Sten Gunterberg (gunterberg@ergon.ch)
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>

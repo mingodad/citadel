@@ -5,10 +5,6 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -281,7 +277,7 @@ void headers_listing(long msgnum, void *userdata)
 	struct CtdlMessage *msg;
 
 	msg = CtdlFetchMessage(msgnum, 0);
-	if (msg < 0L) {
+	if (msg == NULL) {
 		cprintf("%ld|0|||||\n", msgnum);
 		return;
 	}

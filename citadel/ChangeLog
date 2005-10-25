@@ -1,5 +1,11 @@
 $Id$
 
+Tue Oct 25 17:29:12 EDT 2005 ajc
+* msgbase.c: when a summary mode message list is requested, and the room
+  contains a pointer to a message which does not exist (this normally should
+  not happen), return an empty message summary line instead of crashing.
+* removed the remaining vestiges of the libtool stuff in .c and .y files
+
 Mon Oct 24 22:52:33 EDT 2005 ajc
 * Every user gets a Trash folder.  Clients can also use _TRASH_
 

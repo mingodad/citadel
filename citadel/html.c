@@ -2,13 +2,9 @@
  * $Id$
  *
  * Functions which handle translation between HTML and plain text
- * Copyright (c) 2000-2001 by Art Cancro and others.   This program is
+ * Copyright (c) 2000-2005 by Art Cancro and others.   This program is
  * released under the terms of the GNU General Public License.
  */
-
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
 
 #include "sysdep.h"
 #include <stdlib.h>

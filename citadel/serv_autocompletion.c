@@ -4,10 +4,6 @@
  * Autocompletion of email recipients, etc.
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

@@ -5,10 +5,6 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #include <errno.h>
 #include <stdlib.h>

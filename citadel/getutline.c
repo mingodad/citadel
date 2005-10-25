@@ -6,10 +6,6 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #ifdef HAVE_UTMP_H
 #include <stdio.h>
