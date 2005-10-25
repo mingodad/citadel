@@ -176,6 +176,8 @@ void display_preferences(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 	char ebuf[300];
 	char buf[256];
+	char calhourformat[16];
+	int i;
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
@@ -222,24 +224,82 @@ void display_preferences(void)
 	/*
 	 * Calendar hour format
 	 */
-	get_preference("calhourformat", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "12");
+	get_preference("calhourformat", calhourformat, sizeof calhourformat);
+	if (calhourformat[0] == 0) strcpy(calhourformat, "12");
 	wprintf("<tr><td>");
 	wprintf(_("Calendar hour format"));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"12\"");
-	if (!strcasecmp(buf, "12")) wprintf(" checked");
+	if (!strcasecmp(calhourformat, "12")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("12 hour (am/pm)"));
 	wprintf("<br></input>\n");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"24\"");
-	if (!strcasecmp(buf, "24")) wprintf(" checked");
+	if (!strcasecmp(calhourformat, "24")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("24 hour"));
 	wprintf("<br></input>\n");
 
+	wprintf("</td></tr>\n");
+
+	/*
+	 * Calendar day view -- day start time
+	 */
+	get_preference("daystart", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "8");
+	wprintf("<tr><td>");
+	wprintf(_("Calendar day view begins at:"));
+	wprintf("</td><td>");
+
+	wprintf("<SELECT NAME=\"daystart\" SIZE=\"1\">\n");
+	for (i=0; i<=23; ++i) {
+
+		if (!strcasecmp(calhourformat, "24")) {
+			wprintf("<OPTION %s VALUE=\"%d\">%d:00</OPTION>\n",
+				((atoi(buf) == i) ? "SELECTED" : ""),
+				i, i
+			);
+		}
+		else {
+			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
+				((atoi(buf) == i) ? "SELECTED" : ""),
+				i, hourname[i]
+			);
+		}
+
+	}
+	wprintf("</SELECT>\n");
+	wprintf("</td></tr>\n");
+
+	/*
+	 * Calendar day view -- day end time
+	 */
+	get_preference("dayend", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "17");
+	wprintf("<tr><td>");
+	wprintf(_("Calendar day view ends at:"));
+	wprintf("</td><td>");
+
+	wprintf("<SELECT NAME=\"dayend\" SIZE=\"1\">\n");
+	for (i=0; i<=23; ++i) {
+
+		if (!strcasecmp(calhourformat, "24")) {
+			wprintf("<OPTION %s VALUE=\"%d\">%d:00</OPTION>\n",
+				((atoi(buf) == i) ? "SELECTED" : ""),
+				i, i
+			);
+		}
+		else {
+			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
+				((atoi(buf) == i) ? "SELECTED" : ""),
+				i, hourname[i]
+			);
+		}
+
+	}
+	wprintf("</SELECT>\n");
 	wprintf("</td></tr>\n");
 
 	/*
@@ -331,6 +391,8 @@ void set_preferences(void)
 	set_preference("roomlistview", bstr("roomlistview"), 0);
 	set_preference("calhourformat", bstr("calhourformat"), 0);
 	set_preference("use_sig", bstr("use_sig"), 0);
+	set_preference("daystart", bstr("daystart"), 0);
+	set_preference("dayend", bstr("dayend"), 0);
 
 	euid_escapize(ebuf, bstr("signature"));
 	set_preference("signature", ebuf, 1);
