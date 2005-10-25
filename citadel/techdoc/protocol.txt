@@ -388,6 +388,7 @@ where else to go.
 
  There are also several additional reserved room names:
  "_MAIL_" goes to the user's inbox (i.e. the Mail> room).
+ "_TRASH_" goes to the user's personal trashcan room (trash folder).
  "_BITBUCKET_" goes to a room that has been chosen for messages without a home.
  "_CALENDAR_" goes to the user's primary personal calendar.
  "_CONTACTS_" goes to the user's primary personal address book.

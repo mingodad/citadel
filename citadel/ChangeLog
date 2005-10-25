@@ -1,3 +1,6 @@
+Mon Oct 24 22:52:33 EDT 2005 ajc
+* Every user gets a Trash folder.  Clients can also use _TRASH_
+
 Mon Oct 24 11:19:47 EDT 2005 ajc
 * serv_listsub.c: web subscription/confirmation address no longer has http://
   prepended to it.  This means that clients now must supply that.  This was

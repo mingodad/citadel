@@ -489,6 +489,7 @@ void session_startup(void)
 	 */
 	create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
 	create_room(SENTITEMS, 4, "", 0, 1, 0, VIEW_MAILBOX);
+	create_room(USERTRASHROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
 
 	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);

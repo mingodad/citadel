@@ -941,6 +941,9 @@ void cmd_goto(char *gargs)
 	else if (!strcasecmp(towhere, "_MAIL_")) {
 		safestrncpy(towhere, MAILROOM, sizeof towhere);
 	}
+	else if (!strcasecmp(towhere, "_TRASH_")) {
+		safestrncpy(towhere, USERTRASHROOM, sizeof towhere);
+	}
 	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
 		safestrncpy(towhere, config.c_twitroom, sizeof towhere);
 	}
