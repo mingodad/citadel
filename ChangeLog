@@ -1,3 +1,6 @@
+Mon Oct 24 23:10:30 EDT 2005 ajc
+* Mailbox view: deleting messages now moves them to the Trash folder
+
 Mon Oct 24 22:18:25 EDT 2005 ajc
 * calendar_view.c: fixed a variable initialization bug that was causing some
   time-specific events to be displayed as all-day events.

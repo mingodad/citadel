@@ -2694,8 +2694,7 @@ void delete_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	sprintf(buf, "DELE %ld", msgid);
-	serv_puts(buf);
+	serv_printf("MOVE %ld|_TRASH_|0", msgid);
 	serv_getln(buf, sizeof buf);
 	wprintf("<EM>%s</EM><br />\n", &buf[4]);
 
@@ -2817,7 +2816,7 @@ void do_stuff_to_msgs(void) {
 		if (!strcasecmp(bstr(buf), "yes")) {
 
 			if (delete_button_pressed) {
-				serv_printf("DELE %ld", stuff->msgnum);
+				serv_printf("MOVE %ld|_TRASH_|0", stuff->msgnum);
 				serv_getln(buf, sizeof buf);
 			}
 
