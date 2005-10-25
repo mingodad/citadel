@@ -306,8 +306,16 @@ void calendar_day_view(int year, int month, int day) {
 	int hour;
 	struct icaltimetype today, yesterday, tomorrow;
 	char calhourformat[16];
+	int daystart = 8;
+	int dayend = 17;
+	char daystart_str[16], dayend_str[16];
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
+	get_preference("daystart", daystart_str, sizeof daystart_str);
+	if (strlen(daystart_str) > 0) daystart = atoi(daystart_str);
+	get_preference("dayend", dayend_str, sizeof dayend_str);
+	if (strlen(dayend_str) > 0) dayend = atoi(dayend_str);
+	
 
 	/* Figure out the dates for "yesterday" and "tomorrow" links */
 
@@ -344,13 +352,13 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TR>"
 		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
 		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
-	for (hour = (-1); hour <= 7; ++hour) {
+	for (hour = (-1); hour <= (daystart-1); ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
 	wprintf("</TD></TR>\n");
 
 	/* Now the middle of the day... */	
-	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
+	for (hour = daystart; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<TR HEIGHT=30><TD BGCOLOR=\"#CCCCDD\" ALIGN=MIDDLE "
 			"VALIGN=MIDDLE WIDTH=10%%>");
 		wprintf("<A HREF=\"/display_edit_event?msgnum=0"
@@ -380,7 +388,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TR>"
 		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
 		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
-	for (hour = 18; hour <= 23; ++hour) {
+	for (hour = (dayend+1); hour <= 23; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
 	wprintf("</TD></TR>\n");
