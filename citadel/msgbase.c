@@ -2746,7 +2746,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 	char this_recp[256];
 	char this_recp_cooked[256];
 	char append[SIZ];
-	int num_recps;
+	int num_recps = 0;
 	int i, j;
 	int mailtype;
 	int invalid;
