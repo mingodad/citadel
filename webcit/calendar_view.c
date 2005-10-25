@@ -247,7 +247,12 @@ void calendar_day_view_display_events(int year, int month,
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
-			if (t.is_date) all_day_event = 1;
+			if (t.is_date) {
+				all_day_event = 1;
+			}
+			else {
+				all_day_event = 0;
+			}
 
 			if (all_day_event) {
 				event_tm = gmtime(&event_tt);
@@ -462,7 +467,12 @@ void calendar_summary_view(void) {
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
-			if (t.is_date) all_day_event = 1;
+			if (t.is_date) {
+				all_day_event = 1;
+			}
+			else {
+				all_day_event = 0;
+			}
 			fmt_time(timestring, event_tt);
 
 			if (all_day_event) {
