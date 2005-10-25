@@ -3362,6 +3362,7 @@ void cmd_move(char *args)
 
 	num = extract_long(args, 0);
 	extract_token(targ, args, 1, '|', sizeof targ);
+	convert_room_name_macros(targ, sizeof targ);
 	targ[ROOMNAMELEN - 1] = 0;
 	is_copy = extract_int(args, 2);
 

@@ -910,6 +910,37 @@ void usergoto(char *where, int display_result, int transiently,
 }
 
 
+/*
+ * Handle some of the macro named rooms
+ */
+void convert_room_name_macros(char *towhere, size_t maxlen) {
+	if (!strcasecmp(towhere, "_BASEROOM_")) {
+		safestrncpy(towhere, config.c_baseroom, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_MAIL_")) {
+		safestrncpy(towhere, MAILROOM, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_TRASH_")) {
+		safestrncpy(towhere, USERTRASHROOM, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
+		safestrncpy(towhere, config.c_twitroom, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_CALENDAR_")) {
+		safestrncpy(towhere, USERCALENDARROOM, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_TASKS_")) {
+		safestrncpy(towhere, USERTASKSROOM, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_CONTACTS_")) {
+		safestrncpy(towhere, USERCONTACTSROOM, maxlen);
+	}
+	else if (!strcasecmp(towhere, "_NOTES_")) {
+		safestrncpy(towhere, USERNOTESROOM, maxlen);
+	}
+}
+
+
 /* 
  * cmd_goto()  -  goto a new room
  */
@@ -935,30 +966,7 @@ void cmd_goto(char *gargs)
 	/*
 	 * Handle some of the macro named rooms
 	 */
-	if (!strcasecmp(towhere, "_BASEROOM_")) {
-		safestrncpy(towhere, config.c_baseroom, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_MAIL_")) {
-		safestrncpy(towhere, MAILROOM, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_TRASH_")) {
-		safestrncpy(towhere, USERTRASHROOM, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
-		safestrncpy(towhere, config.c_twitroom, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_CALENDAR_")) {
-		safestrncpy(towhere, USERCALENDARROOM, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_TASKS_")) {
-		safestrncpy(towhere, USERTASKSROOM, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_CONTACTS_")) {
-		safestrncpy(towhere, USERCONTACTSROOM, sizeof towhere);
-	}
-	else if (!strcasecmp(towhere, "_NOTES_")) {
-		safestrncpy(towhere, USERNOTESROOM, sizeof towhere);
-	}
+	convert_room_name_macros(towhere, sizeof towhere);
 
 	/* First try a regular match */
 	c = getroom(&QRscratch, towhere);

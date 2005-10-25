@@ -60,6 +60,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
+void convert_room_name_macros(char *towhere, size_t maxlen);
 /*
  * Possible return values for CtdlRenameRoom()
  */
