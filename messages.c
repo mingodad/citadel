@@ -2799,6 +2799,7 @@ void do_stuff_to_msgs(void) {
 	serv_puts("MSGS ALL");
 	serv_getln(buf, sizeof buf);
 
+	lprintf(9, "%s:%d fetching msgnums\n", __FILE__, __LINE__);
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		ptr = malloc(sizeof(struct stuff_t));
 		ptr->msgnum = atol(buf);
@@ -2816,8 +2817,10 @@ void do_stuff_to_msgs(void) {
 		if (!strcasecmp(bstr(buf), "yes")) {
 
 			if (delete_button_pressed) {
+				lprintf(9, "%s:%d move %d\n", __FILE__, __LINE__, stuff->msgnum);
 				serv_printf("MOVE %ld|_TRASH_|0", stuff->msgnum);
 				serv_getln(buf, sizeof buf);
+				lprintf(9, "%s:%d %s\n", __FILE__, __LINE__, buf);
 			}
 
 		}
@@ -2826,6 +2829,7 @@ void do_stuff_to_msgs(void) {
 		free(stuff);
 		stuff = ptr;
 	}
+	lprintf(9, "%s:%d done, moving on...\n", __FILE__, __LINE__);
 
 	readloop("readfwd");
 }
