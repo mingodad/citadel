@@ -1,3 +1,7 @@
+Mon Oct 24 22:18:25 EDT 2005 ajc
+* calendar_view.c: fixed a variable initialization bug that was causing some
+  time-specific events to be displayed as all-day events.
+
 Mon Oct 24 11:58:53 EDT 2005 ajc
 * List sub/unsub confirmation -- Citadel now wants http:// or https://
   prepended as part of the 'submitted subscribe url' so we are now doing
