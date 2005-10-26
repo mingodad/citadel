@@ -31,6 +31,8 @@ enum {
 
 struct ma_info {
 	int is_ma;		/* Set to 1 if we are using this stuff */
+	int freeze;		/* Freeze the replacement chain because we're
+				 * digging through a subsection */
 	int did_print;		/* One alternative has been displayed */
 	char chosen_part[128];	/* Which part of a m/a did we choose? */
 };

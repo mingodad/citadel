@@ -1,5 +1,8 @@
 $Id$
 
+Wed Oct 26 13:22:02 EDT 2005 ajc
+* msgbase.c: Yet Another Fix to the handling of embedded message/rfc822
+
 Tue Oct 25 17:29:12 EDT 2005 ajc
 * msgbase.c: when a summary mode message list is requested, and the room
   contains a pointer to a message which does not exist (this normally should

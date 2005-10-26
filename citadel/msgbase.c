@@ -1066,7 +1066,9 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	if (!strcasecmp(cbtype, "multipart/alternative")) {
 		++ma->is_ma;
 		ma->did_print = 0;
-		return;
+	}
+	if (!strcasecmp(cbtype, "message/rfc822")) {
+		++ma->freeze;
 	}
 }
 
@@ -1084,7 +1086,9 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	if (!strcasecmp(cbtype, "multipart/alternative")) {
 		--ma->is_ma;
 		ma->did_print = 0;
-	return;
+	}
+	if (!strcasecmp(cbtype, "message/rfc822")) {
+		--ma->freeze;
 	}
 }
 
@@ -1110,7 +1114,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	 * If we're in the middle of a multipart/alternative scope and
 	 * we've already printed another section, skip this one.
 	 */	
-   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
+   	if ( (ma->is_ma) && (ma->did_print) ) {
 		lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n",
 			partnum, cbtype);
 		return;
@@ -1163,10 +1167,8 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	if (ma->is_ma > 0) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
-			if (!strcasecmp(buf, cbtype)) {
-				if (num_tokens(partnum, '.') < 3) {
-					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
-				}
+			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
+				safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
 			}
 		}
 	}
