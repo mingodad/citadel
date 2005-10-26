@@ -1,3 +1,9 @@
+$Id$
+
+Wed Oct 26 12:09:20 EDT 2005 ajc
+* webcit.c: msgesc() no longer inserts backslashes before every single-quote
+  appearing in the quoted or forwarded message.
+
 Mon Oct 24 23:10:30 EDT 2005 ajc
 * Mailbox view: deleting messages now moves them to the Trash folder
 
