@@ -158,9 +158,11 @@ void groupdav_propfind(char *dav_pathname) {
 	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
 	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
+	/*
 	lprintf(9, "dav_pathname: %s\n", dav_pathname);
 	lprintf(9, "dav_roomname: %s\n", dav_roomname);
 	lprintf(9, "     dav_uid: %s\n", dav_uid);
+	*/
 
 	/*
 	 * If the room name is blank, the client is requesting a
