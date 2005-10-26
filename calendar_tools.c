@@ -250,7 +250,7 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
 
-	lprintf(9, "ical_encapsulate_subcomponent() called\n");
+	/* lprintf(9, "ical_encapsulate_subcomponent() called\n"); */
 
 	if (subcomp == NULL) {
 		lprintf(3, "ERROR: called with NULL argument!\n");
@@ -261,14 +261,13 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	 * don't bother ... just return itself.
 	 */
 	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
-		lprintf(9, "Already encapsulated.  Returning itself.\n");
 		return subcomp;
 	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
 	if (encaps == NULL) {
-		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+		lprintf(3, "%s:%d: Error - could not allocate component!\n",
 			__FILE__, __LINE__);
 		return NULL;
 	}
@@ -280,7 +279,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 
 	/* Encapsulate the subcomponent inside */
-	lprintf(9, "Doing the encapsulation\n");
+	/* lprintf(9, "Doing the encapsulation\n"); */
 	icalcomponent_add_component(encaps, subcomp);
 
 	/* Convert all timestamps to UTC so we don't have to deal with

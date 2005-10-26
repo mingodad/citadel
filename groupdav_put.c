@@ -62,9 +62,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * version, so we fail...
 	 */
 	if (strlen(dav_ifmatch) > 0) {
-		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
 		old_msgnum = locate_message_by_uid(dav_uid);
-		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
