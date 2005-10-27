@@ -1,5 +1,8 @@
 $Id$
 
+Thu Oct 27 16:44:36 EDT 2005 ajc
+* Allow "host:port" syntax when specifying an outbound SMTP smart-host
+
 Wed Oct 26 13:22:02 EDT 2005 ajc
 * msgbase.c: Yet Another Fix to the handling of embedded message/rfc822
 

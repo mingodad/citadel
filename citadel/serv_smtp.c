@@ -921,9 +921,11 @@ void smtp_try(const char *key, const char *addr, int *status,
 	int num_mxhosts;
 	int mx;
 	int i;
-	char user[SIZ], node[SIZ], name[SIZ];
+	char user[1024], node[1024], name[1024];
 	char buf[1024];
 	char mailfrom[1024];
+	char mx_host[256];
+	char mx_port[256];
 	int lp, rp;
 	char *msgtext;
 	char *ptr;
@@ -1006,8 +1008,13 @@ void smtp_try(const char *key, const char *addr, int *status,
 	sock = (-1);
 	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
 		extract_token(buf, mxhosts, mx, '|', sizeof buf);
-		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
-		sock = sock_connect(buf, "25", "tcp");
+		extract_token(mx_host, buf, 0, ':', sizeof mx_host);
+		extract_token(mx_port, buf, 1, ':', sizeof mx_port);
+		if (!mx_port[0]) {
+			strcpy(mx_port, "25");
+		}
+		lprintf(CTDL_DEBUG, "Trying %s : %s ...\n", mx_host, mx_port);
+		sock = sock_connect(mx_host, mx_port, "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) lprintf(CTDL_DEBUG, "Connected!\n");
 		if (sock < 0) snprintf(dsn, SIZ, "%s", strerror(errno));

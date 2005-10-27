@@ -1874,7 +1874,9 @@ sites; you may require (due to local convention, security policy, or
 whatever) that all outbound mail be sent to an SMTP relay or forwarder.
 To configure this
 functionality, simply enter the domain name or IP address of your relay
-as a 'smart-host' entry.</p>
+as a 'smart-host' entry.  If your relay server is running on a port other
+than the standard SMTP port 25, you can also specify the port number
+using &quot;host:port&quot; syntax; i.e. <tt>relay99.myisp.com:2525</tt></p>
 <p><b>directory:</b> a domain for which you are participating in
 directory services across any number of Citadel nodes. For example, if
 users who have addresses in the domain <tt>citadel.org</tt> are spread
