@@ -1,5 +1,8 @@
 $Id$
 
+Thu Oct 27 16:56:09 EDT 2005 ajc
+* THIS IS 6.61
+
 Thu Oct 27 16:44:36 EDT 2005 ajc
 * Allow "host:port" syntax when specifying an outbound SMTP smart-host
 
