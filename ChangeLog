@@ -1,5 +1,8 @@
 $Id$
 
+Thu Oct 27 16:57:38 EDT 2005 ajc
+* THIS IS 6.31
+
 Wed Oct 26 16:19:24 EDT 2005 ajc
 * Bumped internal version number to 6.31.  Minimum Citadel server required
   is version 6.61.
