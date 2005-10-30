@@ -805,7 +805,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			);
 		}
 
-		wprintf("<a href=\"#\" onClick=\"window.open('/printmsg?msgnum=%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+		wprintf("<a href=\"#\" onClick=\"window.open('/printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Print"));
 
 		wprintf("</td>");
@@ -991,10 +991,10 @@ ENDBODY:
  * Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
  */
-void embed_message(void) {
+void embed_message(char *msgnum_as_string) {
 	long msgnum = 0L;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = atol(msgnum_as_string);
 	begin_ajax_response();
 	read_message(msgnum, 0, "");
 	end_ajax_response();
@@ -1004,10 +1004,10 @@ void embed_message(void) {
 /*
  * Printable view of a message
  */
-void print_message(void) {
+void print_message(char *msgnum_as_string) {
 	long msgnum = 0L;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = atol(msgnum_as_string);
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html\r\n"
@@ -1338,34 +1338,32 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<tr bgcolor=\"#%s\" ",
-		((num % 2) ? "DDDDDD" : "FFFFFF")
-	);
-
-	wprintf("onClick=\" new Ajax.Updater('preview_pane', '/msg', { method: 'get', parameters: 'msgnum=%ld' } ); \" ", WC->summ[num].msgnum);
+	wprintf("<div id=\"m%ld\" style=\"font-weight:%s\" onClick=\" new Ajax.Updater('preview_pane', '/msg/%d', { method: 'get' } ); \" ",
+		WC->summ[num].msgnum,
+		(WC->summ[num].is_new ? "bold" : "normal"),
+		WC->summ[num].msgnum);
 	wprintf(">");
 
-	wprintf("<TD>");
-	if (WC->summ[num].is_new) wprintf("<B>");
+	wprintf("<span style=\"float:left;width:45%%;background-color:#fff\">");
 	escputs(WC->summ[num].subj);
-	if (WC->summ[num].is_new) wprintf("</B>");
-	wprintf("</TD><TD>");
-	if (WC->summ[num].is_new) wprintf("<B>");
+	wprintf("</span>");
+
+	wprintf("<span style=\"float:left;width:35%%;background-color:#fff\">");
 	escputs(WC->summ[num].from);
-	if (WC->summ[num].is_new) wprintf("</B>");
-	wprintf(" </TD><TD>");
-	if (WC->summ[num].is_new) wprintf("<B>");
+	wprintf("</span>");
+
+	wprintf("<span style=\"float:left;width:15%%;background-color:#fff\">");
 	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
 	escputs(datebuf);
-	if (WC->summ[num].is_new) wprintf("</B>");
-	wprintf(" </TD>");
-	wprintf("<TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
-		"</TD>",
+	wprintf("</span>");
+
+	wprintf("<span style=\"float:left;width:5%%;background-color:#fff\">");
+	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">",
 		WC->summ[num].msgnum
 	);
+	wprintf("</span>");
 
-	wprintf("</tr>\n");
+	wprintf("</div>\n");
 }
 
 
@@ -2003,17 +2001,13 @@ void readloop(char *oper)
 			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
 
 			"<span class=\"mailbox_summary\">"
-			"<table border=0 cellspacing=0 "
-			"cellpadding=0 width=100%%>\n"
-			"<TR>"
-			"<TD align=center><b><i>%s</i></b> %s</TD>"
-			"<TD align=center><b><i>%s</i></b> %s</TD>"
-			"<TD align=center><b><i>%s</i></b> %s</TD>"
-			"<TD><INPUT TYPE=\"submit\" NAME=\"delete_button\" "
-			"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
-			" font-size: 6pt;\" "
-			"VALUE=\"%s\"></TD>"
-			"</TR>\n"
+			"<div id=\"summary_headers\" style=\"width:100%%\">"
+			"<span style=\"float:left;width:45%%\"><b><i>%s</i></b> %s</span>"
+			"<span style=\"float:left;width:35%%\"><b><i>%s</i></b> %s</span>"
+			"<span style=\"float:left;width:10%%\"><b><i>%s</i></b> %s</span>"
+			"<span style=\"float:left;width:10%%\">"
+			"<INPUT type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" value=\"%s\"></span>"
+			"</div>\n"
 			,
 			_("Subject"),	subjsort_button,
 			_("Sender"),	sendsort_button,
@@ -2065,7 +2059,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></span></form>"
+		wprintf("</span></form>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
