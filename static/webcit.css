@@ -271,12 +271,6 @@ a:hover {
 	color: #FFFFEE;
 }
 
-.youhavemail {
-	font-size: 6pt;
-	font-style: italic;
-	color: #000044;
-}
-
 .customize {
 	font-size: 8pt;
 	font-style: italic;
@@ -331,7 +325,8 @@ a:hover {
 	color: #000000;
 }
 
-/* Quote Levels Colors */
+<!-- begin quote levels colors -->
+
 blockquote {
 	color: navy !important; background-color: RGB(245,245,245) !important; 
 }
@@ -352,6 +347,8 @@ blockquote pre {
 	margin-left: 1%;
 	margin-right: 1%;
 }
+
+<!-- end quote levels colors -->
 
 var sub {
 	font-style: normal;
