@@ -109,7 +109,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 
 	if (enable_syslog) {
 		va_start(arg_ptr, format);
-			vsyslog(loglevel, format, arg_ptr);
+			vsyslog((syslog_facility | loglevel), format, arg_ptr);
 		va_end(arg_ptr);
 	}
 

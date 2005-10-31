@@ -136,14 +136,17 @@ int main(int argc, char **argv)
 		drop_root_perms = 1;
 	}
 
-	/* initialize the syslog facility */
+	/* Initialize the syslogger.  Yes, we are really using 0 as the
+	 * facility, because we are going to bitwise-OR the facility to
+	 * the severity of each message, allowing us to write to other
+	 * facilities when we need to...
+	 */
 	if (enable_syslog) {
 		if (running_as_daemon) {
-			openlog("citadel", LOG_NDELAY, syslog_facility);
+			openlog("citadel", LOG_NDELAY, 0);
 		}
 		else {
-			openlog("citadel", LOG_PERROR|LOG_NDELAY,
-				syslog_facility);
+			openlog("citadel", LOG_PERROR|LOG_NDELAY, 0);
 		}
 		setlogmask(LOG_UPTO(verbosity));
 	}

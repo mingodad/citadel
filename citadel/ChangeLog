@@ -1,5 +1,10 @@
 $Id$
 
+Sun Oct 30 23:03:49 EST 2005 ajc
+* When logging to syslog is enabled, SMTP transactions are now logged to
+  LOG_MAIL as well as whatever the normal facility is, in a format
+  similar to what conventional MTA's use.  Resolves bugzilla issue #153.
+
 Sun Oct 30 22:22:00 EST 2005 ajc
 * syslog messages are now sent to the desired facility rather than always
   going to LOG_DAEMON.  There was a command line parsing bug.

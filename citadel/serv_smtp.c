@@ -31,6 +31,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <syslog.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -780,6 +781,22 @@ void smtp_data(void) {
 		cprintf("%s", result);
 	}
 
+	/* Write something to the syslog (which may or may not be where the
+	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
+	 */
+	if (enable_syslog) {
+		syslog((LOG_MAIL | LOG_INFO),
+			"%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
+			msgnum,
+			SMTP->from,
+			SMTP->number_of_recipients,
+			CC->cs_host,
+			CC->cs_addr,
+			result
+		);
+	}
+
+	/* Clean up */
 	CtdlFreeMessage(msg);
 	free(valid);
 	smtp_data_clear();	/* clear out the buffers now */
@@ -1179,6 +1196,20 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 bail:	free(msgtext);
 	sock_close(sock);
+
+	/* Write something to the syslog (which may or may not be where the
+	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
+	 */
+	if (enable_syslog) {
+		syslog((LOG_MAIL | LOG_INFO),
+			"%ld: to=<%s>, relay=%s, stat=%s",
+			msgnum,
+			addr,
+			mx_host,
+			dsn
+		);
+	}
+
 	return;
 }
 
