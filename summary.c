@@ -35,7 +35,7 @@ void output_date(void) {
 	months[8] = _("September");
 	months[9] = _("October");
 	months[10] = _("November");
-	months[12] = _("December");
+	months[11] = _("December");
 
 	time(&now);
 	localtime_r(&now, &tm);
