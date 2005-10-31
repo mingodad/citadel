@@ -1454,7 +1454,8 @@ void cmd_setr(char *args)
 				 "/files/%s", CC->room.QRdirname);
 		mkdir(buf, 0755);
 	}
-	snprintf(buf, sizeof buf, "%s> edited by %s\n", CC->room.QRname, CC->curr_user);
+	snprintf(buf, sizeof buf, "The room \"%s\" has been edited by %s.\n",
+		CC->room.QRname, CC->curr_user);
 	aide_message(buf);
 	cprintf("%d Ok\n", CIT_OK);
 }
@@ -1511,11 +1512,11 @@ void cmd_seta(char *new_ra)
 	if (post_notice == 1) {
 		if (strlen(usbuf.fullname) > 0)
 			snprintf(buf, sizeof buf,
-				"%s is now room aide for %s>\n",
+				"%s is now the room aide for \"%s\".\n",
 				usbuf.fullname, CC->room.QRname);
 		else
 			snprintf(buf, sizeof buf,
-				"There is now no room aide for %s>\n",
+				"There is now no room aide for \"%s\".\n",
 				CC->room.QRname);
 		aide_message(buf);
 	}
@@ -1706,7 +1707,7 @@ void cmd_kill(char *argbuf)
 		usergoto(config.c_baseroom, 0, 0, NULL, NULL);
 
 		/* tell the world what we did */
-		snprintf(msg, sizeof msg, "%s> killed by %s\n",
+		snprintf(msg, sizeof msg, "The room \"%s\" has been deleted by %s.\n",
 			 deleted_room_name, CC->curr_user);
 		aide_message(msg);
 		cprintf("%d '%s' deleted.\n", CIT_OK, deleted_room_name);
@@ -1915,7 +1916,7 @@ void cmd_cre8(char *args)
 	/* post a message in Aide> describing the new room */
 	notification_message = malloc(1024);
 	snprintf(notification_message, 1024,
-		"%s> created by %s%s%s%s%s%s\n",
+		"A new room called \"%s\" has been created by %s%s%s%s%s%s\n",
 		new_room_name,
 		CC->user.fullname,
 		((newflags & QR_MAILBOX) ? " [personal]" : ""),

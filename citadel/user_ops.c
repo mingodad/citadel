@@ -1153,7 +1153,7 @@ int CtdlInvtKick(char *iuser, int op) {
 	CtdlSetRelationship(&vbuf, &USscratch, &CC->room);
 
 	/* post a message in Aide> saying what we just did */
-	snprintf(bbb, sizeof bbb, "%s %s %s> by %s\n",
+	snprintf(bbb, sizeof bbb, "%s has been %s \"%s\" by %s.\n",
 		iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->room.QRname,
@@ -1532,7 +1532,7 @@ void cmd_asup(char *cmdbuf)
 	}
 
 	if (deleted) {
-		sprintf(notify, "User <%s> deleted by %s\n",
+		sprintf(notify, "User \"%s\" has been deleted by %s.\n",
 			usbuf.fullname, CC->user.fullname);
 		aide_message(notify);
 	}

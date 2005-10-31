@@ -1,5 +1,11 @@
 $Id$
 
+Sun Oct 30 21:17:57 EST 2005 ajc
+* Log messages posted to the Aide> room indicating activity such as room
+  create/delete/edit operations now use "Room Name" rather than Room Name>
+  because users unfamiliar with the text-mode Citadel tradition may think
+  that the latter syntax is an output error.  Resolves bugzilla issue #166.
+
 Thu Oct 27 16:56:09 EDT 2005 ajc
 * THIS IS 6.61
 
