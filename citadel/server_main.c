@@ -78,14 +78,11 @@ int main(int argc, char **argv)
 	/* initialize the master context */
 	InitializeMasterCC();
 
-	/* set default syslog facility */
-	syslog_facility = LOG_DAEMON;
-
 	/* parse command-line arguments */
 	for (a=1; a<argc; ++a) {
 
 		if (!strncmp(argv[a], "-l", 2)) {
-			safestrncpy(facility, argv[a], sizeof(facility));
+			safestrncpy(facility, &argv[a][2], sizeof(facility));
 			syslog_facility = SyslogFacility(facility);
 			enable_syslog = 1;
 		}

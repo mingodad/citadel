@@ -1,5 +1,9 @@
 $Id$
 
+Sun Oct 30 22:22:00 EST 2005 ajc
+* syslog messages are now sent to the desired facility rather than always
+  going to LOG_DAEMON.  There was a command line parsing bug.
+
 Sun Oct 30 21:17:57 EST 2005 ajc
 * Log messages posted to the Aide> room indicating activity such as room
   create/delete/edit operations now use "Room Name" rather than Room Name>

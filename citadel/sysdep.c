@@ -97,7 +97,7 @@ int num_sessions = 0;				/* Current number of sessions */
 pthread_t indexer_thread_tid;
 pthread_t checkpoint_thread_tid;
 
-int syslog_facility = (-1);
+int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
 extern int running_as_daemon;
 
