@@ -1,5 +1,8 @@
 $Id$
 
+Sun Oct 30 21:58:23 EST 2005 ajc
+* summary.c: fixed the date display.
+
 Sun Oct 30 01:40:35 EDT 2005 ajc
 * messages.c: the summary line for each message is now a div containing fixed
   width floating spans instead of a table row.  This is being done as part of
