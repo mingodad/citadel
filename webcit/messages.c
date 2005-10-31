@@ -1344,11 +1344,11 @@ void display_summarized(int num) {
 		WC->summ[num].msgnum);
 	wprintf(">");
 
-	wprintf("<span style=\"float:left;width:45%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:50%%;background-color:#fff\">");
 	escputs(WC->summ[num].subj);
 	wprintf("</span>");
 
-	wprintf("<span style=\"float:left;width:35%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:30%%;background-color:#fff\">");
 	escputs(WC->summ[num].from);
 	wprintf("</span>");
 
@@ -1361,7 +1361,7 @@ void display_summarized(int num) {
 	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">",
 		WC->summ[num].msgnum
 	);
-	wprintf("</span>");
+	wprintf("</span><br>");
 
 	wprintf("</div>\n");
 }
@@ -2002,8 +2002,8 @@ void readloop(char *oper)
 
 			"<span class=\"mailbox_summary\">"
 			"<div id=\"summary_headers\" style=\"width:100%%\">"
-			"<span style=\"float:left;width:45%%\"><b><i>%s</i></b> %s</span>"
-			"<span style=\"float:left;width:35%%\"><b><i>%s</i></b> %s</span>"
+			"<span style=\"float:left;width:50%%\"><b><i>%s</i></b> %s</span>"
+			"<span style=\"float:left;width:30%%\"><b><i>%s</i></b> %s</span>"
 			"<span style=\"float:left;width:10%%\"><b><i>%s</i></b> %s</span>"
 			"<span style=\"float:left;width:10%%\">"
 			"<INPUT type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" value=\"%s\"></span>"
