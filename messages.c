@@ -1342,28 +1342,28 @@ void display_summarized(int num) {
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
 		WC->summ[num].msgnum);
-	wprintf(">");
+	wprintf("><span style=\"float:left;width:100%%;background-color:#fff\">");
 
-	wprintf("<span style=\"float:left;width:50%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:50%%\">");
 	escputs(WC->summ[num].subj);
 	wprintf("</span>");
 
-	wprintf("<span style=\"float:left;width:30%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:30%%\">");
 	escputs(WC->summ[num].from);
 	wprintf("</span>");
 
-	wprintf("<span style=\"float:left;width:15%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:15%%\">");
 	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
 	escputs(datebuf);
 	wprintf("</span>");
 
-	wprintf("<span style=\"float:left;width:5%%;background-color:#fff\">");
+	wprintf("<span style=\"float:left;width:5%%\">");
 	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">",
 		WC->summ[num].msgnum
 	);
-	wprintf("</span><br>");
+	wprintf("</span>");
 
-	wprintf("</div>\n");
+	wprintf("</span></div>\n");
 }
 
 
