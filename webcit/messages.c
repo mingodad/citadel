@@ -1338,11 +1338,13 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<div id=\"m%ld\" style=\"font-weight:%s\" onClick=\" new Ajax.Updater('preview_pane', '/msg/%d', { method: 'get' } ); \" ",
+	wprintf("<span "
+		"id=\"m%ld\" style=\"float:left;width:100%%;font-weight:%s;background-color:#fff\" "
+		"onClick=\" new Ajax.Updater('preview_pane', '/msg/%d', { method: 'get' } ); \">",
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
-		WC->summ[num].msgnum);
-	wprintf("><span style=\"float:left;width:100%%;background-color:#fff\">");
+		WC->summ[num].msgnum
+	);
 
 	wprintf("<span style=\"float:left;width:50%%\">");
 	escputs(WC->summ[num].subj);
@@ -1363,7 +1365,7 @@ void display_summarized(int num) {
 	);
 	wprintf("</span>");
 
-	wprintf("</span></div>\n");
+	wprintf("</span>\n");
 }
 
 
