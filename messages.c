@@ -1337,34 +1337,32 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<span "
-		"id=\"m%ld\" style=\"float:left;width:100%%;font-weight:%s;background-color:#fff\" "
+	wprintf("<tr id=\"m%ld\" style=\"width:100%%;font-weight:%s;background-color:#fff\" "
 		"onClick=\" new Ajax.Updater('preview_pane', '/msg/%d', { method: 'get' } ); \">",
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
 		WC->summ[num].msgnum
 	);
 
-	wprintf("<span style=\"float:left;width:50%%\">");
+	wprintf("<td>");
 	escputs(WC->summ[num].subj);
-	wprintf("</span>");
+	wprintf("</td>");
 
-	wprintf("<span style=\"float:left;width:30%%\">");
+	wprintf("<td>");
 	escputs(WC->summ[num].from);
-	wprintf("</span>");
+	wprintf("</td>");
 
-	wprintf("<span style=\"float:left;width:15%%\">");
+	wprintf("<td>");
 	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
 	escputs(datebuf);
-	wprintf("</span>");
+	wprintf("</td>");
 
-	wprintf("<span style=\"float:left;width:5%%\">");
-	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">",
+	wprintf("<td><input type=\"checkbox\" name=\"msg_%ld\" value=\"yes\">",
 		WC->summ[num].msgnum
 	);
-	wprintf("</span>");
+	wprintf("</td>");
 
-	wprintf("</span>\n");
+	wprintf("</tr>\n");
 }
 
 
@@ -2022,13 +2020,12 @@ void readloop(char *oper)
 			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
 
 			"<span class=\"mailbox_summary\">"
-			"<div id=\"summary_headers\" style=\"width:100%%\">"
-			"<span style=\"float:left;width:50%%\"><b><i>%s</i></b> %s</span>"
-			"<span style=\"float:left;width:30%%\"><b><i>%s</i></b> %s</span>"
-			"<span style=\"float:left;width:10%%\"><b><i>%s</i></b> %s</span>"
-			"<span style=\"float:left;width:10%%\">"
-			"<INPUT type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" value=\"%s\"></span>"
-			"</div>\n"
+			"<table id=\"summary_headers\" style=\"width:100%%\"><tr>"
+			"<td><b><i>%s</i></b> %s</td>"
+			"<td><b><i>%s</i></b> %s</td>"
+			"<td><b><i>%s</i></b> %s</td>"
+			"<td><input type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" value=\"%s\"></td>"
+			"</tr>\n"
 			,
 			_("Subject"),	subjsort_button,
 			_("Sender"),	sendsort_button,
@@ -2090,7 +2087,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</span></form>"
+		wprintf("</table></form>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
