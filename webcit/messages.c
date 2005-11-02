@@ -1334,7 +1334,6 @@ ENDBODY:
 
 
 
-
 void display_summarized(int num) {
 	char datebuf[64];
 
@@ -1720,6 +1719,18 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	return (nummsgs);
 }
 
+int longcmp_r(const void *s1, const void *s2) {
+	long l1;
+	long l2;
+
+	l1 = *(long *)s1;
+	l2 = *(long *)s2;
+
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
+	return(0);
+}
+
  
 int summcmp_subj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1793,6 +1804,7 @@ void readloop(char *oper)
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
+	long *displayed_msgs = NULL;
 	int num_displayed = 0;
 	int is_summary = 0;
 	int is_addressbook = 0;
@@ -1800,13 +1812,9 @@ void readloop(char *oper)
 	int is_calendar = 0;
 	int is_tasks = 0;
 	int is_notes = 0;
-	int remaining_messages;
 	int lo, hi;
 	int lowest_displayed = (-1);
 	int highest_displayed = 0;
-	long pn_previous = 0L;
-	long pn_current = 0L;
-	long pn_next = 0L;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	char *sortby = NULL;
@@ -1815,6 +1823,7 @@ void readloop(char *oper)
 	char *subjsort_button;
 	char *sendsort_button;
 	char *datesort_button;
+	int bbs_reverse = 0;	/* FIXME we need to set/reset this option now.  It works. */
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -1926,12 +1935,12 @@ void readloop(char *oper)
 		}
 	}
 
-	if (startmsg == 0L) startmsg = WC->msgarr[0];
-	remaining_messages = 0;
-
-	for (a = 0; a < nummsgs; ++a) {
-		if (WC->msgarr[a] >= startmsg) {
-			++remaining_messages;
+	if (startmsg == 0L) {
+		if (bbs_reverse) {
+			startmsg = WC->msgarr[(nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0];
+		}
+		else {
+			startmsg = WC->msgarr[0];
 		}
 	}
 
@@ -2021,11 +2030,6 @@ void readloop(char *oper)
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
-			/* Learn which msgs "Prev" & "Next" buttons go to */
-			pn_current = WC->msgarr[a];
-			if (a > 0) pn_previous = WC->msgarr[a-1];
-			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
-
 			/* Display the message */
 			if (is_summary) {
 				display_summarized(a);
@@ -2049,15 +2053,30 @@ void readloop(char *oper)
 				display_note(WC->msgarr[a]);
 			}
 			else {
-				read_message(WC->msgarr[a], 0, "");
+				if (displayed_msgs == NULL) {
+					displayed_msgs = malloc(sizeof(long) *
+								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
+				}
+				displayed_msgs[num_displayed] = WC->msgarr[a];
 			}
 
 			if (lowest_displayed < 0) lowest_displayed = a;
 			highest_displayed = a;
 
 			++num_displayed;
-			--remaining_messages;
 		}
+	}
+
+	if (displayed_msgs != NULL) {
+		if (bbs_reverse) {
+			qsort(displayed_msgs, num_displayed, sizeof(long), longcmp_r);
+		}
+
+		for (a=0; a<num_displayed; ++a) {
+			read_message(displayed_msgs[a], 0, "");
+		}
+		free(displayed_msgs);
+		displayed_msgs = NULL;
 	}
 
 	if (is_summary) {
@@ -2071,6 +2090,8 @@ void readloop(char *oper)
 
 		/* Now register each message (whose element ID is "m9999",
 		 * where "9999" is the message number) as draggable.
+		 * (NOTE: uses script.aculo.us draggables, which will probably not be
+		 * adequate for this purpose.)
 		wprintf("<script type=\"text/javascript\">\n");
 		for (a = 0; a < nummsgs; ++a) {
 			wprintf("new Draggable('m%ld',{revert:true});\n",
@@ -2085,51 +2106,6 @@ void readloop(char *oper)
 	 */
 	++lowest_displayed;
 	++highest_displayed;
-
-	/* If we're only looking at one message, do a prev/next thing */
-	if (num_displayed == 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
-
-		wprintf("<div id=\"fix_scrollbar_bug\">"
-			"<table border=0 width=100%% bgcolor=\"#dddddd\"><tr><td>");
-		wprintf(_("Reading #%d of %d messages."), lowest_displayed, nummsgs);
-		wprintf("</TD><TD ALIGN=RIGHT><FONT SIZE=+1>");
-
-		if (pn_previous > 0L) {
-			wprintf("<A HREF=\"/%s"
-				"?startmsg=%ld"
-				"?maxmsgs=1"
-				"?summary=0\">"
-				"%s</A> \n",
-					oper,
-					pn_previous,
-					_("Previous"));
-		}
-
-		if (pn_next > 0L) {
-			wprintf("<A HREF=\"/%s"
-				"?startmsg=%ld"
-				"?maxmsgs=1"
-				"?summary=0\">"
-				"%s</A> \n",
-					oper,
-					pn_next,
-					_("Next"));
-		}
-
-		wprintf("<A HREF=\"/%s?startmsg=%ld"
-			"?maxmsgs=%d?summary=1\">"
-			"%s"
-			"</A>",
-			oper,
-			WC->msgarr[0],
-			DEFAULT_MAXMSGS,
-			_("Summary")
-		);
-
-		wprintf("</td></tr></table></div>\n");
-	    }
-	}
 
 	/*
 	 * If we're not currently looking at ALL requested
@@ -2148,23 +2124,45 @@ void readloop(char *oper)
 			"OnChange=\"location.href=msgomatic.whichones.options"
 			"[selectedIndex].value\">\n");
 
-		for (b=0; b<nummsgs; b = b + maxmsgs) {
-		lo = b+1;
-		hi = b+maxmsgs;
-		if (hi > nummsgs) hi = nummsgs;
-			wprintf("<option %s value="
-				"\"/%s"
-				"?startmsg=%ld"
-				"?maxmsgs=%d"
-				"?summary=%d\">"
-				"%d-%d</option> \n",
-				((WC->msgarr[b] == startmsg) ? "selected" : ""),
-				oper,
-				WC->msgarr[b],
-				maxmsgs,
-				is_summary,
-				lo, hi);
+		if (bbs_reverse) {
+			for (b=nummsgs-1; b>=0; b = b - maxmsgs) {
+				hi = b + 1;
+				lo = b - maxmsgs + 2;
+				if (lo < 1) lo = 1;
+				wprintf("<option %s value="
+					"\"/%s"
+					"?startmsg=%ld"
+					"?maxmsgs=%d"
+					"?summary=%d\">"
+					"%d-%d</option> \n",
+					((WC->msgarr[lo-1] == startmsg) ? "selected" : ""),
+					oper,
+					WC->msgarr[lo-1],
+					maxmsgs,
+					is_summary,
+					hi, lo);
+			}
 		}
+		else {
+			for (b=0; b<nummsgs; b = b + maxmsgs) {
+				lo = b + 1;
+				hi = b + maxmsgs + 1;
+				if (hi > nummsgs) hi = nummsgs;
+				wprintf("<option %s value="
+					"\"/%s"
+					"?startmsg=%ld"
+					"?maxmsgs=%d"
+					"?summary=%d\">"
+					"%d-%d</option> \n",
+					((WC->msgarr[b] == startmsg) ? "selected" : ""),
+					oper,
+					WC->msgarr[lo-1],
+					maxmsgs,
+					is_summary,
+					lo, hi);
+			}
+		}
+
 		wprintf("<option value=\"/%s?startmsg=%ld"
 			"?maxmsgs=9999999?summary=%d\">"
 			"ALL"
