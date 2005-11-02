@@ -209,12 +209,12 @@ void display_edit_address_book_entry(char *username, long usernum) {
  * to send the user to the vCard editor next.
  */
 void display_edituser(char *supplied_username, int is_new) {
-	char buf[SIZ];
-	char error_message[SIZ];
+	char buf[1024];
+	char error_message[1024];
 	time_t now;
 
-	char username[SIZ];
-	char password[SIZ];
+	char username[256];
+	char password[256];
 	unsigned int flags;
 	int timescalled;
 	int msgsposted;
@@ -290,6 +290,15 @@ void display_edituser(char *supplied_username, int is_new) {
 		"<INPUT TYPE=\"password\" NAME=\"password\" VALUE=\"");
 	escputs(password);
 	wprintf("\" MAXLENGTH=\"20\"></TD></TR>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("Permission to send Internet mail"));
+	wprintf("</td><td>");
+	wprintf("<input type=\"checkbox\" name=\"inetmail\" value=\"yes\" ");
+	if (flags & US_INTERNET) {
+		wprintf("CHECKED ");
+	}
+	wprintf("></td></tr>\n");
 
 	wprintf("<TR><TD>");
 	wprintf(_("Number of logins"));
@@ -368,6 +377,7 @@ void edituser(void) {
 	char message[SIZ];
 	char buf[SIZ];
 	int is_new = 0;
+	unsigned int flags = 0;
 
 	is_new = atoi(bstr("is_new"));
 
@@ -375,11 +385,18 @@ void edituser(void) {
 		safestrncpy(message, _("Changes were not saved."), sizeof message);
 	}
 	else {
+		flags = atoi(bstr("flags"));
+		if (!strcasecmp(bstr("inetmail"), "yes")) {
+			flags |= US_INTERNET;
+		}
+		else {
+			flags &= ~US_INTERNET ;
+		}
 
-		serv_printf("ASUP %s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		serv_printf("ASUP %s|%s|%d|%s|%s|%s|%s|%s|%s|",
 			bstr("username"),
 			bstr("password"),
-			bstr("flags"),
+			flags,
 			bstr("timescalled"),
 			bstr("msgsposted"),
 			bstr("axlevel"),

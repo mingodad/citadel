@@ -142,6 +142,25 @@
 #define UA_ZAPPED	       16
 
 
+/*
+ * User flags (from Citadel)
+ */
+#define US_NEEDVALID	1		/* User needs to be validated       */
+#define US_PERM		4		/* Permanent user                   */
+#define US_LASTOLD	16		/* Print last old message with new  */
+#define US_EXPERT	32		/* Experienced user		    */
+#define US_UNLISTED	64		/* Unlisted userlog entry           */
+#define US_NOPROMPT	128		/* Don't prompt after each message  */
+#define US_PROMPTCTL	256		/* <N>ext & <S>top work at prompt   */
+#define US_DISAPPEAR	512		/* Use "disappearing msg prompts"   */
+#define US_REGIS	1024		/* Registered user                  */
+#define US_PAGINATOR	2048		/* Pause after each screen of text  */
+#define US_INTERNET	4096		/* Internet mail privileges         */
+#define US_FLOORS	8192		/* User wants to see floors         */
+#define US_COLOR	16384		/* User wants ANSI color support    */
+#define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
+			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
+			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
 
 
