@@ -1838,7 +1838,17 @@ void readloop(char *oper)
 		set_preference(sortpref_name, sortby, 1);
 	}
 	if (strlen(sortby) == 0) sortby = sortpref_value;
+
+	/* mailbox sort */
 	if (strlen(sortby) == 0) sortby = "rdate";
+
+	/* message board sort */
+	if (!strcasecmp(sortby, "reverse")) {
+		bbs_reverse = 1;
+	}
+	else {
+		bbs_reverse = 0;
+	}
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -2172,6 +2182,25 @@ void readloop(char *oper)
 
 		wprintf("</select> ");
 		wprintf(_("of %d messages."), nummsgs);
+
+		/* forward/reverse */
+		wprintf("&nbsp;<select name=\"direction\" size=\"1\" "
+			"OnChange=\"location.href=msgomatic.direction.options"
+			"[selectedIndex].value\">\n"
+		);
+
+		wprintf("<option %s value=\"/%s&sortby=forward\">oldest to newest</option>\n",
+			(bbs_reverse ? "" : "selected"),
+			oper
+		);
+	
+		wprintf("<option %s value=\"/%s&sortby=reverse\">newest to oldest</option>\n",
+			(bbs_reverse ? "selected" : ""),
+			oper
+		);
+	
+		wprintf("</select>");
+
 		wprintf("</form>\n");
 	    }
 	}

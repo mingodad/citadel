@@ -1,5 +1,9 @@
 $Id$
 
+Wed Nov  2 15:07:21 EST 2005 ajc
+* "Read reverse" (or rather, an "oldest to newest / newest to oldest"
+  setting) is now selectable in the message board view.
+
 Wed Nov  2 00:10:28 EST 2005 ajc
 * Implemented the webcit equivalent of "read reverse" for bbs read mode.
   All we need now is to add the user options to select it.
