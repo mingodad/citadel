@@ -2020,7 +2020,7 @@ void readloop(char *oper)
 			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
 
 			"<span class=\"mailbox_summary\">"
-			"<table id=\"summary_headers\" style=\"width:100%%\"><tr>"
+			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\"><tr>"
 			"<td><b><i>%s</i></b> %s</td>"
 			"<td><b><i>%s</i></b> %s</td>"
 			"<td><b><i>%s</i></b> %s</td>"
@@ -2087,7 +2087,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></form>"
+		wprintf("</table></span></form>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
