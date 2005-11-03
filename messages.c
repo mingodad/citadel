@@ -2227,15 +2227,6 @@ DONE:
 		WC->num_summ = 0;
 		free(WC->summ);
 	}
-
-	/* If we got here via a mailbox view and are reading a single
-	 * message, mark it as "seen." We do this after rendering the web page
-	 * so it doesn't keep the user waiting.
-	 */
-	if ( (maxmsgs == 1) && (WC->wc_view == VIEW_MAILBOX) ) {
-		serv_printf("SEEN %ld|1", startmsg);
-		serv_getln(buf, sizeof buf);
-	}
 }
 
 
