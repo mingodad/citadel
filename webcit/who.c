@@ -56,20 +56,20 @@ void who_inner_div(void) {
 			wprintf("<td>");
 			if ((WC->is_aide) &&
 			    (sess != WC->ctdl_pid)) {
-				wprintf(" <a href=\"/terminate_session?which_session=%d", sess);
+				wprintf(" <a href=\"terminate_session?which_session=%d", sess);
 				wprintf("\" onClick=\"return ConfirmKill();\">%s</a>", _("(kill)"));
 			}
 			if (sess == WC->ctdl_pid) {
-				wprintf(" <a href=\"/edit_me\">%s</a>", _("(edit)"));
+				wprintf(" <a href=\"edit_me\">%s</a>", _("(edit)"));
 			}
 			wprintf("</td>");
 
 			/* (link to page this user) */
-			wprintf("<td><a href=\"/display_page?recp=");
+			wprintf("<td><a href=\"display_page?recp=");
 			urlescputs(user);
 			wprintf("\">"
 				"<img align=\"middle\" "
-				"src=\"/static/citadelchat_24x.gif\" "
+				"src=\"static/citadelchat_24x.gif\" "
 				"alt=\"(p)\""
 				" border=\"0\" /></a> ");
 			wprintf("</td>");
@@ -79,13 +79,13 @@ void who_inner_div(void) {
 			if ((now - last_activity) > 900L) {
 				wprintf(" "
 					"<img align=\"middle\" "
-					"src=\"/static/inactiveuser_24x.gif\" "
+					"src=\"static/inactiveuser_24x.gif\" "
 					"alt=\"(idle)\" border=\"0\" />");
 			}
 			else {
 				wprintf(" "
 					"<img align=\"middle\" "
-					"src=\"/static/activeuser_24x.gif\" "
+					"src=\"static/activeuser_24x.gif\" "
 					"alt=\"(active)\" border=\"0\" />");
 			}
 			wprintf("</td>\n<td>");
@@ -141,7 +141,7 @@ void who(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<IMG SRC=\"/static/usermanag_48x.gif\" ALT=\" \" "
+	wprintf("<IMG SRC=\"static/usermanag_48x.gif\" ALT=\" \" "
 		"ALIGN=MIDDLE "
 		">");
 	wprintf("<SPAN CLASS=\"titlebar\"> ");
@@ -163,7 +163,7 @@ void who(void)
 	wprintf("<div id=\"instructions\" align=center>");
 	wprintf(_("Click on a name to read user info.  Click on %s "
 		"to send an instant message to that user."),
-		"<img align=\"middle\" src=\"/static/citadelchat_16x.gif\" alt=\"(p)\" border=\"0\">"
+		"<img align=\"middle\" src=\"static/citadelchat_16x.gif\" alt=\"(p)\" border=\"0\">"
 	);
 	wprintf("</div>\n");
 
@@ -231,18 +231,18 @@ void edit_me(void)
 			"without typing anything in the corresponding box. "));
 		wprintf("<br />\n");
 
-		wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
+		wprintf("<form method=\"POST\" action=\"edit_me\">\n");
 
-		wprintf("<TABLE border=0 width=100%%>\n");
+		wprintf("<table border=0 width=100%%>\n");
 
-		wprintf("<TR><TD><B>");
+		wprintf("<tr><td><b>");
 		wprintf(_("Room name:"));
-		wprintf("</B></TD>\n<TD>");
-		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
-		wprintf("</TD>\n<TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"change_room_name_button\" VALUE=\"%s\">",
+		wprintf("</b></td>\n<td>");
+		wprintf("<input type=\"text\" name=\"fake_roomname\" maxlength=\"64\">\n");
+		wprintf("</td>\n<td align=center>");
+		wprintf("<input type=\"submit\" name=\"change_room_name_button\" value=\"%s\">",
 			_("Change room name"));
-		wprintf("</TD>\n</TR>\n");
+		wprintf("</td>\n</tr>\n");
 
 		wprintf("<TR><TD><B>");
 		wprintf(_("Host name:"));
