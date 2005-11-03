@@ -112,28 +112,6 @@ body {
 	overflow: auto;
 }
 
-#ml_slider {
-	position:fixed;
-	display:block;
-	top: 40%;
-	left: 15%;
-	width: 85%;
-	height: 1%;
-	overflow: none;
-	background: #444455;
-}
-
-* html #ml_slider {
-	position:absolute;
-	display:block;
-	top: 40%;
-	left: 15%;
-	width: 85%;
-	height: 1%;
-	overflow: none;
-	background: #444455;
-}
-
 #preview_pane {
 	position:fixed;
 	display:block;
