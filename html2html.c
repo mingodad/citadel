@@ -41,18 +41,18 @@ void output_html(char *charset) {
 #endif
 
 	msg = strdup("");
-	sprintf(new_window, "<A TARGET=\"%s\" HREF=", TARGET);
+	sprintf(new_window, "<a target=\"%s\" href=", TARGET);
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
 		buffer_length = content_length + line_length + 2;
 		msg = realloc(msg, buffer_length);
 		if (msg == NULL) {
-			wprintf("<B>");
+			wprintf("<b>");
 			wprintf(_("realloc() error! couldn't get %d bytes: %s"),
 				buffer_length + 1,
 				strerror(errno));
-			wprintf("</B><br /><br />\n");
+			wprintf("</b><br /><br />\n");
 			return;
 		}
 		strcpy(&msg[content_length], buf);
