@@ -363,8 +363,6 @@ void do_generic(void)
 }
 
 
-
-
 /*
  * Display the menubar.  Set as_single_page to
  * display HTML headers and footers -- otherwise it's assumed

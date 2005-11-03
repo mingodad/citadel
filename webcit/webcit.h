@@ -465,6 +465,7 @@ void display_siteconfig(void);
 void siteconfig(void);
 void display_generic(void);
 void do_generic(void);
+void ajax_servcmd(void);
 void display_menubar(int);
 void smart_goto(char *);
 void worker_entry(void);

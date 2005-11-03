@@ -824,6 +824,51 @@ void end_ajax_response(void) {
         wDumpContent(0);
 }
 
+void ajax_servcmd(void)
+{
+	char buf[1024];
+	char gcontent[1024];
+	char *junk;
+	size_t len;
+
+	begin_ajax_response();
+
+	serv_printf("%s", bstr("g_cmd"));
+	serv_getln(buf, sizeof buf);
+
+	if (buf[0] == '8') {
+		serv_printf("\n\n000");
+	}
+	if ((buf[0] == '1') || (buf[0] == '8')) {
+		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
+			/* maybe do something with it? */
+		}
+		wprintf("000");
+	}
+	if (buf[0] == '4') {
+		text_to_server(bstr("g_input"), 0);
+		serv_puts("000");
+	}
+	if (buf[0] == '6') {
+		len = atol(&buf[4]);
+		junk = malloc(len);
+		serv_read(junk, len);
+		free(junk);
+	}
+	if (buf[0] == '7') {
+		len = atol(&buf[4]);
+		junk = malloc(len);
+		memset(junk, 0, len);
+		serv_write(junk, len);
+		free(junk);
+	}
+
+	end_ajax_response();
+}
+
+
+
+
 
 
 /*
@@ -1359,6 +1404,8 @@ void session_loop(struct httprequest *req)
 		display_generic();
 	} else if (!strcasecmp(action, "do_generic")) {
 		do_generic();
+	} else if (!strcasecmp(action, "ajax_servcmd")) {
+		ajax_servcmd();
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
 	} else if (!strcasecmp(action, "mimepart")) {

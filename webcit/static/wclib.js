@@ -73,5 +73,20 @@ function CtdlSingleClickMsg(msgnum) {
 	CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
 	CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
 
+	// Update the preview pane
 	new Ajax.Updater('preview_pane', '/msg/'+msgnum, { method: 'get' } );
+
+	// Mark the message as read
+	new Ajax.Request(
+		'/ajax_servcmd', {
+			method: 'post',
+			parameters: 'g_cmd=SEEN '+msgnum+'|1',
+			onComplete: CtdlRemoveTheUnseenBold(msgnum)
+		}
+	);
 }
+
+function CtdlRemoveTheUnseenBold(msgnum) {
+	$('m'+msgnum).style.fontWeight='normal' ;
+}
+
