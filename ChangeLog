@@ -1,5 +1,12 @@
 $Id$
 
+Wed Nov  2 23:45:16 EST 2005 ajc
+* Mailbox view -- onClick is now implemented by a JavaScript function which
+  is defined in wclib.js -- now, it not only handles the Ajax load of the
+  message into the preview pane, but it also highlights the table row, and
+  remembers the highlighting so it can be turned off when another row is
+  selected.  This is if course a prelude to ajaxifying the table...
+
 Wed Nov  2 15:57:37 EST 2005 ajc
 * Switched the mailbox summary back to a table.  This is tabular data and it
   ought to be marked up as a table.  We went to fixed width floating div's in

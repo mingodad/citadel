@@ -46,3 +46,32 @@ function activate_entmsg_autocompleters() {
 	new Ajax.Autocompleter('bcc_id', 'bcc_name_choices', '/bcc_autocomplete', {} );
 	new Ajax.Autocompleter('recp_id', 'recp_name_choices', '/recp_autocomplete', {} );
 }
+
+
+// Static variables for mailbox view...
+//
+var CtdlNumMsgsSelected = 0;
+var CtdlMsgsSelected = new Array(100);	// arbitrary
+
+// This gets called when you single click on a message in the mailbox view.
+// We know that the element id of the table row will be the letter 'm' plus the message number.
+//
+function CtdlSingleClickMsg(msgnum) {
+
+	// $('preview_pane').innerHTML = '<div align="center">Loading...</div>' ;
+
+	if (CtdlNumMsgsSelected > 0) {
+		for (i=0; i<CtdlNumMsgsSelected; ++i) {
+			$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
+			$('m'+CtdlMsgsSelected[i]).style.color = '#000';
+		}
+		CtdlNumMsgsSelected = 0;
+	}
+
+	$('m'+msgnum).style.backgroundColor='#69aaff';
+	$('m'+msgnum).style.color='#fff';
+	CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
+	CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
+
+	new Ajax.Updater('preview_pane', '/msg/'+msgnum, { method: 'get' } );
+}
