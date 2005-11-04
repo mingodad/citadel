@@ -111,7 +111,7 @@ void display_inetconf(void)
 				extract_token(buf, ic_spec[which], i, '\n', sizeof buf);
 				escputs(buf);
 				wprintf("</TD><TD ALIGN=RIGHT>"
-					"<A HREF=\"/save_inetconf?oper=delete&ename=");
+					"<a href=\"/save_inetconf?oper=delete&ename=");
 				escputs(buf);
 				wprintf("&etype=%s\" ", ic_keyword[which]);
 				wprintf("onClick=\"return confirm('%s');\">",
@@ -121,7 +121,7 @@ void display_inetconf(void)
 				wprintf("</font></a></TD></TR>\n");
 			}
 		}
-		wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_inetconf\">\n"
+		wprintf("<FORM METHOD=\"POST\" action=\"/save_inetconf\">\n"
 			"<TR><TD>"
 			"<INPUT TYPE=\"text\" NAME=\"ename\" MAXLENGTH=\"64\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"etype\" VALUE=\"%s\">", ic_keyword[which]);

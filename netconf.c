@@ -63,7 +63,7 @@ void display_add_node(void)
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/edit_node\">\n");
 	wprintf("<CENTER><TABLE border=0>\n");
 	wprintf("<TR><TD>%s</TD>", _("Node name"));
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"node\" MAXLENGTH=\"16\"></TD></TR>\n");
@@ -113,7 +113,7 @@ void display_edit_node(void)
 			extract_token(cport, buf, 3, '|', sizeof cport);
 
 			if (!strcasecmp(node, cnode)) {
-				wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
+				wprintf("<FORM METHOD=\"POST\" action=\"/edit_node\">\n");
 				wprintf("<CENTER><TABLE border=0>\n");
 				wprintf("<TR><TD>");
 				wprintf(_("Node name"));
@@ -167,7 +167,7 @@ void display_netconf(void)
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<CENTER>");
-	wprintf("<A HREF=\"/display_add_node\">");
+	wprintf("<a href=\"/display_add_node\">");
 	wprintf(_("Add a new node"));
 	wprintf("</A><br />\n");
 	wprintf("</CENTER>");
@@ -186,12 +186,12 @@ void display_netconf(void)
 			wprintf("<TR><TD><FONT SIZE=+1>");
 			escputs(node);
 			wprintf("</FONT></TD>");
-			wprintf("<TD><A HREF=\"/display_edit_node&node=");
+			wprintf("<TD><a href=\"/display_edit_node&node=");
 			urlescputs(node);
 			wprintf("\">");
 			wprintf(_("(Edit)"));
 			wprintf("</A></TD>");
-			wprintf("<TD><A HREF=\"/display_confirm_delete_node&node=");
+			wprintf("<TD><a href=\"/display_confirm_delete_node&node=");
 			urlescputs(node);
 			wprintf("\">");
 			wprintf(_("(Delete)"));
@@ -223,12 +223,12 @@ void display_confirm_delete_node(void)
 	wprintf("<FONT SIZE=+1>");
 	escputs(node);
 	wprintf("</FONT>?<br />\n");
-	wprintf("<A HREF=\"/delete_node&node=");
+	wprintf("<a href=\"/delete_node&node=");
 	urlescputs(node);
 	wprintf("\">");
 	wprintf(_("Yes"));
 	wprintf("</A>&nbsp;&nbsp;&nbsp;");
-	wprintf("<A HREF=\"/display_netconf\">");
+	wprintf("<a href=\"/display_netconf\">");
 	wprintf(_("No"));
 	wprintf("</A><br />\n");
 	wDumpContent(1);
@@ -287,7 +287,7 @@ void add_node(void)
 		if (buf[0] == '1') {
 			output_headers(1, 1, 0, 0, 0, 0);
 			server_to_text();
-			wprintf("<A HREF=\"/display_netconf\">");
+			wprintf("<a href=\"/display_netconf\">");
 			wprintf(_("Back to menu"));
 			wprintf("</A>\n");
 			wDumpContent(1);

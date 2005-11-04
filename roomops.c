@@ -96,7 +96,7 @@ void room_tree_list(struct roomlisting *rp)
 	strcpy(rmname, rp->rlname);
 	f = rp->rlflags;
 
-	wprintf("<A HREF=\"/dotgoto&room=");
+	wprintf("<a href=\"/dotgoto&room=");
 	urlescputs(rmname);
 	wprintf("\"");
 	wprintf(">");
@@ -248,7 +248,7 @@ void embed_room_graphic(void) {
 	serv_puts("OIMG _roompic_");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("<IMG HEIGHT=64 SRC=\"/image&name=_roompic_&room=");
+		wprintf("<IMG HEIGHT=64 src=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		serv_puts("CLOS");
@@ -383,7 +383,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		if ( (navbar_style == navbar_default) && (WC->wc_view == VIEW_BBS) ) {
 			wprintf(
 				"<td>"
-				"<A HREF=\"/readnew\">"
+				"<a href=\"/readnew\">"
 				"<img align=\"middle\" src=\"/static/newmess2_24x.gif\" border=\"0\">"
 				"<span class=\"navbar_link\">%s</span></A>"
 				"</td>\n", _("Read new messages")
@@ -395,7 +395,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_ADDRESSBOOK:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd\">"
+						"<a href=\"/readfwd\">"
 						"<img align=\"middle\" src=\"/static/viewcontacts_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -406,7 +406,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_CALENDAR:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd?calview=day\">"
+						"<a href=\"/readfwd?calview=day\">"
 						"<img align=\"middle\" src=\"/static/taskday2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -415,7 +415,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					);
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd?calview=month\">"
+						"<a href=\"/readfwd?calview=month\">"
 						"<img align=\"middle\" src=\"/static/monthview2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -426,7 +426,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_TASKS:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd\">"
+						"<a href=\"/readfwd\">"
 						"<img align=\"middle\" src=\"/static/taskmanag_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -437,7 +437,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_NOTES:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd\">"
+						"<a href=\"/readfwd\">"
 						"<img align=\"middle\" src=\"/static/viewnotes_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -448,7 +448,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_MAILBOX:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd\">"
+						"<a href=\"/readfwd\">"
 						"<img align=\"middle\" src=\"/static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -459,7 +459,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				default:
 					wprintf(
 						"<td>"
-						"<A HREF=\"/readfwd\">"
+						"<a href=\"/readfwd\">"
 						"<img align=\"middle\" src=\"/static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
@@ -474,7 +474,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			switch(WC->wc_view) {
 				case VIEW_ADDRESSBOOK:
 					wprintf(
-						"<td><A HREF=\"/display_enter\">"
+						"<td><a href=\"/display_enter\">"
 						"<img align=\"middle\" src=\"/static/addnewcontact_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
@@ -483,7 +483,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				case VIEW_CALENDAR:
 					wprintf(
-						"<td><A HREF=\"/display_enter\">"
+						"<td><a href=\"/display_enter\">"
 						"<img align=\"middle\" src=\"/static/addevent_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
@@ -492,7 +492,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				case VIEW_TASKS:
 					wprintf(
-						"<td><A HREF=\"/display_enter\">"
+						"<td><a href=\"/display_enter\">"
 						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
@@ -501,7 +501,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				case VIEW_NOTES:
 					wprintf(
-						"<td><A HREF=\"/display_enter\">"
+						"<td><a href=\"/display_enter\">"
 						"<img align=\"middle\" src=\"/static/enternewnote_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
@@ -510,7 +510,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				default:
 					wprintf(
-						"<td><A HREF=\"/display_enter\">"
+						"<td><a href=\"/display_enter\">"
 						"<img align=\"middle\" src=\"/static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
@@ -522,7 +522,7 @@ void embed_room_banner(char *got, int navbar_style) {
 
 		if (navbar_style == navbar_default) wprintf(
 			"<td>"
-			"<A HREF=\"/skip\" "
+			"<a href=\"/skip\" "
 			"TITLE=\"%s\">"
 			"<img align=\"middle\" src=\"/static/skipthisroom_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">%s</span></a>"
@@ -533,7 +533,7 @@ void embed_room_banner(char *got, int navbar_style) {
 
 		if (navbar_style == navbar_default) wprintf(
 			"<td>"
-			"<A HREF=\"/gotonext\" "
+			"<a href=\"/gotonext\" "
 			"TITLE=\"%s\">"
 			"<img align=\"middle\" src=\"/static/markngo_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">%s</span></a>"
@@ -881,7 +881,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=admin\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=admin\">");
 	}
 	wprintf(_("Administration"));
 	if (!strcmp(tab, "admin")) {
@@ -897,7 +897,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=config\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=config\">");
 	}
 	wprintf(_("Configuration"));
 	if (!strcmp(tab, "config")) {
@@ -913,7 +913,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=expire\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=expire\">");
 	}
 	wprintf(_("Message expire policy"));
 	if (!strcmp(tab, "expire")) {
@@ -929,7 +929,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=access\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=access\">");
 	}
 	wprintf(_("Access controls"));
 	if (!strcmp(tab, "access")) {
@@ -945,7 +945,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=sharing\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=sharing\">");
 	}
 	wprintf(_("Sharing"));
 	if (!strcmp(tab, "sharing")) {
@@ -961,7 +961,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=listserv\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"/display_editroom&tab=listserv\">");
 	}
 	wprintf(_("Mailing list service"));
 	if (!strcmp(tab, "listserv")) {
@@ -983,23 +983,23 @@ void display_editroom(void)
 
 	if (!strcmp(tab, "admin")) {
 		wprintf("<UL>"
-			"<LI><A HREF=\"/delete_room\" "
+			"<LI><a href=\"/delete_room\" "
 			"onClick=\"return confirm('");
 		wprintf(_("Are you sure you want to delete this room?"));
 		wprintf("');\">\n");
 		wprintf(_("Delete this room"));
 		wprintf("</A>\n"
-			"<LI><A HREF=\"/display_editroompic\">\n");
+			"<LI><a href=\"/display_editroompic\">\n");
 		wprintf(_("Set or change the icon for this room's banner"));
 		wprintf("</A>\n"
-			"<LI><A HREF=\"/display_editinfo\">\n");
+			"<LI><a href=\"/display_editinfo\">\n");
 		wprintf(_("Edit this room's Info file"));
 		wprintf("</A>\n"
 			"</UL>");
 	}
 
 	if (!strcmp(tab, "config")) {
-		wprintf("<FORM METHOD=\"POST\" ACTION=\"/editroom\">\n");
+		wprintf("<FORM METHOD=\"POST\" action=\"/editroom\">\n");
 	
 		wprintf("<UL><LI>");
 		wprintf(_("Name of room: "));
@@ -1242,7 +1242,7 @@ void display_editroom(void)
 			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
 			if (strlen(node) > 0) {
 				wprintf("<FORM METHOD=\"POST\" "
-					"ACTION=\"/netedit\">"
+					"action=\"/netedit\">"
 					"<TR><TD>%s</TD>\n", node);
 
 				wprintf("<TD>");
@@ -1285,7 +1285,7 @@ void display_editroom(void)
 			extract_token(node, not_shared_with, i, '\n', sizeof node);
 			if (strlen(node) > 0) {
 				wprintf("<FORM METHOD=\"POST\" "
-					"ACTION=\"/netedit\">"
+					"action=\"/netedit\">"
 					"<TR><TD>");
 				escputs(node);
 				wprintf("</TD><TD>"
@@ -1346,7 +1346,7 @@ void display_editroom(void)
 				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
-				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
+				wprintf(" <a href=\"/netedit&cmd=remove&line="
 					"listrecp|");
 				urlescputs(recp);
 				wprintf("&tab=listserv\">");
@@ -1354,7 +1354,7 @@ void display_editroom(void)
 				wprintf("</A><br />");
 			}
 		}
-		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+		wprintf("<br /><FORM METHOD=\"POST\" action=\"/netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
@@ -1376,7 +1376,7 @@ void display_editroom(void)
 				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
-				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
+				wprintf(" <a href=\"/netedit&cmd=remove&line="
 					"digestrecp|");
 				urlescputs(recp);
 				wprintf("&tab=listserv\">");
@@ -1384,7 +1384,7 @@ void display_editroom(void)
 				wprintf("</A><br />");
 			}
 		}
-		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+		wprintf("<br /><FORM METHOD=\"POST\" action=\"/netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
@@ -1396,7 +1396,7 @@ void display_editroom(void)
 		if (self_service(999) == 1) {
 			wprintf(_("This room is configured to allow "
 				"self-service subscribe/unsubscribe requests."));
-			wprintf("<A HREF=\"/toggle_self_service?newval=0&tab=listserv\">");
+			wprintf("<a href=\"/toggle_self_service?newval=0&tab=listserv\">");
 			wprintf(_("Click to disable."));
 			wprintf("</A><br />\n");
 			wprintf(_("The URL for subscribe/unsubscribe is: "));
@@ -1407,7 +1407,7 @@ void display_editroom(void)
 		else {
 			wprintf(_("This room is <i>not</i> configured to allow "
 				"self-service subscribe/unsubscribe requests."));
-			wprintf(" <A HREF=\"/toggle_self_service?newval=1&"
+			wprintf(" <a href=\"/toggle_self_service?newval=1&"
 				"tab=listserv\">");
 			wprintf(_("Click to enable."));
 			wprintf("</A><br />\n");
@@ -1435,7 +1435,7 @@ void display_editroom(void)
 			floorvalue = extract_int(&buf[4], 1);
 		}
 		
-		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/set_room_policy\">\n");
+		wprintf("<br /><FORM METHOD=\"POST\" action=\"/set_room_policy\">\n");
 		wprintf("<TABLE border=0 cellspacing=5>\n");
 		wprintf("<TR><TD>");
 		wprintf(_("Message expire policy for this room"));
@@ -1763,7 +1763,7 @@ void display_whok(void)
 		"name from the list and click 'Kick'."));
 	wprintf("<br /><br />");
 	
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/do_invt_kick\">\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"/do_invt_kick\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
@@ -1786,7 +1786,7 @@ void display_whok(void)
 		"user name in the box below and click 'Invite'."));
 	wprintf("<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/do_invt_kick\">\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"/do_invt_kick\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("Invite: ");
         wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
@@ -2048,7 +2048,7 @@ void display_private(char *rname, int req_pass)
 		"so you don't have to keep returning here."));
 	wprintf("\n<br /><br />");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/goto_private\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/goto_private\">\n");
 
 	wprintf("<table border=\"0\" cellspacing=\"5\" "
 		"cellpadding=\"5\" BGCOLOR=\"#EEEEEE\">\n"
@@ -2131,7 +2131,7 @@ void display_zap(void)
 		"disappear from your room list.  Is this what you wish "
 		"to do?<br />\n"), WC->wc_roomname);
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
@@ -2368,7 +2368,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		wprintf("var node%d = new TreeNode(%d, '", i, i);
 
 		if (fold[i].selectable) {
-			wprintf("<A HREF=\"/dotgoto?room=");
+			wprintf("<a href=\"/dotgoto?room=");
 			urlescputs(fold[i].room);
 			wprintf("\">");
 		}
@@ -2493,7 +2493,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("&nbsp;");
 			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;&nbsp;&nbsp;");
 			if (fold[i].selectable) {
-				wprintf("<A HREF=\"/dotgoto?room=");
+				wprintf("<a href=\"/dotgoto?room=");
 				urlescputs(fold[i].room);
 				wprintf("\">");
 			}

@@ -39,7 +39,7 @@ void display_edit(char *description, char *check_cmd,
 		"formatting, indent a line at least one space."), description);
 	wprintf("<br />");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"%s\">\n", save_cmd);
+	wprintf("<FORM METHOD=\"POST\" action=\"%s\">\n", save_cmd);
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n");
 	serv_puts(read_cmd);

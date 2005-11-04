@@ -118,7 +118,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("SEQUENCE == %d<br />\n", sequence);
 	*************************************************************/
 
-	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" ACTION=\"/save_event\">\n");
+	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" action=\"/save_event\">\n");
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);

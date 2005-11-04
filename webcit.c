@@ -433,7 +433,7 @@ void http_redirect(char *whichpage) {
 	wprintf("URI: %s\r\n", whichpage);
 	wprintf("Content-type: text/html; charset=utf-8\r\n\r\n");
 	wprintf("<html><body>");
-	wprintf("Go <A HREF=\"%s\">here</A>.", whichpage);
+	wprintf("Go <a href=\"%s\">here</A>.", whichpage);
 	wprintf("</body></html>\n");
 }
 
@@ -706,7 +706,7 @@ void url_do_template(void) {
  * Offer to make any page the user's "start page."
  */
 void offer_start_page(void) {
-	wprintf("<A HREF=\"/change_start_page?startpage=");
+	wprintf("<a href=\"/change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\"><FONT SIZE=-2 COLOR=\"#AAAAAA\">");
 	wprintf(_("Make this my start page"));

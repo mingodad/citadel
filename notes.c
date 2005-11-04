@@ -15,7 +15,7 @@ void display_note(long msgnum) {
 	int in_text = 0;
 	int i;
 
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/storenotes_48x.gif\">\n");
+	wprintf("<IMG ALIGN=MIDDLE src=\"/static/storenotes_48x.gif\">\n");
 
 	serv_printf("MSG0 %ld", msgnum);
 	serv_getln(buf, sizeof buf);

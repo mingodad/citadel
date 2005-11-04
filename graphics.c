@@ -34,7 +34,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 
 	wprintf("<CENTER>\n");
 
-	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s\" "
+	wprintf("<FORM ENCTYPE=\"multipart/form-data\" action=\"%s\" "
 		"METHOD=\"POST\" NAME=\"graphicsupload\">\n", uplurl);
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"which_room\" VALUE=\"");
