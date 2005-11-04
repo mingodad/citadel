@@ -56,16 +56,21 @@ var CtdlMsgsSelected = new Array(100);	// arbitrary
 // This gets called when you single click on a message in the mailbox view.
 // We know that the element id of the table row will be the letter 'm' plus the message number.
 //
-function CtdlSingleClickMsg(msgnum) {
+function CtdlSingleClickMsg(evt, msgnum) {
 
-	// $('preview_pane').innerHTML = '<div align="center">Loading...</div>' ;
+	// Clear the preview pane until we load the new message
+	$('preview_pane').innerHTML = '';
 
-	if (CtdlNumMsgsSelected > 0) {
-		for (i=0; i<CtdlNumMsgsSelected; ++i) {
-			$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
-			$('m'+CtdlMsgsSelected[i]).style.color = '#000';
+	// De-select any messages that were already selected, *unless* the Ctrl key
+	// is being pressed, in which case the user wants multi select.
+	if (!evt.ctrlKey) {
+		if (CtdlNumMsgsSelected > 0) {
+			for (i=0; i<CtdlNumMsgsSelected; ++i) {
+				$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
+				$('m'+CtdlMsgsSelected[i]).style.color = '#000';
+			}
+			CtdlNumMsgsSelected = 0;
 		}
-		CtdlNumMsgsSelected = 0;
 	}
 
 	$('m'+msgnum).style.backgroundColor='#69aaff';
@@ -89,4 +94,3 @@ function CtdlSingleClickMsg(msgnum) {
 function CtdlRemoveTheUnseenBold(msgnum) {
 	$('m'+msgnum).style.fontWeight='normal' ;
 }
-
