@@ -524,13 +524,21 @@ void check_inittab_entry(void)
 	}
 
 	/* Otherwise, prompt the user to create an entry. */
-	snprintf(question, sizeof question,
-		"Do you want this computer configured to start the Citadel\n"
-		"service automatically?  (If you answer yes, an entry in\n"
-		"/etc/inittab pointing to %s will be added.)\n",
-		looking_for);
-	if (yesno(question) == 0)
-		return;
+	if (getenv("CREATE_INITTAB_ENTRY") != NULL) {
+		if (strcasecmp(getenv("CREATE_INITTAB_ENTRY"), "yes")) {
+			return;
+		}
+	}
+	else {
+		snprintf(question, sizeof question,
+			"Do you want this computer configured to start the Citadel\n"
+			"service automatically?  (If you answer yes, an entry in\n"
+			"/etc/inittab pointing to %s will be added.)\n",
+			looking_for);
+		if (yesno(question) == 0) {
+			return;
+		}
+	}
 
 	/* Generate a unique entry name for /etc/inittab */
 	generate_entry_name(entryname);
@@ -569,13 +577,21 @@ void check_xinetd_entry(void) {
 	if (already_citadel) return;	/* Already set up this way. */
 
 	/* Otherwise, prompt the user to create an entry. */
-	snprintf(buf, sizeof buf,
-		"Setup can configure the \"xinetd\" service to automatically\n"
-		"connect incoming telnet sessions to Citadel, bypassing the\n"
-		"host system login: prompt.  Would you like to do this?\n"
-	);
-	if (yesno(buf) == 0)
-		return;
+	if (getenv("CREATE_XINETD_ENTRY") != NULL) {
+		if (strcasecmp(getenv("CREATE_XINETD_ENTRY"), "yes")) {
+			return;
+		}
+	}
+	else {
+		snprintf(buf, sizeof buf,
+			"Setup can configure the \"xinetd\" service to automatically\n"
+			"connect incoming telnet sessions to Citadel, bypassing the\n"
+			"host system login: prompt.  Would you like to do this?\n"
+		);
+		if (yesno(buf) == 0) {
+			return;
+		}
+	}
 
 	fp = fopen(filename, "w");
 	fprintf(fp,
@@ -621,19 +637,29 @@ void disable_other_mta(char *mta) {
 	fclose(fp);
 	if (lines == 0) return;		/* Nothing to do. */
 
+
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
-	snprintf(buf, sizeof buf,
-		"You appear to have the \"%s\" email program\n"
-		"running on your system.  If you want Citadel mail\n"
-		"connected with %s, you will have to manually integrate\n"
-		"them.  It is preferable to disable %s, and use Citadel's\n"
-		"SMTP, POP3, and IMAP services.\n\n"
-		"May we disable %s so that Citadel has access to ports\n"
-		"25, 110, and 143?\n",
-		mta, mta, mta, mta
-	);
-	if (yesno(buf) == 0)
-		return;
+
+	if (getenv("DISABLE_OTHER_MTA")) {
+		if (strcasecmp(getenv("DISABLE_OTHER_MTA"), "yes")) {
+			return;
+		}
+	}
+	else {
+		snprintf(buf, sizeof buf,
+			"You appear to have the \"%s\" email program\n"
+			"running on your system.  If you want Citadel mail\n"
+			"connected with %s, you will have to manually integrate\n"
+			"them.  It is preferable to disable %s, and use Citadel's\n"
+			"SMTP, POP3, and IMAP services.\n\n"
+			"May we disable %s so that Citadel has access to ports\n"
+			"25, 110, and 143?\n",
+			mta, mta, mta, mta
+		);
+		if (yesno(buf) == 0) {
+			return;
+		}
+	}
 
 	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
 	system(buf);
@@ -746,7 +772,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 				(prompt_window_height - 2),
 				str,
 				74,
-				&result,
+				(const char **) &result,
 				NEWT_FLAG_RETURNEXIT)
 		);
 		newtRunForm(form);
@@ -1117,14 +1143,6 @@ int main(int argc, char *argv[])
 			edit_value(curr);
 		}
 	}
-
-	/*
-	   if (setuid(config.c_ctdluid) != 0) {
-	   important_message("Citadel Setup",
-	   "Failed to change the user ID to your Citadel user.");
-	   cleanup(errno);
-	   }
-	 */
 
 /***** begin version update section ***** */
 	/* take care of any updating that is necessary */
