@@ -706,17 +706,17 @@ void url_do_template(void) {
  * Offer to make any page the user's "start page."
  */
 void offer_start_page(void) {
-	wprintf("<a href=\"/change_start_page?startpage=");
+	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\"><FONT SIZE=-2 COLOR=\"#AAAAAA\">");
 	wprintf(_("Make this my start page"));
 	wprintf("</FONT></A>");
 /*
-	wprintf("<br/><a href=\"/rss?room=");
+	wprintf("<br/><a href=\"rss?room=");
 	urlescputs(WC->wc_roomname);
 	wprintf("\" title=\"RSS 2.0 feed for ");
 	escputs(WC->wc_roomname);
-	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"/static/xml_button.gif\"/></a>\n");
+	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
 */
 }
 

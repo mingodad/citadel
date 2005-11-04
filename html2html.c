@@ -140,7 +140,7 @@ void output_html(char *charset) {
 			content_length += 64;
 			converted_msg = realloc(converted_msg, content_length);
 			sprintf(&converted_msg[output_length],
-				"<a href=\"/display_enter"
+				"<a href=\"display_enter"
 				"?force_room=_MAIL_&recp=");
 			output_length += 47;
 			ptr = &ptr[16];

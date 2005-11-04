@@ -40,11 +40,11 @@ void display_siteconfig(void)
 		wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=general\">"
+			"<a href=\"display_siteconfig?whichmenu=general\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=general\">"
+			"<a href=\"display_siteconfig?whichmenu=general\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -53,11 +53,11 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=access\">"
+			"<a href=\"display_siteconfig?whichmenu=access\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=access\">"
+			"<a href=\"display_siteconfig?whichmenu=access\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -66,11 +66,11 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=network\">"
+			"<a href=\"display_siteconfig?whichmenu=network\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=network\">"
+			"<a href=\"display_siteconfig?whichmenu=network\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -79,11 +79,11 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=tuning\">"
+			"<a href=\"display_siteconfig?whichmenu=tuning\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=tuning\">"
+			"<a href=\"display_siteconfig?whichmenu=tuning\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -92,11 +92,11 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=ldap\">"
+			"<a href=\"display_siteconfig?whichmenu=ldap\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=ldap\">"
+			"<a href=\"display_siteconfig?whichmenu=ldap\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -105,11 +105,11 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=purger\">"
+			"<a href=\"display_siteconfig?whichmenu=purger\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"/static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
+			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
 			"</TD><TD>"
-			"<a href=\"/display_siteconfig?whichmenu=purger\">"
+			"<a href=\"display_siteconfig?whichmenu=purger\">"
 			"<B>%s</B><br />"
 			"%s"
 			"</A></TD></TR>\n",
@@ -181,7 +181,7 @@ void display_siteconfig(void)
 		return;
 	}
 
-	wprintf("<FORM METHOD=\"POST\" action=\"/siteconfig\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"siteconfig\">\n");
 	wprintf("<TABLE border=0>\n");
 
 	i = 0;

@@ -93,7 +93,7 @@ void who_inner_div(void) {
 
 
 			/* username (link to user bio/photo page) */
-			wprintf("<a href=\"/showuser?who=");
+			wprintf("<a href=\"showuser?who=");
 			urlescputs(user);
 			wprintf("\">");
 			escputs(user);

@@ -30,7 +30,7 @@ void do_setup_wizard(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<img src=\"/static/citadel-logo.gif\" WIDTH=64 HEIGHT=64 ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64 ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;First time setup");
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
 	wprintf("</TD></TR></TABLE>\n");
@@ -38,7 +38,7 @@ void do_setup_wizard(void)
 		"<div id=\"content\">\n");
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
-		"<form method=\"post\" action=\"/setup_wizard\">\n"
+		"<form method=\"post\" action=\"setup_wizard\">\n"
 	);
 
 	wprintf("<div align=center>"

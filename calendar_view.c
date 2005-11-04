@@ -79,7 +79,7 @@ void calendar_month_view_display_events(time_t thetime) {
 					}
 
 					wprintf("<FONT SIZE=-1>"
-						"<a href=\"/display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
+						"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
 						WC->disp_cal[i].cal_msgnum,
 						bstr("calview"),
 						bstr("year"),
@@ -151,7 +151,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"/static/prevdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
 		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
@@ -162,7 +162,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"/static/nextdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\" BORDER=0></A>\n");
 
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -280,7 +280,7 @@ void calendar_day_view_display_events(int year, int month,
 					}
 
 					wprintf("<FONT SIZE=-1>"
-						"<a href=\"/display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
+						"<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
 						WC->disp_cal[i].cal_msgnum,
 						year, month, day
 					);
@@ -361,7 +361,7 @@ void calendar_day_view(int year, int month, int day) {
 	for (hour = daystart; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<TR HEIGHT=30><TD BGCOLOR=\"#CCCCDD\" ALIGN=MIDDLE "
 			"VALIGN=MIDDLE WIDTH=10%%>");
-		wprintf("<a href=\"/display_edit_event?msgnum=0"
+		wprintf("<a href=\"display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			year, month, day, hour
 		);
@@ -410,7 +410,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TD ALIGN=CENTER>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wprintf("<IMG ALIGN=MIDDLE src=\"/static/prevdate_32x.gif\" BORDER=0></A>");
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>");
 	wprintf("</TD>");
 
 	/* Today's date */
@@ -425,7 +425,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<TD ALIGN=CENTER>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wprintf("<IMG ALIGN=MIDDLE src=\"/static/nextdate_32x.gif\""
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\""
 		" BORDER=0></A>\n");
 	wprintf("</TD>");
 
@@ -653,12 +653,12 @@ void do_tasks_view(void) {
 
 		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
-		wprintf("<a href=\"/display_edit_task?msgnum=%ld&taskrm=",
+		wprintf("<a href=\"display_edit_task?msgnum=%ld&taskrm=",
 			WC->disp_cal[i].cal_msgnum );
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		wprintf("<IMG ALIGN=MIDDLE "
-			"src=\"/static/taskmanag_16x.gif\" BORDER=0>&nbsp;");
+			"src=\"static/taskmanag_16x.gif\" BORDER=0>&nbsp;");
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_comment(p));
 		}
