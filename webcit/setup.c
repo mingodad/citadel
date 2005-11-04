@@ -278,7 +278,7 @@ void set_value(char *prompt, char str[])
 			extract_token(buf, prompt, i, '\n', sizeof buf);
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
-		newtFormAddComponent(form, newtEntry(1, 8, str, 74, &result,
+		newtFormAddComponent(form, newtEntry(1, 8, str, 74, (const char **) &result,
 					NEWT_FLAG_RETURNEXIT));
 		newtRunForm(form);
 		strcpy(str, result);

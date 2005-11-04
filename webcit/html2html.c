@@ -136,18 +136,18 @@ void output_html(char *charset) {
 		 * the way we parse URL's, it'll even handle mailto: links
 		 * that have "?subject=" in them.
 		 */
-		if (!strncasecmp(ptr, "<A HREF=\"mailto:", 16)) {
+		if (!strncasecmp(ptr, "<a href=\"mailto:", 16)) {
 			content_length += 64;
 			converted_msg = realloc(converted_msg, content_length);
 			sprintf(&converted_msg[output_length],
-				"<A HREF=\"/display_enter"
+				"<a href=\"/display_enter"
 				"?force_room=_MAIL_&recp=");
 			output_length += 47;
 			ptr = &ptr[16];
 			++alevel;
 		}
 		/* Make links open in a separate window */
-		else if (!strncasecmp(ptr, "<A HREF=", 8)) {
+		else if (!strncasecmp(ptr, "<a href=", 8)) {
 			content_length += 64;
 			converted_msg = realloc(converted_msg, content_length);
 			sprintf(&converted_msg[output_length], new_window);

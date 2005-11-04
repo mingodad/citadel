@@ -78,7 +78,7 @@ void do_listsub(void)
 				"e-mailed to you and your subscription will "
 				"be confirmed.<br />\n"),
 				escaped_email, escaped_room);
-			wprintf("<A HREF=\"/listsub\">%s</A></CENTER>\n", _("Go back..."));
+			wprintf("<a href=\"/listsub\">%s</A></CENTER>\n", _("Go back..."));
 		}
 		else {
 			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
@@ -115,7 +115,7 @@ void do_listsub(void)
 				"Please click on the link which is being "
 				"e-mailed to you and your unsubscription will "
 				"be confirmed.<br />\n"
-				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
+				"<a href=\"/listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
@@ -158,7 +158,7 @@ void do_listsub(void)
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
+FORM:		wprintf("<FORM METHOD=\"POST\" action=\"/listsub\">\n"
 			"<TABLE BORDER=0>\n"
 		);
 

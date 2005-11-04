@@ -32,7 +32,7 @@ void display_page(void)
 	escputs(recp);
 	wprintf("<br>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/page_user\">\n");
 
 	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
 
@@ -53,7 +53,7 @@ void display_page(void)
 	wprintf("</TD></TR></TABLE><br />\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
-	wprintf("<br /><A HREF=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
+	wprintf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
 
 	wprintf("</FORM></CENTER>\n");
 	wprintf("</td></tr></table></div>\n");
@@ -104,7 +104,7 @@ void page_user(void)
 	}
 	
 	if (!strcasecmp(closewin, "yes")) {
-		wprintf("<CENTER><A HREF=\"javascript:window.close();\">");
+		wprintf("<CENTER><a href=\"javascript:window.close();\">");
 		wprintf(_("[ close window ]"));
 		wprintf("</A></CENTER>\n");
 	}
@@ -317,7 +317,7 @@ void chat_recv(void) {
 	if (end_chat_now) {
 		close(WC->chat_sock);
 		WC->chat_sock = (-1);
-		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"parent.window.close();\">\n");
+		wprintf("<img src=\"/static/blank.gif\" onLoad=\"parent.window.close();\">\n");
 	}
 
 	if (strlen(output_data) > 0) {
@@ -327,7 +327,7 @@ void chat_recv(void) {
 		}
 
 		/* Output our fun to the other frame. */
-		wprintf("<IMG SRC=\"/static/blank.gif\" WIDTH=1 HEIGHT=1\n"
+		wprintf("<img src=\"/static/blank.gif\" WIDTH=1 HEIGHT=1\n"
 			"onLoad=\" \n"
 		);
 
@@ -464,7 +464,7 @@ void chat_send(void) {
 	WC->serv_sock = WC->chat_sock;
 	WC->chat_sock = i;
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/chat_send\" NAME=\"chatsendform\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/chat_send\" NAME=\"chatsendform\">\n");
 	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
 		"NAME=\"send_this\">\n", SIZ-10);
 	wprintf("<br />");

@@ -141,7 +141,7 @@ void who(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<IMG SRC=\"static/usermanag_48x.gif\" ALT=\" \" "
+	wprintf("<img src=\"static/usermanag_48x.gif\" ALT=\" \" "
 		"ALIGN=MIDDLE "
 		">");
 	wprintf("<SPAN CLASS=\"titlebar\"> ");

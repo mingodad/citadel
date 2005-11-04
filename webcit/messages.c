@@ -162,7 +162,7 @@ char buf[];
 	urlbuf[end - start] = 0;
 
 	strncpy(outbuf, buf, start);
-	sprintf(&outbuf[start], "%cA HREF=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+	sprintf(&outbuf[start], "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
 		LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
 	strcat(outbuf, &buf[end]);
 	if ( strlen(outbuf) < 250 )
@@ -342,7 +342,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			else if (!strcasecmp(firsttoken, "email")) {
 				if (strlen(mailto) > 0) strcat(mailto, "<br />");
 				strcat(mailto,
-					"<A HREF=\"/display_enter"
+					"<a href=\"/display_enter"
 					"?force_room=_MAIL_?recp=");
 
 				urlesc(&mailto[strlen(mailto)], displayname);
@@ -419,7 +419,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (pass == 1) {
 			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER SRC=\"/static/viewcontacts_48x.gif\">"
+			"<IMG ALIGN=CENTER src=\"/static/viewcontacts_48x.gif\">"
 			"<FONT SIZE=+1><B>");
 			escputs(displayname);
 			wprintf("</B></FONT>");
@@ -580,7 +580,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
 			wprintf(_("from "));
-			wprintf("<A HREF=\"/showuser?who=");
+			wprintf("<a href=\"/showuser?who=");
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
 #endif
@@ -659,16 +659,16 @@ void read_message(long msgnum, int printable_view, char *section) {
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<IMG SRC=\"/mimepart/%ld/%s/%s\">",
+					"<img src=\"/mimepart/%ld/%s/%s\">",
 					msgnum, mime_partnum, mime_filename);
 			}
 			else if ( (!strcasecmp(mime_disposition, "attachment")) 
 			     || (!strcasecmp(mime_disposition, "inline")) ) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<A HREF=\"/mimepart/%ld/%s/%s\" "
+					"<a href=\"/mimepart/%ld/%s/%s\" "
 					"TARGET=\"wc.%ld.%s\">"
-					"<IMG SRC=\"/static/diskette_24x.gif\" "
+					"<img src=\"/static/diskette_24x.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
 					"%s (%s, %d bytes)</A><br />\n",
 					msgnum, mime_partnum, mime_filename,
@@ -944,7 +944,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<A HREF=\"/edit_vcard?"
+				wprintf("<a href=\"/edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</A>", _("edit"));
@@ -1412,7 +1412,7 @@ void display_addressbook(long msgnum, char alpha) {
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<A HREF=\"/edit_vcard?"
+				wprintf("<a href=\"/edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</A>", _("edit"));
@@ -1563,7 +1563,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	wprintf("Page: ");
 	for (i=0; i<=num_pages; ++i) {
 		if (i != page) {
-			wprintf("<A HREF=\"/readfwd?page=%d\">", i);
+			wprintf("<a href=\"/readfwd?page=%d\">", i);
 		}
 		else {
 			wprintf("<B>");
@@ -1605,7 +1605,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	
 			wprintf("<TD>");
 	
-			wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
+			wprintf("<a href=\"/readfwd?startmsg=%ld&is_singlecard=1",
 				addrbook[i].ab_msgnum);
 			wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
 			vcard_n_prettyize(addrbook[i].ab_name);
@@ -2737,7 +2737,7 @@ void confirm_move_msg(void)
 	wprintf(_("Move this message to:"));
 	wprintf("<br />\n");
 
-	wprintf("<form METHOD=\"POST\" ACTION=\"/move_msg\">\n");
+	wprintf("<form METHOD=\"POST\" action=\"/move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");

@@ -326,7 +326,7 @@ void validate(void)
 	wprintf(_("Select access level for this user:"));
 	wprintf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<A HREF=\"/validate&user=");
+		wprintf("<a href=\"/validate&user=");
 		urlescputs(user);
 		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);

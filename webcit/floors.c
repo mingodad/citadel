@@ -71,20 +71,20 @@ void display_floorconfig(char *prepend_html)
 		wprintf("<TR><TD><TABLE border=0><TR><TD>%d", floornum);
 		if (refcount == 0) {
 			wprintf("</TD><TD>"
-				"<A HREF=\"/delete_floor?floornum=%d\">"
+				"<a href=\"/delete_floor?floornum=%d\">"
 				"<FONT SIZE=-1>", floornum);
 			wprintf(_("(delete floor)"));
 			wprintf("</A></FONT><br />");
 		}
 		wprintf("<FONT SIZE=-1>"
-			"<A HREF=\"/display_editfloorpic&"
+			"<a href=\"/display_editfloorpic&"
 			"which_floor=%d\">", floornum);
 		wprintf(_("(edit graphic)"));
 		wprintf("</A></TD></TR></TABLE>");
 		wprintf("</TD>");
 
 		wprintf("<TD>"
-			"<FORM METHOD=\"POST\" ACTION=\"/rename_floor\">"
+			"<FORM METHOD=\"POST\" action=\"/rename_floor\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"floornum\" "
 			"VALUE=\"%d\">"
 			"<INPUT TYPE=\"text\" NAME=\"floorname\" "
@@ -98,7 +98,7 @@ void display_floorconfig(char *prepend_html)
 	}
 
 	wprintf("<TR><TD>&nbsp;</TD>"
-		"<TD><FORM METHOD=\"POST\" ACTION=\"/create_floor\">"
+		"<TD><FORM METHOD=\"POST\" action=\"/create_floor\">"
 		"<INPUT TYPE=\"text\" NAME=\"floorname\" "
 		"MAXLENGTH=\"250\">\n"
 		"<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "

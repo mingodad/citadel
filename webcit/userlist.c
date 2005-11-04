@@ -71,7 +71,7 @@ void userlist(void)
 			(bg ? "DDDDDD" : "FFFFFF")
 		);
 		if (has_bio) {
-			wprintf("<A HREF=\"/showuser&who=");
+			wprintf("<a href=\"/showuser&who=");
 			urlescputs(fl);
 			wprintf("\">");
 			escputs(fl);
@@ -113,7 +113,7 @@ void showuser(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
-		"<TD><IMG SRC=\"/static/usermanag_48x.gif\"></TD>"
+		"<TD><img src=\"/static/usermanag_48x.gif\"></TD>"
 		"<td align=left><SPAN CLASS=\"titlebar\">");
 	wprintf(_("User profile"));
 	wprintf("</SPAN>"
@@ -136,7 +136,7 @@ void showuser(void)
 
 	wprintf("<CENTER><TABLE><TR><TD>");
 	if (have_pic == 1) {
-		wprintf("<IMG SRC=\"/image&name=_userpic_&parm=");
+		wprintf("<img src=\"/image&name=_userpic_&parm=");
 		urlescputs(who);
 		wprintf("\">");
 	}
@@ -146,10 +146,10 @@ void showuser(void)
 	if (buf[0] == '1') {
 		fmout("JUSTIFY");
 	}
-	wprintf("<br /><A HREF=\"/display_page?recp=");
+	wprintf("<br /><a href=\"/display_page?recp=");
 	urlescputs(who);
 	wprintf("\">"
-		"<IMG SRC=\"/static/citadelchat_24x.gif\" "
+		"<img src=\"/static/citadelchat_24x.gif\" "
 		"ALIGN=MIDDLE BORDER=0>&nbsp;&nbsp;");
 	snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
 	escputs(buf);

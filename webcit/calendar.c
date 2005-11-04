@@ -93,7 +93,7 @@ void cal_process_object(icalcomponent *cal,
 		    case ICAL_METHOD_REPLY:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/calarea_48x.gif\">"
+				"src=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>");
 			wprintf(_("Attendee's reply to your invitation"));
@@ -102,7 +102,7 @@ void cal_process_object(icalcomponent *cal,
 		    case ICAL_METHOD_PUBLISH:
 			wprintf("<TR><TD COLSPAN=2>\n"
 				"<IMG ALIGN=CENTER "
-				"SRC=\"/static/calarea_48x.gif\">"
+				"src=\"/static/calarea_48x.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>");
 			wprintf(_("Published event"));
@@ -249,11 +249,11 @@ void cal_process_object(icalcomponent *cal,
 		/* Display the Accept/Decline buttons */
 		wprintf("<TR><TD>How would you like to respond to this invitation?</td>"
 			"<td><FONT SIZE=+1>"
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
+			"<a href=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
 			" | "
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">%s</a>"
+			"<a href=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">%s</a>"
 			" | "
-			"<A HREF=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">%s</a>"
+			"<a href=\"/respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">%s</a>"
 			"</FONT></TD></TR>\n",
 			msgnum, cal_partnum, _("Accept"),
 			msgnum, cal_partnum, _("Tentative"),
@@ -348,7 +348,7 @@ void respond_to_request(void) {
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<IMG SRC=\"static/calarea_48x.gif\" ALIGN=CENTER>"
+			"<img src=\"static/calarea_48x.gif\" ALIGN=CENTER>"
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "accept")) {
@@ -368,11 +368,11 @@ void respond_to_request(void) {
 		wprintf(_("A reply has been sent to the meeting organizer."));
 		wprintf("</TD></TR></TABLE>\n");
 	} else {
-		wprintf("<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+		wprintf("<img src=\"static/error.gif\" ALIGN=CENTER>"
 			"%s\n", &buf[4]);
 	}
 
-	wprintf("<A HREF=\"/dotskip?room=");
+	wprintf("<a href=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
 	wprintf("\"><br />");
 	wprintf(_("Return to messages"));
@@ -409,7 +409,7 @@ void handle_rsvp(void) {
 
 	if (buf[0] == '2') {
 		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<IMG SRC=\"static/calarea_48x.gif\" ALIGN=CENTER>"
+			"<img src=\"static/calarea_48x.gif\" ALIGN=CENTER>"
 			"</TD><TD>"
 		);
 		if (!strcasecmp(bstr("sc"), "update")) {
@@ -422,11 +422,11 @@ void handle_rsvp(void) {
 		wprintf("</TD></TR></TABLE>\n"
 		);
 	} else {
-		wprintf("<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+		wprintf("<img src=\"static/error.gif\" ALIGN=CENTER>"
 			"%s\n", &buf[4]);
 	}
 
-	wprintf("<A HREF=\"/dotskip?room=");
+	wprintf("<a href=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
 	wprintf("\"><br />");
 	wprintf(_("Return to messages"));
@@ -505,7 +505,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
-		"<TD><IMG SRC=\"/static/taskmanag_48x.gif\"></TD>"
+		"<TD><img src=\"/static/taskmanag_48x.gif\"></TD>"
 		"<td><SPAN CLASS=\"titlebar\">");
 	wprintf(_("Edit task"));
 	wprintf("</SPAN>"
@@ -516,7 +516,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
 	
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_task\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"/save_task\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
 

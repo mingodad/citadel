@@ -37,7 +37,7 @@ void select_user_to_edit(char *message, char *preselect)
 		"user name in the box below and click 'Create'."));
 	wprintf("<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/create_user\">\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"/create_user\">\n");
         wprintf(_("New user: "));
         wprintf("<input type=\"text\" name=\"username\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
@@ -55,7 +55,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<br /><br />");
 	
         wprintf("<CENTER>"
-		"<FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
+		"<FORM METHOD=\"POST\" action=\"/display_edituser\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10 STYLE=\"width:100%%\">\n");
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
@@ -177,7 +177,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(error_message,
-				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+				"<img src=\"static/error.gif\" ALIGN=CENTER>"
 				"%s<br /><br />\n", &buf[4]);
 			select_user_to_edit(error_message, username);
 			return;
@@ -188,7 +188,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 
 	if (vcard_msgnum < 0) {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>%s<br /><br />\n",
+			"<img src=\"static/error.gif\" ALIGN=CENTER>%s<br /><br />\n",
 			_("An error occurred while trying to create or edit this address book entry.")
 		);
 		select_user_to_edit(error_message, username);
@@ -235,7 +235,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" ALIGN=CENTER>"
 			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, username);
 		return;
@@ -272,7 +272,7 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
+	wprintf("<FORM METHOD=\"POST\" action=\"/edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
 	escputs(username);
 	wprintf("\">\n");
@@ -407,7 +407,7 @@ void edituser(void) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(message,
-				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+				"<img src=\"static/error.gif\" ALIGN=CENTER>"
 				"%s<br /><br />\n", &buf[4]);
 		}
 		else {
@@ -435,7 +435,7 @@ void delete_user(char *username) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(message,
-			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" ALIGN=CENTER>"
 			"%s<br /><br />\n", &buf[4]);
 	}
 	else {
@@ -464,7 +464,7 @@ void create_user(void) {
 	}
 	else {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" ALIGN=CENTER>"
 			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, NULL);
 	}
