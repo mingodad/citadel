@@ -1335,7 +1335,7 @@ void display_summarized(int num) {
 	char datebuf[64];
 
 	wprintf("<tr id=\"m%ld\" style=\"width:100%%;font-weight:%s;background-color:#fff\" "
-		"onClick=\"CtdlSingleClickMsg(%ld)\">",
+		"onClick=\"CtdlSingleClickMsg(event,%ld)\">",
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
 		WC->summ[num].msgnum
