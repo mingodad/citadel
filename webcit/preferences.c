@@ -181,7 +181,7 @@ void display_preferences(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<img src=\"/static/advanpage2_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<img src=\"static/advanpage2_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;");
 	wprintf(_("Preferences and settings"));
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");

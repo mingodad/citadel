@@ -14,13 +14,13 @@ time_t if_modified_since;
 void display_rss_control(char *reply_to, char *subject)
 {
 	wprintf("<div style=\"align: right;\"><p>\n");
-	wprintf("<a href=\"/display_enter?recp=");
+	wprintf("<a href=\"display_enter?recp=");
 	urlescputs(reply_to);
 	wprintf("&subject=");
 	if (strncasecmp(subject, "Re: ", 3)) wprintf("Re:%20");
 	urlescputs(subject);
 	wprintf("\">[%s]</a> \n", _("Reply"));
-	wprintf("<a href=\"/display_enter?recp=");
+	wprintf("<a href=\"display_enter?recp=");
 	urlescputs(reply_to);
 	wprintf("&force_room=_MAIL_&subject=");
 	if (strncasecmp(subject, "Re: ", 3)) wprintf("Re:%20");

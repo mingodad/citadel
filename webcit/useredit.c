@@ -20,7 +20,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
 		"<td>"
 		"<span class=\"titlebar\">"
-		"<img src=\"/static/usermanag_48x.gif\">");
+		"<img src=\"static/usermanag_48x.gif\">");
 	wprintf(_("Edit or delete users"));
 	wprintf("</span></td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
@@ -37,7 +37,7 @@ void select_user_to_edit(char *message, char *preselect)
 		"user name in the box below and click 'Create'."));
 	wprintf("<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"/create_user\">\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"create_user\">\n");
         wprintf(_("New user: "));
         wprintf("<input type=\"text\" name=\"username\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
@@ -55,7 +55,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<br /><br />");
 	
         wprintf("<CENTER>"
-		"<FORM METHOD=\"POST\" action=\"/display_edituser\">\n");
+		"<FORM METHOD=\"POST\" action=\"display_edituser\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10 STYLE=\"width:100%%\">\n");
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
@@ -272,7 +272,7 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
-	wprintf("<FORM METHOD=\"POST\" action=\"/edituser\">\n"
+	wprintf("<FORM METHOD=\"POST\" action=\"edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
 	escputs(username);
 	wprintf("\">\n");

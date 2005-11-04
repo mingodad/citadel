@@ -86,7 +86,7 @@ void new_messages_section(void) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			extract_token(room, &buf[4], 0, '|', sizeof room);
-			wprintf("<TR><TD><a href=\"/dotgoto?room=");
+			wprintf("<TR><TD><a href=\"dotgoto?room=");
 			urlescputs(room);
 			wprintf("\">");
 			escputs(room);
@@ -274,7 +274,7 @@ void summary(void) {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
-		"<TD><img src=\"/static/summscreen_48x.gif\"></TD><TD>"
+		"<TD><img src=\"static/summscreen_48x.gif\"></TD><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 	);
 

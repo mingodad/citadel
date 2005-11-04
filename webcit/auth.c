@@ -241,7 +241,7 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<hr /><a href=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
+	wprintf("<hr /><a href=\".\">Log in again</A>&nbsp;&nbsp;&nbsp;"
 		"<a href=\"javascript:window.close();\">");
 	wprintf(_("Close window"));
 	wprintf("</a></center>\n");
@@ -326,7 +326,7 @@ void validate(void)
 	wprintf(_("Select access level for this user:"));
 	wprintf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<a href=\"/validate&user=");
+		wprintf("<a href=\"validate&user=");
 		urlescputs(user);
 		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);

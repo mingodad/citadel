@@ -174,14 +174,14 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
-		"<img src=\"/static/savecontact_48x.gif\">");
+		"<img src=\"static/savecontact_48x.gif\">");
 	wprintf(_("Edit contact information"));
 	wprintf("</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<FORM METHOD=\"POST\" action=\"/submit_vcard\">\n");
+	wprintf("<FORM METHOD=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 

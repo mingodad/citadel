@@ -342,7 +342,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			else if (!strcasecmp(firsttoken, "email")) {
 				if (strlen(mailto) > 0) strcat(mailto, "<br />");
 				strcat(mailto,
-					"<a href=\"/display_enter"
+					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
 
 				urlesc(&mailto[strlen(mailto)], displayname);
@@ -419,7 +419,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (pass == 1) {
 			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER src=\"/static/viewcontacts_48x.gif\">"
+			"<IMG ALIGN=CENTER src=\"static/viewcontacts_48x.gif\">"
 			"<FONT SIZE=+1><B>");
 			escputs(displayname);
 			wprintf("</B></FONT>");
@@ -580,7 +580,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
 			wprintf(_("from "));
-			wprintf("<a href=\"/showuser?who=");
+			wprintf("<a href=\"showuser?who=");
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
 #endif
@@ -659,16 +659,16 @@ void read_message(long msgnum, int printable_view, char *section) {
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<img src=\"/mimepart/%ld/%s/%s\">",
+					"<img src=\"mimepart/%ld/%s/%s\">",
 					msgnum, mime_partnum, mime_filename);
 			}
 			else if ( (!strcasecmp(mime_disposition, "attachment")) 
 			     || (!strcasecmp(mime_disposition, "inline")) ) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<a href=\"/mimepart/%ld/%s/%s\" "
+					"<a href=\"mimepart/%ld/%s/%s\" "
 					"TARGET=\"wc.%ld.%s\">"
-					"<img src=\"/static/diskette_24x.gif\" "
+					"<img src=\"static/diskette_24x.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
 					"%s (%s, %d bytes)</A><br />\n",
 					msgnum, mime_partnum, mime_filename,
@@ -742,7 +742,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 		/* Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			wprintf("<a href=\"/display_enter");
+			wprintf("<a href=\"display_enter");
 			if (WC->is_mailbox) {
 				wprintf("?replyquote=%ld", msgnum);
 			}
@@ -757,7 +757,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		/* ReplyQuoted */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			if (!WC->is_mailbox) {
-				wprintf("<a href=\"/display_enter");
+				wprintf("<a href=\"display_enter");
 				wprintf("?replyquote=%ld", msgnum);
 				wprintf("?recp=");
 				urlescputs(reply_to);
@@ -770,7 +770,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 		/* ReplyAll */
 		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"/display_enter");
+			wprintf("<a href=\"display_enter");
 			wprintf("?replyquote=%ld", msgnum);
 			wprintf("?recp=");
 			urlescputs(reply_to);
@@ -786,7 +786,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"/display_enter?fwdquote=%ld?subject=", msgnum);
+			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
 			urlescputs(m_subject);
 			wprintf("\">[%s]</a> ", _("Forward"));
@@ -795,11 +795,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 		/* If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
 		if ( (WC->is_room_aide) || (WC->is_mailbox) ) {
 			/* Move */
-			wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[%s]</a> ",
+			wprintf("<a href=\"confirm_move_msg?msgid=%ld\">[%s]</a> ",
 				msgnum, _("Move"));
 	
 			/* Delete */
-			wprintf("<a href=\"/delete_msg?msgid=%ld\" "
+			wprintf("<a href=\"delete_msg?msgid=%ld\" "
 				"onClick=\"return confirm('%s');\">"
 				"[%s]</a> ", msgnum, _("Delete this message?"), _("Delete")
 			);
@@ -944,7 +944,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<a href=\"/edit_vcard?"
+				wprintf("<a href=\"edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</A>", _("edit"));
@@ -1412,7 +1412,7 @@ void display_addressbook(long msgnum, char alpha) {
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<a href=\"/edit_vcard?"
+				wprintf("<a href=\"edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</A>", _("edit"));
@@ -1563,7 +1563,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	wprintf("Page: ");
 	for (i=0; i<=num_pages; ++i) {
 		if (i != page) {
-			wprintf("<a href=\"/readfwd?page=%d\">", i);
+			wprintf("<a href=\"readfwd?page=%d\">", i);
 		}
 		else {
 			wprintf("<B>");
@@ -1605,7 +1605,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	
 			wprintf("<TD>");
 	
-			wprintf("<a href=\"/readfwd?startmsg=%ld&is_singlecard=1",
+			wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
 				addrbook[i].ab_msgnum);
 			wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
 			vcard_n_prettyize(addrbook[i].ab_name);
@@ -1977,33 +1977,33 @@ void readloop(char *oper)
 	}
 
 	if (!strcasecmp(sortby, "subject")) {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsubject\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsubject\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsubject")) {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		subjsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "sender")) {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsender\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsender\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsender")) {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		sendsort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "date")) {
-		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"/static/down_pointer.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rdate")) {
-		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"/static/up_pointer.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		datesort_button = "<a href=\"/readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"/static/sort_none.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (is_summary) {
@@ -2014,7 +2014,7 @@ void readloop(char *oper)
 			"<div id=\"fix_scrollbar_bug\">\n"
 
 			"<form name=\"msgomatic\" "
-			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n"
+			"method=\"POST\" action=\"do_stuff_to_msgs\">\n"
 
 			"<span class=\"mailbox_summary\">"
 			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\"><tr>"
@@ -2118,7 +2118,7 @@ void readloop(char *oper)
 	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
 
 		wprintf("<form name=\"msgomatic\" "
-			"method=\"POST\" action=\"/do_stuff_to_msgs\">\n");
+			"method=\"POST\" action=\"do_stuff_to_msgs\">\n");
 
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
@@ -2502,7 +2502,7 @@ void display_enter(void)
 
 	/* begin message entry screen */
 	wprintf("<form enctype=\"multipart/form-data\" "
-		"method=\"POST\" action=\"/post\" "
+		"method=\"POST\" action=\"post\" "
 		"name=\"enterform\""
 		">\n");
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
@@ -2645,7 +2645,7 @@ void display_enter(void)
 	);
 
 	/* Enumerate any attachments which are already in place... */
-	wprintf("<img src=\"/static/diskette_24x.gif\" border=0 "
+	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
 		"align=middle height=16 width=16> Attachments: ");
 	wprintf("<select name=\"which_attachment\" size=1>");
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
@@ -2737,7 +2737,7 @@ void confirm_move_msg(void)
 	wprintf(_("Move this message to:"));
 	wprintf("<br />\n");
 
-	wprintf("<form METHOD=\"POST\" action=\"/move_msg\">\n");
+	wprintf("<form METHOD=\"POST\" action=\"move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");
