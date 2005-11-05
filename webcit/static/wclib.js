@@ -1,7 +1,7 @@
 //
 // $Id: wclib.js,v 625.2 2005/09/18 04:04:32 ajc Exp $
 //
-// JavaScript function library for WebCit
+// JavaScript function library for WebCit.
 //
 //
 
@@ -51,7 +51,7 @@ function activate_entmsg_autocompleters() {
 // Static variables for mailbox view...
 //
 var CtdlNumMsgsSelected = 0;
-var CtdlMsgsSelected = new Array(100);	// arbitrary
+var CtdlMsgsSelected = new Array(65536);	// arbitrary
 
 // This gets called when you single click on a message in the mailbox view.
 // We know that the element id of the table row will be the letter 'm' plus the message number.
@@ -108,6 +108,43 @@ function CtdlSingleClickMsg(evt, msgnum) {
 	);
 }
 
+// Take the boldface away from a message to indicate that it has been seen.
 function CtdlRemoveTheUnseenBold(msgnum) {
 	$('m'+msgnum).style.fontWeight='normal' ;
 }
+
+// A message has been deleted, so yank it from the list.
+function CtdlClearDeletedMsg(msgnum) {
+	$('m'+msgnum).innerHTML = '' ;
+}
+
+
+// Delete selected messages.
+function CtdlDeleteSelectedMessages(evt) {
+	if (CtdlNumMsgsSelected < 1) {
+		// Nothing to delete, so exit silently.
+		return false;
+	}
+	for (i=0; i<CtdlNumMsgsSelected; ++i) {
+		new Ajax.Request(
+			'/ajax_servcmd', {
+				method: 'post',
+				parameters: 'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|_TRASH_|0',
+				onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
+			}
+		);
+	}
+	CtdlNumMsgsSelected = 0;
+
+	// Clear the preview pane too.
+	$('preview_pane').innerHTML = '';
+}
+
+// This gets called when the user touches the keyboard after selecting messages...
+function CtdlMsgListKeyPress(evt) {
+	if (evt.which == 46) {				// DELETE key
+		CtdlDeleteSelectedMessages(evt);
+	}
+	return true;
+}
+

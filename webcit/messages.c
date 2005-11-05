@@ -1354,11 +1354,6 @@ void display_summarized(int num) {
 	escputs(datebuf);
 	wprintf("</td>");
 
-	wprintf("<td><input type=\"checkbox\" name=\"msg_%ld\" value=\"yes\">",
-		WC->summ[num].msgnum
-	);
-	wprintf("</td>");
-
 	wprintf("</tr>\n");
 }
 
@@ -2007,21 +2002,31 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</div>");		/* end of 'content' div */
+		wprintf("</div>\n");		/* end of 'content' div */
 
+		wprintf("<script language=\"javascript\" type=\"text/javascript\">"
+			" document.onkeydown = CtdlMsgListKeyPress;	"
+			" if (document.layers) {			"
+			"	document.captureEvents(Event.KEYPRESS);	"
+			" }						"
+			"</script>\n"
+		);
+
+		/* note that Date and Delete are now in the same column */
 		wprintf("<div id=\"message_list\">"
 
 			"<div id=\"fix_scrollbar_bug\">\n"
-
-			"<form name=\"msgomatic\" "
-			"method=\"POST\" action=\"do_stuff_to_msgs\">\n"
 
 			"<span class=\"mailbox_summary\">"
 			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\"><tr>"
 			"<td><b><i>%s</i></b> %s</td>"
 			"<td><b><i>%s</i></b> %s</td>"
-			"<td><b><i>%s</i></b> %s</td>"
-			"<td><input type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" value=\"%s\"></td>"
+			"<td><b><i>%s</i></b> %s"
+			"&nbsp;"
+			"<input type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" "
+			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
+			" value=\"%s\">"
+			"</td>"
 			"</tr>\n"
 			,
 			_("Subject"),	subjsort_button,
@@ -2084,23 +2089,11 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></span></form>"
+		wprintf("</table></span>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
 		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
-
-		/* Now register each message (whose element ID is "m9999",
-		 * where "9999" is the message number) as draggable.
-		 * (NOTE: uses script.aculo.us draggables, which will probably not be
-		 * adequate for this purpose.)
-		wprintf("<script type=\"text/javascript\">\n");
-		for (a = 0; a < nummsgs; ++a) {
-			wprintf("new Draggable('m%ld',{revert:true});\n",
-		                WC->summ[a].msgnum);
-		}
-		wprintf("</script>\n");
-		 */
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -2116,9 +2109,6 @@ void readloop(char *oper)
 	if (num_displayed > 1) {
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
 	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
-
-		wprintf("<form name=\"msgomatic\" "
-			"method=\"POST\" action=\"do_stuff_to_msgs\">\n");
 
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
@@ -2192,8 +2182,6 @@ void readloop(char *oper)
 		);
 	
 		wprintf("</select>");
-
-		wprintf("</form>\n");
 	    }
 	}
 
@@ -2783,56 +2771,4 @@ void move_msg(void)
 
 	readloop("readnew");
 
-}
-
-/*
- * This gets called when a user selects multiple messages in a summary
- * list and then clicks to perform a transformation of some sort on them
- * (such as deleting them).
- */
-void do_stuff_to_msgs(void) {
-	char buf[256];
-
-	struct stuff_t {
-		struct stuff_t *next;
-		long msgnum;
-	};
-
-	struct stuff_t *stuff = NULL;
-	struct stuff_t *ptr;
-	int delete_button_pressed = 0;
-
-
-	serv_puts("MSGS ALL");
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		ptr = malloc(sizeof(struct stuff_t));
-		ptr->msgnum = atol(buf);
-		ptr->next = stuff;
-		stuff = ptr;
-	}
-
-	if (strlen(bstr("delete_button")) > 0) {
-		delete_button_pressed = 1;
-	}
-
-	while (stuff != NULL) {
-
-		sprintf(buf, "msg_%ld", stuff->msgnum);
-		if (!strcasecmp(bstr(buf), "yes")) {
-
-			if (delete_button_pressed) {
-				serv_printf("MOVE %ld|_TRASH_|0", stuff->msgnum);
-				serv_getln(buf, sizeof buf);
-			}
-
-		}
-
-		ptr = stuff->next;
-		free(stuff);
-		stuff = ptr;
-	}
-
-	readloop("readfwd");
 }

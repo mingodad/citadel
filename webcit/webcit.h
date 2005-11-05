@@ -502,7 +502,6 @@ void edituser(void);
 void do_change_view(int);
 void change_view(void);
 void folders(void);
-void do_stuff_to_msgs(void);
 void load_preferences(void);
 void save_preferences(void);
 void get_preference(char *key, char *value, size_t value_len);
