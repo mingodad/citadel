@@ -73,10 +73,27 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		}
 	}
 
-	$('m'+msgnum).style.backgroundColor='#69aaff';
-	$('m'+msgnum).style.color='#fff';
-	CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
-	CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
+	// For multi select ... is the message being clicked already selected?
+	already_selected = 0;
+	if ( (evt.ctrlKey) && (CtdlNumMsgsSelected > 0) ) {
+		for (i=0; i<CtdlNumMsgsSelected; ++i) {
+			if (CtdlMsgsSelected[i] == msgnum) {
+				already_selected = 1;
+			}
+		}
+	}
+
+	// Now select (or de-select) the message
+	if ( (evt.ctrlKey) && (already_selected == 1) ) {
+		$('m'+msgnum).style.backgroundColor = '#fff';
+		$('m'+msgnum).style.color = '#000';
+	}
+	else {
+		$('m'+msgnum).style.backgroundColor='#69aaff';
+		$('m'+msgnum).style.color='#fff';
+		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
+		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
+	}
 
 	// Update the preview pane
 	new Ajax.Updater('preview_pane', '/msg/'+msgnum, { method: 'get' } );
