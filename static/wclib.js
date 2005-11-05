@@ -106,6 +106,8 @@ function CtdlSingleClickMsg(evt, msgnum) {
 			onComplete: CtdlRemoveTheUnseenBold(msgnum)
 		}
 	);
+
+	return false;		// try to defeat the default click behavior
 }
 
 // Take the boldface away from a message to indicate that it has been seen.
