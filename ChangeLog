@@ -1,5 +1,9 @@
 $Id$
 
+Sat Nov  5 00:50:25 EST 2005 ajc
+* The checkboxes are gone!  Implemented ajax delete of selected messages,
+  via either the Delete button or the Delete key.
+
 Fri Nov  4 23:47:23 EST 2005 ajc
 * Multi select using ctrl now handles the condition of a message already being
   selected and the user doing ctrl-click to deselect it.
