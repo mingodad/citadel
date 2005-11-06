@@ -298,7 +298,7 @@ void summary(void) {
 
 	wprintf(
 		"<script type=\"text/javascript\">					"
-		" new Ajax.PeriodicalUpdater('content', '/summary_inner_div',		"
+		" new Ajax.PeriodicalUpdater('content', 'summary_inner_div',		"
 		"                            { method: 'get', frequency: 60 }  );	"
 		"</script>							 	\n"
 	);

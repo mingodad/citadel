@@ -805,7 +805,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			);
 		}
 
-		wprintf("<a href=\"#\" onClick=\"window.open('/printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Print"));
 
 		wprintf("</td>");
@@ -2122,7 +2122,7 @@ void readloop(char *oper)
 				lo = b - maxmsgs + 2;
 				if (lo < 1) lo = 1;
 				wprintf("<option %s value="
-					"\"/%s"
+					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
 					"?summary=%d\">"
@@ -2141,7 +2141,7 @@ void readloop(char *oper)
 				hi = b + maxmsgs + 1;
 				if (hi > nummsgs) hi = nummsgs;
 				wprintf("<option %s value="
-					"\"/%s"
+					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
 					"?summary=%d\">"
@@ -2155,7 +2155,7 @@ void readloop(char *oper)
 			}
 		}
 
-		wprintf("<option value=\"/%s?startmsg=%ld"
+		wprintf("<option value=\"%s?startmsg=%ld"
 			"?maxmsgs=9999999?summary=%d\">"
 			"ALL"
 			"</option> ",
@@ -2171,12 +2171,12 @@ void readloop(char *oper)
 			"[selectedIndex].value\">\n"
 		);
 
-		wprintf("<option %s value=\"/%s&sortby=forward\">oldest to newest</option>\n",
+		wprintf("<option %s value=\"%s&sortby=forward\">oldest to newest</option>\n",
 			(bbs_reverse ? "" : "selected"),
 			oper
 		);
 	
-		wprintf("<option %s value=\"/%s&sortby=reverse\">newest to oldest</option>\n",
+		wprintf("<option %s value=\"%s&sortby=reverse\">newest to oldest</option>\n",
 			(bbs_reverse ? "selected" : ""),
 			oper
 		);

@@ -227,7 +227,7 @@ void do_iconbar(void) {
 
 	if (ib_chat) {
 		wprintf("<li>"
-			"<a href=\"#\" onClick=\"window.open('/chat', "
+			"<a href=\"#\" onClick=\"window.open('chat', "
 			"'ctdl_chat_window', "
 			"'toolbar=no,location=no,directories=no,copyhistory=no,"
 			"status=no,scrollbars=yes,resizable=yes');\""

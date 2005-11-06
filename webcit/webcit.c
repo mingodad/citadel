@@ -1342,13 +1342,13 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_editpic")) {
 		display_graphics_upload(_("your photo"),
 					"UIMG 0|_userpic_",
-					"/editpic");
+					"editpic");
 	} else if (!strcasecmp(action, "editpic")) {
 		do_graphics_upload("UIMG 1|_userpic_");
 	} else if (!strcasecmp(action, "display_editroompic")) {
 		display_graphics_upload(_("the icon for this room"),
 					"UIMG 0|_roompic_",
-					"/editroompic");
+					"editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
 		do_graphics_upload("UIMG 1|_roompic_");
 	} else if (!strcasecmp(action, "delete_floor")) {
@@ -1362,7 +1362,7 @@ void session_loop(struct httprequest *req)
 			bstr("which_floor"));
 		display_graphics_upload(_("the icon for this floor"),
 					buf,
-					"/editfloorpic");
+					"editfloorpic");
 	} else if (!strcasecmp(action, "editfloorpic")) {
 		sprintf(buf, "UIMG 1|_floorpic_|%s",
 			bstr("which_floor"));

@@ -322,7 +322,7 @@ void embed_view_o_matic(void) {
 		   ||	( (i == 1) && (WC->wc_default_view == 0) )
 		) {
 
-			wprintf("<OPTION %s VALUE=\"/changeview?view=%d\">",
+			wprintf("<OPTION %s VALUE=\"changeview?view=%d\">",
 				((i == WC->wc_view) ? "SELECTED" : ""),
 				i );
 			escputs(viewdefs[i]);
@@ -350,7 +350,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
-	snprintf(WC->this_page, sizeof(WC->this_page), "/dotskip&room=%s",
+	snprintf(WC->this_page, sizeof(WC->this_page), "dotskip&room=%s",
 		WC->wc_roomname);
 
 	/* Check for new mail. */
@@ -2686,13 +2686,13 @@ void knrooms() {
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
-	wprintf("<OPTION %s VALUE=\"/knrooms&view=rooms\">"
+	wprintf("<OPTION %s VALUE=\"knrooms&view=rooms\">"
 		"View as room list"
 		"</OPTION>\n",
 		( !strcasecmp(listviewpref, "rooms") ? "SELECTED" : "" )
 	);
 
-	wprintf("<OPTION %s VALUE=\"/knrooms&view=folders\">"
+	wprintf("<OPTION %s VALUE=\"knrooms&view=folders\">"
 		"View as folder list"
 		"</OPTION>\n",
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
