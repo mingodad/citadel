@@ -833,8 +833,10 @@ void ajax_servcmd(void)
 
 	begin_ajax_response();
 
+	/* lprintf(9, "Sending cmd: %s\n", bstr("g_cmd")); */
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
+	/* lprintf(9, "   Response: %s\n", buf); */
 
 	if (buf[0] == '8') {
 		serv_printf("\n\n000");
