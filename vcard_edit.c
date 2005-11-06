@@ -400,10 +400,10 @@ void submit_vcard(void) {
 	serv_puts("end:vcard");
 	serv_puts("000");
 
-	if (!strcmp(bstr("return_to"), "/select_user_to_edit")) {
+	if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 		select_user_to_edit(NULL, NULL);
 	}
-	else if (!strcmp(bstr("return_to"), "/do_welcome")) {
+	else if (!strcmp(bstr("return_to"), "do_welcome")) {
 		do_welcome();
 	}
 	else {

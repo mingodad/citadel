@@ -1,5 +1,8 @@
 $Id$
 
+Sat Nov  5 22:53:29 EST 2005 ajc
+* Found and removed more absolute URL's.
+
 Sat Nov  5 00:50:25 EST 2005 ajc
 * The checkboxes are gone!  Implemented ajax delete of selected messages,
   via either the Delete button or the Delete key.

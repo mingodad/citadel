@@ -175,7 +175,7 @@ void who(void)
 	 */
 	wprintf(
 		"<script type=\"text/javascript\">					"
-		" new Ajax.PeriodicalUpdater('fix_scrollbar_bug', '/who_inner_html',	"
+		" new Ajax.PeriodicalUpdater('fix_scrollbar_bug', 'who_inner_html',	"
 		"                            { method: 'get', frequency: 30 }  );	"
 		"</script>							 	\n"
 	);
@@ -203,17 +203,17 @@ void edit_me(void)
 	if (strlen(bstr("change_room_name_button")) > 0) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/who");
+		http_redirect("who");
 	} else if (strlen(bstr("change_host_name_button")) > 0) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/who");
+		http_redirect("who");
 	} else if (strlen(bstr("change_user_name_button")) > 0) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("/who");
+		http_redirect("who");
 	} else if (strlen(bstr("cancel_button")) > 0) {
-		http_redirect("/who");
+		http_redirect("who");
 	} else {
 		output_headers(1, 1, 0, 0, 0, 0);
 

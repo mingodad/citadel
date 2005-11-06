@@ -185,7 +185,7 @@ void do_welcome(void)
 		}
 
 		if (!setup_wizard) {
-			http_redirect("/setup_wizard");
+			http_redirect("setup_wizard");
 		}
 	}
 #endif
@@ -195,7 +195,7 @@ void do_welcome(void)
 	 */
 	get_preference("startpage", buf, sizeof buf);
 	if (strlen(buf)==0) {
-		safestrncpy(buf, "/dotskip&room=_BASEROOM_", sizeof buf);
+		safestrncpy(buf, "dotskip&room=_BASEROOM_", sizeof buf);
 		set_preference("startpage", buf, 1);
 	}
 	http_redirect(buf);
@@ -363,10 +363,10 @@ void display_reg(int during_login)
 	}
 
 	if (during_login) {
-		do_edit_vcard(vcard_msgnum, "1", "/do_welcome");
+		do_edit_vcard(vcard_msgnum, "1", "do_welcome");
 	}
 	else {
-		do_edit_vcard(vcard_msgnum, "1", "/display_main_menu");
+		do_edit_vcard(vcard_msgnum, "1", "display_main_menu");
 	}
 
 }

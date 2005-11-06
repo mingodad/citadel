@@ -195,7 +195,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		return;
 	}
 
-	do_edit_vcard(vcard_msgnum, "1", "/select_user_to_edit");
+	do_edit_vcard(vcard_msgnum, "1", "select_user_to_edit");
 }
 
 
