@@ -1,5 +1,10 @@
 $Id$
 
+Sun Nov  6 12:26:43 EST 2005
+* Message delete: table row delete is now handled by a script.aculo.us effect
+  instead of by just clearing out the innerHTML of the table row div, because
+  IE barfs on the latter.
+
 Sat Nov  5 22:53:29 EST 2005 ajc
 * Found and removed more absolute URL's.
 

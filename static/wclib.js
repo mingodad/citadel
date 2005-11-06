@@ -42,9 +42,9 @@ function hide_imsg_popup() {
 
 // This function activates the ajax-powered recipient autocompleters on the message entry screen.
 function activate_entmsg_autocompleters() {
-	new Ajax.Autocompleter('cc_id', 'cc_name_choices', '/cc_autocomplete', {} );
-	new Ajax.Autocompleter('bcc_id', 'bcc_name_choices', '/bcc_autocomplete', {} );
-	new Ajax.Autocompleter('recp_id', 'recp_name_choices', '/recp_autocomplete', {} );
+	new Ajax.Autocompleter('cc_id', 'cc_name_choices', 'cc_autocomplete', {} );
+	new Ajax.Autocompleter('bcc_id', 'bcc_name_choices', 'bcc_autocomplete', {} );
+	new Ajax.Autocompleter('recp_id', 'recp_name_choices', 'recp_autocomplete', {} );
 }
 
 
@@ -96,11 +96,11 @@ function CtdlSingleClickMsg(evt, msgnum) {
 	}
 
 	// Update the preview pane
-	new Ajax.Updater('preview_pane', '/msg/'+msgnum, { method: 'get' } );
+	new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
 
 	// Mark the message as read
 	new Ajax.Request(
-		'/ajax_servcmd', {
+		'ajax_servcmd', {
 			method: 'post',
 			parameters: 'g_cmd=SEEN '+msgnum+'|1',
 			onComplete: CtdlRemoveTheUnseenBold(msgnum)
@@ -110,26 +110,16 @@ function CtdlSingleClickMsg(evt, msgnum) {
 	return false;		// try to defeat the default click behavior
 }
 
-// Take the boldface away from a message to indicate that it has been seen.
-function CtdlRemoveTheUnseenBold(msgnum) {
-	$('m'+msgnum).style.fontWeight='normal' ;
-}
-
-// A message has been deleted, so yank it from the list.
-function CtdlClearDeletedMsg(msgnum) {
-	$('m'+msgnum).innerHTML = '' ;
-}
-
-
 // Delete selected messages.
 function CtdlDeleteSelectedMessages(evt) {
+	
 	if (CtdlNumMsgsSelected < 1) {
 		// Nothing to delete, so exit silently.
 		return false;
 	}
 	for (i=0; i<CtdlNumMsgsSelected; ++i) {
 		new Ajax.Request(
-			'/ajax_servcmd', {
+			'ajax_servcmd', {
 				method: 'post',
 				parameters: 'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|_TRASH_|0',
 				onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
@@ -144,9 +134,20 @@ function CtdlDeleteSelectedMessages(evt) {
 
 // This gets called when the user touches the keyboard after selecting messages...
 function CtdlMsgListKeyPress(evt) {
-	if (evt.which == 46) {				// DELETE key
+	if (evt.keyCode == 46) {				// DELETE key
 		CtdlDeleteSelectedMessages(evt);
 	}
 	return true;
+}
+
+// Take the boldface away from a message to indicate that it has been seen.
+function CtdlRemoveTheUnseenBold(msgnum) {
+	$('m'+msgnum).style.fontWeight='normal';
+}
+
+// A message has been deleted, so yank it from the list.
+// (IE barfs on m9999.innerHTML='' so we use a script.aculo.us effect instead.)
+function CtdlClearDeletedMsg(msgnum) {
+	new Effect.Squish('m'+msgnum);
 }
 
