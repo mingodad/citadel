@@ -640,8 +640,8 @@ void disable_other_mta(char *mta) {
 
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 
-	if (getenv("DISABLE_OTHER_MTA")) {
-		if (strcasecmp(getenv("DISABLE_OTHER_MTA"), "yes")) {
+	if (getenv("ACT_AS_MTA")) {
+		if (strcasecmp(getenv("ACT_AS_MTA"), "yes")) {
 			return;
 		}
 	}
@@ -827,7 +827,12 @@ void edit_value(int curr)
 	switch (curr) {
 
 	case 1:
-		set_str_val(curr, config.c_sysadm);
+		if (getenv("SYSADMIN_NAME")) {
+			strcpy(config.c_sysadm, getenv("SYSADMIN_NAME"));
+		}
+		else {
+			set_str_val(curr, config.c_sysadm);
+		}
 		break;
 
 	case 2:

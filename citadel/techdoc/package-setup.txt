@@ -17,7 +17,7 @@ SUPPORT			Location of libraries, etc. (optional)
 
 CTDL_DIALOG		Location of the 'dialog' program (optional)
 
-DISABLE_OTHER_MTA	When other MTA's (Postfix, etc.) are found, setup
+ACT_AS_MTA		When other MTA's (Postfix, etc.) are found, setup
 			will offer to disable them in order to keep them
 			from interfering with Citadel.  Set this variable to
 			"yes" to always disable the other MTA without asking,
@@ -28,3 +28,5 @@ CREATE_INITTAB_ENTRY	Set to "yes" to automatically create an entry in
 
 CREATE_XINETD_ENTRY	Set to "yes" to automatically configure xinetd to route
 			telnet connections into a Citadel client, if needed.
+
+SYSADMIN_NAME		Name of system administrator.

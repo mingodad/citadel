@@ -1,5 +1,8 @@
 $Id$
 
+Sat Nov  5 22:56:30 EST 2005 ajc
+* More changes to batch mode setup
+
 Thu Nov  3 23:02:01 EST 2005 ajc
 * Updated setup to allow more batch mode control of it;
   see techdoc/package-setup.txt
