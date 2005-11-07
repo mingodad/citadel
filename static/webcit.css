@@ -92,23 +92,43 @@ body {
 	/* overflow-x: hidden; */
 }
 
-#message_list {
+#message_list_hdr {
 	position:fixed;
 	display:block;
 	top: 15%;
 	left: 15%;
 	width: 85%;
-	height: 25%;
+	height: 5%;
+	overflow: none;
+}
+
+* html #message_list_hdr {
+	position:absolute;
+	display:block;
+	top: 15%;
+	left: 15%;
+	width: 85%;
+	height: 5%;
+	overflow: none;
+}
+
+#message_list {
+	position:fixed;
+	display:block;
+	top: 20%;
+	left: 15%;
+	width: 85%;
+	height: 20%;
 	overflow: auto;
 }
 
 * html #message_list {
 	position:absolute;
 	display:block;
-	top: 15%;
+	top: 20%;
 	left: 15%;
 	width: 85%;
-	height: 25%;
+	height: 20%;
 	overflow: auto;
 }
 
