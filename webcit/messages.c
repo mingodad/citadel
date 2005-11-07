@@ -10,6 +10,9 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+#define SUBJ_COL_WIDTH_PCT		50
+#define SENDER_COL_WIDTH_PCT		30
+#define DATE_PLUS_BUTTONS_WIDTH_PCT	20
 
 /* Address book entry (keep it short and sweet, it's just a quickie lookup
  * which we can use to get to the real meat and bones later)
@@ -1341,15 +1344,15 @@ void display_summarized(int num) {
 		WC->summ[num].msgnum
 	);
 
-	wprintf("<td>");
+	wprintf("<td width=%d%%>", SUBJ_COL_WIDTH_PCT);
 	escputs(WC->summ[num].subj);
 	wprintf("</td>");
 
-	wprintf("<td>");
+	wprintf("<td width=%d%%>", SENDER_COL_WIDTH_PCT);
 	escputs(WC->summ[num].from);
 	wprintf("</td>");
 
-	wprintf("<td>");
+	wprintf("<td width=%d%%>", DATE_PLUS_BUTTONS_WIDTH_PCT);
 	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
 	escputs(datebuf);
 	wprintf("</td>");
@@ -2013,15 +2016,14 @@ void readloop(char *oper)
 		);
 
 		/* note that Date and Delete are now in the same column */
-		wprintf("<div id=\"message_list\">"
-
-			"<div id=\"fix_scrollbar_bug\">\n"
-
-			"<span class=\"mailbox_summary\">"
-			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\"><tr>"
-			"<td><b><i>%s</i></b> %s</td>"
-			"<td><b><i>%s</i></b> %s</td>"
-			"<td><b><i>%s</i></b> %s"
+		wprintf("<div id=\"message_list_hdr\">"
+			"<div id=\"fix_scrollbar_bug\">"
+			"<table cellspacing=0 style=\"width:100%%\">"
+			"<tr>"
+		);
+		wprintf("<td width=%d%%><b><i>%s</i></b> %s</td>"
+			"<td width=%d%%><b><i>%s</i></b> %s</td>"
+			"<td width=%d%%><b><i>%s</i></b> %s"
 			"&nbsp;"
 			"<input type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" "
 			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
@@ -2029,10 +2031,22 @@ void readloop(char *oper)
 			"</td>"
 			"</tr>\n"
 			,
+			SUBJ_COL_WIDTH_PCT,
 			_("Subject"),	subjsort_button,
+			SENDER_COL_WIDTH_PCT,
 			_("Sender"),	sendsort_button,
+			DATE_PLUS_BUTTONS_WIDTH_PCT,
 			_("Date"),	datesort_button,
 			_("Delete")
+		);
+		wprintf("</table></div></div>\n");
+
+		wprintf("<div id=\"message_list\">"
+
+			"<div id=\"fix_scrollbar_bug\">\n"
+
+			"<span class=\"mailbox_summary\">"
+			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\">"
 		);
 	}
 
