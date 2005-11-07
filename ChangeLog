@@ -1,5 +1,9 @@
 $Id$
 
+Sun Nov  6 22:30:54 EST 2005
+* Changed keypress handling so that it works not only in web browsers, but in
+  Internet Explorer as well.
+
 Sun Nov  6 12:26:43 EST 2005
 * Message delete: table row delete is now handled by a script.aculo.us effect
   instead of by just clearing out the innerHTML of the table row div, because
