@@ -120,6 +120,7 @@ body {
 	width: 85%;
 	height: 20%;
 	overflow: auto;
+	cursor: default;
 }
 
 * html #message_list {
@@ -130,6 +131,7 @@ body {
 	width: 85%;
 	height: 20%;
 	overflow: auto;
+	cursor: default;
 }
 
 #preview_pane {
