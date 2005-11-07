@@ -134,7 +134,13 @@ function CtdlDeleteSelectedMessages(evt) {
 
 // This gets called when the user touches the keyboard after selecting messages...
 function CtdlMsgListKeyPress(evt) {
-	if (evt.keyCode == 46) {				// DELETE key
+	if(document.all) {				// aIEeee
+		var whichKey = window.event.keyCode;
+	}
+	else {						// non-sux0r browsers
+		var whichKey = evt.which;
+	}
+	if (whichKey == 46) {				// DELETE key
 		CtdlDeleteSelectedMessages(evt);
 	}
 	return true;
