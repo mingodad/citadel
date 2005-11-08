@@ -2107,6 +2107,16 @@ void readloop(char *oper)
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
+		/* Here's the grab-it-to-resize-the-message-list widget */
+		wprintf("<div id=\"resize_msglist\" "
+			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
+			"<div id=\"fix_scrollbar_bug\">"
+			"<table width=100%% border=3 cellspacing=0 "
+			"bgcolor=\"#ccc\" "
+			"cellpadding=0><TR><TD> </td></tr></table>"
+			"</div></div>\n"
+		);
+
 		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
 	}
 

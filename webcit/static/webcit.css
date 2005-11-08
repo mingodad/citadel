@@ -43,7 +43,7 @@ body {
 	left: 15%;
 	width: 85%;
 	height: 15%;
-	background: #444455;
+	background: #445;
 }
 
 * html #banner {
@@ -53,7 +53,7 @@ body {
 	left: 15%;
 	width: 85%;
 	height: 15%;
-	background: #444455;
+	background: #445;
 }
 
 #page_popup {
@@ -120,7 +120,7 @@ body {
 	width: 85%;
 	height: 20%;
 	overflow: auto;
-	cursor: default;
+	cursor: pointer;
 }
 
 * html #message_list {
@@ -131,7 +131,29 @@ body {
 	width: 85%;
 	height: 20%;
 	overflow: auto;
-	cursor: default;
+	cursor: pointer;
+}
+
+#resize_msglist {
+	position:fixed;
+	display:block;
+	top: 40%;
+	left: 15%;
+	width: 85%;
+	height: 1%;
+	overflow: none;
+	cursor: s-resize;
+}
+
+* html #resize_msglist {
+	position:absolute;
+	display:block;
+	top: 40%;
+	left: 15%;
+	width: 85%;
+	height: 1%;
+	overflow: none;
+	cursor: s-resize;
 }
 
 #preview_pane {
