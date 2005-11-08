@@ -168,9 +168,13 @@ var saved_y = 0;
 
 function ml_up(evt) {
 	document.onmouseup = null;
+	document.onmousemove = null;
 	if (document.layers) {
-		document.releaseEvents(Event.MOUSEUP);
+		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
 	}
+}
+
+function ml_move(evt) {
 	y = (ns6 ? evt.clientY : event.clientY);
 	increment = y - saved_y;
 
@@ -213,12 +217,15 @@ function ml_up(evt) {
 		divTop = d.style.pixelTop;
 	}
 	d.style.top = (divTop + increment) + 'px';
+
+	saved_y = y;
 }
 
 function CtdlResizeMsgListMouseDown(evt) {
 	saved_y = (ns6 ? evt.clientY : event.clientY);
 	document.onmouseup = ml_up;
+	document.onmousemove = ml_move;
 	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP);
+		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
 	}
 }
