@@ -6,10 +6,6 @@
 //
 
 
-//
-// This code handles the popups for instant messages.
-//
-
 var browserType;
 
 if (document.layers) {browserType = "nn4"}
@@ -17,6 +13,14 @@ if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko"
 }
+
+var ns6=document.getElementById&&!document.all;
+
+
+//
+// This code handles the popups for instant messages.
+//
+
 
 function hide_page_popup() {
 	if (browserType == "gecko" )
@@ -157,3 +161,64 @@ function CtdlClearDeletedMsg(msgnum) {
 	new Effect.Squish('m'+msgnum);
 }
 
+
+// These functions called when the user down-clicks on the message list resizer bar
+
+var saved_y = 0;
+
+function ml_up(evt) {
+	document.onmouseup = null;
+	if (document.layers) {
+		document.releaseEvents(Event.MOUSEUP);
+	}
+	y = (ns6 ? evt.clientY : event.clientY);
+	increment = y - saved_y;
+
+	// First move the bottom of the message list...
+	d = $('message_list');
+	if (d.offsetHeight){
+		divHeight = d.offsetHeight;
+	}
+	else if (d.style.pixelHeight) {
+		divHeight = d.style.pixelHeight;
+	}
+	d.style.height = (divHeight + increment) + 'px';
+
+	// Then move the top of the preview pane...
+	d = $('preview_pane');
+	if (d.offsetTop){
+		divTop = d.offsetTop;
+	}
+	else if (d.style.pixelTop) {
+		divTop = d.style.pixelTop;
+	}
+	d.style.top = (divTop + increment) + 'px';
+
+	// Resize the bottom of the preview pane...
+	d = $('preview_pane');
+	if (d.offsetHeight){
+		divHeight = d.offsetHeight;
+	}
+	else if (d.style.pixelHeight) {
+		divHeight = d.style.pixelHeight;
+	}
+	d.style.height = (divHeight - increment) + 'px';
+
+	// Then move the top of the slider bar.
+	d = $('resize_msglist');
+	if (d.offsetTop){
+		divTop = d.offsetTop;
+	}
+	else if (d.style.pixelTop) {
+		divTop = d.style.pixelTop;
+	}
+	d.style.top = (divTop + increment) + 'px';
+}
+
+function CtdlResizeMsgListMouseDown(evt) {
+	saved_y = (ns6 ? evt.clientY : event.clientY);
+	document.onmouseup = ml_up;
+	if (document.layers) {
+		document.captureEvents(Event.MOUSEUP);
+	}
+}

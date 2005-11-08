@@ -305,8 +305,8 @@ void do_iconbar(void) {
 		_("customize this menu")
 	);
 
-	wprintf("</ul>\n"
-		"</div>\n");
+	wprintf("</ul>\n");
+	wprintf("</div>\n");
 }
 
 

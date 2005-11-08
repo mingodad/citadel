@@ -1,5 +1,8 @@
 $Id$
 
+Tue Nov  8 00:36:46 EST 2005 ajc
+* First cut of message list resize.  It works but it resizes on mouseup.
+
 Mon Nov  7 10:45:18 EST 2005 ajc
 * Disable the I-bar cursor when hovering over message summary lines in the
   mailbox view; go with the default pointer instead. 
