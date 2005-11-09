@@ -1,5 +1,9 @@
 $Id$
 
+Tue Nov  8 23:50:01 EST 2005 ajc
+* Mailbox view: selected messages are now draggable!!  (Now we just need to
+  implement a place to drop them.)
+
 Tue Nov  8 00:44:19 EST 2005 ajc
 * Now it resizes on mousemove instead of mouseup.  Very nice animated effect.
 

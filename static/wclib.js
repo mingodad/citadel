@@ -164,17 +164,19 @@ function CtdlClearDeletedMsg(msgnum) {
 
 // These functions called when the user down-clicks on the message list resizer bar
 
+var saved_x = 0;
 var saved_y = 0;
 
-function ml_up(evt) {
+function CtdlResizeMsgListMouseUp(evt) {
 	document.onmouseup = null;
 	document.onmousemove = null;
 	if (document.layers) {
 		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
 	}
+	return true;
 }
 
-function ml_move(evt) {
+function CtdlResizeMsgListMouseMove(evt) {
 	y = (ns6 ? evt.clientY : event.clientY);
 	increment = y - saved_y;
 
@@ -219,13 +221,115 @@ function ml_move(evt) {
 	d.style.top = (divTop + increment) + 'px';
 
 	saved_y = y;
+	return true;
 }
 
 function CtdlResizeMsgListMouseDown(evt) {
 	saved_y = (ns6 ? evt.clientY : event.clientY);
-	document.onmouseup = ml_up;
-	document.onmousemove = ml_move;
+	document.onmouseup = CtdlResizeMsgListMouseUp;
+	document.onmousemove = CtdlResizeMsgListMouseMove;
 	if (document.layers) {
 		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
 	}
+	return true;
+}
+
+
+
+// These functions handle drag and drop message moving
+
+var mm_div = null;
+
+function CtdlMoveMsgMouseDown(evt, msgnum) {
+
+	// do the highlight first
+	CtdlSingleClickMsg(evt, msgnum);
+
+	// Now handle the possibility of dragging
+	saved_x = (ns6 ? evt.clientX : event.clientX);
+	saved_y = (ns6 ? evt.clientY : event.clientY);
+	document.onmouseup = CtdlMoveMsgMouseUp;
+	document.onmousemove = CtdlMoveMsgMouseMove;
+	if (document.layers) {
+		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+
+	return false;
+}
+
+function CtdlMoveMsgMouseMove(evt) {
+	x = (ns6 ? evt.clientX : event.clientX);
+	y = (ns6 ? evt.clientY : event.clientY);
+
+	if ( (x == saved_x) && (y == saved_y) ) {
+		return true;
+	}
+
+	if (CtdlNumMsgsSelected < 1) { 
+		return true;
+	}
+
+	if (!mm_div) {
+
+
+		drag_o_text = "<div style=\"overflow:none; background-color:#fff; color:#000; border: 1px solid black; filter:alpha(opacity=75); -moz-opacity:.75; opacity:.75;\"><tr><td>";
+		for (i=0; i<CtdlNumMsgsSelected; ++i) {
+			drag_o_text = drag_o_text + 
+				ctdl_ts_getInnerText(
+					$('m'+CtdlMsgsSelected[i]).cells[0]
+				) + '<br>';
+		}
+		drag_o_text = drag_o_text + "<div>";
+
+		mm_div = document.createElement("DIV");
+		mm_div.style.position='absolute';
+		mm_div.style.top = y + 'px';
+		mm_div.style.left = x + 'px';
+		mm_div.style.pixelHeight = '300';
+		mm_div.style.pixelWidth = '300';
+		mm_div.innerHTML = drag_o_text;
+		document.body.appendChild(mm_div);
+	}
+	else {
+		mm_div.style.top = y + 'px';
+		mm_div.style.left = x + 'px';
+	}
+
+	return false;	// prevent the default mouse action from happening?
+}
+
+function CtdlMoveMsgMouseUp(evt) {
+	document.onmouseup = null;
+	document.onmousemove = null;
+	if (document.layers) {
+		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+
+	if (mm_div) {
+		document.body.removeChild(mm_div);	
+		mm_div = null;
+	}
+	return true;
+}
+
+
+function ctdl_ts_getInnerText(el) {
+	if (typeof el == "string") return el;
+	if (typeof el == "undefined") { return el };
+	if (el.innerText) return el.innerText;	//Not needed but it is faster
+	var str = "";
+	
+	var cs = el.childNodes;
+	var l = cs.length;
+	for (var i = 0; i < l; i++) {
+		switch (cs[i].nodeType) {
+			case 1: //ELEMENT_NODE
+				str += ts_getInnerText(cs[i]);
+				break;
+			case 3:	//TEXT_NODE
+				str += cs[i].nodeValue;
+				break;
+		}
+	}
+	return str;
 }
