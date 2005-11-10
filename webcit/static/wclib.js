@@ -231,7 +231,7 @@ function CtdlResizeMsgListMouseDown(evt) {
 	if (document.layers) {
 		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
 	}
-	return true;
+	return false;		// disable the default action
 }
 
 
@@ -309,6 +309,25 @@ function CtdlMoveMsgMouseUp(evt) {
 		document.body.removeChild(mm_div);	
 		mm_div = null;
 	}
+
+	// Did we release the mouse button while hovering over a drop target?
+	// NOTE: this only works cross-browser because the iconbar div is always
+	//	positioned at 0,0.  Browsers differ in whether the 'offset'
+	//	functions return pos relative to the document or parent.
+
+	x = (ns6 ? evt.clientX : event.clientX);
+	y = (ns6 ? evt.clientY : event.clientY);
+
+	l = parseInt($('dropstuff').offsetLeft);
+	t = parseInt($('dropstuff').offsetTop);
+	r = parseInt($('dropstuff').offsetLeft) + parseInt($('dropstuff').offsetWidth);
+	b = parseInt($('dropstuff').offsetTop) + parseInt($('dropstuff').offsetHeight);
+
+	if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
+		// Yes, we dropped it on a hotspot.  Just delete for now... FIXME
+		CtdlDeleteSelectedMessages(evt);
+	}
+
 	return true;
 }
 
