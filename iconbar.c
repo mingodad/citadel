@@ -306,6 +306,9 @@ void do_iconbar(void) {
 	);
 
 	wprintf("</ul>\n");
+
+	wprintf("<div id=\"dropstuff\">Drag to trash here...</div>");
+
 	wprintf("</div>\n");
 }
 
