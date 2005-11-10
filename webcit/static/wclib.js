@@ -55,7 +55,7 @@ function activate_entmsg_autocompleters() {
 // Static variables for mailbox view...
 //
 var CtdlNumMsgsSelected = 0;
-var CtdlMsgsSelected = new Array(65536);	// arbitrary
+var CtdlMsgsSelected = new Array();
 
 // This gets called when you single click on a message in the mailbox view.
 // We know that the element id of the table row will be the letter 'm' plus the message number.
