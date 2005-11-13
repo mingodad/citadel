@@ -246,6 +246,7 @@ void context_loop(int sock)
 	char httpauth_string[SIZ];
 	char httpauth_user[SIZ];
 	char httpauth_pass[SIZ];
+	char *ptr = NULL;
 
 	strcpy(httpauth_string, "");
 	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
@@ -305,6 +306,24 @@ void context_loop(int sock)
 
 	} while (strlen(buf) > 0);
 
+	/*
+	 * If the request is prefixed by "/webcit" then chop that off.  This
+	 * allows a front end web server to forward all /webcit requests to us
+	 * while still using the same web server port for other things.
+	 */
+	
+	ptr = strstr(req->line, " /webcit ");	/* Handle "/webcit" */
+	if (ptr != NULL) {
+		strcpy(ptr+2, ptr+8);
+	}
+
+	ptr = strstr(req->line, " /webcit");	/* Handle "/webcit/" */
+	if (ptr != NULL) {
+		strcpy(ptr+1, ptr+8);
+	}
+
+	/* Begin parsing the request. */
+
 	safestrncpy(buf, req->line, sizeof buf);
 	lprintf(5, "HTTP: %s\n", buf);
 
@@ -312,9 +331,7 @@ void context_loop(int sock)
 	if (is_bogus(buf)) goto bail;
 
 	/*
-	 * If requesting a non-root page, there should already be a cookie
-	 * set.  If there isn't, the client browser has cookies turned off
-	 * (or doesn't support them) and we have to barf & bail.
+	 * Strip out the method, leaving the URL up front...
 	 */
 	remove_token(buf, 0, ' ');
 	if (buf[1]==' ') buf[1]=0;
@@ -341,6 +358,7 @@ void context_loop(int sock)
 		&& (strncasecmp(buf, "/freebusy", 9))
 		&& (strncasecmp(buf, "/do_logout", 10))
 		&& (strncasecmp(buf, "/groupdav", 9))
+		&& (strncasecmp(buf, "/static", 7))
 		&& (strncasecmp(buf, "/rss", 4))
 	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"

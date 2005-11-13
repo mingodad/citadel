@@ -1,5 +1,9 @@
 $Id$
 
+* Strip prepended '/webcit' in requested url's.  This may allow us to handle
+  incoming proxy requests from a front end web server.
+* Don't require a session cookie for static content.
+
 Thu Nov 10 17:37:32 EST 2005 ajc
 * Completed the implementation of a simple drop target for messages.  Right
   now it just drops to trash.  Need to do a folder list drop now.

@@ -198,6 +198,9 @@ void do_welcome(void)
 		safestrncpy(buf, "dotskip&room=_BASEROOM_", sizeof buf);
 		set_preference("startpage", buf, 1);
 	}
+	if (buf[0] == '/') {
+		strcpy(buf, &buf[1]);
+	}
 	http_redirect(buf);
 }
 
