@@ -2046,7 +2046,8 @@ void readloop(char *oper)
 			"<div id=\"fix_scrollbar_bug\">\n"
 
 			"<span class=\"mailbox_summary\">"
-			"<table id=\"summary_headers\" rules=rows cellspacing=0 style=\"width:100%%\">"
+			"<table id=\"summary_headers\" rules=rows "
+			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
 		);
 	}
 
