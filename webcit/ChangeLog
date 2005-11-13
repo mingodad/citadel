@@ -1,5 +1,9 @@
 $Id$
 
+* Discovered the style -moz-user-select:none and applied it to the mailbox
+  summary table, to prevent text select from ruining the appearance of our
+  beautiful drag and drop function.
+
 * Strip prepended '/webcit' in requested url's.  This may allow us to handle
   incoming proxy requests from a front end web server.
 * Don't require a session cookie for static content.
