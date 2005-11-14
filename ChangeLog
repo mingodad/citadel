@@ -1,5 +1,7 @@
 $Id$
 
+* Added missing HTTP headers for /listsub
+
 * Discovered the style -moz-user-select:none and applied it to the mailbox
   summary table, to prevent text select from ruining the appearance of our
   beautiful drag and drop function.

@@ -30,7 +30,14 @@ void do_listsub(void)
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
 
-	wprintf("<HTML><HEAD><TITLE>");
+	output_headers(1, 0, 0, 1, 1, 0);
+	begin_burst();
+
+	wprintf("<HTML><HEAD>\n"
+		"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\n"
+		"<link href=\"static/webcit.css\" rel=\"stylesheet\" type=\"text/css\">\n"
+		"<TITLE>\n"
+	);
 	wprintf(_("List subscription"));
 	wprintf("</TITLE></HEAD><BODY>\n");
 
@@ -214,11 +221,7 @@ FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n"
 
 	}
 
-	/*
-	 * Since this isn't part of a normal Citadel session, we bail right
-	 * out without maintaining any state.
-	 */
-	/* wDumpContent(2); */
 	wprintf("</BODY></HTML>\n");
+	wDumpContent(0);
 	end_webcit_session();
 }
