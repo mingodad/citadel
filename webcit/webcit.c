@@ -383,7 +383,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	if (do_htmlhead) {
-		/* wprintf("\n"); */
 		begin_burst();
 		do_template("head");
 	}
