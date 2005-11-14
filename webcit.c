@@ -896,8 +896,8 @@ void session_loop(struct httprequest *req)
 	char *content = NULL;
 	char *content_end = NULL;
 	struct httprequest *hptr;
-	char browser_host[SIZ];
-	char user_agent[SIZ];
+	char browser_host[256];
+	char user_agent[256];
 	int body_start = 0;
 	int is_static = 0;
 
@@ -918,6 +918,7 @@ void session_loop(struct httprequest *req)
 	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
 	safestrncpy(c_httpauth_user, DEFAULT_HTTPAUTH_USER, sizeof c_httpauth_user);
 	safestrncpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS, sizeof c_httpauth_pass);
+	strcpy(browser_host, "");
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
@@ -1001,6 +1002,13 @@ void session_loop(struct httprequest *req)
 		}
 		else if (!strncasecmp(buf, "Host: ", 6)) {
 			safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
+		}
+		else if (!strncasecmp(buf, "X-Forwarded-For: ", 17)) {
+			safestrncpy(browser_host, &buf[17], sizeof browser_host);
+			while (num_tokens(browser_host, ',') > 1) {
+				remove_token(browser_host, 0, ',');
+			}
+			striplt(browser_host);
 		}
 		/* Only WAP gateways explicitly name this content-type */
 		else if (strstr(buf, "text/vnd.wap.wml")) {
@@ -1095,7 +1103,16 @@ void session_loop(struct httprequest *req)
 		else {
 			WC->connected = 1;
 			serv_getln(buf, sizeof buf);	/* get the server welcome message */
-			locate_host(browser_host, WC->http_sock);
+
+			/* From what host is our user connecting?  Go with
+			 * the host at the other end of the HTTP socket,
+			 * unless we are following X-Forwarded-For: headers
+			 * and such a header has already turned up something.
+			 */
+			if ( (!follow_xff) || (strlen(browser_host) == 0) ) {
+				locate_host(browser_host, WC->http_sock);
+			}
+
 			get_serv_info(browser_host, user_agent);
 			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
 				wprintf(_("You are connected to a Citadel "

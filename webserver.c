@@ -18,6 +18,7 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 int verbosity = 9;		/* Logging level */
 int msock;			/* master listening socket */
 int is_https = 0;		/* Nonzero if I am an HTTPS service */
+int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -392,9 +393,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:x:cs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:cfs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:x:c")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:cf")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -414,6 +415,9 @@ int main(int argc, char **argv)
 			break;
 		case 'x':
 			verbosity = atoi(optarg);
+			break;
+		case 'f':
+			follow_xff = 1;
 			break;
 		case 'c':
 			server_cookie = malloc(256);
@@ -436,7 +440,7 @@ int main(int argc, char **argv)
 		default:
 			fprintf(stderr, "usage: webserver "
 				"[-i ip_addr] [-p http_port] "
-				"[-t tracefile] [-c] "
+				"[-t tracefile] [-c] [-f] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
 #endif
