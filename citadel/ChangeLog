@@ -1,5 +1,10 @@
 $Id$
 
+Sun Nov 13 23:35:55 EST 2005 ajc
+* serv_extensions.c: serv_upgrade_init() must be called prior to
+  serv_inetcfg_init() in order to ensure that citadel.control is created
+  at the correct time.  (Patch sent in by Wilifried Goesgens.)
+
 Sat Nov  5 22:56:30 EST 2005 ajc
 * More changes to batch mode setup
 

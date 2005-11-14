@@ -109,6 +109,7 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_chat_init());
 	lprintf(CTDL_INFO, "%s\n", serv_expire_init());
 	lprintf(CTDL_INFO, "%s\n", serv_imap_init());
+	lprintf(CTDL_INFO, "%s\n", serv_upgrade_init());
 	lprintf(CTDL_INFO, "%s\n", serv_inetcfg_init());
 	lprintf(CTDL_INFO, "%s\n", serv_listsub_init());
 	lprintf(CTDL_INFO, "%s\n", serv_mrtg_init());
@@ -121,7 +122,6 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_smtp_init());
 	lprintf(CTDL_INFO, "%s\n", serv_spam_init());
 	/* lprintf(CTDL_INFO, "%s\n", serv_test_init()); */
-	lprintf(CTDL_INFO, "%s\n", serv_upgrade_init());
 	lprintf(CTDL_INFO, "%s\n", serv_vandelay_init());
 	lprintf(CTDL_INFO, "%s\n", serv_vcard_init());
 	lprintf(CTDL_INFO, "%s\n", serv_fulltext_init());
