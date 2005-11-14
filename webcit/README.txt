@@ -86,12 +86,12 @@ something like this:
 the "webserver" program:
   
  webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
-           [-c] [remotehost [remoteport]]
+           [-c] [-f] [remotehost [remoteport]]
  
    *or*
  
  webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
-           [-c] uds /your/citadel/directory
+           [-c] [-f] uds /your/citadel/directory
  
  Explained: 
   
@@ -120,6 +120,12 @@ the "webserver" program:
   -> The "-s" option causes WebCit to present an HTTPS (SSL-encrypted) web
      service.  If you want to do both HTTP and HTTPS, you can simply run two
      instances of WebCit on two different ports.
+
+  -> The "-f" option tells WebCit that it is allowed to follow the
+     "X-Forwarded-For:" HTTP headers which may be added if your WebCit service
+     is sitting behind a front end proxy.  This will allow users in your "Who
+     is online?" list to appear as connecting from their actual host address
+     instead of the address of the proxy.
  
   -> remotehost: the name or IP address of the host on which your Citadel
      server is running.  The default is "localhost".

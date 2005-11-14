@@ -347,6 +347,7 @@ extern int is_https;
 extern int setup_wizard;
 extern char wizard_filename[];
 extern time_t if_modified_since;
+extern int follow_xff;
 void do_setup_wizard(void);
 
 void stuff_to_cookie(char *cookie, int session,
