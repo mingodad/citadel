@@ -1,15 +1,15 @@
 # $Id$
 Summary: Citadel, the flexible, powerful way to build online communities
 Name: citadel
-Version: 6.54
+Version: 6.62
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
-Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
+Source0: http://easyinstall.citadel.org/citadel-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
 #Icon: citux-64x64.xpm
 Vendor: Citadel Development Team
-URL:  http://uncensored.citadel.org/citadel/
+URL:  http://www.citadel.org
 
 # I don't think we should actually Require this because we can be configured
 # not to connect to an LDAP server. So we really only require the client

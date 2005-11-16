@@ -1,5 +1,8 @@
 $Id$
 
+Tue Nov 15 21:18:01 EST 2005 ajc
+* THIS IS 6.62
+
 Sun Nov 13 23:35:55 EST 2005 ajc
 * serv_extensions.c: serv_upgrade_init() must be called prior to
   serv_inetcfg_init() in order to ensure that citadel.control is created
