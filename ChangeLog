@@ -1,5 +1,9 @@
 $Id$
 
+Tue Nov 15 21:58:09 EST 2005 ajc
+* Checked in po/de.po, a German translation submitted by Wilifried Goesgens.
+  Now I just have to figure out how to activate it.
+
 Sun Nov 13 23:08:58 EST 2005 ajc
 * Added an '-f' command line option to allow WebCit to follow the
   'X-Forwarded-For:' HTTP header, if present. 
