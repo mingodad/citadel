@@ -1,5 +1,8 @@
 $Id$
 
+Tue Nov 17 00:03:20 EST 2005 ajc
+* Assorted tweaks to activate the translations...
+
 Tue Nov 15 21:58:09 EST 2005 ajc
 * Checked in po/de.po, a German translation submitted by Wilifried Goesgens.
   Now I just have to figure out how to activate it.

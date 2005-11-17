@@ -383,13 +383,7 @@ int main(int argc, char **argv)
 	char ip_addr[256];
 	char *webcitdir = WEBCITDIR;
 	char *locale = NULL;
-
-	/* initialize the International Bright Young Thing */
-#ifdef ENABLE_NLS
-	locale = setlocale(LC_ALL, "");
-	bindtextdomain(PACKAGE, LOCALEDIR);
-	textdomain(PACKAGE);
-#endif
+	char *mo = NULL;
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
@@ -464,6 +458,21 @@ int main(int argc, char **argv)
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
 	}
+
+	/* initialize the International Bright Young Thing */
+#ifdef ENABLE_NLS
+	locale = setlocale(LC_ALL, "");
+
+	mo = malloc(strlen(webcitdir) + 20);
+	sprintf(mo, "%s/locale", webcitdir);
+	lprintf(9, "Message catalog directory: %s\n",
+		bindtextdomain("webcit", mo)
+	);
+	free(mo);
+	lprintf(9, "Text domain: %s\n",
+		textdomain("webcit")
+	);
+#endif
 
 	/*
 	 * Set up a place to put thread-specific data.
