@@ -12,6 +12,7 @@ AC_SUBST(VERSION)
 
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
+AC_CHECK_PROG(SED, sed, sed, no)
 AC_PREFIX_DEFAULT(/usr/local/webcit)
 
 AC_ARG_WITH(with_libical, [  --with-libical      use libical calendaring library])
