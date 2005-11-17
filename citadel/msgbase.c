@@ -243,10 +243,10 @@ void get_mm(void)
 	FILE *fp;
 
 	fp = fopen(
-#ifndef HAVE_RUN_DIR
+#ifndef HAVE_DATA_DIR
 			   "."
 #else
-			   RUN_DIR
+			   DATA_DIR
 #endif
 			   "/citadel.control", "r");
 	if (fp == NULL) {

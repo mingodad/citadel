@@ -61,10 +61,10 @@ void get_control(void)
 	memset(&CitControl, 0, sizeof(struct CitControl));
 	if (control_fp == NULL) {
 		control_fp = fopen(
-#ifndef HAVE_RUN_DIR
+#ifndef HAVE_DATA_DIR
 						   "."
 #else
-						   RUN_DIR
+						   DATA_DIR
 #endif
 						   "/citadel.control", "rb+");
 		if (control_fp != NULL) {
@@ -73,10 +73,10 @@ void get_control(void)
 	}
 	if (control_fp == NULL) {
 		control_fp = fopen(
-#ifndef HAVE_RUN_DIR
+#ifndef HAVE_DATA_DIR
 						   "."
 #else
-						   RUN_DIR
+						   DATA_DIR
 #endif
 						   "/citadel.control", "wb+");
 		if (control_fp != NULL) {
