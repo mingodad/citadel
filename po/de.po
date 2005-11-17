@@ -3,9 +3,9 @@
 # This file is distributed under the GPL
 # FIRST AUTHOR <willi@chaosindustries.de> 2005
 # "äöäö
-#, fuzzy
+# fuzzy
 msgid ""
-msgstr "
+msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: w.goesgens@chaosindustries.de\n"
 "POT-Creation-Date: 2005-08-29 23:01+0200\n"
