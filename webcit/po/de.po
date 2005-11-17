@@ -2,10 +2,10 @@
 # Copyright (C) 2005 By wilfried Goesgens
 # This file is distributed under the GPL
 # FIRST AUTHOR <willi@chaosindustries.de> 2005
-#
+# "äöäö
 #, fuzzy
 msgid ""
-msgstr ""
+msgstr "
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: w.goesgens@chaosindustries.de\n"
 "POT-Creation-Date: 2005-08-29 23:01+0200\n"
@@ -1540,7 +1540,7 @@ msgstr "Sichtbares Verzeichnis"
 
 #: roomops.c:1133
 msgid "Network shared room"
-msgstr "Netzwerk geteilter Raum"
+msgstr "Netzwerk öffentlicher Raum"
 
 #: roomops.c:1139
 msgid "Permanent (does not auto-purge)"
@@ -1548,11 +1548,11 @@ msgstr "Permanent (kein automatisches Löschen"
 
 #: roomops.c:1144
 msgid "Anonymous messages"
-msgstr "Anonyme Nachricht"
+msgstr "Anonyme Nachrichten"
 
 #: roomops.c:1152
 msgid "No anonymous messages"
-msgstr "Keine anonyme Nachricht"
+msgstr "Keine anonyme Nachrichten"
 
 #: roomops.c:1158
 msgid "All messages are anonymous"
@@ -2158,7 +2158,7 @@ msgstr "Wer ist grade angemeldet"
 
 #: summary.c:147
 msgid "(None)"
-msgstr "(Niemand)"
+msgstr "(Keine)"
 
 #: summary.c:160
 msgid "(This server does not support task lists)"
@@ -2166,7 +2166,7 @@ msgstr "(Dieser Server unterstütz keine Aufgabenlisten)"
 
 #: summary.c:176
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Heute&nbsp;auf&nbsp;ihrem&nbs;Kalender"
+msgstr "Heute&nbsp;auf&nbsp;ihrem&nbsp;Kalender"
 
 #: summary.c:189
 msgid "(Nothing)"
