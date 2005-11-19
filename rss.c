@@ -37,12 +37,14 @@ void display_rss(char *roomname, char *request_method)
 	int bq = 0;
 	time_t now = 0L;
 	struct tm now_tm;
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;                   /* Buffer of characters to be converted */
 	char *obuf;                   /* Buffer for converted characters      */
 	size_t ibuflen;               /* Length of input buffer               */
 	size_t obuflen;               /* Length of output buffer              */
 	char *osav;                   /* Saved pointer to output buffer       */
+#endif
 	char buf[SIZ];
 	char date[30];
 	char from[256];
