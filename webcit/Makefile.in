@@ -80,11 +80,16 @@ install:
 		; do \
 		test -d $(root)$(prefix)/$$i || mkdir $(root)$(prefix)/$$i; \
 	done
+	for i in `find locale -type d | grep -v .svn` \
+		; do \
+		test -d $(root)$(prefix)/$$i || mkdir $(root)$(prefix)/$$i; \
+	done
 	for i in \
 		webserver \
 		setup \
 		`find static -type f | grep -v .svn` \
 		`find tiny_mce -type f | grep -v .svn` \
+		`find locale -type f | grep -v .svn` \
 		; do \
 		$(INSTALL) $$i $(root)$(prefix)/$$i; \
 	done

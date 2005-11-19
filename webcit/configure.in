@@ -270,5 +270,5 @@ AM_GNU_GETTEXT
 
 AC_SUBST(SETUP_LIBS)
 
-AC_OUTPUT(Makefile intl/Makefile po/Makefile.in )
+AC_OUTPUT(Makefile intl/Makefile po/Makefile.in po/Makefile )
 

@@ -1,5 +1,9 @@
 $Id$
 
+Fri Nov 18 23:24:09 EST 2005 ajc
+* Threw away most of the gettextize-generated build system in the po/
+  directory, and replaced it with a very simple Makefile.in.in instead.
+
 Thu Nov 17 11:32:39 EST 2005 ajc
 * More changes to try to get the po/ directory to build properly.  It's still
   not working.  If you want to run WebCit using the current tree, be sure to
