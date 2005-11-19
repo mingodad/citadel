@@ -1,1 +1,4 @@
-all: 
+all: ../locale/de/LC_MESSAGES/webcit.mo
+
+../locale/de/LC_MESSAGES/webcit.mo: de.po
+	msgfmt de.po -o ../locale/de/LC_MESSAGES/webcit.mo
