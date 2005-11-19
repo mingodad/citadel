@@ -16,16 +16,19 @@ struct folder {
 	int view;
 };
 
-char *viewdefs[] = {
-	"Bulletin Board",
-	"Mail Folder",
-	"Address Book",
-	"Calendar",
-	"Task List",
-	"Notes List"
-};
-
 char floorlist[128][SIZ];
+
+char *viewdefs[6];
+
+void initialize_viewdefs(void) {
+	viewdefs[0] = _("Bulletin Board");
+	viewdefs[1] = _("Mail Folder");
+	viewdefs[2] = _("Address Book");
+	viewdefs[3] = _("Calendar");
+	viewdefs[4] = _("Task List");
+	viewdefs[5] = _("Notes List");
+}
+
 
 /*
  * load the list of floors

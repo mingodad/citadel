@@ -474,6 +474,8 @@ int main(int argc, char **argv)
 	);
 #endif
 
+	initialize_viewdefs();
+
 	/*
 	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
