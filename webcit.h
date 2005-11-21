@@ -33,6 +33,10 @@
 #include <signal.h>
 #include <sys/utsname.h>
 
+#ifndef INADDR_NONE
+#define INADDR_NONE 0xffffffff
+#endif
+
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
