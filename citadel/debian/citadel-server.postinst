@@ -77,21 +77,21 @@ case "$1" in
 
 	#: !TODO: should network/systems  go to /etc/citadel?
 
-#	mkdir -p \
-#		/var/lib/citadel/help \
-#		/var/lib/citadel/messages \
-#		/var/lib/citadel/data/ \
-#		/var/lib/citadel/bio/ \
-#		/var/lib/citadel/bitbucket/ \
-#		/var/lib/citadel/files/ \
-#		/var/lib/citadel/images/ \
-#		/var/lib/citadel/info/ \
-#		/var/lib/citadel/userpics/ \
-#		/var/spool/citadel/network/spoolin \
-#		/var/spool/citadel/network/spoolout \
-#		/var/spool/citadel/network/spoolsystems \
-#		/var/run/citadel
-#
+	mkdir -p \
+		/var/lib/citadel/help \
+		/var/lib/citadel/messages \
+		/var/lib/citadel/data/ \
+		/var/lib/citadel/bio/ \
+		/var/lib/citadel/bitbucket/ \
+		/var/lib/citadel/files/ \
+		/var/lib/citadel/images/ \
+		/var/lib/citadel/info/ \
+		/var/lib/citadel/userpics/ \
+		/var/spool/citadel/network/spoolin \
+		/var/spool/citadel/network/spoolout \
+		/var/spool/citadel/network/spoolsystems \
+		/var/run/citadel
+
 
     mkdir -p /var/lib/citadel/help
 	for i in   aide  floors  hours  intro.gz  mail  network  nice.gz  policy  software  summary.gz; do
