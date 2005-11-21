@@ -30,7 +30,8 @@ clean:
 	rm -f *.o webcit webserver
 
 distclean: clean
-	rm -f Makefile config.cache config.log config.status\
+	rm -f Makefile config.cache config.log config.status \
+		po/Makefile po/Makefile.in \
 		$(srcdir)/TAGS
 
 setup: setup.o tools.o
