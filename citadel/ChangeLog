@@ -1,5 +1,11 @@
 $Id$
 
+Mon Nov 21 16:59:43 CET 2005 dothebart
+* add some script to wrap the debian package build that does some magic about
+  the versioning in the package and the citadel system
+* Many fixups to the debian packages
+* added Unixlogin Package
+	
 Tue Nov 15 21:18:01 EST 2005 ajc
 * THIS IS 6.62
 

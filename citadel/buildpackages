@@ -1,0 +1,62 @@
+#!/bin/bash
+
+CITADEL_VERSION=`grep "THIS IS" ChangeLog  |head -n 1|sed "s;.* ;;"`
+PACKAGE_VERSION=`cat packageversion`
+DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
+ACTUAL_DIR=`pwd`
+
+if echo "$ACTUAL_DIR" |grep -q "$CITADEL_VERSION"; then
+	echo "directory ($ACTUAL_DIR) naming scheme seems right. nothing done."
+else
+	done=false
+	if test -L "$ACTUAL_DIR"; then 
+		SYMLINK_=`pwd`
+		SYMLINK=`ls -l $SYMLINK_|sed "s;.*-> ;;"`
+		if ls -l $SYMLINK_|grep -q "$CITADEL_VERSION"; then
+			done=true
+		fi
+	else
+		SYMLINK=`pwd|sed "s;.*/;;"`
+	fi
+	if test "$done" = "false"; then 
+		cd ..
+		mv -- $SYMLINK "citadel-$CITADEL_VERSION"
+		ln -s "citadel-$CITADEL_VERSION" citadel
+		cd "citadel-$CITADEL_VERSION"
+	else
+		cd "../citadel-$CITADEL_VERSION"
+	fi
+	
+fi
+./bootstrap
+
+
+case $1 in
+	debian)
+
+#dpkg-source: warning: source directory `./citadel' is not <sourcepackage>-<upstreamversion> `citadel-6.61'
+
+		cat debian/files_preview | sed \
+			-e "s;@CITADEL_VERSION@;${CITADEL_VERSION};" \
+			-e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
+			> debian/files
+		if grep -q "$CITADEL_VERSION" debian/changelog; then
+			echo rebuilding package.
+		else
+			echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
+	
+  * update to actual Citadel CVS. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  $DATE
+	
+" >/tmp/citadel_changelog
+			cat debian/changelog >>/tmp/citadel_changelog
+			mv /tmp/citadel_changelog debian/changelog
+
+		fi
+		fakeroot dpkg-buildpackage
+	;;
+	*)
+		echo "Not yet implemented. we have: debian "
+		;;
+esac
