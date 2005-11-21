@@ -1,3 +1,9 @@
+webcit (6.31-2) unstable; urgency=low
+	
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Tue, 01 Nov 2005 18:06:00 +0100
+	
 webcit (6.21-1) unstable; urgency=low
 
   * Initial release Closes: #nnnn  (nnnn is the bug number of your ITP)

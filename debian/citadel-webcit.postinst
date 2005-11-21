@@ -61,31 +61,49 @@ case "$1" in
     # maintainer version, and let it handle how to manage the real
     # confuguration file in /etc. This is how a static configuration
     # file can be handled:
-	cd /var/lib/citadel/www/static; md5sum * |grep -v ".gz" |grep -v md5sums>/tmp/md5sums
-	gunzip -c /usr/share/doc/citadel-webcit/examples/static/md5sums  > /tmp/newsums
+	rm -f /tmp/md5sums
+	touch /tmp/md5sums
+	cd /var/lib/citadel/www/; 
+	for i in `find -type f `; do 
+		md5sum "$i" >>/tmp/md5sums
+	done
+
+	cd /usr/share/doc/citadel-webcit/examples/
+	# if target dirs don't exist, create them.
+	for i in `find -type d` ; do 
+		if test ! -d /var/lib/citadel/www/$i; then
+			mkdir -p /var/lib/citadel/www/$i 
+		fi
+	done
+
+	gunzip -c md5sums  > /tmp/newsums
 	if diff /tmp/newsums /tmp/md5sums >/dev/null; then
-		echo >/dev/null
+		echo ''>/dev/null
 	else
-		cd /usr/share/doc/citadel-webcit/examples/static; for i in `echo *|sed "s;md5sums.gz;;"`; do 
-			case $i in 
-				*.gz)
-					j=`echo $i|sed "s;.gz;;"`
-					gunzip -c  "/usr/share/doc/citadel-webcit/examples/static/$i" >"/tmp/$j"
-					i=$j
-					;;
-				*)
-					cp "/usr/share/doc/citadel-webcit/examples/static/$i" "/tmp"
-					;;
-			esac
-			origsum=`grep " $i" /tmp/md5sums |sed "s; .*;;"`
-			newsum=`grep " $i" /tmp/newsums |sed "s; .*;;"`
-			if test -z "$origsum"; then
-				ucf "/tmp/$i" "/var/lib/citadel/www/static/$i"
+		cd /usr/share/doc/citadel-webcit/examples/
+		for i in `cat /tmp/newsums |sed "s;.* \./;;"`; do 
+			if test -f $i.gz; then 
+				j=`basename $i|sed -e "s;.gz;;" `
+				gunzip -c  "/usr/share/doc/citadel-webcit/examples$REL_PATH/$i" >"/tmp/$j"
+				i=`dirname $i`/$j
 			else
-				if test "$origsum" != "$newsum"; then
-					ucf "/tmp/$i" "/var/lib/citadel/www/static/$i"
-				fi
+				j=`basename $i`
+				cp "/usr/share/doc/citadel-webcit/examples/$i" "/tmp"
 			fi
+			if test -f /var/lib/citadel/www/$i; then
+				origsum=`grep "$i" /tmp/md5sums |sed "s; .*;;"`
+				newsum=`grep "$i" /tmp/newsums |sed "s; .*;;"`
+				if test -z "$origsum"; then
+					ucf "/tmp/$j" "/var/lib/citadel/www/$i"
+				else
+					if test "$origsum" != "$newsum"; then
+						ucf "/tmp/$j" "/var/lib/citadel/www/$i"
+					fi
+				fi
+			else
+				ucf "/tmp/$j" "/var/lib/citadel/www/$i"
+			fi
+			rm -f "/tmp/$j"
 		done
 	fi
 	rm -f /tmp/newsums /tmp/md5sums
@@ -109,6 +127,14 @@ No
 127.0.0.1
 504
 "|/usr/lib/citadel-webcit/setup -q
+		echo "/usr/sbin
+Yes
+$http_port
+$https_port
+No
+127.0.0.1
+504
+/usr/lib/citadel-webcit/setup -q" >>/tmp/foo
 	else 
 		echo "/usr/sbin
 " |/usr/lib/citadel-webcit/setup -q
@@ -163,7 +189,7 @@ No
     ###:
 
     ;;
-  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+  *) echo "$0: didn't understand being called with '$1'" 1>&2
      exit 0;;
 esac
 
