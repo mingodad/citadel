@@ -93,6 +93,7 @@ case "$1" in
 #		/var/run/citadel
 #
 
+    mkdir -p /var/lib/citadel/help
 	for i in   aide  floors  hours  intro.gz  mail  network  nice.gz  policy  software  summary.gz; do
 		case $i in 
 			*.gz)
@@ -112,6 +113,7 @@ case "$1" in
 #	if test ! -e '/var/lib/citadel/help/?'; then 
 #		cp '/usr/share/doc/citadel/examples/data/help/?' '/var/lib/citadel/help'
 #	fi
+	mkdir -p /var/lib/citadel/messages
 	for i in aideopt  changepw  dotopt  entermsg  entopt  goodbye  hello  help  mainmenu  newuser  readopt  register  roomaccess  unlisted; do
 		ucf "/usr/share/doc/citadel-server/examples/messages/$i" "/var/lib/citadel/messages/$i"
 
@@ -156,15 +158,30 @@ case "$1" in
 
 	db_get citadel/Administrator && admin="$RET"
 	db_get citadel/ServerIPAddress && ip_addr="$RET"
+	export CITADEL=/usr/sbin/
+	export CITADEL_INSTALLER=yes
+	export ACT_AS_MTA=no
+	export SYSADMIN_NAME=$admin
+	export CREATE_XINETD_ENTRY=no
+	export CREATE_INITTAB_ENTRY=yes
 	echo "applying your settings."
-	echo "/usr/sbin
-$admin
-citadel
-$ip_addr
-
-" | \
+# citadel home
+# sysadmin
+# uid
+# server ip
+# port
+# postfix?
+# exim?
+#	echo "/usr/sbin
+#$admin
+#citadel
+#$ip_addr
+#
+#no
+#no
+#" | \
 	/usr/lib/citadel-server/setup -q
-
+	killall -HUP init
     #### There are three sub-cases:
     ###if test "${2+set}" != set; then
     ###  # We're being installed by an ancient dpkg which doesn't remember

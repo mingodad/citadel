@@ -1,3 +1,16 @@
+citadel (6.62-1) unstable; urgency=low
+	
+  * update to actual Citadel CVS. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Fri, 18 Nov 2005 16:04:00 +0100
+	
+
+citadel (6.61-2) unstable; urgency=low
+	
+  * update to actual Citadel CVS. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Tue, 01 Nov 2005 12:23:15 +0200
+	
 citadel (6.53-1) unstable; urgency=low
 
   * Initial release Closes: #nnnn  (nnnn is the bug number of your ITP)

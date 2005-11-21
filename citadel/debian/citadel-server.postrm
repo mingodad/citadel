@@ -2,6 +2,7 @@
 # postrm.skeleton
 # Skeleton maintainer script showing all the possible cases.
 # Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
+. /usr/share/debconf/confmodule
 
 # Abort if any command returns an error value
 set -e
@@ -18,7 +19,10 @@ case "$1" in
   remove)
     # This package is being removed, but its configuration has not yet
     # been purged.
-    
+		export CREATE_INITTAB_ENTRY=no
+		/usr/lib/citadel-server/setup -q
+		killall -HUP init
+
 
     # Remove diversion
     #: dpkg-divert --package foo --remove --rename \
@@ -26,7 +30,7 @@ case "$1" in
 
     # ldconfig is NOT needed during removal of a library, only during
     # installation
-
+	
     ;;
   purge)
     # This package has previously been removed and is now having
@@ -37,11 +41,13 @@ case "$1" in
 		ucf --purge "/var/lib/citadel/help/$i"
 		rm -f "/var/lib/citadel/help/$i"
 	done
+	rmdir "/var/lib/citadel/help"
 
 	for i in aideopt  changepw  dotopt  entermsg  entopt  goodbye  hello  help  mainmenu  newuser  readopt  register  roomaccess  unlisted; do
 		ucf --purge "/var/lib/citadel/messages/$i"
 		rm -f "/var/lib/citadel/messages/$i"
 	done
+	rmdir "/var/lib/citadel/messages"
 
 	for i in mail.aliases public_clients citadel.conf; do 
 		ucf --purge "/etc/citadel/$i"
@@ -55,6 +61,9 @@ case "$1" in
 		rm -f /var/lib/citadel/messages/*$ext
 		rm -f /var/lib/citadel/help/*$ext
     done
+	echo "/var/lib/citadel/data not removed, as it may contain your personal data."
+	db_purge
+	db_go
 	### TODO: remove citadel from inittab!
     ;;
   disappear)

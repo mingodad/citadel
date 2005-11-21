@@ -1,5 +1,4 @@
 debian/tmp/usr/sbin/citserver
-debian/tmp/usr/sbin/chkpwd
 debian/tmp/usr/sbin/aidepost
 debian/tmp/usr/sbin/msgform
 debian/tmp/usr/sbin/citmail

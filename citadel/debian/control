@@ -36,6 +36,12 @@ Description: This is the commandline-client to the citadel BBS system.
  software that helps them work, play, stay in touch... without calling 
  attention to itself.
 
+Package: citadel-unixlogin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This enables your citadel server to sync its passwords with 
+ unix system accounts.
+
 Package: citadel-mta
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server 
