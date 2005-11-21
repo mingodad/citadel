@@ -288,7 +288,7 @@ msgstr ""
 
 #: ../calendar.c:368
 msgid "A reply has been sent to the meeting organizer."
-msgstr "Eine Antwort wurde an den Einladenden versendet."
+msgstr "Eine Antwort wurde an den Organisator versendet."
 
 #: ../calendar.c:378 ../calendar.c:432
 msgid "Return to messages"
@@ -406,7 +406,7 @@ msgstr "Ereignis hinzufügen oder ändern"
 
 #: ../event.c:138 ../iconbar.c:99 ../iconbar.c:430
 msgid "Summary"
-msgstr "Zusammenfassung"
+msgstr "Übersicht"
 
 #: ../event.c:149
 msgid "Location"
@@ -430,11 +430,11 @@ msgstr "Notiz"
 
 #: ../event.c:283
 msgid "Organizer"
-msgstr "Organisierer"
+msgstr "Organisator"
 
 #: ../event.c:288
 msgid "(you are the organizer)"
-msgstr "(Sie sind der Organisierer)"
+msgstr "(Sie sind der Organisator)"
 
 #: ../event.c:306
 msgid "Show time as:"
@@ -565,7 +565,7 @@ msgstr "Post"
 
 #: ../iconbar.c:134
 msgid "Go to your personal calendar"
-msgstr "Zu Ihrem Kalender"
+msgstr "Zu Ihrem persönlichen Kalender"
 
 #: ../iconbar.c:141 ../iconbar.c:494 ../roomops.c:27
 msgid "Calendar"
@@ -573,7 +573,7 @@ msgstr "Kalender"
 
 #: ../iconbar.c:151
 msgid "Go to your personal address book"
-msgstr "Zu Ihrem Adressbuch"
+msgstr "Zu Ihrem persönlichen Adressbuch"
 
 #: ../iconbar.c:158 ../iconbar.c:461
 msgid "Contacts"
@@ -605,7 +605,7 @@ msgstr "Sehen Sie, wer grade angemeldet ist"
 
 #: ../iconbar.c:223 ../iconbar.c:541
 msgid "Who is online?"
-msgstr "Wer ist angemeldet?"
+msgstr "Wer ist da?"
 
 #: ../iconbar.c:241 ../iconbar.c:557
 msgid "Chat"
@@ -844,7 +844,7 @@ msgstr "Listen Teilnehmer"
 
 #: ../listsub.c:53
 msgid "List subscribe/unsubscribe"
-msgstr "Liste abbonieren/abmelden"
+msgstr "Liste abonnieren/abmelden"
 
 #: ../listsub.c:73
 msgid "Confirmation request sent"
@@ -1001,7 +1001,7 @@ msgstr "Globale Konfiguration"
 
 #: ../mainmenu.c:212
 msgid "Edit site-wide configuration"
-msgstr "System-Defaults bearbeiten"
+msgstr "Systemvorgaben bearbeiten"
 
 #: ../mainmenu.c:217
 msgid "Domain names and Internet mail configuration"
@@ -1711,7 +1711,7 @@ msgstr ""
 #: ../roomops.c:1400
 msgid ""
 "This room is configured to allow self-service subscribe/unsubscribe requests."
-msgstr "Dieser Raum erlaubt Benutzergesteuertes Abbonieren."
+msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
 #: ../roomops.c:1403
 msgid "Click to disable."
@@ -1787,7 +1787,7 @@ msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
 msgstr ""
-"Die folgenden Benuter haben Zugang zu diesem Raum.  Um einen Benutzer von "
+"Die folgenden Benutzer haben Zugang zu diesem Raum.  Um einen Benutzer von "
 "der Zugriffsliste zu löschen, ihn in der Liste anwählen und 'Bannen' drücken"
 
 #: ../roomops.c:1784
@@ -2005,7 +2005,7 @@ msgstr "Eingabeaufforderung (nur Für Textclients)"
 
 #: ../siteconfig.c:335
 msgid "Restrict access to Internet mail"
-msgstr "Zugang zu Internet Mail reglementieren"
+msgstr "Zugang zu Internet Mail limitieren"
 
 #: ../siteconfig.c:348
 msgid "Geographic location of this system"
@@ -2029,7 +2029,7 @@ msgstr "Automatische Raum Löschung nach (Tage)"
 
 #: ../siteconfig.c:408
 msgid "Name of room to log pages"
-msgstr "Name des Raums zum Loggen von paging-Rufen"
+msgstr "Name des Raums zum Loggen von Kurznachrichten"
 
 #: ../siteconfig.c:420
 msgid "Access level required to create rooms"
@@ -2093,7 +2093,7 @@ msgstr "Bind DN im Verzeichnisserver"
 
 #: ../siteconfig.c:621
 msgid "Password for bind DN"
-msgstr "Passwort für die Bind DN am Verzeichnisservers"
+msgstr "Passwort für die Bind DN am Verzeichnisserver"
 
 #: ../siteconfig.c:634
 msgid "Server IP address (0.0.0.0 for 'any')"
@@ -2121,7 +2121,7 @@ msgstr "Volltext Indexdienst anschalten (Warnung: resourcenintensiv!)"
 
 #: ../siteconfig.c:707
 msgid "Automatically delete committed database logs"
-msgstr "Automatisch die Datenbank transferlogs löschen"
+msgstr "Automatisch die Datenbanktransferlogs löschen"
 
 #: ../siteconfig.c:720
 msgid "Instantly expunge deleted messages in IMAP"
