@@ -1,5 +1,15 @@
 $Id$
 
+
+Mon Nov 21 16:59:43 CET 2005 dothebart
+* add some script to wrap the debian package build that does some magic about
+  the versioning in the package and the webcit system
+* added first try of a package that will install webcit via mod_proxy into
+  the debian apache system
+* modified package build and postinst script do include subdirectories new
+  since tiny_mce was added.
+	
+
 Sun Nov 20 22:22:37 EST 2005 ajc
 * Moved the definition of INADDR_NONE to webcit.h, where it will be effective
   in all locations where it is needed.  Fixes the build on Solaris 10.
