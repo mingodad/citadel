@@ -13,16 +13,11 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
-
 RETSIGTYPE timeout(int signum)
 {
 	lprintf(1, "Connection timed out.\n");
 	exit(3);
 }
-
 
 
 /*

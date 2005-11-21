@@ -1,5 +1,9 @@
 $Id$
 
+Sun Nov 20 22:22:37 EST 2005 ajc
+* Moved the definition of INADDR_NONE to webcit.h, where it will be effective
+  in all locations where it is needed.  Fixes the build on Solaris 10.
+
 Fri Nov 18 23:55:29 EST 2005 ajc
 * Put in some infrastructure for generating and maintaining .po files
 
