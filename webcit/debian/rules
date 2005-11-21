@@ -12,12 +12,12 @@
 
 
 
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -ggdb
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
 else
-	CFLAGS += -O2
+	CFLAGS += -O0 -ggdb
 endif
 
 configure: configure-stamp
@@ -31,7 +31,7 @@ configure-stamp:
 		--with-spooldir=/var/spool/citadel \
 		--with-datadir=/var/lib/citadel \
 		--with-rundir=/var/run/citadel \
-		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt
+		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt --with-included-gettext
 
 	touch configure-stamp
 
@@ -73,7 +73,14 @@ install: build
 	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/static \
 		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/static; md5sum *|grep -v ".gz"|grep -v md5sums >md5sums
+	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/tiny_mce \
+		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
+# TODO: locale -> /usr/share/locale
+	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/locale \
+		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
+
+	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/; \
+				md5sum `find -type f |grep -v md5sums `>md5sums; 
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/setup \
 		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/webserver \

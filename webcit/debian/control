@@ -15,3 +15,9 @@ Description: Webcit, the Webfrontend to the Citadel.
  FireFox, simply the best web browser on the market. 
  It's the best, it's secure, and it's free, so if you 
  haven't switched yet, why not do so now? 
+
+Package: citadel-webcit-apache
+Architecture: any
+Depends: citadel-webcit, apache2 | httpd, debconf
+Description: Integrates Webcit with your local Apache
+
