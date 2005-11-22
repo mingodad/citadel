@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-18 23:54-0500\n"
+"POT-Creation-Date: 2005-11-21 22:25-0500\n"
 "PO-Revision-Date: 2005-11-13 15:22+100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
 "Language-Team: German <LL@li.org>\n"
@@ -16,7 +16,40 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../auth.c:37
+#: ../auth.c:13
+#, fuzzy
+msgid "Deleted"
+msgstr "Löschen"
+
+#: ../auth.c:14 ../auth.c:56
+msgid "New User"
+msgstr "Neuer Benutzer"
+
+#: ../auth.c:15
+#, fuzzy
+msgid "Problem User"
+msgstr "Neuer Benutzer"
+
+#: ../auth.c:16
+msgid "Local User"
+msgstr ""
+
+#: ../auth.c:17
+#, fuzzy
+msgid "Network User"
+msgstr "Neuer Benutzer"
+
+#: ../auth.c:18
+#, fuzzy
+msgid "Preferred User"
+msgstr "nur Privilegierte Benutzer"
+
+#: ../auth.c:19
+#, fuzzy
+msgid "Aide"
+msgstr "Mittelinitial"
+
+#: ../auth.c:39
 #, c-format
 msgid ""
 "<ul><li><b>If you already have an account on %s</b>, enter your user name "
@@ -38,32 +71,28 @@ msgstr ""
 "fallen</li>\n"
 "<br /></ul>"
 
-#: ../auth.c:53
+#: ../auth.c:55
 msgid "Login"
 msgstr "Anmelden"
 
-#: ../auth.c:54
-msgid "New User"
-msgstr "Neuer Benutzer"
-
-#: ../auth.c:55 ../paging.c:474
+#: ../auth.c:57 ../paging.c:474
 msgid "Exit"
 msgstr "Ende"
 
-#: ../auth.c:57
+#: ../auth.c:59
 #, c-format
 msgid "%s - powered by Citadel"
 msgstr "%s - mit Citadel-Technologie"
 
-#: ../auth.c:128 ../auth.c:466
+#: ../auth.c:130 ../auth.c:468
 msgid "Blank passwords are not allowed."
 msgstr "Leere Passwörter sind nicht zulässig."
 
-#: ../auth.c:149
+#: ../auth.c:151
 msgid "Your password was not accepted."
 msgstr "Ihr Passwort wurde nicht akzeptiert"
 
-#: ../auth.c:241
+#: ../auth.c:243
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -71,40 +100,40 @@ msgstr ""
 "Dieses Programm konnte keine Verbindung zum Citadel-Server herstellen oder "
 "aufrechterhalten.Bitte wenden Sie sich an Ihren Administrator."
 
-#: ../auth.c:249
+#: ../auth.c:251
 msgid "Close window"
 msgstr "Fenster Schließen"
 
-#: ../auth.c:270 ../mainmenu.c:239
+#: ../auth.c:272 ../mainmenu.c:239
 msgid "Validate new users"
 msgstr "Neue Benutzer überprüfen"
 
-#: ../auth.c:321
+#: ../auth.c:323
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Aktuelle Berechtigungen: %d (%s)\n"
 
-#: ../auth.c:329
+#: ../auth.c:331
 msgid "Select access level for this user:"
 msgstr "Berechtigungen dieses Benutzers"
 
-#: ../auth.c:391 ../mainmenu.c:135
+#: ../auth.c:393 ../mainmenu.c:135
 msgid "Change your password"
 msgstr "Ändern Sie Ihr Passwort"
 
-#: ../auth.c:420
+#: ../auth.c:422
 msgid "Enter new password:"
 msgstr "Bitte geben Sie ein neues Passwort ein"
 
-#: ../auth.c:424
+#: ../auth.c:426
 msgid "Enter it again to confirm:"
 msgstr "Nocheinmal zur Verifizierung:"
 
-#: ../auth.c:429
+#: ../auth.c:431
 msgid "Change password"
 msgstr "Passwort ändern"
 
-#: ../auth.c:431 ../calendar.c:582 ../event.c:385 ../graphics.c:57
+#: ../auth.c:433 ../calendar.c:582 ../event.c:385 ../graphics.c:57
 #: ../iconbar.c:603 ../mainmenu.c:298 ../messages.c:2585 ../messages.c:2688
 #: ../messages.c:2772 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
 #: ../preferences.c:361 ../roomops.c:1172 ../roomops.c:1499 ../roomops.c:1927
@@ -113,11 +142,11 @@ msgstr "Passwort ändern"
 msgid "Cancel"
 msgstr "Abbruch"
 
-#: ../auth.c:447
+#: ../auth.c:449
 msgid "Cancelled.  Password was not changed."
 msgstr "Abgebrochen. Passwort wurde nicht gesetzt."
 
-#: ../auth.c:458
+#: ../auth.c:460
 msgid "They don't match.  Password was not changed."
 msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert"
 
@@ -1883,11 +1912,11 @@ msgstr "Raum vergessen"
 msgid "Email"
 msgstr "Email:"
 
-#: ../rss.c:60
+#: ../rss.c:62
 msgid "Not logged in"
 msgstr "Nicht angemeldet"
 
-#: ../rss.c:79
+#: ../rss.c:81
 msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr "Fehler beim laden des RSS-feeds: konnte die Meldung nicht finden\n"
 

@@ -1,5 +1,10 @@
 $Id$
 
+Mon Nov 21 22:30:31 EST 2005 ajc
+* create-pot.sh: now creates a new webcit.pot file and automatically merges
+  it into all *.po files, allowing an easy way for translators to access
+  new strings.
+* axdefs[] (Access level definitions) -- now ready for localization.
 
 Mon Nov 21 16:59:43 CET 2005 dothebart
 * add some script to wrap the debian package build that does some magic about
