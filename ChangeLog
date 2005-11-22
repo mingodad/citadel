@@ -1,5 +1,11 @@
 $Id$
 
+Mon Nov 21 22:47:17 EST 2005 ajc
+* messages.c, webcit.css: message buttons (Reply, ReplyQuoted, etc.) are now
+  in a smaller font (new style "msgbuttons" defined in the stylesheet)
+* Reply and ReplyQuoted no longer generate an empty "Re:" subject if the
+  message being replied to has no subject.
+
 Mon Nov 21 22:30:31 EST 2005 ajc
 * create-pot.sh: now creates a new webcit.pot file and automatically merges
   it into all *.po files, allowing an easy way for translators to access
