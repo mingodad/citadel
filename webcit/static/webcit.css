@@ -325,6 +325,10 @@ a:hover {
 	background-color: #FF0000;
 }
 
+.msgbuttons {
+	font-size: 7pt;
+}
+
 .roomlist_floor {
 	font-size: 12pt;
 	font-weight: bold;

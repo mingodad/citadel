@@ -741,7 +741,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/* start msg buttons */
 	if (!printable_view) {
-		wprintf("<td align=right>\n");
+		wprintf("<td align=right><span class=\"msgbuttons\">\n");
 
 		/* Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
@@ -751,9 +751,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 			wprintf("?recp=");
 			urlescputs(reply_to);
-			wprintf("?subject=");
-			if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-			urlescputs(m_subject);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
 			wprintf("\">[%s]</a> ", _("Reply"));
 		}
 
@@ -764,9 +766,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 				wprintf("?replyquote=%ld", msgnum);
 				wprintf("?recp=");
 				urlescputs(reply_to);
-				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-				urlescputs(m_subject);
+				if (strlen(m_subject) > 0) {
+					wprintf("?subject=");
+					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+					urlescputs(m_subject);
+				}
 				wprintf("\">[%s]</a> ", _("ReplyQuoted"));
 			}
 		}
@@ -811,7 +815,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Print"));
 
-		wprintf("</td>");
+		wprintf("</span></td>");
 	}
 
 	wprintf("</TR></TABLE>\n");
