@@ -92,10 +92,10 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v6.31"	/* who's in da house */
+#define SERVER			"WebCit v6.40"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		631		/* This version of WebCit */
+#define CLIENT_VERSION		640		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	661		/* min required Citadel ver. */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -550,6 +550,7 @@ void recp_autocomplete(char *);
 void begin_ajax_response(void);
 void end_ajax_response(void);
 void initialize_viewdefs(void);
+void initialize_axdefs(void);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);

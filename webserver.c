@@ -475,6 +475,7 @@ int main(int argc, char **argv)
 #endif
 
 	initialize_viewdefs();
+	initialize_axdefs();
 
 	/*
 	 * Set up a place to put thread-specific data.

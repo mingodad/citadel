@@ -7,16 +7,18 @@
 
 #include "webcit.h"
 
-char *axdefs[] =
-{
-	"Deleted",
-	"New User",
-	"Problem User",
-	"Local User",
-	"Network User",
-	"Preferred User",
-	"Aide"
-};
+char *axdefs[7];
+
+void initialize_axdefs(void) {
+	axdefs[0] = _("Deleted");
+	axdefs[1] = _("New User");
+	axdefs[2] = _("Problem User");
+	axdefs[3] = _("Local User");
+	axdefs[4] = _("Network User");
+	axdefs[5] = _("Preferred User");
+	axdefs[6] = _("Aide");
+}
+
 
 /*
  * Display the login screen
