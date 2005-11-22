@@ -582,6 +582,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 			 int is_static);
 void unescape_input(char *buf);
 void do_iconbar(void);
+void do_iconbar_roomlist(void);
 void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);

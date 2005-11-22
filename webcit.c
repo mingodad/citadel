@@ -1270,6 +1270,14 @@ void session_loop(struct httprequest *req)
 		begin_ajax_response();
 		who_inner_div();
 		end_ajax_response();
+	} else if (!strcasecmp(action, "iconbar_ajax_menu")) {
+		begin_ajax_response();
+		do_iconbar();
+		end_ajax_response();
+	} else if (!strcasecmp(action, "iconbar_ajax_rooms")) {
+		begin_ajax_response();
+		do_iconbar_roomlist();
+		end_ajax_response();
 	} else if (!strcasecmp(action, "knrooms")) {
 		knrooms();
 	} else if (!strcasecmp(action, "gotonext")) {
@@ -1468,8 +1476,6 @@ void session_loop(struct httprequest *req)
 		begin_ajax_response();
 		summary_inner_div();
 		end_ajax_response();
-	} else if (!strcasecmp(action, "iconbar")) {
-		do_iconbar();
 	} else if (!strcasecmp(action, "display_customize_iconbar")) {
 		display_customize_iconbar();
 	} else if (!strcasecmp(action, "commit_iconbar")) {
