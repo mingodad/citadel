@@ -12,6 +12,7 @@
 #define IB_PICONLY	1
 #define IB_TEXTONLY	2
 
+
 void do_iconbar(void) {
 	char iconbar[SIZ];
 	char buf[SIZ];
@@ -85,6 +86,7 @@ void do_iconbar(void) {
 		_("CITADEL")
 	);
 
+	wprintf("<li><a href=\"javascript:switch_to_room_list()\">switch to room list</a>\n");
 
 	if (ib_summary) {
 		wprintf("<li><a href=\"summary\" "
@@ -306,6 +308,77 @@ void do_iconbar(void) {
 	);
 
 	wprintf("</ul>\n");
+
+	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
+	wprintf("Drag to trash here...<br>");
+	wprintf("</div>");
+
+	wprintf("</div>\n");
+}
+
+
+/*
+ * If the user has toggled the icon bar over to a room list, here's where
+ * we generate its innerHTML...
+ */
+void do_iconbar_roomlist(void) {
+	char iconbar[SIZ];
+	char buf[SIZ];
+	char key[SIZ], value[SIZ];
+	int i;
+
+	/* The initialized values of these variables also happen to
+	 * specify the default values for users who haven't customized
+	 * their iconbars.  These should probably be set in a master
+	 * configuration somewhere.
+	 */
+	int ib_displayas = 0;	/* pictures and text, pictures, text */
+	int ib_logo = 0;	/* Site logo */
+	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
+	/*
+	 */
+
+	get_preference("iconbar", iconbar, sizeof iconbar);
+	for (i=0; i<num_tokens(iconbar, ','); ++i) {
+		extract_token(buf, iconbar, i, ',', sizeof buf);
+		extract_token(key, buf, 0, '=', sizeof key);
+		extract_token(value, buf, 1, '=', sizeof value);
+
+		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
+		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
+		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
+	}
+
+	wprintf("<div id=\"button\">\n"
+		"<ul>\n"
+	);
+
+	if (ib_logo) {
+		wprintf("<li>");
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" "
+				"HEIGHT=\"32\" src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
+			);
+		}
+		wprintf("</li>\n");
+	}
+
+	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+		"<li><div align=\"center\">"
+		"<a href=\"http://www.citadel.org\" "
+		"title=\"%s\" target=\"aboutcit\">"
+		"<img border=\"0\" "
+		"src=\"static/citadel-logo.gif\" ALT=\"%s\"></a>"
+		"</div></li>\n",
+		_("Find out more about Citadel"),
+		_("CITADEL")
+	);
+
+	wprintf("<li><a href=\"javascript:switch_to_menu_buttons()\">back to menu...</a>");
+	
+	wprintf("</ul>\n");
+
+	wprintf("<br><br>Room list<br>will be<br>here<br><br>");
 
 	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
 	wprintf("Drag to trash here...<br>");
@@ -657,3 +730,4 @@ void commit_iconbar(void) {
 	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
 }
+

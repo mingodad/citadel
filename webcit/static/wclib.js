@@ -323,6 +323,8 @@ function CtdlMoveMsgMouseUp(evt) {
 	r = parseInt($('dropstuff').offsetLeft) + parseInt($('dropstuff').offsetWidth);
 	b = parseInt($('dropstuff').offsetTop) + parseInt($('dropstuff').offsetHeight);
 
+	// alert('Offsets are: ' + l + ' ' + t + ' ' + r + ' ' + b + '.');
+
 	if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
 		// Yes, we dropped it on a hotspot.  Just delete for now... FIXME
 		CtdlDeleteSelectedMessages(evt);
@@ -351,4 +353,15 @@ function ctdl_ts_getInnerText(el) {
 		}
 	}
 	return str;
+}
+
+
+// icon bar toggler tabs...
+
+function switch_to_room_list() {
+	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
+}
+
+function switch_to_menu_buttons() {
+	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
 }
