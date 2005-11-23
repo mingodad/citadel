@@ -1,5 +1,8 @@
 $Id$
 
+Tue Nov 22 21:44:15 EST 2005 ajc
+* Fixed the unresponsive msgomatic in the bulletin board view.
+
 Tue Nov 22 00:00:46 EST 2005 ajc
 * Set up a toggleable iconbar that can switch between the menu and a room
   list.  The room list is not yet implemented, so a simple placeholder is

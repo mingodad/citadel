@@ -2139,6 +2139,7 @@ void readloop(char *oper)
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
 	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
 
+		wprintf("<form name=\"msgomatic\">");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2210,7 +2211,7 @@ void readloop(char *oper)
 			oper
 		);
 	
-		wprintf("</select>");
+		wprintf("</select></form>\n");
 	    }
 	}
 
