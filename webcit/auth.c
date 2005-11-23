@@ -52,6 +52,8 @@ void display_login(char *mesg)
 		serv_info.serv_humannode
 	);
 
+	svprintf("USERNAME_BOX", WCS_STRING, "%s", _("User name:"));
+	svprintf("PASSWORD_BOX", WCS_STRING, "%s", _("Password:"));
 	svprintf("LOGIN_BUTTON", WCS_STRING, "%s", _("Login"));
 	svprintf("NEWUSER_BUTTON", WCS_STRING, "%s", _("New User"));
 	svprintf("EXIT_BUTTON", WCS_STRING, "%s", _("Exit"));
