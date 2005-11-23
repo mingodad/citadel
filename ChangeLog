@@ -1,5 +1,8 @@
 $Id$
 
+Wed Nov 23 11:04:24 EST 2005 ajc
+* auth.c: localized "User name:" and "Password:" prompts
+
 Tue Nov 22 21:44:15 EST 2005 ajc
 * Fixed the unresponsive msgomatic in the bulletin board view.
 
