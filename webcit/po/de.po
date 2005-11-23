@@ -5,7 +5,7 @@
 # "äöäö
 # fuzzy
 msgid ""
-msgstr ""
+msgstr  ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-11-23 11:03-0500\n"
@@ -32,7 +32,7 @@ msgstr "Neuer Benutzer"
 
 #: ../auth.c:16
 msgid "Local User"
-msgstr ""
+msgstr "Lokaler Benutzer"
 
 #: ../auth.c:17
 #, fuzzy
@@ -59,7 +59,7 @@ msgid ""
 "supports <i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if "
 "your browser is configured to block pop-up windows, you will not be able to "
 "receive any instant messages.<br /></ul>"
-msgstr ""
+msgstr  ""
 "<ul>\n"
 "<li><b>Wenn Sie schon einen Benutzer bei %s</b>, Benutzername und Passwort "
 "eingeben und 'Anmelden' drücken. </li>\n"
@@ -105,7 +105,7 @@ msgstr "Ihr Passwort wurde nicht akzeptiert"
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
-msgstr ""
+msgstr  ""
 "Dieses Programm konnte keine Verbindung zum Citadel-Server herstellen oder "
 "aufrechterhalten.Bitte wenden Sie sich an Ihren Administrator."
 
@@ -177,7 +177,7 @@ msgid ""
 "calendars is not available on this particular system.  Please ask your "
 "system administrator to install a new version of the Citadel web service "
 "with calendaring enabled.</I><br />\n"
-msgstr ""
+msgstr  ""
 "<I>Diese Nachricht enthält Kalender/Datums Informationen, aber die "
 "Unterstützung für Kalender ist auf diesem System nicht verfügbar. Bitte "
 "fragen Sie ihren System-Administrator eine Version des Citadel-Web-Services "
@@ -188,7 +188,7 @@ msgid ""
 "<i>Cannot display calendar item.  You are seeing this error because your "
 "WebCit service has not been installed with calendar support.  Please contact "
 "your system administrator.</i><br />\n"
-msgstr ""
+msgstr  ""
 "<i>Kann Kalender-Element nicht darstellen. Sie sehen diesen Fehlerweil ihr "
 "WebCit System ohne Kalenderunterstützung installiert wurde.Bitte wenden Sie "
 "sich an Ihren Systemadministrator.</i><br />\n"
@@ -198,7 +198,7 @@ msgid ""
 "<i>Cannot display to-do item.  You are seeing this error because your WebCit "
 "service has not been installed with calendar support.  Please contact your "
 "system administrator.</i><br />\n"
-msgstr ""
+msgstr  ""
 "<i>Kann To-Do Datum nicht darstellen. Sie sehen diesen Fehlerweil ihr WebCit "
 "System ohne Kalenderunterstützung installiert wurde.Bitte wenden Sie sich an "
 "Ihren Systemadministrator.</i><br />\n"
@@ -255,7 +255,7 @@ msgstr "Dies ist ein Update von '%s', das schon in Ihrem Kalender ist."
 #: ../calendar.c:234
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
-msgstr ""
+msgstr  ""
 "Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
 "vorgemerkt ist."
 
@@ -281,7 +281,7 @@ msgstr "Ablehnen"
 
 #: ../calendar.c:285
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr ""
+msgstr  ""
 "Klicken sie <i>Aktualisieren</i> um diese Änderung in ihren Kalender zu "
 "übernehmen."
 
@@ -305,14 +305,14 @@ msgstr "Auf Anfrage zum Treffen antworten"
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
+msgstr  ""
 "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
 #: ../calendar.c:359
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
-msgstr ""
+msgstr  ""
 "Sie haben diese Einladung vorläufig angenommen. Es wurde in Ihrem Kalender "
 "vorgemerkt."
 
@@ -320,7 +320,7 @@ msgstr ""
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
-msgstr ""
+msgstr  ""
 "Sie haben diese Einladung abgelehnt. Sie wurde <b>NICHT</b> in Ihren "
 "Kalender übernommen."
 
@@ -552,7 +552,7 @@ msgstr "Bild Hochgeladen"
 msgid ""
 "You can upload any image directly from your computer, as long as it is in "
 "GIF format (JPEG, PNG, etc. won't work)."
-msgstr ""
+msgstr  ""
 "Sie können ein Bild direkt von ihrem Computer hochladen. Es muß im GIF-"
 "Format sein (JPEG, PNG etc funktionieren nicht)."
 
@@ -599,7 +599,7 @@ msgstr "Zum Posteingang"
 
 #: ../iconbar.c:118
 msgid "Mail"
-msgstr "Post"
+msgstr "Posteingang"
 
 #: ../iconbar.c:136
 msgid "Go to your personal calendar"
@@ -651,7 +651,7 @@ msgstr "Chat"
 
 #: ../iconbar.c:253
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr ""
+msgstr  ""
 "Erweiterte Optionen Menü: Spezielle Raumkommandos, Benutzerdaten Bearbeiten, "
 "Chatten"
 
@@ -707,7 +707,7 @@ msgstr "Nur Text"
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
-msgstr ""
+msgstr  ""
 "Die Menüeinträge, die sie auf der Leiste links angezeigt haben möchten "
 "anwählen"
 
@@ -848,7 +848,7 @@ msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
 #: ../inetconf.c:52
 msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
+msgstr  ""
 "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
 #: ../inetconf.c:53
@@ -897,7 +897,7 @@ msgid ""
 "protection, as it prevents others from being able to subscribe you to lists "
 "without your consent.<br /><br />Please click on the link which is being e-"
 "mailed to you and your subscription will be confirmed.<br />\n"
-msgstr ""
+msgstr  ""
 "Sie abbonieren für <TT>%s</TT> die <b>%s</b> Liste. Der Listenserver hat "
 "Ihnen eine URL zum bestätigen der Anmeldung zugeschickt. Dieser zusätzliche "
 "Schritt ist zu Ihrem eigenen Schutz, Damit niemand Sie auf eine Liste ohne "
@@ -1074,7 +1074,7 @@ msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
 "will not be of much use to you."
-msgstr ""
+msgstr  ""
 "Dieses Fenster erlaubt Ihnen, Citadel-Server Befehle, die nicht in WebCit "
 "verwendet werden, direkt einzugeben. Wenn Ihnen dies nichts sagt, wird "
 "dieses Fenster für Sie nicht ohne Studium der Dokumentation von nützen sein"
@@ -1142,7 +1142,7 @@ msgstr "an "
 
 #: ../messages.c:727 ../messages.c:2547
 msgid "CC:"
-msgstr ""
+msgstr "CC:"
 
 #: ../messages.c:735 ../messages.c:1173
 msgid "Subject:"
@@ -1164,7 +1164,7 @@ msgstr "Antworten"
 
 #: ../messages.c:799
 msgid "Forward"
-msgstr ""
+msgstr "Weiterleiten"
 
 #: ../messages.c:806 ../messages.c:2775
 msgid "Move"
@@ -1240,7 +1240,7 @@ msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 #: ../messages.c:2384
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
+msgstr  ""
 "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
 #: ../messages.c:2401
@@ -1263,11 +1263,11 @@ msgstr " <I>in</i> "
 
 #: ../messages.c:2536
 msgid "To:"
-msgstr ""
+msgstr "An:"
 
 #: ../messages.c:2558
 msgid "BCC:"
-msgstr ""
+msgstr "BCC:"
 
 #: ../messages.c:2576
 msgid "Subject (optional):"
@@ -1283,7 +1283,7 @@ msgstr "Beitrag einreichen"
 
 #: ../messages.c:2603
 msgid "--- forwarded message ---"
-msgstr ""
+msgstr "--- Weitergeleitete Nachricht ---"
 
 #: ../messages.c:2683 ../roomops.c:1364 ../roomops.c:1394
 msgid "Add"
@@ -1440,23 +1440,23 @@ msgstr "24 Stunden"
 
 #: ../preferences.c:253
 msgid "Calendar day view begins at:"
-msgstr ""
+msgstr "Kalender Tagesübersicht beginnt bei:"
 
 #: ../preferences.c:282
 msgid "Calendar day view ends at:"
-msgstr ""
+msgstr "Kalender Tagesübersicht endet bei:"
 
 #: ../preferences.c:311
 msgid "Attach signature to email messages?"
-msgstr ""
+msgstr "Emails Signieren?"
 
 #: ../preferences.c:329
 msgid "No signature"
-msgstr ""
+msgstr "Keine Signatur"
 
 #: ../preferences.c:335
 msgid "Use this signature:"
-msgstr ""
+msgstr "Diese Signatur benutzen"
 
 #: ../preferences.c:360
 msgid "Change"
@@ -1468,11 +1468,11 @@ msgstr "Abgebrochen. Keine Änderung wurde gespeichert."
 
 #: ../roomops.c:24
 msgid "Bulletin Board"
-msgstr ""
+msgstr "Forum"
 
 #: ../roomops.c:25
 msgid "Mail Folder"
-msgstr ""
+msgstr "Mail Übersicht"
 
 #: ../roomops.c:26
 #, fuzzy
@@ -1540,7 +1540,7 @@ msgstr "Neue Notitz"
 #: ../roomops.c:533
 msgid ""
 "Leave all messages marked as unread, go to next room with unread messages"
-msgstr ""
+msgstr  ""
 "Alle Beiträge ungelesen lassen, und in den nächsten Raum mit ungelesenen "
 "Nachrichten gehen"
 
@@ -1550,7 +1550,7 @@ msgstr "Raum Überspringen"
 
 #: ../roomops.c:544
 msgid "Mark all messages as read, go to next room with unread messages"
-msgstr ""
+msgstr  ""
 "Alle Nachrichten als ungelesen markieren, und in den nächsten Raum mit "
 "ungelesenen Nachrichten gehen"
 
@@ -1718,7 +1718,7 @@ msgid ""
 "<LI>If the remote room name is blank, it is assumed that the room name is "
 "identical on the remote node.<LI>If the remote room name is different, the "
 "remote node must also configure the name of the room here.</UL></I><br />\n"
-msgstr ""
+msgstr  ""
 "Wenn man einen Raum zwischen zwei Knoten synchronisiert, muß er an beiden "
 "Knoten freigegeben werden. Einen Knoten an eine Freigabe anbinden sendet "
 "lediglich die Nachrichten zum anderen Knoten, und nicht umgekehrt, sprich "
@@ -1730,7 +1730,7 @@ msgstr ""
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
-msgstr ""
+msgstr  ""
 "<i>Der Inhalt dieses Raums wird per Email als <b>einzelne Nachricht</b> an "
 "die Folgenden Empfänger versendet:</i><br /><br />\n"
 
@@ -1742,7 +1742,7 @@ msgstr "(Löschen)"
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
-msgstr ""
+msgstr  ""
 "<i> Der Inhalt dieses Raums wird als <b>Tageszusammenfassung</b> an die "
 "folgende Liste versendet:</i><br /><br />\n"
 
@@ -1763,7 +1763,7 @@ msgstr "Die URL zum Ab/Bestellen ist: "
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
-msgstr ""
+msgstr  ""
 "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
 #: ../roomops.c:1415
@@ -1824,7 +1824,7 @@ msgstr "<B><I>Benutzer %s in den Raum %s eingeladen.</I></B>\n"
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
-msgstr ""
+msgstr  ""
 "Die folgenden Benutzer haben Zugang zu diesem Raum.  Um einen Benutzer von "
 "der Zugriffsliste zu löschen, ihn in der Liste anwählen und 'Bannen' drücken"
 
@@ -1836,7 +1836,7 @@ msgstr "Bannen"
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
-msgstr ""
+msgstr  ""
 "Um einem weiteren Benutzer den Zugang zu diesem Raum zu erlauben den "
 "Benutzernamenin das folgende Textfeld eintragen und 'Einladen' drücken"
 
@@ -1882,7 +1882,7 @@ msgid ""
 "enter that room by typing its name below.  Once you gain access to a private "
 "room, it will appear in your regular room listings so you don't have to keep "
 "returning here."
-msgstr ""
+msgstr  ""
 "Wenn sie den Namen eines versteckten (Namen-raten) oder passwortgeschützten "
 "Raums wissen, Hier eingeben um ihn zu betreten.  Wenn er einmal sichtbar "
 "ist, wird er mit den regulären Räumen gelistet."
@@ -1908,7 +1908,7 @@ msgstr "den aktuellen Raum vergessen (vergessen/abmelden)"
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
-msgstr ""
+msgstr  ""
 "Wenn Sie diese Option wählen, wird <em>%s</em>aus der Raumliste "
 "verschwinden.   Wollen Sie das wirklich tun?<br />\n"
 
@@ -1985,7 +1985,7 @@ msgstr "Automatischer Verfall alter Nachrichten konfigurieren"
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr ""
+msgstr  ""
 "Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
 
 #: ../siteconfig.c:155
@@ -2014,7 +2014,7 @@ msgstr "Telefonnummer"
 
 #: ../siteconfig.c:241
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
+msgstr  ""
 "Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
 
 #: ../siteconfig.c:254
@@ -2171,12 +2171,12 @@ msgstr "Mail Relaying anschalten (nicht emfohlen bei öffentlichen Servern)"
 
 #: ../siteconfig.c:765
 msgid "Default message expire policy for public rooms"
-msgstr ""
+msgstr  ""
 "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
 
 #: ../siteconfig.c:786
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
+msgstr  ""
 "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
 
 #: ../siteconfig.c:790
@@ -2308,7 +2308,7 @@ msgstr "Über&nbsp;diesen&nbsp;Server"
 msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
 "administrator is %s."
-msgstr ""
+msgstr  ""
 "Sie sind Angemeldet auf %s, mit %s über %s, in %s.  Ihr Systemverwalter ist %"
 "s"
 
@@ -2327,7 +2327,7 @@ msgstr "%s editieren"
 msgid ""
 "Enter %s below.  Text is formatted to the reader's screen width.  To defeat "
 "the formatting, indent a line at least one space."
-msgstr ""
+msgstr  ""
 "%s eingeben. Der Text wird auf dem Schirm des Lesers formatiert. Die Zeile "
 "um mindestens einen Leerschritt einrücken um das Formatieren abzuschalten."
 
@@ -2353,7 +2353,7 @@ msgstr "Neuer Benutzer"
 msgid ""
 "To create a new user account, enter the desired user name in the box below "
 "and click 'Create'."
-msgstr ""
+msgstr  ""
 "Um einen neuen Benutzer einzurichten, den Anmeldenamen in das Textfeld "
 "eintragenund 'Anlegen' Klicken"
 
@@ -2373,7 +2373,7 @@ msgstr "Benutzer Bearbeiten/Löschen"
 msgid ""
 "To edit an existing user account, select the user name from the list and "
 "click 'Edit'."
-msgstr ""
+msgstr  ""
 "Einen vorhandenen Benutzer aus der Liste auswählen zum modifizieren, und "
 "dann 'Bearbeiten' Klicken"
 
@@ -2453,7 +2453,7 @@ msgstr "Benutzerliste für %s"
 msgid ""
 "<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH><TH>Last Login</"
 "TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"
-msgstr ""
+msgstr  ""
 "<TR><TH>Benutzername</TH><TH>Anzahl</TH><TH>Berechtigung</TH><TH>Letzte "
 "Anmeldung</TH><TH>Anzahl Anmeldungen</TH><TH>Anzahl verfasste Beiträge</TH></"
 "TR>"
@@ -2562,7 +2562,7 @@ msgstr "Autentifizierung benötigt"
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
-msgstr ""
+msgstr  ""
 "Die angeforderte Sektion benötigt einen gültigen Benutzernamen und Passwort."
 "Sie konnten nicht Angemeldet werden: %s\n"
 
@@ -2574,7 +2574,7 @@ msgid ""
 "newer.\n"
 "\n"
 "\n"
-msgstr ""
+msgstr  ""
 "Sie sind mit einem Citadel-Server der Version %d.%02d verbunden.  \n"
 "Webcit benötigt mindestens Version %d.%02d. \n"
 "\n"
@@ -2634,7 +2634,7 @@ msgstr "Benutzer angemeldet auf %s"
 msgid ""
 "Click on a name to read user info.  Click on %s to send an instant message "
 "to that user."
-msgstr ""
+msgstr  ""
 "Auf den Namen klicken um die Benutzerdaten einzusehen. Auf %s Klicken um ihm "
 "eine Kurzrnachricht zu senden."
 
@@ -2648,7 +2648,7 @@ msgid ""
 "online' listing. To turn off any 'fake' name you've previously set, simply "
 "click the appropriate 'change' button without typing anything in the "
 "corresponding box. "
-msgstr ""
+msgstr  ""
 "Dieser Dialog erlaubt Ihnen, die in der Benutzerübersicht angezeigten Texte "
 "zu verändern.Um die Defaultwerte wiederherzustellen bei leerem Feld den "
 "'Raumname setzen' Knopf drücken"
