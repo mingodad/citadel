@@ -360,6 +360,7 @@ function ctdl_ts_getInnerText(el) {
 
 function switch_to_room_list() {
 	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
+	fuckitup();
 }
 
 function switch_to_menu_buttons() {

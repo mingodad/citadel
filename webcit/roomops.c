@@ -2532,6 +2532,83 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 
 /*
+ *
+ */
+void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
+	char buf[256];
+	char floor_name[256];
+	char old_floor_name[256];
+	char boxtitle[256];
+	int levels, oldlevels;
+	int i, t;
+	int nf;
+
+	strcpy(floor_name, "");
+	strcpy(old_floor_name, "");
+
+	nf = num_floors;
+
+	levels = 0;
+	oldlevels = 0;
+	for (i=0; i<max_folders; ++i) {
+
+		levels = num_tokens(fold[i].name, '|');
+		extract_token(floor_name, fold[i].name, 0,
+			'|', sizeof floor_name);
+
+		if ( (strcasecmp(floor_name, old_floor_name))
+		   && (strlen(old_floor_name) > 0) ) {
+			/* End inner box */
+			wprintf("<br>\n");
+		}
+		strcpy(old_floor_name, floor_name);
+
+		if (levels == 1) {
+			/* Begin inner box */
+			stresc(boxtitle, floor_name, 1, 0);
+			svprintf("BOXTITLE", WCS_STRING, boxtitle);
+			wprintf("<span class=\"ib_roomlist_floor\">%s</span><br>\n", boxtitle);
+		}
+
+		oldlevels = levels;
+
+		if (levels > 1) {
+			wprintf("&nbsp;");
+			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;&nbsp;&nbsp;");
+			if (fold[i].selectable) {
+				wprintf("<a href=\"dotgoto?room=");
+				urlescputs(fold[i].room);
+				wprintf("\">");
+			}
+			else {
+				wprintf("<i>");
+			}
+			if (fold[i].hasnewmsgs) {
+				wprintf("<SPAN CLASS=\"ib_roomlist_new\">");
+			}
+			else {
+				wprintf("<SPAN CLASS=\"ib_roomlist_old\">");
+			}
+			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
+			escputs(buf);
+			wprintf("</SPAN>");
+			if (fold[i].selectable) {
+				wprintf("</A>");
+			}
+			else {
+				wprintf("</i>");
+			}
+			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
+				wprintf(" (INBOX)");
+			}
+			wprintf("<br />\n");
+		}
+	}
+}
+
+
+
+/*
  * Show the room list.  (only should get called by
  * knrooms() because that's where output_headers() is called from)
  */
@@ -2547,6 +2624,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 	int ra_flags = 0;
 	int flags = 0;
 	int num_floors = 1;	/* add an extra one for private folders */
+
+	load_floorlist();
 
 	/* Start with the mailboxes */
 	max_folders = 1;
@@ -2624,23 +2703,24 @@ void list_all_rooms_by_floor(char *viewpref) {
 		}
 	}
 
-/* test only hackish view 
-	wprintf("<table><TR><TD>A Table</TD></TR></table>\n");
-	for (i=0; i<max_folders; ++i) {
-		escputs(fold[i].name);
-		wprintf("<br />\n");
-	}
- */
 
 	if (!strcasecmp(viewpref, "folders")) {
 		do_folder_view(fold, max_folders, num_floors);
+	}
+	else if (!strcasecmp(viewpref, "hackish_view")) {
+		for (i=0; i<max_folders; ++i) {
+			escputs(fold[i].name);
+			wprintf("<br />\n");
+		}
+	}
+	else if (!strcasecmp(viewpref, "iconbar")) {
+		do_iconbar_view(fold, max_folders, num_floors);
 	}
 	else {
 		do_rooms_view(fold, max_folders, num_floors);
 	}
 
 	free(fold);
-	wDumpContent(1);
 }
 
 
@@ -2651,7 +2731,6 @@ void knrooms() {
 	char listviewpref[SIZ];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	load_floorlist();
 
 	/* Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
@@ -2710,6 +2789,7 @@ void knrooms() {
 
 	/* Display the room list in the user's preferred format */
 	list_all_rooms_by_floor(listviewpref);
+	wDumpContent(1);
 }
 
 

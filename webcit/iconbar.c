@@ -378,7 +378,8 @@ void do_iconbar_roomlist(void) {
 	
 	wprintf("</ul>\n");
 
-	wprintf("<br><br>Room list<br>will be<br>here<br><br>");
+	/* embed the room list */
+	list_all_rooms_by_floor("iconbar");
 
 	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
 	wprintf("Drag to trash here...<br>");
