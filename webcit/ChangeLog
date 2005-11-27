@@ -1,5 +1,11 @@
 $Id$
 
+Sun Nov 27 18:42:15 CET 2005 dothebart
+* Detect locale from Browser Environment
+
+Sun Nov 27 18:42:15 CET 2005 dothebart
+* staticaly bind codeset to utf8.
+
 Wed Nov 23 23:32:04 EST 2005 ajc
 * Placed a mini roomlist in the iconbar.  This is not in its final form.
 
