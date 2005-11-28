@@ -1046,8 +1046,8 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 		return;
 	}
 
-	snprintf(filename, sizeof filename, "%s.listedit", tmpnam(NULL));
-	snprintf(changefile, sizeof changefile, "%s.listedit", tmpnam(NULL));
+	CtdlMakeTempFileName(filename, sizeof filename);
+	CtdlMakeTempFileName(changefile, sizeof changefile);
 
 	tempfp = fopen(filename, "w");
 	if (tempfp == NULL) {

@@ -3537,12 +3537,12 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	char *encoded_message = NULL;
 	off_t raw_length = 0;
 
-	if (is_mailbox != NULL)
+	if (is_mailbox != NULL) {
 		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
-	else
+	}
+	else {
 		safestrncpy(roomname, req_room, sizeof(roomname));
-	lprintf(CTDL_DEBUG, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);
-
+	}
 
 	fp = fopen(tempfilename, "rb");
 	if (fp == NULL) {
@@ -3691,7 +3691,7 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 	char temp[PATH_MAX];
 	FILE *fp;
 
-	strcpy(temp, tmpnam(NULL));
+	CtdlMakeTempFileName(temp, sizeof temp);
 
 	fp = fopen(temp, "w");
 	if (fp == NULL) return;

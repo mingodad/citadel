@@ -1364,9 +1364,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	 * program.  Don't mess with these once they've been set, because we
 	 * will be unlinking them later on in the program and we don't
 	 * want to delete something that we didn't create. */
-	snprintf(temp, sizeof temp, tmpnam(NULL));
-	snprintf(temp2, sizeof temp2, tmpnam(NULL));
-	snprintf(tempdir, sizeof tempdir, tmpnam(NULL));
+	CtdlMakeTempFileName(temp, sizeof temp);
+	CtdlMakeTempFileName(temp2, sizeof temp2);
+	CtdlMakeTempFileName(tempdir, sizeof tempdir);
 
 	/* Get screen dimensions.  First we go to a default of 80x24.  Then
 	 * we try to get the user's actual screen dimensions off the server.

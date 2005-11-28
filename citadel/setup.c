@@ -718,7 +718,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 #endif
 	char buf[SIZ];
 	char setupmsg[SIZ];
-	char *dialog_result;
+	char dialog_result[PATH_MAX];
 	FILE *fp = NULL;
 
 	strcpy(setupmsg, "");
@@ -736,7 +736,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		break;
 
 	case UI_DIALOG:
-		dialog_result = tmpnam(NULL);
+		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
 		sprintf(buf, "exec %s --backtitle '%s' --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			prompt_title,

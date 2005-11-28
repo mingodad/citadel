@@ -540,7 +540,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 	FILE *fp;
 	char *ser;
 
-	strcpy(temp, tmpnam(NULL));
+	CtdlMakeTempFileName(temp, sizeof temp);
 	ser = vcard_serialize(v);
 
 	fp = fopen(temp, "w");

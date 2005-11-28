@@ -193,7 +193,7 @@ void artv_export_message(long msgnum) {
 	struct ser_ret smr;
 	FILE *fp;
 	char buf[SIZ];
-	char tempfile[SIZ];
+	char tempfile[PATH_MAX];
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
@@ -208,7 +208,7 @@ void artv_export_message(long msgnum) {
 	CtdlFreeMessage(msg);
 
 	/* write it in base64 */
-	strcpy(tempfile, tmpnam(NULL));
+	CtdlMakeTempFileName(tempfile, sizeof tempfile);
 	snprintf(buf, sizeof buf, "./base64 -e >%s", tempfile);
 	fp = popen(buf, "w");
 	fwrite(smr.ser, smr.len, 1, fp);
@@ -517,7 +517,7 @@ void artv_import_message(void) {
 	long msglen;
 	FILE *fp;
 	char buf[SIZ];
-	char tempfile[SIZ];
+	char tempfile[PATH_MAX];
 	char *mbuf;
 
 	memset(&smi, 0, sizeof(struct MetaData));
@@ -529,7 +529,7 @@ void artv_import_message(void) {
 	lprintf(CTDL_INFO, "message #%ld\n", msgnum);
 
 	/* decode base64 message text */
-	strcpy(tempfile, tmpnam(NULL));
+	CtdlMakeTempFileName(tempfile, sizeof tempfile);
 	snprintf(buf, sizeof buf, "./base64 -d >%s", tempfile);
 	fp = popen(buf, "w");
 	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
@@ -608,8 +608,8 @@ void cmd_artv(char *cmdbuf) {
 	}
 	is_running = 1;
 
-	strcpy(artv_tempfilename1, tmpnam(NULL));
-	strcpy(artv_tempfilename2, tmpnam(NULL));
+	CtdlMakeTempFileName(artv_tempfilename1, sizeof artv_tempfilename1);
+	CtdlMakeTempFileName(artv_tempfilename2, sizeof artv_tempfilename2);
 
 	extract_token(cmd, cmdbuf, 0, '|', sizeof cmd);
 	if (!strcasecmp(cmd, "export")) artv_do_export();

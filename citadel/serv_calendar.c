@@ -126,7 +126,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		return;
 	}
 
-	strcpy(temp, tmpnam(NULL));
+	CtdlMakeTempFileName(temp, sizeof temp);
 	ser = icalcomponent_as_ical_string(cal);
 	if (ser == NULL) return;
 

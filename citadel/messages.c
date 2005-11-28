@@ -1465,9 +1465,8 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 					len = (size_t)extract_long(buf, 0);
 					progress(ipc, len, len);
 					scr_flush();
-					snprintf(tmp, sizeof tmp, "%s.%s",
-						tmpnam(NULL),
-						ptr->filename);
+					CtdlMakeTempFileName(tmp, sizeof tmp);
+					strcat(tmp, ptr->filename);
 					save_buffer(file, len, tmp);
 					free(file);
 					do_image_view(tmp);
@@ -1510,7 +1509,7 @@ void readmsgs(CtdlIPC *ipc,
 	else
 		b = 0;
 
-	strcpy(prtfile, tmpnam(NULL));
+	CtdlMakeTempFileName(prtfile, sizeof prtfile);
 
 	if (msg_arr) {
 		free(msg_arr);

@@ -1083,7 +1083,7 @@ void cmd_rdir(void)
 	char tempfilename[PATH_MAX];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
-	tmpnam(tempfilename);
+	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	
 	getroom(&CC->room, CC->room.QRname);
 	getuser(&CC->user, CC->curr_user);

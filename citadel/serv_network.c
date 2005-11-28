@@ -390,7 +390,7 @@ void cmd_snet(char *argbuf) {
 	unbuffer_output();
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
-	safestrncpy(tempfilename, tmpnam(NULL), sizeof tempfilename);
+	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
 
 	fp = fopen(tempfilename, "w");
@@ -1669,7 +1669,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	long plen;
 	FILE *fp;
 
-	strcpy(tempfilename, tmpnam(NULL));
+	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	if (sock_puts(sock, "NDOP") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
