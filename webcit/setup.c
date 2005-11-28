@@ -231,7 +231,7 @@ void set_value(char *prompt, char str[])
 	int i;
 #endif
 	char buf[SIZ];
-	char *dialog_result;
+	char dialog_result[PATH_MAX];
 	char setupmsg[SIZ];
 	FILE *fp;
 
@@ -250,7 +250,7 @@ void set_value(char *prompt, char str[])
 		break;
 
 	case UI_DIALOG:
-		dialog_result = tmpnam(NULL);
+		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
 		sprintf(buf, "exec %s --backtitle '%s' --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			"WebCit setup",
