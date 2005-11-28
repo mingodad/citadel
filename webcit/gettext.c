@@ -1,10 +1,11 @@
+#define _GNU_SOURCE
 #include "webcit.h"
 #include "webserver.h"
 
 static const char* AvailLang[]=
 	{
 		"de_DE"
-
+ 
 
 	};
 
@@ -21,9 +22,10 @@ void httplang_to_locale(const char* LocaleString)
 	int nAvail=1;
 	char *search=(char*)malloc(len);
 	int done=0;
-	char *mo;
-	char *webcitdir = WEBCITDIR;
-
+	//	char *mo;
+	//	char *webcitdir = WEBCITDIR;
+	locale_t my_Locale;
+	locale_t my_Empty_Locale;
 	memcpy(search,LocaleString,len);
 	search[len+1]='\0';
 	len=strlen(search);
@@ -58,7 +60,7 @@ void httplang_to_locale(const char* LocaleString)
 										strlen(wanted_locales[i]));
 					if (!ret)
 						{
-							locale=AvailLang[j];//wanted_locales[i];
+							locale=(char*)AvailLang[j];//wanted_locales[i];
 							i=nFound+1;
 							j=nAvail+1;
 							continue;
@@ -66,37 +68,20 @@ void httplang_to_locale(const char* LocaleString)
 
 				}
 		}
-	setlocale(LC_ALL,"C");
+	
 	len=strlen(locale);
 	memcpy(search,locale,len);
 	memcpy(&search[len],".UTF8",5);
 	search[len+5]='\0';
-	/*
-	len=strlen(search);
-	mo=malloc(len+1);
-	memcpy(mo,search,len+1);
-	*/
-	/*
-	mo = malloc(strlen(webcitdir) + 20);
-	sprintf(mo, "%s/locale", webcitdir);
+	my_Empty_Locale=newlocale(LC_ALL_MASK, NULL, NULL); /* create default locale */
+	my_Locale=newlocale(LC_MESSAGES_MASK/*|LC_TIME_MASK TODO */,
+					   search,
+					   my_Empty_Locale);
 
-	lprintf(9, "Message catalog directory: %s\n",
-		bindtextdomain("webcit", mo)
-		);
-	free(mo);
-	
-	lprintf(9, "Text domain: %s\n",
-		textdomain("webcit")
-		);
-	
-	lprintf(9, "Text domain Charset: %s\n",
-			bind_textdomain_codeset("webcit","UTF8")
-			);
-	
-	*/
-	//setlocale(LC_MESSAGES,mo);//search);
-	setlocale(LC_MESSAGES,search);
-	//	free(mo);
+	uselocale(my_Locale);
+	//freelocale(my_Locale);
+	//	freelocale(my_Empty_Locale);
 	free(search);
 
 }
+
