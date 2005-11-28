@@ -117,12 +117,13 @@ void put_control(void)
  */
 long get_new_message_number(void)
 {
+	long retval = 0L;
 	begin_critical_section(S_CONTROL);
 	get_control();
-	++CitControl.MMhighest;
+	retval = ++CitControl.MMhighest;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return (CitControl.MMhighest);
+	return(retval);
 }
 
 
@@ -131,12 +132,13 @@ long get_new_message_number(void)
  */
 long get_new_user_number(void)
 {
+	long retval = 0L;
 	begin_critical_section(S_CONTROL);
 	get_control();
-	++CitControl.MMnextuser;
+	retval = ++CitControl.MMnextuser;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return (CitControl.MMnextuser);
+	return(retval);
 }
 
 
@@ -146,12 +148,13 @@ long get_new_user_number(void)
  */
 long get_new_room_number(void)
 {
+	long retval = 0L;
 	begin_critical_section(S_CONTROL);
 	get_control();
-	++CitControl.MMnextroom;
+	retval = ++CitControl.MMnextroom;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return (CitControl.MMnextroom);
+	return(retval);
 }
 
 

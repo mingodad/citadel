@@ -1,5 +1,9 @@
 $Id$
 
+Mon Nov 28 10:45:21 EST 2005 ajc
+* control.c: fixed a potential concurrency/race condition in
+  the get_new_[message|room|user]_number() functions.
+
 Sun Nov 27 21:20:27 EST 2005 ajc
 * Eliminated the use of tmpnam() to shut up the compiler warnings.
 
