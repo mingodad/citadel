@@ -1,5 +1,8 @@
 $Id$
 
+Sun Nov 27 21:28:03 EST 2005 ajc
+* Eliminated the use of tmpnam() to shut up compiler warnings.
+
 Sun Nov 27 18:42:15 CET 2005 dothebart
 * Detect locale from Browser Environment
 

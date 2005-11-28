@@ -465,3 +465,22 @@ void generate_uuid(char *buf) {
 		(seq++)
 	);
 }
+
+
+/*
+ * Local replacement for controversial C library function that generates
+ * names for temporary files.  Included to shut up compiler warnings.
+ */
+void CtdlMakeTempFileName(char *name, int len) {
+	int i = 0;
+
+	while (i++, i < 100) {
+		snprintf(name, len, "/tmp/ctdl.%04x.%04x",
+			getpid(),
+			rand()
+		);
+		if (!access(name, F_OK)) {
+			return;
+		}
+	}
+}
