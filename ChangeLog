@@ -1,5 +1,8 @@
 $Id$
 
+Mon Nov 27 21:28:03 CET 2005 dothebart
+* migrate to _GNU_SOURCE and uselocale() to be threadsafe.
+	
 Sun Nov 27 21:28:03 EST 2005 ajc
 * Eliminated the use of tmpnam() to shut up compiler warnings.
 
