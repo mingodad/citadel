@@ -373,5 +373,6 @@ function expand_floor(floor_div) {
 }
 
 function switch_to_menu_buttons() {
+	which_div_expanded = null;
 	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
 }
