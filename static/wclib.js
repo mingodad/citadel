@@ -358,9 +358,18 @@ function ctdl_ts_getInnerText(el) {
 
 // icon bar toggler tabs...
 
+var which_div_expanded = null;
+
 function switch_to_room_list() {
 	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
-	fuckitup();
+}
+
+function expand_floor(floor_div) {
+	if (which_div_expanded != null) {
+		$(which_div_expanded).style.display = 'none' ;
+	}
+	$(floor_div).style.display = 'block';
+	which_div_expanded = floor_div;
 }
 
 function switch_to_menu_buttons() {

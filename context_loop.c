@@ -290,9 +290,9 @@ void context_loop(int sock)
 			if_modified_since = httpdate_to_timestamp(&buf[19]);
 		}
 
-		if (!strncasecmp(buf, "Accept-Language: ", 17)) {
+		/*if (!strncasecmp(buf, "Accept-Language: ", 17)) {
 			httplang_to_locale(&buf[17]);
-		}
+		}*/
 
 		/*
 		 * Read in the request

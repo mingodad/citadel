@@ -350,17 +350,20 @@ a:hover {
 	font-size: 8pt;
 	font-weight: bold;
 	color: #000000;
+	cursor: pointer;
 }
 
 .ib_roomlist_new {
 	font-size: 6pt;
 	color: #880000;
 	font-weight: bold;
+	cursor: pointer;
 }
 
 .ib_roomlist_old {
 	font-size: 6pt;
 	color: #000088;
+	cursor: pointer;
 }
 
 .mailbox_summary {

@@ -60,7 +60,7 @@ void httplang_to_locale(const char* LocaleString)
 										strlen(wanted_locales[i]));
 					if (!ret)
 						{
-							locale=(char*)AvailLang[j];//wanted_locales[i];
+							locale=(char*)AvailLang[j]; //wanted_locales[i];
 							i=nFound+1;
 							j=nAvail+1;
 							continue;

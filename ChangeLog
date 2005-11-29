@@ -1,5 +1,9 @@
 $Id$
 
+Mon Nov 28 23:04:13 EST 2005 ajc
+* Made the iconbar room list somewhat usable (collapse/expand).  It is not yet
+  a drop target, though, which is why we did all this in the first place.
+
 Mon Nov 27 21:28:03 CET 2005 dothebart
 * migrate to _GNU_SOURCE and uselocale() to be threadsafe.
 	
