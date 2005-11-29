@@ -2560,14 +2560,18 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 		   && (strlen(old_floor_name) > 0) ) {
 			/* End inner box */
 			wprintf("<br>\n");
+			wprintf("</div>\n");	/* nfmd */
 		}
 		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
-			/* Begin inner box */
+			/* Begin floor */
 			stresc(boxtitle, floor_name, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
-			wprintf("<span class=\"ib_roomlist_floor\">%s</span><br>\n", boxtitle);
+			wprintf("<span class=\"ib_roomlist_floor\" "
+				"onClick=\"expand_floor('nfmd%d')\">"
+				"%s</span><br>\n", i, boxtitle);
+			wprintf("<div id=\"nfmd%d\" style=\"display:none\">", i);
 		}
 
 		oldlevels = levels;
@@ -2604,6 +2608,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("<br />\n");
 		}
 	}
+	wprintf("</div>\n");	/* nfmd */
 }
 
 
