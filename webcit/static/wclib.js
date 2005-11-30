@@ -52,6 +52,32 @@ function activate_entmsg_autocompleters() {
 }
 
 
+
+// Toggle the icon bar between menu/roomlist...
+var which_div_expanded = null;
+var num_drop_targets = 0;
+var drop_targets_elements = new Array();
+var drop_targets_roomnames = new Array();
+
+function switch_to_room_list() {
+	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
+}
+
+function expand_floor(floor_div) {
+	if (which_div_expanded != null) {
+		$(which_div_expanded).style.display = 'none' ;
+	}
+	$(floor_div).style.display = 'block';
+	which_div_expanded = floor_div;
+}
+
+function switch_to_menu_buttons() {
+	which_div_expanded = null;
+	num_drop_targets = 0;
+	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
+}
+
+
 // Static variables for mailbox view...
 //
 var CtdlNumMsgsSelected = 0;
@@ -310,24 +336,34 @@ function CtdlMoveMsgMouseUp(evt) {
 		mm_div = null;
 	}
 
+	if (num_drop_targets < 1) {	// nowhere to drop
+		return true;
+	}
+
 	// Did we release the mouse button while hovering over a drop target?
 	// NOTE: this only works cross-browser because the iconbar div is always
 	//	positioned at 0,0.  Browsers differ in whether the 'offset'
 	//	functions return pos relative to the document or parent.
 
-	x = (ns6 ? evt.clientX : event.clientX);
-	y = (ns6 ? evt.clientY : event.clientY);
+	for (i=0; i<num_drop_targets; ++i) {
 
-	l = parseInt($('dropstuff').offsetLeft);
-	t = parseInt($('dropstuff').offsetTop);
-	r = parseInt($('dropstuff').offsetLeft) + parseInt($('dropstuff').offsetWidth);
-	b = parseInt($('dropstuff').offsetTop) + parseInt($('dropstuff').offsetHeight);
+		x = (ns6 ? evt.clientX : event.clientX);
+		y = (ns6 ? evt.clientY : event.clientY);
 
-	// alert('Offsets are: ' + l + ' ' + t + ' ' + r + ' ' + b + '.');
+		l = parseInt(drop_targets_elements[i].offsetLeft);
+		t = parseInt(drop_targets_elements[i].offsetTop);
+		r = parseInt(drop_targets_elements[i].offsetLeft)
+		  + parseInt(drop_targets_elements[i].offsetWidth);
+		b = parseInt(drop_targets_elements[i].offsetTop)
+		  + parseInt(drop_targets_elements[i].offsetHeight);
 
-	if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
-		// Yes, we dropped it on a hotspot.  Just delete for now... FIXME
-		CtdlDeleteSelectedMessages(evt);
+		/* alert('Offsets are: ' + l + ' ' + t + ' ' + r + ' ' + b + '.'); */
+	
+		if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
+			// Yes, we dropped it on a hotspot.  Just delete for now... FIXME
+			// CtdlDeleteSelectedMessages(evt);
+			alert('you dropped on ' + drop_targets_roomnames[i]);
+		}
 	}
 
 	return true;
@@ -356,23 +392,3 @@ function ctdl_ts_getInnerText(el) {
 }
 
 
-// icon bar toggler tabs...
-
-var which_div_expanded = null;
-
-function switch_to_room_list() {
-	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
-}
-
-function expand_floor(floor_div) {
-	if (which_div_expanded != null) {
-		$(which_div_expanded).style.display = 'none' ;
-	}
-	$(floor_div).style.display = 'block';
-	which_div_expanded = floor_div;
-}
-
-function switch_to_menu_buttons() {
-	which_div_expanded = null;
-	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
-}

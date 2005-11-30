@@ -309,9 +309,11 @@ void do_iconbar(void) {
 
 	wprintf("</ul>\n");
 
+	/*
 	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
 	wprintf("Drag to trash here...<br>");
 	wprintf("</div>");
+	*/
 
 	wprintf("</div>\n");
 }
@@ -381,9 +383,11 @@ void do_iconbar_roomlist(void) {
 	/* embed the room list */
 	list_all_rooms_by_floor("iconbar");
 
+	/*
 	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
 	wprintf("Drag to trash here...<br>");
 	wprintf("</div>");
+	*/
 
 	wprintf("</div>\n");
 }

@@ -1,5 +1,10 @@
 $Id$
 
+Tue Nov 29 23:20:23 EST 2005 ajc
+* Completed the JavaScript-detection of room names in the iconbar as drop
+  targets.  For now it simply displays an alert box.  Doing the actual
+  message move will only require some simple glue code...
+
 Mon Nov 28 23:04:13 EST 2005 ajc
 * Made the iconbar room list somewhat usable (collapse/expand).  It is not yet
   a drop target, though, which is why we did all this in the first place.
