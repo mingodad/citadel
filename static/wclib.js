@@ -162,6 +162,31 @@ function CtdlDeleteSelectedMessages(evt) {
 	$('preview_pane').innerHTML = '';
 }
 
+
+// Move selected messages.
+function CtdlMoveSelectedMessages(evt, target_roomname) {
+	
+	if (CtdlNumMsgsSelected < 1) {
+		// Nothing to delete, so exit silently.
+		return false;
+	}
+	for (i=0; i<CtdlNumMsgsSelected; ++i) {
+		new Ajax.Request(
+			'ajax_servcmd', {
+				method:'post',
+				parameters:'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|' + target_roomname + '|0',
+				onComplete:CtdlClearDeletedMsg(CtdlMsgsSelected[i])
+			}
+		);
+	}
+	CtdlNumMsgsSelected = 0;
+
+	// Clear the preview pane too.
+	$('preview_pane').innerHTML = '';
+}
+
+
+
 // This gets called when the user touches the keyboard after selecting messages...
 function CtdlMsgListKeyPress(evt) {
 	if(document.all) {				// aIEeee
@@ -360,9 +385,9 @@ function CtdlMoveMsgMouseUp(evt) {
 		/* alert('Offsets are: ' + l + ' ' + t + ' ' + r + ' ' + b + '.'); */
 	
 		if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
-			// Yes, we dropped it on a hotspot.  Just delete for now... FIXME
-			// CtdlDeleteSelectedMessages(evt);
-			alert('you dropped on ' + drop_targets_roomnames[i]);
+			// Yes, we dropped it on a hotspot.
+			CtdlMoveSelectedMessages(evt, drop_targets_roomnames[i]);
+			return true;
 		}
 	}
 
