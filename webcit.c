@@ -832,17 +832,18 @@ void ajax_servcmd(void)
 
 	begin_ajax_response();
 
-	/* lprintf(9, "Sending cmd: %s\n", bstr("g_cmd")); */
+	lprintf(9, "Sending cmd: %s\n", bstr("g_cmd"));
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
-	/* lprintf(9, "   Response: %s\n", buf); */
+	wprintf("%s\n", buf);
+	lprintf(9, "   Response: %s\n", buf);
 
 	if (buf[0] == '8') {
 		serv_printf("\n\n000");
 	}
 	if ((buf[0] == '1') || (buf[0] == '8')) {
 		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
-			/* maybe do something with it? */
+			wprintf("%s\n", gcontent);
 		}
 		wprintf("000");
 	}

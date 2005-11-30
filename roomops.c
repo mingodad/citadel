@@ -2542,6 +2542,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	int levels, oldlevels;
 	int i, t;
 	int nf;
+	int num_drop_targets = 0;
 
 	strcpy(floor_name, "");
 	strcpy(old_floor_name, "");
@@ -2560,23 +2561,23 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 		   && (strlen(old_floor_name) > 0) ) {
 			/* End inner box */
 			wprintf("<br>\n");
-			wprintf("</div>\n");	/* nfmd */
+			wprintf("</div>\n");	/* floordiv */
 		}
 		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
 			/* Begin floor */
 			stresc(boxtitle, floor_name, 1, 0);
-			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			wprintf("<span class=\"ib_roomlist_floor\" "
-				"onClick=\"expand_floor('nfmd%d')\">"
+				"onClick=\"expand_floor('floordiv%d')\">"
 				"%s</span><br>\n", i, boxtitle);
-			wprintf("<div id=\"nfmd%d\" style=\"display:none\">", i);
+			wprintf("<div id=\"floordiv%d\" style=\"display:none\">", i);
 		}
 
 		oldlevels = levels;
 
 		if (levels > 1) {
+			wprintf("<div id=\"roomdiv%d\">", i);
 			wprintf("&nbsp;");
 			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;&nbsp;&nbsp;");
 			if (fold[i].selectable) {
@@ -2605,10 +2606,33 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 				wprintf(" (INBOX)");
 			}
-			wprintf("<br />\n");
+			wprintf("<br />");
+			wprintf("</div>\n");	/* roomdiv */
 		}
 	}
-	wprintf("</div>\n");	/* nfmd */
+	wprintf("</div>\n");	/* floordiv */
+
+
+	/* BEGIN: The old invisible pixel trick, to get our JavaScript to initialize */
+	wprintf("<img src=\"static/blank.gif\" onLoad=\"\n");
+
+	num_drop_targets = 0;
+
+	for (i=0; i<max_folders; ++i) {
+		levels = num_tokens(fold[i].name, '|');
+		if (levels > 1) {
+			wprintf("drop_targets_elements[%d]=$('roomdiv%d');\n", num_drop_targets, i);
+			wprintf("drop_targets_roomnames[%d]='", num_drop_targets);
+			jsescputs(fold[i].room);
+			wprintf("';\n");
+			++num_drop_targets;
+		}
+	}
+
+	wprintf("num_drop_targets = %d;\n", num_drop_targets);
+
+	wprintf("\">\n");
+	/* END: The old invisible pixel trick, to get our JavaScript to initialize */
 }
 
 
