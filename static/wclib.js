@@ -68,6 +68,10 @@ function expand_floor(floor_div) {
 	if (which_div_expanded != null) {
 		$(which_div_expanded).style.display = 'none' ;
 	}
+	if (which_div_expanded == floor_div) {
+		which_div_expanded = null;
+		return true;
+	}
 	$(floor_div).style.display = 'block';
 	which_div_expanded = floor_div;
 }
