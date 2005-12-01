@@ -407,7 +407,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
-			do_iconbar();
+			do_selected_iconbar();
 			wprintf("</div>\n");
 		}
 		if (do_room_banner == 1) {

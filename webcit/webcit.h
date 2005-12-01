@@ -339,7 +339,21 @@ struct wcsession {
 	char *burst;
 	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
 	int is_mailbox;			/* the current room is a private mailbox */
+
+	struct folder *cache_fold; 	/* cache the iconbar room list */
+	int cache_max_folders;
+	int cache_num_floors;
+	time_t cache_timestamp;
+
+	int current_iconbar;		/* What's currently in the iconbar? */
 };
+
+/* values for WC->current_iconbar */
+enum {
+	current_iconbar_menu,
+	current_iconbar_roomlist
+};
+
 
 #define num_parms(source)		num_tokens(source, '|')
 
@@ -596,6 +610,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 void unescape_input(char *buf);
 void do_iconbar(void);
 void do_iconbar_roomlist(void);
+void do_selected_iconbar(void);
 void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
