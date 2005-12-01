@@ -86,7 +86,10 @@ void do_iconbar(void) {
 		_("CITADEL")
 	);
 
-	wprintf("<li><a href=\"javascript:switch_to_room_list()\">switch to room list</a>\n");
+	wprintf("<li><div align=\"center\">"
+		"<a href=\"javascript:switch_to_room_list()\">switch to room list</a>"
+		"</div>"
+	);
 
 	if (ib_summary) {
 		wprintf("<li><a href=\"summary\" "
@@ -376,7 +379,10 @@ void do_iconbar_roomlist(void) {
 		_("CITADEL")
 	);
 
-	wprintf("<li><a href=\"javascript:switch_to_menu_buttons()\">back to menu...</a>");
+	wprintf("<li><div align=\"center\">"
+		"<a href=\"javascript:switch_to_menu_buttons()\">switch to menu</a>"
+		"</div>"
+	);
 	
 	wprintf("</ul>\n");
 

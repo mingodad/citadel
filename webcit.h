@@ -260,6 +260,17 @@ struct message_summary {
 	int is_new;
 };
 
+/* Data structure for roomlist-to-folderlist conversion */
+struct folder {
+	int floor;
+	char room[SIZ];
+	char name[SIZ];
+	int hasnewmsgs;
+	int is_mailbox;
+	int selectable;
+	int view;
+};
+
 /*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
@@ -267,9 +278,9 @@ struct message_summary {
 struct wcsession {
 	struct wcsession *next;		/* Linked list */
 	int wc_session;			/* WebCit session ID */
-	char wc_username[SIZ];
-	char wc_password[SIZ];
-	char wc_roomname[SIZ];
+	char wc_username[128];
+	char wc_password[128];
+	char wc_roomname[256];
 	int connected;
 	int logged_in;
 	int axlevel;
@@ -286,18 +297,18 @@ struct wcsession {
 	long uglsn;
 	int upload_length;
 	char *upload;
-	char upload_filename[SIZ];
-	char upload_content_type[SIZ];
+	char upload_filename[PATH_MAX];
+	char upload_content_type[256];
 	int new_mail;
 	int remember_new_mail;
 	int need_regi;			/* This user needs to register. */
 	int need_vali;			/* New users require validation. */
-	char cs_inet_email[SIZ];	/* User's preferred Internet addr. */
+	char cs_inet_email[256];	/* User's preferred Internet addr. */
 	pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
 	time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
-	char reply_to[SIZ];		/* reply-to address */
+	char reply_to[512];		/* reply-to address */
 
 	long msgarr[10000];		/* for read operations */
 	int num_summ;
@@ -307,8 +318,8 @@ struct wcsession {
 	struct urlcontent *urlstrings;
 	int HaveInstantMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
-	char this_page[SIZ];		/* address of current page */
-	char http_host[SIZ];		/* HTTP Host: header */
+	char this_page[512];		/* address of current page */
+	char http_host[512];		/* HTTP Host: header */
 	char *preferences;
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	struct disp_cal {
@@ -319,10 +330,10 @@ struct wcsession {
 #endif
 	struct wc_attachment *first_attachment;
 	char ImportantMessage[SIZ];
-	char last_chat_user[SIZ];
+	char last_chat_user[256];
 	int ctdl_pid;			/* Session ID on the Citadel server */
-	char httpauth_user[SIZ];	/* only for GroupDAV sessions */
-	char httpauth_pass[SIZ];	/* only for GroupDAV sessions */
+	char httpauth_user[256];	/* only for GroupDAV sessions */
+	char httpauth_pass[256];	/* only for GroupDAV sessions */
 
 	size_t burst_len;
 	char *burst;
@@ -552,6 +563,7 @@ void begin_ajax_response(void);
 void end_ajax_response(void);
 void initialize_viewdefs(void);
 void initialize_axdefs(void);
+void list_all_rooms_by_floor(char *viewpref);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);
