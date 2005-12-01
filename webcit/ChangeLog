@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec  1 17:42:48 EST 2005 ajc
+* which_div_expanded is now persistent across page loads
+
 Thu Dec  1 17:15:32 EST 2005 ajc
 * Clicking on the expanded floor div collapses it.
 

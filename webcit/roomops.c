@@ -2521,6 +2521,12 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 }
 
 
+void set_floordiv_expanded(char *which_floordiv) {
+	begin_ajax_response();
+	safestrncpy(WC->floordiv_expanded, which_floordiv, sizeof WC->floordiv_expanded);
+	end_ajax_response();
+}
+
 /*
  *
  */
@@ -2529,6 +2535,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	char floor_name[256];
 	char old_floor_name[256];
 	char floordivtitle[256];
+	char floordiv_id[32];
 	int levels, oldlevels;
 	int i, t;
 	int num_drop_targets = 0;
@@ -2556,10 +2563,14 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 		if (levels == 1) {
 			/* Begin floor */
 			stresc(floordivtitle, floor_name, 0, 0);
+			sprintf(floordiv_id, "floordiv%d", i);
 			wprintf("<span class=\"ib_roomlist_floor\" "
-				"onClick=\"expand_floor('floordiv%d')\">"
-				"%s</span><br>\n", i, floordivtitle);
-			wprintf("<div id=\"floordiv%d\" style=\"display:none\">", i);
+				"onClick=\"expand_floor('%s')\">"
+				"%s</span><br>\n", floordiv_id, floordivtitle);
+			wprintf("<div id=\"%s\" style=\"display:%s\">",
+				floordiv_id,
+				(!strcasecmp(floordiv_id, WC->floordiv_expanded) ? "block" : "none")
+			);
 		}
 
 		oldlevels = levels;
@@ -2640,6 +2651,9 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	}
 
 	wprintf("num_drop_targets = %d;\n", num_drop_targets);
+	if (strlen(WC->floordiv_expanded) > 1) {
+		wprintf("which_div_expanded = '%s';\n", WC->floordiv_expanded);
+	}
 
 	wprintf("\">\n");
 	/* END: The old invisible pixel trick, to get our JavaScript to initialize */

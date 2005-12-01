@@ -66,7 +66,9 @@ function switch_to_room_list() {
 
 function expand_floor(floor_div) {
 	if (which_div_expanded != null) {
-		$(which_div_expanded).style.display = 'none' ;
+		if ($(which_div_expanded) != null) {
+			$(which_div_expanded).style.display = 'none' ;
+		}
 	}
 	if (which_div_expanded == floor_div) {
 		which_div_expanded = null;
@@ -74,6 +76,13 @@ function expand_floor(floor_div) {
 	}
 	$(floor_div).style.display = 'block';
 	which_div_expanded = floor_div;
+
+	// notify the server of what we did
+	new Ajax.Request(
+		'set_floordiv_expanded/'+floor_div, {
+			method: 'post',
+		}
+	);
 }
 
 function switch_to_menu_buttons() {
