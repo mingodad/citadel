@@ -60,6 +60,7 @@ var drop_targets_elements = new Array();
 var drop_targets_roomnames = new Array();
 
 function switch_to_room_list() {
+	$('iconbar').innerHTML = $('iconbar').innerHTML.substr(0, $('iconbar').innerHTML.indexOf('switch'));
 	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
 }
 

@@ -1,5 +1,9 @@
 $Id$
 
+Wed Nov 30 23:59:11 EST 2005 ajc
+* Shortened some of the string lengths in struct wcsession.  We really don't
+  need all those 4096 byte moby-buffers everywhere.
+
 Tue Nov 29 23:53:33 EST 2005 ajc
 * Drag-and-drop move messages is now complete.
 

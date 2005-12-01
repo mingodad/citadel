@@ -6,16 +6,6 @@
 
 #include "webcit.h"
 
-struct folder {
-	int floor;
-	char room[SIZ];
-	char name[SIZ];
-	int hasnewmsgs;
-	int is_mailbox;
-	int selectable;
-	int view;
-};
-
 char floorlist[128][SIZ];
 
 char *viewdefs[6];
@@ -2538,16 +2528,13 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[256];
 	char floor_name[256];
 	char old_floor_name[256];
-	char boxtitle[256];
+	char floordivtitle[256];
 	int levels, oldlevels;
 	int i, t;
-	int nf;
 	int num_drop_targets = 0;
 
 	strcpy(floor_name, "");
 	strcpy(old_floor_name, "");
-
-	nf = num_floors;
 
 	levels = 0;
 	oldlevels = 0;
@@ -2567,10 +2554,10 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 		if (levels == 1) {
 			/* Begin floor */
-			stresc(boxtitle, floor_name, 1, 0);
+			stresc(floordivtitle, floor_name, 1, 0);
 			wprintf("<span class=\"ib_roomlist_floor\" "
 				"onClick=\"expand_floor('floordiv%d')\">"
-				"%s</span><br>\n", i, boxtitle);
+				"%s</span><br>\n", i, floordivtitle);
 			wprintf("<div id=\"floordiv%d\" style=\"display:none\">", i);
 		}
 
