@@ -101,6 +101,8 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 
 	get_preference("current_iconbar", buf, sizeof buf);
 	WC->current_iconbar = atoi(buf);
+
+	get_preference("floordiv_expanded", WC->floordiv_expanded, sizeof WC->floordiv_expanded);
 }
 
 
@@ -220,7 +222,8 @@ void end_webcit_session(void) {
 
 	if (WC->logged_in) {
 		sprintf(buf, "%d", WC->current_iconbar);
-		set_preference("current_iconbar", buf, 1);
+		set_preference("current_iconbar", buf, 0);
+		set_preference("floordiv_expanded", WC->floordiv_expanded, 1);
 	}
 
 	serv_puts("QUIT");

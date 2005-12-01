@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec  1 17:46:18 EST 2005 ajc
+* which_div_expanded is now persistent across sessions
+
 Thu Dec  1 17:42:48 EST 2005 ajc
 * which_div_expanded is now persistent across page loads
 
