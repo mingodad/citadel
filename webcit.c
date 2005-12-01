@@ -1499,6 +1499,8 @@ void session_loop(struct httprequest *req)
 		recp_autocomplete(bstr("cc"));
 	} else if (!strcasecmp(action, "bcc_autocomplete")) {
 		recp_autocomplete(bstr("bcc"));
+	} else if (!strcasecmp(action, "set_floordiv_expanded")) {
+		set_floordiv_expanded(arg1);
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0);
 		wprintf("Session: %d<hr />\n", WC->wc_session);

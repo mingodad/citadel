@@ -346,6 +346,7 @@ struct wcsession {
 	time_t cache_timestamp;
 
 	int current_iconbar;		/* What's currently in the iconbar? */
+	char floordiv_expanded[32];	/* which floordiv currently expanded */
 };
 
 /* values for WC->current_iconbar */
@@ -616,6 +617,7 @@ void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, char *request_method);
+void set_floordiv_expanded(char *which_floordiv);
 
 void embed_room_banner(char *, int);
 /* navbar types that can be passed to embed_room_banner */
