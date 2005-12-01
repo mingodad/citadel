@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec  1 14:35:09 EST 2005 ajc
+* Added icons to the new room list
+
 Thu Dec  1 00:42:01 EST 2005 ajc
 * The iconbar roomlist, when selected, is now persistent across page loads
   and even between sessions.  We also cache the list for up to 5 minutes so

@@ -2532,6 +2532,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	int levels, oldlevels;
 	int i, t;
 	int num_drop_targets = 0;
+	char *icon = NULL;
 
 	strcpy(floor_name, "");
 	strcpy(old_floor_name, "");
@@ -2566,11 +2567,33 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 		if (levels > 1) {
 			wprintf("<div id=\"roomdiv%d\">", i);
 			wprintf("&nbsp;");
-			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;&nbsp;&nbsp;");
+			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;");
+
+			/* choose the icon */
+			if (fold[i].view == VIEW_ADDRESSBOOK) {
+				icon = "viewcontacts_16x.gif" ;
+			}
+			else if (fold[i].view == VIEW_CALENDAR) {
+				icon = "calarea_16x.gif" ;
+			}
+			else if (fold[i].view == VIEW_TASKS) {
+				icon = "taskmanag_16x.gif" ;
+			}
+			else if (fold[i].view == VIEW_NOTES) {
+				icon = "storenotes_16x.gif" ;
+			}
+			else if (fold[i].view == VIEW_MAILBOX) {
+				icon = "privatemess_16x.gif" ;
+			}
+			else {
+				icon = "chatrooms_16x.gif" ;
+			}
+
 			if (fold[i].selectable) {
 				wprintf("<a href=\"dotgoto?room=");
 				urlescputs(fold[i].room);
 				wprintf("\">");
+				wprintf("<img align=\"middle\" border=0 src=\"static/%s\" alt=\"\"> ", icon);
 			}
 			else {
 				wprintf("<i>");
