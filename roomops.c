@@ -2606,15 +2606,15 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			}
 			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 			escputs(buf);
+			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
+				wprintf(" (INBOX)");
+			}
 			wprintf("</SPAN>");
 			if (fold[i].selectable) {
 				wprintf("</A>");
 			}
 			else {
 				wprintf("</i>");
-			}
-			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
-				wprintf(" (INBOX)");
 			}
 			wprintf("<br />");
 			wprintf("</div>\n");	/* roomdiv */
