@@ -2555,7 +2555,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 		if (levels == 1) {
 			/* Begin floor */
-			stresc(floordivtitle, floor_name, 1, 0);
+			stresc(floordivtitle, floor_name, 0, 0);
 			wprintf("<span class=\"ib_roomlist_floor\" "
 				"onClick=\"expand_floor('floordiv%d')\">"
 				"%s</span><br>\n", i, floordivtitle);
