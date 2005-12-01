@@ -98,6 +98,9 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 		WC->need_vali = extract_int(&buf[4], 2);
 		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
 	}
+
+	get_preference("current_iconbar", buf, sizeof buf);
+	WC->current_iconbar = atoi(buf);
 }
 
 
@@ -213,6 +216,13 @@ void do_welcome(void)
  * Disconnect from the Citadel server, and end this WebCit session
  */
 void end_webcit_session(void) {
+	char buf[256];
+
+	if (WC->logged_in) {
+		sprintf(buf, "%d", WC->current_iconbar);
+		set_preference("current_iconbar", buf, 1);
+	}
+
 	serv_puts("QUIT");
 	WC->killthis = 1;
 	/* close() of citadel socket will be done by do_housekeeping() */

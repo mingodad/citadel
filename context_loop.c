@@ -83,6 +83,9 @@ void do_housekeeping(void)
 		if (sessions_to_kill->preferences != NULL) {
 			free(sessions_to_kill->preferences);
 		}
+		if (sessions_to_kill->cache_fold != NULL) {
+			free(sessions_to_kill->cache_fold);
+		}
 		free_attachments(sessions_to_kill);
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;

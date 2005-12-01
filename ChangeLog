@@ -1,5 +1,10 @@
 $Id$
 
+Thu Dec  1 00:42:01 EST 2005 ajc
+* The iconbar roomlist, when selected, is now persistent across page loads
+  and even between sessions.  We also cache the list for up to 5 minutes so
+  it doesn't have to load from the Citadel server over and over again.
+
 Wed Nov 30 23:59:11 EST 2005 ajc
 * Shortened some of the string lengths in struct wcsession.  We really don't
   need all those 4096 byte moby-buffers everywhere.

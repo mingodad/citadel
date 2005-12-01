@@ -13,11 +13,23 @@
 #define IB_TEXTONLY	2
 
 
+void do_selected_iconbar(void) {
+	if (WC->current_iconbar == current_iconbar_roomlist) {
+		do_iconbar_roomlist();
+	}
+	else {
+		do_iconbar();
+	}
+}
+
+
 void do_iconbar(void) {
 	char iconbar[SIZ];
 	char buf[SIZ];
 	char key[SIZ], value[SIZ];
 	int i;
+
+	WC->current_iconbar = current_iconbar_menu;
 
 	/* The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
@@ -86,10 +98,9 @@ void do_iconbar(void) {
 		_("CITADEL")
 	);
 
-	wprintf("<li><div align=\"center\">"
-		"<a href=\"javascript:switch_to_room_list()\">switch to room list</a>"
-		"</div>"
-	);
+	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_room_list()\">");
+	wprintf(_("switch to room list"));
+	wprintf("</a></div>");
 
 	if (ib_summary) {
 		wprintf("<li><a href=\"summary\" "
@@ -282,23 +293,21 @@ void do_iconbar(void) {
 		wprintf("</A></li>\n");
 	}
 
-	if (1) {
-		wprintf("<li>"
-			"<a href=\"termquit\" TITLE=\"%s\" "
-			"onClick=\"return confirm('%s');\">",
-			_("Log off"),
-			_("Log off now?")
-			
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-		wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"src=\"static/logoff_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Log off"));
-		}
-		wprintf("</A></li>\n");
+	wprintf("<li>"
+		"<a href=\"termquit\" TITLE=\"%s\" "
+		"onClick=\"return confirm('%s');\">",
+		_("Log off"),
+		_("Log off now?")
+		
+	);
+	if (ib_displayas != IB_TEXTONLY) {
+	wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+		"src=\"static/logoff_32x.gif\">");
 	}
+	if (ib_displayas != IB_PICONLY) {
+		wprintf(_("Log off"));
+	}
+	wprintf("</A></li>\n");
 
 	wprintf(
 		"<li><div align=\"center\">"
@@ -310,15 +319,7 @@ void do_iconbar(void) {
 		_("customize this menu")
 	);
 
-	wprintf("</ul>\n");
-
-	/*
-	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
-	wprintf("Drag to trash here...<br>");
-	wprintf("</div>");
-	*/
-
-	wprintf("</div>\n");
+	wprintf("</ul></div>\n");
 }
 
 
@@ -331,6 +332,8 @@ void do_iconbar_roomlist(void) {
 	char buf[SIZ];
 	char key[SIZ], value[SIZ];
 	int i;
+
+	WC->current_iconbar = current_iconbar_roomlist;
 
 	/* The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
@@ -379,21 +382,30 @@ void do_iconbar_roomlist(void) {
 		_("CITADEL")
 	);
 
-	wprintf("<li><div align=\"center\">"
-		"<a href=\"javascript:switch_to_menu_buttons()\">switch to menu</a>"
-		"</div>"
+	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_menu_buttons()\">");
+	wprintf(_("switch to menu"));
+	wprintf("</a></div>");
+
+	wprintf("<li>"
+		"<a href=\"termquit\" TITLE=\"%s\" "
+		"onClick=\"return confirm('%s');\">",
+		_("Log off"),
+		_("Log off now?")
+		
 	);
-	
-	wprintf("</ul>\n");
+	if (ib_displayas != IB_TEXTONLY) {
+	wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+		"src=\"static/logoff_32x.gif\">");
+	}
+	if (ib_displayas != IB_PICONLY) {
+		wprintf(_("Log off"));
+	}
+	wprintf("</A></li>\n");
+
+	wprintf("</ul></div>\n");
 
 	/* embed the room list */
 	list_all_rooms_by_floor("iconbar");
-
-	/*
-	wprintf("<div id=\"dropstuff\" style=\"font-size:6pt\">");
-	wprintf("Drag to trash here...<br>");
-	wprintf("</div>");
-	*/
 
 	wprintf("</div>\n");
 }

@@ -2641,6 +2641,21 @@ void list_all_rooms_by_floor(char *viewpref) {
 	int flags = 0;
 	int num_floors = 1;	/* add an extra one for private folders */
 
+	/* If our cached folder list is very old, burn it. */
+	if (WC->cache_fold != NULL) {
+		if ((time(NULL) - WC->cache_timestamp) > 300) {
+			free(WC->cache_fold);
+			WC->cache_fold = NULL;
+		}
+	}
+
+	/* Can we do the iconbar roomlist from cache? */
+	if ((WC->cache_fold != NULL) && (!strcasecmp(viewpref, "iconbar"))) {
+		do_iconbar_view(WC->cache_fold, WC->cache_max_folders, WC->cache_num_floors);
+		return;
+	}
+
+	/* Grab the floor table so we know how to build the list... */
 	load_floorlist();
 
 	/* Start with the mailboxes */
@@ -2736,7 +2751,14 @@ void list_all_rooms_by_floor(char *viewpref) {
 		do_rooms_view(fold, max_folders, num_floors);
 	}
 
-	free(fold);
+	/* Don't free the folder list ... cache it for future use! */
+	if (WC->cache_fold != NULL) {
+		free(WC->cache_fold);
+	}
+	WC->cache_fold = fold;
+	WC->cache_max_folders = max_folders;
+	WC->cache_num_floors = num_floors;
+	WC->cache_timestamp = time(NULL);
 }
 
 
