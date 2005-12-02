@@ -1,5 +1,8 @@
 $Id$
 
+Fri Dec  2 11:01:30 EST 2005 ajc
+* wclib.js: fixed a syntax error
+
 Thu Dec  1 17:46:18 EST 2005 ajc
 * which_div_expanded is now persistent across sessions
 
