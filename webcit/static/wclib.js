@@ -80,7 +80,7 @@ function expand_floor(floor_div) {
 	// notify the server of what we did
 	new Ajax.Request(
 		'set_floordiv_expanded/'+floor_div, {
-			method: 'post',
+			method: 'post'
 		}
 	);
 }
