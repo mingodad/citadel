@@ -21,6 +21,24 @@ void initialize_axdefs(void) {
 
 
 /*
+ * Offer available languages in the login box
+ */
+void offer_languages(void) {
+
+#ifdef ENABLE_NLS
+
+wprintf("FIXME");
+
+#else /* ENABLE_NLS */
+
+wprintf("US English");
+
+#endif /* ENABLE_NLS */
+
+}
+
+
+/*
  * Display the login screen
  */
 void display_login(char *mesg)
@@ -54,12 +72,14 @@ void display_login(char *mesg)
 
 	svprintf("USERNAME_BOX", WCS_STRING, "%s", _("User name:"));
 	svprintf("PASSWORD_BOX", WCS_STRING, "%s", _("Password:"));
+	svprintf("LANGUAGE_BOX", WCS_STRING, "%s", _("Language:"));
 	svprintf("LOGIN_BUTTON", WCS_STRING, "%s", _("Login"));
 	svprintf("NEWUSER_BUTTON", WCS_STRING, "%s", _("New User"));
 	svprintf("EXIT_BUTTON", WCS_STRING, "%s", _("Exit"));
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
 	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by Citadel"),
 		serv_info.serv_humannode);
+	svcallback("DO_LANGUAGE_BOX", offer_languages);
 
 	do_template("login");
 
