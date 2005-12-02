@@ -246,9 +246,10 @@ void context_loop(int sock)
 	int got_cookie = 0;
 	int gzip_ok = 0;
 	struct wcsession *TheSession, *sptr;
-	char httpauth_string[SIZ];
-	char httpauth_user[SIZ];
-	char httpauth_pass[SIZ];
+	char httpauth_string[1024];
+	char httpauth_user[1024];
+	char httpauth_pass[1024];
+	char accept_language[256];
 	char *ptr = NULL;
 
 	strcpy(httpauth_string, "");
@@ -293,9 +294,11 @@ void context_loop(int sock)
 			if_modified_since = httpdate_to_timestamp(&buf[19]);
 		}
 
-		/*if (!strncasecmp(buf, "Accept-Language: ", 17)) {
-			httplang_to_locale(&buf[17]);
-		}*/
+#ifdef ENABLE_NLS
+		if (!strncasecmp(buf, "Accept-Language: ", 17)) {
+			safestrncpy(accept_language, &buf[17], sizeof accept_language);
+		}
+#endif
 
 		/*
 		 * Read in the request
@@ -431,6 +434,9 @@ void context_loop(int sock)
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
+#ifdef ENABLE_NLS
+	httplang_to_locale(accept_language);	/* FIXME do more here */
+#endif /* ENABLE_NLS */
 	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 

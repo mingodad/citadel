@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-01 00:24-0500\n"
+"POT-Creation-Date: 2005-12-02 17:03-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: ../auth.c:14 ../auth.c:58
+#: ../auth.c:14 ../auth.c:77
 msgid "New User"
 msgstr ""
 
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Aide"
 msgstr ""
 
-#: ../auth.c:39
+#: ../auth.c:57
 #, c-format
 msgid ""
 "<ul><li><b>If you already have an account on %s</b>, enter your user name "
@@ -56,75 +56,79 @@ msgid ""
 "receive any instant messages.<br /></ul>"
 msgstr ""
 
-#: ../auth.c:55 ../who.c:258
+#: ../auth.c:73 ../who.c:258
 msgid "User name:"
 msgstr ""
 
-#: ../auth.c:56
+#: ../auth.c:74
 msgid "Password:"
 msgstr ""
 
-#: ../auth.c:57
+#: ../auth.c:75
+msgid "Language:"
+msgstr ""
+
+#: ../auth.c:76
 msgid "Login"
 msgstr ""
 
-#: ../auth.c:59 ../paging.c:474
+#: ../auth.c:78 ../paging.c:474
 msgid "Exit"
 msgstr ""
 
-#: ../auth.c:61
+#: ../auth.c:80
 #, c-format
 msgid "%s - powered by Citadel"
 msgstr ""
 
-#: ../auth.c:132 ../auth.c:470
+#: ../auth.c:157 ../auth.c:503
 msgid "Blank passwords are not allowed."
 msgstr ""
 
-#: ../auth.c:153
+#: ../auth.c:178
 msgid "Your password was not accepted."
 msgstr ""
 
-#: ../auth.c:245
+#: ../auth.c:278
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
 msgstr ""
 
-#: ../auth.c:253
+#: ../auth.c:286
 msgid "Close window"
 msgstr ""
 
-#: ../auth.c:274 ../mainmenu.c:239
+#: ../auth.c:307 ../mainmenu.c:239
 msgid "Validate new users"
 msgstr ""
 
-#: ../auth.c:325
+#: ../auth.c:358
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr ""
 
-#: ../auth.c:333
+#: ../auth.c:366
 msgid "Select access level for this user:"
 msgstr ""
 
-#: ../auth.c:395 ../mainmenu.c:135
+#: ../auth.c:428 ../mainmenu.c:135
 msgid "Change your password"
 msgstr ""
 
-#: ../auth.c:424
+#: ../auth.c:457
 msgid "Enter new password:"
 msgstr ""
 
-#: ../auth.c:428
+#: ../auth.c:461
 msgid "Enter it again to confirm:"
 msgstr ""
 
-#: ../auth.c:433
+#: ../auth.c:466
 msgid "Change password"
 msgstr ""
 
-#: ../auth.c:435 ../calendar.c:582 ../event.c:385 ../graphics.c:57
+#: ../auth.c:468 ../calendar.c:582 ../event.c:385 ../graphics.c:57
 #: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2590 ../messages.c:2693
 #: ../messages.c:2777 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
 #: ../preferences.c:361 ../roomops.c:1162 ../roomops.c:1489 ../roomops.c:1917
@@ -133,11 +137,11 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../auth.c:451
+#: ../auth.c:484
 msgid "Cancelled.  Password was not changed."
 msgstr ""
 
-#: ../auth.c:462
+#: ../auth.c:495
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
@@ -542,11 +546,11 @@ msgstr ""
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
 
-#: ../iconbar.c:97 ../iconbar.c:391
+#: ../iconbar.c:97 ../iconbar.c:381
 msgid "Find out more about Citadel"
 msgstr ""
 
-#: ../iconbar.c:98 ../iconbar.c:392
+#: ../iconbar.c:98 ../iconbar.c:382
 msgid "CITADEL"
 msgstr ""
 
@@ -630,23 +634,24 @@ msgstr ""
 msgid "Administration"
 msgstr ""
 
-#: ../iconbar.c:300 ../iconbar.c:309 ../mainmenu.c:108
+#: ../iconbar.c:299 ../iconbar.c:308 ../iconbar.c:392 ../iconbar.c:401
+#: ../mainmenu.c:108
 msgid "Log off"
 msgstr ""
 
-#: ../iconbar.c:301
+#: ../iconbar.c:300 ../iconbar.c:393
 msgid "Log off now?"
 msgstr ""
 
-#: ../iconbar.c:320
+#: ../iconbar.c:318
 msgid "Customize this menu"
 msgstr ""
 
-#: ../iconbar.c:321
+#: ../iconbar.c:319
 msgid "customize this menu"
 msgstr ""
 
-#: ../iconbar.c:396
+#: ../iconbar.c:386
 msgid "switch to menu"
 msgstr ""
 
@@ -1738,7 +1743,7 @@ msgstr ""
 msgid "Expire by message count"
 msgstr ""
 
-#: ../roomops.c:1541 ../roomops.c:2843
+#: ../roomops.c:1541 ../roomops.c:2880
 msgid "Cancelled.  Changes were not saved."
 msgstr ""
 
