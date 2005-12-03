@@ -25,18 +25,19 @@ void httplang_to_locale(const char *LocaleString)
 	//      char *webcitdir = WEBCITDIR;
 	locale_t my_Locale;
 	locale_t my_Empty_Locale;
+
+	//	len = strlen(LocaleString);
 	memcpy(search, LocaleString, len);
-	search[len + 1] = '\0';
-	len = strlen(search);
+	search[len] = '\0';
 	/* the web browser sends '-', we need '_' */
 	for (i = 0; i < len; i++)
 		if (search[i] == '-')
 			search[i] = '_';
 	i = 0;
-	while ((search[i] != '\0') && !done && (nFound < 10)) {
-		if ((search[i] == ',') || (search[i] == ';'))
+	while ( !done && (nFound < 10)) {
+		if ((search[i] == ',') || (search[i] == ';') || (search[i] == '\0'))
 		{
-			if (search[i] == ';')
+			if ((search[i] == ';') || (search[i] == '\0'))
 				done = 1;
 			search[i] = '\0';
 			wanted_locales[nFound] = (char *) &search[j];
@@ -48,7 +49,7 @@ void httplang_to_locale(const char *LocaleString)
 	}
 	/* todo: weight  */
 
-	for (i = 0; i <= nFound; i++) {
+	if (nFound > 0) for (i = 0; i <= nFound; i++) {
 		for (j = 0; j < nAvail; j++) {
 			int ret = strncasecmp(wanted_locales[i],
 					      AvailLang[j],
