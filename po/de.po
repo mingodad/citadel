@@ -1,43 +1,43 @@
+# translation of de.po to German
 # German localization
 # Copyright (C) 2005 By wilfried Goesgens
 # This file is distributed under the GPL
 # FIRST AUTHOR <willi@chaosindustries.de> 2005
 # "äöäö
 # fuzzy
+# Wilfried Goesgens <w.goesgens@chaosindustries.de>, 2005.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-12-03 23:01-0500\n"
-"PO-Revision-Date: 2005-11-13 15:22+100\n"
+"PO-Revision-Date: 2005-12-04 14:41+0100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
-"Language-Team: German <LL@li.org>\n"
+"Language-Team: German <citadel-dev@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
 
 #: ../auth.c:13
-#, fuzzy
 msgid "Deleted"
-msgstr "Löschen"
+msgstr "gelöschen"
 
 #: ../auth.c:14 ../auth.c:77
 msgid "New User"
 msgstr "Neuer Benutzer"
 
 #: ../auth.c:15
-#, fuzzy
 msgid "Problem User"
-msgstr "Neuer Benutzer"
+msgstr "Problematischer Benutzer"
 
 #: ../auth.c:16
 msgid "Local User"
 msgstr "Lokaler Benutzer"
 
 #: ../auth.c:17
-#, fuzzy
 msgid "Network User"
-msgstr "Neuer Benutzer"
+msgstr "Netzwerk Benutzer"
 
 #: ../auth.c:18
 #, fuzzy
@@ -45,9 +45,8 @@ msgid "Preferred User"
 msgstr "nur Privilegierte Benutzer"
 
 #: ../auth.c:19
-#, fuzzy
 msgid "Aide"
-msgstr "Mittelinitial"
+msgstr "Verantwortlicher"
 
 #: ../auth.c:57
 #, c-format
@@ -66,7 +65,7 @@ msgstr ""
 "<li><b>Wenn Sie einen neuen Benutzer anlegen wollen, Benutzername und "
 "Passwort eingeben und 'Neuer Benutzer' drücken.</li>\n"
 "<li>Bitte melden Sie sich ordentlich ab, wenn Sie fertig sind.</li>\n"
-"<li>Ihr Browser muß <i>Frames</i> und <i>Cookies</i> unterstützen</li>\n"
+"<li>Ihr Browser muss <i>Frames</i> und <i>Cookies</i> unterstützen</li>\n"
 "<li>Kurznachrichten könnten dem Popup-Blocker Ihres Browsers zum Opfer "
 "fallen</li>\n"
 "<br /></ul>"
@@ -76,9 +75,8 @@ msgid "User name:"
 msgstr "Benutzername:"
 
 #: ../auth.c:74
-#, fuzzy
 msgid "Password:"
-msgstr "Passwort"
+msgstr "Passwort:"
 
 #: ../auth.c:75
 msgid "Language:"
@@ -309,8 +307,7 @@ msgstr "Auf Anfrage zum Treffen antworten"
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
-"Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
+msgstr "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
 #: ../calendar.c:359
 msgid ""
@@ -500,7 +497,7 @@ msgstr "(einen pro Zeile)"
 
 #: ../event.c:384
 msgid "Check attendee availability"
-msgstr "Teilnehmer verfügbarkeit überprüfen"
+msgstr "Teilnehmer Verfügbarkeit überprüfen"
 
 #: ../floors.c:31
 msgid "Add/change/delete floors"
@@ -557,7 +554,7 @@ msgid ""
 "You can upload any image directly from your computer, as long as it is in "
 "GIF format (JPEG, PNG, etc. won't work)."
 msgstr ""
-"Sie können ein Bild direkt von ihrem Computer hochladen. Es muß im GIF-"
+"Sie können ein Bild direkt von ihrem Computer hochladen. Es muss im GIF-"
 "Format sein (JPEG, PNG etc funktionieren nicht)."
 
 #: ../graphics.c:49
@@ -583,7 +580,7 @@ msgstr "Sie haben keine Datei hochgeladen."
 #: ../html2html.c:52
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr "realloc() Fehler! Konnte %d Bytes nicht alloziieren: %s"
+msgstr "realloc() Fehler! Konnte %d Bytes nicht allozieren: %s"
 
 #: ../iconbar.c:97 ../iconbar.c:381
 msgid "Find out more about Citadel"
@@ -623,11 +620,11 @@ msgstr "Zu Ihrem persönlichen Adressbuch"
 
 #: ../iconbar.c:174 ../iconbar.c:557
 msgid "Contacts"
-msgstr "Addressen"
+msgstr "Adressen"
 
 #: ../iconbar.c:184
 msgid "Go to your personal notes"
-msgstr "Zu Ihren persönlichen Notitzen"
+msgstr "Zu Ihren persönlichen Notizen"
 
 #: ../iconbar.c:201
 msgid "Go to your personal task list"
@@ -647,7 +644,7 @@ msgstr "Räume"
 
 #: ../iconbar.c:232
 msgid "See who is online right now"
-msgstr "Sehen Sie, wer grade angemeldet ist"
+msgstr "Sehen Sie, wer gerade angemeldet ist"
 
 #: ../iconbar.c:239 ../iconbar.c:637
 msgid "Who is online?"
@@ -743,11 +740,11 @@ msgstr "Eine Abkürzung zu Ihrem Posteingang"
 
 #: ../iconbar.c:558
 msgid "Your personal address book"
-msgstr "Ihr eigenes Addressbuch"
+msgstr "Ihr eigenes Adressbuch"
 
 #: ../iconbar.c:574
 msgid "Your personal notes"
-msgstr "Ihre Notitzen"
+msgstr "Ihre Notizen"
 
 #: ../iconbar.c:591
 msgid "A shortcut to your personal calendar"
@@ -765,7 +762,7 @@ msgstr "Liste aller verfügbaren Räume (oder Verzeichnisse) auflisten."
 
 #: ../iconbar.c:638
 msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr "Wer ist grade angemeldet?"
+msgstr "Wer ist gerade angemeldet?"
 
 #: ../iconbar.c:654
 msgid ""
@@ -798,11 +795,11 @@ msgstr "Änderungen übernehmen"
 msgid ""
 "Your icon bar has been updated.  Please select any of its choices to "
 "continue."
-msgstr "Ihre Icon-Leiste wurde geändert. Clicken Sie ein Icon zum fortfahren."
+msgstr "Ihre Icon-Leiste wurde geändert. Klicken Sie ein Icon zum fortfahren."
 
 #: ../inetconf.c:35
 msgid "localhost"
-msgstr "DieseMaschine"
+msgstr "Diese Maschine"
 
 #: ../inetconf.c:36
 msgid "directory"
@@ -862,8 +859,7 @@ msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
 #: ../inetconf.c:52
 msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-"(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
+msgstr "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
 #: ../inetconf.c:53
 msgid "(hosts running a Realtime Blackhole List)"
@@ -912,7 +908,7 @@ msgid ""
 "without your consent.<br /><br />Please click on the link which is being e-"
 "mailed to you and your subscription will be confirmed.<br />\n"
 msgstr ""
-"Sie abbonieren für <TT>%s</TT> die <b>%s</b> Liste. Der Listenserver hat "
+"Sie abonnieren für <TT>%s</TT> die <b>%s</b> Liste. Der Listenserver hat "
 "Ihnen eine URL zum bestätigen der Anmeldung zugeschickt. Dieser zusätzliche "
 "Schritt ist zu Ihrem eigenen Schutz, Damit niemand Sie auf eine Liste ohne "
 "Ihre Zustimmung anmelden kann.<br />\n"
@@ -956,7 +952,7 @@ msgstr "Zurück"
 #: ../mainmenu.c:58
 #, c-format
 msgid "(oops! Back to %s)"
-msgstr "(Hoppla! Zunück zu %s)"
+msgstr "(Hoppla! Zurück zu %s)"
 
 #: ../mainmenu.c:66 ../roomops.c:382
 msgid "Read new messages"
@@ -1099,7 +1095,7 @@ msgstr "Kommando Eingeben:"
 
 #: ../mainmenu.c:290
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr "Kommando Eingabe (wenn sie SEND_LISTING tranfer-mode anfordern):"
+msgstr "Kommando Eingabe (wenn sie SEND_LISTING Transfer-Modus anfordern):"
 
 #: ../mainmenu.c:294
 #, c-format
@@ -1124,7 +1120,7 @@ msgstr " (Handy)"
 
 #: ../messages.c:383 ../vcard_edit.c:246
 msgid "Address:"
-msgstr "Addresse:"
+msgstr "Adresse:"
 
 #: ../messages.c:443
 msgid "Telephone:"
@@ -1167,14 +1163,12 @@ msgid "Reply"
 msgstr "Antworten"
 
 #: ../messages.c:774
-#, fuzzy
 msgid "ReplyQuoted"
-msgstr "Antworten"
+msgstr "Antworten&amp;Zitieren"
 
 #: ../messages.c:791
-#, fuzzy
 msgid "ReplyAll"
-msgstr "Antworten"
+msgstr "AntwortenAnAlle"
 
 #: ../messages.c:799
 msgid "Forward"
@@ -1211,7 +1205,7 @@ msgstr "(kein Name)"
 
 #: ../messages.c:1552
 msgid "This address book is empty."
-msgstr "Dieses Addressbuch ist leer."
+msgstr "Dieses Adressbuch ist leer."
 
 #: ../messages.c:1919
 msgid "No new messages."
@@ -1254,8 +1248,7 @@ msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 #: ../messages.c:2384
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
-"Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
+msgstr "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
 #: ../messages.c:2401
 #, c-format
@@ -1330,7 +1323,7 @@ msgstr "Gemeinsames Passwort"
 
 #: ../netconf.c:72 ../netconf.c:127
 msgid "Host or IP address"
-msgstr "Maschinenname oder IP-Addresse"
+msgstr "Maschinenname oder IP-Adresse"
 
 #: ../netconf.c:74 ../netconf.c:131
 msgid "Port number"
@@ -1342,7 +1335,7 @@ msgstr "Knoten Hinzufügen"
 
 #: ../netconf.c:100
 msgid "Edit node configuration for "
-msgstr "Knoten konfiguration bearbeiten"
+msgstr "Knoten Konfiguration bearbeiten"
 
 #: ../netconf.c:164
 msgid "Network configuration"
@@ -1398,7 +1391,7 @@ msgstr "Kurznachricht gesendet an "
 
 #: ../paging.c:108 ../paging.c:169
 msgid "[ close window ]"
-msgstr "[ Fenster Schliessen ]"
+msgstr "[ Fenster Schließen ]"
 
 #: ../paging.c:162
 msgid "Instant message from "
@@ -1489,9 +1482,8 @@ msgid "Mail Folder"
 msgstr "Mail Übersicht"
 
 #: ../roomops.c:16
-#, fuzzy
 msgid "Address Book"
-msgstr "Addresse:"
+msgstr "Adresse:"
 
 #: ../roomops.c:18
 #, fuzzy
@@ -1499,9 +1491,8 @@ msgid "Task List"
 msgstr "Aufgaben"
 
 #: ../roomops.c:19
-#, fuzzy
 msgid "Notes List"
-msgstr "Notiz"
+msgstr "Notizen"
 
 #: ../roomops.c:204
 msgid "Zapped (forgotten) rooms"
@@ -1549,11 +1540,10 @@ msgstr "Neue Aufgabe"
 
 #: ../roomops.c:501
 msgid "Add new note"
-msgstr "Neue Notitz"
+msgstr "Neue Notiz"
 
 #: ../roomops.c:523
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
+msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Alle Beiträge ungelesen lassen, und in den nächsten Raum mit ungelesenen "
 "Nachrichten gehen"
@@ -1722,7 +1712,7 @@ msgstr "Freigabe"
 
 #: ../roomops.c:1307
 msgid "Notes:"
-msgstr "Notitzen:"
+msgstr "Notizen:"
 
 #: ../roomops.c:1308
 msgid ""
@@ -1733,11 +1723,11 @@ msgid ""
 "identical on the remote node.<LI>If the remote room name is different, the "
 "remote node must also configure the name of the room here.</UL></I><br />\n"
 msgstr ""
-"Wenn man einen Raum zwischen zwei Knoten synchronisiert, muß er an beiden "
+"Wenn man einen Raum zwischen zwei Knoten synchronisiert, muss er an beiden "
 "Knoten freigegeben werden. Einen Knoten an eine Freigabe anbinden sendet "
 "lediglich die Nachrichten zum anderen Knoten, und nicht umgekehrt, sprich "
-"Nachrichten vom anderenKnoten werden nicht übermittelt. <LI>Wenn der andere "
-"Knoten einen anderen Namen für den Raum verwendet, muß er den hiesigen "
+"Nachrichten vom anderen Knoten werden nicht übermittelt. <LI>Wenn der andere "
+"Knoten einen anderen Namen für den Raum verwendet, muss er den hiesigen "
 "Raumnamen hier auch konfigurieren..</UL></I><br />\n"
 
 #: ../roomops.c:1329
@@ -1761,8 +1751,7 @@ msgstr ""
 "folgende Liste versendet:</i><br /><br />\n"
 
 #: ../roomops.c:1390
-msgid ""
-"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
 #: ../roomops.c:1393
@@ -1777,8 +1766,7 @@ msgstr "Die URL zum Ab/Bestellen ist: "
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
-msgstr ""
-"Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
+msgstr "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
 #: ../roomops.c:1405
 msgid "Click to enable."
@@ -1852,7 +1840,7 @@ msgid ""
 "below and click 'Invite'."
 msgstr ""
 "Um einem weiteren Benutzer den Zugang zu diesem Raum zu erlauben den "
-"Benutzernamenin das folgende Textfeld eintragen und 'Einladen' drücken"
+"Benutzernamen in das folgende Textfeld eintragen und 'Einladen' drücken"
 
 #: ../roomops.c:1788
 msgid "Invite"
@@ -1931,9 +1919,8 @@ msgid "Zap this room"
 msgstr "Raum vergessen"
 
 #: ../rss.c:28
-#, fuzzy
 msgid "Email"
-msgstr "Email:"
+msgstr "Email"
 
 #: ../rss.c:62
 msgid "Not logged in"
@@ -1999,8 +1986,7 @@ msgstr "Automatischer Verfall alter Nachrichten konfigurieren"
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr ""
-"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
+msgstr "Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
 
 #: ../siteconfig.c:155
 msgid "Citadel LDAP connector configuration"
@@ -2028,8 +2014,7 @@ msgstr "Telefonnummer"
 
 #: ../siteconfig.c:241
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
+msgstr "Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
 
 #: ../siteconfig.c:254
 msgid "Server connection idle timeout (in seconds)"
@@ -2089,7 +2074,7 @@ msgstr "Zugangsberechtigung um Räume zu erzeugen"
 
 #: ../siteconfig.c:439
 msgid "Maximum message length"
-msgstr "Maximale Nachrichten länge"
+msgstr "Maximale Nachrichten Länge"
 
 #: ../siteconfig.c:451
 msgid "Minimum number of worker threads"
@@ -2117,7 +2102,7 @@ msgstr "IMAP4 Server Port (-1 zum abschalten)"
 
 #: ../siteconfig.c:524
 msgid "Network run frequency (in seconds)"
-msgstr "Knoten Synchronisationsfrequenz (in Sekunden)"
+msgstr "Knoten Synchronisierunsfrequenz (in Sekunden)"
 
 #: ../siteconfig.c:536
 msgid "Disable self-service user account creation"
@@ -2137,7 +2122,7 @@ msgstr "Port des LDAP Verzeichnisservers (leer zum Abschalten)"
 
 #: ../siteconfig.c:597
 msgid "Base DN"
-msgstr "Base DN im Verzeichnisservers"
+msgstr "Base DN im Verzeichnisserver"
 
 #: ../siteconfig.c:609
 msgid "Bind DN"
@@ -2181,17 +2166,15 @@ msgstr "Löschen via IMAP nicht cachen?"
 
 #: ../siteconfig.c:733
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr "Mail Relaying anschalten (nicht emfohlen bei öffentlichen Servern)"
+msgstr "Mail Relaying anschalten (nicht empfohlen bei öffentlichen Servern)"
 
 #: ../siteconfig.c:765
 msgid "Default message expire policy for public rooms"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
 
 #: ../siteconfig.c:786
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
 
 #: ../siteconfig.c:790
 msgid "Same policy as public rooms"
@@ -2259,7 +2242,7 @@ msgstr "Juni"
 
 #: ../summary.c:33
 msgid "July"
-msgstr "Julie"
+msgstr "Juli"
 
 #: ../summary.c:34
 msgid "August"
@@ -2291,7 +2274,7 @@ msgstr "Nachrichten"
 
 #: ../summary.c:112
 msgid "Who's&nbsp;online&nbsp;now"
-msgstr "Wer ist grade angemeldet"
+msgstr "Wer ist gerade angemeldet"
 
 #: ../summary.c:147
 msgid "(None)"
@@ -2299,7 +2282,7 @@ msgstr "(Keine)"
 
 #: ../summary.c:160
 msgid "(This server does not support task lists)"
-msgstr "(Dieser Server unterstütz keine Aufgabenlisten)"
+msgstr "(Dieser Server unterstützt keine Aufgabenlisten)"
 
 #: ../summary.c:176
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
@@ -2397,7 +2380,7 @@ msgstr "Konfiguration Bearbeiten"
 
 #: ../useredit.c:77
 msgid "Edit address book entry"
-msgstr "Addressbuch Eintrag bearbeiten"
+msgstr "Adressbuch Eintrag bearbeiten"
 
 #: ../useredit.c:79
 msgid "Delete user"
@@ -2408,9 +2391,8 @@ msgid "Delete this user?"
 msgstr "Diesen Benutzer löschen?"
 
 #: ../useredit.c:192
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
-msgstr "Fehler beim Erzeugen / Editieren dieses Addressbuch-Eintrags"
+msgid "An error occurred while trying to create or edit this address book entry."
+msgstr "Fehler beim Erzeugen / Editieren dieses Adressbuch-Eintrags"
 
 #: ../useredit.c:268
 msgid "Edit user account: "
@@ -2548,7 +2530,7 @@ msgstr "Telefon/Büro:"
 
 #: ../vcard_edit.c:301
 msgid "Primary Internet e-mail address"
-msgstr "Erste Email-Addresse"
+msgstr "Erste Email-Adresse"
 
 #: ../vcard_edit.c:308
 msgid "Internet e-mail aliases"
@@ -2569,7 +2551,7 @@ msgstr "Startseite gelöscht"
 
 #: ../webcit.c:760
 msgid "Authorization Required"
-msgstr "Autentifizierung benötigt"
+msgstr "Authentifizierung benötigt"
 
 #: ../webcit.c:762
 #, c-format
@@ -2650,7 +2632,7 @@ msgid ""
 "to that user."
 msgstr ""
 "Auf den Namen klicken um die Benutzerdaten einzusehen. Auf %s Klicken um ihm "
-"eine Kurzrnachricht zu senden."
+"eine Kurznachricht zu senden."
 
 #: ../who.c:223
 msgid "Edit your session display"
@@ -2685,22 +2667,5 @@ msgstr "Rechnername setzen"
 
 #: ../who.c:263
 msgid "Change user name"
-msgstr "Benutzername Setzen"
+msgstr "Benutzername ändern"
 
-#~ msgid "Reading #%d of %d messages."
-#~ msgstr "Lesse #%d von %d Nachrichten."
-
-#~ msgid "Previous"
-#~ msgstr "Vorheriges"
-
-#~ msgid "Next"
-#~ msgstr "Nächstes"
-
-#~ msgid " <I>to</I> "
-#~ msgstr " <I>an</I> "
-
-#~ msgid "You have new mail"
-#~ msgstr "Sie haben Post"
-
-#~ msgid "%d new mail"
-#~ msgstr "%d neue Nachrichten"
