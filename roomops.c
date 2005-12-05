@@ -295,7 +295,9 @@ void embed_view_o_matic(void) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n"
-		"<span class=\"room_banner_new_messages\">View as: "
+		"<span class=\"room_banner_new_messages\">");
+	wprintf(_("View as:"));
+	wprintf(" "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
 		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
 		" font-size: 7pt; background: #444455; color: #ddddcc;\" "
@@ -1445,7 +1447,8 @@ void display_editroom(void)
 		wprintf("<br />\n");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
 			((roompolicy == 2) ? "CHECKED" : "") );
-		wprintf("Expire by message count<br />\n");
+		wprintf(_("Expire by message count"));
+		wprintf("<br />\n");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
 			((roompolicy == 3) ? "CHECKED" : "") );
 		wprintf(_("Expire by message age"));
@@ -1781,7 +1784,8 @@ void display_whok(void)
 
         wprintf("<CENTER><FORM METHOD=\"POST\" action=\"do_invt_kick\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
-        wprintf("Invite: ");
+        wprintf(_("Invite:"));
+	wprintf(" ");
         wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
         	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
         	"<input type=\"submit\" value=\"%s\">"

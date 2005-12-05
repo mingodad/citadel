@@ -307,8 +307,9 @@ void validate(void)
 	wprintf(_("Validate new users"));
 	wprintf("</SPAN></TD></TR></TABLE>\n</div>\n<div id=\"content\">\n");
 
+	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
-	if (strlen(buf) > 0)
+	if (strlen(buf) > 0) {
 		if (strlen(bstr("axlevel")) > 0) {
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_getln(buf, sizeof buf);
@@ -316,9 +317,18 @@ void validate(void)
 				wprintf("<b>%s</b><br />\n", &buf[4]);
 			}
 		}
+	}
+
+	/* Now see if any more users require validation. */
 	serv_puts("GNUR");
 	serv_getln(buf, sizeof buf);
-
+	if (buf[0] == '2') {
+		wprintf("<b>");
+		wprintf(_("No users require validation at this time."));
+		wprintf("</b><br />\n");
+		wDumpContent(1);
+		return;
+	}
 	if (buf[0] != '3') {
 		wprintf("<b>%s</b><br />\n", &buf[4]);
 		wDumpContent(1);
@@ -338,7 +348,7 @@ void validate(void)
 			serv_getln(buf, sizeof buf);
 			++a;
 			if (a == 1)
-				wprintf("User #%s<br /><H1>%s</H1>",
+				wprintf("#%s<br /><H1>%s</H1>",
 					buf, &cmd[4]);
 			if (a == 2)
 				wprintf("PW: %s<br />\n", buf);
