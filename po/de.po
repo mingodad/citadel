@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-05 11:46-0500\n"
-"PO-Revision-Date: 2005-12-04 14:41+0100\n"
+"POT-Creation-Date: 2005-12-05 14:34+0100\n"
+"PO-Revision-Date: 2005-12-05 18:59+0100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
 "Language-Team: German <citadel-dev@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
@@ -121,7 +121,7 @@ msgstr "Neue Benutzer überprüfen"
 
 #: ../auth.c:327
 msgid "No users require validation at this time."
-msgstr ""
+msgstr "Keine Benutzer müssen zu dieser Zeit validiert werden"
 
 #: ../auth.c:368
 #, c-format
@@ -311,8 +311,7 @@ msgstr "Auf Anfrage zum Treffen antworten"
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
-"Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
+msgstr "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
 #: ../calendar.c:359
 msgid ""
@@ -864,8 +863,7 @@ msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
 #: ../inetconf.c:52
 msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-"(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
+msgstr "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
 #: ../inetconf.c:53
 msgid "(hosts running a Realtime Blackhole List)"
@@ -1254,8 +1252,7 @@ msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 #: ../messages.c:2384
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
-"Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
+msgstr "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
 #: ../messages.c:2401
 #, c-format
@@ -1301,11 +1298,11 @@ msgstr "--- Weitergeleitete Nachricht ---"
 
 #: ../messages.c:2668
 msgid "Attachments:"
-msgstr ""
+msgstr "Anhänge:"
 
 #: ../messages.c:2683
 msgid "Attach file:"
-msgstr ""
+msgstr "Datei anhängen:"
 
 #: ../messages.c:2686 ../roomops.c:1356 ../roomops.c:1386
 msgid "Add"
@@ -1518,9 +1515,8 @@ msgid "Click on any room to un-zap it and goto that room.\n"
 msgstr "Auf einen beliebigen vergessenen Raum klicken um ihn zu betreten\n"
 
 #: ../roomops.c:299
-#, fuzzy
 msgid "View as:"
-msgstr "Aufgaben anzeigen"
+msgstr "Anzeigen als:"
 
 #: ../roomops.c:398
 msgid "View contacts"
@@ -1563,8 +1559,7 @@ msgid "Add new note"
 msgstr "Neue Notiz"
 
 #: ../roomops.c:525
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
+msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Alle Beiträge ungelesen lassen, und in den nächsten Raum mit ungelesenen "
 "Nachrichten gehen"
@@ -1772,8 +1767,7 @@ msgstr ""
 "folgende Liste versendet:</i><br /><br />\n"
 
 #: ../roomops.c:1392
-msgid ""
-"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
 #: ../roomops.c:1395
@@ -1788,8 +1782,7 @@ msgstr "Die URL zum Ab/Bestellen ist: "
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
-msgstr ""
-"Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
+msgstr "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
 #: ../roomops.c:1407
 msgid "Click to enable."
@@ -1866,9 +1859,8 @@ msgstr ""
 "Benutzernamen in das folgende Textfeld eintragen und 'Einladen' drücken"
 
 #: ../roomops.c:1787
-#, fuzzy
 msgid "Invite:"
-msgstr "Einladen"
+msgstr "Einladen:"
 
 #: ../roomops.c:1792
 msgid "Invite"
@@ -2014,8 +2006,7 @@ msgstr "Automatischer Verfall alter Nachrichten konfigurieren"
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr ""
-"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
+msgstr "Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
 
 #: ../siteconfig.c:155
 msgid "Citadel LDAP connector configuration"
@@ -2043,8 +2034,7 @@ msgstr "Telefonnummer"
 
 #: ../siteconfig.c:241
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
+msgstr "Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
 
 #: ../siteconfig.c:254
 msgid "Server connection idle timeout (in seconds)"
@@ -2200,13 +2190,11 @@ msgstr "Mail Relaying anschalten (nicht empfohlen bei öffentlichen Servern)"
 
 #: ../siteconfig.c:765
 msgid "Default message expire policy for public rooms"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
 
 #: ../siteconfig.c:786
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
 
 #: ../siteconfig.c:790
 msgid "Same policy as public rooms"
@@ -2423,8 +2411,7 @@ msgid "Delete this user?"
 msgstr "Diesen Benutzer löschen?"
 
 #: ../useredit.c:192
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
+msgid "An error occurred while trying to create or edit this address book entry."
 msgstr "Fehler beim Erzeugen / Editieren dieses Adressbuch-Eintrags"
 
 #: ../useredit.c:268
@@ -2521,9 +2508,8 @@ msgid "Suffix"
 msgstr "Zähler"
 
 #: ../vcard_edit.c:215
-#, fuzzy
 msgid "Display name:"
-msgstr "Icons anzeigen als:"
+msgstr "Namen anzeigen:"
 
 #: ../vcard_edit.c:222
 msgid "Title:"
@@ -2701,3 +2687,4 @@ msgstr "Rechnername setzen"
 #: ../who.c:263
 msgid "Change user name"
 msgstr "Benutzername ändern"
+
