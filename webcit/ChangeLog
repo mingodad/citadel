@@ -1,5 +1,8 @@
 $Id$
 
+Mon Dec 5 18:40:03 CET 2005 dothebart
+* Use tokenizer function to completely parse accept-lang header.
+
 Mon Dec  5 11:47:20 EST 2005 ajc
 * Added in some of the missing localizations
 
