@@ -2664,7 +2664,9 @@ void display_enter(void)
 
 	/* Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
-		"align=middle height=16 width=16> Attachments: ");
+		"align=middle height=16 width=16> ");
+	wprintf(_("Attachments:"));
+	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
 		wprintf("<option value=\"");
@@ -2677,8 +2679,9 @@ void display_enter(void)
 	wprintf("</select>");
 
 	/* Now offer the ability to attach additional files... */
-	wprintf("&nbsp;&nbsp;&nbsp;"
-		"Attach file: <input NAME=\"attachfile\" "
+	wprintf("&nbsp;&nbsp;&nbsp;");
+	wprintf(_("Attach file:"));
+	wprintf(" <input NAME=\"attachfile\" "
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 

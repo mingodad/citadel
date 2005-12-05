@@ -70,9 +70,36 @@
 #endif
 #endif
 
+
+
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-#include <ical.h>
+/* Work around PACKAGE/VERSION defs that are (not supposed to be?) in ical.h */
+#ifdef PACKAGE
+# define CTDL_PACKAGE PACKAGE
+# undef PACKAGE
 #endif
+#ifdef VERSION
+# define CTDL_VERSION VERSION
+# undef VERSION
+#endif
+#include <ical.h>
+#ifdef CTDL_PACKAGE
+# ifdef PACKAGE
+#  undef PACKAGE
+# endif
+# define PACKAGE CTDL_PACKAGE
+# undef CTDL_PACKAGE
+#endif
+#ifdef CTDL_VERSION
+# ifdef VERSION
+#  undef VERSION
+# endif
+# define VERSION CTDL_VERSION
+# undef CTDL_VERSION
+#endif
+#endif
+
+
 
 #ifdef HAVE_OPENSSL
 /* Work around RedHat's b0rken OpenSSL includes */
