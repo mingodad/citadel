@@ -1,5 +1,8 @@
 $Id$
 
+Mon Dec  5 18:06:40 EST 2005 ajc
+* Upgraded TinyMCE to v2.0.1; CLEAR YOUR CACHE NOW
+
 Mon Dec 5 18:40:03 CET 2005 dothebart
 * Use tokenizer function to completely parse accept-lang header.
 
