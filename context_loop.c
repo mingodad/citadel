@@ -435,7 +435,7 @@ void context_loop(int sock)
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
 #ifdef ENABLE_NLS
-	httplang_to_locale(accept_language);	/* FIXME do more here */
+	go_selected_language();
 #endif /* ENABLE_NLS */
 	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
