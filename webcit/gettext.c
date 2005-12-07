@@ -5,7 +5,9 @@
 #ifdef ENABLE_NLS
 
 static const char *AvailLang[] = {
-	"de_DE"
+	"en_US",
+	"de_DE",
+	"it_IT"
 };
 
 typedef struct _lang_pref{
