@@ -1,5 +1,10 @@
-all: ../locale/de/LC_MESSAGES/webcit.mo
+all: ../locale/de/LC_MESSAGES/webcit.mo ../locale/it/LC_MESSAGES/webcit.mo
 
 ../locale/de/LC_MESSAGES/webcit.mo: de.po
+	[ -d ../locale/de/LC_MESSAGES ] || mkdir -p ../locale/de/LC_MESSAGES
 	msgfmt de.po -o ../locale/de/LC_MESSAGES/webcit.mo
+
+../locale/it/LC_MESSAGES/webcit.mo: it.po
+	[ -d ../locale/it/LC_MESSAGES ] || mkdir -p ../locale/it/LC_MESSAGES
+	msgfmt it.po -o ../locale/it/LC_MESSAGES/webcit.mo
 
