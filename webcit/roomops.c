@@ -353,8 +353,11 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->wc_view = extract_int(&got[4], 11);
 
 	svprintf("ROOMNAME", WCS_STRING, "%s", WC->wc_roomname);
-	svprintf("NEWMSGS", WCS_STRING, "%d", extract_int(&got[4], 1));
-	svprintf("TOTALMSGS", WCS_STRING, "%d", extract_int(&got[4], 2));
+	svprintf("NUMMSGS", WCS_STRING,
+		_("%d new of %d messages"),
+		extract_int(&got[4], 1),
+		extract_int(&got[4], 2)
+	);
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
@@ -2831,13 +2834,13 @@ void knrooms() {
 		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {
-		wprintf("Room list");
+		wprintf(_("Room list"));
 	}
 	if (!strcasecmp(listviewpref, "folders")) {
-		wprintf("Folder list");
+		wprintf(_("Folder list"));
 	}
 	if (!strcasecmp(listviewpref, "table")) {
-		wprintf("Room list");
+		wprintf(_("Room list"));
 	}
 	wprintf("</SPAN></TD>\n");
 

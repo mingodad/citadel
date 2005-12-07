@@ -270,7 +270,9 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<hr /><a href=\".\">Log in again</A>&nbsp;&nbsp;&nbsp;"
+	wprintf("<hr /><a href=\".\">");
+	wprintf(_("Log in again"));
+	wprintf("</A>&nbsp;&nbsp;&nbsp;"
 		"<a href=\"javascript:window.close();\">");
 	wprintf(_("Close window"));
 	wprintf("</a></center>\n");

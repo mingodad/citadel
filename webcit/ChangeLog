@@ -1,5 +1,8 @@
 $Id$
 
+Wed Dec  7 17:57:57 EST 2005 ajc
+* Fixed more missing localization items
+
 Wed Dec  7 13:03:05 EST 2005 ajc
 * Per-session locale.  For some reason it doesn't work well.
 
