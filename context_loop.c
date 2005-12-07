@@ -434,9 +434,6 @@ void context_loop(int sock)
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
-#ifdef ENABLE_NLS
-	go_selected_language();
-#endif /* ENABLE_NLS */
 	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 

@@ -924,8 +924,11 @@ void session_loop(struct httprequest *req)
 	WC->upload_length = 0;
 	WC->upload = NULL;
 	WC->vars = NULL;
-
 	WC->is_wap = 0;
+
+#ifdef ENABLE_NLS
+	go_selected_language();
+#endif /* ENABLE_NLS */
 
 	hptr = req;
 	if (hptr == NULL) return;
