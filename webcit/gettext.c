@@ -4,11 +4,14 @@
 
 #ifdef ENABLE_NLS
 
-static const char *AvailLang[] = {
+#define NUM_LANGS 3
+static const char *AvailLang[NUM_LANGS] = {
 	"en_US",
 	"de_DE",
 	"it_IT"
 };
+
+locale_t wc_locales[NUM_LANGS];
 
 typedef struct _lang_pref{
 	char lang[16];
@@ -105,7 +108,6 @@ void httplang_to_locale(const char *LocaleString)
 	free(search);
 }
 
-#endif
 
 
 /*
@@ -144,3 +146,74 @@ void httplang_to_locale(const char *LocaleString)
 		i++;
 	}
 */
+
+
+
+void offer_languages(void) {
+	int i;
+
+	wprintf("<select name=\"language\" size=\"1\">\n");
+
+	for (i=0; i < NUM_LANGS; ++i) {
+		wprintf("<option value=%s>%s</option>\n", AvailLang[i], AvailLang[i]);
+	}
+
+	wprintf("</select>\n");
+}
+
+/*
+ * Set the selected language for this session.
+ */
+void set_selected_language(char *lang) {
+	int i;
+
+	for (i=0; i<NUM_LANGS; ++i) {
+		if (!strcasecmp(lang, AvailLang[i])) {
+			WC->selected_language = i;
+		}
+	}
+}
+
+/*
+ * Activate the selected language for this session.
+ */
+void go_selected_language(void) {
+	lprintf(9, "uselocale(%d)\n", WC->selected_language);
+	uselocale(wc_locales[WC->selected_language]);
+}
+
+
+/*
+ * Create a locale_t for each available language
+ */
+void initialize_locales(void) {
+	int i;
+	locale_t Empty_Locale;
+	char buf[32];
+
+	/* create default locale */
+	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
+
+	for (i = 0; i < NUM_LANGS; ++i) {
+		sprintf(buf, "%s.UTF8", AvailLang[i]);
+		wc_locales[i] = newlocale(LC_MESSAGES_MASK /* |LC_TIME_MASK FIXME */ ,
+			buf,
+			Empty_Locale
+		);
+	}
+}
+
+
+#else	/* ENABLE_NLS */
+
+void offer_languages(void) {
+	wprintf("English (US)");
+}
+
+void set_selected_language(char *lang) {
+}
+
+void go_selected_language(void) {
+}
+
+#endif	/* ENABLE_NLS */

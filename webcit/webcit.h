@@ -376,6 +376,8 @@ struct wcsession {
 
 	int current_iconbar;		/* What's currently in the iconbar? */
 	char floordiv_expanded[32];	/* which floordiv currently expanded */
+
+	int selected_language;		/* Language selected by user */
 };
 
 /* values for WC->current_iconbar */
@@ -628,6 +630,10 @@ void check_attendee_availability(icalcomponent *supplied_vevent);
 void do_freebusy(char *req);
 #endif
 
+#ifdef ENABLE_NLS
+void initialize_locales(void);
+#endif
+
 extern char *months[];
 extern char *days[];
 void read_server_binary(char *buffer, size_t total_len);
@@ -647,6 +653,9 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, char *request_method);
 void set_floordiv_expanded(char *which_floordiv);
+void offer_languages(void);
+void set_selected_language(char *);
+void go_selected_language(void);
 
 void embed_room_banner(char *, int);
 /* navbar types that can be passed to embed_room_banner */

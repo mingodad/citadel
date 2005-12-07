@@ -20,22 +20,6 @@ void initialize_axdefs(void) {
 }
 
 
-/*
- * Offer available languages in the login box
- */
-void offer_languages(void) {
-
-#ifdef ENABLE_NLS
-
-wprintf("FIXME");
-
-#else /* ENABLE_NLS */
-
-wprintf("US English");
-
-#endif /* ENABLE_NLS */
-
-}
 
 
 /*
@@ -129,6 +113,11 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 void do_login(void)
 {
 	char buf[SIZ];
+
+	if (strlen(bstr("language")) > 0) {
+		set_selected_language(bstr("language"));
+		go_selected_language();
+	}
 
 	if (strlen(bstr("exit_action")) > 0) {
 		do_logout();
