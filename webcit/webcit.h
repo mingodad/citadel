@@ -166,11 +166,13 @@
 #define QR2_SYSTEM	1		/* System room; hide by default     */
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
-
-#define UA_KNOWN		2
-#define UA_GOTOALLOWED	  4
-#define UA_HASNEWMSGS	   8
-#define UA_ZAPPED	       16
+/*
+ * user/room access
+ */
+#define UA_KNOWN	2
+#define UA_GOTOALLOWED	4
+#define UA_HASNEWMSGS	8
+#define UA_ZAPPED	16
 
 
 /*
