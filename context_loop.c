@@ -251,6 +251,7 @@ void context_loop(int sock)
 	char httpauth_pass[1024];
 	char accept_language[256];
 	char *ptr = NULL;
+	int session_is_new = 0;
 
 	strcpy(httpauth_string, "");
 	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
@@ -294,11 +295,9 @@ void context_loop(int sock)
 			if_modified_since = httpdate_to_timestamp(&buf[19]);
 		}
 
-#ifdef ENABLE_NLS
 		if (!strncasecmp(buf, "Accept-Language: ", 17)) {
 			safestrncpy(accept_language, &buf[17], sizeof accept_language);
 		}
-#endif
 
 		/*
 		 * Read in the request
@@ -414,11 +413,11 @@ void context_loop(int sock)
 		strcpy(TheSession->httpauth_user, httpauth_user);
 		strcpy(TheSession->httpauth_pass, httpauth_pass);
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
-
 		pthread_mutex_lock(&SessionListMutex);
 		TheSession->next = SessionList;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);
+		session_is_new = 1;
 	}
 
 	/*
@@ -435,6 +434,9 @@ void context_loop(int sock)
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
 #ifdef ENABLE_NLS
+	if (session_is_new) {
+		httplang_to_locale(accept_language);
+	}
 	go_selected_language();				/* set locale */
 #endif
 	session_loop(req);				/* do transaction */

@@ -5,7 +5,7 @@
 #ifdef ENABLE_NLS
 
 #define NUM_LANGS 3
-static const char *AvailLang[NUM_LANGS] = {
+char *AvailLang[NUM_LANGS] = {
 	"en_US",
 	"de_DE",
 	"it_IT"
@@ -23,132 +23,37 @@ typedef struct _lang_pref{
 /* TODO: we skip the language weightening so far. */
 /* Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' */
 /* Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 */
-void httplang_to_locale(const char *LocaleString)
+void httplang_to_locale(char *LocaleString)
 {
-	char *locale = "C";
-	LangStruct wanted_locales[20];
-	int i = 0;
-	int j = 0;
-	size_t len = strlen(LocaleString);
-	int nFound = 0;
-	int nParts;
-	const int nAvail = 1; /* Number of members in AvailLang */
-	char *search = (char *) malloc(len);
-	// locale_t my_Locale;
-	// locale_t my_Empty_Locale;
+	char selected_locale[16];
+	int i, j;
+	char lang[64];
+	int num_accept = 0;
 
-	memcpy(search, LocaleString, len);
-	search[len] = '\0';
-	nParts=num_tokens(search,',');
-	for (i=0; ((i<nParts)&&(i<10)); i++)
-	{
-		char buf[16];
-		char sbuf[16];
-		int blen;
+	strcpy(selected_locale, "C");
+	num_accept = num_tokens(LocaleString, ',');
 
-		extract_token(&buf[0],search, 0,',',16);
-		/* we are searching, if this list item has something like ;q=n*/
-		if (num_tokens(&buf[0],'=')>1) {
-			extract_token(&sbuf[0],&buf[0], 1,'=',16);
-			wanted_locales[i].Priority=atof(&sbuf[0]);
-		}
-		else {
-			wanted_locales[i].Priority=1.0;
-		}
-		/* get the locale part */
-		extract_token(&sbuf[0],&buf[0],0,';',16);
-		/* get the lang part, which should be allways there */
-		extract_token(&wanted_locales[i].lang[0],&sbuf[0],0,'-',16);
-		/* get the area code if any. */
-		if (num_tokens(&sbuf[0],'-')>1)	{
-			extract_token(&wanted_locales[i].region[0],&sbuf[0],1,'-',16);
-		}
-		else { /* no ara code? use lang code */
-			blen=strlen(&wanted_locales[i].lang[0]);
-			memcpy(&wanted_locales[i].region[0], wanted_locales[i].lang,blen);
-			wanted_locales[i].region[blen]='\0';
-		} /* area codes are uppercase */
-		blen=strlen(&wanted_locales[i].region[0]);
-		for (j=0; j<blen; j++)
-			{
-				int chars=toupper(wanted_locales[i].region[j]);
-				wanted_locales[i].region[j]=(char)chars;/*todo ?! */
-			}
-	}
+	for (i=num_accept-1; i>=0; --i) {
+		extract_token(lang, LocaleString, i, ',', sizeof lang);
 
-	/* todo: weight  */
-	if (nFound > 0) {
-		for (i = 0; i <= nFound; i++) {
-			for (j = 0; j < nAvail; j++) {
-				int ret = strncasecmp(&wanted_locales[i].lang[0],
-									  AvailLang[j],
-									  strlen(&wanted_locales[i].lang[0]));
-				if (!ret) {
-					locale = (char *) AvailLang[j];	//wanted_locales[i];
-					i = nFound + 1;
-					j = nAvail + 1;
-					continue;
-				}
-				
+		/* Strip out the weights; we don't use them.  Also convert
+		 * hyphens to underscores.
+		 */
+		for (j=0; j<strlen(lang); ++j) {
+			if (lang[j] == '-') lang[j] = '_';
+			if (lang[j] == ';') lang[j] = 0;
+		}
+
+		for (j=0; j<NUM_LANGS; ++j) {
+			if (!strcasecmp(lang, AvailLang[j])) {
+				strcpy(selected_locale, AvailLang[j]);
 			}
 		}
 	}
 
-	len = strlen(locale);
-	memcpy(search, locale, len);
-	memcpy(&search[len], ".UTF8", 5);
-	search[len + 5] = '\0';
-
-
-	//	my_Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);	/* create default locale */
-	//	my_Locale = newlocale(LC_MESSAGES_MASK /*|LC_TIME_MASK FIXME */ ,
-	//		      search, my_Empty_Locale);
-
-	//	uselocale(my_Locale);
-	//	//      freelocale(my_Locale);
-	//	//      freelocale(my_Empty_Locale);
-	//	free(search);
+	lprintf(9, "language found: %s\n", selected_locale);
+	set_selected_language(selected_locale);
 }
-
-
-
-/*
-	// the web browser sends '-', we need '_' 
-
-		for (i = 0; i < len; i++)
-		if (search[i] == '-')
-			search[i] = '_';
-
-	nFound=i;
-	nParts=num_tokens(search,',');
-	if (nParts>0)
-		{
-			extract_token(prefers,search, 1,';',len);
-			extract_token(langs,search, 0,';',len);
-		}
-	else
-		{
-			free(prefers);
-			prefers=NULL;
-			memcpy(search, len);
-			search[len] = '\0';
-		}
-	i = 0;
-	while ( !done && (nFound < 10)) {
-		if ((search[i] == ',') || (search[i] == ';') || (search[i] == '\0'))
-		{
-			if ((search[i] == ';') || (search[i] == '\0'))
-				done = 1;
-			search[i] = '\0';
-			wanted_locales[nFound] = (char *) &search[j];
-			j = i + 1;
-			nFound++;
-		}
-
-		i++;
-	}
-*/
-
 
 
 void offer_languages(void) {
@@ -157,7 +62,11 @@ void offer_languages(void) {
 	wprintf("<select name=\"language\" size=\"1\">\n");
 
 	for (i=0; i < NUM_LANGS; ++i) {
-		wprintf("<option value=%s>%s</option>\n", AvailLang[i], AvailLang[i]);
+		wprintf("<option %s value=%s>%s</option>\n",
+			((WC->selected_language == i) ? "selected" : ""),
+			AvailLang[i],
+			AvailLang[i]
+		);
 	}
 
 	wprintf("</select>\n");
@@ -180,6 +89,7 @@ void set_selected_language(char *lang) {
  * Activate and deactivate the selected language for this session.
  */
 void go_selected_language(void) {
+	if (WC->selected_language < 0) return;
 	uselocale(wc_locales[WC->selected_language]);	/* switch locales */
 	textdomain(textdomain(NULL));			/* clear the cache */
 }

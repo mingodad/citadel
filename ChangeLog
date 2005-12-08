@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec  8 17:23:46 EST 2005 ajc
+* Detect the browser language, and use it as the default language selection.
+
 Thu Dec  8 11:48:34 EST 2005 ajc
 * Fix "locale leak" on newer Linux systems where gettext() seems to cache
   its translated messages.  textdomain(textdomain(NULL)) clears the cache.
