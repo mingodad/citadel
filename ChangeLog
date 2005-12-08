@@ -1,5 +1,9 @@
 $Id$
 
+Thu Dec  8 11:48:34 EST 2005 ajc
+* Fix "locale leak" on newer Linux systems where gettext() seems to cache
+  its translated messages.  textdomain(textdomain(NULL)) clears the cache.
+
 Wed Dec  7 22:22:09 EST 2005 ajc
 * Improved the reliability of per-thread locale by unsetting it at the end
   of each transaction.
