@@ -1,5 +1,9 @@
 $Id$
 
+Wed Dec  7 22:22:09 EST 2005 ajc
+* Improved the reliability of per-thread locale by unsetting it at the end
+  of each transaction.
+
 Wed Dec  7 17:57:57 EST 2005 ajc
 * Fixed more missing localization items
 

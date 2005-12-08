@@ -434,7 +434,13 @@ void context_loop(int sock)
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
+#ifdef ENABLE_NLS
+	go_selected_language();				/* set locale */
+#endif
 	session_loop(req);				/* do transaction */
+#ifdef ENABLE_NLS
+	stop_selected_language();			/* unset locale */
+#endif
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */

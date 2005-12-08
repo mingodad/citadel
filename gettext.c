@@ -34,8 +34,8 @@ void httplang_to_locale(const char *LocaleString)
 	int nParts;
 	const int nAvail = 1; /* Number of members in AvailLang */
 	char *search = (char *) malloc(len);
-	locale_t my_Locale;
-	locale_t my_Empty_Locale;
+	// locale_t my_Locale;
+	// locale_t my_Empty_Locale;
 
 	memcpy(search, LocaleString, len);
 	search[len] = '\0';
@@ -98,14 +98,16 @@ void httplang_to_locale(const char *LocaleString)
 	memcpy(search, locale, len);
 	memcpy(&search[len], ".UTF8", 5);
 	search[len + 5] = '\0';
-	my_Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);	/* create default locale */
-	my_Locale = newlocale(LC_MESSAGES_MASK /*|LC_TIME_MASK FIXME */ ,
-			      search, my_Empty_Locale);
 
-	uselocale(my_Locale);
-	//      freelocale(my_Locale);
-	//      freelocale(my_Empty_Locale);
-	free(search);
+
+	//	my_Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);	/* create default locale */
+	//	my_Locale = newlocale(LC_MESSAGES_MASK /*|LC_TIME_MASK FIXME */ ,
+	//		      search, my_Empty_Locale);
+
+	//	uselocale(my_Locale);
+	//	//      freelocale(my_Locale);
+	//	//      freelocale(my_Empty_Locale);
+	//	free(search);
 }
 
 
@@ -175,11 +177,14 @@ void set_selected_language(char *lang) {
 }
 
 /*
- * Activate the selected language for this session.
+ * Activate and deactivate the selected language for this session.
  */
 void go_selected_language(void) {
-	lprintf(9, "uselocale(%d)\n", WC->selected_language);
 	uselocale(wc_locales[WC->selected_language]);
+}
+
+void stop_selected_language(void) {
+	uselocale(LC_GLOBAL_LOCALE);
 }
 
 
@@ -214,6 +219,9 @@ void set_selected_language(char *lang) {
 }
 
 void go_selected_language(void) {
+}
+
+void stop_selected_language(void) {
 }
 
 #endif	/* ENABLE_NLS */

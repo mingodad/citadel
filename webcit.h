@@ -656,6 +656,7 @@ void set_floordiv_expanded(char *which_floordiv);
 void offer_languages(void);
 void set_selected_language(char *);
 void go_selected_language(void);
+void stop_selected_language(void);
 
 void embed_room_banner(char *, int);
 /* navbar types that can be passed to embed_room_banner */
