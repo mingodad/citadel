@@ -113,7 +113,7 @@ msgstr ""
 
 #: ../auth.c:274
 msgid "Log in again"
-msgstr ""
+msgstr "Erneut Anmelden"
 
 #: ../auth.c:277
 msgid "Close window"
@@ -171,7 +171,7 @@ msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert"
 
 #: ../availability.c:122
 msgid "availability unknown"
-msgstr "verfügbarkein unbekannt"
+msgstr "Verfügbarkeit unbekannt"
 
 #: ../availability.c:142
 msgid "free"
@@ -398,7 +398,7 @@ msgstr "Minute: "
 
 #: ../calendar_tools.c:204
 msgid "(status unknown)"
-msgstr "(zustand unbekannt)"
+msgstr "(Zustand unbekannt)"
 
 #: ../calendar_tools.c:220
 msgid "(needs action)"
@@ -454,7 +454,7 @@ msgstr "Ereignis hinzufügen oder ändern"
 
 #: ../event.c:138 ../iconbar.c:115 ../iconbar.c:526
 msgid "Summary"
-msgstr "Übersicht"
+msgstr "Zusammenfassung"
 
 #: ../event.c:149
 msgid "Location"
