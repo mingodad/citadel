@@ -11,7 +11,7 @@ void locate_host(char *tbuf, int client_socket)
 {
 	struct sockaddr_in cs;
 	struct hostent *ch;
-	int len;
+	socklen_t len;
 	char *i;
 	int a1, a2, a3, a4;
 

@@ -926,10 +926,6 @@ void session_loop(struct httprequest *req)
 	WC->vars = NULL;
 	WC->is_wap = 0;
 
-#ifdef ENABLE_NLS
-	go_selected_language();
-#endif /* ENABLE_NLS */
-
 	hptr = req;
 	if (hptr == NULL) return;
 
@@ -1532,5 +1528,4 @@ SKIP_ALL_THIS_CRAP:
 		free(WC->upload);
 		WC->upload_length = 0;
 	}
-
 }
