@@ -180,11 +180,13 @@ void set_selected_language(char *lang) {
  * Activate and deactivate the selected language for this session.
  */
 void go_selected_language(void) {
-	uselocale(wc_locales[WC->selected_language]);
+	uselocale(wc_locales[WC->selected_language]);	/* switch locales */
+	textdomain(textdomain(NULL));			/* clear the cache */
 }
 
 void stop_selected_language(void) {
-	uselocale(LC_GLOBAL_LOCALE);
+	uselocale(LC_GLOBAL_LOCALE);			/* switch locales */
+	textdomain(textdomain(NULL));			/* clear the cache */
 }
 
 
