@@ -30,6 +30,8 @@ void httplang_to_locale(char *LocaleString)
 	char lang[64];
 	int num_accept = 0;
 
+	lprintf(9, "languageAccept: %s\n", LocaleString);
+
 	strcpy(selected_locale, "C");
 	num_accept = num_tokens(LocaleString, ',');
 
@@ -45,7 +47,7 @@ void httplang_to_locale(char *LocaleString)
 		}
 
 		for (j=0; j<NUM_LANGS; ++j) {
-			if (!strcasecmp(lang, AvailLang[j])) {
+			if (!strncasecmp(lang, AvailLang[j], strlen(lang))) {
 				strcpy(selected_locale, AvailLang[j]);
 			}
 		}

@@ -1,5 +1,8 @@
 $Id$
 
+Fri Dec  9 13:45:31 EST 2005 ajc
+* Slightly more intelligent language detection.
+
 Thu Dec  8 17:23:46 EST 2005 ajc
 * Detect the browser language, and use it as the default language selection.
 
