@@ -7,6 +7,7 @@
 
 
 var browserType;
+var room_is_trash = 0;
 
 if (document.layers) {browserType = "nn4"}
 if (document.all) {browserType = "ie"}
@@ -162,13 +163,24 @@ function CtdlDeleteSelectedMessages(evt) {
 		return false;
 	}
 	for (i=0; i<CtdlNumMsgsSelected; ++i) {
-		new Ajax.Request(
-			'ajax_servcmd', {
-				method: 'post',
-				parameters: 'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|_TRASH_|0',
-				onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
-			}
-		);
+		if (parseInt(room_is_trash) > 0) {
+			new Ajax.Request(
+				'ajax_servcmd', {
+					method: 'post',
+					parameters: 'g_cmd=DELE ' + CtdlMsgsSelected[i],
+					onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
+				}
+			);
+		}
+		else {
+			new Ajax.Request(
+				'ajax_servcmd', {
+					method: 'post',
+					parameters: 'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|_TRASH_|0',
+					onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
+				}
+			);
+		}
 	}
 	CtdlNumMsgsSelected = 0;
 

@@ -1,5 +1,9 @@
 $Id$
 
+Fri Dec  9 14:40:21 EST 2005 ajc
+* Deleting a message from the Trash folder now actually deletes it instead
+  of trying to move it to the Trash.  Requires Citadel server 6.63.
+
 Fri Dec  9 13:45:31 EST 2005 ajc
 * Slightly more intelligent language detection.
 

@@ -341,6 +341,13 @@ void embed_room_banner(char *got, int navbar_style) {
 		got = fakegot;
 	}
 
+	/* The browser needs some information for its own use */
+	wprintf("<script type=\"text/javascript\">	\n"
+		"	room_is_trash = %d;		\n"
+		"</script>\n",
+		WC->wc_is_trash
+	);
+
 	/* If the user happens to select the "make this my start page" link,
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
@@ -587,6 +594,7 @@ int gotoroom(char *gname)
 	WC->wc_floor = extract_int(&buf[4], 10);
 	WC->wc_view = extract_int(&buf[4], 11);
 	WC->wc_default_view = extract_int(&buf[4], 12);
+	WC->wc_is_trash = extract_int(&buf[4], 13);
 
 	if (WC->is_aide)
 		WC->is_room_aide = WC->is_aide;
