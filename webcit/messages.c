@@ -2709,10 +2709,6 @@ DONE:	wDumpContent(1);
 
 
 
-
-
-
-
 void delete_msg(void)
 {
 	long msgid;
@@ -2722,7 +2718,13 @@ void delete_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	serv_printf("MOVE %ld|_TRASH_|0", msgid);
+	if (WC->wc_is_trash) {	/* Delete from Trash is a real delete */
+		serv_printf("DELE %ld", msgid);	
+	}
+	else {			/* Otherwise move it to Trash */
+		serv_printf("MOVE %ld|_TRASH_|0", msgid);
+	}
+
 	serv_getln(buf, sizeof buf);
 	wprintf("<EM>%s</EM><br />\n", &buf[4]);
 
