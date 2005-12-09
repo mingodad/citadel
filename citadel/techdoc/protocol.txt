@@ -453,6 +453,7 @@ user to the arrival of new mail during a session)
   10. The floor number this room resides on
   11. The *current* "view" for this room (see views.txt for more info)
   12. The *default* "view" for this room
+  13. Boolian flag: 1 if this is the user's Trash folder, 0 otherwise.
  
  The default view gives the client a hint as to what views the user should
 be allowed to select.  For example, it would be confusing to allow messages

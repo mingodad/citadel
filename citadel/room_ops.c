@@ -778,6 +778,7 @@ void usergoto(char *where, int display_result, int transiently,
 	int s;
 	char setstr[128], lostr[64], histr[64];
 	long lo, hi;
+	int is_trash = 0;
 
 	/* If the supplied room name is NULL, the caller wants us to know that
 	 * it has already copied the room record into CC->room, so
@@ -876,6 +877,10 @@ void usergoto(char *where, int display_result, int transiently,
 		safestrncpy(truncated_roomname, &truncated_roomname[11], sizeof truncated_roomname);
 	}
 
+	if (!strcasecmp(truncated_roomname, USERTRASHROOM)) {
+		is_trash = 1;
+	}
+
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
 	lprintf(CTDL_DEBUG, "<%s> %d new of %d total messages\n",
@@ -886,7 +891,7 @@ void usergoto(char *where, int display_result, int transiently,
 	CC->curr_view = (int)vbuf.v_view;
 
 	if (display_result) {
-		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|\n",
+		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|\n",
 			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			(int)new_messages,
@@ -900,7 +905,8 @@ void usergoto(char *where, int display_result, int transiently,
 			(int)newmailcount,
 			(int)CC->room.QRfloor,
 			(int)vbuf.v_view,
-			(int)CC->room.QRdefaultview
+			(int)CC->room.QRdefaultview,
+			(int)is_trash
 		);
 	}
 }
