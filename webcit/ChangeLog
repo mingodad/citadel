@@ -1,5 +1,9 @@
 $Id$
 
+Sat Dec 10 17:44:51 EST 2005 ajc
+* Switched our TinyMCE call to the "advanced" theme.  Also enabled
+  the IESpell plugin (when Internet Explorer is in use).
+
 Fri Dec  9 14:40:21 EST 2005 ajc
 * Deleting a message from the Trash folder now actually deletes it instead
   of trying to move it to the Trash.  Requires Citadel server 6.63.
