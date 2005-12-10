@@ -2657,10 +2657,15 @@ void display_enter(void)
 		"<script language=\"javascript\" type=\"text/javascript\" src=\"tiny_mce/tiny_mce.js\"></script>\n"
 		"<script language=\"javascript\" type=\"text/javascript\">"
 		"tinyMCE.init({"
-		"	mode : \"textareas\", width : \"100%%\", browsers : \"msie,gecko\" "
+		"	mode : \"textareas\", width : \"100%%\", browsers : \"msie,gecko\", "
+		"	theme : \"advanced\", plugins : \"iespell\", "
+		"	theme_advanced_buttons1 : \"bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell\", "
+		"	theme_advanced_buttons2 : \"\", "
+		"	theme_advanced_buttons3 : \"\" "
 		"});"
 		"</script>\n"
 	);
+
 
 	/* Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
