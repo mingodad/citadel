@@ -1,5 +1,8 @@
 $Id$
 
+Sat Dec 10 20:48:40 EST 2005 ajc
+* wclib.js: transmit the "no floors expanded" condition to the server.
+
 Sat Dec 10 17:44:51 EST 2005 ajc
 * Switched our TinyMCE call to the "advanced" theme.  Also enabled
   the IESpell plugin (when Internet Explorer is in use).
