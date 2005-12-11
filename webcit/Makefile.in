@@ -16,7 +16,7 @@ prefix=@prefix@
 top_builddir=`pwd`
 
 LIB_SUBDIRS=
-PROG_SUBDIRS=po
+PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 
 # End of configuration section
@@ -28,6 +28,7 @@ all: all-progs-recursive webserver setup
 
 clean:
 	rm -f *.o webcit webserver
+	rm -fr locale/*
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
@@ -72,7 +73,7 @@ Makefile: $(srcdir)/Makefile.in config.status
 config.status: $(srcdir)/configure
 	$(SHELL) ./config.status --recheck
 
-$(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
+$(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && $(AUTOCONF)
 
 install:

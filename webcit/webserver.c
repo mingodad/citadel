@@ -382,8 +382,10 @@ int main(int argc, char **argv)
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
 	char *webcitdir = WEBCITDIR;
+#ifdef ENABLE_NLS
 	char *locale = NULL;
 	char *mo = NULL;
+#endif /* ENABLE_NLS */
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL

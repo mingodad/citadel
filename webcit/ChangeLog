@@ -1,5 +1,11 @@
 $Id$
 
+Sun Dec 11 00:03:04 EST 2005 ajc
+* Mercilessly ripped out all of the gratuitously complex GNU libintl
+  detection m4 crapola and replaced it with some simple autoconf directives
+  to detect whether the host system has the correct set of NLS functions for
+  supporting per-thread locale.
+
 Sat Dec 10 20:48:40 EST 2005 ajc
 * wclib.js: transmit the "no floors expanded" condition to the server.
 
