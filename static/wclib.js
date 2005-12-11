@@ -71,14 +71,25 @@ function expand_floor(floor_div) {
 			$(which_div_expanded).style.display = 'none' ;
 		}
 	}
+
+	// clicking on the already-expanded floor causes the whole list to collapse
 	if (which_div_expanded == floor_div) {
 		which_div_expanded = null;
+
+		// notify the server that no floors are expanded
+		new Ajax.Request(
+			'set_floordiv_expanded/-1', {
+				method: 'post'
+			}
+		);
 		return true;
 	}
+
+	// expand the requested floor
 	$(floor_div).style.display = 'block';
 	which_div_expanded = floor_div;
 
-	// notify the server of what we did
+	// notify the server of which floor is expanded
 	new Ajax.Request(
 		'set_floordiv_expanded/'+floor_div, {
 			method: 'post'
