@@ -2,13 +2,13 @@ Source: citadel
 Section: mail
 Priority: optional
 Maintainer: Wilfried Goesgens <w.goesgens@chaosindutries.de>
-Build-Depends: debhelper (>= 4.0.0), libical-dev, autotools-dev, zlib1g-dev , libical-dev, libssl-dev, libncurses5-dev, libdb4.2-dev, libldap2-dev, libsasl2-dev, libgnutls11-dev, libgcrypt11-dev, 
+Build-Depends: debhelper (>= 4.0.0), libical-dev, autotools-dev, zlib1g-dev , libical-dev, libssl-dev, libncurses5-dev, libdb4.3-dev, libldap2-dev, libsasl2-dev, libgnutls11-dev, libgcrypt11-dev, 
 Standards-Version: 3.6.1
 
 Package: citadel-server
 Architecture: any
 Pre-Depends: debconf
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, libical, libssl0.9.7, libncurses5, libdb4.2, libldap2, libsasl2, libgnutls11, libgcrypt11, libc6, libgpg-error0, ucf
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, libical, libssl0.9.7, libncurses5, libdb4.3, libldap2, libsasl2, libgnutls11, libgcrypt11, libc6, libgpg-error0, ucf
 Suggests: citadel-mta
 Description: Citadel is the good old BBS system grown up to a Groupware.
  Citadel is a different kind of messaging and collaboration platform. While 
@@ -45,7 +45,7 @@ Description: This enables your citadel server to sync its passwords with
 Package: citadel-mta
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server 
-Conflicts: mail-transport-agent, smail
+Conflicts: mail-transport-agent, smail, postfix-dev, postfix-doc, postfix-gld, postfix-ldap, postfix-mysql, postfix-pcre, postfix-pgsql, postfix-policyd, postgrey
 Provides: mail-transport-agent
 Description: MTA component of the citadel BBS system.
  Citadel is a different kind of messaging and collaboration platform. While 
