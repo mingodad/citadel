@@ -1,14 +1,14 @@
 # translation of it.po to italian
 # Copyright (C) 2005 The Citadel Project - http://www.citadel.org
 # This file is distributed under the same license as the WebCit package.
-# 
+#
 # Gabriele Tassoni <tasso@fastwebnet.it>, 2005.
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-12-10 20:28-0500\n"
-"PO-Revision-Date: 2005-12-07 11:34+0100\n"
+"PO-Revision-Date: 2005-12-12 09:18+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -74,7 +74,7 @@ msgstr "Password:"
 
 #: ../auth.c:59
 msgid "Language:"
-msgstr ""
+msgstr "Lingua:"
 
 #: ../auth.c:60
 msgid "Login"
@@ -107,7 +107,7 @@ msgstr ""
 
 #: ../auth.c:274
 msgid "Log in again"
-msgstr ""
+msgstr "Esegui nuovamente il Log in"
 
 #: ../auth.c:277
 msgid "Close window"
@@ -119,7 +119,7 @@ msgstr "Valida il nuovo utente"
 
 #: ../auth.c:318
 msgid "No users require validation at this time."
-msgstr ""
+msgstr "Non si richiede l'autenticazione utente in questo momento"
 
 #: ../auth.c:359
 #, c-format
@@ -257,8 +257,7 @@ msgstr "Membro:"
 #: ../calendar.c:230
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
-msgstr ""
-"Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
+msgstr "Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
 
 #: ../calendar.c:234
 #, c-format
@@ -329,8 +328,7 @@ msgstr ""
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
-msgstr ""
-"Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
+msgstr "Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
 
 #: ../calendar.c:368
 msgid "A reply has been sent to the meeting organizer."
@@ -346,8 +344,7 @@ msgstr "Aggiorna il tuo calendario con questo RSVP"
 
 #: ../calendar.c:416
 msgid "Your calendar has been updated to reflect this RSVP."
-msgstr ""
-"Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
+msgstr "Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
 
 #: ../calendar.c:418
 msgid ""
@@ -727,8 +724,7 @@ msgstr "solo testo"
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
-msgstr ""
-"Seleziona le icone che vorresti vedere nel menu alla sinistra dello schermo."
+msgstr "Seleziona le icone che vorresti vedere nel menu alla sinistra dello schermo."
 
 #: ../iconbar.c:511
 msgid "Site logo"
@@ -1113,8 +1109,7 @@ msgstr "Inserisci il comando:"
 
 #: ../mainmenu.c:290
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr ""
-"Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
+msgstr "Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
 
 #: ../mainmenu.c:294
 #, c-format
@@ -1313,11 +1308,11 @@ msgstr "--- messaggio inoltrato ---"
 
 #: ../messages.c:2673
 msgid "Attachments:"
-msgstr ""
+msgstr "Allegati:"
 
 #: ../messages.c:2688
 msgid "Attach file:"
-msgstr ""
+msgstr "Allega file:"
 
 #: ../messages.c:2691 ../roomops.c:1367 ../roomops.c:1397
 msgid "Add"
@@ -1426,8 +1421,7 @@ msgstr "Messaggio Istantaneo da"
 
 #: ../paging.c:273 ../paging.c:435
 msgid "An error occurred while setting up the chat socket."
-msgstr ""
-"Si è verificato un errore durante la creazione della connessione per la chat."
+msgstr "Si è verificato un errore durante la creazione della connessione per la chat."
 
 #: ../paging.c:300
 msgid "Now exiting chat mode."
@@ -1530,14 +1524,13 @@ msgid "Click on any room to un-zap it and goto that room.\n"
 msgstr "Clicca su una stanza per dezapparla ed entrarci.\n"
 
 #: ../roomops.c:299
-#, fuzzy
 msgid "View as:"
-msgstr "Mostra le Operazioni"
+msgstr "Vedi come:"
 
 #: ../roomops.c:364
-#, fuzzy, c-format
+#, c-format
 msgid "%d new of %d messages"
-msgstr "di %d messaggi."
+msgstr "%d nuovi messaggi su %d totali"
 
 #: ../roomops.c:408
 msgid "View contacts"
@@ -1580,8 +1573,7 @@ msgid "Add new note"
 msgstr "Aggiungi una nuova nota"
 
 #: ../roomops.c:535
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
+msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Lascia tutti i messaggi marcati come non letti, passa alla stanza successiva "
 "con messaggi non letti."
@@ -1790,8 +1782,7 @@ msgstr ""
 "messaggi</b> alla seguente lista di destinatari</i><br/><br/>\n"
 
 #: ../roomops.c:1403
-msgid ""
-"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr ""
 "Questa stanza è configurate per permettere la sottoscrizione/cancellazione "
 "automatica degli utenti."
@@ -1887,9 +1878,8 @@ msgstr ""
 "nome utente e clicca 'Invita'."
 
 #: ../roomops.c:1798
-#, fuzzy
 msgid "Invite:"
-msgstr "Invita"
+msgstr "Invita:"
 
 #: ../roomops.c:1803
 msgid "Invite"
@@ -1969,14 +1959,12 @@ msgid "Zap this room"
 msgstr "Zap questa stanza"
 
 #: ../roomops.c:2845 ../roomops.c:2851
-#, fuzzy
 msgid "Room list"
-msgstr "Vista della lista delle stanze"
+msgstr "Lista delle stanze"
 
 #: ../roomops.c:2848
-#, fuzzy
 msgid "Folder list"
-msgstr "lista dell'utente"
+msgstr "Lista delle cartelle"
 
 #: ../rss.c:28
 msgid "Email"
@@ -1988,8 +1976,7 @@ msgstr "Non autenticato"
 
 #: ../rss.c:81
 msgid "Error retrieving RSS feed: couldn't find messages\n"
-msgstr ""
-"Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
+msgstr "Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
 
 #: ../siteconfig.c:28
 msgid "Site configuration"
@@ -2235,8 +2222,7 @@ msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
 
 #: ../siteconfig.c:733
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr ""
-"Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
+msgstr "Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
 
 #: ../siteconfig.c:765
 msgid "Default message expire policy for public rooms"
@@ -2244,8 +2230,7 @@ msgstr "Politica di default per la cancellazione delle stanze publiche"
 
 #: ../siteconfig.c:786
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Politica di default per la cancellazione delle cassette postali private"
+msgstr "Politica di default per la cancellazione delle cassette postali private"
 
 #: ../siteconfig.c:790
 msgid "Same policy as public rooms"
@@ -2463,8 +2448,7 @@ msgid "Delete this user?"
 msgstr "Cancellare questo utente?"
 
 #: ../useredit.c:192
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
+msgid "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "E' avvenuto un errore durante la creazione o la cancellazione di questa voce "
 "della rubrica dei contatti"
@@ -2742,3 +2726,4 @@ msgstr "Cambia il nome dell'host"
 #: ../who.c:263
 msgid "Change user name"
 msgstr "Cambia nome utente"
+
