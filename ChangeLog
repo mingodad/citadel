@@ -1,5 +1,8 @@
 $Id$
 
+Mon Dec 12 12:10:21 EST 2005 ajc
+* it.po: updated Italian translation submitted by Gabriele Tassoni
+
 Mon Dec 12 1:40:03 CET 2005 dothebart
 * another rework of the locale parser. Hopefully feature complete now.
 	
