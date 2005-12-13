@@ -620,6 +620,15 @@ int main(int argc, char *argv[])
 		cleanup(0);
 	}
 
+	/* If we're on something BSDish then we don't have inittab */
+	if (access("/etc/inittab", F_OK)) {
+		important_message("Not running SysV style init",
+				"WebCit Setup can only run on systems that use /etc/inittab.\n"
+				"Please manually configure your startup scripts to run WebCit\n"
+				"when the system is booted.\n");
+		cleanup(0);
+	}
+
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, WEBCITDIR);
 	if ( (using_web_installer) && (getenv("WEBCIT") != NULL) ) {

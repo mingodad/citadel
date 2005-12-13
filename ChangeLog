@@ -1,5 +1,8 @@
 $Id$
 
+Tue Dec 13 14:41:50 EST 2005 ajc
+* Don't try to twiddle /etc/inittab on systems that don't have /etc/inittab.
+
 Tue Dec 13 14:27:24 EST 2005 ajc
 * chatframeset.html: inserted a missing </body> tag.
 
