@@ -1,5 +1,8 @@
 $Id$
 
+Tue Dec 13 14:27:24 EST 2005 ajc
+* chatframeset.html: inserted a missing </body> tag.
+
 Mon Dec 12 12:10:21 EST 2005 ajc
 * it.po: updated Italian translation submitted by Gabriele Tassoni
 
