@@ -1308,6 +1308,8 @@ void session_loop(struct httprequest *req)
 		embed_message(arg1);
 	} else if (!strcasecmp(action, "printmsg")) {
 		print_message(arg1);
+	} else if (!strcasecmp(action, "msgheaders")) {
+		display_headers(arg1);
 	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {

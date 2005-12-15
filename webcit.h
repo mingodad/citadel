@@ -470,6 +470,7 @@ int haschar(char *, char);
 void readloop(char *oper);
 void embed_message(char *msgnum_as_string);
 void print_message(char *msgnum_as_string);
+void display_headers(char *msgnum_as_string);
 void text_to_server(char *ptr, int convert_to_html);
 void display_enter(void);
 void post_message(void);
