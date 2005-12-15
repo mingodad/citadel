@@ -1,5 +1,10 @@
 $Id$
 
+Thu Dec 15 00:03:53 EST 2005 ajc
+* room_ops.c: when granting a room creator access to a new room, omit the
+  lgetuser/lputuser calls because they are not needed.  Also, don't perform
+  access grant if no user is logged in.
+
 Sun Dec 11 23:04:31 EST 2005 ajc
 * THIS IS 6.63
 

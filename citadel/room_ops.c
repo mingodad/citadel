@@ -1805,13 +1805,11 @@ unsigned create_room(char *new_room_name,
 	/* Grant the creator access to the room unless the avoid_access
 	 * parameter was specified.
 	 */
-	if (avoid_access == 0) {
-		lgetuser(&CC->user, CC->curr_user);
+	if ( (CC->logged_in) && (avoid_access == 0) ) {
 		CtdlGetRelationship(&vbuf, &CC->user, &qrbuf);
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 		CtdlSetRelationship(&vbuf, &CC->user, &qrbuf);
-		lputuser(&CC->user);
 	}
 
 	/* resume our happy day */
