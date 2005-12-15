@@ -122,6 +122,24 @@ die () {
 }
 
 
+
+download_this () {
+	if [ -x `which wget` ] ; then
+		wget $FILENAME >/dev/null 2>>$LOG || die
+	else
+		if [ -x `which curl` ] ; then
+			curl $FILENAME >$FILENAME 2>>$LOG || die
+		else
+			echo Unable to find a wget or curl command.
+			echo Easy Install cannot continue.
+			die;
+		fi
+	fi
+}
+
+
+
+
 determine_distribution () {
 	# First look for Red Hat in general
 	if [ -x /bin/rpm ]; then
@@ -156,7 +174,7 @@ determine_distribution () {
 
 install_ical () {
 	cd $BUILD 2>&1 >>$LOG || die
-	$WGET $DOWNLOAD_SITE/libical-easyinstall.sum
+	FILENAME=$DOWNLOAD_SITE/libical-easyinstall.sum ; download_this
 	SUM=`cat libical-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -167,7 +185,7 @@ install_ical () {
 		fi
 	fi
 	echo "* Downloading libical..."
-	$WGET $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
+	FILENAME=$DOWNLOAD_SITE/$ICAL_SOURCE ; download_this
 	echo "* Installing libical..."
 	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/libical-0.24 2>&1 >>$LOG || die
@@ -182,7 +200,7 @@ install_ical () {
 
 install_db () {
 	cd $BUILD 2>&1 >>$LOG || die
-	$WGET $DOWNLOAD_SITE/db-easyinstall.sum
+	FILENAME=$DOWNLOAD_SITE/db-easyinstall.sum ; download_this
 	SUM=`cat db-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -193,7 +211,7 @@ install_db () {
 		fi
 	fi
 	echo "* Downloading Berkeley DB..."
-	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
+	FILENAME=$DOWNLOAD_SITE/$DB_SOURCE ; download_this
 	echo "* Installing Berkeley DB..."
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/db-4.3.29.NC 2>&1 >>$LOG || die
@@ -247,7 +265,7 @@ install_sources () {
 	export CFLAGS CPPFLAGS LDFLAGS
 
 	DO_INSTALL_CITADEL=yes
-	$WGET $DOWNLOAD_SITE/citadel-easyinstall.sum
+	FILENAME=$DOWNLOAD_SITE/citadel-easyinstall.sum ; download_this
 	SUM=`cat citadel-easyinstall.sum`
 	SUMFILE=$CITADEL/citadel-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -260,7 +278,7 @@ install_sources () {
 
 	if [ $DO_INSTALL_CITADEL = yes ] ; then
 		echo "* Downloading Citadel..."
-		$WGET $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
+		FILENAME=$DOWNLOAD_SITE/$CITADEL_SOURCE ; download_this
 		echo "* Installing Citadel..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -291,7 +309,7 @@ install_sources () {
 
 	cd $BUILD 2>&1 >>$LOG || die
 	DO_INSTALL_WEBCIT=yes
-	$WGET $DOWNLOAD_SITE/webcit-easyinstall.sum
+	FILENAME=$DOWNLOAD_SITE/webcit-easyinstall.sum ; download_this
 	SUM=`cat webcit-easyinstall.sum`
 	SUMFILE=$WEBCIT/webcit-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -304,7 +322,7 @@ install_sources () {
 
 	if [ $DO_INSTALL_WEBCIT = yes ] ; then
 		echo "* Downloading WebCit..."
-		$WGET $DOWNLOAD_SITE/$WEBCIT_SOURCE 2>&1 >>$LOG || die
+		FILENAME=$DOWNLOAD_SITE/$WEBCIT_SOURCE ; download_this
 		echo "* Installing WebCit..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -366,12 +384,9 @@ clear
 
 os=`uname`
 
-[ -z "$WGET" ] && [ -x `which wget` ] && WGET=`which wget`
-[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ --remote-name
 
 echo MAKE is $MAKE
-echo WGET is $WGET 
-export MAKE WGET
+export MAKE
 
 # 1A. Do we use the native packaging system or build our own copy of Citadel?
 

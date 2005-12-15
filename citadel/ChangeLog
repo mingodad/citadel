@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec 15 10:51:45 EST 2005 ajc
+* newinstall.sh: be smarter about how wget and curl are used
+
 Thu Dec 15 00:03:53 EST 2005 ajc
 * room_ops.c: when granting a room creator access to a new room, omit the
   lgetuser/lputuser calls because they are not needed.  Also, don't perform
