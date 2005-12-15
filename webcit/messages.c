@@ -812,6 +812,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 			);
 		}
 
+		/* Headers */
+		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"[%s]</a>", msgnum, msgnum, _("Headers"));
+
+
+		/* Print */
 		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Print"));
 
@@ -1031,6 +1037,35 @@ void print_message(char *msgnum_as_string) {
 	read_message(msgnum, 1, "");
 
 	wprintf("\n</body></html>\n\n");
+	wDumpContent(0);
+}
+
+
+
+/*
+ * Display a message's headers
+ */
+void display_headers(char *msgnum_as_string) {
+	long msgnum = 0L;
+	char buf[1024];
+
+	msgnum = atol(msgnum_as_string);
+	output_headers(0, 0, 0, 0, 0, 0);
+
+	wprintf("Content-type: text/plain\r\n"
+		"Server: %s\r\n"
+		"Connection: close\r\n",
+		SERVER);
+	begin_burst();
+
+	serv_printf("MSG2 %ld|3", msgnum);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			wprintf("%s\n", buf);
+		}
+	}
+
 	wDumpContent(0);
 }
 

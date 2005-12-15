@@ -1,5 +1,8 @@
 $Id$
 
+Thu Dec 15 17:35:47 EST 2005 ajc
+* "Headers" option in view message
+
 Tue Dec 13 17:50:57 EST 2005 ajc
 * Require Citadel server version to be at least 6.63
 * THIS IS 6.40

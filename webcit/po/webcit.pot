@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-10 20:28-0500\n"
+"POT-Creation-Date: 2005-12-15 17:34-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,8 +137,8 @@ msgid "Change password"
 msgstr ""
 
 #: ../auth.c:469 ../calendar.c:582 ../event.c:385 ../graphics.c:57
-#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2590 ../messages.c:2701
-#: ../messages.c:2787 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
+#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2625 ../messages.c:2736
+#: ../messages.c:2822 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
 #: ../preferences.c:361 ../roomops.c:1175 ../roomops.c:1503 ../roomops.c:1932
 #: ../roomops.c:2081 ../roomops.c:2145 ../siteconfig.c:821 ../sysmsgs.c:52
 #: ../useredit.c:366 ../vcard_edit.c:330 ../who.c:268
@@ -337,7 +337,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../calendar.c:581 ../event.c:383 ../messages.c:811 ../messages.c:2044
+#: ../calendar.c:581 ../event.c:383 ../messages.c:811 ../messages.c:2079
 msgid "Delete"
 msgstr ""
 
@@ -1090,31 +1090,31 @@ msgstr ""
 msgid "E-mail:"
 msgstr ""
 
-#: ../messages.c:549 ../messages.c:1089
+#: ../messages.c:549 ../messages.c:1124
 msgid "ERROR:"
 msgstr ""
 
-#: ../messages.c:572 ../messages.c:834 ../messages.c:1098 ../messages.c:1190
+#: ../messages.c:572 ../messages.c:840 ../messages.c:1133 ../messages.c:1225
 msgid "unexpected end of message"
 msgstr ""
 
-#: ../messages.c:585 ../messages.c:1109
+#: ../messages.c:585 ../messages.c:1144
 msgid "from "
 msgstr ""
 
-#: ../messages.c:613 ../messages.c:1125
+#: ../messages.c:613 ../messages.c:1160
 msgid "in "
 msgstr ""
 
-#: ../messages.c:634 ../messages.c:1146
+#: ../messages.c:634 ../messages.c:1181
 msgid "to "
 msgstr ""
 
-#: ../messages.c:727 ../messages.c:2547
+#: ../messages.c:727 ../messages.c:2582
 msgid "CC:"
 msgstr ""
 
-#: ../messages.c:735 ../messages.c:1173
+#: ../messages.c:735 ../messages.c:1208
 msgid "Subject:"
 msgstr ""
 
@@ -1134,7 +1134,7 @@ msgstr ""
 msgid "Forward"
 msgstr ""
 
-#: ../messages.c:806 ../messages.c:2785
+#: ../messages.c:806 ../messages.c:2820
 msgid "Move"
 msgstr ""
 
@@ -1142,137 +1142,141 @@ msgstr ""
 msgid "Delete this message?"
 msgstr ""
 
-#: ../messages.c:816
+#: ../messages.c:817
+msgid "Headers"
+msgstr ""
+
+#: ../messages.c:822
 msgid "Print"
 msgstr ""
 
-#: ../messages.c:922
+#: ../messages.c:928
 #, c-format
 msgid "I don't know how to display %s"
 msgstr ""
 
-#: ../messages.c:957 ../messages.c:1420
+#: ../messages.c:963 ../messages.c:1455
 msgid "edit"
 msgstr ""
 
-#: ../messages.c:1383 ../messages.c:1678
+#: ../messages.c:1418 ../messages.c:1713
 msgid "(no subject)"
 msgstr ""
 
-#: ../messages.c:1506
+#: ../messages.c:1541
 msgid "(no name)"
 msgstr ""
 
-#: ../messages.c:1552
+#: ../messages.c:1587
 msgid "This address book is empty."
 msgstr ""
 
-#: ../messages.c:1919
+#: ../messages.c:1954
 msgid "No new messages."
 msgstr ""
 
-#: ../messages.c:1921
+#: ../messages.c:1956
 msgid "No old messages."
 msgstr ""
 
-#: ../messages.c:1923
+#: ../messages.c:1958
 msgid "No messages here."
 msgstr ""
 
-#: ../messages.c:2039
+#: ../messages.c:2074
 msgid "Subject"
 msgstr ""
 
-#: ../messages.c:2041
+#: ../messages.c:2076
 msgid "Sender"
 msgstr ""
 
-#: ../messages.c:2043
+#: ../messages.c:2078
 msgid "Date"
 msgstr ""
 
-#: ../messages.c:2143
+#: ../messages.c:2178
 msgid "Reading #"
 msgstr ""
 
-#: ../messages.c:2196
+#: ../messages.c:2231
 #, c-format
 msgid "of %d messages."
 msgstr ""
 
-#: ../messages.c:2378
+#: ../messages.c:2413
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr ""
 
-#: ../messages.c:2384
+#: ../messages.c:2419
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 
-#: ../messages.c:2401
+#: ../messages.c:2436
 #, c-format
 msgid "Message has been sent.\n"
 msgstr ""
 
-#: ../messages.c:2404
+#: ../messages.c:2439
 #, c-format
 msgid "Message has been posted.\n"
 msgstr ""
 
-#: ../messages.c:2508
+#: ../messages.c:2543
 msgid " <I>from</I> "
 msgstr ""
 
-#: ../messages.c:2518
+#: ../messages.c:2553
 msgid " <I>in</I> "
 msgstr ""
 
-#: ../messages.c:2536
+#: ../messages.c:2571
 msgid "To:"
 msgstr ""
 
-#: ../messages.c:2558
+#: ../messages.c:2593
 msgid "BCC:"
 msgstr ""
 
-#: ../messages.c:2576
+#: ../messages.c:2611
 msgid "Subject (optional):"
 msgstr ""
 
-#: ../messages.c:2585 ../messages.c:2696 ../paging.c:55
+#: ../messages.c:2620 ../messages.c:2731 ../paging.c:55
 msgid "Send message"
 msgstr ""
 
-#: ../messages.c:2587 ../messages.c:2698
+#: ../messages.c:2622 ../messages.c:2733
 msgid "Post message"
 msgstr ""
 
-#: ../messages.c:2603
+#: ../messages.c:2638
 msgid "--- forwarded message ---"
 msgstr ""
 
-#: ../messages.c:2673
+#: ../messages.c:2708
 msgid "Attachments:"
 msgstr ""
 
-#: ../messages.c:2688
+#: ../messages.c:2723
 msgid "Attach file:"
 msgstr ""
 
-#: ../messages.c:2691 ../roomops.c:1367 ../roomops.c:1397
+#: ../messages.c:2726 ../roomops.c:1367 ../roomops.c:1397
 msgid "Add"
 msgstr ""
 
-#: ../messages.c:2758
+#: ../messages.c:2793
 msgid "Confirm move of message"
 msgstr ""
 
-#: ../messages.c:2765
+#: ../messages.c:2800
 msgid "Move this message to:"
 msgstr ""
 
-#: ../messages.c:2809
+#: ../messages.c:2844
 #, c-format
 msgid "The message was not moved."
 msgstr ""
@@ -2525,23 +2529,23 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../webcit.c:1354 ../webcit.c:1356
+#: ../webcit.c:1356 ../webcit.c:1358
 msgid "Room info"
 msgstr ""
 
-#: ../webcit.c:1359 ../webcit.c:1361
+#: ../webcit.c:1361 ../webcit.c:1363
 msgid "Your bio"
 msgstr ""
 
-#: ../webcit.c:1369
+#: ../webcit.c:1371
 msgid "your photo"
 msgstr ""
 
-#: ../webcit.c:1375
+#: ../webcit.c:1377
 msgid "the icon for this room"
 msgstr ""
 
-#: ../webcit.c:1389
+#: ../webcit.c:1391
 msgid "the icon for this floor"
 msgstr ""
 
