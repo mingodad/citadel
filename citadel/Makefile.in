@@ -318,7 +318,7 @@ install-exec-new: all
 	fi
 
 clean:
-	rm -f *.o parsedate.c
+	rm -f *.o
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) *.la

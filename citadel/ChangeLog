@@ -1,5 +1,10 @@
 $Id$
 
+Thu Dec 15 23:12:05 EST 2005 ajc
+* Include a pre-fixed parsedate.c in the source tree in order to eliminate
+  the requirement for yacc or bison to build Citadel.  Also, 'make clean'
+  no longer deletes parsedate.c
+
 Thu Dec 15 10:51:45 EST 2005 ajc
 * newinstall.sh: be smarter about how wget and curl are used
 
