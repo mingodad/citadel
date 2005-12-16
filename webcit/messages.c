@@ -2366,6 +2366,11 @@ void post_message(void)
 	char buf[SIZ];
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
+	int is_anonymous = 0;
+
+	if (!strcasecmp(bstr("is_anonymous"), "yes")) {
+		is_anonymous = 1;
+	}
 
 	if (WC->upload_length > 0) {
 
@@ -2419,8 +2424,9 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		sprintf(buf, "ENT0 1|%s|0|4|%s|||%s|%s",
+		sprintf(buf, "ENT0 1|%s|%d|4|%s|||%s|%s",
 			bstr("recp"),
+			is_anonymous,
 			bstr("subject"),
 			bstr("cc"),
 			bstr("bcc")
@@ -2465,9 +2471,14 @@ void display_enter(void)
 	int recipient_required = 0;
 	int recipient_bad = 0;
 	int i;
+	int is_anonymous = 0;
 
 	if (strlen(bstr("force_room")) > 0) {
 		gotoroom(bstr("force_room"));
+	}
+
+	if (!strcasecmp(bstr("is_anonymous"), "yes")) {
+		is_anonymous = 1;
 	}
 
 	/* Are we perhaps in an address book view?  If so, then an "enter
@@ -2521,7 +2532,7 @@ void display_enter(void)
 
 	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
-		sprintf(buf, "ENT0 0|%s|0|0||||%s|%s", bstr("recp"), bstr("cc"), bstr("bcc"));
+		sprintf(buf, "ENT0 0|%s|%d|0||||%s|%s", bstr("recp"), is_anonymous, bstr("cc"), bstr("bcc"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 
@@ -2561,7 +2572,15 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-	wprintf("%s<br>\n", buf);	/* header bar */
+	wprintf("%s\n", buf);	/* header bar */
+	if (WC->room_flags & QR_ANONOPT) {
+		wprintf("&nbsp;"
+			"<input type=\"checkbox\" name=\"is_anonymous\" value=\"yes\" %s>",
+				(is_anonymous ? "checked" : "")
+		);
+		wprintf("Anonymous");
+	}
+	wprintf("<br>\n");	/* header bar */
 
 	wprintf("<table border=\"0\" width=\"100%%\">\n");
 	if (recipient_required) {

@@ -1,5 +1,9 @@
 $Id$
 
+Thu Dec 15 23:50:45 EST 2005 ajc
+* Checkbox to allow anonymous posting in rooms which allow it.
+  Resolves bugzilla #65.
+
 Thu Dec 15 17:35:47 EST 2005 ajc
 * "Headers" option in view message
 
