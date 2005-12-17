@@ -2664,7 +2664,7 @@ void display_enter(void)
 		wprintf("<br>"
 			"<blockquote>");
 		pullquote_message(atol(bstr("replyquote")), 0);
-		wprintf("</blockquote>");
+		wprintf("</blockquote>\n\n");
 	}
 
 	/* Insert our signature if appropriate... */
@@ -2713,7 +2713,7 @@ void display_enter(void)
 		"tinyMCE.init({"
 		"	mode : \"textareas\", width : \"100%%\", browsers : \"msie,gecko\", "
 		"	theme : \"advanced\", plugins : \"iespell\", "
-		"	theme_advanced_buttons1 : \"bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell\", "
+		"	theme_advanced_buttons1 : \"bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell, code\", "
 		"	theme_advanced_buttons2 : \"\", "
 		"	theme_advanced_buttons3 : \"\" "
 		"});"

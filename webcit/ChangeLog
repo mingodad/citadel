@@ -1,5 +1,10 @@
 $Id$
 
+Sat Dec 17 00:24:05 EST 2005 ajc
+* messages.c: include the "edit html source" button in the message editor
+  window.  Also, when pullquoting a message, insert a \n\n at the end so
+  the TinyMCE editor allows the user to advance past the quote.
+
 Thu Dec 15 23:50:45 EST 2005 ajc
 * Checkbox to allow anonymous posting in rooms which allow it.
   Resolves bugzilla #65.
