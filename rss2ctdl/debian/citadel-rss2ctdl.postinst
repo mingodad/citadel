@@ -1,0 +1,83 @@
+#! /bin/sh
+# postinst.skeleton
+# Skeleton maintainer script showing all the possible cases.
+# Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
+
+# Abort if any command returns an error value
+set -e
+
+# This script is called as the last step of the installation of the
+# package.  All the package's files are in place, dpkg has already done
+# its automatic conffile handling, and all the packages we depend of
+# are already fully installed and configured.
+
+# The following idempotent stuff doesn't generally need protecting
+# against being run in the abort-* cases.
+
+#### Install info files into the dir file
+###: install-info --quiet --section "section pattern" "Section Title" \
+###:              --description="Name of the document" /usr/info/foo.info
+###
+#### Create stub directories under /usr/local
+###: if test ! -d /usr/local/lib/foo; then
+###:   if test ! -d /usr/local/lib; then
+###:     if mkdir /usr/local/lib; then
+###:       chown root.staff /usr/local/lib || true
+###:       chmod 2775 /usr/local/lib || true
+###:     fi
+###:   fi
+###:   if mkdir /usr/local/lib/foo; then
+###:     chown root.staff /usr/local/lib/foo || true
+###:     chmod 2775 /usr/local/lib/foo || true
+###:   fi
+###: fi
+###
+#### Ensure the menu system is updated
+###: [ ! -x /usr/bin/update-menus ] || /usr/bin/update-menus
+###
+#### Arrange for a daemon to be started at system boot time
+###: update-rc.d foo default >/dev/null
+###
+case "$1" in
+  configure)
+    # Configure this package.  If the package must prompt the user for
+    # information, do it here.
+    
+	echo "Add your favorite RSS-Feeds to /etc/citadel/rssfeeds"
+	mkdir -p /etc/citadel
+    ucf /usr/share/doc/citadel-rss2ctdl/examples/config/rssfeeds /etc/citadel/rssfeeds
+	;;
+  abort-upgrade)
+    # Back out of an attempt to upgrade this package FROM THIS VERSION
+    # to version $2.  Undo the effects of "prerm upgrade $2".
+    #:
+
+    ;;
+  abort-remove)
+    ###if test "$2" != in-favour; then
+    ###  echo "$0: undocumented call to \`postinst $*'" 1>&2
+    ###  exit 0
+    ###fi
+    #### Back out of an attempt to remove this package, which was due to
+    #### a conflict with package $3 (version $4).  Undo the effects of
+    #### "prerm remove in-favour $3 $4".
+    ###:
+
+    ;;
+  abort-deconfigure)
+    ###if test "$2" != in-favour -o "$5" != removing; then
+    ###  echo "$0: undocumented call to \`postinst $*'" 1>&2
+    ###  exit 0
+    ###fi
+    #### Back out of an attempt to deconfigure this package, which was
+    #### due to package $6 (version $7) which we depend on being removed
+    #### to make way for package $3 (version $4).  Undo the effects of
+    #### "prerm deconfigure in-favour $3 $4 removing $6 $7".
+    ###:
+
+    ;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 0;;
+esac
+
+exit 0

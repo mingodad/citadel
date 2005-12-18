@@ -1,0 +1,19 @@
+Source: rss2ctdl
+Section: unknown
+Priority: optional
+Maintainer: Wilfried Goesgens <willi@jordy.home.net>
+Build-Depends: debhelper (>= 4.0.0), libxml2-dev
+Standards-Version: 3.6.1
+
+Package: citadel-rss2ctdl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},  citadel-client, libxml2
+Description: feed your citadel with rss feeds
+ RSS2CTDL is an RSS-to-Citadel gateway.  It allows you to pull external RSS
+ feeds into Citadel rooms.  Feed URL's are polled whenever you run the program.
+ Each item is converted to a Citadel message and submitted into the network
+ queue.  The message-ID is derived from a unique hash of the GUID tag of
+ each item.  If there is no GUID tag (which, unfortunately, is the case for
+ the vast majority of feeds) then we hash the title/description/link tags
+ instead.  We then dump it all into the queue and let the loopzapper handle
+ the dupes.

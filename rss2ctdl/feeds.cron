@@ -1,0 +1,10 @@
+#!/bin/sh
+CITADEL_SPOOL=/var/spool/citadel/
+RSSFEEDER=/usr/sbin/rss2ctdl
+FEEDFILE=/etc/citadel/rssfeeds
+for i in `cat $FEEDFILE |grep -v "^#"`; do
+	remotedomain=`echo $i |sed "s:.*;::"`
+	room=`echo $i |sed "s:.*;\(.*\);.*:\1:"`
+	remoteurl=`echo $i |sed "s:;.*::"`
+	$RSSFEEDER "$remoteurl" "$room" "$remotedomain" "$CITADEL_SPOOL"
+done
