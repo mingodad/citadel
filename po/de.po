@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-15 17:34-0500\n"
+"POT-Creation-Date: 2005-12-19 15:48-0500\n"
 "PO-Revision-Date: 2005-12-05 18:59+0100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
 "Language-Team: German <citadel-dev@uncensored.citadel.org>\n"
@@ -153,8 +153,8 @@ msgid "Change password"
 msgstr "Passwort ändern"
 
 #: ../auth.c:469 ../calendar.c:582 ../event.c:385 ../graphics.c:57
-#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2625 ../messages.c:2736
-#: ../messages.c:2822 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
+#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2644 ../messages.c:2755
+#: ../messages.c:2841 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
 #: ../preferences.c:361 ../roomops.c:1175 ../roomops.c:1503 ../roomops.c:1932
 #: ../roomops.c:2081 ../roomops.c:2145 ../siteconfig.c:821 ../sysmsgs.c:52
 #: ../useredit.c:366 ../vcard_edit.c:330 ../who.c:268
@@ -1160,7 +1160,7 @@ msgstr "in "
 msgid "to "
 msgstr "an "
 
-#: ../messages.c:727 ../messages.c:2582
+#: ../messages.c:727 ../messages.c:2601
 msgid "CC:"
 msgstr "CC:"
 
@@ -1184,7 +1184,7 @@ msgstr "AntwortenAnAlle"
 msgid "Forward"
 msgstr "Weiterleiten"
 
-#: ../messages.c:806 ../messages.c:2820
+#: ../messages.c:806 ../messages.c:2839
 msgid "Move"
 msgstr "Verschieben"
 
@@ -1255,80 +1255,80 @@ msgstr "Lese #"
 msgid "of %d messages."
 msgstr "von %d Nachrichten"
 
-#: ../messages.c:2413
+#: ../messages.c:2418
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 
-#: ../messages.c:2419
+#: ../messages.c:2424
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
-#: ../messages.c:2436
+#: ../messages.c:2442
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Nachricht wurde gesendet.\n"
 
-#: ../messages.c:2439
+#: ../messages.c:2445
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Beitrag wurde gesendet.\n"
 
-#: ../messages.c:2543
+#: ../messages.c:2554
 msgid " <I>from</I> "
 msgstr " <I>von</I> "
 
-#: ../messages.c:2553
+#: ../messages.c:2564
 msgid " <I>in</I> "
 msgstr " <I>in</i> "
 
-#: ../messages.c:2571
+#: ../messages.c:2590
 msgid "To:"
 msgstr "An:"
 
-#: ../messages.c:2593
+#: ../messages.c:2612
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2611
+#: ../messages.c:2630
 msgid "Subject (optional):"
 msgstr "Betreff (optional):"
 
-#: ../messages.c:2620 ../messages.c:2731 ../paging.c:55
+#: ../messages.c:2639 ../messages.c:2750 ../paging.c:55
 msgid "Send message"
 msgstr "Meldung senden"
 
-#: ../messages.c:2622 ../messages.c:2733
+#: ../messages.c:2641 ../messages.c:2752
 msgid "Post message"
 msgstr "Beitrag einreichen"
 
-#: ../messages.c:2638
+#: ../messages.c:2657
 msgid "--- forwarded message ---"
 msgstr "--- Weitergeleitete Nachricht ---"
 
-#: ../messages.c:2708
+#: ../messages.c:2727
 msgid "Attachments:"
 msgstr "Anhänge:"
 
-#: ../messages.c:2723
+#: ../messages.c:2742
 msgid "Attach file:"
 msgstr "Datei anhängen:"
 
-#: ../messages.c:2726 ../roomops.c:1367 ../roomops.c:1397
+#: ../messages.c:2745 ../roomops.c:1367 ../roomops.c:1397
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../messages.c:2793
+#: ../messages.c:2812
 msgid "Confirm move of message"
 msgstr "Verschieben bestätigen"
 
-#: ../messages.c:2800
+#: ../messages.c:2819
 msgid "Move this message to:"
 msgstr "Meldung verschieben nach:"
 
-#: ../messages.c:2844
+#: ../messages.c:2863
 #, c-format
 msgid "The message was not moved."
 msgstr "Die Meldung wurde nicht verschoben."
