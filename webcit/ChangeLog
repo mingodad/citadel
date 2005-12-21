@@ -1,5 +1,12 @@
 $Id$
 
+Wed Dec 21 10:22:51 EST 2005 ajc
+* configure.in: use different variable names for each AC_CHECK_PROG macro,
+  because autoconf will see the same variable name as used before, pull some
+  value from cache, and assume it knows the answer.  This causes NLS to be
+  enabled on systems that have, for example, xgettext but not msgfmt (such as
+  Mandrake).  Fixed.
+
 Wed Dec 21 10:08:18 EST 2005 ajc
 * Makefile.in: target 'distclean' - do not remove po/Makefile.in 
 
