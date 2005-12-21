@@ -317,21 +317,25 @@ if test "$ok_nls" != "no"; then
 			exit(0);
 		}
 	],
-		ok_nls=yes,
-		ok_nls=no
+		ok_uselocale=yes,
+		ok_uselocale=no
 	)
+	ok_nls=$ok_uselocale
 fi
 
 if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_nls, xgettext, yes, no)
+	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)
+	ok_nls=$ok_xgettext
 fi
 
 if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_nls, msgmerge, yes, no)
+	AC_CHECK_PROG(ok_msgmerge, msgmerge, yes, no)
+	ok_nls=$ok_msgmerge
 fi
 
 if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_nls, msgfmt, yes, no)
+	AC_CHECK_PROG(ok_msgfmt, msgfmt, yes, no)
+	ok_nls=$ok_msgfmt
 fi
 
 if test "$ok_nls" != "no"; then
