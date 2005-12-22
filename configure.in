@@ -9,8 +9,8 @@ AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
-AC_SUBST(PROG_SUBDIRS)
 
+AC_SUBST(PROG_SUBDIRS)
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
 AC_CHECK_PROG(SED, sed, sed, no)
@@ -350,3 +350,9 @@ AC_SUBST(SETUP_LIBS)
 
 AC_OUTPUT(Makefile po/Makefile )
 
+echo ------------------------------------------------------------------------
+echo 'zlib compression:                ' $ok_zlib
+echo 'Calendar support:                ' $ok_libical
+echo 'Character set conversion support:' $ok_iconv
+echo 'National language support:       ' $ok_nls
+echo 
