@@ -45,13 +45,13 @@ some code and deciding what to work on.
   (connector now in testing), Thunderbird (connector currently being
   developed), and any other client which follows the standard.
 
+* Internationalization (WebCit is now available in several languages.)
+
 
  Goals to achieve during the 7.xx cycle
  --------------------------------------
 
-* Internationalization: multiple language support, at least for WebCit.
-
-* AJAX everywhere.  Dazzling richness in our web interface is a must-have.
+* Further internationalization (for example, in the citserver).
 
 * Per-user auto-handling of inbound mail.  Simple handlers such as an "out
   of office reply" should be easy for users to set up.  More complex handlers
