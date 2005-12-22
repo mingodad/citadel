@@ -138,9 +138,12 @@ void do_chat(void)
 	}
 
 	/* WebCit Chat works by having transmit, receive, and refresh
-	 * frames.  Load the frameset.
+	 * frames.  Load the frameset.  (This isn't AJAX but the headers
+	 * output by begin_ajax_response() happen to be the ones we need.)
 	 */
+	begin_ajax_response();
 	do_template("chatframeset");
+	end_ajax_response();
 	return;
 }
 
