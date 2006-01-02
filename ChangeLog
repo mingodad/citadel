@@ -1,5 +1,9 @@
 $Id$
 
+Mon Jan  2 16:39:55 EST 2006 ajc
+* The new AJAX-based instant messenger now handles sending messages, and
+  also multiple concurrent conversations.
+
 Mon Jan  2 13:36:56 EST 2006 ajc
 * New way to display incoming instant messages.  Not finished.
 
