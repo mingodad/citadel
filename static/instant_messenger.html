@@ -1,0 +1,126 @@
+<html>
+<head>
+	<title>Citadel Instant Messenger</title>
+	<script type="text/javascript" src="prototype.js"></script>
+	<script type="text/javascript" src="wclib.js"></script>
+</head>
+<body>
+
+<div id="main">
+</div>
+
+<script type="text/javascript">
+
+var gexp_divs = new Array();
+var num_gexp_divs = 0;
+
+function SendSomething(which_div, sendform, recipient) {
+	thetext = document.forms[sendform].elements['sendthis'].value;
+
+
+	// If the user didn't type anything, don't do anything.
+	if (thetext == '') {
+		return false;
+	}
+
+	// Clear the box
+	document.forms[sendform].elements['sendthis'].value = '';
+
+	// Write it to the window
+	$(which_div).innerHTML = $(which_div).innerHTML
+				+ '<b>'
+				+ '<font color=\"#FF0000\">'
+				+ 'Me (FIXME)'
+				+ '</font>'
+				+ ':</b> '
+				+ thetext
+				+ '<br />\n';
+
+	// Send the text to the server
+	parms = 'r=' + Math.random()
+		+ '&g_cmd=SEXP ' + recipient + '|' + thetext;
+	new Ajax.Request('../ajax_servcmd',
+		{
+			method: 'get',
+			parameters: parms,
+		}
+	);
+
+	// Don't submit the form
+	return false;
+}
+
+function ShowNewMsg(gexp_xmlresponse) {
+
+	// It isn't really XML.  It's a Citadel server response.
+	gexp_response = gexp_xmlresponse.responseText;
+
+	if (gexp_response.substring(0, 1) != '1') {
+		return;
+	}
+
+	// Extract fields...
+	breakpos = gexp_response.indexOf('\n');
+	result = gexp_response.substring(0, breakpos-1);
+	the_message = gexp_response.substring(breakpos+1);
+	the_message = the_message.substring(0, the_message.indexOf('\n000'));
+	sender = extract_token(result.substring(4), 3, '|');
+
+	// Figure out which div to write it to...
+	which_div = '';
+	if (num_gexp_divs > 0) {
+		for (i=0; i<num_gexp_divs; ++i) {
+			if (gexp_divs[i] == sender) {
+				which_div = 'gexp' + i ;
+			}
+		}
+	}
+
+	// Not found?  Create it.
+	if (which_div == '') {
+		gexp_divs[num_gexp_divs] = sender;
+		which_div = 'gexp' + num_gexp_divs;
+		++num_gexp_divs;
+		$('main').innerHTML = $('main').innerHTML + '<table border=2><tr><td>'
+			+ '<div id=\"' + which_div + '\"></div>'
+			+ '<div id=\"response_' + which_div + '\">'
+			+ '<br><form method=\"post\" action=\"null\" name=\"sendform_' + which_div + '\" '
+			+ 'onSubmit=\"return SendSomething(\'' + which_div + '\', \'sendform_'
+			+ which_div + '\', \'' + sender + '\');\">'
+			+ '<input type=\"text\" size=\"80\" maxlength=\"80\" name=\"sendthis\">'
+			+ '</form>'
+			+ '</div>'
+			+ '</td></tr></table><br><br>\n';
+	}
+
+	// Write it to the window
+	$(which_div).innerHTML = $(which_div).innerHTML
+				+ '<b>'
+				+ '<font color=\"#0000FF\">'
+				+ sender
+				+ '</font>'
+				+ ':</b> '
+				+ the_message
+				+ '<br />\n';
+}
+
+// This is called periodically to check for new incoming messages
+function FetchNewMsgs() {
+	parms = 'g_cmd=GEXP&r=' + Math.random();
+	new Ajax.Request('../ajax_servcmd',
+		{
+			method: 'get',
+			parameters: parms,
+			onSuccess: ShowNewMsg
+		}
+	);
+}
+
+// ...and here's how we cause it to be called periodically.
+new PeriodicalExecuter(FetchNewMsgs, 3);
+
+</script>
+
+
+</body>
+</html>
