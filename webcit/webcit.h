@@ -339,14 +339,11 @@ struct wcsession {
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
 	char reply_to[512];		/* reply-to address */
-
 	long msgarr[10000];		/* for read operations */
 	int num_summ;
 	struct message_summary *summ;
-
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
-	int HaveInstantMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
 	char this_page[512];		/* address of current page */
 	char http_host[512];		/* HTTP Host: header */
@@ -364,21 +361,18 @@ struct wcsession {
 	int ctdl_pid;			/* Session ID on the Citadel server */
 	char httpauth_user[256];	/* only for GroupDAV sessions */
 	char httpauth_pass[256];	/* only for GroupDAV sessions */
-
 	size_t burst_len;
 	char *burst;
 	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
 	int is_mailbox;			/* the current room is a private mailbox */
-
 	struct folder *cache_fold; 	/* cache the iconbar room list */
 	int cache_max_folders;
 	int cache_num_floors;
 	time_t cache_timestamp;
-
 	int current_iconbar;		/* What's currently in the iconbar? */
 	char floordiv_expanded[32];	/* which floordiv currently expanded */
-
 	int selected_language;		/* Language selected by user */
+	time_t last_pager_check;	/* last time we polled for instant msgs */
 };
 
 /* values for WC->current_iconbar */

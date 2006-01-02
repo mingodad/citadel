@@ -1844,6 +1844,7 @@ void readloop(char *oper)
 	int is_calendar = 0;
 	int is_tasks = 0;
 	int is_notes = 0;
+	int is_bbview = 0;
 	int lo, hi;
 	int lowest_displayed = (-1);
 	int highest_displayed = 0;
@@ -1855,7 +1856,7 @@ void readloop(char *oper)
 	char *subjsort_button;
 	char *sendsort_button;
 	char *datesort_button;
-	int bbs_reverse = 0;	/* FIXME we need to set/reset this option now.  It works. */
+	int bbs_reverse = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -2130,13 +2131,29 @@ void readloop(char *oper)
 		}
 	}
 
+	/* Set the "is_bbview" variable if it appears that we are looking at
+	 * a classic bulletin board view.
+	 */
+	if (num_displayed > 1) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
+	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
+		is_bbview = 1;
+	}
+
+	/* Output loop */
 	if (displayed_msgs != NULL) {
 		if (bbs_reverse) {
 			qsort(displayed_msgs, num_displayed, sizeof(long), longcmp_r);
 		}
 
+		if (is_bbview) {
+			wprintf("<div id=\"bbview_scroller\">");
+		}
 		for (a=0; a<num_displayed; ++a) {
 			read_message(displayed_msgs[a], 0, "");
+		}
+		if (is_bbview) {
+			wprintf("</div>\n");
 		}
 		free(displayed_msgs);
 		displayed_msgs = NULL;
@@ -2170,10 +2187,8 @@ void readloop(char *oper)
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
-	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
-	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
-
+	if (is_bbview) {
+		wprintf("<div id=\"bbview_selector\">");
 		wprintf("<form name=\"msgomatic\">");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
@@ -2246,7 +2261,7 @@ void readloop(char *oper)
 			oper
 		);
 	
-		wprintf("</select></form>\n");
+		wprintf("</select></form></div>\n");
 	    }
 	}
 

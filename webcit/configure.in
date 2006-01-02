@@ -13,6 +13,7 @@ AC_SUBST(VERSION)
 AC_SUBST(PROG_SUBDIRS)
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
+AC_CHECK_PROG(AUTOCONF, autoconf)
 AC_CHECK_PROG(SED, sed, sed, no)
 AC_PREFIX_DEFAULT(/usr/local/webcit)
 
@@ -64,8 +65,8 @@ if test "$GCC" = yes; then
 	esac
 fi
 
-dnl ### missing_dir=`cd $ac_aux_dir && pwd`
-dnl ### AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+# missing_dir=`cd $ac_aux_dir && pwd`
+# AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 
 dnl Checks for libraries.
 if test "$LIBS" != -pthread; then

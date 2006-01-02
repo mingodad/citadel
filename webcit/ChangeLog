@@ -1,5 +1,8 @@
 $Id$
 
+Mon Jan  2 13:36:56 EST 2006 ajc
+* New way to display incoming instant messages.  Not finished.
+
 Thu Dec 22 12:07:38 EST 2005 ajc
 * Added missing HTTP headers to do_chat()
 

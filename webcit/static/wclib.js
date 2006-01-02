@@ -18,22 +18,32 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 
 
-//
-// This code handles the popups for instant messages.
-//
 
+// We love string tokenizers.
+function extract_token(source_string, token_num, delimiter) {
+	var i = 0;
+	var extracted_string = source_string;
 
-function hide_page_popup() {
-	if (browserType == "gecko" )
-		document.poppedLayer = eval('document.getElementById(\'page_popup\')');
-	else if (browserType == "ie")
-		document.poppedLayer = eval('document.all[\'page_popup\']');
-	else
-		document.poppedLayer = eval('document.layers[\'`page_popup\']');
+	if (token_num > 0) {
+		for (i=0; i<token_num; ++i) {
+			var j = extracted_string.indexOf(delimiter);
+			if (j >= 0) {
+				extracted_string = extracted_string.substring(j+1);
+			}
+		}
+	}
 
-	document.poppedLayer.style.visibility = "hidden";
+	j = extracted_string.indexOf(delimiter);
+	if (j >= 0) {
+		extracted_string = extracted_string.substring(0, j);
+	}
+
+	return extracted_string;
 }
 
+
+
+// This code handles the popups for important-messages.
 function hide_imsg_popup() {
 	if (browserType == "gecko" )
 		document.poppedLayer = eval('document.getElementById(\'important_message\')');
@@ -44,6 +54,7 @@ function hide_imsg_popup() {
 
 	document.poppedLayer.style.visibility = "hidden";
 }
+
 
 // This function activates the ajax-powered recipient autocompleters on the message entry screen.
 function activate_entmsg_autocompleters() {

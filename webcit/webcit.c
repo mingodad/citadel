@@ -390,11 +390,10 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	/* ICONBAR */
 	if (do_htmlhead) {
 
-		if (WC->HaveInstantMessages) {
-			wprintf("<div id=\"page_popup\">\n");
-			page_popup();
-			wprintf("</div>\n");
-		}
+		/* check for instant messages (these display in a new window) */
+		page_popup();
+
+		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (strlen(WC->ImportantMessage) > 0) {
 			wprintf("<div id=\"important_message\">\n");
 			wprintf("<SPAN CLASS=\"imsg\">"
@@ -435,18 +434,6 @@ void http_redirect(char *whichpage) {
 	wprintf("Go <a href=\"%s\">here</A>.", whichpage);
 	wprintf("</body></html>\n");
 }
-
-
-
-void check_for_instant_messages()
-{
-	char buf[SIZ];
-
-	serv_puts("NOOP");
-	serv_getln(buf, sizeof buf);
-	if (buf[3] == '*') WC->HaveInstantMessages = 1;
-}
-
 
 
 
@@ -1231,11 +1218,6 @@ void session_loop(struct httprequest *req)
 			safestrncpy(WC->wc_roomname, c_roomname, sizeof WC->wc_roomname);
 		}
 	}
-
-	/*
-	 * If there are instant messages waiting, retrieve them for display.
-	 */
-	check_for_instant_messages();
 
 	if (!strcasecmp(action, "image")) {
 		output_image();
