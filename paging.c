@@ -154,29 +154,18 @@ void do_chat(void)
 void page_popup(void)
 {
 	char buf[SIZ];
-	char pagefrom[SIZ];
 
-	while (serv_puts("GEXP"), serv_getln(buf, sizeof buf), buf[0]=='1') {
-
-		extract_token(pagefrom, &buf[4], 3, '|', sizeof pagefrom);
-
-		wprintf("<table border=1 bgcolor=\"#880000\"><tr><td>");
-		wprintf("<span class=\"titlebar\">");
-		wprintf(_("Instant message from "));
-		escputs(pagefrom);
-		wprintf("</span></td></tr><tr><td><font color=\"#FFFFFF\">");
-		fmout("LEFT");
-		wprintf("</font></td></tr>"
-			"<tr><td><div align=center><font color=\"#FFFFFF\">"
-			"<a href=\"javascript:hide_page_popup()\">");
-		wprintf(_("[ close window ]"));
-		wprintf("</a>"
-			"</font></div>"
-			"</td></tr>"
-			"</table>\n");
+	serv_puts("NOOP");
+	serv_getln(buf, sizeof buf);
+	if (buf[3] == '*') {
+		if ((time(NULL) - WC->last_pager_check) > 120) {
+			wprintf("<script type=\"text/javascript\">"
+				" window.open('static/instant_messenger.html', 'CTDL_MESSENGER', "
+				" 'width=600,height=400');"
+				"</script>"
+			);	
+		}
 	}
-
-	WC->HaveInstantMessages = 0;
 }
 
 
@@ -480,5 +469,4 @@ void chat_send(void) {
 	wprintf("</BODY></HTML>\n");
 	wDumpContent(0);
 }
-
 

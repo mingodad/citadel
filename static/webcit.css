@@ -56,13 +56,6 @@ body {
 	background: #445;
 }
 
-#page_popup {
-	position:absolute;
-	top:100px; left:100px;
-	background-color: #880000;
-	z-index: 2;
-}
-
 #important_message {
 	position:absolute;
 	top:0px; right:0px;
@@ -176,9 +169,50 @@ body {
 	overflow: auto;
 }
 
+
+#bbview_scroller {
+	position:fixed;
+	display:block;
+	top: 15%;
+	left: 15%;
+	width: 85%;
+	height: 80%;
+	overflow: auto;
+}
+
+* html #bbview_scroller {
+	position:absolute;
+	display:block;
+	top: 15%;
+	left: 15%;
+	width: 85%;
+	height: 80%;
+	overflow: auto;
+}
+
+#bbview_selector {
+	position:fixed;
+	display:block;
+	top: 95%;
+	left: 15%;
+	width: 85%;
+	height: 5%;
+	overflow: none;
+}
+
+* html #bbview_selector {
+	position:absolute;
+	display:block;
+	top: 95%;
+	left: 15%;
+	width: 85%;
+	height: 5%;
+	overflow: none;
+}
+
 #fix_scrollbar_bug {
-	margin-right:1px;		/* Gecko */
-	width: expression('97%');	/* Only IE6 understands 'expression' and it also has the weird scrollbarbug */
+	margin-right:1px;		/* Gecko and other non-broken browsers */
+	width: expression('97%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
 }
 
 #button {

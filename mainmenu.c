@@ -55,8 +55,8 @@ void display_main_menu(void)
 		wprintf(_("Ungoto"));
 		wprintf("</span></A><br />"
 			"<span class=\"menudesc\">");
-		wprintf(_("(oops! Back to %s)"));
-		wprintf("</span>\n", WC->ugname);
+		wprintf(_("(oops! Back to %s)"), WC->ugname);
+		wprintf("</span>\n");
 	}
 
 	wprintf("</TD><TD>\n");	/* start of second column */
