@@ -6,8 +6,9 @@
 </head>
 <body>
 
-<div id="tab_bar"></div>
-<hr>
+<div id="spacer1" style="background: #aaaaaa"><br></div>
+<div id="tab_bar" style="background: #aaaaaa">&nbsp;&nbsp;</div>
+<div id="spacer2" style="background: #aaaaaa"><br></div>
 <div id="main"></div>
 
 <script type="text/javascript">
@@ -54,11 +55,17 @@ function SendSomething(which_div, sendform, recipient) {
 function TabSelect(which_div) {
 	if (shown_div != '') {
 		$(shown_div).style.display = 'none' ;
-		if ($('select_'+shown_div)) $('select_'+shown_div).style.fontWeight='normal';
+		if ($('select_'+shown_div)) {
+			$('select_'+shown_div).style.fontWeight = 'normal';
+			$('select_'+shown_div).style.backgroundColor = '#cccccc';
+		}
 	}
 	shown_div = 'tab_' + which_div;
 	$(shown_div).style.display = 'block' ;
-	if ($('select_'+shown_div)) $('select_'+shown_div).style.fontWeight='bold';
+	if ($('select_'+shown_div)) {
+		$('select_'+shown_div).style.fontWeight='bold';
+		$('select_'+shown_div).style.backgroundColor = '#ffffff';
+	}
 }
 
 
@@ -95,7 +102,7 @@ function ShowNewMsg(gexp_xmlresponse) {
 		++num_gexp_divs;
 		$('main').innerHTML =
 			  $('main').innerHTML
-			+ '<div id=\"tab_' + which_div + '\" style=\"display:none\">'
+			+ '<div id=\"tab_' + which_div + '\" style=\"display:none;cursor:pointer\">'
 			+ '<div id=\"' + which_div + '\"></div>'
 			+ '<div id=\"response_' + which_div + '\">'
 			+ '<br><form method=\"post\" action=\"null\" name=\"sendform_' + which_div + '\" '
@@ -108,7 +115,7 @@ function ShowNewMsg(gexp_xmlresponse) {
 		$('tab_bar').innerHTML =
 			  $('tab_bar').innerHTML
 			+ '<span id=\"select_tab_' + which_div + '\" onClick=\"TabSelect(\'' + which_div + '\');\">'
-			+ sender
+			+ '&nbsp;' + sender + '&nbsp;'
 			+ '</span>&nbsp;&nbsp;&nbsp;';
 
 		// Raise the window in case it was buried
