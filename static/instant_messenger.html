@@ -7,16 +7,18 @@
 <body>
 
 <div id="main">
+The buttons to toggle between conversations will go here.
+<hr>
 </div>
 
 <script type="text/javascript">
 
 var gexp_divs = new Array();
 var num_gexp_divs = 0;
+var shown_div = '';
 
 function SendSomething(which_div, sendform, recipient) {
 	thetext = document.forms[sendform].elements['sendthis'].value;
-
 
 	// If the user didn't type anything, don't do anything.
 	if (thetext == '') {
@@ -81,7 +83,8 @@ function ShowNewMsg(gexp_xmlresponse) {
 		gexp_divs[num_gexp_divs] = sender;
 		which_div = 'gexp' + num_gexp_divs;
 		++num_gexp_divs;
-		$('main').innerHTML = $('main').innerHTML + '<table border=2><tr><td>'
+		$('main').innerHTML = $('main').innerHTML
+			+ '<div id=\"tab_' + which_div + '\" style=\"display:none\">'
 			+ '<div id=\"' + which_div + '\"></div>'
 			+ '<div id=\"response_' + which_div + '\">'
 			+ '<br><form method=\"post\" action=\"null\" name=\"sendform_' + which_div + '\" '
@@ -90,10 +93,17 @@ function ShowNewMsg(gexp_xmlresponse) {
 			+ '<input type=\"text\" size=\"80\" maxlength=\"80\" name=\"sendthis\">'
 			+ '</form>'
 			+ '</div>'
-			+ '</td></tr></table><br><br>\n';
+			+ '</div>\n';
 	}
 
-	// Write it to the window
+	// Switch tabs
+	if (shown_div != '') {
+		$(shown_div).style.display = 'none' ;
+	}
+	shown_div = 'tab_' + which_div;
+	$(shown_div).style.display = 'block' ;
+
+	// Write it to the tab
 	$(which_div).innerHTML = $(which_div).innerHTML
 				+ '<b>'
 				+ '<font color=\"#0000FF\">'
