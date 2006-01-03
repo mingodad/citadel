@@ -1,5 +1,8 @@
 $Id$
 
+Mon Jan  2 22:46:02 EST 2006 ajc
+* Allow selection of tabs in multiple conversation mode.
+
 Mon Jan  2 16:39:55 EST 2006 ajc
 * The new AJAX-based instant messenger now handles sending messages, and
   also multiple concurrent conversations.

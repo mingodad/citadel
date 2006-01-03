@@ -149,7 +149,8 @@ void do_chat(void)
 
 
 /*
- *
+ * If there are instant messages waiting, and we notice that we haven't checked them in
+ * a while, it probably means that we need to open the instant messenger window.
  */
 void page_popup(void)
 {
@@ -158,7 +159,7 @@ void page_popup(void)
 	serv_puts("NOOP");
 	serv_getln(buf, sizeof buf);
 	if (buf[3] == '*') {
-		if ((time(NULL) - WC->last_pager_check) > 120) {
+		if ((time(NULL) - WC->last_pager_check) > 60) {
 			wprintf("<script type=\"text/javascript\">"
 				" window.open('static/instant_messenger.html', 'CTDL_MESSENGER', "
 				" 'width=600,height=400');"
