@@ -6,10 +6,9 @@
 </head>
 <body>
 
-<div id="main">
-The buttons to toggle between conversations will go here.
+<div id="tab_bar"></div>
 <hr>
-</div>
+<div id="main"></div>
 
 <script type="text/javascript">
 
@@ -52,6 +51,17 @@ function SendSomething(which_div, sendform, recipient) {
 	return false;
 }
 
+function TabSelect(which_div) {
+	if (shown_div != '') {
+		$(shown_div).style.display = 'none' ;
+		if ($('select_'+shown_div)) $('select_'+shown_div).style.fontWeight='normal';
+	}
+	shown_div = 'tab_' + which_div;
+	$(shown_div).style.display = 'block' ;
+	if ($('select_'+shown_div)) $('select_'+shown_div).style.fontWeight='bold';
+}
+
+
 function ShowNewMsg(gexp_xmlresponse) {
 
 	// It isn't really XML.  It's a Citadel server response.
@@ -83,7 +93,8 @@ function ShowNewMsg(gexp_xmlresponse) {
 		gexp_divs[num_gexp_divs] = sender;
 		which_div = 'gexp' + num_gexp_divs;
 		++num_gexp_divs;
-		$('main').innerHTML = $('main').innerHTML
+		$('main').innerHTML =
+			  $('main').innerHTML
 			+ '<div id=\"tab_' + which_div + '\" style=\"display:none\">'
 			+ '<div id=\"' + which_div + '\"></div>'
 			+ '<div id=\"response_' + which_div + '\">'
@@ -94,14 +105,18 @@ function ShowNewMsg(gexp_xmlresponse) {
 			+ '</form>'
 			+ '</div>'
 			+ '</div>\n';
+		$('tab_bar').innerHTML =
+			  $('tab_bar').innerHTML
+			+ '<span id=\"select_tab_' + which_div + '\" onClick=\"TabSelect(\'' + which_div + '\');\">'
+			+ sender
+			+ '</span>&nbsp;&nbsp;&nbsp;';
+
+		// Raise the window in case it was buried
+		window.focus();
 	}
 
 	// Switch tabs
-	if (shown_div != '') {
-		$(shown_div).style.display = 'none' ;
-	}
-	shown_div = 'tab_' + which_div;
-	$(shown_div).style.display = 'block' ;
+	TabSelect(which_div);
 
 	// Write it to the tab
 	$(which_div).innerHTML = $(which_div).innerHTML
