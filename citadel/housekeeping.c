@@ -40,7 +40,8 @@
 #include "sysdep_decls.h"
 #include "room_ops.h"
 #include "database.h"
-
+#include "msgbase.h"
+#include "journaling.h"
 
 
 
@@ -136,6 +137,7 @@ void do_housekeeping(void) {
 	static int housekeeping_in_progress = 0;
 	static time_t last_timer = 0L;
 	int do_housekeeping_now = 0;
+	int do_perminute_housekeeping_now = 0;
 	time_t now;
 
 	/*
@@ -144,11 +146,12 @@ void do_housekeeping(void) {
 	 * potentially have multiple concurrent mutexes in progress.
 	 */
 	begin_critical_section(S_HOUSEKEEPING);
-	now = time(NULL);
-	if ( (now - last_timer) > (time_t)60 ) {
-		if (housekeeping_in_progress == 0) {
-			do_housekeeping_now = 1;
-			housekeeping_in_progress = 1;
+	if (housekeeping_in_progress == 0) {
+		do_housekeeping_now = 1;
+		housekeeping_in_progress = 1;
+		now = time(NULL);
+		if ( (now - last_timer) > (time_t)60 ) {
+			do_perminute_housekeeping_now = 1;
 			last_timer = time(NULL);
 		}
 	}
@@ -163,8 +166,14 @@ void do_housekeeping(void) {
 	 * loop.  Everything below this point is real work.
 	 */
 
-	cdb_check_handles();			/* suggested by Justin Case */
-	PerformSessionHooks(EVT_TIMER);		/* Run any timer hooks */
+	/* First, do the "as often as needed" stuff... */
+	JournalRunQueue();
+
+	/* Then, do the "once per minute" stuff... */
+	if (do_perminute_housekeeping_now) {
+		cdb_check_handles();			/* suggested by Justin Case */
+		PerformSessionHooks(EVT_TIMER);		/* Run any timer hooks */
+	}
 
 	/*
 	 * All done.

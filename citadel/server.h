@@ -219,6 +219,7 @@ enum {
 	S_FLOORCACHE,
 	S_DEBUGMEMLEAKS,
 	S_ATBF,
+	S_JOURNAL_QUEUE,
 	MAX_SEMAPHORES
 };
 
@@ -466,6 +467,6 @@ struct ser_ret {
 /*               **********			Important fields */
 /*                         ***************	Semi-important fields */
 /*                                        * 	Message text (MUST be last) */
-#define FORDER	"IPTAFONHRDBCEGJKLQSVWXZYUM"
+#define FORDER	"IPTAFONHRDBCEJGKLQSVWXZYUM"
 
 #endif /* SERVER_H */

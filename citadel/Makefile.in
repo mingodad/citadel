@@ -102,7 +102,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
-	crc16.c
+	crc16.c journaling.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -135,7 +135,7 @@ SERV_OBJS = server_main.o \
 	control.o policy.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o mime_parser.o html.o \
-	internet_addressing.o \
+	internet_addressing.o journaling.o \
 	serv_crypto.o parsedate.o genstamp.o \
 	clientsocket.o $(AUTH) $(SERV_MODULES)
 

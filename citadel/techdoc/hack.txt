@@ -257,6 +257,10 @@ F	rFc822 address	For Internet mail, this is the delivery address of the
 H	Human node name	Human-readable name of system message originated on.
 I	Original ID	A 32-bit integer containing the message ID on the
 			system the message *originated* on.
+J	Journal		The presence of this field indicates that the message
+			is disqualified from being journaled, perhaps because
+			it is itself a journalized message and we wish to
+			avoid double journaling.
 M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
                         null terminated as always.
 N	Nodename	Contains node name of system message originated on.

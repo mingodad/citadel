@@ -50,6 +50,7 @@
 #include "serv_fulltext.h"
 #include "vcard.h"
 #include "euidindex.h"
+#include "journaling.h"
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
@@ -82,7 +83,8 @@ char *msgkeys[] = {
 	NULL, 
 	"hnod",
 	"msgn",
-	NULL, NULL, NULL,
+	"jrnl",
+	NULL, NULL,
 	"text",
 	"node",
 	"room",
@@ -2137,6 +2139,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char *hold_R, *hold_D;
 	char *collected_addresses = NULL;
 	struct addresses_to_be_filed *aptr = NULL;
+	char *saved_rfc822_version = NULL;
+	int qualified_for_journaling = 0;
 
 	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2265,13 +2269,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	safestrncpy(smi.meta_content_type, content_type,
 			sizeof smi.meta_content_type);
 
-	/* As part of the new metadata record, measure how
-	 * big this message will be when displayed as RFC822.
-	 * Both POP and IMAP use this, and it's best to just take the hit now
-	 * instead of having to potentially measure thousands of messages when
-	 * a mailbox is opened later.
+	/*
+	 * Measure how big this message will be when rendered as RFC822.
+	 * We do this for two reasons:
+	 * 1. We need the RFC822 length for the new metadata record, so the
+	 *    POP and IMAP services don't have to calculate message lengths
+	 *    while the user is waiting (multiplied by potentially hundreds
+	 *    or thousands of messages).
+	 * 2. If journaling is enabled, we will need an RFC822 version of the
+	 *    message to attach to the journalized copy.
 	 */
-
 	if (CC->redirect_buffer != NULL) {
 		lprintf(CTDL_ALERT, "CC->redirect_buffer is not NULL during message submission!\n");
 		abort();
@@ -2281,7 +2288,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	CC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
 	smi.meta_rfc822_length = CC->redirect_len;
-	free(CC->redirect_buffer);
+	saved_rfc822_version = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
@@ -2432,6 +2439,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['A'] = strdup("Citadel");
+		imsg->cm_fields['J'] = strdup("do not journal");
 		imsg->cm_fields['M'] = instr;
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
@@ -2456,11 +2464,34 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		atbf = aptr;
 		end_critical_section(S_ATBF);
 	}
+
+	/*
+	 * Determine whether this message qualifies for journaling.
+	 */
+	if (msg->cm_fields['J'] != NULL) {
+		qualified_for_journaling = 0;
+	}
+	else {
+		qualified_for_journaling = 1;	/* FIXME */
+	}
+
+	/*
+	 * Do we have to perform journaling?  If so, hand off the saved
+	 * RFC822 version will be handed off to the journaler for background
+	 * submit.  Otherwise, we have to free the memory ourselves.
+	 */
+	if (saved_rfc822_version != NULL) {
+		if (qualified_for_journaling) {
+			JournalBackgroundSubmit(msg, saved_rfc822_version, recps);
+		}
+		else {
+			free(saved_rfc822_version);
+		}
+	}
+
+	/* Done. */
 	return(newmsgid);
 }
-
-
-
 
 
 
