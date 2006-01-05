@@ -97,9 +97,11 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 	struct recptypes *journal_recps = NULL;
 	char *message_text = NULL;
 	char mime_boundary[256];
+	char recipient[256];
 	static int seq = 0;
+	int i;
 
-	journal_recps = validate_recipients("FIXME@FIXME.com");	/* FIXME */
+	journal_recps = validate_recipients("FIXME@example.com");	/* FIXME */
 	if (journal_recps != NULL) {
 
 		if (  (journal_recps->num_local > 0)
@@ -123,7 +125,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			journal_msg->cm_fields['F'] = jmsg->rfca;
 			journal_msg->cm_fields['U'] = jmsg->subj;
 
-			sprintf(mime_boundary, "---Citadel-Message-Journal-%08lx-%04x---", time(NULL), ++seq);
+			sprintf(mime_boundary, "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
 			message_text = malloc(strlen(jmsg->rfc822) + sizeof(struct recptypes) + 1024);
 
 			sprintf(message_text,
@@ -133,15 +135,65 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				"--%s\r\n"
 				"Content-type: text/plain\r\n"
 				"\r\n"
-				"FIXME PUT MEMO HERE\r\n"
+				"Sender: %s "
+			,
+				mime_boundary,
+				mime_boundary,
+				( journal_msg->cm_fields['A'] ? journal_msg->cm_fields['A'] : "(null)" )
+			);
+
+			if (journal_msg->cm_fields['F']) {
+				sprintf(&message_text[strlen(message_text)], "<%s>",
+					journal_msg->cm_fields['F']);
+			}
+			else if (journal_msg->cm_fields['N']) {
+				sprintf(&message_text[strlen(message_text)], "@ %s",
+					journal_msg->cm_fields['N']);
+			}
+
+			sprintf(&message_text[strlen(message_text)],
+				"\r\n"
+				"Message-ID: <%s>\r\n"
+				"Recipients:\r\n"
+			,
+				jmsg->msgn
+			);
+
+			if (journal_recps->num_local > 0) {
+				for (i=0; i<journal_recps->num_local; ++i) {
+					extract_token(recipient, journal_recps->recp_local,
+							i, '|', sizeof recipient);
+					sprintf(&message_text[strlen(message_text)],
+						"	%s\r\n", recipient);
+				}
+			}
+
+			if (journal_recps->num_ignet > 0) {
+				for (i=0; i<journal_recps->num_ignet; ++i) {
+					extract_token(recipient, journal_recps->recp_ignet,
+							i, '|', sizeof recipient);
+					sprintf(&message_text[strlen(message_text)],
+						"	%s\r\n", recipient);
+				}
+			}
+
+			if (journal_recps->num_internet > 0) {
+				for (i=0; i<journal_recps->num_internet; ++i) {
+					extract_token(recipient, journal_recps->recp_internet,
+							i, '|', sizeof recipient);
+					sprintf(&message_text[strlen(message_text)],
+						"	%s\r\n", recipient);
+				}
+			}
+
+			sprintf(&message_text[strlen(message_text)],
+				"\r\n"
 				"--%s\r\n"
 				"Content-type: message/rfc822\r\n"
 				"\r\n"
 				"%s"
 				"--%s--\r\n"
 			,
-				mime_boundary,
-				mime_boundary,
 				mime_boundary,
 				jmsg->rfc822,
 				mime_boundary
