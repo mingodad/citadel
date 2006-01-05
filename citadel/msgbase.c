@@ -2472,7 +2472,15 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		qualified_for_journaling = 0;
 	}
 	else {
-		qualified_for_journaling = 1;	/* FIXME */
+		if (recps == NULL) {
+			qualified_for_journaling = config.c_journal_pubmsgs;
+		}
+		else if (recps->num_local + recps->num_ignet + recps->num_internet > 0) {
+			qualified_for_journaling = config.c_journal_email;
+		}
+		else {
+			qualified_for_journaling = config.c_journal_pubmsgs;
+		}
 	}
 
 	/*

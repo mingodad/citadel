@@ -1,5 +1,5 @@
               APPLICATION LAYER PROTOCOL FOR THE CITADEL SYSTEM
-         (c) 1995-2005 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-2006 by Art Cancro et. al.    All Rights Reserved
 
 
  INTRODUCTION
@@ -1813,52 +1813,55 @@ fails for any reason, ERROR is returned.
 
  The configuration lines are as follows:
 
- 1. Node name
- 2. Fully qualified domain name
- 3. Human-readable node name
- 4. Landline telephone number of this system
- 5. Flag (0 or 1) - creator of private room automatically becomes room aide
- 6. Server connection idle timeout (in seconds)
- 7. Initial access level for new users
- 8. Flag (0 or 1) - require registration for new users
- 9. Flag (0 or 1) - automatically move Problem User messages to twit room
- 10. Name of twit room
- 11. Text of <more> prompt
- 12. Flag (0 or 1) - restrict access to Internet mail
- 13. Geographic location of this system
- 14. Name of the system administrator
- 15. Number of maximum concurrent sessions allowed on the server
- 16. (placeholder -- this field is no longer in use)
- 17. Default purge time (in days) for users
- 18. Default purge time (in days) for rooms
- 19. Name of room to log instant messages to (or a zero-length name for none)
- 20. Access level required to create rooms
- 21. Maximum message length which may be entered into the system
- 22. Minimum number of worker threads
- 23. Maximum number of worker threads
- 24. Port number for POP3 service
- 25. Port number for SMTP service
- 26. Flag (0 or 1) - strict RFC822 adherence - don't correct From: forgeries
- 27. Flag (0 or 1) - allow Aides to zap (forget) rooms
- 28. Port number for IMAP service
- 29. How often (in seconds) to run the networker
- 30. Flag (0 or 1) - disable self-service new user registration
- 31. (placeholder -- this field is no longer in use)
- 32. Hour (0 through 23) during which database auto-purge jobs are run
- 33. Name of host where an LDAP service may be found
- 34. Port number of LDAP service on above host
- 35. LDAP Base DN
- 36. LDAP Bind DN
- 37. Password for LDAP Bind DN
- 38. Server IP address to listen on (or "0.0.0.0" for all addresses)
- 39. Port number for SMTP MSA service
- 40. Port number for IMAPS (SSL-encrypted IMAP)
- 41. Port number for POP3S (SSL-encrypted POP3)
- 42. Port number for SMTPS (SSL-encrypted SMTP)
- 43. Flag (0 or 1) - enable full text search index
- 44. Flag (0 or 1) - automatically cull database log files
- 45. Flag (0 or 1) - enable IMAP "instant expunge" of deleted messages
- 46. Flag (0 or 1) - allow unauthenticated SMTP clients to spoof my domains
+ 0. Node name
+ 1. Fully qualified domain name
+ 2. Human-readable node name
+ 3. Landline telephone number of this system
+ 4. Flag (0 or 1) - creator of private room automatically becomes room aide
+ 5. Server connection idle timeout (in seconds)
+ 6. Initial access level for new users
+ 7. Flag (0 or 1) - require registration for new users
+ 8. Flag (0 or 1) - automatically move Problem User messages to twit room
+ 9. Name of twit room
+ 10. Text of <more> prompt
+ 11. Flag (0 or 1) - restrict access to Internet mail
+ 12. Geographic location of this system
+ 13. Name of the system administrator
+ 14. Number of maximum concurrent sessions allowed on the server
+ 15. (placeholder -- this field is no longer in use)
+ 16. Default purge time (in days) for users
+ 17. Default purge time (in days) for rooms
+ 18. Name of room to log instant messages to (or a zero-length name for none)
+ 19. Access level required to create rooms
+ 20. Maximum message length which may be entered into the system
+ 21. Minimum number of worker threads
+ 22. Maximum number of worker threads
+ 23. Port number for POP3 service
+ 24. Port number for SMTP service
+ 25. Flag (0 or 1) - strict RFC822 adherence - don't correct From: forgeries
+ 26. Flag (0 or 1) - allow Aides to zap (forget) rooms
+ 27. Port number for IMAP service
+ 28. How often (in seconds) to run the networker
+ 29. Flag (0 or 1) - disable self-service new user registration
+ 30. (placeholder -- this field is no longer in use)
+ 31. Hour (0 through 23) during which database auto-purge jobs are run
+ 32. Name of host where an LDAP service may be found
+ 33. Port number of LDAP service on above host
+ 34. LDAP Base DN
+ 35. LDAP Bind DN
+ 36. Password for LDAP Bind DN
+ 37. Server IP address to listen on (or "0.0.0.0" for all addresses)
+ 38. Port number for SMTP MSA service
+ 39. Port number for IMAPS (SSL-encrypted IMAP)
+ 40. Port number for POP3S (SSL-encrypted POP3)
+ 41. Port number for SMTPS (SSL-encrypted SMTP)
+ 42. Flag (0 or 1) - enable full text search index
+ 43. Flag (0 or 1) - automatically cull database log files
+ 44. Flag (0 or 1) - enable IMAP "instant expunge" of deleted messages
+ 45. Flag (0 or 1) - allow unauthenticated SMTP clients to spoof my domains
+ 46. Flag (0 or 1) - perform journaling of email messages
+ 47. Flag (0 or 1) - perform journaling of non-email messages
+ 48. Address to which journalized messages are to be sent
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which

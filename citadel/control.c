@@ -229,6 +229,9 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_auto_cull);
 		cprintf("%d\n", config.c_instant_expunge);
 		cprintf("%d\n", config.c_allow_spoofing);
+		cprintf("%d\n", config.c_journal_email);
+		cprintf("%d\n", config.c_journal_pubmsgs);
+		cprintf("%s\n", config.c_journal_dest);
 		cprintf("000\n");
 	}
 
@@ -415,6 +418,15 @@ void cmd_conf(char *argbuf)
 			case 45:
 				config.c_allow_spoofing = atoi(buf);
 				break;
+			case 46:
+				config.c_journal_email = atoi(buf);
+				break;
+			case 47:
+				config.c_journal_pubmsgs = atoi(buf);
+				break;
+			case 48:
+				safestrncpy(config.c_journal_dest, buf,
+						sizeof config.c_journal_dest);
 			}
 			++a;
 		}

@@ -69,6 +69,9 @@ struct config {
 	char c_auto_cull;		/* Cull db logs automatically?      */
 	char c_instant_expunge;		/* IMAP instant expunge deleted msgs*/
 	char c_allow_spoofing;		/* SMTP allow spoofing of my domains*/
+	char c_journal_email;		/* Perform journaling of email      */
+	char c_journal_pubmsgs;		/* Perform journaling of non-email  */
+	char c_journal_dest[128];	/* Where to send journalized msgs   */
 };
 
 

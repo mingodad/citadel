@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 46
+#define NUM_CONFIGS 49
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][256];
@@ -682,7 +682,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Node name", &sc[0][0], 15);
 	strprompt("Fully qualified domain name", &sc[1][0], 63);
 	strprompt("Human readable node name", &sc[2][0], 20);
-	strprompt("Modem dialup number", &sc[3][0], 15);
+	strprompt("Telephone number", &sc[3][0], 15);
 	strprompt("Geographic location of this system", &sc[12][0], 31);
 	strprompt("Name of system administrator", &sc[13][0], 25);
 	strprompt("Paginator prompt", &sc[10][0], 79);
@@ -841,6 +841,17 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[42], sizeof sc[42], "%d", (boolprompt(
 		"Enable full text search index (warning: resource intensive)",
 		atoi(&sc[42][0]))));
+
+	snprintf(sc[46], sizeof sc[46], "%d", (boolprompt(
+		"Perform journaling of email messages",
+		atoi(&sc[46][0]))));
+	snprintf(sc[47], sizeof sc[47], "%d", (boolprompt(
+		"Perform journaling of non-email messages",
+		atoi(&sc[47][0]))));
+	if ( (atoi(&sc[46][0])) || (atoi(&sc[47][0])) ) {
+		strprompt("Email destination of journalized messages",
+			&sc[48][0], 127);
+	}
 
 	/* Save it */
 	scr_printf("Save this configuration? ");
