@@ -159,27 +159,27 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				jmsg->msgn
 			);
 
-			if (journal_recps->num_local > 0) {
-				for (i=0; i<journal_recps->num_local; ++i) {
-					extract_token(recipient, journal_recps->recp_local,
+			if (jmsg->recps.num_local > 0) {
+				for (i=0; i<jmsg->recps.num_local; ++i) {
+					extract_token(recipient, jmsg->recps.recp_local,
 							i, '|', sizeof recipient);
 					sprintf(&message_text[strlen(message_text)],
 						"	%s\r\n", recipient);
 				}
 			}
 
-			if (journal_recps->num_ignet > 0) {
-				for (i=0; i<journal_recps->num_ignet; ++i) {
-					extract_token(recipient, journal_recps->recp_ignet,
+			if (jmsg->recps.num_ignet > 0) {
+				for (i=0; i<jmsg->recps.num_ignet; ++i) {
+					extract_token(recipient, jmsg->recps.recp_ignet,
 							i, '|', sizeof recipient);
 					sprintf(&message_text[strlen(message_text)],
 						"	%s\r\n", recipient);
 				}
 			}
 
-			if (journal_recps->num_internet > 0) {
-				for (i=0; i<journal_recps->num_internet; ++i) {
-					extract_token(recipient, journal_recps->recp_internet,
+			if (jmsg->recps.num_internet > 0) {
+				for (i=0; i<jmsg->recps.num_internet; ++i) {
+					extract_token(recipient, jmsg->recps.recp_internet,
 							i, '|', sizeof recipient);
 					sprintf(&message_text[strlen(message_text)],
 						"	%s\r\n", recipient);

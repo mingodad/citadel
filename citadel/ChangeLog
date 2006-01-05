@@ -1,5 +1,8 @@
 $Id$
 
+Thu Jan  5 17:38:39 EST 2006 ajc
+* Adjustments to journal recipient list 
+
 Thu Jan  5 16:08:47 EST 2006 ajc
 * Implemented configuration settings for journaling.
 
