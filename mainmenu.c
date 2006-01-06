@@ -117,7 +117,7 @@ void display_main_menu(void)
 	wprintf("</TD></TR>"
 		"<TR VALIGN=TOP><TD>");
 
-	svprintf("BOXTITLE", WCS_STRING, "Your info");
+	svprintf("BOXTITLE", WCS_STRING, _("Your info"));
 	do_template("beginbox");
 
 	wprintf("<a href=\"display_preferences\">"
@@ -319,7 +319,7 @@ void do_generic(void)
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
 
-	svprintf("BOXTITLE", WCS_STRING, "Server command results");
+	svprintf("BOXTITLE", WCS_STRING, _("Server command results"));
 	do_template("beginbox");
 
 	wprintf("<TABLE border=0><TR><TD>Command:</TD><TD><TT>");
