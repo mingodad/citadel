@@ -654,8 +654,12 @@ void set_selected_language(char *);
 void go_selected_language(void);
 void stop_selected_language(void);
 void httplang_to_locale(char *LocaleString);
+void tabbed_dialog(int num_tabs, char *tabnames[]);
+void begin_tab(int tabnum, int num_tabs);
+void end_tab(int tabnum, int num_tabs);
 
 void embed_room_banner(char *, int);
+
 /* navbar types that can be passed to embed_room_banner */
 enum {
 	navbar_none,
