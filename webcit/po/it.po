@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-19 15:48-0500\n"
+"POT-Creation-Date: 2006-01-06 11:21-0500\n"
 "PO-Revision-Date: 2005-12-12 09:18+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -80,7 +80,7 @@ msgstr "Lingua:"
 msgid "Login"
 msgstr "Login"
 
-#: ../auth.c:62 ../paging.c:474
+#: ../auth.c:62 ../paging.c:467
 msgid "Exit"
 msgstr "Uscita"
 
@@ -147,8 +147,8 @@ msgid "Change password"
 msgstr "Cambia la password"
 
 #: ../auth.c:469 ../calendar.c:582 ../event.c:385 ../graphics.c:57
-#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2644 ../messages.c:2755
-#: ../messages.c:2841 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
+#: ../iconbar.c:699 ../mainmenu.c:298 ../messages.c:2659 ../messages.c:2770
+#: ../messages.c:2856 ../netconf.c:79 ../netconf.c:139 ../paging.c:56
 #: ../preferences.c:361 ../roomops.c:1175 ../roomops.c:1503 ../roomops.c:1932
 #: ../roomops.c:2081 ../roomops.c:2145 ../siteconfig.c:821 ../sysmsgs.c:52
 #: ../useredit.c:366 ../vcard_edit.c:330 ../who.c:268
@@ -373,7 +373,7 @@ msgstr "Data dovuta:"
 msgid "Save"
 msgstr "Salva"
 
-#: ../calendar.c:581 ../event.c:383 ../messages.c:811 ../messages.c:2079
+#: ../calendar.c:581 ../event.c:383 ../messages.c:811 ../messages.c:2080
 msgid "Delete"
 msgstr "Cancella"
 
@@ -1016,6 +1016,11 @@ msgstr "(tutti gli utenti registrati)"
 msgid "Bye!"
 msgstr "Ciao!"
 
+#: ../mainmenu.c:120
+#, fuzzy
+msgid "Your info"
+msgstr "Le tue informazioni personali"
+
 #: ../mainmenu.c:125
 msgid "Change your preferences and settings"
 msgstr "Cambia le tue preferenze e impostazioni"
@@ -1125,6 +1130,10 @@ msgstr "L'intestazione dell'host rilevata &egrave; %s://%s"
 msgid "Send command"
 msgstr "Invia il comando"
 
+#: ../mainmenu.c:322
+msgid "Server command results"
+msgstr ""
+
 #: ../messages.c:368
 msgid " (work)"
 msgstr "(lavoro)"
@@ -1169,7 +1178,7 @@ msgstr "in"
 msgid "to "
 msgstr "a"
 
-#: ../messages.c:727 ../messages.c:2601
+#: ../messages.c:727 ../messages.c:2616
 msgid "CC:"
 msgstr "CC:"
 
@@ -1193,7 +1202,7 @@ msgstr "Rispondi A Tutti"
 msgid "Forward"
 msgstr "Inoltra"
 
-#: ../messages.c:806 ../messages.c:2839
+#: ../messages.c:806 ../messages.c:2854
 msgid "Move"
 msgstr "Sposta"
 
@@ -1231,112 +1240,112 @@ msgstr "(nessun nome)"
 msgid "This address book is empty."
 msgstr "Questa lista contatti &egrave; vuota"
 
-#: ../messages.c:1954
+#: ../messages.c:1955
 msgid "No new messages."
 msgstr "Nessun nuovo messaggio"
 
-#: ../messages.c:1956
+#: ../messages.c:1957
 msgid "No old messages."
 msgstr "Nessun vecchio messaggio."
 
-#: ../messages.c:1958
+#: ../messages.c:1959
 msgid "No messages here."
 msgstr "Nessun messaggio."
 
-#: ../messages.c:2074
+#: ../messages.c:2075
 msgid "Subject"
 msgstr "Oggetto"
 
-#: ../messages.c:2076
+#: ../messages.c:2077
 msgid "Sender"
 msgstr "Mittente"
 
-#: ../messages.c:2078
+#: ../messages.c:2079
 msgid "Date"
 msgstr "Data"
 
-#: ../messages.c:2178
+#: ../messages.c:2193
 msgid "Reading #"
 msgstr "Numero di letture"
 
-#: ../messages.c:2231
+#: ../messages.c:2246
 #, c-format
 msgid "of %d messages."
 msgstr "di %d messaggi."
 
-#: ../messages.c:2418
+#: ../messages.c:2433
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancellato. Il messaggio non &egrave; stato inviato."
 
-#: ../messages.c:2424
+#: ../messages.c:2439
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancellato automaticamente, hai gi&agrave; salvato questo messaggio."
 
-#: ../messages.c:2442
+#: ../messages.c:2457
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Il messaggio &egrave; stato inviato.\n"
 
-#: ../messages.c:2445
+#: ../messages.c:2460
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Il messaggio &egrave; stato postato.\n"
 
-#: ../messages.c:2554
+#: ../messages.c:2569
 msgid " <I>from</I> "
 msgstr "<i>da</i>"
 
-#: ../messages.c:2564
+#: ../messages.c:2579
 msgid " <I>in</I> "
 msgstr "<i>in</i>"
 
-#: ../messages.c:2590
+#: ../messages.c:2605
 msgid "To:"
 msgstr "A:"
 
-#: ../messages.c:2612
+#: ../messages.c:2627
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2630
+#: ../messages.c:2645
 msgid "Subject (optional):"
 msgstr "Oggetto (opzionale):"
 
-#: ../messages.c:2639 ../messages.c:2750 ../paging.c:55
+#: ../messages.c:2654 ../messages.c:2765 ../paging.c:55
 msgid "Send message"
 msgstr "Invia il messaggio"
 
-#: ../messages.c:2641 ../messages.c:2752
+#: ../messages.c:2656 ../messages.c:2767
 msgid "Post message"
 msgstr "Posta il messaggio"
 
-#: ../messages.c:2657
+#: ../messages.c:2672
 msgid "--- forwarded message ---"
 msgstr "--- messaggio inoltrato ---"
 
-#: ../messages.c:2727
+#: ../messages.c:2742
 msgid "Attachments:"
 msgstr "Allegati:"
 
-#: ../messages.c:2742
+#: ../messages.c:2757
 msgid "Attach file:"
 msgstr "Allega file:"
 
-#: ../messages.c:2745 ../roomops.c:1367 ../roomops.c:1397
+#: ../messages.c:2760 ../roomops.c:1367 ../roomops.c:1397
 msgid "Add"
 msgstr "Aggiungi"
 
-#: ../messages.c:2812
+#: ../messages.c:2827
 msgid "Confirm move of message"
 msgstr "Conferma lo spostamento del messaggio"
 
-#: ../messages.c:2819
+#: ../messages.c:2834
 msgid "Move this message to:"
 msgstr "Sposta questo messaggio in:"
 
-#: ../messages.c:2863
+#: ../messages.c:2878
 #, c-format
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
@@ -1421,32 +1430,28 @@ msgstr "Il Messaggio non è stato spedito."
 msgid "Message has been sent to "
 msgstr "Il Messaggio è stato spedito a"
 
-#: ../paging.c:108 ../paging.c:169
+#: ../paging.c:108
 msgid "[ close window ]"
 msgstr "[ chiudi la finestra ]"
 
-#: ../paging.c:162
-msgid "Instant message from "
-msgstr "Messaggio Istantaneo da"
-
-#: ../paging.c:273 ../paging.c:435
+#: ../paging.c:266 ../paging.c:428
 msgid "An error occurred while setting up the chat socket."
 msgstr ""
 "Si è verificato un errore durante la creazione della connessione per la chat."
 
-#: ../paging.c:300
+#: ../paging.c:293
 msgid "Now exiting chat mode."
 msgstr "Uscita dalla modalità chat."
 
-#: ../paging.c:471
+#: ../paging.c:464
 msgid "Send"
 msgstr "Invia"
 
-#: ../paging.c:472
+#: ../paging.c:465
 msgid "Help"
 msgstr "Aiuto"
 
-#: ../paging.c:473
+#: ../paging.c:466
 msgid "List users"
 msgstr "Mostra gli utenti"
 
@@ -2609,24 +2614,24 @@ msgstr "Indirizzo email principale"
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 
-#: ../webcit.c:630
+#: ../webcit.c:617
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../webcit.c:711
+#: ../webcit.c:698
 msgid "Make this my start page"
 msgstr "Fai di questa la mia pagini principale"
 
-#: ../webcit.c:730
+#: ../webcit.c:717
 msgid "You no longer have a start page selected."
 msgstr "Non hai più una pagina principale selezionata."
 
-#: ../webcit.c:760
+#: ../webcit.c:747
 msgid "Authorization Required"
 msgstr "Autorizzazione richiesta"
 
-#: ../webcit.c:762
+#: ../webcit.c:749
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2635,7 +2640,7 @@ msgstr ""
 "Questa risorsa richiede un nome utente e una password. Non puoi essere "
 "autenticato e accedere a: %s\n"
 
-#: ../webcit.c:1118
+#: ../webcit.c:1105
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -2650,23 +2655,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1356 ../webcit.c:1358
+#: ../webcit.c:1338 ../webcit.c:1340
 msgid "Room info"
 msgstr "Informazioni di stanza"
 
-#: ../webcit.c:1361 ../webcit.c:1363
+#: ../webcit.c:1343 ../webcit.c:1345
 msgid "Your bio"
 msgstr "Le tue informazioni personali"
 
-#: ../webcit.c:1371
+#: ../webcit.c:1353
 msgid "your photo"
 msgstr "La tua foto"
 
-#: ../webcit.c:1377
+#: ../webcit.c:1359
 msgid "the icon for this room"
 msgstr "l'icona di questa stanza"
 
-#: ../webcit.c:1391
+#: ../webcit.c:1373
 msgid "the icon for this floor"
 msgstr "L'icona per questo piano"
 
@@ -2743,3 +2748,6 @@ msgstr "Cambia il nome dell'host"
 #: ../who.c:263
 msgid "Change user name"
 msgstr "Cambia nome utente"
+
+#~ msgid "Instant message from "
+#~ msgstr "Messaggio Istantaneo da"
