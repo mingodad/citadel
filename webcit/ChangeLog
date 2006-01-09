@@ -1,5 +1,10 @@
 $Id$
 
+Mon Jan  9 13:01:48 EST 2006 ajc
+* siteconfig.c: new "Indexing/Journaling" tab now contains the options
+  to enable the full text index, and to enable message journaling.
+* Version number is now 6.70 in order to keep parity with Citadel.
+
 Mon Jan  9 00:39:59 EST 2006 ajc
 * Site Configuration screen moved to tabbed dialog
 

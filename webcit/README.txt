@@ -1,7 +1,7 @@
                         WEBCIT for the Citadel System
-                               version 6.25
+                               version 6.70
  
-   Copyright (C) 1996-2005 by the authors.  Portions written by:
+   Copyright (C) 1996-2006 by the authors.  Portions written by:
 	Art Cancro
 	Nathan Bryant
 	Wilifried Goesgens
