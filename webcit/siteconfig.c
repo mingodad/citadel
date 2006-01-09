@@ -12,8 +12,14 @@
 void display_siteconfig(void)
 {
 	char buf[SIZ];
-	char *whichmenu;
 	int i, j;
+
+	char general[SIZ];
+	char access[SIZ];
+	char network[SIZ];
+	char tuning[SIZ];
+	char directory[SIZ];
+	char purger[SIZ];
 
 	/* expire policy settings */
 	int sitepolicy = 0;
@@ -31,142 +37,6 @@ void display_siteconfig(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
-
-	whichmenu = bstr("whichmenu");
-
-	if (!strcmp(whichmenu, "")) {
-		wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
-
-		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"display_siteconfig?whichmenu=general\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=general\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("General"),
-			_("General site configuration items")
-		);
-
-		wprintf("<TR><TD>"
-			"<a href=\"display_siteconfig?whichmenu=access\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=access\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("Access"),
-			_("Access controls and site policy settings")
-		);
-
-		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"display_siteconfig?whichmenu=network\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=network\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("Network"),
-			_("Network services")
-		);
-
-		wprintf("<TR><TD>"
-			"<a href=\"display_siteconfig?whichmenu=tuning\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=tuning\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("Tuning"),
-			_("Advanced server fine-tuning controls")
-		);
-
-		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"<a href=\"display_siteconfig?whichmenu=ldap\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=ldap\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("Directory"),
-			_("Configure the LDAP connector for Citadel")
-		);
-
-		wprintf("<TR><TD>"
-			"<a href=\"display_siteconfig?whichmenu=purger\">"
-			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-			"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-			"</TD><TD>"
-			"<a href=\"display_siteconfig?whichmenu=purger\">"
-			"<B>%s</B><br />"
-			"%s"
-			"</A></TD></TR>\n",
-			_("Auto-purger"),
-			_("Configure automatic expiry of old messages")
-		);
-
-		wprintf("</TABLE>");
-		wprintf("</td></tr></table></center>\n");
-		wDumpContent(1);
-		return;
-	}
-
-	if (!strcasecmp(whichmenu, "general")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("General site configuration items"));
-		wprintf("</h2></div>\n");
-	}
-
-	if (!strcasecmp(whichmenu, "access")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("Access controls and site policy settings"));
-		wprintf("</h2></div>\n");
-	}
-
-	if (!strcasecmp(whichmenu, "network")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("Network services"));
-		wprintf("</h2>");
-		wprintf(_("Changes made on this screen will not take effect "
-			"until you restart the Citadel server."));
-		wprintf("</div>\n");
-	}
-
-	if (!strcasecmp(whichmenu, "tuning")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("Advanced server fine-tuning controls"));
-		wprintf("</h2></div>\n");
-	}
-
-	if (!strcasecmp(whichmenu, "ldap")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("Citadel LDAP connector configuration"));
-		wprintf("</h2>");
-		wprintf(_("Changes made on this screen will not take effect "
-			"until you restart the Citadel server."));
-		wprintf("</div>\n");
-	}
-
-	if (!strcasecmp(whichmenu, "purger")) {
-		wprintf("<div align=\"center\"><h2>");
-		wprintf(_("Message auto-purger settings"));
-		wprintf("</h2>");
-		wprintf(_("These settings may be overridden on a per-floor or per-room basis."));
-		wprintf("</div>\n");
-	}
-
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -176,569 +46,394 @@ void display_siteconfig(void)
 		wprintf("</SPAN>\n");
         	wprintf("</TD></TR></TABLE><br />\n");
         	wprintf("%s<br />\n", &buf[4]);
-		do_template("endbox");
 		wDumpContent(1);
 		return;
 	}
 
-	wprintf("<FORM METHOD=\"POST\" action=\"siteconfig\">\n");
-	wprintf("<TABLE border=0>\n");
+	wprintf("<div id=\"fix_scrollbar_bug\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
+
+	char *tabnames[] = {
+		_("General"),
+		_("Access"),
+		_("Network"),
+		_("Tuning"),
+		_("Directory"),
+		_("Auto-purger")
+	};
+
+	sprintf(general, "<center><h1>%s</h1><table border=\"0\">",
+			_("General site configuration items")
+	);
+
+	sprintf(access, "<center><h1>%s</h1><table border=\"0\">",
+			_("Access controls and site policy settings")
+	);
+
+	sprintf(network, "<center><h1>%s</h1><h2>%s</h2><table border=\"0\">",
+			_("Network services"),
+			_("Changes made on this screen will not take effect "
+			"until you restart the Citadel server.")
+	);
+
+	sprintf(tuning, "<center><h1>%s</h1><table border=\"0\">",
+			_("Advanced server fine-tuning controls")
+	);
+
+	sprintf(directory, "<center><h1>%s</h1><h2>%s</h2><table border=\"0\">",
+			_("Configure the LDAP connector for Citadel"),
+			_("Changes made on this screen will not take effect "
+			"until you restart the Citadel server.")
+	);
+
+	sprintf(purger, "<center><h1>%s</h1><h2>%s</h2><table border=\"0\">",
+			_("Configure automatic expiry of old messages"),
+			_("These settings may be overridden on a per-floor or per-room basis.")
+	);
+
+
+	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
 
 	i = 0;
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch (++i) {
 		case 1:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Node name"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_nodename\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Node name"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 2:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Fully qualified domain name"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_fqdn\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_fqdn\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Fully qualified domain name"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_fqdn\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 3:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Human-readable node name"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_humannode\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_humannode\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Human-readable node name"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_humannode\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 4:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Telephone number"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_phonenum\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_phonenum\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Telephone number"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_phonenum\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 5:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Automatically grant room-aide status to users who create private rooms"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_creataide\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_creataide\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Automatically grant room-aide status to users who create private rooms"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_creataide\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 6:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Server connection idle timeout (in seconds)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_sleeping\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_sleeping\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Server connection idle timeout (in seconds)"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_sleeping\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 7:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Initial access level for new users"));
-				wprintf("</TD><TD>");
-				wprintf("<SELECT NAME=\"c_initax\" SIZE=\"1\">\n");
-				for (j=0; j<=6; ++j) {
-					wprintf("<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
-						((atoi(buf) == j) ? "SELECTED" : ""),
-						j, j, axdefs[j]
-					);
-				}
-				wprintf("</SELECT>");
-				wprintf("</TD></TR>\n");
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Initial access level for new users"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<SELECT NAME=\"c_initax\" SIZE=\"1\">\n");
+			for (j=0; j<=6; ++j) {
+				sprintf(&access[strlen(access)], "<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
+					((atoi(buf) == j) ? "SELECTED" : ""),
+					j, j, axdefs[j]
+				);
 			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_initax\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "</SELECT>");
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 8:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Require registration for new users"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_regiscall\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_regiscall\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Require registration for new users"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_regiscall\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 9:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Quarantine messages from problem users"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_twitdetect\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_twitdetect\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Quarantine messages from problem users"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_twitdetect\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 10:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Name of quarantine room"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_twitroom\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_twitroom\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Name of quarantine room"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"text\" NAME=\"c_twitroom\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 11:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Paginator prompt (for text mode clients)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_moreprompt\" MAXLENGTH=\"79\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_moreprompt\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Paginator prompt (for text mode clients)"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_moreprompt\" MAXLENGTH=\"79\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 12:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Restrict access to Internet mail"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_restrict\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_restrict\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Restrict access to Internet mail"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_restrict\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 13:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Geographic location of this system"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_bbs_city\" MAXLENGTH=\"31\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_bbs_city\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Geographic location of this system"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_bbs_city\" MAXLENGTH=\"31\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 14:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Name of system administrator"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_sysadm\" MAXLENGTH=\"25\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_sysadm\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Name of system administrator"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_sysadm\" MAXLENGTH=\"25\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 15:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Maximum concurrent sessions (0 = no limit)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_maxsessions\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Maximum concurrent sessions (0 = no limit)"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 17:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Default user purge time (days)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_userpurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_userpurge\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Default user purge time (days)"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_userpurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 18:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Default room purge time (days)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_roompurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_roompurge\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Default room purge time (days)"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_roompurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 19:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Name of room to log pages"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_logpages\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_logpages\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Name of room to log pages"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"text\" NAME=\"c_logpages\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 20:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Access level required to create rooms"));
-				wprintf("</TD><TD>");
-				wprintf("<SELECT NAME=\"c_createax\" SIZE=\"1\">\n");
-				for (j=0; j<=6; ++j) {
-					wprintf("<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
-						((atoi(buf) == j) ? "SELECTED" : ""),
-						j, j, axdefs[j]
-					);
-				}
-				wprintf("</SELECT>");
-				wprintf("</TD></TR>\n");
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Access level required to create rooms"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<SELECT NAME=\"c_createax\" SIZE=\"1\">\n");
+			for (j=0; j<=6; ++j) {
+				sprintf(&access[strlen(access)], "<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
+					((atoi(buf) == j) ? "SELECTED" : ""),
+					j, j, axdefs[j]
+				);
 			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_createax\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "</SELECT>");
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 21:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Maximum message length"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_maxmsglen\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_maxmsglen\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Maximum message length"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_maxmsglen\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 22:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Minimum number of worker threads"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_min_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_min_workers\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Minimum number of worker threads"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_min_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 23:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Maximum number of worker threads"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_max_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_max_workers\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Maximum number of worker threads"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_max_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 24:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("POP3 listener port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_pop3_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_pop3_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("POP3 listener port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pop3_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 25:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("SMTP MTA port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_smtp_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("SMTP MTA port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 27:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Allow aides to zap (forget) rooms"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_aide_zap\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_aide_zap\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Allow aides to zap (forget) rooms"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_aide_zap\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 28:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("IMAP listener port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_imap_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_imap_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("IMAP listener port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_imap_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 29:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Network run frequency (in seconds)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_net_freq\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_net_freq\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Network run frequency (in seconds)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_net_freq\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 30:
-			if (!strcasecmp(whichmenu, "access")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Disable self-service user account creation"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_disable_newu\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_disable_newu\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Disable self-service user account creation"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_disable_newu\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 31:
 			/* position 31 is no longer in use */
 			break;
 		case 32:
-			if (!strcasecmp(whichmenu, "purger")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Hour to run database auto-purge"));
-				wprintf("</TD><TD>");
-				wprintf("<SELECT NAME=\"c_purge_hour\" SIZE=\"1\">\n");
-				for (j=0; j<=23; ++j) {
-					wprintf("<OPTION %s VALUE=\"%d\">%d:00%s</OPTION>\n",
-						((atoi(buf) == j) ? "SELECTED" : ""),
-						j,
-						((j == 0) ? 12 : ((j>12) ? j-12 : j)),
-						((j >= 12) ? "pm" : "am")
-					);
-				}
-				wprintf("</SELECT>");
-				wprintf("</TD></TR>\n");
+			sprintf(&purger[strlen(purger)], "<TR><TD>");
+			sprintf(&purger[strlen(purger)], _("Hour to run database auto-purge"));
+			sprintf(&purger[strlen(purger)], "</TD><TD>");
+			sprintf(&purger[strlen(purger)], "<SELECT NAME=\"c_purge_hour\" SIZE=\"1\">\n");
+			for (j=0; j<=23; ++j) {
+				sprintf(&purger[strlen(purger)], "<OPTION %s VALUE=\"%d\">%d:00%s</OPTION>\n",
+					((atoi(buf) == j) ? "SELECTED" : ""),
+					j,
+					((j == 0) ? 12 : ((j>12) ? j-12 : j)),
+					((j >= 12) ? "pm" : "am")
+				);
 			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_purge_hour\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&purger[strlen(purger)], "</SELECT>");
+			sprintf(&purger[strlen(purger)], "</TD></TR>\n");
 			break;
 		case 33:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
-				wprintf("<TR><TD>");
-				wprintf(_("Host name of LDAP server (blank to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_ldap_host\" MAXLENGTH=\"127\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ldap_host\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&directory[strlen(directory)], "<TR><TD>");
+			sprintf(&directory[strlen(directory)], _("Host name of LDAP server (blank to disable)"));
+			sprintf(&directory[strlen(directory)], "</TD><TD>");
+			sprintf(&directory[strlen(directory)], "<input type=\"text\" NAME=\"c_ldap_host\" MAXLENGTH=\"127\" VALUE=\"%s\">", buf);
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
 			break;
 		case 34:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
-				wprintf("<TR><TD>");
-				wprintf(_("Port number of LDAP server (blank to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_ldap_port\" MAXLENGTH=\"127\" VALUE=\"%d\">", atoi(buf));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ldap_port\" VALUE=\"%d\">", atoi(buf));
-			}
+			sprintf(&directory[strlen(directory)], "<TR><TD>");
+			sprintf(&directory[strlen(directory)], _("Port number of LDAP server (blank to disable)"));
+			sprintf(&directory[strlen(directory)], "</TD><TD>");
+			sprintf(&directory[strlen(directory)], "<input type=\"text\" NAME=\"c_ldap_port\" MAXLENGTH=\"127\" VALUE=\"%d\">", atoi(buf));
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
 			break;
 		case 35:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
-				wprintf("<TR><TD>");
-				wprintf(_("Base DN"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_ldap_base_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ldap_base_dn\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&directory[strlen(directory)], "<TR><TD>");
+			sprintf(&directory[strlen(directory)], _("Base DN"));
+			sprintf(&directory[strlen(directory)], "</TD><TD>");
+			sprintf(&directory[strlen(directory)], "<input type=\"text\" NAME=\"c_ldap_base_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
 			break;
 		case 36:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
-				wprintf("<TR><TD>");
-				wprintf(_("Bind DN"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_ldap_bind_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ldap_bind_dn\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&directory[strlen(directory)], "<TR><TD>");
+			sprintf(&directory[strlen(directory)], _("Bind DN"));
+			sprintf(&directory[strlen(directory)], "</TD><TD>");
+			sprintf(&directory[strlen(directory)], "<input type=\"text\" NAME=\"c_ldap_bind_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
 			break;
 		case 37:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
-				wprintf("<TR><TD>");
-				wprintf(_("Password for bind DN"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"password\" NAME=\"c_ldap_bind_pw\" MAXLENGTH=\"255\" VALUE=\"%s\">",
-					buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ldap_bind_pw\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&directory[strlen(directory)], "<TR><TD>");
+			sprintf(&directory[strlen(directory)], _("Password for bind DN"));
+			sprintf(&directory[strlen(directory)], "</TD><TD>");
+			sprintf(&directory[strlen(directory)], "<input type=\"password\" NAME=\"c_ldap_bind_pw\" MAXLENGTH=\"255\" VALUE=\"%s\">",
+				buf);
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
 			break;
 		case 38:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Server IP address (0.0.0.0 for 'any')"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_ip_addr\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_ip_addr\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Server IP address (0.0.0.0 for 'any')"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_ip_addr\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 39:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("SMTP MSA port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_msa_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_msa_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("SMTP MSA port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_msa_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 40:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("IMAP over SSL port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_imaps_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_imaps_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("IMAP over SSL port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_imaps_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 41:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("POP3 over SSL port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_pop3s_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_pop3s_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("POP3 over SSL port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pop3s_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 42:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("SMTP over SSL port (-1 to disable)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"text\" NAME=\"c_smtps_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_smtps_port\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("SMTP over SSL port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_smtps_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 43:
-			if (!strcasecmp(whichmenu, "general")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Enable full text index (warning: resource intensive)"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_enable_fulltext\" VALUE=\"yes\" %s>",
+				sprintf(&general[strlen(general)], "<TR><TD>");
+				sprintf(&general[strlen(general)], _("Enable full text index (warning: resource intensive)"));
+				sprintf(&general[strlen(general)], "</TD><TD>");
+				sprintf(&general[strlen(general)], "<input type=\"checkbox\" NAME=\"c_enable_fulltext\" VALUE=\"yes\" %s>",
 					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_enable_fulltext\" VALUE=\"%s\">", buf);
-			}
+				sprintf(&general[strlen(general)], "</TD></TR>\n");
 			break;
 		case 44:
-			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Automatically delete committed database logs"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_auto_cull\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_auto_cull\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], _("Automatically delete committed database logs"));
+			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"checkbox\" NAME=\"c_auto_cull\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
 			break;
 		case 45:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Instantly expunge deleted messages in IMAP"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_instant_expunge\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_instant_expunge\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Instantly expunge deleted messages in IMAP"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_instant_expunge\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 46:
-			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>");
-				wprintf(_("Allow unauthenticated SMTP clients to spoof this site's domains"));
-				wprintf("</TD><TD>");
-				wprintf("<input type=\"checkbox\" NAME=\"c_allow_spoofing\" VALUE=\"yes\" %s>",
-					((atoi(buf) != 0) ? "CHECKED" : ""));
-				wprintf("</TD></TR>\n");
-			}
-			else {
-				wprintf("<input type=\"hidden\" NAME=\"c_allow_spoofing\" VALUE=\"%s\">", buf);
-			}
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Allow unauthenticated SMTP clients to spoof this site's domains"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_allow_spoofing\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		}
 	}
@@ -757,65 +452,73 @@ void display_siteconfig(void)
 		mboxvalue = extract_int(&buf[4], 1);
 	}
 
-	if (!strcasecmp(whichmenu, "purger")) {
 
-		wprintf("<TR><TD COLSPAN=2><hr /></TD></TR>\n");
+	sprintf(&purger[strlen(purger)], "<TR><TD COLSPAN=2><hr /></TD></TR>\n");
 
-		wprintf("<TR><TD>");
-		wprintf(_("Default message expire policy for public rooms"));
-		wprintf("</TD><TD>");
-		wprintf("<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"1\" %s>",
-			((sitepolicy == 1) ? "CHECKED" : "") );
-		wprintf(_("Never automatically expire messages"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"2\" %s>",
-			((sitepolicy == 2) ? "CHECKED" : "") );
-		wprintf(_("Expire by message count"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"3\" %s>",
-			((sitepolicy == 3) ? "CHECKED" : "") );
-		wprintf(_("Expire by message age"));
-		wprintf("<br />");
-		wprintf(_("Number of messages or days: "));
-		wprintf("<input type=\"text\" NAME=\"sitevalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", sitevalue);
-		wprintf("</TD></TR>\n");
+	sprintf(&purger[strlen(purger)], "<TR><TD>");
+	sprintf(&purger[strlen(purger)], _("Default message expire policy for public rooms"));
+	sprintf(&purger[strlen(purger)], "</TD><TD>");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"1\" %s>",
+		((sitepolicy == 1) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Never automatically expire messages"));
+	sprintf(&purger[strlen(purger)], "<br />\n");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"2\" %s>",
+		((sitepolicy == 2) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Expire by message count"));
+	sprintf(&purger[strlen(purger)], "<br />\n");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"sitepolicy\" VALUE=\"3\" %s>",
+		((sitepolicy == 3) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Expire by message age"));
+	sprintf(&purger[strlen(purger)], "<br />");
+	sprintf(&purger[strlen(purger)], _("Number of messages or days: "));
+	sprintf(&purger[strlen(purger)], "<input type=\"text\" NAME=\"sitevalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", sitevalue);
+	sprintf(&purger[strlen(purger)], "</TD></TR>\n");
 
-		wprintf("<TR><TD COLSPAN=2><hr /></TD></TR>\n");
+	sprintf(&purger[strlen(purger)], "<TR><TD COLSPAN=2><hr /></TD></TR>\n");
 
-		wprintf("<TR><TD>");
-		wprintf(_("Default message expire policy for private mailboxes"));
-		wprintf("</TD><TD>");
-		wprintf("<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"0\" %s>",
-			((mboxpolicy == 0) ? "CHECKED" : "") );
-		wprintf(_("Same policy as public rooms"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"1\" %s>",
+	sprintf(&purger[strlen(purger)], "<TR><TD>");
+	sprintf(&purger[strlen(purger)], _("Default message expire policy for private mailboxes"));
+	sprintf(&purger[strlen(purger)], "</TD><TD>");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"0\" %s>",
+		((mboxpolicy == 0) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Same policy as public rooms"));
+	sprintf(&purger[strlen(purger)], "<br />\n");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"1\" %s>",
 			((mboxpolicy == 1) ? "CHECKED" : "") );
-		wprintf(_("Never automatically expire messages"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"2\" %s>",
-			((mboxpolicy == 2) ? "CHECKED" : "") );
-		wprintf(_("Expire by message count"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"3\" %s>",
-			((mboxpolicy == 3) ? "CHECKED" : "") );
-		wprintf(_("Expire by message age"));
-		wprintf("<br />");
-		wprintf(_("Number of messages or days: "));
-		wprintf("<input type=\"text\" NAME=\"mboxvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", mboxvalue);
-		wprintf("</TD></TR>\n");
+	sprintf(&purger[strlen(purger)], _("Never automatically expire messages"));
+	sprintf(&purger[strlen(purger)], "<br />\n");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"2\" %s>",
+		((mboxpolicy == 2) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Expire by message count"));
+	sprintf(&purger[strlen(purger)], "<br />\n");
+	sprintf(&purger[strlen(purger)], "<input type=\"radio\" NAME=\"mboxpolicy\" VALUE=\"3\" %s>",
+		((mboxpolicy == 3) ? "CHECKED" : "") );
+	sprintf(&purger[strlen(purger)], _("Expire by message age"));
+	sprintf(&purger[strlen(purger)], "<br />");
+	sprintf(&purger[strlen(purger)], _("Number of messages or days: "));
+	sprintf(&purger[strlen(purger)], "<input type=\"text\" NAME=\"mboxvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", mboxvalue);
+	sprintf(&purger[strlen(purger)], "</TD></TR>\n");
 
-		wprintf("<TR><TD COLSPAN=2><hr /></TD></TR>\n");
+	sprintf(&purger[strlen(purger)], "<TR><TD COLSPAN=2><hr /></TD></TR>\n");
 
-	}
-	else {
-		wprintf("<input type=\"hidden\" NAME=\"sitepolicy\" VALUE=\"%d\">\n", sitepolicy);
-		wprintf("<input type=\"hidden\" NAME=\"sitevalue\" VALUE=\"%d\">\n", sitevalue);
-		wprintf("<input type=\"hidden\" NAME=\"mboxpolicy\" VALUE=\"%d\">\n", mboxpolicy);
-		wprintf("<input type=\"hidden\" NAME=\"mboxvalue\" VALUE=\"%d\">\n", mboxvalue);
-	}
 
-	wprintf("</TABLE><div align=\"center\">");
+	sprintf(&general[strlen(general)], "</table>");
+	sprintf(&access[strlen(access)], "</table>");
+	sprintf(&network[strlen(network)], "</table>");
+	sprintf(&tuning[strlen(tuning)], "</table>");
+	sprintf(&directory[strlen(directory)], "</table>");
+	sprintf(&purger[strlen(purger)], "</table>");
+
+	tabbed_dialog(6, tabnames);
+
+	begin_tab(0, 6);	wprintf("%s", general);		 end_tab(0, 6);
+	begin_tab(1, 6);	wprintf("%s", access);		 end_tab(1, 6);
+	begin_tab(2, 6);	wprintf("%s", network);		 end_tab(2, 6);
+	begin_tab(3, 6);	wprintf("%s", tuning);		 end_tab(3, 6);
+	begin_tab(4, 6);	wprintf("%s", directory);	 end_tab(4, 6);
+	begin_tab(5, 6);	wprintf("%s", purger);		 end_tab(5, 6);
+
+	wprintf("<div align=\"center\">");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
