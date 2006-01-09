@@ -1,5 +1,8 @@
 $Id$
 
+Mon Jan  9 00:39:59 EST 2006 ajc
+* Site Configuration screen moved to tabbed dialog
+
 Fri Jan  6 11:20:13 EST 2006 ajc
 * Localization enabled "Your info" from summary screen
 
