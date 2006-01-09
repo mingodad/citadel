@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Message Journaling with the Citadel System</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+</head>
+<body>
+<div align="center">
+<h1>Message Journaling with the Citadel System</h1>
+<h2>A technical guide</h2>
+Copyright &copy;2006 by the Citadel development team.<br>
+</div>
+
+<div align="justify">
+
+<hr>
+
+<h3><a name="toc">Table of Contents</a></h3>
+
+
+<hr>
+
+<h3><a name="introduction">Introduction</a></h3>
+
+<p>There are many different environments in which the Citadel system is
+useful for messaging and collaboration tasks.  Naturally, many sites use
+Citadel as their organization's primary email server.  Some of these
+organizations are corporations which operate in industries that are subject
+to regulations which dictate that all electronic messages must be archived
+for some period of time.</p>
+
+<p>Message journaling is a function of the Citadel system which provides the
+ability to record all messages which are processed by the server.  Journaling,
+by itself, is <i>not</i> a message archival service, nor should one attempt to
+treat it as one.  We recommend that you combine Citadel journaling with a
+third-party archival product or service, in order to assemble a data retention
+solution that will meet the requirements of your organization.</p>
+
+<h3><a name="overview">Technical overview of Citadel journaling</a></h3>
+
+<p>In order to keep the configuration options simple and straightforward,
+Citadel implements only one variety of journaling.  It is generally known
+in the messaging universe as &quot;envelope journaling.&quot;  As you are
+probably already aware, one cannot trust the headers of any particular
+message to be a reliable indication of which users have read it.  In addition
+to the declared sender and recipients, there may also be blind carbon copy
+(BCC) recipients, recipients on one or more mailing lists, and even recipients
+who are not listed due to forged or badly formed headers.</p>
+
+<p>The format of a journalized message, therefore, contains extra information
+about who <i>actually</i> sent and/or received the original message.  The very
+first portion of the journalized message lists the sender, message ID, and
+recipients.  It should be noted that the listed Sender and Recipients are
+those which were relevant to delivery <i>on the Citadel server performing the
+journaling of the message.</i>  If the message arrived via SMTP from the
+outside world, any recipients not on the local Citadel server would not be
+listed, because they were not involved in the transaction which delivered the
+message to the server.</p>
+
+<p>The original message is then included, as an attachment of type
+<tt>message/rfc822</tt>, to the journal message.</p>
+
+<p>This logic provides the ability to answer these questions:
+<ul>
+<li>If a message was sent <i>from</i> someone on this server, who received it?
+<li>If a message was sent <i>to</i> someone on this server, who <i>else</i>
+received it?
+</ul>
+Either question can be answered by searching your archive for the message in
+question and reviewing the names and addresses listed in the journalized
+messages.</p>
+
+
+<h3><a name="resource">Additional resource utilization</a></h3>
+
+<p>On a server with message journaling enabled, each message must pass through
+the submit chain twice: once for the delivery of the original message, and once
+for the delivery of the journalized message.  You must plan accordingly for the
+additional overhead which will be incurred.  Nearly twice as much CPU, memory,
+and disk space will be consumed by journaling.</p>
+
+<p>Despite the extra processing, however, it should be noted that the Citadel
+server performs journaling as a deferred background operation.  This allows
+interactive users to continue along instead of waiting for the server to
+synchronously journal each message that is submitted.</p>
+
+
+<h3><a name="where">Where should I send the journalized messages?</a></h3>
+
+<p>As previously noted, any valid email address may be used as the destination
+for journalized messages.  Where you send your journalized messages will
+likely depend upon how you are going to archive them.</p>
+
+<p>Some archival systems contain their own email addresses.  With these
+products and services, you are expected to email your journalized messages
+directly to a specific address.  This is typically referred to as "push"
+journaling because the transfer is initiated by your server.  If you intend
+to use this type of system, the required configuration is obvious: the
+journal destination is the email address of your archival system.</p>
+
+<p>Other archival systems are built around the idea that you should provide
+a dedicated email address on <i>your</i> server, and the archival system
+periodically uses POP3 (or POP3S, the SSL-encrypted version of POP3) to poll
+the mailbox for new journalized messages.  Upon successful retrieval of new
+messages, the archival system deletes the journalized messages from your
+server.  This is typically referred to as "pull" journaling because the
+transfer is initiated externally.  If you intend to use this type of system,
+you should create a dedicated account on your Citadel server for this purpose,
+and then configure that account as the journal destination.  No real users
+should ever log in to this account.  It exists solely as a drop box for
+journalized messages.</p>
+
+<p>In rare instances, you may wish to send the journalized messages to an
+address on some other node on a private Citadel network.  This could be useful
+if, for example, one server is used to aggregate messages journalized from
+several other servers.  It might also be useful if, for some reason, you
+require a dedicated server for journaling.</p>
+
+<p>It should also be noted that the message data format contains a field which
+declares that a message is actually a journalized copy of some other message.
+The Citadel system will not journalize any message which carries this flag.
+This prevents messages from being double journalized (or worse, caught in an
+infinite loop of journaling).</p>
+
+
+<h3><a name="configuration">How to configure journaling</a></h3>
+
+<p>After you have formulated a strategy for combining journaling with some
+third-party archival product or service as part of a compliance solution, the
+actual configuration is very easy.  You only need to set the following three
+configuration items in Citadel:
+<ul>
+<li>Perform journaling of email messages?  (Yes or No)
+<li>Perform journaling of non-email messages?  (Yes or No)
+<li>Address to which journalized messages are to be sent?  (Specify any email address)
+</ul>
+</p>
+
+<p>From the text-based Citadel client, these options may be found in the
+<tt><b>.A</b>ide <b>S</b>ystem-configuration <b>G</b>eneral</tt> command.  You
+will see the following options among the many other options in this dialog:
+<pre>
+Perform journaling of email messages [Yes]: 
+Perform journaling of non-email messages [Yes]: 
+Email destination of journalized messages [example@example.com]:
+</pre>
+&quot;Non-email messages&quot; refers to any message which has no recipients.
+This includes posts to public and private rooms, calendar items, address book
+entries, notes, tasks, and any other data types which may be introduced in
+the future.
+</p>
+
+<p>Configuration of journaling using WebCit is even easier.  Log in with your
+web browser and then select Administration --&gt; Edit site-wide
+configuration --&gt; Indexing/Journaling, and you will find the same three
+options.</p>
+
+<p>It is not necessary to restart the Citadel server when you change your
+journaling options.  Changes will take effect immediately.</p>
+
+
+<h3><a name="disclaimer">Disclaimer</a></h3>
+
+<p>The message journaling feature of Citadel is only one component which may
+be utilized as part of a larger solution for regulatory compliance.  The
+Citadel developers do not make any guarantee, expressed or implied, that this
+functionality by itself will cause your organization's email services to
+be sufficiently archived.  It is up to you to design your complete archival
+solution, to test it, and to evaluate its ability to comply with whatever
+regulations are relevant to your organization.</p>
+
+
+
+</div>
+</body>
+</html>
+
