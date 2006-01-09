@@ -1739,7 +1739,8 @@ document.<br>
 </p>
 <p>The final set of options configures system-wide defaults for the
 auto-purger:</p>
-<pre>Default user purge time (days) [120]: <br>Default room purge time (days) [30]: <br>System default message expire policy (? for list) [0]: <br>Keep how many messages online? [150]:<br>Mailbox default message expire policy (? for list) [0]:<br>How often to run network jobs (in seconds) [1800]:<br>Enable full text search index (warning: resource intensive) [Yes]: Yes<br>Hour to run purges (0-23) [4]:<br></pre>
+<pre>Default user purge time (days) [120]: <br>Default room purge time (days) [30]: <br>System default message expire policy (? for list) [0]: <br>Keep how many messages online? [150]:<br>Mailbox default message expire policy (? for list) [0]:<br>How often to run network jobs (in seconds) [1800]:<br>Enable full text search index (warning: resource intensive) [Yes]: Yes<br>Hour to run purges (0-23) [4]:<br>
+Perform journaling of email messages [No]:<br>Perform journaling of non-email messages [No]:<br>Email destination of journalized messages [example@example.com]:<br></pre>
 <p>Any user who does not log in for the period specified in 'Default
 user purge time' will be deleted the next time a purge is run. This
 setting may be modified on a per-user basis.</p>
@@ -1787,8 +1788,16 @@ incrementally
 and will not have any noticeable impact on the interactive response
 time of your system.&nbsp; The full text index is currently only
 searchable when using IMAP clients; other search facilities will be
-made available in the near future.<br>
-<span style="font-family: monospace;"></span></p>
+made available in the near future.</p>
+<p>The &quot;Perform journaling...&quot; options allow you to configure
+your Citadel server to send an extra copy of every message, along with
+recipient information if applicable, to the email address of your choice.
+The journaling destination address may be an account on the local Citadel
+server, an account on another Citadel server on your network, or an Internet
+email address.  These options, used in conjunction with an archiving service,
+allow you to build an archive of all messages which flow through your Citadel
+system.  This is typically used for regulatory compliance in industries which
+require such things.</p>
 <p><span style="font-family: monospace;">Save this configuration? No</span><br>
 </p>
 <p>When you're done, enter 'Yes' to confirm the changes, or 'No' to
