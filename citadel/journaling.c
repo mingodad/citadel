@@ -128,12 +128,19 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			sprintf(mime_boundary, "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
 			message_text = malloc(strlen(jmsg->rfc822) + sizeof(struct recptypes) + 1024);
 
+			/*
+			 * Here is where we begin to compose the journalized message.
+			 * NOTE: the superfluous "Content-Identifer: ExJournalReport" header was
+			 *       requested by a paying customer, and yes, it is intentionally
+			 *       spelled wrong.  Do NOT remove or change it.
+			 */
 			sprintf(message_text,
 				"Content-type: multipart/mixed; boundary=\"%s\"\r\n"
 				"MIME-Version: 1.0\r\n"
 				"\n"
 				"--%s\r\n"
 				"Content-type: text/plain\r\n"
+				"Content-Identifer: ExJournalReport\r\n"
 				"\r\n"
 				"Sender: %s "
 			,
