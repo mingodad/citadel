@@ -32,7 +32,7 @@ function SendSomething(which_div, sendform, recipient) {
 	// Clear the box
 	document.forms[sendform].elements['sendthis'].value = '';
 
-	// Write it to the window
+	// Write it to the tab
 	$(which_div).innerHTML = $(which_div).innerHTML
 				+ '<b>'
 				+ '<font color=\"#FF0000\">'
@@ -41,6 +41,9 @@ function SendSomething(which_div, sendform, recipient) {
 				+ ':</b> '
 				+ thetext
 				+ '<br />\n';
+
+	// Scroll to the bottom of the tab
+	$('main').scrollTop = 999999;
 
 	// Send the text to the server
 	parms = 'r=' + Math.random()
@@ -51,6 +54,9 @@ function SendSomething(which_div, sendform, recipient) {
 			parameters: parms
 		}
 	);
+
+	// Refocus to the text box
+	document.forms[sendform].elements['sendthis'].focus();
 
 	// Don't submit the form
 	return false;
@@ -141,7 +147,13 @@ function ShowNewMsg(gexp_xmlresponse) {
 				+ '<br />\n';
 
 	// Scroll to the bottom of the tab
-	$(which_div).scrolltop = $(which_div).scrollHeight - $(which_div).clientHeight;
+	$('main').scrollTop = 999999;
+
+	// Refocus to the send box
+	document.forms['sendform_'+which_div].elements['sendthis'].focus();
+
+	// Keep trying for new messages until the server tells us to stop.
+	FetchNewMsgs();
 }
 
 // This is called periodically to check for new incoming messages
