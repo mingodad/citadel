@@ -180,7 +180,7 @@ int set_attr(CtdlIPC *ipc, unsigned int sval, char *prompt, unsigned int sbit, i
 
 	temp = sval;
 	color(DIM_WHITE);
-	scr_printf("%45s ", prompt);
+	scr_printf("%50s ", prompt);
 	color(DIM_MAGENTA);
 	scr_printf("[");
 	color(BRIGHT_MAGENTA);
@@ -282,6 +282,13 @@ void enter_config(CtdlIPC *ipc, int mode)
 		user->flags = set_attr(ipc, user->flags,
 				       "Be unlisted in userlog",
 				       US_UNLISTED, 0);
+
+		if (strlen(editor_paths[0]) > 0) {
+			user->flags = set_attr(ipc, user->flags,
+				"Always enter messages with the full-screen editor",
+				US_EXTEDIT, 0);
+		}
+
 	}
 
 	if (mode == 2) {

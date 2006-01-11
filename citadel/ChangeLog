@@ -1,5 +1,11 @@
 $Id$
 
+Tue Jan 10 22:26:00 EST 2006 ajc
+* Added a per-user client option to always compose messages using the
+  external editor.
+* Removed the "always reply with external editor" option from citadel.rc
+  because the per-user editor choice makes it superfluous.
+
 Tue Jan 10 17:20:30 EST 2006 ajc
 * Added "Content-Identifer: ExJournalReport" to journal envelope headers
   (Requested by SECCAS for compatibility with their archival service.)

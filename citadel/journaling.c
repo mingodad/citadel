@@ -227,7 +227,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
  * Run the queue.
  */
 void JournalRunQueue(void) {
-	struct jnlq *jptr;
+	struct jnlq *jptr = NULL;
 
 	while (jnlq != NULL) {
 		begin_critical_section(S_JOURNAL_QUEUE);

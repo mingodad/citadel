@@ -668,7 +668,7 @@ void smtp_rcpt(char *argbuf) {
 void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
-	long msgnum;
+	long msgnum = (-1L);
 	char nowstamp[SIZ];
 	struct recptypes *valid;
 	int scan_errors;

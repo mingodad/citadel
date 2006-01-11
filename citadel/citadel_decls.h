@@ -24,7 +24,6 @@ extern char rc_screen;
 extern char arg_screen;
 #endif
 extern char rc_alt_semantics;
-extern char rc_reply_extedit;
 extern char instant_msgs;
 void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code);
 #define logoff(ipc, code)	ctdl_logoff(__FILE__, __LINE__, (ipc), (code))

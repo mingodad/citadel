@@ -57,6 +57,7 @@ extern "C" {
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
 #define US_NEEDVALID	1		/* User needs to be validated       */
+#define US_EXTEDIT	2		/* Always use external editor       */
 #define US_PERM		4		/* Permanent user                   */
 #define US_LASTOLD	16		/* Print last old message with new  */
 #define US_EXPERT	32		/* Experienced user		    */
@@ -71,7 +72,7 @@ extern "C" {
 #define US_COLOR	16384		/* User wants ANSI color support    */
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
-			US_FLOORS | US_COLOR | US_PROMPTCTL )
+			US_FLOORS | US_COLOR | US_PROMPTCTL | US_EXTEDIT)
 
 #define UA_KNOWN                2
 #define UA_GOTOALLOWED          4

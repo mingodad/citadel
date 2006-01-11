@@ -749,7 +749,6 @@ void load_command_set(void)
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
 	rc_color_use_bg = 0;
-	rc_reply_extedit = 0;
 	strcpy(rc_url_cmd, "");
 	strcpy(rc_gotmail_cmd, "");
 #ifdef HAVE_OPENSSL
@@ -905,14 +904,7 @@ void load_command_set(void)
 				rc_alt_semantics = 0;
 			}
 		}
-		if (!strncasecmp(buf, "reply_with_external_editor=", 27)) {
-			if (!strncasecmp(&buf[27], "yes", 3)) {
-				rc_reply_extedit = 1;
-			}
-			else {
-				rc_reply_extedit = 0;
-			}
-		}
+
 		if (!strncasecmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);
 

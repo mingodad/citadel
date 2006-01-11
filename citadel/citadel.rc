@@ -188,12 +188,6 @@ remember_passwords=0
 alternate_semantics=no
 
 
-# When the user hits the <R>eply key after reading a message, reply_with_editor
-# selects whether it uses the built-in editor (select 'no') or an external
-# editor (select 'yes').
-#
-reply_with_external_editor=no
-
 
 # COMMAND SET CONFIGURATION
 #

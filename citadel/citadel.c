@@ -1416,7 +1416,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				formout(ipc, "help");
 				break;
 			case 4:
-				entmsg(ipc, 0, 0);
+				entmsg(ipc, 0, ((userflags & US_EXTEDIT) ? 2 : 0));
 				break;
 			case 36:
 				entmsg(ipc, 0, 1);

@@ -69,7 +69,6 @@ unsigned long *msg_arr = NULL;
 int msg_arr_size = 0;
 int num_msgs;
 char rc_alt_semantics;
-char rc_reply_extedit;
 extern char room_name[];
 extern unsigned room_flags;
 extern long highest_msg_read;
@@ -1826,7 +1825,7 @@ RMSGREAD:	scr_flush();
 			goto RMSGREAD;
 		case 'r':
 			savedpos = num_msgs;
-			entmsg(ipc, 1, (rc_reply_extedit ? 2 : 0));
+			entmsg(ipc, 1, ((userflags & US_EXTEDIT) ? 2 : 0));
 			num_msgs = savedpos;
 			goto RMSGREAD;
 		case 'u':
