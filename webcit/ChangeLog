@@ -1,5 +1,9 @@
 $Id$
 
+Wed Jan 11 16:59:54 EST 2006 ajc
+* More updates to instant messenger.  When new messages arrive, the window
+  automatically scrolls to the bottom and the input box is refocused.
+
 Wed Jan 11 15:21:18 EST 2006 ajc
 * Corrected a small javascript syntax error
 
