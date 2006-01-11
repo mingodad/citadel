@@ -1,5 +1,9 @@
 $Id$
 
+Tue Jan 10 23:56:59 EST 2006 ajc
+* instant_messenger.html: learn my own screen name from the server,
+  also some CSS changes
+
 Mon Jan  9 13:01:48 EST 2006 ajc
 * siteconfig.c: new "Indexing/Journaling" tab now contains the options
   to enable the full text index, and to enable message journaling.
