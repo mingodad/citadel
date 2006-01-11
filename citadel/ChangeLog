@@ -1,5 +1,9 @@
 $Id$
 
+Wed Jan 11 11:07:47 EST 2006 ajc
+* Moved the "Content-Identifer" (sic) header out of the envelope journal
+  subpart headers and into the top-level headers.
+
 Tue Jan 10 22:26:00 EST 2006 ajc
 * Added a per-user client option to always compose messages using the
   external editor.

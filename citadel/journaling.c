@@ -136,11 +136,11 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			 */
 			sprintf(message_text,
 				"Content-type: multipart/mixed; boundary=\"%s\"\r\n"
+				"Content-Identifer: ExJournalReport\r\n"
 				"MIME-Version: 1.0\r\n"
 				"\n"
 				"--%s\r\n"
 				"Content-type: text/plain\r\n"
-				"Content-Identifer: ExJournalReport\r\n"
 				"\r\n"
 				"Sender: %s "
 			,
