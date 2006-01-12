@@ -114,8 +114,11 @@ function ShowNewMsg(gexp_xmlresponse) {
 			  $('main').innerHTML
 			+ '<div id=\"tab_' + which_div + '\" style=\"display:none;cursor:pointer\">'
 			+ '<div id=\"' + which_div + '\">'
+			+ '<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />'
+			+ '<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />'
 			+ '</div>'
-			+ '<div id=\"response_' + which_div + '\" style=\"background:#ddddee\">'
+			+ '<div align=\"center\" id=\"response_'
+			+ which_div + '\" style=\"background:#ddddee\">'
 			+ '<br><form method=\"post\" action=\"null\" name=\"sendform_' + which_div + '\" '
 			+ 'onSubmit=\"return SendSomething(\'' + which_div + '\', \'sendform_'
 			+ which_div + '\', \'' + sender + '\');\">'
