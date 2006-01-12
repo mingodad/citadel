@@ -407,7 +407,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
 			do_selected_iconbar();
-			wprintf("</div>\n");
 		}
 		if (do_room_banner == 1) {
 			wprintf("<div id=\"banner\">\n");
@@ -819,11 +818,9 @@ void ajax_servcmd(void)
 
 	begin_ajax_response();
 
-	/* lprintf(9, "Sending cmd: %s\n", bstr("g_cmd")); */
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
 	wprintf("%s\n", buf);
-	/* lprintf(9, "   Response: %s\n", buf); */
 
 	if (buf[0] == '8') {
 		serv_printf("\n\n000");
@@ -853,9 +850,42 @@ void ajax_servcmd(void)
 	}
 
 	end_ajax_response();
+	
+	/* This is kind of an ugly hack, but this is the only place it can go.
+	 * If the command was GEXP, then the instant messenger window must be
+	 * running, so reset the "last_pager_check" watchdog timer so
+	 * that page_popup() doesn't try to open it a second time.
+	 */
+	if (!strncasecmp(bstr("g_cmd"), "GEXP", 4)) {
+		WC->last_pager_check = time(NULL);
+	}
 }
 
 
+/*
+ * Helper function for the asynchronous check to see if we need
+ * to open the instant messenger window.
+ */
+void seconds_since_last_gexp(void)
+{
+	char buf[256];
+
+	begin_ajax_response();
+	if ( (time(NULL) - WC->last_pager_check) < 30) {
+		wprintf("NO\n");
+	}
+	else {
+		serv_puts("NOOP");
+		serv_getln(buf, sizeof buf);
+		if (buf[3] == '*') {
+			wprintf("YES");
+		}
+		else {
+			wprintf("NO");
+		}
+	}
+	end_ajax_response();
+}
 
 
 
@@ -1248,6 +1278,8 @@ void session_loop(struct httprequest *req)
 		display_main_menu();
 	} else if (!strcasecmp(action, "who")) {
 		who();
+	} else if (!strcasecmp(action, "sslg")) {
+		seconds_since_last_gexp();
 	} else if (!strcasecmp(action, "who_inner_html")) {
 		begin_ajax_response();
 		who_inner_div();
