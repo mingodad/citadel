@@ -170,19 +170,20 @@ void page_popup(void)
 	}
 
 	/* Then schedule it to happen again a minute from now if the user is idle. */
-	wprintf("<script type=\"text/javascript\">	"
-		" function HandleSslp(sslg_xmlresponse) {	"
-		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	"
-		"  if (sslg_response == 'Y') {	"
-		"   window.open('static/instant_messenger.html', 'CTDL_MESSENGER',	"
-		"    'width=700,height=400');	"
-		"   }	"
-		" }	"
-		" function CheckPager() {	"
-		"  new Ajax.Request('sslg', { method: 'get', onSuccess: HandleSslp } );	"
-		" }	"
-		" new PeriodicalExecuter(CheckPager, 30);	"
-		"</script>\n"
+	wprintf("<script type=\"text/javascript\">	\n"
+		" function HandleSslp(sslg_xmlresponse) {	\n"
+		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	\n"
+		"  if (sslg_response == 'Y') {	\n"
+		"   window.open('static/instant_messenger.html', 'CTDL_MESSENGER',	\n"
+		"    'width=700,height=400');	\n"
+		"   }	\n"
+		" }	\n"
+		" function CheckPager() {	\n"
+		"  new Ajax.Request('sslg', { method: 'get', parameters: Math.random(),	\n"
+		"   onSuccess: HandleSslp } );	\n"
+		" }	\n"
+		" new PeriodicalExecuter(CheckPager, 30);	\n"
+		"</script>	\n"
 	);
 }
 
