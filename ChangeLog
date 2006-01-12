@@ -1,5 +1,13 @@
 $Id$
 
+Wed Jan 11 23:20:48 EST 2006 ajc
+* More updates to instant messenger:
+  - Better delineation of input box.  Added an icon and a slightly darker
+    background color so you can see where the input box actually is.
+  - Auto refresh every 5 seconds instead of 30
+  - WebCit now fires off a JavaScript test after 30 seconds of inactivity
+    to see if the instant messenger window needs to be opened
+
 Wed Jan 11 16:59:54 EST 2006 ajc
 * More updates to instant messenger.  When new messages arrive, the window
   automatically scrolls to the bottom and the input box is refocused.

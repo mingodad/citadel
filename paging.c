@@ -156,17 +156,34 @@ void page_popup(void)
 {
 	char buf[SIZ];
 
+	/* First, do the check as part of our page load. */
 	serv_puts("NOOP");
 	serv_getln(buf, sizeof buf);
 	if (buf[3] == '*') {
 		if ((time(NULL) - WC->last_pager_check) > 60) {
 			wprintf("<script type=\"text/javascript\">"
 				" window.open('static/instant_messenger.html', 'CTDL_MESSENGER', "
-				" 'width=600,height=400');"
+				" 'width=700,height=400');"
 				"</script>"
 			);	
 		}
 	}
+
+	/* Then schedule it to happen again a minute from now if the user is idle. */
+	wprintf("<script type=\"text/javascript\">	"
+		" function HandleSslp(sslg_xmlresponse) {	"
+		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	"
+		"  if (sslg_response == 'Y') {	"
+		"   window.open('static/instant_messenger.html', 'CTDL_MESSENGER',	"
+		"    'width=700,height=400');	"
+		"   }	"
+		" }	"
+		" function CheckPager() {	"
+		"  new Ajax.Request('sslg', { method: 'get', onSuccess: HandleSslp } );	"
+		" }	"
+		" new PeriodicalExecuter(CheckPager, 30);	"
+		"</script>\n"
+	);
 }
 
 
