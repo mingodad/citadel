@@ -390,8 +390,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	/* ICONBAR */
 	if (do_htmlhead) {
 
-		/* check for instant messages (these display in a new window) */
-		page_popup();
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (strlen(WC->ImportantMessage) > 0) {
@@ -404,10 +402,16 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 				"</script>\n");
 			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 		}
+
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
 			do_selected_iconbar();
+
+			/* check for instant messages (these display in a new window) */
+			page_popup();
+			wprintf("</div>");
 		}
+
 		if (do_room_banner == 1) {
 			wprintf("<div id=\"banner\">\n");
 			embed_room_banner(NULL, navbar_default);
