@@ -1,3 +1,10 @@
+citadel (6.63-1) unstable; urgency=low
+	
+  * update to actual Citadel CVS. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Mon, 12 Dec 2005 11:11:00 +0100
+	
+
 citadel (6.62-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
