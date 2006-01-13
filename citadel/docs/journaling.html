@@ -153,9 +153,17 @@ Email destination of journalized messages [example@example.com]:
 </pre>
 &quot;Non-email messages&quot; refers to any message which has no recipients.
 This includes posts to public and private rooms, calendar items, address book
-entries, notes, tasks, and any other data types which may be introduced in
-the future.
+entries, notes, tasks, instant messages, and any other data types which may
+be introduced in the future.
 </p>
+
+<p>Naive administrators may find the categorization of instant messages in the
+latter category to be somewhat confusing.  After all, instant messages do have
+both a sender and a recipient.  However, they were never passed through the
+email submission and delivery chain, therefore they are not categorized as
+email.  As you already know, all instant messages are saved as posts to the
+<tt>Sent/Received Pages</tt> rooms of both the sender and recipient.  These
+posts are actually what is being journaled.</p>
 
 <p>Configuration of journaling using WebCit is even easier.  Log in with your
 web browser and then select Administration --&gt; Edit site-wide
