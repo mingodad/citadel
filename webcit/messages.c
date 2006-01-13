@@ -2146,15 +2146,14 @@ void readloop(char *oper)
 			qsort(displayed_msgs, num_displayed, sizeof(long), longcmp_r);
 		}
 
-		if (is_bbview) {
-			wprintf("<div id=\"bbview_scroller\">");
-		}
+		/* if we do a split bbview in the future, begin messages div here */
+
 		for (a=0; a<num_displayed; ++a) {
 			read_message(displayed_msgs[a], 0, "");
 		}
-		if (is_bbview) {
-			wprintf("</div>\n");
-		}
+
+		/* if we do a split bbview in the future, end messages div here */
+
 		free(displayed_msgs);
 		displayed_msgs = NULL;
 	}
@@ -2188,7 +2187,7 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (is_bbview) {
-		wprintf("<div id=\"bbview_selector\">");
+		/* begin bbview scroller */
 		wprintf("<form name=\"msgomatic\">");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
@@ -2261,7 +2260,8 @@ void readloop(char *oper)
 			oper
 		);
 	
-		wprintf("</select></form></div>\n");
+		wprintf("</select></form>\n");
+		/* end bbview scroller */
 	    }
 	}
 
