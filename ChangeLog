@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 13 00:01:58 EST 2006 ajc
+* Removed the split bbview because it's b0rken in IE
+
 Thu Jan 12 00:40:28 EST 2006 ajc
 * Changes to instant messenger to work around IE bugs
 
