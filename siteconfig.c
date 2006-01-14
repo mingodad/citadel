@@ -290,8 +290,13 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
-		case 25:
-			/* FIXME this is supposed to be c_rfc822_strict_from */
+		case 25:	/* note: reverse bool */
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Correct forged From: lines during authenticated SMTP"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_aide_zap\" VALUE=\"yes\" %s>",
+				((atoi(buf) == 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 26:
 			sprintf(&access[strlen(access)], "<TR><TD>");
@@ -600,7 +605,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_max_workers"));
 	serv_printf("%s", bstr("c_pop3_port"));
 	serv_printf("%s", bstr("c_smtp_port"));
-	serv_printf("");  /* FIXME this is supposed to be c_rfc822_strict_from */
+	serv_printf("%s", ((!strcasecmp(bstr("c_rfc822_strict_from"), "yes") ? "0" : "1"))); /* note: reverse bool */
 	serv_printf("%s", ((!strcasecmp(bstr("c_aide_zap"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
