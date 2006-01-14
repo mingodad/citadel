@@ -291,12 +291,12 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 25:	/* note: reverse bool */
-			sprintf(&access[strlen(access)], "<TR><TD>");
-			sprintf(&access[strlen(access)], _("Correct forged From: lines during authenticated SMTP"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_aide_zap\" VALUE=\"yes\" %s>",
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Correct forged From: lines during authenticated SMTP"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_rfc822_strict_from\" VALUE=\"yes\" %s>",
 				((atoi(buf) == 0) ? "CHECKED" : ""));
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 26:
 			sprintf(&access[strlen(access)], "<TR><TD>");
