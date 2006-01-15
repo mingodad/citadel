@@ -483,6 +483,9 @@ void cmd_mesg(char *mname)
 			closedir(dp);
 		}
 		cprintf("000\n");
+		free(dirs[0]);
+		free(dirs[1]);
+		return;
 	}
 
 	/* Otherwise, look for the requested file by name. */

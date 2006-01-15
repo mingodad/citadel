@@ -1,5 +1,9 @@
 $Id$
 
+Sun Jan 15 00:00:13 EST 2006 ajc
+* citserver.c: patch submitted by matt to keep the client protocol from
+  getting out of sync following a .h? command.
+
 Sat Jan 14 23:38:44 EST 2006 ajc
 * setup.c: remove "--backtitle" from calls to "dialog" because its
   availability cannot be depended upon.
