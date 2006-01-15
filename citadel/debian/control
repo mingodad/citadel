@@ -8,6 +8,8 @@ Standards-Version: 3.6.1
 Package: citadel-server
 Architecture: any
 Pre-Depends: debconf
+Provides: pop3-server imap-server
+Conflicts: pop3-server imap-server
 Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, libical, libssl0.9.7, libncurses5, libdb4.3, libldap2, libsasl2, libgnutls11, libgcrypt11, libc6, libgpg-error0, ucf
 Suggests: citadel-mta
 Description: Citadel is the good old BBS system grown up to a Groupware.
