@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CITADEL_VERSION=`grep "THIS IS" ChangeLog  |head -n 1|sed "s;.* ;;"`
+CITADEL_VERSION=`grep '#define CITADEL.*Citadel' citadel.h |sed -e 's;";;g' -e "s;.* ;;"`
 PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
 ACTUAL_DIR=`pwd`
@@ -21,7 +21,7 @@ else
 	if test "$done" = "false"; then 
 		cd ..
 		mv -- $SYMLINK "citadel-$CITADEL_VERSION"
-		ln -s "citadel-$CITADEL_VERSION" citadel
+		ln -sf "citadel-$CITADEL_VERSION" citadel
 		cd "citadel-$CITADEL_VERSION"
 	else
 		cd "../citadel-$CITADEL_VERSION"

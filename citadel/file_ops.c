@@ -132,13 +132,9 @@ void cmd_delf(char *filename)
 			filename[a] = '_';
 		}
 	}
-	snprintf(pathname, sizeof pathname, 
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-			 "/files/%s/%s",
+	snprintf(pathname, sizeof pathname,
+			 "%s/%s/%s",
+			 ctdl_file_dir,
 			 CC->room.QRdirname, filename);
 	a = unlink(pathname);
 	if (a == 0) {
@@ -272,12 +268,8 @@ void cmd_netf(char *cmdbuf)
 		return;
 	}
 	snprintf(outfile, sizeof outfile,
-#ifndef HAVE_SPOOL_DIR
-			 "."
-#else
-			 SPOOL_DIR
-#endif
-			 "/network/spoolin/nsf.%04lx.%04x",
+			 "%s/nsf.%04lx.%04x",
+			 ctdl_netin_dir,
 			 (long)getpid(), ++seq);
 	ofp = fopen(outfile, "a");
 	if (ofp == NULL) {
@@ -307,14 +299,9 @@ void cmd_netf(char *cmdbuf)
 	fclose(ofp);
 
 	snprintf(buf, sizeof buf,
-			 "cd "
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
+			 "cd %s/%s; uuencode %s <%s 2>/dev/null >>%s",
+			 ctdl_file_dir,
 			 /* FIXME: detect uuencode while installation? or inline */
-			 "/files/%s; uuencode %s <%s 2>/dev/null >>%s",
 			 CC->room.QRdirname, filename, filename, outfile);
 	system(buf);
 
@@ -388,12 +375,9 @@ void cmd_open(char *cmdbuf)
 	}
 
 	snprintf(pathname, sizeof pathname,
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-		 "/files/%s/%s", CC->room.QRdirname, filename);
+			 "%s/%s/%s",
+			 ctdl_file_dir,
+			 CC->room.QRdirname, filename);
 	CC->download_fp = fopen(pathname, "r");
 
 	if (CC->download_fp == NULL) {
@@ -439,22 +423,14 @@ void cmd_oimg(char *cmdbuf)
 			return;
 		}
 		snprintf(pathname, sizeof pathname, 
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/userpics/%ld.gif",
+				 "%s/%ld.gif",
+				 ctdl_usrpic_dir,
 				 usbuf.usernum);
 	} else if (!strcasecmp(filename, "_floorpic_")) {
 		which_floor = extract_int(cmdbuf, 1);
 		snprintf(pathname, sizeof pathname,
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/images/floor.%d.gif", which_floor);
+				 "%s/floor.%d.gif",
+				 ctdl_image_dir, which_floor);
 	} else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, "images");
 	} else {
@@ -464,13 +440,9 @@ void cmd_oimg(char *cmdbuf)
 				filename[a] = '_';
 			}
 		}
-		snprintf(pathname, sizeof pathname, 
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/images/%s.gif",
+		snprintf(pathname, sizeof pathname,
+				 "%s/%s.gif",
+				 ctdl_image_dir,
 				 filename);
 	}
 
@@ -520,20 +492,13 @@ void cmd_uopn(char *cmdbuf)
 		}
 	}
 	snprintf(CC->upl_path, sizeof CC->upl_path, 
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-			 "/files/%s/%s",
+			 "%s/%s/%s",
+			 ctdl_file_dir,
 			 CC->room.QRdirname, CC->upl_file);
 	snprintf(CC->upl_filedir, sizeof CC->upl_filedir,
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-			 "/files/%s/filedir", CC->room.QRdirname);
+			 "%s/%s/filedir", 
+			 ctdl_file_dir,
+			 CC->room.QRdirname);
 
 	CC->upload_fp = fopen(CC->upl_path, "r");
 	if (CC->upload_fp != NULL) {
@@ -589,35 +554,25 @@ void cmd_uimg(char *cmdbuf)
 
 	if (CC->user.axlevel >= 6) {
 		snprintf(CC->upl_path, sizeof CC->upl_path, 
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/images/%s",
+				 "%s/%s",
+				 ctdl_image_dir,
 				 basenm);
 	}
 
 	if (!strcasecmp(basenm, "_userpic_")) {
 		snprintf(CC->upl_path, sizeof CC->upl_path,
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/userpics/%ld.gif", CC->user.usernum);
+				 "%s/%ld.gif",
+				 ctdl_usrpic_dir,
+				 CC->user.usernum);
 	}
 
 	if ((!strcasecmp(basenm, "_floorpic_"))
 	    && (CC->user.axlevel >= 6)) {
 		which_floor = extract_int(cmdbuf, 2);
 		snprintf(CC->upl_path, sizeof CC->upl_path,
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/images/floor.%d.gif", which_floor);
+				 "%s/floor.%d.gif",
+				 ctdl_image_dir,
+				 which_floor);
 	}
 
 	if ((!strcasecmp(basenm, "_roompic_")) && (is_room_aide())) {
@@ -665,12 +620,8 @@ void cmd_clos(void)
 	if (CC->dl_is_net == 1) {
 		CC->dl_is_net = 0;
 		snprintf(buf, sizeof buf, 
-#ifndef HAVE_SPOOL_DIR
-				 "."
-#else
-				 SPOOL_DIR
-#endif
-				 "/network/spoolout/%s",
+				 "%s/%s",
+				 ctdl_netout_dir,
 				 CC->net_node);
 		unlink(buf);
 	}
@@ -829,12 +780,8 @@ void cmd_ndop(char *cmdbuf)
 	}
 
 	snprintf(pathname, sizeof pathname, 
-#ifndef HAVE_SPOOL_DIR
-			 "."
-#else
-			 SPOOL_DIR
-#endif
-			 "/network/spoolout/%s",
+			 "%s/%s",
+			 ctdl_netout_dir,
 			 CC->net_node);
 
 	/* first open the file in append mode in order to create a
@@ -882,13 +829,11 @@ void cmd_nuop(char *cmdbuf)
 	}
 
 	snprintf(CC->upl_path, sizeof CC->upl_path,
-#ifndef HAVE_SPOOL_DIR
-			 "."
-#else
-			 SPOOL_DIR
-#endif
-			 "/network/spoolin/%s.%04lx.%04x",
-			 CC->net_node, (long)getpid(), ++seq);
+			 "%s/%s.%04lx.%04x",
+			 ctdl_netin_dir,
+			 CC->net_node, 
+			 (long)getpid(), 
+			 ++seq);
 
 	CC->upload_fp = fopen(CC->upl_path, "r");
 	if (CC->upload_fp != NULL) {

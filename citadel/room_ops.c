@@ -1104,32 +1104,23 @@ void cmd_rdir(void)
 		cprintf("%d not here.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
-	cprintf("%d %s|"
-#ifndef HAVE_DATA_DIR
-			"."
-#else
-			DATA_DIR
-#endif
-			"/files/%s\n",
-			LISTING_FOLLOWS, config.c_fqdn, CC->room.QRdirname);
+	cprintf("%d %s|%s/%s\n",
+			LISTING_FOLLOWS, 
+			config.c_fqdn,
+			ctdl_file_dir, 
+			CC->room.QRdirname);
 
-	snprintf(buf, sizeof buf, "ls "
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-			 "/files/%s  >%s 2> /dev/null",
-			 CC->room.QRdirname, tempfilename);
+	snprintf(buf, sizeof buf, 
+			 "ls %s/%s >%s 2>/dev/null",
+			 ctdl_file_dir,
+			 CC->room.QRdirname, 
+			 tempfilename);
 	system(buf);
 
 	snprintf(buf, sizeof buf, 
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-			 "/files/%s/filedir", CC->room.QRdirname);
+			 "%s/%s/filedir",
+			 ctdl_file_dir,
+			 CC->room.QRdirname);
 	fd = fopen(buf, "r");
 	if (fd == NULL)
 		fd = fopen("/dev/null", "r");
@@ -1139,13 +1130,10 @@ void cmd_rdir(void)
 		flnm[strlen(flnm) - 1] = 0;
 		if (strcasecmp(flnm, "filedir")) {
 			snprintf(buf, sizeof buf, 
-#ifndef HAVE_DATA_DIR
-					 "."
-#else
-					 DATA_DIR
-#endif
-					 "/files/%s/%s",
-					 CC->room.QRdirname, flnm);
+					 "%s/%s/%s",
+					 ctdl_file_dir,
+					 CC->room.QRdirname,
+					 flnm);
 			stat(buf, &statbuf);
 			safestrncpy(comment, "", sizeof comment);
 			fseek(fd, 0L, 0);
@@ -1451,13 +1439,9 @@ void cmd_setr(char *args)
 
 	/* Create a room directory if necessary */
 	if (CC->room.QRflags & QR_DIRECTORY) {
-		snprintf(buf, sizeof buf, 
-#ifndef HAVE_DATA_DIR
-				 "."
-#else
-				 DATA_DIR
-#endif
-				 "/files/%s", CC->room.QRdirname);
+		snprintf(buf, sizeof buf,"%s/%s",
+				 ctdl_file_dir,
+				 CC->room.QRdirname);
 		mkdir(buf, 0755);
 	}
 	snprintf(buf, sizeof buf, "The room \"%s\" has been edited by %s.\n",

@@ -138,18 +138,26 @@ int alias(char *name)
 	char node[64];
 	char testnode[64];
 	char buf[SIZ];
+	char filename[256];
 
 	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 	stripallbut(name, '<', '>');
 
-	fp = fopen(
+	/* 
+	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
+	 * legacy installations, we need to calculate ifdeffed here.
+	 */
+		snprintf(filename, 
+				 sizeof filename,
+				 "%s/mail.aliases",
 #ifndef HAVE_ETG_DIR
-			   "network/"
+				 ctdl_spool_dir
 #else
-			   ETC_DIR
+				 ctdl_etc_dir
 #endif
-			   "mail.aliases", "r");
+				 );
+	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		fp = fopen("/dev/null", "r");
 	}
@@ -243,14 +251,15 @@ int alias(char *name)
 void get_mm(void)
 {
 	FILE *fp;
+	char filename[256];
 
-	fp = fopen(
-#ifndef HAVE_DATA_DIR
-			   "."
-#else
-			   DATA_DIR
-#endif
-			   "/citadel.control", "r");
+	snprintf(filename, 
+			 sizeof filename,
+			 "%s/citadel.control",
+			 ctdl_etc_dir
+			 );
+
+	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		lprintf(CTDL_CRIT, "Cannot open citadel.control: %s\n",
 			strerror(errno));
@@ -2382,12 +2391,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		serialize_message(&smr, msg);
 		if (smr.len > 0) {
 			snprintf(submit_filename, sizeof submit_filename,
-#ifndef HAVE_SPOOL_DIR
-					 "."
-#else
-					 SPOOL_DIR
-#endif
-					 "/network/spoolin/netmail.%04lx.%04x.%04x",
+					 "%s/netmail.%04lx.%04x.%04x",
+					 ctdl_netin_dir,
 					 (long) getpid(), CC->cs_pid, ++seqnum);
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {

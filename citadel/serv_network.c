@@ -837,13 +837,8 @@ void network_spool_msg(long msgnum, void *userdata) {
 					serialize_message(&sermsg, msg);
 
 					/* write it to the spool file */
-					snprintf(filename, sizeof filename,
-#ifndef HAVE_SPOOL_DIR
-							 "."
-#else
-							 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-							 "/network/spoolout/%s",
+					snprintf(filename, sizeof filename,"%s/%s",
+							 ctdl_netout_dir,
 							 mptr->remote_nodename);
 					lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
 					fp = fopen(filename, "ab");
@@ -1394,13 +1389,11 @@ void network_process_buffer(char *buffer, long size) {
 				if (strlen(nexthop) == 0) {
 					strcpy(nexthop, msg->cm_fields['D']);
 				}
-				snprintf(filename, sizeof filename,
-#ifndef HAVE_SPOOL_DIR
-						 "."
-#else
-						 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-						 "/network/spoolout/%s", nexthop);
+				snprintf(filename, 
+						 sizeof filename,
+						 "%s/%s",
+						 ctdl_netout_dir,
+						 nexthop);
 				lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
@@ -1571,19 +1564,12 @@ void network_do_spoolin(void) {
 	struct stat statbuf;
 	char filename[256];
 	static time_t last_spoolin_mtime = 0L;
-	const char *spoolin_dirname = 
-#ifndef HAVE_SPOOL_DIR
-				 "."
-#else
-				 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-				 "/network/spoolin";
 
 	/*
 	 * Check the spoolin directory's modification time.  If it hasn't
 	 * been touched, we don't need to scan it.
 	 */
-	if (stat(spoolin_dirname, &statbuf)) return;
+	if (stat(ctdl_netin_dir, &statbuf)) return;
 	if (statbuf.st_mtime == last_spoolin_mtime) {
 		lprintf(CTDL_DEBUG, "network: nothing in inbound queue\n");
 		return;
@@ -1594,18 +1580,16 @@ void network_do_spoolin(void) {
 	/*
 	 * Ok, there's something interesting in there, so scan it.
 	 */
-	dp = opendir(spoolin_dirname);
+	dp = opendir(ctdl_netin_dir);
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
 		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
-			snprintf(filename, sizeof filename,
-#ifndef HAVE_SPOOL_DIR
-					 "."
-#else
-					 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-					 "/network/spoolin/%s", d->d_name);
+			snprintf(filename, 
+					 sizeof filename,
+					 "%s/%s",
+					 ctdl_netin_dir,
+					 d->d_name);
 			network_process_file(filename);
 		}
 	}
@@ -1624,25 +1608,17 @@ void network_purge_spoolout(void) {
 	char nexthop[256];
 	int i;
 
-	dp = opendir(
-#ifndef HAVE_SPOOL_DIR
-				 "."
-#else
-				 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-				 "/network/spoolout");
+	dp = opendir(ctdl_netout_dir);
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		snprintf(filename, sizeof filename,
-#ifndef HAVE_SPOOL_DIR
-				 "."
-#else
-				 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-				 "/network/spoolout/%s", d->d_name);
+		snprintf(filename, 
+				 sizeof filename,
+				 "%s/%s",
+				 ctdl_netout_dir,
+				 d->d_name);
 
 		strcpy(nexthop, "");
 		i = is_valid_node(nexthop, NULL, d->d_name);
@@ -1727,14 +1703,13 @@ void receive_spool(int sock, char *remote_nodename) {
 				download_len, remote_nodename);
 	lprintf(CTDL_DEBUG, "%s", buf);
 	/* TODO: make move inline. forking is verry expensive. */
-	snprintf(buf, sizeof buf, "mv %s "
-#ifndef HAVE_SPOOL_DIR
-			 "."
-#else
-			 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-			 "/network/spoolin/%s.%ld",
-			 tempfilename, remote_nodename, (long) getpid());
+	snprintf(buf, 
+			 sizeof buf, 
+			 "mv %s %s/%s.%ld",
+			 tempfilename, 
+			 ctdl_netin_dir,
+			 remote_nodename, 
+			 (long) getpid());
 	system(buf);
 }
 
@@ -1760,12 +1735,9 @@ void transmit_spool(int sock, char *remote_nodename)
 	}
 
 	snprintf(sfname, sizeof sfname, 
-#ifndef HAVE_SPOOL_DIR
-			 "."
-#else
-			 SPOOL_DIR
-#endif /* HAVE_SPOOL_DIR */
-			 "/network/spoolout/%s", remote_nodename);
+			 "%s/%s",
+			 ctdl_netout_dir,
+			 remote_nodename);
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
 		if (errno != ENOENT) {
@@ -1891,13 +1863,11 @@ void network_poll_other_citadel_nodes(int full_poll) {
 		   && (strlen(host) > 0) && strlen(port) > 0) {
 			poll = full_poll;
 			if (poll == 0) {
-				snprintf(spoolfile, sizeof spoolfile,
-#ifndef HAVE_SPOOL_DIR
-						 "."
-#else
-						 SPOOL_DIR
-#endif
-						 "/network/spoolout/%s", node);
+				snprintf(spoolfile, 
+						 sizeof spoolfile,
+						 "%s/%s",
+						 ctdl_netout_dir, 
+						 node);
 				if (access(spoolfile, R_OK) == 0) {
 					poll = 1;
 				}
@@ -1917,21 +1887,12 @@ void network_poll_other_citadel_nodes(int full_poll) {
  * It's ok if these directories already exist.  Just fail silently.
  */
 void create_spool_dirs(void) {
-#ifndef HAVE_SPOOL_DIR
-	mkdir("./network", 0700);
-	chown("./network", CTDLUID, (-1));
-	mkdir("./network/spoolin", 0700);
-	chown("./network/spoolin", CTDLUID, (-1));
-	mkdir("./network/spoolout", 0700);
-	chown("./network/spoolout", CTDLUID, (-1));
-#else
-	mkdir(SPOOL_DIR "/network", 0700);
-	chown(SPOOL_DIR "./network", CTDLUID, (-1));
-	mkdir(SPOOL_DIR "/network/spoolin", 0700);
-	chown(SPOOL_DIR "./network/spoolin", CTDLUID, (-1));
-	mkdir(SPOOL_DIR "/network/spoolout", 0700);
-	chown(SPOOL_DIR "./network/spoolout", CTDLUID, (-1));
-#endif /* HAVE_SPOOL_DIR */
+	mkdir(ctdl_spool_dir, 0700);
+	chown(ctdl_spool_dir, CTDLUID, (-1));
+	mkdir(ctdl_netin_dir, 0700);
+	chown(ctdl_netin_dir, CTDLUID, (-1));
+	mkdir(ctdl_netout_dir, 0700);
+	chown(ctdl_netout_dir, CTDLUID, (-1));
 }
 
 

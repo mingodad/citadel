@@ -20,7 +20,24 @@
 #include "config.h"
 
 struct config config;
-char ctdl_home_directory[PATH_MAX] = CTDLDIR;
+/* CTDLDIR */
+char ctdl_home_directory[PATH_MAX] = "";
+char ctdl_bio_dir[PATH_MAX]="bio";
+char ctdl_bb_dir[PATH_MAX]="bitbucket";
+char ctdl_data_dir[PATH_MAX]="data";
+char ctdl_file_dir[PATH_MAX]="files";
+char ctdl_hlp_dir[PATH_MAX]="help";
+char ctdl_image_dir[PATH_MAX]="images";
+char ctdl_info_dir[PATH_MAX]="info";
+char ctdl_key_dir[PATH_MAX]="keys";
+char ctdl_message_dir[PATH_MAX]="messages";
+char ctdl_usrpic_dir[PATH_MAX]="userpics";
+char ctdl_etc_dir[PATH_MAX]="";
+char ctdl_run_dir[PATH_MAX]="";
+char ctdl_spool_dir[PATH_MAX]="network";
+char ctdl_netout_dir[PATH_MAX]="network/spoolout";
+char ctdl_netin_dir[PATH_MAX]="network/spoolin";
+
 int home_specified = 0;
 
 /*

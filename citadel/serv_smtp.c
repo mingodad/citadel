@@ -1723,6 +1723,8 @@ void smtp_cleanup_function(void) {
 
 char *serv_smtp_init(void)
 {
+	char filename[256];
+
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 				NULL,
 				smtp_greeting,
@@ -1743,24 +1745,22 @@ char *serv_smtp_init(void)
 				smtp_command_loop,
 				NULL);
 
+	snprintf(filename, 
+			 sizeof filename,
+			 "%s/lmtp.sock",
+			 ctdl_run_dir);
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-#ifndef HAVE_RUN_DIR
-							"."
-#else
-							RUN_DIR
-#endif
-							"/lmtp.socket",
+							filename,
 							lmtp_greeting,
 							smtp_command_loop,
 							NULL);
 
+	snprintf(filename, 
+			 sizeof filename,
+			 "%s/lmtp-unfiltered.sock",
+			 ctdl_run_dir);
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-#ifndef HAVE_RUN_DIR
-							"."
-#else
-							RUN_DIR
-#endif
-							"/lmtp-unfiltered.socket",
+							filename,
 							lmtp_unfiltered_greeting,
 							smtp_command_loop,
 							NULL);

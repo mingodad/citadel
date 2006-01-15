@@ -1,5 +1,9 @@
 $Id$
 
+Sun Jan 15 22:29 MET 2006 dothebart
+* calculate the directories in a central manner.
+  LHFS'ified installations may use multi-homed installations now too.
+	
 Sun Jan 15 00:00:13 EST 2006 ajc
 * citserver.c: patch submitted by matt to keep the client protocol from
   getting out of sync following a .h? command.

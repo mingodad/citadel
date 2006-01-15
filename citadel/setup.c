@@ -47,6 +47,7 @@ int setup_type;
 char setup_directory[SIZ];
 char citserver_init_entry[SIZ];
 int using_web_installer = 0;
+int enable_home = 1;
 
 #ifdef HAVE_LDAP
 void contemplate_ldap(void);
@@ -62,11 +63,55 @@ char *setup_titles[] =
 };
 
 
+struct config config;
+/* CTDLDIR */
+char ctdl_home_directory[PATH_MAX] = "";
+char ctdl_bio_dir[PATH_MAX]="bio";
+char ctdl_bb_dir[PATH_MAX]="bitbucket";
+char ctdl_data_dir[PATH_MAX]="data";
+char ctdl_file_dir[PATH_MAX]="files";
+char ctdl_hlp_dir[PATH_MAX]="help";
+char ctdl_image_dir[PATH_MAX]="images";
+char ctdl_info_dir[PATH_MAX]="info";
+char ctdl_key_dir[PATH_MAX]="keys";
+char ctdl_message_dir[PATH_MAX]="messages";
+char ctdl_usrpic_dir[PATH_MAX]="userpics";
+char ctdl_etc_dir[PATH_MAX]="";
+char ctdl_run_dir[PATH_MAX]="";
+char ctdl_spool_dir[PATH_MAX]="network";
+char ctdl_netout_dir[PATH_MAX]="network/spoolout";
+char ctdl_netin_dir[PATH_MAX]="network/spoolin";
+
+
+char citadel_rc_file[PATH_MAX]="";
+
+	/* calculate all our path on a central place */
+    /* where to keep our config */
+	
+#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
+	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
+			 (home&!relh)?ctdl_home_directory:basedir, \
+             ((basedir!=ctdldir)&(home&!relh))?basedir:"/", \
+             ((basedir!=ctdldir)&(home&!relh))?"/":"", \
+			 relhome, \
+             (relhome[0]!='\0')?"/":"",\
+			 dirbuffer,\
+			 (dirbuffer[0]!='\0')?"/":"");
+
+
 char *setup_text[] = {
+#ifndef HAVE_RUN_DIR
 "Enter the full pathname of the directory in which the Citadel\n"
 "installation you are creating or updating resides.  If you\n"
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n",
+#else
+"Enter the subdirectoryname for an alternating installation of "
+"Citadel. To do a default installation just leave it blank."
+"If you specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+"note that it may not have a leading /",
+#endif
 
 "Enter the name of the system administrator (which is probably\n"
 "you).  When an account is created with this name, it will\n"
@@ -193,7 +238,15 @@ void locate_init_entry(char *init_entry, char *looking_for) {
 void shutdown_citserver(void) {
 	char looking_for[SIZ];
 
-	snprintf(looking_for, sizeof looking_for, "%s/citserver", setup_directory);
+	snprintf(looking_for, 
+			 sizeof looking_for,
+			 "%s/citserver", 
+#ifndef HAVE_RUN_DIR
+			 setup_directory
+#else
+			 CTDLDIR
+#endif
+			 );
 	locate_init_entry(citserver_init_entry, looking_for);
 	if (strlen(citserver_init_entry) > 0) {
 		set_init_entry(citserver_init_entry, "off");
@@ -514,7 +567,15 @@ void check_inittab_entry(void)
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver", setup_directory);
+	snprintf(looking_for, 
+			 sizeof looking_for,
+			 "%s/citserver", 
+#ifndef HAVE_RUN_DIR
+			 setup_directory
+#else
+			 CTDLDIR
+#endif
+			 );
 	locate_init_entry(citserver_init_entry, looking_for);
 
 	/* If there's already an entry, then we have nothing left to do. */
@@ -548,8 +609,11 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the Citadel server...\n");
-		fprintf(infp, "%s:2345:respawn:%s -h%s -x3 -llocal4\n",
-			entryname, looking_for, setup_directory);
+		fprintf(infp, "%s:2345:respawn:%s %s%s -x3 -llocal4\n",
+				entryname, 
+				looking_for, 
+				(enable_home)?"-h":"", 
+				(enable_home)?setup_directory:"");
 		fclose(infp);
 		strcpy(citserver_init_entry, entryname);
 	}
@@ -606,8 +670,12 @@ void check_xinetd_entry(void) {
 		"	server_args	= -h -L %s/citadel\n"
 		"	log_on_failure	+= USERID\n"
 		"}\n",
-		setup_directory
-	);
+#ifndef HAVE_RUN_DIR
+			setup_directory
+#else
+			RUN_DIR
+#endif
+			);
 	fclose(fp);
 
 	/* Now try to restart the service */
@@ -685,10 +753,15 @@ int test_server(void) {
 	 */
 	sprintf(cookie, "--test--%d--", getpid());
 
-	sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
-		setup_directory,
-		setup_directory,
-		cookie);
+	sprintf(cmd, "%s/sendcommand %s%s ECHO %s 2>&1",
+#ifndef HAVE_RUN_DIR
+			setup_directory,
+#else
+			CTDLDIR,
+#endif
+			(enable_home)?"-h":"", 
+			(enable_home)?setup_directory:"",
+			cookie);
 
 	fp = popen(cmd, "r");
 	if (fp == NULL) return(errno);
@@ -927,7 +1000,7 @@ int discover_ui(void)
 int main(int argc, char *argv[])
 {
 	int a;
-	int curr;
+	int curr; 
 	char aaa[128];
 	FILE *fp;
 	int old_setup_level = 0;
@@ -936,7 +1009,13 @@ int main(int argc, char *argv[])
 	struct passwd *pw;
 	struct hostent *he;
 	gid_t gid;
-
+	int relh=0;
+	int home=0;
+	const char* basedir;
+	char dirbuffer[PATH_MAX]="";
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+	
 	/* set an invalid setup type */
 	setup_type = (-1);
 
@@ -973,7 +1052,13 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, CTDLDIR);
+	strcpy(setup_directory, 
+#ifdef HAVE_RUN_DIR
+		   ""
+#else
+		   CTDLDIR
+#endif
+		   );
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
 		strcpy(setup_directory, getenv("CITADEL"));
 	}
@@ -981,7 +1066,53 @@ int main(int argc, char *argv[])
 		set_str_val(0, setup_directory);
 	}
 
-	if (chdir(setup_directory) != 0) {
+	home=(setup_directory[1]!='\0');
+	relh=home&(setup_directory[1]!='/');
+	if (!relh) safestrncpy(ctdl_home_directory, setup_directory,
+								   sizeof ctdl_home_directory);
+	else
+		safestrncpy(relhome, ctdl_home_directory,
+					sizeof relhome);
+	
+#ifndef HAVE_ETC_DIR
+	basedir=ctdldir;
+#else
+	basedir=ETC_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_etc_dir);
+
+#ifndef HAVE_RUN_DIR
+	basedir=ctdldir;
+#else
+	basedir=RUN_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_run_dir);
+
+#ifndef HAVE_DATA_DIR
+	basedir=ctdldir;
+#else
+	basedir=DATA_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_bio_dir);
+	COMPUTE_DIRECTORY(ctdl_bb_dir);
+	COMPUTE_DIRECTORY(ctdl_data_dir);
+	COMPUTE_DIRECTORY(ctdl_file_dir);
+	COMPUTE_DIRECTORY(ctdl_hlp_dir);
+	COMPUTE_DIRECTORY(ctdl_image_dir);
+	COMPUTE_DIRECTORY(ctdl_info_dir);
+	COMPUTE_DIRECTORY(ctdl_message_dir);
+	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
+#ifndef HAVE_SPOOL_DIR
+	basedir=ctdldir;
+#else
+	basedir=SPOOL_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_spool_dir);
+	COMPUTE_DIRECTORY(ctdl_netout_dir);
+	COMPUTE_DIRECTORY(ctdl_netin_dir);
+
+
+	if ((home) && (chdir(setup_directory) != 0)) {
 		important_message("Citadel Setup",
 			  "The directory you specified does not exist.");
 		cleanup(errno);
@@ -1026,14 +1157,12 @@ int main(int argc, char *argv[])
 	 * to be when we rewrite it, because we replace the old file with a
 	 * completely new copy.
 	 */
+	snprintf(citadel_rc_file, 
+			 sizeof citadel_rc_file,
+			 "%s/citadel.config",
+			 ctdl_etc_dir);
 
-	if ((a = open(
-#ifndef HAVE_ETC_DIR
-				  "."
-#else
-				  ETC_DIR
-#endif
-				  "/citadel.config", O_WRONLY | O_CREAT | O_APPEND,
+	if ((a = open(citadel_rc_file, O_WRONLY | O_CREAT | O_APPEND,
 		      S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot append citadel.config");
 		cleanup(errno);
@@ -1048,13 +1177,7 @@ int main(int argc, char *argv[])
 	fclose(fp);
 
 	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen(
-#ifndef HAVE_ETC_DIR
-			   "."
-#else
-			   ETC_DIR
-#endif
-			   "/citadel.config", "rb");
+	fp = fopen(citadel_rc_file, "rb");
 	if (fp == NULL) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(errno);
@@ -1175,18 +1298,19 @@ NEW_INST:
 
 	write_config_to_disk();
 
-	mkdir("info", 0700);
-	chmod("info", 0700);
-	mkdir("bio", 0700);
-	chmod("bio", 0700);
-	mkdir("userpics", 0700);
-	chmod("userpics", 0700);
-	mkdir("messages", 0700);
-	chmod("messages", 0700);
-	mkdir("help", 0700);
-	chmod("help", 0700);
-	mkdir("images", 0700);
-	chmod("images", 0700);
+	mkdir(ctdl_info_dir, 0700);
+	chmod(ctdl_info_dir, 0700);
+	mkdir(ctdl_bio_dir, 0700);
+	chmod(ctdl_bio_dir, 0700);
+	mkdir(ctdl_usrpic_dir, 0700);
+	chmod(ctdl_usrpic_dir, 0700);
+	mkdir(ctdl_message_dir, 0700);
+	chmod(ctdl_message_dir, 0700);
+	mkdir(ctdl_hlp_dir, 0700);
+	chmod(ctdl_hlp_dir, 0700);
+	mkdir(ctdl_image_dir, 0700);
+	chmod(ctdl_image_dir, 0700);
+	/* TODO: where to put this? */
 	mkdir("netconfigs", 0700);
 	chmod("netconfigs", 0700);
 
@@ -1234,13 +1358,7 @@ NEW_INST:
 	chown(".", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 1, 4);
-	chown(
-#ifndef HAVE_ETC_DIR
-		  "."
-#else
-		  ETC_DIR
-#endif
-		  "/citadel.config", config.c_ctdluid, gid);
+	chown(citadel_rc_file, config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
@@ -1249,13 +1367,7 @@ NEW_INST:
 	system(aaa);
 	sleep(1);
 	progress("Setting file permissions", 3, 4);
-	chmod(
-#ifndef HAVE_ETC_DIR
-		  "."
-#else
-		  ETC_DIR
-#endif
-		  "/citadel.config", S_IRUSR | S_IWUSR);
+	chmod(citadel_rc_file, S_IRUSR | S_IWUSR);
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
 

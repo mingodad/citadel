@@ -74,7 +74,13 @@ int main(int argc, char **argv)
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	size_t size;
-
+	int relh=0;
+	int home=0;
+	const char* basedir;
+	char dirbuffer[PATH_MAX]="";
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+	
 	/* initialize the master context */
 	InitializeMasterCC();
 
@@ -98,9 +104,14 @@ int main(int argc, char **argv)
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
-			safestrncpy(ctdl_home_directory, &argv[a][2],
-				    sizeof ctdl_home_directory);
+			relh=argv[a][2]!='/';
+			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
+								   sizeof ctdl_home_directory);
+			else
+				safestrncpy(relhome, &argv[a][2],
+							sizeof relhome);
 			home_specified = 1;
+			home=1;
 		}
 
 		else if (!strncmp(argv[a], "-t", 2)) {
@@ -129,6 +140,57 @@ int main(int argc, char **argv)
 		}
 
 	}
+
+	/* calculate all our path on a central place */
+    /* where to keep our config */
+	
+#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
+	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
+			 (home&!relh)?ctdl_home_directory:basedir, \
+             ((basedir!=ctdldir)&(home&!relh))?basedir:"/", \
+             ((basedir!=ctdldir)&(home&!relh))?"/":"", \
+			 relhome, \
+             (relhome[0]!='\0')?"/":"",\
+			 dirbuffer,\
+			 (dirbuffer[0]!='\0')?"/":"");
+
+#ifndef HAVE_ETC_DIR
+	basedir=ctdldir;
+#else
+	basedir=ETC_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_etc_dir);
+
+#ifndef HAVE_RUN_DIR
+	basedir=ctdldir;
+#else
+	basedir=RUN_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_run_dir);
+
+#ifndef HAVE_DATA_DIR
+	basedir=ctdldir;
+#else
+	basedir=DATA_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_bio_dir);
+	COMPUTE_DIRECTORY(ctdl_bb_dir);
+	COMPUTE_DIRECTORY(ctdl_data_dir);
+	COMPUTE_DIRECTORY(ctdl_file_dir);
+	COMPUTE_DIRECTORY(ctdl_hlp_dir);
+	COMPUTE_DIRECTORY(ctdl_image_dir);
+	COMPUTE_DIRECTORY(ctdl_info_dir);
+	COMPUTE_DIRECTORY(ctdl_message_dir);
+	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
+#ifndef HAVE_SPOOL_DIR
+	basedir=ctdldir;
+#else
+	basedir=SPOOL_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_spool_dir);
+	COMPUTE_DIRECTORY(ctdl_netout_dir);
+	COMPUTE_DIRECTORY(ctdl_netin_dir);
+
 
 	/* daemonize, if we were asked to */
 	if (running_as_daemon) {

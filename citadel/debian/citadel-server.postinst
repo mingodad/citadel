@@ -158,7 +158,8 @@ case "$1" in
 
 	db_get citadel/Administrator && admin="$RET"
 	db_get citadel/ServerIPAddress && ip_addr="$RET"
-	export CITADEL=/usr/sbin/
+	export IP_ADDR=$ip_addr
+	export CITADEL=''
 	export CITADEL_INSTALLER=yes
 	export ACT_AS_MTA=no
 	export SYSADMIN_NAME=$admin

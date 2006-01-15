@@ -306,12 +306,12 @@ int is_public_client(void)
 	struct stat statbuf;
 	static time_t pc_timestamp = 0;
 	static char public_clients[SIZ];
+	static char public_clients_file[SIZ];
 
-#ifndef HAVE_ETC
-#define PUBLIC_CLIENTS "./public_clients"
-#else
-#define PUBLIC_CLIENTS ETC_DIR"/public_clients"
-#endif
+	snprintf(public_clients_file, 
+			 sizeof public_clients_file,
+			 "%s/public_clients",
+			 ctdl_etc_dir);
 
 	/*
 	 * Check the time stamp on the public_clients file.  If it's been
@@ -319,15 +319,16 @@ int is_public_client(void)
 	 * time we've been through the loop), read its contents and learn
 	 * the IP addresses of the listed hosts.
 	 */
-	if (stat(PUBLIC_CLIENTS, &statbuf) != 0) {
+	if (stat(public_clients_file, &statbuf) != 0) {
 		/* No public_clients file exists, so bail out */
-		lprintf(CTDL_WARNING, "Warning: '%s' does not exist\n", PUBLIC_CLIENTS);
+		lprintf(CTDL_WARNING, "Warning: '%s' does not exist\n", 
+				public_clients_file);
 		return(0);
 	}
 
 	if (statbuf.st_mtime > pc_timestamp) {
 		begin_critical_section(S_PUBLIC_CLIENTS);
-		lprintf(CTDL_INFO, "Loading %s\n", PUBLIC_CLIENTS);
+		lprintf(CTDL_INFO, "Loading %s\n", public_clients_file);
 
 		safestrncpy(public_clients, "127.0.0.1", sizeof public_clients);
 		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
@@ -335,13 +336,7 @@ int is_public_client(void)
 			strcat(public_clients, addrbuf);
 		}
 
-		fp = fopen(
-#ifndef HAVE_ETC
-				   "."
-#else
-				   ETC_DIR
-#endif
-				   "/public_clients", "r");
+		fp = fopen(public_clients_file, "r");
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
 			for (i=0; i<strlen(buf); ++i) {
 				if (buf[i] == '#') buf[i] = 0;
@@ -455,17 +450,8 @@ void cmd_mesg(char *mname)
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
-#ifdef HAVE_DATA_DIR
-	dirs[0] = strdup(DATA_DIR "/messages");
-#else
-	dirs[0] = strdup("messages");
-#endif
-
-#ifdef HAVE_DATA_DIR
-	dirs[1] = strdup(DATA_DIR "/help");
-#else
-	dirs[1] = strdup("help");
-#endif
+	dirs[0] = strdup(ctdl_message_dir);
+	dirs[1] = strdup(ctdl_hlp_dir);
 
 	snprintf(buf2, sizeof buf2, "%s.%d.%d",
 		buf, CC->cs_clientdev, CC->cs_clienttyp);
@@ -550,17 +536,8 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-#ifdef HAVE_DATA_DIR
-	dirs[0] = strdup(DATA_DIR "/messages");
-#else
-	dirs[0] = strdup("messages");
-#endif
-
-#ifdef HAVE_DATA_DIR
-	dirs[1] = strdup(DATA_DIR "/help");
-#else
-	dirs[1] = strdup("help");
-#endif
+	dirs[0] = strdup(ctdl_message_dir);
+	dirs[1] = strdup(ctdl_hlp_dir);
 
 	mesg_locate(targ, sizeof targ, buf, 2, (const char**)dirs);
 	free(dirs[0]);
@@ -568,12 +545,8 @@ void cmd_emsg(char *mname)
 
 	if (strlen(targ)==0) {
 		snprintf(targ, sizeof targ, 
-#ifndef HAVE_DATA_DIR
-			 "."
-#else
-			 DATA_DIR
-#endif
-				 "/help/%s", buf);
+				 "%s/%s",
+				 ctdl_hlp_dir, buf);
 	}
 
 	mfp = fopen(targ,"w");
