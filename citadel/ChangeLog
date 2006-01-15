@@ -1,5 +1,9 @@
 $Id$
 
+Sat Jan 14 23:38:44 EST 2006 ajc
+* setup.c: remove "--backtitle" from calls to "dialog" because its
+  availability cannot be depended upon.
+
 Fri Jan 13 12:11:46 EST 2006 ajc
 * THIS IS 6.70
 

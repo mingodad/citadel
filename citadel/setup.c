@@ -320,9 +320,8 @@ void important_message(char *title, char *msgtext)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s --backtitle '%s' --msgbox '%s' 19 72",
+		sprintf(buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
-			title,
 			msgtext);
 		system(buf);
 		break;
@@ -737,9 +736,8 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
-		sprintf(buf, "exec %s --backtitle '%s' --inputbox '%s' 19 72 '%s' 2>%s",
+		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
-			prompt_title,
 			prompt_text,
 			str,
 			dialog_result);
@@ -1203,27 +1201,28 @@ NEW_INST:
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 
 	/* Offer to disable other MTA's on the system. */
-	disable_other_mta("sendmail");
-	disable_other_mta("postfix");
-	disable_other_mta("qmail");
-	disable_other_mta("cyrus");
-	disable_other_mta("cyrmaster");
-	disable_other_mta("saslauthd");
-	disable_other_mta("mta");
+	disable_other_mta("courier-authdaemon");
 	disable_other_mta("courier-imap");
 	disable_other_mta("courier-imap-ssl");
-	disable_other_mta("courier-authdaemon");
+	disable_other_mta("courier-pop");
 	disable_other_mta("courier-pop3");
 	disable_other_mta("courier-pop3d");
-	disable_other_mta("courier-pop");
-	disable_other_mta("vmailmgrd");
-	disable_other_mta("imapd");
-	disable_other_mta("popd");
-	disable_other_mta("pop3d");
+	disable_other_mta("cyrmaster");
+	disable_other_mta("cyrus");
+	disable_other_mta("dovecot");
 	disable_other_mta("exim");
 	disable_other_mta("exim4");
-	disable_other_mta("dovecot");
 	disable_other_mta("hula");
+	disable_other_mta("imapd");
+	disable_other_mta("mta");
+	disable_other_mta("pop3d");
+	disable_other_mta("popd");
+	disable_other_mta("postfix");
+	disable_other_mta("qmail");
+	disable_other_mta("saslauthd");
+	disable_other_mta("sendmail");
+	disable_other_mta("vmailmgrd");
+	disable_other_mta("zimbra");
 #endif
 
 	if ((pw = getpwuid(config.c_ctdluid)) == NULL)
