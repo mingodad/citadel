@@ -251,9 +251,8 @@ void set_value(char *prompt, char str[])
 
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
-		sprintf(buf, "exec %s --backtitle '%s' --inputbox '%s' 19 72 '%s' 2>%s",
+		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
-			"WebCit setup",
 			prompt,
 			str,
 			dialog_result);
@@ -309,9 +308,8 @@ void important_message(char *title, char *msgtext)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s --backtitle '%s' --msgbox '%s' 19 72",
+		sprintf(buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
-			title,
 			msgtext);
 		system(buf);
 		break;
