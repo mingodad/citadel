@@ -1044,6 +1044,8 @@ int main(int argc, char *argv[])
 					sizeof relhome);
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	
+	enable_home=(relh|home);
 
 	if ((home) && (chdir(setup_directory) != 0)) {
 		important_message("Citadel Setup",
