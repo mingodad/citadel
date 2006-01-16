@@ -60,25 +60,13 @@ void get_control(void)
 	 */
 	memset(&CitControl, 0, sizeof(struct CitControl));
 	if (control_fp == NULL) {
-		control_fp = fopen(
-#ifndef HAVE_DATA_DIR
-						   "."
-#else
-						   DATA_DIR
-#endif
-						   "/citadel.control", "rb+");
+		control_fp = fopen(file_citadel_control, "rb+");
 		if (control_fp != NULL) {
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 		}
 	}
 	if (control_fp == NULL) {
-		control_fp = fopen(
-#ifndef HAVE_DATA_DIR
-						   "."
-#else
-						   DATA_DIR
-#endif
-						   "/citadel.control", "wb+");
+		control_fp = fopen(file_citadel_control, "wb+");
 		if (control_fp != NULL) {
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
@@ -88,8 +76,9 @@ void get_control(void)
 		}
 	}
 	if (control_fp == NULL) {
-		lprintf(CTDL_ALERT, "ERROR opening citadel.control: %s\n",
-			strerror(errno));
+		lprintf(CTDL_ALERT, "ERROR opening %s: %s\n",
+				file_citadel_control,
+				strerror(errno));
 		return;
 	}
 

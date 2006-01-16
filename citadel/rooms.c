@@ -30,6 +30,7 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
+#include "citadel_dirs.h"
 
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 

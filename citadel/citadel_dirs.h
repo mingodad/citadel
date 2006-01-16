@@ -1,0 +1,43 @@
+#ifndef __CITADEL_DIRS_H
+#define __CITADEL_DIRS_H
+
+#include <limits.h>
+
+
+extern char ctdl_home_directory[PATH_MAX];
+extern int home_specified;
+
+
+/* all our directories */
+extern char ctdl_bio_dir[PATH_MAX];
+extern char ctdl_bb_dir[PATH_MAX];
+extern char ctdl_data_dir[PATH_MAX];
+extern char ctdl_file_dir[PATH_MAX];
+extern char ctdl_hlp_dir[PATH_MAX];
+extern char ctdl_image_dir[PATH_MAX];
+extern char ctdl_info_dir[PATH_MAX];
+extern char ctdl_key_dir[PATH_MAX];
+extern char ctdl_message_dir[PATH_MAX];
+extern char ctdl_usrpic_dir[PATH_MAX];
+extern char ctdl_etc_dir[PATH_MAX];
+extern char ctdl_run_dir[PATH_MAX];
+extern char ctdl_spool_dir[PATH_MAX];
+extern char ctdl_netout_dir[PATH_MAX];
+extern char ctdl_netin_dir[PATH_MAX];
+extern char ctdl_netcfg_dir[PATH_MAX];
+
+/* some of the frequently used files */
+extern char file_citadel_control[PATH_MAX];
+extern char file_citadel_rc[PATH_MAX];
+extern char file_citadel_config[PATH_MAX];
+extern char file_lmtp_socket[PATH_MAX];
+extern char file_lmtp_unfiltered_socket[PATH_MAX];
+
+
+extern void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir);
+
+
+void assoc_file_name(char *buf, size_t n,
+		     struct ctdlroom *qrbuf, const char *prefix);
+
+#endif /* __CITADEL_DIRS_H */

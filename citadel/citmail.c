@@ -27,6 +27,7 @@
 #include "snprintf.h"
 #endif
 #include "config.h"
+#include "citadel_dirs.h"
 
 /* #define DEBUG  */	/* uncomment to get protocol traces */
 
@@ -175,6 +176,13 @@ int main(int argc, char **argv) {
 	struct passwd *pw;
 	int from_header = 0;
 	int in_body = 0;
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+
+	/* TODO: should we be able to calculate relative dirs? */
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 	get_config();
 
@@ -203,13 +211,7 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-	serv_sock = uds_connectsock(
-#ifndef HAVE_RUN_DIR
-						   "."
-#else
-						   RUN_DIR
-#endif
-						   "/lmtp.socket");
+	serv_sock = uds_connectsock(file_lmtp_socket);
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 

@@ -150,7 +150,7 @@ int alias(char *name)
 	 */
 		snprintf(filename, 
 				 sizeof filename,
-				 "%s/mail.aliases",
+				 "%smail.aliases",
 #ifndef HAVE_ETG_DIR
 				 ctdl_spool_dir
 #else
@@ -251,18 +251,12 @@ int alias(char *name)
 void get_mm(void)
 {
 	FILE *fp;
-	char filename[256];
 
-	snprintf(filename, 
-			 sizeof filename,
-			 "%s/citadel.control",
-			 ctdl_etc_dir
-			 );
-
-	fp = fopen(filename, "r");
+	fp = fopen(file_citadel_control, "r");
 	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "Cannot open citadel.control: %s\n",
-			strerror(errno));
+		lprintf(CTDL_CRIT, "Cannot open %s: %s\n",
+				file_citadel_control,
+				strerror(errno));
 		exit(errno);
 	}
 	fread((char *) &CitControl, sizeof(struct CitControl), 1, fp);

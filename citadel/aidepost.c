@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <string.h>
 #include "citadel.h"
+#include "citadel_dirs.h"
 #include "config.h"
 
 #ifndef HAVE_SNPRINTF
@@ -76,6 +77,15 @@ int main(int argc, char **argv)
 	FILE *tempfp, *spoolfp;
 	int ch;
 	int i;
+
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+
+	/* TODO: should we be able to calculate relative dirs? */
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
+
 
 	get_config();
 

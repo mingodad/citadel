@@ -70,6 +70,7 @@
 #include "domain.h"
 #include "clientsocket.h"
 #include "locate_host.h"
+#include "citadel_dirs.h"
 
 #ifdef HAVE_OPENSSL
 #include "serv_crypto.h"
@@ -1723,7 +1724,6 @@ void smtp_cleanup_function(void) {
 
 char *serv_smtp_init(void)
 {
-	char filename[256];
 
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 				NULL,
@@ -1745,22 +1745,14 @@ char *serv_smtp_init(void)
 				smtp_command_loop,
 				NULL);
 
-	snprintf(filename, 
-			 sizeof filename,
-			 "%s/lmtp.sock",
-			 ctdl_run_dir);
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-							filename,
+							file_lmtp_socket,
 							lmtp_greeting,
 							smtp_command_loop,
 							NULL);
 
-	snprintf(filename, 
-			 sizeof filename,
-			 "%s/lmtp-unfiltered.sock",
-			 ctdl_run_dir);
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-							filename,
+							file_lmtp_unfiltered_socket,
 							lmtp_unfiltered_greeting,
 							smtp_command_loop,
 							NULL);

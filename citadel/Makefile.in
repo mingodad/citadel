@@ -51,7 +51,7 @@ SERV_MODULES=serv_chat.o \
 	serv_calendar.o \
 	ical_dezonify.o \
 	serv_ldap.o \
-	serv_autocompletion.o
+	serv_autocompletion.o 
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -102,7 +102,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
-	crc16.c journaling.c
+	crc16.c journaling.c citadel_dirs.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -146,17 +146,17 @@ citserver: $(SERV_OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 aidepost: aidepost.o config.o
-	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost $(LIBS)
+	$(CC) aidepost.o config.o citadel_dirs.o $(LDFLAGS) -o aidepost $(LIBS)
 
-citmail: citmail.o config.o
-	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(LIBS)
+citmail: citmail.o config.o citadel_dirs.o
+	$(CC) citmail.o config.o citadel_dirs.o $(LDFLAGS) -o citmail $(LIBS)
 
 # setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
-setup: setup.o tools.o
-	$(CC) setup.o tools.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
+setup: setup.o tools.o citadel_dirs.o
+	$(CC) setup.o tools.o citadel_dirs.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
 
-chkpwd: chkpwd.o auth.o config.o
-	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
+chkpwd: chkpwd.o auth.o config.o citadel_dirs.o
+	$(CC) chkpwd.o auth.o config.o citadel_dirs.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
@@ -165,7 +165,7 @@ stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
 	$(CC) stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o $(LIBOBJS)
-	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o \
+	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o citadel_dirs.o \
 	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
 
 base64: base64.o

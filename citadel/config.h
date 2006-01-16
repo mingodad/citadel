@@ -4,7 +4,7 @@
  */
 
 #include "serv_extensions.h"
-
+#include "citadel_dirs.h"
 /* 
  * Global system configuration.
  * 
@@ -78,27 +78,4 @@ struct config {
 void get_config(void);
 void put_config(void);
 extern struct config config;
-extern char ctdl_home_directory[PATH_MAX];
-extern int home_specified;
-
-
-
-extern char ctdl_bio_dir[PATH_MAX];
-extern char ctdl_bb_dir[PATH_MAX];
-extern char ctdl_data_dir[PATH_MAX];
-extern char ctdl_file_dir[PATH_MAX];
-extern char ctdl_hlp_dir[PATH_MAX];
-extern char ctdl_image_dir[PATH_MAX];
-extern char ctdl_info_dir[PATH_MAX];
-extern char ctdl_key_dir[PATH_MAX];
-extern char ctdl_message_dir[PATH_MAX];
-extern char ctdl_usrpic_dir[PATH_MAX];
-extern char ctdl_etc_dir[PATH_MAX];
-extern char ctdl_run_dir[PATH_MAX];
-extern char ctdl_spool_dir[PATH_MAX];
-extern char ctdl_netout_dir[PATH_MAX];
-extern char ctdl_netin_dir[PATH_MAX];
-
-
-
 

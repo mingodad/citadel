@@ -106,7 +106,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	listsub_generate_token(token);
 
-	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
 
 	/* 
 	 * Make sure the requested address isn't already subscribed
@@ -219,7 +219,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	listsub_generate_token(token);
 
-	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
 
 	/* 
 	 * Make sure there's actually a subscription there to remove
@@ -344,7 +344,7 @@ void do_confirm(char *room, char *token) {
 	 * Now start scanning this room's netconfig file for the
 	 * specified token.
 	 */
-	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
 	ncfp = fopen(filename, "r+");
 	if (ncfp != NULL) {

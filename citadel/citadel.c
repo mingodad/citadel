@@ -50,6 +50,7 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
+#include "citadel_dirs.h"
 
 #include "md5.h"
 
@@ -1122,13 +1123,7 @@ int main(int argc, char **argv)
 			 * guaranteed to have the uid/gid we want.
 			 */
 			if (!getuid() || !getgid()) {
-				if (stat(
-#ifndef HAVE_ETC_DIR
-						 CTDLDIR 
-#else
-						 ETC_DIR
-#endif
-						 "/citadel.config", &st) < 0) {
+				if (stat(file_citadel_config, &st) < 0) {
 					perror("couldn't stat citadel.config");
 					logoff(NULL, 3);
 				}

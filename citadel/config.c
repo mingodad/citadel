@@ -20,25 +20,6 @@
 #include "config.h"
 
 struct config config;
-/* CTDLDIR */
-char ctdl_home_directory[PATH_MAX] = "";
-char ctdl_bio_dir[PATH_MAX]="bio";
-char ctdl_bb_dir[PATH_MAX]="bitbucket";
-char ctdl_data_dir[PATH_MAX]="data";
-char ctdl_file_dir[PATH_MAX]="files";
-char ctdl_hlp_dir[PATH_MAX]="help";
-char ctdl_image_dir[PATH_MAX]="images";
-char ctdl_info_dir[PATH_MAX]="info";
-char ctdl_key_dir[PATH_MAX]="keys";
-char ctdl_message_dir[PATH_MAX]="messages";
-char ctdl_usrpic_dir[PATH_MAX]="userpics";
-char ctdl_etc_dir[PATH_MAX]="";
-char ctdl_run_dir[PATH_MAX]="";
-char ctdl_spool_dir[PATH_MAX]="network";
-char ctdl_netout_dir[PATH_MAX]="network/spoolout";
-char ctdl_netin_dir[PATH_MAX]="network/spoolin";
-
-int home_specified = 0;
 
 /*
  * get_config() is called during the initialization of any program which
@@ -58,29 +39,24 @@ void get_config(void) {
 			strerror(errno));
 		exit(1);
 	}
-	cfp = fopen(
-#ifndef HAVE_ETC_DIR
-				"."
-#else
-				ETC_DIR
-#endif
-				"/citadel.config", "rb");
+	cfp = fopen(file_citadel_config, "rb");
 	if (cfp == NULL) {
 		fprintf(stderr, "This program could not be started.\n"
-			"Unable to open %s/citadel.config\n"
-			"Error: %s\n",
-			(home_specified ? ctdl_home_directory : CTDLDIR),
-			strerror(errno));
+				"Unable to open %s\n"
+				"Error: %s\n",
+				file_citadel_config,
+				strerror(errno));
 		exit(1);
 	}
 	fread((char *) &config, sizeof(struct config), 1, cfp);
 	if (fstat(fileno(cfp), &st)) {
-		perror("citadel.config");
+		perror(file_citadel_config);
 		exit(1);
 	}
 #ifndef __CYGWIN__
 	if (st.st_uid != CTDLUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
-		fprintf(stderr, "check the permissions on citadel.config\n");
+		fprintf(stderr, "check the permissions on %s\n", file_citadel_config);
+		//		fprintf(stderr, "check the permissions on citadel.config\n");
 		exit(1);
 	}
 #endif
@@ -135,14 +111,8 @@ void put_config(void)
 {
 	FILE *cfp;
 
-	if ((cfp = fopen(
-#ifndef HAVE_ETC_DIR
-					 "."
-#else
-					 ETC_DIR
-#endif
-					 "/citadel.config", "rb+")) == NULL)
-		perror("citadel.config");
+	if ((cfp = fopen(file_citadel_config, "rb+")) == NULL)
+		perror(file_citadel_config);
 	else {
 		fwrite((char *) &config, sizeof(struct config), 1, cfp);
 		fclose(cfp);

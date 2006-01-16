@@ -53,6 +53,7 @@
 #include "tools.h"
 #include "rooms.h"
 #include "client_chat.h"
+#include "citadel_dirs.c"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -763,18 +764,10 @@ void load_command_set(void)
 
 	ccfile = NULL;
 	if (getenv("HOME") != NULL) {
-		snprintf(buf, sizeof buf, "%s/.citadelrc", getenv("HOME"));
-		ccfile = fopen(buf, "r");
+		ccfile = fopen(file_citadel_rc, "r");
 	}
 	if (ccfile == NULL) {
-		snprintf(buf, sizeof buf, 
-#ifndef HAVE_ETC_DIR
-				 CTDLDIR
-#else
-				 ETC_DIR
-#endif
-				 "/citadel.rc");
-		ccfile = fopen(buf, "r");
+		ccfile = fopen(file_citadel_rc, "r");
 	}
 	if (ccfile == NULL) {
 		ccfile = fopen("/etc/citadel.rc", "r");

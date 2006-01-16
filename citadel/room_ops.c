@@ -39,6 +39,7 @@
 #include "citserver.h"
 #include "control.h"
 #include "tools.h"
+#include "citadel_dirs.h"
 
 struct floor *floorcache[MAXFLOORS];
 
@@ -1513,15 +1514,6 @@ void cmd_seta(char *new_ra)
 	cprintf("%d Ok\n", CIT_OK);
 }
 
-/*
- * Generate an associated file name for a room
- */
-void assoc_file_name(char *buf, size_t n,
-		     struct ctdlroom *qrbuf, const char *prefix)
-{
-	snprintf(buf, n, "./%s/%ld", prefix, qrbuf->QRnumber);
-}
-
 /* 
  * retrieve info file for this room
  */
@@ -1531,7 +1523,7 @@ void cmd_rinf(void)
 	char buf[SIZ];
 	FILE *info_fp;
 
-	assoc_file_name(filename, sizeof filename, &CC->room, "info");
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_info_dir);
 	info_fp = fopen(filename, "r");
 
 	if (info_fp == NULL) {
@@ -1594,19 +1586,20 @@ void delete_room(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
 	char filename[100];
+	/* TODO: filename magic? does this realy work? */
 
 	lprintf(CTDL_NOTICE, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
-	assoc_file_name(filename, sizeof filename, qrbuf, "info");
+	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_info_dir);
 	unlink(filename);
 
 	/* Delete the image file */
-	assoc_file_name(filename, sizeof filename, qrbuf, "images");
+	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_image_dir);
 	unlink(filename);
 
 	/* Delete the room's network config file */
-	assoc_file_name(filename, sizeof filename, qrbuf, "netconfigs");
+	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 	unlink(filename);
 
 	/* Delete the messages in the room
@@ -1935,7 +1928,7 @@ void cmd_einf(char *ok)
 		cprintf("%d Ok.\n", CIT_OK);
 		return;
 	}
-	assoc_file_name(infofilename, sizeof infofilename, &CC->room, "info");
+	assoc_file_name(infofilename, sizeof infofilename, &CC->room, ctdl_info_dir);
 	lprintf(CTDL_DEBUG, "opening\n");
 	fp = fopen(infofilename, "w");
 	lprintf(CTDL_DEBUG, "checking\n");

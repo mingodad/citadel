@@ -432,7 +432,7 @@ void cmd_oimg(char *cmdbuf)
 				 "%s/floor.%d.gif",
 				 ctdl_image_dir, which_floor);
 	} else if (!strcasecmp(filename, "_roompic_")) {
-		assoc_file_name(pathname, sizeof pathname, &CC->room, "images");
+		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
 	} else {
 		for (a = 0; a < strlen(filename); ++a) {
 			filename[a] = tolower(filename[a]);
@@ -576,7 +576,7 @@ void cmd_uimg(char *cmdbuf)
 	}
 
 	if ((!strcasecmp(basenm, "_roompic_")) && (is_room_aide())) {
-		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->room, "images");
+		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->room, ctdl_image_dir);
 	}
 
 	if (strlen(CC->upl_path) == 0) {

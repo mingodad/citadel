@@ -65,6 +65,7 @@
 #include "serv_network.h"
 #include "clientsocket.h"
 #include "file_ops.h"
+#include "citadel_dirs.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -363,7 +364,7 @@ void cmd_gnet(char *argbuf) {
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
-	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	cprintf("%d Network settings for room #%ld <%s>\n",
 		LISTING_FOLLOWS,
 		CC->room.QRnumber, CC->room.QRname);
@@ -391,7 +392,7 @@ void cmd_snet(char *argbuf) {
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
-	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
@@ -895,7 +896,7 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 
 	memset(&sc, 0, sizeof(struct SpoolControl));
-	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 
 	begin_critical_section(S_NETCONFIGS);
 
@@ -1091,7 +1092,7 @@ int network_sync_to(char *target_node) {
 	FILE *fp;
 
 	/* Grab the configuration line we're looking for */
-	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
 	fp = fopen(filename, "r");
 	if (fp == NULL) {

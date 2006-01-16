@@ -143,6 +143,11 @@ int main(int argc, char **argv)
 	char cmd[SIZ];
 	char buf[SIZ];
 
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	strcpy(cmd, "");
@@ -151,9 +156,14 @@ int main(int argc, char **argv)
 	 */
 	for (a = 1; a < argc; ++a) {
 		if (!strncmp(argv[a], "-h", 2)) {
-			strcpy(ctdl_home_directory, argv[a]);
-			strcpy(ctdl_home_directory, &ctdl_home_directory[2]);
+			relh=argv[a][2]!='/';
+			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
+								   sizeof ctdl_home_directory);
+			else
+				safestrncpy(relhome, &argv[a][2],
+							sizeof relhome);
 			home_specified = 1;
+			home=1;
 		} else {
 			if (strlen(cmd) > 0)
 				strcat(cmd, " ");
@@ -161,6 +171,7 @@ int main(int argc, char **argv)
 		}
 	}
 
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 	get_config();
 
 	signal(SIGINT, cleanup);

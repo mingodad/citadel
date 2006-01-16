@@ -27,6 +27,7 @@
 #include "sysdep.h"
 #include "config.h"
 #include "tools.h"
+#include "citadel_dirs.h"
 
 #ifdef HAVE_NEWT
 #include <newt.h>
@@ -64,40 +65,10 @@ char *setup_titles[] =
 
 
 struct config config;
-/* CTDLDIR */
-char ctdl_home_directory[PATH_MAX] = "";
-char ctdl_bio_dir[PATH_MAX]="bio";
-char ctdl_bb_dir[PATH_MAX]="bitbucket";
-char ctdl_data_dir[PATH_MAX]="data";
-char ctdl_file_dir[PATH_MAX]="files";
-char ctdl_hlp_dir[PATH_MAX]="help";
-char ctdl_image_dir[PATH_MAX]="images";
-char ctdl_info_dir[PATH_MAX]="info";
-char ctdl_key_dir[PATH_MAX]="keys";
-char ctdl_message_dir[PATH_MAX]="messages";
-char ctdl_usrpic_dir[PATH_MAX]="userpics";
-char ctdl_etc_dir[PATH_MAX]="";
-char ctdl_run_dir[PATH_MAX]="";
-char ctdl_spool_dir[PATH_MAX]="network";
-char ctdl_netout_dir[PATH_MAX]="network/spoolout";
-char ctdl_netin_dir[PATH_MAX]="network/spoolin";
-
-
-char citadel_rc_file[PATH_MAX]="";
 
 	/* calculate all our path on a central place */
     /* where to keep our config */
 	
-#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
-	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
-			 (home&!relh)?ctdl_home_directory:basedir, \
-             ((basedir!=ctdldir)&(home&!relh))?basedir:"/", \
-             ((basedir!=ctdldir)&(home&!relh))?"/":"", \
-			 relhome, \
-             (relhome[0]!='\0')?"/":"",\
-			 dirbuffer,\
-			 (dirbuffer[0]!='\0')?"/":"");
-
 
 char *setup_text[] = {
 #ifndef HAVE_RUN_DIR
@@ -1011,8 +982,6 @@ int main(int argc, char *argv[])
 	gid_t gid;
 	int relh=0;
 	int home=0;
-	const char* basedir;
-	char dirbuffer[PATH_MAX]="";
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	
@@ -1073,44 +1042,8 @@ int main(int argc, char *argv[])
 	else
 		safestrncpy(relhome, ctdl_home_directory,
 					sizeof relhome);
-	
-#ifndef HAVE_ETC_DIR
-	basedir=ctdldir;
-#else
-	basedir=ETC_DIR;
-#endif
-	COMPUTE_DIRECTORY(ctdl_etc_dir);
 
-#ifndef HAVE_RUN_DIR
-	basedir=ctdldir;
-#else
-	basedir=RUN_DIR;
-#endif
-	COMPUTE_DIRECTORY(ctdl_run_dir);
-
-#ifndef HAVE_DATA_DIR
-	basedir=ctdldir;
-#else
-	basedir=DATA_DIR;
-#endif
-	COMPUTE_DIRECTORY(ctdl_bio_dir);
-	COMPUTE_DIRECTORY(ctdl_bb_dir);
-	COMPUTE_DIRECTORY(ctdl_data_dir);
-	COMPUTE_DIRECTORY(ctdl_file_dir);
-	COMPUTE_DIRECTORY(ctdl_hlp_dir);
-	COMPUTE_DIRECTORY(ctdl_image_dir);
-	COMPUTE_DIRECTORY(ctdl_info_dir);
-	COMPUTE_DIRECTORY(ctdl_message_dir);
-	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
-#ifndef HAVE_SPOOL_DIR
-	basedir=ctdldir;
-#else
-	basedir=SPOOL_DIR;
-#endif
-	COMPUTE_DIRECTORY(ctdl_spool_dir);
-	COMPUTE_DIRECTORY(ctdl_netout_dir);
-	COMPUTE_DIRECTORY(ctdl_netin_dir);
-
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 	if ((home) && (chdir(setup_directory) != 0)) {
 		important_message("Citadel Setup",
@@ -1157,12 +1090,7 @@ int main(int argc, char *argv[])
 	 * to be when we rewrite it, because we replace the old file with a
 	 * completely new copy.
 	 */
-	snprintf(citadel_rc_file, 
-			 sizeof citadel_rc_file,
-			 "%s/citadel.config",
-			 ctdl_etc_dir);
-
-	if ((a = open(citadel_rc_file, O_WRONLY | O_CREAT | O_APPEND,
+	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
 		      S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot append citadel.config");
 		cleanup(errno);
@@ -1177,7 +1105,7 @@ int main(int argc, char *argv[])
 	fclose(fp);
 
 	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen(citadel_rc_file, "rb");
+	fp = fopen(file_citadel_config, "rb");
 	if (fp == NULL) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(errno);
@@ -1358,7 +1286,7 @@ NEW_INST:
 	chown(".", config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 1, 4);
-	chown(citadel_rc_file, config.c_ctdluid, gid);
+	chown(file_citadel_config, config.c_ctdluid, gid);
 	sleep(1);
 	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
@@ -1367,7 +1295,7 @@ NEW_INST:
 	system(aaa);
 	sleep(1);
 	progress("Setting file permissions", 3, 4);
-	chmod(citadel_rc_file, S_IRUSR | S_IWUSR);
+	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
