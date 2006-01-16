@@ -1,5 +1,8 @@
 $Id$
 
+Mon Jan 16 11:52:53 EST 2006 ajc
+* Experimental unix domain socket listener
+
 Sat Jan 14 23:40:28 EST 2006 ajc
 * setup.c: remove "--backtitle" from calls to "dialog" because its
   availability cannot be depended upon.
