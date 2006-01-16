@@ -81,6 +81,57 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 }
 
 
+
+/*
+ * Create a Unix domain socket and listen on it
+ */
+int ig_uds_server(char *sockpath, int queue_len)
+{
+	struct sockaddr_un addr;
+	int s;
+	int i;
+	int actual_queue_len;
+
+	actual_queue_len = queue_len;
+	if (actual_queue_len < 5) actual_queue_len = 5;
+
+	i = unlink(sockpath);
+	if (i != 0) if (errno != ENOENT) {
+		lprintf(1, "citserver: can't unlink %s: %s\n",
+			sockpath, strerror(errno));
+		exit(errno);
+	}
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		lprintf(1, "citserver: Can't create a socket: %s\n",
+			strerror(errno));
+		exit(errno);
+	}
+
+	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		lprintf(1, "citserver: Can't bind: %s\n",
+			strerror(errno));
+		exit(errno);
+	}
+
+	if (listen(s, actual_queue_len) < 0) {
+		lprintf(1, "citserver: Can't listen: %s\n",
+			strerror(errno));
+		exit(errno);
+	}
+
+	chmod(sockpath, 0777);
+	return(s);
+}
+
+
+
+
 /*
  * Read data from the client socket.
  * Return values are:
@@ -386,6 +437,9 @@ int main(int argc, char **argv)
 	char *locale = NULL;
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
+	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
+
+	strcpy(uds_listen_path, "");
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
@@ -402,6 +456,9 @@ int main(int argc, char **argv)
 			break;
 		case 'p':
 			port = atoi(optarg);
+			if (port == 0) {
+				safestrncpy(uds_listen_path, optarg, sizeof uds_listen_path);
+			}
 			break;
 		case 't':
 			safestrncpy(tracefile, optarg, sizeof tracefile);
@@ -511,8 +568,16 @@ int main(int argc, char **argv)
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
-	lprintf(2, "Attempting to bind to port %d...\n", port);
-	msock = ig_tcp_server(ip_addr, port, LISTEN_QUEUE_LENGTH);
+
+	if (strlen(uds_listen_path) > 0) {
+		lprintf(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
+		msock = ig_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
+	}
+	else {
+		lprintf(2, "Attempting to bind to port %d...\n", port);
+		msock = ig_tcp_server(ip_addr, port, LISTEN_QUEUE_LENGTH);
+	}
+
 	lprintf(2, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
