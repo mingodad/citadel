@@ -1,5 +1,9 @@
 $Id$
 
+Tue Jan 17 17:07:02 EST 2006 ajc
+* REMOVED MIXED MODE AUTHENTICATION.
+  "autologin mode" is now system accounts ONLY.
+
 Sun Jan 15 22:29 MET 2006 dothebart
 * calculate the directories in a central manner.
   LHFS'ified installations may use multi-homed installations now too.

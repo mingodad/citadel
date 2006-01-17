@@ -71,28 +71,15 @@ int getuser(struct ctdluser *usbuf, char name[])
 {
 
 	char usernamekey[USERNAME_SIZE];
-	char sysuser_name[USERNAME_SIZE];
 	struct cdbdata *cdbus;
-	int using_sysuser = 0;
 
 	if (usbuf != NULL) {
 		memset(usbuf, 0, sizeof(struct ctdluser));
 	}
 
-#ifdef ENABLE_AUTOLOGIN
-	if (CtdlAssociateSystemUser(sysuser_name, name) == 0) {
-		++using_sysuser;
-	}
-#endif
-
-	if (using_sysuser) {
-		makeuserkey(usernamekey, sysuser_name);
-	}
-	else {
-		makeuserkey(usernamekey, name);
-	}
-
+	makeuserkey(usernamekey, name);
 	cdbus = cdb_fetch(CDB_USERS, usernamekey, strlen(usernamekey));
+
 	if (cdbus == NULL) {	/* user not found */
 		return(1);
 	}
@@ -321,26 +308,34 @@ int getuserbynumber(struct ctdluser *usbuf, long int number)
 }
 
 
+#ifdef ENABLE_AUTOLOGIN
 /*
- * See if we can translate a system login name (i.e. from /etc/passwd)
- * to a Citadel screen name.  Returns 0 if one is found.
+ * getuserbyuid()  -     get user by system uid (for PAM mode authentication)
+ *                       returns 0 if user was found
+ *
+ * WARNING: don't use this function unless you absolutely have to.  It does
+ *          a sequential search and therefore is computationally expensive.
  */
-int CtdlAssociateSystemUser(char *screenname, char *loginname) {
-	struct passwd *p;
-	int a;
+int getuserbyuid(struct ctdluser *usbuf, uid_t number)
+{
+	struct cdbdata *cdbus;
 
-	p = (struct passwd *) getpwnam(loginname);
-	if (p != NULL) {
-		strcpy(screenname, p->pw_gecos);
-		for (a = 0; a < strlen(screenname); ++a) {
-			if (screenname[a] == ',') {
-				screenname[a] = 0;
-			}
+	cdb_rewind(CDB_USERS);
+
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
+		memset(usbuf, 0, sizeof(struct ctdluser));
+		memcpy(usbuf, cdbus->ptr,
+		       ((cdbus->len > sizeof(struct ctdluser)) ?
+			sizeof(struct ctdluser) : cdbus->len));
+		cdb_free(cdbus);
+		if (usbuf->uid == number) {
+			cdb_close_cursor(CDB_USERS);
+			return (0);
 		}
-		return(0);
 	}
-	return(1);
+	return (-1);
 }
+#endif /* ENABLE_AUTOLOGIN */
 
 
 
@@ -351,15 +346,42 @@ int CtdlLoginExistingUser(char *trythisname)
 {
 	char username[SIZ];
 	int found_user;
-	struct recptypes *valid = NULL;
+
+	if ((CC->logged_in)) {
+		return login_already_logged_in;
+	}
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
 
-	if ((CC->logged_in)) {
-		return login_already_logged_in;
+#ifdef ENABLE_AUTOLOGIN
+
+	/* If this is an autologin build, the only valid auth source is the
+	 * host operating system.
+	 */
+	struct passwd pd;
+	struct passwd *tempPwdPtr;
+	char pwdbuffer[256];
+
+	lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
+	getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+	if (tempPwdPtr == NULL) {
+		return login_not_found;
 	}
+	lprintf(CTDL_DEBUG, "found it! uid=%d\n", pd.pw_uid);
+
+	/* Locate the associated Citadel account.
+	 * If not found, make one attempt to create it.
+	 */
+	found_user = getuserbyuid(&CC->user, pd.pw_uid);
+	if (found_user != 0) {
+		create_user(username, 0);
+		found_user = getuserbyuid(&CC->user, pd.pw_uid);
+	}
+
+#else /* ENABLE_AUTOLOGIN */
+	struct recptypes *valid = NULL;
 
 	/* First, try to log in as if the supplied name is a display name */
 	found_user = getuser(&CC->user, username);
@@ -378,19 +400,6 @@ int CtdlLoginExistingUser(char *trythisname)
 		}
 	}
 
-#ifdef ENABLE_AUTOLOGIN
-	/* If we haven't found the account yet, and the supplied name
-	 * is a login name on the underlying host system, create the
-	 * account.
-	 */
-	if (found_user != 0) {
-		struct passwd *p = (struct passwd *) getpwnam(username);
-
-		if (p != NULL) {
-			create_user(username, 0);
-			found_user = getuser(&CC->user, username);
-		}
-	}
 #endif /* ENABLE_AUTOLOGIN */
 
 	/* Did we find something? */
@@ -643,26 +652,24 @@ int CtdlTryPassword(char *password)
 
 
 #ifdef ENABLE_AUTOLOGIN
-	/* A uid of CTDLUID or -1 indicates that this user exists only in
-	 * Citadel, not in the underlying operating system.
-	 */
-	if ( (CC->user.uid == CTDLUID) || (CC->user.uid == (-1)) ) {
-		strproc(password);
-		strproc(CC->user.password);
-		code = strcasecmp(CC->user.password, password);
+
+	if (validpw(CC->user.uid, password)) {
+		code = 0;
+		/* we could get rid of this */
+		lgetuser(&CC->user, CC->curr_user);
+		safestrncpy(CC->user.password, password, sizeof CC->user.password);
+		lputuser(&CC->user);
+		/*                          */
 	}
-	/* Any other uid means we have to check the system password database */
 	else {
-		if (validpw(CC->user.uid, password)) {
-			code = 0;
-			lgetuser(&CC->user, CC->curr_user);
-			safestrncpy(CC->user.password, password,
-				    sizeof CC->user.password);
-			lputuser(&CC->user);
-		}
+		code = (-1);
 	}
 
 #else /* ENABLE_AUTOLOGIN */
+
+	strproc(password);
+	strproc(CC->user.password);
+	code = strcasecmp(CC->user.password, password);
 	strproc(password);
 	strproc(CC->user.password);
 	code = strcasecmp(CC->user.password, password);
@@ -791,18 +798,20 @@ int create_user(char *newusername, int become_user)
 	strproc(username);
 
 #ifdef ENABLE_AUTOLOGIN
-	{
-		struct passwd *p = (struct passwd *) getpwnam(username);
 
-		if (p != NULL) {
-			extract_token(username, p->pw_gecos, 0, ',', sizeof username);
-			uid = p->pw_uid;
-		} else {
-			uid = (-1);
-		}
+	struct passwd *p = (struct passwd *) getpwnam(username);
+
+	if (p != NULL) {
+		extract_token(username, p->pw_gecos, 0, ',', sizeof username);
+		uid = p->pw_uid;
+	} else {
+		uid = (-1);
 	}
+
 #else
+
 	uid = (-1);
+
 #endif
 
 	if (!getuser(&usbuf, username)) {
@@ -883,6 +892,12 @@ void cmd_newu(char *cmdbuf)
 {
 	int a;
 	char username[26];
+
+#ifdef ENABLE_AUTOLOGIN
+	cprintf("%d This system does not use native mode authentication.\n",
+		ERROR + NOT_HERE);
+	return;
+#endif /* ENABLE_AUTOLOGIN */
 
 	if (config.c_disable_newu) {
 		cprintf("%d Self-service user account creation "
