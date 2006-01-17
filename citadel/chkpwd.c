@@ -17,6 +17,7 @@
 
 #include "auth.h"
 #include "config.h"
+#include "citadel_dirs.h"
 #include "citadel.h"
 
 int main(void)
@@ -24,7 +25,13 @@ int main(void)
   uid_t uid;
   struct passwd *pw;
   char buf[SIZ];
+  int relh=0;
+  int home=0;
+  char relhome[PATH_MAX]="";
+  char ctdldir[PATH_MAX]=CTDLDIR;
 
+  /* TODO: should we be able to calculate relative dirs? */
+  calc_dirs_n_files(relh, home, relhome, ctdldir);
   get_config();
   uid = getuid();
 
