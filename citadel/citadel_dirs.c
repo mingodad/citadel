@@ -37,6 +37,7 @@ char ctdl_info_dir[PATH_MAX]="info";
 char ctdl_key_dir[PATH_MAX]="keys";
 char ctdl_message_dir[PATH_MAX]="messages";
 char ctdl_usrpic_dir[PATH_MAX]="userpics";
+char ctdl_bbsbase_dir[PATH_MAX]="";
 char ctdl_etc_dir[PATH_MAX]="";
 char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
@@ -111,6 +112,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	COMPUTE_DIRECTORY(ctdl_info_dir);
 	COMPUTE_DIRECTORY(ctdl_message_dir);
 	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
+	COMPUTE_DIRECTORY(ctdl_bbsbase_dir);
 #ifndef HAVE_SPOOL_DIR
 	basedir=ctdldir;
 #else

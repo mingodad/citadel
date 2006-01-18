@@ -751,7 +751,7 @@ void do_help_subst(char *buffer)
 	help_subst(buffer, "^variantname", CITADEL);
 	snprintf(buf2, sizeof buf2, "%d", config.c_maxsessions);
 	help_subst(buffer, "^maxsessions", buf2);
-	help_subst(buffer, "^bbsdir", CTDLDIR);
+	help_subst(buffer, "^bbsdir", ctdl_bbsbase_dir);
 }
 
 
