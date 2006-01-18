@@ -369,7 +369,7 @@ int CtdlLoginExistingUser(char *trythisname)
 	if (tempPwdPtr == NULL) {
 		return login_not_found;
 	}
-	lprintf(CTDL_DEBUG, "found it! uid=%d\n", pd.pw_uid);
+	lprintf(CTDL_DEBUG, "found it! uid=%d, gecos=%s\n", pd.pw_uid, pd.pw_gecos);
 
 	/* Locate the associated Citadel account.
 	 * If not found, make one attempt to create it.
@@ -474,6 +474,16 @@ void session_startup(void)
 	if (!strcasecmp(CC->user.fullname, config.c_sysadm)) {
 		CC->user.axlevel = 6;
 	}
+
+#ifdef ENABLE_AUTOLOGIN
+	/* If we're authenticating off the host system, automatically give
+	 * root the highest level of access.
+	 */
+	if (CC->user.uid == 0) {
+		CC->user.axlevel = 6;
+	}
+#endif
+
 	lputuser(&CC->user);
 
 	/*
@@ -792,26 +802,24 @@ int create_user(char *newusername, int become_user)
 	struct ctdlroom qrbuf;
 	char username[256];
 	char mailboxname[ROOMNAMELEN];
-	uid_t uid;
+	uid_t uid = (-1);
 
 	safestrncpy(username, newusername, sizeof username);
 	strproc(username);
 
 #ifdef ENABLE_AUTOLOGIN
+	struct passwd pd;
+	struct passwd *tempPwdPtr;
+	char pwdbuffer[256];
 
-	struct passwd *p = (struct passwd *) getpwnam(username);
-
-	if (p != NULL) {
-		extract_token(username, p->pw_gecos, 0, ',', sizeof username);
-		uid = p->pw_uid;
-	} else {
-		uid = (-1);
+	getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+	if (tempPwdPtr != NULL) {
+		extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
+		uid = pd.pw_uid;
 	}
-
-#else
-
-	uid = (-1);
-
+	else {
+		return (ERROR + NO_SUCH_USER);
+	}
 #endif
 
 	if (!getuser(&usbuf, username)) {

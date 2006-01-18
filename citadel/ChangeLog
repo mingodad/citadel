@@ -1,5 +1,8 @@
 $Id$
 
+Tue Jan 17 22:23:19 EST 2006 ajc
+* Misc small fixes to the new host auth mode.
+
 Tue Jan 17 17:07:02 EST 2006 ajc
 * REMOVED MIXED MODE AUTHENTICATION.
   "autologin mode" is now system accounts ONLY.
