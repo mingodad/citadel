@@ -14,7 +14,7 @@ void display_main_menu(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<TABLE WIDTH=100%%>"
 		"<TR><TD COLSPAN=2>\n");
 
@@ -201,7 +201,7 @@ void display_aide_menu(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr valign=top><td>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Global Configuration"));
@@ -273,7 +273,7 @@ void display_generic(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>");

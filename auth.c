@@ -85,7 +85,8 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 	char buf[SIZ];
 
 	WC->logged_in = 1;
-	extract_token(WC->wc_username, &serv_response[4], 0, '|', sizeof WC->wc_username);
+	extract_token(WC->wc_fullname, &serv_response[4], 0, '|', sizeof WC->wc_fullname);
+	safestrncpy(WC->wc_username, user, sizeof WC->wc_username);
 	safestrncpy(WC->wc_password, pass, sizeof WC->wc_password);
 	WC->axlevel = extract_int(&serv_response[4], 1);
 	if (WC->axlevel >= 6) {
@@ -248,6 +249,7 @@ void do_logout(void)
 	safestrncpy(WC->wc_username, "", sizeof WC->wc_username);
 	safestrncpy(WC->wc_password, "", sizeof WC->wc_password);
 	safestrncpy(WC->wc_roomname, "", sizeof WC->wc_roomname);
+	safestrncpy(WC->wc_fullname, "", sizeof WC->wc_fullname);
 
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
@@ -326,7 +328,7 @@ void validate(void)
 		return;
 	}
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<center>");
 
@@ -396,7 +398,7 @@ void display_reg(int during_login)
 		return;
 	}
 
-	vcard_msgnum = locate_user_vcard(WC->wc_username, -1);
+	vcard_msgnum = locate_user_vcard(WC->wc_fullname, -1);
 	if (vcard_msgnum < 0L) {
 		if (during_login) do_welcome();
 		else display_main_menu();
@@ -440,7 +442,7 @@ void display_changepw(void)
 		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 	}
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER><br />");

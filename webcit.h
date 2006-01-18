@@ -308,6 +308,7 @@ struct wcsession {
 	struct wcsession *next;		/* Linked list */
 	int wc_session;			/* WebCit session ID */
 	char wc_username[128];
+	char wc_fullname[128];
 	char wc_password[128];
 	char wc_roomname[256];
 	int connected;

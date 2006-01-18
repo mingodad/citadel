@@ -1374,7 +1374,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit(_("Room info"), "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
-		sprintf(buf, "RBIO %s", WC->wc_username);
+		sprintf(buf, "RBIO %s", WC->wc_fullname);
 		display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
 	} else if (!strcasecmp(action, "editbio")) {
 		save_edit(_("Your bio"), "EBIO", 0);

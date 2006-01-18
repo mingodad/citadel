@@ -233,7 +233,7 @@ void summary_inner_div(void) {
 	 * not people I consider worthwhile, I still want them to use WebCit.
 	 */
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr valign=top>");
 
 	/*
@@ -278,7 +278,7 @@ void summary(void) {
 		"<SPAN CLASS=\"titlebar\">"
 	);
 
-	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_username);
+	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
 	escputs(title);
 	wprintf("</SPAN></TD><TD>\n");
 	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");

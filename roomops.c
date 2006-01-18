@@ -225,6 +225,9 @@ void readinfo(void)
 	if (buf[0] == '1') {
 		fmout("CENTER");
 	}
+	else {
+		wprintf("&nbsp;");
+	}
 }
 
 
@@ -878,7 +881,7 @@ void display_editroom(void)
 
 	/* print the tabbed dialog */
 	wprintf("<br />"
-		"<div id=\"fix_scrollbar_bug\">"
+		"<div class=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
@@ -983,7 +986,7 @@ void display_editroom(void)
 	/* end tabbed dialog */	
 
 	/* begin content of whatever tab is open now */
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
 		"<TR><TD>\n");
 
@@ -1835,7 +1838,7 @@ void display_entroom(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
@@ -2044,7 +2047,7 @@ void display_private(char *rname, int req_pass)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");

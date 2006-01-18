@@ -170,7 +170,7 @@ body {
 }
 
 
-#fix_scrollbar_bug {
+.fix_scrollbar_bug {
 	margin-right:1px;		/* Gecko and other non-broken browsers */
 	width: expression('97%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
 }

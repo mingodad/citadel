@@ -513,7 +513,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
 	
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");

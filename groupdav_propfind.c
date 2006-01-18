@@ -105,9 +105,9 @@ void groupdav_folder_list(void) {
 			wprintf("<D:propstat>");
 			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
 			wprintf("<D:prop>");
-			wprintf("<D:displayname>");
+			wprintf("<D:fullname>");
 			escputs(roomname);
-			wprintf("</D:displayname>");
+			wprintf("</D:fullname>");
 			wprintf("<D:resourcetype><D:collection/>");
 
 			switch(view) {

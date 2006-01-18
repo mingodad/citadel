@@ -104,7 +104,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	);
 
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	/************************************************************
