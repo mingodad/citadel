@@ -37,7 +37,7 @@ void do_setup_wizard(void)
 	wprintf("</div>\n"
 		"<div id=\"content\">\n");
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<form method=\"post\" action=\"setup_wizard\">\n"
 	);
 

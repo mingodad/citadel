@@ -157,7 +157,7 @@ void print_value_of(char *keyname) {
 	}
 
 	else if (!strcasecmp(keyname, "CURRENT_USER")) {
-		escputs(WC->wc_username);
+		escputs(WC->wc_fullname);
 	}
 
 	else if (!strcasecmp(keyname, "CURRENT_ROOM")) {

@@ -190,7 +190,7 @@ void display_preferences(void)
 	wprintf("</div>\n"
 		"<div id=\"content\">\n");
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	/* begin form */

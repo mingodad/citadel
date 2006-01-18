@@ -25,7 +25,7 @@ void display_page(void)
                 "</div>\n<div id=\"content\">\n"
         );
                                                                                                                              
-        wprintf("<div id=\"fix_scrollbar_bug\">"
+        wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf(_("Send an instant message to: "));
@@ -373,7 +373,7 @@ void chat_recv(void) {
 				if (strcasecmp(cl_user, WC->last_chat_user)) {
 					wprintf("<B>");
 	
-					if (!strcasecmp(cl_user, WC->wc_username)) {
+					if (!strcasecmp(cl_user, WC->wc_fullname)) {
 						wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
 					}
 					else {

@@ -26,6 +26,7 @@ void do_listsub(void)
 	int self;
 	char sroom[SIZ];
 
+	strcpy(WC->wc_fullname, "");
 	strcpy(WC->wc_username, "");
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");

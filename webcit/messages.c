@@ -250,13 +250,13 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	char firsttoken[SIZ];
 	int pass;
 
-	char displayname[SIZ];
+	char fullname[SIZ];
 	char title[SIZ];
 	char org[SIZ];
 	char phone[SIZ];
 	char mailto[SIZ];
 
-	strcpy(displayname, "");
+	strcpy(fullname, "");
 	strcpy(phone, "");
 	strcpy(mailto, "");
 	strcpy(title, "");
@@ -269,9 +269,9 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			escputs(name);
 		}
 		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
-			strcpy(displayname, name);
-			vcard_n_prettyize(displayname);
-			escputs(displayname);
+			strcpy(fullname, name);
+			vcard_n_prettyize(fullname);
+			escputs(fullname);
 		}
 		else {
 			wprintf("&nbsp;");
@@ -321,15 +321,15 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	
 			/* N is name, but only if there's no FN already there */
 			if (!strcasecmp(firsttoken, "n")) {
-				if (strlen(displayname) == 0) {
-					strcpy(displayname, thisvalue);
-					vcard_n_prettyize(displayname);
+				if (strlen(fullname) == 0) {
+					strcpy(fullname, thisvalue);
+					vcard_n_prettyize(fullname);
 				}
 			}
 	
 			/* FN (full name) is a true 'display name' field */
 			else if (!strcasecmp(firsttoken, "fn")) {
-				strcpy(displayname, thisvalue);
+				strcpy(fullname, thisvalue);
 			}
 
 			/* title */
@@ -348,7 +348,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
 
-				urlesc(&mailto[strlen(mailto)], displayname);
+				urlesc(&mailto[strlen(mailto)], fullname);
 				urlesc(&mailto[strlen(mailto)], " <");
 				urlesc(&mailto[strlen(mailto)], thisvalue);
 				urlesc(&mailto[strlen(mailto)], ">");
@@ -424,7 +424,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
 			"<IMG ALIGN=CENTER src=\"static/viewcontacts_48x.gif\">"
 			"<FONT SIZE=+1><B>");
-			escputs(displayname);
+			escputs(fullname);
 			wprintf("</B></FONT>");
 			if (strlen(title) > 0) {
 				wprintf("<div align=right>");
@@ -553,7 +553,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/* begin everythingamundo table */
 	if (!printable_view) {
-		wprintf("<div id=\"fix_scrollbar_bug\">\n");
+		wprintf("<div class=\"fix_scrollbar_bug\">\n");
 		wprintf("<table width=100%% border=1 cellspacing=0 "
 			"cellpadding=0><TR><TD>\n");
 	}
@@ -1664,7 +1664,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 {
 	char buf[1024];
 	time_t datestamp;
-	char displayname[128];
+	char fullname[128];
 	char nodename[128];
 	char inetaddr[128];
 	char subject[256];
@@ -1695,7 +1695,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 		if (nummsgs < maxload) {
 			WC->msgarr[nummsgs] = extract_long(buf, 0);
 			datestamp = extract_long(buf, 1);
-			extract_token(displayname, buf, 2, '|', sizeof displayname);
+			extract_token(fullname, buf, 2, '|', sizeof fullname);
 			extract_token(nodename, buf, 3, '|', sizeof nodename);
 			extract_token(inetaddr, buf, 4, '|', sizeof inetaddr);
 			extract_token(subject, buf, 5, '|', sizeof subject);
@@ -1711,8 +1711,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				memset(&WC->summ[nummsgs-1], 0, sizeof(struct message_summary));
 				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
 				safestrncpy(WC->summ[nummsgs-1].subj, _("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
-				if (strlen(displayname) > 0) {
-					safestrncpy(WC->summ[nummsgs-1].from, displayname, sizeof WC->summ[nummsgs-1].from);
+				if (strlen(fullname) > 0) {
+					safestrncpy(WC->summ[nummsgs-1].from, fullname, sizeof WC->summ[nummsgs-1].from);
 				}
 				if (strlen(subject) > 0) {
 				safestrncpy(WC->summ[nummsgs-1].subj, subject,
@@ -2057,7 +2057,7 @@ void readloop(char *oper)
 
 		/* note that Date and Delete are now in the same column */
 		wprintf("<div id=\"message_list_hdr\">"
-			"<div id=\"fix_scrollbar_bug\">"
+			"<div class=\"fix_scrollbar_bug\">"
 			"<table cellspacing=0 style=\"width:100%%\">"
 			"<tr>"
 		);
@@ -2083,10 +2083,9 @@ void readloop(char *oper)
 
 		wprintf("<div id=\"message_list\">"
 
-			"<div id=\"fix_scrollbar_bug\">\n"
+			"<div class=\"fix_scrollbar_bug\">\n"
 
-			"<span class=\"mailbox_summary\">"
-			"<table id=\"summary_headers\" rules=rows "
+			"<table class=\"mailbox_summary\" id=\"summary_headers\" rules=rows "
 			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
 		);
 	}
@@ -2134,8 +2133,7 @@ void readloop(char *oper)
 	/* Set the "is_bbview" variable if it appears that we are looking at
 	 * a classic bulletin board view.
 	 */
-	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
+	if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
 	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
 		is_bbview = 1;
 	}
@@ -2159,16 +2157,16 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></span>"
+		wprintf("</table>"
 			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/* end of 'message_list' div */
 
 		/* Here's the grab-it-to-resize-the-message-list widget */
 		wprintf("<div id=\"resize_msglist\" "
 			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
-			"<div id=\"fix_scrollbar_bug\">"
+			"<div class=\"fix_scrollbar_bug\">"
 			"<table width=100%% border=3 cellspacing=0 "
-			"bgcolor=\"#ccc\" "
+			"bgcolor=\"#cccccc\" "
 			"cellpadding=0><TR><TD> </td></tr></table>"
 			"</div></div>\n"
 		);
@@ -2250,19 +2248,18 @@ void readloop(char *oper)
 			"[selectedIndex].value\">\n"
 		);
 
-		wprintf("<option %s value=\"%s&sortby=forward\">oldest to newest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=forward\">oldest to newest</option>\n",
 			(bbs_reverse ? "" : "selected"),
 			oper
 		);
 	
-		wprintf("<option %s value=\"%s&sortby=reverse\">newest to oldest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=reverse\">newest to oldest</option>\n",
 			(bbs_reverse ? "selected" : ""),
 			oper
 		);
 	
 		wprintf("</select></form>\n");
 		/* end bbview scroller */
-	    }
 	}
 
 DONE:
@@ -2277,12 +2274,6 @@ DONE:
 	if (is_addressbook) {
 		do_addrbook_view(addrbook, num_ab);	/* Render the address book */
 	}
-
-	/* Put the data transfer hidden iframe in a hidden div, to make it *really* hidden */
-	wprintf("</div>"
-		"<div display=\"hidden\">\n"
-		"<iframe name=\"msgloader1\" id=\"msgloader1\" width=\"1\"></iframe>\n"
-	);
 
 	/* Note: wDumpContent() will output one additional </div> tag. */
 	wDumpContent(1);
@@ -2531,7 +2522,7 @@ void display_enter(void)
 	embed_room_banner(NULL, navbar_none);
 	wprintf("</div>\n");
 	wprintf("<div id=\"content\">\n"
-		"<div id=\"fix_scrollbar_bug\">"
+		"<div class=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
 	/* First test to see whether this is a room that requires recipients to be entered */
@@ -2567,7 +2558,7 @@ void display_enter(void)
 	now = time(NULL);
 	fmt_date(buf, now, 0);
 	strcat(&buf[strlen(buf)], _(" <I>from</I> "));
-	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
+	stresc(&buf[strlen(buf)], WC->wc_fullname, 1, 1);
 
 	/* Don't need this anymore, it's in the input box below
 	if (strlen(bstr("recp")) > 0) {

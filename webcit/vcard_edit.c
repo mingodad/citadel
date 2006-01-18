@@ -38,7 +38,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char primary_inetemail[256];
 	char other_inetemail[SIZ];
 	char extrafields[SIZ];
-	char displayname[256];
+	char fullname[256];
 	char title[256];
 	char org[256];
 
@@ -116,7 +116,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			}
 
 			else if (!strcasecmp(key, "fn")) {
-				safestrncpy(displayname, value, sizeof displayname);
+				safestrncpy(fullname, value, sizeof fullname);
 			}
 
 			else if (!strcasecmp(key, "title")) {
@@ -182,7 +182,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	);
 
 	wprintf("<FORM METHOD=\"POST\" action=\"submit_vcard\">\n");
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<TABLE border=0><TR>"
@@ -214,9 +214,9 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf(_("Display name:"));
 	wprintf("<br>"
-		"<INPUT TYPE=\"text\" NAME=\"displayname\" "
+		"<INPUT TYPE=\"text\" NAME=\"fullname\" "
 		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
-		displayname
+		fullname
 	);
 
 	wprintf(_("Title:"));
@@ -375,7 +375,7 @@ void submit_vcard(void) {
 		bstr("prefix"),
 		bstr("suffix") );
 	serv_printf("title:%s", bstr("title") );
-	serv_printf("fn:%s", bstr("displayname") );
+	serv_printf("fn:%s", bstr("fullname") );
 	serv_printf("org:%s", bstr("org") );
 	serv_printf("adr:%s;%s;%s;%s;%s;%s;%s",
 		bstr("pobox"),

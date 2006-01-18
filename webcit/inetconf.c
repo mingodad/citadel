@@ -93,7 +93,7 @@ void display_inetconf(void)
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
-	wprintf("<div id=\"fix_scrollbar_bug\">"
+	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr><td valign=top>\n");
 	for (which=0; which<ic_max; ++which) {
 		if (which == (ic_max / 2)) {
