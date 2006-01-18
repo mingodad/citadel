@@ -25,6 +25,7 @@ extern char ctdl_spool_dir[PATH_MAX];
 extern char ctdl_netout_dir[PATH_MAX];
 extern char ctdl_netin_dir[PATH_MAX];
 extern char ctdl_netcfg_dir[PATH_MAX];
+extern char ctdl_bbsbase_dir[PATH_MAX];
 
 /* some of the frequently used files */
 extern char file_citadel_control[PATH_MAX];

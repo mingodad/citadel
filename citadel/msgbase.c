@@ -51,6 +51,7 @@
 #include "vcard.h"
 #include "euidindex.h"
 #include "journaling.h"
+#include "citadel_dirs.h"
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
