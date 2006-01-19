@@ -1,5 +1,8 @@
 $Id$
 
+Thu Jan 19 17:49:29 EST 2006 ajc
+* support SMTP-AUTH for outbound connection to smart-host
+
 Thu Jan 19 16:40:57 EST 2006 ajc
 * Change to journaling code to include an Internet email address for local
   recipients.

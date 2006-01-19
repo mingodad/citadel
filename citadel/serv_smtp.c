@@ -942,6 +942,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char user[1024], node[1024], name[1024];
 	char buf[1024];
 	char mailfrom[1024];
+	char mx_user[256];
+	char mx_pass[256];
 	char mx_host[256];
 	char mx_port[256];
 	int lp, rp;
@@ -1026,11 +1028,23 @@ void smtp_try(const char *key, const char *addr, int *status,
 	sock = (-1);
 	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
 		extract_token(buf, mxhosts, mx, '|', sizeof buf);
+		strcpy(mx_user, "");
+		strcpy(mx_pass, "");
+		if (num_tokens(buf, '@') > 1) {
+			extract_token(mx_user, buf, 0, '@', sizeof mx_user);
+			if (num_tokens(mx_user, ':') > 1) {
+				extract_token(mx_pass, mx_user, 1, ':', sizeof mx_pass);
+				remove_token(mx_user, 1, ':');
+			}
+			remove_token(buf, 0, '@');
+		}
 		extract_token(mx_host, buf, 0, ':', sizeof mx_host);
 		extract_token(mx_port, buf, 1, ':', sizeof mx_port);
 		if (!mx_port[0]) {
 			strcpy(mx_port, "25");
 		}
+		lprintf(CTDL_DEBUG, "FIXME user<%s> pass<%s> host<%s> port<%s>\n",
+			mx_user, mx_pass, mx_host, mx_port);
 		lprintf(CTDL_DEBUG, "Trying %s : %s ...\n", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port, "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
@@ -1088,7 +1102,34 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-	/* HELO succeeded, now try the MAIL From: command */
+	/* Do an AUTH command if necessary */
+	if (strlen(mx_user) > 0) {
+		sprintf(buf, "%s%c%s%c%s%c", mx_user, 0, mx_user, 0, mx_pass, 0);
+		CtdlEncodeBase64(mailfrom, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 3);
+		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", mailfrom);
+		lprintf(CTDL_DEBUG, ">%s", buf);
+		sock_write(sock, buf, strlen(buf));
+		if (ml_sock_gets(sock, buf) < 0) {
+			*status = 4;
+			strcpy(dsn, "Connection broken during SMTP AUTH");
+			goto bail;
+		}
+		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		if (buf[0] != '2') {
+			if (buf[0] == '4') {
+				*status = 4;
+				safestrncpy(dsn, &buf[4], 1023);
+				goto bail;
+			}
+			else {
+				*status = 5;
+				safestrncpy(dsn, &buf[4], 1023);
+				goto bail;
+			}
+		}
+	}
+
+	/* previous command succeeded, now try the MAIL From: command */
 	snprintf(buf, sizeof buf, "MAIL From: <%s>\r\n", mailfrom);
 	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
