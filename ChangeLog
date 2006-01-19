@@ -1,5 +1,8 @@
 $Id$
 
+Wed Jan 18 23:09:26 EST 2006 ajc
+* THIS IS 6.71
+
 Wed Jan 18 16:39:12 EST 2006 ajc
 * fix_scrollbar_bug is now a class instead of an id.  Fixes validator warnings.
 * Corrected bad html generated when there's only one message in a summary view.
