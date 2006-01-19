@@ -47,6 +47,8 @@
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
+#include "vcard.h"
+#include "serv_vcard.h"
 #include "journaling.h"
 
 struct jnlq *jnlq = NULL;	/* journal queue */
@@ -89,6 +91,28 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 
 
 /*
+ * Convert a local user name to an internet email address for the journal
+ */
+void local_to_inetemail(char *inetemail, char *localuser, size_t inetemail_len) {
+	struct ctdluser us;
+	struct vCard *v;
+
+	strcpy(inetemail, "");
+	if (getuser(&us, localuser) != 0) {
+		return;
+	}
+
+	v = vcard_get_user(&us);
+	if (v == NULL) {
+		return;
+	}
+
+	extract_primary_inet_email(inetemail, inetemail_len, v);
+	vcard_free(v);
+}
+
+
+/*
  * Called by JournalRunQueue() to send an individual message.
  */
 void JournalRunQueueMsg(struct jnlq *jmsg) {
@@ -98,6 +122,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 	char *message_text = NULL;
 	char mime_boundary[256];
 	char recipient[256];
+	char inetemail[256];
 	static int seq = 0;
 	int i;
 
@@ -170,8 +195,9 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				for (i=0; i<jmsg->recps.num_local; ++i) {
 					extract_token(recipient, jmsg->recps.recp_local,
 							i, '|', sizeof recipient);
+					local_to_inetemail(inetemail, recipient, sizeof inetemail);
 					sprintf(&message_text[strlen(message_text)],
-						"	%s\r\n", recipient);
+						"	%s <%s>\r\n", recipient, inetemail);
 				}
 			}
 

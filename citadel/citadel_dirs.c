@@ -147,7 +147,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 
 	snprintf(file_lmtp_unfiltered_socket, 
 			 sizeof file_lmtp_socket,
-			 "%slmtp-unfiltered.sock",
+			 "%slmtp-unfiltered.socket",
 			 ctdl_run_dir);
 
 }

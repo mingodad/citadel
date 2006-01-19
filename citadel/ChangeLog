@@ -1,5 +1,9 @@
 $Id$
 
+Thu Jan 19 16:40:57 EST 2006 ajc
+* Change to journaling code to include an Internet email address for local
+  recipients.
+
 Thu Jan 19 13:20:30 EST 2006 ajc
 * Refactored the code that populates the session's knowledge of the user's
   primary internet email address.  We need it to be generic so that we can

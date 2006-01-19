@@ -58,6 +58,7 @@
 #include "tools.h"
 #include "vcard.h"
 #include "serv_ldap.h"
+#include "serv_vcard.h"
 
 /*
  * set global flag calling for an aide to validate new users
