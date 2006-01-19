@@ -1673,11 +1673,10 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 
 	int num_summ_alloc = 0;
 
-	if (with_headers) {
-		if (WC->num_summ != 0) {
-			free(WC->summ);
-			WC->num_summ = 0;
-		}
+	if (WC->summ != NULL) {
+		free(WC->summ);
+		WC->num_summ = 0;
+		WC->summ = NULL;
 	}
 	num_summ_alloc = 100;
 	WC->num_summ = 0;
@@ -2280,9 +2279,10 @@ DONE:
 	if (addrbook != NULL) free(addrbook);
 
 	/* free the summary */
-	if (WC->num_summ != 0) {
-		WC->num_summ = 0;
+	if (WC->summ != NULL) {
 		free(WC->summ);
+		WC->num_summ = 0;
+		WC->summ = NULL;
 	}
 }
 
