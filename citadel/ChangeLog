@@ -1,5 +1,10 @@
 $Id$
 
+Thu Jan 19 13:20:30 EST 2006 ajc
+* Refactored the code that populates the session's knowledge of the user's
+  primary internet email address.  We need it to be generic so that we can
+  do this for other users.
+
 Tue Jan 17 22:23:19 EST 2006 ajc
 * Misc small fixes to the new host auth mode.
 

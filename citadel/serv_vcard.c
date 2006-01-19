@@ -200,9 +200,9 @@ void cmd_igab(char *argbuf) {
 
 /*
  * See if there is a valid Internet address in a vCard to use for outbound
- * Internet messages.  If there is, stick it in CC->cs_inet_email.
+ * Internet messages.  If there is, stick it in the buffer.
  */
-void vcard_populate_cs_inet_email(struct vCard *v) {
+void extract_primary_inet_email(char *emailaddrbuf, size_t emailaddrbuf_len, struct vCard *v) {
 	char *s, *addr;
 	int continue_searching = 1;
 	int instance = 0;
@@ -219,10 +219,8 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 			if (strlen(addr) > 0) {
 				if (IsDirectory(addr)) {
 					continue_searching = 0;
-					safestrncpy(CC->cs_inet_email,
-						addr,
-						sizeof(CC->cs_inet_email)
-					);
+					safestrncpy(emailaddrbuf, addr,
+						emailaddrbuf_len);
 				}
 			}
 			free(addr);
@@ -451,7 +449,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 			/* Store our Internet return address in memory */
 			v = vcard_load(msg->cm_fields['M']);
-			vcard_populate_cs_inet_email(v);
+			extract_primary_inet_email(CC->cs_inet_email,
+						sizeof CC->cs_inet_email, v);
 			vcard_free(v);
 
 			/* Put it in the Global Address Book room... */
@@ -907,8 +906,8 @@ void vcard_session_login_hook(void) {
 	struct vCard *v;
 
 	v = vcard_get_user(&CC->user);
-	vcard_populate_cs_inet_email(v);
-
+	extract_primary_inet_email(CC->cs_inet_email,
+				sizeof CC->cs_inet_email, v);
 	vcard_free(v);
 
 	vcard_create_room();
