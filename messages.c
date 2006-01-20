@@ -559,19 +559,19 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/* begin message header table */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 "
-		"CELLPADDING=1 BGCOLOR=\"#CCCCCC\"><TR><TD>\n");
+	wprintf("<table width=100%% border=0 cellspacing=0 "
+		"cellpadding=1 bgcolor=\"#CCCCCC\"><tr><td>\n");
 
-	wprintf("<SPAN CLASS=\"message_header\">");
+	wprintf("<span class=\"message_header\">");
 	strcpy(m_subject, "");
 	strcpy(m_cc, "");
 
 	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>");
+			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
-			wprintf("</I><br /><br />\n");
-			wprintf("</SPAN>\n");
+			wprintf("</i><br /><br />\n");
+			wprintf("</span>\n");
 			return;
 		}
 		if (!strncasecmp(buf, "nhdr=yes", 8))
@@ -590,7 +590,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			urlescputs(from);
 			wprintf("\">");
 			escputs(from);
-			wprintf("</A> ");
+			wprintf("</a> ");
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
 			safestrncpy(m_subject, &buf[5], sizeof m_subject);
@@ -670,10 +670,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<a href=\"mimepart/%ld/%s/%s\" "
-					"TARGET=\"wc.%ld.%s\">"
+					"target=\"wc.%ld.%s\">"
 					"<img src=\"static/diskette_24x.gif\" "
-					"BORDER=0 ALIGN=MIDDLE>\n"
-					"%s (%s, %d bytes)</A><br />\n",
+					"border=0 align=middle>\n"
+					"%s (%s, %d bytes)</a><br />\n",
 					msgnum, mime_partnum, mime_filename,
 					msgnum, mime_partnum,
 					mime_filename,
@@ -716,28 +716,28 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("****");
 	}
 
-	wprintf("</SPAN>");
+	wprintf("</span>");
 #ifdef HAVE_ICONV
 	utf8ify_rfc822_string(m_cc);
 	utf8ify_rfc822_string(m_subject);
 #endif
 	if (strlen(m_cc) > 0) {
 		wprintf("<br />"
-			"<SPAN CLASS=\"message_subject\">");
+			"<span class=\"message_subject\">");
 		wprintf(_("CC:"));
 		wprintf(" ");
 		escputs(m_cc);
-		wprintf("</SPAN>");
+		wprintf("</span>");
 	}
 	if (strlen(m_subject) > 0) {
 		wprintf("<br />"
-			"<SPAN CLASS=\"message_subject\">");
+			"<span class=\"message_subject\">");
 		wprintf(_("Subject:"));
 		wprintf(" ");
 		escputs(m_subject);
-		wprintf("</SPAN>");
+		wprintf("</span>");
 	}
-	wprintf("</TD>\n");
+	wprintf("</td>\n");
 
 	/* start msg buttons */
 	if (!printable_view) {
@@ -824,11 +824,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("</span></td>");
 	}
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("</tr></table>\n");
 
 	/* Begin body */
-	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
-		"CELLPADDING=1 CELLSPACING=0><TR><TD>");
+	wprintf("<table border=0 width=100%% bgcolor=\"#FFFFFF\" "
+		"cellpadding=1 cellspacing=0><tr><td>");
 
 	/* 
 	 * Learn the content type
@@ -836,9 +836,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 	strcpy(mime_content_type, "text/plain");
 	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>");
+			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
-			wprintf("</I><br /><br />\n");
+			wprintf("</i><br /><br />\n");
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
@@ -902,20 +902,20 @@ void read_message(long msgnum, int printable_view, char *section) {
 			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
-		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<BLOCKQUOTE>");
+		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
+				wprintf("<blockquote>");
 				bq = 1;
 			} else if ((bq == 1) &&
-			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-				wprintf("</BLOCKQUOTE>");
+			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) ) {
+				wprintf("</blockquote>");
 				bq = 0;
 			}
-			wprintf("<TT>");
+			wprintf("<tt>");
 			url(buf);
 			escputs(buf);
-			wprintf("</TT><br />\n");
+			wprintf("</tt><br />\n");
 		}
-		wprintf("</I><br />");
+		wprintf("</i><br />");
 	}
 
 	else /* HTML is fun, but we've got to strip it first */
@@ -960,7 +960,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				wprintf("<a href=\"edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("[%s]</A>", _("edit"));
+				wprintf("[%s]</a>", _("edit"));
 			}
 
 			/* In all cases, display the full card */
@@ -983,11 +983,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 ENDBODY:
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	/* end everythingamundo table */
 	if (!printable_view) {
-		wprintf("</TD></TR></TABLE>\n");
+		wprintf("</td></tr></table>\n");
 		wprintf("</div><br />\n");
 	}
 
@@ -1284,20 +1284,20 @@ void pullquote_message(long msgnum, int forward_attachments) {
 			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
-		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<BLOCKQUOTE>");
+		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
+				wprintf("<blockquote>");
 				bq = 1;
 			} else if ((bq == 1) &&
-			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-				wprintf("</BLOCKQUOTE>");
+			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) ) {
+				wprintf("</blockquote>");
 				bq = 0;
 			}
-			wprintf("<TT>");
+			wprintf("<tt>");
 			url(buf);
 			msgescputs(buf);
-			wprintf("</TT><br />");
+			wprintf("</tt><br />");
 		}
-		wprintf("</I><br />");
+		wprintf("</i><br />");
 	}
 
 	/* HTML just gets escaped and stuffed back into the editor */
@@ -1376,7 +1376,7 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<tr id=\"m%ld\" style=\"width:100%%;font-weight:%s;background-color:#fff\" "
+	wprintf("<tr id=\"m%ld\" style=\"width:100%%;font-weight:%s;background-color:#ffffff\" "
 		"onMouseDown=\"CtdlMoveMsgMouseDown(event,%ld)\">",
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
@@ -1452,7 +1452,7 @@ void display_addressbook(long msgnum, char alpha) {
 				wprintf("<a href=\"edit_vcard?"
 					"msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("[%s]</A>", _("edit"));
+				wprintf("[%s]</a>", _("edit"));
 			}
 
 			free(vcard_source);
@@ -1622,7 +1622,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	}
 	wprintf("<br />\n");
 
-	wprintf("<TABLE border=0 cellspacing=0 "
+	wprintf("<table border=0 cellspacing=0 "
 		"cellpadding=3 width=100%%>\n"
 	);
 
@@ -1632,27 +1632,27 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 			if ((displayed % 4) == 0) {
 				if (displayed > 0) {
-					wprintf("</TR>\n");
+					wprintf("</tr>\n");
 				}
 				bg = 1 - bg;
-				wprintf("<TR BGCOLOR=\"#%s\">",
+				wprintf("<tr bgcolor=\"#%s\">",
 					(bg ? "DDDDDD" : "FFFFFF")
 				);
 			}
 	
-			wprintf("<TD>");
+			wprintf("<td>");
 	
 			wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
 				addrbook[i].ab_msgnum);
 			wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
 			vcard_n_prettyize(addrbook[i].ab_name);
 			escputs(addrbook[i].ab_name);
-			wprintf("</A></TD>\n");
+			wprintf("</a></td>\n");
 			++displayed;
 		}
 	}
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("</tr></table>\n");
 }
 
 
@@ -1703,15 +1703,18 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 			if (with_headers) {
 				if (nummsgs > num_summ_alloc) {
 					num_summ_alloc *= 2;
-					WC->summ = realloc(WC->summ, num_summ_alloc * sizeof(struct message_summary));
+					WC->summ = realloc(WC->summ,
+						num_summ_alloc * sizeof(struct message_summary));
 				}
 				++WC->num_summ;
 
 				memset(&WC->summ[nummsgs-1], 0, sizeof(struct message_summary));
 				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
-				safestrncpy(WC->summ[nummsgs-1].subj, _("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
+				safestrncpy(WC->summ[nummsgs-1].subj,
+					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
 				if (strlen(fullname) > 0) {
-					safestrncpy(WC->summ[nummsgs-1].from, fullname, sizeof WC->summ[nummsgs-1].from);
+					safestrncpy(WC->summ[nummsgs-1].from,
+						fullname, sizeof WC->summ[nummsgs-1].from);
 				}
 				if (strlen(subject) > 0) {
 				safestrncpy(WC->summ[nummsgs-1].subj, subject,
@@ -2323,9 +2326,9 @@ void post_mime_to_server(void) {
 
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("");
-	serv_puts("<HTML><BODY>\n");
+	serv_puts("<html><body>\n");		/* Future templates go here */
 	text_to_server(bstr("msgtext"), 0);
-	serv_puts("</BODY></HTML>\n");
+	serv_puts("</body></html>\n");
 	
 
 	if (is_multipart) {

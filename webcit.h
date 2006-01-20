@@ -702,6 +702,7 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
+#define VIEW_WIKI		6	/* Wiki view */
 
 
 /* These should be empty, but we have them for testing */

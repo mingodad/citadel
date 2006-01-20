@@ -8,7 +8,7 @@
 
 char floorlist[128][SIZ];
 
-char *viewdefs[6];
+char *viewdefs[7];
 
 void initialize_viewdefs(void) {
 	viewdefs[0] = _("Bulletin Board");
@@ -17,6 +17,7 @@ void initialize_viewdefs(void) {
 	viewdefs[3] = _("Calendar");
 	viewdefs[4] = _("Task List");
 	viewdefs[5] = _("Notes List");
+	viewdefs[6] = _("Wiki");
 }
 
 
@@ -514,6 +515,15 @@ void embed_room_banner(char *got, int navbar_style) {
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
 						"</span></a></td>\n", _("Add new note")
+					);
+					break;
+				case VIEW_WIKI:
+					wprintf(
+						"<td><a href=\"display_enter\">"
+						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"%s"
+						"</span></a></td>\n", _("Add new page")
 					);
 					break;
 				default:
@@ -1861,14 +1871,15 @@ void display_entroom(void)
         wprintf("</SELECT>\n");
 
 	/* Our clever little snippet of JavaScript automatically selects
-	 * a public room if the view is set to Bulletin Board, and it
-	 * selects a mailbox room otherwise.  The user can override this,
-	 * of course.
+	 * a public room if the view is set to Bulletin Board or wiki, and
+	 * it selects a mailbox room otherwise.  The user can override this,
+	 * of course.  We also disable the floor selector for mailboxes.
 	 */
 	wprintf("<LI>");
 	wprintf(_("Default view for room: "));
         wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\" OnChange=\""
-		"	if (this.form.er_view.value == 0) {	"	
+		"	if ( (this.form.er_view.value == 0)		"
+		"	   || (this.form.er_view.value == 6) ) {	"
 		"		this.form.type[0].checked=true;		"
 		"		this.form.er_floor.disabled = false;	"
 		"	}						"
