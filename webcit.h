@@ -658,6 +658,7 @@ void httplang_to_locale(char *LocaleString);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
+void display_wiki_page(char *roomname, char *pagename);
 
 void embed_room_banner(char *, int);
 
