@@ -1049,6 +1049,7 @@ int main(int argc, char **argv)
 
 
 
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 	
 	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(err_printf);
