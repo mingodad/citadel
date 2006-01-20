@@ -1126,8 +1126,6 @@ int main(int argc, char **argv)
 				logoff(NULL, 3);
 			}
 
-			calc_dirs_n_files(relh, home, relhome, ctdldir);
-
 			/*
 			 * Drop privileges if necessary. We stat
 			 * citadel.config to get the uid/gid since it's
@@ -1155,7 +1153,6 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 	screen_new();
 
