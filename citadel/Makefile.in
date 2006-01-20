@@ -157,6 +157,7 @@ setup: setup.o tools.o citadel_dirs.o
 
 chkpwd: chkpwd.o auth.o config.o citadel_dirs.o
 	$(CC) chkpwd.o auth.o config.o citadel_dirs.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
+	chmod 4755 chkpwd
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
