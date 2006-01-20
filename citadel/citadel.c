@@ -1153,6 +1153,8 @@ int main(int argc, char **argv)
 			argc = shift(argc, argv, a, 1);
 		}
 	}
+	
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 	screen_new();
 
