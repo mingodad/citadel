@@ -1860,6 +1860,12 @@ void readloop(char *oper)
 	char *datesort_button;
 	int bbs_reverse = 0;
 
+	if (WC->wc_view == VIEW_WIKI) {
+		sprintf(buf, "wiki/%s/home", WC->wc_roomname);
+		http_redirect(buf);
+		return;
+	}
+
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
 	is_summary = atoi(bstr("summary"));
