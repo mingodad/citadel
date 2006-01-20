@@ -2,7 +2,7 @@ Source: webcit
 Section: unknown
 Priority: optional
 Maintainer: Wilfried Goesgens <willi@jordy.home.net>
-Build-Depends: debhelper (>= 4.0.0)
+Build-Depends: debhelper (>= 4.0.0), libical-dev
 Standards-Version: 3.6.1
 
 Package: citadel-webcit

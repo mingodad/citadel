@@ -1,31 +1,41 @@
 /*
  * $Id$
- *
- * Provides HTTPS, when the OpenSSL library is available.
+ */
+/**
+ * \defgroup https  Provides HTTPS, when the OpenSSL library is available.
  */
 
+/*@{*/
 #ifdef HAVE_OPENSSL
 
 #include "webcit.h"
 #include "webserver.h"
+/** \todo dirify */
+/** where to find the keys */
+#define	CTDL_CRYPTO_DIR		"./keys" 
+#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key" /**< the key */
+#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr" /**< the csr file */
+#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer" /**< the cer file */
+#define SIGN_DAYS		365 /**< how long our certificate should live */
 
-#define	CTDL_CRYPTO_DIR		"./keys"
-#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
-#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
-#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
-#define SIGN_DAYS		365
+SSL_CTX *ssl_ctx;		/**< SSL context */
+pthread_mutex_t **SSLCritters;	/**< Things needing locking */
 
-SSL_CTX *ssl_ctx;		/* SSL context */
-pthread_mutex_t **SSLCritters;	/* Things needing locking */
+pthread_key_t ThreadSSL;	/**< Per-thread SSL context */
 
-pthread_key_t ThreadSSL;	/* Per-thread SSL context */
-
+/**
+ * \brief what?????
+ * \return thread id??? 
+ */
 static unsigned long id_callback(void)
 {
 	return (unsigned long) pthread_self();
 }
 
-
+/**
+ * \brief initialize ssl engine
+ * load certs and initialize openssl internals
+ */
 void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;
@@ -60,14 +70,14 @@ void init_ssl(void)
 			if (!SSLCritters[a]) {
 				lprintf(1,
 					"citserver: can't allocate memory!!\n");
-				/* Nothing's been initialized, just die */
+				/** Nothing's been initialized, just die */
 				exit(1);
 			}
 			pthread_mutex_init(SSLCritters[a], NULL);
 		}
 	}
 
-	/*
+	/**
 	 * Initialize SSL transport layer
 	 */
 	SSL_library_init();
@@ -82,18 +92,19 @@ void init_ssl(void)
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
 
-	/* Get our certificates in order.
+	/**
+	 * Get our certificates in order. \todo dirify. this is a setup job.
 	 * First, create the key/cert directory if it's not there already...
 	 */
 	mkdir(CTDL_CRYPTO_DIR, 0700);
 
-	/*
+	/**
 	 * Before attempting to generate keys/certificates, first try
 	 * link to them from the Citadel server if it's on the same host.
 	 * We ignore any error return because it either meant that there
 	 * was nothing in Citadel to link from (in which case we just
 	 * generate new files) or the target files already exist (which
-	 * is not fatal either).
+	 * is not fatal either). \todo dirify
 	 */
 	if (!strcasecmp(ctdlhost, "uds")) {
 		sprintf(buf, "%s/keys/citadel.key", ctdlport);
@@ -104,15 +115,15 @@ void init_ssl(void)
 		symlink(buf, CTDL_CER_PATH);
 	}
 
-	/*
+	/**
 	 * If we still don't have a private key, generate one.
 	 */
 	if (access(CTDL_KEY_PATH, R_OK) != 0) {
 		lprintf(5, "Generating RSA key pair.\n");
-		rsa = RSA_generate_key(1024,	/* modulus size */
-					65537,	/* exponent */
-					NULL,	/* no callback */
-					NULL);	/* no callback */
+		rsa = RSA_generate_key(1024,	/**< modulus size */
+					65537,	/**< exponent */
+					NULL,	/**< no callback */
+					NULL);	/**< no callback */
 		if (rsa == NULL) {
 			lprintf(3, "Key generation failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
@@ -121,13 +132,13 @@ void init_ssl(void)
 			fp = fopen(CTDL_KEY_PATH, "w");
 			if (fp != NULL) {
 				chmod(CTDL_KEY_PATH, 0600);
-				if (PEM_write_RSAPrivateKey(fp,	/* the file */
-							rsa,	/* the key */
-							NULL,	/* no enc */
-							NULL,	/* no passphr */
-							0,	/* no passphr */
-							NULL,	/* no callbk */
-							NULL	/* no callbk */
+				if (PEM_write_RSAPrivateKey(fp,	/**< the file */
+							rsa,	/**< the key */
+							NULL,	/**< no enc */
+							NULL,	/**< no passphr */
+							0,	/**< no passphr */
+							NULL,	/**< no callbk */
+							NULL	/**< no callbk */
 				) != 1) {
 					lprintf(3, "Cannot write key: %s\n",
                                 		ERR_reason_error_string(ERR_get_error()));
@@ -139,13 +150,13 @@ void init_ssl(void)
 		}
 	}
 
-	/*
+	/**
 	 * Generate a CSR if we don't have one.
 	 */
 	if (access(CTDL_CSR_PATH, R_OK) != 0) {
 		lprintf(5, "Generating a certificate signing request.\n");
 
-		/*
+		/**
 		 * Read our key from the file.  No, we don't just keep this
 		 * in memory from the above key-generation function, because
 		 * there is the possibility that the key was already on disk
@@ -159,20 +170,20 @@ void init_ssl(void)
 
 		if (rsa) {
 
-			/* Create a public key from the private key */
+			/** Create a public key from the private key */
 			if (pk=EVP_PKEY_new(), pk != NULL) {
 				EVP_PKEY_assign_RSA(pk, rsa);
 				if (req = X509_REQ_new(), req != NULL) {
 
-					/* Set the public key */
+					/** Set the public key */
 					X509_REQ_set_pubkey(req, pk);
 					X509_REQ_set_version(req, 0L);
 
 					name = X509_REQ_get_subject_name(req);
 
-					/* Tell it who we are */
+					/** Tell it who we are */
 
-					/*
+					/* \todo whats this?
 					X509_NAME_add_entry_by_txt(name, "C",
 						MBSTRING_ASC, "US", -1, -1, 0);
 
@@ -194,12 +205,12 @@ void init_ssl(void)
 				
 					X509_REQ_set_subject_name(req, name);
 
-					/* Sign the CSR */
+					/** Sign the CSR */
 					if (!X509_REQ_sign(req, pk, EVP_md5())) {
 						lprintf(3, "X509_REQ_sign(): error\n");
 					}
 					else {
-						/* Write it to disk. */	
+						/** Write it to disk. */	
 						fp = fopen(CTDL_CSR_PATH, "w");
 						if (fp != NULL) {
 							chmod(CTDL_CSR_PATH, 0600);
@@ -222,13 +233,13 @@ void init_ssl(void)
 
 
 
-	/*
+	/**
 	 * Generate a self-signed certificate if we don't have one.
 	 */
 	if (access(CTDL_CER_PATH, R_OK) != 0) {
 		lprintf(5, "Generating a self-signed certificate.\n");
 
-		/* Same deal as before: always read the key from disk because
+		/** Same deal as before: always read the key from disk because
 		 * it may or may not have just been generated.
 		 */
 		fp = fopen(CTDL_KEY_PATH, "r");
@@ -237,7 +248,7 @@ void init_ssl(void)
 			fclose(fp);
 		}
 
-		/* This also holds true for the CSR. */
+		/** This also holds true for the CSR. */
 		req = NULL;
 		cer = NULL;
 		pk = NULL;
@@ -265,12 +276,12 @@ void init_ssl(void)
 					X509_set_pubkey(cer, req_pkey);
 					EVP_PKEY_free(req_pkey);
 					
-					/* Sign the cert */
+					/** Sign the cert */
 					if (!X509_sign(cer, pk, EVP_md5())) {
 						lprintf(3, "X509_sign(): error\n");
 					}
 					else {
-						/* Write it to disk. */	
+						/** Write it to disk. */	
 						fp = fopen(CTDL_CER_PATH, "w");
 						if (fp != NULL) {
 							chmod(CTDL_CER_PATH, 0600);
@@ -286,7 +297,7 @@ void init_ssl(void)
 		}
 	}
 
-	/*
+	/**
 	 * Now try to bind to the key and certificate.
 	 * Note that we use SSL_CTX_use_certificate_chain_file() which allows
 	 * the certificate file to contain intermediate certificates.
@@ -301,8 +312,10 @@ void init_ssl(void)
 }
 
 
-/*
- * starttls() starts SSL/TLS encryption for the current session.
+/**
+ * \brief starts SSL/TLS encryption for the current session.
+ * \param sock the socket connection
+ * \return foo????
  */
 int starttls(int sock) {
 	int retval, bits, alg_bits;
@@ -326,7 +339,7 @@ int starttls(int sock) {
 	}
 	retval = SSL_accept(newssl);
 	if (retval < 1) {
-		/*
+		/**
 		 * Can't notify the client of an error here; they will
 		 * discover the problem at the SSL layer and should
 		 * revert to unencrypted communications.
@@ -355,8 +368,8 @@ int starttls(int sock) {
 
 
 
-/*
- * endtls() shuts down the TLS connection
+/**
+ * \brief shuts down the TLS connection
  *
  * WARNING:  This may make your session vulnerable to a known plaintext
  * attack in the current implmentation.
@@ -372,8 +385,12 @@ void endtls(void)
 }
 
 
-/*
- * ssl_lock() callback for OpenSSL mutex locks
+/**
+ * \brief callback for OpenSSL mutex locks
+ * \param mode which mode??????
+ * \param n  how many???
+ * \param file which filename ???
+ * \param line what line????
  */
 void ssl_lock(int mode, int n, const char *file, int line)
 {
@@ -383,8 +400,10 @@ void ssl_lock(int mode, int n, const char *file, int line)
 		pthread_mutex_unlock(SSLCritters[n]);
 }
 
-/*
- * client_write_ssl() Send binary data to the client encrypted.
+/**
+ * \brief Send binary data to the client encrypted.
+ * \param buf chars to send to the client
+ * \param nbytes how many chars
  */
 void client_write_ssl(char *buf, int nbytes)
 {
@@ -425,8 +444,12 @@ void client_write_ssl(char *buf, int nbytes)
 }
 
 
-/*
- * client_read_ssl() - read data from the encrypted layer.
+/**
+ * \brief read data from the encrypted layer.
+ * \param buf charbuffer to read to 
+ * \param bytes how many
+ * \param timeout how long should we wait?
+ * \returns what???
  */
 int client_read_ssl(char *buf, int bytes, int timeout)
 {
@@ -444,7 +467,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 	len = 0;
 	while (len < bytes) {
 #if 0
-		/*
+		/**
 		 * This code is disabled because we don't need it when
 		 * using blocking reads (which we are). -IO
 		 */
@@ -487,3 +510,4 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 
 
 #endif				/* HAVE_OPENSSL */
+/*@}*/

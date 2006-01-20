@@ -2719,7 +2719,7 @@ msgstr "Raum"
 
 #: ../who.c:27
 msgid "From host"
-msgstr "Vom Knoten"
+msgstr "Client DNS Name / IP"
 
 #: ../who.c:60
 msgid "(kill)"
@@ -2736,7 +2736,7 @@ msgstr "Wollen sie diese Sitzung wirklich beenden?"
 #: ../who.c:149
 #, c-format
 msgid "Users currently on %s"
-msgstr "Benutzer angemeldet auf %s"
+msgstr "Angemeldete Benutzer auf %s"
 
 #: ../who.c:164
 #, c-format

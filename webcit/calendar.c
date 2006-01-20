@@ -1,17 +1,23 @@
 /*
  * $Id$
- *
- * Functions which handle calendar objects and their processing/display.
- *
  */
+/**
+ * \defgroup calav Functions which handle calendar objects and their processing/display.
+ * \todo parts aren't parsed by doxygen
+ */
+/* @{ */
 
 #include "webcit.h"
 #include "webserver.h"
 
 #ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
-/*
+/**
+ * \brief get around non existing types
  * Handler stubs for builds with no calendar library available
+ * \param part_source dummy pointer to the source
+ * \param msgnum number of the mesage in the db
+ * \param cal_partnum number of the calendar part
  */
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 
@@ -24,6 +30,10 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 
 }
 
+/**
+ * \brief say we can't display calendar items
+ * \param msgnum number of the mesage in our db
+ */
 void display_calendar(long msgnum) {
 	wprintf(_("<i>"
 		"Cannot display calendar item.  You are seeing this error "
@@ -32,6 +42,10 @@ void display_calendar(long msgnum) {
 		"</i><br />\n"));
 }
 
+/**
+ * \brief say we can't display task items
+ * \param msgnum number of the mesage in our db
+ */
 void display_task(long msgnum) {
 	wprintf(_("<i>"
 		"Cannot display to-do item.  You are seeing this error "
@@ -39,7 +53,7 @@ void display_task(long msgnum) {
 		"calendar support.  Please contact your system administrator."
 		"</i><br />\n"));
 }
-
+/** ok, we have calendaring available */
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
 
 
@@ -48,10 +62,13 @@ void display_task(long msgnum) {
 
 
 
-/*
- * Process a calendar object
+/**
+ * \brief Process a calendar object
  * ...at this point it's already been deserialized by cal_process_attachment()
- *
+ * \param cal teh calendar object
+ * \param recursion_level call stack depth ??????
+ * \param msgnum number of the mesage in our db
+ * \param cal_partnum of the calendar object ???? 
  */
 void cal_process_object(icalcomponent *cal,
 			int recursion_level,
@@ -69,15 +86,15 @@ void cal_process_object(icalcomponent *cal,
 	char conflict_message[256];
 	int is_update = 0;
 
-	/* Leading HTML for the display of this object */
+	/** Leading HTML for the display of this object */
 	if (recursion_level == 0) {
 		wprintf("<CENTER><TABLE border=0>\n");
 	}
 
-	/* Look for a method */
+	/** Look for a method */
 	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
 
-	/* See what we need to do with this */
+	/** See what we need to do with this */
 	if (method != NULL) {
 		the_method = icalproperty_get_method(method);
 		switch(the_method) {
@@ -134,7 +151,7 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</TD></TR>\n");
 	}
 
-	/*
+	/**
 	 * Only show start/end times if we're actually looking at the VEVENT
 	 * component.  Otherwise it shows bogus dates for things like timezone.
 	 */
@@ -184,7 +201,7 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</TD></TR>\n");
 	}
 
-	/* If the component has attendees, iterate through them. */
+	/** If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
 		wprintf("<TR><TD><B>");
 		wprintf(_("Attendee:"));
@@ -192,20 +209,20 @@ void cal_process_object(icalcomponent *cal,
 		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
-			/* screen name or email address */
+			/** screen name or email address */
 			strcpy(buf, &buf[7]);
 			striplt(buf);
 			escputs(buf);
 			wprintf(" ");
 
-			/* participant status */
+			/** participant status */
 			partstat_as_string(buf, p);
 			escputs(buf);
 		}
 		wprintf("</TD></TR>\n");
 	}
 
-	/* If the component has subcomponents, recurse through them. */
+	/** If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	    (c != 0);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
@@ -213,7 +230,7 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
 
-	/* If this is a REQUEST, display conflicts and buttons */
+	/** If this is a REQUEST, display conflicts and buttons */
 	if (the_method == ICAL_METHOD_REQUEST) {
 
 		/* Check for conflicts */
@@ -246,7 +263,7 @@ void cal_process_object(icalcomponent *cal,
 		}
 		lprintf(9, "...done.\n");
 
-		/* Display the Accept/Decline buttons */
+		/** Display the Accept/Decline buttons */
 		wprintf("<TR><TD>How would you like to respond to this invitation?</td>"
 			"<td><FONT SIZE=+1>"
 			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
@@ -262,18 +279,17 @@ void cal_process_object(icalcomponent *cal,
 
 	}
 
-	/* If this is a REPLY, display update button */
+	/** If this is a REPLY, display update button */
 	if (the_method == ICAL_METHOD_REPLY) {
 
-		/***********
-		 * In the future, if we want to validate this object before
+		/** \todo  In the future, if we want to validate this object before \
 		 * continuing, we can do it this way:
 		serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
 		serv_getln(buf, sizeof buf);
 		}
 		 ***********/
 
-		/* Display the update buttons */
+		/** Display the update buttons */
 		wprintf("<TR><TD>"
 			"%s"
 			"</td><td><font size=+1>"
@@ -289,7 +305,7 @@ void cal_process_object(icalcomponent *cal,
 
 	}
 
-	/* Trailing HTML for the display of this object */
+	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
 
 		wprintf("</TR></TABLE></CENTER>\n");
@@ -297,9 +313,13 @@ void cal_process_object(icalcomponent *cal,
 }
 
 
-/*
+/**
+ * \brief process calendar mail atachment
  * Deserialize a calendar object in a message so it can be processed.
  * (This is the main entry point for these things)
+ * \param part_source the part of the message we want to parse
+ * \param msgnum number of the mesage in our db
+ * \param cal_partnum the number of the calendar item
  */
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	icalcomponent *cal;
@@ -322,7 +342,8 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 
 
 
-/*
+/**
+ * \brief accept/decline meeting
  * Respond to a meeting request
  */
 void respond_to_request(void) {
@@ -383,8 +404,8 @@ void respond_to_request(void) {
 
 
 
-/*
- * Handle an incoming RSVP
+/**
+ * \brief Handle an incoming RSVP
  */
 void handle_rsvp(void) {
 	char buf[SIZ];
@@ -437,20 +458,26 @@ void handle_rsvp(void) {
 
 
 
+/*@}*/
+/*-----------------------------------------------------------------------**/
 
-/*****************************************************************************/
 
 
-
-/*
- * Display handlers for message reading
+/**
+ * \defgroup MsgDisplayHandlers Display handlers for message reading 
+ * \todo why does doxygen not parse this? and generate another group?
  */
 
+/*@{*/
 
 
-/*
+
+/**
+ * \brief get items, keep them.
  * If we're reading calendar items, just store them for now.  We have to
  * sort and re-output them later when we draw the calendar.
+ * \param cal Our calendar to process
+ * \param msgnum number of the mesage in our db
  */
 void display_individual_cal(icalcomponent *cal, long msgnum) {
 
@@ -466,8 +493,10 @@ void display_individual_cal(icalcomponent *cal, long msgnum) {
 
 
 /*
+ * \brief edit a task
  * Display a task by itself (for editing)
- *
+ * \param supplied_vtodo the todo item we want to edit
+ * \param msgnum number of the mesage in our db
  */
 void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	icalcomponent *vtodo;
@@ -481,7 +510,8 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
 
-		/* If we're looking at a fully encapsulated VCALENDAR
+		/**
+		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VTODO component, attempt to use the first
 		 * relevant VTODO subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
@@ -593,8 +623,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 }
 
 /*
- * Save an edited task
- *
+ * \brief Save an edited task
+ * \param supplied_vtodo the task to save
+ * \param msgnum number of the mesage in our db
  */
 void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	char buf[SIZ];
@@ -608,7 +639,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
-		/* If we're looking at a fully encapsulated VCALENDAR
+		/**
+		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VTODO component, attempt to use the first
 		 * relevant VTODO subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
@@ -631,7 +663,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	if (strlen(bstr("save_button")) > 0) {
 
-		/* Replace values in the component with ones from the form */
+		/** Replace values in the component with ones from the form */
 
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
@@ -669,7 +701,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			icalproperty_new_due(t)
 		);
 
-		/* Give this task a UID if it doesn't have one. */
+		/** Give this task a UID if it doesn't have one. */
 		lprintf(9, "Give this task a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vtodo,
 		   ICAL_UID_PROPERTY) == NULL) {
@@ -679,7 +711,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			);
 		}
 
-		/* Increment the sequence ID */
+		/** Increment the sequence ID */
 		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
@@ -695,7 +727,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			icalproperty_new_sequence(sequence)
 		);
 
-		/*
+		/**
 		 * Encapsulate event into full VCALENDAR component.  Clone it first,
 		 * for two reasons: one, it's easier to just free the whole thing
 		 * when we're done instead of unbundling, but more importantly, we
@@ -714,7 +746,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			serv_puts(icalcomponent_as_ical_string(encaps));
 			serv_puts("000");
 
-			/* Probably not necessary; the server will see the UID
+			/**
+			 * Probably not necessary; the server will see the UID
 			 * of the object and delete the old one anyway, but
 			 * just in case...
 			 */
@@ -723,7 +756,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		icalcomponent_free(encaps);
 	}
 
-	/*
+	/**
 	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
 	if (strlen(bstr("delete_button")) > 0) {
@@ -739,17 +772,22 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		icalcomponent_free(vtodo);
 	}
 
-	/* Go back to the task list */
+	/** Go back to the task list */
 	readloop("readfwd");
 }
 
 
 
-/*
+/**
+ * \brief generic item handler
  * Code common to all display handlers.  Given a message number and a MIME
  * type, we load the message and hunt for that MIME type.  If found, we load
  * the relevant part, deserialize it into a libical component, filter it for
  * the requested object type, and feed it to the specified handler.
+ * \param mimetype mimetyp of our object
+ * \param which_kind sort of ical type
+ * \param msgnum number of the mesage in our db
+ * \param callback a funcion \todo
  *
  */
 void display_using_handler(long msgnum,
@@ -796,12 +834,12 @@ void display_using_handler(long msgnum,
 
 				ical_dezonify(cal);
 
-				/* Simple components of desired type */
+				/** Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {
 					callback(cal, msgnum);
 				}
 
-				/* Subcomponents of desired type */
+				/** Subcomponents of desired type */
 				for (c = icalcomponent_get_first_component(cal,
 				    which_kind);
 	    			    (c != 0);
@@ -817,39 +855,53 @@ void display_using_handler(long msgnum,
 
 }
 
+/**
+ * \brief display whole calendar
+ * \param msgnum number of the mesage in our db
+ */
 void display_calendar(long msgnum) {
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VEVENT_COMPONENT,
 				display_individual_cal);
 }
 
+/**
+ * \brief display whole taksview
+ * \param msgnum number of the mesage in our db
+ */
 void display_task(long msgnum) {
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				display_individual_cal);
 }
 
+/**
+ * \brief display the editor component for a task
+ */
 void display_edit_task(void) {
 	long msgnum = 0L;
 
-	/* Force change the room if we have to */
+	/** Force change the room if we have to */
 	if (strlen(bstr("taskrm")) > 0) {
 		gotoroom(bstr("taskrm"));
 	}
 
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
-		/* existing task */
+		/** existing task */
 		display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				display_edit_individual_task);
 	}
 	else {
-		/* new task */
+		/** new task */
 		display_edit_individual_task(NULL, 0L);
 	}
 }
 
+/**
+ *\brief save an edited task
+ */
 void save_task(void) {
 	long msgnum = 0L;
 
@@ -864,6 +916,9 @@ void save_task(void) {
 	}
 }
 
+/**
+ * \brief display the editor component for an event
+ */
 void display_edit_event(void) {
 	long msgnum = 0L;
 
@@ -880,6 +935,9 @@ void display_edit_event(void) {
 	}
 }
 
+/**
+ * \brief save an edited event
+ */
 void save_event(void) {
 	long msgnum = 0L;
 
@@ -899,8 +957,9 @@ void save_event(void) {
 
 
 
-/*
- * freebusy display (for client software)
+/**
+ * \brief freebusy display (for client software)
+ * \param req dunno. ?????
  */
 void do_freebusy(char *req) {
 	char who[SIZ];
@@ -940,3 +999,6 @@ void do_freebusy(char *req) {
 
 
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
+
+
+/*@}*/

@@ -1,10 +1,11 @@
 /*
  * $Id$
- *
- * Administrative screens for floor maintenance
+ */
+/**
+ * \defgroup AdminFloor Administrative screens for floor maintenance
  *
  */
-
+/*@{*/
 
 #include "webcit.h"
 #include "webserver.h"
@@ -13,8 +14,10 @@
 
 
 /*
+ * \brief Display floor config
  * Display floor configuration.  If prepend_html is not NULL, its contents
  * will be displayed at the top of the screen.
+ * \param prepend_html pagetitle to prepend
  */
 void display_floorconfig(char *prepend_html)
 {

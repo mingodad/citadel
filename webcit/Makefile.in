@@ -24,7 +24,7 @@ SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS)
 all: all-progs-recursive webserver setup
 
 
-.SUFFIXES: .c .o
+.SUFFIXES: .cpp .c .o
 
 clean:
 	rm -f *.o webcit webserver
@@ -65,6 +65,9 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(prefix)/locale\" $<
+
+.cpp.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(prefix)/locale\" $<
 
 Makefile: $(srcdir)/Makefile.in config.status
