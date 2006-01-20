@@ -1042,6 +1042,8 @@ int main(int argc, char **argv)
 	CtdlIPC* ipc;			/* Our server connection */
 	int r;				/* IPC result code */
 
+
+	
 	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(err_printf);
 	setCryptoStatusHook(statusHook);
@@ -1116,6 +1118,8 @@ int main(int argc, char **argv)
 				perror("can't change to " CTDLDIR);
 				logoff(NULL, 3);
 			}
+
+			calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 			/*
 			 * Drop privileges if necessary. We stat
