@@ -764,7 +764,8 @@ void load_command_set(void)
 
 	ccfile = NULL;
 	if (getenv("HOME") != NULL) {
-		ccfile = fopen(file_citadel_rc, "r");
+		snprintf(buf, sizeof buf, "%s/.citadelrc", getenv("HOME"));
+		ccfile = fopen(buf, "r");
 	}
 	if (ccfile == NULL) {
 		ccfile = fopen(file_citadel_rc, "r");
