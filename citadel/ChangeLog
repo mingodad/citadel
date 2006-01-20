@@ -1,5 +1,9 @@
 $Id$
 
+Thu Jan 19 21:30:20 EST 2006 ajc
+* Added VIEW_WIKI to the available view types.  EUID indexing is "on" for
+  this view.  Everything else will be done in WebCit.
+
 Thu Jan 19 17:49:29 EST 2006 ajc
 * support SMTP-AUTH for outbound connection to smart-host
 

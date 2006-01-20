@@ -16,6 +16,10 @@ combination.  It is visit.v_view and is an integer.  Naturally, there also
 needs to be a default, for users who have never visited the room before.  This
 is in the room record as room.QRdefaultview (and is also an integer).
  
+ In recent versions of Citadel, the view for a room also defines when and how
+it is indexed.  For example, mailboxes and bulletin boards don't need to have
+an euid index, but address books and calendars do.
+ 
  The values currently defined are:
 
 #define	VIEW_BBS		0	/* Bulletin board view */
@@ -24,4 +28,5 @@ is in the room record as room.QRdefaultview (and is also an integer).
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
+#define VIEW_WIKI		6	/* Wiki view */
 

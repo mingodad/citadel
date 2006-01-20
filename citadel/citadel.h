@@ -33,7 +33,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel 6.70"
+#define CITADEL	"Citadel 6.71"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -45,7 +45,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	670		/* This version */
+#define REV_LEVEL	671		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	655		/* Oldest compatible export files */
 
@@ -252,6 +252,7 @@ enum {
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
+#define	VIEW_WIKI		6	/* Wiki view */
 
 #ifdef __cplusplus
 }
