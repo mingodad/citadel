@@ -1,20 +1,29 @@
 /*
  * $Id$
- *
+ */
+/**
+ * \defgroup CookieConversion Grep Cookies
  * Utility functions which convert the HTTP cookie format we use to and
  * from user/password/room strings.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 
-#define TRUE  1
-#define FALSE 0
 
-typedef unsigned char byte;	      /* Byte type */
+#define TRUE  1    /**< for sure? */
+#define FALSE 0    /**< nope. */
 
-/*
+typedef unsigned char byte;	      /**< Byte type */
+
+/**
+ * \brief find cookie
  * Pack all session info into one easy-to-digest cookie. Healthy and delicious!
+ * \param cookie cookie string to create???
+ * \param session the session we want to convert into a cookie
+ * \param user the user to be associated with the cookie
+ * \param pass his passphrase
+ * \param room the room he wants to enter
  */
 void stuff_to_cookie(char *cookie, int session,
 		char *user, char *pass, char *room)
@@ -29,6 +38,12 @@ void stuff_to_cookie(char *cookie, int session,
 	}
 }
 
+/**
+ * \brief some bytefoo ????
+ * \param in the string to chop
+ * \param len the length of the string
+ * \return the corrosponding integer value
+ */
 int xtoi(char *in, size_t len)
 {
     int val = 0;
@@ -42,8 +57,16 @@ int xtoi(char *in, size_t len)
     return val;
 }
 
-/*
- * Extract all that fun stuff out of the cookie.
+/**
+ * \brief Extract all that fun stuff out of the cookie.
+ * \param cookie the cookie string
+ * \param session the corrosponding session to return
+ * \param user the user string
+ * \param user_len the user stringlength
+ * \param pass the passphrase
+ * \param pass_len length of the passphrase string 
+ * \param room the room he is in
+ * \param room_len the length of the room string
  */
 void cookie_to_stuff(char *cookie, int *session,
 		char *user, size_t user_len,
@@ -69,3 +92,4 @@ void cookie_to_stuff(char *cookie, int *session,
 	if (room != NULL)
 		extract_token(room, buf, 3, '|', room_len);
 }
+/*@}*/

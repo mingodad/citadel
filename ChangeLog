@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 20 21:03:25 CET 2006 dothebart
+* Started with doxygen style comments and doxygen config.
+	
 Thu Jan 19 23:18:01 EST 2006 ajc
 * Began adding the infrastructure to support wiki mode rooms.
 

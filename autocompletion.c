@@ -1,13 +1,15 @@
 /*
  * $Id$
- *
- * ajax-powered autocompletion...
+ *//**
+ * \defgroup AjaxAutoCompletion ajax-powered autocompletion...
  */
 
+/*@{*/
 #include "webcit.h"
 
-/*
- * Recipient autocompletion results
+/**
+ * \brief Recipient autocompletion results
+ * \param partial the account to search for ??????
  */
 void recp_autocomplete(char *partial) {
 	char buf[1024];
@@ -42,3 +44,5 @@ void recp_autocomplete(char *partial) {
 	wDumpContent(0);
 }
 
+
+/** @} */

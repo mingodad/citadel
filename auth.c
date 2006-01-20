@@ -1,29 +1,40 @@
 /*
  * $Id$
+ */
+/**
  *
- * Handles authentication of users to a Citadel server.
+ * \defgroup WebcitAuth WebcitAuth; Handles authentication of users to a Citadel server.
  *
  */
 
+/*@{*/
 #include "webcit.h"
 
-char *axdefs[7];
+
+
+/**
+ * \brief  user states
+ * the plain text states of a user. filled in at \ function TODO initialize_ax_defs()
+ * due to NLS
+ */
+char *axdefs[7]; 
 
 void initialize_axdefs(void) {
-	axdefs[0] = _("Deleted");
-	axdefs[1] = _("New User");
-	axdefs[2] = _("Problem User");
-	axdefs[3] = _("Local User");
-	axdefs[4] = _("Network User");
-	axdefs[5] = _("Preferred User");
-	axdefs[6] = _("Aide");
+	axdefs[0] = _("Deleted");       /*!0: an erased user */
+	axdefs[1] = _("New User");      /*!1: a new user */
+	axdefs[2] = _("Problem User");  /*!2: a trouble maker */
+	axdefs[3] = _("Local User");    /*!3: user with normal privileges */
+	axdefs[4] = _("Network User");  /*!4: a user that may access network resources */
+	axdefs[5] = _("Preferred User");/*!5: a moderator */
+	axdefs[6] = _("Aide");          /*!6: chief */
 }
 
 
 
 
-/*
- * Display the login screen
+/** 
+ * \brief Display the login screen
+ * \param mesg The error message if last attempt failed.
  */
 void display_login(char *mesg)
 {
@@ -73,12 +84,15 @@ void display_login(char *mesg)
 
 
 
-/*
+/** \brief Initialize the session
  * This function needs to get called whenever the session changes from
  * not-logged-in to logged-in, either by an explicit login by the user or
  * by a timed-out session automatically re-establishing with a little help
  * from the browser cookie.  Either way, we need to load access controls and
  * preferences from the server.
+ * \param user the username
+ * \param pass his password
+ * \param serv_response where to put the response ????
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
@@ -111,6 +125,10 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 }
 
 
+/** 
+ * \brief Login Checks
+ * the logics to detect invalid passwords not to get on citservers nerves
+ */
 void do_login(void)
 {
 	char buf[SIZ];
@@ -170,6 +188,11 @@ void do_login(void)
 
 }
 
+/**
+ * \brief display the user a welcome screen. 
+ * if this is the first time login, and the web based setup is enabled, 
+ * lead the user through the setup routines
+ */
 void do_welcome(void)
 {
 	char buf[SIZ];
@@ -177,7 +200,7 @@ void do_welcome(void)
 	FILE *fp;
 	int i;
 
-	/*
+	/**
 	 * See if we have to run the first-time setup wizard
 	 */
 	if (WC->is_aide) {
@@ -198,7 +221,7 @@ void do_welcome(void)
 				buf[strlen(buf)-1] = 0;
 				fclose(fp);
 				if (atoi(buf) == serv_info.serv_rev_level) {
-					setup_wizard = 1; /* already run */
+					setup_wizard = 1; /**< already run */
 				}
 			}
 		}
@@ -209,7 +232,7 @@ void do_welcome(void)
 	}
 #endif
 
-	/*
+	/**
 	 * Go to the user's preferred start page
 	 */
 	get_preference("startpage", buf, sizeof buf);
@@ -224,7 +247,7 @@ void do_welcome(void)
 }
 
 
-/*
+/**
  * Disconnect from the Citadel server, and end this WebCit session
  */
 void end_webcit_session(void) {
@@ -241,7 +264,9 @@ void end_webcit_session(void) {
 	/* close() of citadel socket will be done by do_housekeeping() */
 }
 
-
+/** 
+ * execute the logout
+ */
 void do_logout(void)
 {
 	char buf[SIZ];
@@ -251,7 +276,7 @@ void do_logout(void)
 	safestrncpy(WC->wc_roomname, "", sizeof WC->wc_roomname);
 	safestrncpy(WC->wc_fullname, "", sizeof WC->wc_fullname);
 
-	/* Calling output_headers() this way causes the cookies to be un-set */
+	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
 	wprintf("<center>");
@@ -283,7 +308,7 @@ void do_logout(void)
 }
 
 
-/* 
+/* *
  * validate new users
  */
 void validate(void)
@@ -300,7 +325,7 @@ void validate(void)
 	wprintf(_("Validate new users"));
 	wprintf("</SPAN></TD></TR></TABLE>\n</div>\n<div id=\"content\">\n");
 
-	/* If the user just submitted a validation, process it... */
+	/** If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
 	if (strlen(buf) > 0) {
 		if (strlen(bstr("axlevel")) > 0) {
@@ -312,7 +337,7 @@ void validate(void)
 		}
 	}
 
-	/* Now see if any more users require validation. */
+	/** Now see if any more users require validation. */
 	serv_puts("GNUR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
@@ -383,10 +408,11 @@ void validate(void)
 
 
 
-/* 
- * Display form for registration.
+/** 
+ * \brief Display form for registration.
  * (Set during_login to 1 if this registration is being performed during
  * new user login and will require chaining to the proper screen.)
+ * \param during_login are we just in the login phase?
  */
 void display_reg(int during_login)
 {
@@ -417,7 +443,7 @@ void display_reg(int during_login)
 
 
 
-/* 
+/** 
  * display form for changing your password
  */
 void display_changepw(void)
@@ -474,8 +500,9 @@ void display_changepw(void)
 	wDumpContent(1);
 }
 
-/*
- * change password
+/**
+ * \brief change password
+ * if passwords match, propagate it to citserver.
  */
 void changepw(void)
 {
@@ -520,3 +547,7 @@ void changepw(void)
 		display_changepw();
 	}
 }
+
+
+
+/** @} */

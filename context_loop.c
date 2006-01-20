@@ -1,24 +1,30 @@
 /*
  * $Id$
- *
+ */
+/**
+ * \defgroup WebServerII some of the webserver stuff.
  * This is the other half of the webserver.  It handles the task of hooking
  * up HTTP requests with the sessions they belong to, using HTTP cookies to
  * keep track of things.  If the HTTP request doesn't belong to any currently
  * active session, a new session is started.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
-/* Only one thread may manipulate SessionList at a time... */
+/** Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t SessionListMutex;
 
-struct wcsession *SessionList = NULL;
+struct wcsession *SessionList = NULL; /**< our sessions ????*/
 
-pthread_key_t MyConKey;                         /* TSD key for MySession() */
+pthread_key_t MyConKey;         /**< TSD key for MySession() */
 
 
+/**
+ * \brief free the memory used for viewing atachments
+ * \param sess the session object to destroy
+ */
 void free_attachments(struct wcsession *sess) {
 	struct wc_attachment *att;
 
@@ -30,7 +36,9 @@ void free_attachments(struct wcsession *sess) {
 	}
 }
 
-
+/**
+ * \brief what??????
+ */
 void do_housekeeping(void)
 {
 	struct wcsession *sptr, *ss;
@@ -38,7 +46,7 @@ void do_housekeeping(void)
 	int num_sessions = 0;
 	static int num_threads = MIN_WORKER_THREADS;
 
-	/*
+	/**
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
@@ -47,16 +55,16 @@ void do_housekeeping(void)
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 		++num_sessions;
 
-		/* Kill idle sessions */
+		/** Kill idle sessions */
 		if ((time(NULL) - (sptr->lastreq)) >
 		   (time_t) WEBCIT_TIMEOUT) {
 			sptr->killthis = 1;
 		}
 
-		/* Remove sessions flagged for kill */
+		/** Remove sessions flagged for kill */
 		if (sptr->killthis) {
 
-			/* remove session from linked list */
+			/** remove session from linked list */
 			if (sptr == SessionList) {
 				SessionList = SessionList->next;
 			}
@@ -72,7 +80,7 @@ void do_housekeeping(void)
 	}
 	pthread_mutex_unlock(&SessionListMutex);
 
-	/*
+	/**
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
@@ -94,7 +102,7 @@ void do_housekeeping(void)
 		--num_sessions;
 	}
 
-	/*
+	/**
 	 * If there are more sessions than threads, then we should spawn
 	 * more threads ... up to a predefined maximum.
 	 */
@@ -108,8 +116,8 @@ void do_housekeeping(void)
 }
 
 
-/* 
- * Wake up occasionally and clean house
+/**
+ * \brief Wake up occasionally and clean house
  */
 void housekeeping_loop(void)
 {
@@ -120,11 +128,12 @@ void housekeeping_loop(void)
 }
 
 
-/*
+/**
+ * \brief Create a Session id
  * Generate a unique WebCit session ID (which is not the same thing as the
  * Citadel session ID).
  *
- * FIXME ... ensure that session number is truly unique
+ * \todo FIXME ... ensure that session number is truly unique
  *
  */
 int GenerateSessionID(void)
@@ -139,8 +148,11 @@ int GenerateSessionID(void)
 }
 
 
-/*
- * Collapse multiple cookies on one line
+/**
+ * \brief Collapse multiple cookies on one line
+ * \param sock a socket?
+ * \param buf some bunch of chars?
+ * \param hold hold what?
  */
 int req_gets(int sock, char *buf, char *hold)
 {
@@ -169,7 +181,9 @@ int req_gets(int sock, char *buf, char *hold)
 	return(0);
 }
 
-/*
+/**
+ * \brief close some fd for some reason???
+ * \param fd the fd to close??????
  * lingering_close() a`la Apache. see
  * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
  */
@@ -208,11 +222,13 @@ int lingering_close(int fd)
 
 
 
-/*
+/**
+ * \brief sanity requests
  * Check for bogus requests coming from (for example) brain-dead
  * Windoze boxes that are infected with the latest worm-of-the-week.
  * If we detect one of these, bail out without bothering our Citadel
  * server.
+ * \param http_cmd the cmd to check
  */
 int is_bogus(char *http_cmd) {
 
@@ -225,7 +241,8 @@ int is_bogus(char *http_cmd) {
 
 
 
-/*
+/**
+ * \brief handle one request
  * This loop gets called once for every HTTP connection made to WebCit.  At
  * this entry point we have an HTTP socket with a browser allegedly on the
  * other end, but we have not yet bound to a WebCit session.
@@ -235,6 +252,7 @@ int is_bogus(char *http_cmd) {
  * transaction loop.  Afterwards, we unbind from the session.  When this
  * function returns, the worker thread is then free to handle another
  * transaction.
+ * \param sock the socket we will put our answer to
  */
 void context_loop(int sock)
 {
@@ -257,14 +275,14 @@ void context_loop(int sock)
 	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
 	strcpy(httpauth_pass, DEFAULT_HTTPAUTH_PASS);
 
-	/*
+	/**
 	 * Find out what it is that the web browser is asking for
 	 */
 	memset(hold, 0, sizeof(hold));
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
 
-		/*
+		/**
 		 * Can we compress?
 		 */
 		if (!strncasecmp(buf, "Accept-encoding:", 16)) {
@@ -273,7 +291,7 @@ void context_loop(int sock)
 			}
 		}
 
-		/*
+		/**
 		 * Browser-based sessions use cookies for session authentication
 		 */
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
@@ -282,7 +300,7 @@ void context_loop(int sock)
 			got_cookie = 1;
 		}
 
-		/*
+		/**
 		 * GroupDAV-based sessions use HTTP authentication
 		 */
 		if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
@@ -299,7 +317,7 @@ void context_loop(int sock)
 			safestrncpy(accept_language, &buf[17], sizeof accept_language);
 		}
 
-		/*
+		/**
 		 * Read in the request
 		 */
 		hptr = (struct httprequest *)
@@ -315,37 +333,37 @@ void context_loop(int sock)
 
 	} while (strlen(buf) > 0);
 
-	/*
+	/**
 	 * If the request is prefixed by "/webcit" then chop that off.  This
 	 * allows a front end web server to forward all /webcit requests to us
 	 * while still using the same web server port for other things.
 	 */
 	
-	ptr = strstr(req->line, " /webcit ");	/* Handle "/webcit" */
+	ptr = strstr(req->line, " /webcit ");	/*< Handle "/webcit" */
 	if (ptr != NULL) {
 		strcpy(ptr+2, ptr+8);
 	}
 
-	ptr = strstr(req->line, " /webcit");	/* Handle "/webcit/" */
+	ptr = strstr(req->line, " /webcit");	/*< Handle "/webcit/" */
 	if (ptr != NULL) {
 		strcpy(ptr+1, ptr+8);
 	}
 
-	/* Begin parsing the request. */
+	/** Begin parsing the request. */
 
 	safestrncpy(buf, req->line, sizeof buf);
 	lprintf(5, "HTTP: %s\n", buf);
 
-	/* Check for bogus requests */
+	/** Check for bogus requests */
 	if (is_bogus(buf)) goto bail;
 
-	/*
+	/**
 	 * Strip out the method, leaving the URL up front...
 	 */
 	remove_token(buf, 0, ' ');
 	if (buf[1]==' ') buf[1]=0;
 
-	/*
+	/**
 	 * While we're at it, gracefully handle requests for the
 	 * robots.txt and favicon.ico files.
 	 */
@@ -357,7 +375,8 @@ void context_loop(int sock)
 		strcpy(req->line, "GET /static/favicon.ico");
 	}
 
-	/* These are the URL's which may be executed without a
+	/**
+	 * These are the URL's which may be executed without a
 	 * session cookie already set.  If it's not one of these,
 	 * force the session to close because cookies are
 	 * probably disabled on the client browser.
@@ -374,7 +393,7 @@ void context_loop(int sock)
 				"?force_close_session=yes HTTP/1.1");
 	}
 
-	/*
+	/**
 	 * See if there's an existing session open with the desired ID or user/pass
 	 */
 	TheSession = NULL;
@@ -383,14 +402,14 @@ void context_loop(int sock)
 		pthread_mutex_lock(&SessionListMutex);
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 
-			/* If HTTP-AUTH, look for a session with matching credentials */
+			/** If HTTP-AUTH, look for a session with matching credentials */
 			if ( (strlen(httpauth_user) > 0)
 			   &&(!strcasecmp(sptr->httpauth_user, httpauth_user))
 			   &&(!strcasecmp(sptr->httpauth_pass, httpauth_pass)) ) {
 				TheSession = sptr;
 			}
 
-			/* If cookie-session, look for a session with matching session ID */
+			/** If cookie-session, look for a session with matching session ID */
 			if ( (desired_session != 0) && (sptr->wc_session == desired_session)) {
 				TheSession = sptr;
 			}
@@ -399,7 +418,7 @@ void context_loop(int sock)
 		pthread_mutex_unlock(&SessionListMutex);
 	}
 
-	/*
+	/**
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
@@ -420,40 +439,42 @@ void context_loop(int sock)
 		session_is_new = 1;
 	}
 
-	/*
+	/**
 	 * A future improvement might be to check the session integrity
 	 * at this point before continuing.
 	 */
 
-	/*
+	/**
 	 * Bind to the session and perform the transaction
 	 */
-	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
+	pthread_mutex_lock(&TheSession->SessionMutex);		/*< bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
-	TheSession->lastreq = time(NULL);			/* log */
+	TheSession->lastreq = time(NULL);			/*< log */
 	TheSession->gzip_ok = gzip_ok;
 #ifdef ENABLE_NLS
 	if (session_is_new) {
 		httplang_to_locale(accept_language);
 	}
-	go_selected_language();				/* set locale */
+	go_selected_language();				/*< set locale */
 #endif
-	session_loop(req);				/* do transaction */
+	session_loop(req);				/*< do transaction */
 #ifdef ENABLE_NLS
-	stop_selected_language();			/* unset locale */
+	stop_selected_language();			/*< unset locale */
 #endif
-	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
+	pthread_mutex_unlock(&TheSession->SessionMutex);	/*< unbind */
 
-	/* Free the request buffer */
+	/** Free the request buffer */
 bail:	while (req != NULL) {
 		hptr = req->next;
 		free(req);
 		req = hptr;
 	}
 
-	/* Free up any session-local substitution variables which
+	/**
+	 * Free up any session-local substitution variables which
 	 * were set during this transaction
 	 */
 	clear_local_substs();
 }
+/*@}*/

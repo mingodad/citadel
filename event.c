@@ -1,18 +1,21 @@
 /*
  * $Id$
- *
- * Editing calendar events.
+ */
+/**
+ * \defgroup EditCal Editing calendar events.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
-/*
- * Display an event by itself (for editing)
+/**
+ * \brief Display an event by itself (for editing)
+ * \param supplied_vevent the event to edit
+ * \param msgnum reference on the citserver
  */
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent;
@@ -37,7 +40,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
-		/* If we're looking at a fully encapsulated VCALENDAR
+		/**
+		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VEVENT component, attempt to use the first
 		 * relevant VEVENT subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
@@ -58,13 +62,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		created_new_vevent = 1;
 	}
 
-	/* Learn the sequence */
+	/** Learn the sequence */
 	p = icalcomponent_get_first_property(vevent, ICAL_SEQUENCE_PROPERTY);
 	if (p != NULL) {
 		sequence = icalproperty_get_sequence(p);
 	}
 
-	/* Begin output */
+	/** Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
@@ -131,7 +135,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-	/* Put it in a borderless table so it lines up nicely */
+	/** Put it in a borderless table so it lines up nicely */
 	wprintf("<TABLE border=0 width=100%%>\n");
 
 	wprintf("<TR><TD><B>");
@@ -205,7 +209,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</TD></TR>\n");
 
-	/* If this is an all-day-event, set the end time to be identical to
+	/**
+	 * If this is an all-day-event, set the end time to be identical to
 	 * the start time (the hour/minute/second will be set to midnight).
 	 * Otherwise extract or create it.
 	 */
@@ -222,7 +227,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			t_end = icalproperty_get_dtend(p);
 		}
 		else {
-			/* If this is not an all-day event and there is no
+			/**
+			 * If this is not an all-day event and there is no
 			 * end time specified, make the default one hour
 			 * from the start time.
 			 */
@@ -259,7 +265,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		);
 	}
 
-	/* Determine who is the organizer of this event.
+	/**
+	 * Determine who is the organizer of this event.
 	 * We need to determine "me" or "not me."
 	 */
 	organizer = icalcomponent_get_first_property(vevent,
@@ -289,7 +296,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		wprintf("</I></FONT>\n");
 	}
 
-	/*
+	/**
 	 * Transmit the organizer as a hidden field.   We don't want the user
 	 * to be able to change it, but we do want it fed back to the server,
 	 * especially if this is a new event and there is no organizer already
@@ -301,14 +308,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</TD></TR>\n");
 
-	/* Transparency */
+	/** Transparency */
 	wprintf("<TR><TD><B>");
 	wprintf(_("Show time as:"));
 	wprintf("</B></TD><TD>");
 
 	p = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY);
 	if (p == NULL) {
-		/* No transparency found.  Default to opaque (busy). */
+		/** No transparency found.  Default to opaque (busy). */
 		p = icalproperty_new_transp(ICAL_TRANSP_OPAQUE);
 		if (p != NULL) {
 			icalcomponent_add_property(vevent, p);
@@ -336,7 +343,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</TD></TR>\n");
 
-	/* Attendees */
+	/** Attendees */
 	wprintf("<TR><TD><B>");
 	wprintf(_("Attendees"));
 	wprintf("</B><br />"
@@ -354,21 +361,21 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		strcpy(attendee_string, icalproperty_get_attendee(attendee));
 		if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
 
-			/* screen name or email address */
+			/** screen name or email address */
 			strcpy(attendee_string, &attendee_string[7]);
 			striplt(attendee_string);
 			if (i++) wprintf("\n");
 			escputs(attendee_string);
 			wprintf(" ");
 
-			/* participant status */
+			/** participant status */
 			partstat_as_string(buf, attendee);
 			escputs(buf);
 		}
 	}
 	wprintf("</TEXTAREA></TD></TR>\n");
 
-	/* Done with properties. */
+	/** Done with properties. */
 	wprintf("</TABLE>\n<CENTER>"
 		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
@@ -399,9 +406,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 }
 
-/*
- * Save an edited event
- * 
+/**
+ * \brief Save an edited event
+ * \param supplied_vevent the event to save
+ * \param msgnum the index on the citserver
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	char buf[SIZ];
@@ -421,7 +429,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
-		/* If we're looking at a fully encapsulated VCALENDAR
+		/**
+		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VEVENT component, attempt to use the first
 		 * relevant VEVENT subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
@@ -445,7 +454,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	if ( (strlen(bstr("save_button")) > 0)
 	   || (strlen(bstr("check_button")) > 0) ) {
 
-		/* Replace values in the component with ones from the form */
+		/** Replace values in the component with ones from the form */
 
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
@@ -491,7 +500,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			icaltime_from_webform(&event_start, "dtstart");
 		}
 
-		/* The following odd-looking snippet of code looks like it
+		/**
+		 * The following odd-looking snippet of code looks like it
 		 * takes some unnecessary steps.  It is done this way because
 		 * libical incorrectly turns an "all day event" into a normal
 		 * event starting at midnight (i.e. it serializes as date/time
@@ -527,7 +537,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			);
 		}
 
-		/* See if transparency is indicated */
+		/** See if transparency is indicated */
 		if (strlen(bstr("transp")) > 0) {
 			if (!strcasecmp(bstr("transp"), "opaque")) {
 				formtransp = ICAL_TRANSP_OPAQUE;
@@ -547,7 +557,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			lprintf(9, "...added it.\n");
 		}
 
-		/* Give this event a UID if it doesn't have one. */
+		/** Give this event a UID if it doesn't have one. */
 		lprintf(9, "Give this event a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vevent,
 		   ICAL_UID_PROPERTY) == NULL) {
@@ -557,7 +567,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			);
 		}
 
-		/* Increment the sequence ID */
+		/** Increment the sequence ID */
 		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
@@ -573,7 +583,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			icalproperty_new_sequence(sequence)
 		);
 		
-		/* Set the organizer, only if one does not already exist *and*
+		/**
+		 * Set the organizer, only if one does not already exist *and*
 		 * the form is supplying one
 		 */
 		lprintf(9, "Setting the organizer...\n");
@@ -582,7 +593,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		   ICAL_ORGANIZER_PROPERTY) == NULL) 
 		   && (strlen(buf) > 0) ) {
 
-			/* set new organizer */
+			/** set new organizer */
 			sprintf(organizer_string, "MAILTO:%s", buf);
 			icalcomponent_add_property(vevent,
                         	icalproperty_new_organizer(organizer_string)
@@ -590,7 +601,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 		}
 
-		/*
+		/**
 		 * Add any new attendees listed in the web form
 		 */
 		lprintf(9, "Add any new attendees\n");
@@ -599,7 +610,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		strcpy(form_attendees, bstr("attendees"));
 		stripout(form_attendees, '(', ')');
 
-		/* Now iterate! */
+		/** Now iterate! */
 		for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
 			extract_token(buf, form_attendees, i, '\n', sizeof buf);
 			striplt(buf);
@@ -623,7 +634,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			}
 		}
 
-		/*
+		/**
 		 * Remove any attendees *not* listed in the web form
 		 */
 STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
@@ -646,7 +657,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 			}
 		}
 
-		/*
+		/**
 		 * Encapsulate event into full VCALENDAR component.  Clone it first,
 		 * for two reasons: one, it's easier to just free the whole thing
 		 * when we're done instead of unbundling, but more importantly, we
@@ -673,13 +684,13 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 			icalcomponent_free(encaps);
 		}
 
-		/* Or, check attendee availability if the user asked for that. */
+		/** Or, check attendee availability if the user asked for that. */
 		if ( (encaps != NULL) && (strlen(bstr("check_button")) > 0) ) {
 
-			/* Call this function, which does the real work */
+			/** Call this function, which does the real work */
 			check_attendee_availability(encaps);
 
-			/* This displays the form again, with our annotations */
+			/** This displays the form again, with our annotations */
 			display_edit_individual_event(encaps, msgnum);
 
 			icalcomponent_free(encaps);
@@ -687,7 +698,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 
 	}
 
-	/*
+	/**
 	 * If the user clicked 'Delete' then delete it.
 	 */
 	lprintf(9, "Checking to see if we have to delete an old event\n");
@@ -700,7 +711,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		icalcomponent_free(vevent);
 	}
 
-	/* If this was a save or deelete, go back to the calendar view. */
+	/** If this was a save or deelete, go back to the calendar view. */
 	if (strlen(bstr("check_button")) == 0) {
 		readloop("readfwd");
 	}
@@ -708,3 +719,5 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 
 
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
+
+/*@}*/

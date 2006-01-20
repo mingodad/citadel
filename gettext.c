@@ -89,7 +89,7 @@ void httplang_to_locale(char *LocaleString)
 			for (j=0; j<blen; j++)
 				{
 					int chars=toupper(ls->region[j]);
-					ls->region[j]=(char)chars;/*todo ?! */
+					ls->region[j]=(char)chars;/* \todo ?! */
 				}
 			sprintf(&lbuf[0],"%s_%s",&ls->lang[0],&ls->region[0]);
 			
