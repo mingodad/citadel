@@ -1,5 +1,8 @@
 $Id$
 
+Thu Jan 19 23:18:01 EST 2006 ajc
+* Began adding the infrastructure to support wiki mode rooms.
+
 Thu Jan 19 00:00:16 EST 2006 ajc
 * Fixed a small memory leak
 
