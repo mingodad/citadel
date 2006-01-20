@@ -1042,6 +1042,12 @@ int main(int argc, char **argv)
 	CtdlIPC* ipc;			/* Our server connection */
 	int r;				/* IPC result code */
 
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+
+
 
 	
 	setIPCDeathHook(screen_delete);
