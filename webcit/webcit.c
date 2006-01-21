@@ -1328,7 +1328,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "msgheaders")) {
 		display_headers(arg1);
 	} else if (!strcasecmp(action, "wiki")) {
-		display_wiki_page(arg1, arg2);
+		display_wiki_page();
 	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {

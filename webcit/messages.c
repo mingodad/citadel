@@ -1861,7 +1861,7 @@ void readloop(char *oper)
 	int bbs_reverse = 0;
 
 	if (WC->wc_view == VIEW_WIKI) {
-		sprintf(buf, "wiki/%s/home", WC->wc_roomname);
+		sprintf(buf, "wiki?room=%s?page=home", WC->wc_roomname);
 		http_redirect(buf);
 		return;
 	}

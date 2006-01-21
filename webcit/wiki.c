@@ -38,16 +38,28 @@ void str_wiki_index(char *s)
 
 /**
  * \brief Display a specific page from a wiki room
- *
- * \param roomname The name of the room containing the wiki
- * \param pagename The index of the page being requested
  */
-void display_wiki_page(char *roomname, char *pagename)
+void display_wiki_page(void)
 {
-	output_headers(1, 1, 1, 0, 0, 0);
+	char roomname[128];
+	char pagename[128];
+
+	safestrncpy(roomname, bstr("room"), sizeof roomname);
+	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	str_wiki_index(pagename);
 
 	wprintf("roomname=%s<br>pagename=%s<br>\n", roomname, pagename);
 
+	if (strcasecmp(roomname, WC->roomname)) {
+		gotoroom(roomname);
+	}
+
+	if (strcasecmp(roomname, WC->roomname)) {
+		/* can't find the room */
+		convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
+	}
+
+	output_headers(1, 1, 1, 0, 0, 0);
 	wDumpContent(1);
 }
 
