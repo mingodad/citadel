@@ -1,5 +1,8 @@
 $Id$
 
+Sat Jan 21 16:22:51 EST 2006 ajc
+* Patch to the "m<Y> next message" function, submitted by matt
+
 Thu Jan 19 21:30:20 EST 2006 ajc
 * Added VIEW_WIKI to the available view types.  EUID indexing is "on" for
   this view.  Everything else will be done in WebCit.

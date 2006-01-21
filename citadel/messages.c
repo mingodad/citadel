@@ -1839,7 +1839,7 @@ RMSGREAD:	scr_flush();
             /* find the next message by me, stay here if we find nothing */
             int finda;
             int lasta = a;
-            for (finda = a; ((finda < num_msgs) && (finda >= 0)); finda += rdir)
+            for (finda = (a + rdir); ((finda < num_msgs) && (finda >= 0)); finda += rdir)
               {
 		/* This is repetitively dumb, but that's what computers are for.
 		   We have to load up messages until we find one by us */
