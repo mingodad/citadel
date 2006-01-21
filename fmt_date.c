@@ -1,28 +1,35 @@
 /*
  * $Id$
- *
- * Miscellaneous routines 
  */
-
+/**
+ * \defgroup FormatDates Miscellaneous routines formating dates
+ */
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
-typedef unsigned char byte;
+typedef unsigned char byte; /**< a byte. */
 
-#define FALSE 0
-#define TRUE 1
+#define FALSE 0 /**< no. */
+#define TRUE 1 /**< yes. */
 
+/** \todo translate */
+/** short months */
 char *ascmonths[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+/** Short weekdays */
 char *ascdays[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
 
-/*
- * Format a date/time stamp for output 
+/**
+ * \brief Format a date/time stamp for output 
+ * \param buf the output buffer
+ * \param thetime time to convert to string 
+ * \param brief do we want compact view?????
  */
 void fmt_date(char *buf, time_t thetime, int brief)
 {
@@ -48,7 +55,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 
 	if (brief) {
 
-		/* If date == today, show only the time */
+		/** If date == today, show only the time */
 		if ((tm.tm_year == today_tm.tm_year)
 		  &&(tm.tm_mon == today_tm.tm_mon)
 		  &&(tm.tm_mday == today_tm.tm_mday)) {
@@ -65,7 +72,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 			}
 		}
 
-		/* Otherwise, for messages up to 6 months old, show the
+		/** Otherwise, for messages up to 6 months old, show the
 		 * month and day, and the time */
 		else if (today_timet - thetime < 15552000) {
 			if (!strcasecmp(calhourformat, "24")) {
@@ -85,7 +92,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 			}
 		}
 
-		/* older than 6 months, show only the date */
+		/** older than 6 months, show only the date */
 		else {
 			sprintf(buf, "%s %d %d",
 				ascmonths[tm.tm_mon],
@@ -116,8 +123,10 @@ void fmt_date(char *buf, time_t thetime, int brief)
 
 
 
-/*
- * Format TIME ONLY for output 
+/**
+ * \brief Format TIME ONLY for output 
+ * \param buf the output buffer
+ * \param thetime time to format into buf
  */
 void fmt_time(char *buf, time_t thetime)
 {
@@ -150,8 +159,10 @@ void fmt_time(char *buf, time_t thetime)
 
 
 
-/*
- * Format a date/time stamp to the format used in HTTP headers
+/**
+ * \brief Format a date/time stamp to the format used in HTTP headers
+ * \param buf give back result here.
+ * \param thetime time to translate
  */
 void httpdate(char *buf, time_t thetime)
 {
@@ -168,11 +179,13 @@ void httpdate(char *buf, time_t thetime)
 }
 
 
-/*
- * Break down the timestamp used in HTTP headers
+/**
+ * \brief Break down the timestamp used in HTTP headers
  * Should read rfc1123 and rfc850 dates OK
- * FIXME won't read asctime
+ * \todo FIXME won't read asctime
  * Doesn't understand timezone, but we only should be using GMT/UTC anyway
+ * \param buf time to parse
+ * \return the time found in buf
  */
 time_t httpdate_to_timestamp(const char *buf)
 {
@@ -181,7 +194,7 @@ time_t httpdate_to_timestamp(const char *buf)
 	char *c;
 	char tz[256];
 
-	/* Skip day of week, to number */
+	/** Skip day of week, to number */
 	for (c = buf; *c != ' '; c++)
 		;
 	c++;
@@ -191,62 +204,62 @@ time_t httpdate_to_timestamp(const char *buf)
 	for (; *c != ' ' && *c != '-'; c++);
 	c++;
 
-	/* Get month */
+	/** Get month */
 	switch (*c) {
-	case 'A':	/* April, August */
+	case 'A':	/** April, August */
 		tt.tm_mon = (c[1] == 'p') ? 3 : 7;
 		break;
-	case 'D':	/* December */
+	case 'D':	/** December */
 		tt.tm_mon = 11;
 		break;
-	case 'F':	/* February */
+	case 'F':	/** February */
 		tt.tm_mon = 1;
 		break;
-	case 'M':	/* March, May */
+	case 'M':	/** March, May */
 		tt.tm_mon = (c[2] == 'r') ? 2 : 4;
 		break;
-	case 'J':	/* January, June, July */
+	case 'J':	/** January, June, July */
 		tt.tm_mon = (c[2] == 'n') ? ((c[1] == 'a') ? 0 : 5) : 6;
 		break;
-	case 'N':	/* November */
+	case 'N':	/** November */
 		tt.tm_mon = 10;
 		break;
-	case 'O':	/* October */
+	case 'O':	/** October */
 		tt.tm_mon = 9;
 		break;
-	case 'S':	/* September */
+	case 'S':	/** September */
 		tt.tm_mon = 8;
 		break;
 	default:
 		return 42;
-		break;	/* NOTREACHED */
+		break;	/** NOTREACHED */
 	}
 	c += 4;
 
 	tt.tm_year = 0;
-	/* Get year */
+	/** Get year */
 	tt.tm_year = atoi(c);
 	for (; *c != ' '; c++);
 	c++;
 	if (tt.tm_year >= 1900)
 		tt.tm_year -= 1900;
 
-	/* Get hour */
+	/** Get hour */
 	tt.tm_hour = atoi(c);
 	for (; *c != ':'; c++);
 	c++;
 
-	/* Get minute */
+	/** Get minute */
 	tt.tm_min = atoi(c);
 	for (; *c != ':'; c++);
 	c++;
 
-	/* Get second */
+	/** Get second */
 	tt.tm_sec = atoi(c);
 	for (; *c && *c != ' '; c++);
 
-	/* Got everything; let's go */
-	/* First, change to UTC */
+	/** Got everything; let's go */
+	/** First, change to UTC */
 	if (getenv("TZ"))
 		sprintf(tz, "TZ=%s", getenv("TZ"));
 	else
@@ -258,3 +271,6 @@ time_t httpdate_to_timestamp(const char *buf)
 	tzset();
 	return t;
 }
+
+
+/*@}*/

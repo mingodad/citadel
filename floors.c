@@ -13,7 +13,7 @@
 
 
 
-/*
+/**
  * \brief Display floor config
  * Display floor configuration.  If prepend_html is not NULL, its contents
  * will be displayed at the top of the screen.
@@ -114,7 +114,9 @@ void display_floorconfig(char *prepend_html)
 }
 
 
-
+/**
+ * \brief delete the actual floor
+ */
 void delete_floor(void) {
 	int floornum;
 	char buf[SIZ];
@@ -135,7 +137,9 @@ void delete_floor(void) {
 	display_floorconfig(message);
 }
 
-
+/**
+ * \brief tart creating a new floor
+ */
 void create_floor(void) {
 	char buf[SIZ];
 	char message[SIZ];
@@ -155,7 +159,9 @@ void create_floor(void) {
 	display_floorconfig(message);
 }
 
-
+/**
+ * \brief rename this floor
+ */
 void rename_floor(void) {
 	int floornum;
 	char buf[SIZ];
@@ -174,3 +180,4 @@ void rename_floor(void) {
 }
 
 
+/*@}*/

@@ -1,7 +1,8 @@
 /*
  * $Id$
- *
- * Handles GroupDAV PROPFIND requests.
+ */
+/**
+ * \defgroup GroupdavPropfind Handles GroupDAV PROPFIND requests.
  *
  * A few notes about our XML output:
  *
@@ -20,13 +21,15 @@
 #include "groupdav.h"
 
 
-/*
+/**
+ * \brief get all messages of this user
  * Given an encoded UID, translate that to an unencoded Citadel EUID and
  * then search for it in the current room.  Return a message number or -1
  * if not found.
  *
  * NOTE: this function relies on the Citadel server's brute-force search.
  * There's got to be a way to optimize this better.
+ * \param uid the user to get the data for...
  */
 long locate_message_by_uid(char *uid) {
 	char buf[SIZ];
@@ -45,8 +48,8 @@ long locate_message_by_uid(char *uid) {
 }
 
 
-/*
- * List folders containing interesting groupware objects
+/**
+ * \brief List folders containing interesting groupware objects
  */
 void groupdav_folder_list(void) {
 	char buf[SIZ];
@@ -58,7 +61,7 @@ void groupdav_folder_list(void) {
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
-	/*
+	/**
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
@@ -81,7 +84,7 @@ void groupdav_folder_list(void) {
 		extract_token(roomname, buf, 0, '|', sizeof roomname);
 		view = extract_int(buf, 6);
 
-		/*
+		/**
 		 * For now, only list rooms that we know a GroupDAV client
 		 * might be interested in.  In the future we may add
 		 * the rest.
@@ -135,8 +138,9 @@ void groupdav_folder_list(void) {
 
 
 
-/*
- * The pathname is always going to be /groupdav/room_name/msg_num
+/**
+ * \brief Search though a davname
+ * \param dav_pathname The pathname is always going to be /groupdav/room_name/msg_num
  */
 void groupdav_propfind(char *dav_pathname) {
 	char dav_roomname[256];
@@ -164,7 +168,7 @@ void groupdav_propfind(char *dav_pathname) {
 	lprintf(9, "     dav_uid: %s\n", dav_uid);
 	*/
 
-	/*
+	/**
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
@@ -190,7 +194,8 @@ void groupdav_propfind(char *dav_pathname) {
 		return;
 	}
 
-	/* If dav_uid is non-empty, client is requesting a PROPFIND on
+	/**
+	 * If dav_uid is non-empty, client is requesting a PROPFIND on
 	 * a specific item in the room.  This is not valid GroupDAV, but
 	 * we try to honor it anyway because some clients are expecting
 	 * it to work...
@@ -211,7 +216,8 @@ void groupdav_propfind(char *dav_pathname) {
 			return;
 		}
 
-	 	/* Be rude.  Completely ignore the XML request and simply send them
+	 	/**
+		 * Be rude.  Completely ignore the XML request and simply send them
 		 * everything we know about (which is going to simply be the ETag and
 		 * nothing else).  Let the client-side parser sort it out.
 		 */
@@ -252,7 +258,7 @@ void groupdav_propfind(char *dav_pathname) {
 	}
 
 
-	/*
+	/**
 	 * We got to this point, which means that the client is requesting
 	 * a 'collection' (i.e. a list of all items in the room).
 	 *
@@ -318,3 +324,5 @@ void groupdav_propfind(char *dav_pathname) {
 		free(msgs);
 	}
 }
+
+/*@}*/

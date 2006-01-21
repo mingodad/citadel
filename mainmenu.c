@@ -1,14 +1,15 @@
 /*
  * $Id$
- *
- * Displays the "advanced" (main) menu.
+ */
+/**
+ * \defgroup DispAdvancedMenu Displays the "advanced" (main) menu.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 
-/*
- * The Main Menu
+/**
+ * \brief The Main Menu
  */
 void display_main_menu(void)
 {
@@ -24,7 +25,7 @@ void display_main_menu(void)
 	wprintf("\n"
 		"<TABLE border=0 cellspacing=1 cellpadding=1 width=100%%>"
 		"<TR>"
-		"<TD>");	/* start of first column */
+		"<TD>");	/**< start of first column */
 
 	wprintf("<a href=\"knrooms\"><span class=\"mainmenu\">");
 	wprintf(_("List known rooms"));
@@ -186,8 +187,8 @@ void display_main_menu(void)
 }
 
 
-/*
- * System administration menu
+/**
+ * \brief System administration menu
  */
 void display_aide_menu(void)
 {
@@ -259,8 +260,8 @@ void display_aide_menu(void)
 
 
 
-/*
- * Display the screen to enter a generic server command
+/**
+ * \brief Display the screen to enter a generic server command
  */
 void display_generic(void)
 {
@@ -302,6 +303,9 @@ void display_generic(void)
 	wDumpContent(1);
 }
 
+/**
+ * \brief what???
+ */
 void do_generic(void)
 {
 	char buf[SIZ];
@@ -363,9 +367,9 @@ void do_generic(void)
 }
 
 
-/*
- * Display the menubar.  Set as_single_page to
- * display HTML headers and footers -- otherwise it's assumed
+/**
+ * \brief Display the menubar.  
+ * \param as_single_page Set to display HTML headers and footers -- otherwise it's assumed
  * that the menubar is being embedded in another page.
  */
 void display_menubar(int as_single_page) {
@@ -392,3 +396,4 @@ void display_menubar(int as_single_page) {
 }
 
 
+/*@}*/

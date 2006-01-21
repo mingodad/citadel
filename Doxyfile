@@ -480,7 +480,7 @@ RECURSIVE              = NO
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = webcit.h and messages.c and vcard.h and userlist.c
+EXCLUDE                = webcit.h and vcard.h and userlist.c
 #!!!!!!!! for now
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
@@ -1007,7 +1007,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             =  WEBCIT_WITH_CALENDAR_SERVICE HAVE_OPENSSL
+PREDEFINED             =  WEBCIT_WITH_CALENDAR_SERVICE HAVE_OPENSSL ENABLE_NLS HAVE_ICONV
 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 

@@ -1,18 +1,22 @@
 /*
  * $Id$
- *
- * Displays and customizes the iconbar.
  */
-
+/**
+ * \defgroup IconBar Displays and customizes the iconbar.
+ */
+/*@{*/
 #include "webcit.h"
 
 
-/* Values for ib_displayas */
-#define IB_PICTEXT	0
-#define IB_PICONLY	1
-#define IB_TEXTONLY	2
+/** Values for ib_displayas */
+#define IB_PICTEXT	0 /**< picture and text */
+#define IB_PICONLY	1 /**< just a picture */
+#define IB_TEXTONLY	2 /**< just text */
 
 
+/**
+ * \brief draw the icon bar?????
+ */
 void do_selected_iconbar(void) {
 	if (WC->current_iconbar == current_iconbar_roomlist) {
 		do_iconbar_roomlist();
@@ -22,7 +26,9 @@ void do_selected_iconbar(void) {
 	}
 }
 
-
+/**
+ * \brief draw the icon bar???
+ */
 void do_iconbar(void) {
 	char iconbar[SIZ];
 	char buf[SIZ];
@@ -31,24 +37,25 @@ void do_iconbar(void) {
 
 	WC->current_iconbar = current_iconbar_menu;
 
-	/* The initialized values of these variables also happen to
+	/**
+	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
-	int ib_displayas = 0;	/* pictures and text, pictures, text */
-	int ib_logo = 0;	/* Site logo */
-	int ib_summary = 1;	/* Summary page icon */
-	int ib_inbox = 1;	/* Inbox icon */
-	int ib_calendar = 1;	/* Calendar icon */
-	int ib_contacts = 1;	/* Contacts icon */
-	int ib_notes = 1;	/* Notes icon */
-	int ib_tasks = 1;	/* Tasks icon */
-	int ib_rooms = 1;	/* Rooms icon */
-	int ib_users = 1;	/* Users icon */
-	int ib_chat = 1;	/* Chat icon */
-	int ib_advanced = 1;	/* Advanced Options icon */
-	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
+	int ib_displayas = 0;	/**< pictures and text, pictures, text */
+	int ib_logo = 0;	/**< Site logo */
+	int ib_summary = 1;	/**< Summary page icon */
+	int ib_inbox = 1;	/**< Inbox icon */
+	int ib_calendar = 1;	/**< Calendar icon */
+	int ib_contacts = 1;	/**< Contacts icon */
+	int ib_notes = 1;	/**< Notes icon */
+	int ib_tasks = 1;	/**< Tasks icon */
+	int ib_rooms = 1;	/**< Rooms icon */
+	int ib_users = 1;	/**< Users icon */
+	int ib_chat = 1;	/**< Chat icon */
+	int ib_advanced = 1;	/**< Advanced Options icon */
+	int ib_citadel = 1;	/**< 'Powered by Citadel' logo */
 	/*
 	 */
 
@@ -323,7 +330,8 @@ void do_iconbar(void) {
 }
 
 
-/*
+/**
+ * \brief roomtree view of the iconbar
  * If the user has toggled the icon bar over to a room list, here's where
  * we generate its innerHTML...
  */
@@ -335,7 +343,8 @@ void do_iconbar_roomlist(void) {
 
 	WC->current_iconbar = current_iconbar_roomlist;
 
-	/* The initialized values of these variables also happen to
+	/**
+	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
@@ -404,14 +413,16 @@ void do_iconbar_roomlist(void) {
 
 	wprintf("</ul></div>\n");
 
-	/* embed the room list */
+	/** embed the room list */
 	list_all_rooms_by_floor("iconbar");
 
 	wprintf("</div>\n");
 }
 
 
-
+/**
+ * \brief display a customized version of the iconbar
+ */
 void display_customize_iconbar(void) {
 	char iconbar[SIZ];
 	char buf[SIZ];
@@ -419,24 +430,25 @@ void display_customize_iconbar(void) {
 	int i;
 	int bar = 0;
 
-	/* The initialized values of these variables also happen to
+	/**
+	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
-	int ib_displayas = IB_PICTEXT;	/* pictures and text, pictures, text */
-	int ib_logo = 0;	/* Site logo */
-	int ib_summary = 1;	/* Summary page icon */
-	int ib_inbox = 1;	/* Inbox icon */
-	int ib_calendar = 1;	/* Calendar icon */
-	int ib_contacts = 1;	/* Contacts icon */
-	int ib_notes = 1;	/* Notes icon */
-	int ib_tasks = 1;	/* Tasks icon */
-	int ib_rooms = 1;	/* Rooms icon */
-	int ib_users = 1;	/* Users icon */
-	int ib_chat = 1;	/* Chat icon */
-	int ib_advanced = 1;	/* Advanced Options icon */
-	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
+	int ib_displayas = IB_PICTEXT;	/**< pictures and text, pictures, text */
+	int ib_logo = 0;	/**< Site logo */
+	int ib_summary = 1;	/**< Summary page icon */
+	int ib_inbox = 1;	/**< Inbox icon */
+	int ib_calendar = 1;	/**< Calendar icon */
+	int ib_contacts = 1;	/**< Contacts icon */
+	int ib_notes = 1;	/**< Notes icon */
+	int ib_tasks = 1;	/**< Tasks icon */
+	int ib_rooms = 1;	/**< Rooms icon */
+	int ib_users = 1;	/**< Users icon */
+	int ib_chat = 1;	/**< Chat icon */
+	int ib_advanced = 1;	/**< Advanced Options icon */
+	int ib_citadel = 1;	/**< 'Powered by Citadel' logo */
 	/*
 	 */
 
@@ -703,7 +715,9 @@ void display_customize_iconbar(void) {
 	wDumpContent(2);
 }
 
-
+/**
+ * \brief commit the changes of an edited iconbar ????
+ */
 void commit_iconbar(void) {
 	char iconbar[SIZ];
 	int i;
@@ -754,3 +768,6 @@ void commit_iconbar(void) {
 	wDumpContent(2);
 }
 
+
+
+/*@}*/

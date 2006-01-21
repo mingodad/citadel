@@ -1,14 +1,17 @@
 /* 
  * $Id$
- *
- * Functions which handle Internet domain configuration etc.
+ */
+/**
+ * \defgroup InetCfg Functions which handle Internet domain configuration etc.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 
 
-
+/**
+ * \brief display the inet config dialog 
+ */
 void display_inetconf(void)
 {
 	char buf[SIZ];
@@ -140,6 +143,9 @@ void display_inetconf(void)
 }
 
 
+/**
+ * \brief save changes to the inet config
+ */
 void save_inetconf(void) {
 	char *buf;
 	char *ename;
@@ -158,7 +164,7 @@ void save_inetconf(void) {
 		extract_token(ename, buf, 0, '|', SIZ);
 		extract_token(etype, buf, 1, '|', SIZ);
 		if (strlen(buf) == 0) {
-			/* skip blank lines */
+			/** skip blank lines */
 		}
 		else if ((!strcasecmp(ename, bstr("ename")))
 		   &&   (!strcasecmp(etype, bstr("etype")))
@@ -190,3 +196,7 @@ void save_inetconf(void) {
 	free(etype);
 	free(newconfig);
 }
+
+
+
+/*@}*/

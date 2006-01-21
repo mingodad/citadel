@@ -1,18 +1,24 @@
 /*
  * $Id$
- *
- * This is the MIME parser for Citadel.
+ */
+/**
+ * \defgroup MIME This is the MIME parser for Citadel.
  *
  * Copyright (c) 1998-2005 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 #include "mime_parser.h"
 
-
+/**
+ * \brief get mime key
+ * \param target where to put the mime buffer at???
+ * \param source where to extract the mimetype from
+ * \param key what???
+ */
 void extract_key(char *target, char *source, char *key)
 {
 	int a, b;
@@ -34,9 +40,11 @@ void extract_key(char *target, char *source, char *key)
 }
 
 
-/*
- * For non-multipart messages, we need to generate a quickie partnum of "1"
+/**
+ * \brief For non-multipart messages, we need to generate a quickie partnum of "1"
  * to return to callback functions.  Some callbacks demand it.
+ * \param supplied_partnum partnum to convert
+ * \return the converted num
  */
 char *fixed_partnum(char *supplied_partnum) {
 	if (supplied_partnum == NULL) return "1";
@@ -46,8 +54,11 @@ char *fixed_partnum(char *supplied_partnum) {
 
 
 
-/*
- * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
+/**
+ * \brief Convert "quoted-printable" to binary.  Returns number of bytes decoded.
+ * \param decoded the buffer with the decoded output
+ * \param encoded the encoded string to decode
+ * \param sourcelen length of the decoded buffer
  */
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	char buf[SIZ];
@@ -110,9 +121,24 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	return(decoded_length);
 }
 
-/*
+/**
+ * \brief fully decode a message
  * Given a message or message-part body and a length, handle any necessary
  * decoding and pass the request up the stack.
+ * \param partnum todo ?????
+ * \param part_start todo
+ * \param length todo
+ * \param content_type todo
+ * \param charset todo
+ * \param encoding todo
+ * \param disposition todo
+ * \param name todo
+ * \param filename todo
+ * \param CallBack todo
+ * \param PreMultiPartCallBack todo
+ * \param PostMultiPartCallBack todo
+ * \param userdata todo
+ * \param dont_decode todo
  */
 void mime_decode(char *partnum,
 		 char *part_start, size_t length,
@@ -182,7 +208,7 @@ void mime_decode(char *partnum,
 	    && (strcasecmp(encoding, "quoted-printable"))) {
 		return;
 	}
-	/*
+	/**
 	 * Allocate a buffer for the decoded data.  The output buffer is the
 	 * same size as the input buffer; this assumes that the decoded data
 	 * will never be larger than the encoded data.  This is a safe
@@ -210,11 +236,19 @@ void mime_decode(char *partnum,
 	free(decoded);
 }
 
-/*
- * Break out the components of a multipart message
+/**
+ * \brief Break out the components of a multipart message
  * (This function expects to be fed HEADERS + CONTENT)
  * Note: NULL can be supplied as content_end; in this case, the message is
  * considered to have ended when the parser encounters a 0x00 byte.
+ * \param partnum todo
+ * \param content_start todo ?????
+ * \param content_end todo
+ * \param CallBack todo
+ * \param PreMultiPartCallBack
+ * \param PostMultiPartCallBack
+ * \param userdata todo
+ * \param dont_decode todo
  */
 void the_mime_parser(char *partnum,
 		     char *content_start, char *content_end,
@@ -317,12 +351,12 @@ void the_mime_parser(char *partnum,
 	disposition = malloc(SIZ);
 	memset(disposition, 0, SIZ);
 
-	/* If the caller didn't supply an endpointer, generate one by measure */
+	/** If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
 		content_end = &content_start[strlen(content_start)];
 	}
 
-	/* Learn interesting things from the headers */
+	/** Learn interesting things from the headers */
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, SIZ);
@@ -341,7 +375,7 @@ void the_mime_parser(char *partnum,
 				strcpy(content_type, &header[14]);
 				extract_key(content_type_name, content_type, "name");
 				extract_key(charset, content_type, "charset");
-				/* Deal with weird headers */
+				/** Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
 				if (strchr(content_type, ';'))
@@ -379,18 +413,18 @@ void the_mime_parser(char *partnum,
 		is_multipart = 0;
 	}
 
-	/* If this is a multipart message, then recursively process it */
+	/** If this is a multipart message, then recursively process it */
 	part_start = NULL;
 	if (is_multipart) {
 
-		/* Tell the client about this message's multipartedness */
+		/** Tell the client about this message's multipartedness */
 		if (PreMultiPartCallBack != NULL) {
 			PreMultiPartCallBack("", "", partnum, "",
 				NULL, content_type, charset,
 				0, encoding, userdata);
 		}
 
-		/* Figure out where the boundaries are */
+		/** Figure out where the boundaries are */
 		snprintf(startary, SIZ, "--%s", boundary);
 		snprintf(endary, SIZ, "--%s--", boundary);
 		startary_len = strlen(startary);
@@ -430,20 +464,21 @@ void the_mime_parser(char *partnum,
 			}
 
 			if (next_boundary != NULL) {
-				/* If we pass out of scope, don't attempt to
+				/**
+				 * If we pass out of scope, don't attempt to
 				 * read past the end boundary. */
 				if (!strcmp(next_boundary, endary)) {
 					ptr = content_end;
 				}
 				else {
-					/* Set up for the next part. */
+					/** Set up for the next part. */
 					part_start = strstr(next_boundary, "\n");
 					++part_start;
 					ptr = part_start;
 				}
 			}
 			else {
-				/* Invalid end of multipart.  Bail out! */
+				/** Invalid end of multipart.  Bail out! */
 				ptr = content_end;
 			}
 		} while ( (ptr < content_end) && (next_boundary != NULL) );
@@ -455,7 +490,7 @@ void the_mime_parser(char *partnum,
 		goto end_parser;
 	}
 
-	/* If it's not a multipart message, then do something with it */
+	/** If it's not a multipart message, then do something with it */
 	if (!is_multipart) {
 		part_start = ptr;
 		length = 0;
@@ -464,16 +499,17 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
-		/* fix an off-by-one error */
+		/** fix an off-by-one error */
 		--part_end;
 		--length;
 		
-		/* Truncate if the header told us to */
+		/** Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
 		}
 
-		/* Sometimes the "name" field is tacked on to Content-type,
+		/**
+		 * Sometimes the "name" field is tacked on to Content-type,
 		 * and sometimes it's tacked on to Content-disposition.  Use
 		 * whichever one we have.
 		 */
@@ -489,7 +525,8 @@ void the_mime_parser(char *partnum,
 			partnum, length, content_type, charset, encoding);
 		*/
 
-		/* Ok, we've got a non-multipart part here, so do something with it.
+		/**
+		 * Ok, we've got a non-multipart part here, so do something with it.
 		 */
 		mime_decode(partnum,
 			part_start, length,
@@ -499,7 +536,7 @@ void the_mime_parser(char *partnum,
 			userdata, dont_decode
 		);
 
-		/*
+		/**
 		 * Now if it's an encapsulated message/rfc822 then we have to recurse into it
 		 */
 		if (!strcasecmp(content_type, "message/rfc822")) {
@@ -540,7 +577,7 @@ void the_mime_parser(char *partnum,
 
 	}
 
-end_parser:	/* free the buffers!  end the oppression!! */
+end_parser:	/** free the buffers!  end the oppression!! */
 	free(boundary);
 	free(startary);
 	free(endary);	
@@ -556,11 +593,18 @@ end_parser:	/* free the buffers!  end the oppression!! */
 
 
 
-/*
- * Entry point for the MIME parser.
+/**
+ * \brief Entry point for the MIME parser.
  * (This function expects to be fed HEADERS + CONTENT)
  * Note: NULL can be supplied as content_end; in this case, the message is
  * considered to have ended when the parser encounters a 0x00 byte.
+ * \param content_start todo ?????????
+ * \param content_end todo 
+ * \param CallBack todo
+ * \param PreMultiPartCallBack todo
+ * \param PostMultiPartCallBack todo
+ * \param userdata todo
+ * \param dont_decode todo
  */
 void mime_parser(char *content_start,
 		char *content_end,
@@ -612,3 +656,7 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
+
+
+
+/*@}*/
