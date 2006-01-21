@@ -1,19 +1,21 @@
 /*
  * $Id$
- *
- * Output an HTML message, modifying it slightly to make sure it plays nice
+ */
+/**
+ * \defgroup HTML2HTML Output an HTML message, modifying it slightly to make sure it plays nice
  * with the rest of our web framework.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
 
 
-/*
- * Sanitize and enhance an HTML message for display.
+/**
+ * \brief Sanitize and enhance an HTML message for display.
  * Also convert weird character sets to UTF-8 if necessary.
+ * \param charset the input charset
  */
 void output_html(char *charset) {
 	char buf[SIZ];
@@ -33,11 +35,11 @@ void output_html(char *charset) {
 	int linklen;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /* Buffer of characters to be converted */
-	char *obuf;                   /* Buffer for converted characters      */
-	size_t ibuflen;               /* Length of input buffer               */
-	size_t obuflen;               /* Length of output buffer              */
-	char *osav;                   /* Saved pointer to output buffer       */
+	char *ibuf;                   /**< Buffer of characters to be converted */
+	char *obuf;                   /**< Buffer for converted characters      */
+	size_t ibuflen;               /**< Length of input buffer               */
+	size_t obuflen;               /**< Length of output buffer              */
+	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
 
 	msg = strdup("");
@@ -93,13 +95,14 @@ void output_html(char *charset) {
 
 	while (ptr < msgend) {
 
-		/* Advance to next tag */
+		/** Advance to next tag */
 		ptr = strchr(ptr, '<');
 		if ((ptr == NULL) || (ptr >= msgend)) break;
 		++ptr;
 		if ((ptr == NULL) || (ptr >= msgend)) break;
 
-		/* Any of these tags cause everything up to and including
+		/**
+		 * Any of these tags cause everything up to and including
 		 * the tag to be removed.
 		 */	
 		if ( (!strncasecmp(ptr, "HTML", 4))
@@ -113,7 +116,8 @@ void output_html(char *charset) {
 			msgstart = ptr;
 		}
 
-		/* Any of these tags cause everything including and following
+		/**
+		 * Any of these tags cause everything including and following
 		 * the tag to be removed.
 		 */
 		if ( (!strncasecmp(ptr, "/HTML", 5))
@@ -131,7 +135,8 @@ void output_html(char *charset) {
 	strcpy(converted_msg, "");
 	ptr = msgstart;
 	while (ptr < msgend) {
-		/* Change mailto: links to WebCit mail, by replacing the
+		/**
+		 * Change mailto: links to WebCit mail, by replacing the
 		 * link with one that points back to our mail room.  Due to
 		 * the way we parse URL's, it'll even handle mailto: links
 		 * that have "?subject=" in them.
@@ -146,7 +151,7 @@ void output_html(char *charset) {
 			ptr = &ptr[16];
 			++alevel;
 		}
-		/* Make links open in a separate window */
+		/** Make links open in a separate window */
 		else if (!strncasecmp(ptr, "<a href=", 8)) {
 			content_length += 64;
 			converted_msg = realloc(converted_msg, content_length);
@@ -155,13 +160,14 @@ void output_html(char *charset) {
 			ptr = &ptr[8];
 			++alevel;
 		}
-		/* Turn anything that looks like a URL into a real link, as long
+		/**
+		 * Turn anything that looks like a URL into a real link, as long
 		 * as it's not inside a tag already
 		 */
 		else if ( (brak == 0) && (alevel == 0)
 		     && (!strncasecmp(ptr, "http://", 7))) {
 				linklen = 0;
-				/* Find the end of the link */
+				/** Find the end of the link */
 				for (i=0; i<=strlen(ptr); ++i) {
 					if ((ptr[i]==0)
 					   ||(isspace(ptr[i]))
@@ -198,7 +204,7 @@ void output_html(char *charset) {
 				}
 		}
 		else {
-			/*
+			/**
 			 * We need to know when we're inside a tag,
 			 * so we don't turn things that look like URL's into
 			 * links, when they're already links - or image sources.
@@ -211,14 +217,15 @@ void output_html(char *charset) {
 		}
 	}
 
-	/* Output our big pile of markup */
+	/** Output our big pile of markup */
 	client_write(converted_msg, output_length);
 
-	/* A little trailing vertical whitespace... */
+	/** A little trailing vertical whitespace... */
 	wprintf("<br /><br />\n");
 
-	/* Now give back the memory */
+	/** Now give back the memory */
 	free(converted_msg);
 	free(msg);
 }
 
+/*@}*/

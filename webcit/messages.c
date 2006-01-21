@@ -1,32 +1,37 @@
 /*
  * $Id$
- *
- * Functions which deal with the fetching and displaying of messages.
+ */
+/**
+ * \defgroup MsgDisp Functions which deal with the fetching and displaying of messages.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "vcard.h"
 #include "webserver.h"
 #include "groupdav.h"
 
-#define SUBJ_COL_WIDTH_PCT		50
-#define SENDER_COL_WIDTH_PCT		30
-#define DATE_PLUS_BUTTONS_WIDTH_PCT	20
+#define SUBJ_COL_WIDTH_PCT		    50 /**< ??? */
+#define SENDER_COL_WIDTH_PCT		30 /**< ??? */
+#define DATE_PLUS_BUTTONS_WIDTH_PCT	20 /**< ??? */
 
-/* Address book entry (keep it short and sweet, it's just a quickie lookup
+/**
+ * Address book entry (keep it short and sweet, it's just a quickie lookup
  * which we can use to get to the real meat and bones later)
  */
 struct addrbookent {
-	char ab_name[64];
-	long ab_msgnum;
+	char ab_name[64]; /**< name string */
+	long ab_msgnum;   /**< number in the citadel???? */
 };
 
 
 
 #ifdef HAVE_ICONV
-/* Handle subjects with RFC2047 encoding, such as:
+/**
+ * \brief  Handle subjects with RFC2047 encoding
+ *  such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
+ * \param buf the stringbuffer to process
  */
 void utf8ify_rfc822_string(char *buf) {
 	char *start, *end;
@@ -35,12 +40,12 @@ void utf8ify_rfc822_string(char *buf) {
 	char encoding[16];
 	char istr[1024];
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   /* Buffer of characters to be converted */
-	char *obuf;		   /* Buffer for converted characters      */
-	size_t ibuflen;	       /* Length of input buffer	       */
-	size_t obuflen;	       /* Length of output buffer	      */
-	char *isav;		   /* Saved pointer to input buffer	*/
-	char *osav;		   /* Saved pointer to output buffer       */
+	char *ibuf;		   /**< Buffer of characters to be converted */
+	char *obuf;		   /**< Buffer for converted characters      */
+	size_t ibuflen;	   /**< Length of input buffer	       */
+	size_t obuflen;	   /**< Length of output buffer	      */
+	char *isav;		   /**< Saved pointer to input buffer	*/
+	char *osav;		   /**< Saved pointer to output buffer       */
 	int passes = 0;
 
 	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
@@ -56,14 +61,14 @@ void utf8ify_rfc822_string(char *buf) {
 
 		ibuf = malloc(1024);
 		isav = ibuf;
-		if (!strcasecmp(encoding, "B")) {	/* base64 */
+		if (!strcasecmp(encoding, "B")) {	/**< base64 */
 			ibuflen = CtdlDecodeBase64(ibuf, istr, strlen(istr));
 		}
-		else if (!strcasecmp(encoding, "Q")) {	/* quoted-printable */
+		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
 			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, strlen(istr));
 		}
 		else {
-			strcpy(ibuf, istr);		/* huh? */
+			strcpy(ibuf, istr);		/**< huh? */
 			ibuflen = strlen(istr);
 		}
 
@@ -106,7 +111,8 @@ void utf8ify_rfc822_string(char *buf) {
 
 		free(isav);
 
-		/* Since spammers will go to all sorts of absurd lengths to get their
+		/**
+		 * Since spammers will go to all sorts of absurd lengths to get their
 		 * messages through, there are LOTS of corrupt headers out there.
 		 * So, prevent a really badly formed RFC2047 header from throwing
 		 * this function into an infinite loop.
@@ -119,9 +125,10 @@ void utf8ify_rfc822_string(char *buf) {
 #endif
 
 
-/*
- * Look for URL's embedded in a buffer and make them linkable.  We use a
+/**
+ * \brief Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
+ * \param buf the message buffer
  */
 void url(buf)
 char buf[];
@@ -173,8 +180,9 @@ char buf[];
 }
 
 
-/*
- * Turn a vCard "n" (name) field into something displayable.
+/**
+ * \brief Turn a vCard "n" (name) field into something displayable.
+ * \param name the name field to convert
  */
 void vcard_n_prettyize(char *name)
 {
@@ -208,10 +216,14 @@ void vcard_n_prettyize(char *name)
 
 
 
-/* display_vcard() calls this after parsing the textual vCard into
+/**
+ * \brief preparse a vcard name
+ * display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
  * This gets called instead of display_parsed_vcard() if we are only looking
  * to extract the person's name instead of displaying the card.
+ * \param v the vcard to retrieve the name from
+ * \param storename where to put the name at
  */
 void fetchname_parsed_vcard(struct vCard *v, char *storename) {
 	char *name;
@@ -228,7 +240,9 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
 
 
 
-/* display_vcard() calls this after parsing the textual vCard into
+/**
+ * \brief html print a vcard
+ * display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
  *
  * Set 'full' to nonzero to display the full card, otherwise it will only
@@ -239,6 +253,8 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
  * fields we understand, and then render them in a pretty fashion at the
  * end.  Then we make a second pass, outputting all the fields we don't
  * understand in a simple two-column name/value format.
+ * \param v the vCard to display
+ * \param full display all items of the vcard?
  */
 void display_parsed_vcard(struct vCard *v, int full) {
 	int i, j;
@@ -317,9 +333,9 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				thisvalue = strdup(v->prop[i].value);
 			}
 	
-			/*** Various fields we may encounter ***/
+			/** Various fields we may encounter ***/
 	
-			/* N is name, but only if there's no FN already there */
+			/** N is name, but only if there's no FN already there */
 			if (!strcasecmp(firsttoken, "n")) {
 				if (strlen(fullname) == 0) {
 					strcpy(fullname, thisvalue);
@@ -327,17 +343,17 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				}
 			}
 	
-			/* FN (full name) is a true 'display name' field */
+			/** FN (full name) is a true 'display name' field */
 			else if (!strcasecmp(firsttoken, "fn")) {
 				strcpy(fullname, thisvalue);
 			}
 
-			/* title */
+			/** title */
 			else if (!strcasecmp(firsttoken, "title")) {
 				strcpy(title, thisvalue);
 			}
 	
-			/* organization */
+			/** organization */
 			else if (!strcasecmp(firsttoken, "org")) {
 				strcpy(org, thisvalue);
 			}
@@ -457,12 +473,16 @@ void display_parsed_vcard(struct vCard *v, int full) {
 
 
 
-/*
- * Display a textual vCard
+/**
+ * \brief  Display a textual vCard
  * (Converts to a vCard object and then calls the actual display function)
  * Set 'full' to nonzero to display the whole card instead of a one-liner.
  * Or, if "storename" is non-NULL, just store the person's name in that
  * buffer instead of displaying the card at all.
+ * \param vcard_source the buffer containing the vcard text
+ * \param alpha what???
+ * \param full should we usse all lines?
+ * \param storename where to store???
  */
 void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 	struct vCard *v;
@@ -493,8 +513,11 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 }
 
 
-/*
- * I wanna SEE that message!  (Optional 'section' for encapsulated message/rfc822 submessage)
+/**
+ * \brief I wanna SEE that message!  
+ * \param msgnum the citadel number of the message to display
+ * \param printable_view are we doing a print view?
+ * \param section Optional for encapsulated message/rfc822 submessage)
  */
 void read_message(long msgnum, int printable_view, char *section) {
 	char buf[SIZ];
@@ -523,11 +546,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char *part_source = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   /* Buffer of characters to be converted */
-	char *obuf;		   /* Buffer for converted characters      */
-	size_t ibuflen;	       /* Length of input buffer	       */
-	size_t obuflen;	       /* Length of output buffer	      */
-	char *osav;		   /* Saved pointer to output buffer       */
+	char *ibuf;		   /**< Buffer of characters to be converted */
+	char *obuf;		   /**< Buffer for converted characters      */
+	size_t ibuflen;	   /**< Length of input buffer	       */
+	size_t obuflen;	   /**< Length of output buffer	      */
+	char *osav;		   /**< Saved pointer to output buffer       */
 #endif
 
 	strcpy(from, "");
@@ -551,14 +574,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 		return;
 	}
 
-	/* begin everythingamundo table */
+	/** begin everythingamundo table */
 	if (!printable_view) {
 		wprintf("<div class=\"fix_scrollbar_bug\">\n");
 		wprintf("<table width=100%% border=1 cellspacing=0 "
 			"cellpadding=0><TR><TD>\n");
 	}
 
-	/* begin message header table */
+	/** begin message header table */
 	wprintf("<table width=100%% border=0 cellspacing=0 "
 		"cellpadding=1 bgcolor=\"#CCCCCC\"><tr><td>\n");
 
@@ -681,7 +704,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				);
 			}
 
-			/*** begin handler prep ***/
+			/** begin handler prep ***/
 			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
@@ -690,13 +713,13 @@ void read_message(long msgnum, int printable_view, char *section) {
 				strcpy(cal_partnum, mime_partnum);
 			}
 
-			/*** end handler prep ***/
+			/** end handler prep ***/
 
 		}
 
 	}
 
-	/* Generate a reply-to address */
+	/** Generate a reply-to address */
 	if (strlen(rfca) > 0) {
 		strcpy(reply_to, rfca);
 	}
@@ -739,11 +762,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 	wprintf("</td>\n");
 
-	/* start msg buttons */
+	/** start msg buttons */
 	if (!printable_view) {
 		wprintf("<td align=right><span class=\"msgbuttons\">\n");
 
-		/* Reply */
+		/** Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			wprintf("<a href=\"display_enter");
 			if (WC->is_mailbox) {
@@ -759,7 +782,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\">[%s]</a> ", _("Reply"));
 		}
 
-		/* ReplyQuoted */
+		/** ReplyQuoted */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			if (!WC->is_mailbox) {
 				wprintf("<a href=\"display_enter");
@@ -775,7 +798,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 		}
 
-		/* ReplyAll */
+		/** ReplyAll */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter");
 			wprintf("?replyquote=%ld", msgnum);
@@ -791,7 +814,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\">[%s]</a> ", _("ReplyAll"));
 		}
 
-		/* Forward */
+		/** Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
@@ -799,25 +822,25 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\">[%s]</a> ", _("Forward"));
 		}
 
-		/* If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
+		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
 		if ( (WC->is_room_aide) || (WC->is_mailbox) ) {
-			/* Move */
+			/** Move */
 			wprintf("<a href=\"confirm_move_msg?msgid=%ld\">[%s]</a> ",
 				msgnum, _("Move"));
 	
-			/* Delete */
+			/** Delete */
 			wprintf("<a href=\"delete_msg?msgid=%ld\" "
 				"onClick=\"return confirm('%s');\">"
 				"[%s]</a> ", msgnum, _("Delete this message?"), _("Delete")
 			);
 		}
 
-		/* Headers */
+		/** Headers */
 		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Headers"));
 
 
-		/* Print */
+		/** Print */
 		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"[%s]</a>", msgnum, msgnum, _("Print"));
 
@@ -826,11 +849,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	wprintf("</tr></table>\n");
 
-	/* Begin body */
+	/** Begin body */
 	wprintf("<table border=0 width=100%% bgcolor=\"#FFFFFF\" "
 		"cellpadding=1 cellspacing=0><tr><td>");
 
-	/* 
+	/**
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
@@ -858,7 +881,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 	}
 
-	/* Set up a character set conversion if we need to (and if we can) */
+	/** Set up a character set conversion if we need to (and if we can) */
 #ifdef HAVE_ICONV
 	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
 	if ( (strcasecmp(mime_charset, "us-ascii"))
@@ -873,12 +896,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 #endif
 
-	/* Messages in legacy Citadel variformat get handled thusly... */
+	/** Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
 		fmout("JUSTIFY");
 	}
 
-	/* Boring old 80-column fixed format text gets handled this way... */
+	/** Boring old 80-column fixed format text gets handled this way... */
 	else if ( (!strcasecmp(mime_content_type, "text/plain"))
 		|| (!strcasecmp(mime_content_type, "text")) ) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -918,23 +941,23 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("</i><br />");
 	}
 
-	else /* HTML is fun, but we've got to strip it first */
+	else /** HTML is fun, but we've got to strip it first */
 	if (!strcasecmp(mime_content_type, "text/html")) {
 		output_html(mime_charset);
 	}
 
-	/* Unknown weirdness */
+	/** Unknown weirdness */
 	else {
 		wprintf(_("I don't know how to display %s"), mime_content_type);
 		wprintf("<br />\n", mime_content_type);
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
-	/* If there are attached submessages, display them now... */
+	/** If there are attached submessages, display them now... */
 	if ( (strlen(mime_submessages) > 0) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
-			/* use printable_view to suppress buttons */
+			/** use printable_view to suppress buttons */
 			wprintf("<blockquote>");
 			read_message(msgnum, 1, buf);
 			wprintf("</blockquote>");
@@ -942,17 +965,17 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 
-	/* Afterwards, offer links to download attachments 'n' such */
+	/** Afterwards, offer links to download attachments 'n' such */
 	if ( (strlen(mime_http) > 0) && (!section[0]) ) {
 		wprintf("%s", mime_http);
 	}
 
-	/* Handler for vCard parts */
+	/** Handler for vCard parts */
 	if (strlen(vcard_partnum) > 0) {
 		part_source = load_mimepart(msgnum, vcard_partnum);
 		if (part_source != NULL) {
 
-			/* If it's my vCard I can edit it */
+			/** If it's my vCard I can edit it */
 			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
@@ -963,12 +986,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 				wprintf("[%s]</a>", _("edit"));
 			}
 
-			/* In all cases, display the full card */
+			/** In all cases, display the full card */
 			display_vcard(part_source, 0, 1, NULL);
 		}
 	}
 
-	/* Handler for calendar parts */
+	/** Handler for calendar parts */
 	if (strlen(cal_partnum) > 0) {
 		part_source = load_mimepart(msgnum, cal_partnum);
 		if (part_source != NULL) {
@@ -985,7 +1008,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 ENDBODY:
 	wprintf("</td></tr></table>\n");
 
-	/* end everythingamundo table */
+	/** end everythingamundo table */
 	if (!printable_view) {
 		wprintf("</td></tr></table>\n");
 		wprintf("</div><br />\n");
@@ -1000,9 +1023,10 @@ ENDBODY:
 
 
 
-/*
- * Unadorned HTML output of an individual message, suitable
+/**
+ * \brief Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
+ * \param msgnum_as_string the message to embed???
  */
 void embed_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1014,8 +1038,9 @@ void embed_message(char *msgnum_as_string) {
 }
 
 
-/*
- * Printable view of a message
+/**
+ * \brief Printable view of a message
+ * \param msgnum_as_string the message to print??? 
  */
 void print_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1042,8 +1067,9 @@ void print_message(char *msgnum_as_string) {
 
 
 
-/*
- * Display a message's headers
+/**
+ * \brief Display a message's headers
+ * \param msgnum_as_string the message headers to print???
  */
 void display_headers(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1071,13 +1097,15 @@ void display_headers(char *msgnum_as_string) {
 
 
 
-/*
- * Read message in simple, JavaScript-embeddable form for 'forward'
+/**
+ * \brief Read message in simple, JavaScript-embeddable form for 'forward'
  * or 'reply quoted' operations.
  *
  * NOTE: it is VITALLY IMPORTANT that we output no single-quotes or linebreaks
  *       in this function.  Doing so would throw a JavaScript error in the
  *       'supplied text' argument to the editor.
+ * \param msgnum the citadel message number
+ * \param forward_attachments atachment to forward???
  */
 void pullquote_message(long msgnum, int forward_attachments) {
 	char buf[SIZ];
@@ -1103,11 +1131,11 @@ void pullquote_message(long msgnum, int forward_attachments) {
 	int i = 0;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   /* Buffer of characters to be converted */
-	char *obuf;		   /* Buffer for converted characters      */
-	size_t ibuflen;	       /* Length of input buffer	       */
-	size_t obuflen;	       /* Length of output buffer	      */
-	char *osav;		   /* Saved pointer to output buffer       */
+	char *ibuf;		   /**< Buffer of characters to be converted */
+	char *obuf;		   /**< Buffer for converted characters      */
+	size_t ibuflen;	   /**< Length of input buffer	       */
+	size_t obuflen;	   /**< Length of output buffer	      */
+	char *osav;		   /**< Saved pointer to output buffer       */
 #endif
 
 	strcpy(from, "");
@@ -1186,7 +1214,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 			wprintf("%s ", now);
 		}
 
-		/*
+		/**
 		 * Save attachment info for later.  We can't start downloading them
 		 * yet because we're in the middle of a server transaction.
 		 */
@@ -1211,12 +1239,12 @@ void pullquote_message(long msgnum, int forward_attachments) {
 		wprintf("<br />");
 	}
 
-	/*
+	/**
 	 * Begin body
 	 */
 	wprintf("<br>");
 
-	/* 
+	/**
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
@@ -1242,7 +1270,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 		}
 	}
 
-	/* Set up a character set conversion if we need to (and if we can) */
+	/** Set up a character set conversion if we need to (and if we can) */
 #ifdef HAVE_ICONV
 	if ( (strcasecmp(mime_charset, "us-ascii"))
 	   && (strcasecmp(mime_charset, "UTF-8"))
@@ -1256,7 +1284,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 	}
 #endif
 
-	/* Messages in legacy Citadel variformat get handled thusly... */
+	/** Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
 		pullquote_fmout();
 	}
@@ -1300,20 +1328,20 @@ void pullquote_message(long msgnum, int forward_attachments) {
 		wprintf("</i><br />");
 	}
 
-	/* HTML just gets escaped and stuffed back into the editor */
+	/** HTML just gets escaped and stuffed back into the editor */
 	else if (!strcasecmp(mime_content_type, "text/html")) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			msgescputs(buf);
 		}
 	}
 
-	/* Unknown weirdness ... don't know how to handle this content type */
+	/** Unknown weirdness ... don't know how to handle this content type */
 	else {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
 ENDBODY:
-	/* end of body handler */
+	/** end of body handler */
 
 	/*
 	 * If there were attachments, we have to download them and insert them
@@ -1372,7 +1400,10 @@ ENDBODY:
 #endif
 }
 
-
+/**
+ * \brief display sumarized item???
+ * \param num hom many? which???
+ */
 void display_summarized(int num) {
 	char datebuf[64];
 
@@ -1401,8 +1432,11 @@ void display_summarized(int num) {
 
 
 
-
-
+/**
+ * \brief display the adressbook overview
+ * \param msgnum the citadel message number
+ * \param alpha what????
+ */
 void display_addressbook(long msgnum, char alpha) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
@@ -1441,10 +1475,10 @@ void display_addressbook(long msgnum, char alpha) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
-			/* Display the summary line */
+			/** Display the summary line */
 			display_vcard(vcard_source, alpha, 0, NULL);
 
-			/* If it's my vCard I can edit it */
+			/** If it's my vCard I can edit it */
 			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
@@ -1463,8 +1497,9 @@ void display_addressbook(long msgnum, char alpha) {
 
 
 
-/* If it's an old "Firstname Lastname" style record, try to
- * convert it.
+/**
+ * \brief  If it's an old "Firstname Lastname" style record, try to convert it.
+ * \param namebuf name to analyze, reverse if nescessary
  */
 void lastfirst_firstlast(char *namebuf) {
 	char firstname[SIZ];
@@ -1483,7 +1518,11 @@ void lastfirst_firstlast(char *namebuf) {
 	sprintf(namebuf, "%s; %s", lastname, firstname);
 }
 
-
+/**
+ * \brief fetch what??? name
+ * \param msgnum the citadel message number
+ * \param namebuf where to put the name in???
+ */
 void fetch_ab_name(long msgnum, char *namebuf) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
@@ -1502,7 +1541,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	memset(&summ, 0, sizeof(summ));
 	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
-	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	sprintf(buf, "MSG0 %ld|1", msgnum);	/** ask for headers only */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
@@ -1543,8 +1582,10 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 
 
 
-/*
- * Record compare function for sorting address book indices
+/**
+ * \brief Record compare function for sorting address book indices
+ * \param ab1 adressbook one
+ * \param ab2 adressbook two
  */
 int abcmp(const void *ab1, const void *ab2) {
 	return(strcasecmp(
@@ -1554,9 +1595,11 @@ int abcmp(const void *ab1, const void *ab2) {
 }
 
 
-/*
- * Helper function for do_addrbook_view()
+/**
+ * \brief Helper function for do_addrbook_view()
  * Converts a name into a three-letter tab label
+ * \param tabbuf the tabbuffer to add name to
+ * \param name the name to add to the tabbuffer
  */
 void nametab(char *tabbuf, char *name) {
 	stresc(tabbuf, name, 0, 0);
@@ -1567,8 +1610,10 @@ void nametab(char *tabbuf, char *name) {
 }
 
 
-/*
- * Render the address book using info we gathered during the scan
+/**
+ * \brief Render the address book using info we gathered during the scan
+ * \param addrbook the addressbook to render
+ * \param num_ab the number of the addressbook
  */
 void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	int i = 0;
@@ -1657,8 +1702,10 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 
 
-/* 
- * load message pointers from the server
+/**
+ * \brief load message pointers from the server
+ * \param servcmd the citadel command to send to the citserver
+ * \param with_headers what headers???
  */
 int load_msg_ptrs(char *servcmd, int with_headers)
 {
@@ -1721,7 +1768,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 					sizeof WC->summ[nummsgs-1].subj);
 				}
 #ifdef HAVE_ICONV
-				/* Handle subjects with RFC2047 encoding */
+				/** Handle subjects with RFC2047 encoding */
 				utf8ify_rfc822_string(WC->summ[nummsgs-1].subj);
 #endif
 				if (strlen(WC->summ[nummsgs-1].subj) > 75) {
@@ -1741,7 +1788,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				WC->summ[nummsgs-1].date = datestamp;
 	
 #ifdef HAVE_ICONV
-				/* Handle senders with RFC2047 encoding */
+				/** Handle senders with RFC2047 encoding */
 				utf8ify_rfc822_string(WC->summ[nummsgs-1].from);
 #endif
 				if (strlen(WC->summ[nummsgs-1].from) > 25) {
@@ -1753,6 +1800,11 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	return (nummsgs);
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int longcmp_r(const void *s1, const void *s2) {
 	long l1;
 	long l2;
@@ -1766,6 +1818,11 @@ int longcmp_r(const void *s1, const void *s2) {
 }
 
  
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_subj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1775,6 +1832,11 @@ int summcmp_subj(const void *s1, const void *s2) {
 	return strcasecmp(summ1->subj, summ2->subj);
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_rsubj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1784,6 +1846,11 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 	return strcasecmp(summ2->subj, summ1->subj);
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_sender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1793,6 +1860,11 @@ int summcmp_sender(const void *s1, const void *s2) {
 	return strcasecmp(summ1->from, summ2->from);
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_rsender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1802,6 +1874,11 @@ int summcmp_rsender(const void *s1, const void *s2) {
 	return strcasecmp(summ2->from, summ1->from);
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_date(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1814,6 +1891,11 @@ int summcmp_date(const void *s1, const void *s2) {
 	else return 0;
 }
 
+/**
+ * \brief compare what????
+ * \param s1 first thing to compare 
+ * \param s2 second thing to compare
+ */
 int summcmp_rdate(const void *s1, const void *s2) {
 	struct message_summary *summ1;
 	struct message_summary *summ2;
@@ -1826,8 +1908,9 @@ int summcmp_rdate(const void *s1, const void *s2) {
 	else return 0;
 }
 
-/*
- * command loop for reading messages
+/**
+ * \brief command loop for reading messages
+ * \param oper what???
  */
 void readloop(char *oper)
 {
@@ -1880,10 +1963,10 @@ void readloop(char *oper)
 	}
 	if (strlen(sortby) == 0) sortby = sortpref_value;
 
-	/* mailbox sort */
+	/** mailbox sort */
 	if (strlen(sortby) == 0) sortby = "rdate";
 
-	/* message board sort */
+	/** message board sort */
 	if (!strcasecmp(sortby, "reverse")) {
 		bbs_reverse = 1;
 	}
@@ -1893,7 +1976,8 @@ void readloop(char *oper)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	/* When in summary mode, always show ALL messages instead of just
+	/**
+	 * When in summary mode, always show ALL messages instead of just
 	 * new or old.  Otherwise, show what the user asked for.
 	 */
 	if (!strcmp(oper, "readnew")) {
@@ -1918,12 +2002,13 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		strcpy(cmd, "MSGS ALL|||1");	/* fetch header summary */
+		strcpy(cmd, "MSGS ALL|||1");	/**< fetch header summary */
 		startmsg = 1;
 		maxmsgs = 9999999;
 	}
 
-	/* Are we doing a summary view?  If so, we need to know old messages
+	/**
+	 * Are we doing a summary view?  If so, we need to know old messages
 	 * and new messages, so we can do that pretty boldface thing for the
 	 * new messages.
 	 */
@@ -1938,17 +2023,17 @@ void readloop(char *oper)
 
 	is_singlecard = atoi(bstr("is_singlecard"));
 
-	if (WC->wc_view == VIEW_CALENDAR) {		/* calendar */
+	if (WC->wc_view == VIEW_CALENDAR) {		/**< calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == VIEW_TASKS) {		/* tasks */
+	if (WC->wc_view == VIEW_TASKS) {		/**< tasks */
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == VIEW_NOTES) {		/* notes */
+	if (WC->wc_view == VIEW_NOTES) {		/**< notes */
 		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
@@ -1974,7 +2059,7 @@ void readloop(char *oper)
 
 	if (is_summary) {
 		for (a = 0; a < nummsgs; ++a) {
-			/* Are you a new message, or an old message? */
+			/** Are you a new message, or an old message? */
 			if (is_summary) {
 				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
 					WC->summ[a].is_new = 0;
@@ -2053,7 +2138,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</div>\n");		/* end of 'content' div */
+		wprintf("</div>\n");		/** end of 'content' div */
 
 		wprintf("<script language=\"javascript\" type=\"text/javascript\">"
 			" document.onkeydown = CtdlMsgListKeyPress;	"
@@ -2063,7 +2148,7 @@ void readloop(char *oper)
 			"</script>\n"
 		);
 
-		/* note that Date and Delete are now in the same column */
+		/** note that Date and Delete are now in the same column */
 		wprintf("<div id=\"message_list_hdr\">"
 			"<div class=\"fix_scrollbar_bug\">"
 			"<table cellspacing=0 style=\"width:100%%\">"
@@ -2101,7 +2186,7 @@ void readloop(char *oper)
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
-			/* Display the message */
+			/** Display the message */
 			if (is_summary) {
 				display_summarized(a);
 			}
@@ -2138,7 +2223,8 @@ void readloop(char *oper)
 		}
 	}
 
-	/* Set the "is_bbview" variable if it appears that we are looking at
+	/**
+	 * Set the "is_bbview" variable if it appears that we are looking at
 	 * a classic bulletin board view.
 	 */
 	if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
@@ -2146,19 +2232,19 @@ void readloop(char *oper)
 		is_bbview = 1;
 	}
 
-	/* Output loop */
+	/** Output loop */
 	if (displayed_msgs != NULL) {
 		if (bbs_reverse) {
 			qsort(displayed_msgs, num_displayed, sizeof(long), longcmp_r);
 		}
 
-		/* if we do a split bbview in the future, begin messages div here */
+		/** if we do a split bbview in the future, begin messages div here */
 
 		for (a=0; a<num_displayed; ++a) {
 			read_message(displayed_msgs[a], 0, "");
 		}
 
-		/* if we do a split bbview in the future, end messages div here */
+		/** if we do a split bbview in the future, end messages div here */
 
 		free(displayed_msgs);
 		displayed_msgs = NULL;
@@ -2166,10 +2252,10 @@ void readloop(char *oper)
 
 	if (is_summary) {
 		wprintf("</table>"
-			"</div>\n");			/* end of 'fix_scrollbar_bug' div */
-		wprintf("</div>");			/* end of 'message_list' div */
+			"</div>\n");			/**< end of 'fix_scrollbar_bug' div */
+		wprintf("</div>");			/**< end of 'message_list' div */
 
-		/* Here's the grab-it-to-resize-the-message-list widget */
+		/** Here's the grab-it-to-resize-the-message-list widget */
 		wprintf("<div id=\"resize_msglist\" "
 			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
 			"<div class=\"fix_scrollbar_bug\">"
@@ -2179,21 +2265,22 @@ void readloop(char *oper)
 			"</div></div>\n"
 		);
 
-		wprintf("<div id=\"preview_pane\">");	/* The preview pane will initially be empty */
+		wprintf("<div id=\"preview_pane\">");	/**< The preview pane will initially be empty */
 	}
 
-	/* Bump these because although we're thinking in zero base, the user
+	/**
+	 * Bump these because although we're thinking in zero base, the user
 	 * is a drooling idiot and is thinking in one base.
 	 */
 	++lowest_displayed;
 	++highest_displayed;
 
-	/*
+	/**
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
 	if (is_bbview) {
-		/* begin bbview scroller */
+		/** begin bbview scroller */
 		wprintf("<form name=\"msgomatic\">");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
@@ -2250,7 +2337,7 @@ void readloop(char *oper)
 		wprintf("</select> ");
 		wprintf(_("of %d messages."), nummsgs);
 
-		/* forward/reverse */
+		/** forward/reverse */
 		wprintf("&nbsp;<select name=\"direction\" size=\"1\" "
 			"OnChange=\"location.href=msgomatic.direction.options"
 			"[selectedIndex].value\">\n"
@@ -2267,27 +2354,27 @@ void readloop(char *oper)
 		);
 	
 		wprintf("</select></form>\n");
-		/* end bbview scroller */
+		/** end bbview scroller */
 	}
 
 DONE:
 	if (is_tasks) {
-		do_tasks_view();	/* Render the task list */
+		do_tasks_view();	/** Render the task list */
 	}
 
 	if (is_calendar) {
-		do_calendar_view();	/* Render the calendar */
+		do_calendar_view();	/** Render the calendar */
 	}
 
 	if (is_addressbook) {
-		do_addrbook_view(addrbook, num_ab);	/* Render the address book */
+		do_addrbook_view(addrbook, num_ab);	/** Render the address book */
 	}
 
-	/* Note: wDumpContent() will output one additional </div> tag. */
+	/** Note: wDumpContent() will output one additional </div> tag. */
 	wDumpContent(1);
 	if (addrbook != NULL) free(addrbook);
 
-	/* free the summary */
+	/** free the summary */
 	if (WC->summ != NULL) {
 		free(WC->summ);
 		WC->num_summ = 0;
@@ -2296,9 +2383,9 @@ DONE:
 }
 
 
-/*
- * Back end for post_message() ... this is where the actual message
- * gets transmitted to the server.
+/**
+ * \brief Back end for post_message()
+ * ... this is where the actual message gets transmitted to the server.
  */
 void post_mime_to_server(void) {
 	char boundary[SIZ];
@@ -2308,10 +2395,10 @@ void post_mime_to_server(void) {
 	char *encoded;
 	size_t encoded_length;
 
-	/* RFC2045 requires this, and some clients look for it... */
+	/** RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
 
-	/* If there are attachments, we have to do multipart/mixed */
+	/** If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
 		is_multipart = 1;
 	}
@@ -2323,7 +2410,7 @@ void post_mime_to_server(void) {
 			++seq
 		);
 
-		/* Remember, serv_printf() appends an extra newline */
+		/** Remember, serv_printf() appends an extra newline */
 		serv_printf("Content-type: multipart/mixed; "
 			"boundary=\"%s\"\n", boundary);
 		serv_printf("This is a multipart message in MIME format.\n");
@@ -2332,14 +2419,14 @@ void post_mime_to_server(void) {
 
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("");
-	serv_puts("<html><body>\n");		/* Future templates go here */
+	serv_puts("<html><body>\n");		/** Future templates go here */
 	text_to_server(bstr("msgtext"), 0);
 	serv_puts("</body></html>\n");
 	
 
 	if (is_multipart) {
 
-		/* Add in the attachments */
+		/** Add in the attachments */
 		for (att = WC->first_attachment; att!=NULL; att=att->next) {
 
 			encoded_length = ((att->length * 150) / 100);
@@ -2365,8 +2452,8 @@ void post_mime_to_server(void) {
 }
 
 
-/*
- * Post message (or don't post message)
+/**
+ * \brief Post message (or don't post message)
  *
  * Note regarding the "dont_post" variable:
  * A random value (actually, it's just a timestamp) is inserted as a hidden
@@ -2389,7 +2476,7 @@ void post_message(void)
 
 	if (WC->upload_length > 0) {
 
-		/* There's an attachment.  Save it to this struct... */
+		/** There's an attachment.  Save it to this struct... */
 		att = malloc(sizeof(struct wc_attachment));
 		memset(att, 0, sizeof(struct wc_attachment));
 		att->length = WC->upload_length;
@@ -2397,7 +2484,7 @@ void post_message(void)
 		strcpy(att->filename, WC->upload_filename);
 		att->next = NULL;
 
-		/* And add it to the list. */
+		/** And add it to the list. */
 		if (WC->first_attachment == NULL) {
 			WC->first_attachment = att;
 		}
@@ -2407,7 +2494,8 @@ void post_message(void)
 			aptr->next = att;
 		}
 
-		/* Mozilla sends a simple filename, which is what we want,
+		/**
+		 * Mozilla sends a simple filename, which is what we want,
 		 * but Satan's Browser sends an entire pathname.  Reduce
 		 * the path to just a filename if we need to.
 		 */
@@ -2418,7 +2506,8 @@ void post_message(void)
 			remove_token(att->filename, 0, '\\');
 		}
 
-		/* Transfer control of this memory from the upload struct
+		/**
+		 * Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
 		att->data = WC->upload;
@@ -2474,8 +2563,8 @@ void post_message(void)
 
 
 
-/*
- * display the message entry screen
+/**
+ * \brief display the message entry screen
  */
 void display_enter(void)
 {
@@ -2496,7 +2585,8 @@ void display_enter(void)
 		is_anonymous = 1;
 	}
 
-	/* Are we perhaps in an address book view?  If so, then an "enter
+	/**
+	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
 	if (WC->wc_view == VIEW_ADDRESSBOOK) {
@@ -2505,7 +2595,8 @@ void display_enter(void)
 	}
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	/* Are we perhaps in a calendar view?  If so, then an "enter
+	/**
+	 * Are we perhaps in a calendar view?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
 	if (WC->wc_view == VIEW_CALENDAR) {
@@ -2513,7 +2604,8 @@ void display_enter(void)
 		return;
 	}
 
-	/* Are we perhaps in a tasks view?  If so, then an "enter
+	/**
+	 * Are we perhaps in a tasks view?  If so, then an "enter
 	 * message" command really means "add new task."
 	 */
 	if (WC->wc_view == VIEW_TASKS) {
@@ -2522,7 +2614,7 @@ void display_enter(void)
 	}
 #endif
 
-	/*
+	/**
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
 	 */
@@ -2534,35 +2626,35 @@ void display_enter(void)
 		"<div class=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
 
-	/* First test to see whether this is a room that requires recipients to be entered */
+	/** First test to see whether this is a room that requires recipients to be entered */
 	serv_puts("ENT0 0");
 	serv_getln(buf, sizeof buf);
-	if (!strncmp(buf, "570", 3)) {		/* 570 means that we need a recipient here */
+	if (!strncmp(buf, "570", 3)) {		/** 570 means that we need a recipient here */
 		recipient_required = 1;
 	}
-	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
+	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
 		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
 	}
 
-	/* Now check our actual recipients if there are any */
+	/** Now check our actual recipients if there are any */
 	if (recipient_required) {
 		sprintf(buf, "ENT0 0|%s|%d|0||||%s|%s", bstr("recp"), is_anonymous, bstr("cc"), bstr("bcc"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 
-		if (!strncmp(buf, "570", 3)) {	/* 570 means we have an invalid recipient listed */
+		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
 			if (strlen(bstr("recp")) + strlen(bstr("cc")) + strlen(bstr("bcc")) > 0) {
 				recipient_bad = 1;
 			}
 		}
-		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
+		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
 			wprintf("<EM>%s</EM><br />\n", &buf[4]);
 			goto DONE;
 		}
 	}
 
-	/* If we got this far, we can display the message entry screen. */
+	/** If we got this far, we can display the message entry screen. */
 
 	now = time(NULL);
 	fmt_date(buf, now, 0);
@@ -2579,7 +2671,7 @@ void display_enter(void)
 	strcat(&buf[strlen(buf)], _(" <I>in</I> "));
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
-	/* begin message entry screen */
+	/** begin message entry screen */
 	wprintf("<form enctype=\"multipart/form-data\" "
 		"method=\"POST\" action=\"post\" "
 		"name=\"enterform\""
@@ -2587,7 +2679,7 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-	wprintf("%s\n", buf);	/* header bar */
+	wprintf("%s\n", buf);	/** header bar */
 	if (WC->room_flags & QR_ANONOPT) {
 		wprintf("&nbsp;"
 			"<input type=\"checkbox\" name=\"is_anonymous\" value=\"yes\" %s>",
@@ -2595,7 +2687,7 @@ void display_enter(void)
 		);
 		wprintf("Anonymous");
 	}
-	wprintf("<br>\n");	/* header bar */
+	wprintf("<br>\n");	/** header bar */
 
 	wprintf("<table border=\"0\" width=\"100%%\">\n");
 	if (recipient_required) {
@@ -2633,7 +2725,7 @@ void display_enter(void)
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
 		wprintf("</td><td></td></tr>\n");
 
-		/* Initialize the autocomplete ajax helpers (found in wclib.js) */
+		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
 		wprintf("<script type=\"text/javascript\">	\n"
 			" activate_entmsg_autocompleters();	\n"
 			"</script>				\n"
@@ -2663,7 +2755,7 @@ void display_enter(void)
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
-	/* If we're continuing from a previous edit, put our partially-composed message back... */
+	/** If we're continuing from a previous edit, put our partially-composed message back... */
 	msgescputs(bstr("msgtext"));
 
 	/* If we're forwarding a message, insert it here... */
@@ -2674,7 +2766,7 @@ void display_enter(void)
 		pullquote_message(atol(bstr("fwdquote")), 1);
 	}
 
-	/* If we're replying quoted, insert the quote here... */
+	/** If we're replying quoted, insert the quote here... */
 	else if (atol(bstr("replyquote")) > 0L) {
 		wprintf("<br>"
 			"<blockquote>");
@@ -2682,7 +2774,7 @@ void display_enter(void)
 		wprintf("</blockquote>\n\n");
 	}
 
-	/* Insert our signature if appropriate... */
+	/** Insert our signature if appropriate... */
 	if ( (WC->is_mailbox) && (strcmp(bstr("sig_inserted"), "yes")) ) {
 		get_preference("use_sig", buf, sizeof buf);
 		if (!strcasecmp(buf, "yes")) {
@@ -2718,7 +2810,7 @@ void display_enter(void)
 	wprintf("</textarea>");
 	wprintf("</center><br />\n");
 
-	/*
+	/**
 	 * The following script embeds the TinyMCE richedit control, and automatically
 	 * transforms the textarea into a richedit textarea.
 	 */
@@ -2736,7 +2828,7 @@ void display_enter(void)
 	);
 
 
-	/* Enumerate any attachments which are already in place... */
+	/** Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
 		"align=middle height=16 width=16> ");
 	wprintf(_("Attachments:"));
@@ -2752,14 +2844,14 @@ void display_enter(void)
 	}
 	wprintf("</select>");
 
-	/* Now offer the ability to attach additional files... */
+	/** Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;");
 	wprintf(_("Attach file:"));
 	wprintf(" <input NAME=\"attachfile\" "
 		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 
-	/* Seth asked for these to be at the top *and* bottom... */
+	/** Seth asked for these to be at the top *and* bottom... */
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (recipient_required) {
 		wprintf(_("Send message"));
@@ -2769,7 +2861,7 @@ void display_enter(void)
 	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 
-	/* Make sure we only insert our signature once */
+	/** Make sure we only insert our signature once */
 	if (strcmp(bstr("sig_inserted"), "yes")) {
 		wprintf("<INPUT TYPE=\"hidden\" NAME=\"sig_inserted\" VALUE=\"yes\">\n");
 	}
@@ -2782,7 +2874,9 @@ DONE:	wDumpContent(1);
 
 
 
-
+/**
+ * \brief delete a message
+ */
 void delete_msg(void)
 {
 	long msgid;
@@ -2792,10 +2886,10 @@ void delete_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	if (WC->wc_is_trash) {	/* Delete from Trash is a real delete */
+	if (WC->wc_is_trash) {	/** Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
 	}
-	else {			/* Otherwise move it to Trash */
+	else {			/** Otherwise move it to Trash */
 		serv_printf("MOVE %ld|_TRASH_|0", msgid);
 	}
 
@@ -2808,8 +2902,8 @@ void delete_msg(void)
 
 
 
-/*
- * Confirm move of a message
+/**
+ * \brief Confirm move of a message
  */
 void confirm_move_msg(void)
 {
@@ -2861,7 +2955,9 @@ void confirm_move_msg(void)
 }
 
 
-
+/**
+ * \brief move a message to another folder
+ */
 void move_msg(void)
 {
 	long msgid;
@@ -2881,3 +2977,6 @@ void move_msg(void)
 	readloop("readnew");
 
 }
+
+
+/*@}*/

@@ -1,16 +1,18 @@
 /*
  * $Id$
- *
- * Web forms for handling mailing list subscribe/unsubscribe requests.
+ */
+/**
+ * \defgroup ListSubForms Web forms for handling mailing list subscribe/unsubscribe requests.
  *
  */
 
+/*@{*/
 #include "webcit.h"
 
 
 
-/*
- * List subscription handling
+/**
+ * \brief List subscription handling
  */
 void do_listsub(void)
 {
@@ -54,7 +56,7 @@ void do_listsub(void)
 	wprintf(_("List subscribe/unsubscribe"));
 	wprintf("</SPAN></TD></TR></TABLE><br />\n");
 
-	/*
+	/**
 	 * Subscribe command
 	 */
 	if (!strcasecmp(cmd, "subscribe")) {
@@ -96,7 +98,7 @@ void do_listsub(void)
 		}
 	}
 
-	/*
+	/**
 	 * Unsubscribe command
 	 */
 	else if (!strcasecmp(cmd, "unsubscribe")) {
@@ -134,7 +136,7 @@ void do_listsub(void)
 		}
 	}
 
-	/* 
+	/**
 	 * Confirm command
 	 */
 	else if (!strcasecmp(cmd, "confirm")) {
@@ -162,7 +164,7 @@ void do_listsub(void)
 		wprintf("%s</CENTER><br />\n", &buf[4]);
 	}
 
-	/*
+	/**
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
@@ -226,3 +228,7 @@ FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n"
 	wDumpContent(0);
 	end_webcit_session();
 }
+
+
+
+/*@}*/

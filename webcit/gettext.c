@@ -1,12 +1,21 @@
+/*
+ * $Id
+ */
+/**
+ * \defgroup LocaleHeaderParser Parse the browser http locale headers and set the NLS stuff.
+ */
+/*@{*/
+/** we need _GNU_SOURCE for various functions arround the NLS-Stuff */
 #define _GNU_SOURCE
 #include "webcit.h"
 #include "webserver.h"
 
 #ifdef ENABLE_NLS
 
-#define NUM_LANGS 4
-#define SEARCH_LANG 20
+#define NUM_LANGS 4 /**< how many different locales do we know? */
+#define SEARCH_LANG 20 /**< how many langs should we parse? */
 
+/** actual supported locales */
 char *AvailLang[NUM_LANGS] = {
 	"C",
 	"en_US",
@@ -14,23 +23,27 @@ char *AvailLang[NUM_LANGS] = {
 	"it_IT"
 };
 
-locale_t wc_locales[NUM_LANGS];
+locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
 
+/** Keep information about one locale */
 typedef struct _lang_pref{
-	char lang[16];
-	char region[16];
-	long priority;
-	int availability;
-	int selectedlang;
+	char lang[16];          /**< the language locale string */
+	char region[16];        /**< the region locale string */
+	long priority;          /**< which priority does it have */
+	int availability;       /**< do we know it? */
+	int selectedlang;       /**< is this the selected language? */
 } LangStruct;
 
-/* seems as most browsers just do a one after coma value even if more than 10 locales are available. */
-/* opera: */
-/* Accept-Language: sq;q=1.0,de;q=0.9,as;q=0.8,ar;q=0.7,bn;q=0.6,zh-cn;q=0.5,kn;q=0.4,ch;q=0.3,fo;q=0.2,gn;q=0.1,ce;q=0.1,ie;q=0.1 */
-/* Firefox */
-/* Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' */
-/* Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 */
-/* Accept-Language: de,en-us;q=0.9,it;q=0.9,de-de;q=0.8,en-ph;q=0.7,de-at;q=0.7,zh-cn;q=0.6,cy;q=0.5,ar-om;q=0.5,en-tt;q=0.4,xh;q=0.3,nl-be;q=0.3,cs;q=0.2,sv;q=0.1,tk;q=0.1 */
+/* \brief parse browser locale header 
+ * seems as most browsers just do a one after coma value even if more than 10 locales are available. Sample strings:
+ * opera: 
+ * Accept-Language: sq;q=1.0,de;q=0.9,as;q=0.8,ar;q=0.7,bn;q=0.6,zh-cn;q=0.5,kn;q=0.4,ch;q=0.3,fo;q=0.2,gn;q=0.1,ce;q=0.1,ie;q=0.1 
+ * Firefox 
+ * Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' 
+ * Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 
+ * Accept-Language: de,en-us;q=0.9,it;q=0.9,de-de;q=0.8,en-ph;q=0.7,de-at;q=0.7,zh-cn;q=0.6,cy;q=0.5,ar-om;q=0.5,en-tt;q=0.4,xh;q=0.3,nl-be;q=0.3,cs;q=0.2,sv;q=0.1,tk;q=0.1 
+ * \param LocaleString the string from the browser http headers
+ */
 
 void httplang_to_locale(char *LocaleString)
 {
@@ -61,7 +74,7 @@ void httplang_to_locale(char *LocaleString)
 			ls=&wanted_locales[i];
 
 			extract_token(&buf[0],search, i,',',16);
-			/* we are searching, if this list item has something like ;q=n*/
+			/** we are searching, if this list item has something like ;q=n*/
 			if (num_tokens(&buf[0],'=')>1) {
 				int sbuflen, k;
 				extract_token(&sbuf[0],&buf[0], 1,'=',16);
@@ -72,39 +85,39 @@ void httplang_to_locale(char *LocaleString)
 			else {
 				ls->priority=1000;
 			}
-			/* get the locale part */
+			/** get the locale part */
 			extract_token(&sbuf[0],&buf[0],0,';',16);
-			/* get the lang part, which should be allways there */
+			/** get the lang part, which should be allways there */
 			extract_token(&ls->lang[0],&sbuf[0],0,'-',16);
-			/* get the area code if any. */
+			/** get the area code if any. */
 			if (num_tokens(&sbuf[0],'-')>1) {
 				extract_token(&ls->region[0],&sbuf[0],1,'-',16);
 			}
-			else { /* no ara code? use lang code */
+			else { /** no ara code? use lang code */
 				blen=strlen(&ls->lang[0]);
 				memcpy(&ls->region[0], ls->lang,blen);
 				ls->region[blen]='\0';
-			} /* area codes are uppercase */
+			} /** area codes are uppercase */
 			blen=strlen(&ls->region[0]);
 			for (j=0; j<blen; j++)
 				{
 					int chars=toupper(ls->region[j]);
-					ls->region[j]=(char)chars;/* \todo ?! */
+					ls->region[j]=(char)chars;/** \todo ?! */
 				}
 			sprintf(&lbuf[0],"%s_%s",&ls->lang[0],&ls->region[0]);
 			
-			/* check if we have this lang */
+			/** check if we have this lang */
 			ls->availability=1;
 			ls->selectedlang=-1;
 			for (j=0; j<NUM_LANGS; j++) {
 				int result;
-				/* match against the LANG part */
+				/** match against the LANG part */
 				result=strcasecmp(&ls->lang[0], AvailLang[j]);
 				if ((result<0)&&(result<ls->availability)){
 					ls->availability=result;
 					ls->selectedlang=j;
 				}
-				/* match against lang and locale */
+				/** match against lang and locale */
 				if (0==strcasecmp(&lbuf[0], AvailLang[j])){
 					ls->availability=0;
 					ls->selectedlang=j;
@@ -128,7 +141,7 @@ void httplang_to_locale(char *LocaleString)
 				prio=ls->priority;
 			}
 		}
-	if (nBest==-1) /* fall back to C */
+	if (nBest==-1) /** fall back to C */
 		nBest=0;
 	WC->selected_language=nBest;
 	lprintf(9, "language found: %s\n", AvailLang[WC->selected_language]);
@@ -173,6 +186,11 @@ void httplang_to_locale(char *LocaleString)
 //}
 
 
+/**
+ * \brief show the language chooser on the login dialog
+ * depending on the browser locale change the sequence of the 
+ * language chooser.
+ */
 void offer_languages(void) {
 	int i;
 
@@ -189,8 +207,9 @@ void offer_languages(void) {
 	wprintf("</select>\n");
 }
 
-/*
- * Set the selected language for this session.
+/**
+ * \brief Set the selected language for this session.
+ * \param lang the locale to set.
  */
 void set_selected_language(char *lang) {
 	int i;
@@ -202,23 +221,26 @@ void set_selected_language(char *lang) {
 	}
 }
 
-/*
- * Activate and deactivate the selected language for this session.
+/**
+ * \brief Activate the selected language for this session.
  */
 void go_selected_language(void) {
 	if (WC->selected_language < 0) return;
-	uselocale(wc_locales[WC->selected_language]);	/* switch locales */
-	textdomain(textdomain(NULL));			/* clear the cache */
+	uselocale(wc_locales[WC->selected_language]);	/** switch locales */
+	textdomain(textdomain(NULL));			/** clear the cache */
 }
 
+/**
+ * \brief Deactivate the selected language for this session.
+ */
 void stop_selected_language(void) {
-	uselocale(LC_GLOBAL_LOCALE);			/* switch locales */
-	textdomain(textdomain(NULL));			/* clear the cache */
+	uselocale(LC_GLOBAL_LOCALE);			/** switch locales */
+	textdomain(textdomain(NULL));			/** clear the cache */
 }
 
 
-/*
- * Create a locale_t for each available language
+/**
+ * \brief Create a locale_t for each available language
  */
 void initialize_locales(void) {
 	int i;
@@ -239,18 +261,24 @@ void initialize_locales(void) {
 
 
 #else	/* ENABLE_NLS */
-
+/** \brief dummy for non NLS enabled systems */
 void offer_languages(void) {
 	wprintf("English (US)");
 }
 
+/** \brief dummy for non NLS enabled systems */
 void set_selected_language(char *lang) {
 }
 
+/** \brief dummy for non NLS enabled systems */
 void go_selected_language(void) {
 }
 
+/** \brief dummy for non NLS enabled systems */
 void stop_selected_language(void) {
 }
 
 #endif	/* ENABLE_NLS */
+
+
+/*@}*/

@@ -1,25 +1,31 @@
 /*
  * $Id$
- *
- * Function to generate HTTP-compliant textual time/date stamp
+ */
+/**
+ * \defgroup HTTPDateTime Function to generate HTTP-compliant textual time/date stamp
  * (This module was lifted directly from the Citadel server source)
  *
  */
-
+/*@{*/
 #include "webcit.h"
 
+/** HTTP Months */
 static char *httpdate_months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+/** HTTP Weekdays */
 static char *httpdate_weekdays[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
 
 
-/*
- * Supplied with a unix timestamp, generate a textual time/date stamp
+/**
+ * \brief Supplied with a unix timestamp, generate a textual time/date stamp
+ * \param buf the return buffer
+ * \param n the size of the buffer
+ * \param xtime the time to format as string
  */
 void http_datestring(char *buf, size_t n, time_t xtime) {
 	struct tm t;
@@ -29,7 +35,7 @@ void http_datestring(char *buf, size_t n, time_t xtime) {
 
 	localtime_r(&xtime, &t);
 
-	/* Convert "seconds west of GMT" to "hours/minutes offset" */
+	/** Convert "seconds west of GMT" to "hours/minutes offset" */
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
 	offset = t.tm_gmtoff;
 #else
@@ -56,3 +62,5 @@ void http_datestring(char *buf, size_t n, time_t xtime) {
 	);
 }
 
+
+/*@}*/

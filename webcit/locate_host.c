@@ -1,12 +1,19 @@
 /*
  * $Id$
- *
- * Examine a socket and determine the name/address of the originating host.
  */
-
+/**
+ * \defgroup Hostlookup Examine a socket and determine the name/address of the originating host.
+ */
+/*@{*/
 
 #include "webcit.h"
 
+/**
+ * \brief get a hostname 
+ * \todo buffersize?
+ * \param tbuf the returnbuffer
+ * \param client_socket the sock fd where the client is connected
+ */
 void locate_host(char *tbuf, int client_socket)
 {
 	struct sockaddr_in cs;
@@ -32,3 +39,5 @@ void locate_host(char *tbuf, int client_socket)
 	}
 	safestrncpy(tbuf, ch->h_name, 64);
 }
+
+/*@}*/

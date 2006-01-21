@@ -1,17 +1,19 @@
 /*
  * $Id$
- *
- * Handles GroupDAV GET requests.
+ */
+/**
+ * \defgraup GroupdavGet Handle GroupDAV GET requests.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-/*
- * The pathname is always going to be /groupdav/room_name/euid
+/**
+ * \briefThe pathname is always going to be /groupdav/room_name/euid
+ * \param dav_pathname the pathname to print
  */
 void groupdav_get(char *dav_pathname) {
 	char dav_roomname[SIZ];
@@ -22,22 +24,22 @@ void groupdav_get(char *dav_pathname) {
 	int in_body = 0;
 	int found_content_type = 0;
 
-	/* First, break off the "/groupdav/" prefix */
+	/** First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
 	remove_token(dav_pathname, 0, '/');
 
-	/* Now extract the message euid */
+	/** Now extract the message euid */
 	n = num_tokens(dav_pathname, '/');
 	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
 	remove_token(dav_pathname, n-1, '/');
 
-	/* What's left is the room name.  Remove trailing slashes. */
+	/** What's left is the room name.  Remove trailing slashes. */
 	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
 		dav_pathname[strlen(dav_pathname)-1] = 0;
 	}
 	strcpy(dav_roomname, dav_pathname);
 
-	/* Go to the correct room. */
+	/** Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		gotoroom(dav_roomname);
 	}
@@ -91,3 +93,6 @@ void groupdav_get(char *dav_pathname) {
 		}
 	}
 }
+
+
+/*@}*/

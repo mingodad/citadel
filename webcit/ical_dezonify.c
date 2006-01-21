@@ -1,6 +1,8 @@
 /* 
  * $Id$ 
- *
+ */
+/**
+ * \defgroup IcalDezonify normalize ical dates to UTC
  * Function to go through an ical component set and convert all non-UTC
  * date/time properties to UTC.  It also strips out any VTIMEZONE
  * subcomponents afterwards, because they're irrelevant.
@@ -9,7 +11,7 @@
  * or any type of subcomponent.
  *
  */
-
+/*@{*/
 
 #include "webcit.h"
 #include "webserver.h"
@@ -18,12 +20,15 @@
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 
-/*
- * Back end function for ical_dezonify()
+/**
+ * \brief Back end function for ical_dezonify()
  *
  * We supply this with the master component, the relevant component,
  * and the property (which will be a DTSTART, DTEND, etc.)
  * which we want to convert to UTC.
+ * \param cal dunno ???
+ * \param rcal dunno ???
+ * \param prop dunno ???
  */
 void ical_dezonify_backend(icalcomponent *cal,
 			icalcomponent *rcal,
@@ -34,24 +39,24 @@ void ical_dezonify_backend(icalcomponent *cal,
 	const char *tzid;
 	struct icaltimetype TheTime;
 
-	/* Give me nothing and I will give you nothing in return. */
+	/** Give me nothing and I will give you nothing in return. */
 	if (cal == NULL) return;
 
-	/* Hunt for a TZID parameter in this property. */
+	/** Hunt for a TZID parameter in this property. */
 	param = icalproperty_get_first_parameter(prop, ICAL_TZID_PARAMETER);
 
-	/* Get the stringish name of this TZID. */
+	/** Get the stringish name of this TZID. */
 	if (param != NULL) {
 		tzid = icalparameter_get_tzid(param);
 
-		/* Convert it to an icaltimezone type. */
+		/** Convert it to an icaltimezone type. */
 		if (tzid != NULL) {
 			t = icalcomponent_get_timezone(cal, tzid);
 		}
 
 	}
 
-	/* Now we know the timezone.  Convert to UTC. */
+	/** Now we know the timezone.  Convert to UTC. */
 
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
 		TheTime = icalproperty_get_dtstart(prop);
@@ -69,7 +74,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	/* Do the conversion. */
+	/** Do the conversion. */
 	if (t != NULL) {
 		icaltimezone_convert_time(&TheTime,
 					t,
@@ -79,7 +84,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 	TheTime.is_utc = 1;
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
-	/* Now add the converted property back in. */
+	/** Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
 		icalproperty_set_dtstart(prop, TheTime);
 	}
@@ -95,14 +100,16 @@ void ical_dezonify_backend(icalcomponent *cal,
 }
 
 
-/*
- * Recursive portion of ical_dezonify()
+/**
+ * \brief Recursive portion of ical_dezonify()
+ * \param cal dunno ???
+ * \param rcal dunno ???
  */
 void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 	icalcomponent *c;
 	icalproperty *p;
 
-	/*
+	/**
 	 * Recurse through all subcomponents *except* VTIMEZONE ones.
 	 */
 	for (c=icalcomponent_get_first_component(
@@ -116,7 +123,7 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 		}
 	}
 
-	/*
+	/**
 	 * Now look for DTSTART and DTEND properties
 	 */
 	for (p=icalcomponent_get_first_property(
@@ -137,18 +144,19 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 }
 
 
-/*
- * Convert all DTSTART and DTEND properties in all subcomponents to UTC.
+/**
+ * \brief Convert all DTSTART and DTEND properties in all subcomponents to UTC.
  * This function will search any VTIMEZONE subcomponents to learn the
  * relevant timezone information.
+ * \param cal item to process
  */
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
-	/* Convert all times to UTC */
+	/** Convert all times to UTC */
 	ical_dezonify_recur(cal, cal);
 
-	/* Strip out VTIMEZONE subcomponents -- we don't need them anymore */
+	/** Strip out VTIMEZONE subcomponents -- we don't need them anymore */
 	while (vt = icalcomponent_get_first_component(
 			cal, ICAL_VTIMEZONE_COMPONENT), vt != NULL) {
 		icalcomponent_remove_component(cal, vt);
@@ -159,3 +167,4 @@ void ical_dezonify(icalcomponent *cal) {
 
 
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
+/*@}*/

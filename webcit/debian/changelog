@@ -1,3 +1,9 @@
+webcit (6.71-2) unstable; urgency=low
+	
+  * update to actual Webcit SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Sat, 21 Jan 2006 19:07:00 +0100
+	
 webcit (6.31-2) unstable; urgency=low
 	
   * update to actual Citadel SVN. many new features. see Packages changelog.

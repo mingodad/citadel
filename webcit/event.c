@@ -254,7 +254,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	wprintf("</TEXTAREA></TD></TR>");
 
-	/* For a new event, the user creating the event should be the
+	/**
+	 * For a new event, the user creating the event should be the
 	 * organizer.  Set this field accordingly.
 	 */
 	if (icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY)
@@ -667,7 +668,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		lprintf(9, "Encapsulating into full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vevent));
 
-		/* If the user clicked 'Save' then save it to the server. */
+		/** If the user clicked 'Save' then save it to the server. */
 		lprintf(9, "Serializing it for saving\n");
 		if ( (encaps != NULL) && (strlen(bstr("save_button")) > 0) ) {
 			serv_puts("ENT0 1|||4|||1|");
