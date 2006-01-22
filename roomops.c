@@ -518,13 +518,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					);
 					break;
 				case VIEW_WIKI:
-					wprintf(
-						"<td><a href=\"display_enter\">"
-						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
-						"border=\"0\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></td>\n", _("Add new page")
-					);
+					/* Don't let users create unlinked pages. */
 					break;
 				default:
 					wprintf(
