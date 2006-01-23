@@ -180,9 +180,7 @@ long extract_long(const char *source, int parmnum)
  * \param ch the char to search
  * \return the position inside of st
  */
-int haschar(st, ch)
-char st[];
-char ch;
+int haschar(char *st,char ch)
 {
 	int a, b;
 	b = 0;

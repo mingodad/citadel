@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 20 21:03:25 CET 2006 dothebart
+* finished doxygen style comments.
+
 Sun Jan 22 17:49:29 EST 2006 ajc
 * More work on the wiki view.  Don't try to use it yet.
 
