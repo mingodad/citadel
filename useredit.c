@@ -1,15 +1,21 @@
 /*
  * $Id$
- *
- * Administrative screen to add/change/delete user accounts
+ */
+/**
+ * \defgroup AdminTasks Administrative screen to add/change/delete user accounts
  *
  */
-
+/*@{*/
 
 #include "webcit.h"
 #include "webserver.h"
 
 
+/**
+ * \brief show a list of available users to edit them
+ * \param message the header message???
+ * \param preselect which user should be selected in the browser
+ */
 void select_user_to_edit(char *message, char *preselect)
 {
 	char buf[SIZ];
@@ -87,8 +93,11 @@ void select_user_to_edit(char *message, char *preselect)
 
 
 
-/* 
- * Locate the message number of a user's vCard in the current room
+/**
+ * \brief Locate the message number of a user's vCard in the current room
+ * \param username the plaintext name of the user
+ * \param usernum the number of the user on the citadel server
+ * \return the message id of his vcard
  */
 long locate_user_vcard(char *username, long usernum) {
 	char buf[SIZ];
@@ -106,7 +115,7 @@ long locate_user_vcard(char *username, long usernum) {
 	struct stuff_t *ptr;
 
 TRYAGAIN:
-	/* Search for the user's vCard */
+	/** Search for the user's vCard */
 	serv_puts("MSGS ALL");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -116,7 +125,7 @@ TRYAGAIN:
 		stuff = ptr;
 	}
 
-	/* Iterate through the message list looking for vCards */
+	/** Iterate through the message list looking for vCards */
 	while (stuff != NULL) {
 		serv_printf("MSG0 %ld|2", stuff->msgnum);
 		serv_getln(buf, sizeof buf);
@@ -138,7 +147,7 @@ TRYAGAIN:
 		stuff = ptr;
 	}
 
-	/* If there's no vcard, create one */
+	/** If there's no vcard, create one */
 	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
@@ -157,8 +166,10 @@ TRYAGAIN:
 }
 
 
-/* 
- * Display the form for editing a user's address book entry
+/**
+ * \brief Display the form for editing a user's address book entry
+ * \param username the name of the user
+ * \param usernum the citadel-uid of the user
  */
 void display_edit_address_book_entry(char *username, long usernum) {
 	char roomname[SIZ];
@@ -166,7 +177,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 	char error_message[SIZ];
 	long vcard_msgnum = (-1L);
 
-	/* Locate the user's config room, creating it if necessary */
+	/** Locate the user's config room, creating it if necessary */
 	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
 	serv_printf("GOTO %s||1", roomname);
 	serv_getln(buf, sizeof buf);
@@ -201,12 +212,15 @@ void display_edit_address_book_entry(char *username, long usernum) {
 
 
 
-/*
- * Edit a user.  If supplied_username is null, look in the "username"
+/**
+ * \brief Edit a user.  
+ * If supplied_username is null, look in the "username"
  * web variable for the name of the user to edit.
  * 
  * If "is_new" is set to nonzero, this screen will set the web variables
  * to send the user to the vCard editor next.
+ * \param supplied_username user to look up or NULL if to search in the environment
+ * \param is_new should we create the user?
  */
 void display_edituser(char *supplied_username, int is_new) {
 	char buf[1024];
@@ -372,7 +386,9 @@ void display_edituser(char *supplied_username, int is_new) {
 }
 
 
-
+/**
+ * \brief do the backend operation of the user edit on the server
+ */
 void edituser(void) {
 	char message[SIZ];
 	char buf[SIZ];
@@ -415,7 +431,8 @@ void edituser(void) {
 		}
 	}
 
-	/* If we are in the middle of creating a new user, move on to
+	/**
+	 * If we are in the middle of creating a new user, move on to
 	 * the vCard edit screen.
 	 */
 	if (is_new) {
@@ -426,7 +443,10 @@ void edituser(void) {
 	}
 }
 
-
+/**
+ * \brief burge a user 
+ * \param username the name of the user to remove
+ */
 void delete_user(char *username) {
 	char buf[SIZ];
 	char message[SIZ];
@@ -446,7 +466,10 @@ void delete_user(char *username) {
 		
 
 
-
+/**
+ * \brief create a new user
+ * take the web environment username and create it on the citadel server
+ */
 void create_user(void) {
 	char buf[SIZ];
 	char error_message[SIZ];
@@ -471,3 +494,6 @@ void create_user(void) {
 
 }
 
+
+
+/*@}*/

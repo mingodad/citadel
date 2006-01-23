@@ -1,20 +1,29 @@
 /*
  * $Id$
- *
- * Miscellaneous routines 
+ */
+/**
+ * \defgroup MiscRout Miscellaneous routines 
  */
 
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
 
-typedef unsigned char byte;
+typedef unsigned char byte; /**< byte data type */
 
-#define FALSE 0
-#define TRUE 1
+#define FALSE 0 /**< no. */
+#define TRUE 1  /**< yes. */
 
-static byte dtable[256];	/* base64 encode / decode table */
+static byte dtable[256];	/**< base64 encode / decode table */
 
+/**
+ * \brief sanitize strncopy.
+ * \param dest destination string
+ * \param src source string
+ * \param n length of source to copy 
+ * \return result string
+ */
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
 	if (dest == NULL || src == NULL) {
@@ -27,8 +36,11 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 
 
 
-/*
- * num_tokens()  -  discover number of parameters/tokens in a string
+/**
+ * \brief discover number of parameters/tokens in a string
+ * \param source string to inspect
+ * \param tok seperation token
+ * \return number of tokenized parts found
  */
 int num_tokens(char *source, char tok)
 {
@@ -44,8 +56,13 @@ int num_tokens(char *source, char tok)
 	return (count);
 }
 
-/*
- * extract_token() - a string tokenizer
+/**
+ * brief a string tokenizer
+ * \param dest destination string 
+ * \param source the string to grab tokens from
+ * \param parmnum the n'th token to grab
+ * \param separator the tokenizer string
+ * \param maxlen the length of dest
  */
 void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
@@ -79,8 +96,11 @@ void extract_token(char *dest, const char *source, int parmnum, char separator, 
 
 
 
-/*
- * remove_token()  -  a tokenizer that kills, maims, and destroys
+/**
+ * \brief a tokenizer that kills, maims, and destroys
+ * \param source the string to process
+ * \param parmnum which token to kill
+ * \param separator the tokenizer string
  */
 void remove_token(char *source, int parmnum, char separator)
 {
@@ -121,8 +141,11 @@ void remove_token(char *source, int parmnum, char separator)
 
 
 
-/*
- * extract_int()  -  extract an int parm w/o supplying a buffer
+/**
+ * \brief extract an int parm w/o supplying a buffer
+ * \param source the string to locate the int in
+ * \param parmnum the n'th token to grab the int from
+ * \return the integer
  */
 int extract_int(const char *source, int parmnum)
 {
@@ -132,8 +155,11 @@ int extract_int(const char *source, int parmnum)
 	return(atoi(buf));
 }
 
-/*
- * extract_long()  -  extract an long parm w/o supplying a buffer
+/**
+ * \brief extract an long parm w/o supplying a buffer
+ * \param source string to examine
+ * \param parmnum n'th token to search long in
+ * \return the found long value
  */
 long extract_long(const char *source, int parmnum)
 {
@@ -148,8 +174,11 @@ long extract_long(const char *source, int parmnum)
 
 
 
-/*
- * check for the presence of a character within a string (returns count)
+/**
+ * \brief check for the presence of a character within a string (returns count)
+ * \param st the string to examine
+ * \param ch the char to search
+ * \return the position inside of st
  */
 int haschar(st, ch)
 char st[];
@@ -164,15 +193,18 @@ char ch;
 }
 
 
-/*
- * Utility function to "readline" from memory
- * (returns new pointer)
+/** 
+ * \brief Utility function to "readline" from memory
+ * \param start position in buf
+ * \param buf the buffer to create string in???
+ * \param maxlen how big may the buffer get?
+ * \return new pointer to read string
  */
 char *memreadline(char *start, char *buf, int maxlen)
 {
 	char ch;
 	char *ptr;
-	int len = 0;		/* tally our own length to avoid strlen() delays */
+	int len = 0;		/**< tally our own length to avoid strlen() delays */
 
 	ptr = start;
 	memset(buf, 0, maxlen);
@@ -192,8 +224,11 @@ char *memreadline(char *start, char *buf, int maxlen)
 
 
 
-/*
- * pattern2()  -  searches for patn within search string, returns pos
+/**
+ * \brief searches for a  paternn within asearch string
+ * \param search the string to search 
+ * \param patn the pattern to find in string
+ * \returns position in string
  */
 int pattern2(char *search, char *patn)
 {
@@ -206,8 +241,9 @@ int pattern2(char *search, char *patn)
 }
 
 
-/*
- * Strip leading and trailing spaces from a string
+/**
+ * \brief Strip leading and trailing spaces from a string
+ * \param buf the string to modify
  */
 void striplt(char *buf)
 {
@@ -220,9 +256,12 @@ void striplt(char *buf)
 }
 
 
-/*
- * Determine whether the specified message number is contained within the
+/**
+ * \brief Determine whether the specified message number is contained within the
  * specified set.
+ * \param mset stringset???
+ * \param msgnum a citadel server indexnumber
+ * \return yes / no ???
  */
 int is_msg_in_mset(char *mset, long msgnum) {
 	int num_sets;
@@ -258,11 +297,15 @@ int is_msg_in_mset(char *mset, long msgnum) {
 
 
 
-/*
- * Strip a boundarized substring out of a string (for example, remove
+/**
+ * \brief Strip a boundarized substring out of a string
+ * (for example, remove
  * parentheses and anything inside them).
  *
  * This improved version can strip out *multiple* boundarized substrings.
+ * \param str the string to process
+ * \param leftboundary the boundary character on the left side of the target string 
+ * \param rightboundary the boundary character on the right side of the target string
  */
 void stripout(char *str, char leftboundary, char rightboundary)
 {
@@ -291,8 +334,9 @@ void stripout(char *str, char leftboundary, char rightboundary)
 
 
 
-/*
- * Replacement for sleep() that uses select() in order to avoid SIGALRM
+/**
+ * \brief Replacement for sleep() that uses select() in order to avoid SIGALRM
+ * \param seconds how many seconds should we sleep?
  */
 void sleeeeeeeeeep(int seconds)
 {
@@ -305,9 +349,13 @@ void sleeeeeeeeeep(int seconds)
 
 
 
-/*
+/**
+ * \brief encode a string into base64 to for example tunnel it through mail transport
  * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by
  * John Walker, copied over from the Citadel server.
+ * \param dest encrypted string
+ * \param source the string to encrypt
+ * \param sourcelen the length of the source data (may contain string terminators)
  */
 
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
@@ -317,7 +365,7 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 	int dpos = 0;
 	int thisline = 0;
 
-	/*  Fill dtable with character encodings.  */
+	/**  Fill dtable with character encodings.  */
 
 	for (i = 0; i < 26; i++) {
 		dtable[i] = 'A' + i;
@@ -352,9 +400,11 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 				   (igroup[2] >> 6)];
 			ogroup[3] = dtable[igroup[2] & 0x3F];
 
-			/* Replace characters in output stream with "=" pad
-			   characters if fewer than three characters were
-			   read from the end of the input stream. */
+			/**
+			 * Replace characters in output stream with "=" pad
+			 * characters if fewer than three characters were
+			 * read from the end of the input stream. 
+			 */
 
 			if (n < 3) {
 				ogroup[3] = '=';
@@ -384,9 +434,13 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 }
 
 
-/* 
- * Convert base64-encoded to binary.  Returns the length of the decoded data.
+/**
+ * \brief Convert base64-encoded to binary.  
  * It will stop after reading 'length' bytes.
+ * \param dest the destination buffer 
+ * \param source the encrypted string
+ * \param length the maximal length of dest???
+ * \return the length actual length of the decoded data.
  */
 int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 {
@@ -410,7 +464,7 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 	dtable['/'] = 63;
 	dtable['='] = 0;
 
-	 /*CONSTANTCONDITION*/ while (TRUE) {
+	/**CONSTANTCONDITION*/ while (TRUE) {
 		byte a[4], b[4], o[3];
 
 		for (i = 0; i < 4; i++) {
@@ -426,7 +480,7 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 				return (dpos);
 			}
 			if (dtable[c] & 0x80) {
-				/* Ignoring errors: discard invalid character */
+				/** Ignoring errors: discard invalid character */
 				i--;
 				continue;
 			}
@@ -452,8 +506,9 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 
 
 
-/*
- * Generate a new, globally unique UID parameter for a calendar etc. object
+/**
+ * \brief Generate a new, globally unique UID parameter for a calendar etc. object
+ * \param buf uid to create ????
  */
 void generate_uuid(char *buf) {
 	static int seq = 0;
@@ -467,9 +522,12 @@ void generate_uuid(char *buf) {
 }
 
 
-/*
- * Local replacement for controversial C library function that generates
+/**
+ * \brief Local replacement for controversial C library function that generates
  * names for temporary files.  Included to shut up compiler warnings.
+ * \todo return a fd to the file instead of the name for security reasons
+ * \param name the created filename
+ * \param len the length of the filename
  */
 void CtdlMakeTempFileName(char *name, int len) {
 	int i = 0;
@@ -484,3 +542,7 @@ void CtdlMakeTempFileName(char *name, int len) {
 		}
 	}
 }
+
+
+
+/*@}*/

@@ -1,12 +1,16 @@
 /* 
  * $Id$
- *
- * Functions which handle network and sharing configuration.
+ */
+/**
+ * \defgroup NetShareConf Functions which handle network and sharing configuration.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 
+/**
+ * \brief edit a network node
+ */
 void edit_node(void) {
 	char buf[SIZ];
 	char node[SIZ];
@@ -51,7 +55,9 @@ void edit_node(void) {
 }
 
 
-
+/**
+ * \brief add a node
+ */
 void display_add_node(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
@@ -82,6 +88,9 @@ void display_add_node(void)
 	wDumpContent(1);
 }
 
+/**
+ * \brief modify an existing node
+ */
 void display_edit_node(void)
 {
 	char buf[512];
@@ -143,7 +152,7 @@ void display_edit_node(void)
 		}
 	}
 
-	else {		/* command error getting configuration */
+	else {		/** command error getting configuration */
 		wprintf("%s<br />\n", &buf[4]);
 	}
 
@@ -151,7 +160,9 @@ void display_edit_node(void)
 }
 
 
-
+/**
+ * \brief display all configured nodes
+ */
 void display_netconf(void)
 {
 	char buf[SIZ];
@@ -203,7 +214,9 @@ void display_netconf(void)
 	wDumpContent(1);
 }
 
-
+/**
+ * \brief display the dialog to verify the deletion
+ */
 void display_confirm_delete_node(void)
 {
 	char node[SIZ];
@@ -234,7 +247,9 @@ void display_confirm_delete_node(void)
 	wDumpContent(1);
 }
 
-
+/**
+ * \brief actually delete the node
+ */
 void delete_node(void)
 {
 	char buf[SIZ];
@@ -272,7 +287,9 @@ void delete_node(void)
 	display_netconf();
 }
 
-
+/**
+ * \brief add a new node
+ */
 void add_node(void)
 {
 	char node[SIZ];
@@ -299,3 +316,4 @@ void add_node(void)
 }
 
 
+/*@}*/

@@ -1,13 +1,18 @@
 /*
  * $Id$
- *
- * Functions which handle "sticky notes"
+ */
+/**
+ * \defgroup StickyNotes Functions which handle "sticky notes"
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
+/**
+ * \brief display sticky notes
+ * \param msgnum the citadel mesage number
+ */
 void display_note(long msgnum) {
 	char buf[SIZ];
 	char notetext[SIZ];
@@ -27,7 +32,7 @@ void display_note(long msgnum) {
 	strcpy(notetext, "");
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-		/* Fill the buffer to at least 256 characters */
+		/** Fill the buffer to at least 256 characters */
 		if ( (in_text) && (strlen(notetext) < 256) ) {
 			strcat(notetext, buf);
 		}
@@ -37,13 +42,16 @@ void display_note(long msgnum) {
 		}
 	}
 
-	/* Now sanitize the buffer, and shorten it to just a small snippet */
+	/** Now sanitize the buffer, and shorten it to just a small snippet */
 	for (i=0; i<strlen(notetext); ++i) {
 		if (isspace(notetext[i])) notetext[i] = ' ';
 	}
 	strcpy(&notetext[72], "...");
 
-	/* Make it HTML-happy and print it. */
+	/** Make it HTML-happy and print it. */
 	stresc(display_notetext, notetext, 1, 1);
 	wprintf("%s<br />\n", display_notetext);
 }
+
+
+/*@}*/

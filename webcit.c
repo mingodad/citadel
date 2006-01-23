@@ -1,32 +1,37 @@
 /*
  * $Id$
- *
- * This is the main transaction loop of the web service.  It maintains a
+ */
+/**
+ * \defgroup MainServer This is the main transaction loop of the web service.  It maintains a
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
- *
+ * \ingroup BackendWebServer
  */
-
+/*@{*/
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
 #include "mime_parser.h"
 
-/*
+/**
  * Subdirectories from which the client may request static content
  */
 char *static_content_dirs[] = {
-	"static",
-	"tiny_mce"
+	"static",                     /** static templates */
+	"tiny_mce"                    /** the JS editor */
 };
 
-/*
+/**
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
  * the exact minute.  :)
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
+/**
+ * \brief remove escaped strings from i.e. the url string (like %20 for blanks)
+ * \param buf the buffer to examine
+ */
 void unescape_input(char *buf)
 {
 	int a, b;
@@ -51,7 +56,10 @@ void unescape_input(char *buf)
 
 }
 
-
+/**
+ * \brief add urls???
+ * \param url what???
+ */
 void addurls(char *url)
 {
 	char *up, *ptr;
@@ -62,7 +70,7 @@ void addurls(char *url)
 	up = url;
 	while (strlen(up) > 0) {
 
-		/* locate the = sign */
+		/** locate the = sign */
 		safestrncpy(buf, up, sizeof buf);
 		b = (-1);
 		for (a = 255; a >= 0; --a)
@@ -77,11 +85,11 @@ void addurls(char *url)
 		WC->urlstrings = u;
 		safestrncpy(u->url_key, buf, sizeof u->url_key);
 
-		/* now chop that part off */
+		/** now chop that part off */
 		for (a = 0; a <= b; ++a)
 			++up;
 
-		/* locate "&" and "?" delimiters */
+		/** locate "&" and "?" delimiters */
 		ptr = up;
 		b = strlen(up);
 		for (a = 0; a < strlen(up); ++a) {
@@ -105,6 +113,9 @@ void addurls(char *url)
 	}
 }
 
+/**
+ * \brief free urlstring memory
+ */
 void free_urls(void)
 {
 	struct urlcontent *u;
@@ -117,8 +128,8 @@ void free_urls(void)
 	}
 }
 
-/*
- * Diagnostic function to display the contents of all variables
+/**
+ * \brief Diagnostic function to display the contents of all variables
  */
 void dump_vars(void)
 {
@@ -129,6 +140,10 @@ void dump_vars(void)
 	}
 }
 
+/**
+ * \brief what???
+ * \param key what???
+ */
 char *bstr(char *key)
 {
 	struct urlcontent *u;
@@ -140,7 +155,11 @@ char *bstr(char *key)
 	return ("");
 }
 
-
+/**
+ * \brief web-printing funcion. uses our vsnprintf wrapper
+ * \param format printf format string 
+ * \param ... the varargs to put into formatstring
+ */
 void wprintf(const char *format,...)
 {
 	va_list arg_ptr;
@@ -154,10 +173,10 @@ void wprintf(const char *format,...)
 }
 
 
-/*
- * wDumpContent() wraps up an HTTP session, closes tags, etc.
- *
- * print_standard_html_footer should be set to 0 to transmit only, 1 to
+/**
+ * \brief wrap up an HTTP session, closes tags, etc.
+ * \todo multiline params?
+ * \param print_standard_html_footer should be set to 0 to transmit only, 1 to
  * append the main menu and closing tags, or 2 to
  * append the closing tags only.
  */
@@ -175,9 +194,12 @@ void wDumpContent(int print_standard_html_footer)
 }
 
 
-/*
- * Copy a string, escaping characters which have meaning in HTML.  If
- * nbsp is nonzero, spaces are converted to non-breaking spaces.
+/**
+ * \brief Copy a string, escaping characters which have meaning in HTML.  
+ * \param target target buffer to copy to
+ * \param strbuf source buffer ???
+ * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
+ * \param nolinebreaks if set, linebreaks are removed from the string.
  */
 void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 {
@@ -212,6 +234,12 @@ void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 	}
 }
 
+/**
+ * \brief WHAT???
+ * \param strbuf what???
+ * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
+ * \param nolinebreaks if set, linebreaks are removed from the string.
+ */ 
 void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
 	char *buf;
@@ -223,14 +251,20 @@ void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 	free(buf);
 }
 
+/** 
+ * \brief static wrapper for ecsputs1
+ * \param strbuf buffer to print escaped to client
+ */
 void escputs(char *strbuf)
 {
 	escputs1(strbuf, 0, 0);
 }
 
-/*
- * Escape a string for feeding out as a URL.
+/** 
+ * \brief Escape a string for feeding out as a URL.
  * Returns a pointer to a buffer that must be freed by the caller!
+ * \param outbuf the outputbuffer
+ * \param strbuf the input buffer???
  */
 void urlesc(char *outbuf, char *strbuf)
 {
@@ -253,6 +287,10 @@ void urlesc(char *outbuf, char *strbuf)
 	}
 }
 
+/**
+ * \brief urlescape buffer and print it to the client
+ * \param strbuf buffer to urlescape
+ */
 void urlescputs(char *strbuf)
 {
 	char outbuf[SIZ];
@@ -262,8 +300,10 @@ void urlescputs(char *strbuf)
 }
 
 
-/*
- * Copy a string, escaping characters for JavaScript strings.
+/**
+ * \brief Copy a string, escaping characters for JavaScript strings.
+ * \param target output string
+ * \param strbuf input string
  */
 void jsesc(char *target, char *strbuf)
 {
@@ -287,6 +327,10 @@ void jsesc(char *target, char *strbuf)
 	}
 }
 
+/**
+ * \brief escape and print java script
+ * \param strbuf the js code
+ */
 void jsescputs(char *strbuf)
 {
 	char outbuf[SIZ];
@@ -295,8 +339,10 @@ void jsescputs(char *strbuf)
 	wprintf("%s", outbuf);
 }
 
-/*
- * Copy a string, escaping characters for message text hold
+/**
+ * \brief Copy a string, escaping characters for message text hold
+ * \param target target buffer
+ * \param strbuf source buffer
  */
 void msgesc(char *target, char *strbuf)
 {
@@ -316,6 +362,10 @@ void msgesc(char *target, char *strbuf)
 	}
 }
 
+/**
+ * \brief print message to the client ???
+ * \param strbuf message to print???
+ */
 void msgescputs(char *strbuf) {
 	char *outbuf;
 
@@ -329,19 +379,20 @@ void msgescputs(char *strbuf) {
 
 
 
-/*
- * Output all that important stuff that the browser will want to see
+/**
+ * \brief Output all that important stuff that the browser will want to see
  */
-void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers                          */
-			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
+void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers                          */
+			int do_htmlhead,	/**< 1 = output HTML <head> section and <body> opener */
 
-			int do_room_banner,	/* 0=no, 1=yes,                                     */
-						/* 2 = I'm going to embed my own, so don't open the */
-						/*     <div id="content"> either.                   */
+			int do_room_banner,	/**< 0=no, 1=yes,                                     
+								 * 2 = I'm going to embed my own, so don't open the 
+								 *     <div id="content"> either.                   
+								 */
 
-			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
-			int suppress_check,	/* 1 = suppress check for instant messages          */
-			int cache		/* 1 = allow browser to cache this page             */
+			int unset_cookies,	/**< 1 = session is terminating, so unset the cookies */
+			int suppress_check,	/**< 1 = suppress check for instant messages          */
+			int cache		/**< 1 = allow browser to cache this page             */
 ) {
 	char cookie[SIZ];
 	char httpnow[SIZ];
@@ -387,11 +438,11 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		do_template("head");
 	}
 
-	/* ICONBAR */
+	/** ICONBAR */
 	if (do_htmlhead) {
 
 
-		/* check for ImportantMessages (these display in a div overlaying the main screen) */
+		/** check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (strlen(WC->ImportantMessage) > 0) {
 			wprintf("<div id=\"important_message\">\n");
 			wprintf("<SPAN CLASS=\"imsg\">"
@@ -406,7 +457,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
 			do_selected_iconbar();
-			/* check for instant messages (these display in a new window) 
+			/** check for instant messages (these display in a new window) 
 			page_popup();  */
 			wprintf("</div>");
 		}
@@ -424,8 +475,9 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 }
 
 
-/*
- * Generic function to do an HTTP redirect.  Easy and fun.
+/**
+ * \brief Generic function to do an HTTP redirect.  Easy and fun.
+ * \param whichpage target url to 302 to
  */
 void http_redirect(char *whichpage) {
 	wprintf("HTTP/1.1 302 Moved Temporarily\n");
@@ -439,8 +491,8 @@ void http_redirect(char *whichpage) {
 
 
 
-/* 
- * Output a piece of content to the web browser
+/**
+ * \brief Output a piece of content to the web browser
  */
 void http_transmit_thing(char *thing, size_t length, char *content_type,
 			 int is_static) {
@@ -454,7 +506,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 		SERVER);
 
 #ifdef HAVE_ZLIB
-	/* If we can send the data out compressed, please do so. */
+	/** If we can send the data out compressed, please do so. */
 	if (WC->gzip_ok) {
 		char *compressed_data = NULL;
 		uLongf compressed_len;
@@ -478,7 +530,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 	}
 #endif
 
-	/* No compression ... just send it out as-is */
+	/** No compression ... just send it out as-is */
 	wprintf("Content-length: %ld\r\n"
 		"\r\n",
 		(long) length
@@ -488,7 +540,10 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 
 
 
-
+/**
+ * \brief dump out static pages from disk
+ * \param what the file urs to print
+ */
 void output_static(char *what)
 {
 	FILE *fp;
@@ -552,8 +607,8 @@ void output_static(char *what)
 }
 
 
-/*
- * When the browser requests an image file from the Citadel server,
+/**
+ * \brief When the browser requests an image file from the Citadel server,
  * this function is called to transmit it.
  */
 void output_image()
@@ -568,17 +623,18 @@ void output_image()
 		bytes = extract_long(&buf[4], 0);
 		xferbuf = malloc(bytes + 2);
 
-		/* Read it from the server */
+		/** Read it from the server */
 		read_server_binary(xferbuf, bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
 
-		/* Write it to the browser */
+		/** Write it to the browser */
 		http_transmit_thing(xferbuf, (size_t)bytes, "image/gif", 0);
 		free(xferbuf);
 
 	} else {
-		/* Instead of an ugly 404, send a 1x1 transparent GIF
+		/**
+		 * Instead of an ugly 404, send a 1x1 transparent GIF
 		 * when there's no such image on the server.
 		 */
 		output_static("static/blank.gif");
@@ -588,9 +644,11 @@ void output_image()
 
 }
 
-/*
- * Generic function to output an arbitrary MIME part from an arbitrary
+/**
+ * \brief Generic function to output an arbitrary MIME part from an arbitrary
  * message number on the server.
+ * \param msgnum number of the item on the citadel server
+ * \param partnum the partnumber???
  */
 void mimepart(char *msgnum, char *partnum)
 {
@@ -622,8 +680,10 @@ void mimepart(char *msgnum, char *partnum)
 }
 
 
-/*
- * Read any MIME part of a message, from the server, into memory.
+/**
+ * \brief Read any MIME part of a message, from the server, into memory.
+ * \param msgnum number of the message on the citadel server
+ * \param partnum the part number???
  */
 char *load_mimepart(long msgnum, char *partnum)
 {
@@ -653,8 +713,11 @@ char *load_mimepart(long msgnum, char *partnum)
 }
 
 
-/*
- * Convenience functions to display a page containing only a string
+/**
+ * \brief Convenience functions to display a page containing only a string
+ * \param titlebarcolor color of the titlebar of the frame
+ * \param titlebarmsg text to display in the title bar
+ * \param messagetext body of the box
  */
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
@@ -672,8 +735,8 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 }
 
 
-/*
- * Display a blank page.
+/**
+ * \brief Display a blank page.
  */
 void blank_page(void) {
 	output_headers(1, 1, 0, 0, 0, 0);
@@ -681,8 +744,8 @@ void blank_page(void) {
 }
 
 
-/*
- * A template has been requested
+/**
+ * \brief A template has been requested
  */
 void url_do_template(void) {
 	do_template(bstr("template"));
@@ -690,8 +753,8 @@ void url_do_template(void) {
 
 
 
-/*
- * Offer to make any page the user's "start page."
+/**
+ * \brief Offer to make any page the user's "start page."
  */
 void offer_start_page(void) {
 	wprintf("<a href=\"change_start_page?startpage=");
@@ -709,8 +772,8 @@ void offer_start_page(void) {
 }
 
 
-/* 
- * Change the user's start page
+/**
+ * \brief Change the user's start page
  */
 void change_start_page(void) {
 
@@ -731,15 +794,21 @@ void change_start_page(void) {
 
 
 
-
+/**
+ * \brief display the successfull edit or s.th. lisket hat ??? 
+ * \param successmessage the mesage itself
+ */
 void display_success(char *successmessage)
 {
 	convenience_page("007700", "OK", successmessage);
 }
 
 
-/* Authorization required page */
-/* This is probably temporary and should be revisited */
+/**
+ * \brief Authorization required page 
+ * This is probably temporary and should be revisited 
+ * \param message message to put in header
+*/
 void authorization_required(const char *message)
 {
 	wprintf("HTTP/1.1 401 Authorization Required\r\n");
@@ -753,7 +822,19 @@ void authorization_required(const char *message)
 	wDumpContent(0);
 }
 
-
+/**
+ * \brief handle file uploads 
+ * \param name the url the upload is done to
+ * \param filename the name of the file being uploaded
+ * \param partnum item number on the citadel server ???
+ * \param disp what???
+ * \param content the file contents???
+ * \param cbtype what???
+ * \param cbcharset the character set of cb??
+ * \param length the size of the file ???
+ * \param encoding charset encoding of the file??
+ * \param userdata what???
+ */
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
 			size_t length, char *encoding, void *userdata)
@@ -774,7 +855,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		u->url_data[length] = 0;
 	}
 
-	/* Uploaded files */
+	/** Uploaded files */
 	if ( (length > 0) && (strlen(cbtype) > 0) ) {
 		WC->upload = malloc(length);
 		if (WC->upload != NULL) {
@@ -792,8 +873,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 
 }
 
-/*
- * Convenience functions to wrap around asynchronous ajax responses
+/**
+ * \brief Convenience functions to wrap around asynchronous ajax responses
  */
 void begin_ajax_response(void) {
         output_headers(0, 0, 0, 0, 0, 0);
@@ -807,11 +888,17 @@ void begin_ajax_response(void) {
         begin_burst();
 }
 
+/**
+ * \brief print ajax response footer 
+ */
 void end_ajax_response(void) {
         wprintf("\r\n");
         wDumpContent(0);
 }
 
+/**
+ * \brief parse server command to execute on the citadel
+ */
 void ajax_servcmd(void)
 {
 	char buf[1024];
@@ -854,7 +941,8 @@ void ajax_servcmd(void)
 
 	end_ajax_response();
 	
-	/* This is kind of an ugly hack, but this is the only place it can go.
+	/**
+	 * This is kind of an ugly hack, but this is the only place it can go.
 	 * If the command was GEXP, then the instant messenger window must be
 	 * running, so reset the "last_pager_check" watchdog timer so
 	 * that page_popup() doesn't try to open it a second time.
@@ -865,8 +953,8 @@ void ajax_servcmd(void)
 }
 
 
-/*
- * Helper function for the asynchronous check to see if we need
+/**
+ * \brief Helper function for the asynchronous check to see if we need
  * to open the instant messenger window.
  */
 void seconds_since_last_gexp(void)
@@ -893,8 +981,8 @@ void seconds_since_last_gexp(void)
 
 
 
-/*
- * Entry point for WebCit transaction
+/**
+ * \brief Entry point for WebCit transaction
  */
 void session_loop(struct httprequest *req)
 {
@@ -922,7 +1010,8 @@ void session_loop(struct httprequest *req)
 	int body_start = 0;
 	int is_static = 0;
 
-	/* We stuff these with the values coming from the client cookies,
+	/**
+	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
 	char c_username[SIZ];
@@ -954,7 +1043,7 @@ void session_loop(struct httprequest *req)
 	extract_token(request_method, cmd, 0, ' ', sizeof request_method);
 	extract_token(pathname, cmd, 1, ' ', sizeof pathname);
 
-	/* Figure out the action */
+	/** Figure out the action */
 	extract_token(action, pathname, 1, '/', sizeof action);
 	if (strstr(action, "?")) *strstr(action, "?") = 0;
 	if (strstr(action, "&")) *strstr(action, "&") = 0;
@@ -1030,7 +1119,7 @@ void session_loop(struct httprequest *req)
 			}
 			striplt(browser_host);
 		}
-		/* Only WAP gateways explicitly name this content-type */
+		/** Only WAP gateways explicitly name this content-type */
 		else if (strstr(buf, "text/vnd.wap.wml")) {
 			WC->is_wap = 1;
 		}
@@ -1044,7 +1133,7 @@ void session_loop(struct httprequest *req)
 				ContentType, ContentLength);
 		body_start = strlen(content);
 
-		/* Read the entire input data at once. */
+		/** Read the entire input data at once. */
 		client_read(WC->http_sock, &content[BytesRead+body_start],
 			ContentLength);
 
@@ -1060,12 +1149,12 @@ void session_loop(struct httprequest *req)
 		content = NULL;
 	}
 
-	/* make a note of where we are in case the user wants to save it */
+	/** make a note of where we are in case the user wants to save it */
 	safestrncpy(WC->this_page, cmd, sizeof(WC->this_page));
 	remove_token(WC->this_page, 2, ' ');
 	remove_token(WC->this_page, 0, ' ');
 
-	/* If there are variables in the URL, we must grab them now */
+	/** If there are variables in the URL, we must grab them now */
 	for (a = 0; a < strlen(cmd); ++a) {
 		if ((cmd[a] == '?') || (cmd[a] == '&')) {
 			for (b = a; b < strlen(cmd); ++b)
@@ -1077,7 +1166,7 @@ void session_loop(struct httprequest *req)
 	}
 
 
-	/* Static content can be sent without connecting to Citadel. */
+	/** Static content can be sent without connecting to Citadel. */
 	is_static = 0;
 	for (a=0; a<(sizeof(static_content_dirs) / sizeof(char *)); ++a) {
 		if (!strcasecmp(action, static_content_dirs[a])) {
@@ -1101,7 +1190,7 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
 	}
 
-	/*
+	/**
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.
 	 */
@@ -1122,9 +1211,10 @@ void session_loop(struct httprequest *req)
 		}
 		else {
 			WC->connected = 1;
-			serv_getln(buf, sizeof buf);	/* get the server welcome message */
+			serv_getln(buf, sizeof buf);	/** get the server welcome message */
 
-			/* From what host is our user connecting?  Go with
+			/**
+			 * From what host is our user connecting?  Go with
 			 * the host at the other end of the HTTP socket,
 			 * unless we are following X-Forwarded-For: headers
 			 * and such a header has already turned up something.
@@ -1151,7 +1241,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	/*
+	/**
 	 * Functions which can be performed without logging in
 	 */
 	if (!strcasecmp(action, "listsub")) {
@@ -1165,7 +1255,7 @@ void session_loop(struct httprequest *req)
 	}
 #endif
 
-	/*
+	/**
 	 * If we're not logged in, but we have HTTP Authentication data,
 	 * try logging in to Citadel using that.
 	 */
@@ -1183,20 +1273,20 @@ void session_loop(struct httprequest *req)
 				safestrncpy(WC->httpauth_user, c_httpauth_user, sizeof WC->httpauth_user);
 				safestrncpy(WC->httpauth_pass, c_httpauth_pass, sizeof WC->httpauth_pass);
 			} else {
-				/* Should only display when password is wrong */
+				/** Should only display when password is wrong */
 				authorization_required(&buf[4]);
 				goto SKIP_ALL_THIS_CRAP;
 			}
 		}
 	}
 
-	/* This needs to run early */
+	/** This needs to run early */
 	if (!strcasecmp(action, "rss")) {
 		display_rss(bstr("room"), request_method);
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	/* 
+	/** 
 	 * The GroupDAV stuff relies on HTTP authentication instead of
 	 * our session's authentication.
 	 */
@@ -1210,20 +1300,20 @@ void session_loop(struct httprequest *req)
 	}
 
 
-	/*
+	/**
 	 * Automatically send requests with any method other than GET or
 	 * POST to the GroupDAV code as well.
 	 */
 	if ((strcasecmp(request_method, "GET")) && (strcasecmp(request_method, "POST"))) {
-		groupdav_main(req, ContentType, /* do GroupDAV methods */
+		groupdav_main(req, ContentType, /** do GroupDAV methods */
 			ContentLength, content+body_start);
 		if (!WC->logged_in) {
-			WC->killthis = 1;	/* If not logged in, don't */
-		}				/* keep the session active */
+			WC->killthis = 1;	/** If not logged in, don't */
+		}				/** keep the session active */
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	/*
+	/**
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
@@ -1240,7 +1330,7 @@ void session_loop(struct httprequest *req)
 			}
 		}
 	}
-	/*
+	/**
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
@@ -1255,17 +1345,17 @@ void session_loop(struct httprequest *req)
 	if (!strcasecmp(action, "image")) {
 		output_image();
 
-	/*
-	 * All functions handled below this point ... make sure we log in
-	 * before doing anything else!
-	 */
+		/**
+		 * All functions handled below this point ... make sure we log in
+		 * before doing anything else!
+		 */
 	} else if ((!WC->logged_in) && (!strcasecmp(action, "login"))) {
 		do_login();
 	} else if (!WC->logged_in) {
 		display_login(NULL);
 	}
 
-	/*
+	/**
 	 * Various commands...
 	 */
 
@@ -1533,7 +1623,7 @@ void session_loop(struct httprequest *req)
 		wDumpContent(1);
 	}
 
-	/* When all else fais, display the main menu. */
+	/** When all else fais, display the main menu. */
 	else {
 		display_main_menu();
 	}
@@ -1550,3 +1640,6 @@ SKIP_ALL_THIS_CRAP:
 		WC->upload_length = 0;
 	}
 }
+
+
+/*@}*/

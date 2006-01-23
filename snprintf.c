@@ -1,13 +1,14 @@
 /*
  * $Id$
- *
- * modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997
+ */
+/** 
+ * \defgroup SnprintfReplacement modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997
  * --nathan bryant <bryant@cs.usm.maine.edu>
  *
  */
-
-/*
- * Replacements for snprintf() and vsnprintf()
+/*@{*/
+/**
+ * \brief Replacements for snprintf() and vsnprintf()
  *
  * Use it only if you have the "spare" cycles needed to effectively
  * do every snprintf operation twice! Why is that? Because everything
@@ -26,11 +27,17 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/**
+ * \brief is it needed????
+ * \param fmt the formatstring?
+ * \param argp how many params?
+ */
 static int needed(const char *fmt, va_list argp)
 {
 	static FILE *sink = NULL;
 
-	/* ok, there's a small race here that could result in the sink being
+	/**
+	 * ok, there's a small race here that could result in the sink being
 	 * opened more than once if we're threaded, but I'd rather ignore it than
 	 * spend cycles synchronizing :-) */
 
@@ -43,6 +50,13 @@ static int needed(const char *fmt, va_list argp)
 	return vfprintf(sink, fmt, argp);
 }
 
+/**
+ * \brief vsnprintf wrapper
+ * \param buf the output charbuffer
+ * \param max maximal size of the buffer
+ * \param fmt the formatstring (see man printf)
+ * \param argp the variable argument list 
+ */
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 {
 	char *p;
@@ -61,6 +75,13 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 	return size;
 }
 
+/**
+ * \brief snprintf wrapper
+ * \param buf the output charbuffer
+ * \param max maximal size of the buffer
+ * \param fmt the formatstring (see man printf)
+ * \param ... the variable argument list 
+ */
 int snprintf(char *buf, size_t max, const char *fmt,...)
 {
 	va_list argp;
@@ -72,3 +93,7 @@ int snprintf(char *buf, size_t max, const char *fmt,...)
 
 	return bytes;
 }
+
+
+
+/*@}*/

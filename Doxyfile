@@ -480,8 +480,7 @@ RECURSIVE              = NO
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = webcit.h and vcard.h and userlist.c
-#!!!!!!!! for now
+EXCLUDE                =
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
@@ -1007,7 +1006,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             =  WEBCIT_WITH_CALENDAR_SERVICE HAVE_OPENSSL ENABLE_NLS HAVE_ICONV
+PREDEFINED             =  WEBCIT_WITH_CALENDAR_SERVICE HAVE_OPENSSL ENABLE_NLS HAVE_ICONV HAVE_ZLIB
 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
@@ -1117,7 +1116,7 @@ GROUP_GRAPHS           = YES
 # collaboration diagrams in a style similar to the OMG's Unified Modeling 
 # Language.
 
-UML_LOOK               = NO
+UML_LOOK               = YES
 
 # If set to YES, the inheritance and collaboration graphs will show the 
 # relations between templates and their instances.

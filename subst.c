@@ -1,17 +1,18 @@
 /*
  * $Id$
- *
- * Variable substitution type stuff
+ */
+/**
+ * \defgroup Subst Variable substitution type stuff
  *
  */
 
-
+/*@{*/
 
 #include "webcit.h"
 
 
-/*
- * Clear out the list of substitution variables local to this session
+/**
+ * \brief Clear out the list of substitution variables local to this session
  */
 void clear_local_substs(void) {
 	struct wcsubst *ptr;
@@ -33,7 +34,11 @@ void clear_local_substs(void) {
 
 
 /*
- * Add a substitution variable (local to this session)
+ * \brief Add a substitution variable (local to this session)
+ * \param keyname the replacementstring to substitute
+ * \param keytype the kind of the key
+ * \param format the format string ala printf
+ * \param ... the arguments to substitute in the formatstring
  */
 void svprintf(char *keyname, int keytype, const char *format,...)
 {
@@ -42,7 +47,8 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	struct wcsubst *ptr = NULL;
 	struct wcsubst *scan;
 
-	/* First scan through to see if we're doing a replacement of
+	/**
+	 * First scan through to see if we're doing a replacement of
 	 * an existing key
 	 */
 	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
@@ -52,7 +58,7 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 		}
 	}
 
-	/* Otherwise allocate a new one */
+	/** Otherwise allocate a new one */
 	if (ptr == NULL) {
 		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
 		ptr->next = WC->vars;
@@ -60,7 +66,7 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 		WC->vars = ptr;
 	}
 
-	/* Format the string and save it */
+	/** Format the string and save it */
 
 	va_start(arg_ptr, format);
 	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
@@ -70,8 +76,10 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	ptr->wcs_value = strdup(wbuf);
 }
 
-/*
- * Add a substitution variable (local to this session) that does a callback
+/**
+ * \brief Add a substitution variable (local to this session) that does a callback
+ * \param keyname the keystring to substitute
+ * \param fcn_ptr the function callback to give the substitution string
  */
 void svcallback(char *keyname, void (*fcn_ptr)() )
 {
@@ -87,8 +95,9 @@ void svcallback(char *keyname, void (*fcn_ptr)() )
 
 
 
-/*
- * back end for print_value_of() ... does a server command
+/**
+ * \brief back end for print_value_of() ... does a server command
+ * \param servcmd server command to execute on the citadel server
  */
 void pvo_do_cmd(char *servcmd) {
 	char buf[SIZ];
@@ -114,8 +123,9 @@ void pvo_do_cmd(char *servcmd) {
 
 
 
-/*
- * Print the value of a variable
+/**
+ * \brief Print the value of a variable
+ * \param keyname get a key to print
  */
 void print_value_of(char *keyname) {
 	struct wcsubst *ptr;
@@ -164,7 +174,7 @@ void print_value_of(char *keyname) {
 		escputs(WC->wc_roomname);
 	}
 
-	/* Page-local variables */
+	/** Page-local variables */
 	else for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
 		if (!strcasecmp(ptr->wcs_key, keyname)) {
 			if (ptr->wcs_type == WCS_STRING) {
@@ -182,8 +192,9 @@ void print_value_of(char *keyname) {
 
 
 
-/*
- * Display a variable-substituted template
+/**
+ * \brief Display a variable-substituted template
+ * \param templatename template file to load
  */
 void do_template(void *templatename) {
 	char filename[PATH_MAX];
@@ -241,3 +252,7 @@ void do_template(void *templatename) {
 
 	fclose(fp);
 }
+
+
+
+/*@}*/

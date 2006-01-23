@@ -144,29 +144,29 @@
  *
  * bucket one...
  */
-#define QR_PERMANENT	1		/* Room does not purge	      */
-#define QR_INUSE	2		/* Set if in use, clear if avail    */
-#define QR_PRIVATE	4		/* Set for any type of private room */
-#define QR_PASSWORDED	8		/* Set if there's a password too    */
-#define QR_GUESSNAME	16		/* Set if it's a guessname room     */
-#define QR_DIRECTORY	32		/* Directory room		   */
-#define QR_UPLOAD	64		/* Allowed to upload		*/
-#define QR_DOWNLOAD	128		/* Allowed to download	      */
-#define QR_VISDIR	256		/* Visible directory		*/
-#define QR_ANONONLY	512		/* Anonymous-Only room	      */
-#define QR_ANONOPT	1024		/* Anonymous-Option room	    */
-#define QR_NETWORK	2048		/* Shared network room	      */
-#define QR_PREFONLY	4096		/* Preferred status needed to enter */
-#define QR_READONLY	8192		/* Aide status required to post     */
-#define QR_MAILBOX	16384		/* Set if this is a private mailbox */
+#define QR_PERMANENT	1		/**< Room does not purge	      */
+#define QR_INUSE	    2		/**< Set if in use, clear if avail    */
+#define QR_PRIVATE	    4		/**< Set for any type of private room */
+#define QR_PASSWORDED	8		/**< Set if there's a password too    */
+#define QR_GUESSNAME	16		/**< Set if it's a guessname room     */
+#define QR_DIRECTORY	32		/**< Directory room		   */
+#define QR_UPLOAD	64	    	/**< Allowed to upload		*/
+#define QR_DOWNLOAD	128		    /**< Allowed to download	      */
+#define QR_VISDIR	256		    /**< Visible directory		*/
+#define QR_ANONONLY	512		    /**< Anonymous-Only room	      */
+#define QR_ANONOPT	1024		/**< Anonymous-Option room	    */
+#define QR_NETWORK	2048		/**< Shared network room	      */
+#define QR_PREFONLY	4096		/**< Preferred status needed to enter */
+#define QR_READONLY	8192		/**< Aide status required to post     */
+#define QR_MAILBOX	16384		/**< Set if this is a private mailbox */
 
-/*
+/**
  * bucket two...
  */
-#define QR2_SYSTEM	1		/* System room; hide by default     */
-#define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
+#define QR2_SYSTEM	1		/**< System room; hide by default     */
+#define QR2_SELFLIST	2		/**< Self-service mailing list mgmt   */
 
-/*
+/**
  * user/room access
  */
 #define UA_KNOWN	2
@@ -175,215 +175,228 @@
 #define UA_ZAPPED	16
 
 
-/*
+/**
  * User flags (from Citadel)
  */
-#define US_NEEDVALID	1		/* User needs to be validated       */
-#define US_PERM		4		/* Permanent user                   */
-#define US_LASTOLD	16		/* Print last old message with new  */
-#define US_EXPERT	32		/* Experienced user		    */
-#define US_UNLISTED	64		/* Unlisted userlog entry           */
-#define US_NOPROMPT	128		/* Don't prompt after each message  */
-#define US_PROMPTCTL	256		/* <N>ext & <S>top work at prompt   */
-#define US_DISAPPEAR	512		/* Use "disappearing msg prompts"   */
-#define US_REGIS	1024		/* Registered user                  */
-#define US_PAGINATOR	2048		/* Pause after each screen of text  */
-#define US_INTERNET	4096		/* Internet mail privileges         */
-#define US_FLOORS	8192		/* User wants to see floors         */
-#define US_COLOR	16384		/* User wants ANSI color support    */
+#define US_NEEDVALID	1		/**< User needs to be validated       */
+#define US_PERM		4		    /**< Permanent user                   */
+#define US_LASTOLD	16		    /**< Print last old message with new  */
+#define US_EXPERT	32		    /**< Experienced user		    */
+#define US_UNLISTED	64		    /**< Unlisted userlog entry           */
+#define US_NOPROMPT	128		    /**< Don't prompt after each message  */
+#define US_PROMPTCTL	256		/**< <N>ext & <S>top work at prompt   */
+#define US_DISAPPEAR	512		/**< Use "disappearing msg prompts"   */
+#define US_REGIS	1024		/**< Registered user                  */
+#define US_PAGINATOR	2048	/**< Pause after each screen of text  */
+#define US_INTERNET	4096		/**< Internet mail privileges         */
+#define US_FLOORS	8192		/**< User wants to see floors         */
+#define US_COLOR	16384		/**< User wants ANSI color support    */
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
 
 
-
+/** \brief http request struct ??? */
 struct httprequest {
-	struct httprequest *next;
-	char line[SIZ];
+	struct httprequest *next;  /**< the next request in the list ??? */
+	char line[SIZ];            /**< the request line ??? */
 };
 
+/**
+ * \brief contents of an url???
+ */
 struct urlcontent {
-	struct urlcontent *next;
-	char url_key[32];
-	char *url_data;
+	struct urlcontent *next;   /**< the next url in the list */ 
+	char url_key[32];          /**< the url directory part */
+	char *url_data;            /**< the url data part ??? */
 };
 
+/**
+ * \brief information about us ???
+ */ 
 struct serv_info {
-	int serv_pid;
-	char serv_nodename[32];
-	char serv_humannode[64];
-	char serv_fqdn[64];
-	char serv_software[64];
-	int serv_rev_level;
-	char serv_bbs_city[64];
-	char serv_sysadm[64];
-	char serv_moreprompt[SIZ];
-	int serv_ok_floors;
-	int serv_supports_ldap;
+	int serv_pid;              /**< Our process id */
+	char serv_nodename[32];	   /**< How is the name of this citadel */
+	char serv_humannode[64];   /**< How is the human readable name of this citadel */
+	char serv_fqdn[64];		   /**< How is our Full quallified Domain Name (uncensored.citadel.org ie.e  */
+	char serv_software[64];	   /**< What version does our connected citadel server use */
+	int serv_rev_level;		   /**< Whats the citadel server revision */
+	char serv_bbs_city[64];	   /**< Where is the dialin node */
+	char serv_sysadm[64];	   /**< Who's to blame on trouble */
+	char serv_moreprompt[SIZ]; /**< Whats the commandline textprompt */
+	int serv_ok_floors;		   /**< what??? */
+	int serv_supports_ldap;    /**< is the server linked against an ldap tree for adresses? */
 };
 
 
 
-/*
- * This struct holds a list of rooms for <G>oto operations.
+/**
+ * \brief This struct holds a list of rooms for \\\<G\\\>oto operations.
  */
 struct march {
-	struct march *next;
-	char march_name[128];
-	int march_floor;
-	int march_order;
+	struct march *next;       /**< pointer to next in linked list */
+	char march_name[128];     /**< function name ??? */
+	int march_floor;          /**< floor number */
+	int march_order;          /**< order number???*/
 };
 
-/* 
- * This struct holds a list of rooms for client display.
- * (oooh, a tree!)
+/* *
+ * \brief This struct holds a list of rooms for client display.
+ * (oooh, a tree!) (double linked list? )
  */
 struct roomlisting {
-	struct roomlisting *lnext;
-	struct roomlisting *rnext;
-	char rlname[128];
-	unsigned rlflags;
-	int rlfloor;
-	int rlorder;
+	struct roomlisting *lnext;/**< pointer to the next roomlisting */
+	struct roomlisting *rnext;/**< pointer to the previous roomlisting */
+	char rlname[128];		  /**< the userprintable roomname */
+	unsigned rlflags;		  /**< the room flags */
+	int rlfloor;			  /**< the floor it reside on (citadel server room number???)*/
+	int rlorder;              /**< the order to print it???*/
 };
 
 
 
-/*
- * Dynamic content for variable substitution in templates
+/**
+ * \brief Dynamic content for variable substitution in templates
  */
 struct wcsubst {
-	struct wcsubst *next;
-	int wcs_type;
-	char wcs_key[32];
-	void *wcs_value;
-	void (*wcs_function)(void);
+	struct wcsubst *next;       /**< next item in the list */  
+	int wcs_type;			    /**< which type of ??? */
+	char wcs_key[32];		    /**< ??? what?*/
+	void *wcs_value;		    /**< ???? what?*/
+	void (*wcs_function)(void); /**< funcion hook ???*/
 };
 
-/*
- * Values for wcs_type
+/**
+ * \brief Values for wcs_type
  */
 enum {
-	WCS_STRING,
-	WCS_FUNCTION,
-	WCS_SERVCMD
+	WCS_STRING,   /**< its a string */
+	WCS_FUNCTION, /**< its a function callback */
+	WCS_SERVCMD   /**< its a command to send to the citadel server */
 };
 
-
+/**
+ * \brief mail attachment ???
+ */
 struct wc_attachment {
-	struct wc_attachment *next;
-	size_t length;
-	char content_type[SIZ];
-	char filename[SIZ];
-	char *data;
+	struct wc_attachment *next;/**< pointer to next in list */
+	size_t length;			   /**< length of the contenttype */
+	char content_type[SIZ];	   /**< the content itself ???*/
+	char filename[SIZ];		   /**< the filename hooked to this content ??? */
+	char *data;                /**< the data pool; aka this content */
 };
 
+/**
+ * \brief message summary structure. ???
+ */
 struct message_summary {
-	time_t date;
-	long msgnum;
-	char from[128];
-	char to[128];
-	char subj[128];
-	int hasattachments;
-	int is_new;
+	time_t date;        /**< its creation date */
+	long msgnum;		/**< the message number on the citadel server */
+	char from[128];		/**< the author */
+	char to[128];		/**< the recipient */
+	char subj[128];		/**< the title / subject */
+	int hasattachments;	/**< does it have atachments? */
+	int is_new;         /**< is it yet read? */
 };
 
-/* Data structure for roomlist-to-folderlist conversion */
+/**
+ * \brief  Data structure for roomlist-to-folderlist conversion 
+ */
 struct folder {
-	int floor;
-	char room[SIZ];
-	char name[SIZ];
-	int hasnewmsgs;
-	int is_mailbox;
-	int selectable;
-	int view;
+	int floor;      /**< which floor is it on */
+	char room[SIZ];	/**< which roomname ??? */
+	char name[SIZ];	/**< which is its own name??? */
+	int hasnewmsgs;	/**< are there unread messages inside */
+	int is_mailbox;	/**< is it a mailbox?  */
+	int selectable;	/**< can we select it ??? */
+	int view;       /**< whats its default view? inbox/calendar.... */
 };
 
-/*
- * One of these is kept for each active Citadel session.
- * HTTP transactions are bound to one at a time.
+/**
+ * \brief One of these is kept for each active Citadel session.
+ * HTTP transactions are bound to on e at a time.
  */
 struct wcsession {
-	struct wcsession *next;		/* Linked list */
-	int wc_session;			/* WebCit session ID */
-	char wc_username[128];
-	char wc_fullname[128];
-	char wc_password[128];
-	char wc_roomname[256];
-	int connected;
-	int logged_in;
-	int axlevel;
-	int is_aide;
-	int is_room_aide;
-	int http_sock;
-	int serv_sock;
-	int chat_sock;
-	unsigned room_flags;
-	int wc_view;
-	int wc_default_view;
-	int wc_is_trash;
-	int wc_floor;
-	char ugname[128];
-	long uglsn;
-	int upload_length;
-	char *upload;
-	char upload_filename[PATH_MAX];
-	char upload_content_type[256];
-	int new_mail;
-	int remember_new_mail;
-	int need_regi;			/* This user needs to register. */
-	int need_vali;			/* New users require validation. */
-	char cs_inet_email[256];	/* User's preferred Internet addr. */
-	pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
-	time_t lastreq;			/* Timestamp of most recent HTTP */
-	int killthis;			/* Nonzero == purge this session */
-	struct march *march;		/* march mode room list */
-	char reply_to[512];		/* reply-to address */
-	long msgarr[10000];		/* for read operations */
-	int num_summ;
-	struct message_summary *summ;
-	int is_wap;			/* Client is a WAP gateway */
-	struct urlcontent *urlstrings;
-	struct wcsubst *vars;
-	char this_page[512];		/* address of current page */
-	char http_host[512];		/* HTTP Host: header */
-	char *preferences;
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	struct disp_cal {
-		icalcomponent *cal;		/* cal items for display */
-		long cal_msgnum;		/* cal msgids for display */
-	} *disp_cal;
-	int num_cal;
-#endif
-	struct wc_attachment *first_attachment;
-	char ImportantMessage[SIZ];
-	char last_chat_user[256];
-	int ctdl_pid;			/* Session ID on the Citadel server */
-	char httpauth_user[256];	/* only for GroupDAV sessions */
-	char httpauth_pass[256];	/* only for GroupDAV sessions */
-	size_t burst_len;
-	char *burst;
-	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
-	int is_mailbox;			/* the current room is a private mailbox */
-	struct folder *cache_fold; 	/* cache the iconbar room list */
-	int cache_max_folders;
-	int cache_num_floors;
-	time_t cache_timestamp;
-	int current_iconbar;		/* What's currently in the iconbar? */
-	char floordiv_expanded[32];	/* which floordiv currently expanded */
-	int selected_language;		/* Language selected by user */
-	time_t last_pager_check;	/* last time we polled for instant msgs */
+	struct wcsession *next;		              /**< Linked list */
+	int wc_session;			                  /**< WebCit session ID */
+	char wc_username[128];                    /**< ??? todo */
+	char wc_fullname[128];			          /**< ??? todo */
+	char wc_password[128];			          /**< ??? todo */
+	char wc_roomname[256];			          /**< ??? todo */
+	int connected;					          /**< ??? todo */
+	int logged_in;					          /**< ??? todo */
+	int axlevel;					          /**< ??? todo */
+	int is_aide;					          /**< ??? todo */
+	int is_room_aide;				          /**< ??? todo */
+	int http_sock;					          /**< ??? todo */
+	int serv_sock;					          /**< ??? todo */
+	int chat_sock;					          /**< ??? todo */
+	unsigned room_flags;			          /**< ??? todo */
+	int wc_view;					          /**< ??? todo */
+	int wc_default_view;			          /**< ??? todo */
+	int wc_is_trash;				          /**< ??? todo */
+	int wc_floor;					          /**< ??? todo */
+	char ugname[128];				          /**< ??? todo */
+	long uglsn;						          /**< ??? todo */
+	int upload_length;				          /**< ??? todo */
+	char *upload;					          /**< ??? todo */
+	char upload_filename[PATH_MAX];	          /**< ??? todo */
+	char upload_content_type[256];	          /**< ??? todo */
+	int new_mail;					          /**< ??? todo */
+	int remember_new_mail;                    /**< ??? todo */      
+	int need_regi;			                  /**< This user needs to register. */
+	int need_vali;			                  /**< New users require validation. */
+	char cs_inet_email[256];	              /**< User's preferred Internet addr. */
+	pthread_mutex_t SessionMutex;	          /**< mutex for exclusive access */
+	time_t lastreq;			                  /**< Timestamp of most recent HTTP */
+	int killthis;			                  /**< Nonzero == purge this session */
+	struct march *march;                      /**< march mode room list */
+	char reply_to[512];                       /**< reply-to address */
+	long msgarr[10000];                       /**< for read operations */
+	int num_summ;                             /**< ??? todo */
+	struct message_summary *summ;             /**<  ??? todo */
+	int is_wap;			                      /**< Client is a WAP gateway */
+	struct urlcontent *urlstrings;            /**<  ??? todo */
+	struct wcsubst *vars;                     /**<   ??? todo*/
+	char this_page[512];                      /**< address of current page */
+	char http_host[512];                      /**< HTTP Host: header */
+	char *preferences;                        /**<  ??? todo */
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE	          	
+	/** \brief ical???? */			          	
+	struct disp_cal {				          	
+		icalcomponent *cal;		              /**< cal items for display */
+		long cal_msgnum;		              /**< cal msgids for display */
+	} *disp_cal;					          	
+	int num_cal;                              /**<  ??? todo */
+#endif											
+	struct wc_attachment *first_attachment;   /**<  ??? todo */
+	char ImportantMessage[SIZ];               /**<   ??? todo */
+	int ctdl_pid;                             /**< Session ID on the Citadel server */
+	char httpauth_user[256];	              /**< only for GroupDAV sessions */
+	char httpauth_pass[256];                  /**< only for GroupDAV sessions */
+	size_t burst_len;                         /**<  ??? todo */
+	char *burst;                              /**<  ??? todo */
+	int gzip_ok;                              /**< Nonzero if Accept-encoding: gzip */
+	int is_mailbox;                           /**< the current room is a private mailbox */
+	struct folder *cache_fold;                /**< cache the iconbar room list */
+	int cache_max_folders;                    /**<  ??? todo */
+	int cache_num_floors;                     /**<  ??? todo */
+	time_t cache_timestamp;                   /**<  ??? todo */
+	int current_iconbar;                      /**< What's currently in the iconbar? */
+	char floordiv_expanded[32];               /**< which floordiv currently expanded */
+	int selected_language;                    /**< Language selected by user */
+	time_t last_pager_check;                  /**< last time we polled for instant msgs */
 };
 
-/* values for WC->current_iconbar */
+/** values for WC->current_iconbar */
 enum {
-	current_iconbar_menu,
-	current_iconbar_roomlist
+	current_iconbar_menu,     /**< view the icon menue */
+	current_iconbar_roomlist  /**< view the roomtree */
 };
 
 
-#define num_parms(source)		num_tokens(source, '|')
+#define num_parms(source)		num_tokens(source, '|') 
 
 /* Per-session data */
 #define WC ((struct wcsession *)pthread_getspecific(MyConKey))

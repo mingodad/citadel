@@ -1,13 +1,14 @@
 /*
  * $Id$
- *
- * Displays the "Summary Page"
  */
-
+/**
+ * \defgroup SymaryFuncs Displays the "Summary Page"
+ */
+/*@{*/
 #include "webcit.h"
 
-/*
- * Display today's date in a friendly format
+/**
+ * \brief Display today's date in a friendly format
  */
 void output_date(void) {
 	struct tm tm;
@@ -51,8 +52,8 @@ void output_date(void) {
 
 
 
-/*
- * Dummy section
+/**
+ * \brief Dummy section
  */
 void dummy_section(void) {
 	svprintf("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
@@ -62,8 +63,8 @@ void dummy_section(void) {
 }
 
 
-/*
- * New messages section
+/**
+ * \brief New messages section
  */
 void new_messages_section(void) {
 	char buf[SIZ];
@@ -102,8 +103,8 @@ void new_messages_section(void) {
 }
 
 
-/*
- * Wholist section
+/**
+ * \brief Wholist section
  */
 void wholist_section(void) {
 	char buf[SIZ];
@@ -122,8 +123,8 @@ void wholist_section(void) {
 }
 
 
-/*
- * Task list section
+/**
+ * \brief Task list section
  */
 void tasks_section(void) {
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
@@ -164,8 +165,8 @@ void tasks_section(void) {
 }
 
 
-/*
- * Calendar section
+/**
+ * \brief Calendar section
  */
 void calendar_section(void) {
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
@@ -204,8 +205,8 @@ void calendar_section(void) {
 	do_template("endbox");
 }
 
-/*
- * Server info section (fluff, really)
+/**
+ * \brief Server info section (fluff, really)
  */
 void server_info_section(void) {
 	char message[512];
@@ -224,8 +225,11 @@ void server_info_section(void) {
 	do_template("endbox");
 }
 
+/**
+ * \brief summary of inner div????
+ */
 void summary_inner_div(void) {
-	/*
+	/**
 	 * Now let's do three columns of crap.  All portals and all groupware
 	 * clients seem to want to do three columns, so we'll do three
 	 * columns too.  Conformity is not inherently a virtue, but there are
@@ -236,13 +240,13 @@ void summary_inner_div(void) {
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr valign=top>");
 
-	/*
+	/**
 	 * Column One
 	 */
 	wprintf("<td width=33%%>");
 	wholist_section();
 
-	/*
+	/**
 	 * Column Two
 	 */
 	wprintf("</td><td width=33%%>");
@@ -250,7 +254,7 @@ void summary_inner_div(void) {
 	wprintf("<br />");
 	tasks_section();
 
-	/*
+	/**
 	 * Column Three
 	 */
 	wprintf("</td><td width=33%%>");
@@ -258,15 +262,15 @@ void summary_inner_div(void) {
 	wprintf("<br />");
 	calendar_section();
 
-	/*
+	/**
 	 * End of columns
 	 */
 	wprintf("</td></tr></table>");
 }
 
 
-/*
- * Display this user's summary page
+/**
+ * \brief Display this user's summary page
  */
 void summary(void) {
 	char title[256];
@@ -287,7 +291,7 @@ void summary(void) {
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
 
-	/*
+	/**
 	 * You guessed it ... we're going to refresh using ajax.
 	 * In the future we might consider updating individual sections of the summary
 	 * instead of the whole thing.
@@ -305,3 +309,6 @@ void summary(void) {
 
 	wDumpContent(1);
 }
+
+
+/*@}*/

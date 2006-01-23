@@ -1,16 +1,22 @@
 /*
  * $Id$
- *
- * Handles on-screen editing of vCard objects.
- *
  */
-
+/**
+ * \defgroup vCardEdit Handles on-screen editing of vCard objects.
+ * \ingroup WebFrontend
+ */
+/*@{*/
 #include "webcit.h"
 #include "vcard.h"
 
-/* Edit the vCard component of a MIME message.  Supply the message number
+/**
+ * \brief Edit the vCard component of a MIME message.  
+ * Supply the message number
  * and MIME part number to fetch.  Or, specify -1 for the message number
  * to start with a blank card.
+ * \param msgnum number of the item on the citadel server
+ * \param partnum what???
+ * \param return_to where to go back in the browser after edit ????
  */
 void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char buf[SIZ];
@@ -169,7 +175,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		vcard_free(v);
 	}
 
-	/* Display the form */
+	/** Display the form */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
@@ -335,7 +341,9 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 }
 
 
-
+/**
+ * \brief commit the edits to the citadel server
+ */
 void edit_vcard(void) {
 	long msgnum;
 	char *partnum;
@@ -347,7 +355,9 @@ void edit_vcard(void) {
 
 
 
-
+/**
+ * \brief parse edited vcard from the browser
+ */
 void submit_vcard(void) {
 	char buf[SIZ];
 	int i;
@@ -410,3 +420,7 @@ void submit_vcard(void) {
 		readloop("readnew");
 	}
 }
+
+
+
+/*@}*/

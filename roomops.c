@@ -1,15 +1,19 @@
 /*
  * $Id$
- *
- * Lots of different room-related operations.
  */
-
+/**
+ * \defgroup RoomOps Lots of different room-related operations.
+ */
+/*@{*/
 #include "webcit.h"
 
-char floorlist[128][SIZ];
+char floorlist[128][SIZ]; /**< list of our floor names */
 
-char *viewdefs[7];
+char *viewdefs[7]; /**< the different kinds of available views */
 
+/**
+ * \brief initialize the viewdefs with localized strings
+ */
 void initialize_viewdefs(void) {
 	viewdefs[0] = _("Bulletin Board");
 	viewdefs[1] = _("Mail Folder");
@@ -21,8 +25,8 @@ void initialize_viewdefs(void) {
 }
 
 
-/*
- * load the list of floors
+/**
+ * \brief load the list of floors
  */
 void load_floorlist(void)
 {
@@ -44,8 +48,8 @@ void load_floorlist(void)
 }
 
 
-/*
- * remove a room from the march list
+/**
+ * \brief remove a room from the march list
  */
 void remove_march(char *aaa)
 {
@@ -75,7 +79,10 @@ void remove_march(char *aaa)
 
 
 
-
+/**
+ * \brief display rooms in tree structure???
+ * \param rp the roomlist to build a tree from
+ */
 void room_tree_list(struct roomlisting *rp)
 {
 	char rmname[64];
@@ -110,8 +117,11 @@ void room_tree_list(struct roomlisting *rp)
 }
 
 
-/* 
- * Room ordering stuff (compare first by floor, then by order)
+/** 
+ * \brief Room ordering stuff (compare first by floor, then by order)
+ * \param r1 first roomlist to compare
+ * \param r2 second roomlist co compare
+ * \return are they the same???
  */
 int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 {
@@ -133,8 +143,9 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 }
 
 
-/*
- * Common code for all room listings
+/**
+ * \brief Common code for all room listings
+ * \param variety what???
  */
 void listrms(char *variety)
 {
@@ -146,7 +157,7 @@ void listrms(char *variety)
 	struct roomlisting *rs;
 
 
-	/* Ask the server for a room list */
+	/** Ask the server for a room list */
 	serv_puts(variety);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -188,15 +199,16 @@ void listrms(char *variety)
 
 	room_tree_list(rl);
 
-	/* If no rooms were listed, print an nbsp to make the cell
+	/**
+	 * If no rooms were listed, print an nbsp to make the cell
 	 * borders show up anyway.
 	 */
 	if (num_rooms == 0) wprintf("&nbsp;");
 }
 
 
-/*
- * list all forgotten rooms
+/**
+ * \brief list all forgotten rooms
  */
 void zapped_list(void)
 {
@@ -214,8 +226,8 @@ void zapped_list(void)
 }
 
 
-/*
- * read this room's info file (set v to 1 for verbose mode)
+/**
+ * \brief read this room's info file (set v to 1 for verbose mode)
  */
 void readinfo(void)
 {
@@ -234,7 +246,9 @@ void readinfo(void)
 
 
 
-/* Display room banner icon.  The server doesn't actually
+/**
+ * \brief Display room banner icon.  
+ * The server doesn't actually
  * need the room name, but we supply it in order to
  * keep the browser from using a cached icon from 
  * another room.
@@ -292,8 +306,8 @@ void embed_room_graphic(void) {
 
 
 
-/*
- * Display the current view and offer an option to change it
+/**
+ * \brief Display the current view and offer an option to change it
  */
 void embed_view_o_matic(void) {
 	int i;
@@ -309,7 +323,7 @@ void embed_view_o_matic(void) {
 		"[selectedIndex].value\">\n");
 
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		/*
+		/**
 		 * Only offer the views that make sense, given the default
 		 * view for the room.  For example, don't offer a Calendar
 		 * view in a non-Calendar room.
@@ -332,11 +346,16 @@ void embed_view_o_matic(void) {
 }
 
 
-
+/**
+ * \brief view room banner
+ * \param got what???
+ * \param navbar_style
+ */
 void embed_room_banner(char *got, int navbar_style) {
 	char fakegot[SIZ];
 
-	/* We need to have the information returned by a GOTO server command.
+	/**
+	 * We need to have the information returned by a GOTO server command.
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
 	 */
 	if (got == NULL) {
@@ -345,21 +364,22 @@ void embed_room_banner(char *got, int navbar_style) {
 		got = fakegot;
 	}
 
-	/* The browser needs some information for its own use */
+	/** The browser needs some information for its own use */
 	wprintf("<script type=\"text/javascript\">	\n"
 		"	room_is_trash = %d;		\n"
 		"</script>\n",
 		WC->wc_is_trash
 	);
 
-	/* If the user happens to select the "make this my start page" link,
+	/**
+	 * If the user happens to select the "make this my start page" link,
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
 	snprintf(WC->this_page, sizeof(WC->this_page), "dotskip&room=%s",
 		WC->wc_roomname);
 
-	/* Check for new mail. */
+	/** Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
@@ -563,8 +583,9 @@ void embed_room_banner(char *got, int navbar_style) {
 
 
 
-/*
- * back end routine to take the session to a new room
+/**
+ * \brief back end routine to take the session to a new room
+ * \param gname room to go to
  *
  */
 int gotoroom(char *gname)
@@ -573,11 +594,11 @@ int gotoroom(char *gname)
 	static long ls = (-1L);
 	int err = 0;
 
-	/* store ungoto information */
+	/** store ungoto information */
 	strcpy(WC->ugname, WC->wc_roomname);
 	WC->uglsn = ls;
 
-	/* move to the new room */
+	/** move to the new room */
 	serv_printf("GOTO %s", gname);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
@@ -616,9 +637,12 @@ int gotoroom(char *gname)
 }
 
 
-/*
- * Locate the room on the march list which we most want to go to.  Each room
+/**
+ * \brief Locate the room on the march list which we most want to go to.  
+ * Each room
  * is measured given a "weight" of preference based on various factors.
+ * \param desired_floor the room number on the citadel server
+ * \return the roomname
  */
 char *pop_march(int desired_floor)
 {
@@ -655,7 +679,8 @@ char *pop_march(int desired_floor)
 
 
 
-/* Goto next room having unread messages.
+/**
+ *\brief Goto next room having unread messages.
  * We want to skip over rooms that the user has already been to, and take the
  * user back to the lobby when done.  The room we end up in is placed in
  * newroom - which is set to 0 (the lobby) initially.
@@ -668,7 +693,8 @@ void gotonext(void)
 	struct march *mptr, *mptr2;
 	char next_room[128];
 
-	/* First check to see if the march-mode list is already allocated.
+	/**
+	 * First check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
 
@@ -691,9 +717,10 @@ void gotonext(void)
 					mptr2->next = mptr;
 				}
 			}
-/* add _BASEROOM_ to the end of the march list, so the user will end up
- * in the system base room (usually the Lobby>) at the end of the loop
- */
+		/**
+		 * add _BASEROOM_ to the end of the march list, so the user will end up
+		 * in the system base room (usually the Lobby>) at the end of the loop
+		 */
 		mptr = (struct march *) malloc(sizeof(struct march));
 		mptr->next = NULL;
 		strcpy(mptr->march_name, "_BASEROOM_");
@@ -705,10 +732,10 @@ void gotonext(void)
 				mptr2 = mptr2->next;
 			mptr2->next = mptr;
 		}
-/*
- * ...and remove the room we're currently in, so a <G>oto doesn't make us
- * walk around in circles
- */
+		/**
+		 * ...and remove the room we're currently in, so a <G>oto doesn't make us
+		 * walk around in circles
+		 */
 		remove_march(WC->wc_roomname);
 	}
 	if (WC->march != NULL) {
@@ -722,6 +749,10 @@ void gotonext(void)
 }
 
 
+/**
+ * \brief goto next room
+ * \param next_room next room to go to
+ */
 void smart_goto(char *next_room) {
 	gotoroom(next_room);
 	readloop("readnew");
@@ -729,8 +760,8 @@ void smart_goto(char *next_room) {
 
 
 
-/*
- * mark all messages in current room as having been read
+/**
+ * \brief mark all messages in current room as having been read
  */
 void slrp_highest(void)
 {
@@ -746,8 +777,8 @@ void slrp_highest(void)
 }
 
 
-/*
- * un-goto the previous room
+/**
+ * \brief un-goto the previous room
  */
 void ungoto(void)
 {
@@ -776,11 +807,11 @@ void ungoto(void)
 
 
 
-/*
- * Set/clear/read the "self-service list subscribe" flag for a room
+/**
+ * \brief Set/clear/read the "self-service list subscribe" flag for a room
  * 
- * Set 'newval' to 0 to clear, 1 to set, any other value to leave unchanged.
- * Always returns the new value.
+ * \param newval set to 0 to clear, 1 to set, any other value to leave unchanged.
+ * \return return the new value.
  */
 
 int self_service(int newval) {
@@ -838,8 +869,8 @@ int self_service(int newval) {
 
 
 
-/*
- * display the form for editing a room
+/**
+ * \brief display the form for editing a room
  */
 void display_editroom(void)
 {
@@ -883,7 +914,7 @@ void display_editroom(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	/* print the tabbed dialog */
+	/** print the tabbed dialog */
 	wprintf("<br />"
 		"<div class=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
@@ -987,9 +1018,9 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	wprintf("</TR></TABLE></div>\n");
-	/* end tabbed dialog */	
+	/** end tabbed dialog */	
 
-	/* begin content of whatever tab is open now */
+	/** begin content of whatever tab is open now */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
 		"<TR><TD>\n");
@@ -1088,7 +1119,7 @@ void display_editroom(void)
 		wprintf("> ");
 		wprintf(_("Read-only room"));
 	
-	/* directory stuff */
+		/** directory stuff */
 		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
 		if (er_flags & QR_DIRECTORY)
 			wprintf("CHECKED ");
@@ -1119,7 +1150,7 @@ void display_editroom(void)
 		wprintf(_("Visible directory"));
 		wprintf("</UL>\n");
 	
-	/* end of directory stuff */
+		/** end of directory stuff */
 	
 		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
 		if (er_flags & QR_NETWORK)
@@ -1133,7 +1164,7 @@ void display_editroom(void)
 		wprintf("> ");
 		wprintf(_("Permanent (does not auto-purge)"));
 
-	/* start of anon options */
+		/** start of anon options */
 	
 		wprintf("\n<LI>");
 		wprintf(_("Anonymous messages"));
@@ -1184,13 +1215,13 @@ void display_editroom(void)
 	}
 
 
-	/* Sharing the room with other Citadel nodes... */
+	/** Sharing the room with other Citadel nodes... */
 	if (!strcmp(tab, "sharing")) {
 
 		shared_with = strdup("");
 		not_shared_with = strdup("");
 
-		/* Learn the current configuration */
+		/** Learn the current configuration */
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
 		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -1230,7 +1261,7 @@ void display_editroom(void)
 			}
 		}
 
-		/* Display the stuff */
+		/** Display the stuff */
 		wprintf("<CENTER><br />"
 			"<TABLE border=1 cellpadding=5><TR>"
 			"<TD><B><I>");
@@ -1339,7 +1370,7 @@ void display_editroom(void)
 
 	}
 
-	/* Mailing list management */
+	/** Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 
 		wprintf("<br /><center>"
@@ -1431,7 +1462,7 @@ void display_editroom(void)
 	}
 
 
-	/* Mailing list management */
+	/** Mailing list management */
 	if (!strcmp(tab, "expire")) {
 
 		serv_puts("GPEX room");
@@ -1517,20 +1548,20 @@ void display_editroom(void)
 
 	}
 
-	/* Mailing list management */
+	/** Mailing list management */
 	if (!strcmp(tab, "access")) {
 		display_whok();
 	}
 
-	/* end content of whatever tab is open now */
+	/** end content of whatever tab is open now */
 	wprintf("</TD></TR></TABLE></div>\n");
 
 	wDumpContent(1);
 }
 
 
-/* 
- * Toggle self-service list subscription
+/** 
+ * \brief Toggle self-service list subscription
  */
 void toggle_self_service(void) {
 	int newval = 0;
@@ -1542,8 +1573,8 @@ void toggle_self_service(void) {
 
 
 
-/*
- * save new parameters for a room
+/**
+ * \brief save new parameters for a room
  */
 void editroom(void)
 {
@@ -1704,8 +1735,8 @@ void editroom(void)
 }
 
 
-/*
- * Display form for Invite, Kick, and show Who Knows a room
+/**
+ * \brief Display form for Invite, Kick, and show Who Knows a room
  */
 void do_invt_kick(void) {
         char buf[SIZ], room[SIZ], username[SIZ];
@@ -1754,8 +1785,8 @@ void do_invt_kick(void) {
 
 
 
-/*
- * Display form for Invite, Kick, and show Who Knows a room
+/**
+ * \brief Display form for Invite, Kick, and show Who Knows a room
  */
 void display_whok(void)
 {
@@ -1815,8 +1846,8 @@ void display_whok(void)
 
 
 
-/*
- * display the form for entering a new room
+/**
+ * \brief display the form for entering a new room
  */
 void display_entroom(void)
 {
@@ -1864,13 +1895,14 @@ void display_entroom(void)
                 }
         wprintf("</SELECT>\n");
 
-	/* Our clever little snippet of JavaScript automatically selects
-	 * a public room if the view is set to Bulletin Board or wiki, and
-	 * it selects a mailbox room otherwise.  The user can override this,
-	 * of course.  We also disable the floor selector for mailboxes.
-	 */
-	wprintf("<LI>");
-	wprintf(_("Default view for room: "));
+		/**
+		 * Our clever little snippet of JavaScript automatically selects
+		 * a public room if the view is set to Bulletin Board or wiki, and
+		 * it selects a mailbox room otherwise.  The user can override this,
+		 * of course.  We also disable the floor selector for mailboxes.
+		 */
+		wprintf("<LI>");
+		wprintf(_("Default view for room: "));
         wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\" OnChange=\""
 		"	if ( (this.form.er_view.value == 0)		"
 		"	   || (this.form.er_view.value == 6) ) {	"
@@ -1952,8 +1984,8 @@ void display_entroom(void)
 
 
 
-/*
- * support function for entroom() -- sets the default view 
+/**
+ * \brief support function for entroom() -- sets the default view 
  */
 void er_set_default_view(int newview) {
 
@@ -1988,8 +2020,8 @@ void er_set_default_view(int newview) {
 
 
 
-/*
- * enter a new room
+/**
+ * \brief enter a new room
  */
 void entroom(void)
 {
@@ -2037,8 +2069,8 @@ void entroom(void)
 }
 
 
-/*
- * display the screen to enter a private room
+/**
+ * \brief display the screen to enter a private room
  */
 void display_private(char *rname, int req_pass)
 {
@@ -2093,8 +2125,8 @@ void display_private(char *rname, int req_pass)
 	wDumpContent(1);
 }
 
-/* 
- * goto a private room
+/**
+ * \brief goto a private room
  */
 void goto_private(void)
 {
@@ -2128,8 +2160,8 @@ void goto_private(void)
 }
 
 
-/*
- * display the screen to zap a room
+/**
+ * \brief display the screen to zap a room
  */
 void display_zap(void)
 {
@@ -2156,15 +2188,16 @@ void display_zap(void)
 }
 
 
-/* 
- * zap a room
+/**
+ * \brief zap a room
  */
 void zap(void)
 {
 	char buf[SIZ];
 	char final_destination[SIZ];
 
-	/* If the forget-room routine fails for any reason, we fall back
+	/**
+	 * If the forget-room routine fails for any reason, we fall back
 	 * to the current room; otherwise, we go to the Lobby
 	 */
 	strcpy(final_destination, WC->wc_roomname);
@@ -2185,8 +2218,8 @@ void zap(void)
 
 
 
-/*
- * Delete the current room
+/**
+ * \brief Delete the current room
  */
 void delete_room(void)
 {
@@ -2205,8 +2238,8 @@ void delete_room(void)
 
 
 
-/*
- * Perform changes to a room's network configuration
+/**
+ * \brief Perform changes to a room's network configuration
  */
 void netedit(void) {
 	FILE *fp;
@@ -2240,7 +2273,7 @@ void netedit(void) {
 		return;
 	}
 
-	/* This loop works for add *or* remove.  Spiffy, eh? */
+	/** This loop works for add *or* remove.  Spiffy, eh? */
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(cmpa0, buf, 0, '|', sizeof cmpa0);
 		extract_token(cmpa1, buf, 1, '|', sizeof cmpa1);
@@ -2277,28 +2310,32 @@ void netedit(void) {
 
 
 
-/*
- * Convert a room name to a folder-ish-looking name.
+/**
+ * \brief Convert a room name to a folder-ish-looking name.
+ * \param folder the folderish name
+ * \param room the room name
+ * \param floor the floor name
+ * \param is_mailbox is it a mailbox?
  */
 void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 {
 	int i;
 
-	/*
+	/**
 	 * For mailboxes, just do it straight...
 	 */
 	if (is_mailbox) {
 		sprintf(folder, "My folders|%s", room);
 	}
 
-	/*
+	/**
 	 * Otherwise, prefix the floor name as a "public folders" moniker
 	 */
 	else {
 		sprintf(folder, "%s|%s", floorlist[floor], room);
 	}
 
-	/*
+	/**
 	 * Replace "\" characters with "|" for pseudo-folder-delimiting
 	 */
 	for (i=0; i<strlen(folder); ++i) {
@@ -2309,8 +2346,9 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 
 
 
-/*
- * Back end for change_view()
+/**
+ * \brief Back end for change_view()
+ * \param newview set newview???
  */
 void do_change_view(int newview) {
 	char buf[SIZ];
@@ -2323,8 +2361,8 @@ void do_change_view(int newview) {
 
 
 
-/*
- * Change the view for this room
+/**
+ * \brief Change the view for this room
  */
 void change_view(void) {
 	int view;
@@ -2334,8 +2372,11 @@ void change_view(void) {
 }
 
 
-/*
- * One big expanded tree list view --- like a folder list
+/**
+ * \brief One big expanded tree list view --- like a folder list
+ * \param fold the folder to view
+ * \param max_folders how many folders???
+ * \param num_floors hom many floors???
  */
 void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
@@ -2346,13 +2387,13 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 
 	parents = malloc(max_folders * sizeof(int));
 
-	/* BEGIN TREE MENU */
+	/** BEGIN TREE MENU */
 	wprintf("<div id=\"roomlist_div\">Loading folder list...</div>\n");
 
-	/* include NanoTree */
+	/** include NanoTree */
 	wprintf("<script type=\"text/javascript\" src=\"static/nanotree.js\"></script>\n");
 
-	/* initialize NanoTree */
+	/** initialize NanoTree */
 	wprintf("<script type=\"text/javascript\">			\n"
 		"	showRootNode = false;				\n"
 		"	sortNodes = false;				\n"
@@ -2442,11 +2483,14 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	);
 
 	free(parents);
-	/* END TREE MENU */
+	/** END TREE MENU */
 }
 
-/*
- * Boxes and rooms and lists ... oh my!
+/**
+ * \brief Boxes and rooms and lists ... oh my!
+ * \param fold the folder to view
+ * \param max_folders how many folders???
+ * \param num_floors hom many floors???
  */
 void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[256];
@@ -2469,7 +2513,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	boxes_per_column = (nf / columns);
 	if (boxes_per_column < 1) boxes_per_column = 1;
 
-	/* Outer table (for columnization) */
+	/** Outer table (for columnization) */
 	wprintf("<TABLE BORDER=0 WIDTH=96%% CELLPADDING=5>"
 		"<tr><td valign=top>");
 
@@ -2497,7 +2541,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
-			/* Begin inner box */
+			/** Begin inner box */
 			stresc(boxtitle, floor_name, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			do_template("beginbox");
@@ -2537,21 +2581,27 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("<br />\n");
 		}
 	}
-	/* End the final inner box */
+	/** End the final inner box */
 	do_template("endbox");
 
 	wprintf("</TD></TR></TABLE>\n");
 }
 
-
+/**
+ * \brief print a floor div???
+ * \param which_floordiv name of the floordiv???
+ */
 void set_floordiv_expanded(char *which_floordiv) {
 	begin_ajax_response();
 	safestrncpy(WC->floordiv_expanded, which_floordiv, sizeof WC->floordiv_expanded);
 	end_ajax_response();
 }
 
-/*
- *
+/**
+ * \brief view the iconbar
+ * \param fold the folder to view
+ * \param max_folders how many folders???
+ * \param num_floors hom many floors???
  */
 void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[256];
@@ -2577,14 +2627,14 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 		if ( (strcasecmp(floor_name, old_floor_name))
 		   && (strlen(old_floor_name) > 0) ) {
-			/* End inner box */
+			/** End inner box */
 			wprintf("<br>\n");
-			wprintf("</div>\n");	/* floordiv */
+			wprintf("</div>\n");	/** floordiv */
 		}
 		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
-			/* Begin floor */
+			/** Begin floor */
 			stresc(floordivtitle, floor_name, 0, 0);
 			sprintf(floordiv_id, "floordiv%d", i);
 			wprintf("<span class=\"ib_roomlist_floor\" "
@@ -2603,7 +2653,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("&nbsp;");
 			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;");
 
-			/* choose the icon */
+			/** choose the icon */
 			if (fold[i].view == VIEW_ADDRESSBOOK) {
 				icon = "viewcontacts_16x.gif" ;
 			}
@@ -2651,13 +2701,13 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 				wprintf("</i>");
 			}
 			wprintf("<br />");
-			wprintf("</div>\n");	/* roomdiv */
+			wprintf("</div>\n");	/** roomdiv */
 		}
 	}
-	wprintf("</div>\n");	/* floordiv */
+	wprintf("</div>\n");	/** floordiv */
 
 
-	/* BEGIN: The old invisible pixel trick, to get our JavaScript to initialize */
+	/** BEGIN: The old invisible pixel trick, to get our JavaScript to initialize */
 	wprintf("<img src=\"static/blank.gif\" onLoad=\"\n");
 
 	num_drop_targets = 0;
@@ -2679,14 +2729,16 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	}
 
 	wprintf("\">\n");
-	/* END: The old invisible pixel trick, to get our JavaScript to initialize */
+	/** END: The old invisible pixel trick, to get our JavaScript to initialize */
 }
 
 
 
-/*
- * Show the room list.  (only should get called by
+/**
+ * \brief Show the room list.  
+ * (only should get called by
  * knrooms() because that's where output_headers() is called from)
+ * \param viewpref the view preferences???
  */
 
 void list_all_rooms_by_floor(char *viewpref) {
@@ -2699,9 +2751,9 @@ void list_all_rooms_by_floor(char *viewpref) {
 	int i, j;
 	int ra_flags = 0;
 	int flags = 0;
-	int num_floors = 1;	/* add an extra one for private folders */
+	int num_floors = 1;	/** add an extra one for private folders */
 
-	/* If our cached folder list is very old, burn it. */
+	/** If our cached folder list is very old, burn it. */
 	if (WC->cache_fold != NULL) {
 		if ((time(NULL) - WC->cache_timestamp) > 300) {
 			free(WC->cache_fold);
@@ -2709,16 +2761,16 @@ void list_all_rooms_by_floor(char *viewpref) {
 		}
 	}
 
-	/* Can we do the iconbar roomlist from cache? */
+	/** Can we do the iconbar roomlist from cache? */
 	if ((WC->cache_fold != NULL) && (!strcasecmp(viewpref, "iconbar"))) {
 		do_iconbar_view(WC->cache_fold, WC->cache_max_folders, WC->cache_num_floors);
 		return;
 	}
 
-	/* Grab the floor table so we know how to build the list... */
+	/** Grab the floor table so we know how to build the list... */
 	load_floorlist();
 
-	/* Start with the mailboxes */
+	/** Start with the mailboxes */
 	max_folders = 1;
 	alloc_folders = 1;
 	fold = malloc(sizeof(struct folder));
@@ -2726,7 +2778,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 	strcpy(fold[0].name, "My folders");
 	fold[0].is_mailbox = 1;
 
-	/* Then add floors */
+	/** Then add floors */
 	serv_puts("LFLR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -2741,7 +2793,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 		++num_floors;
 	}
 
-	/* Now add rooms */
+	/** Now add rooms */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -2769,7 +2821,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 		++max_folders;
 	}
 
-	/* Bubble-sort the folder list */
+	/** Bubble-sort the folder list */
 	for (i=0; i<max_folders; ++i) {
 		for (j=0; j<(max_folders-1)-i; ++j) {
 			if (fold[j].is_mailbox == fold[j+1].is_mailbox) {
@@ -2822,15 +2874,17 @@ void list_all_rooms_by_floor(char *viewpref) {
 }
 
 
-/* Do either a known rooms list or a folders list, depending on the
+/**
+ * \brief Do either a known rooms list or a folders list, depending on the
  * user's preference
  */
-void knrooms() {
+void knrooms(void)
+{
 	char listviewpref[SIZ];
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	/* Determine whether the user is trying to change views */
+	/** Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
 		if (strlen(bstr("view")) > 0) {
 			set_preference("roomlistview", bstr("view"), 1);
@@ -2844,7 +2898,7 @@ void knrooms() {
 		strcpy(listviewpref, "rooms");
 	}
 
-	/* title bar */
+	/** title bar */
 	wprintf("<div id=\"banner\">\n"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
@@ -2860,7 +2914,7 @@ void knrooms() {
 	}
 	wprintf("</SPAN></TD>\n");
 
-	/* offer the ability to switch views */
+	/** offer the ability to switch views */
 	wprintf("<TD ALIGN=RIGHT><FORM NAME=\"roomlistomatic\">\n"
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
 		"OnChange=\"location.href=roomlistomatic.newview.options"
@@ -2885,15 +2939,15 @@ void knrooms() {
 		"</div>\n"
 		"<div id=\"content\">\n");
 
-	/* Display the room list in the user's preferred format */
+	/** Display the room list in the user's preferred format */
 	list_all_rooms_by_floor(listviewpref);
 	wDumpContent(1);
 }
 
 
 
-/* 
- * Set the message expire policy for this room and/or floor
+/**
+ * \brief Set the message expire policy for this room and/or floor
  */
 void set_room_policy(void) {
 	char buf[SIZ];
@@ -2918,3 +2972,6 @@ void set_room_policy(void) {
 
 	display_editroom();
 }
+
+
+/*@}*/

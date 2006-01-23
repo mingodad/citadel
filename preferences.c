@@ -1,16 +1,19 @@
 /*
  * $Id$
- *
- * Manage user preferences with a little help from the Citadel server.
+ */
+/**
+ * \defgroup ManagePrefs Manage user preferences with a little help from the Citadel server.
  *
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-
+/**
+ * \brief display preferences dialog
+ */
 void load_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
@@ -56,14 +59,14 @@ void load_preferences(void) {
 		}
 	}
 
-	/* Go back to the room we're supposed to be in */
+	/** Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
 
-/*
- * Goto the user's configuration room, creating it if necessary.
- * Returns 0 on success or nonzero upon failure.
+/**
+ * \brief Goto the user's configuration room, creating it if necessary.
+ * \return 0 on success or nonzero upon failure.
  */
 int goto_config_room(void) {
 	char buf[SIZ];
@@ -80,7 +83,9 @@ int goto_config_room(void) {
 	return(0);
 }
 
-
+/**
+ * \brief save the modifications
+ */
 void save_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
@@ -109,11 +114,17 @@ void save_preferences(void) {
 		serv_puts("000");
 	}
 
-	/* Go back to the room we're supposed to be in */
+	/** Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
 
+/**
+ * \brief query the actual setting of key in the citadel database
+ * \param key config key to query
+ * \param value value to the key to get
+ * \param value_len length of the value string
+ */
 void get_preference(char *key, char *value, size_t value_len) {
 	int num_prefs;
 	int i;
@@ -132,6 +143,12 @@ void get_preference(char *key, char *value, size_t value_len) {
 	}
 }
 
+/**
+ * \brief Write a key into the citadel settings database
+ * \param key key whichs value is to be modified
+ * \param value value to set
+ * \param save_to_server really write it????
+ */
 void set_preference(char *key, char *value, int save_to_server) {
 	int num_prefs;
 	int i;
@@ -168,8 +185,8 @@ void set_preference(char *key, char *value, int save_to_server) {
 
 
 
-/* 
- * display form for changing your preferences and settings
+/** 
+ * \brief display form for changing your preferences and settings
  */
 void display_preferences(void)
 {
@@ -193,13 +210,13 @@ void display_preferences(void)
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-	/* begin form */
+	/** begin form */
 	wprintf("<center>\n"
 		"<form name=\"prefform\" action=\"set_preferences\" "
 		"method=\"post\">\n"
 		"<table border=0 cellspacing=5 cellpadding=5>\n");
 
-	/*
+	/**
 	 * Room list view
 	 */
 	get_preference("roomlistview", buf, sizeof buf);
@@ -221,7 +238,7 @@ void display_preferences(void)
 
 	wprintf("</td></tr>\n");
 
-	/*
+	/**
 	 * Calendar hour format
 	 */
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
@@ -244,7 +261,7 @@ void display_preferences(void)
 
 	wprintf("</td></tr>\n");
 
-	/*
+	/**
 	 * Calendar day view -- day start time
 	 */
 	get_preference("daystart", buf, sizeof buf);
@@ -273,7 +290,7 @@ void display_preferences(void)
 	wprintf("</SELECT>\n");
 	wprintf("</td></tr>\n");
 
-	/*
+	/**
 	 * Calendar day view -- day end time
 	 */
 	get_preference("dayend", buf, sizeof buf);
@@ -302,7 +319,7 @@ void display_preferences(void)
 	wprintf("</SELECT>\n");
 	wprintf("</td></tr>\n");
 
-	/*
+	/**
 	 * Signature
 	 */
 	get_preference("use_sig", buf, sizeof buf);
@@ -363,15 +380,15 @@ void display_preferences(void)
 
 	wprintf("</form></center>\n");
 
-	/* end form */
+	/** end form */
 
 
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
-/*
- * Commit new preferences and settings
+/**
+ * \brief Commit new preferences and settings
  */
 void set_preferences(void)
 {
@@ -385,7 +402,8 @@ void set_preferences(void)
 		return;
 	}
 
-	/* Set the last argument to 1 only for the final setting, so
+	/**
+	 * Set the last argument to 1 only for the final setting, so
 	 * we don't send the prefs file to the server repeatedly
 	 */
 	set_preference("roomlistview", bstr("roomlistview"), 0);
@@ -399,3 +417,6 @@ void set_preferences(void)
 
 	display_main_menu();
 }
+
+
+/*@}*/

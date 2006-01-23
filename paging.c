@@ -1,13 +1,14 @@
 /*
  * $Id$
- *
- * Functions which implement the chat and paging facilities.
  */
-
+/**
+ * \defgroup PageFunc Functions which implement the chat and paging facilities.
+ */
+/*@{*/
 #include "webcit.h"
 
-/*
- * display the form for paging (x-messaging) another user
+/**
+ * \brief display the form for paging (x-messaging) another user
  */
 void display_page(void)
 {
@@ -60,8 +61,8 @@ void display_page(void)
 	wDumpContent(1);
 }
 
-/*
- * page another user
+/**
+ * \brief page another user
  */
 void page_user(void)
 {
@@ -114,14 +115,14 @@ void page_user(void)
 
 
 
-/*
- * multiuser chat
+/**
+ * \brief multiuser chat
  */
 void do_chat(void)
 {
 	char buf[SIZ];
 
-	/* First, check to make sure we're still allowed in this room. */
+	/** First, check to make sure we're still allowed in this room. */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
@@ -129,7 +130,8 @@ void do_chat(void)
 		return;
 	}
 
-	/* If the chat socket is still open from a previous chat,
+	/**
+	 * If the chat socket is still open from a previous chat,
 	 * close it -- because it might be stale or in the wrong room.
 	 */
 	if (WC->chat_sock < 0) {
@@ -137,7 +139,8 @@ void do_chat(void)
 		WC->chat_sock = (-1);
 	}
 
-	/* WebCit Chat works by having transmit, receive, and refresh
+	/**
+	 * WebCit Chat works by having transmit, receive, and refresh
 	 * frames.  Load the frameset.  (This isn't AJAX but the headers
 	 * output by begin_ajax_response() happen to be the ones we need.)
 	 */
@@ -148,7 +151,8 @@ void do_chat(void)
 }
 
 
-/*
+/**
+ * \brief display page popup
  * If there are instant messages waiting, and we notice that we haven't checked them in
  * a while, it probably means that we need to open the instant messenger window.
  */
@@ -156,7 +160,7 @@ void page_popup(void)
 {
 	char buf[SIZ];
 
-	/* First, do the check as part of our page load. */
+	/** First, do the check as part of our page load. */
 	serv_puts("NOOP");
 	serv_getln(buf, sizeof buf);
 	if (buf[3] == '*') {
@@ -169,7 +173,7 @@ void page_popup(void)
 		}
 	}
 
-	/* Then schedule it to happen again a minute from now if the user is idle. */
+	/** Then schedule it to happen again a minute from now if the user is idle. */
 	wprintf("<script type=\"text/javascript\">	\n"
 		" function HandleSslp(sslg_xmlresponse) {	\n"
 		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	\n"
@@ -189,8 +193,9 @@ void page_popup(void)
 
 
 
-/*
- * Support function for chat -- make sure the chat socket is connected
+/**
+ * \brief Support function for chat
+ * make sure the chat socket is connected
  * and in chat mode.
  */
 int setup_chat_socket(void) {
@@ -201,12 +206,12 @@ int setup_chat_socket(void) {
 	if (WC->chat_sock < 0) {
 
 		if (!strcasecmp(ctdlhost, "uds")) {
-			/* unix domain socket */
+			/** unix domain socket */
 			sprintf(buf, "%s/citadel.socket", ctdlport);
 			WC->chat_sock = uds_connectsock(buf);
 		}
 		else {
-			/* tcp socket */
+			/** tcp socket */
 			WC->chat_sock = tcp_connectsock(ctdlhost, ctdlport);
 		}
 
@@ -214,7 +219,7 @@ int setup_chat_socket(void) {
 			return(errno);
 		}
 
-		/* Temporarily swap the serv and chat sockets during chat talk */
+		/** Temporarily swap the serv and chat sockets during chat talk */
 		i = WC->serv_sock;
 		WC->serv_sock = WC->chat_sock;
 		WC->chat_sock = i;
@@ -240,7 +245,7 @@ int setup_chat_socket(void) {
 			}
 		}
 
-		/* Unswap the sockets. */
+		/** Unswap the sockets. */
 		i = WC->serv_sock;
 		WC->serv_sock = WC->chat_sock;
 		WC->chat_sock = i;
@@ -253,8 +258,9 @@ int setup_chat_socket(void) {
 
 
 
-/*
- * Receiving side of the chat window.  This is implemented in a
+/**
+ * \brief Receiving side of the chat window.  
+ * This is implemented in a
  * tiny hidden IFRAME that just does JavaScript writes to
  * other frames whenever it refreshes and finds new data.
  */
@@ -287,7 +293,7 @@ void chat_recv(void) {
 		return;
 	}
 
-	/*
+	/**
 	 * See if there is any chat data waiting.
 	 */
 	output_data = strdup("");
@@ -299,7 +305,7 @@ void chat_recv(void) {
 		if (poll(&pf, 1, 1) > 0) if (pf.revents & POLLIN) {
 			++got_data;
 
-			/* Temporarily swap the serv and chat sockets during chat talk */
+			/** Temporarily swap the serv and chat sockets during chat talk */
 			i = WC->serv_sock;
 			WC->serv_sock = WC->chat_sock;
 			WC->chat_sock = i;
@@ -312,12 +318,12 @@ void chat_recv(void) {
 				end_chat_now = 1;
 			}
 			
-			/* Unswap the sockets. */
+			/** Unswap the sockets. */
 			i = WC->serv_sock;
 			WC->serv_sock = WC->chat_sock;
 			WC->chat_sock = i;
 
-			/* Append our output data */
+			/** Append our output data */
 			output_data = realloc(output_data, strlen(output_data) + strlen(buf) + 4);
 			strcat(output_data, buf);
 			strcat(output_data, "\n");
@@ -337,7 +343,7 @@ void chat_recv(void) {
 			output_data[strlen(output_data)-1] = 0;
 		}
 
-		/* Output our fun to the other frame. */
+		/** Output our fun to the other frame. */
 		wprintf("<img src=\"static/blank.gif\" WIDTH=1 HEIGHT=1\n"
 			"onLoad=\" \n"
 		);
@@ -408,8 +414,8 @@ void chat_recv(void) {
 }
 
 
-/*
- * sending side of the chat window
+/**
+ * \brief sending side of the chat window
  */
 void chat_send(void) {
 	int i;
@@ -449,7 +455,7 @@ void chat_send(void) {
 		return;
 	}
 
-	/* Temporarily swap the serv and chat sockets during chat talk */
+	/** Temporarily swap the serv and chat sockets during chat talk */
 	i = WC->serv_sock;
 	WC->serv_sock = WC->chat_sock;
 	WC->chat_sock = i;
@@ -470,7 +476,7 @@ void chat_send(void) {
 		}
 	}
 
-	/* Unswap the sockets. */
+	/** Unswap the sockets. */
 	i = WC->serv_sock;
 	WC->serv_sock = WC->chat_sock;
 	WC->chat_sock = i;
@@ -489,3 +495,4 @@ void chat_send(void) {
 	wDumpContent(0);
 }
 
+/*@}*/

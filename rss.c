@@ -1,16 +1,21 @@
 /*
  * $Id$
- *
- * Generate some RSS for our rooms.
  */
-
+/**
+ * \defgroup RssRooms Generate some RSS for our rooms.
+ */
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
 
-time_t if_modified_since;
+time_t if_modified_since;    /**< the last modified stamp */
 
-
+/**
+ * \brief view rss Config menu
+ * \param reply_to the original author
+ * \param subject the subject of the feed
+ */
 void display_rss_control(char *reply_to, char *subject)
 {
 	wprintf("<div style=\"align: right;\"><p>\n");
@@ -30,6 +35,11 @@ void display_rss_control(char *reply_to, char *subject)
 }
 
 
+/**
+ * \brief print the feed to the subscriber
+ * \param roomname the room we sould print out as rss 
+ * \param request_method the way the rss is requested????
+ */
 void display_rss(char *roomname, char *request_method)
 {
 	int nummsgs;
@@ -39,11 +49,11 @@ void display_rss(char *roomname, char *request_method)
 	struct tm now_tm;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /* Buffer of characters to be converted */
-	char *obuf;                   /* Buffer for converted characters      */
-	size_t ibuflen;               /* Length of input buffer               */
-	size_t obuflen;               /* Length of output buffer              */
-	char *osav;                   /* Saved pointer to output buffer       */
+	char *ibuf;                   /**< Buffer of characters to be converted */
+	char *obuf;                   /**< Buffer for converted characters      */
+	size_t ibuflen;               /**< Length of input buffer               */
+	size_t obuflen;               /**< Length of output buffer              */
+	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
 	char buf[SIZ];
 	char date[30];
@@ -82,7 +92,7 @@ void display_rss(char *roomname, char *request_method)
 		return;
 	}
 
-	/* Read time of last message immediately */
+	/** Read time of last message immediately */
 	serv_printf("MSG4 %ld", WC->msgarr[nummsgs - 1]);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
@@ -131,7 +141,7 @@ void display_rss(char *roomname, char *request_method)
 	escputs(roomname);
 	wprintf("</link>\n");
 	wprintf("   <description>");
-	/* Get room info for description */
+	/** Get room info for description */
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
@@ -150,9 +160,9 @@ void display_rss(char *roomname, char *request_method)
 	wprintf("   <docs>http://blogs.law.harvard.edu/tech/rss</docs>\n");
 	wprintf("   <ttl>30</ttl>\n");
 
-	/* Read all messages and output as RSS items */
+	/** Read all messages and output as RSS items */
 	for (a = 0; a < nummsgs; ++a) {
-		/* Read message and output each as RSS item */
+		/** Read message and output each as RSS item */
 		serv_printf("MSG4 %ld", WC->msgarr[a]);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '1') continue;
@@ -168,7 +178,7 @@ void display_rss(char *roomname, char *request_method)
 
 		while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 			if (!strcmp(buf, "000")) {
-				goto ENDITEM;	/* screw it */
+				goto ENDITEM;	/** screw it */
 			} else if (!strncasecmp(buf, "from=", 5)) {
 				strcpy(from, &buf[5]);
 #ifdef HAVE_ICONV
@@ -211,7 +221,7 @@ void display_rss(char *roomname, char *request_method)
 			wprintf("      <pubDate>%s</pubDate>\n", date);
 		}
 		wprintf("      <guid isPermaLink=\"false\">%s</guid>\n", msgn);
-		/* Now the hard part, the message itself */
+		/** Now the hard part, the message itself */
 		strcpy(content_type, "text/plain");
 		while (serv_getln(buf, sizeof buf), strlen(buf) > 0) {
 			if (!strcmp(buf, "000")) {
@@ -232,7 +242,7 @@ void display_rss(char *roomname, char *request_method)
 			}
 		}
 
-		/* Set up a character set conversion if we need to */
+		/** Set up a character set conversion if we need to */
 #ifdef HAVE_ICONV
 		if (strcasecmp(charset, "us-ascii") && strcasecmp(charset, "utf-8") && strcasecmp(charset, "") ) {
 			ic = iconv_open("UTF-8", charset);
@@ -244,7 +254,7 @@ void display_rss(char *roomname, char *request_method)
 		}
 #endif
 
-		/* Messages in legacy Citadel variformat get handled thusly... */
+		/** Messages in legacy Citadel variformat get handled thusly... */
 		if (!strcasecmp(content_type, "text/x-citadel-variformat")) {
 			int intext = 0;
 
@@ -275,7 +285,7 @@ void display_rss(char *roomname, char *request_method)
 			display_rss_control(from, subj);
 			wprintf("]]></description>\n");
 		}
-		/* Boring old 80-column fixed format text gets handled this way... */
+		/** Boring old 80-column fixed format text gets handled this way... */
 		else if (!strcasecmp(content_type, "text/plain")) {
 			wprintf("      <description><![CDATA[");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -315,7 +325,7 @@ void display_rss(char *roomname, char *request_method)
 			display_rss_control(from, subj);
 			wprintf("]]></description>\n");
 		}
-		/* HTML is fun, but we've got to strip it first */
+		/** HTML is fun, but we've got to strip it first */
 		else if (!strcasecmp(content_type, "text/html")) {
 			wprintf("      <description><![CDATA[");
 			output_html(charset);
@@ -328,8 +338,11 @@ ENDITEM:
 		now = 0L;
 	}
 
-	/* Do RSS footer */
+	/** Do RSS footer */
 	wprintf("   </channel>\n");
 	wprintf("</rss>\n");
 	wDumpContent(0);
 }
+
+
+/*@}*/

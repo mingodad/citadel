@@ -1,11 +1,17 @@
 /*
  * $Id:  $
- *
- * Utility functions for creating tabbed dialogs
  */
-
+/**
+ * \defgroup TabUtils Utility functions for creating tabbed dialogs
+ */
+/*@{*/
 #include "webcit.h"
 
+/**
+ * \brief print tabbed dialog
+ * \param num_tabs how many tabs do we have?
+ * \param tabnames the headers of the tables
+ */
 void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	int i;
 
@@ -45,6 +51,11 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	wprintf("<table border=\"0\" width=\"100%%\" bgcolor=\"#ffffff\"><tr><td>");
 }
 
+/**
+ * \brief print the tab-header
+ * \param tabnum number of the tab to print
+ * \param num_tabs total number oftabs to be printed
+ */
 void begin_tab(int tabnum, int num_tabs) {
 	wprintf("<div id=\"tabdiv%d\" style=\"display:%s\">",
 		tabnum,
@@ -52,6 +63,11 @@ void begin_tab(int tabnum, int num_tabs) {
 	);
 }
 
+/**
+ * \brief print the tab-footer
+ * \param tabnum number of the tab to print
+ * \param num_tabs total number oftabs to be printed
+ */
 void end_tab(int tabnum, int num_tabs) {
 	wprintf("</div>\n");
 
@@ -59,3 +75,6 @@ void end_tab(int tabnum, int num_tabs) {
 		wprintf("</td></tr></table>\n");
 	}
 }
+
+
+/*@}*/
