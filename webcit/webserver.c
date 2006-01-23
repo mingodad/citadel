@@ -9,6 +9,7 @@
  */
 
 /*@{*/
+#include "webcit.h"
 #include "webserver.h"
 
 #ifndef HAVE_SNPRINTF

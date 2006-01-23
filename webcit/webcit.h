@@ -371,6 +371,7 @@ struct wcsession {
 	int num_cal;                              /**<  ??? todo */
 #endif											
 	struct wc_attachment *first_attachment;   /**<  ??? todo */
+	char last_chat_user[256];                 /**< ??? todo */
 	char ImportantMessage[SIZ];               /**<   ??? todo */
 	int ctdl_pid;                             /**< Session ID on the Citadel server */
 	char httpauth_user[256];	              /**< only for GroupDAV sessions */

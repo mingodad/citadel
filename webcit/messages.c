@@ -130,8 +130,7 @@ void utf8ify_rfc822_string(char *buf) {
  * target window in order to keep the BBS session in its own window.
  * \param buf the message buffer
  */
-void url(buf)
-char buf[];
+void url(char *buf)
 {
 
 	int pos;
