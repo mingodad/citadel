@@ -1,14 +1,20 @@
 /*
  * $Id$
- *
- * Editing of various text files on the Citadel server.
  */
-
+/**
+ * \defgroup ShowSysMsgs Editing of various text files on the Citadel server.
+ */
+/*@{*/
 #include "webcit.h"
 
 
-/*
- * display the form for editing something (room info, bio, etc)
+/**
+ * \brief display the form for editing something (room info, bio, etc)
+ * \param description the descriptive text for the box
+ * \param check_cmd command to check????
+ * \param read_cmd read answer from citadel server???
+ * \param save_cmd save comand to the citadel server??
+ * \param with_room_banner should we bisplay a room banner?
  */
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner)
@@ -57,8 +63,11 @@ void display_edit(char *description, char *check_cmd,
 }
 
 
-/*
- * save a screen which was displayed with display_edit()
+/**
+ * \brief save a screen which was displayed with display_edit()
+ * \param description the window title???
+ * \param enter_cmd which command to enter at the citadel server???
+ * \param regoto should we go to that room again after executing that command?
  */
 void save_edit(char *description, char *enter_cmd, int regoto)
 {
@@ -91,3 +100,6 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		return;
 	}
 }
+
+
+/*@}*/

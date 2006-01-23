@@ -1,14 +1,17 @@
 /*
  * $Id$
- *
- * Administrative screen for site-wide configuration
+ */
+/**
+ * \defgroup AdminConfig Administrative screen for site-wide configuration
  *
  */
-
+/*@{*/
 
 #include "webcit.h"
 
-
+/**
+ * \brief display all configuration items
+ */
 void display_siteconfig(void)
 {
 	char buf[SIZ];
@@ -22,7 +25,7 @@ void display_siteconfig(void)
 	char purger[SIZ];
 	char idxjnl[SIZ];
 
-	/* expire policy settings */
+	/** expire policy settings */
 	int sitepolicy = 0;
 	int sitevalue = 0;
 	int mboxpolicy = 0;
@@ -564,7 +567,9 @@ void display_siteconfig(void)
 	wDumpContent(1);
 }
 
-
+/**
+ * parse siteconfig changes 
+ */
 void siteconfig(void)
 {
 	char buf[256];
@@ -640,3 +645,6 @@ void siteconfig(void)
 		sizeof WC->ImportantMessage);
 	display_aide_menu();
 }
+
+
+/*@}*/

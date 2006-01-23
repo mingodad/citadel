@@ -1,15 +1,16 @@
 /*
  * $Id$
- *
- * Display a list of all users currently logged on to the Citadel server.
  */
-
+/**
+ * \defgroup DislpayWho Display a list of all users currently logged on to the Citadel server.
+ */
+/*@{*/
 #include "webcit.h"
 
 
 
-/*
- * Display inner div of Wholist
+/**
+ * \brief Display inner div of Wholist
  */
 void who_inner_div(void) {
 	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
@@ -64,7 +65,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>");
 
-			/* (link to page this user) */
+			/** (link to page this user) */
 			wprintf("<td><a href=\"display_page?recp=");
 			urlescputs(user);
 			wprintf("\">"
@@ -74,7 +75,7 @@ void who_inner_div(void) {
 				" border=\"0\" /></a> ");
 			wprintf("</td>");
 
-			/* (idle flag) */
+			/** (idle flag) */
 			wprintf("<td>");
 			if ((now - last_activity) > 900L) {
 				wprintf(" "
@@ -92,14 +93,14 @@ void who_inner_div(void) {
 
 
 
-			/* username (link to user bio/photo page) */
+			/** username (link to user bio/photo page) */
 			wprintf("<a href=\"showuser?who=");
 			urlescputs(user);
 			wprintf("\">");
 			escputs(user);
 			wprintf("</a>");
 
-			/* room */
+			/** room */
 			wprintf("</td>\n\t<td>");
 			escputs(room);
 			if (strlen(realroom) > 0) {
@@ -109,7 +110,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>\n\t<td>");
 
-			/* hostname */
+			/** hostname */
 			escputs(host);
 			if (strlen(realhost) > 0) {
 				wprintf("<br /><i>");
@@ -123,8 +124,8 @@ void who_inner_div(void) {
 }
 
 
-/*
- * who is on?
+/**
+ * \brief who is on?
  */
 void who(void)
 {
@@ -167,7 +168,8 @@ void who(void)
 	);
 	wprintf("</div>\n");
 
-	/* JavaScript to make the ajax refresh happen:
+	/**
+	 * JavaScript to make the ajax refresh happen:
 	 * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.PeriodicalUpdater
 	 * It wants: 1. The div being updated
 	 *           2. The URL of the update source
@@ -182,7 +184,9 @@ void who(void)
 	wDumpContent(1);
 }
 
-
+/**
+ * \brief end session \todo what??? does this belong here? 
+ */
 void terminate_session(void)
 {
 	char buf[SIZ];
@@ -193,8 +197,8 @@ void terminate_session(void)
 }
 
 
-/*
- * Change your session info (fake roomname and hostname)
+/**
+ * \brief Change your session info (fake roomname and hostname)
  */
 void edit_me(void)
 {
@@ -271,3 +275,6 @@ void edit_me(void)
 		wDumpContent(1);
 	}
 }
+
+
+/*@}*/

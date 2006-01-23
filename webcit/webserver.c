@@ -1,41 +1,44 @@
 /*
  * $Id$
- *
- * This contains a simple multithreaded TCP server manager.  It sits around
+ */
+/**
+ * \defgroup Webserver This contains a simple multithreaded TCP server manager.  It sits around
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
  */
 
-
-#include "webcit.h"
+/*@{*/
 #include "webserver.h"
 
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
 
-int verbosity = 9;		/* Logging level */
-int msock;			/* master listening socket */
-int is_https = 0;		/* Nonzero if I am an HTTPS service */
-int follow_xff = 0;		/* Follow X-Forwarded-For: header */
+int verbosity = 9;		/**< Logging level */
+int msock;			    /**< master listening socket */
+int is_https = 0;		/**< Nonzero if I am an HTTPS service */
+int follow_xff = 0;		/**< Follow X-Forwarded-For: header */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
 
-char *server_cookie = NULL;
+char *server_cookie = NULL; /**< our Cookie connection to the client */
 
 
-char *ctdlhost = DEFAULT_HOST;
-char *ctdlport = DEFAULT_PORT;
-int setup_wizard = 0;
-char wizard_filename[PATH_MAX];
+char *ctdlhost = DEFAULT_HOST; /**< our name */
+char *ctdlport = DEFAULT_PORT; /**< our Port */
+int setup_wizard = 0;          /**< should we run the setup wizard? \todo */
+char wizard_filename[PATH_MAX];/**< where's the setup wizard? */
 
-/*
- * This is a generic function to set up a master socket for listening on
+/** 
+ * \brief This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
+ * \param ip_addr ip to bind to
+ * \param port_number the port to bind to 
+ * \param queue_len the size of the input queue ????
  */
 int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
@@ -65,7 +68,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
 		exit(errno);
 	}
-	/* Set some socket options that make sense. */
+	/** Set some socket options that make sense. */
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
@@ -82,8 +85,10 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 
 
-/*
- * Create a Unix domain socket and listen on it
+/**
+ * \brief Create a Unix domain socket and listen on it
+ * \param sockpath file name of the unix domain socket
+ * \param queue_len queue size of the kernel fifo????
  */
 int ig_uds_server(char *sockpath, int queue_len)
 {
@@ -132,12 +137,16 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 
 
-/*
- * Read data from the client socket.
- * Return values are:
- *      1       Requested number of bytes has been read.
- *      0       Request timed out.
- *	-1	Connection is broken, or other error.
+/**
+ * \brief Read data from the client socket.
+ * \param sock socket fd to read from ???
+ * \param buf buffer to read into 
+ * \param bytes how large is the read buffer?
+ * \param timeout how long should we wait for input?
+ * \return values are\
+ *      1       Requested number of bytes has been read.\
+ *      0       Request timed out.\
+ *	   -1   	Connection is broken, or other error.
  */
 int client_read_to(int sock, char *buf, int bytes, int timeout)
 {
@@ -183,7 +192,11 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 	return (1);
 }
 
-
+/**
+ * \brief write data to the client
+ * \param buf data to write to the client
+ * \param count size of buffer
+ */
 ssize_t client_write(const void *buf, size_t count)
 {
 
@@ -208,7 +221,9 @@ ssize_t client_write(const void *buf, size_t count)
 	return (write(WC->http_sock, buf, count));
 }
 
-
+/**
+ * \brief what burst???
+ */
 void begin_burst(void)
 {
 	if (WC->burst != NULL) {
@@ -220,22 +235,25 @@ void begin_burst(void)
 }
 
 
-/*
- * compress_gzip() uses the same calling syntax as compress2(), but it
+/**
+ * \brief uses the same calling syntax as compress2(), but it
  * creates a stream compatible with HTTP "Content-encoding: gzip"
  */
 #ifdef HAVE_ZLIB
-#define DEF_MEM_LEVEL 8
-#define OS_CODE 0x03	/* unix */
-int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
-			  const Bytef * source, uLong sourceLen, int level)
+#define DEF_MEM_LEVEL 8 /**< memlevel??? */
+#define OS_CODE 0x03	/**< unix */
+int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
+						  uLongf * destLen,     /**< length of the compresed data */
+						  const Bytef * source, /**< source to encode */
+						  uLong sourceLen,      /**< length of the source to encode */
+						  int level)            /**< what level??? */
 {
-	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
+	const int gz_magic[2] = { 0x1f, 0x8b };	/** gzip magic header */
 
-	/* write gzip header */
+	/** write gzip header */
 	sprintf((char *) dest, "%c%c%c%c%c%c%c%c%c%c",
 		gz_magic[0], gz_magic[1], Z_DEFLATED,
-		0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /*xflags */ ,
+		0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /** xflags */ ,
 		OS_CODE);
 
 	/* normal deflate */
@@ -281,6 +299,9 @@ int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
 }
 #endif
 
+/**
+ * \brief what burst???
+ */
 void end_burst(void)
 {
 	size_t the_len;
@@ -326,10 +347,13 @@ void end_burst(void)
 
 
 
-/*
- * Read data from the client socket with default timeout.
+/**
+ * \brief Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
+ * \param sock the socket fd to read from???
+ * \param buf the buffer to write to
+ * \param bytes how large is the buffer
  */
 int client_read(int sock, char *buf, int bytes)
 {
@@ -337,30 +361,32 @@ int client_read(int sock, char *buf, int bytes)
 }
 
 
-/*
- * client_getln()   ...   Get a LF-terminated line of text from the client.
+/**
+ * \brief Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
+ * \param sock socket fd to get client line from???
+ * \param buf buffer to write read data to
+ * \param bufsiz how many bytes to read
+ * \return  numer of bytes read???
  */
 int client_getln(int sock, char *buf, int bufsiz)
 {
 	int i, retval;
 
-	/* Read one character at a time.
-	 */
+	/** Read one character at a time.*/
 	for (i = 0;; i++) {
 		retval = client_read(sock, &buf[i], 1);
 		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
 	}
 
-	/* If we got a long line, discard characters until the newline.
-	 */
+	/** If we got a long line, discard characters until the newline.	 */
 	if (i == (bufsiz-1))
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(sock, &buf[i], 1);
 
-	/*
+	/**
 	 * Strip any trailing non-printable characters.
 	 */
 	buf[i] = 0;
@@ -371,8 +397,9 @@ int client_getln(int sock, char *buf, int bufsiz)
 }
 
 
-/*
- * Start running as a daemon.  Only close stdio if do_close_stdio is set.
+/**
+ * \brief Start running as a daemon.  
+ * param do_close_stdio Only close stdio if set.
  */
 void start_daemon(int do_close_stdio)
 {
@@ -390,17 +417,18 @@ void start_daemon(int do_close_stdio)
 
 void spawn_another_worker_thread()
 {
-	pthread_t SessThread;	/* Thread descriptor */
-	pthread_attr_t attr;	/* Thread attributes */
+	pthread_t SessThread;	/**< Thread descriptor */
+	pthread_attr_t attr;	/**< Thread attributes */
 	int ret;
 
 	lprintf(3, "Creating a new thread\n");
 
-	/* set attributes for the new thread */
+	/** set attributes for the new thread */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	/* Our per-thread stacks need to be bigger than the default size, otherwise
+	/**
+	 * Our per-thread stacks need to be bigger than the default size, otherwise
 	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
 	 * 64-bit Linux.
 	 */
@@ -410,26 +438,28 @@ void spawn_another_worker_thread()
 		pthread_attr_destroy(&attr);
 	}
 
-	/* now create the thread */
+	/** now create the thread */
 	if (pthread_create(&SessThread, &attr,
 			   (void *(*)(void *)) worker_entry, NULL)
 	    != 0) {
 		lprintf(1, "Can't create thread: %s\n", strerror(errno));
 	}
 
-	/* free up the attributes */
+	/** free up the attributes */
 	pthread_attr_destroy(&attr);
 }
 
-/*
- * Here's where it all begins.
+/**
+ * \brief Here's where it all begins.
+ * \param argc number of commandline args
+ * \param argv the commandline arguments
  */
 int main(int argc, char **argv)
 {
-	pthread_t SessThread;	/* Thread descriptor */
-	pthread_attr_t attr;	/* Thread attributes */
-	int a, i;		/* General-purpose variables */
-	int port = PORT_NUM;	/* Port to listen on */
+	pthread_t SessThread;	/**< Thread descriptor */
+	pthread_attr_t attr;	/**< Thread attributes */
+	int a, i;	        	/**< General-purpose variables */
+	int port = PORT_NUM;	/**< Port to listen on */
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
 	char *webcitdir = WEBCITDIR;
@@ -437,11 +467,11 @@ int main(int argc, char **argv)
 	char *locale = NULL;
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
-	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
+	char uds_listen_path[PATH_MAX];	/**< listen on a unix domain socket? */
 
 	strcpy(uds_listen_path, "");
 
-	/* Parse command line */
+	/** Parse command line */
 #ifdef HAVE_OPENSSL
 	while ((a = getopt(argc, argv, "h:i:p:t:x:cfs")) != EOF)
 #else
@@ -506,7 +536,7 @@ int main(int argc, char **argv)
 		if (++optind < argc)
 			ctdlport = argv[optind];
 	}
-	/* Tell 'em who's in da house */
+	/** Tell 'em who's in da house */
 	lprintf(1, SERVER "\n");
 	lprintf(1, "Copyright (C) 1996-2005 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
@@ -518,7 +548,7 @@ int main(int argc, char **argv)
 		perror("chdir");
 	}
 
-	/* initialize the International Bright Young Thing */
+	/** initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
 
 	initialize_locales();
@@ -542,7 +572,7 @@ int main(int argc, char **argv)
 	initialize_viewdefs();
 	initialize_axdefs();
 
-	/*
+	/**
 	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
 	 * wcsession struct to which the thread is currently bound.
@@ -551,7 +581,7 @@ int main(int argc, char **argv)
 		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
 	}
 
-	/*
+	/**
 	 * Set up a place to put thread-specific SSL data.
 	 * We don't stick this in the wcsession struct because SSL starts
 	 * up before the session is bound, and it gets torn down between
@@ -563,7 +593,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	/*
+	/**
 	 * Bind the server to our favorite port.
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
@@ -583,7 +613,7 @@ int main(int argc, char **argv)
 
 	pthread_mutex_init(&SessionListMutex, NULL);
 
-	/*
+	/**
 	 * Start up the housekeeping thread
 	 */
 	pthread_attr_init(&attr);
@@ -592,7 +622,7 @@ int main(int argc, char **argv)
 		       (void *(*)(void *)) housekeeping_loop, NULL);
 
 
-	/*
+	/**
 	 * If this is an HTTPS server, fire up SSL
 	 */
 #ifdef HAVE_OPENSSL
@@ -601,7 +631,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	/* Start a few initial worker threads */
+	/** Start a few initial worker threads */
 	for (i = 0; i < (MIN_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
 	}
@@ -612,7 +642,7 @@ int main(int argc, char **argv)
 }
 
 
-/*
+/**
  * Entry point for worker threads
  */
 void worker_entry(void)
@@ -623,19 +653,19 @@ void worker_entry(void)
 	int fail_this_transaction = 0;
 
 	do {
-		/* Only one thread can accept at a time */
+		/** Only one thread can accept at a time */
 		fail_this_transaction = 0;
 		ssock = accept(msock, NULL, 0);
 		if (ssock < 0) {
 			lprintf(2, "accept() failed: %s\n",
 				strerror(errno));
 		} else {
-			/* Set the SO_REUSEADDR socket option */
+			/** Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 				   &i, sizeof(i));
 
-			/* If we are an HTTPS server, go crypto now. */
+			/** If we are an HTTPS server, go crypto now. */
 #ifdef HAVE_OPENSSL
 			if (is_https) {
 				if (starttls(ssock) != 0) {
@@ -646,9 +676,9 @@ void worker_entry(void)
 #endif
 
 			if (fail_this_transaction == 0) {
-				/* Perform an HTTP transaction... */
+				/** Perform an HTTP transaction... */
 				context_loop(ssock);
-				/* ...and close the socket. */
+				/** ...and close the socket. */
 				lingering_close(ssock);
 			}
 
@@ -659,7 +689,13 @@ void worker_entry(void)
 	pthread_exit(NULL);
 }
 
-
+/**
+ * \brief logprintf. log messages 
+ * logs to stderr if loglevel is lower than the verbosity set at startup
+ * \param loglevel level of the message
+ * \param format the printf like format string
+ * \param ... the strings to put into format
+ */
 int lprintf(int loglevel, const char *format, ...)
 {
 	va_list ap;
@@ -672,3 +708,6 @@ int lprintf(int loglevel, const char *format, ...)
 	}
 	return 1;
 }
+
+
+/*@}*/

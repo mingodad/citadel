@@ -1,19 +1,21 @@
 /*
  * $Id$
- *
- * vCard data type implementation for the Citadel system.
+ */
+/**
+ * \defgroup VCardMain vCard data type implementation for the Citadel system.
  *
  * Copyright (C) 1999-2005 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
-
+/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 #include "vcard.h"
 
-/* 
- * Constructor (empty vCard)
+/** 
+ * \brief Constructor (empty vCard)
+ * \return an empty vcard
  */
 struct vCard *vcard_new() {
 	struct vCard *v;
@@ -29,8 +31,10 @@ struct vCard *vcard_new() {
 }
 
 
-/*
- * Constructor (supply serialized vCard)
+/**
+ * \brief Constructor (supply serialized vCard)
+ * \param vtext the text to parse into the new vcard
+ * \return the parsed VCard
  */
 struct vCard *vcard_load(char *vtext) {
 	struct vCard *v;
@@ -44,7 +48,8 @@ struct vCard *vcard_load(char *vtext) {
 	mycopy = strdup(vtext);
 	if (mycopy == NULL) return NULL;
 
-	/* First, fix this big pile o' vCard to make it more parseable.
+	/**
+	 * First, fix this big pile o' vCard to make it more parseable.
 	 * To make it easier to parse, we convert CRLF to LF, and unfold any
 	 * multi-line fields into single lines.
 	 */
@@ -110,13 +115,19 @@ struct vCard *vcard_load(char *vtext) {
 }
 
 
-/*
- * Fetch the value of a particular key.
+/**
+ * \brief Fetch the value of a particular key.
  * If is_partial is set to 1, a partial match is ok (for example,
  * a key of "tel;home" will satisfy a search for "tel").
  * Set "instance" to a value higher than 0 to return subsequent instances
  * of the same key.
  * Set "get_propname" to nonzero to fetch the property name instead of value.
+ * \param v vCard to get keyvalue from
+ * \param propname key to retrieve
+ * \param is_partial dunno???
+ * \param instance if >0 return a later token of the value
+ * \param get_propname if nonzero get the real property name???
+ * \return the requested value / token / propertyname
  */
 char *vcard_get_prop(struct vCard *v, char *propname,
 			int is_partial, int instance, int get_propname) {
@@ -147,8 +158,10 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 
 
 
-/*
- * Destructor
+/**
+ * \brief Destructor
+ * kill a vCard
+ * \param v the vCard to purge from memory
  */
 void vcard_free(struct vCard *v) {
 	int i;
@@ -169,15 +182,19 @@ void vcard_free(struct vCard *v) {
 
 
 
-/*
- * Set a name/value pair in the card
+/**
+ * \brief Set a name/value pair in the card
+ * \param v vCard to inspect
+ * \param name key to set
+ * \param value the value to assign to key
+ * \param append should we append the value to an existing one?
  */
 void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	int i;
 
-	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
+	if (v->magic != CTDL_VCARD_MAGIC) return;	/** Self-check */
 
-	/* If this key is already present, replace it */
+	/** If this key is already present, replace it */
 	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
 			free(v->prop[i].name);
@@ -188,7 +205,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 		}
 	}
 
-	/* Otherwise, append it */
+	/** Otherwise, append it */
 	++v->numprops;
 	v->prop = realloc(v->prop,
 		(v->numprops * sizeof(struct vCardProp)) );
@@ -199,9 +216,10 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 
 
 
-/*
- * Serialize a struct vcard into a standard text/x-vcard MIME type.
- *
+/**
+ * \brief Serialize a struct vcard into a standard text/x-vcard MIME type.
+ * \param v vCard to serialize
+ * \return the serialized vCard
  */
 char *vcard_serialize(struct vCard *v)
 {
@@ -209,10 +227,10 @@ char *vcard_serialize(struct vCard *v)
 	int i;
 	size_t len;
 
-	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/* self check */
+	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/** self check */
 
-	/* Figure out how big a buffer we need to allocate */
-	len = 64;	/* for begin, end, and a little padding for safety */
+	/** Figure out how big a buffer we need to allocate */
+	len = 64;	/** for begin, end, and a little padding for safety */
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		len = len +
 			strlen(v->prop[i].name) +
@@ -233,3 +251,7 @@ char *vcard_serialize(struct vCard *v)
 
 	return ser;
 }
+
+
+
+/*@}*/

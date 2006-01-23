@@ -1,9 +1,11 @@
 /*
  * $Id$
- * 
- * TCP client socket module for WebCit
+ */
+/** 
+ * \defgroup TcpSockets TCP client socket module for WebCit
  *
  */
+/*@{*/
 
 /*
  * Uncomment this to log all communications with the Citadel server
@@ -13,6 +15,11 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/**
+ * \brief register the timeout
+ * \param signum signalhandler number
+ * \return signals
+ */
 RETSIGTYPE timeout(int signum)
 {
 	lprintf(1, "Connection timed out.\n");
@@ -20,8 +27,9 @@ RETSIGTYPE timeout(int signum)
 }
 
 
-/*
- * Connect a unix domain socket
+/**
+ * \brief Connect a unix domain socket
+ * \param sockpath where to open a unix domain socket
  */
 int uds_connectsock(char *sockpath)
 {
@@ -50,8 +58,10 @@ int uds_connectsock(char *sockpath)
 }
 
 
-/*
- * Connect a TCP/IP socket
+/**
+ * \brief Connect a TCP/IP socket
+ * \param host the host to connect to
+ * \param service the service on the host to call
  */
 int tcp_connectsock(char *host, char *service)
 {
@@ -108,8 +118,10 @@ int tcp_connectsock(char *host, char *service)
 
 
 
-/*
- * Input binary data from socket
+/**
+ * \brief Input binary data from socket
+ * \param buf the buffer to get the input to
+ * \param bytes the maximal number of bytes to read
  */
 void serv_read(char *buf, int bytes)
 {
@@ -133,8 +145,8 @@ void serv_read(char *buf, int bytes)
 }
 
 
-/*
- * input string from pipe
+/**
+ * \brief input string from pipe
  */
 void serv_getln(char *strbuf, int bufsize)
 {
@@ -157,8 +169,10 @@ void serv_getln(char *strbuf, int bufsize)
 
 
 
-/*
- * send binary to server
+/**
+ * \brief send binary to server
+ * \param buf the buffer to write to citadel server
+ * \param nbytes how many bytes to send to citadel server
  */
 void serv_write(char *buf, int nbytes)
 {
@@ -181,8 +195,9 @@ void serv_write(char *buf, int nbytes)
 }
 
 
-/*
- * send line to server
+/**
+ * \brief send line to server
+ * \param string the line to send to the citadel server
  */
 void serv_puts(char *string)
 {
@@ -196,8 +211,10 @@ void serv_puts(char *string)
 }
 
 
-/*
- * convenience function to send stuff to the server
+/**
+ * \brief convenience function to send stuff to the server
+ * \param format the formatstring
+ * \param ... the entities to insert into format 
  */
 void serv_printf(const char *format,...)
 {
@@ -214,3 +231,6 @@ void serv_printf(const char *format,...)
 	lprintf(9, "<%s", buf);
 #endif
 }
+
+
+/*@}*/
