@@ -17,7 +17,7 @@
  * Also convert weird character sets to UTF-8 if necessary.
  * \param charset the input charset
  */
-void output_html(char *charset) {
+void output_html(char *charset, int treat_as_wiki) {
 	char buf[SIZ];
 	char *msg;
 	char *ptr;
@@ -151,14 +151,32 @@ void output_html(char *charset) {
 			ptr = &ptr[16];
 			++alevel;
 		}
-		/** Make links open in a separate window */
+		/** Make external links open in a separate window */
 		else if (!strncasecmp(ptr, "<a href=", 8)) {
-			content_length += 64;
-			converted_msg = realloc(converted_msg, content_length);
-			sprintf(&converted_msg[output_length], new_window);
-			output_length += strlen(new_window);
-			ptr = &ptr[8];
 			++alevel;
+			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
+			     &&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
+			     ) {
+				/* open external links to new window */
+				content_length += 64;
+				converted_msg = realloc(converted_msg, content_length);
+				sprintf(&converted_msg[output_length], new_window);
+				output_length += strlen(new_window);
+				ptr = &ptr[8];
+			}
+			else if ( (treat_as_wiki) && (strncasecmp(ptr, "<a href=\"wiki?", 14)) ) {
+				lprintf(9, "converting wiki link\n");
+				content_length += 64;
+				converted_msg = realloc(converted_msg, content_length);
+				sprintf(&converted_msg[output_length], "<a href=\"wiki?page=");
+				output_length += 19;
+				ptr = &ptr[9];
+			}
+			else {
+				sprintf(&converted_msg[output_length], "<a href=");
+				output_length += 8;
+				ptr = &ptr[8];
+			}
 		}
 		/**
 		 * Turn anything that looks like a URL into a real link, as long

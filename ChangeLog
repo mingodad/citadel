@@ -1,5 +1,8 @@
 $Id$
 
+Tue Jan 24 13:56:03 EST 2006 ajc
+* Fixes to wiki view to handle "short" links.
+
 Tue Jan 24 11:07:04 EST 2006 ajc
 * client_getln() now fails if the client attempts to transmit non printable
   characters.   This is for fast bailout if someone tries to do HTTPS to a
