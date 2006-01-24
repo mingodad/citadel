@@ -153,6 +153,7 @@ struct CtdlMessage *CtdlMakeMessage(
         int format_type,                /* variformat, plain text, MIME... */
         char *fake_name,                /* who we're masquerading as */
         char *subject,                  /* Subject (optional) */
+	char *supplied_euid,		/* ...or NULL if this is irrelevant */
         char *preformatted_text         /* ...or NULL to read text from client */
 );
 int CtdlCheckInternetMailPermission(struct ctdluser *who);

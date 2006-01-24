@@ -321,6 +321,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			CC->room.QRname, 0, FMT_RFC822,
 			"",
 			summary_string,		/* Use summary for subject */
+			NULL,
 			reply_message_text);
 	
 		if (msg != NULL) {
@@ -697,6 +698,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 			0, FMT_RFC822,
 			"",
 			"",		/* no subject */
+			NULL,
 			message_text);
 	
 		if (msg != NULL) {
@@ -1589,6 +1591,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			CC->room.QRname, 0, FMT_RFC822,
 			"",
 			summary_string,		/* Use summary for subject */
+			NULL,
 			request_message_text);
 	
 		if (msg != NULL) {

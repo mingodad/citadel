@@ -824,6 +824,12 @@ of the recipient(s) of the message.
   8  -  Recipient (Bcc: field).  This argument is utilized only for private
 mail.  It is ignored for public messages.  It contains, of course, the name
 of the recipient(s) of the message.
+  9  -  Exclusive message ID.  When a message is submitted with an Exclusive
+message ID, any existing messages with the same ID will automatically be
+deleted.  This is only applicable for Wiki rooms; other types of rooms either
+ignore the supplied ID (such as message boards and mailboxes) or derive the
+ID from a UUID native to the objects stored in them (such as calendars and
+address books).
 
  Possible result codes:
   OK  -  The request is valid.  (Client did not set the "post" flag, so the

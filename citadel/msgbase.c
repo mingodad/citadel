@@ -2640,6 +2640,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	int format_type,		/* variformat, plain text, MIME... */
 	char *fake_name,		/* who we're masquerading as */
 	char *subject,			/* Subject (optional) */
+	char *supplied_euid,		/* ...or NULL if this is irrelevant */
 	char *preformatted_text		/* ...or NULL to read text from client */
 ) {
 	char dest_node[SIZ];
@@ -2698,6 +2699,10 @@ struct CtdlMessage *CtdlMakeMessage(
 		if (strlen(subject) > 0) {
 			msg->cm_fields['U'] = strdup(subject);
 		}
+	}
+
+	if (supplied_euid != NULL) {
+		msg->cm_fields['E'] = strdup(supplied_euid);
 	}
 
 	if (preformatted_text != NULL) {
@@ -2975,6 +2980,7 @@ void cmd_ent0(char *entargs)
 	char recp[SIZ];
 	char cc[SIZ];
 	char bcc[SIZ];
+	char supplied_euid[128];
 	char masquerade_as[SIZ];
 	int anon_flag = 0;
 	int format_type = 0;
@@ -3001,6 +3007,14 @@ void cmd_ent0(char *entargs)
 	do_confirm = extract_int(entargs, 6);
 	extract_token(cc, entargs, 7, '|', sizeof cc);
 	extract_token(bcc, entargs, 8, '|', sizeof bcc);
+	switch(CC->room.QRdefaultview) {
+		case VIEW_WIKI:
+			extract_token(supplied_euid, entargs, 9, '|', sizeof supplied_euid);
+			break;
+		default:
+			supplied_euid[0] = 0;
+			break;
+	}
 
 	/* first check to make sure the request is valid. */
 
@@ -3161,7 +3175,9 @@ void cmd_ent0(char *entargs)
 
 	msg = CtdlMakeMessage(&CC->user, recp, cc,
 		CC->room.QRname, anonymous, format_type,
-		masquerade_as, subject, NULL);
+		masquerade_as, subject,
+		((strlen(supplied_euid) > 0) ? supplied_euid : NULL),
+		NULL);
 
 	/* Put together one big recipients struct containing to/cc/bcc all in
 	 * one.  This is for the envelope.

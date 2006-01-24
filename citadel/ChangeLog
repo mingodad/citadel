@@ -1,5 +1,8 @@
 $Id$
 
+Mon Jan 23 22:22:18 EST 2006 ajc
+* In WIKI rooms, clients can supply a message EUID
+
 Sat Jan 21 16:22:51 EST 2006 ajc
 * Patch to the "m<Y> next message" function, submitted by matt
 
