@@ -2527,12 +2527,13 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		sprintf(buf, "ENT0 1|%s|%d|4|%s|||%s|%s",
+		sprintf(buf, "ENT0 1|%s|%d|4|%s|||%s|%s|%s",
 			bstr("recp"),
 			is_anonymous,
 			bstr("subject"),
 			bstr("cc"),
-			bstr("bcc")
+			bstr("bcc"),
+			bstr("wikipage")
 		);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
@@ -2575,6 +2576,7 @@ void display_enter(void)
 	int recipient_bad = 0;
 	int i;
 	int is_anonymous = 0;
+	long existing_page = (-1L);
 
 	if (strlen(bstr("force_room")) > 0) {
 		gotoroom(bstr("force_room"));
@@ -2638,7 +2640,8 @@ void display_enter(void)
 
 	/** Now check our actual recipients if there are any */
 	if (recipient_required) {
-		sprintf(buf, "ENT0 0|%s|%d|0||||%s|%s", bstr("recp"), is_anonymous, bstr("cc"), bstr("bcc"));
+		sprintf(buf, "ENT0 0|%s|%d|0||||%s|%s|%s", bstr("recp"), is_anonymous,
+			bstr("cc"), bstr("bcc"), bstr("wikipage"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 
@@ -2676,6 +2679,9 @@ void display_enter(void)
 		"name=\"enterform\""
 		">\n");
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
+	if (WC->wc_view == VIEW_WIKI) {
+		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
+	}
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
 	wprintf("%s\n", buf);	/** header bar */
@@ -2771,6 +2777,16 @@ void display_enter(void)
 			"<blockquote>");
 		pullquote_message(atol(bstr("replyquote")), 0);
 		wprintf("</blockquote>\n\n");
+	}
+
+	/** If we're editing a wiki page, insert the existing page here... */
+	else if (WC->wc_view == VIEW_WIKI) {
+		safestrncpy(buf, bstr("wikipage"), sizeof buf);
+		str_wiki_index(buf);
+		existing_page = locate_message_by_uid(buf);
+		if (existing_page >= 0L) {
+			pullquote_message(existing_page, 1);
+		}
 	}
 
 	/** Insert our signature if appropriate... */

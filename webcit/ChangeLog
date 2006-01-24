@@ -1,5 +1,9 @@
 $Id$
 
+Mon Jan 23 22:51:11 EST 2006 ajc
+* Got a primitive version of the wiki system in place.  Needs a lot of fine
+  tuning but it basically works.
+
 Fri Jan 20 21:03:25 CET 2006 dothebart
 * finished doxygen style comments.
 

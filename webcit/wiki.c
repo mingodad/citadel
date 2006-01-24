@@ -50,18 +50,22 @@ void display_wiki_page(void)
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	str_wiki_index(pagename);
 
-	/* If we're not in the correct room, try going there. */
-	if (strcasecmp(roomname, WC->wc_roomname)) {
-		gotoroom(roomname);
-	}
+	if (strlen(roomname) > 0) {
 
-	/* If we're still not in the correct room, it doesn't exist. */
-	if (strcasecmp(roomname, WC->wc_roomname)) {
-		snprintf(errmsg, sizeof errmsg,
-			_("There is no room called '%s'."),
-			roomname);
-		convenience_page("FF0000", _("Error"), errmsg);
-		return;
+		/* If we're not in the correct room, try going there. */
+		if (strcasecmp(roomname, WC->wc_roomname)) {
+			gotoroom(roomname);
+		}
+	
+		/* If we're still not in the correct room, it doesn't exist. */
+		if (strcasecmp(roomname, WC->wc_roomname)) {
+			snprintf(errmsg, sizeof errmsg,
+				_("There is no room called '%s'."),
+				roomname);
+			convenience_page("FF0000", _("Error"), errmsg);
+			return;
+		}
+
 	}
 
 	if (WC->wc_view != VIEW_WIKI) {

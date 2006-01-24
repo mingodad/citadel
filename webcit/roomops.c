@@ -352,7 +352,7 @@ void embed_view_o_matic(void) {
  * \param navbar_style
  */
 void embed_room_banner(char *got, int navbar_style) {
-	char fakegot[SIZ];
+	char buf[256];
 
 	/**
 	 * We need to have the information returned by a GOTO server command.
@@ -360,8 +360,8 @@ void embed_room_banner(char *got, int navbar_style) {
 	 */
 	if (got == NULL) {
 		serv_printf("GOTO %s", WC->wc_roomname);
-		serv_getln(fakegot, sizeof fakegot);
-		got = fakegot;
+		serv_getln(buf, sizeof buf);
+		got = buf;
 	}
 
 	/** The browser needs some information for its own use */
@@ -538,7 +538,15 @@ void embed_room_banner(char *got, int navbar_style) {
 					);
 					break;
 				case VIEW_WIKI:
-					/* Don't let users create unlinked pages. */
+					safestrncpy(buf, bstr("page"), sizeof buf);
+					str_wiki_index(buf);
+					wprintf(
+						"<td><a href=\"display_enter?wikipage=%s\">"
+						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"%s"
+						"</span></a></td>\n", buf, _("Edit this page")
+					);
 					break;
 				default:
 					wprintf(
