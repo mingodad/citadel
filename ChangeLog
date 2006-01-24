@@ -1,5 +1,10 @@
 $Id$
 
+Tue Jan 24 11:07:04 EST 2006 ajc
+* client_getln() now fails if the client attempts to transmit non printable
+  characters.   This is for fast bailout if someone tries to do HTTPS to a
+  non-SSL webcit.
+
 Mon Jan 23 22:51:11 EST 2006 ajc
 * Got a primitive version of the wiki system in place.  Needs a lot of fine
   tuning but it basically works.

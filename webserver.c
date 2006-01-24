@@ -380,7 +380,12 @@ int client_getln(int sock, char *buf, int bufsiz)
 		retval = client_read(sock, &buf[i], 1);
 		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
+		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
+			lprintf(2, "Non printable character recieved from client\n");
+			return(-1);
+		}
 	}
+
 
 	/** If we got a long line, discard characters until the newline.	 */
 	if (i == (bufsiz-1))
