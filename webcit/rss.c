@@ -328,7 +328,7 @@ void display_rss(char *roomname, char *request_method)
 		/** HTML is fun, but we've got to strip it first */
 		else if (!strcasecmp(content_type, "text/html")) {
 			wprintf("      <description><![CDATA[");
-			output_html(charset);
+			output_html(charset, 0);
 			wprintf("]]></description>\n");
 		}
 
