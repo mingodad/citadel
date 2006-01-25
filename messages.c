@@ -1330,6 +1330,7 @@ void pullquote_message(long msgnum, int forward_attachments) {
 	/** HTML just gets escaped and stuffed back into the editor */
 	else if (!strcasecmp(mime_content_type, "text/html")) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			strcat(buf, "\n");
 			msgescputs(buf);
 		}
 	}
@@ -2557,7 +2558,27 @@ void post_message(void)
 	}
 
 	free_attachments(WC);
-	readloop("readnew");
+
+	/**
+	 *  We may have been supplied with instructions regarding the location
+	 *  to which we must return after posting.  If found, go there.
+	 */
+	if (strlen(bstr("return_to")) > 0) {
+		http_redirect(bstr("return_to"));
+	}
+	/**
+	 *  If we were editing a page in a wiki room, go to that page now.
+	 */
+	else if (strlen(bstr("wikipage")) > 0) {
+		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("wikipage"));
+		http_redirect(buf);
+	}
+	/**
+	 *  Otherwise, just go to the "read messages" loop.
+	 */
+	else {
+		readloop("readnew");
+	}
 }
 
 
@@ -2682,6 +2703,7 @@ void display_enter(void)
 	if (WC->wc_view == VIEW_WIKI) {
 		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
 	}
+	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
 	wprintf("%s\n", buf);	/** header bar */
