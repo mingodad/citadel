@@ -363,8 +363,8 @@ void msgesc(char *target, char *strbuf)
 }
 
 /**
- * \brief print message to the client ???
- * \param strbuf message to print???
+ * \brief print a string to the client after cleaning it with msgesc()
+ * \param strbuf string to be printed
  */
 void msgescputs(char *strbuf) {
 	char *outbuf;
@@ -648,7 +648,7 @@ void output_image()
  * \brief Generic function to output an arbitrary MIME part from an arbitrary
  * message number on the server.
  * \param msgnum number of the item on the citadel server
- * \param partnum the partnumber???
+ * \param partnum the MIME part to be output
  */
 void mimepart(char *msgnum, char *partnum)
 {
@@ -683,7 +683,7 @@ void mimepart(char *msgnum, char *partnum)
 /**
  * \brief Read any MIME part of a message, from the server, into memory.
  * \param msgnum number of the message on the citadel server
- * \param partnum the part number???
+ * \param partnum the MIME part to be loaded
  */
 char *load_mimepart(long msgnum, char *partnum)
 {
@@ -795,7 +795,7 @@ void change_start_page(void) {
 
 
 /**
- * \brief display the successfull edit or s.th. lisket hat ??? 
+ * \brief convenience function to indicate success
  * \param successmessage the mesage itself
  */
 void display_success(char *successmessage)

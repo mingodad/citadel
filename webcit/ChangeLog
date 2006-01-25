@@ -1,5 +1,11 @@
 $Id$
 
+Tue Jan 24 23:02:37 EST 2006 ajc
+* Eliminated a bug in pullquote_message() that was causing it to run words
+  together at the linebreaks.
+* After creating or editing a Wiki page, display that page instead of
+  that wiki's home page.
+
 Tue Jan 24 13:56:03 EST 2006 ajc
 * Fixes to wiki view to handle "short" links.
 

@@ -485,6 +485,17 @@ void embed_room_banner(char *got, int navbar_style) {
 						"</span></a></td>\n", _("View message list")
 					);
 					break;
+				case VIEW_WIKI:
+					wprintf(
+						"<td>"
+						"<a href=\"readfwd\">"
+						"<img align=\"middle\" src=\"static/readallmess3_24x.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"%s"
+						"</span></a></td>\n", _("Wiki home")
+					);
+					break;
 				default:
 					wprintf(
 						"<td>"

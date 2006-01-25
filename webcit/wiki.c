@@ -9,6 +9,7 @@
 
 /*@{*/
 #include "webcit.h"
+#include "groupdav.h"
 
 
 
@@ -98,9 +99,8 @@ void display_wiki_page(void)
 	wprintf("<br><b>");
 	wprintf(_("There is no page called '%s' here."), pagename);
 	wprintf("</b><br><br>");
-	wprintf("<a href=\"display_enter?wikipage=%s\">", pagename);
-	wprintf(_("Click here if you would like to create this page."));
-	wprintf("</a>");
+	wprintf(_("Select the 'Edit this page' link in the room banner "
+		"if you would like to create this page."));
 	wprintf("<br><br>");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
