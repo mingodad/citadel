@@ -1106,7 +1106,7 @@ void display_headers(char *msgnum_as_string) {
  * \param msgnum the citadel message number
  * \param forward_attachments atachment to forward???
  */
-void pullquote_message(long msgnum, int forward_attachments) {
+void pullquote_message(long msgnum, int forward_attachments, int include_headers) {
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -1160,57 +1160,59 @@ void pullquote_message(long msgnum, int forward_attachments) {
 			wprintf(_("unexpected end of message"));
 			return;
 		}
-		if (!strncasecmp(buf, "nhdr=yes", 8))
-			nhdr = 1;
-		if (nhdr == 1)
-			buf[0] = '_';
-		if (!strncasecmp(buf, "type=", 5))
-			format_type = atoi(&buf[5]);
-		if (!strncasecmp(buf, "from=", 5)) {
-			strcpy(from, &buf[5]);
-			wprintf(_("from "));
+		if (include_headers) {
+			if (!strncasecmp(buf, "nhdr=yes", 8))
+				nhdr = 1;
+			if (nhdr == 1)
+				buf[0] = '_';
+			if (!strncasecmp(buf, "type=", 5))
+				format_type = atoi(&buf[5]);
+			if (!strncasecmp(buf, "from=", 5)) {
+				strcpy(from, &buf[5]);
+				wprintf(_("from "));
 #ifdef HAVE_ICONV
-			utf8ify_rfc822_string(from);
+				utf8ify_rfc822_string(from);
 #endif
-			msgescputs(from);
-		}
-		if (!strncasecmp(buf, "subj=", 5)) {
-			strcpy(m_subject, &buf[5]);
-		}
-		if ((!strncasecmp(buf, "hnod=", 5))
-		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
-			wprintf("(%s) ", &buf[5]);
-		}
-		if ((!strncasecmp(buf, "room=", 5))
-		    && (strcasecmp(&buf[5], WC->wc_roomname))
-		    && (strlen(&buf[5])>0) ) {
-			wprintf(_("in "));
-			wprintf("%s&gt; ", &buf[5]);
-		}
-		if (!strncasecmp(buf, "rfca=", 5)) {
-			strcpy(rfca, &buf[5]);
-			wprintf("&lt;");
-			msgescputs(rfca);
-			wprintf("&gt; ");
-		}
-
-		if (!strncasecmp(buf, "node=", 5)) {
-			strcpy(node, &buf[5]);
-			if ( ((WC->room_flags & QR_NETWORK)
-			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
-			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-			&& (strlen(rfca)==0)
-			) {
-				wprintf("@%s ", &buf[5]);
+				msgescputs(from);
 			}
-		}
-		if (!strncasecmp(buf, "rcpt=", 5)) {
-			wprintf(_("to "));
-			wprintf("%s ", &buf[5]);
-		}
-		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, atol(&buf[5]), 0);
-			wprintf("%s ", now);
+			if (!strncasecmp(buf, "subj=", 5)) {
+				strcpy(m_subject, &buf[5]);
+			}
+			if ((!strncasecmp(buf, "hnod=", 5))
+			    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
+				wprintf("(%s) ", &buf[5]);
+			}
+			if ((!strncasecmp(buf, "room=", 5))
+			    && (strcasecmp(&buf[5], WC->wc_roomname))
+			    && (strlen(&buf[5])>0) ) {
+				wprintf(_("in "));
+				wprintf("%s&gt; ", &buf[5]);
+			}
+			if (!strncasecmp(buf, "rfca=", 5)) {
+				strcpy(rfca, &buf[5]);
+				wprintf("&lt;");
+				msgescputs(rfca);
+				wprintf("&gt; ");
+			}
+	
+			if (!strncasecmp(buf, "node=", 5)) {
+				strcpy(node, &buf[5]);
+				if ( ((WC->room_flags & QR_NETWORK)
+				|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
+				&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
+				&& (strlen(rfca)==0)
+				) {
+					wprintf("@%s ", &buf[5]);
+				}
+			}
+			if (!strncasecmp(buf, "rcpt=", 5)) {
+				wprintf(_("to "));
+				wprintf("%s ", &buf[5]);
+			}
+			if (!strncasecmp(buf, "time=", 5)) {
+				fmt_date(now, atol(&buf[5]), 0);
+				wprintf("%s ", now);
+			}
 		}
 
 		/**
@@ -1226,22 +1228,24 @@ void pullquote_message(long msgnum, int forward_attachments) {
 
 	}
 
-	wprintf("<br>");
+	if (include_headers) {
+		wprintf("<br>");
 
 #ifdef HAVE_ICONV
-	utf8ify_rfc822_string(m_subject);
+		utf8ify_rfc822_string(m_subject);
 #endif
-	if (strlen(m_subject) > 0) {
-		wprintf(_("Subject:"));
-		wprintf(" ");
-		msgescputs(m_subject);
+		if (strlen(m_subject) > 0) {
+			wprintf(_("Subject:"));
+			wprintf(" ");
+			msgescputs(m_subject);
+			wprintf("<br />");
+		}
+
+		/**
+	 	 * Begin body
+	 	 */
 		wprintf("<br />");
 	}
-
-	/**
-	 * Begin body
-	 */
-	wprintf("<br>");
 
 	/**
 	 * Learn the content type
@@ -2790,14 +2794,14 @@ void display_enter(void)
 		wprintf("<br><div align=center><i>");
 		wprintf(_("--- forwarded message ---"));
 		wprintf("</i></div><br>");
-		pullquote_message(atol(bstr("fwdquote")), 1);
+		pullquote_message(atol(bstr("fwdquote")), 1, 1);
 	}
 
 	/** If we're replying quoted, insert the quote here... */
 	else if (atol(bstr("replyquote")) > 0L) {
 		wprintf("<br>"
 			"<blockquote>");
-		pullquote_message(atol(bstr("replyquote")), 0);
+		pullquote_message(atol(bstr("replyquote")), 0, 1);
 		wprintf("</blockquote>\n\n");
 	}
 
@@ -2807,7 +2811,7 @@ void display_enter(void)
 		str_wiki_index(buf);
 		existing_page = locate_message_by_uid(buf);
 		if (existing_page >= 0L) {
-			pullquote_message(existing_page, 1);
+			pullquote_message(existing_page, 1, 0);
 		}
 	}
 
