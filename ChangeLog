@@ -1,5 +1,8 @@
 $Id$
 
+Wed Jan 25 13:10:20 EST 2006 ajc
+* Don't pullquote the headers when editing a wiki page.
+
 Tue Jan 24 23:02:37 EST 2006 ajc
 * Eliminated a bug in pullquote_message() that was causing it to run words
   together at the linebreaks.
