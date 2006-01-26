@@ -631,7 +631,7 @@ void display_customize_iconbar(void) {
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_rooms ? "CHECKED" : ""),
 		_("Rooms"),
-		_("Clicking this icon displays a list of all accesible "
+		_("Clicking this icon displays a list of all accessible "
 		"rooms (or folders) available.")
 	);
 
