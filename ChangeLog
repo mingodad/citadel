@@ -1,5 +1,8 @@
 $Id$
 
+Thu Jan 26 15:44:56 EST 2006 ajc
+* Complete overhaul of "Notes" view.  Now features AJAX create and edit operations.
+
 Wed Jan 25 22:25:46 EST 2006 ajc
 * Fixed some spelling errors
 * Added en_GB.po translation provided by David Given

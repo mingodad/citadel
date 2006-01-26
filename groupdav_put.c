@@ -12,9 +12,9 @@
 
 
 /**
- * \brief put an item to the server
+ * \brief GroupDAV PUT an item to the server
  * \param dav_pathname The pathname is always going to be /groupdav/room_name/euid
- * \param dav_ifmatch should we match?
+ * \param dav_ifmatch ETag of the item we think we're replacing
  * \param dav_content_type the mime type
  * \param dav_content the actual data
  */

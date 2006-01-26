@@ -2187,6 +2187,11 @@ void readloop(char *oper)
 		);
 	}
 
+	if (is_notes) {
+		wprintf("<div align=center>%s</div>\n", _("Click on any note to edit it."));
+		wprintf("<div id=\"new_notes_here\"></div>\n");
+	}
+
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
