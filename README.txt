@@ -11,8 +11,8 @@
 	Martin Mouritzen
 
    This program is open source software released under the terms of the GNU
-   General Public License.  Please read COPYING.txt for more licensing
-   information.
+   General Public License, version 2.  Please read COPYING.txt for more
+   licensing information.
  
    WebCit bundles the Prototype JavaScript Framework, writen by Sam
    Stephenson [http://prototype.conio.net].  These components are licensed to
