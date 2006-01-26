@@ -3008,6 +3008,7 @@ void cmd_ent0(char *entargs)
 	extract_token(cc, entargs, 7, '|', sizeof cc);
 	extract_token(bcc, entargs, 8, '|', sizeof bcc);
 	switch(CC->room.QRdefaultview) {
+		case VIEW_NOTES:
 		case VIEW_WIKI:
 			extract_token(supplied_euid, entargs, 9, '|', sizeof supplied_euid);
 			break;
