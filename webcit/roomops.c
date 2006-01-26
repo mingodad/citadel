@@ -541,7 +541,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				case VIEW_NOTES:
 					wprintf(
-						"<td><a href=\"display_enter\">"
+						"<td><a href=\"javascript:add_new_note();\">"
 						"<img align=\"middle\" src=\"static/enternewnote_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"

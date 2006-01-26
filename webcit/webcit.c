@@ -1621,6 +1621,8 @@ void session_loop(struct httprequest *req)
 		dump_vars();
 		wprintf("</PRE><hr />\n");
 		wDumpContent(1);
+	} else if (!strcasecmp(action, "updatenote")) {
+		updatenote();
 	}
 
 	/** When all else fais, display the main menu. */

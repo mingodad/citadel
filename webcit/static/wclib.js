@@ -465,3 +465,19 @@ function ctdl_ts_getInnerText(el) {
 }
 
 
+
+// This function handles the creation of new notes in the "Notes" view.
+//
+function add_new_note() {
+
+	new_eid = Math.random() + '';
+	new_eid = new_eid.substr(3);
+
+	$('new_notes_here').innerHTML = $('new_notes_here').innerHTML
+		+ '<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">'
+		+ '<span id=\"note' + new_eid + '\">' + Date() + '</span><br />'
+	;
+
+	new Ajax.InPlaceEditor('note' + new_eid,
+		'updatenote?eid=' + new_eid , {rows:5,cols:72});
+}

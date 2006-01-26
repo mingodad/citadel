@@ -601,6 +601,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
 void display_note(long msgnum);
+void updatenote(void);
 void do_calendar_view(void);
 void do_tasks_view(void);
 void free_calendar_buffer(void);
