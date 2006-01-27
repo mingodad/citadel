@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 27 15:03:42 EST 2006 ajc
+* Do a JavaScript alert if we fail to open the Instant Messenger window.
+
 Fri Jan 27 13:50:38 EST 2006 ajc
 * Page popups work again.
 
