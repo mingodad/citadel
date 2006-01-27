@@ -355,6 +355,10 @@ int CtdlLoginExistingUser(char *trythisname)
 	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
 
+	if (strlen(username) == 0) {
+		return login_not_found;
+	}
+
 #ifdef ENABLE_AUTOLOGIN
 
 	/* If this is an autologin build, the only valid auth source is the
