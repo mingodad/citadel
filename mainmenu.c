@@ -304,7 +304,7 @@ void display_generic(void)
 }
 
 /**
- * \brief what???
+ * \brief Interactive window to perform generic Citadel server commands.
  */
 void do_generic(void)
 {

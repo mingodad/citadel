@@ -897,7 +897,7 @@ void end_ajax_response(void) {
 }
 
 /**
- * \brief parse server command to execute on the citadel
+ * \brief Wraps a Citadel server command in an AJAX transaction.
  */
 void ajax_servcmd(void)
 {
