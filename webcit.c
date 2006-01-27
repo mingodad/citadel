@@ -142,7 +142,7 @@ void dump_vars(void)
 
 /**
  * \brief Return the value of a variable supplied to the current web page (from the url or a form)
- * \param key what???
+ * \param key The name of the variable we want
  */
 char *bstr(char *key)
 {
@@ -196,8 +196,8 @@ void wDumpContent(int print_standard_html_footer)
 
 /**
  * \brief Copy a string, escaping characters which have meaning in HTML.  
- * \param target target buffer to copy to
- * \param strbuf source buffer ???
+ * \param target target buffer
+ * \param strbuf source buffer
  * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
  * \param nolinebreaks if set, linebreaks are removed from the string.
  */
@@ -263,8 +263,8 @@ void escputs(char *strbuf)
 /** 
  * \brief Escape a string for feeding out as a URL.
  * Returns a pointer to a buffer that must be freed by the caller!
- * \param outbuf the outputbuffer
- * \param strbuf the input buffer???
+ * \param outbuf the output buffer
+ * \param strbuf the input buffer
  */
 void urlesc(char *outbuf, char *strbuf)
 {
@@ -823,17 +823,20 @@ void authorization_required(const char *message)
 }
 
 /**
- * \brief handle file uploads 
- * \param name the url the upload is done to
- * \param filename the name of the file being uploaded
- * \param partnum item number on the citadel server ???
- * \param disp what???
- * \param content the file contents???
- * \param cbtype what???
- * \param cbcharset the character set of cb??
- * \param length the size of the file ???
- * \param encoding charset encoding of the file??
- * \param userdata what???
+ * \brief This function is called by the MIME parser to handle data uploaded by
+ *        the browser.  Form data, uploaded files, and the data from HTTP PUT
+ *        operations (such as those found in GroupDAV) all arrive this way.
+ *
+ * \param name Name of the item being uploaded
+ * \param filename Filename of the item being uploaded
+ * \param partnum MIME part identifier (not needed)
+ * \param disp MIME content disposition (not needed)
+ * \param content The actual data
+ * \param cbtype MIME content-type
+ * \param cbcharset Character set
+ * \param length Content length
+ * \param encoding MIME encoding type (not needed)
+ * \param userdata Not used here
  */
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,

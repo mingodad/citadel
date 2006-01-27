@@ -11,9 +11,9 @@
 #include "webserver.h"
 #include "groupdav.h"
 
-#define SUBJ_COL_WIDTH_PCT		    50 /**< ??? */
-#define SENDER_COL_WIDTH_PCT		30 /**< ??? */
-#define DATE_PLUS_BUTTONS_WIDTH_PCT	20 /**< ??? */
+#define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
+#define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
+#define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
 /**
  * Address book entry (keep it short and sweet, it's just a quickie lookup
@@ -21,7 +21,7 @@
  */
 struct addrbookent {
 	char ab_name[64]; /**< name string */
-	long ab_msgnum;   /**< number in the citadel???? */
+	long ab_msgnum;   /**< message number of address book entry */
 };
 
 
@@ -1025,7 +1025,8 @@ ENDBODY:
 /**
  * \brief Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
- * \param msgnum_as_string the message to embed???
+ *
+ * \param msgnum_as_string Message number, as a string instead of as a long int
  */
 void embed_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1039,7 +1040,8 @@ void embed_message(char *msgnum_as_string) {
 
 /**
  * \brief Printable view of a message
- * \param msgnum_as_string the message to print??? 
+ *
+ * \param msgnum_as_string Message number, as a string instead of as a long int
  */
 void print_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1068,7 +1070,8 @@ void print_message(char *msgnum_as_string) {
 
 /**
  * \brief Display a message's headers
- * \param msgnum_as_string the message headers to print???
+ *
+ * \param msgnum_as_string Message number, as a string instead of as a long int
  */
 void display_headers(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1098,13 +1101,14 @@ void display_headers(char *msgnum_as_string) {
 
 /**
  * \brief Read message in simple, JavaScript-embeddable form for 'forward'
- * or 'reply quoted' operations.
+ *        or 'reply quoted' operations.
  *
  * NOTE: it is VITALLY IMPORTANT that we output no single-quotes or linebreaks
  *       in this function.  Doing so would throw a JavaScript error in the
  *       'supplied text' argument to the editor.
- * \param msgnum the citadel message number
- * \param forward_attachments atachment to forward???
+ *
+ * \param msgnum Message number of the message we want to quote
+ * \param forward_attachments Nonzero if we want attachments to be forwarded
  */
 void pullquote_message(long msgnum, int forward_attachments, int include_headers) {
 	char buf[SIZ];
@@ -1405,8 +1409,9 @@ ENDBODY:
 }
 
 /**
- * \brief display sumarized item???
- * \param num hom many? which???
+ * \brief Display one row in the mailbox summary view
+ *
+ * \param num The row number to be displayed
  */
 void display_summarized(int num) {
 	char datebuf[64];
@@ -1805,9 +1810,10 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two longs in descending order.
+ *
+ * \param s1 first number to compare 
+ * \param s2 second number to compare
  */
 int longcmp_r(const void *s1, const void *s2) {
 	long l1;
@@ -1823,9 +1829,10 @@ int longcmp_r(const void *s1, const void *s2) {
 
  
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by ascending subject.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_subj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1837,9 +1844,10 @@ int summcmp_subj(const void *s1, const void *s2) {
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by descending subject.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_rsubj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1851,9 +1859,10 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by ascending sender.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_sender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1865,9 +1874,10 @@ int summcmp_sender(const void *s1, const void *s2) {
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by descending sender.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_rsender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1879,9 +1889,10 @@ int summcmp_rsender(const void *s1, const void *s2) {
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by ascending date.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_date(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1896,9 +1907,10 @@ int summcmp_date(const void *s1, const void *s2) {
 }
 
 /**
- * \brief compare what????
- * \param s1 first thing to compare 
- * \param s2 second thing to compare
+ * \brief qsort() compatible function to compare two message summary structs by descending date.
+ *
+ * \param s1 first item to compare 
+ * \param s2 second item to compare
  */
 int summcmp_rdate(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -1912,9 +1924,12 @@ int summcmp_rdate(const void *s1, const void *s2) {
 	else return 0;
 }
 
+
+
 /**
  * \brief command loop for reading messages
- * \param oper what???
+ *
+ * \param oper Set to "readnew" or "readold" or "readfwd" or "headers"
  */
 void readloop(char *oper)
 {
