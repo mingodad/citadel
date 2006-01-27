@@ -90,9 +90,10 @@ void display_login(char *mesg)
  * by a timed-out session automatically re-establishing with a little help
  * from the browser cookie.  Either way, we need to load access controls and
  * preferences from the server.
+ *
  * \param user the username
  * \param pass his password
- * \param serv_response where to put the response ????
+ * \param serv_response The parameters returned from a Citadel USER or NEWU command
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
