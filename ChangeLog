@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 27 13:50:38 EST 2006 ajc
+* Page popups work again.
+
 Thu Jan 26 15:44:56 EST 2006 ajc
 * Complete overhaul of "Notes" view.  Now features AJAX create and edit operations.
 
