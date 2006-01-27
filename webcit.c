@@ -57,8 +57,8 @@ void unescape_input(char *buf)
 }
 
 /**
- * \brief add urls???
- * \param url what???
+ * \brief Extract variables from the URL.
+ * \param url URL supplied by the HTTP parser
  */
 void addurls(char *url)
 {
@@ -141,7 +141,7 @@ void dump_vars(void)
 }
 
 /**
- * \brief what???
+ * \brief Return the value of a variable supplied to the current web page (from the url or a form)
  * \param key what???
  */
 char *bstr(char *key)
