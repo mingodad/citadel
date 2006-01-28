@@ -709,9 +709,14 @@ void utf8ify_rfc822_string(char *buf);
 void begin_burst(void);
 void end_burst(void);
 
-extern char *ascmonths[];
-extern char *hourname[];
+extern char *ascmonths[];	/**< Short (three letter) month names */
+extern char *months[];		/**< Long (full) month names */
+extern char *hourname[];	/**< Names of hours (12am, 1am, etc.) */
+extern char *wdays[];		/**< Days of the week */
+
+void initialize_months_and_days(void);
 void http_datestring(char *buf, size_t n, time_t xtime);
+
 
 /* Views (from citadel.h) */
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */

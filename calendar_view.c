@@ -182,7 +182,7 @@ void calendar_month_view(int year, int month, int day) {
 		"bgcolor=#204B78><TR>");
 	for (i=0; i<7; ++i) {
 		wprintf("<TD ALIGN=CENTER WIDTH=14%%>"
-			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", days[i]);
+			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", wdays[i]);
 	}
 	wprintf("</TR>\n");
 

@@ -8,34 +8,6 @@
 #include "webcit.h"
 #include "webserver.h"
 
-/* \todo FIXME ... this needs to be internationalized */
-/** Month Strings. */
-char *months[] = { 
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-};
-
-/** Day Strings */
-char *days[] = { 
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-};
-
 /** Hour strings */
 char *hourname[] = {
 	"12am", "1am", "2am", "3am", "4am", "5am", "6am",

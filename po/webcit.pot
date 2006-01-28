@@ -8,12 +8,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-25 22:18-0500\n"
+"POT-Creation-Date: 2006-01-27 23:40-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../auth.c:23
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: ../auth.c:73 ../paging.c:491
+#: ../auth.c:73 ../paging.c:509
 msgid "Exit"
 msgstr ""
 
@@ -81,75 +81,75 @@ msgstr ""
 msgid "%s - powered by Citadel"
 msgstr ""
 
-#: ../auth.c:165 ../auth.c:533
+#: ../auth.c:166 ../auth.c:534
 msgid "Blank passwords are not allowed."
 msgstr ""
 
-#: ../auth.c:186
+#: ../auth.c:187
 msgid "Your password was not accepted."
 msgstr ""
 
-#: ../auth.c:294
+#: ../auth.c:295
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
 msgstr ""
 
-#: ../auth.c:301
+#: ../auth.c:302
 msgid "Log in again"
 msgstr ""
 
-#: ../auth.c:304
+#: ../auth.c:305
 msgid "Close window"
 msgstr ""
 
-#: ../auth.c:325 ../mainmenu.c:240
+#: ../auth.c:326 ../mainmenu.c:240
 msgid "Validate new users"
 msgstr ""
 
-#: ../auth.c:345
+#: ../auth.c:346
 msgid "No users require validation at this time."
 msgstr ""
 
-#: ../auth.c:386
+#: ../auth.c:387
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr ""
 
-#: ../auth.c:394
+#: ../auth.c:395
 msgid "Select access level for this user:"
 msgstr ""
 
-#: ../auth.c:457 ../mainmenu.c:136
+#: ../auth.c:458 ../mainmenu.c:136
 msgid "Change your password"
 msgstr ""
 
-#: ../auth.c:486
+#: ../auth.c:487
 msgid "Enter new password:"
 msgstr ""
 
-#: ../auth.c:490
+#: ../auth.c:491
 msgid "Enter it again to confirm:"
 msgstr ""
 
-#: ../auth.c:495
+#: ../auth.c:496
 msgid "Change password"
 msgstr ""
 
-#: ../auth.c:497 ../calendar.c:612 ../event.c:393 ../graphics.c:57
-#: ../iconbar.c:711 ../mainmenu.c:299 ../messages.c:2782 ../messages.c:2903
-#: ../messages.c:2991 ../netconf.c:85 ../netconf.c:148 ../paging.c:57
+#: ../auth.c:498 ../calendar.c:612 ../event.c:393 ../graphics.c:57
+#: ../iconbar.c:711 ../mainmenu.c:299 ../messages.c:2802 ../messages.c:2923
+#: ../messages.c:3011 ../netconf.c:85 ../netconf.c:148 ../paging.c:57
 #: ../preferences.c:378 ../roomops.c:1232 ../roomops.c:1560 ../roomops.c:1991
 #: ../roomops.c:2140 ../roomops.c:2204 ../siteconfig.c:564 ../sysmsgs.c:58
 #: ../useredit.c:380 ../vcard_edit.c:336 ../who.c:272
 msgid "Cancel"
 msgstr ""
 
-#: ../auth.c:514
+#: ../auth.c:515
 msgid "Cancelled.  Password was not changed."
 msgstr ""
 
-#: ../auth.c:525
+#: ../auth.c:526
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
@@ -337,7 +337,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: ../calendar.c:611 ../event.c:391 ../messages.c:833 ../messages.c:2177
+#: ../calendar.c:611 ../event.c:391 ../messages.c:833 ../messages.c:2192
 msgid "Delete"
 msgstr ""
 
@@ -518,6 +518,54 @@ msgstr ""
 #: ../floors.c:154
 #, c-format
 msgid "New floor has been created."
+msgstr ""
+
+#: ../fmt_date.c:32
+msgid "Jan"
+msgstr ""
+
+#: ../fmt_date.c:33
+msgid "Feb"
+msgstr ""
+
+#: ../fmt_date.c:34
+msgid "Mar"
+msgstr ""
+
+#: ../fmt_date.c:35
+msgid "Apr"
+msgstr ""
+
+#: ../fmt_date.c:36 ../summary.c:32
+msgid "May"
+msgstr ""
+
+#: ../fmt_date.c:37
+msgid "Jun"
+msgstr ""
+
+#: ../fmt_date.c:38
+msgid "Jul"
+msgstr ""
+
+#: ../fmt_date.c:39
+msgid "Aug"
+msgstr ""
+
+#: ../fmt_date.c:40
+msgid "Sep"
+msgstr ""
+
+#: ../fmt_date.c:41
+msgid "Oct"
+msgstr ""
+
+#: ../fmt_date.c:42
+msgid "Nov"
+msgstr ""
+
+#: ../fmt_date.c:43
+msgid "Dec"
 msgstr ""
 
 #: ../graphics.c:26
@@ -1099,31 +1147,31 @@ msgstr ""
 msgid "E-mail:"
 msgstr ""
 
-#: ../messages.c:571 ../messages.c:1151
+#: ../messages.c:571 ../messages.c:1155
 msgid "ERROR:"
 msgstr ""
 
-#: ../messages.c:594 ../messages.c:862 ../messages.c:1160 ../messages.c:1256
+#: ../messages.c:594 ../messages.c:862 ../messages.c:1164 ../messages.c:1260
 msgid "unexpected end of message"
 msgstr ""
 
-#: ../messages.c:607 ../messages.c:1172
+#: ../messages.c:607 ../messages.c:1176
 msgid "from "
 msgstr ""
 
-#: ../messages.c:635 ../messages.c:1188
+#: ../messages.c:635 ../messages.c:1192
 msgid "in "
 msgstr ""
 
-#: ../messages.c:656 ../messages.c:1209
+#: ../messages.c:656 ../messages.c:1213
 msgid "to "
 msgstr ""
 
-#: ../messages.c:749 ../messages.c:2739
+#: ../messages.c:749 ../messages.c:2759
 msgid "CC:"
 msgstr ""
 
-#: ../messages.c:757 ../messages.c:1238
+#: ../messages.c:757 ../messages.c:1242
 msgid "Subject:"
 msgstr ""
 
@@ -1143,7 +1191,7 @@ msgstr ""
 msgid "Forward"
 msgstr ""
 
-#: ../messages.c:828 ../messages.c:2989
+#: ../messages.c:828 ../messages.c:3009
 msgid "Move"
 msgstr ""
 
@@ -1164,128 +1212,132 @@ msgstr ""
 msgid "I don't know how to display %s"
 msgstr ""
 
-#: ../messages.c:985 ../messages.c:1493
+#: ../messages.c:985 ../messages.c:1498
 msgid "edit"
 msgstr ""
 
-#: ../messages.c:1456 ../messages.c:1765
+#: ../messages.c:1461 ../messages.c:1770
 msgid "(no subject)"
 msgstr ""
 
-#: ../messages.c:1584
+#: ../messages.c:1589
 msgid "(no name)"
 msgstr ""
 
-#: ../messages.c:1636
+#: ../messages.c:1641
 msgid "This address book is empty."
 msgstr ""
 
-#: ../messages.c:2052
+#: ../messages.c:2067
 msgid "No new messages."
 msgstr ""
 
-#: ../messages.c:2054
+#: ../messages.c:2069
 msgid "No old messages."
 msgstr ""
 
-#: ../messages.c:2056
+#: ../messages.c:2071
 msgid "No messages here."
 msgstr ""
 
-#: ../messages.c:2172
+#: ../messages.c:2187
 msgid "Subject"
 msgstr ""
 
-#: ../messages.c:2174
+#: ../messages.c:2189
 msgid "Sender"
 msgstr ""
 
-#: ../messages.c:2176
+#: ../messages.c:2191
 msgid "Date"
 msgstr ""
 
-#: ../messages.c:2289
+#: ../messages.c:2206
+msgid "Click on any note to edit it."
+msgstr ""
+
+#: ../messages.c:2309
 msgid "Reading #"
 msgstr ""
 
-#: ../messages.c:2342
+#: ../messages.c:2362
 #, c-format
 msgid "of %d messages."
 msgstr ""
 
-#: ../messages.c:2526
+#: ../messages.c:2546
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr ""
 
-#: ../messages.c:2532
+#: ../messages.c:2552
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 
-#: ../messages.c:2551
+#: ../messages.c:2571
 #, c-format
 msgid "Message has been sent.\n"
 msgstr ""
 
-#: ../messages.c:2554
+#: ../messages.c:2574
 #, c-format
 msgid "Message has been posted.\n"
 msgstr ""
 
-#: ../messages.c:2688
+#: ../messages.c:2708
 msgid " <I>from</I> "
 msgstr ""
 
-#: ../messages.c:2698
+#: ../messages.c:2718
 msgid " <I>in</I> "
 msgstr ""
 
-#: ../messages.c:2728
+#: ../messages.c:2748
 msgid "To:"
 msgstr ""
 
-#: ../messages.c:2750
+#: ../messages.c:2770
 msgid "BCC:"
 msgstr ""
 
-#: ../messages.c:2768
+#: ../messages.c:2788
 msgid "Subject (optional):"
 msgstr ""
 
-#: ../messages.c:2777 ../messages.c:2898 ../paging.c:56
+#: ../messages.c:2797 ../messages.c:2918 ../paging.c:56
 msgid "Send message"
 msgstr ""
 
-#: ../messages.c:2779 ../messages.c:2900
+#: ../messages.c:2799 ../messages.c:2920
 msgid "Post message"
 msgstr ""
 
-#: ../messages.c:2795
+#: ../messages.c:2815
 msgid "--- forwarded message ---"
 msgstr ""
 
-#: ../messages.c:2875
+#: ../messages.c:2895
 msgid "Attachments:"
 msgstr ""
 
-#: ../messages.c:2890
+#: ../messages.c:2910
 msgid "Attach file:"
 msgstr ""
 
-#: ../messages.c:2893 ../roomops.c:1424 ../roomops.c:1454
+#: ../messages.c:2913 ../roomops.c:1424 ../roomops.c:1454
 msgid "Add"
 msgstr ""
 
-#: ../messages.c:2962
+#: ../messages.c:2982
 msgid "Confirm move of message"
 msgstr ""
 
-#: ../messages.c:2969
+#: ../messages.c:2989
 msgid "Move this message to:"
 msgstr ""
 
-#: ../messages.c:3015
+#: ../messages.c:3035
 #, c-format
 msgid "The message was not moved."
 msgstr ""
@@ -1351,6 +1403,10 @@ msgstr ""
 msgid "Back to menu"
 msgstr ""
 
+#: ../notes.c:126
+msgid "An error has occurred."
+msgstr ""
+
 #: ../paging.c:23
 msgid "Send instant message"
 msgstr ""
@@ -1375,23 +1431,31 @@ msgstr ""
 msgid "[ close window ]"
 msgstr ""
 
-#: ../paging.c:290 ../paging.c:452
+#: ../paging.c:169
+msgid ""
+"You have one or more instant messages waiting, but the Citadel Instant "
+"Messenger window failed to open.  This is probably because you have a popup "
+"blocker installed.  Please configure your popup blocker to allow popups from "
+"this site if you wish to receive instant messages."
+msgstr ""
+
+#: ../paging.c:308 ../paging.c:470
 msgid "An error occurred while setting up the chat socket."
 msgstr ""
 
-#: ../paging.c:317
+#: ../paging.c:335
 msgid "Now exiting chat mode."
 msgstr ""
 
-#: ../paging.c:488
+#: ../paging.c:506
 msgid "Send"
 msgstr ""
 
-#: ../paging.c:489
+#: ../paging.c:507
 msgid "Help"
 msgstr ""
 
-#: ../paging.c:490
+#: ../paging.c:508
 msgid "List users"
 msgstr ""
 
@@ -2294,10 +2358,6 @@ msgstr ""
 msgid "April"
 msgstr ""
 
-#: ../summary.c:32
-msgid "May"
-msgstr ""
-
 #: ../summary.c:33
 msgid "June"
 msgstr ""
@@ -2610,7 +2670,7 @@ msgid ""
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../webcit.c:1228
+#: ../webcit.c:1231
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -2620,23 +2680,23 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../webcit.c:1465 ../webcit.c:1467
+#: ../webcit.c:1468 ../webcit.c:1470
 msgid "Room info"
 msgstr ""
 
-#: ../webcit.c:1470 ../webcit.c:1472
+#: ../webcit.c:1473 ../webcit.c:1475
 msgid "Your bio"
 msgstr ""
 
-#: ../webcit.c:1480
+#: ../webcit.c:1483
 msgid "your photo"
 msgstr ""
 
-#: ../webcit.c:1486
+#: ../webcit.c:1489
 msgid "the icon for this room"
 msgstr ""
 
-#: ../webcit.c:1500
+#: ../webcit.c:1503
 msgid "the icon for this floor"
 msgstr ""
 
