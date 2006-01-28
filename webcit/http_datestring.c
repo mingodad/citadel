@@ -9,13 +9,13 @@
 /*@{*/
 #include "webcit.h"
 
-/** HTTP Months */
+/** HTTP Months - do not translate - these are not for human consumption */
 static char *httpdate_months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
-/** HTTP Weekdays */
+/** HTTP Weekdays - do not translate - these are not for human consumption */
 static char *httpdate_weekdays[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };

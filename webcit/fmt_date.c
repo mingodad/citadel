@@ -9,21 +9,11 @@
 #include "webserver.h"
 
 typedef unsigned char byte; /**< a byte. */
+char *wdays[7];
+char *months[12];
 
 #define FALSE 0 /**< no. */
 #define TRUE 1 /**< yes. */
-
-/** \todo translate */
-/** short months */
-char *ascmonths[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
-
-/** Short weekdays */
-char *ascdays[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-};
 
 /**
  * \brief Format a date/time stamp for output 
@@ -38,6 +28,22 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	time_t today_timet;
 	int hour;
 	char calhourformat[16];
+	static char *ascmonths[12] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } ;
+
+	if (ascmonths[0] == NULL) {
+		ascmonths[0] = _("Jan");
+		ascmonths[1] = _("Feb");
+		ascmonths[2] = _("Mar");
+		ascmonths[3] = _("Apr");
+		ascmonths[4] = _("May");
+		ascmonths[5] = _("Jun");
+		ascmonths[6] = _("Jul");
+		ascmonths[7] = _("Aug");
+		ascmonths[8] = _("Sep");
+		ascmonths[9] = _("Oct");
+		ascmonths[10] = _("Nov");
+		ascmonths[11] = _("Dec");
+	};
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 
@@ -160,26 +166,6 @@ void fmt_time(char *buf, time_t thetime)
 
 
 /**
- * \brief Format a date/time stamp to the format used in HTTP headers
- * \param buf give back result here.
- * \param thetime time to translate
- */
-void httpdate(char *buf, time_t thetime)
-{
-	struct tm *tm;
-
-	buf[0] = 0;
-	tm = localtime(&thetime);
-
-	sprintf(buf, "%s, %02d %s %4d %02d:%02d:%02d",
-		ascdays[tm->tm_wday],
-		tm->tm_mday,
-		ascmonths[tm->tm_mon],
-		tm->tm_year + 1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
-}
-
-
-/**
  * \brief Break down the timestamp used in HTTP headers
  * Should read rfc1123 and rfc850 dates OK
  * \todo FIXME won't read asctime
@@ -271,6 +257,36 @@ time_t httpdate_to_timestamp(const char *buf)
 	tzset();
 	return t;
 }
+
+
+
+/**
+ * /brief Initialize the strings used to display months and weekdays.
+ */
+void initialize_months_and_days(void) {
+	wdays[0] = _("Sunday");
+	wdays[1] = _("Monday");
+	wdays[2] = _("Tuesday");
+	wdays[3] = _("Wednesday");
+	wdays[4] = _("Thursday");
+	wdays[5] = _("Friday");
+	wdays[6] = _("Saturday");
+
+	months[0] = _("January");
+	months[1] = _("February");
+	months[2] = _("March");
+	months[3] = _("April");
+	months[4] = _("May");
+	months[5] = _("June");
+	months[6] = _("July");
+	months[7] = _("August");
+	months[8] = _("September");
+	months[9] = _("October");
+	months[10] = _("November");
+	months[11] = _("December");
+}
+
+
 
 
 /*@}*/

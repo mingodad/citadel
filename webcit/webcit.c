@@ -394,11 +394,11 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 			int suppress_check,	/**< 1 = suppress check for instant messages          */
 			int cache		/**< 1 = allow browser to cache this page             */
 ) {
-	char cookie[SIZ];
-	char httpnow[SIZ];
+	char cookie[1024];
+	char httpnow[128];
 
 	wprintf("HTTP/1.1 200 OK\n");
-	httpdate(httpnow, time(NULL));
+	http_datestring(httpnow, sizeof httpnow, time(NULL));
 
 	if (do_httpheaders) {
 		wprintf("Content-type: text/html; charset=utf-8\r\n"

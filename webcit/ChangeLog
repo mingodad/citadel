@@ -1,5 +1,8 @@
 $Id$
 
+Fri Jan 27 23:52:46 EST 2006 ajc
+* All month names and weekday names are now sourced from localized strings.
+
 Fri Jan 27 15:03:42 EST 2006 ajc
 * Do a JavaScript alert if we fail to open the Instant Messenger window.
 

@@ -577,6 +577,7 @@ int main(int argc, char **argv)
 
 	initialize_viewdefs();
 	initialize_axdefs();
+	initialize_months_and_days();
 
 	/**
 	 * Set up a place to put thread-specific data.
