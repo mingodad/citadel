@@ -1,5 +1,9 @@
 $Id$
 
+Sun Jan 29 13:08:59 EST 2006 ajc
+ * Removed all references to "font-family" style.  We will now go with
+   whatever font the user has chosen as his favorite.
+
 Sun Jan 29 14:31:35 CET 2006 dothebart
 * Doxygen groups. Sorted the files into groups. so now we have a nice structure 
   in the module index, which should ease the navigation to a particular part.
