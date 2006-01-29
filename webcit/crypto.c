@@ -316,7 +316,7 @@ void init_ssl(void)
 /**
  * \brief starts SSL/TLS encryption for the current session.
  * \param sock the socket connection
- * \return foo????
+ * \return Zero if the SSL/TLS handshake succeeded, non-zero otherwise.
  */
 int starttls(int sock) {
 	int retval, bits, alg_bits;

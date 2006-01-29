@@ -11,7 +11,6 @@ body {
 	overflow: auto;
 	background-image: url(/static/body-background.gif);
 	color: #000000;
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-weight: normal;
 	font-size: 10pt;
 }
@@ -497,7 +496,6 @@ td li.frameset, .elements li.frameset {
 	padding:2px;
 	cursor:default;
 	
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-size: 11px;
 	color: #000000;
 }
@@ -507,7 +505,6 @@ td li.frameset, .elements li.frameset {
 	background-color: #FFFFFF;;
 	color: #000000;
 	
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-size: 11px;
 }
 .editednodeinput {
@@ -521,7 +518,6 @@ td li.frameset, .elements li.frameset {
 	border-width: 1px;
 	border-color: #000000;
 	
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-size: 11px;
 }
 .treetitleselectedfocused {
@@ -530,7 +526,6 @@ td li.frameset, .elements li.frameset {
 	background-color: highlight;
 	color: highlighttext;
 	
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-size: 11px;
 }
 .treetitleselectedblured {
@@ -538,7 +533,6 @@ td li.frameset, .elements li.frameset {
 	cursor:default;
 	background-color: menu;
 	color: windowtext;
-	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
 	font-size: 11px;
 }
 

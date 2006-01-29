@@ -318,8 +318,7 @@ void embed_view_o_matic(void) {
 	wprintf(_("View as:"));
 	wprintf(" "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
-		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
-		" font-size: 7pt; background: #444455; color: #ddddcc;\" "
+		"STYLE=\"font-size: 7pt; background: #444455; color: #ddddcc;\" "
 		"OnChange=\"location.href=viewomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
