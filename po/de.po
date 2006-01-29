@@ -558,21 +558,21 @@ msgstr "Eine neue Etage wurde generiert."
 #: ../fmt_date.c:32
 #, fuzzy
 msgid "Jan"
-msgstr "Januar"
+msgstr "Jan"
 
 #: ../fmt_date.c:33
 msgid "Feb"
-msgstr ""
+msgstr "Feb"
 
 #: ../fmt_date.c:34
 #, fuzzy
 msgid "Mar"
-msgstr "März"
+msgstr "Mär"
 
 #: ../fmt_date.c:35
 #, fuzzy
 msgid "Apr"
-msgstr "April"
+msgstr "Apr"
 
 #: ../fmt_date.c:36 ../summary.c:32
 msgid "May"
@@ -581,36 +581,36 @@ msgstr "Mai"
 #: ../fmt_date.c:37
 #, fuzzy
 msgid "Jun"
-msgstr "Juni"
+msgstr "Jun"
 
 #: ../fmt_date.c:38
 #, fuzzy
 msgid "Jul"
-msgstr "Juli"
+msgstr "Jul"
 
 #: ../fmt_date.c:39
 #, fuzzy
 msgid "Aug"
-msgstr "August"
+msgstr "Aug"
 
 #: ../fmt_date.c:40
 msgid "Sep"
-msgstr ""
+msgstr "Sep"
 
 #: ../fmt_date.c:41
 #, fuzzy
 msgid "Oct"
-msgstr "Oktober"
+msgstr "Okt"
 
 #: ../fmt_date.c:42
 #, fuzzy
 msgid "Nov"
-msgstr "Nein"
+msgstr "Nov"
 
 #: ../fmt_date.c:43
 #, fuzzy
 msgid "Dec"
-msgstr "Ablehnen"
+msgstr "Dez"
 
 #: ../graphics.c:26
 msgid "Image upload"
