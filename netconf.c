@@ -4,6 +4,7 @@
 /**
  * \defgroup NetShareConf Functions which handle network and sharing configuration.
  *
+ * \ingroup CitadelConfig
  */
 /*@{*/
 #include "webcit.h"

@@ -2,6 +2,7 @@
  * $Id$
  *//**
  * \defgroup AjaxAutoCompletion ajax-powered autocompletion...
+ * \ingroup ClientPower
  */
 
 /*@{*/

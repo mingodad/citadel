@@ -4,7 +4,7 @@
 /**
  * \defgroup HTML2HTML Output an HTML message, modifying it slightly to make sure it plays nice
  * with the rest of our web framework.
- *
+ * \ingroup WebcitHttpServer
  */
 /*@{*/
 #include "webcit.h"

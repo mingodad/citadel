@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup GroupdavMain Entry point for GroupDAV functions
+ * \ingroup WebcitHttpServerGDav
  *
  */
 /*@{*/

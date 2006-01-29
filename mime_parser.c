@@ -6,7 +6,7 @@
  *
  * Copyright (c) 1998-2005 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
- *
+ * \ingroup WebcitHttpServer
  */
 /*@{*/
 #include "webcit.h"

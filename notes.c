@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup StickyNotes Functions which handle "sticky notes"
- *
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

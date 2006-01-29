@@ -1,5 +1,9 @@
 $Id$
 
+Sun Jan 29 14:31:35 CET 2006 dothebart
+* Doxygen groups. Sorted the files into groups. so now we have a nice structure 
+  in the module index, which should ease the navigation to a particular part.
+
 Sun Jan 29 00:12:25 EST 2006 ajc
 * Clarified some of the doxygen comments
 

@@ -2,6 +2,7 @@
  * $Id$
  *
  * Handles HTTP upload of graphics files into the system.
+ * \ingroup WebcitHttpServer
  */
 
 #include "webcit.h"

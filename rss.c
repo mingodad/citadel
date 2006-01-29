@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup RssRooms Generate some RSS for our rooms.
+ * \ingroup WebcitHttpServerRSS
  */
 /*@{*/
 #include "webcit.h"

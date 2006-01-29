@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup LocaleHeaderParser Parse the browser http locale headers and set the NLS stuff.
+ * \ingroup WebcitHttpServer 
  */
 /*@{*/
 /** we need _GNU_SOURCE for various functions arround the NLS-Stuff */

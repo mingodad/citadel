@@ -14,6 +14,7 @@
  *     This makes it difficult to read, but we have discovered clients which
  *     crash when you try to pretty it up.
  *
+ * \ingroup WebcitHttpServerGDav
  */
 
 #include "webcit.h"

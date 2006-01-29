@@ -2,6 +2,7 @@
  * $Id$
  *
  * Handles DAV OPTIONS requests (experimental -- not required by GroupDAV)
+ * \ingroup WebcitHttpServerGDav
  *
  */
 

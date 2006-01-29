@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup FormatDates Miscellaneous routines formating dates
+ * \ingroup Calendaring
  */
 /*@{*/
 #include "webcit.h"

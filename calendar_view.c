@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup CalHtmlHandles Handles the HTML display of calendar items.
+ * \ingroup Calendaring
  */
 /*@{*/
 #include "webcit.h"

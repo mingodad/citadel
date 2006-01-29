@@ -6,6 +6,7 @@
  * Utility functions which convert the HTTP cookie format we use to and
  * from user/password/room strings.
  *
+ * \ingroup WebcitHttpServer 
  */
 /*@{*/
 #include "webcit.h"

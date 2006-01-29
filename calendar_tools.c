@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup MiscCal Miscellaneous functions which handle calendar components.
+ * \ingroup Calendaring
  */
 /*@{*/
 #include "webcit.h"

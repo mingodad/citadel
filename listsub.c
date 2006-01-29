@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup ListSubForms Web forms for handling mailing list subscribe/unsubscribe requests.
- *
+ * \ingroup WebcitDisplayItems
  */
 
 /*@{*/

@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup Hostlookup Examine a socket and determine the name/address of the originating host.
+ * \ingroup WebcitHttpServer
  */
 /*@{*/
 

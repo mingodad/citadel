@@ -5,6 +5,7 @@
  * \defgroup HTTPDateTime Function to generate HTTP-compliant textual time/date stamp
  * (This module was lifted directly from the Citadel server source)
  *
+ * \ingroup WebcitHttpServer
  */
 /*@{*/
 #include "webcit.h"

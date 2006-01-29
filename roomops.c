@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup RoomOps Lots of different room-related operations.
+ * \ingroup CitadelCommunitacion
  */
 /*@{*/
 #include "webcit.h"

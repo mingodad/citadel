@@ -4,7 +4,7 @@
 /**
  *
  * \defgroup WebcitAuth WebcitAuth; Handles authentication of users to a Citadel server.
- *
+ * \ingroup CitadelConfig
  */
 
 /*@{*/

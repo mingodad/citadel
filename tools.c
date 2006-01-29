@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup MiscRout Miscellaneous routines 
+ * \ingroup tools
  */
 
 /*@{*/

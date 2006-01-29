@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup EditCal Editing calendar events.
- *
+ * \ingroup Calendaring
  */
 /*@{*/
 #include "webcit.h"

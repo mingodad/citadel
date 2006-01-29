@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup AdminTasks Administrative screen to add/change/delete user accounts
+ * \ingroup CitadelConfig
  *
  */
 /*@{*/
