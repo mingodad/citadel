@@ -2719,8 +2719,11 @@ void display_enter(void)
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
 	/** begin message entry screen */
-	wprintf("<form enctype=\"multipart/form-data\" "
-		"method=\"POST\" action=\"post\" "
+	wprintf("<form "
+		"enctype=\"multipart/form-data\" "
+		"method=\"POST\" "
+		"accept-charset=\"UTF-8\" "
+		"action=\"post\" "
 		"name=\"enterform\""
 		">\n");
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);

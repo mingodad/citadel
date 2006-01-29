@@ -1,5 +1,8 @@
 $Id$
 
+Sat Jan 28 23:32:50 EST 2006 ajc
+* accept-charset="UTF-8" in form declaration for enter message screen
+
 Fri Jan 27 23:52:46 EST 2006 ajc
 * All month names and weekday names are now sourced from localized strings.
 
