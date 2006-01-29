@@ -193,10 +193,10 @@ int haschar(char *st,char ch)
 
 /** 
  * \brief Utility function to "readline" from memory
- * \param start position in buf
- * \param buf the buffer to create string in???
- * \param maxlen how big may the buffer get?
- * \return new pointer to read string
+ * \param start Location in memory from which we are reading.
+ * \param buf the buffer to place the string in.
+ * \param maxlen Size of string buffer
+ * \return Pointer to the source memory right after we stopped reading.
  */
 char *memreadline(char *start, char *buf, int maxlen)
 {
@@ -257,9 +257,11 @@ void striplt(char *buf)
 /**
  * \brief Determine whether the specified message number is contained within the
  * specified set.
- * \param mset stringset???
- * \param msgnum a citadel server indexnumber
- * \return yes / no ???
+ *
+ * \param mset Message set string
+ * \param msgnum Message number we are looking for
+ *
+ * \return Nonzero if the specified message number is in the specified message set string.
  */
 int is_msg_in_mset(char *mset, long msgnum) {
 	int num_sets;
@@ -435,10 +437,11 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 /**
  * \brief Convert base64-encoded to binary.  
  * It will stop after reading 'length' bytes.
- * \param dest the destination buffer 
- * \param source the encrypted string
- * \param length the maximal length of dest???
- * \return the length actual length of the decoded data.
+ *
+ * \param dest The destination buffer 
+ * \param source The base64 data to be decoded.
+ * \param length The number of bytes to decode.
+ * \return The actual length of the decoded data.
  */
 int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 {
@@ -506,7 +509,8 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 
 /**
  * \brief Generate a new, globally unique UID parameter for a calendar etc. object
- * \param buf uid to create ????
+ *
+ * \param buf String buffer into which our newly created UUID should be placed
  */
 void generate_uuid(char *buf) {
 	static int seq = 0;
