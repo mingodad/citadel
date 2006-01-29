@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup SymaryFuncs Displays the "Summary Page"
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

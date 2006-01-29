@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup IconBar Displays and customizes the iconbar.
+ * \ingroup MenuInfrastructure
  */
 /*@{*/
 #include "webcit.h"

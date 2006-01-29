@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup GroupdavDel Handle GroupDAV DELETE requests.
- *
+ * \ingroup WebcitHttpServerGDav
  */
 /*@{*/
 #include "webcit.h"

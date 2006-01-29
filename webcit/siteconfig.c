@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup AdminConfig Administrative screen for site-wide configuration
- *
+ * \ingroup CitadelConfig
  */
 /*@{*/
 

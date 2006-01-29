@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup InetCfg Functions which handle Internet domain configuration etc.
- *
+ * \ingroup CitadelConfig
  */
 /*@{*/
 #include "webcit.h"

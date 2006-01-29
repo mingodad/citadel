@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup DispAdvancedMenu Displays the "advanced" (main) menu.
+ * \ingroup MenuInfrastructure
  *
  */
 /*@{*/

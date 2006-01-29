@@ -3,7 +3,7 @@
  */
 /** 
  * \defgroup TcpSockets TCP client socket module for WebCit
- *
+ * \ingroup CitadelCommunitacion
  */
 /*@{*/
 

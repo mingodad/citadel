@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup calav Functions which handle calendar objects and their processing/display.
- * \todo parts aren't parsed by doxygen
+ * \ingroup Calendaring
  */
 /* @{ */
 

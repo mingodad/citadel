@@ -3,6 +3,7 @@
  */
 /**
  * \defgraup GroupdavGet Handle GroupDAV GET requests.
+ * \ingroup WebcitHttpServerGDav
  *
  */
 /*@{*/
@@ -12,7 +13,7 @@
 
 
 /**
- * \briefThe pathname is always going to be /groupdav/room_name/euid
+ * \brief The pathname is always going to be /groupdav/room_name/euid
  * \param dav_pathname the pathname to print
  */
 void groupdav_get(char *dav_pathname) {

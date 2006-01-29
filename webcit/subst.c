@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup Subst Variable substitution type stuff
- *
+ * \ingroup CitadelConfig
  */
 
 /*@{*/

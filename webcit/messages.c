@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup MsgDisp Functions which deal with the fetching and displaying of messages.
+ * \ingroup WebcitDisplayItems
  *
  */
 /*@{*/

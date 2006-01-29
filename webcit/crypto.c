@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup https  Provides HTTPS, when the OpenSSL library is available.
+ * \ingroup WebcitHttpServer 
  */
 
 /*@{*/

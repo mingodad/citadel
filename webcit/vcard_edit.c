@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup vCardEdit Handles on-screen editing of vCard objects.
- * \ingroup WebFrontend
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

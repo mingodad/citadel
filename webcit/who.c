@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup DislpayWho Display a list of all users currently logged on to the Citadel server.
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

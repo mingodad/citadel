@@ -10,6 +10,7 @@
  * Everything here will work on both a fully encapsulated VCALENDAR component
  * or any type of subcomponent.
  *
+ * \ingroup Calendaring
  */
 /*@{*/
 

@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup ShowSysMsgs Editing of various text files on the Citadel server.
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

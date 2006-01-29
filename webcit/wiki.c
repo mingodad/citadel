@@ -4,7 +4,7 @@
 /**
  *
  * \defgroup Wiki Wiki; Functions pertaining to rooms with a wiki view
- *
+ * \ingroup WebcitDisplayItems
  */
 
 /*@{*/

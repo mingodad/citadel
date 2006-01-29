@@ -4,7 +4,7 @@
 /**
  *
  * \defgroup CalendarAv  Check attendee availability for scheduling a meeting.
- * \todo why doesn't anything of the documentation apear?
+ * \ingroup Calendaring
  */
 /*@{*/
 

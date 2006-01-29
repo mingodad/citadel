@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup ServFuncs Handles various types of data transfer operations with the Citadel service.
- *
+ * \ingroup CitadelCommunitacion
  */
 
 /*@{*/ 

@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup GroupdavPut Handles GroupDAV PUT requests.
+ * \ingroup WebcitHttpServerGDav
  *
  */
 /*@{*/

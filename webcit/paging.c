@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup PageFunc Functions which implement the chat and paging facilities.
+ * \ingroup ClientPower
  */
 /*@{*/
 #include "webcit.h"

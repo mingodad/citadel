@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup TabUtils Utility functions for creating tabbed dialogs
+ * \ingroup WebcitDisplayItems
  */
 /*@{*/
 #include "webcit.h"

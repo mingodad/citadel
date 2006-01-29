@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup AdminFloor Administrative screens for floor maintenance
- *
+ * \ingroup CitadelConfig
  */
 /*@{*/
 

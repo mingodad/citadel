@@ -3,6 +3,7 @@
  */
 /**
  * \defgroup ManagePrefs Manage user preferences with a little help from the Citadel server.
+ * \ingroup CitadelConfig
  *
  */
 /*@{*/

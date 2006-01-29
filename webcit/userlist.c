@@ -3,7 +3,7 @@
  */
 /**
  * \defgroup AccDisplay Display a list of all accounts on a Citadel system.
- *
+ * \ingroup CitadelConfig
  */
 
 /*@{*/
