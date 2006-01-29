@@ -1,5 +1,8 @@
 $Id$
 
+Sun Jan 29 00:12:25 EST 2006 ajc
+* Clarified some of the doxygen comments
+
 Sat Jan 28 23:32:50 EST 2006 ajc
 * accept-charset="UTF-8" in form declaration for enter message screen
 
