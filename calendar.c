@@ -465,7 +465,7 @@ void handle_rsvp(void) {
 
 /**
  * \defgroup MsgDisplayHandlers Display handlers for message reading 
- * \todo why does doxygen not parse this? and generate another group?
+ * \ingroup Calendaring
  */
 
 /*@{*/
