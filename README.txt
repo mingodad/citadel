@@ -125,7 +125,10 @@ the "webserver" program:
      "X-Forwarded-For:" HTTP headers which may be added if your WebCit service
      is sitting behind a front end proxy.  This will allow users in your "Who
      is online?" list to appear as connecting from their actual host address
-     instead of the address of the proxy.
+     instead of the address of the proxy.  In addition, the
+     "X-Forwarded-Host:" header from the front end proxy will also be honored,
+     which will help to make automatically generated absolute URL's (for
+     things like GroupDAV and mailing list subscriptions) correct.
  
   -> remotehost: the name or IP address of the host on which your Citadel
      server is running.  The default is "localhost".

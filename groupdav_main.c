@@ -127,10 +127,15 @@ void groupdav_main(struct httprequest *req,
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		/* lprintf(9, "< %s\n", rptr->line); */
+
+		/*
+		 * We don't appear to need this; it was already done in webcit.c
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
                         safestrncpy(WC->http_host, &rptr->line[6],
 				sizeof WC->http_host);
                 }
+		*/
+
 		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
                         safestrncpy(dav_ifmatch, &rptr->line[10],
 				sizeof dav_ifmatch);
