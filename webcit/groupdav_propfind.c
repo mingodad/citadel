@@ -97,11 +97,13 @@ void groupdav_folder_list(void) {
 			wprintf("<D:response>");
 
 			wprintf("<D:href>");
+/*
 			if (strlen(WC->http_host) > 0) {
 				wprintf("%s://%s",
 					(is_https ? "https" : "http"),
 					WC->http_host);
 			}
+ */
 			wprintf("/groupdav/");
 			urlescputs(roomname);
 			wprintf("/</D:href>");
@@ -237,11 +239,13 @@ void groupdav_propfind(char *dav_pathname) {
 		wprintf("<D:response>");
 
 		wprintf("<D:href>");
+/*
 		if (strlen(WC->http_host) > 0) {
 			wprintf("%s://%s",
 				(is_https ? "https" : "http"),
 				WC->http_host);
 		}
+ */
 		wprintf("/groupdav/");
 		urlescputs(WC->wc_roomname);
 		euid_escapize(encoded_uid, dav_uid);
@@ -300,11 +304,13 @@ void groupdav_propfind(char *dav_pathname) {
 		if (strlen(uid) > 0) {
 			wprintf("<D:response>");
 			wprintf("<D:href>");
+/*
 			if (strlen(WC->http_host) > 0) {
 				wprintf("%s://%s",
 					(is_https ? "https" : "http"),
 					WC->http_host);
 			}
+ */
 			wprintf("/groupdav/");
 			urlescputs(WC->wc_roomname);
 			euid_escapize(encoded_uid, uid);
