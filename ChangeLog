@@ -1,5 +1,9 @@
 $Id$
 
+Mon Jan 30 15:25:43 EST 2006 ajc
+* GroupDAV now outputs <href> tags containing server-absolute URL's instead
+  of globally absolute URL's.
+
 Mon Jan 30 12:09:00 EST 2006 ajc
 * When the -f option is specified, honor X-Forwarded-Host: in addition
   to X-Forwarded-For: headers.  This helps GroupDAV along.
