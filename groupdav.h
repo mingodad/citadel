@@ -11,4 +11,4 @@ long locate_message_by_uid(char *);
 void groupdav_folder_list(void);
 void euid_escapize(char *, char *);
 void euid_unescapize(char *, char *);
-
+void output_host_prefix(void);

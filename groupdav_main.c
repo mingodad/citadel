@@ -236,4 +236,16 @@ void groupdav_main(struct httprequest *req,
 }
 
 
+/**
+ * \brief Output http[s]://fqdn.example.com[:port] to the client.
+ */
+void output_host_prefix(void) {
+	if (strlen(WC->http_host) > 0) {
+		wprintf("%s://%s",
+			(is_https ? "https" : "http"),
+			WC->http_host);
+	}
+}
+
+
 /*@}*/

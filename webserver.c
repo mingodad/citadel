@@ -28,6 +28,7 @@ extern pthread_key_t MyConKey;
 
 char *server_cookie = NULL; /**< our Cookie connection to the client */
 
+int http_port = PORT_NUM;	/**< Port to listen on */
 
 char *ctdlhost = DEFAULT_HOST; /**< our name */
 char *ctdlport = DEFAULT_PORT; /**< our Port */
@@ -465,7 +466,6 @@ int main(int argc, char **argv)
 	pthread_t SessThread;	/**< Thread descriptor */
 	pthread_attr_t attr;	/**< Thread attributes */
 	int a, i;	        	/**< General-purpose variables */
-	int port = PORT_NUM;	/**< Port to listen on */
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
 	char *webcitdir = WEBCITDIR;
@@ -491,8 +491,8 @@ int main(int argc, char **argv)
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
 			break;
 		case 'p':
-			port = atoi(optarg);
-			if (port == 0) {
+			http_port = atoi(optarg);
+			if (http_port == 0) {
 				safestrncpy(uds_listen_path, optarg, sizeof uds_listen_path);
 			}
 			break;
@@ -611,8 +611,8 @@ int main(int argc, char **argv)
 		msock = ig_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}
 	else {
-		lprintf(2, "Attempting to bind to port %d...\n", port);
-		msock = ig_tcp_server(ip_addr, port, LISTEN_QUEUE_LENGTH);
+		lprintf(2, "Attempting to bind to port %d...\n", http_port);
+		msock = ig_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
 
 	lprintf(2, "Listening on socket %d\n", msock);

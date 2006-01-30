@@ -1089,7 +1089,7 @@ void session_loop(struct httprequest *req)
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
-		lprintf(9, "HTTP HEADER: %s\n", buf);
+		/* lprintf(9, "HTTP HEADER: %s\n", buf); */
 		hptr = hptr->next;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {

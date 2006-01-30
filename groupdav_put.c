@@ -139,13 +139,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		wprintf("etag: \"%ld\"\r\n", new_msgnum);
 		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
-/*
-		if (strlen(WC->http_host) > 0) {
-			wprintf("%s://%s",
-				(is_https ? "https" : "http"),
-				WC->http_host);
-		}
- */
+		output_host_prefix();
 		wprintf("/groupdav/");
 		urlescputs(dav_roomname);
 		wprintf("/%s\r\n", dav_uid);
