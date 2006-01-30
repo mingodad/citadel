@@ -2445,7 +2445,7 @@ void post_mime_to_server(void) {
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("");
 	serv_puts("<html><body>\n");		/** Future templates go here */
-	text_to_server(bstr("msgtext"), 0);
+	text_to_server(bstr("msgtext"));
 	serv_puts("</body></html>\n");
 	
 

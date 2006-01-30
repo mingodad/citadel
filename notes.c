@@ -91,7 +91,7 @@ void updatenote(void)
 	serv_printf("ENT0 1||0|0||||||%s", bstr("eid"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
-		text_to_server(bstr("value"), 0);
+		text_to_server(bstr("value"));
 		serv_puts("000");
 	}
 

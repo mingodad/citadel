@@ -186,14 +186,12 @@ void pullquote_fmout(void) {
 
 /**
  * \brief Transmit message text (in memory) to the server.
- * \param ptr the output buffer
- * \param convert_to_html if set to 1, the message is converted into something
- * which kind of resembles HTML.
+ *
+ * \param ptr Pointer to the message being transmitted
  */
-void text_to_server(char *ptr, int convert_to_html)
+void text_to_server(char *ptr)
 {
-	char buf[SIZ];
-	char conv[4];
+	char buf[256];
 	int ch, a, pos;
 
 	pos = 0;
@@ -207,15 +205,7 @@ void text_to_server(char *ptr, int convert_to_html)
 				buf[strlen(buf) - 1] = 0;
 			serv_puts(buf);
 			buf[0] = 0;
-			if (convert_to_html) {
-				strcat(buf, "<br />");
-			}
-			else {
-				if (ptr[pos] != 0) strcat(buf, " ");
-			}
-		} else if ((convert_to_html)&&(strchr("#&;`'|*?-~<>^()[]{}$\\", ch) != NULL)) {
-			sprintf(conv, "%c", ch);
-			stresc(&buf[strlen(buf)], conv, 0, 0);
+			if (ptr[pos] != 0) strcat(buf, " ");
 		} else {
 			a = strlen(buf);
 			buf[a + 1] = 0;
@@ -232,7 +222,6 @@ void text_to_server(char *ptr, int convert_to_html)
 		}
 	}
 	serv_puts(buf);
-
 }
 
 
