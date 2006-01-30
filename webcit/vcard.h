@@ -6,7 +6,7 @@
  */
 /**
  * \defgroup VcardHeader vCard implementation for Citadel
- * \ingroup WebcitDisplayItems
+ * \ingroup VCards
  *
  */
 
