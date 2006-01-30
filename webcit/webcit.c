@@ -1089,6 +1089,7 @@ void session_loop(struct httprequest *req)
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
+		lprintf(9, "HTTP HEADER: %s\n", buf);
 		hptr = hptr->next;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
@@ -1112,8 +1113,15 @@ void session_loop(struct httprequest *req)
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			safestrncpy(user_agent, &buf[12], sizeof user_agent);
 		}
+		else if (!strncasecmp(buf, "X-Forwarded-Host: ", 18)) {
+			if (follow_xff) {
+				safestrncpy(WC->http_host, &buf[18], sizeof WC->http_host);
+			}
+		}
 		else if (!strncasecmp(buf, "Host: ", 6)) {
-			safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
+			if (strlen(WC->http_host) == 0) {
+				safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
+			}
 		}
 		else if (!strncasecmp(buf, "X-Forwarded-For: ", 17)) {
 			safestrncpy(browser_host, &buf[17], sizeof browser_host);

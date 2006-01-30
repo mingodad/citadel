@@ -1,5 +1,9 @@
 $Id$
 
+Mon Jan 30 12:09:00 EST 2006 ajc
+* When the -f option is specified, honor X-Forwarded-Host: in addition
+  to X-Forwarded-For: headers.  This helps GroupDAV along.
+
 Mon Jan 30 00:14:06 EST 2006 ajc
 * HTML messages are now encoded as "Quoted-Printable" before being
   transmitted to the server.  New utility function text_to_server_qp()
