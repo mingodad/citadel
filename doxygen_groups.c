@@ -4,6 +4,7 @@
  * we have: 
  * CitadelConfig; WebcitDisplayItems; WebcitHttpServer; WebcitHttpServerGDav;
  * ClientPower; Calendaring; MenuInfrastructure; CitadelCommunitacion;
+ * VCards
  * WebcitHttpServerRSS; tools;
  */
 
@@ -70,6 +71,15 @@
 /**
  * \defgroup Calendaring Calendaring background
  * \brief Functions that make the Business-logic of the calendaring items
+ * \ingroup WebcitDisplayItems
+ */
+
+/*@{*/
+/*@}*/
+
+/**
+ * \defgroup VCards showing / editing VCards
+ * \brief Functions that make the Business-logic of the vcard stuff
  * \ingroup WebcitDisplayItems
  */
 

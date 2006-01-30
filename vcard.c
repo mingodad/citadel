@@ -6,7 +6,7 @@
  */
 /**
  * \defgroup VCardMain vCard data type implementation for the Citadel system.
- * \ingroup WebcitDisplayItems
+ * \ingroup VCards
  */
 /*@{*/
 #include "webcit.h"
