@@ -225,6 +225,81 @@ void text_to_server(char *ptr)
 }
 
 
+/**
+ * \brief Transmit message text (in memory) to the server,
+ *        converting to Quoted-Printable encoding as we go.
+ *
+ * \param ptr Pointer to the message being transmitted
+ */
+void text_to_server_qp(char *ptr)
+{
+	char buf[256];
+	int ch, pos;
+	int output_len = 0;
+
+	pos = 0;
+	buf[0] = 0;
+	output_len = 0;
+
+	while (ptr[pos] != 0) {
+		ch = ptr[pos++];
+
+		if (ch == 13) {
+			/* ignore carriage returns */
+		}
+		else if (ch == 10) {
+			/* hard line break */
+			if (output_len > 0) {
+				if (isspace(buf[output_len-1])) {
+					sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+					output_len += 2;
+				}
+			}
+			buf[output_len++] = 0;
+			serv_puts(buf);
+			output_len = 0;
+		}
+		else if (ch == 9) {
+			buf[output_len++] = ch;
+		}
+		else if ( (ch >= 32) && (ch <= 60) ) {
+			buf[output_len++] = ch;
+		}
+		else if ( (ch >= 62) && (ch <= 126) ) {
+			buf[output_len++] = ch;
+		}
+		else {
+			sprintf(&buf[output_len], "=%02X", ch);
+			output_len += 3;
+		}
+		
+		if (output_len > 72) {
+			/* soft line break */
+			if (isspace(buf[output_len-1])) {
+				sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+				output_len += 2;
+			}
+			buf[output_len++] = '=';
+			buf[output_len++] = 0;
+			serv_puts(buf);
+			output_len = 0;
+		}
+	}
+
+	/* end of data - transmit anything that's left */
+	if (output_len > 0) {
+		if (isspace(buf[output_len-1])) {
+			sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+			output_len += 2;
+		}
+		buf[output_len++] = 0;
+		serv_puts(buf);
+		output_len = 0;
+	}
+}
+
+
+
 
 /**
  * \brief translate server message output to text

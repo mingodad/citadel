@@ -482,6 +482,7 @@ void embed_message(char *msgnum_as_string);
 void print_message(char *msgnum_as_string);
 void display_headers(char *msgnum_as_string);
 void text_to_server(char *ptr);
+void text_to_server_qp(char *ptr);
 void display_enter(void);
 void post_message(void);
 void confirm_delete_msg(void);
