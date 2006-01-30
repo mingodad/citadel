@@ -344,7 +344,7 @@ void do_generic(void)
 		wprintf("000");
 	}
 	if (buf[0] == '4') {
-		text_to_server(bstr("g_input"), 0);
+		text_to_server(bstr("g_input"));
 		serv_puts("000");
 	}
 	if (buf[0] == '6') {

@@ -93,7 +93,7 @@ void page_user(void)
 		serv_getln(buf, sizeof buf);
 
 		if (buf[0] == '4') {
-			text_to_server(bstr("msgtext"), 0);
+			text_to_server(bstr("msgtext"));
 			serv_puts("000");
 			wprintf("<EM>");
 			wprintf(_("Message has been sent to "));

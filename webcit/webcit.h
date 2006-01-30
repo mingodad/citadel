@@ -481,7 +481,7 @@ void read_message(long msgnum, int printable_view, char *section);
 void embed_message(char *msgnum_as_string);
 void print_message(char *msgnum_as_string);
 void display_headers(char *msgnum_as_string);
-void text_to_server(char *ptr, int convert_to_html);
+void text_to_server(char *ptr);
 void display_enter(void);
 void post_message(void);
 void confirm_delete_msg(void);

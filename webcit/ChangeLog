@@ -1,5 +1,9 @@
 $Id$
 
+Sun Jan 29 23:20:48 EST 2006 ajc
+* Removed the "convert_to_html" option from text_to_server() because we no
+  longer have any callers which require it.
+
 Sun Jan 29 13:08:59 EST 2006 ajc
  * Removed all references to "font-family" style.  We will now go with
    whatever font the user has chosen as his favorite.

@@ -88,7 +88,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		display_main_menu();
 		return;
 	}
-	text_to_server(bstr("msgtext"), 0);
+	text_to_server(bstr("msgtext"));
 	serv_puts("000");
 
 	if (regoto) {
