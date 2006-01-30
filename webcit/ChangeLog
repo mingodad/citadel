@@ -1,5 +1,10 @@
 $Id$
 
+Mon Jan 30 00:14:06 EST 2006 ajc
+* HTML messages are now encoded as "Quoted-Printable" before being
+  transmitted to the server.  New utility function text_to_server_qp()
+  handles this.
+
 Sun Jan 29 23:20:48 EST 2006 ajc
 * Removed the "convert_to_html" option from text_to_server() because we no
   longer have any callers which require it.
