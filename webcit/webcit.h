@@ -413,6 +413,7 @@ struct serv_info serv_info;
 extern char floorlist[128][SIZ];
 extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
+extern int http_port;
 extern char *server_cookie;
 extern int is_https;
 extern int setup_wizard;
