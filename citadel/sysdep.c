@@ -663,11 +663,12 @@ int client_getln(char *buf, int bufsize)
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(&buf[i], 1);
 
-	/* Strip the trailing newline and any trailing nonprintables (cr's)
+	/* Strip the trailing LF, and the trailing CR if present.
 	 */
 	buf[i] = 0;
-	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
+	while ( (strlen(buf) > 0) && ((buf[strlen(buf)-1]==10) || (buf[strlen(buf)-1] == 13)) ) {
 		buf[strlen(buf)-1] = 0;
+	}
 	if (retval < 0) safestrncpy(buf, "000", bufsize);
 	return(retval);
 }

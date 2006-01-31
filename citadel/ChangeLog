@@ -1,5 +1,9 @@
 $Id$
 
+Tue Jan 31 10:39:42 EST 2006 ajc
+* client_getln() now strips only the trailing CR/LF instead of "all trailing
+  nonprintables."  The old behavior was mangling international character sets.
+
 Thu Jan 26 21:31:22 EST 2006 ajc
 * Reject empty username for login attempts
 
