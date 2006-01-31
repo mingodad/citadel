@@ -1,5 +1,10 @@
 $Id$
 
+Tue Jan 31 12:00:59 EST 2006 ajc
+* Generated MIME boundaries now begin with "=_" because that is a character
+  sequence guaranteed never to appear in either base64 or quoted-printable
+  encodings.
+
 Mon Jan 30 23:59:47 EST 2006 ajc
 * Rolled all of the groupdav*.[ch] files way back to version 3851.  Something
   somewhere in willi's doxygen changes broke GroupDAV protocol.  Since I was

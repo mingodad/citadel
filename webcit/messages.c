@@ -2429,7 +2429,7 @@ void post_mime_to_server(void) {
 	}
 
 	if (is_multipart) {
-		sprintf(boundary, "---Citadel-Multipart-%s-%04x%04x---",
+		sprintf(boundary, "=_Citadel_Multipart_%s_%04x%04x",
 			serv_info.serv_fqdn,
 			getpid(),
 			++seq
