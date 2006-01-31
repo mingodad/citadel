@@ -1,20 +1,17 @@
 /*
  * $Id$
+ *
+ * Handles GroupDAV DELETE requests.
+ *
  */
-/**
- * \defgroup GroupdavDel Handle GroupDAV DELETE requests.
- * \ingroup WebcitHttpServerGDav
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-/**
- * \brief The pathname is always going to be /groupdav/room_name/euid
- * \param dav_pathname the groupdav pathname
- * \param dav_ifmatch item to delete ????
+/*
+ * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	char dav_roomname[SIZ];
@@ -23,22 +20,22 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	char buf[SIZ];
 	int n = 0;
 
-	/** First, break off the "/groupdav/" prefix */
+	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
 	remove_token(dav_pathname, 0, '/');
 
-	/** Now extract the message euid */
+	/* Now extract the message euid */
 	n = num_tokens(dav_pathname, '/');
 	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
 	remove_token(dav_pathname, n-1, '/');
 
-	/** What's left is the room name.  Remove trailing slashes. */
+	/* What's left is the room name.  Remove trailing slashes. */
 	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
 		dav_pathname[strlen(dav_pathname)-1] = 0;
 	}
 	strcpy(dav_roomname, dav_pathname);
 
-	/** Go to the correct room. */
+	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		gotoroom(dav_roomname);
 	}
@@ -51,7 +48,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 
 	dav_msgnum = locate_message_by_uid(dav_uid);
 
-	/**
+	/*
 	 * If no item exists with the requested uid ... simple error.
 	 */
 	if (dav_msgnum < 0L) {
@@ -61,7 +58,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 		return;
 	}
 
-	/**
+	/*
 	 * It's there ... check the ETag and make sure it matches
 	 * the message number.
 	 */
@@ -74,7 +71,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 		}
 	}
 
-	/**
+	/*
 	 * Ok, attempt to delete the item.
 	 */
 	serv_printf("DELE %ld", dav_msgnum);
@@ -91,6 +88,3 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	}
 	return;
 }
-
-
-/*@}*/

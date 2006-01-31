@@ -1,8 +1,7 @@
 /*
  * $Id$
- */
-/**
- * \defgroup GroupdavPropfind Handles GroupDAV PROPFIND requests.
+ *
+ * Handles GroupDAV PROPFIND requests.
  *
  * A few notes about our XML output:
  *
@@ -14,7 +13,6 @@
  *     This makes it difficult to read, but we have discovered clients which
  *     crash when you try to pretty it up.
  *
- * \ingroup WebcitHttpServerGDav
  */
 
 #include "webcit.h"
@@ -22,15 +20,13 @@
 #include "groupdav.h"
 
 
-/**
- * \brief get all messages of this user
+/*
  * Given an encoded UID, translate that to an unencoded Citadel EUID and
  * then search for it in the current room.  Return a message number or -1
  * if not found.
  *
  * NOTE: this function relies on the Citadel server's brute-force search.
  * There's got to be a way to optimize this better.
- * \param uid the user to get the data for...
  */
 long locate_message_by_uid(char *uid) {
 	char buf[SIZ];
@@ -40,17 +36,21 @@ long locate_message_by_uid(char *uid) {
 	/* Decode the uid */
 	euid_unescapize(decoded_uid, uid);
 
-	serv_printf("EUID %s", decoded_uid);
+	serv_puts("MSGS ALL|0|1");
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		retval = extract_long(&buf[4], 0);
+	if (buf[0] == '8') {
+		serv_printf("exti|%s", decoded_uid);
+		serv_puts("000");
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			retval = atol(buf);
+		}
 	}
 	return(retval);
 }
 
 
-/**
- * \brief List folders containing interesting groupware objects
+/*
+ * List folders containing interesting groupware objects
  */
 void groupdav_folder_list(void) {
 	char buf[SIZ];
@@ -62,11 +62,11 @@ void groupdav_folder_list(void) {
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
-	/**
+	/*
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
-	wprintf("HTTP/1.1 207 Multi-Status\r\n");
+	wprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
 	wprintf("Date: %s\r\n", datestring);
 	wprintf("Content-type: text/xml\r\n");
@@ -85,7 +85,7 @@ void groupdav_folder_list(void) {
 		extract_token(roomname, buf, 0, '|', sizeof roomname);
 		view = extract_int(buf, 6);
 
-		/**
+		/*
 		 * For now, only list rooms that we know a GroupDAV client
 		 * might be interested in.  In the future we may add
 		 * the rest.
@@ -97,7 +97,7 @@ void groupdav_folder_list(void) {
 			wprintf("<D:response>");
 
 			wprintf("<D:href>");
-			output_host_prefix();
+			groupdav_identify_host();
 			wprintf("/groupdav/");
 			urlescputs(roomname);
 			wprintf("/</D:href>");
@@ -105,9 +105,9 @@ void groupdav_folder_list(void) {
 			wprintf("<D:propstat>");
 			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
 			wprintf("<D:prop>");
-			wprintf("<D:fullname>");
+			wprintf("<D:displayname>");
 			escputs(roomname);
-			wprintf("</D:fullname>");
+			wprintf("</D:displayname>");
 			wprintf("<D:resourcetype><D:collection/>");
 
 			switch(view) {
@@ -135,9 +135,8 @@ void groupdav_folder_list(void) {
 
 
 
-/**
- * \brief Search though a davname
- * \param dav_pathname The pathname is always going to be /groupdav/room_name/msg_num
+/*
+ * The pathname is always going to be /groupdav/room_name/msg_num
  */
 void groupdav_propfind(char *dav_pathname) {
 	char dav_roomname[256];
@@ -159,13 +158,11 @@ void groupdav_propfind(char *dav_pathname) {
 	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
 	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
-	/*
 	lprintf(9, "dav_pathname: %s\n", dav_pathname);
 	lprintf(9, "dav_roomname: %s\n", dav_roomname);
 	lprintf(9, "     dav_uid: %s\n", dav_uid);
-	*/
 
-	/**
+	/*
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
@@ -191,8 +188,7 @@ void groupdav_propfind(char *dav_pathname) {
 		return;
 	}
 
-	/**
-	 * If dav_uid is non-empty, client is requesting a PROPFIND on
+	/* If dav_uid is non-empty, client is requesting a PROPFIND on
 	 * a specific item in the room.  This is not valid GroupDAV, but
 	 * we try to honor it anyway because some clients are expecting
 	 * it to work...
@@ -213,12 +209,11 @@ void groupdav_propfind(char *dav_pathname) {
 			return;
 		}
 
-	 	/**
-		 * Be rude.  Completely ignore the XML request and simply send them
+	 	/* Be rude.  Completely ignore the XML request and simply send them
 		 * everything we know about (which is going to simply be the ETag and
 		 * nothing else).  Let the client-side parser sort it out.
 		 */
-		wprintf("HTTP/1.1 207 Multi-Status\r\n");
+		wprintf("HTTP/1.0 207 Multi-Status\r\n");
 		groupdav_common_headers();
 		wprintf("Date: %s\r\n", datestring);
 		wprintf("Content-type: text/xml\r\n");
@@ -233,7 +228,7 @@ void groupdav_propfind(char *dav_pathname) {
 		wprintf("<D:response>");
 
 		wprintf("<D:href>");
-		output_host_prefix();
+		groupdav_identify_host();
 		wprintf("/groupdav/");
 		urlescputs(WC->wc_roomname);
 		euid_escapize(encoded_uid, dav_uid);
@@ -251,7 +246,7 @@ void groupdav_propfind(char *dav_pathname) {
 	}
 
 
-	/**
+	/*
 	 * We got to this point, which means that the client is requesting
 	 * a 'collection' (i.e. a list of all items in the room).
 	 *
@@ -259,7 +254,7 @@ void groupdav_propfind(char *dav_pathname) {
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
-	wprintf("HTTP/1.1 207 Multi-Status\r\n");
+	wprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
 	wprintf("Date: %s\r\n", datestring);
 	wprintf("Content-type: text/xml\r\n");
@@ -292,7 +287,7 @@ void groupdav_propfind(char *dav_pathname) {
 		if (strlen(uid) > 0) {
 			wprintf("<D:response>");
 			wprintf("<D:href>");
-			output_host_prefix();
+			groupdav_identify_host();
 			wprintf("/groupdav/");
 			urlescputs(WC->wc_roomname);
 			euid_escapize(encoded_uid, uid);
@@ -313,5 +308,3 @@ void groupdav_propfind(char *dav_pathname) {
 		free(msgs);
 	}
 }
-
-/*@}*/

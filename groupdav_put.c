@@ -1,23 +1,17 @@
 /*
  * $Id$
- */
-/**
- * \defgroup GroupdavPut Handles GroupDAV PUT requests.
- * \ingroup WebcitHttpServerGDav
+ *
+ * Handles GroupDAV PUT requests.
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-/**
- * \brief GroupDAV PUT an item to the server
- * \param dav_pathname The pathname is always going to be /groupdav/room_name/euid
- * \param dav_ifmatch ETag of the item we think we're replacing
- * \param dav_content_type the mime type
- * \param dav_content the actual data
+/*
+ * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		char *dav_content_type, char *dav_content
@@ -29,22 +23,22 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	char buf[SIZ];
 	int n = 0;
 
-	/** First, break off the "/groupdav/" prefix */
+	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
 	remove_token(dav_pathname, 0, '/');
 
-	/** Now extract the message euid */
+	/* Now extract the message euid */
 	n = num_tokens(dav_pathname, '/');
 	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
 	remove_token(dav_pathname, n-1, '/');
 
-	/** What's left is the room name.  Remove trailing slashes. */
+	/* What's left is the room name.  Remove trailing slashes. */
 	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
 		dav_pathname[strlen(dav_pathname)-1] = 0;
 	}
 	strcpy(dav_roomname, dav_pathname);
 
-	/** Go to the correct room. */
+	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		gotoroom(dav_roomname);
 	}
@@ -60,7 +54,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	/**
+	/*
 	 * If an HTTP If-Match: header is present, the client is attempting
 	 * to replace an existing item.  We have to check to see if the
 	 * message number associated with the supplied uid matches what the
@@ -68,7 +62,9 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * version, so we fail...
 	 */
 	if (strlen(dav_ifmatch) > 0) {
+		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
 		old_msgnum = locate_message_by_uid(dav_uid);
+		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
@@ -79,7 +75,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		}
 	}
 
-	/**
+	/*
 	 * We are cleared for upload!  We use the new calling syntax for ENT0
 	 * which allows a confirmation to be sent back to us.  That's how we
 	 * extract the message ID.
@@ -96,12 +92,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	/** Send the content to the Citadel server */
+	/* Send the content to the Citadel server */
 	serv_printf("Content-type: %s\n\n", dav_content_type);
 	serv_puts(dav_content);
 	serv_puts("\n000");
 
-	/** Fetch the reply from the Citadel server */
+	/* Fetch the reply from the Citadel server */
 	n = 0;
 	strcpy(dav_uid, "");
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -117,9 +113,9 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		}
 	}
 
-	/** Tell the client what happened. */
+	/* Tell the client what happened. */
 
-	/** Citadel failed in some way? */
+	/* Citadel failed in some way? */
 	if (new_msgnum < 0L) {
 		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
@@ -131,7 +127,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	/** We created this item for the first time. */
+	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
 		wprintf("HTTP/1.1 201 Created\r\n");
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
@@ -139,7 +135,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		wprintf("etag: \"%ld\"\r\n", new_msgnum);
 		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
-		output_host_prefix();
+		groupdav_identify_host();
 		wprintf("/groupdav/");
 		urlescputs(dav_roomname);
 		wprintf("/%s\r\n", dav_uid);
@@ -147,15 +143,14 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	/** We modified an existing item. */
+	/* We modified an existing item. */
 	wprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
 	wprintf("etag: \"%ld\"\r\n", new_msgnum);
 	wprintf("Content-Length: 0\r\n\r\n");
 
-	/**
-	 * The item we replaced has probably already been deleted by
+	/* The item we replaced has probably already been deleted by
 	 * the Citadel server, but we'll do this anyway, just in case.
 	 */
 	serv_printf("DELE %ld", old_msgnum);
@@ -163,6 +158,3 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	return;
 }
-
-
-/*@}*/
