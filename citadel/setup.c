@@ -1295,7 +1295,7 @@ NEW_INST:
 	snprintf(aaa, sizeof aaa,
 			 "%schkpwd",
 			 ctdl_sbin_dir);
-	chown(aaa, config.c_ctdluid, gid);
+	chown(aaa,0,0); /*  config.c_ctdluid, gid); chkpwd needs to be root owned*/
 	sleep(1);
 	progress("Setting file permissions", 3, 4);
 	chmod(aaa, 04755); 

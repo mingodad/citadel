@@ -1,5 +1,8 @@
 $Id$
 
+Di Jan 31 23:32:38 CET 2006 dothebart
+  chkpwd needs to be owned rooot:root, flags 04755
+
 Tue Jan 31 10:39:42 EST 2006 ajc
 * client_getln() now strips only the trailing CR/LF instead of "all trailing
   nonprintables."  The old behavior was mangling international character sets.
