@@ -19,9 +19,6 @@ case "$1" in
   remove)
     # This package is being removed, but its configuration has not yet
     # been purged.
-		export CREATE_INITTAB_ENTRY=no
-		/usr/lib/citadel-server/setup -q
-		killall -HUP init
 
 
     # Remove diversion
