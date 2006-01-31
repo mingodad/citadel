@@ -1,19 +1,17 @@
 /*
  * $Id$
- */
-/**
- * \defgroup GroupdavMain Entry point for GroupDAV functions
- * \ingroup WebcitHttpServerGDav
+ *
+ * Entry point for GroupDAV functions
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-/**
- * \brief Output HTTP headers which are common to all requests.
+/*
+ * Output HTTP headers which are common to all requests.
  *
  * Please observe that we don't use the usual output_headers()
  * and wDumpContent() functions in the GroupDAV subsystem, so we
@@ -30,10 +28,8 @@ void groupdav_common_headers(void) {
 
 
 
-/**
- * \brief string conversion function
- * \param target output string
- * \param source string to process
+/*
+ * string conversion function
  */
 void euid_escapize(char *target, char *source) {
 	int i;
@@ -60,10 +56,8 @@ void euid_escapize(char *target, char *source) {
 	}
 }
 
-/**
- * \brief string conversion function
- * \param target output string
- * \param source string to process
+/*
+ * string conversion function
  */
 void euid_unescapize(char *target, char *source) {
 	int a, b;
@@ -101,12 +95,8 @@ void euid_unescapize(char *target, char *source) {
 
 
 
-/**
- * \brief Main entry point for GroupDAV requests
- * \param req Request header
- * \param dav_content_type the kind of dav elemet to represent??
- * \param dav_content_length the length of our response
- * \param dav_content the actual content to give back
+/*
+ * Main entry point for GroupDAV requests
  */
 void groupdav_main(struct httprequest *req,
 			char *dav_content_type,
@@ -126,6 +116,12 @@ void groupdav_main(struct httprequest *req,
 	strcpy(dav_ifmatch, "");
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
+		if (!strncasecmp(rptr->line, "Host: ", 6)) {
+			if (strlen(WC->http_host) == 0) {
+                        	safestrncpy(WC->http_host, &rptr->line[6],
+					sizeof WC->http_host);
+			}
+                }
 		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
                         safestrncpy(dav_ifmatch, &rptr->line[10],
 				sizeof dav_ifmatch);
@@ -145,8 +141,7 @@ void groupdav_main(struct httprequest *req,
 	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
 	unescape_input(dav_pathname);
 
-	/**
-	 * If the request does not begin with "/groupdav", prepend it.  If
+	/* If the request does not begin with "/groupdav", prepend it.  If
 	 * we happen to introduce a double-slash, that's ok; we'll strip it
 	 * in the next step.
 	 */
@@ -155,12 +150,12 @@ void groupdav_main(struct httprequest *req,
 		safestrncpy(dav_pathname, buf, sizeof dav_pathname);
 	}
 	
-	/** Remove any stray double-slashes in pathname */
+	/* Remove any stray double-slashes in pathname */
 	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
 		strcpy(ds, ds+1);
 	}
 
-	/**
+	/*
 	 * If there's an If-Match: header, strip out the quotes if present, and
 	 * then if all that's left is an asterisk, make it go away entirely.
 	 */
@@ -179,7 +174,7 @@ void groupdav_main(struct httprequest *req,
 		}
 	}
 
-	/**
+	/*
 	 * The OPTIONS method is not required by GroupDAV.  This is an
 	 * experiment to determine what might be involved in supporting
 	 * other variants of DAV in the future.
@@ -189,7 +184,7 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	/**
+	/*
 	 * The PROPFIND method is basically used to list all objects in a
 	 * room, or to list all relevant rooms on the server.
 	 */
@@ -198,7 +193,7 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	/**
+	/*
 	 * The GET method is used for fetching individual items.
 	 */
 	if (!strcasecmp(dav_method, "GET")) {
@@ -206,7 +201,7 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	/**
+	/*
 	 * The PUT method is used to add or modify items.
 	 */
 	if (!strcasecmp(dav_method, "PUT")) {
@@ -215,7 +210,7 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	/**
+	/*
 	 * The DELETE method kills, maims, and destroys.
 	 */
 	if (!strcasecmp(dav_method, "DELETE")) {
@@ -223,7 +218,7 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	/**
+	/*
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
 	wprintf("HTTP/1.1 501 Method not implemented\r\n");
@@ -236,16 +231,13 @@ void groupdav_main(struct httprequest *req,
 }
 
 
-/**
- * \brief Output http[s]://fqdn.example.com[:port] to the client.
- */
-void output_host_prefix(void) {
+/*
+ * Output our host prefix for globally absolute URL's.
+ */  
+void groupdav_identify_host(void) {
 	if (strlen(WC->http_host) > 0) {
 		wprintf("%s://%s",
 			(is_https ? "https" : "http"),
 			WC->http_host);
 	}
 }
-
-
-/*@}*/

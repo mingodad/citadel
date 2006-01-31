@@ -1,5 +1,12 @@
 $Id$
 
+Mon Jan 30 23:59:47 EST 2006 ajc
+* Rolled all of the groupdav*.[ch] files way back to version 3851.  Something
+  somewhere in willi's doxygen changes broke GroupDAV protocol.  Since I was
+  unable to figure out where, I had to roll it all back.
+* The good news is that the server-absolute URL's do work after all, so I
+  reinstated that.
+
 Mon Jan 30 16:52:37 EST 2006 ajc
 * Reversed the previous change
 
