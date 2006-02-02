@@ -1,0 +1,4 @@
+# syntax: remoteurl;citadel roomname;domainname for dns
+# feed per line.
+# rooms must exist and be writable
+#http://slashdot.org/index.rss;Slashdot;slashdot.org
