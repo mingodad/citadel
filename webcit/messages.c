@@ -692,15 +692,21 @@ void read_message(long msgnum, int printable_view, char *section) {
 			     || (!strcasecmp(mime_disposition, "inline")) ) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
-					"<a href=\"mimepart/%ld/%s/%s\" "
-					"target=\"wc.%ld.%s\">"
 					"<img src=\"static/diskette_24x.gif\" "
 					"border=0 align=middle>\n"
-					"%s (%s, %d bytes)</a><br />\n",
+					"%s (%s, %d bytes) [ "
+					"<a href=\"mimepart/%ld/%s/%s\""
+					"target=\"wc.%ld.%s\">%s</a>"
+					" | "
+					"<a href=\"mimepart_download/%ld/%s/%s\">%s</a>"
+					" ]<br />\n",
+					mime_filename,
+					mime_content_type, mime_length,
 					msgnum, mime_partnum, mime_filename,
 					msgnum, mime_partnum,
-					mime_filename,
-					mime_content_type, mime_length
+					_("View"),
+					msgnum, mime_partnum, mime_filename,
+					_("Download")
 				);
 			}
 

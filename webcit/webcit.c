@@ -646,15 +646,18 @@ void output_image()
 
 /**
  * \brief Generic function to output an arbitrary MIME part from an arbitrary
- * message number on the server.
- * \param msgnum number of the item on the citadel server
- * \param partnum the MIME part to be output
+ *        message number on the server.
+ *
+ * \param msgnum		Number of the item on the citadel server
+ * \param partnum		The MIME part to be output
+ * \param force_download	Nonzero to force set the Content-Type: header
+ *                              to "application/octet-stream"
  */
-void mimepart(char *msgnum, char *partnum)
+void mimepart(char *msgnum, char *partnum, int force_download)
 {
-	char buf[SIZ];
+	char buf[256];
 	off_t bytes;
-	char content_type[SIZ];
+	char content_type[256];
 	char *content = NULL;
 	
 	serv_printf("OPNA %s|%s", msgnum, partnum);
@@ -662,7 +665,12 @@ void mimepart(char *msgnum, char *partnum)
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
-		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
+		if (force_download) {
+			strcpy(content_type, "application/octet-stream");
+		}
+		else {
+			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
+		}
 		output_headers(0, 0, 0, 0, 0, 0);
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
@@ -1557,7 +1565,9 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
 	} else if (!strcasecmp(action, "mimepart")) {
-		mimepart(arg1, arg2);
+		mimepart(arg1, arg2, 0);
+	} else if (!strcasecmp(action, "mimepart_download")) {
+		mimepart(arg1, arg2, 1);
 	} else if (!strcasecmp(action, "edit_vcard")) {
 		edit_vcard();
 	} else if (!strcasecmp(action, "submit_vcard")) {
