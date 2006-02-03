@@ -1302,11 +1302,11 @@ msgstr "an "
 #: ../messages.c:707
 #, fuzzy
 msgid "View"
-msgstr ""
+msgstr "Anzeigen"
 
 #: ../messages.c:709
 msgid "Download"
-msgstr ""
+msgstr "Herunterladen"
 
 #: ../messages.c:756 ../messages.c:2769
 msgid "CC:"
@@ -1723,7 +1723,7 @@ msgstr "Nachrichten anzeigen"
 
 #: ../roomops.c:485
 msgid "View message list"
-msgstr "Nachrichtenliste anzeigen"
+msgstr "Aktualisieren"
 
 #: ../roomops.c:496
 #, fuzzy
