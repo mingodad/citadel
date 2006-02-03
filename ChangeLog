@@ -1,5 +1,8 @@
 $Id$
 
+Thu Feb  2 23:50:00 EST 2006 ajc
+* Offer "View" and "Download" options for all attachments.
+
 Tue Jan 31 12:00:59 EST 2006 ajc
 * Generated MIME boundaries now begin with "=_" because that is a character
   sequence guaranteed never to appear in either base64 or quoted-printable
