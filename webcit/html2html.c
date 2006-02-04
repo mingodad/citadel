@@ -249,7 +249,9 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	converted_msg = malloc(content_length);
 	strcpy(converted_msg, "");
 	ptr = msg;
+	msgend = strchr(msg, 0);
 	while (ptr < msgend) {
+
 		/**
 		 * Change mailto: links to WebCit mail, by replacing the
 		 * link with one that points back to our mail room.  Due to
@@ -280,7 +282,6 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				ptr = &ptr[8];
 			}
 			else if ( (treat_as_wiki) && (strncasecmp(ptr, "<a href=\"wiki?", 14)) ) {
-				lprintf(9, "converting wiki link\n");
 				content_length += 64;
 				converted_msg = realloc(converted_msg, content_length);
 				sprintf(&converted_msg[output_length], "<a href=\"wiki?page=");
