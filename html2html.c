@@ -13,11 +13,64 @@
 
 
 /**
- * \brief Sanitize and enhance an HTML message for display.
- * Also convert weird character sets to UTF-8 if necessary.
- * \param charset the input charset
+ * \brief	Strip surrounding single or double quotes from a string.
+ *
+ * \param s	String to be stripped.
  */
-void output_html(char *charset, int treat_as_wiki) {
+void stripquotes(char *s)
+{
+	int len;
+
+	if (!s) return;
+
+	len = strlen(s);
+	if (len < 2) return;
+
+	if ( ( (s[0] == '\"') && (s[len-1] == '\"') ) || ( (s[0] == '\'') && (s[len-1] == '\'') ) ) {
+		s[len-1] = 0;
+		strcpy(s, &s[1]);
+	}
+}
+
+
+/**
+ * \brief Check to see if a META tag has overridden the declared MIME character set.
+ *
+ * \param charset		Character set name (left unchanged if we don't do anything)
+ * \param meta_http_equiv	Content of the "http-equiv" portion of the META tag
+ * \param meta_content		Content of the "content" portion of the META tag
+ */
+void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_content)
+{
+	char *ptr;
+	char buf[64];
+
+	if (!charset) return;
+	if (!meta_http_equiv) return;
+	if (!meta_content) return;
+
+
+	if (strcasecmp(meta_http_equiv, "Content-type")) return;
+
+	ptr = strchr(meta_content, ';');
+	if (!ptr) return;
+
+	safestrncpy(buf, ++ptr, sizeof buf);
+	striplt(buf);
+	if (!strncasecmp(buf, "charset=", 8)) {
+		strcpy(charset, &buf[8]);
+	}
+}
+
+
+
+/**
+ * \brief Sanitize and enhance an HTML message for display.
+ *        Also convert weird character sets to UTF-8 if necessary.
+ *
+ * \param supplied_charset the input charset as declared in the MIME headers
+ */
+void output_html(char *supplied_charset, int treat_as_wiki) {
 	char buf[SIZ];
 	char *msg;
 	char *ptr;
@@ -33,6 +86,7 @@ void output_html(char *charset, int treat_as_wiki) {
 	int alevel = 0;
 	int i;
 	int linklen;
+	char charset[128];
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;                   /**< Buffer of characters to be converted */
@@ -42,6 +96,7 @@ void output_html(char *charset, int treat_as_wiki) {
 	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
 
+	safestrncpy(charset, supplied_charset, sizeof charset);
 	msg = strdup("");
 	sprintf(new_window, "<a target=\"%s\" href=", TARGET);
 
@@ -63,32 +118,7 @@ void output_html(char *charset, int treat_as_wiki) {
 		content_length += 1;
 	}
 
-#ifdef HAVE_ICONV
-	if ( (strcasecmp(charset, "us-ascii"))
-	   && (strcasecmp(charset, "UTF-8"))
-	   && (strcasecmp(charset, ""))
-	) {
-		ic = iconv_open("UTF-8", charset);
-		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "%s:%d iconv_open() failed: %s\n",
-				__FILE__, __LINE__, strerror(errno));
-		}
-	}
-	if (ic != (iconv_t)(-1) ) {
-		ibuf = msg;
-		ibuflen = content_length;
-		obuflen = content_length + (content_length / 2) ;
-		obuf = (char *) malloc(obuflen);
-		osav = obuf;
-		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-		content_length = content_length + (content_length / 2) - obuflen;
-		osav[content_length] = 0;
-		free(msg);
-		msg = osav;
-		iconv_close(ic);
-	}
-#endif
-
+	/** Do a first pass to isolate the message body */
 	ptr = msg;
 	msgstart = msg;
 	msgend = &msg[content_length];
@@ -100,6 +130,51 @@ void output_html(char *charset, int treat_as_wiki) {
 		if ((ptr == NULL) || (ptr >= msgend)) break;
 		++ptr;
 		if ((ptr == NULL) || (ptr >= msgend)) break;
+
+		/**
+		 *  Look for META tags.  Some messages (particularly in
+		 *  Asian locales) illegally declare a message's character
+		 *  set in the HTML instead of in the MIME headers.  This
+		 *  is wrong but we have to work around it anyway.
+		 */
+		if (!strncasecmp(ptr, "META", 4)) {
+
+			char *meta_start;
+			char *meta_end;
+			int meta_length;
+			char *meta;
+			char *meta_http_equiv;
+			char *meta_content;
+			char *spaceptr;
+
+			meta_start = &ptr[4];
+			meta_end = strchr(ptr, '>');
+			if ((meta_end != NULL) && (meta_end <= msgend)) {
+				meta_length = meta_end - meta_start + 1;
+				meta = malloc(meta_length + 1);
+				safestrncpy(meta, meta_start, meta_length);
+				meta[meta_length] = 0;
+				striplt(meta);
+				if (!strncasecmp(meta, "HTTP-EQUIV=", 11)) {
+					meta_http_equiv = strdup(&meta[11]);
+					spaceptr = strchr(meta_http_equiv, ' ');
+					if (spaceptr != NULL) {
+						*spaceptr = 0;
+						meta_content = strdup(++spaceptr);
+						if (!strncasecmp(meta_content, "content=", 8)) {
+							strcpy(meta_content, &meta_content[8]);
+							stripquotes(meta_http_equiv);
+							stripquotes(meta_content);
+							extract_charset_from_meta(charset,
+								meta_http_equiv, meta_content);
+						}
+						free(meta_content);
+					}
+					free(meta_http_equiv);
+				}
+				free(meta);
+			}
+		}
 
 		/**
 		 * Any of these tags cause everything up to and including
@@ -130,7 +205,43 @@ void output_html(char *charset, int treat_as_wiki) {
 
 		++ptr;
 	}
+	if (msgstart > msg) {
+		strcpy(msg, msgstart);
+	}
 
+	/** Convert foreign character sets to UTF-8 if necessary. */
+#ifdef HAVE_ICONV
+	if ( (strcasecmp(charset, "us-ascii"))
+	   && (strcasecmp(charset, "UTF-8"))
+	   && (strcasecmp(charset, ""))
+	) {
+		lprintf(9, "Converting %s to UTF-8\n", charset);
+		ic = iconv_open("UTF-8", charset);
+		if (ic == (iconv_t)(-1) ) {
+			lprintf(5, "%s:%d iconv_open() failed: %s\n",
+				__FILE__, __LINE__, strerror(errno));
+		}
+	}
+	if (ic != (iconv_t)(-1) ) {
+		ibuf = msg;
+		ibuflen = content_length;
+		obuflen = content_length + (content_length / 2) ;
+		obuf = (char *) malloc(obuflen);
+		osav = obuf;
+		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+		content_length = content_length + (content_length / 2) - obuflen;
+		osav[content_length] = 0;
+		free(msg);
+		msg = osav;
+		iconv_close(ic);
+	}
+#endif
+
+	/** FIXME At this point, shigerugo's messages are still clean.
+	 *        Figure out what is mangling them below.
+	 */
+
+	/** Now go through the message, parsing tags as necessary. */
 	converted_msg = malloc(content_length);
 	strcpy(converted_msg, "");
 	ptr = msgstart;
