@@ -655,13 +655,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 		if (!strncasecmp(buf, "rcpt=", 5)) {
 			wprintf(_("to "));
-			escputs(&buf[5]);
-			wprintf(" ");
 			if (strlen(reply_all) > 0) {
 				strcat(reply_all, ", ");
 			}
 			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
 				(sizeof reply_all - strlen(reply_all)) );
+			utf8ify_rfc822_string(&buf[5]);
+			escputs(&buf[5]);
+			wprintf(" ");
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
