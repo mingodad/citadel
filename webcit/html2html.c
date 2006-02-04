@@ -237,14 +237,18 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	}
 #endif
 
-	/** FIXME At this point, shigerugo's messages are still clean.
-	 *        Figure out what is mangling them below.
+	/**
+	 *	At this point, the message has been stripped down to
+	 *	only the content inside the <BODY></BODY> tags, and has
+	 *	been converted to UTF-8 if it was originally in a foreign
+	 *	character set.  The text is also guaranteed to be null
+	 *	terminated now.
 	 */
 
 	/** Now go through the message, parsing tags as necessary. */
 	converted_msg = malloc(content_length);
 	strcpy(converted_msg, "");
-	ptr = msgstart;
+	ptr = msg;
 	while (ptr < msgend) {
 		/**
 		 * Change mailto: links to WebCit mail, by replacing the
@@ -345,6 +349,10 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			converted_msg[++output_length] = 0;
 		}
 	}
+
+	/**	uncomment these two lines to override conversion	*/
+	/**	memcpy(converted_msg, msg, content_length);		*/
+	/**	output_length = content_length;				*/
 
 	/** Output our big pile of markup */
 	client_write(converted_msg, output_length);
