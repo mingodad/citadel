@@ -2050,7 +2050,8 @@ void readloop(char *oper)
 
 	is_singlecard = atoi(bstr("is_singlecard"));
 
-	if (WC->wc_view == VIEW_CALENDAR) {		/**< calendar */
+	if ((WC->wc_view == VIEW_CALENDAR) ||
+		(WC->wc_view == VIEW_CALBRIEF)){		/**< calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
@@ -2653,7 +2654,8 @@ void display_enter(void)
 	 * Are we perhaps in a calendar view?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
-	if (WC->wc_view == VIEW_CALENDAR) {
+	if ((WC->wc_view == VIEW_CALENDAR) ||
+		(WC->wc_view == VIEW_CALBRIEF)){
 		display_edit_event();
 		return;
 	}

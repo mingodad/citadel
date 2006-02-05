@@ -10,7 +10,7 @@
 
 char floorlist[128][SIZ]; /**< list of our floor names */
 
-char *viewdefs[7]; /**< the different kinds of available views */
+char *viewdefs[8]; /**< the different kinds of available views */
 
 /**
  * \brief initialize the viewdefs with localized strings
@@ -23,6 +23,7 @@ void initialize_viewdefs(void) {
 	viewdefs[4] = _("Task List");
 	viewdefs[5] = _("Notes List");
 	viewdefs[6] = _("Wiki");
+	viewdefs[7] = _("Calendar List");
 }
 
 
@@ -330,9 +331,10 @@ void embed_view_o_matic(void) {
 		 */
 		if (
 			(i == WC->wc_view)
-		   ||	(i == WC->wc_default_view)
-		   ||	( (i == 0) && (WC->wc_default_view == 1) )
-		   ||	( (i == 1) && (WC->wc_default_view == 0) )
+			||	(i == WC->wc_default_view) /**< default */
+			||	( (i == 0) && (WC->wc_default_view == 1) ) /**< mail or bulletin */
+			||	( (i == 1) && (WC->wc_default_view == 0) ) /**< mail or bulletin */
+			||  ( (i == 7) && (WC->wc_default_view == 3) ) /**< calendar */
 		) {
 
 			wprintf("<OPTION %s VALUE=\"changeview?view=%d\">",
