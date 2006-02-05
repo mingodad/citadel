@@ -5,7 +5,6 @@
 # This file is distributed under the GPL
 # FIRST AUTHOR <willi@chaosindustries.de> 2005
 # "äöäö
-# fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
@@ -40,7 +39,6 @@ msgid "Network User"
 msgstr "Netzwerk Benutzer"
 
 #: ../auth.c:28
-#, fuzzy
 msgid "Preferred User"
 msgstr "nur Privilegierte Benutzer"
 
@@ -575,7 +573,6 @@ msgid "New floor has been created."
 msgstr "Eine neue Etage wurde generiert."
 
 #: ../fmt_date.c:35
-#, fuzzy
 msgid "Jan"
 msgstr "Jan"
 
@@ -584,12 +581,10 @@ msgid "Feb"
 msgstr "Feb"
 
 #: ../fmt_date.c:37
-#, fuzzy
 msgid "Mar"
 msgstr "Mär"
 
 #: ../fmt_date.c:38
-#, fuzzy
 msgid "Apr"
 msgstr "Apr"
 
@@ -598,17 +593,14 @@ msgid "May"
 msgstr "Mai"
 
 #: ../fmt_date.c:40
-#, fuzzy
 msgid "Jun"
 msgstr "Jun"
 
 #: ../fmt_date.c:41
-#, fuzzy
 msgid "Jul"
 msgstr "Jul"
 
 #: ../fmt_date.c:42
-#, fuzzy
 msgid "Aug"
 msgstr "Aug"
 
@@ -617,17 +609,14 @@ msgid "Sep"
 msgstr "Sep"
 
 #: ../fmt_date.c:44
-#, fuzzy
 msgid "Oct"
 msgstr "Okt"
 
 #: ../fmt_date.c:45
-#, fuzzy
 msgid "Nov"
 msgstr "Nov"
 
 #: ../fmt_date.c:46
-#, fuzzy
 msgid "Dec"
 msgstr "Dez"
 
@@ -848,7 +837,6 @@ msgid "customize this menu"
 msgstr "Dieses Menü Bearbeiten"
 
 #: ../iconbar.c:396
-#, fuzzy
 msgid "switch to menu"
 msgstr "Zurück zum Menü"
 
@@ -1157,7 +1145,6 @@ msgid "Bye!"
 msgstr "Auf Wiedersehen!"
 
 #: ../mainmenu.c:122
-#, fuzzy
 msgid "Your info"
 msgstr "Ihre Biographie"
 
@@ -1318,7 +1305,6 @@ msgid "to "
 msgstr "an "
 
 #: ../messages.c:707
-#, fuzzy
 msgid "View"
 msgstr "Anzeigen"
 
@@ -1695,7 +1681,6 @@ msgid "Wiki"
 msgstr "Wiki"
 
 #: ../roomops.c:26
-#, fuzzy
 msgid "Calendar List"
 msgstr "Kalender Liste"
 
@@ -2149,7 +2134,6 @@ msgid "Zap this room"
 msgstr "Raum vergessen"
 
 #: ../roomops.c:2928 ../roomops.c:2934
-#, fuzzy
 msgid "Room list"
 msgstr "Raumlisten Anzeige"
 
@@ -2635,7 +2619,6 @@ msgid "Password"
 msgstr "Passwort"
 
 #: ../useredit.c:310
-#, fuzzy
 msgid "Permission to send Internet mail"
 msgstr "Zugang zu Internet Mail reglementieren"
 
