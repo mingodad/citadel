@@ -660,7 +660,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
 				(sizeof reply_all - strlen(reply_all)) );
+#ifdef HAVE_ICONV
 			utf8ify_rfc822_string(&buf[5]);
+#endif
 			escputs(&buf[5]);
 			wprintf(" ");
 		}
