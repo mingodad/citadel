@@ -30,7 +30,7 @@ void do_tasks_view(void) {
 /****************************************************************************/
 
 /**
- * \brief Display a whole month view of a calendar
+ * \brief Display one day of a whole month view of a calendar
  * \param thetime the month we want to see 
  */
 void calendar_month_view_display_events(time_t thetime) {
@@ -112,7 +112,112 @@ void calendar_month_view_display_events(time_t thetime) {
 
 
 /**
- * \brief view one day
+ * \brief Display one day of a whole month view of a calendar
+ * \param thetime the month we want to see 
+ */
+void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
+	int i;
+	time_t event_tt;
+	time_t event_tts;
+	time_t event_tte;
+	struct tm event_tms;
+	struct tm event_tme;
+	struct tm today_tm;
+	icalproperty *p;
+	icalproperty *e;
+	struct icaltimetype t;
+	int month, day, year;
+	int all_day_event = 0;
+	char calhourformat[16];
+	char *timeformat;
+
+	get_preference("calhourformat", calhourformat, sizeof calhourformat);
+	if (!strcasecmp(calhourformat, "24")) 	timeformat="%k:%M";
+	else timeformat="%I:%M %p";
+
+	localtime_r(&thetime, &today_tm);
+	month = today_tm.tm_mon + 1;
+	day = today_tm.tm_mday;
+	year = today_tm.tm_year + 1900;
+
+	for (i=0; i<(WC->num_cal); ++i) {
+		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+						ICAL_DTSTART_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+			event_tt = icaltime_as_timet(t);
+			event_tts=event_tt;
+			if (t.is_date) all_day_event = 1;
+			else all_day_event = 0;
+
+			if (all_day_event) {
+				gmtime_r(&event_tts, &event_tms);
+			}
+			else {
+				localtime_r(&event_tts, &event_tms);
+			}
+			/** \todo epoch &! daymask */
+			if ((event_tms.tm_year == today_tm.tm_year)
+			   && (event_tms.tm_mon == today_tm.tm_mon)
+			   && (event_tms.tm_mday == today_tm.tm_mday)) {
+				
+				
+				char sbuf[255];
+				char ebuf[255];
+
+				p = icalcomponent_get_first_property(
+							WC->disp_cal[i].cal,
+							ICAL_SUMMARY_PROPERTY);
+				e = icalcomponent_get_first_property(
+							WC->disp_cal[i].cal, 
+							ICAL_DTEND_PROPERTY);
+				if ((p != NULL) && (e != NULL)) {
+					time_t difftime;
+					int hours, minutes;
+					t = icalproperty_get_dtend(e);
+					event_tte = icaltime_as_timet(t);
+					localtime_r(&event_tte, &event_tme);
+					difftime=(event_tte-event_tts)/60;
+					hours=(int)(difftime / 60);
+					minutes=difftime % 60;
+					wprintf("<tr><td bgcolor='%s'>%i:%i</td><td bgcolor='%s'>"
+							"<font size=-1>"
+							"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
+							daycolor,
+							hours, minutes,
+							daycolor,
+							WC->disp_cal[i].cal_msgnum,
+							bstr("calview"),
+							bstr("year"),
+							bstr("month"),
+							bstr("day")
+							);
+
+					escputs((char *)
+							icalproperty_get_comment(p));
+					/** \todo: allso ammitime format */
+					strftime(&sbuf[0],sizeof(sbuf),timeformat,&event_tms);
+					strftime(&ebuf[0],sizeof(sbuf),timeformat,&event_tme);
+
+					wprintf("</a></font></td>"
+							"<td bgcolor='%s'>%s</td><td bgcolor='%s'>%s</td></tr>",
+							daycolor,
+							sbuf,
+							daycolor,
+							ebuf);
+					
+				}
+				
+			}
+			
+			
+		}
+	}
+}
+
+
+/**
+ * \brief view one month. pretty view
  * \param year the year
  * \param month the month
  * \param day the actual day we want to see
@@ -191,7 +296,7 @@ void calendar_month_view(int year, int month, int day) {
 	for (i = 0; i < 35; ++i) {
 		localtime_r(&thetime, &tm);
 
-		/* Before displaying Sunday, start a new row */
+		/** Before displaying Sunday, start a new row */
 		if ((i % 7) == 0) {
 			wprintf("<TR>");
 		}
@@ -219,6 +324,127 @@ void calendar_month_view(int year, int month, int day) {
 		/** After displaying Saturday, end the row */
 		if ((i % 7) == 6) {
 			wprintf("</TR>\n");
+		}
+
+		thetime += (time_t)86400;		/** ahead 24 hours */
+	}
+
+	wprintf("</TABLE>"			/** end of inner table */
+		"</TD></TR></TABLE>"		/** end of outer table */
+		"</div>\n");
+}
+
+/**
+ * \brief view one month. brief view
+ * \param year the year
+ * \param month the month
+ * \param day the actual day we want to see
+ */
+void calendar_brief_month_view(int year, int month, int day) {
+	struct tm starting_tm;
+	struct tm tm;
+	time_t thetime;
+	int i;
+	time_t previous_month;
+	time_t next_month;
+
+	/** Determine what day to start.
+	 * First, back up to the 1st of the month...
+	 */
+	memset(&starting_tm, 0, sizeof(struct tm));
+	starting_tm.tm_year = year - 1900;
+	starting_tm.tm_mon = month - 1;
+	starting_tm.tm_mday = day;
+	thetime = mktime(&starting_tm);
+
+	memcpy(&tm, &starting_tm, sizeof(struct tm));
+	while (tm.tm_mday != 1) {
+		thetime = thetime - (time_t)86400;	/* go back 24 hours */
+		localtime_r(&thetime, &tm);
+	}
+
+	/** Determine previous and next months ... for links */
+	previous_month = thetime - (time_t)864000L;	/* back 10 days */
+	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
+
+	/** Now back up until we're on a Sunday */
+	localtime_r(&thetime, &tm);
+	while (tm.tm_wday != 0) {
+		thetime = thetime - (time_t)86400;	/* go back 24 hours */
+		localtime_r(&thetime, &tm);
+	}
+
+	/** Outer table (to get the background color) */
+	wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"bgcolor=#204B78><TR><TD>\n");
+
+	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+
+	wprintf("<TD ALIGN=CENTER>");
+
+	localtime_r(&previous_month, &tm);
+	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
+
+	wprintf("&nbsp;&nbsp;"
+		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
+		"%s %d"
+		"</FONT>"
+		"&nbsp;&nbsp;", months[month-1], year);
+
+	localtime_r(&next_month, &tm);
+	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
+	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\" BORDER=0></A>\n");
+
+	wprintf("</TD></TR></TABLE>\n");
+
+	/** Inner table (the real one) */
+	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#EEEECC><TR>");
+	wprintf("</TR>\n");
+	wprintf("<TR><TD COLSPAN=\"100%\">\n");
+
+	/** Now do 35 days */
+	for (i = 0; i < 35; ++i) {
+		char weeknumber[255];
+		char *daycolor;
+		localtime_r(&thetime, &tm);
+
+
+		/** Before displaying Sunday, start a new CELL */
+		if ((i % 7) == 0) {
+			strftime(&weeknumber[0],sizeof(weeknumber),"%U",&tm);
+			wprintf("<TABLE border='0' BGCOLOR=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
+					"   <tr><td>%s</td><td width='70%'>%s</td><td>%s</td><td>%s</td></tr>\n",
+					_("Week"), 
+					weeknumber,
+					_("Hours"),
+					_("Subject"),
+					_("Start"),
+					_("End")
+					);
+		}
+		
+		daycolor=((tm.tm_mon != month-1) ? "DDDDDD" :
+				  ((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
+				   "FFFFFF"));
+		
+		/** Day Header */
+		wprintf("<tr><td BGCOLOR='%s' colspan='1' align='left'> %s</td><td BGCOLOR='%s' colspan='3'><hr></td></tr>\n",
+				daycolor,
+				wdays[i%7],
+				daycolor);
+
+		/** put the data of one day  here, stupid */
+		calendar_month_view_brief_events(thetime, daycolor);
+
+
+		/** After displaying Saturday, end the row */
+		if ((i % 7) == 6) {
+			wprintf("</td></tr></table>\n");
 		}
 
 		thetime += (time_t)86400;		/** ahead 24 hours */
@@ -594,7 +820,12 @@ void do_calendar_view(void) {
 		calendar_week_view(year, month, day);
 	}
 	else {
-		calendar_month_view(year, month, day);
+		if (WC->wc_view == VIEW_CALBRIEF) {
+			calendar_brief_month_view(year, month, day);
+		}
+		else {
+			calendar_month_view(year, month, day);
+		}
 	}
 
 	/** Free the calendar stuff */

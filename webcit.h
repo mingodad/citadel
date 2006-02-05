@@ -720,14 +720,15 @@ void initialize_months_and_days(void);
 void http_datestring(char *buf, size_t n, time_t xtime);
 
 
-/* Views (from citadel.h) */
-#define	VIEW_BBS		0	/* Traditional Citadel BBS view */
-#define VIEW_MAILBOX		1	/* Mailbox summary */
-#define VIEW_ADDRESSBOOK	2	/* Address book view */
-#define VIEW_CALENDAR		3	/* Calendar view */
-#define VIEW_TASKS		4	/* Tasks view */
-#define VIEW_NOTES		5	/* Notes view */
-#define VIEW_WIKI		6	/* Wiki view */
+/** Views (from citadel.h) */
+#define	VIEW_BBS		0	/**< Traditional Citadel BBS view */
+#define VIEW_MAILBOX		1	/**< Mailbox summary */
+#define VIEW_ADDRESSBOOK	2	/**< Address book view */
+#define VIEW_CALENDAR		3	/**< Calendar view */
+#define VIEW_TASKS		4	/**< Tasks view */
+#define VIEW_NOTES		5	/**<  Notes view */
+#define VIEW_WIKI		6	/**<  Wiki view */
+#define VIEW_CALBRIEF		7	/**< Brief Calendar view */
 
 
 /* These should be empty, but we have them for testing */

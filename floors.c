@@ -64,6 +64,8 @@ void display_floorconfig(char *prepend_html)
 	wprintf(_("Floor name"));
 	wprintf("</TH><TH>");
 	wprintf(_("Number of rooms"));
+	wprintf("</TH><TH>");
+	wprintf(_("Floor CSS"));
 	wprintf("</TH></TR>\n");
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -97,7 +99,20 @@ void display_floorconfig(char *prepend_html)
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change name"));
 
-		wprintf("<TD>%d</TD></TR>\n", refcount);
+		wprintf("<TD>%d</TD>\n", refcount);
+
+		wprintf("<TD>"
+			"<FORM METHOD=\"POST\" action=\"set_floor_css\">"
+			"<INPUT TYPE=\"hidden\" NAME=\"floornum\" "
+			"VALUE=\"%d\">"
+			"<INPUT TYPE=\"text\" NAME=\"floorcss\" "
+			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
+			floornum, floorname);
+		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
+			"VALUE=\"%s\">"
+			"</FORM></TD>", _("Change CSS"));
+
+		wprintf("</TR>\n");
 	}
 
 	wprintf("<TR><TD>&nbsp;</TD>"
