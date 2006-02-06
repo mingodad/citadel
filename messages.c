@@ -28,6 +28,32 @@ struct addrbookent {
 
 
 #ifdef HAVE_ICONV
+
+/**
+ * \brief	Wrapper around iconv_open()
+ *		Our version adds aliases for non-standard Microsoft charsets
+ *              such as 'MS950', aliasing them to names like 'CP950'
+ *
+ * \param	tocode		Target encoding
+ * \param	fromcode	Source encoding
+ */
+iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
+{
+	iconv_t ic = (iconv_t)(-1) ;
+	ic = iconv_open(tocode, fromcode);
+	if (ic == (iconv_t)(-1) ) {
+		char alias_fromcode[64];
+		if ( (strlen(fromcode) == 5) && (!strncasecmp(fromcode, "MS", 2)) ) {
+			safestrncpy(alias_fromcode, fromcode, sizeof alias_fromcode);
+			alias_fromcode[0] = 'C';
+			alias_fromcode[1] = 'P';
+			ic = iconv_open(tocode, alias_fromcode);
+		}
+	}
+	return(ic);
+}
+
+
 /**
  * \brief  Handle subjects with RFC2047 encoding
  *  such as:
@@ -73,7 +99,7 @@ void utf8ify_rfc822_string(char *buf) {
 			ibuflen = strlen(istr);
 		}
 
-		ic = iconv_open("UTF-8", charset);
+		ic = ctdl_iconv_open("UTF-8", charset);
 		if (ic != (iconv_t)(-1) ) {
 			obuf = malloc(1024);
 			obuflen = 1024;
@@ -897,7 +923,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	   && (strcasecmp(mime_charset, "UTF-8"))
 	   && (strcasecmp(mime_charset, ""))
 	) {
-		ic = iconv_open("UTF-8", mime_charset);
+		ic = ctdl_iconv_open("UTF-8", mime_charset);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
 				__FILE__, __LINE__, mime_charset, strerror(errno));
@@ -1293,7 +1319,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	   && (strcasecmp(mime_charset, "UTF-8"))
 	   && (strcasecmp(mime_charset, ""))
 	) {
-		ic = iconv_open("UTF-8", mime_charset);
+		ic = ctdl_iconv_open("UTF-8", mime_charset);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open() failed: %s\n",
 				__FILE__, __LINE__, strerror(errno));
