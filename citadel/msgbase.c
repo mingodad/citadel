@@ -1004,7 +1004,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 		}
 	}
 	if (ret->cm_fields['M'] == NULL) {
-		ret->cm_fields['M'] = strdup("<no text>\n");
+		ret->cm_fields['M'] = strdup("\r\n\r\n (no text)\r\n");
 	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
