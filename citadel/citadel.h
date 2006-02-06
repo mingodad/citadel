@@ -253,6 +253,8 @@ enum {
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
 #define	VIEW_WIKI		6	/* Wiki view */
+#define VIEW_CALBRIEF		7	/* Brief Calendar view */
+
 
 #ifdef __cplusplus
 }
