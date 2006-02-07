@@ -263,7 +263,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* Is this a room with an address book in it? */
-	if (CC->curr_view == VIEW_ADDRESSBOOK) {
+	if (CC->room.QRdefaultview == VIEW_ADDRESSBOOK) {
 		yes_any_vcard_room = 1;
 	}
 

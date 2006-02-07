@@ -59,7 +59,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 	/* First determine if this room has the "notes" view set */
 
-	if (CC->curr_view != VIEW_NOTES) {
+	if (CC->room.QRdefaultview != VIEW_NOTES) {
 		return(0);			/* not notes; do nothing */
 	}
 

@@ -1751,8 +1751,8 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	struct icalmessagemod imm;
 
 	/* First determine if this is a calendar or tasks room */
-	if ( (CC->curr_view != VIEW_CALENDAR)
-	   &&(CC->curr_view != VIEW_TASKS) ) {
+	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
+	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
 		return(0);		/* Not a vCalendar-centric room */
 	}
 
