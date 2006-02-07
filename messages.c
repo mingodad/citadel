@@ -2078,18 +2078,17 @@ void readloop(char *oper)
 
 	is_singlecard = atoi(bstr("is_singlecard"));
 
-	if ((WC->wc_view == VIEW_CALENDAR) ||
-		(WC->wc_view == VIEW_CALBRIEF)){		/**< calendar */
+	if (WC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == VIEW_TASKS) {		/**< tasks */
+	if (WC->wc_default_view == VIEW_TASKS) {		/**< tasks */
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == VIEW_NOTES) {		/**< notes */
+	if (WC->wc_default_view == VIEW_NOTES) {		/**< notes */
 		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
@@ -2672,18 +2671,17 @@ void display_enter(void)
 	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
-	if (WC->wc_view == VIEW_ADDRESSBOOK) {
+	if (WC->wc_default_view == VIEW_ADDRESSBOOK) {
 		do_edit_vcard(-1, "", "");
 		return;
 	}
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	/**
-	 * Are we perhaps in a calendar view?  If so, then an "enter
+	 * Are we perhaps in a calendar room?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
-	if ((WC->wc_view == VIEW_CALENDAR) ||
-		(WC->wc_view == VIEW_CALBRIEF)){
+	if (WC->wc_default_view == VIEW_CALENDAR) {
 		display_edit_event();
 		return;
 	}
@@ -2692,7 +2690,7 @@ void display_enter(void)
 	 * Are we perhaps in a tasks view?  If so, then an "enter
 	 * message" command really means "add new task."
 	 */
-	if (WC->wc_view == VIEW_TASKS) {
+	if (WC->wc_default_view == VIEW_TASKS) {
 		display_edit_task();
 		return;
 	}
