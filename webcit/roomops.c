@@ -26,6 +26,26 @@ void initialize_viewdefs(void) {
 	viewdefs[7] = _("Calendar List");
 }
 
+/**
+ * \brief	Determine which views are allowed as the default for creating a new room.
+ *
+ * \param	which_view	The view ID being queried.
+ */
+int is_view_allowed_as_default(int which_view)
+{
+	switch(which_view) {
+		case VIEW_BBS:		return(1);
+		case VIEW_MAILBOX:	return(1);
+		case VIEW_ADDRESSBOOK:	return(1);
+		case VIEW_CALENDAR:	return(1);
+		case VIEW_TASKS:	return(1);
+		case VIEW_NOTES:	return(1);
+		case VIEW_WIKI:		return(0);	/**< because it isn't finished yet */
+		case VIEW_CALBRIEF:	return(0);
+		default:		return(0);	/**< should never get here */
+	}
+}
+
 
 /**
  * \brief load the list of floors
@@ -273,7 +293,7 @@ void embed_room_graphic(void) {
 			"\">"
 		);
 	}
-	else if (WC->wc_view == VIEW_CALENDAR) {
+	else if ( (WC->wc_view == VIEW_CALENDAR) || (WC->wc_view == VIEW_CALBRIEF) ) {
 		wprintf("<img height=48 width=48 src=\""
 			"static/calarea_48x.gif"
 			"\">"
@@ -331,10 +351,10 @@ void embed_view_o_matic(void) {
 		 */
 		if (
 			(i == WC->wc_view)
-			||	(i == WC->wc_default_view) /**< default */
-			||	( (i == 0) && (WC->wc_default_view == 1) ) /**< mail or bulletin */
-			||	( (i == 1) && (WC->wc_default_view == 0) ) /**< mail or bulletin */
-			||  ( (i == 7) && (WC->wc_default_view == 3) ) /**< calendar */
+			||	(i == WC->wc_default_view)			/**< default */
+			||	( (i == 0) && (WC->wc_default_view == 1) )	/**< mail or bulletin */
+			||	( (i == 1) && (WC->wc_default_view == 0) )	/**< mail or bulletin */
+			||	( (i == 7) && (WC->wc_default_view == 3) )	/**< calendar */
 		) {
 
 			wprintf("<OPTION %s VALUE=\"changeview?view=%d\">",
@@ -454,6 +474,17 @@ void embed_room_banner(char *got, int navbar_style) {
 						"</span></a></td>\n", _("Month view")
 					);
 					break;
+				case VIEW_CALBRIEF:
+					wprintf(
+						"<td>"
+						"<a href=\"readfwd?calview=month\">"
+						"<img align=\"middle\" src=\"static/monthview2_24x.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"%s"
+						"</span></a></td>\n", _("Calendar list")
+					);
+					break;
 				case VIEW_TASKS:
 					wprintf(
 						"<td>"
@@ -524,6 +555,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					);
 					break;
 				case VIEW_CALENDAR:
+				case VIEW_CALBRIEF:
 					wprintf(
 						"<td><a href=\"display_enter\">"
 						"<img align=\"middle\" src=\"static/addevent_24x.gif\" "
@@ -1936,10 +1968,12 @@ void display_entroom(void)
 		"	}						"
 		"\">\n");
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">",
-			((i == 0) ? "SELECTED" : ""), i );
-		escputs(viewdefs[i]);
-		wprintf("</OPTION>\n");
+		if (is_view_allowed_as_default(i)) {
+			wprintf("<OPTION %s VALUE=\"%d\">",
+				((i == 0) ? "SELECTED" : ""), i );
+			escputs(viewdefs[i]);
+			wprintf("</OPTION>\n");
+		}
 	}
 	wprintf("</SELECT>\n");
 
@@ -2474,6 +2508,9 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else if (fold[i].view == VIEW_CALENDAR) {
 			wprintf("'static/calarea_16x.gif'");
 		}
+		else if (fold[i].view == VIEW_CALBRIEF) {
+			wprintf("'static/calarea_16x.gif'");
+		}
 		else if (fold[i].view == VIEW_TASKS) {
 			wprintf("'static/taskmanag_16x.gif'");
 		}
@@ -2679,6 +2716,9 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 				icon = "viewcontacts_16x.gif" ;
 			}
 			else if (fold[i].view == VIEW_CALENDAR) {
+				icon = "calarea_16x.gif" ;
+			}
+			else if (fold[i].view == VIEW_CALBRIEF) {
 				icon = "calarea_16x.gif" ;
 			}
 			else if (fold[i].view == VIEW_TASKS) {

@@ -179,7 +179,7 @@ void calendar_section(void) {
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_CALENDAR_");
-	if (WC->wc_view != VIEW_CALENDAR) {
+	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
 		num_msgs = 0;
 	}
 	else {
