@@ -60,8 +60,6 @@ void httplang_to_locale(char *LocaleString)
 	int nBest;
 	int nParts;
 	char *search = (char *) malloc(len);
-	// locale_t my_Locale;
-	// locale_t my_Empty_Locale;
 	
 	memcpy(search, LocaleString, len);
 	search[len] = '\0';
@@ -147,7 +145,9 @@ void httplang_to_locale(char *LocaleString)
 		nBest=0;
 	WC->selected_language=nBest;
 	lprintf(9, "language found: %s\n", AvailLang[WC->selected_language]);
-	//	set_selected_language(selected_locale);
+	if (search != NULL) {
+		free(search);
+	}
 }
 
 /* TODO: we skip the language weightening so far. */

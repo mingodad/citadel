@@ -101,7 +101,6 @@ void utf8ify_rfc822_string(char *buf) {
 
 		ic = ctdl_iconv_open("UTF-8", charset);
 		if (ic != (iconv_t)(-1) ) {
-			obuf = malloc(1024);
 			obuflen = 1024;
 			obuf = (char *) malloc(obuflen);
 			osav = obuf;

@@ -45,7 +45,7 @@ char *safestrncpy(char *dest, const char *src, size_t n)
  */
 int num_tokens(char *source, char tok)
 {
-	int a;
+	int a = 0;
 	int count = 1;
 
 	if (source == NULL)

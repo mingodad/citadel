@@ -612,6 +612,7 @@ int load_msg_ptrs(char *servcmd, int with_headers);
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void free_attachments(struct wcsession *sess);
+void free_march_list(struct wcsession *wcf);
 void set_room_policy(void);
 void display_inetconf(void);
 void save_inetconf(void);
