@@ -96,6 +96,7 @@ void do_housekeeping(void)
 			free(sessions_to_kill->cache_fold);
 		}
 		free_attachments(sessions_to_kill);
+		free_march_list(sessions_to_kill);
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
 		free(sessions_to_kill);

@@ -40,22 +40,24 @@ void stuff_to_cookie(char *cookie, int session,
 }
 
 /**
- * \brief some bytefoo ????
- * \param in the string to chop
- * \param len the length of the string
- * \return the corrosponding integer value
+ * \brief	Convert unpacked hex string to an integer
+ * \param	in	Input hex string
+ * \param	len	the length of the string
+ * \return	the corrosponding integer value
  */
 int xtoi(char *in, size_t len)
 {
-    int val = 0;
-    while (isxdigit((byte) *in) && (len-- > 0)) {
-	char c = *in++;
-	val <<= 4;
-	val += isdigit((unsigned char)c)
-	    ? (c - '0')
-	    : (tolower((unsigned char)c) - 'a' + 10);
-    }
-    return val;
+	int val = 0;
+	char c = 0;
+	while (isxdigit((byte) *in) && (len-- > 0))
+	{
+		c = *in++;
+		val <<= 4;
+		val += isdigit((unsigned char)c)
+	    	? (c - '0')
+		: (tolower((unsigned char)c) - 'a' + 10);
+	}
+	return val;
 }
 
 /**

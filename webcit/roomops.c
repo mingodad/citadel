@@ -71,6 +71,25 @@ void load_floorlist(void)
 
 
 /**
+ * \brief	Free a session's march list
+ *
+ * \param	wcf		Pointer to session being cleared
+ */
+void free_march_list(struct wcsession *wcf)
+{
+	struct march *mptr;
+
+	while (wcf->march == NULL) {
+		mptr = wcf->march->next;
+		free(wcf->march);
+		wcf->march = mptr;
+	}
+
+}
+
+
+
+/**
  * \brief remove a room from the march list
  */
 void remove_march(char *aaa)
@@ -742,7 +761,7 @@ char *pop_march(int desired_floor)
  */
 void gotonext(void)
 {
-	char buf[SIZ];
+	char buf[256];
 	struct march *mptr, *mptr2;
 	char next_room[128];
 
