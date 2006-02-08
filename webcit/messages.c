@@ -1156,6 +1156,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	int mime_length;
 	char mime_http[SIZ];
 	char *attachments = NULL;
+	char *ptr = NULL;
 	int num_attachments = 0;
 	struct wc_attachment *att, *aptr;
 	char m_subject[256];
@@ -1260,10 +1261,13 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 		 * yet because we're in the middle of a server transaction.
 		 */
 		if (!strncasecmp(buf, "part=", 5)) {
-			++num_attachments;
-			attachments = realloc(attachments, (num_attachments * 1024));
-			strcat(attachments, &buf[5]);
-			strcat(attachments, "\n");
+			ptr = realloc(attachments, ((num_attachments+1) * 1024));
+			if (ptr != NULL) {
+				++num_attachments;
+				attachments = ptr;
+				strcat(attachments, &buf[5]);
+				strcat(attachments, "\n");
+			}
 		}
 
 	}
@@ -1434,7 +1438,9 @@ ENDBODY:
 			}
 
 		}
-		free(attachments);
+		if (attachments != NULL) {
+			free(attachments);
+		}
 	}
 
 #ifdef HAVE_ICONV
