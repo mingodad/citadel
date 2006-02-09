@@ -139,26 +139,12 @@ int alias(char *name)
 	char node[64];
 	char testnode[64];
 	char buf[SIZ];
-	char filename[256];
 
 	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 	stripallbut(name, '<', '>');
 
-	/* 
-	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
-	 * legacy installations, we need to calculate ifdeffed here.
-	 */
-		snprintf(filename, 
-				 sizeof filename,
-				 "%smail.aliases",
-#ifndef HAVE_ETG_DIR
-				 ctdl_spool_dir
-#else
-				 ctdl_etc_dir
-#endif
-				 );
-	fp = fopen(filename, "r");
+	fp = fopen(file_mail_aliases, "r");
 	if (fp == NULL) {
 		fp = fopen("/dev/null", "r");
 	}

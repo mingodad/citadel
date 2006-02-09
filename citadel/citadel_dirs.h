@@ -36,6 +36,7 @@ extern char file_citadel_rc[PATH_MAX];
 extern char file_citadel_config[PATH_MAX];
 extern char file_lmtp_socket[PATH_MAX];
 extern char file_lmtp_unfiltered_socket[PATH_MAX];
+extern char file_mail_aliases[PATH_MAX];
 
 
 extern void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir);
