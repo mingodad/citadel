@@ -67,24 +67,59 @@ void utf8ify_rfc822_string(char *buf) {
 	char encoding[16];
 	char istr[1024];
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   /**< Buffer of characters to be converted */
-	char *obuf;		   /**< Buffer for converted characters      */
-	size_t ibuflen;	   /**< Length of input buffer	       */
-	size_t obuflen;	   /**< Length of output buffer	      */
-	char *isav;		   /**< Saved pointer to input buffer	*/
-	char *osav;		   /**< Saved pointer to output buffer       */
+	char *ibuf;			/**< Buffer of characters to be converted */
+	char *obuf;			/**< Buffer for converted characters */
+	size_t ibuflen;			/**< Length of input buffer */
+	size_t obuflen;			/**< Length of output buffer */
+	char *isav;			/**< Saved pointer to input buffer */
+	char *osav;			/**< Saved pointer to output buffer */
 	int passes = 0;
+	int i;
+	int illegal_non_rfc2047_encoding = 0;
 
+	/** Sometimes, badly formed messages contain strings which were simply
+	 *  written out directly in some foreign character set instead of
+	 *  using RFC2047 encoding.  This is illegal but we will attempt to
+	 *  handle it anyway by converting from a user-specified default
+	 *  charset to UTF-8 if we see any nonprintable characters.
+	 */
+	for (i=0; i<strlen(buf); ++i) {
+		if ((buf[i] < 32) || (buf[i] > 126)) {
+			illegal_non_rfc2047_encoding = 1;
+		}
+	}
+	if (illegal_non_rfc2047_encoding) {
+		char default_header_charset[128];
+		get_preference("default_header_charset", default_header_charset, sizeof default_header_charset);
+		if ( (strcasecmp(default_header_charset, "UTF-8")) && (strcasecmp(default_header_charset, "us-ascii")) ) {
+			ic = ctdl_iconv_open("UTF-8", default_header_charset);
+			if (ic != (iconv_t)(-1) ) {
+				ibuf = malloc(1024);
+				isav = ibuf;
+				safestrncpy(ibuf, buf, 1024);
+				ibuflen = strlen(ibuf);
+				obuflen = 1024;
+				obuf = (char *) malloc(obuflen);
+				osav = obuf;
+				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+				osav[1024-obuflen] = 0;
+				strcpy(buf, osav);
+				free(osav);
+				iconv_close(ic);
+				free(isav);
+			}
+		}
+	}
+
+	/** Now we handle foreign character sets properly encoded
+	 *  in RFC2047 format.
+	 */
 	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
 		((start != NULL) && (end != NULL) && (end > start)) )
 	{
 		extract_token(charset, start, 1, '?', sizeof charset);
 		extract_token(encoding, start, 2, '?', sizeof encoding);
 		extract_token(istr, start, 3, '?', sizeof istr);
-
-		/*strcpy(start, "");
-		++end;
-		++end;*/
 
 		ibuf = malloc(1024);
 		isav = ibuf;
@@ -95,7 +130,7 @@ void utf8ify_rfc822_string(char *buf) {
 			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, strlen(istr));
 		}
 		else {
-			strcpy(ibuf, istr);		/**< huh? */
+			strcpy(ibuf, istr);		/**< unknown encoding */
 			ibuflen = strlen(istr);
 		}
 

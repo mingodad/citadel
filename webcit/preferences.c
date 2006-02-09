@@ -145,10 +145,11 @@ void get_preference(char *key, char *value, size_t value_len) {
 }
 
 /**
- * \brief Write a key into the citadel settings database
- * \param key key whichs value is to be modified
- * \param value value to set
- * \param save_to_server really write it????
+ * \brief	Write a key into the webcit preferences database for this user
+ *
+ * \params	key		key whichs value is to be modified
+ * \param	value		value to set
+ * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
 void set_preference(char *key, char *value, int save_to_server) {
 	int num_prefs;
@@ -370,7 +371,16 @@ void display_preferences(void)
 		"	</script>				"
 	);
 
+	/** Character set to assume is in use for improperly encoded headers */
+	get_preference("default_header_charset", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "UTF-8");
+	wprintf("<tr><td>");
+	wprintf(_("Default character set for email headers:"));
+	wprintf("</td><td>");
+	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"%s\">", buf);
+	wprintf("</td></tr>");
 
+	/** submit buttons */
 	wprintf("</table>\n"
 		"<input type=\"submit\" name=\"change_button\" value=\"%s\">"
 		"&nbsp;"
@@ -379,11 +389,8 @@ void display_preferences(void)
 		_("Cancel")
 	);
 
-	wprintf("</form></center>\n");
-
 	/** end form */
-
-
+	wprintf("</form></center>\n");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
@@ -412,6 +419,7 @@ void set_preferences(void)
 	set_preference("use_sig", bstr("use_sig"), 0);
 	set_preference("daystart", bstr("daystart"), 0);
 	set_preference("dayend", bstr("dayend"), 0);
+	set_preference("default_header_charset", bstr("default_header_charset"), 0);
 
 	euid_escapize(ebuf, bstr("signature"));
 	set_preference("signature", ebuf, 1);
