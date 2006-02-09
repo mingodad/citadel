@@ -947,6 +947,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 					mime_content_type[i] = 0;
 				}
 			}
+			for (i=0; i<strlen(mime_charset); ++i) {
+				if (mime_charset[i] == ';') {
+					mime_charset[i] = 0;
+				}
+			}
 		}
 	}
 
@@ -1188,7 +1193,6 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	char mime_charset[256];
 	char mime_disposition[256];
 	int mime_length;
-	char mime_http[SIZ];
 	char *attachments = NULL;
 	char *ptr = NULL;
 	int num_attachments = 0;
@@ -1216,7 +1220,6 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
-	strcpy(mime_http, "");
 	strcpy(mime_content_type, "text/plain");
 	strcpy(mime_charset, "us-ascii");
 
@@ -1295,12 +1298,16 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 		 * yet because we're in the middle of a server transaction.
 		 */
 		if (!strncasecmp(buf, "part=", 5)) {
-			ptr = realloc(attachments, ((num_attachments+1) * 1024));
+			ptr = malloc( (strlen(buf) + ((attachments != NULL) ? strlen(attachments) : 0)) ) ;
 			if (ptr != NULL) {
 				++num_attachments;
+				sprintf(ptr, "%s%s\n",
+					((attachments != NULL) ? attachments : ""),
+					&buf[5]
+				);
+				free(attachments);
 				attachments = ptr;
-				strcat(attachments, &buf[5]);
-				strcat(attachments, "\n");
+				lprintf(9, "attachments=<%s>\n", attachments);
 			}
 		}
 
@@ -1446,12 +1453,12 @@ ENDBODY:
 			/*
 			 * tracing  ... uncomment if necessary
 			 *
+			 */
 			lprintf(9, "fwd filename: %s\n", mime_filename);
 			lprintf(9, "fwd partnum : %s\n", mime_partnum);
 			lprintf(9, "fwd conttype: %s\n", mime_content_type);
 			lprintf(9, "fwd dispose : %s\n", mime_disposition);
 			lprintf(9, "fwd length  : %d\n", mime_length);
-			 */
 
 			if ( (!strcasecmp(mime_disposition, "inline"))
 			   || (!strcasecmp(mime_disposition, "attachment")) ) {
@@ -1477,9 +1484,6 @@ ENDBODY:
 			}
 
 		}
-		if (attachments != NULL) {
-			free(attachments);
-		}
 	}
 
 #ifdef HAVE_ICONV
@@ -1487,6 +1491,10 @@ ENDBODY:
 		iconv_close(ic);
 	}
 #endif
+
+	if (attachments != NULL) {
+		free(attachments);
+	}
 }
 
 /**
