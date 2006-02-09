@@ -79,7 +79,7 @@ void free_march_list(struct wcsession *wcf)
 {
 	struct march *mptr;
 
-	while (wcf->march == NULL) {
+	while (wcf->march != NULL) {
 		mptr = wcf->march->next;
 		free(wcf->march);
 		wcf->march = mptr;
