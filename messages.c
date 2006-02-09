@@ -1348,6 +1348,11 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 					mime_content_type[i] = 0;
 				}
 			}
+			for (i=0; i<strlen(mime_charset); ++i) {
+				if (mime_charset[i] == ';') {
+					mime_charset[i] = 0;
+				}
+			}
 		}
 	}
 
@@ -1359,8 +1364,8 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	) {
 		ic = ctdl_iconv_open("UTF-8", mime_charset);
 		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "%s:%d iconv_open() failed: %s\n",
-				__FILE__, __LINE__, strerror(errno));
+			lprintf(5, "%s:%d iconv_open(%s, %s) failed: %s\n",
+				__FILE__, __LINE__, "UTF-8", mime_charset, strerror(errno));
 		}
 	}
 #endif
