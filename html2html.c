@@ -274,7 +274,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			++alevel;
 		}
 		/** Make external links open in a separate window */
-		else if (!strncasecmp(ptr, "<a href=", 8)) {
+		else if (!strncasecmp(ptr, "<a href=\"", 9)) {
 			++alevel;
 			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
 			     &&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
@@ -294,9 +294,9 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				ptr = &ptr[9];
 			}
 			else {
-				sprintf(&converted_msg[output_length], "<a href=");
-				output_length += 8;
-				ptr = &ptr[8];
+				sprintf(&converted_msg[output_length], "<a href=\"");
+				output_length += 9;
+				ptr = &ptr[9];
 			}
 		}
 		/**
