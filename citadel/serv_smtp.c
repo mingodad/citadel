@@ -14,6 +14,7 @@
  * RFC 2033 - Local Mail Transfer Protocol
  * RFC 2034 - SMTP Service Extension for Returning Enhanced Error Codes
  * RFC 2197 - SMTP Service Extension for Command Pipelining
+ * RFC 2476 - Message Submission
  * RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
  * RFC 2554 - SMTP Service Extension for Authentication
  * RFC 2821 - Simple Mail Transfer Protocol
@@ -569,7 +570,7 @@ void smtp_mail(char *argbuf) {
 	else if (config.c_allow_spoofing == 0) {
 		process_rfc822_addr(SMTP->from, user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
-			cprintf("550 5.1.8 "
+			cprintf("550 5.7.1 "
 				"You must log in to send mail from %s\r\n",
 				node);
 			strcpy(SMTP->from, "");
