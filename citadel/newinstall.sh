@@ -104,7 +104,7 @@ DOWNLOAD_SITE=http://easyinstall.citadel.org
 # Original source code packages.
 DB_SOURCE=db-4.3.29.NC.tar.gz
 # DB_PATCHES=db-x.x.x.patches
-ICAL_SOURCE=libical-0.24.RC4.tar.gz
+ICAL_SOURCE=libical-0.26-6.aurore.tar.gz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
 WEBCIT_SOURCE=webcit-easyinstall.tar.gz
 
@@ -188,7 +188,7 @@ install_ical () {
 	FILENAME=$DOWNLOAD_SITE/$ICAL_SOURCE ; download_this
 	echo "* Installing libical..."
 	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/libical-0.24 2>&1 >>$LOG || die
+	cd $BUILD/libical-0.26 2>&1 >>$LOG || die
 	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
