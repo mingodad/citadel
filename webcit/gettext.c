@@ -6,8 +6,6 @@
  * \ingroup WebcitHttpServer 
  */
 /*@{*/
-/** we need _GNU_SOURCE for various functions arround the NLS-Stuff */
-#define _GNU_SOURCE
 #include "webcit.h"
 #include "webserver.h"
 
