@@ -1,5 +1,9 @@
 /* $Id$ */
 
+/** we need _GNU_SOURCE for various functions arround the NLS-Stuff */
+#define _GNU_SOURCE
+
+
 #include <ctype.h>
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
