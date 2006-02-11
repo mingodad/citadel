@@ -12,15 +12,13 @@ Developer codes (and where known, client codes)
 	Client	Name		Status		Description
 	0	Citadel		deployed	Citadel text based client
 	1	lcit		dead		Curses-based text client
-	2	WinCit		deprecated	MS Visual Basic client.
-						Version 1.0 is stable but there
-						will be no further development.
+	2	WinCit		legacy		Visual Basic client for Win16
 	4	WebCit		deployed	Web-based access to Citadel
 	5	Shaggy		dead		Java-powered client
 	6	Daphne		dead		wx multiplatform "fat" client
 	7	Shaggy (new)	unknown		Java-powered client
 						<chilly@uncensored.citadel.org>
-	8	ctdlphp		development	PHP interface to Citadel
+	8	ctdlphp		deployed	PHP interface to Citadel
  
  1	Brian Ledbetter <brian@shadowcom.net>
 
@@ -28,7 +26,11 @@ Developer codes (and where known, client codes)
 	0	libCxClient	deployed	Client-side API library
 	1	Infusion	deployed	Groupware for Citadel
 
- 2	Matthew Scott <gldnspud@telcomplus.com>
+ 2	OST Systems, Inc.
+	Matthew Scott <mscott@springfieldtech.com>
+
+	Client	Name		Status		Description
+	0	CivisLink	development	Python Citadel protocol library
  
  3	Jesse Vincent <jrvincent@wesleyan.edu>
  
