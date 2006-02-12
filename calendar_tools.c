@@ -73,7 +73,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
 			((tm.tm_mon == i) ? "SELECTED" : ""),
 			i+1,
-			months[i]
+			monthname(i)
 		);
 	}
 	wprintf("</SELECT>\n");

@@ -167,7 +167,7 @@ void cal_process_object(icalcomponent *cal,
 				wprintf(_("Date:"));
 				wprintf("</B></TD><TD>"
 					"%s %d, %d</TD></TR>",
-					months[t.month - 1],
+					monthname(t.month - 1),
 					t.day, t.year
 				);
 			}

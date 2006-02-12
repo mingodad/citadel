@@ -550,10 +550,12 @@ void display_menubar(int);
 void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
+size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
 void fmt_date(char *buf, time_t thetime, int brief);
 void fmt_time(char *buf, time_t thetime);
+char *monthname(int m);
 void httpdate(char *buf, time_t thetime);
-time_t httpdate_to_timestamp(const char *buf);
+time_t httpdate_to_timestamp(char *buf);
 void end_webcit_session(void);
 void page_popup(void);
 void chat_recv(void);
@@ -720,12 +722,8 @@ void utf8ify_rfc822_string(char *buf);
 void begin_burst(void);
 void end_burst(void);
 
-extern char *ascmonths[];	/**< Short (three letter) month names */
-extern char *months[];		/**< Long (full) month names */
 extern char *hourname[];	/**< Names of hours (12am, 1am, etc.) */
-extern char *wdays[];		/**< Days of the week */
 
-void initialize_months_and_days(void);
 void http_datestring(char *buf, size_t n, time_t xtime);
 
 

@@ -196,10 +196,8 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					escputs((char *)
 							icalproperty_get_comment(p));
 					/** \todo: allso ammitime format */
-					strftime_l(&sbuf[0], sizeof(sbuf), timeformat, &event_tms,
-						wc_locales[WC->selected_language]);
-					strftime_l(&ebuf[0], sizeof(sbuf), timeformat, &event_tme,
-						wc_locales[WC->selected_language]);
+					wc_strftime(&sbuf[0], sizeof(sbuf), timeformat, &event_tms);
+					wc_strftime(&ebuf[0], sizeof(sbuf), timeformat, &event_tme);
 
 					wprintf("</a></font></td>"
 							"<td bgcolor='%s'>%s</td><td bgcolor='%s'>%s</td></tr>",
@@ -231,6 +229,9 @@ void calendar_month_view(int year, int month, int day) {
 	int i;
 	time_t previous_month;
 	time_t next_month;
+	time_t colheader_time;
+	struct tm colheader_tm;
+	char colheader_label[32];
 
 	/** Determine what day to start.
 	 * First, back up to the 1st of the month...
@@ -272,11 +273,12 @@ void calendar_month_view(int year, int month, int day) {
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
 
+	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wprintf("&nbsp;&nbsp;"
 		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
 		"%s %d"
 		"</FONT>"
-		"&nbsp;&nbsp;", months[month-1], year);
+		"&nbsp;&nbsp;", colheader_label, year);
 
 	localtime_r(&next_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -288,9 +290,13 @@ void calendar_month_view(int year, int month, int day) {
 	/** Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#204B78><TR>");
+	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
+		colheader_time = thetime + (i * 86400) ;
+		localtime_r(&colheader_time, &colheader_tm);
+		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
 		wprintf("<TD ALIGN=CENTER WIDTH=14%%>"
-			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", wdays[i]);
+			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", colheader_label);
 	}
 	wprintf("</TR>\n");
 
@@ -309,7 +315,8 @@ void calendar_month_view(int year, int month, int day) {
 			"FFFFFF"))
 		);
 		if ((i==0) || (tm.tm_mday == 1)) {
-			wprintf("%s ", months[tm.tm_mon]);
+			wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
+			wprintf("%s ", colheader_label);
 		}
 		wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
 			"%d</A></B><br />",
@@ -349,6 +356,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	int i;
 	time_t previous_month;
 	time_t next_month;
+	char month_label[32];
 
 	/** Determine what day to start.
 	 * First, back up to the 1st of the month...
@@ -390,11 +398,12 @@ void calendar_brief_month_view(int year, int month, int day) {
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
 
+	wc_strftime(month_label, sizeof month_label, "%B", &tm);
 	wprintf("&nbsp;&nbsp;"
 		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
 		"%s %d"
 		"</FONT>"
-		"&nbsp;&nbsp;", months[month-1], year);
+		"&nbsp;&nbsp;", month_label, year);
 
 	localtime_r(&next_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -412,13 +421,14 @@ void calendar_brief_month_view(int year, int month, int day) {
 	/** Now do 35 days */
 	for (i = 0; i < 35; ++i) {
 		char weeknumber[255];
+		char weekday_name[32];
 		char *daycolor;
 		localtime_r(&thetime, &tm);
 
 
 		/** Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
-			strftime_l(&weeknumber[0], sizeof(weeknumber), "%U", &tm, wc_locales[WC->selected_language]);
+			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
 			wprintf("<TABLE border='0' BGCOLOR=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
 					"   <tr><td>%s</td><td width='70%'>%s</td><td>%s</td><td>%s</td></tr>\n",
 					_("Week"), 
@@ -435,10 +445,12 @@ void calendar_brief_month_view(int year, int month, int day) {
 				   "FFFFFF"));
 		
 		/** Day Header */
-		wprintf("<tr><td BGCOLOR='%s' colspan='1' align='left'> %s</td><td BGCOLOR='%s' colspan='3'><hr></td></tr>\n",
-				daycolor,
-				wdays[i%7],
-				daycolor);
+		wc_strftime(weekday_name, sizeof weekday_name, "%A", &tm);
+		wprintf("<tr><td BGCOLOR='%s' colspan='1' align='left'> %s"
+			"</td><td BGCOLOR='%s' colspan='3'><hr></td></tr>\n",
+			daycolor,
+			weekday_name,
+			daycolor);
 
 		/** put the data of one day  here, stupid */
 		calendar_month_view_brief_events(thetime, daycolor);
@@ -675,7 +687,8 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<FONT SIZE=+2>%s</FONT><br />"
 		"<FONT SIZE=+3>%d</FONT><br />"
 		"<FONT SIZE=+2>%d</FONT><br />",
-		months[month-1], day, year);
+		monthname(month-1),
+		day, year);
 	wprintf("</TD>");
 
 	/** Right arrow */
