@@ -252,10 +252,20 @@ void initialize_locales(void) {
 
 	for (i = 0; i < NUM_LANGS; ++i) {
 		sprintf(buf, "%s.UTF8", AvailLang[i]);
-		wc_locales[i] = newlocale(LC_MESSAGES_MASK /* |LC_TIME_MASK FIXME */ ,
+		wc_locales[i] = newlocale(
+			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			buf,
 			Empty_Locale
 		);
+		if (wc_locales[i] == NULL) {
+			lprintf(1, "Error configuring locale for %s: %s\n",
+				buf,
+				strerror(errno)
+			);
+		}
+		else {
+			lprintf(3, "Configured available locale: %s\n", buf);
+		}
 	}
 }
 

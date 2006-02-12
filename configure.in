@@ -306,16 +306,22 @@ AC_ARG_ENABLE(nls,
 	ok_nls=no, ok_nls=yes)
 
 if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(Checking to see if your system supports multithreaded NLS...)
+	AC_MSG_RESULT(Checking for per-thread NLS support...)
 	AC_TRY_RUN([
-		#define _GNU_SOURCE
-		#include <locale.h>
-		#include <libintl.h>
-		main() {
-			char *foo;
-			uselocale(LC_GLOBAL_LOCALE);
-			foo = gettext("bar");
-			exit(0);
+                #define _GNU_SOURCE
+                #include <libintl.h>
+                #include <locale.h>
+                #include <time.h>
+                main() {
+                        char *foo = NULL;
+                        char baz[32];
+			struct tm *tm;
+                        uselocale(LC_GLOBAL_LOCALE);
+                        foo = gettext("bar");
+			if (0) {
+                        	strftime_l(baz, sizeof baz, "%c", tm, LC_GLOBAL_LOCALE);
+			}
+                        exit(0);
 		}
 	],
 		ok_uselocale=yes,

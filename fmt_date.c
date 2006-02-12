@@ -109,22 +109,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 		}
 	}
 	else {
-		if (!strcasecmp(calhourformat, "24")) {
-			sprintf(buf, "%s %d %d %2d:%02d",
-				ascmonths[tm.tm_mon],
-				tm.tm_mday,
-				tm.tm_year + 1900,
-				tm.tm_hour, tm.tm_min
-			);
-		}
-		else {
-			sprintf(buf, "%s %d %d %2d:%02d%s",
-				ascmonths[tm.tm_mon],
-				tm.tm_mday,
-				tm.tm_year + 1900,
-				hour, tm.tm_min, ((tm.tm_hour >= 12) ? "pm" : "am")
-			);
-		}
+		strftime_l(buf, 32, "%c", &tm, wc_locales[WC->selected_language]);
 	}
 }
 

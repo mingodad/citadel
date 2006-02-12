@@ -180,7 +180,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					difftime=(event_tte-event_tts)/60;
 					hours=(int)(difftime / 60);
 					minutes=difftime % 60;
-					wprintf("<tr><td bgcolor='%s'>%i:%i</td><td bgcolor='%s'>"
+					wprintf("<tr><td bgcolor='%s'>%i:%2i</td><td bgcolor='%s'>"
 							"<font size=-1>"
 							"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
 							daycolor,
@@ -196,8 +196,10 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					escputs((char *)
 							icalproperty_get_comment(p));
 					/** \todo: allso ammitime format */
-					strftime(&sbuf[0],sizeof(sbuf),timeformat,&event_tms);
-					strftime(&ebuf[0],sizeof(sbuf),timeformat,&event_tme);
+					strftime_l(&sbuf[0], sizeof(sbuf), timeformat, &event_tms,
+						wc_locales[WC->selected_language]);
+					strftime_l(&ebuf[0], sizeof(sbuf), timeformat, &event_tme,
+						wc_locales[WC->selected_language]);
 
 					wprintf("</a></font></td>"
 							"<td bgcolor='%s'>%s</td><td bgcolor='%s'>%s</td></tr>",
@@ -416,7 +418,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 
 		/** Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
-			strftime(&weeknumber[0],sizeof(weeknumber),"%U",&tm);
+			strftime_l(&weeknumber[0], sizeof(weeknumber), "%U", &tm, wc_locales[WC->selected_language]);
 			wprintf("<TABLE border='0' BGCOLOR=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
 					"   <tr><td>%s</td><td width='70%'>%s</td><td>%s</td><td>%s</td></tr>\n",
 					_("Week"), 
