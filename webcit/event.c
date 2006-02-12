@@ -270,17 +270,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	 * Determine who is the organizer of this event.
 	 * We need to determine "me" or "not me."
 	 */
-	organizer = icalcomponent_get_first_property(vevent,
-						ICAL_ORGANIZER_PROPERTY);
+	organizer = icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY);
 	if (organizer != NULL) {
 		strcpy(organizer_string, icalproperty_get_organizer(organizer));
 		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
 			strcpy(organizer_string, &organizer_string[7]);
 			striplt(organizer_string);
-			lprintf(9, "ISME %s\n", organizer_string);
 			serv_printf("ISME %s", organizer_string);
 			serv_getln(buf, sizeof buf);
-			lprintf(9, "%s\n", buf);
 			if (buf[0] == '2') {
 				organizer_is_me = 1;
 			}

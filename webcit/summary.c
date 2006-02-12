@@ -19,7 +19,7 @@ void output_date(void) {
 	time(&now);
 	localtime_r(&now, &tm);
 
-	strftime_l(buf, 32, "%A, %x", &tm, wc_locales[WC->selected_language]);
+	wc_strftime(buf, 32, "%A, %x", &tm);
 	wprintf("%s", buf);
 }
 

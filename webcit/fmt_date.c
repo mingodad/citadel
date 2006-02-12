@@ -10,11 +10,28 @@
 #include "webserver.h"
 
 typedef unsigned char byte; /**< a byte. */
-char *wdays[7];
-char *months[12];
 
 #define FALSE 0 /**< no. */
 #define TRUE 1 /**< yes. */
+
+/**
+ * \brief	Wrapper around strftime() or strftime_l()
+ *		depending upon how our build is configured.
+ *
+ * \param	s	String target buffer
+ * \param	max	Maximum size of string target buffer
+ * \param	format	strftime() format
+ * \param	tm	Input date/time
+ */
+size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
+{
+#ifdef ENABLE_NLS
+	return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
+#else
+	return strftime(s, max, format, tm);
+#endif
+}
+
 
 /**
  * \brief Format a date/time stamp for output 
@@ -29,22 +46,6 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	time_t today_timet;
 	int hour;
 	char calhourformat[16];
-	static char *ascmonths[12] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } ;
-
-	if (ascmonths[0] == NULL) {
-		ascmonths[0] = _("Jan");
-		ascmonths[1] = _("Feb");
-		ascmonths[2] = _("Mar");
-		ascmonths[3] = _("Apr");
-		ascmonths[4] = _("May");
-		ascmonths[5] = _("Jun");
-		ascmonths[6] = _("Jul");
-		ascmonths[7] = _("Aug");
-		ascmonths[8] = _("Sep");
-		ascmonths[9] = _("Oct");
-		ascmonths[10] = _("Nov");
-		ascmonths[11] = _("Dec");
-	};
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 
@@ -66,51 +67,49 @@ void fmt_date(char *buf, time_t thetime, int brief)
 		if ((tm.tm_year == today_tm.tm_year)
 		  &&(tm.tm_mon == today_tm.tm_mon)
 		  &&(tm.tm_mday == today_tm.tm_mday)) {
-			if (!strcasecmp(calhourformat, "24")) {
-				sprintf(buf, "%2d:%02d",
-					tm.tm_hour, tm.tm_min
-				);
-			}
-			else {
-				sprintf(buf, "%2d:%02d%s",
-					hour, tm.tm_min,
-					((tm.tm_hour >= 12) ? "pm" : "am")
-				);
-			}
+			wc_strftime(buf, 32, "%l:%M%p", &tm);
 		}
-
 		/** Otherwise, for messages up to 6 months old, show the
 		 * month and day, and the time */
 		else if (today_timet - thetime < 15552000) {
-			if (!strcasecmp(calhourformat, "24")) {
-				sprintf(buf, "%s %d %2d:%02d",
-					ascmonths[tm.tm_mon],
-					tm.tm_mday,
-					tm.tm_hour, tm.tm_min
-				);
-			}
-			else {
-				sprintf(buf, "%s %d %2d:%02d%s",
-					ascmonths[tm.tm_mon],
-					tm.tm_mday,
-					hour, tm.tm_min,
-					((tm.tm_hour >= 12) ? "pm" : "am")
-				);
-			}
+			wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
 		}
-
 		/** older than 6 months, show only the date */
 		else {
-			sprintf(buf, "%s %d %d",
-				ascmonths[tm.tm_mon],
-				tm.tm_mday,
-				tm.tm_year + 1900
-			);
+			wc_strftime(buf, 32, "%b %d %Y", &tm);
 		}
 	}
 	else {
-		strftime_l(buf, 32, "%c", &tm, wc_locales[WC->selected_language]);
+		wc_strftime(buf, 32, "%c", &tm);
 	}
+}
+
+/**
+ * \brief	Convenience function to return a month name
+ *
+ * \param	m		Numeric month
+ */
+char *monthname(int m)
+{
+	static char months[12][32];
+	static int initialized = 0;
+
+	time_t tt;
+	struct tm tm;
+	int i;
+
+	if (!initialized) {
+		for (i=0; i<12; ++i) {
+			tt = 1137997451 + (i * 2592000);
+			localtime_r(&tt, &tm);
+			wc_strftime(months[i], 32, "%B", &tm);
+			lprintf(9, "%s\n", months[i]);
+		}
+	}
+	initialized = 1;
+
+	return months[m];
+		
 }
 
 
@@ -159,7 +158,7 @@ void fmt_time(char *buf, time_t thetime)
  * \param buf time to parse
  * \return the time found in buf
  */
-time_t httpdate_to_timestamp(const char *buf)
+time_t httpdate_to_timestamp(char *buf)
 {
 	time_t t = 0;
 	struct tm tt;
@@ -242,34 +241,6 @@ time_t httpdate_to_timestamp(const char *buf)
 	putenv(tz);
 	tzset();
 	return t;
-}
-
-
-
-/**
- * /brief Initialize the strings used to display months and weekdays.
- */
-void initialize_months_and_days(void) {
-	wdays[0] = _("Sunday");
-	wdays[1] = _("Monday");
-	wdays[2] = _("Tuesday");
-	wdays[3] = _("Wednesday");
-	wdays[4] = _("Thursday");
-	wdays[5] = _("Friday");
-	wdays[6] = _("Saturday");
-
-	months[0] = _("January");
-	months[1] = _("February");
-	months[2] = _("March");
-	months[3] = _("April");
-	months[4] = _("May");
-	months[5] = _("June");
-	months[6] = _("July");
-	months[7] = _("August");
-	months[8] = _("September");
-	months[9] = _("October");
-	months[10] = _("November");
-	months[11] = _("December");
 }
 
 
