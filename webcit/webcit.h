@@ -45,10 +45,10 @@
 #include <iconv.h>
 #endif
 
-#include "gettext.h"
-
-#if ENABLE_NLS
+#ifdef ENABLE_NLS
+#include <libintl.h>
 #include <locale.h>
+extern locale_t wc_locales[];
 #define _(string)	gettext(string)
 #else
 #define _(string)	(string)

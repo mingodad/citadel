@@ -14,40 +14,13 @@
 void output_date(void) {
 	struct tm tm;
 	time_t now;
-
-	static char *wdays[7];
-	static char *months[12];
-
-	wdays[0] = _("Sunday");
-	wdays[1] = _("Monday");
-	wdays[2] = _("Tuesday");
-	wdays[3] = _("Wednesday");
-	wdays[4] = _("Thursday");
-	wdays[5] = _("Friday");
-	wdays[6] = _("Saturday");
-
-	months[0] = _("January");
-	months[1] = _("February");
-	months[2] = _("March");
-	months[3] = _("April");
-	months[4] = _("May");
-	months[5] = _("June");
-	months[6] = _("July");
-	months[7] = _("August");
-	months[8] = _("September");
-	months[9] = _("October");
-	months[10] = _("November");
-	months[11] = _("December");
+	char buf[128];
 
 	time(&now);
 	localtime_r(&now, &tm);
 
-	wprintf("%s, %s %d, %d",
-		wdays[tm.tm_wday],
-		months[tm.tm_mon],
-		tm.tm_mday,
-		tm.tm_year + 1900
-	);
+	strftime_l(buf, 32, "%A, %x", &tm, wc_locales[WC->selected_language]);
+	wprintf("%s", buf);
 }
 
 
