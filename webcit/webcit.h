@@ -553,7 +553,6 @@ void session_loop(struct httprequest *);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
 void fmt_date(char *buf, time_t thetime, int brief);
 void fmt_time(char *buf, time_t thetime);
-char *monthname(int m);
 void httpdate(char *buf, time_t thetime);
 time_t httpdate_to_timestamp(char *buf);
 void end_webcit_session(void);

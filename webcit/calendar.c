@@ -163,13 +163,16 @@ void cal_process_object(icalcomponent *cal,
 			t = icalproperty_get_dtstart(p);
 
 			if (t.is_date) {
+				struct tm d_tm;
+				char d_str[32];
+				memset(&d_tm, 0, sizeof d_tm);
+				d_tm.tm_year = t.year - 1900;
+				d_tm.tm_mon = t.month - 1;
+				d_tm.tm_mday = t.day;
+				wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
 				wprintf("<TR><TD><B>");
 				wprintf(_("Date:"));
-				wprintf("</B></TD><TD>"
-					"%s %d, %d</TD></TR>",
-					monthname(t.month - 1),
-					t.day, t.year
-				);
+				wprintf("</B></TD><TD>%s</TD></TR>", d_str);
 			}
 			else {
 				tt = icaltime_as_timet(t);
@@ -264,14 +267,15 @@ void cal_process_object(icalcomponent *cal,
 		lprintf(9, "...done.\n");
 
 		/** Display the Accept/Decline buttons */
-		wprintf("<TR><TD>How would you like to respond to this invitation?</td>"
-			"<td><FONT SIZE=+1>"
+		wprintf("<tr><td>%s</td>"
+			"<td><font size=+1>"
 			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
 			" | "
 			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">%s</a>"
 			" | "
 			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">%s</a>"
 			"</FONT></TD></TR>\n",
+			_("How would you like to respond to this invitation?"),
 			msgnum, cal_partnum, _("Accept"),
 			msgnum, cal_partnum, _("Tentative"),
 			msgnum, cal_partnum, _("Decline")
