@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-08 21:40-0500\n"
+"POT-Creation-Date: 2006-02-13 21:49+0100\n"
 "PO-Revision-Date: 2006-02-05 17:56+0100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
 "Language-Team: Deutsch <room_citadel_devel@uncensored.citadel.org>\n"
@@ -150,10 +150,10 @@ msgstr "Nocheinmal zur Verifizierung:"
 msgid "Change password"
 msgstr "Passwort ändern"
 
-#: ../auth.c:498 ../calendar.c:612 ../event.c:393 ../graphics.c:58
-#: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2846 ../messages.c:2967
-#: ../messages.c:3055 ../netconf.c:86 ../netconf.c:149 ../paging.c:58
-#: ../preferences.c:379 ../roomops.c:1285 ../roomops.c:1613 ../roomops.c:2046
+#: ../auth.c:498 ../calendar.c:616 ../event.c:390 ../graphics.c:58
+#: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2894 ../messages.c:3015
+#: ../messages.c:3103 ../netconf.c:86 ../netconf.c:149 ../paging.c:58
+#: ../preferences.c:389 ../roomops.c:1285 ../roomops.c:1613 ../roomops.c:2046
 #: ../roomops.c:2195 ../roomops.c:2259 ../siteconfig.c:564 ../sysmsgs.c:59
 #: ../useredit.c:381 ../vcard_edit.c:336 ../who.c:273
 msgid "Cancel"
@@ -227,7 +227,7 @@ msgstr "Öffentliches Ereignis"
 msgid "This is an unknown type of calendar item."
 msgstr "Dies ist ein unbekanntes Kalender-Datum"
 
-#: ../calendar.c:139 ../calendar.c:556
+#: ../calendar.c:139 ../calendar.c:560
 msgid "Summary:"
 msgstr "Zusammenfassung:"
 
@@ -235,88 +235,92 @@ msgstr "Zusammenfassung:"
 msgid "Location:"
 msgstr "Ort:"
 
-#: ../calendar.c:167
+#: ../calendar.c:174
 msgid "Date:"
 msgstr "Datum:"
 
-#: ../calendar.c:178
+#: ../calendar.c:181
 msgid "Starting date/time:"
 msgstr "Startzeit/Datum:"
 
-#: ../calendar.c:189
+#: ../calendar.c:192
 msgid "Ending date/time:"
 msgstr "Endzeit/Datum:"
 
-#: ../calendar.c:198 ../calendar.c:592
+#: ../calendar.c:201 ../calendar.c:596
 msgid "Description:"
 msgstr "Beschreibung"
 
-#: ../calendar.c:207
+#: ../calendar.c:210
 msgid "Attendee:"
 msgstr "Teilnehmer"
 
-#: ../calendar.c:247
+#: ../calendar.c:250
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
 msgstr "Dies ist ein Update von '%s', das schon in Ihrem Kalender ist."
 
-#: ../calendar.c:251
+#: ../calendar.c:254
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
 "vorgemerkt ist."
 
-#: ../calendar.c:256
+#: ../calendar.c:259
 msgid "Update:"
 msgstr "Update:"
 
-#: ../calendar.c:257
+#: ../calendar.c:260
 msgid "CONFLICT:"
 msgstr "KONFLIKT:"
 
-#: ../calendar.c:275
+#: ../calendar.c:278
+msgid "How would you like to respond to this invitation?"
+msgstr ""
+
+#: ../calendar.c:279
 msgid "Accept"
 msgstr "Annehmen"
 
-#: ../calendar.c:276
+#: ../calendar.c:280
 msgid "Tentative"
 msgstr "Vorläufig"
 
-#: ../calendar.c:277
+#: ../calendar.c:281
 msgid "Decline"
 msgstr "Ablehnen"
 
-#: ../calendar.c:301
+#: ../calendar.c:305
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
 "Klicken sie <i>Aktualisieren</i> um diese Änderung in ihren Kalender zu "
 "übernehmen."
 
-#: ../calendar.c:302
+#: ../calendar.c:306
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: ../calendar.c:303
+#: ../calendar.c:307
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: ../calendar.c:330
+#: ../calendar.c:334
 msgid "There was an error parsing this calendar item."
 msgstr "Ein Kalenderdatum konnte nicht verarbeitet werden."
 
-#: ../calendar.c:357
+#: ../calendar.c:361
 msgid "Respond to meeting request"
 msgstr "Auf Anfrage zum Treffen antworten"
 
-#: ../calendar.c:376
+#: ../calendar.c:380
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr ""
 "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
-#: ../calendar.c:380
+#: ../calendar.c:384
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
@@ -324,7 +328,7 @@ msgstr ""
 "Sie haben diese Einladung vorläufig angenommen. Es wurde in Ihrem Kalender "
 "vorgemerkt."
 
-#: ../calendar.c:384
+#: ../calendar.c:388
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
@@ -332,101 +336,101 @@ msgstr ""
 "Sie haben diese Einladung abgelehnt. Sie wurde <b>NICHT</b> in Ihren "
 "Kalender übernommen."
 
-#: ../calendar.c:389
+#: ../calendar.c:393
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Eine Antwort wurde an den Organisator versendet."
 
-#: ../calendar.c:399 ../calendar.c:453
+#: ../calendar.c:403 ../calendar.c:457
 msgid "Return to messages"
 msgstr "Zurück zur Nachricht"
 
-#: ../calendar.c:418
+#: ../calendar.c:422
 msgid "Update your calendar with this RSVP"
 msgstr "Dieses u.A.w.g. in Ihren Kalender übernehmen"
 
-#: ../calendar.c:437
+#: ../calendar.c:441
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr "u.A.w.g. wurde eingetragen."
 
-#: ../calendar.c:439
+#: ../calendar.c:443
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr "u.A.w.g. abgelehnt. Sie wurde <b>nicht</b> übernommen."
 
-#: ../calendar.c:540
+#: ../calendar.c:544
 msgid "Edit task"
 msgstr "Aufgabe bearbeiten"
 
-#: ../calendar.c:567
+#: ../calendar.c:571
 msgid "Start date:"
 msgstr "Anfangsdatum:"
 
-#: ../calendar.c:580
+#: ../calendar.c:584
 msgid "Due date:"
 msgstr "Fälligkeitsdatum:"
 
-#: ../calendar.c:610 ../event.c:390
+#: ../calendar.c:614 ../event.c:387
 msgid "Save"
 msgstr "Speichern"
 
-#: ../calendar.c:611 ../event.c:391 ../messages.c:868 ../messages.c:2233
+#: ../calendar.c:615 ../event.c:388 ../messages.c:903 ../messages.c:2281
 msgid "Delete"
 msgstr "Löschen"
 
-#: ../calendar_tools.c:70
+#: ../calendar_tools.c:73
 msgid "Month: "
 msgstr "Monat: "
 
-#: ../calendar_tools.c:81
+#: ../calendar_tools.c:87
 msgid "Day: "
 msgstr "Tag: "
 
-#: ../calendar_tools.c:91
+#: ../calendar_tools.c:97
 msgid "Year: "
 msgstr "Jahr: "
 
-#: ../calendar_tools.c:109
+#: ../calendar_tools.c:115
 msgid "Hour: "
 msgstr "Stunde: "
 
-#: ../calendar_tools.c:129
+#: ../calendar_tools.c:135
 msgid "Minute: "
 msgstr "Minute: "
 
-#: ../calendar_tools.c:198
+#: ../calendar_tools.c:204
 msgid "(status unknown)"
 msgstr "(Zustand unbekannt)"
 
-#: ../calendar_tools.c:214
+#: ../calendar_tools.c:220
 msgid "(needs action)"
 msgstr "(zu bearbeiten)"
 
-#: ../calendar_tools.c:217
+#: ../calendar_tools.c:223
 msgid "(accepted)"
 msgstr "(Angenommen)"
 
-#: ../calendar_tools.c:220
+#: ../calendar_tools.c:226
 msgid "(declined)"
 msgstr "(Abgelehnt)"
 
-#: ../calendar_tools.c:223
+#: ../calendar_tools.c:229
 msgid "(tenative)"
 msgstr "(Vorläufig)"
 
-#: ../calendar_tools.c:226
+#: ../calendar_tools.c:232
 msgid "(delegated)"
 msgstr "(abgesendet)"
 
-#: ../calendar_tools.c:229
+#: ../calendar_tools.c:235
 msgid "(completed)"
 msgstr "(Vollständig)"
 
-#: ../calendar_tools.c:232
+#: ../calendar_tools.c:238
 msgid "(in process)"
 msgstr "(in Bearbeitung)"
 
-#: ../calendar_tools.c:235
+#: ../calendar_tools.c:241
 msgid "(none)"
 msgstr "(keine)"
 
@@ -438,31 +442,31 @@ msgstr "Die Kalenderdarstellung ist nicht verfügbar."
 msgid "The tasks view is not available."
 msgstr "Die Aufgabendarstellung ist nicht verfügbar."
 
-#: ../calendar_view.c:422
+#: ../calendar_view.c:435
 msgid "Week"
 msgstr "Woche"
 
-#: ../calendar_view.c:424
+#: ../calendar_view.c:437
 msgid "Hours"
 msgstr "Stunden"
 
-#: ../calendar_view.c:425 ../messages.c:2228
+#: ../calendar_view.c:438 ../messages.c:2276
 msgid "Subject"
 msgstr "Betreff"
 
-#: ../calendar_view.c:426 ../event.c:164
+#: ../calendar_view.c:439 ../event.c:164
 msgid "Start"
 msgstr "Anfang"
 
-#: ../calendar_view.c:427 ../event.c:218
+#: ../calendar_view.c:440 ../event.c:218
 msgid "End"
 msgstr "Ende"
 
-#: ../calendar_view.c:906
+#: ../calendar_view.c:930
 msgid "Name of task"
 msgstr "Name der Aufgaben"
 
-#: ../calendar_view.c:908
+#: ../calendar_view.c:932
 msgid "Date due"
 msgstr "Fälligkeitsdatum"
 
@@ -486,35 +490,35 @@ msgstr "Ganztägiger Termin"
 msgid "Notes"
 msgstr "Notiz"
 
-#: ../event.c:291
+#: ../event.c:288
 msgid "Organizer"
 msgstr "Organisator"
 
-#: ../event.c:296
+#: ../event.c:293
 msgid "(you are the organizer)"
 msgstr "(Sie sind der Organisator)"
 
-#: ../event.c:314
+#: ../event.c:311
 msgid "Show time as:"
 msgstr "Zeit anzeigen als:"
 
-#: ../event.c:336
+#: ../event.c:333
 msgid "Free"
 msgstr "Frei"
 
-#: ../event.c:343
+#: ../event.c:340
 msgid "Busy"
 msgstr "Besetzt"
 
-#: ../event.c:349
+#: ../event.c:346
 msgid "Attendees"
 msgstr "Teilnehmer"
 
-#: ../event.c:352
+#: ../event.c:349
 msgid "(One per line)"
 msgstr "(einen pro Zeile)"
 
-#: ../event.c:392
+#: ../event.c:389
 msgid "Check attendee availability"
 msgstr "Teilnehmer Verfügbarkeit überprüfen"
 
@@ -572,126 +576,6 @@ msgstr "Etage gelöscht."
 #, c-format
 msgid "New floor has been created."
 msgstr "Eine neue Etage wurde generiert."
-
-#: ../fmt_date.c:35
-msgid "Jan"
-msgstr "Jan"
-
-#: ../fmt_date.c:36
-msgid "Feb"
-msgstr "Feb"
-
-#: ../fmt_date.c:37
-msgid "Mar"
-msgstr "Mär"
-
-#: ../fmt_date.c:38
-msgid "Apr"
-msgstr "Apr"
-
-#: ../fmt_date.c:39 ../fmt_date.c:280 ../summary.c:33
-msgid "May"
-msgstr "Mai"
-
-#: ../fmt_date.c:40
-msgid "Jun"
-msgstr "Jun"
-
-#: ../fmt_date.c:41
-msgid "Jul"
-msgstr "Jul"
-
-#: ../fmt_date.c:42
-msgid "Aug"
-msgstr "Aug"
-
-#: ../fmt_date.c:43
-msgid "Sep"
-msgstr "Sep"
-
-#: ../fmt_date.c:44
-msgid "Oct"
-msgstr "Okt"
-
-#: ../fmt_date.c:45
-msgid "Nov"
-msgstr "Nov"
-
-#: ../fmt_date.c:46
-msgid "Dec"
-msgstr "Dez"
-
-#: ../fmt_date.c:268 ../summary.c:21
-msgid "Sunday"
-msgstr "Sonntag"
-
-#: ../fmt_date.c:269 ../summary.c:22
-msgid "Monday"
-msgstr "Montag"
-
-#: ../fmt_date.c:270 ../summary.c:23
-msgid "Tuesday"
-msgstr "Dienstag"
-
-#: ../fmt_date.c:271 ../summary.c:24
-msgid "Wednesday"
-msgstr "Mittwoch"
-
-#: ../fmt_date.c:272 ../summary.c:25
-msgid "Thursday"
-msgstr "Donnerstag"
-
-#: ../fmt_date.c:273 ../summary.c:26
-msgid "Friday"
-msgstr "Freitag"
-
-#: ../fmt_date.c:274 ../summary.c:27
-msgid "Saturday"
-msgstr "Samstag"
-
-#: ../fmt_date.c:276 ../summary.c:29
-msgid "January"
-msgstr "Januar"
-
-#: ../fmt_date.c:277 ../summary.c:30
-msgid "February"
-msgstr "Februar"
-
-#: ../fmt_date.c:278 ../summary.c:31
-msgid "March"
-msgstr "März"
-
-#: ../fmt_date.c:279 ../summary.c:32
-msgid "April"
-msgstr "April"
-
-#: ../fmt_date.c:281 ../summary.c:34
-msgid "June"
-msgstr "Juni"
-
-#: ../fmt_date.c:282 ../summary.c:35
-msgid "July"
-msgstr "Juli"
-
-#: ../fmt_date.c:283 ../summary.c:36
-msgid "August"
-msgstr "August"
-
-#: ../fmt_date.c:284 ../summary.c:37
-msgid "September"
-msgstr "September"
-
-#: ../fmt_date.c:285 ../summary.c:38
-msgid "October"
-msgstr "Oktober"
-
-#: ../fmt_date.c:286 ../summary.c:39
-msgid "November"
-msgstr "November"
-
-#: ../fmt_date.c:287 ../summary.c:40
-msgid "December"
-msgstr "Dezember"
 
 #: ../graphics.c:27
 msgid "Image upload"
@@ -778,7 +662,7 @@ msgstr "Zu Ihren persönlichen Notizen"
 msgid "Go to your personal task list"
 msgstr "Zu Ihrer persönlichen Aufgabenliste"
 
-#: ../iconbar.c:216 ../iconbar.c:618 ../summary.c:136
+#: ../iconbar.c:216 ../iconbar.c:618 ../summary.c:109
 msgid "Tasks"
 msgstr "Aufgaben"
 
@@ -1262,226 +1146,226 @@ msgstr "Kommando Senden"
 msgid "Server command results"
 msgstr "Server Kommando Ergebnisse"
 
-#: ../messages.c:409
+#: ../messages.c:444
 msgid " (work)"
 msgstr " (Firma)"
 
-#: ../messages.c:411
+#: ../messages.c:446
 msgid " (home)"
 msgstr " (Privat)"
 
-#: ../messages.c:413
+#: ../messages.c:448
 msgid " (cell)"
 msgstr " (Handy)"
 
-#: ../messages.c:424 ../vcard_edit.c:252
+#: ../messages.c:459 ../vcard_edit.c:252
 msgid "Address:"
 msgstr "Adresse:"
 
-#: ../messages.c:484
+#: ../messages.c:519
 msgid "Telephone:"
 msgstr "Telefon"
 
-#: ../messages.c:489
+#: ../messages.c:524
 msgid "E-mail:"
 msgstr "Email:"
 
-#: ../messages.c:597 ../messages.c:1191
+#: ../messages.c:632 ../messages.c:1229
 msgid "ERROR:"
 msgstr "FEHLER"
 
-#: ../messages.c:620 ../messages.c:897 ../messages.c:1200 ../messages.c:1299
+#: ../messages.c:655 ../messages.c:932 ../messages.c:1238 ../messages.c:1341
 msgid "unexpected end of message"
 msgstr "unerwartetes Meldungsende"
 
-#: ../messages.c:633 ../messages.c:1212
+#: ../messages.c:668 ../messages.c:1250
 msgid "from "
 msgstr "von "
 
-#: ../messages.c:661 ../messages.c:1228
+#: ../messages.c:696 ../messages.c:1266
 msgid "in "
 msgstr "in "
 
-#: ../messages.c:682 ../messages.c:1249
+#: ../messages.c:717 ../messages.c:1287
 msgid "to "
 msgstr "an "
 
-#: ../messages.c:735
+#: ../messages.c:770
 msgid "View"
 msgstr "Anzeigen"
 
-#: ../messages.c:737
+#: ../messages.c:772
 msgid "Download"
 msgstr "Herunterladen"
 
-#: ../messages.c:784 ../messages.c:2803
+#: ../messages.c:819 ../messages.c:2851
 msgid "CC:"
 msgstr "CC:"
 
-#: ../messages.c:792 ../messages.c:1281
+#: ../messages.c:827 ../messages.c:1323
 msgid "Subject:"
 msgstr "Betreff:"
 
-#: ../messages.c:816 ../rss.c:28
+#: ../messages.c:851 ../rss.c:28
 msgid "Reply"
 msgstr "Antworten"
 
-#: ../messages.c:831
+#: ../messages.c:866
 msgid "ReplyQuoted"
 msgstr "Antworten&amp;Zitieren"
 
-#: ../messages.c:848
+#: ../messages.c:883
 msgid "ReplyAll"
 msgstr "AntwortenAnAlle"
 
-#: ../messages.c:856
+#: ../messages.c:891
 msgid "Forward"
 msgstr "Weiterleiten"
 
-#: ../messages.c:863 ../messages.c:3053
+#: ../messages.c:898 ../messages.c:3101
 msgid "Move"
 msgstr "Verschieben"
 
-#: ../messages.c:868
+#: ../messages.c:903
 msgid "Delete this message?"
 msgstr "Diese Nachricht Löschen?"
 
-#: ../messages.c:874
+#: ../messages.c:909
 msgid "Headers"
 msgstr "Kopfzeilen"
 
-#: ../messages.c:879
+#: ../messages.c:914
 msgid "Print"
 msgstr "Drucken"
 
-#: ../messages.c:985
+#: ../messages.c:1025
 #, c-format
 msgid "I don't know how to display %s"
 msgstr "Kann %s nicht darstellen"
 
-#: ../messages.c:1020 ../messages.c:1539
+#: ../messages.c:1060 ../messages.c:1587
 msgid "edit"
 msgstr "bearbeiten"
 
-#: ../messages.c:1502 ../messages.c:1811
+#: ../messages.c:1550 ../messages.c:1859
 msgid "(no subject)"
 msgstr "(kein Betreff)"
 
-#: ../messages.c:1630
+#: ../messages.c:1678
 msgid "(no name)"
 msgstr "(kein Name)"
 
-#: ../messages.c:1682
+#: ../messages.c:1730
 msgid "This address book is empty."
 msgstr "Dieses Adressbuch ist leer."
 
-#: ../messages.c:2108
+#: ../messages.c:2156
 msgid "No new messages."
 msgstr "Keine neue Nachricht."
 
-#: ../messages.c:2110
+#: ../messages.c:2158
 msgid "No old messages."
 msgstr "Keine alte Nachricht"
 
-#: ../messages.c:2112
+#: ../messages.c:2160
 msgid "No messages here."
 msgstr "Keine Beiträge hier"
 
-#: ../messages.c:2230
+#: ../messages.c:2278
 msgid "Sender"
 msgstr "Absender"
 
-#: ../messages.c:2232
+#: ../messages.c:2280
 msgid "Date"
 msgstr "Datum"
 
-#: ../messages.c:2247
+#: ../messages.c:2295
 msgid "Click on any note to edit it."
 msgstr "Auf eine Notiz klicken zum editieren"
 
-#: ../messages.c:2350
+#: ../messages.c:2398
 msgid "Reading #"
 msgstr "Lese #"
 
-#: ../messages.c:2403
+#: ../messages.c:2451
 #, c-format
 msgid "of %d messages."
 msgstr "von %d Nachrichten"
 
-#: ../messages.c:2587
+#: ../messages.c:2635
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 
-#: ../messages.c:2593
+#: ../messages.c:2641
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
-#: ../messages.c:2612
+#: ../messages.c:2660
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Nachricht wurde gesendet.\n"
 
-#: ../messages.c:2615
+#: ../messages.c:2663
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Beitrag wurde gesendet.\n"
 
-#: ../messages.c:2749
+#: ../messages.c:2797
 msgid " <I>from</I> "
 msgstr " <I>von</I> "
 
-#: ../messages.c:2759
+#: ../messages.c:2807
 msgid " <I>in</I> "
 msgstr " <I>in</i> "
 
-#: ../messages.c:2792
+#: ../messages.c:2840
 msgid "To:"
 msgstr "An:"
 
-#: ../messages.c:2814
+#: ../messages.c:2862
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2832
+#: ../messages.c:2880
 msgid "Subject (optional):"
 msgstr "Betreff (optional):"
 
-#: ../messages.c:2841 ../messages.c:2962 ../paging.c:57
+#: ../messages.c:2889 ../messages.c:3010 ../paging.c:57
 msgid "Send message"
 msgstr "Meldung senden"
 
-#: ../messages.c:2843 ../messages.c:2964
+#: ../messages.c:2891 ../messages.c:3012
 msgid "Post message"
 msgstr "Beitrag einreichen"
 
-#: ../messages.c:2859
+#: ../messages.c:2907
 msgid "--- forwarded message ---"
 msgstr "--- Weitergeleitete Nachricht ---"
 
-#: ../messages.c:2939
+#: ../messages.c:2987
 msgid "Attachments:"
 msgstr "Anhänge:"
 
-#: ../messages.c:2954
+#: ../messages.c:3002
 msgid "Attach file:"
 msgstr "Datei anhängen:"
 
-#: ../messages.c:2957 ../roomops.c:1477 ../roomops.c:1507
+#: ../messages.c:3005 ../roomops.c:1477 ../roomops.c:1507
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../messages.c:3026
+#: ../messages.c:3074
 msgid "Confirm move of message"
 msgstr "Verschieben bestätigen"
 
-#: ../messages.c:3033
+#: ../messages.c:3081
 msgid "Move this message to:"
 msgstr "Meldung verschieben nach:"
 
-#: ../messages.c:3079
+#: ../messages.c:3127
 #, c-format
 msgid "The message was not moved."
 msgstr "Die Meldung wurde nicht verschoben."
@@ -1607,59 +1491,63 @@ msgstr "Hilfe"
 msgid "List users"
 msgstr "Benutzer auflisten"
 
-#: ../preferences.c:204
+#: ../preferences.c:205
 msgid "Preferences and settings"
 msgstr "Einstellungen"
 
-#: ../preferences.c:225
+#: ../preferences.c:226
 msgid "Room list view"
 msgstr "Raumlisten Anzeige"
 
-#: ../preferences.c:231
+#: ../preferences.c:232
 msgid "Tree (folders) view"
 msgstr "Baum (Verzeichnis) Anzeige"
 
-#: ../preferences.c:237
+#: ../preferences.c:238
 msgid "Table (rooms) view"
 msgstr "Tabelle (Raum) anzeige"
 
-#: ../preferences.c:248
+#: ../preferences.c:249
 msgid "Calendar hour format"
 msgstr "Kalender Uhrzeitsformat"
 
-#: ../preferences.c:254
+#: ../preferences.c:255
 msgid "12 hour (am/pm)"
 msgstr "12 Stunden (AM/PM)"
 
-#: ../preferences.c:260
+#: ../preferences.c:261
 msgid "24 hour"
 msgstr "24 Stunden"
 
-#: ../preferences.c:271
+#: ../preferences.c:272
 msgid "Calendar day view begins at:"
 msgstr "Kalender Tagesübersicht beginnt bei:"
 
-#: ../preferences.c:300
+#: ../preferences.c:301
 msgid "Calendar day view ends at:"
 msgstr "Kalender Tagesübersicht endet bei:"
 
-#: ../preferences.c:329
+#: ../preferences.c:330
 msgid "Attach signature to email messages?"
 msgstr "Emails Signieren?"
 
-#: ../preferences.c:347
+#: ../preferences.c:348
 msgid "No signature"
 msgstr "Keine Signatur"
 
-#: ../preferences.c:353
+#: ../preferences.c:354
 msgid "Use this signature:"
 msgstr "Diese Signatur benutzen"
 
 #: ../preferences.c:378
+msgid "Default character set for email headers:"
+msgstr ""
+
+#: ../preferences.c:388
 msgid "Change"
 msgstr "Ändern"
 
-#: ../preferences.c:400
+#: ../preferences.c:407
 msgid "Cancelled.  No settings were changed."
 msgstr "Abgebrochen. Keine Änderung wurde gespeichert."
 
@@ -2499,43 +2387,43 @@ msgstr "Ihre Systemkonfiguration wurde Übernommen"
 msgid "ERROR: could not open template "
 msgstr "FEHLER: konnte Template nicht öffnen"
 
-#: ../summary.c:62
+#: ../summary.c:35
 msgid "(nothing)"
 msgstr "(Nichts)"
 
-#: ../summary.c:77
+#: ../summary.c:50
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: ../summary.c:114
+#: ../summary.c:87
 msgid "Who's&nbsp;online&nbsp;now"
 msgstr "Wer ist gerade angemeldet"
 
-#: ../summary.c:149
+#: ../summary.c:122
 msgid "(None)"
 msgstr "(Keine)"
 
-#: ../summary.c:162
+#: ../summary.c:135
 msgid "(This server does not support task lists)"
 msgstr "(Dieser Server unterstützt keine Aufgabenlisten)"
 
-#: ../summary.c:178
+#: ../summary.c:151
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Heute&nbsp;auf&nbsp;ihrem&nbsp;Kalender"
 
-#: ../summary.c:191
+#: ../summary.c:164
 msgid "(Nothing)"
 msgstr "(Nichts)"
 
-#: ../summary.c:203
+#: ../summary.c:176
 msgid "(This server does not support calendars)"
 msgstr "(Dieser Server unterstützt keine Kalender)"
 
-#: ../summary.c:215
+#: ../summary.c:188
 msgid "About&nbsp;this&nbsp;server"
 msgstr "Über&nbsp;diesen&nbsp;Server"
 
-#: ../summary.c:219
+#: ../summary.c:192
 #, c-format
 msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
@@ -2544,7 +2432,7 @@ msgstr ""
 "Sie sind Angemeldet auf %s, mit %s über %s, in %s.  Ihr Systemverwalter ist %"
 "s"
 
-#: ../summary.c:286
+#: ../summary.c:259
 #, c-format
 msgid "Summary page for %s"
 msgstr "Zusammenfassung für %s"
@@ -2680,20 +2568,40 @@ msgstr "Ein neuer Benutzer wurde angelegt."
 msgid "User list for %s"
 msgstr "Benutzerliste für %s"
 
-#: ../userlist.c:64
-msgid ""
-"<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH><TH>Last Login</"
-"TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"
-msgstr ""
-"<TR><TH>Benutzername</TH><TH>Anzahl</TH><TH>Berechtigung</TH><TH>Letzte "
-"Anmeldung</TH><TH>Anzahl Anmeldungen</TH><TH>Anzahl verfasste Beiträge</TH></"
-"TR>"
+#: ../userlist.c:66
+#, fuzzy
+msgid "User Name"
+msgstr "Benutzername"
 
-#: ../userlist.c:123
+#: ../userlist.c:67
+#, fuzzy
+msgid "Number"
+msgstr "November"
+
+#: ../userlist.c:68
+#, fuzzy
+msgid "Access Level"
+msgstr "Zugangsberechtigung"
+
+#: ../userlist.c:69
+#, fuzzy
+msgid "Last Login"
+msgstr "Anmelden"
+
+#: ../userlist.c:70
+msgid "Total Logins"
+msgstr ""
+
+#: ../userlist.c:71
+#, fuzzy
+msgid "Total Posts"
+msgstr "Diese Maschine"
+
+#: ../userlist.c:129
 msgid "User profile"
 msgstr "Benutzerprofil"
 
-#: ../userlist.c:159
+#: ../userlist.c:165
 #, c-format
 msgid "Click here to send an instant message to %s"
 msgstr "Hier klicken um eine Kurznachricht an %s zu senden"
@@ -2925,3 +2833,98 @@ msgid ""
 msgstr ""
 "Wähle den 'Diese Seite editieren' Link in dem Raum-Banner, wenn du diesen "
 "Raum erzeugen möchtest."
+
+#~ msgid "Jan"
+#~ msgstr "Jan"
+
+#~ msgid "Feb"
+#~ msgstr "Feb"
+
+#~ msgid "Mar"
+#~ msgstr "Mär"
+
+#~ msgid "Apr"
+#~ msgstr "Apr"
+
+#~ msgid "May"
+#~ msgstr "Mai"
+
+#~ msgid "Jun"
+#~ msgstr "Jun"
+
+#~ msgid "Jul"
+#~ msgstr "Jul"
+
+#~ msgid "Aug"
+#~ msgstr "Aug"
+
+#~ msgid "Sep"
+#~ msgstr "Sep"
+
+#~ msgid "Oct"
+#~ msgstr "Okt"
+
+#~ msgid "Nov"
+#~ msgstr "Nov"
+
+#~ msgid "Dec"
+#~ msgstr "Dez"
+
+#~ msgid "Sunday"
+#~ msgstr "Sonntag"
+
+#~ msgid "Monday"
+#~ msgstr "Montag"
+
+#~ msgid "Tuesday"
+#~ msgstr "Dienstag"
+
+#~ msgid "Wednesday"
+#~ msgstr "Mittwoch"
+
+#~ msgid "Thursday"
+#~ msgstr "Donnerstag"
+
+#~ msgid "Friday"
+#~ msgstr "Freitag"
+
+#~ msgid "Saturday"
+#~ msgstr "Samstag"
+
+#~ msgid "January"
+#~ msgstr "Januar"
+
+#~ msgid "February"
+#~ msgstr "Februar"
+
+#~ msgid "March"
+#~ msgstr "März"
+
+#~ msgid "April"
+#~ msgstr "April"
+
+#~ msgid "June"
+#~ msgstr "Juni"
+
+#~ msgid "July"
+#~ msgstr "Juli"
+
+#~ msgid "August"
+#~ msgstr "August"
+
+#~ msgid "September"
+#~ msgstr "September"
+
+#~ msgid "October"
+#~ msgstr "Oktober"
+
+#~ msgid "December"
+#~ msgstr "Dezember"
+
+#~ msgid ""
+#~ "<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH><TH>Last Login</"
+#~ "TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"
+#~ msgstr ""
+#~ "<TR><TH>Benutzername</TH><TH>Anzahl</TH><TH>Berechtigung</TH><TH>Letzte "
+#~ "Anmeldung</TH><TH>Anzahl Anmeldungen</TH><TH>Anzahl verfasste Beiträge</"
+#~ "TH></TR>"
