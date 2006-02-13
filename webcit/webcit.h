@@ -322,76 +322,77 @@ struct folder {
  * HTTP transactions are bound to on e at a time.
  */
 struct wcsession {
-	struct wcsession *next;		              /**< Linked list */
-	int wc_session;			                  /**< WebCit session ID */
-	char wc_username[128];                    /**< ??? todo */
-	char wc_fullname[128];			          /**< ??? todo */
-	char wc_password[128];			          /**< ??? todo */
-	char wc_roomname[256];			          /**< ??? todo */
-	int connected;					          /**< ??? todo */
-	int logged_in;					          /**< ??? todo */
-	int axlevel;					          /**< ??? todo */
-	int is_aide;					          /**< ??? todo */
-	int is_room_aide;				          /**< ??? todo */
-	int http_sock;					          /**< ??? todo */
-	int serv_sock;					          /**< ??? todo */
-	int chat_sock;					          /**< ??? todo */
-	unsigned room_flags;			          /**< ??? todo */
-	int wc_view;					          /**< ??? todo */
-	int wc_default_view;			          /**< ??? todo */
-	int wc_is_trash;				          /**< ??? todo */
-	int wc_floor;					          /**< ??? todo */
-	char ugname[128];				          /**< ??? todo */
-	long uglsn;						          /**< ??? todo */
-	int upload_length;				          /**< ??? todo */
-	char *upload;					          /**< ??? todo */
-	char upload_filename[PATH_MAX];	          /**< ??? todo */
-	char upload_content_type[256];	          /**< ??? todo */
-	int new_mail;					          /**< ??? todo */
-	int remember_new_mail;                    /**< ??? todo */      
-	int need_regi;			                  /**< This user needs to register. */
-	int need_vali;			                  /**< New users require validation. */
-	char cs_inet_email[256];	              /**< User's preferred Internet addr. */
-	pthread_mutex_t SessionMutex;	          /**< mutex for exclusive access */
-	time_t lastreq;			                  /**< Timestamp of most recent HTTP */
-	int killthis;			                  /**< Nonzero == purge this session */
-	struct march *march;                      /**< march mode room list */
-	char reply_to[512];                       /**< reply-to address */
-	long msgarr[10000];                       /**< for read operations */
-	int num_summ;                             /**< ??? todo */
-	struct message_summary *summ;             /**<  ??? todo */
-	int is_wap;			                      /**< Client is a WAP gateway */
-	struct urlcontent *urlstrings;            /**<  ??? todo */
-	struct wcsubst *vars;                     /**<   ??? todo*/
-	char this_page[512];                      /**< address of current page */
-	char http_host[512];                      /**< HTTP Host: header */
-	char *preferences;                        /**<  ??? todo */
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE	          	
-	/** \brief ical???? */			          	
-	struct disp_cal {				          	
-		icalcomponent *cal;		              /**< cal items for display */
-		long cal_msgnum;		              /**< cal msgids for display */
-	} *disp_cal;					          	
-	int num_cal;                              /**<  ??? todo */
+	struct wcsession *next;			/**< Linked list */
+	int wc_session;				/**< WebCit session ID */
+	char wc_username[128];			/**< login name of current user */
+	char wc_fullname[128];			/**< Screen name of current user */
+	char wc_password[128];			/**< Password of current user */
+	char wc_roomname[256];			/**< Room we are currently in */
+	int connected;				/**< nonzero == we are connected to Citadel */
+	int logged_in;				/**< nonzero == we are logged in  */
+	int axlevel;				/**< this user's access level */
+	int is_aide;				/**< nonzero == this user is an Aide */
+	int is_room_aide;			/**< nonzero == this user is a Room Aide in this room */
+	int http_sock;				/**< HTTP server socket */
+	int serv_sock;				/**< Client socket to Citadel server */
+	int chat_sock;				/**< Client socket to Citadel server - for chat */
+	unsigned room_flags;			/**< flags associated with the current room */
+	int wc_view;				/**< view for the current room */
+	int wc_default_view;			/**< default view for the current room */
+	int wc_is_trash;			/**< nonzero == current room is a Trash folder */
+	int wc_floor;				/**< floor number of current room */
+	char ugname[128];			/**< where does 'ungoto' take us */
+	long uglsn;				/**< last seen message number for ungoto */
+	int upload_length;			/**< content length of http-uploaded data */
+	char *upload;				/**< pointer to http-uploaded data */
+	char upload_filename[PATH_MAX];		/**< filename of http-uploaded data */
+	char upload_content_type[256];		/**< content type of http-uploaded data */
+	int new_mail;				/**< user has new mail waiting */
+	int remember_new_mail;			/**< last count of new mail messages */
+	int need_regi;				/**< This user needs to register. */
+	int need_vali;				/**< New users require validation. */
+	char cs_inet_email[256];		/**< User's preferred Internet addr. */
+	pthread_mutex_t SessionMutex;		/**< mutex for exclusive access */
+	time_t lastreq;				/**< Timestamp of most recent HTTP */
+	int killthis;				/**< Nonzero == purge this session */
+	struct march *march;			/**< march mode room list */
+	char reply_to[512];			/**< reply-to address */
+	long msgarr[10000];			/**< for read operations */
+	int num_summ;				/**< number of messages in mailbox summary view */
+	struct message_summary *summ;		/**< array of messages for mailbox summary view */
+	int is_wap;				/**< Client is a WAP gateway */
+	struct urlcontent *urlstrings;		/**< variables passed to webcit in a URL */
+	struct wcsubst *vars;			/**< HTTP variable substitutions for this page */
+	char this_page[512];			/**< URL of current page */
+	char http_host[512];			/**< HTTP Host: header */
+	char *preferences;			/**< WebCit preferences for this user */
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE		
+	/** \brief ical???? */				
+	struct disp_cal {					
+		icalcomponent *cal;		/**< cal items for display */
+		long cal_msgnum;		/**< cal msgids for display */
+	} *disp_cal;						
+	int num_cal;				/**< number of calendar items for display */
 #endif											
-	struct wc_attachment *first_attachment;   /**<  ??? todo */
-	char last_chat_user[256];                 /**< ??? todo */
-	char ImportantMessage[SIZ];               /**<   ??? todo */
-	int ctdl_pid;                             /**< Session ID on the Citadel server */
-	char httpauth_user[256];	              /**< only for GroupDAV sessions */
-	char httpauth_pass[256];                  /**< only for GroupDAV sessions */
-	size_t burst_len;                         /**<  ??? todo */
-	char *burst;                              /**<  ??? todo */
-	int gzip_ok;                              /**< Nonzero if Accept-encoding: gzip */
-	int is_mailbox;                           /**< the current room is a private mailbox */
-	struct folder *cache_fold;                /**< cache the iconbar room list */
-	int cache_max_folders;                    /**<  ??? todo */
-	int cache_num_floors;                     /**<  ??? todo */
-	time_t cache_timestamp;                   /**<  ??? todo */
-	int current_iconbar;                      /**< What's currently in the iconbar? */
-	char floordiv_expanded[32];               /**< which floordiv currently expanded */
-	int selected_language;                    /**< Language selected by user */
-	time_t last_pager_check;                  /**< last time we polled for instant msgs */
+	struct wc_attachment *first_attachment;	/**< linked list of attachments for 'enter message' */
+	char last_chat_user[256];		/**< ??? todo */
+	char ImportantMessage[SIZ];		/**< ??? todo */
+	int ctdl_pid;				/**< Session ID on the Citadel server */
+	char httpauth_user[256];		/**< only for GroupDAV sessions */
+	char httpauth_pass[256];		/**< only for GroupDAV sessions */
+	size_t burst_len;			/** <??? todo */
+	size_t burst_alloc;			/** <??? todo */
+	char *burst;				/** <??? todo */
+	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+	int is_mailbox;				/**< the current room is a private mailbox */
+	struct folder *cache_fold;		/**< cache the iconbar room list */
+	int cache_max_folders;			/**< ??? todo */
+	int cache_num_floors;			/**< ??? todo */
+	time_t cache_timestamp;			/**< ??? todo */
+	int current_iconbar;			/**< What is currently in the iconbar? */
+	char floordiv_expanded[32];		/**< which floordiv currently expanded */
+	int selected_language;			/**< Language selected by user */
+	time_t last_pager_check;		/**< last time we polled for instant msgs */
 };
 
 /** values for WC->current_iconbar */
