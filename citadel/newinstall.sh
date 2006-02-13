@@ -406,11 +406,6 @@ mkdir -p $BUILD
 cd $BUILD
 
 
-# 1B. Determine whether we are upgrading an autologin installation
-[ -x $CITADEL/chkpwd ] && {
-	IS_AUTOLOGIN="yes"
-}
-
 
 # 2. Present the installation steps (from 1 above) to the user
 clear
