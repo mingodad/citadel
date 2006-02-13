@@ -13,16 +13,16 @@
 
 /**\brief stub for non-libical builds */
 void do_calendar_view(void) {
-	wprintf("<CENTER><I>");
+	wprintf("<center><i>");
 	wprintf(_("The calendar view is not available."));
-	wprintf("</I></CENTER><br />\n");
+	wprintf("</i></center><br />\n");
 }
 
 /**\brief stub for non-libical builds */
 void do_tasks_view(void) {	
-	wprintf("<CENTER><I>");
+	wprintf("<center><I>");
 	wprintf(_("The tasks view is not available."));
-	wprintf("</I></CENTER><br />\n");
+	wprintf("</i></center><br />\n");
 }
 
 #else	/* WEBCIT_WITH_CALENDAR_SERVICE */
@@ -80,12 +80,12 @@ void calendar_month_view_display_events(time_t thetime) {
 				if (p != NULL) {
 
 					if (all_day_event) {
-						wprintf("<TABLE border=0 cellpadding=2><TR>"
-							"<TD BGCOLOR=\"#CCCCDD\">"
+						wprintf("<table border=0 cellpadding=2><TR>"
+							"<td bgcolor=\"#CCCCDD\">"
 						);
 					}
 
-					wprintf("<FONT SIZE=-1>"
+					wprintf("<font size=-1>"
 						"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
 						WC->disp_cal[i].cal_msgnum,
 						bstr("calview"),
@@ -95,10 +95,10 @@ void calendar_month_view_display_events(time_t thetime) {
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT><br />\n");
+					wprintf("</a></font><br />\n");
 
 					if (all_day_event) {
-						wprintf("</TD></TR></TABLE>");
+						wprintf("</td></tr></table>");
 					}
 
 				}
@@ -261,44 +261,45 @@ void calendar_month_view(int year, int month, int day) {
 
 	/** Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
-	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+	wprintf("<table width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
 
-	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<td align=center>");
 
 	localtime_r(&previous_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wprintf("&nbsp;&nbsp;"
-		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
+		"<font size=+1 color=\"#FFFFFF\">"
 		"%s %d"
-		"</FONT>"
+		"</font>"
 		"&nbsp;&nbsp;", colheader_label, year);
 
 	localtime_r(&next_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	/** Inner table (the real one) */
-	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78><TR>");
+	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#204B78><tr>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
 		colheader_time = thetime + (i * 86400) ;
 		localtime_r(&colheader_time, &colheader_tm);
 		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
-		wprintf("<TD ALIGN=CENTER WIDTH=14%%>"
-			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", colheader_label);
+		wprintf("<td align=center width=14%%>"
+			"<font color=\"#FFFFFF\">%s</font></th>", colheader_label);
+
 	}
-	wprintf("</TR>\n");
+	wprintf("</tr>\n");
 
 	/** Now do 35 days */
 	for (i = 0; i < 35; ++i) {
@@ -306,10 +307,10 @@ void calendar_month_view(int year, int month, int day) {
 
 		/** Before displaying Sunday, start a new row */
 		if ((i % 7) == 0) {
-			wprintf("<TR>");
+			wprintf("<tr>");
 		}
 
-		wprintf("<TD BGCOLOR=\"#%s\" WIDTH=14%% HEIGHT=60 align=left VALIGN=TOP><B>",
+		wprintf("<td bgcolor=\"#%s\" width=14%% height=60 align=left valign=top><b>",
 			((tm.tm_mon != month-1) ? "DDDDDD" :
 			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 			"FFFFFF"))
@@ -319,7 +320,7 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("%s ", colheader_label);
 		}
 		wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
-			"%d</A></B><br />",
+			"%d</a></b><br />",
 			tm.tm_year + 1900,
 			tm.tm_mon + 1,
 			tm.tm_mday,
@@ -328,18 +329,18 @@ void calendar_month_view(int year, int month, int day) {
 		/** put the data here, stupid */
 		calendar_month_view_display_events(thetime);
 
-		wprintf("</TD>");
+		wprintf("</td>");
 
 		/** After displaying Saturday, end the row */
 		if ((i % 7) == 6) {
-			wprintf("</TR>\n");
+			wprintf("</tr>\n");
 		}
 
 		thetime += (time_t)86400;		/** ahead 24 hours */
 	}
 
-	wprintf("</TABLE>"			/** end of inner table */
-		"</TD></TR></TABLE>"		/** end of outer table */
+	wprintf("</table>"			/** end of inner table */
+		"</td></tr></table>"		/** end of outer table */
 		"</div>\n");
 }
 
@@ -386,37 +387,37 @@ void calendar_brief_month_view(int year, int month, int day) {
 
 	/** Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
-	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+	wprintf("<table width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
 
-	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<td align=center>");
 
 	localtime_r(&previous_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
 	wprintf("&nbsp;&nbsp;"
-		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
+		"<font size=+1 color=\"#FFFFFF\">"
 		"%s %d"
-		"</FONT>"
+		"</font>"
 		"&nbsp;&nbsp;", month_label, year);
 
 	localtime_r(&next_month, &tm);
 	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\" BORDER=0></A>\n");
+	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	/** Inner table (the real one) */
-	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#EEEECC><TR>");
-	wprintf("</TR>\n");
-	wprintf("<TR><TD COLSPAN=\"100%\">\n");
+	wprintf("</tr>\n");
+	wprintf("<tr><td colspan=\"100%\">\n");
 
 	/** Now do 35 days */
 	for (i = 0; i < 35; ++i) {
@@ -429,7 +430,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		/** Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
-			wprintf("<TABLE border='0' BGCOLOR=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
+			wprintf("<table border='0' bgcolor=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
 					"   <tr><td>%s</td><td width='70%'>%s</td><td>%s</td><td>%s</td></tr>\n",
 					_("Week"), 
 					weeknumber,
@@ -446,11 +447,11 @@ void calendar_brief_month_view(int year, int month, int day) {
 		
 		/** Day Header */
 		wc_strftime(weekday_name, sizeof weekday_name, "%A", &tm);
-		wprintf("<tr><td BGCOLOR='%s' colspan='1' align='left'> %s"
-			"</td><td BGCOLOR='%s' colspan='3'><hr></td></tr>\n",
-			daycolor,
-			weekday_name,
-			daycolor);
+		wprintf("<tr><td bgcolor='%s' colspan='1' align='left'> %s"
+				"</td><td bgcolor='%s' colspan='3'><hr></td></tr>\n",
+				daycolor,
+				weekday_name,
+				daycolor);
 
 		/** put the data of one day  here, stupid */
 		calendar_month_view_brief_events(thetime, daycolor);
@@ -464,8 +465,8 @@ void calendar_brief_month_view(int year, int month, int day) {
 		thetime += (time_t)86400;		/** ahead 24 hours */
 	}
 
-	wprintf("</TABLE>"			/** end of inner table */
-		"</TD></TR></TABLE>"		/** end of outer table */
+	wprintf("</table>"			/** end of inner table */
+		"</td></tr></table>"		/** end of outer table */
 		"</div>\n");
 }
 
@@ -478,7 +479,7 @@ void calendar_brief_month_view(int year, int month, int day) {
  * \param day the day which we want to see the week around
  */
 void calendar_week_view(int year, int month, int day) {
-	wprintf("<CENTER><I>week view FIXME</I></CENTER><br />\n");
+	wprintf("<center><i>week view FIXME</i></center><br />\n");
 }
 
 
@@ -538,22 +539,22 @@ void calendar_day_view_display_events(int year, int month,
 				if (p != NULL) {
 
 					if (all_day_event) {
-						wprintf("<TABLE border=1 cellpadding=2><TR>"
-							"<TD BGCOLOR=\"#CCCCCC\">"
+						wprintf("<table border=1 cellpadding=2><TR>"
+							"<td bgcolor=\"#CCCCCC\">"
 						);
 					}
 
-					wprintf("<FONT SIZE=-1>"
+					wprintf("<font size=-1>"
 						"<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
 						WC->disp_cal[i].cal_msgnum,
 						year, month, day
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT><br />\n");
+					wprintf("</a></font><br />\n");
 
 					if (all_day_event) {
-						wprintf("</TD></TR></TABLE>");
+						wprintf("</td></tr></table>");
 					}
 				}
 
@@ -607,82 +608,82 @@ void calendar_day_view(int year, int month, int day) {
 
 	/** Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
-		"bgcolor=#204B78><TR><TD>\n");
+		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"bgcolor=#204B78><tr><td>\n");
 
 	/** Inner table (the real one) */
-	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78><TR>\n");
+	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#204B78><tr>\n");
 
 	/** Innermost table (contains hours etc.) */
-	wprintf("<TD WIDTH=80%%>"
-		"<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+	wprintf("<td width=80%%>"
+		"<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#204B78>\n");
 
 	/** Display events before 8:00 (hour=-1 is all-day events) */
-	wprintf("<TR>"
-		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
-		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
+	wprintf("<tr>"
+		"<td bgcolor=\"#CCCCDD\" valign=middle width=10%%></td>"
+		"<td bgcolor=\"#FFFFFF\" valign=top>");
 	for (hour = (-1); hour <= (daystart-1); ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
-	wprintf("</TD></TR>\n");
+	wprintf("</td></tr>\n");
 
 	/** Now the middle of the day... */	
 	for (hour = daystart; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<TR HEIGHT=30><TD BGCOLOR=\"#CCCCDD\" ALIGN=MIDDLE "
-			"VALIGN=MIDDLE WIDTH=10%%>");
+		wprintf("<tr height=30><td bgcolor=\"#CCCCDD\" align=middle "
+			"valign=middle width=10%%>");
 		wprintf("<a href=\"display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			year, month, day, hour
 		);
 
 		if (!strcasecmp(calhourformat, "24")) {
-			wprintf("%2d:00</A> ", hour);
+			wprintf("%2d:00</a> ", hour);
 		}
 		else {
-			wprintf("%d:00%s</A> ",
+			wprintf("%d:00%s</a> ",
 				(hour <= 12 ? hour : hour-12),
 				(hour < 12 ? "am" : "pm")
 			);
 		}
 
-		wprintf("</TD><TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
+		wprintf("</td><td bgcolor=\"#FFFFFF\" valign=top>");
 
 		/* put the data here, stupid */
 		calendar_day_view_display_events(year, month, day, hour);
 
-		wprintf("</TD></TR>\n");
+		wprintf("</td></tr>\n");
 	}
 
 	/** Display events after 5:00... */
-	wprintf("<TR>"
-		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
-		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
+	wprintf("<tr>"
+		"<td bgcolor=\"#CCCCDD\" valign=middle width=10%%></td>"
+		"<td bgcolor=\"#FFFFFF\" valign=top>");
 	for (hour = (dayend+1); hour <= 23; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
-	wprintf("</TD></TR>\n");
+	wprintf("</td></tr>\n");
 
 
-	wprintf("</TABLE>"			/* end of innermost table */
-		"</TD>"
+	wprintf("</table>"			/* end of innermost table */
+		"</td>"
 	);
 
-	wprintf("<TD WIDTH=20%% VALIGN=top>");	/* begin stuff-on-the-right */
+	wprintf("<td width=20%% valign=top>");	/* begin stuff-on-the-right */
 
 
 	/** Begin todays-date-with-left-and-right-arrows */
-	wprintf("<TABLE BORDER=0 WIDTH=100%% "
-		"CELLSPACING=0 CELLPADDING=0 BGCOLOR=\"#FFFFFF\">\n");
-	wprintf("<TR>");
+	wprintf("<table border=0 width=100%% "
+		"cellspacing=0 cellpadding=0 bgcolor=\"#FFFFFF\">\n");
+	wprintf("<tr>");
 
 	/** Left arrow */	
-	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<td align=center>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/prevdate_32x.gif\" BORDER=0></A>");
-	wprintf("</TD>");
+	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>");
+	wprintf("</td>");
 
 	/** Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
@@ -700,26 +701,26 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("%s", d_str);
 
 	/** Right arrow */
-	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<td align=center>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/nextdate_32x.gif\""
-		" BORDER=0></A>\n");
-	wprintf("</TD>");
+	wprintf("<img align=middle src=\"static/nextdate_32x.gif\""
+		" border=0></A>\n");
+	wprintf("</td>");
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("</tr></table>\n");
 	/** End todays-date-with-left-and-right-arrows */
 
 	/** \todo In the future we might want to put a month-o-matic here */
 
-	wprintf("</FONT></CENTER>\n");
+	wprintf("</font></center>\n");
 
-	wprintf("</TD>");			/** end stuff-on-the-right */
+	wprintf("</td>");			/** end stuff-on-the-right */
 
 
 
-	wprintf("</TR></TABLE>"			/** end of inner table */
-		"</TD></TR></TABLE></div>"	/** end of outer table */
+	wprintf("</tr></table>"			/** end of inner table */
+		"</td></tr></table></div>"	/** end of outer table */
 	);
 
 
@@ -925,11 +926,11 @@ void do_tasks_view(void) {
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">\n<tr>\n"
-		"<TH>");
+		"<th>");
 	wprintf(_("Name of task"));
-	wprintf("</TH><TH>");
+	wprintf("</th><th>");
 	wprintf(_("Date due"));
-	wprintf("</TH></TR>\n"
+	wprintf("</th></tr>\n"
 	);
 
 	/** Sort them if necessary */
@@ -944,7 +945,7 @@ void do_tasks_view(void) {
 	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
 
 		bg = 1 - bg;
-		wprintf("<TR BGCOLOR=\"#%s\"><TD>",
+		wprintf("<tr bgcolor=\"#%s\"><td>",
 			(bg ? "DDDDDD" : "FFFFFF")
 		);
 
@@ -954,21 +955,21 @@ void do_tasks_view(void) {
 			WC->disp_cal[i].cal_msgnum );
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
-		wprintf("<IMG ALIGN=MIDDLE "
-			"src=\"static/taskmanag_16x.gif\" BORDER=0>&nbsp;");
+		wprintf("<img align=middle "
+			"src=\"static/taskmanag_16x.gif\" border=0>&nbsp;");
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_comment(p));
 		}
-		wprintf("</A>\n");
-		wprintf("</TD>\n");
+		wprintf("</a>\n");
+		wprintf("</td>\n");
 
 		due = get_task_due_date(WC->disp_cal[i].cal);
 		fmt_date(buf, due, 0);
-		wprintf("<TD><FONT");
+		wprintf("<td><font");
 		if (due < time(NULL)) {
-			wprintf(" COLOR=\"#FF0000\"");
+			wprintf(" color=\"#FF0000\"");
 		}
-		wprintf(">%s</FONT></TD></TR>\n", buf);
+		wprintf(">%s</font></td></tr>\n", buf);
 	}
 
 	wprintf("</table></div>\n");

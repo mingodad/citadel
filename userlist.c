@@ -43,26 +43,32 @@ void userlist(void)
 		}
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<span class=\"titlebar\">");
 	snprintf(title, sizeof title, _("User list for %s"), serv_info.serv_humannode);
 	escputs(title);
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
+	wprintf("</span>"
+		"</td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
 	serv_puts("LIST");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
+		wprintf("<em>%s</em><br />\n", &buf[4]);
 		goto DONE;
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
-	wprintf(_("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>"
-		"<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"));
+	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th>"
+			"<th>%s</th><th>%s</th><th>%s</th></tr>",
+			_("User Name"),
+			_("Number"),
+			_("Access Level"),
+			_("Last Login"),
+			_("Total Logins"),
+			_("Total Posts"));
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(fl, buf, 0, '|', sizeof fl);
@@ -72,7 +78,7 @@ void userlist(void)
 				has_bio = 1;
 		}
 		bg = 1 - bg;
-		wprintf("<TR BGCOLOR=\"#%s\"><TD>",
+		wprintf("<tr bgcolor=\"#%s\"><td>",
 			(bg ? "DDDDDD" : "FFFFFF")
 		);
 		if (has_bio) {
@@ -84,7 +90,7 @@ void userlist(void)
 		} else {
 			escputs(fl);
 		}
-		wprintf("</TD><TD>%ld</TD><TD>%d</TD><TD>",
+		wprintf("</td><td>%ld</td><td>%d</td><td>",
 			extract_long(buf, 2),
 			extract_int(buf, 1));
 		lc = extract_long(buf, 3);
@@ -95,7 +101,7 @@ void userlist(void)
 			(tmbuf.tm_year + 1900));
 
 
-		wprintf("</TD><TD>%ld</TD><TD>%5ld</TD></TR>\n",
+		wprintf("</td><td>%ld</td><td>%5ld</td></tr>\n",
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
@@ -117,12 +123,12 @@ void showuser(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
-		"<TD><img src=\"static/usermanag_48x.gif\"></TD>"
-		"<td align=left><SPAN CLASS=\"titlebar\">");
+		"<table width=100%% border=0 bgcolor=\"#444455\"><tr>"
+		"<td><img src=\"static/usermanag_48x.gif\"></td>"
+		"<td align=left><span class=\"titlebar\">");
 	wprintf(_("User profile"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
+	wprintf("</span>"
+		"</td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
@@ -139,13 +145,13 @@ void showuser(void)
 		have_pic = 0;
 	}
 
-	wprintf("<CENTER><TABLE><TR><TD>");
+	wprintf("<center><table><tr><td>");
 	if (have_pic == 1) {
 		wprintf("<img src=\"image&name=_userpic_&parm=");
 		urlescputs(who);
 		wprintf("\">");
 	}
-	wprintf("</TD><TD><H1>%s</H1></TD></TR></TABLE></CENTER>\n", who);
+	wprintf("</td><td><h1>%s</h1></td></tr></table></center>\n", who);
 	serv_printf("RBIO %s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
@@ -155,10 +161,10 @@ void showuser(void)
 	urlescputs(who);
 	wprintf("\">"
 		"<img src=\"static/citadelchat_24x.gif\" "
-		"ALIGN=MIDDLE BORDER=0>&nbsp;&nbsp;");
+		"align=middle border=0>&nbsp;&nbsp;");
 	snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
 	escputs(buf);
-	wprintf("</A>\n");
+	wprintf("</a>\n");
 
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);

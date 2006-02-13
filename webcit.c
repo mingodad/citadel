@@ -445,8 +445,8 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 		/** check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (strlen(WC->ImportantMessage) > 0) {
 			wprintf("<div id=\"important_message\">\n");
-			wprintf("<SPAN CLASS=\"imsg\">"
-				"%s</SPAN><br />\n", WC->ImportantMessage);
+			wprintf("<span class=\"imsg\">"
+				"%s</span><br />\n", WC->ImportantMessage);
 			wprintf("</div>\n");
 			wprintf("<script type=\"text/javascript\">\n"
 				"	 setTimeout('hide_imsg_popup()', 3000);	\n"
@@ -732,9 +732,9 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 	wprintf("HTTP/1.1 200 OK\n");
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
-	wprintf("<SPAN CLASS=\"titlebar\">%s</SPAN>\n", titlebarmsg);
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
+	wprintf("<span class=\"titlebar\">%s</span>\n", titlebarmsg);
+	wprintf("</td></tr></table>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 	escputs(messagetext);
 
@@ -767,9 +767,9 @@ void url_do_template(void) {
 void offer_start_page(void) {
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
-	wprintf("\"><FONT SIZE=-2 COLOR=\"#AAAAAA\">");
+	wprintf("\"><font size=-2 color=\"#AAAAAA\">");
 	wprintf(_("Make this my start page"));
-	wprintf("</FONT></A>");
+	wprintf("</font></a>");
 /*
 	wprintf("<br/><a href=\"rss?room=");
 	urlescputs(WC->wc_roomname);

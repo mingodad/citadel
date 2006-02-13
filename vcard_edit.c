@@ -178,41 +178,41 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	/** Display the form */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">"
+		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<span class=\"titlebar\">"
 		"<img src=\"static/savecontact_48x.gif\">");
 	wprintf(_("Edit contact information"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
+	wprintf("</span>"
+		"</td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<FORM METHOD=\"POST\" action=\"submit_vcard\">\n");
+	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-	wprintf("<TABLE border=0><TR>"
-		"<TD>%s</TD>"
-		"<TD>%s</TD>"
-		"<TD>%s</TD>"
-		"<TD>%s</TD>"
-		"<TD>%s</TD></TR>\n",
+	wprintf("<table border=0><tr>"
+		"<td>%s</td>"
+		"<td>%s</td>"
+		"<td>%s</td>"
+		"<td>%s</td>"
+		"<td>%s</td></tr>\n",
 		_("Prefix"), _("First"), _("Middle"), _("Last"), _("Suffix")
 	);
-	wprintf("<TR><TD><INPUT TYPE=\"text\" NAME=\"prefix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"5\" SIZE=\"5\"></TD>",
+	wprintf("<tr><td><input type=\"text\" name=\"prefix\" "
+		"value=\"%s\" maxlength=\"5\" size=\"5\"></td>",
 		prefix);
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"firstname\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+	wprintf("<td><input type=\"text\" name=\"firstname\" "
+		"value=\"%s\" maxlength=\"29\"></td>",
 		firstname);
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"middlename\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+	wprintf("<td><input type=\"text\" name=\"middlename\" "
+		"value=\"%s\" maxlength=\"29\"></td>",
 		middlename);
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"lastname\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+	wprintf("<td><input type=\"text\" name=\"lastname\" "
+		"value=\"%s\" maxlength=\"29\"></td>",
 		lastname);
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"suffix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"10\" SIZE=\"10\"></TD></TR></TABLE>\n",
+	wprintf("<td><input type=\"text\" name=\"suffix\" "
+		"value=\"%s\" maxlength=\"10\" size=\"10\"></td></tr></table>\n",
 		suffix);
 
 	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
@@ -220,22 +220,22 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf(_("Display name:"));
 	wprintf("<br>"
-		"<INPUT TYPE=\"text\" NAME=\"fullname\" "
-		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		"<input type=\"text\" name=\"fullname\" "
+		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		fullname
 	);
 
 	wprintf(_("Title:"));
 	wprintf("<br>"
-		"<INPUT TYPE=\"text\" NAME=\"title\" "
-		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		"<input type=\"text\" name=\"title\" "
+		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		title
 	);
 
 	wprintf(_("Organization:"));
 	wprintf("<br>"
-		"<INPUT TYPE=\"text\" NAME=\"org\" "
-		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		"<input type=\"text\" name=\"org\" "
+		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		org
 	);
 
@@ -245,93 +245,93 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf("<tr><td>");
 	wprintf(_("PO box:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"pobox\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
+		"<input type=\"text\" name=\"pobox\" "
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		pobox);
 	wprintf("<tr><td>");
 	wprintf(_("Address:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"extadr\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
+		"<input type=\"text\" name=\"extadr\" "
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		extadr);
 	wprintf("<tr><td> </td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"street\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
+		"<input type=\"text\" name=\"street\" "
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		street);
 	wprintf("<tr><td>");
 	wprintf(_("City:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"city\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
+		"<input type=\"text\" name=\"city\" "
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		city);
 	wprintf("<tr><td>");
 	wprintf(_("State:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"state\" "
-		"VALUE=\"%s\" MAXLENGTH=\"2\"></td></tr>\n",
+		"<input type=\"text\" name=\"state\" "
+		"value=\"%s\" maxlength=\"2\"></td></tr>\n",
 		state);
 	wprintf("<tr><td>");
 	wprintf(_("ZIP code:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"zipcode\" "
-		"VALUE=\"%s\" MAXLENGTH=\"10\"></td></tr>\n",
+		"<input type=\"text\" name=\"zipcode\" "
+		"value=\"%s\" maxlength=\"10\"></td></tr>\n",
 		zipcode);
 	wprintf("<tr><td>");
 	wprintf(_("Country:"));
 	wprintf("</td><td>"
-		"<INPUT TYPE=\"text\" NAME=\"country\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\" WIDTH=\"5\"></td></tr>\n",
+		"<input type=\"text\" name=\"country\" "
+		"value=\"%s\" maxlength=\"29\" width=\"5\"></td></tr>\n",
 		country);
 	wprintf("</table>\n");
 
 	wprintf("</table>\n");
 
-	wprintf("<TABLE BORDER=0><TR><TD>");
+	wprintf("<table border=0><tr><td>");
 	wprintf(_("Home telephone:"));
-	wprintf("</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"hometel\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>\n",
+	wprintf("</td>"
+		"<td><input type=\"text\" name=\"hometel\" "
+		"value=\"%s\" maxlength=\"29\"></td>\n",
 		hometel);
-	wprintf("<TD>");
+	wprintf("<td>");
 	wprintf(_("Work telephone:"));
-	wprintf("</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"worktel\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
+	wprintf("</td>"
+		"<td><input type=\"text\" name=\"worktel\" "
+		"value=\"%s\" maxlength=\"29\"></td></tr></table>\n",
 		worktel);
 
 	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
 	wprintf("<tr><td>");
 
-	wprintf("<TABLE border=0><TR>"
-		"<TD VALIGN=TOP>");
+	wprintf("<table border=0><TR>"
+		"<td valign=top>");
 	wprintf(_("Primary Internet e-mail address"));
 	wprintf("<br />"
-		"<INPUT TYPE=\"text\" NAME=\"primary_inetemail\" "
-		"SIZE=40 MAXLENGTH=40 VALUE=\"");
+		"<input type=\"text\" name=\"primary_inetemail\" "
+		"size=40 maxlength=40 value=\"");
 	escputs(primary_inetemail);
 	wprintf("\"><br />"
-		"</TD><TD VALIGN=TOP>");
+		"</td><td valign=top>");
 	wprintf(_("Internet e-mail aliases"));
 	wprintf("<br />"
-		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
+		"<textarea name=\"other_inetemail\" rows=5 cols=40 width=40>");
 	escputs(other_inetemail);
-	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
+	wprintf("</textarea></td></tr></table>\n");
 
 	wprintf("</td></tr></table>\n");
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
+	wprintf("<input type=\"hidden\" name=\"extrafields\" value=\"");
 	escputs(extrafields);
 	wprintf("\">\n");
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"return_to\" VALUE=\"");
+	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"");
 	urlescputs(return_to);
 	wprintf("\">\n");
 
-	wprintf("<CENTER>\n"
-		"<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
+	wprintf("<center>\n"
+		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
-		"</CENTER></FORM>\n",
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
+		"</center></form>\n",
 		_("Save changes"),
 		_("Cancel")
 	);
