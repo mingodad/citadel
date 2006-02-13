@@ -49,6 +49,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	struct tm tm;
 	const int span = 10;
 	int all_day_event = 0;
+	time_t monthselect_time;
+	struct tm monthselect_tm;
+	char monthselect_str[32];
 	char calhourformat[16];
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
@@ -70,10 +73,13 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf(_("Month: "));
 	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=11; ++i) {
+		monthselect_time = 1137997451 + (i * 2592000);
+		localtime_r(&monthselect_time, &monthselect_tm);
+		wc_strftime(monthselect_str, sizeof monthselect_str, "%B", &monthselect_tm);
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
 			((tm.tm_mon == i) ? "SELECTED" : ""),
 			i+1,
-			monthname(i)
+			monthselect_str
 		);
 	}
 	wprintf("</SELECT>\n");

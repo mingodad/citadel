@@ -84,35 +84,6 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	}
 }
 
-/**
- * \brief	Convenience function to return a month name
- *
- * \param	m		Numeric month
- */
-char *monthname(int m)
-{
-	static char months[12][32];
-	static int initialized = 0;
-
-	time_t tt;
-	struct tm tm;
-	int i;
-
-	if (!initialized) {
-		for (i=0; i<12; ++i) {
-			tt = 1137997451 + (i * 2592000);
-			localtime_r(&tt, &tm);
-			wc_strftime(months[i], 32, "%B", &tm);
-			lprintf(9, "%s\n", months[i]);
-		}
-	}
-	initialized = 1;
-
-	return months[m];
-		
-}
-
-
 
 /**
  * \brief Format TIME ONLY for output 

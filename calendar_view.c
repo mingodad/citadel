@@ -578,6 +578,8 @@ void calendar_day_view(int year, int month, int day) {
 	int daystart = 8;
 	int dayend = 17;
 	char daystart_str[16], dayend_str[16];
+	struct tm d_tm;
+	char d_str[128];
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 	get_preference("daystart", daystart_str, sizeof daystart_str);
@@ -683,13 +685,19 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</TD>");
 
 	/** Today's date */
-	wprintf("<TD ALIGN=CENTER>");
-	wprintf("<FONT SIZE=+2>%s</FONT><br />"
-		"<FONT SIZE=+3>%d</FONT><br />"
-		"<FONT SIZE=+2>%d</FONT><br />",
-		monthname(month-1),
-		day, year);
-	wprintf("</TD>");
+	memset(&d_tm, 0, sizeof d_tm);
+	d_tm.tm_year = year - 1900;
+	d_tm.tm_mon = month - 1;
+	d_tm.tm_mday = day;
+	wc_strftime(d_str, sizeof d_str,
+		"<td align=center>"
+		"<font size=+2>%B</font><br />"
+		"<font size=+3>%d</font><br />"
+		"<font size=+2>%Y</font><br />"
+		"</td>",
+		&d_tm
+	);
+	wprintf("%s", d_str);
 
 	/** Right arrow */
 	wprintf("<TD ALIGN=CENTER>");
