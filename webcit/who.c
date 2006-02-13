@@ -142,18 +142,18 @@ void who(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<img src=\"static/usermanag_48x.gif\" ALT=\" \" "
-		"ALIGN=MIDDLE "
+	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<img src=\"static/usermanag_48x.gif\" alt=\" \" "
+		"align=middle "
 		">");
-	wprintf("<SPAN CLASS=\"titlebar\"> ");
+	wprintf("<span class=\"titlebar\"> ");
 
 	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
 	escputs(title);
 
-	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
+	wprintf("</span></td><td align=right>");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 	wprintf("</div>\n");
 
 	wprintf("<div id=\"content\">\n");
@@ -223,10 +223,10 @@ void edit_me(void)
 		output_headers(1, 1, 0, 0, 0, 0);
 
 		wprintf("<div id=\"banner\">\n");
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-		wprintf("<SPAN CLASS=\"titlebar\">");
+		wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+		wprintf("<span class=\"titlebar\">");
 		wprintf(_("Edit your session display"));
-		wprintf("</SPAN></TD></TR></TABLE>\n");
+		wprintf("</span></td></tr></table>\n");
 		wprintf("</div>\n<div id=\"content\">\n");
 
 		wprintf(_("This screen allows you to change the way your "
@@ -249,30 +249,30 @@ void edit_me(void)
 			_("Change room name"));
 		wprintf("</td>\n</tr>\n");
 
-		wprintf("<TR><TD><B>");
+		wprintf("<tr><td><b>");
 		wprintf(_("Host name:"));
-		wprintf("</B></TD><TD>");
-		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
-		wprintf("</TD>\n<TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"change_host_name_button\" VALUE=\"%s\">",
+		wprintf("</b></td><td>");
+		wprintf("<input type=\"text\" name=\"fake_hostname\" maxlength=\"64\">\n");
+		wprintf("</td>\n<td align=center>");
+		wprintf("<input type=\"submit\" name=\"change_host_name_button\" value=\"%s\">",
 			_("Change host name"));
-		wprintf("</TD>\n</TR>\n");
+		wprintf("</td>\n</tr>\n");
 
 		if (WC->is_aide) {
-			wprintf("<TR><TD><B>");
+			wprintf("<tr><td><b>");
 			wprintf(_("User name:"));
-			wprintf("</B></TD><TD>");
-			wprintf("<INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
-			wprintf("</TD>\n<TD ALIGN=center>");
-			wprintf("<INPUT TYPE=\"submit\" NAME=\"change_user_name_button\" VALUE=\"%s\">",
+			wprintf("</b></td><td>");
+			wprintf("<input type=\"text\" name=\"fake_username\" maxlength=\"64\">\n");
+			wprintf("</td>\n<td align=center>");
+			wprintf("<input type=\"submit\" name \"change_user_name_button\" value=\"%s\">",
 				_("Change user name"));
-			wprintf("</TD>\n</TR>\n");
+			wprintf("</td>\n</tr>\n");
 		}
-		wprintf("<TR><TD> </TD><TD> </TD><TD ALIGN=center>");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">",
+		wprintf("<tr><td> </td><td> </td><td align=center>");
+		wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">",
 			_("Cancel"));
-		wprintf("</TD></TR></TABLE>\n");
-		wprintf("</FORM></CENTER>\n");
+		wprintf("</td></tr></table>\n");
+		wprintf("</form></center>\n");
 		wDumpContent(1);
 	}
 }

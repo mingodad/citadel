@@ -53,7 +53,7 @@ void new_messages_section(void) {
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
 	if (number_of_rooms_to_check == 0) return;
 
-	wprintf("<TABLE BORDER=0 WIDTH=100%%>\n");
+	wprintf("<table border=0 width=100%%>\n");
 	for (i=0; i<number_of_rooms_to_check; ++i) {
 		extract_token(room, rooms_to_check, i, '|', sizeof room);
 
@@ -61,17 +61,17 @@ void new_messages_section(void) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			extract_token(room, &buf[4], 0, '|', sizeof room);
-			wprintf("<TR><TD><a href=\"dotgoto?room=");
+			wprintf("<tr><td><a href=\"dotgoto?room=");
 			urlescputs(room);
 			wprintf("\">");
 			escputs(room);
-			wprintf("</A></TD><TD>%d/%d</TD></TR>\n",
+			wprintf("</a></td><td>%d/%d</td></tr>\n",
 				extract_int(&buf[4], 1),
 				extract_int(&buf[4], 2)
 			);
 		}
 	}
-	wprintf("</TABLE>\n");
+	wprintf("</table>\n");
 	do_template("endbox");
 
 }
@@ -131,9 +131,9 @@ void tasks_section(void) {
 	calendar_summary_view();
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<I>");
+	wprintf("<i>");
 	wprintf(_("(This server does not support task lists)"));
-	wprintf("</I>\n");
+	wprintf("</i>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
@@ -172,9 +172,9 @@ void calendar_section(void) {
 	}
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<I>");
+	wprintf("<i>");
 	wprintf(_("(This server does not support calendars)"));
-	wprintf("</I>\n");
+	wprintf("</i>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
@@ -251,19 +251,19 @@ void summary(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
-		"<TD><img src=\"static/summscreen_48x.gif\"></TD><TD>"
-		"<SPAN CLASS=\"titlebar\">"
+	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+		"<td><img src=\"static/summscreen_48x.gif\"></td><td>"
+		"<span class=\"titlebar\">"
 	);
 
 	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
 	escputs(title);
-	wprintf("</SPAN></TD><TD>\n");
-	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
+	wprintf("</span></td><td>\n");
+	wprintf("</td><td aling=right><span class=\"titlebar\">");
 	output_date();
-	wprintf("</SPAN><br />");
+	wprintf("</span><br />");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	/**
 	 * You guessed it ... we're going to refresh using ajax.

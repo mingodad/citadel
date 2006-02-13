@@ -33,22 +33,22 @@ void display_siteconfig(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<span class=\"titlebar\">");
 	wprintf(_("Site configuration"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
+	wprintf("</span>"
+		"</td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-        	wprintf("<SPAN CLASS=\"titlebar\">");
+        	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+        	wprintf("<span class=\"titlebar\">");
 		wprintf(_("Error"));
-		wprintf("</SPAN>\n");
-        	wprintf("</TD></TR></TABLE><br />\n");
+		wprintf("</span>\n");
+        	wprintf("</td></tr></table><br />\n");
         	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
@@ -108,182 +108,182 @@ void display_siteconfig(void)
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch (i++) {
 		case 0:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Node name"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_nodename\" maxlength=\"15\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 1:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Fully qualified domain name"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_fqdn\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_fqdn\" maxlength=\"63\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 2:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Human-readable node name"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_humannode\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_humannode\" maxlength=\"20\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 3:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Telephone number"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_phonenum\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_phonenum\" maxlength=\"15\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 4:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Automatically grant room-aide status to users who create private rooms"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_creataide\" VALUE=\"yes\" %s>",
-				((atoi(buf) != 0) ? "CHECKED" : ""));
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" name=\"c_creataide\" value=\"yes\" %s>",
+				((atoi(buf) != 0) ? "checked" : ""));
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 5:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Server connection idle timeout (in seconds)"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_sleeping\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_sleeping\" maxlength=\"15\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 6:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Initial access level for new users"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<SELECT NAME=\"c_initax\" SIZE=\"1\">\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<select name=\"c_initax\" size=\"1\">\n");
 			for (j=0; j<=6; ++j) {
-				sprintf(&access[strlen(access)], "<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
-					((atoi(buf) == j) ? "SELECTED" : ""),
+				sprintf(&access[strlen(access)], "<option %s value=\"%d\">%d - %s</option>\n",
+					((atoi(buf) == j) ? "selected" : ""),
 					j, j, axdefs[j]
 				);
 			}
-			sprintf(&access[strlen(access)], "</SELECT>");
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</select>");
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 7:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Require registration for new users"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_regiscall\" VALUE=\"yes\" %s>",
-				((atoi(buf) != 0) ? "CHECKED" : ""));
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" name=\"c_regiscall\" value=\"yes\" %s>",
+				((atoi(buf) != 0) ? "checked" : ""));
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 8:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Quarantine messages from problem users"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_twitdetect\" VALUE=\"yes\" %s>",
-				((atoi(buf) != 0) ? "CHECKED" : ""));
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" name=\"c_twitdetect\" value=\"yes\" %s>",
+				((atoi(buf) != 0) ? "checked" : ""));
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 9:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Name of quarantine room"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"text\" NAME=\"c_twitroom\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"text\" name=\"c_twitroom\" maxlength=\"63\" value=\"%s\">", buf);
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 10:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Paginator prompt (for text mode clients)"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_moreprompt\" MAXLENGTH=\"79\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_moreprompt\" maxlength=\"79\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 11:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Restrict access to Internet mail"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"checkbox\" NAME=\"c_restrict\" VALUE=\"yes\" %s>",
-				((atoi(buf) != 0) ? "CHECKED" : ""));
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"checkbox\" name=\"c_restrict\" value=\"yes\" %s>",
+				((atoi(buf) != 0) ? "checked" : ""));
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 12:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Geographic location of this system"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_bbs_city\" MAXLENGTH=\"31\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_bbs_city\" maxlength=\"31\" value=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 13:
-			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], "<tr><td>");
 			sprintf(&general[strlen(general)], _("Name of system administrator"));
-			sprintf(&general[strlen(general)], "</TD><TD>");
-			sprintf(&general[strlen(general)], "<input type=\"text\" NAME=\"c_sysadm\" MAXLENGTH=\"25\" VALUE=\"%s\">", buf);
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&general[strlen(general)], "</td><td>");
+			sprintf(&general[strlen(general)], "<input type=\"text\" name=\"c_sysadm\" MAXLENGTH=\"25\" VALUE=\"%s\">", buf);
+			sprintf(&general[strlen(general)], "</td></tr>\n");
 			break;
 		case 14:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Maximum concurrent sessions (0 = no limit)"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_maxsessions\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 16:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Default user purge time (days)"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_userpurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_userpurge\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 17:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Default room purge time (days)"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_roompurge\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_roompurge\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 18:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Name of room to log pages"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<input type=\"text\" NAME=\"c_logpages\" MAXLENGTH=\"63\" VALUE=\"%s\">", buf);
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<input type=\"text\" name=\"c_logpages\" maxlength=\"63\" value=\"%s\">", buf);
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 19:
-			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], "<tr><td>");
 			sprintf(&access[strlen(access)], _("Access level required to create rooms"));
-			sprintf(&access[strlen(access)], "</TD><TD>");
-			sprintf(&access[strlen(access)], "<SELECT NAME=\"c_createax\" SIZE=\"1\">\n");
+			sprintf(&access[strlen(access)], "</td><td>");
+			sprintf(&access[strlen(access)], "<select name=\"c_createax\" size=\"1\">\n");
 			for (j=0; j<=6; ++j) {
-				sprintf(&access[strlen(access)], "<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
-					((atoi(buf) == j) ? "SELECTED" : ""),
+				sprintf(&access[strlen(access)], "<option %s value=\"%d\">%d - %s</option>\n",
+					((atoi(buf) == j) ? "selected" : ""),
 					j, j, axdefs[j]
 				);
 			}
-			sprintf(&access[strlen(access)], "</SELECT>");
-			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</select>");
+			sprintf(&access[strlen(access)], "</td></tr>\n");
 			break;
 		case 20:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Maximum message length"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_maxmsglen\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_maxmsglen\" maxlength=\"20\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 21:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Minimum number of worker threads"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_min_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_min_workers\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 22:
-			sprintf(&tuning[strlen(tuning)], "<TR><TD>");
+			sprintf(&tuning[strlen(tuning)], "<tr><td>");
 			sprintf(&tuning[strlen(tuning)], _("Maximum number of worker threads"));
-			sprintf(&tuning[strlen(tuning)], "</TD><TD>");
-			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" NAME=\"c_max_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&tuning[strlen(tuning)], "</TD></TR>\n");
+			sprintf(&tuning[strlen(tuning)], "</td><td>");
+			sprintf(&tuning[strlen(tuning)], "<input type=\"text\" name=\"c_max_workers\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 23:
-			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], "<tr><td>");
 			sprintf(&network[strlen(network)], _("POP3 listener port (-1 to disable)"));
-			sprintf(&network[strlen(network)], "</TD><TD>");
-			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pop3_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</td><td>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" name=\"c_pop3_port\" maxlength=\"5\" value=\"%s\">", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 24:

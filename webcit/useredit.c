@@ -35,7 +35,7 @@ void select_user_to_edit(char *message, char *preselect)
 
 	if (message != NULL) wprintf(message);
 
-	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP><TD>\n");
+	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Add users"));
 	do_template("beginbox");
@@ -44,15 +44,15 @@ void select_user_to_edit(char *message, char *preselect)
 		"user name in the box below and click 'Create'."));
 	wprintf("<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"create_user\">\n");
+        wprintf("<center><form method=\"POST\" action=\"create_user\">\n");
         wprintf(_("New user: "));
         wprintf("<input type=\"text\" name=\"username\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
-		"</FORM></CENTER>\n", _("Create"));
+		"</form></center>\n", _("Create"));
 
 	do_template("endbox");
 
-	wprintf("</TD><TD>");
+	wprintf("</td><td>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
 	do_template("beginbox");
@@ -61,33 +61,33 @@ void select_user_to_edit(char *message, char *preselect)
 		"name from the list and click 'Edit'."));
 	wprintf("<br /><br />");
 	
-        wprintf("<CENTER>"
-		"<FORM METHOD=\"POST\" action=\"display_edituser\">\n");
-        wprintf("<SELECT NAME=\"username\" SIZE=10 STYLE=\"width:100%%\">\n");
+        wprintf("<center>"
+		"<form method=\"POST\" action=\"display_edituser\">\n");
+        wprintf("<select name=\"username\" size=10 style=\"width:100%%\">\n");
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
                 while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
                         extract_token(username, buf, 0, '|', sizeof username);
-                        wprintf("<OPTION");
+                        wprintf("<option");
 			if (preselect != NULL)
 			   if (!strcasecmp(username, preselect))
-			      wprintf(" SELECTED");
+			      wprintf(" selected");
 			wprintf(">");
                         escputs(username);
                         wprintf("\n");
                 }
         }
-        wprintf("</SELECT><br />\n");
+        wprintf("</select><br />\n");
 
         wprintf("<input type=\"submit\" name=\"edit_config_button\" value=\"%s\">", _("Edit configuration"));
         wprintf("<input type=\"submit\" name=\"edit_abe_button\" value=\"%s\">", _("Edit address book entry"));
         wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete user"), _("Delete this user?"));
-        wprintf("</FORM></CENTER>\n");
+        wprintf("</form></center>\n");
 	do_template("endbox");
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	wDumpContent(1);
 }
@@ -189,7 +189,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(error_message,
-				"<img src=\"static/error.gif\" ALIGN=CENTER>"
+				"<img src=\"static/error.gif\" align=center>"
 				"%s<br /><br />\n", &buf[4]);
 			select_user_to_edit(error_message, username);
 			return;
@@ -200,7 +200,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 
 	if (vcard_msgnum < 0) {
 		sprintf(error_message,
-			"<img src=\"static/error.gif\" ALIGN=CENTER>%s<br /><br />\n",
+			"<img src=\"static/error.gif\" align=center>%s<br /><br />\n",
 			_("An error occurred while trying to create or edit this address book entry.")
 		);
 		select_user_to_edit(error_message, username);
@@ -250,7 +250,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(error_message,
-			"<img src=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" align=center>"
 			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, username);
 		return;
@@ -278,109 +278,109 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<span class=\"titlebar\">");
 	wprintf(_("Edit user account: "));
 	escputs(username);
-	wprintf("</SPAN></TD></TR></TABLE>\n");
+	wprintf("</span></td></tr></table>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
-	wprintf("<FORM METHOD=\"POST\" action=\"edituser\">\n"
-		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
+	wprintf("<form method=\"POST\" action=\"edituser\">\n"
+		"<input type=\"hidden\" name=\"username\" value=\"");
 	escputs(username);
 	wprintf("\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"is_new\" VALUE=\"%d\">\n"
-		"<INPUT TYPE=\"hidden\" NAME=\"usernum\" VALUE=\"%ld\">\n",
+	wprintf("<input type=\"hidden\" name=\"is_new\" value=\"%d\">\n"
+		"<input type=\"hidden\" name=\"usernum\" value=\"%ld\">\n",
 		is_new, usernum);
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"flags\" VALUE=\"%d\">\n", flags);
+	wprintf("<input type=\"hidden\" name=\"flags\" value=\"%d\">\n", flags);
 
-	wprintf("<CENTER><TABLE>");
+	wprintf("<center><table>");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Password"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"password\" NAME=\"password\" VALUE=\"");
+	wprintf("</td><td>"
+		"<input type=\"password\" name=\"password\" value=\"");
 	escputs(password);
-	wprintf("\" MAXLENGTH=\"20\"></TD></TR>\n");
+	wprintf("\" maxlength=\"20\"></td></tr>\n");
 
 	wprintf("<tr><td>");
 	wprintf(_("Permission to send Internet mail"));
 	wprintf("</td><td>");
 	wprintf("<input type=\"checkbox\" name=\"inetmail\" value=\"yes\" ");
 	if (flags & US_INTERNET) {
-		wprintf("CHECKED ");
+		wprintf("checked ");
 	}
 	wprintf("></td></tr>\n");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Number of logins"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"timescalled\" VALUE=\"");
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"timescalled\" value=\"");
 	wprintf("%d", timescalled);
-	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
+	wprintf("\" maxlength=\"6\"></td></tr>\n");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Messages submitted"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"msgsposted\" VALUE=\"");
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"msgsposted\" value=\"");
 	wprintf("%d", msgsposted);
-	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
+	wprintf("\" maxlength=\"6\"></td></tr>\n");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Access level"));
-	wprintf("</TD><TD>"
-		"<SELECT NAME=\"axlevel\">\n");
+	wprintf("</td><td>"
+		"<select name=\"axlevel\">\n");
 	for (i=0; i<7; ++i) {
-		wprintf("<OPTION ");
+		wprintf("<option ");
 		if (axlevel == i) {
-			wprintf("SELECTED ");
+			wprintf("selected ");
 		}
-		wprintf("VALUE=\"%d\">%d - %s</OPTION>\n",
+		wprintf("value=\"%d\">%d - %s</option>\n",
 			i, i, axdefs[i]);
 	}
-	wprintf("</SELECT></TD></TR>\n");
+	wprintf("</select></td></tr>\n");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("User ID number"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"usernum\" VALUE=\"");
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"usernum\" value=\"");
 	wprintf("%ld", usernum);
-	wprintf("\" MAXLENGTH=\"7\"></TD></TR>\n");
+	wprintf("\" maxlength=\"7\"></td></tr>\n");
 
 	now = time(NULL);
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Date and time of last login"));
-	wprintf("</TD><TD>"
-		"<SELECT NAME=\"lastcall\">\n");
+	wprintf("</td><td>"
+		"<select name=\"lastcall\">\n");
 
-	wprintf("<OPTION SELECTED VALUE=\"%ld\">", lastcall);
+	wprintf("<option selected value=\"%ld\">", lastcall);
 	escputs(asctime(localtime(&lastcall)));
-	wprintf("</OPTION>\n");
+	wprintf("</option>\n");
 
-	wprintf("<OPTION VALUE=\"%ld\">", now);
+	wprintf("<option value=\"%ld\">", now);
 	escputs(asctime(localtime(&now)));
-	wprintf("</OPTION>\n");
+	wprintf("</option>\n");
 
-	wprintf("</SELECT></TD></TR>");
+	wprintf("</select></td></tr>");
 
-	wprintf("<TR><TD>");
+	wprintf("<tr><td>");
 	wprintf(_("Auto-purge after this many days"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"purgedays\" VALUE=\"");
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"purgedays\" value=\"");
 	wprintf("%d", purgedays);
-	wprintf("\" MAXLENGTH=\"5\"></TD></TR>\n");
+	wprintf("\" maxlength=\"5\"></td></tr>\n");
 
-	wprintf("</TABLE>\n");
+	wprintf("</table>\n");
 
-	wprintf("<INPUT type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">\n"
+	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">\n"
 		"&nbsp;"
-		"<INPUT type=\"submit\" NAME=\"cancel\" VALUE=\"%s\">\n"
-		"<br /><br /></FORM>\n", _("Save changes"), _("Cancel"));
+		"<input type=\"submit\" name=\"cancel\" value=\"%s\">\n"
+		"<br /><br /></form>\n", _("Save changes"), _("Cancel"));
 
-	wprintf("</CENTER>\n");
+	wprintf("</center>\n");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 
@@ -424,7 +424,7 @@ void edituser(void) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
 			sprintf(message,
-				"<img src=\"static/error.gif\" ALIGN=CENTER>"
+				"<img src=\"static/error.gif\" align=center>"
 				"%s<br /><br />\n", &buf[4]);
 		}
 		else {
@@ -456,7 +456,7 @@ void delete_user(char *username) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		sprintf(message,
-			"<img src=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" align=center>"
 			"%s<br /><br />\n", &buf[4]);
 	}
 	else {
@@ -488,7 +488,7 @@ void create_user(void) {
 	}
 	else {
 		sprintf(error_message,
-			"<img src=\"static/error.gif\" ALIGN=CENTER>"
+			"<img src=\"static/error.gif\" align=center>"
 			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, NULL);
 	}
