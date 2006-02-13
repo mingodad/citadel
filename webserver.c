@@ -201,13 +201,29 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
  */
 ssize_t client_write(const void *buf, size_t count)
 {
+	char *newptr;
+	size_t newalloc;
 
 	if (WC->burst != NULL) {
-		WC->burst =
-		    realloc(WC->burst, (WC->burst_len + count + 2));
-		memcpy(&WC->burst[WC->burst_len], buf, count);
-		WC->burst_len += count;
-		return (count);
+		if ((WC->burst_len + count) >= WC->burst_alloc) {
+			newalloc = (WC->burst_alloc * 2);
+			if ((WC->burst_len + count) >= newalloc) {
+				newalloc += count;
+			}
+			newptr = realloc(WC->burst, newalloc);
+			if (newptr != NULL) {
+				WC->burst = newptr;
+				WC->burst_alloc = newalloc;
+			}
+		}
+		if ((WC->burst_len + count) < WC->burst_alloc) {
+			memcpy(&WC->burst[WC->burst_len], buf, count);
+			WC->burst_len += count;
+			return (count);
+		}
+		else {
+			return(-1);
+		}
 	}
 #ifdef HAVE_OPENSSL
 	if (is_https) {
@@ -233,7 +249,8 @@ void begin_burst(void)
 		WC->burst = NULL;
 	}
 	WC->burst_len = 0;
-	WC->burst = malloc(SIZ);
+	WC->burst_alloc = 32768;
+	WC->burst = malloc(WC->burst_alloc);
 }
 
 
@@ -316,6 +333,7 @@ void end_burst(void)
 	the_data = WC->burst;
 
 	WC->burst_len = 0;
+	WC->burst_alloc = 0;
 	WC->burst = NULL;
 
 #ifdef HAVE_ZLIB
