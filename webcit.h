@@ -148,27 +148,27 @@ extern locale_t wc_locales[];
  *
  * bucket one...
  */
-#define QR_PERMANENT	1		/**< Room does not purge	      */
-#define QR_INUSE	    2		/**< Set if in use, clear if avail    */
-#define QR_PRIVATE	    4		/**< Set for any type of private room */
-#define QR_PASSWORDED	8		/**< Set if there's a password too    */
-#define QR_GUESSNAME	16		/**< Set if it's a guessname room     */
-#define QR_DIRECTORY	32		/**< Directory room		   */
-#define QR_UPLOAD	64	    	/**< Allowed to upload		*/
-#define QR_DOWNLOAD	128		    /**< Allowed to download	      */
-#define QR_VISDIR	256		    /**< Visible directory		*/
-#define QR_ANONONLY	512		    /**< Anonymous-Only room	      */
-#define QR_ANONOPT	1024		/**< Anonymous-Option room	    */
-#define QR_NETWORK	2048		/**< Shared network room	      */
-#define QR_PREFONLY	4096		/**< Preferred status needed to enter */
-#define QR_READONLY	8192		/**< Aide status required to post     */
-#define QR_MAILBOX	16384		/**< Set if this is a private mailbox */
+#define QR_PERMANENT	1		/**< Room does not purge		*/
+#define QR_INUSE	2		/**< Set if in use, clear if avail	*/
+#define QR_PRIVATE	4		/**< Set for any type of private room	*/
+#define QR_PASSWORDED	8		/**< Set if there's a password too	*/
+#define QR_GUESSNAME	16		/**< Set if it's a guessname room	*/
+#define QR_DIRECTORY	32		/**< Directory room			*/
+#define QR_UPLOAD	64	    	/**< Allowed to upload			*/
+#define QR_DOWNLOAD	128		/**< Allowed to download		*/
+#define QR_VISDIR	256		/**< Visible directory			*/
+#define QR_ANONONLY	512		/**< Anonymous-Only room		*/
+#define QR_ANONOPT	1024		/**< Anonymous-Option room		*/
+#define QR_NETWORK	2048		/**< Shared network room		*/
+#define QR_PREFONLY	4096		/**< Preferred status needed to enter	*/
+#define QR_READONLY	8192		/**< Aide status required to post	*/
+#define QR_MAILBOX	16384		/**< Set if this is a private mailbox	*/
 
 /**
  * bucket two...
  */
-#define QR2_SYSTEM	1		/**< System room; hide by default     */
-#define QR2_SELFLIST	2		/**< Self-service mailing list mgmt   */
+#define QR2_SYSTEM	1		/**< System room; hide by default	*/
+#define QR2_SELFLIST	2		/**< Self-service mailing list mgmt	*/
 
 /**
  * user/room access
@@ -182,55 +182,55 @@ extern locale_t wc_locales[];
 /**
  * User flags (from Citadel)
  */
-#define US_NEEDVALID	1		/**< User needs to be validated       */
-#define US_PERM		4		    /**< Permanent user                   */
-#define US_LASTOLD	16		    /**< Print last old message with new  */
-#define US_EXPERT	32		    /**< Experienced user		    */
-#define US_UNLISTED	64		    /**< Unlisted userlog entry           */
-#define US_NOPROMPT	128		    /**< Don't prompt after each message  */
-#define US_PROMPTCTL	256		/**< <N>ext & <S>top work at prompt   */
-#define US_DISAPPEAR	512		/**< Use "disappearing msg prompts"   */
-#define US_REGIS	1024		/**< Registered user                  */
-#define US_PAGINATOR	2048	/**< Pause after each screen of text  */
-#define US_INTERNET	4096		/**< Internet mail privileges         */
-#define US_FLOORS	8192		/**< User wants to see floors         */
-#define US_COLOR	16384		/**< User wants ANSI color support    */
+#define US_NEEDVALID	1		/**< User needs to be validated		*/
+#define US_PERM		4		/**< Permanent user			*/
+#define US_LASTOLD	16		/**< Print last old message with new	*/
+#define US_EXPERT	32		/**< Experienced user			*/
+#define US_UNLISTED	64		/**< Unlisted userlog entry		*/
+#define US_NOPROMPT	128		/**< Don't prompt after each message	*/
+#define US_PROMPTCTL	256		/**< <N>ext & <S>top work at prompt	*/
+#define US_DISAPPEAR	512		/**< Use "disappearing msg prompts"	*/
+#define US_REGIS	1024		/**< Registered user			*/
+#define US_PAGINATOR	2048		/**< Pause after each screen of text	*/
+#define US_INTERNET	4096		/**< Internet mail privileges		*/
+#define US_FLOORS	8192		/**< User wants to see floors		*/
+#define US_COLOR	16384		/**< User wants ANSI color support	*/
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
 
 
-/** \brief http request struct ??? */
+/** \brief	Linked list of lines appearing in an HTTP client request */
 struct httprequest {
-	struct httprequest *next;  /**< the next request in the list ??? */
-	char line[SIZ];            /**< the request line ??? */
+	struct httprequest *next;  /**< the next request in the list */
+	char line[SIZ];            /**< the request line */
 };
 
 /**
- * \brief contents of an url???
+ * \brief	Linked list of session variables encoded in an x-www-urlencoded content type
  */
 struct urlcontent {
-	struct urlcontent *next;   /**< the next url in the list */ 
-	char url_key[32];          /**< the url directory part */
-	char *url_data;            /**< the url data part ??? */
+	struct urlcontent *next;   /**< the next variable in the list */ 
+	char url_key[32];          /**< the variable name */
+	char *url_data;            /**< its value */
 };
 
 /**
  * \brief information about us ???
  */ 
 struct serv_info {
-	int serv_pid;              /**< Our process id */
-	char serv_nodename[32];	   /**< How is the name of this citadel */
-	char serv_humannode[64];   /**< How is the human readable name of this citadel */
-	char serv_fqdn[64];		   /**< How is our Full quallified Domain Name (uncensored.citadel.org ie.e  */
-	char serv_software[64];	   /**< What version does our connected citadel server use */
-	int serv_rev_level;		   /**< Whats the citadel server revision */
-	char serv_bbs_city[64];	   /**< Where is the dialin node */
-	char serv_sysadm[64];	   /**< Who's to blame on trouble */
-	char serv_moreprompt[SIZ]; /**< Whats the commandline textprompt */
-	int serv_ok_floors;		   /**< what??? */
-	int serv_supports_ldap;    /**< is the server linked against an ldap tree for adresses? */
+	int serv_pid;			/**< Process ID of the Citadel server */
+	char serv_nodename[32];		/**< Node name of the Citadel server */
+	char serv_humannode[64];	/**< human readable node name of the Citadel server */
+	char serv_fqdn[64];		/**< fully quallified Domain Name (such as uncensored.citadel.org) */
+	char serv_software[64];		/**< What version does our connected citadel server use */
+	int serv_rev_level;		/**< Whats the citadel server revision */
+	char serv_bbs_city[64];		/**< Geographic location of the Citadel server */
+	char serv_sysadm[64];		/**< Name of system administrator */
+	char serv_moreprompt[SIZ];	/**< Whats the commandline textprompt */
+	int serv_ok_floors;		/**< nonzero == server supports floors */
+	int serv_supports_ldap;		/**< is the server linked against an ldap tree for adresses? */
 };
 
 
@@ -240,22 +240,22 @@ struct serv_info {
  */
 struct march {
 	struct march *next;       /**< pointer to next in linked list */
-	char march_name[128];     /**< function name ??? */
-	int march_floor;          /**< floor number */
-	int march_order;          /**< order number???*/
+	char march_name[128];     /**< name of room */
+	int march_floor;          /**< floor number of room */
+	int march_order;          /**< sequence in which we are to visit this room */
 };
 
 /* *
- * \brief This struct holds a list of rooms for client display.
- * (oooh, a tree!) (double linked list? )
+ * \brief	This struct holds a list of rooms for client display.
+ *		It is a binary tree.
  */
 struct roomlisting {
-	struct roomlisting *lnext;/**< pointer to the next roomlisting */
-	struct roomlisting *rnext;/**< pointer to the previous roomlisting */
-	char rlname[128];		  /**< the userprintable roomname */
-	unsigned rlflags;		  /**< the room flags */
-	int rlfloor;			  /**< the floor it reside on (citadel server room number???)*/
-	int rlorder;              /**< the order to print it???*/
+	struct roomlisting *lnext;	/**< pointer to 'left' tree node */
+	struct roomlisting *rnext;	/**< pointer to 'right' tree node */
+	char rlname[128];		/**< name of room */
+	unsigned rlflags;		/**< room flags */
+	int rlfloor;			/**< the floor it resides on */
+	int rlorder;			/**< room listing order */
 };
 
 
