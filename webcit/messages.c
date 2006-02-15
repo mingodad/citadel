@@ -2914,7 +2914,7 @@ void display_enter(void)
 		wprintf("<br>"
 			"<blockquote>");
 		pullquote_message(atol(bstr("replyquote")), 0, 1);
-		wprintf("</blockquote>\n\n");
+		wprintf("</blockquote><br>");
 	}
 
 	/** If we're editing a wiki page, insert the existing page here... */
