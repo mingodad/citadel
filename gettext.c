@@ -251,11 +251,16 @@ void initialize_locales(void) {
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 
 	for (i = 0; i < NUM_LANGS; ++i) {
-		sprintf(buf, "%s.UTF8", AvailLang[i]);
+		if (i == 0) {
+			sprintf(buf, "%s", AvailLang[i]);	// locale 0 (C) is ascii, not utf-8
+		}
+		else {
+			sprintf(buf, "%s.UTF8", AvailLang[i]);
+		}
 		wc_locales[i] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			buf,
-			Empty_Locale
+			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[i] == NULL) {
 			lprintf(1, "Error configuring locale for %s: %s\n",

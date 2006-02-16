@@ -26,7 +26,12 @@ typedef unsigned char byte; /**< a byte. */
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 {
 #ifdef ENABLE_NLS
-	return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
+	if (wc_locales[WC->selected_language] == NULL) {
+		return strftime(s, max, format, tm);
+	}
+	else {
+		return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
+	}
 #else
 	return strftime(s, max, format, tm);
 #endif
