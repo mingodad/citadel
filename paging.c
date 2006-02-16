@@ -101,7 +101,7 @@ void page_user(void)
 			wprintf(".</EM><br />\n");
 		}
 		else {
-			wprintf("<EM>%s</EM><br />\n", &buf[4]);
+			wprintf("<em>%s</em><br />\n", &buf[4]);
 		}
 	}
 	
