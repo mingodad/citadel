@@ -63,22 +63,21 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/webcit.
+# Add here commands to install the package into debian/webcit.
 	root=$(CURDIR)/debian/webcit/
 	mkdir -p $(CURDIR)/debian/webcit/var/lib/citadel/www/
 	export root=$(CURDIR)/debian/webcit; $(MAKE) install DESTDIR=$(CURDIR)/debian/webcit/
 	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples
 	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/contrib
 	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/sbin
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
+	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/ 
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/static \
 		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/tiny_mce \
 		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-# TODO: locale -> /usr/share/locale
+# locale -> /usr/share/locale
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/locale \
-		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-
+		$(CURDIR)/debian/citadel-webcit/usr/share/locale
 	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/; \
 				md5sum `find -type f |grep -v md5sums `>md5sums; 
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/setup \
