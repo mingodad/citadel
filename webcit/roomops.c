@@ -837,15 +837,10 @@ void smart_goto(char *next_room) {
  */
 void slrp_highest(void)
 {
-	char buf[SIZ];
+	char buf[256];
 
-	/* set pointer */
 	serv_puts("SLRP HIGHEST");
 	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
-		return;
-	}
 }
 
 
@@ -1269,7 +1264,7 @@ void display_editroom(void)
 		serv_puts("GETA");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
-			wprintf("<EM>%s</EM>\n", &buf[4]);
+			wprintf("<em>%s</em>\n", &buf[4]);
 		} else {
 			extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
 			wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);

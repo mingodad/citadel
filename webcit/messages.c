@@ -1832,7 +1832,6 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	serv_puts(servcmd);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		return (nummsgs);
 	}
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -2768,7 +2767,7 @@ void display_enter(void)
 		recipient_required = 1;
 	}
 	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
+		wprintf("<em>%s</em><br />\n", &buf[4]);
 		goto DONE;
 	}
 
@@ -2785,7 +2784,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
-			wprintf("<EM>%s</EM><br />\n", &buf[4]);
+			wprintf("<em>%s</em><br />\n", &buf[4]);
 			goto DONE;
 		}
 	}
@@ -3047,7 +3046,7 @@ void delete_msg(void)
 	}
 
 	serv_getln(buf, sizeof buf);
-	wprintf("<EM>%s</EM><br />\n", &buf[4]);
+	wprintf("<em>%s</em><br />\n", &buf[4]);
 
 	wDumpContent(1);
 }
