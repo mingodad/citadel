@@ -447,10 +447,10 @@ void calendar_brief_month_view(int year, int month, int day) {
 		
 		/** Day Header */
 		wc_strftime(weekday_name, sizeof weekday_name, "%A", &tm);
-		wprintf("<tr><td bgcolor='%s' colspan='1' align='left'> %s"
+		wprintf("<tr><td bgcolor='%s' colspan='1' align='left'> %s,%i."
 				"</td><td bgcolor='%s' colspan='3'><hr></td></tr>\n",
 				daycolor,
-				weekday_name,
+				weekday_name,tm.tm_mday,
 				daycolor);
 
 		/** put the data of one day  here, stupid */
