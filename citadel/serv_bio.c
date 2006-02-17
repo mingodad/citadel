@@ -44,7 +44,7 @@
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
-
+#include "citadel_dirs.h"
 
 
 
@@ -62,7 +62,7 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 
-	snprintf(buf, sizeof buf, "./bio/%ld",CC->user.usernum);
+	snprintf(buf, sizeof buf, "%s%ld",ctdl_bio_dir,CC->user.usernum);
 	fp = fopen(buf,"w");
 	if (fp == NULL) {
 		cprintf("%d Cannot create file: %s\n", ERROR + INTERNAL_ERROR,
@@ -92,7 +92,7 @@ void cmd_rbio(char *cmdbuf)
 		cprintf("%d No such user.\n",ERROR + NO_SUCH_USER);
 		return;
 	}
-	snprintf(buf, sizeof buf, "./bio/%ld",ruser.usernum);
+	snprintf(buf, sizeof buf, "%s%ld",ctdl_bio_dir,ruser.usernum);
 	
 	cprintf("%d OK|%s|%ld|%d|%ld|%ld|%ld\n", LISTING_FOLLOWS,
 		ruser.fullname, ruser.usernum, ruser.axlevel,
@@ -114,8 +114,10 @@ void cmd_lbio(char *cmdbuf) {
 	char buf[256];
 	FILE *ls;
 	struct ctdluser usbuf;
+	char listbios[256];
 
-	ls = popen("cd ./bio; ls", "r");
+	snprintf(listbios, sizeof(listbios),"cd %s; ls",ctdl_bio_dir);
+	ls = popen(listbios, "r");
 	if (ls == NULL) {
 		cprintf("%d Cannot open listing.\n", ERROR + FILE_NOT_FOUND);
 		return;
