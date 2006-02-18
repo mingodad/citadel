@@ -734,4 +734,27 @@ int lprintf(int loglevel, const char *format, ...)
 }
 
 
+/**
+ * \brief print the actual stack frame.
+ */
+void wc_backtrace(void)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+
+
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			lprintf(1, "%s\n", strings[i]);
+		else
+			lprintf(1, "%p\n", stack_frames[i]);
+	}
+	free(strings);
+#endif
+}
+
 /*@}*/
