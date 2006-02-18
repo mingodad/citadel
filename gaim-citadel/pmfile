@@ -1,4 +1,4 @@
--- citadel.c
+-- pmfile
 -- Gaim Citadel plugin.
 -- © 2006 David Given.
 -- This code is licensed under the GPL v2. See the file COPYING in this
@@ -12,6 +12,8 @@ GAIMINCLUDES = "-I/usr/include/gaim"
 GLIBINCLUDES = "-I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
 LUAINCLUDES = "-I/usr/include/lua50"
 LUALIBRARIES = "-llualib50 -llua50"
+
+INSTALLTO = "%HOME%/.gaim"
 
 HOME = os.getenv("HOME")
 
@@ -44,7 +46,7 @@ default = csharedlibrary {
 	},
 
 	install = {
-		pm.install("%HOME%/.gaim/plugins/citadel.so"),
-		pm.install("citadel.lua", "%HOME%/.gaim/plugindata/citadel.lua")
+		pm.install("%INSTALLTO%/plugins/citadel.so"),
+		pm.install("citadel.lua", "%INSTALLTO%/plugindata/citadel.lua")
 	}
 }
