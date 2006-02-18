@@ -1,0 +1,50 @@
+-- citadel.c
+-- Gaim Citadel plugin.
+-- © 2006 David Given.
+-- This code is licensed under the GPL v2. See the file COPYING in this
+-- directory for the full license text.
+--
+-- $Id: auth.c 4258 2006-01-29 13:34:44 +0000 (Sun, 29 Jan 2006) dothebart $
+
+include "c.pm"
+
+GAIMINCLUDES = "-I/usr/include/gaim"
+GLIBINCLUDES = "-I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
+LUAINCLUDES = "-I/usr/include/lua50"
+LUALIBRARIES = "-llualib50 -llua50"
+
+HOME = os.getenv("HOME")
+
+csharedlibrary = simple {
+	class = "csharedlibrary",
+	CBUILDFLAGS = "-g -O0 -Wall -fPIC -shared",
+	
+	command = {
+		"%CPROGRAM%"
+	},
+	outputs = {"%U%-%I%.so"},
+}
+
+default = csharedlibrary {
+	CEXTRAFLAGS="-DLUA_USE_POSIX",
+	CINCLUDES="-I. %GAIMINCLUDES% %GLIBINCLUDES% %LUAINCLUDES%",
+	CLIBRARIES="%LUALIBRARIES% -ltolua",
+	
+	cfile "citadel.c",
+	
+	cfile {
+		simple {
+			outputs = {"%U%-%I%.c"},
+			command = {
+				"tolua -n gaim -o %out% %in%"
+			},
+			
+			file "gaim.pkg"
+		}
+	},
+
+	install = {
+		pm.install("%HOME%/.gaim/plugins/citadel.so"),
+		pm.install("citadel.lua", "%HOME%/.gaim/plugindata/citadel.lua")
+	}
+}

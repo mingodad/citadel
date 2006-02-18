@@ -1,0 +1,359 @@
+/* gaim.pkg
+ * Gaim Citadel plugin.
+ *
+ * © 2006 David Given.
+ * This code is licensed under the GPL v2. See the file COPYING in this
+ * directory for the full license text.
+ *
+ * $Id: auth.c 4258 2006-01-29 13:34:44 +0000 (Sun, 29 Jan 2006) dothebart $
+ */
+
+typedef unsigned int size_t;
+typedef bool gboolean;
+typedef long time_t;
+typedef void* GCallback;
+
+$typedef int bool;
+$#include "connection.h"
+$#include "sslconn.h"
+$#include "account.h"
+$#include "conversation.h"
+$#include "server.h"
+$#include "notify.h"
+$#include "util.h"
+
+$#include "interface.h"
+
+/* Private entrypoints */
+
+char* interface_readdata(int fd, GaimSslConnection* gsc);
+int interface_writedata(int fd, GaimSslConnection* gsc, char* data);
+int interface_connect(GaimAccount* ga, GaimConnection* gc, char* server, int port);
+void interface_disconnect(int fd, GaimSslConnection* gsc);
+void interface_tlson(GaimConnection* gc, GaimAccount* ga, int fd);
+int interface_timeron(GaimConnection* gc, time_t timeout);
+void interface_timeroff(GaimConnection* gc, int handle);
+	
+/* --- connection.h ------------------------------------------------------ */
+
+typedef enum
+{
+	GAIM_CONNECTION_HTML       = 0x0001, /**< Connection sends/receives in 'HTML'. */
+	GAIM_CONNECTION_NO_BGCOLOR = 0x0002, /**< Connection does not send/receive
+					           background colors.                  */
+	GAIM_CONNECTION_AUTO_RESP  = 0x0004,  /**< Send auto responses when away.       */
+	GAIM_CONNECTION_FORMATTING_WBFO = 0x0008, /**< The text buffer must be formatted as a whole */
+	GAIM_CONNECTION_NO_NEWLINES = 0x0010, /**< No new lines are allowed in outgoing messages */
+	GAIM_CONNECTION_NO_FONTSIZE = 0x0020, /**< Connection does not send/receive font sizes */
+	GAIM_CONNECTION_NO_URLDESC = 0x0040,  /**< Connection does not support descriptions with links */
+	GAIM_CONNECTION_NO_IMAGES = 0x0080  /**< Connection does not support sending of images */
+} GaimConnectionFlags;
+
+typedef enum
+{
+	GAIM_DISCONNECTED = 0, /**< Disconnected. */
+	GAIM_CONNECTED,        /**< Connected.    */
+	GAIM_CONNECTING        /**< Connecting.   */
+
+} GaimConnectionState;
+
+void gaim_connection_set_state(GaimConnection *gc, GaimConnectionState state);
+void gaim_connection_set_account(GaimConnection *gc, GaimAccount *account);
+void gaim_connection_set_display_name(GaimConnection *gc, char *name);
+GaimConnectionState gaim_connection_get_state(GaimConnection *gc);
+GaimAccount *gaim_connection_get_account(GaimConnection *gc);
+char *gaim_connection_get_display_name(GaimConnection *gc);
+void gaim_connection_update_progress(GaimConnection *gc, char *text,
+									 size_t step, size_t count);
+void gaim_connection_notice(GaimConnection *gc, char *text);
+void gaim_connection_error(GaimConnection *gc, char *reason);
+
+/* --- account.h --------------------------------------------------------- */
+
+void gaim_account_request_change_password(GaimAccount *account);
+void gaim_account_request_change_user_info(GaimAccount *account);
+void gaim_account_set_username(GaimAccount *account, char *username);
+void gaim_account_set_password(GaimAccount *account, char *password);
+void gaim_account_set_alias(GaimAccount *account, char *alias);
+void gaim_account_set_user_info(GaimAccount *account, char *user_info);
+void gaim_account_set_buddy_icon(GaimAccount *account, char *icon);
+void gaim_account_set_protocol_id(GaimAccount *account,
+								  char *protocol_id);
+void gaim_account_set_remember_password(GaimAccount *account, gboolean value);
+void gaim_account_set_check_mail(GaimAccount *account, gboolean value);
+void gaim_account_set_auto_login(GaimAccount *account, char *ui,
+								 gboolean value);
+void gaim_account_set_proxy_info(GaimAccount *account, GaimProxyInfo *info);
+void gaim_account_clear_settings(GaimAccount *account);
+void gaim_account_set_int(GaimAccount *account, char *name, int value);
+void gaim_account_set_string(GaimAccount *account, char *name,
+							 char *value);
+void gaim_account_set_bool(GaimAccount *account, char *name,
+						   gboolean value);
+void gaim_account_set_ui_int(GaimAccount *account, char *ui,
+							 char *name, int value);
+void gaim_account_set_ui_string(GaimAccount *account, char *ui,
+								char *name, char *value);
+void gaim_account_set_ui_bool(GaimAccount *account, char *ui,
+							  char *name, gboolean value);
+gboolean gaim_account_is_connected(GaimAccount *account);
+char *gaim_account_get_username(GaimAccount *account);
+char *gaim_account_get_password(GaimAccount *account);
+char *gaim_account_get_alias(GaimAccount *account);
+char *gaim_account_get_user_info(GaimAccount *account);
+char *gaim_account_get_buddy_icon(GaimAccount *account);
+char *gaim_account_get_protocol_id(GaimAccount *account);
+char *gaim_account_get_protocol_name(GaimAccount *account);
+GaimConnection *gaim_account_get_connection(GaimAccount *account);
+gboolean gaim_account_get_remember_password(GaimAccount *account);
+gboolean gaim_account_get_check_mail(GaimAccount *account);
+gboolean gaim_account_get_auto_login(GaimAccount *account, char *ui);
+int gaim_account_get_int(GaimAccount *account, char *name, int default_value);
+char *gaim_account_get_string(GaimAccount *account, char *name, char *default_value);
+gboolean gaim_account_get_bool(GaimAccount *account, char *name, gboolean default_value);
+int gaim_account_get_ui_int(GaimAccount *account, char *ui, char *name, int default_value);
+char *gaim_account_get_ui_string(GaimAccount *account, char *ui, char *name, char *default_value);
+gboolean gaim_account_get_ui_bool(GaimAccount *account, char *ui, char *name, gboolean default_value);
+
+/* --- server.h ---------------------------------------------------------- */
+
+void serv_login(GaimAccount *);
+void serv_close(GaimConnection *);
+void serv_touch_idle(GaimConnection *);
+int  serv_send_im(GaimConnection *, const char *, const char *, GaimConvImFlags);
+void serv_get_info(GaimConnection *, const char *);
+void serv_set_idle(GaimConnection *, int);
+void serv_set_info(GaimConnection *, const char *);
+void serv_set_away(GaimConnection *, const char *, const char *);
+void serv_set_away_all(const char *);
+int  serv_send_typing(GaimConnection *, const char *, int);
+void serv_change_passwd(GaimConnection *, const char *, const char *);
+void serv_add_buddy(GaimConnection *, GaimBuddy *);
+void serv_add_buddies(GaimConnection *, GList *);
+void serv_remove_buddy(GaimConnection *, GaimBuddy *, GaimGroup *);
+void serv_remove_buddies(GaimConnection *, GList *, GList *);
+void serv_remove_group(GaimConnection *, GaimGroup *);
+void serv_move_buddy(GaimBuddy *, GaimGroup *, GaimGroup *);
+void serv_rename_group(GaimConnection *, const char *, GaimGroup *, GList *);
+void serv_add_permit(GaimConnection *, const char *);
+void serv_add_deny(GaimConnection *, const char *);
+void serv_rem_permit(GaimConnection *, const char *);
+void serv_rem_deny(GaimConnection *, const char *);
+void serv_set_permit_deny(GaimConnection *);
+void serv_warn(GaimConnection *, const char *, gboolean);
+void serv_join_chat(GaimConnection *, GHashTable *);
+void serv_reject_chat(GaimConnection *, GHashTable *);
+void serv_chat_invite(GaimConnection *, int, const char *, const char *);
+void serv_chat_leave(GaimConnection *, int);
+void serv_chat_whisper(GaimConnection *, int, const char *, const char *);
+int  serv_chat_send(GaimConnection *, int, const char *);
+void serv_alias_buddy(GaimBuddy *);
+void serv_got_alias(GaimConnection *gc, const char *who, const char *alias);
+void serv_got_eviled(GaimConnection *gc, const char *name, int lev);
+void serv_got_typing(GaimConnection *gc, const char *name, int timeout,
+					 GaimTypingState state);
+void serv_set_buddyicon(GaimConnection *gc, const char *filename);
+void serv_got_typing_stopped(GaimConnection *gc, const char *name);
+void serv_got_im(GaimConnection *gc, const char *who, const char *msg,
+				 GaimConvImFlags imflags, time_t mtime);
+void serv_got_update(GaimConnection *gc, const char *name, gboolean loggedin,
+					 int evil, time_t signon, time_t idle, int type);
+void serv_finish_login(GaimConnection *gc);
+void serv_got_chat_invite(GaimConnection *gc, const char *name,
+						  const char *who, const char *message,
+						  GHashTable *data);
+GaimConversation *serv_got_joined_chat(GaimConnection *gc,
+									   int id, const char *name);
+void serv_got_chat_left(GaimConnection *g, int id);
+void serv_got_chat_in(GaimConnection *g, int id, const char *who,
+					  GaimConvChatFlags chatflags, const char *message, time_t mtime);
+void serv_send_file(GaimConnection *gc, const char *who, const char *file);
+
+/* --- conversation.h ---------------------------------------------------- */
+
+typedef enum
+{
+	GAIM_CONV_UNKNOWN = 0, /**< Unknown conversation type. */
+	GAIM_CONV_IM,          /**< Instant Message.           */
+	GAIM_CONV_CHAT,        /**< Chat room.                 */
+	GAIM_CONV_MISC         /**< A misc. conversation.      */
+
+} GaimConversationType;
+
+typedef enum
+{
+	GAIM_UNSEEN_NONE = 0,  /**< No unseen text in the conversation. */
+	GAIM_UNSEEN_TEXT,      /**< Unseen text in the conversation.    */
+	GAIM_UNSEEN_NICK,      /**< Unseen text and the nick was said.  */
+	GAIM_UNSEEN_EVENT      /**< Unseen events in the conversation.  */
+
+} GaimUnseenState;
+
+typedef enum
+{
+	GAIM_CONV_UPDATE_ADD = 0, /**< The buddy associated with the conversation
+	                               was added.   */
+	GAIM_CONV_UPDATE_REMOVE,  /**< The buddy associated with the conversation
+	                               was removed. */
+	GAIM_CONV_UPDATE_ACCOUNT, /**< The gaim_account was changed. */
+	GAIM_CONV_UPDATE_TYPING,  /**< The typing state was updated. */
+	GAIM_CONV_UPDATE_UNSEEN,  /**< The unseen state was updated. */
+	GAIM_CONV_UPDATE_LOGGING, /**< Logging for this conversation was
+	                               enabled or disabled. */
+	GAIM_CONV_UPDATE_TOPIC,   /**< The topic for a chat was updated. */
+	/*
+	 * XXX These need to go when we implement a more generic core/UI event
+	 * system.
+	 */
+	GAIM_CONV_ACCOUNT_ONLINE,  /**< One of the user's accounts went online.  */
+	GAIM_CONV_ACCOUNT_OFFLINE, /**< One of the user's accounts went offline. */
+	GAIM_CONV_UPDATE_AWAY,     /**< The other user went away.                */
+	GAIM_CONV_UPDATE_ICON,     /**< The other user's buddy icon changed.     */
+	GAIM_CONV_UPDATE_TITLE,
+	GAIM_CONV_UPDATE_CHATLEFT,
+
+	GAIM_CONV_UPDATE_FEATURES /**< The features for a chat have changed */
+
+} GaimConvUpdateType;
+
+typedef enum
+{
+	GAIM_NOT_TYPING = 0,  /**< Not typing.                 */
+	GAIM_TYPING,          /**< Currently typing.           */
+	GAIM_TYPED            /**< Stopped typing momentarily. */
+
+} GaimTypingState;
+
+typedef enum
+{
+	GAIM_MESSAGE_SEND      = 0x0001, /**< Outgoing message.        */
+	GAIM_MESSAGE_RECV      = 0x0002, /**< Incoming message.        */
+	GAIM_MESSAGE_SYSTEM    = 0x0004, /**< System message.          */
+	GAIM_MESSAGE_AUTO_RESP = 0x0008, /**< Auto response.           */
+	GAIM_MESSAGE_COLORIZE  = 0x0010, /**< Colorize nicks.          */
+	GAIM_MESSAGE_NICK      = 0x0020, /**< Contains your nick.      */
+	GAIM_MESSAGE_NO_LOG    = 0x0040, /**< Do not log.              */
+	GAIM_MESSAGE_WHISPER   = 0x0080, /**< Whispered message.       */
+	GAIM_MESSAGE_ERROR     = 0x0200, /**< Error message.           */
+	GAIM_MESSAGE_DELAYED   = 0x0400  /**< Delayed message.         */
+} GaimMessageFlags;
+
+typedef enum
+{
+	GAIM_CBFLAGS_NONE          = 0x0000, /**< No flags                     */
+	GAIM_CBFLAGS_VOICE         = 0x0001, /**< Voiced user or "Participant" */
+	GAIM_CBFLAGS_HALFOP        = 0x0002, /**< Half-op                      */
+	GAIM_CBFLAGS_OP            = 0x0004, /**< Channel Op or Moderator      */
+	GAIM_CBFLAGS_FOUNDER       = 0x0008  /**< Channel Founder              */
+} GaimConvChatBuddyFlags;
+
+/* --- prpl.h ------------------------------------------------------------ */
+
+typedef enum
+{
+	GAIM_CONV_IM_AUTO_RESP = 0x0001,    /**< Auto response.    */
+	GAIM_CONV_IM_IMAGES    = 0x0002     /**< Contains images.  */
+} GaimConvImFlags;
+
+typedef enum
+{
+	GAIM_CONV_CHAT_WHISPER = 0x0001,    /**< Whispered message.*/
+	GAIM_CONV_CHAT_DELAYED = 0x0002     /**< Delayed message.  */
+
+} GaimConvChatFlags;
+
+typedef enum {
+	GAIM_ICON_SCALE_DISPLAY = 0x01,		/**< We scale the icon when we display it */
+	GAIM_ICON_SCALE_SEND = 0x02			/**< We scale the icon before we send it to the server */
+} GaimIconScaleRules;
+
+/* --- blist.h ----------------------------------------------------------- */
+
+typedef enum
+{
+	GAIM_BLIST_GROUP_NODE,
+	GAIM_BLIST_CONTACT_NODE,
+	GAIM_BLIST_BUDDY_NODE,
+	GAIM_BLIST_CHAT_NODE,
+	GAIM_BLIST_OTHER_NODE
+
+} GaimBlistNodeType;
+
+typedef enum
+{
+	GAIM_BUDDY_SIGNING_OFF = -1,
+	GAIM_BUDDY_OFFLINE = 0,
+	GAIM_BUDDY_ONLINE,
+	GAIM_BUDDY_SIGNING_ON
+
+} GaimBuddyPresenceState;
+
+GaimGroup *gaim_group_new(const char *name);
+GaimGroup *gaim_find_buddys_group(GaimBuddy *buddy);
+GaimBuddy *gaim_buddy_new(GaimAccount *account, const char *screenname, const char *alias);
+const char *gaim_group_get_name(GaimGroup *group); // fake --- added by plugin
+const char *gaim_buddy_get_alias_only(GaimBuddy *buddy);
+const char *gaim_buddy_get_contact_alias(GaimBuddy *buddy);
+const char *gaim_buddy_get_alias(GaimBuddy *buddy);
+GaimBuddy *gaim_find_buddy(GaimAccount *account, const char *name);
+void gaim_blist_add_buddy(GaimBuddy *buddy, GaimContact *contact, GaimGroup *group, GaimBlistNode *node);
+
+/* --- notify.h ---------------------------------------------------------- */
+
+typedef enum
+{
+	GAIM_NOTIFY_MESSAGE = 0, /**< Message notification.         */
+	GAIM_NOTIFY_EMAIL,       /**< Single e-mail notification.   */
+	GAIM_NOTIFY_EMAILS,      /**< Multiple e-mail notification. */
+	GAIM_NOTIFY_FORMATTED,   /**< Formatted text.               */
+	GAIM_NOTIFY_USERINFO,    /**< Formatted userinfo text.      */
+	GAIM_NOTIFY_URI          /**< URI notification or display.  */
+
+} GaimNotifyType;
+
+typedef enum
+{
+	GAIM_NOTIFY_MSG_ERROR   = 0, /**< Error notification.       */
+	GAIM_NOTIFY_MSG_WARNING,     /**< Warning notification.     */
+	GAIM_NOTIFY_MSG_INFO         /**< Information notification. */
+
+} GaimNotifyMsgType;
+
+void *gaim_notify_message(void *handle, GaimNotifyMsgType type,
+						  const char *title, const char *primary,
+						  const char *secondary, GCallback cb,
+						  void *user_data);
+void *gaim_notify_email(void *handle, const char *subject,
+						const char *from, const char *to,
+						const char *url, GCallback cb,
+						void *user_data);
+void *gaim_notify_emails(void *handle, size_t count, gboolean detailed,
+						 const char **subjects, const char **froms,
+						 const char **tos, const char **urls,
+						 GCallback cb, void *user_data);
+void *gaim_notify_formatted(void *handle, const char *title,
+							const char *primary, const char *secondary,
+							const char *text, GCallback cb, void *user_data);
+void *gaim_notify_userinfo(GaimConnection *gc, const char *who,
+						   const char *title, const char *primary,
+						   const char *secondary, const char *text,
+						   GCallback cb, void *user_data);
+void *gaim_notify_uri(void *handle, const char *uri);
+
+/* --- util.h ------------------------------------------------------------ */
+
+void gaim_quotedp_decode (const char *str, char **ret_str, int *ret_len);
+char *gaim_mime_decode_field (const char *str);
+const char *gaim_date(void);
+const char *gaim_date_full(void);
+time_t gaim_time_build(int year, int month, int day, int hour, int min, int sec);
+time_t gaim_str_to_time(const char *timestamp, gboolean utc);
+
+const gchar *gaim_home_dir(void);
+char *gaim_user_dir(void);
+void set_gaim_user_dir(const char *dir);
+int gaim_build_dir(const char *path, int mode);
+gboolean gaim_program_is_valid(const char *program);
+
+const char *gaim_normalize(const GaimAccount *account, const char *str);
+const char *gaim_normalize_nocase(const GaimAccount *account, const char *str);
