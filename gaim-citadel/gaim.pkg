@@ -5,7 +5,7 @@
  * This code is licensed under the GPL v2. See the file COPYING in this
  * directory for the full license text.
  *
- * $Id: auth.c 4258 2006-01-29 13:34:44 +0000 (Sun, 29 Jan 2006) dothebart $
+ * $Id:gaim.pkg 4326 2006-02-18 12:26:22Z hjalfi $
  */
 
 typedef unsigned int size_t;
@@ -21,6 +21,7 @@ $#include "conversation.h"
 $#include "server.h"
 $#include "notify.h"
 $#include "util.h"
+$#include "debug.h"
 
 $#include "interface.h"
 
@@ -357,3 +358,25 @@ gboolean gaim_program_is_valid(const char *program);
 
 const char *gaim_normalize(const GaimAccount *account, const char *str);
 const char *gaim_normalize_nocase(const GaimAccount *account, const char *str);
+
+/* --- debug.h ----------------------------------------------------------- */
+
+typedef enum
+{
+	GAIM_DEBUG_ALL = 0,  /**< All debug levels.              */
+	GAIM_DEBUG_MISC,     /**< General chatter.               */
+	GAIM_DEBUG_INFO,     /**< General operation Information. */
+	GAIM_DEBUG_WARNING,  /**< Warnings.                      */
+	GAIM_DEBUG_ERROR,    /**< Errors.                        */
+	GAIM_DEBUG_FATAL     /**< Fatal errors.                  */
+
+} GaimDebugLevel;
+
+void gaim_debug(GaimDebugLevel level, const char *category,
+				const char *format);
+void gaim_debug_misc(const char *category, const char *format);
+void gaim_debug_info(const char *category, const char *format);
+void gaim_debug_warning(const char *category, const char *format);
+void gaim_debug_error(const char *category, const char *format);
+void gaim_debug_fatal(const char *category, const char *format);
+

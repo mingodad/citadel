@@ -5,7 +5,7 @@
  * This code is licensed under the GPL v2. See the file COPYING in this
  * directory for the full license text.
  *
- * $Id: auth.c 4258 2006-01-29 13:34:44 +0000 (Sun, 29 Jan 2006) dothebart $
+ * $Id:citadel.c 4326 2006-02-18 12:26:22Z hjalfi $
  */
 
 #define GAIM_PLUGINS
@@ -33,7 +33,7 @@ extern void tolua_gaim_close(lua_State* L);
 #define VERSION "0.2"
 #define CITADEL_DEFAULT_SERVER "uncensored.citadel.org"
 #define CITADEL_DEFAULT_PORT 504
-#define CITADEL_POLL_INTERVAL 10
+#define CITADEL_POLL_INTERVAL 60
 #define LUA_MICROCODE "/plugindata/citadel.lua"
 
 struct citadel {
@@ -557,6 +557,9 @@ static void _init_plugin(GaimPlugin *plugin)
 	protocol.user_splits = g_list_append(protocol.user_splits, split);
 
 	option = gaim_account_option_int_new(_("Port"), "port", CITADEL_DEFAULT_PORT);
+	protocol.protocol_options = g_list_append(protocol.protocol_options, option);
+
+	option = gaim_account_option_bool_new(_("Everyone here's a buddy"), "no_blist", TRUE);
 	protocol.protocol_options = g_list_append(protocol.protocol_options, option);
 
 	option = gaim_account_option_bool_new(_("Use TLS"), "use_tls", TRUE);

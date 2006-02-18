@@ -5,7 +5,7 @@
 -- This code is licensed under the GPL v2. See the file COPYING in this
 -- directory for the full license text.
 --
--- $Id: auth.c 4258 2006-01-29 13:34:44 +0000 (Sun, 29 Jan 2006) dothebart $
+-- $Id:citadel.lua 4326 2006-02-18 12:26:22Z hjalfi $
 
 -----------------------------------------------------------------------------
 --                                 GLOBALS                                 --
@@ -16,6 +16,7 @@ local username, servername, port
 local ga, gc
 local fd, gsc
 local timerhandle
+local noblist
 local buddies = {}
 
 -----------------------------------------------------------------------------
@@ -61,8 +62,9 @@ local ASYNC_GEXP              = 02
 
 local CITADEL_DEFAULT_PORT    = 504
 local CITADEL_CONFIG_ROOM     = "My Citadel Config"
+local WAITING_ROOM            = "Sent/Received Pages"
 local CITADEL_BUDDY_MSG       = "__ Buddy List __"
-local CITADEL_POLL_INTERVAL   = 5
+local CITADEL_POLL_INTERVAL   = 60
 
 -----------------------------------------------------------------------------
 --                                UTILITIES                                --
@@ -75,7 +77,8 @@ local function log(...)
 	for _, i in ipairs(arg) do
 		table.insert(s, tostring(i))
 	end
-	print("citadel: lua: "..table.concat(s))
+	s = table.concat(s)
+	gaim_debug_info("citadel", (string.gsub(s, "%%", "%%")))
 end
 
 local function unexpectederror()
@@ -283,7 +286,7 @@ local function cant_save_buddy_list()
 end
 
 local function save_buddy_list()
-	writeline("GOTO "..CITADEL_CONFIG_ROOM)
+	writeline("GOTO "..CITADEL_CONFIG_ROOM.."||1")
 	local m = get_response()
 	if (m.response ~= CIT_OK) then
 		cant_save_buddy_list()
@@ -343,7 +346,7 @@ local function save_buddy_list()
 
 	-- Go back to the lobby.
 	
-	writeline("GOTO _BASEROOM_")
+	writeline("GOTO "..WAITING_ROOM)
 	get_response()
 end
 
@@ -358,10 +361,36 @@ local function update_buddy_status()
 	local onlinebuddies = {}
 	for _, s in ipairs(m.xargs) do
 		local name = unpack_citadel_data_line(s)[2]
-		onlinebuddies[name] = true
+		if (name ~= "(not logged in)") then
+			onlinebuddies[name] = true
+		end
 	end
 
+	-- Anyone who's not online is offline.
+
+	for s, _ in pairs(buddies) do
+		if not onlinebuddies[s] then
+			serv_got_update(gc, s, false, 0, 0, 0, 0)
+		end
+	end
+
+	-- Anyone who's online is, er, online.
+
 	for s, _ in pairs(onlinebuddies) do
+		-- If we're in no-buddy-list mode and this buddy isn't on our
+		-- list, add them automatically.
+
+		if noblist then
+			if not gaim_find_buddy(ga, s) then
+				local buddy = gaim_buddy_new(ga, s, s)
+				local group = gaim_group_new("Citadel")
+				if buddy then
+					-- buddy is not garbage collected! This must succeed!
+					gaim_blist_add_buddy(buddy, nil, group, nil)
+				end
+			end
+		end
+
 		serv_got_update(gc, s, true, 0, 0, 0, 0)
 	end
 end
@@ -401,7 +430,8 @@ function citadel_connect(_ga)
 
 		username = gaim_account_get_username(ga)
 		_, _, username, servername = string.find(username, "^(.*)@(.*)$")
-		port = gaim_account_get_int(ga, "port", CITADEL_DEFAULT_PORT);
+		port = gaim_account_get_int(ga, "port", CITADEL_DEFAULT_PORT)
+		noblist = gaim_account_get_bool(ga, "no_blist", false)
 		
 		log("connect to ", username, " on server ", servername, " port ", port)
 		
@@ -481,7 +511,7 @@ function citadel_connect(_ga)
 			-- Switch to private configuration room.
 
 			gaim_connection_update_progress(gc, "Setting up", 8, STEPS)
-			writeline("GOTO "..CITADEL_CONFIG_ROOM)
+			writeline("GOTO "..CITADEL_CONFIG_ROOM.."||1")
 			m = get_response()
 			if (m.response ~= CIT_OK) then
 				warning("Unable to fetch buddy list from server.")
@@ -554,7 +584,7 @@ function citadel_connect(_ga)
 		-- Go back to the Lobby.
 
 		gaim_connection_update_progress(gc, "Setting up", 12, STEPS)
-		writeline("GOTO _BASEROOM_")
+		writeline("GOTO "..WAITING_ROOM)
 		get_response()
 
 		-- Switch on the timer.
@@ -618,13 +648,6 @@ function citadel_get_info(name)
 
 		gaim_notify_userinfo(gc, name, name.."'s biography",
 			name, "Biography", m, nil, nil)
-	end)
-end
-
-function citadel_keepalive()
-	queue(function()
-		writeline("NOOP")
-		get_response()
 	end)
 end
 
