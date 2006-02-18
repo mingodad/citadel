@@ -23,6 +23,10 @@ local buddies = {}
 --                                CONSTANTS                                --
 -----------------------------------------------------------------------------
 
+-- Our version number. Remember to update!
+
+local VERSION_NUMBER = "0.3"
+
 -- Special values returned as Citadel's response codes.
 
 local LISTING_FOLLOWS         = 100
@@ -495,7 +499,7 @@ function citadel_connect(_ga)
 		-- Tell Citadel who we are.
 		
 		gaim_connection_update_progress(gc, "Setting up", 6, STEPS)
-		writeline("IDEN 226|0|0.2|Gaim Citadel plugin|")
+		writeline("IDEN 226|0|"..VERSION_NUMBER.."|Gaim Citadel plugin|")
 		m = get_response()
 		
 		-- Set asynchronous mode.
