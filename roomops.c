@@ -373,7 +373,7 @@ void embed_view_o_matic(void) {
 			||	(i == WC->wc_default_view)			/**< default */
 			||	( (i == 0) && (WC->wc_default_view == 1) )	/**< mail or bulletin */
 			||	( (i == 1) && (WC->wc_default_view == 0) )	/**< mail or bulletin */
-			||	( (i == 7) && (WC->wc_default_view == 3) )	/**< calendar */
+			/** ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
 		) {
 
 			wprintf("<OPTION %s VALUE=\"changeview?view=%d\">",
