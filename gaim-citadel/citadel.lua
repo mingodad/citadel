@@ -13,6 +13,7 @@
 
 local _
 local username, servername, port
+local serverfriendlyname
 local ga, gc
 local fd, gsc
 local timerhandle
@@ -82,7 +83,7 @@ local function log(...)
 		table.insert(s, tostring(i))
 	end
 	s = table.concat(s)
-	gaim_debug_info("citadel", (string.gsub(s, "%%", "%%")))
+	gaim_debug_info("citadel", string.gsub(s, "%%", "%%").."\n")
 end
 
 local function unexpectederror()
@@ -386,11 +387,20 @@ local function update_buddy_status()
 
 		if noblist then
 			if not gaim_find_buddy(ga, s) then
+				log("trying to add new buddy ", s)
 				local buddy = gaim_buddy_new(ga, s, s)
-				local group = gaim_group_new("Citadel")
 				if buddy then
 					-- buddy is not garbage collected! This must succeed!
+					local group = gaim_find_group(serverfriendlyname)
+					if not group then
+						group = gaim_group_new(serverfriendlyname)
+						gaim_blist_add_group(group, nil)
+					end
+					
 					gaim_blist_add_buddy(buddy, nil, group, nil)
+				else
+					warning("Unable to add "..s.." to your buddy list. This error should never happen.")
+					break
 				end
 			end
 		end
@@ -430,10 +440,11 @@ function citadel_connect(_ga)
 	gc = gaim_account_get_connection(ga)
 	
 	queue(function()
-		local STEPS = 13
+		local STEPS = 14
 
 		username = gaim_account_get_username(ga)
 		_, _, username, servername = string.find(username, "^(.*)@(.*)$")
+		serverfriendlyname = servername
 		port = gaim_account_get_int(ga, "port", CITADEL_DEFAULT_PORT)
 		noblist = gaim_account_get_bool(ga, "no_blist", false)
 		
@@ -502,9 +513,16 @@ function citadel_connect(_ga)
 		writeline("IDEN 226|0|"..VERSION_NUMBER.."|Gaim Citadel plugin|")
 		m = get_response()
 		
-		-- Set asynchronous mode.
+		-- Get information about the Citadel server.
 		
 		gaim_connection_update_progress(gc, "Setting up", 7, STEPS)
+		writeline("INFO")
+		m = get_response()
+		serverfriendlyname = m.xargs[3]
+		
+		-- Set asynchronous mode.
+		
+		gaim_connection_update_progress(gc, "Setting up", 8, STEPS)
 		writeline("ASYN 1")
 		m = get_response()
 		if (m.response ~= CIT_OK) then
@@ -514,7 +532,7 @@ function citadel_connect(_ga)
 		(function()
 			-- Switch to private configuration room.
 
-			gaim_connection_update_progress(gc, "Setting up", 8, STEPS)
+			gaim_connection_update_progress(gc, "Setting up", 9, STEPS)
 			writeline("GOTO "..CITADEL_CONFIG_ROOM.."||1")
 			m = get_response()
 			if (m.response ~= CIT_OK) then
@@ -524,7 +542,7 @@ function citadel_connect(_ga)
 
 			-- Look for our preferences.
 
-			gaim_connection_update_progress(gc, "Setting up", 9, STEPS)
+			gaim_connection_update_progress(gc, "Setting up", 10, STEPS)
 			writeline("MSGS ALL|0|1")
 			m = get_response()
 			if (m.response ~= START_CHAT_MODE) then
@@ -550,7 +568,7 @@ function citadel_connect(_ga)
 				return
 			end
 			
-			gaim_connection_update_progress(gc, "Setting up", 10, STEPS)
+			gaim_connection_update_progress(gc, "Setting up", 11, STEPS)
 			writeline("MSG0 "..m)
 			while true do
 				local s = readline()
@@ -582,12 +600,12 @@ function citadel_connect(_ga)
 
 		-- Update buddy list with who's online.
 
-		gaim_connection_update_progress(gc, "Setting up", 11, STEPS)
+		gaim_connection_update_progress(gc, "Setting up", 12, STEPS)
 		update_buddy_status()
 
 		-- Go back to the Lobby.
 
-		gaim_connection_update_progress(gc, "Setting up", 12, STEPS)
+		gaim_connection_update_progress(gc, "Setting up", 13, STEPS)
 		writeline("GOTO "..WAITING_ROOM)
 		get_response()
 
@@ -598,7 +616,7 @@ function citadel_connect(_ga)
 			
 		-- Done!
 		
-		gaim_connection_update_progress(gc, "Connected", 13, STEPS)
+		gaim_connection_update_progress(gc, "Connected", 14, STEPS)
 		gaim_connection_set_state(gc, GAIM_CONNECTED)
 	end)
 end
