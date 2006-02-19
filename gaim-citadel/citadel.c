@@ -559,7 +559,7 @@ static void _init_plugin(GaimPlugin *plugin)
 	option = gaim_account_option_int_new(_("Port"), "port", CITADEL_DEFAULT_PORT);
 	protocol.protocol_options = g_list_append(protocol.protocol_options, option);
 
-	option = gaim_account_option_bool_new(_("Everyone here's a buddy"), "no_blist", TRUE);
+	option = gaim_account_option_bool_new(_("Everyone here's a buddy"), "no_blist", FALSE);
 	protocol.protocol_options = g_list_append(protocol.protocol_options, option);
 
 	option = gaim_account_option_bool_new(_("Use TLS"), "use_tls", TRUE);
