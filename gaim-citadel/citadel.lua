@@ -26,7 +26,7 @@ local buddies = {}
 
 -- Our version number. Remember to update!
 
-local VERSION_NUMBER = "0.3"
+local VERSION_NUMBER = "0.3.1"
 
 -- Special values returned as Citadel's response codes.
 
