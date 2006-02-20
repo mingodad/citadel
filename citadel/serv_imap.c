@@ -434,7 +434,7 @@ void imap_cleanup_function(void)
  * output this stuff in other places as well)
  */
 void imap_output_capability_string(void) {
-	cprintf("CAPABILITY IMAP4REV1 NAMESPACE AUTH=LOGIN");
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID AUTH=LOGIN");
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
 #endif
@@ -449,6 +449,23 @@ void imap_capability(int num_parms, char *parms[])
 	imap_output_capability_string();
 	cprintf("\r\n");
 	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
+}
+
+
+
+/*
+ * Implements the ID command (specified by RFC2971)
+ *
+ * We ignore the client-supplied information, and output a NIL response.
+ * Although this is technically a valid implementation of the extension, it
+ * is quite useless.  It exists only so that we may see which clients are
+ * making use of this extension.
+ * 
+ */
+void imap_id(int num_parms, char *parms[])
+{
+	cprintf("* ID NIL\r\n");
+	cprintf("%s OK ID completed\r\n", parms[0]);
 }
 
 
@@ -1443,6 +1460,11 @@ void imap_command_loop(void)
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			parms[0]);
 	}
+
+	else if (!strcasecmp(parms[1], "ID")) {
+		imap_id(num_parms, parms);
+	}
+
 
 	else if (!strcasecmp(parms[1], "LOGOUT")) {
 		if (IMAP->selected) {
