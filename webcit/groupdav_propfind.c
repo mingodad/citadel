@@ -138,7 +138,7 @@ void groupdav_folder_list(void) {
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(char *dav_pathname) {
+void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_type, char *dav_content) {
 	char dav_roomname[256];
 	char dav_uid[256];
 	char msgnum[256];
@@ -161,6 +161,7 @@ void groupdav_propfind(char *dav_pathname) {
 	lprintf(9, "dav_pathname: %s\n", dav_pathname);
 	lprintf(9, "dav_roomname: %s\n", dav_roomname);
 	lprintf(9, "     dav_uid: %s\n", dav_uid);
+	lprintf(9, "   dav_depth: %s\n", dav_depth);
 
 	/*
 	 * If the room name is blank, the client is requesting a
