@@ -107,6 +107,7 @@ void groupdav_main(struct httprequest *req,
 	char dav_method[256];
 	char dav_pathname[256];
 	char dav_ifmatch[256];
+	char dav_depth[256];
 	char buf[256];
 	char *ds;
 	int i;
@@ -114,6 +115,7 @@ void groupdav_main(struct httprequest *req,
 	strcpy(dav_method, "");
 	strcpy(dav_pathname, "");
 	strcpy(dav_ifmatch, "");
+	strcpy(dav_depth, "");
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
@@ -125,6 +127,10 @@ void groupdav_main(struct httprequest *req,
 		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
                         safestrncpy(dav_ifmatch, &rptr->line[10],
 				sizeof dav_ifmatch);
+                }
+		if (!strncasecmp(rptr->line, "Depth: ", 7)) {
+                        safestrncpy(dav_depth, &rptr->line[7],
+				sizeof dav_depth);
                 }
 	}
 
@@ -189,7 +195,8 @@ void groupdav_main(struct httprequest *req,
 	 * room, or to list all relevant rooms on the server.
 	 */
 	if (!strcasecmp(dav_method, "PROPFIND")) {
-		groupdav_propfind(dav_pathname);
+		groupdav_propfind(dav_pathname, dav_depth,
+				dav_content_type, dav_content);
 		return;
 	}
 
