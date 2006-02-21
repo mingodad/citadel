@@ -503,7 +503,7 @@ int is_noneditable(struct ctdlroom *qrbuf)
 /*
  * Back-back-end for all room listing commands
  */
-void list_roomname(struct ctdlroom *qrbuf, int ra, int view)
+void list_roomname(struct ctdlroom *qrbuf, int ra, int current_view, int default_view)
 {
 	char truncated_roomname[ROOMNAMELEN];
 
@@ -520,13 +520,14 @@ void list_roomname(struct ctdlroom *qrbuf, int ra, int view)
 	}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d|%d|%d|%d|%d|\n",
+	cprintf("|%u|%d|%d|%d|%d|%d|%d|\n",
 		qrbuf->QRflags,
 		(int) qrbuf->QRfloor,
 		(int) qrbuf->QRorder,
 		(int) qrbuf->QRflags2,
 		ra,
-		view
+		current_view,
+		default_view
 	);
 }
 
@@ -546,7 +547,7 @@ void cmd_lrms_backend(struct ctdlroom *qrbuf, void *data)
 	if ((( ra & (UA_KNOWN | UA_ZAPPED)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lrms(char *argbuf)
@@ -584,7 +585,7 @@ void cmd_lkra_backend(struct ctdlroom *qrbuf, void *data)
 	if ((( ra & (UA_KNOWN)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lkra(char *argbuf)
@@ -620,7 +621,7 @@ void cmd_lprm_backend(struct ctdlroom *qrbuf, void *data)
 		&& ((qrbuf->QRflags & QR_MAILBOX) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lprm(char *argbuf)
@@ -653,7 +654,7 @@ void cmd_lkrn_backend(struct ctdlroom *qrbuf, void *data)
 	    && (ra & UA_HASNEWMSGS)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lkrn(char *argbuf)
@@ -692,7 +693,7 @@ void cmd_lkro_backend(struct ctdlroom *qrbuf, void *data)
 	    && ((ra & UA_HASNEWMSGS) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lkro(char *argbuf)
@@ -731,7 +732,7 @@ void cmd_lzrm_backend(struct ctdlroom *qrbuf, void *data)
 	    && (ra & UA_ZAPPED)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra, view);
+		list_roomname(qrbuf, ra, view, qrbuf->QRdefaultview);
 }
 
 void cmd_lzrm(char *argbuf)

@@ -292,6 +292,7 @@ room access controls:
 #define UA_ZAPPED              16	/* Zapped from known rooms list */
   
  The sixth field is the user's current view for the room. (See VIEW command)
+ The seventh field is the *default* view for the room. (See VIEW command)
  
  
  LKRO   (List Known Rooms with Old [no new] messages)

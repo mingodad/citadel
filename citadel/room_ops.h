@@ -51,7 +51,7 @@ void ForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
 	void *in_data);
 void schedule_room_for_deletion(struct ctdlroom *qrbuf);
 void delete_room(struct ctdlroom *qrbuf);
-void list_roomname(struct ctdlroom *qrbuf, int ra, int view);
+void list_roomname(struct ctdlroom *qrbuf, int ra, int current_view, int default_view);
 int is_noneditable(struct ctdlroom *qrbuf);
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view);
