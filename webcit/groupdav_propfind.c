@@ -83,12 +83,18 @@ void groupdav_folder_list(void) {
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		extract_token(roomname, buf, 0, '|', sizeof roomname);
-		view = extract_int(buf, 6);
+		view = extract_int(buf, 7);
 
 		/*
 		 * For now, only list rooms that we know a GroupDAV client
 		 * might be interested in.  In the future we may add
 		 * the rest.
+		 *
+		 * We determine the type of objects which are stored in each
+		 * room by looking at the *default* view for the room.  This
+		 * allows, for example, a Calendar room to appear as a
+		 * GroupDAV calendar even if the user has switched it to a
+		 * Calendar List view.
 		 */
 		if ((view == VIEW_CALENDAR)
 		   || (view == VIEW_TASKS)
