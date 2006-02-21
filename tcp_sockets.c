@@ -158,10 +158,11 @@ void serv_getln(char *strbuf, int bufsize)
 	do {
 		serv_read(&buf[0], 1);
 		ch = buf[0];
-		strbuf[len++] = ch;
+		if ((ch != 13) && (ch != 10)) {
+			strbuf[len++] = ch;
+		}
 	} while ((ch != 10) && (ch != 0) && (len < (bufsize-1)));
-	if (strbuf[len-1] == 10) strbuf[--len] = 0;
-	if (strbuf[len-1] == 13) strbuf[--len] = 0;
+	strbuf[len] = 0;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
 #endif

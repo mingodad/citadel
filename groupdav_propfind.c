@@ -75,7 +75,7 @@ void groupdav_folder_list(void) {
 	begin_burst();
 
 	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<D:multistatus xmlns:D=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
+     		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
 	serv_puts("LKRA");
@@ -94,21 +94,21 @@ void groupdav_folder_list(void) {
 		   || (view == VIEW_TASKS)
 		   || (view == VIEW_ADDRESSBOOK) ) {
 
-			wprintf("<D:response>");
+			wprintf("<response>");
 
-			wprintf("<D:href>");
+			wprintf("<href>");
 			groupdav_identify_host();
 			wprintf("/groupdav/");
 			urlescputs(roomname);
-			wprintf("/</D:href>");
+			wprintf("/</href>");
 
-			wprintf("<D:propstat>");
-			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
-			wprintf("<D:prop>");
-			wprintf("<D:displayname>");
+			wprintf("<propstat>");
+			wprintf("<status>HTTP/1.1 200 OK</status>");
+			wprintf("<prop>");
+			wprintf("<displayname>");
 			escputs(roomname);
-			wprintf("</D:displayname>");
-			wprintf("<D:resourcetype><D:collection/>");
+			wprintf("</displayname>");
+			wprintf("<resourcetype><collection/>");
 
 			switch(view) {
 				case VIEW_CALENDAR:
@@ -122,13 +122,13 @@ void groupdav_folder_list(void) {
 					break;
 			}
 
-			wprintf("</D:resourcetype>");
-			wprintf("</D:prop>");
-			wprintf("</D:propstat>");
-			wprintf("</D:response>");
+			wprintf("</resourcetype>");
+			wprintf("</prop>");
+			wprintf("</propstat>");
+			wprintf("</response>");
 		}
 	}
-	wprintf("</D:multistatus>\n");
+	wprintf("</multistatus>\n");
 
 	end_burst();
 }
@@ -223,25 +223,25 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 		begin_burst();
 	
 		wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     			"<D:multistatus xmlns:D=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
+     			"<multistatus xmlns=\"DAV:\">"
 		);
 
-		wprintf("<D:response>");
+		wprintf("<response>");
 
-		wprintf("<D:href>");
+		wprintf("<href>");
 		groupdav_identify_host();
 		wprintf("/groupdav/");
 		urlescputs(WC->wc_roomname);
 		euid_escapize(encoded_uid, dav_uid);
 		wprintf("/%s", encoded_uid);
-		wprintf("</D:href>");
-		wprintf("<D:propstat>");
-		wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
-		wprintf("<D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>", dav_msgnum);
-		wprintf("</D:propstat>");
+		wprintf("</href>");
+		wprintf("<propstat>");
+		wprintf("<status>HTTP/1.1 200 OK</status>");
+		wprintf("<prop><getetag>\"%ld\"</getetag></prop>", dav_msgnum);
+		wprintf("</propstat>");
 
-		wprintf("</D:response>\n");
-		wprintf("</D:multistatus>\n");
+		wprintf("</response>\n");
+		wprintf("</multistatus>\n");
 		end_burst();
 		return;
 	}
@@ -264,7 +264,7 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 	begin_burst();
 
 	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<D:multistatus xmlns:D=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
+     		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
 	serv_puts("MSGS ALL");
@@ -286,23 +286,23 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 		}
 
 		if (strlen(uid) > 0) {
-			wprintf("<D:response>");
-			wprintf("<D:href>");
+			wprintf("<response>");
+			wprintf("<href>");
 			groupdav_identify_host();
 			wprintf("/groupdav/");
 			urlescputs(WC->wc_roomname);
 			euid_escapize(encoded_uid, uid);
 			wprintf("/%s", encoded_uid);
-			wprintf("</D:href>");
-			wprintf("<D:propstat>");
-			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
-			wprintf("<D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>", msgs[i]);
-			wprintf("</D:propstat>");
-			wprintf("</D:response>");
+			wprintf("</href>");
+			wprintf("<propstat>");
+			wprintf("<status>HTTP/1.1 200 OK</status>");
+			wprintf("<prop><getetag>\"%ld\"</getetag></prop>", msgs[i]);
+			wprintf("</propstat>");
+			wprintf("</response>");
 		}
 	}
 
-	wprintf("</D:multistatus>\n");
+	wprintf("</multistatus>\n");
 	end_burst();
 
 	if (msgs != NULL) {

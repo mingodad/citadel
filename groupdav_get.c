@@ -73,21 +73,23 @@ void groupdav_get(char *dav_pathname) {
 	groupdav_common_headers();
 	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "Date: ", 6)) {
+		if (in_body) {
 			wprintf("%s\r\n", buf);
 		}
-		if (!strncasecmp(buf, "Content-type: ", 14)) {
+		else if (!strncasecmp(buf, "Date: ", 6)) {
+			wprintf("%s\r\n", buf);
+		}
+		else if (!strncasecmp(buf, "Content-type: ", 14)) {
 			wprintf("%s\r\n", buf);
 			found_content_type = 1;
 		}
-		if ((strlen(buf) == 0) && (in_body == 0)) {
+		else if ((strlen(buf) == 0) && (in_body == 0)) {
 			if (!found_content_type) {
 				wprintf("Content-type: text/plain\r\n");
 			}
 			in_body = 1;
-		}
-		if (in_body) {
-			wprintf("%s\r\n", buf);
+			begin_burst();
 		}
 	}
+	end_burst();
 }
