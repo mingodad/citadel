@@ -260,6 +260,14 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	   && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
 		/* Yes, we want to do this */
 		yes_my_citadel_config = 1;
+
+#ifdef VCARD_SAVES_BY_AIDES_ONLY
+		/* Prevent non-aides from performing registration changes */
+		if (CC->user.axlevel < 6) {
+			return(1);
+		}
+#endif
+
 	}
 
 	/* Is this a room with an address book in it? */
