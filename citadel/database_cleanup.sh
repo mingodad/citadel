@@ -67,7 +67,7 @@ done
 echo Removing old databases
 rm -f ./data/*
 
-for x in 00 01 02 03 04 05 06 07 08 09
+for x in 00 01 02 03 04 05 06 07 08 09 0a
 do
 	filename=cdb.$x
 	echo Loading $filename
