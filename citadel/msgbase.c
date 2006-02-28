@@ -751,7 +751,6 @@ void do_help_subst(char *buffer)
  *	     to the client.  The client software may reformat it again.
  */
 void memfmout(
-	int width,		/* screen width to use */
 	char *mptr,		/* where are we going to get our text from? */
 	char subst,		/* nonzero if we should do substitutions */
 	char *nl)		/* string to terminate lines with */
@@ -762,6 +761,7 @@ void memfmout(
 	cit_uint8_t ch;
 	char aaa[140];
 	char buffer[SIZ];
+	static int width = 80;
 
 	strcpy(aaa, "");
 	old = 255;
@@ -789,15 +789,13 @@ void memfmout(
 		old = real;
 		real = ch;
 
-		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
+		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10)) {
 			ch = 32;
+		}
 		if (((old == 13) || (old == 10)) && (isspace(real))) {
 			cprintf("%s", nl);
 			c = 1;
 		}
-		if (ch > 126)
-			continue;
-
 		if (ch > 32) {
 			if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
 				cprintf("%s%s", nl, aaa);
@@ -1682,7 +1680,7 @@ START_TEXT:
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
 		}
-		memfmout(80, mptr, 0, nl);
+		memfmout(mptr, 0, nl);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it

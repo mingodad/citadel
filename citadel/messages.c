@@ -260,12 +260,10 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 		if (a == 127)
 			a = 8;
 
-	/******* new ***********/
-		if ((a > 32) && (a < 127) && (prev == 13)) {
+		if ((a != 32) && (prev == 13)) {
 			add_word(textlist, "\n");
 			scr_printf(" ");
 		}
-	/***********************/
 
 		if ((a == 32) && (prev == 13)) {
 			add_word(textlist, "\n");

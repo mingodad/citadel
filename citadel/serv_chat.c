@@ -456,7 +456,7 @@ void cmd_pexp(char *argbuf)
 			cprintf("Message ");
 		cprintf("from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
-			memfmout(80, ptr->text, 0, "\n");
+			memfmout(ptr->text, 0, "\n");
 
 		holdptr = ptr->next;
 		if (ptr->text != NULL) free(ptr->text);
@@ -486,15 +486,18 @@ void cmd_gexp(char *argbuf) {
 	cprintf("%d %d|%ld|%d|%s|%s\n",
 		LISTING_FOLLOWS,
 		((ptr->next != NULL) ? 1 : 0),		/* more msgs? */
-		(long)ptr->timestamp,				/* time sent */
+		(long)ptr->timestamp,			/* time sent */
 		ptr->flags,				/* flags */
 		ptr->sender,				/* sender of msg */
-		config.c_nodename);			/* static for now */
+		config.c_nodename			/* static for now */
+	);
+
 	if (ptr->text != NULL) {
-		memfmout(80, ptr->text, 0, "\n");
+		memfmout(ptr->text, 0, "\n");
 		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
 		free(ptr->text);
-		}
+	}
+
 	cprintf("000\n");
 	free(ptr);
 }
@@ -554,7 +557,6 @@ void add_xmsg_to_context(struct CitContext *ccptr,
 int send_instant_message(char *lun, char *x_user, char *x_msg)
 {
 	int message_sent = 0;		/* number of successful sends */
-
 	struct CitContext *ccptr;
 	struct ExpressMessage *newmsg;
 	char *un;
@@ -570,16 +572,18 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 	if (strlen(x_msg) > 0) {
 		msglen = strlen(x_msg) + 4;
 		do_send = 1;
-		}
+	}
 
 	/* find the target user's context and append the message */
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 
-		if (ccptr->fake_username[0])	/* <bc> */
+		if (ccptr->fake_username[0]) {
 			un = ccptr->fake_username;
-		else
+		}
+		else {
 			un = ccptr->user.fullname;
+		}
 
 		if ( ((!strcasecmp(un, x_user))
 		    || (!strcasecmp(x_user, "broadcast")))
@@ -662,14 +666,14 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 }
 
 /*
- * send instant messages  <bc>
+ * send instant messages
  */
 void cmd_sexp(char *argbuf)
 {
 	int message_sent = 0;
 	char x_user[USERNAME_SIZE];
 	char x_msg[1024];
-	char *lun;		/* <bc> */
+	char *lun;
 	char *x_big_msgbuf = NULL;
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {

@@ -495,15 +495,21 @@ int inkey(void)
 		 * (There's a hole in the bucket...)
 		 */
 		a = scr_getc(SCR_BLOCK);
-		if (a == 127)
+		if (a == 127) {
 			a = 8;
-		if (a > 126)
-			a = 0;
-		if (a == 13)
+		}
+		if (a == 13) {
 			a = 10;
-		if (((a != 23) && (a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
-		    && ((a < 32) || (a > 126)))
+		}
+/* not so fast there dude, we have to handle UTF-8 and ISO-8859-1...
+		if (a > 126) {
 			a = 0;
+		}
+		if (((a != 23) && (a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
+		    && ((a < 32) || (a > 126))) {
+			a = 0;
+		}
+ */
 
 #ifndef DISABLE_CURSES
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
@@ -573,8 +579,9 @@ void getline(char *string, int lim)
 	strcpy(string, "");
 	gl_string = string;
 	async_ka_start();
-      GLA:a = inkey();
-	a = (a & 127);
+
+GLA:	a = inkey();
+	/* a = (a & 127); ** commented out because it isn't just an ASCII world anymore */
 	if ((a == 8 || a == 23) && (strlen(string) == 0))
 		goto GLA;
 	if ((a != 10) && (a != 8) && (strlen(string) == lim))
@@ -1370,11 +1377,15 @@ int fmout(
 			old = '\n';
 			continue;
 		}
-		/* Are we looking at a nonprintable? */
+
+		/* Are we looking at a nonprintable?
+		 * (This section is now commented out because we could be displaying
+		 * a character set like UTF-8 or ISO-8859-1.)
 		if ( (*e < 32) || (*e > 126) ) {
 			e++;
 			continue;
-		}
+		} */
+
 		/* Or are we looking at a space? */
 		if (*e == ' ') {
 			e++;
