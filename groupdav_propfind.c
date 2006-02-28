@@ -25,17 +25,25 @@
  * then search for it in the current room.  Return a message number or -1
  * if not found.
  *
- * NOTE: this function relies on the Citadel server's brute-force search.
- * There's got to be a way to optimize this better.
+ * FIXME there's an indexing facility for this in Citadel.  Use it!!!!
  */
 long locate_message_by_uid(char *uid) {
-	char buf[SIZ];
-	char decoded_uid[SIZ];
+	char buf[256];
+	char decoded_uid[1024];
 	long retval = (-1L);
 
 	/* Decode the uid */
 	euid_unescapize(decoded_uid, uid);
 
+/**************  THE NEW WAY ***********************/
+	serv_printf("EUID %s", decoded_uid);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		retval = atol(&buf[4]);
+	}
+/***************************************************/
+
+/**************  THE OLD WAY ***********************
 	serv_puts("MSGS ALL|0|1");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '8') {
@@ -45,19 +53,24 @@ long locate_message_by_uid(char *uid) {
 			retval = atol(buf);
 		}
 	}
+ ***************************************************/
+
+
 	return(retval);
 }
 
 
 /*
- * List folders containing interesting groupware objects
+ * List rooms (or "collections" in DAV terminology) which contain
+ * interesting groupware objects.
  */
-void groupdav_folder_list(void) {
-	char buf[SIZ];
-	char roomname[SIZ];
+void groupdav_collection_list(void) {
+	char buf[256];
+	char roomname[256];
 	int view;
-	char datestring[SIZ];
+	char datestring[256];
 	time_t now;
+	int is_groupware_collection = 0;
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
@@ -96,10 +109,14 @@ void groupdav_folder_list(void) {
 		 * GroupDAV calendar even if the user has switched it to a
 		 * Calendar List view.
 		 */
-		if ((view == VIEW_CALENDAR)
-		   || (view == VIEW_TASKS)
-		   || (view == VIEW_ADDRESSBOOK) ) {
+		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
+			is_groupware_collection = 1;
+		}
+		else {
+			is_groupware_collection = 0;
+		}
 
+		if (is_groupware_collection) {
 			wprintf("<response>");
 
 			wprintf("<href>");
@@ -174,7 +191,7 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 	 * folder list.
 	 */
 	if (strlen(dav_roomname) == 0) {
-		groupdav_folder_list();
+		groupdav_collection_list();
 		return;
 	}
 
