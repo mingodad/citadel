@@ -107,15 +107,14 @@ void groupdav_main(struct httprequest *req,
 	char dav_method[256];
 	char dav_pathname[256];
 	char dav_ifmatch[256];
-	char dav_depth[256];
-	char buf[256];
+	int dav_depth;
 	char *ds;
 	int i;
 
 	strcpy(dav_method, "");
 	strcpy(dav_pathname, "");
 	strcpy(dav_ifmatch, "");
-	strcpy(dav_depth, "");
+	dav_depth = 0;
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
@@ -129,8 +128,15 @@ void groupdav_main(struct httprequest *req,
 				sizeof dav_ifmatch);
                 }
 		if (!strncasecmp(rptr->line, "Depth: ", 7)) {
-                        safestrncpy(dav_depth, &rptr->line[7],
-				sizeof dav_depth);
+			if (!strcasecmp(&rptr->line[7], "infinity")) {
+				dav_depth = 32767;
+			}
+			else if (!strcmp(&rptr->line[7], "0")) {
+				dav_depth = 0;
+			}
+			else if (!strcmp(&rptr->line[7], "1")) {
+				dav_depth = 1;
+			}
                 }
 	}
 
@@ -150,11 +156,16 @@ void groupdav_main(struct httprequest *req,
 	/* If the request does not begin with "/groupdav", prepend it.  If
 	 * we happen to introduce a double-slash, that's ok; we'll strip it
 	 * in the next step.
-	 */
+	 * 
+	 * (THIS IS DISABLED BECAUSE WE ARE NOW TRYING TO DO REAL DAV.)
+	 *
 	if (strncasecmp(dav_pathname, "/groupdav", 9)) {
+		char buf[512];
 		snprintf(buf, sizeof buf, "/groupdav/%s", dav_pathname);
 		safestrncpy(dav_pathname, buf, sizeof dav_pathname);
 	}
+	 *
+	 */
 	
 	/* Remove any stray double-slashes in pathname */
 	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
