@@ -19,13 +19,11 @@
 #include "webserver.h"
 #include "groupdav.h"
 
-
 /*
  * Given an encoded UID, translate that to an unencoded Citadel EUID and
  * then search for it in the current room.  Return a message number or -1
  * if not found.
  *
- * FIXME there's an indexing facility for this in Citadel.  Use it!!!!
  */
 long locate_message_by_uid(char *uid) {
 	char buf[256];
@@ -55,27 +53,43 @@ long locate_message_by_uid(char *uid) {
 	}
  ***************************************************/
 
-
 	return(retval);
 }
+
 
 
 /*
  * List rooms (or "collections" in DAV terminology) which contain
  * interesting groupware objects.
  */
-void groupdav_collection_list(void) {
+void groupdav_collection_list(char *dav_pathname, int dav_depth)
+{
 	char buf[256];
 	char roomname[256];
 	int view;
 	char datestring[256];
 	time_t now;
+	time_t mtime;
 	int is_groupware_collection = 0;
+	int starting_point = 1;		/**< 0 for /, 1 for /groupdav/ */
+
+	if (!strcmp(dav_pathname, "/")) {
+		starting_point = 0;
+	}
+	else if (!strcasecmp(dav_pathname, "/groupdav")) {
+		starting_point = 1;
+	}
+	else if (!strcasecmp(dav_pathname, "/groupdav/")) {
+		starting_point = 1;
+	}
+	else if ( (!strncasecmp(dav_pathname, "/groupdav/", 10)) && (strlen(dav_pathname) > 10) ) {
+		starting_point = 2;
+	}
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
-	/*
+	/**
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
@@ -91,12 +105,61 @@ void groupdav_collection_list(void) {
      		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
+	/**
+	 *	If the client is requesting the root, show a root node.
+	 */
+	if (starting_point == 0) {
+		wprintf("<response>");
+			wprintf("<href>");
+				groupdav_identify_host();
+				wprintf("/");
+			wprintf("</href>");
+			wprintf("<propstat>");
+				wprintf("<status>HTTP/1.1 200 OK</status>");
+				wprintf("<prop>");
+					wprintf("<displayname>/</displayname>");
+					wprintf("<resourcetype><collection/></resourcetype>");
+					wprintf("<getlastmodified>");
+						escputs(datestring);
+					wprintf("</getlastmodified>");
+				wprintf("</prop>");
+			wprintf("</propstat>");
+		wprintf("</response>");
+	}
+
+	/**
+	 *	If the client is requesting "/groupdav", show a /groupdav subdirectory.
+	 */
+	if ((starting_point + dav_depth) >= 1) {
+		wprintf("<response>");
+			wprintf("<href>");
+				groupdav_identify_host();
+				wprintf("/groupdav");
+			wprintf("</href>");
+			wprintf("<propstat>");
+				wprintf("<status>HTTP/1.1 200 OK</status>");
+				wprintf("<prop>");
+					wprintf("<displayname>GroupDAV</displayname>");
+					wprintf("<resourcetype><collection/></resourcetype>");
+					wprintf("<getlastmodified>");
+						escputs(datestring);
+					wprintf("</getlastmodified>");
+				wprintf("</prop>");
+			wprintf("</propstat>");
+		wprintf("</response>");
+	}
+
+	/**
+	 *	Now go through the list and make it look like a DAV collection
+	 */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		extract_token(roomname, buf, 0, '|', sizeof roomname);
 		view = extract_int(buf, 7);
+		mtime = extract_long(buf, 8);
+		http_datestring(datestring, sizeof datestring, mtime);
 
 		/*
 		 * For now, only list rooms that we know a GroupDAV client
@@ -116,7 +179,7 @@ void groupdav_collection_list(void) {
 			is_groupware_collection = 0;
 		}
 
-		if (is_groupware_collection) {
+		if ( (is_groupware_collection) && ((starting_point + dav_depth) >= 2) ) {
 			wprintf("<response>");
 
 			wprintf("<href>");
@@ -146,6 +209,9 @@ void groupdav_collection_list(void) {
 			}
 
 			wprintf("</resourcetype>");
+			wprintf("<getlastmodified>");
+				escputs(datestring);
+			wprintf("</getlastmodified>");
 			wprintf("</prop>");
 			wprintf("</propstat>");
 			wprintf("</response>");
@@ -161,7 +227,7 @@ void groupdav_collection_list(void) {
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_type, char *dav_content) {
+void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type, char *dav_content) {
 	char dav_roomname[256];
 	char dav_uid[256];
 	char msgnum[256];
@@ -181,17 +247,12 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
 	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
-	lprintf(9, "dav_pathname: %s\n", dav_pathname);
-	lprintf(9, "dav_roomname: %s\n", dav_roomname);
-	lprintf(9, "     dav_uid: %s\n", dav_uid);
-	lprintf(9, "   dav_depth: %s\n", dav_depth);
-
 	/*
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
 	if (strlen(dav_roomname) == 0) {
-		groupdav_collection_list();
+		groupdav_collection_list(dav_pathname, dav_depth);
 		return;
 	}
 
@@ -214,8 +275,7 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 
 	/* If dav_uid is non-empty, client is requesting a PROPFIND on
 	 * a specific item in the room.  This is not valid GroupDAV, but
-	 * we try to honor it anyway because some clients are expecting
-	 * it to work...
+	 * it is valid WebDAV.
 	 */
 	if (strlen(dav_uid) > 0) {
 
@@ -290,6 +350,48 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
      		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
+
+	/** Transmit the collection resource (FIXME check depth and starting point) */
+	wprintf("<response>");
+
+	wprintf("<href>");
+		groupdav_identify_host();
+		wprintf("/groupdav/");
+		urlescputs(WC->wc_roomname);
+	wprintf("</href>");
+
+	wprintf("<propstat>");
+	wprintf("<status>HTTP/1.1 200 OK</status>");
+	wprintf("<prop>");
+	wprintf("<displayname>");
+	escputs(WC->wc_roomname);
+	wprintf("</displayname>");
+	wprintf("<resourcetype><collection/>");
+
+	switch(WC->wc_default_view) {
+		case VIEW_CALENDAR:
+			wprintf("<G:vevent-collection />");
+			break;
+		case VIEW_TASKS:
+			wprintf("<G:vtodo-collection />");
+			break;
+		case VIEW_ADDRESSBOOK:
+			wprintf("<G:vcard-collection />");
+			break;
+	}
+
+	wprintf("</resourcetype>");
+	/* FIXME get the mtime
+	wprintf("<getlastmodified>");
+		escputs(datestring);
+	wprintf("</getlastmodified>");
+	*/
+	wprintf("</prop>");
+	wprintf("</propstat>");
+	wprintf("</response>");
+
+	/** Transmit the collection listing (FIXME check depth and starting point) */
+
 	serv_puts("MSGS ALL");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while (serv_getln(msgnum, sizeof msgnum), strcmp(msgnum, "000")) {
@@ -310,17 +412,19 @@ void groupdav_propfind(char *dav_pathname, char *dav_depth, char *dav_content_ty
 
 		if (strlen(uid) > 0) {
 			wprintf("<response>");
-			wprintf("<href>");
-			groupdav_identify_host();
-			wprintf("/groupdav/");
-			urlescputs(WC->wc_roomname);
-			euid_escapize(encoded_uid, uid);
-			wprintf("/%s", encoded_uid);
-			wprintf("</href>");
-			wprintf("<propstat>");
-			wprintf("<status>HTTP/1.1 200 OK</status>");
-			wprintf("<prop><getetag>\"%ld\"</getetag></prop>", msgs[i]);
-			wprintf("</propstat>");
+				wprintf("<href>");
+					groupdav_identify_host();
+					wprintf("/groupdav/");
+					urlescputs(WC->wc_roomname);
+					euid_escapize(encoded_uid, uid);
+					wprintf("/%s", encoded_uid);
+				wprintf("</href>");
+				wprintf("<propstat>");
+					wprintf("<status>HTTP/1.1 200 OK</status>");
+					wprintf("<prop>");
+						wprintf("<getetag>\"%ld\"</getetag>", msgs[i]);
+					wprintf("</prop>");
+				wprintf("</propstat>");
 			wprintf("</response>");
 		}
 	}

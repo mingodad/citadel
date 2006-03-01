@@ -41,6 +41,7 @@ void groupdav_options(char *dav_pathname) {
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		gotoroom(dav_roomname);
 	}
+
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		wprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
@@ -80,7 +81,6 @@ void groupdav_options(char *dav_pathname) {
 		wprintf("\r\n");
 		return;
 	}
-
 
 	/*
 	 * We got to this point, which means that the client is requesting

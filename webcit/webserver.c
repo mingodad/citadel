@@ -400,13 +400,12 @@ int client_getln(int sock, char *buf, int bufsiz)
 		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
 		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
-			lprintf(2, "Non printable character recieved from client\n");
+			/** Non printable character recieved from client */
 			return(-1);
 		}
 	}
 
-
-	/** If we got a long line, discard characters until the newline.	 */
+	/** If we got a long line, discard characters until the newline. */
 	if (i == (bufsiz-1))
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(sock, &buf[i], 1);
@@ -423,8 +422,9 @@ int client_getln(int sock, char *buf, int bufsiz)
 
 
 /**
- * \brief Start running as a daemon.  
- * param do_close_stdio Only close stdio if set.
+ * \brief	Start running as a daemon.  
+ *
+ * param	do_close_stdio		Only close stdio if set.
  */
 void start_daemon(int do_close_stdio)
 {
@@ -436,10 +436,14 @@ void start_daemon(int do_close_stdio)
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
-	if (fork() != 0)
+	if (fork() != 0) {
 		exit(0);
+	}
 }
 
+/**
+ * \brief	Spawn an additional worker thread into the pool.
+ */
 void spawn_another_worker_thread()
 {
 	pthread_t SessThread;	/**< Thread descriptor */
