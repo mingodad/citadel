@@ -293,6 +293,8 @@ room access controls:
   
  The sixth field is the user's current view for the room. (See VIEW command)
  The seventh field is the *default* view for the room. (See VIEW command)
+ The eigth field is a unix timestamp which reflects the last time the room
+  was modified (created, edited, posted in, deleted from, etc.)
  
  
  LKRO   (List Known Rooms with Old [no new] messages)

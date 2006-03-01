@@ -520,14 +520,15 @@ void list_roomname(struct ctdlroom *qrbuf, int ra, int current_view, int default
 	}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d|%d|%d|%d|%d|%d|\n",
+	cprintf("|%u|%d|%d|%d|%d|%d|%d|%ld|\n",
 		qrbuf->QRflags,
 		(int) qrbuf->QRfloor,
 		(int) qrbuf->QRorder,
 		(int) qrbuf->QRflags2,
 		ra,
 		current_view,
-		default_view
+		default_view,
+		qrbuf->QRmtime
 	);
 }
 
