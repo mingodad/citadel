@@ -668,6 +668,8 @@ AC_REPLACE_FUNCS(snprintf getutline)
 #	esac
 #	])
 
+
+
 AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 	number=`date | cut -c 19`
 	case $number in
@@ -692,7 +694,7 @@ AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile])
-AC_OUTPUT
+AC_OUTPUT(database_cleanup.sh)
 
 if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
