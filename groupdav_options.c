@@ -32,6 +32,7 @@ void groupdav_options(char *dav_pathname) {
 		wprintf("HTTP/1.1 200 OK\r\n");
 		groupdav_common_headers();
 		wprintf("Date: %s\r\n", datestring);
+		wprintf("DAV: 1, 2\r\n");
 		wprintf("Allow: OPTIONS, PROPFIND\r\n");
 		wprintf("\r\n");
 		return;
@@ -77,6 +78,7 @@ void groupdav_options(char *dav_pathname) {
 		wprintf("HTTP/1.1 200 OK\r\n");
 		groupdav_common_headers();
 		wprintf("Date: %s\r\n", datestring);
+		wprintf("DAV: 1, 2\r\n");
 		wprintf("Allow: OPTIONS, PROPFIND, GET, PUT, DELETE\r\n");
 		wprintf("\r\n");
 		return;
@@ -89,6 +91,7 @@ void groupdav_options(char *dav_pathname) {
 	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
 	wprintf("Date: %s\r\n", datestring);
+	wprintf("DAV: 1, 2\r\n");
 	wprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
 	wprintf("\r\n");
 }
