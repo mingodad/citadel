@@ -86,6 +86,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 14:
 			serv_info.serv_supports_ldap = atoi(buf);
 			break;
+		case 15:
+			serv_info.serv_newuser_disabled = atoi(buf);
+			break;
 		}
 		++a;
 	}
