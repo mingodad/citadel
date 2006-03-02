@@ -225,18 +225,25 @@ int lingering_close(int fd)
 
 
 /**
- * \brief sanity requests
- * Check for bogus requests coming from (for example) brain-dead
- * Windoze boxes that are infected with the latest worm-of-the-week.
- * If we detect one of these, bail out without bothering our Citadel
- * server.
- * \param http_cmd the cmd to check
+ * \brief	sanity requests
+ *		Check for bogus requests coming from brain-dead Windows boxes.
+ *
+ * \param	http_cmd	The HTTP request to check
  */
 int is_bogus(char *http_cmd) {
+	char *url;
 
-	if (!strncasecmp(http_cmd, "GET /scripts/root.exe", 21)) return(1);
-	if (!strncasecmp(http_cmd, "GET /c/winnt", 12)) return(2);
-	if (!strncasecmp(http_cmd, "GET /MSADC/", 11)) return(3);
+	url = strstr(http_cmd, " ");
+	if (url == NULL) return(1);
+	++url;
+
+	/** Worms and trojans and viruses, oh my! */
+	if (!strncasecmp(url, "/scripts/root.exe", 17)) return(2);
+	if (!strncasecmp(url, "/c/winnt", 8)) return(2);
+	if (!strncasecmp(url, "/MSADC/", 7)) return(2);
+
+	/** Broken Microsoft DAV implementation */
+	if (!strncasecmp(url, "/_vti", 5)) return(3);
 
 	return(0);	/* probably ok */
 }
@@ -357,7 +364,10 @@ void context_loop(int sock)
 	lprintf(5, "HTTP: %s\n", buf);
 
 	/** Check for bogus requests */
-	if (is_bogus(buf)) goto bail;
+	if (is_bogus(buf)) {
+		strcpy(req->line, "GET /404 HTTP/1.1");
+		strcpy(buf, "GET /404 HTTP/1.1");
+	}
 
 	/**
 	 * Strip out the method, leaving the URL up front...
@@ -390,6 +400,7 @@ void context_loop(int sock)
 		&& (strncasecmp(buf, "/groupdav", 9))
 		&& (strncasecmp(buf, "/static", 7))
 		&& (strncasecmp(buf, "/rss", 4))
+		&& (strncasecmp(buf, "/404", 4))
 	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"
 				"?force_close_session=yes HTTP/1.1");
@@ -467,7 +478,7 @@ void context_loop(int sock)
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/*< unbind */
 
 	/** Free the request buffer */
-bail:	while (req != NULL) {
+	while (req != NULL) {
 		hptr = req->next;
 		free(req);
 		req = hptr;
