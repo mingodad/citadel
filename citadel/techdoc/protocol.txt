@@ -610,26 +610,28 @@ anywhere from a null listing to an infinite number of lines, to allow later
 backward compatibility.  The current implementation defines the following
 parts of the listing:
 
- Line 1  - Your unique session ID on the server
- Line 2  - The node name of the Citadel server
- Line 3  - Human-readable node name of the Citadel server
- Line 4  - The fully-qualified domain name (FQDN) of the server
- Line 5  - The name of the server software, i.e. "Citadel 4.00"
- Line 6  - (The revision level of the server code) * 100
- Line 7  - The geographical location of the site (city and state if in the US)
- Line 8  - The name of the system administrator
- Line 9  - A number identifying the server type (see below)
- Line 10 - The text of the system's paginator prompt
- Line 11 - Floor Flag.  1 if the system supports floors, 0 otherwise.
- Line 12 - Paging level.  0 if the system only supports inline paging,
+ Line 0  - Your unique session ID on the server
+ Line 1  - The node name of the Citadel server
+ Line 2  - Human-readable node name of the Citadel server
+ Line 3  - The fully-qualified domain name (FQDN) of the server
+ Line 4  - The name of the server software, i.e. "Citadel 4.00"
+ Line 5  - (The revision level of the server code) * 100
+ Line 6  - The geographical location of the site (city and state if in the US)
+ Line 7  - The name of the system administrator
+ Line 8  - A number identifying the server type (see below)
+ Line 9  - The text of the system's paginator prompt
+ Line 10 - Floor Flag.  1 if the system supports floors, 0 otherwise.
+ Line 11 - Paging level.  0 if the system only supports inline paging,
            1 if the system supports "extended" paging (check-only and
            multiline modes).  See the SEXP command for further information.
- Line 13 - The "nonce" for this session, for support of APOP-style
+ Line 12 - The "nonce" for this session, for support of APOP-style
            authentication.  If this field is present, clients may authenticate
            in this manner.
- Line 14 - Set to nonzero if this server supports the QNOP command.
- Line 15 - Set to nonzero if this server is capable of connecting to a
+ Line 13 - Set to nonzero if this server supports the QNOP command.
+ Line 14 - Set to nonzero if this server is capable of connecting to a
            directory service using LDAP.
+ Line 15 - Set to nonzero if this server does *not* allow self-service
+           creation of new user accounts.
 
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary

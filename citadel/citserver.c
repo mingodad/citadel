@@ -252,11 +252,19 @@ void cmd_info(void) {
 	cprintf("1\n"); /* 1 = we support the extended paging options */
 	cprintf("%s\n", CC->cs_nonce);
 	cprintf("1\n"); /* 1 = yes, this system supports the QNOP command */
+
 #ifdef HAVE_LDAP
 	cprintf("1\n"); /* 1 = yes, this server is LDAP-enabled */
 #else
 	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
 #endif
+
+#ifdef ENABLE_AUTOLOGIN
+	cprintf("1\n");	/* "create new user" never works with autologin */
+#else
+	cprintf("%d\n", config.c_disable_newu); /* otherwise, site defined */
+#endif
+
 	cprintf("000\n");
 }
 
