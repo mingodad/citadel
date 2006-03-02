@@ -186,6 +186,53 @@ void utf8ify_rfc822_string(char *buf) {
 #endif
 
 
+
+
+/**
+ * \brief	RFC2047-encode a header field if necessary.
+ *		If no non-ASCII characters are found, the string
+ *		will be copied verbatim without encoding.
+ *
+ * \param	target		Target buffer.
+ * \param	maxlen		Maximum size of target buffer.
+ * \param	source		Source string to be encoded.
+ */
+void rfc2047encode(char *target, int maxlen, char *source)
+{
+	int need_to_encode = 0;
+	int i;
+	unsigned char ch;
+
+	if (target == NULL) return;
+
+	for (i=0; i<strlen(source); ++i) {
+		if ((source[i] < 32) || (source[i] > 126)) {
+			need_to_encode = 1;
+		}
+	}
+
+	if (!need_to_encode) {
+		safestrncpy(target, source, maxlen);
+		return;
+	}
+
+	strcpy(target, "=?UTF-8?Q?");
+	for (i=0; i<strlen(source); ++i) {
+		ch = (unsigned char) source[i];
+		if ((ch < 32) || (ch > 126) || (ch == 61)) {
+			sprintf(&target[strlen(target)], "=%02X", ch);
+		}
+		else {
+			sprintf(&target[strlen(target)], "%c", ch);
+		}
+	}
+	
+	strcat(target, "?=");
+}
+
+
+
+
 /**
  * \brief Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
@@ -2577,7 +2624,8 @@ void post_mime_to_server(void) {
  */
 void post_message(void)
 {
-	char buf[SIZ];
+	char buf[1024];
+	char encoded_subject[1024];
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
@@ -2640,10 +2688,11 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
+		rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
 		sprintf(buf, "ENT0 1|%s|%d|4|%s|||%s|%s|%s",
 			bstr("recp"),
 			is_anonymous,
-			bstr("subject"),
+			encoded_subject,
 			bstr("cc"),
 			bstr("bcc"),
 			bstr("wikipage")
