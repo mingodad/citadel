@@ -231,6 +231,7 @@ struct serv_info {
 	char serv_moreprompt[SIZ];	/**< Whats the commandline textprompt */
 	int serv_ok_floors;		/**< nonzero == server supports floors */
 	int serv_supports_ldap;		/**< is the server linked against an ldap tree for adresses? */
+	int serv_newuser_disabled;	/**< Has the server disabled self-service new user creation? */
 };
 
 

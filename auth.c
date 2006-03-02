@@ -75,6 +75,14 @@ void display_login(char *mesg)
 	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by Citadel"),
 		serv_info.serv_humannode);
 	svcallback("DO_LANGUAGE_BOX", offer_languages);
+	if (serv_info.serv_newuser_disabled) {
+		svprintf("NEWUSER_BUTTON_PRE", WCS_STRING, "<div style=\"display:none;\">");
+		svprintf("NEWUSER_BUTTON_POST", WCS_STRING, "</div>");
+	}
+	else {
+		svprintf("NEWUSER_BUTTON_PRE", WCS_STRING, "");
+		svprintf("NEWUSER_BUTTON_POST", WCS_STRING, "");
+	}
 
 	do_template("login");
 
