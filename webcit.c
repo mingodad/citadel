@@ -1184,6 +1184,14 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
+	/** If it's a "force 404" situation then display the error and bail. */
+	if (!strcmp(action, "404")) {
+		wprintf("HTTP/1.1 404 Not found\r\n");
+		wprintf("Content-Type: text/plain\r\n");
+		wprintf("\r\n");
+		wprintf("Not found\r\n");
+		goto SKIP_ALL_THIS_CRAP;
+	}
 
 	/** Static content can be sent without connecting to Citadel. */
 	is_static = 0;
