@@ -46,6 +46,7 @@ struct CtdlServInfo {
 	int paging_level;
 	int supports_qnop;
 	int supports_ldap;
+	int newuser_disabled;
 };
 
 /* This class is responsible for the server connection */

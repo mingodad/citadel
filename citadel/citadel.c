@@ -1303,11 +1303,16 @@ int main(int argc, char **argv)
 	goto GSTA;
 
 NEWUSR:	if (strlen(rc_password) == 0) {
-		scr_printf("'%s' not found.\n"
-			"Do you want to create a new account with this name? ",
-			fullname);
-		if (yesno() == 0)
+		scr_printf("'%s' not found.\n", fullname);
+		scr_printf("Type 'off' if you would like to exit.\n");
+		if (ipc->ServInfo.newuser_disabled == 1) {
 			goto GSTA;
+		}
+		scr_printf("Do you want to create a new user account called '%s'? ",
+			fullname);
+		if (yesno() == 0) {
+			goto GSTA;
+		}
 	}
 
 	r = CtdlIPCCreateUser(ipc, fullname, 1, aaa);

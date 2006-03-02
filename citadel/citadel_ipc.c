@@ -668,6 +668,8 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 					break;
 			case 14:	ipc->ServInfo.supports_ldap = atoi(buf);
 					break;
+			case 15:	ipc->ServInfo.newuser_disabled = atoi(buf);
+					break;
 			}
 		}
 
