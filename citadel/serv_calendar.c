@@ -33,6 +33,7 @@
 #include "mime_parser.h"
 #include "internet_addressing.h"
 #include "serv_calendar.h"
+#include "euidindex.h"
 
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
 
@@ -607,7 +608,6 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	char uid[SIZ];
 	char hold_rm[ROOMNAMELEN];
 	long msgnum_being_replaced = 0;
-	struct CtdlMessage *template = NULL;
 	struct CtdlMessage *msg;
 	struct original_event_container oec;
 	icalcomponent *original_event;
@@ -629,18 +629,13 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	}
 
 	/*
-	 * Pound through the user's calendar looking for a message with
+	 * Look in the EUID index for a message with
 	 * the Citadel EUID set to the value we're looking for.  Since
 	 * Citadel always sets the message EUID to the vCalendar UID of
 	 * the event, this will work.
 	 */
-	template = (struct CtdlMessage *)
-		malloc(sizeof(struct CtdlMessage));
-	memset(template, 0, sizeof(struct CtdlMessage));
-	template->cm_fields['E'] = strdup(uid);
-	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
-	CtdlFreeMessage(template);
+	msgnum_being_replaced = locate_message_by_euid(uid, &CC->room);
+
 	getroom(&CC->room, hold_rm);	/* return to saved room */
 
 	lprintf(CTDL_DEBUG, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
@@ -1337,6 +1332,21 @@ void ical_freebusy(char *who) {
 
 
 /*
+ * Retrieve all of the calendar items in the current room, and output them
+ * as a single icalendar object.
+ */
+void ical_getics(void)
+{
+	cprintf("%d one big calendar\n", LISTING_FOLLOWS);
+/*
+	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
+*/
+	cprintf("\n000\n");
+}
+
+
+/*
  * All Citadel calendar commands from the client come through here.
  */
 void cmd_ical(char *argbuf)
@@ -1392,6 +1402,11 @@ void cmd_ical(char *argbuf)
 		msgnum = extract_long(argbuf, 1);
 		extract_token(partnum, argbuf, 2, '|', sizeof partnum);
 		ical_conflicts(msgnum, partnum);
+		return;
+	}
+
+	if (!strcasecmp(subcmd, "getics")) {
+		ical_getics();
 		return;
 	}
 
