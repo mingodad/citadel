@@ -1330,6 +1330,48 @@ void ical_freebusy(char *who) {
 
 
 
+/*
+ * Backend for ical_getics()
+ * 
+ * This is a ForEachMessage() callback function that searches the current room
+ * for calendar events and adds them each into one big calendar component.
+ */
+void ical_getics_backend(long msgnum, void *data) {
+	icalcomponent *encaps;
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+
+	encaps = (icalcomponent *)data;
+	if (encaps == NULL) return;
+
+	/* Look for the calendar event... */
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) return;
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, "_HUNT_");
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_part,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+	CtdlFreeMessage(msg);
+
+	if (ird.cal == NULL) return;
+
+	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
+	 * are responsible for "the_request"'s memory -- it will be freed
+	 * when we free "encaps". (FIXME strip out the old encapsulation)
+	 */
+	icalcomponent_add_component(encaps, ird.cal);
+	//cprintf("%s\n", icalcomponent_as_ical_string(encaps));
+	cprintf("%s\n", icalcomponent_as_ical_string(ird.cal));
+	icalcomponent_free(ird.cal);
+}
+
+
 
 /*
  * Retrieve all of the calendar items in the current room, and output them
@@ -1337,12 +1379,37 @@ void ical_freebusy(char *who) {
  */
 void ical_getics(void)
 {
+	icalcomponent *encaps = NULL;
+
+	encaps = icalcomponent_new_vcalendar();
+	if (encaps == NULL) {
+		lprintf(CTDL_DEBUG, "Error at %s:%d - could not allocate component!\n",
+			__FILE__, __LINE__);
+		cprintf("%d Could not allocate memory\n", ERROR+INTERNAL_ERROR);
+		return;
+	}
+
 	cprintf("%d one big calendar\n", LISTING_FOLLOWS);
-/*
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Set the method to REQUEST */
+	icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
+
+	/* Now go through the room encapsulating all calendar items. */
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
-*/
-	cprintf("\n000\n");
+		NULL,
+		ical_getics_backend,
+		(void *) encaps
+	);
+
+	cprintf("000\n");
+	icalcomponent_free(encaps);	/* Don't need this anymore. */
+
 }
 
 
@@ -2066,3 +2133,9 @@ char *serv_calendar_init(void)
 #endif
 	return "$Id$";
 }
+
+
+
+
+
+
