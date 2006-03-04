@@ -11,13 +11,45 @@
 
 
 /*
+ * Fetch the entire contents of the room as one big ics file.
+ * This is for "webcal://" type access.
+ */	
+void groupdav_get_big_ics(void) {
+	char buf[1024];
+
+	serv_puts("ICAL getics");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '1') {
+		wprintf("HTTP/1.1 404 not found\r\n");
+		groupdav_common_headers();
+		wprintf(
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"%s\r\n",
+			&buf[4]
+		);
+		return;
+	}
+
+	wprintf("HTTP/1.1 200 OK\r\n");
+	groupdav_common_headers();
+	wprintf("Content-type: text/calendar; charset=UTF-8\r\n");
+	begin_burst();
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		wprintf("%s\r\n", buf);
+	}
+	end_burst();
+}
+
+
+/*
  * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_get(char *dav_pathname) {
-	char dav_roomname[SIZ];
-	char dav_uid[SIZ];
+	char dav_roomname[1024];
+	char dav_uid[1024];
 	long dav_msgnum = (-1);
-	char buf[SIZ];
+	char buf[1024];
 	int n = 0;
 	int in_body = 0;
 	int found_content_type = 0;
@@ -50,6 +82,14 @@ void groupdav_get(char *dav_pathname) {
 			"There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
+		return;
+	}
+
+	/** The reserved item name 'ics' returns the entire calendar.
+	 *  FIXME this name may not be what we choose permanently.
+	 */
+	if (!strcasecmp(dav_uid, "ics")) {
+		groupdav_get_big_ics();
 		return;
 	}
 
