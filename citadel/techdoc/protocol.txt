@@ -2156,8 +2156,17 @@ may be issued:
   Output the contents of the entire calendar (assuming we are in a calendar
   room) as one big data stream.  All of the events (or tasks, etc.) in the room
   are combined into a single VCALENDAR object, which is then serialized and
-  transmitted to the client.  This is suitable for exporting a calendar into
-  third-party software.
+  transmitted to the client.  This is suitable for subscribing to a calendar
+  in third-party software.  This command will output LISTING_FOLLOWS followed
+  by the calendar data stream, or ERROR if the requested operation is not
+  permitted.
+ 
+ ICAL putics
+  Delete the entire contents of a calendar room and replace it with the calendar
+  supplied by a client-input data stream.  This is suitable for publishing a
+  calendar from third-party software.  This command will output SEND_LISTING and
+  then expect the client to transmit the calendar data stream.  Alternatively,
+  it will return ERROR if the requested operation is not permitted.
 
 
 

@@ -1437,6 +1437,42 @@ void ical_getics(void)
 
 
 /*
+ * Delete all of the calendar items in the current room, and replace them
+ * with calendar items from a client-supplied data stream.
+ */
+void ical_putics(void)
+{
+	char *calstream = NULL;
+	icalcomponent *cal;
+
+	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
+	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
+		cprintf("%d Not a calendar room\n", ERROR+NOT_HERE);
+		return;		/* Not a vCalendar-centric room */
+	}
+
+	if (!CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
+		cprintf("%d Permission denied.\n", ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+	}
+
+	cprintf("%d Transmit data now\n", SEND_LISTING);
+        calstream = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
+	if (calstream == NULL) {
+		return;
+	}
+
+	cal = icalcomponent_new_from_string(calstream);
+	free(calstream);
+	ical_dezonify(cal);
+
+	/* FIXME -- WRITE THE CODE TO TAKE APART THE CALENDAR AND POST ITS ITEMS */
+
+	icalcomponent_free(cal);
+}
+
+
+/*
  * All Citadel calendar commands from the client come through here.
  */
 void cmd_ical(char *argbuf)
@@ -1497,6 +1533,11 @@ void cmd_ical(char *argbuf)
 
 	if (!strcasecmp(subcmd, "getics")) {
 		ical_getics();
+		return;
+	}
+
+	if (!strcasecmp(subcmd, "putics")) {
+		ical_putics();
 		return;
 	}
 
