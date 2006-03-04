@@ -208,7 +208,8 @@ void groupdav_main(struct httprequest *req,
 	 */
 	if (!strcasecmp(dav_method, "PUT")) {
 		groupdav_put(dav_pathname, dav_ifmatch,
-				dav_content_type, dav_content);
+				dav_content_type, dav_content,
+				dav_content_length);
 		return;
 	}
 

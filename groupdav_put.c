@@ -11,17 +11,52 @@
 
 
 /*
+ * This function is for uploading an ENTIRE calendar, not just one
+ * component.  This would be for webcal:// 'publish' operations, not
+ * for GroupDAV.
+ */
+void groupdav_put_bigics(char *dav_content, int dav_content_length)
+{
+	char buf[1024];
+
+	serv_puts("ICAL putics");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '4') {
+		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
+		groupdav_common_headers();
+		wprintf("Content-type: text/plain\r\n"
+			"\r\n"
+			"%s\r\n", &buf[4]
+		);
+		return;
+	}
+
+	client_write(dav_content, dav_content_length);
+	serv_printf("\n000");
+
+	/* Report success and not much else. */
+	wprintf("HTTP/1.1 204 No Content\r\n");
+	lprintf(9, "HTTP/1.1 204 No Content\r\n");
+	groupdav_common_headers();
+	wprintf("Content-Length: 0\r\n\r\n");
+}
+
+
+
+/*
  * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_put(char *dav_pathname, char *dav_ifmatch,
-		char *dav_content_type, char *dav_content
+		char *dav_content_type, char *dav_content,
+		int dav_content_length
 ) {
-	char dav_roomname[SIZ];
-	char dav_uid[SIZ];
+	char dav_roomname[1024];
+	char dav_uid[1024];
 	long new_msgnum = (-2L);
 	long old_msgnum = (-1L);
 	char buf[SIZ];
 	int n = 0;
+	int is_bigics = 0;	/* nonzero == doing a webcal publish */
 
 	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
@@ -32,7 +67,20 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
 	remove_token(dav_pathname, n-1, '/');
 
-	/* What's left is the room name.  Remove trailing slashes. */
+	/* What's left is the room name. Check for webcal publish syntax... */
+
+	if (!strcasecmp(&dav_pathname[strlen(dav_pathname)-4], "/ics")) {
+		dav_pathname[strlen(dav_pathname)-4] = 0;
+		is_bigics = 1;
+	}
+	for (n=0; n<strlen(dav_pathname); ++n) {
+		if (!strncasecmp(&dav_pathname[n], "/ics/", 5)) {
+			dav_pathname[n] = 0;
+			is_bigics = 1;
+		}
+	}
+
+	/* ...now remove trailing slashes. */
 	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
 		dav_pathname[strlen(dav_pathname)-1] = 0;
 	}
@@ -73,6 +121,11 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 			wprintf("Content-Length: 0\r\n\r\n");
 			return;
 		}
+	}
+
+	if (is_bigics) {
+		groupdav_put_bigics(dav_content, dav_content_length);
+		return;
 	}
 
 	/*
