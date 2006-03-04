@@ -1445,6 +1445,7 @@ void ical_getics(void)
 void ical_putics_savemessage(icalcomponent *cal)
 {
 	/* FIXME write this */
+	lprintf(9, "ical_putics_savemessage() called!\n");
 }
 
 
