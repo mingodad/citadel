@@ -104,8 +104,6 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 
 /*
  * Write a calendar object into the specified user's calendar room.
- * 
- * ok
  */
 void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
@@ -1337,7 +1335,7 @@ void ical_freebusy(char *who) {
  * for calendar events and adds them each into one big calendar component.
  */
 void ical_getics_backend(long msgnum, void *data) {
-	icalcomponent *encaps;
+	icalcomponent *encaps, *c;
 	struct CtdlMessage *msg;
 	struct ical_respond_data ird;
 
@@ -1363,12 +1361,27 @@ void ical_getics_backend(long msgnum, void *data) {
 
 	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
 	 * are responsible for "the_request"'s memory -- it will be freed
-	 * when we free "encaps". (FIXME strip out the old encapsulation)
+	 * when we free "encaps".
 	 */
-	icalcomponent_add_component(encaps, ird.cal);
-	//cprintf("%s\n", icalcomponent_as_ical_string(encaps));
-	cprintf("%s\n", icalcomponent_as_ical_string(ird.cal));
-	icalcomponent_free(ird.cal);
+
+	/* If the top-level component is *not* a VCALENDAR, we can drop it right
+	 * in.  This will almost never happen.
+	 */
+	if (icalcomponent_isa(ird.cal) != ICAL_VCALENDAR_COMPONENT) {
+		icalcomponent_add_component(encaps, ird.cal);
+	}
+	/*
+	 * In the more likely event that we're looking at a VCALENDAR with the VEVENT
+	 * and other components encapsulated inside, we have to extract them.
+	 */
+	else {
+		for (c = icalcomponent_get_first_component(ird.cal, ICAL_ANY_COMPONENT);
+		    (c != NULL);
+		    c = icalcomponent_get_next_component(ird.cal, ICAL_ANY_COMPONENT)) {
+			icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
+		}
+		icalcomponent_free(ird.cal);
+	}
 }
 
 
@@ -1380,6 +1393,13 @@ void ical_getics_backend(long msgnum, void *data) {
 void ical_getics(void)
 {
 	icalcomponent *encaps = NULL;
+	char *ser = NULL;
+
+	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
+	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
+		cprintf("%d Not a calendar room\n", ERROR+NOT_HERE);
+		return;		/* Not a vCalendar-centric room */
+	}
 
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
@@ -1407,7 +1427,10 @@ void ical_getics(void)
 		(void *) encaps
 	);
 
-	cprintf("000\n");
+	ser = strdup(icalcomponent_as_ical_string(encaps));
+	client_write(ser, strlen(ser));
+	free(ser);
+	cprintf("\n000\n");
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
 }

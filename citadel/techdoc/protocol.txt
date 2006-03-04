@@ -2143,15 +2143,21 @@ may be issued:
   ERROR codes will be returned.
  
  ICAL sgi|<bool>
+  Readers who are paying attention will notice that there is no subcommand to
+  send out meeting invitations.  This is because that task can be handled
+  automatically by the Citadel server.  Issue this command with <bool> set to 1
+  to enable Server Generated Invitations.  In this mode, when an event is saved
+  to the user's Calendar> room and it contains attendees, Citadel will
+  automatically turn the event into calendar REQUEST messages and mail them
+  out to all listed attendees.  If for some reason the client needs to disable
+  Server Generated Invitations, the command may be sent again with <bool> = 0.
  
- Readers who are paying attention will notice that there is no subcommand to
-send out meeting invitations.  This is because that task can be handled
-automatically by the Citadel server.  Issue this command with <bool> set to 1
-to enable Server Generated Invitations.  In this mode, when an event is saved
-to the user's Calendar> room and it contains attendees, Citadel will
-automatically turn the event into vCalendar REQUEST messages and mail them
-out to all listed attendees.  If for some reason the client needs to disable
-Server Generated Invitations, the command may be sent again with <bool> = 0.
+ ICAL getics
+  Output the contents of the entire calendar (assuming we are in a calendar
+  room) as one big data stream.  All of the events (or tasks, etc.) in the room
+  are combined into a single VCALENDAR object, which is then serialized and
+  transmitted to the client.  This is suitable for exporting a calendar into
+  third-party software.
 
 
 
