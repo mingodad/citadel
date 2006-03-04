@@ -44,7 +44,9 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 
 
 /*
- * The pathname is always going to be /groupdav/room_name/euid
+ * The pathname is always going to take one of two formats:
+ * /groupdav/room_name/euid	(GroupDAV)
+ * /groupdav/room_name		(webcal)
  */
 void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		char *dav_content_type, char *dav_content,
@@ -56,35 +58,20 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	long old_msgnum = (-1L);
 	char buf[SIZ];
 	int n = 0;
-	int is_bigics = 0;	/* nonzero == doing a webcal publish */
 
-	/* First, break off the "/groupdav/" prefix */
-	remove_token(dav_pathname, 0, '/');
-	remove_token(dav_pathname, 0, '/');
-
-	/* Now extract the message euid */
-	n = num_tokens(dav_pathname, '/');
-	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
-	remove_token(dav_pathname, n-1, '/');
-
-	/* What's left is the room name. Check for webcal publish syntax... */
-
-	if (!strcasecmp(&dav_pathname[strlen(dav_pathname)-4], "/ics")) {
-		dav_pathname[strlen(dav_pathname)-4] = 0;
-		is_bigics = 1;
-	}
-	for (n=0; n<strlen(dav_pathname); ++n) {
-		if (!strncasecmp(&dav_pathname[n], "/ics/", 5)) {
-			dav_pathname[n] = 0;
-			is_bigics = 1;
-		}
+	if (num_tokens(dav_pathname, '/') < 3) {
+		wprintf("HTTP/1.1 404 not found\r\n");
+		groupdav_common_headers();
+		wprintf(
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"The object you requested was not found.\r\n"
+		);
+		return;
 	}
 
-	/* ...now remove trailing slashes. */
-	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
-		dav_pathname[strlen(dav_pathname)-1] = 0;
-	}
-	strcpy(dav_roomname, dav_pathname);
+	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
+	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
@@ -123,7 +110,9 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		}
 	}
 
-	if (is_bigics) {
+	/** PUT on the collection itself uploads an ICS of the entire collection.
+	 */
+	if (!strcasecmp(dav_uid, "")) {
 		groupdav_put_bigics(dav_content, dav_content_length);
 		return;
 	}
