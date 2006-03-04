@@ -43,31 +43,31 @@ void groupdav_get_big_ics(void) {
 
 
 /*
- * The pathname is always going to be /groupdav/room_name/euid
+ * The pathname is always going to take one of two formats:
+ * /groupdav/room_name/euid	(GroupDAV)
+ * /groupdav/room_name		(webcal)
  */
 void groupdav_get(char *dav_pathname) {
 	char dav_roomname[1024];
 	char dav_uid[1024];
 	long dav_msgnum = (-1);
 	char buf[1024];
-	int n = 0;
 	int in_body = 0;
 	int found_content_type = 0;
 
-	/* First, break off the "/groupdav/" prefix */
-	remove_token(dav_pathname, 0, '/');
-	remove_token(dav_pathname, 0, '/');
-
-	/* Now extract the message euid */
-	n = num_tokens(dav_pathname, '/');
-	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
-	remove_token(dav_pathname, n-1, '/');
-
-	/* What's left is the room name.  Remove trailing slashes. */
-	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
-		dav_pathname[strlen(dav_pathname)-1] = 0;
+	if (num_tokens(dav_pathname, '/') < 3) {
+		wprintf("HTTP/1.1 404 not found\r\n");
+		groupdav_common_headers();
+		wprintf(
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"The object you requested was not found.\r\n"
+		);
+		return;
 	}
-	strcpy(dav_roomname, dav_pathname);
+
+	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
+	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
@@ -85,10 +85,9 @@ void groupdav_get(char *dav_pathname) {
 		return;
 	}
 
-	/** The reserved item name 'ics' returns the entire calendar.
-	 *  FIXME this name may not be what we choose permanently.
+	/** GET on the collection itself returns an ICS of the entire collection.
 	 */
-	if (!strcasecmp(dav_uid, "ics")) {
+	if (!strcasecmp(dav_uid, "")) {
 		groupdav_get_big_ics();
 		return;
 	}
