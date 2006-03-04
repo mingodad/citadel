@@ -1437,6 +1437,19 @@ void ical_getics(void)
 
 
 /*
+ * Back end for ical_putics()
+ * This function simply takes an icalcomponent supplied by the caller,
+ * re-encapsulates it into a VCALENDAR component if necessary, and
+ * saves it to the current room as a message.
+ */
+void ical_putics_savemessage(icalcomponent *cal)
+{
+	/* FIXME write this */
+}
+
+
+
+/*
  * Delete all of the calendar items in the current room, and replace them
  * with calendar items from a client-supplied data stream.
  */
@@ -1444,6 +1457,7 @@ void ical_putics(void)
 {
 	char *calstream = NULL;
 	icalcomponent *cal;
+	icalcomponent *c;
 
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
 	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
@@ -1466,7 +1480,27 @@ void ical_putics(void)
 	free(calstream);
 	ical_dezonify(cal);
 
-	/* FIXME -- WRITE THE CODE TO TAKE APART THE CALENDAR AND POST ITS ITEMS */
+	/* We got our data stream -- now do something with it. */
+
+	/* FIXME -- right here -- blow away the existing contents of the room */
+
+	/* If the top-level component is *not* a VCALENDAR, we can drop it right
+	 * in.  This will almost never happen.
+	 */
+	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
+		ical_putics_savemessage(cal);
+	}
+	/*
+	 * In the more likely event that we're looking at a VCALENDAR with the VEVENT
+	 * and other components encapsulated inside, we have to extract them.
+	 */
+	else {
+		for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+		    (c != NULL);
+		    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+			ical_putics_savemessage(cal);
+		}
+	}
 
 	icalcomponent_free(cal);
 }
@@ -2001,7 +2035,6 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	/* Then determine content-type of the message */
 	
 	/* It must be an RFC822 message! */
-	/* FIXME: Not handling MIME multipart messages; implement with IMIP */
 	if (msg->cm_format_type != 4) return(1);
 	
 	/* Find the Content-Type: header */
