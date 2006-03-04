@@ -31,7 +31,7 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 		return;
 	}
 
-	client_write(dav_content, dav_content_length);
+	serv_write(dav_content, dav_content_length);
 	serv_printf("\n000");
 
 	/* Report success and not much else. */
