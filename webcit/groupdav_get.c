@@ -68,6 +68,9 @@ void groupdav_get(char *dav_pathname) {
 
 	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
 	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
+	if ((!strcasecmp(dav_uid, "ics")) || (!strcasecmp(dav_uid, "calendar.ics"))) {
+		strcpy(dav_uid, "");
+	}
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
