@@ -1437,20 +1437,6 @@ void ical_getics(void)
 
 
 /*
- * Back end for ical_putics()
- * This function simply takes an icalcomponent supplied by the caller,
- * re-encapsulates it into a VCALENDAR component if necessary, and
- * saves it to the current room as a message.
- */
-void ical_putics_savemessage(icalcomponent *cal)
-{
-	/* FIXME write this */
-	lprintf(9, "ical_putics_savemessage() called!\n");
-}
-
-
-
-/*
  * Delete all of the calendar items in the current room, and replace them
  * with calendar items from a client-supplied data stream.
  */
@@ -1483,13 +1469,17 @@ void ical_putics(void)
 
 	/* We got our data stream -- now do something with it. */
 
-	/* FIXME -- right here -- blow away the existing contents of the room */
+	/* Delete the existing messages in the room, because we are replacing
+	 * the entire calendar with an entire new (or updated) calendar.
+	 * (Careful: this opens an S_ROOMS critical section!)
+	 */
+	CtdlDeleteMessages(CC->room.QRname, 0L, "", 0);
 
 	/* If the top-level component is *not* a VCALENDAR, we can drop it right
 	 * in.  This will almost never happen.
 	 */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
-		ical_putics_savemessage(cal);
+		ical_write_to_cal(&CC->user, cal);
 	}
 	/*
 	 * In the more likely event that we're looking at a VCALENDAR with the VEVENT
@@ -1499,7 +1489,7 @@ void ical_putics(void)
 		for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 		    (c != NULL);
 		    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-			ical_putics_savemessage(cal);
+			ical_write_to_cal(&CC->user, c);
 		}
 	}
 
