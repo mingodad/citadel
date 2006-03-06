@@ -911,12 +911,13 @@ void do_command_loop(void) {
 
 	/*
 	 * Let other clients see the last command we executed, and
-	 * update the idle time, but not NOOP, QNOP, PEXP, or GEXP.
+	 * update the idle time, but not NOOP, QNOP, PEXP, GEXP, or RWHO.
 	 */
 	if ( (strncasecmp(cmdbuf, "NOOP", 4))
 	   && (strncasecmp(cmdbuf, "QNOP", 4))
 	   && (strncasecmp(cmdbuf, "PEXP", 4))
-	   && (strncasecmp(cmdbuf, "GEXP", 4)) ) {
+	   && (strncasecmp(cmdbuf, "GEXP", 4))
+	   && (strncasecmp(cmdbuf, "RWHO", 4)) ) {
 		strcpy(CC->lastcmdname, "    ");
 		safestrncpy(CC->lastcmdname, cmdbuf, sizeof(CC->lastcmdname));
 		time(&CC->lastidle);
