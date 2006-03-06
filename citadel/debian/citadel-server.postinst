@@ -182,6 +182,7 @@ case "$1" in
 #no
 #" | \
 	/usr/lib/citadel-server/setup -q
+	/usr/sbin/sendcommand "DOWN"
 	killall -HUP init
     #### There are three sub-cases:
     ###if test "${2+set}" != set; then
