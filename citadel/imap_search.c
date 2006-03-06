@@ -210,6 +210,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 		if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1])) {
 			match = 1;
 		}
+		if (bmstrcasestr(msg->cm_fields['F'], itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
