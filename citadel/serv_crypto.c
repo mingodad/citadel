@@ -487,18 +487,20 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 		 * revert to unencrypted communications.
 		 */
 		long errval;
+		char error_string[128];
 
 		errval = SSL_get_error(CC->ssl, retval);
-		lprintf(CTDL_CRIT, "SSL_accept failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		lprintf(CTDL_CRIT, "SSL_accept failed: retval=%d, errval=%ld, err=%s\n",
+			retval,
+			errval,
+			ERR_error_string(errval, error_string)
+		);
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		return;
 	}
 	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
-	bits =
-	    SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl),
-				&alg_bits);
+	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
 	lprintf(CTDL_INFO, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
 		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
