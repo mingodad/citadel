@@ -30,13 +30,14 @@ else
 		if test -n "`ls /usr/bin/db?*recover`"; then
 			# seems we have something debian alike thats adding version in the filename
 			if test "`ls /usr/bin/db*recover |wc -l`" -gt "1"; then 
-				echo "Warning, you have more than one berkley db utility version installed. using the latest one." 1>&2
+				echo "Warning: you have more than one version of the Berkeley DB utilities installed." 1>&2
+				echo "Using the latest one." 1>&2
 				RECOVER=`ls /usr/bin/db*recover |sort |tail -n 1`
 				DUMP=`ls /usr/bin/db*dump |sort |tail -n 1`
 				LOAD=`ls /usr/bin/db*load |sort |tail -n 1`
 			fi
 		else
-			echo "We can't find the berkeley DB tools, exiting." 1>&2
+			echo "database_cleanup.sh cannot find the Berkeley DB utilities.  Exiting." 1>&2
 			die
 		fi
 
@@ -72,7 +73,7 @@ WARNING #3:
 WARNING #4:
   You must have an amount of free space on your disk that is at least twice
   the size of your database, see the following output:
-  (for substantial better performance you should specify a location that's 
+  (for substantially better performance you should specify a location that is 
    on another disk than $DATA_DIR)
 
 `df -h`
