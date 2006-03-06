@@ -1,14 +1,14 @@
 # translation of it.po to italian
 # Copyright (C) 2005 The Citadel Project - http://www.citadel.org
 # This file is distributed under the same license as the WebCit package.
-# 
+#
 # Gabriele Tassoni <tasso@fastwebnet.it>, 2005, 2006.
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-02-13 21:49+0100\n"
-"PO-Revision-Date: 2006-02-08 15:33+0100\n"
+"PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -257,8 +257,7 @@ msgstr "Membro:"
 #: ../calendar.c:250
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
-msgstr ""
-"Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
+msgstr "Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
 
 #: ../calendar.c:254
 #, c-format
@@ -277,7 +276,7 @@ msgstr "CONFLITTO:"
 
 #: ../calendar.c:278
 msgid "How would you like to respond to this invitation?"
-msgstr ""
+msgstr "Come vuoi rispondere a questo invito?"
 
 #: ../calendar.c:279
 msgid "Accept"
@@ -333,8 +332,7 @@ msgstr ""
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
-msgstr ""
-"Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
+msgstr "Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
 
 #: ../calendar.c:393
 msgid "A reply has been sent to the meeting organizer."
@@ -350,8 +348,7 @@ msgstr "Aggiorna il tuo calendario con questo RSVP"
 
 #: ../calendar.c:441
 msgid "Your calendar has been updated to reflect this RSVP."
-msgstr ""
-"Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
+msgstr "Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
 
 #: ../calendar.c:443
 msgid ""
@@ -752,8 +749,7 @@ msgstr "solo testo"
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
-msgstr ""
-"Seleziona le icone che vorresti vedere nel menu alla sinistra dello schermo."
+msgstr "Seleziona le icone che vorresti vedere nel menu alla sinistra dello schermo."
 
 #: ../iconbar.c:524
 msgid "Site logo"
@@ -1142,8 +1138,7 @@ msgstr "Inserisci il comando:"
 
 #: ../mainmenu.c:292
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr ""
-"Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
+msgstr "Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
 
 #: ../mainmenu.c:296
 #, c-format
@@ -1485,8 +1480,7 @@ msgstr ""
 
 #: ../paging.c:309 ../paging.c:471
 msgid "An error occurred while setting up the chat socket."
-msgstr ""
-"Si è verificato un errore durante la creazione della connessione per la chat."
+msgstr "Si è verificato un errore durante la creazione della connessione per la chat."
 
 #: ../paging.c:336
 msgid "Now exiting chat mode."
@@ -1554,7 +1548,7 @@ msgstr "Usa questa firma:"
 
 #: ../preferences.c:378
 msgid "Default character set for email headers:"
-msgstr ""
+msgstr "Set di caratteri di default per le intestazioni delle email:"
 
 #: ../preferences.c:388
 msgid "Change"
@@ -1622,9 +1616,8 @@ msgid "Month view"
 msgstr "Vista mensile"
 
 #: ../roomops.c:504
-#, fuzzy
 msgid "Calendar list"
-msgstr "Lista Calendario"
+msgstr "Lista dei Calendari"
 
 #: ../roomops.c:515
 msgid "View tasks"
@@ -1663,8 +1656,7 @@ msgid "Edit this page"
 msgstr "Modifica questa pagina"
 
 #: ../roomops.c:634
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
+msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Lascia tutti i messaggi marcati come non letti, passa alla stanza successiva "
 "con messaggi non letti."
@@ -1873,8 +1865,7 @@ msgstr ""
 "messaggi</b> alla seguente lista di destinatari</i><br/><br/>\n"
 
 #: ../roomops.c:1513
-msgid ""
-"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr ""
 "Questa stanza è configurate per permettere la sottoscrizione/cancellazione "
 "automatica degli utenti."
@@ -2072,8 +2063,7 @@ msgstr "Non autenticato"
 
 #: ../rss.c:92
 msgid "Error retrieving RSS feed: couldn't find messages\n"
-msgstr ""
-"Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
+msgstr "Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
 
 #: ../siteconfig.c:38
 msgid "Site configuration"
@@ -2368,8 +2358,7 @@ msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
 #: ../siteconfig.c:447
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr ""
-"Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
+msgstr "Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
 
 #: ../siteconfig.c:455
 #, c-format
@@ -2394,8 +2383,7 @@ msgstr "Politica di default per la cancellazione delle stanze publiche"
 #: ../siteconfig.c:518
 #, c-format
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Politica di default per la cancellazione delle cassette postali private"
+msgstr "Politica di default per la cancellazione delle cassette postali private"
 
 #: ../siteconfig.c:522
 #, c-format
@@ -2538,8 +2526,7 @@ msgid "Delete this user?"
 msgstr "Cancellare questo utente?"
 
 #: ../useredit.c:204
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
+msgid "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "E' avvenuto un errore durante la creazione o la cancellazione di questa voce "
 "della rubrica dei contatti"
@@ -2595,33 +2582,28 @@ msgid "User list for %s"
 msgstr "Lista utenti per %s"
 
 #: ../userlist.c:66
-#, fuzzy
 msgid "User Name"
-msgstr "Nome utente"
+msgstr "Nome Utente"
 
 #: ../userlist.c:67
-#, fuzzy
 msgid "Number"
-msgstr "Novembre"
+msgstr "Numero"
 
 #: ../userlist.c:68
-#, fuzzy
 msgid "Access Level"
-msgstr "Livello di accesso"
+msgstr "Livello di Accesso"
 
 #: ../userlist.c:69
-#, fuzzy
 msgid "Last Login"
-msgstr "Login"
+msgstr "Ultimo Login"
 
 #: ../userlist.c:70
 msgid "Total Logins"
-msgstr ""
+msgstr "Login Totali"
 
 #: ../userlist.c:71
-#, fuzzy
 msgid "Total Posts"
-msgstr "localhost"
+msgstr "Messaggi Totali"
 
 #: ../userlist.c:129
 msgid "User profile"
@@ -2860,97 +2842,3 @@ msgid ""
 "create this page."
 msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
 
-#~ msgid "Jan"
-#~ msgstr "Gen"
-
-#~ msgid "Feb"
-#~ msgstr "Feb"
-
-#~ msgid "Mar"
-#~ msgstr "Mar"
-
-#~ msgid "Apr"
-#~ msgstr "Apr"
-
-#~ msgid "May"
-#~ msgstr "Maggio"
-
-#~ msgid "Jun"
-#~ msgstr "Giu"
-
-#~ msgid "Jul"
-#~ msgstr "Lug"
-
-#~ msgid "Aug"
-#~ msgstr "Ago"
-
-#~ msgid "Sep"
-#~ msgstr "Set"
-
-#~ msgid "Oct"
-#~ msgstr "Otto"
-
-#~ msgid "Nov"
-#~ msgstr "Nov"
-
-#~ msgid "Dec"
-#~ msgstr "Dic"
-
-#~ msgid "Sunday"
-#~ msgstr "Domenica"
-
-#~ msgid "Monday"
-#~ msgstr "Lunedi"
-
-#~ msgid "Tuesday"
-#~ msgstr "Martedi"
-
-#~ msgid "Wednesday"
-#~ msgstr "Mercoledi"
-
-#~ msgid "Thursday"
-#~ msgstr "Giovedi"
-
-#~ msgid "Friday"
-#~ msgstr "Venerdi"
-
-#~ msgid "Saturday"
-#~ msgstr "Sabato"
-
-#~ msgid "January"
-#~ msgstr "Gennaio"
-
-#~ msgid "February"
-#~ msgstr "Febbraio"
-
-#~ msgid "March"
-#~ msgstr "Marzo"
-
-#~ msgid "April"
-#~ msgstr "Aprile"
-
-#~ msgid "June"
-#~ msgstr "Giugno"
-
-#~ msgid "July"
-#~ msgstr "Luglio"
-
-#~ msgid "August"
-#~ msgstr "Agosto"
-
-#~ msgid "September"
-#~ msgstr "Settembre"
-
-#~ msgid "October"
-#~ msgstr "Ottobre"
-
-#~ msgid "December"
-#~ msgstr "Dicembre"
-
-#~ msgid ""
-#~ "<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH><TH>Last Login</"
-#~ "TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"
-#~ msgstr ""
-#~ "<TR><TH>Nome utente</TH><TH>Numero</TH><TH>Livello di accesso</"
-#~ "TH><TH>Ultimo accesso</TH><TH>Accessi totali</TH><TH>Messaggi totali</"
-#~ "TH></TR>"
