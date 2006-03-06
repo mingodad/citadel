@@ -580,7 +580,7 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the Citadel server...\n");
-		fprintf(infp, "%s:2345:respawn:%s %s%s -x3 -llocal4\n",
+		fprintf(infp, "%s:2345:respawn:%s %s%s -llocal4\n",
 				entryname, 
 				looking_for, 
 				(enable_home)?"-h":"", 
