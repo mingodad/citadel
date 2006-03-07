@@ -217,7 +217,35 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "HEADER")) {
-		/* FIXME */
+
+		/* We've got to do a slow search for this because the client
+		 * might be asking for an RFC822 header field that has not been
+		 * converted into a Citadel header field.  That requires
+		 * examining the message body.
+		 */
+		if (msg == NULL) {
+			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			need_to_free_msg = 1;
+		}
+
+		CC->redirect_buffer = malloc(SIZ);
+		CC->redirect_len = 0;
+		CC->redirect_alloc = SIZ;
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
+
+		fieldptr = rfc822_fetch_field(CC->redirect_buffer, itemlist[pos+1]);
+		if (fieldptr != NULL) {
+			if (bmstrcasestr(fieldptr, itemlist[pos+2])) {
+				match = 1;
+			}
+			free(fieldptr);
+		}
+
+		free(CC->redirect_buffer);
+		CC->redirect_buffer = NULL;
+		CC->redirect_len = 0;
+		CC->redirect_alloc = 0;
+
 		pos += 3;	/* Yes, three */
 	}
 
@@ -475,7 +503,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	 * text index to disqualify messages that don't have any chance of
 	 * matching.  (Only do this if the index is enabled!!)
 	 */
-        if (config.c_enable_fulltext) for (i=0; i<(num_items-1); ++i) {
+	if (config.c_enable_fulltext) for (i=0; i<(num_items-1); ++i) {
 		if (!strcasecmp(itemlist[i], "BODY")) {
 			ft_search(&fts_num_msgs, &fts_msgs, itemlist[i+1]);
 			if (fts_num_msgs > 0) {
