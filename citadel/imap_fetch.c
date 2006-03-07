@@ -875,6 +875,14 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	char buf[SIZ];
 	int lines = 0;
 
+	/* Handle NULL message gracefully */
+	if (msg == NULL) {
+		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
+			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
+			"\"7BIT\" 0 0)");
+		return;
+	}
+
 	/* For non-RFC822 (ordinary Citadel) messages, this is short and
 	 * sweet...
 	 */
