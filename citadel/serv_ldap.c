@@ -282,7 +282,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	attrs[0]->mod_op	= LDAP_MOD_ADD;
 	attrs[0]->mod_type	= "objectclass";
 	attrs[0]->mod_values	= malloc(3 * sizeof(char *));
-	attrs[0]->mod_values[0]	= strdup("inetOrgPerson");
+	attrs[0]->mod_values[0]	= strdup("citadelInetOrgPerson");
 	attrs[0]->mod_values[1]	= NULL;
 
 	/* Convert the vCard fields to LDAP properties */

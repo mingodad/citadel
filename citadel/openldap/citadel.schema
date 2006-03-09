@@ -1,0 +1,50 @@
+# $Id: citadel.schema,v 1.16 2005/12/27 13:04:53 martin Exp $
+
+# (c) 2003, 2004 Tassilo Erlewein <tassilo.erlewein@erfrakon.de>
+# (c) 2003-2005  Martin Konold <martin.konold@erfrakon.de>
+# (c) 2003 Achim Frank <achim.frank@erfrakon.de>
+# (c) 2006 Art Cancro <ajc@uncensored.citadel.org>
+
+# This file is distributed under the terms of the GNU General Public License v2.
+
+# This schema highly depends on the core.schema, cosine.schema and the inetorgperson.schema
+# as provided by 3rd parties like OpenLDAP.
+#
+# slapd.conf then looks like
+#  include /etc/openldap/schema/core.schema
+#  include /etc/openldap/schema/cosine.schema
+#  include /etc/openldap/schema/inetorgperson.schema
+#  include /etc/openldap/schema/rfc2739.schema
+#  include /etc/openldap/schema/citadel.schema
+
+
+######################
+# citadel attributes #
+######################
+
+# alias used to provide alternative rfc822 email addresses for citadel users
+attributetype ( 1.3.6.1.4.1.19414.2.1.3
+  NAME 'alias'
+  DESC 'RFC1274: RFC822 Mailbox'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+##########################
+# citadel object classes #
+##########################
+
+# citadel account
+# we use a STRUCTURAL in order to ease integration
+# with existing inetOrgPerson objects
+
+objectclass ( 1.3.6.1.4.1.19414.3.2.2
+  NAME 'citadelInetOrgPerson'
+  DESC 'Citadel Internet Organizational Person'
+  SUP inetOrgPerson
+  STRUCTURAL
+  MAY ( c $
+      alias $
+      calFBURL )
+      )
+  )

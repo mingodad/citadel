@@ -2545,29 +2545,38 @@ It is difficult to find a commonly accepted LDAP scheme. It seems, most
 real life LDAP installations go for the domain oriented apporach
 and lay out the structure after an existing domain/subdomain structure.
 <p> The most widely accepted and standardized object for storing
-personal data
-clearly is "inetOrgPerson".&nbsp; Citadel therefore attempts to follow
-this type of schema.<br>
-</p>
+personal data clearly is "inetOrgPerson". Citadel therefore extends this
+standard schema with an object class called "citadelInetOrgPerson".</p>
 <p>If you are using OpenLDAP as your directory server, you should
-choose options similar to the following:<br>
-</p>
-<pre>database        ldbm<br>schemacheck     off<br>allow           bind_v2<br>suffix          "dc=servername,dc=domain,dc=org"<br>rootdn          "cn=manager,dc=servername,dc=domain,dc=org"<br>rootpw          secret<br></pre>
+choose options similar to the following:</p>
+<pre>
+include         /etc/openldap/schema/core.schema
+include         /etc/openldap/schema/cosine.schema
+include         /etc/openldap/schema/inetorgperson.schema
+include         /etc/openldap/schema/rfc2739.schema
+include         /etc/openldap/schema/citadel.schema
+ 
+...
+
+database        bdb
+suffix          "dc=example,dc=com"
+rootdn          "cn=manager,dc=example,dc=com"
+rootpw          secret
+directory       /var/openldap-data
+
+</pre>
+
+<p>Notes on this configuration:
 <ul>
   <li>Obviously, you can make your suffix and rootdn whatever you wish,
 but in most cases you'd simply follow a DC path that looks similar to
 your DNS domain.</li>
-  <li>If you don't want LDBM, feel free to choose any backend available
-on your system.</li>
-  <li><span style="font-family: monospace;">bind_v2</span> is <span
- style="font-style: italic;">required</span> because Citadel will make
-v2 protocol connections.</li>
-  <li><span style="font-family: monospace;">schemacheck off</span> is <span
- style="font-style: italic;">recommended</span> because Citadel uses
-fields that do not necessarily exist in your system's default
-schema.&nbsp; If you don't like that idea, your other option is to
-reference the included <span style="font-family: monospace;">citadel-openldap.schema</span>
-in your configuration.</li>
+  <li>In earlier versions of OpenLDAP, you could use the
+option <span style="font-family: monospace;">schemacheck off</span> to
+make life easier by relaxing the strict schema checking.  This option
+has been removed from OpenLDAP, so now you <strong>must</strong> install
+the supplied schema extensions.  <tt>rfc2739.schema</tt> and
+<tt>citadel.schema</tt> are included with the Citadel distribution.</li>
   <li>Your <span style="font-family: monospace;">rootdn</span> and <span
  style="font-family: monospace;">rootpw</span> can be whatever you
 want.&nbsp; Usually the rootdn is <span style="font-family: monospace;">cn=manager,</span>
