@@ -700,9 +700,11 @@ if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
 fi
 
-echo ...
-echo ...
-echo "... On many operating systems, you must use GNU make (gmake) to compile"
-echo ... Citadel.
-echo ...
-echo ...
+echo ------------------------------------------------------------------------
+echo 'zlib compression:                ' $ok_zlib
+echo 'Calendar support:                ' $ok_libical
+echo 'LDAP support:                    ' $ok_ldap
+echo 
+echo 'Note: if you are not using Linux, make sure you are using GNU make'
+echo '(gmake) to compile Citadel.'
+echo
