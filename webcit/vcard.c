@@ -1,6 +1,6 @@
 /*
  * $Id$
- * Copyright (C) 1999-2005 by Art Cancro
+ * Copyright (C) 1999-2006 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
@@ -29,6 +29,48 @@ struct vCard *vcard_new() {
 
 	return v;
 }
+
+/**
+ * \brief	Remove the "charset=" attribute from a vCard property name
+ *
+ * \param	strbuf		The property name string to be stripped
+ */
+void remove_charset_attribute(char *strbuf)
+{
+	int i, t;
+	char compare[256];
+
+	t = num_tokens(strbuf, ';');
+	for (i=0; i<t; ++i) {
+		extract_token(compare, strbuf, i, ';', sizeof compare);
+		striplt(compare);
+		if (!strncasecmp(compare, "charset=", 8)) {
+			remove_token(strbuf, i, ';');
+		}
+	}
+	if (strlen(strbuf) > 0) {
+		if (strbuf[strlen(strbuf)-1] == ';') {
+			strbuf[strlen(strbuf)-1] = 0;
+		}
+	}
+}
+
+
+/*
+ * \brief	Add a property to a vCard
+ *
+ * \param	v		vCard structure to which we are adding
+ * \param	propname	name of new property
+ * \param	propvalue	value of new property
+ */
+void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
+	++v->numprops;
+	v->prop = realloc(v->prop,
+		(v->numprops * sizeof(struct vCardProp)) );
+	v->prop[v->numprops-1].name = strdup(propname);
+	v->prop[v->numprops-1].value = strdup(propvalue);
+}
+
 
 
 /**
@@ -90,6 +132,7 @@ struct vCard *vcard_load(char *vtext) {
 			}
 
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
+				remove_charset_attribute(namebuf);
 				++v->numprops;
 				v->prop = realloc(v->prop,
 					(v->numprops * sizeof(struct vCardProp))
@@ -224,8 +267,9 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 char *vcard_serialize(struct vCard *v)
 {
 	char *ser;
-	int i;
+	int i, j;
 	size_t len;
+	int is_utf8 = 0;
 
 	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/** self check */
 
@@ -234,7 +278,7 @@ char *vcard_serialize(struct vCard *v)
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		len = len +
 			strlen(v->prop[i].name) +
-			strlen(v->prop[i].value) + 4;
+			strlen(v->prop[i].value) + 16;
 	}
 
 	ser = malloc(len);
@@ -242,15 +286,90 @@ char *vcard_serialize(struct vCard *v)
 
 	safestrncpy(ser, "begin:vcard\r\n", len);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		strcat(ser, v->prop[i].name);
-		strcat(ser, ":");
-		strcat(ser, v->prop[i].value);
-		strcat(ser, "\r\n");
+		if (strcasecmp(v->prop[i].name, "end")) {
+			is_utf8 = 0;
+			for (j=0; i<strlen(v->prop[i].value); ++i) {
+				if ( (v->prop[i].value[j] < 32) || (v->prop[i].value[j] > 126) ) {
+					is_utf8 = 1;
+				}
+			}
+			strcat(ser, v->prop[i].name);
+			if (is_utf8) {
+				strcat(ser, ";charset=UTF-8");
+			}
+			strcat(ser, ":");
+			strcat(ser, v->prop[i].value);
+			strcat(ser, "\r\n");
+		}
 	}
 	strcat(ser, "end:vcard\r\n");
 
 	return ser;
 }
+
+
+
+/*
+ * \brief	Convert FN (Friendly Name) into N (Name)
+ *
+ * \param	vname		Supplied friendly-name
+ * \param	n		Target buffer to store Name
+ * \param	vname_size	Size of buffer
+ */
+void vcard_fn_to_n(char *vname, char *n, size_t vname_size) {
+	char lastname[256];
+	char firstname[256];
+	char middlename[256];
+	char honorific_prefixes[256];
+	char honorific_suffixes[256];
+	char buf[256];
+
+	safestrncpy(buf, n, sizeof buf);
+
+	/* Try to intelligently convert the screen name to a
+	 * fully expanded vCard name based on the number of
+	 * words in the name
+	 */
+	safestrncpy(lastname, "", sizeof lastname);
+	safestrncpy(firstname, "", sizeof firstname);
+	safestrncpy(middlename, "", sizeof middlename);
+	safestrncpy(honorific_prefixes, "", sizeof honorific_prefixes);
+	safestrncpy(honorific_suffixes, "", sizeof honorific_suffixes);
+
+	/* Honorific suffixes */
+	if (num_tokens(buf, ',') > 1) {
+		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',',
+			sizeof honorific_suffixes);
+		remove_token(buf, (num_tokens(buf, ',') - 1), ',');
+	}
+
+	/* Find a last name */
+	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof lastname);
+	remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+
+	/* Find honorific prefixes */
+	if (num_tokens(buf, ' ') > 2) {
+		extract_token(honorific_prefixes, buf, 0, ' ', sizeof honorific_prefixes);
+		remove_token(buf, 0, ' ');
+	}
+
+	/* Find a middle name */
+	if (num_tokens(buf, ' ') > 1) {
+		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof middlename);
+		remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+	}
+
+	/* Anything left is probably the first name */
+	safestrncpy(firstname, buf, sizeof firstname);
+	striplt(firstname);
+
+	/* Compose the structured name */
+	snprintf(vname, vname_size, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
+		honorific_prefixes, honorific_suffixes);
+}
+
+
+
 
 
 

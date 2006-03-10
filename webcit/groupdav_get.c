@@ -122,7 +122,13 @@ void groupdav_get(char *dav_pathname) {
 			wprintf("%s\r\n", buf);
 		}
 		else if (!strncasecmp(buf, "Content-type: ", 14)) {
-			wprintf("%s\r\n", buf);
+			wprintf("%s", buf);
+			if (bmstrcasestr(buf, "charset=")) {
+				wprintf("%s\r\n", buf);
+			}
+			else {
+				wprintf("%s;charset=UTF-8\r\n", buf);
+			}
 			found_content_type = 1;
 		}
 		else if ((strlen(buf) == 0) && (in_body == 0)) {
