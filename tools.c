@@ -548,4 +548,71 @@ void CtdlMakeTempFileName(char *name, int len) {
 
 
 
+/*
+ * \brief	case-insensitive substring search
+ *
+ *		This uses the Boyer-Moore search algorithm and is therefore quite fast.
+ *		The code is roughly based on the strstr() replacement from 'tin' written
+ *		by Urs Jannsen.
+ *
+ * \param	text	String to be searched
+ * \param	pattern	String to search for
+ */
+char *bmstrcasestr(char *text, char *pattern) {
+
+	register unsigned char *p, *t;
+	register int i, j, *delta;
+	register size_t p1;
+	int deltaspace[256];
+	size_t textlen;
+	size_t patlen;
+
+	textlen = strlen (text);
+	patlen = strlen (pattern);
+
+	/* algorithm fails if pattern is empty */
+	if ((p1 = patlen) == 0)
+		return (text);
+
+	/* code below fails (whenever i is unsigned) if pattern too long */
+	if (p1 > textlen)
+		return (NULL);
+
+	/* set up deltas */
+	delta = deltaspace;
+	for (i = 0; i <= 255; i++)
+		delta[i] = p1;
+	for (p = (unsigned char *) pattern, i = p1; --i > 0;)
+		delta[tolower(*p++)] = i;
+
+	/*
+	 * From now on, we want patlen - 1.
+	 * In the loop below, p points to the end of the pattern,
+	 * t points to the end of the text to be tested against the
+	 * pattern, and i counts the amount of text remaining, not
+	 * including the part to be tested.
+	 */
+	p1--;
+	p = (unsigned char *) pattern + p1;
+	t = (unsigned char *) text + p1;
+	i = textlen - patlen;
+	while(1) {
+		if (tolower(p[0]) == tolower(t[0])) {
+			if (strncasecmp ((const char *)(p - p1), (const char *)(t - p1), p1) == 0) {
+				return ((char *)t - p1);
+			}
+		}
+		j = delta[tolower(t[0])];
+		if (i < j)
+			break;
+		i -= j;
+		t += j;
+	}
+	return (NULL);
+}
+
+
+
+
+
 /*@}*/

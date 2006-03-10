@@ -375,7 +375,7 @@ void submit_vcard(void) {
 		return;
 	}
 
-	serv_puts("Content-type: text/x-vcard");
+	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
 	serv_puts("");
 	serv_puts("begin:vcard");
 	serv_printf("n:%s;%s;%s;%s;%s",

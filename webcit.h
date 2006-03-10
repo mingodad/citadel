@@ -686,6 +686,7 @@ void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
 void str_wiki_index(char *s);
 void display_wiki_page(void);
+char *bmstrcasestr(char *text, char *pattern);
 
 #ifdef HAVE_ICONV
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);
