@@ -1,4 +1,5 @@
 ltmain.sh
 config.sub
 config.guess
-
+config.rpath
+mkinstalldirs
