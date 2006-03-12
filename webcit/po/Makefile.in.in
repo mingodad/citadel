@@ -77,7 +77,7 @@ CATALOGS = @CATALOGS@
 
 all: all-@USE_NLS@
 
-all-yes: stamp-po $(CATALOGS)
+all-yes: stamp-po
 all-no:
 
 # $(srcdir)/$(DOMAIN).pot is only created when needed. When xgettext finds no
