@@ -1,33 +1,53 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
-AC_INIT(webserver.c)
-
-
-PACKAGE=webcit
-VERSION=6.72
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
+dnl AC_CONFIG_AUX_DIR([autoconf])
+AC_INIT(src/webserver.c)
+AM_INIT_AUTOMAKE(webcit,6.72)
+AM_CONFIG_HEADER(config.h)
+AC_PROG_LIBTOOL
+#AC_CONFIG_HEADERS(sysdep.h)
+#AC_VERSION(6.72)
+#PACKAGE=gettext
+#VERSION=0.14.5
+#AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
+#AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+#AC_SUBST(PACKAGE)
+#AC_SUBST(VERSION)
+#AM_INIT_AUTOMAKE(gettext, 0.14.5)
 
 AC_SUBST(PROG_SUBDIRS)
-AC_CANONICAL_HOST
+#AC_CANONICAL_HOST
 AC_PROG_INSTALL
 AC_CHECK_PROG(AUTOCONF, autoconf)
 AC_CHECK_PROG(SED, sed, sed, no)
 AC_PREFIX_DEFAULT(/usr/local/webcit)
 
-AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
-AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
-AC_ARG_WITH(with_newt,    [  --with-newt             use newt window library])
-AC_ARG_WITH(ssl,
+#AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
+#AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
+#AC_ARG_WITH(with_newt,    [  --with-newt             use newt window library])
+#AC_ARG_WITH(ssl,
+#	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
+#	[
+#		if test "x$withval" != "xno" ; then
+#			tryssldir=$withval
+#		fi
+#	]
+#)
+#AC_DEFINE([HAVE_ICAL], [  --with-libical          use libical calendaring library])
+AC_DEFINE([HAVE_ZLIB],    [  --with-zlib             use zlib compression if present],ok_zlib=no, ok_zlib=yes)
+AC_DEFINE([HAVE_OPENSSL],
 	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
+	ssl_ok=no,
 	[
 		if test "x$withval" != "xno" ; then
 			tryssldir=$withval
 		fi
+		ssl_ok=yes
 	]
 )
+
+AC_DEFINE([WEBCITDIR],"/usr/local/webcit",    [  --with-webcitdir             Directory Prefix])
+
 dnl Set some system-specific variables which are OK to set before compiler
 dnl checks:
 PTHREAD_DEFS=-D_REENTRANT
@@ -93,15 +113,18 @@ dnl AC_HEADER_TIME
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
-dnl AC_CHECK_FUNCS(strerror)
+AC_CHECK_FUNCS(backtrace)
 AC_REPLACE_FUNCS(snprintf)
 
 dnl Checks for the libical calendaring library.
+AC_DEFINE([HAVE_LIBICAL], 
+          [--with-libical          use libical calendaring library],
+		  ok_libical=no, ok_libical=yes)
+
 if test "x$with_libical" != xno ; then
-        AC_CHECK_HEADERS(ical.h,
-                [AC_CHECK_LIB(ical, icalcomponent_new,
-                        [ok_libical=yes],,
-        )])
+		  AC_CHECK_HEADERS(ical.h,
+				     [AC_CHECK_LIB(ical, icalcomponent_new,
+                                   [ok_libical=yes],,)])
 fi
 
 if test "x$ok_libical" = xyes ; then
@@ -146,17 +169,24 @@ if test "x$ok_zlib" = xyes ; then
 fi
 
 dnl Checks for the newt window library.
-if test "x$with_newt" != xno ; then
-	AC_CHECK_HEADERS(newt.h,
-		[AC_CHECK_LIB(newt, newtInit,
-			[ok_newt=yes],,
-	)])
-fi
+dnl#if test "x$with_newt" != xno ; then
 
-if test "x$ok_newt" = xyes ; then
-	SETUP_LIBS="-lnewt $SETUP_LIBS"
-	AC_DEFINE(HAVE_NEWT)
-fi
+dnl AC_DEFINE([HAVE_NEWT],
+dnl 		  [  --with-newt             use newt window library],ok_newt=no, 
+dnl 	      [AC_CHECK_HEADERS(newt.h,
+dnl 		                    [AC_CHECK_LIB(newt, newtInit,
+dnl 			                              [ok_newt=yes],[ok_newt=no],
+dnl 	                                      )
+dnl 							])
+dnl 		  ] 
+dnl )
+
+dnl	ok_newt=yes
+
+dnl if test "x$ok_newt" = xyes ; then
+dnl	SETUP_LIBS="-lnewt $SETUP_LIBS"
+dnl	AC_DEFINE(HAVE_NEWT)
+dnl fi
 
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
@@ -270,7 +300,7 @@ fi
 
 dnl Here is the check for a usable iconv
 
-AC_ARG_ENABLE(iconv,
+AC_DEFINE([HAVE_ICONV],
 	[  --disable-iconv         do not use iconv charset conversion],
 	ok_iconv=no, ok_iconv=yes)
 
@@ -299,63 +329,79 @@ fi
 
 
 
-dnl Here is the check for libintl etc.
+dnl dnl Here is the check for libintl etc.
+dnl 
+dnl AC_DEFINE([ENABLE_NLS],
+dnl 	[  --disable-nls           do not use Native Language Support],
+dnl 	ok_nls=no, ok_nls=yes)
+dnl 
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_MSG_RESULT(Checking for per-thread NLS support...)
+dnl 	AC_TRY_RUN([
+dnl                 #define _GNU_SOURCE
+dnl                 #include <libintl.h>
+dnl                 #include <locale.h>
+dnl                 #include <time.h>
+dnl                 main() {
+dnl                         char *foo = NULL;
+dnl                         char baz[32];
+dnl 			struct tm *tm;
+dnl                         uselocale(LC_GLOBAL_LOCALE);
+dnl                         foo = gettext("bar");
+dnl 			if (0) {
+dnl                         	strftime_l(baz, sizeof baz, "%c", tm, LC_GLOBAL_LOCALE);
+dnl 			}
+dnl                         exit(0);
+dnl 		}
+dnl 	],
+dnl 		ok_uselocale=yes,
+dnl 		ok_uselocale=no
+dnl 	)
+dnl 	ok_nls=$ok_uselocale
+dnl fi
+dnl 
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)
+dnl 	ok_nls=$ok_xgettext
+dnl fi
+dnl 
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_CHECK_PROG(ok_msgmerge, msgmerge, yes, no)
+dnl 	ok_nls=$ok_msgmerge
+dnl fi
+dnl 
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_CHECK_PROG(ok_msgfmt, msgfmt, yes, no)
+dnl 	ok_nls=$ok_msgfmt
+dnl fi
+dnl 
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_MSG_RESULT(WebCit will be built with national language support.)
+dnl 	AC_DEFINE(ENABLE_NLS)
+dnl 	 CFLAGS="$CFLAGS -I\$(top_srcdir)/po"
+dnl 	PROG_SUBDIRS="$PROG_SUBDIRS po"
+dnl 	AC_CHECK_LIB(intl, gettext)
+dnl else
+dnl 	AC_MSG_RESULT(WebCit will be built without national language support.)
+dnl fi
+dnl Checks for programs.
+AM_GNU_GETTEXT_VERSION([0.14.5])
 
-AC_ARG_ENABLE(nls,
-	[  --disable-nls           do not use Native Language Support],
-	ok_nls=no, ok_nls=yes)
+#AM_GNU_GETTEXT
+# if we have intl/... 
+AM_GNU_GETTEXT([external])
+IT_PROG_INTLTOOL
 
-if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(Checking for per-thread NLS support...)
-	AC_TRY_RUN([
-                #define _GNU_SOURCE
-                #include <libintl.h>
-                #include <locale.h>
-                #include <time.h>
-                main() {
-                        char *foo = NULL;
-                        char baz[32];
-			struct tm *tm;
-                        uselocale(LC_GLOBAL_LOCALE);
-                        foo = gettext("bar");
-			if (0) {
-                        	strftime_l(baz, sizeof baz, "%c", tm, LC_GLOBAL_LOCALE);
-			}
-                        exit(0);
-		}
-	],
-		ok_uselocale=yes,
-		ok_uselocale=no
-	)
-	ok_nls=$ok_uselocale
-fi
-
-if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)
-	ok_nls=$ok_xgettext
-fi
-
-if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_msgmerge, msgmerge, yes, no)
-	ok_nls=$ok_msgmerge
-fi
-
-if test "$ok_nls" != "no"; then
-	AC_CHECK_PROG(ok_msgfmt, msgfmt, yes, no)
-	ok_nls=$ok_msgfmt
-fi
-
-if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(WebCit will be built with national language support.)
-	AC_DEFINE(ENABLE_NLS)
-	PROG_SUBDIRS="$PROG_SUBDIRS po"
-else
-	AC_MSG_RESULT(WebCit will be built without national language support.)
-fi
-
+AC_SUBST(CFLAGS)
 AC_SUBST(SETUP_LIBS)
 
-AC_OUTPUT(Makefile po/Makefile )
+
+STATIC_DIR=
+
+AC_ARG_WITH(with_staticdir, [  --with-staticdir          where to put datafiles])
+
+AC_SUBST(STATIC_DIR)
+AC_OUTPUT(Makefile src/Makefile po/Makefile.in   )
 
 echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
