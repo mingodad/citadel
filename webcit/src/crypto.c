@@ -7,6 +7,7 @@
  */
 
 /*@{*/
+#include "config.h"
 #ifdef HAVE_OPENSSL
 
 #include "webcit.h"

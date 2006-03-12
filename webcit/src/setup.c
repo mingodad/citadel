@@ -7,7 +7,7 @@
  *
  */
 
-
+#include "config.h"
 #include "webcit.h"
 #include "webserver.h"
 
