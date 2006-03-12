@@ -1,0 +1,19 @@
+Clint Adams  			portability enhancements
+Steven M. Bellovin		author of public domain 'parsedate' function
+Nathan Bryant			build system, security, database access, and others
+Art Cancro				overall system design and lead developer
+Brian Costello			cosmetics, additional commands
+Nick Georbit			additional client features
+David Given				IMAP and build patches
+Wilfried Goesgens		build system patches
+Michael Hampton			client software development
+Andru Luvisi			troubleshooting and development assistance
+Daniel Malament			string compare function for IMAP server
+Stu Mark				additional client features, IGnet protocol design
+Edward S. Marshall		RBL checking function design
+Ben Mehlman				additional client features
+Ari Samson				assistance with project management
+Trey Van Riper			QA and portability enhancements
+John Walker				author of public domain base64 encoder/decoder
+Steve Williams			documentation
+Ethan Young				IGnet protocol design
