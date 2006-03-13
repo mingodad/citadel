@@ -8,12 +8,11 @@
  * Current status of standards conformance:
  *
  * -> All required POP3 commands described in RFC1939 are implemented.
- *
  * -> All optional POP3 commands described in RFC1939 are also implemented.
- * 
  * -> The deprecated "LAST" command is included in this implementation, because
  *    there exist mail clients which insist on using it (such as Bynari
  *    TradeMail, and certain versions of Eudora).
+ * -> Capability detection via the method described in RFC2449 is implemented.
  * 
  */
 
@@ -514,6 +513,23 @@ void pop3_last(char *argbuf) {
 }
 
 
+/*
+ * CAPA is a command which tells the client which POP3 extensions
+ * are supported.
+ */
+void pop3_capa(void) {
+	cprintf("+OK Capability list follows\r\n"
+		"TOP\r\n"
+		"USER\r\n"
+		"UIDL\r\n"
+		"IMPLEMENTATION %s\r\n"
+		".\r\n"
+		,
+		CITADEL
+	);
+}
+
+
 
 /*
  * UIDL (Universal IDentifier Listing) is easy.  Our 'unique' message
@@ -609,6 +625,10 @@ void pop3_command_loop(void) {
 
 	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
 		cprintf("+OK No operation.\r\n");
+	}
+
+	else if (!strncasecmp(cmdbuf, "CAPA", 4)) {
+		pop3_capa();
 	}
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
