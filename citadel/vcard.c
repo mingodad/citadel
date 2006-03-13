@@ -38,8 +38,10 @@
 #include "vcard.h"
 #include "tools.h"
 
-/* 
- * Constructor (empty vCard)
+
+/** 
+ * \brief Constructor (empty vCard)
+ * \return an empty vcard
  */
 struct vCard *vcard_new() {
 	struct vCard *v;
@@ -54,9 +56,38 @@ struct vCard *vcard_new() {
 	return v;
 }
 
+/**
+ * \brief	Remove the "charset=" attribute from a vCard property name
+ *
+ * \param	strbuf		The property name string to be stripped
+ */
+void remove_charset_attribute(char *strbuf)
+{
+	int i, t;
+	char compare[256];
+
+	t = num_tokens(strbuf, ';');
+	for (i=0; i<t; ++i) {
+		extract_token(compare, strbuf, i, ';', sizeof compare);
+		striplt(compare);
+		if (!strncasecmp(compare, "charset=", 8)) {
+			remove_token(strbuf, i, ';');
+		}
+	}
+	if (strlen(strbuf) > 0) {
+		if (strbuf[strlen(strbuf)-1] == ';') {
+			strbuf[strlen(strbuf)-1] = 0;
+		}
+	}
+}
+
 
 /*
- * Add a property to a vCard
+ * \brief	Add a property to a vCard
+ *
+ * \param	v		vCard structure to which we are adding
+ * \param	propname	name of new property
+ * \param	propvalue	value of new property
  */
 void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 	++v->numprops;
@@ -68,8 +99,10 @@ void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 
 
 
-/*
- * Constructor (supply serialized vCard)
+/**
+ * \brief Constructor (supply serialized vCard)
+ * \param vtext the text to parse into the new vcard
+ * \return the parsed VCard
  */
 struct vCard *vcard_load(char *vtext) {
 	struct vCard *v;
@@ -79,10 +112,12 @@ struct vCard *vcard_load(char *vtext) {
 	int i;
 	int colonpos, nlpos;
 
+	if (vtext == NULL) return vcard_new();
 	mycopy = strdup(vtext);
 	if (mycopy == NULL) return NULL;
 
-	/* First, fix this big pile o' vCard to make it more parseable.
+	/**
+	 * First, fix this big pile o' vCard to make it more parseable.
 	 * To make it easier to parse, we convert CRLF to LF, and unfold any
 	 * multi-line fields into single lines.
 	 */
@@ -113,15 +148,21 @@ struct vCard *vcard_load(char *vtext) {
 			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
 			valuebuf[nlpos-colonpos-1] = 0;
 
-			if ( (!strcasecmp(namebuf, "end"))
-			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 0;
-			if ( (!strcasecmp(namebuf, "begin"))
-			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 1;
+			if (!strcasecmp(namebuf, "end")) {
+				valid = 0;
+			}
+			if (	(!strcasecmp(namebuf, "begin"))
+				&& (!strcasecmp(valuebuf, "vcard"))
+			) {
+				valid = 1;
+			}
 
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
+				remove_charset_attribute(namebuf);
 				++v->numprops;
 				v->prop = realloc(v->prop,
-					(v->numprops * sizeof(struct vCardProp)) );
+					(v->numprops * sizeof(struct vCardProp))
+				);
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
 			} 
@@ -143,13 +184,19 @@ struct vCard *vcard_load(char *vtext) {
 }
 
 
-/*
- * Fetch the value of a particular key.
+/**
+ * \brief Fetch the value of a particular key.
  * If is_partial is set to 1, a partial match is ok (for example,
  * a key of "tel;home" will satisfy a search for "tel").
  * Set "instance" to a value higher than 0 to return subsequent instances
  * of the same key.
  * Set "get_propname" to nonzero to fetch the property name instead of value.
+ * \param v vCard to get keyvalue from
+ * \param propname key to retrieve
+ * \param is_partial dunno???
+ * \param instance if >0 return a later token of the value
+ * \param get_propname if nonzero get the real property name???
+ * \return the requested value / token / propertyname
  */
 char *vcard_get_prop(struct vCard *v, char *propname,
 			int is_partial, int instance, int get_propname) {
@@ -178,8 +225,12 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 }
 
 
-/*
- * Destructor
+
+
+/**
+ * \brief Destructor
+ * kill a vCard
+ * \param v the vCard to purge from memory
  */
 void vcard_free(struct vCard *v) {
 	int i;
@@ -200,15 +251,19 @@ void vcard_free(struct vCard *v) {
 
 
 
-/*
- * Set a name/value pair in the card
+/**
+ * \brief Set a name/value pair in the card
+ * \param v vCard to inspect
+ * \param name key to set
+ * \param value the value to assign to key
+ * \param append should we append the value to an existing one?
  */
 void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	int i;
 
-	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
+	if (v->magic != CTDL_VCARD_MAGIC) return;	/** Self-check */
 
-	/* If this key is already present, replace it */
+	/** If this key is already present, replace it */
 	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
 			free(v->prop[i].name);
@@ -219,7 +274,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 		}
 	}
 
-	/* Otherwise, append it */
+	/** Otherwise, append it */
 	++v->numprops;
 	v->prop = realloc(v->prop,
 		(v->numprops * sizeof(struct vCardProp)) );
@@ -230,35 +285,48 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 
 
 
-/*
- * Serialize a struct vcard into a standard text/x-vcard MIME type.
- *
+/**
+ * \brief Serialize a struct vcard into a standard text/x-vcard MIME type.
+ * \param v vCard to serialize
+ * \return the serialized vCard
  */
 char *vcard_serialize(struct vCard *v)
 {
 	char *ser;
-	int i;
+	int i, j;
 	size_t len;
+	int is_utf8 = 0;
 
-	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/* self check */
+	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/** self check */
 
-	/* Figure out how big a buffer we need to allocate */
-	len = 64;	/* for begin, end, and a little padding for safety */
+	/** Figure out how big a buffer we need to allocate */
+	len = 64;	/** for begin, end, and a little padding for safety */
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		len = len +
 			strlen(v->prop[i].name) +
-			strlen(v->prop[i].value) + 4;
+			strlen(v->prop[i].value) + 16;
 	}
 
 	ser = malloc(len);
 	if (ser == NULL) return NULL;
 
-	strcpy(ser, "begin:vcard\r\n");
+	safestrncpy(ser, "begin:vcard\r\n", len);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		strcat(ser, v->prop[i].name);
-		strcat(ser, ":");
-		strcat(ser, v->prop[i].value);
-		strcat(ser, "\r\n");
+		if (strcasecmp(v->prop[i].name, "end")) {
+			is_utf8 = 0;
+			for (j=0; i<strlen(v->prop[i].value); ++i) {
+				if ( (v->prop[i].value[j] < 32) || (v->prop[i].value[j] > 126) ) {
+					is_utf8 = 1;
+				}
+			}
+			strcat(ser, v->prop[i].name);
+			if (is_utf8) {
+				strcat(ser, ";charset=UTF-8");
+			}
+			strcat(ser, ":");
+			strcat(ser, v->prop[i].value);
+			strcat(ser, "\r\n");
+		}
 	}
 	strcat(ser, "end:vcard\r\n");
 
@@ -268,7 +336,11 @@ char *vcard_serialize(struct vCard *v)
 
 
 /*
- * Convert FN (Friendly Name) into N (Name)
+ * \brief	Convert FN (Friendly Name) into N (Name)
+ *
+ * \param	vname		Supplied friendly-name
+ * \param	n		Target buffer to store Name
+ * \param	vname_size	Size of buffer
  */
 void vcard_fn_to_n(char *vname, char *n, size_t vname_size) {
 	char lastname[256];
@@ -321,7 +393,6 @@ void vcard_fn_to_n(char *vname, char *n, size_t vname_size) {
 	snprintf(vname, vname_size, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
 		honorific_prefixes, honorific_suffixes);
 }
-
 
 
 
