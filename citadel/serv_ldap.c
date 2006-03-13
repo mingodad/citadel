@@ -106,7 +106,10 @@ void CtdlCreateLdapRoot(void) {
 	i = ldap_add_s(dirserver, config.c_ldap_base_dn, mods);
 	end_critical_section(S_LDAP);
 
-	if (i != LDAP_SUCCESS) {
+	if (i == LDAP_ALREADY_EXISTS) {
+		lprintf(CTDL_INFO, "Base DN is already present in the directory; no need to add it again.\n");
+	}
+	else if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_CRIT, "ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 	}
@@ -149,12 +152,13 @@ void CtdlCreateHostOU(char *host) {
 	i = ldap_add_s(dirserver, dn, mods);
 	end_critical_section(S_LDAP);
 
-	/* ignore the error -- it's ok if it already exists
-	if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_ERR, "ldap_add_s() failed: %s (%d)\n",
+	if (i == LDAP_ALREADY_EXISTS) {
+		lprintf(CTDL_INFO, "Host OU is already present in the directory; no need to add it again.\n");
+	}
+	else if (i != LDAP_SUCCESS) {
+		lprintf(CTDL_CRIT, "ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 	}
-	*/
 }
 
 
@@ -530,7 +534,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 	attrs[num_attrs - 1] = NULL;
 	
-	lprintf(CTDL_DEBUG, "Calling ldap_add_s()\n");
+	lprintf(CTDL_DEBUG, "Calling ldap_add_s() for '%s'\n", this_dn);
 	begin_critical_section(S_LDAP);
 	i = ldap_add_s(dirserver, this_dn, attrs);
 	end_critical_section(S_LDAP);
@@ -540,7 +544,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 		for (j=0; j<(num_attrs-1); ++j) {
 			attrs[j]->mod_op = LDAP_MOD_REPLACE;
 		}
-		lprintf(CTDL_DEBUG, "Calling ldap_modify_s()\n");
+		lprintf(CTDL_DEBUG, "Calling ldap_modify_s() for '%s'\n", this_dn);
 		begin_critical_section(S_LDAP);
 		i = ldap_modify_s(dirserver, this_dn, attrs);
 		end_critical_section(S_LDAP);
