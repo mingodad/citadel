@@ -377,7 +377,7 @@ dnl else
 dnl 	AC_MSG_RESULT(WebCit will be built without national language support.)
 dnl fi
 dnl Checks for programs.
-AM_GNU_GETTEXT_VERSION([0.14.0])
+AM_GNU_GETTEXT_VERSION([0.14])
 
 #AM_GNU_GETTEXT
 # if we have intl/... 
