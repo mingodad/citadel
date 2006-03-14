@@ -34,7 +34,6 @@ AC_PREFIX_DEFAULT(/usr/local/webcit)
 #	]
 #)
 #AC_DEFINE([HAVE_ICAL], [  --with-libical          use libical calendaring library])
-AC_DEFINE([HAVE_ZLIB],    [  --with-zlib             use zlib compression if present],ok_zlib=no, ok_zlib=yes)
 AC_DEFINE([HAVE_OPENSSL],
 	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
 	ssl_ok=no,
@@ -156,37 +155,30 @@ fi
 
 
 dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-        AC_CHECK_HEADERS(zlib.h,
-                [AC_CHECK_LIB(z, zlibVersion,
-                        [ok_zlib=yes],,
-        )])
-fi
+AC_DEFINE([with_zlib],
+		  [  --with-zlib             use zlib compression if present],
+		  [ok_zlib=no], 
+		  [AC_CHECK_HEADERS(zlib.h,
+							[AC_CHECK_LIB(z, zlibVersion,
+							[ok_zlib=yes],,
+							)])
+		])
 
 if test "x$ok_zlib" = xyes ; then
         LIBS="-lz $LIBS"
-        AC_DEFINE(HAVE_ZLIB)
 fi
 
 dnl Checks for the newt window library.
-dnl#if test "x$with_newt" != xno ; then
-
-dnl AC_DEFINE([HAVE_NEWT],
-dnl 		  [  --with-newt             use newt window library],ok_newt=no, 
-dnl 	      [AC_CHECK_HEADERS(newt.h,
-dnl 		                    [AC_CHECK_LIB(newt, newtInit,
-dnl 			                              [ok_newt=yes],[ok_newt=no],
-dnl 	                                      )
-dnl 							])
-dnl 		  ] 
-dnl )
-
-dnl	ok_newt=yes
-
-dnl if test "x$ok_newt" = xyes ; then
-dnl	SETUP_LIBS="-lnewt $SETUP_LIBS"
-dnl	AC_DEFINE(HAVE_NEWT)
-dnl fi
+AC_ARG_WITH([ok_newt],    [  --with-newt             use newt window library],ok_newt=no, [ AC_CHECK_HEADERS(newt.h,
+ 		                    [AC_CHECK_LIB(newt, newtInit,
+ 			                              [ok_newt=yes],[ok_newt=no],
+ 	                                      )
+ 							])
+				  ]
+)
+if test "x$ok_newt" = xyes ; then
+	SETUP_LIBS="-lnewt $SETUP_LIBS"
+fi
 
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
@@ -396,11 +388,9 @@ AC_SUBST(CFLAGS)
 AC_SUBST(SETUP_LIBS)
 
 
-STATIC_DIR=
 
-AC_ARG_WITH(with_staticdir, [  --with-staticdir          where to put datafiles])
-
-AC_SUBST(STATIC_DIR)
+AC_ARG_WITH(staticdir, [  --with-staticdir=DIR          where to put datafiles],[ staticdir=$withval ],[ staticdir=$prefix/static/ ] )
+AC_SUBST(staticdir)
 AC_OUTPUT(Makefile src/Makefile po/Makefile.in   )
 
 echo ------------------------------------------------------------------------

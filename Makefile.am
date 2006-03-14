@@ -17,11 +17,7 @@ DIRS=tiny_mce static
 
 install-data-local:
 		@$(NORMAL_INSTALL); \
-		if test -n "@STATIC_DIR@" ; then \
-			export STATIC_DIR=@STATIC_DIR@; \
-		else \
-			export STATIC_DIR=$(prefix); \
-		fi; \
+		export STATIC_DIR=@staticdir@; \
 		for dir in $(DIRS); do \
 			$(mkinstalldirs) $(DESTDIR)/$$STATIC_DIR/$$dir; \
 			for subdir in `find $$dir -type d |grep -v .svn`; do \
