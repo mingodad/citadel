@@ -23,13 +23,15 @@ endif
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
+	rm -rf $(CURDIR)/debian/webcit $(CURDIR)/debian/citadel-webcit $(CURDIR)/debian/citadel-webcit-apache
 	CFLAGS="$(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
-		--prefix=/var/lib/citadel/www/ \
+		--prefix=/usr \
+		--with-webcit-dir=/usr \
 		--with-sysconfdir=/etc/citadel \
 		--with-spooldir=/var/spool/citadel \
-		--with-datadir=/var/lib/citadel \
+		--with-staticdir=/usr/share/doc/citadel-webcit/examples \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt --with-included-gettext
 
@@ -65,25 +67,13 @@ install: build
 
 # Add here commands to install the package into debian/webcit.
 	root=$(CURDIR)/debian/webcit/
-	mkdir -p $(CURDIR)/debian/webcit/var/lib/citadel/www/
-	export root=$(CURDIR)/debian/webcit; $(MAKE) install DESTDIR=$(CURDIR)/debian/webcit/
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/contrib
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/sbin
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/ 
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/static \
-		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/tiny_mce \
-		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-# locale -> /usr/share/locale
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/locale \
-		$(CURDIR)/debian/citadel-webcit/usr/share/locale
-	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/; \
-				md5sum `find -type f |grep -v md5sums `>md5sums; 
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/setup \
-		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/webserver \
-		$(CURDIR)/debian/citadel-webcit/usr/sbin/
+	export root=$(CURDIR)/debian/citadel-webcit; \
+		$(MAKE) install DESTDIR=$(CURDIR)/debian/citadel-webcit
+	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit ;\
+	mv $(CURDIR)/debian/citadel-webcit/usr/sbin/setup \
+		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/; \
+	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/ && \
+				md5sum `find -type f |grep -v md5sums `>md5sums; \
 
 
 # Build architecture-independent files here.

@@ -1,2 +1,2 @@
 misc:Depends=debconf (>= 0.5) | debconf-2.0
-shlibs:Depends=libc6 (>= 2.3.5-1), libssl0.9.8 (>= 0.9.8a-1), zlib1g (>= 1:1.2.1)
+shlibs:Depends=libc6 (>= 2.3.5-1), libssl0.9.8 (>= 0.9.8a-1)

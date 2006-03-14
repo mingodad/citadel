@@ -26,7 +26,7 @@ LIBS = @LTLIBINTL@ @LIBS@
 sbin_PROGRAMS = webserver setup
 
 webserver_LDADD = @LIBINTL@
-
+setup_LDADD = @SETUP_LIBS@
 #SUBDIRS = $(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 setup_SOURCES = setup.c tools.c
 
