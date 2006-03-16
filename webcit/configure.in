@@ -393,7 +393,7 @@ AC_SUBST(SETUP_LIBS)
 
 
 
-AC_ARG_WITH(staticdir, [  --with-staticdir=DIR          where to put datafiles],[ staticdir=$withval ],[ staticdir=$prefix/static/ ] )
+AC_ARG_WITH(staticdir, [  --with-staticdir=DIR          where to put datafiles],[ staticdir=$withval ],[ staticdir=$prefix/ ] )
 AC_SUBST(staticdir)
 AC_OUTPUT(Makefile src/Makefile po/Makefile.in   )
 
