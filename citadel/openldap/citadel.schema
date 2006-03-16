@@ -1,16 +1,15 @@
 # $Id: citadel.schema,v 1.16 2005/12/27 13:04:53 martin Exp $
 
-# (c) 2003, 2004 Tassilo Erlewein <tassilo.erlewein@erfrakon.de>
-# (c) 2003-2005  Martin Konold <martin.konold@erfrakon.de>
-# (c) 2003 Achim Frank <achim.frank@erfrakon.de>
 # (c) 2006 Art Cancro <ajc@uncensored.citadel.org>
 
 # This file is distributed under the terms of the GNU General Public License v2.
 
-# This schema highly depends on the core.schema, cosine.schema and the inetorgperson.schema
-# as provided by 3rd parties like OpenLDAP.
+# This schema depends on the core.schema, cosine.schema and the inetorgperson.schema
+# as provided by third parties such as OpenLDAP.  It also depends on rfc2739 schema,
+# which is included in the Citadel distribution.
 #
-# slapd.conf then looks like
+# If you are using OpenLDAP, slapd.conf should declare schemas like this:
+#
 #  include /etc/openldap/schema/core.schema
 #  include /etc/openldap/schema/cosine.schema
 #  include /etc/openldap/schema/inetorgperson.schema
