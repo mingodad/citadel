@@ -585,7 +585,7 @@ int main(int argc, char **argv)
 	
 	mo = malloc(strlen(webcitdir) + 20);
 	lprintf(9, "Message catalog directory: %s\n",
-		bindtextdomain("webcit", PREFIX"/locale/")
+		bindtextdomain("webcit", PREFIX"/share/locale/")
 	);
 	free(mo);
 	lprintf(9, "Text domain: %s\n",
