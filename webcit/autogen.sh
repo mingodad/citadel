@@ -1,6 +1,5 @@
 #!/bin/bash
 # tool to generate the automaticaly provided stuff 
 svn log >ChangeLog
-intltoolize --force
-autoreconf -i --force
-
+intltoolize --force 2>&1 |grep -v "You should update your 'aclocal.m4' by running aclocal."
+autoreconf -i --force 2>&1|grep -v 'warning: underquoted definition' 
