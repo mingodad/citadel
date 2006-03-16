@@ -12,6 +12,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
+
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
@@ -490,7 +494,7 @@ int main(int argc, char **argv)
 	int a, i;	        	/**< General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
-	char *webcitdir = WEBCITDIR;
+	char *webcitdir = PREFIX;
 #ifdef ENABLE_NLS
 	char *locale = NULL;
 	char *mo = NULL;
@@ -571,10 +575,6 @@ int main(int argc, char **argv)
 		"GNU General Public License.\n\n"
 	);
 
-	lprintf(9, "Changing directory to %s\n", webcitdir);
-	if (chdir(webcitdir) != 0) {
-		perror("chdir");
-	}
 
 	/** initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
@@ -582,11 +582,10 @@ int main(int argc, char **argv)
 	initialize_locales();
 
 	locale = setlocale(LC_ALL, "");
-
+	
 	mo = malloc(strlen(webcitdir) + 20);
-	sprintf(mo, "%s/locale", webcitdir);
 	lprintf(9, "Message catalog directory: %s\n",
-		bindtextdomain("webcit", mo)
+		bindtextdomain("webcit", PREFIX"/locale/")
 	);
 	free(mo);
 	lprintf(9, "Text domain: %s\n",
@@ -597,6 +596,10 @@ int main(int argc, char **argv)
 	);
 #endif
 
+	lprintf(9, "Changing directory to %s\n", webcitdir);
+	if (chdir(webcitdir) != 0) {
+		perror("chdir");
+	}
 	initialize_viewdefs();
 	initialize_axdefs();
 

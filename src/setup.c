@@ -628,7 +628,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, WEBCITDIR);
+	strcpy(setup_directory, PREFIX);
 	if ( (using_web_installer) && (getenv("WEBCIT") != NULL) ) {
 		strcpy(setup_directory, getenv("WEBCIT"));
 	}

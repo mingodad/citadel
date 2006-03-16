@@ -1,8 +1,6 @@
 /* $Id$ */
 
-/** we need _GNU_SOURCE for various functions arround the NLS-Stuff */
 #include "config.h"
-#define _GNU_SOURCE
 
 
 #include <ctype.h>
