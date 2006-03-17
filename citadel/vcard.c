@@ -39,6 +39,9 @@
 #include "tools.h"
 
 
+
+
+
 /** 
  * \brief Constructor (empty vCard)
  * \return an empty vcard
@@ -312,9 +315,9 @@ char *vcard_serialize(struct vCard *v)
 
 	safestrncpy(ser, "begin:vcard\r\n", len);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		if (strcasecmp(v->prop[i].name, "end")) {
+		if ( (strcasecmp(v->prop[i].name, "end")) && (v->prop[i].value != NULL) ) {
 			is_utf8 = 0;
-			for (j=0; i<strlen(v->prop[i].value); ++i) {
+			for (j=0; j<strlen(v->prop[i].value); ++j) {
 				if ( (v->prop[i].value[j] < 32) || (v->prop[i].value[j] > 126) ) {
 					is_utf8 = 1;
 				}
@@ -393,6 +396,7 @@ void vcard_fn_to_n(char *vname, char *n, size_t vname_size) {
 	snprintf(vname, vname_size, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
 		honorific_prefixes, honorific_suffixes);
 }
+
 
 
 
