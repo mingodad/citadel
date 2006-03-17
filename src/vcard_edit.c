@@ -359,6 +359,8 @@ void edit_vcard(void) {
  * \brief parse edited vcard from the browser
  */
 void submit_vcard(void) {
+	struct vCard *v;
+	char *serialized_vcard;
 	char buf[SIZ];
 	int i;
 
@@ -375,19 +377,34 @@ void submit_vcard(void) {
 		return;
 	}
 
-	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
-	serv_puts("");
-	serv_puts("begin:vcard");
-	serv_printf("n:%s;%s;%s;%s;%s",
+	/** Make a vCard structure out of the data supplied in the form */
+
+	snprintf(buf, sizeof buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
+		bstr("extrafields")
+	);
+	v = vcard_load(buf);	/** Start with the extra fields */
+	if (v == NULL) {
+		safestrncpy(WC->ImportantMessage,
+			_("An error has occurred."),
+			sizeof WC->ImportantMessage
+		);
+		edit_vcard();
+		return;
+	}
+
+	snprintf(buf, sizeof buf, "%s;%s;%s;%s;%s",
 		bstr("lastname"),
 		bstr("firstname"),
 		bstr("middlename"),
 		bstr("prefix"),
 		bstr("suffix") );
-	serv_printf("title:%s", bstr("title") );
-	serv_printf("fn:%s", bstr("fullname") );
-	serv_printf("org:%s", bstr("org") );
-	serv_printf("adr:%s;%s;%s;%s;%s;%s;%s",
+	vcard_add_prop(v, "n", buf);
+	
+	vcard_add_prop(v, "title", bstr("title"));
+	vcard_add_prop(v, "fn", bstr("fullname"));
+	vcard_add_prop(v, "org", bstr("org"));
+
+	snprintf(buf, sizeof buf, "%s;%s;%s;%s;%s;%s;%s",
 		bstr("pobox"),
 		bstr("extadr"),
 		bstr("street"),
@@ -395,20 +412,36 @@ void submit_vcard(void) {
 		bstr("state"),
 		bstr("zipcode"),
 		bstr("country") );
-	serv_printf("tel;home:%s", bstr("hometel") );
-	serv_printf("tel;work:%s", bstr("worktel") );
+	vcard_add_prop(v, "adr", buf);
 
-	serv_printf("email;internet:%s\n", bstr("primary_inetemail"));	
+	vcard_add_prop(v, "tel;home", bstr("hometel"));
+	vcard_add_prop(v, "tel;work", bstr("worktel"));
+	vcard_add_prop(v, "email;internet", bstr("primary_inetemail"));
+
 	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
 		extract_token(buf, bstr("other_inetemail"), i, '\n', sizeof buf);
 		if (strlen(buf) > 0) {
-			serv_printf("email;internet:%s", buf);
+			vcard_add_prop(v, "email;internet", buf);
 		}
 	}
 
-	serv_printf("%s", bstr("extrafields") );
-	serv_puts("end:vcard");
+	serialized_vcard = vcard_serialize(v);
+	vcard_free(v);
+	if (serialized_vcard == NULL) {
+		safestrncpy(WC->ImportantMessage,
+			_("An error has occurred."),
+			sizeof WC->ImportantMessage
+		);
+		edit_vcard();
+		return;
+	}
+
+	lprintf(9, "%s\n", serialized_vcard);
+	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
+	serv_puts("");
+	serv_printf("%s\r\n", serialized_vcard);
 	serv_puts("000");
+	free(serialized_vcard);
 
 	if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 		select_user_to_edit(NULL, NULL);
