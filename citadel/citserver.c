@@ -31,7 +31,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
-/* #include <dlfcn.h> */
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -817,7 +816,7 @@ void generate_nonce(struct CitContext *con) {
  */
 void begin_session(struct CitContext *con)
 {
-	int len;
+	socklen_t len;
 	struct sockaddr_in sin;
 
 	/* 
@@ -844,11 +843,12 @@ void begin_session(struct CitContext *con)
 	con->cs_host[sizeof con->cs_host - 1] = 0;
 	len = sizeof sin;
 	if (!CC->is_local_socket) {
-		if (!getpeername(con->client_socket,
-		   (struct sockaddr *) &sin, &len))	/* should be socklen_t but doesn't work on Macintosh */
+		if (!getpeername(con->client_socket, (struct sockaddr *) &sin, &len)) {
 			locate_host(con->cs_host, sizeof con->cs_host,
 				con->cs_addr, sizeof con->cs_addr,
-				&sin.sin_addr);
+				&sin.sin_addr
+			);
+		}
 	}
 	else {
 		strcpy(con->cs_host, "");

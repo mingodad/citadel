@@ -185,8 +185,8 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 
 	/* Iterate over any multiple answers we might have. In
 	   this context, it's unlikely, but anyway. */
-	rp = result;
-	rend = result + RESULT_SIZE - 1;
+	rp = (u_char *) result;
+	rend = (u_char *) result + RESULT_SIZE - 1;
 	while( cp < cend && rp < rend )
 	{
 		a = *cp++;

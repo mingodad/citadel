@@ -80,8 +80,8 @@ int home_specified = 0;
 
 void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir)
 {
-	const char* basedir;
-	char dirbuffer[PATH_MAX]="";
+	const char* basedir = "";
+	char dirbuffer[PATH_MAX] = "";
 
 	/*
 	 * Ok, we keep our binaries either in the citadel base dir,
