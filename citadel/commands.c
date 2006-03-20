@@ -53,7 +53,7 @@
 #include "tools.h"
 #include "rooms.h"
 #include "client_chat.h"
-#include "citadel_dirs.c"
+#include "citadel_dirs.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
