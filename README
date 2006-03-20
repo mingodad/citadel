@@ -61,6 +61,9 @@ port.  The default is port 2000.
   make
   make install
  
+ Package/Ports Maintainers: to make webcit fit smart into LHFS-ified systems
+ read on at the end of this file, Advanced configure options.
+
  Then to initialize it:
   cd /usr/local/webcit
   ./setup
@@ -198,7 +201,64 @@ generate a key and certificate.
  It is up to you to decide whether to use an automatically generated,
 self-signed certificate, or purchase a certificate signed by a well known
 authority.
-  
+
+
+ INTEGRATING INTO APACHE
+ -----------------------
+
+ If you want to include webcit into an Apache, because of you want to have it
+running alongside your i.e. php applications without adding another ip or using a 
+different port than 443 / 80 (which may be blocked by company firewalls for 
+example) you can do this with apaches mod_proxy. One can do this either to make
+webcit fill up into a full vhost (like webcit.mydomain.com) or to go into a 
+subdirectory (like www.mydomain.com/webcit). find two config snippets, that can
+be added to apaches sample ssl config (which you may find in 
+/usr/share/doc/apache2/examples/ssl.conf for example) Warning: you should be somewhat
+experienced with configuring apache to do that!
+
+VHOST context:
+<VirtualHost mydomain.com:443>
+	#here some of your config stuff like logging, serveradmin...
+	NameVirtualHost www.mydomain.com
+    <location />
+         allow from all
+    </location>
+
+    ProxyPass / http://127.0.0.1:2000/
+    ProxyPassReverse / http://127.0.0.1:2000/
+# make apache give away static content like images...
+    alias /static /var/lib/citadel/www/static
+
+</VirtualHost>
+
+SUBDIR context:
+<VirtualHost mydomain.com:443>
+	#here some of your config stuff like logging, serveradmin...
+	NameVirtualHost www.mydomain.com
+    <location /webcit>
+      allow from all
+    </location>
+    <location /listsub>
+      allow from all
+    </location>
+    <location /groupdav>
+      allow from all
+    </location>
+    <location /who_inner_html>
+      allow from all
+    </location>
+
+    ProxyPass /webcit/ http://127.0.0.1:2000/webcit/
+    ProxyPassReverse /webcit/ http://127.0.0.1:2000/webcit/
+    ProxyPass /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPassReverse /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPass /groupdav/ http://127.0.0.1:2000/groupdav/
+    ProxyPassReverse /groupdav/ http://127.0.0.1:2000/groupdav/
+    ProxyPass /who_inner_html http://127.0.0.1:2000/who_inner_html
+    ProxyPassReverse /who_inner_html http://127.0.0.1:2000/who_inner_html
+# make apache give away static content like images...
+    alias /static /var/lib/citadel/www/static
+</VirtualHost>
  
  CONCLUSION
  ----------
@@ -206,3 +266,22 @@ authority.
  That's all you need to know to get started.  If you have any questions or
 comments, please visit UNCENSORED! BBS, the home of Citadel, at
 uncensored.citadel.org.
+
+
+ ADVANCED CONFIGURE OPTIONS
+ --------------------------
+ 
+ To make webcit integrate smothly into your system there are several options available.
+--with-staticdir defines where webcit should put'n search its templates and images. If you
+want to go with a different Installation location then the point it is accessed at runtime, 
+you can use --with-staticrundir. This option is meant to ease your needs if you're going
+to install the static files as 'examples' in a location like /usr/share/doc/webcit/examples, 
+and enable the user to copy them over to another dir (like /var/lib/citadel/www), where 
+they're accessed at runtime. (The debian instatll scripts provided with this package 
+do this to preserve user changes to the template system, see debian/citadel-webcit.postinstall)
+
+[todo]
+Further there are possibilities to load the tiny_mce editor into a system uniq location. Webcit 
+uses this standard component compose its messages for mails and postings. Several webcit installations
+that may differ in design but use the same tiny_mce (which is the default that webcit ships with)
+

@@ -14,14 +14,6 @@
 #include "mime_parser.h"
 
 /**
- * Subdirectories from which the client may request static content
- */
-char *static_content_dirs[] = {
-	"static",                     /** static templates */
-	"tiny_mce"                    /** the JS editor */
-};
-
-/**
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
  * the exact minute.  :)
@@ -1195,8 +1187,8 @@ void session_loop(struct httprequest *req)
 
 	/** Static content can be sent without connecting to Citadel. */
 	is_static = 0;
-	for (a=0; a<(sizeof(static_content_dirs) / sizeof(char *)); ++a) {
-		if (!strcasecmp(action, static_content_dirs[a])) {
+	for (a=0; a<ndirs; ++a) {
+		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location */
 			is_static = 1;
 		}
 	}

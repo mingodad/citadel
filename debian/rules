@@ -28,10 +28,9 @@ configure-stamp:
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr \
-		--with-webcit-dir=/usr \
-		--with-sysconfdir=/etc/citadel \
-		--with-spooldir=/var/spool/citadel \
 		--with-staticdir=/usr/share/doc/citadel-webcit/examples \
+		--with-staticrundir=/var/lib/citadel/www/ \
+		--with-editor=/usr/share/tiny_mce/ \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt --with-included-gettext
 
@@ -88,23 +87,15 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 #	dh_install
-#	dh_installmenu
 	dh_installdebconf	
 #	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
 #	dh_installinit
 #	dh_installcron
-#	dh_installinfo
 	dh_installman
 	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_perl
-#	dh_python
-#	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
