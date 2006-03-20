@@ -13,6 +13,7 @@
 #include <errno.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
+#include "citadel_dirs.h"
 #include "tools.h"
 
 void logoff(int code)
@@ -61,6 +62,13 @@ int main(int argc, char **argv)
 	time_t timenow;
 	char *listing = NULL;
 	CtdlIPC *ipc = NULL;
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+
+
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
 	/* If this environment variable is set, we assume that the program
 	 * is being called as a cgi-bin from a webserver and will output

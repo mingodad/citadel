@@ -33,7 +33,7 @@
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "tools.h"
-
+#include "citadel_dirs.h"
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
@@ -2942,11 +2942,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
-#ifdef HAVE_RUN_DIR
-			snprintf(sockpath, sizeof sockpath, RUN_DIR "/citadel.socket");
-#else
-			snprintf(sockpath, sizeof sockpath, CTDLDIR "/citadel.socket");
-#endif
+			snprintf(sockpath, sizeof sockpath, file_citadel_socket);
 		}
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s/%s", citport, "citadel.socket");

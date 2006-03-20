@@ -11,6 +11,11 @@ else
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix")
 fi
 
+
+dnl Make sure we see all GNU and Solaris extensions.
+AC_GNU_SOURCE
+
+
 dnl Checks for the Datadir
 AC_ARG_WITH(datadir, 
 		    [  --with-datadir          directory to store the databases under],

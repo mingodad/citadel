@@ -114,10 +114,10 @@ utils: $(UTIL_TARGETS)
 
 citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o screen.o tools.o $(LIBOBJS)
+	routines2.o screen.o tools.o citadel_dirs.o $(LIBOBJS)
 	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o screen.o tools.o $(LIBOBJS) \
+	routines2.o screen.o tools.o citadel_dirs.o $(LIBOBJS) \
 	$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
@@ -159,21 +159,21 @@ chkpwd: chkpwd.o auth.o config.o citadel_dirs.o
 	$(CC) chkpwd.o auth.o config.o citadel_dirs.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 	chmod 4755 chkpwd
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
-stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
-	$(CC) stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
+stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
+	$(CC) stress.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
 
-sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o $(LIBOBJS)
-	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o citadel_dirs.o \
-	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
+sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  $(LIBOBJS)
+	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  \
+	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
 
-userlist: userlist.o ipc_c_tcp.o citadel_ipc.o tools.o $(LIBOBJS)
-	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o tools.o \
+userlist: userlist.o ipc_c_tcp.o citadel_ipc.o tools.o citadel_dirs.o $(LIBOBJS)
+	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o tools.o citadel_dirs.o \
 	$(LIBOBJS) $(LDFLAGS) -o userlist $(LIBS)
 
 msgform: msgform.o

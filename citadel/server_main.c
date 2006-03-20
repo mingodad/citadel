@@ -195,15 +195,10 @@ int main(int argc, char **argv)
 	 * Bind the server to a Unix-domain socket.
 	 */
 	CtdlRegisterServiceHook(0,
-#ifndef HAVE_RUN_DIR
-					 "."
-#else
-					 RUN_DIR
-#endif
-				"/citadel.socket",
-				citproto_begin_session,
-				do_command_loop,
-				do_async_loop);
+							file_citadel_socket,
+							citproto_begin_session,
+							do_command_loop,
+							do_async_loop);
 
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
