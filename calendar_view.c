@@ -38,7 +38,8 @@ void calendar_month_view_display_events(time_t thetime) {
 	time_t event_tt;
 	struct tm event_tm;
 	struct tm today_tm;
-	icalproperty *p;
+	icalproperty *p = NULL;
+	icalproperty *q = NULL;
 	struct icaltimetype t;
 	int month, day, year;
 	int all_day_event = 0;
@@ -96,17 +97,27 @@ void calendar_month_view_display_events(time_t thetime) {
 						bstr("day")
 					);
 
-					wprintf("<b>Summary:</b> ");
-					escputs("lorem ipsum dolor sit amet");
+					wprintf("<b>%s</b> ", _("Summary:"));
+					escputs((char *)icalproperty_get_comment(p));
 					wprintf("<br />");
 
-					wprintf("<b>Location:</b> ");
-					escputs("lorem ipsum dolor sit amet");
-					wprintf("<br />");
+					q = icalcomponent_get_first_property(
+							WC->disp_cal[i].cal,
+							ICAL_LOCATION_PROPERTY);
+					if (q) {
+						wprintf("<b>%s</b> ", _("Location:"));
+						escputs((char *)icalproperty_get_comment(q));
+						wprintf("<br />");
+					}
 
-					wprintf("<b>Notes:</b> ");
-					escputs("lorem ipsum dolor sit amet");
-					wprintf("<br />");
+					q = icalcomponent_get_first_property(
+							WC->disp_cal[i].cal,
+							ICAL_DESCRIPTION_PROPERTY);
+					if (q) {
+						wprintf("<b>%s</b> ", _("Notes:"));
+						escputs((char *)icalproperty_get_comment(q));
+						wprintf("<br />");
+					}
 
 					wprintf("\">");
 					escputs((char *)
