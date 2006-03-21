@@ -86,13 +86,29 @@ void calendar_month_view_display_events(time_t thetime) {
 					}
 
 					wprintf("<font size=-1>"
-						"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
+						"<a href=\"display_edit_event?"
+						"msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\""
+						" btt_tooltext=\"",
 						WC->disp_cal[i].cal_msgnum,
 						bstr("calview"),
 						bstr("year"),
 						bstr("month"),
 						bstr("day")
 					);
+
+					wprintf("<b>Summary:</b> ");
+					escputs("lorem ipsum dolor sit amet");
+					wprintf("<br />");
+
+					wprintf("<b>Location:</b> ");
+					escputs("lorem ipsum dolor sit amet");
+					wprintf("<br />");
+
+					wprintf("<b>Notes:</b> ");
+					escputs("lorem ipsum dolor sit amet");
+					wprintf("<br />");
+
+					wprintf("\">");
 					escputs((char *)
 						icalproperty_get_comment(p));
 					wprintf("</a></font><br />\n");
@@ -289,7 +305,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	/** Inner table (the real one) */
 	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78><tr>");
+		"bgcolor=#204B78 id=\"inner_month\"><tr>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
 		colheader_time = thetime + (i * 86400) ;
@@ -342,6 +358,11 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("</table>"			/** end of inner table */
 		"</td></tr></table>"		/** end of outer table */
 		"</div>\n");
+
+	/* Initialize the bubble tooltips */
+	wprintf("<script type=\"text/javascript\" src=\"static/BubbleTooltips.js\"></script>\n"
+		"<script type=\"text/javascript\">btt_enableTooltips('inner_month');</script>\n"
+	);
 }
 
 /**
