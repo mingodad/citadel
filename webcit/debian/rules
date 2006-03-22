@@ -30,12 +30,12 @@ configure-stamp:
 		--prefix=/usr \
 		--with-staticdir=/usr/share/doc/citadel-webcit/examples \
 		--with-staticrundir=/var/lib/citadel/www/ \
-		--with-editor=/usr/share/tiny_mce/ \
+		--with-editordir=/usr/share/ \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt --with-included-gettext
 
 	touch configure-stamp
-
+#we don't do /usr/share/tiny_mce, because of make brings one with it.
 
 build: build-stamp
 
