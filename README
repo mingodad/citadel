@@ -280,8 +280,7 @@ and enable the user to copy them over to another dir (like /var/lib/citadel/www)
 they're accessed at runtime. (The debian instatll scripts provided with this package 
 do this to preserve user changes to the template system, see debian/citadel-webcit.postinstall)
 
-[todo]
 Further there are possibilities to load the tiny_mce editor into a system uniq location. Webcit 
 uses this standard component compose its messages for mails and postings. Several webcit installations
 that may differ in design but use the same tiny_mce (which is the default that webcit ships with)
-
+(set --with-editordir for that, it defaults to the dir the templates go)

@@ -406,11 +406,11 @@ AC_ARG_WITH(staticrundir, [  --with-staticrundir=DIR          where to search da
 AC_DEFINE_UNQUOTED([DATADIR],["$staticrundir"],where should we make our root?)
 
 
-AC_ARG_WITH(editor, [  --with-editor=DIR          where to search the editor at runtime],
+AC_ARG_WITH(editordir, [  --with-editordir=DIR          where to search the editor at runtime],
 						  [ editordir=$withval ],[ editordir=$staticrundir ] )
+AC_SUBST(editordir)
 AC_DEFINE_UNQUOTED([EDITORDIR],["$editordir"],where find the editor (tiny_mce)?)
 
-AC_SUBST(editor)
 
 
 AC_OUTPUT(Makefile src/Makefile po/Makefile.in   )

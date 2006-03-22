@@ -12,6 +12,7 @@ DISTFILES=ABOUT_NLS
 
 DIRS= static
 EDITOR_DIRS=tiny_mce
+EDITORDIR=@editordir@
 
 
 
@@ -31,14 +32,14 @@ install-data-local:
 			done \
 		done
 
-		export STATIC_DIR=@editor@; \
+		export EDITOR_DIR=@editordir@; \
 		for dir in $(EDITOR_DIRS); do \
-			$(mkinstalldirs) $(DESTDIR)/$$STATIC_DIR/$$dir; \
+			$(mkinstalldirs) $(DESTDIR)/$$EDITOR_DIR/$$dir; \
 			for subdir in `find $$dir -type d |grep -v .svn`; do \
-				$(mkinstalldirs) $(DESTDIR)/$$STATIC_DIR/$$subdir; \
+				$(mkinstalldirs) $(DESTDIR)/$$EDITOR_DIR/$$subdir; \
 					for file in $(srcdir)/$$subdir/*; do \
 						if test -f "$$file" ; then \
-							$(INSTALL_DATA) $$file $(DESTDIR)$$STATIC_DIR/$$subdir; \
+							$(INSTALL_DATA) $$file $(DESTDIR)$$EDITOR_DIR/$$subdir; \
 						fi \
 					done \
 			done \
