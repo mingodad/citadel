@@ -567,7 +567,7 @@ int yesno_d(int d)
 /* Gets a line from the terminal */
 /* string == Pointer to string buffer */
 /* lim == Maximum length - if negative, no-show */
-void getline(char *string, int lim) 
+void ctdl_getline(char *string, int lim) 
 {
 	int a, b;
 	char flag = 0;
@@ -646,7 +646,7 @@ void strprompt(char *prompt, char *str, int len)
 	color(DIM_WHITE);
 	scr_printf(": ");
 	color(BRIGHT_CYAN);
-	getline(buf, len);
+	ctdl_getline(buf, len);
 	if (buf[0] != 0)
 		strcpy(str, buf);
 	color(DIM_WHITE);
@@ -711,7 +711,7 @@ void newprompt(char *prompt, char *str, int len)
 	color(BRIGHT_MAGENTA);
 	scr_printf("%s", prompt);
 	color(DIM_MAGENTA);
-	getline(str, len);
+	ctdl_getline(str, len);
 	color(DIM_WHITE);
 }
 
@@ -1151,7 +1151,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 			if (cmdmatch(cmdbuf, cptr, 5)) {
 				/* We've found our command. */
 				if (requires_string(cptr, cmdpos)) {
-					getline(argbuf, 32);
+					ctdl_getline(argbuf, 32);
 				} else {
 					scr_printf("\n");
 				}

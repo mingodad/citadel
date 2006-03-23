@@ -61,7 +61,7 @@ struct cittext {
 
 void stty_ctdl(int cmd);
 int haschar(const char *st, int ch);
-void getline(char *string, int lim);
+void ctdl_getline(char *string, int lim);
 int file_checksum(char *filename);
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 
@@ -746,12 +746,12 @@ void replace_string(char *filename, long int startpos)
 	long msglen = 0L;
 
 	scr_printf("Enter text to be replaced:\n: ");
-	getline(srch_str, (sizeof(srch_str)-1) );
+	ctdl_getline(srch_str, (sizeof(srch_str)-1) );
 	if (strlen(srch_str) == 0)
 		return;
 
 	scr_printf("Enter text to replace it with:\n: ");
-	getline(rplc_str, (sizeof(rplc_str)-1) );
+	ctdl_getline(rplc_str, (sizeof(rplc_str)-1) );
 
 	fp = fopen(filename, "r+");
 	if (fp == NULL)
@@ -1156,7 +1156,7 @@ int entmsg(CtdlIPC *ipc,
 				strcpy(buf, reply_to);
 			} else {
 				scr_printf("Enter recipient: ");
-				getline(buf, (SIZ-100) );
+				ctdl_getline(buf, (SIZ-100) );
 				if (strlen(buf) == 0)
 					return (1);
 			}
@@ -1307,10 +1307,10 @@ void process_quote(void)
 		scr_printf("%2d %s", ++line, buf);
 	}
 	scr_printf("Begin quoting at [ 1] : ");
-	getline(buf, 3);
+	ctdl_getline(buf, 3);
 	qstart = (buf[0] == 0) ? (1) : atoi(buf);
 	scr_printf("  End quoting at [%d] : ", line);
-	getline(buf, 3);
+	ctdl_getline(buf, 3);
 	qend = (buf[0] == 0) ? (line) : atoi(buf);
 	rewind(qfile);
 	line = 0;

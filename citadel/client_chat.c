@@ -49,7 +49,7 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 extern char temp[];
-void getline(char *, int);
+void ctdl_getline(char *, int);
 
 char last_paged[SIZ] = "";
 
