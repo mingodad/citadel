@@ -117,5 +117,5 @@ function btt_Locate(e)
 		}
 	}
 	document.getElementById("btc").style.top = (posy + 10) + "px";
-	document.getElementById("btc").style.left = (posx - 20) + "px";
+	document.getElementById("btc").style.left = (posx - 260) + "px";
 }
