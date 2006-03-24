@@ -112,7 +112,7 @@ void mesg_locate(char *targ, size_t n, const char *searchfor,
 	for (a=0; a<numdirs; ++a) {
 		snprintf(buf, sizeof buf, "%s/%s", dirs[a], searchfor);
 		if (!stat(buf, &test)) {
-			snprintf(targ,n,"%s/%s", dirs[a], searchfor);
+			snprintf(targ, n, "%s/%s", dirs[a], searchfor);
 			return;
 		}
 	}

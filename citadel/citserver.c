@@ -465,7 +465,7 @@ void cmd_mesg(char *mname)
 
 	/* If the client requested "?" then produce a listing */
 	if (!strcmp(buf, "?")) {
-		cprintf("%d %s\n",LISTING_FOLLOWS,buf);
+		cprintf("%d %s\n", LISTING_FOLLOWS, buf);
 		dp = opendir(dirs[1]);
 		if (dp != NULL) {
 			while (d = readdir(dp), d != NULL) {
@@ -500,17 +500,22 @@ void cmd_mesg(char *mname)
 	free(dirs[1]);
 
 	if (strlen(targ)==0) {
-		cprintf("%d '%s' not found.\n",ERROR + FILE_NOT_FOUND, mname);
+		cprintf("%d '%s' not found.  (Searching in %s and %s)\n",
+			ERROR + FILE_NOT_FOUND,
+			mname,
+			ctdl_message_dir,
+			ctdl_hlp_dir
+		);
 		return;
 	}
 
-	mfp = fopen(targ,"r");
+	mfp = fopen(targ, "r");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
 			ERROR + INTERNAL_ERROR, targ, strerror(errno));
 		return;
 	}
-	cprintf("%d %s\n",LISTING_FOLLOWS,buf);
+	cprintf("%d %s\n", LISTING_FOLLOWS,buf);
 
 	while (fgets(buf, (sizeof buf - 1), mfp) != NULL) {
 		buf[strlen(buf)-1] = 0;
