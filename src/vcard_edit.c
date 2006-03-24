@@ -436,7 +436,6 @@ void submit_vcard(void) {
 		return;
 	}
 
-	lprintf(9, "%s\n", serialized_vcard);
 	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
 	serv_puts("");
 	serv_printf("%s\r\n", serialized_vcard);
