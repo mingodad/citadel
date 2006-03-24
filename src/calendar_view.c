@@ -413,9 +413,21 @@ void calendar_month_view(int year, int month, int day) {
 		"</td></tr></table>"		/** end of outer table */
 		"</div>\n");
 
-	/* Initialize the bubble tooltips */
+	/**
+	 * Initialize the bubble tooltips.
+	 *
+	 * Yes, this is as stupid as it looks.  Instead of just making the call
+	 * to btt_enableTooltips() straight away, we have to create a timer event
+	 * and let it initialize as an event after 1 millisecond.  This is to
+	 * work around a bug in Internet Explorer that causes it to crash if we
+	 * manipulate the innerHTML of various DOM nodes while the page is still
+	 * being rendered.  See http://www.shaftek.org/blog/archives/000212.html
+	 * for more information.
+	 */ 
 	wprintf("<script type=\"text/javascript\" src=\"static/BubbleTooltips.js\"></script>\n"
-		"<script type=\"text/javascript\">btt_enableTooltips('inner_month');</script>\n"
+		"<script type=\"text/javascript\">"
+		" setTimeout(\"btt_enableTooltips('inner_month')\", 1); "
+		"</script>\n"
 	);
 }
 
