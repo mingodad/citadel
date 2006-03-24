@@ -1230,19 +1230,32 @@ NEW_INST:
 
 	mkdir(ctdl_info_dir, 0700);
 	chmod(ctdl_info_dir, 0700);
+	chown(ctdl_info_dir, config.c_ctdluid, -1);
+
 	mkdir(ctdl_bio_dir, 0700);
 	chmod(ctdl_bio_dir, 0700);
+	chown(ctdl_bio_dir, config.c_ctdluid, -1);
+
 	mkdir(ctdl_usrpic_dir, 0700);
 	chmod(ctdl_usrpic_dir, 0700);
+	chown(ctdl_usrpic_dir, config.c_ctdluid, -1);
+
 	mkdir(ctdl_message_dir, 0700);
 	chmod(ctdl_message_dir, 0700);
+	chown(ctdl_message_dir, config.c_ctdluid, -1);
+
 	mkdir(ctdl_hlp_dir, 0700);
 	chmod(ctdl_hlp_dir, 0700);
+	chown(ctdl_hlp_dir, config.c_ctdluid, -1);
+
 	mkdir(ctdl_image_dir, 0700);
 	chmod(ctdl_image_dir, 0700);
+	chown(ctdl_image_dir, config.c_ctdluid, -1);
+
 	/* TODO: where to put this? */
 	mkdir("netconfigs", 0700);
 	chmod("netconfigs", 0700);
+	chown("netconfigs", config.c_ctdluid, -1);
 
 	/* Delete files and directories used by older Citadel versions */
 	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
