@@ -43,6 +43,8 @@ void calendar_month_view_display_events(time_t thetime) {
 	struct icaltimetype t;
 	int month, day, year;
 	int all_day_event = 0;
+	time_t tt;
+	char buf[256];
 
 	if (WC->num_cal == 0) {
 		wprintf("<br /><br /><br />\n");
@@ -97,7 +99,7 @@ void calendar_month_view_display_events(time_t thetime) {
 						bstr("day")
 					);
 
-					wprintf("<b>%s</b> ", _("Summary:"));
+					wprintf("<i>%s</i> ", _("Summary:"));
 					escputs((char *)icalproperty_get_comment(p));
 					wprintf("<br />");
 
@@ -105,16 +107,57 @@ void calendar_month_view_display_events(time_t thetime) {
 							WC->disp_cal[i].cal,
 							ICAL_LOCATION_PROPERTY);
 					if (q) {
-						wprintf("<b>%s</b> ", _("Location:"));
+						wprintf("<i>%s</i> ", _("Location:"));
 						escputs((char *)icalproperty_get_comment(q));
 						wprintf("<br />");
+					}
+
+					/**
+					 * Only show start/end times if we're actually looking at the VEVENT
+					 * component.  Otherwise it shows bogus dates for e.g. timezones
+					 */
+					if (icalcomponent_isa(WC->disp_cal[i].cal) == ICAL_VEVENT_COMPONENT) {
+				
+      						q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+										ICAL_DTSTART_PROPERTY);
+						if (q != NULL) {
+							t = icalproperty_get_dtstart(q);
+				
+							if (t.is_date) {
+								struct tm d_tm;
+								char d_str[32];
+								memset(&d_tm, 0, sizeof d_tm);
+								d_tm.tm_year = t.year - 1900;
+								d_tm.tm_mon = t.month - 1;
+								d_tm.tm_mday = t.day;
+								wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
+								wprintf("<i>%s</i> %s<br>",
+									_("Date:"), d_str);
+							}
+							else {
+								tt = icaltime_as_timet(t);
+								fmt_date(buf, tt, 0);
+								wprintf("<i>%s</i> %s<br>",
+									_("Starting date/time:"), buf);
+							}
+						}
+					
+      						q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+											ICAL_DTEND_PROPERTY);
+						if (q != NULL) {
+							t = icalproperty_get_dtend(q);
+							tt = icaltime_as_timet(t);
+							fmt_date(buf, tt, 0);
+							wprintf("<i>%s</i> %s<br>",
+								_("Ending date/time:"), buf);
+						}
 					}
 
 					q = icalcomponent_get_first_property(
 							WC->disp_cal[i].cal,
 							ICAL_DESCRIPTION_PROPERTY);
 					if (q) {
-						wprintf("<b>%s</b> ", _("Notes:"));
+						wprintf("<i>%s</i> ", _("Notes:"));
 						escputs((char *)icalproperty_get_comment(q));
 						wprintf("<br />");
 					}
