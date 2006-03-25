@@ -136,7 +136,7 @@ void calendar_month_view_display_events(time_t thetime) {
 							}
 							else {
 								tt = icaltime_as_timet(t);
-								fmt_date(buf, tt, 0);
+								fmt_date(buf, tt, 1);
 								wprintf("<i>%s</i> %s<br>",
 									_("Starting date/time:"), buf);
 							}
@@ -147,7 +147,7 @@ void calendar_month_view_display_events(time_t thetime) {
 						if (q != NULL) {
 							t = icalproperty_get_dtend(q);
 							tt = icaltime_as_timet(t);
-							fmt_date(buf, tt, 0);
+							fmt_date(buf, tt, 1);
 							wprintf("<i>%s</i> %s<br>",
 								_("Ending date/time:"), buf);
 						}
