@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-03-14 22:17-0500\n"
+"POT-Creation-Date: 2006-03-24 22:54-0500\n"
 "PO-Revision-Date: 2006-02-05 17:56+0100\n"
 "Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
 "Language-Team: Deutsch <room_citadel_devel@uncensored.citadel.org>\n"
@@ -229,23 +229,23 @@ msgstr "Öffentliches Ereignis"
 msgid "This is an unknown type of calendar item."
 msgstr "Dies ist ein unbekanntes Kalender-Datum"
 
-#: ../src/calendar.c:139 ../src/calendar.c:560
+#: ../src/calendar.c:139 ../src/calendar.c:560 ../src/calendar_view.c:102
 msgid "Summary:"
 msgstr "Zusammenfassung:"
 
-#: ../src/calendar.c:148
+#: ../src/calendar.c:148 ../src/calendar_view.c:110
 msgid "Location:"
 msgstr "Ort:"
 
-#: ../src/calendar.c:174
+#: ../src/calendar.c:174 ../src/calendar_view.c:135
 msgid "Date:"
 msgstr "Datum:"
 
-#: ../src/calendar.c:181
+#: ../src/calendar.c:181 ../src/calendar_view.c:141
 msgid "Starting date/time:"
 msgstr "Startzeit/Datum:"
 
-#: ../src/calendar.c:192
+#: ../src/calendar.c:192 ../src/calendar_view.c:152
 msgid "Ending date/time:"
 msgstr "Endzeit/Datum:"
 
@@ -445,31 +445,35 @@ msgstr "Die Kalenderdarstellung ist nicht verfügbar."
 msgid "The tasks view is not available."
 msgstr "Die Aufgabendarstellung ist nicht verfügbar."
 
-#: ../src/calendar_view.c:435
+#: ../src/calendar_view.c:160 ../src/roomops.c:1425
+msgid "Notes:"
+msgstr "Notizen:"
+
+#: ../src/calendar_view.c:522
 msgid "Week"
 msgstr "Woche"
 
-#: ../src/calendar_view.c:437
+#: ../src/calendar_view.c:524
 msgid "Hours"
 msgstr "Stunden"
 
-#: ../src/calendar_view.c:438 ../src/messages.c:2322
+#: ../src/calendar_view.c:525 ../src/messages.c:2322
 msgid "Subject"
 msgstr "Betreff"
 
-#: ../src/calendar_view.c:439 ../src/event.c:164
+#: ../src/calendar_view.c:526 ../src/event.c:164
 msgid "Start"
 msgstr "Anfang"
 
-#: ../src/calendar_view.c:440 ../src/event.c:218
+#: ../src/calendar_view.c:527 ../src/event.c:218
 msgid "End"
 msgstr "Ende"
 
-#: ../src/calendar_view.c:930
+#: ../src/calendar_view.c:1017
 msgid "Name of task"
 msgstr "Name der Aufgaben"
 
-#: ../src/calendar_view.c:932
+#: ../src/calendar_view.c:1019
 msgid "Date due"
 msgstr "Fälligkeitsdatum"
 
@@ -1436,7 +1440,7 @@ msgstr "Nein"
 msgid "Back to menu"
 msgstr "Zurück zum Menü"
 
-#: ../src/notes.c:126
+#: ../src/notes.c:126 ../src/vcard_edit.c:388 ../src/vcard_edit.c:432
 msgid "An error has occurred."
 msgstr "Ein Fehler ist aufgetreten."
 
@@ -1822,10 +1826,6 @@ msgstr "Freigabe Wiederrufen"
 #: ../src/roomops.c:1417
 msgid "Share"
 msgstr "Freigabe"
-
-#: ../src/roomops.c:1425
-msgid "Notes:"
-msgstr "Notizen:"
 
 #: ../src/roomops.c:1426
 msgid ""
@@ -2687,24 +2687,24 @@ msgstr "Erste Email-Adresse"
 msgid "Internet e-mail aliases"
 msgstr "Internet Email Aliase"
 
-#: ../src/webcit.c:685
+#: ../src/webcit.c:677
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Ein Fehler trat in diesem Teil auf: %s\n"
 
-#: ../src/webcit.c:771
+#: ../src/webcit.c:763
 msgid "Make this my start page"
 msgstr "Als Startseite setzen"
 
-#: ../src/webcit.c:790
+#: ../src/webcit.c:782
 msgid "You no longer have a start page selected."
 msgstr "Startseite gelöscht"
 
-#: ../src/webcit.c:826
+#: ../src/webcit.c:818
 msgid "Authorization Required"
 msgstr "Authentifizierung benötigt"
 
-#: ../src/webcit.c:828
+#: ../src/webcit.c:820
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2713,7 +2713,7 @@ msgstr ""
 "Die angeforderte Sektion benötigt einen gültigen Benutzernamen und Passwort."
 "Sie konnten nicht Angemeldet werden: %s\n"
 
-#: ../src/webcit.c:1255
+#: ../src/webcit.c:1247
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -2727,23 +2727,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../src/webcit.c:1492 ../src/webcit.c:1494
+#: ../src/webcit.c:1484 ../src/webcit.c:1486
 msgid "Room info"
 msgstr "Raum Info"
 
-#: ../src/webcit.c:1497 ../src/webcit.c:1499
+#: ../src/webcit.c:1489 ../src/webcit.c:1491
 msgid "Your bio"
 msgstr "Ihre Biographie"
 
-#: ../src/webcit.c:1507
+#: ../src/webcit.c:1499
 msgid "your photo"
 msgstr "Ihr Photo"
 
-#: ../src/webcit.c:1513
+#: ../src/webcit.c:1505
 msgid "the icon for this room"
 msgstr "Das Symbol für diesen Raum "
 
-#: ../src/webcit.c:1527
+#: ../src/webcit.c:1519
 msgid "the icon for this floor"
 msgstr "Das Symbol für diese Etage"
 
