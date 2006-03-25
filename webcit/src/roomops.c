@@ -575,8 +575,11 @@ void embed_room_banner(char *got, int navbar_style) {
 					break;
 				case VIEW_CALENDAR:
 				case VIEW_CALBRIEF:
-					wprintf(
-						"<td><a href=\"display_enter\">"
+					wprintf("<td><a href=\"display_enter");
+					if (strlen(bstr("year")) > 0) wprintf("?year=%s", bstr("year"));
+					if (strlen(bstr("month")) > 0) wprintf("?month=%s", bstr("month"));
+					if (strlen(bstr("day")) > 0) wprintf("?day=%s", bstr("day"));
+					wprintf("\">"
 						"<img align=\"middle\" src=\"static/addevent_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
