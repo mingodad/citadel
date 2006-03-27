@@ -88,8 +88,8 @@ void do_iconbar(void) {
 	if (ib_logo) {
 		wprintf("<li>");
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" "
-				"HEIGHT=\"32\" src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"120\" "
+				"src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
 			);
 		}
 		wprintf("</li>\n");
@@ -374,8 +374,8 @@ void do_iconbar_roomlist(void) {
 	if (ib_logo) {
 		wprintf("<li>");
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" "
-				"HEIGHT=\"32\" src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"120\" "
+				"src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
 			);
 		}
 		wprintf("</li>\n");
@@ -513,7 +513,7 @@ void display_customize_iconbar(void) {
 	wprintf("<TR BGCOLOR=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logo\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
+		"<IMG BORDER=\"0\" WIDTH=\"48\" "
 		"src=\"image&name=hello\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>%s</B><br />"
