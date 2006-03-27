@@ -3,53 +3,26 @@ we want to be going.  It's something to consult when sitting down to write
 some code and deciding what to work on.
 
 
- Goals achieved during the 6.xx cycle
- ------------------------------------
+ Recent goals achieved (in tree, not necessarily published yet)
+ --------------------------------------------------------------
 
-* WebCit support for HTTP/HTTPS transactions performed by Kolab1 clients
-  (The current WebCit build works with the Kolab1 klient, and with Aethera,
-  both using HTTPS.)
- 
-* RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
-  (If anyone knows of clients that make use of this, let us know / test it)
-
-* Move the WebCit presentation mode from frames to CSS.
-  (Status: completed as of 2005jan25.  This was a prerequisite to DAV-enabling
-  the WebCit service.)
-
-* Configuration front ends (particularly in WebCit) for the new feature
-  that allows a shared room to have different names at each end of the link.
-
-* Address books
-
-  Status: the current implementation has both a 'Contacts' personal
-  folder and a 'Global Address Book' -- both which contain vCards.  WebCit
-  can use them, and Kolab-compatible clients seem to be able to access them
-  seamlessly as well.
- 
-* LDAP integration: the current implementation can populate an external LDAP
-  directory with Citadel user data.
-
-* Calendar service
- 
-  Status: full functionlity is present in the current implementation, including
-  the ability to keep a personal calendar, send/receive invitations, manage
-  attendees, check free/busy times, etc.  It is fully usable via WebCit
-  and also works with both Aethera and Kolab1 (vCalendar over IMAP for the
-  calendar store, and vCalendar over HTTPS for checking other users' free/busy
-  times).
-
-  After several false starts, it appears that the emerging standard will be
-  the draft GroupDAV specification.  Citadel now supports GroupDAV, providing
-  out-of-the-box compatibility with Kontact (as of KDE 3.4), Evolution
-  (connector now in testing), Thunderbird (connector currently being
-  developed), and any other client which follows the standard.
-
+* GroupDAV and "webcal" (icalendar over dav) support
+* Updated schema for publishing Citadel address book data into an
+  external LDAP directory (still awaiting enterprise number from IANA)
 * Internationalization (WebCit is now available in several languages.)
-
 
  Goals to achieve during the 7.xx cycle
  --------------------------------------
+
+* Aliases, virtual addresses, and distribution lists
+  (We ought to be able to handle all three of these using the same facility.)
+
+* CalDAV support (eventually -- since the protocol is so ugly and needlessly
+  complex, the draft authors are still arguing over small details -- once the
+  draft is finalized, we will implement enough of CalDAV to support the two
+  major client packages currently using it)
+
+* Integration of CMS and social software features (more on this later).
 
 * Further internationalization (for example, in the citserver).
 
@@ -58,21 +31,8 @@ some code and deciding what to work on.
   such as the automatic sorting of inbound mail into various folders based
   on sender, subject, etc. should also be possible.
 
-* Support recurring events in the calendar service.  (These currently can
-  be submitted via external clients such as Aethera, but they aren't handled
-  properly by WebCit and they don't show up in freebusy.)
- 
-* RFC 2180 compliance -- do something predictable when more than one client
-  has a mailbox open and one tries to rename or delete it.  The easiest thing
-  to do would be to simply deny the operation.  This should probably be done
-  across the entire Citadel system rather than only in IMAP.
-
 * Address books: build dialogs to integrate personal address books into
   mail recipient boxes, auto-completion, etc.  Use AJAX for this.
 
 * Better UI presentation for delegated access to mailboxes.  (In IMAP this
   will be easy because of "other users namespace" support.)
-
-* Support for Microsoft Outlook (to be handled by a third party plugin).
-
-* Land a book deal with O'Reilly.  :)
