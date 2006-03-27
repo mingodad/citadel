@@ -1102,6 +1102,8 @@ void vcard_fixed_output(char *ptr, int len) {
 char *serv_vcard_init(void)
 {
 	struct ctdlroom qr;
+	char filename[256];
+	FILE *fp;
 
 	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
@@ -1126,6 +1128,16 @@ char *serv_vcard_init(void)
 		qr.QRep.expire_mode = EXPIRE_MANUAL;
 		qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
 		lputroom(&qr);
+
+		/*
+		 * Also make sure it has a netconfig file, so the networker runs
+		 * on this room even if we don't share it with any other nodes.
+		 * This allows the CANCEL messages (i.e. "Purge this vCard") to be
+		 * purged.
+		 */
+		assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
+		fp = fopen(filename, "a");
+		if (fp != NULL) fclose(fp);
 	}
 
 	return "$Id$";

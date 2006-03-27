@@ -762,99 +762,97 @@ void network_spool_msg(long msgnum, void *userdata) {
 	/*
 	 * Process IGnet push shares
 	 */
-	if (sc->ignet_push_shares != NULL) {
-	
-		msg = CtdlFetchMessage(msgnum, 1);
-		if (msg != NULL) {
-			size_t newpath_len;
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg != NULL) {
+		size_t newpath_len;
 
-			/* Prepend our node name to the Path field whenever
-			 * sending a message to another IGnet node
-			 */
-			if (msg->cm_fields['P'] == NULL) {
-				msg->cm_fields['P'] = strdup("username");
+		/* Prepend our node name to the Path field whenever
+		 * sending a message to another IGnet node
+		 */
+		if (msg->cm_fields['P'] == NULL) {
+			msg->cm_fields['P'] = strdup("username");
+		}
+		newpath_len = strlen(msg->cm_fields['P']) +
+			 strlen(config.c_nodename) + 2;
+		newpath = malloc(newpath_len);
+		snprintf(newpath, newpath_len, "%s!%s",
+			 config.c_nodename, msg->cm_fields['P']);
+		free(msg->cm_fields['P']);
+		msg->cm_fields['P'] = newpath;
+
+		/*
+		 * Determine if this message is set to be deleted
+		 * after sending out on the network
+		 */
+		if (msg->cm_fields['S'] != NULL) {
+			if (!strcasecmp(msg->cm_fields['S'],
+			   "CANCEL")) {
+				delete_after_send = 1;
 			}
-			newpath_len = strlen(msg->cm_fields['P']) +
-				 strlen(config.c_nodename) + 2;
-			newpath = malloc(newpath_len);
-			snprintf(newpath, newpath_len, "%s!%s",
-				 config.c_nodename, msg->cm_fields['P']);
-			free(msg->cm_fields['P']);
-			msg->cm_fields['P'] = newpath;
+		}
 
-			/*
-			 * Determine if this message is set to be deleted
-			 * after sending out on the network
-			 */
-			if (msg->cm_fields['S'] != NULL) {
-				if (!strcasecmp(msg->cm_fields['S'],
-				   "CANCEL")) {
-					delete_after_send = 1;
-				}
+		/* Now send it to every node */
+		if (sc->ignet_push_shares != NULL)
+		  for (mptr = sc->ignet_push_shares; mptr != NULL;
+		    mptr = mptr->next) {
+
+			send = 1;
+
+			/* Check for valid node name */
+			if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
+				lprintf(CTDL_ERR, "Invalid node <%s>\n",
+					mptr->remote_nodename);
+				send = 0;
 			}
 
-			/* Now send it to every node */
-			for (mptr = sc->ignet_push_shares; mptr != NULL;
-			    mptr = mptr->next) {
-
-				send = 1;
-
-				/* Check for valid node name */
-				if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
-					lprintf(CTDL_ERR, "Invalid node <%s>\n",
-						mptr->remote_nodename);
+			/* Check for split horizon */
+			lprintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
+			bang = num_tokens(msg->cm_fields['P'], '!');
+			if (bang > 1) for (i=0; i<(bang-1); ++i) {
+				extract_token(buf, msg->cm_fields['P'],
+					i, '!', sizeof buf);
+				if (!strcasecmp(buf, mptr->remote_nodename)) {
 					send = 0;
 				}
+			}
 
-				/* Check for split horizon */
-				lprintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
-				bang = num_tokens(msg->cm_fields['P'], '!');
-				if (bang > 1) for (i=0; i<(bang-1); ++i) {
-					extract_token(buf, msg->cm_fields['P'],
-						i, '!', sizeof buf);
-					if (!strcasecmp(buf, mptr->remote_nodename)) {
-						send = 0;
-					}
+			/* Send the message */
+			if (send == 1) {
+
+				/*
+				 * Force the message to appear in the correct room
+				 * on the far end by setting the C field correctly
+				 */
+				if (msg->cm_fields['C'] != NULL) {
+					free(msg->cm_fields['C']);
+				}
+				if (strlen(mptr->remote_roomname) > 0) {
+					msg->cm_fields['C'] = strdup(mptr->remote_roomname);
+				}
+				else {
+					msg->cm_fields['C'] = strdup(CC->room.QRname);
 				}
 
-				/* Send the message */
-				if (send == 1) {
+				/* serialize it for transmission */
+				serialize_message(&sermsg, msg);
 
-					/*
-					 * Force the message to appear in the correct room
-					 * on the far end by setting the C field correctly
-					 */
-					if (msg->cm_fields['C'] != NULL) {
-						free(msg->cm_fields['C']);
-					}
-					if (strlen(mptr->remote_roomname) > 0) {
-						msg->cm_fields['C'] = strdup(mptr->remote_roomname);
-					}
-					else {
-						msg->cm_fields['C'] = strdup(CC->room.QRname);
-					}
-
-					/* serialize it for transmission */
-					serialize_message(&sermsg, msg);
-
-					/* write it to the spool file */
-					snprintf(filename, sizeof filename,"%s/%s",
-							 ctdl_netout_dir,
-							 mptr->remote_nodename);
-					lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
-					fp = fopen(filename, "ab");
-					if (fp != NULL) {
-						fwrite(sermsg.ser,
-							sermsg.len, 1, fp);
-						fclose(fp);
-					}
-					else {
-						lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
-					}
-
-					/* free the serialized version */
-					free(sermsg.ser);
+				/* write it to the spool file */
+				snprintf(filename, sizeof filename,"%s/%s",
+						 ctdl_netout_dir,
+						 mptr->remote_nodename);
+				lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
+				fp = fopen(filename, "ab");
+				if (fp != NULL) {
+					fwrite(sermsg.ser,
+						sermsg.len, 1, fp);
+					fclose(fp);
 				}
+				else {
+					lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
+				}
+
+				/* free the serialized version */
+				free(sermsg.ser);
 			}
 			CtdlFreeMessage(msg);
 		}
