@@ -3085,8 +3085,6 @@ void delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1, 1, 1, 0, 0, 0);
-
 	if (WC->wc_is_trash) {	/** Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
 	}
@@ -3095,10 +3093,34 @@ void delete_msg(void)
 	}
 
 	serv_getln(buf, sizeof buf);
-	wprintf("<em>%s</em><br />\n", &buf[4]);
+	sprintf(WC->ImportantMessage, "%s", &buf[4]);
 
-	wDumpContent(1);
+	readloop("readnew");
 }
+
+
+/**
+ * \brief move a message to another folder
+ */
+void move_msg(void)
+{
+	long msgid;
+	char buf[SIZ];
+
+	msgid = atol(bstr("msgid"));
+
+	if (strlen(bstr("move_button")) > 0) {
+		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
+		serv_puts(buf);
+		serv_getln(buf, sizeof buf);
+		sprintf(WC->ImportantMessage, "%s", &buf[4]);
+	} else {
+		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
+	}
+
+	readloop("readnew");
+}
+
 
 
 
@@ -3153,30 +3175,6 @@ void confirm_move_msg(void)
 
 	wprintf("</CENTER>\n");
 	wDumpContent(1);
-}
-
-
-/**
- * \brief move a message to another folder
- */
-void move_msg(void)
-{
-	long msgid;
-	char buf[SIZ];
-
-	msgid = atol(bstr("msgid"));
-
-	if (strlen(bstr("move_button")) > 0) {
-		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		sprintf(WC->ImportantMessage, "%s", &buf[4]);
-	} else {
-		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
-	}
-
-	readloop("readnew");
-
 }
 
 
