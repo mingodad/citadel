@@ -1073,7 +1073,7 @@ void store_harvested_addresses(void) {
 
 
 /* 
- * Function to output a vCard as plain text.  Nobody uses MSG0 anymore, so
+ * Function to output vCard data as plain text.  Nobody uses MSG0 anymore, so
  * really this is just so we expose the vCard data to the full text indexer.
  */
 void vcard_fixed_output(char *ptr, int len) {
@@ -1082,7 +1082,6 @@ void vcard_fixed_output(char *ptr, int len) {
 	char *key, *value;
 	int i = 0;
 
-	cprintf("vCard:\n");
 	serialized_vcard = malloc(len + 1);
 	safestrncpy(serialized_vcard, ptr, len+1);
 	v = vcard_load(serialized_vcard);
@@ -1091,7 +1090,7 @@ void vcard_fixed_output(char *ptr, int len) {
 	i = 0;
 	while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
 		value = vcard_get_prop(v, "", 0, i++, 0);
-		cprintf("%20s : %s\n", key, value);
+		cprintf("%s\n", value);
 	}
 
 	vcard_free(v);

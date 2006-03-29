@@ -1120,8 +1120,10 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 				cprintf("\n");
 			}
 		}
+		return;
 	}
-	else if (!strcasecmp(cbtype, "text/html")) {
+
+	if (!strcasecmp(cbtype, "text/html")) {
 		ptr = html_to_ascii(content, length, 80, 0);
 		wlen = strlen(ptr);
 		client_write(ptr, wlen);
@@ -1129,13 +1131,20 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 			cprintf("\n");
 		}
 		free(ptr);
+		return;
 	}
-	else if (PerformFixedOutputHooks(cbtype, content, length)) {
+
+	if (ma->use_fo_hooks) {
+		if (PerformFixedOutputHooks(cbtype, content, length)) {
 		/* above function returns nonzero if it handled the part */
+			return;
+		}
 	}
-	else if (strncasecmp(cbtype, "multipart/", 10)) {
+
+	if (strncasecmp(cbtype, "multipart/", 10)) {
 		cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
 			partnum, filename, cbtype, (long)length);
+		return;
 	}
 }
 
@@ -1692,6 +1701,7 @@ START_TEXT:
 		memset(&ma, 0, sizeof(struct ma_info));
 
 		if (mode == MT_MIME) {
+			ma.use_fo_hooks = 0;
 			strcpy(ma.chosen_part, "1");
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
@@ -1700,6 +1710,7 @@ START_TEXT:
 				*output_preferred, NULL, NULL, (void *)&ma, 0);
 		}
 		else {
+			ma.use_fo_hooks = 1;
 			mime_parser(mptr, NULL,
 				*fixed_output, *fixed_output_pre,
 				*fixed_output_post, (void *)&ma, 0);

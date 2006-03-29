@@ -2073,87 +2073,26 @@ void ical_fixed_output_backend(icalcomponent *cal,
 			int recursion_level
 ) {
 	icalcomponent *c;
-	icalproperty *method = NULL;
-	icalproperty_method the_method = ICAL_METHOD_NONE;
 	icalproperty *p;
-	struct icaltimetype t;
-	time_t tt;
 	char buf[256];
-
-	/* Look for a method */
-	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
-
-	/* See what we need to do with this */
-	if (method != NULL) {
-		the_method = icalproperty_get_method(method);
-		switch(the_method) {
-		    case ICAL_METHOD_REQUEST:
-			cprintf("Meeting invitation\n");
-			break;
-		    case ICAL_METHOD_REPLY:
-			cprintf("Attendee's reply to your invitation\n");
-			break;
-		    case ICAL_METHOD_PUBLISH:
-			cprintf("Published event\n");
-			break;
-		    default:
-			cprintf("This is an unknown type of calendar item.\n");
-			break;
-		}
-	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
-		cprintf("Summary: %s\n", (const char *)icalproperty_get_comment(p));
+		cprintf("%s\n", (const char *)icalproperty_get_comment(p));
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
-		cprintf("Location: %s\n", (const char *)icalproperty_get_comment(p));
-	}
-
-	/*
-	 * Only show start/end times if we're actually looking at the VEVENT
-	 * component.  Otherwise it shows bogus dates for things like timezone.
-	 */
-	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
-
-      		p = icalcomponent_get_first_property(cal,
-						ICAL_DTSTART_PROPERTY);
-		if (p != NULL) {
-			t = icalproperty_get_dtstart(p);
-
-			if (t.is_date) {
-				cprintf("Date: %s %d, %d\n",
-					ascmonths[t.month - 1],
-					t.day, t.year
-				);
-			}
-			else {
-				tt = icaltime_as_timet(t);
-				fmt_date(buf, sizeof buf, tt, 0);
-				cprintf("Starting date/time: %s\n", buf);
-			}
-		}
-	
-      		p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
-		if (p != NULL) {
-			t = icalproperty_get_dtend(p);
-			tt = icaltime_as_timet(t);
-			fmt_date(buf, sizeof buf, tt, 0);
-			cprintf("Ending date/time: %s\n", buf);
-		}
-
+		cprintf("%s\n", (const char *)icalproperty_get_comment(p));
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
-		cprintf("Description: %s\n", (const char *)icalproperty_get_comment(p));
+		cprintf("%s\n", (const char *)icalproperty_get_comment(p));
 	}
 
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		cprintf("Attendee: ");
 		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
@@ -2177,7 +2116,7 @@ void ical_fixed_output_backend(icalcomponent *cal,
 
 
 /*
- * Function to output a calendar item  as plain text.  Nobody uses MSG0
+ * Function to output vcalendar data as plain text.  Nobody uses MSG0
  * anymore, so really this is just so we expose the vCard data to the full
  * text indexer.
  */
@@ -2191,7 +2130,6 @@ void ical_fixed_output(char *ptr, int len) {
 	free(stringy_cal);
 
 	if (cal == NULL) {
-		cprintf("There was an error parsing this calendar item.\n");
 		return;
 	}
 
