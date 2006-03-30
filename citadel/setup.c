@@ -50,6 +50,13 @@ char citserver_init_entry[SIZ];
 int using_web_installer = 0;
 int enable_home = 1;
 
+/**
+ *	We will set have_sysv_init to nonzero if the host operating system
+ *	has a System V style init driven by /etc/inittab.  This will cause
+ *	setup to offer to automatically start and stop the Citadel service.
+ */
+int have_sysv_init = 0;
+
 #ifdef HAVE_LDAP
 void contemplate_ldap(void);
 #endif
@@ -988,6 +995,13 @@ int main(int argc, char *argv[])
 	/* set an invalid setup type */
 	setup_type = (-1);
 
+	/* Learn whether to skip the auto-service-start questions */
+	fp = fopen("/etc/inittab", "r");
+	if (fp != NULL) {
+		have_sysv_init = 1;
+		fclose(fp);
+	}
+
         /* Check to see if we're running the web installer */
 	if (getenv("CITADEL_INSTALLER") != NULL) {
 		using_web_installer = 1;
@@ -1056,20 +1070,22 @@ int main(int argc, char *argv[])
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
 
-	/* See if we need to shut down the Citadel service. */
-	for (a=0; a<=3; ++a) {
-		progress("Shutting down the Citadel service...", a, 3);
-		if (a == 0) shutdown_citserver();
-		sleep(1);
-	}
+	if (have_sysv_init) {
+		/* See if we need to shut down the Citadel service. */
+		for (a=0; a<=3; ++a) {
+			progress("Shutting down the Citadel service...", a, 3);
+			if (a == 0) shutdown_citserver();
+			sleep(1);
+		}
 
-	/* Make sure it's stopped. */
-	if (test_server() == 0) {
-		important_message("Citadel Setup",
-			"The Citadel service is still running.\n"
-			"Please stop the service manually and run "
-			"setup again.");
-		cleanup(1);
+		/* Make sure it's stopped. */
+		if (test_server() == 0) {
+			important_message("Citadel Setup",
+				"The Citadel service is still running.\n"
+				"Please stop the service manually and run "
+				"setup again.");
+			cleanup(1);
+		}
 	}
 
 	/* Now begin. */
@@ -1264,7 +1280,9 @@ NEW_INST:
 
 	check_services_entry();	/* Check /etc/services */
 #ifndef __CYGWIN__
-	check_inittab_entry();	/* Check /etc/inittab */
+	if (have_sysv_init) {
+		check_inittab_entry();	/* Check /etc/inittab */
+	}
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 
 	/* Offer to disable other MTA's on the system. */
@@ -1325,7 +1343,7 @@ NEW_INST:
 #endif
 
 	/* See if we can start the Citadel service. */
-	if (strlen(citserver_init_entry) > 0) {
+	if ( (have_sysv_init) && (strlen(citserver_init_entry) > 0) ) {
 		for (a=0; a<=3; ++a) {
 			progress("Starting the Citadel service...", a, 3);
 			if (a == 0) start_citserver();
@@ -1366,6 +1384,7 @@ void contemplate_ldap(void) {
 	FILE *fp;
 
 	/* If conditions are not ideal, give up on this idea... */
+	if (!have_sysv_init) return;
 	if (using_web_installer == 0) return;
 	if (getenv("LDAP_CONFIG") == NULL) return;
 	if (getenv("SUPPORT") == NULL) return;
