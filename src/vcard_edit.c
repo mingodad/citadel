@@ -67,6 +67,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	title[0] = 0;
 	org[0] = 0;
 	extrafields[0] = 0;
+	fullname[0] = 0;
 
 	safestrncpy(whatuser, "", sizeof whatuser);
 
