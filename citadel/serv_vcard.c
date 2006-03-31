@@ -1137,6 +1137,7 @@ char *serv_vcard_init(void)
 		assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
 		fp = fopen(filename, "a");
 		if (fp != NULL) fclose(fp);
+		chown(filename, CTDLUID, (-1));
 	}
 
 	return "$Id$";
