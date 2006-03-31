@@ -329,12 +329,9 @@ void open_databases(void)
 	int i;
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
-	char dbdirname[PATH_MAX];
 	DIR *dp;
 	struct dirent *d;
 	char filename[PATH_MAX];
-
-	strcat(dbdirname,ctdl_data_dir);
 
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
 	lprintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
@@ -348,9 +345,9 @@ void open_databases(void)
 	 * Silently try to create the database subdirectory.  If it's
 	 * already there, no problem.
 	 */
-	mkdir(dbdirname, 0700);
-	chmod(dbdirname, 0700);
-	chown(dbdirname, CTDLUID, (-1));
+	mkdir(ctdl_data_dir, 0700);
+	chmod(ctdl_data_dir, 0700);
+	chown(ctdl_data_dir, CTDLUID, (-1));
 
 	lprintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
@@ -385,9 +382,9 @@ void open_databases(void)
 	flags =
 	    DB_CREATE | DB_RECOVER | DB_INIT_MPOOL | DB_PRIVATE |
 	    DB_INIT_TXN | DB_INIT_LOCK | DB_THREAD;
-	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n", dbdirname,
+	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n", ctdl_data_dir,
 		flags);
-	ret = dbenv->open(dbenv, dbdirname, flags, 0);
+	ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
 	if (ret) {
 		lprintf(CTDL_DEBUG, "cdb_*: dbenv->open: %s\n",
 			db_strerror(ret));
@@ -438,12 +435,12 @@ void open_databases(void)
 	/* Now make sure we own all the files, because in a few milliseconds
 	 * we're going to drop root privs.
 	 */
-	dp = opendir(dbdirname);
+	dp = opendir(ctdl_data_dir);
 	if (dp != NULL) {
 		while (d = readdir(dp), d != NULL) {
 			if (d->d_name[0] != '.') {
 				snprintf(filename, sizeof filename,
-					 "%s/%s", dbdirname, d->d_name);
+					 "%s/%s", ctdl_data_dir, d->d_name);
 				chmod(filename, 0600);
 				chown(filename, CTDLUID, (-1));
 			}
