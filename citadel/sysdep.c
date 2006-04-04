@@ -1051,19 +1051,29 @@ do_select:	force_purge = 0;
 						"New client socket %d\n",
 						ssock);
 
+					/* The master socket is non-blocking but the client
+					 * sockets need to be blocking, otherwise certain
+					 * operations barf on FreeBSD.  Not a fatal error.
+					 */
+					if (fcntl(ssock, F_SETFL, 0) < 0) {
+						lprintf(CTDL_EMERG,
+							"citserver: Can't set socket to blocking: %s\n",
+							strerror(errno));
+					}
+
 					/* New context will be created already
-				 	* set up in the CON_EXECUTING state.
-				 	*/
+					 * set up in the CON_EXECUTING state.
+					 */
 					con = CreateNewContext();
 
-					/* Assign new socket number to it. */
+					/* Assign our new socket number to it. */
 					con->client_socket = ssock;
 					con->h_command_function =
 						serviceptr->h_command_function;
 					con->h_async_function =
 						serviceptr->h_async_function;
 
-					/* Determine whether local socket */
+					/* Determine whether it's a local socket */
 					if (serviceptr->sockpath != NULL)
 						con->is_local_socket = 1;
 	
