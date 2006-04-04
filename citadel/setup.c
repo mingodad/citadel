@@ -1401,6 +1401,9 @@ NEW_INST:
 	disable_other_mta("zimbra");
 #endif
 
+	/* Check for the 'db' nss and offer to disable it */
+	fixnss();
+
 	if ((pw = getpwuid(config.c_ctdluid)) == NULL)
 		gid = getgid();
 	else
@@ -1427,8 +1430,6 @@ NEW_INST:
 	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
-
-	fixnss();
 
 #ifdef HAVE_LDAP
 	/* Contemplate the possibility of auto-configuring OpenLDAP */
