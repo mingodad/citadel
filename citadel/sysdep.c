@@ -557,8 +557,8 @@ void client_write(char *buf, int nbytes)
 		retval = write(CC->client_socket, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
-			lprintf(CTDL_ERR, "client_write() failed: %s\n",
-				strerror(errno));
+			lprintf(CTDL_ERR, "client_write() failed: %s (%d)\n",
+				strerror(errno), errno);
 			CC->kill_me = 1;
 			return;
 		}
