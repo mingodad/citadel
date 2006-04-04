@@ -43,6 +43,7 @@
 
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
+#define NSSCONF		"/etc/nsswitch.conf"
 
 int setup_type;
 char setup_directory[SIZ];
@@ -975,6 +976,96 @@ int discover_ui(void)
 
 
 
+/*
+ * Strip "db" entries out of /etc/nsswitch.conf
+ */
+void fixnss(void) {
+	FILE *fp_read;
+	int fd_write;
+	char buf[256];
+	char buf_nc[256];
+	char question[512];
+	int i;
+	int changed = 0;
+	int file_changed = 0;
+	char new_filename[64];
+
+	fp_read = fopen(NSSCONF, "r");
+	if (fp_read == NULL) {
+		return;
+	}
+
+	strcpy(new_filename, "/tmp/ctdl_fixnss_XXXXXX");
+	fd_write = mkstemp(new_filename);
+	if (fd_write < 0) {
+		fclose(fp_read);
+		return;
+	}
+
+	while (fgets(buf, sizeof buf, fp_read) != NULL) {
+		changed = 0;
+		strcpy(buf_nc, buf);
+		for (i=0; i<strlen(buf_nc); ++i) {
+			if (buf_nc[i] == '#') {
+				buf_nc[i] = 0;
+			}
+		}
+		for (i=0; i<strlen(buf_nc); ++i) {
+			if (!strncasecmp(&buf_nc[i], "db", 2)) {
+				if (i > 0) {
+					if ((isspace(buf_nc[i+2])) || (buf_nc[i+2]==0)) {
+						changed = 1;
+						file_changed = 1;
+						strcpy(&buf_nc[i], &buf_nc[i+2]);
+						strcpy(&buf[i], &buf[i+2]);
+						if (buf[i]==32) {
+							strcpy(&buf_nc[i], &buf_nc[i+1]);
+							strcpy(&buf[i], &buf[i+1]);
+						}
+					}
+				}
+			}
+		}
+		if (write(fd_write, buf, strlen(buf)) != strlen(buf)) {
+			fclose(fp_read);
+			close(fd_write);
+			unlink(new_filename);
+			return;
+		}
+	}
+
+	fclose(fp_read);
+	
+	if (!file_changed) {
+		unlink(new_filename);
+		return;
+	}
+
+	snprintf(question, sizeof question,
+		"\n"
+		"/etc/nsswitch.conf is configured to use the 'db' module for\n"
+		"one or more services.  This is not necessary on most systems,\n"
+		"and it is known to crash the Citadel server when delivering\n"
+		"mail to the Internet.\n"
+		"\n"
+		"Do you want this module to be automatically disabled?\n"
+		"\n"
+	);
+
+	if (yesno(question)) {
+		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
+		system(buf);
+	}
+	unlink(new_filename);
+}
+
+
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
 	int a;
@@ -1336,6 +1427,8 @@ NEW_INST:
 	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
+
+	fixnss();
 
 #ifdef HAVE_LDAP
 	/* Contemplate the possibility of auto-configuring OpenLDAP */
