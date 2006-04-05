@@ -15,7 +15,7 @@ AM_CFLAGS = -Wall -DLOCALEDIR=\"$(localedir)\"
 
 
 
-LIBS = @LTLIBINTL@ @LIBS@
+LIBS = @LTLIBINTL@ @LIBS@ @LTLIBICONV@
 #INCLUDES = 
 
 
