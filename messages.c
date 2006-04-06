@@ -2193,6 +2193,11 @@ void readloop(char *oper)
 		maxmsgs = 32767;
 	}
 
+	if (is_notes) {
+		wprintf("<div align=center>%s</div>\n", _("Click on any note to edit it."));
+		wprintf("<div id=\"new_notes_here\"></div>\n");
+	}
+
 	nummsgs = load_msg_ptrs(cmd, is_summary);
 	if (nummsgs == 0) {
 
@@ -2335,11 +2340,6 @@ void readloop(char *oper)
 			"<table class=\"mailbox_summary\" id=\"summary_headers\" rules=rows "
 			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
 		);
-	}
-
-	if (is_notes) {
-		wprintf("<div align=center>%s</div>\n", _("Click on any note to edit it."));
-		wprintf("<div id=\"new_notes_here\"></div>\n");
 	}
 
 	for (a = 0; a < nummsgs; ++a) {
