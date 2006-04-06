@@ -393,7 +393,7 @@ AC_SUBST(SETUP_LIBS)
 
 AC_ARG_WITH(rundir, [  --with-rundir=DIR          where to find the citadel servers sockets (overridable by -h  at runtime.)],
 					   [ rundir=$withval ],[ rundir=/usr/local/citadel ] )
-AC_DEFINE_UNQUOTED([RUNDIR],["$rundir"],where should we make look for citadel sockets??)
+AC_DEFINE_UNQUOTED([RUNDIR],["$rundir"],[where should we make look for citadel sockets?])
 
 
 AC_ARG_WITH(staticdir, [  --with-staticdir=DIR          where to put datafiles],
@@ -403,13 +403,13 @@ AC_SUBST(staticdir)
 AC_ARG_WITH(staticrundir, [  --with-staticrundir=DIR          where to search datafiles at runtime],
 						  [ staticrundir=$withval ],[ staticrundir=$staticdir ] )
 
-AC_DEFINE_UNQUOTED([DATADIR],["$staticrundir"],where should we make our root?)
+AC_DEFINE_UNQUOTED([DATADIR],["$staticrundir"],[where should we make our root?])
 
 
 AC_ARG_WITH(editordir, [  --with-editordir=DIR          where to search the editor at runtime],
 						  [ editordir=$withval ],[ editordir=$staticrundir ] )
 AC_SUBST(editordir)
-AC_DEFINE_UNQUOTED([EDITORDIR],["$editordir"],where find the editor (tiny_mce)?)
+AC_DEFINE_UNQUOTED([EDITORDIR],["$editordir"],[where find the editor (tiny_mce)?])
 
 
 
