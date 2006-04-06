@@ -1080,8 +1080,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* At this point we know we are talking to a real SMTP server */
 
-	/* Do a HELO command */
-	snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
+	/* Do a EHLO command.  If it fails, try the HELO command. */
+	snprintf(buf, sizeof buf, "EHLO %s\r\n", config.c_fqdn);
 	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
@@ -1090,6 +1090,16 @@ void smtp_try(const char *key, const char *addr, int *status,
 		goto bail;
 	}
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	if (buf[0] != '2') {
+		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
+		lprintf(CTDL_DEBUG, ">%s", buf);
+		sock_write(sock, buf, strlen(buf));
+		if (ml_sock_gets(sock, buf) < 0) {
+			*status = 4;
+			strcpy(dsn, "Connection broken during SMTP HELO");
+			goto bail;
+		}
+	}
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
