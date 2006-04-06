@@ -12,6 +12,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
+
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
@@ -20,10 +24,29 @@ int verbosity = 9;		/**< Logging level */
 int msock;			    /**< master listening socket */
 int is_https = 0;		/**< Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/**< Follow X-Forwarded-For: header */
+int home_specified = 0; /**< did the user specify a homedir? */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
+
+char socket_dir[PATH_MAX];      /**< where to talk to our citadel server */
+static const char editor_absolut_dir[PATH_MAX]=EDITORDIR; /**< nailed to what configure gives us. */
+static char static_dir[PATH_MAX]; /**< calculated on startup */
+char  *static_dirs[]={ /**< needs same sort order as the web mapping */
+	(char*)static_dir,                  /** our templates on disk */
+	(char*)editor_absolut_dir           /** the editor on disk */
+};
+int ndirs=2; //sizeof(static_content_dirs);//sizeof(char *);
+
+/**
+ * Subdirectories from which the client may request static content
+ */
+char *static_content_dirs[] = {
+	"static",                     /** static templates */
+	"tiny_mce"                    /** the JS editor */
+};
+
 
 
 char *server_cookie = NULL; /**< our Cookie connection to the client */
@@ -490,7 +513,14 @@ int main(int argc, char **argv)
 	int a, i;	        	/**< General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256];
-	char *webcitdir = WEBCITDIR;
+	char dirbuffer[PATH_MAX]="";
+	int relh=0;
+	int home=0;
+	int home_specified=0;
+	char relhome[PATH_MAX]="";
+	char webcitdir[PATH_MAX] = DATADIR;
+	char *hdir;
+	const char *basedir;
 #ifdef ENABLE_NLS
 	char *locale = NULL;
 	char *mo = NULL;
@@ -507,7 +537,16 @@ int main(int argc, char **argv)
 #endif
 		switch (a) {
 		case 'h':
-			webcitdir = strdup(optarg);
+			hdir = strdup(optarg);
+			relh=hdir[0]!='/';
+			if (!relh) safestrncpy(webcitdir, hdir,
+								   sizeof webcitdir);
+			else
+				safestrncpy(relhome, relhome,
+							sizeof relhome);
+			/* free(hdir); TODO: SHOULD WE DO THIS? */
+			home_specified = 1;
+			home=1;
 			break;
 		case 'i':
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
@@ -571,10 +610,6 @@ int main(int argc, char **argv)
 		"GNU General Public License.\n\n"
 	);
 
-	lprintf(9, "Changing directory to %s\n", webcitdir);
-	if (chdir(webcitdir) != 0) {
-		perror("chdir");
-	}
 
 	/** initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
@@ -582,11 +617,10 @@ int main(int argc, char **argv)
 	initialize_locales();
 
 	locale = setlocale(LC_ALL, "");
-
+	
 	mo = malloc(strlen(webcitdir) + 20);
-	sprintf(mo, "%s/locale", webcitdir);
 	lprintf(9, "Message catalog directory: %s\n",
-		bindtextdomain("webcit", mo)
+		bindtextdomain("webcit", PREFIX"/share/locale/")
 	);
 	free(mo);
 	lprintf(9, "Text domain: %s\n",
@@ -597,6 +631,28 @@ int main(int argc, char **argv)
 	);
 #endif
 
+
+	/* calculate all our path on a central place */
+    /* where to keep our config */
+	
+#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
+	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
+			 (home&!relh)?webcitdir:basedir, \
+             ((basedir!=webcitdir)&(home&!relh))?basedir:"/", \
+             ((basedir!=webcitdir)&(home&!relh))?"/":"", \
+			 relhome, \
+             (relhome[0]!='\0')?"/":"",\
+			 dirbuffer,\
+			 (dirbuffer[0]!='\0')?"/":"");
+	basedir=RUNDIR;
+	COMPUTE_DIRECTORY(socket_dir);
+	basedir=DATADIR;
+	COMPUTE_DIRECTORY(static_dir);
+	/** we should go somewhere we can leave our coredump, if enabled... */
+	lprintf(9, "Changing directory to %s\n", socket_dir);
+	if (chdir(webcitdir) != 0) {
+		perror("chdir");
+	}
 	initialize_viewdefs();
 	initialize_axdefs();
 

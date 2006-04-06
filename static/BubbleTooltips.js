@@ -1,8 +1,13 @@
 /*
  * JavaScript code to create "bubble tooltips"
+ * 
+ * Copyright (C) 2006 Alessandro Fulciniti [http://web-graphics.com]
+ * Copyright (C) 2006 Art Cancro [http://www.citadel.org]
  *
- * This is largely based on code written by Alessandro Fulciniti
- * http://pro.html.it - http://web-graphics.com
+ * The original version of this module was released into the public
+ * domain.  This version is distributed as part of the Citadel system
+ * under the terms of the GNU General Public License v2.
+ *
  */
 
 function btt_enableTooltips(id)
@@ -117,5 +122,5 @@ function btt_Locate(e)
 		}
 	}
 	document.getElementById("btc").style.top = (posy + 10) + "px";
-	document.getElementById("btc").style.left = (posx - 20) + "px";
+	document.getElementById("btc").style.left = (posx - 260) + "px";
 }

@@ -67,6 +67,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	title[0] = 0;
 	org[0] = 0;
 	extrafields[0] = 0;
+	fullname[0] = 0;
 
 	safestrncpy(whatuser, "", sizeof whatuser);
 
@@ -436,7 +437,6 @@ void submit_vcard(void) {
 		return;
 	}
 
-	lprintf(9, "%s\n", serialized_vcard);
 	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
 	serv_puts("");
 	serv_printf("%s\r\n", serialized_vcard);

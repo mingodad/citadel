@@ -42,10 +42,6 @@ void display_page(void)
 	escputs(recp);
 	wprintf("\">\n");
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"closewin\" VALUE=\"");
-	escputs(bstr("closewin"));
-	wprintf("\">\n");
-
 	wprintf(_("Enter message text:"));
 	wprintf("<br />");
 
@@ -67,27 +63,16 @@ void display_page(void)
  */
 void page_user(void)
 {
-	char recp[SIZ];
-	char buf[SIZ];
-	char closewin[SIZ];
+	char recp[256];
+	char buf[256];
 
-        output_headers(1, 1, 2, 0, 0, 0);
-        wprintf("<div id=\"banner\">\n"
-                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">");
-	wprintf(_("Add or edit an event"));
-	wprintf("</SPAN>"
-                "</TD></TR></TABLE>\n"
-                "</div>\n<div id=\"content\">\n"
-        );
-                                                                                                                             
-	strcpy(recp, bstr("recp"));
-	strcpy(closewin, bstr("closewin"));
+	safestrncpy(recp, bstr("recp"), sizeof recp);
 
 	if (strlen(bstr("send_button")) == 0) {
-		wprintf("<EM>");
-		wprintf(_("Message was not sent."));
-		wprintf("</EM><br />\n");
+		safestrncpy(WC->ImportantMessage,
+			_("Message was not sent."),
+			sizeof WC->ImportantMessage
+		);
 	} else {
 		serv_printf("SEXP %s|-", recp);
 		serv_getln(buf, sizeof buf);
@@ -95,23 +80,20 @@ void page_user(void)
 		if (buf[0] == '4') {
 			text_to_server(bstr("msgtext"));
 			serv_puts("000");
-			wprintf("<EM>");
-			wprintf(_("Message has been sent to "));
-			escputs(recp);
-			wprintf(".</EM><br />\n");
+			stresc(buf, recp, 0, 0);
+			snprintf(WC->ImportantMessage,
+				sizeof WC->ImportantMessage,
+				"%s%s.",
+				_("Message has been sent to "),
+				buf
+			);
 		}
 		else {
-			wprintf("<em>%s</em><br />\n", &buf[4]);
+			safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
 		}
 	}
-	
-	if (!strcasecmp(closewin, "yes")) {
-		wprintf("<CENTER><a href=\"javascript:window.close();\">");
-		wprintf(_("[ close window ]"));
-		wprintf("</A></CENTER>\n");
-	}
 
-	wDumpContent(1);
+	who();
 }
 
 
