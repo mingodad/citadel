@@ -186,7 +186,7 @@ install_ical () {
 	echo "* Downloading libical..."
 	FILENAME=$DOWNLOAD_SITE/$ICAL_SOURCE ; download_this
 	echo "* Installing libical..."
-	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+	( gzip -dc $ICAL_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 	cd $BUILD/libical-0.26 2>&1 >>$LOG || die
 	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
@@ -212,7 +212,7 @@ install_db () {
 	echo "* Downloading Berkeley DB..."
 	FILENAME=$DOWNLOAD_SITE/$DB_SOURCE ; download_this
 	echo "* Installing Berkeley DB..."
-	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+	( gzip -dc $DB_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 	cd $BUILD/db-4.3.29.NC 2>&1 >>$LOG || die
 	#patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
 	cd $BUILD/db-4.3.29.NC/build_unix 2>&1 >>$LOG || die
@@ -280,7 +280,7 @@ install_sources () {
 		FILENAME=$DOWNLOAD_SITE/$CITADEL_SOURCE ; download_this
 		echo "* Installing Citadel..."
 		cd $BUILD 2>&1 >>$LOG || die
-		( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+		( gzip -dc $CITADEL_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 		cd $BUILD/citadel 2>&1 >>$LOG || die
 		if [ x$IS_AUTOLOGIN = xyes ] ; then
 			AL="--enable-autologin"
@@ -324,7 +324,7 @@ install_sources () {
 		FILENAME=$DOWNLOAD_SITE/$WEBCIT_SOURCE ; download_this
 		echo "* Installing WebCit..."
 		cd $BUILD 2>&1 >>$LOG || die
-		( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+		( gzip -dc $WEBCIT_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 		cd $BUILD/webcit 2>&1 >>$LOG || die
 		./configure --prefix=$WEBCIT --with-libical 2>&1 >>$LOG || die
 		$MAKE $MAKEOPTS 2>&1 >>$LOG || die
