@@ -422,7 +422,7 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
 
 
 /*
- * Tentative form of a search command
+ * This search command is for diagnostic purposes and may be removed or replaced.
  */
 void cmd_srch(char *argbuf) {
 	int num_msgs = 0;
@@ -435,6 +435,7 @@ void cmd_srch(char *argbuf) {
 	if (!config.c_enable_fulltext) {
 		cprintf("%d Full text index is not enabled on this server.\n",
 			ERROR + CMD_NOT_SUPPORTED);
+		return;
 	}
 
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
