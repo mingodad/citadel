@@ -408,7 +408,7 @@ cd $BUILD
 
 # 2. Present the installation steps (from 1 above) to the user
 clear
-if dialog --clear </dev/tty ; then
+if dialog 2>&1 </dev/tty | grep gauge >/dev/null 2>&1 ; then
 	CTDL_DIALOG=`which dialog`
 	export CTDL_DIALOG
 fi
