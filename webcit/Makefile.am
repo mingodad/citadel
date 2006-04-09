@@ -1,7 +1,7 @@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-SUBDIRS= po src 
+SUBDIRS= po src
 
 EXTRA_DIST= autoconf/config.rpath autoconf/mkinstalldirs  m4/ChangeLog tiny_mce_DATA static_DATA
 ACLOCAL_AMFLAGS = -I m4
