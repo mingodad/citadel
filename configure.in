@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 dnl AC_CONFIG_AUX_DIR([autoconf])
-AC_INIT(src/webserver.c)
+AC_INIT([webcit],[6.80],[uncensored.citadel.org])
 AC_GNU_SOURCE
 AM_INIT_AUTOMAKE(webcit,6.72)
 AM_CONFIG_HEADER(config.h)
@@ -95,6 +95,7 @@ if test "$LIBS" != -pthread; then
 	AC_CHECK_LIB(pthread, pthread_create)
 	AC_CHECK_LIB(pthreads, pthread_create)
 fi
+AC_CHECK_LIB(iconv, libiconv, [LIBS="$LIBS -liconv"])   
 AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(connect, socket)
 
@@ -385,8 +386,40 @@ AM_GNU_GETTEXT_VERSION([0.14])
 
 #AM_GNU_GETTEXT
 # if we have intl/... 
-AM_GNU_GETTEXT([external])
 IT_PROG_INTLTOOL
+AC_TRY_COMPILE([#include <locale.h>],
+			[ extern locale_t wc_locales[]],
+			[
+			_nls_avail=yes
+			AM_GNU_GETTEXT([external],[need-ngettext])
+			],
+			[_nls_avail=no])
+
+
+
+
+			
+
+dnl 
+dnl 
+dnl AC_TRY_RUN([
+dnl #include <libintl.h>
+dnl #include <locale.h>
+dnl int main(void)
+dnl {
+dnl 	extern locale_t wc_locales[];
+dnl 	return 1;
+dnl }
+dnl ],
+dnl 				[
+dnl 					found_crypto=1
+dnl 					break;
+dnl 				], []
+dnl 			)
+dnl 
+
+
+
 
 AC_SUBST(CFLAGS)
 AC_SUBST(SETUP_LIBS)
@@ -413,10 +446,11 @@ AC_DEFINE_UNQUOTED([EDITORDIR],["$editordir"],[where find the editor (tiny_mce)?
 
 
 
-AC_OUTPUT(Makefile src/Makefile po/Makefile.in   )
+AC_OUTPUT(Makefile src/Makefile po/Makefile.in)
 
 
 echo ------------------------------------------------------------------------
+echo 'nls is available? '$_nls_avail
 echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'Character set conversion support:' $ok_iconv

@@ -15,7 +15,7 @@ AM_CFLAGS = -Wall -DLOCALEDIR=\"$(localedir)\"
 
 
 
-LIBS = @LTLIBINTL@ @LIBS@ @LTLIBICONV@
+LIBS = @LIBINTL@ @LIBS@ 
 #INCLUDES = 
 
 
@@ -25,7 +25,9 @@ LIBS = @LTLIBINTL@ @LIBS@ @LTLIBICONV@
 
 sbin_PROGRAMS = webserver setup
 
-webserver_LDADD = @LIBINTL@
+webserver_LDADD = @LIBINTL@ 
+#$(ICONVLIBS)
+#@LIBICONV@
 setup_LDADD = @SETUP_LIBS@
 #SUBDIRS = $(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 setup_SOURCES = setup.c tools.c
