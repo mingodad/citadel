@@ -411,6 +411,9 @@ clear
 if dialog 2>&1 </dev/tty | grep gauge >/dev/null 2>&1 ; then
 	CTDL_DIALOG=`which dialog`
 	export CTDL_DIALOG
+elif cdialog 2>&1 </dev/tty | grep gauge >/dev/null 2>&1 ; then
+	CTDL_DIALOG=`which cdialog`
+	export CTDL_DIALOG
 fi
 clear
 
