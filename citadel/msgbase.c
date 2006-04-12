@@ -2047,21 +2047,31 @@ long send_message(struct CtdlMessage *msg) {
 void serialize_message(struct ser_ret *ret,		/* return values */
 			struct CtdlMessage *msg)	/* unserialized msg */
 {
-	size_t wlen;
+	size_t wlen, fieldlen;
 	int i;
 	static char *forder = FORDER;
 
-	if (is_valid_message(msg) == 0) return;		/* self check */
+	/*
+	 * Check for valid message format
+	 */
+	if (is_valid_message(msg) == 0) {
+		lprintf(CTDL_ERR, "serialize_message() aborting due to invalid message\n");
+		ret->len = 0;
+		ret->ser = NULL;
+		return;
+	}
 
 	ret->len = 3;
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
-	lprintf(CTDL_DEBUG, "serialize_message() calling malloc(%ld)\n", (long)ret->len);
 	ret->ser = malloc(ret->len);
 	if (ret->ser == NULL) {
+		lprintf(CTDL_ERR, "serialize_message() malloc(%ld) failed: %s\n",
+			(long)ret->len, strerror(errno));
 		ret->len = 0;
+		ret->ser = NULL;
 		return;
 	}
 
@@ -2071,9 +2081,10 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	wlen = 3;
 
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
+		fieldlen = strlen(msg->cm_fields[(int)forder[i]]);
 		ret->ser[wlen++] = (char)forder[i];
-		strcpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
-		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
+		safestrncpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]], fieldlen+1);
+		wlen = wlen + fieldlen + 1;
 	}
 	if (ret->len != wlen) lprintf(CTDL_ERR, "ERROR: len=%ld wlen=%ld\n",
 		(long)ret->len, (long)wlen);

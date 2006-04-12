@@ -785,8 +785,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 * after sending out on the network
 		 */
 		if (msg->cm_fields['S'] != NULL) {
-			if (!strcasecmp(msg->cm_fields['S'],
-			   "CANCEL")) {
+			if (!strcasecmp(msg->cm_fields['S'], "CANCEL")) {
 				delete_after_send = 1;
 			}
 		}
@@ -835,27 +834,30 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 				/* serialize it for transmission */
 				serialize_message(&sermsg, msg);
+				if (sermsg.len > 0) {
 
-				/* write it to the spool file */
-				snprintf(filename, sizeof filename,"%s/%s",
-						 ctdl_netout_dir,
-						 mptr->remote_nodename);
-				lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
-				fp = fopen(filename, "ab");
-				if (fp != NULL) {
-					fwrite(sermsg.ser,
-						sermsg.len, 1, fp);
-					fclose(fp);
-				}
-				else {
-					lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
+					/* write it to the spool file */
+					snprintf(filename, sizeof filename,"%s/%s",
+						 	ctdl_netout_dir,
+						 	mptr->remote_nodename);
+					lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
+					fp = fopen(filename, "ab");
+					if (fp != NULL) {
+						fwrite(sermsg.ser,
+							sermsg.len, 1, fp);
+						fclose(fp);
+					}
+					else {
+						lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
+					}
+	
+					/* free the serialized version */
+					free(sermsg.ser);
 				}
 
-				/* free the serialized version */
-				free(sermsg.ser);
 			}
-			CtdlFreeMessage(msg);
 		}
+		CtdlFreeMessage(msg);
 	}
 
 	/* update lastsent */
