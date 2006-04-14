@@ -613,22 +613,13 @@ int main(int argc, char **argv)
 
 	/** initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
-
 	initialize_locales();
-
 	locale = setlocale(LC_ALL, "");
-	
 	mo = malloc(strlen(webcitdir) + 20);
-	lprintf(9, "Message catalog directory: %s\n",
-		bindtextdomain("webcit", PREFIX"/share/locale/")
-	);
+	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR));
 	free(mo);
-	lprintf(9, "Text domain: %s\n",
-		textdomain("webcit")
-	);
-	lprintf(9, "Text domain Charset: %s\n",
-			bind_textdomain_codeset("webcit","UTF8")
-	);
+	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
+	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
 #endif
 
 
