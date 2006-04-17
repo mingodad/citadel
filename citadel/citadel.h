@@ -1,8 +1,8 @@
 /*
  * $Id$
  *
- * main Citadel header file
- * see copyright.txt for copyright information
+ * Main Citadel header file
+ * See copyright.txt for copyright information.
  */
 
 /* system customizations are in sysconfig.h */
