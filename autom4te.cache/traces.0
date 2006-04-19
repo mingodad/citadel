@@ -1,20 +1,23 @@
-m4trace:/usr/share/aclocal/intltool.m4:180: -1- AC_DEFUN([IT_PROG_INTLTOOL], [
+m4trace:/usr/share/aclocal/intltool.m4:158: -1- AC_DEFUN([IT_PROG_INTLTOOL], [AC_PREREQ([2.50])dnl
+
+case "$am__api_version" in
+    1.[01234])
+	AC_MSG_ERROR([Automake 1.5 or newer is required to use intltool])
+    ;;
+    *)
+    ;;
+esac
 
 if test -n "$1"; then
     AC_MSG_CHECKING(for intltool >= $1)
 
-    INTLTOOL_REQUIRED_VERSION_AS_INT=`echo $1 | awk -F. '{ printf "%d", $[1] * 100 + $[2]; }'`
-    INTLTOOL_APPLIED_VERSION=`awk -F\" '/\\$VERSION / { printf $[2]; }'  < ${ac_aux_dir}/intltool-update.in`
-    changequote({{,}})
-    INTLTOOL_APPLIED_VERSION_AS_INT=`awk -F\" '/\\$VERSION / { split(${{2}}, VERSION, "."); printf "%d\n", VERSION[1] * 100 + VERSION[2];}' < ${ac_aux_dir}/intltool-update.in`
-    changequote([,])
-
-    if test "$INTLTOOL_APPLIED_VERSION_AS_INT" -ge "$INTLTOOL_REQUIRED_VERSION_AS_INT"; then
-	AC_MSG_RESULT([$INTLTOOL_APPLIED_VERSION found])
-    else
-	AC_MSG_RESULT([$INTLTOOL_APPLIED_VERSION found. Your intltool is too old.  You need intltool $1 or later.])
-	exit 1
-    fi
+    INTLTOOL_REQUIRED_VERSION_AS_INT=`echo $1 | awk -F. '{ print $ 1 * 100 + $ 2; }'`
+    INTLTOOL_APPLIED_VERSION=`awk -F\" '/\\$VERSION / { print $ 2; }' ${ac_aux_dir}/intltool-update.in`
+    [INTLTOOL_APPLIED_VERSION_AS_INT=`awk -F\" '/\\$VERSION / { split($ 2, VERSION, "."); print VERSION[1] * 100 + VERSION[2];}' ${ac_aux_dir}/intltool-update.in`
+    ]
+    AC_MSG_RESULT([$INTLTOOL_APPLIED_VERSION found])
+    test "$INTLTOOL_APPLIED_VERSION_AS_INT" -ge "$INTLTOOL_REQUIRED_VERSION_AS_INT" ||
+	AC_MSG_ERROR([Your intltool is too old.  You need intltool $1 or later.])
 fi
 
   INTLTOOL_DESKTOP_RULE='%.desktop:   %.desktop.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -d -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< [$]@' 
@@ -34,6 +37,7 @@ INTLTOOL_SOUNDLIST_RULE='%.soundlist: %.soundlist.in $(INTLTOOL_MERGE) $(wildcar
     INTLTOOL_CAVES_RULE='%.caves:     %.caves.in     $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -d -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< [$]@' 
   INTLTOOL_SCHEMAS_RULE='%.schemas:   %.schemas.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -s -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< [$]@' 
     INTLTOOL_THEME_RULE='%.theme:     %.theme.in     $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -d -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< [$]@' 
+    INTLTOOL_SERVICE_RULE='%.service: %.service.in   $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*.po) ; LC_ALL=C $(INTLTOOL_MERGE) -d -u -c $(top_builddir)/po/.intltool-merge-cache $(top_srcdir)/po $< [$]@'
 
 AC_SUBST(INTLTOOL_DESKTOP_RULE)
 AC_SUBST(INTLTOOL_DIRECTORY_RULE)
@@ -52,16 +56,12 @@ AC_SUBST(INTLTOOL_XML_NOMERGE_RULE)
 AC_SUBST(INTLTOOL_CAVES_RULE)
 AC_SUBST(INTLTOOL_SCHEMAS_RULE)
 AC_SUBST(INTLTOOL_THEME_RULE)
+AC_SUBST(INTLTOOL_SERVICE_RULE)
 
 # Use the tools built into the package, not the ones that are installed.
-
-INTLTOOL_EXTRACT='$(top_builddir)/intltool-extract'
-INTLTOOL_MERGE='$(top_builddir)/intltool-merge'
-INTLTOOL_UPDATE='$(top_builddir)/intltool-update'
-
-AC_SUBST(INTLTOOL_EXTRACT)
-AC_SUBST(INTLTOOL_MERGE)
-AC_SUBST(INTLTOOL_UPDATE)
+AC_SUBST(INTLTOOL_EXTRACT, '$(top_builddir)/intltool-extract')
+AC_SUBST(INTLTOOL_MERGE, '$(top_builddir)/intltool-merge')
+AC_SUBST(INTLTOOL_UPDATE, '$(top_builddir)/intltool-update')
 
 AC_PATH_PROG(INTLTOOL_PERL, perl)
 if test -z "$INTLTOOL_PERL"; then
@@ -84,74 +84,83 @@ AC_PATH_PROG(INTLTOOL_MSGFMT, msgfmt, msgfmt)
 AC_PATH_PROG(INTLTOOL_MSGMERGE, msgmerge, msgmerge)
 AC_PATH_PROG(INTLTOOL_XGETTEXT, xgettext, xgettext)
 
-# Remove file type tags (using []) from po/POTFILES.
+IT_PO_SUBDIR([po])
 
-ifdef([AC_DIVERSION_ICMDS],[
-  AC_DIVERT_PUSH(AC_DIVERSION_ICMDS)
-     [mv -f po/POTFILES po/POTFILES.tmp
-      sed -e '/[[]encoding.*]/d' -e 's/[[].*] *//' < po/POTFILES.tmp > po/POTFILES
-      rm -f po/POTFILES.tmp
-     ]dnl
-  AC_DIVERT_POP()
-],[
-  ifdef([AC_CONFIG_COMMANDS_PRE],[
-    AC_CONFIG_COMMANDS_PRE([
-       [mv -f po/POTFILES po/POTFILES.tmp
-        sed -e '/[[]encoding.*]/d' -e 's/[[].*] *//' < po/POTFILES.tmp > po/POTFILES
-        rm -f po/POTFILES.tmp
-       ]dnl
-    ])
-  ])
-])
-
-# Manually sed perl in so people don't have to put the intltool scripts in AC_OUTPUT.
+dnl The following is very similar to
+dnl
+dnl	AC_CONFIG_FILES([intltool-extract intltool-merge intltool-update])
+dnl
+dnl with the following slight differences:
+dnl  - the *.in files are in ac_aux_dir,
+dnl  - if the file haven't changed upon reconfigure, it's not touched,
+dnl  - the evaluation of the third parameter enables a hack which computes
+dnl    the actual value of $libdir,
+dnl  - the user sees "executing intltool commands", instead of
+dnl    "creating intltool-extract" and such.
+dnl
+dnl Nothing crucial here, and we could use AC_CONFIG_FILES, if there were
+dnl a reason for it.
 
 AC_CONFIG_COMMANDS([intltool], [
 
-intltool_edit="-e 's#@INTLTOOL_EXTRACT@#`pwd`/intltool-extract#g' \
-               -e 's#@INTLTOOL_ICONV@#${INTLTOOL_ICONV}#g' \
-               -e 's#@INTLTOOL_MSGFMT@#${INTLTOOL_MSGFMT}#g' \
-               -e 's#@INTLTOOL_MSGMERGE@#${INTLTOOL_MSGMERGE}#g' \
-               -e 's#@INTLTOOL_XGETTEXT@#${INTLTOOL_XGETTEXT}#g' \
-               -e 's#@INTLTOOL_PERL@#${INTLTOOL_PERL}#g'"
+for file in intltool-extract intltool-merge intltool-update; do
+  sed -e "s|@INTLTOOL_EXTRACT@|`pwd`/intltool-extract|g" \
+      -e "s|@INTLTOOL_LIBDIR@|${INTLTOOL_LIBDIR}|g" \
+      -e "s|@INTLTOOL_ICONV@|${INTLTOOL_ICONV}|g" \
+      -e "s|@INTLTOOL_MSGFMT@|${INTLTOOL_MSGFMT}|g" \
+      -e "s|@INTLTOOL_MSGMERGE@|${INTLTOOL_MSGMERGE}|g" \
+      -e "s|@INTLTOOL_XGETTEXT@|${INTLTOOL_XGETTEXT}|g" \
+      -e "s|@INTLTOOL_PERL@|${INTLTOOL_PERL}|g" \
+	< ${ac_aux_dir}/${file}.in > ${file}.out
+  if cmp -s ${file} ${file}.out 2>/dev/null; then
+    rm -f ${file}.out
+  else
+    mv -f ${file}.out ${file}
+  fi
+  chmod ugo+x ${file}
+  chmod u+w ${file}
+done
 
-eval sed ${intltool_edit} < ${ac_aux_dir}/intltool-extract.in \
-  > intltool-extract.out
-if cmp -s intltool-extract intltool-extract.out 2>/dev/null; then
-  rm -f intltool-extract.out
-else
-  mv -f intltool-extract.out intltool-extract
-fi
-chmod ugo+x intltool-extract
-chmod u+w intltool-extract
-
-eval sed ${intltool_edit} < ${ac_aux_dir}/intltool-merge.in \
-  > intltool-merge.out
-if cmp -s intltool-merge intltool-merge.out 2>/dev/null; then
-  rm -f intltool-merge.out
-else
-  mv -f intltool-merge.out intltool-merge
-fi
-chmod ugo+x intltool-merge
-chmod u+w intltool-merge
-
-eval sed ${intltool_edit} < ${ac_aux_dir}/intltool-update.in \
-  > intltool-update.out
-if cmp -s intltool-update intltool-update.out 2>/dev/null; then
-  rm -f intltool-update.out
-else
-  mv -f intltool-update.out intltool-update
-fi
-chmod ugo+x intltool-update
-chmod u+w intltool-update
-
-], INTLTOOL_PERL='${INTLTOOL_PERL}' ac_aux_dir=${ac_aux_dir}
-INTLTOOL_EXTRACT='${INTLTOOL_EXTRACT}' ICONV='${INTLTOOL_ICONV}'
-MSGFMT='${INTLTOOL_MSGFMT}' MSGMERGE='${INTLTOOL_MSGMERGE}'
-XGETTEXT='${INTLTOOL_XGETTEXT}')
+],
+[INTLTOOL_PERL='${INTLTOOL_PERL}' ac_aux_dir='${ac_aux_dir}'
+prefix="$prefix" exec_prefix="$exec_prefix" INTLTOOL_LIBDIR="$libdir" 
+INTLTOOL_EXTRACT='${INTLTOOL_EXTRACT}' INTLTOOL_ICONV='${INTLTOOL_ICONV}'
+INTLTOOL_MSGFMT='${INTLTOOL_MSGFMT}' INTLTOOL_MSGMERGE='${INTLTOOL_MSGMERGE}'
+INTLTOOL_XGETTEXT='${INTLTOOL_XGETTEXT}'])
 
 ])
-m4trace:/usr/share/aclocal/intltool.m4:183: -1- AC_DEFUN([AC_PROG_INTLTOOL], [IT_PROG_INTLTOOL($@)])
+m4trace:/usr/share/aclocal/intltool.m4:194: -1- AC_DEFUN([IT_PO_SUBDIR], [AC_PREREQ([2.53])dnl We use ac_top_srcdir inside AC_CONFIG_COMMANDS.
+dnl
+dnl The following CONFIG_COMMANDS should be exetuted at the very end
+dnl of config.status.
+AC_CONFIG_COMMANDS_PRE([
+  AC_CONFIG_COMMANDS([$1/stamp-it], [
+    rm -f "$1/stamp-it" "$1/stamp-it.tmp" "$1/POTFILES" "$1/Makefile.tmp"
+    >"$1/stamp-it.tmp"
+    [sed '/^#/d
+	 s/^[[].*] *//
+	 /^[ 	]*$/d
+	'"s|^|	$ac_top_srcdir/|" \
+      "$srcdir/$1/POTFILES.in" | sed '$!s/$/ \\/' >"$1/POTFILES"
+    ]
+    if test ! -f "$1/Makefile"; then
+      AC_MSG_ERROR([$1/Makefile is not ready.])
+    fi
+    mv "$1/Makefile" "$1/Makefile.tmp"
+    [sed '/^POTFILES =/,/[^\\]$/ {
+		/^POTFILES =/!d
+		r $1/POTFILES
+	  }
+	 ' "$1/Makefile.tmp" >"$1/Makefile"]
+    rm -f "$1/Makefile.tmp"
+    mv "$1/stamp-it.tmp" "$1/stamp-it"
+  ])
+])dnl
+])
+m4trace:/usr/share/aclocal/intltool.m4:198: -1- AU_DEFUN([AC_PROG_INTLTOOL], [IT_PROG_INTLTOOL($@)])
+m4trace:/usr/share/aclocal/intltool.m4:198: -1- AC_DEFUN([AC_PROG_INTLTOOL], [AC_DIAGNOSE([obsolete], [The macro `AC_PROG_INTLTOOL' is obsolete.
+You should run autoupdate.])dnl
+IT_PROG_INTLTOOL($@)])
 m4trace:/usr/share/aclocal/libtool.m4:55: -1- AC_DEFUN([AC_PROG_LIBTOOL], [AC_REQUIRE([_AC_PROG_LIBTOOL])dnl
 dnl If AC_PROG_CXX has already been expanded, run AC_LIBTOOL_CXX
 dnl immediately, otherwise, hook it in at the end of AC_PROG_CXX.
@@ -1182,7 +1191,7 @@ fi
   esac
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1782: -1- AC_DEFUN([AC_LIBTOOL_SYS_DYNAMIC_LINKER], [AC_MSG_CHECKING([dynamic linker characteristics])
+m4trace:/usr/share/aclocal/libtool.m4:1770: -1- AC_DEFUN([AC_LIBTOOL_SYS_DYNAMIC_LINKER], [AC_MSG_CHECKING([dynamic linker characteristics])
 library_names_spec=
 libname_spec='lib$name'
 soname_spec=
@@ -1388,18 +1397,6 @@ freebsd1*)
   dynamic_linker=no
   ;;
 
-kfreebsd*-gnu)
-  version_type=linux
-  need_lib_prefix=no
-  need_version=no
-  library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
-  soname_spec='${libname}${release}${shared_ext}$major'
-  shlibpath_var=LD_LIBRARY_PATH
-  shlibpath_overrides_runpath=no
-  hardcode_into_libs=yes
-  dynamic_linker='GNU ld.so'
-  ;;
-
 freebsd* | dragonfly*)
   # DragonFly does not have aout.  When/if they implement a new
   # versioning mechanism, adjust this.
@@ -1555,7 +1552,7 @@ linux*oldld* | linux*aout* | linux*coff*)
   ;;
 
 # This must be Linux ELF.
-linux*)
+linux* | k*bsd*-gnu)
   version_type=linux
   need_lib_prefix=no
   need_version=no
@@ -1584,7 +1581,7 @@ linux*)
   dynamic_linker='GNU/Linux ld.so'
   ;;
 
-knetbsd*-gnu)
+netbsdelf*-gnu)
   version_type=linux
   need_lib_prefix=no
   need_version=no
@@ -1593,7 +1590,7 @@ knetbsd*-gnu)
   shlibpath_var=LD_LIBRARY_PATH
   shlibpath_overrides_runpath=no
   hardcode_into_libs=yes
-  dynamic_linker='GNU ld.so'
+  dynamic_linker='NetBSD ld.elf_so'
   ;;
 
 netbsd*)
@@ -1777,7 +1774,7 @@ if test "$GCC" = yes; then
   variables_saved_for_relink="$variables_saved_for_relink GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH"
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1886: -1- AC_DEFUN([_LT_AC_TAGCONFIG], [AC_ARG_WITH([tags],
+m4trace:/usr/share/aclocal/libtool.m4:1874: -1- AC_DEFUN([_LT_AC_TAGCONFIG], [AC_ARG_WITH([tags],
     [AC_HELP_STRING([--with-tags@<:@=TAGS@:>@],
         [include additional configurations @<:@automatic@:>@])],
     [tagnames="$withval"])
@@ -1876,11 +1873,11 @@ if test -f "$ltmain" && test -n "$tagnames"; then
   fi
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1894: -1- AC_DEFUN([AC_LIBTOOL_DLOPEN], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])
+m4trace:/usr/share/aclocal/libtool.m4:1882: -1- AC_DEFUN([AC_LIBTOOL_DLOPEN], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1902: -1- AC_DEFUN([AC_LIBTOOL_WIN32_DLL], [AC_BEFORE([$0], [AC_LIBTOOL_SETUP])
+m4trace:/usr/share/aclocal/libtool.m4:1890: -1- AC_DEFUN([AC_LIBTOOL_WIN32_DLL], [AC_BEFORE([$0], [AC_LIBTOOL_SETUP])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1932: -1- AC_DEFUN([AC_ENABLE_SHARED], [define([AC_ENABLE_SHARED_DEFAULT], ifelse($1, no, no, yes))dnl
+m4trace:/usr/share/aclocal/libtool.m4:1920: -1- AC_DEFUN([AC_ENABLE_SHARED], [define([AC_ENABLE_SHARED_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE([shared],
     [AC_HELP_STRING([--enable-shared@<:@=PKGS@:>@],
 	[build shared libraries @<:@default=]AC_ENABLE_SHARED_DEFAULT[@:>@])],
@@ -1903,10 +1900,10 @@ AC_ARG_ENABLE([shared],
     esac],
     [enable_shared=]AC_ENABLE_SHARED_DEFAULT)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1941: -1- AC_DEFUN([AC_DISABLE_SHARED], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:1929: -1- AC_DEFUN([AC_DISABLE_SHARED], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
 AC_ENABLE_SHARED(no)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1971: -1- AC_DEFUN([AC_ENABLE_STATIC], [define([AC_ENABLE_STATIC_DEFAULT], ifelse($1, no, no, yes))dnl
+m4trace:/usr/share/aclocal/libtool.m4:1959: -1- AC_DEFUN([AC_ENABLE_STATIC], [define([AC_ENABLE_STATIC_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE([static],
     [AC_HELP_STRING([--enable-static@<:@=PKGS@:>@],
 	[build static libraries @<:@default=]AC_ENABLE_STATIC_DEFAULT[@:>@])],
@@ -1929,10 +1926,10 @@ AC_ARG_ENABLE([static],
     esac],
     [enable_static=]AC_ENABLE_STATIC_DEFAULT)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:1980: -1- AC_DEFUN([AC_DISABLE_STATIC], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:1968: -1- AC_DEFUN([AC_DISABLE_STATIC], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
 AC_ENABLE_STATIC(no)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2010: -1- AC_DEFUN([AC_ENABLE_FAST_INSTALL], [define([AC_ENABLE_FAST_INSTALL_DEFAULT], ifelse($1, no, no, yes))dnl
+m4trace:/usr/share/aclocal/libtool.m4:1998: -1- AC_DEFUN([AC_ENABLE_FAST_INSTALL], [define([AC_ENABLE_FAST_INSTALL_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE([fast-install],
     [AC_HELP_STRING([--enable-fast-install@<:@=PKGS@:>@],
     [optimize for fast installation @<:@default=]AC_ENABLE_FAST_INSTALL_DEFAULT[@:>@])],
@@ -1955,13 +1952,13 @@ AC_ARG_ENABLE([fast-install],
     esac],
     [enable_fast_install=]AC_ENABLE_FAST_INSTALL_DEFAULT)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2019: -1- AC_DEFUN([AC_DISABLE_FAST_INSTALL], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2007: -1- AC_DEFUN([AC_DISABLE_FAST_INSTALL], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
 AC_ENABLE_FAST_INSTALL(no)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2029: -1- AC_DEFUN([AC_LIBTOOL_PICMODE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2017: -1- AC_DEFUN([AC_LIBTOOL_PICMODE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
 pic_mode=ifelse($#,1,$1,default)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2107: -1- AC_DEFUN([AC_PATH_TOOL_PREFIX], [AC_REQUIRE([AC_PROG_EGREP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2095: -1- AC_DEFUN([AC_PATH_TOOL_PREFIX], [AC_REQUIRE([AC_PROG_EGREP])dnl
 AC_MSG_CHECKING([for $1])
 AC_CACHE_VAL(lt_cv_path_MAGIC_CMD,
 [case $MAGIC_CMD in
@@ -2018,7 +2015,7 @@ else
   AC_MSG_RESULT(no)
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2122: -1- AC_DEFUN([AC_PATH_MAGIC], [AC_PATH_TOOL_PREFIX(${ac_tool_prefix}file, /usr/bin$PATH_SEPARATOR$PATH)
+m4trace:/usr/share/aclocal/libtool.m4:2110: -1- AC_DEFUN([AC_PATH_MAGIC], [AC_PATH_TOOL_PREFIX(${ac_tool_prefix}file, /usr/bin$PATH_SEPARATOR$PATH)
 if test -z "$lt_cv_path_MAGIC_CMD"; then
   if test -n "$ac_tool_prefix"; then
     AC_PATH_TOOL_PREFIX(file, /usr/bin$PATH_SEPARATOR$PATH)
@@ -2027,7 +2024,7 @@ if test -z "$lt_cv_path_MAGIC_CMD"; then
   fi
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2207: -1- AC_DEFUN([AC_PROG_LD], [AC_ARG_WITH([gnu-ld],
+m4trace:/usr/share/aclocal/libtool.m4:2195: -1- AC_DEFUN([AC_PROG_LD], [AC_ARG_WITH([gnu-ld],
     [AC_HELP_STRING([--with-gnu-ld],
 	[assume the C compiler uses GNU ld @<:@default=no@:>@])],
     [test "$withval" = no || with_gnu_ld=yes],
@@ -2106,7 +2103,7 @@ fi
 test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_PROG_LD_GNU
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2225: -1- AC_DEFUN([AC_PROG_LD_GNU], [AC_REQUIRE([AC_PROG_EGREP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2213: -1- AC_DEFUN([AC_PROG_LD_GNU], [AC_REQUIRE([AC_PROG_EGREP])dnl
 AC_CACHE_CHECK([if the linker ($LD) is GNU ld], lt_cv_prog_gnu_ld,
 [# I'd rather use --version here, but apparently some GNU lds only accept -v.
 case `$LD -v 2>&1 </dev/null` in
@@ -2119,7 +2116,7 @@ case `$LD -v 2>&1 </dev/null` in
 esac])
 with_gnu_ld=$lt_cv_prog_gnu_ld
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2251: -1- AC_DEFUN([AC_PROG_LD_RELOAD_FLAG], [AC_CACHE_CHECK([for $LD option to reload object files],
+m4trace:/usr/share/aclocal/libtool.m4:2239: -1- AC_DEFUN([AC_PROG_LD_RELOAD_FLAG], [AC_CACHE_CHECK([for $LD option to reload object files],
   lt_cv_ld_reload_flag,
   [lt_cv_ld_reload_flag='-r'])
 reload_flag=$lt_cv_ld_reload_flag
@@ -2138,7 +2135,7 @@ case $host_os in
     ;;
 esac
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2434: -1- AC_DEFUN([AC_DEPLIBS_CHECK_METHOD], [AC_CACHE_CHECK([how to recognise dependent libraries],
+m4trace:/usr/share/aclocal/libtool.m4:2422: -1- AC_DEFUN([AC_DEPLIBS_CHECK_METHOD], [AC_CACHE_CHECK([how to recognise dependent libraries],
 lt_cv_deplibs_check_method,
 [lt_cv_file_magic_cmd='$MAGIC_CMD'
 lt_cv_file_magic_test_file=
@@ -2186,7 +2183,7 @@ darwin* | rhapsody*)
   lt_cv_deplibs_check_method=pass_all
   ;;
 
-freebsd* | kfreebsd*-gnu | dragonfly*)
+freebsd* | dragonfly*)
   if echo __ELF__ | $CC -E - | grep __ELF__ > /dev/null; then
     case $host_cpu in
     i*86 )
@@ -2240,11 +2237,11 @@ irix5* | irix6* | nonstopux*)
   ;;
 
 # This must be Linux ELF.
-linux*)
+linux* | k*bsd*-gnu)
   lt_cv_deplibs_check_method=pass_all
   ;;
 
-netbsd*)
+netbsd* | netbsdelf*-gnu)
   if echo __ELF__ | $CC -E - | grep __ELF__ > /dev/null; then
     lt_cv_deplibs_check_method='match_pattern /lib[[^/]]+(\.so\.[[0-9]]+\.[[0-9]]+|_pic\.a)$'
   else
@@ -2314,7 +2311,7 @@ file_magic_cmd=$lt_cv_file_magic_cmd
 deplibs_check_method=$lt_cv_deplibs_check_method
 test -z "$deplibs_check_method" && deplibs_check_method=unknown
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2486: -1- AC_DEFUN([AC_PROG_NM], [AC_CACHE_CHECK([for BSD-compatible nm], lt_cv_path_NM,
+m4trace:/usr/share/aclocal/libtool.m4:2474: -1- AC_DEFUN([AC_PROG_NM], [AC_CACHE_CHECK([for BSD-compatible nm], lt_cv_path_NM,
 [if test -n "$NM"; then
   # Let the user override the test.
   lt_cv_path_NM="$NM"
@@ -2360,7 +2357,7 @@ else
 fi])
 NM="$lt_cv_path_NM"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2507: -1- AC_DEFUN([AC_CHECK_LIBM], [AC_REQUIRE([AC_CANONICAL_HOST])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2495: -1- AC_DEFUN([AC_CHECK_LIBM], [AC_REQUIRE([AC_CANONICAL_HOST])dnl
 LIBM=
 case $host in
 *-*-beos* | *-*-cygwin* | *-*-pw32* | *-*-darwin*)
@@ -2375,7 +2372,7 @@ case $host in
   ;;
 esac
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2532: -1- AC_DEFUN([AC_LIBLTDL_CONVENIENCE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2520: -1- AC_DEFUN([AC_LIBLTDL_CONVENIENCE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
   case $enable_ltdl_convenience in
   no) AC_MSG_ERROR([this package needs a convenience libltdl]) ;;
   "") enable_ltdl_convenience=yes
@@ -2386,7 +2383,7 @@ m4trace:/usr/share/aclocal/libtool.m4:2532: -1- AC_DEFUN([AC_LIBLTDL_CONVENIENCE
   # For backwards non-gettext consistent compatibility...
   INCLTDL="$LTDLINCL"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2568: -1- AC_DEFUN([AC_LIBLTDL_INSTALLABLE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
+m4trace:/usr/share/aclocal/libtool.m4:2556: -1- AC_DEFUN([AC_LIBLTDL_INSTALLABLE], [AC_BEFORE([$0],[AC_LIBTOOL_SETUP])dnl
   AC_CHECK_LIB(ltdl, lt_dlinit,
   [test x"$enable_ltdl_install" != xyes && enable_ltdl_install=no],
   [if test x"$enable_ltdl_install" = xno; then
@@ -2407,13 +2404,13 @@ m4trace:/usr/share/aclocal/libtool.m4:2568: -1- AC_DEFUN([AC_LIBLTDL_INSTALLABLE
   # For backwards non-gettext consistent compatibility...
   INCLTDL="$LTDLINCL"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2576: -1- AC_DEFUN([AC_LIBTOOL_CXX], [AC_REQUIRE([_LT_AC_LANG_CXX])
+m4trace:/usr/share/aclocal/libtool.m4:2564: -1- AC_DEFUN([AC_LIBTOOL_CXX], [AC_REQUIRE([_LT_AC_LANG_CXX])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2585: -1- AC_DEFUN([_LT_AC_LANG_CXX], [AC_REQUIRE([AC_PROG_CXX])
+m4trace:/usr/share/aclocal/libtool.m4:2573: -1- AC_DEFUN([_LT_AC_LANG_CXX], [AC_REQUIRE([AC_PROG_CXX])
 AC_REQUIRE([_LT_AC_PROG_CXXCPP])
 _LT_AC_SHELL_INIT([tagnames=${tagnames+${tagnames},}CXX])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2597: -1- AC_DEFUN([_LT_AC_PROG_CXXCPP], [
+m4trace:/usr/share/aclocal/libtool.m4:2585: -1- AC_DEFUN([_LT_AC_PROG_CXXCPP], [
 AC_REQUIRE([AC_PROG_CXX])
 if test -n "$CXX" && ( test "X$CXX" != "Xno" &&
     ( (test "X$CXX" = "Xg++" && `g++ -v >/dev/null 2>&1` ) ||
@@ -2421,14 +2418,14 @@ if test -n "$CXX" && ( test "X$CXX" != "Xno" &&
   AC_PROG_CXXCPP
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2604: -1- AC_DEFUN([AC_LIBTOOL_F77], [AC_REQUIRE([_LT_AC_LANG_F77])
+m4trace:/usr/share/aclocal/libtool.m4:2592: -1- AC_DEFUN([AC_LIBTOOL_F77], [AC_REQUIRE([_LT_AC_LANG_F77])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2612: -1- AC_DEFUN([_LT_AC_LANG_F77], [AC_REQUIRE([AC_PROG_F77])
+m4trace:/usr/share/aclocal/libtool.m4:2600: -1- AC_DEFUN([_LT_AC_LANG_F77], [AC_REQUIRE([AC_PROG_F77])
 _LT_AC_SHELL_INIT([tagnames=${tagnames+${tagnames},}F77])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2620: -1- AC_DEFUN([AC_LIBTOOL_GCJ], [AC_REQUIRE([_LT_AC_LANG_GCJ])
+m4trace:/usr/share/aclocal/libtool.m4:2608: -1- AC_DEFUN([AC_LIBTOOL_GCJ], [AC_REQUIRE([_LT_AC_LANG_GCJ])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2633: -1- AC_DEFUN([_LT_AC_LANG_GCJ], [AC_PROVIDE_IFELSE([AC_PROG_GCJ],[],
+m4trace:/usr/share/aclocal/libtool.m4:2621: -1- AC_DEFUN([_LT_AC_LANG_GCJ], [AC_PROVIDE_IFELSE([AC_PROG_GCJ],[],
   [AC_PROVIDE_IFELSE([A][M_PROG_GCJ],[],
     [AC_PROVIDE_IFELSE([LT_AC_PROG_GCJ],[],
       [ifdef([AC_PROG_GCJ],[AC_REQUIRE([AC_PROG_GCJ])],
@@ -2436,11 +2433,11 @@ m4trace:/usr/share/aclocal/libtool.m4:2633: -1- AC_DEFUN([_LT_AC_LANG_GCJ], [AC_
 	   [AC_REQUIRE([A][C_PROG_GCJ_OR_A][M_PROG_GCJ])])])])])])
 _LT_AC_SHELL_INIT([tagnames=${tagnames+${tagnames},}GCJ])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2642: -1- AC_DEFUN([AC_LIBTOOL_RC], [AC_REQUIRE([LT_AC_PROG_RC])
+m4trace:/usr/share/aclocal/libtool.m4:2630: -1- AC_DEFUN([AC_LIBTOOL_RC], [AC_REQUIRE([LT_AC_PROG_RC])
 _LT_AC_SHELL_INIT([tagnames=${tagnames+${tagnames},}RC])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2650: -1- AC_DEFUN([AC_LIBTOOL_LANG_C_CONFIG], [_LT_AC_LANG_C_CONFIG])
-m4trace:/usr/share/aclocal/libtool.m4:2723: -1- AC_DEFUN([_LT_AC_LANG_C_CONFIG], [lt_save_CC="$CC"
+m4trace:/usr/share/aclocal/libtool.m4:2638: -1- AC_DEFUN([AC_LIBTOOL_LANG_C_CONFIG], [_LT_AC_LANG_C_CONFIG])
+m4trace:/usr/share/aclocal/libtool.m4:2711: -1- AC_DEFUN([_LT_AC_LANG_C_CONFIG], [lt_save_CC="$CC"
 AC_LANG_PUSH(C)
 
 # Source file extension for C test sources.
@@ -2512,8 +2509,8 @@ AC_LIBTOOL_CONFIG($1)
 AC_LANG_POP
 CC="$lt_save_CC"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:2731: -1- AC_DEFUN([AC_LIBTOOL_LANG_CXX_CONFIG], [_LT_AC_LANG_CXX_CONFIG(CXX)])
-m4trace:/usr/share/aclocal/libtool.m4:3731: -1- AC_DEFUN([_LT_AC_LANG_CXX_CONFIG], [AC_LANG_PUSH(C++)
+m4trace:/usr/share/aclocal/libtool.m4:2719: -1- AC_DEFUN([AC_LIBTOOL_LANG_CXX_CONFIG], [_LT_AC_LANG_CXX_CONFIG(CXX)])
+m4trace:/usr/share/aclocal/libtool.m4:3719: -1- AC_DEFUN([_LT_AC_LANG_CXX_CONFIG], [AC_LANG_PUSH(C++)
 AC_REQUIRE([AC_PROG_CXX])
 AC_REQUIRE([_LT_AC_PROG_CXXCPP])
 
@@ -2897,7 +2894,7 @@ case $host_os in
   freebsd-elf*)
     _LT_AC_TAGVAR(archive_cmds_need_lc, $1)=no
     ;;
-  freebsd* | kfreebsd*-gnu | dragonfly*)
+  freebsd* | dragonfly*)
     # FreeBSD 3 and later use GNU C++ and GNU ld with standard ELF
     # conventions
     _LT_AC_TAGVAR(ld_shlibs, $1)=yes
@@ -3056,7 +3053,7 @@ case $host_os in
     _LT_AC_TAGVAR(hardcode_libdir_flag_spec, $1)='${wl}-rpath ${wl}$libdir'
     _LT_AC_TAGVAR(hardcode_libdir_separator, $1)=:
     ;;
-  linux*)
+  linux* | k*bsd*-gnu)
     case $cc_basename in
       KCC*)
 	# Kuck and Associates, Inc. (KAI) C++ Compiler
@@ -3158,7 +3155,7 @@ case $host_os in
 	;;
     esac
     ;;
-  netbsd*)
+  netbsd* | netbsdelf*-gnu)
     if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
       _LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable  -o $lib $predep_objects $libobjs $deplibs $postdep_objects $linker_flags'
       wlarc=
@@ -3512,7 +3509,7 @@ lt_cv_path_LD=$lt_save_path_LD
 lt_cv_prog_gnu_ldcxx=$lt_cv_prog_gnu_ld
 lt_cv_prog_gnu_ld=$lt_save_with_gnu_ld
 ])
-m4trace:/usr/share/aclocal/libtool.m4:3891: -1- AC_DEFUN([AC_LIBTOOL_POSTDEP_PREDEP], [
+m4trace:/usr/share/aclocal/libtool.m4:3879: -1- AC_DEFUN([AC_LIBTOOL_POSTDEP_PREDEP], [
 dnl we can't use the lt_simple_compile_test_code here,
 dnl because it contains code intended for an executable,
 dnl not a library.  It's possible we should let each
@@ -3665,8 +3662,8 @@ case " $_LT_AC_TAGVAR(postdeps, $1) " in
 *" -lc "*) _LT_AC_TAGVAR(archive_cmds_need_lc, $1)=no ;;
 esac
 ])
-m4trace:/usr/share/aclocal/libtool.m4:3898: -1- AC_DEFUN([AC_LIBTOOL_LANG_F77_CONFIG], [_LT_AC_LANG_F77_CONFIG(F77)])
-m4trace:/usr/share/aclocal/libtool.m4:3992: -1- AC_DEFUN([_LT_AC_LANG_F77_CONFIG], [AC_REQUIRE([AC_PROG_F77])
+m4trace:/usr/share/aclocal/libtool.m4:3886: -1- AC_DEFUN([AC_LIBTOOL_LANG_F77_CONFIG], [_LT_AC_LANG_F77_CONFIG(F77)])
+m4trace:/usr/share/aclocal/libtool.m4:3980: -1- AC_DEFUN([_LT_AC_LANG_F77_CONFIG], [AC_REQUIRE([AC_PROG_F77])
 AC_LANG_PUSH(Fortran 77)
 
 _LT_AC_TAGVAR(archive_cmds_need_lc, $1)=no
@@ -3759,8 +3756,8 @@ AC_LIBTOOL_CONFIG($1)
 AC_LANG_POP
 CC="$lt_save_CC"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:4000: -1- AC_DEFUN([AC_LIBTOOL_LANG_GCJ_CONFIG], [_LT_AC_LANG_GCJ_CONFIG(GCJ)])
-m4trace:/usr/share/aclocal/libtool.m4:4052: -1- AC_DEFUN([_LT_AC_LANG_GCJ_CONFIG], [AC_LANG_SAVE
+m4trace:/usr/share/aclocal/libtool.m4:3988: -1- AC_DEFUN([AC_LIBTOOL_LANG_GCJ_CONFIG], [_LT_AC_LANG_GCJ_CONFIG(GCJ)])
+m4trace:/usr/share/aclocal/libtool.m4:4040: -1- AC_DEFUN([_LT_AC_LANG_GCJ_CONFIG], [AC_LANG_SAVE
 
 # Source file extension for Java test sources.
 ac_ext=java
@@ -3811,8 +3808,8 @@ AC_LIBTOOL_CONFIG($1)
 AC_LANG_RESTORE
 CC="$lt_save_CC"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:4060: -1- AC_DEFUN([AC_LIBTOOL_LANG_RC_CONFIG], [_LT_AC_LANG_RC_CONFIG(RC)])
-m4trace:/usr/share/aclocal/libtool.m4:4096: -1- AC_DEFUN([_LT_AC_LANG_RC_CONFIG], [AC_LANG_SAVE
+m4trace:/usr/share/aclocal/libtool.m4:4048: -1- AC_DEFUN([AC_LIBTOOL_LANG_RC_CONFIG], [_LT_AC_LANG_RC_CONFIG(RC)])
+m4trace:/usr/share/aclocal/libtool.m4:4084: -1- AC_DEFUN([_LT_AC_LANG_RC_CONFIG], [AC_LANG_SAVE
 
 # Source file extension for RC test sources.
 ac_ext=rc
@@ -3847,7 +3844,7 @@ AC_LIBTOOL_CONFIG($1)
 AC_LANG_RESTORE
 CC="$lt_save_CC"
 ])
-m4trace:/usr/share/aclocal/libtool.m4:4590: -1- AC_DEFUN([AC_LIBTOOL_CONFIG], [# The else clause should only fire when bootstrapping the
+m4trace:/usr/share/aclocal/libtool.m4:4578: -1- AC_DEFUN([AC_LIBTOOL_CONFIG], [# The else clause should only fire when bootstrapping the
 # libtool distribution, otherwise you forgot to ship ltmain.sh
 # with your package, and you will get complaints that there are
 # no rules to generate ltmain.sh.
@@ -4332,7 +4329,7 @@ else
   fi
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:4608: -1- AC_DEFUN([AC_LIBTOOL_PROG_COMPILER_NO_RTTI], [AC_REQUIRE([_LT_AC_SYS_COMPILER])dnl
+m4trace:/usr/share/aclocal/libtool.m4:4596: -1- AC_DEFUN([AC_LIBTOOL_PROG_COMPILER_NO_RTTI], [AC_REQUIRE([_LT_AC_SYS_COMPILER])dnl
 
 _LT_AC_TAGVAR(lt_prog_compiler_no_builtin_flag, $1)=
 
@@ -4345,7 +4342,7 @@ if test "$GCC" = yes; then
     [_LT_AC_TAGVAR(lt_prog_compiler_no_builtin_flag, $1)="$_LT_AC_TAGVAR(lt_prog_compiler_no_builtin_flag, $1) -fno-rtti -fno-exceptions"])
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:4810: -1- AC_DEFUN([AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE], [AC_REQUIRE([AC_CANONICAL_HOST])
+m4trace:/usr/share/aclocal/libtool.m4:4798: -1- AC_DEFUN([AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE], [AC_REQUIRE([AC_CANONICAL_HOST])
 AC_REQUIRE([AC_PROG_NM])
 AC_REQUIRE([AC_OBJEXT])
 # Check for command to grab the raw symbol name followed by C symbol from nm.
@@ -4382,7 +4379,7 @@ hpux*) # Its linker distinguishes data from code symbols
   lt_cv_sys_global_symbol_to_cdecl="sed -n -e 's/^T .* \(.*\)$/extern int \1();/p' -e 's/^$symcode* .* \(.*\)$/extern char \1;/p'"
   lt_cv_sys_global_symbol_to_c_name_address="sed -n -e 's/^: \([[^ ]]*\) $/  {\\\"\1\\\", (lt_ptr) 0},/p' -e 's/^$symcode* \([[^ ]]*\) \([[^ ]]*\)$/  {\"\2\", (lt_ptr) \&\2},/p'"
   ;;
-linux*)
+linux* | k*bsd*-gnu)
   if test "$host_cpu" = ia64; then
     symcode='[[ABCDGIRSTW]]'
     lt_cv_sys_global_symbol_to_cdecl="sed -n -e 's/^T .* \(.*\)$/extern int \1();/p' -e 's/^$symcode* .* \(.*\)$/extern char \1;/p'"
@@ -4542,7 +4539,7 @@ else
   AC_MSG_RESULT(ok)
 fi
 ])
-m4trace:/usr/share/aclocal/libtool.m4:5336: -1- AC_DEFUN([AC_LIBTOOL_PROG_COMPILER_PIC], [_LT_AC_TAGVAR(lt_prog_compiler_wl, $1)=
+m4trace:/usr/share/aclocal/libtool.m4:5324: -1- AC_DEFUN([AC_LIBTOOL_PROG_COMPILER_PIC], [_LT_AC_TAGVAR(lt_prog_compiler_wl, $1)=
 _LT_AC_TAGVAR(lt_prog_compiler_pic, $1)=
 _LT_AC_TAGVAR(lt_prog_compiler_static, $1)=
 
@@ -4650,7 +4647,7 @@ AC_MSG_CHECKING([for $compiler option to produce PIC])
 	    ;;
 	esac
 	;;
-      freebsd* | kfreebsd*-gnu | dragonfly*)
+      freebsd* | dragonfly*)
 	# FreeBSD uses GNU C++
 	;;
       hpux9* | hpux10* | hpux11*)
@@ -4693,7 +4690,7 @@ AC_MSG_CHECKING([for $compiler option to produce PIC])
 	    ;;
 	esac
 	;;
-      linux*)
+      linux* | k*bsd*-gnu)
 	case $cc_basename in
 	  KCC*)
 	    # KAI C++ Compiler
@@ -4736,7 +4733,7 @@ AC_MSG_CHECKING([for $compiler option to produce PIC])
 	    ;;
 	esac
 	;;
-      netbsd*)
+      netbsd* | netbsdelf*-gnu)
 	;;
       osf3* | osf4* | osf5*)
 	case $cc_basename in
@@ -4947,7 +4944,7 @@ AC_MSG_CHECKING([for $compiler option to produce PIC])
       _LT_AC_TAGVAR(lt_prog_compiler_static, $1)='-Bstatic'
       ;;
 
-    linux*)
+    linux* | k*bsd*-gnu)
       case $cc_basename in
       icc* | ecc*)
 	_LT_AC_TAGVAR(lt_prog_compiler_wl, $1)='-Wl,'
@@ -5063,7 +5060,7 @@ AC_LIBTOOL_LINKER_OPTION([if $compiler static flag $lt_tmp_static_flag works],
   [],
   [_LT_AC_TAGVAR(lt_prog_compiler_static, $1)=])
 ])
-m4trace:/usr/share/aclocal/libtool.m4:6266: -1- AC_DEFUN([AC_LIBTOOL_PROG_LD_SHLIBS], [AC_MSG_CHECKING([whether the $compiler linker ($LD) supports shared libraries])
+m4trace:/usr/share/aclocal/libtool.m4:6258: -1- AC_DEFUN([AC_LIBTOOL_PROG_LD_SHLIBS], [AC_MSG_CHECKING([whether the $compiler linker ($LD) supports shared libraries])
 ifelse([$1],[CXX],[
   _LT_AC_TAGVAR(export_symbols_cmds, $1)='$NM $libobjs $convenience | $global_symbol_pipe | $SED '\''s/.* //'\'' | sort | uniq > $export_symbols'
   case $host_os in
@@ -5081,6 +5078,9 @@ ifelse([$1],[CXX],[
   ;;
   cygwin* | mingw*)
     _LT_AC_TAGVAR(export_symbols_cmds, $1)='$NM $libobjs $convenience | $global_symbol_pipe | $SED -e '\''/^[[BCDGRS]] /s/.* \([[^ ]]*\)/\1 DATA/;/^.* __nm__/s/^.* __nm__\([[^ ]]*\) [[^ ]]*/\1 DATA/;/^I /d;/^[[AITW]] /s/.* //'\'' | sort | uniq > $export_symbols'
+  ;;
+  linux* | k*bsd*-gnu)
+    _LT_AC_TAGVAR(link_all_deplibs, $1)=no
   ;;
   *)
     _LT_AC_TAGVAR(export_symbols_cmds, $1)='$NM $libobjs $convenience | $global_symbol_pipe | $SED '\''s/.* //'\'' | sort | uniq > $export_symbols'
@@ -5252,7 +5252,7 @@ EOF
       _LT_AC_TAGVAR(archive_expsym_cmds, $1)='sed "s,^,_," $export_symbols >$output_objdir/$soname.expsym~$CC -shared $pic_flag $libobjs $deplibs $compiler_flags ${wl}-h,$soname ${wl}--retain-symbols-file,$output_objdir/$soname.expsym ${wl}--image-base,`expr ${RANDOM-$$} % 4096 / 2 \* 262144 + 1342177280` -o $lib'
       ;;
 
-    linux*)
+    linux* | k*bsd*-gnu)
       if $LD --help 2>&1 | grep ': supported targets:.* elf' > /dev/null; then
 	tmp_addflag=
 	case $cc_basename,$host_cpu in
@@ -5278,12 +5278,13 @@ EOF
   $echo "local: *; };" >> $output_objdir/$libname.ver~
 	  $CC -shared'"$tmp_addflag"' $libobjs $deplibs $compiler_flags ${wl}-soname $wl$soname ${wl}-version-script ${wl}$output_objdir/$libname.ver -o $lib'
 	fi
+	_LT_AC_TAGVAR(link_all_deplibs, $1)=no
       else
 	_LT_AC_TAGVAR(ld_shlibs, $1)=no
       fi
       ;;
 
-    netbsd*)
+    netbsd* | netbsdelf*-gnu)
       if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
 	_LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable $libobjs $deplibs $linker_flags -o $lib'
 	wlarc=
@@ -5613,7 +5614,7 @@ _LT_EOF
       ;;
 
     # FreeBSD 3 and greater uses gcc -shared to do shared libraries.
-    freebsd* | kfreebsd*-gnu | dragonfly*)
+    freebsd* | dragonfly*)
       _LT_AC_TAGVAR(archive_cmds, $1)='$CC -shared -o $lib $libobjs $deplibs $compiler_flags'
       _LT_AC_TAGVAR(hardcode_libdir_flag_spec, $1)='-R$libdir'
       _LT_AC_TAGVAR(hardcode_direct, $1)=yes
@@ -5715,7 +5716,7 @@ _LT_EOF
       _LT_AC_TAGVAR(link_all_deplibs, $1)=yes
       ;;
 
-    netbsd*)
+    netbsd* | netbsdelf*-gnu)
       if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
 	_LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'  # a.out
       else
@@ -5987,7 +5988,7 @@ x|xyes)
   ;;
 esac
 ])
-m4trace:/usr/share/aclocal/libtool.m4:6306: -1- AC_DEFUN([_LT_AC_FILE_LTDLL_C], [
+m4trace:/usr/share/aclocal/libtool.m4:6298: -1- AC_DEFUN([_LT_AC_FILE_LTDLL_C], [
 # /* ltdll.c starts here */
 # #define WIN32_LEAN_AND_MEAN
 # #include <windows.h>
@@ -6022,21 +6023,21 @@ m4trace:/usr/share/aclocal/libtool.m4:6306: -1- AC_DEFUN([_LT_AC_FILE_LTDLL_C], 
 # }
 # /* ltdll.c ends here */
 ])
-m4trace:/usr/share/aclocal/libtool.m4:6311: -1- AC_DEFUN([_LT_AC_TAGVAR], [ifelse([$2], [], [$1], [$1_$2])])
-m4trace:/usr/share/aclocal/libtool.m4:6315: -1- AC_DEFUN([AM_PROG_LIBTOOL], [AC_PROG_LIBTOOL])
-m4trace:/usr/share/aclocal/libtool.m4:6316: -1- AC_DEFUN([AM_ENABLE_SHARED], [AC_ENABLE_SHARED($@)])
-m4trace:/usr/share/aclocal/libtool.m4:6317: -1- AC_DEFUN([AM_ENABLE_STATIC], [AC_ENABLE_STATIC($@)])
-m4trace:/usr/share/aclocal/libtool.m4:6318: -1- AC_DEFUN([AM_DISABLE_SHARED], [AC_DISABLE_SHARED($@)])
-m4trace:/usr/share/aclocal/libtool.m4:6319: -1- AC_DEFUN([AM_DISABLE_STATIC], [AC_DISABLE_STATIC($@)])
-m4trace:/usr/share/aclocal/libtool.m4:6320: -1- AC_DEFUN([AM_PROG_LD], [AC_PROG_LD])
-m4trace:/usr/share/aclocal/libtool.m4:6321: -1- AC_DEFUN([AM_PROG_NM], [AC_PROG_NM])
-m4trace:/usr/share/aclocal/libtool.m4:6330: -1- AC_DEFUN([LT_AC_PROG_GCJ], [AC_CHECK_TOOL(GCJ, gcj, no)
+m4trace:/usr/share/aclocal/libtool.m4:6303: -1- AC_DEFUN([_LT_AC_TAGVAR], [ifelse([$2], [], [$1], [$1_$2])])
+m4trace:/usr/share/aclocal/libtool.m4:6307: -1- AC_DEFUN([AM_PROG_LIBTOOL], [AC_PROG_LIBTOOL])
+m4trace:/usr/share/aclocal/libtool.m4:6308: -1- AC_DEFUN([AM_ENABLE_SHARED], [AC_ENABLE_SHARED($@)])
+m4trace:/usr/share/aclocal/libtool.m4:6309: -1- AC_DEFUN([AM_ENABLE_STATIC], [AC_ENABLE_STATIC($@)])
+m4trace:/usr/share/aclocal/libtool.m4:6310: -1- AC_DEFUN([AM_DISABLE_SHARED], [AC_DISABLE_SHARED($@)])
+m4trace:/usr/share/aclocal/libtool.m4:6311: -1- AC_DEFUN([AM_DISABLE_STATIC], [AC_DISABLE_STATIC($@)])
+m4trace:/usr/share/aclocal/libtool.m4:6312: -1- AC_DEFUN([AM_PROG_LD], [AC_PROG_LD])
+m4trace:/usr/share/aclocal/libtool.m4:6313: -1- AC_DEFUN([AM_PROG_NM], [AC_PROG_NM])
+m4trace:/usr/share/aclocal/libtool.m4:6322: -1- AC_DEFUN([LT_AC_PROG_GCJ], [AC_CHECK_TOOL(GCJ, gcj, no)
   test "x${GCJFLAGS+set}" = xset || GCJFLAGS="-g -O2"
   AC_SUBST(GCJFLAGS)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:6334: -1- AC_DEFUN([LT_AC_PROG_RC], [AC_CHECK_TOOL(RC, windres, no)
+m4trace:/usr/share/aclocal/libtool.m4:6326: -1- AC_DEFUN([LT_AC_PROG_RC], [AC_CHECK_TOOL(RC, windres, no)
 ])
-m4trace:/usr/share/aclocal/libtool.m4:6397: -1- AC_DEFUN([LT_AC_PROG_SED], [AC_MSG_CHECKING([for a sed that does not truncate output])
+m4trace:/usr/share/aclocal/libtool.m4:6389: -1- AC_DEFUN([LT_AC_PROG_SED], [AC_MSG_CHECKING([for a sed that does not truncate output])
 AC_CACHE_VAL(lt_cv_path_SED,
 [# Loop through the user's path and test for sed and gsed.
 # Then use that list of sed's as ones to test for truncation.
@@ -6088,7 +6089,7 @@ SED=$lt_cv_path_SED
 AC_MSG_RESULT([$SED])
 ])
 m4trace:/usr/share/aclocal-1.9/amversion.m4:13: -1- AC_DEFUN([AM_AUTOMAKE_VERSION], [am__api_version="1.9"])
-m4trace:/usr/share/aclocal-1.9/amversion.m4:20: -1- AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION], [AM_AUTOMAKE_VERSION([1.9.5])])
+m4trace:/usr/share/aclocal-1.9/amversion.m4:20: -1- AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION], [AM_AUTOMAKE_VERSION([1.9.6])])
 m4trace:/usr/share/aclocal-1.9/auxdir.m4:52: -1- AC_DEFUN([AM_AUX_DIR_EXPAND], [dnl Rely on autoconf to set up CDPATH properly.
 AC_PREREQ([2.50])dnl
 # expand $ac_aux_dir to an absolute path
@@ -8710,7 +8711,7 @@ m4trace:configure.in:5: -1- AC_DEFINE_TRACE_LITERAL([_GNU_SOURCE])
 m4trace:configure.in:6: -1- AM_INIT_AUTOMAKE([webcit], [6.72])
 m4trace:configure.in:6: -1- m4_pattern_allow([^AM_[A-Z]+FLAGS$])
 m4trace:configure.in:6: -1- AM_SET_CURRENT_AUTOMAKE_VERSION
-m4trace:configure.in:6: -1- AM_AUTOMAKE_VERSION([1.9.5])
+m4trace:configure.in:6: -1- AM_AUTOMAKE_VERSION([1.9.6])
 m4trace:configure.in:6: -1- AC_PROG_INSTALL
 m4trace:configure.in:6: -1- AC_SUBST([INSTALL_PROGRAM])
 m4trace:configure.in:6: -1- AC_SUBST([INSTALL_SCRIPT])
@@ -8786,7 +8787,7 @@ m4trace:configure.in:8: -1- AC_ENABLE_SHARED
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:219: AC_HELP_STRING is expanded from...
 autoconf/general.m4:1303: AC_ARG_ENABLE is expanded from...
-/usr/share/aclocal/libtool.m4:1932: AC_ENABLE_SHARED is expanded from...
+/usr/share/aclocal/libtool.m4:1920: AC_ENABLE_SHARED is expanded from...
 configure.in:8: AC_ENABLE_SHARED is required by...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
@@ -8798,7 +8799,7 @@ m4trace:configure.in:8: -1- AC_ENABLE_STATIC
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:219: AC_HELP_STRING is expanded from...
 autoconf/general.m4:1303: AC_ARG_ENABLE is expanded from...
-/usr/share/aclocal/libtool.m4:1971: AC_ENABLE_STATIC is expanded from...
+/usr/share/aclocal/libtool.m4:1959: AC_ENABLE_STATIC is expanded from...
 configure.in:8: AC_ENABLE_STATIC is required by...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
@@ -8810,7 +8811,7 @@ m4trace:configure.in:8: -1- AC_ENABLE_FAST_INSTALL
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:219: AC_HELP_STRING is expanded from...
 autoconf/general.m4:1303: AC_ARG_ENABLE is expanded from...
-/usr/share/aclocal/libtool.m4:2010: AC_ENABLE_FAST_INSTALL is expanded from...
+/usr/share/aclocal/libtool.m4:1998: AC_ENABLE_FAST_INSTALL is expanded from...
 configure.in:8: AC_ENABLE_FAST_INSTALL is required by...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
@@ -8863,7 +8864,7 @@ m4trace:configure.in:8: -1- AC_PROG_LD
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:219: AC_HELP_STRING is expanded from...
 autoconf/general.m4:1331: AC_ARG_WITH is expanded from...
-/usr/share/aclocal/libtool.m4:2207: AC_PROG_LD is expanded from...
+/usr/share/aclocal/libtool.m4:2195: AC_PROG_LD is expanded from...
 configure.in:8: AC_PROG_LD is required by...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
@@ -9173,8 +9174,8 @@ autoconf/general.m4:1808: AC_CACHE_CHECK is expanded from...
 /usr/share/aclocal/libtool.m4:608: _LT_AC_LOCK is expanded from...
 configure.in:8: _LT_AC_LOCK is required by...
 /usr/share/aclocal/libtool.m4:1094: AC_LIBTOOL_SYS_HARD_LINK_LOCKS is expanded from...
-/usr/share/aclocal/libtool.m4:2723: _LT_AC_LANG_C_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:2650: AC_LIBTOOL_LANG_C_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:2711: _LT_AC_LANG_C_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:2638: AC_LIBTOOL_LANG_C_CONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -9238,6 +9239,7 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_expsym_cmds], [])
+m4trace:configure.in:8: -1- _LT_AC_TAGVAR([link_all_deplibs], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([ld_shlibs], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [])
@@ -9647,21 +9649,21 @@ m4trace:configure.in:8: -1- _LT_AC_TAGCONFIG
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:219: AC_HELP_STRING is expanded from...
 autoconf/general.m4:1331: AC_ARG_WITH is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
 configure.in:8: _AC_PROG_LIBTOOL is required by...
 /usr/share/aclocal/libtool.m4:55: AC_PROG_LIBTOOL is expanded from...
 configure.in:8: the top level])
-m4trace:configure.in:8: -1- _m4_warn([obsolete], [back quotes and double quotes must not be escaped in: $as_me:$LINENO: error: tag name \"$tagname\" already exists], [/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+m4trace:configure.in:8: -1- _m4_warn([obsolete], [back quotes and double quotes must not be escaped in: $as_me:$LINENO: error: tag name \"$tagname\" already exists], [/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
 configure.in:8: _AC_PROG_LIBTOOL is required by...
 /usr/share/aclocal/libtool.m4:55: AC_PROG_LIBTOOL is expanded from...
 configure.in:8: the top level])
-m4trace:configure.in:8: -1- _m4_warn([obsolete], [back quotes and double quotes must not be escaped in: $as_me: error: tag name \"$tagname\" already exists], [/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+m4trace:configure.in:8: -1- _m4_warn([obsolete], [back quotes and double quotes must not be escaped in: $as_me: error: tag name \"$tagname\" already exists], [/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -10065,6 +10067,7 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([export_symbols_cmds], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([export_symbols_cmds], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([export_symbols_cmds], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([export_symbols_cmds], [CXX])
+m4trace:configure.in:8: -1- _LT_AC_TAGVAR([link_all_deplibs], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([export_symbols_cmds], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([ld_shlibs], [CXX])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([ld_shlibs], [CXX])
@@ -10360,6 +10363,7 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_expsym_cmds], [F77])
+m4trace:configure.in:8: -1- _LT_AC_TAGVAR([link_all_deplibs], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([ld_shlibs], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [F77])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [F77])
@@ -10706,9 +10710,9 @@ m4trace:configure.in:8: -1- AC_LIBTOOL_LANG_GCJ_CONFIG
 m4trace:configure.in:8: -1- _LT_AC_LANG_GCJ_CONFIG([GCJ])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_LANG_SAVE' is obsolete.
 You should run autoupdate.], [autoconf/lang.m4:166: AC_LANG_SAVE is expanded from...
-/usr/share/aclocal/libtool.m4:4052: _LT_AC_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4000: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4040: _LT_AC_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:3988: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -10717,9 +10721,9 @@ configure.in:8: _AC_PROG_LIBTOOL is required by...
 configure.in:8: the top level])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [instead of using `AC_LANG', `AC_LANG_SAVE',
 and `AC_LANG_RESTORE', you should use `AC_LANG_PUSH' and `AC_LANG_POP'.], [autoconf/lang.m4:166: AC_LANG_SAVE is expanded from...
-/usr/share/aclocal/libtool.m4:4052: _LT_AC_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4000: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4040: _LT_AC_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:3988: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -10886,6 +10890,7 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([whole_archive_flag_spec], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_expsym_cmds], [GCJ])
+m4trace:configure.in:8: -1- _LT_AC_TAGVAR([link_all_deplibs], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([ld_shlibs], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([archive_cmds], [GCJ])
@@ -11230,9 +11235,9 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([exclude_expsyms], [GCJ])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([include_expsyms], [GCJ])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_LANG_RESTORE' is obsolete.
 You should run autoupdate.], [autoconf/lang.m4:172: AC_LANG_RESTORE is expanded from...
-/usr/share/aclocal/libtool.m4:4052: _LT_AC_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4000: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4040: _LT_AC_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:3988: AC_LIBTOOL_LANG_GCJ_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -11243,9 +11248,9 @@ m4trace:configure.in:8: -1- AC_LIBTOOL_LANG_RC_CONFIG
 m4trace:configure.in:8: -1- _LT_AC_LANG_RC_CONFIG([RC])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_LANG_SAVE' is obsolete.
 You should run autoupdate.], [autoconf/lang.m4:166: AC_LANG_SAVE is expanded from...
-/usr/share/aclocal/libtool.m4:4096: _LT_AC_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4060: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4084: _LT_AC_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4048: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -11254,9 +11259,9 @@ configure.in:8: _AC_PROG_LIBTOOL is required by...
 configure.in:8: the top level])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [instead of using `AC_LANG', `AC_LANG_SAVE',
 and `AC_LANG_RESTORE', you should use `AC_LANG_PUSH' and `AC_LANG_POP'.], [autoconf/lang.m4:166: AC_LANG_SAVE is expanded from...
-/usr/share/aclocal/libtool.m4:4096: _LT_AC_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4060: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4084: _LT_AC_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4048: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -11357,9 +11362,9 @@ m4trace:configure.in:8: -1- _LT_AC_TAGVAR([exclude_expsyms], [RC])
 m4trace:configure.in:8: -1- _LT_AC_TAGVAR([include_expsyms], [RC])
 m4trace:configure.in:8: -1- _m4_warn([obsolete], [The macro `AC_LANG_RESTORE' is obsolete.
 You should run autoupdate.], [autoconf/lang.m4:172: AC_LANG_RESTORE is expanded from...
-/usr/share/aclocal/libtool.m4:4096: _LT_AC_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:4060: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
-/usr/share/aclocal/libtool.m4:1886: _LT_AC_TAGCONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4084: _LT_AC_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:4048: AC_LIBTOOL_LANG_RC_CONFIG is expanded from...
+/usr/share/aclocal/libtool.m4:1874: _LT_AC_TAGCONFIG is expanded from...
 /usr/share/aclocal/libtool.m4:220: AC_LIBTOOL_SETUP is expanded from...
 configure.in:8: AC_LIBTOOL_SETUP is required by...
 /usr/share/aclocal/libtool.m4:75: _AC_PROG_LIBTOOL is expanded from...
@@ -11517,14 +11522,16 @@ m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_XML_NOMERGE_RULE])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_CAVES_RULE])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_SCHEMAS_RULE])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_THEME_RULE])
-m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_EXTRACT])
-m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_MERGE])
-m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_UPDATE])
+m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_SERVICE_RULE])
+m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_EXTRACT], ['$(top_builddir)/intltool-extract'])
+m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_MERGE], ['$(top_builddir)/intltool-merge'])
+m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_UPDATE], ['$(top_builddir)/intltool-update'])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_PERL], [$ac_cv_path_INTLTOOL_PERL])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_ICONV], [$ac_cv_path_INTLTOOL_ICONV])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_MSGFMT], [$ac_cv_path_INTLTOOL_MSGFMT])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_MSGMERGE], [$ac_cv_path_INTLTOOL_MSGMERGE])
 m4trace:configure.in:389: -1- AC_SUBST([INTLTOOL_XGETTEXT], [$ac_cv_path_INTLTOOL_XGETTEXT])
+m4trace:configure.in:389: -1- IT_PO_SUBDIR([po])
 m4trace:configure.in:396: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2180: AC_TRY_COMPILE is expanded from...
 configure.in:396: the top level])
