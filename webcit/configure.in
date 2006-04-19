@@ -150,7 +150,7 @@ main() {
 }
 		], 
 		[
-			LIBS="-lical $LIBS"
+			LIBS="$LIBS -lical"
 			AC_DEFINE(HAVE_LIBICAL)
 		]
 	)
@@ -169,7 +169,7 @@ AC_DEFINE([with_zlib],
 		])
 
 if test "x$ok_zlib" = xyes ; then
-        LIBS="-lz $LIBS"
+        LIBS="$LIBS -lz "
 fi
 
 dnl Checks for the newt window library.
@@ -450,8 +450,9 @@ AC_OUTPUT(Makefile src/Makefile po/Makefile.in)
 
 
 echo ------------------------------------------------------------------------
+echo 'nls is available? '$_nls_avail
 echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'Character set conversion support:' $ok_iconv
-echo 'National language support:       ' $_nls_avail
+echo 'National language support:       ' $ok_nls
 echo 
