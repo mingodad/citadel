@@ -7,7 +7,8 @@ Standards-Version: 3.6.1
 
 Package: citadel-webcit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ucf, citadel-server, debconf
+Depends: ${shlibs:Depends}, ${misc:Depends}, ucf, debconf
+Suggests: citadel-server
 Description: Webcit, the Webfrontend to the Citadel.
  WebCit puts a web-based front end on Citadel, allowing 
  users to access the system from any web browser. And 
