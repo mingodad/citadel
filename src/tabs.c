@@ -31,15 +31,18 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 		"</script>									\n"
 	);
 
-	wprintf("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%%\">"
+	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%%\">"
 		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
 	);
 
 	for (i=0; i<num_tabs; ++i) {
-		wprintf("<td id=\"tabtd%d\" bgcolor=\"#%s\" onClick='tabsel(\"%d\");'>"
+		wprintf("<td id=\"tabtd%d\" bgcolor=\"#%s\" "
+			"onClick='tabsel(\"%d\");'"
+			">"
 			"<span class=\"tablabel\">",
 			i,
 			( (i==0) ? "ffffff" : "cccccc" ),
+			i,
 			i
 		);
 		wprintf("%s", tabnames[i]);
@@ -71,9 +74,15 @@ void begin_tab(int tabnum, int num_tabs) {
  */
 void end_tab(int tabnum, int num_tabs) {
 	wprintf("</div>\n");
+	wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
 
 	if (tabnum == num_tabs-1) {
 		wprintf("</td></tr></table>\n");
+		wprintf("<script type=\"text/javascript\">"
+			" Nifty(\"table#TheTabs td\", \"small transparent top\");"
+			"</script>"
+		);
+			//" Nifty(\"td#tabtd1\", \"small transparent top\");"
 	}
 }
 
