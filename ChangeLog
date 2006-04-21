@@ -1,4 +1,9 @@
 ------------------------------------------------------------------------
+r4488 | ajc | 2006-04-20 23:20:10 -0400 (Thu, 20 Apr 2006) | 2 lines
+
+Added the 'Nifty Corners' library and implemented our
+tabbed dialog with it.
+------------------------------------------------------------------------
 r4487 | dothebart | 2006-04-19 19:05:41 -0400 (Wed, 19 Apr 2006) | 2 lines
 
 * [debian] depend on the locale packages.
