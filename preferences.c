@@ -107,15 +107,23 @@ void save_preferences(void) {
 		serv_getln(buf, sizeof buf);
 	}
 
+	TRACE;
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
+	TRACE;
 	serv_getln(buf, sizeof buf);
+	TRACE;
 	if (buf[0] == '4') {
+		TRACE;
 		serv_puts(WC->preferences);
+		TRACE;
 		serv_puts("");
+		TRACE;
 		serv_puts("000");
+		TRACE;
 	}
 
 	/** Go back to the room we're supposed to be in */
+	TRACE;
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
@@ -158,26 +166,23 @@ void set_preference(char *key, char *value, int save_to_server) {
 	char thiskey[SIZ];
 	char *newprefs = NULL;
 
+	newprefs = malloc(strlen(WC->preferences) + strlen(key) + strlen(value) + 10);
+	if (newprefs == NULL) return;
+	strcpy(newprefs, "");
+
 	num_prefs = num_tokens(WC->preferences, '\n');
 	for (i=0; i<num_prefs; ++i) {
 		extract_token(buf, WC->preferences, i, '\n', sizeof buf);
 		if (num_tokens(buf, '|') == 2) {
 			extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 			if (strcasecmp(thiskey, key)) {
-				if (newprefs == NULL) newprefs = strdup("");
-				newprefs = realloc(newprefs,
-					strlen(newprefs) + SIZ );
 				strcat(newprefs, buf);
 				strcat(newprefs, "\n");
 			}
 		}
 	}
 
-
-	if (newprefs == NULL) newprefs = strdup("");
-	newprefs = realloc(newprefs, strlen(newprefs) + SIZ);
 	sprintf(&newprefs[strlen(newprefs)], "%s|%s\n", key, value);
-
 	free(WC->preferences);
 	WC->preferences = newprefs;
 
