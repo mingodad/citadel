@@ -25708,9 +25708,8 @@ fi
 
 
 echo ------------------------------------------------------------------------
-echo 'nls is available? '$_nls_avail
 echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'Character set conversion support:' $ok_iconv
-echo 'National language support:       ' $ok_nls
+echo 'National language support:       ' $_nls_avail
 echo
