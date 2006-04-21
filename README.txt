@@ -4,6 +4,7 @@
    Copyright (C) 1996-2006 by the authors.  Portions written by:
 	Art Cancro
 	Nathan Bryant
+	Alessandro Fulciniti
 	Wilifried Goesgens
 	Nick Grossman
 	Andru Luvisi
@@ -26,6 +27,11 @@
    (http://tinymce.moxiecode.com/tinymce/docs/credits.html).  This component
    is licensed to you under the terms of the GNU Lesser General Public
    License.
+
+   WebCit bundles the Nifty Corners library, written by Alessandro Fulciniti
+   [http://cerca.html.it/cgi-bin/cerca.cgi?q=nifty+corners].  This component
+   is licensed to you under the terms of the GNU General Public License.
+
 
    The Citadel logo was designed by Lisa Aurigemma.
 
@@ -61,6 +67,9 @@ port.  The default is port 2000.
   make
   make install
  
+ Package/Ports Maintainers: to make webcit fit smart into LHFS-ified systems
+ read on at the end of this file, Advanced configure options.
+
  Then to initialize it:
   cd /usr/local/webcit
   ./setup
@@ -170,12 +179,10 @@ you must have libical v0.24 (or newer) on your system.  You must also be
 running a Citadel server with calendaring support.  The calendar service will
 be automatically configured and installed if your host system supports it.
  
- WebCit also provides Kolab-compatible free/busy data for calendar clients.
-Unlike the Kolab server, however, there is no need for each user to "publish"
+ WebCit also provides iCalendar format free/busy data for calendar clients.
+Unlike with some other servers, there is no need for each user to "publish"
 free/busy data -- it is generated on-the-fly from the server-side calendar
-of the user being queried.  Note: in order to support Kolab clients, you must
-have WebCit running in HTTPS mode on port 443, because that is what Kolab
-clients will be expecting.
+of the user being queried.
   
  
  HTTPS (encryption) SUPPORT
@@ -198,11 +205,95 @@ generate a key and certificate.
  It is up to you to decide whether to use an automatically generated,
 self-signed certificate, or purchase a certificate signed by a well known
 authority.
-  
+
+
+ INTEGRATING INTO APACHE
+ -----------------------
+
+ It is best to run WebCit natively on its own HTTP port.  If, however, you wish
+to have WebCit run as part of an Apache web server installation (for example,
+you only have one IP address and you need to stay on port 80 or 443 in order to
+maintain compatibility with corporate firewall policy), you can do this with
+the "mod_proxy" Apache module.
  
+ The preferred way to do this is to configure a NameVirtualHost for your WebCit
+installation (for example, http://webcit.example.com) and then proxy that
+virtual host through to WebCit.  The alternative way, which does work but is not
+quite as robust, is to "mount" the WebCit paths as directory aliases to your
+main document root.
+
+Here is how to configure the NameVirtualHost method:
+
+<VirtualHost mydomain.com:443>
+	#here some of your config stuff like logging, serveradmin...
+	NameVirtualHost www.mydomain.com
+    <location />
+         allow from all
+    </location>
+    ProxyPass / http://127.0.0.1:2000/
+    ProxyPassReverse / http://127.0.0.1:2000/
+# The following line is optional.  It allows WebCit's static content
+# such as images to be served directly by Apache.
+    alias /static /var/lib/citadel/www/static
+</VirtualHost>
+
+Here is how to configure the "subdirectory" method:
+
+<VirtualHost mydomain.com:443>
+	#here some of your config stuff like logging, serveradmin...
+	NameVirtualHost www.mydomain.com
+    <location /webcit>
+      allow from all
+    </location>
+    <location /listsub>
+      allow from all
+    </location>
+    <location /groupdav>
+      allow from all
+    </location>
+    <location /who_inner_html>
+      allow from all
+    </location>
+
+    ProxyPass /webcit/ http://127.0.0.1:2000/webcit/
+    ProxyPassReverse /webcit/ http://127.0.0.1:2000/webcit/
+    ProxyPass /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPassReverse /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPass /groupdav/ http://127.0.0.1:2000/groupdav/
+    ProxyPassReverse /groupdav/ http://127.0.0.1:2000/groupdav/
+    ProxyPass /who_inner_html http://127.0.0.1:2000/who_inner_html
+    ProxyPassReverse /who_inner_html http://127.0.0.1:2000/who_inner_html
+# The following line is optional.  It allows WebCit's static content
+# such as images to be served directly by Apache.
+    alias /static /var/lib/citadel/www/static
+</VirtualHost>
+
+  
+ ADVANCED CONFIGURE OPTIONS
+ --------------------------
+ 
+If you are building packages and prefer not to have WebCit reside entirely in
+a single directory, there are several compile-time options available.
+
+--with-staticdir defines where webcit should locate and search its templates and images. If you
+want to go with a different installation location then the point at which it is accessed at runtime, 
+you can use --with-staticrundir. This option is meant to ease your needs if you're going
+to install the static files as 'examples' in a location like /usr/share/doc/webcit/examples, 
+and enable the user to copy them over to another dir (like /var/lib/citadel/www), where 
+they're accessed at runtime. (The debian instatll scripts provided with this package 
+do this to preserve user changes to the template system, see debian/citadel-webcit.postinstall)
+
+Also, there are possibilities to load the TinyMCE editor into a system-wide location.  WebCit 
+uses this standard component to compose its messages for messages and postings. Several WebCit installations
+that may differ in design but use the same TinyMCE (which is the default that WebCit ships with)
+(set --with-editordir for that, it defaults to the dir the templates go)
+
+
  CONCLUSION
  ----------
  
  That's all you need to know to get started.  If you have any questions or
 comments, please visit UNCENSORED! BBS, the home of Citadel, at
 uncensored.citadel.org.
+
+
