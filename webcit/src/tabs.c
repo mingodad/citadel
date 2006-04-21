@@ -46,7 +46,7 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 			i
 		);
 		wprintf("%s", tabnames[i]);
-		wprintf("</td>");
+		wprintf("</span></td>");
 
 		wprintf("<td>&nbsp;</td>\n");
 	}
