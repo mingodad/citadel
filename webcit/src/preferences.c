@@ -107,23 +107,15 @@ void save_preferences(void) {
 		serv_getln(buf, sizeof buf);
 	}
 
-	TRACE;
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
-	TRACE;
 	serv_getln(buf, sizeof buf);
-	TRACE;
 	if (buf[0] == '4') {
-		TRACE;
 		serv_puts(WC->preferences);
-		TRACE;
 		serv_puts("");
-		TRACE;
 		serv_puts("000");
-		TRACE;
 	}
 
 	/** Go back to the room we're supposed to be in */
-	TRACE;
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
