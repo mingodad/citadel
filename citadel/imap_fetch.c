@@ -1033,6 +1033,15 @@ void imap_do_fetch(int num_items, char **itemlist) {
 
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
+
+			/* Abort the fetch loop if the session breaks.
+			 * This is important for users who keep mailboxes
+			 * that are too big *and* are too impatient to
+			 * let them finish loading.  :)
+			 */
+			if (CC->kill_me) return;
+
+			/* Get any message marked for fetch. */
 			if (IMAP->flags[i] & IMAP_SELECTED) {
 				imap_do_fetch_msg(i+1, num_items, itemlist);
 			}
