@@ -3023,7 +3023,8 @@ void display_enter(void)
 		"	theme : \"advanced\", plugins : \"iespell\", "
 		"	theme_advanced_buttons1 : \"bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell, code\", "
 		"	theme_advanced_buttons2 : \"\", "
-		"	theme_advanced_buttons3 : \"\" "
+		"	theme_advanced_buttons3 : \"\", "
+		"	content_css : \"static/webcit-tinymce.css\" "
 		"});"
 		"</script>\n"
 	);

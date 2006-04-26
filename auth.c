@@ -262,20 +262,13 @@ void do_welcome(void)
 void end_webcit_session(void) {
 	char buf[256];
 
-	TRACE;
 	if (WC->logged_in) {
-		TRACE;
 		sprintf(buf, "%d", WC->current_iconbar);
-		TRACE;
 		set_preference("current_iconbar", buf, 0);
-		TRACE;
 		set_preference("floordiv_expanded", WC->floordiv_expanded, 1);
-		TRACE;
 	}
 
-	TRACE;
 	serv_puts("QUIT");
-	TRACE;
 	WC->killthis = 1;
 	/* close() of citadel socket will be done by do_housekeeping() */
 }
