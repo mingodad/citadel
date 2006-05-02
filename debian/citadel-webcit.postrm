@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/sh
 # postrm.skeleton
 # Skeleton maintainer script showing all the possible cases.
 # Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
@@ -45,11 +45,10 @@ case "$1" in
 	fi
 	#rmdir /var/lib/citadel/www/static
 	echo "/var/lib/citadel/www/keys not removed. "
-	db_purge
-### 'citadel/WebcitHttpsPort'
-###	db_purge 'citadel/WebcitHttpPort'
-###	db_purge 'citade/WebcitInstallnote'
-###	### TODO: remove citadel from inittab!
+	db_purge 'citadel/WebcitHttpsPort'
+	db_purge 'citadel/WebcitHttpPort'
+	db_purge 'citade/WebcitInstallnote'
+	### TODO: remove citadel from inittab!
     ;;
   disappear)
     if test "$2" != overwriter; then

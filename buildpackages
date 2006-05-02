@@ -28,7 +28,7 @@ else
 	fi
 	
 fi
-#./autogen.sh
+./bootstrap
 case $1 in
 	debian)
 		cat debian/files_preview | sed \

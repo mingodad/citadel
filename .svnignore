@@ -1,7 +1,0 @@
-ltmain.sh
-config.sub
-config.guess
-config.rpath
-mkinstalldirs
-install-sh
-ChangeLog
