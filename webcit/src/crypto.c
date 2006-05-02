@@ -378,10 +378,16 @@ int starttls(int sock) {
  */
 void endtls(void)
 {
+	SSL_CTX *ctx = NULL;
+
 	if (THREADSSL == NULL) return;
 
 	lprintf(5, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
+	ctx = SSL_get_SSL_CTX(THREADSSL);
+	if (ctx != NULL) {
+		SSL_CTX_free(ctx);
+	}
 	SSL_free(THREADSSL);
 	pthread_setspecific(ThreadSSL, NULL);
 }
