@@ -1,0 +1,100 @@
+#! /bin/sh
+# postinst.skeleton
+# Skeleton maintainer script showing all the possible cases.
+# Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
+
+# Abort if any command returns an error value
+set -e
+. /usr/share/debconf/confmodule
+
+
+uninclude() {
+	if [ ! -a /etc/$server/conf.d/webcit     ]; then
+		if [ -f /etc/$server/httpd.conf \
+			-a -f /usr/share/wwwconfig-common/apache-uninclude_all.sh ]
+		then
+			includefile=$1
+			. /usr/share/wwwconfig-common/apache-uninclude_all.sh
+		fi
+	fi
+}
+
+
+case "$1" in
+  configure)
+    # Configure this package.  If the package must prompt the user for
+    # information, do it here.
+		. /usr/share/debconf/confmodule
+		db_version 2.0
+		db_get "citadel/baseurl" && baseurl="$RET"
+		if echo "$baseurl"|grep -q "http"; then
+			if echo "$baseurl"|grep -q "https"; then
+				HOSTNAME=    ServerName `echo "$baseurl" |sed "s;https://\(.*\)/.*;\1;"`
+				BASEURL=`echo "$baseurl" |sed "s;http://.*\..*/.*;\1;"`
+			else
+				HOSTNAME=    ServerName `echo "$baseurl" |sed "s;https://\(.*\)/.*;\1;"`
+				BASEURL=`echo "$baseurl" |sed "s;https://.*\..*/.*;\1;"`
+			fi
+		else
+			HOSTNAME="ServerName *"
+			BASEURL="$baseurl"
+		fi
+		echo "
+<VirtualHost *>
+${SERVERNAME}
+	DocumentRoot /var/www/
+#    ProxyPass /dotskip http://127.0.0.1:2000/dotskip
+#    ProxyPassReverse /dotskip http://127.0.0.1:2000/dotskip
+    ProxyPass /webcit/ http://127.0.0.1:2000/
+    ProxyPassReverse /webcit/ http://127.0.0.1:2000/
+    ProxyPass /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPassReverse /listsub/ http://127.0.0.1:2000/listsub/
+    ProxyPass /groupdav/ http://127.0.0.1:2000/groupdav/
+    ProxyPassReverse /groupdav/ http://127.0.0.1:2000/groupdav/
+</VirtualHost>
+" >/tmp/apache.conf
+        ucf /tmp/apache.conf /etc/citadel/apache.conf
+		db_get "citadel/webserver" && webserver="$RET"
+		case "$webserver" in
+			Apache)		webservers="apache";;
+			Apache-SSL)	webservers="apache-ssl";;
+			Apache-Perl)	webservers="apache-perl";;
+			Apache2)		
+				webservers="apache2"
+				a2enmod proxy
+				;;
+			
+			*)				webservers="";;
+		esac
+		
+		
+		
+		for server in $webservers; do
+			test -d /etc/$server || continue
+			
+			if [ -n "$2" ]; then
+				uninclude 
+			fi
+			
+			if [ ! -e /etc/$server/conf.d/webcit ]
+				then
+				ln -s /etc/citadel/apache.conf /etc/$server/conf.d/webcit
+			fi
+			restart=$server
+			servers=$webservers
+			. /usr/share/wwwconfig-common/restart.sh
+		done
+
+		;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+exit 0

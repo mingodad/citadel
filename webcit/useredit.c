@@ -1,0 +1,500 @@
+/*
+ * $Id$
+ */
+/**
+ * \defgroup AdminTasks Administrative screen to add/change/delete user accounts
+ * \ingroup CitadelConfig
+ *
+ */
+/*@{*/
+
+#include "webcit.h"
+#include "webserver.h"
+
+
+/**
+ * \brief show a list of available users to edit them
+ * \param message the header message???
+ * \param preselect which user should be selected in the browser
+ */
+void select_user_to_edit(char *message, char *preselect)
+{
+	char buf[SIZ];
+	char username[SIZ];
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+		"<td>"
+		"<span class=\"titlebar\">"
+		"<img src=\"static/usermanag_48x.gif\">");
+	wprintf(_("Edit or delete users"));
+	wprintf("</span></td></tr></table>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	if (message != NULL) wprintf(message);
+
+	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
+
+	svprintf("BOXTITLE", WCS_STRING, _("Add users"));
+	do_template("beginbox");
+
+	wprintf(_("To create a new user account, enter the desired "
+		"user name in the box below and click 'Create'."));
+	wprintf("<br /><br />");
+
+        wprintf("<center><form method=\"POST\" action=\"create_user\">\n");
+        wprintf(_("New user: "));
+        wprintf("<input type=\"text\" name=\"username\"><br />\n"
+        	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
+		"</form></center>\n", _("Create"));
+
+	do_template("endbox");
+
+	wprintf("</td><td>");
+
+	svprintf("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
+	do_template("beginbox");
+
+	wprintf(_("To edit an existing user account, select the user "
+		"name from the list and click 'Edit'."));
+	wprintf("<br /><br />");
+	
+        wprintf("<center>"
+		"<form method=\"POST\" action=\"display_edituser\">\n");
+        wprintf("<select name=\"username\" size=10 style=\"width:100%%\">\n");
+        serv_puts("LIST");
+        serv_getln(buf, sizeof buf);
+        if (buf[0] == '1') {
+                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+                        extract_token(username, buf, 0, '|', sizeof username);
+                        wprintf("<option");
+			if (preselect != NULL)
+			   if (!strcasecmp(username, preselect))
+			      wprintf(" selected");
+			wprintf(">");
+                        escputs(username);
+                        wprintf("\n");
+                }
+        }
+        wprintf("</select><br />\n");
+
+        wprintf("<input type=\"submit\" name=\"edit_config_button\" value=\"%s\">", _("Edit configuration"));
+        wprintf("<input type=\"submit\" name=\"edit_abe_button\" value=\"%s\">", _("Edit address book entry"));
+        wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
+		"onClick=\"return confirm('%s');\">", _("Delete user"), _("Delete this user?"));
+        wprintf("</form></center>\n");
+	do_template("endbox");
+
+	wprintf("</td></tr></table>\n");
+
+	wDumpContent(1);
+}
+
+
+
+/**
+ * \brief Locate the message number of a user's vCard in the current room
+ * \param username the plaintext name of the user
+ * \param usernum the number of the user on the citadel server
+ * \return the message id of his vcard
+ */
+long locate_user_vcard(char *username, long usernum) {
+	char buf[SIZ];
+	long vcard_msgnum = (-1L);
+	char content_type[SIZ];
+	char partnum[SIZ];
+	int already_tried_creating_one = 0;
+
+	struct stuff_t {
+		struct stuff_t *next;
+		long msgnum;
+	};
+
+	struct stuff_t *stuff = NULL;
+	struct stuff_t *ptr;
+
+TRYAGAIN:
+	/** Search for the user's vCard */
+	serv_puts("MSGS ALL");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		ptr = malloc(sizeof(struct stuff_t));
+		ptr->msgnum = atol(buf);
+		ptr->next = stuff;
+		stuff = ptr;
+	}
+
+	/** Iterate through the message list looking for vCards */
+	while (stuff != NULL) {
+		serv_printf("MSG0 %ld|2", stuff->msgnum);
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') {
+			while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				if (!strncasecmp(buf, "part=", 5)) {
+					extract_token(partnum, &buf[5], 2, '|', sizeof partnum);
+					extract_token(content_type, &buf[5], 4, '|', sizeof content_type);
+					if (!strcasecmp(content_type,
+					   "text/x-vcard")) {
+						vcard_msgnum = stuff->msgnum;
+					}
+				}
+			}
+		}
+
+		ptr = stuff->next;
+		free(stuff);
+		stuff = ptr;
+	}
+
+	/** If there's no vcard, create one */
+	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
+		already_tried_creating_one = 1;
+		serv_puts("ENT0 1|||4");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '4') {
+			serv_puts("Content-type: text/x-vcard");
+			serv_puts("");
+			serv_puts("begin:vcard");
+			serv_puts("end:vcard");
+			serv_puts("000");
+		}
+		goto TRYAGAIN;
+	}
+
+	return(vcard_msgnum);
+}
+
+
+/**
+ * \brief Display the form for editing a user's address book entry
+ * \param username the name of the user
+ * \param usernum the citadel-uid of the user
+ */
+void display_edit_address_book_entry(char *username, long usernum) {
+	char roomname[SIZ];
+	char buf[SIZ];
+	char error_message[SIZ];
+	long vcard_msgnum = (-1L);
+
+	/** Locate the user's config room, creating it if necessary */
+	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
+	serv_printf("GOTO %s||1", roomname);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') {
+		serv_printf("CRE8 1|%s|5|||1|", roomname);
+		serv_getln(buf, sizeof buf);
+		serv_printf("GOTO %s||1", roomname);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] != '2') {
+			sprintf(error_message,
+				"<img src=\"static/error.gif\" align=center>"
+				"%s<br /><br />\n", &buf[4]);
+			select_user_to_edit(error_message, username);
+			return;
+		}
+	}
+
+	vcard_msgnum = locate_user_vcard(username, usernum);
+
+	if (vcard_msgnum < 0) {
+		sprintf(error_message,
+			"<img src=\"static/error.gif\" align=center>%s<br /><br />\n",
+			_("An error occurred while trying to create or edit this address book entry.")
+		);
+		select_user_to_edit(error_message, username);
+		return;
+	}
+
+	do_edit_vcard(vcard_msgnum, "1", "select_user_to_edit");
+}
+
+
+
+
+/**
+ * \brief Edit a user.  
+ * If supplied_username is null, look in the "username"
+ * web variable for the name of the user to edit.
+ * 
+ * If "is_new" is set to nonzero, this screen will set the web variables
+ * to send the user to the vCard editor next.
+ * \param supplied_username user to look up or NULL if to search in the environment
+ * \param is_new should we create the user?
+ */
+void display_edituser(char *supplied_username, int is_new) {
+	char buf[1024];
+	char error_message[1024];
+	time_t now;
+
+	char username[256];
+	char password[256];
+	unsigned int flags;
+	int timescalled;
+	int msgsposted;
+	int axlevel;
+	long usernum;
+	time_t lastcall;
+	int purgedays;
+	int i;
+
+	if (supplied_username != NULL) {
+		safestrncpy(username, supplied_username, sizeof username);
+	}
+	else {
+		safestrncpy(username, bstr("username"), sizeof username);
+	}
+
+	serv_printf("AGUP %s", username);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') {
+		sprintf(error_message,
+			"<img src=\"static/error.gif\" align=center>"
+			"%s<br /><br />\n", &buf[4]);
+		select_user_to_edit(error_message, username);
+		return;
+	}
+
+	extract_token(username, &buf[4], 0, '|', sizeof username);
+	extract_token(password, &buf[4], 1, '|', sizeof password);
+	flags = extract_int(&buf[4], 2);
+	timescalled = extract_int(&buf[4], 3);
+	msgsposted = extract_int(&buf[4], 4);
+	axlevel = extract_int(&buf[4], 5);
+	usernum = extract_long(&buf[4], 6);
+	lastcall = extract_long(&buf[4], 7);
+	purgedays = extract_long(&buf[4], 8);
+
+	if (strlen(bstr("edit_abe_button")) > 0) {
+		display_edit_address_book_entry(username, usernum);
+		return;
+	}
+
+	if (strlen(bstr("delete_button")) > 0) {
+		delete_user(username);
+		return;
+	}
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<span class=\"titlebar\">");
+	wprintf(_("Edit user account: "));
+	escputs(username);
+	wprintf("</span></td></tr></table>\n");
+	wprintf("</div>\n<div id=\"content\">\n");
+
+	wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<form method=\"POST\" action=\"edituser\">\n"
+		"<input type=\"hidden\" name=\"username\" value=\"");
+	escputs(username);
+	wprintf("\">\n");
+	wprintf("<input type=\"hidden\" name=\"is_new\" value=\"%d\">\n"
+		"<input type=\"hidden\" name=\"usernum\" value=\"%ld\">\n",
+		is_new, usernum);
+
+	wprintf("<input type=\"hidden\" name=\"flags\" value=\"%d\">\n", flags);
+
+	wprintf("<center><table>");
+
+	wprintf("<tr><td>");
+	wprintf(_("Password"));
+	wprintf("</td><td>"
+		"<input type=\"password\" name=\"password\" value=\"");
+	escputs(password);
+	wprintf("\" maxlength=\"20\"></td></tr>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("Permission to send Internet mail"));
+	wprintf("</td><td>");
+	wprintf("<input type=\"checkbox\" name=\"inetmail\" value=\"yes\" ");
+	if (flags & US_INTERNET) {
+		wprintf("checked ");
+	}
+	wprintf("></td></tr>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("Number of logins"));
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"timescalled\" value=\"");
+	wprintf("%d", timescalled);
+	wprintf("\" maxlength=\"6\"></td></tr>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("Messages submitted"));
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"msgsposted\" value=\"");
+	wprintf("%d", msgsposted);
+	wprintf("\" maxlength=\"6\"></td></tr>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("Access level"));
+	wprintf("</td><td>"
+		"<select name=\"axlevel\">\n");
+	for (i=0; i<7; ++i) {
+		wprintf("<option ");
+		if (axlevel == i) {
+			wprintf("selected ");
+		}
+		wprintf("value=\"%d\">%d - %s</option>\n",
+			i, i, axdefs[i]);
+	}
+	wprintf("</select></td></tr>\n");
+
+	wprintf("<tr><td>");
+	wprintf(_("User ID number"));
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"usernum\" value=\"");
+	wprintf("%ld", usernum);
+	wprintf("\" maxlength=\"7\"></td></tr>\n");
+
+	now = time(NULL);
+	wprintf("<tr><td>");
+	wprintf(_("Date and time of last login"));
+	wprintf("</td><td>"
+		"<select name=\"lastcall\">\n");
+
+	wprintf("<option selected value=\"%ld\">", lastcall);
+	escputs(asctime(localtime(&lastcall)));
+	wprintf("</option>\n");
+
+	wprintf("<option value=\"%ld\">", now);
+	escputs(asctime(localtime(&now)));
+	wprintf("</option>\n");
+
+	wprintf("</select></td></tr>");
+
+	wprintf("<tr><td>");
+	wprintf(_("Auto-purge after this many days"));
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"purgedays\" value=\"");
+	wprintf("%d", purgedays);
+	wprintf("\" maxlength=\"5\"></td></tr>\n");
+
+	wprintf("</table>\n");
+
+	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">\n"
+		"&nbsp;"
+		"<input type=\"submit\" name=\"cancel\" value=\"%s\">\n"
+		"<br /><br /></form>\n", _("Save changes"), _("Cancel"));
+
+	wprintf("</center>\n");
+	wprintf("</td></tr></table></div>\n");
+	wDumpContent(1);
+
+}
+
+
+/**
+ * \brief do the backend operation of the user edit on the server
+ */
+void edituser(void) {
+	char message[SIZ];
+	char buf[SIZ];
+	int is_new = 0;
+	unsigned int flags = 0;
+
+	is_new = atoi(bstr("is_new"));
+
+	if (strlen(bstr("ok_button")) == 0) {
+		safestrncpy(message, _("Changes were not saved."), sizeof message);
+	}
+	else {
+		flags = atoi(bstr("flags"));
+		if (!strcasecmp(bstr("inetmail"), "yes")) {
+			flags |= US_INTERNET;
+		}
+		else {
+			flags &= ~US_INTERNET ;
+		}
+
+		serv_printf("ASUP %s|%s|%d|%s|%s|%s|%s|%s|%s|",
+			bstr("username"),
+			bstr("password"),
+			flags,
+			bstr("timescalled"),
+			bstr("msgsposted"),
+			bstr("axlevel"),
+			bstr("usernum"),
+			bstr("lastcall"),
+			bstr("purgedays")
+		);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] != '2') {
+			sprintf(message,
+				"<img src=\"static/error.gif\" align=center>"
+				"%s<br /><br />\n", &buf[4]);
+		}
+		else {
+			safestrncpy(message, "", sizeof message);
+		}
+	}
+
+	/**
+	 * If we are in the middle of creating a new user, move on to
+	 * the vCard edit screen.
+	 */
+	if (is_new) {
+		display_edit_address_book_entry( bstr("username"), atol(bstr("usernum")) );
+	}
+	else {
+		select_user_to_edit(message, bstr("username"));
+	}
+}
+
+/**
+ * \brief burge a user 
+ * \param username the name of the user to remove
+ */
+void delete_user(char *username) {
+	char buf[SIZ];
+	char message[SIZ];
+
+	serv_printf("ASUP %s|0|0|0|0|0|", username);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') {
+		sprintf(message,
+			"<img src=\"static/error.gif\" align=center>"
+			"%s<br /><br />\n", &buf[4]);
+	}
+	else {
+		safestrncpy(message, "", sizeof message);
+	}
+	select_user_to_edit(message, bstr("username"));
+}
+		
+
+
+/**
+ * \brief create a new user
+ * take the web environment username and create it on the citadel server
+ */
+void create_user(void) {
+	char buf[SIZ];
+	char error_message[SIZ];
+	char username[SIZ];
+
+	safestrncpy(username, bstr("username"), sizeof username);
+
+	serv_printf("CREU %s", username);
+	serv_getln(buf, sizeof buf);
+
+	if (buf[0] == '2') {
+		sprintf(WC->ImportantMessage,
+			_("A new user has been created."));
+		display_edituser(username, 1);
+	}
+	else {
+		sprintf(error_message,
+			"<img src=\"static/error.gif\" align=center>"
+			"%s<br /><br />\n", &buf[4]);
+		select_user_to_edit(error_message, NULL);
+	}
+
+}
+
+
+
+/*@}*/

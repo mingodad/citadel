@@ -1,0 +1,209 @@
+<html>
+<head>
+	<title>Citadel Instant Messenger</title>
+	<script type="text/javascript" src="prototype.js"></script>
+	<script type="text/javascript" src="wclib.js"></script>
+</head>
+<body onLoad='FetchNewMsgs();'>
+
+<div id="thetop" style="position:fixed;width:100%;height:15%;top:0%;left:0%">
+<div id="spacer1" style="background:#aaaaaa"><br></div>
+<div id="tab_bar" style="background:#aaaaaa">&nbsp;&nbsp;</div>
+<div id="spacer2" style="background:#aaaaaa"><br></div>
+</div>
+
+<div id="main" style="position:fixed;width:100%;height:85%;top:15%;left:0%;overflow:auto;background:#ffffff"></div>
+
+<script type="text/javascript">
+
+var gexp_divs = new Array();
+var num_gexp_divs = 0;
+var shown_div = '';
+var my_name = '';
+
+function SendSomething(which_div, sendform, recipient) {
+	thetext = document.forms[sendform].elements['sendthis'].value;
+
+	// If the user didn't type anything, don't do anything.
+	if (thetext == '') {
+		return false;
+	}
+
+	// Clear the box
+	document.forms[sendform].elements['sendthis'].value = '';
+
+	// Write it to the tab
+	$(which_div).innerHTML = $(which_div).innerHTML
+				+ '<b>'
+				+ '<font color=\"#FF0000\">'
+				+ my_name
+				+ '</font>'
+				+ ':</b> '
+				+ thetext
+				+ '<br />\n';
+
+	// Scroll to the bottom of the tab
+	$('main').scrollTop = 999999;
+
+	// Send the text to the server
+	parms = 'r=' + Math.random()
+		+ '&g_cmd=SEXP ' + recipient + '|' + thetext;
+	new Ajax.Request('../ajax_servcmd',
+		{
+			method: 'get',
+			parameters: parms
+		}
+	);
+
+	// Refocus to the text box
+	document.forms[sendform].elements['sendthis'].focus();
+
+	// Don't submit the form
+	return false;
+}
+
+function TabSelect(which_div) {
+	if (shown_div != '') {
+		$(shown_div).style.display = 'none' ;
+		if ($('select_'+shown_div)) {
+			$('select_'+shown_div).style.fontWeight = 'normal';
+			$('select_'+shown_div).style.backgroundColor = '#cccccc';
+		}
+	}
+	shown_div = 'tab_' + which_div;
+	$(shown_div).style.display = 'block' ;
+	if ($('select_'+shown_div)) {
+		$('select_'+shown_div).style.fontWeight='bold';
+		$('select_'+shown_div).style.backgroundColor = '#ffffff';
+	}
+}
+
+
+function ShowNewMsg(gexp_xmlresponse) {
+
+	// It isn't really XML.  It's a Citadel server response.
+	gexp_response = gexp_xmlresponse.responseText;
+
+	if (gexp_response.substring(0, 1) != '1') {
+		return;
+	}
+
+	// Extract fields...
+	breakpos = gexp_response.indexOf('\n');
+	result = gexp_response.substring(0, breakpos-1);
+	the_message = gexp_response.substring(breakpos+1);
+	the_message = the_message.substring(0, the_message.indexOf('\n000'));
+	sender = extract_token(result.substring(4), 3, '|');
+
+	// Figure out which div to write it to...
+	which_div = '';
+	if (num_gexp_divs > 0) {
+		for (i=0; i<num_gexp_divs; ++i) {
+			if (gexp_divs[i] == sender) {
+				which_div = 'gexp' + i ;
+			}
+		}
+	}
+
+	// Not found?  Create it.
+	if (which_div == '') {
+		gexp_divs[num_gexp_divs] = sender;
+		which_div = 'gexp' + num_gexp_divs;
+		++num_gexp_divs;
+		$('main').innerHTML =
+			  $('main').innerHTML
+			+ '<div id=\"tab_' + which_div + '\" style=\"display:none;cursor:pointer\">'
+			+ '<div id=\"' + which_div + '\">'
+			+ '<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />'
+			+ '<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />'
+			+ '</div>'
+			+ '<div align=\"center\" id=\"response_'
+			+ which_div + '\" style=\"background:#ddddee\">'
+			+ '<br><form method=\"post\" action=\"null\" name=\"sendform_' + which_div + '\" '
+			+ 'onSubmit=\"return SendSomething(\'' + which_div + '\', \'sendform_'
+			+ which_div + '\', \'' + sender + '\');\">'
+			+ '<img src=\"citadelchat_16x.gif\">&nbsp;'
+			+ '<input type=\"text\" size=\"72\" maxlength=\"72\" name=\"sendthis\">'
+			+ '</form>'
+			+ '<br></div>'
+			+ '</div>\n';
+		$('tab_bar').innerHTML =
+			  $('tab_bar').innerHTML
+			+ '<span id=\"select_tab_' + which_div + '\" onClick=\"TabSelect(\'' + which_div + '\');\">'
+			+ '&nbsp;' + sender + '&nbsp;'
+			+ '</span>&nbsp;&nbsp;&nbsp;';
+
+		// Raise the window in case it was buried
+		window.focus();
+	}
+
+	// Switch tabs
+	TabSelect(which_div);
+
+	// Write it to the tab
+	$(which_div).innerHTML = $(which_div).innerHTML
+				+ '<b>'
+				+ '<font color=\"#0000FF\">'
+				+ sender
+				+ '</font>'
+				+ ':</b> '
+				+ the_message
+				+ '<br />\n';
+
+	// Scroll to the bottom of the tab
+	$('main').scrollTop = 999999;
+
+	// Refocus to the send box
+	document.forms['sendform_'+which_div].elements['sendthis'].focus();
+
+	// Keep trying for new messages until the server tells us to stop.
+	FetchNewMsgs();
+}
+
+// This is called periodically to check for new incoming messages
+function FetchNewMsgs() {
+	parms = 'g_cmd=GEXP&r=' + Math.random();
+	new Ajax.Request('../ajax_servcmd',
+		{
+			method: 'get',
+			parameters: parms,
+			onSuccess: ShowNewMsg
+		}
+	);
+}
+
+// Perform some initialization.
+parms = 'g_cmd=GREG _SELF_&r=' + Math.random();
+new Ajax.Request('../ajax_servcmd',
+	{
+		method: 'get',
+		parameters: parms,
+		onSuccess: GrabMyName
+	}
+);
+
+// Learn my name.
+function GrabMyName(greg_xmlresponse) {
+
+	// It isn't really XML.  It's a Citadel server response.
+	greg_response = greg_xmlresponse.responseText;
+
+	if (greg_response.substring(0, 1) != '1') {
+		return;
+	}
+
+	// Extract fields...
+	breakpos = greg_response.indexOf('\n');
+	result = greg_response.substring(0, breakpos);
+	my_name = result.substring(4);
+}
+
+
+// Cause FetchNewMsgs() to be called periodically.
+new PeriodicalExecuter(FetchNewMsgs, 10);
+
+</script>
+
+
+</body>
+</html>

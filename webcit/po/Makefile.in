@@ -1,0 +1,20 @@
+all: ../locale/de/LC_MESSAGES/webcit.mo \
+	../locale/it/LC_MESSAGES/webcit.mo \
+	../locale/en_GB/LC_MESSAGES/webcit.mo
+
+../locale/de/LC_MESSAGES/webcit.mo: de.po
+	[ -d ../locale/de/LC_MESSAGES ] || mkdir -p ../locale/de/LC_MESSAGES
+	msgfmt de.po -o ../locale/de/LC_MESSAGES/webcit.mo
+
+../locale/it/LC_MESSAGES/webcit.mo: it.po
+	[ -d ../locale/it/LC_MESSAGES ] || mkdir -p ../locale/it/LC_MESSAGES
+	msgfmt it.po -o ../locale/it/LC_MESSAGES/webcit.mo
+
+../locale/es/LC_MESSAGES/webcit.mo: es.po
+	[ -d ../locale/es/LC_MESSAGES ] || mkdir -p ../locale/es/LC_MESSAGES
+	msgfmt es.po -o ../locale/es/LC_MESSAGES/webcit.mo
+
+../locale/en_GB/LC_MESSAGES/webcit.mo: en_GB.po
+	[ -d ../locale/en_GB/LC_MESSAGES ] || mkdir -p ../locale/en_GB/LC_MESSAGES
+	msgfmt en_GB.po -o ../locale/en_GB/LC_MESSAGES/webcit.mo
+

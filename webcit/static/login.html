@@ -1,0 +1,39 @@
+<?=beginbox>
+<center>
+<font color="#FF0000"><?MESG></font>
+<table border=0>
+<tr>
+<td align=center>
+	<?HELLO>
+	<form action="login" method="POST">
+
+	<table border="0" cellspacing="5" cellpadding="5" bgcolor="#EEEEEE">
+		<tr><td><?USERNAME_BOX></td>
+		<td><input type="text" name="name" maxlength="25"></td></tr>
+		<tr><td><?PASSWORD_BOX></td>
+		<td><input type="password" name="pass" maxlength="20"></td></tr>
+		<tr><td><?LANGUAGE_BOX></td>
+		<td><?DO_LANGUAGE_BOX></td></tr>
+
+	<tr><td align=center colspan=2>
+	<input type="submit" name="login_action" value="<?LOGIN_BUTTON>">
+	<?NEWUSER_BUTTON_PRE>
+	<input type="submit" name="newuser_action" value="<?NEWUSER_BUTTON>">
+	<?NEWUSER_BUTTON_POST>
+	<input type="submit" name="exit_action" value="<?EXIT_BUTTON>">
+	</td></tr>
+
+	</table>
+	</form>
+
+	</td>
+	<td align="center"><p><img src="image&name=hello"></p></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+		<?LOGIN_INSTRUCTIONS>
+		</td>
+</tr>
+</table>
+</center>
+<?=endbox>

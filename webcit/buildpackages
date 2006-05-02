@@ -1,0 +1,56 @@
+#!/bin/bash
+
+WEBCIT_VERSION=`grep "THIS IS" ChangeLog  |head -n 1|sed "s;.* ;;"`
+PACKAGE_VERSION=`cat packageversion`
+DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
+ACTUAL_DIR=`pwd`
+
+if echo "$ACTUAL_DIR" |grep -q "$WEBCIT_VERSION"; then
+	echo "directory ($ACTUAL_DIR) naming scheme seems right. nothing done."
+else
+	done=false
+	if test -L "$ACTUAL_DIR"; then 
+		SYMLINK_=`pwd`
+		SYMLINK=`ls -l $SYMLINK_|sed "s;.*-> ;;"`
+		if ls -l $SYMLINK_|grep -q "$WEBCIT_VERSION"; then
+			done=true
+		fi
+	else
+		SYMLINK=`pwd|sed "s;.*/;;"`
+	fi
+	if test "$done" = "false"; then 
+		cd ..
+		mv -- $SYMLINK "webcit-$WEBCIT_VERSION"
+		ln -s "webcit-$WEBCIT_VERSION" webcit
+		cd "webcit-$WEBCIT_VERSION"
+	else
+		cd "../webcit-$WEBCIT_VERSION"
+	fi
+	
+fi
+./bootstrap
+case $1 in
+	debian)
+		cat debian/files_preview | sed \
+			-e "s;@WEBCIT_VERSION@;${WEBCIT_VERSION};" \
+			-e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
+			> debian/files
+		if grep -q "$WEBCIT_VERSION" debian/changelog; then
+			echo rebuilding package.
+		else
+			echo "webcit (${WEBCIT_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
+	
+  * update to actual Webcit SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  $DATE
+	" >/tmp/webcit_changelog
+			cat debian/changelog >>/tmp/webcit_changelog
+			mv /tmp/webcit_changelog debian/changelog
+			
+		fi
+		fakeroot dpkg-buildpackage
+	;;
+	*)
+		echo "Not yet implemented. we have: debian "
+		;;
+esac
