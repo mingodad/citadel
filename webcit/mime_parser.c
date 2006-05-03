@@ -209,12 +209,12 @@ void mime_decode(char *partnum,
 		return;
 	}
 	/**
-	 * Allocate a buffer for the decoded data.  The output buffer is the
-	 * same size as the input buffer; this assumes that the decoded data
-	 * will never be larger than the encoded data.  This is a safe
-	 * assumption with base64, uuencode, and quoted-printable.
+	 * Allocate a buffer for the decoded data.  The output buffer is slightly
+	 * larger than the input buffer; this assumes that the decoded data
+	 * will never be significantly larger than the encoded data.  This is a
+	 * safe assumption with base64, uuencode, and quoted-printable.
 	 */
-	decoded = malloc(length+2048);
+	decoded = malloc(length + 32768);
 	if (decoded == NULL) {
 		return;
 	}
