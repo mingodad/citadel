@@ -3,8 +3,8 @@
  *
  * This is the MIME parser for Citadel.
  *
- * Copyright (c) 1998-2005 by Art Cancro
- * This code is distributed under the terms of the GNU General Public License.
+ * Copyright (c) 1998-2006 by Art Cancro
+ * This code is distributed under the GNU General Public License v2.
  *
  */
 
@@ -192,10 +192,12 @@ void mime_decode(char *partnum,
 		return;
 	}
 	
+	/* Fail silently if we hit an unknown encoding. */
 	if ((strcasecmp(encoding, "base64"))
 	    && (strcasecmp(encoding, "quoted-printable"))) {
 		return;
 	}
+
 	/*
 	 * Allocate a buffer for the decoded data.  The output buffer is slightly
 	 * larger than the input buffer; this assumes that the decoded data
