@@ -751,8 +751,15 @@ void worker_entry(void)
 #endif
 
 			if (fail_this_transaction == 0) {
+
 				/** Perform an HTTP transaction... */
 				context_loop(ssock);
+
+				/** Shut down SSL/TLS if required... */
+				if (is_https) {
+					endtls();
+				}
+
 				/** ...and close the socket. */
 				lingering_close(ssock);
 			}

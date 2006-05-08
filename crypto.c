@@ -385,9 +385,15 @@ void endtls(void)
 	lprintf(5, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
 	ctx = SSL_get_SSL_CTX(THREADSSL);
-	if (ctx != NULL) {
-		SSL_CTX_free(ctx);
-	}
+
+	/** I don't think this is needed, and it crashes the server anyway
+	 *
+	 * 	if (ctx != NULL) {
+	 *		lprintf(9, "Freeing CTX at %x\n", (int)ctx );
+	 *		SSL_CTX_free(ctx);
+	 *	}
+	 */
+
 	SSL_free(THREADSSL);
 	pthread_setspecific(ThreadSSL, NULL);
 }
