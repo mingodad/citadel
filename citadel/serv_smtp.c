@@ -102,7 +102,8 @@ struct citsmtp {		/* Information about the current session */
 enum {				/* Command states for login authentication */
 	smtp_command,
 	smtp_user,
-	smtp_password
+	smtp_password,
+	smtp_plain
 };
 
 enum {				/* Delivery modes */
@@ -322,16 +323,39 @@ void smtp_get_pass(char *argbuf) {
 
 
 /*
- *
+ * Back end for PLAIN auth method (either inline or multistate)
+ */
+void smtp_try_plain(char *encoded_authstring) {
+	char decoded_authstring[1024];
+	char ident[256];
+	char user[256];
+	char pass[256];
+
+	CtdlDecodeBase64(decoded_authstring,
+			encoded_authstring,
+			strlen(encoded_authstring) );
+	safestrncpy(ident, decoded_authstring, sizeof ident);
+	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
+	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+
+	SMTP->command_state = smtp_command;
+	if (CtdlLoginExistingUser(user) == login_ok) {
+		if (CtdlTryPassword(pass) == pass_ok) {
+			smtp_auth_greeting();
+			return;
+		}
+	}
+	cprintf("504 5.7.4 Authentication failed.\r\n");
+}
+
+
+/*
+ * Attempt to perform authenticated SMTP
  */
 void smtp_auth(char *argbuf) {
 	char username_prompt[64];
 	char method[64];
 	char encoded_authstring[1024];
-	char decoded_authstring[1024];
-	char ident[256];
-	char user[256];
-	char pass[256];
 
 	if (CC->logged_in) {
 		cprintf("504 5.7.4 Already logged in.\r\n");
@@ -353,21 +377,16 @@ void smtp_auth(char *argbuf) {
 	}
 
 	if (!strncasecmp(method, "plain", 5) ) {
-		extract_token(encoded_authstring, argbuf, 1, ' ', sizeof encoded_authstring);
-		CtdlDecodeBase64(decoded_authstring,
-				encoded_authstring,
-				strlen(encoded_authstring) );
-		safestrncpy(ident, decoded_authstring, sizeof ident);
-		safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-		safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
-
-		if (CtdlLoginExistingUser(user) == login_ok) {
-			if (CtdlTryPassword(pass) == pass_ok) {
-				smtp_auth_greeting();
-				return;
-			}
+		if (num_tokens(argbuf, ' ') < 2) {
+			cprintf("334 \r\n");
+			SMTP->command_state = smtp_plain;
+			return;
 		}
-		cprintf("504 5.7.4 Authentication failed.\r\n");
+
+		extract_token(encoded_authstring, argbuf, 1, ' ', sizeof encoded_authstring);
+
+		smtp_try_plain(encoded_authstring);
+		return;
 	}
 
 	if (strncasecmp(method, "login", 5) ) {
@@ -850,6 +869,10 @@ void smtp_command_loop(void) {
 
 	else if (SMTP->command_state == smtp_password) {
 		smtp_get_pass(cmdbuf);
+	}
+
+	else if (SMTP->command_state == smtp_plain) {
+		smtp_try_plain(cmdbuf);
 	}
 
 	else if (!strncasecmp(cmdbuf, "AUTH", 4)) {
