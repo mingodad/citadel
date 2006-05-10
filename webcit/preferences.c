@@ -157,8 +157,11 @@ void set_preference(char *key, char *value, int save_to_server) {
 	char buf[SIZ];
 	char thiskey[SIZ];
 	char *newprefs = NULL;
+	size_t newprefs_len = 0;
 
-	newprefs = malloc(strlen(WC->preferences) + strlen(key) + strlen(value) + 10);
+	newprefs_len = strlen(key) + strlen(value) + 10;
+	if (WC->preferences != NULL) newprefs_len += strlen(WC->preferences);
+	newprefs = malloc(newprefs_len);
 	if (newprefs == NULL) return;
 	strcpy(newprefs, "");
 
