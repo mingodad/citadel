@@ -156,13 +156,9 @@ int imap_do_copy(char *destination_folder) {
 	free(answ_no);
 
 	gettimeofday(&tv3, NULL);
-	lprintf(CTDL_DEBUG, "Copying the pointers took %ld microseconds\n",
-		(tv2.tv_usec + (tv2.tv_sec * 1000000))
-		- (tv1.tv_usec + (tv1.tv_sec * 1000000))
-	);
-	lprintf(CTDL_DEBUG, "Setting the flags took %ld microseconds\n",
-		(tv3.tv_usec + (tv3.tv_sec * 1000000))
-		- (tv2.tv_usec + (tv2.tv_sec * 1000000))
+	lprintf(CTDL_DEBUG, "Copying pointers: %ld microseconds / Setting flags: %ld microseconds\n",
+		(tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000)),
+		(tv3.tv_usec + (tv3.tv_sec * 1000000)) - (tv2.tv_usec + (tv2.tv_sec * 1000000))
 	);
 	return(0);
 }
