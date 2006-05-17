@@ -1837,32 +1837,43 @@ void cmd_opna(char *cmdbuf)
 	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL);
 }			
 
-
 /*
- * Save a message pointer into a specified room
+ * Save one or more message pointers into a specified room
  * (Returns 0 for success, nonzero for failure)
  * roomname may be NULL to use the current room
  *
  * Note that the 'supplied_msg' field may be set to NULL, in which case
  * the message will be fetched from disk, by number, if we need to perform
  * replication checks.  This adds an additional database read, so if the
- * caller already has the message in memory then it should be supplied.
+ * caller already has the message in memory then it should be supplied.  (Obviously
+ * this mode of operation only works if we're saving a single message.)
  */
-int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
-				struct CtdlMessage *supplied_msg) {
-	int i;
+int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
+				int do_repl_check, struct CtdlMessage *supplied_msg)
+{
+	int i, j, unique;
 	char hold_rm[ROOMNAMELEN];
 	struct cdbdata *cdbfr;
 	int num_msgs;
 	long *msglist;
 	long highest_msg = 0L;
+
+	long msgid = 0;
 	struct CtdlMessage *msg = NULL;
 
-	/*lprintf(CTDL_DEBUG,
-		"CtdlSaveMsgPointerInRoom(room=%s, msgid=%ld, repl=%d)\n",
-		roomname, msgid, do_repl_check);*/
+	long *msgs_to_be_merged = NULL;		/* FIXME free this */
+	int num_msgs_to_be_merged = 0;
+
+	lprintf(CTDL_DEBUG,
+		"CtdlSaveMsgPointersInRoom(room=%s, num_msgs=%d, repl=%d)\n",
+		roomname, num_newmsgs, do_repl_check);
 
 	strcpy(hold_rm, CC->room.QRname);
+
+	/* Sanity checks */
+	if (newmsgidlist == NULL) return(ERROR + INTERNAL_ERROR);
+	if (num_newmsgs < 1) return(ERROR + INTERNAL_ERROR);
+	if (num_newmsgs > 1) supplied_msg = NULL;
 
 	/* Now the regular stuff */
 	if (lgetroom(&CC->room,
@@ -1871,6 +1882,11 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
+
+
+	msgs_to_be_merged = malloc(sizeof(long) * num_newmsgs);
+	num_msgs_to_be_merged = 0;
+
 
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr == NULL) {
@@ -1883,27 +1899,34 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 		cdb_free(cdbfr);
 	}
 
-	/* Make sure the message doesn't already exist in this room.  It
-	 * is absolutely taboo to have more than one reference to the same
-	 * message in a room.
+
+	/* Create a list of msgid's which were supplied by the caller, but do
+	 * not already exist in the target room.  It is absolutely taboo to
+	 * have more than one reference to the same message in a room.
 	 */
-	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
-		if (msglist[i] == msgid) {
-			lputroom(&CC->room);	/* unlock the room */
-			getroom(&CC->room, hold_rm);
-			free(msglist);
-			return(ERROR + ALREADY_EXISTS);
+	for (i=0; i<num_newmsgs; ++i) {
+		unique = 1;
+		if (num_msgs > 0) for (j=0; j<num_msgs; ++j) {
+			if (msglist[j] == newmsgidlist[i]) {
+				unique = 0;
+			}
+		}
+		if (unique) {
+			msgs_to_be_merged[num_msgs_to_be_merged++] = newmsgidlist[i];
 		}
 	}
 
-	/* Now add the new message */
-	++num_msgs;
-	msglist = realloc(msglist, (num_msgs * sizeof(long)));
+	lprintf(9, "%d unique messages to be merged\n", num_msgs_to_be_merged);
 
+	/*
+	 * Now merge the new messages
+	 */
+	msglist = realloc(msglist, (sizeof(long) * (num_msgs + num_msgs_to_be_merged)) );
 	if (msglist == NULL) {
 		lprintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
 	}
-	msglist[num_msgs - 1] = msgid;
+	memcpy(&msglist[num_msgs], msgs_to_be_merged, (sizeof(long) * num_msgs_to_be_merged) );
+	num_msgs += num_msgs_to_be_merged;
 
 	/* Sort the message list, so all the msgid's are in order */
 	num_msgs = sort_msglist(msglist, num_msgs);
@@ -1924,41 +1947,67 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check,
 
 	/* Perform replication checks if necessary */
 	if ( (DoesThisRoomNeedEuidIndexing(&CC->room)) && (do_repl_check) ) {
-		if (supplied_msg != NULL) {
-			msg = supplied_msg;
-		}
-		else {
-			msg = CtdlFetchMessage(msgid, 0);
-		}
+		lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() doing repl checks\n");
 
-		if (msg != NULL) {
-			ReplicationChecks(msg);
-		}
+		for (i=0; i<num_msgs_to_be_merged; ++i) {
+			msgid = msgs_to_be_merged[i];
+	
+			if (supplied_msg != NULL) {
+				msg = supplied_msg;
+			}
+			else {
+				msg = CtdlFetchMessage(msgid, 0);
+			}
+	
+			if (msg != NULL) {
+				ReplicationChecks(msg);
+		
+				/* If the message has an Exclusive ID, index that... */
+				if (msg->cm_fields['E'] != NULL) {
+					index_message_by_euid(msg->cm_fields['E'], &CC->room, msgid);
+				}
 
+				/* Free up the memory we may have allocated */
+				if (msg != supplied_msg) {
+					CtdlFreeMessage(msg);
+				}
+			}
+	
+		}
 	}
 
-	/* If the message has an Exclusive ID, index that... */
-	if (msg != NULL) {
-		if (msg->cm_fields['E'] != NULL) {
-			index_message_by_euid(msg->cm_fields['E'],
-						&CC->room, msgid);
-		}
-	}
-
-	/* Free up the memory we may have allocated */
-	if ( (msg != NULL) && (msg != supplied_msg) ) {
-		CtdlFreeMessage(msg);
+	else {
+		lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() skips repl checks\n");
 	}
 
 	/* Go back to the room we were in before we wandered here... */
 	getroom(&CC->room, hold_rm);
 
-	/* Bump the reference count for this message. */
-	AdjRefCount(msgid, +1);
+	/* Bump the reference count for all messages which were merged */
+	for (i=0; i<num_msgs_to_be_merged; ++i) {
+		AdjRefCount(msgs_to_be_merged[i], +1);
+	}
+
+	/* Free up memory... */
+	if (msgs_to_be_merged != NULL) {
+		free(msgs_to_be_merged);
+	}
 
 	/* Return success. */
 	return (0);
 }
+
+
+/*
+ * This is the same as CtdlSaveMsgPointersInRoom() but it only accepts
+ * a single message.
+ */
+int CtdlSaveMsgPointerInRoom(char *roomname, long msgid,
+			int do_repl_check, struct CtdlMessage *supplied_msg)
+{
+	return CtdlSaveMsgPointersInRoom(roomname, &msgid, 1, do_repl_check, supplied_msg);
+}
+
 
 
 
