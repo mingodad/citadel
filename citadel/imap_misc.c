@@ -64,6 +64,7 @@ int imap_do_copy(char *destination_folder) {
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
 	struct timeval tv1, tv2, tv3;
+	long *selected_msgs = NULL;
 	int num_selected = 0;
 
 	if (IMAP->num_msgs < 1) {
@@ -74,26 +75,23 @@ int imap_do_copy(char *destination_folder) {
 	if (i != 0) return(i);
 
 	/*
-	 * Optimization note ... ajc 2005oct09
-	 * 
-	 * As we can see below, we're going to end up making lots of
-	 * repeated calls to CtdlCopyMsgToRoom() if the user selects
-	 * multiple messages and then does a copy or move operation.
-	 *
-	 * The plan (documented in this comment so I don't forget what I was
-	 * going to do) is to refactor CtdlCopyMsgToRoom() so that it accepts
-	 * a list of message ID's instead of a single one.  Then we can alter
-	 * the code which appears below, to copy all the message pointers in
-	 * one shot.
-	 * 
+	 * Copy all the message pointers in one shot.
 	 */
 	gettimeofday(&tv1, NULL);
+
+	selected_msgs = malloc(sizeof(long) * IMAP->num_msgs);
+	if (selected_msgs == NULL) return(-1);
+
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_SELECTED) {
-			++num_selected;
-			CtdlCopyMsgToRoom(IMAP->msgids[i], roomname);
+			selected_msgs[num_selected++] = IMAP->msgids[i];
 		}
 	}
+
+	if (num_selected > 0) {
+		CtdlCopyMsgsToRoom(selected_msgs, num_selected, roomname);
+	}
+	free(selected_msgs);
 
 	/* Don't bother wasting any more time if there were no messages. */
 	if (num_selected == 0) {

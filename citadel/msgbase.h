@@ -112,6 +112,8 @@ void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
+int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
+				int do_repl_check, struct CtdlMessage *supplied_msg);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
 char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf);
 char *CtdlGetSysConfig(char *sysconfname);
@@ -129,6 +131,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf		/* 0=LF, 1=CRLF */
 );
+int CtdlCopyMsgsToRoom(long *msgnum, int num_msgs, char *dest);
 int CtdlCopyMsgToRoom(long msgnum, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);

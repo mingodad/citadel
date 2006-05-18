@@ -3443,15 +3443,23 @@ void cmd_dele(char *delstr)
 
 
 /*
- * Back end API function for moves and deletes
+ * Back end API function for moves and deletes (multiple messages)
  */
-int CtdlCopyMsgToRoom(long msgnum, char *dest) {
+int CtdlCopyMsgsToRoom(long *msgnums, int num_msgs, char *dest) {
 	int err;
 
-	err = CtdlSaveMsgPointerInRoom(dest, msgnum, 1, NULL);
+	err = CtdlSaveMsgPointersInRoom(dest, msgnums, num_msgs, 1, NULL);
 	if (err != 0) return(err);
 
 	return(0);
+}
+
+
+/*
+ * Back end API function for moves and deletes (single message)
+ */
+int CtdlCopyMsgToRoom(long msgnum, char *dest) {
+	return CtdlCopyMsgsToRoom(&msgnum, 1, dest);
 }
 
 
