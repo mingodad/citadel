@@ -61,7 +61,9 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 	int nest = 0;		/* Bracket nesting level */
 	int blockquote = 0;	/* BLOCKQUOTE nesting level */
 	int bytes_processed = 0;
+	char nl[128];
 
+	strcpy(nl, "\n");
 	inptr = inputmsg;
 	strcpy(inbuf, "");
 	strcpy(outbuf, "");
@@ -129,80 +131,96 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				}
 				
 				if (!strcasecmp(tag, "P")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				if (!strcasecmp(tag, "/DIV")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				if (!strcasecmp(tag, "LI")) {
-					strcat(outbuf, "\n * ");
+					strcat(outbuf, nl);
+					strcat(outbuf, " * ");
 				}
 
 				else if (!strcasecmp(tag, "/UL")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "H1")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "H2")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "H3")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "H4")) {
-					strcat(outbuf, "\n\n");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/H1")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/H2")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/H3")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/H4")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "HR")) {
-					strcat(outbuf, "\n ");
+					strcat(outbuf, nl);
+					strcat(outbuf, " ");
 					for (j=0; j<screenwidth-2; ++j)
 						strcat(outbuf, "-");
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "BR")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "TR")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/TABLE")) {
-					strcat(outbuf, "\n");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "BLOCKQUOTE")) {
-					strcat(outbuf, "\n\n <<\n");
+					strcat(outbuf, nl);
 					++blockquote;
+					strcpy(nl, "\n");
+					for (j=0; j<blockquote; ++j) strcat(nl, ">");
+					strcat(outbuf, nl);
 				}
 
 				else if (!strcasecmp(tag, "/BLOCKQUOTE")) {
-					strcat(outbuf, "\n >>\n\n");
+					strcat(outbuf, "\n");
 					--blockquote;
+					strcpy(nl, "\n");
+					for (j=0; j<blockquote; ++j) strcat(nl, ">");
+					strcat(outbuf, nl);
+					strcat(outbuf, nl);
 				}
 
 			}
@@ -397,8 +415,8 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 			if (rb>=0) {
 				strncpy(&outptr[output_len], outbuf, rb);
 				output_len += rb;
-				strcpy(&outptr[output_len], "\n");
-				output_len += 1;
+				strcpy(&outptr[output_len], nl);
+				output_len += strlen(nl);
 				if (do_citaformat) {
 					strcpy(&outptr[output_len], " ");
 					++output_len;
@@ -408,8 +426,8 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				strncpy(&outptr[output_len], outbuf,
 					screenwidth-2);
 				output_len += (screenwidth-2);
-				strcpy(&outptr[output_len], "\n");
-				output_len += 1;
+				strcpy(&outptr[output_len], nl);
+				output_len += strlen(nl);
 				if (do_citaformat) {
 					strcpy(&outptr[output_len], " ");
 					++output_len;
