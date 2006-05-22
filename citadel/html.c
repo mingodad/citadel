@@ -207,7 +207,6 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				}
 
 				else if (!strcasecmp(tag, "BLOCKQUOTE")) {
-					strcat(outbuf, nl);
 					++blockquote;
 					strcpy(nl, "\n");
 					for (j=0; j<blockquote; ++j) strcat(nl, ">");
@@ -219,7 +218,6 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 					--blockquote;
 					strcpy(nl, "\n");
 					for (j=0; j<blockquote; ++j) strcat(nl, ">");
-					strcat(outbuf, nl);
 					strcat(outbuf, nl);
 				}
 
