@@ -460,10 +460,13 @@ int PurgeUsers(void) {
 	char *transcript = NULL;
 
 	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
+#ifdef ENABLE_AUTOLOGIN
+	ForEachUser(do_uid_user_purge, NULL);
+#else
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge, NULL);
 	}
-	ForEachUser(do_uid_user_purge, NULL);
+#endif
 
 	transcript = malloc(SIZ);
 	strcpy(transcript, "The following users have been auto-purged:\n");
