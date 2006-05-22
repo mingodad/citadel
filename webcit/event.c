@@ -459,25 +459,35 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			icalcomponent_remove_property(vevent, prop);
 			icalproperty_free(prop);
 		}
-		icalcomponent_add_property(vevent,
-			icalproperty_new_summary(bstr("summary")));
 
-		while (prop = icalcomponent_get_first_property(vevent,
-		      ICAL_LOCATION_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vevent, prop);
-			icalproperty_free(prop);
-		}
-		icalcomponent_add_property(vevent,
-			icalproperty_new_location(bstr("location")));
-		
-		while (prop = icalcomponent_get_first_property(vevent,
-		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vevent, prop);
-			icalproperty_free(prop);
-		}
-		icalcomponent_add_property(vevent,
-			icalproperty_new_description(bstr("description")));
+	 	if (strlen(bstr("summary")) > 0) {
 	
+		 	icalcomponent_add_property(vevent,
+				  	icalproperty_new_summary(bstr("summary")));
+	 	} else {
+		 	icalcomponent_add_property(vevent,
+					icalproperty_new_summary("Untitled Event"));
+	 	}
+	
+	 	while (prop = icalcomponent_get_first_property(vevent,
+				     	ICAL_LOCATION_PROPERTY), prop != NULL) {
+		 	icalcomponent_remove_property(vevent, prop);
+		 	icalproperty_free(prop);
+	 	}
+	 	if (strlen(bstr("location")) > 0) {
+		 	icalcomponent_add_property(vevent,
+					icalproperty_new_location(bstr("location")));
+	 	}
+	 	while (prop = icalcomponent_get_first_property(vevent,
+				  ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
+		 	icalcomponent_remove_property(vevent, prop);
+		 	icalproperty_free(prop);
+	 	}
+	 	if (strlen(bstr("description")) > 0) {
+		 	icalcomponent_add_property(vevent,
+			  	icalproperty_new_description(bstr("description")));
+	 	}
+
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DTSTART_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
@@ -594,7 +604,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			/** set new organizer */
 			sprintf(organizer_string, "MAILTO:%s", buf);
 			icalcomponent_add_property(vevent,
-                        	icalproperty_new_organizer(organizer_string)
+				icalproperty_new_organizer(organizer_string)
 			);
 
 		}
