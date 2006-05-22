@@ -236,8 +236,8 @@ void text_to_server(char *ptr)
  */
 void text_to_server_qp(char *ptr)
 {
-	char buf[256];
-	int ch, pos;
+	unsigned char ch, buf[256];
+	int pos;
 	int output_len = 0;
 
 	pos = 0;
@@ -245,7 +245,7 @@ void text_to_server_qp(char *ptr)
 	output_len = 0;
 
 	while (ptr[pos] != 0) {
-		ch = ptr[pos++];
+		ch = (unsigned char)(ptr[pos++]);
 
 		if (ch == 13) {
 			/* ignore carriage returns */
