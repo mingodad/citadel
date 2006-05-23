@@ -756,9 +756,11 @@ void worker_entry(void)
 				context_loop(ssock);
 
 				/** Shut down SSL/TLS if required... */
+#ifdef HAVE_OPENSSL
 				if (is_https) {
 					endtls();
 				}
+#endif
 
 				/** ...and close the socket. */
 				lingering_close(ssock);

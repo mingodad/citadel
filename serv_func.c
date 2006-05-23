@@ -254,12 +254,12 @@ void text_to_server_qp(char *ptr)
 			/* hard line break */
 			if (output_len > 0) {
 				if (isspace(buf[output_len-1])) {
-					sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+					sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
 					output_len += 2;
 				}
 			}
 			buf[output_len++] = 0;
-			serv_puts(buf);
+			serv_puts((char *)buf);
 			output_len = 0;
 		}
 		else if (ch == 9) {
@@ -272,19 +272,19 @@ void text_to_server_qp(char *ptr)
 			buf[output_len++] = ch;
 		}
 		else {
-			sprintf(&buf[output_len], "=%02X", ch);
+			sprintf((char *)&buf[output_len], "=%02X", ch);
 			output_len += 3;
 		}
 		
 		if (output_len > 72) {
 			/* soft line break */
 			if (isspace(buf[output_len-1])) {
-				sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+				sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
 				output_len += 2;
 			}
 			buf[output_len++] = '=';
 			buf[output_len++] = 0;
-			serv_puts(buf);
+			serv_puts((char *)buf);
 			output_len = 0;
 		}
 	}
@@ -292,11 +292,11 @@ void text_to_server_qp(char *ptr)
 	/* end of data - transmit anything that's left */
 	if (output_len > 0) {
 		if (isspace(buf[output_len-1])) {
-			sprintf(&buf[output_len-1], "=%02X", buf[output_len-1]);
+			sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
 			output_len += 2;
 		}
 		buf[output_len++] = 0;
-		serv_puts(buf);
+		serv_puts((char *)buf);
 		output_len = 0;
 	}
 }
