@@ -686,8 +686,13 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			}
-			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				lprintf(9, "ENT0 REPLY: %s\n", buf);
+			if ( (buf[0] == '8') || (buf[0] == '4') ) {
+				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+					lprintf(9, "ENT0 REPLY: %s\n", buf);
+				}
+			}
+			if (buf[0] == '2') {
+				strcpy(WC->ImportantMessage, &buf[4]);
 			}
 			icalcomponent_free(encaps);
 		}
@@ -719,7 +724,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		icalcomponent_free(vevent);
 	}
 
-	/** If this was a save or deelete, go back to the calendar view. */
+	/** If this was a save or delete, go back to the calendar view. */
 	if (strlen(bstr("check_button")) == 0) {
 		readloop("readfwd");
 	}

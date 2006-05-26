@@ -2768,6 +2768,18 @@ void display_enter(void)
 		is_anonymous = 1;
 	}
 
+	/** First test to see whether this is a room that requires recipients to be entered */
+	serv_puts("ENT0 0");
+	serv_getln(buf, sizeof buf);
+	if (!strncmp(buf, "570", 3)) {		/** 570 means that we need a recipient here */
+		recipient_required = 1;
+	}
+	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
+		sprintf(WC->ImportantMessage, "%s", &buf[4]);
+		readloop("readnew");
+		return;
+	}
+
 	/**
 	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
@@ -2808,17 +2820,6 @@ void display_enter(void)
 	wprintf("<div id=\"content\">\n"
 		"<div class=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
-
-	/** First test to see whether this is a room that requires recipients to be entered */
-	serv_puts("ENT0 0");
-	serv_getln(buf, sizeof buf);
-	if (!strncmp(buf, "570", 3)) {		/** 570 means that we need a recipient here */
-		recipient_required = 1;
-	}
-	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
-		wprintf("<em>%s</em><br />\n", &buf[4]);
-		goto DONE;
-	}
 
 	/** Now check our actual recipients if there are any */
 	if (recipient_required) {
