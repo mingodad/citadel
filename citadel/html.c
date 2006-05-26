@@ -352,6 +352,56 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				strcpy(&outbuf[i+3], &outbuf[i+7]);
 			}
 
+			else if (!strncmp(&outbuf[i], "&Ccedil;", 8)) {
+				outbuf[i] = 'C';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&ccedil;", 8)) {
+				outbuf[i] = 'c';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncmp(&outbuf[i], "&Egrave;", 8)) {
+				outbuf[i] = 'E';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&egrave;", 8)) {
+				outbuf[i] = 'e';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncmp(&outbuf[i], "&Ecirc;", 7)) {
+				outbuf[i] = 'E';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&ecirc;", 7)) {
+				outbuf[i] = 'e';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
+			else if (!strncmp(&outbuf[i], "&Eacute;", 8)) {
+				outbuf[i] = 'E';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&eacute;", 8)) {
+				outbuf[i] = 'e';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncmp(&outbuf[i], "&Agrave;", 8)) {
+				outbuf[i] = 'A';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&agrave;", 8)) {
+				outbuf[i] = 'a';
+				strcpy(&outbuf[i+1], &outbuf[i+8]);
+			}
+
 			/* two-digit decimal equivalents */
 			else if ((!strncmp(&outbuf[i], "&#", 2))
 			      && (outbuf[i+4] == ';') ) {
