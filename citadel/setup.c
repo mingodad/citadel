@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
 		fclose(fp);
 	}
 
-        /* Check to see if we're running the web installer */
+	/* Check to see if we're running the web installer */
 	if (getenv("CITADEL_INSTALLER") != NULL) {
 		using_web_installer = 1;
 	}
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
 	case UI_TEXT:
 		printf("\n\n\n"
-			"               *** Citadel setup program ***\n\n");
+			"	       *** Citadel setup program ***\n\n");
 		break;
 
 	}
@@ -1358,6 +1358,18 @@ NEW_INST:
 	mkdir(ctdl_image_dir, 0700);
 	chmod(ctdl_image_dir, 0700);
 	chown(ctdl_image_dir, config.c_ctdluid, -1);
+
+	mkdir(ctdl_bb_dir, 0700);
+	chmod(ctdl_bb_dir, 0700);
+	chown(ctdl_bb_dir, config.c_ctdluid, -1);
+
+	mkdir(ctdl_file_dir, 0700);
+	chmod(ctdl_file_dir, 0700);
+	chown(ctdl_file_dir, config.c_ctdluid, -1);
+
+	mkdir(ctdl_netcfg_dir, 0700);
+	chmod(ctdl_netcfg_dir, 0700);
+	chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
 
 	/* TODO: where to put this? */
 	mkdir("netconfigs", 0700);
