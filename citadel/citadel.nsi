@@ -4,7 +4,7 @@
 
 !include "${NSISDIR}\Contrib\Modern UI\System.nsh"
 !define MUI_PRODUCT "Citadel"
-!define MUI_VERSION "6.81"
+!define MUI_VERSION "6.82"
 !define MUI_WELCOMEPAGE
 !define MUI_LICENSEPAGE
 !define MUI_COMPONENTSPAGE
@@ -18,7 +18,7 @@
 ;!define MUI_ICON "${NSISDIR}\Contrib\Icons\modern-install.ico"
 ;!define MUI_UNICON "${NSISDIR}\Contrib\Icons\modern-uninstall.ico"
 
-OutFile "citadel-6.81.exe"
+OutFile "citadel-6.82.exe"
 BGGradient off
 
 LangString DESC_Citadel ${LANG_ENGLISH} "Citadel client and core libraries (required)"

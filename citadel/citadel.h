@@ -33,7 +33,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel 6.81"
+#define CITADEL	"Citadel 6.82"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -45,7 +45,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	681		/* This version */
+#define REV_LEVEL	682		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	655		/* Oldest compatible export files */
 

@@ -2257,6 +2257,7 @@ only in rooms to which the user does not have access.
 guaranteed to continue to exist in this form.
 
 
+
 EUID   (get message number using an EUID)}
 
  Returns the message number, if present, of the message in the current room
