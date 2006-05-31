@@ -11,7 +11,7 @@
 
 #ifdef ENABLE_NLS
 
-#define NUM_LANGS 6 /**< how many different locales do we know? */
+#define NUM_LANGS 7 /**< how many different locales do we know? */
 #define SEARCH_LANG 20 /**< how many langs should we parse? */
 
 /** actual supported locales */
@@ -21,7 +21,8 @@ char *AvailLang[NUM_LANGS] = {
 	"de_DE",
 	"it_IT",
 	"es_ES",
-	"en_GB"
+	"en_GB",
+	"da_DK"
 };
 
 locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
