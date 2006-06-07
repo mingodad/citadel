@@ -23,7 +23,6 @@
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
-#include <malloc.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/un.h>
