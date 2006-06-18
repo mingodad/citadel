@@ -54,15 +54,14 @@ void httplang_to_locale(char *LocaleString)
 
 	int i = 0;
 	int j = 0;
-	size_t len = strlen(LocaleString);
+	/* size_t len = strlen(LocaleString); */
 	long prio;
 	int av;
 	int nBest;
 	int nParts;
-	char *search = (char *) malloc(len);
+	char search[1024];
 	
-	memcpy(search, LocaleString, len);
-	search[len] = '\0';
+	safestrncpy(search, LocaleString, sizeof search);
 	nParts=num_tokens(search,',');
 	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
         {
@@ -129,25 +128,23 @@ void httplang_to_locale(char *LocaleString)
 	prio=0;
 	av=-1000;
 	nBest=-1;
-	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
-		{
-			ls=&wanted_locales[i];
-			if ((ls->availability<=0)&& 
-				(av<ls->availability)&&
-				(prio<ls->priority)&&
-				(ls->selectedlang!=-1)){
-				nBest=ls->selectedlang;
-				av=ls->availability;
-				prio=ls->priority;
-			}
+	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++) {
+		ls=&wanted_locales[i];
+		if ((ls->availability<=0)&& 
+		   (av<ls->availability)&&
+		   (prio<ls->priority)&&
+		   (ls->selectedlang!=-1)) {
+			nBest=ls->selectedlang;
+			av=ls->availability;
+			prio=ls->priority;
 		}
-	if (nBest==-1) /** fall back to C */
+	}
+	if (nBest == -1) {
+		/** fall back to C */
 		nBest=0;
+	}
 	WC->selected_language=nBest;
 	lprintf(9, "language found: %s\n", AvailLang[WC->selected_language]);
-	if (search != NULL) {
-		free(search);
-	}
 }
 
 /* TODO: we skip the language weightening so far. */
