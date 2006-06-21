@@ -2663,11 +2663,17 @@ static void serv_read_ssl(CtdlIPC* ipc, char *buf, unsigned int bytes)
 				sleep(1);
 				continue;
 			}
+/***
+ Not sure why we'd want to handle these error codes any differently,
+ but this definitely isn't the way to handle them.  Someone must have
+ naively assumed that we could fall back to unencrypted communications,
+ but all it does is just recursively blow the stack.
 			if (errval == SSL_ERROR_ZERO_RETURN ||
 					errval == SSL_ERROR_SSL) {
 				serv_read(ipc, &buf[len], bytes - len);
 				return;
 			}
+ ***/
 			error_printf("SSL_read in serv_read: %s\n",
 					ERR_reason_error_string(ERR_peek_error()));
 			connection_died(ipc, 1);
