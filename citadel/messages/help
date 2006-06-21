@@ -21,6 +21,8 @@
  W         Displays who is currently logged in.
  X         Toggle eXpert mode (menus and help blurbs on/off)
  Z         Zap (forget) room. (Removes the room from your list)
+ + -       Goto next, previous room on current floor.
+ > <       Goto next, previous floor.
  *         Enter any locally installed 'doors'.
    
  In addition, there are dot commands. You hit the . (dot), then press the

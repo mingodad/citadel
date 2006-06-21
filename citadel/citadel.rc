@@ -369,6 +369,11 @@ cmd=76,0,&.,&Wholist,&Hostname
 cmd=91,0,&.,&Wholist,&Active
 cmd=93,0,&.,&Wholist,&Stealth mode
 
+cmd=110,0,&+Next room
+cmd=111,0,&-Previous room
+cmd=112,0,&>Next floor
+cmd=113,0,&<Previous floor
+
 #
 # Command 69 allows the user to enter a server command directly.  It is
 # primarily for testing and not intended for general use.  Usually there

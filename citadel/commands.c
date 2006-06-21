@@ -985,8 +985,11 @@ char *cmd_expand(char *strbuf, int mode)
 	for (a = 0; a < strlen(exp); ++a) {
 		if (strbuf[a] == '&') {
 
+			/* dont echo these non mnemonic command keys */
+			int noecho = strbuf[a+1] == '<' || strbuf[a+1] == '>' || strbuf[a+1] == '+' || strbuf[a+1] == '-';
+
 			if (mode == 0) {
-				strcpy(&exp[a], &exp[a + 1]);
+				strcpy(&exp[a], &exp[a + 1 + noecho]);
 			}
 			if (mode == 1) {
 				exp[a] = '<';

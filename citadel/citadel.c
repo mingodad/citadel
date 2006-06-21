@@ -59,6 +59,8 @@
 #define IFAIDE if (axlevel>=6)
 #define IFNAIDE if (axlevel<6)
 
+int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2);
+
 struct march *march = NULL;
 
 /* globals associated with the client program */
@@ -301,7 +303,7 @@ void remove_march(char *roomname, int floornum)
  * Locate the room on the march list which we most want to go to.  Each room
  * is measured given a "weight" of preference based on various factors.
  */
-char *pop_march(int desired_floor)
+char *pop_march(int desired_floor, struct march *_march)
 {
 	static char TheRoom[ROOMNAMELEN];
 	int TheFloor = 0;
@@ -311,10 +313,10 @@ char *pop_march(int desired_floor)
 	struct march *mptr = NULL;
 
 	strcpy(TheRoom, "_BASEROOM_");
-	if (march == NULL)
+	if (_march == NULL)
 		return (TheRoom);
 
-	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+	for (mptr = _march; mptr != NULL; mptr = mptr->next) {
 		weight = 0;
 		if ((strcasecmp(mptr->march_name, "_BASEROOM_")))
 			weight = weight + 10000;
@@ -529,7 +531,7 @@ void gotonext(CtdlIPC *ipc)
 		remove_march(room_name, 0);
 	}
 	if (march != NULL) {
-		strcpy(next_room, pop_march(curr_floor));
+		strcpy(next_room, pop_march(curr_floor, march));
 	} else {
 		strcpy(next_room, "_BASEROOM_");
 	}
@@ -645,9 +647,9 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 	if (r / 100 == 1) {
 		struct march *tmp = mptr;
 
-		/* TODO: room order is being ignored? */
+		/*. . . according to room order */
 		if (mptr)
-			strncpy(targ, mptr->march_name, ROOMNAMELEN);
+    	    strcpy(targ, pop_march(tofloor, mptr));
 		while (mptr) {
 			tmp = mptr->next;
 			free(mptr);
@@ -666,10 +668,10 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, tofloor, &mptr, buf);
 	if (r / 100 == 1) {
 		struct march *tmp = mptr;
-
-		/* TODO: room order is being ignored? */
+		
+        /*. . . according to room order */
 		if (mptr)
-			strncpy(targ, mptr->march_name, ROOMNAMELEN);
+			strcpy(targ, pop_march(tofloor, mptr));
 		while (mptr) {
 			tmp = mptr->next;
 			free(mptr);
@@ -681,6 +683,179 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 	} else {
 		scr_printf("There are no rooms on '%s'.\n", &floorlist[tofloor][0]);
 	}
+}
+
+/*
+ * Indexing mechanism for a room list, called by gotoroomstep()
+ */
+void room_tree_list_query(struct ctdlroomlisting *rp, char *findrmname, int findrmslot, char *rmname, int *rmslot, int *rmtotal)
+{
+	char roomname[ROOMNAMELEN];
+	static int cur_rmslot = 0;
+
+	if (rp == NULL) {
+		cur_rmslot = 0;
+		return;
+	}
+
+	if (rp->lnext != NULL) {
+		room_tree_list_query(rp->lnext, findrmname, findrmslot, rmname, rmslot, rmtotal);
+	}
+
+	if (sigcaught == 0) {
+		strcpy(roomname, rp->rlname);
+
+		if (rmname != NULL) {
+			if (cur_rmslot == findrmslot) {
+				strcpy(rmname, roomname);
+			}
+		}
+		if (rmslot != NULL) {
+			if (!strcmp(roomname, findrmname)) {
+				*rmslot = cur_rmslot;
+			}
+		}
+		cur_rmslot++;
+	}
+
+	if (rp->rnext != NULL) {
+		room_tree_list_query(rp->rnext, findrmname, findrmslot, rmname, rmslot, rmtotal);
+	}
+
+	if ((rmname == NULL) && (rmslot == NULL))
+		free(rp);
+
+	if (rmtotal != NULL) {
+		*rmtotal = cur_rmslot;
+	}
+}
+
+/*
+ * step through rooms on current floor
+ */
+void  gotoroomstep(CtdlIPC *ipc, int direction)
+{
+	struct march *listing = NULL;
+	struct march *mptr;
+	int r;		/* IPC response code */
+	char buf[SIZ];
+	struct ctdlroomlisting *rl = NULL;
+	struct ctdlroomlisting *rp;
+	struct ctdlroomlisting *rs;
+	int list_it;
+	char rmname[ROOMNAMELEN];
+	int rmslot;
+	int rmtotal;
+
+	/* Ask the server for a room list */
+	r = CtdlIPCKnownRooms(ipc, SubscribedRooms, (-1), &listing, buf);
+	if (r / 100 != 1) {
+		listing = NULL;
+	}
+
+	load_floorlist(ipc);
+
+	for (mptr = listing; mptr != NULL; mptr = mptr->next) {
+		list_it = 1;
+
+		if ( floor_mode 
+			 && (mptr->march_floor != curr_floor))
+			list_it = 0;
+
+		if (list_it) {
+			rp = malloc(sizeof(struct ctdlroomlisting));
+			strncpy(rp->rlname, mptr->march_name, ROOMNAMELEN);
+			rp->rlflags = mptr->march_flags;
+			rp->rlfloor = mptr->march_floor;
+			rp->rlorder = mptr->march_order;
+			rp->lnext = NULL;
+			rp->rnext = NULL;
+
+			rs = rl;
+			if (rl == NULL) {
+				rl = rp;
+			} else {
+				while (rp != NULL) {
+					if (rordercmp(rp, rs) < 0) {
+						if (rs->lnext == NULL) {
+							rs->lnext = rp;
+							rp = NULL;
+						} else {
+							rs = rs->lnext;
+						}
+					} else {
+						if (rs->rnext == NULL) {
+							rs->rnext = rp;
+							rp = NULL;
+						} else {
+							rs = rs->rnext;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/* Find position of current room */
+	room_tree_list_query(NULL, NULL, 0, NULL, NULL, NULL);
+	room_tree_list_query(rl,  room_name, 0, NULL, &rmslot, &rmtotal);
+
+	if (direction == 0) { /* Previous room */
+		/* If we're at the first room, wrap to the last room */
+		if (rmslot == 0) {
+			rmslot = rmtotal - 1;
+		} else {
+			rmslot--;
+		}
+	} else {		 /* Next room */
+		/* If we're at the last room, wrap to the first room */
+		if (rmslot == rmtotal - 1) {
+			rmslot = 0; 
+		} else {
+			rmslot++;
+		}
+	}
+
+	/* Get name of next/previous room */
+	room_tree_list_query(NULL, NULL, 0, NULL, NULL, NULL);
+	room_tree_list_query(rl,  NULL, rmslot, rmname, NULL, NULL);
+
+	/* Free the tree */
+	room_tree_list_query(rl, NULL, 0, NULL, NULL, NULL);
+
+	updatels(ipc);
+	dotgoto(ipc, rmname, 1, 0);
+}
+
+
+/*
+ * step through floors on system
+ */
+void  gotofloorstep(CtdlIPC *ipc, int direction)
+{
+	int  tofloor;
+
+	if (floorlist[0][0] == 0)
+		load_floorlist(ipc);
+
+	if (direction == 0) { /* Previous floor */
+		if (curr_floor)	tofloor = curr_floor - 1;
+		else tofloor = 127;
+
+		while (!floorlist[tofloor][0]) tofloor--;
+	} else {		   /* Next floor */
+		if (curr_floor < 127) tofloor = curr_floor + 1;
+		else tofloor = 0;
+
+		while (!floorlist[tofloor][0] && tofloor < 127)	tofloor++;
+		if (!floorlist[tofloor][0])	tofloor = 0;
+	}
+	/* ;g works when not in floor mode so . . . */
+	if (!floor_mode) {
+		scr_printf("(%s)\n", floorlist[tofloor] );
+	}
+
+	gotofloor(ipc, floorlist[tofloor], GF_GOTO);
 }
 
 
@@ -1849,6 +2024,22 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			case 56:
 				page_user(ipc);
 				break;
+
+            case 110:           /* <+> Next room */
+                 gotoroomstep(ipc, 1);
+			     break;
+
+            case 111:           /* <-> Previous room */
+                 gotoroomstep(ipc, 0);
+			     break;
+
+			case 112:           /* <>> Next floor */
+                 gotofloorstep(ipc, 1);
+			     break;
+
+			case 113:           /* <<> Previous floor */
+                 gotofloorstep(ipc, 0);
+				 break;
 
 			default: /* allow some math on the command */
 				/* commands 100... to 100+MAX_EDITORS-1 will

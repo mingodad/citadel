@@ -22,4 +22,4 @@ int sock_puts(int sock, char *buf);
 /* 
  * Default timeout for client sessions
  */
-#define CLIENT_TIMEOUT		90
+#define CLIENT_TIMEOUT		600
