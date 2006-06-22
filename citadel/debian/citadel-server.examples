@@ -4,4 +4,4 @@ debian/tmp/etc/citadel/public_clients
 debian/tmp/etc/citadel/mail.aliases
 debian/tmp/usr/share/doc/citadel-doc/database_cleanup.sh
 debian/tmp/usr/share/doc/citadel-doc/database_cleanup.sh
-debian/tmp/usr/share/doc/citadel-doc/citadel.schema
+
