@@ -451,6 +451,7 @@ void do_confirm(char *room, char *token) {
 	 */
 	if (success) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
+		lprintf(CTDL_NOTICE, "Mailing list: %s %ssubscribed to %s with token %s\n", email, (strlen(address_to_unsubscribe) > 0) ? "un" : "", room, token);
 	}
 	else {
 		cprintf("%d Invalid token.\n", ERROR + ILLEGAL_VALUE);
