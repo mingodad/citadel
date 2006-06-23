@@ -1229,7 +1229,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_room_not_found;
 	}
 
-	else if ( (CC->user.axlevel < 6)
+	else if ( (CC->user.axlevel < 6) && (!CC->internal_pgm)
 		  && (CC->user.usernum != qrbuf.QRroomaide)
 		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CC->user.usernum))) )  {
 		ret = crr_access_denied;
@@ -1851,7 +1851,7 @@ void cmd_cre8(char *args)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (CC->user.axlevel < config.c_createax) {
+	if (CC->user.axlevel < config.c_createax || CC->internal_pgm) {
 		cprintf("%d You need higher access to create rooms.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
