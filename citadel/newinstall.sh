@@ -121,13 +121,14 @@ die () {
 }
 
 
-
 download_this () {
-	if [ -x `which wget` ] ; then
-		wget $FILENAME >/dev/null 2>>$LOG || die
+	WGET=`which wget 2>/dev/null`
+	CURL=`which curl 2>/dev/null`
+	if [ -n "${WGET}" -a -x "${WGET}" ]; then
+		$WGET $DOWNLOAD_SITE/$FILENAME >/dev/null 2>>$LOG || die
 	else
-		if [ -x `which curl` ] ; then
-			curl $FILENAME >$FILENAME 2>>$LOG || die
+		if [ -n "${CURL}" -a -x "${CURL}" ]; then
+			$CURL $DOWNLOAD_SITE/$FILENAME >$FILENAME 2>>$LOG || die
 		else
 			echo Unable to find a wget or curl command.
 			echo Easy Install cannot continue.
@@ -135,7 +136,6 @@ download_this () {
 		fi
 	fi
 }
-
 
 
 
@@ -173,7 +173,7 @@ determine_distribution () {
 
 install_ical () {
 	cd $BUILD 2>&1 >>$LOG || die
-	FILENAME=$DOWNLOAD_SITE/libical-easyinstall.sum ; download_this
+	FILENAME=libical-easyinstall.sum ; download_this
 	SUM=`cat libical-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -184,7 +184,7 @@ install_ical () {
 		fi
 	fi
 	echo "* Downloading libical..."
-	FILENAME=$DOWNLOAD_SITE/$ICAL_SOURCE ; download_this
+	FILENAME=$ICAL_SOURCE ; download_this
 	echo "* Installing libical..."
 	( gzip -dc $ICAL_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 	cd $BUILD/libical-0.26 2>&1 >>$LOG || die
@@ -199,7 +199,7 @@ install_ical () {
 
 install_db () {
 	cd $BUILD 2>&1 >>$LOG || die
-	FILENAME=$DOWNLOAD_SITE/db-easyinstall.sum ; download_this
+	FILENAME=db-easyinstall.sum ; download_this
 	SUM=`cat db-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -210,7 +210,7 @@ install_db () {
 		fi
 	fi
 	echo "* Downloading Berkeley DB..."
-	FILENAME=$DOWNLOAD_SITE/$DB_SOURCE ; download_this
+	FILENAME=$DB_SOURCE ; download_this
 	echo "* Installing Berkeley DB..."
 	( gzip -dc $DB_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 	cd $BUILD/db-4.3.29.NC 2>&1 >>$LOG || die
@@ -264,7 +264,7 @@ install_sources () {
 	export CFLAGS CPPFLAGS LDFLAGS
 
 	DO_INSTALL_CITADEL=yes
-	FILENAME=$DOWNLOAD_SITE/citadel-easyinstall.sum ; download_this
+	FILENAME=citadel-easyinstall.sum ; download_this
 	SUM=`cat citadel-easyinstall.sum`
 	SUMFILE=$CITADEL/citadel-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -277,7 +277,7 @@ install_sources () {
 
 	if [ $DO_INSTALL_CITADEL = yes ] ; then
 		echo "* Downloading Citadel..."
-		FILENAME=$DOWNLOAD_SITE/$CITADEL_SOURCE ; download_this
+		FILENAME=$CITADEL_SOURCE ; download_this
 		echo "* Installing Citadel..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $CITADEL_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
@@ -308,7 +308,7 @@ install_sources () {
 
 	cd $BUILD 2>&1 >>$LOG || die
 	DO_INSTALL_WEBCIT=yes
-	FILENAME=$DOWNLOAD_SITE/webcit-easyinstall.sum ; download_this
+	FILENAME=webcit-easyinstall.sum ; download_this
 	SUM=`cat webcit-easyinstall.sum`
 	SUMFILE=$WEBCIT/webcit-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -321,7 +321,7 @@ install_sources () {
 
 	if [ $DO_INSTALL_WEBCIT = yes ] ; then
 		echo "* Downloading WebCit..."
-		FILENAME=$DOWNLOAD_SITE/$WEBCIT_SOURCE ; download_this
+		FILENAME=$WEBCIT_SOURCE ; download_this
 		echo "* Installing WebCit..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $WEBCIT_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
