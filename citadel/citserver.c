@@ -185,6 +185,15 @@ void master_cleanup(int exitcode) {
 	dump_heap();
 #endif
 
+	/* If the operator requested a halt but not an exit, halt here. */
+	if (shutdown_and_halt) {
+		lprintf(CTDL_NOTICE, "citserver: Halting server without exiting.\n");
+		fflush(stdout); fflush(stderr);
+		while(1) {
+			sleep(32767);
+		}
+	}
+
 	/* Now go away. */
 	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
@@ -766,6 +775,18 @@ void cmd_down(void) {
 }
 
 /*
+ * Halt the server without exiting the server process.
+ */
+void cmd_halt(void) {
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	cprintf("%d Halting server.  Goodbye.\n", CIT_OK);
+	time_to_die = 1;
+	shutdown_and_halt = 1;
+}
+
+/*
  * Schedule or cancel a server shutdown
  */
 void cmd_scdn(char *argbuf)
@@ -1232,6 +1253,10 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"DOWN",4)) {
 		cmd_down();
+	}
+
+	else if (!strncasecmp(cmdbuf,"HALT",4)) {
+		cmd_halt();
 	}
 
 	else if (!strncasecmp(cmdbuf,"SCDN",4)) {

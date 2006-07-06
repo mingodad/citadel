@@ -74,6 +74,8 @@ void create_worker(void);
 
 extern int num_sessions;
 extern volatile int time_to_die;
+extern volatile int shutdown_and_halt;
+
 extern int verbosity;
 extern int rescan[];
 

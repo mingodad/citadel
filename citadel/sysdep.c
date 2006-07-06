@@ -154,6 +154,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
  */
 
 volatile int time_to_die = 0;
+volatile int shutdown_and_halt = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
 	lprintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);

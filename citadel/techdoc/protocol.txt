@@ -1666,6 +1666,14 @@ otherwise, it returns OK followed by a number representing the current state
 of the flag.
 
 
+ HALT   (HALT the server without shutting it down)
+ 
+ Identical to the DOWN command, except instead of exiting, the server process
+cleans up and then suspends indefinitely.  This could potentially be useful for
+shutdown scripts that don't want init to automatically respawn another citserver
+process.
+
+
  EMSG   (Enter a system MeSsaGe)
 
  This is the opposite of the MESG command - it allows the creation and editing

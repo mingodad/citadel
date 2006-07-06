@@ -85,7 +85,7 @@ char *setup_text[] = {
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n",
 #else
-"Enter the subdirectoryname for an alternating installation of "
+"Enter the subdirectory name for an alternate installation of "
 "Citadel. To do a default installation just leave it blank."
 "If you specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
@@ -929,13 +929,7 @@ void write_config_to_disk(void)
 	FILE *fp;
 	int fd;
 
-	if ((fd = creat(
-#ifndef HAVE_ETC_DIR
-					"."
-#else
-					ETC_DIR
-#endif
-					"/citadel.config", S_IRUSR | S_IWUSR)) == -1) {
+	if ((fd = creat(file_citadel_config, S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 	}
@@ -1142,20 +1136,26 @@ int main(int argc, char *argv[])
 
 	home=(setup_directory[1]!='\0');
 	relh=home&(setup_directory[1]!='/');
-	if (!relh) safestrncpy(ctdl_home_directory, setup_directory,
-								   sizeof ctdl_home_directory);
-	else
-		safestrncpy(relhome, ctdl_home_directory,
-					sizeof relhome);
+	if (!relh) {
+		safestrncpy(ctdl_home_directory, setup_directory, sizeof ctdl_home_directory);
+	}
+	else {
+		safestrncpy(relhome, ctdl_home_directory, sizeof relhome);
+	}
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
 	
 	enable_home=(relh|home);
 
-	if ((home) && (chdir(setup_directory) != 0)) {
-		important_message("Citadel Setup",
-			  "The directory you specified does not exist.");
-		cleanup(errno);
+	if (home) {
+		if (chdir(setup_directory) == 0) {
+			strcpy(file_citadel_config, "./citadel.config");
+		}
+		else {
+			important_message("Citadel Setup",
+			  	"The directory you specified does not exist.");
+			cleanup(errno);
+		}
 	}
 
 	/* Determine our host name, in case we need to use it as a default */
