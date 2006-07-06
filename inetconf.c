@@ -35,12 +35,13 @@ void display_inetconf(void)
 	char *ic_boxtitle[ic_max];
 	char *ic_desc[ic_max];
 
-	ic_keyword[0] = _("localhost");
-	ic_keyword[1] = _("directory");
-	ic_keyword[2] = _("gatewaydomain");
-	ic_keyword[3] = _("smarthost");
-	ic_keyword[4] = _("rbl");
-	ic_keyword[5] = _("spamassassin");
+	/* DON'T NEVER EVER AGAIN TRANSLATE CITADEL COMMANDS! */
+	ic_keyword[0] = "localhost";
+	ic_keyword[1] = "directory";
+	ic_keyword[2] = "gatewaydomain";
+	ic_keyword[3] = "smarthost";
+	ic_keyword[4] = "rbl";
+	ic_keyword[5] = "spamassassin";
 
 	ic_boxtitle[0] = _("Local host aliases");
 	ic_boxtitle[1] = _("Directory domains");
