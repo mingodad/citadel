@@ -9,7 +9,7 @@
 	Nick Grossman
 	Andru Luvisi
 	Dave Lindquist
-	Matthew McBride
+	Matt Pfleger
 	Martin Mouritzen
 
    This program is open source software released under the terms of the GNU
