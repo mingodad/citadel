@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <grp.h>
+#include <pwd.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -79,6 +80,7 @@ int main(int argc, char **argv)
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	struct stat filestats;
 	
 	/* initialize the master context */
 	InitializeMasterCC();
@@ -182,6 +184,19 @@ int main(int argc, char **argv)
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
+
+#ifdef HAVE_RUN_DIR
+	/* on some dists rundir gets purged on startup. so we need to recreate it. */
+
+	if (stat(ctdl_run_dir, &filestats)==-1){
+		pw=getpwuid(config.c_ctdluid);
+		mkdir(ctdl_run_dir, 0755);
+		chown(ctdl_run_dir, config.c_ctdluid, (pw==NULL)?-1:pw->pw_gid);
+
+	}
+			
+
+#endif
 
 	/* Initialize... */
 	init_sysdep();
