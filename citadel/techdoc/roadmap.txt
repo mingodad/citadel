@@ -36,3 +36,23 @@ some code and deciding what to work on.
 
 * Better UI presentation for delegated access to mailboxes.  (In IMAP this
   will be easy because of "other users namespace" support.)
+
+
+Various Whishlist
+-----------------
+* Smart callback hook mechanism reducing traffic between citadel and the Database
+  to do things like:
+  * Alarms. Trigger popups etc. for users via the chat-keepalive
+  * Chat. don't query the db on and on for this. 
+  * Modify a list of rooms with new items for the logged in users to do things like:
+    * Print the number of new mails onto the Webcit menu
+    * change the roomlist / treeview according to new unread messages in the rooms
+
+* bright new world to the tui too!
+  * Calendar mechanism
+  * vcards...
+
+* more persistant css usage in webcit
+
+* backtraces in the log in case of panics, etc.
+
