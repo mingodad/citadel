@@ -79,14 +79,23 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	/* Do the conversion. */
-	if (t != NULL) {
-		icaltimezone_convert_time(&TheTime,
-					t,
-					icaltimezone_get_utc_timezone()
-		);
+	if (TheTime.is_utc) {
+		lprintf(CTDL_DEBUG, "                * This property is ALREADY UTC.\n");
 	}
-	TheTime.is_utc = 1;
+	else {
+		/* Do the conversion. */
+		if (t != NULL) {
+			lprintf(CTDL_DEBUG, "                * Timezone prop found.  Converting to UTC.\n");
+			icaltimezone_convert_time(&TheTime,
+						t,
+						icaltimezone_get_utc_timezone()
+			);
+			TheTime.is_utc = 1;
+		}
+		else {
+			lprintf(CTDL_DEBUG, "                * Not UTC but no tzid found; WTF??\n");
+		}
+	}
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
 	/* Now add the converted property back in. */
@@ -155,6 +164,8 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
+	lprintf(CTDL_DEBUG, "ical_dezonify() started\n");
+
 	/* Convert all times to UTC */
 	ical_dezonify_recur(cal, cal);
 
@@ -165,6 +176,7 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_free(vt);
 	}
 
+	lprintf(CTDL_DEBUG, "ical_dezonify() completed\n");
 }
 
 
