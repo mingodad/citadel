@@ -94,6 +94,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
+	lprintf(CTDL_DEBUG, "                * Was: %s\n", icaltime_as_ical_string(TheTime));
 	if (TheTime.is_utc) {
 		lprintf(CTDL_DEBUG, "                * This property is ALREADY UTC.\n");
 	}
@@ -101,21 +102,24 @@ void ical_dezonify_backend(icalcomponent *cal,
 		/* Do the conversion. */
 		if (t != NULL) {
 			lprintf(CTDL_DEBUG, "                * Timezone prop found.  Converting to UTC.\n");
-			icaltimezone_convert_time(&TheTime,
-						t,
-						icaltimezone_get_utc_timezone()
-			);
 		}
 		else {
 			lprintf(CTDL_DEBUG, "                * Converting default timezone to UTC.\n");
-			icaltimezone_convert_time(&TheTime,
-						get_default_icaltimezone(),
-						icaltimezone_get_utc_timezone()
-			);
 		}
+
+		if (t == NULL) {
+			t = get_default_icaltimezone();
+		}
+
+		icaltimezone_convert_time(&TheTime,
+					t,
+					icaltimezone_get_utc_timezone()
+		);
 		TheTime.is_utc = 1;
 	}
+
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
+	lprintf(CTDL_DEBUG, "                * Now: %s\n", icaltime_as_ical_string(TheTime));
 
 	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
