@@ -27,6 +27,21 @@
 #include <ical.h>
 #include "ical_dezonify.h"
 
+icaltimezone *get_default_icaltimezone(void) {
+
+        char *location = NULL;
+        icaltimezone *zone = NULL;
+
+        location = "America/New_York";
+        if (location) {
+                zone = icaltimezone_get_builtin_timezone (location);
+        }
+        if (!zone)
+                zone = icaltimezone_get_utc_timezone ();
+
+        return zone;
+}
+
 
 /*
  * Back end function for ical_dezonify()
@@ -90,11 +105,15 @@ void ical_dezonify_backend(icalcomponent *cal,
 						t,
 						icaltimezone_get_utc_timezone()
 			);
-			TheTime.is_utc = 1;
 		}
 		else {
-			lprintf(CTDL_DEBUG, "                * Not UTC but no tzid found; WTF??\n");
+			lprintf(CTDL_DEBUG, "                * Converting default timezone to UTC.\n");
+			icaltimezone_convert_time(&TheTime,
+						get_default_icaltimezone(),
+						icaltimezone_get_utc_timezone()
+			);
 		}
+		TheTime.is_utc = 1;
 	}
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
