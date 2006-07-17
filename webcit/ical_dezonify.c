@@ -21,15 +21,34 @@
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 
-/**
- * \brief Back end function for ical_dezonify()
+/*
+ * Figure out which time zone needs to be used for timestamps that are
+ * not UTC and do not have a time zone specified.
+ *
+ * FIXME - most sites are not in New York :)
+ */
+icaltimezone *get_default_icaltimezone(void) {
+
+        char *location = NULL;
+        icaltimezone *zone = NULL;
+
+        location = "America/New_York";
+        if (location) {
+                zone = icaltimezone_get_builtin_timezone(location);
+        }
+        if (!zone) {
+                zone = icaltimezone_get_utc_timezone();
+	}
+        return zone;
+}
+
+
+/*
+ * Back end function for ical_dezonify()
  *
  * We supply this with the master component, the relevant component,
  * and the property (which will be a DTSTART, DTEND, etc.)
  * which we want to convert to UTC.
- * \param cal dunno ???
- * \param rcal dunno ???
- * \param prop dunno ???
  */
 void ical_dezonify_backend(icalcomponent *cal,
 			icalcomponent *rcal,
@@ -40,24 +59,24 @@ void ical_dezonify_backend(icalcomponent *cal,
 	const char *tzid;
 	struct icaltimetype TheTime;
 
-	/** Give me nothing and I will give you nothing in return. */
+	/* Give me nothing and I will give you nothing in return. */
 	if (cal == NULL) return;
 
-	/** Hunt for a TZID parameter in this property. */
+	/* Hunt for a TZID parameter in this property. */
 	param = icalproperty_get_first_parameter(prop, ICAL_TZID_PARAMETER);
 
-	/** Get the stringish name of this TZID. */
+	/* Get the stringish name of this TZID. */
 	if (param != NULL) {
 		tzid = icalparameter_get_tzid(param);
 
-		/** Convert it to an icaltimezone type. */
+		/* Convert it to an icaltimezone type. */
 		if (tzid != NULL) {
 			t = icalcomponent_get_timezone(cal, tzid);
 		}
 
 	}
 
-	/** Now we know the timezone.  Convert to UTC. */
+	/* Now we know the timezone.  Convert to UTC. */
 
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
 		TheTime = icalproperty_get_dtstart(prop);
@@ -75,17 +94,34 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	/** Do the conversion. */
-	if (t != NULL) {
+	lprintf(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime));
+	if (TheTime.is_utc) {
+		lprintf(9, "                * This property is ALREADY UTC.\n");
+	}
+	else {
+		/* Do the conversion. */
+		if (t != NULL) {
+			lprintf(9, "                * Timezone prop found.  Converting to UTC.\n");
+		}
+		else {
+			lprintf(9, "                * Converting default timezone to UTC.\n");
+		}
+
+		if (t == NULL) {
+			t = get_default_icaltimezone();
+		}
+
 		icaltimezone_convert_time(&TheTime,
 					t,
 					icaltimezone_get_utc_timezone()
 		);
+		TheTime.is_utc = 1;
 	}
-	TheTime.is_utc = 1;
-	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
-	/** Now add the converted property back in. */
+	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
+	lprintf(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime));
+
+	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
 		icalproperty_set_dtstart(prop, TheTime);
 	}
@@ -101,16 +137,14 @@ void ical_dezonify_backend(icalcomponent *cal,
 }
 
 
-/**
- * \brief Recursive portion of ical_dezonify()
- * \param cal dunno ???
- * \param rcal dunno ???
+/*
+ * Recursive portion of ical_dezonify()
  */
 void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 	icalcomponent *c;
 	icalproperty *p;
 
-	/**
+	/*
 	 * Recurse through all subcomponents *except* VTIMEZONE ones.
 	 */
 	for (c=icalcomponent_get_first_component(
@@ -124,7 +158,7 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 		}
 	}
 
-	/**
+	/*
 	 * Now look for DTSTART and DTEND properties
 	 */
 	for (p=icalcomponent_get_first_property(
@@ -145,27 +179,28 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 }
 
 
-/**
- * \brief Convert all DTSTART and DTEND properties in all subcomponents to UTC.
+/*
+ * Convert all DTSTART and DTEND properties in all subcomponents to UTC.
  * This function will search any VTIMEZONE subcomponents to learn the
  * relevant timezone information.
- * \param cal item to process
  */
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
-	/** Convert all times to UTC */
+	lprintf(9, "ical_dezonify() started\n");
+
+	/* Convert all times to UTC */
 	ical_dezonify_recur(cal, cal);
 
-	/** Strip out VTIMEZONE subcomponents -- we don't need them anymore */
+	/* Strip out VTIMEZONE subcomponents -- we don't need them anymore */
 	while (vt = icalcomponent_get_first_component(
 			cal, ICAL_VTIMEZONE_COMPONENT), vt != NULL) {
 		icalcomponent_remove_component(cal, vt);
 		icalcomponent_free(vt);
 	}
 
+	lprintf(9, "ical_dezonify() completed\n");
 }
 
 
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
-/*@}*/
