@@ -197,13 +197,13 @@ void init_ssl(void)
 					*/
 
 					X509_NAME_add_entry_by_txt(name, "O",
-						MBSTRING_ASC, "FIXME.FIXME.org", -1, -1, 0);
+						MBSTRING_ASC, "Organization name", -1, -1, 0);
 
 					X509_NAME_add_entry_by_txt(name, "OU",
 						MBSTRING_ASC, "Citadel server", -1, -1, 0);
 
 					X509_NAME_add_entry_by_txt(name, "CN",
-						MBSTRING_ASC, "FIXME.FIXME.org", -1, -1, 0);
+						MBSTRING_ASC, "*", -1, -1, 0);
 				
 					X509_REQ_set_subject_name(req, name);
 
