@@ -27,6 +27,13 @@
 #include <ical.h>
 #include "ical_dezonify.h"
 
+
+/*
+ * Figure out which time zone needs to be used for timestamps that are
+ * not UTC and do not have a time zone specified.
+ *
+ * FIXME - most sites are not in New York :)
+ */
 icaltimezone *get_default_icaltimezone(void) {
 
         char *location = NULL;
@@ -34,11 +41,11 @@ icaltimezone *get_default_icaltimezone(void) {
 
         location = "America/New_York";
         if (location) {
-                zone = icaltimezone_get_builtin_timezone (location);
+                zone = icaltimezone_get_builtin_timezone(location);
         }
-        if (!zone)
-                zone = icaltimezone_get_utc_timezone ();
-
+        if (!zone) {
+                zone = icaltimezone_get_utc_timezone();
+	}
         return zone;
 }
 
