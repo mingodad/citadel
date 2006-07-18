@@ -56,3 +56,25 @@ Various Whishlist
 
 * backtraces in the log in case of panics, etc.
 
+* auto-login should move from compile to installtime.
+
+* scheduled restarts there should be a way to notify all users 
+   (whether via imap or webcit) that citadel is going to be unavailable.
+   
+* there should be a way to set a 'service unavailable because of' message, 
+  for people connecting via webcit, so they can see this is a scheduled 
+  downtime (so they don't take further actions like anoying the admin
+  (you) via phone or restart citadel...
+
+* there should be a way to keep citadel from starting while you're db recovering etc.
+  (perhaps something like the pre-shutdown state would be cool, with a 
+   message? so you tell it "sysadmin is reworking the database" as param
+   to the server, it will close the db, but keep open the port, and 
+   print out your message as error message. this should last until citserver
+   receives a kill signal, and then terminates.)
+
+* citserver should bypass some bdb errors and symptoms. it should remember 
+  the actual berkeley db version in its state file, and in case of an up/downgrade
+  moan this to the user / logfile. bdb upgrades should trigger a mail to aide.
+
+
