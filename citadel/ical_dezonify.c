@@ -39,6 +39,21 @@ icaltimezone *get_default_icaltimezone(void) {
         char *location = NULL;
         icaltimezone *zone = NULL;
 
+
+
+/*
+   This doesn't even belong here. 
+   I'm just keeping it here until I put it somewhere permanent.
+
+	icalarray *zones;
+	int i;
+ 	zones = icaltimezone_get_builtin_timezones();
+ 	for (i = 0; i < zones->num_elements; i++) {
+		lprintf(CTDL_DEBUG, "%s\n", icaltimezone_get_location(icalarray_element_at(zones, i)));
+	}
+ */
+
+
         location = "America/New_York";
         if (location) {
                 zone = icaltimezone_get_builtin_timezone(location);
