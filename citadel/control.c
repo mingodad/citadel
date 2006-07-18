@@ -431,7 +431,7 @@ void cmd_conf(char *argbuf)
 		/* If full text indexing has been disabled, invalidate the
 		 * index so it doesn't try to use it later.
 		 */
-		if (!config.c_enable_fulltext == 0) {
+		if (config.c_enable_fulltext == 0) {
 			CitControl.fulltext_wordbreaker = 0;
 			put_control();
 		}

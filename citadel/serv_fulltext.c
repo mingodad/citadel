@@ -249,12 +249,16 @@ void do_fulltext_indexing(void) {
 	 * If we've switched wordbreaker modules, burn the index and start
 	 * over.
 	 */
+	begin_critical_section(S_CONTROL);
+	lprintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
+			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID);
 	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
 		lprintf(CTDL_INFO, "(re)initializing full text index\n");
 		cdb_trunc(CDB_FULLTEXT);
 		CitControl.MMfulltext = 0L;
 		put_control();
 	}
+	end_critical_section(S_CONTROL);
 
 	/*
 	 * Now go through each room and find messages to index.
@@ -309,9 +313,11 @@ void do_fulltext_indexing(void) {
 
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();
+	begin_critical_section(S_CONTROL);
 	CitControl.MMfulltext = ft_newhighest;
 	CitControl.fulltext_wordbreaker = FT_WORDBREAKER_ID;
 	put_control();
+	end_critical_section(S_CONTROL);
 	last_index = time(NULL);
 
 	lprintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
