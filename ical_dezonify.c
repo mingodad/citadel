@@ -29,12 +29,10 @@
  */
 icaltimezone *get_default_icaltimezone(void) {
 
-        char *location = NULL;
         icaltimezone *zone = NULL;
 
-        location = "America/New_York";
-        if (location) {
-                zone = icaltimezone_get_builtin_timezone(location);
+        if (!zone) {
+                zone = icaltimezone_get_builtin_timezone(serv_info.serv_default_cal_zone);
         }
         if (!zone) {
                 zone = icaltimezone_get_utc_timezone();
