@@ -273,6 +273,8 @@ void cmd_info(void) {
 	cprintf("%d\n", config.c_disable_newu); /* otherwise, site defined */
 #endif
 
+	cprintf("%s\n", config.c_default_cal_zone);
+
 	cprintf("000\n");
 }
 

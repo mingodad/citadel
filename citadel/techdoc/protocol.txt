@@ -632,6 +632,9 @@ parts of the listing:
            directory service using LDAP.
  Line 15 - Set to nonzero if this server does *not* allow self-service
            creation of new user accounts.
+ Line 16 - The default timezone for calendar items which do not have any
+           timezone specified and are not flagged as UTC.  This will be a
+           zone name from the Olsen database.
 
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary
