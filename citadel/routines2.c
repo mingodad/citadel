@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 49
+#define NUM_CONFIGS 50
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][256];

@@ -72,6 +72,7 @@ struct config {
 	char c_journal_email;		/* Perform journaling of email      */
 	char c_journal_pubmsgs;		/* Perform journaling of non-email  */
 	char c_journal_dest[128];	/* Where to send journalized msgs   */
+	char c_default_cal_zone[128];	/* Default calendar time zone       */
 };
 
 

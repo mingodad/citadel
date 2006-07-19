@@ -221,6 +221,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_journal_email);
 		cprintf("%d\n", config.c_journal_pubmsgs);
 		cprintf("%s\n", config.c_journal_dest);
+		cprintf("%s\n", config.c_default_cal_zone);
 		cprintf("000\n");
 	}
 
@@ -416,6 +417,9 @@ void cmd_conf(char *argbuf)
 			case 48:
 				safestrncpy(config.c_journal_dest, buf,
 						sizeof config.c_journal_dest);
+			case 49:
+				safestrncpy(config.c_default_cal_zone, buf,
+						sizeof config.c_default_cal_zone);
 			}
 			++a;
 		}
