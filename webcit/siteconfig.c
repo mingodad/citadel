@@ -8,6 +8,7 @@
 /*@{*/
 
 #include "webcit.h"
+#include "webserver.h"
 
 /**
  * \brief display all configuration items
@@ -17,7 +18,7 @@ void display_siteconfig(void)
 	char buf[SIZ];
 	int i, j;
 
-	char general[SIZ];
+	char general[65536];
 	char access[SIZ];
 	char network[SIZ];
 	char tuning[SIZ];
@@ -473,6 +474,38 @@ void display_siteconfig(void)
 			sprintf(&idxjnl[strlen(idxjnl)], "<input type=\"text\" NAME=\"c_journal_dest\" MAXLENGTH=\"127\" VALUE=\"%s\">", buf);
 			sprintf(&idxjnl[strlen(idxjnl)], "</TD></TR>\n");
 			break;
+		case 49:
+			if (strlen(buf) == 0) {
+				strcpy(buf, "UTC");
+			}
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Default timezone for unzoned calendar items"));
+			sprintf(&general[strlen(general)], "</TD><TD>");
+			sprintf(&general[strlen(general)], "<select name=\"c_default_cal_zone\" size=\"1\">\n");
+
+			sprintf(&general[strlen(general)], "<option %s value=\"UTC\">UTC</option>\n",
+				(!strcasecmp(buf, "UTC") ? "selected" : "")
+			);
+
+			icalarray *zones;
+			int z;
+			char this_zone[128];
+			zones = icaltimezone_get_builtin_timezones();
+			for (z = 0; z < zones->num_elements; ++z) {
+				strcpy(this_zone, icaltimezone_get_location(icalarray_element_at(zones, z)));
+				sprintf(&general[strlen(general)], "<option %s value=\"%s\">%s</option>\n",
+					(!strcasecmp(this_zone, buf) ? "selected" : ""),
+					this_zone, this_zone
+				);
+			}
+
+			sprintf(&general[strlen(general)], "</select>");
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
+#else /* WEBCIT_WITH_CALENDAR_SERVICE */
+			wprintf("<input type=\"hidden\" name=\"c_default_cal_zone\" value=\"%s\">\n", buf);
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
+			break;
 		}
 	}
 
@@ -550,13 +583,13 @@ void display_siteconfig(void)
 
 	tabbed_dialog(7, tabnames);
 
-	begin_tab(0, 7);	wprintf("%s", general);		 end_tab(0, 7);
-	begin_tab(1, 7);	wprintf("%s", access);		 end_tab(1, 7);
-	begin_tab(2, 7);	wprintf("%s", network);		 end_tab(2, 7);
-	begin_tab(3, 7);	wprintf("%s", tuning);		 end_tab(3, 7);
-	begin_tab(4, 7);	wprintf("%s", directory);	 end_tab(4, 7);
-	begin_tab(5, 7);	wprintf("%s", purger);		 end_tab(5, 7);
-	begin_tab(6, 7);	wprintf("%s", idxjnl);	 end_tab(6, 7);
+	begin_tab(0, 7);	client_write(general, strlen(general));		 end_tab(0, 7);
+	begin_tab(1, 7);	client_write(access, strlen(access));		 end_tab(1, 7);
+	begin_tab(2, 7);	client_write(network, strlen(network));		 end_tab(2, 7);
+	begin_tab(3, 7);	client_write(tuning, strlen(tuning));		 end_tab(3, 7);
+	begin_tab(4, 7);	client_write(directory, strlen(directory));	 end_tab(4, 7);
+	begin_tab(5, 7);	client_write(purger, strlen(purger));		 end_tab(5, 7);
+	begin_tab(6, 7);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 7);
 
 	wprintf("<div align=\"center\"><br>");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
@@ -634,12 +667,15 @@ void siteconfig(void)
 	serv_printf("%s", ((!strcasecmp(bstr("c_journal_email"), "yes") ? "1" : "0")));
 	serv_printf("%s", ((!strcasecmp(bstr("c_journal_pubmsgs"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_journal_dest"));
+	serv_printf("%s", bstr("c_default_cal_zone"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
 	serv_getln(buf, sizeof buf);
 	serv_printf("SPEX mailboxes|%d|%d", atoi(bstr("mboxpolicy")), atoi(bstr("mboxvalue")));
 	serv_getln(buf, sizeof buf);
+
+	strcpy(serv_info.serv_default_cal_zone, bstr("c_default_cal_zone"));
 
 	safestrncpy(WC->ImportantMessage, _("Your system configuration has been updated."),
 		sizeof WC->ImportantMessage);

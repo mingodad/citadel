@@ -227,10 +227,11 @@ struct serv_info {
 	int serv_rev_level;		/**< Whats the citadel server revision */
 	char serv_bbs_city[64];		/**< Geographic location of the Citadel server */
 	char serv_sysadm[64];		/**< Name of system administrator */
-	char serv_moreprompt[SIZ];	/**< Whats the commandline textprompt */
+	char serv_moreprompt[256];	/**< Whats the commandline textprompt */
 	int serv_ok_floors;		/**< nonzero == server supports floors */
 	int serv_supports_ldap;		/**< is the server linked against an ldap tree for adresses? */
 	int serv_newuser_disabled;	/**< Has the server disabled self-service new user creation? */
+	char serv_default_cal_zone[128];/**< Default timezone for unspecified calendar items */
 };
 
 

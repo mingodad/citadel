@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-08 23:42-0400\n"
+"POT-Creation-Date: 2006-07-18 23:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,7 +140,7 @@ msgstr ""
 #: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2943 ../messages.c:3065
 #: ../messages.c:3175 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1283 ../roomops.c:1611 ../roomops.c:2044
-#: ../roomops.c:2193 ../roomops.c:2257 ../siteconfig.c:564 ../sysmsgs.c:59
+#: ../roomops.c:2193 ../roomops.c:2257 ../siteconfig.c:597 ../sysmsgs.c:59
 #: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
 msgid "Cancel"
 msgstr ""
@@ -497,7 +497,7 @@ msgstr ""
 msgid "Add/change/delete floors"
 msgstr ""
 
-#: ../floors.c:51 ../siteconfig.c:49 ../vcard_edit.c:79 ../wiki.c:66
+#: ../floors.c:51 ../siteconfig.c:50 ../vcard_edit.c:79 ../wiki.c:66
 #: ../wiki.c:76
 msgid "Error"
 msgstr ""
@@ -783,7 +783,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr ""
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1282 ../roomops.c:1609
-#: ../siteconfig.c:562 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
+#: ../siteconfig.c:595 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
 msgid "Save changes"
 msgstr ""
 
@@ -793,91 +793,67 @@ msgid ""
 "continue."
 msgstr ""
 
-#: ../inetconf.c:38
-msgid "localhost"
-msgstr ""
-
-#: ../inetconf.c:39
-msgid "directory"
-msgstr ""
-
-#: ../inetconf.c:40
-msgid "gatewaydomain"
-msgstr ""
-
-#: ../inetconf.c:41
-msgid "smarthost"
-msgstr ""
-
-#: ../inetconf.c:42
-msgid "rbl"
-msgstr ""
-
-#: ../inetconf.c:43
-msgid "spamassassin"
-msgstr ""
-
-#: ../inetconf.c:45
+#: ../inetconf.c:46
 msgid "Local host aliases"
 msgstr ""
 
-#: ../inetconf.c:46
+#: ../inetconf.c:47
 msgid "Directory domains"
 msgstr ""
 
-#: ../inetconf.c:47
+#: ../inetconf.c:48
 msgid "Gateway domains"
 msgstr ""
 
-#: ../inetconf.c:48
+#: ../inetconf.c:49
 msgid "Smart hosts"
 msgstr ""
 
-#: ../inetconf.c:49
+#: ../inetconf.c:50
 msgid "RBL hosts"
 msgstr ""
 
-#: ../inetconf.c:50
+#: ../inetconf.c:51
 msgid "SpamAssassin hosts"
 msgstr ""
 
-#: ../inetconf.c:52
+#: ../inetconf.c:53
 msgid "(domains for which this host receives mail)"
 msgstr ""
 
-#: ../inetconf.c:53
+#: ../inetconf.c:54
 msgid "(domains mapped with the Global Address Book)"
 msgstr ""
 
-#: ../inetconf.c:54
+#: ../inetconf.c:55
 msgid "(domains whose subdomains match Citadel hosts)"
 msgstr ""
 
-#: ../inetconf.c:55
+#: ../inetconf.c:56
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr ""
 
-#: ../inetconf.c:56
+#: ../inetconf.c:57
 msgid "(hosts running a Realtime Blackhole List)"
 msgstr ""
 
-#: ../inetconf.c:57
+#: ../inetconf.c:58
 msgid "(hosts running the SpamAssassin service)"
 msgstr ""
 
-#: ../inetconf.c:94
+#: ../inetconf.c:95
 msgid "Internet configuration"
 msgstr ""
 
-#: ../inetconf.c:121
+#: ../inetconf.c:122
 msgid "Delete this entry?"
 msgstr ""
 
-#: ../inetconf.c:123 ../netconf.c:209
+#: ../inetconf.c:124 ../netconf.c:209
 msgid "(Delete)"
 msgstr ""
 
-#: ../inetconf.c:173
+#: ../inetconf.c:174
 #, c-format
 msgid "%s has been deleted."
 msgstr ""
@@ -1330,7 +1306,7 @@ msgstr ""
 msgid "Add a new node"
 msgstr ""
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:112
+#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:113
 #, c-format
 msgid "Node name"
 msgstr ""
@@ -1818,22 +1794,22 @@ msgstr ""
 msgid "Use the default policy for this floor"
 msgstr ""
 
-#: ../roomops.c:1565 ../roomops.c:1592 ../siteconfig.c:501 ../siteconfig.c:526
+#: ../roomops.c:1565 ../roomops.c:1592 ../siteconfig.c:534 ../siteconfig.c:559
 #, c-format
 msgid "Never automatically expire messages"
 msgstr ""
 
-#: ../roomops.c:1569 ../roomops.c:1596 ../siteconfig.c:505 ../siteconfig.c:530
+#: ../roomops.c:1569 ../roomops.c:1596 ../siteconfig.c:538 ../siteconfig.c:563
 #, c-format
 msgid "Expire by message count"
 msgstr ""
 
-#: ../roomops.c:1573 ../roomops.c:1600 ../siteconfig.c:509 ../siteconfig.c:534
+#: ../roomops.c:1573 ../roomops.c:1600 ../siteconfig.c:542 ../siteconfig.c:567
 #, c-format
 msgid "Expire by message age"
 msgstr ""
 
-#: ../roomops.c:1575 ../roomops.c:1602 ../siteconfig.c:511 ../siteconfig.c:536
+#: ../roomops.c:1575 ../roomops.c:1602 ../siteconfig.c:544 ../siteconfig.c:569
 #, c-format
 msgid "Number of messages or days: "
 msgstr ""
@@ -1975,326 +1951,331 @@ msgstr ""
 msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr ""
 
-#: ../siteconfig.c:38
+#: ../siteconfig.c:39
 msgid "Site configuration"
 msgstr ""
 
-#: ../siteconfig.c:61
+#: ../siteconfig.c:62
 msgid "General"
 msgstr ""
 
-#: ../siteconfig.c:62
+#: ../siteconfig.c:63
 msgid "Access"
 msgstr ""
 
-#: ../siteconfig.c:63
+#: ../siteconfig.c:64
 msgid "Network"
 msgstr ""
 
-#: ../siteconfig.c:64
+#: ../siteconfig.c:65
 msgid "Tuning"
 msgstr ""
 
-#: ../siteconfig.c:65
+#: ../siteconfig.c:66
 msgid "Directory"
 msgstr ""
 
-#: ../siteconfig.c:66
+#: ../siteconfig.c:67
 msgid "Auto-purger"
 msgstr ""
 
-#: ../siteconfig.c:67
+#: ../siteconfig.c:68
 msgid "Indexing/Journaling"
 msgstr ""
 
-#: ../siteconfig.c:71
+#: ../siteconfig.c:72
 msgid "General site configuration items"
 msgstr ""
 
-#: ../siteconfig.c:75
+#: ../siteconfig.c:76
 msgid "Access controls and site policy settings"
 msgstr ""
 
-#: ../siteconfig.c:79
+#: ../siteconfig.c:80
 msgid "Network services"
 msgstr ""
 
-#: ../siteconfig.c:80 ../siteconfig.c:90
+#: ../siteconfig.c:81 ../siteconfig.c:91
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
 msgstr ""
 
-#: ../siteconfig.c:85
+#: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
 msgstr ""
 
-#: ../siteconfig.c:89
+#: ../siteconfig.c:90
 msgid "Configure the LDAP connector for Citadel"
 msgstr ""
 
-#: ../siteconfig.c:95
+#: ../siteconfig.c:96
 msgid "Configure automatic expiry of old messages"
 msgstr ""
 
-#: ../siteconfig.c:96
+#: ../siteconfig.c:97
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
 
-#: ../siteconfig.c:100
+#: ../siteconfig.c:101
 msgid "Indexing and Journaling"
 msgstr ""
 
-#: ../siteconfig.c:101
+#: ../siteconfig.c:102
 msgid "Warning: these facilities are resource intensive."
 msgstr ""
 
-#: ../siteconfig.c:119
+#: ../siteconfig.c:120
 #, c-format
 msgid "Fully qualified domain name"
 msgstr ""
 
-#: ../siteconfig.c:126
+#: ../siteconfig.c:127
 #, c-format
 msgid "Human-readable node name"
 msgstr ""
 
-#: ../siteconfig.c:133
+#: ../siteconfig.c:134
 #, c-format
 msgid "Telephone number"
 msgstr ""
 
-#: ../siteconfig.c:140
+#: ../siteconfig.c:141
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
-#: ../siteconfig.c:148
+#: ../siteconfig.c:149
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr ""
 
-#: ../siteconfig.c:155
+#: ../siteconfig.c:156
 #, c-format
 msgid "Initial access level for new users"
 msgstr ""
 
-#: ../siteconfig.c:169
+#: ../siteconfig.c:170
 #, c-format
 msgid "Require registration for new users"
 msgstr ""
 
-#: ../siteconfig.c:177
+#: ../siteconfig.c:178
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr ""
 
-#: ../siteconfig.c:185
+#: ../siteconfig.c:186
 #, c-format
 msgid "Name of quarantine room"
 msgstr ""
 
-#: ../siteconfig.c:192
+#: ../siteconfig.c:193
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr ""
 
-#: ../siteconfig.c:199
+#: ../siteconfig.c:200
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr ""
 
-#: ../siteconfig.c:207
+#: ../siteconfig.c:208
 #, c-format
 msgid "Geographic location of this system"
 msgstr ""
 
-#: ../siteconfig.c:214
+#: ../siteconfig.c:215
 #, c-format
 msgid "Name of system administrator"
 msgstr ""
 
-#: ../siteconfig.c:221
+#: ../siteconfig.c:222
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr ""
 
-#: ../siteconfig.c:228
+#: ../siteconfig.c:229
 #, c-format
 msgid "Default user purge time (days)"
 msgstr ""
 
-#: ../siteconfig.c:235
+#: ../siteconfig.c:236
 #, c-format
 msgid "Default room purge time (days)"
 msgstr ""
 
-#: ../siteconfig.c:242
+#: ../siteconfig.c:243
 #, c-format
 msgid "Name of room to log pages"
 msgstr ""
 
-#: ../siteconfig.c:249
+#: ../siteconfig.c:250
 #, c-format
 msgid "Access level required to create rooms"
 msgstr ""
 
-#: ../siteconfig.c:263
+#: ../siteconfig.c:264
 #, c-format
 msgid "Maximum message length"
 msgstr ""
 
-#: ../siteconfig.c:270
+#: ../siteconfig.c:271
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr ""
 
-#: ../siteconfig.c:277
+#: ../siteconfig.c:278
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr ""
 
-#: ../siteconfig.c:284
+#: ../siteconfig.c:285
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:291
+#: ../siteconfig.c:292
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:298
+#: ../siteconfig.c:299
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr ""
 
-#: ../siteconfig.c:306
+#: ../siteconfig.c:307
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr ""
 
-#: ../siteconfig.c:314
+#: ../siteconfig.c:315
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:321
+#: ../siteconfig.c:322
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr ""
 
-#: ../siteconfig.c:328
+#: ../siteconfig.c:329
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr ""
 
-#: ../siteconfig.c:336
+#: ../siteconfig.c:337
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr ""
 
-#: ../siteconfig.c:352
+#: ../siteconfig.c:353
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr ""
 
-#: ../siteconfig.c:359
+#: ../siteconfig.c:360
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr ""
 
-#: ../siteconfig.c:366
+#: ../siteconfig.c:367
 #, c-format
 msgid "Base DN"
 msgstr ""
 
-#: ../siteconfig.c:373
+#: ../siteconfig.c:374
 #, c-format
 msgid "Bind DN"
 msgstr ""
 
-#: ../siteconfig.c:380
+#: ../siteconfig.c:381
 #, c-format
 msgid "Password for bind DN"
 msgstr ""
 
-#: ../siteconfig.c:388
+#: ../siteconfig.c:389
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr ""
 
-#: ../siteconfig.c:395
+#: ../siteconfig.c:396
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:402
+#: ../siteconfig.c:403
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:409
+#: ../siteconfig.c:410
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:416
+#: ../siteconfig.c:417
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:423
+#: ../siteconfig.c:424
 #, c-format
 msgid "Enable full text index"
 msgstr ""
 
-#: ../siteconfig.c:431
+#: ../siteconfig.c:432
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr ""
 
-#: ../siteconfig.c:439
+#: ../siteconfig.c:440
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr ""
 
-#: ../siteconfig.c:447
+#: ../siteconfig.c:448
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
 msgstr ""
 
-#: ../siteconfig.c:455
+#: ../siteconfig.c:456
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr ""
 
-#: ../siteconfig.c:463
+#: ../siteconfig.c:464
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr ""
 
-#: ../siteconfig.c:471
+#: ../siteconfig.c:472
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr ""
 
-#: ../siteconfig.c:497
+#: ../siteconfig.c:483
+#, c-format
+msgid "Default timezone for unzoned calendar items"
+msgstr ""
+
+#: ../siteconfig.c:530
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr ""
 
-#: ../siteconfig.c:518
+#: ../siteconfig.c:551
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr ""
 
-#: ../siteconfig.c:522
+#: ../siteconfig.c:555
 #, c-format
 msgid "Same policy as public rooms"
 msgstr ""
 
-#: ../siteconfig.c:644
+#: ../siteconfig.c:680
 msgid "Your system configuration has been updated."
 msgstr ""
 

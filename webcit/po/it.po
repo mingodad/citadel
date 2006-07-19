@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-08 23:42-0400\n"
+"POT-Creation-Date: 2006-07-18 23:32-0400\n"
 "PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -150,7 +150,7 @@ msgstr "Cambia la password"
 #: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2943 ../messages.c:3065
 #: ../messages.c:3175 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1283 ../roomops.c:1611 ../roomops.c:2044
-#: ../roomops.c:2193 ../roomops.c:2257 ../siteconfig.c:564 ../sysmsgs.c:59
+#: ../roomops.c:2193 ../roomops.c:2257 ../siteconfig.c:597 ../sysmsgs.c:59
 #: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
 msgid "Cancel"
 msgstr "Cancella"
@@ -533,7 +533,7 @@ msgstr "Controlla la disponibilit&agrave; del membro."
 msgid "Add/change/delete floors"
 msgstr "Agiungi, cambia o cancella i piani"
 
-#: ../floors.c:51 ../siteconfig.c:49 ../vcard_edit.c:79 ../wiki.c:66
+#: ../floors.c:51 ../siteconfig.c:50 ../vcard_edit.c:79 ../wiki.c:66
 #: ../wiki.c:76
 msgid "Error"
 msgstr "Errore"
@@ -830,7 +830,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Mostra l'icona Potenziato da Citadel"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1282 ../roomops.c:1609
-#: ../siteconfig.c:562 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
+#: ../siteconfig.c:595 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
 msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
@@ -842,91 +842,67 @@ msgstr ""
 "La tua bara delle icone &egrave; stata aggiornata. Per favore, seleziona una "
 "delle sue possibilit&agrave; per continuare."
 
-#: ../inetconf.c:38
-msgid "localhost"
-msgstr "localhost"
-
-#: ../inetconf.c:39
-msgid "directory"
-msgstr "directory"
-
-#: ../inetconf.c:40
-msgid "gatewaydomain"
-msgstr "dominio del gateway"
-
-#: ../inetconf.c:41
-msgid "smarthost"
-msgstr "smarthost"
-
-#: ../inetconf.c:42
-msgid "rbl"
-msgstr "rbl"
-
-#: ../inetconf.c:43
-msgid "spamassassin"
-msgstr "spamassassin"
-
-#: ../inetconf.c:45
+#: ../inetconf.c:46
 msgid "Local host aliases"
 msgstr "Alias degli host locali"
 
-#: ../inetconf.c:46
+#: ../inetconf.c:47
 msgid "Directory domains"
 msgstr "Domini delle directory"
 
-#: ../inetconf.c:47
+#: ../inetconf.c:48
 msgid "Gateway domains"
 msgstr "Domini del gateway"
 
-#: ../inetconf.c:48
+#: ../inetconf.c:49
 msgid "Smart hosts"
 msgstr "Smart Host"
 
-#: ../inetconf.c:49
+#: ../inetconf.c:50
 msgid "RBL hosts"
 msgstr "Host RBL"
 
-#: ../inetconf.c:50
+#: ../inetconf.c:51
 msgid "SpamAssassin hosts"
 msgstr "Host Spamassassin"
 
-#: ../inetconf.c:52
+#: ../inetconf.c:53
 msgid "(domains for which this host receives mail)"
 msgstr "(Domini per cui questo host riceve email)"
 
-#: ../inetconf.c:53
+#: ../inetconf.c:54
 msgid "(domains mapped with the Global Address Book)"
 msgstr "(Domini mappati nei Contatti Globali)"
 
-#: ../inetconf.c:54
+#: ../inetconf.c:55
 msgid "(domains whose subdomains match Citadel hosts)"
 msgstr "(domini i cui sottodomini coincidono con host Citadel)"
 
-#: ../inetconf.c:55
+#: ../inetconf.c:56
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr "(Se presenti, invia tutta la posta non locale a uno di questi host)"
 
-#: ../inetconf.c:56
+#: ../inetconf.c:57
 msgid "(hosts running a Realtime Blackhole List)"
 msgstr "(host che usano una lista Blackhole in tempo reale)"
 
-#: ../inetconf.c:57
+#: ../inetconf.c:58
 msgid "(hosts running the SpamAssassin service)"
 msgstr "(host che forniscono il servizio spamassassin)"
 
-#: ../inetconf.c:94
+#: ../inetconf.c:95
 msgid "Internet configuration"
 msgstr "Configurazione internet"
 
-#: ../inetconf.c:121
+#: ../inetconf.c:122
 msgid "Delete this entry?"
 msgstr "Cancello questa voce?"
 
-#: ../inetconf.c:123 ../netconf.c:209
+#: ../inetconf.c:124 ../netconf.c:209
 msgid "(Delete)"
 msgstr "(Cancella)"
 
-#: ../inetconf.c:173
+#: ../inetconf.c:174
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s &egrave; stato cancellato."
@@ -1389,7 +1365,7 @@ msgstr "Sposta questo messaggio in:"
 msgid "Add a new node"
 msgstr "Aggiungi un nuovo nodo"
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:112
+#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:113
 #, c-format
 msgid "Node name"
 msgstr "Nome del nodo"
@@ -1902,22 +1878,22 @@ msgstr "Politica di cancellazione dei messaggi per questa stanza"
 msgid "Use the default policy for this floor"
 msgstr "Usa la politica di default per questo piano"
 
-#: ../roomops.c:1565 ../roomops.c:1592 ../siteconfig.c:501 ../siteconfig.c:526
+#: ../roomops.c:1565 ../roomops.c:1592 ../siteconfig.c:534 ../siteconfig.c:559
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Non permettere ai messaggi di auto cancellarsi"
 
-#: ../roomops.c:1569 ../roomops.c:1596 ../siteconfig.c:505 ../siteconfig.c:530
+#: ../roomops.c:1569 ../roomops.c:1596 ../siteconfig.c:538 ../siteconfig.c:563
 #, c-format
 msgid "Expire by message count"
 msgstr "Cancella per numero di messaggi"
 
-#: ../roomops.c:1573 ../roomops.c:1600 ../siteconfig.c:509 ../siteconfig.c:534
+#: ../roomops.c:1573 ../roomops.c:1600 ../siteconfig.c:542 ../siteconfig.c:567
 #, c-format
 msgid "Expire by message age"
 msgstr "Elimina per età del messaggio"
 
-#: ../roomops.c:1575 ../roomops.c:1602 ../siteconfig.c:511 ../siteconfig.c:536
+#: ../roomops.c:1575 ../roomops.c:1602 ../siteconfig.c:544 ../siteconfig.c:569
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Numero di messaggi o giorni:"
@@ -2070,51 +2046,51 @@ msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr ""
 "Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
 
-#: ../siteconfig.c:38
+#: ../siteconfig.c:39
 msgid "Site configuration"
 msgstr "Configurazione del sito"
 
-#: ../siteconfig.c:61
+#: ../siteconfig.c:62
 msgid "General"
 msgstr "Generale"
 
-#: ../siteconfig.c:62
+#: ../siteconfig.c:63
 msgid "Access"
 msgstr "Accesso"
 
-#: ../siteconfig.c:63
+#: ../siteconfig.c:64
 msgid "Network"
 msgstr "Rete"
 
-#: ../siteconfig.c:64
+#: ../siteconfig.c:65
 msgid "Tuning"
 msgstr "Rifiniture"
 
-#: ../siteconfig.c:65
+#: ../siteconfig.c:66
 msgid "Directory"
 msgstr "Direttorio"
 
-#: ../siteconfig.c:66
+#: ../siteconfig.c:67
 msgid "Auto-purger"
 msgstr "Eliminatore automatico"
 
-#: ../siteconfig.c:67
+#: ../siteconfig.c:68
 msgid "Indexing/Journaling"
 msgstr "Indicizza"
 
-#: ../siteconfig.c:71
+#: ../siteconfig.c:72
 msgid "General site configuration items"
 msgstr "Oggetti di configurazione generali del sito"
 
-#: ../siteconfig.c:75
+#: ../siteconfig.c:76
 msgid "Access controls and site policy settings"
 msgstr "Controlli di accesso e impostazioni delle politiche del sito"
 
-#: ../siteconfig.c:79
+#: ../siteconfig.c:80
 msgid "Network services"
 msgstr "Servizi di rete"
 
-#: ../siteconfig.c:80 ../siteconfig.c:90
+#: ../siteconfig.c:81 ../siteconfig.c:91
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
@@ -2122,282 +2098,287 @@ msgstr ""
 "I cambiamenti in questa schemata non avranno effetto finchè non si riavvia "
 "il server Citadel."
 
-#: ../siteconfig.c:85
+#: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
 msgstr "Controlli avanzati per la configurazione delle rifiniture "
 
-#: ../siteconfig.c:89
+#: ../siteconfig.c:90
 msgid "Configure the LDAP connector for Citadel"
 msgstr "Configura il connettore LDAP per Citadel"
 
-#: ../siteconfig.c:95
+#: ../siteconfig.c:96
 msgid "Configure automatic expiry of old messages"
 msgstr "Configura la cancellazione automatica dei vecchi messaggi"
 
-#: ../siteconfig.c:96
+#: ../siteconfig.c:97
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
 "Queste impostazioni possono essere escluse da impostazioni specifiche alla "
 "stanza o al piano."
 
-#: ../siteconfig.c:100
+#: ../siteconfig.c:101
 msgid "Indexing and Journaling"
 msgstr "Indicizzazione"
 
-#: ../siteconfig.c:101
+#: ../siteconfig.c:102
 msgid "Warning: these facilities are resource intensive."
 msgstr "Attenzione: queste caratteristiche richiedono molte risorse."
 
-#: ../siteconfig.c:119
+#: ../siteconfig.c:120
 #, c-format
 msgid "Fully qualified domain name"
 msgstr "Nome di dominio completo"
 
-#: ../siteconfig.c:126
+#: ../siteconfig.c:127
 #, c-format
 msgid "Human-readable node name"
 msgstr "Nome del nodo leggibile da umani"
 
-#: ../siteconfig.c:133
+#: ../siteconfig.c:134
 #, c-format
 msgid "Telephone number"
 msgstr "Numero di telefono"
 
-#: ../siteconfig.c:140
+#: ../siteconfig.c:141
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Imposta automaticamente lo stato di aide per la stanza agli utenti che "
 "creano stanze private"
 
-#: ../siteconfig.c:148
+#: ../siteconfig.c:149
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr "Timeout della connessione per il server in attesa (in secondi)"
 
-#: ../siteconfig.c:155
+#: ../siteconfig.c:156
 #, c-format
 msgid "Initial access level for new users"
 msgstr "Livello di accesso iniziale per i nuovi utenti"
 
-#: ../siteconfig.c:169
+#: ../siteconfig.c:170
 #, c-format
 msgid "Require registration for new users"
 msgstr "Richiedi la registrazione per i nuovo utenti"
 
-#: ../siteconfig.c:177
+#: ../siteconfig.c:178
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr "Poni in quarantena i messaggi da utenti con problemi"
 
-#: ../siteconfig.c:185
+#: ../siteconfig.c:186
 #, c-format
 msgid "Name of quarantine room"
 msgstr "Nome della stanza di quarantena"
 
-#: ../siteconfig.c:192
+#: ../siteconfig.c:193
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr "Richiamo di impaginazione (per i client solo testo)"
 
-#: ../siteconfig.c:199
+#: ../siteconfig.c:200
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr "Restringi l'accesso alla posta internet"
 
-#: ../siteconfig.c:207
+#: ../siteconfig.c:208
 #, c-format
 msgid "Geographic location of this system"
 msgstr "Località geografica di questo server"
 
-#: ../siteconfig.c:214
+#: ../siteconfig.c:215
 #, c-format
 msgid "Name of system administrator"
 msgstr "Nome dell'amministratore di sistema"
 
-#: ../siteconfig.c:221
+#: ../siteconfig.c:222
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr "Numero massimo di sessioni concorrenti (0 = nessun limite)"
 
-#: ../siteconfig.c:228
+#: ../siteconfig.c:229
 #, c-format
 msgid "Default user purge time (days)"
 msgstr "Tempo di eliminazione di default degli utenti (in giorni)"
 
-#: ../siteconfig.c:235
+#: ../siteconfig.c:236
 #, c-format
 msgid "Default room purge time (days)"
 msgstr "Tempo di eliminazioni di default delle stanze (in giorni)"
 
-#: ../siteconfig.c:242
+#: ../siteconfig.c:243
 #, c-format
 msgid "Name of room to log pages"
 msgstr "Nome delle stanze per il log delle pagine"
 
-#: ../siteconfig.c:249
+#: ../siteconfig.c:250
 #, c-format
 msgid "Access level required to create rooms"
 msgstr "Livello di accesso richiesto per creare le stanze"
 
-#: ../siteconfig.c:263
+#: ../siteconfig.c:264
 #, c-format
 msgid "Maximum message length"
 msgstr "Massima lunghezza dei messaggi"
 
-#: ../siteconfig.c:270
+#: ../siteconfig.c:271
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr "Numero minimo di discussioni attive"
 
-#: ../siteconfig.c:277
+#: ../siteconfig.c:278
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr "Massimo numero di discussioni attive"
 
-#: ../siteconfig.c:284
+#: ../siteconfig.c:285
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr "Porta POP3 (-1 per disabilitare)"
 
-#: ../siteconfig.c:291
+#: ../siteconfig.c:292
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr "Porta SMTP MTA (-1 per disabilitare)"
 
-#: ../siteconfig.c:298
+#: ../siteconfig.c:299
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr "Correggi le linee From: forgiate durante una sessione SMTP autenticata"
 
-#: ../siteconfig.c:306
+#: ../siteconfig.c:307
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr "Permetti agli amministratori di dimenticare le stanze"
 
-#: ../siteconfig.c:314
+#: ../siteconfig.c:315
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr "Porta IMAP (-1 per disabilitare)"
 
-#: ../siteconfig.c:321
+#: ../siteconfig.c:322
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr "Velocità della rete (in secondi)"
 
-#: ../siteconfig.c:328
+#: ../siteconfig.c:329
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr "Disabilita l'autocreazione degli account utente"
 
-#: ../siteconfig.c:336
+#: ../siteconfig.c:337
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr "Ora in cui lanciare la pulizia del database"
 
-#: ../siteconfig.c:352
+#: ../siteconfig.c:353
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr "Nome del server LDAP (vuoto per disabilitare)"
 
-#: ../siteconfig.c:359
+#: ../siteconfig.c:360
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr "Nuero di porta del server LDAP (vuoto per disabilitare)"
 
-#: ../siteconfig.c:366
+#: ../siteconfig.c:367
 #, c-format
 msgid "Base DN"
 msgstr "DN di base"
 
-#: ../siteconfig.c:373
+#: ../siteconfig.c:374
 #, c-format
 msgid "Bind DN"
 msgstr "DN bind"
 
-#: ../siteconfig.c:380
+#: ../siteconfig.c:381
 #, c-format
 msgid "Password for bind DN"
 msgstr "Password per il DN bind"
 
-#: ../siteconfig.c:388
+#: ../siteconfig.c:389
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr "Indirizzo ip del server (0.0.0.0 per 'qualsiasi')"
 
-#: ../siteconfig.c:395
+#: ../siteconfig.c:396
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr "Porta SMTP MSA (-1 per disabilitare)"
 
-#: ../siteconfig.c:402
+#: ../siteconfig.c:403
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr "Porta IMAP SSL (-1 per disabiliare)"
 
-#: ../siteconfig.c:409
+#: ../siteconfig.c:410
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr "Porta POP3 SSL (-1 per disabilitare)"
 
-#: ../siteconfig.c:416
+#: ../siteconfig.c:417
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr "Porta SMTP SSL (-1 per disabilitare)"
 
-#: ../siteconfig.c:423
+#: ../siteconfig.c:424
 #, c-format
 msgid "Enable full text index"
 msgstr "Abilita l'indicizzazione completa dei testi"
 
-#: ../siteconfig.c:431
+#: ../siteconfig.c:432
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr "Cancella automaticamente i log del database approvati"
 
-#: ../siteconfig.c:439
+#: ../siteconfig.c:440
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
 
-#: ../siteconfig.c:447
+#: ../siteconfig.c:448
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
 msgstr ""
 "Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
 
-#: ../siteconfig.c:455
+#: ../siteconfig.c:456
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr "Esegui l'indicizzazione delle email"
 
-#: ../siteconfig.c:463
+#: ../siteconfig.c:464
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr "Esegui l'indicizzazione dei messaggi non-email"
 
-#: ../siteconfig.c:471
+#: ../siteconfig.c:472
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr "Email di destinazione  dei messaggi indicizzati"
 
-#: ../siteconfig.c:497
+#: ../siteconfig.c:483
+#, c-format
+msgid "Default timezone for unzoned calendar items"
+msgstr ""
+
+#: ../siteconfig.c:530
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Politica di default per la cancellazione delle stanze publiche"
 
-#: ../siteconfig.c:518
+#: ../siteconfig.c:551
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr ""
 "Politica di default per la cancellazione delle cassette postali private"
 
-#: ../siteconfig.c:522
+#: ../siteconfig.c:555
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Stessa politica delle stanze private"
 
-#: ../siteconfig.c:644
+#: ../siteconfig.c:680
 msgid "Your system configuration has been updated."
 msgstr "La configurazione del tuo sistema è stata aggiornata"
 
@@ -2849,6 +2830,24 @@ msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
+
+#~ msgid "localhost"
+#~ msgstr "localhost"
+
+#~ msgid "directory"
+#~ msgstr "directory"
+
+#~ msgid "gatewaydomain"
+#~ msgstr "dominio del gateway"
+
+#~ msgid "smarthost"
+#~ msgstr "smarthost"
+
+#~ msgid "rbl"
+#~ msgstr "rbl"
+
+#~ msgid "spamassassin"
+#~ msgstr "spamassassin"
 
 #~ msgid "[ close window ]"
 #~ msgstr "[ chiudi la finestra ]"

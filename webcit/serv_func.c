@@ -89,6 +89,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 15:
 			serv_info.serv_newuser_disabled = atoi(buf);
 			break;
+		case 16:
+			safestrncpy(serv_info.serv_default_cal_zone, buf, sizeof serv_info.serv_default_cal_zone);
+			break;
 		}
 		++a;
 	}
