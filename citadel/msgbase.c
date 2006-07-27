@@ -3370,11 +3370,11 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	 * DELETED_MSGS_ROOM.  This will cause the reference count to remain
 	 * at least 1, which will save the user from having to synchronously
 	 * wait for various disk-intensive operations to complete.
+	 *
+	 * Slick -- we now use the new bulk API for moving messages.
 	 */
 	if ( (deferred) && (num_deleted) ) {
-		for (i=0; i<num_deleted; ++i) {
-			CtdlCopyMsgToRoom(dellist[i], DELETED_MSGS_ROOM);
-		}
+		CtdlCopyMsgsToRoom(dellist, num_deleted, DELETED_MSGS_ROOM);
 	}
 
 	/* Go through the messages we pulled out of the index, and decrement
