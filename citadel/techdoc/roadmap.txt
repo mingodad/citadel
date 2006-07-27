@@ -38,8 +38,9 @@ some code and deciding what to work on.
   will be easy because of "other users namespace" support.)
 
 
-Various Whishlist
------------------
+ Miscellaneous "wish list" items
+ -------------------------------
+
 * Smart callback hook mechanism reducing traffic between citadel and the Database
   to do things like:
   * Alarms. Trigger popups etc. for users via the chat-keepalive

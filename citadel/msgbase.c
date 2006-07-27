@@ -1861,7 +1861,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	long msgid = 0;
 	struct CtdlMessage *msg = NULL;
 
-	long *msgs_to_be_merged = NULL;		/* FIXME free this */
+	long *msgs_to_be_merged = NULL;
 	int num_msgs_to_be_merged = 0;
 
 	lprintf(CTDL_DEBUG,

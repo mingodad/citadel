@@ -705,7 +705,8 @@ void imap_select(int num_parms, char *parms[])
 
 
 /*
- * Does the real work for expunge.  FIXME do this with the new bulk API
+ * Does the real work for expunge.
+ * FIXME do this with the new bulk API
  */
 int imap_do_expunge(void)
 {
