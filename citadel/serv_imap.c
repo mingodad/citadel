@@ -706,26 +706,30 @@ void imap_select(int num_parms, char *parms[])
 
 /*
  * Does the real work for expunge.
- * FIXME do this with the new bulk API
  */
 int imap_do_expunge(void)
 {
 	int i;
 	int num_expunged = 0;
+	long *delmsgs = NULL;
+	int num_delmsgs = 0;
 
 	lprintf(CTDL_DEBUG, "imap_do_expunge() called\n");
 	if (IMAP->selected == 0) {
 		return (0);
 	}
 
-	if (IMAP->num_msgs > 0)
+	if (IMAP->num_msgs > 0) {
+		delmsgs = malloc(IMAP->num_msgs * sizeof(long));
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (IMAP->flags[i] & IMAP_DELETED) {
-				CtdlDeleteMessages(CC->room.QRname,
-						   IMAP->msgids[i], "", 1);
-				++num_expunged;
+				delmsgs[num_delmsgs++] = IMAP->msgids[i];
 			}
 		}
+		CtdlDeleteMessages(CC->room.QRname, delmsgs, num_delmsgs, "", 1);
+		num_expunged += num_delmsgs;
+		free(delmsgs);
+	}
 
 	if (num_expunged > 0) {
 		imap_rescan_msgids();

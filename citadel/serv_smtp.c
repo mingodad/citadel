@@ -1641,17 +1641,18 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * message and the message message.
 	 */
 	if (incomplete_deliveries_remaining <= 0) {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, "", 0);
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, text_msgid, "", 0);
+		long delmsgs[2];
+		delmsgs[0] = msgnum;
+		delmsgs[1] = text_msgid;
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, delmsgs, 2, "", 0);
 	}
-
 
 	/*
 	 * Uncompleted delivery instructions remain, so delete the old
 	 * instructions and replace with the updated ones.
 	 */
 	if (incomplete_deliveries_remaining > 0) {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, "", 0);
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &msgnum, 1, "", 0);
         	msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;

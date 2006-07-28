@@ -1607,7 +1607,7 @@ void delete_room(struct ctdlroom *qrbuf)
 	/* Delete the messages in the room
 	 * (Careful: this opens an S_ROOMS critical section!)
 	 */
-	CtdlDeleteMessages(qrbuf->QRname, 0L, "", 0);
+	CtdlDeleteMessages(qrbuf->QRname, NULL, 0, "", 0);
 
 	/* Flag the room record as not in use */
 	lgetroom(qrbuf, qrbuf->QRname);

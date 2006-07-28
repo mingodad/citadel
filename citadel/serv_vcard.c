@@ -323,7 +323,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 				 * vCard in the user's config room at all times.
 				 */
 				CtdlDeleteMessages(CC->room.QRname,
-						0L, "text/x-vcard", 1);
+						NULL, 0, "text/x-vcard", 1);
 
 				/* Make the author of the message the name of the user.
 				 */

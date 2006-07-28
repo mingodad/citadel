@@ -104,7 +104,7 @@ int CtdlForEachMessage(int mode, long ref,
 			struct CtdlMessage *compare,
                         void (*CallBack) (long, void *),
 			void *userdata);
-int CtdlDeleteMessages(char *, long, char *, int);
+int CtdlDeleteMessages(char *, long *, int, char *, int);
 void CtdlWriteObject(char *, char *, char *, struct ctdluser *,
 			int, int, unsigned int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);

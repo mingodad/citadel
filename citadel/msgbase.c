@@ -2165,7 +2165,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {
 		lprintf(CTDL_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
-		CtdlDeleteMessages(CC->room.QRname, old_msgnum, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, &old_msgnum, 1, "", 0);
 	}
 }
 
@@ -3295,7 +3295,8 @@ void cmd_ent0(char *entargs)
  * (returns the actual number of messages deleted)
  */
 int CtdlDeleteMessages(char *room_name,		/* which room */
-			long dmsgnum,		/* or "0" for any */
+			long *dmsgnums,		/* array of msg numbers to be deleted */
+			int num_dmsgnums,	/* number of msgs to be deleted, or 0 for "any" */
 			char *content_type,	/* or "" for any */
 			int deferred		/* let TDAP sweep it later */
 )
@@ -3306,13 +3307,13 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	long *msglist = NULL;
 	long *dellist = NULL;
 	int num_msgs = 0;
-	int i;
+	int i, j;
 	int num_deleted = 0;
 	int delete_this;
 	struct MetaData smi;
 
-	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %ld, %s, %d)\n",
-		room_name, dmsgnum, content_type, deferred);
+	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s, %d)\n",
+		room_name, num_dmsgnums, content_type, deferred);
 
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {
@@ -3335,9 +3336,20 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 
 			/* Set/clear a bit for each criterion */
 
-			if ((dmsgnum == 0L) || (msglist[i] == dmsgnum)) {
+			/* 0 messages in the list or a null list means that we are
+			 * interested in deleting any messages which meet the other criteria.
+			 */
+			if ((num_dmsgnums == 0) || (dmsgnums == NULL)) {
 				delete_this |= 0x01;
 			}
+			else {
+				for (j=0; j<num_dmsgnums; ++j) {
+					if (msglist[i] == dmsgnums[j]) {
+						delete_this |= 0x01;
+					}
+				}
+			}
+
 			if (strlen(content_type) == 0) {
 				delete_this |= 0x02;
 			} else {
@@ -3431,7 +3443,7 @@ void cmd_dele(char *delstr)
 	}
 	delnum = extract_long(delstr, 0);
 
-	num_deleted = CtdlDeleteMessages(CC->room.QRname, delnum, "", 1);
+	num_deleted = CtdlDeleteMessages(CC->room.QRname, &delnum, 1, "", 1);
 
 	if (num_deleted) {
 		cprintf("%d %d message%s deleted.\n", CIT_OK,
@@ -3532,7 +3544,7 @@ void cmd_move(char *args)
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
 	if (is_copy == 0) {
-		CtdlDeleteMessages(CC->room.QRname, num, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, &num, 1, "", 0);
 	}
 
 	cprintf("%d Message %s.\n", CIT_OK, (is_copy ? "copied" : "moved") );
@@ -3742,7 +3754,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	 */
 	if (is_unique) {
 		lprintf(CTDL_DEBUG, "Deleted %d other msgs of this type\n",
-			CtdlDeleteMessages(roomname, 0L, content_type, 0)
+			CtdlDeleteMessages(roomname, NULL, 0, content_type, 0)
 		);
 	}
 	/* Now write the data */

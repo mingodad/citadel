@@ -466,12 +466,19 @@ void pop3_update(void) {
 	int i;
         struct visit vbuf;
 
+	long *deletemsgs = NULL;
+	int num_deletemsgs = 0;
+
 	/* Remove messages marked for deletion */
-	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
-		if (POP3->msgs[i].deleted) {
-			CtdlDeleteMessages(MAILROOM,
-				POP3->msgs[i].msgnum, "", 1);
+	if (POP3->num_msgs > 0) {
+		deletemsgs = malloc(POP3->num_msgs * sizeof(long));
+		for (i=0; i<POP3->num_msgs; ++i) {
+			if (POP3->msgs[i].deleted) {
+				deletemsgs[num_deletemsgs++] = POP3->msgs[i].msgnum;
+			}
 		}
+		CtdlDeleteMessages(MAILROOM, deletemsgs, num_deletemsgs, "", 1);
+		free(deletemsgs);
 	}
 
 	/* Set last read pointer */
