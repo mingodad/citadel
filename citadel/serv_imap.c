@@ -726,7 +726,9 @@ int imap_do_expunge(void)
 				delmsgs[num_delmsgs++] = IMAP->msgids[i];
 			}
 		}
-		CtdlDeleteMessages(CC->room.QRname, delmsgs, num_delmsgs, "", 1);
+		if (num_delmsgs > 0) {
+			CtdlDeleteMessages(CC->room.QRname, delmsgs, num_delmsgs, "", 1);
+		}
 		num_expunged += num_delmsgs;
 		free(delmsgs);
 	}

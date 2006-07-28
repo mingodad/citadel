@@ -477,7 +477,9 @@ void pop3_update(void) {
 				deletemsgs[num_deletemsgs++] = POP3->msgs[i].msgnum;
 			}
 		}
-		CtdlDeleteMessages(MAILROOM, deletemsgs, num_deletemsgs, "", 1);
+		if (num_deletemsgs > 0) {
+			CtdlDeleteMessages(MAILROOM, deletemsgs, num_deletemsgs, "", 1);
+		}
 		free(deletemsgs);
 	}
 
