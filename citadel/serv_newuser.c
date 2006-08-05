@@ -59,7 +59,6 @@ void CopyNewUserGreetings(void) {
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
-	int i;
 	char mailboxname[ROOMNAMELEN];
 
 

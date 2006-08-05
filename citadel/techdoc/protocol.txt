@@ -904,7 +904,7 @@ base.
 
  Move or copy a message to a different room.  This command expects to be
 passed three arguments:
- 0: the message number of the message to be moved or copied.
+ 0: the message number(s) of the message to be moved or copied.
  1: the name of the target room.
  2: flag: 0 to move the message, 1 to copy it without deleting from the
     source room.
@@ -912,6 +912,9 @@ passed three arguments:
  This command never creates or deletes copies of a message; it merely moves
 around links.  When a message is moved, its reference count remains the same.
 When a message is copied, its reference count is incremented.
+ 
+ You can move/copy multiple messages with a single command by separating the
+message numbers with commas; for example:  MOVE 112,113,114|Trash|0
 
 
  KILL   (KILL current room)

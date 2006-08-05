@@ -3474,15 +3474,26 @@ int CtdlCopyMsgsToRoom(long *msgnums, int num_msgs, char *dest) {
  */
 void cmd_move(char *args)
 {
-	long num;
+	char msgset[SIZ];
+	char msgtok[32];
+	long *msgs;
+	int num_msgs = 0;
+
 	char targ[ROOMNAMELEN];
 	struct ctdlroom qtemp;
 	int err;
 	int is_copy = 0;
 	int ra;
 	int permit = 0;
+	int i;
 
-	num = extract_long(args, 0);
+	extract_token(msgset, args, 0, '|', sizeof msgset);
+	num_msgs = num_tokens(msgset, ',');
+	if (num_msgs < 1) {
+		cprintf("%d Nothing to do.\n", CIT_OK);
+		return;
+	}
+
 	extract_token(targ, args, 1, '|', sizeof targ);
 	convert_room_name_macros(targ, sizeof targ);
 	targ[ROOMNAMELEN - 1] = 0;
@@ -3526,10 +3537,23 @@ void cmd_move(char *args)
 		return;
 	}
 
-	err = CtdlCopyMsgsToRoom(&num, 1, targ);
+	/*
+	 * Build our message set to be moved/copied
+	 */
+	msgs = malloc(num_msgs * sizeof(long));
+	for (i=0; i<num_msgs; ++i) {
+		extract_token(msgtok, msgset, i, ',', sizeof msgtok);
+		msgs[i] = atol(msgtok);
+	}
+
+	/*
+	 * Do the copy
+	 */
+	err = CtdlCopyMsgsToRoom(msgs, num_msgs, targ);
 	if (err != 0) {
-		cprintf("%d Cannot store message in %s: error %d\n",
+		cprintf("%d Cannot store message(s) in %s: error %d\n",
 			err, targ, err);
+		free(msgs);
 		return;
 	}
 
@@ -3537,10 +3561,11 @@ void cmd_move(char *args)
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
 	if (is_copy == 0) {
-		CtdlDeleteMessages(CC->room.QRname, &num, 1, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "", 0);
 	}
+	free(msgs);
 
-	cprintf("%d Message %s.\n", CIT_OK, (is_copy ? "copied" : "moved") );
+	cprintf("%d Message(s) %s.\n", CIT_OK, (is_copy ? "copied" : "moved") );
 }
 
 
