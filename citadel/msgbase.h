@@ -132,7 +132,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int crlf		/* 0=LF, 1=CRLF */
 );
 int CtdlCopyMsgsToRoom(long *msgnum, int num_msgs, char *dest);
-int CtdlCopyMsgToRoom(long msgnum, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);
 

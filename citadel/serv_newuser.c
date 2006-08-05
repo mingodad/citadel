@@ -85,9 +85,7 @@ void CopyNewUserGreetings(void) {
 	}
 
 	if (num_msgs > 0) {
-		for (i = 0; i < num_msgs; ++i) {
-			CtdlCopyMsgToRoom(msglist[i], mailboxname);
-		}
+		CtdlCopyMsgsToRoom(msglist, num_msgs, mailboxname);
 	}
 
 	/* Now free the memory we used, and go away. */

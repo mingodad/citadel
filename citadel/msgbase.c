@@ -3467,13 +3467,6 @@ int CtdlCopyMsgsToRoom(long *msgnums, int num_msgs, char *dest) {
 }
 
 
-/*
- * Back end API function for moves and deletes (single message)
- */
-int CtdlCopyMsgToRoom(long msgnum, char *dest) {
-	return CtdlCopyMsgsToRoom(&msgnum, 1, dest);
-}
-
 
 
 /*
@@ -3533,7 +3526,7 @@ void cmd_move(char *args)
 		return;
 	}
 
-	err = CtdlCopyMsgToRoom(num, targ);
+	err = CtdlCopyMsgsToRoom(&num, 1, targ);
 	if (err != 0) {
 		cprintf("%d Cannot store message in %s: error %d\n",
 			err, targ, err);
