@@ -892,12 +892,14 @@ which will tell the client whether the file needs to be read (see GOTO above).
 
  DELE   (DELEte a message)
 
- Delete a message from the current room.  The one argument that should be
-passed to this command is the message number of the message to be deleted.
-The return value will be OK if the message was deleted, or an ERROR code.
-If the delete is successful, the message's reference count is decremented, and
-if the reference count reaches zero, the message is removed from the message
-base.
+ Delete one or more messages from the current room.  The one argument that
+should be passed to this command is a message number, or a list of message
+numbers separated by commas, to be deleted.
+
+ The return value will be OK if one or more messages were deleted, or an ERROR
+code.  If the delete is successful, the messages' reference counts are
+decremented, and if the reference count reaches zero, the messages are removed
+from the message base.
 
 
  MOVE   (MOVE or copy a message to a different room)

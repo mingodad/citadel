@@ -3431,25 +3431,45 @@ int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
 /*
  * Delete message from current room
  */
-void cmd_dele(char *delstr)
+void cmd_dele(char *args)
 {
-	long delnum;
 	int num_deleted;
+	int i;
+	char msgset[SIZ];
+	char msgtok[32];
+	long *msgs;
+	int num_msgs = 0;
+
+	extract_token(msgset, args, 0, '|', sizeof msgset);
+	num_msgs = num_tokens(msgset, ',');
+	if (num_msgs < 1) {
+		cprintf("%d Nothing to do.\n", CIT_OK);
+		return;
+	}
 
 	if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom() == 0) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
-	delnum = extract_long(delstr, 0);
 
-	num_deleted = CtdlDeleteMessages(CC->room.QRname, &delnum, 1, "", 1);
+	/*
+	 * Build our message set to be moved/copied
+	 */
+	msgs = malloc(num_msgs * sizeof(long));
+	for (i=0; i<num_msgs; ++i) {
+		extract_token(msgtok, msgset, i, ',', sizeof msgtok);
+		msgs[i] = atol(msgtok);
+	}
+
+	num_deleted = CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "", 1);
+	free(msgs);
 
 	if (num_deleted) {
 		cprintf("%d %d message%s deleted.\n", CIT_OK,
 			num_deleted, ((num_deleted != 1) ? "s" : ""));
 	} else {
-		cprintf("%d Message %ld not found.\n", ERROR + MESSAGE_NOT_FOUND, delnum);
+		cprintf("%d Message not found.\n", ERROR + MESSAGE_NOT_FOUND);
 	}
 }
 
