@@ -34,6 +34,7 @@ char *serv_vandelay_init(void);
 char *serv_vcard_init(void);
 char *serv_fulltext_init(void);
 char *serv_autocompletion_init(void);
+char *serv_postfix_tcpdict(void);
 /*
  */
 

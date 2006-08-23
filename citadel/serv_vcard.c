@@ -876,6 +876,48 @@ void cmd_qdir(char *argbuf) {
 	cprintf("%d %s\n", CIT_OK, citadel_addr);
 }
 
+/*
+ * Query Directory, in fact an alias to match postfix tcp auth.
+ */
+void check_get(void) {
+	char citadel_addr[256];
+	char internet_addr[256];
+
+	char cmdbuf[SIZ];
+
+	time(&CC->lastcmd);
+	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
+	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
+		lprintf(CTDL_CRIT, "Client disconnected: ending session.\n");
+		CC->kill_me = 1;
+		return;
+	}
+	lprintf(CTDL_INFO, ": %s\n", cmdbuf);
+	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
+
+	if (strcasecmp(cmdbuf, "GET "));
+	{
+
+		char *argbuf = &cmdbuf[4];
+		//// if (CtdlAccessCheck(ac_logged_in)) return;
+		
+		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
+		
+		if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) != 0) {
+			cprintf("500 %s was not found.\r\n",
+				internet_addr);
+			
+		}
+		
+		else cprintf("200 OK %s\r\n", internet_addr);//,citadel_addr);
+	}
+	CC->kill_me = 1;
+}
+
+void check_get_greeting(void) {
+/* dummy function, we have no greeting in this verry simple protocol. */
+}
+
 
 /*
  * We don't know if the Contacts room exists so we just create it at login
@@ -1140,5 +1182,16 @@ char *serv_vcard_init(void)
 		chown(filename, CTDLUID, (-1));
 	}
 
+	return "$Id$";
+}
+
+
+char *serv_postfix_tcpdict(void)
+{
+	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
+				NULL,
+				check_get_greeting,
+				check_get,
+				NULL);
 	return "$Id$";
 }

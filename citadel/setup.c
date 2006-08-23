@@ -1299,6 +1299,7 @@ int main(int argc, char *argv[])
 	if (config.c_smtps_port == 0) config.c_smtps_port = 465;
 	if (config.c_pop3s_port == 0) config.c_pop3s_port = 995;
 	if (config.c_imaps_port == 0) config.c_imaps_port = 993;
+	if (config.c_pftcpdict_port == 0) config.c_pftcpdict_port = -1;
 
 	/* Go through a series of dialogs prompting for config info */
 	if (setup_type != UI_SILENT) {

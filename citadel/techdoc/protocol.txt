@@ -1890,6 +1890,7 @@ fails for any reason, ERROR is returned.
  47. Flag (0 or 1) - perform journaling of non-email messages
  48. Address to which journalized messages are to be sent
  49. Default time zone (Olsen database name) for unzoned calendar items
+ 50. Port number for Postfix TCP Dict (http://www.postfix.org/tcp_table.5.html)
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which

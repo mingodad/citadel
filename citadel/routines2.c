@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 50
+#define NUM_CONFIGS 51
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][256];
@@ -743,6 +743,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("SMTP MTA server port (-1 to disable)", &sc[24][0], 5);
 	strprompt("SMTP MSA server port (-1 to disable)", &sc[38][0], 5);
 	strprompt("SMTPS server port (-1 to disable)", &sc[41][0], 5);
+	strprompt("Postfix TCP Dictionary Port server port (-1 to disable)", &sc[50][0], 5);
 
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no
