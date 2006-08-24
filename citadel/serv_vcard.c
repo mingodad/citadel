@@ -909,7 +909,7 @@ void check_get(void) {
 			
 		}
 		
-		else cprintf("200 OK %s\r\n", internet_addr);//,citadel_addr);
+		else cprintf("200 OK %s\n", internet_addr);//,citadel_addr);
 	}
 	CC->kill_me = 1;
 }
