@@ -506,6 +506,13 @@ void display_siteconfig(void)
 			wprintf("<input type=\"hidden\" name=\"c_default_cal_zone\" value=\"%s\">\n", buf);
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 			break;
+		case 50:
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary Port </a> (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pftcpdict_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -668,6 +675,7 @@ void siteconfig(void)
 	serv_printf("%s", ((!strcasecmp(bstr("c_journal_pubmsgs"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_journal_dest"));
 	serv_printf("%s", bstr("c_default_cal_zone"));
+	serv_printf("%s", bstr("c_pftcpdict_port"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
