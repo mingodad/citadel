@@ -2,13 +2,16 @@
 
 #define aide_message(text)      quickie_message("Citadel",NULL,AIDEROOM,text,0,NULL)
 
-#define MSGS_ALL        0
-#define MSGS_OLD        1
-#define MSGS_NEW        2
-#define MSGS_FIRST      3
-#define MSGS_LAST       4
-#define MSGS_GT         5
-#define MSGS_EQ		6
+enum {
+	MSGS_ALL,
+	MSGS_OLD,
+	MSGS_NEW,
+	MSGS_FIRST,
+	MSGS_LAST,
+	MSGS_GT,
+	MSGS_EQ,
+	MSGS_SEARCH
+};
 
 /*
  * Possible return codes from CtdlOutputMsg()
@@ -99,7 +102,9 @@ void PutMetaData(struct MetaData *);
 void AdjRefCount(long, int);
 void simple_listing(long, void *);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
-int CtdlForEachMessage(int mode, long ref,
+int CtdlForEachMessage(int mode,
+			long ref,
+			char *searchstring,
 			char *content_type,
 			struct CtdlMessage *compare,
                         void (*CallBack) (long, void *),

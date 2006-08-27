@@ -103,7 +103,7 @@ void artv_export_rooms_backend(struct ctdlroom *qrbuf, void *data) {
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		artv_export_room_msg, NULL);
 	cprintf("0\n");
 

@@ -165,7 +165,7 @@ void spamstrings_init_backend(long msgnum, void *userdata) {
 
 void inetcfg_init(void) {
 	if (getroom(&CC->room, SYSCONFIGROOM) != 0) return;
-	CtdlForEachMessage(MSGS_LAST, 1, INTERNETCFG, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, INTERNETCFG, NULL,
 		inetcfg_init_backend, NULL);
 }
 

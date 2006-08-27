@@ -180,13 +180,13 @@ void cmd_auto(char *argbuf) {
 
 	/* Take a spin through the user's personal address book */
 	if (getroom(&CC->room, USERCONTACTSROOM) == 0) {
-		CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL,
+		CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard", NULL,
 					hunt_for_autocomplete, search_string);
 	}
 	
 	/* FIXME try the global address book */
 	if (getroom(&CC->room, ADDRESS_BOOK_ROOM) == 0) {
-		CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard", NULL,
+		CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard", NULL,
 					hunt_for_autocomplete, search_string);
 	}
 	

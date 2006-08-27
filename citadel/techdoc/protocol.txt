@@ -474,6 +474,10 @@ which case that many message pointers will be returned; "first" plus a
 number, for the corresponding effect; or "gt" plus a number, to list all
 messages in the current room with a message number greater than the one
 specified.  If no parameters are specified, "all" is assumed.
+ 
+ In addition, the first parameter may be set to "search", in which case the
+third parameter must be a search string.  This will request all messages
+in the current room whose text contains the search string.
 
  The third argument, may be either 0 or 1.  If it is 1, this command behaves
 differently: before a listing is returned, the client must transmit a list

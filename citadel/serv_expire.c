@@ -745,7 +745,7 @@ void do_fsck_msg(long msgnum, void *userdata) {
 void do_fsck_room(struct ctdlroom *qrbuf, void *data)
 {
 	getroom(&CC->room, qrbuf->QRname);
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, do_fsck_msg, NULL);
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, do_fsck_msg, NULL);
 }
 
 /*

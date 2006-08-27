@@ -80,7 +80,9 @@ int main(int argc, char **argv)
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+#ifdef HAVE_RUN_DIR
 	struct stat filestats;
+#endif
 	
 	/* initialize the master context */
 	InitializeMasterCC();

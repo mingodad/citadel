@@ -180,7 +180,7 @@ int pop3_grab_mailbox(void) {
 	if (getroom(&CC->room, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		pop3_add_message, NULL);
 
 	/* Figure out which are old and which are new */

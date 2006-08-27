@@ -992,7 +992,7 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL,
 		network_spool_msg, &sc);
 
 	/* If we wrote a digest, deliver it and then close it */
@@ -1127,7 +1127,7 @@ int network_sync_to(char *target_node) {
 	if (!found_node) return(-1);
 
 	/* Send ALL messages */
-	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
+	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */

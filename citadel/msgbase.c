@@ -504,14 +504,14 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
  * API function to perform an operation for each qualifying message in the
  * current room.  (Returns the number of messages processed.)
  */
-int CtdlForEachMessage(int mode, long ref,
+int CtdlForEachMessage(int mode, long ref, char *search_string,
 			char *content_type,
 			struct CtdlMessage *compare,
 			void (*CallBack) (long, void *),
 			void *userdata)
 {
 
-	int a;
+	int a, i, j;
 	struct visit vbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -523,6 +523,8 @@ int CtdlForEachMessage(int mode, long ref,
 	int is_seen = 0;
 	long lastold = 0L;
 	int printed_lastold = 0;
+	int num_search_msgs = 0;
+	long *search_msgs = NULL;
 
 	/* Learn about the user and room in question */
 	get_mm();
@@ -587,7 +589,45 @@ int CtdlForEachMessage(int mode, long ref,
 		}
 	}
 
+	/* If a search string was specified, get a message list from
+	 * the full text index and remove messages which aren't on both
+	 * lists.
+	 *
+	 * How this works:
+	 * Since the lists are sorted and strictly ascending, and the
+	 * output list is guaranteed to be shorter than or equal to the
+	 * input list, we overwrite the bottom of the input list.  This
+	 * eliminates the need to memmove big chunks of the list over and
+	 * over again.
+	 */
+	if ( (num_msgs > 0) && (mode == MSGS_SEARCH) && (search_string) ) {
+		ft_search(&num_search_msgs, &search_msgs, search_string);
+		if (num_search_msgs > 0) {
 	
+			int orig_num_msgs;
+
+			orig_num_msgs = num_msgs;
+			num_msgs = 0;
+			for (i=0; i<orig_num_msgs; ++i) {
+				for (j=0; j<num_search_msgs; ++j) {
+					if (msglist[i] == search_msgs[j]) {
+						msglist[num_msgs++] = msglist[j];
+					}
+				}
+			}
+		}
+		else {
+			num_msgs = 0;	/* No messages qualify */
+		}
+		if (search_msgs != NULL) free(search_msgs);
+
+		/* Now that we've purged messages which don't contain the search
+		 * string, treat a MSGS_SEARCH just like a MSGS_ALL from this
+		 * point on.
+		 */
+		mode = MSGS_ALL;
+	}
+
 	/*
 	 * Now iterate through the message list, according to the
 	 * criteria supplied by the caller.
@@ -647,13 +687,14 @@ void cmd_msgs(char *cmdbuf)
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
 	int with_headers = 0;
+	char search_string[1024];
 
 	extract_token(which, cmdbuf, 0, '|', sizeof which);
 	cm_ref = extract_int(cmdbuf, 1);
+	extract_token(search_string, cmdbuf, 1, '|', sizeof search_string);
 	with_template = extract_int(cmdbuf, 2);
 	with_headers = extract_int(cmdbuf, 3);
 
-	mode = MSGS_ALL;
 	strcat(which, "   ");
 	if (!strncasecmp(which, "OLD", 3))
 		mode = MSGS_OLD;
@@ -665,9 +706,19 @@ void cmd_msgs(char *cmdbuf)
 		mode = MSGS_LAST;
 	else if (!strncasecmp(which, "GT", 2))
 		mode = MSGS_GT;
+	else if (!strncasecmp(which, "SEARCH", 6))
+		mode = MSGS_SEARCH;
+	else
+		mode = MSGS_ALL;
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
+		return;
+	}
+
+	if ( (mode == MSGS_SEARCH) && (!config.c_enable_fulltext) ) {
+		cprintf("%d Full text index is not enabled on this server.\n",
+			ERROR + CMD_NOT_SUPPORTED);
 		return;
 	}
 
@@ -695,7 +746,8 @@ void cmd_msgs(char *cmdbuf)
 	}
 
 	CtdlForEachMessage(mode,
-			cm_ref,
+			( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
+			( (mode == MSGS_SEARCH) ? search_string : NULL ),
 			NULL,
 			template,
 			(with_headers ? headers_listing : simple_listing),
@@ -3827,7 +3879,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	/* We want the last (and probably only) config in this room */
 	begin_critical_section(S_CONFIG);
 	config_msgnum = (-1L);
-	CtdlForEachMessage(MSGS_LAST, 1, sysconfname, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, sysconfname, NULL,
 		CtdlGetSysConfigBackend, NULL);
 	msgnum = config_msgnum;
 	end_critical_section(S_CONFIG);
