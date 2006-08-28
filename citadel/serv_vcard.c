@@ -904,14 +904,18 @@ void check_get(void) {
 		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
 		
 		if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) != 0) {
-			cprintf("500 %s was not found.\r\n",
-				internet_addr);
+			cprintf("500 REJECT noone here by that name.\n");
 			
+			lprintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
 		
-		else cprintf("200 OK %s\n", internet_addr);//,citadel_addr);
+		else 
+		{
+			cprintf("200 OK %s\n", internet_addr);//,citadel_addr);
+			lprintf(CTDL_INFO, "sending 200 OK %s\n", internet_addr);//,citadel_addr);
+		}
 	}
-	CC->kill_me = 1;
+///	CC->kill_me = 1;
 }
 
 void check_get_greeting(void) {
