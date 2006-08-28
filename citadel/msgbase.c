@@ -2662,6 +2662,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	char *m;
 	int flushing = 0;
 	int finished = 0;
+	int dotdot = 0;
 
 	if (exist == NULL) {
 		m = malloc(4096);
@@ -2679,6 +2680,11 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		}
 	}
 
+	/* Do we need to change leading ".." to "." for SMTP escaping? */
+	if (!strcmp(terminator, ".")) {
+		dotdot = 1;
+	}
+
 	/* flush the input if we have nowhere to store it */
 	if (m == NULL) {
 		flushing = 1;
@@ -2693,6 +2699,13 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		}
 		else {
 			strcat(buf, "\n");
+		}
+
+		/* Unescape SMTP-style input of two dots at the beginning of the line */
+		if (dotdot) {
+			if (!strncmp(buf, "..", 2)) {
+				strcpy(buf, &buf[1]);
+			}
 		}
 
 		if ( (!flushing) && (!finished) ) {
