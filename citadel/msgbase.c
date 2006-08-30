@@ -611,7 +611,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			for (i=0; i<orig_num_msgs; ++i) {
 				for (j=0; j<num_search_msgs; ++j) {
 					if (msglist[i] == search_msgs[j]) {
-						msglist[num_msgs++] = msglist[j];
+						msglist[num_msgs++] = msglist[i];
 					}
 				}
 			}
