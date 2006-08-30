@@ -1430,6 +1430,8 @@ void session_loop(struct httprequest *req)
 		readloop("readfwd");
 	} else if (!strcasecmp(action, "headers")) {
 		readloop("headers");
+	} else if (!strcasecmp(action, "do_search")) {
+		readloop("do_search");
 	} else if (!strcasecmp(action, "msg")) {
 		embed_message(arg1);
 	} else if (!strcasecmp(action, "printmsg")) {

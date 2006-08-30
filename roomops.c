@@ -388,9 +388,26 @@ void embed_view_o_matic(void) {
 
 
 /**
- * \brief view room banner
- * \param got what???
- * \param navbar_style
+ * \brief Display a search box
+ */
+void embed_search_o_matic(void) {
+	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n"
+		"<span class=\"room_banner_new_messages\">");
+	wprintf(_("Search: "));
+	wprintf("<input "
+		"type=\"text\" name=\"query\" size=\"20\" maxlength=\"128\" "
+		"style=\"font-size: 7pt; background: #444455; color: #ddddcc;\">\n"
+	);
+	wprintf("</select></span></form>\n");
+}
+
+
+/**
+ * \brief		Embed the room banner
+ *
+ * \param got		The information returned from a GOTO server command
+ * \param navbar_style 	Determines which navigation buttons to display
+ *
  */
 void embed_room_banner(char *got, int navbar_style) {
 	char buf[256];
@@ -433,6 +450,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
+	svcallback("SEARCHOMATIC", embed_search_o_matic);
 	svcallback("START", offer_start_page);
 
 	do_template("roombanner");

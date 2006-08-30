@@ -2068,7 +2068,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
  */
 void readloop(char *oper)
 {
-	char cmd[SIZ];
+	char cmd[256];
 	char buf[SIZ];
 	char old_msgs[SIZ];
 	int a, b;
@@ -2140,23 +2140,39 @@ void readloop(char *oper)
 	else if (!strcmp(oper, "readold")) {
 		strcpy(cmd, "MSGS OLD");
 	}
+	else if (!strcmp(oper, "do_search")) {
+		sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+	}
 	else {
 		strcpy(cmd, "MSGS ALL");
 	}
 
 	if ((WC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
-		strcpy(cmd, "MSGS ALL");
+		if (!strcmp(oper, "do_search")) {
+			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+		}
+		else {
+			strcpy(cmd, "MSGS ALL");
+		}
 	}
 
 	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
-		strcpy(cmd, "MSGS ALL");
+		if (!strcmp(oper, "do_search")) {
+			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+		}
+		else {
+			strcpy(cmd, "MSGS ALL");
+		}
 		maxmsgs = 9999999;
 	}
 
-	if (is_summary) {
-		strcpy(cmd, "MSGS ALL|||1");	/**< fetch header summary */
+	if (is_summary) {			/**< fetch header summary */
+		snprintf(cmd, sizeof cmd, "MSGS %s|%s||1",
+			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
+			(!strcmp(oper, "do_search") ? bstr("query") : "")
+		);
 		startmsg = 1;
 		maxmsgs = 9999999;
 	}
