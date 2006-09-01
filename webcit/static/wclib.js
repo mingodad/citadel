@@ -119,6 +119,7 @@ function switch_to_menu_buttons() {
 //
 var CtdlNumMsgsSelected = 0;
 var CtdlMsgsSelected = new Array();
+var CtdlLastMsgnumSelected = 0;
 
 // This gets called when you single click on a message in the mailbox view.
 // We know that the element id of the table row will be the letter 'm' plus the message number.
@@ -128,9 +129,10 @@ function CtdlSingleClickMsg(evt, msgnum) {
 	// Clear the preview pane until we load the new message
 	$('preview_pane').innerHTML = '';
 
-	// De-select any messages that were already selected, *unless* the Ctrl key
-	// is being pressed, in which case the user wants multi select.
-	if (!evt.ctrlKey) {
+	// De-select any messages that were already selected, *unless* the Ctrl or
+	// Shift key is being pressed, in which case the user wants multi select
+	// or group select.
+	if ( (!evt.ctrlKey) && (!evt.shiftKey) ) {
 		if (CtdlNumMsgsSelected > 0) {
 			for (i=0; i<CtdlNumMsgsSelected; ++i) {
 				$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
@@ -165,6 +167,47 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		CtdlNumMsgsSelected = CtdlNumMsgsSelected - 1;
 		
 	}
+
+	else if (evt.shiftKey) {
+		
+		// Group select: first clear everything out...
+		if (CtdlNumMsgsSelected > 0) {
+			for (i=0; i<CtdlNumMsgsSelected; ++i) {
+				$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
+				$('m'+CtdlMsgsSelected[i]).style.color = '#000';
+			}
+		}
+		CtdlNumMsgsSelected = 0;
+
+		// Then highlight and select the group.
+		// Traverse the table looking for a row whose ID contains the desired msgnum
+
+		var in_the_group = 0;
+		var is_edge = 0;
+		var table = $('summary_headers');
+		if (table) {
+			for (var r = 0; r < table.rows.length; r++) {
+				var thename = table.rows[r].id;
+				if ( (thename.substr(1) == msgnum) || (thename.substr(1) == CtdlLastMsgnumSelected) ) {
+					in_the_group = 1 - in_the_group;
+					is_edge = 1;
+				}
+				else {
+					is_edge = 0;
+				}
+				if ( (in_the_group == 1) || (is_edge == 1) ) {
+					// Highlight it...
+					table.rows[r].style.backgroundColor='#69aaff';
+					table.rows[r].style.color='#fff';
+
+					// And add it to the selected messages list.
+					CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
+					CtdlMsgsSelected[CtdlNumMsgsSelected-1] = thename.substr(1);
+				}
+			}
+		}
+	}
+
 	else {
 		// Select: first highlight it...
 		$('m'+msgnum).style.backgroundColor='#69aaff';
@@ -174,6 +217,9 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
 		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
 	}
+	
+	// Save the selected position in case the user does a group select next time.
+	CtdlLastMsgnumSelected = msgnum;
 
 	// Update the preview pane
 	new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
