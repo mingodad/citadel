@@ -1,5 +1,6 @@
-# translation of de.po to Deutsch
+# translation of de.po to
 # Wilfried Goesgens <w.goesgens@chaosindustries.de>, 2005, 2006.
+# Wilfried Goesgens <dothebart@uncensored.citadel.org>, 2006.
 # German localization
 # Copyright (C) 2005 By wilfried Goesgens
 # This file is distributed under the GPL
@@ -10,13 +11,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-08-31 16:36-0400\n"
-"PO-Revision-Date: 2006-02-05 17:56+0100\n"
-"Last-Translator: Wilfried Goesgens <w.goesgens@chaosindustries.de>\n"
-"Language-Team: Deutsch <room_citadel_devel@uncensored.citadel.org>\n"
+"PO-Revision-Date: 2006-09-01 09:15+0200\n"
+"Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
+"Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.1\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../auth.c:23
 msgid "Deleted"
@@ -277,7 +278,7 @@ msgstr "KONFLIKT:"
 
 #: ../calendar.c:278
 msgid "How would you like to respond to this invitation?"
-msgstr ""
+msgstr "Wie möchten sie auf die Einladung reagieren?"
 
 #: ../calendar.c:279
 msgid "Accept"
@@ -317,8 +318,7 @@ msgstr "Auf Anfrage zum Treffen antworten"
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
-"Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
+msgstr "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
 #: ../calendar.c:384
 msgid ""
@@ -870,8 +870,7 @@ msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
 #: ../inetconf.c:56
 msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-"(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
+msgstr "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
 #: ../inetconf.c:57
 msgid "(hosts running a Realtime Blackhole List)"
@@ -1280,8 +1279,7 @@ msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 #: ../messages.c:2704
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
-"Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
+msgstr "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
 #: ../messages.c:2724
 #, c-format
@@ -1517,7 +1515,7 @@ msgstr "Diese Signatur benutzen"
 
 #: ../preferences.c:378
 msgid "Default character set for email headers:"
-msgstr ""
+msgstr "Vorgabe Zeichensatz für E-Mail Kopfzeilen"
 
 #: ../preferences.c:388
 msgid "Change"
@@ -1568,9 +1566,8 @@ msgid "View as:"
 msgstr "Anzeigen als:"
 
 #: ../roomops.c:396
-#, fuzzy
 msgid "Search: "
-msgstr "Jahr: "
+msgstr "Suchen: "
 
 #: ../roomops.c:446
 #, c-format
@@ -1590,7 +1587,6 @@ msgid "Month view"
 msgstr "Monats Übersicht"
 
 #: ../roomops.c:522
-#, fuzzy
 msgid "Calendar list"
 msgstr "Kalender Liste"
 
@@ -1631,8 +1627,7 @@ msgid "Edit this page"
 msgstr "Diese Seite bearbeiten"
 
 #: ../roomops.c:655
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
+msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Alle Beiträge ungelesen lassen, und in den nächsten Raum mit ungelesenen "
 "Nachrichten gehen"
@@ -1836,8 +1831,7 @@ msgstr ""
 "folgende Liste versendet:</i><br /><br />\n"
 
 #: ../roomops.c:1529
-msgid ""
-"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
 #: ../roomops.c:1532
@@ -1852,8 +1846,7 @@ msgstr "Die URL zum Ab/Bestellen ist: "
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
-msgstr ""
-"Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
+msgstr "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
 #: ../roomops.c:1544
 msgid "Click to enable."
@@ -2081,8 +2074,7 @@ msgstr "Netzwerk Dienste"
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr ""
-"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
+msgstr "Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
 
 #: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
@@ -2126,8 +2118,7 @@ msgstr "Telefonnummer"
 #: ../siteconfig.c:141
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
+msgstr "Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
 
 #: ../siteconfig.c:149
 #, c-format
@@ -2342,7 +2333,7 @@ msgstr "Email Adresse für die Protokollnachrichten"
 #: ../siteconfig.c:483
 #, c-format
 msgid "Default timezone for unzoned calendar items"
-msgstr ""
+msgstr "Vorgabe Zeitzone für Kalender Datensätze ohne"
 
 #: ../siteconfig.c:511
 #, c-format
@@ -2350,18 +2341,18 @@ msgid ""
 "<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
 "Port </a> (-1 to disable)"
 msgstr ""
+"<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Wörterbuch "
+"Port </a> (-1 zum abschalten)"
 
 #: ../siteconfig.c:537
 #, c-format
 msgid "Default message expire policy for public rooms"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
 
 #: ../siteconfig.c:558
 #, c-format
 msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
+msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
 
 #: ../siteconfig.c:562
 #, c-format
@@ -2503,8 +2494,7 @@ msgid "Delete this user?"
 msgstr "Diesen Benutzer löschen?"
 
 #: ../useredit.c:204
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
+msgid "An error occurred while trying to create or edit this address book entry."
 msgstr "Fehler beim Erzeugen / Editieren dieses Adressbuch-Eintrags"
 
 #: ../useredit.c:283
@@ -2558,33 +2548,28 @@ msgid "User list for %s"
 msgstr "Benutzerliste für %s"
 
 #: ../userlist.c:66
-#, fuzzy
 msgid "User Name"
 msgstr "Benutzername"
 
 #: ../userlist.c:67
-#, fuzzy
 msgid "Number"
-msgstr "November"
+msgstr "Zahl"
 
 #: ../userlist.c:68
-#, fuzzy
 msgid "Access Level"
 msgstr "Zugangsberechtigung"
 
 #: ../userlist.c:69
-#, fuzzy
 msgid "Last Login"
-msgstr "Anmelden"
+msgstr "Letzte Anmeldung"
 
 #: ../userlist.c:70
 msgid "Total Logins"
-msgstr ""
+msgstr "Anmeldungen gesammt"
 
 #: ../userlist.c:71
-#, fuzzy
 msgid "Total Posts"
-msgstr "Diese Maschine"
+msgstr "Summe aller Beiträge"
 
 #: ../userlist.c:129
 msgid "User profile"
@@ -2823,118 +2808,3 @@ msgstr ""
 "Wähle den 'Diese Seite editieren' Link in dem Raum-Banner, wenn du diesen "
 "Raum erzeugen möchtest."
 
-#~ msgid "localhost"
-#~ msgstr "Diese Maschine"
-
-#~ msgid "directory"
-#~ msgstr "Verzeichnis"
-
-#~ msgid "gatewaydomain"
-#~ msgstr "Tor zur Außenwelt"
-
-#~ msgid "smarthost"
-#~ msgstr "Smarthost"
-
-#~ msgid "rbl"
-#~ msgstr "Blacklisten"
-
-#~ msgid "spamassassin"
-#~ msgstr "SpammAssassin"
-
-#~ msgid "[ close window ]"
-#~ msgstr "[ Fenster Schließen ]"
-
-#~ msgid "Jan"
-#~ msgstr "Jan"
-
-#~ msgid "Feb"
-#~ msgstr "Feb"
-
-#~ msgid "Mar"
-#~ msgstr "Mär"
-
-#~ msgid "Apr"
-#~ msgstr "Apr"
-
-#~ msgid "May"
-#~ msgstr "Mai"
-
-#~ msgid "Jun"
-#~ msgstr "Jun"
-
-#~ msgid "Jul"
-#~ msgstr "Jul"
-
-#~ msgid "Aug"
-#~ msgstr "Aug"
-
-#~ msgid "Sep"
-#~ msgstr "Sep"
-
-#~ msgid "Oct"
-#~ msgstr "Okt"
-
-#~ msgid "Nov"
-#~ msgstr "Nov"
-
-#~ msgid "Dec"
-#~ msgstr "Dez"
-
-#~ msgid "Sunday"
-#~ msgstr "Sonntag"
-
-#~ msgid "Monday"
-#~ msgstr "Montag"
-
-#~ msgid "Tuesday"
-#~ msgstr "Dienstag"
-
-#~ msgid "Wednesday"
-#~ msgstr "Mittwoch"
-
-#~ msgid "Thursday"
-#~ msgstr "Donnerstag"
-
-#~ msgid "Friday"
-#~ msgstr "Freitag"
-
-#~ msgid "Saturday"
-#~ msgstr "Samstag"
-
-#~ msgid "January"
-#~ msgstr "Januar"
-
-#~ msgid "February"
-#~ msgstr "Februar"
-
-#~ msgid "March"
-#~ msgstr "März"
-
-#~ msgid "April"
-#~ msgstr "April"
-
-#~ msgid "June"
-#~ msgstr "Juni"
-
-#~ msgid "July"
-#~ msgstr "Juli"
-
-#~ msgid "August"
-#~ msgstr "August"
-
-#~ msgid "September"
-#~ msgstr "September"
-
-#~ msgid "October"
-#~ msgstr "Oktober"
-
-#~ msgid "December"
-#~ msgstr "Dezember"
-
-#~ msgid ""
-#~ "<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH><TH>Last Login</"
-#~ "TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>"
-#~ msgstr ""
-#~ "<TR><TH>Benutzername</TH><TH>Anzahl</TH><TH>Berechtigung</TH><TH>Letzte "
-#~ "Anmeldung</TH><TH>Anzahl Anmeldungen</TH><TH>Anzahl verfasste Beiträge</"
-#~ "TH></TR>"
