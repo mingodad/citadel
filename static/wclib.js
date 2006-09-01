@@ -154,6 +154,8 @@ function CtdlSingleClickMsg(evt, msgnum) {
 	if ( (evt.ctrlKey) && (already_selected == 1) ) {
 		$('m'+msgnum).style.backgroundColor = '#fff';
 		$('m'+msgnum).style.color = '#000';
+		// FIXME pull the message out of the selected list here, stupid.
+		// this will fix Bugzilla #173
 	}
 	else {
 		$('m'+msgnum).style.backgroundColor='#69aaff';
