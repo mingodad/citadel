@@ -146,20 +146,31 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		for (i=0; i<CtdlNumMsgsSelected; ++i) {
 			if (CtdlMsgsSelected[i] == msgnum) {
 				already_selected = 1;
+				already_selected_pos = i;
 			}
 		}
 	}
 
 	// Now select (or de-select) the message
 	if ( (evt.ctrlKey) && (already_selected == 1) ) {
+
+		// Deselect: first un-highlight it...
 		$('m'+msgnum).style.backgroundColor = '#fff';
 		$('m'+msgnum).style.color = '#000';
-		// FIXME pull the message out of the selected list here, stupid.
-		// this will fix Bugzilla #173
+
+		// Then remove it from the selected messages list.
+		for (i=already_selected_pos; i<(CtdlNumMsgsSelected-1); ++i) {
+			CtdlMsgsSelected[i] = CtdlMsgsSelected[i+1];
+		}
+		CtdlNumMsgsSelected = CtdlNumMsgsSelected - 1;
+		
 	}
 	else {
+		// Select: first highlight it...
 		$('m'+msgnum).style.backgroundColor='#69aaff';
 		$('m'+msgnum).style.color='#fff';
+
+		// Then add it to the selected messages list.
 		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
 		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
 	}
