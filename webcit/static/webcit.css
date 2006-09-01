@@ -1,4 +1,3 @@
-<style type="text/css">
 
 * html {
 	overflow: hidden;
@@ -214,7 +213,6 @@ html>body #button li a {
 }
 
 #button li a:hover {
-	//background-color: #ddddff;
 	background-image:url(/static/body-background.gif);
 	color: #000000;
 }
@@ -364,7 +362,6 @@ a:hover {
 	color: #000000;
 }
 
-<!-- begin quote levels colors -->
 
 blockquote {
 	color: navy !important; background-color: RGB(245,245,245) !important; 
@@ -387,7 +384,6 @@ blockquote pre {
 	margin-right: 1%;
 }
 
-<!-- end quote levels colors -->
 
 var sub {
 	font-style: normal;
@@ -490,7 +486,6 @@ td li.frameset, .elements li.frameset {
 	input#toggler, .toolbar { display: none }
 }
 
-<!-- begin nanotree styles -->
 
 .treetitle {
 	padding:2px;
@@ -536,9 +531,7 @@ td li.frameset, .elements li.frameset {
 	font-size: 11px;
 }
 
-<!-- end nanotree styles -->
 
-<!-- begin address autocompleter styles -->
 
 div.auto_complete {
 	width: 350px;
@@ -569,6 +562,4 @@ div.auto_complete ul strong.highlight {
 	padding:0;
 }
 
-<!-- end address autocompleter styles -->
 
-</style>

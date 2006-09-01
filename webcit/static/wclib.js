@@ -28,14 +28,14 @@ function extract_token(source_string, token_num, delimiter) {
 		for (i=0; i<token_num; ++i) {
 			var j = extracted_string.indexOf(delimiter);
 			if (j >= 0) {
-				extracted_string = extracted_string.substring(j+1);
+				extracted_string = extracted_string.substr(j+1);
 			}
 		}
 	}
 
 	j = extracted_string.indexOf(delimiter);
 	if (j >= 0) {
-		extracted_string = extracted_string.substring(0, j);
+		extracted_string = extracted_string.substr(0, j);
 	}
 
 	return extracted_string;
@@ -255,11 +255,30 @@ function CtdlRemoveTheUnseenBold(msgnum) {
 }
 
 // A message has been deleted, so yank it from the list.
-// (IE barfs on m9999.innerHTML='' so we use a script.aculo.us effect instead.)
 function CtdlClearDeletedMsg(msgnum) {
-	new Effect.Squish('m'+msgnum);
-}
 
+
+	// Traverse the table looking for a row whose ID contains the desired msgnum
+	var table = $('summary_headers');
+	if (table) {
+		for (var r = 0; r < table.rows.length; r++) {
+			var thename = table.rows[r].id;
+			if (thename.substr(1) == msgnum) {
+				try {
+					table.deleteRow(r);
+				}
+				catch(e) {
+					alert('error: browser failed to clear row ' + r);
+				}
+			}
+		}
+	}
+	else {						// if we can't delete it,
+		new Effect.Squish('m'+msgnum);		// just hide it.
+	}
+
+
+}
 
 // These functions called when the user down-clicks on the message list resizer bar
 
