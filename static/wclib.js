@@ -216,22 +216,22 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		// Then add it to the selected messages list.
 		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
 		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
+
+		// Update the preview pane
+		new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
+	
+		// Mark the message as read
+		new Ajax.Request(
+			'ajax_servcmd', {
+				method: 'post',
+				parameters: 'g_cmd=SEEN '+msgnum+'|1',
+				onComplete: CtdlRemoveTheUnseenBold(msgnum)
+			}
+		);
 	}
 	
 	// Save the selected position in case the user does a group select next time.
 	CtdlLastMsgnumSelected = msgnum;
-
-	// Update the preview pane
-	new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
-
-	// Mark the message as read
-	new Ajax.Request(
-		'ajax_servcmd', {
-			method: 'post',
-			parameters: 'g_cmd=SEEN '+msgnum+'|1',
-			onComplete: CtdlRemoveTheUnseenBold(msgnum)
-		}
-	);
 
 	return false;		// try to defeat the default click behavior
 }
