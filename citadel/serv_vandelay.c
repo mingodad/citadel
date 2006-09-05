@@ -313,6 +313,11 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_auto_cull);
 	cprintf("%d\n", config.c_instant_expunge);
 	cprintf("%d\n", config.c_allow_spoofing);
+	cprintf("%d\n", config.c_journal_email);
+	cprintf("%d\n", config.c_journal_pubmsgs);
+	cprintf("%s\n", config.c_journal_dest);
+	cprintf("%s\n", config.c_default_cal_zone);
+	cprintf("%d\n", config.c_pftcpdict_port);
 
 	/* Export the control file */
 	get_control();
@@ -390,6 +395,11 @@ void artv_import_config(void) {
 	client_getln(buf, sizeof buf);	config.c_auto_cull = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_instant_expunge = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_allow_spoofing = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_journal_email = atoi(buf);
+	client_getln(buf, sizeof buf);	config.c_journal_pubmsgs = atoi(buf);
+	client_getln(config.c_journal_dest, sizeof config.c_journal_dest);
+	client_getln(config.c_default_cal_zone, sizeof config.c_default_cal_zone);
+	client_getln(buf, sizeof buf);	config.c_pftcpdict_port = atoi(buf);
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
