@@ -127,6 +127,7 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_fulltext_init());
 	lprintf(CTDL_INFO, "%s\n", serv_autocompletion_init());
 	lprintf(CTDL_INFO, "%s\n", serv_postfix_tcpdict());
+	lprintf(CTDL_INFO, "%s\n", serv_managesieve_init());
 }
 
 

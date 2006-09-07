@@ -223,6 +223,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_journal_dest);
 		cprintf("%s\n", config.c_default_cal_zone);
 		cprintf("%d\n", config.c_pftcpdict_port);
+		cprintf("%d\n", config.c_managesieve_port);
 		cprintf("000\n");
 	}
 
@@ -424,6 +425,9 @@ void cmd_conf(char *argbuf)
 				break;
 			case 50:
 				config.c_pftcpdict_port = atoi(buf);
+				break;
+			case 51:
+				config.c_managesieve_port = atoi(buf);
 				break;
 			}
 			++a;

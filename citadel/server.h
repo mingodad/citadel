@@ -125,6 +125,7 @@ struct CitContext {
 	struct citimap *IMAP;
 	struct citpop3 *POP3;
 	struct citsmtp *SMTP;
+	struct citmgsve *MGSVE; /**< Managesieve Session struct */
 	char *SMTP_RECPS;
 	char *SMTP_ROOMS;
 	struct cit_ical *CIT_ICAL;		/* calendaring data */

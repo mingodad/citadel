@@ -78,4 +78,16 @@ some code and deciding what to work on.
   the actual berkeley db version in its state file, and in case of an up/downgrade
   moan this to the user / logfile. bdb upgrades should trigger a mail to aide.
 
+* easy management of external room access. there should be a gui way for room aliases.
 
+* backcheck of aliases. citadel must check, if on save of the aliases there will be a 
+  race between other users / users aliases. 
+  -> citadel must check while saving the aliases, if the mail delivers yet to another 
+     person than the one just saving the aliases. if yes, it should do something like 
+     mail to foo@bar.org is already delivered to joeblow@bar.org
+
+* uid to name in webcit / imap; citadel shouldn't display something like uid.room
+  to other users, if they share it to others. it should do something like username/room
+  where username should be a floor.
+
+* webcit should be made more resistant to html injections, especialy the chat window.
