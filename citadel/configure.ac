@@ -113,6 +113,7 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
+AC_ARG_WITH(with_libsieve, [  --with-libsieve         use libsieve mail sorting library])
 AC_ARG_WITH(with_newt, [  --with-newt             use newt window library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
@@ -506,6 +507,21 @@ fi
 
 
 
+dnl Checks for the libsieve mailbox sorting library.
+if test "x$with_libsieve" != xno ; then
+	AC_CHECK_HEADERS(sieve2.h,
+		[AC_CHECK_LIB(sieve, sieve2_license,
+			[ok_libsieve=yes],,
+	)])
+fi
+
+if test "x$ok_libsieve" = xyes ; then
+	SERVER_LIBS="-llibsieve $SERVER_LIBS"
+	AC_DEFINE(HAVE_LIBSIEVE)
+fi
+
+
+
 
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
@@ -709,6 +725,7 @@ echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'LDAP support:                    ' $ok_ldap
+echo 'Sieve mailbox filtering support: ' $ok_sieve
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
 echo '(gmake) to compile Citadel.'
