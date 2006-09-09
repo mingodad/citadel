@@ -37,6 +37,9 @@
 /* define this if you have the libical calendaring library available */
 #undef HAVE_LIBICAL
 
+/* define this if you have the libsieve mailbox filtering library available */
+#undef HAVE_LIBSIEVE
+
 /* define this if you have the newt window library available */
 #undef HAVE_NEWT
 
