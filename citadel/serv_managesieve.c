@@ -112,14 +112,12 @@ enum { 	/** Command states for login authentication */
 /*****************************************************************************/
 
 
-void goto_sieverules_room(void);
+void goto_sieverules_room(void)
 {// TODO: check if we're authenticated.
 	struct ctdlroom QRscratch;
-	char buf[SIZ];
-	int ra;
 	int c;
-	char *pattern;
 	char augmented_roomname[ROOMNAMELEN];
+	int transiently = 0;
 
 	MailboxName(augmented_roomname, sizeof augmented_roomname,
 		    &CC->user, SIEVERULES);
@@ -128,7 +126,6 @@ void goto_sieverules_room(void);
 	{
 		cprintf("BYE\r\n");
 		CC->kill_me = 1;
-		free(QRscratch);
 		return;
 	}
 	/* move to the sieve room. */
@@ -173,18 +170,18 @@ void cmd_mgsve_auth(int num_parms, char **parms)
 {
 /* TODO: compare "digest-md5" or "gssapi" and answer with "NO" */
 	if ((num_parms == 3) && !strncasecmp(parms[1], "PLAIN", 5))
-	/* todo, check length*/
+		/* todo, check length*/
 	{
 		char auth[SIZ];
 		int retval;
-
+		
 		/* todo: how to do plain auth? */
-
+		
 		if (parms[2][0] == '{')	
 		{
 			long literal_length;
 			long ret;
-
+			
 			literal_length = atol(&parms[2][1]);
 			if (literal_length < 1) {
 				cprintf("NO %s BAD Message length must be at least 1.\n",
@@ -192,59 +189,46 @@ void cmd_mgsve_auth(int num_parms, char **parms)
 				CC->kill_me = 1;
 				return;
 			}
-			MGSVE->transmitted_message = malloc(literal_length + 1);
+			MGSVE->transmitted_message = malloc(literal_length + 2);
 			if (MGSVE->transmitted_message == NULL) {
 				cprintf("NO %s Cannot allocate memory.\r\n", parms[0]);
 				CC->kill_me = 1;
 				return;
 			}
 			MGSVE->transmitted_length = literal_length;
-
+			
 			ret = client_read(MGSVE->transmitted_message, literal_length);
 			MGSVE->transmitted_message[literal_length] = 0;
-
+			
 			if (ret != 1) {
 				cprintf("%s NO Read failed.\r\n", parms[0]);
 				return;
 			} 
-
+			
 			retval = CtdlDecodeBase64(auth, MGSVE->transmitted_message, SIZ);
-
+			
 		}
 		else 
 			retval = CtdlDecodeBase64(auth, parms[2], SIZ);
 		if (login_ok == CtdlLoginExistingUser(auth))
+		{
+			char *pass;
+			pass = &(auth[strlen(auth)+1]);
+			/* for some reason the php script sends us the username twice. y? */
+			pass = &(pass[strlen(pass)+1]);
+			
+			if (pass_ok == CtdlTryPassword(pass))
 			{
-				char *pass;
-				pass = &(auth[strlen(auth)+1]);
-				/* for some reason the php script sends us the username twice. y? */
-				pass = &(pass[strlen(pass)+1]);
-
-				CtdlTryPassword(pass);
-
 				MGSVE->command_state = mgsve_password;
 				cprintf("OK\n");
+				return;
 			}
-		else 
-			{
-				cprintf("NO\n");
-			}
-	}
-	else
-	{
-		cprintf("NO\n");/* we just support auth plain. */
-		CC->kill_me = 1;
+		}
 	}
 	
-/*
-
-	switch (MGSVE->command_state)
-	{
-
-
-	MGSVE->command_state = plain;
-	}
-*/
+	cprintf("NO\n");/* we just support auth plain. */
+	CC->kill_me = 1;
+	
 }
 
 
@@ -300,16 +284,18 @@ void cmd_mgsve_putscript(void)
 }
 
 
+/** forward declaration for function in msgbase.c */
+void headers_listing(long msgnum, void *userdata);
+
+
 /* LISTSCRIPT command. see chapter 2.7 */
 void cmd_mgsve_listscript(void)
 {
-	ctdlroom QRsieve;
-	QRsieve = goto_sieverules_room();
-	if (QRsieve == NULL)
-	{
-		cprintf("NO\r\n");
-		return;
-	}
+	goto_sieverules_room();/* TODO: do we need a template? */
+	CtdlForEachMessage(MSGS_ALL, 0, NULL, NULL, NULL,
+			   headers_listing, NULL);
+
+	
 /* TODO: check auth, if not, answer with "no" */
 /* do something like the sieve room indexlisting, one per row, in quotes. ACTIVE behind the active one.*/ 
 
