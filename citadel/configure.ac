@@ -516,7 +516,7 @@ if test "x$with_libsieve" != xno ; then
 fi
 
 if test "x$ok_libsieve" = xyes ; then
-	SERVER_LIBS="-llibsieve $SERVER_LIBS"
+	SERVER_LIBS="-lsieve $SERVER_LIBS"
 	AC_DEFINE(HAVE_LIBSIEVE)
 fi
 
