@@ -725,7 +725,7 @@ echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'LDAP support:                    ' $ok_ldap
-echo 'Sieve mailbox filtering support: ' $ok_sieve
+echo 'Sieve mailbox filtering support: ' $ok_libsieve
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
 echo '(gmake) to compile Citadel.'
