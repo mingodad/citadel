@@ -127,9 +127,7 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_fulltext_init());
 	lprintf(CTDL_INFO, "%s\n", serv_autocompletion_init());
 	lprintf(CTDL_INFO, "%s\n", serv_postfix_tcpdict());
-#ifdef HAVE_LIBSIEVE
-	lprintf(CTDL_INFO, "%s\n", "FIXME do serv_libsieve_init() here");
-#endif
+	lprintf(CTDL_INFO, "%s\n", serv_sieve_init());
 	lprintf(CTDL_INFO, "%s\n", serv_managesieve_init());
 }
 
