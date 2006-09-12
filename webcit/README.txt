@@ -176,7 +176,7 @@ the static/ directory.  WebCit will properly serve it from there.
  ----------------
  
  WebCit contains support for calendaring and scheduling.  In order to use it
-you must have libical v0.24 (or newer) on your system.  You must also be
+you must have libical v0.26 (or newer) on your system.  You must also be
 running a Citadel server with calendaring support.  The calendar service will
 be automatically configured and installed if your host system supports it.
  
