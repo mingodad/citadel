@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-31 16:36-0400\n"
+"POT-Creation-Date: 2006-09-12 23:50-0400\n"
 "PO-Revision-Date: 2006-09-01 09:15+0200\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
@@ -318,7 +318,8 @@ msgstr "Auf Anfrage zum Treffen antworten"
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr "Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
+msgstr ""
+"Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
 
 #: ../calendar.c:384
 msgid ""
@@ -870,7 +871,8 @@ msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
 #: ../inetconf.c:56
 msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
+msgstr ""
+"(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
 #: ../inetconf.c:57
 msgid "(hosts running a Realtime Blackhole List)"
@@ -1279,7 +1281,8 @@ msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 #: ../messages.c:2704
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
+msgstr ""
+"Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
 #: ../messages.c:2724
 #, c-format
@@ -1627,7 +1630,8 @@ msgid "Edit this page"
 msgstr "Diese Seite bearbeiten"
 
 #: ../roomops.c:655
-msgid "Leave all messages marked as unread, go to next room with unread messages"
+msgid ""
+"Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Alle Beiträge ungelesen lassen, und in den nächsten Raum mit ungelesenen "
 "Nachrichten gehen"
@@ -1831,7 +1835,8 @@ msgstr ""
 "folgende Liste versendet:</i><br /><br />\n"
 
 #: ../roomops.c:1529
-msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid ""
+"This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
 #: ../roomops.c:1532
@@ -1846,7 +1851,8 @@ msgstr "Die URL zum Ab/Bestellen ist: "
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
-msgstr "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
+msgstr ""
+"Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
 #: ../roomops.c:1544
 msgid "Click to enable."
@@ -2074,7 +2080,8 @@ msgstr "Netzwerk Dienste"
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr "Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
+msgstr ""
+"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
 
 #: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
@@ -2118,7 +2125,8 @@ msgstr "Telefonnummer"
 #: ../siteconfig.c:141
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr "Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
+msgstr ""
+"Automatisch dem Raumerzeuger administrative Rechte an dem neuen Raum geben"
 
 #: ../siteconfig.c:149
 #, c-format
@@ -2347,12 +2355,14 @@ msgstr ""
 #: ../siteconfig.c:537
 #, c-format
 msgid "Default message expire policy for public rooms"
-msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
+msgstr ""
+"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in öffentlichen Räumen"
 
 #: ../siteconfig.c:558
 #, c-format
 msgid "Default message expire policy for private mailboxes"
-msgstr "Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
+msgstr ""
+"Vorgabewerte für die Gültigkeitsdauer von Nachrichten in privaten Mailboxen"
 
 #: ../siteconfig.c:562
 #, c-format
@@ -2494,7 +2504,8 @@ msgid "Delete this user?"
 msgstr "Diesen Benutzer löschen?"
 
 #: ../useredit.c:204
-msgid "An error occurred while trying to create or edit this address book entry."
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
 msgstr "Fehler beim Erzeugen / Editieren dieses Adressbuch-Eintrags"
 
 #: ../useredit.c:283
@@ -2807,4 +2818,3 @@ msgid ""
 msgstr ""
 "Wähle den 'Diese Seite editieren' Link in dem Raum-Banner, wenn du diesen "
 "Raum erzeugen möchtest."
-
