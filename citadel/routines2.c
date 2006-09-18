@@ -1120,19 +1120,20 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	}
 
 	if (file_checksum(filename) == cksum) {
-		err_printf("*** Not saving changes.\n");
+		err_printf("*** No changes to save.\n");
 		e_ex_code = 1;
 	}
 
 	if (e_ex_code == 0) { 		/* Save changes */
 		changefp = fopen(changefile, "w");
+		/* This appears completely unnecessary; why was it here? -IO
 		r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 		if (r / 100 == 1) {
 			while(listing && strlen(listing)) {
 				extract_token(buf, listing, 0, '\n', sizeof buf);
 				remove_token(listing, 0, '\n');
 				extract_token(instr, buf, 0, '|', sizeof instr);
-				if (strcasecmp(instr, entrytype)) {
+				if (!strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
 				}
 			}
@@ -1141,6 +1142,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 			free(listing);
 			listing = NULL;
 		}
+		*/
 		tempfp = fopen(filename, "r");
 		while (fgets(buf, sizeof buf, tempfp) != NULL) {
 			for (i=0; i<strlen(buf); ++i) {
