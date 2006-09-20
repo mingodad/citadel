@@ -882,6 +882,7 @@ void cmd_qdir(char *argbuf) {
 void check_get(void) {
 	char citadel_addr[256];
 	char internet_addr[256];
+	char mailname[256];
 
 	char cmdbuf[SIZ];
 
@@ -897,22 +898,32 @@ void check_get(void) {
 
 	if (strcasecmp(cmdbuf, "GET "));
 	{
+		struct ctdlroom tempQR;
 
 		char *argbuf = &cmdbuf[4];
 		//// if (CtdlAccessCheck(ac_logged_in)) return;
 		
 		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
+		extract_token(mailname, internet_addr, 1, '|', sizeof mailname);
 		
-		if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) != 0) {
+		if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) == 0) {
+			cprintf("200 OK %s\n", internet_addr);
+			lprintf(CTDL_INFO, "sending 200 OK %s\n", internet_addr);
+		}
+		else if (alias(internet_addr)!=MES_ERROR){
+			cprintf("200 OK %s\n", internet_addr);
+			lprintf(CTDL_INFO, "sending 200 OK for the alias %s\n", internet_addr);
+		}
+		else if ( (!strncasecmp(mailname, "room_", 5))
+			  && (!getroom(&tempQR, mailname)) ) {
+			cprintf("200 OK %s\n", internet_addr);
+			lprintf(CTDL_INFO, "sending 200 OK for the room %s\n", internet_addr);
+		}
+		else 
+		{
 			cprintf("500 REJECT noone here by that name.\n");
 			
 			lprintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
-		}
-		
-		else 
-		{
-			cprintf("200 OK %s\n", internet_addr);//,citadel_addr);
-			lprintf(CTDL_INFO, "sending 200 OK %s\n", internet_addr);//,citadel_addr);
 		}
 	}
 ///	CC->kill_me = 1;
