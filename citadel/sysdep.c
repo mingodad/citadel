@@ -248,6 +248,7 @@ void begin_critical_section(int which_one)
 #ifdef DEBUG_MEMORY_LEAKS
 		&& (which_one != S_DEBUGMEMLEAKS)
 #endif
+		&& (which_one != S_RPLIST)
 	) {
 		cdb_check_handles();
 	}

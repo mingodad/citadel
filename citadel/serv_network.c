@@ -77,8 +77,7 @@ static int doing_queue = 0;
 /*
  * When we do network processing, it's accomplished in two passes; one to
  * gather a list of rooms and one to actually do them.  It's ok that rplist
- * is global; this process *only* runs as part of the housekeeping loop and
- * therefore only one will run at a time.
+ * is global; we have a mutex that keeps it safe.
  */
 struct RoomProcList *rplist = NULL;
 
@@ -890,6 +889,11 @@ void network_spoolout_room(char *room_to_spool) {
 	int skipthisline = 0;
 	int i;
 
+	/*
+	 * If the room doesn't exist, don't try to perform its networking tasks.
+	 * Normally this should never happen, but once in a while maybe a room gets
+	 * queued for networking and then deleted before it can happen.
+	 */
 	if (getroom(&CC->room, room_to_spool) != 0) {
 		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
@@ -900,6 +904,7 @@ void network_spoolout_room(char *room_to_spool) {
 
 	begin_critical_section(S_NETCONFIGS);
 
+	/* Only do net processing for rooms that have netconfigs */
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		end_critical_section(S_NETCONFIGS);
@@ -1171,8 +1176,10 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 	if (ptr == NULL) return;
 
 	safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
+	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
+	end_critical_section(S_RPLIST);
 }
 
 
@@ -1949,13 +1956,31 @@ void network_do_queue(void) {
 	if (full_processing) {
 		lprintf(CTDL_DEBUG, "network: loading outbound queue\n");
 		ForEachRoom(network_queue_room, NULL);
+	}
 
+	if (rplist != NULL) {
 		lprintf(CTDL_DEBUG, "network: running outbound queue\n");
 		while (rplist != NULL) {
-			network_spoolout_room(rplist->name);
+			char spoolroomname[ROOMNAMELEN];
+			safestrncpy(spoolroomname, rplist->name, sizeof spoolroomname);
+			begin_critical_section(S_RPLIST);
+
+			/* pop this record off the list */
 			ptr = rplist;
 			rplist = rplist->next;
 			free(ptr);
+
+			/* invalidate any duplicate entries to prevent double processing */
+			for (ptr=rplist; ptr!=NULL; ptr=ptr->next) {
+				if (!strcasecmp(ptr->name, spoolroomname)) {
+					ptr->name[0] = 0;
+				}
+			}
+
+			end_critical_section(S_RPLIST);
+			if (spoolroomname[0] != 0) {
+				network_spoolout_room(spoolroomname);
+			}
 		}
 	}
 

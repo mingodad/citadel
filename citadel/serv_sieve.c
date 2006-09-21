@@ -53,7 +53,6 @@
  */
 void log_the_sieve2_credits(void) {
 	char *cred = NULL;
-	char *ptr;
 
 	cred = strdup(sieve2_credits());
 	if (cred == NULL) return;

@@ -52,6 +52,7 @@
 #include "euidindex.h"
 #include "journaling.h"
 #include "citadel_dirs.h"
+#include "serv_network.h"
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
@@ -2031,6 +2032,9 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	else {
 		lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() skips repl checks\n");
 	}
+
+	/* Submit this room for net processing */
+	network_queue_room(&CC->room, NULL);
 
 	/* Go back to the room we were in before we wandered here... */
 	getroom(&CC->room, hold_rm);

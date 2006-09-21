@@ -41,3 +41,5 @@ struct FilterList {
 };
 
 extern struct FilterList *filterlist;
+
+void network_queue_room(struct ctdlroom *, void *);
