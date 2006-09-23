@@ -43,7 +43,9 @@
 #include "msgbase.h"
 #include "journaling.h"
 
-
+#ifdef HAVE_LIBSIEVE
+# include "serv_sieve.h"
+#endif
 
 /*
  * Terminate idle sessions.  This function pounds through the session table
@@ -168,6 +170,9 @@ void do_housekeeping(void) {
 
 	/* First, do the "as often as needed" stuff... */
 	JournalRunQueue();
+#ifdef HAVE_LIBSIEVE
+	perform_sieve_processing();
+#endif
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {

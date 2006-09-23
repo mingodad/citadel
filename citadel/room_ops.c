@@ -1650,7 +1650,7 @@ int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr) {
 		}
 
 		/* Can't delete your Mail> room */
-		if (!strcasecmp(&qr->QRname[12], MAILROOM)) return(0);
+		if (!strcasecmp(&qr->QRname[11], MAILROOM)) return(0);
 
 		/* Otherwise it's ok */
 		return(1);

@@ -39,11 +39,76 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "tools.h"
 
 #ifdef HAVE_LIBSIEVE
 
-#include "sieve2.h"
-#include "sieve2_error.h"
+#include <sieve2.h>
+#include <sieve2_error.h>
+#include "serv_sieve.h"
+
+struct RoomProcList *sieve_list = NULL;
+
+/*
+ * Add a room to the list of those rooms which potentially require sieve processing
+ */
+void sieve_queue_room(struct ctdlroom *which_room) {
+	struct RoomProcList *ptr;
+
+	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
+	if (ptr == NULL) return;
+
+	safestrncpy(ptr->name, which_room->QRname, sizeof ptr->name);
+	begin_critical_section(S_SIEVELIST);
+	ptr->next = sieve_list;
+	sieve_list = ptr;
+	end_critical_section(S_SIEVELIST);
+}
+
+
+/*
+ * Perform sieve processing for a single room
+ */
+void sieve_do_room(char *roomname) {
+	lprintf(CTDL_DEBUG, "Performing Sieve processing for <%s>\n", roomname);
+	/* FIXME ... actually do this instead of just talking about it */
+}
+
+
+/*
+ * Perform sieve processing for all rooms which require it
+ */
+void perform_sieve_processing(void) {
+	struct RoomProcList *ptr = NULL;
+
+	if (sieve_list != NULL) {
+		lprintf(CTDL_DEBUG, "Begin Sieve processing\n");
+		while (sieve_list != NULL) {
+			char spoolroomname[ROOMNAMELEN];
+			safestrncpy(spoolroomname, sieve_list->name, sizeof spoolroomname);
+			begin_critical_section(S_SIEVELIST);
+
+			/* pop this record off the list */
+			ptr = sieve_list;
+			sieve_list = sieve_list->next;
+			free(ptr);
+
+			/* invalidate any duplicate entries to prevent double processing */
+			for (ptr=sieve_list; ptr!=NULL; ptr=ptr->next) {
+				if (!strcasecmp(ptr->name, spoolroomname)) {
+					ptr->name[0] = 0;
+				}
+			}
+
+			end_critical_section(S_SIEVELIST);
+			if (spoolroomname[0] != 0) {
+				sieve_do_room(spoolroomname);
+			}
+		}
+	}
+}
+
+
 
 /**
  *	We don't really care about dumping the entire credits to the log

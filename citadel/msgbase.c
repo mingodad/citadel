@@ -54,6 +54,10 @@
 #include "citadel_dirs.h"
 #include "serv_network.h"
 
+#ifdef HAVE_LIBSIEVE
+# include "serv_sieve.h"
+#endif /* HAVE_LIBSIEVE */
+
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
 
@@ -2035,6 +2039,13 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 
 	/* Submit this room for net processing */
 	network_queue_room(&CC->room, NULL);
+
+#ifdef HAVE_LIBSIEVE
+	/* If this is someone's inbox, submit the room for sieve processing */
+	if (!strcasecmp(&CC->room.QRname[11], MAILROOM)) {
+		sieve_queue_room(&CC->room);
+	}
+#endif /* HAVE_LIBSIEVE */
 
 	/* Go back to the room we were in before we wandered here... */
 	getroom(&CC->room, hold_rm);
