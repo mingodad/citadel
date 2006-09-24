@@ -1,4 +1,4 @@
-
+ 
  * A full set of documentation may be found in the docs/ directory.
  
  * The condensed version:
@@ -12,4 +12,4 @@
    so that you can access the Citadel system using a web browser.
 
  * Keep in mind that there is a FAQ at http://www.citadel.org
-
+ 
