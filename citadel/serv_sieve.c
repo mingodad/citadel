@@ -66,12 +66,38 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 }
 
 
+
+/*
+ * Perform sieve processing for one message (called by sieve_do_room() for each message)
+ */
+void sieve_do_msg(long msgnum, void *userdata) {
+	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
+	return;
+}
+
+
 /*
  * Perform sieve processing for a single room
+ * FIXME ... actually do this instead of just talking about it
  */
 void sieve_do_room(char *roomname) {
+
+	/* FIXME check to see if this room has any sieve scripts to run */
+
 	lprintf(CTDL_DEBUG, "Performing Sieve processing for <%s>\n", roomname);
-	/* FIXME ... actually do this instead of just talking about it */
+
+	if (getroom(&CC->room, roomname) != 0) {
+		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", roomname);
+		return;
+	}
+
+	/* Do something useful */
+	/* CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL, */
+	/* FIXME figure out which messages haven't yet been processed by sieve */
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, NULL, NULL,
+		sieve_do_msg,
+		NULL		/* data for callback could be the script? */
+	);
 }
 
 
