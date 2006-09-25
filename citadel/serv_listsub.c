@@ -158,8 +158,28 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	urlesc(urlroom, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
-		"Content-type: text/html\nMIME-Version: 1.0\n\n"
-		"<HTML><BODY>"
+
+		"MIME-Version: 1.0\n"
+		"Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
+		"\n"
+		"This is a multipart message in MIME format.\n"
+		"\n"
+		"--__ctdlmultipart__\n"
+		"Content-type: text/plain\n"
+		"\n"
+		"Someone (probably you) has submitted a request to subscribe\n"
+		"<%s> to the '%s' mailing list.\n"
+		"\n"
+		"Please go here to confirm this request:\n"
+		"  %s?room=%s&token=%s&cmd=confirm  \n"
+		"\n"
+		"If this request has been submitted in error and you do not\n"
+		"wish to receive the '%s' mailing list, simply do nothing,\n"
+		"and you will not receive any further mailings.\n"
+		"\n"
+		"--__ctdlmultipart__\n"
+		"Content-type: text/html\n"
+		"<HTML><BODY>\n"
 		"Someone (probably you) has submitted a request to subscribe\n"
 		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
 		"Please click here to confirm this request:<BR>\n"
@@ -168,7 +188,13 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		"If this request has been submitted in error and you do not\n"
 		"wish to receive the '%s' mailing list, simply do nothing,\n"
 		"and you will not receive any further mailings.\n"
-		"</BODY></HTML>\n",
+		"</BODY></HTML>\n"
+		"\n"
+		"--__ctdlmultipart__--\n",
+
+		email, qrbuf.QRname,
+		webpage, urlroom, token,
+		qrbuf.QRname,
 
 		email, qrbuf.QRname,
 		webpage, urlroom, token,
@@ -270,19 +296,43 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	urlesc(urlroom, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
-		"Content-type: text/html\nMIME-Version: 1.0\n\n"
-		"<HTML><BODY>"
-		"Someone (probably you) has submitted a request "
-		"to unsubscribe\n"
+
+		"MIME-Version: 1.0\n"
+		"Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
+		"\n"
+		"This is a multipart message in MIME format.\n"
+		"\n"
+		"--__ctdlmultipart__\n"
+		"Content-type: text/plain\n"
+		"\n"
+		"Someone (probably you) has submitted a request to unsubscribe\n"
+		"<%s> from the '%s' mailing list.\n"
+		"\n"
+		"Please go here to confirm this request:\n"
+		"  %s?room=%s&token=%s&cmd=confirm  \n"
+		"\n"
+		"If this request has been submitted in error and you do not\n"
+		"wish to unsubscribe from the '%s' mailing list, simply do nothing,\n"
+		"and the request will not be processed.\n"
+		"\n"
+		"--__ctdlmultipart__\n"
+		"Content-type: text/html\n"
+		"<HTML><BODY>\n"
+		"Someone (probably you) has submitted a request to unsubscribe\n"
 		"&lt;%s&gt; from the <B>%s</B> mailing list.<BR><BR>\n"
 		"Please click here to confirm this request:<BR>\n"
 		"<A HREF=\"%s?room=%s&token=%s&cmd=confirm\">"
 		"%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
-		"If this request has been submitted in error and you do\n"
-		"<i>not</i> wish to unsubscribe from the "
-		"'%s' mailing list, simply do nothing,\n"
-		"and you will remain subscribed to the list.\n"
-		"</BODY></HTML>\n",
+		"If this request has been submitted in error and you do not\n"
+		"wish to unsubscribe from the '%s' mailing list, simply do nothing,\n"
+		"and the request will not be processed.\n"
+		"</BODY></HTML>\n"
+		"\n"
+		"--__ctdlmultipart__--\n",
+
+		email, qrbuf.QRname,
+		webpage, urlroom, token,
+		qrbuf.QRname,
 
 		email, qrbuf.QRname,
 		webpage, urlroom, token,
