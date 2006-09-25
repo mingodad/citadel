@@ -880,9 +880,7 @@ void cmd_qdir(char *argbuf) {
  * Query Directory, in fact an alias to match postfix tcp auth.
  */
 void check_get(void) {
-	char citadel_addr[256];
 	char internet_addr[256];
-	char mailname[256];
 
 	char cmdbuf[SIZ];
 
@@ -898,26 +896,20 @@ void check_get(void) {
 
 	if (strcasecmp(cmdbuf, "GET "));
 	{
-		struct ctdlroom tempQR;
-
+		struct recptypes *rcpt;
 		char *argbuf = &cmdbuf[4];
-		//// if (CtdlAccessCheck(ac_logged_in)) return;
 		
 		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
-		extract_token(mailname, internet_addr, 1, '|', sizeof mailname);
-		
-		if (CtdlDirectoryLookup(citadel_addr, internet_addr, sizeof citadel_addr) == 0) {
+		rcpt = validate_recipients(internet_addr);
+		if ((rcpt != NULL)&&
+			(
+			 (*rcpt->recp_local != '\0')||
+			 (*rcpt->recp_room != '\0')||
+			 (*rcpt->recp_ignet != '\0')))
+		{
+
 			cprintf("200 OK %s\n", internet_addr);
-			lprintf(CTDL_INFO, "sending 200 OK %s\n", internet_addr);
-		}
-		else if (alias(internet_addr)!=MES_ERROR){
-			cprintf("200 OK %s\n", internet_addr);
-			lprintf(CTDL_INFO, "sending 200 OK for the alias %s\n", internet_addr);
-		}
-		else if ( (!strncasecmp(mailname, "room_", 5))
-			  && (!getroom(&tempQR, mailname)) ) {
-			cprintf("200 OK %s\n", internet_addr);
-			lprintf(CTDL_INFO, "sending 200 OK for the room %s\n", internet_addr);
+			lprintf(CTDL_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
 		}
 		else 
 		{
