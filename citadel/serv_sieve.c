@@ -71,7 +71,11 @@ void sieve_queue_room(struct ctdlroom *which_room) {
  * Perform sieve processing for one message (called by sieve_do_room() for each message)
  */
 void sieve_do_msg(long msgnum, void *userdata) {
+	sieve2_context_t *sieve2_context;	/* Context for sieve parser */
+
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
+	sieve2_context = (sieve2_context_t *) userdata;
+
 	return;
 }
 
@@ -81,6 +85,35 @@ void sieve_do_msg(long msgnum, void *userdata) {
  * FIXME ... actually do this instead of just talking about it
  */
 void sieve_do_room(char *roomname) {
+	
+	sieve2_context_t *sieve2_context = NULL;	/* Context for sieve parser */
+	int res;					/* Return code from libsieve calls */
+
+	/*
+	 * CALLBACK REGISTRATION TABLE
+	 */
+	sieve2_callback_t ctdl_sieve_callbacks[] = {
+/*
+		{ SIEVE2_DEBUG_TRACE,           my_debug         },
+		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
+		{ SIEVE2_ERRCALL_RUNTIME,       my_errexec       },
+		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
+		{ SIEVE2_ACTION_FILEINTO,       my_fileinto      },
+		{ SIEVE2_ACTION_REDIRECT,       my_redirect      },
+		{ SIEVE2_ACTION_REJECT,         my_reject        },
+		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
+		{ SIEVE2_ACTION_VACATION,       my_vacation      },
+		{ SIEVE2_ACTION_KEEP,           my_fileinto      },	* KEEP is essentially the default case of FILEINTO "INBOX". *
+		{ SIEVE2_SCRIPT_GETSCRIPT,      my_getscript     },
+		{ SIEVE2_MESSAGE_GETHEADER,     NULL             },	* We don't support one header at a time. *
+		{ SIEVE2_MESSAGE_GETALLHEADERS, my_getheaders    },	* libSieve can parse headers itself, so we'll use that. *
+		{ SIEVE2_MESSAGE_GETSUBADDRESS, my_getsubaddress },
+		{ SIEVE2_MESSAGE_GETENVELOPE,   my_getenvelope   },
+		{ SIEVE2_MESSAGE_GETBODY,       my_getbody       },
+		{ SIEVE2_MESSAGE_GETSIZE,       my_getsize       },
+*/
+		{ 0 }
+	};
 
 	/* FIXME check to see if this room has any sieve scripts to run */
 
@@ -91,13 +124,41 @@ void sieve_do_room(char *roomname) {
 		return;
 	}
 
+	/* Initialize the Sieve parser */
+	
+	res = sieve2_alloc(&sieve2_context);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
+		return;
+	}
+
+	res = sieve2_callbacks(sieve2_context, ctdl_sieve_callbacks);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
+		goto BAIL;
+	}
+
+	/* Validate the script (FIXME this will fail because we didn't declare a script */
+
+	res = sieve2_validate(sieve2_context, NULL);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_validate() returned %d: %s\n", res, sieve2_errstr(res));
+		goto BAIL;
+	}
+
 	/* Do something useful */
 	/* CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL, */
 	/* FIXME figure out which messages haven't yet been processed by sieve */
 	CtdlForEachMessage(MSGS_LAST, 1, NULL, NULL, NULL,
 		sieve_do_msg,
-		NULL		/* data for callback could be the script? */
+		(void *) &sieve2_context
 	);
+
+BAIL:
+	res = sieve2_free(&sieve2_context);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
+	}
 }
 
 
