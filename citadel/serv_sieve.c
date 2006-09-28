@@ -49,6 +49,60 @@
 
 struct RoomProcList *sieve_list = NULL;
 
+struct ctdl_sieve {
+	char *rfc822headers;
+};
+
+static int debug = 1;
+
+int ctdl_debug(sieve2_context_t *s, void *my)
+{
+	if (debug) {
+		lprintf(CTDL_DEBUG, "Sieve: level [%d] module [%s] file [%s] function [%s]\n",
+			sieve2_getvalue_int(s, "level"),
+			sieve2_getvalue_string(s, "module"),
+			sieve2_getvalue_string(s, "file"),
+			sieve2_getvalue_string(s, "function"));
+		lprintf(CTDL_DEBUG, "       message [%s]\n",
+			sieve2_getvalue_string(s, "message"));
+	}
+	return SIEVE2_OK;
+}
+
+
+/*
+ * Callback function to retrieve the sieve script
+ */
+int ctdl_getscript(sieve2_context_t *s, void *my) {
+
+	sieve2_setvalue_string(s, "script",
+
+		"    if header :contains [\"From\"]  [\"coyote\"] {		\n"
+		"        redirect \"acm@frobnitzm.edu\";			\n"
+		"    } elsif header :contains \"Subject\" \"$$$\" {		\n"
+		"        redirect \"postmaster@frobnitzm.edu\";			\n"
+		"    } else {							\n"
+		"        redirect \"field@frobnitzm.edu\";			\n"
+		"    }								\n"
+
+	);
+
+        return SIEVE2_OK;
+}
+
+/*
+ * Callback function to retrieve message headers
+ */
+int ctdl_getheaders(sieve2_context_t *s, void *my) {
+
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	sieve2_setvalue_string(s, "allheaders", cs->rfc822headers);
+	return SIEVE2_OK;
+}
+
+
+
 /*
  * Add a room to the list of those rooms which potentially require sieve processing
  */
@@ -72,9 +126,31 @@ void sieve_queue_room(struct ctdlroom *which_room) {
  */
 void sieve_do_msg(long msgnum, void *userdata) {
 	sieve2_context_t *sieve2_context;	/* Context for sieve parser */
+	struct ctdl_sieve my;
+	int res;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 	sieve2_context = (sieve2_context_t *) userdata;
+
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ONLY, 0, 1, NULL);
+	my.rfc822headers = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
+
+	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
+	
+	lprintf(CTDL_DEBUG, "Calling sieve2_execute()\n");
+	res = sieve2_execute(sieve2_context, &my);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_execute() returned %d: %s\n", res, sieve2_errstr(res));
+	}
+
+	free(my.rfc822headers);
+	my.rfc822headers = NULL;
 
 	return;
 }
@@ -93,8 +169,8 @@ void sieve_do_room(char *roomname) {
 	 * CALLBACK REGISTRATION TABLE
 	 */
 	sieve2_callback_t ctdl_sieve_callbacks[] = {
+		{ SIEVE2_DEBUG_TRACE,           ctdl_debug       },
 /*
-		{ SIEVE2_DEBUG_TRACE,           my_debug         },
 		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
 		{ SIEVE2_ERRCALL_RUNTIME,       my_errexec       },
 		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
@@ -104,9 +180,11 @@ void sieve_do_room(char *roomname) {
 		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
 		{ SIEVE2_ACTION_VACATION,       my_vacation      },
 		{ SIEVE2_ACTION_KEEP,           my_fileinto      },	* KEEP is essentially the default case of FILEINTO "INBOX". *
-		{ SIEVE2_SCRIPT_GETSCRIPT,      my_getscript     },
-		{ SIEVE2_MESSAGE_GETHEADER,     NULL             },	* We don't support one header at a time. *
-		{ SIEVE2_MESSAGE_GETALLHEADERS, my_getheaders    },	* libSieve can parse headers itself, so we'll use that. *
+*/
+		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript   },
+		{ SIEVE2_MESSAGE_GETHEADER,     NULL             },	/* We don't support one header at a time. */
+		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders  },	/* libSieve can parse headers itself, so we'll use that. */
+/*
 		{ SIEVE2_MESSAGE_GETSUBADDRESS, my_getsubaddress },
 		{ SIEVE2_MESSAGE_GETENVELOPE,   my_getenvelope   },
 		{ SIEVE2_MESSAGE_GETBODY,       my_getbody       },
@@ -138,7 +216,7 @@ void sieve_do_room(char *roomname) {
 		goto BAIL;
 	}
 
-	/* Validate the script (FIXME this will fail because we didn't declare a script */
+	/* Validate the script */
 
 	res = sieve2_validate(sieve2_context, NULL);
 	if (res != SIEVE2_OK) {
