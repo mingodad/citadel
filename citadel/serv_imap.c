@@ -2,7 +2,7 @@
  * $Id$ 
  *
  * IMAP server for the Citadel system
- * Copyright (C) 2000-2005 by Art Cancro and others.
+ * Copyright (C) 2000-2006 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  * WARNING: the IMAP protocol is badly designed.  No implementation of it

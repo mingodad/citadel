@@ -1,7 +1,10 @@
 /*
- * $Id: serv_test.c 3850 2005-09-13 14:00:24Z ajc $
+ * $Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $
  *
+ * This module glues libSieve to the Citadel server in order to implement
+ * the Sieve mailbox filtering language (RFC 3028).
  *
+ * This code is released under the terms of the GNU General Public License. 
  */
 
 #include "sysdep.h"
@@ -53,11 +56,16 @@ struct ctdl_sieve {
 	char *rfc822headers;
 };
 
-static int debug = 1;
 
+/*
+ * Callback function to send libSieve trace messages to Citadel log facility
+ * Set ctdl_libsieve_debug=1 to see extremely verbose libSieve trace
+ */
 int ctdl_debug(sieve2_context_t *s, void *my)
 {
-	if (debug) {
+	static int ctdl_libsieve_debug = 1;
+
+	if (ctdl_libsieve_debug) {
 		lprintf(CTDL_DEBUG, "Sieve: level [%d] module [%s] file [%s] function [%s]\n",
 			sieve2_getvalue_int(s, "level"),
 			sieve2_getvalue_string(s, "module"),
@@ -66,6 +74,20 @@ int ctdl_debug(sieve2_context_t *s, void *my)
 		lprintf(CTDL_DEBUG, "       message [%s]\n",
 			sieve2_getvalue_string(s, "message"));
 	}
+	return SIEVE2_OK;
+}
+
+
+/*
+ * Callback function to redirect a message to a different folder
+ */
+int ctdl_redirect(sieve2_context_t *s, void *my)
+{
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	lprintf(CTDL_DEBUG, "REDIRECT to <%s> (FIXME complete this)\n",
+		sieve2_getvalue_string(s, "address"));
+
 	return SIEVE2_OK;
 }
 
@@ -178,7 +200,9 @@ void sieve_do_room(char *roomname) {
 		{ SIEVE2_ERRCALL_RUNTIME,       my_errexec       },
 		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
 		{ SIEVE2_ACTION_FILEINTO,       my_fileinto      },
-		{ SIEVE2_ACTION_REDIRECT,       my_redirect      },
+*/
+		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect    },
+/*
 		{ SIEVE2_ACTION_REJECT,         my_reject        },
 		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
 		{ SIEVE2_ACTION_VACATION,       my_vacation      },
