@@ -75,6 +75,8 @@ int ctdl_debug(sieve2_context_t *s, void *my)
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
 
+	lprintf(CTDL_DEBUG, "ctdl_getscript() was called\n");
+
 	sieve2_setvalue_string(s, "script",
 
 		"    if header :contains [\"From\"]  [\"coyote\"] {		\n"
@@ -96,6 +98,8 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 int ctdl_getheaders(sieve2_context_t *s, void *my) {
 
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	lprintf(CTDL_DEBUG, "ctdl_getheaders() was called\n");
 
 	sieve2_setvalue_string(s, "allheaders", cs->rfc822headers);
 	return SIEVE2_OK;
@@ -125,12 +129,11 @@ void sieve_queue_room(struct ctdlroom *which_room) {
  * Perform sieve processing for one message (called by sieve_do_room() for each message)
  */
 void sieve_do_msg(long msgnum, void *userdata) {
-	sieve2_context_t *sieve2_context;	/* Context for sieve parser */
+	sieve2_context_t *sieve2_context = (sieve2_context_t *) userdata;
 	struct ctdl_sieve my;
 	int res;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
-	sieve2_context = (sieve2_context_t *) userdata;
 
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
@@ -229,7 +232,7 @@ void sieve_do_room(char *roomname) {
 	/* FIXME figure out which messages haven't yet been processed by sieve */
 	CtdlForEachMessage(MSGS_LAST, 1, NULL, NULL, NULL,
 		sieve_do_msg,
-		(void *) &sieve2_context
+		(void *) sieve2_context
 	);
 
 BAIL:
