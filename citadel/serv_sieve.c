@@ -54,6 +54,8 @@ struct RoomProcList *sieve_list = NULL;
 
 struct ctdl_sieve {
 	char *rfc822headers;
+	int actiontaken;		/* Set to 1 if the message was successfully acted upon */
+	int keep;			/* Set to 1 to suppress message deletion from the inbox */
 };
 
 
@@ -63,7 +65,7 @@ struct ctdl_sieve {
  */
 int ctdl_debug(sieve2_context_t *s, void *my)
 {
-	static int ctdl_libsieve_debug = 1;
+	static int ctdl_libsieve_debug = 0;
 
 	if (ctdl_libsieve_debug) {
 		lprintf(CTDL_DEBUG, "Sieve: level [%d] module [%s] file [%s] function [%s]\n",
@@ -74,6 +76,31 @@ int ctdl_debug(sieve2_context_t *s, void *my)
 		lprintf(CTDL_DEBUG, "       message [%s]\n",
 			sieve2_getvalue_string(s, "message"));
 	}
+	return SIEVE2_OK;
+}
+
+
+/*
+ * Callback function to log script parsing errors
+ */
+int ctdl_errparse(sieve2_context_t *s, void *my)
+{
+	lprintf(CTDL_WARNING, "Error in script, line %d: %s\n",
+		sieve2_getvalue_int(s, "lineno"),
+		sieve2_getvalue_string(s, "message")
+	);
+	return SIEVE2_OK;
+}
+
+
+/*
+ * Callback function to log script execution errors
+ */
+int ctdl_errexec(sieve2_context_t *s, void *my)
+{
+	lprintf(CTDL_WARNING, "Error executing script: %s\n",
+		sieve2_getvalue_string(s, "message")
+	);
 	return SIEVE2_OK;
 }
 
@@ -93,6 +120,62 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 
 
 /*
+ * Callback function to indicate that a message *will* be kept in the inbox
+ */
+int ctdl_keep(sieve2_context_t *s, void *my)
+{
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	
+	lprintf(CTDL_DEBUG, "Action is KEEP\n");
+
+	cs->keep = 1;
+	cs->actiontaken = 1;
+	return SIEVE2_OK;
+}
+
+
+/*
+ * Callback function to file a message into a different mailbox
+ */
+int ctdl_fileinto(sieve2_context_t *s, void *my)
+{
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	const char *dest_folder = sieve2_getvalue_string(s, "mailbox");
+
+	lprintf(CTDL_DEBUG, "Action is FILEINTO, destination is <%s>\n", dest_folder);
+
+
+	/* FILEINTO 'INBOX' is the same thing as KEEP */
+	if ( (!strcasecmp(dest_folder, "INBOX")) || (!strcasecmp(dest_folder, MAILROOM)) ) {
+		cs->keep = 1;
+		cs->actiontaken = 1;
+		return SIEVE2_OK;
+	}
+
+	/* FIXME finish this to file it in another arbitrary room */
+	return SIEVE2_ERROR_BADARGS;
+}
+
+
+/*
+ * Callback function to indicate that a message should be discarded.
+ */
+int ctdl_discard(sieve2_context_t *s, void *my)
+{
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	lprintf(CTDL_DEBUG, "Action is DISCARD\n");
+
+	/* Yes, this is really all there is to it.  Since we are not setting "keep" to 1,
+	 * the message will be discarded because "some other action" was successfully taken.
+	 */
+	cs->actiontaken = 1;
+	return SIEVE2_OK;
+}
+
+
+
+/*
  * Callback function to retrieve the sieve script
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
@@ -100,13 +183,14 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 	lprintf(CTDL_DEBUG, "ctdl_getscript() was called\n");
 
 	sieve2_setvalue_string(s, "script",
-
+		
+		"require \"fileinto\";						\n"
 		"    if header :contains [\"From\"]  [\"coyote\"] {		\n"
 		"        redirect \"acm@frobnitzm.edu\";			\n"
-		"    } elsif header :contains \"Subject\" \"$$$\" {		\n"
-		"        redirect \"postmaster@frobnitzm.edu\";			\n"
+		"    } elsif header :contains \"Subject\" \"JIHAD\" {		\n"
+		"        fileinto \"jihad\";					\n"
 		"    } else {							\n"
-		"        redirect \"field@frobnitzm.edu\";			\n"
+		"        keep; 							\n"
 		"    }								\n"
 
 	);
@@ -166,6 +250,9 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
+	my.keep = 0;		/* Don't keep a copy in the inbox unless a callback tells us to do so */
+	my.actiontaken = 0;	/* Keep track of whether any actions were successfully taken */
+
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
 	lprintf(CTDL_DEBUG, "Calling sieve2_execute()\n");
@@ -176,6 +263,17 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	free(my.rfc822headers);
 	my.rfc822headers = NULL;
+
+	/*
+	 * Delete the message from the inbox unless either we were told not to, or
+	 * if no other action was successfully taken.
+	 */
+	if ( (!my.keep) && (my.actiontaken) ) {
+		lprintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
+		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "", 0);
+	}
+
+	lprintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
 
 	return;
 }
@@ -196,18 +294,16 @@ void sieve_do_room(char *roomname) {
 	sieve2_callback_t ctdl_sieve_callbacks[] = {
 		{ SIEVE2_DEBUG_TRACE,           ctdl_debug       },
 /*
-		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
-		{ SIEVE2_ERRCALL_RUNTIME,       my_errexec       },
-		{ SIEVE2_ERRCALL_PARSE,         my_errparse      },
-		{ SIEVE2_ACTION_FILEINTO,       my_fileinto      },
-*/
-		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect    },
-/*
 		{ SIEVE2_ACTION_REJECT,         my_reject        },
 		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
 		{ SIEVE2_ACTION_VACATION,       my_vacation      },
-		{ SIEVE2_ACTION_KEEP,           my_fileinto      },	* KEEP is essentially the default case of FILEINTO "INBOX". *
 */
+		{ SIEVE2_ERRCALL_PARSE,         ctdl_errparse    },
+		{ SIEVE2_ERRCALL_RUNTIME,       ctdl_errexec     },
+		{ SIEVE2_ACTION_FILEINTO,       ctdl_fileinto    },
+		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect    },
+		{ SIEVE2_ACTION_DISCARD,        ctdl_discard     },
+		{ SIEVE2_ACTION_KEEP,           ctdl_keep        },
 		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript   },
 		{ SIEVE2_MESSAGE_GETHEADER,     NULL             },	/* We don't support one header at a time. */
 		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders  },	/* libSieve can parse headers itself, so we'll use that. */
