@@ -56,6 +56,8 @@ struct ctdl_sieve {
 	char *rfc822headers;
 	int actiontaken;		/* Set to 1 if the message was successfully acted upon */
 	int keep;			/* Set to 1 to suppress message deletion from the inbox */
+	long usernum;			/* Owner of the mailbox we're processing */
+	long msgnum;			/* Message base ID of the message being processed */
 };
 
 
@@ -141,9 +143,11 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 	const char *dest_folder = sieve2_getvalue_string(s, "mailbox");
+	int c;
+	char foldername[256];
+	char original_room_name[ROOMNAMELEN];
 
 	lprintf(CTDL_DEBUG, "Action is FILEINTO, destination is <%s>\n", dest_folder);
-
 
 	/* FILEINTO 'INBOX' is the same thing as KEEP */
 	if ( (!strcasecmp(dest_folder, "INBOX")) || (!strcasecmp(dest_folder, MAILROOM)) ) {
@@ -152,8 +156,41 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 		return SIEVE2_OK;
 	}
 
-	/* FIXME finish this to file it in another arbitrary room */
-	return SIEVE2_ERROR_BADARGS;
+	/* Remember what room we came from */
+	safestrncpy(original_room_name, CC->room.QRname, sizeof original_room_name);
+
+	/* First try a mailbox name match (check personal mail folders first) */
+	snprintf(foldername, sizeof foldername, "%010ld.%s", cs->usernum, dest_folder);
+	c = getroom(&CC->room, foldername);
+
+	/* Then a regular room name match (public and private rooms) */
+	if (c < 0) {
+		safestrncpy(foldername, dest_folder, sizeof foldername);
+		c = getroom(&CC->room, foldername);
+	}
+
+	if (c < 0) {
+		lprintf(CTDL_WARNING, "FILEINTO failed: target <%s> does not exist\n", dest_folder);
+		return SIEVE2_ERROR_BADARGS;
+	}
+
+	/* Yes, we actually have to go there */
+        usergoto(NULL, 0, 0, NULL, NULL);
+
+	c = CtdlSaveMsgPointersInRoom(NULL, &cs->msgnum, 1, 0, NULL);
+
+	/* Go back to the room we came from */
+	if (strcasecmp(original_room_name, CC->room.QRname)) {
+		usergoto(original_room_name, 0, 0, NULL, NULL);
+	}
+
+	if (c == 0) {
+		cs->actiontaken = 1;
+		return SIEVE2_OK;
+	}
+	else {
+		return SIEVE2_ERROR_BADARGS;
+	}
 }
 
 
@@ -252,6 +289,8 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	my.keep = 0;		/* Don't keep a copy in the inbox unless a callback tells us to do so */
 	my.actiontaken = 0;	/* Keep track of whether any actions were successfully taken */
+	my.usernum = atol(CC->room.QRname);	/* Keep track of the owner of the room's namespace */
+	my.msgnum = msgnum;	/* Keep track of the message number in our local store */
 
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
