@@ -328,12 +328,11 @@ void sieve_do_room(char *roomname) {
 	int res;					/* Return code from libsieve calls */
 
 	/*
-	 * CALLBACK REGISTRATION TABLE
+	 * This is our callback registration table for libSieve.
 	 */
 	sieve2_callback_t ctdl_sieve_callbacks[] = {
-		{ SIEVE2_DEBUG_TRACE,           ctdl_debug       },
 /*
-		{ SIEVE2_ACTION_REJECT,         my_reject        },
+		{ SIEVE2_ACTION_REJECT,         my_reject        },	* not yet implemented but we definitely need them */
 		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
 		{ SIEVE2_ACTION_VACATION,       my_vacation      },
 */
@@ -344,10 +343,10 @@ void sieve_do_room(char *roomname) {
 		{ SIEVE2_ACTION_DISCARD,        ctdl_discard     },
 		{ SIEVE2_ACTION_KEEP,           ctdl_keep        },
 		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript   },
-		{ SIEVE2_MESSAGE_GETHEADER,     NULL             },	/* We don't support one header at a time. */
-		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders  },	/* libSieve can parse headers itself, so we'll use that. */
+		{ SIEVE2_DEBUG_TRACE,           ctdl_debug       },
+		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders  },	/* libSieve can parse the headers itself */
 /*
-		{ SIEVE2_MESSAGE_GETSUBADDRESS, my_getsubaddress },
+		{ SIEVE2_MESSAGE_GETSUBADDRESS, my_getsubaddress },	* hopefully we won't need any of these *
 		{ SIEVE2_MESSAGE_GETENVELOPE,   my_getenvelope   },
 		{ SIEVE2_MESSAGE_GETBODY,       my_getbody       },
 		{ SIEVE2_MESSAGE_GETSIZE,       my_getsize       },

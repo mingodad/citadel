@@ -1,5 +1,5 @@
 /**
- * $Id: serv_smtp.c 4570 2006-08-27 02:07:18Z ajc $
+ * $Id: $
  *
  * This module is an Manage Sieve implementation for the Citadel system.
  * It is compliant with all of the following:
@@ -103,8 +103,6 @@ enum { 	/** Command states for login authentication */
 };
 
 
-////int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
-
 #define MGSVE          CC->MGSVE
 
 /*****************************************************************************/
@@ -152,7 +150,7 @@ void cmd_mgsve_caps(void)
 
 
 /*
- * Here's where our SMTP session begins its happy day.
+ * Here's where our managesieve session begins its happy day.
  */
 void managesieve_greeting(void) {
 
