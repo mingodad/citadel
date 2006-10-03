@@ -1,0 +1,57 @@
+  Welcome to your new Citadel installation!
+
+   Congratulations! You've now completed your Citadel Installation.
+   Your Citadel system provides you with the following Protocols to
+   communicate with your Client Software:
+
+     * Webmail via http and https. Any remaining configuration Tasks, are
+       most likely able to be completed in Webcit
+     * IMAP Directory Services. Access your Inbox and other Rooms easily via
+       IMAP.
+     * POP3 Mail Delivery. If you'd like to poll mails over to your Client,
+       use Pop3.
+     * [1]GroupDAV Calendaring and Address book Access. Connect your
+       Calendaring Client to a central Storage, and share calendars with
+       others.
+     * ICal Access to your personal Calendar.
+     * SMTP / MSA access with TLS support. Receive mails from others or relay
+       your own Client via your Citadel.
+
+   For advice regarding how to configure your favorite Mail client to
+   interact with Citadel, please see the [2]Client Matrix . If you don't find
+   your client there, please sign into [3]Uncensored! and tell us about it in
+   the Citadel Documentation Room! And if you would like to provide
+   screenshots on how you did the configuration for documentation purposes,
+   we'll appreciate them.
+
+   Please see the [4]FAQ for more general questions, or the [5]Citadel
+   Administration Manual for more involved situations. Or, join us at
+   [6]Uncensored!, post your message into the Citadel Support Room and you
+   will get help there. You may also join us on [7]IRC (irc.citadel.org, or
+   freenode network) in #Citadel.
+
+   If Webcit does not yet speak your language, please tell us at
+   [8]Uncensored! in the Citadel Development Room, where you will be welcomed
+   and encouraged to add a translation Working contributions in various forms
+   are always welcome, in fact, so feel free to join us in improving the
+   Citadel system!
+   Enjoying Citadel? Please let us know. Just reply to this email, or log
+   into [9]Uncensored! and drop us a note!
+
+   Your Citadel Development Team
+
+   Read more about [10]Citadel on Wikipedia
+
+References
+
+   Visible links
+   1. http://www.groupdav.org/
+   2. http://www.citadel.org/clientmatrix
+   3. https://uncensored.citadel.org/
+   4. http://citadel.org/index.php?option=com_content&task=section&id=3&Itemid=38
+   5. http://easyinstall.citadel.org/citadel/docs/citadel.html
+   6. https://uncensored.citadel.org/
+   7. irc://irc.citadel.org/#citadel
+   8. https://uncensored.citadel.org/
+   9. https://uncensored.citadel.org/
+  10. http://en.wikipedia.org/wiki/Citadel/UX
