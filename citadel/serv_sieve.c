@@ -113,10 +113,36 @@ int ctdl_errexec(sieve2_context_t *s, void *my)
 int ctdl_redirect(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	struct CtdlMessage *msg = NULL;
+	struct recptypes *valid = NULL;
+	char recp[256];
 
-	lprintf(CTDL_DEBUG, "REDIRECT to <%s> (FIXME complete this)\n",
-		sieve2_getvalue_string(s, "address"));
+	safestrncpy(recp, sieve2_getvalue_string(s, "address"), sizeof recp);
 
+	lprintf(CTDL_DEBUG, "Action is REDIRECT, recipient <%s>\n", recp);
+
+	valid = validate_recipients(recp);
+	if (valid == NULL) {
+		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
+		return SIEVE2_ERROR_BADARGS;
+	}
+	if (valid->num_error > 0) {
+		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
+		free(valid);
+		return SIEVE2_ERROR_BADARGS;
+	}
+
+	msg = CtdlFetchMessage(cs->msgnum, 1);
+	if (msg == NULL) {
+		lprintf(CTDL_WARNING, "REDIRECT failed: unable to fetch msg %ld\n", cs->msgnum);
+		free(valid);
+		return SIEVE2_ERROR_BADARGS;
+	}
+
+	CtdlSubmitMsg(msg, valid, NULL);
+	cs->actiontaken = 1;
+	free(valid);
+	CtdlFreeMessage(msg);
 	return SIEVE2_OK;
 }
 
@@ -195,6 +221,79 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 
 
 /*
+ * Callback function to indicate that a message should be rejected
+ * FIXME implement this
+ */
+int ctdl_reject(sieve2_context_t *s, void *my)
+{
+	lprintf(CTDL_DEBUG, "Action is REJECT\n");
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to indicate that the user should be notified
+ * FIXME implement this
+ */
+int ctdl_notify(sieve2_context_t *s, void *my)
+{
+	lprintf(CTDL_DEBUG, "Action is NOTIFY\n");
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to indicate that a vacation message should be generated
+ * FIXME implement this
+ */
+int ctdl_vacation(sieve2_context_t *s, void *my)
+{
+	lprintf(CTDL_DEBUG, "Action is VACATION\n");
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to parse addresses per local system convention
+ * FIXME implement this
+ */
+int ctdl_getsubaddress(sieve2_context_t *s, void *my)
+{
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to parse message envelope
+ * FIXME implement this
+ */
+int ctdl_getenvelope(sieve2_context_t *s, void *my)
+{
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to fetch message body
+ * FIXME implement this
+ */
+int ctdl_getbody(sieve2_context_t *s, void *my)
+{
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
+ * Callback function to fetch message size
+ * FIXME implement this
+ */
+int ctdl_getsize(sieve2_context_t *s, void *my)
+{
+	return SIEVE2_ERROR_UNSUPPORTED;
+}
+
+
+/*
  * Callback function to indicate that a message should be discarded.
  */
 int ctdl_discard(sieve2_context_t *s, void *my)
@@ -214,6 +313,7 @@ int ctdl_discard(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to retrieve the sieve script
+ * FIXME fetch script from Citadel instead of hardcode
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
 
@@ -222,10 +322,10 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 	sieve2_setvalue_string(s, "script",
 		
 		"require \"fileinto\";						\n"
-		"    if header :contains [\"From\"]  [\"coyote\"] {		\n"
-		"        redirect \"acm@frobnitzm.edu\";			\n"
-		"    } elsif header :contains \"Subject\" \"JIHAD\" {		\n"
-		"        fileinto \"jihad\";					\n"
+		"    if header :contains [\"Subject\"]  [\"frobnitz\"] {	\n"
+		"        redirect \"foo@example.com\";				\n"
+		"    } elsif header :contains \"Subject\" \"XYZZY\" {		\n"
+		"        fileinto \"plugh\";					\n"
 		"    } else {							\n"
 		"        keep; 							\n"
 		"    }								\n"
@@ -320,7 +420,6 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 /*
  * Perform sieve processing for a single room
- * FIXME ... actually do this instead of just talking about it
  */
 void sieve_do_room(char *roomname) {
 	
@@ -331,26 +430,22 @@ void sieve_do_room(char *roomname) {
 	 * This is our callback registration table for libSieve.
 	 */
 	sieve2_callback_t ctdl_sieve_callbacks[] = {
-/*
-		{ SIEVE2_ACTION_REJECT,         my_reject        },	* not yet implemented but we definitely need them */
-		{ SIEVE2_ACTION_NOTIFY,         my_notify        },
-		{ SIEVE2_ACTION_VACATION,       my_vacation      },
-*/
-		{ SIEVE2_ERRCALL_PARSE,         ctdl_errparse    },
-		{ SIEVE2_ERRCALL_RUNTIME,       ctdl_errexec     },
-		{ SIEVE2_ACTION_FILEINTO,       ctdl_fileinto    },
-		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect    },
-		{ SIEVE2_ACTION_DISCARD,        ctdl_discard     },
-		{ SIEVE2_ACTION_KEEP,           ctdl_keep        },
-		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript   },
-		{ SIEVE2_DEBUG_TRACE,           ctdl_debug       },
-		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders  },	/* libSieve can parse the headers itself */
-/*
-		{ SIEVE2_MESSAGE_GETSUBADDRESS, my_getsubaddress },	* hopefully we won't need any of these *
-		{ SIEVE2_MESSAGE_GETENVELOPE,   my_getenvelope   },
-		{ SIEVE2_MESSAGE_GETBODY,       my_getbody       },
-		{ SIEVE2_MESSAGE_GETSIZE,       my_getsize       },
-*/
+		{ SIEVE2_ACTION_REJECT,         ctdl_reject		},
+		{ SIEVE2_ACTION_NOTIFY,         ctdl_notify		},
+		{ SIEVE2_ACTION_VACATION,       ctdl_vacation		},
+		{ SIEVE2_ERRCALL_PARSE,         ctdl_errparse		},
+		{ SIEVE2_ERRCALL_RUNTIME,       ctdl_errexec		},
+		{ SIEVE2_ACTION_FILEINTO,       ctdl_fileinto		},
+		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect		},
+		{ SIEVE2_ACTION_DISCARD,        ctdl_discard		},
+		{ SIEVE2_ACTION_KEEP,           ctdl_keep		},
+		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript		},
+		{ SIEVE2_DEBUG_TRACE,           ctdl_debug		},
+		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders		},
+		{ SIEVE2_MESSAGE_GETSUBADDRESS, ctdl_getsubaddress	},
+		{ SIEVE2_MESSAGE_GETENVELOPE,   ctdl_getenvelope	},
+		{ SIEVE2_MESSAGE_GETBODY,       ctdl_getbody		},
+		{ SIEVE2_MESSAGE_GETSIZE,       ctdl_getsize		},
 		{ 0 }
 	};
 
