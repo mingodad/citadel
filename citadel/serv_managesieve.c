@@ -1,7 +1,7 @@
 /**
  * $Id: $
  *
- * This module is an Manage Sieve implementation for the Citadel system.
+ * This module is an managesieve implementation for the Citadel system.
  * It is compliant with all of the following:
  *
  * http://tools.ietf.org/html/draft-martin-managesieve-06
@@ -64,8 +64,6 @@
 #include "serv_crypto.h"
 #endif
 
-
-
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -81,16 +79,7 @@
 
 struct citmgsve {		
 	int command_state;             /**< Information about the current session */
-	char helo_node[SIZ];
-	struct ctdluser vrfy_buffer;
-	int vrfy_count;
-	char vrfy_match[SIZ];
-	char from[SIZ];
-	char recipients[SIZ];
-	int number_of_recipients;
-	int delivery_mode;
-	int message_originated_locally;
-	char *transmitted_message;	/* for APPEND command... */
+	char *transmitted_message;
 	size_t transmitted_length;
 };
 
@@ -102,13 +91,11 @@ enum { 	/** Command states for login authentication */
 	mgsve_plain
 };
 
-
 #define MGSVE          CC->MGSVE
 
 /*****************************************************************************/
 /*                      MANAGESIEVE Server                                   */
 /*****************************************************************************/
-
 
 void goto_sieverules_room(void)
 {// TODO: check if we're authenticated.
@@ -351,7 +338,7 @@ void cmd_mgsve_deletescript(void)
 
 /*
  *
-void smtp_get_user(char *argbuf) {
+void mgsve_get_user(char *argbuf) {
 	char buf[SIZ];
 	char username[SIZ];
 
@@ -360,11 +347,11 @@ void smtp_get_user(char *argbuf) {
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9);
 		cprintf("334 %s\r\n", buf);
-		SMTP->command_state = smtp_password;
+		MGSVE->command_state = mgsve_password;
 	}
 	else {
 		cprintf("500 5.7.0 No such user.\r\n");
-		SMTP->command_state = smtp_command;
+		MGSVE->command_state = mgsve_command;
 	}
 }
  */
@@ -372,18 +359,18 @@ void smtp_get_user(char *argbuf) {
 
 /*
  *
-void smtp_get_pass(char *argbuf) {
+void mgsve_get_pass(char *argbuf) {
 	char password[SIZ];
 
 	CtdlDecodeBase64(password, argbuf, SIZ);
 	/ * lprintf(CTDL_DEBUG, "Trying <%s>\n", password); * /
 	if (CtdlTryPassword(password) == pass_ok) {
-		smtp_auth_greeting();
+		mgsve_auth_greeting();
 	}
 	else {
 		cprintf("535 5.7.0 Authentication failed.\r\n");
 	}
-	SMTP->command_state = smtp_command;
+	MGSVE->command_state = mgsve_command;
 }
  */
 
@@ -404,11 +391,11 @@ void mgsve_try_plain(char *encoded_authstring) {
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
 	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
 
-//	SMTP->command_state = smtp_command;
+//	MGSVE->command_state = mgsve_command;
 /*
 	if (CtdlLoginExistingUser(user) == login_ok) {
 		if (CtdlTryPassword(pass) == pass_ok) {
-			smtp_auth_greeting();
+			mgsve_auth_greeting();
 			return;
 		}
 	}
@@ -418,7 +405,7 @@ void mgsve_try_plain(char *encoded_authstring) {
 
 
 /*
- * Attempt to perform authenticated SMTP
+ * Attempt to perform authenticated magagesieve
  */
 void mgsve_auth(char *argbuf) {
 	char username_prompt[64];
@@ -434,12 +421,12 @@ void mgsve_auth(char *argbuf) {
 
 	if (!strncasecmp(method, "login", 5) ) {
 		if (strlen(argbuf) >= 7) {
-//			smtp_get_user(&argbuf[6]);
+//			mgsve_get_user(&argbuf[6]);
 		}
 		else {
 			CtdlEncodeBase64(username_prompt, "Username:", 9);
 			cprintf("334 %s\r\n", username_prompt);
-//			SMTP->command_state = smtp_user;
+//			MGSVE->command_state = mgsve_user;
 		}
 		return;
 	}
@@ -447,13 +434,13 @@ void mgsve_auth(char *argbuf) {
 	if (!strncasecmp(method, "plain", 5) ) {
 		if (num_tokens(argbuf, ' ') < 2) {
 			cprintf("334 \r\n");
-//			SMTP->command_state = smtp_plain;
+//			MGSVE->command_state = mgsve_plain;
 			return;
 		}
 
 		extract_token(encoded_authstring, argbuf, 1, ' ', sizeof encoded_authstring);
 
-///		smtp_try_plain(encoded_authstring);
+///		mgsve_try_plain(encoded_authstring);
 		return;
 	}
 
@@ -470,7 +457,7 @@ void mgsve_auth(char *argbuf) {
  * implements the STARTTLS command (Citadel API version)
  */
 #ifdef HAVE_OPENSSL
-void _smtp_starttls(void)
+void _mgsve_starttls(void)
 {
 	char ok_response[SIZ];
 	char nosup_response[SIZ];
@@ -483,20 +470,21 @@ void _smtp_starttls(void)
 	sprintf(error_response,
 		"554 5.7.3 Internal error\r\n");
 	CtdlStartTLS(ok_response, nosup_response, error_response);
-///	smtp_rset(0);
 }
 #endif
 
 
+/*
+ * Create the Sieve script room if it doesn't already exist
+ */
 void mgsve_create_room(void)
 {
-
-	/* Create the tasks list room if it doesn't already exist */
 	create_room(SIEVERULES, 4, "", 0, 1, 0, VIEW_SIEVE);
 }
 
+
 /* 
- * Main command loop for manage Sieve sessions.
+ * Main command loop for managesieve sessions.
  */
 void managesieve_command_loop(void) {
 	char cmdbuf[SIZ];
@@ -562,11 +550,6 @@ void managesieve_command_loop(void) {
 
 
 }
-
-
-
-
-
 
 
 
