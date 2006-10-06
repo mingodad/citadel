@@ -367,12 +367,22 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 }
 
 
+/* 
+ * We need this struct to pass a bunch of information
+ * between sieve_do_msg() and sieve_do_room()
+ */
+struct sdm_userdata {
+	sieve2_context_t *sieve2_context;	/**< for libsieve's use */
+	long lastproc;				/**< last message processed */
+};
+
 
 /*
  * Perform sieve processing for one message (called by sieve_do_room() for each message)
  */
 void sieve_do_msg(long msgnum, void *userdata) {
-	sieve2_context_t *sieve2_context = (sieve2_context_t *) userdata;
+	struct sdm_userdata *u = (struct sdm_userdata *) userdata;
+	sieve2_context_t *sieve2_context = u->sieve2_context;
 	struct ctdl_sieve my;
 	int res;
 
@@ -413,6 +423,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	lprintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
+	u->lastproc = msgnum;
 
 	return;
 }
@@ -423,8 +434,10 @@ void sieve_do_msg(long msgnum, void *userdata) {
  */
 void sieve_do_room(char *roomname) {
 	
+	struct sdm_userdata u;
 	sieve2_context_t *sieve2_context = NULL;	/* Context for sieve parser */
 	int res;					/* Return code from libsieve calls */
+	char sieveroomname[ROOMNAMELEN];
 
 	/*
 	 * This is our callback registration table for libSieve.
@@ -449,7 +462,16 @@ void sieve_do_room(char *roomname) {
 		{ 0 }
 	};
 
-	/* FIXME check to see if this room has any sieve scripts to run */
+	/* See if the user who owns this 'mailbox' has any Sieve scripts that
+	 * require execution.
+	 */
+	snprintf(sieveroomname, sizeof sieveroomname, "%010ld.%s", atol(roomname), SIEVERULES);
+	if (getroom(&CC->room, sieveroomname) != 0) {
+		lprintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", sieveroomname);
+		return;
+	}
+
+	/* CtdlForEachMessage(FIXME find the sieve scripts and control record and do something */
 
 	lprintf(CTDL_DEBUG, "Performing Sieve processing for <%s>\n", roomname);
 
@@ -481,11 +503,10 @@ void sieve_do_room(char *roomname) {
 	}
 
 	/* Do something useful */
-	/* CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL, */
-	/* FIXME figure out which messages haven't yet been processed by sieve */
-	CtdlForEachMessage(MSGS_LAST, 1, NULL, NULL, NULL,
+	u.sieve2_context = sieve2_context;
+	CtdlForEachMessage(MSGS_GT, u.lastproc, NULL, NULL, NULL,
 		sieve_do_msg,
-		(void *) sieve2_context
+		(void *) &u
 	);
 
 BAIL:
