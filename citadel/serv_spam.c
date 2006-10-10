@@ -54,47 +54,6 @@
 
 
 
-/* 
- * This is a scanner I had started writing before deciding to just farm the
- * job out to SpamAssassin.  It *does* work but it's not in use.  We've
- * commented it out so it doesn't even compile.
- */
-#ifdef ___NOT_CURRENTLY_IN_USE___
-/* Scan a message for spam */
-int spam_filter(struct CtdlMessage *msg) {
-	int spam_strings_found = 0;
-	struct spamstrings_t *sptr;
-	char *ptr;
-
-	/* Bail out if there's no message text */
-	if (msg->cm_fields['M'] == NULL) return(0);
-
-
-	/* Scan! */
-	ptr = msg->cm_fields['M'];
-	while (ptr++[0] != 0) {
-		for (sptr = spamstrings; sptr != NULL; sptr = sptr->next) {
-			if (!strncasecmp(ptr, sptr->string,
-			   strlen(sptr->string))) {
-				++spam_strings_found;
-			}
-		}
-	}
-
-	if (spam_strings_found) {
-		if (msg->cm_fields['0'] != NULL) {
-			free(msg->cm_fields['0']);
-		}
-		msg->cm_fields['0'] = strdup("Unsolicited spam rejected");
-		return(spam_strings_found);
-	}
-
-	return(0);
-}
-#endif
-
-
-
 /*
  * Connect to the SpamAssassin server and scan a message.
  */
@@ -189,12 +148,6 @@ bail:	close(sock);
 
 char *serv_spam_init(void)
 {
-
-/* (disabled built-in scanner, see above)
-	CtdlRegisterMessageHook(spam_filter, EVT_SMTPSCAN);
- */
-
 	CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
-
         return "$Id$";
 }
