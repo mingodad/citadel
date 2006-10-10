@@ -313,7 +313,6 @@ int ctdl_discard(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to retrieve the sieve script
- * FIXME fetch script from Citadel instead of hardcode
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
 
@@ -368,12 +367,23 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 
 
 /* 
- * We need this struct to pass a bunch of information
+ * We need these structs to pass a bunch of information
  * between sieve_do_msg() and sieve_do_room()
  */
+
+struct sdm_script {
+	struct sdm_script *next;
+	char script_name[256];
+	int script_active;
+	char *script_content;
+};
+
 struct sdm_userdata {
 	sieve2_context_t *sieve2_context;	/**< for libsieve's use */
+	long config_msgnum;			/**< confirms that a sieve config was located */
+	char config_roomname[ROOMNAMELEN];
 	long lastproc;				/**< last message processed */
+	struct sdm_script *first_script;
 };
 
 
@@ -429,6 +439,79 @@ void sieve_do_msg(long msgnum, void *userdata) {
 }
 
 
+
+/*
+ * Given the on-disk representation of our Sieve config, load
+ * it into an in-memory data structure.
+ */
+void parse_sieve_config(char *conf, struct sdm_userdata *u) {
+	char *ptr;
+	char *c;
+
+	c = conf;
+	while (ptr = bmstrcasestr(conf, CTDLSIEVECONFIGSEPARATOR), ptr != NULL) {
+		*ptr = 0;
+		ptr += strlen(CTDLSIEVECONFIGSEPARATOR);
+
+		lprintf(CTDL_DEBUG, "CONFIG: <%s>\n", c);
+
+		/* FIXME finish this */
+
+	}
+}
+
+/*
+ * We found the Sieve configuration for this user.
+ * Now do something with it.
+ */
+void get_sieve_config_backend(long msgnum, void *userdata) {
+	struct sdm_userdata *u = (struct sdm_userdata *) userdata;
+	struct CtdlMessage *msg;
+	char *conf;
+
+	u->config_msgnum = msgnum;
+	msg = CtdlFetchMessage(u->config_msgnum, 1);
+	if (msg == NULL) {
+		u->config_msgnum = (-1) ;
+		return;
+	}
+
+	conf = msg->cm_fields['M'];
+	msg->cm_fields['M'] = NULL;
+	CtdlFreeMessage(msg);
+
+	if (conf != NULL) {
+		parse_sieve_config(conf, u);
+		free(conf);
+	}
+}
+
+
+/* 
+ * Write our citadel sieve config back to disk
+ */
+void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
+	char *text;
+
+	text =
+		"Content-type: application/x-citadel-sieve-config\n"
+		"\n"
+	;
+
+	/* Save the config */
+	quickie_message("Citadel", NULL, u->config_roomname,
+			text,
+			4,
+			"Sieve configuration"
+	);
+
+	/* And delete the old one */
+	CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "", 0);
+
+}
+
+
+
 /*
  * Perform sieve processing for a single room
  */
@@ -437,7 +520,7 @@ void sieve_do_room(char *roomname) {
 	struct sdm_userdata u;
 	sieve2_context_t *sieve2_context = NULL;	/* Context for sieve parser */
 	int res;					/* Return code from libsieve calls */
-	char sieveroomname[ROOMNAMELEN];
+	long orig_lastproc = 0;
 
 	/*
 	 * This is our callback registration table for libSieve.
@@ -465,15 +548,25 @@ void sieve_do_room(char *roomname) {
 	/* See if the user who owns this 'mailbox' has any Sieve scripts that
 	 * require execution.
 	 */
-	snprintf(sieveroomname, sizeof sieveroomname, "%010ld.%s", atol(roomname), SIEVERULES);
-	if (getroom(&CC->room, sieveroomname) != 0) {
-		lprintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", sieveroomname);
+	snprintf(u.config_roomname, sizeof u.config_roomname, "%010ld.%s", atol(roomname), SIEVERULES);
+	if (getroom(&CC->room, u.config_roomname) != 0) {
+		lprintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", u.config_roomname);
 		return;
 	}
 
-	/* CtdlForEachMessage(FIXME find the sieve scripts and control record and do something */
+	/*
+	 * Find the sieve scripts and control record and do something
+	 */
+	u.config_msgnum = (-1);
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, SIEVECONFIG, NULL,
+		get_sieve_config_backend, (void *)&u );
 
-	lprintf(CTDL_DEBUG, "Performing Sieve processing for <%s>\n", roomname);
+	if (u.config_msgnum < 0) {
+		lprintf(CTDL_DEBUG, "No Sieve rules exist.  No processing is required.\n");
+		return;
+	}
+
+	lprintf(CTDL_DEBUG, "Rules found.  Performing Sieve processing for <%s>\n", roomname);
 
 	if (getroom(&CC->room, roomname) != 0) {
 		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", roomname);
@@ -504,6 +597,7 @@ void sieve_do_room(char *roomname) {
 
 	/* Do something useful */
 	u.sieve2_context = sieve2_context;
+	orig_lastproc = u.lastproc;
 	CtdlForEachMessage(MSGS_GT, u.lastproc, NULL, NULL, NULL,
 		sieve_do_msg,
 		(void *) &u
@@ -513,6 +607,11 @@ BAIL:
 	res = sieve2_free(&sieve2_context);
 	if (res != SIEVE2_OK) {
 		lprintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
+	}
+
+	/* Rewrite the config if we have to */
+	if (u.lastproc > orig_lastproc) {
+		rewrite_ctdl_sieve_config(&u);
 	}
 }
 
@@ -552,7 +651,7 @@ void perform_sieve_processing(void) {
 
 
 
-/**
+/*
  *	We don't really care about dumping the entire credits to the log
  *	every time the server is initialized.  The documentation will suffice
  *	for that purpose.  We are making a call to sieve2_credits() in order

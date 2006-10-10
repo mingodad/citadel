@@ -235,6 +235,7 @@ enum {
 #define IGNETCFG	"application/x-citadel-ignet-config"
 #define IGNETMAP	"application/x-citadel-ignet-map"
 #define FILTERLIST	"application/x-citadel-filter-list"
+#define SIEVECONFIG	"application/x-citadel-sieve-config"
 
 #define TRACE	lprintf(CTDL_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
