@@ -124,9 +124,14 @@ remember_passwords=0
 # will be used to remote-control a web browser.  (Do not enable this command
 # for 'safe' public clients.)
 #
-# This one works on Linux and most other X11-based Unices.  Specify the full
-# path to Mozilla (or a Mozilla derivative like Netscape) if necessary.
-#urlcmd=mozilla -remote "openURL(%s)"
+# This one ought to work on any Linux that has the "Portland" API's installed.
+# If properly configured, xdg-open will open the URL in the user's perferred
+# web browser.
+#urlcmd=xdg-open "%s"
+#
+# This one works on non-Portland Linux and most other X11-based Unices.
+# Specify the full path to Firefox if necessary.
+#urlcmd=/usr/bin/firefox -a firefox -remote "openURL(%s)" >/dev/null 2>&1
 #
 # This one works really well on a Macintosh -- it opens URL's in whatever
 # browser you have configured as the system default.
@@ -141,7 +146,11 @@ remember_passwords=0
 # message.  (Do not enable this command for public clients.)
 #
 # Possible image viewers follow
-#
+
+# xdg-open - on Linux systems with the Portland API's installed, this ought
+# to open the image in the user's preferred viewer.
+#imagecmd=xdg-open "%s"
+
 # XV - This is an oldie but goodie, shareware with source code included, no
 # longer included with some Linux distributions due to licensing.
 #imagecmd=xv "%s"
