@@ -308,7 +308,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf(_("Primary Internet e-mail address"));
 	wprintf("<br />"
 		"<input type=\"text\" name=\"primary_inetemail\" "
-		"size=40 maxlength=40 value=\"");
+		"size=40 maxlength=60 value=\"");
 	escputs(primary_inetemail);
 	wprintf("\"><br />"
 		"</td><td valign=top>");
