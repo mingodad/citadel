@@ -492,11 +492,31 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
  */
 void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	char *text;
+	struct sdm_script *sptr;
 
-	text =
+	text = malloc(1024);
+	snprintf(text, 1024,
 		"Content-type: application/x-citadel-sieve-config\n"
 		"\n"
-	;
+		CTDLSIEVECONFIGSEPARATOR
+		"lastproc|%ld"
+		CTDLSIEVECONFIGSEPARATOR
+	,
+		u->lastproc
+	);
+
+	while (u->first_script != NULL) {
+		text = realloc(text, strlen(text) + strlen(u->first_script->script_content) + 256);
+		sprintf(&text[strlen(text)], "script|%s|%d|%s" CTDLSIEVECONFIGSEPARATOR,
+			u->first_script->script_name,
+			u->first_script->script_active,
+			u->first_script->script_content
+		);
+		sptr = u->first_script;
+		u->first_script = u->first_script->next;
+		free(sptr->script_content);
+		free(sptr);
+	}
 
 	/* Save the config */
 	quickie_message("Citadel", NULL, u->config_roomname,
@@ -650,6 +670,68 @@ void perform_sieve_processing(void) {
 }
 
 
+void msiv_load(struct sdm_userdata *u) {
+	char hold_rm[ROOMNAMELEN];
+
+	strcpy(hold_rm, CC->room.QRname);       /* save current room */
+
+	/* Take a spin through the user's personal address book */
+	if (getroom(&CC->room, SIEVERULES) == 0) {
+	
+		u->config_msgnum = (-1);
+		CtdlForEachMessage(MSGS_LAST, 1, NULL, SIEVECONFIG, NULL,
+			get_sieve_config_backend, (void *)&u );
+
+	}
+
+	if (strcmp(CC->room.QRname, hold_rm)) {
+		getroom(&CC->room, hold_rm);    /* return to saved room */
+	}
+}
+
+void msiv_store(struct sdm_userdata *u) {
+	rewrite_ctdl_sieve_config(u);
+}
+
+
+/*
+ * Citadel protocol to manage sieve scripts.
+ * This is basically a simplified (read: doesn't resemble IMAP) version
+ * of the 'managesieve' protocol.
+ */
+void cmd_msiv(char *argbuf) {
+	char subcmd[256];
+	struct sdm_userdata u;
+
+	memset(&u, 0, sizeof(struct sdm_userdata));
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(subcmd, argbuf, 0, '|', sizeof subcmd);
+	msiv_load(&u);
+
+	if (!strcasecmp(subcmd, "putscript")) {
+	}	
+	
+	else if (!strcasecmp(subcmd, "listscripts")) {
+	}
+
+	else if (!strcasecmp(subcmd, "setactive")) {
+	}
+
+	else if (!strcasecmp(subcmd, "getscript")) {
+	}
+
+	else if (!strcasecmp(subcmd, "deletescript")) {
+	}
+
+	else {
+		cprintf("%d Invalid subcommand\n", ERROR + CMD_NOT_SUPPORTED);
+	}
+
+	msiv_store(&u);
+}
+
+
 
 /*
  *	We don't really care about dumping the entire credits to the log
@@ -672,9 +754,11 @@ void log_the_sieve2_credits(void) {
 }
 
 
+
 char *serv_sieve_init(void)
 {
 	log_the_sieve2_credits();
+        CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 	return "$Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $";
 }
 
