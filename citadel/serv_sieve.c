@@ -761,6 +761,7 @@ void cmd_msiv(char *argbuf) {
 	struct sdm_userdata u;
 	char script_name[256];
 	char *script_content = NULL;
+	struct sdm_script *s;
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
@@ -781,6 +782,13 @@ void cmd_msiv(char *argbuf) {
 	}	
 	
 	else if (!strcasecmp(subcmd, "listscripts")) {
+		cprintf("%d Scripts:\n", LISTING_FOLLOWS);
+		for (s=u.first_script; s!=NULL; s=s->next) {
+			if (s->script_content != NULL) {
+				cprintf("%s|%d|\n", s->script_name, s->script_active);
+			}
+		}
+		cprintf("000\n");
 	}
 
 	else if (!strcasecmp(subcmd, "setactive")) {
