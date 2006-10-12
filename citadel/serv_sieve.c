@@ -50,14 +50,6 @@
 
 struct RoomProcList *sieve_list = NULL;
 
-struct ctdl_sieve {
-	char *rfc822headers;
-	int actiontaken;		/* Set to 1 if the message was successfully acted upon */
-	int keep;			/* Set to 1 to suppress message deletion from the inbox */
-	long usernum;			/* Owner of the mailbox we're processing */
-	long msgnum;			/* Message base ID of the message being processed */
-};
-
 
 /*
  * Callback function to send libSieve trace messages to Citadel log facility
@@ -314,10 +306,17 @@ int ctdl_discard(sieve2_context_t *s, void *my)
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
 	struct sdm_script *sptr;
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "ctdl_getscript() was called\n");
+	lprintf(CTDL_DEBUG, "ctdl_getscript() was called.  config_msgnum=%ld config_lastproc=%ld\n",
+		cs->u->config_msgnum, cs->u->lastproc
+	);
 
-	for (sptr=u->first_script; sptr!=NULL; sptr=sptr->next) {
+	for (sptr=cs->u->first_script; sptr!=NULL; sptr=sptr->next) {
+		lprintf(CTDL_DEBUG, "Can we use script '%s' ?  %s.\n",
+			sptr->script_name,
+			( (sptr->script_active > 0) ? "yes" : "no" )
+		);
 		if (sptr->script_active > 0) {
 			lprintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
 			sieve2_setvalue_string(s, "script", sptr->script_content);
@@ -386,6 +385,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	my.actiontaken = 0;	/* Keep track of whether any actions were successfully taken */
 	my.usernum = atol(CC->room.QRname);	/* Keep track of the owner of the room's namespace */
 	my.msgnum = msgnum;	/* Keep track of the message number in our local store */
+	my.u = u;		/* Hand off a pointer to the rest of this info */
 
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
@@ -439,8 +439,9 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 
 		else if (!strcasecmp(keyword, "script")) {
 			sptr = malloc(sizeof(struct sdm_script));
-			sptr->script_active = extract_int(c, 1);
-			extract_token(sptr->script_name, c, 2, '|', sizeof sptr->script_name);
+			extract_token(sptr->script_name, c, 1, '|', sizeof sptr->script_name);
+			sptr->script_active = extract_int(c, 2);
+			remove_token(c, 0, '|');
 			remove_token(c, 0, '|');
 			remove_token(c, 0, '|');
 			sptr->script_content = strdup(c);
@@ -539,6 +540,8 @@ void sieve_do_room(char *roomname) {
 	int res;					/* Return code from libsieve calls */
 	long orig_lastproc = 0;
 
+	memset(&u, 0, sizeof u);
+
 	/*
 	 * This is our callback registration table for libSieve.
 	 */
@@ -606,7 +609,10 @@ void sieve_do_room(char *roomname) {
 
 	/* Validate the script */
 
-	res = sieve2_validate(sieve2_context, NULL);
+	struct ctdl_sieve my;		/* dummy ctdl_sieve struct just to pass "u" slong */
+	memset(&my, 0, sizeof my);
+	my.u = &u;
+	res = sieve2_validate(sieve2_context, &my);
 	if (res != SIEVE2_OK) {
 		lprintf(CTDL_CRIT, "sieve2_validate() returned %d: %s\n", res, sieve2_errstr(res));
 		goto BAIL;
@@ -693,6 +699,29 @@ void msiv_store(struct sdm_userdata *u) {
 
 
 /*
+ * Fetch a script by name.
+ *
+ * Returns NULL if the named script was not found, or a pointer to the script
+ * if it was found.   NOTE: the caller does *not* own the memory returned by
+ * this function.  Copy it if you need to keep it.
+ */
+char *msiv_getscript(struct sdm_userdata *u, char *script_name) {
+	struct sdm_script *s;
+
+	for (s=u->first_script; s!=NULL; s=s->next) {
+		if (!strcasecmp(s->script_name, script_name)) {
+			if (s->script_content != NULL) {
+				return (s->script_content);
+			}
+		}
+	}
+
+	return(NULL);
+}
+
+
+
+/*
  * Add or replace a new script.  
  * NOTE: after this function returns, "u" owns the memory that "script_content"
  * was pointing to.
@@ -715,6 +744,7 @@ void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_cont
 		sptr = malloc(sizeof(struct sdm_script));
 		safestrncpy(sptr->script_name, script_name, sizeof sptr->script_name);
 		sptr->script_content = script_content;
+		sptr->script_active = 0;
 		sptr->next = u->first_script;
 		u->first_script = sptr;
 	}
@@ -757,6 +787,15 @@ void cmd_msiv(char *argbuf) {
 	}
 
 	else if (!strcasecmp(subcmd, "getscript")) {
+		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
+		script_content = msiv_getscript(&u, script_name);
+		if (script_content != NULL) {
+			cprintf("%d Script:\n", SEND_LISTING);
+			cprintf("%s000\n", script_content);
+		}
+		else {
+			cprintf("%d Invalid script name.\n", ERROR + ILLEGAL_VALUE);
+		}
 	}
 
 	else if (!strcasecmp(subcmd, "deletescript")) {
