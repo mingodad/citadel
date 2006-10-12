@@ -699,6 +699,45 @@ void msiv_store(struct sdm_userdata *u) {
 
 
 /*
+ * Select the active script.
+ * (Set script_name to an empty string to disable all scripts)
+ * 
+ * Returns 0 on success or nonzero for error.
+ */
+int msiv_setactive(struct sdm_userdata *u, char *script_name) {
+	int ok = 0;
+	struct sdm_script *s;
+
+	/* First see if the supplied value is ok */
+
+	if (strlen(script_name) == 0) {
+		ok = 1;
+	}
+	else {
+		for (s=u->first_script; s!=NULL; s=s->next) {
+			if (!strcasecmp(s->script_name, script_name)) {
+				ok = 1;
+			}
+		}
+	}
+
+	if (!ok) return(-1);
+
+	/* Now set the active script */
+	for (s=u->first_script; s!=NULL; s=s->next) {
+		if (!strcasecmp(s->script_name, script_name)) {
+			s->script_active = 1;
+		}
+		else {
+			s->script_active = 0;
+		}
+	}
+	
+	return(0);
+}
+
+
+/*
  * Fetch a script by name.
  *
  * Returns NULL if the named script was not found, or a pointer to the script
@@ -792,6 +831,16 @@ void cmd_msiv(char *argbuf) {
 	}
 
 	else if (!strcasecmp(subcmd, "setactive")) {
+		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
+		if (msiv_setactive(&u, script_name) == 0) {
+			cprintf("%d ok\n", CIT_OK);
+		}
+		else {
+			cprintf("%d Script '%s' does not exist.\n",
+				ERROR + ILLEGAL_VALUE,
+				script_name
+			);
+		}
 	}
 
 	else if (!strcasecmp(subcmd, "getscript")) {
@@ -807,6 +856,7 @@ void cmd_msiv(char *argbuf) {
 	}
 
 	else if (!strcasecmp(subcmd, "deletescript")) {
+		/* FIXME */
 	}
 
 	else {
