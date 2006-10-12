@@ -46,8 +46,6 @@
 
 #ifdef HAVE_LIBSIEVE
 
-#include <sieve2.h>
-#include <sieve2_error.h>
 #include "serv_sieve.h"
 
 struct RoomProcList *sieve_list = NULL;
@@ -315,23 +313,20 @@ int ctdl_discard(sieve2_context_t *s, void *my)
  * Callback function to retrieve the sieve script
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
+	struct sdm_script *sptr;
 
 	lprintf(CTDL_DEBUG, "ctdl_getscript() was called\n");
 
-	sieve2_setvalue_string(s, "script",
+	for (sptr=u->first_script; sptr!=NULL; sptr=sptr->next) {
+		if (sptr->script_active > 0) {
+			lprintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
+			sieve2_setvalue_string(s, "script", sptr->script_content);
+        		return SIEVE2_OK;
+		}
+	}
 		
-		"require \"fileinto\";						\n"
-		"    if header :contains [\"Subject\"]  [\"frobnitz\"] {	\n"
-		"        redirect \"foo@example.com\";				\n"
-		"    } elsif header :contains \"Subject\" \"XYZZY\" {		\n"
-		"        fileinto \"plugh\";					\n"
-		"    } else {							\n"
-		"        keep; 							\n"
-		"    }								\n"
-
-	);
-
-        return SIEVE2_OK;
+	lprintf(CTDL_DEBUG, "ctdl_getscript() found no active script\n");
+        return SIEVE2_ERROR_GETSCRIPT;
 }
 
 /*
@@ -365,26 +360,6 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 	end_critical_section(S_SIEVELIST);
 }
 
-
-/* 
- * We need these structs to pass a bunch of information
- * between sieve_do_msg() and sieve_do_room()
- */
-
-struct sdm_script {
-	struct sdm_script *next;
-	char script_name[256];
-	int script_active;
-	char *script_content;
-};
-
-struct sdm_userdata {
-	sieve2_context_t *sieve2_context;	/**< for libsieve's use */
-	long config_msgnum;			/**< confirms that a sieve config was located */
-	char config_roomname[ROOMNAMELEN];
-	long lastproc;				/**< last message processed */
-	struct sdm_script *first_script;
-};
 
 
 /*
@@ -447,17 +422,35 @@ void sieve_do_msg(long msgnum, void *userdata) {
 void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 	char *ptr;
 	char *c;
+	char keyword[256];
+	struct sdm_script *sptr;
 
-	c = conf;
-	while (ptr = bmstrcasestr(conf, CTDLSIEVECONFIGSEPARATOR), ptr != NULL) {
+	ptr = conf;
+	while (c = ptr, ptr = bmstrcasestr(ptr, CTDLSIEVECONFIGSEPARATOR), ptr != NULL) {
 		*ptr = 0;
 		ptr += strlen(CTDLSIEVECONFIGSEPARATOR);
 
-		lprintf(CTDL_DEBUG, "CONFIG: <%s>\n", c);
+		extract_token(keyword, c, 0, '|', sizeof keyword);
+		lprintf(CTDL_DEBUG, "CONFIG: <%s>\n", keyword);
 
-		/* FIXME finish this */
+		if (!strcasecmp(keyword, "lastproc")) {
+			u->lastproc = extract_long(c, 1);
+		}
 
+		else if (!strcasecmp(keyword, "script")) {
+			sptr = malloc(sizeof(struct sdm_script));
+			sptr->script_active = extract_int(c, 1);
+			extract_token(sptr->script_name, c, 2, '|', sizeof sptr->script_name);
+			remove_token(c, 0, '|');
+			remove_token(c, 0, '|');
+			sptr->script_content = strdup(c);
+			sptr->next = u->first_script;
+			u->first_script = sptr;
+		}
+
+		/* ignore unknown keywords */
 	}
+	lprintf(CTDL_DEBUG, "done parsing config\n");
 }
 
 /*
@@ -470,7 +463,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 	char *conf;
 
 	u->config_msgnum = msgnum;
-	msg = CtdlFetchMessage(u->config_msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
 		u->config_msgnum = (-1) ;
 		return;
@@ -484,6 +477,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 		parse_sieve_config(conf, u);
 		free(conf);
 	}
+
 }
 
 
@@ -493,6 +487,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	char *text;
 	struct sdm_script *sptr;
+
 
 	text = malloc(1024);
 	snprintf(text, 1024,
@@ -526,7 +521,9 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	);
 
 	/* And delete the old one */
-	CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "", 0);
+	if (u->config_msgnum > 0) {
+		CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "", 0);
+	}
 
 }
 
@@ -679,8 +676,9 @@ void msiv_load(struct sdm_userdata *u) {
 	if (getroom(&CC->room, SIEVERULES) == 0) {
 	
 		u->config_msgnum = (-1);
+		strcpy(u->config_roomname, CC->room.QRname);
 		CtdlForEachMessage(MSGS_LAST, 1, NULL, SIEVECONFIG, NULL,
-			get_sieve_config_backend, (void *)&u );
+			get_sieve_config_backend, (void *)u );
 
 	}
 
@@ -695,6 +693,35 @@ void msiv_store(struct sdm_userdata *u) {
 
 
 /*
+ * Add or replace a new script.  
+ * NOTE: after this function returns, "u" owns the memory that "script_content"
+ * was pointing to.
+ */
+void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_content) {
+	int replaced = 0;
+	struct sdm_script *s, *sptr;
+
+	for (s=u->first_script; s!=NULL; s=s->next) {
+		if (!strcasecmp(s->script_name, script_name)) {
+			if (s->script_content != NULL) {
+				free(s->script_content);
+			}
+			s->script_content = script_content;
+			replaced = 1;
+		}
+	}
+
+	if (replaced == 0) {
+		sptr = malloc(sizeof(struct sdm_script));
+		safestrncpy(sptr->script_name, script_name, sizeof sptr->script_name);
+		sptr->script_content = script_content;
+		sptr->next = u->first_script;
+		u->first_script = sptr;
+	}
+}
+
+
+/*
  * Citadel protocol to manage sieve scripts.
  * This is basically a simplified (read: doesn't resemble IMAP) version
  * of the 'managesieve' protocol.
@@ -702,6 +729,8 @@ void msiv_store(struct sdm_userdata *u) {
 void cmd_msiv(char *argbuf) {
 	char subcmd[256];
 	struct sdm_userdata u;
+	char script_name[256];
+	char *script_content = NULL;
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
@@ -710,6 +739,15 @@ void cmd_msiv(char *argbuf) {
 	msiv_load(&u);
 
 	if (!strcasecmp(subcmd, "putscript")) {
+		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
+		if (strlen(script_name) > 0) {
+			cprintf("%d Transmit script now\n", SEND_LISTING);
+			script_content = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
+			msiv_putscript(&u, script_name, script_content);
+		}
+		else {
+			cprintf("%d Invalid script name.\n", ERROR + ILLEGAL_VALUE);
+		}
 	}	
 	
 	else if (!strcasecmp(subcmd, "listscripts")) {
