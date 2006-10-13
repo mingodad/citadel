@@ -2295,6 +2295,44 @@ change even when the message number changes due to an update.
  If no message exists in the current room with the supplied EUID, the command
 returns ERROR+MESSAGE_NOT_FOUND.
 
+
+MSIV   (Manage SIeVe scripts)
+
+This command is the interface to Citadel's implementation of Sieve, the 
+mail filtering and sorting language.  Clients may automate the handling 
+of incoming messages to their inbox by administering one or more Sieve 
+scripts.   The available subcommands are:
+
+ MSIV putscript|<scriptname>
+
+   Add a new script or replace an existing one.  Always returns 
+SEND_LISTING and expects the client to transmit the script content.
+
+ MSIV listscripts
+
+   List the scripts which are available for this account.  Returns 
+LISTING_FOLLOWS followed by a list of available scripts.  Each line of 
+the output contains two parameters: the name of the script, and 0 or 1 
+to indicate whether the script is active.
+
+ MSIV setactive|<scriptname>
+
+   Choose which script is to become the active one that handles the 
+user's inbox.  <scriptname> must be either the name of an existing 
+script or an empty string to indicate that the user wishes to disable 
+all scripts.   Returns OK if successful, or ERROR if the supplied name 
+is invalid.
+
+ MSIV getscript|<scriptname>
+
+   Output one of the existing scripts.  Returns LISTING_FOLLOWS followed 
+by the script, or ERROR if the named script does not exist.
+
+ MSIV deletescript|<scriptname>
+
+   Delete one of the existing scripts.  Returns OK if the script was 
+deleted, or ERROR if the named script does not exist or cannot be 
+deleted because it is active.
  
  
  
