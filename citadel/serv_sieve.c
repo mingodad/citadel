@@ -308,15 +308,7 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 	struct sdm_script *sptr;
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "ctdl_getscript() was called.  config_msgnum=%ld config_lastproc=%ld\n",
-		cs->u->config_msgnum, cs->u->lastproc
-	);
-
 	for (sptr=cs->u->first_script; sptr!=NULL; sptr=sptr->next) {
-		lprintf(CTDL_DEBUG, "Can we use script '%s' ?  %s.\n",
-			sptr->script_name,
-			( (sptr->script_active > 0) ? "yes" : "no" )
-		);
 		if (sptr->script_active > 0) {
 			lprintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
 			sieve2_setvalue_string(s, "script", sptr->script_content);
@@ -431,7 +423,6 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 		ptr += strlen(CTDLSIEVECONFIGSEPARATOR);
 
 		extract_token(keyword, c, 0, '|', sizeof keyword);
-		lprintf(CTDL_DEBUG, "CONFIG: <%s>\n", keyword);
 
 		if (!strcasecmp(keyword, "lastproc")) {
 			u->lastproc = extract_long(c, 1);
@@ -451,7 +442,6 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 
 		/* ignore unknown keywords */
 	}
-	lprintf(CTDL_DEBUG, "done parsing config\n");
 }
 
 /*
