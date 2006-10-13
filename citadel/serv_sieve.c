@@ -749,6 +749,42 @@ char *msiv_getscript(struct sdm_userdata *u, char *script_name) {
 }
 
 
+/*
+ * Delete a script by name.
+ *
+ * Returns 0 if the script was deleted.
+ *         1 if the script was not found.
+ *         2 if the script cannot be deleted because it is active.
+ */
+int msiv_deletescript(struct sdm_userdata *u, char *script_name) {
+	struct sdm_script *s = NULL;
+	struct sdm_script *script_to_delete = NULL;
+
+	for (s=u->first_script; s!=NULL; s=s->next) {
+		if (!strcasecmp(s->script_name, script_name)) {
+			script_to_delete = s;
+			if (s->script_active) {
+				return(2);
+			}
+		}
+	}
+
+	if (script_to_delete == NULL) return(1);
+
+	if (u->first_script == script_to_delete) {
+		u->first_script = u->first_script->next;
+	}
+	else for (s=u->first_script; s!=NULL; s=s->next) {
+		if (s->next == script_to_delete) {
+			s->next = s->next->next;
+		}
+	}
+
+	free(script_to_delete->script_content);
+	free(script_to_delete);
+	return(0);
+}
+
 
 /*
  * Add or replace a new script.  
@@ -791,6 +827,7 @@ void cmd_msiv(char *argbuf) {
 	char script_name[256];
 	char *script_content = NULL;
 	struct sdm_script *s;
+	int i;
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
@@ -846,7 +883,26 @@ void cmd_msiv(char *argbuf) {
 	}
 
 	else if (!strcasecmp(subcmd, "deletescript")) {
-		/* FIXME */
+		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
+		i = msiv_deletescript(&u, script_name);
+		if (i == 0) {
+			cprintf("%d ok\n", CIT_OK);
+		}
+		else if (i == 1) {
+			cprintf("%d Script '%s' does not exist.\n",
+				ERROR + ILLEGAL_VALUE,
+				script_name
+			);
+		}
+		else if (i == 2) {
+			cprintf("%d Script '%s' is active and cannot be deleted.\n",
+				ERROR + ILLEGAL_VALUE,
+				script_name
+			);
+		}
+		else {
+			cprintf("%d unknown error\n", ERROR);
+		}
 	}
 
 	else {
