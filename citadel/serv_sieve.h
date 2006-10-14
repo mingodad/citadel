@@ -30,6 +30,9 @@ struct ctdl_sieve {
 	long usernum;			/* Owner of the mailbox we're processing */
 	long msgnum;			/* Message base ID of the message being processed */
 	struct sdm_userdata *u;		/* Info related to the current session */
+	char recp_user[256];
+	char recp_node[256];
+	char recp_name[256];
 };
 
 

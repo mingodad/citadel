@@ -42,6 +42,7 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "internet_addressing.h"
 #include "tools.h"
 
 #ifdef HAVE_LIBSIEVE
@@ -245,11 +246,25 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to parse addresses per local system convention
- * FIXME implement this
  */
 int ctdl_getsubaddress(sieve2_context_t *s, void *my)
 {
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	/*
+	 * Citadel doesn't support subaddresses, so just give up.
+	 */
 	return SIEVE2_ERROR_UNSUPPORTED;
+
+	/* libSieve does not take ownership of the memory used here.  But, since we
+	 * are just pointing to locations inside a struct which we are going to free
+	 * later, we're ok.
+	 */
+	sieve2_setvalue_string(s, "user", cs->recp_user);
+	sieve2_setvalue_string(s, "detail", "");	/* we don't support user+detail@domain yet */
+	sieve2_setvalue_string(s, "localpart", cs->recp_user);
+	sieve2_setvalue_string(s, "domain", cs->recp_node);
+	return SIEVE2_OK;
 }
 
 
@@ -361,13 +376,17 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	sieve2_context_t *sieve2_context = u->sieve2_context;
 	struct ctdl_sieve my;
 	int res;
+	struct CtdlMessage *msg;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
+
+	msg = CtdlFetchMessage(msgnum, 0);
+	if (msg == NULL) return;
 
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ONLY, 0, 1, NULL);
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
 	my.rfc822headers = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
@@ -378,6 +397,11 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	my.usernum = atol(CC->room.QRname);	/* Keep track of the owner of the room's namespace */
 	my.msgnum = msgnum;	/* Keep track of the message number in our local store */
 	my.u = u;		/* Hand off a pointer to the rest of this info */
+
+	/* Keep track of the recipient so we can do handling based on it later */
+	process_rfc822_addr(msg->cm_fields['R'], my.recp_user, my.recp_node, my.recp_name);
+
+	free(msg);
 
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	

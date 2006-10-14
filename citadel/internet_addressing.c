@@ -164,6 +164,8 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	strcpy(node, config.c_fqdn);
 	strcpy(name, "");
 
+	if (rfc822 == NULL) return;
+
 	/* extract full name - first, it's From minus <userid> */
 	strcpy(name, rfc822);
 	stripout(name, '<', '>');
