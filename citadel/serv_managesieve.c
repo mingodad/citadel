@@ -68,6 +68,9 @@
 #include "snprintf.h"
 #endif
 
+#ifdef HAVE_LIBSIEVE
+
+#include "serv_sieve.h"
 
 
 /**
@@ -565,3 +568,13 @@ char *serv_managesieve_init(void)
 	CtdlRegisterSessionHook(mgsve_create_room, EVT_LOGIN);
 	return "$Id: serv_managesieve.c 4570 2006-08-27 02:07:18Z dothebart $";
 }
+
+#else	/* HAVE_LIBSIEVE */
+
+char *serv_managesieve_init(void)
+{
+	lprintf(CTDL_INFO, "This server is missing libsieve.  Managesieve protocol is disabled..\n");
+	return "$Id:  $";
+}
+
+#endif	/* HAVE_LIBSIEVE */

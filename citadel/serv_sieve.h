@@ -32,7 +32,6 @@ struct ctdl_sieve {
 	struct sdm_userdata *u;		/* Info related to the current session */
 };
 
-#endif /* HAVE_LIBSIEVE */
 
 /* If you change this string you will break all of your Sieve configs. */
 #define CTDLSIEVECONFIGSEPARATOR	"\n-=<CtdlSieveConfigSeparator>=-\n"
@@ -49,3 +48,4 @@ char *msiv_getscript(struct sdm_userdata *u, char *script_name);
 int msiv_deletescript(struct sdm_userdata *u, char *script_name);
 void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_content);
 
+#endif /* HAVE_LIBSIEVE */
