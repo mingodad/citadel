@@ -11,7 +11,7 @@
 
 #ifdef ENABLE_NLS
 
-#define NUM_LANGS 7 /**< how many different locales do we know? */
+#define NUM_LANGS 8 /**< how many different locales do we know? */
 #define SEARCH_LANG 20 /**< how many langs should we parse? */
 
 /** actual supported locales */
@@ -22,7 +22,8 @@ char *AvailLang[NUM_LANGS] = {
 	"it_IT",
 	"es_ES",
 	"en_GB",
-	"da_DK"
+	"da_DK",
+	"fr_FR"
 };
 
 locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
@@ -147,7 +148,7 @@ void httplang_to_locale(char *LocaleString)
 	lprintf(9, "language found: %s\n", AvailLang[WC->selected_language]);
 }
 
-/* TODO: we skip the language weightening so far. */
+/* TODO: we skip the language weighting so far. */
 /* Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' */
 /* Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 */
 //void httplang_to_locale(char *LocaleString)
