@@ -604,6 +604,29 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 }
 
 
+/*
+ * This is our callback registration table for libSieve.
+ */
+sieve2_callback_t ctdl_sieve_callbacks[] = {
+	{ SIEVE2_ACTION_REJECT,		ctdl_reject		},
+	{ SIEVE2_ACTION_NOTIFY,		ctdl_notify		},
+	{ SIEVE2_ACTION_VACATION,	ctdl_vacation		},
+	{ SIEVE2_ERRCALL_PARSE,		ctdl_errparse		},
+	{ SIEVE2_ERRCALL_RUNTIME,	ctdl_errexec		},
+	{ SIEVE2_ACTION_FILEINTO,	ctdl_fileinto		},
+	{ SIEVE2_ACTION_REDIRECT,	ctdl_redirect		},
+	{ SIEVE2_ACTION_DISCARD,	ctdl_discard		},
+	{ SIEVE2_ACTION_KEEP,		ctdl_keep		},
+	{ SIEVE2_SCRIPT_GETSCRIPT,	ctdl_getscript		},
+	{ SIEVE2_DEBUG_TRACE,		ctdl_debug		},
+	{ SIEVE2_MESSAGE_GETALLHEADERS,	ctdl_getheaders		},
+	{ SIEVE2_MESSAGE_GETSUBADDRESS,	ctdl_getsubaddress	},
+	{ SIEVE2_MESSAGE_GETENVELOPE,	ctdl_getenvelope	},
+	{ SIEVE2_MESSAGE_GETBODY,	ctdl_getbody		},
+	{ SIEVE2_MESSAGE_GETSIZE,	ctdl_getsize		},
+	{ 0 }
+};
+
 
 /*
  * Perform sieve processing for a single room
@@ -616,29 +639,6 @@ void sieve_do_room(char *roomname) {
 	long orig_lastproc = 0;
 
 	memset(&u, 0, sizeof u);
-
-	/*
-	 * This is our callback registration table for libSieve.
-	 */
-	sieve2_callback_t ctdl_sieve_callbacks[] = {
-		{ SIEVE2_ACTION_REJECT,	 ctdl_reject		},
-		{ SIEVE2_ACTION_NOTIFY,	 ctdl_notify		},
-		{ SIEVE2_ACTION_VACATION,       ctdl_vacation		},
-		{ SIEVE2_ERRCALL_PARSE,	 ctdl_errparse		},
-		{ SIEVE2_ERRCALL_RUNTIME,       ctdl_errexec		},
-		{ SIEVE2_ACTION_FILEINTO,       ctdl_fileinto		},
-		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect		},
-		{ SIEVE2_ACTION_DISCARD,	ctdl_discard		},
-		{ SIEVE2_ACTION_KEEP,	   ctdl_keep		},
-		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript		},
-		{ SIEVE2_DEBUG_TRACE,	   ctdl_debug		},
-		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders		},
-		{ SIEVE2_MESSAGE_GETSUBADDRESS, ctdl_getsubaddress	},
-		{ SIEVE2_MESSAGE_GETENVELOPE,   ctdl_getenvelope	},
-		{ SIEVE2_MESSAGE_GETBODY,       ctdl_getbody		},
-		{ SIEVE2_MESSAGE_GETSIZE,       ctdl_getsize		},
-		{ 0 }
-	};
 
 	/* See if the user who owns this 'mailbox' has any Sieve scripts that
 	 * require execution.
@@ -898,6 +898,14 @@ void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_cont
 		sptr->next = u->first_script;
 		u->first_script = sptr;
 	}
+}
+
+
+/*
+ * Return the list of supported Sieve extensions
+ */
+char *msiv_listextensions(void) {
+	return "FIXME - this is not done yet";
 }
 
 
