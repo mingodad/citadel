@@ -346,10 +346,19 @@ int ctdl_getbody(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to fetch message size
- * FIXME implement this
  */
 int ctdl_getsize(sieve2_context_t *s, void *my)
 {
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	struct MetaData smi;
+
+	GetMetaData(&smi, cs->msgnum);
+	
+	if (smi.meta_rfc822_length > 0L) {
+		sieve2_setvalue_int(s, "size", (int)smi.meta_rfc822_length);
+		return SIEVE2_OK;
+	}
+
 	return SIEVE2_ERROR_UNSUPPORTED;
 }
 
