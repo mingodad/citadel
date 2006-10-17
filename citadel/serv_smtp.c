@@ -1334,8 +1334,6 @@ void smtp_do_bounce(char *instr) {
 		give_up = 1;
 	}
 
-
-
 	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (bmsg == NULL) return;
 	memset(bmsg, 0, sizeof(struct CtdlMessage));

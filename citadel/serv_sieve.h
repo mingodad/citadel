@@ -33,6 +33,7 @@ struct ctdl_sieve {
 	char recp_user[256];
 	char recp_node[256];
 	char recp_name[256];
+	char sender[256];		/* To whom shall we send reject bounces or vacation messages? */
 };
 
 

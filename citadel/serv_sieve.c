@@ -192,7 +192,7 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	}
 
 	/* Yes, we actually have to go there */
-        usergoto(NULL, 0, 0, NULL, NULL);
+	usergoto(NULL, 0, 0, NULL, NULL);
 
 	c = CtdlSaveMsgPointersInRoom(NULL, &cs->msgnum, 1, 0, NULL);
 
@@ -212,13 +212,69 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 
 
 /*
+ * Callback function to indicate that a message should be discarded.
+ */
+int ctdl_discard(sieve2_context_t *s, void *my)
+{
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	lprintf(CTDL_DEBUG, "Action is DISCARD\n");
+
+	/* Yes, this is really all there is to it.  Since we are not setting "keep" to 1,
+	 * the message will be discarded because "some other action" was successfully taken.
+	 */
+	cs->actiontaken = 1;
+	return SIEVE2_OK;
+}
+
+
+
+/*
  * Callback function to indicate that a message should be rejected
- * FIXME implement this
  */
 int ctdl_reject(sieve2_context_t *s, void *my)
 {
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	char *reject_text = NULL;
+
 	lprintf(CTDL_DEBUG, "Action is REJECT\n");
-	return SIEVE2_ERROR_UNSUPPORTED;
+
+	/* If we don't know who sent the message, do a DISCARD instead. */
+	if (strlen(cs->sender) == 0) {
+		lprintf(CTDL_INFO, "Unknown sender.  Doing DISCARD instead of REJECT.\n");
+		return ctdl_discard(s, my);
+	}
+
+	/* Assemble the reject message. */
+	reject_text = malloc(strlen(sieve2_getvalue_string(s, "message")) + 1024);
+	if (reject_text == NULL) {
+		return SIEVE2_ERROR_FAIL;
+	}
+
+	sprintf(reject_text, 
+		"Content-type: text/plain\n"
+		"\n"
+		"The message was refused by the recipient's mail filtering program.\n"
+		"The reason given was as follows:\n"
+		"\n"
+		"%s\n"
+		"\n"
+	,
+		sieve2_getvalue_string(s, "message")
+	);
+
+	quickie_message(	/* This delivers the message */
+		"Citadel",
+		cs->sender,
+		NULL,
+		reject_text,
+		FMT_RFC822,
+		"Delivery status notification"
+	);
+
+	free(reject_text);
+	cs->actiontaken = 1;
+	return SIEVE2_OK;
 }
 
 
@@ -299,24 +355,6 @@ int ctdl_getsize(sieve2_context_t *s, void *my)
 
 
 /*
- * Callback function to indicate that a message should be discarded.
- */
-int ctdl_discard(sieve2_context_t *s, void *my)
-{
-	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
-
-	lprintf(CTDL_DEBUG, "Action is DISCARD\n");
-
-	/* Yes, this is really all there is to it.  Since we are not setting "keep" to 1,
-	 * the message will be discarded because "some other action" was successfully taken.
-	 */
-	cs->actiontaken = 1;
-	return SIEVE2_OK;
-}
-
-
-
-/*
  * Callback function to retrieve the sieve script
  */
 int ctdl_getscript(sieve2_context_t *s, void *my) {
@@ -327,12 +365,12 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 		if (sptr->script_active > 0) {
 			lprintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
 			sieve2_setvalue_string(s, "script", sptr->script_content);
-        		return SIEVE2_OK;
+			return SIEVE2_OK;
 		}
 	}
 		
 	lprintf(CTDL_DEBUG, "ctdl_getscript() found no active script\n");
-        return SIEVE2_ERROR_GETSCRIPT;
+	return SIEVE2_ERROR_GETSCRIPT;
 }
 
 /*
@@ -400,6 +438,20 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	/* Keep track of the recipient so we can do handling based on it later */
 	process_rfc822_addr(msg->cm_fields['R'], my.recp_user, my.recp_node, my.recp_name);
+
+	/* Keep track of the sender so we can use it for REJECT and VACATION responses */
+	if (msg->cm_fields['F'] != NULL) {
+		safestrncpy(my.sender, msg->cm_fields['F'], sizeof my.sender);
+	}
+	else if ( (msg->cm_fields['A'] != NULL) && (msg->cm_fields['N'] != NULL) ) {
+		snprintf(my.sender, sizeof my.sender, "%s@%s", msg->cm_fields['A'], msg->cm_fields['N']);
+	}
+	else if (msg->cm_fields['A'] != NULL) {
+		safestrncpy(my.sender, msg->cm_fields['A'], sizeof my.sender);
+	}
+	else {
+		strcpy(my.sender, "");
+	}
 
 	free(msg);
 
@@ -560,17 +612,17 @@ void sieve_do_room(char *roomname) {
 	 * This is our callback registration table for libSieve.
 	 */
 	sieve2_callback_t ctdl_sieve_callbacks[] = {
-		{ SIEVE2_ACTION_REJECT,         ctdl_reject		},
-		{ SIEVE2_ACTION_NOTIFY,         ctdl_notify		},
+		{ SIEVE2_ACTION_REJECT,	 ctdl_reject		},
+		{ SIEVE2_ACTION_NOTIFY,	 ctdl_notify		},
 		{ SIEVE2_ACTION_VACATION,       ctdl_vacation		},
-		{ SIEVE2_ERRCALL_PARSE,         ctdl_errparse		},
+		{ SIEVE2_ERRCALL_PARSE,	 ctdl_errparse		},
 		{ SIEVE2_ERRCALL_RUNTIME,       ctdl_errexec		},
 		{ SIEVE2_ACTION_FILEINTO,       ctdl_fileinto		},
 		{ SIEVE2_ACTION_REDIRECT,       ctdl_redirect		},
-		{ SIEVE2_ACTION_DISCARD,        ctdl_discard		},
-		{ SIEVE2_ACTION_KEEP,           ctdl_keep		},
+		{ SIEVE2_ACTION_DISCARD,	ctdl_discard		},
+		{ SIEVE2_ACTION_KEEP,	   ctdl_keep		},
 		{ SIEVE2_SCRIPT_GETSCRIPT,      ctdl_getscript		},
-		{ SIEVE2_DEBUG_TRACE,           ctdl_debug		},
+		{ SIEVE2_DEBUG_TRACE,	   ctdl_debug		},
 		{ SIEVE2_MESSAGE_GETALLHEADERS, ctdl_getheaders		},
 		{ SIEVE2_MESSAGE_GETSUBADDRESS, ctdl_getsubaddress	},
 		{ SIEVE2_MESSAGE_GETENVELOPE,   ctdl_getenvelope	},
@@ -777,8 +829,8 @@ char *msiv_getscript(struct sdm_userdata *u, char *script_name) {
  * Delete a script by name.
  *
  * Returns 0 if the script was deleted.
- *         1 if the script was not found.
- *         2 if the script cannot be deleted because it is active.
+ *	 1 if the script was not found.
+ *	 2 if the script cannot be deleted because it is active.
  */
 int msiv_deletescript(struct sdm_userdata *u, char *script_name) {
 	struct sdm_script *s = NULL;
@@ -963,7 +1015,7 @@ void log_the_sieve2_credits(void) {
 char *serv_sieve_init(void)
 {
 	log_the_sieve2_credits();
-        CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
+	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 	return "$Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $";
 }
 
