@@ -51,6 +51,6 @@ int msiv_setactive(struct sdm_userdata *u, char *script_name);
 char *msiv_getscript(struct sdm_userdata *u, char *script_name);
 int msiv_deletescript(struct sdm_userdata *u, char *script_name);
 void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_content);
-char *msiv_listextensions(void);
+extern char *msiv_extensions;
 
 #endif /* HAVE_LIBSIEVE */

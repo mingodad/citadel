@@ -50,6 +50,7 @@
 #include "serv_sieve.h"
 
 struct RoomProcList *sieve_list = NULL;
+char *msiv_extensions = NULL;
 
 
 /*
@@ -901,13 +902,6 @@ void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_cont
 }
 
 
-/*
- * Return the list of supported Sieve extensions
- */
-char *msiv_listextensions(void) {
-	return "FIXME - this is not done yet";
-}
-
 
 /*
  * Citadel protocol to manage sieve scripts.
@@ -1007,15 +1001,17 @@ void cmd_msiv(char *argbuf) {
 
 
 
-/*
- *	We don't really care about dumping the entire credits to the log
- *	every time the server is initialized.  The documentation will suffice
- *	for that purpose.  We are making a call to sieve2_credits() in order
- *	to demonstrate that we have successfully linked in to libsieve.
- */
-void log_the_sieve2_credits(void) {
+void ctdl_sieve_init(void) {
 	char *cred = NULL;
+	sieve2_context_t *sieve2_context = NULL;
+	int res;
 
+	/*
+	 *	We don't really care about dumping the entire credits to the log
+	 *	every time the server is initialized.  The documentation will suffice
+	 *	for that purpose.  We are making a call to sieve2_credits() in order
+	 *	to demonstrate that we have successfully linked in to libsieve.
+	 */
 	cred = strdup(sieve2_credits());
 	if (cred == NULL) return;
 
@@ -1025,13 +1021,37 @@ void log_the_sieve2_credits(void) {
 
 	lprintf(CTDL_INFO, "%s\n",cred);
 	free(cred);
+
+	/* Briefly initialize a Sieve parser instance just so we can list the
+	 * extensions that are available.
+	 */
+	res = sieve2_alloc(&sieve2_context);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
+		return;
+	}
+
+	res = sieve2_callbacks(sieve2_context, ctdl_sieve_callbacks);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
+		goto BAIL;
+	}
+
+	msiv_extensions = strdup(sieve2_listextensions(sieve2_context));
+	lprintf(CTDL_INFO, "Extensions: %s\n", msiv_extensions);
+
+BAIL:	res = sieve2_free(&sieve2_context);
+	if (res != SIEVE2_OK) {
+		lprintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
+	}
+
 }
 
 
 
 char *serv_sieve_init(void)
 {
-	log_the_sieve2_credits();
+	ctdl_sieve_init();
 	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 	return "$Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $";
 }
