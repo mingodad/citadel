@@ -25,7 +25,7 @@ struct sdm_userdata {
 
 struct ctdl_sieve {
 	char *rfc822headers;
-	int actiontaken;		/* Set to 1 if the message was successfully acted upon */
+	int cancel_implicit_keep;	/* Set to 1 if the message was successfully acted upon */
 	int keep;			/* Set to 1 to suppress message deletion from the inbox */
 	long usernum;			/* Owner of the mailbox we're processing */
 	long msgnum;			/* Message base ID of the message being processed */

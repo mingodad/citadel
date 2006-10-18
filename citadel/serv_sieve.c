@@ -132,7 +132,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 	}
 
 	CtdlSubmitMsg(msg, valid, NULL);
-	cs->actiontaken = 1;
+	cs->cancel_implicit_keep = 1;
 	free(valid);
 	CtdlFreeMessage(msg);
 	return SIEVE2_OK;
@@ -149,7 +149,7 @@ int ctdl_keep(sieve2_context_t *s, void *my)
 	lprintf(CTDL_DEBUG, "Action is KEEP\n");
 
 	cs->keep = 1;
-	cs->actiontaken = 1;
+	cs->cancel_implicit_keep = 1;
 	return SIEVE2_OK;
 }
 
@@ -170,7 +170,7 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	/* FILEINTO 'INBOX' is the same thing as KEEP */
 	if ( (!strcasecmp(dest_folder, "INBOX")) || (!strcasecmp(dest_folder, MAILROOM)) ) {
 		cs->keep = 1;
-		cs->actiontaken = 1;
+		cs->cancel_implicit_keep = 1;
 		return SIEVE2_OK;
 	}
 
@@ -203,7 +203,7 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	}
 
 	if (c == 0) {
-		cs->actiontaken = 1;
+		cs->cancel_implicit_keep = 1;
 		return SIEVE2_OK;
 	}
 	else {
@@ -224,7 +224,7 @@ int ctdl_discard(sieve2_context_t *s, void *my)
 	/* Yes, this is really all there is to it.  Since we are not setting "keep" to 1,
 	 * the message will be discarded because "some other action" was successfully taken.
 	 */
-	cs->actiontaken = 1;
+	cs->cancel_implicit_keep = 1;
 	return SIEVE2_OK;
 }
 
@@ -274,7 +274,7 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 	);
 
 	free(reject_text);
-	cs->actiontaken = 1;
+	cs->cancel_implicit_keep = 1;
 	return SIEVE2_OK;
 }
 
@@ -428,11 +428,11 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	my.keep = 0;		/* Don't keep a copy in the inbox unless a callback tells us to do so */
-	my.actiontaken = 0;	/* Keep track of whether any actions were successfully taken */
+	my.keep = 0;				/* Set to 1 to declare an *explicit* keep */
+	my.cancel_implicit_keep = 0;		/* Some actions will cancel the implicit keep */
 	my.usernum = atol(CC->room.QRname);	/* Keep track of the owner of the room's namespace */
-	my.msgnum = msgnum;	/* Keep track of the message number in our local store */
-	my.u = u;		/* Hand off a pointer to the rest of this info */
+	my.msgnum = msgnum;			/* Keep track of the message number in our local store */
+	my.u = u;				/* Hand off a pointer to the rest of this info */
 
 	/* Keep track of the recipient so we can do handling based on it later */
 	process_rfc822_addr(msg->cm_fields['R'], my.recp_user, my.recp_node, my.recp_name);
@@ -468,7 +468,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	 * Delete the message from the inbox unless either we were told not to, or
 	 * if no other action was successfully taken.
 	 */
-	if ( (!my.keep) && (my.actiontaken) ) {
+	if ( (!my.keep) && (my.cancel_implicit_keep) ) {
 		lprintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
 		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "", 0);
 	}
