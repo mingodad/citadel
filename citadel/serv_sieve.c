@@ -279,16 +279,6 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 }
 
 
-/*
- * Callback function to indicate that the user should be notified
- * FIXME implement this
- */
-int ctdl_notify(sieve2_context_t *s, void *my)
-{
-	lprintf(CTDL_DEBUG, "Action is NOTIFY\n");
-	return SIEVE2_ERROR_UNSUPPORTED;
-}
-
 
 /*
  * Callback function to indicate that a vacation message should be generated
@@ -303,26 +293,24 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to parse addresses per local system convention
+ * It is disabled because we don't support subaddresses.
  */
+#if 0
 int ctdl_getsubaddress(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
-
-	/*
-	 * Citadel doesn't support subaddresses, so just give up.
-	 */
-	return SIEVE2_ERROR_UNSUPPORTED;
 
 	/* libSieve does not take ownership of the memory used here.  But, since we
 	 * are just pointing to locations inside a struct which we are going to free
 	 * later, we're ok.
 	 */
 	sieve2_setvalue_string(s, "user", cs->recp_user);
-	sieve2_setvalue_string(s, "detail", "");	/* we don't support user+detail@domain yet */
+	sieve2_setvalue_string(s, "detail", "");
 	sieve2_setvalue_string(s, "localpart", cs->recp_user);
 	sieve2_setvalue_string(s, "domain", cs->recp_node);
 	return SIEVE2_OK;
 }
+#endif
 
 
 /*
@@ -609,22 +597,22 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
  * This is our callback registration table for libSieve.
  */
 sieve2_callback_t ctdl_sieve_callbacks[] = {
-	{ SIEVE2_ACTION_REJECT,		ctdl_reject		},
-	{ SIEVE2_ACTION_NOTIFY,		ctdl_notify		},
-	{ SIEVE2_ACTION_VACATION,	ctdl_vacation		},
-	{ SIEVE2_ERRCALL_PARSE,		ctdl_errparse		},
-	{ SIEVE2_ERRCALL_RUNTIME,	ctdl_errexec		},
-	{ SIEVE2_ACTION_FILEINTO,	ctdl_fileinto		},
-	{ SIEVE2_ACTION_REDIRECT,	ctdl_redirect		},
-	{ SIEVE2_ACTION_DISCARD,	ctdl_discard		},
-	{ SIEVE2_ACTION_KEEP,		ctdl_keep		},
-	{ SIEVE2_SCRIPT_GETSCRIPT,	ctdl_getscript		},
-	{ SIEVE2_DEBUG_TRACE,		ctdl_debug		},
-	{ SIEVE2_MESSAGE_GETALLHEADERS,	ctdl_getheaders		},
-	{ SIEVE2_MESSAGE_GETSUBADDRESS,	ctdl_getsubaddress	},
-	{ SIEVE2_MESSAGE_GETENVELOPE,	ctdl_getenvelope	},
-	{ SIEVE2_MESSAGE_GETBODY,	ctdl_getbody		},
-	{ SIEVE2_MESSAGE_GETSIZE,	ctdl_getsize		},
+	{ SIEVE2_ACTION_REJECT,		ctdl_reject				},
+	{ SIEVE2_ACTION_NOTIFY,		NULL	/* ctdl_notify */		},
+	{ SIEVE2_ACTION_VACATION,	ctdl_vacation				},
+	{ SIEVE2_ERRCALL_PARSE,		ctdl_errparse				},
+	{ SIEVE2_ERRCALL_RUNTIME,	ctdl_errexec				},
+	{ SIEVE2_ACTION_FILEINTO,	ctdl_fileinto				},
+	{ SIEVE2_ACTION_REDIRECT,	ctdl_redirect				},
+	{ SIEVE2_ACTION_DISCARD,	ctdl_discard				},
+	{ SIEVE2_ACTION_KEEP,		ctdl_keep				},
+	{ SIEVE2_SCRIPT_GETSCRIPT,	ctdl_getscript				},
+	{ SIEVE2_DEBUG_TRACE,		ctdl_debug				},
+	{ SIEVE2_MESSAGE_GETALLHEADERS,	ctdl_getheaders				},
+	{ SIEVE2_MESSAGE_GETSUBADDRESS,	NULL	/* ctdl_getsubaddress */	},
+	{ SIEVE2_MESSAGE_GETENVELOPE,	ctdl_getenvelope			},
+	{ SIEVE2_MESSAGE_GETBODY,	ctdl_getbody				},
+	{ SIEVE2_MESSAGE_GETSIZE,	ctdl_getsize				},
 	{ 0 }
 };
 
