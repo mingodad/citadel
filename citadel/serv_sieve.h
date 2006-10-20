@@ -19,7 +19,7 @@ struct sdm_vacation {
 	struct sdm_vacation *next;
 	char hash[256];
 	time_t timestamp;
-}
+};
 
 struct sdm_userdata {
 	sieve2_context_t *sieve2_context;	/**< for libsieve's use */
