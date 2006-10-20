@@ -15,12 +15,19 @@ struct sdm_script {
 	char *script_content;
 };
 
+struct sdm_vacation {
+	struct sdm_vacation *next;
+	char hash[256];
+	time_t timestamp;
+}
+
 struct sdm_userdata {
 	sieve2_context_t *sieve2_context;	/**< for libsieve's use */
 	long config_msgnum;			/**< confirms that a sieve config was located */
 	char config_roomname[ROOMNAMELEN];
 	long lastproc;				/**< last message processed */
 	struct sdm_script *first_script;
+	struct sdm_vacation *first_vacation;
 };
 
 struct ctdl_sieve {
@@ -34,11 +41,18 @@ struct ctdl_sieve {
 	char recp_node[256];
 	char recp_name[256];
 	char sender[256];		/* To whom shall we send reject bounces or vacation messages? */
+	char subject[1024];		/* Retain msg subject so we can use it in vacation messages */
 };
 
 
 /* If you change this string you will break all of your Sieve configs. */
 #define CTDLSIEVECONFIGSEPARATOR	"\n-=<CtdlSieveConfigSeparator>=-\n"
+
+/* Maximum time we keep vacation hash records online.  This implies that a vacation
+ * rule cannot exceed this amount of time.  5184000 seconds == 60 days, which is
+ * way too long for anyone to be on vacation.
+ */
+#define MAX_VACATION			5184000
 
 extern struct RoomProcList *sieve_list;
 

@@ -221,9 +221,7 @@ int ctdl_discard(sieve2_context_t *s, void *my)
 
 	lprintf(CTDL_DEBUG, "Action is DISCARD\n");
 
-	/* Yes, this is really all there is to it.  Since we are not setting "keep" to 1,
-	 * the message will be discarded because "some other action" was successfully taken.
-	 */
+	/* Cancel the implicit keep.  That's all there is to it. */
 	cs->cancel_implicit_keep = 1;
 	return SIEVE2_OK;
 }
@@ -453,6 +451,15 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	else {
 		strcpy(my.sender, "");
 	}
+
+	/* Keep track of the subject so we can use it for VACATION responses */
+	if (msg->cm_fields['U'] != NULL) {
+		safestrncpy(my.subject, msg->cm_fields['U'], sizeof my.subject);
+	}
+	else {
+		strcpy(my.subject, "");
+	}
+	
 
 	free(msg);
 
