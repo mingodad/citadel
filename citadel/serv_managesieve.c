@@ -84,6 +84,8 @@ struct citmgsve {
 	int command_state;             /**< Information about the current session */
 	char *transmitted_message;
 	size_t transmitted_length;
+	char *imap_format_outstring;
+	int imap_outstring_length;
 };
 
 enum { 	/** Command states for login authentication */
@@ -99,6 +101,22 @@ enum { 	/** Command states for login authentication */
 /*****************************************************************************/
 /*                      MANAGESIEVE Server                                   */
 /*****************************************************************************/
+
+void sieve_outbuf_append(char *str)
+{
+        size_t newlen = strlen(str)+1;
+        size_t oldlen = (MGSVE->imap_format_outstring==NULL)? 0 : strlen(MGSVE->imap_format_outstring)+2;
+        char *buf = malloc ( newlen + oldlen + 10 );
+        buf[0]='\0';
+
+        if (oldlen!=0)
+                sprintf(buf,"%s%s",MGSVE->imap_format_outstring, str);
+        else
+                memcpy(buf, str, newlen);
+        
+        if (oldlen != 0) free (MGSVE->imap_format_outstring);
+        MGSVE->imap_format_outstring = buf;
+}
 
 void goto_sieverules_room(void)
 {// TODO: check if we're authenticated.
@@ -119,7 +137,7 @@ void goto_sieverules_room(void)
 	/* move to the sieve room. */
 	memcpy(&CC->room, &QRscratch,
 	       sizeof(struct ctdlroom));
-	usergoto(NULL, 1, transiently, NULL, NULL);
+	usergoto(NULL, 0, transiently, NULL, NULL);
 }
 
 /**
@@ -153,8 +171,64 @@ void managesieve_greeting(void) {
 	cmd_mgsve_caps();
 }
 
+
+long GetSizeToken(char * token)
+{
+	char *cursor = token;
+	char *number;
+
+	while ((*cursor != '\0') && 
+	       (*cursor != '{'))
+	{
+		cursor++;
+	}
+	if (*cursor == '\0') 
+		return -1;
+	number = cursor + 1;
+	while ((*cursor != '\0') && 
+	       (*cursor != '}'))
+	{
+		cursor++;
+	}
+
+	if (cursor[-1] == '+')
+		cursor--;
+
+	if (*cursor == '\0') 
+		return -1;
+	
+	return atol(number);
+}
+
+char *ReadString(long size, char *command)
+{
+	long ret;
+	if (size < 1) {
+		cprintf("NO %s: %ld BAD Message length must be at least 1.\r\n",
+			command, size);
+		CC->kill_me = 1;
+		return NULL;
+	}
+	MGSVE->transmitted_message = malloc(size + 2);
+	if (MGSVE->transmitted_message == NULL) {
+		cprintf("NO %s Cannot allocate memory.\r\n", command);
+		CC->kill_me = 1;
+		return NULL;
+	}
+	MGSVE->transmitted_length = size;
+	
+	ret = client_read(MGSVE->transmitted_message, size);
+	MGSVE->transmitted_message[size] = '\0';
+	
+	if (ret != 1) {
+		cprintf("%s NO Read failed.\r\n", command);
+		return NULL;
+	} 
+	return MGSVE->transmitted_message;
+
+}
 /* AUTHENTICATE command; 2.1 */
-void cmd_mgsve_auth(int num_parms, char **parms)
+void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 {
 /* TODO: compare "digest-md5" or "gssapi" and answer with "NO" */
 	if ((num_parms == 3) && !strncasecmp(parms[1], "PLAIN", 5))
@@ -164,40 +238,14 @@ void cmd_mgsve_auth(int num_parms, char **parms)
 		int retval;
 		
 		/* todo: how to do plain auth? */
+		char *message = ReadString(GetSizeToken(parms[2]), parms[0]);
 		
-		if (parms[2][0] == '{')	
-		{
-			long literal_length;
-			long ret;
-			
-			literal_length = atol(&parms[2][1]);
-			if (literal_length < 1) {
-				cprintf("NO %s BAD Message length must be at least 1.\n",
-					parms[0]);
-				CC->kill_me = 1;
-				return;
-			}
-			MGSVE->transmitted_message = malloc(literal_length + 2);
-			if (MGSVE->transmitted_message == NULL) {
-				cprintf("NO %s Cannot allocate memory.\r\n", parms[0]);
-				CC->kill_me = 1;
-				return;
-			}
-			MGSVE->transmitted_length = literal_length;
-			
-			ret = client_read(MGSVE->transmitted_message, literal_length);
-			MGSVE->transmitted_message[literal_length] = 0;
-			
-			if (ret != 1) {
-				cprintf("%s NO Read failed.\r\n", parms[0]);
-				return;
-			} 
-			
+		if (message != NULL) {/* do we have tokenized login? */
 			retval = CtdlDecodeBase64(auth, MGSVE->transmitted_message, SIZ);
-			
 		}
 		else 
 			retval = CtdlDecodeBase64(auth, parms[2], SIZ);
+
 		if (login_ok == CtdlLoginExistingUser(auth))
 		{
 			char *pass;
@@ -208,15 +256,14 @@ void cmd_mgsve_auth(int num_parms, char **parms)
 			if (pass_ok == CtdlTryPassword(pass))
 			{
 				MGSVE->command_state = mgsve_password;
-				cprintf("OK\n");
+				cprintf("OK\r\n");
 				return;
 			}
 		}
 	}
 	
-	cprintf("NO\n");/* we just support auth plain. */
+	cprintf("NO\r\n");/* we just support auth plain. */
 	CC->kill_me = 1;
-	
 }
 
 
@@ -224,7 +271,7 @@ void cmd_mgsve_auth(int num_parms, char **parms)
 /* STARTTLS command chapter 2.2 */
 void cmd_mgsve_starttls(void)
 { /* answer with OK, and fire off tls session. */
-	cprintf("OK\n");
+	cprintf("OK\r\n");
 	CtdlStartTLS(NULL, NULL, NULL);
 	cmd_mgsve_caps();
 }
@@ -233,7 +280,7 @@ void cmd_mgsve_starttls(void)
 
 
 /* LOGOUT command, see chapter 2.3 */
-void cmd_mgsve_logout(void)
+void cmd_mgsve_logout(struct sdm_userdata *u)
 {/* send "OK" and terminate the connection. */
 	cprintf("OK\r\n");
 	lprintf(CTDL_NOTICE, "MgSve bye.");
@@ -250,7 +297,7 @@ void cmd_mgsve_havespace(void)
  */
 	if (MGSVE->command_state != mgsve_password)
 	{
-		cprintf("NO\n");
+		cprintf("NO\r\n");
 		CC->kill_me = 1;
 	}
 	else
@@ -262,79 +309,134 @@ void cmd_mgsve_havespace(void)
 }
 
 /* PUTSCRIPT command, see chapter 2.6 */
-void cmd_mgsve_putscript(void)
+void cmd_mgsve_putscript(int num_parms, char **parms, struct sdm_userdata *u)
 {
 /* "scriptname" {nnn+} */
 /* TODO: answer with "NO" instant, if we're unauthorized. */
 /* AFTER we have the whole script overwrite existing scripts */
 /* spellcheck the script before overwrite old ones, and reply with "no" */
+	if (num_parms == 3)
+	{
+		char *ScriptName;
+		char *Script;
+		long slength;
+
+		if (parms[1][0]=='"')
+			ScriptName = &parms[1][1];
+		else
+			ScriptName = parms[1];
+		
+		slength = strlen (ScriptName);
+		
+		if (ScriptName[slength] == '"')
+			ScriptName[slength] = '\0';
+
+		Script = ReadString(GetSizeToken(parms[2]),parms[0]);
+
+		if (Script == NULL) return;
+		
+		// TODO: do we spellcheck?
+		msiv_putscript(u, ScriptName, Script);
+		cprintf("OK\r\n");
+	}
+	else {
+		cprintf("%s NO Read failed.\r\n", parms[0]);
+		CC->kill_me = 1;
+		return;
+	} 
+
+
 
 }
 
 
-/** forward declaration for function in msgbase.c */
-void headers_listing(long msgnum, void *userdata);
 
 
 /* LISTSCRIPT command. see chapter 2.7 */
-void cmd_mgsve_listscript(void)
+void cmd_mgsve_listscript(int num_parms, char **parms, struct sdm_userdata *u)
 {
-	goto_sieverules_room();/* TODO: do we need a template? */
-	CtdlForEachMessage(MSGS_ALL, 0, NULL, NULL, NULL,
-			   headers_listing, NULL);
 
-	
-/* TODO: check auth, if not, answer with "no" */
-/* do something like the sieve room indexlisting, one per row, in quotes. ACTIVE behind the active one.*/ 
+	struct sdm_script *s;
+	long nScripts = 0;
 
-///	ra = getroom(sieveroom, SIEVERULES);
-///	/* Only list rooms to which the user has access!! */
-///	CtdlRoomAccess(SIEVERULES, &CC->user, &ra, NULL);
-///	if ((ra & UA_KNOWN)
-///	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
-///		imap_mailboxname(buf, sizeof buf, qrbuf);
-///		if (imap_mailbox_matches_pattern(pattern, buf)) {
-///			cprintf("* LIST () \"/\" ");
-///			imap_strout(buf);
-///			cprintf("\r\n");
-///		}
-///	}
-///
-	cprintf("OK\r\n");
+	MGSVE->imap_format_outstring = NULL;
+	for (s=u->first_script; s!=NULL; s=s->next) {
+		if (s->script_content != NULL) {
+			cprintf("\"%s\"%s\r\n", 
+				s->script_name, 
+				(s->script_active)?" ACTIVE":"");
+			nScripts++;
+		}
+	}
+
+	//	if (nScripts > 0)
+		cprintf("OK\r\n");
+		//	else
+		//cprintf("NO \"No scripts found.\"\r\n");
 }
 
 
 /* SETACTIVE command. see chapter 2.8 */
-void cmd_mgsve_setactive(void)
+void cmd_mgsve_setactive(int num_parms, char **parms, struct sdm_userdata *u)
 {
 /* TODO: check auth, if not, answer with "no" */
 /* search our room for subjects with that scriptname, 
  * if the scriptname is empty, use the default flag.
  * if the script is not there answer "No "there is no script by that name "
  */
-
-
+	if (num_parms == 2)
+	{
+		if (msiv_setactive(&u, parms[1]) == 0) {
+			cprintf("%d ok\r\n", CIT_OK);
+		}
+		else
+			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);
+	}
+	else 
+		cprintf("NO \"unexpected parameters.\"\r\n");
 
 }
 
 
 /* GETSCRIPT command. see chapter 2.9 */
-void cmd_mgsve_getscript(void)
+void cmd_mgsve_getscript(int num_parms, char **parms, struct sdm_userdata *u)
 {
-/* TODO: check auth, if not, answer with "no" */
 /* check first param, this is the name. look up that in the folder.
  * answer with the size {nnn+}and spill it out, one blank line and OK
  */
 
+	if (num_parms == 2){
+		char *script_content;
+		long  slen;
+
+		script_content = msiv_getscript(u, parms[1]);
+		if (script_content != NULL){
+			char *outbuf;
+
+			slen = strlen(script_content);
+			outbuf = malloc (slen + 64);
+			snprintf(outbuf, slen + 64, "{%ld+}\r\n%s\r\n\r\nOK\r\n",slen, outbuf);
+		}
+		else
+			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);
+	}
+	else 
+		cprintf("NO \"unexpected parameters.\"\r\n");
 }
 
 
 /* DELETESCRIPT command. see chapter 2.10 */
-void cmd_mgsve_deletescript(void)
+void cmd_mgsve_deletescript(int num_parms, char **parms, struct sdm_userdata *u)
 {
 /* TODO: check auth, if not, answer with "no" */
+	int i=-1;
 
-
+	if (num_parms == 2)
+		i = msiv_deletescript(u, parms[1]);
+	if (i == 0) 
+		cprintf("OK\r\n");
+	else
+		cprintf("NO \"no script by that name: %s\"\r\n", parms[1]);
 }
 
 
@@ -408,7 +510,7 @@ void mgsve_try_plain(char *encoded_authstring) {
 
 
 /*
- * Attempt to perform authenticated magagesieve
+ * Attempt to perform authenticated managesieve
  */
 void mgsve_auth(char *argbuf) {
 	char username_prompt[64];
@@ -494,6 +596,16 @@ void managesieve_command_loop(void) {
 	char *parms[SIZ];
 	int length;
 	int num_parms;
+	struct sdm_userdata u;
+
+
+	memset(&u, 0, sizeof(struct sdm_userdata));
+
+	if (CtdlAccessCheck(ac_logged_in))
+	{
+		msiv_load(&u);
+
+	}
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -501,6 +613,7 @@ void managesieve_command_loop(void) {
 	if (length >= 1) {
 		num_parms = imap_parameterize(parms, cmdbuf);
 		///		length = client_getln(parms[0], sizeof parms[0]);
+		if (num_parms == 0) return;
 		length = strlen(parms[0]);
 	}
 	if (length < 1) {
@@ -511,7 +624,7 @@ void managesieve_command_loop(void) {
 	lprintf(CTDL_INFO, "MANAGESIEVE: %s\n", cmdbuf);
 //// we have different lengths	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 	if ((length>= 12) && (!strncasecmp(parms[0], "AUTHENTICATE", 12))){
-		cmd_mgsve_auth(num_parms, parms);
+		cmd_mgsve_auth(num_parms, parms, &u);
 	}
 
 #ifdef HAVE_OPENSSL
@@ -520,33 +633,34 @@ void managesieve_command_loop(void) {
 	}
 #endif
 	else if ((length>= 6) && (!strncasecmp(parms[0], "LOGOUT", 6))){
-		cmd_mgsve_logout();
+		cmd_mgsve_logout(&u);
 	}
 	else if ((length>= 6) && (!strncasecmp(parms[0], "CAPABILITY", 10))){
 		cmd_mgsve_caps();
 	} /* these commands need to be authenticated. throw it out if it tries. */
-	else if (MGSVE->command_state == mgsve_password)
+	else if (!CtdlAccessCheck(ac_logged_in))
 	{
 		if ((length>= 9) && (!strncasecmp(parms[0], "HAVESPACE", 9))){
 			cmd_mgsve_havespace();
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "PUTSCRIPT", 9))){
-			cmd_mgsve_putscript();
+			cmd_mgsve_putscript(num_parms, parms, &u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "LISTSCRIPT", 10))){
-			cmd_mgsve_listscript();
+			cmd_mgsve_listscript(num_parms, parms,&u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "SETACTIVE", 9))){
-			cmd_mgsve_setactive();
+			cmd_mgsve_setactive(num_parms, parms,&u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "GETSCRIPT", 9))){
-			cmd_mgsve_getscript();
+			cmd_mgsve_getscript(num_parms, parms, &u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "DELETESCRIPT", 11))){
-			cmd_mgsve_deletescript();
+			cmd_mgsve_deletescript(num_parms, parms, &u);
 		}
 	}
 	else {
+		/// todo: log this.
 		cprintf("No\r\n");
 		CC->kill_me = 1;
 	}
