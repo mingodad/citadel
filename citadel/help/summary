@@ -46,7 +46,9 @@ commands are available:
 
  <.> <R>ead <I>nfo file                   Read the room info file.
  <.> <R>ead <B>io                         Read other users' "bio" files.
- 
+ <.> <R>ead <C>onfiguration               Display your 'preferences'.
+ <.> <R>ead <S>ystem info                 Display system statistics.
+
  
  Enter commands:
 

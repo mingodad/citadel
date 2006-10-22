@@ -733,7 +733,7 @@ void room_tree_list_query(struct ctdlroomlisting *rp, char *findrmname, int find
 /*
  * step through rooms on current floor
  */
-void  gotoroomstep(CtdlIPC *ipc, int direction)
+void  gotoroomstep(CtdlIPC *ipc, int direction, int mode)
 {
 	struct march *listing = NULL;
 	struct march *mptr;
@@ -823,7 +823,13 @@ void  gotoroomstep(CtdlIPC *ipc, int direction)
 	/* Free the tree */
 	room_tree_list_query(rl, NULL, 0, NULL, NULL, NULL);
 
-	updatels(ipc);
+	if (mode == 0) { /* not skipping */
+	    updatels(ipc);
+	} else {
+		if (rc_alt_semantics) {
+	    	updatelsa(ipc);
+		}
+	}
 	dotgoto(ipc, rmname, 1, 0);
 }
 
@@ -831,7 +837,7 @@ void  gotoroomstep(CtdlIPC *ipc, int direction)
 /*
  * step through floors on system
  */
-void  gotofloorstep(CtdlIPC *ipc, int direction)
+void  gotofloorstep(CtdlIPC *ipc, int direction, int mode)
 {
 	int  tofloor;
 
@@ -855,9 +861,124 @@ void  gotofloorstep(CtdlIPC *ipc, int direction)
 		scr_printf("(%s)\n", floorlist[tofloor] );
 	}
 
-	gotofloor(ipc, floorlist[tofloor], GF_GOTO);
+	gotofloor(ipc, floorlist[tofloor], mode);
 }
 
+/* 
+ * Display user 'preferences'.
+ */
+extern int rc_prompt_control;
+void read_config(CtdlIPC *ipc)
+{
+	char buf[SIZ];
+	char *resp = NULL;
+	int r;			/* IPC response code */
+    char _fullname[USERNAME_SIZE];
+	long _usernum;
+	int _axlevel, _timescalled, _posted;
+	time_t _lastcall;
+	struct ctdluser *user = NULL;
+
+	/* get misc user info */   
+	r = CtdlIPCGetBio(ipc, fullname, &resp, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
+		return;
+	}
+	extract_token(_fullname, buf, 1, '|', sizeof fullname);
+	_usernum = extract_long(buf, 2);
+	_axlevel = extract_int(buf, 3);
+	_lastcall = extract_long(buf, 4);
+    _timescalled = extract_int(buf, 5);
+	_posted = extract_int(buf, 6);
+	free(resp);
+	resp = NULL;
+   
+	/* get preferences */
+	r = CtdlIPCGetConfig(ipc, &user, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
+		free(user);
+		return;
+	}
+
+	/* show misc user info */
+	scr_printf("%s\nAccess level: %d (%s)\n"
+		   "User #%ld / %d Calls / %d Posts",
+		   _fullname, _axlevel, axdefs[(int) _axlevel],
+		   _usernum, _timescalled, _posted);
+	if (_lastcall > 0L) {
+		scr_printf(" / Curr login: %s",
+			   asctime(localtime(&_lastcall)));
+	}
+	scr_printf("\n");
+
+	/* show preferences */
+	scr_printf("Your screen width: ");                                     color(BRIGHT_CYAN); scr_printf("%d",   /*user->USscreenwidth*/ screenwidth);          color(DIM_WHITE); 
+	scr_printf(", height: ");                                              color(BRIGHT_CYAN); scr_printf("%d\n", /*user->USscreenheight*/ screenheight);        color(DIM_WHITE);  
+	scr_printf("Are you an experienced Citadel user: ");                   color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_EXPERT) ? "Yes" : "No");     color(DIM_WHITE);
+	scr_printf("Print last old message on New message request: ");         color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_LASTOLD)? "Yes" : "No");     color(DIM_WHITE);
+	scr_printf("Prompt after each message: ");                             color(BRIGHT_CYAN); scr_printf("%s\n", (!(user->flags & US_NOPROMPT))? "Yes" : "No"); color(DIM_WHITE);
+	if ((user->flags & US_NOPROMPT) == 0) {
+    	scr_printf("Use 'disappearing' prompts: ");                        color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_DISAPPEAR)? "Yes" : "No");   color(DIM_WHITE);
+	}
+	scr_printf("Pause after each screenful of text: ");                    color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_PAGINATOR)? "Yes" : "No");   color(DIM_WHITE);
+    if (rc_prompt_control == 3 && (user->flags & US_PAGINATOR)) {
+    	scr_printf("<N>ext and <S>top work at paginator prompt: ");        color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_PROMPTCTL)? "Yes" : "No");   color(DIM_WHITE);
+	}
+    if (rc_floor_mode == RC_DEFAULT) {
+    	scr_printf("View rooms by floor: ");                               color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_FLOORS)? "Yes" : "No");	     color(DIM_WHITE);
+	}
+	if (rc_ansi_color == 3)	{
+	    scr_printf("Enable color support: ");                              color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_COLOR)? "Yes" : "No");	     color(DIM_WHITE);
+	}
+	scr_printf("Be unlisted in userlog: ");                                color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_UNLISTED)? "Yes" : "No");    color(DIM_WHITE);
+	if (strlen(editor_paths[0]) > 0) {
+    	scr_printf("Always enter messages with the full-screen editor: "); color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_EXTEDIT)? "Yes" : "No");     color(DIM_WHITE);
+	}
+	free(user);
+}
+
+/*
+ * Display system statistics.
+ */
+void system_info(CtdlIPC *ipc)
+{
+	char buf[SIZ];
+	char *resp = NULL;
+	size_t bytes;
+	int mrtg_users, mrtg_active_users; 
+	char mrtg_server_uptime[40];
+	long mrtg_himessage;
+	int ret;			/* IPC response code */
+
+	/* get #users, #active & server uptime */
+	ret = CtdlIPCGenericCommand(ipc, "MRTG|users", NULL, 0, &resp, &bytes, buf);
+	mrtg_users = extract_int(resp, 0);
+	remove_token(resp, 0, '\n');
+	mrtg_active_users = extract_int(resp, 0);
+	remove_token(resp, 0, '\n');
+	extract_token(mrtg_server_uptime, resp, 0, '\n', sizeof mrtg_server_uptime);
+    free(resp);
+	resp = NULL;
+
+	/* get high message# */
+	ret = CtdlIPCGenericCommand(ipc, "MRTG|messages", NULL, 0, &resp, &bytes, buf);
+	mrtg_himessage = extract_long(resp, 0);
+	free(resp);
+	resp = NULL;
+
+	/* refresh server info just in case */
+	CtdlIPCServerInfo(ipc, buf);
+
+	scr_printf("You are connected to %s (%s) @%s\n", ipc->ServInfo.nodename, ipc->ServInfo.humannode, ipc->ServInfo.fqdn);
+	scr_printf("running %s with text client v%.2f,\n", ipc->ServInfo.software, (float)REV_LEVEL/100);
+    scr_printf("and located in %s.\n", ipc->ServInfo.site_location);
+    scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
+    scr_printf("Server uptime: %s\n", mrtg_server_uptime);
+    scr_printf("Your system administrator is %s.\n", ipc->ServInfo.sysadm);
+    scr_printf("Copyright (C)1987-2006 by the Citadel development team\n");
+}
 
 /*
  * forget all rooms on current floor
@@ -2033,19 +2154,43 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 
             case 110:           /* <+> Next room */
-                 gotoroomstep(ipc, 1);
+                 gotoroomstep(ipc, 1, 0);
 			     break;
 
             case 111:           /* <-> Previous room */
-                 gotoroomstep(ipc, 0);
+                 gotoroomstep(ipc, 0, 0);
 			     break;
 
 			case 112:           /* <>> Next floor */
-                 gotofloorstep(ipc, 1);
+                 gotofloorstep(ipc, 1, GF_GOTO);
 			     break;
 
 			case 113:           /* <<> Previous floor */
-                 gotofloorstep(ipc, 0);
+                 gotofloorstep(ipc, 0, GF_GOTO);
+				 break;
+
+            case 116:           /* <.> skip to <+> Next room */
+                 gotoroomstep(ipc, 1, 1);
+			     break;
+
+            case 117:           /* <.> skip to <-> Previous room */
+                 gotoroomstep(ipc, 0, 1);
+			     break;
+
+			case 118:           /* <.> skip to <>> Next floor */
+                 gotofloorstep(ipc, 1, GF_SKIP);
+			     break;
+
+			case 119:           /* <.> skip to <<> Previous floor */
+                 gotofloorstep(ipc, 0, GF_SKIP);
+				 break;
+
+			case 114:           
+                 read_config(ipc);
+				 break;
+
+			case 115:           
+                 system_info(ipc);
 				 break;
 
 			default: /* allow some math on the command */

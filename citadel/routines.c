@@ -136,11 +136,13 @@ void edituser(CtdlIPC *ipc, int cmd)
 		}
 	
 		user->axlevel = intprompt("Access level", user->axlevel, 0, 6);
-	
-		user->flags = set_attr(ipc, user->flags,
+/*	  	user->flags = set_attr(ipc, user->flags,
 			"Permission to send Internet mail",
-			US_INTERNET, 0);
-	
+			US_INTERNET, 0); */
+		if (boolprompt("Permission to send Internet mail", (user->flags & US_INTERNET)))
+			user->flags |= US_INTERNET;
+		else
+			user->flags &= ~US_INTERNET;
 		if (boolprompt("Ask user to register again", !(user->flags & US_REGIS)))
 			user->flags &= ~US_REGIS;
 		else

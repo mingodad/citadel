@@ -592,7 +592,7 @@ void list_bio(CtdlIPC *ipc)
 		pprintf("%s\n", buf);
 		return;
 	}
-	while (strlen(resp)) {
+	while (resp && strlen(resp)) {
 		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		if ((pos + strlen(buf) + 5) > screenwidth) {

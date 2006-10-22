@@ -332,6 +332,8 @@ cmd=71,0,&.,read &Last:
 cmd=9,0,&.,&Read,&Last five msgs
 cmd=14,0,&.,&Read,&Directory
 cmd=49,0,&.,&Read,&Info file
+cmd=114,0,&.,&Read,&Configuration
+cmd=115,0,&.,&Read,&System info
 cmd=35,0,&.,&Enter,&Password
 cmd=36,0,&.,&Enter,&ASCII message
 cmd=37,0,&.,&Enter,&Configuration
@@ -382,6 +384,10 @@ cmd=110,0,&+Next room
 cmd=111,0,&-Previous room
 cmd=112,0,&>Next floor
 cmd=113,0,&<Previous floor
+cmd=116,0,&.,skip to &+Next room
+cmd=117,0,&.,skip to &-Previous room
+cmd=118,0,&.,skip to &>Next floor
+cmd=119,0,&.,skip to &<Previous floor
 
 #
 # Command 69 allows the user to enter a server command directly.  It is

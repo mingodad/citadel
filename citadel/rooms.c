@@ -248,7 +248,7 @@ void list_other_floors(void)
 
 /*
  * List known rooms.  kn_floor_mode should be set to 0 for a 'flat' listing,
- * 1 to list rooms on the current floor, or 1 to list rooms on all floors.
+ * 1 to list rooms on the current floor, or 2 to list rooms on all floors.
  */
 void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 {
@@ -326,7 +326,7 @@ void listzrooms(CtdlIPC *ipc)
 
 
 	/* Ask the server for a room list */
-	r = CtdlIPCKnownRooms(ipc, UnsubscribedRooms, 1, &listing, buf);
+	r = CtdlIPCKnownRooms(ipc, UnsubscribedRooms, (-1), &listing, buf);
 	if (r / 100 != 1) {
 		listing = NULL;
 	}
@@ -649,7 +649,7 @@ void dotungoto(CtdlIPC *ipc, char *towhere)
 		scr_printf("%s\n", buf);
 		return;
 	}
-	r = CtdlIPCSetLastRead(ipc, uglistlsn[found], buf);
+	r = CtdlIPCSetLastRead(ipc, uglistlsn[found] ? uglistlsn[found] : 1, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
 	}
@@ -675,7 +675,7 @@ void ungoto(CtdlIPC *ipc)
 		scr_printf("%s\n", buf);
 		return;
 	}
-	r = CtdlIPCSetLastRead(ipc, uglistlsn[uglistsize-1], buf);
+	r = CtdlIPCSetLastRead(ipc, uglistlsn[uglistsize-1] ? uglistlsn[uglistsize-1] : 1, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
 	}
