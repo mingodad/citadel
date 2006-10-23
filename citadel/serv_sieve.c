@@ -284,7 +284,22 @@ int ctdl_reject(sieve2_context_t *s, void *my)
  */
 int ctdl_vacation(sieve2_context_t *s, void *my)
 {
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+	struct sdm_vacation *vptr;
+
 	lprintf(CTDL_DEBUG, "Action is VACATION\n");
+
+		// sieve2_getvalue_string(s, "hash"),
+		// sieve2_getvalue_int(s, "days") );
+
+
+	/* add hash to list - FIXME only do this on a miss */
+	vptr = malloc(sizeof(struct sdm_vacation));
+	vptr->timestamp = extract_long(c, 1);
+	extract_token(vptr->hash, c, 2, '|', sizeof vptr->hash);
+	vptr->next = my->v->first_vacation;
+	my->u->first_vacation = vptr;
+
 	return SIEVE2_ERROR_UNSUPPORTED;
 }
 
@@ -500,6 +515,7 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 	char *c;
 	char keyword[256];
 	struct sdm_script *sptr;
+	struct sdm_vacation *vptr;
 
 	ptr = conf;
 	while (c = ptr, ptr = bmstrcasestr(ptr, CTDLSIEVECONFIGSEPARATOR), ptr != NULL) {
@@ -522,6 +538,14 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 			sptr->script_content = strdup(c);
 			sptr->next = u->first_script;
 			u->first_script = sptr;
+		}
+
+		else if (!strcasecmp(keyword, "vacation")) {
+			vptr = malloc(sizeof(struct sdm_vacation));
+			vptr->timestamp = extract_long(c, 1);
+			extract_token(vptr->hash, c, 2, '|', sizeof vptr->hash);
+			vptr->next = u->first_vacation;
+			u->first_vacation = vptr;
 		}
 
 		/* ignore unknown keywords */
@@ -562,6 +586,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	char *text;
 	struct sdm_script *sptr;
+	struct sdm_vacation *vptr;
 
 
 	text = malloc(1024);
@@ -586,6 +611,19 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 		u->first_script = u->first_script->next;
 		free(sptr->script_content);
 		free(sptr);
+	}
+
+	while (u->first_vacation != NULL) {
+		if ( (time(NULL) - u->first_vacation.timestamp) < MAX_VACATION) {
+			text = realloc(text, strlen(text) + strlen(u->first_vacation.hash) + 256);
+			sprintf(&text[strlen(text)], "vacation|%ld|%s" CTDLSIEVECONFIGSEPARATOR,
+				u->first_vacation.timestamp,
+				u->first_vacation.hash
+			);
+		}
+		vptr = u->first_vacation;
+		u->first_vacation = u->first_vacation->next;
+		free(vptr);
 	}
 
 	/* Save the config */
