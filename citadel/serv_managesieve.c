@@ -386,8 +386,8 @@ void cmd_mgsve_setactive(int num_parms, char **parms, struct sdm_userdata *u)
  */
 	if (num_parms == 2)
 	{
-		if (msiv_setactive(&u, parms[1]) == 0) {
-			cprintf("%d ok\r\n", CIT_OK);
+		if (msiv_setactive(u, parms[1]) == 0) {
+			cprintf("OK\r\n");
 		}
 		else
 			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);
@@ -415,7 +415,8 @@ void cmd_mgsve_getscript(int num_parms, char **parms, struct sdm_userdata *u)
 
 			slen = strlen(script_content);
 			outbuf = malloc (slen + 64);
-			snprintf(outbuf, slen + 64, "{%ld+}\r\n%s\r\n\r\nOK\r\n",slen, outbuf);
+			snprintf(outbuf, slen + 64, "{%ld+}\r\n%s\r\nOK\r\n",slen, script_content);
+			cprintf(outbuf);
 		}
 		else
 			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);
@@ -433,10 +434,21 @@ void cmd_mgsve_deletescript(int num_parms, char **parms, struct sdm_userdata *u)
 
 	if (num_parms == 2)
 		i = msiv_deletescript(u, parms[1]);
-	if (i == 0) 
+	switch (i){		
+	case 0:
 		cprintf("OK\r\n");
-	else
+		break;
+	case 1:
 		cprintf("NO \"no script by that name: %s\"\r\n", parms[1]);
+		break;
+	case 2:
+		cprintf("NO \"can't delete active Script: %s\"\r\n", parms[1]);
+		break;
+	default:
+	case -1:
+		cprintf("NO \"unexpected parameters.\"\r\n");
+		break;
+	}
 }
 
 
@@ -601,12 +613,6 @@ void managesieve_command_loop(void) {
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
-	if (CtdlAccessCheck(ac_logged_in))
-	{
-		msiv_load(&u);
-
-	}
-
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	length = client_getln(cmdbuf, sizeof cmdbuf);
@@ -640,6 +646,7 @@ void managesieve_command_loop(void) {
 	} /* these commands need to be authenticated. throw it out if it tries. */
 	else if (!CtdlAccessCheck(ac_logged_in))
 	{
+		msiv_load(&u);
 		if ((length>= 9) && (!strncasecmp(parms[0], "HAVESPACE", 9))){
 			cmd_mgsve_havespace();
 		}
@@ -658,6 +665,7 @@ void managesieve_command_loop(void) {
 		else if ((length>= 6) && (!strncasecmp(parms[0], "DELETESCRIPT", 11))){
 			cmd_mgsve_deletescript(num_parms, parms, &u);
 		}
+		msiv_store(&u);
 	}
 	else {
 		/// todo: log this.
