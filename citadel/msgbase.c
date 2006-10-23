@@ -1584,6 +1584,12 @@ int CtdlOutputPreLoadedMsg(
 				else if (i == 'Y') {
 					cprintf("CC: %s%s", mptr, nl);
 				}
+				else if (i == 'P') {
+					cprintf("Return-Path: %s%s", mptr, nl);
+				}
+				else if (i == 'V') {
+					cprintf("Envelope-To: %s%s", mptr, nl);
+				}
 				else if (i == 'U') {
 					cprintf("Subject: %s%s", mptr, nl);
 					subject_found = 1;

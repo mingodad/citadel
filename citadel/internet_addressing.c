@@ -381,6 +381,18 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "Return-Path")) {
+		if (msg->cm_fields['P'] == NULL)
+			msg->cm_fields['P'] = strdup(value);
+		processed = 1;
+	}
+
+	else if (!strcasecmp(key, "Envelope-To")) {
+		if (msg->cm_fields['V'] == NULL)
+			msg->cm_fields['V'] = strdup(value);
+		processed = 1;
+	}
+
 	/* Clean up and move on. */
 	free(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);

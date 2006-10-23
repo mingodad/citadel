@@ -285,6 +285,7 @@ T	date/Time	A 32-bit integer containing the date and time of
                         of seconds since January 1, 1970 GMT).
 U       sUbject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.
+V	enVelope-to	The recipient specified in incoming SMTP messages.
 Y	carbon copY	Optional, and only in Mail messages.
 0	Error		This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are

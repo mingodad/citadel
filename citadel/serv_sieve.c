@@ -300,7 +300,8 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	vptr->next = cs->u->first_vacation;
 	cs->u->first_vacation = vptr;
 
-	return SIEVE2_ERROR_UNSUPPORTED;
+	return SIEVE2_OK;
+	/* return SIEVE2_ERROR_UNSUPPORTED; */
 }
 
 
@@ -329,12 +330,15 @@ int ctdl_getsubaddress(sieve2_context_t *s, void *my)
 /*
  * Callback function to parse message envelope
  */
-#if 0
 int ctdl_getenvelope(sieve2_context_t *s, void *my)
 {
-	return SIEVE2_ERROR_UNSUPPORTED;
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\n");
+	sieve2_setvalue_string(s, "to", cs->envelope_to);
+	sieve2_setvalue_string(s, "from", cs->envelope_from);
+	return SIEVE2_OK;
 }
-#endif
 
 
 /*
@@ -474,7 +478,25 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	else {
 		strcpy(my.subject, "");
 	}
-	
+
+	/* Keep track of the envelope-from address (use body-from if not found) */
+	if (msg->cm_fields['P'] != NULL) {
+		safestrncpy(my.envelope_from, msg->cm_fields['P'], sizeof my.envelope_from);
+	}
+	else if (msg->cm_fields['F'] != NULL) {
+		safestrncpy(my.envelope_from, msg->cm_fields['F'], sizeof my.envelope_from);
+	}
+	else {
+		strcpy(my.envelope_from, "");
+	}
+
+	/* Keep track of the envelope-to address */
+	if (msg->cm_fields['V'] != NULL) {
+		safestrncpy(my.envelope_to, msg->cm_fields['V'], sizeof my.envelope_to);
+	}
+	else {
+		strcpy(my.envelope_to, "");
+	}
 
 	free(msg);
 
@@ -657,12 +679,12 @@ sieve2_callback_t ctdl_sieve_callbacks[] = {
 	{ SIEVE2_DEBUG_TRACE,		ctdl_debug		},
 	{ SIEVE2_MESSAGE_GETALLHEADERS,	ctdl_getheaders		},
 	{ SIEVE2_MESSAGE_GETSIZE,	ctdl_getsize		},
+	{ SIEVE2_MESSAGE_GETENVELOPE,	ctdl_getenvelope	},
 /*
  * These actions are unsupported by Citadel so we don't declare them.
  *
 	{ SIEVE2_ACTION_NOTIFY,		ctdl_notify		},
 	{ SIEVE2_MESSAGE_GETSUBADDRESS,	ctdl_getsubaddress	},
-	{ SIEVE2_MESSAGE_GETENVELOPE,	ctdl_getenvelope	},
 	{ SIEVE2_MESSAGE_GETBODY,	ctdl_getbody		},
  *
  */

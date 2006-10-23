@@ -753,6 +753,18 @@ void smtp_data(void) {
         	msg->cm_fields['O'] = strdup(MAILROOM);
 	}
 
+	/* Set the "envelope from" address */
+	if (msg->cm_fields['P'] != NULL) {
+		free(msg->cm_fields['P']);
+	}
+	msg->cm_fields['P'] = strdup(SMTP->from);
+
+	/* Set the "envelope to" address */
+	if (msg->cm_fields['V'] != NULL) {
+		free(msg->cm_fields['V']);
+	}
+	msg->cm_fields['V'] = strdup(SMTP->recipients);
+
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(SMTP->recipients);
 

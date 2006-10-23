@@ -42,6 +42,8 @@ struct ctdl_sieve {
 	char recp_name[256];
 	char sender[256];		/* To whom shall we send reject bounces or vacation messages? */
 	char subject[1024];		/* Retain msg subject so we can use it in vacation messages */
+	char envelope_from[1024];
+	char envelope_to[1024];
 };
 
 
