@@ -295,10 +295,10 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 
 	/* add hash to list - FIXME only do this on a miss */
 	vptr = malloc(sizeof(struct sdm_vacation));
-	vptr->timestamp = extract_long(c, 1);
-	extract_token(vptr->hash, c, 2, '|', sizeof vptr->hash);
-	vptr->next = my->v->first_vacation;
-	my->u->first_vacation = vptr;
+	vptr->timestamp = time(NULL);
+	safestrncpy(vptr->hash, sieve2_getvalue_string(s, "hash"), sizeof vptr->hash);
+	vptr->next = cs->u->first_vacation;
+	cs->u->first_vacation = vptr;
 
 	return SIEVE2_ERROR_UNSUPPORTED;
 }
@@ -614,11 +614,11 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	}
 
 	while (u->first_vacation != NULL) {
-		if ( (time(NULL) - u->first_vacation.timestamp) < MAX_VACATION) {
-			text = realloc(text, strlen(text) + strlen(u->first_vacation.hash) + 256);
+		if ( (time(NULL) - u->first_vacation->timestamp) < MAX_VACATION) {
+			text = realloc(text, strlen(text) + strlen(u->first_vacation->hash) + 256);
 			sprintf(&text[strlen(text)], "vacation|%ld|%s" CTDLSIEVECONFIGSEPARATOR,
-				u->first_vacation.timestamp,
-				u->first_vacation.hash
+				u->first_vacation->timestamp,
+				u->first_vacation->hash
 			);
 		}
 		vptr = u->first_vacation;
