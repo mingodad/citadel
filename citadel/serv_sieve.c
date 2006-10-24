@@ -587,7 +587,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
  */
 void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 	char *ptr;
-	char *c;
+	char *c, *vacrec;
 	char keyword[256];
 	struct sdm_script *sptr;
 	struct sdm_vacation *vptr;
@@ -616,11 +616,21 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 		}
 
 		else if (!strcasecmp(keyword, "vacation")) {
-			vptr = malloc(sizeof(struct sdm_vacation));
-			vptr->timestamp = extract_long(c, 1);
-			extract_token(vptr->fromaddr, c, 2, '|', sizeof vptr->fromaddr);
-			vptr->next = u->first_vacation;
-			u->first_vacation = vptr;
+
+			if (c != NULL) while (vacrec=c, c=strchr(c, '\n'), (c != NULL)) {
+
+				*c = 0;
+				++c;
+
+				if (strncasecmp(vacrec, "vacation|", 9)) {
+					lprintf(CTDL_DEBUG, "VACACFG: <%s>\n", vacrec);
+					vptr = malloc(sizeof(struct sdm_vacation));
+					extract_token(vptr->fromaddr, vacrec, 0, '|', sizeof vptr->fromaddr);
+					vptr->timestamp = extract_long(vacrec, 1);
+					vptr->next = u->first_vacation;
+					u->first_vacation = vptr;
+				}
+			}
 		}
 
 		/* ignore unknown keywords */
@@ -688,17 +698,27 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 		free(sptr);
 	}
 
-	while (u->first_vacation != NULL) {
-		if ( (time(NULL) - u->first_vacation->timestamp) < MAX_VACATION) {
-			text = realloc(text, strlen(text) + strlen(u->first_vacation->fromaddr) + 256);
-			sprintf(&text[strlen(text)], "vacation|%ld|%s" CTDLSIEVECONFIGSEPARATOR,
-				u->first_vacation->timestamp,
-				u->first_vacation->fromaddr
-			);
+	if (u->first_vacation != NULL) {
+
+		size_t realloc_len = strlen(text) + 256;
+		for (vptr = u->first_vacation; vptr != NULL; vptr = vptr->next) {
+			realloc_len += strlen(vptr->fromaddr + 32);
 		}
-		vptr = u->first_vacation;
-		u->first_vacation = u->first_vacation->next;
-		free(vptr);
+		text = realloc(text, realloc_len);
+
+		sprintf(&text[strlen(text)], "vacation|\n");
+		while (u->first_vacation != NULL) {
+			if ( (time(NULL) - u->first_vacation->timestamp) < MAX_VACATION) {
+				sprintf(&text[strlen(text)], "%s|%ld\n",
+					u->first_vacation->fromaddr,
+					u->first_vacation->timestamp
+				);
+			}
+			vptr = u->first_vacation;
+			u->first_vacation = u->first_vacation->next;
+			free(vptr);
+		}
+		sprintf(&text[strlen(text)], CTDLSIEVECONFIGSEPARATOR);
 	}
 
 	/* Save the config */
