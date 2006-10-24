@@ -623,7 +623,6 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 				++c;
 
 				if (strncasecmp(vacrec, "vacation|", 9)) {
-					lprintf(CTDL_DEBUG, "VACACFG: <%s>\n", vacrec);
 					vptr = malloc(sizeof(struct sdm_vacation));
 					extract_token(vptr->fromaddr, vacrec, 0, '|', sizeof vptr->fromaddr);
 					vptr->timestamp = extract_long(vacrec, 1);
@@ -708,7 +707,7 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 
 		sprintf(&text[strlen(text)], "vacation|\n");
 		while (u->first_vacation != NULL) {
-			if ( (time(NULL) - u->first_vacation->timestamp) < MAX_VACATION) {
+			if ( (time(NULL) - u->first_vacation->timestamp) < (MAX_VACATION * 86400)) {
 				sprintf(&text[strlen(text)], "%s|%ld\n",
 					u->first_vacation->fromaddr,
 					u->first_vacation->timestamp
