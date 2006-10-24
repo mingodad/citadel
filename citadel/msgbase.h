@@ -38,6 +38,7 @@ struct ma_info {
 				 * digging through a subsection */
 	int did_print;		/* One alternative has been displayed */
 	char chosen_part[128];	/* Which part of a m/a did we choose? */
+	int chosen_pref;	/* Chosen part preference level (lower is better) */
 	int use_fo_hooks;	/* Use fixed output hooks */
 };
 

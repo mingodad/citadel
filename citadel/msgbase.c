@@ -1209,6 +1209,12 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
  * The client is elegant and sophisticated and wants to be choosy about
  * MIME content types, so figure out which multipart/alternative part
  * we're going to send.
+ *
+ * We use a system of weights.  When we find a part that matches one of the
+ * MIME types we've declared as preferential, we can store it in ma->chosen_part
+ * and then set ma->chosen_pref to that MIME type's position in our preference
+ * list.  If we then hit another match, we only replace the first match if
+ * the preference value is lower.
  */
 void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length,
@@ -1223,8 +1229,12 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	if (ma->is_ma > 0) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
+			lprintf(CTDL_DEBUG, "Is <%s> == <%s> ??\n", buf, cbtype);
 			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
-				safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
+				if (i < ma->chosen_pref) {
+					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
+					ma->chosen_pref = i;
+				}
 			}
 		}
 	}
@@ -1766,6 +1776,7 @@ START_TEXT:
 		if (mode == MT_MIME) {
 			ma.use_fo_hooks = 0;
 			strcpy(ma.chosen_part, "1");
+			ma.chosen_pref = 9999;
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
 				*fixed_output_post, (void *)&ma, 0);
