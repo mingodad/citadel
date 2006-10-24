@@ -17,7 +17,7 @@ struct sdm_script {
 
 struct sdm_vacation {
 	struct sdm_vacation *next;
-	char hash[256];
+	char fromaddr[256];
 	time_t timestamp;
 };
 
@@ -50,11 +50,11 @@ struct ctdl_sieve {
 /* If you change this string you will break all of your Sieve configs. */
 #define CTDLSIEVECONFIGSEPARATOR	"\n-=<CtdlSieveConfigSeparator>=-\n"
 
-/* Maximum time we keep vacation hash records online.  This implies that a vacation
- * rule cannot exceed this amount of time.  5184000 seconds == 60 days, which is
- * way too long for anyone to be on vacation.
+/* Maximum time we keep vacation fromaddr records online.  This implies that a vacation
+ * rule cannot exceed this amount of time.   (Any more than 30 days is a ridiculously
+ * long vacation which the person probably doesn't deserve.)
  */
-#define MAX_VACATION			5184000
+#define MAX_VACATION	30
 
 extern struct RoomProcList *sieve_list;
 

@@ -62,12 +62,14 @@ int ctdl_debug(sieve2_context_t *s, void *my)
 	static int ctdl_libsieve_debug = 0;
 
 	if (ctdl_libsieve_debug) {
+/*
 		lprintf(CTDL_DEBUG, "Sieve: level [%d] module [%s] file [%s] function [%s]\n",
 			sieve2_getvalue_int(s, "level"),
 			sieve2_getvalue_string(s, "module"),
 			sieve2_getvalue_string(s, "file"),
 			sieve2_getvalue_string(s, "function"));
-		lprintf(CTDL_DEBUG, "       message [%s]\n",
+ */
+		lprintf(CTDL_DEBUG, "Sieve: %s\n",
 			sieve2_getvalue_string(s, "message"));
 	}
 	return SIEVE2_OK;
@@ -263,7 +265,7 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 	);
 
 	quickie_message(	/* This delivers the message */
-		"Citadel",
+		"Citadel",	/* FIXME make it myself */
 		cs->sender,
 		NULL,
 		reject_text,
@@ -280,28 +282,79 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to indicate that a vacation message should be generated
- * FIXME implement this
  */
 int ctdl_vacation(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 	struct sdm_vacation *vptr;
+	int days = 1;
+	const char *message;
+	char *vacamsg_text = NULL;
 
 	lprintf(CTDL_DEBUG, "Action is VACATION\n");
 
-		// sieve2_getvalue_string(s, "hash"),
-		// sieve2_getvalue_int(s, "days") );
+	message = sieve2_getvalue_string(s, "message");
+	if (message == NULL) return SIEVE2_ERROR_BADARGS;
 
+	days = sieve2_getvalue_int(s, "days");
+	if (days < 1) days = 1;
+	if (days > MAX_VACATION) days = MAX_VACATION;
 
-	/* add hash to list - FIXME only do this on a miss */
+	/* Check to see whether we've already alerted this sender that we're on vacation. */
+	for (vptr = cs->u->first_vacation; vptr != NULL; vptr = vptr->next) {
+		if (!strcasecmp(vptr->fromaddr, cs->sender)) {
+			if ( (time(NULL) - vptr->timestamp) < (days * 86400) ) {
+				lprintf(CTDL_DEBUG, "Already alerted <%s> recently.\n", cs->sender);
+				return SIEVE2_OK;
+			}
+		}
+	}
+
+	/* Assemble the reject message. */
+	vacamsg_text = malloc(strlen(message) + 1024);
+	if (vacamsg_text == NULL) {
+		return SIEVE2_ERROR_FAIL;
+	}
+
+	sprintf(vacamsg_text, 
+		"Content-type: text/plain\n"
+		"\n"
+		"%s\n"
+		"\n"
+	,
+		message
+	);
+
+	quickie_message(	/* This delivers the message */
+		"Citadel",	/* FIXME make it myself */
+		cs->sender,
+		NULL,
+		vacamsg_text,
+		FMT_RFC822,
+		"Delivery status notification"
+	);
+
+	free(vacamsg_text);
+
+	/* Now update the list to reflect the fact that we've alerted this sender.
+	 * If they're already in the list, just update the timestamp.
+	 */
+	for (vptr = cs->u->first_vacation; vptr != NULL; vptr = vptr->next) {
+		if (!strcasecmp(vptr->fromaddr, cs->sender)) {
+			vptr->timestamp = time(NULL);
+			return SIEVE2_OK;
+		}
+	}
+
+	/* If we get to this point, create a new record.
+	 */
 	vptr = malloc(sizeof(struct sdm_vacation));
 	vptr->timestamp = time(NULL);
-	safestrncpy(vptr->hash, sieve2_getvalue_string(s, "hash"), sizeof vptr->hash);
+	safestrncpy(vptr->fromaddr, cs->sender, sizeof vptr->fromaddr);
 	vptr->next = cs->u->first_vacation;
 	cs->u->first_vacation = vptr;
 
 	return SIEVE2_OK;
-	/* return SIEVE2_ERROR_UNSUPPORTED; */
 }
 
 
@@ -565,7 +618,7 @@ void parse_sieve_config(char *conf, struct sdm_userdata *u) {
 		else if (!strcasecmp(keyword, "vacation")) {
 			vptr = malloc(sizeof(struct sdm_vacation));
 			vptr->timestamp = extract_long(c, 1);
-			extract_token(vptr->hash, c, 2, '|', sizeof vptr->hash);
+			extract_token(vptr->fromaddr, c, 2, '|', sizeof vptr->fromaddr);
 			vptr->next = u->first_vacation;
 			u->first_vacation = vptr;
 		}
@@ -637,10 +690,10 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 
 	while (u->first_vacation != NULL) {
 		if ( (time(NULL) - u->first_vacation->timestamp) < MAX_VACATION) {
-			text = realloc(text, strlen(text) + strlen(u->first_vacation->hash) + 256);
+			text = realloc(text, strlen(text) + strlen(u->first_vacation->fromaddr) + 256);
 			sprintf(&text[strlen(text)], "vacation|%ld|%s" CTDLSIEVECONFIGSEPARATOR,
 				u->first_vacation->timestamp,
-				u->first_vacation->hash
+				u->first_vacation->fromaddr
 			);
 		}
 		vptr = u->first_vacation;
