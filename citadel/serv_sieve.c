@@ -787,7 +787,7 @@ void sieve_do_room(char *roomname) {
 	/* See if the user who owns this 'mailbox' has any Sieve scripts that
 	 * require execution.
 	 */
-	snprintf(u.config_roomname, sizeof u.config_roomname, "%010ld.%s", atol(roomname), SIEVERULES);
+	snprintf(u.config_roomname, sizeof u.config_roomname, "%010ld.%s", atol(roomname), USERCONFIGROOM);
 	if (getroom(&CC->room, u.config_roomname) != 0) {
 		lprintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", u.config_roomname);
 		return;
@@ -898,7 +898,7 @@ void msiv_load(struct sdm_userdata *u) {
 	strcpy(hold_rm, CC->room.QRname);       /* save current room */
 
 	/* Take a spin through the user's personal address book */
-	if (getroom(&CC->room, SIEVERULES) == 0) {
+	if (getroom(&CC->room, USERCONFIGROOM) == 0) {
 	
 		u->config_msgnum = (-1);
 		strcpy(u->config_roomname, CC->room.QRname);
@@ -1104,7 +1104,7 @@ void cmd_msiv(char *argbuf) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
 		script_content = msiv_getscript(&u, script_name);
 		if (script_content != NULL) {
-			cprintf("%d Script:\n", SEND_LISTING);
+			cprintf("%d Script:\n", LISTING_FOLLOWS);
 			cprintf("%s000\n", script_content);
 		}
 		else {

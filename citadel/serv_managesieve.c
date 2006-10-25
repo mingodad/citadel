@@ -118,27 +118,6 @@ void sieve_outbuf_append(char *str)
         MGSVE->imap_format_outstring = buf;
 }
 
-void goto_sieverules_room(void)
-{// TODO: check if we're authenticated.
-	struct ctdlroom QRscratch;
-	int c;
-	char augmented_roomname[ROOMNAMELEN];
-	int transiently = 0;
-
-	MailboxName(augmented_roomname, sizeof augmented_roomname,
-		    &CC->user, SIEVERULES);
-	c = getroom(&QRscratch, augmented_roomname);
-	if (c != 0)/* something went wrong. hit it! */
-	{
-		cprintf("BYE\r\n");
-		CC->kill_me = 1;
-		return;
-	}
-	/* move to the sieve room. */
-	memcpy(&CC->room, &QRscratch,
-	       sizeof(struct ctdlroom));
-	usergoto(NULL, 0, transiently, NULL, NULL);
-}
 
 /**
  * Capability listing. Printed as greeting or on "CAPABILITIES" 
@@ -591,15 +570,6 @@ void _mgsve_starttls(void)
 #endif
 
 
-/*
- * Create the Sieve script room if it doesn't already exist
- */
-void mgsve_create_room(void)
-{
-	create_room(SIEVERULES, 4, "", 0, 1, 0, VIEW_SIEVE);
-}
-
-
 /* 
  * Main command loop for managesieve sessions.
  */
@@ -687,7 +657,6 @@ char *serv_managesieve_init(void)
 				managesieve_command_loop,
 				NULL);
 
-	CtdlRegisterSessionHook(mgsve_create_room, EVT_LOGIN);
 	return "$Id: serv_managesieve.c 4570 2006-08-27 02:07:18Z dothebart $";
 }
 

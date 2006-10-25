@@ -110,7 +110,6 @@
 #define USERNOTESROOM		"Notes"
 #define USERTRASHROOM		"Trash"
 #define PAGELOGROOM		"Sent/Received Pages"
-#define SIEVERULES              "SieveRules"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
 #define DELETED_MSGS_ROOM	"__CitadelDeletedMessages__"
