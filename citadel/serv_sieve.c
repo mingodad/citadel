@@ -290,11 +290,19 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	int days = 1;
 	const char *message;
 	char *vacamsg_text = NULL;
+	char vacamsg_subject[1024];
 
 	lprintf(CTDL_DEBUG, "Action is VACATION\n");
 
 	message = sieve2_getvalue_string(s, "message");
 	if (message == NULL) return SIEVE2_ERROR_BADARGS;
+
+	if (sieve2_getvalue_string(s, "subject") != NULL) {
+		safestrncpy(vacamsg_subject, sieve2_getvalue_string(s, "subject"), sizeof vacamsg_subject);
+	}
+	else {
+		snprintf(vacamsg_subject, sizeof vacamsg_subject, "Re: %s", cs->subject);
+	}
 
 	days = sieve2_getvalue_int(s, "days");
 	if (days < 1) days = 1;
@@ -331,7 +339,7 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 		NULL,
 		vacamsg_text,
 		FMT_RFC822,
-		"Delivery status notification"
+		vacamsg_subject
 	);
 
 	free(vacamsg_text);
