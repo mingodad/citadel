@@ -204,6 +204,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	quickie_message(	/* This delivers the message */
 		"Citadel",
+		NULL,
 		email,
 		NULL,
 		confirmation_request,
@@ -342,6 +343,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	quickie_message(	/* This delivers the message */
 		"Citadel",
+		NULL,
 		email,
 		NULL,
 		confirmation_request,

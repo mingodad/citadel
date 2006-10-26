@@ -265,7 +265,8 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 	);
 
 	quickie_message(	/* This delivers the message */
-		"Citadel",	/* FIXME make it myself */
+		NULL,
+		cs->envelope_to,
 		cs->sender,
 		NULL,
 		reject_text,
@@ -334,7 +335,8 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	);
 
 	quickie_message(	/* This delivers the message */
-		"Citadel",	/* FIXME make it myself */
+		NULL,
+		cs->envelope_to,
 		cs->sender,
 		NULL,
 		vacamsg_text,
@@ -404,14 +406,14 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 
 /*
  * Callback function to fetch message body
- * FIXME implement this
- */
-#if 0
+ * (Uncomment the code if we implement this extension)
+ *
 int ctdl_getbody(sieve2_context_t *s, void *my)
 {
 	return SIEVE2_ERROR_UNSUPPORTED;
 }
-#endif
+ *
+ */
 
 
 /*
@@ -729,7 +731,7 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
 	}
 
 	/* Save the config */
-	quickie_message("Citadel", NULL, u->config_roomname,
+	quickie_message("Citadel", NULL, NULL, u->config_roomname,
 			text,
 			4,
 			"Sieve configuration"
