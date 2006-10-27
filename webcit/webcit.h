@@ -623,6 +623,7 @@ void free_march_list(struct wcsession *wcf);
 void set_room_policy(void);
 void display_inetconf(void);
 void save_inetconf(void);
+void display_smtpqueue(void);
 void generate_uuid(char *);
 void CtdlMakeTempFileName(char *, int);
 void display_preferences(void);

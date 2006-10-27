@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-09-12 23:50-0400\n"
+"POT-Creation-Date: 2006-10-27 09:39-0400\n"
 "PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -113,7 +113,7 @@ msgstr "Esegui nuovamente il Log in"
 msgid "Close window"
 msgstr "Chiudi la finestra"
 
-#: ../auth.c:334 ../mainmenu.c:241
+#: ../auth.c:334 ../mainmenu.c:246
 msgid "Validate new users"
 msgstr "Valida il nuovo utente"
 
@@ -147,11 +147,11 @@ msgid "Change password"
 msgstr "Cambia la password"
 
 #: ../auth.c:506 ../calendar.c:616 ../event.c:390 ../graphics.c:58
-#: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2959 ../messages.c:3081
+#: ../iconbar.c:712 ../mainmenu.c:305 ../messages.c:2959 ../messages.c:3081
 #: ../messages.c:3191 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
 #: ../roomops.c:2211 ../roomops.c:2275 ../siteconfig.c:604 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
+#: ../useredit.c:381 ../vcard_edit.c:341 ../who.c:273
 msgid "Cancel"
 msgstr "Cancella"
 
@@ -830,7 +830,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Mostra l'icona Potenziato da Citadel"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
+#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:340
 msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
@@ -1086,27 +1086,31 @@ msgstr "Configurazione dei nomi di dominio e della posta internet"
 msgid "Configure replication with other Citadel servers"
 msgstr "Configura la replicazione con altri server Citadel"
 
-#: ../mainmenu.c:231
+#: ../mainmenu.c:229
+msgid "View the outbound SMTP queue"
+msgstr ""
+
+#: ../mainmenu.c:236
 msgid "User account management"
 msgstr "Gestione account utenti"
 
-#: ../mainmenu.c:236
+#: ../mainmenu.c:241
 msgid "Add, change, delete user accounts"
 msgstr "Aggiungi, modifica, cancella degli account di utenti"
 
-#: ../mainmenu.c:246
+#: ../mainmenu.c:251
 msgid "Rooms and Floors"
 msgstr "Stanze e piani"
 
-#: ../mainmenu.c:251
+#: ../mainmenu.c:256
 msgid "Add, change, or delete floors"
 msgstr "Aggiungi, modifica o cancella i piani"
 
-#: ../mainmenu.c:273
+#: ../mainmenu.c:278
 msgid "Enter a server command"
 msgstr "inserisci un comando per il server"
 
-#: ../mainmenu.c:282
+#: ../mainmenu.c:287
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1116,25 +1120,25 @@ msgstr ""
 "WebCit. Se non sai cosa significhi, allora questa schermata non ti "
 "sar&agrave; di molto aiuto."
 
-#: ../mainmenu.c:289
+#: ../mainmenu.c:294
 msgid "Enter command:"
 msgstr "Inserisci il comando:"
 
-#: ../mainmenu.c:292
+#: ../mainmenu.c:297
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr ""
 "Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
 
-#: ../mainmenu.c:296
+#: ../mainmenu.c:301
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "L'intestazione dell'host rilevata &egrave; %s://%s"
 
-#: ../mainmenu.c:298
+#: ../mainmenu.c:303
 msgid "Send command"
 msgstr "Invia il comando"
 
-#: ../mainmenu.c:327
+#: ../mainmenu.c:332
 msgid "Server command results"
 msgstr "Risultato del comando impartito al Server"
 
@@ -1150,7 +1154,7 @@ msgstr "(casa)"
 msgid " (cell)"
 msgstr "(cellulare)"
 
-#: ../messages.c:506 ../vcard_edit.c:253
+#: ../messages.c:506 ../vcard_edit.c:257
 msgid "Address:"
 msgstr "Indirizzo:"
 
@@ -1422,7 +1426,7 @@ msgstr "No"
 msgid "Back to menu"
 msgstr "Torna al menu"
 
-#: ../notes.c:126 ../vcard_edit.c:389 ../vcard_edit.c:433
+#: ../notes.c:126 ../vcard_edit.c:393 ../vcard_edit.c:437
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
@@ -2615,75 +2619,75 @@ msgstr "Profilo utente"
 msgid "Click here to send an instant message to %s"
 msgstr "Clicca qui per inviare un messaggio istantaneo a %s"
 
-#: ../vcard_edit.c:185
+#: ../vcard_edit.c:189
 msgid "Edit contact information"
 msgstr "Modifica le informazioni del contatto"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Prefix"
 msgstr "Prefisso"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "First"
 msgstr "Nome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Middle"
 msgstr "Secondo nome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Last"
 msgstr "Cognome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Suffix"
 msgstr "Suffisso"
 
-#: ../vcard_edit.c:222
+#: ../vcard_edit.c:226
 msgid "Display name:"
 msgstr "Nome da mostrare:"
 
-#: ../vcard_edit.c:229
+#: ../vcard_edit.c:233
 msgid "Title:"
 msgstr "Titolo:"
 
-#: ../vcard_edit.c:236
+#: ../vcard_edit.c:240
 msgid "Organization:"
 msgstr "Organizzazione:"
 
-#: ../vcard_edit.c:247
+#: ../vcard_edit.c:251
 msgid "PO box:"
 msgstr "Presso:"
 
-#: ../vcard_edit.c:263
+#: ../vcard_edit.c:267
 msgid "City:"
 msgstr "Città:"
 
-#: ../vcard_edit.c:269
+#: ../vcard_edit.c:273
 msgid "State:"
 msgstr "Provincia:"
 
-#: ../vcard_edit.c:275
+#: ../vcard_edit.c:279
 msgid "ZIP code:"
 msgstr "C.A.P.:"
 
-#: ../vcard_edit.c:281
+#: ../vcard_edit.c:285
 msgid "Country:"
 msgstr "Nazione:"
 
-#: ../vcard_edit.c:291
+#: ../vcard_edit.c:295
 msgid "Home telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:297
+#: ../vcard_edit.c:301
 msgid "Work telephone:"
 msgstr "Telefono di lavoro:"
 
-#: ../vcard_edit.c:308
+#: ../vcard_edit.c:312
 msgid "Primary Internet e-mail address"
 msgstr "Indirizzo email principale"
 
-#: ../vcard_edit.c:315
+#: ../vcard_edit.c:319
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 

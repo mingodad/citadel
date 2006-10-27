@@ -11,9 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ~fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-31 14:26-0400\n"
+"POT-Creation-Date: 2006-10-27 09:39-0400\n"
 "PO-Revision-Date: 2006-10-14 09:03+0200\n"
-"Last-Translator: Thierry Pasquier - Jacques Lavignotte <thierry.pasquier@pictascience.org>\n"
+"Last-Translator: Thierry Pasquier - Jacques Lavignotte <thierry."
+"pasquier@pictascience.org>\n"
 "Language-Team: français <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -59,16 +60,14 @@ msgid ""
 "your browser is configured to block pop-up windows, you will not be able to "
 "receive any instant messages.<br /></ul>"
 msgstr ""
-"<ul><li><b>Si vous avez déjà un compte sur %s</b>, entrez votre identifiant et "
-"votre mot de passe puis cliquez sur &quot;Login.&quot;</li> "
-"<li><b>Si vous êtes un nouvel usager</b>, entrez l'identifiant "
-"et le mot de passe que vous souhaitez utiliser et cliquez sur "
-"Nouvel&quot;usager.&quot; </li>"
-"<li>Fermez votre session  proprement une fois fini.</li> "
-"<li>Vous devez employer un navigateur qui supporte les <i>cadres</i> "
-"et les <i>cookies</i></li>. <li>Gardez aussi à l'esprit que si votre "
-"navigateur est configuré pour bloquer les pop-ups vous ne recevrez"
-" aucun message instantanné.</li></ul>"
+"<ul><li><b>Si vous avez déjà un compte sur %s</b>, entrez votre identifiant "
+"et votre mot de passe puis cliquez sur &quot;Login.&quot;</li> <li><b>Si "
+"vous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passe que "
+"vous souhaitez utiliser et cliquez sur Nouvel&quot;usager.&quot; </"
+"li><li>Fermez votre session  proprement une fois fini.</li> <li>Vous devez "
+"employer un navigateur qui supporte les <i>cadres</i> et les <i>cookies</i></"
+"li>. <li>Gardez aussi à l'esprit que si votre navigateur est configuré pour "
+"bloquer les pop-ups vous ne recevrez aucun message instantanné.</li></ul>"
 
 #: ../auth.c:68 ../who.c:263
 msgid "User name:"
@@ -119,7 +118,7 @@ msgstr "Connectez-vous à nouveau."
 msgid "Close window"
 msgstr "Fermer la fenêtre"
 
-#: ../auth.c:334 ../mainmenu.c:241
+#: ../auth.c:334 ../mainmenu.c:246
 msgid "Validate new users"
 msgstr "Valider les nouveaux usagers"
 
@@ -153,11 +152,11 @@ msgid "Change password"
 msgstr "Changer le mot de passe"
 
 #: ../auth.c:506 ../calendar.c:616 ../event.c:390 ../graphics.c:58
-#: ../iconbar.c:712 ../mainmenu.c:300 ../messages.c:2943 ../messages.c:3065
-#: ../messages.c:3175 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
-#: ../preferences.c:389 ../roomops.c:1283 ../roomops.c:1611 ../roomops.c:2044
-#: ../roomops.c:2193 ../roomops.c:2257 ../siteconfig.c:564 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
+#: ../iconbar.c:712 ../mainmenu.c:305 ../messages.c:2959 ../messages.c:3081
+#: ../messages.c:3191 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
+#: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
+#: ../roomops.c:2211 ../roomops.c:2275 ../siteconfig.c:604 ../sysmsgs.c:59
+#: ../useredit.c:381 ../vcard_edit.c:341 ../who.c:273
 msgid "Cancel"
 msgstr "Abandonner"
 
@@ -167,7 +166,8 @@ msgstr "Abandon. Le mot de passe n'a pas été changé."
 
 #: ../auth.c:534
 msgid "They don't match.  Password was not changed."
-msgstr "Les deux saisies ne sont pas identiques. Le mot de passe n'a pas été modifié."
+msgstr ""
+"Les deux saisies ne sont pas identiques. Le mot de passe n'a pas été modifié."
 
 #: ../availability.c:140
 msgid "availability unknown"
@@ -188,9 +188,10 @@ msgid ""
 "system administrator to install a new version of the Citadel web service "
 "with calendaring enabled.</I><br />\n"
 msgstr ""
-"<I>Ce message contient des informations calendaires, mais leur support "
-"n'est pas disponibles sur ce système. SVP demandez à votre administrateur "
-"d'actualiser le serveur Citadel et d'activer le service correspondant.</I><br />\n"
+"<I>Ce message contient des informations calendaires, mais leur support n'est "
+"pas disponibles sur ce système. SVP demandez à votre administrateur "
+"d'actualiser le serveur Citadel et d'activer le service correspondant.</"
+"I><br />\n"
 
 #: ../calendar.c:38
 msgid ""
@@ -199,8 +200,8 @@ msgid ""
 "your system administrator.</i><br />\n"
 msgstr ""
 "<i>Impossible d'afficher un événement. Vous voyez ce message car le service "
-"d'agenda est désactivé sur ce serveur Citadel. "
-" SVP contactez l'administrateur du système.</i><br />\n"
+"d'agenda est désactivé sur ce serveur Citadel.  SVP contactez "
+"l'administrateur du système.</i><br />\n"
 
 #: ../calendar.c:50
 msgid ""
@@ -209,7 +210,8 @@ msgid ""
 "system administrator.</i><br />\n"
 msgstr ""
 "<i>Impossible d'afficher une tâche à-faire. Le service en question est "
-"désactivé sur ce serveur Citadel. SVP contactez l'administrateur du système.</i><br />\n"
+"désactivé sur ce serveur Citadel. SVP contactez l'administrateur du système."
+"</i><br />\n"
 
 #: ../calendar.c:107
 msgid "Meeting invitation"
@@ -263,7 +265,8 @@ msgstr "C'est une mise à jour de '%s' qui est déjà dans votre agenda."
 #: ../calendar.c:254
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
-msgstr "Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
+msgstr ""
+"Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
 
 #: ../calendar.c:259
 msgid "Update:"
@@ -291,7 +294,9 @@ msgstr "Décliner"
 
 #: ../calendar.c:305
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr "Cliquez sur <i>mise à jour</i> pour accepter cette réponse et actualiser votre agenda."
+msgstr ""
+"Cliquez sur <i>mise à jour</i> pour accepter cette réponse et actualiser "
+"votre agenda."
 
 #: ../calendar.c:306
 msgid "Update"
@@ -319,13 +324,16 @@ msgstr "Vous avez accepté cette invitation. Votre agenda a été actualisé."
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
-msgstr "Vous avez accepté 'pour voir' cette invitation. Elle a été 'notée au crayon' dans votre agenda."
+msgstr ""
+"Vous avez accepté 'pour voir' cette invitation. Elle a été 'notée au crayon' "
+"dans votre agenda."
 
 #: ../calendar.c:388
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
-msgstr "Vous avez décliné cette invitation. Votre agenda <b>n'a pas été</b> modifié."
+msgstr ""
+"Vous avez décliné cette invitation. Votre agenda <b>n'a pas été</b> modifié."
 
 #: ../calendar.c:393
 msgid "A reply has been sent to the meeting organizer."
@@ -347,7 +355,9 @@ msgstr "Votre agenda a été mis à jour pour refléter ce RSVP."
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
-msgstr "Vous avez choisi d'ignorer cette RSVP. Votre agenda <b>n'a pas</b>  été modifié."
+msgstr ""
+"Vous avez choisi d'ignorer cette RSVP. Votre agenda <b>n'a pas</b>  été "
+"modifié."
 
 #: ../calendar.c:544
 msgid "Edit task"
@@ -365,7 +375,7 @@ msgstr "Fin :"
 msgid "Save"
 msgstr "Sauver"
 
-#: ../calendar.c:615 ../event.c:388 ../messages.c:950 ../messages.c:2332
+#: ../calendar.c:615 ../event.c:388 ../messages.c:950 ../messages.c:2348
 msgid "Delete"
 msgstr "Détruire"
 
@@ -433,7 +443,7 @@ msgstr "Le calendrier n'est pas visible."
 msgid "The tasks view is not available."
 msgstr "Le visualiseur des tâches n'est pas disponible."
 
-#: ../calendar_view.c:160 ../roomops.c:1428
+#: ../calendar_view.c:160 ../roomops.c:1446
 msgid "Notes:"
 msgstr "Notes : "
 
@@ -445,7 +455,7 @@ msgstr "Semaine"
 msgid "Hours"
 msgstr "Heures"
 
-#: ../calendar_view.c:525 ../messages.c:2327
+#: ../calendar_view.c:525 ../messages.c:2343
 msgid "Subject"
 msgstr "Sujet"
 
@@ -521,7 +531,7 @@ msgstr "Vérifiez la disponibilité des invités"
 msgid "Add/change/delete floors"
 msgstr "Ajouter / modifier / supprimer un palier"
 
-#: ../floors.c:51 ../siteconfig.c:49 ../vcard_edit.c:79 ../wiki.c:66
+#: ../floors.c:51 ../siteconfig.c:50 ../vcard_edit.c:79 ../wiki.c:66
 #: ../wiki.c:76
 msgid "Error"
 msgstr "Erreur"
@@ -580,7 +590,9 @@ msgstr "L'image est transférée "
 msgid ""
 "You can upload any image directly from your computer, as long as it is in "
 "GIF format (JPEG, PNG, etc. won't work)."
-msgstr "Vous pouvez transférer n'importe quelle image, pour autant qu'elle soit au format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
+msgstr ""
+"Vous pouvez transférer n'importe quelle image, pour autant qu'elle soit au "
+"format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
 
 #: ../graphics.c:50
 msgid "Please select a file to upload:"
@@ -691,7 +703,7 @@ msgstr "Avancé"
 msgid "Room and system administration functions"
 msgstr "Commandes d'administration des salons et du système"
 
-#: ../iconbar.c:299 ../roomops.c:1000
+#: ../iconbar.c:299 ../roomops.c:1018
 msgid "Administration"
 msgstr "Administration"
 
@@ -740,7 +752,9 @@ msgstr "texte seulement"
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
-msgstr "Sélectionnez les icones que vous souhaitez voir affichées dans le menu situé à gauche de l'écran."
+msgstr ""
+"Sélectionnez les icones que vous souhaitez voir affichées dans le menu situé "
+"à gauche de l'écran."
 
 #: ../iconbar.c:524
 msgid "Site logo"
@@ -788,7 +802,9 @@ msgstr "La liste de tous les usagers connectés."
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
-msgstr "Ouvrir une messagerie instantanée avec les autres personnes présentes dans ce salon."
+msgstr ""
+"Ouvrir une messagerie instantanée avec les autres personnes présentes dans "
+"ce salon."
 
 #: ../iconbar.c:684
 msgid "Advanced options"
@@ -806,8 +822,8 @@ msgstr "Logo de Citadel"
 msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Affiche l'icone 'Powered by Citadel'"
 
-#: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1282 ../roomops.c:1609
-#: ../siteconfig.c:562 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
+#: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
+#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:340
 msgid "Save changes"
 msgstr "Sauver les changements"
 
@@ -815,93 +831,71 @@ msgstr "Sauver les changements"
 msgid ""
 "Your icon bar has been updated.  Please select any of its choices to "
 "continue."
-msgstr "Votre barre d'icones a été mise à jour. SVP sélectionnez l'un des choix proposés pour continuer."
+msgstr ""
+"Votre barre d'icones a été mise à jour. SVP sélectionnez l'un des choix "
+"proposés pour continuer."
 
-#: ../inetconf.c:38
-msgid "localhost"
-msgstr "localhost"
-
-#: ../inetconf.c:39
-msgid "directory"
-msgstr "répertoire"
-
-#: ../inetconf.c:40
-msgid "gatewaydomain"
-msgstr "passerelle"
-
-#: ../inetconf.c:41
-msgid "smarthost"
-msgstr "smarthost"
-
-#: ../inetconf.c:42
-msgid "rbl"
-msgstr "rbl"
-
-#: ../inetconf.c:43
-msgid "spamassassin"
-msgstr "spamassassin"
-
-#: ../inetconf.c:45
+#: ../inetconf.c:46
 msgid "Local host aliases"
 msgstr "Local host aliases"
 
-#: ../inetconf.c:46
+#: ../inetconf.c:47
 msgid "Directory domains"
 msgstr "Directory domains"
 
-#: ../inetconf.c:47
+#: ../inetconf.c:48
 msgid "Gateway domains"
 msgstr "Gateway domains"
 
-#: ../inetconf.c:48
+#: ../inetconf.c:49
 msgid "Smart hosts"
 msgstr "Smart hosts"
 
-#: ../inetconf.c:49
+#: ../inetconf.c:50
 msgid "RBL hosts"
 msgstr "RBL hosts"
 
-#: ../inetconf.c:50
+#: ../inetconf.c:51
 msgid "SpamAssassin hosts"
 msgstr "SpamAssassin hosts"
 
-#: ../inetconf.c:52
+#: ../inetconf.c:53
 msgid "(domains for which this host receives mail)"
 msgstr "(domaines pour lesquels cet hôte reçoit du courrier)"
 
-#: ../inetconf.c:53
+#: ../inetconf.c:54
 msgid "(domains mapped with the Global Address Book)"
 msgstr "(domaines référencés avec le Global Address Book)"
 
-#: ../inetconf.c:54
+#: ../inetconf.c:55
 msgid "(domains whose subdomains match Citadel hosts)"
 msgstr "(domaines dont les sous-domaines concordent avec Citadel hosts)"
 
-#: ../inetconf.c:55
+#: ../inetconf.c:56
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr "(if present, forward all outbound mail to one of these hosts)"
 
-#: ../inetconf.c:56
+#: ../inetconf.c:57
 msgid "(hosts running a Realtime Blackhole List)"
 msgstr "(hôtes sur lesquels fonctionne un Realtime Blackhole List)"
 
-#: ../inetconf.c:57
+#: ../inetconf.c:58
 msgid "(hosts running the SpamAssassin service)"
 msgstr "(hôtes sur lesquels fonctionne le service SpamAssassin)"
 
-#: ../inetconf.c:94
+#: ../inetconf.c:95
 msgid "Internet configuration"
 msgstr "Configuration internet"
 
-#: ../inetconf.c:121
+#: ../inetconf.c:122
 msgid "Delete this entry?"
 msgstr "Détruire cette entrée ?"
 
-#: ../inetconf.c:123 ../netconf.c:209
+#: ../inetconf.c:124 ../netconf.c:209
 msgid "(Delete)"
 msgstr "(détruire)"
 
-#: ../inetconf.c:173
+#: ../inetconf.c:174
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s a été détruit"
@@ -927,7 +921,13 @@ msgid ""
 "protection, as it prevents others from being able to subscribe you to lists "
 "without your consent.<br /><br />Please click on the link which is being e-"
 "mailed to you and your subscription will be confirmed.<br />\n"
-msgstr "Vous vous êtes abonné  <TT>%s</TT> à la liste de diffusion <b>%s</b>. Le serveur vous a envoyé un courriel comportant un lien sur lequel vous devrez cliquer pour confirmer votre inscription. Cette étape est nécessaire pour vérifier que quelqu'un d'autre ne vous a pas abonné sans votre consentement.<br /><br />SVP effectuez cette action, vous recevrez alors un courriel de confirmation de votre abonnement.<br />\n"
+msgstr ""
+"Vous vous êtes abonné  <TT>%s</TT> à la liste de diffusion <b>%s</b>. Le "
+"serveur vous a envoyé un courriel comportant un lien sur lequel vous devrez "
+"cliquer pour confirmer votre inscription. Cette étape est nécessaire pour "
+"vérifier que quelqu'un d'autre ne vous a pas abonné sans votre consentement."
+"<br /><br />SVP effectuez cette action, vous recevrez alors un courriel de "
+"confirmation de votre abonnement.<br />\n"
 
 #: ../listsub.c:91
 msgid "Go back..."
@@ -945,7 +945,7 @@ msgstr "Liste des salons connus"
 msgid "Where can I go from here?"
 msgstr "Où puis-je aller à partir d'ici ?"
 
-#: ../mainmenu.c:39 ../roomops.c:649
+#: ../mainmenu.c:39 ../roomops.c:667
 msgid "Goto next room"
 msgstr "Aller au prochain salon"
 
@@ -961,7 +961,7 @@ msgstr "Passer au salon suivant"
 msgid "(come back here later)"
 msgstr "(revenir ici plus tard)"
 
-#: ../mainmenu.c:57 ../roomops.c:450
+#: ../mainmenu.c:57 ../roomops.c:468
 msgid "Ungoto"
 msgstr "Revenir"
 
@@ -970,7 +970,7 @@ msgstr "Revenir"
 msgid "(oops! Back to %s)"
 msgstr "(oops! Retour à %s)"
 
-#: ../mainmenu.c:68 ../roomops.c:459
+#: ../mainmenu.c:68 ../roomops.c:477
 msgid "Read new messages"
 msgstr "Lire les nouveaux messages"
 
@@ -978,7 +978,7 @@ msgstr "Lire les nouveaux messages"
 msgid "...in this room"
 msgstr "... dans ce salon"
 
-#: ../mainmenu.c:76 ../roomops.c:559
+#: ../mainmenu.c:76 ../roomops.c:577
 msgid "Read all messages"
 msgstr "Lire tous les messages"
 
@@ -986,7 +986,7 @@ msgstr "Lire tous les messages"
 msgid "...old <EM>and</EM> new"
 msgstr "... anciens <EM>et</EM> nouveaux"
 
-#: ../mainmenu.c:84 ../roomops.c:624
+#: ../mainmenu.c:84 ../roomops.c:642
 msgid "Enter a message"
 msgstr "Entrer un message"
 
@@ -1046,7 +1046,7 @@ msgstr "Éditer ou détruire ce salon"
 msgid "Go to a 'hidden' room"
 msgstr "Aller au salon 'caché'"
 
-#: ../mainmenu.c:171 ../roomops.c:1940
+#: ../mainmenu.c:171 ../roomops.c:1958
 msgid "Create a new room"
 msgstr "Créer un nouveau salon"
 
@@ -1079,51 +1079,58 @@ msgstr "Configuration des noms de domaine et du courrier électronique"
 msgid "Configure replication with other Citadel servers"
 msgstr "Configurer la réplication des autres serveurs Citadel"
 
-#: ../mainmenu.c:231
+#: ../mainmenu.c:229
+msgid "View the outbound SMTP queue"
+msgstr ""
+
+#: ../mainmenu.c:236
 msgid "User account management"
 msgstr "Gestion du compte courant"
 
-#: ../mainmenu.c:236
+#: ../mainmenu.c:241
 msgid "Add, change, delete user accounts"
 msgstr "Ajouter, modifier ou supprimer des comptes"
 
-#: ../mainmenu.c:246
+#: ../mainmenu.c:251
 msgid "Rooms and Floors"
 msgstr "Salons et paliers"
 
-#: ../mainmenu.c:251
+#: ../mainmenu.c:256
 msgid "Add, change, or delete floors"
 msgstr "Ajouter, modifier ou supprimer des paliers"
 
-#: ../mainmenu.c:273
+#: ../mainmenu.c:278
 msgid "Enter a server command"
 msgstr "Entrer une commande serveur"
 
-#: ../mainmenu.c:282
+#: ../mainmenu.c:287
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
 "will not be of much use to you."
-msgstr "Cet écran vous permet d'entrer directement des commandes qui ne sont pas supportées par l'interface web de Citadel (WebCit). Si vous ne savez pas trop à quoi cela correspond, cette facilité n'est pas faite pour vous."
+msgstr ""
+"Cet écran vous permet d'entrer directement des commandes qui ne sont pas "
+"supportées par l'interface web de Citadel (WebCit). Si vous ne savez pas "
+"trop à quoi cela correspond, cette facilité n'est pas faite pour vous."
 
-#: ../mainmenu.c:289
+#: ../mainmenu.c:294
 msgid "Enter command:"
 msgstr "Entrer une commande :"
 
-#: ../mainmenu.c:292
+#: ../mainmenu.c:297
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Command input (if requesting SEND_LISTING transfer mode):"
 
-#: ../mainmenu.c:296
+#: ../mainmenu.c:301
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "L'entête d'hôte est %s://%s"
 
-#: ../mainmenu.c:298
+#: ../mainmenu.c:303
 msgid "Send command"
 msgstr "Envoyer la commande"
 
-#: ../mainmenu.c:327
+#: ../mainmenu.c:332
 msgid "Server command results"
 msgstr "Résultat de la la commande serveur"
 
@@ -1139,7 +1146,7 @@ msgstr " (home)"
 msgid " (cell)"
 msgstr " (cell)"
 
-#: ../messages.c:506 ../vcard_edit.c:253
+#: ../messages.c:506 ../vcard_edit.c:257
 msgid "Address:"
 msgstr "Addresse :"
 
@@ -1179,7 +1186,7 @@ msgstr "Voir"
 msgid "Download"
 msgstr "Télécharger"
 
-#: ../messages.c:866 ../messages.c:2900
+#: ../messages.c:866 ../messages.c:2916
 msgid "CC:"
 msgstr "Copie à :"
 
@@ -1203,7 +1210,7 @@ msgstr "Répondre à tous "
 msgid "Forward"
 msgstr "Faire suivre"
 
-#: ../messages.c:945 ../messages.c:3173
+#: ../messages.c:945 ../messages.c:3189
 msgid "Move"
 msgstr "Déplacer"
 
@@ -1240,113 +1247,113 @@ msgstr "(pas de nom)"
 msgid "This address book is empty."
 msgstr "Le carnet d'adresses est vide."
 
-#: ../messages.c:2197
+#: ../messages.c:2213
 msgid "Click on any note to edit it."
 msgstr "Cliquer sur une note pour l'éditer."
 
-#: ../messages.c:2207
+#: ../messages.c:2223
 msgid "No new messages."
 msgstr "Pas de nouveaux messages."
 
-#: ../messages.c:2209
+#: ../messages.c:2225
 msgid "No old messages."
 msgstr "Pas de messages anciens."
 
-#: ../messages.c:2211
+#: ../messages.c:2227
 msgid "No messages here."
 msgstr "Pas de messages ici."
 
-#: ../messages.c:2329
+#: ../messages.c:2345
 msgid "Sender"
 msgstr "Expéditeur"
 
-#: ../messages.c:2331
+#: ../messages.c:2347
 msgid "Date"
 msgstr "Date"
 
-#: ../messages.c:2444
+#: ../messages.c:2460
 msgid "Reading #"
 msgstr "Lecture du #"
 
-#: ../messages.c:2497
+#: ../messages.c:2513
 #, c-format
 msgid "of %d messages."
 msgstr "de %d messages."
 
-#: ../messages.c:2682
+#: ../messages.c:2698
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Abandon. Message non envoyé."
 
-#: ../messages.c:2688
+#: ../messages.c:2704
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Abandon automatique car vous avez déjà sauvé ce message."
 
-#: ../messages.c:2708
+#: ../messages.c:2724
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Message envoyé.\n"
 
-#: ../messages.c:2711
+#: ../messages.c:2727
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Message posté.\n"
 
-#: ../messages.c:2846
+#: ../messages.c:2862
 msgid " <I>from</I> "
 msgstr " <I>de</I> "
 
-#: ../messages.c:2856
+#: ../messages.c:2872
 msgid " <I>in</I> "
 msgstr " <I>dans</I> "
 
-#: ../messages.c:2889
+#: ../messages.c:2905
 msgid "To:"
 msgstr "À :"
 
-#: ../messages.c:2911
+#: ../messages.c:2927
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2929
+#: ../messages.c:2945
 msgid "Subject (optional):"
 msgstr "Objet (optionnel) : "
 
-#: ../messages.c:2938 ../messages.c:3060 ../paging.c:53
+#: ../messages.c:2954 ../messages.c:3076 ../paging.c:53
 msgid "Send message"
 msgstr "Envoyer le message"
 
-#: ../messages.c:2940 ../messages.c:3062
+#: ../messages.c:2956 ../messages.c:3078
 msgid "Post message"
 msgstr "Poster le message"
 
-#: ../messages.c:2956
+#: ../messages.c:2972
 msgid "--- forwarded message ---"
 msgstr "--- message renvoyé ---"
 
-#: ../messages.c:3037
+#: ../messages.c:3053
 msgid "Attachments:"
 msgstr "Documents attachés :"
 
-#: ../messages.c:3052
+#: ../messages.c:3068
 msgid "Attach file:"
 msgstr "Fichiers attachés :"
 
-#: ../messages.c:3055 ../roomops.c:1475 ../roomops.c:1505
+#: ../messages.c:3071 ../roomops.c:1493 ../roomops.c:1523
 msgid "Add"
 msgstr "Ajouter"
 
-#: ../messages.c:3120
+#: ../messages.c:3136
 #, c-format
 msgid "The message was not moved."
 msgstr "Ce message a été déplacé "
 
-#: ../messages.c:3146
+#: ../messages.c:3162
 msgid "Confirm move of message"
 msgstr "Confirmer le déplacement de ce message"
 
-#: ../messages.c:3153
+#: ../messages.c:3169
 msgid "Move this message to:"
 msgstr "Déplacer ce message vers :"
 
@@ -1354,7 +1361,7 @@ msgstr "Déplacer ce message vers :"
 msgid "Add a new node"
 msgstr "Ajouter un nouveau noeud"
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:112
+#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:113
 #, c-format
 msgid "Node name"
 msgstr "Nom du noeud"
@@ -1411,7 +1418,7 @@ msgstr "Non"
 msgid "Back to menu"
 msgstr "Retour au menu"
 
-#: ../notes.c:126 ../vcard_edit.c:389 ../vcard_edit.c:433
+#: ../notes.c:126 ../vcard_edit.c:393 ../vcard_edit.c:437
 msgid "An error has occurred."
 msgstr "Une erreur est apparue"
 
@@ -1441,11 +1448,16 @@ msgid ""
 "Messenger window failed to open.  This is probably because you have a popup "
 "blocker installed.  Please configure your popup blocker to allow popups from "
 "this site if you wish to receive instant messages."
-msgstr "Vous avez un ou plusieurs messages instantanés en attente, mais il n'est pas possible d'ouvrir une fenêtre de lecture. Vous avez probablement activé le blocage de pop-up. SVP configurez votre navigateur en autorisant les pop-ups (au moins pour Citadel) si vous souhaitez lire les messages instantanés."
+msgstr ""
+"Vous avez un ou plusieurs messages instantanés en attente, mais il n'est pas "
+"possible d'ouvrir une fenêtre de lecture. Vous avez probablement activé le "
+"blocage de pop-up. SVP configurez votre navigateur en autorisant les pop-ups "
+"(au moins pour Citadel) si vous souhaitez lire les messages instantanés."
 
 #: ../paging.c:291 ../paging.c:453
 msgid "An error occurred while setting up the chat socket."
-msgstr "Une erreur est survenue au moment de l'établissement du canal du babillard"
+msgstr ""
+"Une erreur est survenue au moment de l'établissement du canal du babillard"
 
 #: ../paging.c:318
 msgid "Now exiting chat mode."
@@ -1563,228 +1575,238 @@ msgstr "Cliquez sur un salon quelconque pour le dé-zapper et vous y rendre.\n"
 msgid "View as:"
 msgstr "Voir comme :"
 
-#: ../roomops.c:429
+#: ../roomops.c:396
+#, fuzzy
+msgid "Search: "
+msgstr "Année :"
+
+#: ../roomops.c:446
 #, c-format
 msgid "%d new of %d messages"
 msgstr "%d nouveaux sur %d messages"
 
-#: ../roomops.c:473
+#: ../roomops.c:491
 msgid "View contacts"
 msgstr "Voir les contacts"
 
-#: ../roomops.c:484
+#: ../roomops.c:502
 msgid "Day view"
 msgstr "Vue par jour"
 
-#: ../roomops.c:493
+#: ../roomops.c:511
 msgid "Month view"
 msgstr "Vue par mois"
 
-#: ../roomops.c:504
+#: ../roomops.c:522
 msgid "Calendar list"
 msgstr "Calendar list"
 
-#: ../roomops.c:515
+#: ../roomops.c:533
 msgid "View tasks"
 msgstr "Voir les tâches"
 
-#: ../roomops.c:526
+#: ../roomops.c:544
 msgid "View notes"
 msgstr "Voir les notes"
 
-#: ../roomops.c:537
+#: ../roomops.c:555
 msgid "View message list"
 msgstr "Voir la liste des messages"
 
-#: ../roomops.c:548
+#: ../roomops.c:566
 msgid "Wiki home"
 msgstr "Accueil Wiki"
 
-#: ../roomops.c:573
+#: ../roomops.c:591
 msgid "Add new contact"
 msgstr "Ajouter un nouveau contact"
 
-#: ../roomops.c:586
+#: ../roomops.c:604
 msgid "Add new event"
 msgstr "Ajouter un nouvel  événement"
 
-#: ../roomops.c:595
+#: ../roomops.c:613
 msgid "Add new task"
 msgstr "Ajouter une nouvelle tâche"
 
-#: ../roomops.c:604
+#: ../roomops.c:622
 msgid "Add new note"
 msgstr "Ajouter une nouvelle note"
 
-#: ../roomops.c:615
+#: ../roomops.c:633
 msgid "Edit this page"
 msgstr "Éditer cette page"
 
-#: ../roomops.c:637
-msgid "Leave all messages marked as unread, go to next room with unread messages"
-msgstr "Laisser tous les messages comme non lus, aller au prochain salon qui contient des messages non lus."
+#: ../roomops.c:655
+msgid ""
+"Leave all messages marked as unread, go to next room with unread messages"
+msgstr ""
+"Laisser tous les messages comme non lus, aller au prochain salon qui "
+"contient des messages non lus."
 
-#: ../roomops.c:638
+#: ../roomops.c:656
 msgid "Skip this room"
 msgstr "Passer ce salon"
 
-#: ../roomops.c:648
+#: ../roomops.c:666
 msgid "Mark all messages as read, go to next room with unread messages"
-msgstr "Marquer tous les messages comme lus, aller au prochain salon qui contient des messages non lus."
+msgstr ""
+"Marquer tous les messages comme lus, aller au prochain salon qui contient "
+"des messages non lus."
 
-#: ../roomops.c:1016
+#: ../roomops.c:1034
 msgid "Configuration"
 msgstr "Configuration"
 
-#: ../roomops.c:1032
+#: ../roomops.c:1050
 msgid "Message expire policy"
 msgstr "Politique d'expiration des messages"
 
-#: ../roomops.c:1048
+#: ../roomops.c:1066
 msgid "Access controls"
 msgstr "Contrôles d'accès"
 
-#: ../roomops.c:1064
+#: ../roomops.c:1082
 msgid "Sharing"
 msgstr "Partage"
 
-#: ../roomops.c:1080
+#: ../roomops.c:1098
 msgid "Mailing list service"
 msgstr "Service des listes de diffusion"
 
-#: ../roomops.c:1102
+#: ../roomops.c:1120
 msgid "Are you sure you want to delete this room?"
 msgstr "Êtes vous sûr de vouloir détruire ce salon ?"
 
-#: ../roomops.c:1104
+#: ../roomops.c:1122
 msgid "Delete this room"
 msgstr "Détruire ce salon"
 
-#: ../roomops.c:1107
+#: ../roomops.c:1125
 msgid "Set or change the icon for this room's banner"
 msgstr "Attribuer ou changer l'icone de la bannière de ce salon"
 
-#: ../roomops.c:1110
+#: ../roomops.c:1128
 msgid "Edit this room's Info file"
 msgstr "Éditer les propriétés de ce salon"
 
-#: ../roomops.c:1119 ../roomops.c:1952
+#: ../roomops.c:1137 ../roomops.c:1970
 msgid "Name of room: "
 msgstr "Nom du salon :"
 
-#: ../roomops.c:1126 ../roomops.c:1956
+#: ../roomops.c:1144 ../roomops.c:1974
 msgid "Resides on floor: "
 msgstr "Réside sur le palier :"
 
-#: ../roomops.c:1140 ../roomops.c:1998
+#: ../roomops.c:1158 ../roomops.c:2016
 msgid "Type of room:"
 msgstr "Type de salon :"
 
-#: ../roomops.c:1147
+#: ../roomops.c:1165
 msgid "Public room"
 msgstr "Salon public"
 
-#: ../roomops.c:1155
+#: ../roomops.c:1173
 msgid "Private - guess name"
 msgstr "Privé - guess name"
 
-#: ../roomops.c:1162
+#: ../roomops.c:1180
 msgid "Private - require password:"
 msgstr "Privé - accès par mot de passe"
 
-#: ../roomops.c:1172 ../roomops.c:2029
+#: ../roomops.c:1190 ../roomops.c:2047
 msgid "Private - invitation only"
 msgstr "Privé - sur invitation"
 
-#: ../roomops.c:1176
+#: ../roomops.c:1194
 msgid "If private, cause current users to forget room"
 msgstr "Si ce salon est privé, alors il est 'oublié' par les usagers courants"
 
-#: ../roomops.c:1184
+#: ../roomops.c:1202
 msgid "Preferred users only"
 msgstr "Réservé aux usagers privilégiés"
 
-#: ../roomops.c:1190
+#: ../roomops.c:1208
 msgid "Read-only room"
 msgstr "Salon en lecture seulement"
 
-#: ../roomops.c:1197
+#: ../roomops.c:1215
 msgid "File directory room"
 msgstr "File directory room"
 
-#: ../roomops.c:1200
+#: ../roomops.c:1218
 msgid "Directory name: "
 msgstr "Nom du répertoire"
 
-#: ../roomops.c:1208
+#: ../roomops.c:1226
 msgid "Uploading allowed"
 msgstr "Chargement autorisé"
 
-#: ../roomops.c:1214
+#: ../roomops.c:1232
 msgid "Downloading allowed"
 msgstr "Déchargement autorisé"
 
-#: ../roomops.c:1220
+#: ../roomops.c:1238
 msgid "Visible directory"
 msgstr "Répertoire visible"
 
-#: ../roomops.c:1229
+#: ../roomops.c:1247
 msgid "Network shared room"
 msgstr "Salon partagé via le réseau"
 
-#: ../roomops.c:1235
+#: ../roomops.c:1253
 msgid "Permanent (does not auto-purge)"
 msgstr "Permanent (pas auto-purge)"
 
-#: ../roomops.c:1240
+#: ../roomops.c:1258
 msgid "Anonymous messages"
 msgstr "Messages anonymes"
 
-#: ../roomops.c:1248
+#: ../roomops.c:1266
 msgid "No anonymous messages"
 msgstr "Pas de messages anonymes"
 
-#: ../roomops.c:1254
+#: ../roomops.c:1272
 msgid "All messages are anonymous"
 msgstr "Tous les messages sont anonymes"
 
-#: ../roomops.c:1260
+#: ../roomops.c:1278
 msgid "Prompt user when entering messages"
 msgstr "Prompt user when entering messages"
 
-#: ../roomops.c:1266
+#: ../roomops.c:1284
 msgid "Room aide: "
 msgstr "Room aide: "
 
-#: ../roomops.c:1338
+#: ../roomops.c:1356
 msgid "Shared with"
 msgstr "Partagé avec "
 
-#: ../roomops.c:1341
+#: ../roomops.c:1359
 msgid "Not shared with"
 msgstr "Pas de partage avec "
 
-#: ../roomops.c:1346 ../roomops.c:1391
+#: ../roomops.c:1364 ../roomops.c:1409
 msgid "Remote node name"
 msgstr "Nom distant du noeud"
 
-#: ../roomops.c:1348 ../roomops.c:1393
+#: ../roomops.c:1366 ../roomops.c:1411
 msgid "Remote room name"
 msgstr "Nom distant du salon"
 
-#: ../roomops.c:1350 ../roomops.c:1395
+#: ../roomops.c:1368 ../roomops.c:1413
 msgid "Actions"
 msgstr "Actions"
 
-#: ../roomops.c:1383
+#: ../roomops.c:1401
 msgid "Unshare"
 msgstr "Non partagé"
 
-#: ../roomops.c:1420
+#: ../roomops.c:1438
 msgid "Share"
 msgstr "Partagé"
 
-#: ../roomops.c:1429
+#: ../roomops.c:1447
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
 "'shared' list sends messages out, but in order to receive messages, the "
@@ -1800,7 +1822,7 @@ msgstr ""
 "identical on the remote node.<LI>If the remote room name is different, the "
 "remote node must also configure the name of the room here.</UL></I><br />\n"
 
-#: ../roomops.c:1450
+#: ../roomops.c:1468
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
@@ -1808,11 +1830,11 @@ msgstr ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
 
-#: ../roomops.c:1467 ../roomops.c:1497
+#: ../roomops.c:1485 ../roomops.c:1515
 msgid "(remove)"
 msgstr "(remove)"
 
-#: ../roomops.c:1480
+#: ../roomops.c:1498
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
@@ -1820,19 +1842,21 @@ msgstr ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
 
-#: ../roomops.c:1511
-msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
-msgstr "This room is configured to allow self-service subscribe/unsubscribe requests."
+#: ../roomops.c:1529
+msgid ""
+"This room is configured to allow self-service subscribe/unsubscribe requests."
+msgstr ""
+"This room is configured to allow self-service subscribe/unsubscribe requests."
 
-#: ../roomops.c:1514
+#: ../roomops.c:1532
 msgid "Click to disable."
 msgstr "Click to disable."
 
-#: ../roomops.c:1516
+#: ../roomops.c:1534
 msgid "The URL for subscribe/unsubscribe is: "
 msgstr "L'URL pour s'abonner ou se désabonner est :"
 
-#: ../roomops.c:1522
+#: ../roomops.c:1540
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
@@ -1840,160 +1864,171 @@ msgstr ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
 
-#: ../roomops.c:1526
+#: ../roomops.c:1544
 msgid "Click to enable."
 msgstr "Click to enable."
 
-#: ../roomops.c:1555
+#: ../roomops.c:1573
 msgid "Message expire policy for this room"
 msgstr "Message expire policy for this room"
 
-#: ../roomops.c:1561
+#: ../roomops.c:1579
 msgid "Use the default policy for this floor"
 msgstr "Use the default policy for this floor"
 
-#: ../roomops.c:1565 ../roomops.c:1592 ../siteconfig.c:501 ../siteconfig.c:526
+#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:541 ../siteconfig.c:566
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Les messages n'expirent jamais automatiquement"
 
-#: ../roomops.c:1569 ../roomops.c:1596 ../siteconfig.c:505 ../siteconfig.c:530
+#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:545 ../siteconfig.c:570
 #, c-format
 msgid "Expire by message count"
 msgstr "Expiration des messages en fonction du compte"
 
-#: ../roomops.c:1573 ../roomops.c:1600 ../siteconfig.c:509 ../siteconfig.c:534
+#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:549 ../siteconfig.c:574
 #, c-format
 msgid "Expire by message age"
 msgstr "Expiration des messages en fonction de l'âge"
 
-#: ../roomops.c:1575 ../roomops.c:1602 ../siteconfig.c:511 ../siteconfig.c:536
+#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:551 ../siteconfig.c:576
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Nombre de messages ou de jours :"
 
-#: ../roomops.c:1582
+#: ../roomops.c:1600
 msgid "Message expire policy for this floor"
 msgstr "Règles d'expiration des messages de ce salon "
 
-#: ../roomops.c:1588
+#: ../roomops.c:1606
 msgid "Use the system default"
 msgstr "Utiliser la configuration par défaut"
 
-#: ../roomops.c:1663 ../roomops.c:3035
+#: ../roomops.c:1681 ../roomops.c:3053
 msgid "Cancelled.  Changes were not saved."
 msgstr "Abandon. le modifications ne seront pas prises en compte."
 
-#: ../roomops.c:1802
+#: ../roomops.c:1820
 msgid "Your changes have been saved."
 msgstr "Vos modification ont été sauvées."
 
-#: ../roomops.c:1834
+#: ../roomops.c:1852
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
 msgstr "<B><I>L'usager %s a été éjecté du salon %s.</I></B>\n"
 
-#: ../roomops.c:1848
+#: ../roomops.c:1866
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
 msgstr "<B><I>L'usager %s a été invité à rejoindre le salon %s.</I></B>\n"
 
-#: ../roomops.c:1876
+#: ../roomops.c:1894
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
-msgstr "Les usagers énumérés ci-dessous ont accès à ce salon. Pour enlever un usager de cette liste d'accès, sélectionner le nom de l'usager et cliquer sur 'éjecter'."
+msgstr ""
+"Les usagers énumérés ci-dessous ont accès à ce salon. Pour enlever un usager "
+"de cette liste d'accès, sélectionner le nom de l'usager et cliquer sur "
+"'éjecter'."
 
-#: ../roomops.c:1896
+#: ../roomops.c:1914
 msgid "Kick"
 msgstr "Éjecter"
 
-#: ../roomops.c:1900
+#: ../roomops.c:1918
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
-msgstr "Pour accorder l'accès à ce salon à un usager, entrer son identifiant dans le champ de saisie ci-dessous et cliquer sur 'Inviter'."
+msgstr ""
+"Pour accorder l'accès à ce salon à un usager, entrer son identifiant dans le "
+"champ de saisie ci-dessous et cliquer sur 'Inviter'."
 
-#: ../roomops.c:1906
+#: ../roomops.c:1924
 msgid "Invite:"
 msgstr "Inviter :"
 
-#: ../roomops.c:1911
+#: ../roomops.c:1929
 msgid "Invite"
 msgstr "Invite"
 
-#: ../roomops.c:1975
+#: ../roomops.c:1993
 msgid "Default view for room: "
 msgstr "Vue par défaut de ce salon :"
 
-#: ../roomops.c:2007
+#: ../roomops.c:2025
 msgid "Public (automatically appears to everyone)"
 msgstr "Public (est visible de tous les usagers)"
 
-#: ../roomops.c:2014
+#: ../roomops.c:2032
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privé - caché (accessible à quiconque connaît son nom)"
 
-#: ../roomops.c:2021
+#: ../roomops.c:2039
 msgid "Private - require password: "
 msgstr "Privé - le mot de passe est requis :"
 
-#: ../roomops.c:2037
+#: ../roomops.c:2055
 msgid "Personal (mailbox for you only)"
 msgstr "Personnel (une boîte aux lettres pour vous seulement)"
 
-#: ../roomops.c:2042
+#: ../roomops.c:2060
 msgid "Create new room"
 msgstr "Créez un nouveau salon"
 
-#: ../roomops.c:2110
+#: ../roomops.c:2128
 msgid "Cancelled.  No new room was created."
 msgstr "Abandon. Aucun nouveau salon n'a été créé."
 
-#: ../roomops.c:2153
+#: ../roomops.c:2171
 msgid "Go to a hidden room"
 msgstr "Allez à un salon caché"
 
-#: ../roomops.c:2164
+#: ../roomops.c:2182
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
 "room, it will appear in your regular room listings so you don't have to keep "
 "returning here."
-msgstr "Si vous connaissez le nom d'un salon caché ou protégé par un mot de passe, vous pouvez vous y rendre en écrivant son nom ci-dessous. Une fois que vous accédez à un salon privé, ce salon apparaîtra dans vos listes habituelles, vous n'aurez donc pas à retourner ici."
+msgstr ""
+"Si vous connaissez le nom d'un salon caché ou protégé par un mot de passe, "
+"vous pouvez vous y rendre en écrivant son nom ci-dessous. Une fois que vous "
+"accédez à un salon privé, ce salon apparaîtra dans vos listes habituelles, "
+"vous n'aurez donc pas à retourner ici."
 
-#: ../roomops.c:2176
+#: ../roomops.c:2194
 msgid "Enter room name:"
 msgstr "Écrivez le nom du salon :"
 
-#: ../roomops.c:2183
+#: ../roomops.c:2201
 msgid "Enter room password:"
 msgstr "Écrivez le mot de passe pour accéder au salon :"
 
-#: ../roomops.c:2192
+#: ../roomops.c:2210
 msgid "Go there"
 msgstr "Aller là"
 
-#: ../roomops.c:2245
+#: ../roomops.c:2263
 msgid "Zap (forget/unsubscribe) the current room"
 msgstr "Zapper (oublier / se désinscrire) le salon courant"
 
-#: ../roomops.c:2250
+#: ../roomops.c:2268
 #, c-format
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
-msgstr "Si vous sélectionnez cette option, <em>%s</em> disparaîtra de votre liste de salons. Est-ce bien ce que vous souhaitez faire ?<br />\n"
+msgstr ""
+"Si vous sélectionnez cette option, <em>%s</em> disparaîtra de votre liste de "
+"salons. Est-ce bien ce que vous souhaitez faire ?<br />\n"
 
-#: ../roomops.c:2255
+#: ../roomops.c:2273
 msgid "Zap this room"
 msgstr "Zapper ce salon"
 
-#: ../roomops.c:2985 ../roomops.c:2991
+#: ../roomops.c:3003 ../roomops.c:3009
 msgid "Room list"
 msgstr "Liste des salons"
 
-#: ../roomops.c:2988
+#: ../roomops.c:3006
 msgid "Folder list"
 msgstr "Liste des répertoires"
 
@@ -2007,328 +2042,346 @@ msgstr "Non connecté"
 
 #: ../rss.c:92
 msgid "Error retrieving RSS feed: couldn't find messages\n"
-msgstr "Erreur de récupération du flux RSS : impossible de trouver les messages\n"
+msgstr ""
+"Erreur de récupération du flux RSS : impossible de trouver les messages\n"
 
-#: ../siteconfig.c:38
+#: ../siteconfig.c:39
 msgid "Site configuration"
 msgstr "Configuration du site"
 
-#: ../siteconfig.c:61
+#: ../siteconfig.c:62
 msgid "General"
 msgstr "Globale"
 
-#: ../siteconfig.c:62
+#: ../siteconfig.c:63
 msgid "Access"
 msgstr "Accès"
 
-#: ../siteconfig.c:63
+#: ../siteconfig.c:64
 msgid "Network"
 msgstr "Réseau"
 
-#: ../siteconfig.c:64
+#: ../siteconfig.c:65
 msgid "Tuning"
 msgstr "Réglages"
 
-#: ../siteconfig.c:65
+#: ../siteconfig.c:66
 msgid "Directory"
 msgstr "Annuaire"
 
-#: ../siteconfig.c:66
+#: ../siteconfig.c:67
 msgid "Auto-purger"
 msgstr "Purge automatique"
 
-#: ../siteconfig.c:67
+#: ../siteconfig.c:68
 msgid "Indexing/Journaling"
 msgstr "Indexation / journalisation"
 
-#: ../siteconfig.c:71
+#: ../siteconfig.c:72
 msgid "General site configuration items"
 msgstr "Élements de configuration générale du site"
 
-#: ../siteconfig.c:75
+#: ../siteconfig.c:76
 msgid "Access controls and site policy settings"
 msgstr "Contrôles des accès et mise en place des règles d'usage"
 
-#: ../siteconfig.c:79
+#: ../siteconfig.c:80
 msgid "Network services"
 msgstr "Services réseau"
 
-#: ../siteconfig.c:80 ../siteconfig.c:90
+#: ../siteconfig.c:81 ../siteconfig.c:91
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
-msgstr "Les changements effectués à partir de cet écran ne seront effectifs qu'après un redémarrage du serveur Citadel."
+msgstr ""
+"Les changements effectués à partir de cet écran ne seront effectifs qu'après "
+"un redémarrage du serveur Citadel."
 
-#: ../siteconfig.c:85
+#: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
 msgstr "Réglages avancés du serveur"
 
-#: ../siteconfig.c:89
+#: ../siteconfig.c:90
 msgid "Configure the LDAP connector for Citadel"
 msgstr "Configuration du connecteur LDAP"
 
-#: ../siteconfig.c:95
+#: ../siteconfig.c:96
 msgid "Configure automatic expiry of old messages"
 msgstr "Configurer l'expiration automatique des anciens messages"
 
-#: ../siteconfig.c:96
+#: ../siteconfig.c:97
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr "These settings may be overridden on a per-floor or per-room basis."
 
-#: ../siteconfig.c:100
+#: ../siteconfig.c:101
 msgid "Indexing and Journaling"
 msgstr "Indexation et journalisation"
 
-#: ../siteconfig.c:101
+#: ../siteconfig.c:102
 msgid "Warning: these facilities are resource intensive."
 msgstr "Attention : ces fonctionnalités sont très gourmandes en ressources."
 
-#: ../siteconfig.c:119
+#: ../siteconfig.c:120
 #, c-format
 msgid "Fully qualified domain name"
 msgstr "Nom de domaine pleinement qualifié"
 
-#: ../siteconfig.c:126
+#: ../siteconfig.c:127
 #, c-format
 msgid "Human-readable node name"
 msgstr "Nom du noeud lisible par un humain"
 
-#: ../siteconfig.c:133
+#: ../siteconfig.c:134
 #, c-format
 msgid "Telephone number"
 msgstr "Numéro de téléphone"
 
-#: ../siteconfig.c:140
+#: ../siteconfig.c:141
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr "Les usagers qui créent des salons privés se voient accordé le statut d'administrateurs de ces salons."
+msgstr ""
+"Les usagers qui créent des salons privés se voient accordé le statut "
+"d'administrateurs de ces salons."
 
-#: ../siteconfig.c:148
+#: ../siteconfig.c:149
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr "Server connection idle timeout (in seconds)"
 
-#: ../siteconfig.c:155
+#: ../siteconfig.c:156
 #, c-format
 msgid "Initial access level for new users"
 msgstr "Niveau d'accès initial des nouveaux usagers"
 
-#: ../siteconfig.c:169
+#: ../siteconfig.c:170
 #, c-format
 msgid "Require registration for new users"
 msgstr "L'enregistrement est requis pour les nouveaux usagers"
 
-#: ../siteconfig.c:177
+#: ../siteconfig.c:178
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr "Messages d'usagers à problème mis en quarantaine"
 
-#: ../siteconfig.c:185
+#: ../siteconfig.c:186
 #, c-format
 msgid "Name of quarantine room"
 msgstr "Nom du salon de quarantaine"
 
-#: ../siteconfig.c:192
+#: ../siteconfig.c:193
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr "Invite du paginateur (pour les clients en mode texte)"
 
-#: ../siteconfig.c:199
+#: ../siteconfig.c:200
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr "Limitez l'accès au courrier électronique"
 
-#: ../siteconfig.c:207
+#: ../siteconfig.c:208
 #, c-format
 msgid "Geographic location of this system"
 msgstr "Localisation géographique de ce serveur"
 
-#: ../siteconfig.c:214
+#: ../siteconfig.c:215
 #, c-format
 msgid "Name of system administrator"
 msgstr "Nom de l'administrateur du système"
 
-#: ../siteconfig.c:221
+#: ../siteconfig.c:222
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr "Nombre de sessions simultanées (pas de limite = 0)"
 
-#: ../siteconfig.c:228
+#: ../siteconfig.c:229
 #, c-format
 msgid "Default user purge time (days)"
 msgstr "Délai de purge par défaut pour cet usager (jours)"
 
-#: ../siteconfig.c:235
+#: ../siteconfig.c:236
 #, c-format
 msgid "Default room purge time (days)"
 msgstr "Délai de purge de ce salon (en jours)"
 
-#: ../siteconfig.c:242
+#: ../siteconfig.c:243
 #, c-format
 msgid "Name of room to log pages"
 msgstr "Name of room to log pages"
 
-#: ../siteconfig.c:249
+#: ../siteconfig.c:250
 #, c-format
 msgid "Access level required to create rooms"
 msgstr "Niveau d'accès requis pour créer des salons"
 
-#: ../siteconfig.c:263
+#: ../siteconfig.c:264
 #, c-format
 msgid "Maximum message length"
 msgstr "Longueur maximum des messages"
 
-#: ../siteconfig.c:270
+#: ../siteconfig.c:271
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr "Nombre minimum de processus"
 
-#: ../siteconfig.c:277
+#: ../siteconfig.c:278
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr "Nombre maximum de processus"
 
-#: ../siteconfig.c:284
+#: ../siteconfig.c:285
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr "Port d'écoute de POP3 (-1 pour désactiver ce service)"
 
-#: ../siteconfig.c:291
+#: ../siteconfig.c:292
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr "Port SMTP  (-1 pour désactiver ce service)"
 
-#: ../siteconfig.c:298
+#: ../siteconfig.c:299
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr "Correct forged From: lines during authenticated SMTP"
 
-#: ../siteconfig.c:306
+#: ../siteconfig.c:307
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr "Permettre aux administrateurs de zapper (d'oublier) des salons "
 
-#: ../siteconfig.c:314
+#: ../siteconfig.c:315
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr "Port d'écoute IMAP (-1 pour désactiver ce service)"
 
-#: ../siteconfig.c:321
+#: ../siteconfig.c:322
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr "Network run frequency (in seconds)"
 
-#: ../siteconfig.c:328
+#: ../siteconfig.c:329
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr "Désactiver la création d'un compte par l'usager lui-même"
 
-#: ../siteconfig.c:336
+#: ../siteconfig.c:337
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr "Hour to run database auto-purge"
 
-#: ../siteconfig.c:352
+#: ../siteconfig.c:353
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr "Nom d'hôte du serveur d'annuaire LDAP (laisser en blanc pour ignorer)"
 
-#: ../siteconfig.c:359
+#: ../siteconfig.c:360
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr "Numéro du port LDAP (laisser en blanc pour ignorer)"
 
-#: ../siteconfig.c:366
+#: ../siteconfig.c:367
 #, c-format
 msgid "Base DN"
 msgstr "Base DN"
 
-#: ../siteconfig.c:373
+#: ../siteconfig.c:374
 #, c-format
 msgid "Bind DN"
 msgstr "Bind DN"
 
-#: ../siteconfig.c:380
+#: ../siteconfig.c:381
 #, c-format
 msgid "Password for bind DN"
 msgstr "Mot de passe pour bind DN"
 
-#: ../siteconfig.c:388
+#: ../siteconfig.c:389
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr "Adresse IP du serveur (0.0.0.0 for 'quelconque')"
 
-#: ../siteconfig.c:395
+#: ../siteconfig.c:396
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr "Port SMTP MSA (-1 pour désactiver)"
 
-#: ../siteconfig.c:402
+#: ../siteconfig.c:403
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr "Port IMAP sécurisé via SSL (-1 pour désactiver)"
 
-#: ../siteconfig.c:409
+#: ../siteconfig.c:410
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr "Port POP3 sécurisé via SSL (-1 pour désactiver)"
 
-#: ../siteconfig.c:416
+#: ../siteconfig.c:417
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr "Port SMTP sécurisé via SSL (-1 pour désactiver)"
 
-#: ../siteconfig.c:423
+#: ../siteconfig.c:424
 #, c-format
 msgid "Enable full text index"
 msgstr "Activer l'indexation plein texte"
 
-#: ../siteconfig.c:431
+#: ../siteconfig.c:432
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr "Automatically delete committed database logs"
 
-#: ../siteconfig.c:439
+#: ../siteconfig.c:440
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Instantly expunge deleted messages in IMAP"
 
-#: ../siteconfig.c:447
+#: ../siteconfig.c:448
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
 msgstr "Allow unauthenticated SMTP clients to spoof this site's domains"
 
-#: ../siteconfig.c:455
+#: ../siteconfig.c:456
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr "Perform journaling of email messages"
 
-#: ../siteconfig.c:463
+#: ../siteconfig.c:464
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr "Perform journaling of non-email messages"
 
-#: ../siteconfig.c:471
+#: ../siteconfig.c:472
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr "Email destination of journalized messages"
 
-#: ../siteconfig.c:497
+#: ../siteconfig.c:483
+#, c-format
+msgid "Default timezone for unzoned calendar items"
+msgstr ""
+
+#: ../siteconfig.c:511
+#, c-format
+msgid ""
+"<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
+"Port </a> (-1 to disable)"
+msgstr ""
+
+#: ../siteconfig.c:537
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Règles d'expiration par défaut des messages dans un salon public"
 
-#: ../siteconfig.c:518
+#: ../siteconfig.c:558
 #, c-format
 msgid "Default message expire policy for private mailboxes"
-msgstr "Règles d'expiration par défaut des messages dans une boîte aux lettres privée"
+msgstr ""
+"Règles d'expiration par défaut des messages dans une boîte aux lettres privée"
 
-#: ../siteconfig.c:522
+#: ../siteconfig.c:562
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Mêmes règles que dans les salons publics"
 
-#: ../siteconfig.c:644
+#: ../siteconfig.c:688
 msgid "Your system configuration has been updated."
 msgstr "La configuration de votre système a été mise à jour"
 
@@ -2377,7 +2430,9 @@ msgstr "À propos de ce serveur"
 msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
 "administrator is %s."
-msgstr "Vous êtes connecté(e) à %s, qui tourne %s avec %s et localisé en %s. Votre administrateur système est %s."
+msgstr ""
+"Vous êtes connecté(e) à %s, qui tourne %s avec %s et localisé en %s. Votre "
+"administrateur système est %s."
 
 #: ../summary.c:259
 #, c-format
@@ -2394,7 +2449,9 @@ msgstr "Éditer %s"
 msgid ""
 "Enter %s below.  Text is formatted to the reader's screen width.  To defeat "
 "the formatting, indent a line at least one space."
-msgstr "Écrivez %s ci-dessous. Le texte est composé à la largeur de l'écran du lecteur. Pour modifier ce formatage, indentez une ligne d'au moins un espace."
+msgstr ""
+"Écrivez %s ci-dessous. Le texte est composé à la largeur de l'écran du "
+"lecteur. Pour modifier ce formatage, indentez une ligne d'au moins un espace."
 
 #: ../sysmsgs.c:79
 #, c-format
@@ -2418,7 +2475,9 @@ msgstr "Ajouter des usagers"
 msgid ""
 "To create a new user account, enter the desired user name in the box below "
 "and click 'Create'."
-msgstr "Pour créer un nouveau compte d'usager, entrez son identifiant dans le champ de saisie ci-après et cliquez sur 'Créer'."
+msgstr ""
+"Pour créer un nouveau compte d'usager, entrez son identifiant dans le champ "
+"de saisie ci-après et cliquez sur 'Créer'."
 
 #: ../useredit.c:48
 msgid "New user: "
@@ -2436,7 +2495,9 @@ msgstr "Éditer ou supprimer des usagers."
 msgid ""
 "To edit an existing user account, select the user name from the list and "
 "click 'Edit'."
-msgstr "Pour éditer un compte, sélectionnez l'identifiant de ce compte dans la liste puis cliquez 'Éditer'."
+msgstr ""
+"Pour éditer un compte, sélectionnez l'identifiant de ce compte dans la liste "
+"puis cliquez 'Éditer'."
 
 #: ../useredit.c:83
 msgid "Edit configuration"
@@ -2455,7 +2516,8 @@ msgid "Delete this user?"
 msgstr "Supprimer cet usager ?"
 
 #: ../useredit.c:204
-msgid "An error occurred while trying to create or edit this address book entry."
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
 msgstr "Une erreur est apparue pendant la création ou l'édition de ce contact "
 
 #: ../useredit.c:283
@@ -2541,75 +2603,75 @@ msgstr "Profil usager"
 msgid "Click here to send an instant message to %s"
 msgstr "Cliquez ici pour envoyer un message instantané à %s"
 
-#: ../vcard_edit.c:185
+#: ../vcard_edit.c:189
 msgid "Edit contact information"
 msgstr "Éditer les information de contact"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Prefix"
 msgstr "Titre"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "First"
 msgstr "Prénom"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Middle"
 msgstr "Deuxième prénom"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Last"
 msgstr "Nom"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:205
 msgid "Suffix"
 msgstr "Suffixe"
 
-#: ../vcard_edit.c:222
+#: ../vcard_edit.c:226
 msgid "Display name:"
 msgstr "Nom affiché : "
 
-#: ../vcard_edit.c:229
+#: ../vcard_edit.c:233
 msgid "Title:"
 msgstr "Titre :"
 
-#: ../vcard_edit.c:236
+#: ../vcard_edit.c:240
 msgid "Organization:"
 msgstr "Organisation :"
 
-#: ../vcard_edit.c:247
+#: ../vcard_edit.c:251
 msgid "PO box:"
 msgstr "Boîte postale :"
 
-#: ../vcard_edit.c:263
+#: ../vcard_edit.c:267
 msgid "City:"
 msgstr "Ville :"
 
-#: ../vcard_edit.c:269
+#: ../vcard_edit.c:273
 msgid "State:"
 msgstr "État :"
 
-#: ../vcard_edit.c:275
+#: ../vcard_edit.c:279
 msgid "ZIP code:"
 msgstr "Code postal :"
 
-#: ../vcard_edit.c:281
+#: ../vcard_edit.c:285
 msgid "Country:"
 msgstr "Pays :"
 
-#: ../vcard_edit.c:291
+#: ../vcard_edit.c:295
 msgid "Home telephone:"
 msgstr "Téléphone personnel :"
 
-#: ../vcard_edit.c:297
+#: ../vcard_edit.c:301
 msgid "Work telephone:"
 msgstr "Téléphone au travail :"
 
-#: ../vcard_edit.c:308
+#: ../vcard_edit.c:312
 msgid "Primary Internet e-mail address"
 msgstr "Adresse e-mail principale "
 
-#: ../vcard_edit.c:315
+#: ../vcard_edit.c:319
 msgid "Internet e-mail aliases"
 msgstr "Autres adresses e-mail "
 
@@ -2635,7 +2697,9 @@ msgstr "Autorisation requise"
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
-msgstr "La ressources que vous souhaitez requière un nom d'usager et un mot de passe valides. Vous ne pouvez pas être connecté à %s\n"
+msgstr ""
+"La ressources que vous souhaitez requière un nom d'usager et un mot de passe "
+"valides. Vous ne pouvez pas être connecté à %s\n"
 
 #: ../webcit.c:1247
 #, c-format
@@ -2647,27 +2711,28 @@ msgid ""
 "\n"
 msgstr ""
 "Vous êtes connecté à un serveur qui fonctionne avec  Citadel %d.%02d. \n"
-"Pour espérer faire fonctionner cette version de WebCit vous devez utiliser Citadel %d.%02d ou une version plus récente.\n"
+"Pour espérer faire fonctionner cette version de WebCit vous devez utiliser "
+"Citadel %d.%02d ou une version plus récente.\n"
 "\n"
 "\n"
 
-#: ../webcit.c:1484 ../webcit.c:1486
+#: ../webcit.c:1486 ../webcit.c:1488
 msgid "Room info"
 msgstr "Informations sur le salon"
 
-#: ../webcit.c:1489 ../webcit.c:1491
+#: ../webcit.c:1491 ../webcit.c:1493
 msgid "Your bio"
 msgstr "votre biographie"
 
-#: ../webcit.c:1499
+#: ../webcit.c:1501
 msgid "your photo"
 msgstr "votre photographie"
 
-#: ../webcit.c:1505
+#: ../webcit.c:1507
 msgid "the icon for this room"
 msgstr "l'icone de cette salle"
 
-#: ../webcit.c:1519
+#: ../webcit.c:1521
 msgid "the icon for this floor"
 msgstr "l'icone de ce palier"
 
@@ -2705,7 +2770,9 @@ msgstr "Usagers actuellement dans %s"
 msgid ""
 "Click on a name to read user info.  Click on %s to send an instant message "
 "to that user."
-msgstr "Cliquer sur un nom pour lire les informations de l'usager. Et sur %s pour envoyer un message instantané à cet usager."
+msgstr ""
+"Cliquer sur un nom pour lire les informations de l'usager. Et sur %s pour "
+"envoyer un message instantané à cet usager."
 
 #: ../who.c:228
 msgid "Edit your session display"
@@ -2763,6 +2830,23 @@ msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
-"Si vous voulez créer cette page, sélectionnez le lien 'Éditer"
-"cette page ' dans la bannière du salon."
+"Si vous voulez créer cette page, sélectionnez le lien 'Éditercette page ' "
+"dans la bannière du salon."
 
+#~ msgid "localhost"
+#~ msgstr "localhost"
+
+#~ msgid "directory"
+#~ msgstr "répertoire"
+
+#~ msgid "gatewaydomain"
+#~ msgstr "passerelle"
+
+#~ msgid "smarthost"
+#~ msgstr "smarthost"
+
+#~ msgid "rbl"
+#~ msgstr "rbl"
+
+#~ msgid "spamassassin"
+#~ msgstr "spamassassin"

@@ -222,6 +222,11 @@ void display_aide_menu(void)
 	wprintf("<a href=\"display_netconf\">"
 		"<span class=\"mainmenu\">");
 	wprintf(_("Configure replication with other Citadel servers"));
+	wprintf("</span></A><br />\n");
+
+	wprintf("<a href=\"display_smtpqueue\">"
+		"<span class=\"mainmenu\">");
+	wprintf(_("View the outbound SMTP queue"));
 	wprintf("</span></A>\n");
 
 	do_template("endbox");
