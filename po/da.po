@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit 6.82\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 09:39-0400\n"
+"POT-Creation-Date: 2006-10-27 14:20-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -149,7 +149,7 @@ msgstr "Skift adgangskode"
 #: ../messages.c:3191 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
 #: ../roomops.c:2211 ../roomops.c:2275 ../siteconfig.c:604 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:341 ../who.c:273
+#: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
 msgid "Cancel"
 msgstr "Afbryd"
 
@@ -818,7 +818,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Viser 'Powered by Citadel' ikon"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:340
+#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
 msgid "Save changes"
 msgstr "Gem ændringer"
 
@@ -1074,7 +1074,7 @@ msgstr "Domænenavne og Internet post konfiguration"
 msgid "Configure replication with other Citadel servers"
 msgstr "Konfigurér replikéring med andre Citadel servere"
 
-#: ../mainmenu.c:229
+#: ../mainmenu.c:229 ../smtpqueue.c:144
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1141,7 +1141,7 @@ msgstr "(hjem)"
 msgid " (cell)"
 msgstr "(afdeling)"
 
-#: ../messages.c:506 ../vcard_edit.c:257
+#: ../messages.c:506 ../vcard_edit.c:253
 msgid "Address:"
 msgstr "Adresse:"
 
@@ -1258,7 +1258,7 @@ msgstr "Ingen gamle meddelelser."
 msgid "No messages here."
 msgstr "Ingen meddelelser her."
 
-#: ../messages.c:2345
+#: ../messages.c:2345 ../smtpqueue.c:173
 msgid "Sender"
 msgstr "Afsender"
 
@@ -1413,7 +1413,7 @@ msgstr "Nej"
 msgid "Back to menu"
 msgstr "Tilbage til menu"
 
-#: ../notes.c:126 ../vcard_edit.c:393 ../vcard_edit.c:437
+#: ../notes.c:126 ../vcard_edit.c:389 ../vcard_edit.c:433
 msgid "An error has occurred."
 msgstr "En fejl er opstået"
 
@@ -2375,6 +2375,33 @@ msgstr "Samme politik som for offentlige rum"
 msgid "Your system configuration has been updated."
 msgstr "Din system konfiguration er blevet opdateret"
 
+#: ../smtpqueue.c:167
+#, fuzzy
+msgid "Message ID"
+msgstr "Meddelelser"
+
+#: ../smtpqueue.c:169
+#, fuzzy
+msgid "Date/time submitted"
+msgstr "Meddelelser sendt"
+
+#: ../smtpqueue.c:171
+msgid "Last attempt"
+msgstr ""
+
+#: ../smtpqueue.c:175
+msgid "Recipients"
+msgstr ""
+
+#: ../smtpqueue.c:187
+#, fuzzy
+msgid "The queue is empty."
+msgstr "Denne adressebog er tom."
+
+#: ../smtpqueue.c:193
+msgid "You do not have permission to view this resource."
+msgstr ""
+
 #: ../subst.c:216
 msgid "ERROR: could not open template "
 msgstr "FEJL: kunne ikke åbne skabelon"
@@ -2594,75 +2621,75 @@ msgstr "Bruger profil"
 msgid "Click here to send an instant message to %s"
 msgstr "Klik her for at sende online meddelelse til %s"
 
-#: ../vcard_edit.c:189
+#: ../vcard_edit.c:185
 msgid "Edit contact information"
 msgstr "Editér kontakt information"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Prefix"
 msgstr "Præfix"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "First"
 msgstr "Fornavn"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Middle"
 msgstr "Mellemnavn"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Last"
 msgstr "Efternavn"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Suffix"
 msgstr "Tilføjelse"
 
-#: ../vcard_edit.c:226
+#: ../vcard_edit.c:222
 msgid "Display name:"
 msgstr "Vist navn:"
 
-#: ../vcard_edit.c:233
+#: ../vcard_edit.c:229
 msgid "Title:"
 msgstr "Titel:"
 
-#: ../vcard_edit.c:240
+#: ../vcard_edit.c:236
 msgid "Organization:"
 msgstr "Organisation:"
 
-#: ../vcard_edit.c:251
+#: ../vcard_edit.c:247
 msgid "PO box:"
 msgstr "Postbox:"
 
-#: ../vcard_edit.c:267
+#: ../vcard_edit.c:263
 msgid "City:"
 msgstr "By:"
 
-#: ../vcard_edit.c:273
+#: ../vcard_edit.c:269
 msgid "State:"
 msgstr "Stat:"
 
-#: ../vcard_edit.c:279
+#: ../vcard_edit.c:275
 msgid "ZIP code:"
 msgstr "Postnummer:"
 
-#: ../vcard_edit.c:285
+#: ../vcard_edit.c:281
 msgid "Country:"
 msgstr "Land:"
 
-#: ../vcard_edit.c:295
+#: ../vcard_edit.c:291
 msgid "Home telephone:"
 msgstr "Hjemmetelefon:"
 
-#: ../vcard_edit.c:301
+#: ../vcard_edit.c:297
 msgid "Work telephone:"
 msgstr "Arbejdstelefon:"
 
-#: ../vcard_edit.c:312
+#: ../vcard_edit.c:308
 msgid "Primary Internet e-mail address"
 msgstr "Pimær Internet Email adresse"
 
-#: ../vcard_edit.c:319
+#: ../vcard_edit.c:315
 msgid "Internet e-mail aliases"
 msgstr "Internet Email aliasser"
 
