@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 09:39-0400\n"
+"POT-Creation-Date: 2006-10-27 14:20-0400\n"
 "PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -151,7 +151,7 @@ msgstr "Cambia la password"
 #: ../messages.c:3191 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
 #: ../roomops.c:2211 ../roomops.c:2275 ../siteconfig.c:604 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:341 ../who.c:273
+#: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
 msgid "Cancel"
 msgstr "Cancella"
 
@@ -830,7 +830,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Mostra l'icona Potenziato da Citadel"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:340
+#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
 msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
@@ -1086,7 +1086,7 @@ msgstr "Configurazione dei nomi di dominio e della posta internet"
 msgid "Configure replication with other Citadel servers"
 msgstr "Configura la replicazione con altri server Citadel"
 
-#: ../mainmenu.c:229
+#: ../mainmenu.c:229 ../smtpqueue.c:144
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1154,7 +1154,7 @@ msgstr "(casa)"
 msgid " (cell)"
 msgstr "(cellulare)"
 
-#: ../messages.c:506 ../vcard_edit.c:257
+#: ../messages.c:506 ../vcard_edit.c:253
 msgid "Address:"
 msgstr "Indirizzo:"
 
@@ -1271,7 +1271,7 @@ msgstr "Nessun vecchio messaggio."
 msgid "No messages here."
 msgstr "Nessun messaggio."
 
-#: ../messages.c:2345
+#: ../messages.c:2345 ../smtpqueue.c:173
 msgid "Sender"
 msgstr "Mittente"
 
@@ -1426,7 +1426,7 @@ msgstr "No"
 msgid "Back to menu"
 msgstr "Torna al menu"
 
-#: ../notes.c:126 ../vcard_edit.c:393 ../vcard_edit.c:437
+#: ../notes.c:126 ../vcard_edit.c:389 ../vcard_edit.c:433
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
@@ -2398,6 +2398,33 @@ msgstr "Stessa politica delle stanze private"
 msgid "Your system configuration has been updated."
 msgstr "La configurazione del tuo sistema è stata aggiornata"
 
+#: ../smtpqueue.c:167
+#, fuzzy
+msgid "Message ID"
+msgstr "Messaggi"
+
+#: ../smtpqueue.c:169
+#, fuzzy
+msgid "Date/time submitted"
+msgstr "Numero di Messaggi"
+
+#: ../smtpqueue.c:171
+msgid "Last attempt"
+msgstr ""
+
+#: ../smtpqueue.c:175
+msgid "Recipients"
+msgstr ""
+
+#: ../smtpqueue.c:187
+#, fuzzy
+msgid "The queue is empty."
+msgstr "Questa lista contatti &egrave; vuota"
+
+#: ../smtpqueue.c:193
+msgid "You do not have permission to view this resource."
+msgstr ""
+
 #: ../subst.c:216
 msgid "ERROR: could not open template "
 msgstr "ERRORE non riesco ad aprire il template"
@@ -2619,75 +2646,75 @@ msgstr "Profilo utente"
 msgid "Click here to send an instant message to %s"
 msgstr "Clicca qui per inviare un messaggio istantaneo a %s"
 
-#: ../vcard_edit.c:189
+#: ../vcard_edit.c:185
 msgid "Edit contact information"
 msgstr "Modifica le informazioni del contatto"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Prefix"
 msgstr "Prefisso"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "First"
 msgstr "Nome"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Middle"
 msgstr "Secondo nome"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Last"
 msgstr "Cognome"
 
-#: ../vcard_edit.c:205
+#: ../vcard_edit.c:201
 msgid "Suffix"
 msgstr "Suffisso"
 
-#: ../vcard_edit.c:226
+#: ../vcard_edit.c:222
 msgid "Display name:"
 msgstr "Nome da mostrare:"
 
-#: ../vcard_edit.c:233
+#: ../vcard_edit.c:229
 msgid "Title:"
 msgstr "Titolo:"
 
-#: ../vcard_edit.c:240
+#: ../vcard_edit.c:236
 msgid "Organization:"
 msgstr "Organizzazione:"
 
-#: ../vcard_edit.c:251
+#: ../vcard_edit.c:247
 msgid "PO box:"
 msgstr "Presso:"
 
-#: ../vcard_edit.c:267
+#: ../vcard_edit.c:263
 msgid "City:"
 msgstr "Città:"
 
-#: ../vcard_edit.c:273
+#: ../vcard_edit.c:269
 msgid "State:"
 msgstr "Provincia:"
 
-#: ../vcard_edit.c:279
+#: ../vcard_edit.c:275
 msgid "ZIP code:"
 msgstr "C.A.P.:"
 
-#: ../vcard_edit.c:285
+#: ../vcard_edit.c:281
 msgid "Country:"
 msgstr "Nazione:"
 
-#: ../vcard_edit.c:295
+#: ../vcard_edit.c:291
 msgid "Home telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:301
+#: ../vcard_edit.c:297
 msgid "Work telephone:"
 msgstr "Telefono di lavoro:"
 
-#: ../vcard_edit.c:312
+#: ../vcard_edit.c:308
 msgid "Primary Internet e-mail address"
 msgstr "Indirizzo email principale"
 
-#: ../vcard_edit.c:319
+#: ../vcard_edit.c:315
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 
