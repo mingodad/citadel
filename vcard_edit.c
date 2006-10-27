@@ -90,8 +90,10 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		}
 	
 		sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
+		lprintf(9, "%s\n", buf);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
+		lprintf(9, "%s\n", buf);
 		if (buf[0] != '2') {
 			convenience_page("770000", "Error", &buf[4]);
 			return;
@@ -101,6 +103,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		serialized_vcard = malloc(total_len + 2);
 	
 		read_server_binary(serialized_vcard, total_len);
+
+		lprintf(9, "Serialized vcard:\n---\n%s\n---\n", serialized_vcard);
 	
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
