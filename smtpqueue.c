@@ -14,6 +14,20 @@
 void display_queue_msg(long msgnum)
 {
 	char buf[1024];
+	char keyword[32];
+	int in_body = 0;
+	int is_delivery_list = 0;
+	time_t submitted = 0;
+	time_t attempted = 0;
+	time_t last_attempt = 0;
+	int number_of_attempts = 0;
+	char sender[256];
+	char recipients[65536];
+	char thisrecp[256];
+	char thisdsn[256];
+
+	strcpy(sender, "");
+	strcpy(recipients, "");
 
 	serv_printf("MSG2 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
@@ -21,19 +35,96 @@ void display_queue_msg(long msgnum)
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-			wprintf("<tr><td>");
-			wprintf(_("Message ID"));
-			wprintf("</td><td>");
-			wprintf(_("Date/time submitted"));
-			wprintf("</td><td>");
-			wprintf(_("Last attempt"));
-			wprintf("</td><td>");
-			wprintf(_("Sender"));
-			wprintf("</td><td>");
-			wprintf(_("Recipients"));
-			wprintf("</td></tr>\n");
+		if (strlen(buf) > 0) {
+			if (buf[strlen(buf)-1] == 13) {
+				buf[strlen(buf)-1] = 0;
+			}
+		}
+
+		if ( (strlen(buf) == 0) && (in_body == 0) ) {
+			in_body = 1;
+		}
+
+		if ( (!in_body)
+		   && (!strncasecmp(buf, "Content-type: application/x-citadel-delivery-list", 49))
+		) {
+			is_delivery_list = 1;
+		}
+
+		if ( (in_body) && (!is_delivery_list) ) {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				/* Not a delivery list; flush and return quietly. */
+			}
+			return;
+		}
+
+		if ( (in_body) && (is_delivery_list) ) {
+			extract_token(keyword, buf, 0, '|', sizeof keyword);
+
+			if (!strcasecmp(keyword, "submitted")) {
+				submitted = extract_long(buf, 1);
+			}
+
+			if (!strcasecmp(keyword, "attempted")) {
+				attempted = extract_long(buf, 1);
+				++number_of_attempts;
+				if (attempted > last_attempt) {
+					last_attempt = attempted;
+				}
+			}
+
+			if (!strcasecmp(keyword, "bounceto")) {
+				extract_token(sender, buf, 1, '|', sizeof sender);
+			}
+
+			if (!strcasecmp(keyword, "remote")) {
+				extract_token(thisrecp, buf, 1, '|', sizeof thisrecp);
+				extract_token(thisdsn, buf, 3, '|', sizeof thisdsn);
+
+				if (strlen(recipients) + strlen(thisrecp) + strlen(thisdsn) + 100
+				   < sizeof recipients) {
+					if (strlen(recipients) > 0) {
+						strcat(recipients, "<br />");
+					}
+					stresc(&recipients[strlen(recipients)], thisrecp, 1, 1);
+					strcat(recipients, "<br />&nbsp;&nbsp;<i>");
+					stresc(&recipients[strlen(recipients)], thisdsn, 1, 1);
+					strcat(recipients, "</i>");
+				}
+
+			}
+
+		}
 
 	}
+
+	wprintf("<tr><td>");
+	wprintf("%ld", msgnum);
+
+	wprintf("</td><td>");
+	if (submitted > 0) {
+		fmt_date(buf, submitted, 1);
+		wprintf("%s", buf);
+	}
+	else {
+		wprintf("&nbsp;");
+	}
+
+	wprintf("</td><td>");
+	if (last_attempt > 0) {
+		fmt_date(buf, last_attempt, 1);
+		wprintf("%s", buf);
+	}
+	else {
+		wprintf("&nbsp;");
+	}
+
+	wprintf("</td><td>");
+	escputs(sender);
+
+	wprintf("</td><td>");
+	wprintf("%s", recipients);
+	wprintf("</td></tr>\n");
 
 }
 
@@ -68,19 +159,21 @@ void display_smtpqueue(void)
 
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 		if (num_msgs > 0) {
+                        wprintf("<table class=\"mailbox_summary\" rules=rows "
+                        	"cellpadding=2 style=\"width:100%%;-moz-user-select:none;\">"
+			);
 
-			wprintf("<table border=1 width=100%%>\n");
-			wprintf("<tr><td>");
+			wprintf("<tr><td><b><i>");
 			wprintf(_("Message ID"));
-			wprintf("</td><td>");
+			wprintf("</i></b></td><td><b><i>");
 			wprintf(_("Date/time submitted"));
-			wprintf("</td><td>");
+			wprintf("</i></b></td><td><b><i>");
 			wprintf(_("Last attempt"));
-			wprintf("</td><td>");
+			wprintf("</i></b></td><td><b><i>");
 			wprintf(_("Sender"));
-			wprintf("</td><td>");
+			wprintf("</i></b></td><td><b><i>");
 			wprintf(_("Recipients"));
-			wprintf("</td></tr>\n");
+			wprintf("</i></b></td></tr>\n");
 
 			for (i=0; i<num_msgs; ++i) {
 				display_queue_msg(WC->msgarr[i]);
