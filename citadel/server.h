@@ -242,7 +242,8 @@ enum {
 	MT_CITADEL,		/* Citadel proprietary */
 	MT_RFC822,		/* RFC822 */
 	MT_MIME,		/* MIME-formatted message */
-	MT_DOWNLOAD		/* Download a component */
+	MT_DOWNLOAD,		/* Download a component */
+	MT_SPEW_SECTION		/* Download a component in a single operation */
 };
 
 /*

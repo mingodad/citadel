@@ -1950,6 +1950,14 @@ appropriate ERROR code will be returned; otherwise, if the open is successful,
 this command will succeed returning the same information as an OPEN command.
 
 
+ DLAT   (DownLoad ATtachment)
+
+ Similar to OPNA, and with the same calling syntax.  The difference is that
+instead of opening a download file for block transfer, this command outputs the
+entire decoded MIME section at once, using a BINARY_FOLLOWS response.  This is
+useful for outputting small objects such as calendar items.
+ 
+ 
  GEXP   (Get instant messages)
 
  This is a more sophisticated way of retrieving instant messages than the old

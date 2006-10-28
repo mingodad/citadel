@@ -1077,6 +1077,10 @@ void do_command_loop(void) {
 		cmd_opna(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf,"DLAT",4)) {
+		cmd_dlat(&cmdbuf[5]);
+	}
+
 	else if (!strncasecmp(cmdbuf,"INFO",4)) {
 		cmd_info();
 	}

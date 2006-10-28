@@ -91,6 +91,7 @@ void cmd_msg3 (char *cmdbuf);
 void cmd_msg4 (char *cmdbuf);
 void cmd_msgp (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
+void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *);

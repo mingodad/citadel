@@ -970,6 +970,27 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 
 
 /*
+ * Callback function for mime parser that outputs a section all at once
+ */
+void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, void *cbuserdata)
+{
+	int *found_it = (int *)cbuserdata;
+
+	/* ...or if this is not the desired section */
+	if (strcasecmp(CC->download_desired_section, partnum))
+		return;
+
+	*found_it = 1;
+
+	cprintf("%d %d\n", BINARY_FOLLOWS, length);
+	client_write(content, length);
+}
+
+
+
+/*
  * Load a message from disk into memory.
  * This is used by CtdlOutputMsg() and other fetch functions.
  *
@@ -1492,6 +1513,32 @@ int CtdlOutputPreLoadedMsg(
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
 
+	/* MT_SPEW_SECTION is like MT_DOWNLOAD except it outputs the whole MIME part
+	 * in a single server operation instead of opening a download file.
+	 */
+	if (mode == MT_SPEW_SECTION) {
+		if (TheMessage->cm_format_type != FMT_RFC822) {
+			if (do_proto)
+				cprintf("%d This is not a MIME message.\n",
+				ERROR + ILLEGAL_VALUE);
+		} else {
+			/* Parse the message text component */
+			int found_it = 0;
+
+			mptr = TheMessage->cm_fields['M'];
+			mime_parser(mptr, NULL, *mime_spew_section, NULL, NULL, (void *)&found_it, 0);
+			/* If section wasn't found, print an error
+			 */
+			if (!found_it) {
+				if (do_proto) cprintf(
+					"%d Section %s not found.\n",
+					ERROR + FILE_NOT_FOUND,
+					CC->download_desired_section);
+			}
+		}
+		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
+	}
+
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d msg:\n", LISTING_FOLLOWS);
 
@@ -1910,6 +1957,23 @@ void cmd_opna(char *cmdbuf)
 		sizeof CC->download_desired_section);
 	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL);
 }			
+
+
+/*
+ * Open a component of a MIME message and transmit it all at once
+ */
+void cmd_dlat(char *cmdbuf)
+{
+	long msgid;
+	char desired_section[128];
+
+	msgid = extract_long(cmdbuf, 0);
+	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
+	safestrncpy(CC->download_desired_section, desired_section,
+		sizeof CC->download_desired_section);
+	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL);
+}			
+
 
 /*
  * Save one or more message pointers into a specified room
