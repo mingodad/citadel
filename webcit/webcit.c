@@ -692,17 +692,15 @@ char *load_mimepart(long msgnum, char *partnum)
 	char content_type[SIZ];
 	char *content;
 	
-	serv_printf("OPNA %ld|%s", msgnum, partnum);
+	serv_printf("DLAT %ld|%s", msgnum, partnum);
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
+	if (buf[0] == '6') {
 		bytes = extract_long(&buf[4], 0);
 		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 
 		content = malloc(bytes + 2);
-		read_server_binary(content, bytes);
+		serv_read(content, bytes);
 
-		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
 		content[bytes] = 0;	/* null terminate for good measure */
 		return(content);
 	}

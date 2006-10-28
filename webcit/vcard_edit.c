@@ -89,21 +89,18 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			}
 		}
 	
-		sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
+		sprintf(buf, "DLAT %ld|%s", msgnum, partnum);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') {
+		if (buf[0] != '6') {
 			convenience_page("770000", "Error", &buf[4]);
 			return;
 		}
 	
 		total_len = atoi(&buf[4]);
 		serialized_vcard = malloc(total_len + 2);
-	
-		read_server_binary(serialized_vcard, total_len);
 
-		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
+		serv_read(serialized_vcard, total_len);
 		serialized_vcard[total_len] = 0;
 	
 		v = vcard_load(serialized_vcard);
