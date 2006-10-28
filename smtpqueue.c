@@ -25,6 +25,7 @@ void display_queue_msg(long msgnum)
 	char recipients[65536];
 	char thisrecp[256];
 	char thisdsn[256];
+	long msgid = 0;
 
 	strcpy(sender, "");
 	strcpy(recipients, "");
@@ -61,6 +62,10 @@ void display_queue_msg(long msgnum)
 		if ( (in_body) && (is_delivery_list) ) {
 			extract_token(keyword, buf, 0, '|', sizeof keyword);
 
+			if (!strcasecmp(keyword, "msgid")) {
+				msgid = extract_long(buf, 1);
+			}
+
 			if (!strcasecmp(keyword, "submitted")) {
 				submitted = extract_long(buf, 1);
 			}
@@ -75,6 +80,17 @@ void display_queue_msg(long msgnum)
 
 			if (!strcasecmp(keyword, "bounceto")) {
 				extract_token(sender, buf, 1, '|', sizeof sender);
+
+				/* Strip off local hostname if it's our own */
+				char *atsign;
+				atsign = strchr(sender, '@');
+				if (atsign != NULL) {
+					++atsign;
+					if (!strcasecmp(atsign, serv_info.serv_nodename)) {
+						--atsign;
+						*atsign = 0;
+					}
+				}
 			}
 
 			if (!strcasecmp(keyword, "remote")) {
@@ -100,6 +116,9 @@ void display_queue_msg(long msgnum)
 
 	wprintf("<tr><td>");
 	wprintf("%ld", msgnum);
+	wprintf(" <a href=\"javascript:DeleteQueueMsg(%ld,%ld);\">%s</a>", 
+		msgnum, msgid, _("(Delete)")
+	);
 
 	wprintf("</td><td>");
 	if (submitted > 0) {
@@ -129,27 +148,9 @@ void display_queue_msg(long msgnum)
 }
 
 
-/**
- * \brief display the outbound SMTP queue
- */
-void display_smtpqueue(void)
-{
+void display_smtpqueue_inner_div(void) {
 	int i;
 	int num_msgs;
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
-	wprintf(_("View the outbound SMTP queue"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
-		"<tr><td valign=top>\n");
-
 
 	/* Check to see if we can go to the __CitadelSMTPspoolout__ room.
 	 * If not, we don't have access to the queue.
@@ -194,7 +195,57 @@ void display_smtpqueue(void)
 		wprintf("</div><br /><br />");
 	}
 
-	wprintf("</td></tr></table></div>\n");
+}
+
+/**
+ * \brief display the outbound SMTP queue
+ */
+void display_smtpqueue(void)
+{
+	output_headers(1, 1, 2, 0, 0, 0);
+
+	wprintf("<script type=\"text/javascript\">				\n"
+		"function RefreshQueueDisplay() {				\n"
+		"	new Ajax.Updater('smtpqueue_inner_div', 		\n"
+		"	'display_smtpqueue_inner_div', { method: 'get',		\n"
+		"		parameters: Math.random() } );			\n"
+		"}								\n"
+		"								\n"
+		"function DeleteQueueMsg(msgnum1, msgnum2) {					\n"
+ 		"	new Ajax.Request(							\n"
+		"		'ajax_servcmd', {						\n"
+		"			method: 'post',						\n"
+		"			parameters: 'g_cmd=DELE ' + msgnum1 + ',' + msgnum2,	\n"
+		"			onComplete: RefreshQueueDisplay()			\n"
+		"		}								\n"
+		"	);									\n"
+		"}										\n"
+		"								\n"
+		"</script>							\n"
+	);
+
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf(_("View the outbound SMTP queue"));
+	wprintf("</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n<div id=\"content\">\n");
+
+	wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
+		"<tr><td valign=top>\n");
+
+	wprintf("<div id=\"smtpqueue_inner_div\">");
+
+	display_smtpqueue_inner_div();
+
+	wprintf("</div>"
+		"<div align=\"center\">"
+		"<a href=\"javascript:RefreshQueueDisplay();\">%s</a>"
+		"</div>"
+		"</td></tr></table></div>\n", _("Refresh this page")
+	);
 	wDumpContent(1);
 
 }

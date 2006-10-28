@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 14:20-0400\n"
+"POT-Creation-Date: 2006-10-28 00:14-0400\n"
 "PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -1086,7 +1086,7 @@ msgstr "Configurazione dei nomi di dominio e della posta internet"
 msgid "Configure replication with other Citadel servers"
 msgstr "Configura la replicazione con altri server Citadel"
 
-#: ../mainmenu.c:229 ../smtpqueue.c:144
+#: ../mainmenu.c:229 ../smtpqueue.c:210
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1271,7 +1271,7 @@ msgstr "Nessun vecchio messaggio."
 msgid "No messages here."
 msgstr "Nessun messaggio."
 
-#: ../messages.c:2345 ../smtpqueue.c:173
+#: ../messages.c:2345 ../smtpqueue.c:166
 msgid "Sender"
 msgstr "Mittente"
 
@@ -2398,32 +2398,37 @@ msgstr "Stessa politica delle stanze private"
 msgid "Your system configuration has been updated."
 msgstr "La configurazione del tuo sistema è stata aggiornata"
 
-#: ../smtpqueue.c:167
+#: ../smtpqueue.c:160
 #, fuzzy
 msgid "Message ID"
 msgstr "Messaggi"
 
-#: ../smtpqueue.c:169
+#: ../smtpqueue.c:162
 #, fuzzy
 msgid "Date/time submitted"
 msgstr "Numero di Messaggi"
 
-#: ../smtpqueue.c:171
+#: ../smtpqueue.c:164
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:175
+#: ../smtpqueue.c:168
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:187
+#: ../smtpqueue.c:180
 #, fuzzy
 msgid "The queue is empty."
 msgstr "Questa lista contatti &egrave; vuota"
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:186
 msgid "You do not have permission to view this resource."
 msgstr ""
+
+#: ../smtpqueue.c:227
+#, fuzzy
+msgid "Refresh this page"
+msgstr "Modifica questa pagina"
 
 #: ../subst.c:216
 msgid "ERROR: could not open template "

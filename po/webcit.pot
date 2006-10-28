@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 14:20-0400\n"
+"POT-Creation-Date: 2006-10-28 00:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1031,7 +1031,7 @@ msgstr ""
 msgid "Configure replication with other Citadel servers"
 msgstr ""
 
-#: ../mainmenu.c:229 ../smtpqueue.c:144
+#: ../mainmenu.c:229 ../smtpqueue.c:210
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1212,7 +1212,7 @@ msgstr ""
 msgid "No messages here."
 msgstr ""
 
-#: ../messages.c:2345 ../smtpqueue.c:173
+#: ../messages.c:2345 ../smtpqueue.c:166
 msgid "Sender"
 msgstr ""
 
@@ -2294,28 +2294,32 @@ msgstr ""
 msgid "Your system configuration has been updated."
 msgstr ""
 
-#: ../smtpqueue.c:167
+#: ../smtpqueue.c:160
 msgid "Message ID"
 msgstr ""
 
-#: ../smtpqueue.c:169
+#: ../smtpqueue.c:162
 msgid "Date/time submitted"
 msgstr ""
 
-#: ../smtpqueue.c:171
+#: ../smtpqueue.c:164
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:175
+#: ../smtpqueue.c:168
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:187
+#: ../smtpqueue.c:180
 msgid "The queue is empty."
 msgstr ""
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:186
 msgid "You do not have permission to view this resource."
+msgstr ""
+
+#: ../smtpqueue.c:227
+msgid "Refresh this page"
 msgstr ""
 
 #: ../subst.c:216
