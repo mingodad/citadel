@@ -115,7 +115,7 @@ void display_queue_msg(long msgnum)
 	}
 
 	wprintf("<tr><td>");
-	wprintf("%ld", msgnum);
+	wprintf("%ld<br />", msgnum);
 	wprintf(" <a href=\"javascript:DeleteQueueMsg(%ld,%ld);\">%s</a>", 
 		msgnum, msgid, _("(Delete)")
 	);
