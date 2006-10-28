@@ -1,25 +1,21 @@
-# translation of ~fr.po to français
-# translation of frTP.po to français
 # translation of fr.po to
 # translation of webcit.po to
 # This file is distributed under the same license as the PACKAGE package.
 # Copyright (C) 2006 The Citadel Project - http://www.citadel.org.
-# Thierry Pasquier <thierry@emf-16.univ-poitiers.fr>, 2006.
-# Thierry Pasquier - Jacques Lavignotte <thierry.pasquier@pictascience.org>, 2006.
 #
+# Thierry Pasquier - Jacques Lavignotte <thierry.pasquier@pictascience.org>, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: ~fr\n"
+"Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-10-28 00:14-0400\n"
-"PO-Revision-Date: 2006-10-14 09:03+0200\n"
-"Last-Translator: Thierry Pasquier - Jacques Lavignotte <thierry."
-"pasquier@pictascience.org>\n"
-"Language-Team: français <fr@li.org>\n"
+"PO-Revision-Date: 2006-10-24 23:32+0200\n"
+"Last-Translator: Thiery Pasquier <thierry.pasquier@pictascience.org>\n"
+"Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.10.2\n"
+"X-Generator: KBabel 1.11.2\n"
 
 #: ../auth.c:23
 msgid "Deleted"
@@ -71,7 +67,7 @@ msgstr ""
 
 #: ../auth.c:68 ../who.c:263
 msgid "User name:"
-msgstr "Nom d'usager :"
+msgstr "Identifiant :"
 
 #: ../auth.c:69
 msgid "Password:"
@@ -231,7 +227,7 @@ msgstr "Type d'événement inconnu."
 
 #: ../calendar.c:139 ../calendar.c:560 ../calendar_view.c:102
 msgid "Summary:"
-msgstr "Sommaire :"
+msgstr "Résumé :"
 
 #: ../calendar.c:148 ../calendar_view.c:110
 msgid "Location:"
@@ -381,23 +377,23 @@ msgstr "Détruire"
 
 #: ../calendar_tools.c:73
 msgid "Month: "
-msgstr "Mois :"
+msgstr "m&nbsp;"
 
 #: ../calendar_tools.c:87
 msgid "Day: "
-msgstr "Jour :"
+msgstr "j&nbsp;"
 
 #: ../calendar_tools.c:97
 msgid "Year: "
-msgstr "Année :"
+msgstr "an&nbsp;"
 
 #: ../calendar_tools.c:115
 msgid "Hour: "
-msgstr "Heure :"
+msgstr "h&nbsp;"
 
 #: ../calendar_tools.c:135
 msgid "Minute: "
-msgstr "Minute :"
+msgstr "min&nbsp;"
 
 #: ../calendar_tools.c:204
 msgid "(status unknown)"
@@ -489,7 +485,7 @@ msgstr "Localisation"
 
 #: ../event.c:207
 msgid "All day event"
-msgstr "Les événements du jour"
+msgstr "journée&nbsp;entière"
 
 #: ../event.c:246 ../iconbar.c:199 ../iconbar.c:586
 msgid "Notes"
@@ -629,7 +625,7 @@ msgstr "CITADEL"
 
 #: ../iconbar.c:110
 msgid "switch to room list"
-msgstr "passer à la liste des salons"
+msgstr "passer aux salons"
 
 #: ../iconbar.c:116 ../iconbar.c:540
 msgid "Your summary page"
@@ -689,11 +685,11 @@ msgstr "Qui est connecté ?"
 
 #: ../iconbar.c:265 ../iconbar.c:666
 msgid "Chat"
-msgstr "Babillard"
+msgstr "Clavardage"
 
 #: ../iconbar.c:275
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr "Options avancées de gestion des salons, des comptes et du babillard"
+msgstr "Options avancées de gestion des salons, des comptes et du clavardage"
 
 #: ../iconbar.c:282
 msgid "Advanced"
@@ -730,11 +726,11 @@ msgstr "passer au menu"
 
 #: ../iconbar.c:481
 msgid "Customize the icon bar"
-msgstr "Personnaliser la barre d'icones"
+msgstr "Personnalisation du menu"
 
 #: ../iconbar.c:493
 msgid "Display icons as:"
-msgstr "Afficher les icones comme : "
+msgstr "Afficher les entrées du menu comme : "
 
 #: ../iconbar.c:499
 msgid "pictures and text"
@@ -792,19 +788,17 @@ msgstr "Un raccourcis vers votre liste de tâches personnelles"
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
-msgstr "La liste de tous les salons et les répertoires accessibles."
+msgstr "La liste des paliers et de tous les salons accessibles"
 
 #: ../iconbar.c:651
 msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr "La liste de tous les usagers connectés."
+msgstr "La liste de tous les usagers connectés"
 
 #: ../iconbar.c:667
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
-msgstr ""
-"Ouvrir une messagerie instantanée avec les autres personnes présentes dans "
-"ce salon."
+msgstr "Clavarder avec les autres personnes présentes dans ce salon."
 
 #: ../iconbar.c:684
 msgid "Advanced options"
@@ -943,7 +937,7 @@ msgstr "Liste des salons connus"
 
 #: ../mainmenu.c:34
 msgid "Where can I go from here?"
-msgstr "Où puis-je aller à partir d'ici ?"
+msgstr "où puis-je aller à partir d'ici ?"
 
 #: ../mainmenu.c:39 ../roomops.c:667
 msgid "Goto next room"
@@ -951,7 +945,7 @@ msgstr "Aller au prochain salon"
 
 #: ../mainmenu.c:42
 msgid "...with <EM>unread</EM> messages"
-msgstr "... avec les messages <EM>non lus</EM>"
+msgstr "... avec des messages <EM>non lus</EM>"
 
 #: ../mainmenu.c:47
 msgid "Skip to next room"
@@ -959,7 +953,7 @@ msgstr "Passer au salon suivant"
 
 #: ../mainmenu.c:50
 msgid "(come back here later)"
-msgstr "(revenir ici plus tard)"
+msgstr "revenir ici plus tard"
 
 #: ../mainmenu.c:57 ../roomops.c:468
 msgid "Ungoto"
@@ -968,7 +962,7 @@ msgstr "Revenir"
 #: ../mainmenu.c:60
 #, c-format
 msgid "(oops! Back to %s)"
-msgstr "(oops! Retour à %s)"
+msgstr "oops! retour à %s"
 
 #: ../mainmenu.c:68 ../roomops.c:477
 msgid "Read new messages"
@@ -992,7 +986,7 @@ msgstr "Entrer un message"
 
 #: ../mainmenu.c:87
 msgid "(post in this room)"
-msgstr "(poster dans ce salon)"
+msgstr "poster dans ce salon"
 
 #: ../mainmenu.c:94
 msgid "Summary page"
@@ -1000,7 +994,7 @@ msgstr "Tableau de bord"
 
 #: ../mainmenu.c:97
 msgid "Summary of my account"
-msgstr "Tableau de bord de mon compte"
+msgstr "informations sur mon compte"
 
 #: ../mainmenu.c:102
 msgid "User list"
@@ -1008,7 +1002,7 @@ msgstr "Liste des usagers"
 
 #: ../mainmenu.c:105
 msgid "(all registered users)"
-msgstr "(tous les usagers enregistrés)"
+msgstr "tous les usagers enregistrés"
 
 #: ../mainmenu.c:113
 msgid "Bye!"
@@ -1024,7 +1018,7 @@ msgstr "Changer vos préférences et réglages"
 
 #: ../mainmenu.c:132
 msgid "Update your contact information"
-msgstr "Mettre à jours les données de ce contact"
+msgstr "Mettre à jours vos données personnelles"
 
 #: ../mainmenu.c:142
 msgid "Enter your 'bio'"
@@ -1044,7 +1038,7 @@ msgstr "Éditer ou détruire ce salon"
 
 #: ../mainmenu.c:166
 msgid "Go to a 'hidden' room"
-msgstr "Aller au salon 'caché'"
+msgstr "Rejoindre un salon 'caché'"
 
 #: ../mainmenu.c:171 ../roomops.c:1958
 msgid "Create a new room"
@@ -1136,11 +1130,11 @@ msgstr "Résultat de la la commande serveur"
 
 #: ../messages.c:491
 msgid " (work)"
-msgstr " (work)"
+msgstr " (travail)"
 
 #: ../messages.c:493
 msgid " (home)"
-msgstr " (home)"
+msgstr " (maison)"
 
 #: ../messages.c:495
 msgid " (cell)"
@@ -1168,15 +1162,15 @@ msgstr "fin de message inattendue"
 
 #: ../messages.c:715 ../messages.c:1297
 msgid "from "
-msgstr "de"
+msgstr "de "
 
 #: ../messages.c:743 ../messages.c:1313
 msgid "in "
-msgstr "dans"
+msgstr "dans "
 
 #: ../messages.c:764 ../messages.c:1334
 msgid "to "
-msgstr "à"
+msgstr "à "
 
 #: ../messages.c:817
 msgid "View"
@@ -1188,7 +1182,7 @@ msgstr "Télécharger"
 
 #: ../messages.c:866 ../messages.c:2916
 msgid "CC:"
-msgstr "Copie à :"
+msgstr "Copie&nbsp;à&nbsp;:"
 
 #: ../messages.c:874 ../messages.c:1370
 msgid "Subject:"
@@ -1200,7 +1194,7 @@ msgstr "Répondre à :"
 
 #: ../messages.c:913
 msgid "ReplyQuoted"
-msgstr "Répond_et_cite"
+msgstr "Répondre&nbsp;en&nbsp;citant"
 
 #: ../messages.c:930
 msgid "ReplyAll"
@@ -1314,11 +1308,11 @@ msgstr "À :"
 
 #: ../messages.c:2927
 msgid "BCC:"
-msgstr "BCC:"
+msgstr "Copie&nbsp;cachée&nbsp;à&nbsp;:"
 
 #: ../messages.c:2945
 msgid "Subject (optional):"
-msgstr "Objet (optionnel) : "
+msgstr "Objet&nbsp;(facultatif)&nbsp;: "
 
 #: ../messages.c:2954 ../messages.c:3076 ../paging.c:53
 msgid "Send message"
@@ -1338,7 +1332,7 @@ msgstr "Documents attachés :"
 
 #: ../messages.c:3068
 msgid "Attach file:"
-msgstr "Fichiers attachés :"
+msgstr "Attacher un fichier&nbsp;:"
 
 #: ../messages.c:3071 ../roomops.c:1493 ../roomops.c:1523
 msgid "Add"
@@ -1428,7 +1422,7 @@ msgstr "Envoyer un message instantané"
 
 #: ../paging.c:33
 msgid "Send an instant message to: "
-msgstr "Envoyer un message instantané à :"
+msgstr "Envoyer un message instantané à "
 
 #: ../paging.c:45
 msgid "Enter message text:"
@@ -1456,12 +1450,11 @@ msgstr ""
 
 #: ../paging.c:291 ../paging.c:453
 msgid "An error occurred while setting up the chat socket."
-msgstr ""
-"Une erreur est survenue au moment de l'établissement du canal du babillard"
+msgstr "Une erreur est survenue au moment de l'établissement du canal du clavardage."
 
 #: ../paging.c:318
 msgid "Now exiting chat mode."
-msgstr "Sortie du mode babillard"
+msgstr "Sortie du mode clavardage"
 
 #: ../paging.c:489
 msgid "Send"
@@ -1521,7 +1514,7 @@ msgstr "Pas de signature"
 
 #: ../preferences.c:354
 msgid "Use this signature:"
-msgstr "Utiliser cette signature ?"
+msgstr "Utiliser cette signature :"
 
 #: ../preferences.c:378
 msgid "Default character set for email headers:"
@@ -1537,7 +1530,7 @@ msgstr "Annulé. Aucun réglage n'a été changé"
 
 #: ../roomops.c:19
 msgid "Bulletin Board"
-msgstr "Bulletin Board"
+msgstr "Carnet de bord"
 
 #: ../roomops.c:20
 msgid "Mail Folder"
@@ -2016,9 +2009,7 @@ msgstr "Zapper (oublier / se désinscrire) le salon courant"
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
-msgstr ""
-"Si vous sélectionnez cette option, <em>%s</em> disparaîtra de votre liste de "
-"salons. Est-ce bien ce que vous souhaitez faire ?<br />\n"
+msgstr "Si vous sélectionnez cette option, <em>%s</em> disparaîtra de votre liste de salons. Est-ce bien ce que vous souhaitez faire&nbsp;?<br />\n"
 
 #: ../roomops.c:2273
 msgid "Zap this room"
@@ -2443,7 +2434,7 @@ msgstr "(Ce serveur ne supporte pas les listes de tâches)"
 
 #: ../summary.c:151
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Votre&nbsp;agenda&nbsp;d'&nbsp;aujourd'hui"
+msgstr "Votre&nbsp;agenda&nbsp;d'aujourd'hui"
 
 #: ../summary.c:164
 msgid "(Nothing)"
@@ -2463,13 +2454,13 @@ msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
 "administrator is %s."
 msgstr ""
-"Vous êtes connecté(e) à %s, qui tourne %s avec %s et localisé en %s. Votre "
-"administrateur système est %s."
+"Vous êtes connecté(e) à %s qui est servi par %s avec %s et localisé "
+" en %s. Votre administrateur système est %s."
 
 #: ../summary.c:259
 #, c-format
 msgid "Summary page for %s"
-msgstr "Page de sommaire de %s"
+msgstr "Tableau de bord de %s"
 
 #: ../sysmsgs.c:40
 #, c-format
@@ -2624,7 +2615,7 @@ msgstr "Nombre total de connexions"
 
 #: ../userlist.c:71
 msgid "Total Posts"
-msgstr "Nombre de posts"
+msgstr "Nombre de messages"
 
 #: ../userlist.c:129
 msgid "User profile"
@@ -2637,7 +2628,7 @@ msgstr "Cliquez ici pour envoyer un message instantané à %s"
 
 #: ../vcard_edit.c:185
 msgid "Edit contact information"
-msgstr "Éditer les information de contact"
+msgstr "Éditer un contact"
 
 #: ../vcard_edit.c:201
 msgid "Prefix"
@@ -2714,7 +2705,7 @@ msgstr "Une erreur est apparue en récupérant cette partie : %s\n"
 
 #: ../webcit.c:763
 msgid "Make this my start page"
-msgstr "Faire de ceci ma page de départ"
+msgstr "Faire de cette page ma page de départ"
 
 #: ../webcit.c:782
 msgid "You no longer have a start page selected."
