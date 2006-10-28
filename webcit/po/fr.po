@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ~fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 14:20-0400\n"
+"POT-Creation-Date: 2006-10-28 00:14-0400\n"
 "PO-Revision-Date: 2006-10-14 09:03+0200\n"
 "Last-Translator: Thierry Pasquier - Jacques Lavignotte <thierry."
 "pasquier@pictascience.org>\n"
@@ -1079,7 +1079,7 @@ msgstr "Configuration des noms de domaine et du courrier électronique"
 msgid "Configure replication with other Citadel servers"
 msgstr "Configurer la réplication des autres serveurs Citadel"
 
-#: ../mainmenu.c:229 ../smtpqueue.c:144
+#: ../mainmenu.c:229 ../smtpqueue.c:210
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1263,7 +1263,7 @@ msgstr "Pas de messages anciens."
 msgid "No messages here."
 msgstr "Pas de messages ici."
 
-#: ../messages.c:2345 ../smtpqueue.c:173
+#: ../messages.c:2345 ../smtpqueue.c:166
 msgid "Sender"
 msgstr "Expéditeur"
 
@@ -2385,32 +2385,37 @@ msgstr "Mêmes règles que dans les salons publics"
 msgid "Your system configuration has been updated."
 msgstr "La configuration de votre système a été mise à jour"
 
-#: ../smtpqueue.c:167
+#: ../smtpqueue.c:160
 #, fuzzy
 msgid "Message ID"
 msgstr "Messages"
 
-#: ../smtpqueue.c:169
+#: ../smtpqueue.c:162
 #, fuzzy
 msgid "Date/time submitted"
 msgstr "Messages soumis"
 
-#: ../smtpqueue.c:171
+#: ../smtpqueue.c:164
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:175
+#: ../smtpqueue.c:168
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:187
+#: ../smtpqueue.c:180
 #, fuzzy
 msgid "The queue is empty."
 msgstr "Le carnet d'adresses est vide."
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:186
 msgid "You do not have permission to view this resource."
 msgstr ""
+
+#: ../smtpqueue.c:227
+#, fuzzy
+msgid "Refresh this page"
+msgstr "Éditer cette page"
 
 #: ../subst.c:216
 msgid "ERROR: could not open template "

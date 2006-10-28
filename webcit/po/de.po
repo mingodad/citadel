@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-27 14:20-0400\n"
+"POT-Creation-Date: 2006-10-28 00:14-0400\n"
 "PO-Revision-Date: 2006-09-01 09:15+0200\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
@@ -1076,7 +1076,7 @@ msgstr "Domänenname und Internetmail Konfiguration"
 msgid "Configure replication with other Citadel servers"
 msgstr "Die Replikation mit anderen Citadellen Konfigurieren"
 
-#: ../mainmenu.c:229 ../smtpqueue.c:144
+#: ../mainmenu.c:229 ../smtpqueue.c:210
 msgid "View the outbound SMTP queue"
 msgstr ""
 
@@ -1260,7 +1260,7 @@ msgstr "Keine alte Nachricht"
 msgid "No messages here."
 msgstr "Keine Beiträge hier"
 
-#: ../messages.c:2345 ../smtpqueue.c:173
+#: ../messages.c:2345 ../smtpqueue.c:166
 msgid "Sender"
 msgstr "Absender"
 
@@ -2377,32 +2377,37 @@ msgstr "Die selben Werte wie in öffentlichen Räumen"
 msgid "Your system configuration has been updated."
 msgstr "Ihre Systemkonfiguration wurde Übernommen"
 
-#: ../smtpqueue.c:167
+#: ../smtpqueue.c:160
 #, fuzzy
 msgid "Message ID"
 msgstr "Nachrichten"
 
-#: ../smtpqueue.c:169
+#: ../smtpqueue.c:162
 #, fuzzy
 msgid "Date/time submitted"
 msgstr "Nachricht abgeschickt"
 
-#: ../smtpqueue.c:171
+#: ../smtpqueue.c:164
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:175
+#: ../smtpqueue.c:168
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:187
+#: ../smtpqueue.c:180
 #, fuzzy
 msgid "The queue is empty."
 msgstr "Dieses Adressbuch ist leer."
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:186
 msgid "You do not have permission to view this resource."
 msgstr ""
+
+#: ../smtpqueue.c:227
+#, fuzzy
+msgid "Refresh this page"
+msgstr "Diese Seite bearbeiten"
 
 #: ../subst.c:216
 msgid "ERROR: could not open template "

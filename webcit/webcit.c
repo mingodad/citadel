@@ -1622,6 +1622,8 @@ void session_loop(struct httprequest *req)
 		save_inetconf();
 	} else if (!strcasecmp(action, "display_smtpqueue")) {
 		display_smtpqueue();
+	} else if (!strcasecmp(action, "display_smtpqueue_inner_div")) {
+		display_smtpqueue_inner_div();
 	} else if (!strcasecmp(action, "setup_wizard")) {
 		do_setup_wizard();
 	} else if (!strcasecmp(action, "display_preferences")) {
