@@ -145,6 +145,11 @@ void display_main_menu(void)
 	wprintf("<a href=\"display_editpic\">"
 		"<span class=\"mainmenu\">");
 	wprintf(_("Edit your online photo"));
+	wprintf("</span></a><br />\n");
+
+	wprintf("<a href=\"display_sieve\">"
+		"<span class=\"mainmenu\">");
+	wprintf(_("View/edit server-side mail filters"));
 	wprintf("</span></a>\n");
 
 	do_template("endbox");
