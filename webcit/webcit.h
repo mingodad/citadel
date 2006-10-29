@@ -625,6 +625,7 @@ void display_inetconf(void);
 void save_inetconf(void);
 void display_smtpqueue(void);
 void display_smtpqueue_inner_div(void);
+void display_sieve(void);
 void generate_uuid(char *);
 void CtdlMakeTempFileName(char *, int);
 void display_preferences(void);
