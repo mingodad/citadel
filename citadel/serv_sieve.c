@@ -676,8 +676,11 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 
 /* 
  * Write our citadel sieve config back to disk
+ * 
+ * (Set yes_write_to_disk to nonzero to make it actually write the config;
+ * otherwise it just frees the data structures.)
  */
-void rewrite_ctdl_sieve_config(struct sdm_userdata *u) {
+void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 	char *text;
 	struct sdm_script *sptr;
 	struct sdm_vacation *vptr;
@@ -854,9 +857,7 @@ BAIL:
 	}
 
 	/* Rewrite the config if we have to */
-	if (u.lastproc > orig_lastproc) {
-		rewrite_ctdl_sieve_config(&u);
-	}
+	rewrite_ctdl_sieve_config(&u, (u.lastproc > orig_lastproc) ) ;
 }
 
 
@@ -914,8 +915,8 @@ void msiv_load(struct sdm_userdata *u) {
 	}
 }
 
-void msiv_store(struct sdm_userdata *u) {
-	rewrite_ctdl_sieve_config(u);
+void msiv_store(struct sdm_userdata *u, int yes_write_to_disk) {
+	rewrite_ctdl_sieve_config(u, yes_write_to_disk);
 }
 
 
@@ -1060,6 +1061,7 @@ void cmd_msiv(char *argbuf) {
 	char *script_content = NULL;
 	struct sdm_script *s;
 	int i;
+	int changes_made = 0;
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
@@ -1073,6 +1075,7 @@ void cmd_msiv(char *argbuf) {
 			cprintf("%d Transmit script now\n", SEND_LISTING);
 			script_content = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
 			msiv_putscript(&u, script_name, script_content);
+			changes_made = 1;
 		}
 		else {
 			cprintf("%d Invalid script name.\n", ERROR + ILLEGAL_VALUE);
@@ -1093,6 +1096,7 @@ void cmd_msiv(char *argbuf) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
 		if (msiv_setactive(&u, script_name) == 0) {
 			cprintf("%d ok\n", CIT_OK);
+			changes_made = 1;
 		}
 		else {
 			cprintf("%d Script '%s' does not exist.\n",
@@ -1119,6 +1123,7 @@ void cmd_msiv(char *argbuf) {
 		i = msiv_deletescript(&u, script_name);
 		if (i == 0) {
 			cprintf("%d ok\n", CIT_OK);
+			changes_made = 1;
 		}
 		else if (i == 1) {
 			cprintf("%d Script '%s' does not exist.\n",
@@ -1141,7 +1146,7 @@ void cmd_msiv(char *argbuf) {
 		cprintf("%d Invalid subcommand\n", ERROR + CMD_NOT_SUPPORTED);
 	}
 
-	msiv_store(&u);
+	msiv_store(&u, changes_made);
 }
 
 

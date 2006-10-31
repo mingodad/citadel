@@ -62,7 +62,7 @@ void sieve_queue_room(struct ctdlroom *);
 void perform_sieve_processing(void);
 
 void msiv_load(struct sdm_userdata *u);
-void msiv_store(struct sdm_userdata *u);
+void msiv_store(struct sdm_userdata *u, int changes_made);
 int msiv_setactive(struct sdm_userdata *u, char *script_name);
 char *msiv_getscript(struct sdm_userdata *u, char *script_name);
 int msiv_deletescript(struct sdm_userdata *u, char *script_name);

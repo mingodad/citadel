@@ -579,7 +579,7 @@ void managesieve_command_loop(void) {
 	int length;
 	int num_parms;
 	struct sdm_userdata u;
-
+	int changes_made = 0;
 
 	memset(&u, 0, sizeof(struct sdm_userdata));
 
@@ -622,20 +622,23 @@ void managesieve_command_loop(void) {
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "PUTSCRIPT", 9))){
 			cmd_mgsve_putscript(num_parms, parms, &u);
+			changes_made = 1;
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "LISTSCRIPT", 10))){
 			cmd_mgsve_listscript(num_parms, parms,&u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "SETACTIVE", 9))){
 			cmd_mgsve_setactive(num_parms, parms,&u);
+			changes_made = 1;
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "GETSCRIPT", 9))){
 			cmd_mgsve_getscript(num_parms, parms, &u);
 		}
 		else if ((length>= 6) && (!strncasecmp(parms[0], "DELETESCRIPT", 11))){
 			cmd_mgsve_deletescript(num_parms, parms, &u);
+			changes_made = 1;
 		}
-		msiv_store(&u);
+		msiv_store(&u, changes_made);
 	}
 	else {
 		/// todo: log this.
