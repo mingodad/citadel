@@ -8,15 +8,40 @@
 /*@{*/
 #include "webcit.h"
 
+#define MAX_SCRIPTS	100
 
 /**
  * \brief view/edit sieve config
  */
 void display_sieve(void)
 {
+	char script_names[MAX_SCRIPTS][64];
+	int num_scripts = 0;
+	int active_script = (-1);
+	char buf[256];
+	int i;
+	
+
+	memset(script_names, 0, sizeof script_names);
+
+	serv_puts("MSIV listscripts");
+	serv_getln(buf, sizeof(buf));
+	if (buf[0] == '1') while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
+		if (num_scripts < MAX_SCRIPTS) {
+			extract_token(script_names[num_scripts], buf, 0, '|', 64);
+			if (extract_int(buf, 1) > 0) {
+				active_script = num_scripts;
+			}
+			++num_scripts;
+		}
+	}
+
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<script type=\"text/javascript\">					\n"
+		"									\n"
+		"var previously_active_script;						\n"
+		"									\n"
 		"function ToggleSievePanels() {						\n"
 		" d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);	\n"
 		" for (i=0; i<3; ++i) {							\n"
@@ -28,6 +53,16 @@ void display_sieve(void)
 		"  }									\n"
 		" }									\n"
 		"}									\n"
+		"									\n"
+		"function ToggleScriptPanels() {					\n"
+		" d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);	\n"
+		" if ($('script_' + previously_active_script)) {			\n"
+		"  $('script_' + previously_active_script).style.display = 'none';	\n"
+		" }									\n"
+		" $('script_' + d).style.display = 'block';				\n"
+		" previously_active_script = d;						\n"
+		"}									\n"
+		"									\n"
 		"</script>								\n"
 	);
 
@@ -49,7 +84,7 @@ void display_sieve(void)
 	wprintf(_("When new mail arrives: "));
         wprintf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
 
-	wprintf("<option value=\"0\">");
+	wprintf("<option %s value=\"0\">", ((active_script < 0) ? "selected" : ""));
 	wprintf(_("Leave it in my inbox without filtering"));
 	wprintf("</option>\n");
 
@@ -57,7 +92,7 @@ void display_sieve(void)
 	wprintf(_("Filter it according to rules selected below"));
 	wprintf("</option>\n");
 
-	wprintf("<option value=\"2\">");
+	wprintf("<option %s value=\"2\">", ((active_script >= 0) ? "selected" : ""));
 	wprintf(_("Filter it through a manually edited script (advanced users only)"));
 	wprintf("</option>\n");
 
@@ -85,17 +120,46 @@ void display_sieve(void)
 	/* The "I'm smart and can write my own Sieve scripts" div */
 
 	wprintf("<div id=\"sievediv2\" style=\"display:none\">\n");
-	wprintf("<div align=\"center\"><br /><br />");
-	wprintf("FIXME div 2 isn't finished yet");
-	wprintf("<br /><br /></div>\n");
-	wprintf("</div>\n");
 
+	if (num_scripts > 0) {
+		wprintf(_("The currently active script is: "));
+        	wprintf("<select name=\"active_script\" size=1 onChange=\"ToggleScriptPanels();\">\n");
+		for (i=0; i<num_scripts; ++i) {
+			wprintf("<option %s value=\"%s\">%s</option>\n",
+				((active_script == i) ? "selected" : ""),
+				script_names[i],
+				script_names[i]
+			);
+		}
+		wprintf("</select>\n");
+	}
+
+	if (num_scripts > 0) {
+		for (i=0; i<num_scripts; ++i) {
+			wprintf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
+			wprintf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n", script_names[i]);
+			serv_printf("MSIV getscript|%s", script_names[i]);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
+				wprintf("%s\n", buf);
+			}
+			wprintf("</textarea>\n");
+			wprintf("</div>\n");
+		}
+	}
+
+	wprintf("<script type=\"text/javascript\">	\n"
+		"ToggleScriptPanels();			\n"
+		"</script>				\n"
+	);
+
+	wprintf("</div>\n");
 
 
 	/* The rest of this is common for all panels... */
 
 	wprintf("<div align=\"center\"><br>");
-	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">", _("Save changes"));
+	wprintf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 	wprintf("</div></form>\n");
@@ -112,6 +176,64 @@ void display_sieve(void)
 }
 
 
+/**
+ * \brief save sieve config
+ */
+void save_sieve(void) {
+	int bigaction;
+	char script_names[MAX_SCRIPTS][64];
+	int num_scripts = 0;
+	int active_script = (-1);
+	int i;
+	char this_name[64];
+	char buf[256];
+
+	if (strlen(bstr("save_button")) == 0) {
+		strcpy(WC->ImportantMessage,
+			_("Cancelled.  Changes were not saved."));
+		display_main_menu();
+		return;
+	}
+
+	serv_puts("MSIV listscripts");
+	serv_getln(buf, sizeof(buf));
+	if (buf[0] == '1') while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
+		if (num_scripts < MAX_SCRIPTS) {
+			extract_token(script_names[num_scripts], buf, 0, '|', 64);
+			if (extract_int(buf, 1) > 0) {
+				active_script = num_scripts;
+			}
+			++num_scripts;
+		}
+	}
+
+	bigaction = atoi(bstr("bigaction"));
+
+	if (bigaction == 0) {
+		lprintf(9, "MSIV setactive||");
+	}
+
+	else if (bigaction == 2) {
+		lprintf(9, "MSIV setactive|%s|", bstr("active_script"));
+	}
+
+	if (num_scripts > 0) {
+		for (i=0; i<num_scripts; ++i) {
+			lprintf(9, "MSIV putscript|%s|", script_names[i]);
+			snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
+			lprintf(9, "%s\n", bstr(this_name));
+			lprintf(9, "000\n");
+		}
+	}
+
+
+
+
+
+	strcpy(WC->ImportantMessage, "FIXME");
+	display_main_menu();
+	return;
+}
 
 
 /*@}*/
