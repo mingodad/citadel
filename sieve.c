@@ -210,27 +210,29 @@ void save_sieve(void) {
 	bigaction = atoi(bstr("bigaction"));
 
 	if (bigaction == 0) {
-		lprintf(9, "MSIV setactive||");
+		serv_puts("MSIV setactive||");
+		serv_getln(buf, sizeof buf);
 	}
 
 	else if (bigaction == 2) {
-		lprintf(9, "MSIV setactive|%s|", bstr("active_script"));
+		serv_printf("MSIV setactive|%s|", bstr("active_script"));
+		serv_getln(buf, sizeof buf);
 	}
 
 	if (num_scripts > 0) {
 		for (i=0; i<num_scripts; ++i) {
-			lprintf(9, "MSIV putscript|%s|", script_names[i]);
-			snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
-			lprintf(9, "%s\n", bstr(this_name));
-			lprintf(9, "000\n");
+			serv_printf("MSIV putscript|%s|", script_names[i]);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '4') {
+				snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
+				striplt(bstr(this_name));
+				serv_printf("%s", bstr(this_name));
+				serv_puts("000");
+			}
 		}
 	}
 
-
-
-
-
-	strcpy(WC->ImportantMessage, "FIXME");
+	strcpy(WC->ImportantMessage, _("Your changes have been saved."));
 	display_main_menu();
 	return;
 }
