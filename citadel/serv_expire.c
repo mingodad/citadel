@@ -350,7 +350,7 @@ int PurgeRooms(void) {
 		++num_rooms_purged;
 	}
 
-	if (num_rooms_purged > 0) aide_message(transcript);
+	if (num_rooms_purged > 0) aide_message(transcript, "Room Autopurger Message");
 	free(transcript);
 
 	lprintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
@@ -482,7 +482,7 @@ int PurgeUsers(void) {
 		++num_users_purged;
 	}
 
-	if (num_users_purged > 0) aide_message(transcript);
+	if (num_users_purged > 0) aide_message(transcript,"User Purge Message");
 	free(transcript);
 
 	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);

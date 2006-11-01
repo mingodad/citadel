@@ -1300,7 +1300,7 @@ int main(int argc, char *argv[])
 	if (config.c_pop3s_port == 0) config.c_pop3s_port = 995;
 	if (config.c_imaps_port == 0) config.c_imaps_port = 993;
 	if (config.c_pftcpdict_port == 0) config.c_pftcpdict_port = -1;
-	if (config.c_managesieve_port == 0) config.c_managesieve_port = -1;
+	if (config.c_managesieve_port == 0) config.c_managesieve_port = 2020;
 
 	/* Go through a series of dialogs prompting for config info */
 	if (setup_type != UI_SILENT) {

@@ -45,6 +45,109 @@ struct ProtoFunctionHook {
 	struct ProtoFunctionHook *next;
 } *ProtoHookList = NULL;
 
+
+#define ERR_PORT (1 << 1)
+
+
+static char *portlist = NULL;
+static size_t nSizPort = 0;
+
+static char *errormessages = NULL;
+static size_t nSizErrmsg = 0;
+
+
+static long   DetailErrorFlags;
+
+
+char *ErrSubject = "Startup Problems";
+char *ErrGeneral = "Citadel had trouble on starting up. %s This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
+"If you don't want citadel to provide these services, turn them off in WebCit via %s%s\n\n%s\n\n"
+"To make both ways actualy take place restart the citserver with \"sendcommand down\"\n\n"
+"The errors returned by the system were:\n%s\n";
+
+
+char *ErrPortShort = "We couldn't bind all ports you configured to be provided by citadel server.";
+char *ErrPortWhere = "Admin->System Preferences->Network.\n\nThe failed ports and sockets are: ";
+char *ErrPortHint = "If you want citadel to provide you with that functionality, "
+"check the output of \"netstat -lnp\" on linux Servers or \"netstat -na\" on *BSD"
+" and stop the programm, that binds these ports. You should eventually remove "
+" their initscripts in /etc/init.d so that you won't get this trouble once more.\n";
+
+
+void LogPrintMessages(long err)
+{
+	char *List, *DetailList, *Short, *Where, *Hint, *Message; 
+	int n = nSizPort + nSizErrmsg + 5;
+
+	Message = (char*) malloc(n * SIZ);
+
+	switch (err)
+	{
+	case ERR_PORT:
+		Short = ErrPortShort;
+		Where = ErrPortWhere;
+		Hint  = ErrPortHint;
+		List  = portlist;
+		DetailList = errormessages;
+		break;
+	default:
+		Short = "";
+		Where = "";
+		Hint  = "";
+		List  = "";
+		DetailList = "";
+	}
+
+
+	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
+
+	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
+	free(Message);
+}
+
+
+
+void AppendString(char **target, char *append, size_t *len, size_t rate)
+{
+	size_t oLen = 0;
+	long AddLen;
+	long RelPtr = 0;
+
+	AddLen = strlen(append);
+
+	if (*len == 0)
+	{
+		*len = rate;
+
+		*target = (char*)malloc (*len * SIZ);
+	}
+	else 
+	{
+		oLen = strlen(*target);
+		RelPtr = strlen(*target);
+		if (oLen + AddLen + 2 > *len * SIZ)
+		{
+			char *Buff = *target;
+			size_t NewSiz = *len + 10;
+			*target = malloc (NewSiz * SIZ);
+			memcpy (*target, Buff, NewSiz * SIZ);
+			*len = NewSiz;
+		}
+	}
+	memcpy (*target + oLen, append, AddLen);
+	(*target)[AddLen + 1] = '\n';
+	(*target)[AddLen + 2] = '\0';
+}
+
+void AddPortError(char *Port, char *ErrorMessage)
+{
+	DetailErrorFlags |= ERR_PORT;
+
+	AppendString(&errormessages, ErrorMessage, &nSizErrmsg, 10);
+	AppendString(&portlist, Port, &nSizPort, 2);
+}
+
+
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
 	struct ProtoFunctionHook *p;
@@ -102,6 +205,8 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 
 void initialize_server_extensions(void)
 {
+	long filter;
+
 	lprintf(CTDL_INFO, "%s\n", serv_bio_init());
 	lprintf(CTDL_INFO, "%s\n", serv_calendar_init());
 	lprintf(CTDL_INFO, "%s\n", serv_notes_init());
@@ -117,9 +222,9 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_network_init());
 	lprintf(CTDL_INFO, "%s\n", serv_newuser_init());
 	lprintf(CTDL_INFO, "%s\n", serv_pas2_init());
+	lprintf(CTDL_INFO, "%s\n", serv_smtp_init());
 	lprintf(CTDL_INFO, "%s\n", serv_pop3_init());
 	lprintf(CTDL_INFO, "%s\n", serv_rwho_init());
-	lprintf(CTDL_INFO, "%s\n", serv_smtp_init());
 	lprintf(CTDL_INFO, "%s\n", serv_spam_init());
 	/* lprintf(CTDL_INFO, "%s\n", serv_test_init()); */
 	lprintf(CTDL_INFO, "%s\n", serv_vandelay_init());
@@ -129,6 +234,10 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_postfix_tcpdict());
 	lprintf(CTDL_INFO, "%s\n", serv_sieve_init());
 	lprintf(CTDL_INFO, "%s\n", serv_managesieve_init());
+
+	for (filter = 1; filter != 0; filter = filter << 1)
+		if ((filter & DetailErrorFlags) != 0)
+			LogPrintMessages(filter);
 }
 
 
@@ -453,10 +562,13 @@ void CtdlRegisterServiceHook(int tcp_port,
 			)
 {
 	struct ServiceFunctionHook *newfcn;
-	char message[SIZ];
+	char *message;
+	char *error;
 
 	newfcn = (struct ServiceFunctionHook *)
 	    malloc(sizeof(struct ServiceFunctionHook));
+	message = (char*) malloc (SIZ);
+	
 	newfcn->next = ServiceHookTable;
 	newfcn->tcp_port = tcp_port;
 	newfcn->sockpath = sockpath;
@@ -465,8 +577,8 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->h_async_function = h_async_function;
 
 	if (sockpath != NULL) {
-		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
-		snprintf(message, sizeof message, "Unix domain socket '%s': ", sockpath);
+		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions, &error);
+		snprintf(message, SIZ, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
 		lprintf(CTDL_INFO, "Service has been manually disabled, skipping\n");
@@ -475,9 +587,10 @@ void CtdlRegisterServiceHook(int tcp_port,
 	}
 	else {
 		newfcn->msock = ig_tcp_server(config.c_ip_addr,
-					tcp_port,
-					config.c_maxsessions);
-		snprintf(message, sizeof message, "TCP port %d: ", tcp_port);
+					      tcp_port,
+					      config.c_maxsessions, 
+					      &error);
+		snprintf(message, SIZ, "TCP port %d: ", tcp_port);
 	}
 
 	if (newfcn->msock > 0) {
@@ -486,10 +599,13 @@ void CtdlRegisterServiceHook(int tcp_port,
 		lprintf(CTDL_INFO, "%s\n", message);
 	}
 	else {
+		AddPortError(message, error);
 		strcat(message, "FAILED.");
 		lprintf(CTDL_CRIT, "%s\n", message);
+		free(error);
 		free(newfcn);
 	}
+	free(message);
 }
 
 

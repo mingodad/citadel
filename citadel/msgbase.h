@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#define aide_message(text)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,0,NULL)
+#define aide_message(text, subject)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,0,subject)
 
 enum {
 	MSGS_ALL,

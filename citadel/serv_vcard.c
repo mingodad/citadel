@@ -917,6 +917,7 @@ void check_get(void) {
 			
 			lprintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
+		if (rcpt != NULL) free (rcpt);
 	}
 ///	CC->kill_me = 1;
 }

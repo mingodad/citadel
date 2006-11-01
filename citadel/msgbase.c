@@ -3009,8 +3009,9 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 /*
  * Validate recipients, count delivery types and errors, and handle aliasing
  * FIXME check for dupes!!!!!
- * Returns 0 if all addresses are ok, -1 if no addresses were specified,
- * or the number of addresses found invalid.
+ * Returns 0 if all addresses are ok, ret->num_error = -1 if no addresses 
+ * were specified, or the number of addresses found invalid.
+ * caller needs to free the result.
  */
 struct recptypes *validate_recipients(char *supplied_recipients) {
 	struct recptypes *ret;

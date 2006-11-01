@@ -1449,7 +1449,7 @@ void cmd_setr(char *args)
 	}
 	snprintf(buf, sizeof buf, "The room \"%s\" has been edited by %s.\n",
 		CC->room.QRname, CC->curr_user);
-	aide_message(buf);
+	aide_message(buf, "Room modification Message");
 	cprintf("%d Ok\n", CIT_OK);
 }
 
@@ -1511,7 +1511,7 @@ void cmd_seta(char *new_ra)
 			snprintf(buf, sizeof buf,
 				"There is now no room aide for \"%s\".\n",
 				CC->room.QRname);
-		aide_message(buf);
+		aide_message(buf, "Aide Room Modification");
 	}
 	cprintf("%d Ok\n", CIT_OK);
 }
@@ -1694,7 +1694,7 @@ void cmd_kill(char *argbuf)
 		/* tell the world what we did */
 		snprintf(msg, sizeof msg, "The room \"%s\" has been deleted by %s.\n",
 			 deleted_room_name, CC->curr_user);
-		aide_message(msg);
+		aide_message(msg, "Room Purger Message");
 		cprintf("%d '%s' deleted.\n", CIT_OK, deleted_room_name);
 	} else {
 		cprintf("%d ok to delete.\n", CIT_OK);
@@ -1908,7 +1908,7 @@ void cmd_cre8(char *args)
 		((newflags & QR_PASSWORDED) ? " Password: " : ""),
 		((newflags & QR_PASSWORDED) ? new_room_pass : "")
 	);
-	aide_message(notification_message);
+	aide_message(notification_message, "Room Creation Message");
 	free(notification_message);
 
 	cprintf("%d '%s' has been created.\n", CIT_OK, new_room_name);

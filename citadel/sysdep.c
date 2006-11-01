@@ -270,7 +270,7 @@ void end_critical_section(int which_one)
  * a TCP port.  The server shuts down if the bind fails.
  *
  */
-int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
+int ig_tcp_server(char *ip_addr, int port_number, int queue_len, char **errormessage)
 {
 	struct sockaddr_in sin;
 	int s, i;
@@ -296,8 +296,11 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (s < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't create a socket: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+				 "citserver: Can't create a socket: %s",
+				 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
 
@@ -305,24 +308,32 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't bind: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+				 "citserver: Can't bind: %s",
+				 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		close(s);
 		return(-1);
 	}
 
 	/* set to nonblock - we need this for some obscure situations */
 	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
-		lprintf(CTDL_EMERG,
-			"citserver: Can't set socket to non-blocking: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+				 "citserver: Can't set socket to non-blocking: %s",
+				 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		close(s);
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+				 "citserver: Can't listen: %s",
+				 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		close(s);
 		return(-1);
 	}
@@ -335,7 +346,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 /*
  * Create a Unix domain socket and listen on it
  */
-int ig_uds_server(char *sockpath, int queue_len)
+int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 {
 	struct sockaddr_un addr;
 	int s;
@@ -347,8 +358,10 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	i = unlink(sockpath);
 	if (i != 0) if (errno != ENOENT) {
-		lprintf(CTDL_EMERG, "citserver: can't unlink %s: %s\n",
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, "citserver: can't unlink %s: %s",
 			sockpath, strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
 
@@ -358,29 +371,40 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't create a socket: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+			 "citserver: Can't create a socket: %s",
+			 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't bind: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+			 "citserver: Can't bind: %s",
+			 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
 
 	/* set to nonblock - we need this for some obscure situations */
 	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
-		lprintf(CTDL_EMERG,
-			"citserver: Can't set socket to non-blocking: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+			 "citserver: Can't set socket to non-blocking: %s",
+			 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		close(s);
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n",
-			strerror(errno));
+		*errormessage = (char*) malloc(SIZ + 1);
+		snprintf(*errormessage, SIZ, 
+			 "citserver: Can't listen: %s",
+			 strerror(errno));
+		lprintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
 
