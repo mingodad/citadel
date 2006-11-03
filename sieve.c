@@ -134,6 +134,11 @@ void display_sieve(void)
 		wprintf("</select>\n");
 	}
 
+	wprintf("&nbsp;&nbsp;&nbsp;");
+	wprintf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add/remove scripts"));
+
+	wprintf("<br />\n");
+
 	if (num_scripts > 0) {
 		for (i=0; i<num_scripts; ++i) {
 			wprintf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
@@ -237,5 +242,34 @@ void save_sieve(void) {
 	return;
 }
 
+
+void display_add_remove_scripts(void) {
+	output_headers(1, 1, 2, 0, 0, 0);
+
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf(_("Add/remove Sieve scripts"));
+	wprintf("</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n<div id=\"content\">\n");
+
+	wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
+		"<tr><td valign=top>\n");
+
+
+	/* blah blah go here FIXME */
+
+	wprintf("</td></tr></table></div>\n");
+
+	wprintf("<script type=\"text/javascript\">	\n"
+		"ToggleSievePanels();			\n"
+		"</script>				\n"
+	);
+
+	wDumpContent(1);
+
+}
 
 /*@}*/
