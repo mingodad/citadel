@@ -88,9 +88,14 @@ void display_sieve(void)
 	wprintf(_("Leave it in my inbox without filtering"));
 	wprintf("</option>\n");
 
+	/*
+	 *	FIXME uncomment this when we write the rules editor
+	 *
 	wprintf("<option value=\"1\">");
 	wprintf(_("Filter it according to rules selected below"));
 	wprintf("</option>\n");
+	 *
+	 */
 
 	wprintf("<option %s value=\"2\">", ((active_script >= 0) ? "selected" : ""));
 	wprintf(_("Filter it through a manually edited script (advanced users only)"));
@@ -112,10 +117,9 @@ void display_sieve(void)
 
 	wprintf("<div id=\"sievediv1\" style=\"display:none\">\n");
 	wprintf("<div align=\"center\"><br /><br />");
-	wprintf("FIXME div 1 isn't finished yet");
+	wprintf("FIXME");
 	wprintf("<br /><br /></div>\n");
 	wprintf("</div>\n");
-
 
 	/* The "I'm smart and can write my own Sieve scripts" div */
 
@@ -135,7 +139,7 @@ void display_sieve(void)
 	}
 
 	wprintf("&nbsp;&nbsp;&nbsp;");
-	wprintf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add/remove scripts"));
+	wprintf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
 
 	wprintf("<br />\n");
 
@@ -243,33 +247,130 @@ void save_sieve(void) {
 }
 
 
-void display_add_remove_scripts(void) {
+/**
+ * \brief show a list of available scripts to add/remove them
+ */
+void display_add_remove_scripts(char *message)
+{
+	char buf[256];
+	char script_name[256];
+
 	output_headers(1, 1, 2, 0, 0, 0);
-
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+		"<td>"
+		"<span class=\"titlebar\">"
+		"<img src=\"static/usermanag_48x.gif\">");
 	wprintf(_("Add/remove Sieve scripts"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
-		"<tr><td valign=top>\n");
-
-
-	/* blah blah go here FIXME */
-
-	wprintf("</td></tr></table></div>\n");
-
-	wprintf("<script type=\"text/javascript\">	\n"
-		"ToggleSievePanels();			\n"
-		"</script>				\n"
+	wprintf("</span></td></tr></table>\n"
+		"</div>\n<div id=\"content\">\n"
 	);
 
-	wDumpContent(1);
+	if (message != NULL) wprintf(message);
 
+	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
+
+	svprintf("BOXTITLE", WCS_STRING, _("Add a new script"));
+	do_template("beginbox");
+
+	wprintf(_("To create a new script, enter the desired "
+		"script name in the box below and click 'Create'."));
+	wprintf("<br /><br />");
+
+        wprintf("<center><form method=\"POST\" action=\"create_script\">\n");
+        wprintf(_("Script name: "));
+        wprintf("<input type=\"text\" name=\"script_name\"><br />\n"
+        	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
+		"</form></center>\n", _("Create"));
+
+	do_template("endbox");
+
+	svprintf("BOXTITLE", WCS_STRING, _("Edit scripts"));
+	do_template("beginbox");
+	wprintf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
+		_("Return to the script editing screen")
+	);
+	do_template("endbox");
+
+	wprintf("</td><td>");
+
+	svprintf("BOXTITLE", WCS_STRING, _("Delete scripts"));
+	do_template("beginbox");
+
+	wprintf(_("To delete an existing script, select the script "
+		"name from the list and click 'Delete'."));
+	wprintf("<br /><br />");
+	
+        wprintf("<center>"
+		"<form method=\"POST\" action=\"delete_script\">\n");
+        wprintf("<select name=\"script_name\" size=10 style=\"width:100%%\">\n");
+
+        serv_puts("MSIV listscripts");
+        serv_getln(buf, sizeof buf);
+        if (buf[0] == '1') {
+                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+                        extract_token(script_name, buf, 0, '|', sizeof script_name);
+			if (extract_int(buf, 1) == 0) {
+                        	wprintf("<option>");
+                        	escputs(script_name);
+                        	wprintf("</option>\n");
+			}
+                }
+        }
+        wprintf("</select><br />\n");
+
+        wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
+		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
+        wprintf("</form></center>\n");
+	do_template("endbox");
+
+	wprintf("</td></tr></table>\n");
+
+	wDumpContent(1);
+}
+
+
+
+/**
+ * \brief delete a script
+ */
+void delete_script(void) {
+	char buf[256];
+
+	serv_printf("MSIV deletescript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+	display_add_remove_scripts(&buf[4]);
+}
+		
+
+
+/**
+ * \brief create a new script
+ * take the web environment script name and create it on the citadel server
+ */
+void create_script(void) {
+	char buf[256];
+
+	serv_printf("MSIV getscript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
+			/* flush */
+		}
+		display_add_remove_scripts(_("A script by that name already exists."));
+		return;
+	}
+	
+	serv_printf("MSIV putscript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '4') {
+		serv_puts("keep;");
+		serv_puts("000");
+		display_add_remove_scripts(_("A new script has been created.  Return to the script editing screen to edit and activate it."));
+		return;
+	}
+
+	display_add_remove_scripts(&buf[4]);
 }
 
 /*@}*/
