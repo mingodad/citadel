@@ -68,7 +68,8 @@ void display_sieve(void)
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<SPAN CLASS=\"titlebar\">"
+		"<img src=\"static/advanpage2_48x.gif\">");
 	wprintf(_("View/edit server-side mail filters"));
 	wprintf("</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
@@ -260,8 +261,8 @@ void display_add_remove_scripts(char *message)
 	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
 		"<td>"
 		"<span class=\"titlebar\">"
-		"<img src=\"static/usermanag_48x.gif\">");
-	wprintf(_("Add/remove Sieve scripts"));
+		"<img src=\"static/advanpage2_48x.gif\">");
+	wprintf(_("Add or delete scripts"));
 	wprintf("</span></td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
