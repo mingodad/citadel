@@ -1627,7 +1627,11 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "save_sieve")) {
 		save_sieve();
 	} else if (!strcasecmp(action, "display_add_remove_scripts")) {
-		display_add_remove_scripts();
+		display_add_remove_scripts(NULL);
+	} else if (!strcasecmp(action, "create_script")) {
+		create_script();
+	} else if (!strcasecmp(action, "delete_script")) {
+		delete_script();
 	} else if (!strcasecmp(action, "setup_wizard")) {
 		do_setup_wizard();
 	} else if (!strcasecmp(action, "display_preferences")) {
