@@ -9,6 +9,7 @@
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
+#define MAX_RULES	8
 
 /**
  * \brief view/edit sieve config
@@ -89,14 +90,9 @@ void display_sieve(void)
 	wprintf(_("Leave it in my inbox without filtering"));
 	wprintf("</option>\n");
 
-	/*
-	 *	FIXME uncomment this when we write the rules editor
-	 *
 	wprintf("<option value=\"1\">");
 	wprintf(_("Filter it according to rules selected below"));
 	wprintf("</option>\n");
-	 *
-	 */
 
 	wprintf("<option %s value=\"2\">", ((active_script >= 0) ? "selected" : ""));
 	wprintf(_("Filter it through a manually edited script (advanced users only)"));
@@ -117,9 +113,7 @@ void display_sieve(void)
 	/* The "webcit managed scripts" div */
 
 	wprintf("<div id=\"sievediv1\" style=\"display:none\">\n");
-	wprintf("<div align=\"center\"><br /><br />");
-	wprintf("FIXME");
-	wprintf("<br /><br /></div>\n");
+	display_rules_editor_inner_div();
 	wprintf("</div>\n");
 
 	/* The "I'm smart and can write my own Sieve scripts" div */
@@ -373,5 +367,94 @@ void create_script(void) {
 
 	display_add_remove_scripts(&buf[4]);
 }
+
+
+
+
+void display_rules_editor_inner_div(void) {
+	int i;
+
+
+	wprintf("<br />");
+	wprintf("<table class=\"mailbox_summary\" rules=rows cellpadding=2 style=\"width:100%%;-moz-user-select:none;\">");
+
+	for (i=0; i<MAX_RULES; ++i) {
+		
+		wprintf("<tr id=\"rule%d\">", i);
+
+		wprintf("<td>%d. %s</td>", i+1, _("If") );
+
+		wprintf("<td>");
+		wprintf("<select name=\"hfield%d\" size=1>", i);
+		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
+		wprintf("<option value=\"recipient\">%s</option>", _("Recipient"));
+		wprintf("</select>");
+		wprintf("</td>");
+
+		wprintf("<td>");
+		wprintf("<select name=\"compare%d\" size=1>", i);
+		wprintf("<option value=\"match\">%s</option>", _("matches"));
+		wprintf("<option value=\"notmatch\">%s</option>", _("does not match"));
+		wprintf("</select>");
+		wprintf("</td>");
+
+		wprintf("<td>");
+		wprintf("<input type=\"text\" name=\"htext%d\">", i);
+		wprintf("</td>");
+
+		wprintf("<td>");
+		wprintf("<select name=\"action%d\" size=1>", i);
+		wprintf("<option value=\"fileinto\">%s</option>", _("file into"));
+		wprintf("<option value=\"redirect\">%s</option>", _("forward to"));
+		wprintf("<option value=\"reject\">%s</option>", _("reject"));
+		wprintf("</select>");
+		wprintf("</td>");
+
+		wprintf("<td>%s</td>", _("and then") );
+
+		wprintf("<td>");
+		wprintf("<select name=\"final%d\" size=1>", i);
+		wprintf("<option value=\"stop\">%s</option>", _("stop"));
+		wprintf("<option value=\"continue\">%s</option>", _("continue processing"));
+		wprintf("</select>");
+		wprintf("</td>");
+
+		wprintf("</tr>\n");
+
+	}
+
+	wprintf("</table>");
+
+
+
+/*
+
+Show/hide alternating rows.  This is obviously bogus, it's just there to test the show/hide logic.
+
+ */
+
+	wprintf("<script type=\"text/javascript\">					\n"
+		"									\n"
+		"function UpdateRules() {						\n"
+		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
+	wprintf("   if ( (i % 2) == 0 )  {						\n"
+		"     $('rule' + i).style.display = 'block';				\n"
+		"   }									\n"
+		"   else {								\n"
+		"     $('rule' + i).style.display = 'none';				\n"
+		"   }									\n"
+		"  }									\n"
+		"}									\n"
+		"									\n"
+		"UpdateRules();								\n"
+		"</script>								\n"
+	);
+
+}
+
+
+
+
+
 
 /*@}*/

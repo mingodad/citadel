@@ -92,17 +92,17 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	lprintf(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime));
+	/* lprintf(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime)); */
 	if (TheTime.is_utc) {
-		lprintf(9, "                * This property is ALREADY UTC.\n");
+		/* lprintf(9, "                * This property is ALREADY UTC.\n"); */
 	}
 	else {
 		/* Do the conversion. */
 		if (t != NULL) {
-			lprintf(9, "                * Timezone prop found.  Converting to UTC.\n");
+			/* lprintf(9, "                * Timezone prop found.  Converting to UTC.\n"); */
 		}
 		else {
-			lprintf(9, "                * Converting default timezone to UTC.\n");
+			/* lprintf(9, "                * Converting default timezone to UTC.\n"); */
 		}
 
 		if (t == NULL) {
@@ -117,7 +117,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 	}
 
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
-	lprintf(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime));
+	/* lprintf(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime)); */
 
 	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
@@ -185,7 +185,7 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
-	lprintf(9, "ical_dezonify() started\n");
+	/* lprintf(9, "ical_dezonify() started\n"); */
 
 	/* Convert all times to UTC */
 	ical_dezonify_recur(cal, cal);
@@ -197,7 +197,7 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_free(vt);
 	}
 
-	lprintf(9, "ical_dezonify() completed\n");
+	/* lprintf(9, "ical_dezonify() completed\n"); */
 }
 
 

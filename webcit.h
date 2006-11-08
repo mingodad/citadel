@@ -626,6 +626,7 @@ void save_inetconf(void);
 void display_smtpqueue(void);
 void display_smtpqueue_inner_div(void);
 void display_sieve(void);
+void display_rules_editor_inner_div(void);
 void save_sieve(void);
 void display_add_remove_scripts(char *);
 void create_script(void);
