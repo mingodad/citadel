@@ -374,9 +374,50 @@ void create_script(void) {
 void display_rules_editor_inner_div(void) {
 	int i;
 
+/*
+ * This script should get called by every onChange event...
+ *
+ */
+	wprintf("<script type=\"text/javascript\">					\n"
+		"									\n"
+		"function UpdateRules() {						\n"
+		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
+	wprintf("  d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
+		"  if (d == 'fileinto') {						\n"
+		"    $('div_fileinto'+i).style.display = 'block';			\n"
+		"    $('div_redirect'+i).style.display = 'none';			\n"
+		"  } else if (d == 'redirect') {					\n"
+		"    $('div_fileinto'+i).style.display = 'none';			\n"
+		"    $('div_redirect'+i).style.display = 'block';			\n"
+		"  } else  {								\n"
+		"    $('div_fileinto'+i).style.display = 'none';			\n"
+		"    $('div_redirect'+i).style.display = 'none';			\n"
+		"  }									\n"
+		" }									\n"
+		"}									\n"
+		"</script>								\n"
+	);
+
+
+/*
+ * Show/hide alternating rows.  This is obviously bogus, it's just here to test the show/hide logic.
+	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
+	wprintf("   if ( (i % 2) == 0 )  {						\n"
+		"     $('rule' + i).style.display = 'block';				\n"
+		"   }									\n"
+		"   else {								\n"
+		"     $('rule' + i).style.display = 'none';				\n"
+		"   }									\n"
+		"  }									\n"
+		"}									\n"
+		"									\n"
+*/
+
 
 	wprintf("<br />");
-	wprintf("<table class=\"mailbox_summary\" rules=rows cellpadding=2 style=\"width:100%%;-moz-user-select:none;\">");
+	wprintf("<table class=\"mailbox_summary\" rules=rows cellpadding=2 "
+		"style=\"width:100%%;-moz-user-select:none;\">"
+	);
 
 	for (i=0; i<MAX_RULES; ++i) {
 		
@@ -385,14 +426,14 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<td>%d. %s</td>", i+1, _("If") );
 
 		wprintf("<td>");
-		wprintf("<select name=\"hfield%d\" size=1>", i);
+		wprintf("<select name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">", i);
 		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
 		wprintf("<option value=\"recipient\">%s</option>", _("Recipient"));
 		wprintf("</select>");
 		wprintf("</td>");
 
 		wprintf("<td>");
-		wprintf("<select name=\"compare%d\" size=1>", i);
+		wprintf("<select name=\"compare%d\" size=1 onChange=\"UpdateRules();\">", i);
 		wprintf("<option value=\"match\">%s</option>", _("matches"));
 		wprintf("<option value=\"notmatch\">%s</option>", _("does not match"));
 		wprintf("</select>");
@@ -403,17 +444,28 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</td>");
 
 		wprintf("<td>");
-		wprintf("<select name=\"action%d\" size=1>", i);
+		wprintf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
+			i, i);
 		wprintf("<option value=\"fileinto\">%s</option>", _("file into"));
 		wprintf("<option value=\"redirect\">%s</option>", _("forward to"));
 		wprintf("<option value=\"reject\">%s</option>", _("reject"));
 		wprintf("</select>");
+
+		wprintf("<div id=\"div_fileinto%d\">", i);
+		wprintf("<input type=\"text\" name=\"fileinto%d\">", i);
+		wprintf("</div>");
+
+		wprintf("<div id=\"div_redirect%d\">", i);
+		wprintf("<input type=\"text\" name=\"redirect%d\">", i);
+		wprintf("</div>");
 		wprintf("</td>");
+
+
 
 		wprintf("<td>%s</td>", _("and then") );
 
 		wprintf("<td>");
-		wprintf("<select name=\"final%d\" size=1>", i);
+		wprintf("<select name=\"final%d\" size=1 onChange=\"UpdateRules();\">", i);
 		wprintf("<option value=\"stop\">%s</option>", _("stop"));
 		wprintf("<option value=\"continue\">%s</option>", _("continue processing"));
 		wprintf("</select>");
@@ -427,25 +479,8 @@ void display_rules_editor_inner_div(void) {
 
 
 
-/*
-
-Show/hide alternating rows.  This is obviously bogus, it's just there to test the show/hide logic.
-
- */
 
 	wprintf("<script type=\"text/javascript\">					\n"
-		"									\n"
-		"function UpdateRules() {						\n"
-		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("   if ( (i % 2) == 0 )  {						\n"
-		"     $('rule' + i).style.display = 'block';				\n"
-		"   }									\n"
-		"   else {								\n"
-		"     $('rule' + i).style.display = 'none';				\n"
-		"   }									\n"
-		"  }									\n"
-		"}									\n"
-		"									\n"
 		"UpdateRules();								\n"
 		"</script>								\n"
 	);
