@@ -373,6 +373,7 @@ void create_script(void) {
 
 void display_rules_editor_inner_div(void) {
 	int i;
+	char buf[256], targ[256];
 
 /*
  * This script should get called by every onChange event...
@@ -452,7 +453,23 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
-		wprintf("<input type=\"text\" name=\"fileinto%d\">", i);
+		wprintf("<select name=\"fileinto%d\">", i);
+		serv_puts("LKRA");	/* FIXME buffer this and keep reusing it */
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') {
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				extract_token(targ, buf, 0, '|', sizeof targ);
+				if (!strcasecmp(targ, "Mail")) {
+					wprintf("<option selected>");
+				}
+				else {
+					wprintf("<option>");
+				}
+				escputs(targ);
+				wprintf("\n");
+			}
+		}
+		wprintf("</select>\n");
 		wprintf("</div>");
 
 		wprintf("<div id=\"div_redirect%d\">", i);
@@ -476,8 +493,6 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wprintf("</table>");
-
-
 
 
 	wprintf("<script type=\"text/javascript\">					\n"
