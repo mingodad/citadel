@@ -9,7 +9,7 @@
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
-#define MAX_RULES	8
+#define MAX_RULES	10
 
 /**
  * \brief view/edit sieve config
@@ -381,6 +381,8 @@ void display_rules_editor_inner_div(void) {
  */
 	wprintf("<script type=\"text/javascript\">					\n"
 		"									\n"
+		"var highest_active_rule = (-1);					\n"
+		"									\n"
 		"function UpdateRules() {						\n"
 		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
 	wprintf("  d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
@@ -395,24 +397,32 @@ void display_rules_editor_inner_div(void) {
 		"    $('div_redirect'+i).style.display = 'none';			\n"
 		"  }									\n"
 		" }									\n"
-		"}									\n"
-		"</script>								\n"
 	);
-
-
 /*
- * Show/hide alternating rows.  This is obviously bogus, it's just here to test the show/hide logic.
+ * Show only the active rows...
+ */
 	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("   if ( (i % 2) == 0 )  {						\n"
+	wprintf("   if ($('active'+i).checked) {					\n"
 		"     $('rule' + i).style.display = 'block';				\n"
+		"     highest_active_rule = i;						\n"
 		"   }									\n"
 		"   else {								\n"
 		"     $('rule' + i).style.display = 'none';				\n"
 		"   }									\n"
 		"  }									\n"
 		"}									\n"
-		"									\n"
-*/
+/*
+ * Add a rule (really, just un-hide it)
+ * FIXME check the upper bound
+ */
+		"function AddRule() {							\n"
+		"  highest_active_rule = highest_active_rule + 1;			\n"
+		"  $('active'+highest_active_rule).checked = true;			\n"
+		"  UpdateRules();							\n"
+		"}									\n"
+
+		"</script>								\n"
+	);
 
 
 	wprintf("<br />");
@@ -424,7 +434,13 @@ void display_rules_editor_inner_div(void) {
 		
 		wprintf("<tr id=\"rule%d\">", i);
 
-		wprintf("<td>%d. %s</td>", i+1, _("If") );
+		wprintf("<td>");
+
+		wprintf("<div style=\"display:none\">");
+		wprintf("<input type=\"checkbox\" id=\"active%d\">", i);
+		wprintf("</div>");
+
+		wprintf("%d. %s</td>", i+1, _("If") );
 
 		wprintf("<td>");
 		wprintf("<select name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">", i);
@@ -438,9 +454,7 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<option value=\"match\">%s</option>", _("matches"));
 		wprintf("<option value=\"notmatch\">%s</option>", _("does not match"));
 		wprintf("</select>");
-		wprintf("</td>");
 
-		wprintf("<td>");
 		wprintf("<input type=\"text\" name=\"htext%d\">", i);
 		wprintf("</td>");
 
@@ -493,6 +507,7 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wprintf("</table>");
+	wprintf("<a href=\"javascript:AddRule();\">Add rule</a>\n");
 
 
 	wprintf("<script type=\"text/javascript\">					\n"
