@@ -430,6 +430,7 @@ void display_rules_editor_inner_div(void) {
 /*
  * Show only the active rows...
  */
+	wprintf("  highest_active_rule = (-1);						\n");
 	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
 	wprintf("   if ($('active'+i).checked) {					\n"
 		"     $('rule' + i).style.display = 'block';				\n"
@@ -468,14 +469,23 @@ void display_rules_editor_inner_div(void) {
 		"    $(things[i]+ra).value = $(things[i]+rb).value;			\n"
 		"    $(things[i]+rb).value = tempval;					\n"
 		"  }									\n"
-		"									\n"
 		"}									\n"
-
+/*
+ * Delete a rule (percolate the deleted rule out to the end,
+ *                and then decrement highest_active_rule)
+ */
+		"function DeleteRule(rd) {						\n"
+		"  for (i=rd; i<highest_active_rule; ++i) {				\n"
+		"    SwapRules(i, (i+1));						\n"
+		"  }									\n"
+		"  $('active'+highest_active_rule).checked = false;			\n"
+		"}									\n"
 		"</script>								\n"
 	);
 
 
 	wprintf("<br />");
+
 	wprintf("<table class=\"mailbox_summary\" rules=rows cellpadding=2 "
 		"style=\"width:100%%;-moz-user-select:none;\">"
 	);
@@ -496,6 +506,10 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
 			"<img id=\"movedown%d\" border=\"0\" src=\"static/down_pointer.gif\" /></a>",
 			i, i+1, i);
+
+		wprintf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
+			"<img id=\"delete%d\" border=\"0\" src=\"static/delete.gif\" /></a>",
+			i, i);
 
 		wprintf("&nbsp;%d.&nbsp;%s</td>", i+1, _("If") );
 
@@ -527,7 +541,8 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
-		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\" style=\"width:100px\">", i, i);
+		//wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\" style=\"width:100px\">", i, i);
+		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
 		for (j=0; j<num_roomnames; ++j) {
 			wprintf("<option ");
 			if (!strcasecmp(rooms[j].name, "Mail")) {
@@ -565,9 +580,6 @@ void display_rules_editor_inner_div(void) {
 
 	wprintf("</table>");
 	wprintf("<a href=\"javascript:AddRule();\">Add rule</a><br />\n");
-
-	wprintf("<a href=\"javascript:SwapRules(0,1);UpdateRules();\">"
-		"Swap first two rules (test)</a><br />\n");
 
 	wprintf("<script type=\"text/javascript\">					\n"
 		"UpdateRules();								\n"
