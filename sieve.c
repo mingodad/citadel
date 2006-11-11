@@ -372,8 +372,30 @@ void create_script(void) {
 
 
 void display_rules_editor_inner_div(void) {
-	int i;
-	char buf[256], targ[256];
+	int i, j;
+	char buf[256];
+
+	struct {
+		char name[128];
+	} *rooms = NULL;
+	int num_roomnames = 0;
+	int num_roomnames_alloc = 0;
+
+
+	/* load the roomnames */
+	serv_puts("LKRA");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			++num_roomnames;
+			if (num_roomnames > num_roomnames_alloc) {
+				num_roomnames_alloc += 250;
+				rooms = realloc(rooms, (num_roomnames_alloc * 128));
+			}
+			extract_token(rooms[num_roomnames-1].name, buf, 0, '|', 128);
+		}
+	}
+
 
 /*
  * This script should get called by every onChange event...
@@ -467,21 +489,17 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
-		wprintf("<select name=\"fileinto%d\">", i);
-		serv_puts("LKRA");	/* FIXME buffer this and keep reusing it */
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') {
-			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(targ, buf, 0, '|', sizeof targ);
-				if (!strcasecmp(targ, "Mail")) {
-					wprintf("<option selected>");
-				}
-				else {
-					wprintf("<option>");
-				}
-				escputs(targ);
-				wprintf("\n");
+		wprintf("<select name=\"fileinto%d\" style=\"width:100px\">", i);
+		for (j=0; j<num_roomnames; ++j) {
+			wprintf("<option ");
+			if (!strcasecmp(rooms[j].name, "Mail")) {
+				wprintf("selected ");
 			}
+			wprintf("value=\"");
+			urlescputs(rooms[j].name);
+			wprintf("\">");
+			escputs(rooms[j].name);
+			wprintf("</option>\n");
 		}
 		wprintf("</select>\n");
 		wprintf("</div>");
@@ -515,6 +533,7 @@ void display_rules_editor_inner_div(void) {
 		"</script>								\n"
 	);
 
+	free(rooms);
 }
 
 
