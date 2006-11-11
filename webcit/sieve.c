@@ -407,18 +407,25 @@ void display_rules_editor_inner_div(void) {
 		"									\n"
 		"function UpdateRules() {						\n"
 		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("  d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
-		"  if (d == 'fileinto') {						\n"
-		"    $('div_fileinto'+i).style.display = 'block';			\n"
-		"    $('div_redirect'+i).style.display = 'none';			\n"
-		"  } else if (d == 'redirect') {					\n"
-		"    $('div_fileinto'+i).style.display = 'none';			\n"
+	wprintf("    d = ($('movedown'+i));						\n"
+		"    if (i < highest_active_rule) {					\n"
+		"      d.style.display = 'block';					\n"
+		"    }									\n"
+		"    else {								\n"
+		"      d.style.display = 'none';					\n"
+		"    }									\n"
+		"    d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
+		"    if (d == 'fileinto') {						\n"
+		"      $('div_fileinto'+i).style.display = 'block';			\n"
+		"      $('div_redirect'+i).style.display = 'none';			\n"
+		"    } else if (d == 'redirect') {					\n"
+		"      $('div_fileinto'+i).style.display = 'none';			\n"
 		"    $('div_redirect'+i).style.display = 'block';			\n"
-		"  } else  {								\n"
-		"    $('div_fileinto'+i).style.display = 'none';			\n"
-		"    $('div_redirect'+i).style.display = 'none';			\n"
+		"    } else  {								\n"
+		"      $('div_fileinto'+i).style.display = 'none';			\n"
+		"      $('div_redirect'+i).style.display = 'none';			\n"
+		"    }									\n"
 		"  }									\n"
-		" }									\n"
 	);
 /*
  * Show only the active rows...
@@ -442,6 +449,27 @@ void display_rules_editor_inner_div(void) {
 		"  $('active'+highest_active_rule).checked = true;			\n"
 		"  UpdateRules();							\n"
 		"}									\n"
+/*
+ * Swap two rules
+ */
+		"function SwapRules(ra, rb) {						\n"
+		"									\n"
+		"  var things = new Array();						\n"
+		"  things[0] = 'hfield';						\n"
+		"  things[1] = 'compare';						\n"
+		"  things[2] = 'htext';							\n"
+		"  things[3] = 'action';						\n"
+		"  things[4] = 'fileinto';						\n"
+		"  things[5] = 'redirect';						\n"
+		"  things[6] = 'final';							\n"
+		"									\n"
+		"  for (i=0; i<7; ++i) {						\n"
+		"    tempval=$(things[i]+ra).value;					\n"
+		"    $(things[i]+ra).value = $(things[i]+rb).value;			\n"
+		"    $(things[i]+rb).value = tempval;					\n"
+		"  }									\n"
+		"									\n"
+		"}									\n"
 
 		"</script>								\n"
 	);
@@ -462,22 +490,32 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<input type=\"checkbox\" id=\"active%d\">", i);
 		wprintf("</div>");
 
-		wprintf("%d. %s</td>", i+1, _("If") );
+		if (i>0) wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
+			"<img border=\"0\" src=\"static/up_pointer.gif\" /></a>", i-1, i);
+
+		wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
+			"<img id=\"movedown%d\" border=\"0\" src=\"static/down_pointer.gif\" /></a>",
+			i, i+1, i);
+
+		wprintf("&nbsp;%d.&nbsp;%s</td>", i+1, _("If") );
 
 		wprintf("<td>");
-		wprintf("<select name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">", i);
+
+		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
+			i, i);
 		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
 		wprintf("<option value=\"recipient\">%s</option>", _("Recipient"));
 		wprintf("</select>");
 		wprintf("</td>");
 
 		wprintf("<td>");
-		wprintf("<select name=\"compare%d\" size=1 onChange=\"UpdateRules();\">", i);
+		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
+			i, i);
 		wprintf("<option value=\"match\">%s</option>", _("matches"));
 		wprintf("<option value=\"notmatch\">%s</option>", _("does not match"));
 		wprintf("</select>");
 
-		wprintf("<input type=\"text\" name=\"htext%d\">", i);
+		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\">", i, i);
 		wprintf("</td>");
 
 		wprintf("<td>");
@@ -489,7 +527,7 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
-		wprintf("<select name=\"fileinto%d\" style=\"width:100px\">", i);
+		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\" style=\"width:100px\">", i, i);
 		for (j=0; j<num_roomnames; ++j) {
 			wprintf("<option ");
 			if (!strcasecmp(rooms[j].name, "Mail")) {
@@ -505,7 +543,7 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</div>");
 
 		wprintf("<div id=\"div_redirect%d\">", i);
-		wprintf("<input type=\"text\" name=\"redirect%d\">", i);
+		wprintf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\">", i, i);
 		wprintf("</div>");
 		wprintf("</td>");
 
@@ -514,7 +552,8 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<td>%s</td>", _("and then") );
 
 		wprintf("<td>");
-		wprintf("<select name=\"final%d\" size=1 onChange=\"UpdateRules();\">", i);
+		wprintf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
+			i, i);
 		wprintf("<option value=\"stop\">%s</option>", _("stop"));
 		wprintf("<option value=\"continue\">%s</option>", _("continue processing"));
 		wprintf("</select>");
@@ -525,8 +564,10 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wprintf("</table>");
-	wprintf("<a href=\"javascript:AddRule();\">Add rule</a>\n");
+	wprintf("<a href=\"javascript:AddRule();\">Add rule</a><br />\n");
 
+	wprintf("<a href=\"javascript:SwapRules(0,1);UpdateRules();\">"
+		"Swap first two rules (test)</a><br />\n");
 
 	wprintf("<script type=\"text/javascript\">					\n"
 		"UpdateRules();								\n"
