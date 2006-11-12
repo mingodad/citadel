@@ -414,6 +414,19 @@ void display_rules_editor_inner_div(void) {
 		"    else {								\n"
 		"      d.style.display = 'none';					\n"
 		"    }									\n"
+		"    d = ($('hfield'+i).options[$('hfield'+i).selectedIndex].value);	\n"
+		"    if (d == 'all') {							\n"
+		"      $('div_size'+i).style.display = 'none';	 			\n"
+		"      $('div_compare'+i).style.display = 'none';			\n"
+		"    }									\n"
+		"    else if (d == 'size') {						\n"
+		"      $('div_size'+i).style.display = 'block';	 			\n"
+		"      $('div_compare'+i).style.display = 'none';			\n"
+		"    }									\n"
+		"    else {								\n"
+		"      $('div_size'+i).style.display = 'none';	 			\n"
+		"      $('div_compare'+i).style.display = 'block';			\n"
+		"    }									\n"
 		"    d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
 		"    if (d == 'fileinto') {						\n"
 		"      $('div_fileinto'+i).style.display = 'block';			\n"
@@ -463,8 +476,10 @@ void display_rules_editor_inner_div(void) {
 		"  things[4] = 'fileinto';						\n"
 		"  things[5] = 'redirect';						\n"
 		"  things[6] = 'final';							\n"
+		"  things[7] = 'sizecomp';						\n"
+		"  things[8] = 'sizeval';						\n"
 		"									\n"
-		"  for (i=0; i<7; ++i) {						\n"
+		"  for (i=0; i<9; ++i) {						\n"
 		"    tempval=$(things[i]+ra).value;					\n"
 		"    $(things[i]+ra).value = $(things[i]+rb).value;			\n"
 		"    $(things[i]+rb).value = tempval;					\n"
@@ -517,27 +532,58 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
+		wprintf("<option value=\"from\">%s</option>", _("From"));
+		wprintf("<option value=\"tocc\">%s</option>", _("To or Cc"));
+		wprintf("<option value=\"replyto\">%s</option>", _("Reply-to"));
 		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
-		wprintf("<option value=\"recipient\">%s</option>", _("Recipient"));
+		wprintf("<option value=\"resentfrom\">%s</option>", _("Resent-From"));
+		wprintf("<option value=\"resentto\">%s</option>", _("Resent-To"));
+		wprintf("<option value=\"envfrom\">%s</option>", _("Envelope From"));
+		wprintf("<option value=\"envto\">%s</option>", _("Envelope To"));
+		wprintf("<option value=\"xmailer\">%s</option>", _("X-Mailer"));
+		wprintf("<option value=\"xspamflag\">%s</option>", _("X-Spam-Flag"));
+		wprintf("<option value=\"xspamstatus\">%s</option>", _("X-Spam-Status"));
+		wprintf("<option value=\"size\">%s</option>", _("Message size"));
+		wprintf("<option value=\"all\">%s</option>", _("(All messages)"));
 		wprintf("</select>");
 		wprintf("</td>");
 
 		wprintf("<td>");
+
+		wprintf("<div id=\"div_compare%d\">", i);
 		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"match\">%s</option>", _("matches"));
-		wprintf("<option value=\"notmatch\">%s</option>", _("does not match"));
+		wprintf("<option value=\"contains\">%s</option>", _("contains"));
+		wprintf("<option value=\"notcontains\">%s</option>", _("does not contain"));
+		wprintf("<option value=\"is\">%s</option>", _("is"));
+		wprintf("<option value=\"isnot\">%s</option>", _("is not"));
 		wprintf("</select>");
 
 		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\">", i, i);
+		wprintf("</div>");
+
+		wprintf("<div id=\"div_size%d\">", i);
+		wprintf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">",
+			i, i);
+		wprintf("<option value=\"larger\">%s</option>", _("is larger than"));
+		wprintf("<option value=\"smaller\">%s</option>", _("is smaller than"));
+		wprintf("</select>");
+
+		wprintf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\">", i, i);
+		wprintf("bytes");
+		wprintf("</div>");
+
 		wprintf("</td>");
 
 		wprintf("<td>");
 		wprintf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"fileinto\">%s</option>", _("file into"));
-		wprintf("<option value=\"redirect\">%s</option>", _("forward to"));
-		wprintf("<option value=\"reject\">%s</option>", _("reject"));
+		wprintf("<option value=\"keep\">%s</option>", _("Keep"));
+		wprintf("<option value=\"discard\">%s</option>", _("Discard silently"));
+		wprintf("<option value=\"reject\">%s</option>", _("Reject"));
+		wprintf("<option value=\"fileinto\">%s</option>", _("Move message to"));
+		wprintf("<option value=\"redirect\">%s</option>", _("Forward to"));
+		wprintf("<option value=\"vacation\">%s</option>", _("Vacation"));
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
