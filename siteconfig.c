@@ -88,8 +88,12 @@ void display_siteconfig(void)
 
 	sprintf(directory, "<center><h1>%s</h1><h2>%s</h2><table border=\"0\">",
 			_("Configure the LDAP connector for Citadel"),
-			_("Changes made on this screen will not take effect "
-			"until you restart the Citadel server.")
+			(serv_info.serv_supports_ldap
+			?	_("Changes made on this screen will not take effect "
+				"until you restart the Citadel server.")
+			:	_("NOTE: This Citadel server has been built without "
+				"LDAP support.  These options will have no effect.")
+			)
 	);
 
 	sprintf(purger, "<center><h1>%s</h1><h2>%s</h2><table border=\"0\">",
