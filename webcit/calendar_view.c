@@ -518,7 +518,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
 			wprintf("<table border='0' bgcolor=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
-					"   <tr><td>%s</td><td width='70%'>%s</td><td>%s</td><td>%s</td></tr>\n",
+					"   <tr><td>%s</td><td width=70%%>%s</td><td>%s</td><td>%s</td></tr>\n",
 					_("Week"), 
 					weeknumber,
 					_("Hours"),
