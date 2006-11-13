@@ -418,14 +418,17 @@ void display_rules_editor_inner_div(void) {
 		"    if (d == 'all') {							\n"
 		"      $('div_size'+i).style.display = 'none';	 			\n"
 		"      $('div_compare'+i).style.display = 'none';			\n"
+		"      $('div_nocompare'+i).style.display = 'block';			\n"
 		"    }									\n"
 		"    else if (d == 'size') {						\n"
 		"      $('div_size'+i).style.display = 'block';	 			\n"
 		"      $('div_compare'+i).style.display = 'none';			\n"
+		"      $('div_nocompare'+i).style.display = 'none';			\n"
 		"    }									\n"
 		"    else {								\n"
 		"      $('div_size'+i).style.display = 'none';	 			\n"
 		"      $('div_compare'+i).style.display = 'block';			\n"
+		"      $('div_nocompare'+i).style.display = 'none';			\n"
 		"    }									\n"
 		"    d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
 		"    if (d == 'fileinto') {						\n"
@@ -513,32 +516,43 @@ void display_rules_editor_inner_div(void) {
 
 	wprintf("<br />");
 
-	wprintf("<table border=1 cellpadding=2 width=100%%>");
+	wprintf("<table cellpadding=2 width=100%%>");
 
 	for (i=0; i<MAX_RULES; ++i) {
 		
-		wprintf("<tr id=\"rule%d\">", i);
+		wprintf("<tr id=\"rule%d\" bgcolor=\"#%s\">",
+			i,
+			((i%2) ? "DDDDDD" : "FFFFFF")
+		);
 
-		wprintf("<td>");
+		wprintf("<td width=5%% align=\"center\">");
 
 		wprintf("<div style=\"display:none\">");
 		wprintf("<input type=\"checkbox\" id=\"active%d\">", i);
 		wprintf("</div>");
 
 		if (i>0) wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
-			"<img border=\"0\" src=\"static/up_pointer.gif\" /></a>", i-1, i);
+			"<img border=\"0\" src=\"static/up_pointer.gif\" "
+			"title=\"%s\"/></a>",
+			i-1, i, _("Move rule up") );
 
 		wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
-			"<img id=\"movedown%d\" border=\"0\" src=\"static/down_pointer.gif\" /></a>",
-			i, i+1, i);
+			"<img id=\"movedown%d\" border=\"0\" src=\"static/down_pointer.gif\" "
+			"title=\"%s\"/></a>",
+			i, i+1, i, _("Move rule down") );
 
 		wprintf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
-			"<img id=\"delete%d\" border=\"0\" src=\"static/delete.gif\" /></a>",
-			i, i);
+			"<img id=\"delete%d\" border=\"0\" src=\"static/delete.gif\" "
+			"title=\"%s\"/></a>",
+			i, i, _("Delete rule") );
 
-		wprintf("&nbsp;%d.&nbsp;%s</td>", i+1, _("If") );
+		wprintf("</td>");
 
-		wprintf("<td>");
+		wprintf("<td width=5%% align=\"center\">");
+		wprintf("<font size=+2>%d</font>", i+1);
+		wprintf("</td>");
+
+		wprintf("<td width=20%%>%s ", _("If") );
 
 		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
@@ -555,11 +569,11 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<option value=\"xspamflag\">%s</option>", _("X-Spam-Flag"));
 		wprintf("<option value=\"xspamstatus\">%s</option>", _("X-Spam-Status"));
 		wprintf("<option value=\"size\">%s</option>", _("Message size"));
-		wprintf("<option value=\"all\">%s</option>", _("(All messages)"));
+		wprintf("<option value=\"all\">%s</option>", _("All"));
 		wprintf("</select>");
 		wprintf("</td>");
 
-		wprintf("<td>");
+		wprintf("<td width=20%%>");
 
 		wprintf("<div id=\"div_compare%d\">", i);
 		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
@@ -571,6 +585,10 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\">", i, i);
+		wprintf("</div>");
+
+		wprintf("<div id=\"div_nocompare%d\">", i);
+		wprintf("%s", _("(All messages)"));
 		wprintf("</div>");
 
 		wprintf("<div id=\"div_size%d\">", i);
@@ -586,7 +604,7 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("</td>");
 
-		wprintf("<td>");
+		wprintf("<td width=20%%>");
 		wprintf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		wprintf("<option value=\"keep\">%s</option>", _("Keep"));
@@ -619,6 +637,7 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<div id=\"div_automsg%d\">", i);
 		wprintf(_("Message:"));
+		wprintf("<br />");
 		wprintf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
 		wprintf("</textarea>");
 		wprintf("</div>");
@@ -627,9 +646,9 @@ void display_rules_editor_inner_div(void) {
 
 
 
-		wprintf("<td>%s</td>", _("and then") );
+		wprintf("<td width=10%% align=\"center\">%s</td>", _("and then") );
 
-		wprintf("<td>");
+		wprintf("<td width=20%%>");
 		wprintf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		wprintf("<option value=\"stop\">%s</option>", _("stop"));
