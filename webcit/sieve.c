@@ -9,7 +9,7 @@
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
-#define MAX_RULES	10
+#define MAX_RULES	25
 
 /**
  * \brief view/edit sieve config
@@ -431,12 +431,24 @@ void display_rules_editor_inner_div(void) {
 		"    if (d == 'fileinto') {						\n"
 		"      $('div_fileinto'+i).style.display = 'block';			\n"
 		"      $('div_redirect'+i).style.display = 'none';			\n"
+		"      $('div_automsg'+i).style.display = 'none';			\n"
 		"    } else if (d == 'redirect') {					\n"
 		"      $('div_fileinto'+i).style.display = 'none';			\n"
-		"    $('div_redirect'+i).style.display = 'block';			\n"
-		"    } else  {								\n"
+		"      $('div_redirect'+i).style.display = 'block';			\n"
+		"      $('div_automsg'+i).style.display = 'none';			\n"
+		"    } else if ((d == 'reject') || (d == 'vacation'))  {		\n"
 		"      $('div_fileinto'+i).style.display = 'none';			\n"
 		"      $('div_redirect'+i).style.display = 'none';			\n"
+		"      $('div_automsg'+i).style.display = 'block';			\n"
+		"    } else {								\n"
+		"      $('div_fileinto'+i).style.display = 'none';			\n"
+		"      $('div_redirect'+i).style.display = 'none';			\n"
+		"      $('div_automsg'+i).style.display = 'none';			\n"
+		"    }									\n"
+		"    if (highest_active_rule < %d) {					\n", MAX_RULES-1 );
+	wprintf("      $('div_addrule').style.display = 'block';			\n"
+		"    } else {								\n"
+		"      $('div_addrule').style.display = 'none';				\n"
 		"    }									\n"
 		"  }									\n"
 	);
@@ -456,7 +468,6 @@ void display_rules_editor_inner_div(void) {
 		"}									\n"
 /*
  * Add a rule (really, just un-hide it)
- * FIXME check the upper bound
  */
 		"function AddRule() {							\n"
 		"  highest_active_rule = highest_active_rule + 1;			\n"
@@ -478,8 +489,9 @@ void display_rules_editor_inner_div(void) {
 		"  things[6] = 'final';							\n"
 		"  things[7] = 'sizecomp';						\n"
 		"  things[8] = 'sizeval';						\n"
+		"  things[9] = 'automsg';						\n"
 		"									\n"
-		"  for (i=0; i<9; ++i) {						\n"
+		"  for (i=0; i<=9; ++i) {						\n"
 		"    tempval=$(things[i]+ra).value;					\n"
 		"    $(things[i]+ra).value = $(things[i]+rb).value;			\n"
 		"    $(things[i]+rb).value = tempval;					\n"
@@ -501,9 +513,7 @@ void display_rules_editor_inner_div(void) {
 
 	wprintf("<br />");
 
-	wprintf("<table class=\"mailbox_summary\" rules=rows cellpadding=2 "
-		"style=\"width:100%%;-moz-user-select:none;\">"
-	);
+	wprintf("<table border=1 cellpadding=2 width=100%%>");
 
 	for (i=0; i<MAX_RULES; ++i) {
 		
@@ -534,6 +544,7 @@ void display_rules_editor_inner_div(void) {
 			i, i);
 		wprintf("<option value=\"from\">%s</option>", _("From"));
 		wprintf("<option value=\"tocc\">%s</option>", _("To or Cc"));
+		wprintf("<option value=\"subject\">%s</option>", _("Subject"));
 		wprintf("<option value=\"replyto\">%s</option>", _("Reply-to"));
 		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
 		wprintf("<option value=\"resentfrom\">%s</option>", _("Resent-From"));
@@ -587,7 +598,6 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
-		//wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\" style=\"width:100px\">", i, i);
 		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
 		for (j=0; j<num_roomnames; ++j) {
 			wprintf("<option ");
@@ -606,6 +616,13 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<div id=\"div_redirect%d\">", i);
 		wprintf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\">", i, i);
 		wprintf("</div>");
+
+		wprintf("<div id=\"div_automsg%d\">", i);
+		wprintf(_("Message:"));
+		wprintf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
+		wprintf("</textarea>");
+		wprintf("</div>");
+
 		wprintf("</td>");
 
 
@@ -625,7 +642,7 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wprintf("</table>");
-	wprintf("<a href=\"javascript:AddRule();\">Add rule</a><br />\n");
+	wprintf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">Add rule</a><br /></div>\n");
 
 	wprintf("<script type=\"text/javascript\">					\n"
 		"UpdateRules();								\n"
