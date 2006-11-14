@@ -47,7 +47,7 @@
 #include "config.h"
 #include "tools.h"
 #include "citserver.h"
-
+#include "genstamp.h"
 
 /*
  * makeuserkey() - convert a username into the format used as a database key
@@ -806,6 +806,8 @@ int create_user(char *newusername, int become_user)
 	struct ctdlroom qrbuf;
 	char username[256];
 	char mailboxname[ROOMNAMELEN];
+	char buf[SIZ];
+	char nowstamp[SIZ];
 	uid_t uid = (-1);
 
 	safestrncpy(username, newusername, sizeof username);
@@ -889,7 +891,17 @@ int create_user(char *newusername, int become_user)
 			return (ERROR + INTERNAL_ERROR);
 		}
 	}
-
+	
+	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
+	snprintf(buf, SIZ, 
+		"A new user signed in with the nick %s from (%s [%s])\n"
+		"	by %s; %s\n",
+			username,
+			CC->cs_host,
+			CC->cs_addr,
+			config.c_fqdn,
+			nowstamp);
+	aide_message(buf, "User Creation Notice");
 	lprintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
 }
