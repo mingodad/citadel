@@ -141,7 +141,8 @@ void display_sieve(void)
 	if (num_scripts > 0) {
 		for (i=0; i<num_scripts; ++i) {
 			wprintf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
-			wprintf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n", script_names[i]);
+			wprintf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n",
+				script_names[i]);
 			serv_printf("MSIV getscript|%s", script_names[i]);
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
@@ -180,6 +181,80 @@ void display_sieve(void)
 }
 
 
+
+/**
+ * \brief Translate the fields from the rule editor into something we can save...
+ */
+void parse_fields_from_rule_editor(void) {
+
+	int active;
+	char hfield[256];
+	char compare[32];
+	char htext[256];
+	char sizecomp[32];
+	int sizeval;
+	char action[32];
+	char fileinto[128];
+	char redirect[256];
+	char automsg[1024];
+	char final[32];
+
+	int i;
+	char fname[256];
+	char rule[2048];
+	char encoded_rule[4096];
+
+	for (i=0; i<MAX_RULES; ++i) {
+		
+		strcpy(rule, "");
+
+		sprintf(fname, "active%d", i);
+		active = atoi(bstr(fname));
+
+		sprintf(fname, "hfield%d", i);
+		safestrncpy(hfield, bstr(fname), sizeof hfield);
+
+		sprintf(fname, "compare%d", i);
+		safestrncpy(compare, bstr(fname), sizeof compare);
+
+		sprintf(fname, "htext%d", i);
+		safestrncpy(htext, bstr(fname), sizeof htext);
+
+		sprintf(fname, "sizecomp%d", i);
+		safestrncpy(sizecomp, bstr(fname), sizeof sizecomp);
+
+		sprintf(fname, "sizeval%d", i);
+		sizeval = atoi(bstr(fname));
+
+		sprintf(fname, "action%d", i);
+		safestrncpy(action, bstr(fname), sizeof action);
+
+		sprintf(fname, "fileinto%d", i);
+		safestrncpy(fileinto, bstr(fname), sizeof fileinto);
+
+		sprintf(fname, "redirect%d", i);
+		safestrncpy(redirect, bstr(fname), sizeof redirect);
+
+		sprintf(fname, "automsg%d", i);
+		safestrncpy(automsg, bstr(fname), sizeof automsg);
+
+		sprintf(fname, "final%d", i);
+		safestrncpy(final, bstr(fname), sizeof final);
+
+		snprintf(rule, sizeof rule, "%d|%s|%s|%s|%s|%d|%s|%s|%s|%s|%s",
+			active, hfield, compare, htext, sizecomp, sizeval, action, fileinto,
+			redirect, automsg, final
+		);
+
+		lprintf(9, "Rule:\n%s\n", rule);
+		CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1);
+		lprintf(9, "Encoded rule:\n%s\n", encoded_rule);
+	}
+
+}
+
+
+
 /**
  * \brief save sieve config
  */
@@ -198,6 +273,8 @@ void save_sieve(void) {
 		display_main_menu();
 		return;
 	}
+
+	parse_fields_from_rule_editor();
 
 	serv_puts("MSIV listscripts");
 	serv_getln(buf, sizeof(buf));
@@ -651,8 +728,8 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<td width=20%%>");
 		wprintf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"stop\">%s</option>", _("stop"));
 		wprintf("<option value=\"continue\">%s</option>", _("continue processing"));
+		wprintf("<option value=\"stop\">%s</option>", _("stop"));
 		wprintf("</select>");
 		wprintf("</td>");
 
