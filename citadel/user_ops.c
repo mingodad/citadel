@@ -807,7 +807,6 @@ int create_user(char *newusername, int become_user)
 	char username[256];
 	char mailboxname[ROOMNAMELEN];
 	char buf[SIZ];
-	char nowstamp[SIZ];
 	uid_t uid = (-1);
 
 	safestrncpy(username, newusername, sizeof username);
@@ -892,15 +891,12 @@ int create_user(char *newusername, int become_user)
 		}
 	}
 	
-	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	snprintf(buf, SIZ, 
-		"A new user signed in with the nick %s from (%s [%s])\n"
-		"	by %s; %s\n",
-			username,
-			CC->cs_host,
-			CC->cs_addr,
-			config.c_fqdn,
-			nowstamp);
+		"New user account <%s> has been created, from host %s [%s].\n",
+		username,
+		CC->cs_host,
+		CC->cs_addr
+	);
 	aide_message(buf, "User Creation Notice");
 	lprintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
