@@ -2607,7 +2607,7 @@ void post_mime_to_server(void) {
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
-			CtdlEncodeBase64(encoded, att->data, att->length);
+			CtdlEncodeBase64(encoded, att->data, att->length, 1);
 
 			serv_printf("--%s", boundary);
 			serv_printf("Content-type: %s", att->content_type);
