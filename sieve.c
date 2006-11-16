@@ -235,7 +235,7 @@ void parse_fields_from_rule_editor(void) {
 		strcpy(rule, "");
 
 		sprintf(fname, "active%d", i);
-		active = atoi(bstr(fname));
+		active = !strcasecmp(bstr(fname), "on") ;
 
 		sprintf(fname, "hfield%d", i);
 		safestrncpy(hfield, bstr(fname), sizeof hfield);
@@ -493,7 +493,8 @@ void create_script(void) {
 
 void display_rules_editor_inner_div(void) {
 	int i, j;
-	char buf[256];
+	char buf[4096];
+	char rules[MAX_RULES][2048];
 
 	struct {
 		char name[128];
@@ -501,6 +502,30 @@ void display_rules_editor_inner_div(void) {
 	int num_roomnames = 0;
 	int num_roomnames_alloc = 0;
 
+	int active;
+	char hfield[256];
+	char compare[32];
+	char htext[256];
+	char sizecomp[32];
+	int sizeval;
+	char action[32];
+	char fileinto[128];
+	char redirect[256];
+	char automsg[1024];
+	char final[32];
+
+	/* load the rules */
+	memset(rules, 0, sizeof rules);
+	serv_printf("MSIV getscript|%s", RULES_SCRIPT);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "# WEBCIT_RULE|", 14)) {
+			j = extract_int(buf, 1);
+			remove_token(buf, 0, '|');
+			remove_token(buf, 0, '|');
+			CtdlDecodeBase64(rules[j], buf, strlen(buf));
+		}
+	}
 
 	/* load the roomnames */
 	serv_puts("LKRA");
@@ -621,8 +646,7 @@ void display_rules_editor_inner_div(void) {
 		"  }									\n"
 		"}									\n"
 /*
- * Delete a rule (percolate the deleted rule out to the end,
- *                and then decrement highest_active_rule)
+ * Delete a rule (percolate the deleted rule out to the end, then deactivate it)
  */
 		"function DeleteRule(rd) {						\n"
 		"  for (i=rd; i<highest_active_rule; ++i) {				\n"
@@ -639,7 +663,22 @@ void display_rules_editor_inner_div(void) {
 	wprintf("<table cellpadding=2 width=100%%>");
 
 	for (i=0; i<MAX_RULES; ++i) {
+
+		/* Grab our existing values to populate */
+		active = extract_int(rules[i], 0);
+		extract_token(hfield, rules[i], 1, '|', sizeof hfield);
+		extract_token(compare, rules[i], 2, '|', sizeof compare);
+		extract_token(htext, rules[i], 3, '|', sizeof htext);
+		extract_token(sizecomp, rules[i], 4, '|', sizeof sizecomp);
+		sizeval = extract_int(rules[i], 5);
+		extract_token(action, rules[i], 6, '|', sizeof action);
+		extract_token(fileinto, rules[i], 7, '|', sizeof fileinto);
+		extract_token(redirect, rules[i], 8, '|', sizeof redirect);
+		extract_token(automsg, rules[i], 9, '|', sizeof automsg);
+		extract_token(final, rules[i], 10, '|', sizeof final);
 		
+		/* now generate the table row */
+
 		wprintf("<tr id=\"rule%d\" bgcolor=\"#%s\">",
 			i,
 			((i%2) ? "DDDDDD" : "FFFFFF")
@@ -648,7 +687,10 @@ void display_rules_editor_inner_div(void) {
 		wprintf("<td width=5%% align=\"center\">");
 
 		wprintf("<div style=\"display:none\">");
-		wprintf("<input type=\"checkbox\" id=\"active%d\">", i);
+		wprintf("<input type=\"checkbox\" name=\"active%d\" id=\"active%d\" %s>",
+			i, i,
+			(active ? "checked" : "")
+		);
 		wprintf("</div>");
 
 		if (i>0) wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
@@ -783,10 +825,9 @@ void display_rules_editor_inner_div(void) {
 	wprintf("</table>");
 	wprintf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">Add rule</a><br /></div>\n");
 
-	wprintf("<script type=\"text/javascript\">					\n"
-		"UpdateRules();								\n"
-		"</script>								\n"
-	);
+	wprintf("<script type=\"text/javascript\">					\n");
+	wprintf("UpdateRules();								\n");
+	wprintf("</script>								\n");
 
 	free(rooms);
 }

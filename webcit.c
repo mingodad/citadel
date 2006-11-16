@@ -102,6 +102,8 @@ void addurls(char *url)
 		unescape_input(u->url_data);
 		up = ptr;
 		++up;
+
+		/* lprintf(9, "%s = %s\n", u->url_key, u->url_data); */
 	}
 }
 
