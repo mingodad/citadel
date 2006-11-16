@@ -716,22 +716,33 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<td width=20%%>%s ", _("If") );
 
+		char *hfield_values[14][2] = {
+			{	"from",		_("From")		},
+			{	"tocc",		_("To or Cc")		},
+			{	"subject",	_("Subject")		},
+			{	"replyto",	_("Reply-to")		},
+			{	"sender",	_("Sender")		},
+			{	"resentfrom",	_("Resent-From")	},
+			{	"resentto",	_("Resent-To")		},
+			{	"envfrom",	_("Envelope From")	},
+			{	"envto",	_("Envelope To")	},
+			{	"xmailer",	_("X-Mailer")		},
+			{	"xspamflag",	_("X-Spam-Flag")	},
+			{	"xspamstatus",	_("X-Spam-Status")	},
+			{	"size",		_("Message size")	},
+			{	"all",		_("All")		}
+		};
+
 		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"from\">%s</option>", _("From"));
-		wprintf("<option value=\"tocc\">%s</option>", _("To or Cc"));
-		wprintf("<option value=\"subject\">%s</option>", _("Subject"));
-		wprintf("<option value=\"replyto\">%s</option>", _("Reply-to"));
-		wprintf("<option value=\"sender\">%s</option>", _("Sender"));
-		wprintf("<option value=\"resentfrom\">%s</option>", _("Resent-From"));
-		wprintf("<option value=\"resentto\">%s</option>", _("Resent-To"));
-		wprintf("<option value=\"envfrom\">%s</option>", _("Envelope From"));
-		wprintf("<option value=\"envto\">%s</option>", _("Envelope To"));
-		wprintf("<option value=\"xmailer\">%s</option>", _("X-Mailer"));
-		wprintf("<option value=\"xspamflag\">%s</option>", _("X-Spam-Flag"));
-		wprintf("<option value=\"xspamstatus\">%s</option>", _("X-Spam-Status"));
-		wprintf("<option value=\"size\">%s</option>", _("Message size"));
-		wprintf("<option value=\"all\">%s</option>", _("All"));
+		for (j=0; j<14; ++j) {
+			wprintf("<option %s value=\"%s\">%s</option>",
+				( (!strcasecmp(hfield, hfield_values[j][0])) ? "selected" : ""),
+				hfield_values[j][0],
+				hfield_values[j][1]
+			);
+		}
+
 		wprintf("</select>");
 		wprintf("</td>");
 
