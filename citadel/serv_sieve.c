@@ -1110,8 +1110,15 @@ void cmd_msiv(char *argbuf) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
 		script_content = msiv_getscript(&u, script_name);
 		if (script_content != NULL) {
+			int script_len;
+
 			cprintf("%d Script:\n", LISTING_FOLLOWS);
-			cprintf("%s000\n", script_content);
+			script_len = strlen(script_content);
+			client_write(script_content, script_len);
+			if (script_content[script_len-1] != '\n') {
+				cprintf("\n");
+			}
+			cprintf("000\n");
 		}
 		else {
 			cprintf("%d Invalid script name.\n", ERROR + ILLEGAL_VALUE);
