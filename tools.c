@@ -359,7 +359,7 @@ void sleeeeeeeeeep(int seconds)
  * \param sourcelen the length of the source data (may contain string terminators)
  */
 
-void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
+void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks)
 {
 	int i, hiteof = FALSE;
 	int spos = 0;
@@ -418,7 +418,7 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 				dest[dpos] = 0;
 			}
 			thisline += 4;
-			if (thisline > 70) {
+			if ( (linebreaks) && (thisline > 70) ) {
 				dest[dpos++] = '\r';
 				dest[dpos++] = '\n';
 				dest[dpos] = 0;
@@ -426,7 +426,7 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 			}
 		}
 	}
-	if (thisline > 70) {
+	if ( (linebreaks) && (thisline > 70) ) {
 		dest[dpos++] = '\r';
 		dest[dpos++] = '\n';
 		dest[dpos] = 0;
