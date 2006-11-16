@@ -799,22 +799,32 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("</td>");
 
+		char *action_values[6][2] = {
+			{	"keep",		_("Keep")		},
+			{	"discard",	_("Discard silently")	},
+			{	"reject",	_("Reject")		},
+			{	"fileinto",	_("Move message to")	},
+			{	"redirect",	_("Forward to")		},
+			{	"vacation",	_("Vacation")		}
+		};
+
 		wprintf("<td width=20%%>");
 		wprintf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"keep\">%s</option>", _("Keep"));
-		wprintf("<option value=\"discard\">%s</option>", _("Discard silently"));
-		wprintf("<option value=\"reject\">%s</option>", _("Reject"));
-		wprintf("<option value=\"fileinto\">%s</option>", _("Move message to"));
-		wprintf("<option value=\"redirect\">%s</option>", _("Forward to"));
-		wprintf("<option value=\"vacation\">%s</option>", _("Vacation"));
+		for (j=0; j<6; ++j) {
+			wprintf("<option %s value=\"%s\">%s</option>",
+				( (!strcasecmp(action, action_values[j][0])) ? "selected" : ""),
+				action_values[j][0],
+				action_values[j][1]
+			);
+		}
 		wprintf("</select>");
 
 		wprintf("<div id=\"div_fileinto%d\">", i);
 		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
 		for (j=0; j<num_roomnames; ++j) {
 			wprintf("<option ");
-			if (!strcasecmp(rooms[j].name, "Mail")) {
+			if (!strcasecmp(rooms[j].name, fileinto)) {
 				wprintf("selected ");
 			}
 			wprintf("value=\"");
@@ -827,27 +837,37 @@ void display_rules_editor_inner_div(void) {
 		wprintf("</div>");
 
 		wprintf("<div id=\"div_redirect%d\">", i);
-		wprintf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\">", i, i);
-		wprintf("</div>");
+		wprintf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\" value=\"", i, i);
+		escputs(redirect);
+		wprintf("\"></div>");
 
 		wprintf("<div id=\"div_automsg%d\">", i);
 		wprintf(_("Message:"));
 		wprintf("<br />");
 		wprintf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
+		escputs(automsg);
 		wprintf("</textarea>");
 		wprintf("</div>");
 
 		wprintf("</td>");
 
-
+		char *final_values[2][2] = {
+			{	"continue",	_("continue processing")	},
+			{	"stop",		_("stop")			}
+		};
 
 		wprintf("<td width=10%% align=\"center\">%s</td>", _("and then") );
 
 		wprintf("<td width=20%%>");
 		wprintf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"continue\">%s</option>", _("continue processing"));
-		wprintf("<option value=\"stop\">%s</option>", _("stop"));
+		for (j=0; j<2; ++j) {
+			wprintf("<option %s value=\"%s\">%s</option>",
+				( (!strcasecmp(final, final_values[j][0])) ? "selected" : ""),
+				final_values[j][0],
+				final_values[j][1]
+			);
+		}
 		wprintf("</select>");
 		wprintf("</td>");
 
