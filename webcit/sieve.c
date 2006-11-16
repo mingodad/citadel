@@ -748,30 +748,52 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<td width=20%%>");
 
+		char *compare_values[4][2] = {
+			{	"contains",	_("contains")		},
+			{	"notcontains",	_("does not contain")	},
+			{	"is",		_("is")			},
+			{	"isnot",	_("is not")		}
+		};
+
 		wprintf("<div id=\"div_compare%d\">", i);
 		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"contains\">%s</option>", _("contains"));
-		wprintf("<option value=\"notcontains\">%s</option>", _("does not contain"));
-		wprintf("<option value=\"is\">%s</option>", _("is"));
-		wprintf("<option value=\"isnot\">%s</option>", _("is not"));
+		for (j=0; j<4; ++j) {
+			wprintf("<option %s value=\"%s\">%s</option>",
+				( (!strcasecmp(compare, compare_values[j][0])) ? "selected" : ""),
+				compare_values[j][0],
+				compare_values[j][1]
+			);
+		}
 		wprintf("</select>");
 
-		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\">", i, i);
-		wprintf("</div>");
+		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\" value=\"", i, i);
+		escputs(htext);
+		wprintf("\"></div>");
 
 		wprintf("<div id=\"div_nocompare%d\">", i);
 		wprintf("%s", _("(All messages)"));
 		wprintf("</div>");
 
+		char *sizecomp_values[2][2] = {
+			{	"larger",	_("is larger than")	},
+			{	"smaller",	_("is smaller than")	}
+		};
+
 		wprintf("<div id=\"div_size%d\">", i);
 		wprintf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		wprintf("<option value=\"larger\">%s</option>", _("is larger than"));
-		wprintf("<option value=\"smaller\">%s</option>", _("is smaller than"));
+		for (j=0; j<2; ++j) {
+			wprintf("<option %s value=\"%s\">%s</option>",
+				( (!strcasecmp(sizecomp, sizecomp_values[j][0])) ? "selected" : ""),
+				sizecomp_values[j][0],
+				sizecomp_values[j][1]
+			);
+		}
 		wprintf("</select>");
 
-		wprintf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\">", i, i);
+		wprintf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\" value=\"%d\">",
+			i, i, sizeval);
 		wprintf("bytes");
 		wprintf("</div>");
 
