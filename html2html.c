@@ -77,6 +77,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	char *msgstart;
 	char *msgend;
 	char *converted_msg;
+	size_t converted_alloc = 0;
 	int buffer_length = 1;
 	int line_length = 0;
 	int content_length = 0;
@@ -251,7 +252,11 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	 */
 
 	/** Now go through the message, parsing tags as necessary. */
-	converted_msg = malloc(content_length);
+	converted_alloc = content_length + 8192;
+	converted_msg = malloc(converted_alloc);
+	if (converted_msg == NULL) {
+		abort();			/* FIXME */
+	}
 	strcpy(converted_msg, "");
 	ptr = msg;
 	msgend = strchr(msg, 0);
@@ -265,7 +270,13 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 		 */
 		if (!strncasecmp(ptr, "<a href=\"mailto:", 16)) {
 			content_length += 64;
-			converted_msg = realloc(converted_msg, content_length);
+			if (content_length >= converted_alloc) {
+				converted_alloc += 8192;
+				converted_msg = realloc(converted_msg, converted_alloc);
+				if (converted_msg == NULL) {
+					abort();
+				}
+			}
 			sprintf(&converted_msg[output_length],
 				"<a href=\"display_enter"
 				"?force_room=_MAIL_&recp=");
@@ -281,14 +292,26 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			     ) {
 				/* open external links to new window */
 				content_length += 64;
-				converted_msg = realloc(converted_msg, content_length);
+				if (content_length >= converted_alloc) {
+					converted_alloc += 8192;
+					converted_msg = realloc(converted_msg, converted_alloc);
+					if (converted_msg == NULL) {
+						abort();
+					}
+				}
 				sprintf(&converted_msg[output_length], new_window);
 				output_length += strlen(new_window);
 				ptr = &ptr[8];
 			}
 			else if ( (treat_as_wiki) && (strncasecmp(ptr, "<a href=\"wiki?", 14)) ) {
 				content_length += 64;
-				converted_msg = realloc(converted_msg, content_length);
+				if (content_length >= converted_alloc) {
+					converted_alloc += 8192;
+					converted_msg = realloc(converted_msg, converted_alloc);
+					if (converted_msg == NULL) {
+						abort();
+					}
+				}
 				sprintf(&converted_msg[output_length], "<a href=\"wiki?page=");
 				output_length += 19;
 				ptr = &ptr[9];
@@ -323,7 +346,13 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				}
 				if (linklen > 0) {
 					content_length += (32 + linklen);
-					converted_msg = realloc(converted_msg, content_length);
+					if (content_length >= converted_alloc) {
+						converted_alloc += 8192;
+						converted_msg = realloc(converted_msg, converted_alloc);
+						if (converted_msg == NULL) {
+							abort();
+						}
+					}
 					sprintf(&converted_msg[output_length], new_window);
 					output_length += strlen(new_window);
 					converted_msg[output_length] = '\"';
@@ -367,8 +396,8 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	wprintf("<br /><br />\n");
 
 	/** Now give back the memory */
-	free(converted_msg);
-	free(msg);
+	if (converted_msg != NULL) free(converted_msg);
+	if (msg != NULL) free(msg);
 }
 
 /*@}*/
