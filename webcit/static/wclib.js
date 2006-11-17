@@ -73,6 +73,7 @@ var drop_targets_roomnames = new Array();
 
 function switch_to_room_list() {
 	$('iconbar').innerHTML = $('iconbar').innerHTML.substr(0, $('iconbar').innerHTML.indexOf('switch'));
+	CtdlLoadScreen('iconbar');
 	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
 }
 
@@ -111,6 +112,7 @@ function expand_floor(floor_div) {
 function switch_to_menu_buttons() {
 	which_div_expanded = null;
 	num_drop_targets = 0;
+	CtdlLoadScreen('iconbar');
 	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
 }
 
@@ -217,6 +219,8 @@ function CtdlSingleClickMsg(evt, msgnum) {
 		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
 		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
 
+		// Gradient
+		CtdlLoadScreen('preview_pane');
 		// Update the preview pane
 		new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
 	
@@ -558,4 +562,92 @@ function add_new_note() {
 
 	new Ajax.InPlaceEditor('note' + new_eid,
 		'updatenote?eid=' + new_eid , {rows:5,cols:72});
+}
+
+function CtdlShowRaw(msgnum) {
+var customnav = document.createElement("span");
+var mode_citadel = document.createElement("a");
+mode_citadel.appendChild(document.createTextNode("Citadel Source"));
+var mode_rfc822 = document.createElement("a");
+mode_rfc822.appendChild(document.createTextNode(" RFC822 Source"));
+mode_citadel.setAttribute("href","#");
+mode_rfc822.setAttribute("href","#");
+mode_rfc822.setAttribute("onclick","rawSwitch822('" + msgnum + "');");
+mode_citadel.setAttribute("onclick","rawSwitchCitadel('" + msgnum + "');");
+customnav.appendChild(mode_citadel);
+customnav.appendChild(mode_rfc822);
+customnav.setAttribute("class","floatcustomnav");
+floatwindow("headerscreen","pre",customnav);
+rawSwitch822(msgnum);
+}
+function rawSwitch822(msgnum) {
+CtdlLoadScreen("headerscreen");
+new Ajax.Updater("headerscreen", 
+'ajax_servcmd_esc',
+ { method: 'post',parameters: 'g_cmd=MSG2 ' +msgnum  } );
+
+}
+function rawSwitchCitadel(msgnum) {
+CtdlLoadScreen("headerscreen");
+new Ajax.Updater("headerscreen", 
+'ajax_servcmd_esc',
+ { method: 'post',parameters: 'g_cmd=MSG0 ' +msgnum  } );
+
+}
+function floatwindow(newdivid,contentelementtype,customnav) {
+var windiv = document.createElement("div");
+windiv.setAttribute("class","floatwindow");
+var winid = newdivid+"_window";
+windiv.setAttribute("id",winid);
+var nav = document.createElement("div");
+if (customnav != null) {
+nav.appendChild(customnav);
+}
+var minimizeA = document.createElement("a");
+var minimizeButton = document.createTextNode("Close");
+minimizeA.appendChild(minimizeButton);
+minimizeA.setAttribute("onclick","killFloatWindow(this);");
+minimizeA.setAttribute("href","#");
+nav.appendChild(minimizeA);
+nav.setAttribute("class","floatnav");
+windiv.appendChild(nav);
+var contentarea = document.createElement("pre");
+contentarea.setAttribute("class","floatcontent");
+contentarea.setAttribute("id",newdivid);
+windiv.appendChild(contentarea);
+document.body.appendChild(windiv);
+}
+function killFloatWindow(caller) {
+var span = caller.parentNode;
+var fwindow = span.parentNode;
+fwindow.parentNode.removeChild(fwindow);
+}
+// Place a gradient loadscreen on an element, e.g to use before Ajax.updater
+function CtdlLoadScreen(elementid) {
+var elem = document.getElementById(elementid);
+elem.innerHTML = "<b>Loading....</b> <img src=\"/static/gradientanim.gif\"/>";
+}
+// Show info for a user, basically replaces showuser()
+// matt@comalies is to blame for this poorly coded masterpiece. 
+function CtdlShowUserInfoPopup(Element) {
+try {
+// hopefully no one needs to use the class attribute... could be better done 
+// with xmlns though..
+var user = Element.getAttribute("class");
+var updname = "biospace_"+user;
+if (document.getElementById(updname) == null) {
+// insert a space for the bio
+var pNode = Element.parentNode;
+var newdiv = document.createElement("div");
+newdiv.id = updname;
+newdiv.innerHTML = "Getting user info....";
+pNode.appendChild(newdiv);
+CtdlLoadScreen(updname);
+new Ajax.Updater(updname, 'showuser_ajax?who='+user, { method: 'get' } );
+}
+}
+catch(err){
+return true;
+}
+return false;
 }
