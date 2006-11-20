@@ -193,6 +193,90 @@ void display_sieve(void)
 
 
 /**
+ * \brief	Helper function for output_sieve_rule() to output strings with quotes escaped
+ */
+void osr_sanitize(char *str) {
+	int i;
+
+	if (str == NULL) return;
+	for (i=0; i<strlen(str); ++i) {
+		if (str[i]=='\"') {
+			str[i] = '\'' ;
+		}
+		else if (isspace(str[i])) {
+			str[i] = ' ';
+		}
+	}
+}
+
+
+/**
+ * \brief	Output parseable Sieve script code based on rules input
+ */
+void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp, int sizeval,
+			char *action, char *fileinto, char *redirect, char *automsg, char *final)
+{
+
+	osr_sanitize(htext);
+	osr_sanitize(fileinto);
+	osr_sanitize(redirect);
+	osr_sanitize(automsg);
+
+	/* FIXME ... do conditional */
+
+	/* Open braces if we're in a conditional loop */
+	if (strcasecmp(hfield, "all")) {
+		serv_printf("{");
+	}
+
+
+	/* Do action */
+
+	if (!strcasecmp(action, "keep")) {
+		serv_printf("	keep;");
+	}
+
+	else if (!strcasecmp(action, "discard")) {
+		serv_printf("	discard;");
+	}
+
+	else if (!strcasecmp(action, "reject")) {
+		serv_printf("	reject \"%s\";", automsg);
+	}
+
+	else if (!strcasecmp(action, "fileinto")) {
+		serv_printf("	fileinto \"%s\";", fileinto);
+	}
+
+	else if (!strcasecmp(action, "redirect")) {
+		serv_printf("	redirect \"%s\";", redirect);
+	}
+
+	else if (!strcasecmp(action, "vacation")) {
+		serv_printf("	vacation \"%s\";", automsg);
+	}
+
+
+	/* Do 'final' action */
+
+	if (!strcasecmp(final, "stop")) {
+		serv_printf("	stop;");
+	}
+
+
+	/* Close the braces if we're in a conditional loop */
+
+	if (strcasecmp(hfield, "all")) {
+		serv_printf("}");
+	}
+
+
+	/* End of rule. */
+}
+
+
+
+/**
  * \brief Translate the fields from the rule editor into something we can save...
  */
 void parse_fields_from_rule_editor(void) {
@@ -229,6 +313,11 @@ void parse_fields_from_rule_editor(void) {
 	serv_puts("# to use these rules as the basis for another script,");
 	serv_puts("# copy them to another script and save that instead.");
 	serv_puts("");
+	serv_puts("require \"fileinto\";");
+	serv_puts("require \"reject\";");
+	serv_puts("require \"vacation\";");
+	serv_puts("require \"envelope\";");
+	serv_puts("");
 
 	for (i=0; i<MAX_RULES; ++i) {
 		
@@ -237,49 +326,54 @@ void parse_fields_from_rule_editor(void) {
 		sprintf(fname, "active%d", i);
 		active = !strcasecmp(bstr(fname), "on") ;
 
-		sprintf(fname, "hfield%d", i);
-		safestrncpy(hfield, bstr(fname), sizeof hfield);
+		if (active) {
 
-		sprintf(fname, "compare%d", i);
-		safestrncpy(compare, bstr(fname), sizeof compare);
-
-		sprintf(fname, "htext%d", i);
-		safestrncpy(htext, bstr(fname), sizeof htext);
-
-		sprintf(fname, "sizecomp%d", i);
-		safestrncpy(sizecomp, bstr(fname), sizeof sizecomp);
-
-		sprintf(fname, "sizeval%d", i);
-		sizeval = atoi(bstr(fname));
-
-		sprintf(fname, "action%d", i);
-		safestrncpy(action, bstr(fname), sizeof action);
-
-		sprintf(fname, "fileinto%d", i);
-		safestrncpy(fileinto, bstr(fname), sizeof fileinto);
-
-		sprintf(fname, "redirect%d", i);
-		safestrncpy(redirect, bstr(fname), sizeof redirect);
-
-		sprintf(fname, "automsg%d", i);
-		safestrncpy(automsg, bstr(fname), sizeof automsg);
-
-		sprintf(fname, "final%d", i);
-		safestrncpy(final, bstr(fname), sizeof final);
-
-		snprintf(rule, sizeof rule, "%d|%s|%s|%s|%s|%d|%s|%s|%s|%s|%s",
-			active, hfield, compare, htext, sizecomp, sizeval, action, fileinto,
-			redirect, automsg, final
-		);
-
-		CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
-		serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
-
-		/* FIXME: this is where we need to generate Sieve code based on the rule */
+			sprintf(fname, "hfield%d", i);
+			safestrncpy(hfield, bstr(fname), sizeof hfield);
+	
+			sprintf(fname, "compare%d", i);
+			safestrncpy(compare, bstr(fname), sizeof compare);
+	
+			sprintf(fname, "htext%d", i);
+			safestrncpy(htext, bstr(fname), sizeof htext);
+	
+			sprintf(fname, "sizecomp%d", i);
+			safestrncpy(sizecomp, bstr(fname), sizeof sizecomp);
+	
+			sprintf(fname, "sizeval%d", i);
+			sizeval = atoi(bstr(fname));
+	
+			sprintf(fname, "action%d", i);
+			safestrncpy(action, bstr(fname), sizeof action);
+	
+			sprintf(fname, "fileinto%d", i);
+			safestrncpy(fileinto, bstr(fname), sizeof fileinto);
+	
+			sprintf(fname, "redirect%d", i);
+			safestrncpy(redirect, bstr(fname), sizeof redirect);
+	
+			sprintf(fname, "automsg%d", i);
+			safestrncpy(automsg, bstr(fname), sizeof automsg);
+	
+			sprintf(fname, "final%d", i);
+			safestrncpy(final, bstr(fname), sizeof final);
+	
+			snprintf(rule, sizeof rule, "%d|%s|%s|%s|%s|%d|%s|%s|%s|%s|%s",
+				active, hfield, compare, htext, sizecomp, sizeval, action, fileinto,
+				redirect, automsg, final
+			);
+	
+			CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
+			serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
+			output_sieve_rule(hfield, compare, htext, sizecomp, sizeval,
+					action, fileinto, redirect, automsg, final);
+			serv_printf("");
+		}
 
 
 	}
 
+	serv_puts("stop;");
 	serv_puts("000");
 
 }
