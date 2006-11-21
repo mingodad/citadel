@@ -57,6 +57,8 @@ char *ctdlhost = DEFAULT_HOST; /**< our name */
 char *ctdlport = DEFAULT_PORT; /**< our Port */
 int setup_wizard = 0;          /**< should we run the setup wizard? \todo */
 char wizard_filename[PATH_MAX];/**< where's the setup wizard? */
+int running_as_daemon = 0;     /**< should we deamonize on startup? */
+
 
 /** 
  * \brief This is a generic function to set up a master socket for listening on
@@ -531,9 +533,9 @@ int main(int argc, char **argv)
 
 	/** Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:x:cfs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:dcfs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:x:cf")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:dcf")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -547,6 +549,9 @@ int main(int argc, char **argv)
 			/* free(hdir); TODO: SHOULD WE DO THIS? */
 			home_specified = 1;
 			home=1;
+			break;
+		case 'd':
+			running_as_daemon = 1;
 			break;
 		case 'i':
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
@@ -591,6 +596,7 @@ int main(int argc, char **argv)
 			fprintf(stderr, "usage: webserver "
 				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] [-f] "
+				"[-d] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
 #endif
@@ -603,6 +609,12 @@ int main(int argc, char **argv)
 		if (++optind < argc)
 			ctdlport = argv[optind];
 	}
+
+	/* daemonize, if we were asked to */
+	if (running_as_daemon) {
+		start_daemon(0);
+	}
+
 	/** Tell 'em who's in da house */
 	lprintf(1, SERVER "\n");
 	lprintf(1, "Copyright (C) 1996-2006 by the Citadel development team.\n"
