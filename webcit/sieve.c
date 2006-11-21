@@ -216,15 +216,141 @@ void osr_sanitize(char *str) {
 void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp, int sizeval,
 			char *action, char *fileinto, char *redirect, char *automsg, char *final)
 {
+	char *comp1 = "";
+	char *comp2 = "";
 
 	osr_sanitize(htext);
 	osr_sanitize(fileinto);
 	osr_sanitize(redirect);
 	osr_sanitize(automsg);
 
-	/* FIXME ... do conditional */
+	/* Prepare negation and match operators that will be used iff we apply a conditional */
+
+	if (!strcasecmp(compare, "contains")) {
+		comp1 = "";
+		comp2 = ":contains";
+	}
+	else if (!strcasecmp(compare, "notcontains")) {
+		comp1 = "not";
+		comp2 = ":contains";
+	}
+	else if (!strcasecmp(compare, "is")) {
+		comp1 = "";
+		comp2 = ":is";
+	}
+	else if (!strcasecmp(compare, "isnot")) {
+		comp1 = "not";
+		comp2 = ":is";
+	}
+	else if (!strcasecmp(compare, "matches")) {
+		comp1 = "";
+		comp2 = ":matches";
+	}
+	else if (!strcasecmp(compare, "notmatches")) {
+		comp1 = "not";
+		comp2 = ":matches";
+	}
+
+	/* Now do the conditional */
+
+	if (!strcasecmp(hfield, "from")) {
+		serv_printf("if%s header %s \"From\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "tocc")) {
+		serv_printf("if%s header %s [\"To\", \"Cc\"] \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "subject")) {
+		serv_printf("if%s header %s \"Subject\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "replyto")) {
+		serv_printf("if%s header %s \"Reply-to\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "sender")) {
+		serv_printf("if%s header %s \"Sender\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "resentfrom")) {
+		serv_printf("if%s header %s \"Resent-from\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "resentto")) {
+		serv_printf("if%s header %s \"Resent-to\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "xmailer")) {
+		serv_printf("if%s header %s \"X-Mailer\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "xspamflag")) {
+		serv_printf("if%s header %s \"X-Spam-Flag\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "xspamstatus")) {
+		serv_printf("if%s header %s \"X-Spam-Status\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "envfrom")) {
+		serv_printf("if%s envelope %s \"From\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "envto")) {
+		serv_printf("if%s envelope %s \"To\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
+	else if (!strcasecmp(hfield, "size")) {
+		if (!strcasecmp(sizecomp, "larger")) {
+			serv_printf("if size :over %d", sizeval);
+		}
+		else if (!strcasecmp(sizecomp, "smaller")) {
+			serv_printf("if size :under %d", sizeval);
+		}
+		else {	/* failsafe - should never get here, but just in case... */
+			serv_printf("if size :over 1");
+		}
+	}
 
 	/* Open braces if we're in a conditional loop */
+
 	if (strcasecmp(hfield, "all")) {
 		serv_printf("{");
 	}
@@ -233,34 +359,34 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 	/* Do action */
 
 	if (!strcasecmp(action, "keep")) {
-		serv_printf("	keep;");
+		serv_printf("keep;");
 	}
 
 	else if (!strcasecmp(action, "discard")) {
-		serv_printf("	discard;");
+		serv_printf("discard;");
 	}
 
 	else if (!strcasecmp(action, "reject")) {
-		serv_printf("	reject \"%s\";", automsg);
+		serv_printf("reject \"%s\";", automsg);
 	}
 
 	else if (!strcasecmp(action, "fileinto")) {
-		serv_printf("	fileinto \"%s\";", fileinto);
+		serv_printf("fileinto \"%s\";", fileinto);
 	}
 
 	else if (!strcasecmp(action, "redirect")) {
-		serv_printf("	redirect \"%s\";", redirect);
+		serv_printf("redirect \"%s\";", redirect);
 	}
 
 	else if (!strcasecmp(action, "vacation")) {
-		serv_printf("	vacation \"%s\";", automsg);
+		serv_printf("vacation \"%s\";", automsg);
 	}
 
 
 	/* Do 'final' action */
 
 	if (!strcasecmp(final, "stop")) {
-		serv_printf("	stop;");
+		serv_printf("stop;");
 	}
 
 
@@ -842,17 +968,19 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<td width=20%%>");
 
-		char *compare_values[4][2] = {
+		char *compare_values[6][2] = {
 			{	"contains",	_("contains")		},
 			{	"notcontains",	_("does not contain")	},
 			{	"is",		_("is")			},
-			{	"isnot",	_("is not")		}
+			{	"isnot",	_("is not")		},
+			{	"matches",	_("matches")		},
+			{	"notmatches",	_("does not match")	}
 		};
 
 		wprintf("<div id=\"div_compare%d\">", i);
 		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		for (j=0; j<4; ++j) {
+		for (j=0; j<6; ++j) {
 			wprintf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(compare, compare_values[j][0])) ? "selected" : ""),
 				compare_values[j][0],
