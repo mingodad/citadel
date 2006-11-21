@@ -983,5 +983,4 @@ void display_rules_editor_inner_div(void) {
 
 
 
-
 /*@}*/
