@@ -366,6 +366,7 @@ int is_public_client(void)
 				if ((strlen(public_clients) +
 				   strlen(addrbuf) + 2)
 				   < sizeof(public_clients)) {
+					strcat(public_clients, "|");
 					strcat(public_clients, addrbuf);
 				}
 			}
