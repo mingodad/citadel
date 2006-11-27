@@ -501,28 +501,36 @@ void install_init_scripts(void)
 
 	fprintf(fp,	"#!/bin/sh\n"
 			"\n"
-			"DAEMON=%s/ctdlsvc\n", setup_directory);
+			"WEBCIT_DIR=%s\n", setup_directory);
+	fprintf(fp,	"HTTP_PORT=%s\n", http_port);
+#ifdef HAVE_OPENSSL
+	fprintf(fp,	"HTTPS_PORT=%s\n", https_port);
+#endif
+	fprintf(fp,	"CTDL_HOSTNAME=%s\n", hostname);
+	fprintf(fp,	"CTDL_PORTNAME=%s\n", portname);
 	fprintf(fp,	"\n"
-			"test -x $DAEMON || exit 0\n"
+			"test -x $WEBCIT_DIR/ctdlsvc || exit 0\n"
 			"test -d /var/run || exit 0\n"
 			"\n"
 			"case \"$1\" in\n"
 			"\n"
 			"start)		echo -n \"Starting WebCit... \"\n"
-			"		if $DAEMON /var/run/webcit.pid %s/webserver "
-							"-p%s %s %s\n",
-							setup_directory, http_port, hostname, portname);
-	fprintf(fp,	"		then\n"
+			"		if $WEBCIT_DIR/ctdlsvc /var/run/webcit.pid "
+							"$WEBCIT_DIR/webserver "
+							"-t/dev/null "
+							"-p$HTTP_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
+			"		then\n"
 			"			echo \"ok\"\n"
 			"		else\n"
 			"			echo \"failed\"\n"
 			"		fi\n");
 #ifdef HAVE_OPENSSL
 	fprintf(fp,	"		echo -n \"Starting WebCit SSL... \"\n"
-			"		if $DAEMON /var/run/webcit-ssl.pid %s/webserver "
-							"-s -p%s %s %s\n",
-							setup_directory, https_port, hostname, portname);
-	fprintf(fp,	"		then\n"
+			"		if $WEBCIT_DIR/ctdlsvc /var/run/webcit-ssl.pid "
+							"$WEBCIT_DIR/webserver "
+							"-t/dev/null "
+							"-s -p$HTTPS_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
+			"		then\n"
 			"			echo \"ok\"\n"
 			"		else\n"
 			"			echo \"failed\"\n"
@@ -667,11 +675,13 @@ int main(int argc, char *argv[])
 		install_init_scripts();
 	}
 
+	/* FIXME
 	for (a=0; a<=3; ++a) {
-		progress("FIXME Starting the WebCit service...", a, 3);
-		/* if (a == 0) start_the_service(); */
+		progress("Starting the WebCit service...", a, 3);
+		if (a == 0) start_the_service();
 		sleep(1);
 	}
+	*/
 
 	sprintf(aaa,
 		"Setup is finished.  You may now log in.\n"
