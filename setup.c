@@ -24,14 +24,14 @@
 
 int setup_type;
 char setup_directory[SIZ];
-char init_entry[SIZ];
 int using_web_installer = 0;
 char suggested_url[SIZ];
 
 /*
  * Set an entry in inittab to the desired state
  */
-void set_init_entry(char *which_entry, char *new_state) {
+void delete_init_entry(char *which_entry)
+{
 	char *inittab = NULL;
 	FILE *fp;
 	char buf[SIZ];
@@ -55,9 +55,7 @@ void set_init_entry(char *which_entry, char *new_state) {
 			extract_token(prog, buf, 3, ':', sizeof prog); /* includes 0x0a LF */
 
 			if (!strcmp(entry, which_entry)) {
-				strcpy(state, new_state);
-				sprintf(buf, "%s:%s:%s:%s",
-					entry, levels, state, prog);
+				buf[0] = 0;	/* delete it */
 			}
 		}
 
@@ -83,15 +81,18 @@ void set_init_entry(char *which_entry, char *new_state) {
 
 
 /* 
- * Shut down the Citadel service if necessary, during setup.
+ * Remove any /etc/inittab entries for webcit, because we don't
+ * start it that way anymore.
  */
-void shutdown_service(void) {
+void delete_the_old_way(void) {
 	FILE *infp;
-	char buf[SIZ];
-	char looking_for[SIZ];
+	char buf[1024];
+	char looking_for[1024];
 	int have_entry = 0;
-	char entry[SIZ];
-	char prog[SIZ];
+	char entry[1024];
+	char prog[1024];
+	char init_entry[1024];
+
 
 	strcpy(init_entry, "");
 
@@ -121,17 +122,7 @@ void shutdown_service(void) {
 	/* Bail out if there's nothing to do. */
 	if (!have_entry) return;
 
-	set_init_entry(init_entry, "off");
-}
-
-
-/*
- * Start the Citadel service.
- */
-void start_the_service(void) {
-	if (strlen(init_entry) > 0) {
-		set_init_entry(init_entry, "respawn");
-	}
+	delete_init_entry(init_entry);
 }
 
 
@@ -435,16 +426,12 @@ void progress(char *text, long int curr, long int cmax)
 
 
 /*
- * check_inittab_entry()  -- Make sure "webserver" is in /etc/inittab
+ * install_init_scripts()  -- Make sure "webserver" is in /etc/inittab
  *
  */
-void check_inittab_entry(void)
+void install_init_scripts(void)
 {
-	FILE *infp;
-	char buf[SIZ];
-	char looking_for[SIZ];
 	char question[SIZ];
-	char entryname[5];
 	char http_port[128];
 #ifdef HAVE_OPENSSL
 	char https_port[128];
@@ -453,19 +440,12 @@ void check_inittab_entry(void)
 	char portname[128];
 	struct utsname my_utsname;
 
-	/* Determine the fully qualified path name of webserver */
-	snprintf(looking_for, sizeof looking_for, "%s/webserver", setup_directory);
-
-	/* If there's already an entry, then we have nothing left to do. */
-	if (strlen(init_entry) > 0) {
-		return;
-	}
+	FILE *fp;
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
-		"There is no '%s' entry in /etc/inittab.\n"
-		"Would you like to add one?",
-		looking_for);
+		"Would you like to automatically start WebCit at boot?"
+	);
 	if (yesno(question) == 0)
 		return;
 
@@ -474,7 +454,7 @@ void check_inittab_entry(void)
 		"requests?\n\nYou can use the standard port (80) if you are "
 		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
-	sprintf(http_port, "2000");
+	sprintf(http_port, "80");
 	set_value(question, http_port);
 	uname(&my_utsname);
 	sprintf(suggested_url, "http://%s:%s/", my_utsname.nodename, http_port);
@@ -512,41 +492,45 @@ void check_inittab_entry(void)
 		}
 	}
 
-	/* Generate unique entry names for /etc/inittab */
-	snprintf(entryname, sizeof entryname, "c0");
-	do {
-		++entryname[1];
-		if (entryname[1] > '9') {
-			entryname[1] = 0;
-			++entryname[0];
-			if (entryname[0] > 'z') {
-				display_error(
-				   "Can't generate a unique entry name");
-				return;
-			}
-		}
-		snprintf(buf, sizeof buf,
-		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
-	} while (system(buf) == 0);
-	
 
-	/* Now write it out to /etc/inittab */
-	infp = fopen("/etc/inittab", "a");
-	if (infp == NULL) {
-		display_error(strerror(errno));
-	} else {
-		fprintf(infp, "# Start the WebCit server...\n");
-		fprintf(infp, "h%s:2345:respawn:%s -p%s %s %s\n",
-			entryname, looking_for,
-			http_port, hostname, portname);
-#ifdef HAVE_OPENSSL
-		fprintf(infp, "s%s:2345:respawn:%s -p%s -s %s %s\n",
-			entryname, looking_for,
-			https_port, hostname, portname);
-#endif
-		fclose(infp);
-		strcpy(init_entry, entryname);
+	fp = fopen("/etc/init.d/webcit", "w");
+	if (fp == NULL) {
+		display_error("Cannot create /etc/init.d/webcit");
+		return;
 	}
+
+	fprintf(fp,	"#!/bin/sh\n"
+			"\n"
+			"DAEMON=%s/ctdlsvc\n", setup_directory);
+	fprintf(fp,	"\n"
+			"test -x $DAEMON || exit 0\n"
+			"test -d /var/run || exit 0\n"
+			"\n"
+			"case \"$1\" in\n"
+			"\n"
+			"start)		echo -n \"Starting WebCit... \"\n"
+			"		if $DAEMON /var/run/webcit.pid %s/webserver "
+							"-p%s %s %s\n",
+							setup_directory, http_port, hostname, portname);
+	fprintf(fp,	"		then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n");
+	fprintf(fp,	"		;;\n"
+			"stop)		echo -n \"Stopping WebCit... \"\n"
+			"		kill `cat /var/run/webcit.pid`\n"
+			"		rm -f /var/run/webcit.pid\n"
+			"		echo \"ok\"\n"
+			"		;;\n"
+			"*)		echo \"Usage: $0 {start|stop}\"\n"
+			"		exit 1\n"
+			"		;;\n"
+			"esac\n"
+	);
+
+	fclose(fp);
+	chmod("/etc/init.d/webcit", 0755);
 }
 
 
@@ -618,15 +602,6 @@ int main(int argc, char *argv[])
 		cleanup(0);
 	}
 
-	/* If we're on something BSDish then we don't have inittab */
-	if (access("/etc/inittab", F_OK)) {
-		important_message("Not running SysV style init",
-				"WebCit Setup can only run on systems that use /etc/inittab.\n"
-				"Please manually configure your startup scripts to run WebCit\n"
-				"when the system is booted.\n");
-		cleanup(0);
-	}
-
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, PREFIX);
 	if ( (using_web_installer) && (getenv("WEBCIT") != NULL) ) {
@@ -642,12 +617,13 @@ int main(int argc, char *argv[])
 		cleanup(errno);
 	}
 
-	/* See if we need to shut down the WebCit service. */
-	for (a=0; a<=3; ++a) {
-		progress("Shutting down the WebCit service...", a, 3);
-		if (a == 0) shutdown_service();
-		sleep(1);
-	}
+	/*
+	 * We used to start WebCit by putting it directly into /etc/inittab.
+	 * Since some systems are moving away from init, we can't do this anymore.
+	 */
+	progress("Removing obsolete /etc/inittab entries...", 0, 1);
+	delete_the_old_way();
+	progress("Removing obsolete /etc/inittab entries...", 1, 1);
 
 	/* Now begin. */
 	switch (setup_type) {
@@ -659,24 +635,29 @@ int main(int argc, char *argv[])
 
 	}
 
-	check_inittab_entry();	/* Check /etc/inittab */
-
-	/* See if we can start the WebCit service. */
-	if (strlen(init_entry) > 0) {
-		for (a=0; a<=3; ++a) {
-			progress("Starting the WebCit service...", a, 3);
-			if (a == 0) start_the_service();
-			sleep(1);
-		}
-		sprintf(aaa,
-			"Setup is finished.  You may now log in.\n"
-			"Point your web browser at %s\n", suggested_url);
-		important_message("Setup finished", aaa);
+	/* 
+	 * If we're running on SysV, install init scripts.
+	 */
+	if (!access("/var/run", W_OK)) {
+		install_init_scripts();
 	}
-	else {
+
+	for (a=0; a<=3; ++a) {
+		progress("FIXME Starting the WebCit service...", a, 3);
+		/* if (a == 0) start_the_service(); */
+		sleep(1);
+	}
+
+	sprintf(aaa,
+		"Setup is finished.  You may now log in.\n"
+		"Point your web browser at %s\n", suggested_url
+	);
+	important_message("Setup finished", aaa);
+
+	/* else {
 		important_message("Setup finished",
 			"Setup is finished.  You may now start the server.");
-	}
+	} */
 
 	cleanup(0);
 	return 0;
