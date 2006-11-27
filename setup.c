@@ -517,12 +517,37 @@ void install_init_scripts(void)
 			"		else\n"
 			"			echo \"failed\"\n"
 			"		fi\n");
+#ifdef HAVE_OPENSSL
+	fprintf(fp,	"		echo -n \"Starting WebCit SSL... \"\n"
+			"		if $DAEMON /var/run/webcit-ssl.pid %s/webserver "
+							"-s -p%s %s %s\n",
+							setup_directory, https_port, hostname, portname);
+	fprintf(fp,	"		then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n");
+#endif
 	fprintf(fp,	"		;;\n"
 			"stop)		echo -n \"Stopping WebCit... \"\n"
-			"		kill `cat /var/run/webcit.pid`\n"
-			"		rm -f /var/run/webcit.pid\n"
-			"		echo \"ok\"\n"
-			"		;;\n"
+			"		if kill `cat /var/run/webcit.pid 2>/dev/null` 2>/dev/null\n"
+			"		then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n"
+			"		rm -f /var/run/webcit.pid 2>/dev/null\n");
+#ifdef HAVE_OPENSSL
+	fprintf(fp,	"		echo -n \"Stopping WebCit SSL... \"\n"
+			"		if kill `cat /var/run/webcit-ssl.pid 2>/dev/null` 2>/dev/null\n"
+			"		then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n"
+			"		rm -f /var/run/webcit-ssl.pid 2>/dev/null\n");
+#endif
+	fprintf(fp,	"		;;\n"
 			"*)		echo \"Usage: $0 {start|stop}\"\n"
 			"		exit 1\n"
 			"		;;\n"
