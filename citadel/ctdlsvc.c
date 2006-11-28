@@ -17,7 +17,7 @@
 char *pidfilename = NULL;
 pid_t current_child = 0;
 
-RETSIGTYPE graceful_shutdown(int signum) {
+void graceful_shutdown(int signum) {
 	kill(current_child, signum);
 	if (pidfilename != NULL) {
 		unlink(pidfilename);

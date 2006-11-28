@@ -357,8 +357,8 @@ void check_services_entry(void)
 	FILE *sfp;
 
 	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
-		for (i=0; i<=3; ++i) {
-			progress("Adding service entry...", i, 3);
+		for (i=0; i<=2; ++i) {
+			progress("Adding service entry...", i, 2);
 			if (i == 0) {
 				sfp = fopen("/etc/services", "a");
 				if (sfp == NULL) {
@@ -437,6 +437,72 @@ void delete_inittab_entry(void)
 		unlink(outfilename);
 	}
 }
+
+
+/*
+ * install_init_scripts()  -- Try to configure to start Citadel at boot
+ *
+ */
+void install_init_scripts(void)
+{
+	FILE *fp;
+
+	if (yesno("Would you like to automatically start Citadel at boot?\n") == 0) {
+		return;
+	}
+
+	fp = fopen("/etc/init.d/citadel", "w");
+	if (fp == NULL) {
+		display_error("Cannot create /etc/init.d/citadel");
+		return;
+	}
+
+	fprintf(fp,	"#!/bin/sh\n"
+			"\n"
+			"CITADEL_DIR=%s\n", setup_directory);
+	fprintf(fp,	"\n"
+			"test -x $CITADEL_DIR/ctdlsvc || exit 0\n"
+			"test -d /var/run || exit 0\n"
+			"\n"
+			"case \"$1\" in\n"
+			"\n"
+			"start)		echo -n \"Starting Citadel... \"\n"
+			"		if $CITADEL_DIR/ctdlsvc /var/run/citadel.pid "
+							"$CITADEL_DIR/citserver "
+							"-t/dev/null\n"
+			"		then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n");
+	fprintf(fp,	"		;;\n"
+			"stop)		echo -n \"Stopping Citadel... \"\n"
+			"		if $CITADEL_DIR/sendcommand DOWN >/dev/null 2>&1 ; then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n"
+			"		rm -f /var/run/citadel.pid 2>/dev/null\n");
+	fprintf(fp,	"		;;\n"
+			"*)		echo \"Usage: $0 {start|stop}\"\n"
+			"		exit 1\n"
+			"		;;\n"
+			"esac\n"
+	);
+
+	fclose(fp);
+	chmod("/etc/init.d/citadel", 0755);
+
+	/* Set up the run levels. */
+	system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
+	system("for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/citadel /etc/rc$x.d/S79citadel ; done 2>/dev/null");
+	system("for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/citadel /etc/rc$x.d/K30citadel ; done 2>/dev/null");
+
+}
+
+
+
+
 
 
 /*
@@ -994,6 +1060,15 @@ int main(int argc, char *argv[])
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
 
+	/* Try to stop Citadel if we can */
+	if (!access("/etc/init.d/citadel", X_OK)) {
+		for (a=0; a<=2; ++a) {
+			progress("Stopping the Citadel service...", a, 2);
+			if (a == 0) system("/etc/init.d/citadel stop >/dev/null 2>&1");
+			sleep(1);
+		}
+	}
+
 	/* Make sure Citadel is not running. */
 	if (test_server() == 0) {
 		important_message("Citadel Setup",
@@ -1267,16 +1342,36 @@ NEW_INST:
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
-	/* See if we can start the Citadel service. */
-	/* FIXME do this */
+	/* 
+	 * If we're running on SysV, install init scripts.
+	 */
+	if (!access("/var/run", W_OK)) {
+		install_init_scripts();
 
-	if (test_server() == 0) {
-		important_message("Setup finished",
-			"Setup of the Citadel server is complete.\n"
-			"If you will be using WebCit, please run its\n"
-			"setup program now; otherwise, run './citadel'\n"
-			"to log in.\n");
+		if (!access("/etc/init.d/citadel", X_OK)) {
+			for (a=0; a<=2; ++a) {
+				progress("Starting the Citadel service...", a, 2);
+				if (a == 0) system("/etc/init.d/citadel start >/dev/null 2>&1");
+				sleep(1);
+			}
+		}
+
+		if (test_server() == 0) {
+			important_message("Setup finished",
+				"Setup of the Citadel server is complete.\n"
+				"If you will be using WebCit, please run its\n"
+				"setup program now; otherwise, run './citadel'\n"
+				"to log in.\n");
+		}
+		else {
+			important_message("Setup failed",
+				"Setup is finished, but the Citadel server failed to start.\n"
+				"Go back and check your configuration.\n"
+			);
+		}
+
 	}
+
 	else {
 		important_message("Setup finished",
 			"Setup is finished.  You may now start the server.");

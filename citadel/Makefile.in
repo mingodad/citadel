@@ -26,7 +26,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver setup $(CHKPWD)
+SERVER_TARGETS=citserver setup ctdlsvc $(CHKPWD)
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \
@@ -102,7 +102,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c serv_managesieve.c server_main.c \
-	serv_sieve.c setup.c snprintf.c \
+	serv_sieve.c setup.c ctdlsvc.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
 	crc16.c journaling.c citadel_dirs.c
@@ -157,6 +157,9 @@ citmail: citmail.o config.o citadel_dirs.o
 # setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
 setup: setup.o tools.o citadel_dirs.o
 	$(CC) setup.o tools.o citadel_dirs.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
+
+ctdlsvc: ctdlsvc.o citadel_dirs.o
+	$(CC) ctdlsvc.o citadel_dirs.o $(LDFLAGS) -o ctdlsvc $(SETUP_LIBS)
 
 chkpwd: chkpwd.o auth.o config.o citadel_dirs.o
 	$(CC) chkpwd.o auth.o config.o citadel_dirs.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
