@@ -51,17 +51,6 @@ char citserver_init_entry[SIZ];
 int using_web_installer = 0;
 int enable_home = 1;
 
-/**
- *	We will set have_sysv_init to nonzero if the host operating system
- *	has a System V style init driven by /etc/inittab.  This will cause
- *	setup to offer to automatically start and stop the Citadel service.
- */
-int have_sysv_init = 0;
-
-#ifdef HAVE_LDAP
-void contemplate_ldap(void);
-#endif
-
 char *setup_titles[] =
 {
 	"Citadel Home Directory",
@@ -119,129 +108,6 @@ char *setup_text[] = {
 
 struct config config;
 int direction;
-
-/*
- * Set an entry in inittab to the desired state
- */
-void set_init_entry(char *which_entry, char *new_state) {
-	char *inittab = NULL;
-	FILE *fp;
-	char buf[SIZ];
-	char entry[SIZ];
-	char levels[SIZ];
-	char state[SIZ];
-	char prog[SIZ];
-
-	if (which_entry == NULL) return;
-	if (strlen(which_entry) == 0) return;
-
-	inittab = strdup("");
-	if (inittab == NULL) return;
-
-	fp = fopen("/etc/inittab", "r");
-	if (fp == NULL) return;
-
-	while(fgets(buf, sizeof buf, fp) != NULL) {
-
-		if (num_tokens(buf, ':') == 4) {
-			extract_token(entry, buf, 0, ':', sizeof entry);
-			extract_token(levels, buf, 1, ':', sizeof levels);
-			extract_token(state, buf, 2, ':', sizeof state);
-			extract_token(prog, buf, 3, ':', sizeof prog); /* includes 0x0a LF */
-
-			if (!strcmp(entry, which_entry)) {
-				strcpy(state, new_state);
-				sprintf(buf, "%s:%s:%s:%s",
-					entry, levels, state, prog);
-			}
-		}
-
-		inittab = realloc(inittab, strlen(inittab) + strlen(buf) + 2);
-		if (inittab == NULL) {
-			fclose(fp);
-			return;
-		}
-		
-		strcat(inittab, buf);
-	}
-	fclose(fp);
-	fp = fopen("/etc/inittab", "w");
-	if (fp != NULL) {
-		fwrite(inittab, strlen(inittab), 1, fp);
-		fclose(fp);
-		kill(1, SIGHUP);	/* Tell init to re-read /etc/inittab */
-	}
-	free(inittab);
-}
-
-
-/*
- * Locate the name of an inittab entry for a specific program
- */
-void locate_init_entry(char *init_entry, char *looking_for) {
-
-	FILE *infp;
-	char buf[SIZ];
-	int have_entry = 0;
-	char entry[SIZ];
-	char prog[SIZ];
-
-	strcpy(init_entry, "");
-
-	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
-	 * an entry is found which we believe starts the specified program.
-	 */
-	infp = fopen("/etc/inittab", "r");
-	if (infp == NULL) {
-		return;
-	} else {
-		while (fgets(buf, sizeof buf, infp) != NULL) {
-			buf[strlen(buf) - 1] = 0;
-			extract_token(entry, buf, 0, ':', sizeof entry);
-			extract_token(prog, buf, 3, ':', sizeof prog);
-			if (!strncasecmp(prog, looking_for,
-			   strlen(looking_for))) {
-				++have_entry;
-				strcpy(init_entry, entry);
-			}
-		}
-		fclose(infp);
-	}
-
-}
-
-
-/* 
- * Shut down the Citadel service if necessary, during setup.
- */
-void shutdown_citserver(void) {
-	char looking_for[SIZ];
-
-	snprintf(looking_for, 
-			 sizeof looking_for,
-			 "%s/citserver", 
-#ifndef HAVE_RUN_DIR
-			 setup_directory
-#else
-			 CTDLDIR
-#endif
-			 );
-	locate_init_entry(citserver_init_entry, looking_for);
-	if (strlen(citserver_init_entry) > 0) {
-		set_init_entry(citserver_init_entry, "off");
-	}
-}
-
-
-/*
- * Start the Citadel service.
- */
-void start_citserver(void) {
-	if (strlen(citserver_init_entry) > 0) {
-		set_init_entry(citserver_init_entry, "respawn");
-	}
-}
-
 
 
 void cleanup(int exitcode)
@@ -509,41 +375,20 @@ void check_services_entry(void)
 }
 
 
-/*
- * Generate a unique entry name for a new inittab entry
- */
-void generate_entry_name(char *entryname) {
-	char buf[SIZ];
-
-	snprintf(entryname, sizeof entryname, "c0");
-	do {
-		++entryname[1];
-		if (entryname[1] > '9') {
-			entryname[1] = 0;
-			++entryname[0];
-			if (entryname[0] > 'z') {
-				display_error(
-				   "Can't generate a unique entry name");
-				return;
-			}
-		}
-		snprintf(buf, sizeof buf,
-		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
-	} while (system(buf) == 0);
-}
-
 
 
 /*
- * check_inittab_entry()  -- Make sure "citadel" is in /etc/inittab
+ * delete_inittab_entry()  -- Remove obsolete /etc/inittab entry for Citadel
  *
  */
-void check_inittab_entry(void)
+void delete_inittab_entry(void)
 {
 	FILE *infp;
-	char looking_for[SIZ];
-	char question[SIZ];
-	char entryname[5];
+	FILE *outfp;
+	char looking_for[256];
+	char buf[1024];
+	char outfilename[32];
+	int changes_made = 0;
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, 
@@ -554,47 +399,42 @@ void check_inittab_entry(void)
 #else
 			 CTDLDIR
 #endif
-			 );
-	locate_init_entry(citserver_init_entry, looking_for);
+	 );
 
-	/* If there's already an entry, then we have nothing left to do. */
-	if (strlen(citserver_init_entry) > 0) {
+	/* Now tweak /etc/inittab */
+	infp = fopen("/etc/inittab", "r");
+	if (infp == NULL) {
+		display_error(strerror(errno));
 		return;
 	}
 
-	/* Otherwise, prompt the user to create an entry. */
-	if (getenv("CREATE_INITTAB_ENTRY") != NULL) {
-		if (strcasecmp(getenv("CREATE_INITTAB_ENTRY"), "yes")) {
-			return;
+	strcpy(outfilename, "/tmp/ctdlsetup.XXXXXX");
+	outfp = fdopen(mkstemp(outfilename), "w+");
+	if (outfp == NULL) {
+		display_error(strerror(errno));
+		fclose(infp);
+		return;
+	}
+
+	while (fgets(buf, sizeof buf, infp) != NULL) {
+		if (strstr(buf, looking_for) == NULL) {
+			fwrite(buf, strlen(buf), 1, outfp);
 		}
+		else {
+			++changes_made;
+		}
+	}
+
+	fclose(infp);
+	fclose(outfp);
+
+	if (changes_made) {
+		sprintf(buf, "/bin/mv -f %s /etc/inittab 2>/dev/null", outfilename);
+		system(buf);
+		system("/sbin/init q 2>/dev/null");
 	}
 	else {
-		snprintf(question, sizeof question,
-			"Do you want this computer configured to start the Citadel\n"
-			"service automatically?  (If you answer yes, an entry in\n"
-			"/etc/inittab pointing to %s will be added.)\n",
-			looking_for);
-		if (yesno(question) == 0) {
-			return;
-		}
-	}
-
-	/* Generate a unique entry name for /etc/inittab */
-	generate_entry_name(entryname);
-
-	/* Now write it out to /etc/inittab */
-	infp = fopen("/etc/inittab", "a");
-	if (infp == NULL) {
-		display_error(strerror(errno));
-	} else {
-		fprintf(infp, "# Start the Citadel server...\n");
-		fprintf(infp, "%s:2345:respawn:%s %s%s -llocal4\n",
-				entryname, 
-				looking_for, 
-				(enable_home)?"-h":"", 
-				(enable_home)?setup_directory:"");
-		fclose(infp);
-		strcpy(citserver_init_entry, entryname);
+		unlink(outfilename);
 	}
 }
 
@@ -1080,13 +920,6 @@ int main(int argc, char *argv[])
 	/* set an invalid setup type */
 	setup_type = (-1);
 
-	/* Learn whether to skip the auto-service-start questions */
-	fp = fopen("/etc/inittab", "r");
-	if (fp != NULL) {
-		have_sysv_init = 1;
-		fclose(fp);
-	}
-
 	/* Check to see if we're running the web installer */
 	if (getenv("CITADEL_INSTALLER") != NULL) {
 		using_web_installer = 1;
@@ -1161,22 +994,13 @@ int main(int argc, char *argv[])
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
 
-	if (have_sysv_init) {
-		/* See if we need to shut down the Citadel service. */
-		for (a=0; a<=3; ++a) {
-			progress("Shutting down the Citadel service...", a, 3);
-			if (a == 0) shutdown_citserver();
-			sleep(1);
-		}
-
-		/* Make sure it's stopped. */
-		if (test_server() == 0) {
-			important_message("Citadel Setup",
-				"The Citadel service is still running.\n"
-				"Please stop the service manually and run "
-				"setup again.");
-			cleanup(1);
-		}
+	/* Make sure Citadel is not running. */
+	if (test_server() == 0) {
+		important_message("Citadel Setup",
+			"The Citadel service is still running.\n"
+			"Please stop the service manually and run "
+			"setup again.");
+		cleanup(1);
 	}
 
 	/* Now begin. */
@@ -1385,9 +1209,7 @@ NEW_INST:
 
 	check_services_entry();	/* Check /etc/services */
 #ifndef __CYGWIN__
-	if (have_sysv_init) {
-		check_inittab_entry();	/* Check /etc/inittab */
-	}
+	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 
 	/* Offer to disable other MTA's on the system. */
@@ -1445,31 +1267,15 @@ NEW_INST:
 	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
-#ifdef HAVE_LDAP
-	/* Contemplate the possibility of auto-configuring OpenLDAP */
-	contemplate_ldap();
-#endif
-
 	/* See if we can start the Citadel service. */
-	if ( (have_sysv_init) && (strlen(citserver_init_entry) > 0) ) {
-		for (a=0; a<=3; ++a) {
-			progress("Starting the Citadel service...", a, 3);
-			if (a == 0) start_citserver();
-			sleep(1);
-		}
-		if (test_server() == 0) {
-			important_message("Setup finished",
-				"Setup of the Citadel server is complete.\n"
-				"If you will be using WebCit, please run its\n"
-				"setup program now; otherwise, run './citadel'\n"
-				"to log in.\n");
-		}
-		else {
-			important_message("Setup finished",
-				"Setup is finished, but the Citadel service "
-				"failed to start.\n"
-				"Go back and check your configuration.");
-		}
+	/* FIXME do this */
+
+	if (test_server() == 0) {
+		important_message("Setup finished",
+			"Setup of the Citadel server is complete.\n"
+			"If you will be using WebCit, please run its\n"
+			"setup program now; otherwise, run './citadel'\n"
+			"to log in.\n");
 	}
 	else {
 		important_message("Setup finished",
@@ -1481,129 +1287,3 @@ NEW_INST:
 }
 
 
-#ifdef HAVE_LDAP
-/*
- * If we're in the middle of an Easy Install, we might just be able to
- * auto-configure a standalone OpenLDAP server.
- */
-void contemplate_ldap(void) {
-	char question[SIZ];
-	char slapd_init_entry[SIZ];
-	FILE *fp;
-
-	/* If conditions are not ideal, give up on this idea... */
-	if (!have_sysv_init) return;
-	if (using_web_installer == 0) return;
-	if (getenv("LDAP_CONFIG") == NULL) return;
-	if (getenv("SUPPORT") == NULL) return;
-	if (getenv("SLAPD_BINARY") == NULL) return;
-	if (getenv("CITADEL") == NULL) return;
-
-	/* And if inittab is already starting slapd, bail out... */
-	locate_init_entry(slapd_init_entry, getenv("SLAPD_BINARY"));
-	if (strlen(slapd_init_entry) > 0) {
-		important_message("Citadel Setup",
-			"You appear to already have a standalone LDAP "
-			"service\nconfigured for use with Citadel.  No "
-			"changes will be made.\n");
-		/* set_init_entry(slapd_init_entry, "off"); */
-		return;
-	}
-
-	/* Generate a unique entry name for slapd if we don't have one. */
-	else {
-		generate_entry_name(slapd_init_entry);
-	}
-
-	/* Ask the user if it's ok to set up slapd automatically. */
-	snprintf(question, sizeof question,
-		"\n"
-		"Do you want this computer configured to start a standalone\n"
-		"LDAP service automatically?  (If you answer yes, a new\n"
-		"slapd.conf will be written, and an /etc/inittab entry\n"
-		"pointing to %s will be added.)\n"
-		"\n",
-		getenv("SLAPD_BINARY")
-	);
-	if (yesno(question) == 0)
-		return;
-
-	strcpy(config.c_ldap_base_dn, "dc=example,dc=com");
-	strprompt("Base DN",
-		"\n"
-		"Please enter the Base DN for your directory.  This will\n"
-		"generally be something based on the primary DNS domain in\n"
-		"which you receive mail, but it does not have to be.  Your\n"
-		"LDAP tree will be built using this Distinguished Name.\n"
-		"\n",
-		config.c_ldap_base_dn
-	);
-
-	strcpy(config.c_ldap_host, "localhost");
-	config.c_ldap_port = 389;
-	sprintf(config.c_ldap_bind_dn, "cn=manager,%s", config.c_ldap_base_dn);
-
-	/*
-	 * Generate a bind password.  If you're some grey hat hacker who
-	 * is just dying to get some street cred on Bugtraq, and you think
-	 * this password generation scheme is too weak, please submit a patch
-	 * instead of just whining about it, ok?
-	 */
-	sprintf(config.c_ldap_bind_pw, "%d%ld", getpid(), (long)time(NULL));
-
-	write_config_to_disk();
-
-	fp = fopen(getenv("LDAP_CONFIG"), "w");
-	if (fp == NULL) {
-		sprintf(question, "\nCannot create %s:\n%s\n\n"
-				"Citadel will still function, but you will "
-				"not have an LDAP service.\n\n",
-				getenv("LDAP_CONFIG"),
-				strerror(errno)
-		);
-		important_message("Error", question);
-		return;
-	}
-
-	fprintf(fp, "include	%s/citadel-openldap.schema\n",
-		getenv("CITADEL"));
-	fprintf(fp, "pidfile	%s/openldap-data/slapd.pid\n",
-		getenv("CITADEL"));
-	fprintf(fp, "argsfile	%s/openldap-data/slapd.args\n",
-		getenv("CITADEL"));
-	fprintf(fp,	"allow		bind_v2\n"
-			"database	bdb\n"
-			"schemacheck	off\n"
-	);
-	fprintf(fp,	"suffix		\"%s\"\n", config.c_ldap_base_dn);
-	fprintf(fp,	"rootdn		\"%s\"\n", config.c_ldap_bind_dn);
-	fprintf(fp,	"rootpw		%s\n", config.c_ldap_bind_pw);
-	fprintf(fp,	"directory	%s/openldap-data\n",
-		getenv("CITADEL"));
-	fprintf(fp,	"index		objectClass	eq\n");
-
-	fclose(fp);
-
-	/* This is where our OpenLDAP server will keep its data. */
-	mkdir("openldap-data", 0700);
-
-	/* Now write it out to /etc/inittab.
-	 * FIXME make it run as some non-root user.
-	 * The "-d 0" seems superfluous, but it's actually a way to make
-	 * slapd run in the foreground without spewing messages to the console.
-	 */
-	fp = fopen("/etc/inittab", "a");
-	if (fp == NULL) {
-		display_error(strerror(errno));
-	} else {
-		fprintf(fp, "# Start the OpenLDAP server for Citadel...\n");
-		fprintf(fp, "%s:2345:respawn:%s -d 0 -f %s\n",
-			slapd_init_entry,
-			getenv("SLAPD_BINARY"),
-			getenv("LDAP_CONFIG")
-		);
-		fclose(fp);
-	}
-
-}
-#endif	/* HAVE_LDAP */

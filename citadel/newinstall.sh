@@ -82,7 +82,6 @@ MAKEOPTS=""
 # CITADEL		Directory where Citadel is installed
 # WEBCIT		Directory where WebCit is installed
 # SUPPORT		Directory where support programs are installed
-# SLAPD_BINARY		Location of the slapd binary
 # DISTRO_MAJOR		Linux distribution name, if applicable
 # DISTRO_MINOR		Linux distribution name, if applicable
 # DISTRO_VERSION	Linux distribution version (major digit) if applicable
