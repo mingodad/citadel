@@ -46,8 +46,7 @@
 #define NSSCONF		"/etc/nsswitch.conf"
 
 int setup_type;
-char setup_directory[SIZ];
-char citserver_init_entry[SIZ];
+char setup_directory[PATH_MAX];
 int using_web_installer = 0;
 int enable_home = 1;
 
@@ -1346,7 +1345,10 @@ NEW_INST:
 	 * If we're running on SysV, install init scripts.
 	 */
 	if (!access("/var/run", W_OK)) {
-		install_init_scripts();
+
+		if (getenv("NO_INIT_SCRIPTS") == NULL) {
+			install_init_scripts();
+		}
 
 		if (!access("/etc/init.d/citadel", X_OK)) {
 			for (a=0; a<=2; ++a) {
