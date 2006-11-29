@@ -2572,6 +2572,7 @@ void post_mime_to_server(void) {
 
 	/** RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
+	serv_puts("X-Mailer: " SERVER);
 
 	/** If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
