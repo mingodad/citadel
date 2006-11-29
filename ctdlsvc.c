@@ -44,6 +44,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	close(0);
 	close(1);
 	close(2);
 	signal(SIGHUP, SIG_IGN);
