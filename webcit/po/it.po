@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-10-28 00:14-0400\n"
+"POT-Creation-Date: 2006-11-29 17:58-0500\n"
 "PO-Revision-Date: 2006-02-27 10:07+0100\n"
 "Last-Translator: Gabriele Tassoni <tasso@fastwebnet.it>\n"
 "Language-Team: italian <it@li.org>\n"
@@ -113,7 +113,7 @@ msgstr "Esegui nuovamente il Log in"
 msgid "Close window"
 msgstr "Chiudi la finestra"
 
-#: ../auth.c:334 ../mainmenu.c:246
+#: ../auth.c:334 ../mainmenu.c:251
 msgid "Validate new users"
 msgstr "Valida il nuovo utente"
 
@@ -147,11 +147,11 @@ msgid "Change password"
 msgstr "Cambia la password"
 
 #: ../auth.c:506 ../calendar.c:616 ../event.c:390 ../graphics.c:58
-#: ../iconbar.c:712 ../mainmenu.c:305 ../messages.c:2959 ../messages.c:3081
-#: ../messages.c:3191 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
+#: ../iconbar.c:712 ../mainmenu.c:310 ../messages.c:2960 ../messages.c:3082
+#: ../messages.c:3192 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
-#: ../roomops.c:2211 ../roomops.c:2275 ../siteconfig.c:604 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:337 ../who.c:273
+#: ../roomops.c:2211 ../roomops.c:2275 ../sieve.c:179 ../siteconfig.c:608
+#: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
 msgid "Cancel"
 msgstr "Cancella"
 
@@ -457,7 +457,7 @@ msgstr "Settimana"
 msgid "Hours"
 msgstr "Ore"
 
-#: ../calendar_view.c:525 ../messages.c:2343
+#: ../calendar_view.c:525 ../messages.c:2343 ../sieve.c:942
 msgid "Subject"
 msgstr "Oggetto"
 
@@ -616,7 +616,7 @@ msgstr "Il caricamento della grafica &egrave; stato cancellato."
 msgid "You didn't upload a file."
 msgstr "Non carichi un file."
 
-#: ../html2html.c:109
+#: ../html2html.c:110
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "errore di realloc()! non riesco a ottenere %d bytes: %s"
@@ -830,7 +830,8 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Mostra l'icona Potenziato da Citadel"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../siteconfig.c:602 ../sysmsgs.c:57 ../useredit.c:381 ../vcard_edit.c:336
+#: ../sieve.c:177 ../siteconfig.c:606 ../sysmsgs.c:57 ../useredit.c:381
+#: ../vcard_edit.c:333
 msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
@@ -898,7 +899,7 @@ msgstr "Configurazione internet"
 msgid "Delete this entry?"
 msgstr "Cancello questa voce?"
 
-#: ../inetconf.c:124 ../netconf.c:209
+#: ../inetconf.c:124 ../netconf.c:209 ../smtpqueue.c:120
 msgid "(Delete)"
 msgstr "(Cancella)"
 
@@ -1041,76 +1042,80 @@ msgstr "Inserisci la tua biografia"
 msgid "Edit your online photo"
 msgstr "Modifica la tua foto on line"
 
-#: ../mainmenu.c:154
+#: ../mainmenu.c:152 ../sieve.c:79
+msgid "View/edit server-side mail filters"
+msgstr ""
+
+#: ../mainmenu.c:159
 msgid "Advanced room commands"
 msgstr "Comandi di stanza avanzati"
 
-#: ../mainmenu.c:160
+#: ../mainmenu.c:165
 msgid "Edit or delete this room"
 msgstr "Cancella o modifica questa stanza"
 
-#: ../mainmenu.c:166
+#: ../mainmenu.c:171
 msgid "Go to a 'hidden' room"
 msgstr "Entra in una stanza \"nascosta\""
 
-#: ../mainmenu.c:171 ../roomops.c:1958
+#: ../mainmenu.c:176 ../roomops.c:1958
 msgid "Create a new room"
 msgstr "Crea una nuova stanza"
 
-#: ../mainmenu.c:176
+#: ../mainmenu.c:181
 #, c-format
 msgid "Zap (forget) this room (%s)"
 msgstr "Dimentica questa stanza (%s)"
 
-#: ../mainmenu.c:181
+#: ../mainmenu.c:186
 msgid "List all forgotten rooms"
 msgstr "Mostra tutte le stanze dimenticate"
 
-#: ../mainmenu.c:200
+#: ../mainmenu.c:205
 msgid "System Administration Menu"
 msgstr "Menu di amministrazione di sistema"
 
-#: ../mainmenu.c:209
+#: ../mainmenu.c:214
 msgid "Global Configuration"
 msgstr "Configurazione globale"
 
-#: ../mainmenu.c:214
+#: ../mainmenu.c:219
 msgid "Edit site-wide configuration"
 msgstr "Modifica la configurazione per tutto il sito"
 
-#: ../mainmenu.c:219
+#: ../mainmenu.c:224
 msgid "Domain names and Internet mail configuration"
 msgstr "Configurazione dei nomi di dominio e della posta internet"
 
-#: ../mainmenu.c:224
+#: ../mainmenu.c:229
 msgid "Configure replication with other Citadel servers"
 msgstr "Configura la replicazione con altri server Citadel"
 
-#: ../mainmenu.c:229 ../smtpqueue.c:210
+#: ../mainmenu.c:234 ../smtpqueue.c:230
 msgid "View the outbound SMTP queue"
 msgstr ""
 
-#: ../mainmenu.c:236
+#: ../mainmenu.c:241
 msgid "User account management"
 msgstr "Gestione account utenti"
 
-#: ../mainmenu.c:241
+#: ../mainmenu.c:246
 msgid "Add, change, delete user accounts"
 msgstr "Aggiungi, modifica, cancella degli account di utenti"
 
-#: ../mainmenu.c:251
+#: ../mainmenu.c:256
 msgid "Rooms and Floors"
 msgstr "Stanze e piani"
 
-#: ../mainmenu.c:256
+#: ../mainmenu.c:261
 msgid "Add, change, or delete floors"
 msgstr "Aggiungi, modifica o cancella i piani"
 
-#: ../mainmenu.c:278
+#: ../mainmenu.c:283
 msgid "Enter a server command"
 msgstr "inserisci un comando per il server"
 
-#: ../mainmenu.c:287
+#: ../mainmenu.c:292
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1120,25 +1125,25 @@ msgstr ""
 "WebCit. Se non sai cosa significhi, allora questa schermata non ti "
 "sar&agrave; di molto aiuto."
 
-#: ../mainmenu.c:294
+#: ../mainmenu.c:299
 msgid "Enter command:"
 msgstr "Inserisci il comando:"
 
-#: ../mainmenu.c:297
+#: ../mainmenu.c:302
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr ""
 "Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
 
-#: ../mainmenu.c:301
+#: ../mainmenu.c:306
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "L'intestazione dell'host rilevata &egrave; %s://%s"
 
-#: ../mainmenu.c:303
+#: ../mainmenu.c:308
 msgid "Send command"
 msgstr "Invia il comando"
 
-#: ../mainmenu.c:332
+#: ../mainmenu.c:337
 msgid "Server command results"
 msgstr "Risultato del comando impartito al Server"
 
@@ -1154,7 +1159,7 @@ msgstr "(casa)"
 msgid " (cell)"
 msgstr "(cellulare)"
 
-#: ../messages.c:506 ../vcard_edit.c:253
+#: ../messages.c:506 ../vcard_edit.c:250
 msgid "Address:"
 msgstr "Indirizzo:"
 
@@ -1194,7 +1199,7 @@ msgstr "Vedi"
 msgid "Download"
 msgstr "Scarica"
 
-#: ../messages.c:866 ../messages.c:2916
+#: ../messages.c:866 ../messages.c:2917
 msgid "CC:"
 msgstr "CC:"
 
@@ -1218,7 +1223,7 @@ msgstr "Rispondi A Tutti"
 msgid "Forward"
 msgstr "Inoltra"
 
-#: ../messages.c:945 ../messages.c:3189
+#: ../messages.c:945 ../messages.c:3190
 msgid "Move"
 msgstr "Sposta"
 
@@ -1271,7 +1276,7 @@ msgstr "Nessun vecchio messaggio."
 msgid "No messages here."
 msgstr "Nessun messaggio."
 
-#: ../messages.c:2345 ../smtpqueue.c:166
+#: ../messages.c:2345 ../sieve.c:944 ../smtpqueue.c:174
 msgid "Sender"
 msgstr "Mittente"
 
@@ -1288,80 +1293,80 @@ msgstr "Numero di letture"
 msgid "of %d messages."
 msgstr "di %d messaggi."
 
-#: ../messages.c:2698
+#: ../messages.c:2699
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancellato. Il messaggio non &egrave; stato inviato."
 
-#: ../messages.c:2704
+#: ../messages.c:2705
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancellato automaticamente, hai gi&agrave; salvato questo messaggio."
 
-#: ../messages.c:2724
+#: ../messages.c:2725
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Il messaggio &egrave; stato inviato.\n"
 
-#: ../messages.c:2727
+#: ../messages.c:2728
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Il messaggio &egrave; stato postato.\n"
 
-#: ../messages.c:2862
+#: ../messages.c:2863
 msgid " <I>from</I> "
 msgstr "<i>da</i>"
 
-#: ../messages.c:2872
+#: ../messages.c:2873
 msgid " <I>in</I> "
 msgstr "<i>in</i>"
 
-#: ../messages.c:2905
+#: ../messages.c:2906
 msgid "To:"
 msgstr "A:"
 
-#: ../messages.c:2927
+#: ../messages.c:2928
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2945
+#: ../messages.c:2946
 msgid "Subject (optional):"
 msgstr "Oggetto (opzionale):"
 
-#: ../messages.c:2954 ../messages.c:3076 ../paging.c:53
+#: ../messages.c:2955 ../messages.c:3077 ../paging.c:53
 msgid "Send message"
 msgstr "Invia il messaggio"
 
-#: ../messages.c:2956 ../messages.c:3078
+#: ../messages.c:2957 ../messages.c:3079
 msgid "Post message"
 msgstr "Posta il messaggio"
 
-#: ../messages.c:2972
+#: ../messages.c:2973
 msgid "--- forwarded message ---"
 msgstr "--- messaggio inoltrato ---"
 
-#: ../messages.c:3053
+#: ../messages.c:3054
 msgid "Attachments:"
 msgstr "Allegati:"
 
-#: ../messages.c:3068
+#: ../messages.c:3069
 msgid "Attach file:"
 msgstr "Allega file:"
 
-#: ../messages.c:3071 ../roomops.c:1493 ../roomops.c:1523
+#: ../messages.c:3072 ../roomops.c:1493 ../roomops.c:1523
 msgid "Add"
 msgstr "Aggiungi"
 
-#: ../messages.c:3136
+#: ../messages.c:3137
 #, c-format
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
 
-#: ../messages.c:3162
+#: ../messages.c:3163
 msgid "Confirm move of message"
 msgstr "Conferma lo spostamento del messaggio"
 
-#: ../messages.c:3169
+#: ../messages.c:3170
 msgid "Move this message to:"
 msgstr "Sposta questo messaggio in:"
 
@@ -1369,7 +1374,7 @@ msgstr "Sposta questo messaggio in:"
 msgid "Add a new node"
 msgstr "Aggiungi un nuovo nodo"
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:113
+#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:117
 #, c-format
 msgid "Node name"
 msgstr "Nome del nodo"
@@ -1426,7 +1431,7 @@ msgstr "No"
 msgid "Back to menu"
 msgstr "Torna al menu"
 
-#: ../notes.c:126 ../vcard_edit.c:389 ../vcard_edit.c:433
+#: ../notes.c:126 ../vcard_edit.c:386 ../vcard_edit.c:430
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
@@ -1887,22 +1892,22 @@ msgstr "Politica di cancellazione dei messaggi per questa stanza"
 msgid "Use the default policy for this floor"
 msgstr "Usa la politica di default per questo piano"
 
-#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:541 ../siteconfig.c:566
+#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:545 ../siteconfig.c:570
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Non permettere ai messaggi di auto cancellarsi"
 
-#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:545 ../siteconfig.c:570
+#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:549 ../siteconfig.c:574
 #, c-format
 msgid "Expire by message count"
 msgstr "Cancella per numero di messaggi"
 
-#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:549 ../siteconfig.c:574
+#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:553 ../siteconfig.c:578
 #, c-format
 msgid "Expire by message age"
 msgstr "Elimina per età del messaggio"
 
-#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:551 ../siteconfig.c:576
+#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:555 ../siteconfig.c:580
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Numero di messaggi o giorni:"
@@ -1915,11 +1920,11 @@ msgstr "Politica di cancellazione messaggi per questo piano"
 msgid "Use the system default"
 msgstr "Usa il default di sistema"
 
-#: ../roomops.c:1681 ../roomops.c:3053
+#: ../roomops.c:1681 ../roomops.c:3053 ../sieve.c:523
 msgid "Cancelled.  Changes were not saved."
 msgstr "Attività Cancellata.Le modifiche non sono state salvate."
 
-#: ../roomops.c:1820
+#: ../roomops.c:1820 ../sieve.c:579
 msgid "Your changes have been saved."
 msgstr "Le tue modifiche sono state salvate."
 
@@ -2055,6 +2060,258 @@ msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr ""
 "Errore nella ricezione del RSS: non riesco a trovare dei messaggi</br>\n"
 
+#: ../sieve.c:91
+msgid "When new mail arrives: "
+msgstr ""
+
+#: ../sieve.c:95
+msgid "Leave it in my inbox without filtering"
+msgstr ""
+
+#: ../sieve.c:99
+msgid "Filter it according to rules selected below"
+msgstr ""
+
+#: ../sieve.c:104
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr ""
+
+#: ../sieve.c:115
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr ""
+
+#: ../sieve.c:130
+msgid "The currently active script is: "
+msgstr ""
+
+#: ../sieve.c:145 ../sieve.c:599
+#, fuzzy
+msgid "Add or delete scripts"
+msgstr "Modifica o cancella gli utenti"
+
+#: ../sieve.c:608
+#, fuzzy
+msgid "Add a new script"
+msgstr "Aggiungi un nuovo nodo"
+
+#: ../sieve.c:611
+#, fuzzy
+msgid ""
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
+msgstr ""
+"Per creare un nuovo account utente, inserisci il nome utente desiderato "
+"nella casella riportata sotto e clicca 'Crea'."
+
+#: ../sieve.c:616
+#, fuzzy
+msgid "Script name: "
+msgstr "Nome del direttorio:"
+
+#: ../sieve.c:619 ../useredit.c:51
+msgid "Create"
+msgstr "Crea"
+
+#: ../sieve.c:623
+#, fuzzy
+msgid "Edit scripts"
+msgstr "Aggiorna questa operazione."
+
+#: ../sieve.c:626
+msgid "Return to the script editing screen"
+msgstr ""
+
+#: ../sieve.c:632
+#, fuzzy
+msgid "Delete scripts"
+msgstr "Cancella l'utente"
+
+#: ../sieve.c:635
+#, fuzzy
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+"Per modificare un utente esistente, seleziona il suo nome dalla lista e "
+"clicca 'Modifica'."
+
+#: ../sieve.c:658
+#, fuzzy
+msgid "Delete script"
+msgstr "Cancella l'utente"
+
+#: ../sieve.c:658
+#, fuzzy
+msgid "Delete this script?"
+msgstr "Cancellare questo utente?"
+
+#: ../sieve.c:695
+msgid "A script by that name already exists."
+msgstr ""
+
+#: ../sieve.c:704
+msgid ""
+"A new script has been created.  Return to the script editing screen to edit "
+"and activate it."
+msgstr ""
+
+#: ../sieve.c:919
+msgid "Move rule up"
+msgstr ""
+
+#: ../sieve.c:924
+msgid "Move rule down"
+msgstr ""
+
+#: ../sieve.c:929
+#, fuzzy
+msgid "Delete rule"
+msgstr "Cancella l'utente"
+
+#: ../sieve.c:937
+msgid "If"
+msgstr ""
+
+#: ../sieve.c:940
+#, fuzzy
+msgid "From"
+msgstr "da"
+
+#: ../sieve.c:941
+msgid "To or Cc"
+msgstr ""
+
+#: ../sieve.c:943
+#, fuzzy
+msgid "Reply-to"
+msgstr "Rispondi"
+
+#: ../sieve.c:945
+#, fuzzy
+msgid "Resent-From"
+msgstr "Cancella"
+
+#: ../sieve.c:946
+#, fuzzy
+msgid "Resent-To"
+msgstr "Cancella"
+
+#: ../sieve.c:947
+msgid "Envelope From"
+msgstr ""
+
+#: ../sieve.c:948
+msgid "Envelope To"
+msgstr ""
+
+#: ../sieve.c:949
+#, fuzzy
+msgid "X-Mailer"
+msgstr "Posta"
+
+#: ../sieve.c:950
+msgid "X-Spam-Flag"
+msgstr ""
+
+#: ../sieve.c:951
+msgid "X-Spam-Status"
+msgstr ""
+
+#: ../sieve.c:952
+#, fuzzy
+msgid "Message size"
+msgstr "Messaggi"
+
+#: ../sieve.c:953
+msgid "All"
+msgstr ""
+
+#: ../sieve.c:972
+#, fuzzy
+msgid "contains"
+msgstr "Azioni"
+
+#: ../sieve.c:973
+msgid "does not contain"
+msgstr ""
+
+#: ../sieve.c:974
+msgid "is"
+msgstr ""
+
+#: ../sieve.c:975
+#, fuzzy
+msgid "is not"
+msgstr "Mostra le note"
+
+#: ../sieve.c:976
+#, fuzzy
+msgid "matches"
+msgstr "smarthost"
+
+#: ../sieve.c:977
+msgid "does not match"
+msgstr ""
+
+#: ../sieve.c:997
+#, fuzzy
+msgid "(All messages)"
+msgstr "leggi tutti i messaggi"
+
+#: ../sieve.c:1001
+msgid "is larger than"
+msgstr ""
+
+#: ../sieve.c:1002
+msgid "is smaller than"
+msgstr ""
+
+#: ../sieve.c:1025
+msgid "Keep"
+msgstr ""
+
+#: ../sieve.c:1026
+msgid "Discard silently"
+msgstr ""
+
+#: ../sieve.c:1027
+#, fuzzy
+msgid "Reject"
+msgstr "Oggetto"
+
+#: ../sieve.c:1028
+#, fuzzy
+msgid "Move message to"
+msgstr "Sposta questo messaggio in:"
+
+#: ../sieve.c:1029
+#, fuzzy
+msgid "Forward to"
+msgstr "Inoltra"
+
+#: ../sieve.c:1030
+#, fuzzy
+msgid "Vacation"
+msgstr "Luogo"
+
+#: ../sieve.c:1067
+#, fuzzy
+msgid "Message:"
+msgstr "Messaggi"
+
+#: ../sieve.c:1077
+#, fuzzy
+msgid "continue processing"
+msgstr "(in lavorazione)"
+
+#: ../sieve.c:1078
+msgid "stop"
+msgstr ""
+
+#: ../sieve.c:1081
+msgid "and then"
+msgstr ""
+
 #: ../siteconfig.c:39
 msgid "Site configuration"
 msgstr "Configurazione del sito"
@@ -2099,7 +2356,7 @@ msgstr "Controlli di accesso e impostazioni delle politiche del sito"
 msgid "Network services"
 msgstr "Servizi di rete"
 
-#: ../siteconfig.c:81 ../siteconfig.c:91
+#: ../siteconfig.c:81 ../siteconfig.c:92
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
@@ -2115,317 +2372,323 @@ msgstr "Controlli avanzati per la configurazione delle rifiniture "
 msgid "Configure the LDAP connector for Citadel"
 msgstr "Configura il connettore LDAP per Citadel"
 
-#: ../siteconfig.c:96
+#: ../siteconfig.c:94
+msgid ""
+"NOTE: This Citadel server has been built without LDAP support.  These "
+"options will have no effect."
+msgstr ""
+
+#: ../siteconfig.c:100
 msgid "Configure automatic expiry of old messages"
 msgstr "Configura la cancellazione automatica dei vecchi messaggi"
 
-#: ../siteconfig.c:97
+#: ../siteconfig.c:101
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
 "Queste impostazioni possono essere escluse da impostazioni specifiche alla "
 "stanza o al piano."
 
-#: ../siteconfig.c:101
+#: ../siteconfig.c:105
 msgid "Indexing and Journaling"
 msgstr "Indicizzazione"
 
-#: ../siteconfig.c:102
+#: ../siteconfig.c:106
 msgid "Warning: these facilities are resource intensive."
 msgstr "Attenzione: queste caratteristiche richiedono molte risorse."
 
-#: ../siteconfig.c:120
+#: ../siteconfig.c:124
 #, c-format
 msgid "Fully qualified domain name"
 msgstr "Nome di dominio completo"
 
-#: ../siteconfig.c:127
+#: ../siteconfig.c:131
 #, c-format
 msgid "Human-readable node name"
 msgstr "Nome del nodo leggibile da umani"
 
-#: ../siteconfig.c:134
+#: ../siteconfig.c:138
 #, c-format
 msgid "Telephone number"
 msgstr "Numero di telefono"
 
-#: ../siteconfig.c:141
+#: ../siteconfig.c:145
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Imposta automaticamente lo stato di aide per la stanza agli utenti che "
 "creano stanze private"
 
-#: ../siteconfig.c:149
+#: ../siteconfig.c:153
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr "Timeout della connessione per il server in attesa (in secondi)"
 
-#: ../siteconfig.c:156
+#: ../siteconfig.c:160
 #, c-format
 msgid "Initial access level for new users"
 msgstr "Livello di accesso iniziale per i nuovi utenti"
 
-#: ../siteconfig.c:170
+#: ../siteconfig.c:174
 #, c-format
 msgid "Require registration for new users"
 msgstr "Richiedi la registrazione per i nuovo utenti"
 
-#: ../siteconfig.c:178
+#: ../siteconfig.c:182
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr "Poni in quarantena i messaggi da utenti con problemi"
 
-#: ../siteconfig.c:186
+#: ../siteconfig.c:190
 #, c-format
 msgid "Name of quarantine room"
 msgstr "Nome della stanza di quarantena"
 
-#: ../siteconfig.c:193
+#: ../siteconfig.c:197
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr "Richiamo di impaginazione (per i client solo testo)"
 
-#: ../siteconfig.c:200
+#: ../siteconfig.c:204
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr "Restringi l'accesso alla posta internet"
 
-#: ../siteconfig.c:208
+#: ../siteconfig.c:212
 #, c-format
 msgid "Geographic location of this system"
 msgstr "Località geografica di questo server"
 
-#: ../siteconfig.c:215
+#: ../siteconfig.c:219
 #, c-format
 msgid "Name of system administrator"
 msgstr "Nome dell'amministratore di sistema"
 
-#: ../siteconfig.c:222
+#: ../siteconfig.c:226
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr "Numero massimo di sessioni concorrenti (0 = nessun limite)"
 
-#: ../siteconfig.c:229
+#: ../siteconfig.c:233
 #, c-format
 msgid "Default user purge time (days)"
 msgstr "Tempo di eliminazione di default degli utenti (in giorni)"
 
-#: ../siteconfig.c:236
+#: ../siteconfig.c:240
 #, c-format
 msgid "Default room purge time (days)"
 msgstr "Tempo di eliminazioni di default delle stanze (in giorni)"
 
-#: ../siteconfig.c:243
+#: ../siteconfig.c:247
 #, c-format
 msgid "Name of room to log pages"
 msgstr "Nome delle stanze per il log delle pagine"
 
-#: ../siteconfig.c:250
+#: ../siteconfig.c:254
 #, c-format
 msgid "Access level required to create rooms"
 msgstr "Livello di accesso richiesto per creare le stanze"
 
-#: ../siteconfig.c:264
+#: ../siteconfig.c:268
 #, c-format
 msgid "Maximum message length"
 msgstr "Massima lunghezza dei messaggi"
 
-#: ../siteconfig.c:271
+#: ../siteconfig.c:275
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr "Numero minimo di discussioni attive"
 
-#: ../siteconfig.c:278
+#: ../siteconfig.c:282
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr "Massimo numero di discussioni attive"
 
-#: ../siteconfig.c:285
+#: ../siteconfig.c:289
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr "Porta POP3 (-1 per disabilitare)"
 
-#: ../siteconfig.c:292
+#: ../siteconfig.c:296
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr "Porta SMTP MTA (-1 per disabilitare)"
 
-#: ../siteconfig.c:299
+#: ../siteconfig.c:303
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr "Correggi le linee From: forgiate durante una sessione SMTP autenticata"
 
-#: ../siteconfig.c:307
+#: ../siteconfig.c:311
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr "Permetti agli amministratori di dimenticare le stanze"
 
-#: ../siteconfig.c:315
+#: ../siteconfig.c:319
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr "Porta IMAP (-1 per disabilitare)"
 
-#: ../siteconfig.c:322
+#: ../siteconfig.c:326
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr "Velocità della rete (in secondi)"
 
-#: ../siteconfig.c:329
+#: ../siteconfig.c:333
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr "Disabilita l'autocreazione degli account utente"
 
-#: ../siteconfig.c:337
+#: ../siteconfig.c:341
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr "Ora in cui lanciare la pulizia del database"
 
-#: ../siteconfig.c:353
+#: ../siteconfig.c:357
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr "Nome del server LDAP (vuoto per disabilitare)"
 
-#: ../siteconfig.c:360
+#: ../siteconfig.c:364
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr "Nuero di porta del server LDAP (vuoto per disabilitare)"
 
-#: ../siteconfig.c:367
+#: ../siteconfig.c:371
 #, c-format
 msgid "Base DN"
 msgstr "DN di base"
 
-#: ../siteconfig.c:374
+#: ../siteconfig.c:378
 #, c-format
 msgid "Bind DN"
 msgstr "DN bind"
 
-#: ../siteconfig.c:381
+#: ../siteconfig.c:385
 #, c-format
 msgid "Password for bind DN"
 msgstr "Password per il DN bind"
 
-#: ../siteconfig.c:389
+#: ../siteconfig.c:393
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr "Indirizzo ip del server (0.0.0.0 per 'qualsiasi')"
 
-#: ../siteconfig.c:396
+#: ../siteconfig.c:400
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr "Porta SMTP MSA (-1 per disabilitare)"
 
-#: ../siteconfig.c:403
+#: ../siteconfig.c:407
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr "Porta IMAP SSL (-1 per disabiliare)"
 
-#: ../siteconfig.c:410
+#: ../siteconfig.c:414
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr "Porta POP3 SSL (-1 per disabilitare)"
 
-#: ../siteconfig.c:417
+#: ../siteconfig.c:421
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr "Porta SMTP SSL (-1 per disabilitare)"
 
-#: ../siteconfig.c:424
+#: ../siteconfig.c:428
 #, c-format
 msgid "Enable full text index"
 msgstr "Abilita l'indicizzazione completa dei testi"
 
-#: ../siteconfig.c:432
+#: ../siteconfig.c:436
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr "Cancella automaticamente i log del database approvati"
 
-#: ../siteconfig.c:440
+#: ../siteconfig.c:444
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
 
-#: ../siteconfig.c:448
+#: ../siteconfig.c:452
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
 msgstr ""
 "Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
 
-#: ../siteconfig.c:456
+#: ../siteconfig.c:460
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr "Esegui l'indicizzazione delle email"
 
-#: ../siteconfig.c:464
+#: ../siteconfig.c:468
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr "Esegui l'indicizzazione dei messaggi non-email"
 
-#: ../siteconfig.c:472
+#: ../siteconfig.c:476
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr "Email di destinazione  dei messaggi indicizzati"
 
-#: ../siteconfig.c:483
+#: ../siteconfig.c:487
 #, c-format
 msgid "Default timezone for unzoned calendar items"
 msgstr ""
 
-#: ../siteconfig.c:511
+#: ../siteconfig.c:515
 #, c-format
 msgid ""
 "<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
 "Port </a> (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:537
+#: ../siteconfig.c:541
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Politica di default per la cancellazione delle stanze publiche"
 
-#: ../siteconfig.c:558
+#: ../siteconfig.c:562
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr ""
 "Politica di default per la cancellazione delle cassette postali private"
 
-#: ../siteconfig.c:562
+#: ../siteconfig.c:566
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Stessa politica delle stanze private"
 
-#: ../siteconfig.c:688
+#: ../siteconfig.c:692
 msgid "Your system configuration has been updated."
 msgstr "La configurazione del tuo sistema è stata aggiornata"
 
-#: ../smtpqueue.c:160
+#: ../smtpqueue.c:168
 #, fuzzy
 msgid "Message ID"
 msgstr "Messaggi"
 
-#: ../smtpqueue.c:162
+#: ../smtpqueue.c:170
 #, fuzzy
 msgid "Date/time submitted"
 msgstr "Numero di Messaggi"
 
-#: ../smtpqueue.c:164
+#: ../smtpqueue.c:172
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:168
+#: ../smtpqueue.c:176
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:180
+#: ../smtpqueue.c:188
 #, fuzzy
 msgid "The queue is empty."
 msgstr "Questa lista contatti &egrave; vuota"
 
-#: ../smtpqueue.c:186
+#: ../smtpqueue.c:194
 msgid "You do not have permission to view this resource."
 msgstr ""
 
-#: ../smtpqueue.c:227
+#: ../smtpqueue.c:247
 #, fuzzy
 msgid "Refresh this page"
 msgstr "Modifica questa pagina"
@@ -2528,10 +2791,6 @@ msgstr ""
 #: ../useredit.c:48
 msgid "New user: "
 msgstr "Nuovo utente:"
-
-#: ../useredit.c:51
-msgid "Create"
-msgstr "Crea"
 
 #: ../useredit.c:57
 msgid "Edit or Delete users"
@@ -2651,79 +2910,79 @@ msgstr "Profilo utente"
 msgid "Click here to send an instant message to %s"
 msgstr "Clicca qui per inviare un messaggio istantaneo a %s"
 
-#: ../vcard_edit.c:185
+#: ../vcard_edit.c:182
 msgid "Edit contact information"
 msgstr "Modifica le informazioni del contatto"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:198
 msgid "Prefix"
 msgstr "Prefisso"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:198
 msgid "First"
 msgstr "Nome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:198
 msgid "Middle"
 msgstr "Secondo nome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:198
 msgid "Last"
 msgstr "Cognome"
 
-#: ../vcard_edit.c:201
+#: ../vcard_edit.c:198
 msgid "Suffix"
 msgstr "Suffisso"
 
-#: ../vcard_edit.c:222
+#: ../vcard_edit.c:219
 msgid "Display name:"
 msgstr "Nome da mostrare:"
 
-#: ../vcard_edit.c:229
+#: ../vcard_edit.c:226
 msgid "Title:"
 msgstr "Titolo:"
 
-#: ../vcard_edit.c:236
+#: ../vcard_edit.c:233
 msgid "Organization:"
 msgstr "Organizzazione:"
 
-#: ../vcard_edit.c:247
+#: ../vcard_edit.c:244
 msgid "PO box:"
 msgstr "Presso:"
 
-#: ../vcard_edit.c:263
+#: ../vcard_edit.c:260
 msgid "City:"
 msgstr "Città:"
 
-#: ../vcard_edit.c:269
+#: ../vcard_edit.c:266
 msgid "State:"
 msgstr "Provincia:"
 
-#: ../vcard_edit.c:275
+#: ../vcard_edit.c:272
 msgid "ZIP code:"
 msgstr "C.A.P.:"
 
-#: ../vcard_edit.c:281
+#: ../vcard_edit.c:278
 msgid "Country:"
 msgstr "Nazione:"
 
-#: ../vcard_edit.c:291
+#: ../vcard_edit.c:288
 msgid "Home telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:297
+#: ../vcard_edit.c:294
 msgid "Work telephone:"
 msgstr "Telefono di lavoro:"
 
-#: ../vcard_edit.c:308
+#: ../vcard_edit.c:305
 msgid "Primary Internet e-mail address"
 msgstr "Indirizzo email principale"
 
-#: ../vcard_edit.c:315
+#: ../vcard_edit.c:312
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 
-#: ../webcit.c:677
+#: ../webcit.c:679
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
@@ -2887,9 +3146,6 @@ msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
 
 #~ msgid "gatewaydomain"
 #~ msgstr "dominio del gateway"
-
-#~ msgid "smarthost"
-#~ msgstr "smarthost"
 
 #~ msgid "rbl"
 #~ msgstr "rbl"
