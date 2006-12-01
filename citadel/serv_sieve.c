@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <signal.h>
+#include <ctype.h>
 #include <pwd.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -462,7 +462,6 @@ int ctdl_getheaders(sieve2_context_t *s, void *my) {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
 	lprintf(CTDL_DEBUG, "ctdl_getheaders() was called\n");
-
 	sieve2_setvalue_string(s, "allheaders", cs->rfc822headers);
 	return SIEVE2_OK;
 }
@@ -496,20 +495,37 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	struct ctdl_sieve my;
 	int res;
 	struct CtdlMessage *msg;
+	int i;
+	size_t headers_len = 0;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
 	msg = CtdlFetchMessage(msgnum, 0);
 	if (msg == NULL) return;
 
+	/*
+	 * Grab the message headers so we can feed them to libSieve.
+	 */
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
 	my.rfc822headers = CC->redirect_buffer;
+	headers_len = CC->redirect_len;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
+
+	/*
+	 * libSieve clobbers the stack if it encounters badly formed
+	 * headers.  Sanitize our headers by stripping nonprintable
+	 * characters.
+	 */
+	for (i=0; i<headers_len; ++i) {
+		if (!isascii(my.rfc822headers[i])) {
+			my.rfc822headers[i] = '_';
+		}
+	}
 
 	my.keep = 0;				/* Set to 1 to declare an *explicit* keep */
 	my.cancel_implicit_keep = 0;		/* Some actions will cancel the implicit keep */
