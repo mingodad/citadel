@@ -770,9 +770,25 @@ void display_rules_editor_inner_div(void) {
 		"									\n"
 		"var highest_active_rule = (-1);					\n"
 		"									\n"
-		"function UpdateRules() {						\n"
-		"  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("    d = ($('movedown'+i));						\n"
+		"function UpdateRules() {						\n");
+/*
+ * Show only the active rows...
+ */
+	wprintf("  highest_active_rule = (-1);						\n");
+	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
+	wprintf("   if ($('active'+i).checked) {					\n"
+		"     $('rule' + i).style.display = 'block';				\n"
+		"     highest_active_rule = i;						\n"
+		"   }									\n"
+		"   else {								\n"
+		"     $('rule' + i).style.display = 'none';				\n"
+		"   }									\n"
+		"  }									\n");
+/*
+ * Show only the fields relevant to the rules...
+ */
+	wprintf("  for (i=0; i<=highest_active_rule; ++i) {				\n"
+		"    d = ($('movedown'+i));						\n"
 		"    if (i < highest_active_rule) {					\n"
 		"      d.style.display = 'block';					\n"
 		"    }									\n"
@@ -819,20 +835,6 @@ void display_rules_editor_inner_div(void) {
 		"      $('div_addrule').style.display = 'none';				\n"
 		"    }									\n"
 		"  }									\n"
-	);
-/*
- * Show only the active rows...
- */
-	wprintf("  highest_active_rule = (-1);						\n");
-	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("   if ($('active'+i).checked) {					\n"
-		"     $('rule' + i).style.display = 'block';				\n"
-		"     highest_active_rule = i;						\n"
-		"   }									\n"
-		"   else {								\n"
-		"     $('rule' + i).style.display = 'none';				\n"
-		"   }									\n"
-		"  }									\n"
 		"}									\n"
 /*
  * Add a rule (really, just un-hide it)
@@ -869,8 +871,8 @@ void display_rules_editor_inner_div(void) {
  * Delete a rule (percolate the deleted rule out to the end, then deactivate it)
  */
 		"function DeleteRule(rd) {						\n"
-		"  for (i=rd; i<highest_active_rule; ++i) {				\n"
-		"    SwapRules(i, (i+1));						\n"
+		"  for (j=rd; j<=highest_active_rule; ++j) {				\n"
+		"    SwapRules(j, (j+1));						\n"
 		"  }									\n"
 		"  $('active'+highest_active_rule).checked = false;			\n"
 		"}									\n"
