@@ -483,7 +483,10 @@ void install_init_scripts(void)
 			"		fi\n"
 			"		rm -f /var/run/citadel.pid 2>/dev/null\n");
 	fprintf(fp,	"		;;\n"
-			"*)		echo \"Usage: $0 {start|stop}\"\n"
+			"restart)	$0 stop\n"
+			"		$0 start\n"
+			"		;;\n"
+			"*)		echo \"Usage: $0 {start|stop|restart}\"\n"
 			"		exit 1\n"
 			"		;;\n"
 			"esac\n"
