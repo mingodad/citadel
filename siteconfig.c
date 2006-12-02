@@ -517,6 +517,13 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pftcpdict_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
+		case 51:
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("ManageSieve Port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_mgesve_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -680,6 +687,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_journal_dest"));
 	serv_printf("%s", bstr("c_default_cal_zone"));
 	serv_printf("%s", bstr("c_pftcpdict_port"));
+	serv_printf("%s", bstr("c_mgesve_port"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
