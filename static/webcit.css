@@ -16,7 +16,7 @@ body {
 }
 
 #iconbar {
-	position:fixed;
+	/* position:fixed; */
 	display:block;
 	top:0px;
 	left:0px;
