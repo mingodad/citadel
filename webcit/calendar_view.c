@@ -424,8 +424,7 @@ void calendar_month_view(int year, int month, int day) {
 	 * being rendered.  See http://www.shaftek.org/blog/archives/000212.html
 	 * for more information.
 	 */ 
-	wprintf("<script type=\"text/javascript\" src=\"static/BubbleTooltips.js\"></script>\n"
-		"<script type=\"text/javascript\">"
+	wprintf("<script type=\"text/javascript\">"
 		" setTimeout(\"btt_enableTooltips('inner_month')\", 1); "
 		"</script>\n"
 	);
