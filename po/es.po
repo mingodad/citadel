@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WEBCIT 6.40\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-29 17:58-0500\n"
+"POT-Creation-Date: 2006-12-04 17:46-0500\n"
 "PO-Revision-Date: 2006-04-13 16:23-0500\n"
 "Last-Translator: Gabriel C. Huertas <gabrielhuertas@terra.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -150,7 +150,7 @@ msgstr "Cambia contraseña"
 #: ../iconbar.c:712 ../mainmenu.c:310 ../messages.c:2960 ../messages.c:3082
 #: ../messages.c:3192 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
-#: ../roomops.c:2211 ../roomops.c:2275 ../sieve.c:179 ../siteconfig.c:608
+#: ../roomops.c:2211 ../roomops.c:2275 ../sieve.c:179 ../siteconfig.c:615
 #: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
 msgid "Cancel"
 msgstr "Cancelar"
@@ -440,31 +440,31 @@ msgstr "La visualización de tareas no está disponible."
 msgid "Notes:"
 msgstr "Notas:"
 
-#: ../calendar_view.c:522
+#: ../calendar_view.c:521
 msgid "Week"
 msgstr "Semana"
 
-#: ../calendar_view.c:524
+#: ../calendar_view.c:523
 msgid "Hours"
 msgstr "Horas"
 
-#: ../calendar_view.c:525 ../messages.c:2343 ../sieve.c:942
+#: ../calendar_view.c:524 ../messages.c:2343 ../sieve.c:944
 msgid "Subject"
 msgstr "Asunto"
 
-#: ../calendar_view.c:526 ../event.c:164
+#: ../calendar_view.c:525 ../event.c:164
 msgid "Start"
 msgstr "Comienzo"
 
-#: ../calendar_view.c:527 ../event.c:218
+#: ../calendar_view.c:526 ../event.c:218
 msgid "End"
 msgstr "Fin"
 
-#: ../calendar_view.c:1017
+#: ../calendar_view.c:1016
 msgid "Name of task"
 msgstr "Nombre de la tarea"
 
-#: ../calendar_view.c:1019
+#: ../calendar_view.c:1018
 msgid "Date due"
 msgstr "Fecha coclusión"
 
@@ -822,7 +822,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Muestra el icono 'Powered by Citadel' "
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../sieve.c:177 ../siteconfig.c:606 ../sysmsgs.c:57 ../useredit.c:381
+#: ../sieve.c:177 ../siteconfig.c:613 ../sysmsgs.c:57 ../useredit.c:381
 #: ../vcard_edit.c:333
 msgid "Save changes"
 msgstr "Salvar cambios"
@@ -1268,7 +1268,7 @@ msgstr "No hay mensajes antiguos"
 msgid "No messages here."
 msgstr "No hay mensajes aquí"
 
-#: ../messages.c:2345 ../sieve.c:944 ../smtpqueue.c:174
+#: ../messages.c:2345 ../sieve.c:946 ../smtpqueue.c:174
 msgid "Sender"
 msgstr "Remitente"
 
@@ -1882,22 +1882,22 @@ msgstr "Política de expiración de mensajes para esta sala"
 msgid "Use the default policy for this floor"
 msgstr "Use la política por defecto para esta sala"
 
-#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:545 ../siteconfig.c:570
+#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:552 ../siteconfig.c:577
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Nunca producir expiración automática de mensajes"
 
-#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:549 ../siteconfig.c:574
+#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:556 ../siteconfig.c:581
 #, c-format
 msgid "Expire by message count"
 msgstr "Expirar según cuenta de mensajes"
 
-#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:553 ../siteconfig.c:578
+#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:560 ../siteconfig.c:585
 #, c-format
 msgid "Expire by message age"
 msgstr "Expirar según la edad del mensaje"
 
-#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:555 ../siteconfig.c:580
+#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:562 ../siteconfig.c:587
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Número de mensajes o días"
@@ -2144,162 +2144,167 @@ msgid ""
 "and activate it."
 msgstr ""
 
-#: ../sieve.c:919
+#: ../sieve.c:921
 msgid "Move rule up"
 msgstr ""
 
-#: ../sieve.c:924
+#: ../sieve.c:926
 msgid "Move rule down"
 msgstr ""
 
-#: ../sieve.c:929
+#: ../sieve.c:931
 #, fuzzy
 msgid "Delete rule"
 msgstr "Borrar usuario"
 
-#: ../sieve.c:937
+#: ../sieve.c:939
 msgid "If"
 msgstr ""
 
-#: ../sieve.c:940
+#: ../sieve.c:942
 #, fuzzy
 msgid "From"
 msgstr "de"
 
-#: ../sieve.c:941
+#: ../sieve.c:943
 msgid "To or Cc"
 msgstr ""
 
-#: ../sieve.c:943
+#: ../sieve.c:945
 #, fuzzy
 msgid "Reply-to"
 msgstr "Responder"
 
-#: ../sieve.c:945
+#: ../sieve.c:947
 #, fuzzy
 msgid "Resent-From"
 msgstr "Resetear formulario"
 
-#: ../sieve.c:946
+#: ../sieve.c:948
 #, fuzzy
 msgid "Resent-To"
 msgstr "Resetear formulario"
 
-#: ../sieve.c:947
+#: ../sieve.c:949
 msgid "Envelope From"
 msgstr ""
 
-#: ../sieve.c:948
+#: ../sieve.c:950
 msgid "Envelope To"
 msgstr ""
 
-#: ../sieve.c:949
+#: ../sieve.c:951
 #, fuzzy
 msgid "X-Mailer"
 msgstr "Correo"
 
-#: ../sieve.c:950
+#: ../sieve.c:952
 msgid "X-Spam-Flag"
 msgstr ""
 
-#: ../sieve.c:951
+#: ../sieve.c:953
 msgid "X-Spam-Status"
 msgstr ""
 
-#: ../sieve.c:952
+#: ../sieve.c:954
 #, fuzzy
 msgid "Message size"
 msgstr "Mensajes"
 
-#: ../sieve.c:953
+#: ../sieve.c:955
 msgid "All"
 msgstr ""
 
-#: ../sieve.c:972
+#: ../sieve.c:974
 #, fuzzy
 msgid "contains"
 msgstr "Acciones"
 
-#: ../sieve.c:973
+#: ../sieve.c:975
 msgid "does not contain"
 msgstr ""
 
-#: ../sieve.c:974
+#: ../sieve.c:976
 msgid "is"
 msgstr ""
 
-#: ../sieve.c:975
+#: ../sieve.c:977
 #, fuzzy
 msgid "is not"
 msgstr "Ver notas"
 
-#: ../sieve.c:976
+#: ../sieve.c:978
 #, fuzzy
 msgid "matches"
 msgstr "smarthost"
 
-#: ../sieve.c:977
+#: ../sieve.c:979
 msgid "does not match"
 msgstr ""
 
-#: ../sieve.c:997
+#: ../sieve.c:999
 #, fuzzy
 msgid "(All messages)"
 msgstr "Leer todos los mensajes"
 
-#: ../sieve.c:1001
+#: ../sieve.c:1003
 msgid "is larger than"
 msgstr ""
 
-#: ../sieve.c:1002
+#: ../sieve.c:1004
 msgid "is smaller than"
 msgstr ""
 
-#: ../sieve.c:1025
+#: ../sieve.c:1027
 msgid "Keep"
 msgstr ""
 
-#: ../sieve.c:1026
+#: ../sieve.c:1028
 msgid "Discard silently"
 msgstr ""
 
-#: ../sieve.c:1027
+#: ../sieve.c:1029
 #, fuzzy
 msgid "Reject"
 msgstr "Asunto"
 
-#: ../sieve.c:1028
+#: ../sieve.c:1030
 #, fuzzy
 msgid "Move message to"
 msgstr "Mover este mensaje a:"
 
-#: ../sieve.c:1029
+#: ../sieve.c:1031
 #, fuzzy
 msgid "Forward to"
 msgstr "Reenviar"
 
-#: ../sieve.c:1030
+#: ../sieve.c:1032
 #, fuzzy
 msgid "Vacation"
 msgstr "Localización"
 
-#: ../sieve.c:1067
+#: ../sieve.c:1069
 #, fuzzy
 msgid "Message:"
 msgstr "Mensajes"
 
-#: ../sieve.c:1077
+#: ../sieve.c:1079
 #, fuzzy
 msgid "continue processing"
 msgstr "(en proceso)"
 
-#: ../sieve.c:1078
+#: ../sieve.c:1080
 msgid "stop"
 msgstr ""
 
-#: ../sieve.c:1081
+#: ../sieve.c:1083
 msgid "and then"
 msgstr ""
+
+#: ../sieve.c:1104
+#, fuzzy
+msgid "Add rule"
+msgstr "Añadir usuarios"
 
 #: ../siteconfig.c:39
 msgid "Site configuration"
@@ -2631,22 +2636,27 @@ msgid ""
 "Port </a> (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:541
+#: ../siteconfig.c:522
+#, fuzzy, c-format
+msgid "ManageSieve Port (-1 to disable)"
+msgstr "Puerto de escucha IMAP (-1 para desactivar)"
+
+#: ../siteconfig.c:548
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Política de expiración por defecto para salas públicas"
 
-#: ../siteconfig.c:562
+#: ../siteconfig.c:569
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr "Política de expiración de mensajes por defecto para buzones privados"
 
-#: ../siteconfig.c:566
+#: ../siteconfig.c:573
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Misma política que para salas públicas"
 
-#: ../siteconfig.c:692
+#: ../siteconfig.c:700
 msgid "Your system configuration has been updated."
 msgstr "Su confiración de sistema ha sido actualizada"
 
