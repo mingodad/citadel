@@ -595,21 +595,20 @@ the system. It is mandatory that the sysop have "root" access to the
 operating system. The following are required to install Citadel: </p>
 <ul>
   <li>A unix-like operating system (Linux, FreeBSD, Solaris, etc.) </li>
-  <li>C compiler (<a href="http://gcc.gnu.org/">GCC</a> with <a
+  <li>The GNU build tools (<a href="http://gcc.gnu.org/">GCC</a> with <a
  href="http://www.gnu.org/software/make/make.html">gmake</a> is the
 recommended build environment) </li>
-  <li>POSIX threads (already present on most systems) </li>
-  <li>TCP/IP </li>
   <li><a href="http://www.sleepycat.com">Berkeley DB</a> v4.1 or newer</li>
-  <li><a href="http://softwarestudio.org/libical/">libical</a> v0.24 or
-newer (if you want the calendar service to work)<br>
-  </li>
+  <li><a href="http://www.aurore.net/projects/libical/">libical</a> v0.26 or
+newer (if you want the calendar service to work)</li>
+  <li><a href="http://libsieve.sourceforge.net">libSieve</a> v2.2.3 or newer
+(if you want mail filtering/scripting to work)</li>
   <li>Enough disk space to hold all of the programs and data </li>
 </ul>
 <p>If you are running Citadel on a Linux system, it is STRONGLY
-recommended that you run it on a recent distribution (such as Fedora
-Core 3 or newer). A new-ish
-distribution will have most or all of the prerequisite tools and
+recommended that you run it on a recent distribution (such as CentOS
+4.1 or newer). A new-ish
+distribution will have many of the prerequisite tools and
 libraries already integrated for you.</p>
 <h3>Other pieces which complete the Citadel system:</h3>
 <ul>
@@ -620,7 +619,7 @@ program, thanks to Citadel's built-in SMTP, POP, and IMAP services.
 You can use Mozilla, Netscape, Evolution, Eudora, Pine, Outlook, etc.
 with Citadel.</li>
   <li>Access to Citadel's calendar and address book functions using any
-GroupDAV-enabled PIM client (requires WebCit).<br>
+PIM client that supports Webcal or GroupDAV (requires WebCit).<br>
   </li>
 </ul>
 <h3>Coming soon:</h3>
@@ -638,7 +637,8 @@ by the software if needed. Make sure you have Berkeley DB installed on
 your system, and that you have all the development libraries and
 headers
 in place so that you can compile against them. If you don't, you can
-get the latest Berkeley DB at <a href="http://www.sleepycat.com">http://www.sleepycat.com</a>.
+get the latest Berkeley DB at
+<a href="http://www.sleepycat.com">http://www.sleepycat.com</a>.
 If your operating system uses a separate library to support POSIX
 threads (pthreads), make sure that library is installed as well. This
 is almost never the case with Linux, but some commercial Unix flavors
@@ -1624,16 +1624,11 @@ prevent enormous multimedia files from finding their way into your
 message base. This maximum is enforced in all protocols and is also
 advertised by the ESMTP service.</p>
 <p>The minimum and maximum number of worker threads can be tuned to
-your
-liking. Citadel will attempt to keep one worker thread running per
-session,
-within these constraints. You should be aware that due to the use of
-the
-worker thread model, Citadel can handle a large number of concurrent
-sessions
-with a much smaller thread pool. If you don't know the programming
-theory
-behind multithreaded servers, you should leave these parameters alone.<br>
+your liking. Citadel will attempt to keep one worker thread running per
+session, within these constraints. You should be aware that due to the use of
+the worker thread model, Citadel can handle a large number of concurrent
+sessions with a much smaller thread pool. If you don't know the programming
+theory behind multithreaded servers, you should leave these parameters alone.<br>
 </p>
 <p>'Automatically delete committed database logs' is a <span
  style="font-style: italic;">crucial</span> setting which affects your
@@ -1977,7 +1972,7 @@ the
 server from a shell and watch it load. It might look something like
 this:</p>
 <font size="-2"> </font>
-<pre><font size="-2">smw @ pixel % ./citserver<br><br>Multithreaded message server for Citadel<br>Copyright (C) 1987-2003 by the Citadel development team.<br>Citadel is open source, covered by the GNU General Public License, and<br>you are welcome to change it and/or distribute copies of it under certain<br>conditions.  There is absolutely no warranty for this software.  Please<br>read the 'COPYING.txt' file for details.<br><br>Loading citadel.config<br>Opening databases<br>This is GDBM version 1.8.0, as of May 19, 1999.<br>Checking floor reference counts<br>Creating base rooms (if necessary)<br>Registered a new service (TCP port 504)<br>Registered a new service (TCP port 0)<br>Initializing loadable modules<br>Registered server command CHAT (Begin real-time chat)<br>Registered server command PEXP (Poll for instant messages)<br>Registered server command GEXP (Get instant messages)<br>Registered server command SEXP (Send an instant message)<br>Registered server command DEXP (Disable instant messages)<br>Registered a new session function (type 0)<br>Registered a new x-msg function (priority 0)<br>Loaded module: $Id$<br>Registered a new session function (type 1)<br>Registered a new message function (type 201)<br>Registered a new message function (type 202)<br>Registered server command REGI (Enter registration info)<br>Registered server command GREG (Get registration info)<br>Registered a new user function (type 100)<br>Loaded module: $Id$<br>Server-hosted upgrade level is 5.62<br>Loaded module: $Id$<br>Registered server command EXPI (Expire old system objects)<br>Registered server command FSCK (Check message ref counts)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 25.</b><br>Registered a new service (TCP port 0)<br>Registered a new session function (type 50)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 110.</b><br>Registered a new session function (type 0)<br>Loaded module: $Id$<br>Registered a new message function (type 202)Loaded module: $Id$<br>Registered server command RWHO (Display who is online)<br>Registered server command HCHG (Masquerade hostname)<br>Registered server command RCHG (Masquerade roomname)<br>Registered server command UCHG (Masquerade username)<br>Registered server command STEL (Enter/exit stealth mode)<br>Loaded module: $Id$<br>Changing uid to 513<br>Starting housekeeper thread<br></font></pre>
+<pre><font size="-2">smw @ pixel % ./citserver<br><br>Multithreaded message server for Citadel<br>Copyright (C) 1987-2006 by the Citadel development team.<br>Citadel is open source, covered by the GNU General Public License, and<br>you are welcome to change it and/or distribute copies of it under certain<br>conditions.  There is absolutely no warranty for this software.  Please<br>read the 'COPYING.txt' file for details.<br><br>Loading citadel.config<br>Opening databases<br>This is GDBM version 1.8.0, as of May 19, 1999.<br>Checking floor reference counts<br>Creating base rooms (if necessary)<br>Registered a new service (TCP port 504)<br>Registered a new service (TCP port 0)<br>Initializing loadable modules<br>Registered server command CHAT (Begin real-time chat)<br>Registered server command PEXP (Poll for instant messages)<br>Registered server command GEXP (Get instant messages)<br>Registered server command SEXP (Send an instant message)<br>Registered server command DEXP (Disable instant messages)<br>Registered a new session function (type 0)<br>Registered a new x-msg function (priority 0)<br>Loaded module: $Id$<br>Registered a new session function (type 1)<br>Registered a new message function (type 201)<br>Registered a new message function (type 202)<br>Registered server command REGI (Enter registration info)<br>Registered server command GREG (Get registration info)<br>Registered a new user function (type 100)<br>Loaded module: $Id$<br>Server-hosted upgrade level is 5.62<br>Loaded module: $Id$<br>Registered server command EXPI (Expire old system objects)<br>Registered server command FSCK (Check message ref counts)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 25.</b><br>Registered a new service (TCP port 0)<br>Registered a new session function (type 50)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 110.</b><br>Registered a new session function (type 0)<br>Loaded module: $Id$<br>Registered a new message function (type 202)Loaded module: $Id$<br>Registered server command RWHO (Display who is online)<br>Registered server command HCHG (Masquerade hostname)<br>Registered server command RCHG (Masquerade roomname)<br>Registered server command UCHG (Masquerade username)<br>Registered server command STEL (Enter/exit stealth mode)<br>Loaded module: $Id$<br>Changing uid to 513<br>Starting housekeeper thread<br></font></pre>
 <p>The lines emphasized in boldface in the above log output tell you
 that Citadel "can't bind" to various ports. The error 'address already
 in use' generally means that something else is already running on the
@@ -2041,7 +2036,7 @@ tell
 Citadel to forward all of its outbound mail to your other mail system.</p>
 <h3><a name="Hosting_an_Internet_mailing_list"></a>Hosting an Internet
 mailing list</h3>
-<p>Citadel has built in mailing list service (known in the 'net
+<p>Citadel has built in mailing list service (known in Internet
 vernacular as "listserv") functionality. &nbsp;You can turn any room
 into a mailing list. &nbsp;Users can then choose how they participate
 -- by logging on to your Citadel server directly, or by having the
@@ -2134,8 +2129,7 @@ application, one way to 'keep the conversation going' is to share rooms
 with other Citadel systems. In a shared room, a message posted to the
 room is automatically
 propagated to every system on the network. It's kind of like a UseNet
-newsgroup,
-but without the spam.</p>
+newsgroup, but without the spam.</p>
 <p>If you are using Citadel as the e-mail and groupware platform for a
 large organization, you can use its networking features to build a
 large network of Citadel servers which share content (think of rooms as
@@ -2144,8 +2138,7 @@ integrate the global address book. &nbsp;It might make sense, for
 example, in a large corporation to give each department or location its
 own Citadel server. &nbsp;Thanks
 to Citadel's global address book features, you could still have all of
-the
-users share a single e-mail domain.</p>
+the users share a single e-mail domain.</p>
 <p>Obviously, the first thing you have to do is find another Citadel to
 share rooms with, and make arrangements with them. The following
 Citadels are a good place to start:</p>
@@ -2153,8 +2146,6 @@ Citadels are a good place to start:</p>
   <li>UNCENSORED! - <a href="http://uncensored.citadel.org">uncensored.citadel.org</a>
   </li>
   <li>The Dog Pound II - <a href="http://dogpound2.citadel.org">dogpound2.citadel.org</a>
-  </li>
-  <li>PixelBBS - <a href="http://pixel.citadel.org">pixel.citadel.org</a>
   </li>
 </ul>
 <p>You don't have to be a part of the citadel.org domain to participate
@@ -2238,14 +2229,11 @@ your favorite text editor, right?) with a screen that looks like this:</p>
 <pre># Configuration for room: Quiche Recipes<br># Nodes with which we share this room<br># Specify one per line.<br></pre>
 <p>All you have to do is enter the name of the other Citadel node (i.e.
 "frobozz" in our example) on a line by itself. As usual, lines starting
-with a
-"#" are comments. Just go to the end of the file, type "frobozz"
-(without
-the quotes), save the file... and you're done!</p>
+with a "#" are comments. Just go to the end of the file, type "frobozz"
+(without the quotes), save the file... and you're done!</p>
 <p>At this point, you just sit back and enjoy. Your Citadel and the
 other one will begin polling each other at regular intervals (once per
-hour
-by default) and sharing messages.</p>
+hour by default) and sharing messages.</p>
 <h3><a name="Sending_mail"></a>Sending mail</h3>
 <p>You can send mail to any user on any node of your Citadel network.
 It may take a little while for your system to learn the entire node
@@ -2269,17 +2257,17 @@ would occur every 15 minutes.</p>
 maintenance</h2>
 <h3><a name="Introduction_"></a>Introduction</h3>
 The data store used by Citadel is reliable and self-maintaining.
-&nbsp;It requires very little maintenance. &nbsp;This is primarily due
+&nbsp;It requires very little maintenance.  This is primarily due
 to its use of the <a href="http://www.sleepycat.com">Berkeley DB</a>
 record manager. &nbsp;It is robust, high-performance, and transactional.<br>
 <br>
 A few small data files are kept in your main Citadel directory, but the
-databases are in the <tt>data/</tt> subdirectory. &nbsp;The files with
+databases are in the <tt>data/</tt> subdirectory.  The files with
 names that begin with "cdb" are the databases themselves; the files
 with names that begin with "log" are the logs (sometimes referred to as
 "journals").&nbsp; Log files will continue to appear as you use your
 system; each will grow to approximately 10 megabytes in size before a
-new one is started.&nbsp; There is a system configuration setting
+new one is started.  There is a system configuration setting
 (found in <span style="font-family: monospace;"><span
  style="font-weight: bold;">.A</span>ide <span
  style="font-weight: bold;">S</span>ystem-configuration <span

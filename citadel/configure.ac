@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_PREREQ(2.52)
-AC_INIT([Citadel], [6.15], [http://uncensored.citadel.org/])
+AC_INIT([Citadel], [6.90], [http://www.citadel.org/])
 AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)

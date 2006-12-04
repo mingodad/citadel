@@ -32,8 +32,10 @@ extern "C" {
 
 /*
  * Text description of this software
+ * (We used to define this ourselves, but why bother when
+ * the GNU build tools do it for us?)
  */
-#define CITADEL	"Citadel 6.90 (beta)"
+#define CITADEL	PACKAGE_STRING
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having

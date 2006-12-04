@@ -39,6 +39,7 @@
 # WebCit                     Latest
 # libical                    Latest
 # Berkeley DB                Stable
+# libSieve                   Stable
 
 
 ###############################################################################
@@ -103,6 +104,7 @@ DOWNLOAD_SITE=http://easyinstall.citadel.org
 DB_SOURCE=db-4.3.29.NC.tar.gz
 # DB_PATCHES=db-x.x.x.patches
 ICAL_SOURCE=libical-0.26-6.aurore.tar.gz
+LIBSIEVE_SOURCE=libsieve-2.2.3.tar.gz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
 WEBCIT_SOURCE=webcit-easyinstall.tar.gz
 
@@ -196,6 +198,31 @@ install_ical () {
 	rm -f $WEBCIT/webcit-easyinstall.sum 2>/dev/null
 }
 
+install_libsieve () {
+	cd $BUILD 2>&1 >>$LOG || die
+	FILENAME=libsieve-easyinstall.sum ; download_this
+	SUM=`cat libsieve-easyinstall.sum`
+	SUMFILE=$SUPPORT/etc/libsieve-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+			echo "* libsieve does not need updating."
+			return
+		fi
+	fi
+	echo "* Downloading libsieve..."
+	FILENAME=$LIBSIEVE_SOURCE ; download_this
+	echo "* Installing libsieve..."
+	( gzip -dc $LIBSIEVE_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
+	cd $BUILD/libsieve-2.2.3/src 2>&1 >>$LOG || die
+	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
+	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
+	$MAKE install 2>&1 >>$LOG || die
+	echo "  Complete."
+	echo $SUM >$SUMFILE
+	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
+}
+
 install_db () {
 	cd $BUILD 2>&1 >>$LOG || die
 	FILENAME=db-easyinstall.sum ; download_this
@@ -240,6 +267,10 @@ install_prerequisites () {
 	if [ -z "$OK_ICAL" ]
 	then
 		install_ical
+	fi
+	if [ -z "$OK_LIBSIEVE" ]
+	then
+		install_libsieve
 	fi
 	if [ -z "$OK_DB" ]
 	then
