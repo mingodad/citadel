@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-11-29 17:58-0500\n"
-"PO-Revision-Date: 2006-09-01 09:15+0200\n"
+"PO-Revision-Date: 2006-12-04 21:28+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1034,7 +1034,7 @@ msgstr "Ihr Photo ändern"
 
 #: ../mainmenu.c:152 ../sieve.c:79
 msgid "View/edit server-side mail filters"
-msgstr ""
+msgstr "Bearbeiten/Anzeigen von Serverweiten Mail Filtern"
 
 #: ../mainmenu.c:159
 msgid "Advanced room commands"
@@ -1083,7 +1083,7 @@ msgstr "Die Replikation mit anderen Citadellen Konfigurieren"
 
 #: ../mainmenu.c:234 ../smtpqueue.c:230
 msgid "View the outbound SMTP queue"
-msgstr ""
+msgstr "Mailversandt-Warteschlange anzeigen"
 
 #: ../mainmenu.c:241
 msgid "User account management"
@@ -2043,254 +2043,225 @@ msgstr "Fehler beim laden des RSS-feeds: konnte die Meldung nicht finden\n"
 
 #: ../sieve.c:91
 msgid "When new mail arrives: "
-msgstr ""
+msgstr "Wenn eine neue Mail ankommt: "
 
 #: ../sieve.c:95
 msgid "Leave it in my inbox without filtering"
-msgstr ""
+msgstr "Im Posteingang belassen ohne filtern"
 
 #: ../sieve.c:99
 msgid "Filter it according to rules selected below"
-msgstr ""
+msgstr "Mit den folgenden Regeln filtern"
 
 #: ../sieve.c:104
 msgid "Filter it through a manually edited script (advanced users only)"
-msgstr ""
+msgstr "Mit manuell bearbeiteten Script filtern (nur für erfahrene Benutzer)"
 
 #: ../sieve.c:115
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr ""
+msgstr "Deine ankommenden Mails werden nicht gefiltert"
 
 #: ../sieve.c:130
 msgid "The currently active script is: "
-msgstr ""
+msgstr "Das zur zeit aktive Script ist:"
 
 #: ../sieve.c:145 ../sieve.c:599
-#, fuzzy
 msgid "Add or delete scripts"
-msgstr "Benutzer Bearbeiten/Löschen"
+msgstr "Script Bearbeiten/Löschen"
 
 #: ../sieve.c:608
-#, fuzzy
 msgid "Add a new script"
-msgstr "Neuen Knoten hinzufügen"
+msgstr "Neues Script hinzufügen"
 
 #: ../sieve.c:611
-#, fuzzy
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
-msgstr ""
-"Um einen neuen Benutzer einzurichten, den Anmeldenamen in das Textfeld "
-"eintragenund 'Anlegen' Klicken"
+msgstr "Um eine neues Script anzulegen, den gewünschten Scriptnamen in das Textfeld eintragen und 'Anlegen' Klicken"
 
 #: ../sieve.c:616
-#, fuzzy
 msgid "Script name: "
-msgstr "Verzeichnisname:  "
+msgstr "Script Name:  "
 
 #: ../sieve.c:619 ../useredit.c:51
 msgid "Create"
 msgstr "Anlegen"
 
 #: ../sieve.c:623
-#, fuzzy
 msgid "Edit scripts"
-msgstr "Aufgabe bearbeiten"
+msgstr "Script bearbeiten"
 
 #: ../sieve.c:626
 msgid "Return to the script editing screen"
-msgstr ""
+msgstr "Zurück zum Bearbeiten Formular"
 
 #: ../sieve.c:632
-#, fuzzy
 msgid "Delete scripts"
-msgstr "Benutzer Löschen"
+msgstr "Script Löschen"
 
 #: ../sieve.c:635
-#, fuzzy
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
-msgstr ""
-"Einen vorhandenen Benutzer aus der Liste auswählen zum modifizieren, und "
-"dann 'Bearbeiten' Klicken"
+msgstr "Um ein vorhandenes Script zu Löschen das Script aus der Liste auswählen und dann 'Löschen' Klicken"
 
 #: ../sieve.c:658
-#, fuzzy
 msgid "Delete script"
-msgstr "Benutzer Löschen"
+msgstr "Script Löschen"
 
 #: ../sieve.c:658
-#, fuzzy
 msgid "Delete this script?"
-msgstr "Diesen Benutzer löschen?"
+msgstr "Dieses Script löschen?"
 
 #: ../sieve.c:695
 msgid "A script by that name already exists."
-msgstr ""
+msgstr "Es gibt schon ein Script mit diesem Namen!"
 
 #: ../sieve.c:704
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
-msgstr ""
+msgstr "Ein neues Script wurde erzeugt. Es kann im Script-bearbeiten Formular aktiviert werden."
 
 #: ../sieve.c:919
 msgid "Move rule up"
-msgstr ""
+msgstr "Regel nach oben bewegen"
 
 #: ../sieve.c:924
 msgid "Move rule down"
-msgstr ""
+msgstr "Regel nach unten bewegen"
 
 #: ../sieve.c:929
-#, fuzzy
 msgid "Delete rule"
-msgstr "Benutzer Löschen"
+msgstr "Regel Löschen"
 
 #: ../sieve.c:937
 msgid "If"
-msgstr ""
+msgstr "Wenn"
 
 #: ../sieve.c:940
-#, fuzzy
 msgid "From"
-msgstr "von "
+msgstr "From"
 
 #: ../sieve.c:941
 msgid "To or Cc"
-msgstr ""
+msgstr "To oder Cc"
 
 #: ../sieve.c:943
-#, fuzzy
 msgid "Reply-to"
-msgstr "Antworten"
+msgstr "Reply-to"
 
 #: ../sieve.c:945
-#, fuzzy
 msgid "Resent-From"
-msgstr "Formular Löschen"
+msgstr "Resent-From"
 
 #: ../sieve.c:946
-#, fuzzy
 msgid "Resent-To"
-msgstr "Formular Löschen"
+msgstr "Resent-To"
 
 #: ../sieve.c:947
 msgid "Envelope From"
-msgstr ""
+msgstr "Envelope From"
 
 #: ../sieve.c:948
 msgid "Envelope To"
-msgstr ""
+msgstr "Envelope To"
 
 #: ../sieve.c:949
-#, fuzzy
 msgid "X-Mailer"
-msgstr "Posteingang"
+msgstr "X-Mailer"
 
 #: ../sieve.c:950
 msgid "X-Spam-Flag"
-msgstr ""
+msgstr "X-Spam-Flag"
 
 #: ../sieve.c:951
 msgid "X-Spam-Status"
-msgstr ""
+msgstr "X-Spam-Status"
 
 #: ../sieve.c:952
-#, fuzzy
 msgid "Message size"
-msgstr "Nachrichten"
+msgstr "Nachrichten größe"
 
 #: ../sieve.c:953
 msgid "All"
-msgstr ""
+msgstr "Alle"
 
 #: ../sieve.c:972
-#, fuzzy
 msgid "contains"
-msgstr "Aktionen"
+msgstr "beinhaltet"
 
 #: ../sieve.c:973
 msgid "does not contain"
-msgstr ""
+msgstr "beinhaltet nicht"
 
 #: ../sieve.c:974
 msgid "is"
-msgstr ""
+msgstr "ist"
 
 #: ../sieve.c:975
-#, fuzzy
 msgid "is not"
-msgstr "Nachrichten anzeigen"
+msgstr "ist nicht"
 
 #: ../sieve.c:976
 msgid "matches"
-msgstr ""
+msgstr "trifft zu"
 
 #: ../sieve.c:977
 msgid "does not match"
-msgstr ""
+msgstr "trifft nicht zu"
 
 #: ../sieve.c:997
-#, fuzzy
 msgid "(All messages)"
-msgstr "Alle Beiträge"
+msgstr "(Alle Beiträge)"
 
 #: ../sieve.c:1001
 msgid "is larger than"
-msgstr ""
+msgstr "ist größer als"
 
 #: ../sieve.c:1002
 msgid "is smaller than"
-msgstr ""
+msgstr "ist kleiner als"
 
 #: ../sieve.c:1025
 msgid "Keep"
-msgstr ""
+msgstr "Behalten"
 
 #: ../sieve.c:1026
 msgid "Discard silently"
-msgstr ""
+msgstr "still verwerfen"
 
 #: ../sieve.c:1027
-#, fuzzy
 msgid "Reject"
-msgstr "Betreff"
+msgstr "Abweisen"
 
 #: ../sieve.c:1028
-#, fuzzy
 msgid "Move message to"
-msgstr "Meldung verschieben nach:"
+msgstr "Meldung verschieben nach"
 
 #: ../sieve.c:1029
-#, fuzzy
 msgid "Forward to"
-msgstr "Weiterleiten"
+msgstr "Weiterleiten an"
 
 #: ../sieve.c:1030
-#, fuzzy
 msgid "Vacation"
-msgstr "Ort"
+msgstr "Abwesenheits Benachrichtigung"
 
 #: ../sieve.c:1067
-#, fuzzy
 msgid "Message:"
-msgstr "Nachrichten"
+msgstr "Nachricht:"
 
 #: ../sieve.c:1077
-#, fuzzy
 msgid "continue processing"
-msgstr "(in Bearbeitung)"
+msgstr "weiter Bearbeiten"
 
 #: ../sieve.c:1078
 msgid "stop"
-msgstr ""
+msgstr "stop"
 
 #: ../sieve.c:1081
 msgid "and then"
-msgstr ""
+msgstr "und dann"
 
 #: ../siteconfig.c:39
 msgid "Site configuration"
@@ -2355,7 +2326,7 @@ msgstr "LDAP Verzeichnis Anbindung des Servers konfigurieren"
 msgid ""
 "NOTE: This Citadel server has been built without LDAP support.  These "
 "options will have no effect."
-msgstr ""
+msgstr "Anmerkung: Dieser Citadelserver wurdo ohne LDAP-Support gebaut. Diese Option wird keine Auswirkung haben."
 
 #: ../siteconfig.c:100
 msgid "Configure automatic expiry of old messages"
@@ -2640,36 +2611,32 @@ msgid "Your system configuration has been updated."
 msgstr "Ihre Systemkonfiguration wurde Übernommen"
 
 #: ../smtpqueue.c:168
-#, fuzzy
 msgid "Message ID"
-msgstr "Nachrichten"
+msgstr "Nachrichten ID"
 
 #: ../smtpqueue.c:170
-#, fuzzy
 msgid "Date/time submitted"
-msgstr "Nachricht abgeschickt"
+msgstr "Versandtzeitpunkt"
 
 #: ../smtpqueue.c:172
 msgid "Last attempt"
-msgstr ""
+msgstr "Letzter Versuch"
 
 #: ../smtpqueue.c:176
 msgid "Recipients"
-msgstr ""
+msgstr "Empfänger"
 
 #: ../smtpqueue.c:188
-#, fuzzy
 msgid "The queue is empty."
-msgstr "Dieses Adressbuch ist leer."
+msgstr "Diese Warteschlange ist leer."
 
 #: ../smtpqueue.c:194
 msgid "You do not have permission to view this resource."
-msgstr ""
+msgstr "Du hast keine Berechtigung, um diesen Dialog einzusehen."
 
 #: ../smtpqueue.c:247
-#, fuzzy
 msgid "Refresh this page"
-msgstr "Diese Seite bearbeiten"
+msgstr "Diese Seite neu laden"
 
 #: ../subst.c:216
 msgid "ERROR: could not open template "
