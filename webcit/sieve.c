@@ -1100,7 +1100,9 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wprintf("</table>");
-	wprintf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">Add rule</a><br /></div>\n");
+	wprintf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br /></div>\n",
+		_("Add rule")
+	);
 
 	wprintf("<script type=\"text/javascript\">					\n");
 	wprintf("UpdateRules();								\n");
