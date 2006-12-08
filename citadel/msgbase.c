@@ -363,6 +363,11 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	size_t tmp;
 
+	/* Don't bother doing *anything* if we were passed a list of zero messages */
+	if (num_target_msgnums < 1) {
+		return;
+	}
+
 	lprintf(CTDL_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %d, %d)\n",
 		num_target_msgnums, target_msgnums[0],
 		target_setting, which_set);

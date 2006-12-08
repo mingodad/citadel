@@ -134,18 +134,10 @@ int imap_do_copy(char *destination_folder) {
 	gettimeofday(&tv2, NULL);
 	i = getroom(&qrbuf, roomname);
 	if (i == 0) {
-		CtdlSetSeen(seen_yes, num_seen_yes, 1,
-			ctdlsetseen_seen, NULL, &qrbuf
-		);
-		CtdlSetSeen(seen_no, num_seen_no, 0,
-			ctdlsetseen_seen, NULL, &qrbuf
-		);
-		CtdlSetSeen(answ_yes, num_answ_yes, 1,
-			ctdlsetseen_answered, NULL, &qrbuf
-		);
-		CtdlSetSeen(answ_no, num_answ_no, 0,
-			ctdlsetseen_answered, NULL, &qrbuf
-		);
+		CtdlSetSeen(seen_yes, num_seen_yes, 1, ctdlsetseen_seen, NULL, &qrbuf);
+		CtdlSetSeen(seen_no, num_seen_no, 0, ctdlsetseen_seen, NULL, &qrbuf);
+		CtdlSetSeen(answ_yes, num_answ_yes, 1, ctdlsetseen_answered, NULL, &qrbuf);
+		CtdlSetSeen(answ_no, num_answ_no, 0, ctdlsetseen_answered, NULL, &qrbuf);
 	}
 
 	free(seen_yes);
