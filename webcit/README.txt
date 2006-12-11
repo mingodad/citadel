@@ -1,5 +1,5 @@
                         WEBCIT for the Citadel System
-                               version 6.84
+                               version 7.00
  
    Copyright (C) 1996-2006 by the authors.  Portions written by:
 	Art Cancro
@@ -33,7 +33,6 @@
    [http://cerca.html.it/cgi-bin/cerca.cgi?q=nifty+corners].  This component
    is licensed to you under the terms of the GNU General Public License.
 
-
    The Citadel logo was designed by Lisa Aurigemma.
 
  
@@ -57,11 +56,10 @@ to be attractive and easy to navigate.
  Unline some web-based packages, WebCit contains its own standalone HTTP
 engine.  As a result, you can get it running quickly without all that tedious
 mucking about with Apache configuration files and directories.  WebCit is not
-intended to replace your Apache server, however -- it *only* provides a front
-end to Citadel.  If you do not have another web server running, you may run
-WebCit on port 80; however, in the more likely situation that you have Apache
-or some other web server listening on port 80, you must run WebCit on another
-port.  The default is port 2000.
+intended to be a general-purpose web server, however -- it *only* provides a
+front end to Citadel.  If you do not have another web server running, you may
+run WebCit on port 80; however, if you have Apache or some other web server
+listening on port 80, you must run WebCit on another port.
  
  To compile from source, enter the usual commands:
   ./configure --prefix=/usr/local/webcit   [or whatever directory you prefer]
@@ -78,7 +76,11 @@ port.  The default is port 2000.
  After running setup, you just point your web browser to whatever port you
 specified, such as:
  
-  http://your.host.name:2000
+  http://your.host.name
+ 
+ (or if you specified some other port, such as 8080 in this example...)
+ 
+  http://your.host.name:8080
  
  ...and log in.
  
@@ -109,13 +111,15 @@ the "webserver" program:
      You can leave this out, in which case WebCit will listen on all
      available network interfaces.  Normally this will be the case, but if
      you are running multiple Citadel systems on one host, it can be useful.
+     You can also use this option to run Apache and WebCit on different IP
+     addresses instead of different ports, if you have them available.
  
   -> http_port: the TCP port on which you wish your WebCit server to run.  If
      you are installing WebCit on a dedicated server, you can use the
      standard port 80.  Otherwise, if port 80 is already occupied by some
      other web service (probably Apache), then you'll need to select a
      different port.  If you do not specify a port number, WebCit will attempt
-     to use port 2000.
+     to use port 80.
      
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
