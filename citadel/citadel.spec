@@ -1,7 +1,7 @@
 # $Id$
-Summary: Citadel, the flexible, powerful way to build online communities
+Summary: An easy to administer messaging and groupware platform
 Name: citadel
-Version: 6.90
+Version: 7.00
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
