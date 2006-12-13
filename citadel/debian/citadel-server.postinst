@@ -42,6 +42,8 @@ set -e
 ###: update-rc.d foo default >/dev/null
 ###
 
+
+
 case "$1" in
   configure)
     # Configure this package.  If the package must prompt the user for
@@ -164,7 +166,7 @@ case "$1" in
 	export ACT_AS_MTA=no
 	export SYSADMIN_NAME=$admin
 	export CREATE_XINETD_ENTRY=no
-	export CREATE_INITTAB_ENTRY=yes
+	export CREATE_INITTAB_ENTRY=no
 	echo "applying your settings."
 # citadel home
 # sysadmin
@@ -237,5 +239,7 @@ case "$1" in
   *) echo "$0: didn't understand being called with \`$1'" 1>&2
      exit 0;;
 esac
+
+#DEBHELPER#
 
 exit 0
