@@ -255,8 +255,10 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	converted_alloc = content_length + 8192;
 	converted_msg = malloc(converted_alloc);
 	if (converted_msg == NULL) {
-		abort();			/* FIXME */
+		wprintf("Error %d: %s<br />%s:%s", errno, strerror(errno), __FILE__, __LINE__);
+		goto BAIL;
 	}
+
 	strcpy(converted_msg, "");
 	ptr = msg;
 	msgend = strchr(msg, 0);
@@ -392,7 +394,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	/** Output our big pile of markup */
 	client_write(converted_msg, output_length);
 
-	/** A little trailing vertical whitespace... */
+BAIL:	/** A little trailing vertical whitespace... */
 	wprintf("<br /><br />\n");
 
 	/** Now give back the memory */
