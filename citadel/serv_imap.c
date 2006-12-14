@@ -1374,8 +1374,7 @@ void imap_rename(int num_parms, char *parms[])
 					   irl->irl_newfloor);
 			if (r != crr_ok) {
 				/* FIXME handle error returns better */
-				lprintf(CTDL_ERR, "CtdlRenameRoom() error %d\n",
-					r);
+				lprintf(CTDL_ERR, "CtdlRenameRoom() error %d\n", r);
 			}
 			irlp = irl;
 			irl = irl->next;

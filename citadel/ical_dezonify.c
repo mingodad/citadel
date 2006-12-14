@@ -31,24 +31,10 @@
 /*
  * Figure out which time zone needs to be used for timestamps that are
  * not UTC and do not have a time zone specified.
- *
- * FIXME - most sites are not in New York :)
  */
-icaltimezone *get_default_icaltimezone(void) {
-
+icaltimezone *get_default_icaltimezone(void)
+{
         icaltimezone *zone = NULL;
-
-/*
-   This doesn't even belong here. 
-   I'm just keeping it here until I put it somewhere permanent.
-
-	icalarray *zones;
-	int i;
- 	zones = icaltimezone_get_builtin_timezones();
- 	for (i = 0; i < zones->num_elements; i++) {
-		lprintf(CTDL_DEBUG, "%s\n", icaltimezone_get_location(icalarray_element_at(zones, i)));
-	}
- */
 
 	if (!zone) {
                 zone = icaltimezone_get_builtin_timezone(config.c_default_cal_zone);
@@ -69,7 +55,8 @@ icaltimezone *get_default_icaltimezone(void) {
  */
 void ical_dezonify_backend(icalcomponent *cal,
 			icalcomponent *rcal,
-			icalproperty *prop) {
+			icalproperty *prop)
+{
 
 	icaltimezone *t = NULL;
 	icalparameter *param;

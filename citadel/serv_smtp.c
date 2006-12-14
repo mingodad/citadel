@@ -1079,8 +1079,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 		if (!mx_port[0]) {
 			strcpy(mx_port, "25");
 		}
-		/* lprintf(CTDL_DEBUG, "FIXME user<%s> pass<%s> host<%s> port<%s>\n",
-			mx_user, mx_pass, mx_host, mx_port); */
 		lprintf(CTDL_DEBUG, "Trying %s : %s ...\n", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port, "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));

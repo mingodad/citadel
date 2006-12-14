@@ -252,8 +252,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 /*
  * Load a specific part of a message into the temp file to be output to a
  * client.  FIXME we can handle parts like "2" and "2.1" and even "2.MIME"
- * but we still can't handle "2.HEADER" (which might not be a problem, because
- * we currently don't have the ability to break out nested RFC822's anyway).
+ * but we still can't handle "2.HEADER" (which might not be a problem).
  *
  * Note: mime_parser() was called with dont_decode set to 1, so we have the
  * luxury of simply spewing without having to re-encode.

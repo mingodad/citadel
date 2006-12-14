@@ -175,8 +175,6 @@ void ft_index_message(long msgnum, int op) {
 			else {
 				lprintf(CTDL_ALERT, "Invalid token %d !!\n", tok);
 			}
-
-			/* FIXME do we need to unlock the file here? */
 		}
 
 		free(tokens);
