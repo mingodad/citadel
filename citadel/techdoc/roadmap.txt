@@ -8,28 +8,23 @@ some code and deciding what to work on.
 
 * GroupDAV and "webcal" (icalendar over dav) support
 * Updated schema for publishing Citadel address book data into an
-  external LDAP directory (still awaiting enterprise number from IANA)
+  external LDAP directory
 * Internationalization (WebCit is now available in several languages.)
+* Per-user auto-handling of inbound mail.  (Sieve + rules editor)
+
 
  Goals to achieve during the 7.xx cycle
  --------------------------------------
 
-* Aliases, virtual addresses, and distribution lists
-  (We ought to be able to handle all three of these using the same facility.)
-
-* CalDAV support (eventually -- since the protocol is so ugly and needlessly
-  complex, the draft authors are still arguing over small details -- once the
-  draft is finalized, we will implement enough of CalDAV to support the two
-  major client packages currently using it)
+* CalDAV support (Eventually.  Since both the protocol itself and the people
+  designing it are incredibly ugly, it keeps changing, and implementations
+  keep breaking.  When the spec is finalized, we will implement enough of
+  CalDAV to provide compatibility with any major client packages which use
+  it.)
 
 * Integration of CMS and social software features (more on this later).
 
 * Further internationalization (for example, in the citserver).
-
-* Per-user auto-handling of inbound mail.  Simple handlers such as an "out
-  of office reply" should be easy for users to set up.  More complex handlers
-  such as the automatic sorting of inbound mail into various folders based
-  on sender, subject, etc. should also be possible.
 
 * Address books: build dialogs to integrate personal address books into
   mail recipient boxes, auto-completion, etc.  Use AJAX for this.

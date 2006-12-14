@@ -66,8 +66,24 @@ timestamp, so that we may purge old records which were never confirmed.
  
  The sixth field is the URL of the web page used to enter the subscription
 request, minus any parameters.
+
  
  INSTRUCTION:  unsubpending
  SYNTAX:       unsubpending|friko@mumjiboolean.com|A234Z|1234567890|http://foo.com/lists
     Similar to the 'subpending' command, except this one is for unsubscribe
 requests.  The same rules apply with regard to the token and the web page.
+
+
+ INSTRUCTION:  participate
+ SYNTAX:       participate|list-addr@example.com
+   This allows a room to be a  *subscriber* to an external mailing list
+somewhere.  The room's email address should be subscribed to the list, and the
+external listserv should be told "do not send me my own messages."  Any
+messages which originated on Citadel (as opposed to messages which arrived via
+email, such as those from the list) will be sent to the list, with the display
+name of the author kept intact, but the email address changed to the address of
+the room.
+ 
+   This is somewhat finicky, which is why it is not officially supported, and
+why there are no facilities in the user interface to configure it.  If you want
+to use this option you are on your own.

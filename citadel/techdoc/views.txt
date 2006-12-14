@@ -1,5 +1,5 @@
-How "views" work in Citadel (beginning with v6.00)
---------------------------------------------------
+How "views" work in Citadel
+---------------------------
  
  There's no need to be rigid and stupid about how different rooms are presented
 in a Citadel client.  And we don't enforce things either.  But there's a need

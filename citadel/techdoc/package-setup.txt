@@ -30,3 +30,6 @@ CREATE_XINETD_ENTRY	Set to "yes" to automatically configure xinetd to route
 			telnet connections into a Citadel client, if needed.
 
 SYSADMIN_NAME		Name of system administrator.
+
+NO_INIT_SCRIPTS		Set to non-null to suppress the creation of init
+			scripts when running on a SysV-init based host.
