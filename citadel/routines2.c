@@ -1126,14 +1126,15 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 
 	if (e_ex_code == 0) { 		/* Save changes */
 		changefp = fopen(changefile, "w");
-		/* This appears completely unnecessary; why was it here? -IO
+
+		/* Load all netconfig entries that are *not* of the type we are editing */
 		r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 		if (r / 100 == 1) {
 			while(listing && strlen(listing)) {
 				extract_token(buf, listing, 0, '\n', sizeof buf);
 				remove_token(listing, 0, '\n');
 				extract_token(instr, buf, 0, '|', sizeof instr);
-				if (!strcasecmp(instr, entrytype)) {
+				if (strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
 				}
 			}
@@ -1142,7 +1143,8 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 			free(listing);
 			listing = NULL;
 		}
-		*/
+
+		/* ...and merge that with the data we just edited */
 		tempfp = fopen(filename, "r");
 		while (fgets(buf, sizeof buf, tempfp) != NULL) {
 			for (i=0; i<strlen(buf); ++i) {
