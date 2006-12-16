@@ -13,6 +13,30 @@ some code and deciding what to work on.
 * Per-user auto-handling of inbound mail.  (Sieve + rules editor)
 
 
+ Immediate projects to tackle after 7.00
+ ---------------------------------------
+
+* Apply the patches that Matt has queued up.
+
+* File libraries (upload/download) support in WebCit.  Users are demanding it.
+
+* Performance improvements for use cases involving huge mailboxes (rooms
+  containing thousands of messages).  Our QA group continues to complain
+  mercilessly about this so we have to address it.  Specifically:
+
+  1. AdjRefCount() operations must be deferred.  This is the only portion
+     of bulk move/copy/delete operations which is still consuming a large
+     amount of wall clock time.  AdjRefCount() could write its instructions
+     into an in-memory queue to be processed during the next housekeeping
+     loop, *or* it could write its instructions into a flat file to be
+     processed during the next auto-purger run.
+
+  2. WebCit slows down significantly (or so claims our QA group) when one
+     of the above-mentioned mega-mailboxes is opened in mailbox view mode.
+     We may need to introduce a reduced (paginated) view which activates
+     when this condition is detected (more than 500 msgs?  1000 msgs?)
+
+
  Goals to achieve during the 7.xx cycle
  --------------------------------------
 
