@@ -31,7 +31,9 @@ configure-stamp:
 		--with-spooldir=/var/spool/citadel \
 		--with-datadir=/var/lib/citadel \
 		--with-rundir=/var/run/citadel \
-		--with-ical --with-db --with-ldap --with-zlib --with-ssl --with-libiconf --with-newt --with-included-gettext
+		--with-ical --with-db --with-ldap \
+		--with-zlib --with-ssl --with-libiconf \
+		--with-newt --with-included-gettext
 
 	touch configure-stamp
 
@@ -41,9 +43,9 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 
-	# Add here commands to compile the package.
+# Add here commands to compile the package.
 	$(MAKE)
-	#docbook-to-man debian/webcit.sgml > webcit.1
+#docbook-to-man debian/webcit.sgml > webcit.1
 
 	touch build-stamp
 
@@ -52,7 +54,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	# Add here commands to clean up after the build process.
+# Add here commands to clean up after the build process.
 	-$(MAKE) clean
 
 	dh_clean 
@@ -82,6 +84,8 @@ install: build
 				md5sum `find -type f |grep -v md5sums `>md5sums; 
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/setup \
 		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
+	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/ctdlsvc \
+		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/webserver \
 		$(CURDIR)/debian/citadel-webcit/usr/sbin/
 
@@ -94,7 +98,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs ChangeLog
+#	dh_installchangelogs ChangeLog
 	dh_installdocs
 	dh_installexamples
 #	dh_install
@@ -104,7 +108,7 @@ binary-arch: build install
 #	dh_installemacsen
 #	dh_installpam
 #	dh_installmime
-#	dh_installinit
+	dh_installinit --name=webcit
 #	dh_installcron
 #	dh_installinfo
 	dh_installman
