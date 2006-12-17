@@ -1,6 +1,4 @@
 #!/bin/sh
 
 # stop the citadel service...
-export CREATE_INITTAB_ENTRY=no
-/usr/lib/citadel-server/setup -q
-killall -HUP init
+/etc/init.d/citadel stop

@@ -1,6 +1,7 @@
 #!/bin/bash
+# find out the package version from conf
+export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;CITADEL;"`
 
-CITADEL_VERSION=`grep '#define CITADEL.*Citadel' citadel.h |sed -e 's;";;g' -e "s;.* ;;"`
 PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
 ACTUAL_DIR=`pwd`
@@ -40,7 +41,7 @@ case $1 in
 			-e "s;@CITADEL_VERSION@;${CITADEL_VERSION};" \
 			-e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
 			> debian/files
-		if grep -q "$CITADEL_VERSION" debian/changelog; then
+		if grep -q "($CITADEL_VERSION" debian/changelog; then
 			echo rebuilding package.
 		else
 			echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low

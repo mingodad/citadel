@@ -1,54 +1,61 @@
+citadel (7.00-1) unstable; urgency=low
+	
+  * update to actual Citadel CVS. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 16 Dec 2006 01:01:00 +0100
+	
+
 citadel (6.84-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Do, 31 Aug 2006 23:11:00 +0200
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Do, 31 Aug 2006 23:11:00 +0200
 	
 
 citadel (6.82-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Thu, 22 Jun 2006 20:08:00 +0200
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 22 Jun 2006 20:08:00 +0200
 	
 
 citadel (6.71-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Sat, 21 Jan 2006 19:07:00 +0100
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 21 Jan 2006 19:07:00 +0100
 	
 
 citadel (6.70-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Sun, 15 Jan 2006 15:03:00 +0100
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Sun, 15 Jan 2006 15:03:00 +0100
 	
 
 citadel (6.63-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Mon, 12 Dec 2005 11:11:00 +0100
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Mon, 12 Dec 2005 11:11:00 +0100
 	
 
 citadel (6.62-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Fri, 18 Nov 2005 16:04:00 +0100
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 18 Nov 2005 16:04:00 +0100
 	
 
 citadel (6.61-2) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  Tue, 01 Nov 2005 12:23:15 +0200
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Tue, 01 Nov 2005 12:23:15 +0200
 	
 citadel (6.53-1) unstable; urgency=low
 
   * Initial release Closes: #nnnn  (nnnn is the bug number of your ITP)
 
- -- Wilfried Goesgens <willi@jordy.home.net>  Sat, 23 Jul 2005 12:23:15 +0200
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 23 Jul 2005 12:23:15 +0200
 
