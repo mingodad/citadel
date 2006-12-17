@@ -118,28 +118,15 @@ case "$1" in
 	db_get citadel/WebcitHttpsPort && https_port="$RET"	
 	set >/tmp/testfoo
 	echo "aplying your settings"
-	if grep -q "webserver" /etc/inittab; then
-		echo "/usr/sbin
-Yes
-$http_port
-$https_port
-No
-127.0.0.1
-504
-"|/usr/lib/citadel-webcit/setup -q
-		echo "/usr/sbin
-Yes
-$http_port
-$https_port
-No
-127.0.0.1
-504
-/usr/lib/citadel-webcit/setup -q" >>/tmp/foo
-	else 
-		echo "/usr/sbin
-" |/usr/lib/citadel-webcit/setup -q
+	echo "
+export WEBCIT_HTTP_PORT=$http_port
+export WEBCIT_HTTPS_PORT=$https_port
+export WEBCIT_CITADEL_IP=127.0.0.1
+export WEBCIT_CITADEL_PORT=504
+export WEBCIT_LISTEN_IP=0.0.0.0
+" >>/etc/default/webcit
 
-	fi
+	update-rc.d webcit defaults >/dev/null
 
     #### There are three sub-cases:
     ###if test "${2+set}" != set; then

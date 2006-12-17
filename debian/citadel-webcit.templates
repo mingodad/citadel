@@ -1,15 +1,15 @@
 Template: citadel/WebcitHttpPort
 Type: string
-Default: 2000
+Default: 2020
 Description: Webcit HTTP Port
-  Select the Port, which the plain HTTP webcit server should listen on.
+  Select the Port, which the plain HTTP webcit server should listen on. -1 to disable.
 
 
 Template: citadel/WebcitHttpsPort
 Type: string
 Default: 443
 Description: WebCit HTTPS port
-  Select the Port, which the SSL HTTP webcit server should listen on.
+  Select the Port, which the SSL HTTP webcit server should listen on. -1 to disable.
 
 
 Template: citadel/WebcitInstallnote
