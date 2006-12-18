@@ -79,7 +79,12 @@ do_stop()
 	#   other if a failure occurred
         if $SENDCOMMAND "DOWN" >/dev/null 2>&1 ; then
 	    rm -f $PIDFILE
-	    return 0
+
+	    while test -S /var/run/citadel/citadel.socket; do 
+		sleep 1
+		echo -n "."
+	    done
+		return 0
 	else
 	    rm -f $PIDFILE
 	    return 2

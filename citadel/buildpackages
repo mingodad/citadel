@@ -46,9 +46,9 @@ case $1 in
 		else
 			echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
 	
-  * update to actual Citadel CVS. many new features. see Packages changelog.
+  * update to actual Citadel SVN. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <w.goesgens@chaosindustries.de>  $DATE
+ -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
 	
 " >/tmp/citadel_changelog
 			cat debian/changelog >>/tmp/citadel_changelog

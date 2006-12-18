@@ -189,6 +189,10 @@ case "$1" in
 	    /usr/sbin/sendcommand "DOWN"
 	fi
 
+	while test -S /var/run/citadel/citadel.socket; do 
+	    sleep 1
+	done
+
 	update-rc.d citadel defaults >/dev/null
 
 	echo "run /etc/init.d/citadel start to start citadel service."
