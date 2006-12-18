@@ -70,6 +70,13 @@ static pthread_key_t tsdkey;
 #define MYCURSORS	(((struct cdbtsd*)pthread_getspecific(tsdkey))->cursors)
 #define MYTID		(((struct cdbtsd*)pthread_getspecific(tsdkey))->tid)
 
+/* Verbose logging callback */
+void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
+{
+	lprintf(CTDL_DEBUG, "BDB: %s\n", msg);
+}
+
+
 /* just a little helper function */
 static void txabort(DB_TXN * tid)
 {
@@ -359,6 +366,10 @@ void open_databases(void)
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
 	dbenv->set_paniccall(dbenv, dbpanic);
+	dbenv->set_msgcall(dbenv, cdb_verbose_log);
+	dbenv->set_verbose(dbenv, DB_VERB_DEADLOCK, 1);
+	dbenv->set_verbose(dbenv, DB_VERB_RECOVERY, 1);
+	dbenv->set_verbose(dbenv, DB_VERB_REGISTER, 1);
 
 	/*
 	 * We want to specify the shared memory buffer pool cachesize,
@@ -380,10 +391,10 @@ void open_databases(void)
 	}
 
 	flags =
-	    DB_CREATE | DB_RECOVER | DB_INIT_MPOOL | DB_PRIVATE |
-	    DB_INIT_TXN | DB_INIT_LOCK | DB_THREAD;
-	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n", ctdl_data_dir,
-		flags);
+	    DB_CREATE | DB_RECOVER | DB_INIT_MPOOL |
+	    DB_PRIVATE | DB_INIT_TXN | DB_INIT_LOCK | DB_THREAD;
+	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n",
+		ctdl_data_dir, flags);
 	ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
 	if (ret) {
 		lprintf(CTDL_DEBUG, "cdb_*: dbenv->open: %s\n",
