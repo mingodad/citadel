@@ -369,7 +369,6 @@ void open_databases(void)
 	dbenv->set_msgcall(dbenv, cdb_verbose_log);
 	dbenv->set_verbose(dbenv, DB_VERB_DEADLOCK, 1);
 	dbenv->set_verbose(dbenv, DB_VERB_RECOVERY, 1);
-	dbenv->set_verbose(dbenv, DB_VERB_REGISTER, 1);
 
 	/*
 	 * We want to specify the shared memory buffer pool cachesize,
