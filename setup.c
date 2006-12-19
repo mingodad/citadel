@@ -55,7 +55,7 @@ void delete_init_entry(char *which_entry)
 			extract_token(prog, buf, 3, ':', sizeof prog); /* includes 0x0a LF */
 
 			if (!strcmp(entry, which_entry)) {
-				buf[0] = 0;	/* delete it */
+				strcpy(state, "off");	/* disable it */
 			}
 		}
 
