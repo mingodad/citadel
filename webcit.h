@@ -121,7 +121,7 @@ extern locale_t wc_locales[];
 
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
-#define PORT_NUM		80		/* port number to listen on */
+#define PORT_NUM		2000		/* port number to listen on */
 #define SERVER			"WebCit v7.00"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4

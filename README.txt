@@ -59,7 +59,8 @@ mucking about with Apache configuration files and directories.  WebCit is not
 intended to be a general-purpose web server, however -- it *only* provides a
 front end to Citadel.  If you do not have another web server running, you may
 run WebCit on port 80; however, if you have Apache or some other web server
-listening on port 80, you must run WebCit on another port.
+listening on port 80, you must run WebCit on another port.  If you do not
+specify a port number, WebCit will bind to port 2000.
  
  To compile from source, enter the usual commands:
   ./configure --prefix=/usr/local/webcit   [or whatever directory you prefer]
@@ -78,9 +79,9 @@ specified, such as:
  
   http://your.host.name
  
- (or if you specified some other port, such as 8080 in this example...)
+ (or if you specified some other port, such as 2000 in this example...)
  
-  http://your.host.name:8080
+  http://your.host.name:2000
  
  ...and log in.
  
