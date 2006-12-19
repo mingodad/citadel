@@ -454,7 +454,7 @@ void install_init_scripts(void)
 		"requests?\n\nYou can use the standard port (80) if you are "
 		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
-	sprintf(http_port, "80");
+	sprintf(http_port, "2000");
 	set_value(question, http_port);
 	uname(&my_utsname);
 	sprintf(suggested_url, "http://%s:%s/", my_utsname.nodename, http_port);
