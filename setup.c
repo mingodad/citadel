@@ -684,12 +684,8 @@ int main(int argc, char *argv[])
 		install_init_scripts();
 
 		if (!access("/etc/init.d/webcit", X_OK)) {
-			for (a=0; a<=2; ++a) {
-				progress("Restarting the WebCit service...", a, 3);
-				if (a == 0) system("/etc/init.d/webcit stop >/dev/null 2>&1");
-				if (a == 1) system("/etc/init.d/webcit start >/dev/null 2>&1");
-				sleep(1);
-			}
+			system("/etc/init.d/webcit stop");
+			system("/etc/init.d/webcit start");
 		}
 
 		sprintf(aaa,
