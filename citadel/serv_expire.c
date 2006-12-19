@@ -360,10 +360,9 @@ int PurgeRooms(void) {
 
 /*
  * Back end function to check user accounts for associated Unix accounts
- * which no longer exist.
+ * which no longer exist.  (Only relevant for host auth mode.)
  */
 void do_uid_user_purge(struct ctdluser *us, void *data) {
-#ifdef ENABLE_AUTOLOGIN
 	struct PurgeList *pptr;
 
 	if ((us->uid != (-1)) && (us->uid != CTDLUID)) {
@@ -375,8 +374,6 @@ void do_uid_user_purge(struct ctdluser *us, void *data) {
 			UserPurgeList = pptr;
 		}
 	}
-
-#endif /* ENABLE_AUTOLOGIN */
 }
 
 
@@ -460,13 +457,17 @@ int PurgeUsers(void) {
 	char *transcript = NULL;
 
 	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
-#ifdef ENABLE_AUTOLOGIN
-	ForEachUser(do_uid_user_purge, NULL);
-#else
-	if (config.c_userpurge > 0) {
-		ForEachUser(do_user_purge, NULL);
+
+	if (config.c_auth_mode == 1) {
+		/* host auth mode */
+		ForEachUser(do_uid_user_purge, NULL);
 	}
-#endif
+	else {
+		/* native auth mode */
+		if (config.c_userpurge > 0) {
+			ForEachUser(do_user_purge, NULL);
+		}
+	}
 
 	transcript = malloc(SIZ);
 	strcpy(transcript, "The following users have been auto-purged:\n");

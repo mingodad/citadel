@@ -267,11 +267,12 @@ void cmd_info(void) {
 	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
 #endif
 
-#ifdef ENABLE_AUTOLOGIN
-	cprintf("1\n");	/* "create new user" never works with autologin */
-#else
-	cprintf("%d\n", config.c_disable_newu); /* otherwise, site defined */
-#endif
+	if (config.c_auth_mode == 1) {
+		cprintf("1\n");	/* "create new user" never works with host auth */
+	}
+	else {
+		cprintf("%d\n", config.c_disable_newu); /* otherwise, site defined */
+	}
 
 	cprintf("%s\n", config.c_default_cal_zone);
 

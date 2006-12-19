@@ -91,7 +91,6 @@ MAKEOPTS=""
 # CFLAGS		C compiler flags
 # LDFLAGS		Linker flags
 # IS_UPGRADE		Set to "yes" if upgrading an existing Citadel
-# IS_AUTOLOGIN		Set to "yes" to force enabling autologin
 # CTDL_DIALOG		Where (if at all) the "dialog" program may be found
 
 # Let Citadel setup recognize the Citadel installer
@@ -312,16 +311,11 @@ install_sources () {
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $CITADEL_SOURCE | tar -xf - ) 2>&1 >>$LOG || die
 		cd $BUILD/citadel 2>&1 >>$LOG || die
-		if [ x$IS_AUTOLOGIN = xyes ] ; then
-			AL="--enable-autologin"
-		else
-			AL=""
-		fi
 		if [ -z "$OK_DB" ]
 		then
-			./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam $AL --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+			./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 		else
-			./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam $AL --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+			./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 		fi
 		$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 		if [ $IS_UPGRADE = yes ]
@@ -457,10 +451,6 @@ echo ""
 echo "Configuration:"
 echo "* Configure Citadel"
 echo "* Configure WebCit"
-if [ x$IS_AUTOLOGIN = xyes ] ; then
-	echo 'NOTE: this is an autologin installation.'
-	echo '      Authentication against user accounts on the host system is enabled.'
-fi
 echo ""
 echo -n "Perform the above installation steps now? "
 read yesno </dev/tty

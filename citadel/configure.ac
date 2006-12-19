@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_PREREQ(2.52)
-AC_INIT([Citadel], [7.00], [http://www.citadel.org/])
+AC_INIT([Citadel], [7.01], [http://www.citadel.org/])
 AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
@@ -89,7 +89,6 @@ AC_ARG_WITH(docdir,
 
 
 
-AC_ARG_ENABLE(autologin, [  --enable-autologin      enable autologin (default is disabled)])
 AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
@@ -264,10 +263,10 @@ fi
 dnl Check for Solaris realtime support
 AC_CHECK_LIB(rt, sched_yield)
 
-dnl Determine the system's authentication capabilities, if autologin is
-dnl requested. We currently support PAM, standard getpwnam(), and getspnam()
+dnl Determine the system's authentication capabilities.
+dnl We currently support PAM, standard getpwnam(), and getspnam()
 dnl (Linux shadow passwords)
-if test "$enable_autologin" = yes; then
+
 	if test "$with_pam" = yes; then
 		save_LIBS=$LIBS
 		AC_CHECK_LIB(pam, pam_start, [chkpwd_LIBS="-lpam $chkpwd_LIBS"
@@ -290,7 +289,6 @@ if test "$enable_autologin" = yes; then
 		fi
 	fi
 	if test "$ac_cv_func_crypt" = yes -o "$ac_cv_lib_crypt_crypt" = yes -o "$ac_cv_func_pam_start" = yes; then
-		AC_DEFINE(ENABLE_AUTOLOGIN)
 		if test "$enable_chkpwd" != no; then
 			AC_DEFINE(ENABLE_CHKPWD)
 			CHKPWD=chkpwd
@@ -298,7 +296,6 @@ if test "$enable_autologin" = yes; then
 			AUTH=auth.lo
 		fi
 	fi
-fi
 
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")

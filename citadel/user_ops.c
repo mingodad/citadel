@@ -308,7 +308,6 @@ int getuserbynumber(struct ctdluser *usbuf, long int number)
 }
 
 
-#ifdef ENABLE_AUTOLOGIN
 /*
  * getuserbyuid()  -     get user by system uid (for PAM mode authentication)
  *                       returns 0 if user was found
@@ -335,7 +334,6 @@ int getuserbyuid(struct ctdluser *usbuf, uid_t number)
 	}
 	return (-1);
 }
-#endif /* ENABLE_AUTOLOGIN */
 
 
 
@@ -359,52 +357,53 @@ int CtdlLoginExistingUser(char *trythisname)
 		return login_not_found;
 	}
 
-#ifdef ENABLE_AUTOLOGIN
+	if (config.c_auth_mode == 1) {
 
-	/* If this is an autologin build, the only valid auth source is the
-	 * host operating system.
-	 */
-	struct passwd pd;
-	struct passwd *tempPwdPtr;
-	char pwdbuffer[256];
+		/* host auth mode */
 
-	lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
-	getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
-	if (tempPwdPtr == NULL) {
-		return login_not_found;
-	}
-	lprintf(CTDL_DEBUG, "found it! uid=%d, gecos=%s\n", pd.pw_uid, pd.pw_gecos);
-
-	/* Locate the associated Citadel account.
-	 * If not found, make one attempt to create it.
-	 */
-	found_user = getuserbyuid(&CC->user, pd.pw_uid);
-	if (found_user != 0) {
-		create_user(username, 0);
+		struct passwd pd;
+		struct passwd *tempPwdPtr;
+		char pwdbuffer[256];
+	
+		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
+		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+		if (tempPwdPtr == NULL) {
+			return login_not_found;
+		}
+		lprintf(CTDL_DEBUG, "found it! uid=%d, gecos=%s\n", pd.pw_uid, pd.pw_gecos);
+	
+		/* Locate the associated Citadel account.
+		 * If not found, make one attempt to create it.
+		 */
 		found_user = getuserbyuid(&CC->user, pd.pw_uid);
+		if (found_user != 0) {
+			create_user(username, 0);
+			found_user = getuserbyuid(&CC->user, pd.pw_uid);
+		}
+
 	}
 
-#else /* ENABLE_AUTOLOGIN */
-	struct recptypes *valid = NULL;
+	else {
+		/* native auth mode */
 
-	/* First, try to log in as if the supplied name is a display name */
-	found_user = getuser(&CC->user, username);
-
-	/* If that didn't work, try to log in as if the supplied name
-	 * is an e-mail address
-	 */
-	if (found_user != 0) {
-		valid = validate_recipients(username);
-		if (valid != NULL) {
-			if (valid->num_local == 1) {
-				found_user = getuser(&CC->user,
-						valid->recp_local);
+		struct recptypes *valid = NULL;
+	
+		/* First, try to log in as if the supplied name is a display name */
+		found_user = getuser(&CC->user, username);
+	
+		/* If that didn't work, try to log in as if the supplied name
+	 	* is an e-mail address
+	 	*/
+		if (found_user != 0) {
+			valid = validate_recipients(username);
+			if (valid != NULL) {
+				if (valid->num_local == 1) {
+					found_user = getuser(&CC->user, valid->recp_local);
+				}
+				free(valid);
 			}
-			free(valid);
 		}
 	}
-
-#endif /* ENABLE_AUTOLOGIN */
 
 	/* Did we find something? */
 	if (found_user == 0) {
@@ -479,14 +478,14 @@ void session_startup(void)
 		CC->user.axlevel = 6;
 	}
 
-#ifdef ENABLE_AUTOLOGIN
 	/* If we're authenticating off the host system, automatically give
 	 * root the highest level of access.
 	 */
-	if (CC->user.uid == 0) {
-		CC->user.axlevel = 6;
+	if (config.c_auth_mode == 1) {
+		if (CC->user.uid == 0) {
+			CC->user.axlevel = 6;
+		}
 	}
-#endif
 
 	lputuser(&CC->user);
 
@@ -589,13 +588,13 @@ static int validpw(uid_t uid, const char *pass)
 	char buf[24];
 
 	if (pipe(pipev)) {
-		lprintf(CTDL_ERR, "pipe failed (%s): denying autologin access for "
+		lprintf(CTDL_ERR, "pipe failed (%s): denying host auth access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		return 0;
 	}
 	switch (pid = fork()) {
 	case -1:
-		lprintf(CTDL_ERR, "fork failed (%s): denying autologin access for "
+		lprintf(CTDL_ERR, "fork failed (%s): denying host auth access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		close(pipev[0]);
 		close(pipev[1]);
@@ -623,7 +622,7 @@ static int validpw(uid_t uid, const char *pass)
 
 	while (waitpid(pid, &status, 0) == -1)
 		if (errno != EINTR) {
-			lprintf(CTDL_ERR, "waitpid failed (%s): denying autologin "
+			lprintf(CTDL_ERR, "waitpid failed (%s): denying host auth "
 				"access for uid %ld\n",
 				strerror(errno), (long)uid);
 			return 0;
@@ -664,31 +663,34 @@ int CtdlTryPassword(char *password)
 	}
 	code = (-1);
 
+	if (config.c_auth_mode == 1) {
 
-#ifdef ENABLE_AUTOLOGIN
+		/* host auth mode */
 
-	if (validpw(CC->user.uid, password)) {
-		code = 0;
-		/* we could get rid of this */
-		lgetuser(&CC->user, CC->curr_user);
-		safestrncpy(CC->user.password, password, sizeof CC->user.password);
-		lputuser(&CC->user);
-		/*                          */
+		if (validpw(CC->user.uid, password)) {
+			code = 0;
+			/* we could get rid of this */
+			lgetuser(&CC->user, CC->curr_user);
+			safestrncpy(CC->user.password, password, sizeof CC->user.password);
+			lputuser(&CC->user);
+			/*                          */
+		}
+		else {
+			code = (-1);
+		}
 	}
+
 	else {
-		code = (-1);
+
+		/* native auth mode */
+
+		strproc(password);
+		strproc(CC->user.password);
+		code = strcasecmp(CC->user.password, password);
+		strproc(password);
+		strproc(CC->user.password);
+		code = strcasecmp(CC->user.password, password);
 	}
-
-#else /* ENABLE_AUTOLOGIN */
-
-	strproc(password);
-	strproc(CC->user.password);
-	code = strcasecmp(CC->user.password, password);
-	strproc(password);
-	strproc(CC->user.password);
-	code = strcasecmp(CC->user.password, password);
-
-#endif /* ENABLE_AUTOLOGIN */
 
 	if (!code) {
 		do_login();
@@ -812,20 +814,23 @@ int create_user(char *newusername, int become_user)
 	safestrncpy(username, newusername, sizeof username);
 	strproc(username);
 
-#ifdef ENABLE_AUTOLOGIN
-	struct passwd pd;
-	struct passwd *tempPwdPtr;
-	char pwdbuffer[256];
+	if (config.c_auth_mode == 1) {
 
-	getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
-	if (tempPwdPtr != NULL) {
-		extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
-		uid = pd.pw_uid;
+		/* host auth mode */
+
+		struct passwd pd;
+		struct passwd *tempPwdPtr;
+		char pwdbuffer[256];
+	
+		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+		if (tempPwdPtr != NULL) {
+			extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
+			uid = pd.pw_uid;
+		}
+		else {
+			return (ERROR + NO_SUCH_USER);
+		}
 	}
-	else {
-		return (ERROR + NO_SUCH_USER);
-	}
-#endif
 
 	if (!getuser(&usbuf, username)) {
 		return (ERROR + ALREADY_EXISTS);
@@ -913,11 +918,11 @@ void cmd_newu(char *cmdbuf)
 	int a;
 	char username[26];
 
-#ifdef ENABLE_AUTOLOGIN
-	cprintf("%d This system does not use native mode authentication.\n",
-		ERROR + NOT_HERE);
-	return;
-#endif /* ENABLE_AUTOLOGIN */
+	if (config.c_auth_mode == 1) {
+		cprintf("%d This system does not use native mode authentication.\n",
+			ERROR + NOT_HERE);
+		return;
+	}
 
 	if (config.c_disable_newu) {
 		cprintf("%d Self-service user account creation "

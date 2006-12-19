@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * system-level password checking for autologin
+ * system-level password checking for host auth mode
  * by Nathan Bryant, March 1999
  * updated by Trey van Riper, June 2005
  *

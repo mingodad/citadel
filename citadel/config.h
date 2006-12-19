@@ -75,7 +75,7 @@ struct config {
 	char c_default_cal_zone[128];	/* Default calendar time zone       */
 	int c_pftcpdict_port;           /* postfix tcptable support, see http://www.postfix.org/tcp_table.5.html */
 	int c_managesieve_port;         /* managesieve port. */
-
+	int c_auth_mode;		/* 0 = built-in Citadel auth; 1 = underlying host system auth */
 };
 
 

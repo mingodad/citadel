@@ -1,9 +1,6 @@
 /* define this to the Citadel home directory */
 #undef CTDLDIR
 
-/* define this to enable the autologin feature */
-#undef ENABLE_AUTOLOGIN
-
 /* define this to disable use of curses */
 #undef DISABLE_CURSES
 

@@ -34,7 +34,7 @@
 #endif
 
 
-#define MAXSETUP 4	/* How many setup questions to ask */
+#define MAXSETUP 5	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	2	/* Use the 'dialog' program */
@@ -57,6 +57,7 @@ char *setup_titles[] =
 	"Citadel User ID",
 	"Server IP address",
 	"Server port number",
+	"Authentication mode"
 };
 
 
@@ -102,6 +103,15 @@ char *setup_text[] = {
 "to specify a different port number if you run multiple instances\n"
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n",
+
+"Normally, a Citadel system uses a 'black box' authentication mode.\n"
+"This means that users do not have accounts or home directories on\n"
+"the underlying host system -- Citadel manages its own user database.\n"
+"However, if you wish to override this behavior, you can enable the\n"
+"host based authentication mode which is traditional for Unix systems.\n"
+"Do you want to do this?  Enter 0 for black box authentication mode,\n"
+"or 1 for host authentication mode.   FIXME this is badly worded,\n"
+"rewrite it and offer a better dialog mode.\n"
 
 };
 
@@ -837,6 +847,10 @@ void edit_value(int curr)
 		set_int_val(curr, &config.c_port_number);
 		break;
 
+		/* FIXME we need a set_bool_val() function */
+	case 5:
+		set_int_val(curr, &config.c_auth_mode);
+		break;
 
 	}
 }
