@@ -2218,7 +2218,7 @@ void readloop(char *oper)
 	if (nummsgs == 0) {
 
 		if ((!is_tasks) && (!is_calendar) && (!is_notes) && (!is_addressbook)) {
-			wprintf("<em>");
+			wprintf("<div align=\"center\"><br /><em>");
 			if (!strcmp(oper, "readnew")) {
 				wprintf(_("No new messages."));
 			} else if (!strcmp(oper, "readold")) {
@@ -2226,7 +2226,7 @@ void readloop(char *oper)
 			} else {
 				wprintf(_("No messages here."));
 			}
-			wprintf("</em>\n");
+			wprintf("</em><br /></div>\n");
 		}
 
 		goto DONE;
