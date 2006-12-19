@@ -404,6 +404,16 @@ void delete_inittab_entry(void)
 	/* Now tweak /etc/inittab */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
+
+		/* If /etc/inittab does not exist, return quietly.
+		 * Not all host platforms have it.
+		 */
+		if (errno == ENOENT) {
+			return;
+		}
+
+		/* Other errors might mean something really did go wrong.
+		 */
 		sprintf(buf, "Cannot open /etc/inittab: %s", strerror(errno));
 		display_error(buf);
 		return;
