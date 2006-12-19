@@ -419,12 +419,11 @@ void delete_inittab_entry(void)
 	}
 
 	while (fgets(buf, sizeof buf, infp) != NULL) {
-		if (strstr(buf, looking_for) == NULL) {
-			fwrite(buf, strlen(buf), 1, outfp);
-		}
-		else {
+		if (strstr(buf, looking_for) != NULL) {
+			fwrite("#", 1, 1, outfp);
 			++changes_made;
 		}
+		fwrite(buf, strlen(buf), 1, outfp);
 	}
 
 	fclose(infp);
