@@ -1358,7 +1358,7 @@ NEW_INST:
 		if (!access("/etc/init.d/citadel", X_OK)) {
 			for (a=0; a<=2; ++a) {
 				progress("Starting the Citadel service...", a, 2);
-				if (a == 0) system("/etc/init.d/citadel start >/dev/null 2>&1");
+				if (a == 0) system("/etc/init.d/citadel start </dev/null >/dev/null 2>&1");
 				sleep(1);
 			}
 		}
