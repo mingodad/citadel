@@ -1353,6 +1353,7 @@ NEW_INST:
 
 		if (!access("/etc/init.d/citadel", X_OK)) {
 			system("/etc/init.d/citadel start");
+			sleep(3);
 		}
 
 		if (test_server() == 0) {
