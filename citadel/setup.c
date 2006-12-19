@@ -1066,11 +1066,7 @@ int main(int argc, char *argv[])
 
 	/* Try to stop Citadel if we can */
 	if (!access("/etc/init.d/citadel", X_OK)) {
-		for (a=0; a<=2; ++a) {
-			progress("Stopping the Citadel service...", a, 2);
-			if (a == 0) system("/etc/init.d/citadel stop >/dev/null 2>&1");
-			sleep(1);
-		}
+		system("/etc/init.d/citadel stop");
 	}
 
 	/* Make sure Citadel is not running. */
@@ -1356,11 +1352,7 @@ NEW_INST:
 		}
 
 		if (!access("/etc/init.d/citadel", X_OK)) {
-			for (a=0; a<=2; ++a) {
-				progress("Starting the Citadel service...", a, 2);
-				if (a == 0) system("/etc/init.d/citadel start </dev/null >/dev/null 2>&1");
-				sleep(1);
-			}
+			system("/etc/init.d/citadel start");
 		}
 
 		if (test_server() == 0) {
