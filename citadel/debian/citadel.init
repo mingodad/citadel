@@ -36,12 +36,19 @@ SENDCOMMAND=/usr/sbin/sendcommand
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
+MODERN=
 
+# Load the VERBOSE setting and other rcS variables
+if test -f /lib/init/vars.sh ; then
+    . /lib/init/vars.sh
+    MODERN=1
+fi
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-. /lib/lsb/init-functions
+if test -f /lib/lsb/init-functions; then
+    . /lib/lsb/init-functions
+    MODERN=1
+fi
 
 #
 # Function that starts the daemon/service
@@ -127,20 +134,33 @@ do_reload() {
 
 case "$1" in
   start)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	if test -n "$MODERN"; then
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	else
+	    echo "Starting $DESC" "$NAME"
+	fi
+
 	do_start
-	case "$?" in
+	if test -n "$MODERN"; then
+	    case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
 		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
+	    esac
+	fi
 	;;
   stop)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	if test -n "$MODERN"; then
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	else
+	    echo "Stopping $DESC" "$NAME"
+	fi
 	do_stop
-	case "$?" in
+	if test -n "$MODERN"; then
+	    case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
 		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
+	    esac
+	fi
 	;;
   #reload|force-reload)
 	#
@@ -156,22 +176,30 @@ case "$1" in
 	# If the "reload" option is implemented then remove the
 	# 'force-reload' alias
 	#
-	log_daemon_msg "Restarting $DESC" "$NAME"
+	if test -n "$MODERN"; then
+	    log_daemon_msg "Restarting $DESC" "$NAME"
+	else
+	    echo "Restarting $DESC" "$NAME"
+	fi
+
 	do_stop
-	case "$?" in
-	  0|1)
-		do_start
-		case "$?" in
+
+	if test -n "$MODERN"; then
+	    case "$?" in
+		0|1)
+		    do_start
+		    case "$?" in
 			0) log_end_msg 0 ;;
 			1) log_end_msg 1 ;; # Old process is still running
 			*) log_end_msg 1 ;; # Failed to start
-		esac
-		;;
-	  *)
+		    esac
+		    ;;
+		*)
 	  	# Failed to stop
-		log_end_msg 1
-		;;
-	esac
+		    log_end_msg 1
+		    ;;
+	    esac
+	fi
 	;;
   *)
 	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
