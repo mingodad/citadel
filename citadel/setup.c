@@ -354,6 +354,7 @@ void check_services_entry(void)
 {
 	int i;
 	FILE *sfp;
+	char errmsg[256];
 
 	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
 		for (i=0; i<=2; ++i) {
@@ -361,10 +362,10 @@ void check_services_entry(void)
 			if (i == 0) {
 				sfp = fopen("/etc/services", "a");
 				if (sfp == NULL) {
-					display_error(strerror(errno));
+					sprintf(errmsg, "Cannot open /etc/services: %s", strerror(errno));
+					display_error(errmsg);
 				} else {
-					fprintf(sfp, "%s		504/tcp\n",
-						SERVICE_NAME);
+					fprintf(sfp, "%s		504/tcp\n", SERVICE_NAME);
 					fclose(sfp);
 				}
 			}
@@ -403,14 +404,16 @@ void delete_inittab_entry(void)
 	/* Now tweak /etc/inittab */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
-		display_error(strerror(errno));
+		sprintf(buf, "Cannot open /etc/inittab: %s", strerror(errno));
+		display_error(buf);
 		return;
 	}
 
 	strcpy(outfilename, "/tmp/ctdlsetup.XXXXXX");
 	outfp = fdopen(mkstemp(outfilename), "w+");
 	if (outfp == NULL) {
-		display_error(strerror(errno));
+		sprintf(buf, "Cannot open %s: %s", outfilename, strerror(errno));
+		display_error(buf);
 		fclose(infp);
 		return;
 	}
