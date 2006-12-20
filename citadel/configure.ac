@@ -113,7 +113,6 @@ AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if presen
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_libsieve, [  --with-libsieve         use libsieve mail sorting library])
-AC_ARG_WITH(with_newt, [  --with-newt             use newt window library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -482,22 +481,6 @@ fi
 if test "x$ok_ldap" = xyes ; then
 	SERVER_LIBS="-lldap $SERVER_LIBS"
 	AC_DEFINE(HAVE_LDAP)
-fi
-
-
-
-
-dnl Checks for the newt window library.
-if test "x$with_newt" != xno ; then
-	AC_CHECK_HEADERS(newt.h,
-		[AC_CHECK_LIB(newt, newtInit,
-			[ok_newt=yes],,
-	)])
-fi
-
-if test "x$ok_newt" = xyes ; then
-	SETUP_LIBS="-lnewt $SETUP_LIBS"
-	AC_DEFINE(HAVE_NEWT)
 fi
 
 

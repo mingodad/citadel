@@ -29,17 +29,11 @@
 #include "tools.h"
 #include "citadel_dirs.h"
 
-#ifdef HAVE_NEWT
-#include <newt.h>
-#endif
-
-
 #define MAXSETUP 5	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	2	/* Use the 'dialog' program */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
-#define UI_NEWT		4	/* Use the "newt" window library */
 
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
@@ -104,14 +98,15 @@ char *setup_text[] = {
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n",
 
-"Normally, a Citadel system uses a 'black box' authentication mode.\n"
+"Normally, a Citadel system uses a \"black box\" authentication mode.\n"
 "This means that users do not have accounts or home directories on\n"
 "the underlying host system -- Citadel manages its own user database.\n"
 "However, if you wish to override this behavior, you can enable the\n"
 "host based authentication mode which is traditional for Unix systems.\n"
-"Do you want to do this?  Enter 0 for black box authentication mode,\n"
-"or 1 for host authentication mode.   FIXME this is badly worded,\n"
-"rewrite it and offer a better dialog mode.\n"
+"WARNING: do *not* change this setting once your system is installed.\n"
+"\n"
+"(Answer \"no\" unless you completely understand this option)\n"
+"Do you want to enable host based authentication mode?\n"
 
 };
 
@@ -121,11 +116,6 @@ int direction;
 
 void cleanup(int exitcode)
 {
-#ifdef HAVE_NEWT
-	newtCls();
-	newtRefresh();
-	newtFinished();
-#endif
 	exit(exitcode);
 }
 
@@ -140,14 +130,8 @@ void title(char *text)
 
 
 
-int yesno(char *question)
+int yesno(char *question, int default_value)
 {
-#ifdef HAVE_NEWT
-	newtComponent form = NULL;
-	newtComponent yesbutton = NULL;
-	newtComponent nobutton = NULL;
-	int prompt_window_height = 0;
-#endif
 	int i = 0;
 	int answer = 0;
 	char buf[SIZ];
@@ -156,10 +140,15 @@ int yesno(char *question)
 
 	case UI_TEXT:
 		do {
-			printf("%s\nYes/No --> ", question);
+			printf("%s\nYes/No [%s] --> ",
+				question,
+				( default_value ? "Yes" : "No" )
+			);
 			fgets(buf, sizeof buf, stdin);
 			answer = tolower(buf[0]);
-			if (answer == 'y')
+			if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
+				answer = default_value;
+			else if (answer == 'y')
 				answer = 1;
 			else if (answer == 'n')
 				answer = 0;
@@ -167,8 +156,9 @@ int yesno(char *question)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s --yesno '%s' 10 72",
+		sprintf(buf, "exec %s %s --yesno '%s' 15 75",
 			getenv("CTDL_DIALOG"),
+			( default_value ? "" : "--defaultno" ),
 			question);
 		i = system(buf);
 		if (i == 0) {
@@ -179,31 +169,6 @@ int yesno(char *question)
 		}
 		break;
 
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		prompt_window_height = num_tokens(question, '\n') + 5;
-		newtCenteredWindow(76, prompt_window_height, "Question");
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(question, '\n'); ++i) {
-			extract_token(buf, question, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		yesbutton = newtButton(10, (prompt_window_height - 4), "Yes");
-		nobutton = newtButton(60, (prompt_window_height - 4), "No");
-		newtFormAddComponent(form, yesbutton);
-		newtFormAddComponent(form, nobutton);
-		if (newtRunForm(form) == yesbutton) {
-			answer = 1;
-		}
-		else {
-			answer = 0;
-		}
-		newtPopWindow();
-		newtFormDestroy(form);	
-
-		break;
-#endif
-
 	}
 	return (answer);
 }
@@ -211,10 +176,6 @@ int yesno(char *question)
 
 void important_message(char *title, char *msgtext)
 {
-#ifdef HAVE_NEWT
-	newtComponent form = NULL;
-	int i = 0;
-#endif
 	char buf[SIZ];
 
 	switch (setup_type) {
@@ -232,22 +193,6 @@ void important_message(char *title, char *msgtext)
 			msgtext);
 		system(buf);
 		break;
-
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		newtCenteredWindow(76, 10, title);
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(msgtext, '\n'); ++i) {
-			extract_token(buf, msgtext, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		newtFormAddComponent(form, newtButton(35, 5, "OK"));
-		newtRunForm(form);
-		newtPopWindow();
-		newtFormDestroy(form);	
-		break;
-#endif
-
 	}
 }
 
@@ -263,16 +208,6 @@ void display_error(char *error_message)
 
 void progress(char *text, long int curr, long int cmax)
 {
-#ifdef HAVE_NEWT
-
-	/* These variables are static because progress() gets called
-	 * multiple times during the course of whatever operation is
-	 * being performed.  This makes setup non-threadsafe, but who
-	 * cares?
-	 */
-	static newtComponent form = NULL;
-	static newtComponent scale = NULL;
-#endif
 	static long dots_printed = 0L;
 	long a = 0;
 	static FILE *fp = NULL;
@@ -328,28 +263,6 @@ void progress(char *text, long int curr, long int cmax)
 			}
 		}
 		break;
-
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		if (curr == 0) {
-			newtCenteredWindow(76, 8, text);
-			form = newtForm(NULL, NULL, 0);
-			scale = newtScale(1, 3, 74, cmax);
-			newtFormAddComponent(form, scale);
-			newtDrawForm(form);
-			newtRefresh();
-		}
-		if ((curr > 0) && (curr <= cmax)) {
-			newtScaleSet(scale, curr);
-			newtRefresh();
-		}
-		if (curr == cmax) {
-			newtFormDestroy(form);	
-			newtPopWindow();
-			newtRefresh();
-		}
-		break;
-#endif
 
 	}
 }
@@ -468,7 +381,7 @@ void install_init_scripts(void)
 {
 	FILE *fp;
 
-	if (yesno("Would you like to automatically start Citadel at boot?\n") == 0) {
+	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
 		return;
 	}
 
@@ -560,7 +473,7 @@ void check_xinetd_entry(void) {
 			"connect incoming telnet sessions to Citadel, bypassing the\n"
 			"host system login: prompt.  Would you like to do this?\n"
 		);
-		if (yesno(buf) == 0) {
+		if (yesno(buf, 1) == 0) {
 			return;
 		}
 	}
@@ -632,7 +545,7 @@ void disable_other_mta(char *mta) {
 			"25, 110, and 143?\n",
 			mta, mta, mta, mta
 		);
-		if (yesno(buf) == 0) {
+		if (yesno(buf, 1) == 0) {
 			return;
 		}
 	}
@@ -691,12 +604,6 @@ int test_server(void) {
 
 void strprompt(char *prompt_title, char *prompt_text, char *str)
 {
-#ifdef HAVE_NEWT
-	newtComponent form;
-	char *result;
-	int i;
-	int prompt_window_height = 0;
-#endif
 	char buf[SIZ];
 	char setupmsg[SIZ];
 	char dialog_result[PATH_MAX];
@@ -735,41 +642,17 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		}
 		break;
 
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-
-		prompt_window_height = num_tokens(prompt_text, '\n') + 5 ;
-		newtCenteredWindow(76,
-				prompt_window_height,
-				prompt_title);
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(prompt_text, '\n'); ++i) {
-			extract_token(buf, prompt_text, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		newtFormAddComponent(form,
-			newtEntry(1,
-				(prompt_window_height - 2),
-				str,
-				74,
-				(const char **) &result,
-				NEWT_FLAG_RETURNEXIT)
-		);
-		newtRunForm(form);
-		strcpy(str, result);
-
-		newtPopWindow();
-		newtFormDestroy(form);	
-
-#endif
 	}
+}
+
+void set_bool_val(int msgpos, int *ip) {
+	title(setup_titles[msgpos]);
+	*ip = yesno(setup_text[msgpos], *ip);
 }
 
 void set_str_val(int msgpos, char *str) {
 	strprompt(setup_titles[msgpos], setup_text[msgpos], str);
 }
-
-
 
 void set_int_val(int msgpos, int *ip)
 {
@@ -802,7 +685,7 @@ void edit_value(int curr)
 {
 	int i;
 	struct passwd *pw;
-	char ctdluidname[SIZ];
+	char ctdluidname[256];
 
 	switch (curr) {
 
@@ -847,9 +730,8 @@ void edit_value(int curr)
 		set_int_val(curr, &config.c_port_number);
 		break;
 
-		/* FIXME we need a set_bool_val() function */
 	case 5:
-		set_int_val(curr, &config.c_auth_mode);
+		set_bool_val(curr, &config.c_auth_mode);
 		break;
 
 	}
@@ -890,13 +772,6 @@ int discover_ui(void)
 		return UI_DIALOG;
 	}
 		
-
-#ifdef HAVE_NEWT
-	newtInit();
-	newtCls();
-	newtDrawRootText(0, 0, "Citadel Setup");
-	return UI_NEWT;
-#endif
 	return UI_TEXT;
 }
 
@@ -980,7 +855,7 @@ void fixnss(void) {
 		"\n"
 	);
 
-	if (yesno(question)) {
+	if (yesno(question, 1)) {
 		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
 		system(buf);
 	}
