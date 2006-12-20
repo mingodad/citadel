@@ -1,5 +1,5 @@
                         WEBCIT for the Citadel System
-                               version 7.00
+                               version 7.01
  
    Copyright (C) 1996-2006 by the authors.  Portions written by:
 	Art Cancro

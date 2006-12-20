@@ -12,15 +12,9 @@
 #include "webserver.h"
 
 
-#ifdef HAVE_NEWT
-#include <newt.h>
-#endif
-
-
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	2	/* Use the 'dialog' program */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
-#define UI_NEWT		4	/* Use the "newt" window library */
 
 int setup_type;
 char setup_directory[SIZ];
@@ -129,11 +123,6 @@ void delete_the_old_way(void) {
 
 void cleanup(int exitcode)
 {
-#ifdef HAVE_NEWT
-	newtCls();
-	newtRefresh();
-	newtFinished();
-#endif
 	exit(exitcode);
 }
 
@@ -150,11 +139,6 @@ void title(char *text)
 
 int yesno(char *question)
 {
-#ifdef HAVE_NEWT
-	newtComponent form = NULL;
-	newtComponent yesbutton = NULL;
-	newtComponent nobutton = NULL;
-#endif
 	int i = 0;
 	int answer = 0;
 	char buf[SIZ];
@@ -186,41 +170,12 @@ int yesno(char *question)
 		}
 		break;
 
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		newtCenteredWindow(76, 10, "Question");
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(question, '\n'); ++i) {
-			extract_token(buf, question, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		yesbutton = newtButton(10, 5, "Yes");
-		nobutton = newtButton(60, 5, "No");
-		newtFormAddComponent(form, yesbutton);
-		newtFormAddComponent(form, nobutton);
-		if (newtRunForm(form) == yesbutton) {
-			answer = 1;
-		}
-		else {
-			answer = 0;
-		}
-		newtPopWindow();
-		newtFormDestroy(form);	
-
-		break;
-#endif
-
 	}
 	return (answer);
 }
 
 void set_value(char *prompt, char str[])
 {
-#ifdef HAVE_NEWT
-	newtComponent form;
-	char *result;
-	int i;
-#endif
 	char buf[SIZ];
 	char dialog_result[PATH_MAX];
 	char setupmsg[SIZ];
@@ -259,34 +214,12 @@ void set_value(char *prompt, char str[])
 		}
 		break;
 
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-
-		newtCenteredWindow(76, 10, "WebCit setup");
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(prompt, '\n'); ++i) {
-			extract_token(buf, prompt, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		newtFormAddComponent(form, newtEntry(1, 8, str, 74, (const char **) &result,
-					NEWT_FLAG_RETURNEXIT));
-		newtRunForm(form);
-		strcpy(str, result);
-
-		newtPopWindow();
-		newtFormDestroy(form);	
-
-#endif
 	}
 }
 
 
 void important_message(char *title, char *msgtext)
 {
-#ifdef HAVE_NEWT
-	newtComponent form = NULL;
-	int i = 0;
-#endif
 	char buf[SIZ];
 
 	switch (setup_type) {
@@ -304,22 +237,6 @@ void important_message(char *title, char *msgtext)
 			msgtext);
 		system(buf);
 		break;
-
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		newtCenteredWindow(76, 10, title);
-		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(msgtext, '\n'); ++i) {
-			extract_token(buf, msgtext, i, '\n', sizeof buf);
-			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
-		}
-		newtFormAddComponent(form, newtButton(35, 5, "OK"));
-		newtRunForm(form);
-		newtPopWindow();
-		newtFormDestroy(form);	
-		break;
-#endif
-
 	}
 }
 
@@ -331,16 +248,6 @@ void display_error(char *error_message)
 
 void progress(char *text, long int curr, long int cmax)
 {
-#ifdef HAVE_NEWT
-
-	/* These variables are static because progress() gets called
-	 * multiple times during the course of whatever operation is
-	 * being performed.  This makes setup non-threadsafe, but who
-	 * cares?
-	 */
-	static newtComponent form = NULL;
-	static newtComponent scale = NULL;
-#endif
 	static long dots_printed = 0L;
 	long a = 0;
 	char buf[SIZ];
@@ -396,29 +303,6 @@ void progress(char *text, long int curr, long int cmax)
 			}
 		}
 		break;
-
-#ifdef HAVE_NEWT
-	case UI_NEWT:
-		if (curr == 0) {
-			newtCenteredWindow(76, 8, text);
-			form = newtForm(NULL, NULL, 0);
-			scale = newtScale(1, 3, 74, cmax);
-			newtFormAddComponent(form, scale);
-			newtDrawForm(form);
-			newtRefresh();
-		}
-		if ((curr > 0) && (curr <= cmax)) {
-			newtScaleSet(scale, curr);
-			newtRefresh();
-		}
-		if (curr == cmax) {
-			newtFormDestroy(form);	
-			newtPopWindow();
-			newtRefresh();
-		}
-		break;
-#endif
-
 	}
 }
 
@@ -589,12 +473,6 @@ int discover_ui(void)
 		return UI_DIALOG;
 	}
 		
-#ifdef HAVE_NEWT
-	newtInit();
-	newtCls();
-	newtDrawRootText(0, 0, "WebCit Setup");
-	return UI_NEWT;
-#endif
 	return UI_TEXT;
 }
 
