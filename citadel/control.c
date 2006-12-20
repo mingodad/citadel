@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <sys/file.h>
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
@@ -48,12 +49,27 @@ struct CitControl CitControl;
 extern struct config config;
 FILE *control_fp = NULL;
 
+
+
+/*
+ * lock_control  -  acquire a lock on the control record file.
+ *                  This keeps multiple citservers from running concurrently.
+ */
+void lock_control(void)
+{
+	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
+		lprintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
+		lprintf(CTDL_EMERG, "Is another citserver already running?\n");
+		exit(1);
+	}
+}
+
+
 /*
  * get_control  -  read the control record into memory.
  */
 void get_control(void)
 {
-
 	/* Zero it out.  If the control record on disk is missing or short,
 	 * the system functions with all control record fields initialized
 	 * to zero.
@@ -62,12 +78,14 @@ void get_control(void)
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "rb+");
 		if (control_fp != NULL) {
+			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 		}
 	}
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "wb+");
 		if (control_fp != NULL) {
+			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			fwrite(&CitControl, sizeof(struct CitControl),

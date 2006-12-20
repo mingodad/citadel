@@ -757,7 +757,22 @@ void kill_session(int session_to_kill) {
  * Start running as a daemon.
  */
 void start_daemon(int unused) {
-	close(0); close(1); close(2);
+	int nullfd;
+
+	/* Close stdin/stdout/stderr and replace them with /dev/null.
+	 * We don't just call close() because we don't want these fd's
+	 * to be reused for other files.
+	 */
+	nullfd = open("/dev/null", O_RDWR);
+	if (nullfd < 0) {
+		fprintf(stderr, "/dev/null: %s\n", strerror(errno));
+		exit(2);
+	}
+	dup2(nullfd, 0);
+	dup2(nullfd, 1);
+	dup2(nullfd, 2);
+	close(nullfd);
+
 	if (fork()) exit(0);
 	setsid();
 	signal(SIGHUP,SIG_IGN);

@@ -51,6 +51,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
+#include "control.h"
 #include "database.h"
 #include "housekeeping.h"
 #include "tools.h"
@@ -186,6 +187,9 @@ int main(int argc, char **argv)
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
+
+	lprintf(CTDL_INFO, "Acquiring control record\n");
+	get_control();
 
 #ifdef HAVE_RUN_DIR
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
