@@ -664,21 +664,18 @@ username or user ID of the account you created is, so it knows what
 user to run as. If you create an account called <tt>citadel, bbs</tt>,
 or <tt>guest</tt>, the setup program will automatically pick up the
 user ID by default.</p>
-<p>For all other users in /etc/passwd (or in some other name service
-such as NIS), Citadel will automatically set up
+<p>For all other users in <tt>/etc/passwd</tt> (or in some other name
+service such as NIS), Citadel can automatically set up
+such as NIS), Citadel can automatically set up
 an account using the full name (or 'gecos' in Unixspeak) of the user.
 It'll also ignore any password you supply, because it uses the user's
-password
-on the host system. This allows a 'single sign on' type of environment.
-Note that this does have to be enabled at compile time -- it's the
-configure
-option called <tt>--enable-autologin</tt>. Keep in mind that these
-users
-can use *either* their Citadel login name or their login name on the
-host
-computer, and their password on the host computer.<br>
-<br>
-</p>
+password on the host system. This allows a 'single sign on' type of
+environment.
+Note that this does have to be enabled at setup time -- it's the
+option called &quot;host based authentication mode&quot;. Keep in
+mind that these users can use *either* their Citadel login name or
+their login name on the host computer, and their password on the
+host computer.</p>
 <h3><a name="bypassing_login"></a>Bypassing the <tt>login:</tt>
 prompt</h3>
 <p>If you normally log in to your host system using some method other
@@ -850,6 +847,21 @@ will be preserved.</p>
 port which Citadel clients use to connect to your Citadel server. In
 almost all cases, you want to use the default -- port 504, which is the
 official port number assigned by the IANA for Citadel implementations.</p>
+<p><tt>setup</tt> will then ask you about authentication mode.  <i>Please
+understand this question thoroughly before answering it.</i>  You have a
+choice of two authentication modes:
+<ul>
+<li><i>Native authentication</i> - Citadel maintains its own user database.
+This is the normal mode of authentication.  Citadel operates as a "black
+box" and your users do not have to have accounts or home directories on the
+host server.
+<li><i>Host based authentication</i> - access to Citadel is authenticated
+against the user database (<tt>/etc/passwd</tt> or perhaps NIS, etc.).
+</ul>
+You will be asked if you wish to use host based authentication.  If you
+wish to do so, answer "Yes" at the prompt.  For most installations, "No"
+is the appropriate answer.
+</p>
 <p>The Citadel service will then be started, and you will see the
 following message:</p>
 <pre>Setup is finished.  You may now log in.<br></pre>
