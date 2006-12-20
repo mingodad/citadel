@@ -13,6 +13,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <string.h>
 
 char *pidfilename = NULL;
 pid_t current_child = 0;
@@ -31,6 +33,7 @@ int main(int argc, char **argv)
 	pid_t child = 0;
 	int status = 0;
 	FILE *fp;
+	int nullfd;
 
 	--argc;
 	++argv;
@@ -44,9 +47,20 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	close(0);
-	close(1);
-	close(2);
+	/* Close stdin/stdout/stderr and replace them with /dev/null.
+	 * We don't just call close() because we don't want these fd's
+	 * to be reused for other files.
+	 */
+	nullfd = open("/dev/null", O_RDWR);
+	if (nullfd < 0) {
+		fprintf(stderr, "/dev/null: %s\n", strerror(errno));
+		exit(2);
+	}
+	dup2(nullfd, 0);
+	dup2(nullfd, 1);
+	dup2(nullfd, 2);
+	close(nullfd);
+
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
