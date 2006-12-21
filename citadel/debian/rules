@@ -41,8 +41,10 @@ config.status: configure
 		--with-datadir=/var/lib/citadel \
 		--with-rundir=/var/run/citadel \
 		--with-docdir=/usr/share/doc/citadel-doc/ \
-		--enable-autologin --with-pam \
-		--with-ical --with-db --with-ldap
+		--with-pam \
+		--with-ical \
+		--with-db \
+		--with-ldap
 
 
 #Architecture 

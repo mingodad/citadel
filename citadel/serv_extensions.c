@@ -565,6 +565,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	char *message;
 	char *error;
 
+	error = NULL;
 	newfcn = (struct ServiceFunctionHook *)
 	    malloc(sizeof(struct ServiceFunctionHook));
 	message = (char*) malloc (SIZ);

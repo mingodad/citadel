@@ -8,6 +8,23 @@ Description: Listen IP for Citadel
   instances of Citadel on the same computer.
 
 
+Template: citadel/LoginType
+Type: boolean
+Default: false
+Description: Citadel Account Mode
+  Normally, a Citadel system uses a "black box" authentication mode.
+  This means that users do not have accounts or home directories on
+  the underlying host system -- Citadel manages its own user database.
+  However, if you wish to override this behavior, you can enable the
+  host based authentication mode which is traditional for Unix systems.
+  You will allso need host based authentication if you want to authenticate
+  against an ldap directory or another pam source for example.
+  WARNING: do *not* change this setting once your system is installed.
+  .
+  (Answer "no" unless you completely understand this option)
+  Do you want to enable host based authentication mode?
+
+
 Template: citadel/Administrator
 Type: string
 Default: Administrator
