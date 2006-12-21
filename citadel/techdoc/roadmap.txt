@@ -18,6 +18,8 @@ some code and deciding what to work on.
 
 * Apply the patches that Matt has queued up.
 
+* Multiple room aides per room (use a RoomAccess flag bit)
+
 * File libraries (upload/download) support in WebCit.  Users are demanding it.
 
 * Performance improvements for use cases involving huge mailboxes (rooms
