@@ -1,3 +1,10 @@
+citadel (7.01-2) stable; urgency=high
+	
+  * we can now configure logintype on installation time.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 21 Dec 2006 22:10:00 +0100
+	
+
 citadel (7.00-1) unstable; urgency=low
 	
   * update to actual Citadel CVS. many new features. see Packages changelog.
