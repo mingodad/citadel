@@ -731,7 +731,17 @@ void edit_value(int curr)
 		break;
 
 	case 5:
-		set_bool_val(curr, &config.c_auth_mode);
+		if (getenv("ENABLE_UNIX_AUTH")) {
+			if (!strcasecmp(getenv("ENABLE_UNIX_AUTH"), "yes")) {
+				config.c_auth_mode = 1;
+			}
+			else {
+				config.c_auth_mode = 0;
+			}
+		}
+		else {
+			set_bool_val(curr, &config.c_auth_mode);
+		}
 		break;
 
 	}
