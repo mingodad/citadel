@@ -392,6 +392,13 @@ void install_init_scripts(void)
 	}
 
 	fprintf(fp,	"#!/bin/sh\n"
+			"#\n"
+			"# Init file for Citadel\n"
+			"#\n"
+			"# chkconfig: - 79 30\n"
+			"# description: Citadel service\n"
+			"# processname: ctdlsvc\n"
+			"# pidfile: /var/run/citadel.pid\n"
 			"\n"
 			"CITADEL_DIR=%s\n", setup_directory);
 	fprintf(fp,	"\n"
