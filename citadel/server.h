@@ -457,6 +457,15 @@ struct MetaData {
 	long meta_rfc822_length;	/* Cache of RFC822-translated msg length */
 };
 
+/* Calls to AdjRefCount() are queued and deferred, so the user doesn't
+ * have to wait for various disk-intensive operations to complete synchronously.
+ * This is the record format.
+ */
+struct arcq {
+	long arcq_msgnum;		/* Message number being adjusted */
+	int arcq_delta;			/* Adjustment ( usually 1 or -1 ) */
+};
+
 
 /* 
  * Serialization routines use this struct to return a pointer and a length

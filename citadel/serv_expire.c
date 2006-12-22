@@ -212,7 +212,7 @@ void DoPurgeMessages(FILE *purgelist) {
 		if (!strncasecmp(buf, "m=", 2)) {
 			msgnum = atol(&buf[2]);
 			if (msgnum > 0L) {
-				CtdlDeleteMessages(roomname, &msgnum, 1, "", 0);
+				CtdlDeleteMessages(roomname, &msgnum, 1, "");
 			}
 		}
 	}
@@ -726,6 +726,9 @@ void purge_databases(void) {
 	retval = PurgeEuidIndexTable();
 	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 
+	retval = TDAP_ProcessAdjRefCountQueue();
+	lprintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
+
 	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
 
 	last_purge = now;	/* So we don't do it again soon */
@@ -793,9 +796,7 @@ void cmd_fsck(char *argbuf) {
 
 			if ( (smi.meta_refcount != realcount)
 			   || (realcount == 0) ) {
-				smi.meta_refcount = realcount;
-				PutMetaData(&smi);
-				AdjRefCount(msgnum, 0); /* deletes if needed */
+				AdjRefCount(msgnum, (smi.meta_refcount - realcount));
 			}
 
 		}

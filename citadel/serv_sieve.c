@@ -596,7 +596,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	 */
 	if ( (!my.keep) && (my.cancel_implicit_keep) ) {
 		lprintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
-		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
 	}
 
 	lprintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
@@ -758,7 +758,7 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 
 	/* And delete the old one */
 	if (u->config_msgnum > 0) {
-		CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "", 0);
+		CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "");
 	}
 
 }

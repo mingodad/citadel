@@ -1659,7 +1659,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		long delmsgs[2];
 		delmsgs[0] = msgnum;
 		delmsgs[1] = text_msgid;
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, delmsgs, 2, "", 0);
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, delmsgs, 2, "");
 	}
 
 	/*
@@ -1667,7 +1667,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * instructions and replace with the updated ones.
 	 */
 	if (incomplete_deliveries_remaining > 0) {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &msgnum, 1, "", 0);
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &msgnum, 1, "");
         	msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;

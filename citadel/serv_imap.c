@@ -727,7 +727,7 @@ int imap_do_expunge(void)
 			}
 		}
 		if (num_delmsgs > 0) {
-			CtdlDeleteMessages(CC->room.QRname, delmsgs, num_delmsgs, "", 1);
+			CtdlDeleteMessages(CC->room.QRname, delmsgs, num_delmsgs, "");
 		}
 		num_expunged += num_delmsgs;
 		free(delmsgs);
@@ -1396,7 +1396,9 @@ void imap_command_loop(void)
 	char cmdbuf[SIZ];
 	char *parms[SIZ];
 	int num_parms;
+	struct timeval tv1, tv2;
 
+	gettimeofday(&tv1, NULL);
 	CC->lastcmd = time(NULL);
 	memset(cmdbuf, 0, sizeof cmdbuf);	/* Clear it, just in case */
 	flush_output();
@@ -1613,6 +1615,12 @@ void imap_command_loop(void)
 
 	/* If the client transmitted a message we can free it now */
 	imap_free_transmitted_message();
+
+	gettimeofday(&tv2, NULL);
+	lprintf(CTDL_DEBUG, "IMAP %s took %ld microseconds\n",
+		parms[1],
+		(tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000))
+	);
 }
 
 

@@ -112,7 +112,6 @@
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
-#define DELETED_MSGS_ROOM	"__CitadelDeletedMessages__"
 
 /*
  * Where we keep messages containing the vCards that source our directory.  It

@@ -102,6 +102,8 @@ void cmd_move (char *args);
 void GetMetaData(struct MetaData *, long);
 void PutMetaData(struct MetaData *);
 void AdjRefCount(long, int);
+void TDAP_AdjRefCount(long, int);
+int TDAP_ProcessAdjRefCountQueue(void);
 void simple_listing(long, void *);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
 int CtdlForEachMessage(int mode,
@@ -111,7 +113,7 @@ int CtdlForEachMessage(int mode,
 			struct CtdlMessage *compare,
                         void (*CallBack) (long, void *),
 			void *userdata);
-int CtdlDeleteMessages(char *, long *, int, char *, int);
+int CtdlDeleteMessages(char *, long *, int, char *);
 void CtdlWriteObject(char *, char *, char *, struct ctdluser *,
 			int, int, unsigned int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);

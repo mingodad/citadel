@@ -322,8 +322,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 				 * want to make sure there is absolutely only one
 				 * vCard in the user's config room at all times.
 				 */
-				CtdlDeleteMessages(CC->room.QRname,
-						NULL, 0, "text/x-vcard", 1);
+				CtdlDeleteMessages(CC->room.QRname, NULL, 0, "text/x-vcard");
 
 				/* Make the author of the message the name of the user.
 				 */

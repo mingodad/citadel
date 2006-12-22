@@ -478,7 +478,7 @@ void pop3_update(void) {
 			}
 		}
 		if (num_deletemsgs > 0) {
-			CtdlDeleteMessages(MAILROOM, deletemsgs, num_deletemsgs, "", 1);
+			CtdlDeleteMessages(MAILROOM, deletemsgs, num_deletemsgs, "");
 		}
 		free(deletemsgs);
 	}

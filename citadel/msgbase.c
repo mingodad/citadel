@@ -61,6 +61,9 @@
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
 
+/* This temp file holds the queue of operations for AdjRefCount() */
+static FILE *arcfp = NULL;
+
 /* 
  * This really belongs in serv_network.c, but I don't know how to export
  * symbols between modules.
@@ -2318,7 +2321,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {
 		lprintf(CTDL_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
-		CtdlDeleteMessages(CC->room.QRname, &old_msgnum, 1, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, &old_msgnum, 1, "");
 	}
 }
 
@@ -3478,8 +3481,7 @@ void cmd_ent0(char *entargs)
 int CtdlDeleteMessages(char *room_name,		/* which room */
 			long *dmsgnums,		/* array of msg numbers to be deleted */
 			int num_dmsgnums,	/* number of msgs to be deleted, or 0 for "any" */
-			char *content_type,	/* or "" for any */
-			int deferred		/* let TDAP sweep it later */
+			char *content_type	/* or "" for any */
 )
 {
 
@@ -3493,8 +3495,8 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	int delete_this;
 	struct MetaData smi;
 
-	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s, %d)\n",
-		room_name, num_dmsgnums, content_type, deferred);
+	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
+		room_name, num_dmsgnums, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {
@@ -3555,20 +3557,6 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		qrbuf.QRhighest = msglist[num_msgs - 1];
 	}
 	lputroom(&qrbuf);
-
-	/*
-	 * If the delete operation is "deferred" (and technically, any delete
-	 * operation not performed by THE DREADED AUTO-PURGER ought to be
-	 * a deferred delete) then we save a pointer to the message in the
-	 * DELETED_MSGS_ROOM.  This will cause the reference count to remain
-	 * at least 1, which will save the user from having to synchronously
-	 * wait for various disk-intensive operations to complete.
-	 *
-	 * Slick -- we now use the new bulk API for moving messages.
-	 */
-	if ( (deferred) && (num_deleted) ) {
-		CtdlCopyMsgsToRoom(dellist, num_deleted, DELETED_MSGS_ROOM);
-	}
 
 	/* Go through the messages we pulled out of the index, and decrement
 	 * their reference counts by 1.  If this is the only room the message
@@ -3643,7 +3631,7 @@ void cmd_dele(char *args)
 		msgs[i] = atol(msgtok);
 	}
 
-	num_deleted = CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "", 1);
+	num_deleted = CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "");
 	free(msgs);
 
 	if (num_deleted) {
@@ -3762,7 +3750,7 @@ void cmd_move(char *args)
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
 	if (is_copy == 0) {
-		CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "", 0);
+		CtdlDeleteMessages(CC->room.QRname, msgs, num_msgs, "");
 	}
 	free(msgs);
 
@@ -3819,10 +3807,112 @@ void PutMetaData(struct MetaData *smibuf)
 }
 
 /*
- * AdjRefCount  -  change the reference count for a message;
- *		 delete the message if it reaches zero
+ * AdjRefCount  -  submit an adjustment to the reference count for a message.
+ *                 (These are just queued -- we actually process them later.)
  */
 void AdjRefCount(long msgnum, int incr)
+{
+	struct arcq new_arcq;
+
+	begin_critical_section(S_SUPPMSGMAIN);
+	if (arcfp == NULL) {
+		arcfp = fopen(file_arcq, "ab+");
+	}
+	end_critical_section(S_SUPPMSGMAIN);
+
+	/* msgnum < 0 means that we're trying to close the file */
+	if (msgnum < 0) {
+		lprintf(CTDL_DEBUG, "Closing the AdjRefCount queue file\n");
+		begin_critical_section(S_SUPPMSGMAIN);
+		if (arcfp != NULL) {
+			fclose(arcfp);
+			arcfp = NULL;
+		}
+		end_critical_section(S_SUPPMSGMAIN);
+		return;
+	}
+
+	/*
+	 * If we can't open the queue, perform the operation synchronously.
+	 */
+	if (arcfp == NULL) {
+		TDAP_AdjRefCount(msgnum, incr);
+		return;
+	}
+
+	new_arcq.arcq_msgnum = msgnum;
+	new_arcq.arcq_delta = incr;
+	fwrite(&new_arcq, sizeof(struct arcq), 1, arcfp);
+	fflush(arcfp);
+
+	return;
+}
+
+
+/*
+ * TDAP_ProcessAdjRefCountQueue()
+ *
+ * Process the queue of message count adjustments that was created by calls
+ * to AdjRefCount() ... by reading the queue and calling TDAP_AdjRefCount()
+ * for each one.  This should be an "off hours" operation.
+ */
+int TDAP_ProcessAdjRefCountQueue(void)
+{
+	char file_arcq_temp[PATH_MAX];
+	int r;
+	FILE *fp;
+	struct arcq arcq_rec;
+	int num_records_processed = 0;
+
+	snprintf(file_arcq_temp, sizeof file_arcq_temp, "%s2", file_arcq);
+
+	begin_critical_section(S_SUPPMSGMAIN);
+	if (arcfp != NULL) {
+		fclose(arcfp);
+		arcfp = NULL;
+	}
+
+	r = link(file_arcq, file_arcq_temp);
+	if (r != 0) {
+		lprintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+		end_critical_section(S_SUPPMSGMAIN);
+		return(num_records_processed);
+	}
+
+	unlink(file_arcq);
+	end_critical_section(S_SUPPMSGMAIN);
+
+	fp = fopen(file_arcq_temp, "rb");
+	if (fp == NULL) {
+		lprintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+		return(num_records_processed);
+	}
+
+	while (fread(&arcq_rec, sizeof(struct arcq), 1, fp) == 1) {
+		TDAP_AdjRefCount(arcq_rec.arcq_msgnum, arcq_rec.arcq_delta);
+		++num_records_processed;
+	}
+
+	fclose(fp);
+	r = unlink(file_arcq_temp);
+	if (r != 0) {
+		lprintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+	}
+
+	return(num_records_processed);
+}
+
+
+
+/*
+ * TDAP_AdjRefCount  -  adjust the reference count for a message.
+ *                      This one does it "for real" because it's called by
+ *                      the autopurger function that processes the queue
+ *                      created by AdjRefCount().   If a message's reference
+ *                      count becomes zero, we also delete the message from
+ *                      disk and de-index it.
+ */
+void TDAP_AdjRefCount(long msgnum, int incr)
 {
 
 	struct MetaData smi;
@@ -3860,6 +3950,7 @@ void AdjRefCount(long msgnum, int incr)
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
 	}
+
 }
 
 /*
@@ -3973,7 +4064,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	 */
 	if (is_unique) {
 		lprintf(CTDL_DEBUG, "Deleted %d other msgs of this type\n",
-			CtdlDeleteMessages(roomname, NULL, 0, content_type, 0)
+			CtdlDeleteMessages(roomname, NULL, 0, content_type)
 		);
 	}
 	/* Now write the data */
