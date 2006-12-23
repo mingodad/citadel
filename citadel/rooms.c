@@ -165,7 +165,7 @@ int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2)
 /*
  * Common code for all room listings
  */
-static void listrms(struct march *listing, int new_only, int floor_only)
+static void listrms(struct march *listing, int new_only, int floor_only, unsigned int flags, char *match)
 {
 	struct march *mptr;
 	struct ctdlroomlisting *rl = NULL;
@@ -186,6 +186,12 @@ static void listrms(struct march *listing, int new_only, int floor_only)
 
 		if ( (floor_only >= 0)
 		   && (mptr->march_floor != floor_only))
+			list_it = 0;
+
+		if (flags && (mptr->march_flags & flags) == 0)
+		    list_it = 0;
+
+	    if (match && (pattern(mptr->march_name, match) == -1))
 			list_it = 0;
 
 		if (list_it) {
@@ -271,10 +277,10 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages:\n");
-		listrms(listing, LISTRMS_NEW_ONLY, -1);
+		listrms(listing, LISTRMS_NEW_ONLY, -1, 0, NULL);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   No unseen messages in:\n");
-		listrms(listing, LISTRMS_OLD_ONLY, -1);
+		listrms(listing, LISTRMS_OLD_ONLY, -1, 0, NULL);
 		pprintf("\n");
 	}
 
@@ -282,11 +288,11 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		listrms(listing, LISTRMS_NEW_ONLY, curr_floor);
+		listrms(listing, LISTRMS_NEW_ONLY, curr_floor, 0, NULL);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		listrms(listing, LISTRMS_OLD_ONLY, curr_floor);
+		listrms(listing, LISTRMS_OLD_ONLY, curr_floor, 0, NULL);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Other floors:\n");
 		list_other_floors();
@@ -299,7 +305,7 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 				color(BRIGHT_CYAN);
 				pprintf("\n   Rooms on %s:\n",
 					floorlist[a]);
-				listrms(listing, LISTRMS_ALL, a);
+				listrms(listing, LISTRMS_ALL, a, 0, NULL);
 				pprintf("\n");
 			}
 		}
@@ -333,8 +339,72 @@ void listzrooms(CtdlIPC *ipc)
 
 	color(BRIGHT_CYAN);
 	pprintf("\n   Forgotten public rooms:\n");
-	listrms(listing, LISTRMS_ALL, -1);
+	listrms(listing, LISTRMS_ALL, -1, 0, NULL);
 	pprintf("\n");
+
+	/* Free the room list */
+	while (listing) {
+		mptr = listing->next;
+		free(listing);
+		listing = mptr;
+	};
+
+	color(DIM_WHITE);
+	IFNEXPERT hit_any_key(ipc);
+}
+
+void dotknown(CtdlIPC *ipc, int what, char *match)
+{				/* list rooms according to attribute */
+	struct march *listing = NULL;
+	struct march *mptr;
+	int r;		/* IPC response code */
+	char buf[SIZ];
+
+	/* Ask the server for a room list */
+	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, (-1), &listing, buf);
+	if (r / 100 != 1) {
+		listing = NULL;
+	}
+
+	color(BRIGHT_CYAN);
+
+	switch (what) {
+    case 0:
+     	pprintf("\n   Anonymous rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_ANONONLY|QR_ANONOPT, NULL);
+    	pprintf("\n");
+		break;
+    case 1:
+     	pprintf("\n   Directory rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_DIRECTORY, NULL);
+    	pprintf("\n");
+		break;
+    case 2:
+     	pprintf("\n   Matching \"%s\" rooms:\n", match);
+	    listrms(listing, LISTRMS_ALL, -1, 0, match);
+    	pprintf("\n");
+		break;
+    case 3:
+     	pprintf("\n   Preferred only rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_PREFONLY, NULL);
+    	pprintf("\n");
+		break;
+    case 4:
+     	pprintf("\n   Private rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_PRIVATE, NULL);
+    	pprintf("\n");
+		break;
+    case 5:
+     	pprintf("\n   Read only rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_READONLY, NULL);
+    	pprintf("\n");
+		break;
+    case 6:
+     	pprintf("\n   Shared rooms:\n");
+	    listrms(listing, LISTRMS_ALL, -1, QR_NETWORK, NULL);
+    	pprintf("\n");
+		break;
+	}
 
 	/* Free the room list */
 	while (listing) {
@@ -859,7 +929,7 @@ void roomdir(CtdlIPC *ipc)
 	extract_token(flnm, buf, 1, '|', sizeof flnm);
 	pprintf("\nDirectory of %s on %s\n", flnm, comment);
 	pprintf("-----------------------\n");
-	while (*listing && strlen(listing)) {
+	while (listing && *listing && strlen(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
@@ -872,6 +942,7 @@ void roomdir(CtdlIPC *ipc)
 			pprintf("%s\n%14s %8s %s\n", flnm, "", flsz,
 				comment);
 	}
+	if (listing) free(listing);
 }
 
 

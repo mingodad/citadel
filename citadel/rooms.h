@@ -14,6 +14,7 @@ void dotungoto(CtdlIPC *ipc, char *towhere);
 void whoknows(CtdlIPC *ipc);
 void enterinfo(CtdlIPC *ipc);
 void knrooms(CtdlIPC *ipc, int kn_floor_mode);
+void dotknown(CtdlIPC *ipc, int what, char *match);
 void load_floorlist(CtdlIPC *ipc);
 void create_floor(CtdlIPC *ipc);
 void edit_floor(CtdlIPC *ipc);

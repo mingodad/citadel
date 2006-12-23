@@ -1617,8 +1617,9 @@ void imap_command_loop(void)
 	imap_free_transmitted_message();
 
 	gettimeofday(&tv2, NULL);
-	lprintf(CTDL_DEBUG, "IMAP %s took %ld microseconds\n",
+	lprintf(CTDL_DEBUG, "IMAP %s %s took %ld microseconds\n",
 		parms[1],
+		(!strcasecmp(parms[1], "uid") ? parms[2] : ""),
 		(tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000))
 	);
 }

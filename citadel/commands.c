@@ -1188,11 +1188,13 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if (cmdmatch(cmdbuf, cptr, cmdpos)) {
 					for (a = 0; a < 5; ++a) {
-						pprintf("%s ", cmd_expand(cptr->c_keys[a], 1));
+					   keyopt(cmd_expand(cptr->c_keys[a], 1));
+    				   pprintf(" ");
 					}
 					pprintf("\n");
 				}
 			}
+        	sigcaught = 0;
 
 			pprintf("\n%s%c ", room_name, room_prompt(room_flags));
 			got = 0;
@@ -1596,13 +1598,13 @@ void keyopt(char *buf) {
 	color(DIM_WHITE);
 	for (i=0; i<strlen(buf); ++i) {
 		if (buf[i]=='<') {
-			scr_putc(buf[i]);
+			pprintf("%c", buf[i]);
 			color(BRIGHT_MAGENTA);
 		} else {
-			if (buf[i]=='>') {
+			if (buf[i]=='>'&& buf[i+1] != '>') {
 				color(DIM_WHITE);
 			}
-			scr_putc(buf[i]);
+			pprintf("%c", buf[i]);
 		}
 	}
 	color(DIM_WHITE);

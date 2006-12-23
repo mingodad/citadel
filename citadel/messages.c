@@ -1281,6 +1281,7 @@ int entmsg(CtdlIPC *ipc,
 		scr_printf("*** %d additional messages have been entered "
 			"in this room by other users.\n", b);
 	}
+    free(message.text);
 
 	return(0);
 }

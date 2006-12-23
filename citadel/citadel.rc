@@ -365,6 +365,7 @@ cmd=46,0,&.,&Enter,message with &Editor
 
 cmd=59,0,&;,&Configure floor mode
 cmd=60,0,&;,&Goto floor:
+cmd=60,0,&.,&Enter,&Floor:
 cmd=61,0,&;,&Skip to floor:
 cmd=62,0,&;,&Zap (forget) floor
 cmd=63,2,&;,&Aide,&Create floor
@@ -388,6 +389,17 @@ cmd=116,0,&.,skip to &+Next room
 cmd=117,0,&.,skip to &-Previous room
 cmd=118,0,&.,skip to &>Next floor
 cmd=119,0,&.,skip to &<Previous floor
+
+cmd=120,0,&.,&Known,&Anonymous rooms
+cmd=121,0,&.,&Known,&Directory rooms
+cmd=68,0,&.,&Known,&Floors
+cmd=49,0,&.,&Known,room &Info
+cmd=122,0,&.,&Known,&Match rooms:
+cmd=123,0,&.,&Known,preferred &Only rooms
+cmd=124,0,&.,&Known,&Private rooms
+cmd=125,0,&.,&Known,&Read only rooms
+cmd=126,0,&.,&Known,&Shared rooms
+cmd=19,0,&.,&Known,&Zapped rooms
 
 #
 # Command 69 allows the user to enter a server command directly.  It is

@@ -327,6 +327,7 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 		}
 	}
 	*listing = march;
+	if (bbb) free(bbb);
 	return ret;
 }
 
@@ -409,7 +410,9 @@ int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		rret[0]->RRfloor = extract_int(cret, 10);
 	} else {
 		free(*rret);
+		*rret = NULL;
 	}
+	free(aaa);
 	return ret;
 }
 
@@ -674,6 +677,7 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 		}
 
 	}
+	if (listing) free(listing);
 	return ret;
 }
 

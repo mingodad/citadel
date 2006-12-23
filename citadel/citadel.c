@@ -423,7 +423,6 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
-		room = NULL;
 		r = CtdlIPCGotoRoom(ipc, bbb, "", &room, aaa);
 	}
 	if (r / 100 != 1 && r / 100 != 2) {
@@ -489,6 +488,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	}
 	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
 			room_name, secure, newmailcount);
+	free(room);
 }
 
 /* Goto next room having unread messages.
@@ -571,6 +571,7 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 		flist = flist->next;
 		free(fptr);
 	}
+	if (room) free(room);
 }
 
 
@@ -830,6 +831,14 @@ void  gotoroomstep(CtdlIPC *ipc, int direction, int mode)
 	    	updatelsa(ipc);
 		}
 	}
+
+	/* Free the room list */
+	while (listing) {
+		mptr = listing->next;
+		free(listing);
+		listing = mptr;
+	};
+
 	dotgoto(ipc, rmname, 1, 0);
 }
 
@@ -843,6 +852,8 @@ void  gotofloorstep(CtdlIPC *ipc, int direction, int mode)
 
 	if (floorlist[0][0] == 0)
 		load_floorlist(ipc);
+
+	empty_keep_going:
 
 	if (direction == 0) { /* Previous floor */
 		if (curr_floor)	tofloor = curr_floor - 1;
@@ -862,6 +873,10 @@ void  gotofloorstep(CtdlIPC *ipc, int direction, int mode)
 	}
 
 	gotofloor(ipc, floorlist[tofloor], mode);
+	if (curr_floor != tofloor) { /* gotofloor failed */
+	     curr_floor = tofloor;
+	     goto empty_keep_going;
+	}	     
 }
 
 /* 
@@ -1165,6 +1180,8 @@ char *SortOnlineUsers(char *listing) {
 		strcat(retbuf, &sortbuf[i*SIZ]);
 		if (i<(rows-1)) strcat(retbuf, "\n");
 	}
+    free(listing);
+    free(sortbuf);
 	return(retbuf);
 }
 
@@ -1349,7 +1366,7 @@ int main(int argc, char **argv)
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
-
+    
 
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
@@ -1708,6 +1725,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	dotgoto(ipc, "_BASEROOM_", 1, 0);
 
 	/* Main loop for the system... user is logged in. */
+    free(uglist[0]);
 	uglistsize = 0;
 
 	if (newnow == 1)
@@ -2154,7 +2172,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 
             case 110:           /* <+> Next room */
-                 gotoroomstep(ipc, 1, 0);
+   				 gotoroomstep(ipc, 1, 0);
 			     break;
 
             case 111:           /* <-> Previous room */
@@ -2191,6 +2209,34 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 
 			case 115:           
                  system_info(ipc);
+				 break;
+
+			case 120:           /* .KAnonymous */
+    			 dotknown(ipc, 0, NULL);
+				 break;
+
+			case 121:           /* .KDirectory */
+    			 dotknown(ipc, 1, NULL);
+				 break;
+
+			case 122:           /* .KMatch */
+    			 dotknown(ipc, 2, argbuf);
+				 break;
+
+			case 123:           /* .KpreferredOnly */
+    			 dotknown(ipc, 3, NULL);
+				 break;
+
+			case 124:           /* .KPrivate */
+    			 dotknown(ipc, 4, NULL);
+				 break;
+
+			case 125:           /* .KRead only */
+    			 dotknown(ipc, 5, NULL);
+				 break;
+
+			case 126:           /* .KShared */
+    			 dotknown(ipc, 6, NULL);
 				 break;
 
 			default: /* allow some math on the command */

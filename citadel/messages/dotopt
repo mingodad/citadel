@@ -1,5 +1,6 @@
 One of:
  <E>nter
+ <K>nown
  <R>ead
  <A>ide options (aides only)
  <G>oto: (type room name)
@@ -7,4 +8,5 @@ One of:
  <H>elp: (type name of help file)
  <Z>apped rooms list
  <T>erminate
-
+ <+>, <-> skip to next, previous room
+ <>>, <<> skip to next, previous floor
