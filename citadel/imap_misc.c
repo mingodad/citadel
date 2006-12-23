@@ -63,7 +63,6 @@ int imap_do_copy(char *destination_folder) {
 	int i;
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
-	struct timeval tv1, tv2, tv3;
 	long *selected_msgs = NULL;
 	int num_selected = 0;
 
@@ -77,8 +76,6 @@ int imap_do_copy(char *destination_folder) {
 	/*
 	 * Copy all the message pointers in one shot.
 	 */
-	gettimeofday(&tv1, NULL);
-
 	selected_msgs = malloc(sizeof(long) * IMAP->num_msgs);
 	if (selected_msgs == NULL) return(-1);
 
@@ -131,7 +128,6 @@ int imap_do_copy(char *destination_folder) {
 	}
 
 	/* Set the flags... */
-	gettimeofday(&tv2, NULL);
 	i = getroom(&qrbuf, roomname);
 	if (i == 0) {
 		CtdlSetSeen(seen_yes, num_seen_yes, 1, ctdlsetseen_seen, NULL, &qrbuf);
@@ -145,11 +141,6 @@ int imap_do_copy(char *destination_folder) {
 	free(answ_yes);
 	free(answ_no);
 
-	gettimeofday(&tv3, NULL);
-	lprintf(CTDL_DEBUG, "Copying pointers: %ld microseconds / Setting flags: %ld microseconds\n",
-		(tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000)),
-		(tv3.tv_usec + (tv3.tv_sec * 1000000)) - (tv2.tv_usec + (tv2.tv_sec * 1000000))
-	);
 	return(0);
 }
 

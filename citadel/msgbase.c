@@ -3797,9 +3797,6 @@ void PutMetaData(struct MetaData *smibuf)
 	/* Use the negative of the message number for the metadata db index */
 	TheIndex = (0L - smibuf->meta_msgnum);
 
-	lprintf(CTDL_DEBUG, "PutMetaData(%ld) - ref count is %d\n",
-		smibuf->meta_msgnum, smibuf->meta_refcount);
-
 	cdb_store(CDB_MSGMAIN,
 		  &TheIndex, (int)sizeof(long),
 		  smibuf, (int)sizeof(struct MetaData));
@@ -3927,7 +3924,7 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	lprintf(CTDL_DEBUG, "msg %ld ref count incr %d, is now %d\n",
+	lprintf(CTDL_DEBUG, "msg %ld ref count delta %d, is now %d\n",
 		msgnum, incr, smi.meta_refcount);
 
 	/* If the reference count is now zero, delete the message
