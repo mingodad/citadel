@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <fcntl.h>
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
 	pid_t child = 0;
 	int status = 0;
 	FILE *fp;
-	int nullfd;
+//	int nullfd;
 
 	--argc;
 	++argv;
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
 	 * We don't just call close() because we don't want these fd's
 	 * to be reused for other files.
 	 */
+/*
 	nullfd = open("/dev/null", O_RDWR);
 	if (nullfd < 0) {
 		fprintf(stderr, "/dev/null: %s\n", strerror(errno));
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
 	dup2(nullfd, 1);
 	dup2(nullfd, 2);
 	close(nullfd);
-
+*/
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
@@ -74,6 +76,13 @@ int main(int argc, char **argv)
 		}
 		exit(0);
 	}
+	
+	setsid();
+	chdir("/");
+	umask(0);
+        freopen("/dev/null", "r", stdin);
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
 
 	do {
 		current_child = fork();
