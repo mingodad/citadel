@@ -417,7 +417,7 @@ void cmd_iden(char *argbuf)
 		lprintf(CTDL_DEBUG, "Looking up hostname '%s'\n", from_host);
 		if ((addr.s_addr = inet_addr(from_host)) != -1) {
 			locate_host(CC->cs_host, sizeof CC->cs_host,
-				NULL, 0,
+				CC->cs_addr, sizeof CC->cs_addr,
 				&addr);
 		}
 	   	else {
