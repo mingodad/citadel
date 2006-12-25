@@ -424,6 +424,10 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->flags & US_PERM) purge = 0;
 
+	/* If the user is an Aide, don't purge him/her/it.
+	 */
+	if (us->axlevel == 6) purge = 0;
+
 	/* If the access level is 0, the record should already have been
 	 * deleted, but maybe the user was logged in at the time or something.
 	 * Delete the record now.
