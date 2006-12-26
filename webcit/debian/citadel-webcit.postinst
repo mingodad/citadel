@@ -126,7 +126,9 @@ export WEBCIT_CITADEL_PORT=504
 export WEBCIT_LISTEN_IP=0.0.0.0
 " >>/etc/default/webcit
 
-	update-rc.d webcit defaults >/dev/null
+	db_stop
+	
+	#DEBHELPER#
 
     #### There are three sub-cases:
     ###if test "${2+set}" != set; then
