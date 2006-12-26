@@ -53,15 +53,15 @@ build: build-arch build-indep
 build-arch: build-arch-stamp
 build-arch-stamp:  config.status
 
-	# Add here commands to compile the arch part of the package.
-	#$(MAKE) 
+#	# Add here commands to compile the arch part of the package.
+#	$(MAKE) 
 	touch build-arch-stamp
 
 build-indep: build-indep-stamp
 build-indep-stamp:  config.status
 
-	# Add here commands to compile the indep part of the package.
-	#$(MAKE) doc
+#	# Add here commands to compile the indep part of the package.
+#	#$(MAKE) doc
 	touch build-indep-stamp
 
 clean:
