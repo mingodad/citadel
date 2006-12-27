@@ -750,34 +750,73 @@ void kill_session(int session_to_kill) {
 	end_critical_section(S_SESSION_TABLE);
 }
 
-
+pid_t current_child;
+void graceful_shutdown(int signum) {
+	kill(current_child, signum);
+	unlink(file_pid_file);
+	exit(0);
+}
 
 
 /*
  * Start running as a daemon.
  */
 void start_daemon(int unused) {
-	int nullfd;
+	int status = 0;
+	pid_t child = 0;
+	FILE *fp;
+
+	current_child = 0;
 
 	/* Close stdin/stdout/stderr and replace them with /dev/null.
 	 * We don't just call close() because we don't want these fd's
 	 * to be reused for other files.
 	 */
-	nullfd = open("/dev/null", O_RDWR);
-	if (nullfd < 0) {
-		fprintf(stderr, "/dev/null: %s\n", strerror(errno));
-		exit(2);
-	}
-	dup2(nullfd, 0);
-	dup2(nullfd, 1);
-	dup2(nullfd, 2);
-	close(nullfd);
+	chdir(ctdl_run_dir);
 
-	if (fork()) exit(0);
+	child = fork();
+	if (child != 0) {
+		fp = fopen(file_pid_file, "w");
+		if (fp != NULL) {
+			fprintf(fp, "%d\n", child);
+			fclose(fp);
+		}
+		exit(0);
+	}
+	
+	signal(SIGHUP, SIG_IGN);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+
 	setsid();
-	signal(SIGHUP,SIG_IGN);
-	signal(SIGINT,SIG_IGN);
-	signal(SIGQUIT,SIG_IGN);
+//	umask(0);
+        freopen("/dev/null", "r", stdin);
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+
+	do {
+		current_child = fork();
+
+		signal(SIGTERM, graceful_shutdown);
+	
+		if (current_child < 0) {
+			perror("fork");
+			exit(errno);
+		}
+	
+		else if (current_child == 0) {
+			return; /* continue starting citadel. */
+		}
+	
+		else {
+			waitpid(current_child, &status, 0);
+		}
+
+	} while (status != 0);
+
+	unlink(file_pid_file);
+	exit(0);
+
 }
 
 

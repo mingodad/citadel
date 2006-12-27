@@ -56,6 +56,7 @@ char file_lmtp_unfiltered_socket[PATH_MAX]="";
 char file_arcq[PATH_MAX]="";
 char file_citadel_socket[PATH_MAX]="";
 char file_mail_aliases[PATH_MAX]="";
+char file_pid_file[PATH_MAX]="";
 
 int home_specified = 0;
 
@@ -167,6 +168,10 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	snprintf(file_citadel_socket, 
 			 sizeof file_citadel_socket,
 				"%scitadel.socket",
+			 ctdl_run_dir);
+	snprintf(file_pid_file, 
+			 sizeof file_pid_file,
+				"%scitadel.pid",
 			 ctdl_run_dir);
 
 	snprintf(file_arcq, 

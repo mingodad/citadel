@@ -100,9 +100,6 @@ install-arch:
 	mv \
 	 	$(CURDIR)/debian/tmp/usr/sbin/setup \
 	 	$(CURDIR)/debian/tmp/usr/lib/citadel-server/
-	mv \
-	 	$(CURDIR)/debian/tmp/usr/sbin/ctdlsvc \
-	 	$(CURDIR)/debian/tmp/usr/lib/citadel-server/
 #	cd $(CURDIR)/debian/tmp/usr/share/doc/citadel-server/examples/help; md5sum * >../help.md5sums
 #	cd $(CURDIR)/debian/tmp/usr/share/doc/citadel-server/examples/messages; md5sum * >../messages.md5sums
 	cp \
