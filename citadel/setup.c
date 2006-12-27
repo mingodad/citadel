@@ -397,10 +397,14 @@ void install_init_scripts(void)
 			"#\n"
 			"# chkconfig: - 79 30\n"
 			"# description: Citadel service\n"
-			"# processname: ctdlsvc\n"
-			"# pidfile: /var/run/citadel.pid\n"
+			"# processname: citserver\n"
+			"# pidfile: %s/citadel.pid\n"
 			"\n"
-			"CITADEL_DIR=%s\n", setup_directory);
+			"CITADEL_DIR=%s\n"
+			,
+				setup_directory,
+				setup_directory
+			);
 	fprintf(fp,	"\n"
 			"test -x $CITADEL_DIR/ctdlsvc || exit 0\n"
 			"test -d /var/run || exit 0\n"
@@ -408,9 +412,7 @@ void install_init_scripts(void)
 			"case \"$1\" in\n"
 			"\n"
 			"start)		echo -n \"Starting Citadel... \"\n"
-			"		if $CITADEL_DIR/ctdlsvc /var/run/citadel.pid "
-							"$CITADEL_DIR/citserver "
-							"-t/dev/null\n"
+			"		if $CITADEL_DIR/citserver -d\n"
 			"		then\n"
 			"			echo \"ok\"\n"
 			"		else\n"
@@ -423,7 +425,10 @@ void install_init_scripts(void)
 			"		else\n"
 			"			echo \"failed\"\n"
 			"		fi\n"
-			"		rm -f /var/run/citadel.pid 2>/dev/null\n");
+			"		rm -f %s/citadel.pid 2>/dev/null\n"
+			,
+				setup_directory
+			);
 	fprintf(fp,	"		;;\n"
 			"restart)	$0 stop\n"
 			"		$0 start\n"

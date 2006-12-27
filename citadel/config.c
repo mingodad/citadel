@@ -37,7 +37,7 @@ void get_config(void) {
 			"Error: %s\n",
 			(home_specified ? ctdl_home_directory : CTDLDIR),
 			strerror(errno));
-		exit(1);
+		exit(CTDLEXIT_HOME);
 	}
 	cfp = fopen(file_citadel_config, "rb");
 	if (cfp == NULL) {
@@ -46,18 +46,18 @@ void get_config(void) {
 				"Error: %s\n",
 				file_citadel_config,
 				strerror(errno));
-		exit(1);
+		exit(CTDLEXIT_CONFIG);
 	}
 	fread((char *) &config, sizeof(struct config), 1, cfp);
 	if (fstat(fileno(cfp), &st)) {
 		perror(file_citadel_config);
-		exit(1);
+		exit(CTDLEXIT_CONFIG);
 	}
 #ifndef __CYGWIN__
 	if (st.st_uid != CTDLUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
 		fprintf(stderr, "check the permissions on %s\n", file_citadel_config);
 		//		fprintf(stderr, "check the permissions on citadel.config\n");
-		exit(1);
+		exit(CTDLEXIT_CONFIG);
 	}
 #endif
 	fclose(cfp);
@@ -72,7 +72,7 @@ void get_config(void) {
 			"        Data files are currently at %d.%02d\n",
 			(config.c_setup_level / 100),
 			(config.c_setup_level % 100));
-		exit(1);
+		exit(CTDLEXIT_OOD);
 	}
 
         /* Default maximum message length is 10 megabytes.  This is site

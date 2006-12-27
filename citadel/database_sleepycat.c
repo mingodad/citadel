@@ -362,7 +362,7 @@ void open_databases(void)
 	if (ret) {
 		lprintf(CTDL_EMERG, "cdb_*: db_env_create: %s\n",
 			db_strerror(ret));
-		exit(ret);
+		exit(CTDLEXIT_DB);
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
 	dbenv->set_paniccall(dbenv, dbpanic);
@@ -379,14 +379,14 @@ void open_databases(void)
 		lprintf(CTDL_EMERG, "cdb_*: set_cachesize: %s\n",
 			db_strerror(ret));
 		dbenv->close(dbenv, 0);
-		exit(ret);
+		exit(CTDLEXIT_DB);
 	}
 
 	if ((ret = dbenv->set_lk_detect(dbenv, DB_LOCK_DEFAULT))) {
 		lprintf(CTDL_EMERG, "cdb_*: set_lk_detect: %s\n",
 			db_strerror(ret));
 		dbenv->close(dbenv, 0);
-		exit(ret);
+		exit(CTDLEXIT_DB);
 	}
 
 	flags =
@@ -399,7 +399,7 @@ void open_databases(void)
 		lprintf(CTDL_DEBUG, "cdb_*: dbenv->open: %s\n",
 			db_strerror(ret));
 		dbenv->close(dbenv, 0);
-		exit(ret);
+		exit(CTDLEXIT_DB);
 	}
 
 	lprintf(CTDL_INFO, "cdb_*: Starting up DB\n");
@@ -411,7 +411,7 @@ void open_databases(void)
 		if (ret) {
 			lprintf(CTDL_DEBUG, "cdb_*: db_create: %s\n",
 				db_strerror(ret));
-			exit(ret);
+			exit(CTDLEXIT_DB);
 		}
 
 
@@ -430,14 +430,14 @@ void open_databases(void)
 		if (ret) {
 			lprintf(CTDL_EMERG, "cdb_*: db_open[%d]: %s\n", i,
 				db_strerror(ret));
-			exit(ret);
+			exit(CTDLEXIT_DB);
 		}
 	}
 
 	if ((ret = pthread_key_create(&tsdkey, dest_tsd))) {
 		lprintf(CTDL_EMERG, "cdb_*: pthread_key_create: %s\n",
 			strerror(ret));
-		exit(1);
+		exit(CTDLEXIT_DB);
 	}
 
 	cdb_allocate_tsd();

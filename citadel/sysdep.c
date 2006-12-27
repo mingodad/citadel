@@ -765,6 +765,7 @@ void start_daemon(int unused) {
 	int status = 0;
 	pid_t child = 0;
 	FILE *fp;
+	int do_restart = 0;
 
 	current_child = 0;
 
@@ -789,7 +790,7 @@ void start_daemon(int unused) {
 	signal(SIGQUIT, SIG_IGN);
 
 	setsid();
-//	umask(0);
+	umask(0);
         freopen("/dev/null", "r", stdin);
         freopen("/dev/null", "w", stdout);
         freopen("/dev/null", "w", stderr);
@@ -812,11 +813,36 @@ void start_daemon(int unused) {
 			waitpid(current_child, &status, 0);
 		}
 
-	} while (status != 0);
+		do_restart = 0;
+
+		/* Did the main process exit with an actual exit code? */
+		if (WIFEXITED(status)) {
+
+			/* Exit code 0 means the watcher should exit */
+			if (WEXITSTATUS(status) == 0) {
+				do_restart = 0;
+			}
+
+			/* Exit code 101-109 means the watcher should exit */
+			else if ( (WEXITSTATUS(status) >= 101) && (WEXITSTATUS(status) <= 109) ) {
+				do_restart = 0;
+			}
+
+			/* Any other exit code means we should restart. */
+			else {
+				do_restart = 1;
+			}
+		}
+
+		/* Any other type of termination (signals, etc.) should also restart. */
+		else {
+			do_restart = 1;
+		}
+
+	} while (do_restart);
 
 	unlink(file_pid_file);
-	exit(0);
-
+	exit(WEXITSTATUS(status));
 }
 
 

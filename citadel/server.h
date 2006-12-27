@@ -31,6 +31,21 @@ struct CtdlMessage {
 #define	CM_SKIP_HOOKS	0x01		/* Don't run server-side handlers */
 
 
+
+/*
+ * Exit codes 101 through 109 are used for conditions in which
+ * we deliberately do NOT want the service to automatically
+ * restart.
+ */
+#define CTDLEXIT_CONFIG		101	/* Could not read citadel.config */
+#define CTDLEXIT_CONTROL	102	/* Could not acquire lock */
+#define CTDLEXIT_HOME		103	/* Citadel home directory not found */
+#define CTDLEXIT_OOD		104	/* Out Of Date config - rerun setup */
+#define CTDLEXIT_DB		105	/* Unable to initialize database */
+
+
+
+
 /*
  * Here's the big one... the Citadel context structure.
  *
