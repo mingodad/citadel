@@ -184,12 +184,12 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	c = getroom(&CC->room, foldername);
 
 	/* Then a regular room name match (public and private rooms) */
-	if (c < 0) {
+	if (c != 0) {
 		safestrncpy(foldername, dest_folder, sizeof foldername);
 		c = getroom(&CC->room, foldername);
 	}
 
-	if (c < 0) {
+	if (c != 0) {
 		lprintf(CTDL_WARNING, "FILEINTO failed: target <%s> does not exist\n", dest_folder);
 		return SIEVE2_ERROR_BADARGS;
 	}
