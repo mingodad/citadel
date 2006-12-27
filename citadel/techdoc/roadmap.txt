@@ -3,8 +3,8 @@ we want to be going.  It's something to consult when sitting down to write
 some code and deciding what to work on.
 
 
- Recent goals achieved (in tree, not necessarily published yet)
- --------------------------------------------------------------
+ Recent goals achieved (finished in 7.00)
+ ----------------------------------------
 
 * GroupDAV and "webcal" (icalendar over dav) support
 * Updated schema for publishing Citadel address book data into an
@@ -16,7 +16,7 @@ some code and deciding what to work on.
  Immediate projects to tackle after 7.00
  ---------------------------------------
 
-* Apply the patches that Matt has queued up.
+* Apply the patches that Matt has queued up.  (DONE)
 
 * Multiple room aides per room (use a RoomAccess flag bit)
 
@@ -31,7 +31,7 @@ some code and deciding what to work on.
      amount of wall clock time.  AdjRefCount() could write its instructions
      into an in-memory queue to be processed during the next housekeeping
      loop, *or* it could write its instructions into a flat file to be
-     processed during the next auto-purger run.
+     processed during the next auto-purger run.    (DONE)
 
   2. WebCit slows down significantly (or so claims our QA group) when one
      of the above-mentioned mega-mailboxes is opened in mailbox view mode.
