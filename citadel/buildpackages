@@ -55,7 +55,11 @@ case $1 in
 			mv /tmp/citadel_changelog debian/changelog
 
 		fi
-		fakeroot dpkg-buildpackage
+		if test "$2" == "src"; then
+		    cd ..; dpkg-source -b "citadel-$CITADEL_VERSION"
+		else
+		    fakeroot dpkg-buildpackage
+		fi
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "
