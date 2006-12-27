@@ -1052,7 +1052,7 @@ void display_rules_editor_inner_div(void) {
 				wprintf("selected ");
 			}
 			wprintf("value=\"");
-			urlescputs(rooms[j].name);
+			escputs(rooms[j].name);
 			wprintf("\">");
 			escputs(rooms[j].name);
 			wprintf("</option>\n");
