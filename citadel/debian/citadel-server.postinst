@@ -156,6 +156,8 @@ case "$1" in
 
     ### done! now we'll just clear up our cruft.
     #rm -f $tempfile
+        chown root:root /usr/sbin/chkpwd
+        chmod 4755 /usr/sbin/chkpwd
 
 	db_get citadel/Administrator && admin="$RET"
 	db_get citadel/ServerIPAddress && ip_addr="$RET"
