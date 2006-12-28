@@ -310,7 +310,7 @@ void progress(char *text, long int curr, long int cmax)
 
 
 /*
- * install_init_scripts()  -- Make sure "webserver" is in /etc/inittab
+ * install_init_scripts()  -- Create and deploy SysV init scripts.
  *
  */
 void install_init_scripts(void)
@@ -399,7 +399,7 @@ void install_init_scripts(void)
 			"\n"
 			"start)		echo -n \"Starting WebCit... \"\n"
 			"		if   $WEBCIT_DIR/webserver "
-		                                        "-d/var/run/webcit.pid "
+		                                        "-D/var/run/webcit.pid "
 							"-t/dev/null "
 							"-p$HTTP_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"
@@ -410,7 +410,7 @@ void install_init_scripts(void)
 #ifdef HAVE_OPENSSL
 	fprintf(fp,	"		echo -n \"Starting WebCit SSL... \"\n"
 			"		if  $WEBCIT_DIR/webserver "
-		                                        "-d/var/run/webcit-ssl.pid "
+		                                        "-D/var/run/webcit-ssl.pid "
 							"-t/dev/null "
 							"-s -p$HTTPS_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"

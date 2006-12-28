@@ -122,10 +122,10 @@ extern locale_t wc_locales[];
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v7.00"	/* who's in da house */
+#define SERVER			"WebCit v7.02"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		700		/* This version of WebCit */
+#define CLIENT_VERSION		702		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	690		/* min required Citadel ver. */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -752,3 +752,9 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 #define DEFAULT_HTTPAUTH_USER	""
 #define DEFAULT_HTTPAUTH_PASS	""
 
+
+/* Exit codes 101 through 109 are initialization failures so we don't want to
+ * just keep respawning indefinitely.
+ */
+#define WC_EXIT_BIND		101	/* Can't bind to the port */
+#define WC_EXIT_SSL		102	/* Can't initialize SSL */
