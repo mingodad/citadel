@@ -777,11 +777,6 @@ void start_daemon(int unused) {
 
 	child = fork();
 	if (child != 0) {
-		fp = fopen(file_pid_file, "w");
-		if (fp != NULL) {
-			fprintf(fp, "%d\n", child);
-			fclose(fp);
-		}
 		exit(0);
 	}
 	
@@ -810,6 +805,11 @@ void start_daemon(int unused) {
 		}
 	
 		else {
+			fp = fopen(file_pid_file, "w");
+			if (fp != NULL) {
+				fprintf(fp, "%d\n", child);
+				fclose(fp);
+			}
 			waitpid(current_child, &status, 0);
 		}
 
