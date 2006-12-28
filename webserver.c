@@ -480,21 +480,14 @@ void start_daemon(char *pid_file)
 	 */
 	chdir("/");
 
-	child = fork();
-	if (child != 0) {
-		if (pid_file) {
-			fp = fopen(pid_file, "w");
-			if (fp != NULL) {
-				fprintf(fp, "%d\n", child);
-				fclose(fp);
-			}
-		}
-		exit(0);
-	}
-	
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
+
+	child = fork();
+	if (child != 0) {
+		exit(0);
+	}
 
 	setsid();
 	umask(0);
@@ -518,6 +511,13 @@ void start_daemon(char *pid_file)
 	
 		else {
 			signal(SIGTERM, SIG_IGN);
+			if (pid_file) {
+				fp = fopen(pid_file, "w");
+				if (fp != NULL) {
+					fprintf(fp, "%d\n", current_child);
+					fclose(fp);
+				}
+			}
 			waitpid(current_child, &status, 0);
 		}
 
