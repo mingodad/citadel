@@ -445,25 +445,110 @@ int client_getln(int sock, char *buf, int bufsiz)
 	return (retval);
 }
 
+/**
+ * \brief shut us down the regular way.
+ * param signum the signal we want to forward
+ */
+pid_t current_child;
+void graceful_shutdown(int signum) {
+	kill(current_child, signum);
+	exit(0);
+}
+
 
 /**
  * \brief	Start running as a daemon.  
  *
  * param	do_close_stdio		Only close stdio if set.
  */
-void start_daemon(int do_close_stdio)
+
+/*
+ * Start running as a daemon.
+ */
+void start_daemon(int do_close_stdio, char *pid_file) 
 {
-	if (do_close_stdio) {
-		/* close(0); */
-		close(1);
-		close(2);
+	int status = 0;
+	pid_t child = 0;
+	FILE *fp;
+	int do_restart = 0;
+
+	current_child = 0;
+
+	/* Close stdin/stdout/stderr and replace them with /dev/null.
+	 * We don't just call close() because we don't want these fd's
+	 * to be reused for other files.
+	 */
+	chdir("/");
+
+	child = fork();
+	if (child != 0) {
+		fp = fopen(pid_file, "w");
+		if (fp != NULL) {
+			fprintf(fp, "%d\n", child);
+			fclose(fp);
+		}
+		exit(0);
 	}
+	
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
-	if (fork() != 0) {
-		exit(0);
+
+	setsid();
+	umask(0);
+	if (do_close_stdio) {
+		freopen("/dev/null", "r", stdin);
+		freopen("/dev/null", "w", stdout);
+		freopen("/dev/null", "w", stderr);
 	}
+	do {
+		current_child = fork();
+
+		signal(SIGTERM, graceful_shutdown);
+	
+		if (current_child < 0) {
+			perror("fork");
+			exit(errno);
+		}
+	
+		else if (current_child == 0) {
+			return; /* continue starting citadel. */
+		}
+	
+		else {
+			waitpid(current_child, &status, 0);
+		}
+
+		do_restart = 0;
+
+		/* Did the main process exit with an actual exit code? */
+		if (WIFEXITED(status)) {
+
+			/* Exit code 0 means the watcher should exit */
+			if (WEXITSTATUS(status) == 0) {
+				do_restart = 0;
+			}
+
+			/* Exit code 101-109 means the watcher should exit */
+			else if ( (WEXITSTATUS(status) >= 101) && (WEXITSTATUS(status) <= 109) ) {
+				do_restart = 0;
+			}
+
+			/* Any other exit code means we should restart. */
+			else {
+				do_restart = 1;
+			}
+		}
+
+		/* Any other type of termination (signals, etc.) should also restart. */
+		else {
+			do_restart = 1;
+		}
+
+	} while (do_restart);
+
+	unlink(pid_file);
+	exit(WEXITSTATUS(status));
 }
 
 /**
@@ -521,6 +606,7 @@ int main(int argc, char **argv)
 	int home_specified=0;
 	char relhome[PATH_MAX]="";
 	char webcitdir[PATH_MAX] = DATADIR;
+	char pidfile[PATH_MAX] = "";
 	char *hdir;
 	const char *basedir;
 #ifdef ENABLE_NLS
@@ -533,9 +619,9 @@ int main(int argc, char **argv)
 
 	/** Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:x:dcfs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:d:cfs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:x:dcf")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:d:cf")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -551,6 +637,8 @@ int main(int argc, char **argv)
 			home=1;
 			break;
 		case 'd':
+			hdir = strdup(optarg);
+			safestrncpy(pidfile, hdir,sizeof pidfile);
 			running_as_daemon = 1;
 			break;
 		case 'i':
@@ -612,7 +700,7 @@ int main(int argc, char **argv)
 
 	/* daemonize, if we were asked to */
 	if (running_as_daemon) {
-		start_daemon(0);
+		start_daemon(0, pidfile);
 	}
 
 	/** Tell 'em who's in da house */

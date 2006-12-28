@@ -21,13 +21,13 @@ SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS)
 
 # End of configuration section
 
-all: all-progs-recursive webserver setup ctdlsvc
+all: all-progs-recursive webserver setup
 
 
 .SUFFIXES: .cpp .c .o
 
 clean:
-	rm -f *.o webcit webserver ctdlsvc
+	rm -f *.o webcit webserver
 	rm -fr locale/*
 
 distclean: clean
@@ -38,9 +38,6 @@ distclean: clean
 setup: setup.o tools.o
 	$(CC) setup.o tools.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) $(SETUP_LIBS) -o setup
-
-ctdlsvc: ctdlsvc.o
-	$(CC) ctdlsvc.o -o ctdlsvc
 
 webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \
@@ -96,7 +93,6 @@ install:
 	for i in \
 		webserver \
 		setup \
-		ctdlsvc \
 		`find static -type f | grep -v .svn` \
 		`find tiny_mce -type f | grep -v .svn` \
 		`find locale -type f | grep -v .svn` \

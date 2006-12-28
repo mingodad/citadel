@@ -82,10 +82,8 @@ install: build
 		$(CURDIR)/debian/citadel-webcit/usr/share/locale
 	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/; \
 				md5sum `find -type f |grep -v md5sums `>md5sums; 
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/setup \
-		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/ctdlsvc \
-		$(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/
+# we don't use the setup anymore, omit it.
+	rm -f $(CURDIR)/debian/webcit/var/lib/citadel/www/setup
 	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/webserver \
 		$(CURDIR)/debian/citadel-webcit/usr/sbin/
 

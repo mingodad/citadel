@@ -393,14 +393,13 @@ void install_init_scripts(void)
 	fprintf(fp,	"CTDL_HOSTNAME=%s\n", hostname);
 	fprintf(fp,	"CTDL_PORTNAME=%s\n", portname);
 	fprintf(fp,	"\n"
-			"test -x $WEBCIT_DIR/ctdlsvc || exit 0\n"
 			"test -d /var/run || exit 0\n"
 			"\n"
 			"case \"$1\" in\n"
 			"\n"
 			"start)		echo -n \"Starting WebCit... \"\n"
-			"		if $WEBCIT_DIR/ctdlsvc /var/run/webcit.pid "
-							"$WEBCIT_DIR/webserver "
+			"		if   $WEBCIT_DIR/webserver "
+		                                        "-d/var/run/webcit.pid "
 							"-t/dev/null "
 							"-p$HTTP_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"
@@ -410,8 +409,8 @@ void install_init_scripts(void)
 			"		fi\n");
 #ifdef HAVE_OPENSSL
 	fprintf(fp,	"		echo -n \"Starting WebCit SSL... \"\n"
-			"		if $WEBCIT_DIR/ctdlsvc /var/run/webcit-ssl.pid "
-							"$WEBCIT_DIR/webserver "
+			"		if  $WEBCIT_DIR/webserver "
+		                                        "-d/var/run/webcit-ssl.pid "
 							"-t/dev/null "
 							"-s -p$HTTPS_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"
