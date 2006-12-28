@@ -24,11 +24,11 @@ export VERSION=`grep 'THIS IS' $(CURDIR)/ChangeLog  |head -n 1 |sed "s;.* ;;"`
 
 CFLAGS = -Wall -g
 
-#ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb
-#else
-#	CFLAGS += -O2
-#endif
+else
+	CFLAGS += -O2
+endif
 
 config.status: configure
 	dh_testdir
@@ -42,7 +42,8 @@ config.status: configure
 		--with-rundir=/var/run/citadel \
 		--with-docdir=/usr/share/doc/citadel-doc/ \
 		--with-pam \
-		--with-ical \
+		--with-libical \
+		--with-libsieve \
 		--with-db \
 		--with-ldap
 
