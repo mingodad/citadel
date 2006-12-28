@@ -2,7 +2,7 @@ Source: citadel
 Section: mail
 Priority: optional
 Maintainer: Wilfried Goesgens <w.goesgens@chaosindutries.de>
-Build-Depends: debhelper (>= 4.0.0), libical0-dev, autotools-dev, zlib1g-dev , libssl-dev, libncurses5-dev, libdb4.4-dev|libdb4.3-dev, libldap2-dev, libsasl2-dev, libgnutls-dev | libgnutls11-dev, libgcrypt11-dev, bison, libpam0g-dev, gettext, libsieve2-dev
+Build-Depends: debhelper (>= 4.0.0), libical0-dev, autotools-dev, zlib1g-dev , libssl-dev, libncurses5-dev, libdb4.4-dev|libdb4.3-dev, libldap2-dev, bison, libpam0g-dev, libsieve2-dev
 Standards-Version: 3.6.1
 
 Package: citadel-server
@@ -37,12 +37,6 @@ Description: This is the commandline-client to the citadel BBS system.
  connecting communities of people together. Users love Citadel because it's 
  software that helps them work, play, stay in touch... without calling 
  attention to itself.
-
-Package: citadel-unixlogin
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: This enables your citadel server to sync its passwords with 
- unix system accounts.
 
 Package: citadel-mta
 Architecture: any

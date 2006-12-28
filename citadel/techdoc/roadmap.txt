@@ -78,7 +78,7 @@ some code and deciding what to work on.
 
 * backtraces in the log in case of panics, etc.
 
-* auto-login should move from compile to installtime.
+* auto-login should move from compile to installtime.(done)
 
 * scheduled restarts there should be a way to notify all users 
    (whether via imap or webcit) that citadel is going to be unavailable.
