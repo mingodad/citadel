@@ -315,7 +315,8 @@ void progress(char *text, long int curr, long int cmax)
  */
 void install_init_scripts(void)
 {
-	char question[SIZ];
+	char question[1024];
+	char buf[256];
 	char http_port[128];
 #ifdef HAVE_OPENSSL
 	char https_port[128];
@@ -333,12 +334,40 @@ void install_init_scripts(void)
 	if (yesno(question) == 0)
 		return;
 
+	/* Default port numbers */
+	sprintf(http_port, "2000");
+#ifdef HAVE_OPENSSL
+	sprintf(https_port, "443");
+#endif
+
+	/* This is a very hackish way of learning the port numbers used
+	 * in a previous install, if we are upgrading: read them out of
+	 * the existing init script.
+	 */
+	fp = fopen("/etc/init.d/webcit", "r");
+	if (fp != NULL) {
+		while (fgets(buf, sizeof buf, fp) != NULL) {
+			if (strlen(buf) > 0) {
+				buf[strlen(buf)-1] = 0;	/* strip trailing cr */
+			}
+			if (!strncasecmp(buf, "HTTP_PORT=", 10)) {
+				safestrncpy(http_port, &buf[10], sizeof http_port);
+			}
+#ifdef HAVE_OPENSSL
+			if (!strncasecmp(buf, "HTTPS_PORT=", 11)) {
+				safestrncpy(https_port, &buf[11], sizeof https_port);
+			}
+#endif
+		}
+		fclose(fp);
+	}
+
+	/* Now ask for the port numbers */
 	snprintf(question, sizeof question,
 		"On which port do you want WebCit to listen for HTTP "
 		"requests?\n\nYou can use the standard port (80) if you are "
 		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
-	sprintf(http_port, "2000");
 	set_value(question, http_port);
 	uname(&my_utsname);
 	sprintf(suggested_url, "http://%s:%s/", my_utsname.nodename, http_port);
@@ -349,7 +378,6 @@ void install_init_scripts(void)
 		"requests?\n\nYou can use the standard port (443) if you are "
 		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
-	sprintf(https_port, "443");
 	set_value(question, https_port);
 #endif
 
