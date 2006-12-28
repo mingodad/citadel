@@ -1,3 +1,10 @@
+citadel (7.02-1) unstable; urgency=low
+	
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 28 Dec 2006 22:10:00 +0100
+	
+
 citadel (7.01-2) stable; urgency=high
 	
   * we can now configure logintype on installation time.

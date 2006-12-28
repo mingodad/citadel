@@ -1,5 +1,7 @@
 #!/bin/bash
 # find out the package version from conf
+./bootstrap
+
 export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;CITADEL;"`
 
 PACKAGE_VERSION=`cat packageversion`
@@ -29,7 +31,6 @@ else
 	fi
 	
 fi
-./bootstrap
 
 
 case $1 in
