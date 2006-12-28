@@ -63,7 +63,7 @@ void init_ssl(void)
 	if (!SSLCritters) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		/* Nothing's been initialized, just die */
-		exit(1);
+		exit(WC_EXIT_SSL);
 	} else {
 		int a;
 
@@ -73,7 +73,7 @@ void init_ssl(void)
 				lprintf(1,
 					"citserver: can't allocate memory!!\n");
 				/** Nothing's been initialized, just die */
-				exit(1);
+				exit(WC_EXIT_SSL);
 			}
 			pthread_mutex_init(SSLCritters[a], NULL);
 		}

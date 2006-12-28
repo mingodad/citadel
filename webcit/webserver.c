@@ -86,14 +86,14 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	if (port_number == 0) {
 		lprintf(1, "Cannot start: no port number specified.\n");
-		exit(1);
+		exit(WC_EXIT_BIND);
 	}
 	sin.sin_port = htons((u_short) port_number);
 
 	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
 	if (s < 0) {
 		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 	/** Set some socket options that make sense. */
 	i = 1;
@@ -101,11 +101,11 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "Can't listen: %s\n", strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 	return (s);
 }
@@ -131,7 +131,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if (i != 0) if (errno != ENOENT) {
 		lprintf(1, "citserver: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -142,19 +142,19 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if (s < 0) {
 		lprintf(1, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		lprintf(1, "citserver: Can't bind: %s\n",
 			strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n",
 			strerror(errno));
-		exit(errno);
+		exit(WC_EXIT_BIND);
 	}
 
 	chmod(sockpath, 0777);
@@ -482,10 +482,12 @@ void start_daemon(int do_close_stdio, char *pid_file)
 
 	child = fork();
 	if (child != 0) {
-		fp = fopen(pid_file, "w");
-		if (fp != NULL) {
-			fprintf(fp, "%d\n", child);
-			fclose(fp);
+		if (pid_file) {
+			fp = fopen(pid_file, "w");
+			if (fp != NULL) {
+				fprintf(fp, "%d\n", child);
+				fclose(fp);
+			}
 		}
 		exit(0);
 	}
@@ -547,7 +549,9 @@ void start_daemon(int do_close_stdio, char *pid_file)
 
 	} while (do_restart);
 
-	unlink(pid_file);
+	if (pid_file) {
+		unlink(pid_file);
+	}
 	exit(WEXITSTATUS(status));
 }
 
@@ -606,7 +610,7 @@ int main(int argc, char **argv)
 	int home_specified=0;
 	char relhome[PATH_MAX]="";
 	char webcitdir[PATH_MAX] = DATADIR;
-	char pidfile[PATH_MAX] = "";
+	char *pidfile = NULL;
 	char *hdir;
 	const char *basedir;
 #ifdef ENABLE_NLS
@@ -619,9 +623,9 @@ int main(int argc, char **argv)
 
 	/** Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:x:d:cfs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cfs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:x:d:cf")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cf")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -637,8 +641,10 @@ int main(int argc, char **argv)
 			home=1;
 			break;
 		case 'd':
-			hdir = strdup(optarg);
-			safestrncpy(pidfile, hdir,sizeof pidfile);
+			running_as_daemon = 1;
+			break;
+		case 'D':
+			pidfile = strdup(optarg);
 			running_as_daemon = 1;
 			break;
 		case 'i':
