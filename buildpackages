@@ -21,7 +21,7 @@ else
 	if test "$done" = "false"; then 
 		cd ..
 		mv -- $SYMLINK "webcit-$WEBCIT_VERSION"
-		ln -s "webcit-$WEBCIT_VERSION" webcit
+		ln -sf "webcit-$WEBCIT_VERSION" webcit
 		cd "webcit-$WEBCIT_VERSION"
 	else
 		cd "../webcit-$WEBCIT_VERSION"

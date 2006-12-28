@@ -1,3 +1,9 @@
+webcit (7.02-2) unstable; urgency=low
+	
+  * update to actual Webcit SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 28 Dec 2006 21:09:00 +0100
+	
 webcit (7.00-2) unstable; urgency=low
 	
   * update to actual Webcit SVN. many new features. see Packages changelog.
