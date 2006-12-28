@@ -1,6 +1,6 @@
 Template: citadel/WebcitHttpPort
 Type: string
-Default: 2020
+Default: 8504
 Description: Webcit HTTP Port
   Select the Port, which the plain HTTP webcit server should listen on. -1 to disable.
 

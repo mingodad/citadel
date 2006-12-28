@@ -48,7 +48,11 @@ case $1 in
 			mv /tmp/webcit_changelog debian/changelog
 			
 		fi
-		fakeroot dpkg-buildpackage
+		if test "$2" == "src"; then
+		    cd ..; dpkg-source -b "webcit-$WEBCIT_VERSION"
+		else
+		    fakeroot dpkg-buildpackage
+		fi
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "
