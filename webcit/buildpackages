@@ -1,4 +1,5 @@
 #!/bin/bash
+./bootstrap
 export WEBCIT_`grep VERSION= configure.in |sed -e "s;';;g"`
 
 PACKAGE_VERSION=`cat packageversion`
@@ -28,7 +29,6 @@ else
 	fi
 	
 fi
-./bootstrap
 case $1 in
 	debian)
 		cat debian/files_preview | sed \
