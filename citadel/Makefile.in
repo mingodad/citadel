@@ -205,120 +205,120 @@ upgrade: install-exec install-doc
 install-data:
 	@for i in help messages network/spoolin network/spoolout \
 		 network/systems; do \
-		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
 	@for i in citadel.rc public_clients \
 		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 	done
-	-@if test -d $(root)/etc/pam.d; then \
-		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
-		$(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
+	-@if test -d $(DESTDIR)/etc/pam.d; then \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
 	fi
 
 install-data-new:
 	@for i in network/spoolin network/spoolout network/systems; do \
-		$(srcdir)/mkinstalldirs $(root)$(RUN_DIR)/$$i; \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(RUN_DIR)/$$i; \
 	done
-	$(srcdir)/mkinstalldirs $(root)$(ETC_DIR)/
-	$(INSTALL_DATA) $(srcdir)/public_clients $(root)$(ETC_DIR)/public_clients
-	$(INSTALL_DATA) $(srcdir)/citadel.rc $(root)$(ETC_DIR)/citadel.rc
-	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(root)$(ETC_DIR)/mail.aliases$
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/
+	$(INSTALL_DATA) $(srcdir)/public_clients $(DESTDIR)$(ETC_DIR)/public_clients
+	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
+	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
 
-	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/help
-	$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/messages
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/help
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/messages
 	@for i in  \
 		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(DATA_DIR)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DATA_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(DATA_DIR)/$$i; \
 	done
-	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/spoolin
-	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/spoolout
-	$(srcdir)/mkinstalldirs $(root)$(SPOOL_DIR)/network/systems
-	-@if test -d $(root)/etc/pam.d; then \
-		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
-		$(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolin
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolout
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/systems
+	-@if test -d $(DESTDIR)/etc/pam.d; then \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
 	fi
 	@for i in bio bitbucket files images info userpics; do \
-		$(srcdir)/mkinstalldirs $(root)$(DATA_DIR)/$$i; \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/$$i; \
 	done
 
 install-doc:
-	@$(srcdir)/mkinstalldirs $(root)$(prefix)/docs
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/docs
 	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 	done
-	@$(srcdir)/mkinstalldirs $(root)$(prefix)/techdoc
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/techdoc
 	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 	done
-	echo $(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
-	$(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
+	echo $(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
+	$(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
 
 install-doc-new:
-	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/docs
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR)/docs
 	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
 	done
-	@$(srcdir)/mkinstalldirs $(root)$(DOC_DIR)/techdoc
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR)/techdoc
 	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
-		$(INSTALL_DATA) $$i $(root)$(DOC_DIR)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
 	done
-	$(INSTALL_DATA) README.txt $(root)$(DOC_DIR)/README.txt
+	$(INSTALL_DATA) README.txt $(DESTDIR)$(DOC_DIR)/README.txt
 
 install-exec: all
 	@for i in bio bitbucket files images info userpics; do \
-		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
 	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS); do \
 		if test -f $$i; then \
-			echo $(INSTALL) $$i $(root)$(prefix)/$$i; \
-			$(INSTALL) $$i $(root)$(prefix)/$$i; \
+			echo $(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
 	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
 		if test -f $(srcdir)/$$i; then \
-			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
-			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
+			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
-	@if test x`find $(root)$(prefix)/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
-		echo chmod u+s $(root)$(prefix)/chkpwd; \
-		chmod u+s $(root)$(prefix)/chkpwd; \
+	@if test x`find $(DESTDIR)$(prefix)/chkpwd -user root` = x$(DESTDIR)$(prefix)/chkpwd; then \
+		echo chmod u+s $(DESTDIR)$(prefix)/chkpwd; \
+		chmod u+s $(DESTDIR)$(prefix)/chkpwd; \
 	fi
 
 install-exec-new: all
-	$(srcdir)/mkinstalldirs $(root)/usr/sbin; 
-	$(srcdir)/mkinstalldirs $(root)/usr/bin; 
-	$(srcdir)/mkinstalldirs $(root)$(DOC_DIR); 
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/sbin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR); 
 	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS); do \
 		if test -f $$i; then \
-			echo $(INSTALL) $$i $(root)/usr/sbin/$$i; \
-			$(INSTALL) $$i $(root)/usr/sbin/$$i; \
+			echo $(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
 		fi \
 	done
 
-	$(INSTALL) citmail $(root)/usr/sbin/sendmail;
+	$(INSTALL) citmail $(DESTDIR)/usr/sbin/sendmail;
 	@for i in $(CLIENT_TARGETS); do \
 		if test -f $$i; then \
-			echo $(INSTALL) $$i $(root)/usr/bin/$$i; \
-			$(INSTALL) $$i $(root)/usr/bin/$$i; \
+			echo $(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
 		fi \
 	done
 	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
 		if test -f $(srcdir)/$$i; then \
-			echo $(INSTALL) $(srcdir)/$$i $(root)$(DOC_DIR)/$$i; \
-			$(INSTALL) $(srcdir)/$$i $(root)$(DOC_DIR)/$$i; \
+			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
 		fi \
 	done
-	@if test x`find $(root)/usr/sbin/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
-		echo chmod u+s $(root)/usr/sbin/chkpwd; \
-		chmod u+s $(root)usr/sbin/chkpwd; \
+	@if test x`find $(DESTDIR)/usr/sbin/chkpwd -user root` = x$(DESTDIR)$(prefix)/chkpwd; then \
+		echo chmod u+s $(DESTDIR)/usr/sbin/chkpwd; \
+		chmod u+s $(DESTDIR)usr/sbin/chkpwd; \
 	fi
 
 clean:
