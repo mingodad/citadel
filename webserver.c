@@ -465,7 +465,7 @@ void graceful_shutdown(int signum) {
 /*
  * Start running as a daemon.
  */
-void start_daemon(int do_close_stdio, char *pid_file) 
+void start_daemon(char *pid_file) 
 {
 	int status = 0;
 	pid_t child = 0;
@@ -498,15 +498,13 @@ void start_daemon(int do_close_stdio, char *pid_file)
 
 	setsid();
 	umask(0);
-	if (do_close_stdio) {
-		freopen("/dev/null", "r", stdin);
-		freopen("/dev/null", "w", stdout);
-		freopen("/dev/null", "w", stderr);
-	}
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
+
 	do {
 		current_child = fork();
 
-		signal(SIGTERM, graceful_shutdown);
 	
 		if (current_child < 0) {
 			perror("fork");
@@ -514,10 +512,12 @@ void start_daemon(int do_close_stdio, char *pid_file)
 		}
 	
 		else if (current_child == 0) {
+			signal(SIGTERM, graceful_shutdown);
 			return; /* continue starting citadel. */
 		}
 	
 		else {
+			signal(SIGTERM, SIG_IGN);
 			waitpid(current_child, &status, 0);
 		}
 
@@ -706,7 +706,7 @@ int main(int argc, char **argv)
 
 	/* daemonize, if we were asked to */
 	if (running_as_daemon) {
-		start_daemon(0, pidfile);
+		start_daemon(pidfile);
 	}
 
 	/** Tell 'em who's in da house */
