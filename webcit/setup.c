@@ -421,7 +421,6 @@ void install_init_scripts(void)
 	fprintf(fp,	"CTDL_HOSTNAME=%s\n", hostname);
 	fprintf(fp,	"CTDL_PORTNAME=%s\n", portname);
 	fprintf(fp,	"\n"
-			"test -d /var/run || exit 0\n"
 			"\n"
 			"case \"$1\" in\n"
 			"\n"
