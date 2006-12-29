@@ -137,7 +137,8 @@ void title(char *text)
 
 
 
-int yesno(char *question)
+
+int yesno(char *question, int default_value)
 {
 	int i = 0;
 	int answer = 0;
@@ -147,10 +148,15 @@ int yesno(char *question)
 
 	case UI_TEXT:
 		do {
-			printf("%s\nYes/No --> ", question);
+			printf("%s\nYes/No [%s] --> ",
+				question,
+				( default_value ? "Yes" : "No" )
+			);
 			fgets(buf, sizeof buf, stdin);
 			answer = tolower(buf[0]);
-			if (answer == 'y')
+			if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
+				answer = default_value;
+			else if (answer == 'y')
 				answer = 1;
 			else if (answer == 'n')
 				answer = 0;
@@ -158,8 +164,9 @@ int yesno(char *question)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s --yesno '%s' 10 72",
+		sprintf(buf, "exec %s %s --yesno '%s' 15 75",
 			getenv("CTDL_DIALOG"),
+			( default_value ? "" : "--defaultno" ),
 			question);
 		i = system(buf);
 		if (i == 0) {
@@ -173,6 +180,9 @@ int yesno(char *question)
 	}
 	return (answer);
 }
+
+
+
 
 void set_value(char *prompt, char str[])
 {
@@ -331,14 +341,16 @@ void install_init_scripts(void)
 	snprintf(question, sizeof question,
 		"Would you like to automatically start WebCit at boot?"
 	);
-	if (yesno(question) == 0)
+	if (yesno(question, 1) == 0)
 		return;
 
-	/* Default port numbers */
+	/* Defaults */
 	sprintf(http_port, "2000");
 #ifdef HAVE_OPENSSL
 	sprintf(https_port, "443");
 #endif
+	sprintf(hostname, "uds");
+	sprintf(portname, "/usr/local/citadel");
 
 	/* This is a very hackish way of learning the port numbers used
 	 * in a previous install, if we are upgrading: read them out of
@@ -358,6 +370,12 @@ void install_init_scripts(void)
 				safestrncpy(https_port, &buf[11], sizeof https_port);
 			}
 #endif
+			if (!strncasecmp(buf, "CTDL_HOSTNAME=", 14)) {
+				safestrncpy(hostname, &buf[14], sizeof hostname);
+			}
+			if (!strncasecmp(buf, "CTDL_PORTNAME=", 14)) {
+				safestrncpy(portname, &buf[14], sizeof portname);
+			}
 		}
 		fclose(fp);
 	}
@@ -389,14 +407,14 @@ void install_init_scripts(void)
 	else {
 		snprintf(question, sizeof question,
 			"Is the Citadel service running on the same host as WebCit?");
-		if (yesno(question)) {
-			sprintf(hostname, "uds");
-			sprintf(portname, "/usr/local/citadel");
+		if (yesno(question, ((!strcasecmp(hostname, "uds")) ? 1 : 0))) {
+			strcpy(hostname, "uds");
+			if (atoi(portname) != 0) strcpy(portname, "/usr/local/citadel");
 			set_value("In what directory is Citadel installed?", portname);
 		}
 		else {
-			sprintf(hostname, "127.0.0.1");
-			sprintf(portname, "504");
+			if (!strcasecmp(hostname, "uds")) strcpy(hostname, "127.0.0.1");
+			if (atoi(portname) == 0) strcpy(portname, "504");
 			set_value("Enter the host name or IP address of your "
 				"Citadel server.", hostname);
 			set_value("Enter the port number on which Citadel is "
