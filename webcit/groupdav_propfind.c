@@ -310,7 +310,7 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 		);
 
 		wprintf("<response>");
-
+		
 		wprintf("<href>");
 		groupdav_identify_host();
 		wprintf("/groupdav/");
@@ -419,6 +419,17 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 					euid_escapize(encoded_uid, uid);
 					wprintf("/%s", encoded_uid);
 				wprintf("</href>");
+				switch(WC->wc_default_view) {
+				case VIEW_CALENDAR:
+					wprintf("<getcontenttype>text/x-ical</getcontenttype>");
+					break;
+				case VIEW_TASKS:
+					wprintf("<getcontenttype>text/x-ical</getcontenttype>");
+					break;
+				case VIEW_ADDRESSBOOK:
+					wprintf("<getcontenttype>text/x-vcard</getcontenttype>");
+					break;
+				}
 				wprintf("<propstat>");
 					wprintf("<status>HTTP/1.1 200 OK</status>");
 					wprintf("<prop>");
