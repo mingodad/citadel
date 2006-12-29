@@ -1,6 +1,6 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          skeleton
+# Provides:          webcit
 # Required-Start:    $local_fs $remote_fs
 # Required-Stop:     $local_fs $remote_fs
 # Default-Start:     2 3 4 5
@@ -10,14 +10,7 @@
 #                    placed in /etc/init.d.
 ### END INIT INFO
 
-# Author: Foo Bar <foobar@baz.org>
-#
-# Please remove the "Author" lines above and replace them
-# with your own name if you copy and modify this script.
-
-# Do NOT "set -e"
-
-# PATH should only include /usr/* if it runs after the mountnfs.sh script
+# Author: Wilfried Goesgens <citadel@outgesourced.org>
 RUNDIR=/var/run/webcit
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Citadel Groupware Webserver "
@@ -89,7 +82,7 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	if $DAEMON -d$PIDFILE.$1 \
+	if $DAEMON -D$PIDFILE.$1 \
 	    -p$@ -t$LOGDIR/access.${1}.log ; then
 	    return 0
 	else
