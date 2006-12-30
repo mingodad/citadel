@@ -328,6 +328,34 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
     }
 }
 
+/*
+ * if we send out non ascii subjects, we encode it this way.
+ */
+char *rfc2047encode(char *line, long length)
+{
+	char *AlreadyEncoded;
+	char *result;
+	long end;
+#define UTF8_HEADER "=?UTF-8?B?"
+
+	/* check if we're already done */
+	AlreadyEncoded = strstr(line, "=?");
+	if ((AlreadyEncoded != NULL) &&
+	    ((strstr(AlreadyEncoded, "?B?") != NULL)||
+	     (strstr(AlreadyEncoded, "?Q?") != NULL)))
+	{
+		return strdup(line);
+	}
+
+	result = (char*) malloc(strlen(UTF8_HEADER) + 4 + length * 2);
+	strncpy (result, UTF8_HEADER, strlen (UTF8_HEADER));
+	CtdlEncodeBase64(result + strlen(UTF8_HEADER), line, length);
+	end = strlen (result);
+        result[end]='?';
+	result[end+1]='=';
+	result[end+2]='\0';
+	return result;
+}
 
 
 /*

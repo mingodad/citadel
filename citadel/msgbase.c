@@ -2933,9 +2933,24 @@ struct CtdlMessage *CtdlMakeMessage(
 	}
 
 	if (subject != NULL) {
+		long length;
 		striplt(subject);
-		if (strlen(subject) > 0) {
-			msg->cm_fields['U'] = strdup(subject);
+		length = strlen(subject);
+		if (length > 0) {
+			long i;
+			long IsAscii;
+			IsAscii = -1;
+			i = 0;
+			while ((subject[i] != '\0') &&
+			       (IsAscii = isascii(subject[i]) != 0 ))
+				i++;
+			if (IsAscii != 0)
+				msg->cm_fields['U'] = strdup(subject);
+			else /* ok, we've got utf8 in the string. */
+			{
+				msg->cm_fields['U'] = rfc2047encode(subject, length);
+			}
+
 		}
 	}
 

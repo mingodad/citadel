@@ -310,7 +310,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	reply_message_text = malloc(strlen(serialized_reply) + SIZ);
 	if (reply_message_text != NULL) {
 		sprintf(reply_message_text,
-			"Content-type: text/calendar\r\n\r\n%s\r\n",
+			"Content-type: text/calendar charset=\"utf-8\"\r\n\r\n%s\r\n",
 			serialized_reply
 		);
 

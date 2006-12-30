@@ -33,3 +33,4 @@ char *ascmonths[12];
 void generate_uuid(char *buf);
 char *bmstrcasestr(char *text, char *pattern);
 void CtdlMakeTempFileName(char *name, int len);
+char *rfc2047encode(char *line, long length);
