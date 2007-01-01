@@ -1,7 +1,7 @@
                         WEBCIT for the Citadel System
                                version 7.02
  
-   Copyright (C) 1996-2006 by the authors.  Portions written by:
+   Copyright (C) 1996-2007 by the authors.  Portions written by:
 	Art Cancro
 	Nathan Bryant
 	Alessandro Fulciniti
@@ -39,7 +39,7 @@
  INTRODUCTION
  ------------
  
- Citadel is a sophisticated groupware and BBS package which allows multiple
+ Citadel is a sophisticated groupware platform which allows multiple
 users to simultaneously access the system using a variety of user interfaces.
 This package (WebCit) is a "middleware" package which presents an HTML/HTTP
 user interface to the Citadel system.
