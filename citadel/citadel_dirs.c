@@ -105,6 +105,8 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 #endif
 	COMPUTE_DIRECTORY(ctdl_netcfg_dir);
 	COMPUTE_DIRECTORY(ctdl_etc_dir);
+	COMPUTE_DIRECTORY(ctdl_hlp_dir);
+	COMPUTE_DIRECTORY(ctdl_message_dir);
 
 #ifndef HAVE_RUN_DIR
 	basedir=ctdldir;
@@ -122,10 +124,8 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	COMPUTE_DIRECTORY(ctdl_bb_dir);
 	COMPUTE_DIRECTORY(ctdl_data_dir);
 	COMPUTE_DIRECTORY(ctdl_file_dir);
-	COMPUTE_DIRECTORY(ctdl_hlp_dir);
 	COMPUTE_DIRECTORY(ctdl_image_dir);
 	COMPUTE_DIRECTORY(ctdl_info_dir);
-	COMPUTE_DIRECTORY(ctdl_message_dir);
 	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
 	COMPUTE_DIRECTORY(ctdl_bbsbase_dir);
 #ifndef HAVE_SPOOL_DIR

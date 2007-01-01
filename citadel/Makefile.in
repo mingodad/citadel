@@ -230,8 +230,8 @@ install-data-new:
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/messages
 	@for i in  \
 		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DATA_DIR)/$$i; \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(DATA_DIR)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(ETC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(ETC_DIR)/$$i; \
 	done
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolin
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolout
