@@ -711,7 +711,7 @@ int main(int argc, char **argv)
 
 	/** Tell 'em who's in da house */
 	lprintf(1, SERVER "\n");
-	lprintf(1, "Copyright (C) 1996-2006 by the Citadel development team.\n"
+	lprintf(1, "Copyright (C) 1996-2007 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
 		"GNU General Public License.\n\n"
 	);
