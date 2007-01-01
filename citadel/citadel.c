@@ -992,7 +992,7 @@ void system_info(CtdlIPC *ipc)
     scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
     scr_printf("Server uptime: %s\n", mrtg_server_uptime);
     scr_printf("Your system administrator is %s.\n", ipc->ServInfo.sysadm);
-    scr_printf("Copyright (C)1987-2006 by the Citadel development team\n");
+    scr_printf("Copyright (C)1987-2007 by the Citadel development team\n");
 }
 
 /*
