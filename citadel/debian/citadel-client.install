@@ -1,3 +1,4 @@
 debian/tmp/usr/bin/citadel
 debian/tmp/usr/bin/whobbs
 debian/tmp/usr/bin/stress
+debian/tmp/etc/citadel/citadel.rc

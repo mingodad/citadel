@@ -7,4 +7,7 @@ debian/tmp/usr/sbin/sendcommand
 debian/tmp/usr/sbin/base64
 debian/tmp/usr/lib/citadel-server/setup
 debian/tmp/usr/sbin/chkpwd
-
+debian/tmp/etc/citadel/mail.aliases
+debian/tmp/etc/citadel/public_clients
+debian/tmp/etc/citadel/messages/
+debian/tmp/etc/citadel/help/

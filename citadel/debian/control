@@ -1,54 +1,115 @@
 Source: citadel
 Section: mail
-Priority: optional
-Maintainer: Wilfried Goesgens <w.goesgens@chaosindutries.de>
-Build-Depends: debhelper (>= 4.0.0), libical-dev, autotools-dev, zlib1g-dev , libssl-dev, libncurses5-dev, libdb4.4-dev|libdb4.3-dev, libldap2-dev, bison, libpam0g-dev, libsieve2-dev
-Standards-Version: 3.6.1
+Priority: extra
+Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
+Uploaders: Fathi Boudra <fboudra@free.fr>
+Build-Depends: debhelper (>= 4.0.0), bison, autotools-dev, 
+ libdb4.4-dev|libdb4.3-dev, libical-dev, zlib1g-dev,
+ libssl-dev, libncurses5-dev, libldap2-dev,  libpam0g-dev, 
+ libsieve2-dev
+Standards-Version: 3.7.2.2
 
 Package: citadel-server
 Architecture: any
-Pre-Depends: debconf
 Provides: pop3-server, imap-server
 Conflicts: pop3-server, imap-server
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, libical0, libgnutls | libgnutls11, ucf, db4.4-util|db4.3-util
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf 
+Recommends: db4.4-util|db4.3-util
 Suggests: citadel-mta
-Description: Citadel is the good old BBS system grown up to a Groupware.
- Citadel is a different kind of messaging and collaboration platform. While 
- others focus on automating business processes, Citadel focuses on 
- connecting communities of people together. Users love Citadel because it's 
- software that helps them work, play, stay in touch... without calling 
- attention to itself.
-
-Package: citadel-doc
-Architecture: all
-Description: Documentation for citadel, the BBS and Groupware
- Citadel is a different kind of messaging and collaboration platform. While 
- others focus on automating business processes, Citadel focuses on 
- connecting communities of people together. Users love Citadel because it's 
- software that helps them work, play, stay in touch... without calling 
- attention to itself.
-
-Package: citadel-client
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ucf
-Description: This is the commandline-client to the citadel BBS system.
- Citadel is a different kind of messaging and collaboration platform. While 
- others focus on automating business processes, Citadel focuses on 
- connecting communities of people together. Users love Citadel because it's 
- software that helps them work, play, stay in touch... without calling 
- attention to itself.
+Description: complete and feature-rich groupware server
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ The key to Citadel's versatility is its unique architecture. A Citadel system
+ is made up of containers called "rooms." A room may be used as an email
+ folder, a discussion forum, a real-time chat, a mailing list, a calendar,
+ an address book, an RSS sink ... sometimes a combination of any of the above,
+ and certainly any other uses which could be added in the future. Furthermore,
+ you can replicate rooms between multiple Citadel nodes, allowing you to set up
+ a federated, distributed messaging environment.
+ . 
+ With that in mind, Citadel excels at applications such as:
+  * E-mail and groupware (shared calendaring, etc.)
+  * Bulletin Board System (BBS)
+  * Online discussion forums / chat rooms
+ .
+ The Citadel system is extremely versatile. It provides numerous front ends to
+ present to users, such as a text-based interface, an AJAX-style web interface,
+ and many popular PIM clients using SMTP/POP/IMAP. All of these can be used
+ simultaneously.
+ .
+ It's also extremely scalable. Not only can a well-equipped Citadel server
+ support a large number of concurrent users, but you can also build
+ a distributed network of Citadel nodes that share rooms and their content.
+ .
+ Features:
+  * Email, calendaring, address books, bulletin boards, instant messaging, and
+    more ... all in one tightly integrated server package. Unlike other
+    open source groupware systems, all of Citadel's data stores are built-in.
+    "Integrate-it-yourself" is a thing of the past.
+  * High-performance, multiprotocol, multithreaded server engine
+  * Web browser, telnet/SSH, local client software accessible
+  * Standards-compliant e-mail built in: IMAP, POP3, ESMTP
+  * Group calendaring and scheduling (GroupDAV, Aethera, and Kolab-1
+    compatible)
+  * Built-in listserv (mailing list server)
+  * Database-driven, single-instance message store
+  * Authenticated SMTP (no more tedious mucking about with POP-before-SMTP
+    hacks)
+  * Multiple domain support
+  * Built-in integration with perimiter email filtering technologies such as
+    Realtime Blackhole Lists (RBL's) and SpamAssassin 
+  * Very strong replication features. Users in any number of domains can be
+    spread out across any number of Citadel servers, allowing you to put data
+    where you need it, and enabling infinite horizontal scalability.
+  * Web-based access to email, calendars, and everything else through
+    a powerful AJAX-style front end
+  * Very strong support for "public folders" and message forums.
+  * Built-in instant messenger service
+  * SSL/TLS encryption for all protocols
+  * LDAP integration capabilities. Citadel can populate your existing directory
+    server, or it can configure a standalone directory server if you don't
+    already have one.
+ .
+  Homepage: http://www.citadel.org
 
 Package: citadel-mta
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server 
-Conflicts: mail-transport-agent, smail, postfix-dev, postfix-doc, postfix-gld, postfix-ldap, postfix-mysql, postfix-pcre, postfix-pgsql, postfix-policyd, postgrey
+Conflicts: mail-transport-agent
 Provides: mail-transport-agent
-Description: MTA component of the citadel BBS system.
- Citadel is a different kind of messaging and collaboration platform. While 
- others focus on automating business processes, Citadel focuses on 
- connecting communities of people together. Users love Citadel because it's 
- software that helps them work, play, stay in touch... without calling 
- attention to itself.
- This Package provides /usr/bin/sendmail, and the MTA Component. if you 
- want to use citadel in konjunction with another MTA system, don't install 
- this package.
+Description: complete and feature-rich groupware server (mail transport agent)
+ This package contains the mail transport agent component for Citadel,
+ a complete and feature-rich open source groupware platform.
+ If you want to use citadel in conjunction with another MTA system, don't 
+ install this package.
+ .
+ See the 'citadel-server' package for more informations.
+ .
+  Homepage: http://www.citadel.org
+
+Package: citadel-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Description: complete and feature-rich groupware server (command line client)
+ This is package contains the command line client for Citadel, a complete and
+ feature-rich open source groupware platform.
+ .
+ See the 'citadel-server' package for more informations.
+ .
+   Homepage: http://www.citadel.org
+
+
+Package: citadel-doc
+Section: doc
+Architecture: all
+Description: complete and feature-rich groupware server (documentation)
+ This package contains documentation for Citadel, a complete and feature-rich
+ open source groupware platform.
+ .
+ See the 'citadel-server' package for more informations.
+ .
+  Homepage: http://www.citadel.org

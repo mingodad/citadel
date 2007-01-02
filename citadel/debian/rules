@@ -1,15 +1,5 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-#
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
-#
-# Modified to make a template file for a multi-binary package with separated
-# build-arch and build-indep targets  by Bill Allombert 2001
-
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
@@ -44,6 +34,7 @@ config.status: configure
 		--with-libical \
 		--with-libsieve \
 		--with-db \
+		--with-zlib \
 		--with-ldap
 
 
@@ -52,16 +43,10 @@ build: build-arch build-indep
 
 build-arch: build-arch-stamp
 build-arch-stamp:  config.status
-
-#	# Add here commands to compile the arch part of the package.
-#	$(MAKE) 
 	touch build-arch-stamp
 
 build-indep: build-indep-stamp
 build-indep-stamp:  config.status
-
-#	# Add here commands to compile the indep part of the package.
-#	#$(MAKE) doc
 	touch build-indep-stamp
 
 clean:
@@ -75,8 +60,6 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
-
-
 	dh_clean 
 
 install: install-indep install-arch
@@ -100,46 +83,30 @@ install-arch:
 	mv \
 	 	$(CURDIR)/debian/tmp/usr/sbin/setup \
 	 	$(CURDIR)/debian/tmp/usr/lib/citadel-server/
-#	cd $(CURDIR)/debian/tmp/usr/share/doc/citadel-server/examples/help; md5sum * >../help.md5sums
-#	cd $(CURDIR)/debian/tmp/usr/share/doc/citadel-server/examples/messages; md5sum * >../messages.md5sums
 	cp \
 		$(CURDIR)/debian/tmp/usr/sbin/citmail \
 	 	$(CURDIR)/debian/tmp/usr/sbin/sendmail
-	dh_installexamples  
+
 	dh_install 
-# Must not depend on anything. This is to be called by
-# binary-arch/binary-indep
-# in another 'make' thread.
+
 binary-common:
 	dh_testdir
 	dh_testroot
-#	dh_installchangelogs ChangeLog
 	dh_installdocs
 	dh_installexamples
-#	dh_installmenu
 	dh_installdebconf	
-#	dh_installlogrotate	
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
 	dh_installinit  --name=citadel
-#	dh_installcron
-#	dh_installinfo
 	dh_installman
-#doesn't work like that. will be done by postinst.
-#	mkdir -p $(CURDIR)/debian/citadel-mta/usr/sbin
-#	dh_link --package=citadel-mta /usr/sbin/citmail /usr/sbin/sendmail
 	dh_strip
 	dh_compress 
 	dh_fixperms
-#	dh_perl
-#	dh_python
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
+
 # Build architecture independant packages using the common target.
 binary-indep: build-indep install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common

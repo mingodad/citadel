@@ -198,6 +198,8 @@ case "$1" in
 		    log_end_msg 1
 		    ;;
 	    esac
+	else
+	    do_start
 	fi
 	;;
   *)

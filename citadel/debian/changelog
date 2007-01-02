@@ -1,3 +1,59 @@
+citadel (7.02-2) unstable; urgency=low
+
+  * Initial Debian release
+  * Removed useless files:
+    * citadel-client.examples
+    * citadel-doc.docs
+    * citadel-mta.postrm
+    * citadel-server.1.manpage
+    * citadel-server.examples
+    * citadel-server.postrm.debhelper
+    * files_preview
+    * README.Debian
+  * citadel-client.install: merged with citadel-client.examples
+  * citadel-client.postinst:
+    * clean up
+    * removed ucf mechanisms
+    * add debhelper token
+  * citadel-doc.install : merged with citadel-doc.docs
+  * citadel-mta.postinst:
+    * clean up
+    * add debhelper token
+  * citadel-server.dirs:
+    * clean up
+    * add var/lib/citadel/data and var/run/citadel dir
+    * moved messages and help to /etc/citadel
+  * citadel-server.install: merged with citadel-server.examples
+  * citadel-server.postinst:
+    * clean up
+    * remove mkdir call as we create them with citadel-server.dirs
+    * remove loops as we don't use ucf here anymore.
+    * add debhelper token
+  * citadel-server.postrm:
+    * clean up; remove ucf
+    * add debhelper token
+  * citadel-server.prerm:
+    * clean up
+    * use invoke-rc.d
+    * add debhelper token
+  * citadel-server.templates: add po support
+  * compat: bumped to 5
+  * control:
+    * priority set to extra instead optional
+    * add myself in uploaders
+    * add po-debconf to Build-Depends
+    * bump Standards-Version to 3.7.2
+    * remove useless pre-depends on debconf
+    * rewrite descriptions
+    * add Replaces: mail-transport-agent to citadel-mta package
+  * copyright: complete rewrite
+  * docs: clean up
+  * rules:
+    * add explicit zlib extra configure option
+    * exclude citadel.rc, intro, nice, summary from compression
+
+ -- Fathi Boudra <fboudra@free.fr>  Fri, 29 Dec 2006 16:24:48 +0100
+
 citadel (7.02-1) unstable; urgency=low
 	
   * update to actual Citadel SVN. many new features. see Packages changelog.
