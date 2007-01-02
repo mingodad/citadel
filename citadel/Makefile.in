@@ -226,8 +226,8 @@ install-data-new:
 	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
 	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
 
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/help
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/messages
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/help
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/messages
 	@for i in  \
 		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(ETC_DIR)/$$i; \

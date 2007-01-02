@@ -38,10 +38,6 @@ case $1 in
 
 #dpkg-source: warning: source directory `./citadel' is not <sourcepackage>-<upstreamversion> `citadel-6.61'
 
-		cat debian/files_preview | sed \
-			-e "s;@CITADEL_VERSION@;${CITADEL_VERSION};" \
-			-e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
-			> debian/files
 		if grep -q "($CITADEL_VERSION" debian/changelog; then
 			echo rebuilding package.
 		else
