@@ -1,1 +1,0 @@
-shlibs:Depends=libc6 (>= 2.3.2.ds1-21), libdb4.2, libldap2 (>= 2.1.17-1), libncurses5 (>= 5.4-5), libssl0.9.7, zlib1g (>= 1:1.2.1)

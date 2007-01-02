@@ -11,3 +11,5 @@ debian/tmp/etc/citadel/mail.aliases
 debian/tmp/etc/citadel/public_clients
 debian/tmp/etc/citadel/messages/
 debian/tmp/etc/citadel/help/
+debian/tmp/usr/share/doc/citadel-doc/database_cleanup.sh
+

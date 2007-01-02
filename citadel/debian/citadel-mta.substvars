@@ -1,1 +1,0 @@
-shlibs:Depends=libc6 (>= 2.3.6-6), libncurses5 (>= 5.4-5), libssl0.9.8 (>= 0.9.8c-1)

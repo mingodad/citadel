@@ -4,9 +4,8 @@ Priority: extra
 Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
 Uploaders: Fathi Boudra <fboudra@free.fr>
 Build-Depends: debhelper (>= 4.0.0), bison, autotools-dev, 
- libdb4.4-dev|libdb4.3-dev, libical-dev, zlib1g-dev,
- libssl-dev, libncurses5-dev, libldap2-dev,  libpam0g-dev, 
- libsieve2-dev
+ libdb4.4-dev|libdb4.3-dev, libical-dev,  libssl-dev, 
+ libncurses5-dev, libldap2-dev,  libpam0g-dev, libsieve2-dev
 Standards-Version: 3.7.2.2
 
 Package: citadel-server

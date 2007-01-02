@@ -68,7 +68,7 @@ install-indep:
 	dh_testroot
 	dh_clean -k -i 
 	dh_installdirs -i
-	$(MAKE) -C . install DESTDIR="$(CURDIR)/debian/tmp" install-doc-new prefix=$(CURDIR)/debian/citadel-doc/
+	$(MAKE) -C . install-new DESTDIR="$(CURDIR)/debian/tmp" install-doc-new prefix=$(CURDIR)/debian/citadel-doc/
 
 
 install-arch:
@@ -77,7 +77,7 @@ install-arch:
 	dh_clean -k -s 
 	dh_installdirs -s
 	mkdir -p  $(CURDIR)/debian/tmp/
-	$(MAKE) -C . install DESTDIR="$(CURDIR)/debian/tmp/" install-exec-new install-data-new
+	$(MAKE) -C . install-new DESTDIR="$(CURDIR)/debian/tmp/" install-exec-new install-data-new
 
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/citadel-server
 	mv \
