@@ -190,7 +190,7 @@ void entregis(CtdlIPC *ipc)
 
 void updatels(CtdlIPC *ipc)
 {				/* make all messages old in current room */
-	char buf[SIZ];
+	char buf[256];
 	int r;				/* IPC response code */
 
 	if (rc_alt_semantics) {
@@ -216,7 +216,7 @@ void updatels(CtdlIPC *ipc)
  */
 void updatelsa(CtdlIPC *ipc)
 {
-	char buf[SIZ];
+	char buf[256];
 	int r;				/* IPC response code */
 
 	r = CtdlIPCSetLastRead(ipc, highest_msg_read, buf);
@@ -230,10 +230,10 @@ void updatelsa(CtdlIPC *ipc)
  */
 void cli_upload(CtdlIPC *ipc)
 {
-	char flnm[SIZ];
+	char flnm[PATH_MAX];
 	char desc[151];
-	char buf[SIZ];
-	char tbuf[SIZ];
+	char buf[256];
+	char tbuf[256];
 	int r;		/* IPC response code */
 	int a;
 	int fd;
@@ -282,8 +282,8 @@ void cli_upload(CtdlIPC *ipc)
  */
 void cli_image_upload(CtdlIPC *ipc, char *keyname)
 {
-	char flnm[SIZ];
-	char buf[SIZ];
+	char flnm[PATH_MAX];
+	char buf[256];
 	int r;
 
 	/* Can we upload this image? */
@@ -308,9 +308,9 @@ void cli_image_upload(CtdlIPC *ipc, char *keyname)
  */
 void upload(CtdlIPC *ipc, int c)
 {				/* c = upload mode */
-	char flnm[SIZ];
+	char flnm[PATH_MAX];
 	char desc[151];
-	char buf[SIZ];
+	char buf[256];
 	char tbuf[4096];
 	int xfer_pid;
 	int a, b;
@@ -413,8 +413,8 @@ void upload(CtdlIPC *ipc, int c)
 int val_user(CtdlIPC *ipc, char *user, int do_validate)
 {
 	int a;
-	char cmd[SIZ];
-	char buf[SIZ];
+	char cmd[256];
+	char buf[256];
 	char *resp = NULL;
 	int ax = 0;
 	char answer[2];
@@ -489,8 +489,8 @@ int val_user(CtdlIPC *ipc, char *user, int do_validate)
 
 void validate(CtdlIPC *ipc)
 {				/* validate new users */
-	char cmd[SIZ];
-	char buf[SIZ];
+	char cmd[256];
+	char buf[256];
 	int finished = 0;
 	int r;				/* IPC response code */
 
@@ -534,7 +534,7 @@ void subshell(void)
 void deletefile(CtdlIPC *ipc)
 {
 	char filename[32];
-	char buf[SIZ];
+	char buf[256];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
@@ -548,7 +548,7 @@ void deletefile(CtdlIPC *ipc)
  */
 void netsendfile(CtdlIPC *ipc)
 {
-	char filename[32], destsys[20], buf[SIZ];
+	char filename[32], destsys[20], buf[256];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
@@ -566,7 +566,7 @@ void movefile(CtdlIPC *ipc)
 {
 	char filename[64];
 	char newroom[ROOMNAMELEN];
-	char buf[SIZ];
+	char buf[256];
 
 	newprompt("Filename: ", filename, 63);
 	if (strlen(filename) == 0)
@@ -582,7 +582,7 @@ void movefile(CtdlIPC *ipc)
  */
 void list_bio(CtdlIPC *ipc)
 {
-	char buf[SIZ];
+	char buf[256];
 	char *resp = NULL;
 	int pos = 1;
 	int r;			/* IPC response code */
@@ -612,8 +612,8 @@ void list_bio(CtdlIPC *ipc)
  */
 void read_bio(CtdlIPC *ipc)
 {
-	char who[SIZ];
-	char buf[SIZ];
+	char who[256];
+	char buf[256];
 	char *resp = NULL;
 	int r;			/* IPC response code */
 
@@ -646,7 +646,7 @@ void do_system_configuration(CtdlIPC *ipc)
 
 #define NUM_CONFIGS 52
 
-	char buf[SIZ];
+	char buf[256];
 	char sc[NUM_CONFIGS][256];
 	char *resp = NULL;
 	struct ExpirePolicy *site_expirepolicy = NULL;
@@ -925,7 +925,7 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
  */
 void do_internet_configuration(CtdlIPC *ipc)
 {
-	char buf[SIZ];
+	char buf[256];
 	char *resp = NULL;
 	int num_recs = 0;
 	char **recs = NULL;
@@ -1045,9 +1045,9 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	pid_t editor_pid;
 	int cksum;
 	int b, i, tokens;
-	char buf[SIZ];
-	char instr[SIZ];
-	char addr[SIZ];
+	char buf[1024];
+	char instr[1024];
+	char addr[1024];
 	FILE *tempfp;
 	FILE *changefp;
 	char *listing = NULL;
