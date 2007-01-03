@@ -680,7 +680,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	message_text = malloc(strlen(serialized_event) + SIZ);
 	if (message_text != NULL) {
 		sprintf(message_text,
-			"Content-type: text/calendar\r\n\r\n%s\r\n",
+			"Content-type: text/calendar charset=\"utf-8\"\r\n\r\n%s\r\n",
 			serialized_event
 		);
 
