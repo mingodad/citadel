@@ -28,6 +28,7 @@ configure-stamp:
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/etc/citadel/www/ \
+		--with-localedir=/usr/share/locale \
 		--with-sysconfdir=/etc/citadel \
 		--with-spooldir=/var/spool/citadel \
 		--with-datadir=/etc/citadel \

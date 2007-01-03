@@ -18,7 +18,7 @@ top_builddir=`pwd`
 LIB_SUBDIRS=
 PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
-
+LOCALEDIR=@LOCALEDIR@
 # End of configuration section
 
 all: all-progs-recursive webserver setup
@@ -65,10 +65,10 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(prefix)/locale\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(prefix)/locale\"  $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES="Makefile" CONFIG_HEADERS= $(SHELL) ./config.status
