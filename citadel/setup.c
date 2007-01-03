@@ -292,7 +292,6 @@ void check_services_entry(void)
 					fclose(sfp);
 				}
 			}
-			sleep(1);
 		}
 	}
 }
@@ -1242,24 +1241,19 @@ NEW_INST:
 
 	progress("Setting file permissions", 0, 4);
 	chown(".", config.c_ctdluid, gid);
-	sleep(1);
 	progress("Setting file permissions", 1, 4);
 	chown(file_citadel_config, config.c_ctdluid, gid);
-	sleep(1);
 	progress("Setting file permissions", 2, 4);
 
 	snprintf(aaa, sizeof aaa,
 			 "%schkpwd",
 			 ctdl_sbin_dir);
 	chown(aaa,0,0); /*  config.c_ctdluid, gid); chkpwd needs to be root owned*/
-	sleep(1);
 	progress("Setting file permissions", 3, 4);
 	chmod(aaa, 04755); 
 
-	sleep(1);
 	progress("Setting file permissions", 3, 4);
 	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
-	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
 	/* 
