@@ -27,6 +27,8 @@ AC_ARG_WITH(ssl,
 		fi
 	]
 )
+
+
 dnl Set some system-specific variables which are OK to set before compiler
 dnl checks:
 PTHREAD_DEFS=-D_REENTRANT
@@ -340,6 +342,21 @@ else
 fi
 
 AC_SUBST(SETUP_LIBS)
+
+dnl where to make webcit search its mo's?
+if test "$prefix" = "NONE"; then
+	LOCALEDIR="$ac_default_prefix/locale/"
+else
+	LOCALEDIR="$prefix/locale/"
+fi
+AC_ARG_WITH(localedir, 
+		    [  --with-locale          directory where to find our mo's],
+			[ if test "x$withval" != "xno" ; then
+				LOCALEDIR="$withval/"
+			  fi
+			]
+)
+AC_SUBST(LOCALEDIR)
 
 AC_OUTPUT(Makefile po/Makefile )
 
