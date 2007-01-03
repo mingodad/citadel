@@ -9,6 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+DESTDIR=$(CURDIR)/debian/citadel-webcit/
 
 
 
@@ -26,10 +27,10 @@ configure-stamp:
 	CFLAGS="$(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
-		--prefix=/var/lib/citadel/www/ \
+		--prefix=/etc/citadel/www/ \
 		--with-sysconfdir=/etc/citadel \
 		--with-spooldir=/var/spool/citadel \
-		--with-datadir=/var/lib/citadel \
+		--with-datadir=/etc/citadel \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
 		--with-zlib --with-ssl --with-libiconf \
@@ -66,26 +67,19 @@ install: build
 	dh_installdirs
 
 # Add here commands to install the package into debian/webcit.
-	root=$(CURDIR)/debian/webcit/
-	mkdir -p $(CURDIR)/debian/webcit/var/lib/citadel/www/
-	export root=$(CURDIR)/debian/webcit; $(MAKE) install DESTDIR=$(CURDIR)/debian/webcit/
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/contrib
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/sbin
-	mkdir -p $(CURDIR)/debian/citadel-webcit/usr/lib/citadel-webcit/ 
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/static \
-		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/tiny_mce \
-		$(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/
-# locale -> /usr/share/locale
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/locale \
-		$(CURDIR)/debian/citadel-webcit/usr/share/locale
-	cd $(CURDIR)/debian/citadel-webcit/usr/share/doc/citadel-webcit/examples/; \
-				md5sum `find -type f |grep -v md5sums `>md5sums; 
+	$(MAKE) -C . install DESTDIR=$(DESTDIR)
+# there are debian tinymce packages arround, so we don't ship it another time.
+	rm -rf $(DESTDIR)/etc/citadel/www/tiny_mce 
 # we don't use the setup anymore, omit it.
-	rm -f $(CURDIR)/debian/webcit/var/lib/citadel/www/setup
-	mv $(CURDIR)/debian/webcit/var/lib/citadel/www/webserver \
-		$(CURDIR)/debian/citadel-webcit/usr/sbin/
+	rm -f $(DESTDIR)/etc/citadel/www/setup
+# locale -> /usr/share/locale
+	mkdir -p $(DESTDIR)/usr/share/
+	mv $(DESTDIR)/etc/citadel/www/locale \
+		$(DESTDIR)/usr/share/locale
+
+	mkdir -p $(DESTDIR)/usr/sbin
+	mv $(DESTDIR)/etc/citadel/www/webserver \
+		$(DESTDIR)/usr/sbin/
 
 
 # Build architecture-independent files here.

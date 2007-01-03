@@ -80,15 +80,15 @@ $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && $(AUTOCONF)
 
 install:
-	test -d $(root)$(prefix) || mkdir $(root)$(prefix)
-	test -d $(root)$(prefix)/static || mkdir $(root)$(prefix)/static
+	test -d $(DESTDIR)$(prefix) || mkdir $(DESTDIR)$(prefix)
+	test -d $(DESTDIR)$(prefix)/static || mkdir $(DESTDIR)$(prefix)/static
 	for i in `find tiny_mce -type d | grep -v .svn` \
 		; do \
-		test -d $(root)$(prefix)/$$i || mkdir $(root)$(prefix)/$$i; \
+		test -d $(DESTDIR)$(prefix)/$$i || mkdir $(DESTDIR)$(prefix)/$$i; \
 	done
 	for i in `find locale -type d | grep -v .svn` \
 		; do \
-		test -d $(root)$(prefix)/$$i || mkdir $(root)$(prefix)/$$i; \
+		test -d $(DESTDIR)$(prefix)/$$i || mkdir $(DESTDIR)$(prefix)/$$i; \
 	done
 	for i in \
 		webserver \
@@ -97,7 +97,7 @@ install:
 		`find tiny_mce -type f | grep -v .svn` \
 		`find locale -type f | grep -v .svn` \
 		; do \
-		$(INSTALL) $$i $(root)$(prefix)/$$i; \
+		$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 	done
 
 TAGS clean-recursive distclean-recursive depend-recursive check-recursive \
