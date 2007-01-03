@@ -1,7 +1,5 @@
 #! /bin/sh
-. /usr/share/debconf/confmodule
 set -e
-
 . /usr/share/debconf/confmodule
 db_version 2.0
 
@@ -9,9 +7,6 @@ case "$1" in
   remove)
     ;;
   purge)
-	rmdir "/etc/citadel/help"
-	rmdir "/etc/citadel/messages"
-
 	echo "/var/lib/citadel/data not removed, as it may contain your personal data."
 	db_purge
 	db_go

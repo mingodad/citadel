@@ -10,7 +10,7 @@ Standards-Version: 3.7.2.2
 
 Package: citadel-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser 
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Recommends: db4.4-util | db4.3-util
 Suggests: citadel-mta
 Conflicts: pop3-server, imap-server
@@ -77,14 +77,13 @@ Description: complete and feature-rich groupware server
 
 Package: citadel-mta
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server 
+Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server (= ${Source-Version})
 Conflicts: mail-transport-agent
 Provides: mail-transport-agent
+Replaces: mail-transport-agent
 Description: complete and feature-rich groupware server (mail transport agent)
  This package contains the mail transport agent component for Citadel,
  a complete and feature-rich open source groupware platform.
- If you want to use citadel in conjunction with another MTA system, don't 
- install this package.
  .
  See the 'citadel-server' package for more informations.
  .

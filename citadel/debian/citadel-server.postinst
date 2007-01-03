@@ -7,6 +7,7 @@ set -e
 # Use debconf.
 . /usr/share/debconf/confmodule
 
+db_version 2.0
 
 case "$1" in
   configure)
@@ -18,11 +19,10 @@ case "$1" in
 			--gecos "Citadel system user" --shell /bin/sh \
 			--disabled-password citadel
 	fi
-	mkdir -p /etc/citadel
-	chown citadel:citadel /etc/citadel
-
+	chown -R citadel:citadel /etc/citadel
 	chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
 
+# we're a bit paranoid here, because of this gave us many errors in the past.
         chown root:root /usr/sbin/chkpwd
         chmod 4755 /usr/sbin/chkpwd
 
