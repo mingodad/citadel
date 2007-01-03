@@ -406,7 +406,6 @@ void install_init_scripts(void)
 				setup_directory
 			);
 	fprintf(fp,	"\n"
-			"test -x $CITADEL_DIR/ctdlsvc || exit 0\n"
 			"test -d /var/run || exit 0\n"
 			"\n"
 			"case \"$1\" in\n"
