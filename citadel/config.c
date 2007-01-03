@@ -55,13 +55,13 @@ void get_config(void) {
 	}
 #ifndef __CYGWIN__
 	if (st.st_uid != CTDLUID) {
-		fprintf(stderr, "%s must be owned by uid=%d\n", file_citadel_config, CTDLUID);
+		fprintf(stderr, "%s must be owned by uid=%d but %d owns it!\n", file_citadel_config, CTDLUID, st.st_uid);
 		exit(CTDLEXIT_CONFIG);
 	}
 	int desired_mode = (S_IFREG | S_IRUSR | S_IWUSR) ;
 	if (st.st_mode != desired_mode) {
-		fprintf(stderr, "%s must be set to permissions mode %03o\n",
-			file_citadel_config, desired_mode);
+		fprintf(stderr, "%s must be set to permissions mode %03o but they are %03o\n",
+			file_citadel_config, desired_mode, st.st_mode);
 		exit(CTDLEXIT_CONFIG);
 	}
 #endif
