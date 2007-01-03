@@ -1,2 +1,2 @@
-debian/tmp/usr/share/doc/citadel-doc/docs
-debian/tmp/usr/share/doc/citadel-doc/techdoc
+usr/share/doc/citadel-doc/docs
+usr/share/doc/citadel-doc/techdoc

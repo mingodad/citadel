@@ -1,15 +1,9 @@
 #! /bin/sh
-# postinst.skeleton
-# Skeleton maintainer script showing all the possible cases.
-# Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
-
 # Abort if any command returns an error value
 set -e
 
 case "$1" in
   configure)
-    # Configure this package.  If the package must prompt the user for
-    # information, do it here.
     if ! getent group citadel >/dev/null; then 
 		groupadd citadel
 	fi
@@ -24,7 +18,8 @@ case "$1" in
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
   *) echo "$0: didn't understand being called with \`$1'" 1>&2
-     exit 0;;
+     exit 1;;
 esac
 
+#DEBHELPER#
 exit 0

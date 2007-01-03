@@ -4,17 +4,17 @@ Priority: extra
 Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
 Uploaders: Fathi Boudra <fboudra@free.fr>
 Build-Depends: debhelper (>= 4.0.0), po-debconf, bison, autotools-dev, 
- libdb4.4-dev|libdb4.3-dev, libical-dev,  libssl-dev, 
+ libdb4.4-dev | libdb4.3-dev, libical-dev,  libssl-dev, 
  libncurses5-dev, libldap2-dev,  libpam0g-dev, libsieve2-dev
 Standards-Version: 3.7.2.2
 
 Package: citadel-server
 Architecture: any
-Provides: pop3-server, imap-server
-Conflicts: pop3-server, imap-server
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf 
-Recommends: db4.4-util|db4.3-util
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser 
+Recommends: db4.4-util | db4.3-util
 Suggests: citadel-mta
+Conflicts: pop3-server, imap-server
+Provides: pop3-server, imap-server
 Description: complete and feature-rich groupware server
  Citadel is a complete and feature-rich open source groupware platform.
   * Email, calendaring/scheduling, address books

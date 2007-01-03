@@ -21,19 +21,6 @@ case "$1" in
 	mkdir -p /etc/citadel
 	chown citadel:citadel /etc/citadel
 
-	#: !TODO: should network/systems  go to /etc/citadel?
-	mkdir -p \
-		/var/lib/citadel/data/ \
-		/var/lib/citadel/bio/ \
-		/var/lib/citadel/bitbucket/ \
-		/var/lib/citadel/files/ \
-		/var/lib/citadel/images/ \
-		/var/lib/citadel/info/ \
-		/var/lib/citadel/userpics/ \
-		/var/spool/citadel/network/spoolin \
-		/var/spool/citadel/network/spoolout \
-		/var/spool/citadel/network/spoolsystems 
-
 	chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
 
         chown root:root /usr/sbin/chkpwd

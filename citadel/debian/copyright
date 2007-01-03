@@ -1,10 +1,118 @@
-This package was debianized by Wilfried Goesgens <dothebart@uncensored.citadel.org> on
-Sat, 23 Jul 2005 12:23:15 +0200.
+This package was debianized by Fathi Boudra <fboudra@free.fr> on
+Wed, 27 Dec 2006 17:30:35 +0100.
 
-It was downloaded from citadel.org
+It was downloaded from http://www.citadel.org
 
-Copyright Holder: Copyright ©1987-2005 by the Citadel development team, see http://easyinstall.citadel.org/citadel/docs/citadel.html
+Upstream Authors (the citadel development team):
+   Clint Adams
+   Steven M. Bellovin
+   Nathan Bryant
+   Art Cancro
+   Brian Costello
+   Nick Georbit
+   David Given
+   Wilfried Goesgens
+   Michael Hampton
+   Andru Luvisi
+   Daniel Malament
+   Stu Mark
+   Edward S. Marshall
+   Ben Mehlman
+   Matt Pfleger
+   Ari Samson
+   Trey Van Riper
+   John Walker
+   Steve Williams
+   Ethan Young
 
-License: GPL
+Copyright: (C) 1987-2006 Citadel development team
 
-see http://www.gnu.org/copyleft/gpl.html or /usr/share/common-licenses/GPL
+Copyright for CRC16: (C) 2002-2003 Indigo Systems Corporation
+
+Copyright for MD5 implementation: (C) 1993 Colin Plumb
+
+Copyright for RFC 2739 openldap schema:
+   (C) 2000 The Internet Society
+   (C) 2004 Martin Konold <martin.konold@erfrakon.de>
+   (C) 2006 Art Cancro <ajc@uncensored.citadel.org>
+
+CRC16 license:
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are met:
+
+   Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+   Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+   Neither the name of the Indigo Systems Corporation nor the names of its
+   contributors may be used to endorse or promote products derived from this
+   software without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+   THE POSSIBILITY OF SUCH DAMAGE.
+
+MD5 license:
+
+   This code was written by Colin Plumb in 1993, no copyright is claimed.
+   This code is in the public domain; do with it what you wish.
+
+RFC 2739 openldap schema license:
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+citadel license:
+
+   This package is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This package is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this package; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL'.
+
+The Debian packaging is (C) 2006, Fathi Boudra <fboudra@free.fr> and
+is licensed under the GPL, see above.

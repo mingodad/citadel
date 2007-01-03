@@ -5,12 +5,7 @@
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
-
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
+DEB_DESTDIR = $(CURDIR)/debian/tmp
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -19,47 +14,44 @@ else
 	CFLAGS += -O2
 endif
 
-config.status: configure
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
 	CFLAGS="$(CFLAGS)" ./configure \
-		--host=$(DEB_HOST_GNU_TYPE) \
-		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr/sbin \
-		--with-sysconfdir=/etc/citadel \
-		--with-spooldir=/var/spool/citadel \
 		--with-datadir=/var/lib/citadel \
+		--with-spooldir=/var/spool/citadel \
+		--with-sysconfdir=/etc/citadel \
 		--with-rundir=/var/run/citadel \
 		--with-docdir=/usr/share/doc/citadel-doc/ \
 		--with-pam \
-		--with-libical \
-		--with-libsieve \
 		--with-db \
 		--with-zlib \
-		--with-ldap
+		--with-ldap \
+		--with-libical \
+		--with-libsieve
 
+	touch configure-stamp
 
 #Architecture 
 build: build-arch build-indep
 
 build-arch: build-arch-stamp
-build-arch-stamp:  config.status
-	touch build-arch-stamp
+build-arch-stamp: configure-stamp
+
+	$(MAKE)
+	touch $@
 
 build-indep: build-indep-stamp
-build-indep-stamp:  config.status
-	touch build-indep-stamp
+build-indep-stamp: configure-stamp
+	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp #CONFIGURE-STAMP#
 	-$(MAKE) distclean
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	cp -f /usr/share/misc/config.sub config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-	cp -f /usr/share/misc/config.guess config.guess
-endif
+
 	dh_clean 
 
 install: install-indep install-arch
@@ -68,34 +60,36 @@ install-indep:
 	dh_testroot
 	dh_clean -k -i 
 	dh_installdirs -i
-	$(MAKE) -C . install-new DESTDIR="$(CURDIR)/debian/tmp" install-doc-new prefix=$(CURDIR)/debian/citadel-doc/
-
+	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-doc-new
+	dh_install -i --sourcedir=debian/tmp
 
 install-arch:
 	dh_testdir
 	dh_testroot
 	dh_clean -k -s 
 	dh_installdirs -s
-	mkdir -p  $(CURDIR)/debian/tmp/
-	$(MAKE) -C . install-new DESTDIR="$(CURDIR)/debian/tmp/" install-exec-new install-data-new
+	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
 
-	mkdir -p $(CURDIR)/debian/tmp/usr/lib/citadel-server
-	mv \
-	 	$(CURDIR)/debian/tmp/usr/sbin/setup \
-	 	$(CURDIR)/debian/tmp/usr/lib/citadel-server/
-	cp \
-		$(CURDIR)/debian/tmp/usr/sbin/citmail \
-	 	$(CURDIR)/debian/tmp/usr/sbin/sendmail
 
-	dh_install 
+	mkdir -p $(DEB_DESTDIR)/usr/lib/citadel-server
+	mv $(DEB_DESTDIR)/usr/sbin/setup \
+	   $(DEB_DESTDIR)/usr/lib/citadel-server/
+	cp $(DEB_DESTDIR)/usr/sbin/citmail \
+	   $(DEB_DESTDIR)/usr/sbin/sendmail
+
+	mkdir -p $(DEB_DESTDIR)/usr/share/doc/citadel-server/
+        mv $(DEB_DESTDIR)/usr/share/doc/citadel-doc/database_cleanup.sh \
+                $(DEB_DESTDIR)/usr/share/doc/citadel-server/
+
+        dh_install -s --sourcedir=debian/tmp
 
 binary-common:
 	dh_testdir
 	dh_testroot
+	dh_installchangelogs
 	dh_installdocs
-	dh_installexamples
 	dh_installdebconf	
-	dh_installinit  --name=citadel
+	dh_installinit --name=citadel
 	dh_installman
 	dh_strip
 	dh_compress 
@@ -113,7 +107,7 @@ binary-indep: build-indep install-indep
 
 # Build architecture dependant packages using the common target.
 binary-arch: build-arch install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
+	$(MAKE) -f debian/rules DH_OPTIONS=-s binary-common
 
 binary: binary-arch binary-indep
-.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch 
+.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure
