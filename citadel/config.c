@@ -54,9 +54,14 @@ void get_config(void) {
 		exit(CTDLEXIT_CONFIG);
 	}
 #ifndef __CYGWIN__
-	if (st.st_uid != CTDLUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR)) {
-		fprintf(stderr, "check the permissions on %s\n", file_citadel_config);
-		//		fprintf(stderr, "check the permissions on citadel.config\n");
+	if (st.st_uid != CTDLUID) {
+		fprintf(stderr, "%s must be owned by uid=%d\n", file_citadel_config, CTDLUID);
+		exit(CTDLEXIT_CONFIG);
+	}
+	int desired_mode = (S_IFREG | S_IRUSR | S_IWUSR) ;
+	if (st.st_mode != desired_mode) {
+		fprintf(stderr, "%s must be set to permissions mode %03o\n",
+			file_citadel_config, desired_mode);
 		exit(CTDLEXIT_CONFIG);
 	}
 #endif
