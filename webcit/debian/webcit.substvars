@@ -1,1 +1,0 @@
-shlibs:Depends=libc6 (>= 2.3.2.ds1-21), libssl0.9.7, zlib1g (>= 1:1.2.1)

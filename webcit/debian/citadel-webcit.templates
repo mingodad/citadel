@@ -1,20 +1,21 @@
 Template: citadel/WebcitHttpPort
 Type: string
 Default: 8504
-Description: Webcit HTTP Port
-  Select the Port, which the plain HTTP webcit server should listen on. -1 to disable.
+_Description: Webcit HTTP Port
+  Select the Port, which the plain HTTP webcit server should listen on. 
+  Select Port 80 if you don't have another webserver running.-1 to disable.
 
 
 Template: citadel/WebcitHttpsPort
 Type: string
 Default: 443
-Description: WebCit HTTPS port
+_Description: WebCit HTTPS port
   Select the Port, which the SSL HTTP webcit server should listen on. -1 to disable.
 
 
 Template: citadel/WebcitInstallnote
 Type: note
-Description: Citadel/UX
+_Description: Citadel/UX
   Citadel-webcit will be running soon. Log into it with your citadel
   Administrator user, and do the fine setup. Log in as the user you 
   specified as the Administrator, and

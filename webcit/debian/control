@@ -2,12 +2,14 @@ Source: webcit
 Section: unknown
 Priority: optional
 Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
-Build-Depends: debhelper (>= 4.0.0), libical-dev, gettext
+Build-Depends: debhelper (>= 4.0.0), po-debconf, 
+ libical-dev, gettext
 Standards-Version: 3.6.1
 
 Package: citadel-webcit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, 
+ tinymce
 Suggests: citadel-server
 Description: Webcit, the Webfrontend to the Citadel.
  WebCit puts a web-based front end on Citadel, allowing 

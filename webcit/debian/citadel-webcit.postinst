@@ -1,122 +1,22 @@
 #! /bin/sh
-# postinst.skeleton
-# Skeleton maintainer script showing all the possible cases.
-# Written by Charles Briscoe-Smith, March-June 1998.  Public Domain.
-
 # Abort if any command returns an error value
 set -e
 . /usr/share/debconf/confmodule
 
-# This script is called as the last step of the installation of the
-# package.  All the package's files are in place, dpkg has already done
-# its automatic conffile handling, and all the packages we depend of
-# are already fully installed and configured.
+db_version 2.0
 
-# The following idempotent stuff doesn't generally need protecting
-# against being run in the abort-* cases.
-
-#### Install info files into the dir file
-###: install-info --quiet --section "section pattern" "Section Title" \
-###:              --description="Name of the document" /usr/info/foo.info
-###
-#### Create stub directories under /usr/local
-###: if test ! -d /usr/local/lib/foo; then
-###:   if test ! -d /usr/local/lib; then
-###:     if mkdir /usr/local/lib; then
-###:       chown root.staff /usr/local/lib || true
-###:       chmod 2775 /usr/local/lib || true
-###:     fi
-###:   fi
-###:   if mkdir /usr/local/lib/foo; then
-###:     chown root.staff /usr/local/lib/foo || true
-###:     chmod 2775 /usr/local/lib/foo || true
-###:   fi
-###: fi
-###
-#### Ensure the menu system is updated
-###: [ ! -x /usr/bin/update-menus ] || /usr/bin/update-menus
-###
-#### Arrange for a daemon to be started at system boot time
-###: update-rc.d foo default >/dev/null
-###
 case "$1" in
   configure)
-    # Configure this package.  If the package must prompt the user for
-    # information, do it here.
-    
-	mkdir -p /var/lib/citadel/www/static
-    # Activate menu-methods script
-    #: chmod a+x /etc/menu-methods/foo
-
-    # Update ld.so cache
-    #: ldconfig
-
-    # Make our version of a program available
-    #: update-alternatives \
-    #:       --install /usr/bin/program program /usr/bin/alternative 50 \
-    #:       --slave /usr/share/man/man1/program.1.gz program.1.gz \
-    #:               /usr/share/man/man1/alternative.1.gz
-
-    # Tell ucf that the file in /usr/share/foo is the latest
-    # maintainer version, and let it handle how to manage the real
-    # confuguration file in /etc. This is how a static configuration
-    # file can be handled:
-	rm -f /tmp/md5sums
-	touch /tmp/md5sums
-	cd /var/lib/citadel/www/; 
-	for i in `find -type f `; do 
-		md5sum "$i" >>/tmp/md5sums
-	done
-
-	cd /usr/share/doc/citadel-webcit/examples/
-	# if target dirs don't exist, create them.
-	for i in `find -type d` ; do 
-		if test ! -d /var/lib/citadel/www/$i; then
-			mkdir -p /var/lib/citadel/www/$i 
-		fi
-	done
-
-	gunzip -c md5sums  > /tmp/newsums
-	if diff /tmp/newsums /tmp/md5sums >/dev/null; then
-		echo ''>/dev/null
-	else
-		cd /usr/share/doc/citadel-webcit/examples/
-		for i in `cat /tmp/newsums |sed "s;.* \./;;"`; do 
-			if test -f $i.gz; then 
-				j=`basename $i|sed -e "s;.gz;;" `
-				gunzip -c  "/usr/share/doc/citadel-webcit/examples$REL_PATH/$i" >"/tmp/$j"
-				i=`dirname $i`/$j
-			else
-				j=`basename $i`
-				cp "/usr/share/doc/citadel-webcit/examples/$i" "/tmp"
-			fi
-			if test -f /var/lib/citadel/www/$i; then
-				origsum=`grep "$i" /tmp/md5sums |sed "s; .*;;"`
-				newsum=`grep "$i" /tmp/newsums |sed "s; .*;;"`
-				if test -z "$origsum"; then
-					ucf "/tmp/$j" "/var/lib/citadel/www/$i"
-				else
-					if test "$origsum" != "$newsum"; then
-						ucf "/tmp/$j" "/var/lib/citadel/www/$i"
-					fi
-				fi
-			else
-				ucf "/tmp/$j" "/var/lib/citadel/www/$i"
-			fi
-			rm -f "/tmp/$j"
-		done
-	fi
-	rm -f /tmp/newsums /tmp/md5sums
 	if test ! -d /var/lib/citadel/keys; then
 		mkdir -p /var/lib/citadel/keys
 	fi
 	if test ! -d /var/run/citadel/keys; then
 		mkdir -p /var/run/citadel/keys
 	fi
-
+	ln -sf /usr/share/tinymce/www /etc/citadel/www/tiny_mce
 	db_get citadel/WebcitHttpPort && http_port="$RET"
 	db_get citadel/WebcitHttpsPort && https_port="$RET"	
-	set >/tmp/testfoo
+
 	echo "aplying your settings"
 	echo "
 export WEBCIT_HTTP_PORT=$http_port
@@ -129,57 +29,11 @@ export WEBCIT_LISTEN_IP=0.0.0.0
 	db_stop
 	
 	#DEBHELPER#
-
-    #### There are three sub-cases:
-    ###if test "${2+set}" != set; then
-    ###  # We're being installed by an ancient dpkg which doesn't remember
-    ###  # which version was most recently configured, or even whether
-    ###  # there is a most recently configured version.
-    ###  :
-	###
-    ###elif test -z "$2" -o "$2" = "<unknown>"; then
-    ###  # The package has not ever been configured on this system, or was
-    ###  # purged since it was last configured.
-    ###  :
-	###
-    ###else
-    ###  # Version $2 is the most recently configured version of this
-    ###  # package.
-    ###  :
-	###
-    ###fi 
-	;;
-  abort-upgrade)
-    # Back out of an attempt to upgrade this package FROM THIS VERSION
-    # to version $2.  Undo the effects of "prerm upgrade $2".
-    #:
-
     ;;
-  abort-remove)
-    ###if test "$2" != in-favour; then
-    ###  echo "$0: undocumented call to \`postinst $*'" 1>&2
-    ###  exit 0
-    ###fi
-    #### Back out of an attempt to remove this package, which was due to
-    #### a conflict with package $3 (version $4).  Undo the effects of
-    #### "prerm remove in-favour $3 $4".
-    ###:
-
-    ;;
-  abort-deconfigure)
-    ###if test "$2" != in-favour -o "$5" != removing; then
-    ###  echo "$0: undocumented call to \`postinst $*'" 1>&2
-    ###  exit 0
-    ###fi
-    #### Back out of an attempt to deconfigure this package, which was
-    #### due to package $6 (version $7) which we depend on being removed
-    #### to make way for package $3 (version $4).  Undo the effects of
-    #### "prerm deconfigure in-favour $3 $4 removing $6 $7".
-    ###:
-
+  abort-upgrade|abort-remove|abort-deconfigure)
     ;;
   *) echo "$0: didn't understand being called with '$1'" 1>&2
-     exit 0;;
+     exit 1;;
 esac
 
 exit 0
