@@ -13,7 +13,7 @@ citadel (7.02-2) unstable; urgency=low
   * citadel-client.install: merged with citadel-client.examples
   * citadel-client.postinst:
     * clean up
-    * removed ucf mechanisms
+    * remove ucf mechanisms
     * add debhelper token
   * citadel-doc.install : merged with citadel-doc.docs
   * citadel-mta.postinst:
@@ -22,22 +22,22 @@ citadel (7.02-2) unstable; urgency=low
   * citadel-server.dirs:
     * clean up
     * add var/lib/citadel/data and var/run/citadel dir
-    * moved messages and help to /etc/citadel
+    * move help and messages to /etc/citadel
   * citadel-server.install: merged with citadel-server.examples
   * citadel-server.postinst:
     * clean up
     * remove mkdir call as we create them with citadel-server.dirs
-    * remove loops as we don't use ucf here anymore.
+    * remove loops as we don't use ucf here anymore
     * add debhelper token
   * citadel-server.postrm:
-    * clean up; remove ucf
+    * clean up
+    * remove ucf
     * add debhelper token
   * citadel-server.prerm:
     * clean up
     * use invoke-rc.d
     * add debhelper token
   * citadel-server.templates: add po support
-  * compat: bumped to 5
   * control:
     * priority set to extra instead optional
     * add myself in uploaders
@@ -55,77 +55,68 @@ citadel (7.02-2) unstable; urgency=low
  -- Fathi Boudra <fboudra@free.fr>  Fri, 29 Dec 2006 16:24:48 +0100
 
 citadel (7.02-1) unstable; urgency=low
-	
+
   * update to actual Citadel SVN. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 28 Dec 2006 22:10:00 +0100
-	
 
-citadel (7.01-2) stable; urgency=high
-	
+citadel (7.01-1) stable; urgency=low
+
   * we can now configure logintype on installation time.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 21 Dec 2006 22:10:00 +0100
-	
 
 citadel (7.00-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 16 Dec 2006 01:01:00 +0100
-	
 
 citadel (6.84-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
- -- Wilfried Goesgens <citadel@outgesourced.org>  Do, 31 Aug 2006 23:11:00 +0200
-	
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 31 Aug 2006 23:11:00 +0200
 
 citadel (6.82-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 22 Jun 2006 20:08:00 +0200
-	
 
 citadel (6.71-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 21 Jan 2006 19:07:00 +0100
-	
 
 citadel (6.70-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Sun, 15 Jan 2006 15:03:00 +0100
-	
 
 citadel (6.63-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Mon, 12 Dec 2005 11:11:00 +0100
-	
 
 citadel (6.62-1) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 18 Nov 2005 16:04:00 +0100
-	
 
 citadel (6.61-2) unstable; urgency=low
-	
+
   * update to actual Citadel CVS. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Tue, 01 Nov 2005 12:23:15 +0200
-	
+
 citadel (6.53-1) unstable; urgency=low
 
-  * Initial release Closes: #nnnn  (nnnn is the bug number of your ITP)
+  * Initial release
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Sat, 23 Jul 2005 12:23:15 +0200
 

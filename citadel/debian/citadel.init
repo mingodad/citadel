@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          citadel-server
+# Provides:          citadel
 # Required-Start:    $local_fs $remote_fs
 # Required-Stop:     $local_fs $remote_fs
 # Default-Start:     2 3 4 5
@@ -10,6 +10,7 @@
 ### END INIT INFO
 
 # Author: Wilfried Goesgens <citadel@outgesourced.org>
+
 RUNDIR=/var/run/citadel
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Citadel Groupware "
@@ -20,14 +21,12 @@ PIDFILE=$RUNDIR/$NAME.pid
 SCRIPTNAME=/etc/init.d/citadel
 SENDCOMMAND=/usr/sbin/sendcommand
 
-
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
-# check if we 've got a newer system, so we can do fancy colors and so on.
 MODERN=
 
 # Load the VERBOSE setting and other rcS variables
@@ -85,7 +84,6 @@ do_stop()
 	    rm -f $PIDFILE
 	    return 2
 	fi
-
 }
 
 #
@@ -156,7 +154,7 @@ case "$1" in
 	fi
 	;;
   *)
-	echo "Usage: $SCRIPTNAME {start|stop|restart}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
 	exit 3
 	;;
 esac

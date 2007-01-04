@@ -1,20 +1,29 @@
-#! /bin/sh
+#!/bin/sh
+# postrm script for citadel-server
+
 set -e
+
+# source debconf stuff
 . /usr/share/debconf/confmodule
 db_version 2.0
 
 case "$1" in
-  remove)
+    purge)
+        echo "/var/lib/citadel/data not removed, as it may contain your personal data."
+
+        db_purge
+        db_go
     ;;
-  purge)
-	echo "/var/lib/citadel/data not removed, as it may contain your personal data."
-	db_purge
-	db_go
-	;;
-  disappear|upgrade|failed-upgrade|abort-install|abort-upgrade)
+
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
-  *) echo "$0: didn't understand being called with \`$1'" 1>&2
-     exit 1;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
 esac
+
+#DEBHELPER#
 
 exit 0

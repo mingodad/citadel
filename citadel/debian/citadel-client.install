@@ -1,4 +1,4 @@
-usr/bin/citadel
-usr/bin/whobbs
-usr/bin/stress
 etc/citadel/citadel.rc
+usr/bin/citadel
+usr/bin/stress
+usr/bin/whobbs

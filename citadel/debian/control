@@ -3,10 +3,10 @@ Section: mail
 Priority: extra
 Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
 Uploaders: Fathi Boudra <fboudra@free.fr>
-Build-Depends: debhelper (>= 4.0.0), po-debconf, bison, autotools-dev, 
- libdb4.4-dev | libdb4.3-dev, libical-dev,  libssl-dev, 
- libncurses5-dev, libldap2-dev,  libpam0g-dev, libsieve2-dev
-Standards-Version: 3.7.2.2
+Build-Depends: debhelper (>= 4), po-debconf, bison, autotools-dev,
+ libdb4.4-dev | libdb4.3-dev, libical-dev, libldap2-dev, libncurses5-dev,
+ libpam0g-dev, libsieve2-dev, libssl-dev
+Standards-Version: 3.7.2
 
 Package: citadel-server
 Architecture: any
@@ -99,7 +99,6 @@ Description: complete and feature-rich groupware server (command line client)
  See the 'citadel-server' package for more informations.
  .
    Homepage: http://www.citadel.org
-
 
 Package: citadel-doc
 Section: doc

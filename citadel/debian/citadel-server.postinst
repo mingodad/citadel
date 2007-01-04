@@ -1,69 +1,74 @@
-#! /bin/sh
-# citadel-server.postinst
-# by Wilfried Goesgens & Fathi Boudra
+#!/bin/sh
+# postinst script for citadel-server
 
 set -e
 
-# Use debconf.
+# source debconf stuff
 . /usr/share/debconf/confmodule
-
 db_version 2.0
 
 case "$1" in
-  configure)
-    if ! getent group citadel >/dev/null; then 
-		groupadd citadel
-	fi
-	if ! getent passwd citadel >/dev/null; then 
-		adduser --system --ingroup citadel --home /var/lib/citadel \
-			--gecos "Citadel system user" --shell /bin/sh \
-			--disabled-password citadel
-	fi
-	chown -R citadel:citadel /etc/citadel
-	chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
+    configure)
+        if ! getent group citadel >/dev/null; then 
+            groupadd citadel
+        fi
 
-# we're a bit paranoid here, because of this gave us many errors in the past.
-        chown root:root /usr/sbin/chkpwd
+        if ! getent passwd citadel >/dev/null; then 
+            adduser --system --ingroup citadel --home /var/lib/citadel \
+                    --gecos "Citadel system user" --shell /bin/sh \
+                    --disabled-password citadel
+        fi
+
+        chown -R citadel:citadel /etc/citadel
+        chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
+
+        # we're a bit paranoid here,
+        # because of this gave us many errors in the past.
+	chown root:root /usr/sbin/chkpwd
         chmod 4755 /usr/sbin/chkpwd
 
-	db_get citadel/Administrator && admin="$RET"
-	db_get citadel/ServerIPAddress && ip_addr="$RET"
-	db_get citadel/LoginType && enable_unix_auth="$RET"
-	if test "$enable_unix_auth" = "true"; then
-	    export ENABLE_UNIX_AUTH=yes
-	else
-	    export ENABLE_UNIX_AUTH=no
-	fi
-	export IP_ADDR=$ip_addr
-	export CITADEL=''
-	export CITADEL_INSTALLER=yes
-	export ACT_AS_MTA=no
-	export SYSADMIN_NAME=$admin
-	export CREATE_XINETD_ENTRY=no
-	export CREATE_INITTAB_ENTRY=no
-	export NO_INIT_SCRIPTS=yes
+        db_get citadel/Administrator && admin="$RET"
+        db_get citadel/ServerIPAddress && ip_addr="$RET"
+        db_get citadel/LoginType && enable_unix_auth="$RET"
 
-	echo "applying your settings."
-	/usr/lib/citadel-server/setup -q
+        if test "$enable_unix_auth" = "true"; then
+            export ENABLE_UNIX_AUTH=yes
+        else
+            export ENABLE_UNIX_AUTH=no
+        fi
 
-	if test -S /var/run/citadel/citadel.socket; then 
-	    /usr/sbin/sendcommand "DOWN"
-	fi
+        export IP_ADDR=$ip_addr
+        export CITADEL=''
+        export CITADEL_INSTALLER=yes
+        export ACT_AS_MTA=no
+        export SYSADMIN_NAME=$admin
+        export CREATE_XINETD_ENTRY=no
+        export CREATE_INITTAB_ENTRY=no
+        export NO_INIT_SCRIPTS=yes
 
-	while test -S /var/run/citadel/citadel.socket; do 
-	    sleep 1
-	done
+        echo "applying your settings."
+        /usr/lib/citadel-server/setup -q
 
-	db_stop
-	
-	;;
-  abort-upgrade|abort-remove|abort-deconfigure)
+        if test -S /var/run/citadel/citadel.socket; then 
+            /usr/sbin/sendcommand "DOWN"
+        fi
+
+        while test -S /var/run/citadel/citadel.socket; do 
+            sleep 1
+        done
+
+        db_stop
     ;;
 
-  *) echo "$0: didn't understand being called with \`$1'" 1>&2
-     exit 1;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
 esac
 
-	#DEBHELPER#
+#DEBHELPER#
 
 exit 0

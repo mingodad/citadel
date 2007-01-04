@@ -1,11 +1,13 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
+
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
+
 DEB_DESTDIR = $(CURDIR)/debian/tmp
+
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -17,8 +19,8 @@ endif
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
+
 	CFLAGS="$(CFLAGS)" ./configure \
-		--prefix=/usr/sbin \
 		--with-datadir=/var/lib/citadel \
 		--with-spooldir=/var/spool/citadel \
 		--with-sysconfdir=/etc/citadel \
@@ -44,12 +46,14 @@ build-arch-stamp: configure-stamp
 
 build-indep: build-indep-stamp
 build-indep-stamp: configure-stamp
+
 	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp #CONFIGURE-STAMP#
+
 	-$(MAKE) distclean
 
 	dh_clean 
@@ -60,7 +64,9 @@ install-indep:
 	dh_testroot
 	dh_clean -k -i 
 	dh_installdirs -i
+
 	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-doc-new
+
 	dh_install -i --sourcedir=debian/tmp
 
 install-arch:
@@ -68,10 +74,13 @@ install-arch:
 	dh_testroot
 	dh_clean -k -s 
 	dh_installdirs -s
+
 	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
+
 	mkdir -p $(DEB_DESTDIR)/usr/lib/citadel-server
 	mv $(DEB_DESTDIR)/usr/sbin/setup \
 		$(DEB_DESTDIR)/usr/lib/citadel-server/
+
 	mkdir -p $(DEB_DESTDIR)/usr/share/doc/citadel-server/
 	mv $(DEB_DESTDIR)/usr/share/doc/citadel-doc/database_cleanup.sh \
 		$(DEB_DESTDIR)/usr/share/doc/citadel-server/

@@ -1,6 +1,5 @@
 etc/citadel/help
 etc/citadel/messages
-usr/share/doc/citadel-server
 var/lib/citadel/bio
 var/lib/citadel/bitbucket
 var/lib/citadel/data
