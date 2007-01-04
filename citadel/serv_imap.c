@@ -1619,9 +1619,7 @@ void imap_command_loop(void)
 
 	gettimeofday(&tv2, NULL);
 	total_time = (tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000));
-	lprintf(CTDL_DEBUG, "IMAP %s %s took %ld.%ld seconds\n",
-		parms[1],
-		(!strcasecmp(parms[1], "uid") ? parms[2] : ""),
+	lprintf(CTDL_DEBUG, "IMAP command completed in %ld.%ld seconds\n",
 		(total_time / 1000000),
 		(total_time % 1000000)
 	);

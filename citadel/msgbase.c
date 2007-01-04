@@ -1745,30 +1745,40 @@ START_TEXT:
 			++start_of_text;
 			start_of_text = strstr(start_of_text, "\n");
 			++start_of_text;
+
+			char outbuf[1024];
+			int outlen = 0;
+			int nllen = strlen(nl);
 			while (ch=*mptr, ch!=0) {
 				if (ch==13) {
 					/* do nothing */
 				}
-				else switch(headers_only) {
-					case HEADERS_NONE:
-						if (mptr >= start_of_text) {
-							if (ch == 10) cprintf("%s", nl);
-							else cprintf("%c", ch);
+				else {
+					if (
+						((headers_only == HEADERS_NONE) && (mptr >= start_of_text))
+					   ||	((headers_only == HEADERS_ONLY) && (mptr < start_of_text))
+					   ||	((headers_only != HEADERS_NONE) && (headers_only != HEADERS_ONLY))
+					) {
+						if (ch == 10) {
+							sprintf(&outbuf[outlen], "%s", nl);
+							outlen += nllen;
 						}
-						break;
-					case HEADERS_ONLY:
-						if (mptr < start_of_text) {
-							if (ch == 10) cprintf("%s", nl);
-							else cprintf("%c", ch);
+						else {
+							outbuf[outlen++] = ch;
 						}
-						break;
-					default:
-						if (ch == 10) cprintf("%s", nl);
-						else cprintf("%c", ch);
-						break;
+					}
 				}
 				++mptr;
+				if (outlen > 1000) {
+					client_write(outbuf, outlen);
+					outlen = 0;
+				}
 			}
+			if (outlen > 0) {
+				client_write(outbuf, outlen);
+				outlen = 0;
+			}
+
 			goto DONE;
 		}
 	}
