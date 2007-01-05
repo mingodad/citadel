@@ -75,21 +75,19 @@ install-arch:
 	dh_clean -k -s 
 	dh_installdirs -s
 
-	$(MAKE) DESTDIR=$(DEB_DESTDIR) \
-		install-exec-new \
-		install-data-new \
-		install-doc-new
+	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
 
-	mkdir -p $(DEB_DESTDIR)/usr/lib/citadel-server
-	mv $(DEB_DESTDIR)/usr/sbin/setup \
-		$(DEB_DESTDIR)/usr/lib/citadel-server/
+	install -D -p -m0755 $(DEB_DESTDIR)/usr/sbin/setup \
+		$(DEB_DESTDIR)/usr/lib/citadel-server/setup
 
-	mkdir -p $(DEB_DESTDIR)/usr/share/doc/citadel-server/
-	mv $(DEB_DESTDIR)/usr/share/doc/citadel-doc/database_cleanup.sh \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-server/
-	mv $(DEB_DESTDIR)/usr/share/doc/citadel-doc/docs/welcomemail.txt \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-doc/docs/welcomemail.html \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-server/
+	install -D -p -m0755 database_cleanup.sh \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/database_cleanup.sh
+
+	install -D -p -m0644 docs/welcomemail.html \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.html
+
+	install -D -p -m0644 docs/welcomemail.txt \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.txt
 
 	dh_install -s --sourcedir=debian/tmp
 

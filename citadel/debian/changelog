@@ -1,9 +1,10 @@
 citadel (7.03-1) unstable; urgency=low
 	
   * update to actual Citadel SVN. many new features. see Packages changelog.
+  * Add welcome mail on fresh citadel install
+  * Fix configure-stamp token
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 05 Jan 2007 00:12:00 +0100
-	
 
 citadel (7.02-2) unstable; urgency=low
 

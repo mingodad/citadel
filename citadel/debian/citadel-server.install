@@ -12,5 +12,5 @@ usr/sbin/msgform
 usr/sbin/sendcommand
 usr/sbin/userlist
 usr/share/doc/citadel-server/database_cleanup.sh
-usr/share/doc/citadel-server/welcomemail.txt
 usr/share/doc/citadel-server/welcomemail.html
+usr/share/doc/citadel-server/welcomemail.txt
