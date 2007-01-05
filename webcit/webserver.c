@@ -44,6 +44,7 @@ int ndirs=2; //sizeof(static_content_dirs);//sizeof(char *);
  */
 char *static_content_dirs[] = {
 	"static",                     /** static templates */
+	"static.local",               /** site local static templates */
 	"tiny_mce"                    /** the JS editor */
 };
 
