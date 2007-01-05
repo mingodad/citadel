@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id$
+dnl $Id: configure.in 4798 2006-12-28 16:34:20Z ajc $
 AC_INIT(webserver.c)
 
 
@@ -13,7 +13,9 @@ AC_SUBST(VERSION)
 AC_SUBST(PROG_SUBDIRS)
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
-AC_CHECK_PROG(AUTOCONF, autoconf)
+missing_dir=`cd $ac_aux_dir && pwd`
+AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
 AC_CHECK_PROG(SED, sed, sed, no)
 AC_PREFIX_DEFAULT(/usr/local/webcit)
 
@@ -27,8 +29,6 @@ AC_ARG_WITH(ssl,
 		fi
 	]
 )
-
-
 dnl Set some system-specific variables which are OK to set before compiler
 dnl checks:
 PTHREAD_DEFS=-D_REENTRANT
@@ -342,21 +342,6 @@ else
 fi
 
 AC_SUBST(SETUP_LIBS)
-
-dnl where to make webcit search its mo's?
-if test "$prefix" = "NONE"; then
-	LOCALEDIR="$ac_default_prefix/locale/"
-else
-	LOCALEDIR="$prefix/locale/"
-fi
-AC_ARG_WITH(localedir, 
-		    [  --with-locale          directory where to find our mo's],
-			[ if test "x$withval" != "xno" ; then
-				LOCALEDIR="$withval/"
-			  fi
-			]
-)
-AC_SUBST(LOCALEDIR)
 
 AC_OUTPUT(Makefile po/Makefile )
 
