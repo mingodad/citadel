@@ -281,7 +281,7 @@ install-exec: all
 			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
-	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
+	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \

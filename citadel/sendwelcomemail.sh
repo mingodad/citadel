@@ -2,8 +2,8 @@
 
 
 export FOO=2600908b3f21ae7f692b973ed26e212d
-export WELCOMEHTML=docs/welcomemail.html
-export WELCOMETXT=docs/welcomemail.txt
+export WELCOMEHTML=welcomemail.html
+export WELCOMETXT=welcomemail.txt
 export FROM=room_citadel_stats@uncensored.citadel.org
 export TO=room_lobby
 (
