@@ -85,6 +85,7 @@ $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 install:
 	test -d $(DESTDIR)$(prefix) || mkdir $(DESTDIR)$(prefix)
 	test -d $(DESTDIR)$(prefix)/static || mkdir $(DESTDIR)$(prefix)/static
+	test -d $(DESTDIR)$(prefix)/local || mkdir $(DESTDIR)$(prefix)/local
 	for i in `find tiny_mce -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(prefix)/$$i || mkdir $(DESTDIR)$(prefix)/$$i; \

@@ -429,6 +429,11 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 
 	if (do_htmlhead) {
 		begin_burst();
+		if (!access("static.local/webcit.css", R_OK)) {
+			svprintf("CSSLOCAL", WCS_STRING,
+			   "<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"
+			);
+		}
 		do_template("head");
 	}
 
