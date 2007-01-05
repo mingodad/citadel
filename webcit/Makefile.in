@@ -71,13 +71,16 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
 
 Makefile: $(srcdir)/Makefile.in config.status
-	CONFIG_FILES="Makefile" CONFIG_HEADERS= $(SHELL) ./config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
 
 config.status: $(srcdir)/configure
 	$(SHELL) ./config.status --recheck
 
-$(srcdir)/configure: $(srcdir)/configure.in
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
 
 install:
 	test -d $(DESTDIR)$(prefix) || mkdir $(DESTDIR)$(prefix)
