@@ -669,11 +669,23 @@ int CtdlTryPassword(char *password)
 
 		if (validpw(CC->user.uid, password)) {
 			code = 0;
-			/* we could get rid of this */
+
+			/*
+			 * sooper-seekrit hack: populate the password field in the
+			 * citadel database with the password that the user typed,
+			 * if it's correct.  This allows most sites to convert from
+			 * host auth to native auth if they want to.  If you think
+			 * this is a security hazard, comment it out.
+			 */
+
 			lgetuser(&CC->user, CC->curr_user);
 			safestrncpy(CC->user.password, password, sizeof CC->user.password);
 			lputuser(&CC->user);
-			/*                          */
+
+			/*
+			 * (sooper-seekrit hack ends here)
+			 */
+
 		}
 		else {
 			code = (-1);
