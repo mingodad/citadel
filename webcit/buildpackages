@@ -39,11 +39,11 @@ case $1 in
 			echo rebuilding package.
 		else
 			echo "webcit (${WEBCIT_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
-	
+
   * update to actual Webcit SVN. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
-	" >/tmp/webcit_changelog
+" >/tmp/webcit_changelog
 			cat debian/changelog >>/tmp/webcit_changelog
 			mv /tmp/webcit_changelog debian/changelog
 			
