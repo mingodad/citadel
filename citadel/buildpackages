@@ -42,11 +42,11 @@ case $1 in
 			echo rebuilding package.
 		else
 			echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
-	
+
   * update to actual Citadel SVN. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
-	
+
 " >/tmp/citadel_changelog
 			cat debian/changelog >>/tmp/citadel_changelog
 			mv /tmp/citadel_changelog debian/changelog
