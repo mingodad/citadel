@@ -296,18 +296,21 @@ Here is how to configure the "subdirectory" method:
 If you are building packages and prefer not to have WebCit reside entirely in
 a single directory, there are several compile-time options available.
 
---with-staticdir defines where webcit should locate and search its templates and images. If you
-want to go with a different installation location then the point at which it is accessed at runtime, 
-you can use --with-staticrundir. This option is meant to ease your needs if you're going
-to install the static files as 'examples' in a location like /usr/share/doc/webcit/examples, 
-and enable the user to copy them over to another dir (like /var/lib/citadel/www), where 
-they're accessed at runtime. (The debian instatll scripts provided with this package 
-do this to preserve user changes to the template system, see debian/citadel-webcit.postinstall)
+--with-wwwdir defines where webcit should locate and search its templates and images. 
+--with-localedir defines where to put webcits locale files.
 
 Also, there are possibilities to load the TinyMCE editor into a system-wide location.  WebCit 
 uses this standard component to compose its messages for messages and postings. Several WebCit installations
 that may differ in design but use the same TinyMCE (which is the default that WebCit ships with)
 (set --with-editordir for that, it defaults to the dir the templates go)
+
+Install targets have diversified to reflect these changes too:
+ (make install-.....)
+locale: the webcit .mo files for gettext & locales.
+tinymce: the editor. if your system brings one, just ommit this.
+wwwdata: our templates.
+setupbin: if you want to use webcits setup facility... but isn't needed in case you provide own init & config scripts.
+bin: the binaries.
 
 
  CONCLUSION

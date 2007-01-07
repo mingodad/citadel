@@ -347,9 +347,11 @@ AC_SUBST(SETUP_LIBS)
 if test "$prefix" = NONE; then
 	LOCALEDIR=$ac_default_prefix
 	WWWDIR=$ac_default_prefix
+	EDITORDIR=$ac_default_prefix/tiny_mce
 else
 	LOCALEDIR=$prefix
 	WWWDIR=$prefix
+	EDITORDIR=$prefix/tiny_mce
 fi
 
 dnl where to put the locale files
@@ -371,6 +373,16 @@ AC_ARG_WITH(wwwdir,
 			]
 )
 AC_SUBST(WWWDIR)
+
+dnl Checks where to put our editor
+AC_ARG_WITH(editordir, 
+		    [  --with-editordir             directory to put our editor],
+			[ if test "x$withval" != "xno" ; then
+						  EDITORDIR=$withval
+			  fi
+			]
+)
+AC_SUBST(EDITORDIR)
 
 
 AC_OUTPUT(Makefile po/Makefile )
