@@ -285,6 +285,10 @@ a:hover {
 	color: #FFFFEE;
 }
 
+.boxlabel a {
+	color: #FFFFEE;
+}
+
 .customize {
 	font-size: 8pt;
 	font-style: italic;
