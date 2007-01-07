@@ -72,7 +72,7 @@ void display_login(char *mesg)
 	svprintf("NEWUSER_BUTTON", WCS_STRING, "%s", _("New User"));
 	svprintf("EXIT_BUTTON", WCS_STRING, "%s", _("Exit"));
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
-	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by Citadel"),
+	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
 		serv_info.serv_humannode);
 	svcallback("DO_LANGUAGE_BOX", offer_languages);
 	if (serv_info.serv_newuser_disabled) {
