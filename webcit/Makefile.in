@@ -19,6 +19,8 @@ PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 LOCALEDIR=@LOCALEDIR@
 WWWDIR=@WWWDIR@
+EDITORDIR=@EDITORDIR@
+
 # End of configuration section
 
 all: all-progs-recursive webserver setup
@@ -65,10 +67,16 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(WWWDIR)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) \
+		-DWEBCITDIR=\"$(WWWDIR)\" \
+		-DLOCALEDIR=\"$(LOCALEDIR)\" \
+		-DEDITORDIR=\"$(EDITORDIR)\" $<
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(WWWDIR)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) \
+		-DWEBCITDIR=\"$(WWWDIR)\" \
+		-DLOCALEDIR=\"$(LOCALEDIR)\"  \
+		-DEDITORDIR=\"$(EDITORDIR)\"$<
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
@@ -82,29 +90,37 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-install:  install-bin install-locale install-wwwdata
+install:  install-bin install-setupbin install-locale install-wwwdata install-tinymce
 
 install-bin:
-	test -d $(DESTDIR)$(prefix) || mkdir $(DESTDIR)$(prefix)
-	for i in webserver setup; do \
-		$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
-	done
+	test -d $(DESTDIR)$(prefix) || mkdir -p $(DESTDIR)$(prefix)
+	$(INSTALL) webserver $(DESTDIR)$(prefix)/webserver
+
+
+install-setupbin: install-bin
+	$(INSTALL) setup $(DESTDIR)$(prefix)/setup
+
 
 install-wwwdata:
-	test -d $(DESTDIR)$(prefix)/static || mkdir -p $(DESTDIR)$(prefix)/static
+	test -d $(DESTDIR)$(WWWDIR)/static || mkdir -p $(DESTDIR)$(WWWDIR)/static
+	for i in `find static -type f | grep -v .svn`; do \
+		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
+	done
+
+install-tinymce:
+	test -d $(DESTDIR)$(WWWDIR)/static || mkdir -p $(DESTDIR)$(WWWDIR)/static
 	for i in `find tiny_mce -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(WWWDIR)/$$i || mkdir -p $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 	for i in \
-		`find static -type f | grep -v .svn` \
 		`find tiny_mce -type f | grep -v .svn` \
 		; do \
 		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 
 install-locale:
-	test -d $(DESTDIR)$(prefix)/local || mkdir -p $(DESTDIR)$(prefix)/local
+	test -d $(DESTDIR)$(LOCALEDIR)/local || mkdir -p $(DESTDIR)$(LOCALEDIR)/local
 	for i in `find locale -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \

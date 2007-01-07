@@ -27,11 +27,10 @@ configure-stamp:
 	CFLAGS="$(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
-		--prefix=/etc/citadel/www/ \
+		--prefix=/usr/sbin/ \
+		--with-wwwdir=/usr/share/citadel-webcit \
 		--with-localedir=/usr/share/locale \
-		--with-sysconfdir=/etc/citadel \
-		--with-spooldir=/var/spool/citadel \
-		--with-datadir=/etc/citadel \
+		--with-editordir=/usr/share/tinymce/www \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
 		--with-zlib --with-ssl --with-libiconf \
@@ -66,21 +65,8 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
+	$(MAKE) install-bin install-locale install-wwwdata DESTDIR=$(DESTDIR)
 
-# Add here commands to install the package into debian/webcit.
-	$(MAKE) -C . install DESTDIR=$(DESTDIR)
-# there are debian tinymce packages arround, so we don't ship it another time.
-	rm -rf $(DESTDIR)/etc/citadel/www/tiny_mce 
-# we don't use the setup anymore, omit it.
-	rm -f $(DESTDIR)/etc/citadel/www/setup
-# locale -> /usr/share/locale
-	mkdir -p $(DESTDIR)/usr/share/
-	mv $(DESTDIR)/etc/citadel/www/locale \
-		$(DESTDIR)/usr/share/locale
-
-	mkdir -p $(DESTDIR)/usr/sbin
-	mv $(DESTDIR)/etc/citadel/www/webserver \
-		$(DESTDIR)/usr/sbin/
 
 
 # Build architecture-independent files here.
