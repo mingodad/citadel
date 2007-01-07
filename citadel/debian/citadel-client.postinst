@@ -5,17 +5,6 @@ set -e
 
 case "$1" in
     configure)
-        if ! getent group citadel >/dev/null; then 
-            groupadd citadel
-        fi
-
-        if ! getent passwd citadel >/dev/null; then 
-            adduser --system --ingroup citadel --home /var/lib/citadel \
-                    --gecos "Citadel system user" --shell /bin/sh \
-                    --disabled-password citadel
-        fi
-
-        mkdir -p /etc/citadel
         chown citadel:citadel /etc/citadel/citadel.rc
     ;;
 

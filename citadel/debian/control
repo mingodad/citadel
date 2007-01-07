@@ -10,7 +10,7 @@ Standards-Version: 3.7.2
 
 Package: citadel-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
 Recommends: db4.4-util | db4.3-util
 Suggests: citadel-mta
 Conflicts: pop3-server, imap-server
@@ -75,9 +75,22 @@ Description: complete and feature-rich groupware server
  .
   Homepage: http://www.citadel.org
 
+Package: citadel-common
+Architecture: all
+Description: complete and feature-rich groupware server
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ This package contains the common files.
+ .
+  Homepage: http://www.citadel.org
+
 Package: citadel-mta
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server (= ${Source-Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server (= ${Source-Version}), citadel-common
 Conflicts: mail-transport-agent
 Provides: mail-transport-agent
 Replaces: mail-transport-agent
@@ -91,7 +104,7 @@ Description: complete and feature-rich groupware server (mail transport agent)
 
 Package: citadel-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
 Description: complete and feature-rich groupware server (command line client)
  This is package contains the command line client for Citadel, a complete and
  feature-rich open source groupware platform.
