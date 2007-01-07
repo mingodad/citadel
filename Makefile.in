@@ -14,11 +14,11 @@ PTHREAD_DEFS=@PTHREAD_DEFS@
 srcdir=@srcdir@
 prefix=@prefix@
 top_builddir=`pwd`
-
 LIB_SUBDIRS=
 PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 LOCALEDIR=@LOCALEDIR@
+WWWDIR=@WWWDIR@
 # End of configuration section
 
 all: all-progs-recursive webserver setup
@@ -65,10 +65,10 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(WWWDIR)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(WWWDIR)\" -DLOCALEDIR=\"$(LOCALEDIR)\" $<
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
@@ -82,26 +82,35 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-install:
+install:  install-bin install-locale install-wwwdata
+
+install-bin:
 	test -d $(DESTDIR)$(prefix) || mkdir $(DESTDIR)$(prefix)
-	test -d $(DESTDIR)$(prefix)/static || mkdir $(DESTDIR)$(prefix)/static
-	test -d $(DESTDIR)$(prefix)/local || mkdir $(DESTDIR)$(prefix)/local
+	for i in webserver setup; do \
+		$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+	done
+
+install-wwwdata:
+	test -d $(DESTDIR)$(prefix)/static || mkdir -p $(DESTDIR)$(prefix)/static
 	for i in `find tiny_mce -type d | grep -v .svn` \
 		; do \
-		test -d $(DESTDIR)$(prefix)/$$i || mkdir $(DESTDIR)$(prefix)/$$i; \
-	done
-	for i in `find locale -type d | grep -v .svn` \
-		; do \
-		test -d $(DESTDIR)$(prefix)/$$i || mkdir $(DESTDIR)$(prefix)/$$i; \
+		test -d $(DESTDIR)$(WWWDIR)/$$i || mkdir -p $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 	for i in \
-		webserver \
-		setup \
 		`find static -type f | grep -v .svn` \
 		`find tiny_mce -type f | grep -v .svn` \
-		`find locale -type f | grep -v .svn` \
 		; do \
-		$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
+	done
+
+install-locale:
+	test -d $(DESTDIR)$(prefix)/local || mkdir -p $(DESTDIR)$(prefix)/local
+	for i in `find locale -type d | grep -v .svn` \
+		; do \
+		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \
+	done
+	for i in `find locale -type f | grep -v .svn`; do \
+		$(INSTALL) $$i $(DESTDIR)$(LOCALEDIR)/$$i; \
 	done
 
 TAGS clean-recursive distclean-recursive depend-recursive check-recursive \

@@ -343,6 +343,36 @@ fi
 
 AC_SUBST(SETUP_LIBS)
 
+
+if test "$prefix" = NONE; then
+	LOCALEDIR=$ac_default_prefix
+	WWWDIR=$ac_default_prefix
+else
+	LOCALEDIR=$prefix
+	WWWDIR=$prefix
+fi
+
+dnl where to put the locale files
+AC_ARG_WITH(localedir, 
+		    [  --with-localedir          directory to put the locale files to],
+			[ if test "x$withval" != "xno" ; then
+						  LOCALEDIR=$withval
+			  fi
+			]
+)
+AC_SUBST(LOCALEDIR)
+
+dnl Checks where to put our templates
+AC_ARG_WITH(wwwdir, 
+		    [  --with-wwwdir             directory to put our templates],
+			[ if test "x$withval" != "xno" ; then
+						  WWWDIR=$withval
+			  fi
+			]
+)
+AC_SUBST(WWWDIR)
+
+
 AC_OUTPUT(Makefile po/Makefile )
 
 echo ------------------------------------------------------------------------
