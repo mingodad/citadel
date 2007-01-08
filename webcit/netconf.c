@@ -63,7 +63,7 @@ void display_add_node(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Add a new node"));
 	wprintf("</SPAN>");
@@ -105,7 +105,7 @@ void display_edit_node(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Edit node configuration for "));
 	escputs(node);
@@ -171,7 +171,7 @@ void display_netconf(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Network configuration"));
 	wprintf("</SPAN>\n");
@@ -184,7 +184,7 @@ void display_netconf(void)
 	wprintf("</A><br />\n");
 	wprintf("</CENTER>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Currently configured nodes"));
 	wprintf("</SPAN>\n");
@@ -224,7 +224,7 @@ void display_confirm_delete_node(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Confirm delete"));
 	wprintf("</SPAN>\n");

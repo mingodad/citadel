@@ -568,3 +568,38 @@ div.auto_complete ul strong.highlight {
 }
 
 
+.floors_config, .roomops_zap {
+        border: 0;
+        background-color: #770000;
+        width: 100%;
+}
+
+.roomops_cell_label {
+        background-color: #FFFFFF;
+}
+
+.roomops_cell, .roomops_cell_edit {
+        background-color: #CCCCCC;
+}
+
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .mainmenu_b
+ackground, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_backgrou
+nd, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .vcard_edit_background, .who_background   {
+        border: 0;
+        width: 100%;
+        background-color: #ffffff;
+}
+
+.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .iconbar_banner, .inetconf_banner, .listsub_banner, .mainmenu_banner, .netconf_banner, .paging_banner, .preferences_banner, .roomops_banner, .setup_banner, .sieve_banner, .siteconfig_banner, .smtpqueue_banner, .summary_banner, .useredit_banner, .userlist_banner, .vcard_edit_banner, .who_banner   {
+        border: 0;
+        width: 100%;
+        background-color: #444455;
+}
+
+
+.vcard_edit_background_alt {
+        border: 0;
+        width: 100%;
+        background-color: #dddddd;
+}
+

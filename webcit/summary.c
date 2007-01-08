@@ -251,7 +251,7 @@ void summary(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+	wprintf("<table class=\"summary_banner\"><tr>"
 		"<td><img src=\"static/summscreen_48x.gif\"></td><td>"
 		"<span class=\"titlebar\">"
 	);

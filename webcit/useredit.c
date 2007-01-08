@@ -24,7 +24,7 @@ void select_user_to_edit(char *message, char *preselect)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+	wprintf("<table class=\"useredit_banner\"><tr>"
 		"<td>"
 		"<span class=\"titlebar\">"
 		"<img src=\"static/usermanag_48x.gif\">");
@@ -278,7 +278,7 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<table class=\"useredit_banner\"><tr><td>");
 	wprintf("<span class=\"titlebar\">");
 	wprintf(_("Edit user account: "));
 	escputs(username);
@@ -286,7 +286,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"useredit_background\"><tr><td>\n");
 	wprintf("<form method=\"POST\" action=\"edituser\">\n"
 		"<input type=\"hidden\" name=\"username\" value=\"");
 	escputs(username);

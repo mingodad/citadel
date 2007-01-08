@@ -19,7 +19,7 @@ void display_page(void)
 
         output_headers(1, 1, 2, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
-                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+                "<TABLE class=\"paging_banner\"><TR><TD>"
                 "<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Send instant message"));
 	wprintf("</SPAN>"
@@ -28,7 +28,7 @@ void display_page(void)
         );
                                                                                                                              
         wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"paging_background\"><tr><td>\n");
 
 	wprintf(_("Send an instant message to: "));
 	escputs(recp);

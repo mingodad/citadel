@@ -1010,10 +1010,10 @@ void display_editroom(void)
 		"<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "admin")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=admin\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=admin\">");
 	}
 	wprintf(_("Administration"));
 	if (!strcmp(tab, "admin")) {
@@ -1026,10 +1026,10 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "config")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=config\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=config\">");
 	}
 	wprintf(_("Configuration"));
 	if (!strcmp(tab, "config")) {
@@ -1042,10 +1042,10 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "expire")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=expire\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=expire\">");
 	}
 	wprintf(_("Message expire policy"));
 	if (!strcmp(tab, "expire")) {
@@ -1058,10 +1058,10 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "access")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=access\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=access\">");
 	}
 	wprintf(_("Access controls"));
 	if (!strcmp(tab, "access")) {
@@ -1074,10 +1074,10 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "sharing")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=sharing\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
 	}
 	wprintf(_("Sharing"));
 	if (!strcmp(tab, "sharing")) {
@@ -1090,10 +1090,10 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "listserv")) {
-		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#CCCCCC\"><a href=\"display_editroom&tab=listserv\">");
+		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
 	}
 	wprintf(_("Mailing list service"));
 	if (!strcmp(tab, "listserv")) {
@@ -1110,7 +1110,7 @@ void display_editroom(void)
 
 	/** begin content of whatever tab is open now */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
+		"<TABLE class=\"roomops_background\">\n"
 		"<TR><TD>\n");
 
 	if (!strcmp(tab, "admin")) {
@@ -1360,7 +1360,7 @@ void display_editroom(void)
 		wprintf("</I></B></TD></TR>\n"
 			"<TR><TD VALIGN=TOP>\n");
 
-		wprintf("<TABLE border=0 cellpadding=5><TR BGCOLOR=\"#CCCCCC\"><TD>");
+		wprintf("<TABLE border=0 cellpadding=5><TR class=\"roomops_cell\"><TD>");
 		wprintf(_("Remote node name"));
 		wprintf("</TD><TD>");
 		wprintf(_("Remote room name"));
@@ -1405,7 +1405,7 @@ void display_editroom(void)
 
 		wprintf("</TABLE>\n");
 		wprintf("</TD><TD VALIGN=TOP>\n");
-		wprintf("<TABLE border=0 cellpadding=5><TR BGCOLOR=\"#CCCCCC\"><TD>");
+		wprintf("<TABLE border=0 cellpadding=5><TR class=\"roomops_cell\"><TD>");
 		wprintf(_("Remote node name"));
 		wprintf("</TD><TD>");
 		wprintf(_("Remote room name"));
@@ -1953,7 +1953,7 @@ void display_entroom(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"roomops_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Create a new room"));
 	wprintf("</SPAN>"
@@ -1962,7 +1962,7 @@ void display_entroom(void)
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"roomops_background\"><tr><td>\n");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
 
@@ -2166,7 +2166,7 @@ void display_private(char *rname, int req_pass)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"roomops_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Go to a hidden room"));
 	wprintf("</SPAN>"
@@ -2258,7 +2258,7 @@ void display_zap(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<TABLE class=\"roomops_zap\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Zap (forget/unsubscribe) the current room"));
 	wprintf("</SPAN>\n");
@@ -2996,7 +2996,7 @@ void knrooms(void)
 
 	/** title bar */
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"roomops_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {

@@ -51,7 +51,7 @@ void do_listsub(void)
 	strcpy(subtype, bstr("subtype"));
 
 	wprintf("<CENTER>"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"listsub_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("List subscribe/unsubscribe"));
 	wprintf("</SPAN></TD></TR></TABLE><br />\n");

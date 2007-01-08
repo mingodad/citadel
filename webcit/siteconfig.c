@@ -34,7 +34,7 @@ void display_siteconfig(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<table class=\"siteconfig_banner\"><tr><td>"
 		"<span class=\"titlebar\">");
 	wprintf(_("Site configuration"));
 	wprintf("</span>"
@@ -45,7 +45,7 @@ void display_siteconfig(void)
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-        	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+        	wprintf("<table class=\"siteconfig_banner\"><tr><td>");
         	wprintf("<span class=\"titlebar\">");
 		wprintf(_("Error"));
 		wprintf("</span>\n");
@@ -56,7 +56,7 @@ void display_siteconfig(void)
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
+		"<table class=\"siteconfig_background\"><tr><td>");
 
 	char *tabnames[] = {
 		_("General"),

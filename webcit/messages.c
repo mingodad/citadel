@@ -966,7 +966,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	wprintf("</tr></table>\n");
 
 	/** Begin body */
-	wprintf("<table border=0 width=100%% bgcolor=\"#FFFFFF\" "
+	wprintf("<table class=\"messages_background\" "
 		"cellpadding=1 cellspacing=0><tr><td>");
 
 	/**
@@ -2836,7 +2836,7 @@ void display_enter(void)
 	wprintf("</div>\n");
 	wprintf("<div id=\"content\">\n"
 		"<div class=\"fix_scrollbar_bug\">"
-		"<table width=100%% border=0 bgcolor=\"#ffffff\"><tr><td>");
+		"<table class=\"messages_background\"><tr><td>");
 
 	/** Now check our actual recipients if there are any */
 	if (recipient_required) {

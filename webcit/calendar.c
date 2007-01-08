@@ -356,7 +356,7 @@ void respond_to_request(void) {
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+	wprintf("<TABLE class=\"calendar_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Respond to meeting request"));
 	wprintf("</SPAN>"
@@ -417,7 +417,7 @@ void handle_rsvp(void) {
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+	wprintf("<TABLE class=\"calendar_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Update your calendar with this RSVP"));
 	wprintf("</SPAN>"
@@ -538,7 +538,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR>"
+		"<TABLE class=\"calendar_banner\"><TR>"
 		"<TD><img src=\"static/taskmanag_48x.gif\"></TD>"
 		"<td><SPAN CLASS=\"titlebar\">");
 	wprintf(_("Edit task"));
@@ -548,7 +548,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
+		"<table class=\"calendar_background\"><tr><td>");
 	
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",

@@ -22,7 +22,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"graphics_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Image upload"));
 	wprintf("</SPAN>"
@@ -31,7 +31,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"graphics_background\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");
 

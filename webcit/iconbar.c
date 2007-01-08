@@ -476,7 +476,7 @@ void display_customize_iconbar(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"iconbar_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</SPAN>"
@@ -485,7 +485,7 @@ void display_customize_iconbar(void) {
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
+		"<table class=\"iconbar_background\"><tr><td>");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"commit_iconbar\">\n");
 

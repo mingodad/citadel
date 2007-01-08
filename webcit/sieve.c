@@ -73,7 +73,7 @@ void display_sieve(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"sieve_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">"
 		"<img src=\"static/advanpage2_48x.gif\">");
 	wprintf(_("View/edit server-side mail filters"));
@@ -82,7 +82,7 @@ void display_sieve(void)
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
+		"<table class=\"sieve_background\">"
 		"<tr><td valign=top>\n");
 
 
@@ -592,7 +592,7 @@ void display_add_remove_scripts(char *message)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+	wprintf("<table class=\"sieve_banner\"><tr>"
 		"<td>"
 		"<span class=\"titlebar\">"
 		"<img src=\"static/advanpage2_48x.gif\">");

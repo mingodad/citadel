@@ -199,7 +199,7 @@ void display_preferences(void)
 	int i;
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"preferences_banner\"><TR><TD>");
 	wprintf("<img src=\"static/advanpage2_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;");
 	wprintf(_("Preferences and settings"));
@@ -210,7 +210,7 @@ void display_preferences(void)
 		"<div id=\"content\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"preferences_background\"><tr><td>\n");
 
 	/** begin form */
 	wprintf("<center>\n"
