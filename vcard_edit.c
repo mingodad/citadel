@@ -176,7 +176,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	/** Display the form */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<table class=\"vcard_edit_banner\"><tr><td>"
 		"<span class=\"titlebar\">"
 		"<img src=\"static/savecontact_48x.gif\">");
 	wprintf(_("Edit contact information"));
@@ -187,7 +187,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"vcard_edit_background\"><tr><td>\n");
 
 	wprintf("<table border=0><tr>"
 		"<td>%s</td>"
@@ -213,7 +213,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"value=\"%s\" maxlength=\"10\" size=\"10\"></td></tr></table>\n",
 		suffix);
 
-	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
+	wprintf("<table  class=\"vcard_edit_background_alt\">");
 	wprintf("<tr><td>");
 
 	wprintf(_("Display name:"));
@@ -297,7 +297,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"value=\"%s\" maxlength=\"29\"></td></tr></table>\n",
 		worktel);
 
-	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
+	wprintf("<table class=\"vcard_edit_background_alt\">");
 	wprintf("<tr><td>");
 
 	wprintf("<table border=0><TR>"

@@ -71,7 +71,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	/** Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"event_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Add or edit an event"));
 	wprintf("</SPAN>"
@@ -109,7 +109,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table  class=\"event_background\"><tr><td>\n");
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging

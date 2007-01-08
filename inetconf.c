@@ -90,7 +90,7 @@ void display_inetconf(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"inetconf_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Internet configuration"));
 	wprintf("</SPAN>\n");

@@ -29,7 +29,7 @@ void display_floorconfig(char *prepend_html)
 
         output_headers(1, 1, 2, 0, 0, 0);
         wprintf("<div id=\"banner\">\n"
-                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+                "<TABLE class=\"floors_banner\"><TR><TD>"
                 "<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Add/change/delete floors"));
 	wprintf("</SPAN>"
@@ -46,7 +46,7 @@ void display_floorconfig(char *prepend_html)
 	serv_printf("LFLR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+        	wprintf("<TABLE  class=\"floors_config\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">");
 		wprintf(_("Error"));
 		wprintf("</SPAN>\n");

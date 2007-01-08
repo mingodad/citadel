@@ -21,7 +21,7 @@ void who_inner_div(void) {
 	time_t now;
 	int bg = 0;
 
-	wprintf("<table border=\"0\" cellspacing=\"0\" width=\"100%%\" bgcolor=\"#FFFFFF\">"
+	wprintf("<table class=\"who_background\">"
 		"<tr>\n");
 	wprintf("<th colspan=\"3\"> </th>\n");
 	wprintf("<th>%s</th>\n", _("User name"));
@@ -142,7 +142,7 @@ void who(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<table class=\"who_banner\"><tr><td>");
 	wprintf("<img src=\"static/usermanag_48x.gif\" alt=\" \" "
 		"align=middle "
 		">");
@@ -223,7 +223,7 @@ void edit_me(void)
 		output_headers(1, 1, 0, 0, 0, 0);
 
 		wprintf("<div id=\"banner\">\n");
-		wprintf("<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
+		wprintf("<table class=\"who_banner\"><tr><td>");
 		wprintf("<span class=\"titlebar\">");
 		wprintf(_("Edit your session display"));
 		wprintf("</span></td></tr></table>\n");

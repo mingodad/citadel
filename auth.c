@@ -329,7 +329,7 @@ void validate(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"auth_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Validate new users"));
 	wprintf("</SPAN></TD></TR></TABLE>\n</div>\n<div id=\"content\">\n");
@@ -363,7 +363,7 @@ void validate(void)
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"auth_validate\"><tr><td>\n");
 	wprintf("<center>");
 
 	safestrncpy(user, &buf[4], sizeof user);
@@ -461,7 +461,7 @@ void display_changepw(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"auth_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Change your password"));
 	wprintf("</SPAN>"
@@ -478,7 +478,7 @@ void display_changepw(void)
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"auth_validate\"><tr><td>\n");
 
 	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");

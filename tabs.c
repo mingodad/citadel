@@ -52,7 +52,7 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	}
 
 	wprintf("</tr></table>\n");
-	wprintf("<table border=\"0\" width=\"100%%\" bgcolor=\"#ffffff\"><tr><td>");
+	wprintf("<table class=\"tabs_background\"><tr><td>");
 }
 
 /**

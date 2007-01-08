@@ -200,7 +200,7 @@ void display_aide_menu(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"mainmenu_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("System Administration Menu"));
 	wprintf("</SPAN>"
@@ -278,7 +278,7 @@ void display_generic(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<TABLE class=\"mainmenu_banner\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Enter a server command"));
 	wprintf("</SPAN></TD></TR></TABLE>\n"
@@ -286,7 +286,7 @@ void display_generic(void)
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"mainmenu_background\"><tr><td>\n");
 
 	wprintf("<CENTER>");
 	wprintf(_("This screen allows you to enter Citadel server commands which are "

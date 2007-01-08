@@ -1011,7 +1011,7 @@ void do_tasks_view(void) {
 	icalproperty *p;
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">\n<tr>\n"
+		"<table class=\"calendar_view_background\">\n<tr>\n"
 		"<th>");
 	wprintf(_("Name of task"));
 	wprintf("</th><th>");

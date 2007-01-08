@@ -43,7 +43,7 @@ void userlist(void)
 		}
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>"
+		"<table class=\"userlist_banner\"><tr><td>"
 		"<span class=\"titlebar\">");
 	snprintf(title, sizeof title, _("User list for %s"), serv_info.serv_humannode);
 	escputs(title);
@@ -60,7 +60,7 @@ void userlist(void)
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"userlist_background\"><tr><td>\n");
 	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th>"
 			"<th>%s</th><th>%s</th><th>%s</th></tr>",
 			_("User Name"),
@@ -123,7 +123,7 @@ void showuser(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<table width=100%% border=0 bgcolor=\"#444455\"><tr>"
+		"<table class=\"userlist_banner\"><tr>"
 		"<td><img src=\"static/usermanag_48x.gif\"></td>"
 		"<td align=left><span class=\"titlebar\">");
 	wprintf(_("User profile"));
@@ -133,7 +133,7 @@ void showuser(void)
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"userlist_background\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);
 	serv_getln(buf, sizeof buf);

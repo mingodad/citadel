@@ -29,7 +29,7 @@ void do_setup_wizard(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"setup_banner\"><TR><TD>");
 	wprintf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64 ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;First time setup");
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");

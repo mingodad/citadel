@@ -225,7 +225,7 @@ void display_smtpqueue(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<TABLE class=\"smtpqueue_banner\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">");
 	wprintf(_("View the outbound SMTP queue"));
 	wprintf("</SPAN>\n");
@@ -233,7 +233,7 @@ void display_smtpqueue(void)
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#FFFFFF\">"
+		"<table class=\"smtpqueue_background\">"
 		"<tr><td valign=top>\n");
 
 	wprintf("<div id=\"smtpqueue_inner_div\">");
