@@ -625,7 +625,7 @@ fwindow.parentNode.removeChild(fwindow);
 // Place a gradient loadscreen on an element, e.g to use before Ajax.updater
 function CtdlLoadScreen(elementid) {
 var elem = document.getElementById(elementid);
-elem.innerHTML = "<div align=center><br><b>Loading....</b><br /><img src=\"/static/gradientanim.gif\"/></div>";
+elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
 }
 // Show info for a user, basically replaces showuser()
 // matt@comalies is to blame for this poorly coded masterpiece. 
