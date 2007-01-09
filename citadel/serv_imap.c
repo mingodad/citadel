@@ -54,6 +54,7 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "imap_store.h"
+#include "imap_acl.h"
 #include "imap_misc.h"
 
 #ifdef HAVE_OPENSSL
@@ -434,7 +435,7 @@ void imap_cleanup_function(void)
  * output this stuff in other places as well)
  */
 void imap_output_capability_string(void) {
-	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID AUTH=LOGIN");
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=LOGIN");
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
 #endif
@@ -1604,6 +1605,26 @@ void imap_command_loop(void)
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
 		imap_close(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "SETACL")) {
+		imap_setacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "DELETEACL")) {
+		imap_deleteacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "GETACL")) {
+		imap_getacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "LISTRIGHTS")) {
+		imap_listrights(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "MYRIGHTS")) {
+		imap_myrights(num_parms, parms);
 	}
 
 	/* End of commands.  If we get here, the command is either invalid
