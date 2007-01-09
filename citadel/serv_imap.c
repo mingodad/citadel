@@ -1557,6 +1557,26 @@ void imap_command_loop(void)
 		imap_namespace(num_parms, parms);
 	}
 
+	else if (!strcasecmp(parms[1], "SETACL")) {
+		imap_setacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "DELETEACL")) {
+		imap_deleteacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "GETACL")) {
+		imap_getacl(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "LISTRIGHTS")) {
+		imap_listrights(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "MYRIGHTS")) {
+		imap_myrights(num_parms, parms);
+	}
+
 	else if (IMAP->selected == 0) {
 		cprintf("%s BAD no folder selected\r\n", parms[0]);
 	}
@@ -1605,26 +1625,6 @@ void imap_command_loop(void)
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
 		imap_close(num_parms, parms);
-	}
-
-	else if (!strcasecmp(parms[1], "SETACL")) {
-		imap_setacl(num_parms, parms);
-	}
-
-	else if (!strcasecmp(parms[1], "DELETEACL")) {
-		imap_deleteacl(num_parms, parms);
-	}
-
-	else if (!strcasecmp(parms[1], "GETACL")) {
-		imap_getacl(num_parms, parms);
-	}
-
-	else if (!strcasecmp(parms[1], "LISTRIGHTS")) {
-		imap_listrights(num_parms, parms);
-	}
-
-	else if (!strcasecmp(parms[1], "MYRIGHTS")) {
-		imap_myrights(num_parms, parms);
 	}
 
 	/* End of commands.  If we get here, the command is either invalid
