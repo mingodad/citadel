@@ -1,7 +1,9 @@
 webcit (7.02-3) unstable; urgency=high
-	
-  * purge TinyMCE, as there is a debian package out there.
-  * move our templates to /etc/citadel/www/
+
+  * integrate apache package. 
+  * finetune the config script
+  * don't use Webcits TinyMCE, as there is a debian package out there.
+  * move our templates to /usr/share/webcit/
   * use DESTDIR
   * remove ucf from package
   * add po-debconf to Build-Depends

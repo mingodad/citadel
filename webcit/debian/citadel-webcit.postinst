@@ -13,22 +13,42 @@ case "$1" in
 	if test ! -d /var/run/citadel/keys; then
 		mkdir -p /var/run/citadel/keys
 	fi
-	ln -sf /usr/share/tinymce/www /etc/citadel/www/tiny_mce
-	db_get citadel/WebcitHttpPort && http_port="$RET"
-	db_get citadel/WebcitHttpsPort && https_port="$RET"	
 
-	echo "aplying your settings"
-	echo "
-export WEBCIT_HTTP_PORT=$http_port
-export WEBCIT_HTTPS_PORT=$https_port
-export WEBCIT_CITADEL_IP=127.0.0.1
-export WEBCIT_CITADEL_PORT=504
-export WEBCIT_LISTEN_IP=0.0.0.0
-" >>/etc/default/webcit
-
+	db_get citadel/WebcitApacheIntegration &&WWWTYPE="$RET"
 	db_stop
-	
+
 	#DEBHELPER#
+	
+# update the webserver, if needed
+	case "$WWWTYPE" in
+	    "Apache")
+		webservers="apache" 
+	        aenmod proxy
+		;;
+	    "Apache-SSL")
+		webservers="apache-ssl" 
+		;;
+	    "Apache2")
+		webservers="apache2"
+	        a2enmod proxy
+		;;
+	    "All")
+		webservers="apache apache-ssl apache2" 
+		;;
+	    *)
+		webservers="" 
+		;;
+	esac
+
+	for server in $webservers; do
+	    if [ -d "/etc/${server}/conf.d" ]; then
+		if [ ! -e "/etc/${server}/conf.d/webcit-citadel" ] ; then
+		    ln -s /etc/citadel/apache.conf "/etc/${server}/conf.d/webcit.conf"
+                fi
+                invoke-rc.d $server reload || true
+	    fi
+	done
+
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
