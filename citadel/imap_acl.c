@@ -125,14 +125,42 @@ void imap_getacl(int num_parms, char *parms[]) {
 		if (strlen(temp.fullname) > 0) {
 			strcpy(rights, "");
 
-			/* Known, zapped, etc. mailboxes can probably be LIST-ed */
-			/* FIXME don't give away hidden rooms */
+			/* l - lookup (mailbox is visible to LIST/LSUB commands, SUBSCRIBE mailbox)
+			 *     FIXME don't give away hidden rooms
+			 */
 			if (ra & UA_GOTOALLOWED)	strcat(rights, "l");
 
-			/* Known rooms can be LSUB-ed */
+			/* r - read (SELECT the mailbox, perform STATUS) */
 			if (ra & UA_KNOWN)		strcat(rights, "r");
 
-			/* FIXME do the rest */
+			/* s - keep seen/unseen information across sessions (set or clear \SEEN flag
+			 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
+			 */
+			strcat(rights, "s");		/* Always granted */
+
+			/* w - write (set or clear flags other than \SEEN and \DELETED via
+			 * STORE, also set them during APPEND/COPY)
+			 */
+			/* Never granted in Citadel because our store doesn't support other flags */
+
+			/* i - insert (perform APPEND, COPY into mailbox) */
+			if (ra & UA_POSTALLOWED)	strcat(rights, "i");
+
+			/* p - post (send mail to submission address for mailbox, not enforced by IMAP) */
+			if (ra & UA_POSTALLOWED)	strcat(rights, "p");
+
+			/* k - create mailboxes (CREATE new sub-mailboxes in any
+			 * implementation-defined hierarchy, parent mailbox for the new
+			 * mailbox name in RENAME) */
+
+			/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
+
+			/* t - delete messages (set or clear \DELETED flag via STORE, set
+			 * \DELETED flag during APPEND/COPY) */
+
+			/* e - perform EXPUNGE and expunge as a part of CLOSE */
+
+			/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
 
 			if (strlen(rights) > 0) {
 				cprintf(" ");

@@ -54,7 +54,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
-		retval = (UA_KNOWN | UA_GOTOALLOWED);
+		retval = (UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED);
 		vbuf.v_view = 0;
 		goto SKIP_EVERYTHING;
 	}
@@ -65,7 +65,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Force the properties of the Aide room */
 	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
 		if (userbuf->axlevel >= 6) {
-			retval = UA_KNOWN | UA_GOTOALLOWED;
+			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
 		} else {
 			retval = 0;
 		}
@@ -103,15 +103,33 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		}
 	}
 
-	/* For mailbox rooms, also check the generation number matchups */
+	/* For mailbox rooms, also check the namespace */
 	if (roombuf->QRflags & QR_MAILBOX) {
 		if (userbuf->usernum == atol(roombuf->QRname)) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
 		}
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
 		}
+	}
+
+	/* For non-mailbox rooms... */
+	else {
+
+		/* User is allowed to post in the room unless:
+		 * - User is not validated
+		 * - User has no net privileges and it is a shared network room
+		 * - It is a read-only room
+		 */
+		int post_allowed = 1;
+		if (CC->user.axlevel < 2) post_allowed = 0;
+		if ((CC->user.axlevel < 4) && (CC->room.QRflags & QR_NETWORK)) post_allowed = 0;
+		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
+		if (post_allowed) {
+			retval = retval | UA_POSTALLOWED;
+		}
+
 	}
 
 	/* Check to see if the user has forgotten this room */
@@ -126,17 +144,17 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 	/* If user is explicitly locked out of this room, deny everything */
 	if (vbuf.v_flags & V_LOCKOUT) {
-		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
+		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED & ~UA_POSTALLOWED;
 	}
 
 	/* Aides get access to all private rooms */
 	if ( (userbuf->axlevel >= 6)
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		if (vbuf.v_flags & V_FORGET) {
-			retval = retval | UA_GOTOALLOWED;
+			retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
 		}
 		else {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
 		}
 	}
 
@@ -145,7 +163,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	 */
 	if ( (userbuf->axlevel >= 6)
 	   && (roombuf->QRflags & QR_MAILBOX) ) {
-		retval = retval | UA_GOTOALLOWED;
+		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */

@@ -2986,6 +2986,7 @@ struct CtdlMessage *CtdlMakeMessage(
  * returns 0 on success.
  */
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
+	int ra;
 
 	if (!(CC->logged_in)) {
 		snprintf(errmsgbuf, n, "Not logged in.");
@@ -2999,15 +3000,9 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
-	if ((CC->user.axlevel < 4)
-	   && (CC->room.QRflags & QR_NETWORK)) {
-		snprintf(errmsgbuf, n, "Need net privileges to enter here.");
-		return (ERROR + HIGHER_ACCESS_REQUIRED);
-	}
-
-	if ((CC->user.axlevel < 6)
-	   && (CC->room.QRflags & QR_READONLY)) {
-		snprintf(errmsgbuf, n, "Sorry, this is a read-only room.");
+	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
+	if (!(ra & UA_POSTALLOWED)) {
+		snprintf(errmsgbuf, n, "Higher access is required to post in this room.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
