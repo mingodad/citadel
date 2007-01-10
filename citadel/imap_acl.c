@@ -73,13 +73,86 @@ void imap_deleteacl(int num_parms, char *parms[]) {
 }
 
 
+
 /*
  * Implements the GETACL command.
  */
 void imap_getacl(int num_parms, char *parms[]) {
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+	int ret;
+	struct ctdluser temp;
+	struct cdbdata *cdbus;
+	int ra;
+	char rights[32];
 
-	cprintf("%s BAD not yet implemented FIXME\r\n", parms[0]);
-	return;
+	if (num_parms != 3) {
+		cprintf("%s BAD usage error\r\n", parms[0]);
+		return;
+	}
+
+	ret = imap_grabroom(roomname, parms[2], 0);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->room.QRname);
+	}
+	usergoto(roomname, 0, 0, &msgs, &new);
+
+	cprintf("* ACL");
+	cprintf(" ");
+	imap_strout(parms[2]);
+
+	/*
+	 * Traverse the userlist
+	 */
+	cdb_rewind(CDB_USERS);
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
+		memset(&temp, 0, sizeof temp);
+		memcpy(&temp, cdbus->ptr, sizeof temp);
+		cdb_free(cdbus);
+
+		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
+		if (strlen(temp.fullname) > 0) {
+			strcpy(rights, "");
+
+			/* Known, zapped, etc. mailboxes can probably be LIST-ed */
+			/* FIXME don't give away hidden rooms */
+			if (ra & UA_GOTOALLOWED)	strcat(rights, "l");
+
+			/* Known rooms can be LSUB-ed */
+			if (ra & UA_KNOWN)		strcat(rights, "r");
+
+			/* FIXME do the rest */
+
+			if (strlen(rights) > 0) {
+				cprintf(" ");
+				imap_strout(temp.fullname);
+				cprintf(" %s", rights);
+			}
+		}
+	}
+
+	cprintf("\r\n");
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, 0, &msgs, &new);
+	}
+
+	cprintf("%s OK GETACL completed\r\n", parms[0]);
 }
 
 
