@@ -1,3 +1,13 @@
+Template: citadel/WebcitApacheIntegration
+Type: select
+_Choices: Apache, Apache-SSL, Apache2, All, Internal
+Default: Internal
+_Description: Should Webcit be integrated in your Apache?
+  If you want Webcit to run alongside with one of your other installed 
+  Apache Webservers, select it from the list, else use Internal to make 
+  Webcit use its own HTTP Server Facilities.
+
+
 Template: citadel/WebcitHttpPort
 Type: string
 Default: 8504
