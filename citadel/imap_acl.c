@@ -143,7 +143,7 @@ void imap_getacl(int num_parms, char *parms[]) {
 			 */
 			/* Never granted in Citadel because our store doesn't support other flags */
 
-			/* i - insert (perform APPEND, COPY into mailbox) */
+			/* i - insert (perform APPEND, COPY into mailbox)
 			 * p - post (send mail to submission address for mailbox, not enforced by IMAP)
 			 */
 			if (ra & UA_POSTALLOWED) {
