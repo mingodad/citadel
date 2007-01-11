@@ -126,17 +126,17 @@ void imap_getacl(int num_parms, char *parms[]) {
 			strcpy(rights, "");
 
 			/* l - lookup (mailbox is visible to LIST/LSUB commands, SUBSCRIBE mailbox)
-			 *     FIXME don't give away hidden rooms
-			 */
-			if (ra & UA_GOTOALLOWED)	strcat(rights, "l");
-
-			/* r - read (SELECT the mailbox, perform STATUS) */
-			if (ra & UA_KNOWN)		strcat(rights, "r");
-
-			/* s - keep seen/unseen information across sessions (set or clear \SEEN flag
+			 * r - read (SELECT the mailbox, perform STATUS)
+			 * s - keep seen/unseen information across sessions (set or clear \SEEN flag
 			 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
 			 */
-			strcat(rights, "s");		/* Always granted */
+			if (	(ra & UA_KNOWN)					/* known rooms */
+			   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
+			   ) {
+							strcat(rights, "l");
+							strcat(rights, "r");
+							strcat(rights, "s");
+			}
 
 			/* w - write (set or clear flags other than \SEEN and \DELETED via
 			 * STORE, also set them during APPEND/COPY)
@@ -144,10 +144,12 @@ void imap_getacl(int num_parms, char *parms[]) {
 			/* Never granted in Citadel because our store doesn't support other flags */
 
 			/* i - insert (perform APPEND, COPY into mailbox) */
-			if (ra & UA_POSTALLOWED)	strcat(rights, "i");
-
-			/* p - post (send mail to submission address for mailbox, not enforced by IMAP) */
-			if (ra & UA_POSTALLOWED)	strcat(rights, "p");
+			 * p - post (send mail to submission address for mailbox, not enforced by IMAP)
+			 */
+			if (ra & UA_POSTALLOWED) {
+							strcat(rights, "i");
+							strcat(rights, "p");
+			}
 
 			/* k - create mailboxes (CREATE new sub-mailboxes in any
 			 * implementation-defined hierarchy, parent mailbox for the new
