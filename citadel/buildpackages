@@ -1,5 +1,9 @@
 #!/bin/bash
 # find out the package version from conf
+if test -x Makefile; then
+    make clean
+fi
+
 ./bootstrap
 
 export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;CITADEL;"`
@@ -34,29 +38,32 @@ fi
 
 
 case $1 in
-	debian)
+    debian)
 
 #dpkg-source: warning: source directory `./citadel' is not <sourcepackage>-<upstreamversion> `citadel-6.61'
-
-		if grep -q "($CITADEL_VERSION" debian/changelog; then
-			echo rebuilding package.
-		else
-			echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
+	
+	if grep -q "($CITADEL_VERSION" debian/changelog; then
+	    echo rebuilding package.
+	else
+	    echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
 
   * update to actual Citadel SVN. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
 
 " >/tmp/citadel_changelog
-			cat debian/changelog >>/tmp/citadel_changelog
-			mv /tmp/citadel_changelog debian/changelog
-
-		fi
-		if test "$2" == "src"; then
-		    cd ..; dpkg-source -b "citadel-$CITADEL_VERSION"
-		else
-		    fakeroot dpkg-buildpackage
-		fi
+	    cat debian/changelog >>/tmp/citadel_changelog
+	    mv /tmp/citadel_changelog debian/changelog
+	    
+	fi
+	if test "$2" == "src"; then
+	    cd ..; dpkg-source -b "citadel-$CITADEL_VERSION"
+	else
+	    fakeroot dpkg-buildpackage
+	fi
+	;;
+    sourcedist)
+	cd ..; tar --exclude .svn -cvzf citadel-$CITADEL_VERSION.tgz citadel-$CITADEL_VERSION/
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "
