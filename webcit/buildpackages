@@ -1,4 +1,7 @@
 #!/bin/bash
+if test -x Makefile; then
+    make clean
+fi
 ./bootstrap
 export WEBCIT_`grep VERSION= configure.in |sed -e "s;';;g"`
 
@@ -29,32 +32,36 @@ else
 	fi
 	
 fi
+
 case $1 in
-	debian)
-		cat debian/files_preview | sed \
-			-e "s;@WEBCIT_VERSION@;${WEBCIT_VERSION};" \
-			-e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
-			> debian/files
-		if grep -q "($WEBCIT_VERSION" debian/changelog; then
-			echo rebuilding package.
-		else
-			echo "webcit (${WEBCIT_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
+    debian)
+	cat debian/files_preview | sed \
+	    -e "s;@WEBCIT_VERSION@;${WEBCIT_VERSION};" \
+	    -e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
+	    > debian/files
+	if grep -q "($WEBCIT_VERSION" debian/changelog; then
+	    echo rebuilding package.
+	else
+	    echo "webcit (${WEBCIT_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
 
   * update to actual Webcit SVN. many new features. see Packages changelog.
 
  -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
 " >/tmp/webcit_changelog
-			cat debian/changelog >>/tmp/webcit_changelog
-			mv /tmp/webcit_changelog debian/changelog
-			
-		fi
-		if test "$2" == "src"; then
-		    cd ..; dpkg-source -b "webcit-$WEBCIT_VERSION"
-		else
-		    fakeroot dpkg-buildpackage
-		fi
+	    cat debian/changelog >>/tmp/webcit_changelog
+	    mv /tmp/webcit_changelog debian/changelog
+	    
+	fi
+	if test "$2" == "src"; then
+	    cd ..; dpkg-source -b "webcit-$WEBCIT_VERSION"
+	else
+	    fakeroot dpkg-buildpackage
+	fi
 	;;
-	*)
-		echo "Not yet implemented. we have: debian "
-		;;
+    sourcedist)
+	cd ..; tar -cvzf webcit-$WEBCIT_VERSION.tgz webcit-$WEBCIT_VERSION/
+	;;
+    *)
+	echo "Not yet implemented. we have: debian "
+	;;
 esac
