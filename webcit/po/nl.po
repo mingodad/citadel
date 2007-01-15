@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-06 22:31+0100\n"
+"POT-Creation-Date: 2007-01-14 20:43+0100\n"
 "PO-Revision-Date: 2006-12-17 22:32+0100\n"
 "Last-Translator: Wim Kuilman <wim.kuilman@esdalcollege.nl>\n"
 "Language-Team: Nederlands <nl@li.org>\n"
@@ -57,13 +57,13 @@ msgid ""
 "your browser is configured to block pop-up windows, you will not be able to "
 "receive any instant messages.<br /></ul>"
 msgstr ""
-"<ul><li><b>Als u al een account heeft op %s</b>, vul uw gebruikersnaam "
-"en wachtwoord in en klik op&quot;Inloggen.&quot; <li><b>Als u een nieuwe "
+"<ul><li><b>Als u al een account heeft op %s</b>, vul uw gebruikersnaam en "
+"wachtwoord in en klik op&quot;Inloggen.&quot; <li><b>Als u een nieuwe "
 "gebruiker bent</b>, vul naam en wachtwoord in dat u wilt gebruiken en klik "
 "op &quot;Nieuwe gebruiker.&quot; <li>Log netjes uit als u klaar bent. <li>U "
 "moet een browser gebruiken die <i>frames</i> en <i>cookies</i> ondersteunt. "
-"<li>Houd ook in gedachten dat als uw browser pop-up vensters blokkeert, u geen "
-"directe berichten kunt ontvangen.<br /></ul>"
+"<li>Houd ook in gedachten dat als uw browser pop-up vensters blokkeert, u "
+"geen directe berichten kunt ontvangen.<br /></ul>"
 
 #: ../auth.c:68 ../who.c:263
 msgid "User name:"
@@ -87,8 +87,8 @@ msgstr "Stoppen"
 
 #: ../auth.c:75
 #, c-format
-msgid "%s - powered by Citadel"
-msgstr "%s - met Citadel-technologie"
+msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
+msgstr ""
 
 #: ../auth.c:174 ../auth.c:542
 msgid "Blank passwords are not allowed."
@@ -288,7 +288,8 @@ msgstr "Afwijzen"
 
 #: ../calendar.c:305
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr "Klik <i>Update</i> om deze reactie te accepteren en uw agenda bij te werken."
+msgstr ""
+"Klik <i>Update</i> om deze reactie te accepteren en uw agenda bij te werken."
 
 #: ../calendar.c:306
 msgid "Update"
@@ -688,7 +689,8 @@ msgstr "Chat"
 
 #: ../iconbar.c:275
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr "Uitgebreide menuopties: Uitgebreide kamer commando's, Account info, en Chat"
+msgstr ""
+"Uitgebreide menuopties: Uitgebreide kamer commando's, Account info, en Chat"
 
 #: ../iconbar.c:282
 msgid "Advanced"
@@ -748,8 +750,8 @@ msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
 msgstr ""
-"Selecteer de icoontjes die u graag weergegeven wilt zien in het 'icon bar' aan "
-"de linkerzijde van het scherm"
+"Selecteer de icoontjes die u graag weergegeven wilt zien in het 'icon bar' "
+"aan de linkerzijde van het scherm"
 
 #: ../iconbar.c:524
 msgid "Site logo"
@@ -788,14 +790,14 @@ msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
 msgstr ""
-"Door dit icoontje te selecteren wordt een lijst van alle toegankelijke kamers "
-"(of mappen) getoond"
+"Door dit icoontje te selecteren wordt een lijst van alle toegankelijke "
+"kamers (of mappen) getoond"
 
 #: ../iconbar.c:651
 msgid "Clicking this icon displays a list of all users currently logged in."
 msgstr ""
-"Door dit icoontje  te selecteren wordt een lijst getoond van alle gebruikers die "
-"nu zijn ingelogd."
+"Door dit icoontje  te selecteren wordt een lijst getoond van alle gebruikers "
+"die nu zijn ingelogd."
 
 #: ../iconbar.c:667
 msgid ""
@@ -1640,7 +1642,8 @@ msgid "Edit this page"
 msgstr "Bewerk deze pagina"
 
 #: ../roomops.c:655
-msgid "Leave all messages marked as unread, go to next room with unread messages"
+msgid ""
+"Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Laat alle berichten gemarkeerd als ongelezen, ga naar de volgende kamer met "
 "ongelezen berichten"
@@ -1845,7 +1848,8 @@ msgstr ""
 "naar de volgende ontvangers: </i><br /><br />\n"
 
 #: ../roomops.c:1529
-msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
+msgid ""
+"This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Deze kamer is ingesteld voor self-service bij abonneren/verwijderen."
 
 #: ../roomops.c:1532
@@ -2274,6 +2278,11 @@ msgstr "stop"
 msgid "and then"
 msgstr "en dan"
 
+#: ../sieve.c:1104
+#, fuzzy
+msgid "Add rule"
+msgstr "Voeg gebruikers toe"
+
 #: ../siteconfig.c:39
 msgid "Site configuration"
 msgstr "Site instellingen"
@@ -2348,7 +2357,8 @@ msgstr "Stel het automatisch verlopen van oude berichten in."
 
 #: ../siteconfig.c:101
 msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr "Deze instellingen kunnen worden overschreven op verdieping- of kamerniveau."
+msgstr ""
+"Deze instellingen kunnen worden overschreven op verdieping- of kamerniveau."
 
 #: ../siteconfig.c:105
 msgid "Indexing and Journaling"
@@ -2376,7 +2386,8 @@ msgstr "Telefoonnummer"
 #: ../siteconfig.c:145
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr "Sta automatisch beheerdersstatus in voor gebruikers die privé kamers aanmaken"
+msgstr ""
+"Sta automatisch beheerdersstatus in voor gebruikers die privé kamers aanmaken"
 
 #: ../siteconfig.c:153
 #, c-format
@@ -2571,7 +2582,8 @@ msgstr "Verwijder direct gewiste berichten in IMAP"
 #: ../siteconfig.c:452
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr "Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
+msgstr ""
+"Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
 
 #: ../siteconfig.c:460
 #, c-format
@@ -2782,7 +2794,8 @@ msgid "Delete this user?"
 msgstr "Verwijder deze gebruiker?"
 
 #: ../useredit.c:204
-msgid "An error occurred while trying to create or edit this address book entry."
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "Er is een fout opgetreden tijdens het aanmaken of bewerken van dit adresboek "
 "item."
@@ -2942,24 +2955,24 @@ msgstr "Primair e-mailadres: "
 msgid "Internet e-mail aliases"
 msgstr "Internet e-mail aliases"
 
-#: ../webcit.c:679
+#: ../webcit.c:684
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
 
-#: ../webcit.c:763
+#: ../webcit.c:768
 msgid "Make this my start page"
 msgstr "Maak hiervan mijn startpagina"
 
-#: ../webcit.c:782
+#: ../webcit.c:787
 msgid "You no longer have a start page selected."
 msgstr "U heeft geen startpagina meer geselecteerd."
 
-#: ../webcit.c:818
+#: ../webcit.c:823
 msgid "Authorization Required"
 msgstr "Autorisatie vereist"
 
-#: ../webcit.c:820
+#: ../webcit.c:825
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2968,7 +2981,7 @@ msgstr ""
 "De opgevraagde bron vereist een geldige gebruikersnaam en wachtwoord. U "
 "konniet worden ingelogd in: %s\n"
 
-#: ../webcit.c:1247
+#: ../webcit.c:1252
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -2983,23 +2996,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1486 ../webcit.c:1488
+#: ../webcit.c:1491 ../webcit.c:1493
 msgid "Room info"
 msgstr "Informatie kamer"
 
-#: ../webcit.c:1491 ../webcit.c:1493
+#: ../webcit.c:1496 ../webcit.c:1498
 msgid "Your bio"
 msgstr "Uw CV"
 
-#: ../webcit.c:1501
+#: ../webcit.c:1506
 msgid "your photo"
 msgstr "uw foto"
 
-#: ../webcit.c:1507
+#: ../webcit.c:1512
 msgid "the icon for this room"
 msgstr "het icoontje voor deze kamer"
 
-#: ../webcit.c:1521
+#: ../webcit.c:1526
 msgid "the icon for this floor"
 msgstr "het icoontje voor deze verdieping"
 
@@ -3100,3 +3113,5 @@ msgstr ""
 "Selecteer de 'Bewerk deze pagina' link in de banner van de kamer als u deze "
 "pagina wilt aanmaken."
 
+#~ msgid "%s - powered by Citadel"
+#~ msgstr "%s - met Citadel-technologie"

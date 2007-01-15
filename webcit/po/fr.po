@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-04 17:46-0500\n"
+"POT-Creation-Date: 2007-01-14 20:43+0100\n"
 "PO-Revision-Date: 2006-12-04 23:22+0200\n"
 "Last-Translator: Thiery Pasquier <thierry.pasquier@pictascience.org>\n"
 "Language-Team:  <en@li.org>\n"
@@ -60,13 +60,13 @@ msgid ""
 msgstr ""
 "<ul><li><b>Si vous avez déjà un compte sur %s</b>, entrez votre identifiant "
 "et votre mot de passe puis cliquez sur &quot;Login.&quot;</li> <li><b>Si "
-"vous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passe"
-"que vous souhaitez utiliser et cliquez sur &quot;Nouvel usager.&quot; "
-"</li><li>Fermez votre session  proprement en quittant.</li> <li>Vous devez "
+"vous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passeque "
+"vous souhaitez utiliser et cliquez sur &quot;Nouvel usager.&quot; </"
+"li><li>Fermez votre session  proprement en quittant.</li> <li>Vous devez "
 "employer un navigateur qui supporte les <i>cadres</i> et les <i>cookies</i> "
 "</li><li>Gardez aussi à l'esprit que si votre navigateur est configuré pour "
-"bloquer les pop-ups intempestives vous ne recevrez aucun "
-"message instantané.</li></ul>"
+"bloquer les pop-ups intempestives vous ne recevrez aucun message instantané."
+"</li></ul>"
 
 #: ../auth.c:68 ../who.c:263
 msgid "User name:"
@@ -90,8 +90,8 @@ msgstr "Quitter"
 
 #: ../auth.c:75
 #, c-format
-msgid "%s - powered by Citadel"
-msgstr "%s - motorisé par Citadel"
+msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
+msgstr ""
 
 #: ../auth.c:174 ../auth.c:542
 msgid "Blank passwords are not allowed."
@@ -332,8 +332,7 @@ msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
-"Vous avez décliné cette invitation. "
-"Votre agenda <b>n'a pas été</b> modifié."
+"Vous avez décliné cette invitation. Votre agenda <b>n'a pas été</b> modifié."
 
 #: ../calendar.c:393
 msgid "A reply has been sent to the meeting organizer."
@@ -356,8 +355,8 @@ msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
-"Vous avez choisi d'ignorer cette réponse. Votre agenda <b>n'a pas</b> "
-"été modifié. "
+"Vous avez choisi d'ignorer cette réponse. Votre agenda <b>n'a pas</b> été "
+"modifié. "
 
 #: ../calendar.c:544
 msgid "Edit task"
@@ -591,11 +590,12 @@ msgid ""
 "You can upload any image directly from your computer, as long as it is in "
 "GIF format (JPEG, PNG, etc. won't work)."
 msgstr ""
-"Vous pouvez télécharger n'importe quelle image, pour autant qu'elle soit "
-"au format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
+"Vous pouvez télécharger n'importe quelle image, pour autant qu'elle soit au "
+"format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
 
 #: ../graphics.c:50
-msgid "Please select a file to télécharger:"
+#, fuzzy
+msgid "Please select a file to upload:"
 msgstr "Sélectionner un fichier à transférer :"
 
 #: ../graphics.c:54
@@ -1453,10 +1453,10 @@ msgid ""
 "this site if you wish to receive instant messages."
 msgstr ""
 "Vous avez un ou plusieurs messages instantanés en attente, mais il est "
-"impossible d'ouvrir une fenêtre de lecture. Le blocage des pop-ups"
-"intempestives est probablement activé, SVP configurez votre "
-"navigateur pour les autoriser (au moins pour Citadel) si vous souhaitez lire "
-"les messages instantanés."
+"impossible d'ouvrir une fenêtre de lecture. Le blocage des pop-"
+"upsintempestives est probablement activé, SVP configurez votre navigateur "
+"pour les autoriser (au moins pour Citadel) si vous souhaitez lire les "
+"messages instantanés."
 
 #: ../paging.c:291 ../paging.c:453
 msgid "An error occurred while setting up the chat socket."
@@ -1644,8 +1644,8 @@ msgstr "Modifier cette page"
 msgid ""
 "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
-"Laisser les messages selectionnés comme non lus, aller au prochain salon "
-" avec des messages non lus."
+"Laisser les messages selectionnés comme non lus, aller au prochain salon  "
+"avec des messages non lus."
 
 #: ../roomops.c:656
 msgid "Skip this room"
@@ -1831,8 +1831,8 @@ msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
 msgstr ""
-"<i>Les contenus de ce salon sont envoyés comme des <b>courriels "
-"individuels </b> aux destinataires suivants :</i><br /><br />\n"
+"<i>Les contenus de ce salon sont envoyés comme des <b>courriels individuels "
+"</b> aux destinataires suivants :</i><br /><br />\n"
 
 #: ../roomops.c:1485 ../roomops.c:1515
 msgid "(remove)"
@@ -1932,9 +1932,8 @@ msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
 msgstr ""
-"Les usagers énumérés ci-dessous ont accès à ce salon. Pour retirer un"
-"usager de cette liste, sélectionner son nom de l'usager et cliquer "
-"sur 'Éjecter'."
+"Les usagers énumérés ci-dessous ont accès à ce salon. Pour retirer unusager "
+"de cette liste, sélectionner son nom de l'usager et cliquer sur 'Éjecter'."
 
 #: ../roomops.c:1914
 msgid "Kick"
@@ -1945,8 +1944,8 @@ msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
 msgstr ""
-"Pour accorder l'accès à ce salon à un usager, entrer son identifiant "
-"dans le champ de saisie ci-dessous et cliquer sur 'Inviter'."
+"Pour accorder l'accès à ce salon à un usager, entrer son identifiant dans le "
+"champ de saisie ci-dessous et cliquer sur 'Inviter'."
 
 #: ../roomops.c:1924
 msgid "Invite:"
@@ -2089,8 +2088,8 @@ msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
-"Pour créer un nouveau script, entrez un nom dans le champ de saisie "
-"ci-après et cliquez sur 'Créer'."
+"Pour créer un nouveau script, entrez un nom dans le champ de saisie ci-après "
+"et cliquez sur 'Créer'."
 
 #: ../sieve.c:616
 msgid "Script name: "
@@ -2334,8 +2333,8 @@ msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
 msgstr ""
-"Les changements effectués à partir de cet écran ne seront effectifs "
-"qu'après un redémarrage du serveur Citadel."
+"Les changements effectués à partir de cet écran ne seront effectifs qu'après "
+"un redémarrage du serveur Citadel."
 
 #: ../siteconfig.c:86
 msgid "Advanced server fine-tuning controls"
@@ -2350,8 +2349,8 @@ msgid ""
 "NOTE: This Citadel server has been built without LDAP support.  These "
 "options will have no effect."
 msgstr ""
-"NOTE: Ce serveur Citadel a été mis en fonction sans prise en charge de "
-"LDAP. Ces options n'auront aucun effet."
+"NOTE: Ce serveur Citadel a été mis en fonction sans prise en charge de LDAP. "
+"Ces options n'auront aucun effet."
 
 #: ../siteconfig.c:100
 msgid "Configure automatic expiry of old messages"
@@ -2360,8 +2359,7 @@ msgstr "Configurer l'expiration automatique des anciens messages"
 #: ../siteconfig.c:101
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
-"Ces options peuvent être modifiées individuellement par palier "
-"ou par salon."
+"Ces options peuvent être modifiées individuellement par palier ou par salon."
 
 #: ../siteconfig.c:105
 msgid "Indexing and Journaling"
@@ -2491,8 +2489,9 @@ msgstr "Port SMTP  (-1 pour désactiver ce service)"
 #: ../siteconfig.c:303
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
-msgstr "Corriger les identifications d'expéditeur (FROM:) contrefaites lors "
-"de session SMTP authentifiées."
+msgstr ""
+"Corriger les identifications d'expéditeur (FROM:) contrefaites lors de "
+"session SMTP authentifiées."
 
 #: ../siteconfig.c:311
 #, c-format
@@ -2587,8 +2586,9 @@ msgstr "Effacer imédiatement les messages supprimés via IMAP"
 #: ../siteconfig.c:452
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr "Autoriser les client SMTP non authentifiés à usurper l'identité "
-"des domaine de ce site"
+msgstr ""
+"Autoriser les client SMTP non authentifiés à usurper l'identité des domaine "
+"de ce site"
 
 #: ../siteconfig.c:460
 #, c-format
@@ -2609,8 +2609,7 @@ msgstr "Adresse courriel de destination des messages journalisés"
 #, c-format
 msgid "Default timezone for unzoned calendar items"
 msgstr ""
-"Fuseau horaire par défaut des événements de l'agenda sans "
-"mention du fuseau"
+"Fuseau horaire par défaut des événements de l'agenda sans mention du fuseau"
 
 #: ../siteconfig.c:515
 #, c-format
@@ -2635,8 +2634,7 @@ msgstr "Règles d'expiration par défaut des messages dans un salon public"
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr ""
-"Règles d'expiration par défaut des messages dans une "
-"boîte aux lettres privée"
+"Règles d'expiration par défaut des messages dans une boîte aux lettres privée"
 
 #: ../siteconfig.c:573
 #, c-format
@@ -2721,8 +2719,8 @@ msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
 "administrator is %s."
 msgstr ""
-"Vous êtes connecté(e) à %s qui est servi par %s avec %s et situé à %s. "
-"Votre administrateur système est %s."
+"Vous êtes connecté(e) à %s qui est servi par %s avec %s et situé à %s. Votre "
+"administrateur système est %s."
 
 #: ../summary.c:259
 #, c-format
@@ -2766,8 +2764,8 @@ msgid ""
 "To create a new user account, enter the desired user name in the box below "
 "and click 'Create'."
 msgstr ""
-"Pour créer un nouveau compte d'usager, entrez son identifiant dans le "
-"champ de saisie ci-après et cliquez sur 'Créer'."
+"Pour créer un nouveau compte d'usager, entrez son identifiant dans le champ "
+"de saisie ci-après et cliquez sur 'Créer'."
 
 #: ../useredit.c:48
 msgid "New user: "
@@ -2804,8 +2802,8 @@ msgstr "Supprimer cet usager ?"
 #: ../useredit.c:204
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
-msgstr "Une erreur est apparue pendant la création ou la modification de ce "
-"contact."
+msgstr ""
+"Une erreur est apparue pendant la création ou la modification de ce contact."
 
 #: ../useredit.c:283
 msgid "Edit user account: "
@@ -2962,33 +2960,33 @@ msgstr "Adresse de courriel principale "
 msgid "Internet e-mail aliases"
 msgstr "Alias d'adresses de courriel"
 
-#: ../webcit.c:679
+#: ../webcit.c:684
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Une erreur est apparue en récupérant cette partie : %s\n"
 
-#: ../webcit.c:763
+#: ../webcit.c:768
 msgid "Make this my start page"
 msgstr "Faire de cette page ma page de départ"
 
-#: ../webcit.c:782
+#: ../webcit.c:787
 msgid "You no longer have a start page selected."
 msgstr "Vous n'avez pas encore choisi de page de départ."
 
-#: ../webcit.c:818
+#: ../webcit.c:823
 msgid "Authorization Required"
 msgstr "Autorisation requise"
 
-#: ../webcit.c:820
+#: ../webcit.c:825
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
-"La ressource que vous avez demandée requiert un nom d'usager et un mot "
-"de passe valides. Vous n'avez pas été connecté à %s\n"
+"La ressource que vous avez demandée requiert un nom d'usager et un mot de "
+"passe valides. Vous n'avez pas été connecté à %s\n"
 
-#: ../webcit.c:1247
+#: ../webcit.c:1252
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3003,23 +3001,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1486 ../webcit.c:1488
+#: ../webcit.c:1491 ../webcit.c:1493
 msgid "Room info"
 msgstr "Informations sur le salon"
 
-#: ../webcit.c:1491 ../webcit.c:1493
+#: ../webcit.c:1496 ../webcit.c:1498
 msgid "Your bio"
 msgstr "Votre biographie"
 
-#: ../webcit.c:1501
+#: ../webcit.c:1506
 msgid "your photo"
 msgstr "Votre photographie"
 
-#: ../webcit.c:1507
+#: ../webcit.c:1512
 msgid "the icon for this room"
 msgstr "l'icône de ce salon"
 
-#: ../webcit.c:1521
+#: ../webcit.c:1526
 msgid "the icon for this floor"
 msgstr "l'icône de ce palier"
 
@@ -3074,8 +3072,8 @@ msgid ""
 msgstr ""
 "Cet écran vous permet de changer la façon dont votre session apparaît dans "
 "la liste des usagers connectés. Pour éviter qu'un 'pseudonyme' que vous "
-"auriez préalablement indiqué ne soit encore visible, cliquez simplement "
-"sur le bouton 'changer' sans rien indiquer dans la boîte de saisie "
+"auriez préalablement indiqué ne soit encore visible, cliquez simplement sur "
+"le bouton 'changer' sans rien indiquer dans la boîte de saisie "
 "correspondante."
 
 #: ../who.c:244
@@ -3118,8 +3116,11 @@ msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
-"Pour créer cette page, sélectionnez le lien 'Éditer cette page ' dans "
-"la bannière du salon."
+"Pour créer cette page, sélectionnez le lien 'Éditer cette page ' dans la "
+"bannière du salon."
+
+#~ msgid "%s - powered by Citadel"
+#~ msgstr "%s - motorisé par Citadel"
 
 #~ msgid "localhost"
 #~ msgstr "localhost"

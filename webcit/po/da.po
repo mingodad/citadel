@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit 6.82\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-04 17:46-0500\n"
+"POT-Creation-Date: 2007-01-14 20:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -84,7 +84,7 @@ msgstr "Afslut"
 
 #: ../auth.c:75
 #, c-format
-msgid "%s - powered by Citadel"
+msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr ""
 
 #: ../auth.c:174 ../auth.c:542
@@ -2967,24 +2967,24 @@ msgstr "Pimær Internet Email adresse"
 msgid "Internet e-mail aliases"
 msgstr "Internet Email aliasser"
 
-#: ../webcit.c:679
+#: ../webcit.c:684
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "En fejl opstod under hentning af denne del: %s\n"
 
-#: ../webcit.c:763
+#: ../webcit.c:768
 msgid "Make this my start page"
 msgstr "Gør dette til min startside"
 
-#: ../webcit.c:782
+#: ../webcit.c:787
 msgid "You no longer have a start page selected."
 msgstr "Du har ikke længere en startside."
 
-#: ../webcit.c:818
+#: ../webcit.c:823
 msgid "Authorization Required"
 msgstr "Godkendelse Krævet"
 
-#: ../webcit.c:820
+#: ../webcit.c:825
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2993,7 +2993,7 @@ msgstr ""
 "Resourcen som du forespurgte kræver et brugernavn og en adgangskode. Du "
 "kunne ikke blive logged ind: %s\n"
 
-#: ../webcit.c:1247
+#: ../webcit.c:1252
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3008,23 +3008,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1486 ../webcit.c:1488
+#: ../webcit.c:1491 ../webcit.c:1493
 msgid "Room info"
 msgstr "Rum info"
 
-#: ../webcit.c:1491 ../webcit.c:1493
+#: ../webcit.c:1496 ../webcit.c:1498
 msgid "Your bio"
 msgstr "Din bio"
 
-#: ../webcit.c:1501
+#: ../webcit.c:1506
 msgid "your photo"
 msgstr "dit billede"
 
-#: ../webcit.c:1507
+#: ../webcit.c:1512
 msgid "the icon for this room"
 msgstr "ikonet for dette rum"
 
-#: ../webcit.c:1521
+#: ../webcit.c:1526
 msgid "the icon for this floor"
 msgstr "ikonet for denne etage"
 
