@@ -43,7 +43,7 @@ case "$1" in
 	for server in $webservers; do
 	    if [ -d "/etc/${server}/conf.d" ]; then
 		if [ ! -e "/etc/${server}/conf.d/webcit-citadel" ] ; then
-		    ln -s /etc/citadel/apache.conf "/etc/${server}/conf.d/webcit.conf"
+		    ln -sf /etc/citadel/webcit.conf "/etc/${server}/conf.d/webcit.conf"
                 fi
                 invoke-rc.d $server reload || true
 	    fi
