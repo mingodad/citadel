@@ -354,11 +354,11 @@ void embed_view_o_matic(void) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n"
-		"<span class=\"room_banner_new_messages\">");
+		"<div class=\"room_banner_new_messages\"><span>");
 	wprintf(_("View as:"));
-	wprintf(" "
+	wprintf("</span> "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
-		"STYLE=\"font-size: 7pt; background: #444455; color: #ddddcc;\" "
+		"class=\"selectbox\" "
 		"OnChange=\"location.href=viewomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
@@ -383,7 +383,7 @@ void embed_view_o_matic(void) {
 			wprintf("</OPTION>\n");
 		}
 	}
-	wprintf("</select></span></form>\n");
+	wprintf("</select></div></form>\n");
 }
 
 
@@ -392,13 +392,13 @@ void embed_view_o_matic(void) {
  */
 void embed_search_o_matic(void) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n"
-		"<span class=\"room_banner_new_messages\">");
+		"<div class=\"room_banner_new_messages\"><span>");
 	wprintf(_("Search: "));
-	wprintf("<input "
+	wprintf("</span> <input "
 		"type=\"text\" name=\"query\" size=\"20\" maxlength=\"128\" "
-		"style=\"font-size: 7pt; background: #444455; color: #ddddcc;\">\n"
+		"class=\"inputbox\">\n"
 	);
-	wprintf("</select></span></form>\n");
+	wprintf("</select></div></form>\n");
 }
 
 
@@ -456,7 +456,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	do_template("roombanner");
 	if (navbar_style != navbar_none) {
 
-		wprintf("<div style=\"position:absolute; bottom:0px; left:0px\">\n"
+		wprintf("<div id=\"navbar\">\n"
 			"<table width=\"100%%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n");
 
 
@@ -2175,7 +2175,7 @@ void display_private(char *rname, int req_pass)
 	);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
+		"<table class=\"roomops_background\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");
 	wprintf("<br />");
@@ -2189,7 +2189,7 @@ void display_private(char *rname, int req_pass)
 	wprintf("<FORM METHOD=\"POST\" action=\"goto_private\">\n");
 
 	wprintf("<table border=\"0\" cellspacing=\"5\" "
-		"cellpadding=\"5\" BGCOLOR=\"#EEEEEE\">\n"
+		"cellpadding=\"5\" class=\"roomops_background_alt\">\n"
 		"<TR><TD>");
 	wprintf(_("Enter room name:"));
 	wprintf("</TD><TD>"
