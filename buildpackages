@@ -3,7 +3,7 @@ if test -x Makefile; then
     make clean
 fi
 ./bootstrap
-export WEBCIT_`grep VERSION= configure.in |sed -e "s;';;g"`
+export WEBCIT_`grep VERSION= configure.ac |sed -e "s;';;g"`
 
 PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
@@ -35,10 +35,6 @@ fi
 
 case $1 in
     debian)
-	cat debian/files_preview | sed \
-	    -e "s;@WEBCIT_VERSION@;${WEBCIT_VERSION};" \
-	    -e "s;@PACKAGE_VERSION@;${PACKAGE_VERSION};" \
-	    > debian/files
 	if grep -q "($WEBCIT_VERSION" debian/changelog; then
 	    echo rebuilding package.
 	else
