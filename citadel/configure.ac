@@ -682,7 +682,19 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 		;;
 	esac
 	])
-
+AC_CANONICAL_HOST
+AC_MSG_CHECKING([for reality distorion field])
+case "$host" in
+	dnl TCP buffering isn't ideal under OS X. This define should also be
+	dnl checked in other cases of OS X-Linux differences.
+	*-*-darwin*)
+		AC_DEFINE(HAVE_DARWIN)
+		AC_MSG_RESULT([present])
+	;;
+	*)
+		AC_MSG_RESULT([missing])
+	;;
+esac
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
 AC_SUBST(CHKPWD)

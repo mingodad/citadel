@@ -477,6 +477,7 @@ struct CitContext *CreateNewContext(void) {
  * native TCP buffering (Linux & *BSD), use that; otherwise, emulate it with
  * user-space buffering.
  */
+#ifndef HAVE_DARWIN
 #ifdef TCP_CORK
 #	define HAVE_TCP_BUFFERING
 #else
@@ -484,8 +485,8 @@ struct CitContext *CreateNewContext(void) {
 #		define HAVE_TCP_BUFFERING
 #		define TCP_CORK TCP_NOPUSH
 #	endif
-#endif
-
+#endif /* TCP_CORK */
+#endif /* HAVE_DARWIN */
 
 #ifdef HAVE_TCP_BUFFERING
 static unsigned on = 1, off = 0;
@@ -505,6 +506,16 @@ void flush_output(void) {
 	struct CitContext *ctx = MyContext();
 	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
 	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+}
+#elif HAVE_DARWIN
+/* Stub functions for Darwin/OS X where TCP buffering isn't liked at all */
+void buffer_output(void) {
+CC->buffering = 0;
+}
+void unbuffer_output(void) {
+CC->buffering = 0;
+}
+void flush_output(void) {
 }
 #else
 void buffer_output(void) {

@@ -37,6 +37,9 @@
 /* define this if you have the libsieve mailbox filtering library available */
 #undef HAVE_LIBSIEVE
 
+/* define if using OS X/Darwin */
+#undef HAVE_DARWIN
+
 /* define this if you have the newt window library available */
 #undef HAVE_NEWT
 
