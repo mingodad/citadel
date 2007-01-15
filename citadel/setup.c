@@ -314,14 +314,10 @@ void delete_inittab_entry(void)
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, 
-			 sizeof looking_for,
-			 "%s/citserver", 
-#ifndef HAVE_RUN_DIR
-			 setup_directory
-#else
-			 CTDLDIR
-#endif
-	 );
+		 sizeof looking_for,
+		 "%s/citserver", 
+		 ctdl_sbin_dir
+		 );
 
 	/* Now tweak /etc/inittab */
 	infp = fopen("/etc/inittab", "r");
@@ -502,12 +498,7 @@ void check_xinetd_entry(void) {
 		"	server_args	= -h -L %s/citadel\n"
 		"	log_on_failure	+= USERID\n"
 		"}\n",
-#ifndef HAVE_RUN_DIR
-			setup_directory
-#else
-			RUN_DIR
-#endif
-			);
+		ctdl_bin_dir);
 	fclose(fp);
 
 	/* Now try to restart the service */
@@ -586,14 +577,10 @@ int test_server(void) {
 	sprintf(cookie, "--test--%d--", getpid());
 
 	sprintf(cmd, "%s/sendcommand %s%s ECHO %s 2>&1",
-#ifndef HAVE_RUN_DIR
-			setup_directory,
-#else
-			CTDLDIR,
-#endif
-			(enable_home)?"-h":"", 
-			(enable_home)?setup_directory:"",
-			cookie);
+		ctdl_sbin_dir,
+		(enable_home)?"-h":"", 
+		(enable_home)?ctdl_run_dir:"",
+		cookie);
 
 	fp = popen(cmd, "r");
 	if (fp == NULL) return(errno);
@@ -942,13 +929,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, 
-#ifdef HAVE_RUN_DIR
-		   ""
-#else
-		   CTDLDIR
-#endif
-		   );
+	strcpy(setup_directory, ctdl_run_dir);
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
 		strcpy(setup_directory, getenv("CITADEL"));
 	}
@@ -1191,11 +1172,6 @@ NEW_INST:
 	chmod(ctdl_netcfg_dir, 0700);
 	chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
 
-	/* TODO: where to put this? */
-	mkdir("netconfigs", 0700);
-	chmod("netconfigs", 0700);
-	chown("netconfigs", config.c_ctdluid, -1);
-
 	/* Delete files and directories used by older Citadel versions */
 	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 	unlink("citadel.log");
@@ -1240,7 +1216,7 @@ NEW_INST:
 		gid = pw->pw_gid;
 
 	progress("Setting file permissions", 0, 4);
-	chown(".", config.c_ctdluid, gid);
+	chown(ctdl_run_dir, config.c_ctdluid, gid);
 	progress("Setting file permissions", 1, 4);
 	chown(file_citadel_config, config.c_ctdluid, gid);
 	progress("Setting file permissions", 2, 4);
