@@ -1,13 +1,9 @@
 <?=beginbox>
-<center>
-<font color="#FF0000"><?MESG></font>
-<table border=0>
-<tr>
-<td align=center>
-	<?HELLO>
+<div class="login_message"><?MESG></div>
+<div class="login_hello"><?HELLO></div>
+<div class="login_form">
 	<form action="login" method="POST">
-
-	<table border="0" cellspacing="5" cellpadding="5" bgcolor="#EEEEEE">
+	<table border="0" cellspacing="5" cellpadding="5">
 		<tr><td><?USERNAME_BOX></td>
 		<td><input type="text" name="name" maxlength="25"></td></tr>
 		<tr><td><?PASSWORD_BOX></td>
@@ -22,18 +18,8 @@
 	<?NEWUSER_BUTTON_POST>
 	<input type="submit" name="exit_action" value="<?EXIT_BUTTON>">
 	</td></tr>
-
 	</table>
 	</form>
-
-	</td>
-	<td align="center"><p><img src="image&name=hello"></p></td>
-	</tr>
-	<tr>
-		<td colspan="2">
-		<?LOGIN_INSTRUCTIONS>
-		</td>
-</tr>
-</table>
-</center>
+</div>
+<div class="login_infos"><?LOGIN_INSTRUCTIONS></div>
 <?=endbox>
