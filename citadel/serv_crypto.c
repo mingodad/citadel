@@ -147,12 +147,12 @@ void init_ssl(void)
 	/* Get our certificates in order.
 	 * First, create the key/cert directory if it's not there already...
 	 */
-	mkdir(CTDL_CRYPTO_DIR, 0700);
+	mkdir(ctdl_ssl_dir, 0700);
 
 	/*
 	 * Generate a key pair if we don't have one.
 	 */
-	if (access(CTDL_KEY_PATH, R_OK) != 0) {
+	if (access(file_crpt_file_key, R_OK) != 0) {
 		lprintf(CTDL_INFO, "Generating RSA key pair.\n");
 		rsa = RSA_generate_key(1024,	/* modulus size */
 					65537,	/* exponent */
@@ -163,9 +163,9 @@ void init_ssl(void)
 				ERR_reason_error_string(ERR_get_error()));
 		}
 		if (rsa != NULL) {
-			fp = fopen(CTDL_KEY_PATH, "w");
+			fp = fopen(file_crpt_file_key, "w");
 			if (fp != NULL) {
-				chmod(CTDL_KEY_PATH, 0600);
+				chmod(file_crpt_file_key, 0600);
 				if (PEM_write_RSAPrivateKey(fp,	/* the file */
 							rsa,	/* the key */
 							NULL,	/* no enc */
@@ -176,7 +176,7 @@ void init_ssl(void)
 				) != 1) {
 					lprintf(CTDL_CRIT, "Cannot write key: %s\n",
                                 		ERR_reason_error_string(ERR_get_error()));
-					unlink(CTDL_KEY_PATH);
+					unlink(file_crpt_file_key);
 				}
 				fclose(fp);
 			}
@@ -187,7 +187,7 @@ void init_ssl(void)
 	/*
 	 * Generate a CSR if we don't have one.
 	 */
-	if (access(CTDL_CSR_PATH, R_OK) != 0) {
+	if (access(file_crpt_file_csr, R_OK) != 0) {
 		lprintf(CTDL_INFO, "Generating a certificate signing request.\n");
 
 		/*
@@ -196,7 +196,7 @@ void init_ssl(void)
 		 * there is the possibility that the key was already on disk
 		 * and we didn't just generate it now.
 		 */
-		fp = fopen(CTDL_KEY_PATH, "r");
+		fp = fopen(file_crpt_file_csr, "r");
 		if (fp) {
 			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
 			fclose(fp);
@@ -249,9 +249,9 @@ void init_ssl(void)
 					}
 					else {
 						/* Write it to disk. */	
-						fp = fopen(CTDL_CSR_PATH, "w");
+						fp = fopen(file_crpt_file_csr, "w");
 						if (fp != NULL) {
-							chmod(CTDL_CSR_PATH, 0600);
+							chmod(file_crpt_file_csr, 0600);
 							PEM_write_X509_REQ(fp, req);
 							fclose(fp);
 						}
@@ -274,13 +274,13 @@ void init_ssl(void)
 	/*
 	 * Generate a self-signed certificate if we don't have one.
 	 */
-	if (access(CTDL_CER_PATH, R_OK) != 0) {
+	if (access(file_crpt_file_cer, R_OK) != 0) {
 		lprintf(CTDL_INFO, "Generating a self-signed certificate.\n");
 
 		/* Same deal as before: always read the key from disk because
 		 * it may or may not have just been generated.
 		 */
-		fp = fopen(CTDL_KEY_PATH, "r");
+		fp = fopen(file_crpt_file_cer, "r");
 		if (fp) {
 			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
 			fclose(fp);
@@ -295,7 +295,7 @@ void init_ssl(void)
 				EVP_PKEY_assign_RSA(pk, rsa);
 			}
 
-			fp = fopen(CTDL_CSR_PATH, "r");
+			fp = fopen(file_crpt_file_cer, "r");
 			if (fp) {
 				req = PEM_read_X509_REQ(fp, NULL, NULL, NULL);
 				fclose(fp);
@@ -319,9 +319,9 @@ void init_ssl(void)
 					}
 					else {
 						/* Write it to disk. */	
-						fp = fopen(CTDL_CER_PATH, "w");
+						fp = fopen(file_crpt_file_cer, "w");
 						if (fp != NULL) {
-							chmod(CTDL_CER_PATH, 0600);
+							chmod(file_crpt_file_cer, 0600);
 							PEM_write_X509(fp, cer);
 							fclose(fp);
 						}
@@ -338,8 +338,8 @@ void init_ssl(void)
 	/*
 	 * Now try to bind to the key and certificate.
 	 */
-        SSL_CTX_use_certificate_chain_file(ssl_ctx, CTDL_CER_PATH);
-        SSL_CTX_use_PrivateKey_file(ssl_ctx, CTDL_KEY_PATH, SSL_FILETYPE_PEM);
+        SSL_CTX_use_certificate_chain_file(ssl_ctx, file_crpt_file_cer);
+        SSL_CTX_use_PrivateKey_file(ssl_ctx, file_crpt_file_key, SSL_FILETYPE_PEM);
         if ( !SSL_CTX_check_private_key(ssl_ctx) ) {
 		lprintf(CTDL_CRIT, "Cannot install certificate: %s\n",
 				ERR_reason_error_string(ERR_get_error()));

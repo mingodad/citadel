@@ -7,8 +7,10 @@ AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix")
+	ssl_dir="$ac_default_prefix/keys"
 else
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix")
+	ssl_dir="$prefix/keys"
 fi
 
 
@@ -27,6 +29,22 @@ AC_ARG_WITH(datadir,
 			  fi
 			]
 )
+
+
+dnl Checks for the SSLdir
+dnl this is a bit different than the rest, 
+dnl because of the citadel used to have a keys/ subdir.
+AC_ARG_WITH(ssldir, 
+		    [  --with-ssldir          directory to store the ssl certificates under],
+			[ if test "x$withval" != "xno" ; then
+					      
+						  ssl_dir="$withval"
+			  fi
+			AC_SUBST(MAKE_SSL_DIR)
+			]
+)
+AC_DEFINE_UNQUOTED(SSL_DIR, "$ssl_dir", [were should we put our keys?])
+
 
 dnl Checks for the spooldir
 AC_ARG_WITH(spooldir, 

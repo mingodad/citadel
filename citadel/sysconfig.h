@@ -129,11 +129,12 @@
 /*
  * Pathnames for cryptographic goodness
  */
+/*
 #define	CTDL_CRYPTO_DIR		"./keys"
 #define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
 #define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
 #define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
-
+*/
 #define THREADSTACKSIZE		1048576
 
 /*

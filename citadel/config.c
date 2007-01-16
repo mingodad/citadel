@@ -30,12 +30,12 @@ void get_config(void) {
 	FILE *cfp;
 	struct stat st;
 
-	if (chdir(home_specified ? ctdl_home_directory : CTDLDIR) != 0) {
+	if (chdir(ctdl_bbsbase_dir) != 0) {
 		fprintf(stderr,
 			"This program could not be started.\n"
 		 	"Unable to change directory to %s\n"
 			"Error: %s\n",
-			(home_specified ? ctdl_home_directory : CTDLDIR),
+			ctdl_bbsbase_dir,
 			strerror(errno));
 		exit(CTDLEXIT_HOME);
 	}

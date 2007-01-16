@@ -16,8 +16,8 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Citadel Groupware "
 NAME=citserver
 DAEMON=/usr/sbin/$NAME
-DAEMON_ARGS=" -d -x3 -lmail -t/dev/null"
 PIDFILE=$RUNDIR/$NAME.pid
+DAEMON_ARGS=" -D${PIDFILE} -x3 -lmail -t/dev/null"
 SCRIPTNAME=/etc/init.d/citadel
 SENDCOMMAND=/usr/sbin/sendcommand
 
