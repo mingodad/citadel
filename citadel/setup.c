@@ -374,13 +374,19 @@ void delete_inittab_entry(void)
  */
 void install_init_scripts(void)
 {
+	struct stat etcinitd;
 	FILE *fp;
+	char *initfile = "/etc/init.d/citadel";
 
 	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
 		return;
 	}
 
-	fp = fopen("/etc/init.d/citadel", "w");
+	if ((stat("/etc/init.d/",&etcinitd) == -1) && 
+	    (errno == ENOENT))
+		initfile = CTDLDIR"/citadel.init";
+
+	fp = fopen(initfile, "w");
 	if (fp == NULL) {
 		display_error("Cannot create /etc/init.d/citadel");
 		return;
