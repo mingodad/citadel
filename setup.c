@@ -334,8 +334,9 @@ void install_init_scripts(void)
 	char hostname[128];
 	char portname[128];
 	struct utsname my_utsname;
-
+	struct stat etcinitd;
 	FILE *fp;
+	char *initfile = "/etc/init.d/webcit";
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
@@ -356,7 +357,12 @@ void install_init_scripts(void)
 	 * in a previous install, if we are upgrading: read them out of
 	 * the existing init script.
 	 */
-	fp = fopen("/etc/init.d/webcit", "r");
+
+	if ((stat("/etc/init.d/",&etcinitd) == -1) && 
+	    (errno == ENOENT))
+		initfile = PREFIX"/webcit.init";
+
+	fp = fopen(initfile, "r");
 	if (fp != NULL) {
 		while (fgets(buf, sizeof buf, fp) != NULL) {
 			if (strlen(buf) > 0) {
