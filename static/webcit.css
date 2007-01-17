@@ -639,9 +639,9 @@ div.auto_complete ul strong.highlight {
 
 #login_screen {
 	position:absolute; 
-	top:20px; 
-	left:20px; 
-	right:20px;
+	top: 3%; 
+	left: 3%; 
+	width: 94%;
 }
 
 
@@ -653,7 +653,7 @@ div.auto_complete ul strong.highlight {
 .box {
         width: 100%;
         padding: 0px;
-        background-color: white;
+        background-color: #FFFFFF;
 }
 
 .boxlabel, .boxcontent {
@@ -665,12 +665,17 @@ div.auto_complete ul strong.highlight {
         text-align: center;
 }
 
+.login_message, .login_hello {
+        margin-left: auto;
+        margin-right: auto;
+        width: 80%;
+        text-align: center;
+}
 
-#login_screen {
-        position:absolute;
-        top:20px;
-        left:20px;
-        right:20px
+.login_message {
+	color: red;
+	font-weight: bold;
+	font-size: 16px;
 }
 
 .login_form table {
