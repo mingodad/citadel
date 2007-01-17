@@ -196,7 +196,7 @@ void init_ssl(void)
 		 * there is the possibility that the key was already on disk
 		 * and we didn't just generate it now.
 		 */
-		fp = fopen(file_crpt_file_csr, "r");
+		fp = fopen(file_crpt_file_key, "r");
 		if (fp) {
 			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
 			fclose(fp);
@@ -280,7 +280,7 @@ void init_ssl(void)
 		/* Same deal as before: always read the key from disk because
 		 * it may or may not have just been generated.
 		 */
-		fp = fopen(file_crpt_file_cer, "r");
+		fp = fopen(file_crpt_file_key, "r");
 		if (fp) {
 			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
 			fclose(fp);
@@ -295,7 +295,7 @@ void init_ssl(void)
 				EVP_PKEY_assign_RSA(pk, rsa);
 			}
 
-			fp = fopen(file_crpt_file_cer, "r");
+			fp = fopen(file_crpt_file_csr, "r");
 			if (fp) {
 				req = PEM_read_X509_REQ(fp, NULL, NULL, NULL);
 				fclose(fp);
