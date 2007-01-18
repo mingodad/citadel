@@ -37,10 +37,11 @@ char  *static_dirs[]={ /**< needs same sort order as the web mapping */
 	(char*)static_dir,                  /** our templates on disk */
 	(char*)editor_absolut_dir           /** the editor on disk */
 };
-int ndirs=2; //sizeof(static_content_dirs);//sizeof(char *);
 
 /**
  * Subdirectories from which the client may request static content
+ *
+ * (If you add more, remember to increment 'ndirs' below)
  */
 char *static_content_dirs[] = {
 	"static",                     /** static templates */
@@ -48,6 +49,7 @@ char *static_content_dirs[] = {
 	"tiny_mce"                    /** the JS editor */
 };
 
+int ndirs=3;
 
 
 char *server_cookie = NULL; /**< our Cookie connection to the client */
