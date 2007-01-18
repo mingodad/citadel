@@ -996,17 +996,13 @@ void session_loop(struct httprequest *req)
 {
 	char cmd[1024];
 	char action[1024];
-	char arg1[128];
-	char arg2[128];
-	char arg3[128];
-	char arg4[128];
-	char arg5[128];
-	char arg6[128];
-	char arg7[128];
+	char arg[8][128];
+	size_t sizes[10];
+	char *index[10];
 	char buf[SIZ];
 	char request_method[128];
 	char pathname[1024];
-	int a, b;
+	int a, b, nBackDots, nEmpty;
 	int ContentLength = 0;
 	int BytesRead = 0;
 	char ContentType[512];
@@ -1052,45 +1048,27 @@ void session_loop(struct httprequest *req)
 	extract_token(pathname, cmd, 1, ' ', sizeof pathname);
 
 	/** Figure out the action */
-	extract_token(action, pathname, 1, '/', sizeof action);
-	if (strstr(action, "?")) *strstr(action, "?") = 0;
-	if (strstr(action, "&")) *strstr(action, "&") = 0;
-	if (strstr(action, " ")) *strstr(action, " ") = 0;
-
-	extract_token(arg1, pathname, 2, '/', sizeof arg1);
-	if (strstr(arg1, "?")) *strstr(arg1, "?") = 0;
-	if (strstr(arg1, "&")) *strstr(arg1, "&") = 0;
-	if (strstr(arg1, " ")) *strstr(arg1, " ") = 0;
-
-	extract_token(arg2, pathname, 3, '/', sizeof arg2);
-	if (strstr(arg2, "?")) *strstr(arg2, "?") = 0;
-	if (strstr(arg2, "&")) *strstr(arg2, "&") = 0;
-	if (strstr(arg2, " ")) *strstr(arg2, " ") = 0;
-
-	extract_token(arg3, pathname, 4, '/', sizeof arg3);
-	if (strstr(arg3, "?")) *strstr(arg3, "?") = 0;
-	if (strstr(arg3, "&")) *strstr(arg3, "&") = 0;
-	if (strstr(arg3, " ")) *strstr(arg3, " ") = 0;
-
-	extract_token(arg4, pathname, 5, '/', sizeof arg4);
-	if (strstr(arg4, "?")) *strstr(arg4, "?") = 0;
-	if (strstr(arg4, "&")) *strstr(arg4, "&") = 0;
-	if (strstr(arg4, " ")) *strstr(arg4, " ") = 0;
-
-	extract_token(arg5, pathname, 6, '/', sizeof arg5);
-	if (strstr(arg5, "?")) *strstr(arg5, "?") = 0;
-	if (strstr(arg5, "&")) *strstr(arg5, "&") = 0;
-	if (strstr(arg5, " ")) *strstr(arg5, " ") = 0;
-
-	extract_token(arg6, pathname, 7, '/', sizeof arg6);
-	if (strstr(arg6, "?")) *strstr(arg6, "?") = 0;
-	if (strstr(arg6, "&")) *strstr(arg6, "&") = 0;
-	if (strstr(arg6, " ")) *strstr(arg6, " ") = 0;
-
-	extract_token(arg7, pathname, 8, '/', sizeof arg7);
-	if (strstr(arg7, "?")) *strstr(arg7, "?") = 0;
-	if (strstr(arg7, "&")) *strstr(arg7, "&") = 0;
-	if (strstr(arg7, " ")) *strstr(arg7, " ") = 0;
+	index[0] = action;
+	sizes[0] = sizeof action;
+	for (a=1; a<9; a++)
+	{
+		index[a] = arg[a-1];
+		sizes[a] = sizeof arg[a-1];
+	}
+////	index[9] = &foo; todo
+	nBackDots = 0;
+	nEmpty = 0;
+	for ( a = 0; a < 9; ++a)
+	{
+		extract_token(index[a], pathname, a + 1, '/', sizes[a]);
+		if (strstr(index[a], "?")) *strstr(index[a], "?") = 0;
+		if (strstr(index[a], "&")) *strstr(index[a], "&") = 0;
+		if (strstr(index[a], " ")) *strstr(index[a], " ") = 0;
+		if ((index[a][0] == '.') && (index[a][1] == '.'))
+			nBackDots++;
+		if (index[a][0] == '\0')
+			nEmpty++;
+	}
 
 	while (hptr != NULL) {
 		safestrncpy(buf, hptr->line, sizeof buf);
@@ -1198,19 +1176,30 @@ void session_loop(struct httprequest *req)
 		}
 	}
 	if (is_static) {
-		snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
-			action, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		for (a=0; a<8; ++a) {
-			if (buf[strlen(buf)-1] == '/') {
-				buf[strlen(buf)-1] = 0;
+		if (nBackDots < 2)
+		{
+			snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
+				 index[0], index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
+			for (a=0; a<8; ++a) {
+				if (buf[strlen(buf)-1] == '/') {
+					buf[strlen(buf)-1] = 0;
+				}
 			}
-		}
-		for (a = 0; a < strlen(buf); ++a) {
-			if (isspace(buf[a])) {
-				buf[a] = 0;
+			for (a = 0; a < strlen(buf); ++a) {
+				if (isspace(buf[a])) {
+					buf[a] = 0;
+				}
 			}
+			output_static(buf);
 		}
-		output_static(buf);
+		else 
+		{
+			lprintf(9, "Suspicious request. Ignoring.");
+			wprintf("HTTP/1.1 404 Not found. Don't try to Trick me DUDE!\r\n");
+			wprintf("Content-Type: text/plain\r\n");
+			wprintf("\r\n");
+			wprintf("Not found. Don't play games on me!\r\n");
+		}
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
 	}
 
@@ -1438,11 +1427,11 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "do_search")) {
 		readloop("do_search");
 	} else if (!strcasecmp(action, "msg")) {
-		embed_message(arg1);
+		embed_message(index[1]);
 	} else if (!strcasecmp(action, "printmsg")) {
-		print_message(arg1);
+		print_message(index[1]);
 	} else if (!strcasecmp(action, "msgheaders")) {
-		display_headers(arg1);
+		display_headers(index[1]);
 	} else if (!strcasecmp(action, "wiki")) {
 		display_wiki_page();
 	} else if (!strcasecmp(action, "display_enter")) {
@@ -1572,9 +1561,9 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
 	} else if (!strcasecmp(action, "mimepart")) {
-		mimepart(arg1, arg2, 0);
+		mimepart(index[1], index[2], 0);
 	} else if (!strcasecmp(action, "mimepart_download")) {
-		mimepart(arg1, arg2, 1);
+		mimepart(index[1], index[2], 1);
 	} else if (!strcasecmp(action, "edit_vcard")) {
 		edit_vcard();
 	} else if (!strcasecmp(action, "submit_vcard")) {
@@ -1652,7 +1641,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "bcc_autocomplete")) {
 		recp_autocomplete(bstr("bcc"));
 	} else if (!strcasecmp(action, "set_floordiv_expanded")) {
-		set_floordiv_expanded(arg1);
+		set_floordiv_expanded(index[1]);
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0);
 		wprintf("Session: %d<hr />\n", WC->wc_session);

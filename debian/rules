@@ -29,7 +29,7 @@ configure-stamp:
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr/sbin/ \
 		--with-wwwdir=/usr/share/citadel-webcit \
-		--with-localedir=/usr/share/locale \
+		--with-localedir=/usr/share/ \
 		--with-editordir=/usr/share/tinymce/www \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
