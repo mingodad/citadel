@@ -35,6 +35,7 @@ static const char editor_absolut_dir[PATH_MAX]=EDITORDIR; /**< nailed to what co
 static char static_dir[PATH_MAX]; /**< calculated on startup */
 char  *static_dirs[]={ /**< needs same sort order as the web mapping */
 	(char*)static_dir,                  /** our templates on disk */
+	(char*)static_dir,                  /** our templates on disk */
 	(char*)editor_absolut_dir           /** the editor on disk */
 };
 
@@ -725,7 +726,7 @@ int main(int argc, char **argv)
 	initialize_locales();
 	locale = setlocale(LC_ALL, "");
 	mo = malloc(strlen(webcitdir) + 20);
-	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR));
+	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
 	free(mo);
 	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
 	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
