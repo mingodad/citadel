@@ -678,13 +678,50 @@ div.auto_complete ul strong.highlight {
 	font-size: 16px;
 }
 
-.login_form table {
+
+.login_form {
+        display: block;
+        margin-top: 20px;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 20px;
+        padding: 6px;
+        width: 290px;
         background-color: #DDDDDD;
 }
 
+.login_form input, .login_form label, .login_form select {
+        display: block;
+        float: left;
+        margin: 6px;
+}
+
+.login_form label {
+        width: 80px;
+        text-align: left;
+}
+
+.login_form input.name {
+        width: 175px;
+        text-align: left;
+}
+
+.login_form br {
+        clear: left;
+}
+
+.login_form .buttons {
+        margin-left: auto;
+        margin-right: auto;
+}
+
+.login_form .button {
+        text-align: center;
+}
+
 .login_infos {
+        display: block;
+        margin-top: 30px;
         margin-left: auto;
         margin-right: auto;
         width: 80% ;
