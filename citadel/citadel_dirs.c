@@ -46,7 +46,6 @@ char ctdl_netin_dir[PATH_MAX]="network/spoolin";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
 char ctdl_sbin_dir[PATH_MAX];
 char ctdl_bin_dir[PATH_MAX];
-char ctdl_ssl_dir[PATH_MAX];
 
 /* some of our files, that are needed in several places */
 char file_citadel_control[PATH_MAX]="";
@@ -119,9 +118,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 #endif
 	COMPUTE_DIRECTORY(ctdl_run_dir);
 
-	basedir=SSL_DIR;
-	COMPUTE_DIRECTORY(ctdl_ssl_dir);
-
 #ifndef HAVE_DATA_DIR
 	basedir=ctdldir;
 #else
@@ -189,15 +185,15 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	snprintf(file_crpt_file_key,
 		 sizeof file_crpt_file_key, 
 		 "%scitadel.key",
-		 ctdl_ssl_dir);
+		 ctdl_key_dir);
 	snprintf(file_crpt_file_csr,
 		 sizeof file_crpt_file_csr, 
 		 "%scitadel.csr",
-		 ctdl_ssl_dir);
+		 ctdl_key_dir);
 	snprintf(file_crpt_file_cer,
 		 sizeof file_crpt_file_cer, 
 		 "%scitadel.cer",
-		 ctdl_ssl_dir);
+		 ctdl_key_dir);
 	/* 
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.

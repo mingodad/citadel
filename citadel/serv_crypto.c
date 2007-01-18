@@ -147,7 +147,7 @@ void init_ssl(void)
 	/* Get our certificates in order.
 	 * First, create the key/cert directory if it's not there already...
 	 */
-	mkdir(ctdl_ssl_dir, 0700);
+	mkdir(ctdl_key_dir, 0700);
 
 	/*
 	 * Generate a key pair if we don't have one.
