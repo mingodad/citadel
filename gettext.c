@@ -195,7 +195,7 @@ void httplang_to_locale(char *LocaleString)
 void offer_languages(void) {
 	int i;
 
-	wprintf("<select name=\"language\" size=\"1\">\n");
+	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
 	for (i=0; i < NUM_LANGS; ++i) {
 		wprintf("<option %s value=%s>%s</option>\n",
