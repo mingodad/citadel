@@ -79,6 +79,7 @@ extern "C" {
 #define UA_HASNEWMSGS           8
 #define UA_ZAPPED               16
 #define UA_POSTALLOWED		32
+#define UA_ADMINALLOWED		64
 
 #ifdef __cplusplus
 }

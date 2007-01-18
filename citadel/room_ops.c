@@ -166,6 +166,13 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
 	}
 
+	/* Aides and Room Aides have admin privileges */
+	if ( (userbuf->axlevel >= 6)
+	   || (userbuf->usernum == roombuf->QRroomaide)
+	   ) {
+		retval = retval | UA_ADMINALLOWED;
+	}
+
 NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if (is_msg_in_sequence_set(vbuf.v_seen, roombuf->QRhighest) == 0) {
 		retval = retval | UA_HASNEWMSGS;

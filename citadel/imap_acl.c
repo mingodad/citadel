@@ -129,40 +129,38 @@ void imap_getacl(int num_parms, char *parms[]) {
 			 * r - read (SELECT the mailbox, perform STATUS)
 			 * s - keep seen/unseen information across sessions (set or clear \SEEN flag
 			 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
+			 * e - perform EXPUNGE and expunge as a part of CLOSE
 			 */
 			if (	(ra & UA_KNOWN)					/* known rooms */
 			   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
 			   ) {
-							strcat(rights, "l");
-							strcat(rights, "r");
-							strcat(rights, "s");
+				strcat(rights, "l");
+				strcat(rights, "r");
+				strcat(rights, "s");
+				strcat(rights, "e");
+
+				/* Only output the remaining flags if the room is known */
+
+				/* w - write (set or clear arbitrary flags; not supported in Citadel) */
+	
+				/* i - insert (perform APPEND, COPY into mailbox) */
+				/* p - post (send mail to submission address for mailbox - not enforced) */
+				if (ra & UA_POSTALLOWED) {
+					strcat(rights, "i");
+					strcat(rights, "p");
+				}
+	
+				/* k - create mailboxes in this hierarchy */
+	
+				/* t - delete messages (set/clear \Deleted flag) */
+
+				/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
+				/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
+				if (ra & UA_ADMINALLOWED) {
+					strcat(rights, "a");
+					strcat(rights, "x");
+				}
 			}
-
-			/* w - write (set or clear flags other than \SEEN and \DELETED via
-			 * STORE, also set them during APPEND/COPY)
-			 */
-			/* Never granted in Citadel because our store doesn't support other flags */
-
-			/* i - insert (perform APPEND, COPY into mailbox)
-			 * p - post (send mail to submission address for mailbox, not enforced by IMAP)
-			 */
-			if (ra & UA_POSTALLOWED) {
-							strcat(rights, "i");
-							strcat(rights, "p");
-			}
-
-			/* k - create mailboxes (CREATE new sub-mailboxes in any
-			 * implementation-defined hierarchy, parent mailbox for the new
-			 * mailbox name in RENAME) */
-
-			/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
-
-			/* t - delete messages (set or clear \DELETED flag via STORE, set
-			 * \DELETED flag during APPEND/COPY) */
-
-			/* e - perform EXPUNGE and expunge as a part of CLOSE */
-
-			/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
 
 			if (strlen(rights) > 0) {
 				cprintf(" ");
