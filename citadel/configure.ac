@@ -166,8 +166,11 @@ case "$host" in
 		AC_MSG_RESULT([BSD/OS])
 	;;
 	dnl Curses support on Mac OS X is kind of screwed at the moment.
+	dnl TCP buffering isn't ideal under OS X. This define should also be
+	dnl checked in other cases of OS X-Linux differences.
 	*-*-darwin*)
 		AC_DEFINE(DISABLE_CURSES)
+		AC_DEFINE(HAVE_DARWIN)
 		AC_MSG_RESULT([Mac OS X])
 	;;
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
@@ -663,29 +666,29 @@ fi
 
 AC_REPLACE_FUNCS(snprintf getutline)
 
-# AC_CACHE_CHECK([the weather], ac_cv_weather, [
-# 	sleep 1
-# 	echo $ECHO_N "opening your window... $ECHO_C" >&6
-# 	sleep 2
-# 	month=`date | cut -f 2 -d ' '`
-# 	case $month in
-# 	Dec | Jan | Feb)
-# 		ac_cv_weather="it's cold!"
-# 		;;
-# 	Mar | Apr)
-# 		ac_cv_weather="it's wet!"
-# 		;;
-# 	Jul | Aug)
-# 		ac_cv_weather="it's hot!"
-# 		;;
-# 	Oct | Nov)
-# 		ac_cv_weather="it's cool"
-# 		;;
-# 	May | Jun | Sep | *)
-# 		ac_cv_weather="it's fine"
-# 		;;
-#	esac
-#	])
+AC_CACHE_CHECK([the weather], ac_cv_weather, [
+	sleep 1
+	echo $ECHO_N "opening your window... $ECHO_C" >&6
+	sleep 2
+	month=`date | cut -f 2 -d ' '`
+	case $month in
+	Dec | Jan | Feb)
+		ac_cv_weather="it's cold!"
+		;;
+	Mar | Apr)
+		ac_cv_weather="it's wet!"
+		;;
+	Jul | Aug)
+		ac_cv_weather="it's hot!"
+		;;
+	Oct | Nov)
+		ac_cv_weather="it's cool"
+		;;
+	May | Jun | Sep | *)
+		ac_cv_weather="it's fine"
+		;;
+	esac
+	])
 
 
 
@@ -700,19 +703,7 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 		;;
 	esac
 	])
-AC_CANONICAL_HOST
-AC_MSG_CHECKING([for reality distorion field])
-case "$host" in
-	dnl TCP buffering isn't ideal under OS X. This define should also be
-	dnl checked in other cases of OS X-Linux differences.
-	*-*-darwin*)
-		AC_DEFINE(HAVE_DARWIN)
-		AC_MSG_RESULT([present])
-	;;
-	*)
-		AC_MSG_RESULT([missing])
-	;;
-esac
+
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
 AC_SUBST(CHKPWD)
