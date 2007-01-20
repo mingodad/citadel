@@ -60,9 +60,9 @@ msgid ""
 msgstr ""
 "<ul><li><b>Si vous avez déjà un compte sur %s</b>, entrez votre identifiant "
 "et votre mot de passe puis cliquez sur &quot;Login.&quot;</li> <li><b>Si "
-"vous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passeque "
-"vous souhaitez utiliser et cliquez sur &quot;Nouvel usager.&quot; </"
-"li><li>Fermez votre session  proprement en quittant.</li> <li>Vous devez "
+"vous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passe "
+"que vous souhaitez utiliser et cliquez sur &quot;Nouvel usager.&quot; "
+"</li><li>Fermez votre session  proprement en quittant.</li> <li>Vous devez "
 "employer un navigateur qui supporte les <i>cadres</i> et les <i>cookies</i> "
 "</li><li>Gardez aussi à l'esprit que si votre navigateur est configuré pour "
 "bloquer les pop-ups intempestives vous ne recevrez aucun message instantané."
@@ -2626,34 +2626,32 @@ msgstr ""
 "Port </a> (-1 to disable)"
 
 #: ../siteconfig.c:525
-#, fuzzy, c-format
 msgid "ManageSieve Port (-1 to disable)"
-msgstr "Port d'écoute IMAP (-1 pour désactiver ce service)"
+msgstr "Port d'écoute Sieve (-1 pour désactiver ce service)"
 
 #: ../siteconfig.c:532
 #, c-format
 msgid "Use system authentication"
-msgstr ""
+msgstr "Utilise un système d'authentification"
 
 #: ../siteconfig.c:539
-#, fuzzy, c-format
 msgid "Funambol server host (blank to disable)"
-msgstr "Nom d'hôte du serveur d'annuaire LDAP (laisser vide pour désactiver)"
+msgstr "Nom d'hôte du serveur Funambol (laisser vide pour désactiver)"
 
 #: ../siteconfig.c:546
 #, c-format
 msgid "Funambol server port "
-msgstr ""
+msgstr "Numéro de port de Funambol"
 
 #: ../siteconfig.c:553
 #, c-format
 msgid "Funambol sync source"
-msgstr ""
+msgstr "Source de synchronisation Funambol"
 
 #: ../siteconfig.c:560
 #, c-format
 msgid "Funambol auth details (user:pass in Base64)"
-msgstr ""
+msgstr "Détails de l'authentification Funambol (user:pass en base 64)"
 
 #: ../siteconfig.c:587
 #, c-format

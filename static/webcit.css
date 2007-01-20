@@ -697,12 +697,12 @@ div.auto_complete ul strong.highlight {
 }
 
 .login_form label {
-        width: 80px;
+        width: 130px;
         text-align: left;
 }
 
 .login_form input.name {
-        width: 175px;
+        width: 130px;
         text-align: left;
 }
 
