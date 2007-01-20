@@ -66,7 +66,7 @@ void display_siteconfig(void)
 		_("Directory"),
 		_("Auto-purger"),
 		_("Indexing/Journaling"),
-		_("Funambol Intergraton")
+		_("Push Email")
 	};
 
 	sprintf(general, "<center><h1>%s</h1><table border=\"0\">",
@@ -107,7 +107,7 @@ void display_siteconfig(void)
 			_("Warning: these facilities are resource intensive.")
 	);
 	sprintf(funambol, "<center><h1>%s</h1><table border=\"0\">",
-		_("Funambol Push Email Intergration")
+		_("Push Email")
 		);
 
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");

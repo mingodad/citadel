@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit 6.82\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-14 20:43+0100\n"
+"POT-Creation-Date: 2007-01-20 00:32-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -148,7 +148,7 @@ msgstr "Skift adgangskode"
 #: ../iconbar.c:712 ../mainmenu.c:310 ../messages.c:2960 ../messages.c:3082
 #: ../messages.c:3192 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1301 ../roomops.c:1629 ../roomops.c:2062
-#: ../roomops.c:2211 ../roomops.c:2275 ../sieve.c:179 ../siteconfig.c:615
+#: ../roomops.c:2211 ../roomops.c:2275 ../sieve.c:179 ../siteconfig.c:655
 #: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
 msgid "Cancel"
 msgstr "Afbryd"
@@ -818,7 +818,7 @@ msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Viser 'Powered by Citadel' ikon"
 
 #: ../iconbar.c:711 ../netconf.c:146 ../roomops.c:1300 ../roomops.c:1627
-#: ../sieve.c:177 ../siteconfig.c:613 ../sysmsgs.c:57 ../useredit.c:381
+#: ../sieve.c:177 ../siteconfig.c:653 ../sysmsgs.c:57 ../useredit.c:381
 #: ../vcard_edit.c:333
 msgid "Save changes"
 msgstr "Gem ændringer"
@@ -1361,7 +1361,7 @@ msgstr "Flyt denne meddelelse til:"
 msgid "Add a new node"
 msgstr "Tilføj en ny node"
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:117
+#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:120
 #, c-format
 msgid "Node name"
 msgstr "Node navn"
@@ -1874,22 +1874,22 @@ msgstr "Meddelelse udløbspolitik for dette rum"
 msgid "Use the default policy for this floor"
 msgstr "Brug standard politik for denne etage"
 
-#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:552 ../siteconfig.c:577
+#: ../roomops.c:1583 ../roomops.c:1610 ../siteconfig.c:591 ../siteconfig.c:616
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Aldrig automatisk sætte meddelelse til udløbet"
 
-#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:556 ../siteconfig.c:581
+#: ../roomops.c:1587 ../roomops.c:1614 ../siteconfig.c:595 ../siteconfig.c:620
 #, c-format
 msgid "Expire by message count"
 msgstr "Sæt udløb efter meddelelsesantal"
 
-#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:560 ../siteconfig.c:585
+#: ../roomops.c:1591 ../roomops.c:1618 ../siteconfig.c:599 ../siteconfig.c:624
 #, c-format
 msgid "Expire by message age"
 msgstr "Sæt udløb efter meddelelsesalder"
 
-#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:562 ../siteconfig.c:587
+#: ../roomops.c:1593 ../roomops.c:1620 ../siteconfig.c:601 ../siteconfig.c:626
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Antal meddelelser eller dage: "
@@ -2330,19 +2330,24 @@ msgstr "Auto-tømmer"
 msgid "Indexing/Journaling"
 msgstr "Index/Journal"
 
-#: ../siteconfig.c:72
+#: ../siteconfig.c:69 ../siteconfig.c:110
+#, fuzzy
+msgid "Push Email"
+msgstr "Email"
+
+#: ../siteconfig.c:73
 msgid "General site configuration items"
 msgstr "Generelle site konfigurationsemner"
 
-#: ../siteconfig.c:76
+#: ../siteconfig.c:77
 msgid "Access controls and site policy settings"
 msgstr "Adgangskontrol og site politik indstillinger"
 
-#: ../siteconfig.c:80
+#: ../siteconfig.c:81
 msgid "Network services"
 msgstr "Netværk service"
 
-#: ../siteconfig.c:81 ../siteconfig.c:92
+#: ../siteconfig.c:82 ../siteconfig.c:93
 msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
@@ -2350,301 +2355,326 @@ msgstr ""
 "Ændringer på denne skærm vil ikke blive effektueret før du har genstartet "
 "Citadel serveren."
 
-#: ../siteconfig.c:86
+#: ../siteconfig.c:87
 msgid "Advanced server fine-tuning controls"
 msgstr "Avanceret server finindstilling kontrol"
 
-#: ../siteconfig.c:90
+#: ../siteconfig.c:91
 msgid "Configure the LDAP connector for Citadel"
 msgstr "Konfigurér LDAP"
 
-#: ../siteconfig.c:94
+#: ../siteconfig.c:95
 msgid ""
 "NOTE: This Citadel server has been built without LDAP support.  These "
 "options will have no effect."
 msgstr ""
 
-#: ../siteconfig.c:100
+#: ../siteconfig.c:101
 msgid "Configure automatic expiry of old messages"
 msgstr "Konfigurér automatisk udløb af meddelser"
 
-#: ../siteconfig.c:101
+#: ../siteconfig.c:102
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
 "Disse indstillinger kan blive overskrevet på etage eller rum indstillinger."
 
-#: ../siteconfig.c:105
+#: ../siteconfig.c:106
 msgid "Indexing and Journaling"
 msgstr "Index og Journal"
 
-#: ../siteconfig.c:106
+#: ../siteconfig.c:107
 msgid "Warning: these facilities are resource intensive."
 msgstr "Advarsel: disse faciliteter er resourcekrævende."
 
-#: ../siteconfig.c:124
+#: ../siteconfig.c:127
 #, c-format
 msgid "Fully qualified domain name"
 msgstr "Fuld kvalificeret domæne navn"
 
-#: ../siteconfig.c:131
+#: ../siteconfig.c:134
 #, c-format
 msgid "Human-readable node name"
 msgstr "Meneskelæseligt node navn"
 
-#: ../siteconfig.c:138
+#: ../siteconfig.c:141
 #, c-format
 msgid "Telephone number"
 msgstr "Telefon nummer"
 
-#: ../siteconfig.c:145
+#: ../siteconfig.c:148
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Giv automatisk rum-ansvarlig status til den bruger der opretter private rum"
 
-#: ../siteconfig.c:153
+#: ../siteconfig.c:156
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr "Server forbindelse inaktivitetstimeout (i sekunder)"
 
-#: ../siteconfig.c:160
+#: ../siteconfig.c:163
 #, c-format
 msgid "Initial access level for new users"
 msgstr "Adgangsrettighed for nye brugere"
 
-#: ../siteconfig.c:174
+#: ../siteconfig.c:177
 #, c-format
 msgid "Require registration for new users"
 msgstr "Kræv registrering af nye brugere"
 
-#: ../siteconfig.c:182
+#: ../siteconfig.c:185
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr "Sæt meddelelser fra problem brugere i karantæne"
 
-#: ../siteconfig.c:190
+#: ../siteconfig.c:193
 #, c-format
 msgid "Name of quarantine room"
 msgstr "Navn på karantæne rum"
 
-#: ../siteconfig.c:197
+#: ../siteconfig.c:200
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr "Paginator prompt (for tekst klienter)"
 
-#: ../siteconfig.c:204
+#: ../siteconfig.c:207
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr "Blokér adgang til Internet Email"
 
-#: ../siteconfig.c:212
+#: ../siteconfig.c:215
 #, c-format
 msgid "Geographic location of this system"
 msgstr "Geografisk lokation af dette system"
 
-#: ../siteconfig.c:219
+#: ../siteconfig.c:222
 #, c-format
 msgid "Name of system administrator"
 msgstr "Navn på Systemadministror"
 
-#: ../siteconfig.c:226
+#: ../siteconfig.c:229
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr "Maximum antal samtidige sessioner (0 = ingen max)"
 
-#: ../siteconfig.c:233
+#: ../siteconfig.c:236
 #, c-format
 msgid "Default user purge time (days)"
 msgstr "Standard bruger tøm tid (dage)"
 
-#: ../siteconfig.c:240
+#: ../siteconfig.c:243
 #, c-format
 msgid "Default room purge time (days)"
 msgstr "Standard rum tøm tid (dage)"
 
-#: ../siteconfig.c:247
+#: ../siteconfig.c:250
 #, c-format
 msgid "Name of room to log pages"
 msgstr "Navn på rum for log sider"
 
-#: ../siteconfig.c:254
+#: ../siteconfig.c:257
 #, c-format
 msgid "Access level required to create rooms"
 msgstr "Adgangsrettighed krævet for at oprette rum"
 
-#: ../siteconfig.c:268
+#: ../siteconfig.c:271
 #, c-format
 msgid "Maximum message length"
 msgstr "Maximum meddelelse længde"
 
-#: ../siteconfig.c:275
+#: ../siteconfig.c:278
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr "Minimum antal arbejdstråde"
 
-#: ../siteconfig.c:282
+#: ../siteconfig.c:285
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr "Maximum antal arbejdstråde"
 
-#: ../siteconfig.c:289
+#: ../siteconfig.c:292
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr "POP3 port (-1 = afbrudt)"
 
-#: ../siteconfig.c:296
+#: ../siteconfig.c:299
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr "SMTP MTA port (-1 = afbrudt)"
 
-#: ../siteconfig.c:303
+#: ../siteconfig.c:306
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr "Ret falske Fra: linier under autentification SMTP"
 
-#: ../siteconfig.c:311
+#: ../siteconfig.c:314
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr "Tillad syetmsansvarlige at zappe (glemme) rum"
 
-#: ../siteconfig.c:319
+#: ../siteconfig.c:322
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr "IMAP port (-1 = afbrudt)"
 
-#: ../siteconfig.c:326
+#: ../siteconfig.c:329
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr "Netværk kør frekvens (i sekunder)"
 
-#: ../siteconfig.c:333
+#: ../siteconfig.c:336
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr "Slå selvservice brugeroprettelse fra"
 
-#: ../siteconfig.c:341
+#: ../siteconfig.c:344
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr "Tid for at køre database auto-tøm"
 
-#: ../siteconfig.c:357
+#: ../siteconfig.c:360
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr "Navn på LDAP server (blank for at slå fra)"
 
-#: ../siteconfig.c:364
+#: ../siteconfig.c:367
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr "Port nummer op LDAP server (blank for at slå fra)"
 
-#: ../siteconfig.c:371
+#: ../siteconfig.c:374
 #, c-format
 msgid "Base DN"
 msgstr "Base DN"
 
-#: ../siteconfig.c:378
+#: ../siteconfig.c:381
 #, c-format
 msgid "Bind DN"
 msgstr "Forbind DN"
 
-#: ../siteconfig.c:385
+#: ../siteconfig.c:388
 #, c-format
 msgid "Password for bind DN"
 msgstr "Adgangskode for forbind DN"
 
-#: ../siteconfig.c:393
+#: ../siteconfig.c:396
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr "Serverens IP adresse (0.0.0.0 vælger alle)"
 
-#: ../siteconfig.c:400
+#: ../siteconfig.c:403
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr "SMTP MSA port (-1 = afbrudt)"
 
-#: ../siteconfig.c:407
+#: ../siteconfig.c:410
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr "IMAP over SSL port (-1 = afbrudt)"
 
-#: ../siteconfig.c:414
+#: ../siteconfig.c:417
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr "POP3 over SSL port (-1 = afbrudt)"
 
-#: ../siteconfig.c:421
+#: ../siteconfig.c:424
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr "SMTP over SSL port (-1 = afbrudt)"
 
-#: ../siteconfig.c:428
+#: ../siteconfig.c:431
 #, c-format
 msgid "Enable full text index"
 msgstr "Slå fuld tekst index til"
 
-#: ../siteconfig.c:436
+#: ../siteconfig.c:439
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr "Automatisk slet commited database logs"
 
-#: ../siteconfig.c:444
+#: ../siteconfig.c:447
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Fjern slettede meddelelser med det samme i IMAP"
 
-#: ../siteconfig.c:452
+#: ../siteconfig.c:455
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
 msgstr "Tillad uautoriserede SMTP klienter at benytte denne site's domæne"
 
-#: ../siteconfig.c:460
+#: ../siteconfig.c:463
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr "Brug journal på Email meddelelser"
 
-#: ../siteconfig.c:468
+#: ../siteconfig.c:471
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr "Brug journal på ikke-Email meddelelser"
 
-#: ../siteconfig.c:476
+#: ../siteconfig.c:479
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr "Email destination på jooournaliserede meddelelser"
 
-#: ../siteconfig.c:487
+#: ../siteconfig.c:490
 #, c-format
 msgid "Default timezone for unzoned calendar items"
 msgstr ""
 
-#: ../siteconfig.c:515
+#: ../siteconfig.c:518
 #, c-format
 msgid ""
 "<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
 "Port </a> (-1 to disable)"
 msgstr ""
 
-#: ../siteconfig.c:522
+#: ../siteconfig.c:525
 #, fuzzy, c-format
 msgid "ManageSieve Port (-1 to disable)"
 msgstr "IMAP port (-1 = afbrudt)"
 
-#: ../siteconfig.c:548
+#: ../siteconfig.c:532
+#, c-format
+msgid "Use system authentication"
+msgstr ""
+
+#: ../siteconfig.c:539
+#, fuzzy, c-format
+msgid "Funambol server host (blank to disable)"
+msgstr "Navn på LDAP server (blank for at slå fra)"
+
+#: ../siteconfig.c:546
+#, c-format
+msgid "Funambol server port "
+msgstr ""
+
+#: ../siteconfig.c:553
+#, c-format
+msgid "Funambol sync source"
+msgstr ""
+
+#: ../siteconfig.c:560
+#, c-format
+msgid "Funambol auth details (user:pass in Base64)"
+msgstr ""
+
+#: ../siteconfig.c:587
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Standard meddelelse udløb for offentlige rum"
 
-#: ../siteconfig.c:569
+#: ../siteconfig.c:608
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr "Standard meddelelse udløb for private postkasser"
 
-#: ../siteconfig.c:573
+#: ../siteconfig.c:612
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Samme politik som for offentlige rum"
 
-#: ../siteconfig.c:700
+#: ../siteconfig.c:745
 msgid "Your system configuration has been updated."
 msgstr "Din system konfiguration er blevet opdateret"
 
@@ -2993,7 +3023,7 @@ msgstr ""
 "Resourcen som du forespurgte kræver et brugernavn og en adgangskode. Du "
 "kunne ikke blive logged ind: %s\n"
 
-#: ../webcit.c:1252
+#: ../webcit.c:1241
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3008,23 +3038,23 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1491 ../webcit.c:1493
+#: ../webcit.c:1480 ../webcit.c:1482
 msgid "Room info"
 msgstr "Rum info"
 
-#: ../webcit.c:1496 ../webcit.c:1498
+#: ../webcit.c:1485 ../webcit.c:1487
 msgid "Your bio"
 msgstr "Din bio"
 
-#: ../webcit.c:1506
+#: ../webcit.c:1495
 msgid "your photo"
 msgstr "dit billede"
 
-#: ../webcit.c:1512
+#: ../webcit.c:1501
 msgid "the icon for this room"
 msgstr "ikonet for dette rum"
 
-#: ../webcit.c:1526
+#: ../webcit.c:1515
 msgid "the icon for this floor"
 msgstr "ikonet for denne etage"
 
