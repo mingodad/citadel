@@ -310,7 +310,7 @@ void imap_append(int num_parms, char *parms[]) {
 	long literal_length;
 	long bytes_transferred;
 	long stripped_length = 0;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	long new_msgnum = (-1L);
 	int ret = 0;
 	char roomname[ROOMNAMELEN];

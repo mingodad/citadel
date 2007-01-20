@@ -507,7 +507,7 @@ void vcard_gu_backend(long supplied_msgnum, void *userdata) {
 struct vCard *vcard_get_user(struct ctdluser *u) {
 	char hold_rm[ROOMNAMELEN];
 	char config_rm[ROOMNAMELEN];
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct vCard *v;
 	long VCmsgnum;
 
@@ -1011,7 +1011,7 @@ struct vCard *vcard_new_from_rfc822_addr(char *addr) {
  */
 void strip_addresses_already_have(long msgnum, void *userdata) {
 	char *collected_addresses;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct vCard *v;
 	char *value = NULL;
 	int i, j;

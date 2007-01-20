@@ -566,7 +566,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 					 */
 	struct savelist *sl = NULL;	/* list of rooms to save this page */
 	struct savelist *sptr;
-	struct CtdlMessage *logmsg;
+	struct CtdlMessage *logmsg = NULL;
 	long msgnum;
 
 	if (strlen(x_msg) > 0) {
