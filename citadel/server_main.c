@@ -74,7 +74,8 @@ int main(int argc, char **argv)
 {
 	char facility[32];
 	int a, i;			/* General-purpose variables */
-	struct passwd *pw;
+	struct passwd pw, *pwp = NULL;
+	char pwbuf[SIZ];
 	int drop_root_perms = 1;
 	size_t size;
 	int relh=0;
@@ -195,10 +196,9 @@ int main(int argc, char **argv)
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
 	if (stat(ctdl_run_dir, &filestats)==-1){
-		pw=getpwuid(config.c_ctdluid);
+		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
 		mkdir(ctdl_run_dir, 0755);
-		chown(ctdl_run_dir, config.c_ctdluid, (pw==NULL)?-1:pw->pw_gid);
-
+		chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid);
 	}
 			
 
@@ -242,14 +242,16 @@ int main(int argc, char **argv)
 	 * corresponding group ids
 	 */
 	if (drop_root_perms) {
-		if ((pw = getpwuid(CTDLUID)) == NULL)
+		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+
+		if (pwp == NULL)
 			lprintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				   "Group IDs will be incorrect.\n", (long)CTDLUID,
 				strerror(errno));
 		else {
-			initgroups(pw->pw_name, pw->pw_gid);
-			if (setgid(pw->pw_gid))
-				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw->pw_gid,
+			initgroups(pw.pw_name, pw.pw_gid);
+			if (setgid(pw.pw_gid))
+				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
 					strerror(errno));
 		}
 		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)CTDLUID);
