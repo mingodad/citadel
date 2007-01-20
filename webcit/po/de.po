@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-01-20 00:32-0500\n"
-"PO-Revision-Date: 2007-01-15 21:33+0100\n"
+"PO-Revision-Date: 2007-01-20 16:01+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -92,7 +92,7 @@ msgstr "Ende"
 #: ../auth.c:75
 #, c-format
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
-msgstr ""
+msgstr "\"%s - mit <a href=\\\"http://www.citadel.org\\\">Citadel</a> Technologie"
 
 #: ../auth.c:174 ../auth.c:542
 msgid "Blank passwords are not allowed."
@@ -2306,9 +2306,8 @@ msgid "Indexing/Journaling"
 msgstr "Indizierung/Protokollierung"
 
 #: ../siteconfig.c:69 ../siteconfig.c:110
-#, fuzzy
 msgid "Push Email"
-msgstr "Email"
+msgstr "Mobile Push Email"
 
 #: ../siteconfig.c:73
 msgid "General site configuration items"
@@ -2614,27 +2613,27 @@ msgstr "ManageSieve Server Port (-1 zum abschalten)"
 #: ../siteconfig.c:532
 #, c-format
 msgid "Use system authentication"
-msgstr ""
+msgstr "Systemautentifizierung benutzen"
 
 #: ../siteconfig.c:539
-#, fuzzy, c-format
+#, c-format
 msgid "Funambol server host (blank to disable)"
-msgstr "Hostname des LDAP Verzeichnisserver (leer zum Abschalten)"
+msgstr "Hostname des Funambol Synchronisierungs Servers (leer zum Abschalten)"
 
 #: ../siteconfig.c:546
 #, c-format
 msgid "Funambol server port "
-msgstr ""
+msgstr "Funnambol Serverport"
 
 #: ../siteconfig.c:553
 #, c-format
 msgid "Funambol sync source"
-msgstr ""
+msgstr "Funambol Synchronisierungs Quelle"
 
 #: ../siteconfig.c:560
 #, c-format
 msgid "Funambol auth details (user:pass in Base64)"
-msgstr ""
+msgstr "Funambol autentifizierungs Details (Nutzer:Passwort Baze64 verschlüßelt)"
 
 #: ../siteconfig.c:587
 #, c-format
