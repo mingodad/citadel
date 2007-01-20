@@ -54,6 +54,7 @@
 #include "control.h"
 #include "tools.h"
 #include "euidindex.h"
+#include "serv_network.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -150,9 +151,12 @@ void master_cleanup(int exitcode) {
 	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();
 
+	/* flush the networker stuff */
+	destroy_network_queue_room();
+
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
-
+	
 #ifdef DEBUG_MEMORY_LEAKS
 	dump_heap();
 #endif

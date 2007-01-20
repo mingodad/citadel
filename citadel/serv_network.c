@@ -1182,6 +1182,22 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 	end_critical_section(S_RPLIST);
 }
 
+void destroy_network_queue_room(void)
+{
+	struct RoomProcList *cur, *p;
+
+	cur = rplist;
+	begin_critical_section(S_RPLIST);
+	while (cur != NULL)
+	{
+		p = cur->next;
+		free (cur);
+		cur = p;		
+	}
+	rplist = NULL;
+	end_critical_section(S_RPLIST);
+}
+
 
 /*
  * Learn topology from path fields
