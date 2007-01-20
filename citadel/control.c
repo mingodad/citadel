@@ -118,6 +118,15 @@ void put_control(void)
 	}
 }
 
+/**
+ * release_control - close our fd on exit
+ */
+void release_control(void)
+{
+	if (control_fp != NULL)
+		fclose(control_fp);
+	control_fp = NULL;
+}
 
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.

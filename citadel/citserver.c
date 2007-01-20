@@ -165,11 +165,13 @@ void master_cleanup(int exitcode) {
 			sleep(32767);
 		}
 	}
+	
+	release_control();
 
 	/* Now go away. */
 	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
-
+	
 	exit(exitcode);
 }
 
