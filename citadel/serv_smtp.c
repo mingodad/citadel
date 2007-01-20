@@ -678,6 +678,8 @@ void smtp_rcpt(char *argbuf) {
 	}
 	strcat(SMTP->recipients, recp);
 	SMTP->number_of_recipients += 1;
+	if (valid != NULL) 
+		free(valid);
 }
 
 
