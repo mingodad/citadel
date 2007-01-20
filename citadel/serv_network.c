@@ -1185,6 +1185,7 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 void destroy_network_queue_room(void)
 {
 	struct RoomProcList *cur, *p;
+	struct NetMap *nmcur, *nmp;
 
 	cur = rplist;
 	begin_critical_section(S_RPLIST);
@@ -1196,6 +1197,18 @@ void destroy_network_queue_room(void)
 	}
 	rplist = NULL;
 	end_critical_section(S_RPLIST);
+
+	nmcur = the_netmap;
+	while (nmcur != NULL)
+	{
+		nmp = nmcur->next;
+		free (nmcur);
+		nmcur = nmp;		
+	}
+	the_netmap = NULL;
+	if (working_ignetcfg != NULL)
+		free (working_ignetcfg);
+	working_ignetcfg = NULL;
 }
 
 
