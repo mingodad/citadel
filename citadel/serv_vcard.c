@@ -961,7 +961,7 @@ void vcard_create_room(void)
  * When a user logs in...
  */
 void vcard_session_login_hook(void) {
-	struct vCard *v;
+	struct vCard *v = NULL;
 
 	v = vcard_get_user(&CC->user);
 	extract_primary_inet_email(CC->cs_inet_email,

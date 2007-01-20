@@ -554,14 +554,14 @@ int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
 
 	DBT dkey, ddata;
 	DB_TXN *tid;
-	int ret;
+	int ret = 0;
 
 #ifdef HAVE_ZLIB
 	struct CtdlCompressHeader zheader;
 	char *compressed_data = NULL;
 	int compressing = 0;
-	size_t buffer_len;
-	uLongf destLen;
+	size_t buffer_len = 0;
+	uLongf destLen = 0;
 #endif
 
 	memset(&dkey, 0, sizeof(DBT));

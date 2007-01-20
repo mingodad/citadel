@@ -166,7 +166,7 @@ int GenerateRelationshipIndex(char *IndexBuf,
 void put_visit(struct visit *newvisit)
 {
 	char IndexBuf[32];
-	int IndexLen;
+	int IndexLen = 0;
 
 	/* Generate an index */
 	IndexLen = GenerateRelationshipIndex(IndexBuf,
@@ -462,7 +462,7 @@ void cmd_user(char *cmdbuf)
  */
 void session_startup(void)
 {
-	int i;
+	int i = 0;
 
 	lprintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 

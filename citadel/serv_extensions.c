@@ -170,7 +170,9 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 
 void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
 {
-	struct ProtoFunctionHook *cur, *p, *lastcur;
+	struct ProtoFunctionHook *cur = NULL;
+	struct ProtoFunctionHook *p = NULL;
+	struct ProtoFunctionHook *lastcur = NULL;
 
 	for (cur = ProtoHookList; 
 	     cur != NULL; 
@@ -819,7 +821,7 @@ void CtdlDestroyServiceHook(void)
 
 void PerformSessionHooks(int EventType)
 {
-	struct SessionFunctionHook *fcn;
+	struct SessionFunctionHook *fcn = NULL;
 
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
@@ -830,7 +832,7 @@ void PerformSessionHooks(int EventType)
 
 void PerformUserHooks(struct ctdluser *usbuf, int EventType)
 {
-	struct UserFunctionHook *fcn;
+	struct UserFunctionHook *fcn = NULL;
 
 	for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
@@ -841,7 +843,7 @@ void PerformUserHooks(struct ctdluser *usbuf, int EventType)
 
 int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 {
-	struct MessageFunctionHook *fcn;
+	struct MessageFunctionHook *fcn = NULL;
 	int total_retval = 0;
 
 	/* Other code may elect to protect this message from server-side
