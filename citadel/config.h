@@ -76,6 +76,10 @@ struct config {
 	int c_pftcpdict_port;           /* postfix tcptable support, see http://www.postfix.org/tcp_table.5.html */
 	int c_managesieve_port;         /* managesieve port. */
 	int c_auth_mode;		/* 0 = built-in Citadel auth; 1 = underlying host system auth */
+	char c_funambol_host[256];	/* Funambol host. Blank to disable */
+	int c_funambol_port;		/* Funambol port */
+	char c_funambol_source[256];	/* Funambol sync source */
+	char c_funambol_auth[256];	/* Funambol auth details */
 };
 
 

@@ -53,7 +53,8 @@ SERV_MODULES=serv_chat.o \
 	serv_managesieve.o \
 	ical_dezonify.o \
 	serv_ldap.o \
-	serv_autocompletion.o 
+	serv_autocompletion.o \
+	serv_funambol.o
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -102,7 +103,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c serv_managesieve.c server_main.c \
-	serv_sieve.c setup.c snprintf.c imap_acl.c \
+	serv_sieve.c serv_funambol.c setup.c snprintf.c imap_acl.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
 	crc16.c journaling.c citadel_dirs.c

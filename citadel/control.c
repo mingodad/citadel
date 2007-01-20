@@ -242,6 +242,11 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_default_cal_zone);
 		cprintf("%d\n", config.c_pftcpdict_port);
 		cprintf("%d\n", config.c_managesieve_port);
+	        cprintf("%d\n", config.c_auth_mode);
+	        cprintf("%s\n", config.c_funambol_host);
+	        cprintf("%d\n", config.c_funambol_port);
+	        cprintf("%s\n", config.c_funambol_source);
+	        cprintf("%s\n", config.c_funambol_auth);
 		cprintf("000\n");
 	}
 
@@ -446,6 +451,25 @@ void cmd_conf(char *argbuf)
 				break;
 			case 51:
 				config.c_managesieve_port = atoi(buf);
+				break;
+			case 52:
+				config.c_auth_mode = atoi(buf);
+			case 53:
+				safestrncpy(config.c_funambol_host, buf,
+					sizeof config.c_funambol_host);
+				break;
+			case 54:
+				config.c_funambol_port = atoi(buf);
+				break;
+			case 55:
+				safestrncpy(config.c_funambol_source,
+					buf, 
+					sizeof config.c_funambol_source);
+				break;
+			case 56:
+				safestrncpy(config.c_funambol_auth,
+					buf,
+					sizeof config.c_funambol_auth);
 				break;
 			}
 			++a;

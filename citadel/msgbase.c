@@ -2567,6 +2567,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		lprintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
+			// Add a flag so the Funambol module knows its mail
+			msg->cm_fields['W'] = strdup(recipient);
 			MailboxName(actual_rm, sizeof actual_rm,
 					&userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);

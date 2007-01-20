@@ -234,7 +234,7 @@ void initialize_server_extensions(void)
 	lprintf(CTDL_INFO, "%s\n", serv_postfix_tcpdict());
 	lprintf(CTDL_INFO, "%s\n", serv_sieve_init());
 	lprintf(CTDL_INFO, "%s\n", serv_managesieve_init());
-
+	lprintf(CTDL_INFO, "%s\n", serv_funambol_init());
 	for (filter = 1; filter != 0; filter = filter << 1)
 		if ((filter & DetailErrorFlags) != 0)
 			LogPrintMessages(filter);

@@ -37,6 +37,7 @@ char *serv_autocompletion_init(void);
 char *serv_postfix_tcpdict(void);
 char *serv_managesieve_init(void);
 char *serv_sieve_init(void);
+char *serv_funambol_init(void);
 /*
  */
 
