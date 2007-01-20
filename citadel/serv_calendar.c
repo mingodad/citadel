@@ -376,7 +376,7 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
  * Respond to a meeting request.
  */
 void ical_respond(long msgnum, char *partnum, char *action) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 
 	if (
@@ -606,7 +606,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	char uid[SIZ];
 	char hold_rm[ROOMNAMELEN];
 	long msgnum_being_replaced = 0;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct original_event_container oec;
 	icalcomponent *original_event;
 	char *serialized_event = NULL;
@@ -712,7 +712,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
  * passes it up to ical_update_my_calendar_with_reply() for processing.
  */
 void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 	int ret;
 
@@ -876,7 +876,7 @@ int ical_ctdl_is_overlap(
  */
 void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	icalcomponent *cal;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 	struct icaltimetype t1start, t1end, t2start, t2end;
 	icalproperty *p;
@@ -993,7 +993,7 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
  * Hunt for conflicts (Phase 1 -- retrieve the object and call Phase 2)
  */
 void ical_conflicts(long msgnum, char *partnum) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 
 	msg = CtdlFetchMessage(msgnum, 1);
@@ -1133,7 +1133,7 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *cal) {
  */
 void ical_freebusy_backend(long msgnum, void *data) {
 	icalcomponent *cal;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 
 	cal = (icalcomponent *)data;
@@ -1336,7 +1336,7 @@ void ical_freebusy(char *who) {
  */
 void ical_getics_backend(long msgnum, void *data) {
 	icalcomponent *encaps, *c;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 
 	encaps = (icalcomponent *)data;

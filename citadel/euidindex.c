@@ -154,7 +154,7 @@ void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
  * Called by rebuild_euid_index_for_room() to index one message.
  */
 void rebuild_euid_index_for_msg(long msgnum, void *userdata) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 
 	msg = CtdlFetchMessage(msgnum, 0);
 	if (msg == NULL) return;

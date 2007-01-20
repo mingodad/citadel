@@ -126,7 +126,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	int a;
         struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -651,7 +651,7 @@ int PurgeEuidIndexTable(void) {
 	struct EPurgeList *el = NULL;
 	struct EPurgeList *eptr; 
 	long msgnum;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 
 	/* Phase 1: traverse through the table, discovering old records... */
 	lprintf(CTDL_DEBUG, "Purge EUID index: phase 1\n");

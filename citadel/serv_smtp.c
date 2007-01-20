@@ -688,7 +688,7 @@ void smtp_rcpt(char *argbuf) {
  */
 void smtp_data(void) {
 	char *body;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	long msgnum = (-1L);
 	char nowstamp[SIZ];
 	struct recptypes *valid;
@@ -1513,7 +1513,7 @@ int smtp_purge_completed_deliveries(char *instr) {
  * Called by smtp_do_queue() to handle an individual message.
  */
 void smtp_do_procmsg(long msgnum, void *userdata) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	char *instr = NULL;
 	char *results = NULL;
 	int i;

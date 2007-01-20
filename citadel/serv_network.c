@@ -425,12 +425,12 @@ void cmd_snet(char *argbuf) {
 void network_deliver_digest(struct SpoolControl *sc) {
 	char buf[SIZ];
 	int i;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	long msglen;
 	long msgnum;
 	char *instr = NULL;
 	size_t instr_len = SIZ;
-	struct CtdlMessage *imsg;
+	struct CtdlMessage *imsg = NULL;
 	struct namelist *nptr;
 
 	if (sc->num_msgs_spooled < 1) {
@@ -530,7 +530,7 @@ void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
 	long msgnum;
 	char *instr = NULL;
 	size_t instr_len = SIZ;
-	struct CtdlMessage *imsg;
+	struct CtdlMessage *imsg = NULL;
 	struct namelist *nptr;
 
 	/* Don't do this if there were no recipients! */
@@ -1328,7 +1328,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
  * from the inbound queue 
  */
 void network_process_buffer(char *buffer, long size) {
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	long pos;
 	int field;
 	struct recptypes *recp = NULL;

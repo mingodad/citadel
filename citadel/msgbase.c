@@ -532,7 +532,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	int num_processed = 0;
 	long thismsg;
 	struct MetaData smi;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	int is_seen = 0;
 	long lastold = 0L;
 	int printed_lastold = 0;
@@ -1109,7 +1109,11 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 {
 	int i;
 
-	if (is_valid_message(msg) == 0) return;
+	if (is_valid_message(msg) == 0) 
+	{
+		if (msg != NULL) free (msg);
+		return;
+	}
 
 	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL) {
@@ -1902,7 +1906,7 @@ void cmd_msg2(char *cmdbuf)
 void cmd_msg3(char *cmdbuf)
 {
 	long msgnum;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct ser_ret smr;
 
 	if (CC->internal_pgm == 0) {
