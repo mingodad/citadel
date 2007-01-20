@@ -170,9 +170,11 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 
 void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
 {
-	struct ProtoFunctionHook *cur, *p;
+	struct ProtoFunctionHook *cur, *p, *lastcur;
 
-	for (cur = ProtoHookList; cur != NULL; cur = cur->next) {
+	for (cur = ProtoHookList; 
+	     cur != NULL; 
+	     cur = (cur != NULL)? cur->next: NULL) {
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				handler == cur->handler &&
@@ -183,10 +185,31 @@ void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
 			if (cur == ProtoHookList) {
 				ProtoHookList = p;
 			}
+			else if (lastcur != NULL)
+			{
+				lastcur->next = p;
+			}
 			free(cur);
 			cur = p;
 		}
+		lastcur = cur;
 	}
+}
+
+void CtdlDestroyProtoHooks(void)
+{
+	struct ProtoFunctionHook *cur, *p;
+
+	cur = ProtoHookList; 
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed server command %s (%s)\n",
+			cur->cmd, cur->desc);
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	ProtoHookList = NULL;
 }
 
 
@@ -276,6 +299,21 @@ void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 	}
 }
 
+void CtdlDestroyCleanupHooks(void)
+{
+	struct CleanupFunctionHook *cur, *p;
+
+	cur = CleanupHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed cleanup function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	CleanupHookTable = NULL;
+}
+
 
 void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 {
@@ -315,6 +353,21 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 	}
 }
 
+void CtdlDestroySessionHooks(void)
+{
+	struct SessionFunctionHook *cur, *p;
+
+	cur = SessionHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed session function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	SessionHookTable = NULL;
+}
+
 
 void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 {
@@ -352,6 +405,21 @@ void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 			cur = p;
 		}
 	}
+}
+
+void CtdlDestroyUserHooks(void)
+{
+	struct UserFunctionHook *cur, *p;
+
+	cur = UserHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed user function \n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	UserHookTable = NULL;
 }
 
 
@@ -395,6 +463,21 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 	}
 }
 
+void CtdlDestroyMessageHook(void)
+{
+	struct MessageFunctionHook *cur, *p;
+
+	cur = MessageHookTable; 
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed message function \n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	MessageHookTable = NULL;
+}
+
 
 void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
@@ -429,6 +512,21 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 	}
 }
 
+void CtdlDestroyNetprocHooks(void)
+{
+	struct NetprocFunctionHook *cur, *p;
+
+	cur = NetprocHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Unregistered netproc function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	NetprocHookTable = NULL;
+}
+
 
 void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 {
@@ -461,6 +559,20 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 			cur = p;
 		}
 	}
+}
+void CtdlDestroyDeleteHooks(void)
+{
+	struct DeleteFunctionHook *cur, *p;
+
+	cur = DeleteHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed netproc function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;		
+	}
+	DeleteHookTable = NULL;
 }
 
 
@@ -497,6 +609,22 @@ void CtdlUnregisterFixedOutputHook(char *content_type)
 			cur = p;
 		}
 	}
+}
+
+void CtdlDestroyFixedOutputHooks(void)
+{
+	struct FixedOutputHook *cur, *p;
+
+	cur = FixedOutputTable; 
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed fixed output function for %s\n", cur->content_type);
+		p = cur->next;
+		free(cur);
+		cur = p;
+		
+	}
+	FixedOutputTable = NULL;
 }
 
 /* returns nonzero if we found a hook and used it */
@@ -553,6 +681,23 @@ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 	}
 }
 
+void CtdlDestroyXmsgHooks(void)
+{
+	struct XmsgFunctionHook *cur, *p;
+
+	cur = XmsgHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Destroyed x-msg function "
+			"(priority %d)\n", cur->order);
+		p = cur->next;
+			
+		free(cur);
+		cur = p;
+	}
+	XmsgHookTable = NULL;
+}
+
 
 void CtdlRegisterServiceHook(int tcp_port,
 			char *sockpath,
@@ -583,6 +728,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
 		lprintf(CTDL_INFO, "Service has been manually disabled, skipping\n");
+		free (message);
 		free(newfcn);
 		return;
 	}
@@ -603,6 +749,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 		AddPortError(message, error);
 		strcat(message, "FAILED.");
 		lprintf(CTDL_CRIT, "%s\n", message);
+		free (message);
 		free(error);
 		free(newfcn);
 	}
@@ -644,6 +791,29 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			cur = p;
 		}
 	}
+}
+
+void CtdlDestroyServiceHook(void)
+{
+	struct ServiceFunctionHook *cur, *p;
+
+	cur = ServiceHookTable;
+	while (cur != NULL)
+	{
+		close(cur->msock);
+		if (cur->sockpath) {
+			lprintf(CTDL_INFO, "Closed UNIX domain socket %s\n",
+				cur->sockpath);
+		} else if (cur->tcp_port) {
+			lprintf(CTDL_INFO, "Closed TCP port %d\n", cur->tcp_port);
+		} else {
+			lprintf(CTDL_INFO, "Unregistered unknown service\n");
+		}
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	ServiceHookTable = NULL;
 }
 
 

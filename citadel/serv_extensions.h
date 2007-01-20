@@ -47,37 +47,46 @@ char *Dynamic_Module_Init(void);
 
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
+void CtdlDestroySessionHooks(void);
 void PerformSessionHooks(int EventType);
 
 void CtdlRegisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
 void CtdlUnregisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
+void CtdlDestroyUserHooks(void);
 void PerformUserHooks(struct ctdluser *usbuf, int EventType);
 
 void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 int PerformXmsgHooks(char *, char *, char *);
+void CtdlDestroyXmsgHooks(void);
+
 
 
 void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 							int EventType);
 void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 							int EventType);
+void CtdlDestroyMessageHook(void);
 int PerformMessageHooks(struct CtdlMessage *, int EventType);
 
 
 void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
 void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
+void CtdlDestroyNetprocHooks(void);
 int PerformNetprocHooks(struct CtdlMessage *, char *);
 
 void CtdlRegisterDeleteHook(void (*handler)(char *, long) );
 void CtdlUnregisterDeleteHook(void (*handler)(char *, long) );
+void CtdlDestroyDeleteHooks(void);
 void PerformDeleteHooks(char *, long);
 
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlUnregisterCleanupHook(void (*fcn_ptr)(void));
+void CtdlDestroyCleanupHooks(void);
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 void CtdlUnregisterProtoHook(void (*handler)(char *), char *cmd);
+void CtdlDestroyProtoHooks(void);
 void CtdlRegisterServiceHook(int tcp_port,
 			char *sockpath,
                         void (*h_greeting_function) (void),
@@ -90,11 +99,13 @@ void CtdlUnregisterServiceHook(int tcp_port,
                         void (*h_command_function) (void),
                         void (*h_async_function) (void)
 );
+void CtdlDestroyServiceHook(void);
 
 void CtdlRegisterFixedOutputHook(char *content_type,
 			void (*output_function) (char *supplied_data, int len)
 );
 void CtdlUnRegisterFixedOutputHook(char *content_type);
+void CtdlDestroyFixedOutputHooks(void);
 int PerformFixedOutputHooks(char *, char *, int);
 
 #endif /* SERV_EXTENSIONS_H */

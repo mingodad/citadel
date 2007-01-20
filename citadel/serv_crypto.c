@@ -49,6 +49,16 @@ static unsigned long id_callback(void)
 	return (unsigned long) pthread_self();
 }
 
+void destruct_ssl(void)
+{
+	int a;
+	CtdlUnregisterProtoHook(cmd_stls, "STLS");
+	CtdlUnregisterProtoHook(cmd_gtls, "GTLS");
+	for (a = 0; a < CRYPTO_num_locks(); a++) 
+		free(SSLCritters[a]);
+	free (SSLCritters);
+}
+
 void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;

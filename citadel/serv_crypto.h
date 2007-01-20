@@ -12,6 +12,7 @@
 #define CIT_CIPHERS	"ALL:RC4+RSA:+SSLv2:+TLSv1:!MD5:@STRENGTH"	/* see ciphers(1) */
 
 #ifdef HAVE_OPENSSL
+void destruct_ssl(void);
 void init_ssl(void);
 void client_write_ssl (char *buf, int nbytes);
 int client_read_ssl (char *buf, int bytes, int timeout);

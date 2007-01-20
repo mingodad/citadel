@@ -101,6 +101,8 @@ int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
 extern int running_as_daemon;
 
+void DestroyWorkerList(void);
+
 /*
  * lprintf()  ...   Write logging information
  */
@@ -161,7 +163,6 @@ static RETSIGTYPE signal_cleanup(int signum) {
 	time_to_die = 1;
 	master_cleanup(signum);
 }
-
 
 /*
  * Some initialization stuff...
@@ -741,7 +742,23 @@ void sysdep_master_cleanup(void) {
 			unlink(serviceptr->sockpath);
 		}
 	}
+#ifdef HAVE_OPENSSL
+	destruct_ssl();
+#endif
+	CtdlDestroyProtoHooks();
+	CtdlDestroyDeleteHooks();
+	CtdlDestroyXmsgHooks();
+	CtdlDestroyNetprocHooks();
+	CtdlDestroyUserHooks();
+	CtdlDestroyMessageHook();
+	CtdlDestroyCleanupHooks();
+	CtdlDestroyFixedOutputHooks();	
+	CtdlDestroySessionHooks();
+	CtdlDestroyServiceHook();
+	DestroyWorkerList();
 }
+
+
 
 
 /*
@@ -928,6 +945,18 @@ void create_worker(void) {
 	pthread_attr_destroy(&attr);
 }
 
+void DestroyWorkerList(void)
+{
+	struct worker_node *cur, *p;
+	cur = worker_list;
+	while (cur != NULL)
+	{
+		p = cur->next;
+		free (cur);
+		cur = p;
+	}
+	worker_list = NULL;
+}
 
 /*
  * Create the indexer thread and begin its operation.
@@ -1260,7 +1289,7 @@ SKIP_SELECT:
 		do_housekeeping();
 		check_sched_shutdown();
 	}
-
+	if (con != NULL) free (con);//// TODO: could this harm other threads? 
 	/* If control reaches this point, the server is shutting down */	
 	return(NULL);
 }
