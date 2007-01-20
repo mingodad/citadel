@@ -73,11 +73,11 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 
 	decoded[0] = 0;
 	decoded_length = 0;
-	buf[0] = 0;
+	memset(buf, '\0', SIZ);
 	buf_length = 0;
 
 	for (i = 0; i < sourcelen; ++i) {
-
+		size_t buflen = strlen(buf);
 		buf[buf_length++] = encoded[i];
 
 		if ( (encoded[i] == '\n')
@@ -87,28 +87,34 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 
 			/*** begin -- process one line ***/
 
-			if (buf[strlen(buf)-1] == '\n') {
-				buf[strlen(buf)-1] = 0;
+			if (buf[buflen-1] == '\n') {
+				buf[buflen-1] = 0;
+				buflen --;
 			}
-			if (buf[strlen(buf)-1] == '\r') {
-				buf[strlen(buf)-1] = 0;
+			if (buf[buflen-1] == '\r') {
+				buf[buflen-1] = 0;
+				buflen --;
 			}
-			while (isspace(buf[strlen(buf)-1])) {
-				buf[strlen(buf)-1] = 0;
+			while (isspace(buf[buflen-1])) {
+				buf[buflen-1] = 0;
+				buflen --;
 			}
 			soft_line_break = 0;
 
-			while (strlen(buf) > 0) {
-				if (!strcmp(buf, "=")) {
+			while (buflen > 0) {
+				if ((buf[0] ==  '=') && (buf[1] == '\0')) {
 					soft_line_break = 1;
-					strcpy(buf, "");
-				} else if ((strlen(buf)>=3) && (buf[0]=='=')) {
+					buf[0] = '\0';
+					buflen = 0;
+				} else if ((buflen>=3) && (buf[0]=='=')) {
 					sscanf(&buf[1], "%02x", &ch);
 					decoded[decoded_length++] = ch;
 					strcpy(buf, &buf[3]);
+					buflen -=3;
 				} else {
 					decoded[decoded_length++] = buf[0];
 					strcpy(buf, &buf[1]);
+					buflen --;
 				}
 			}
 			if (soft_line_break == 0) {
