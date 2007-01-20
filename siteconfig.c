@@ -25,7 +25,7 @@ void display_siteconfig(void)
 	char directory[SIZ];
 	char purger[SIZ];
 	char idxjnl[SIZ];
-
+	char funambol[SIZ];
 	/** expire policy settings */
 	int sitepolicy = 0;
 	int sitevalue = 0;
@@ -65,7 +65,8 @@ void display_siteconfig(void)
 		_("Tuning"),
 		_("Directory"),
 		_("Auto-purger"),
-		_("Indexing/Journaling")
+		_("Indexing/Journaling"),
+		_("Funambol Intergraton")
 	};
 
 	sprintf(general, "<center><h1>%s</h1><table border=\"0\">",
@@ -105,7 +106,9 @@ void display_siteconfig(void)
 			_("Indexing and Journaling"),
 			_("Warning: these facilities are resource intensive.")
 	);
-
+	sprintf(funambol, "<center><h1>%s</h1><table border=\"0\">",
+		_("Funambol Push Email Intergration")
+		);
 
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
 
@@ -524,7 +527,43 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_mgesve_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
+		case 52:
+			sprintf(&general[strlen(general)], "<TR><TD>");
+			sprintf(&general[strlen(general)], _("Use system authentication"));
+			sprintf(&general[strlen(general)], "</TD><TD><input type=\"checkbox\" NAME=\"c_auth_mode\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			break;
+		case 53:
+			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
+			sprintf(&funambol[strlen(funambol)], _("Funambol server host (blank to disable)"));
+			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_host\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
+			break;
+		case 54:
+			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
+			sprintf(&funambol[strlen(funambol)], _("Funambol server port "));
+			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
+			break;
+		case 55:
+			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
+			sprintf(&funambol[strlen(funambol)], _("Funambol sync source"));
+			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_source\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
+			break;
+		case 56:
+			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
+			sprintf(&funambol[strlen(funambol)], _("Funambol auth details (user:pass in Base64)"));
+			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
+			break;
 		}
+	
 	}
 
 	serv_puts("GPEX site");
@@ -598,8 +637,9 @@ void display_siteconfig(void)
 	sprintf(&directory[strlen(directory)], "</table>");
 	sprintf(&purger[strlen(purger)], "</table>");
 	sprintf(&idxjnl[strlen(idxjnl)], "</table>");
+	sprintf(&funambol[strlen(funambol)], "</table");
 
-	tabbed_dialog(7, tabnames);
+	tabbed_dialog(8, tabnames);
 
 	begin_tab(0, 7);	client_write(general, strlen(general));		 end_tab(0, 7);
 	begin_tab(1, 7);	client_write(access, strlen(access));		 end_tab(1, 7);
@@ -608,7 +648,7 @@ void display_siteconfig(void)
 	begin_tab(4, 7);	client_write(directory, strlen(directory));	 end_tab(4, 7);
 	begin_tab(5, 7);	client_write(purger, strlen(purger));		 end_tab(5, 7);
 	begin_tab(6, 7);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 7);
-
+	begin_tab(7, 8);	client_write(funambol, strlen(funambol));	 end_tab(7, 8);
 	wprintf("<div align=\"center\"><br>");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
@@ -688,6 +728,11 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_default_cal_zone"));
 	serv_printf("%s", bstr("c_pftcpdict_port"));
 	serv_printf("%s", bstr("c_mgesve_port"));
+	serv_printf("%s", ((!strcasecmp(bstr("c_auth_mode"), "yes") ? "1" : "0")));
+	serv_printf("%s", bstr("c_funambol_host"));
+	serv_printf("%s", bstr("c_funambol_port"));
+	serv_printf("%s", bstr("c_funambol_source"));
+	serv_printf("%s", bstr("c_funambol_auth"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
