@@ -700,9 +700,10 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 	char *text;
 	struct sdm_script *sptr;
 	struct sdm_vacation *vptr;
-
+	size_t tsize;
 
 	text = malloc(1024);
+	tsize = 1024;
 	snprintf(text, 1024,
 		"Content-type: application/x-citadel-sieve-config\n"
 		"\n"
@@ -714,7 +715,10 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 	);
 
 	while (u->first_script != NULL) {
-		text = realloc(text, strlen(text) + strlen(u->first_script->script_content) + 256);
+		size_t tlen;
+		tlen = strlen(text);
+		tsize = tlen + strlen(u->first_script->script_content) +256;
+		text = realloc(text, tsize);
 		sprintf(&text[strlen(text)], "script|%s|%d|%s" CTDLSIEVECONFIGSEPARATOR,
 			u->first_script->script_name,
 			u->first_script->script_active,
@@ -728,11 +732,11 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 
 	if (u->first_vacation != NULL) {
 
-		size_t realloc_len = strlen(text) + 256;
+		tsize = strlen(text) + 256;
 		for (vptr = u->first_vacation; vptr != NULL; vptr = vptr->next) {
-			realloc_len += strlen(vptr->fromaddr + 32);
+			tsize += strlen(vptr->fromaddr + 32);
 		}
-		text = realloc(text, realloc_len);
+		text = realloc(text, tsize);
 
 		sprintf(&text[strlen(text)], "vacation|\n");
 		while (u->first_vacation != NULL) {
@@ -755,7 +759,8 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 			4,
 			"Sieve configuration"
 	);
-
+	
+	free (text);
 	/* And delete the old one */
 	if (u->config_msgnum > 0) {
 		CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "");
