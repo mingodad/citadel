@@ -1847,7 +1847,7 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
 		char *encoding, void *cbuserdata)
 {
-	icalcomponent *cal, *nested_event, *nested_todo;
+	icalcomponent *cal, *nested_event, *nested_todo, *whole_cal;
 	icalproperty *p;
 	struct icalmessagemod *imm;
 	char new_uid[SIZ];
@@ -1860,48 +1860,50 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 	 * to that string.
 	 */
 	if (!strcasecmp(cbtype, "text/calendar")) {
-		cal = icalcomponent_new_from_string(content);
+		whole_cal = icalcomponent_new_from_string(content);
+		cal = whole_cal;
 		if (cal != NULL) {
 			if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
 				nested_event = icalcomponent_get_first_component(
-					cal, ICAL_VEVENT_COMPONENT
-				);
-				nested_todo = icalcomponent_get_first_component(
-					cal, ICAL_VTODO_COMPONENT
-				);
+					cal, ICAL_VEVENT_COMPONENT);
 				if (nested_event != NULL) {
 					cal = nested_event;
 				}
-				else if (nested_todo != NULL) {
-					cal = nested_todo;
+				else {
+					nested_todo = icalcomponent_get_first_component(
+						cal, ICAL_VTODO_COMPONENT);
+					if (nested_todo != NULL) 
+						cal = nested_todo;
 				}
 			}
-		}
-		if (cal != NULL) {
-			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
-			if (p == NULL) {
-				/* If there's no uid we must generate one */
-				generate_uuid(new_uid);
-				icalcomponent_add_property(cal, icalproperty_new_uid(new_uid));
+			
+			if (cal != NULL) {
 				p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
-			}
-			if (p != NULL) {
-				strcpy(imm->uid, icalproperty_get_comment(p));
-				/* strcpy(imm->subject, icalproperty_get_comment(p)); old aethera hack */
-			}
-			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
-			if (p != NULL) {
-				strcpy(imm->subject, icalproperty_get_comment(p));
-			}
-			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
-			if (p != NULL) {
-				imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
+				if (p == NULL) {
+					/* If there's no uid we must generate one */
+					generate_uuid(new_uid);
+					icalcomponent_add_property(cal, icalproperty_new_uid(new_uid));
+					p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+				}
+				if (p != NULL) {
+					strcpy(imm->uid, icalproperty_get_comment(p));
+					/* strcpy(imm->subject, icalproperty_get_comment(p)); old aethera hack */
+				}
+				p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
+				if (p != NULL) {
+					strcpy(imm->subject, icalproperty_get_comment(p));
+				}
+				p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
+				if (p != NULL) {
+					imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
+				}
 			}
 			icalcomponent_free(cal);
+			if (whole_cal != cal)
+			    icalcomponent_free(whole_cal);
 		}
 	}
 }
-
 
 
 
