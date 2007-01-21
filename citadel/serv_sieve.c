@@ -577,7 +577,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		strcpy(my.envelope_to, "");
 	}
 
-	free(msg);
+	CtdlFreeMessage(msg);
 
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
