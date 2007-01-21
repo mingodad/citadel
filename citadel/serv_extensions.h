@@ -12,6 +12,7 @@
  */
 char *serv_bio_init(void);
 char *serv_calendar_init(void);
+void serv_calendar_destroy(void);
 char *serv_notes_init(void);
 char *serv_ldap_init(void);
 char *serv_chat_init(void);

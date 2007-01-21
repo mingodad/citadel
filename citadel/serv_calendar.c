@@ -1770,6 +1770,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			valid = validate_recipients(attendees_string);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
+			free (valid);
 		}
 	}
 	free(serialized_request);
@@ -2163,6 +2164,9 @@ char *serv_calendar_init(void)
 
 
 
-
-
-
+void serv_calendar_destroy(void)
+{
+#ifdef CITADEL_WITH_CALENDAR_SERVICE
+	icaltimezone_free_builtin_timezones();
+#endif
+}

@@ -721,6 +721,7 @@ int client_getln(char *buf, int bufsize)
 void sysdep_master_cleanup(void) {
 	struct ServiceFunctionHook *serviceptr;
 
+/////	DestroyWorkerList();
 	/*
 	 * close all protocol master sockets
 	 */
@@ -745,6 +746,7 @@ void sysdep_master_cleanup(void) {
 #ifdef HAVE_OPENSSL
 	destruct_ssl();
 #endif
+	serv_calendar_destroy();
 	CtdlDestroyProtoHooks();
 	CtdlDestroyDeleteHooks();
 	CtdlDestroyXmsgHooks();
@@ -755,7 +757,6 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
 	CtdlDestroyServiceHook();
-	DestroyWorkerList();
 }
 
 
@@ -947,6 +948,25 @@ void create_worker(void) {
 
 void DestroyWorkerList(void)
 {
+	struct CitContext *ptr;		/* general-purpose utility pointer */
+	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
+
+	begin_critical_section(S_SESSION_TABLE);
+	ptr = ContextList;
+	while (ptr != NULL){
+		/* Remove the session from the active list */
+		rem = ptr->next;
+		--num_sessions;
+		
+		lprintf(CTDL_DEBUG, "Purging session %d\n", rem->cs_pid);
+		end_critical_section(S_SESSION_TABLE);
+		RemoveContext(ptr);
+		begin_critical_section(S_SESSION_TABLE);
+		free (ptr);
+		ptr = rem;
+	}
+	end_critical_section(S_SESSION_TABLE);
+
 	struct worker_node *cur, *p;
 	cur = worker_list;
 	while (cur != NULL)
