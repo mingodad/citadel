@@ -710,12 +710,12 @@ div.auto_complete ul strong.highlight {
         clear: left;
 }
 
-.login_form .buttons {
+.login_form .logbuttons {
         margin-left: auto;
         margin-right: auto;
 }
 
-.login_form .button {
+.login_form .logbutton {
         text-align: center;
 }
 
