@@ -701,7 +701,7 @@ div.auto_complete ul strong.highlight {
         text-align: left;
 }
 
-.login_form input.name {
+.login_form input {
         width: 130px;
         text-align: left;
 }
