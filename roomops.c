@@ -784,6 +784,7 @@ void gotonext(void)
 {
 	char buf[256];
 	struct march *mptr, *mptr2;
+	char room_name[128];
 	char next_room[128];
 
 	/**
@@ -796,18 +797,21 @@ void gotonext(void)
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1')
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				mptr = (struct march *) malloc(sizeof(struct march));
-				mptr->next = NULL;
-				extract_token(mptr->march_name, buf, 0, '|', sizeof mptr->march_name);
-				mptr->march_floor = extract_int(buf, 2);
-				mptr->march_order = extract_int(buf, 3);
-				if (WC->march == NULL) {
-					WC->march = mptr;
-				} else {
-					mptr2 = WC->march;
-					while (mptr2->next != NULL)
-						mptr2 = mptr2->next;
-					mptr2->next = mptr;
+				extract_token(room_name, buf, 0, '|', sizeof room_name);
+				if (strcasecmp(room_name, WC->wc_roomname)) {
+					mptr = (struct march *) malloc(sizeof(struct march));
+					mptr->next = NULL;
+					safestrncpy(mptr->march_name, room_name, sizeof mptr->march_name);
+					mptr->march_floor = extract_int(buf, 2);
+					mptr->march_order = extract_int(buf, 3);
+					if (WC->march == NULL) {
+						WC->march = mptr;
+					} else {
+						mptr2 = WC->march;
+						while (mptr2->next != NULL)
+							mptr2 = mptr2->next;
+						mptr2->next = mptr;
+					}
 				}
 			}
 		/**

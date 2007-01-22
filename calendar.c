@@ -738,7 +738,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		 * can't encapsulate something that may already be encapsulated
 		 * somewhere else.
 		 */
-		lprintf(9, "Encapsulating into full VCALENDAR component\n");
+		lprintf(9, "Encapsulating into a full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vtodo));
 
 		/* Serialize it and save it to the message base */
