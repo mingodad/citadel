@@ -320,7 +320,10 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_pftcpdict_port);
 	cprintf("%d\n", config.c_managesieve_port);
 	cprintf("%d\n", config.c_auth_mode);
-	
+	cprintf("%s\n", config.c_funambol_host);
+	cprintf("%d\n", config.c_funambol_port);
+	cprintf("%s\n", config.c_funambol_source);
+	cprintf("%s\n", config.c_funambol_auth);
 
 	/* Export the control file */
 	get_control();
@@ -405,6 +408,11 @@ void artv_import_config(void) {
 	client_getln(buf, sizeof buf);	config.c_pftcpdict_port = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_managesieve_port = atoi(buf);
 	client_getln(buf, sizeof buf);	config.c_auth_mode = atoi(buf);
+	client_getln(config.c_funambol_host, sizeof config.c_funambol_host);
+	client_getln(buf, sizeof buf); config.c_funambol_port = atoi(buf);
+	client_getln(config.c_funambol_source, sizeof config.c_funambol_source);
+	client_getln(config.c_funambol_auth, sizeof config.c_funambol_auth);
+	
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");

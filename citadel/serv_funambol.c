@@ -1,5 +1,6 @@
 /*
  * This module implements a notifier for Funambol push email.
+ * Based on bits of serv_spam, serv_smtp
  */
 
 #define FUNAMBOL_WS       "/funambol/services/admin"
@@ -45,19 +46,36 @@
 #include "internet_addressing.h"
 #include "domain.h"
 #include "clientsocket.h"
+#include "serv_funambol.h"
+/*
+ * Create the notify message queue
+ */
+void create_notify_queue(void) {
+	struct ctdlroom qrbuf;
 
+	create_room(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
 
-
+	/*
+	 * Make sure it's set to be a "system room" so it doesn't show up
+	 * in the <K>nown rooms list for Aides.
+	 */
+	if (lgetroom(&qrbuf, FNBL_QUEUE_ROOM) == 0) {
+		qrbuf.QRflags2 |= QR2_SYSTEM;
+		lputroom(&qrbuf);
+	}
+}
 /*
  * Connect to the Funambol server and scan a message.
  */
-int notify_funambol(struct CtdlMessage *msg) {
+int notify_funambol(long msgnum, void *userdata) {
+	struct CtdlMessage *msg;
 	int sock = (-1);
 	char buf[SIZ];
 	char SOAPHeader[SIZ];
 	char SOAPData[SIZ];
 	char port[SIZ];
 	/* W means 'Wireless'... */
+	msg = CtdlFetchMessage(msgnum, 1);
 	if ( msg->cm_fields['W'] == NULL) {
 		return(0);
 	}
@@ -67,20 +85,19 @@ int notify_funambol(struct CtdlMessage *msg) {
 	} else {
 		lprintf(CTDL_INFO, "Push enabled\n");
 	}
+	
 	sprintf(port, "%d", config.c_funambol_port);
                 lprintf(CTDL_INFO, "Connecting to Funambol at <%s>\n", config.c_funambol_host);
                 sock = sock_connect(config.c_funambol_host, port, "tcp");
                 if (sock >= 0) lprintf(CTDL_DEBUG, "Connected!\n");
 
 	if (sock < 0) {
-		/* If the service isn't running, just pass the mail
-		 * through.  Potentially throwing away mails isn't good.
-		 */
+		/* If the service isn't running, pass for now */
 		return(0);
 	}
 	
 	/* Build a SOAP message, delicately, by hand */
-	strcat(SOAPData, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+	sprintf(SOAPData, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
 	strcat(SOAPData, "<soapenv:Body><sendNotificationMessages soapenv:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">");
 	strcat(SOAPData, "<arg0 xsi:type=\"soapenc:string\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\">");
 	strcat(SOAPData, msg->cm_fields['W']);
@@ -159,18 +176,53 @@ int notify_funambol(struct CtdlMessage *msg) {
         }
         lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK"))) {
+		
 		goto bail;
 	}
 	lprintf(CTDL_DEBUG, "Funambol notified\n");
-
-bail:	close(sock);
-	return(0);
+	/* We should allow retries here but for now purge after one go */
+	bail:	
+	CtdlFreeMessage(msg);
+	long todelete[1];
+	todelete[0] = msgnum;
+	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");	
+	close(sock);
+	return 0;
 }
 
+
+void do_notify_queue(void) {
+	static int doing_queue = 0;
+
+	/*
+	 * This is a simple concurrency check to make sure only one queue run
+	 * is done at a time.  We could do this with a mutex, but since we
+	 * don't really require extremely fine granularity here, we'll do it
+	 * with a static variable instead.
+	 */
+	if (doing_queue) return;
+	doing_queue = 1;
+
+	/* 
+	 * Go ahead and run the queue
+	 */
+	lprintf(CTDL_INFO, "serv_funambol: processing notify queue\n");
+
+	if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
+		lprintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		return;
+	}
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
+		SPOOLMIME, NULL, notify_funambol, NULL);
+
+	lprintf(CTDL_INFO, "serv_funambol: queue run completed\n");
+	doing_queue = 0;
+}
 
 
 char *serv_funambol_init(void)
 {
-	CtdlRegisterMessageHook(notify_funambol, EVT_AFTERSAVE);
+	create_notify_queue();
+	CtdlRegisterSessionHook(do_notify_queue, EVT_TIMER);
         return "$Id: serv_funambol.c $";
 }

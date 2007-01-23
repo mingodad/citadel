@@ -112,7 +112,7 @@
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
-
+#define FNBL_QUEUE_ROOM		"__CitadelFNBLqueue__"
 /*
  * Where we keep messages containing the vCards that source our directory.  It
  * makes no sense to change this, because you'd have to change it on every

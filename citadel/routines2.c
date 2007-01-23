@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 52
+#define NUM_CONFIGS 57
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -722,7 +722,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	else {
 		sc[18][0] = 0;
 	}
-
+	snprintf(sc[52], sizeof sc[52], "%d", (boolprompt(
+		"Use system authentication",
+		atoi(&sc[52][0]))));
 
 	/* Server tuning */
 
@@ -745,7 +747,6 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("SMTPS server port (-1 to disable)", &sc[41][0], 5);
 	strprompt("Postfix TCP Dictionary Port server port (-1 to disable)", &sc[50][0], 5);
 	strprompt("ManageSieve server port (-1 to disable)", &sc[51][0], 5);
-
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no
 	 */
@@ -855,6 +856,12 @@ void do_system_configuration(CtdlIPC *ipc)
 			&sc[48][0], 127);
 	}
 
+	/* Funambol push stuff */
+	strprompt("Funambol server (blank to disable)", &sc[53][0], 63);
+	strprompt("Funambol server port", &sc[54][0], 5);
+	strprompt("Funambol sync source", &sc[55][0], 63);
+	strprompt("Funambol authentication details (user:pass in Base64)", &sc[56][0],63);
+	
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {

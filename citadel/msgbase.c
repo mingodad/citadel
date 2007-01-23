@@ -2580,6 +2580,29 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					&userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
+			if (strlen(config.c_funambol_host) > 0) {
+			/* Generate a instruction message for the Funambol notification
+			   server, in the same style as the SMTP queue */
+			   instr = malloc(SIZ * 2);
+			   snprintf(instr, SIZ * 2,
+			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"bounceto|%s@%s\n",
+			SPOOLMIME, newmsgid, (long)time(NULL),
+			msg->cm_fields['A'], msg->cm_fields['N']
+			);
+
+			   imsg = malloc(sizeof(struct CtdlMessage));
+			   memset(imsg, 0, sizeof(struct CtdlMessage));
+			   imsg->cm_magic = CTDLMESSAGE_MAGIC;
+			   imsg->cm_anon_type = MES_NORMAL;
+			   imsg->cm_format_type = FMT_RFC822;
+			   imsg->cm_fields['A'] = strdup("Citadel");
+			   imsg->cm_fields['J'] = strdup("do not journal");
+			   imsg->cm_fields['M'] = instr;
+			   imsg->cm_fields['W'] = strdup(recipient);
+			   CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM);
+			   CtdlFreeMessage(imsg);
+			}
 		}
 		else {
 			lprintf(CTDL_DEBUG, "No user <%s>\n", recipient);
