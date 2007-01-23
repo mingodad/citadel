@@ -435,8 +435,7 @@ void imap_cleanup_function(void)
  * output this stuff in other places as well)
  */
 void imap_output_capability_string(void) {
-	// cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=LOGIN");
-	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID AUTH=LOGIN");
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=LOGIN");
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
 #endif

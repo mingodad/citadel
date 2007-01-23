@@ -73,6 +73,52 @@ void imap_deleteacl(int num_parms, char *parms[]) {
 }
 
 
+/*
+ * Given the bits returned by CtdlRoomAccess(), populate a string buffer
+ * with IMAP ACL format flags.   This code is common to GETACL and MYRIGHTS.
+ */
+void imap_acl_flags(char *rights, int ra)
+{
+	strcpy(rights, "");
+
+	/* l - lookup (mailbox is visible to LIST/LSUB commands, SUBSCRIBE mailbox)
+	 * r - read (SELECT the mailbox, perform STATUS)
+	 * s - keep seen/unseen information across sessions (set or clear \SEEN flag
+	 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
+	 * e - perform EXPUNGE and expunge as a part of CLOSE
+	 */
+	if (	(ra & UA_KNOWN)					/* known rooms */
+	   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
+	   ) {
+		strcat(rights, "l");
+		strcat(rights, "r");
+		strcat(rights, "s");
+		strcat(rights, "e");
+
+		/* Only output the remaining flags if the room is known */
+
+		/* w - write (set or clear arbitrary flags; not supported in Citadel) */
+
+		/* i - insert (perform APPEND, COPY into mailbox) */
+		/* p - post (send mail to submission address for mailbox - not enforced) */
+		if (ra & UA_POSTALLOWED) {
+			strcat(rights, "i");
+			strcat(rights, "p");
+		}
+
+		/* k - create mailboxes in this hierarchy */
+
+		/* t - delete messages (set/clear \Deleted flag) */
+
+		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
+		/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
+		if (ra & UA_ADMINALLOWED) {
+			strcat(rights, "a");
+			strcat(rights, "x");
+		}
+	}
+}
+
 
 /*
  * Implements the GETACL command.
@@ -123,45 +169,7 @@ void imap_getacl(int num_parms, char *parms[]) {
 
 		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
 		if (strlen(temp.fullname) > 0) {
-			strcpy(rights, "");
-
-			/* l - lookup (mailbox is visible to LIST/LSUB commands, SUBSCRIBE mailbox)
-			 * r - read (SELECT the mailbox, perform STATUS)
-			 * s - keep seen/unseen information across sessions (set or clear \SEEN flag
-			 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
-			 * e - perform EXPUNGE and expunge as a part of CLOSE
-			 */
-			if (	(ra & UA_KNOWN)					/* known rooms */
-			   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
-			   ) {
-				strcat(rights, "l");
-				strcat(rights, "r");
-				strcat(rights, "s");
-				strcat(rights, "e");
-
-				/* Only output the remaining flags if the room is known */
-
-				/* w - write (set or clear arbitrary flags; not supported in Citadel) */
-	
-				/* i - insert (perform APPEND, COPY into mailbox) */
-				/* p - post (send mail to submission address for mailbox - not enforced) */
-				if (ra & UA_POSTALLOWED) {
-					strcat(rights, "i");
-					strcat(rights, "p");
-				}
-	
-				/* k - create mailboxes in this hierarchy */
-	
-				/* t - delete messages (set/clear \Deleted flag) */
-
-				/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
-				/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
-				if (ra & UA_ADMINALLOWED) {
-					strcat(rights, "a");
-					strcat(rights, "x");
-				}
-			}
-
+			imap_acl_flags(rights, ra);
 			if (strlen(rights) > 0) {
 				cprintf(" ");
 				imap_strout(temp.fullname);
@@ -198,8 +206,53 @@ void imap_listrights(int num_parms, char *parms[]) {
  * Implements the MYRIGHTS command.
  */
 void imap_myrights(int num_parms, char *parms[]) {
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+	int ret;
+	int ra;
+	char rights[32];
 
-	cprintf("%s BAD not yet implemented FIXME\r\n", parms[0]);
+	if (num_parms != 3) {
+		cprintf("%s BAD usage error\r\n", parms[0]);
+		return;
+	}
+
+	ret = imap_grabroom(roomname, parms[2], 0);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->room.QRname);
+	}
+	usergoto(roomname, 0, 0, &msgs, &new);
+
+	cprintf("* MYRIGHTS ");
+	imap_strout(parms[2]);
+	cprintf(" ");
+
+	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
+	imap_acl_flags(rights, ra);
+	imap_strout(rights);
+
+	cprintf("\r\n");
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, 0, &msgs, &new);
+	}
+
+	cprintf("%s OK MYRIGHTS completed\r\n", parms[0]);
 	return;
 }
 
