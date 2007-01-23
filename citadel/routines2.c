@@ -722,9 +722,14 @@ void do_system_configuration(CtdlIPC *ipc)
 	else {
 		sc[18][0] = 0;
 	}
-	snprintf(sc[52], sizeof sc[52], "%d", (boolprompt(
-		"Use system authentication",
-		atoi(&sc[52][0]))));
+
+	/* Commented out because this setting isn't really appropriate to
+	 * change while the server is running.
+	 *
+	 * snprintf(sc[52], sizeof sc[52], "%d", (boolprompt(
+	 * 	"Use system authentication",
+	 *	atoi(&sc[52][0]))));
+	 */
 
 	/* Server tuning */
 
