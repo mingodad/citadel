@@ -528,11 +528,11 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 52:
-			sprintf(&general[strlen(general)], "<TR><TD>");
-			sprintf(&general[strlen(general)], _("Use system authentication"));
-			sprintf(&general[strlen(general)], "</TD><TD><input type=\"checkbox\" NAME=\"c_auth_mode\" VALUE=\"yes\" %s>",
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Enable host based authentication mode"));
+			sprintf(&access[strlen(access)], "</TD><TD><input type=\"checkbox\" NAME=\"c_auth_mode\" VALUE=\"yes\" DISABLED %s>",
 				((atoi(buf) != 0) ? "CHECKED" : ""));
-			sprintf(&general[strlen(general)], "</TD></TR>\n");
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 53:
 			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
