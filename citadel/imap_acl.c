@@ -234,21 +234,17 @@ void imap_myrights(int num_parms, char *parms[]) {
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
-	cprintf("* MYRIGHTS ");
-	imap_strout(parms[2]);
-	cprintf(" ");
-
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
 	imap_acl_flags(rights, ra);
-	imap_strout(rights);
 
-	cprintf("\r\n");
+	cprintf("* MYRIGHTS ");
+	imap_strout(parms[2]);
+	cprintf(" %s\r\n", rights);
 
 	/*
-	 * If another folder is selected, go back to that room so we can resume
-	 * our happy day without violent explosions.
+	 * If a different folder was previously selected, return there now.
 	 */
-	if (IMAP->selected) {
+	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
 		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 
