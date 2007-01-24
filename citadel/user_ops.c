@@ -47,6 +47,7 @@
 #include "config.h"
 #include "tools.h"
 #include "citserver.h"
+#include "citadel_dirs.h"
 #include "genstamp.h"
 
 /*
@@ -608,8 +609,8 @@ static int validpw(uid_t uid, const char *pass)
 		}
 		close(pipev[0]);
 
-		execl(CTDLDIR "/chkpwd", CTDLDIR "/chkpwd", NULL);
-		perror(CTDLDIR "/chkpwd");
+		execl(file_chkpwd, file_chkpwd, NULL);
+		perror(file_chkpwd);
 		exit(1);
 	}
 

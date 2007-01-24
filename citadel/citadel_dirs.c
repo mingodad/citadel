@@ -60,6 +60,7 @@ char file_pid_file[PATH_MAX]="";
 char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
+char file_chkpwd[PATH_MAX]="";
 
 int home_specified = 0;
 
@@ -194,6 +195,11 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 		 sizeof file_crpt_file_cer, 
 		 "%scitadel.cer",
 		 ctdl_key_dir);
+
+	snprintf(file_chkpwd,
+		 sizeof file_chkpwd, 
+		 "%schkpwd",
+		 ctdl_sbin_dir);
 	/* 
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.
