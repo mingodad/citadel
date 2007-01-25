@@ -277,7 +277,7 @@ void do_fulltext_indexing(void) {
 
 		/* Here it is ... do each message! */
 		for (i=0; i<ft_num_msgs; ++i) {
-			if ((time(NULL) - last_progress) > 10) {
+			if (time(NULL) != last_progress) {
 				lprintf(CTDL_DEBUG,
 					"Indexed %d of %d messages (%d%%)\n",
 						i, ft_num_msgs,

@@ -111,12 +111,14 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
-		if (fieldptr != NULL) {
-			if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
-				match = 1;
+		if (msg != NULL) {
+			fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
+			if (fieldptr != NULL) {
+				if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
+					match = 1;
+				}
+				free(fieldptr);
 			}
-			free(fieldptr);
 		}
 		pos += 2;
 	}
@@ -126,10 +128,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) < 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) < 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -150,8 +154,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 				need_to_free_msg = 1;
 			}
-			if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
-				match = 1;
+			if (msg != NULL) {
+				if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
+					match = 1;
+				}
 			}
 		}
 
@@ -163,19 +169,21 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		fieldptr = msg->cm_fields['Y'];
-		if (fieldptr != NULL) {
-			if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
-				match = 1;
-			}
-		}
-		else {
-			fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+		if (msg != NULL) {
+			fieldptr = msg->cm_fields['Y'];
 			if (fieldptr != NULL) {
 				if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
 					match = 1;
 				}
-				free(fieldptr);
+			}
+			else {
+				fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+				if (fieldptr != NULL) {
+					if (bmstrcasestr(fieldptr, itemlist[pos+1])) {
+						match = 1;
+					}
+					free(fieldptr);
+				}
 			}
 		}
 		pos += 2;
@@ -207,11 +215,13 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1])) {
-			match = 1;
-		}
-		if (bmstrcasestr(msg->cm_fields['F'], itemlist[pos+1])) {
-			match = 1;
+		if (msg != NULL) {
+			if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1])) {
+				match = 1;
+			}
+			if (bmstrcasestr(msg->cm_fields['F'], itemlist[pos+1])) {
+				match = 1;
+			}
 		}
 		pos += 2;
 	}
@@ -228,29 +238,32 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
-
-		fieldptr = rfc822_fetch_field(CC->redirect_buffer, itemlist[pos+1]);
-		if (fieldptr != NULL) {
-			if (bmstrcasestr(fieldptr, itemlist[pos+2])) {
-				match = 1;
+		if (msg != NULL) {
+	
+			CC->redirect_buffer = malloc(SIZ);
+			CC->redirect_len = 0;
+			CC->redirect_alloc = SIZ;
+			CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
+	
+			fieldptr = rfc822_fetch_field(CC->redirect_buffer, itemlist[pos+1]);
+			if (fieldptr != NULL) {
+				if (bmstrcasestr(fieldptr, itemlist[pos+2])) {
+					match = 1;
+				}
+				free(fieldptr);
 			}
-			free(fieldptr);
+	
+			free(CC->redirect_buffer);
+			CC->redirect_buffer = NULL;
+			CC->redirect_len = 0;
+			CC->redirect_alloc = 0;
 		}
-
-		free(CC->redirect_buffer);
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
 
 		pos += 3;	/* Yes, three */
 	}
 
 	else if (!strcasecmp(itemlist[pos], "KEYWORD")) {
-		/* FIXME */
+		/* not implemented */
 		pos += 2;
 	}
 
@@ -259,8 +272,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (strlen(msg->cm_fields['M']) > atoi(itemlist[pos+1])) {
-			match = 1;
+		if (msg != NULL) {
+			if (strlen(msg->cm_fields['M']) > atoi(itemlist[pos+1])) {
+				match = 1;
+			}
 		}
 		pos += 2;
 	}
@@ -284,10 +299,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) == 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) == 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -312,10 +329,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) < 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) < 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -326,10 +345,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) == 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) == 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -340,10 +361,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) >= 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) >= 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -354,10 +377,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (msg->cm_fields['T'] != NULL) {
-			if (imap_datecmp(itemlist[pos+1],
-					atol(msg->cm_fields['T'])) >= 0) {
-				match = 1;
+		if (msg != NULL) {
+			if (msg->cm_fields['T'] != NULL) {
+				if (imap_datecmp(itemlist[pos+1],
+						atol(msg->cm_fields['T'])) >= 0) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -368,8 +393,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (strlen(msg->cm_fields['M']) < atoi(itemlist[pos+1])) {
-			match = 1;
+		if (msg != NULL) {
+			if (strlen(msg->cm_fields['M']) < atoi(itemlist[pos+1])) {
+				match = 1;
+			}
 		}
 		pos += 2;
 	}
@@ -379,8 +406,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (bmstrcasestr(msg->cm_fields['U'], itemlist[pos+1])) {
-			match = 1;
+		if (msg != NULL) {
+			if (bmstrcasestr(msg->cm_fields['U'], itemlist[pos+1])) {
+				match = 1;
+			}
 		}
 		pos += 2;
 	}
@@ -390,9 +419,11 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		for (i='A'; i<='Z'; ++i) {
-			if (bmstrcasestr(msg->cm_fields[i], itemlist[pos+1])) {
-				match = 1;
+		if (msg != NULL) {
+			for (i='A'; i<='Z'; ++i) {
+				if (bmstrcasestr(msg->cm_fields[i], itemlist[pos+1])) {
+					match = 1;
+				}
 			}
 		}
 		pos += 2;
@@ -403,8 +434,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
-		if (bmstrcasestr(msg->cm_fields['R'], itemlist[pos+1])) {
-			match = 1;
+		if (msg != NULL) {
+			if (bmstrcasestr(msg->cm_fields['R'], itemlist[pos+1])) {
+				match = 1;
+			}
 		}
 		pos += 2;
 	}
