@@ -1648,6 +1648,18 @@ void imap_command_loop(void)
 
 
 
+
+/* temporary function to insert a bogus pointer in the lobbie */
+
+void cmd_bgus(char *argbuf)
+{
+	long bogus = 9999999;
+	CtdlSaveMsgPointersInRoom("Lobby", &bogus, 1, 0, NULL);
+	cprintf("%d bogus\n", CIT_OK);
+}
+
+
+
 /*
  * This function is called to register the IMAP extension with Citadel.
  */
@@ -1660,5 +1672,6 @@ char *serv_imap_init(void)
 				NULL, imaps_greeting, imap_command_loop, NULL);
 #endif
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
+        CtdlRegisterProtoHook(cmd_bgus, "BGUS", "bogus");
 	return "$Id$";
 }
