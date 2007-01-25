@@ -28,7 +28,7 @@ extern char ctdl_netcfg_dir[PATH_MAX];
 extern char ctdl_bbsbase_dir[PATH_MAX];
 extern char ctdl_sbin_dir[PATH_MAX];
 extern char ctdl_bin_dir[PATH_MAX];
-extern char ctdl_ssl_dir[PATH_MAX];
+extern char ctdl_key_dir[PATH_MAX];
 
 
 /* some of the frequently used files */
