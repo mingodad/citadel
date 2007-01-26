@@ -92,21 +92,21 @@ body {
 }
 
 li.search {
-        font-size: 8pt;
+        font-size: 10pt;
         float: left;
         color: #FFFFFF;
         margin-bottom: 2px;
 }
 
 li.view {
-        font-size: 8pt;
+        font-size: 10pt;
         float: right;
         color: #FFFFFF;
         margin-bottom: 2px;
 }
 
 li.nummsgs {
-        font-size: 8pt;
+        font-size: 10pt;
         color: #DDDDCC;
 }
 
@@ -370,7 +370,7 @@ a:hover {
 }
 
 .view_name, .search_name, .selectbox, .inputbox {
-	font-size: 7pt; 
+	font-size: 7pt;
 	background: #444455; 
 	color: #ddddcc;
 }
