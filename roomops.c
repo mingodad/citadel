@@ -354,11 +354,11 @@ void embed_view_o_matic(void) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n"
-		"<div class=\"room_banner_new_messages\"><span>");
+		"<label for=\"view_name\">");
 	wprintf(_("View as:"));
-	wprintf("</span> "
-		"<SELECT NAME=\"newview\" SIZE=\"1\" "
-		"class=\"selectbox\" "
+	wprintf("</label> "
+		"<select name=\"newview\" size=\"1\" "
+		"id=\"view_name\" class=\"selectbox\" "
 		"OnChange=\"location.href=viewomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
@@ -376,14 +376,14 @@ void embed_view_o_matic(void) {
 			/** ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
 		) {
 
-			wprintf("<OPTION %s VALUE=\"changeview?view=%d\">",
-				((i == WC->wc_view) ? "SELECTED" : ""),
+			wprintf("<option %s value=\"changeview?view=%d\">",
+				((i == WC->wc_view) ? "selected" : ""),
 				i );
 			escputs(viewdefs[i]);
-			wprintf("</OPTION>\n");
+			wprintf("</option>\n");
 		}
 	}
-	wprintf("</select></div></form>\n");
+	wprintf("</select></form>\n");
 }
 
 
@@ -392,13 +392,13 @@ void embed_view_o_matic(void) {
  */
 void embed_search_o_matic(void) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n"
-		"<div class=\"room_banner_new_messages\"><span>");
+		"<label for=\"search_name\">");
 	wprintf(_("Search: "));
-	wprintf("</span> <input "
-		"type=\"text\" name=\"query\" size=\"20\" maxlength=\"128\" "
-		"class=\"inputbox\">\n"
+	wprintf("</label> <input "
+		"type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
+		"id=\"search_name\" class=\"inputbox\">\n"
 	);
-	wprintf("</select></div></form>\n");
+	wprintf("</select></form>\n");
 }
 
 

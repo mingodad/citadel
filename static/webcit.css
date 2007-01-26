@@ -55,6 +55,67 @@ body {
 	background: #445;
 }
 
+
+#banner .room_banner {
+        float: left;
+        width: 58%;
+}
+
+.room_banner img {
+        float: left;
+}
+
+.room_banner h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        color: #FFFFEE;
+}
+
+.room_banner div {
+        font-size: 8pt;
+        color: #FFFFEE;
+}
+
+#banner ul {
+        float: right;
+        width: 40%;
+        margin: 0;
+        padding: 0;
+}
+
+#banner ul li {
+        text-align: right;
+        clear: right;
+        list-style: none;
+        margin-top: 0px ;
+        padding: 2px;
+}
+
+li.search {
+        font-size: 8pt;
+        float: left;
+        color: #FFFFFF;
+        margin-bottom: 2px;
+}
+
+li.view {
+        font-size: 8pt;
+        float: right;
+        color: #FFFFFF;
+        margin-bottom: 2px;
+}
+
+li.nummsgs {
+        font-size: 8pt;
+        color: #DDDDCC;
+}
+
+li.start_page {
+        font-size: 8pt;
+        color: #DDDDCC;
+}
+
+
 #important_message {
 	position:absolute;
 	top:0px; right:0px;
@@ -297,27 +358,17 @@ a:hover {
 }
 
 .room_banner_room_name {
-	font-size: 14pt;
-	font-weight: bold;
-	color: #FFFFEE;
 }
 
 .room_banner_room_info {
-	font-size: 8pt;
-	color: #FFFFEE;
 }
 
 .room_banner_new_messages {
-	font-size: 10pt;
-	color: #DDDDCC;
 }
 
 .room_banner_start_page {
-	font-size: 7pt;
-	color: #DDDDCC;
-}
 
-.selectbox, .inputbox {
+.view_name, .search_name, .selectbox, .inputbox {
 	font-size: 7pt; 
 	background: #444455; 
 	color: #ddddcc;
