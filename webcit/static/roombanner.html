@@ -1,23 +1,13 @@
 <! start roombanner.html>
-<table class="room_banner" >
-<tr>
-	<td align="left" valign="middle" rowspan="2" valign="top">
-	<?ROOMPIC>
-	</td>
-	<td align="left" valign="middle" >
-		<span class="room_banner_room_name"><?ROOMNAME></span>
-	</td>
-	<td align="right" valign="top" width="18%"><?SEARCHOMATIC></td>
-	<td align="right" valign="top" width="18%"><?VIEWOMATIC></td>
-</tr><tr>
-	<td align="left" valign="top" >
-		<span class="room_banner_room_info"><?ROOMINFO></span>
-	</td>
-	<td align="right" valign="top" colspan="2">
-		<span class="room_banner_new_messages"><?NUMMSGS></span>
-		<br />
-		<span class="room_banner_start_page"><?START></span>
-	</td>
-</tr>
-</table>
+<div class="room_banner" >
+<?ROOMPIC>
+<h1><?ROOMNAME></h1>
+<?ROOMINFO>
+</div>
+<ul>
+<li class="search"><?SEARCHOMATIC></li>
+<li class="view"><?VIEWOMATIC></li>
+<li class="nummsgs"><?NUMMSGS></li>
+<li class="start_page"><?START></li>
+</ul>
 <! end roombanner.html>
