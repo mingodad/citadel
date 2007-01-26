@@ -1,3 +1,8 @@
+webcit (7.02-4) unstable; urgency=high
+
+  * fix calendaring bug 
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 3 Jan 2007 21:09:00 +0100
 webcit (7.02-3) unstable; urgency=high
 
   * integrate apache package. 
