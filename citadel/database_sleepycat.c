@@ -77,6 +77,13 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 }
 
 
+/* Verbose logging callback */
+void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
+{
+	lprintf(CTDL_ALERT, "BDB: %s\n", msg);
+}
+
+
 /* just a little helper function */
 static void txabort(DB_TXN * tid)
 {
@@ -366,7 +373,11 @@ void open_databases(void)
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
 	dbenv->set_paniccall(dbenv, dbpanic);
+	dbenv->set_errcall(dbenv, cdb_verbose_err);
+	dbenv->set_errpfx(dbenv, "ctdl");
+#if (DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR >= 3)
 	dbenv->set_msgcall(dbenv, cdb_verbose_log);
+#endif
 	dbenv->set_verbose(dbenv, DB_VERB_DEADLOCK, 1);
 	dbenv->set_verbose(dbenv, DB_VERB_RECOVERY, 1);
 
