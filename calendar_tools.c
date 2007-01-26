@@ -153,23 +153,21 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
  */
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
 	char vname[32];
-        time_t tt;
-        struct tm tm;
 	struct icaltimetype t2;
+	char timestr[32];
+	int month, mday, year, hour, minute;
 
-        tt = time(NULL);
-        localtime_r(&tt, &tm);
+        sprintf(vname, "%s_month", prefix);     month = atoi(bstr(vname));
+        sprintf(vname, "%s_day", prefix);       mday = atoi(bstr(vname));
+        sprintf(vname, "%s_year", prefix);      year = atoi(bstr(vname));
+        sprintf(vname, "%s_hour", prefix);      hour = atoi(bstr(vname));
+        sprintf(vname, "%s_minute", prefix);    minute = atoi(bstr(vname));
 
-        sprintf(vname, "%s_month", prefix);     tm.tm_mon = atoi(bstr(vname)) - 1;
-        sprintf(vname, "%s_day", prefix);       tm.tm_mday = atoi(bstr(vname));
-        sprintf(vname, "%s_year", prefix);      tm.tm_year = atoi(bstr(vname)) - 1900;
-        sprintf(vname, "%s_hour", prefix);      tm.tm_hour = atoi(bstr(vname));
-        sprintf(vname, "%s_minute", prefix);    tm.tm_min = atoi(bstr(vname));
-
-        tt = mktime(&tm);
-        t2 = icaltime_from_timet(tt, 0);
+	sprintf(timestr, "%04d%02d%02dT%02d%02d00", year, month, mday, hour, minute);
+        t2 = icaltime_from_string(timestr);
 	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
+
 
 /**
  *\brief Get time from form
