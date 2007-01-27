@@ -109,6 +109,9 @@ void imap_acl_flags(char *rights, int ra)
 		/* k - create mailboxes in this hierarchy */
 
 		/* t - delete messages (set/clear \Deleted flag) */
+		if (ra & UA_DELETEALLOWED) {
+			strcat(rights, "t");
+		}
 
 		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
 		/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */

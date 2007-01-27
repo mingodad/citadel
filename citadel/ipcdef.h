@@ -80,6 +80,7 @@ extern "C" {
 #define UA_ZAPPED               16
 #define UA_POSTALLOWED		32
 #define UA_ADMINALLOWED		64
+#define UA_DELETEALLOWED	128
 
 #ifdef __cplusplus
 }

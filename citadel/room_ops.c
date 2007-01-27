@@ -65,7 +65,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Force the properties of the Aide room */
 	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
 		if (userbuf->axlevel >= 6) {
-			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
+			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
 		} else {
 			retval = 0;
 		}
@@ -104,13 +104,14 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* For mailbox rooms, also check the namespace */
+	/* Also, mailbox owners can delete their messages */
 	if (roombuf->QRflags & QR_MAILBOX) {
 		if (userbuf->usernum == atol(roombuf->QRname)) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
 		}
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
 		}
 	}
 
@@ -170,7 +171,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	if ( (userbuf->axlevel >= 6)
 	   || (userbuf->usernum == roombuf->QRroomaide)
 	   ) {
-		retval = retval | UA_ADMINALLOWED;
+		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED;
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */

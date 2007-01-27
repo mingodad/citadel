@@ -3637,15 +3637,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
  * the current room (returns 1 for yes, 0 for no)
  */
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
-	getuser(&CC->user, CC->curr_user);
-	if ((CC->user.axlevel < 6)
-	    && (CC->user.usernum != CC->room.QRroomaide)
-	    && ((CC->room.QRflags & QR_MAILBOX) == 0)
-	    && (!(CC->internal_pgm))) {
-		return(0);
-	}
-	return(1);
+	int ra;
+	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
+	if (ra & UA_DELETEALLOWED) return(1);
+	return(0);
 }
+
 
 
 
