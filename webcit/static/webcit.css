@@ -116,6 +116,38 @@ li.start_page {
 }
 
 
+#navbar {
+	position: absolute; 
+	bottom: 0px; 
+	left: 0px;
+}
+
+#navbar ul {
+	float: left;
+}
+
+#navbar ul li {
+	display: inline;
+	list-style: none;
+	margin-top: 0;
+	margin-right: 25px;
+	margin-bottom:0 ;
+	margin-left: 25px;
+}
+
+#navbar ul li img {
+	margin-top: 0;
+	margin-right: 5px;
+	margin-bottom:0 ;
+	margin-left: 5px;
+}
+
+.navbar_link {
+	font-size: 7pt;
+	color: #FFFFEE;
+}
+
+
 #important_message {
 	position:absolute;
 	top:0px; right:0px;
@@ -302,11 +334,6 @@ a:hover {
 	font-size: 9pt;
 }
 
-.navbar_link {
-	font-size: 7pt;
-	color: #FFFFEE;
-}
-
 .titlebar {
 	font-size: 12pt;
 	color: #FFFFEE;
@@ -373,12 +400,6 @@ a:hover {
 	font-size: 7pt;
 	background: #444455; 
 	color: #ddddcc;
-}
-
-#navbar {
-	position: absolute; 
-	bottom: 0px; 
-	left: 0px;
 }
 
 .menubar_bg {

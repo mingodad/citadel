@@ -409,6 +409,7 @@ void embed_search_o_matic(void) {
  * \param navbar_style 	Determines which navigation buttons to display
  *
  */
+
 void embed_room_banner(char *got, int navbar_style) {
 	char buf[256];
 
@@ -457,24 +458,25 @@ void embed_room_banner(char *got, int navbar_style) {
 	if (navbar_style != navbar_none) {
 
 		wprintf("<div id=\"navbar\">\n"
-			"<table width=\"100%%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n");
+			"<ul>");
 
+		
 
 		if (navbar_style == navbar_default) wprintf(
-			"<td>"
+			"<li class=\"ungoto\">"
 			"<a href=\"ungoto\">"
 			"<img align=\"middle\" src=\"static/ungoto2_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">%s</span></A>"
-			"</td>\n", _("Ungoto")
+			"</li>\n", _("Ungoto")
 		);
 
 		if ( (navbar_style == navbar_default) && (WC->wc_view == VIEW_BBS) ) {
 			wprintf(
-				"<td>"
+				"<li class=\"newmess\">"
 				"<a href=\"readnew\">"
 				"<img align=\"middle\" src=\"static/newmess2_24x.gif\" border=\"0\">"
 				"<span class=\"navbar_link\">%s</span></A>"
-				"</td>\n", _("Read new messages")
+				"</li>\n", _("Read new messages")
 			);
 		}
 
@@ -482,99 +484,99 @@ void embed_room_banner(char *got, int navbar_style) {
 			switch(WC->wc_view) {
 				case VIEW_ADDRESSBOOK:
 					wprintf(
-						"<td>"
+						"<li class=\"viewcontacts\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/viewcontacts_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("View contacts")
+						"</span></a></li>\n", _("View contacts")
 					);
 					break;
 				case VIEW_CALENDAR:
 					wprintf(
-						"<td>"
+						"<li class=\"staskday\">"
 						"<a href=\"readfwd?calview=day\">"
 						"<img align=\"middle\" src=\"static/taskday2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Day view")
+						"</span></a></li>\n", _("Day view")
 					);
 					wprintf(
-						"<td>"
+						"<li class=\"monthview\">"
 						"<a href=\"readfwd?calview=month\">"
 						"<img align=\"middle\" src=\"static/monthview2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Month view")
+						"</span></a></li>\n", _("Month view")
 					);
 					break;
 				case VIEW_CALBRIEF:
 					wprintf(
-						"<td>"
+						"<li class=\"monthview\">"
 						"<a href=\"readfwd?calview=month\">"
 						"<img align=\"middle\" src=\"static/monthview2_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Calendar list")
+						"</span></a></li>\n", _("Calendar list")
 					);
 					break;
 				case VIEW_TASKS:
 					wprintf(
-						"<td>"
+						"<li class=\"taskmanag\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/taskmanag_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("View tasks")
+						"</span></a></li>\n", _("View tasks")
 					);
 					break;
 				case VIEW_NOTES:
 					wprintf(
-						"<td>"
+						"<li class=\"viewnotes\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/viewnotes_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("View notes")
+						"</span></a></li>\n", _("View notes")
 					);
 					break;
 				case VIEW_MAILBOX:
 					wprintf(
-						"<td>"
+						"<li class=\"readallmess\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("View message list")
+						"</span></a></li>\n", _("View message list")
 					);
 					break;
 				case VIEW_WIKI:
 					wprintf(
-						"<td>"
+						"<li class=\"readallmess\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Wiki home")
+						"</span></a></li>\n", _("Wiki home")
 					);
 					break;
 				default:
 					wprintf(
-						"<td>"
+						"<li class=\"readallmess\">"
 						"<a href=\"readfwd\">"
 						"<img align=\"middle\" src=\"static/readallmess3_24x.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Read all messages")
+						"</span></a></li>\n", _("Read all messages")
 					);
 					break;
 			}
@@ -584,16 +586,17 @@ void embed_room_banner(char *got, int navbar_style) {
 			switch(WC->wc_view) {
 				case VIEW_ADDRESSBOOK:
 					wprintf(
-						"<td><a href=\"display_enter\">"
+						"<li class=\"addnewcontact\">"
+						"<a href=\"display_enter\">"
 						"<img align=\"middle\" src=\"static/addnewcontact_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Add new contact")
+						"</span></a></li>\n", _("Add new contact")
 					);
 					break;
 				case VIEW_CALENDAR:
 				case VIEW_CALBRIEF:
-					wprintf("<td><a href=\"display_enter");
+					wprintf("<li class=\"addevent\"><a href=\"display_enter");
 					if (strlen(bstr("year")) > 0) wprintf("?year=%s", bstr("year"));
 					if (strlen(bstr("month")) > 0) wprintf("?month=%s", bstr("month"));
 					if (strlen(bstr("day")) > 0) wprintf("?day=%s", bstr("day"));
@@ -601,79 +604,80 @@ void embed_room_banner(char *got, int navbar_style) {
 						"<img align=\"middle\" src=\"static/addevent_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Add new event")
+						"</span></a></li>\n", _("Add new event")
 					);
 					break;
 				case VIEW_TASKS:
 					wprintf(
-						"<td><a href=\"display_enter\">"
+						"<li class=\"newmess\">"
+						"<a href=\"display_enter\">"
 						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Add new task")
+						"</span></a></li>\n", _("Add new task")
 					);
 					break;
 				case VIEW_NOTES:
 					wprintf(
-						"<td><a href=\"javascript:add_new_note();\">"
+						"<li class=\"enternewnote\">"
+						"<a href=\"javascript:add_new_note();\">"
 						"<img align=\"middle\" src=\"static/enternewnote_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Add new note")
+						"</span></a></li>\n", _("Add new note")
 					);
 					break;
 				case VIEW_WIKI:
 					safestrncpy(buf, bstr("page"), sizeof buf);
 					str_wiki_index(buf);
 					wprintf(
-						"<td><a href=\"display_enter?wikipage=%s\">"
+						"<li class=\"newmess\">"
+						"<a href=\"display_enter?wikipage=%s\">"
 						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", buf, _("Edit this page")
+						"</span></a></li>\n", buf, _("Edit this page")
 					);
 					break;
 				default:
 					wprintf(
-						"<td><a href=\"display_enter\">"
+						"<li class=\"newmess\">"
+						"<a href=\"display_enter\">"
 						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></td>\n", _("Enter a message")
+						"</span></a></li>\n", _("Enter a message")
 					);
 					break;
 			}
 		}
 
 		if (navbar_style == navbar_default) wprintf(
-			"<td>"
+			"<li class=\"skipthisroom\">"
 			"<a href=\"skip\" "
-			"TITLE=\"%s\">"
+			"title=\"%s\">"
 			"<img align=\"middle\" src=\"static/skipthisroom_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">%s</span></a>"
-			"</td>\n",
+			"</li>\n",
 			_("Leave all messages marked as unread, go to next room with unread messages"),
 			_("Skip this room")
 		);
 
 		if (navbar_style == navbar_default) wprintf(
-			"<td>"
+			"<li class=\"markngo\">"
 			"<a href=\"gotonext\" "
-			"TITLE=\"%s\">"
+			"title=\"%s\">"
 			"<img align=\"middle\" src=\"static/markngo_24x.gif\" border=\"0\">"
 			"<span class=\"navbar_link\">%s</span></a>"
-			"</td>\n",
+			"</li>\n",
 			_("Mark all messages as read, go to next room with unread messages"),
 			_("Goto next room")
 		);
 
-		wprintf("</tr></table></div>\n");
+		wprintf("</ul></div>\n");
 	}
 
 }
-
-
-
 
 
 /**
