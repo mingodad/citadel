@@ -40,7 +40,7 @@ void display_edit(char *description, char *check_cmd,
 	svprintf("BOXTITLE", WCS_STRING, _("Edit %s"), description);
 	do_template("beginbox");
 
-	wprintf("<p>");
+	wprintf("<div>");
 	wprintf(_("Enter %s below.  Text is formatted to "
 		"the reader's screen width.  To defeat the "
 		"formatting, indent a line at least one space."), description);
@@ -58,7 +58,7 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\"><br />\n", _("Cancel"));
 
-	wprintf("</FORM></p>\n");
+	wprintf("</FORM></div>\n");
 	do_template("endbox");
 	wDumpContent(1);
 }
