@@ -71,9 +71,10 @@ body {
         color: #FFFFEE;
 }
 
-.room_banner div {
+.room_banner p {
         font-size: 8pt;
         color: #FFFFEE;
+        text-align: center;
 }
 
 #banner ul {
