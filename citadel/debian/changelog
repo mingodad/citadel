@@ -1,3 +1,10 @@
+citadel (7.03-3) unstable; urgency=low
+	
+  * create user without error messages in  citadel-common
+  * ask our questions on login.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 05 Jan 2007 00:12:00 +0100
+
 citadel (7.03-2) unstable; urgency=low
 	
   * corrected locating chkpwd
