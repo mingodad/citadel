@@ -125,15 +125,16 @@ li.start_page {
 
 #navbar ul {
 	float: left;
+	width: 95%;
 }
 
 #navbar ul li {
 	display: inline;
 	list-style: none;
 	margin-top: 0;
-	margin-right: 25px;
+	margin-right: 5px;
 	margin-bottom:0 ;
-	margin-left: 25px;
+	margin-left: 20px;
 }
 
 #navbar ul li img {
