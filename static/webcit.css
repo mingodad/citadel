@@ -8,7 +8,7 @@ body {
 	padding: 0 0 0 0;
 	height: 100%;
 	overflow: auto;
-	background-image: url(/static/body-background.gif);
+	background-color: #D8D8D8;
 	color: #000000;
 	font-weight: normal;
 	font-size: 10pt;
