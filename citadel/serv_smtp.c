@@ -128,7 +128,9 @@ int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 /*
  * Here's where our SMTP session begins its happy day.
  */
-void smtp_greeting(void) {
+void smtp_greeting(void)
+{
+	char message_to_spammer[1024];
 
 	strcpy(CC->cs_clientname, "SMTP session");
 	CC->internal_pgm = 1;
@@ -140,6 +142,19 @@ void smtp_greeting(void) {
 	memset(SMTP_RECPS, 0, SIZ);
 	memset(SMTP_ROOMS, 0, SIZ);
 
+	/* If this config option is set, reject connections from problem
+	 * addresses immediately instead of after they execute a RCPT
+	 */
+	if (config.c_rbl_at_greeting) {
+		if (rbl_check(message_to_spammer)) {
+			cprintf("550 %s\r\n", message_to_spammer);
+			CC->kill_me = 1;
+			/* no need to free(valid), it's not allocated yet */
+			return;
+		}
+	}
+
+	/* Otherwise we're either clean or we check later. */
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
 
@@ -637,12 +652,14 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	/* RBL check */
-	if ( (!CC->logged_in)
-	   && (!SMTP->is_lmtp) ) {
-		if (rbl_check(message_to_spammer)) {
-			cprintf("550 %s\r\n", message_to_spammer);
-			/* no need to free(valid), it's not allocated yet */
-			return;
+	if ( (!CC->logged_in)	/* Don't RBL authenticated users */
+	   && (!SMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
+		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
+			if (rbl_check(message_to_spammer)) {
+				cprintf("550 %s\r\n", message_to_spammer);
+				/* no need to free(valid), it's not allocated yet */
+				return;
+			}
 		}
 	}
 

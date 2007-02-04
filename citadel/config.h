@@ -80,6 +80,7 @@ struct config {
 	int c_funambol_port;		/* Funambol port */
 	char c_funambol_source[256];	/* Funambol sync source */
 	char c_funambol_auth[256];	/* Funambol auth details */
+	char c_rbl_at_greeting;		/* Check RBL's at connect instead of after RCPT */
 };
 
 

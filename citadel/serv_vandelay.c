@@ -324,6 +324,7 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_funambol_port);
 	cprintf("%s\n", config.c_funambol_source);
 	cprintf("%s\n", config.c_funambol_auth);
+	cprintf("%d\n", config.c_rbl_at_greeting);
 
 	/* Export the control file */
 	get_control();
@@ -412,6 +413,7 @@ void artv_import_config(void) {
 	client_getln(buf, sizeof buf); config.c_funambol_port = atoi(buf);
 	client_getln(config.c_funambol_source, sizeof config.c_funambol_source);
 	client_getln(config.c_funambol_auth, sizeof config.c_funambol_auth);
+	client_getln(buf, sizeof buf);	config.c_rbl_at_greeting = atoi(buf);
 	
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
