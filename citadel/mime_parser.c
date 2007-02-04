@@ -64,71 +64,46 @@ char *fixed_partnum(char *supplied_partnum) {
  * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
  */
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
-	char buf[SIZ];
-	int buf_length = 0;
-	int soft_line_break = 0;
 	unsigned int ch;
-	int decoded_length = 0;
-	int i;
+	int destpos = 1;
+	int sourcepos = 1;
+	int ignore_last = 0;
+	char *check;
 
 	decoded[0] = 0;
-	decoded_length = 0;
-	memset(buf, '\0', SIZ);
-	buf_length = 0;
-
-	for (i = 0; i < sourcelen; ++i) {
-		size_t buflen = strlen(buf);
-		buf[buf_length++] = encoded[i];
-
-		if ( (encoded[i] == '\n')
-		   || (encoded[i] == 0)
-		   || (i == (sourcelen-1)) ) {
-			buf[buf_length++] = 0;
-
-			/*** begin -- process one line ***/
-
-			if (buf[buflen-1] == '\n') {
-				buf[buflen-1] = 0;
-				buflen --;
+	if (sourcelen >0)
+		decoded[0] = encoded[0];
+	while (destpos <= sourcelen){
+		check = &decoded[destpos];
+		decoded[destpos] = encoded[sourcepos];
+		if ((ignore_last == 0) && (decoded[destpos-1] == '='))
+		{
+			if ((*check == '\0') || 
+			    (*check == '\n') ||  
+			    (*check == '\r'))
+			{
+				decoded[destpos - 1] = '\r';
+				decoded[destpos] = '\n';				
 			}
-			if (buf[buflen-1] == '\r') {
-				buf[buflen-1] = 0;
-				buflen --;
+			else if (sourcelen - sourcepos > 2)
+			{
+				sscanf(&encoded[sourcepos], "%02x", &ch);
+				decoded[destpos - 1] = ch;
+				sourcepos++;
+				destpos --;
+				ignore_last = 1;
 			}
-			while (isspace(buf[buflen-1])) {
-				buf[buflen-1] = 0;
-				buflen --;
-			}
-			soft_line_break = 0;
-
-			while (buflen > 0) {
-				if ((buf[0] ==  '=') && (buf[1] == '\0')) {
-					soft_line_break = 1;
-					buf[0] = '\0';
-					buflen = 0;
-				} else if ((buflen>=3) && (buf[0]=='=')) {
-					sscanf(&buf[1], "%02x", &ch);
-					decoded[decoded_length++] = ch;
-					strcpy(buf, &buf[3]);
-					buflen -=3;
-				} else {
-					decoded[decoded_length++] = buf[0];
-					strcpy(buf, &buf[1]);
-					buflen --;
-				}
-			}
-			if (soft_line_break == 0) {
-				decoded[decoded_length++] = '\r';
-				decoded[decoded_length++] = '\n';
-			}
-			buf_length = 0;
-			/*** end -- process one line ***/
 		}
+		else 
+			ignore_last = 0;
+		destpos ++;
+		sourcepos ++;
 	}
 
-	decoded[decoded_length++] = 0;
-	return(decoded_length);
+	decoded[destpos] = 0;
+	return(destpos - 1);
 }
+
 
 /*
  * Given a message or message-part body and a length, handle any necessary
