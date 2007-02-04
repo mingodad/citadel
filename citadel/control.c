@@ -256,6 +256,7 @@ void cmd_conf(char *argbuf)
 	        cprintf("%d\n", config.c_funambol_port);
 	        cprintf("%s\n", config.c_funambol_source);
 	        cprintf("%s\n", config.c_funambol_auth);
+		cprintf("%d\n", config.c_rbl_at_greeting);
 		cprintf("000\n");
 	}
 
@@ -479,6 +480,9 @@ void cmd_conf(char *argbuf)
 				safestrncpy(config.c_funambol_auth,
 					buf,
 					sizeof config.c_funambol_auth);
+				break;
+			case 57:
+				config.c_rbl_at_greeting = atoi(buf);
 				break;
 			}
 			++a;

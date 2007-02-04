@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 57
+#define NUM_CONFIGS 58
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -764,6 +764,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[45], sizeof sc[45], "%d", (boolprompt(
 		"Allow unauthenticated SMTP clients to spoof my domains",
 		atoi(&sc[45][0]))));
+	snprintf(sc[57], sizeof sc[57], "%d", (boolprompt(
+		"Perform RBL checks at greeting instead of after RCPT",
+		atoi(&sc[57][0]))));
 	snprintf(sc[44], sizeof sc[44], "%d", (boolprompt(
 		"Instantly expunge deleted IMAP messages",
 		atoi(&sc[44][0]))));
