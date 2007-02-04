@@ -1,21 +1,25 @@
 <?PHP
-
 // $Id$
 // 
 // Implements various Citadel server commands.
 //
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
-// This program is released under the terms of the GNU General Public License.
-
-
+// One program is released under the terms of the GNU General Public License.
+include "config_ctdlclient.php";
 //
 // serv_gets() -- generic function to read one line of text from the server
 //
-function serv_gets() {
+function serv_gets($readblock=FALSE) {
 	global $clientsocket;
 
 	$buf = fgets($clientsocket, 4096);		// Read line
 	$buf = substr($buf, 0, (strlen($buf)-1) );	// strip trailing LF
+	if (CITADEL_DEBUG_CITPROTO == 1) {
+		if (!$readblock) printf ("<div class='ctdldbgRead'>");
+		printf($buf);
+		if (!$readblock) printf ("</div>");
+		else printf ("<br>");
+	}
 	return $buf;
 }
 
@@ -28,7 +32,28 @@ function serv_puts($buf) {
 	
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
 	fflush($clientsocket);
+	if (CITADEL_DEBUG_CITPROTO == 1)
+		printf ("<div class='ctdldbgWrite'>".$buf."</div>");
 }
+
+function read_array() {
+	$nLines = 0;
+	if (CITADEL_DEBUG_CITPROTO == 1)
+	    printf ("<div class='ctdldbgRead'>");
+	$buf = serv_gets(TRUE);
+	$ret = array();
+	while (strcasecmp($buf, "000")){
+		array_push($ret, $buf);
+		$buf = serv_gets(TRUE);
+		$nLines++;
+	}
+	if (CITADEL_DEBUG_CITPROTO == 1){
+		echo "read ".$nLines." lines from the server.";
+		printf ("</div>");
+	}
+	return $ret;
+}
+
 
 
 // 
@@ -52,12 +77,12 @@ function text_to_server($thetext, $convert_to_html) {
 	}
 
 	// Either mode ... send it to the server now
-	$this_line = strtok($thetext, "\n");
-	while ($this_line !== FALSE) {
-		$this_line = trim($this_line, "\n\r");
-		if ($this_line == "000") $this_line = "-000" ;
-		serv_puts($this_line);
-		$this_line = strtok("\n");
+	$one_line = strtok($thetext, "\n");
+	while ($one_line !== FALSE) {
+		$one_line = trim($one_line, "\n\r");
+		if ($one_line == "000") $one_line = "-000" ;
+		serv_puts($one_line);
+		$one_line = strtok("\n");
 	}
 
 	serv_puts("000");	// Tell the server we're done...
@@ -67,20 +92,22 @@ function text_to_server($thetext, $convert_to_html) {
 
 }
 
-
-
 //
-// Identify ourselves to the Citadel server (do this once after connection)
+// Identify ourselves to the Citadel server (do one once after connection)
 //
-function ctdl_iden() {
+function ctdl_iden($client_info) {
 	global $clientsocket;
 
+	if (count($client_info) != 5)
+		die("ctdl_iden takes 5 arguments!");
 	// Identify client and hostname
-	serv_puts("IDEN 0|8|001|PHP web client|" . $_SERVER['REMOTE_ADDR'] );
+	serv_puts("IDEN ".implode('|', $client_info));
 	$buf = serv_gets();
+}
 
+function ctdl_MessageFormatsPrefered($formatlist){
 	// Also express our message format preferences
-	serv_puts("MSGP text/html|text/plain");
+	serv_puts("MSGP ".implode("|", $formatlist));
 	$buf = serv_gets();
 }
 
@@ -151,26 +178,15 @@ function create_new_user($user, $pass) {
 function become_logged_in($server_parms) {
 	$_SESSION["logged_in"] = 1;
 
-	$tok = strtok($server_parms, "|");
-	if ($tok) $thisline["username"] = $tok;
-
-	$tok = strtok("|");
-	if ($tok) $thisline["axlevel"] = $tok;
-		
-	$tok = strtok("|");
-	if ($tok) $thisline["calls"] = $tok;
-		
-	$tok = strtok("|");
-	if ($tok) $thisline["posts"] = $tok;
-		
-	$tok = strtok("|");
-	if ($tok) $thisline["userflags"] = $tok;
-		
-	$tok = strtok("|");
-	if ($tok) $thisline["usernum"] = $tok;
-		
-	$tok = strtok("|");
-	if ($tok) $thisline["lastcall"] = $tok;
+	$tokens = explode("|", $server_parms);
+	
+	$oneline["username"]   = $tokens[0];
+	$oneline["axlevel"]    = $tokens[1];
+	$oneline["calls"]      = $tokens[2];
+	$oneline["posts"]      = $tokens[3];
+	$oneline["userflags"]  = $tokens[4];
+	$oneline["usernum"]    = $tokens[5];
+	$oneline["lastcall"]   = $tokens[6];
 		
 	ctdl_goto("_BASEROOM_");
 }
@@ -183,27 +199,33 @@ function become_logged_in($server_parms) {
 //
 function ctdl_get_serv_info() {
 	serv_puts("INFO");
-	$buf = serv_gets();
-	if (substr($buf, 0, 1) == "1") {
-		$i = 0;
-		do {
-			$buf = serv_gets();
-			if ($i == 1) $_SESSION["serv_nodename"] = $buf;
-			if ($i == 2) $_SESSION["serv_humannode"] = $buf;
-			if ($i == 3) $_SESSION["serv_fqdn"] = $buf;
-			if ($i == 4) $_SESSION["serv_software"] = $buf;
-			if ($i == 6) $_SESSION["serv_city"] = $buf;
-			if ($i == 7) $_SESSION["serv_sysadmin"] = $buf;
-			$i = $i + 1;
-		} while (strcasecmp($buf, "000"));
+	$reply = read_array();
+	if ((count($reply) == 18) &&
+	    substr($reply[0], 0, 1) == "1") {
+		$server_info=array();
+		$server_info["serv_nodename"]  = $reply[1];
+		$server_info["serv_humannode"] = $reply[2];
+		$server_info["serv_fqdn"]      = $reply[3];
+		$server_info["serv_software"]  = $reply[4];
+		$server_info["serv_city"]      = $reply[6];
+		$server_info["serv_sysadmin"]  = $reply[7];
+		if (CITADEL_DEBUG_CITPROTO == 1)
+		{
+			echo "<pre>";
+			print_r($server_info);
+			echo "</pre>";
+		}
+		return $server_info;
 	}
+	else 
+		die ("didn't understand the reply to the INFO command");
 
 }
 
 
 //
 // Display a system banner.  (Returns completed HTML.)
-// (This is probably temporary because it outputs more or less finalized
+// (One is probably temporary because it outputs more or less finalized
 // markup.  For now it's just usable.)
 //
 function ctdl_mesg($msgname) {
@@ -212,16 +234,14 @@ function ctdl_mesg($msgname) {
 	$msgtext = "<DIV ALIGN=CENTER>\n";
 
 	serv_puts("MESG " . $msgname);
-	$response = serv_gets();
+	$response = read_array();
 
-	if (substr($response, 0, 1) == "1") {
-		while (strcmp($buf = serv_gets(), "000")) {
-			$msgtext .= "<TT>" . htmlspecialchars($buf)
-				. "</TT><BR>\n" ;
-		}
+	if (substr($response[0], 0, 1) == "1") {
+		array_shift($response); // throw away the status code.
+		$msgtext .= "<TT>" . implode( "</TT><BR>\n" ,$response);
 	}
 	else {
-		$msgtext .= "<B><I>" . substr($response, 4) . "</I></B><BR>\n";
+		$msgtext .= "<B><I>" . substr($response[0], 4) . "</I></B><BR>\n";
 	}
 
 	$msgtext .= "</DIV>\n";
@@ -244,29 +264,36 @@ function ctdl_rwho() {
 	
 	$all_lines = array();
 	$num_lines = 0;
+	
+	$responses = read_array();
+	foreach ($responses as $response) {
+		$tokens = explode("|", $response);
+		$oneline = array();
 
-	while (strcmp($buf = serv_gets(), "000")) {
-
-		$thisline = array();
-
-		$tok = strtok($buf, "|");
-		if ($tok) $thisline["session"] = $tok;
-
-		$tok = strtok("|");
-		if ($tok) $thisline["user"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["room"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["host"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["client"] = $tok;
+		$oneline["session"]      = $tokens[0];		
+		$oneline["user"]         = $tokens[1];		
+		$oneline["room"]         = $tokens[2];		
+		$oneline["host"]         = $tokens[3];		
+		$oneline["client"]       = $tokens[4];
+		$oneline["idlesince"]    = $tokens[5];
+		$oneline["lastcmd"]      = $tokens[6];
+		$oneline["flags"]        = $tokens[7];
+		$oneline["realname"]     = $tokens[8];
+		$oneline["realroom"]     = $tokens[9];
+		$oneline["realhostname"] = $tokens[10];
+		$oneline["registered"]   = $tokens[11];
 
 		// IGnore the rest of the fields for now.
+		if (CITADEL_DEBUG_CITPROTO == 1)
+		{
+			echo "<pre>";
+			print_r($oneline);
+			echo "</pre>";
 
-		$num_lines = array_push($all_lines, $thisline);
+		}
+
+
+		$num_lines = array_push($all_lines, $oneline);
 	}
 
 	return array($num_lines, $all_lines);
@@ -282,13 +309,44 @@ function ctdl_goto($to_where) {
 	serv_puts("GOTO " . $to_where);
 	$response = serv_gets();
 
-	if (substr($response, 0, 1) == "2") {
-		$_SESSION["room"] = strtok(substr($response, 4), "|");
-		return array(TRUE, substr($response, 0, 3));
+	$results = explode ("|", $response);
+	$status_room = array_shift($results);
+	$status = substr($status_room, 0, 3);
+	if (substr($status, 0, 1) == "2") {
+		$room = substr($status_room, 4);
+		array_unshift($results, $room);
+		$room_state=array(
+			"state"          => TRUE,
+			"statereply"     => $status,
+			"roomname"       => $results[ 0],
+			"nunreadmsg"     => $results[ 1],
+			"nmessages"      => $results[ 2],
+			"rinfopresent"   => $results[ 3],
+			"flags"          => $results[ 4],
+			"msgidmax"       => $results[ 5],
+			"msgidreadmax"   => $results[ 6],
+			"ismailroom"     => $results[ 7],
+			"isroomaide"     => $results[ 8],
+			"nnewmessages"   => $results[ 9],
+			"floorid"        => $results[10],
+			"viewselected"   => $results[11],
+			"defaultview"    => $results[12],
+			"istrashcan"     => $results[13]);
+			
+		$_SESSION["room"] = $room;
+		if (CITADEL_DEBUG_CITPROTO == 1)
+		{
+			echo "<pre>";
+			print_r($room_state);
+			echo "</pre>";
+
+		}
+
+		return $room_state;
 	}
 
 	else {
-		return array(FALSE, substr($response, 0, 3));
+		return array("state" => FALSE, "statereply" => $status);
 	}
 
 }
@@ -302,45 +360,41 @@ function ctdl_knrooms() {
 	global $clientsocket;
 
 	serv_puts("LKRA");
-	$response = serv_gets();
+	$results = read_array();
 
-	if (substr($response, 0, 1) != "1") {
+	if (substr($results[0], 0, 1) != "1") {
 		return array(0, NULL);
 	}
-	
+	array_shift($results);
 	$all_lines = array();
 	$num_lines = 0;
 
-	while (strcmp($buf = serv_gets(), "000")) {
+	foreach ($results as $result){
+		$oneline = array();
+		$tokens = explode("|",$result);
 
-		$thisline = array();
+		$oneline["name"]   = $tokens[0];		
+		$oneline["flags"]  = $tokens[1];		
+		$oneline["floor"]  = $tokens[2];		
+		$oneline["order"]  = $tokens[3];		
+		$oneline["flags2"] = $tokens[4];		
+		$oneline["access"] = $tokens[5];
 
-		$tok = strtok($buf, "|");
-		if ($tok) $thisline["name"] = $tok;
-
-		$tok = strtok("|");
-		if ($tok) $thisline["flags"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["floor"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["order"] = $tok;
-		
-		$tok = strtok("|");
-		if ($tok) $thisline["flags2"] = $tok;
-
-		$tok = strtok("|");
-		if ($tok) $thisline["access"] = $tok;
-
-		if ($thisline["access"] & 8) {
-			$thisline["hasnewmsgs"] = TRUE;
+		if ($oneline["access"] & 8) {
+			$oneline["hasnewmsgs"] = TRUE;
 		}
 		else {
-			$thisline["hasnewmsgs"] = FALSE;
+			$oneline["hasnewmsgs"] = FALSE;
 		}
 
-		$num_lines = array_push($all_lines, $thisline);
+		if (CITADEL_DEBUG_CITPROTO == 1)
+		{
+			echo "<pre>";
+			print_r($oneline);
+			echo "</pre>";
+
+		}
+		$num_lines = array_push($all_lines, $oneline);
 	}
 
 	return array($num_lines, $all_lines);
@@ -349,27 +403,28 @@ function ctdl_knrooms() {
 
 
 //
-// Fetch the list of messages in this room.
+// Fetch the list of messages in one room.
 // Returns: count, response, message array
 //
 function ctdl_msgs($mode, $count) {
 	global $clientsocket;
 
 	serv_puts("MSGS " . $mode . "|" . $count);
-	$response = serv_gets();
+	$responses = read_array();
+	print_r($responses);
 
+	$response = array_shift($responses);
+
+	$num_msgs = count($responses);
 	if (substr($response, 0, 1) != "1") {
 		return array(0, substr($response, 4), NULL);
 	}
 	
-	$msgs = array();
-	$num_msgs = 0;
-
-	while (strcmp($buf = serv_gets(), "000")) {
-		$num_msgs = array_push($msgs, $buf);
+	if (CITADEL_DEBUG_CITPROTO == 1)
+	{
+		printf("found ".$num_msgs." messages.");
 	}
-
-	return array($num_msgs, substr($response, 4), $msgs);
+	return array($num_msgs, $response, $responses);
 }
 
 
@@ -378,17 +433,24 @@ function ctdl_fetch_message($msgnum) {
 	global $clientsocket;
 
 	serv_puts("MSG4 " . $msgnum);
-	$response = serv_gets();
+
+	if (CITADEL_DEBUG_CITPROTO == 1)
+	    printf ("<div class='ctdldbgRead'>");
+	$response = serv_gets(TRUE);
 
 	if (substr($response, 0, 1) != "1") {
 		return array(FALSE, substr($response, 4), NULL);
 	}
 
 	$fields = array();
-	while (strcmp($buf = serv_gets(), "000")) {
+	while (strcmp($buf = serv_gets(TRUE), "000")) {
 		if (substr($buf, 0, 4) == "text") {
+			if (CITADEL_DEBUG_CITPROTO == 1)
+				printf ("</div>\n<h3>Message Body Follows</h3><div class='ctdldbgRead'>");
 			// We're in the text body.  New loop here.
 			$fields["text"] = ctdl_msg4_from_server();
+			if (CITADEL_DEBUG_CITPROTO == 1)
+				printf ("</div>");
 			return array(TRUE, substr($response, 4), $fields);
 		}
 		else {
@@ -400,7 +462,7 @@ function ctdl_fetch_message($msgnum) {
 	return array(FALSE, substr($response, 4), $fields);
 }
 
-// Support function for ctdl_fetch_message().  This handles the text body
+// Support function for ctdl_fetch_message(). This handles the text body
 // portion of the message, converting various formats to HTML as
 // appropriate.
 function ctdl_msg4_from_server() {
@@ -410,7 +472,7 @@ function ctdl_msg4_from_server() {
 	$in_body = FALSE;
 
 	$previous_line = "";
-	while (strcmp($buf = serv_gets(), "000")) {
+	while (strcmp($buf = serv_gets(TRUE), "000")) {
 		if ($in_body == FALSE) {
 			if (strlen($buf) == 0) {
 				$in_body = TRUE;

@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 
 <?php
-include "config.php";
+include "config_ctdlclient.php";
 // $Id$
 //
 // This is the session proxy that binds a unix domain socket to a Citadel

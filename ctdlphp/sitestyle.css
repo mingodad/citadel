@@ -106,3 +106,21 @@ body>#Menu {width:8em;}
 	font-size:small;
 	text-indent: 0;
 }
+
+.ctdldbgRead {
+        color:#ff0000;
+	background-color:#eee;
+	border:1px dashed #999;
+	margin: 15px;
+	font-size:small;
+	text-indent: 0;
+}
+
+.ctdldbgWrite {
+        color:#0000ff;
+	background-color:#eee;
+	border:1px dashed #999;
+	margin: 15px;
+	font-size:small;
+	text-indent: 0;
+}

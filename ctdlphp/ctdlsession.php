@@ -62,9 +62,15 @@ function establish_citadel_session() {
 		}
 
 		// At this point we have a good connection to Citadel.
+		$identity=array(
+			"DevelNr" => '0',
+			"ClientID" => '8',
+			"VersionNumber" => '001',
+			"ClientInfoString" => 'PHP web client|',
+			"Remote Address" => $_SERVER['REMOTE_ADDR'] );
 
-		ctdl_iden();	// Identify client
-
+		ctdl_iden($identity);	// Identify client
+		ctdl_MessageFormatsPrefered(array("text/html","text/plain"));
 		if ($_SESSION["username"]) {
 			login_existing_user(
 				$_SESSION["username"],
@@ -81,7 +87,11 @@ function establish_citadel_session() {
 	}
 
 	if (!isset($_SESSION["serv_humannode"])) {
-		ctdl_get_serv_info();
+		$server_info = ctdl_get_serv_info();
+		print_r($server_info);
+		$keys = array_keys($server_info);
+		foreach ($keys as $key)
+			$_SESSION[$key] = $server_info[$key];
 	}
 
 	// If the user is trying to call up any page other than
