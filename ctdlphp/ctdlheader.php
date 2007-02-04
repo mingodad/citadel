@@ -61,14 +61,14 @@ LITERAL;
 	echo '<TABLE BORDER=0 WIDTH=100%>';
 	echo '<TR>';
 	echo '<TD>' . $_SESSION["serv_humannode"] . '</TD>' ;
-	echo '<TD>' . $_SESSION["username"] . '</TD>' ;
-	echo '<TD>' . $_SESSION["room"] . '</TD>' ;
+	echo '<TD>' . (isset($_SESSION["username"]))?'':$_SESSION["username"] . '</TD>' ;
+	echo '<TD>' . (isset($_SESSION["room"]))?'':$_SESSION["room"] . '</TD>' ;
 	echo '<TD ALIGN=RIGHT><A HREF="logout.php">Log out</A></TD>' ;
 	echo '</TR></TABLE>';
 	echo '</div>';
 
 	// Temporary menu
-	if ($_SESSION["logged_in"]) {
+	if (isset($_SESSION["logged_in"])) {
 		echo	'<div id="Menu">' .
 			'<a href="listrooms.php">' .
 			'room list</A><BR>' .

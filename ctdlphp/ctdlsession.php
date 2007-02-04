@@ -1,5 +1,4 @@
 <?PHP
-
 // $Id$
 //
 // This gets called from within the header functions.  It establishes or
@@ -22,7 +21,7 @@ function establish_citadel_session() {
 
 	session_start();
 
-	if ($_SESSION["ctdlsession"]) {
+	if (isset($_SESSION["ctdlsession"])) {
 		$session = $_SESSION["ctdlsession"];
 	}
 	else {
@@ -81,7 +80,7 @@ function establish_citadel_session() {
 		}
 	}
 
-	if (!$_SESSION["serv_humannode"]) {
+	if (!isset($_SESSION["serv_humannode"])) {
 		ctdl_get_serv_info();
 	}
 
@@ -89,7 +88,7 @@ function establish_citadel_session() {
 	// login.php logout.php do_login.php,
 	// and the session is not logged in, redirect to login.php
 	//
-	if ($_SESSION["logged_in"] != 1) {
+	if (isset($_SESSION["logged_in"]) && ($_SESSION["logged_in"] != 1)) {
 		$filename = basename(getenv('SCRIPT_NAME'));
 		if (	(strcmp($filename, "login.php"))
 		   &&	(strcmp($filename, "logout.php"))

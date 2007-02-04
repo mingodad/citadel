@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 
 <?php
-
+include "config.php";
 // $Id$
 //
 // This is the session proxy that binds a unix domain socket to a Citadel
@@ -86,8 +86,7 @@ chmod($sockname, 0600);
 
 // We need to get a connection to the Citadel server going now.
 
-$ctdlsock = fsockopen("uncensored.citadel.org", 504, $errno, $errstr, 30);
-//$ctdlsock = fsockopen("/appl/citadel/citadel.socket", 0, $errno, $errstr, 30);
+$ctdlsock = fsockopen(CITADEL_HOSTNAME, CITADEL_TCP_PORTNO, $errno, $errstr, 30);
 if (!$ctdlsock) {
 	socket_close ($sock);
 	system("/bin/rm -f " . $sockname);

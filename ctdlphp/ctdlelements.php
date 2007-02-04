@@ -30,7 +30,7 @@ function display_message($msgnum) {
 	echo strftime("%b %d %Y %I:%M%p ", $fields["time"]) ;
 	echo " from " . htmlspecialchars($fields["from"]) ;
 	
-	if (strlen($fields["rfca"]) > 0) {
+	if (isset($fields["rfca"]) && strlen($fields["rfca"]) > 0) {
 		echo " &lt;" . htmlspecialchars($fields["rfca"]) . "&gt;" ;
 	}
 	else if ( (strlen($fields["node"]) > 0) 
@@ -41,7 +41,7 @@ function display_message($msgnum) {
 		}
 	}
 
-	if (strlen($fields["rcpt"]) > 0) {
+	if (isset($fields["rcpt"]) && strlen($fields["rcpt"]) > 0) {
 		echo " to " . htmlspecialchars($fields["rcpt"]) ;
 	}
 	echo "</I></B><BR>\n" ;
