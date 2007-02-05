@@ -62,6 +62,7 @@ char *fixed_partnum(char *supplied_partnum) {
 
 /*
  * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
+ * according to RFC2045 section 6.7
  */
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	unsigned int ch;
@@ -82,8 +83,8 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 			    (*check == '\n') ||  
 			    (*check == '\r'))
 			{
-				decoded[destpos - 1] = '\r';
-				decoded[destpos] = '\n';				
+				decoded[destpos - 1] = '\0';
+				destpos-=2;
 			}
 			else if (sourcelen - sourcepos > 2)
 			{
