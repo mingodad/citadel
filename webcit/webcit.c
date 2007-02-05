@@ -1013,7 +1013,7 @@ void session_loop(struct httprequest *req)
 	char user_agent[256];
 	int body_start = 0;
 	int is_static = 0;
-
+	int n_static = 0;
 	/**
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -1173,13 +1173,15 @@ void session_loop(struct httprequest *req)
 	for (a=0; a<ndirs; ++a) {
 		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location */
 			is_static = 1;
+			n_static = a;
 		}
 	}
 	if (is_static) {
 		if (nBackDots < 2)
 		{
 			snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
-				 index[0], index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
+				 static_dirs[n_static], 
+				 index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
 			for (a=0; a<8; ++a) {
 				if (buf[strlen(buf)-1] == '/') {
 					buf[strlen(buf)-1] = 0;

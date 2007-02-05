@@ -1,3 +1,9 @@
+webcit (7.02-6) unstable; urgency=low
+
+  * calculate static directories acurate
+  * new css features by tierry
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 3 Jan 2007 21:09:00 +0100
 webcit (7.02-5) unstable; urgency=low
 
   * ask questions in the obvious cases. 
