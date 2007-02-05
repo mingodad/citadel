@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-DESTDIR=$(CURDIR)/debian/citadel-webcit/
+DESTDIR=$(CURDIR)/debian/citadel-webcit
 
 
 

@@ -33,9 +33,10 @@ extern pthread_key_t MyConKey;
 char socket_dir[PATH_MAX];      /**< where to talk to our citadel server */
 static const char editor_absolut_dir[PATH_MAX]=EDITORDIR; /**< nailed to what configure gives us. */
 static char static_dir[PATH_MAX]; /**< calculated on startup */
+static char static_local_dir[PATH_MAX]; /**< calculated on startup */
 char  *static_dirs[]={ /**< needs same sort order as the web mapping */
 	(char*)static_dir,                  /** our templates on disk */
-	(char*)static_dir,                  /** our templates on disk */
+	(char*)static_local_dir,            /** user provided templates disk */
 	(char*)editor_absolut_dir           /** the editor on disk */
 };
 
@@ -747,8 +748,10 @@ int main(int argc, char **argv)
 			 (dirbuffer[0]!='\0')?"/":"");
 	basedir=RUNDIR;
 	COMPUTE_DIRECTORY(socket_dir);
-	basedir=DATADIR;
+	basedir=DATADIR "/static";
 	COMPUTE_DIRECTORY(static_dir);
+	basedir=DATADIR "/static.local";
+	COMPUTE_DIRECTORY(static_local_dir);
 	/** we should go somewhere we can leave our coredump, if enabled... */
 	lprintf(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {
