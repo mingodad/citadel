@@ -1,3 +1,9 @@
+citadel (7.03-5) unstable; urgency=low
+
+  * fixed user create bug
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 07 Feb 2007 00:12:00 +0100
+
 citadel (7.03-4) unstable; urgency=low
 	
   * varyous fixes from our valgrind session

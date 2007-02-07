@@ -15,7 +15,7 @@ case "$1" in
         if ! getent passwd citadel >/dev/null; then 
             adduser --system --ingroup citadel --home /var/lib/citadel \
                     --gecos "Citadel system user" --shell /bin/sh \
-                    --disabled-password --no-create-home citadel --shell /bin/false
+                    --disabled-password --no-create-home --shell /bin/false citadel
         fi
 
         chown -R citadel:citadel /etc/citadel
