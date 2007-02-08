@@ -1350,7 +1350,7 @@ int main(int argc, char **argv)
 {
 	int a, b, mcmd;
 	char aaa[100], bbb[100];/* general purpose variables */
-	char argbuf[32];	/* command line buf */
+	char argbuf[64];	/* command line buf */
 	char nonce[NONCE_SIZE];
 	char *telnet_client_host = NULL;
 	char *sptr, *sptr2;	/* USed to extract the nonce */

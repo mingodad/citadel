@@ -1154,7 +1154,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 			if (cmdmatch(cmdbuf, cptr, 5)) {
 				/* We've found our command. */
 				if (requires_string(cptr, cmdpos)) {
-					ctdl_getline(argbuf, 32);
+					ctdl_getline(argbuf, 64);
 				} else {
 					scr_printf("\n");
 				}
