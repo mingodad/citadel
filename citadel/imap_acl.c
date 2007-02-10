@@ -141,6 +141,9 @@ void imap_getacl(int num_parms, char *parms[]) {
 		return;
 	}
 
+	/*
+	 * Search for the specified room or folder
+	 */
 	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
@@ -199,8 +202,76 @@ void imap_getacl(int num_parms, char *parms[]) {
  * Implements the LISTRIGHTS command.
  */
 void imap_listrights(int num_parms, char *parms[]) {
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+	int ret;
+	struct recptypes *valid;
+	struct ctdluser temp;
 
-	cprintf("%s BAD not yet implemented FIXME\r\n", parms[0]);
+	if (num_parms != 4) {
+		cprintf("%s BAD usage error\r\n", parms[0]);
+		return;
+	}
+
+	/*
+	 * Search for the specified room/folder
+	 */
+	ret = imap_grabroom(roomname, parms[2], 0);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * Search for the specified user
+	 */
+	ret = (-1);
+	valid = validate_recipients(parms[3]);
+	if (valid != NULL) {
+		if (valid->num_local == 1) {
+			ret = getuser(&temp, valid->recp_local);
+		}
+		free(valid);
+	}
+	if (ret != 0) {
+		cprintf("%s NO Invalid user name or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->room.QRname);
+	}
+	usergoto(roomname, 0, 0, &msgs, &new);
+
+
+	/*
+	 * Now output the list of rights
+	 */
+	cprintf("* LISTRIGHTS ");
+	imap_strout(parms[2]);
+	cprintf(" ");
+	imap_strout(parms[3]);
+	cprintf(" ");
+	imap_strout("");		/* FIXME ... do something here */
+	cprintf("\r\n");
+
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, 0, &msgs, &new);
+	}
+
+	cprintf("%s OK LISTRIGHTS completed\r\n", parms[0]);
 	return;
 }
 

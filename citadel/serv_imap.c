@@ -1467,7 +1467,7 @@ void imap_command_loop(void)
 
 	else if ((!strcasecmp(parms[1], "NOOP"))
 		 || (!strcasecmp(parms[1], "CHECK"))) {
-		cprintf("%s OK This command successfully did nothing.\r\n",
+		cprintf("%s OK No operation\r\n",
 			parms[0]);
 	}
 
@@ -1481,7 +1481,7 @@ void imap_command_loop(void)
 			imap_do_expunge();	/* yes, we auto-expunge */
 		}
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
-		cprintf("%s OK thank you for using Citadel IMAP\r\n",
+		cprintf("%s OK Citadel IMAP session ended.\r\n",
 			parms[0]);
 		CC->kill_me = 1;
 		return;
