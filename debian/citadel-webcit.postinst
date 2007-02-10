@@ -23,14 +23,14 @@ case "$1" in
 	case "$WWWTYPE" in
 	    "Apache")
 		webservers="apache" 
-	        aenmod proxy
+		/usr/sbin/aenmod proxy||true
 		;;
 	    "Apache-SSL")
 		webservers="apache-ssl" 
 		;;
 	    "Apache2")
 		webservers="apache2"
-	        a2enmod proxy
+		/usr/sbin/a2enmod proxy||true
 		;;
 	    "All")
 		webservers="apache apache-ssl apache2" 
@@ -39,7 +39,6 @@ case "$1" in
 		webservers="" 
 		;;
 	esac
-
 	for server in $webservers; do
 	    if [ -d "/etc/${server}/conf.d" ]; then
 		if [ ! -e "/etc/${server}/conf.d/webcit-citadel" ] ; then
@@ -48,7 +47,6 @@ case "$1" in
                 invoke-rc.d $server reload || true
 	    fi
 	done
-
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
