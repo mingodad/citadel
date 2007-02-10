@@ -116,7 +116,15 @@ void imap_acl_flags(char *rights, int ra)
 		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
 		/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
 		if (ra & UA_ADMINALLOWED) {
-			strcat(rights, "a");
+			/*
+			 * This is the correct place to put the "a" flag.  We are leaving
+			 * it commented out for now, because it implies that we could
+			 * perform any of SETACL/DELETEACL/GETACL/LISTRIGHTS.  Since these
+			 * commands are not yet implemented, omitting the flag should
+			 * theoretically prevent compliant clients from attempting to
+			 * perform them.
+			 */
+			/* strcat(rights, "a"); * commented out */
 			strcat(rights, "x");
 		}
 	}
