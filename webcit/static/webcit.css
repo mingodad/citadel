@@ -63,18 +63,26 @@ body {
 
 .room_banner img {
         float: left;
+        margin-top: 0;
+        margin-left: 0;
+        margin-bottom: 5px;
+        margin-right: 5px;
 }
 
 .room_banner h1 {
         font-size: 14pt;
         font-weight: bold;
         color: #FFFFEE;
+        margin: 0;
+        padding: 2px;
 }
 
 .room_banner div {
         font-size: 8pt;
         color: #FFFFEE;
         text-align: center;
+        margin: 0;
+        padding: 2px;
 }
 
 #banner ul {
@@ -88,7 +96,7 @@ body {
         text-align: right;
         clear: right;
         list-style: none;
-        margin-top: 0px ;
+        margin: 0;
         padding: 2px;
 }
 
@@ -96,14 +104,12 @@ li.search {
         font-size: 10pt;
         float: left;
         color: #FFFFFF;
-        margin-bottom: 2px;
 }
 
 li.view {
         font-size: 10pt;
         float: right;
         color: #FFFFFF;
-        margin-bottom: 2px;
 }
 
 li.nummsgs {
@@ -126,6 +132,8 @@ li.start_page {
 #navbar ul {
 	float: left;
 	width: 95%;
+        margin: 0;
+        padding: 0;
 }
 
 #navbar ul li {
@@ -139,9 +147,9 @@ li.start_page {
 
 #navbar ul li img {
 	margin-top: 0;
-	margin-right: 5px;
+	margin-right: 2px;
 	margin-bottom:0 ;
-	margin-left: 5px;
+	margin-left: 2px;
 }
 
 .navbar_link {
