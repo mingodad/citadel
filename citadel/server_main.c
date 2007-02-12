@@ -160,12 +160,7 @@ int main(int argc, char **argv)
 	 * facilities when we need to...
 	 */
 	if (enable_syslog) {
-		if (running_as_daemon) {
-			openlog("citadel", LOG_NDELAY, 0);
-		}
-		else {
-			openlog("citadel", LOG_PERROR|LOG_NDELAY, 0);
-		}
+		openlog("citadel", LOG_NDELAY, 0);
 		setlogmask(LOG_UPTO(verbosity));
 	}
 	
