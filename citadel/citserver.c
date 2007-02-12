@@ -865,8 +865,9 @@ void begin_session(struct CitContext *con)
 	con->dl_is_net = 0;
 
 	con->nologin = 0;
-	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
+	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions)) {
 		con->nologin = 1;
+	}
 
 	lprintf(CTDL_NOTICE, "Session started.\n");
 
@@ -877,10 +878,10 @@ void begin_session(struct CitContext *con)
 
 void citproto_begin_session() {
 	if (CC->nologin==1) {
-		cprintf("%d %s: Too many users are already online "
-			"(maximum is %d)\n",
+		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
-			config.c_nodename, config.c_maxsessions);
+			config.c_nodename, config.c_maxsessions
+		);
 	}
 	else {
 		cprintf("%d %s Citadel server ready.\n",

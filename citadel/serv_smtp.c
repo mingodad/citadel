@@ -155,6 +155,16 @@ void smtp_greeting(void)
 	}
 
 	/* Otherwise we're either clean or we check later. */
+
+	if (CC->nologin==1) {
+		cprintf("500 Too many users are already online (maximum is %d)\r\n",
+			config.c_maxsessions
+		);
+		CC->kill_me = 1;
+		/* no need to free(valid), it's not allocated yet */
+		return;
+	}
+
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
 
