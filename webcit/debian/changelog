@@ -1,3 +1,9 @@
+webcit (7.02-9) unstable; urgency=high
+
+  * fixed some quoted printable bugs. 
+  * thierys fixes to the css
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 14 Feb 2007 21:09:00 +0100
 webcit (7.02-8) unstable; urgency=low
   
   * be more fault tolerant.
