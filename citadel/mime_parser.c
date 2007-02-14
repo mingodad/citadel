@@ -74,7 +74,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	decoded[0] = 0;
 	if (sourcelen >0)
 		decoded[0] = encoded[0];
-	while (destpos <= sourcelen){
+	while (sourcepos <= sourcelen){
 		check = &decoded[destpos];
 		decoded[destpos] = encoded[sourcepos];
 		if ((ignore_last == 0) && (decoded[destpos-1] == '='))
