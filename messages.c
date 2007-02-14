@@ -127,7 +127,18 @@ void utf8ify_rfc822_string(char *buf) {
 			ibuflen = CtdlDecodeBase64(ibuf, istr, strlen(istr));
 		}
 		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
-			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, strlen(istr));
+			size_t len;
+			long pos;
+			
+			len = strlen(istr);
+			pos = 0;
+			while (pos < len)
+			{
+				if (istr[pos] == '_') istr[pos] = ' ';
+				pos++;
+			}
+
+			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, len);
 		}
 		else {
 			strcpy(ibuf, istr);		/**< unknown encoding */
