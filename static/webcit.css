@@ -737,10 +737,7 @@ div.auto_complete ul strong.highlight {
 }
 
 #login_screen {
-	position:absolute; 
-	top: 3%; 
-	left: 3%; 
-	width: 94%;
+	margin: 3%;
 }
 
 .login_content {
