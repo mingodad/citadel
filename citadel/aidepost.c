@@ -41,7 +41,7 @@ static void ap_make_message(FILE *fp, char *target_room, char *author)
 	time_t now;
 	time(&now);
 	putc(255, fp);
-	putc(MES_NORMAL, fp);
+	putc(MT_RFC822, fp);
 	putc(1, fp);
 	fprintf(fp, "Proom_aide");
 	putc(0, fp);

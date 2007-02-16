@@ -72,7 +72,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	char *check;
 
 	decoded[0] = 0;
-	if (sourcelen >0)
+	if (sourcelen > 0)
 		decoded[0] = encoded[0];
 	while (sourcepos <= sourcelen){
 		check = &decoded[destpos];
@@ -85,6 +85,11 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 			{
 				decoded[destpos - 1] = '\0';
 				destpos-=2;
+				if ((sourcepos + 1 < sourcelen) && (
+				    (encoded[sourcepos + 1] == '\n') ||
+				    (encoded[sourcepos + 1] == '\r')))
+					sourcepos ++;
+					
 			}
 			else if (sourcelen - sourcepos > 2)
 			{
