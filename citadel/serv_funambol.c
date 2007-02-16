@@ -64,24 +64,59 @@ void create_notify_queue(void) {
 		lputroom(&qrbuf);
 	}
 }
+void do_notify_queue(void) {
+	static int doing_queue = 0;
+
+	/*
+	 * This is a simple concurrency check to make sure only one queue run
+	 * is done at a time.  We could do this with a mutex, but since we
+	 * don't really require extremely fine granularity here, we'll do it
+	 * with a static variable instead.
+	 */
+	if (doing_queue) return;
+	doing_queue = 1;
+
+	/* 
+	 * Go ahead and run the queue
+	 */
+	lprintf(CTDL_INFO, "serv_funambol: processing notify queue\n");
+
+	if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
+		lprintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		return;
+	}
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
+		SPOOLMIME, NULL, notify_funambol, NULL);
+
+	lprintf(CTDL_INFO, "serv_funambol: queue run completed\n");
+	doing_queue = 0;
+}
+
 /*
  * Connect to the Funambol server and scan a message.
  */
 int notify_funambol(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	int sock = (-1);
+	char fnblhosts[SIZ];
+	int num_fnblhosts;
 	char buf[SIZ];
+	int is_spam = 0;
+	int fnbl;
+	char *msgtext;
+	size_t msglen;
+	char host[SIZ];
 	char SOAPHeader[SIZ];
 	char SOAPData[SIZ];
 	char port[SIZ];
 	/* W means 'Wireless'... */
 	msg = CtdlFetchMessage(msgnum, 1);
 	if ( msg->cm_fields['W'] == NULL) {
-		return(0);
+		goto nuke;
 	}
 	/* Are we allowed to push? */
 	if ( strlen(config.c_funambol_host) == 0) {
-		return (0);
+		goto nuke;
 	} else {
 		lprintf(CTDL_INFO, "Push enabled\n");
 	}
@@ -146,9 +181,8 @@ int notify_funambol(long msgnum, void *userdata) {
 	
 	/* Command */
 	lprintf(CTDL_DEBUG, "Transmitting command\n");
-	sprintf(buf, "POST %s HTTP/1.0\r\nContent-type: text/xml; charset=utf-8\r\n",
+	sprintf(SOAPHeader, "POST %s HTTP/1.0\r\nContent-type: text/xml; charset=utf-8\r\n",
 		FUNAMBOL_WS);
-	strcat(SOAPHeader,buf);
 	strcat(SOAPHeader,"Accept: application/soap+xml, application/dime, multipart/related, text/*\r\n");
 	sprintf(buf, "User-Agent: %s/%d\r\nHost: %s:%d\r\nCache-control: no-cache\r\n",
 		"Citadel",
@@ -181,43 +215,16 @@ int notify_funambol(long msgnum, void *userdata) {
 	}
 	lprintf(CTDL_DEBUG, "Funambol notified\n");
 	/* We should allow retries here but for now purge after one go */
-	bail:	
+	bail:		
+	close(sock);
+	nuke:
 	CtdlFreeMessage(msg);
 	long todelete[1];
 	todelete[0] = msgnum;
-	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");	
-	close(sock);
+	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 	return 0;
 }
 
-
-void do_notify_queue(void) {
-	static int doing_queue = 0;
-
-	/*
-	 * This is a simple concurrency check to make sure only one queue run
-	 * is done at a time.  We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
-	 */
-	if (doing_queue) return;
-	doing_queue = 1;
-
-	/* 
-	 * Go ahead and run the queue
-	 */
-	lprintf(CTDL_INFO, "serv_funambol: processing notify queue\n");
-
-	if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
-		lprintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
-		return;
-	}
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
-		SPOOLMIME, NULL, notify_funambol, NULL);
-
-	lprintf(CTDL_INFO, "serv_funambol: queue run completed\n");
-	doing_queue = 0;
-}
 
 
 char *serv_funambol_init(void)
