@@ -6,6 +6,11 @@
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
 // One program is released under the terms of the GNU General Public License.
 include "config_ctdlclient.php";
+
+
+//--------------------------------------------------------------------------------
+//   internal functions for server communication
+//--------------------------------------------------------------------------------
 //
 // serv_gets() -- generic function to read one line of text from the server
 //
@@ -22,7 +27,6 @@ function serv_gets($readblock=FALSE) {
 	}
 	return $buf;
 }
-
 
 //
 // serv_puts() -- generic function to write one line of text to the server
@@ -92,8 +96,14 @@ function text_to_server($thetext, $convert_to_html) {
 
 }
 
+//--------------------------------------------------------------------------------
+//   protocol commands
+//--------------------------------------------------------------------------------
+
+
 //
 // Identify ourselves to the Citadel server (do one once after connection)
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#iden.identify.the.client.software */
 //
 function ctdl_iden($client_info) {
 	global $clientsocket;
@@ -111,6 +121,80 @@ function ctdl_MessageFormatsPrefered($formatlist){
 	$buf = serv_gets();
 }
 
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#noop.no.operation */
+function ctdl_noop(){
+	// Also express our message format preferences
+	serv_puts("NOOP ");
+	$buf = serv_gets();
+}
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#quit.quit */
+function ctdl_quit(){
+	// Also express our message format preferences
+	serv_puts("QUIT ");
+	$buf = serv_gets();
+}
+
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#mesg.read.system.message */
+function ctdl_gtls(){
+	// Also express our message format preferences
+	serv_puts("GTLS ");
+	$buf = serv_gets();
+	return $buf;
+}
+
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#qnop.quiet.no.operation */
+/* this seems to be dangerous. ask IG
+function ctdl_qnoop(){
+	// Also express our message format preferences
+	serv_puts("QNOP ");
+}
+*/
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#echo.echo.something */
+function ctdl_doecho($echotext){
+	// Also express our message format preferences
+	serv_puts("ECHO ".$echotext);
+	$buf = serv_gets();
+
+}
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#time.get.server.local.time */
+/* TODO: what are the other two params? doku is incomplete here. */
+function ctdl_time(){
+	// Also express our message format preferences
+	serv_puts("TIME");
+	$buf = serv_gets();
+
+}
+
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#qdir.query.global.directory */
+function ctdl_qdir($who){
+	// Also express our message format preferences
+	serv_puts("QDIR ".$who);
+	$buf = serv_gets();
+	return array((substr($buf, 0, 1) == "2"), $buf);
+}
+
+
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#auto.autocompletion.of.email.addresses */
+function ctdl_auto($who){
+	// Also express our message format preferences
+	serv_puts("AUTO ".$who);
+	$buf = serv_gets();
+	if (substr($buf, 0, 1) == "1") {
+		$reply = read_array();
+		if (count($reply) == 0)
+			return false;
+		return $reply;
+	}
+	else
+		return false;
+}
+
 
 
 //
@@ -118,6 +202,9 @@ function ctdl_MessageFormatsPrefered($formatlist){
 // Returns an array with two variables:
 // 0. TRUE or FALSE to determine success or failure
 // 1. String error message (if relevant)
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#user.send.user.name */
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#pass.send.password */
+
 //
 function login_existing_user($user, $pass) {
 	global $clientsocket;
@@ -196,6 +283,7 @@ function become_logged_in($server_parms) {
 //
 // Learn all sorts of interesting things about the Citadel server to
 // which we are connected.
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#info.get.server.info */
 //
 function ctdl_get_serv_info() {
 	serv_puts("INFO");
@@ -228,6 +316,7 @@ function ctdl_get_serv_info() {
 // (One is probably temporary because it outputs more or less finalized
 // markup.  For now it's just usable.)
 //
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#mesg.read.system.message */
 function ctdl_mesg($msgname) {
 	global $clientsocket;
 
@@ -248,9 +337,24 @@ function ctdl_mesg($msgname) {
 	return($msgtext);
 }
 
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#mesg.read.system.message */
+//// TODO: is this still supported?
+function ctdl_mrtg($what) {
+	global $clientsocket;
 
+	serv_puts("MRTG ".$what);
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) != "1") {
+		return array(0, NULL);
+	}
+		
+	$responses = read_array();
+	return $responses;
+}
 //
 // Fetch the list of users currently logged in.
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#rwho.read.who.s.online */
 //
 function ctdl_rwho() {
 	global $clientsocket;
