@@ -639,6 +639,15 @@ void embed_room_banner(char *got, int navbar_style) {
 						"</span></a></li>\n", buf, _("Edit this page")
 					);
 					break;
+				case VIEW_MAILBOX:
+					wprintf(
+						"<li class=\"newmess\">"
+						"<a href=\"display_enter\">"
+						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
+						"border=\"0\"><span class=\"navbar_link\">"
+						"%s"
+						"</span></a></li>\n", _("Write a Mail")
+					);
 				default:
 					wprintf(
 						"<li class=\"newmess\">"
@@ -2897,6 +2906,9 @@ void list_all_rooms_by_floor(char *viewpref) {
 		++num_floors;
 	}
 
+	/** refresh the messages index for this room */
+//	serv_puts("GOTO ");
+//	while (serv_getln(buf, sizeof buf), strcmp(buf, "000"));
 	/** Now add rooms */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
