@@ -58,7 +58,7 @@ body {
 
 #banner .room_banner {
         float: left;
-        width: 58%;
+        width: 48%;
 }
 
 .room_banner img {
@@ -78,7 +78,7 @@ body {
 }
 
 .room_banner div {
-        font-size: 8pt;
+        font-size: 7pt;
         color: #FFFFEE;
         text-align: center;
         margin: 0;
@@ -88,7 +88,7 @@ body {
 #banner ul {
         float: right;
         text-align: right;
-        width: 40%;
+        width: 48%;
         margin: 0;
         padding: 0;
 }
