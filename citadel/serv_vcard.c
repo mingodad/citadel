@@ -4,7 +4,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2002 / released under the GNU General Public License
+ * Copyright (c) 1999-2007 / released under the GNU General Public License
  */
 
 /*
@@ -235,6 +235,26 @@ void extract_primary_inet_email(char *emailaddrbuf, size_t emailaddrbuf_len, str
 
 
 /*
+ * See if there is a name / screen name / friendly name  in a vCard to use for outbound
+ * Internet messages.  If there is, stick it in the buffer.
+ */
+void extract_friendly_name(char *namebuf, size_t namebuf_len, struct vCard *v)
+{
+	char *s;
+
+	s = vcard_get_prop(v, "fn", 0, 0, 0);
+	if (s == NULL) {
+		s = vcard_get_prop(v, "n", 0, 0, 0);
+	}
+
+	if (s != NULL) {
+		safestrncpy(namebuf, s, namebuf_len);
+	}
+}
+
+
+
+/*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
  * function accordingly (delete the user's existing vCard in the config room
@@ -457,8 +477,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 			/* Store our Internet return address in memory */
 			v = vcard_load(msg->cm_fields['M']);
-			extract_primary_inet_email(CC->cs_inet_email,
-						sizeof CC->cs_inet_email, v);
+			extract_primary_inet_email(CC->cs_inet_email, sizeof CC->cs_inet_email, v);
+			extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 			vcard_free(v);
 
 			/* Put it in the Global Address Book room... */
@@ -964,8 +984,8 @@ void vcard_session_login_hook(void) {
 	struct vCard *v = NULL;
 
 	v = vcard_get_user(&CC->user);
-	extract_primary_inet_email(CC->cs_inet_email,
-				sizeof CC->cs_inet_email, v);
+	extract_primary_inet_email(CC->cs_inet_email, sizeof CC->cs_inet_email, v);
+	extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 	vcard_free(v);
 
 	vcard_create_room();
@@ -1146,6 +1166,17 @@ void vcard_fixed_output(char *ptr, int len) {
 }
 
 
+char *serv_postfix_tcpdict(void)
+{
+	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
+				NULL,
+				check_get_greeting,
+				check_get,
+				NULL);
+	return "$Id$";
+}
+
+
 
 char *serv_vcard_init(void)
 {
@@ -1189,16 +1220,5 @@ char *serv_vcard_init(void)
 		chown(filename, CTDLUID, (-1));
 	}
 
-	return "$Id$";
-}
-
-
-char *serv_postfix_tcpdict(void)
-{
-	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
-				NULL,
-				check_get_greeting,
-				check_get,
-				NULL);
 	return "$Id$";
 }

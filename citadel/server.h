@@ -93,6 +93,7 @@ struct CitContext {
 
 	/* The Internet type of thing */
 	char cs_inet_email[128];/* Return address of outbound Internet mail */
+	char cs_inet_fn[128];	/* Friendly-name of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	char download_desired_section[128];
