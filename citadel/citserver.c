@@ -882,6 +882,7 @@ void citproto_begin_session() {
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions
 		);
+		CC->kill_me = 1;
 	}
 	else {
 		cprintf("%d %s Citadel server ready.\n",
