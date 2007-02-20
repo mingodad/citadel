@@ -81,29 +81,29 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
+        if (ib_logo) {
+                if (ib_displayas != IB_TEXTONLY) {
+                        wprintf("<div class=\"logo\"> <img "
+                                "src=\"image&name=hello\" alt=\"&nbsp;\"> "
+                                "</div>\n"
+                        );
+                }
+                wprintf("\n");
+        }
+
+        if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+                "<div class=\"logo_citadel\"> "
+                "<a href=\"http://www.citadel.org\" "
+                "title=\"%s\" target=\"aboutcit\"> "
+                "<img "
+                "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
+                "</div>\n",
+                _("Find out more about Citadel"),
+                _("CITADEL")
+        );
+
 	wprintf("<div id=\"button\">\n"
 		"<ul>\n"
-	);
-
-	if (ib_logo) {
-		wprintf("<li>");
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"120\" "
-				"src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
-			);
-		}
-		wprintf("</li>\n");
-	}
-
-	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<li><div align=\"center\">"
-		"<a href=\"http://www.citadel.org\" "
-		"title=\"%s\" target=\"aboutcit\">"
-		"<img border=\"0\" "
-		"src=\"static/citadel-logo.gif\" ALT=\"%s\"></a>"
-		"</div></li>\n",
-		_("Find out more about Citadel"),
-		_("CITADEL")
 	);
 
 	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_room_list()\">");
