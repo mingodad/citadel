@@ -762,7 +762,7 @@ div.auto_complete ul strong.highlight {
 }
 
 
-.login_form {
+#login_form {
         display: block;
         margin-top: 20px;
         margin-left: auto;
@@ -773,13 +773,13 @@ div.auto_complete ul strong.highlight {
         background-color: #DDDDDD;
 }
 
-.login_form input, .login_form label, .login_form select {
+#login_form input, #login_form label, #login_form select {
         display: block;
         float: left;
         margin: 6px;
 }
 
-.login_form label {
+#login_form label {
         width: 130px;
         text-align: left;
 }
@@ -789,16 +789,16 @@ div.auto_complete ul strong.highlight {
         text-align: left;
 }
 
-.login_form br {
+#login_form br {
         clear: left;
 }
 
-.login_form .logbuttons {
+#login_form .logbuttons {
         margin-left: auto;
         margin-right: auto;
 }
 
-.login_form .logbutton {
+#login_form .logbutton {
 	width: auto;
         text-align: center;
 }
