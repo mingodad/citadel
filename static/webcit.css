@@ -35,6 +35,18 @@ body {
 	background: #ffffee;
 }
 
+.logo, .logo_citadel {
+        display: block;
+        text-align: center;
+        border-bottom: 1px solid #aaaaaa;
+        margin: 0;
+        padding: 0;
+}
+
+.logo_citadel a, .logo_citadel img {
+        border: none;
+}
+
 #banner {
 	position:fixed;
 	display:block;
