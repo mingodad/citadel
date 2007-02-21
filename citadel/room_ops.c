@@ -847,7 +847,6 @@ void usergoto(char *where, int display_result, int transiently,
 		info = 1;
 	}
 
-	get_mm();
         cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
         if (cdbfr != NULL) {
         	msglist = (long *) cdbfr->ptr;

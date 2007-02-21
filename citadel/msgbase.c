@@ -243,22 +243,6 @@ int alias(char *name)
 }
 
 
-void get_mm(void)
-{
-	FILE *fp;
-
-	fp = fopen(file_citadel_control, "r");
-	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "Cannot open %s: %s\n",
-				file_citadel_control,
-				strerror(errno));
-		exit(errno);
-	}
-	fread((char *) &CitControl, sizeof(struct CitControl), 1, fp);
-	fclose(fp);
-}
-
-
 /*
  * Back end for the MSGS command: output message number only.
  */
@@ -540,7 +524,6 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	long *search_msgs = NULL;
 
 	/* Learn about the user and room in question */
-	get_mm();
 	getuser(&CC->user, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 

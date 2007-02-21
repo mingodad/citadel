@@ -78,7 +78,6 @@ struct addresses_to_be_filed {
 extern struct addresses_to_be_filed *atbf;
 
 int alias (char *name);
-void get_mm (void);
 void cmd_msgs (char *cmdbuf);
 void cmd_isme (char *cmdbuf);
 void help_subst (char *strbuf, char *source, char *dest);

@@ -70,6 +70,14 @@ void lock_control(void)
  */
 void get_control(void)
 {
+	static int already_have_control = 0;
+
+	/*
+	 * If we already have the control record in memory, there's no point
+	 * in reading it from disk again.
+	 */
+	if (already_have_control) return;
+
 	/* Zero it out.  If the control record on disk is missing or short,
 	 * the system functions with all control record fields initialized
 	 * to zero.
@@ -102,6 +110,7 @@ void get_control(void)
 
 	rewind(control_fp);
 	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
+	already_have_control = 1;
 }
 
 /*
