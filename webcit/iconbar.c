@@ -102,13 +102,11 @@ void do_iconbar(void) {
                 _("CITADEL")
         );
 
-	wprintf("<div id=\"button\">\n"
-		"<ul>\n"
-	);
+	wprintf("<ul id=\"button\">\n");
 
-	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_room_list()\">");
+	wprintf("<li class=\"switch\"><a href=\"javascript:switch_to_room_list()\">");
 	wprintf(_("switch to room list"));
-	wprintf("</a></div>");
+	wprintf("</a></li>");
 
 	if (ib_summary) {
 		wprintf("<li><a href=\"summary\" "
@@ -318,16 +316,16 @@ void do_iconbar(void) {
 	wprintf("</a></li>\n");
 
 	wprintf(
-		"<li><div align=\"center\">"
+		"<li class=\"switch\">"
 		"<a href=\"display_customize_iconbar\" "
 		"title=\"%s\" "
 		">%s"
-		"</a></div></li>\n",
+		"</a></li>\n",
 		_("Customize this menu"),
 		_("customize this menu")
 	);
 
-	wprintf("</ul></div>\n");
+	wprintf("</ul>\n");
 }
 
 
@@ -387,17 +385,11 @@ void do_iconbar_roomlist(void) {
                 _("CITADEL")
         );
 
-	wprintf("<div id=\"button\">\n"
-		"<ul>\n"
-	);
+	wprintf("<ul id=\"button\">\n");
 
-	wprintf("<div id=\"button\">\n"
-		"<ul>\n"
-	);
-
-	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_menu_buttons()\">");
+	wprintf("<li class=\"switch\"><a href=\"javascript:switch_to_menu_buttons()\">");
 	wprintf(_("switch to menu"));
-	wprintf("</a></div>");
+	wprintf("</a></li>");
 
 	wprintf("<li>"
 		"<a href=\"termquit\" title=\"%s\" "
@@ -415,7 +407,7 @@ void do_iconbar_roomlist(void) {
 	}
 	wprintf("</a></li>\n");
 
-	wprintf("</ul></div>\n");
+	wprintf("</ul>\n");
 
 	/** embed the room list */
 	list_all_rooms_by_floor("iconbar");

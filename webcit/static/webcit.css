@@ -296,23 +296,22 @@ li.start_page {
 
 #button {
 	width: 100%;
-	padding: 0 0 1em 0;
-	margin-bottom: 1em;
 	background-color: #ffffee;
 	color: #aaaaaa;
 	font-size: 8pt;
-}
-
-#button ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	border: none;
 }
 
-#button li {
+#button li, #button li.switch {
 	border-bottom: 1px solid #aaaaaa;
 	margin: 0;
+}
+
+#button li.switch {
+	text-align: center;
 }
 
 #button img {
