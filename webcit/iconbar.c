@@ -112,28 +112,28 @@ void do_iconbar(void) {
 
 	if (ib_summary) {
 		wprintf("<li><a href=\"summary\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">", _("Your summary page")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 				"src=\"static/summscreen_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Summary"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_inbox) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_MAIL_\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Go to your email inbox")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 				"src=\"static/privatemess_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -147,106 +147,106 @@ void do_iconbar(void) {
 				WC->remember_new_mail = WC->new_mail;
 			}
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_calendar) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_CALENDAR_\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Go to your personal calendar")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/calarea_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Calendar"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_contacts) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_CONTACTS_\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Go to your personal address book")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/viewcontacts_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Contacts"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_notes) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_NOTES_\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Go to your personal notes")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/storenotes_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Notes"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_tasks)  {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_TASKS_\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Go to your personal task list")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/taskmanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Tasks"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_rooms) {
 		wprintf("<li>"
-			"<a href=\"knrooms\" TITLE=\"%s\" >",
+			"<a href=\"knrooms\" title=\"%s\" >",
 			_("List all of your accessible rooms")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/chatrooms_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Rooms"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_users) {
 		wprintf("<li>"
-			"<a href=\"who\" TITLE=\"%s\" "
+			"<a href=\"who\" title=\"%s\" "
 			">",
 			_("See who is online right now")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/usermanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Who is online?"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_chat) {
@@ -258,71 +258,71 @@ void do_iconbar(void) {
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/citadelchat_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Chat"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if (ib_advanced) {
 		wprintf("<li>"
 			"<a href=\"display_main_menu\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Advanced"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<li>"
 			"<a href=\"display_aide_menu\" "
-			"TITLE=\"%s\" "
+			"title=\"%s\" "
 			">",
 			_("Room and system administration functions")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 			"src=\"static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Administration"));
 		}
-		wprintf("</A></li>\n");
+		wprintf("</a></li>\n");
 	}
 
 	wprintf("<li>"
-		"<a href=\"termquit\" TITLE=\"%s\" "
+		"<a href=\"termquit\" title=\"%s\" "
 		"onClick=\"return confirm('%s');\">",
 		_("Log off"),
 		_("Log off now?")
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 		"src=\"static/logoff_32x.gif\">");
 	}
 	if (ib_displayas != IB_PICONLY) {
 		wprintf(_("Log off"));
 	}
-	wprintf("</A></li>\n");
+	wprintf("</a></li>\n");
 
 	wprintf(
 		"<li><div align=\"center\">"
 		"<a href=\"display_customize_iconbar\" "
-		"TITLE=\"%s\" "
+		"title=\"%s\" "
 		">%s"
-		"</A></div></li>\n",
+		"</a></div></li>\n",
 		_("Customize this menu"),
 		_("customize this menu")
 	);
@@ -367,29 +367,32 @@ void do_iconbar_roomlist(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
+	if (ib_logo) {
+		if (ib_displayas != IB_TEXTONLY) {
+                        wprintf("<div class=\"logo\"> <img "
+                                "src=\"image&name=hello\" alt=\"&nbsp;\"> "
+                                "</div>\n"
+			);
+		}
+	}
+
+        if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+                "<div class=\"logo_citadel\"> "
+                "<a href=\"http://www.citadel.org\" "
+                "title=\"%s\" target=\"aboutcit\"> "
+                "<img "
+                "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
+                "</div>\n",
+                _("Find out more about Citadel"),
+                _("CITADEL")
+        );
+
 	wprintf("<div id=\"button\">\n"
 		"<ul>\n"
 	);
 
-	if (ib_logo) {
-		wprintf("<li>");
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<IMG BORDER=\"0\" WIDTH=\"120\" "
-				"src=\"image&name=hello\" ALT=\"&nbsp;\">\n"
-			);
-		}
-		wprintf("</li>\n");
-	}
-
-	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<li><div align=\"center\">"
-		"<a href=\"http://www.citadel.org\" "
-		"title=\"%s\" target=\"aboutcit\">"
-		"<img border=\"0\" "
-		"src=\"static/citadel-logo.gif\" ALT=\"%s\"></a>"
-		"</div></li>\n",
-		_("Find out more about Citadel"),
-		_("CITADEL")
+	wprintf("<div id=\"button\">\n"
+		"<ul>\n"
 	);
 
 	wprintf("<li><div align=\"center\"><a href=\"javascript:switch_to_menu_buttons()\">");
@@ -397,20 +400,20 @@ void do_iconbar_roomlist(void) {
 	wprintf("</a></div>");
 
 	wprintf("<li>"
-		"<a href=\"termquit\" TITLE=\"%s\" "
+		"<a href=\"termquit\" title=\"%s\" "
 		"onClick=\"return confirm('%s');\">",
 		_("Log off"),
 		_("Log off now?")
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
 		"src=\"static/logoff_32x.gif\">");
 	}
 	if (ib_displayas != IB_PICONLY) {
 		wprintf(_("Log off"));
 	}
-	wprintf("</A></li>\n");
+	wprintf("</a></li>\n");
 
 	wprintf("</ul></div>\n");
 
@@ -476,11 +479,11 @@ void display_customize_iconbar(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"iconbar_banner\"><TR><TD>"
+		"<TABLE class=\"iconbar_banner\"><tr><td>"
 		"<SPAN CLASS=\"titlebar\">");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
+		"</td></tr></table>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
 
@@ -493,7 +496,7 @@ void display_customize_iconbar(void) {
 	wprintf(_("Display icons as:"));
 	wprintf(" ");
 	for (i=0; i<=2; ++i) {
-		wprintf("<INPUT TYPE=\"radio\" NAME=\"ib_displayas\" VALUE=\"%d\"", i);
+		wprintf("<input type=\"radio\" name=\"ib_displayas\" value=\"%d\"", i);
 		if (ib_displayas == i) wprintf(" CHECKED");
 		wprintf(">");
 		if (i == IB_PICTEXT)	wprintf(_("pictures and text"));
@@ -510,77 +513,77 @@ void display_customize_iconbar(void) {
 
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
-	wprintf("<TR BGCOLOR=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logo\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" "
-		"src=\"image&name=hello\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr BGCOLOR=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_logo\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" "
+		"src=\"image&name=hello\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_logo ? "CHECKED" : ""),
 		_("Site logo"),
 		_("An icon describing this site")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_summary\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/summscreen_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_summary\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/summscreen_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_summary ? "CHECKED" : ""),
 		_("Summary"),
 		_("Your summary page")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_inbox\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/privatemess_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_inbox\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/privatemess_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_inbox ? "CHECKED" : ""),
 		_("Mail (inbox)"),
 		_("A shortcut to your email Inbox")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_contacts\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/viewcontacts_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_contacts\" "
+		"value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/viewcontacts_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_contacts ? "CHECKED" : ""),
 		_("Contacts"),
 		_("Your personal address book")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_notes\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/storenotes_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_notes\" "
+		"value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/storenotes_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_notes ? "CHECKED" : ""),
 		_("Notes"),
@@ -588,31 +591,31 @@ void display_customize_iconbar(void) {
 	);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_calendar\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/calarea_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_calendar\" "
+		"value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/calarea_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_calendar ? "CHECKED" : ""),
 		_("Calendar"),
 		_("A shortcut to your personal calendar")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/taskmanag_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_tasks\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/taskmanag_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_tasks ? "CHECKED" : ""),
 		_("Tasks"),
@@ -620,15 +623,15 @@ void display_customize_iconbar(void) {
 	);
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_rooms\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/chatrooms_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_rooms\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/chatrooms_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_rooms ? "CHECKED" : ""),
 		_("Rooms"),
@@ -636,15 +639,15 @@ void display_customize_iconbar(void) {
 		"rooms (or folders) available.")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_users\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/usermanag_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_users\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/usermanag_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_users ? "CHECKED" : ""),
 		_("Who is online?"),
@@ -652,15 +655,15 @@ void display_customize_iconbar(void) {
 		"currently logged in.")
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_chat\" VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/citadelchat_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_chat\" value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/citadelchat_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_chat ? "CHECKED" : ""),
 		_("Chat"),
@@ -669,16 +672,16 @@ void display_customize_iconbar(void) {
 		
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_advanced\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/advanpage2_48x.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_advanced\" "
+		"value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/advanpage2_48x.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_advanced ? "CHECKED" : ""),
 		_("Advanced options"),
@@ -686,27 +689,27 @@ void display_customize_iconbar(void) {
 
 	);
 
-	wprintf("<TR bgcolor=%s><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_citadel\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"src=\"static/citadel-logo.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>%s</B><br />"
+	wprintf("<tr bgcolor=%s><td>"
+		"<input type=\"checkbox\" name=\"ib_citadel\" "
+		"value=\"yes\" %s>"
+		"</td><td>"
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"src=\"static/citadel-logo.gif\" alt=\"&nbsp;\">"
+		"</td><td>"
+		"<b>%s</b><br />"
 		"%s"
-		"</TD></TR>\n",
+		"</td></tr>\n",
 		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_citadel ? "CHECKED" : ""),
 		_("Citadel logo"),
 		_("Displays the 'Powered by Citadel' icon")
 	);
 
-	wprintf("</TABLE><br />\n"
+	wprintf("</table><br />\n"
 		"<CENTER>"
-		"<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
+		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
 		"</CENTER></FORM>\n",
 		_("Save changes"),
 		_("Cancel")
