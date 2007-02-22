@@ -751,7 +751,6 @@ void CtdlRegisterServiceHook(int tcp_port,
 		AddPortError(message, error);
 		strcat(message, "FAILED.");
 		lprintf(CTDL_CRIT, "%s\n", message);
-		free (message);
 		free(error);
 		free(newfcn);
 	}
