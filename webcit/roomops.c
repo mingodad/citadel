@@ -646,8 +646,9 @@ void embed_room_banner(char *got, int navbar_style) {
 						"<img align=\"middle\" src=\"static/newmess3_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
 						"%s"
-						"</span></a></li>\n", _("Write a Mail")
+						"</span></a></li>\n", _("Write mail")
 					);
+					break;
 				default:
 					wprintf(
 						"<li class=\"newmess\">"
