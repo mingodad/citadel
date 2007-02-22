@@ -2788,6 +2788,8 @@ void display_enter(void)
 	int is_anonymous = 0;
 	long existing_page = (-1L);
 
+	now = time(NULL);
+
 	if (strlen(bstr("force_room")) > 0) {
 		gotoroom(bstr("force_room"));
 	}
@@ -2869,21 +2871,6 @@ void display_enter(void)
 
 	/** If we got this far, we can display the message entry screen. */
 
-	now = time(NULL);
-	fmt_date(buf, now, 0);
-	strcat(&buf[strlen(buf)], _(" <I>from</I> "));
-	stresc(&buf[strlen(buf)], WC->wc_fullname, 1, 1);
-
-	/* Don't need this anymore, it's in the input box below
-	if (strlen(bstr("recp")) > 0) {
-		strcat(&buf[strlen(buf)], _(" <I>to</I> "));
-		stresc(&buf[strlen(buf)], bstr("recp"), 1, 1);
-	}
-	*/
-
-	strcat(&buf[strlen(buf)], _(" <I>in</I> "));
-	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
-
 	/** begin message entry screen */
 	wprintf("<form "
 		"enctype=\"multipart/form-data\" "
@@ -2898,8 +2885,17 @@ void display_enter(void)
 	}
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
 
+	/** header bar */
+
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-	wprintf("%s\n", buf);	/** header bar */
+	fmt_date(buf, now, 0);
+	wprintf("%s ", buf);
+
+	wprintf(_(" <I>from</I> "));
+	escputs(WC->wc_fullname);
+	wprintf(_(" <I>in</I> "));
+	escputs(WC->wc_roomname);
+
 	if (WC->room_flags & QR_ANONOPT) {
 		wprintf("&nbsp;"
 			"<input type=\"checkbox\" name=\"is_anonymous\" value=\"yes\" %s>",
