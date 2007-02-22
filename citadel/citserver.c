@@ -841,7 +841,6 @@ void begin_session(struct CitContext *con)
 	strcpy(con->curr_user, NLI);
 	strcpy(con->net_node, "");
 	strcpy(con->fake_username, "");
-	strcpy(con->fake_postname, "");
 	strcpy(con->fake_hostname, "");
 	strcpy(con->fake_roomname, "");
 	generate_nonce(con);

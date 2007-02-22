@@ -541,7 +541,6 @@ void logout(struct CitContext *who)
 	 * make that assumption.
 	 */
 	strcpy(who->fake_username, "");
-	strcpy(who->fake_postname, "");
 	strcpy(who->fake_hostname, "");
 	strcpy(who->fake_roomname, "");
 	who->logged_in = 0;

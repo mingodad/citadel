@@ -2906,8 +2906,8 @@ struct CtdlMessage *CtdlMakeMessage(
 	char *supplied_euid,		/* ...or NULL if this is irrelevant */
 	char *preformatted_text		/* ...or NULL to read text from client */
 ) {
-	char dest_node[SIZ];
-	char buf[SIZ];
+	char dest_node[256];
+	char buf[1024];
 	struct CtdlMessage *msg;
 
 	msg = malloc(sizeof(struct CtdlMessage));
@@ -2987,8 +2987,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['M'] = preformatted_text;
 	}
 	else {
-		msg->cm_fields['M'] = CtdlReadMessageBody("000",
-					config.c_maxmsglen, NULL, 0);
+		msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
 	}
 
 	return(msg);
@@ -3255,10 +3254,9 @@ void cmd_ent0(char *entargs)
 	char cc[SIZ];
 	char bcc[SIZ];
 	char supplied_euid[128];
-	char masquerade_as[SIZ];
 	int anon_flag = 0;
 	int format_type = 0;
-	char newusername[SIZ];
+	char newusername[256];
 	struct CtdlMessage *msg;
 	int anonymous = 0;
 	char errmsg[SIZ];
@@ -3278,6 +3276,7 @@ void cmd_ent0(char *entargs)
 	anon_flag = extract_int(entargs, 2);
 	format_type = extract_int(entargs, 3);
 	extract_token(subject, entargs, 4, '|', sizeof subject);
+	extract_token(newusername, entargs, 5, '|', sizeof newusername);
 	do_confirm = extract_int(entargs, 6);
 	extract_token(cc, entargs, 7, '|', sizeof cc);
 	extract_token(bcc, entargs, 8, '|', sizeof bcc);
@@ -3301,19 +3300,17 @@ void cmd_ent0(char *entargs)
 
 	/* Check some other permission type things. */
 
-	if (post == 2) {
-	 	if (CC->user.axlevel < 6) {
-			cprintf("%d You don't have permission to masquerade.\n",
-				ERROR + HIGHER_ACCESS_REQUIRED);
-			return;
-		}
-		extract_token(newusername, entargs, 5, '|', sizeof newusername);
-		memset(CC->fake_postname, 0, sizeof(CC->fake_postname) );
-		safestrncpy(CC->fake_postname, newusername,
-			sizeof(CC->fake_postname) );
-		cprintf("%d ok\n", CIT_OK);
+	if (  (CC->user.axlevel < 6)
+	   && (strcasecmp(newusername, CC->user.fullname))
+	   && (strcasecmp(newusername, CC->cs_inet_fn))
+	) {	
+		cprintf("%d You don't have permission to author messages as '%s'.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED,
+			newusername
+		);
 		return;
 	}
+
 	CC->cs_flags |= CS_POSTING;
 
 	/* In the Mail> room we have to behave a little differently --
@@ -3430,17 +3427,6 @@ void cmd_ent0(char *entargs)
 	free(valid_cc);
 	free(valid_bcc);
 
-	/* Handle author masquerading */
-	if (CC->fake_postname[0]) {
-		strcpy(masquerade_as, CC->fake_postname);
-	}
-	else if (CC->fake_username[0]) {
-		strcpy(masquerade_as, CC->fake_username);
-	}
-	else {
-		strcpy(masquerade_as, "");
-	}
-
 	/* Read in the message from the client. */
 	if (do_confirm) {
 		cprintf("%d send message\n", START_CHAT_MODE);
@@ -3450,7 +3436,7 @@ void cmd_ent0(char *entargs)
 
 	msg = CtdlMakeMessage(&CC->user, recp, cc,
 		CC->room.QRname, anonymous, format_type,
-		masquerade_as, subject,
+		newusername, subject,
 		((strlen(supplied_euid) > 0) ? supplied_euid : NULL),
 		NULL);
 
@@ -3500,7 +3486,6 @@ void cmd_ent0(char *entargs)
 
 		CtdlFreeMessage(msg);
 	}
-	CC->fake_postname[0] = '\0';
 	if (valid != NULL) {
 		free(valid);
 	}

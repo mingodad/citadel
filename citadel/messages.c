@@ -1098,8 +1098,9 @@ void break_big_lines(char *msg) {
  */
 int entmsg(CtdlIPC *ipc,
 		int is_reply,	/* nonzero if this was a <R>eply command */
-		int c)		/* mode */
-{
+		int c,		/* mode */
+		int masquerade	/* prompt for a non-default display name? */
+) {
 	char buf[SIZ];
 	int a, b;
 	int need_recp = 0;
@@ -1125,9 +1126,14 @@ int entmsg(CtdlIPC *ipc,
 	strcpy(message.recipient, "");
 	strcpy(message.author, "");
 	strcpy(message.subject, "");
-	message.text = message.author;	/* point to "", changes later */
+	message.text = "";		/* point to "", changes later */
 	message.anonymous = 0;
 	message.type = mode;
+
+	if (masquerade) {
+		newprompt("Display name for this message: ", message.author, 40);
+	}
+
 	r = CtdlIPCPostMessage(ipc, 0, &message, buf);
 
 	if (r / 100 != 2 && r / 10 != 57) {
@@ -1824,7 +1830,7 @@ RMSGREAD:	scr_flush();
 			goto RMSGREAD;
 		case 'r':
 			savedpos = num_msgs;
-			entmsg(ipc, 1, ((userflags & US_EXTEDIT) ? 2 : 0));
+			entmsg(ipc, 1, ((userflags & US_EXTEDIT) ? 2 : 0), 0);
 			num_msgs = savedpos;
 			goto RMSGREAD;
 		case 'u':

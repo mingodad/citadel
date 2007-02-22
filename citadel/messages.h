@@ -5,7 +5,7 @@ extern int num_urls;
 extern char urls[MAXURLS][SIZ];
 
 int ka_system(char *shc);
-int entmsg(CtdlIPC *ipc, int is_reply, int c);
+int entmsg(CtdlIPC *ipc, int is_reply, int c, int masquerade);
 void readmsgs(CtdlIPC *ipc, enum MessageList c, enum MessageDirection rdir, int q);
 void edit_system_message(CtdlIPC *ipc, char *which_message);
 pid_t ka_wait(int *kstatus);

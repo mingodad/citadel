@@ -1747,27 +1747,16 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				formout(ipc, "help");
 				break;
 			case 4:
-				entmsg(ipc, 0, ((userflags & US_EXTEDIT) ? 2 : 0));
+				entmsg(ipc, 0, ((userflags & US_EXTEDIT) ? 2 : 0), 0);
 				break;
 			case 36:
-				entmsg(ipc, 0, 1);
+				entmsg(ipc, 0, 1, 0);
 				break;
 			case 46:
-				entmsg(ipc, 0, 2);
+				entmsg(ipc, 0, 2, 0);
 				break;
 			case 78:
-				{
-					/* Only m.author is used */
-					struct ctdlipcmessage m;
-					newprompt("What do you want your username to be? ",
-						m.author, USERNAME_SIZE - 1);
-					m.text = "";
-					r = CtdlIPCPostMessage(ipc, 2, &m, aaa);
-					if (r / 100 != 2)
-						scr_printf("%s\n", aaa);
-					else
-						entmsg(ipc, 0, 0);
-				}
+				entmsg(ipc, 0, ((userflags & US_EXTEDIT) ? 2 : 0), 1);
 				break;
 			case 5:				/* <G>oto */
 				updatels(ipc);
@@ -2247,7 +2236,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				if (mcmd >= 100 && mcmd < (100+MAX_EDITORS))
 				{
 					/* entmsg mode >=2 select editor */
-					entmsg(ipc, 0, mcmd - 100 + 2);
+					entmsg(ipc, 0, mcmd - 100 + 2, 0);
 					break;
 				}
 			}	/* end switch */

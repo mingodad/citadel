@@ -129,11 +129,10 @@ struct CitContext {
 	int disable_exp;	/* Set to 1 to disable incoming pages */
 	int newmail;		/* Other sessions increment this */
 
-	/* Masquerade... */
-	char fake_username[USERNAME_SIZE];	/* Fake username <bc> */ 
-	char fake_postname[USERNAME_SIZE];	/* Fake postname <bc> */
-	char fake_hostname[64];			/* Fake hostname <bc> */
-	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
+	/* Masqueraded values in the 'who is online' list */
+	char fake_username[USERNAME_SIZE];
+	char fake_hostname[64];
+	char fake_roomname[ROOMNAMELEN];
 
 	char preferred_formats[256];		/* Preferred MIME formats */
 
