@@ -1,3 +1,9 @@
+citadel (7.05-1) stable; urgency=low
+
+  * Citadel 7.05 release
+
+ -- Art Cancro <ajc@uncensored.citadel.org> Thu, 22 Feb 2007 06:12:00 -0500
+
 citadel (7.03-7) unstable; urgency=high
 
   * fixup @'s in usernames when doing smtpauth client

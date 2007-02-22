@@ -876,6 +876,22 @@ EOH:	CtdlFreeMessage(msg);
 
 
 /*
+ * Get Valid Screen Names
+ */
+void cmd_gvsn(char *argbuf)
+{
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	cprintf("%d valid screen names:\n", LISTING_FOLLOWS);
+	cprintf("%s\n", CC->user.fullname);
+	if ( (strlen(CC->cs_inet_fn) > 0) && (strcasecmp(CC->user.fullname, CC->cs_inet_fn)) ) {
+		cprintf("%s\n", CC->cs_inet_fn);
+	}
+	cprintf("000\n");
+}
+
+
+/*
  * Query Directory
  */
 void cmd_qdir(char *argbuf) {
@@ -1193,6 +1209,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterProtoHook(cmd_igab, "IGAB",
 					"Initialize Global Address Book");
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
+	CtdlRegisterProtoHook(cmd_gvsn, "GVSN", "Get Valid Screen Names");
 	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
