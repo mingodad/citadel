@@ -1092,20 +1092,29 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	sock = (-1);
 	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
+		char *endpart;
 		extract_token(buf, mxhosts, mx, '|', sizeof buf);
 		strcpy(mx_user, "");
 		strcpy(mx_pass, "");
 		if (num_tokens(buf, '@') > 1) {
-			extract_token(mx_user, buf, 0, '@', sizeof mx_user);
-			if (num_tokens(mx_user, ':') > 1) {
-				extract_token(mx_pass, mx_user, 1, ':', sizeof mx_pass);
-				remove_token(mx_user, 1, ':');
+			strcpy (mx_user, buf);
+			endpart = strrchr(mx_user, '@');
+			*endpart = '\0';
+			strcpy (mx_host, endpart + 1);
+			endpart = strrchr(mx_user, ':');
+			if (endpart != NULL) {
+				strcpy(mx_pass, endpart+1);
+				*endpart = '\0';
 			}
-			remove_token(buf, 0, '@');
 		}
-		extract_token(mx_host, buf, 0, ':', sizeof mx_host);
-		extract_token(mx_port, buf, 1, ':', sizeof mx_port);
-		if (!mx_port[0]) {
+		else
+			strcpy (mx_host, buf);
+		endpart = strrchr(mx_host, ':');
+		if (endpart != 0){
+			*endpart = '\0';
+			strcpy(mx_port, endpart + 1);
+		}		
+		else {
 			strcpy(mx_port, "25");
 		}
 		lprintf(CTDL_DEBUG, "Trying %s : %s ...\n", mx_host, mx_port);

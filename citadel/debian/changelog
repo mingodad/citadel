@@ -1,3 +1,16 @@
+citadel (7.03-7) unstable; urgency=high
+
+  * fixup @'s in usernames when doing smtpauth client
+  * ignore returns from db_input
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 07 Feb 2007 00:12:00 +0100
+
+citadel (7.03-7) unstable; urgency=high
+
+  * fixup in quoted printable decoder
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 07 Feb 2007 00:12:00 +0100
+
 citadel (7.03-6) unstable; urgency=high
 
   * fixup in quoted printable decoder
