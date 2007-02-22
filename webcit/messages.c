@@ -2657,8 +2657,11 @@ void post_message(void)
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
+	char *display_name;
 
-	if (!strcasecmp(bstr("is_anonymous"), "yes")) {
+	display_name = bstr("display_name");
+	if (!strcmp(display_name, "__ANONYMOUS__")) {
+		display_name = "";
 		is_anonymous = 1;
 	}
 
@@ -2717,10 +2720,11 @@ void post_message(void)
 			"saved this message."));
 	} else {
 		rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
-		sprintf(buf, "ENT0 1|%s|%d|4|%s|||%s|%s|%s",
+		sprintf(buf, "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s",
 			bstr("recp"),
 			is_anonymous,
 			encoded_subject,
+			display_name,
 			bstr("cc"),
 			bstr("bcc"),
 			bstr("wikipage")
@@ -2781,6 +2785,7 @@ void display_enter(void)
 	char buf[SIZ];
 	char ebuf[SIZ];
 	long now;
+	char *display_name;
 	struct wc_attachment *att;
 	int recipient_required = 0;
 	int recipient_bad = 0;
@@ -2794,7 +2799,9 @@ void display_enter(void)
 		gotoroom(bstr("force_room"));
 	}
 
-	if (!strcasecmp(bstr("is_anonymous"), "yes")) {
+	display_name = bstr("display_name");
+	if (!strcmp(display_name, "__ANONYMOUS__")) {
+		display_name = "";
 		is_anonymous = 1;
 	}
 
@@ -2853,7 +2860,10 @@ void display_enter(void)
 
 	/** Now check our actual recipients if there are any */
 	if (recipient_required) {
-		sprintf(buf, "ENT0 0|%s|%d|0||||%s|%s|%s", bstr("recp"), is_anonymous,
+		sprintf(buf, "ENT0 0|%s|%d|0||%s||%s|%s|%s",
+			bstr("recp"),
+			is_anonymous,
+			display_name,
 			bstr("cc"), bstr("bcc"), bstr("wikipage"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
@@ -2892,17 +2902,34 @@ void display_enter(void)
 	wprintf("%s ", buf);
 
 	wprintf(_(" <I>from</I> "));
-	escputs(WC->wc_fullname);
-	wprintf(_(" <I>in</I> "));
-	escputs(WC->wc_roomname);
+
+	wprintf("<select name=\"display_name\" size=1>\n");
+
+	serv_puts("GVSN");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			wprintf("<option %s value=\"",
+				((!strcasecmp(bstr("display_name"), buf)) ? "selected" : "")
+			);
+			escputs(buf);
+			wprintf("\">");
+			escputs(buf);
+			wprintf("</option>\n");
+		}
+	}
 
 	if (WC->room_flags & QR_ANONOPT) {
-		wprintf("&nbsp;"
-			"<input type=\"checkbox\" name=\"is_anonymous\" value=\"yes\" %s>",
-				(is_anonymous ? "checked" : "")
+		wprintf("<option %s value=\"__ANONYMOUS__\">%s</option>\n",
+			((!strcasecmp(bstr("__ANONYMOUS__"), WC->wc_fullname)) ? "selected" : ""),
+			_("Anonymous")
 		);
-		wprintf("Anonymous");
 	}
+
+	wprintf("</select>\n");
+
+	wprintf(_(" <I>in</I> "));
+	escputs(WC->wc_roomname);
 	wprintf("<br>\n");	/** header bar */
 
 	wprintf("<table border=\"0\" width=\"100%%\">\n");
