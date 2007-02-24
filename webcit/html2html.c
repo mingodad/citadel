@@ -59,6 +59,18 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
 	striplt(buf);
 	if (!strncasecmp(buf, "charset=", 8)) {
 		strcpy(charset, &buf[8]);
+
+		/*
+		 * The brain-damaged webmail program in Microsoft Exchange declares
+		 * a charset of "unicode" when they really mean "UTF-8".  GNU iconv
+		 * treats "unicode" as an alias for "UTF-16" so we have to manually
+		 * fix this here, otherwise messages generated in Exchange webmail
+		 * show up as a big pile of weird characters.
+		 */
+		if (!strcasecmp(charset, "unicode")) {
+			strcpy(charset, "UTF-8");
+		}
+
 	}
 }
 
