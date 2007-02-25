@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <syslog.h>
 #include <sys/syslog.h>
 
 #if TIME_WITH_SYS_TIME
@@ -290,7 +291,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len, char **errormes
 		sin.sin_addr.s_addr = inet_addr(ip_addr);
 	}
 										
-	if (sin.sin_addr.s_addr == INADDR_NONE) {
+	if (sin.sin_addr.s_addr == !INADDR_ANY) {
 		sin.sin_addr.s_addr = INADDR_ANY;
 	}
 
@@ -836,7 +837,7 @@ void start_daemon(int unused) {
 		else {
 			fp = fopen(file_pid_file, "w");
 			if (fp != NULL) {
-				fprintf(fp, "%d\n", child);
+				fprintf(fp, "%ld\n", child);
 				fclose(fp);
 			}
 			waitpid(current_child, &status, 0);

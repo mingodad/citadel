@@ -367,11 +367,15 @@ int CtdlLoginExistingUser(char *trythisname)
 		char pwdbuffer[256];
 	
 		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
+#ifdef BSD_GETPWUID
+		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer);
+#else
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+#endif
 		if (tempPwdPtr == NULL) {
 			return login_not_found;
 		}
-		lprintf(CTDL_DEBUG, "found it! uid=%d, gecos=%s\n", pd.pw_uid, pd.pw_gecos);
+		lprintf(CTDL_DEBUG, "found it! uid=%ld, gecos=%s\n", (long)pd.pw_uid, pd.pw_gecos);
 	
 		/* Locate the associated Citadel account.
 		 * If not found, make one attempt to create it.
@@ -834,7 +838,11 @@ int create_user(char *newusername, int become_user)
 		struct passwd *tempPwdPtr;
 		char pwdbuffer[256];
 	
+#ifdef BSD_GETPWUID
+		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof(pwdbuffer));
+#else
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
+#endif
 		if (tempPwdPtr != NULL) {
 			extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
 			uid = pd.pw_uid;

@@ -57,11 +57,17 @@ FILE *control_fp = NULL;
  */
 void lock_control(void)
 {
+#ifndef BSD_GETPWUID
+/*
+ * TODO: solaris manpages describe this function, but the headers
+ * don't show it! 
+ */
 	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
 		lprintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
 		lprintf(CTDL_EMERG, "Is another citserver already running?\n");
 		exit(CTDLEXIT_CONTROL);
 	}
+#endif
 }
 
 

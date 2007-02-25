@@ -55,7 +55,7 @@ void get_config(void) {
 	}
 #ifndef __CYGWIN__
 	if (st.st_uid != CTDLUID) {
-		fprintf(stderr, "%s must be owned by uid=%d but %d owns it!\n", file_citadel_config, CTDLUID, st.st_uid);
+		fprintf(stderr, "%s must be owned by uid=%ld but %ld owns it!\n", file_citadel_config, CTDLUID, st.st_uid);
 		exit(CTDLEXIT_CONFIG);
 	}
 	int desired_mode = (S_IFREG | S_IRUSR | S_IWUSR) ;

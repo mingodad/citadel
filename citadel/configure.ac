@@ -609,6 +609,22 @@ if test $ac_cv_struct_ut_type = yes; then
 	AC_DEFINE(HAVE_UT_TYPE)
 fi
 
+AC_CACHE_CHECK([for call semantics from getpwuid_r], ac_cv_call_getpwuid_r,
+[AC_TRY_COMPILE([#include <pwd.h>], [
+  struct passwd pw, *pwp = NULL;
+  char pwbuf[64];
+  uid_t uid;
+
+  getpwuid_r(uid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+
+],
+ac_cv_call_getpwuid_r=yes, ac_cv_call_getpwuid_r=no)])
+if test $ac_cv_call_getpwuid_r = no; then
+	AC_DEFINE(BSD_GETPWUID)
+fi
+
+
+
 AC_CACHE_CHECK([for ut_host in struct utmp], ac_cv_struct_ut_host,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <utmp.h>], [struct utmp ut; ut.ut_host;],

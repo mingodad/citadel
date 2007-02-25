@@ -64,3 +64,7 @@
 
 
 #undef EGD_POOL 
+
+
+/* check for the bsd style getpwuid_r */
+#undef BSD_GETPWUID
