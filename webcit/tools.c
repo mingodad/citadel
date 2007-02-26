@@ -516,10 +516,10 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 void generate_uuid(char *buf) {
 	static int seq = 0;
 
-	sprintf(buf, "%s-%lx-%x-%x",
+	sprintf(buf, "%s-%lx-%lx-%x",
 		serv_info.serv_nodename,
 		(long)time(NULL),
-		getpid(),
+		(long)getpid(),
 		(seq++)
 	);
 }
