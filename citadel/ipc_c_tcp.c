@@ -72,6 +72,8 @@ void connection_died(CtdlIPC* ipc, int using_ssl) {
 #endif
 	shutdown(ipc->sock, 2);
 	ipc->sock = -1;
+        printf ("About to exit because of dead socket.\n");
+        exit (1);
 }
 
 
