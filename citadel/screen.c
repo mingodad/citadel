@@ -33,8 +33,8 @@ static WINDOW *mainwindow = NULL;
 static WINDOW *statuswindow = NULL;
 
 char rc_screen;
-char arg_screen;
 #endif
+char arg_screen;
 
 extern int screenheight;
 extern int screenwidth;
@@ -109,6 +109,8 @@ void wait_indicator(int state) {
 		wrefresh(mainwindow);	/* this puts the cursor back */
 	}
 }
+#else
+void wait_indicator(int state) {}
 #endif
 
 
