@@ -519,7 +519,7 @@ void start_daemon(char *pid_file)
 			if (pid_file) {
 				fp = fopen(pid_file, "w");
 				if (fp != NULL) {
-					fprintf(fp, "%d\n", current_child);
+					fprintf(fp, "%ld\n", current_child);
 					fclose(fp);
 				}
 			}
