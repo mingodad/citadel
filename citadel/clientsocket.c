@@ -44,6 +44,13 @@ int sock_connect(char *host, char *service, char *protocol)
 	struct sockaddr_in sin;
 	int s, type;
 
+	if (host == NULL) return(-1);
+	if (strlen(host) == 0) return(-1);
+	if (service == NULL) return(-1);
+	if (strlen(service) == 0) return(-1);
+	if (protocol == NULL) return(-1);
+	if (strlen(protocol) == 0) return(-1);
+
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 
