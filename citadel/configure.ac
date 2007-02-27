@@ -610,8 +610,9 @@ if test $ac_cv_struct_ut_type = yes; then
 fi
 
 AC_CACHE_CHECK([for call semantics from getpwuid_r], ac_cv_call_getpwuid_r,
-[AC_TRY_COMPILE([#include <pwd.h>], [
-  struct passwd pw, *pwp = NULL;
+[AC_TRY_COMPILE([#include <sys/types.h>
+#include <pwd.h>], [
+  struct passwd pw, *pwp;
   char pwbuf[64];
   uid_t uid;
 
