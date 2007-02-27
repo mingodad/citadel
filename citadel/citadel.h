@@ -49,7 +49,7 @@ extern "C" {
  */
 #define REV_LEVEL	705		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	704		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	705		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -71,6 +71,11 @@ extern "C" {
  * Message expiration policy stuff
  */
 struct ExpirePolicy {
+/*
+#include "datadefinitions.h"
+#include "dtds/expirepolicy-defs.h"
+#include "undef_data.h"
+*/
 	int expire_mode;
 	int expire_value;
 };
@@ -87,6 +92,11 @@ struct ExpirePolicy {
  * relevant rooms without having to ask the server each time where to go next.
  */
 struct march {
+/*
+#include "datadefinitions.h"
+#include "dtds/march-defs.h"
+#include "undef_data.h"
+*/
 	struct march *next;
 	char march_name[ROOMNAMELEN];
 	unsigned int march_flags;
@@ -111,6 +121,11 @@ struct march {
  * User records.
  */
 struct ctdluser {			/* User record                      */
+/*
+#include "datadefinitions.h"
+#include "dtds/user-defs.h"
+#include "undef_data.h"
+*/
 	int version;			/* Cit vers. which created this rec */
 	uid_t uid;			/* Associate with a unix account?   */
 	char password[32];		/* password (for Citadel-only users)*/
@@ -137,21 +152,26 @@ struct ctdluser {			/* User record                      */
  * Room records.
  */
 struct ctdlroom {
-	char QRname[ROOMNAMELEN];	/* Name of room                     */
-	char QRpasswd[10];		/* Only valid if it's a private rm  */
-	long QRroomaide;		/* User number of room aide         */
-	long QRhighest;			/* Highest message NUMBER in room   */
-	time_t QRgen;			/* Generation number of room        */
-	unsigned QRflags;		/* See flag values below            */
-	char QRdirname[15];		/* Directory name, if applicable    */
-	long QRinfo;			/* Info file update relative to msgs*/
-	char QRfloor;			/* Which floor this room is on      */
-	time_t QRmtime;			/* Date/time of last post           */
-	struct ExpirePolicy QRep;	/* Message expiration policy        */
-	long QRnumber;			/* Globally unique room number      */
-	char QRorder;			/* Sort key for room listing order  */
-	unsigned QRflags2;		/* Additional flags                 */
-	int QRdefaultview;		/* How to display the contents      */
+/*
+#include "datadefinitions.h"
+#include "dtds/room-defs.h"
+#include "undef_data.h"
+*/
+ 	char QRname[ROOMNAMELEN];	/* Name of room                     */
+ 	char QRpasswd[10];		/* Only valid if it's a private rm  */
+ 	long QRroomaide;		/* User number of room aide         */
+ 	long QRhighest;			/* Highest message NUMBER in room   */
+ 	time_t QRgen;			/* Generation number of room        */
+ 	unsigned QRflags;		/* See flag values below            */
+ 	char QRdirname[15];		/* Directory name, if applicable    */
+ 	long QRinfo;			/* Info file update relative to msgs*/
+ 	char QRfloor;			/* Which floor this room is on      */
+ 	time_t QRmtime;			/* Date/time of last post           */
+ 	struct ExpirePolicy QRep;	/* Message expiration policy        */
+ 	long QRnumber;			/* Globally unique room number      */
+ 	char QRorder;			/* Sort key for room listing order  */
+ 	unsigned QRflags2;		/* Additional flags                 */
+ 	int QRdefaultview;		/* How to display the contents      */
 };
 
 /* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED
@@ -178,6 +198,11 @@ struct ctdlroom {
  * Floor record.  The floor number is implicit in its location in the file.
  */
 struct floor {
+/*
+#include "datadefinitions.h"
+#include "dtds/floor-defs.h"
+#include "undef_data.h"
+*/
 	unsigned short f_flags;		/* flags */
 	char f_name[256];		/* name of floor */
 	int f_ref_count;		/* reference count */

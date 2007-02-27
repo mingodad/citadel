@@ -51,21 +51,26 @@ char artv_tempfilename1[PATH_MAX];
 char artv_tempfilename2[PATH_MAX];
 FILE *artv_global_message_list;
 
-void artv_export_users_backend(struct ctdluser *usbuf, void *data) {
+void artv_export_users_backend(struct ctdluser *buf, void *data) {
 	cprintf("user\n");
-	cprintf("%d\n", usbuf->version);
-	cprintf("%ld\n", (long)usbuf->uid);
-	cprintf("%s\n", usbuf->password);
-	cprintf("%u\n", usbuf->flags);
-	cprintf("%ld\n", usbuf->timescalled);
-	cprintf("%ld\n", usbuf->posted);
-	cprintf("%d\n", usbuf->axlevel);
-	cprintf("%ld\n", usbuf->usernum);
-	cprintf("%ld\n", (long)usbuf->lastcall);
-	cprintf("%d\n", usbuf->USuserpurge);
-	cprintf("%s\n", usbuf->fullname);
-	cprintf("%d\n", usbuf->USscreenwidth);
-	cprintf("%d\n", usbuf->USscreenheight);
+/*
+#include "artv_serialize.h"
+#include "dtds/user-defs.h"
+#include "undef_data.h"
+*/
+	cprintf("%d\n", buf->version);
+	cprintf("%ld\n", (long)buf->uid);
+	cprintf("%s\n", buf->password);
+	cprintf("%u\n", buf->flags);
+	cprintf("%ld\n", buf->timescalled);
+	cprintf("%ld\n", buf->posted);
+	cprintf("%d\n", buf->axlevel);
+	cprintf("%ld\n", buf->usernum);
+	cprintf("%ld\n", (long)buf->lastcall);
+	cprintf("%d\n", buf->USuserpurge);
+	cprintf("%s\n", buf->fullname);
+	cprintf("%d\n", buf->USscreenwidth);
+	cprintf("%d\n", buf->USscreenheight);
 }
 
 
@@ -80,26 +85,36 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 }
 
 
-void artv_export_rooms_backend(struct ctdlroom *qrbuf, void *data) {
+void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("room\n");
-	cprintf("%s\n", qrbuf->QRname);
-	cprintf("%s\n", qrbuf->QRpasswd);
-	cprintf("%ld\n", qrbuf->QRroomaide);
-	cprintf("%ld\n", qrbuf->QRhighest);
-	cprintf("%ld\n", (long)qrbuf->QRgen);
-	cprintf("%u\n", qrbuf->QRflags);
-	cprintf("%s\n", qrbuf->QRdirname);
-	cprintf("%ld\n", qrbuf->QRinfo);
-	cprintf("%d\n", qrbuf->QRfloor);
-	cprintf("%ld\n", (long)qrbuf->QRmtime);
-	cprintf("%d\n", qrbuf->QRep.expire_mode);
-	cprintf("%d\n", qrbuf->QRep.expire_value);
-	cprintf("%ld\n", qrbuf->QRnumber);
-	cprintf("%d\n", qrbuf->QRorder);
-	cprintf("%u\n", qrbuf->QRflags2);
-	cprintf("%d\n", qrbuf->QRdefaultview);
+/*
+#include "artv_serialize.h"
+#include "dtds/room-defs.h"
+#include "undef_data.h"
+*/
+	cprintf("%s\n", buf->QRname);
+	cprintf("%s\n", buf->QRpasswd);
+	cprintf("%ld\n", buf->QRroomaide);
+	cprintf("%ld\n", buf->QRhighest);
+	cprintf("%ld\n", (long)buf->QRgen);
+	cprintf("%u\n", buf->QRflags);
+	cprintf("%s\n", buf->QRdirname);
+	cprintf("%ld\n", buf->QRinfo);
+	cprintf("%d\n", buf->QRfloor);
+	cprintf("%ld\n", (long)buf->QRmtime);
+	cprintf("%d\n", buf->QRep.expire_mode);
+	cprintf("%d\n", buf->QRep.expire_value);
+	cprintf("%ld\n", buf->QRnumber);
+	cprintf("%d\n", buf->QRorder);
+	cprintf("%u\n", buf->QRflags2);
+	cprintf("%d\n", buf->QRdefaultview);
 
-	getroom(&CC->room, qrbuf->QRname);
+	getroom(&CC->room, buf->QRname);
+	/* format of message list export is all message numbers output
+	 * one per line terminated by a 0.
+	 */
+//*/
+	getroom(&CC->room, buf->QRname);
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
@@ -133,18 +148,25 @@ void artv_export_rooms(void) {
 
 
 void artv_export_floors(void) {
-        struct floor flbuf;
+        struct floor qfbuf, *buf;
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
 		cprintf("floor\n");
 		cprintf("%d\n", i);
-                getfloor(&flbuf, i);
-		cprintf("%u\n", flbuf.f_flags);
-		cprintf("%s\n", flbuf.f_name);
-		cprintf("%d\n", flbuf.f_ref_count);
-		cprintf("%d\n", flbuf.f_ep.expire_mode);
-		cprintf("%d\n", flbuf.f_ep.expire_value);
+                getfloor(&qfbuf, i);
+		buf = &qfbuf;
+/*
+#include "artv_serialize.h"
+#include "dtds/floor-defs.h"
+#include "undef_data.h"
+/*/
+		cprintf("%u\n", buf->f_flags);
+		cprintf("%s\n", buf->f_name);
+		cprintf("%d\n", buf->f_ref_count);
+		cprintf("%d\n", buf->f_ep.expire_mode);
+		cprintf("%d\n", buf->f_ep.expire_value);
+//*/
 	}
 }
 
@@ -209,7 +231,7 @@ void artv_export_message(long msgnum) {
 
 	/* write it in base64 */
 	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "./base64 -e >%s", tempfile);
+	snprintf(buf, sizeof buf, "%sbase64 -e >%s", ctdl_sbin_dir, tempfile);
 	fp = popen(buf, "w");
 	fwrite(smr.ser, smr.len, 1, fp);
 	pclose(fp);
@@ -255,12 +277,20 @@ void artv_export_messages(void) {
 
 
 void artv_do_export(void) {
+	struct config *buf;
+	buf = &config;
 	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);
 
 	cprintf("version\n%d\n", REV_LEVEL);
 
 	/* export the config file */
 	cprintf("config\n");
+
+#include "artv_serialize.h"
+#include "dtds/config-defs.h"
+#include "undef_data.h"
+
+/*
 	cprintf("%s\n", config.c_nodename);
 	cprintf("%s\n", config.c_fqdn);
 	cprintf("%s\n", config.c_humannode);
@@ -325,7 +355,7 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_funambol_source);
 	cprintf("%s\n", config.c_funambol_auth);
 	cprintf("%d\n", config.c_rbl_at_greeting);
-
+*/
 	/* Export the control file */
 	get_control();
 	cprintf("control\n");
@@ -347,9 +377,17 @@ void artv_do_export(void) {
 
 
 void artv_import_config(void) {
-	char buf[SIZ];
+	char cbuf[SIZ];
+	struct config *buf;
+	buf = &config;
 
 	lprintf(CTDL_DEBUG, "Importing config file\n");
+
+#include "artv_deserialize.h"
+#include "dtds/config-defs.h"
+#include "undef_data.h"
+
+/*
 	client_getln(config.c_nodename, sizeof config.c_nodename);
 	client_getln(config.c_fqdn, sizeof config.c_fqdn);
 	client_getln(config.c_humannode, sizeof config.c_humannode);
@@ -414,7 +452,7 @@ void artv_import_config(void) {
 	client_getln(config.c_funambol_source, sizeof config.c_funambol_source);
 	client_getln(config.c_funambol_auth, sizeof config.c_funambol_auth);
 	client_getln(buf, sizeof buf);	config.c_rbl_at_greeting = atoi(buf);
-	
+*/
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
@@ -437,54 +475,69 @@ void artv_import_control(void) {
 
 
 void artv_import_user(void) {
-	char buf[SIZ];
-	struct ctdluser usbuf;
+	char cbuf[SIZ];
+	struct ctdluser usbuf, *buf;
+	buf = &usbuf;
+/*
+#include "artv_deserialize.h"
+#include "dtds/user-defs.h"
+#include "undef_data.h"
 
-	client_getln(buf, sizeof buf);	usbuf.version = atoi(buf);
-	client_getln(buf, sizeof buf);	usbuf.uid = atoi(buf);
-	client_getln(usbuf.password, sizeof usbuf.password);
-	client_getln(buf, sizeof buf);	usbuf.flags = atoi(buf);
-	client_getln(buf, sizeof buf);	usbuf.timescalled = atol(buf);
-	client_getln(buf, sizeof buf);	usbuf.posted = atol(buf);
-	client_getln(buf, sizeof buf);	usbuf.axlevel = atoi(buf);
-	client_getln(buf, sizeof buf);	usbuf.usernum = atol(buf);
-	client_getln(buf, sizeof buf);	usbuf.lastcall = atol(buf);
-	client_getln(buf, sizeof buf);	usbuf.USuserpurge = atoi(buf);
-	client_getln(usbuf.fullname, sizeof usbuf.fullname);
-	client_getln(buf, sizeof buf);	usbuf.USscreenwidth = atoi(buf);
-	client_getln(buf, sizeof buf);	usbuf.USscreenheight = atoi(buf);
-	putuser(&usbuf);
+/*/
+	client_getln(cbuf, sizeof cbuf);	buf->version = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->uid = atoi(cbuf);
+	client_getln(buf->password, sizeof buf->password);
+	client_getln(cbuf, sizeof cbuf);	buf->flags = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->timescalled = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->posted = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->axlevel = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->usernum = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->lastcall = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->USuserpurge = atoi(cbuf);
+	client_getln(buf->fullname, sizeof buf->fullname);
+	client_getln(cbuf, sizeof cbuf);	buf->USscreenwidth = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->USscreenheight = atoi(cbuf);
+//*/
+	putuser(buf);
 }
 
 
 void artv_import_room(void) {
-	char buf[SIZ];
-	struct ctdlroom qrbuf;
+	char cbuf[SIZ];
+	struct ctdlroom qrbuf, *buf;
 	long msgnum;
 	int msgcount = 0;
 
-	client_getln(qrbuf.QRname, sizeof qrbuf.QRname);
-	client_getln(qrbuf.QRpasswd, sizeof qrbuf.QRpasswd);
-	client_getln(buf, sizeof buf);	qrbuf.QRroomaide = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRhighest = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRgen = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRflags = atoi(buf);
-	client_getln(qrbuf.QRdirname, sizeof qrbuf.QRdirname);
-	client_getln(buf, sizeof buf);	qrbuf.QRinfo = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRfloor = atoi(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRmtime = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRep.expire_mode = atoi(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRep.expire_value = atoi(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRnumber = atol(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRorder = atoi(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRflags2 = atoi(buf);
-	client_getln(buf, sizeof buf);	qrbuf.QRdefaultview = atoi(buf);
-	putroom(&qrbuf);
+	buf = &qrbuf;
+/*
+#include "artv_deserialize.h"
+#include "dtds/room-defs.h"
+#include "undef_data.h"
+
+/*/
+	client_getln(buf->QRname, sizeof buf->QRname);
+	client_getln(buf->QRpasswd, sizeof buf->QRpasswd);
+	client_getln(cbuf, sizeof cbuf);	buf->QRroomaide = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRhighest = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRgen = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRflags = atoi(cbuf);
+	client_getln(buf->QRdirname, sizeof buf->QRdirname);
+	client_getln(cbuf, sizeof cbuf);	buf->QRinfo = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRfloor = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRmtime = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRep.expire_mode = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRep.expire_value = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRnumber = atol(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRorder = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRflags2 = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->QRdefaultview = atoi(cbuf);
+//*/
+	putroom(buf);
 	lprintf(CTDL_INFO, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	while (client_getln(buf, sizeof buf), msgnum = atol(buf), msgnum > 0) {
+	while (client_getln(cbuf, sizeof cbuf), msgnum = atol(cbuf), msgnum > 0) {
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0, NULL);
 		++msgcount;
 	}
@@ -493,17 +546,25 @@ void artv_import_room(void) {
 
 
 void artv_import_floor(void) {
-        struct floor flbuf;
+        struct floor flbuf, *buf;
         int i;
-	char buf[SIZ];
+	char cbuf[SIZ];
 
-	client_getln(buf, sizeof buf);	i = atoi(buf);
-	client_getln(buf, sizeof buf);	flbuf.f_flags = atoi(buf);
-	client_getln(flbuf.f_name, sizeof flbuf.f_name);
-	client_getln(buf, sizeof buf);	flbuf.f_ref_count = atoi(buf);
-	client_getln(buf, sizeof buf);	flbuf.f_ep.expire_mode = atoi(buf);
-	client_getln(buf, sizeof buf);	flbuf.f_ep.expire_value = atoi(buf);
-	putfloor(&flbuf, i);
+	buf = & flbuf;
+	memset(buf, 0, sizeof(buf));
+	client_getln(cbuf, sizeof cbuf);	i = atoi(cbuf);
+/*
+#include "artv_deserialize.h"
+#include "dtds/floor-defs.h"
+#include "undef_data.h"
+/*/
+	client_getln(cbuf, sizeof cbuf);	buf->f_flags = atoi(cbuf);
+	client_getln(buf->f_name, sizeof buf->f_name);
+	client_getln(cbuf, sizeof cbuf);	buf->f_ref_count = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->f_ep.expire_mode = atoi(cbuf);
+	client_getln(cbuf, sizeof cbuf);	buf->f_ep.expire_value = atoi(cbuf);
+//*/
+	putfloor(buf, i);
 	lprintf(CTDL_INFO, "Imported floor #%d (%s)\n", i, flbuf.f_name);
 }
 
@@ -554,7 +615,7 @@ void artv_import_message(void) {
 
 	/* decode base64 message text */
 	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "./base64 -d >%s", tempfile);
+	snprintf(buf, sizeof buf, "%sbase64 -d >%s", ctdl_sbin_dir, tempfile);
 	fp = popen(buf, "w");
 	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);
