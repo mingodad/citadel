@@ -61,7 +61,9 @@ void download_file(char *filename)
 	off_t bytes;
 	char content_type[256];
 	char *content = NULL;
-	int force_download = 0;
+
+	/* Setting to nonzero forces a MIME type of application/octet-stream */
+	int force_download = 1;
 	
 	serv_printf("OPEN %s", filename);
 	serv_getln(buf, sizeof buf);
