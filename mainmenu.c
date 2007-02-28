@@ -87,6 +87,16 @@ void display_main_menu(void)
 	wprintf(_("(post in this room)"));
 	wprintf("</span>\n");
 
+	if (WC->room_flags & QR_VISDIR) {
+		wprintf("<br /><a href=\"display_room_directory\">"
+			"<span class=\"mainmenu\">");
+		wprintf(_("File library"));
+		wprintf("</span></A><br />"
+			"<span class=\"menudesc\">");
+		wprintf(_("(List files available for download)"));
+		wprintf("</span>\n");
+	}
+
 	wprintf("</TD><TD>");	/* start of third column */
 
 	wprintf("<a href=\"summary\">"
