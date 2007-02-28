@@ -1656,6 +1656,10 @@ void session_loop(struct httprequest *req)
 		wDumpContent(1);
 	} else if (!strcasecmp(action, "updatenote")) {
 		updatenote();
+	} else if (!strcasecmp(action, "display_room_directory")) {
+		display_room_directory();
+	} else if (!strcasecmp(action, "download_file")) {
+		download_file(index[1]);
 	}
 
 	/** When all else fais, display the main menu. */

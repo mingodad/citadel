@@ -705,7 +705,7 @@ div.auto_complete ul strong.highlight {
         background-color: #ffffff;
 }
 
-.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .vcard_edit_background, .who_background   {
+.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .who_background   {
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -723,7 +723,7 @@ div.auto_complete ul strong.highlight {
         background-color: #444455;
 }
 
-.smtpqueue_banner, .summary_banner, .useredit_banner, .userlist_banner, .vcard_edit_banner, .who_banner, .room_banner   {
+.smtpqueue_banner, .summary_banner, .useredit_banner, .userlist_banner, .downloads_banner, .vcard_edit_banner, .who_banner, .room_banner   {
         border: 0;
         width: 100%;
         background-color: #444455;
