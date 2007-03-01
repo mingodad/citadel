@@ -50,7 +50,31 @@ void display_room_directory(void)
 		wprintf("</tr>\n");
 	}
 
-	wprintf("</table></div>\n");
+	wprintf("</table>\n");
+
+	/** Now offer the ability to upload files... */
+	if (WC->room_flags & QR_UPLOAD)
+	{
+		wprintf("<hr>");
+		wprintf("<form "
+			"enctype=\"multipart/form-data\" "
+			"method=\"POST\" "
+			"accept-charset=\"UTF-8\" "
+			"action=\"upload_file\" "
+			"name=\"upload_file_form\""
+			">\n"
+		);
+
+		wprintf(_("Upload a file:"));
+		wprintf("&nbsp;<input NAME=\"filename\" SIZE=16 TYPE=\"file\">&nbsp;\n");
+		wprintf(_("Description:"));
+		wprintf("&nbsp;<input type=\"text\" name=\"description\" maxlength=\"64\" size=\"64\">&nbsp;");
+		wprintf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Upload"));
+
+		wprintf("</form>\n");
+	}
+
+	wprintf("</div>\n");
 	wDumpContent(1);
 }
 
@@ -92,3 +116,42 @@ void download_file(char *filename)
 
 }
 
+
+
+void upload_file(void)
+{
+	char buf[1024];
+	size_t bytes_transmitted = 0;
+	size_t blocksize;
+
+	serv_printf("UOPN %s|%s", WC->upload_filename, bstr("description"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2')
+	{
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_room_directory();
+		return;
+	}
+
+	while (bytes_transmitted < WC->upload_length)
+	{
+		blocksize = 4096;
+		if (blocksize > (WC->upload_length - bytes_transmitted))
+		{
+			blocksize = (WC->upload_length - bytes_transmitted);
+		}
+		serv_printf("WRIT %d", blocksize);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '7')
+		{
+			blocksize = atoi(&buf[4]);
+			serv_write(&WC->upload[bytes_transmitted], blocksize);
+			bytes_transmitted += blocksize;
+		}
+	}
+
+	serv_puts("UCLS 1");
+	serv_getln(buf, sizeof buf);
+	strcpy(WC->ImportantMessage, &buf[4]);
+	display_room_directory();
+}

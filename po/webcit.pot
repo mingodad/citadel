@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-21 23:24-0500\n"
+"POT-Creation-Date: 2007-03-01 00:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,7 +103,7 @@ msgstr ""
 msgid "Close window"
 msgstr ""
 
-#: ../auth.c:334 ../mainmenu.c:251
+#: ../auth.c:334 ../mainmenu.c:261
 msgid "Validate new users"
 msgstr ""
 
@@ -120,7 +120,7 @@ msgstr ""
 msgid "Select access level for this user:"
 msgstr ""
 
-#: ../auth.c:466 ../mainmenu.c:137
+#: ../auth.c:466 ../mainmenu.c:147
 msgid "Change your password"
 msgstr ""
 
@@ -137,8 +137,8 @@ msgid "Change password"
 msgstr ""
 
 #: ../auth.c:506 ../calendar.c:616 ../event.c:390 ../graphics.c:58
-#: ../iconbar.c:707 ../mainmenu.c:310 ../messages.c:2967 ../messages.c:3089
-#: ../messages.c:3199 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
+#: ../iconbar.c:707 ../mainmenu.c:320 ../messages.c:2994 ../messages.c:3116
+#: ../messages.c:3226 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1319 ../roomops.c:1647 ../roomops.c:2080
 #: ../roomops.c:2229 ../roomops.c:2293 ../sieve.c:179 ../siteconfig.c:655
 #: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
@@ -223,7 +223,7 @@ msgstr ""
 msgid "Ending date/time:"
 msgstr ""
 
-#: ../calendar.c:201 ../calendar.c:596
+#: ../calendar.c:201 ../calendar.c:596 ../downloads.c:70
 msgid "Description:"
 msgstr ""
 
@@ -441,6 +441,36 @@ msgstr ""
 msgid "Date due"
 msgstr ""
 
+#: ../downloads.c:19
+#, c-format
+msgid "Files available for download in %s"
+msgstr ""
+
+#: ../downloads.c:29
+msgid "Filename"
+msgstr ""
+
+#: ../downloads.c:30
+msgid "Size"
+msgstr ""
+
+#: ../downloads.c:31
+msgid "Description"
+msgstr ""
+
+#: ../downloads.c:68
+msgid "Upload a file:"
+msgstr ""
+
+#: ../downloads.c:72 ../graphics.c:54
+msgid "Upload"
+msgstr ""
+
+#: ../downloads.c:114
+#, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr ""
+
 #: ../event.c:76
 msgid "Add or edit an event"
 msgstr ""
@@ -562,10 +592,6 @@ msgstr ""
 msgid "Please select a file to upload:"
 msgstr ""
 
-#: ../graphics.c:54
-msgid "Upload"
-msgstr ""
-
 #: ../graphics.c:56
 msgid "Reset form"
 msgstr ""
@@ -578,7 +604,7 @@ msgstr ""
 msgid "You didn't upload a file."
 msgstr ""
 
-#: ../html2html.c:110
+#: ../html2html.c:122
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
@@ -672,7 +698,7 @@ msgid "Administration"
 msgstr ""
 
 #: ../iconbar.c:305 ../iconbar.c:314 ../iconbar.c:397 ../iconbar.c:406
-#: ../mainmenu.c:110
+#: ../mainmenu.c:120
 msgid "Log off"
 msgstr ""
 
@@ -947,144 +973,152 @@ msgstr ""
 msgid "(post in this room)"
 msgstr ""
 
-#: ../mainmenu.c:94
+#: ../mainmenu.c:93
+msgid "File library"
+msgstr ""
+
+#: ../mainmenu.c:96
+msgid "(List files available for download)"
+msgstr ""
+
+#: ../mainmenu.c:104
 msgid "Summary page"
 msgstr ""
 
-#: ../mainmenu.c:97
+#: ../mainmenu.c:107
 msgid "Summary of my account"
 msgstr ""
 
-#: ../mainmenu.c:102
+#: ../mainmenu.c:112
 msgid "User list"
 msgstr ""
 
-#: ../mainmenu.c:105
+#: ../mainmenu.c:115
 msgid "(all registered users)"
 msgstr ""
 
-#: ../mainmenu.c:113
+#: ../mainmenu.c:123
 msgid "Bye!"
 msgstr ""
 
-#: ../mainmenu.c:122
+#: ../mainmenu.c:132
 msgid "Your info"
 msgstr ""
 
-#: ../mainmenu.c:127
+#: ../mainmenu.c:137
 msgid "Change your preferences and settings"
 msgstr ""
 
-#: ../mainmenu.c:132
+#: ../mainmenu.c:142
 msgid "Update your contact information"
 msgstr ""
 
-#: ../mainmenu.c:142
+#: ../mainmenu.c:152
 msgid "Enter your 'bio'"
 msgstr ""
 
-#: ../mainmenu.c:147
+#: ../mainmenu.c:157
 msgid "Edit your online photo"
 msgstr ""
 
-#: ../mainmenu.c:152 ../sieve.c:79
+#: ../mainmenu.c:162 ../sieve.c:79
 msgid "View/edit server-side mail filters"
 msgstr ""
 
-#: ../mainmenu.c:159
+#: ../mainmenu.c:169
 msgid "Advanced room commands"
 msgstr ""
 
-#: ../mainmenu.c:165
+#: ../mainmenu.c:175
 msgid "Edit or delete this room"
 msgstr ""
 
-#: ../mainmenu.c:171
+#: ../mainmenu.c:181
 msgid "Go to a 'hidden' room"
 msgstr ""
 
-#: ../mainmenu.c:176 ../roomops.c:1976
+#: ../mainmenu.c:186 ../roomops.c:1976
 msgid "Create a new room"
 msgstr ""
 
-#: ../mainmenu.c:181
+#: ../mainmenu.c:191
 #, c-format
 msgid "Zap (forget) this room (%s)"
 msgstr ""
 
-#: ../mainmenu.c:186
+#: ../mainmenu.c:196
 msgid "List all forgotten rooms"
 msgstr ""
 
-#: ../mainmenu.c:205
+#: ../mainmenu.c:215
 msgid "System Administration Menu"
 msgstr ""
 
-#: ../mainmenu.c:214
+#: ../mainmenu.c:224
 msgid "Global Configuration"
 msgstr ""
 
-#: ../mainmenu.c:219
+#: ../mainmenu.c:229
 msgid "Edit site-wide configuration"
 msgstr ""
 
-#: ../mainmenu.c:224
+#: ../mainmenu.c:234
 msgid "Domain names and Internet mail configuration"
 msgstr ""
 
-#: ../mainmenu.c:229
+#: ../mainmenu.c:239
 msgid "Configure replication with other Citadel servers"
 msgstr ""
 
-#: ../mainmenu.c:234 ../smtpqueue.c:230
+#: ../mainmenu.c:244 ../smtpqueue.c:230
 msgid "View the outbound SMTP queue"
 msgstr ""
 
-#: ../mainmenu.c:241
+#: ../mainmenu.c:251
 msgid "User account management"
 msgstr ""
 
-#: ../mainmenu.c:246
+#: ../mainmenu.c:256
 msgid "Add, change, delete user accounts"
 msgstr ""
 
-#: ../mainmenu.c:256
+#: ../mainmenu.c:266
 msgid "Rooms and Floors"
 msgstr ""
 
-#: ../mainmenu.c:261
+#: ../mainmenu.c:271
 msgid "Add, change, or delete floors"
 msgstr ""
 
-#: ../mainmenu.c:283
+#: ../mainmenu.c:293
 msgid "Enter a server command"
 msgstr ""
 
-#: ../mainmenu.c:292
+#: ../mainmenu.c:302
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
 "will not be of much use to you."
 msgstr ""
 
-#: ../mainmenu.c:299
+#: ../mainmenu.c:309
 msgid "Enter command:"
 msgstr ""
 
-#: ../mainmenu.c:302
+#: ../mainmenu.c:312
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr ""
 
-#: ../mainmenu.c:306
+#: ../mainmenu.c:316
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr ""
 
-#: ../mainmenu.c:308
+#: ../mainmenu.c:318
 msgid "Send command"
 msgstr ""
 
-#: ../mainmenu.c:337
+#: ../mainmenu.c:347
 msgid "Server command results"
 msgstr ""
 
@@ -1140,7 +1174,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: ../messages.c:877 ../messages.c:2924
+#: ../messages.c:877 ../messages.c:2951
 msgid "CC:"
 msgstr ""
 
@@ -1164,7 +1198,7 @@ msgstr ""
 msgid "Forward"
 msgstr ""
 
-#: ../messages.c:956 ../messages.c:3197
+#: ../messages.c:956 ../messages.c:3224
 msgid "Move"
 msgstr ""
 
@@ -1234,80 +1268,84 @@ msgstr ""
 msgid "of %d messages."
 msgstr ""
 
-#: ../messages.c:2710
+#: ../messages.c:2713
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr ""
 
-#: ../messages.c:2716
+#: ../messages.c:2719
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 
-#: ../messages.c:2736
+#: ../messages.c:2740
 #, c-format
 msgid "Message has been sent.\n"
 msgstr ""
 
-#: ../messages.c:2739
+#: ../messages.c:2743
 #, c-format
 msgid "Message has been posted.\n"
 msgstr ""
 
-#: ../messages.c:2894
+#: ../messages.c:2904
 msgid " <I>from</I> "
 msgstr ""
 
-#: ../messages.c:2896
+#: ../messages.c:2925
+msgid "Anonymous"
+msgstr ""
+
+#: ../messages.c:2931
 msgid " <I>in</I> "
 msgstr ""
 
-#: ../messages.c:2913
+#: ../messages.c:2940
 msgid "To:"
 msgstr ""
 
-#: ../messages.c:2935
+#: ../messages.c:2962
 msgid "BCC:"
 msgstr ""
 
-#: ../messages.c:2953
+#: ../messages.c:2980
 msgid "Subject (optional):"
 msgstr ""
 
-#: ../messages.c:2962 ../messages.c:3084 ../paging.c:53
+#: ../messages.c:2989 ../messages.c:3111 ../paging.c:53
 msgid "Send message"
 msgstr ""
 
-#: ../messages.c:2964 ../messages.c:3086
+#: ../messages.c:2991 ../messages.c:3113
 msgid "Post message"
 msgstr ""
 
-#: ../messages.c:2980
+#: ../messages.c:3007
 msgid "--- forwarded message ---"
 msgstr ""
 
-#: ../messages.c:3061
+#: ../messages.c:3088
 msgid "Attachments:"
 msgstr ""
 
-#: ../messages.c:3076
+#: ../messages.c:3103
 msgid "Attach file:"
 msgstr ""
 
-#: ../messages.c:3079 ../roomops.c:1511 ../roomops.c:1541
+#: ../messages.c:3106 ../roomops.c:1511 ../roomops.c:1541
 msgid "Add"
 msgstr ""
 
-#: ../messages.c:3144
+#: ../messages.c:3171
 #, c-format
 msgid "The message was not moved."
 msgstr ""
 
-#: ../messages.c:3170
+#: ../messages.c:3197
 msgid "Confirm move of message"
 msgstr ""
 
-#: ../messages.c:3177
+#: ../messages.c:3204
 msgid "Move this message to:"
 msgstr ""
 

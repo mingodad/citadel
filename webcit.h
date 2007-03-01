@@ -643,6 +643,7 @@ void initialize_axdefs(void);
 void list_all_rooms_by_floor(char *viewpref);
 void display_room_directory(void);
 void download_file(char *);
+void upload_file(void);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);
