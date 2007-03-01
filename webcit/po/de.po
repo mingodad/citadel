@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-21 23:24-0500\n"
+"POT-Creation-Date: 2007-03-01 00:37-0500\n"
 "PO-Revision-Date: 2007-02-18 10:42+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
@@ -119,7 +119,7 @@ msgstr "Erneut Anmelden"
 msgid "Close window"
 msgstr "Fenster Schließen"
 
-#: ../auth.c:334 ../mainmenu.c:251
+#: ../auth.c:334 ../mainmenu.c:261
 msgid "Validate new users"
 msgstr "Neue Benutzer überprüfen"
 
@@ -136,7 +136,7 @@ msgstr "Aktuelle Berechtigungen: %d (%s)\n"
 msgid "Select access level for this user:"
 msgstr "Berechtigungen dieses Benutzers"
 
-#: ../auth.c:466 ../mainmenu.c:137
+#: ../auth.c:466 ../mainmenu.c:147
 msgid "Change your password"
 msgstr "Ändern Sie Ihr Passwort"
 
@@ -153,8 +153,8 @@ msgid "Change password"
 msgstr "Passwort ändern"
 
 #: ../auth.c:506 ../calendar.c:616 ../event.c:390 ../graphics.c:58
-#: ../iconbar.c:707 ../mainmenu.c:310 ../messages.c:2967 ../messages.c:3089
-#: ../messages.c:3199 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
+#: ../iconbar.c:707 ../mainmenu.c:320 ../messages.c:2994 ../messages.c:3116
+#: ../messages.c:3226 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
 #: ../preferences.c:389 ../roomops.c:1319 ../roomops.c:1647 ../roomops.c:2080
 #: ../roomops.c:2229 ../roomops.c:2293 ../sieve.c:179 ../siteconfig.c:655
 #: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
@@ -249,7 +249,7 @@ msgstr "Startzeit/Datum:"
 msgid "Ending date/time:"
 msgstr "Endzeit/Datum:"
 
-#: ../calendar.c:201 ../calendar.c:596
+#: ../calendar.c:201 ../calendar.c:596 ../downloads.c:70
 msgid "Description:"
 msgstr "Beschreibung"
 
@@ -476,6 +476,39 @@ msgstr "Name der Aufgaben"
 msgid "Date due"
 msgstr "Fälligkeitsdatum"
 
+#: ../downloads.c:19
+#, c-format
+msgid "Files available for download in %s"
+msgstr ""
+
+#: ../downloads.c:29
+#, fuzzy
+msgid "Filename"
+msgstr "Etagen Name"
+
+#: ../downloads.c:30
+msgid "Size"
+msgstr ""
+
+#: ../downloads.c:31
+#, fuzzy
+msgid "Description"
+msgstr "Beschreibung"
+
+#: ../downloads.c:68
+#, fuzzy
+msgid "Upload a file:"
+msgstr "Hochladen erlaubt"
+
+#: ../downloads.c:72 ../graphics.c:54
+msgid "Upload"
+msgstr "Hochladen"
+
+#: ../downloads.c:114
+#, fuzzy, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr "Ein Fehler trat in diesem Teil auf: %s\n"
+
 #: ../event.c:76
 msgid "Add or edit an event"
 msgstr "Ereignis hinzufügen oder ändern"
@@ -599,10 +632,6 @@ msgstr ""
 msgid "Please select a file to upload:"
 msgstr "Bitte geben Sie eine Datei zum hochladen an:"
 
-#: ../graphics.c:54
-msgid "Upload"
-msgstr "Hochladen"
-
 #: ../graphics.c:56
 msgid "Reset form"
 msgstr "Formular Löschen"
@@ -615,7 +644,7 @@ msgstr "Bild hochladen abgebrochen."
 msgid "You didn't upload a file."
 msgstr "Sie haben keine Datei hochgeladen."
 
-#: ../html2html.c:110
+#: ../html2html.c:122
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "realloc() Fehler! Konnte %d Bytes nicht allozieren: %s"
@@ -711,7 +740,7 @@ msgid "Administration"
 msgstr "Verwaltung"
 
 #: ../iconbar.c:305 ../iconbar.c:314 ../iconbar.c:397 ../iconbar.c:406
-#: ../mainmenu.c:110
+#: ../mainmenu.c:120
 msgid "Log off"
 msgstr "Abmelden"
 
@@ -993,120 +1022,128 @@ msgstr "Beitrag verfassen"
 msgid "(post in this room)"
 msgstr "(Beitrag in diesen Raum stellen)"
 
-#: ../mainmenu.c:94
+#: ../mainmenu.c:93
+msgid "File library"
+msgstr ""
+
+#: ../mainmenu.c:96
+msgid "(List files available for download)"
+msgstr ""
+
+#: ../mainmenu.c:104
 msgid "Summary page"
 msgstr "Übersichtsseite"
 
-#: ../mainmenu.c:97
+#: ../mainmenu.c:107
 msgid "Summary of my account"
 msgstr "Meine Citadele"
 
-#: ../mainmenu.c:102
+#: ../mainmenu.c:112
 msgid "User list"
 msgstr "Benutzerliste"
 
-#: ../mainmenu.c:105
+#: ../mainmenu.c:115
 msgid "(all registered users)"
 msgstr "(alle Benutzer)"
 
-#: ../mainmenu.c:113
+#: ../mainmenu.c:123
 msgid "Bye!"
 msgstr "Auf Wiedersehen!"
 
-#: ../mainmenu.c:122
+#: ../mainmenu.c:132
 msgid "Your info"
 msgstr "Ihre Biographie"
 
-#: ../mainmenu.c:127
+#: ../mainmenu.c:137
 msgid "Change your preferences and settings"
 msgstr "Ihre persönlichen Einstellungen Ändern"
 
-#: ../mainmenu.c:132
+#: ../mainmenu.c:142
 msgid "Update your contact information"
 msgstr "Ihre Kontaktinformationen Ändern"
 
-#: ../mainmenu.c:142
+#: ../mainmenu.c:152
 msgid "Enter your 'bio'"
 msgstr "Ihr Lebenslauf eingeben"
 
-#: ../mainmenu.c:147
+#: ../mainmenu.c:157
 msgid "Edit your online photo"
 msgstr "Ihr Photo ändern"
 
-#: ../mainmenu.c:152 ../sieve.c:79
+#: ../mainmenu.c:162 ../sieve.c:79
 msgid "View/edit server-side mail filters"
 msgstr "Bearbeiten/Anzeigen von Serverweiten Mail Filtern"
 
-#: ../mainmenu.c:159
+#: ../mainmenu.c:169
 msgid "Advanced room commands"
 msgstr "Erweiterte Raum Kommandos"
 
-#: ../mainmenu.c:165
+#: ../mainmenu.c:175
 msgid "Edit or delete this room"
 msgstr "Diesen Raum bearbeiten oder Löschen"
 
-#: ../mainmenu.c:171
+#: ../mainmenu.c:181
 msgid "Go to a 'hidden' room"
 msgstr "In einen 'versteckten' Raum gehen"
 
-#: ../mainmenu.c:176 ../roomops.c:1976
+#: ../mainmenu.c:186 ../roomops.c:1976
 msgid "Create a new room"
 msgstr "Einen neuen Raum erzeugen"
 
-#: ../mainmenu.c:181
+#: ../mainmenu.c:191
 #, c-format
 msgid "Zap (forget) this room (%s)"
 msgstr "Diesen Raum vergessen (%s)"
 
-#: ../mainmenu.c:186
+#: ../mainmenu.c:196
 msgid "List all forgotten rooms"
 msgstr "Alle vergessenen Räume auflisten"
 
-#: ../mainmenu.c:205
+#: ../mainmenu.c:215
 msgid "System Administration Menu"
 msgstr "System Administrator Menü"
 
-#: ../mainmenu.c:214
+#: ../mainmenu.c:224
 msgid "Global Configuration"
 msgstr "Globale Konfiguration"
 
-#: ../mainmenu.c:219
+#: ../mainmenu.c:229
 msgid "Edit site-wide configuration"
 msgstr "Systemvorgaben bearbeiten"
 
-#: ../mainmenu.c:224
+#: ../mainmenu.c:234
 msgid "Domain names and Internet mail configuration"
 msgstr "Domänenname und Internetmail Konfiguration"
 
-#: ../mainmenu.c:229
+#: ../mainmenu.c:239
 msgid "Configure replication with other Citadel servers"
 msgstr "Die Replikation mit anderen Citadellen Konfigurieren"
 
-#: ../mainmenu.c:234 ../smtpqueue.c:230
+#: ../mainmenu.c:244 ../smtpqueue.c:230
 msgid "View the outbound SMTP queue"
 msgstr "Mailversandt-Warteschlange anzeigen"
 
-#: ../mainmenu.c:241
+#: ../mainmenu.c:251
 msgid "User account management"
 msgstr "Benutzer verwalten"
 
-#: ../mainmenu.c:246
+#: ../mainmenu.c:256
 msgid "Add, change, delete user accounts"
 msgstr "Benutzer Bearbeiten/Löschen/Anlegen "
 
-#: ../mainmenu.c:256
+#: ../mainmenu.c:266
 msgid "Rooms and Floors"
 msgstr "Räume und Etagen"
 
-#: ../mainmenu.c:261
+#: ../mainmenu.c:271
 msgid "Add, change, or delete floors"
 msgstr "Etagen Bearbeiten/Löschen/Hinzufügen"
 
-#: ../mainmenu.c:283
+#: ../mainmenu.c:293
 msgid "Enter a server command"
 msgstr "Ein Server-Kommando eingeben"
 
-#: ../mainmenu.c:292
+#: ../mainmenu.c:302
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1116,24 +1153,24 @@ msgstr ""
 "verwendet werden, direkt einzugeben. Wenn Ihnen dies nichts sagt, wird "
 "dieses Fenster für Sie nicht ohne Studium der Dokumentation von nützen sein"
 
-#: ../mainmenu.c:299
+#: ../mainmenu.c:309
 msgid "Enter command:"
 msgstr "Kommando Eingeben:"
 
-#: ../mainmenu.c:302
+#: ../mainmenu.c:312
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Kommando Eingabe (wenn sie SEND_LISTING Transfer-Modus anfordern):"
 
-#: ../mainmenu.c:306
+#: ../mainmenu.c:316
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "Erkannte Maschinen Kopfzeile ist %s://%s"
 
-#: ../mainmenu.c:308
+#: ../mainmenu.c:318
 msgid "Send command"
 msgstr "Kommando Senden"
 
-#: ../mainmenu.c:337
+#: ../mainmenu.c:347
 msgid "Server command results"
 msgstr "Server Kommando Ergebnisse"
 
@@ -1189,7 +1226,7 @@ msgstr "Anzeigen"
 msgid "Download"
 msgstr "Herunterladen"
 
-#: ../messages.c:877 ../messages.c:2924
+#: ../messages.c:877 ../messages.c:2951
 msgid "CC:"
 msgstr "CC:"
 
@@ -1213,7 +1250,7 @@ msgstr "AntwortenAnAlle"
 msgid "Forward"
 msgstr "Weiterleiten"
 
-#: ../messages.c:956 ../messages.c:3197
+#: ../messages.c:956 ../messages.c:3224
 msgid "Move"
 msgstr "Verschieben"
 
@@ -1283,81 +1320,86 @@ msgstr "Lese #"
 msgid "of %d messages."
 msgstr "von %d Nachrichten"
 
-#: ../messages.c:2710
+#: ../messages.c:2713
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Abgebrochen. Beitrag wurde nicht eingereicht."
 
-#: ../messages.c:2716
+#: ../messages.c:2719
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 "Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
 
-#: ../messages.c:2736
+#: ../messages.c:2740
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Nachricht wurde gesendet.\n"
 
-#: ../messages.c:2739
+#: ../messages.c:2743
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Beitrag wurde gesendet.\n"
 
-#: ../messages.c:2894
+#: ../messages.c:2904
 msgid " <I>from</I> "
 msgstr " <I>von</I> "
 
-#: ../messages.c:2896
+#: ../messages.c:2925
+#, fuzzy
+msgid "Anonymous"
+msgstr "Anonyme Nachrichten"
+
+#: ../messages.c:2931
 msgid " <I>in</I> "
 msgstr " <I>in</i> "
 
-#: ../messages.c:2913
+#: ../messages.c:2940
 msgid "To:"
 msgstr "An:"
 
-#: ../messages.c:2935
+#: ../messages.c:2962
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:2953
+#: ../messages.c:2980
 msgid "Subject (optional):"
 msgstr "Betreff (optional):"
 
-#: ../messages.c:2962 ../messages.c:3084 ../paging.c:53
+#: ../messages.c:2989 ../messages.c:3111 ../paging.c:53
 msgid "Send message"
 msgstr "Meldung senden"
 
-#: ../messages.c:2964 ../messages.c:3086
+#: ../messages.c:2991 ../messages.c:3113
 msgid "Post message"
 msgstr "Beitrag einreichen"
 
-#: ../messages.c:2980
+#: ../messages.c:3007
 msgid "--- forwarded message ---"
 msgstr "--- Weitergeleitete Nachricht ---"
 
-#: ../messages.c:3061
+#: ../messages.c:3088
 msgid "Attachments:"
 msgstr "Anhänge:"
 
-#: ../messages.c:3076
+#: ../messages.c:3103
 msgid "Attach file:"
 msgstr "Datei anhängen:"
 
-#: ../messages.c:3079 ../roomops.c:1511 ../roomops.c:1541
+#: ../messages.c:3106 ../roomops.c:1511 ../roomops.c:1541
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../messages.c:3144
+#: ../messages.c:3171
 #, c-format
 msgid "The message was not moved."
 msgstr "Die Meldung wurde nicht verschoben."
 
-#: ../messages.c:3170
+#: ../messages.c:3197
 msgid "Confirm move of message"
 msgstr "Verschieben bestätigen"
 
-#: ../messages.c:3177
+#: ../messages.c:3204
 msgid "Move this message to:"
 msgstr "Meldung verschieben nach:"
 

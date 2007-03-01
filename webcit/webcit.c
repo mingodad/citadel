@@ -1660,6 +1660,8 @@ void session_loop(struct httprequest *req)
 		display_room_directory();
 	} else if (!strcasecmp(action, "download_file")) {
 		download_file(index[1]);
+	} else if (!strcasecmp(action, "upload_file")) {
+		upload_file();
 	}
 
 	/** When all else fais, display the main menu. */
