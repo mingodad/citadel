@@ -139,6 +139,11 @@ li.view {
         color: #FFFFFF;
 }
 
+li.search form, li.view form {
+	margin: 0;
+	padding: 0;
+}
+
 li.nummsgs {
         font-size: 10pt;
         color: #DDDDCC;
@@ -774,6 +779,7 @@ div.auto_complete ul strong.highlight {
 }
 
 .login_message, .login_hello {
+        position: relative;
         margin-left: auto;
         margin-right: auto;
         width: 80%;
@@ -788,13 +794,14 @@ div.auto_complete ul strong.highlight {
 
 
 #login_form {
+        position: relative;
         display: block;
         margin-top: 20px;
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 20px;
         padding: 6px;
-        width: 290px;
+        width: 300px;
         background-color: #DDDDDD;
 }
 
