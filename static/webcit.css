@@ -89,13 +89,26 @@ body {
         padding: 2px;
 }
 
-.room_banner div {
-        font-size: 7pt;
-        color: #FFFFEE;
+.room_banner .infos {
+        font-size: 8pt;
+	color: #FFFFEE;
         text-align: center;
-        margin: 0;
         padding: 2px;
 }
+
+#room_infos {
+        display: none;
+        position: absolute;
+        top: 0px;
+        left: 50%;
+        width: 45%;
+        padding: 11px;
+        margin: 0px;
+        z-index: 100;
+        color: #666;
+        background: white;
+}
+
 
 #banner ul {
         float: right;

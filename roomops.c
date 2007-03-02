@@ -277,7 +277,14 @@ void readinfo(void)
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout("CENTER");
+               wprintf("<div class=\"infos\" "
+                "onmouseover=\"javascript:document.getElementById('room_infos').style.display='block';\" "
+                "onmouseout=\"javascript:document.getElementById('room_infos').style.display='none';\" "
+                "> Informations about this room :</div>"
+                );
+                wprintf("<div id=\"room_infos\">");
+                fmout("CENTER");
+                wprintf("</div>");
 	}
 	else {
 		wprintf("&nbsp;");
