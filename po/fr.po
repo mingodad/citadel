@@ -480,32 +480,29 @@ msgid "Files available for download in %s"
 msgstr ""
 
 #: ../downloads.c:29
-#, fuzzy
 msgid "Filename"
-msgstr "Nom du palier"
+msgstr "Nom du fichier"
 
 #: ../downloads.c:30
 msgid "Size"
 msgstr ""
 
 #: ../downloads.c:31
-#, fuzzy
 msgid "Description"
 msgstr "Description :"
 
 #: ../downloads.c:68
-#, fuzzy
 msgid "Upload a file:"
-msgstr "Téléversement autorisé"
+msgstr "Téléverser un fichier"
 
 #: ../downloads.c:72 ../graphics.c:54
 msgid "Upload"
 msgstr "Télécharger "
 
 #: ../downloads.c:114
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Une erreur est apparue en récupérant cette partie : %s\n"
+msgstr "Une erreur est apparue en récupérant ce fichier : %s\n"
 
 #: ../event.c:76
 msgid "Add or edit an event"
@@ -627,7 +624,6 @@ msgstr ""
 "format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
 
 #: ../graphics.c:50
-#, fuzzy
 msgid "Please select a file to upload:"
 msgstr "Sélectionner un fichier à transférer :"
 
@@ -1024,11 +1020,11 @@ msgstr "Poster dans ce salon"
 
 #: ../mainmenu.c:93
 msgid "File library"
-msgstr ""
+msgstr "Dépot des fichiers"
 
 #: ../mainmenu.c:96
 msgid "(List files available for download)"
-msgstr ""
+msgstr "(Liste des fichiers à télécharger)"
 
 #: ../mainmenu.c:104
 msgid "Summary page"
@@ -1345,7 +1341,6 @@ msgid " <I>from</I> "
 msgstr " <I>de</I> "
 
 #: ../messages.c:2925
-#, fuzzy
 msgid "Anonymous"
 msgstr "Messages anonymes"
 
@@ -2326,9 +2321,8 @@ msgid "and then"
 msgstr "et ensuite"
 
 #: ../sieve.c:1104
-#, fuzzy
 msgid "Add rule"
-msgstr "Ajouter des usagers"
+msgstr "Ajouter une règle"
 
 #: ../siteconfig.c:39
 msgid "Site configuration"
@@ -2363,9 +2357,8 @@ msgid "Indexing/Journaling"
 msgstr "Indexation / journalisation"
 
 #: ../siteconfig.c:69 ../siteconfig.c:110
-#, fuzzy
 msgid "Push Email"
-msgstr "Courriel"
+msgstr "Transfert du courrier"
 
 #: ../siteconfig.c:73
 msgid "General site configuration items"
@@ -2677,7 +2670,7 @@ msgid "ManageSieve Port (-1 to disable)"
 msgstr "Port d'écoute Sieve (-1 pour désactiver ce service)"
 
 #: ../siteconfig.c:532
-#, fuzzy, c-format
+#, c-format
 msgid "Enable host based authentication mode"
 msgstr "Utilise un système d'authentification"
 
