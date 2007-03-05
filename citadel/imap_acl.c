@@ -111,6 +111,7 @@ void imap_acl_flags(char *rights, int ra)
 		/* t - delete messages (set/clear \Deleted flag) */
 		if (ra & UA_DELETEALLOWED) {
 			strcat(rights, "t");
+			strcat(rights, "d");
 		}
 
 		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
