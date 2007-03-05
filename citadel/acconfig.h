@@ -65,6 +65,14 @@
 
 #undef EGD_POOL 
 
+/* check for the solaris style getpwuid_r */
+#undef SOLARIS_GETPWUID
 
-/* check for the bsd style getpwuid_r */
-#undef BSD_GETPWUID
+/* we want our format strings to be acurate. */
+#undef F_UID_T
+
+/* we want our format strings to be acurate. */
+#undef F_PID_T
+
+/* we want our format strings to be acurate. */
+#undef F_XPID_T

@@ -367,7 +367,7 @@ int CtdlLoginExistingUser(char *trythisname)
 		char pwdbuffer[256];
 	
 		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
-#ifdef BSD_GETPWUID
+#ifdef SOLARIS_GETPWUID
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer);
 #else
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
@@ -838,7 +838,7 @@ int create_user(char *newusername, int become_user)
 		struct passwd *tempPwdPtr;
 		char pwdbuffer[256];
 	
-#ifdef BSD_GETPWUID
+#ifdef SOLARIS_GETPWUID
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof(pwdbuffer));
 #else
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);

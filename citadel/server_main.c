@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
 	if (stat(ctdl_run_dir, &filestats)==-1){
-#ifdef BSD_GETPWUID
+#ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
 #else
 		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 	 * corresponding group ids
 	 */
 	if (drop_root_perms) {
-#ifdef BSD_GETPWUID
+#ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
 #else
 		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);

@@ -621,7 +621,14 @@ AC_CACHE_CHECK([for call semantics from getpwuid_r], ac_cv_call_getpwuid_r,
 ],
 ac_cv_call_getpwuid_r=yes, ac_cv_call_getpwuid_r=no)])
 if test $ac_cv_call_getpwuid_r = no; then
-	AC_DEFINE(BSD_GETPWUID)
+	AC_DEFINE(SOLARIS_GETPWUID)
+	AC_DEFINE(F_UID_T, "%ld")
+	AC_DEFINE(F_PID_T, "%ld")
+	AC_DEFINE(F_XPID_T, "%lx")
+else
+	AC_DEFINE(F_UID_T, "%d")
+	AC_DEFINE(F_PID_T, "%d")
+	AC_DEFINE(F_XPID_T, "%x")
 fi
 
 

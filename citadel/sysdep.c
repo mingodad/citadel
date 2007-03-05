@@ -837,7 +837,7 @@ void start_daemon(int unused) {
 		else {
 			fp = fopen(file_pid_file, "w");
 			if (fp != NULL) {
-				fprintf(fp, "%ld\n", child);
+				fprintf(fp, ""F_PID_T"\n", child);
 				fclose(fp);
 			}
 			waitpid(current_child, &status, 0);

@@ -593,7 +593,7 @@ char *strcpy(char *dest, const char *src) {
 void generate_uuid(char *buf) {
 	static int seq = 0;
 
-	sprintf(buf, "%lx-%x-%x",
+	sprintf(buf, "%lx-"F_XPID_T"-%x",
 		time(NULL),
 		getpid(),
 		(seq++)
@@ -670,7 +670,7 @@ void CtdlMakeTempFileName(char *name, int len) {
 	int i = 0;
 
 	while (i++, i < 100) {
-		snprintf(name, len, "/tmp/ctdl.%04x.%04x",
+		snprintf(name, len, "/tmp/ctdl."F_XPID_T".%04x",
 			getpid(),
 			rand()
 		);

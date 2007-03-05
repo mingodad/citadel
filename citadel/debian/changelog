@@ -1,4 +1,10 @@
-citadel (7.05-1) stable; urgency=low
+citadel (7.05-9) stable; urgency=high
+
+  * maintainance release, ical upgrade
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Thu, 1 Mar 2007 21:09:00 +0100
+
+citadel (7.05-8) stable; urgency=low
 
   * Citadel 7.05 release
 

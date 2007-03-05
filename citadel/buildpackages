@@ -39,9 +39,6 @@ fi
 
 case $1 in
     debian)
-
-#dpkg-source: warning: source directory `./citadel' is not <sourcepackage>-<upstreamversion> `citadel-6.61'
-	
 	if grep -q "($CITADEL_VERSION" debian/changelog; then
 	    echo rebuilding package.
 	else
@@ -61,6 +58,43 @@ case $1 in
 	else
 	    fakeroot dpkg-buildpackage
 	fi
+	;;
+    csw)
+	if !test -d ~/pkgs/; then
+	    mkdir ~/pkgs
+	fi
+	echo "
+PKG=CSWcitadel
+NAME=citadel - The groupware server for Web 2.0
+VERSION=${PACKAGE_VERSION}
+CATEGORY=application
+VENDOR=http://www.citadel.org/  packaged for CSW by Wilfried Goesgens
+HOTLINE=https://uncensored.citadel.org/ Room citadel support
+EMAIL=citadel@outgesourced.org
+" >~/pkgs/citadel
+	export LDFLAGS='-L/opt/csw/lib -L /usr/local/lib'
+	export CFLAGS='-I/opt/csw/include -I/usr/local/include  -DDISABLE_CURSES'
+	./configure \
+	    --with-db=/opt/csw/bdb44 \
+	    --with-ical=/usr/local/ \
+	    --without-curses \
+	    --with-prefix=/opt/csw/ \
+	    --with-datadir=/opt/csw/var/lib/citadel \
+	    --with-sysconfdir=/opt/csw/etc/citadel \
+	    --with-ssldir=/opt/csw/etc/ssl/citadel/ \
+	    --with-spooldir=/opt/csw/var/spool/citadel \
+	    --with-rundir=/opt/csw/var/run/citadel \
+	    --with-docdir=/opt/csw/share/doc/citadel-doc/ \
+	    --with-pam \
+	    --with-zlib \
+	    --with-ldap \
+	    --with-libsieve
+	    
+	gmake citserver aidepost msgform citmail userlist sendcommand base64 whobbs citadel
+	gmake DESTDIR=$ACTUAL_DIR/cswstage install-new
+	
+
+
 	;;
     sourcedist)
 	cd ..; tar --exclude .svn -cvzf citadel-$CITADEL_VERSION.tgz citadel-$CITADEL_VERSION/
