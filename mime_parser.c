@@ -53,43 +53,34 @@ char *fixed_partnum(char *supplied_partnum) {
  */
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	unsigned int ch;
-	int destpos = 1;
-	int sourcepos = 1;
-	int ignore_last = 0;
-	char *check;
+	int decoded_length = 0;
+	int pos = 0;
 
-	decoded[0] = 0;
-	if (sourcelen >0)
-		decoded[0] = encoded[0];
-	while (sourcepos <= sourcelen){
-		check = &decoded[destpos];
-		decoded[destpos] = encoded[sourcepos];
-		if ((ignore_last == 0) && (decoded[destpos-1] == '='))
+	while (pos < sourcelen)
+	{
+		if (!strncmp(&encoded[pos], "=\r\n", 3))
 		{
-			if ((*check == '\0') || 
-			    (*check == '\n') ||  
-			    (*check == '\r'))
-			{
-				decoded[destpos - 1] = '\0';
-				destpos-=2;
-			}
-			else if (sourcelen - sourcepos > 2)
-			{
-				sscanf(&encoded[sourcepos], "%02x", &ch);
-				decoded[destpos - 1] = ch;
-				sourcepos++;
-				destpos --;
-				ignore_last = 1;
-			}
+			pos += 3;
 		}
-		else 
-			ignore_last = 0;
-		destpos ++;
-		sourcepos ++;
+		else if (!strncmp(&encoded[pos], "=\n", 2))
+		{
+			pos += 2;
+		}
+		else if (encoded[pos] == '=')
+		{
+			ch = 0;
+			sscanf(&encoded[pos+1], "%02x", &ch);
+			pos += 3;
+			decoded[decoded_length++] = ch;
+		}
+		else
+		{
+			decoded[decoded_length++] = encoded[pos];
+			pos += 1;
+		}
 	}
-
-	decoded[destpos] = 0;
-	return(destpos - 1);
+	decoded[decoded_length] = 0;
+	return(decoded_length);
 }
 
 /*
