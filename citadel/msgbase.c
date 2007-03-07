@@ -3293,13 +3293,18 @@ void cmd_ent0(char *entargs)
 	/* first check to make sure the request is valid. */
 
 	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg);
-	if (err) {
+	if (err)
+	{
 		cprintf("%d %s\n", err, errmsg);
 		return;
 	}
 
 	/* Check some other permission type things. */
 
+	if (strlen(newusername) == 0)
+	{
+		strcpy(newusername, CC->user.fullname);
+	}
 	if (  (CC->user.axlevel < 6)
 	   && (strcasecmp(newusername, CC->user.fullname))
 	   && (strcasecmp(newusername, CC->cs_inet_fn))

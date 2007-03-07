@@ -98,14 +98,7 @@ void do_notify_queue(void) {
 int notify_funambol(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	int sock = (-1);
-	char fnblhosts[SIZ];
-	int num_fnblhosts;
 	char buf[SIZ];
-	int is_spam = 0;
-	int fnbl;
-	char *msgtext;
-	size_t msglen;
-	char host[SIZ];
 	char SOAPHeader[SIZ];
 	char SOAPData[SIZ];
 	char port[SIZ];
