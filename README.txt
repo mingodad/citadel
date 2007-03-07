@@ -1,13 +1,13 @@
                         WEBCIT for the Citadel System
-                               version 7.02
+                               version 7.06
  
    Copyright (C) 1996-2007 by the authors.  Portions written by:
 	Art Cancro
-	Nathan Bryant
-	Alessandro Fulciniti
 	Wilifried Goesgens
+	Nathan Bryant
 	Nick Grossman
 	Andru Luvisi
+	Alessandro Fulciniti
 	Dave Lindquist
 	Matt Pfleger
 	Martin Mouritzen
