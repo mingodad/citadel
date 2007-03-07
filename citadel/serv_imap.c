@@ -992,9 +992,8 @@ void imap_create(int num_parms, char *parms[])
 
 	ret = create_room(roomname, newroomtype, "", floornum, 1, 0, newroomview);
 	if (ret == 0) {
-		cprintf
-		    ("%s NO Mailbox already exists, or create failed\r\n",
-		     parms[0]);
+		/*** DO NOT CHANGE THIS ERROR MESSAGE IN ANY WAY!  BYNARI CONNECTOR DEPENDS ON IT! ***/
+		cprintf("%s NO Mailbox already exists, or create failed\r\n", parms[0]);
 	} else {
 		cprintf("%s OK CREATE completed\r\n", parms[0]);
 	}
