@@ -42,6 +42,7 @@
 #include "room_ops.h"
 #include "database.h"
 #include "vcard.h"
+#include "serv_fulltext.h"
 #include "serv_autocompletion.h"
 
 
@@ -84,16 +85,13 @@ char *n_to_fn(char *value) {
 /*
  * Back end for cmd_auto()
  */
-void hunt_for_autocomplete(long msgnum, void *data) {
-	char *search_string;
+void hunt_for_autocomplete(long msgnum, char *search_string) {
 	struct CtdlMessage *msg;
 	struct vCard *v;
 	char *value = NULL;
 	char *value2 = NULL;
 	int i = 0;
 	char *nnn = NULL;
-
-	search_string = (char *) data;
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
@@ -166,7 +164,17 @@ void hunt_for_autocomplete(long msgnum, void *data) {
 void cmd_auto(char *argbuf) {
 	char hold_rm[ROOMNAMELEN];
 	char search_string[256];
-
+	long *msglist = NULL;
+	int num_msgs = 0;
+	long *fts_msgs = NULL;
+	int fts_num_msgs = 0;
+	struct cdbdata *cdbfr;
+	int r = 0;
+	int i = 0;
+	int j = 0;
+	int search_match = 0;
+	char *rooms_to_try[] = { USERCONTACTSROOM, ADDRESS_BOOK_ROOM };
+		
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
 	if (strlen(search_string) == 0) {
@@ -178,27 +186,71 @@ void cmd_auto(char *argbuf) {
 	strcpy(hold_rm, CC->room.QRname);       /* save current room */
 	cprintf("%d try these:\n", LISTING_FOLLOWS);
 
-	/* Take a spin through the user's personal address book */
-	if (getroom(&CC->room, USERCONTACTSROOM) == 0) {
-		CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard", NULL,
-					hunt_for_autocomplete, search_string);
+	/*
+	 * Gather up message pointers in rooms containing vCards
+	 */
+	for (r=0; r < (sizeof(rooms_to_try) / sizeof(char *)); ++r) {
+		if (getroom(&CC->room, rooms_to_try[r]) == 0) {
+			cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+			if (cdbfr != NULL) {
+				msglist = realloc(msglist, (num_msgs * sizeof(long)) + cdbfr->len + 1);
+				memcpy(&msglist[num_msgs], cdbfr->ptr, cdbfr->len);
+				num_msgs += (cdbfr->len / sizeof(long));
+				cdb_free(cdbfr);
+			}
+		}
 	}
-	
-	/* FIXME try the global address book */
-	if (getroom(&CC->room, ADDRESS_BOOK_ROOM) == 0) {
-		CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard", NULL,
-					hunt_for_autocomplete, search_string);
+
+	/*
+	 * Search-reduce the results if we have the full text index available
+	 */
+	if (config.c_enable_fulltext) {
+		ft_search(&fts_num_msgs, &fts_msgs, search_string);
+		if (fts_msgs) {
+			for (i=0; i<num_msgs; ++i) {
+				search_match = 0;
+				for (j=0; j<fts_num_msgs; ++j) {
+					if (msglist[i] == fts_msgs[j]) {
+						search_match = 1;
+						j = fts_num_msgs + 1;	/* end the search */
+					}
+				}
+				if (!search_match) {
+					msglist[i] = 0;		/* invalidate this result */
+				}
+			}
+			free(fts_msgs);
+		}
+		else {
+			/* If no results, invalidate the whole list */
+			free(msglist);
+			msglist = NULL;
+			num_msgs = 0;
+		}
+	}
+
+	/*
+	 * Now output the ones that look interesting
+	 */
+	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+		if (msglist[i] != 0) {
+			hunt_for_autocomplete(msglist[i], search_string);
+		}
 	}
 	
 	cprintf("000\n");
 	if (strcmp(CC->room.QRname, hold_rm)) {
 		getroom(&CC->room, hold_rm);    /* return to saved room */
 	}
+
+	if (msglist) {
+		free(msglist);
+	}
+	
 }
 
 
-char *serv_autocompletion_init(void)
-{
+char *serv_autocompletion_init(void) {
 	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
 	return "$Id$";
 }
