@@ -778,11 +778,18 @@ div.auto_complete ul strong.highlight {
         background-color: white;
 }
 
-.login_message, .login_hello, .login_image {
+.login_message, .login_hello {
         position: relative;
         margin-left: auto;
         margin-right: auto;
         width: 80%;
+        text-align: center;
+}
+
+.login_image {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
         text-align: center;
 }
 
