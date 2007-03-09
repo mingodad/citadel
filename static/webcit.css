@@ -778,7 +778,7 @@ div.auto_complete ul strong.highlight {
         background-color: white;
 }
 
-.login_message, .login_hello {
+.login_message, .login_hello, .login_image {
         position: relative;
         margin-left: auto;
         margin-right: auto;
@@ -791,7 +791,6 @@ div.auto_complete ul strong.highlight {
 	font-weight: bold;
 	font-size: 16px;
 }
-
 
 #login_form {
         position: relative;
