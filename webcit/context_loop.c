@@ -441,7 +441,20 @@ void context_loop(int sock)
 		memset(TheSession, 0, sizeof(struct wcsession));
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
-		TheSession->wc_session = GenerateSessionID();
+	
+		/* If we're recreating a session that expired, it's best to give it the same
+		 * session number that it had before.  The client browser ought to pick up
+		 * the new session number and start using it, but in some rare situations it
+		 * doesn't, and that's a Bad Thing because it causes lots of spurious sessions
+		 * to get created.
+		 */	
+		if (desired_session == 0) {
+			TheSession->wc_session = GenerateSessionID();
+		}
+		else {
+			TheSession->wc_session = desired_session;
+		}
+
 		strcpy(TheSession->httpauth_user, httpauth_user);
 		strcpy(TheSession->httpauth_pass, httpauth_pass);
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
