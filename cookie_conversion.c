@@ -86,6 +86,18 @@ void cookie_to_stuff(char *cookie, int *session,
 		buf[i+1] = 0;
 	}
 
+/* debug
+	char t[256];
+	extract_token(t, buf, 0, '|', sizeof t);
+	lprintf(9, "SESS: %s\n", t);
+	extract_token(t, buf, 1, '|', sizeof t);
+	lprintf(9, "USER: %s\n", t);
+	extract_token(t, buf, 2, '|', sizeof t);
+	lprintf(9, "PASS: %s\n", t);
+	extract_token(t, buf, 3, '|', sizeof t);
+	lprintf(9, "ROOM: %s\n", t);
+ debug */
+
 	if (session != NULL)
 		*session = extract_int(buf, 0);
 	if (user != NULL)
