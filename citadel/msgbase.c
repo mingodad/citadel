@@ -1248,7 +1248,6 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	if (ma->is_ma > 0) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
-			lprintf(CTDL_DEBUG, "Is <%s> == <%s> ??\n", buf, cbtype);
 			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
 				if (i < ma->chosen_pref) {
 					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
