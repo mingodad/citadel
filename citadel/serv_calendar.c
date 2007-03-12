@@ -1933,6 +1933,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 
 	/* It must be an RFC822 message! */
 	if (msg->cm_format_type != 4) {
+		lprintf(CTDL_DEBUG, "Rejecting non-RFC822 message\n");
 		return 1;	/* You tried to save a non-RFC822 message! */
 	}
 	
@@ -1972,14 +1973,18 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 				return 0;
 			}
 			else {
+				return 0;
+				/*
+				lprintf(CTDL_DEBUG, "Rejecting non-icalendar message\n");
 				return 1;
+				*/
 			}
 		}
 		p++;
 	}
 	
 	/* Oops!  No Content-Type in this message!  How'd that happen? */
-	lprintf(CTDL_ERR, "RFC822 message with no Content-Type header!\n");
+	lprintf(CTDL_ERR, "Rejecting message with no Content-Type header\n");
 	return 1;
 }
 
