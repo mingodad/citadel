@@ -94,6 +94,7 @@ body {
 	color: #FFFFEE;
         text-align: center;
         padding: 2px;
+	cursor: help;
 }
 
 #room_infos {
@@ -109,6 +110,14 @@ body {
         background: white;
 }
 
+#room_infos .close_infos {
+	cursor: pointer;
+        font-size: 8pt;
+	color: black;
+        text-align: right;
+        padding: 2px;
+	margin-top: 5px;
+}
 
 #banner ul {
         float: right;
