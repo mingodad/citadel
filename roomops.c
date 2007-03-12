@@ -278,11 +278,15 @@ void readinfo(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
                 wprintf("<div class=\"infos\" "
-                "onmouseover=\"javascript:document.getElementById('room_infos').style.display='block';\" "
-                "onmouseout=\"javascript:document.getElementById('room_infos').style.display='none';\" "
-                "> ");
+                "onclick=\"javascript:document.getElementById('room_infos').style.display='block';\" "
+                ">");
                 wprintf(_("Room info"));
-                wprintf("</div><div id=\"room_infos\">");
+                wprintf("</div><div id=\"room_infos\" > "
+                "<p class=\"close_infos\" "
+                "onclick=\"javascript:document.getElementById('room_infos').style.display='none';\" "
+                ">");
+		wprintf(_("Close window"));
+		wprintf("</p>");
                 fmout("CENTER");
                 wprintf("</div>");
 	}
