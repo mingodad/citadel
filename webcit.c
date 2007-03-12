@@ -1479,7 +1479,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
 	} else if (!strcasecmp(action, "display_editinfo")) {
-		display_edit(_("Room info"), "EINF 0", "RINF", "/editinfo", 1);
+		display_edit(_("Room info"), "EINF 0", "RINF", "editinfo", 1);
 	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit(_("Room info"), "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
