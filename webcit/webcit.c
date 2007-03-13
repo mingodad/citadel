@@ -256,7 +256,6 @@ void escputs(char *strbuf)
 
 /** 
  * \brief Escape a string for feeding out as a URL.
- * Returns a pointer to a buffer that must be freed by the caller!
  * \param outbuf the output buffer
  * \param strbuf the input buffer
  */

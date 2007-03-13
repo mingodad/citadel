@@ -89,7 +89,9 @@ void download_file(char *filename)
 	/* Setting to nonzero forces a MIME type of application/octet-stream */
 	int force_download = 1;
 	
-	serv_printf("OPEN %s", filename);
+	safestrncpy(buf, filename, sizeof buf);
+	unescape_input(buf);
+	serv_printf("OPEN %s", buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
