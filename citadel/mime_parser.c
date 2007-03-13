@@ -452,9 +452,14 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
-		/* fix an off-by-one error */
+
+		/******
+		 * I thought there was an off-by-one error here, but there isn't.
+		 * This probably means that there's an off-by-one error somewhere
+		 * else ... or maybe only in certain messages?
 		--part_end;
 		--length;
+		******/
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
