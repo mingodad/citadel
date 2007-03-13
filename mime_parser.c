@@ -14,6 +14,7 @@
 #include "mime_parser.h"
 
 
+
 void extract_key(char *target, char *source, char *key)
 {
 	int a, b;
@@ -82,6 +83,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	decoded[decoded_length] = 0;
 	return(decoded_length);
 }
+
 
 /*
  * Given a message or message-part body and a length, handle any necessary
@@ -438,9 +440,14 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
-		/* fix an off-by-one error */
+
+		/******
+		 * I thought there was an off-by-one error here, but there isn't.
+		 * This probably means that there's an off-by-one error somewhere
+		 * else ... or maybe only in certain messages?
 		--part_end;
 		--length;
+		******/
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
@@ -584,6 +591,7 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
+
 
 
 /*@}*/
