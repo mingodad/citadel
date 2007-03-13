@@ -56,6 +56,7 @@
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "tools.h"
+#include "mime_parser.h"
 #include "vcard.h"
 #include "serv_ldap.h"
 #include "serv_vcard.h"
@@ -253,6 +254,26 @@ void extract_friendly_name(char *namebuf, size_t namebuf_len, struct vCard *v)
 }
 
 
+/*
+ * Callback function for vcard_upload_beforesave() hunts for the real vcard in the MIME structure
+ */
+void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, void *cbuserdata)
+{
+	struct vCard **v = (struct vCard **) cbuserdata;
+
+	if (  (!strcasecmp(cbtype, "text/x-vcard"))
+	   || (!strcasecmp(cbtype, "text/vcard")) ) {
+
+		lprintf(CTDL_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
+		if (*v != NULL) {
+			vcard_free(*v);
+		}
+		*v = vcard_load(content);
+	}
+}
+
 
 /*
  * This handler detects whether the user is attempting to save a new
@@ -263,7 +284,6 @@ void extract_friendly_name(char *namebuf, size_t namebuf_len, struct vCard *v)
 int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	char *s;
-	int linelen;
 	char buf[SIZ];
 	struct ctdluser usbuf;
 	long what_user;
@@ -307,133 +327,127 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 	ptr = msg->cm_fields['M'];
 	if (ptr == NULL) return(0);
-	while (ptr != NULL) {
-	
-		linelen = strcspn(ptr, "\n");
-		if (linelen == 0) return(0);	/* end of headers */	
+
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*vcard_extract_vcard,
+		NULL, NULL,
+		&v,		/* user data ptr - put the vcard here */
+		0
+	);
+
+	if (v == NULL) return(0);	/* no vCards were found in this message */
+
+	s = vcard_get_prop(v, "FN", 0, 0, 0);
+	if (s) lprintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
+
+	if (yes_my_citadel_config) {
+		/* Bingo!  The user is uploading a new vCard, so
+		 * delete the old one.  First, figure out which user
+		 * is being re-registered...
+		 */
+		what_user = atol(CC->room.QRname);
+
+		if (what_user == CC->user.usernum) {
+			/* It's the logged in user.  That was easy. */
+			memcpy(&usbuf, &CC->user, sizeof(struct ctdluser));
+		}
 		
-		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
-
-
-			if (yes_my_citadel_config) {
-				/* Bingo!  The user is uploading a new vCard, so
-				 * delete the old one.  First, figure out which user
-				 * is being re-registered...
-				 */
-				what_user = atol(CC->room.QRname);
-	
-				if (what_user == CC->user.usernum) {
-					/* It's the logged in user.  That was easy. */
-					memcpy(&usbuf, &CC->user,
-						sizeof(struct ctdluser) );
-				}
-				
-				else if (getuserbynumber(&usbuf, what_user) == 0) {
-					/* We fetched a valid user record */
-				}
-			
-				else {
-					/* No user with that number! */
-					return(0);
-				}
-	
-				/* Delete the user's old vCard.  This would probably
-				 * get taken care of by the replication check, but we
-				 * want to make sure there is absolutely only one
-				 * vCard in the user's config room at all times.
-				 */
-				CtdlDeleteMessages(CC->room.QRname, NULL, 0, "text/x-vcard");
-
-				/* Make the author of the message the name of the user.
-				 */
-				if (msg->cm_fields['A'] != NULL) {
-					free(msg->cm_fields['A']);
-				}
-				msg->cm_fields['A'] = strdup(usbuf.fullname);
-			}
-
-			/* Manipulate the vCard data structure */
-			v = vcard_load(msg->cm_fields['M']);
-			if (v != NULL) {
-
-				/* Insert or replace RFC2739-compliant free/busy URL */
-				if (yes_my_citadel_config) {
-					sprintf(buf, "http://%s/%s.vfb",
-						config.c_fqdn,
-						usbuf.fullname);
-					for (i=0; i<strlen(buf); ++i) {
-						if (buf[i] == ' ') buf[i] = '_';
-					}
-					vcard_set_prop(v, "FBURL;PREF", buf, 0);
-				}
-
-				/* If this is an address book room, and the vCard has
-				 * no UID, then give it one.
-				 */
-				if (yes_any_vcard_room) {
-					s = vcard_get_prop(v, "UID", 0, 0, 0);
-					if (s == NULL) {
-						generate_uuid(buf);
-						vcard_set_prop(v, "UID", buf, 0);
-					}
-				}
-
-				/* Enforce local UID policy if applicable */
-				if (yes_my_citadel_config) {
-					snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
-						msg->cm_fields['A'], NODENAME);
-					vcard_set_prop(v, "UID", buf, 0);
-				}
-
-				/* 
-				 * Set the EUID of the message to the UID of the vCard.
-				 */
-				if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
-				s = vcard_get_prop(v, "UID", 0, 0, 0);
-				if (s != NULL) {
-					msg->cm_fields['E'] = strdup(s);
-					if (msg->cm_fields['U'] == NULL) {
-						msg->cm_fields['U'] = strdup(s);
-					}
-				}
-
-				/*
-				 * Set the Subject to the name in the vCard.
-				 */
-				s = vcard_get_prop(v, "FN", 0, 0, 0);
-				if (s == NULL) {
-					s = vcard_get_prop(v, "N", 0, 0, 0);
-				}
-				if (s != NULL) {
-					if (msg->cm_fields['U'] != NULL) {
-						free(msg->cm_fields['U']);
-					}
-					msg->cm_fields['U'] = strdup(s);
-				}
-
-				/* Re-serialize it back into the msg body */
-				ser = vcard_serialize(v);
-				if (ser != NULL) {
-					msg->cm_fields['M'] = realloc(
-						msg->cm_fields['M'],
-						strlen(ser) + 1024
-					);
-					sprintf(msg->cm_fields['M'],
-						"Content-type: text/x-vcard"
-						"\r\n\r\n%s\r\n", ser);
-					free(ser);
-				}
-				vcard_free(v);
-			}
-
-			/* Now allow the save to complete. */
-			return(0);
+		else if (getuserbynumber(&usbuf, what_user) == 0) {
+			/* We fetched a valid user record */
 		}
 
-		ptr = strchr((char *)ptr, '\n');
-		if (ptr != NULL) ++ptr;
+		else {
+			/* somebody set up us the bomb! */
+			yes_my_citadel_config = 0;
+		}
+	}
+	
+	if (yes_my_citadel_config) {
+		/* Delete the user's old vCard.  This would probably
+		 * get taken care of by the replication check, but we
+		 * want to make sure there is absolutely only one
+		 * vCard in the user's config room at all times.
+		 *
+		 * FIXME also handle text/vcard by implementing regexp
+		 */
+		CtdlDeleteMessages(CC->room.QRname, NULL, 0, "text/x-vcard");
+
+		/* Make the author of the message the name of the user. */
+		if (msg->cm_fields['A'] != NULL) {
+			free(msg->cm_fields['A']);
+		}
+		msg->cm_fields['A'] = strdup(usbuf.fullname);
 	}
 
+	/* Insert or replace RFC2739-compliant free/busy URL */
+	if (yes_my_citadel_config) {
+		sprintf(buf, "http://%s/%s.vfb",
+			config.c_fqdn,
+			usbuf.fullname);
+		for (i=0; i<strlen(buf); ++i) {
+			if (buf[i] == ' ') buf[i] = '_';
+		}
+		vcard_set_prop(v, "FBURL;PREF", buf, 0);
+	}
+
+	/* If this is an address book room, and the vCard has
+	 * no UID, then give it one.
+	 */
+	if (yes_any_vcard_room) {
+		s = vcard_get_prop(v, "UID", 0, 0, 0);
+		if (s == NULL) {
+			generate_uuid(buf);
+			vcard_set_prop(v, "UID", buf, 0);
+		}
+	}
+
+	/* Enforce local UID policy if applicable */
+	if (yes_my_citadel_config) {
+		snprintf(buf, sizeof buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
+		vcard_set_prop(v, "UID", buf, 0);
+	}
+
+	if (yes_any_vcard_room) {
+		/* 
+		 * Set the EUID of the message to the UID of the vCard.
+		 */
+		if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
+		s = vcard_get_prop(v, "UID", 0, 0, 0);
+		if (s != NULL) {
+			msg->cm_fields['E'] = strdup(s);
+			if (msg->cm_fields['U'] == NULL) {
+				msg->cm_fields['U'] = strdup(s);
+			}
+		}
+
+		/*
+		 * Set the Subject to the name in the vCard.
+		 */
+		s = vcard_get_prop(v, "FN", 0, 0, 0);
+		if (s == NULL) {
+			s = vcard_get_prop(v, "N", 0, 0, 0);
+		}
+		if (s != NULL) {
+			if (msg->cm_fields['U'] != NULL) {
+				free(msg->cm_fields['U']);
+			}
+			msg->cm_fields['U'] = strdup(s);
+		}
+
+		/* Re-serialize it back into the msg body */
+		ser = vcard_serialize(v);
+		if (ser != NULL) {
+			msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
+			sprintf(msg->cm_fields['M'],
+				"Content-type: text/x-vcard"
+				"\r\n\r\n%s\r\n", ser);
+			free(ser);
+		}
+	}
+
+	/* Now allow the save to complete. */
+	vcard_free(v);
 	return(0);
 }
 
