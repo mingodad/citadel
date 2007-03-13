@@ -799,17 +799,17 @@ void display_using_handler(long msgnum,
 			icalcomponent_kind which_kind,
 			void (*callback)(icalcomponent *, long)
 	) {
-	char buf[SIZ];
-	char mime_partnum[SIZ];
-	char mime_filename[SIZ];
-	char mime_content_type[SIZ];
-	char mime_disposition[SIZ];
+	char buf[1024];
+	char mime_partnum[256];
+	char mime_filename[256];
+	char mime_content_type[256];
+	char mime_disposition[256];
 	int mime_length;
-	char relevant_partnum[SIZ];
+	char relevant_partnum[256];
 	char *relevant_source = NULL;
 	icalcomponent *cal, *c;
 
-	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	sprintf(buf, "MSG0 %ld|0", msgnum);	/* unfortunately we need the mime headers */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
