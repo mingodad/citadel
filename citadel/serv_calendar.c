@@ -1970,15 +1970,8 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 					msg->cm_fields['T'] = strdup("000000000000000000");
 					sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
 				}
-				return 0;
 			}
-			else {
-				return 0;
-				/*
-				lprintf(CTDL_DEBUG, "Rejecting non-icalendar message\n");
-				return 1;
-				*/
-			}
+			return 0;
 		}
 		p++;
 	}
