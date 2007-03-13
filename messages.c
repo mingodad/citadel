@@ -832,7 +832,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 
 			/** begin handler prep ***/
-			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
+			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
 
@@ -1620,7 +1621,8 @@ void display_addressbook(long msgnum, char alpha) {
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
-			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
+			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
 
@@ -1697,7 +1699,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	memset(&summ, 0, sizeof(summ));
 	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
-	sprintf(buf, "MSG0 %ld|1", msgnum);	/** ask for headers only */
+	sprintf(buf, "MSG0 %ld|0", msgnum);	/** unfortunately we need the mime info now */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
@@ -1710,7 +1712,8 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
-			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
+			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
 
