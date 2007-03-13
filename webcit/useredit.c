@@ -135,8 +135,8 @@ TRYAGAIN:
 				if (!strncasecmp(buf, "part=", 5)) {
 					extract_token(partnum, &buf[5], 2, '|', sizeof partnum);
 					extract_token(content_type, &buf[5], 4, '|', sizeof content_type);
-					if (!strcasecmp(content_type,
-					   "text/x-vcard")) {
+					if (  (!strcasecmp(content_type, "text/x-vcard"))
+					   || (!strcasecmp(content_type, "text/vcard")) ) {
 						vcard_msgnum = stuff->msgnum;
 					}
 				}
