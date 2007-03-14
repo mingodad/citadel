@@ -138,7 +138,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 /*
  * Recursive portion of ical_dezonify()
  */
-void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
+void ical_dezonify_recurse(icalcomponent *cal, icalcomponent *rcal) {
 	icalcomponent *c;
 	icalproperty *p;
 
@@ -152,7 +152,7 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 					rcal, ICAL_ANY_COMPONENT)
 	) {
 		if (icalcomponent_isa(c) != ICAL_VTIMEZONE_COMPONENT) {
-			ical_dezonify_recur(cal, c);
+			ical_dezonify_recurse(cal, c);
 		}
 	}
 
@@ -188,7 +188,7 @@ void ical_dezonify(icalcomponent *cal) {
 	/* lprintf(9, "ical_dezonify() started\n"); */
 
 	/* Convert all times to UTC */
-	ical_dezonify_recur(cal, cal);
+	ical_dezonify_recurse(cal, cal);
 
 	/* Strip out VTIMEZONE subcomponents -- we don't need them anymore */
 	while (vt = icalcomponent_get_first_component(
