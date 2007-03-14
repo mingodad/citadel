@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-03-12 23:17-0400\n"
-"PO-Revision-Date: 2007-03-14 22:34+0100\n"
+"PO-Revision-Date: 2007-03-14 23:18+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -502,9 +502,9 @@ msgid "Upload"
 msgstr "Hochladen"
 
 #: ../downloads.c:116
-#, c-format
+#, c-format, fuzzy
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\\n"
+msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\n"
 
 #: ../event.c:76
 msgid "Add or edit an event"
