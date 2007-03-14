@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-03-12 23:17-0400\n"
-"PO-Revision-Date: 2007-02-18 10:42+0100\n"
+"PO-Revision-Date: 2007-03-14 22:34+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -479,35 +479,32 @@ msgstr "Fälligkeitsdatum"
 #: ../downloads.c:19
 #, c-format
 msgid "Files available for download in %s"
-msgstr ""
+msgstr "Zum herunterladen verfügbare Dateien in %s"
 
 #: ../downloads.c:29
-#, fuzzy
 msgid "Filename"
-msgstr "Etagen Name"
+msgstr "Dateiname"
 
 #: ../downloads.c:30
 msgid "Size"
-msgstr ""
+msgstr "Größe"
 
 #: ../downloads.c:31
-#, fuzzy
 msgid "Description"
 msgstr "Beschreibung"
 
 #: ../downloads.c:68
-#, fuzzy
 msgid "Upload a file:"
-msgstr "Hochladen erlaubt"
+msgstr "Eine Datei Hochladen:"
 
 #: ../downloads.c:72 ../graphics.c:54
 msgid "Upload"
 msgstr "Hochladen"
 
 #: ../downloads.c:116
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Ein Fehler trat in diesem Teil auf: %s\n"
+msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\\n"
 
 #: ../event.c:76
 msgid "Add or edit an event"
@@ -1024,11 +1021,11 @@ msgstr "(Beitrag in diesen Raum stellen)"
 
 #: ../mainmenu.c:93
 msgid "File library"
-msgstr ""
+msgstr "Dattei Bibliothek"
 
 #: ../mainmenu.c:96
 msgid "(List files available for download)"
-msgstr ""
+msgstr "(Zum herunterladen verfügbare Dateien anzeigen)"
 
 #: ../mainmenu.c:104
 msgid "Summary page"
@@ -1346,9 +1343,8 @@ msgid " <I>from</I> "
 msgstr " <I>von</I> "
 
 #: ../messages.c:2928
-#, fuzzy
 msgid "Anonymous"
-msgstr "Anonyme Nachrichten"
+msgstr "Anonym"
 
 #: ../messages.c:2934
 msgid " <I>in</I> "
