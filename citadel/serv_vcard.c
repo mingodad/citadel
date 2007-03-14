@@ -391,15 +391,11 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		vcard_set_prop(v, "FBURL;PREF", buf, 0);
 	}
 
-	/* If this is an address book room, and the vCard has
-	 * no UID, then give it one.
-	 */
-	if (yes_any_vcard_room) {
-		s = vcard_get_prop(v, "UID", 0, 0, 0);
-		if (s == NULL) {
-			generate_uuid(buf);
-			vcard_set_prop(v, "UID", buf, 0);
-		}
+	/* If the vCard has no UID, then give it one. */
+	s = vcard_get_prop(v, "UID", 0, 0, 0);
+	if (s == NULL) {
+		generate_uuid(buf);
+		vcard_set_prop(v, "UID", buf, 0);
 	}
 
 	/* Enforce local UID policy if applicable */
@@ -408,42 +404,40 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		vcard_set_prop(v, "UID", buf, 0);
 	}
 
-	if (yes_any_vcard_room) {
-		/* 
-		 * Set the EUID of the message to the UID of the vCard.
-		 */
-		if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
-		s = vcard_get_prop(v, "UID", 0, 0, 0);
-		if (s != NULL) {
-			msg->cm_fields['E'] = strdup(s);
-			if (msg->cm_fields['U'] == NULL) {
-				msg->cm_fields['U'] = strdup(s);
-			}
-		}
-
-		/*
-		 * Set the Subject to the name in the vCard.
-		 */
-		s = vcard_get_prop(v, "FN", 0, 0, 0);
-		if (s == NULL) {
-			s = vcard_get_prop(v, "N", 0, 0, 0);
-		}
-		if (s != NULL) {
-			if (msg->cm_fields['U'] != NULL) {
-				free(msg->cm_fields['U']);
-			}
+	/* 
+	 * Set the EUID of the message to the UID of the vCard.
+	 */
+	if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
+	s = vcard_get_prop(v, "UID", 0, 0, 0);
+	if (s != NULL) {
+		msg->cm_fields['E'] = strdup(s);
+		if (msg->cm_fields['U'] == NULL) {
 			msg->cm_fields['U'] = strdup(s);
 		}
+	}
 
-		/* Re-serialize it back into the msg body */
-		ser = vcard_serialize(v);
-		if (ser != NULL) {
-			msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
-			sprintf(msg->cm_fields['M'],
-				"Content-type: text/x-vcard"
-				"\r\n\r\n%s\r\n", ser);
-			free(ser);
+	/*
+	 * Set the Subject to the name in the vCard.
+	 */
+	s = vcard_get_prop(v, "FN", 0, 0, 0);
+	if (s == NULL) {
+		s = vcard_get_prop(v, "N", 0, 0, 0);
+	}
+	if (s != NULL) {
+		if (msg->cm_fields['U'] != NULL) {
+			free(msg->cm_fields['U']);
 		}
+		msg->cm_fields['U'] = strdup(s);
+	}
+
+	/* Re-serialize it back into the msg body */
+	ser = vcard_serialize(v);
+	if (ser != NULL) {
+		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
+		sprintf(msg->cm_fields['M'],
+			"Content-type: text/x-vcard"
+			"\r\n\r\n%s\r\n", ser);
+		free(ser);
 	}
 
 	/* Now allow the save to complete. */
