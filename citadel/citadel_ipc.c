@@ -1760,7 +1760,7 @@ int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy **policy, char *cret)
 {
 	static char *proto[] = {"room", "floor", "site", "mailboxes" };
-	char aaa[11];
+	char cmd[256];
 	register int ret;
 
 	if (!cret) return -2;
@@ -1769,14 +1769,13 @@ int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 	if (!*policy) return -1;
 	if (which < 0 || which > 3) return -2;
 	
-	sprintf(aaa, "GPEX %s", proto[which]);
-	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	sprintf(cmd, "GPEX %s", proto[which]);
+	ret = CtdlIPCGenericCommand(ipc, cmd, NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2) {
 		policy[0]->expire_mode = extract_int(cret, 0);
 		policy[0]->expire_value = extract_int(cret, 1);
 	}
 	return ret;
-
 }
 
 
