@@ -1193,8 +1193,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Do an AUTH command if necessary */
 	if (strlen(mx_user) > 0) {
-		sprintf(buf, "%s%c%s%c%s%c", mx_user, 0, mx_user, 0, mx_pass, 0);
-		CtdlEncodeBase64(mailfrom, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 3);
+		sprintf(buf, "%s%c%s%c%s", mx_user, '\0', mx_user, '\0', mx_pass);
+		CtdlEncodeBase64(mailfrom, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2);
 		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", mailfrom);
 		lprintf(CTDL_DEBUG, ">%s", buf);
 		sock_write(sock, buf, strlen(buf));
