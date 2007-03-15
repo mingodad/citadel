@@ -182,12 +182,8 @@ void ical_add(icalcomponent *cal, int recursion_level) {
  * Send a reply to a meeting invitation.
  *
  * 'request' is the invitation to reply to.
- * 'action' is the string "accept" or "decline".
+ * 'action' is the string "accept" or "decline" or "tentative".
  *
- * (Sorry about this being more than 80 columns ... there was just
- * no easy way to break it down sensibly.)
- * 
- * ok
  */
 void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalcomponent *the_reply = NULL;
@@ -299,7 +295,6 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 					icalproperty_get_summary(summary) );
 			}
 		}
-
 	}
 
 	/* Now generate the reply message and send it out. */
@@ -1788,6 +1783,8 @@ void ical_saving_vevent(icalcomponent *cal) {
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
 
+	lprintf(CTDL_DEBUG, "ical_saving_vevent() has been called!\n");
+
 	/* Don't send out invitations unless the client wants us to. */
 	if (CIT_ICAL->server_generated_invitations == 0) {
 		return;
@@ -1854,53 +1851,57 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 
 	imm = (struct icalmessagemod *)cbuserdata;
 
-	/* If this is a text/calendar object, hunt for the UID and drop it in
+	/* We're only interested in calendar data. */
+	if (strcasecmp(cbtype, "text/calendar")) {
+		return;
+	}
+
+	/* Hunt for the UID and drop it in
 	 * the "user data" pointer for the MIME parser.  When
 	 * ical_obj_beforesave() sees it there, it'll set the Exclusive msgid
 	 * to that string.
 	 */
-	if (!strcasecmp(cbtype, "text/calendar")) {
-		whole_cal = icalcomponent_new_from_string(content);
-		cal = whole_cal;
+	whole_cal = icalcomponent_new_from_string(content);
+	cal = whole_cal;
+	if (cal != NULL) {
+		if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
+			nested_event = icalcomponent_get_first_component(
+				cal, ICAL_VEVENT_COMPONENT);
+			if (nested_event != NULL) {
+				cal = nested_event;
+			}
+			else {
+				nested_todo = icalcomponent_get_first_component(
+					cal, ICAL_VTODO_COMPONENT);
+				if (nested_todo != NULL) {
+					cal = nested_todo;
+				}
+			}
+		}
+		
 		if (cal != NULL) {
-			if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
-				nested_event = icalcomponent_get_first_component(
-					cal, ICAL_VEVENT_COMPONENT);
-				if (nested_event != NULL) {
-					cal = nested_event;
-				}
-				else {
-					nested_todo = icalcomponent_get_first_component(
-						cal, ICAL_VTODO_COMPONENT);
-					if (nested_todo != NULL) 
-						cal = nested_todo;
-				}
-			}
-			
-			if (cal != NULL) {
+			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+			if (p == NULL) {
+				/* If there's no uid we must generate one */
+				generate_uuid(new_uid);
+				icalcomponent_add_property(cal, icalproperty_new_uid(new_uid));
 				p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
-				if (p == NULL) {
-					/* If there's no uid we must generate one */
-					generate_uuid(new_uid);
-					icalcomponent_add_property(cal, icalproperty_new_uid(new_uid));
-					p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
-				}
-				if (p != NULL) {
-					strcpy(imm->uid, icalproperty_get_comment(p));
-					/* strcpy(imm->subject, icalproperty_get_comment(p)); old aethera hack */
-				}
-				p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
-				if (p != NULL) {
-					strcpy(imm->subject, icalproperty_get_comment(p));
-				}
-				p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
-				if (p != NULL) {
-					imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
-				}
 			}
-			icalcomponent_free(cal);
-			if (whole_cal != cal)
-			    icalcomponent_free(whole_cal);
+			if (p != NULL) {
+				strcpy(imm->uid, icalproperty_get_comment(p));
+			}
+			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
+			if (p != NULL) {
+				strcpy(imm->subject, icalproperty_get_comment(p));
+			}
+			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
+			if (p != NULL) {
+				imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
+			}
+		}
+		icalcomponent_free(cal);
+		if (whole_cal != cal) {
+			icalcomponent_free(whole_cal);
 		}
 	}
 }
@@ -1921,64 +1922,58 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
  */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
-	char *p;
-	int a;
 	struct icalmessagemod imm;
 
 	/* First determine if this is a calendar or tasks room */
-	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
-	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
+	if (  (CC->room.QRdefaultview != VIEW_CALENDAR)
+	   && (CC->room.QRdefaultview != VIEW_TASKS)
+	) {
 		return(0);		/* Not a vCalendar-centric room */
 	}
 
 	/* It must be an RFC822 message! */
 	if (msg->cm_format_type != 4) {
 		lprintf(CTDL_DEBUG, "Rejecting non-RFC822 message\n");
-		return 1;	/* You tried to save a non-RFC822 message! */
+		return(1);		/* You tried to save a non-RFC822 message! */
 	}
+
+	if (msg->cm_fields['M'] == NULL) {
+		return(1);		/* You tried to save a null message! */
+	}
+
+	memset(&imm, 0, sizeof(struct icalmessagemod));
 	
-	/* Find the Content-Type: header */
-	p = msg->cm_fields['M'];
-	a = strlen(p);
-	while (--a > 0) {
-		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
-			if (!strncasecmp(p + 14, "text/calendar", 13)) {
-				memset(&imm, 0, sizeof(struct icalmessagemod));
-				mime_parser(msg->cm_fields['M'],
-					NULL,
-					*ical_ctdl_set_exclusive_msgid,
-					NULL, NULL,
-					(void *)&imm,
-					0
-				);
-				if (strlen(imm.uid) > 0) {
-					if (msg->cm_fields['E'] != NULL) {
-						free(msg->cm_fields['E']);
-					}
-					msg->cm_fields['E'] = strdup(imm.uid);
-				}
-				if (strlen(imm.subject) > 0) {
-					if (msg->cm_fields['U'] != NULL) {
-						free(msg->cm_fields['U']);
-					}
-					msg->cm_fields['U'] = strdup(imm.subject);
-				}
-				if (imm.dtstart > 0) {
-					if (msg->cm_fields['T'] != NULL) {
-						free(msg->cm_fields['T']);
-					}
-					msg->cm_fields['T'] = strdup("000000000000000000");
-					sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
-				}
-			}
-			return 0;
+	/* Do all of our lovely back-end parsing */
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_ctdl_set_exclusive_msgid,
+		NULL, NULL,
+		(void *)&imm,
+		0
+	);
+
+	if (strlen(imm.uid) > 0) {
+		if (msg->cm_fields['E'] != NULL) {
+			free(msg->cm_fields['E']);
 		}
-		p++;
+		msg->cm_fields['E'] = strdup(imm.uid);
+		lprintf(CTDL_DEBUG, "Saving calendar UID <%s>\n", msg->cm_fields['E']);
 	}
-	
-	/* Oops!  No Content-Type in this message!  How'd that happen? */
-	lprintf(CTDL_ERR, "Rejecting message with no Content-Type header\n");
-	return 1;
+	if (strlen(imm.subject) > 0) {
+		if (msg->cm_fields['U'] != NULL) {
+			free(msg->cm_fields['U']);
+		}
+		msg->cm_fields['U'] = strdup(imm.subject);
+	}
+	if (imm.dtstart > 0) {
+		if (msg->cm_fields['T'] != NULL) {
+			free(msg->cm_fields['T']);
+		}
+		msg->cm_fields['T'] = strdup("000000000000000000");
+		sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
+	}
+
+	return(0);
 }
 
 
@@ -1991,7 +1986,12 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 {
 	icalcomponent *cal;
 
-	/* If this is a text/calendar object, hunt for the UID and drop it in
+	/* We're only interested in calendar items here. */
+	if (strcasecmp(cbtype, "text/calendar")) {
+		return;
+	}
+
+	/* Hunt for the UID and drop it in
 	 * the "user data" pointer for the MIME parser.  When
 	 * ical_obj_beforesave() sees it there, it'll set the Exclusive msgid
 	 * to that string.
@@ -2008,12 +2008,12 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 
 /* 
  * Things we need to do after saving a calendar event.
+ * (This will start back end tasks such as automatic generation of invitations,
+ * if such actions are appropriate.)
  */
 int ical_obj_aftersave(struct CtdlMessage *msg)
 {
 	char roomname[ROOMNAMELEN];
-	char *p;
-	int a;
 
 	/*
 	 * If this isn't the Calendar> room, no further action is necessary.
@@ -2022,39 +2022,25 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	/* First determine if this is our room */
 	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
 	if (strcasecmp(roomname, CC->room.QRname)) {
-		return 0;	/* It's not the Calendar room. */
+		return(0);	/* Not the Calendar room -- don't do anything. */
 	}
 
-	/* Then determine content-type of the message */
-	
 	/* It must be an RFC822 message! */
 	if (msg->cm_format_type != 4) return(1);
+
+	/* Reject null messages */
+	if (msg->cm_fields['M'] == NULL) return(1);
 	
-	/* Find the Content-Type: header */
-	p = msg->cm_fields['M'];
-	a = strlen(p);
-	while (--a > 0) {
-		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
-			if (!strncasecmp(p + 14, "text/calendar", 13)) {
-				mime_parser(msg->cm_fields['M'],
-					NULL,
-					*ical_obj_aftersave_backend,
-					NULL, NULL,
-					NULL,
-					0
-				);
-				return 0;
-			}
-			else {
-				return 1;
-			}
-		}
-		p++;
-	}
-	
-	/* Oops!  No Content-Type in this message!  How'd that happen? */
-	lprintf(CTDL_ERR, "RFC822 message with no Content-Type header!\n");
-	return 1;
+	/* Now recurse through it looking for our icalendar data */
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_obj_aftersave_backend,
+		NULL, NULL,
+		NULL,
+		0
+	);
+
+	return(0);
 }
 
 
