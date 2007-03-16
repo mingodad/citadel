@@ -369,9 +369,8 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		 * want to make sure there is absolutely only one
 		 * vCard in the user's config room at all times.
 		 *
-		 * FIXME also handle text/vcard by implementing regexp
 		 */
-		CtdlDeleteMessages(CC->room.QRname, NULL, 0, "text/x-vcard");
+		CtdlDeleteMessages(CC->room.QRname, NULL, 0, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$");
 
 		/* Make the author of the message the name of the user. */
 		if (msg->cm_fields['A'] != NULL) {

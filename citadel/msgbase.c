@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <regex.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"
@@ -3505,10 +3507,9 @@ void cmd_ent0(char *entargs)
 int CtdlDeleteMessages(char *room_name,		/* which room */
 			long *dmsgnums,		/* array of msg numbers to be deleted */
 			int num_dmsgnums,	/* number of msgs to be deleted, or 0 for "any" */
-			char *content_type	/* or "" for any */
+			char *content_type	/* or "" for any.  regular expressions expected. */
 )
 {
-
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -3518,7 +3519,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	int num_deleted = 0;
 	int delete_this;
 	struct MetaData smi;
+	regex_t re;
+	regmatch_t pm;
 
+	if (content_type) if (strlen(content_type) > 0) {
+		regcomp(&re, content_type, 0);
+	}
 	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
 		room_name, num_dmsgnums, content_type);
 
@@ -3561,8 +3567,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 				delete_this |= 0x02;
 			} else {
 				GetMetaData(&smi, msglist[i]);
-				if (!strcasecmp(smi.meta_content_type,
-						content_type)) {
+				if (regexec(&re, smi.meta_content_type, 1, &pm, 0) == 0) {
 					delete_this |= 0x02;
 				}
 			}
