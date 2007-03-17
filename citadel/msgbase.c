@@ -524,6 +524,12 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	int printed_lastold = 0;
 	int num_search_msgs = 0;
 	long *search_msgs = NULL;
+	regex_t re;
+	regmatch_t pm;
+
+	if (content_type) if (strlen(content_type) > 0) {
+		regcomp(&re, content_type, 0);
+	}
 
 	/* Learn about the user and room in question */
 	getuser(&CC->user, CC->curr_user);
@@ -562,7 +568,8 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			 */
 			GetMetaData(&smi, msglist[a]);
 
-			if (strcasecmp(smi.meta_content_type, content_type)) {
+			/* if (strcasecmp(smi.meta_content_type, content_type)) { old non-regex way */
+			if (regexec(&re, smi.meta_content_type, 1, &pm, 0) != 0) {
 				msglist[a] = 0L;
 			}
 		}

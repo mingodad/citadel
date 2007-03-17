@@ -190,7 +190,7 @@ void cmd_igab(char *argbuf) {
 	CtdlDirectoryInit();
 
 	/* We want *all* vCards in this room */
-	CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard",
+	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$",
 		NULL, vcard_add_to_directory, NULL);
 
 	getroom(&CC->room, hold_rm);	/* return to saved room */
@@ -548,7 +548,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 
 	/* We want the last (and probably only) vcard in this room */
 	VCmsgnum = (-1);
-	CtdlForEachMessage(MSGS_LAST, 1, NULL, "text/x-vcard",
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$",
 		NULL, vcard_gu_backend, (void *)&VCmsgnum );
 	getroom(&CC->room, hold_rm);	/* return to saved room */
 
@@ -1101,7 +1101,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 
 	/* First remove any addresses we already have in the address book */
 	usergoto(aptr->roomname, 0, 0, NULL, NULL);
-	CtdlForEachMessage(MSGS_ALL, 0, NULL, "text/x-vcard", NULL,
+	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$", NULL,
 		strip_addresses_already_have, aptr->collected_addresses);
 
 	if (strlen(aptr->collected_addresses) > 0)
