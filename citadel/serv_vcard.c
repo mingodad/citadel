@@ -434,7 +434,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	if (ser != NULL) {
 		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
 		sprintf(msg->cm_fields['M'],
-			"Content-type: text/x-vcard"
+			"Content-type: text/vcard"
 			"\r\n\r\n%s\r\n", ser);
 		free(ser);
 	}
@@ -474,8 +474,10 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 		linelen = strcspn(ptr, "\n");
 		if (linelen == 0) return(0);	/* end of headers */	
 		
-		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
-			/* Bingo!  The user is uploading a new vCard, so
+		if (  (!strncasecmp(ptr, "Content-type: text/x-vcard", 26))
+		   || (!strncasecmp(ptr, "Content-type: text/vcard", 24)) ) {
+			/*
+			 * Bingo!  The user is uploading a new vCard, so
 			 * copy it to the Global Address Book room.
 			 */
 
@@ -594,7 +596,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
 	CtdlWriteObject(USERCONFIGROOM,	/* which room */
-			"text/x-vcard",	/* MIME type */
+			"text/vcard",	/* MIME type */
 			temp,		/* temp file */
 			u,		/* which user */
 			0,		/* not binary */
@@ -824,10 +826,10 @@ int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
 		linelen = strcspn(ptr, "\n");
 		if (linelen == 0) return(0);	/* end of headers */	
 		
-		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
-			 /* It's a vCard.  Add it to the directory. */
-			vcard_extract_internet_addresses(msg,
-							CtdlDirectoryAddUser);
+		if (  (!strncasecmp(ptr, "Content-type: text/x-vcard", 26))
+		   || (!strncasecmp(ptr, "Content-type: text/vcard", 24)) ) {
+			/* It's a vCard.  Add it to the directory. */
+			vcard_extract_internet_addresses(msg, CtdlDirectoryAddUser);
 			return(0);
 		}
 
@@ -864,11 +866,10 @@ void vcard_delete_remove(char *room, long msgnum) {
 		linelen = strcspn(ptr, "\n");
 		if (linelen == 0) goto EOH;
 		
-		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
-			/* Bingo!  A vCard is being deleted.
-		 	*/
-			vcard_extract_internet_addresses(msg,
-							CtdlDirectoryDelUser);
+		if (  (!strncasecmp(ptr, "Content-type: text/x-vcard", 26))
+		   || (!strncasecmp(ptr, "Content-type: text/vcard", 24)) ) {
+			/* Bingo!  A vCard is being deleted. */
+			vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
 #ifdef HAVE_LDAP
 			ctdl_vcard_to_ldap(msg, V2L_DELETE);
 #endif
@@ -1123,7 +1124,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			if (ser != NULL) {
 				vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
 				sprintf(vmsg->cm_fields['M'],
-					"Content-type: text/x-vcard"
+					"Content-type: text/vcard"
 					"\r\n\r\n%s\r\n", ser);
 				free(ser);
 			}
@@ -1222,6 +1223,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
 	CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
 	CtdlRegisterFixedOutputHook("text/x-vcard", vcard_fixed_output);
+	CtdlRegisterFixedOutputHook("text/vcard", vcard_fixed_output);
 
 	/* Create the Global ADdress Book room if necessary */
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
