@@ -971,8 +971,8 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 
 	cprintf("%d Conflicting events:\n", LISTING_FOLLOWS);
 
-	/* FIXME CONNECTOR DEV -- we need to handle calendar items embedded inside multipart */
-	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/[Cc][Aa][Ll][Ee][Nn][Dd][Aa][Rr]$",
+	CtdlForEachMessage(MSGS_ALL, 0, NULL,
+		NULL,
 		NULL,
 		ical_hunt_for_conflicts_backend,
 		(void *) cal
@@ -1277,10 +1277,7 @@ void ical_freebusy(char *who) {
 
 	/* Add busy time from events */
 	lprintf(CTDL_DEBUG, "Adding busy time from events\n");
-	/* FIXME CONNECTOR DEV -- we need to handle calendar items embedded inside multipart */
-	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/[Cc][Aa][Ll][Ee][Nn][Dd][Aa][Rr]$",
-		NULL, ical_freebusy_backend, (void *)fb
-	);
+	CtdlForEachMessage(MSGS_ALL, 0, NULL, NULL, NULL, ical_freebusy_backend, (void *)fb );
 
 	/* If values for DTSTART and DTEND are still not present, set them
 	 * to yesterday and tomorrow as default values.
@@ -1418,9 +1415,8 @@ void ical_getics(void)
 	icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
 	/* Now go through the room encapsulating all calendar items. */
-	/* FIXME CONNECTOR DEV -- we need to handle calendar items embedded inside multipart */
 	CtdlForEachMessage(MSGS_ALL, 0, NULL,
-		"^[Tt][Ee][Xx][Tt]/[Cc][Aa][Ll][Ee][Nn][Dd][Aa][Rr]$",
+		NULL,
 		NULL,
 		ical_getics_backend,
 		(void *) encaps
