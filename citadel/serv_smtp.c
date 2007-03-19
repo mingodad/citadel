@@ -1360,6 +1360,7 @@ void smtp_do_bounce(char *instr) {
 	char addr[1024];
 	char dsn[1024];
 	char bounceto[1024];
+	char boundary[64];
 	int num_bounces = 0;
 	int bounce_this = 0;
 	long bounce_msgid = (-1);
@@ -1368,12 +1369,12 @@ void smtp_do_bounce(char *instr) {
 	int give_up = 0;
 	struct recptypes *valid;
 	int successful_bounce = 0;
+	static int seq = 0;
 
 	lprintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
-
+	sprintf(boundary, "=_Citadel_Multipart_%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
 	lines = num_tokens(instr, '\n');
-
 
 	/* See if it's time to give up on delivery of this message */
 	for (i=0; i<lines; ++i) {
@@ -1395,19 +1396,32 @@ void smtp_do_bounce(char *instr) {
 
         bmsg->cm_magic = CTDLMESSAGE_MAGIC;
         bmsg->cm_anon_type = MES_NORMAL;
-        bmsg->cm_format_type = 1;
+        bmsg->cm_format_type = FMT_RFC822;
         bmsg->cm_fields['A'] = strdup("Citadel");
         bmsg->cm_fields['O'] = strdup(MAILROOM);
         bmsg->cm_fields['N'] = strdup(config.c_nodename);
         bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
+	bmsg->cm_fields['M'] = malloc(1024);
 
-	if (give_up) bmsg->cm_fields['M'] = strdup(
+
+        strcpy(bmsg->cm_fields['M'], "Content-type: multipart/mixed; boundary=\"");
+        strcat(bmsg->cm_fields['M'], boundary);
+        strcat(bmsg->cm_fields['M'], "\"\r\n");
+        strcat(bmsg->cm_fields['M'], "MIME-Version: 1.0\r\n");
+        strcat(bmsg->cm_fields['M'], "X-Mailer: " CITADEL "\r\n");
+        strcat(bmsg->cm_fields['M'], "\r\nThis is a multipart message in MIME format.\r\n\r\n");
+        strcat(bmsg->cm_fields['M'], "--");
+        strcat(bmsg->cm_fields['M'], boundary);
+        strcat(bmsg->cm_fields['M'], "\r\n");
+        strcat(bmsg->cm_fields['M'], "Content-type: text/plain\r\n\r\n");
+
+	if (give_up) strcat(bmsg->cm_fields['M'],
 "A message you sent could not be delivered to some or all of its recipients\n"
 "due to prolonged unavailability of its destination(s).\n"
 "Giving up on the following addresses:\n\n"
 );
 
-        else bmsg->cm_fields['M'] = strdup(
+        else strcat(bmsg->cm_fields['M'],
 "A message you sent could not be delivered to some or all of its recipients.\n"
 "The following addresses were undeliverable:\n\n"
 );
@@ -1460,6 +1474,18 @@ void smtp_do_bounce(char *instr) {
 			--lines;
 		}
 	}
+
+	/* Attach the original message 
+        strcat(bmsg->cm_fields['M'], "--");
+        strcat(bmsg->cm_fields['M'], boundary);
+        strcat(bmsg->cm_fields['M'], "\r\n");
+        strcat(bmsg->cm_fields['M'], "Content-type: application/octet-stream\r\n\r\n");
+        strcat(bmsg->cm_fields['M'], "all your message are belong to FIXME\r\n");
+	*/
+
+        strcat(bmsg->cm_fields['M'], "--");
+        strcat(bmsg->cm_fields['M'], boundary);
+        strcat(bmsg->cm_fields['M'], "--\r\n");
 
 	/* Deliver the bounce if there's anything worth mentioning */
 	lprintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
