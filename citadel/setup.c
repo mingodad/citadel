@@ -377,14 +377,21 @@ void install_init_scripts(void)
 	struct stat etcinitd;
 	FILE *fp;
 	char *initfile = "/etc/init.d/citadel";
+	char command[SIZ];
 
 	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
 		return;
 	}
 
-	if ((stat("/etc/init.d/",&etcinitd) == -1) && 
+	if ((stat("/etc/init.d/", &etcinitd) == -1) && 
 	    (errno == ENOENT))
-		initfile = CTDLDIR"/citadel.init";
+	{
+		if ((stat("/etc/rc.d/init.d/", &etcinitd) == -1) &&
+		    (errno == ENOENT))
+			initfile = CTDLDIR"/citadel.init";
+		else
+			initfile = "/etc/rc.d/init.d/citadel";
+	}
 
 	fp = fopen(initfile, "w");
 	if (fp == NULL) {
@@ -440,12 +447,14 @@ void install_init_scripts(void)
 	);
 
 	fclose(fp);
-	chmod("/etc/init.d/citadel", 0755);
+	chmod(initfile, 0755);
 
 	/* Set up the run levels. */
 	system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
-	system("for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/citadel /etc/rc$x.d/S79citadel ; done 2>/dev/null");
-	system("for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/citadel /etc/rc$x.d/K30citadel ; done 2>/dev/null");
+	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S79citadel ; done 2>/dev/null", initfile);
+	system(command);
+	snprintf(command, sizeof(command),"for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K30citadel ; done 2>/dev/null", initfile);
+	system(command);
 
 }
 
