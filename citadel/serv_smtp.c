@@ -1370,6 +1370,9 @@ void smtp_do_bounce(char *instr) {
 	struct recptypes *valid;
 	int successful_bounce = 0;
 	static int seq = 0;
+	char *omsgtext;
+	size_t omsgsize;
+	long omsgid = (-1);
 
 	lprintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
@@ -1390,6 +1393,8 @@ void smtp_do_bounce(char *instr) {
 		give_up = 1;
 	}
 
+	/* Start building our bounce message */
+
 	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (bmsg == NULL) return;
 	memset(bmsg, 0, sizeof(struct CtdlMessage));
@@ -1402,7 +1407,6 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_fields['N'] = strdup(config.c_nodename);
         bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
 	bmsg->cm_fields['M'] = malloc(1024);
-
 
         strcpy(bmsg->cm_fields['M'], "Content-type: multipart/mixed; boundary=\"");
         strcat(bmsg->cm_fields['M'], boundary);
@@ -1444,6 +1448,10 @@ void smtp_do_bounce(char *instr) {
 			strcpy(bounceto, addr);
 		}
 
+		if (!strcasecmp(key, "msgid")) {
+			omsgid = atol(addr);
+		}
+
 		if (
 		   (!strcasecmp(key, "local"))
 		   || (!strcasecmp(key, "remote"))
@@ -1475,14 +1483,32 @@ void smtp_do_bounce(char *instr) {
 		}
 	}
 
-	/* Attach the original message 
-        strcat(bmsg->cm_fields['M'], "--");
-        strcat(bmsg->cm_fields['M'], boundary);
-        strcat(bmsg->cm_fields['M'], "\r\n");
-        strcat(bmsg->cm_fields['M'], "Content-type: application/octet-stream\r\n\r\n");
-        strcat(bmsg->cm_fields['M'], "all your message are belong to FIXME\r\n");
-	*/
+	/* Attach the original message */
+	if (omsgid >= 0) {
+        	strcat(bmsg->cm_fields['M'], "--");
+        	strcat(bmsg->cm_fields['M'], boundary);
+        	strcat(bmsg->cm_fields['M'], "\r\n");
+        	strcat(bmsg->cm_fields['M'], "Content-type: message/rfc822\r\n");
+        	strcat(bmsg->cm_fields['M'], "Content-Transfer-Encoding: 7bit\r\n");
+        	strcat(bmsg->cm_fields['M'], "Content-Disposition: inline\r\n");
+        	strcat(bmsg->cm_fields['M'], "\r\n");
+	
+		CC->redirect_buffer = malloc(SIZ);
+		CC->redirect_len = 0;
+		CC->redirect_alloc = SIZ;
+		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+		omsgtext = CC->redirect_buffer;
+		omsgsize = CC->redirect_len;
+		CC->redirect_buffer = NULL;
+		CC->redirect_len = 0;
+		CC->redirect_alloc = 0;
+		bmsg->cm_fields['M'] = realloc(bmsg->cm_fields['M'],
+				(strlen(bmsg->cm_fields['M']) + omsgsize + 1024) );
+		strcat(bmsg->cm_fields['M'], omsgtext);
+		free(omsgtext);
+	}
 
+	/* Close the multipart MIME scope */
         strcat(bmsg->cm_fields['M'], "--");
         strcat(bmsg->cm_fields['M'], boundary);
         strcat(bmsg->cm_fields['M'], "--\r\n");
