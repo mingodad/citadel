@@ -333,6 +333,7 @@ void install_init_scripts(void)
 #endif
 	char hostname[128];
 	char portname[128];
+	char command[SIZ];
 	struct utsname my_utsname;
 	struct stat etcinitd;
 	FILE *fp;
@@ -357,10 +358,15 @@ void install_init_scripts(void)
 	 * in a previous install, if we are upgrading: read them out of
 	 * the existing init script.
 	 */
-
-	if ((stat("/etc/init.d/",&etcinitd) == -1) && 
+	if ((stat("/etc/init.d/", &etcinitd) == -1) && 
 	    (errno == ENOENT))
-		initfile = PREFIX"/webcit.init";
+	{
+		if ((stat("/etc/rc.d/init.d/", &etcinitd) == -1) &&
+		    (errno == ENOENT))
+			initfile = PREFIX"/webcit.init";
+		else
+			initfile = "/etc/rc.d/init.d/webcit";
+	}
 
 	fp = fopen(initfile, "r");
 	if (fp != NULL) {
@@ -429,11 +435,7 @@ void install_init_scripts(void)
 	}
 
 
-	fp = fopen("/etc/init.d/webcit", "w");
-	if (fp == NULL) {
-		display_error("Cannot create /etc/init.d/webcit");
-		return;
-	}
+	fp = fopen(initfile, "w");
 
 	fprintf(fp,	"#!/bin/sh\n"
 			"\n"
@@ -498,12 +500,14 @@ void install_init_scripts(void)
 	);
 
 	fclose(fp);
-	chmod("/etc/init.d/webcit", 0755);
+	chmod(initfile, 0755);
 
 	/* Set up the run levels. */
 	system("/bin/rm -f /etc/rc?.d/[SK]??webcit 2>/dev/null");
-	system("for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/webcit /etc/rc$x.d/S84webcit ; done 2>/dev/null");
-	system("for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s /etc/init.d/webcit /etc/rc$x.d/K15webcit ; done 2>/dev/null");
+	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S84webcit ; done 2>/dev/null", initfile);
+	system(command);
+	snprintf(command, sizeof(command), "for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K15webcit ; done 2>/dev/null", initfile);
+	system(command);
 
 }
 
