@@ -848,8 +848,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 {
 	struct urlcontent *u;
 
-	/* lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n",
-		name, cbtype, length); */
+	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 
 	/* Form fields */
 	if ( (length > 0) && (strlen(cbtype) == 0) ) {
@@ -1127,16 +1126,13 @@ void session_loop(struct httprequest *req)
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */
-		client_read(WC->http_sock, &content[BytesRead+body_start],
-			ContentLength);
+		client_read(WC->http_sock, &content[BytesRead+body_start], ContentLength);
 
-		if (!strncasecmp(ContentType,
-			      "application/x-www-form-urlencoded", 33)) {
+		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
 			addurls(&content[body_start]);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength + body_start;
-			mime_parser(content, content_end, *upload_handler,
-					NULL, NULL, NULL, 0);
+			mime_parser(content, content_end, *upload_handler, NULL, NULL, NULL, 0);
 		}
 	} else {
 		content = NULL;
