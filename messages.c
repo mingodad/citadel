@@ -2594,7 +2594,7 @@ void post_mime_to_server(void) {
 	}
 
 	if (is_multipart) {
-		sprintf(boundary, "=_Citadel_Multipart_%s_%04x%04x",
+		sprintf(boundary, "Citadel--Multipart--%s--%04x--%04x",
 			serv_info.serv_fqdn,
 			getpid(),
 			++seq
@@ -2670,6 +2670,7 @@ void post_message(void)
 
 	if (WC->upload_length > 0) {
 
+		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WC->upload_length);
 		/** There's an attachment.  Save it to this struct... */
 		att = malloc(sizeof(struct wc_attachment));
 		memset(att, 0, sizeof(struct wc_attachment));
@@ -2712,12 +2713,15 @@ void post_message(void)
 	}
 
 	if (strlen(bstr("cancel_button")) > 0) {
+		lprintf(9, "%s:%d: cancel button was pressed\n", __FILE__, __LINE__);
 		sprintf(WC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
 	} else if (strlen(bstr("attach_button")) > 0) {
+		lprintf(9, "%s:%d: attach button was pressed\n", __FILE__, __LINE__);
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
+		lprintf(9, "%s:%d: postseq does not match\n", __FILE__, __LINE__);
 		sprintf(WC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
 			"saved this message."));
@@ -2747,6 +2751,7 @@ void post_message(void)
 			}
 			dont_post = atol(bstr("postseq"));
 		} else {
+			lprintf(9, "%s:%d: server post error\n", __FILE__, __LINE__);
 			sprintf(WC->ImportantMessage, "%s", &buf[4]);
 			display_enter();
 			return;
