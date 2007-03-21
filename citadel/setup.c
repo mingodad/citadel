@@ -702,8 +702,11 @@ void edit_value(int curr)
 	switch (curr) {
 
 	case 1:
-		if (getenv("SYSADMIN_NAME")) {
-			strcpy(config.c_sysadm, getenv("SYSADMIN_NAME"));
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("SYSADMIN_NAME")) {
+				strcpy(config.c_sysadm, getenv("SYSADMIN_NAME"));
+			}
 		}
 		else {
 			set_str_val(curr, config.c_sysadm);
@@ -711,44 +714,73 @@ void edit_value(int curr)
 		break;
 
 	case 2:
-#ifdef __CYGWIN__
-		config.c_ctdluid = 0;	/* XXX Windows hack, prob. insecure */
-#else
-		i = config.c_ctdluid;
-		pw = getpwuid(i);
-		if (pw == NULL) {
-			set_int_val(curr, &i);
-			config.c_ctdluid = i;
+		if (setup_type == UI_SILENT)
+		{		
+			if (getenv("CITADEL_UID")) {
+				config.c_ctdluid = atoi(getenv("CITADEL_UID"));
+			}					
 		}
-		else {
-			strcpy(ctdluidname, pw->pw_name);
-			set_str_val(curr, ctdluidname);
-			pw = getpwnam(ctdluidname);
-			if (pw != NULL) {
-				config.c_ctdluid = pw->pw_uid;
+		else
+		{
+#ifdef __CYGWIN__
+			config.c_ctdluid = 0;	/* XXX Windows hack, prob. insecure */
+#else
+			i = config.c_ctdluid;
+			pw = getpwuid(i);
+			if (pw == NULL) {
+				set_int_val(curr, &i);
+				config.c_ctdluid = i;
 			}
-			else if (atoi(ctdluidname) > 0) {
-				config.c_ctdluid = atoi(ctdluidname);
+			else {
+				strcpy(ctdluidname, pw->pw_name);
+				set_str_val(curr, ctdluidname);
+				pw = getpwnam(ctdluidname);
+				if (pw != NULL) {
+					config.c_ctdluid = pw->pw_uid;
+				}
+				else if (atoi(ctdluidname) > 0) {
+					config.c_ctdluid = atoi(ctdluidname);
+				}
 			}
 		}
 #endif
 		break;
 
 	case 3:
-		set_str_val(curr, config.c_ip_addr);
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("IP_ADDR")) {
+				strcpy(config.c_ip_addr, getenv("IP_ADDR"));
+			}
+		}
+		else {
+			set_str_val(curr, config.c_ip_addr);
+		}
 		break;
 
 	case 4:
-		set_int_val(curr, &config.c_port_number);
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("CITADEL_PORT")) {
+				config.c_port_number = atoi(getenv("CITADEL_PORT"));
+			}
+		}
+		else
+		{
+			set_int_val(curr, &config.c_port_number);
+		}
 		break;
 
 	case 5:
-		if (getenv("ENABLE_UNIX_AUTH")) {
-			if (!strcasecmp(getenv("ENABLE_UNIX_AUTH"), "yes")) {
-				config.c_auth_mode = 1;
-			}
-			else {
-				config.c_auth_mode = 0;
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("ENABLE_UNIX_AUTH")) {
+				if (!strcasecmp(getenv("ENABLE_UNIX_AUTH"), "yes")) {
+					config.c_auth_mode = 1;
+				}
+				else {
+					config.c_auth_mode = 0;
+				}
 			}
 		}
 		else {
@@ -1117,10 +1149,8 @@ int main(int argc, char *argv[])
 	if (config.c_managesieve_port == 0) config.c_managesieve_port = 2020;
 
 	/* Go through a series of dialogs prompting for config info */
-	if (setup_type != UI_SILENT) {
-		for (curr = 1; curr <= MAXSETUP; ++curr) {
-			edit_value(curr);
-		}
+	for (curr = 1; curr <= MAXSETUP; ++curr) {
+		edit_value(curr);
 	}
 
 /***** begin version update section ***** */

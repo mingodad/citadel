@@ -19,9 +19,9 @@ case "$1" in
 
         db_get citadel/Administrator && admin="$RET"
         db_get citadel/ServerIPAddress && ip_addr="$RET"
-        db_get citadel/LoginType && enable_unix_auth="$RET"
+        db_get citadel/LoginType && deb_enable_unix_auth="$RET"
 
-        if test "$enable_unix_auth" = "true"; then
+        if test "$deb_enable_unix_auth" = "true"; then
             export ENABLE_UNIX_AUTH=yes
         else
             export ENABLE_UNIX_AUTH=no
@@ -29,13 +29,15 @@ case "$1" in
 
         export IP_ADDR=$ip_addr
         export CITADEL=''
+	export CITADEL_PORT=504
         export CITADEL_INSTALLER=yes
+	export CITADEL_UID=`grep citadel /etc/passwd | cut -d :  -f 3`
         export ACT_AS_MTA=no
         export SYSADMIN_NAME=$admin
         export CREATE_XINETD_ENTRY=no
         export CREATE_INITTAB_ENTRY=no
         export NO_INIT_SCRIPTS=yes
-
+set >/tmp/citsetup
         echo "applying your settings."
         /usr/lib/citadel-server/setup -q
 

@@ -1,3 +1,15 @@
+citadel (7.06-11) unstable; urgency=low
+
+  * fixes to the configure script.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Mon, 19 Mar 2007 12:12:00 +0000
+
+citadel (7.06-10) unstable; urgency=low
+
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Wed, 07 Mar 2007 12:12:00 +0000
+
 citadel (7.05-9) stable; urgency=high
 
   * maintainance release, ical upgrade
