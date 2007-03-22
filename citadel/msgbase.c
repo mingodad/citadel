@@ -2910,6 +2910,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	int type,			/* see MES_ types in header file */
 	int format_type,		/* variformat, plain text, MIME... */
 	char *fake_name,		/* who we're masquerading as */
+	char *my_email,			/* which of my email addresses to use (empty is ok) */
 	char *subject,			/* Subject (optional) */
 	char *supplied_euid,		/* ...or NULL if this is irrelevant */
 	char *preformatted_text		/* ...or NULL to read text from client */
@@ -2961,7 +2962,10 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['D'] = strdup(dest_node);
 	}
 
-	if ( (author == &CC->user) && (strlen(CC->cs_inet_email) > 0) ) {
+	if (strlen(my_email) > 0) {
+		msg->cm_fields['F'] = strdup(my_email);
+	}
+	else if ( (author == &CC->user) && (strlen(CC->cs_inet_email) > 0) ) {
 		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
 	}
 
@@ -3265,6 +3269,7 @@ void cmd_ent0(char *entargs)
 	int anon_flag = 0;
 	int format_type = 0;
 	char newusername[256];
+	char newuseremail[256];
 	struct CtdlMessage *msg;
 	int anonymous = 0;
 	char errmsg[SIZ];
@@ -3276,6 +3281,9 @@ void cmd_ent0(char *entargs)
 	char subject[SIZ];
 	int do_confirm = 0;
 	long msgnum;
+	int i, j;
+	char buf[256];
+	int newuseremail_ok = 0;
 
 	unbuffer_output();
 
@@ -3297,6 +3305,7 @@ void cmd_ent0(char *entargs)
 			supplied_euid[0] = 0;
 			break;
 	}
+	extract_token(newuseremail, entargs, 9, '|', sizeof newuseremail);
 
 	/* first check to make sure the request is valid. */
 
@@ -3309,8 +3318,7 @@ void cmd_ent0(char *entargs)
 
 	/* Check some other permission type things. */
 
-	if (strlen(newusername) == 0)
-	{
+	if (strlen(newusername) == 0) {
 		strcpy(newusername, CC->user.fullname);
 	}
 	if (  (CC->user.axlevel < 6)
@@ -3320,6 +3328,34 @@ void cmd_ent0(char *entargs)
 		cprintf("%d You don't have permission to author messages as '%s'.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED,
 			newusername
+		);
+		return;
+	}
+
+
+	if (strlen(newuseremail) == 0) {
+		newuseremail_ok = 1;
+	}
+
+	if (strlen(newuseremail) > 0) {
+		if (!strcasecmp(newuseremail, CC->cs_inet_email)) {
+			newuseremail_ok = 1;
+		}
+		else if (strlen(CC->cs_inet_other_emails) > 0) {
+			j = num_tokens(CC->cs_inet_other_emails, '|');
+			for (i=0; i<j; ++i) {
+				extract_token(buf, CC->cs_inet_other_emails, i, '|', sizeof buf);
+				if (!strcasecmp(newuseremail, buf)) {
+					newuseremail_ok = 1;
+				}
+			}
+		}
+	}
+
+	if (!newuseremail_ok) {
+		cprintf("%d You don't have permission to author messages as '%s'.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED,
+			newuseremail
 		);
 		return;
 	}
@@ -3449,7 +3485,7 @@ void cmd_ent0(char *entargs)
 
 	msg = CtdlMakeMessage(&CC->user, recp, cc,
 		CC->room.QRname, anonymous, format_type,
-		newusername, subject,
+		newusername, newuseremail, subject,
 		((strlen(supplied_euid) > 0) ? supplied_euid : NULL),
 		NULL);
 

@@ -163,6 +163,7 @@ struct CtdlMessage *CtdlMakeMessage(
         int type,                       /* see MES_ types in header file */
         int format_type,                /* variformat, plain text, MIME... */
         char *fake_name,                /* who we're masquerading as */
+	char *my_email,			/* which of my email addresses to use (empty is ok) */
         char *subject,                  /* Subject (optional) */
 	char *supplied_euid,		/* ...or NULL if this is irrelevant */
         char *preformatted_text         /* ...or NULL to read text from client */

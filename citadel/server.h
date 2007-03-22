@@ -52,8 +52,6 @@ struct CtdlMessage {
  * This structure keeps track of all information relating to a running 
  * session on the server.  We keep one of these for each session thread.
  *
- * Note that the first element is "*next" so that it may be used without
- * modification in a linked list.
  */
 struct CitContext {
 	struct CitContext *prev;	/* Link to previous session in list */
@@ -83,7 +81,7 @@ struct CitContext {
 	int async_waiting;	/* Nonzero if there are async msgs waiting */
 	int input_waiting;	/* Nonzero if there is client input waiting */
 
-	/* feeping creaturisms... */
+	/* Client information */
 	int cs_clientdev;	/* client developer ID */
 	int cs_clienttyp;	/* client type code */
 	int cs_clientver;	/* client version number */
@@ -92,8 +90,9 @@ struct CitContext {
 	char cs_addr[64];	/* address logged in from */
 
 	/* The Internet type of thing */
-	char cs_inet_email[128];/* Return address of outbound Internet mail */
-	char cs_inet_fn[128];	/* Friendly-name of outbound Internet mail */
+	char cs_inet_email[128];		/* Return address of outbound Internet mail */
+	char cs_inet_other_emails[1024];	/* User's other valid Internet email addresses */
+	char cs_inet_fn[128];			/* Friendly-name of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	char download_desired_section[128];
@@ -428,7 +427,7 @@ enum {
 
 /*
  * ServiceFunctionHook extensions are used for hooks which implement various
- * non-Citadel services (on TCP protocols) directly in the Citadel server.
+ * protocols (either on TCP or on unix domain sockets) directly in the Citadel server.
  */
 struct ServiceFunctionHook {
 	struct ServiceFunctionHook *next;
@@ -491,10 +490,10 @@ struct ser_ret {
 };
 
 
-/* Preferred field order */
-/*               **********			Important fields */
-/*                         ***************	Semi-important fields */
-/*                                        * 	Message text (MUST be last) */
+/* Preferred field order 							*/
+/*               **********			Important fields		*/
+/*                         ***************	Semi-important fields		*/
+/*                                        * 	Message text (MUST be last)	*/
 #define FORDER	"IPTAFONHRDBCEJGKLQSVWXZYUM"
 
 #endif /* SERVER_H */

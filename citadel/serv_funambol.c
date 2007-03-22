@@ -95,7 +95,7 @@ void do_notify_queue(void) {
 /*
  * Connect to the Funambol server and scan a message.
  */
-int notify_funambol(long msgnum, void *userdata) {
+void notify_funambol(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	int sock = (-1);
 	char buf[SIZ];
@@ -121,7 +121,7 @@ int notify_funambol(long msgnum, void *userdata) {
 
 	if (sock < 0) {
 		/* If the service isn't running, pass for now */
-		return(0);
+		return;
 	}
 	
 	/* Build a SOAP message, delicately, by hand */
@@ -215,7 +215,6 @@ int notify_funambol(long msgnum, void *userdata) {
 	long todelete[1];
 	todelete[0] = msgnum;
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
-	return 0;
 }
 
 

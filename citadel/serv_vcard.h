@@ -1,5 +1,5 @@
 /*
  * $Id: $
  */
-void extract_primary_inet_email(char *emailaddrbuf, size_t emailaddrbuf_len, struct vCard *v);
+void extract_inet_email_addrs(char *, size_t, char *, size_t, struct vCard *v);
 struct vCard *vcard_get_user(struct ctdluser *u);

@@ -107,7 +107,7 @@ void local_to_inetemail(char *inetemail, char *localuser, size_t inetemail_len) 
 		return;
 	}
 
-	extract_primary_inet_email(inetemail, inetemail_len, v);
+	extract_inet_email_addrs(inetemail, inetemail_len, NULL, 0, v);
 	vcard_free(v);
 }
 

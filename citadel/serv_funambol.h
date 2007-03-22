@@ -1,1 +1,1 @@
-int notify_funambol(long msgnum, void *userdata);
+void notify_funambol(long msgnum, void *userdata);

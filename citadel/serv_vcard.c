@@ -204,33 +204,39 @@ void cmd_igab(char *argbuf) {
  * See if there is a valid Internet address in a vCard to use for outbound
  * Internet messages.  If there is, stick it in the buffer.
  */
-void extract_primary_inet_email(char *emailaddrbuf, size_t emailaddrbuf_len, struct vCard *v) {
+void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
+				char *secemailaddrbuf, size_t secemailaddrbuf_len,
+				struct vCard *v) {
 	char *s, *addr;
-	int continue_searching = 1;
 	int instance = 0;
+	int saved_instance = 0;
 
 	/* Go through the vCard searching for *all* instances of
 	 * the "email;internet" key
 	 */
-	do {
-		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
-		if (s != NULL) {
-			continue_searching = 1;
-			addr = strdup(s);
-			striplt(addr);
-			if (strlen(addr) > 0) {
-				if (IsDirectory(addr)) {
-					continue_searching = 0;
-					safestrncpy(emailaddrbuf, addr,
-						emailaddrbuf_len);
+	while (s = vcard_get_prop(v, "email;internet", 0, instance++, 0),  s != NULL) {
+		addr = strdup(s);
+		striplt(addr);
+		if (strlen(addr) > 0) {
+			if (IsDirectory(addr)) {
+				++saved_instance;
+				if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
+					safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
+				}
+				else if ((saved_instance == 2) && (secemailaddrbuf != NULL)) {
+					safestrncpy(secemailaddrbuf, addr, secemailaddrbuf_len);
+				}
+				else if ((saved_instance > 2) && (secemailaddrbuf != NULL)) {
+					if ( (strlen(addr) + strlen(secemailaddrbuf) + 2) 
+					   < secemailaddrbuf_len ) {
+						strcat(secemailaddrbuf, "|");
+						strcat(secemailaddrbuf, addr);
+					}
 				}
 			}
-			free(addr);
 		}
-		else {
-			continue_searching = 0;
-		}
-	} while(continue_searching);
+		free(addr);
+	}
 }
 
 
@@ -486,7 +492,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 			/* Store our Internet return address in memory */
 			v = vcard_load(msg->cm_fields['M']);
-			extract_primary_inet_email(CC->cs_inet_email, sizeof CC->cs_inet_email, v);
+			extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
+						CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
+						v);
 			extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 			vcard_free(v);
 
@@ -900,6 +908,32 @@ void cmd_gvsn(char *argbuf)
 
 
 /*
+ * Get Valid Email Addresses
+ */
+void cmd_gvea(char *argbuf)
+{
+	int num_secondary_emails = 0;
+	int i;
+	char buf[256];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	cprintf("%d valid email addresses:\n", LISTING_FOLLOWS);
+	if (strlen(CC->cs_inet_email) > 0) {
+		cprintf("%s\n", CC->cs_inet_email);
+	}
+	if (strlen(CC->cs_inet_other_emails) > 0) {
+		num_secondary_emails = num_tokens(CC->cs_inet_other_emails, '|');
+		for (i=0; i<num_secondary_emails; ++i) {
+			extract_token(buf, CC->cs_inet_other_emails,i,'|',sizeof CC->cs_inet_other_emails);
+			cprintf("%s\n", buf);
+		}
+	}
+	cprintf("000\n");
+}
+
+
+/*
  * Query Directory
  */
 void cmd_qdir(char *argbuf) {
@@ -1008,7 +1042,9 @@ void vcard_session_login_hook(void) {
 	struct vCard *v = NULL;
 
 	v = vcard_get_user(&CC->user);
-	extract_primary_inet_email(CC->cs_inet_email, sizeof CC->cs_inet_email, v);
+	extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
+				CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
+				v);
 	extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 	vcard_free(v);
 
@@ -1218,6 +1254,7 @@ char *serv_vcard_init(void)
 					"Initialize Global Address Book");
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
 	CtdlRegisterProtoHook(cmd_gvsn, "GVSN", "Get Valid Screen Names");
+	CtdlRegisterProtoHook(cmd_gvea, "GVEA", "Get Valid Email Addresses");
 	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
