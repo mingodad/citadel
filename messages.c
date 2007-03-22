@@ -2713,28 +2713,26 @@ void post_message(void)
 	}
 
 	if (strlen(bstr("cancel_button")) > 0) {
-		lprintf(9, "%s:%d: cancel button was pressed\n", __FILE__, __LINE__);
 		sprintf(WC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
 	} else if (strlen(bstr("attach_button")) > 0) {
-		lprintf(9, "%s:%d: attach button was pressed\n", __FILE__, __LINE__);
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
-		lprintf(9, "%s:%d: postseq does not match\n", __FILE__, __LINE__);
 		sprintf(WC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
 		rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
-		sprintf(buf, "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s",
+		sprintf(buf, "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s",
 			bstr("recp"),
 			is_anonymous,
 			encoded_subject,
 			display_name,
 			bstr("cc"),
 			bstr("bcc"),
-			bstr("wikipage")
+			bstr("wikipage"),
+			bstr("my_email_addr")
 		);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
@@ -2751,7 +2749,7 @@ void post_message(void)
 			}
 			dont_post = atol(bstr("postseq"));
 		} else {
-			lprintf(9, "%s:%d: server post error\n", __FILE__, __LINE__);
+			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, buf);
 			sprintf(WC->ImportantMessage, "%s", &buf[4]);
 			display_enter();
 			return;
@@ -2911,6 +2909,8 @@ void display_enter(void)
 
 	wprintf(_(" <I>from</I> "));
 
+	/* Allow the user to select any of his valid screen names */
+
 	wprintf("<select name=\"display_name\" size=1>\n");
 
 	serv_puts("GVSN");
@@ -2935,6 +2935,25 @@ void display_enter(void)
 	}
 
 	wprintf("</select>\n");
+
+	/* If this is an email (not a post), allow the user to select any of his
+	 * valid email addresses.
+	 */
+	if (recipient_required) {
+		serv_puts("GVEA");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') {
+			wprintf("<select name=\"my_email_addr\" size=1>\n");
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				wprintf("<option value=\"");
+				escputs(buf);
+				wprintf("\">&lt;");
+				escputs(buf);
+				wprintf("&gt;</option>\n");
+			}
+			wprintf("</select>\n");
+		}
+	}
 
 	wprintf(_(" <I>in</I> "));
 	escputs(WC->wc_roomname);
