@@ -13,8 +13,6 @@
 #include "webserver.h"
 #include "mime_parser.h"
 
-
-
 void extract_key(char *target, char *source, char *key)
 {
 	int a, b;
@@ -255,7 +253,9 @@ void the_mime_parser(char *partnum,
 	int part_seq = 0;
 	int i;
 	size_t length;
-	char nested_partnum[SIZ];
+	char nested_partnum[256];
+	int crlf_in_use = 0;
+	char *evaluate_crlf_ptr = NULL;
 
 	ptr = content_start;
 	content_length = 0;
@@ -383,7 +383,10 @@ void the_mime_parser(char *partnum,
 
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
 				part_end = next_boundary;
-				--part_end;
+				--part_end;		/* omit the trailing LF */
+				if (crlf_in_use) {
+					--part_end;	/* omit the trailing CR */
+				}
 
 				if (strlen(partnum) > 0) {
 					snprintf(nested_partnum,
@@ -414,6 +417,18 @@ void the_mime_parser(char *partnum,
 				else {
 					/* Set up for the next part. */
 					part_start = strstr(next_boundary, "\n");
+					
+					/* Determine whether newlines are LF or CRLF */
+					evaluate_crlf_ptr = part_start;
+					--evaluate_crlf_ptr;
+					if (!memcmp(evaluate_crlf_ptr, "\r\n", 2)) {
+						crlf_in_use = 1;
+					}
+					else {
+						crlf_in_use = 0;
+					}
+
+					/* Advance past the LF ... now we're in the next part */
 					++part_start;
 					ptr = part_start;
 				}
@@ -591,7 +606,5 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
-
-
 
 /*@}*/
