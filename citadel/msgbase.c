@@ -3305,7 +3305,7 @@ void cmd_ent0(char *entargs)
 			supplied_euid[0] = 0;
 			break;
 	}
-	extract_token(newuseremail, entargs, 9, '|', sizeof newuseremail);
+	extract_token(newuseremail, entargs, 10, '|', sizeof newuseremail);
 
 	/* first check to make sure the request is valid. */
 
