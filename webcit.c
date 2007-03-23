@@ -763,9 +763,8 @@ void url_do_template(void) {
 void offer_start_page(void) {
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
-	wprintf("\"><font size=-2 color=\"#AAAAAA\">");
 	wprintf(_("Make this my start page"));
-	wprintf("</font></a>");
+	wprintf("</a>");
 /*
 	wprintf("<br/><a href=\"rss?room=");
 	urlescputs(WC->wc_roomname);
