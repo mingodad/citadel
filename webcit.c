@@ -763,6 +763,7 @@ void url_do_template(void) {
 void offer_start_page(void) {
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
+	wprintf("\">");
 	wprintf(_("Make this my start page"));
 	wprintf("</a>");
 /*
