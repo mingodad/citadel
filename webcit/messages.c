@@ -849,7 +849,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/** Generate a reply-to address */
 	if (strlen(rfca) > 0) {
-		strcpy(reply_to, rfca);
+		if (strlen(from) > 0) {
+			snprintf(reply_to, sizeof(reply_to), "%s <%s>", from, rfca);
+		}
+		else {
+			strcpy(reply_to, rfca);
+		}
 	}
 	else {
 		if ( (strlen(node) > 0)
