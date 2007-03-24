@@ -810,7 +810,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 					msgnum, mime_partnum, mime_filename);
 			}
 			else if ( (!strcasecmp(mime_disposition, "attachment")) 
-			     || (!strcasecmp(mime_disposition, "inline")) ) {
+			     || (!strcasecmp(mime_disposition, "inline"))
+			     || (!strcasecmp(mime_disposition, ""))
+			) {
 				snprintf(&mime_http[strlen(mime_http)],
 					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<img src=\"static/diskette_24x.gif\" "
