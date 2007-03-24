@@ -705,7 +705,9 @@ int read_message(CtdlIPC *ipc,
 
 		for (ptr = message->attachments; ptr; ptr = ptr->next) {
 			if ( (!strcasecmp(ptr->disposition, "attachment"))
-			   || (!strcasecmp(ptr->disposition, "inline"))) {
+			   || (!strcasecmp(ptr->disposition, "inline"))
+			   || (!strcasecmp(ptr->disposition, ""))
+			) {
 				color(DIM_WHITE);
 				pprintf("Part ");
 				color(BRIGHT_MAGENTA);
