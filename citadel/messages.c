@@ -564,7 +564,12 @@ int read_message(CtdlIPC *ipc,
 	/* Set the reply-to address to an Internet e-mail address if possible
 	 */
 	if (message->email != NULL) if (strlen(message->email) > 0) {
-		safestrncpy(reply_to, message->email, sizeof reply_to);
+		if (strlen(message->author) > 0) {
+			snprintf(reply_to, sizeof reply_to, "%s <%s>", message->author, message->email);
+		}
+		else {
+			safestrncpy(reply_to, message->email, sizeof reply_to);
+		}
 	}
 
 	/* But if we can't do that, set it to a Citadel address.
