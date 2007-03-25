@@ -1297,7 +1297,6 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 			if (text_content[length-1] != '\n') {
 				++add_newline;
 			}
-
 			cprintf("Content-type: %s", cbtype);
 			if (strlen(cbcharset) > 0) {
 				cprintf("; charset=%s", cbcharset);
@@ -1310,6 +1309,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 			else {
 				cprintf("Content-transfer-encoding: 7bit\n");
 			}
+			cprintf("X-Citadel-MSG4-Partnum: %s\n", partnum);
 			cprintf("\n");
 			client_write(content, length);
 			if (add_newline) cprintf("\n");
