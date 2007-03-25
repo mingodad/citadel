@@ -577,10 +577,9 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 			/* If doing a MIME thing, pull out the extra headers */
 			if (as_mime == 4) {
 				do {
-					if (!strncasecmp(bbb, "Content-type: ", 14)) {
+					if (!strncasecmp(bbb, "Content-type:", 13)) {
 						extract_token(mret[0]->content_type, bbb, 0, '\n', sizeof mret[0]->content_type);
-						strcpy(mret[0]->content_type,
-							&mret[0]->content_type[14]);
+						strcpy(mret[0]->content_type, &mret[0]->content_type[13]);
 						striplt(mret[0]->content_type);
 
 						/* strip out ";charset=" portion.  FIXME do something with
@@ -591,6 +590,11 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 							strcpy(strstr(mret[0]->content_type, ";"), "");
 						}
 
+					}
+					if (!strncasecmp(bbb, "X-Citadel-MSG4-Partnum:", 23)) {
+						extract_token(mret[0]->mime_chosen, bbb, 0, '\n', sizeof mret[0]->mime_chosen);
+						strcpy(mret[0]->mime_chosen, &mret[0]->mime_chosen[23]);
+						striplt(mret[0]->mime_chosen);
 					}
 					remove_token(bbb, 0, '\n');
 				} while ((bbb[0] != 0) && (bbb[0] != '\n'));

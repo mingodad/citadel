@@ -708,18 +708,21 @@ int read_message(CtdlIPC *ipc,
 			   || (!strcasecmp(ptr->disposition, "inline"))
 			   || (!strcasecmp(ptr->disposition, ""))
 			) {
-				color(DIM_WHITE);
-				pprintf("Part ");
-				color(BRIGHT_MAGENTA);
-				pprintf("%s", ptr->number);
-				color(DIM_WHITE);
-				pprintf(": ");
-				color(BRIGHT_CYAN);
-				pprintf("%s", ptr->filename);
-				color(DIM_WHITE);
-				pprintf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
-				if (!strncmp(ptr->mimetype, "image/", 6))
-					has_images++;
+				if (strcasecmp(ptr->number, message->mime_chosen)) {
+					color(DIM_WHITE);
+					pprintf("Part ");
+					color(BRIGHT_MAGENTA);
+					pprintf("%s", ptr->number);
+					color(DIM_WHITE);
+					pprintf(": ");
+					color(BRIGHT_CYAN);
+					pprintf("%s", ptr->filename);
+					color(DIM_WHITE);
+					pprintf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+					if (!strncmp(ptr->mimetype, "image/", 6)) {
+						has_images++;
+					}
+				}
 			}
 		}
 	}
