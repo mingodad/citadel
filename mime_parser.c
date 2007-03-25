@@ -313,8 +313,9 @@ void the_mime_parser(char *partnum,
 		}
 
 		if (!isspace(buf[0])) {
-			if (!strncasecmp(header, "Content-type: ", 14)) {
-				strcpy(content_type, &header[14]);
+			if (!strncasecmp(header, "Content-type:", 13)) {
+				strcpy(content_type, &header[13]);
+				striplt(content_type);
 				extract_key(content_type_name, content_type, "name");
 				extract_key(charset, content_type, "charset");
 				/* Deal with weird headers */
@@ -323,23 +324,29 @@ void the_mime_parser(char *partnum,
 				if (strchr(content_type, ';'))
 					*(strchr(content_type, ';')) = '\0';
 			}
-			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
-				strcpy(disposition, &header[21]);
+			if (!strncasecmp(header, "Content-Disposition:", 20)) {
+				strcpy(disposition, &header[20]);
+				striplt(disposition);
 				extract_key(content_disposition_name, disposition, "name");
 				extract_key(filename, disposition, "filename");
 			}
-			if (!strncasecmp(header, "Content-length: ", 16)) {
-				content_length = (size_t) atol(&header[16]);
+			if (!strncasecmp(header, "Content-length: ", 15)) {
+				char clbuf[10];
+				safestrncpy(clbuf, &header[15], sizeof clbuf);
+				striplt(clbuf);
+				content_length = (size_t) atol(clbuf);
 			}
-			if (!strncasecmp(header,
-				      "Content-transfer-encoding: ", 27))
-				strcpy(encoding, &header[27]);
+			if (!strncasecmp(header, "Content-transfer-encoding: ", 26)) {
+				strcpy(encoding, &header[26]);
+				striplt(encoding);
+			}
 			if (strlen(boundary) == 0)
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
 		}
-		if ((strlen(header) + strlen(buf) + 2) < SIZ)
+		if ((strlen(header) + strlen(buf) + 2) < SIZ) {
 			strcat(header, buf);
+		}
 	} while ((strlen(buf) > 0) && (*ptr != 0));
 
 	if (strchr(disposition, ';'))
