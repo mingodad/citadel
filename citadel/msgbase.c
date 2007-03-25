@@ -2414,10 +2414,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		break;
 	case 4:
 		strcpy(content_type, "text/plain");
-		mptr = bmstrcasestr(msg->cm_fields['M'], "Content-type: ");
+		mptr = bmstrcasestr(msg->cm_fields['M'], "Content-type:");
 		if (mptr != NULL) {
-			safestrncpy(content_type, &mptr[14], 
-					sizeof content_type);
+			safestrncpy(content_type, &mptr[13], sizeof content_type);
+			striplt(content_type);
 			for (a = 0; a < strlen(content_type); ++a) {
 				if ((content_type[a] == ';')
 				    || (content_type[a] == ' ')
