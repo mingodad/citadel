@@ -631,6 +631,12 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 }
 
 
+struct attach_link {
+	char partnum[32];
+	char html[1024];
+};
+
+
 /**
  * \brief I wanna SEE that message!  
  * \param msgnum the citadel number of the message to display
@@ -645,7 +651,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char mime_charset[256];
 	char mime_disposition[256];
 	int mime_length;
-	char mime_http[SIZ];
+	struct attach_link *attach_links = NULL;
+	int num_attach_links = 0;
 	char mime_submessages[256];
 	char m_subject[256];
 	char m_cc[1024];
@@ -662,6 +669,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char vcard_partnum[256];
 	char cal_partnum[256];
 	char *part_source = NULL;
+	char msg4_partnum[32];
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;		   /**< Buffer of characters to be converted */
@@ -678,7 +686,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 	strcpy(reply_all, "");
 	strcpy(vcard_partnum, "");
 	strcpy(cal_partnum, "");
-	strcpy(mime_http, "");
 	strcpy(mime_content_type, "text/plain");
 	strcpy(mime_charset, "us-ascii");
 	strcpy(mime_submessages, "");
@@ -804,8 +811,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 			else if ((!strcasecmp(mime_disposition, "inline"))
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
-				snprintf(&mime_http[strlen(mime_http)],
-					(sizeof(mime_http) - strlen(mime_http) - 1),
+				++num_attach_links;
+				attach_links = realloc(attach_links,
+					(num_attach_links*sizeof(struct attach_link)));
+				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
+				snprintf(attach_links[num_attach_links-1].html, 1024,
 					"<img src=\"mimepart/%ld/%s/%s\">",
 					msgnum, mime_partnum, mime_filename);
 			}
@@ -813,8 +823,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 			     || (!strcasecmp(mime_disposition, "inline"))
 			     || (!strcasecmp(mime_disposition, ""))
 			) {
-				snprintf(&mime_http[strlen(mime_http)],
-					(sizeof(mime_http) - strlen(mime_http) - 1),
+				++num_attach_links;
+				attach_links = realloc(attach_links,
+					(num_attach_links*sizeof(struct attach_link)));
+				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
+				snprintf(attach_links[num_attach_links-1].html, 1024,
 					"<img src=\"static/diskette_24x.gif\" "
 					"border=0 align=middle>\n"
 					"%s (%s, %d bytes) [ "
@@ -999,9 +1012,13 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("</i><br /><br />\n");
 			goto ENDBODY;
 		}
-		if (!strncasecmp(buf, "Content-type: ", 14)) {
-			safestrncpy(mime_content_type, &buf[14],
-				sizeof(mime_content_type));
+		if (!strncasecmp(buf, "X-Citadel-MSG4-Partnum:", 23)) {
+			safestrncpy(msg4_partnum, &buf[23], sizeof(msg4_partnum));
+			striplt(msg4_partnum);
+		}
+		if (!strncasecmp(buf, "Content-type:", 13)) {
+			safestrncpy(mime_content_type, &buf[13], sizeof(mime_content_type));
+			striplt(mime_content_type);
 			for (i=0; i<strlen(mime_content_type); ++i) {
 				if (!strncasecmp(&mime_content_type[i], "charset=", 8)) {
 					safestrncpy(mime_charset, &mime_content_type[i+8],
@@ -1106,8 +1123,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 
 	/** Afterwards, offer links to download attachments 'n' such */
-	if ( (strlen(mime_http) > 0) && (!section[0]) ) {
-		wprintf("%s", mime_http);
+	if ( (num_attach_links > 0) && (!section[0]) ) {
+		for (i=0; i<num_attach_links; ++i) {
+			if (strcasecmp(attach_links[i].partnum, msg4_partnum)) {
+				wprintf("%s", attach_links[i].html);
+			}
+		}
 	}
 
 	/** Handler for vCard parts */
@@ -1152,6 +1173,10 @@ ENDBODY:
 	if (!printable_view) {
 		wprintf("</td></tr></table>\n");
 		wprintf("</div><br />\n");
+	}
+
+	if (num_attach_links > 0) {
+		free(attach_links);
 	}
 
 #ifdef HAVE_ICONV
