@@ -708,7 +708,9 @@ int read_message(CtdlIPC *ipc,
 			   || (!strcasecmp(ptr->disposition, "inline"))
 			   || (!strcasecmp(ptr->disposition, ""))
 			) {
-				if (strcasecmp(ptr->number, message->mime_chosen)) {
+				if ( (strcasecmp(ptr->number, message->mime_chosen))
+				   && (strlen(ptr->mimetype) > 0)
+				) {
 					color(DIM_WHITE);
 					pprintf("Part ");
 					color(BRIGHT_MAGENTA);
