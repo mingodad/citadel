@@ -819,9 +819,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 					"<img src=\"mimepart/%ld/%s/%s\">",
 					msgnum, mime_partnum, mime_filename);
 			}
-			else if ( (!strcasecmp(mime_disposition, "attachment")) 
+			else if ( ( (!strcasecmp(mime_disposition, "attachment")) 
 			     || (!strcasecmp(mime_disposition, "inline"))
 			     || (!strcasecmp(mime_disposition, ""))
+			     ) && (strlen(mime_content_type) > 0)
 			) {
 				++num_attach_links;
 				attach_links = realloc(attach_links,
