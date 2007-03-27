@@ -65,7 +65,7 @@ void display_task(long msgnum) {
 /**
  * \brief Process a calendar object
  * ...at this point it's already been deserialized by cal_process_attachment()
- * \param cal teh calendar object
+ * \param cal the calendar object
  * \param recursion_level call stack depth ??????
  * \param msgnum number of the mesage in our db
  * \param cal_partnum of the calendar object ???? 

@@ -675,6 +675,9 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		lprintf(9, "Encapsulating into full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vevent));
 
+		/* Set the method to PUBLISH */
+		icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
+
 		/** If the user clicked 'Save' then save it to the server. */
 		lprintf(9, "Serializing it for saving\n");
 		if ( (encaps != NULL) && (strlen(bstr("save_button")) > 0) ) {
