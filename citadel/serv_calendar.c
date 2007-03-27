@@ -1413,7 +1413,7 @@ void ical_getics(void)
 	/* Set the Version Number */
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 
-	/* Set the method to REQUEST */
+	/* Set the method to PUBLISH */
 	icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
 	/* Now go through the room encapsulating all calendar items. */
@@ -1803,8 +1803,7 @@ void ical_saving_vevent(icalcomponent *cal) {
 	 * Send out invitations if, and only if, this user is the Organizer.
 	 */
 	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
-		organizer = icalcomponent_get_first_property(cal,
-						ICAL_ORGANIZER_PROPERTY);
+		organizer = icalcomponent_get_first_property(cal, ICAL_ORGANIZER_PROPERTY);
 		if (organizer != NULL) {
 			if (icalproperty_get_organizer(organizer)) {
 				strcpy(organizer_string,
