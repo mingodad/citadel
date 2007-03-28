@@ -122,11 +122,11 @@ extern locale_t wc_locales[];
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v7.06"	/* who's in da house */
+#define SERVER			"WebCit v7.07"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		706		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	705		/* min required Citadel ver. */
+#define CLIENT_VERSION		707		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	707		/* min required Citadel ver. */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -168,6 +168,7 @@ extern locale_t wc_locales[];
  */
 #define QR2_SYSTEM	1		/**< System room; hide by default	*/
 #define QR2_SELFLIST	2		/**< Self-service mailing list mgmt	*/
+#define QR2_COLLABDEL	4		/**< Anyone who can post can also delete*/
 
 /**
  * user/room access
@@ -338,6 +339,7 @@ struct wcsession {
 	int serv_sock;				/**< Client socket to Citadel server */
 	int chat_sock;				/**< Client socket to Citadel server - for chat */
 	unsigned room_flags;			/**< flags associated with the current room */
+	unsigned room_flags2;			/**< flags associated with the current room */
 	int wc_view;				/**< view for the current room */
 	int wc_default_view;			/**< default view for the current room */
 	int wc_is_trash;			/**< nonzero == current room is a Trash folder */

@@ -197,7 +197,6 @@ void listrms(char *variety)
 	struct roomlisting *rp;
 	struct roomlisting *rs;
 
-
 	/** Ask the server for a room list */
 	serv_puts(variety);
 	serv_getln(buf, sizeof buf);
@@ -205,6 +204,7 @@ void listrms(char *variety)
 		wprintf("&nbsp;");
 		return;
 	}
+
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		++num_rooms;
 		rp = malloc(sizeof(struct roomlisting));
@@ -741,6 +741,7 @@ int gotoroom(char *gname)
 	WC->wc_view = extract_int(&buf[4], 11);
 	WC->wc_default_view = extract_int(&buf[4], 12);
 	WC->wc_is_trash = extract_int(&buf[4], 13);
+	WC->room_flags2 = extract_int(&buf[4], 14);
 
 	if (WC->is_aide)
 		WC->is_room_aide = WC->is_aide;
@@ -992,15 +993,16 @@ int self_service(int newval) {
 void display_editroom(void)
 {
 	char buf[SIZ];
-	char cmd[SIZ];
-	char node[SIZ];
-	char remote_room[SIZ];
-	char recp[SIZ];
+	char cmd[1024];
+	char node[256];
+	char remote_room[128];
+	char recp[1024];
 	char er_name[128];
 	char er_password[10];
 	char er_dirname[15];
 	char er_roomaide[26];
 	unsigned er_flags;
+	unsigned er_flags2;
 	int er_floor;
 	int i, j;
 	char *tab;
@@ -1028,6 +1030,7 @@ void display_editroom(void)
 	extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
 	er_flags = extract_int(&buf[4], 3);
 	er_floor = extract_int(&buf[4], 4);
+	er_flags2 = extract_int(&buf[4], 7);
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -1235,6 +1238,12 @@ void display_editroom(void)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Read-only room"));
+	
+		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
+		if (er_flags2 & QR2_COLLABDEL)
+			wprintf("CHECKED ");
+		wprintf("> ");
+		wprintf(_("All users allowed to post may also delete messages"));
 	
 		/** directory stuff */
 		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
@@ -1702,6 +1711,9 @@ void editroom(void)
 	char er_roomaide[26];
 	int er_floor;
 	unsigned er_flags;
+	int er_listingorder;
+	int er_defaultview;
+	unsigned er_flags2;
 	int bump;
 
 
@@ -1723,6 +1735,9 @@ void editroom(void)
 	extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
 	extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
 	er_flags = extract_int(&buf[4], 3);
+	er_listingorder = extract_int(&buf[4], 5);
+	er_defaultview = extract_int(&buf[4], 6);
+	er_flags2 = extract_int(&buf[4], 7);
 
 	strcpy(er_roomaide, bstr("er_roomaide"));
 	if (strlen(er_roomaide) == 0) {
@@ -1772,6 +1787,12 @@ void editroom(void)
 		er_flags |= QR_READONLY;
 	} else {
 		er_flags &= ~QR_READONLY;
+	}
+
+	if (!strcmp(bstr("collabdel"), "yes")) {
+		er_flags2 |= QR2_COLLABDEL;
+	} else {
+		er_flags2 &= ~QR2_COLLABDEL;
 	}
 
 	if (!strcmp(bstr("permanent"), "yes")) {
@@ -1824,8 +1845,9 @@ void editroom(void)
 
 	er_floor = atoi(bstr("er_floor"));
 
-	sprintf(buf, "SETR %s|%s|%s|%u|%d|%d",
-	     er_name, er_password, er_dirname, er_flags, bump, er_floor);
+	sprintf(buf, "SETR %s|%s|%s|%u|%d|%d|%d|%d|%u",
+		er_name, er_password, er_dirname, er_flags, bump, er_floor,
+		er_listingorder, er_defaultview, er_flags2);
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
