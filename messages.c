@@ -972,7 +972,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 
 		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
-		if ( (WC->is_room_aide) || (WC->is_mailbox) ) {
+		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
 			/** Move */
 			wprintf("<a href=\"confirm_move_msg?msgid=%ld\">[%s]</a> ",
 				msgnum, _("Move"));
