@@ -314,6 +314,10 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		}
 #endif
 
+		/* If users cannot create their own accounts, they cannot re-register either. */
+		if ( (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
+			return(1);
+		}
 	}
 
 	/* Is this a room with an address book in it? */
@@ -638,6 +642,12 @@ void cmd_regi(char *argbuf) {
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR + NOT_LOGGED_IN);
 		return;
+	}
+
+	/* If users cannot create their own accounts, they cannot re-register either. */
+	if ( (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
+		cprintf("%d Self-service registration is not allowed here.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
 	my_vcard = vcard_get_user(&CC->user);

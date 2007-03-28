@@ -106,6 +106,10 @@ void get_config(void) {
 		config.c_net_freq = 3600L;	/* once per hour default */
 	if (config.c_net_freq < 300L) 
 		config.c_net_freq = 300L;
+
+	/* "create new user" never works with host auth */
+	if (config.c_auth_mode == 1)
+		config.c_disable_newu = 1;
 }
 
 
