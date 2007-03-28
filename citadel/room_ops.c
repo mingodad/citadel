@@ -44,7 +44,7 @@
 struct floor *floorcache[MAXFLOORS];
 
 /*
- * Generic routine for determining user access to rooms
+ * Retrieve access control information for any user/room pair
  */
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view)
@@ -129,6 +129,15 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED;
+		}
+
+		/* If "collaborative deletion" is active for this room, any user who can post
+		 * is also allowed to delete
+		 */
+		if (CC->room.QRflags2 & QR2_COLLABDEL) {
+			if (retval & UA_POSTALLOWED) {
+				retval = retval | UA_DELETEALLOWED;
+			}
 		}
 
 	}
@@ -919,7 +928,7 @@ void usergoto(char *where, int display_result, int transiently,
 	CC->curr_view = (int)vbuf.v_view;
 
 	if (display_result) {
-		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|\n",
+		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|\n",
 			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			(int)new_messages,
@@ -934,7 +943,8 @@ void usergoto(char *where, int display_result, int transiently,
 			(int)CC->room.QRfloor,
 			(int)vbuf.v_view,
 			(int)CC->room.QRdefaultview,
-			(int)is_trash
+			(int)is_trash,
+			(int)CC->room.QRflags2
 		);
 	}
 }

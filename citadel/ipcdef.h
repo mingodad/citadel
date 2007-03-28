@@ -55,6 +55,7 @@ extern "C" {
 
 #define QR2_SYSTEM	1		/* System room; hide by default     */
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
+#define QR2_COLLABDEL	4		/* Anyone who can post can delete   */
 
 #define US_NEEDVALID	1		/* User needs to be validated       */
 #define US_EXTEDIT	2		/* Always use external editor       */

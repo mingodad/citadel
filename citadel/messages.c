@@ -71,6 +71,7 @@ int num_msgs;
 char rc_alt_semantics;
 extern char room_name[];
 extern unsigned room_flags;
+extern unsigned room_flags2;
 extern long highest_msg_read;
 extern char temp[];
 extern char temp2[];
@@ -1652,9 +1653,10 @@ RMSGREAD:	scr_flush();
 /* space key same as <N> */ if (e == 32)
 					e = 'n';
 /* del/move for aides only */
-				    if ((!is_room_aide)
-					&& ((room_flags & QR_MAILBOX) ==
-					    0)) {
+				    if (  (!is_room_aide)
+				       && ((room_flags & QR_MAILBOX) == 0)
+				       && ((room_flags2 & QR2_COLLABDEL) == 0)
+				       ) {
 					if ((e == 'd') || (e == 'm'))
 						e = 0;
 				}
@@ -1742,8 +1744,10 @@ RMSGREAD:	scr_flush();
 				" N  Next (continue with next message)\n"
 				" Y  My Next (continue with next message you authored)\n"
 				" B  Back (go back to previous message)\n");
-			if ((is_room_aide)
-			    || (room_flags & QR_MAILBOX)) {
+			if (  (is_room_aide)
+			   || (room_flags & QR_MAILBOX)
+			   || (room_flags2 & QR2_COLLABDEL)
+			) {
 				scr_printf(" D  Delete this message\n"
 					" M  Move message to another room\n");
 			}

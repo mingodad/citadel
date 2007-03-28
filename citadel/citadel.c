@@ -74,6 +74,7 @@ char fullname[USERNAME_SIZE];
 int screenwidth;
 int screenheight;
 unsigned room_flags;
+unsigned room_flags2;
 char room_name[ROOMNAMELEN];
 char *uglist[UGLISTLEN]; /* size of the ungoto list */
 long uglistlsn[UGLISTLEN]; /* current read position for all the ungoto's. Not going to make any friends with this one. */
@@ -431,6 +432,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	}
 	safestrncpy(room_name, room->RRname, ROOMNAMELEN);
 	room_flags = room->RRflags;
+	room_flags = room->RRflags2;
 	from_floor = curr_floor;
 	curr_floor = room->RRfloor;
 

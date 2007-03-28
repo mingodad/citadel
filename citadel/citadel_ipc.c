@@ -408,6 +408,7 @@ int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		rret[0]->RRaide = extract_int(cret, 8);
 		rret[0]->RRnewmail = extract_long(cret, 9);
 		rret[0]->RRfloor = extract_int(cret, 10);
+		rret[0]->RRflags2 = extract_int(cret, 14);
 	} else {
 		free(*rret);
 		*rret = NULL;

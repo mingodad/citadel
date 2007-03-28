@@ -568,10 +568,13 @@ void editthisroom(CtdlIPC *ipc)
 					"Preferred users only", QR_PREFONLY);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 					"Read-only room", QR_READONLY);
-	attr->QRflags = set_room_attr(ipc, attr->QRflags,
-					"Directory room", QR_DIRECTORY);
+	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
+				"Allow message deletion by anyone who can post",
+				QR2_COLLABDEL);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 					"Permanent room", QR_PERMANENT);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Directory room", QR_DIRECTORY);
 	if (attr->QRflags & QR_DIRECTORY) {
 		strprompt("Directory name", attr->QRdirname, 14);
 		attr->QRflags =
@@ -597,7 +600,7 @@ void editthisroom(CtdlIPC *ipc)
 				       "Ask users whether to make messages anonymous",
 				       QR_ANONOPT);
 	}
-	attr->QRorder = intprompt("Listing order", attr->QRorder, 1, 127);
+	attr->QRorder = intprompt("Listing order", attr->QRorder, 0, 127);
 
 	/* Ask about the room aide */
 	do {

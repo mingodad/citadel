@@ -93,6 +93,7 @@ struct ctdlipcroom {
 	long RRtotal;			/* Total number of messages in room */
 	char RRinfoupdated;		/* Nonzero if info was updated */
 	unsigned RRflags;		/* Various flags (see LKRN) */
+	unsigned RRflags2;		/* Various flags (see LKRN) */
 	long RRhighest;			/* Highest message number in room */
 	long RRlastread;		/* Highest message user has read */
 	char RRismailbox;		/* Is this room a mailbox room? */
