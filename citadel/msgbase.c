@@ -3786,6 +3786,9 @@ void cmd_move(char *args)
 	   && (!(CC->room.QRflags & QR_MAILBOX))
 	   && (qtemp.QRflags & QR_MAILBOX)) permit = 1;
 
+	/* Permit message removal from collaborative delete rooms */
+	if (CC->room.QRflags2 & QR2_COLLABDEL) permit = 1;
+
 	/* User must have access to target room */
 	if (!(ra & UA_KNOWN))  permit = 0;
 
