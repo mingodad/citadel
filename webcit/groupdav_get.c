@@ -111,18 +111,46 @@ void groupdav_get(char *dav_pathname) {
 		return;
 	}
 
+	/* We got it; a message is now arriving from the server.  Read it in. */
+
+	char *msgtext = NULL;
+	size_t msglen = 0;
+	size_t msgalloc = 0;
+	int linelen;
+
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		linelen = strlen(buf);
+		if ((msglen + linelen + 3) > msgalloc) {
+			msgalloc = ( (msgalloc > 0) ? (msgalloc * 2) : 1024 );
+			msgtext = realloc(msgtext, msgalloc);
+		}
+		strcpy(&msgtext[msglen], buf);
+		msglen += linelen;
+		strcpy(&msgtext[msglen], "\n");
+		msglen += 1;
+	}
+	msgtext[msglen] = 0;
+
+	/* Now do something with it.  FIXME boil it down to only the part we need */
+
+	char *ptr = msgtext;
+	char *endptr = &msgtext[msglen];
+
 	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
 	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+
+	do {
+		ptr = memreadline(ptr, buf, sizeof buf);
+
 		if (in_body) {
 			wprintf("%s\r\n", buf);
 		}
 		else if (!strncasecmp(buf, "Date: ", 6)) {
 			wprintf("%s\r\n", buf);
 		}
-		else if (!strncasecmp(buf, "Content-type: ", 14)) {
-			wprintf("%s", buf);
+		else if (!strncasecmp(buf, "Content-type:", 13)) {
+			/* wprintf("%s", buf); */
 			if (bmstrcasestr(buf, "charset=")) {
 				wprintf("%s\r\n", buf);
 			}
@@ -138,6 +166,9 @@ void groupdav_get(char *dav_pathname) {
 			in_body = 1;
 			begin_burst();
 		}
-	}
+	} while (ptr < endptr);
+
 	end_burst();
+
+	free(msgtext);
 }
