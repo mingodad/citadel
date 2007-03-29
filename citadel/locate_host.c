@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -109,6 +110,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	const u_char *cend;
 	const u_char *rend;
 	int len;
+	char *p = NULL;
 
 	/* Make our DNS query. */
 	//res_init();
@@ -205,6 +207,10 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	*rp = '\0';
 	if (txtbuf != NULL) {
 		snprintf(txtbuf, txtbufsize, "%s", result);
+	}
+	/* Remove nonprintable characters */
+	for (p=txtbuf; *p; ++p) {
+		if (!isprint(*p)) strcpy(p, p+1);
 	}
 	if (need_to_free_answer) free(answer);
 	free(result);

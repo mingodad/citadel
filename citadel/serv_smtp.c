@@ -128,7 +128,7 @@ int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 /*
  * Here's where our SMTP session begins its happy day.
  */
-void smtp_greeting(void)
+void smtp_greeting(int is_msa)
 {
 	char message_to_spammer[1024];
 
@@ -141,11 +141,12 @@ void smtp_greeting(void)
 	memset(SMTP, 0, sizeof(struct citsmtp));
 	memset(SMTP_RECPS, 0, SIZ);
 	memset(SMTP_ROOMS, 0, SIZ);
+	SMTP->is_msa = is_msa;
 
 	/* If this config option is set, reject connections from problem
 	 * addresses immediately instead of after they execute a RCPT
 	 */
-	if (config.c_rbl_at_greeting) {
+	if ( (config.c_rbl_at_greeting) && (SMTP->is_msa == 0) ) {
 		if (rbl_check(message_to_spammer)) {
 			cprintf("550 %s\r\n", message_to_spammer);
 			CC->kill_me = 1;
@@ -175,7 +176,7 @@ void smtp_greeting(void)
 #ifdef HAVE_OPENSSL
 void smtps_greeting(void) {
 	CtdlStartTLS(NULL, NULL, NULL);
-	smtp_greeting();
+	smtp_greeting(0);
 }
 #endif
 
@@ -184,8 +185,7 @@ void smtps_greeting(void) {
  * SMTP MSA port requires authentication.
  */
 void smtp_msa_greeting(void) {
-	smtp_greeting();
-	SMTP->is_msa = 1;
+	smtp_greeting(1);
 }
 
 
@@ -193,8 +193,16 @@ void smtp_msa_greeting(void) {
  * LMTP is like SMTP but with some extra bonus footage added.
  */
 void lmtp_greeting(void) {
-	smtp_greeting();
+	smtp_greeting(0);
 	SMTP->is_lmtp = 1;
+}
+
+
+/* 
+ * Generic SMTP MTA greeting
+ */
+void smtp_mta_greeting(void) {
+	smtp_greeting(0);
 }
 
 
@@ -202,7 +210,7 @@ void lmtp_greeting(void) {
  * We also have an unfiltered LMTP socket that bypasses spam filters.
  */
 void lmtp_unfiltered_greeting(void) {
-	smtp_greeting();
+	smtp_greeting(0);
 	SMTP->is_lmtp = 1;
 	SMTP->is_unfiltered = 1;
 }
@@ -1908,7 +1916,7 @@ char *serv_smtp_init(void)
 
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 				NULL,
-				smtp_greeting,
+				smtp_mta_greeting,
 				smtp_command_loop,
 				NULL);
 
