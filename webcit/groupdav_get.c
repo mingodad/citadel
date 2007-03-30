@@ -8,6 +8,7 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
+#include "mime_parser.h"
 
 
 /*
@@ -42,6 +43,47 @@ void groupdav_get_big_ics(void) {
 }
 
 
+/* 
+ * MIME parser callback function for groupdav_get()
+ * Helps identify the relevant section of a multipart message
+ */
+void extract_preferred(char *name, char *filename, char *partnum, char *disp,
+			void *content, char *cbtype, char *cbcharset,
+			size_t length, char *encoding, void *userdata)
+{
+	struct epdata *epdata = (struct epdata *)userdata;
+	int hit = 0;
+
+	/* We only want the first one that we found */
+	if (strlen(epdata->found_section) > 0) return;
+
+	/* Check for a content type match */
+	if (strlen(epdata->desired_content_type_1) > 0) {
+		if (!strcasecmp(epdata->desired_content_type_1, cbtype)) {
+			hit = 1;
+		}
+	}
+	if (strlen(epdata->desired_content_type_2) > 0) {
+		if (!strcasecmp(epdata->desired_content_type_2, cbtype)) {
+			hit = 1;
+		}
+	}
+
+	/* Is this the one?  If so, output it. */
+	if (hit) {
+		safestrncpy(epdata->found_section, partnum, sizeof epdata->found_section);
+		if (strlen(cbcharset) > 0) {
+			safestrncpy(epdata->charset, cbcharset, sizeof epdata->charset);
+		}
+		wprintf("Content-type: %s; charset=%s\r\n", cbtype, epdata->charset);
+		begin_burst();
+		client_write(content, length);
+		end_burst();
+	}
+}
+
+
+
 /*
  * The pathname is always going to take one of two formats:
  * /groupdav/room_name/euid	(GroupDAV)
@@ -63,6 +105,7 @@ void groupdav_get(char *dav_pathname) {
 	char content_type[128];
 	char charset[128];
 	char date[128];
+	struct epdata epdata;
 
 	if (num_tokens(dav_pathname, '/') < 3) {
 		wprintf("HTTP/1.1 404 not found\r\n");
@@ -165,35 +208,57 @@ void groupdav_get(char *dav_pathname) {
 		}
 	}
 	msgtext[msglen] = 0;
-	lprintf(9, "CONTENT TYPE: '%s'\n", content_type);
-	lprintf(9, "CHARSET: '%s'\n", charset);
-	lprintf(9, "DATE: '%s'\n", date);
 
-	/* Now do something with it.  FIXME boil it down to only the part we need */
-
-	ptr = msgtext;
-	endptr = &msgtext[msglen];
+	/* Output headers common to single or multi part messages */
 
 	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
 	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
-	wprintf("Content-type: %s; charset=%s\r\n", content_type, charset);
 	wprintf("Date: %s\r\n", date);
 
-	in_body = 0;
-	do {
-		ptr = memreadline(ptr, buf, sizeof buf);
+	memset(&epdata, 0, sizeof(struct epdata));
+	safestrncpy(epdata.charset, charset, sizeof epdata.charset);
 
-		if (in_body) {
-			wprintf("%s\r\n", buf);
-		}
-		else if ((strlen(buf) == 0) && (in_body == 0)) {
-			in_body = 1;
-			begin_burst();
-		}
-	} while (ptr < endptr);
+	/* If we have a multipart message on our hands, and we are in a groupware room,
+	 * strip it down to only the relevant part.
+	 */
+	if (!strncasecmp(content_type, "multipart/", 10)) {
 
-	end_burst();
+		if ( (WC->wc_default_view == VIEW_CALENDAR) || (WC->wc_default_view == VIEW_TASKS) ) {
+			strcpy(epdata.desired_content_type_1, "text/calendar");
+		}
+
+		else if (WC->wc_default_view == VIEW_ADDRESSBOOK) {
+			strcpy(epdata.desired_content_type_1, "text/vcard");
+			strcpy(epdata.desired_content_type_2, "text/x-vcard");
+		}
+
+		mime_parser(msgtext, &msgtext[msglen], extract_preferred, NULL, NULL, (void *)&epdata, 0);
+	}
+
+	/* If epdata.found_section is empty, we haven't output anything yet, so output the whole thing */
+
+	if (strlen(epdata.found_section) == 0) {
+		ptr = msgtext;
+		endptr = &msgtext[msglen];
+	
+		wprintf("Content-type: %s; charset=%s\r\n", content_type, charset);
+	
+		in_body = 0;
+		do {
+			ptr = memreadline(ptr, buf, sizeof buf);
+	
+			if (in_body) {
+				wprintf("%s\r\n", buf);
+			}
+			else if ((buf[0] == 0) && (in_body == 0)) {
+				in_body = 1;
+				begin_burst();
+			}
+		} while (ptr < endptr);
+	
+		end_burst();
+	}
 
 	free(msgtext);
 }
