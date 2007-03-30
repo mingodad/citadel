@@ -54,6 +54,15 @@ void groupdav_get(char *dav_pathname) {
 	char buf[1024];
 	int in_body = 0;
 	int found_content_type = 0;
+	char *ptr;
+	char *endptr;
+	char *msgtext = NULL;
+	size_t msglen = 0;
+	size_t msgalloc = 0;
+	int linelen;
+	char content_type[128];
+	char charset[128];
+	char date[128];
 
 	if (num_tokens(dav_pathname, '/') < 3) {
 		wprintf("HTTP/1.1 404 not found\r\n");
@@ -113,13 +122,15 @@ void groupdav_get(char *dav_pathname) {
 
 	/* We got it; a message is now arriving from the server.  Read it in. */
 
-	char *msgtext = NULL;
-	size_t msglen = 0;
-	size_t msgalloc = 0;
-	int linelen;
-
+	in_body = 0;
+	found_content_type = 0;
+	strcpy(charset, "UTF-8");
+	strcpy(content_type, "text/plain");
+	strcpy(date, "");
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		linelen = strlen(buf);
+
+		/* Append it to the buffer */
 		if ((msglen + linelen + 3) > msgalloc) {
 			msgalloc = ( (msgalloc > 0) ? (msgalloc * 2) : 1024 );
 			msgtext = realloc(msgtext, msgalloc);
@@ -128,41 +139,55 @@ void groupdav_get(char *dav_pathname) {
 		msglen += linelen;
 		strcpy(&msgtext[msglen], "\n");
 		msglen += 1;
+
+		/* Also learn some things about the message */
+		if (linelen == 0) {
+			in_body = 1;
+		}
+		if (!in_body) {
+			if (!strncasecmp(buf, "Date:", 5)) {
+				safestrncpy(date, &buf[5], sizeof date);
+				striplt(date);
+			}
+			if (!strncasecmp(buf, "Content-type:", 13)) {
+				safestrncpy(content_type, &buf[13], sizeof content_type);
+				striplt(content_type);
+				ptr = bmstrcasestr(&buf[13], "charset=");
+				if (ptr) {
+					safestrncpy(charset, ptr+8, sizeof charset);
+					striplt(charset);
+					endptr = strchr(charset, ';');
+					if (endptr != NULL) strcpy(endptr, "");
+				}
+				endptr = strchr(content_type, ';');
+				if (endptr != NULL) strcpy(endptr, "");
+			}
+		}
 	}
 	msgtext[msglen] = 0;
+	lprintf(9, "CONTENT TYPE: '%s'\n", content_type);
+	lprintf(9, "CHARSET: '%s'\n", charset);
+	lprintf(9, "DATE: '%s'\n", date);
 
 	/* Now do something with it.  FIXME boil it down to only the part we need */
 
-	char *ptr = msgtext;
-	char *endptr = &msgtext[msglen];
+	ptr = msgtext;
+	endptr = &msgtext[msglen];
 
 	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
 	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
+	wprintf("Content-type: %s; charset=%s\r\n", content_type, charset);
+	wprintf("Date: %s\r\n", date);
 
+	in_body = 0;
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
 
 		if (in_body) {
 			wprintf("%s\r\n", buf);
 		}
-		else if (!strncasecmp(buf, "Date: ", 6)) {
-			wprintf("%s\r\n", buf);
-		}
-		else if (!strncasecmp(buf, "Content-type:", 13)) {
-			/* wprintf("%s", buf); */
-			if (bmstrcasestr(buf, "charset=")) {
-				wprintf("%s\r\n", buf);
-			}
-			else {
-				wprintf("%s;charset=UTF-8\r\n", buf);
-			}
-			found_content_type = 1;
-		}
 		else if ((strlen(buf) == 0) && (in_body == 0)) {
-			if (!found_content_type) {
-				wprintf("Content-type: text/plain\r\n");
-			}
 			in_body = 1;
 			begin_burst();
 		}
