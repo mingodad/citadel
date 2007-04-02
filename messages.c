@@ -254,14 +254,10 @@ void url(char *buf)
 
 	int pos;
 	int start, end;
-	char ench, eench;
 	char urlbuf[SIZ];
 	char outbuf[1024];
-
 	start = (-1);
 	end = strlen(buf);
-	ench = 0;
-	eench = 0;
 
 	for (pos = 0; pos < strlen(buf); ++pos) {
 		if (!strncasecmp(&buf[pos], "http://", 7))
@@ -273,22 +269,23 @@ void url(char *buf)
 	if (start < 0)
 		return;
 
-	if ((start > 0) && (buf[start - 1] == '<'))
-		ench = '>';
-	if ((start > 0) && (buf[start - 1] == '('))
-		ench = ')';
-	if ((start > 0) && (buf[start - 1] == '{'))
-		ench = '}';
-	if ((start > 0) && (buf[start - 1] == '[')) {
-		ench = ']';
-		eench = '|';
-	}
-
 	for (pos = strlen(buf); pos > start; --pos) {
-		if ((buf[pos] == ' ')  || 
-		    (buf[pos] == ench) ||
-		    (buf[pos] == eench))
+		if (  (buf[pos] == ' ')
+		   || (buf[pos] == '{')
+		   || (buf[pos] == '}')
+		   || (buf[pos] == '|')
+		   || (buf[pos] == '\\')
+		   || (buf[pos] == '^')
+		   || (buf[pos] == '[')
+		   || (buf[pos] == ']')
+		   || (buf[pos] == '`')
+		   || (buf[pos] == '<')
+		   || (buf[pos] == '>')
+		   || (buf[pos] == '(')
+		   || (buf[pos] == ')')
+		) {
 			end = pos;
+		}
 	}
 
 	strncpy(urlbuf, &buf[start], end - start);
