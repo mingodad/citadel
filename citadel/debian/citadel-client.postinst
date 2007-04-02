@@ -5,7 +5,9 @@ set -e
 
 case "$1" in
     configure)
-        chown citadel:citadel /etc/citadel/citadel.rc
+        if test -f /etc/citadel/citadel.rc; then
+	    chown citadel:citadel /etc/citadel/citadel.rc
+	fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
