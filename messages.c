@@ -270,7 +270,8 @@ void url(char *buf)
 		return;
 
 	for (pos = strlen(buf); pos > start; --pos) {
-		if (  (buf[pos] == ' ')
+		if (  (!isprint(buf[pos]))
+		   || (isspace(buf[pos]))
 		   || (buf[pos] == '{')
 		   || (buf[pos] == '}')
 		   || (buf[pos] == '|')
