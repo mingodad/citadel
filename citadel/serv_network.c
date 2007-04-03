@@ -566,8 +566,7 @@ void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
 	/* Generate delivery instructions for each recipient */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
 		size_t tmp = strlen(instr);
-		snprintf(&instr[tmp], instr_len - tmp,
-			 "remote|%s|0||\n", nptr->name);
+		snprintf(&instr[tmp], instr_len - tmp, "remote|%s|0||\n", nptr->name);
 	}
 
 	/*
@@ -1488,8 +1487,8 @@ void network_process_buffer(char *buffer, long size) {
 		recp = validate_recipients(msg->cm_fields['R']);
 		if (recp != NULL) if (recp->num_error != 0) {
 			network_bounce(msg,
-"A message you sent could not be delivered due to an invalid address.\n"
-"Please check the address and try sending the message again.\n");
+				"A message you sent could not be delivered due to an invalid address.\n"
+				"Please check the address and try sending the message again.\n");
 			msg = NULL;
 			free(recp);
 			return;

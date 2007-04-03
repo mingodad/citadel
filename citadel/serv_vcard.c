@@ -1006,7 +1006,6 @@ void check_get(void) {
 		}
 		if (rcpt != NULL) free (rcpt);
 	}
-///	CC->kill_me = 1;
 }
 
 void check_get_greeting(void) {

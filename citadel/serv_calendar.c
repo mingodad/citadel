@@ -323,6 +323,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			valid = validate_recipients(organizer_string);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
+			free (valid);
 		}
 	}
 	free(serialized_reply);

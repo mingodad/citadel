@@ -106,11 +106,6 @@ enum {				/* Command states for login authentication */
 	smtp_plain
 };
 
-enum {				/* Delivery modes */
-	smtp_deliver_local,
-	smtp_deliver_remote
-};
-
 #define SMTP		CC->SMTP
 #define SMTP_RECPS	CC->SMTP_RECPS
 #define SMTP_ROOMS	CC->SMTP_ROOMS
