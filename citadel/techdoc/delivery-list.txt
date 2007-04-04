@@ -68,21 +68,6 @@ fails).
     Citadel, or an Internet e-mail address.
  
  
- INSTRUCTION:  local
- SYNTAX:       local|Friko Mumjiboolean|0
- DESCRIPTION:
-    Indicates the name of a recipient on the local system to which the
-    message must be delivered.  Almost never seen because most code delivers
-    directly.
- 
- 
- INSTRUCTION:  room
- SYNTAX:       room|Lobby|0
- DESCRIPTION:
-    Indicates the name of a room on the local system to which the message
-    must be copied.  Same implications as 'local'.
- 
- 
  INSTRUCTION:  remote
  SYNTAX:       remote|friko@mumjiboolean.com|0|delivery status message
  DESCRIPTION:
@@ -95,9 +80,3 @@ fails).
            should be placed in the fourth field so that a bounce message may
            be generated.
  
- 
- INSTRUCTION:  ignet
- SYNTAX:       ignet|uncnsrd|Lobby|0|delivery status message
- DESCRIPTION:
-    Names a room on another Citadel node to which this message needs to be
-    spooled over the network.

@@ -140,8 +140,6 @@ struct CitContext {
 	struct citpop3 *POP3;
 	struct citsmtp *SMTP;
 	struct citmgsve *MGSVE; /**< Managesieve Session struct */
-	char *SMTP_RECPS;
-	char *SMTP_ROOMS;
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
 };

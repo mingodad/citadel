@@ -107,8 +107,6 @@ enum {				/* Command states for login authentication */
 };
 
 #define SMTP		CC->SMTP
-#define SMTP_RECPS	CC->SMTP_RECPS
-#define SMTP_ROOMS	CC->SMTP_ROOMS
 
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
@@ -131,11 +129,7 @@ void smtp_greeting(int is_msa)
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
 	SMTP = malloc(sizeof(struct citsmtp));
-	SMTP_RECPS = malloc(SIZ);
-	SMTP_ROOMS = malloc(SIZ);
 	memset(SMTP, 0, sizeof(struct citsmtp));
-	memset(SMTP_RECPS, 0, SIZ);
-	memset(SMTP_ROOMS, 0, SIZ);
 	SMTP->is_msa = is_msa;
 
 	/* If this config option is set, reject connections from problem
@@ -1455,12 +1449,7 @@ void smtp_do_bounce(char *instr) {
 			omsgid = atol(addr);
 		}
 
-		if (
-		   (!strcasecmp(key, "local"))
-		   || (!strcasecmp(key, "remote"))
-		   || (!strcasecmp(key, "ignet"))
-		   || (!strcasecmp(key, "room"))
-		) {
+		if (!strcasecmp(key, "remote")) {
 			if (status == 5) bounce_this = 1;
 			if (give_up) bounce_this = 1;
 		}
@@ -1579,12 +1568,7 @@ int smtp_purge_completed_deliveries(char *instr) {
 
 		completed = 0;
 
-		if (
-		   (!strcasecmp(key, "local"))
-		   || (!strcasecmp(key, "remote"))
-		   || (!strcasecmp(key, "ignet"))
-		   || (!strcasecmp(key, "room"))
-		) {
+		if (!strcasecmp(key, "remote")) {
 			if (status == 2) completed = 1;
 			else ++incomplete;
 		}
@@ -1898,8 +1882,6 @@ void smtp_cleanup_function(void) {
 
 	lprintf(CTDL_DEBUG, "Performing SMTP cleanup hook\n");
 	free(SMTP);
-	free(SMTP_ROOMS);
-	free(SMTP_RECPS);
 }
 
 
