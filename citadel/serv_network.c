@@ -427,10 +427,9 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	int i;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
-	long msgnum;
-	char *instr = NULL;
-	size_t instr_len = SIZ;
-	struct CtdlMessage *imsg = NULL;
+	char *recps = NULL;
+	size_t recps_len = SIZ;
+	struct recptypes *valid;
 	struct namelist *nptr;
 
 	if (sc->num_msgs_spooled < 1) {
@@ -472,54 +471,38 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
 
-	msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
-	CtdlFreeMessage(msg);
-
 	/* Now generate the delivery instructions */
 
 	/* 
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
-		instr_len = instr_len + strlen(nptr->name) + 2;
+		recps_len = recps_len + strlen(nptr->name) + 2;
 	}
 	
-	/*
- 	 * allocate...
- 	 */
-	lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-	instr = malloc(instr_len);
-	if (instr == NULL) {
-		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
-			(long)instr_len);
+	recps = malloc(recps_len);
+
+	if (recps == NULL) {
+		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
 		abort();
 	}
-	snprintf(instr, instr_len,
-		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-		"bounceto|postmaster@%s\n" ,
-		SPOOLMIME, msgnum, (long)time(NULL), config.c_fqdn );
 
-	/* Generate delivery instructions for each recipient */
+	strcpy(recps, "");
+
+	/* Each recipient */
 	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
-		size_t tmp = strlen(instr);
-		snprintf(&instr[tmp], instr_len - tmp,
-			 "remote|%s|0||\n", nptr->name);
+		if (nptr != sc->digestrecps) {
+			strcat(recps, ",");
+		}
+		strcat(recps, nptr->name);
 	}
 
-	/*
- 	 * Generate a message from the instructions
- 	 */
-  	imsg = malloc(sizeof(struct CtdlMessage));
-	memset(imsg, 0, sizeof(struct CtdlMessage));
-	imsg->cm_magic = CTDLMESSAGE_MAGIC;
-	imsg->cm_anon_type = MES_NORMAL;
-	imsg->cm_format_type = FMT_RFC822;
-	imsg->cm_fields['A'] = strdup("Citadel");
-	imsg->cm_fields['M'] = instr;
-
-	/* Save delivery instructions in spoolout room */
-	CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
-	CtdlFreeMessage(imsg);
+	/* Now submit the message */
+	valid = validate_recipients(recps);
+	free(recps);
+	CtdlSubmitMsg(msg, valid, NULL);
+	CtdlFreeMessage(msg);
+	free_recipients(valid);
 }
 
 
@@ -527,17 +510,13 @@ void network_deliver_digest(struct SpoolControl *sc) {
  * Deliver list messages to everyone on the list ... efficiently
  */
 void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
-	long msgnum;
-	char *instr = NULL;
-	size_t instr_len = SIZ;
-	struct CtdlMessage *imsg = NULL;
+	char *recps = NULL;
+	size_t recps_len = SIZ;
+	struct recptypes *valid;
 	struct namelist *nptr;
 
 	/* Don't do this if there were no recipients! */
 	if (sc->listrecps == NULL) return;
-
-	/* Save the message to disk... */
-	msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 
 	/* Now generate the delivery instructions */
 
@@ -545,44 +524,32 @@ void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		instr_len = instr_len + strlen(nptr->name) + 2;
+		recps_len = recps_len + strlen(nptr->name) + 2;
 	}
 	
-	/*
- 	 * allocate...
- 	 */
-	lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-	instr = malloc(instr_len);
-	if (instr == NULL) {
-		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
-			(long)instr_len);
+	recps = malloc(recps_len);
+
+	if (recps == NULL) {
+		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
 		abort();
 	}
-	snprintf(instr, instr_len,
-		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-		"bounceto|postmaster@%s\n" ,
-		SPOOLMIME, msgnum, (long)time(NULL), config.c_fqdn );
 
-	/* Generate delivery instructions for each recipient */
+	strcpy(recps, "");
+
+	/* Each recipient */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		size_t tmp = strlen(instr);
-		snprintf(&instr[tmp], instr_len - tmp, "remote|%s|0||\n", nptr->name);
+		if (nptr != sc->listrecps) {
+			strcat(recps, ",");
+		}
+		strcat(recps, nptr->name);
 	}
 
-	/*
- 	 * Generate a message from the instructions
- 	 */
-  	imsg = malloc(sizeof(struct CtdlMessage));
-	memset(imsg, 0, sizeof(struct CtdlMessage));
-	imsg->cm_magic = CTDLMESSAGE_MAGIC;
-	imsg->cm_anon_type = MES_NORMAL;
-	imsg->cm_format_type = FMT_RFC822;
-	imsg->cm_fields['A'] = strdup("Citadel");
-	imsg->cm_fields['M'] = instr;
-
-	/* Save delivery instructions in spoolout room */
-	CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
-	CtdlFreeMessage(imsg);
+	/* Now submit the message */
+	valid = validate_recipients(recps);
+	free(recps);
+	CtdlSubmitMsg(msg, valid, NULL);
+	free_recipients(valid);
+	/* Do not call CtdlFreeMessage(msg) here; the caller will free it. */
 }
 
 

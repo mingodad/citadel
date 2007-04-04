@@ -150,6 +150,9 @@ int alias(char *name)
 	char testnode[64];
 	char buf[SIZ];
 
+	char original_name[256];
+	safestrncpy(original_name, name, sizeof original_name);
+
 	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 	stripallbut(name, '<', '>');
@@ -184,7 +187,9 @@ int alias(char *name)
 		strcpy(name, aaa);
 	}
 
-	lprintf(CTDL_INFO, "Mail is being forwarded to %s\n", name);
+	if (strcasecmp(original_name, name)) {
+		lprintf(CTDL_INFO, "%s is being forwarded to %s\n", original_name, name);
+	}
 
 	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
 	for (a=0; a<strlen(name); ++a) {
@@ -2357,7 +2362,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
 	struct CtdlMessage *imsg = NULL;
-	char *instr;
+	char *instr = NULL;
+	size_t instr_alloc = 0;
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
 	char *collected_addresses = NULL;
@@ -2567,15 +2573,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (getuser(&userbuf, recipient) == 0) {
 			// Add a flag so the Funambol module knows its mail
 			msg->cm_fields['W'] = strdup(recipient);
-			MailboxName(actual_rm, sizeof actual_rm,
-					&userbuf, MAILROOM);
+			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
 			if (strlen(config.c_funambol_host) > 0) {
 			/* Generate a instruction message for the Funambol notification
-			   server, in the same style as the SMTP queue */
-			   instr = malloc(SIZ * 2);
-			   snprintf(instr, SIZ * 2,
+			 * server, in the same style as the SMTP queue
+			 */
+			   instr_alloc = 1024;
+			   instr = malloc(instr_alloc);
+			   snprintf(instr, instr_alloc,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
@@ -2589,7 +2596,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			   imsg->cm_format_type = FMT_RFC822;
 			   imsg->cm_fields['A'] = strdup("Citadel");
 			   imsg->cm_fields['J'] = strdup("do not journal");
-			   imsg->cm_fields['M'] = instr;
+			   imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
 			   imsg->cm_fields['W'] = strdup(recipient);
 			   CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM);
 			   CtdlFreeMessage(imsg);
@@ -2650,7 +2657,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* Go back to the room we started from */
 	lprintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CC->room.QRname))
-		/* getroom(&CC->room, hold_rm); */
 		usergoto(hold_rm, 0, 1, NULL, NULL);
 
 	/* For internet mail, generate delivery instructions.
@@ -2661,8 +2667,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_internet > 0) {
 		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
-		instr = malloc(SIZ * 2);
-		snprintf(instr, SIZ * 2,
+		instr_alloc = 1024;
+		instr = malloc(instr_alloc);
+		snprintf(instr, instr_alloc,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
@@ -2671,10 +2678,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
 			size_t tmp = strlen(instr);
-			extract_token(recipient, recps->recp_internet,
-				i, '|', sizeof recipient);
-			snprintf(&instr[tmp], SIZ * 2 - tmp,
-				 "remote|%s|0||\n", recipient);
+			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
+			if ((tmp + strlen(recipient) + 32) > instr_alloc) {
+				instr_alloc = instr_alloc * 2;
+				instr = realloc(instr, instr_alloc);
+			}
+			snprintf(&instr[tmp], instr_alloc - tmp, "remote|%s|0||\n", recipient);
 		}
 
 		imsg = malloc(sizeof(struct CtdlMessage));
@@ -2684,7 +2693,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['J'] = strdup("do not journal");
-		imsg->cm_fields['M'] = instr;
+		imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
