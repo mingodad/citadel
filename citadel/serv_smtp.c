@@ -145,7 +145,7 @@ void smtp_greeting(int is_msa)
 		if (rbl_check(message_to_spammer)) {
 			cprintf("550 %s\r\n", message_to_spammer);
 			CC->kill_me = 1;
-			/* no need to free(valid), it's not allocated yet */
+			/* no need to free_recipients(valid), it's not allocated yet */
 			return;
 		}
 	}
@@ -157,7 +157,7 @@ void smtp_greeting(int is_msa)
 			config.c_maxsessions
 		);
 		CC->kill_me = 1;
-		/* no need to free(valid), it's not allocated yet */
+		/* no need to free_recipients(valid), it's not allocated yet */
 		return;
 	}
 
@@ -670,7 +670,7 @@ void smtp_rcpt(char *argbuf) {
 		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
 				cprintf("550 %s\r\n", message_to_spammer);
-				/* no need to free(valid), it's not allocated yet */
+				/* no need to free_recipients(valid), it's not allocated yet */
 				return;
 			}
 		}
@@ -679,7 +679,7 @@ void smtp_rcpt(char *argbuf) {
 	valid = validate_recipients(recp);
 	if (valid->num_error != 0) {
 		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
-		free(valid);
+		free_recipients(valid);
 		return;
 	}
 
@@ -687,7 +687,7 @@ void smtp_rcpt(char *argbuf) {
 		if (CC->logged_in) {
                         if (CtdlCheckInternetMailPermission(&CC->user)==0) {
 				cprintf("551 5.7.1 <%s> - you do not have permission to send Internet mail\r\n", recp);
-                                free(valid);
+                                free_recipients(valid);
                                 return;
                         }
                 }
@@ -697,7 +697,7 @@ void smtp_rcpt(char *argbuf) {
 		if ( (SMTP->message_originated_locally == 0)
 		   && (SMTP->is_lmtp == 0) ) {
 			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
-			free(valid);
+			free_recipients(valid);
 			return;
 		}
 	}
@@ -709,7 +709,7 @@ void smtp_rcpt(char *argbuf) {
 	strcat(SMTP->recipients, recp);
 	SMTP->number_of_recipients += 1;
 	if (valid != NULL) 
-		free(valid);
+		free_recipients(valid);
 }
 
 
@@ -863,7 +863,7 @@ void smtp_data(void) {
 
 	/* Clean up */
 	CtdlFreeMessage(msg);
-	free(valid);
+	free_recipients(valid);
 	smtp_data_clear();	/* clear out the buffers now */
 }
 
@@ -1543,7 +1543,7 @@ void smtp_do_bounce(char *instr) {
 
 		/* Free up the memory we used */
 		if (valid != NULL) {
-			free(valid);
+			free_recipients(valid);
 		}
 	}
 

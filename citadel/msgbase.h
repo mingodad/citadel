@@ -51,18 +51,21 @@ struct repl {			/* Info for replication checking */
 
 /* Data structure returned by validate_recipients() */
 struct recptypes {
+	int recptypes_magic;
         int num_local;
         int num_internet;
         int num_ignet;
 	int num_room;
         int num_error;
-	char errormsg[SIZ];
-	char recp_local[SIZ];
-	char recp_internet[SIZ];
-	char recp_ignet[SIZ];
-	char recp_room[SIZ];
-	char display_recp[SIZ];
+	char *errormsg;
+	char *recp_local;
+	char *recp_internet;
+	char *recp_ignet;
+	char *recp_room;
+	char *display_recp;
 };
+
+#define RECPTYPES_MAGIC 0xfeeb
 
 /*
  * This is a list of "harvested" email addresses that we might want to
@@ -155,6 +158,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 void CtdlGetSeen(char *buf, int which_set);
 
 struct recptypes *validate_recipients(char *recipients);
+void free_recipients(struct recptypes *);
+
 struct CtdlMessage *CtdlMakeMessage(
         struct ctdluser *author,        /* author's user structure */
         char *recipient,                /* NULL if it's not mail */

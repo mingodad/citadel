@@ -242,7 +242,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 		if (valid->num_local == 1) {
 			ret = getuser(&temp, valid->recp_local);
 		}
-		free(valid);
+		free_recipients(valid);
 	}
 	if (ret != 0) {
 		cprintf("%s NO Invalid user name or access denied\r\n",

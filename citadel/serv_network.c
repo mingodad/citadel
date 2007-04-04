@@ -749,7 +749,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	
 					valid = validate_recipients(nptr->name);
 					CtdlSubmitMsg(msg, valid, "");
-					free(valid);
+					free_recipients(valid);
 				}
 			
 			}
@@ -1328,7 +1328,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	/* Now submit the message */
 	valid = validate_recipients(recipient);
 	if (valid != NULL) if (valid->num_error != 0) {
-		free(valid);
+		free_recipients(valid);
 		valid = NULL;
 	}
 	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
@@ -1343,7 +1343,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	CtdlSubmitMsg(msg, valid, force_room);
 
 	/* Clean up */
-	if (valid != NULL) free(valid);
+	if (valid != NULL) free_recipients(valid);
 	CtdlFreeMessage(msg);
 	lprintf(CTDL_DEBUG, "leaving network_bounce()\n");
 }
@@ -1490,7 +1490,7 @@ void network_process_buffer(char *buffer, long size) {
 				"A message you sent could not be delivered due to an invalid address.\n"
 				"Please check the address and try sending the message again.\n");
 			msg = NULL;
-			free(recp);
+			free_recipients(recp);
 			return;
 		}
 		strcpy(target_room, "");	/* no target room if mail */
@@ -1521,7 +1521,7 @@ void network_process_buffer(char *buffer, long size) {
 		CtdlSubmitMsg(msg, recp, target_room);
 	}
 	CtdlFreeMessage(msg);
-	free(recp);
+	free_recipients(recp);
 }
 
 

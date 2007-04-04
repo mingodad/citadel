@@ -240,7 +240,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 							if (me_attend) icalproperty_free(me_attend);
 							me_attend = icalproperty_new_clone(attendee);
 						}
-						free(recp);
+						free_recipients(recp);
 					}
 				}
 			}
@@ -323,7 +323,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			valid = validate_recipients(organizer_string);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
-			free (valid);
+			free_recipients(valid);
 		}
 	}
 	free(serialized_reply);
@@ -1190,7 +1190,7 @@ void ical_freebusy(char *who) {
 			if (recp->num_local == 1) {
 				found_user = getuser(&usbuf, recp->recp_local);
 			}
-			free(recp);
+			free_recipients(recp);
 		}
 	}
 
@@ -1205,7 +1205,7 @@ void ical_freebusy(char *who) {
 			if (recp->num_local == 1) {
 				found_user = getuser(&usbuf, recp->recp_local);
 			}
-			free(recp);
+			free_recipients(recp);
 		}
 	}
 
@@ -1228,7 +1228,7 @@ void ical_freebusy(char *who) {
 					if (recp->num_local == 1) {
 						found_user = getuser(&usbuf, recp->recp_local);
 					}
-					free(recp);
+					free_recipients(recp);
 				}
 			}
 		}
@@ -1768,7 +1768,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			valid = validate_recipients(attendees_string);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
-			free (valid);
+			free_recipients(valid);
 		}
 	}
 	free(serialized_request);

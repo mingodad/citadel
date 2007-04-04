@@ -1004,7 +1004,7 @@ void check_get(void) {
 			
 			lprintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
-		if (rcpt != NULL) free (rcpt);
+		if (rcpt != NULL) free_recipients(rcpt);
 	}
 }
 

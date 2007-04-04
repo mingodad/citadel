@@ -241,7 +241,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			CtdlFreeMessage(journal_msg);
 		}
 
-		free(journal_recps);
+		free_recipients(journal_recps);
 	}
 
 	/* We are responsible for freeing this memory. */

@@ -2791,7 +2791,7 @@ void quickie_message(char *from, char *fromaddr, char *to, char *room, char *tex
 
 	CtdlSubmitMsg(msg, recp, room);
 	CtdlFreeMessage(msg);
-	if (recp != NULL) free(recp);
+	if (recp != NULL) free_recipients(recp);
 }
 
 
@@ -3063,13 +3063,15 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 /*
  * Validate recipients, count delivery types and errors, and handle aliasing
  * FIXME check for dupes!!!!!
+ *
  * Returns 0 if all addresses are ok, ret->num_error = -1 if no addresses 
  * were specified, or the number of addresses found invalid.
- * caller needs to free the result.
+ *
+ * Caller needs to free the result using free_recipients()
  */
 struct recptypes *validate_recipients(char *supplied_recipients) {
 	struct recptypes *ret;
-	char recipients[SIZ];
+	char *recipients = NULL;
 	char this_recp[256];
 	char this_recp_cooked[256];
 	char append[SIZ];
@@ -3084,20 +3086,37 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 	/* Initialize */
 	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (ret == NULL) return(NULL);
+
+	/* Set all strings to null and numeric values to zero */
 	memset(ret, 0, sizeof(struct recptypes));
 
-	ret->num_local = 0;
-	ret->num_internet = 0;
-	ret->num_ignet = 0;
-	ret->num_error = 0;
-	ret->num_room = 0;
-
 	if (supplied_recipients == NULL) {
-		strcpy(recipients, "");
+		recipients = strdup("");
 	}
 	else {
-		safestrncpy(recipients, supplied_recipients, sizeof recipients);
+		recipients = strdup(supplied_recipients);
 	}
+
+	/* Allocate some memory.  Yes, this allocates 500% more memory than we will
+	 * actually need, but it's healthier for the heap than doing lots of tiny
+	 * realloc() calls instead.
+	 */
+
+	ret->errormsg = malloc(strlen(recipients) + 1024);
+	ret->recp_local = malloc(strlen(recipients) + 1024);
+	ret->recp_internet = malloc(strlen(recipients) + 1024);
+	ret->recp_ignet = malloc(strlen(recipients) + 1024);
+	ret->recp_room = malloc(strlen(recipients) + 1024);
+	ret->display_recp = malloc(strlen(recipients) + 1024);
+
+	ret->errormsg[0] = 0;
+	ret->recp_local[0] = 0;
+	ret->recp_internet[0] = 0;
+	ret->recp_ignet[0] = 0;
+	ret->recp_room[0] = 0;
+	ret->display_recp[0] = 0;
+
+	ret->recptypes_magic = RECPTYPES_MAGIC;
 
 	/* Change all valid separator characters to commas */
 	for (i=0; i<strlen(recipients); ++i) {
@@ -3217,8 +3236,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 					 this_recp);
 			}
 			else {
-				snprintf(append, sizeof append,
-					 ", %s", this_recp);
+				snprintf(append, sizeof append, ", %s", this_recp);
 			}
 			if ( (strlen(ret->errormsg) + strlen(append)) < SIZ) {
 				strcat(ret->errormsg, append);
@@ -3229,8 +3247,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				strcpy(append, this_recp);
 			}
 			else {
-				snprintf(append, sizeof append, ", %s",
-					 this_recp);
+				snprintf(append, sizeof append, ", %s", this_recp);
 			}
 			if ( (strlen(ret->display_recp)+strlen(append)) < SIZ) {
 				strcat(ret->display_recp, append);
@@ -3251,7 +3268,32 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 	lprintf(CTDL_DEBUG, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
 	lprintf(CTDL_DEBUG, " error: %d <%s>\n", ret->num_error, ret->errormsg);
 
+	free(recipients);
 	return(ret);
+}
+
+
+/*
+ * Destructor for struct recptypes
+ */
+void free_recipients(struct recptypes *valid) {
+
+	if (valid == NULL) {
+		return;
+	}
+
+	if (valid->recptypes_magic != RECPTYPES_MAGIC) {
+		lprintf(CTDL_EMERG, "Attempt to call free_recipients() on some other data type!\n");
+		abort();
+	}
+
+	if (valid->errormsg != NULL)		free(valid->errormsg);
+	if (valid->recp_local != NULL)		free(valid->recp_local);
+	if (valid->recp_internet != NULL)	free(valid->recp_internet);
+	if (valid->recp_ignet != NULL)		free(valid->recp_ignet);
+	if (valid->recp_room != NULL)		free(valid->recp_room);
+	if (valid->display_recp != NULL)	free(valid->display_recp);
+	free(valid);
 }
 
 
@@ -3378,32 +3420,32 @@ void cmd_ent0(char *entargs)
 		valid_to = validate_recipients(recp);
 		if (valid_to->num_error > 0) {
 			cprintf("%d Invalid recipient (To)\n", ERROR + NO_SUCH_USER);
-			free(valid_to);
+			free_recipients(valid_to);
 			return;
 		}
 
 		valid_cc = validate_recipients(cc);
 		if (valid_cc->num_error > 0) {
 			cprintf("%d Invalid recipient (CC)\n", ERROR + NO_SUCH_USER);
-			free(valid_to);
-			free(valid_cc);
+			free_recipients(valid_to);
+			free_recipients(valid_cc);
 			return;
 		}
 
 		valid_bcc = validate_recipients(bcc);
 		if (valid_bcc->num_error > 0) {
 			cprintf("%d Invalid recipient (BCC)\n", ERROR + NO_SUCH_USER);
-			free(valid_to);
-			free(valid_cc);
-			free(valid_bcc);
+			free_recipients(valid_to);
+			free_recipients(valid_cc);
+			free_recipients(valid_bcc);
 			return;
 		}
 
 		/* Recipient required, but none were specified */
 		if ( (valid_to->num_error < 0) && (valid_cc->num_error < 0) && (valid_bcc->num_error < 0) ) {
-			free(valid_to);
-			free(valid_cc);
-			free(valid_bcc);
+			free_recipients(valid_to);
+			free_recipients(valid_cc);
+			free_recipients(valid_bcc);
 			cprintf("%d At least one recipient is required.\n", ERROR + NO_SUCH_USER);
 			return;
 		}
@@ -3413,9 +3455,9 @@ void cmd_ent0(char *entargs)
 				cprintf("%d You do not have permission "
 					"to send Internet mail.\n",
 					ERROR + HIGHER_ACCESS_REQUIRED);
-				free(valid_to);
-				free(valid_cc);
-				free(valid_bcc);
+				free_recipients(valid_to);
+				free_recipients(valid_cc);
+				free_recipients(valid_bcc);
 				return;
 			}
 		}
@@ -3424,9 +3466,9 @@ void cmd_ent0(char *entargs)
 		   && (CC->user.axlevel < 4) ) {
 			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
-			free(valid_to);
-			free(valid_cc);
-			free(valid_bcc);
+			free_recipients(valid_to);
+			free_recipients(valid_cc);
+			free_recipients(valid_bcc);
 			return;
 		}
 	
@@ -3436,9 +3478,9 @@ void cmd_ent0(char *entargs)
 		    && (!CC->internal_pgm)) {
 			cprintf("%d You don't have access to Internet mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
-			free(valid_to);
-			free(valid_cc);
-			free(valid_bcc);
+			free_recipients(valid_to);
+			free_recipients(valid_cc);
+			free_recipients(valid_bcc);
 			return;
 		}
 
@@ -3465,16 +3507,16 @@ void cmd_ent0(char *entargs)
 	if (post == 0) {
 		cprintf("%d %s\n", CIT_OK,
 			((valid_to != NULL) ? valid_to->display_recp : "") );
-		free(valid_to);
-		free(valid_cc);
-		free(valid_bcc);
+		free_recipients(valid_to);
+		free_recipients(valid_cc);
+		free_recipients(valid_bcc);
 		return;
 	}
 
 	/* We don't need these anymore because we'll do it differently below */
-	free(valid_to);
-	free(valid_cc);
-	free(valid_bcc);
+	free_recipients(valid_to);
+	free_recipients(valid_cc);
+	free_recipients(valid_bcc);
 
 	/* Read in the message from the client. */
 	if (do_confirm) {
@@ -3536,7 +3578,7 @@ void cmd_ent0(char *entargs)
 		CtdlFreeMessage(msg);
 	}
 	if (valid != NULL) {
-		free(valid);
+		free_recipients(valid);
 	}
 	return;
 }
@@ -4226,19 +4268,19 @@ int CtdlIsMe(char *addr, int addr_buf_len)
 	if (recp == NULL) return(0);
 
 	if (recp->num_local == 0) {
-		free(recp);
+		free_recipients(recp);
 		return(0);
 	}
 
 	for (i=0; i<recp->num_local; ++i) {
 		extract_token(addr, recp->recp_local, i, '|', addr_buf_len);
 		if (!strcasecmp(addr, CC->user.fullname)) {
-			free(recp);
+			free_recipients(recp);
 			return(1);
 		}
 	}
 
-	free(recp);
+	free_recipients(recp);
 	return(0);
 }
 

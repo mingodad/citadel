@@ -405,7 +405,7 @@ int CtdlLoginExistingUser(char *trythisname)
 				if (valid->num_local == 1) {
 					found_user = getuser(&CC->user, valid->recp_local);
 				}
-				free(valid);
+				free_recipients(valid);
 			}
 		}
 	}

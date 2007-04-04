@@ -122,20 +122,20 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 	}
 	if (valid->num_error > 0) {
 		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
-		free(valid);
+		free_recipients(valid);
 		return SIEVE2_ERROR_BADARGS;
 	}
 
 	msg = CtdlFetchMessage(cs->msgnum, 1);
 	if (msg == NULL) {
 		lprintf(CTDL_WARNING, "REDIRECT failed: unable to fetch msg %ld\n", cs->msgnum);
-		free(valid);
+		free_recipients(valid);
 		return SIEVE2_ERROR_BADARGS;
 	}
 
 	CtdlSubmitMsg(msg, valid, NULL);
 	cs->cancel_implicit_keep = 1;
-	free(valid);
+	free_recipients(valid);
 	CtdlFreeMessage(msg);
 	return SIEVE2_OK;
 }
