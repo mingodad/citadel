@@ -35,6 +35,32 @@
 #endif
 
 
+/* Hacks to work around nameser.h declarations missing on OpenBSD
+ * see also: http://search.cpan.org/src/MIKER/Net-DNS-ToolKit-0.30/ToolKit.h
+ */
+
+#ifndef NS_INT16SZ
+# ifdef INT16SZ
+#  define NS_INT16SZ INT16SZ
+# endif
+#endif
+
+#ifndef NS_INT32SZ
+# ifdef INT32SZ
+#  define NS_INT32SZ INT32SZ
+# endif
+#endif
+
+#ifndef NS_GET16
+# ifdef GETSHORT
+#  define NS_GET16 GETSHORT
+# endif
+#endif
+
+
+/***************************************************************************/
+
+
 void locate_host(char *tbuf, size_t n,
 		char *abuf, size_t na,
 		const struct in_addr *addr)
