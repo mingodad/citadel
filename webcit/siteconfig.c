@@ -637,17 +637,17 @@ void display_siteconfig(void)
 	sprintf(&directory[strlen(directory)], "</table>");
 	sprintf(&purger[strlen(purger)], "</table>");
 	sprintf(&idxjnl[strlen(idxjnl)], "</table>");
-	sprintf(&funambol[strlen(funambol)], "</table");
+	sprintf(&funambol[strlen(funambol)], "</table>");
 
 	tabbed_dialog(8, tabnames);
 
-	begin_tab(0, 7);	client_write(general, strlen(general));		 end_tab(0, 7);
-	begin_tab(1, 7);	client_write(access, strlen(access));		 end_tab(1, 7);
-	begin_tab(2, 7);	client_write(network, strlen(network));		 end_tab(2, 7);
-	begin_tab(3, 7);	client_write(tuning, strlen(tuning));		 end_tab(3, 7);
-	begin_tab(4, 7);	client_write(directory, strlen(directory));	 end_tab(4, 7);
-	begin_tab(5, 7);	client_write(purger, strlen(purger));		 end_tab(5, 7);
-	begin_tab(6, 7);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 7);
+	begin_tab(0, 8);	client_write(general, strlen(general));		 end_tab(0, 8);
+	begin_tab(1, 8);	client_write(access, strlen(access));		 end_tab(1, 8);
+	begin_tab(2, 8);	client_write(network, strlen(network));		 end_tab(2, 8);
+	begin_tab(3, 8);	client_write(tuning, strlen(tuning));		 end_tab(3, 8);
+	begin_tab(4, 8);	client_write(directory, strlen(directory));	 end_tab(4, 8);
+	begin_tab(5, 8);	client_write(purger, strlen(purger));		 end_tab(5, 8);
+	begin_tab(6, 8);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 8);
 	begin_tab(7, 8);	client_write(funambol, strlen(funambol));	 end_tab(7, 8);
 	wprintf("<div align=\"center\"><br>");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
