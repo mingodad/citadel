@@ -580,6 +580,7 @@ customnav.setAttribute("class","floatcustomnav");
 floatwindow("headerscreen","pre",customnav);
 rawSwitch822(msgnum);
 }
+
 function rawSwitch822(msgnum) {
 CtdlLoadScreen("headerscreen");
 new Ajax.Updater("headerscreen", 
@@ -587,6 +588,7 @@ new Ajax.Updater("headerscreen",
  { method: 'post',parameters: 'g_cmd=MSG2 ' +msgnum  } );
 
 }
+
 function rawSwitchCitadel(msgnum) {
 CtdlLoadScreen("headerscreen");
 new Ajax.Updater("headerscreen", 
@@ -594,6 +596,7 @@ new Ajax.Updater("headerscreen",
  { method: 'post',parameters: 'g_cmd=MSG0 ' +msgnum  } );
 
 }
+
 function floatwindow(newdivid,contentelementtype,customnav) {
 var windiv = document.createElement("div");
 windiv.setAttribute("class","floatwindow");
@@ -627,27 +630,41 @@ function CtdlLoadScreen(elementid) {
 var elem = document.getElementById(elementid);
 elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
 }
+
+
 // Show info for a user, basically replaces showuser()
 // matt@comalies is to blame for this poorly coded masterpiece. 
 function CtdlShowUserInfoPopup(Element) {
-try {
-// hopefully no one needs to use the class attribute... could be better done 
-// with xmlns though..
-var user = Element.getAttribute("class");
-var updname = "biospace_"+user;
-if (document.getElementById(updname) == null) {
-// insert a space for the bio
-var pNode = Element.parentNode;
-var newdiv = document.createElement("div");
-newdiv.id = updname;
-newdiv.innerHTML = "Getting user info....";
-pNode.appendChild(newdiv);
-CtdlLoadScreen(updname);
-new Ajax.Updater(updname, 'showuser_ajax?who='+user, { method: 'get' } );
+	try {
+		// hopefully no one needs to use the class attribute... could be better done 
+		// with xmlns though..
+		var user = Element.getAttribute("class");
+		var updname = "biospace_"+user;
+		if (document.getElementById(updname) == null) {
+			// insert a space for the bio
+			var pNode = Element.parentNode;
+			var newdiv = document.createElement("div");
+			newdiv.id = updname;
+			newdiv.innerHTML = "Getting user info....";
+			pNode.appendChild(newdiv);
+			CtdlLoadScreen(updname);
+			new Ajax.Updater(updname, 'showuser_ajax?who='+user, { method: 'get' } );
+		}
+	}
+	catch(err) {
+		return true;
+	}
+	return false;
 }
-}
-catch(err){
-return true;
-}
-return false;
+
+
+// Pop open the address book
+function PopOpenAddressBook() {
+	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
+	Effect.Appear('address_book_popup', { duration: 0.5 } );
+	new Ajax.Updater(
+		'address_book_inner_div',
+		'display_address_book_inner_div',
+		{ method: 'get', parameters: Math.random() }
+	);
 }

@@ -1637,6 +1637,8 @@ void session_loop(struct httprequest *req)
 		recp_autocomplete(bstr("cc"));
 	} else if (!strcasecmp(action, "bcc_autocomplete")) {
 		recp_autocomplete(bstr("bcc"));
+	} else if (!strcasecmp(action, "display_address_book_inner_div")) {
+		display_address_book_inner_div();
 	} else if (!strcasecmp(action, "set_floordiv_expanded")) {
 		set_floordiv_expanded(index[1]);
 	} else if (!strcasecmp(action, "diagnostics")) {

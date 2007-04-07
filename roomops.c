@@ -278,12 +278,12 @@ void readinfo(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
                 wprintf("<div class=\"infos\" "
-                "onclick=\"javascript:document.getElementById('room_infos').style.display='block';\" "
+                "onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
                 ">");
                 wprintf(_("Room info"));
-                wprintf("</div><div id=\"room_infos\" > "
+                wprintf("</div><div id=\"room_infos\" style=\"display:none;\">"
                 "<p class=\"close_infos\" "
-                "onclick=\"javascript:document.getElementById('room_infos').style.display='none';\" "
+                "onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
                 ">");
 		wprintf(_("Close window"));
 		wprintf("</p>");

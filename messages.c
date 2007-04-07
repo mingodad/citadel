@@ -32,7 +32,7 @@ struct addrbookent {
 /**
  * \brief	Wrapper around iconv_open()
  *		Our version adds aliases for non-standard Microsoft charsets
- *              such as 'MS950', aliasing them to names like 'CP950'
+ *	      such as 'MS950', aliasing them to names like 'CP950'
  *
  * \param	tocode		Target encoding
  * \param	fromcode	Source encoding
@@ -1271,7 +1271,7 @@ void display_headers(char *msgnum_as_string) {
 
 /**
  * \brief Read message in simple, JavaScript-embeddable form for 'forward'
- *        or 'reply quoted' operations.
+ *	or 'reply quoted' operations.
  *
  * NOTE: it is VITALLY IMPORTANT that we output no single-quotes or linebreaks
  *       in this function.  Doing so would throw a JavaScript error in the
@@ -3007,6 +3007,17 @@ void display_enter(void)
 		escputs(bstr("recp"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
+
+		/** Pop open an address book -- begin **/
+
+		wprintf(
+			"<a href=\"javascript:PopOpenAddressBook();\" title=\"FIXME\">"
+			"<img border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
+			"</a>"
+		);
+
+		/** Pop open an address book -- end **/
+
 		wprintf("</td><td></td></tr>\n");
 
 		wprintf("<tr><td>");
@@ -3186,6 +3197,23 @@ void display_enter(void)
 	wprintf("</form>\n");
 
 	wprintf("</td></tr></table></div>\n");
+
+	/* Close the main div, now open a new one, hidden initially, for address book popups.
+	 * Remember: the popup div will be closed by wDumpContent, which will think it's merely
+	 * closing the main div.  FIXME put this in its own function so we can use it from the
+	 * calendar too.
+	 */
+	wprintf("</div><div id=\"address_book_popup\" style=\"display:none;\">");
+	svprintf("BOXTITLE", WCS_STRING,  _("Contacts") );
+	do_template("beginbox");
+	wprintf("<div id=\"address_book_inner_div\"></div>");
+	wprintf("<div align=center><p class=\"close_popup\" "
+		"onclick=\"javascript:Effect.Fade('address_book_popup', { duration: 0.5 });\" "
+		">");
+		wprintf(_("Close window"));
+		wprintf("</p></div>");
+	do_template("endbox");
+
 DONE:	wDumpContent(1);
 }
 
