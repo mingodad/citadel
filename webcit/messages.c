@@ -3008,15 +3008,15 @@ void display_enter(void)
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 
-		/** Pop open an address book -- begin **/
+		/** Pop open an address book -- begin **
 
 		wprintf(
-			"<a href=\"javascript:PopOpenAddressBook();\" title=\"FIXME\">"
+			"<a href=\"javascript:PopOpenAddressBook();\" title=\"%s\">"
 			"<img border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
-			"</a>"
+			"</a>", _("Contacts")
 		);
 
-		/** Pop open an address book -- end **/
+		** Pop open an address book -- end **/
 
 		wprintf("</td><td></td></tr>\n");
 
