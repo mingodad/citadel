@@ -3204,15 +3204,12 @@ void display_enter(void)
 	 * calendar too.
 	 */
 	wprintf("</div><div id=\"address_book_popup\" style=\"display:none;\">");
-	svprintf("BOXTITLE", WCS_STRING,  _("Contacts") );
-	do_template("beginbox");
 	wprintf("<div id=\"address_book_inner_div\"></div>");
 	wprintf("<div align=center><p class=\"close_popup\" "
 		"onclick=\"javascript:Effect.Fade('address_book_popup', { duration: 0.5 });\" "
-		">");
-		wprintf(_("Close window"));
-		wprintf("</p></div>");
-	do_template("endbox");
+		"><img valign=\"middle\" src=\"static/closewindow.gif\">");
+	wprintf(_("Close window"));
+	wprintf("</p></div>");
 
 DONE:	wDumpContent(1);
 }

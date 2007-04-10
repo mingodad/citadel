@@ -863,12 +863,9 @@ div.auto_complete ul strong.highlight {
         top: 100px;
         left: 25%;
         width: 320px;
-	height: 320px;
         padding: 11px;
-        margin: 0px;
         z-index: 100;
-        color: #666;
-        background: white;
+	background-color: #FFA;
 }
 
 #address_book_popup .close_popup {
