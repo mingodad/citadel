@@ -266,7 +266,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	wprintf(_("State:"));
 	wprintf("</td><td>"
 		"<input type=\"text\" name=\"state\" "
-		"value=\"%s\" maxlength=\"2\"></td></tr>\n",
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		state);
 	wprintf("<tr><td>");
 	wprintf(_("ZIP code:"));
