@@ -3008,7 +3008,7 @@ void display_enter(void)
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 
-		/** Pop open an address book -- begin **
+		/** Pop open an address book -- begin **/
 
 		wprintf(
 			"<a href=\"javascript:PopOpenAddressBook();\" title=\"%s\">"
@@ -3016,7 +3016,7 @@ void display_enter(void)
 			"</a>", _("Contacts")
 		);
 
-		** Pop open an address book -- end **/
+		/** Pop open an address book -- end **/
 
 		wprintf("</td><td></td></tr>\n");
 
@@ -3203,17 +3203,17 @@ void display_enter(void)
 	 * closing the main div.  FIXME put this in its own function so we can use it from the
 	 * calendar too.
 	 */
-	wprintf("</div><div id=\"address_book_popup_dropshadow\" style=\"display:none;\">");
-	wprintf("&nbsp;");
 	wprintf("</div><div id=\"address_book_popup\" style=\"display:none;\">");
+	wprintf("<div id=\"address_book_popup_middle_div\">");
 	wprintf("<table border=0 width=100%%><tr valign=middle>");
 	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
-	wprintf("<td align=center>%s</td>", _("Contacts") );
+	wprintf("<td align=center><span class=\"address_book_popup_title\">%s</span></td>", _("Contacts") );
 	wprintf("<td align=right "
-		"onclick=\"javascript:$('address_book_popup').style.display='none'; $('address_book_popup_dropshadow').style.display='none';\" "
+		"onclick=\"javascript:$('address_book_popup').style.display='none';\" "
 		"><img src=\"static/closewindow.gif\">");
-	wprintf("</td></tr></table><hr>");
+	wprintf("</td></tr></table>");
 	wprintf("<div id=\"address_book_inner_div\"></div>");
+	wprintf("</div>");
 DONE:	wDumpContent(1);
 }
 
