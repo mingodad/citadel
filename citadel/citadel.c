@@ -432,7 +432,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	}
 	safestrncpy(room_name, room->RRname, ROOMNAMELEN);
 	room_flags = room->RRflags;
-	room_flags = room->RRflags2;
+	room_flags2 = room->RRflags2;
 	from_floor = curr_floor;
 	curr_floor = room->RRfloor;
 
