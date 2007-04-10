@@ -3199,21 +3199,23 @@ void display_enter(void)
 	wprintf("</td></tr></table></div>\n");
 
 	/* Close the main div, now open a new one, hidden initially, for address book popups.
-	 * Remember: the popup div will be closed by wDumpContent, which will think it's merely
+	 * Remember: the final div will be closed by wDumpContent, which will think it's merely
 	 * closing the main div.  FIXME put this in its own function so we can use it from the
 	 * calendar too.
 	 */
+	wprintf("</div><div id=\"address_book_popup_dropshadow\" style=\"display:none;\">");
+	wprintf("&nbsp;");
 	wprintf("</div><div id=\"address_book_popup\" style=\"display:none;\">");
+	wprintf("<table border=0 width=100%%><tr valign=middle>");
+	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
+	wprintf("<td align=center>%s</td>", _("Contacts") );
+	wprintf("<td align=right "
+		"onclick=\"javascript:$('address_book_popup').style.display='none'; $('address_book_popup_dropshadow').style.display='none';\" "
+		"><img src=\"static/closewindow.gif\">");
+	wprintf("</td></tr></table><hr>");
 	wprintf("<div id=\"address_book_inner_div\"></div>");
-	wprintf("<div align=center><p class=\"close_popup\" "
-		"onclick=\"javascript:Effect.Fade('address_book_popup', { duration: 0.5 });\" "
-		"><img valign=\"middle\" src=\"static/closewindow.gif\">");
-	wprintf(_("Close window"));
-	wprintf("</p></div>");
-
 DONE:	wDumpContent(1);
 }
-
 
 
 /**

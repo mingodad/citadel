@@ -661,8 +661,8 @@ function CtdlShowUserInfoPopup(Element) {
 // Pop open the address book
 function PopOpenAddressBook() {
 	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
-	Rounded('div#address_book_popup', 'transparent top bottom');
-	Effect.Appear('address_book_popup', { duration: 0.5 } );
+	$('address_book_popup_dropshadow').style.display = 'block';
+	$('address_book_popup').style.display = 'block';
 	new Ajax.Updater(
 		'address_book_inner_div',
 		'display_address_book_inner_div',

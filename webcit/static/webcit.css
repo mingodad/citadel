@@ -858,22 +858,28 @@ div.auto_complete ul strong.highlight {
         text-align: left;
 }
 
+#address_book_popup_dropshadow {
+        position: absolute;
+        top: 110px;
+        left: 210px;
+        width: 320px;
+        height: 300px;
+        z-index: 99;
+	background-color: #fff;
+	filter:alpha(opacity=50);
+	-moz-opacity:.50;
+	opacity:.50;
+	display: none;
+}
+
 #address_book_popup {
         position: absolute;
         top: 100px;
-        left: 25%;
+        left: 200px;
         width: 320px;
-        padding: 11px;
+	height: 300px;
         z-index: 100;
-	background-color: #FFA;
+	background-color: #ffc;
+	color:#000;
+	display: none;
 }
-
-#address_book_popup .close_popup {
-	cursor: pointer;
-        font-size: 8pt;
-	color: black;
-        text-align: right;
-        padding: 2px;
-	margin-top: 5px;
-}
-
