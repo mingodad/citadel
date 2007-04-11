@@ -12,9 +12,18 @@
  * \brief Address book popup results
  */
 void display_address_book_inner_div(void) {
+	int i;
+
 	begin_ajax_response();
 
-	wprintf("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nullam sed dui. Donec in nibh id orci viverra auctor. Pellentesque elementum, orci eu lacinia pulvinar, odio lorem consectetuer augue, sed rhoncus est sem tempus nibh. Ut hendrerit rhoncus lectus. Nam sit amet augue. Vestibulum pulvinar, urna a condimentum gravida, dolor dolor congue metus, vel ultrices elit nisl a lorem. Morbi aliquam mauris at enim. Integer tristique. Vestibulum et est. Vestibulum tellus massa, fringilla et, porttitor quis, fringilla sit amet, massa.  Proin neque.");
+	wprintf("<div align=center><form>"
+		"<select name=\"whichaddr\" size=\"15\">\n");
+
+	for (i=0; i<100; ++i) {
+		wprintf("<option>Contact %d &lt;contact%d@example.com&gt;</option>\n", i, i);
+	}
+
+	wprintf("</select></form></div>\n");
 
 	end_ajax_response();
 }
