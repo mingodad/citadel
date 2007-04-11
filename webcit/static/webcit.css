@@ -881,6 +881,11 @@ div.auto_complete ul strong.highlight {
 	margin: 5px;
 }
 
+#address_book_inner_div select {
+	width: 100%;
+	background-color: #ffd;
+}
+
 .address_book_popup_title {
         font-size: 14pt;
         font-weight: bold;
