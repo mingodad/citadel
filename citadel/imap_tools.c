@@ -376,12 +376,15 @@ void imap_strout(char *buf)
 {
 	int i;
 	int is_literal = 0;
+	int len;
 
 	if (buf == NULL) {	/* yeah, we handle this */
 		cprintf("NIL");
 		return;
 	}
-	for (i = 0; i < strlen(buf); ++i) {
+
+	len = strlen(buf);
+	for (i = 0; i < len; ++i) {
 		if ((buf[i] == '\"') || (buf[i] == '\\'))
 			is_literal = 1;
 	}
