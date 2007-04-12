@@ -314,10 +314,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		}
 #endif
 
-		/* If users cannot create their own accounts, they cannot re-register either. */
-		if ( (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
-			return(1);
-		}
 	}
 
 	/* Is this a room with an address book in it? */
@@ -347,6 +343,11 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	);
 
 	if (v == NULL) return(0);	/* no vCards were found in this message */
+
+	/* If users cannot create their own accounts, they cannot re-register either. */
+	if ( (yes_my_citadel_config) && (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
+		return(1);
+	}
 
 	s = vcard_get_prop(v, "FN", 0, 0, 0);
 	if (s) lprintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
