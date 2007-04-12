@@ -3415,10 +3415,13 @@ void cmd_ent0(char *entargs)
 
 	/* In mailbox rooms we have to behave a little differently --
 	 * make sure the user has specified at least one recipient.  Then
-	 * validate the recipient(s).
+	 * validate the recipient(s).  We do this for the Mail> room, as
+	 * well as any room which has the "Mailbox" view set.
 	 */
-	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->curr_view == VIEW_MAILBOX) ) {
 
+	if (  ( (CC->room.QRflags & QR_MAILBOX) && (!strcasecmp(&CC->room.QRname[11], MAILROOM)) )
+	   || ( (CC->room.QRflags & QR_MAILBOX) && (CC->curr_view == VIEW_MAILBOX) )
+	) {
 		if (CC->user.axlevel < 2) {
 			strcpy(recp, "sysop");
 			strcpy(cc, "");
