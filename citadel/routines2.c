@@ -902,6 +902,8 @@ void do_system_configuration(CtdlIPC *ipc)
 		}
 
 	}
+    if (site_expirepolicy) free(site_expirepolicy);
+    if (mbx_expirepolicy) free(mbx_expirepolicy);
 }
 
 
@@ -1031,6 +1033,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 					scr_printf("Wrote %d records.\n", num_recs);
 					modified = 0;
 				}
+                free(resp);
 				break;
 			case 'q':
 				quitting = !modified || boolprompt(
@@ -1302,6 +1305,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 					scr_printf("Wrote %d records.\n", num_recs);
 					modified = 0;
 				}
+                free(listing);
 				break;
 			case 'q':
 				quitting = !modified || boolprompt(
@@ -1425,6 +1429,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 					scr_printf("Wrote %d records.\n", num_recs);
 					modified = 0;
 				}
+                free(listing);
 				break;
 			case 'q':
 				quitting = !modified || boolprompt(

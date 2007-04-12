@@ -1368,7 +1368,7 @@ int main(int argc, char **argv)
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
-    
+    int lp; 
 
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
@@ -2261,6 +2261,11 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 		formout(ipc, "goodbye");
 		logoff(ipc, 0);
 	}
+	/* Free the ungoto list */
+	for (lp = 0; lp < uglistsize; lp++) {
+		free(uglist[lp]);
+	}
+    uglistsize = 0;
 	goto GSTA;
 
 }	/* end main() */

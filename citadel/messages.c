@@ -1229,6 +1229,7 @@ int entmsg(CtdlIPC *ipc,
 	/* Now compose the message... */
 	if (client_make_message(ipc, temp, message.recipient,
 	   message.anonymous, 0, c, message.subject) != 0) {
+	    if (msgarr) free(msgarr);	
 		return (2);
 	}
 

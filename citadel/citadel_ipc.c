@@ -1834,6 +1834,7 @@ int CtdlIPCSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret)
 int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       	char **listing, char *cret)
 {
+	register int ret;
 	char *aaa;
 	size_t bytes;
 
@@ -1845,8 +1846,10 @@ int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	aaa = malloc(strlen(mimetype) + 13);
 	if (!aaa) return -1;
 	sprintf(aaa, "CONF GETSYS|%s", mimetype);
-	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0,
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0,
 			listing, &bytes, cret);
+    free(aaa);
+    return ret;
 }
 
 
@@ -1854,6 +1857,7 @@ int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       const char *listing, char *cret)
 {
+    register int ret;
 	char *aaa;
 
 	if (!cret) return -2;
@@ -1863,8 +1867,10 @@ int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	aaa = malloc(strlen(mimetype) + 13);
 	if (!aaa) return -1;
 	sprintf(aaa, "CONF PUTSYS|%s", mimetype);
-	return CtdlIPCGenericCommand(ipc, aaa, listing, strlen(listing),
+	ret = CtdlIPCGenericCommand(ipc, aaa, listing, strlen(listing),
 			NULL, NULL, cret);
+    free(aaa);
+    return ret;
 }
 
 
@@ -2016,6 +2022,7 @@ static void endtls(SSL *ssl)
 /* QDIR */
 int CtdlIPCDirectoryLookup(CtdlIPC *ipc, const char *address, char *cret)
 {
+    register int ret;
 	char *aaa;
 
 	if (!address) return -2;
@@ -2025,7 +2032,9 @@ int CtdlIPCDirectoryLookup(CtdlIPC *ipc, const char *address, char *cret)
 	if (!aaa) return -1;
 
 	sprintf(aaa, "QDIR %s", address);
-	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+    free(aaa);
+    return ret;
 }
 
 
