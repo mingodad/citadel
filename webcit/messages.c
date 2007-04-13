@@ -3203,42 +3203,20 @@ void display_enter(void)
 	}
 
 	wprintf("</form>\n");
-
 	wprintf("</td></tr></table></div>\n");
 
-	/* Close the main div, now open a new one, hidden initially, for address book popups.
-	 * Remember: the final div will be closed by wDumpContent, which will think it's merely
-	 * closing the main div.  FIXME put this in its own function so we can use it from the
+	wprintf("</div>\n");	/* End of 'content' div */
+
+	/* Open a new div, hidden initially, for address book popups.
+	 * FIXME put this in its own function so we can use it from the
 	 * calendar too.
 	 */
-	wprintf("</div><div id=\"address_book_popup\" style=\"display:none;\">");
-	wprintf("<div id=\"address_book_popup_middle_div\">");
-	wprintf("<table border=0 width=100%%><tr valign=middle>");
-	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
-	wprintf("<td align=center>");
-
-	wprintf("<form><select class=\"address_book_popup_title\" size=1>");
-	serv_puts("LKRA");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (extract_int(buf, 6) == VIEW_ADDRESSBOOK) {
-			extract_token(ebuf, buf, 0, '|', sizeof ebuf);
-			wprintf("<option value=\"");
-			urlescputs(ebuf);
-			wprintf("\">");
-			escputs(ebuf);
-			wprintf("</option>\n");
-		}
-	}
-	wprintf("</select></form>");
-
-	wprintf("</td>");
-	wprintf("<td align=right "
-		"onclick=\"javascript:$('address_book_popup').style.display='none';\" "
-		"><img src=\"static/closewindow.gif\">");
-	wprintf("</td></tr></table>");
+	wprintf("<div id=\"address_book_popup\" style=\"display:none;\">");
+	wprintf("<div id=\"address_book_popup_container_div\">");
+	wprintf("<div id=\"address_book_popup_middle_div\"></div>");
 	wprintf("<div id=\"address_book_inner_div\"></div>");
 	wprintf("</div>");
+	/* The 'address_book_popup' div will be closed by wDumpContent() */
 DONE:	wDumpContent(1);
 }
 

@@ -660,9 +660,21 @@ function CtdlShowUserInfoPopup(Element) {
 
 // Pop open the address book
 function PopOpenAddressBook() {
-	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
 	$('address_book_popup').style.display = 'block';
-	Nifty('div#address_book_popup_middle_div','big transparent');
+	new Ajax.Updater(
+		'address_book_popup_middle_div',
+		'display_address_book_middle_div',
+		{
+			method: 'get',
+			parameters: Math.random(),
+			onComplete: PopulateAddressBookInnerDiv()
+		}
+	);
+	Nifty('div#address_book_popup_container_div','big transparent');
+}
+
+function PopulateAddressBookInnerDiv() {
+	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
 	new Ajax.Updater(
 		'address_book_inner_div',
 		'display_address_book_inner_div',
