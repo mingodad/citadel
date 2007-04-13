@@ -888,6 +888,6 @@ div.auto_complete ul strong.highlight {
 
 .address_book_popup_title {
         font-size: 14pt;
-        font-weight: bold;
+	background-color: #ffd;
         color: #000;
 }
