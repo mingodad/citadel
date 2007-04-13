@@ -870,10 +870,15 @@ div.auto_complete ul strong.highlight {
 	display: none;
 }
 
-#address_book_popup_middle_div {
+#address_book_popup_container_div {
 	position: relative;
 	width: 100%;
 	height: 100%;
+	background-color: #ffd;
+}
+
+#address_book_popup_middle_div {
+	position: relative;
 	background-color: #ffd;
 }
 
