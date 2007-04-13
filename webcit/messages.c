@@ -649,6 +649,7 @@ struct attach_link {
 void read_message(long msgnum, int printable_view, char *section) {
 	char buf[SIZ];
 	char mime_partnum[256];
+	char mime_name[256];
 	char mime_filename[256];
 	char mime_content_type[256];
 	char mime_charset[256];
@@ -800,11 +801,18 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 
 		if (!strncasecmp(buf, "part=", 5)) {
+			extract_token(mime_name, &buf[5], 0, '|', sizeof mime_filename);
 			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
 			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
+
+			striplt(mime_name);
+			striplt(mime_filename);
+			if ( (strlen(mime_filename) == 0) && (strlen(mime_name) > 0) ) {
+				strcpy(mime_filename, mime_name);
+			}
 
 			if (!strcasecmp(mime_content_type, "message/rfc822")) {
 				if (strlen(mime_submessages) > 0) {
