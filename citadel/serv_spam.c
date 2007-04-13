@@ -136,8 +136,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 		if (msg->cm_fields['0'] != NULL) {
 			free(msg->cm_fields['0']);
 		}
-		msg->cm_fields['0'] = strdup(
-			"5.7.1 Message rejected by SpamAssassin");
+		msg->cm_fields['0'] = strdup("5.7.1 message rejected by spam filter");
 	}
 
 bail:	close(sock);
