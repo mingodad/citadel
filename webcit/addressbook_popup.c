@@ -22,7 +22,9 @@ void display_address_book_middle_div(void) {
 	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
 	wprintf("<td align=center>");
 
-	wprintf("<form><select class=\"address_book_popup_title\" size=1>");
+	wprintf("<form>"
+		"<select class=\"address_book_popup_title\" size=1"
+		" onChange='PopulateAddressBookInnerDiv()'>");
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -53,6 +55,7 @@ void display_address_book_middle_div(void) {
  */
 void display_address_book_inner_div(void) {
 	int i;
+	static int foo;
 
 	begin_ajax_response();
 
@@ -60,7 +63,7 @@ void display_address_book_inner_div(void) {
 		"<select name=\"whichaddr\" size=\"15\">\n");
 
 	for (i=0; i<100; ++i) {
-		wprintf("<option>Contact %d &lt;contact%d@example.com&gt;</option>\n", i, i);
+		wprintf("<option>Contact %d &lt;contact%d@example.com&gt;</option>\n", ++foo, foo);
 	}
 
 	wprintf("</select></form></div>\n");
