@@ -18,6 +18,11 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 
 
+function CtdlRandomString()  {
+	return((Math.random()+'').substr(3));
+}
+
+
 
 // We love string tokenizers.
 function extract_token(source_string, token_num, delimiter) {
@@ -552,8 +557,7 @@ function ctdl_ts_getInnerText(el) {
 //
 function add_new_note() {
 
-	new_eid = Math.random() + '';
-	new_eid = new_eid.substr(3);
+	new_eid = CtdlRandomString();
 
 	$('new_notes_here').innerHTML = $('new_notes_here').innerHTML
 		+ '<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">'
@@ -666,7 +670,7 @@ function PopOpenAddressBook() {
 		'display_address_book_middle_div',
 		{
 			method: 'get',
-			parameters: Math.random(),
+			parameters: CtdlRandomString(),
 			onComplete: PopulateAddressBookInnerDiv()
 		}
 	);
@@ -680,7 +684,7 @@ function PopulateAddressBookInnerDiv() {
 		'display_address_book_inner_div',
 		{
 			method: 'get',
-			parameters: Math.random()
+			parameters: CtdlRandomString()
 		}
 	);
 }

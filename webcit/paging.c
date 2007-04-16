@@ -184,7 +184,7 @@ void page_popup(void)
 		"  }	"
 		" }	"
 		" function CheckPager() {	"
-		"  new Ajax.Request('sslg', { method: 'get', parameters: Math.random(),	"
+		"  new Ajax.Request('sslg', { method: 'get', parameters: CtdlRandomString(),	"
 		"   onSuccess: HandleSslp } );	"
 		" }	"
 		" new PeriodicalExecuter(CheckPager, 30);	"
