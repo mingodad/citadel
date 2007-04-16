@@ -859,7 +859,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		u->url_data = malloc(length + 1);
 		memcpy(u->url_data, content, length);
 		u->url_data[length] = 0;
-		lprintf(9, "Key: <%s>  Data: <%s>\n", u->url_key, u->url_data);
+		/* lprintf(9, "Key: <%s>  Data: <%s>\n", u->url_key, u->url_data); */
 	}
 
 	/** Uploaded files */
