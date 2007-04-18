@@ -722,7 +722,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
-			wprintf("</i><br /><br />\n");
+			wprintf(" (1)</i><br /><br />\n");
 			wprintf("</span>\n");
 			return;
 		}
@@ -1021,7 +1021,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
-			wprintf("</i><br /><br />\n");
+			wprintf(" (2)</i><br /><br />\n");
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "X-Citadel-MSG4-Partnum:", 23)) {
@@ -1338,7 +1338,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 
 	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
-			wprintf(_("unexpected end of message"));
+			wprintf("%s (3)", _("unexpected end of message"));
 			return;
 		}
 		if (include_headers) {
@@ -1441,7 +1441,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	strcpy(mime_content_type, "text/plain");
 	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
-			wprintf(_("unexpected end of message"));
+			wprintf("%s (4)", _("unexpected end of message"));
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
