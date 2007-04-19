@@ -58,19 +58,23 @@ void display_address_book_middle_div(void) {
  * \brief Address book popup results
  */
 void display_address_book_inner_div() {
-	int i;
-	static int foo;
-	char *which_addr_book;
+	char buf[256];
 
-	which_addr_book = bstr("which_addr_book");
-	lprintf(9, "FIXME get addresses in <%s>\n", which_addr_book);
 	begin_ajax_response();
 
 	wprintf("<div align=center><form>"
 		"<select name=\"whichaddr\" size=\"15\">\n");
 
-	for (i=0; i<100; ++i) {
-		wprintf("<option>Contact %d &lt;contact%d@example.com&gt;</option>\n", ++foo, foo);
+	serv_printf("GOTO %s", bstr("which_addr_book"));
+	serv_getln(buf, sizeof buf);
+	serv_puts("DVCA");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		wprintf("<option value=\">");
+		escputs(buf);
+		wprintf("\">");
+		escputs(buf);
+		wprintf("</option>\n");
 	}
 
 	wprintf("</select></form></div>\n");
