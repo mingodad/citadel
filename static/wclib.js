@@ -671,20 +671,21 @@ function PopOpenAddressBook() {
 		{
 			method: 'get',
 			parameters: CtdlRandomString(),
-			onComplete: PopulateAddressBookInnerDiv()
+			evalScripts: true
 		}
 	);
 	Nifty('div#address_book_popup_container_div','big transparent');
 }
 
-function PopulateAddressBookInnerDiv() {
+function PopulateAddressBookInnerDiv(which_addr_book) {
 	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
+	p = 'which_addr_book=' + which_addr_book + '&r=' + CtdlRandomString();
 	new Ajax.Updater(
 		'address_book_inner_div',
 		'display_address_book_inner_div',
 		{
 			method: 'get',
-			parameters: CtdlRandomString()
+			parameters: p
 		}
 	);
 }

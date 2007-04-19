@@ -23,8 +23,8 @@ void display_address_book_middle_div(void) {
 	wprintf("<td align=center>");
 
 	wprintf("<form>"
-		"<select class=\"address_book_popup_title\" size=1"
-		" onChange='PopulateAddressBookInnerDiv()'>");
+		"<select class=\"address_book_popup_title\" size=1 id=\"which_addr_book\" "
+		" onChange=\"PopulateAddressBookInnerDiv($('which_addr_book').value)\">");
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -45,6 +45,10 @@ void display_address_book_middle_div(void) {
 		"><img src=\"static/closewindow.gif\">");
 	wprintf("</td></tr></table>");
 
+	wprintf("<script type=\"text/javascript\">"
+		"PopulateAddressBookInnerDiv($('which_addr_book').value);"
+		"</script>\n");
+
 	end_ajax_response();
 }
 
@@ -53,10 +57,13 @@ void display_address_book_middle_div(void) {
 /**
  * \brief Address book popup results
  */
-void display_address_book_inner_div(void) {
+void display_address_book_inner_div() {
 	int i;
 	static int foo;
+	char *which_addr_book;
 
+	which_addr_book = bstr("which_addr_book");
+	lprintf(9, "FIXME get addresses in <%s>\n", which_addr_book);
 	begin_ajax_response();
 
 	wprintf("<div align=center><form>"
