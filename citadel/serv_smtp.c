@@ -1468,7 +1468,7 @@ void smtp_do_bounce(char *instr) {
 			strcat(bmsg->cm_fields['M'], addr);
 			strcat(bmsg->cm_fields['M'], ": ");
 			strcat(bmsg->cm_fields['M'], dsn);
-			strcat(bmsg->cm_fields['M'], "\n");
+			strcat(bmsg->cm_fields['M'], "\r\n");
 
 			remove_token(instr, i, '\n');
 			--i;
