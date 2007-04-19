@@ -60,6 +60,8 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 	int i, j, ch, did_out, rb, scanch;
 	int nest = 0;		/* Bracket nesting level */
 	int blockquote = 0;	/* BLOCKQUOTE nesting level */
+	int styletag = 0;	/* STYLE tag nesting level */
+	int styletag_start = 0;
 	int bytes_processed = 0;
 	char nl[128];
 
@@ -219,6 +221,20 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 					strcpy(nl, "\n");
 					for (j=0; j<blockquote; ++j) strcat(nl, ">");
 					strcat(outbuf, nl);
+				}
+
+				else if (!strcasecmp(tag, "STYLE")) {
+					++styletag;
+					if (styletag == 1) {
+						styletag_start = strlen(outbuf);
+					}
+				}
+
+				else if (!strcasecmp(tag, "/STYLE")) {
+					--styletag;
+					if (styletag == 0) {
+						outbuf[styletag_start] = 0;
+					}
 				}
 
 			}
