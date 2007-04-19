@@ -206,7 +206,7 @@ void cmd_igab(char *argbuf) {
  */
 void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 				char *secemailaddrbuf, size_t secemailaddrbuf_len,
-				struct vCard *v) {
+				struct vCard *v, int local_addrs_only) {
 	char *s, *addr;
 	int instance = 0;
 	int saved_instance = 0;
@@ -218,7 +218,7 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 		addr = strdup(s);
 		striplt(addr);
 		if (strlen(addr) > 0) {
-			if (IsDirectory(addr)) {
+			if ( (IsDirectory(addr)) || (!local_addrs_only) ) {
 				++saved_instance;
 				if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
 					safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
@@ -499,7 +499,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			v = vcard_load(msg->cm_fields['M']);
 			extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
 						CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
-						v);
+						v, 1);
 			extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 			vcard_free(v);
 
@@ -944,6 +944,88 @@ void cmd_gvea(char *argbuf)
 }
 
 
+
+
+/*
+ * Callback function for cmd_dvca() that hunts for vCard content types
+ * and outputs any email addresses found within.
+ */
+void dvca_mime_callback(char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
+		void *cbuserdata) {
+
+	struct vCard *v;
+	char displayname[256];
+	int displayname_len;
+	char emailaddr[256];
+	int i;
+	int has_commas = 0;
+
+	if ( (strcasecmp(cbtype, "text/vcard")) && (strcasecmp(cbtype, "text/x-vcard")) ) {
+		return;
+	}
+
+	v = vcard_load(content);
+	if (v == NULL) return;
+
+	extract_friendly_name(displayname, sizeof displayname, v);
+	extract_inet_email_addrs(emailaddr, sizeof emailaddr, NULL, 0, v, 0);
+
+	displayname_len = strlen(displayname);
+	for (i=0; i<displayname_len; ++i) {
+		if (displayname[i] == '\"') displayname[i] = ' ';
+		if (displayname[i] == ';') displayname[i] = ',';
+		if (displayname[i] == ',') has_commas = 1;
+	}
+	striplt(displayname);
+
+	cprintf("%s%s%s <%s>\n",
+		(has_commas ? "\"" : ""),
+		displayname,
+		(has_commas ? "\"" : ""),
+		emailaddr
+	);
+
+	vcard_free(v);
+}
+
+
+/*
+ * Back end callback function for cmd_dvca()
+ *
+ * It's basically just passed a list of message numbers, which we're going
+ * to fetch off the disk and then pass along to the MIME parser via another
+ * layer of callback...
+ */
+void dvca_callback(long msgnum, void *userdata) {
+	struct CtdlMessage *msg = NULL;
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) return;
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*dvca_mime_callback,	/* callback function */
+		NULL, NULL,
+		NULL,			/* user data */
+		0
+	);
+	CtdlFreeMessage(msg);
+}
+
+
+/*
+ * Dump VCard Addresses
+ */
+void cmd_dvca(char *argbuf)
+{
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	cprintf("%d addresses:\n", LISTING_FOLLOWS);
+	CtdlForEachMessage(MSGS_ALL, 0, NULL, NULL, NULL, dvca_callback, NULL);
+	cprintf("000\n");
+}
+
+
 /*
  * Query Directory
  */
@@ -1054,7 +1136,7 @@ void vcard_session_login_hook(void) {
 	v = vcard_get_user(&CC->user);
 	extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
 				CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
-				v);
+				v, 1);
 	extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 	vcard_free(v);
 
@@ -1265,6 +1347,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
 	CtdlRegisterProtoHook(cmd_gvsn, "GVSN", "Get Valid Screen Names");
 	CtdlRegisterProtoHook(cmd_gvea, "GVEA", "Get Valid Email Addresses");
+	CtdlRegisterProtoHook(cmd_dvca, "DVCA", "Dump VCard Addresses");
 	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
