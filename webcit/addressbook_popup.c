@@ -24,7 +24,9 @@ void display_address_book_middle_div(void) {
 
 	wprintf("<form>"
 		"<select class=\"address_book_popup_title\" size=1 id=\"which_addr_book\" "
-		" onChange=\"PopulateAddressBookInnerDiv($('which_addr_book').value)\">");
+		" onChange=\"PopulateAddressBookInnerDiv($('which_addr_book').value,'%s')\">",
+		bstr("target_input")
+	);
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -46,8 +48,10 @@ void display_address_book_middle_div(void) {
 	wprintf("</td></tr></table>");
 
 	wprintf("<script type=\"text/javascript\">"
-		"PopulateAddressBookInnerDiv($('which_addr_book').value);"
-		"</script>\n");
+		"PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');"
+		"</script>\n",
+		bstr("target_input")
+	);
 
 	end_ajax_response();
 }
@@ -80,7 +84,13 @@ void display_address_book_inner_div() {
 	wprintf("</select>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", _("Select"));
-	wprintf("onClick=\"alert($('whichaddr').value);\">");
+	wprintf("onClick=\"if ($('%s').value.length > 0) { $('%s').value = $('%s').value + ', '; } $('%s').value=$('%s').value + $('whichaddr').value;\">",
+		bstr("target_input"),
+		bstr("target_input"),
+		bstr("target_input"),
+		bstr("target_input"),
+		bstr("target_input")
+	);
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
 	wprintf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
 
