@@ -62,22 +62,29 @@ void display_address_book_inner_div() {
 
 	begin_ajax_response();
 
-	wprintf("<div align=center><form>"
-		"<select name=\"whichaddr\" size=\"15\">\n");
+	wprintf("<div align=center><form onSubmit=\"return false;\">"
+		"<select name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 
 	serv_printf("GOTO %s", bstr("which_addr_book"));
 	serv_getln(buf, sizeof buf);
 	serv_puts("DVCA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		wprintf("<option value=\">");
+		wprintf("<option value=\"");
 		escputs(buf);
 		wprintf("\">");
 		escputs(buf);
 		wprintf("</option>\n");
 	}
 
-	wprintf("</select></form></div>\n");
+	wprintf("</select>\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", _("Select"));
+	wprintf("onClick=\"alert($('whichaddr').value);\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
+	wprintf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
+
+	wprintf("</form></div>\n");
 
 	end_ajax_response();
 }
