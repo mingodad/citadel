@@ -3017,13 +3017,11 @@ void display_enter(void)
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 
 		/** Pop open an address book -- begin **/
-
 		wprintf(
-			"<a href=\"javascript:PopOpenAddressBook();\" title=\"%s\">"
-			"<img border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
+			"&nbsp;<a href=\"javascript:PopOpenAddressBook('recp_id');\" title=\"%s\">"
+			"<img align=middle border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
 			"</a>", _("Contacts")
 		);
-
 		/** Pop open an address book -- end **/
 
 		wprintf("</td><td></td></tr>\n");
@@ -3037,6 +3035,15 @@ void display_enter(void)
 		escputs(bstr("cc"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
+
+		/** Pop open an address book -- begin **/
+		wprintf(
+			"&nbsp;<a href=\"javascript:PopOpenAddressBook('cc_id');\" title=\"%s\">"
+			"<img align=middle border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
+			"</a>", _("Contacts")
+		);
+		/** Pop open an address book -- end **/
+
 		wprintf("</td><td></td></tr>\n");
 
 		wprintf("<tr><td>");
@@ -3048,6 +3055,14 @@ void display_enter(void)
 		escputs(bstr("bcc"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
+
+		/** Pop open an address book -- begin **/
+		wprintf(
+			"&nbsp;<a href=\"javascript:PopOpenAddressBook('bcc_id');\" title=\"%s\">"
+			"<img align=middle border=0 width=16 height=16 src=\"static/viewcontacts_16x.gif\">"
+			"</a>", _("Contacts")
+		);
+		/** Pop open an address book -- end **/
 		wprintf("</td><td></td></tr>\n");
 
 		/** Initialize the autocomplete ajax helpers (found in wclib.js) */

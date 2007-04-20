@@ -662,24 +662,29 @@ function CtdlShowUserInfoPopup(Element) {
 }
 
 
-// Pop open the address book
-function PopOpenAddressBook() {
+
+// Pop open the address book (target_input is the INPUT field to populate)
+
+function PopOpenAddressBook(target_input) {
 	$('address_book_popup').style.display = 'block';
+	p = 'target_input=' + target_input + '&r=' + CtdlRandomString();
 	new Ajax.Updater(
 		'address_book_popup_middle_div',
 		'display_address_book_middle_div',
 		{
 			method: 'get',
-			parameters: CtdlRandomString(),
+			parameters: p,
 			evalScripts: true
 		}
 	);
 	Nifty('div#address_book_popup_container_div','big transparent');
 }
 
-function PopulateAddressBookInnerDiv(which_addr_book) {
+function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
 	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
-	p = 'which_addr_book=' + which_addr_book + '&r=' + CtdlRandomString();
+	p = 'which_addr_book=' + which_addr_book
+	  + '&target_input=' + target_input
+	  + '&r=' + CtdlRandomString();
 	new Ajax.Updater(
 		'address_book_inner_div',
 		'display_address_book_inner_div',
