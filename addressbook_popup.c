@@ -27,6 +27,11 @@ void display_address_book_middle_div(void) {
 		" onChange=\"PopulateAddressBookInnerDiv($('which_addr_book').value,'%s')\">",
 		bstr("target_input")
 	);
+
+	wprintf("<option value=\"__LOCAL_USERS__\">");
+	escputs(serv_info.serv_humannode);
+	wprintf("</option>\n");
+
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -63,22 +68,38 @@ void display_address_book_middle_div(void) {
  */
 void display_address_book_inner_div() {
 	char buf[256];
+	char username[256];
 
 	begin_ajax_response();
 
 	wprintf("<div align=center><form onSubmit=\"return false;\">"
 		"<select name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 
-	serv_printf("GOTO %s", bstr("which_addr_book"));
-	serv_getln(buf, sizeof buf);
-	serv_puts("DVCA");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		wprintf("<option value=\"");
-		escputs(buf);
-		wprintf("\">");
-		escputs(buf);
-		wprintf("</option>\n");
+	if (!strcasecmp(bstr("which_addr_book"), "__LOCAL_USERS__")) {
+		serv_puts("LIST");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			extract_token(username, buf, 0, '|', sizeof username);
+			wprintf("<option value=\"");
+			escputs(username);
+			wprintf("\">");
+			escputs(username);
+			wprintf("</option>\n");
+		}
+	}
+
+	else {
+		serv_printf("GOTO %s", bstr("which_addr_book"));
+		serv_getln(buf, sizeof buf);
+		serv_puts("DVCA");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			wprintf("<option value=\"");
+			escputs(buf);
+			wprintf("\">");
+			escputs(buf);
+			wprintf("</option>\n");
+		}
 	}
 
 	wprintf("</select>\n");

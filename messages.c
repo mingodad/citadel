@@ -3074,7 +3074,12 @@ void display_enter(void)
 
 	wprintf("<tr><td>");
 	wprintf("<font size=-1>");
-	wprintf(_("Subject (optional):"));
+	if (recipient_required) {
+		wprintf(_("Subject:"));
+	}
+	else {
+		wprintf(_("Subject (optional):"));
+	}
 	wprintf("</font>");
 	wprintf("</td><td>"
 		"<input type=\"text\" name=\"subject\" value=\"");
