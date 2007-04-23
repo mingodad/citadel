@@ -348,7 +348,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"<FONT SIZE=-2>");
 	wprintf(_("(One per line)"));
 	wprintf("</FONT></TD><TD>"
-		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
+		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
 		"ROWS=3 COLS=80 WIDTH=80>\n",
 		(organizer_is_me ? "" : "DISABLED ")
 	);
