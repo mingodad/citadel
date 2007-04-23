@@ -345,9 +345,22 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<TR><TD><B>");
 	wprintf(_("Attendees"));
 	wprintf("</B><br />"
-		"<FONT SIZE=-2>");
+		"<font size=-2>");
 	wprintf(_("(One per line)"));
-	wprintf("</FONT></TD><TD>"
+	wprintf("</font>\n");
+
+	/** Pop open an address book -- begin **/
+	wprintf(
+		"&nbsp;<a href=\"javascript:PopOpenAddressBook('attendees_box|%s');\" "
+		"title=\"%s\">"
+		"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
+		"</a>",
+		_("Attendees"),
+		_("Contacts")
+	);
+	/** Pop open an address book -- end **/
+
+	wprintf("</TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
 		"ROWS=3 COLS=80 WIDTH=80>\n",
 		(organizer_is_me ? "" : "DISABLED ")
@@ -397,6 +410,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"grey_all_day();"
 		"</script>\n"
 	);
+	
+	address_book_popup();
 	wDumpContent(1);
 
 	if (created_new_vevent) {
@@ -418,7 +433,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	struct icaltimetype event_start, t;
 	icalproperty *attendee = NULL;
 	char attendee_string[SIZ];
-	int i;
+	int i, j;
 	int foundit;
 	char form_attendees[SIZ];
 	char organizer_string[SIZ];
@@ -617,6 +632,17 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/* First, strip out the parenthesized partstats.  */
 		strcpy(form_attendees, bstr("attendees"));
 		stripout(form_attendees, '(', ')');
+
+		/* Next, change any commas to newlines, because we want newline-separated attendees. */
+		j = strlen(form_attendees);
+		for (i=0; i<j; ++i) {
+			if (form_attendees[i] == ',') {
+				form_attendees[i] = '\n';
+				while (isspace(form_attendees[i+1])) {
+					strcpy(&form_attendees[i+1], &form_attendees[i+2]);
+				}
+			}
+		}
 
 		/** Now iterate! */
 		for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
