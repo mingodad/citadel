@@ -1,6 +1,6 @@
 /*
- * $Id:  $
- *//**
+ * $Id$
+ *
  * \defgroup AjaxAutoCompletion ajax-powered autocompletion...
  * \ingroup ClientPower
  */
@@ -83,6 +83,10 @@ void display_address_book_middle_div(void) {
 void display_address_book_inner_div() {
 	char buf[256];
 	char username[256];
+	int num_targets = 0;
+	char target_id[64];
+	char target_label[64];
+	int i;
 
 	begin_ajax_response();
 
@@ -118,10 +122,22 @@ void display_address_book_inner_div() {
 
 	wprintf("</select>\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", _("Select"));
-	wprintf("onClick=\"AddContactsToTarget($('%s'),$('whichaddr'));\">", bstr("target_input"));
+	wprintf("%s: ", _("Add"));
+
+	num_targets = num_tokens(bstr("target_input"), '|');
+	for (i=0; i<num_targets; i+=2) {
+		extract_token(target_id, bstr("target_input"), i, '|', sizeof target_id);
+		extract_token(target_label, bstr("target_input"), i+1, '|', sizeof target_label);
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", target_label);
+		wprintf("onClick=\"AddContactsToTarget($('%s'),$('whichaddr'));\">", target_id);
+	}
+
+	/* This 'close window' button works.  Omitting it because we already have a close button
+	 * in the upper right corner, and this one takes up space.
+	 *
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
 	wprintf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
+	 */
 
 	wprintf("</form></div>\n");
 

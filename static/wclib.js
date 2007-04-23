@@ -1,5 +1,5 @@
 //
-// $Id: wclib.js,v 625.2 2005/09/18 04:04:32 ajc Exp $
+// $Id$
 //
 // JavaScript function library for WebCit.
 //
