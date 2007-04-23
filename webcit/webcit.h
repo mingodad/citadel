@@ -638,6 +638,7 @@ void CtdlMakeTempFileName(char *, int);
 void display_preferences(void);
 void set_preferences(void);
 void recp_autocomplete(char *);
+void address_book_popup(void);
 void display_address_book_middle_div(void);
 void display_address_book_inner_div(void);
 void begin_ajax_response(void);

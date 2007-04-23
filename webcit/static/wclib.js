@@ -694,3 +694,16 @@ function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
 		}
 	);
 }
+
+// What happens when a contact is selected from the address book popup
+// (populate the specified target)
+
+function AddContactsToTarget(target, whichaddr) {
+	while (whichaddr.selectedIndex != -1) {
+		if (target.value.length > 0) {
+			target.value = target.value + ', ';
+		}
+		target.value = target.value + whichaddr.value;
+		whichaddr.options[whichaddr.selectedIndex].selected = false;
+	}
+}

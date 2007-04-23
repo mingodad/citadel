@@ -10,6 +10,20 @@
 
 
 /**
+ * \brief Call this right before wDumpContent() on any page which requires the address book popup
+ */
+void address_book_popup(void) {
+	/* Open a new div, hidden initially, for address book popups. */
+	wprintf("</div>\n");	/* End of 'content' div */
+	wprintf("<div id=\"address_book_popup\" style=\"display:none;\">");
+	wprintf("<div id=\"address_book_popup_container_div\">");
+	wprintf("<div id=\"address_book_popup_middle_div\"></div>");
+	wprintf("<div id=\"address_book_inner_div\"></div>");
+	wprintf("</div>");
+	/* The 'address_book_popup' div will be closed by wDumpContent() */
+}
+
+/**
  * \brief Address book popup window
  */
 void display_address_book_middle_div(void) {
@@ -73,7 +87,7 @@ void display_address_book_inner_div() {
 	begin_ajax_response();
 
 	wprintf("<div align=center><form onSubmit=\"return false;\">"
-		"<select name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
+		"<select multiple name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 
 	if (!strcasecmp(bstr("which_addr_book"), "__LOCAL_USERS__")) {
 		serv_puts("LIST");
@@ -105,13 +119,7 @@ void display_address_book_inner_div() {
 	wprintf("</select>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", _("Select"));
-	wprintf("onClick=\"if ($('%s').value.length > 0) { $('%s').value = $('%s').value + ', '; } $('%s').value=$('%s').value + $('whichaddr').value;\">",
-		bstr("target_input"),
-		bstr("target_input"),
-		bstr("target_input"),
-		bstr("target_input"),
-		bstr("target_input")
-	);
+	wprintf("onClick=\"AddContactsToTarget($('%s'),$('whichaddr'));\">", bstr("target_input"));
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
 	wprintf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
 

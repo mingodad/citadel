@@ -3225,19 +3225,8 @@ void display_enter(void)
 	wprintf("</form>\n");
 	wprintf("</td></tr></table></div>\n");
 
-	wprintf("</div>\n");	/* End of 'content' div */
-
-	/* Open a new div, hidden initially, for address book popups.
-	 * FIXME put this in its own function so we can use it from the
-	 * calendar too.
-	 */
-	wprintf("<div id=\"address_book_popup\" style=\"display:none;\">");
-	wprintf("<div id=\"address_book_popup_container_div\">");
-	wprintf("<div id=\"address_book_popup_middle_div\"></div>");
-	wprintf("<div id=\"address_book_inner_div\"></div>");
-	wprintf("</div>");
-	/* The 'address_book_popup' div will be closed by wDumpContent() */
-DONE:	wDumpContent(1);
+DONE:	address_book_popup();
+	wDumpContent(1);
 }
 
 
