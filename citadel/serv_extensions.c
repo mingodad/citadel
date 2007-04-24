@@ -58,7 +58,6 @@ static size_t nSizErrmsg = 0;
 
 static long   DetailErrorFlags;
 
-
 char *ErrSubject = "Startup Problems";
 char *ErrGeneral = "Citadel had trouble on starting up. %s This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
 "If you don't want citadel to provide these services, turn them off in WebCit via %s%s\n\n%s\n\n"
@@ -135,16 +134,30 @@ void AppendString(char **target, char *append, size_t *len, size_t rate)
 		}
 	}
 	memcpy (*target + oLen, append, AddLen);
-	(*target)[AddLen + 1] = '\n';
-	(*target)[AddLen + 2] = '\0';
+	(*target)[oLen + AddLen + 1] = '\n';
+	(*target)[oLen + AddLen + 2] = '\0';
 }
 
 void AddPortError(char *Port, char *ErrorMessage)
 {
+	char *pos;
+	long len;
+
 	DetailErrorFlags |= ERR_PORT;
 
 	AppendString(&errormessages, ErrorMessage, &nSizErrmsg, 10);
 	AppendString(&portlist, Port, &nSizPort, 2);
+
+	pos = strchr (portlist, ':');
+	*pos = ';';
+	
+	len = strlen (errormessages);
+	if (nSizErrmsg * SIZ > len + 3)
+	{
+		errormessages[len] = ';';
+		errormessages[len+1] = ' ';
+		errormessages[len+2] = '\0';
+	}	
 }
 
 
