@@ -707,3 +707,18 @@ function AddContactsToTarget(target, whichaddr) {
 		whichaddr.options[whichaddr.selectedIndex].selected = false;
 	}
 }
+
+// Respond to a meeting invitation
+function RespondToInvitation(question_divname, title_divname, msgnum, cal_partnum, sc) {
+	p = 'msgnum=' + msgnum + '&cal_partnum=' + cal_partnum + '&sc=' + sc ;
+	new Ajax.Updater(title_divname, 'respond_to_request', { method: 'post', parameters: p } );
+	Effect.Fade(question_divname, { duration: 0.5 });
+}
+
+// Handle a received RSVP
+function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
+	p = 'msgnum=' + msgnum + '&cal_partnum=' + cal_partnum + '&sc=' + sc ;
+	new Ajax.Updater(title_divname, 'handle_rsvp', { method: 'post', parameters: p } );
+	Effect.Fade(question_divname, { duration: 0.5 });
+}
+
