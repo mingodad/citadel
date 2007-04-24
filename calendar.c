@@ -85,10 +85,14 @@ void cal_process_object(icalcomponent *cal,
 	char conflict_name[256];
 	char conflict_message[256];
 	int is_update = 0;
+	char divname[32];
+	static int divcount = 0;
+
+	sprintf(divname, "rsvp%04x", ++divcount);
 
 	/** Leading HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<CENTER><TABLE border=0>\n");
+		wprintf("<div align=center><table border=0 bgcolor=\"#ffd\">\n");
 	}
 
 	/** Look for a method */
@@ -97,40 +101,30 @@ void cal_process_object(icalcomponent *cal,
 	/** See what we need to do with this */
 	if (method != NULL) {
 		the_method = icalproperty_get_method(method);
+		char *title;
+
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
-			wprintf("<tr><td colspan=\"2\">\n"
-				"<img align=\"center\" "
-				"src=\"static/calarea_48x.gif\">"
-				"&nbsp;&nbsp;"	
-				"<B>");
-			wprintf(_("Meeting invitation"));
-			wprintf("</B></TD></TR>\n");
+			title = _("Meeting invitation");
 			break;
 		    case ICAL_METHOD_REPLY:
-			wprintf("<TR><TD COLSPAN=2>\n"
-				"<IMG ALIGN=CENTER "
-				"src=\"static/calarea_48x.gif\">"
-				"&nbsp;&nbsp;"	
-				"<B>");
-			wprintf(_("Attendee's reply to your invitation"));
-			wprintf("</B></TD></TR>\n");
+			title = _("Attendee's reply to your invitation");
 			break;
 		    case ICAL_METHOD_PUBLISH:
-			wprintf("<TR><TD COLSPAN=2>\n"
-				"<IMG ALIGN=CENTER "
-				"src=\"static/calarea_48x.gif\">"
-				"&nbsp;&nbsp;"	
-				"<B>");
-			wprintf(_("Published event"));
-			wprintf("</B></TD></TR>\n");
+			title = _("Published event");
 			break;
 		    default:
-			wprintf("<TR><TD COLSPAN=2>");
-			wprintf(_("This is an unknown type of calendar item."));
-			wprintf("</TD></TR>\n");
+			title = _("This is an unknown type of calendar item.");
 			break;
 		}
+
+		wprintf("<tr><td colspan=\"2\">\n");
+		wprintf("<div id=\"%s_title\">", divname);
+		wprintf("<img align=\"center\" "
+			"src=\"static/calarea_48x.gif\">"
+			"&nbsp;&nbsp;<b>%s</b></div></td></TD></TR>\n",
+			title
+		);
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
@@ -267,18 +261,23 @@ void cal_process_object(icalcomponent *cal,
 		lprintf(9, "...done.\n");
 
 		/** Display the Accept/Decline buttons */
-		wprintf("<tr><td>%s</td>"
-			"<td><font size=+1>"
-			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Accept\">%s</a>"
+		wprintf("<tr><td colspan=2>"
+			"<div id=\"%s_question\">"
+			"%s "
+			"<font size=+1>"
+			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Accept');\">%s</a>"
 			" | "
-			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Tentative\">%s</a>"
+			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Tentative');\">%s</a>"
 			" | "
-			"<a href=\"respond_to_request?msgnum=%ld&cal_partnum=%s&sc=Decline\">%s</a>"
-			"</FONT></TD></TR>\n",
+			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Decline');\">%s</a>"
+			"</font>"
+			"</div>"
+			"</td></tr>\n",
+			divname,
 			_("How would you like to respond to this invitation?"),
-			msgnum, cal_partnum, _("Accept"),
-			msgnum, cal_partnum, _("Tentative"),
-			msgnum, cal_partnum, _("Decline")
+			divname, divname, msgnum, cal_partnum, _("Accept"),
+			divname, divname, msgnum, cal_partnum, _("Tentative"),
+			divname, divname, msgnum, cal_partnum, _("Decline")
 		);
 
 	}
@@ -294,25 +293,27 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/** Display the update buttons */
-		wprintf("<TR><TD>"
+		wprintf("<tr><td colspan=2>"
+			"<div id=\"%s_question\">"
 			"%s"
-			"</td><td><font size=+1>"
-			"<a href=\"handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Update\">%s</a>"
+			"<font size=+1>"
+			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
 			" | "
-			"<a href=\"handle_rsvp?msgnum=%ld&cal_partnum=%s&sc=Ignore\">%s</a>"
+			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Ignore');\">%s</a>"
 			"</font>"
-			"</TD></TR>\n",
+			"</div>"
+			"</td></tr>\n",
+			divname,
 			_("Click <i>Update</i> to accept this reply and update your calendar."),
-			msgnum, cal_partnum, _("Update"),
-			msgnum, cal_partnum, _("Ignore")
+			divname, divname, msgnum, cal_partnum, _("Update"),
+			divname, divname, msgnum, cal_partnum, _("Ignore")
 		);
 
 	}
 
 	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-
-		wprintf("</TR></TABLE></CENTER>\n");
+		wprintf("</tr></table></div>\n");
 	}
 }
 
@@ -351,18 +352,9 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
  * Respond to a meeting request
  */
 void respond_to_request(void) {
-	char buf[SIZ];
+	char buf[1024];
 
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"calendar_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
-	wprintf(_("Respond to meeting request"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-	);
-	wprintf("</div>\n<div id=\"content\">\n");
+	begin_ajax_response();
 
 	serv_printf("ICAL respond|%s|%s|%s|",
 		bstr("msgnum"),
@@ -372,10 +364,8 @@ void respond_to_request(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<img src=\"static/calarea_48x.gif\" ALIGN=CENTER>"
-			"</TD><TD>"
-		);
+		wprintf("<table border=0 cellpadding=0><tr><td>");
+		wprintf("<td><img align=\"center\" src=\"static/calarea_48x.gif\"></td><td><b><i>");
 		if (!strcasecmp(bstr("sc"), "accept")) {
 			wprintf(_("You have accepted this meeting invitation.  "
 				"It has been entered into your calendar.")
@@ -391,19 +381,13 @@ void respond_to_request(void) {
 		}
 		wprintf(" ");
 		wprintf(_("A reply has been sent to the meeting organizer."));
-		wprintf("</TD></TR></TABLE>\n");
+		wprintf("</i></b></td></tr></table>");
 	} else {
-		wprintf("<img src=\"static/error.gif\" ALIGN=CENTER>"
-			"%s\n", &buf[4]);
+		wprintf("<img align=\"center\" src=\"static/error.gif\">&nbsp;<b><i>");
+		wprintf("%s\n", &buf[4]);
 	}
 
-	wprintf("<a href=\"dotskip?room=");
-	urlescputs(WC->wc_roomname);
-	wprintf("\"><br />");
-	wprintf(_("Return to messages"));
-	wprintf("</A><br />\n");
-
-	wDumpContent(1);
+	end_ajax_response();
 }
 
 
@@ -412,18 +396,9 @@ void respond_to_request(void) {
  * \brief Handle an incoming RSVP
  */
 void handle_rsvp(void) {
-	char buf[SIZ];
+	char buf[1024];
 
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"calendar_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
-	wprintf(_("Update your calendar with this RSVP"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	begin_ajax_response();
 
 	serv_printf("ICAL handle_rsvp|%s|%s|%s|",
 		bstr("msgnum"),
@@ -433,10 +408,8 @@ void handle_rsvp(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<TABLE BORDER=0><TR><TD>"
-			"<img src=\"static/calarea_48x.gif\" ALIGN=CENTER>"
-			"</TD><TD>"
-		);
+		wprintf("<table border=0 cellpadding=0><tr><td>");
+		wprintf("<td><img align=\"center\" src=\"static/calarea_48x.gif\"></td><td><b><i>");
 		if (!strcasecmp(bstr("sc"), "update")) {
 			wprintf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
@@ -444,20 +417,13 @@ void handle_rsvp(void) {
 				"Your calendar has <b>not</b> been updated.")
 			);
 		}
-		wprintf("</TD></TR></TABLE>\n"
-		);
+		wprintf("</i></b></td></tr></table>");
 	} else {
-		wprintf("<img src=\"static/error.gif\" ALIGN=CENTER>"
-			"%s\n", &buf[4]);
+		wprintf("<img src=\"static/error.gif\" align=center> %s\n", &buf[4]);
 	}
 
-	wprintf("<a href=\"dotskip?room=");
-	urlescputs(WC->wc_roomname);
-	wprintf("\"><br />");
-	wprintf(_("Return to messages"));
-	wprintf("</A><br />\n");
+	end_ajax_response();
 
-	wDumpContent(1);
 }
 
 
