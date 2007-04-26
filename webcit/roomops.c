@@ -3123,5 +3123,4 @@ void set_room_policy(void) {
 	display_editroom();
 }
 
-
 /*@}*/
