@@ -62,7 +62,9 @@ char *ErrSubject = "Startup Problems";
 char *ErrGeneral = "Citadel had trouble on starting up. %s This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
 "If you don't want citadel to provide these services, turn them off in WebCit via %s%s\n\n%s\n\n"
 "To make both ways actualy take place restart the citserver with \"sendcommand down\"\n\n"
-"The errors returned by the system were:\n%s\n";
+"The errors returned by the system were:\n%s\n"
+"You can recheck the above if you follow this faq item:\n"
+"http://www.citadel.org/doku.php/faq:mastering_your_os:net#netstat";
 
 
 char *ErrPortShort = "We couldn't bind all ports you configured to be provided by citadel server.";
@@ -149,7 +151,7 @@ void AddPortError(char *Port, char *ErrorMessage)
 	AppendString(&portlist, Port, &nSizPort, 2);
 
 	pos = strchr (portlist, ':');
-	*pos = ';';
+	if (pos != NULL) *pos = ';';
 	
 	len = strlen (errormessages);
 	if (nSizErrmsg * SIZ > len + 3)
