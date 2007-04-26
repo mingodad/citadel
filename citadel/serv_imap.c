@@ -865,32 +865,6 @@ void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
 
 
 /*
- * Implements the LSUB command
- */
-void imap_lsub(int num_parms, char *parms[])
-{
-	char pattern[SIZ];
-	if (num_parms < 4) {
-		cprintf("%s BAD arguments invalid\r\n", parms[0]);
-		return;
-	}
-	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
-
-	if (strlen(parms[3]) == 0) {
-		cprintf("* LIST (\\Noselect) \"/\" \"\"\r\n");
-	}
-
-	else {
-		imap_list_floors("LSUB", pattern);
-		ForEachRoom(imap_lsub_listroom, pattern);
-	}
-
-	cprintf("%s OK LSUB completed\r\n", parms[0]);
-}
-
-
-
-/*
  * Back end for imap_list()
  */
 void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
@@ -916,27 +890,48 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 
 
 /*
- * Implements the LIST command
+ * Implements the LIST and LSUB commands
  */
 void imap_list(int num_parms, char *parms[])
 {
 	char pattern[SIZ];
+	int subscribed_rooms_only = 0;
+	char verb[16];
+	int i, j;
+
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
 		return;
 	}
+
+	/* parms[1] is the IMAP verb being used (e.g. LIST or LSUB)
+	 * This tells us how to behave, and what verb to return back to the caller
+	 */
+	safestrncpy(verb, parms[1], sizeof verb);
+	j = strlen(verb);
+	for (i=0; i<j; ++i) {
+		verb[i] = toupper(verb[i]);
+	}
+
+	if (!strcasecmp(verb, "LSUB")) {
+		subscribed_rooms_only = 1;
+	}
+
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	if (strlen(parms[3]) == 0) {
-		cprintf("* LIST (\\Noselect) \"/\" \"\"\r\n");
+		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", verb);
 	}
 
 	else {
-		imap_list_floors("LIST", pattern);
-		ForEachRoom(imap_list_listroom, pattern);
+		imap_list_floors(verb, pattern);
+		ForEachRoom(
+			(subscribed_rooms_only ? imap_lsub_listroom : imap_list_listroom),
+			pattern
+		);
 	}
 
-	cprintf("%s OK LIST completed\r\n", parms[0]);
+	cprintf("%s OK %s completed\r\n", parms[0], verb);
 }
 
 
@@ -1517,7 +1512,7 @@ void imap_command_loop(void)
 	}
 
 	else if (!strcasecmp(parms[1], "LSUB")) {
-		imap_lsub(num_parms, parms);
+		imap_list(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "LIST")) {
