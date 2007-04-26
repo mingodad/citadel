@@ -847,16 +847,20 @@ void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
 {
 	char buf[SIZ];
 	int ra;
+	char **data_for_callback;
 	char *pattern;
+	char *verb;
 
-	pattern = (char *) data;
+	data_for_callback = data;
+	pattern = data_for_callback[0];
+	verb = data_for_callback[1];
 
 	/* Only list rooms to which the user has access!! */
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LSUB () \"/\" ");
+			cprintf("* %s () \"/\" ", verb);
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -871,9 +875,13 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 {
 	char buf[SIZ];
 	int ra;
+	char **data_for_callback;
 	char *pattern;
+	char *verb;
 
-	pattern = (char *) data;
+	data_for_callback = data;
+	pattern = data_for_callback[0];
+	verb = data_for_callback[1];
 
 	/* Only list rooms to which the user has access!! */
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
@@ -881,7 +889,7 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LIST () \"/\" ");
+			cprintf("* %s () \"/\" ", verb);
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -898,6 +906,8 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j;
+
+	char *data_for_callback[3];
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -919,6 +929,10 @@ void imap_list(int num_parms, char *parms[])
 
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
+	data_for_callback[0] = pattern;
+	data_for_callback[1] = verb;
+	data_for_callback[2] = "All your base are belong to us.";
+
 	if (strlen(parms[3]) == 0) {
 		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", verb);
 	}
@@ -927,7 +941,7 @@ void imap_list(int num_parms, char *parms[])
 		imap_list_floors(verb, pattern);
 		ForEachRoom(
 			(subscribed_rooms_only ? imap_lsub_listroom : imap_list_listroom),
-			pattern
+			data_for_callback
 		);
 	}
 
