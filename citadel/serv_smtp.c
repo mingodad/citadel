@@ -155,6 +155,9 @@ void smtp_greeting(int is_msa)
 		return;
 	}
 
+	/* Note: the FQDN *must* appear as the first thing after the 220 code.
+	 * Some clients (including citmail.c) depend on it being there.
+	 */
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
 
