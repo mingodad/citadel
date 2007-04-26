@@ -817,7 +817,7 @@ void imap_namespace(int num_parms, char *parms[])
 /*
  * Used by LIST and LSUB to show the floors in the listing
  */
-void imap_list_floors(char *cmd, char *pattern)
+void imap_list_floors(char *verb, char *pattern)
 {
 	int i;
 	struct floor *fl;
@@ -827,7 +827,7 @@ void imap_list_floors(char *cmd, char *pattern)
 		if (fl->f_flags & F_INUSE) {
 			if (imap_mailbox_matches_pattern
 			    (pattern, fl->f_name)) {
-				cprintf("* %s (\\NoSelect) \"/\" ", cmd);
+				cprintf("* %s (\\NoSelect) \"/\" ", verb);
 				imap_strout(fl->f_name);
 				cprintf("\r\n");
 			}
@@ -836,57 +836,47 @@ void imap_list_floors(char *cmd, char *pattern)
 }
 
 
-
-/*
- * Back end for imap_lsub()
- *
- * IMAP "subscribed folder" is equivocated to Citadel "known rooms."  This
- * may or may not be the desired behavior in the future.
- */
-void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
-{
-	char buf[SIZ];
-	int ra;
-	char **data_for_callback;
-	char *pattern;
-	char *verb;
-
-	data_for_callback = data;
-	pattern = data_for_callback[0];
-	verb = data_for_callback[1];
-
-	/* Only list rooms to which the user has access!! */
-	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
-	if (ra & UA_KNOWN) {
-		imap_mailboxname(buf, sizeof buf, qrbuf);
-		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* %s () \"/\" ", verb);
-			imap_strout(buf);
-			cprintf("\r\n");
-		}
-	}
-}
-
-
 /*
  * Back end for imap_list()
+ *
+ * Implementation note: IMAP "subscribed folder" is equivalent to Citadel "known room"
+ *
+ * The "user data" field is actually an array of pointers; see below for the breakdown
+ *
  */
 void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 {
 	char buf[SIZ];
 	int ra;
+	int yes_output_this_room;
+
 	char **data_for_callback;
 	char *pattern;
 	char *verb;
+	int subscribed_rooms_only;
 
+	/* Here's how we break down the array of pointers passed to us */
 	data_for_callback = data;
 	pattern = data_for_callback[0];
 	verb = data_for_callback[1];
+	subscribed_rooms_only = (int) data_for_callback[2];
 
 	/* Only list rooms to which the user has access!! */
+	yes_output_this_room = 0;
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
-	if ((ra & UA_KNOWN)
-	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
+
+	if (subscribed_rooms_only) {
+		if (ra & UA_KNOWN) {
+			yes_output_this_room = 1;
+		}
+	}
+	else {
+		if ((ra & UA_KNOWN) || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
+			yes_output_this_room = 1;
+		}
+	}
+
+	if (yes_output_this_room) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
 			cprintf("* %s () \"/\" ", verb);
@@ -931,7 +921,7 @@ void imap_list(int num_parms, char *parms[])
 
 	data_for_callback[0] = pattern;
 	data_for_callback[1] = verb;
-	data_for_callback[2] = "All your base are belong to us.";
+	data_for_callback[2] = (char *) subscribed_rooms_only;
 
 	if (strlen(parms[3]) == 0) {
 		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", verb);
@@ -939,10 +929,7 @@ void imap_list(int num_parms, char *parms[])
 
 	else {
 		imap_list_floors(verb, pattern);
-		ForEachRoom(
-			(subscribed_rooms_only ? imap_lsub_listroom : imap_list_listroom),
-			data_for_callback
-		);
+		ForEachRoom(imap_list_listroom, data_for_callback);
 	}
 
 	cprintf("%s OK %s completed\r\n", parms[0], verb);
