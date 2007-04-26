@@ -26,7 +26,6 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
-#include "config.h"
 #include "citadel_dirs.h"
 
 /* #define DEBUG  */	/* uncomment to get protocol traces */
@@ -161,6 +160,10 @@ void serv_puts(char *buf)
 void cleanup(int exitcode) {
 	char buf[1024];
 
+	if (exitcode == 1)
+		printf ("Error while sending mail."
+			"Check your maildata and make shure "
+			"citadel is configured properly!");
 	serv_puts("QUIT");
 	serv_gets(buf);
 	exit(exitcode);
@@ -180,19 +183,30 @@ int main(int argc, char **argv) {
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	char *sp, *ep;
+	       
 
 	/* TODO: should we be able to calculate relative dirs? */
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
-
-	get_config();
 
 	pw = getpwuid(getuid());
 
 	fp = tmpfile();
 	if (fp == NULL) return(errno);
+	serv_sock = uds_connectsock(file_lmtp_socket);
+	serv_gets(buf);
+	if (buf[0]!='2') cleanup(1);
+
+	sp = strchr (buf, ' ');
+	if (sp == NULL) cleanup(1);
+	sp ++;
+	ep = strchr (sp, ' ');
+	if (ep == NULL) cleanup(1);
+	*ep = '\0';
+
 	snprintf(fromline, sizeof fromline, "From: %s@%s",
-		pw->pw_name,
-		config.c_fqdn
+		 pw->pw_name,
+		 sp
 	);
 	while (fgets(buf, 1024, stdin) != NULL) {
 		if ( ( (buf[0] == 13) || (buf[0] == 10)) && (in_body == 0) ) {
@@ -211,9 +225,6 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-	serv_sock = uds_connectsock(file_lmtp_socket);
-	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
 
 	serv_puts("LHLO x");
 	do {

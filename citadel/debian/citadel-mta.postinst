@@ -5,8 +5,6 @@ set -e
 
 case "$1" in
     configure)
-        chown root:citadel /usr/sbin/sendmail
-        chmod 4755 /usr/sbin/sendmail
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
