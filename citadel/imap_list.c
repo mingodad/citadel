@@ -141,7 +141,6 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j;
-
 	char *data_for_callback[3];
 
 	if (num_parms < 4) {
@@ -162,6 +161,17 @@ void imap_list(int num_parms, char *parms[])
 		subscribed_rooms_only = 1;
 	}
 
+	/*
+	 * In order to implement draft-ietf-imapext-list-extensions-18
+	 * ("LIST Command Extensions") we need to:
+	 * 1. Extract "selection options"
+	 * 2. Extract "return options"
+	 * 3. Determine whether there is more than one match pattern
+	 */
+
+	/* Citadel does not yet implement the abovementioned extension, and
+	 * therefore the root and pattern will always be in these positions.
+	 */
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	data_for_callback[0] = pattern;
