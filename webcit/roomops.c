@@ -1194,7 +1194,7 @@ void display_editroom(void)
 		if ((er_flags & QR_PRIVATE) == 0)
 		wprintf("CHECKED ");
 		wprintf("> ");
-		wprintf(_("Public room"));
+		wprintf(_("Public (automatically appears to everyone)"));
 		wprintf("\n");
 
 		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
@@ -1202,14 +1202,14 @@ void display_editroom(void)
 		    (er_flags & QR_GUESSNAME))
 			wprintf("CHECKED ");
 		wprintf("> ");
-		wprintf(_("Private - guess name"));
+		wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
 	
 		wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
 		if ((er_flags & QR_PRIVATE) &&
 		    (er_flags & QR_PASSWORDED))
 			wprintf("CHECKED ");
 		wprintf("> ");
-		wprintf(_("Private - require password:"));
+		wprintf(_("Private - require password: "));
 		wprintf("\n<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
 			er_password);
 	
