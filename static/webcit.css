@@ -868,6 +868,7 @@ div.auto_complete ul strong.highlight {
 	background-color: #fff;
 	color: #000;
 	display: none;
+	border: 1px solid black;
 }
 
 #address_book_popup_container_div {

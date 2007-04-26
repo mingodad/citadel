@@ -677,7 +677,6 @@ function PopOpenAddressBook(target_input) {
 			evalScripts: true
 		}
 	);
-	Nifty('div#address_book_popup_container_div','big transparent');
 }
 
 function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
