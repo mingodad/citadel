@@ -39,6 +39,7 @@ char ctdl_message_dir[PATH_MAX]="messages";
 char ctdl_usrpic_dir[PATH_MAX]="userpics";
 char ctdl_bbsbase_dir[PATH_MAX]="";
 char ctdl_etc_dir[PATH_MAX]="";
+/* attention! this may be non volatile on some oses */
 char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
@@ -143,6 +144,11 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 
 	/* ok, now we know the dirs, calc some commonly used files */
 
+	snprintf(file_arcq, 
+			 sizeof file_arcq,
+			 "%srefcount_adjustments.dat",
+			 ctdl_etc_dir);
+
 	snprintf(file_citadel_control, 
 			 sizeof file_citadel_control,
 			 "%scitadel.control",
@@ -176,11 +182,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	snprintf(file_pid_file, 
 			 sizeof file_pid_file,
 				"%scitadel.pid",
-			 ctdl_run_dir);
-
-	snprintf(file_arcq, 
-			 sizeof file_arcq,
-			 "%srefcount_adjustments.dat",
 			 ctdl_run_dir);
 
 	snprintf(file_crpt_file_key,

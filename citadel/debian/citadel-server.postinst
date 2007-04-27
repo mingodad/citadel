@@ -7,6 +7,10 @@ set -e
 . /usr/share/debconf/confmodule
 db_version 2.0
 
+# glitch: this mustn't be in /var/run/
+if test -f /var/run/refcount_adjustments.dat; then
+    mv /var/run/refcount_adjustments.dat /etc/citadel/
+fi
 case "$1" in
     configure)
         chown -R citadel:citadel /etc/citadel
