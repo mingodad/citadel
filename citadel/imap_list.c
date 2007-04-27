@@ -89,7 +89,7 @@ void imap_list_floors(char *verb, char *pattern)
  * The "user data" field is actually an array of pointers; see below for the breakdown
  *
  */
-void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
+void imap_listroom(struct ctdlroom *qrbuf, void *data)
 {
 	char buf[SIZ];
 	int ra;
@@ -140,8 +140,13 @@ void imap_list(int num_parms, char *parms[])
 	char pattern[SIZ];
 	int subscribed_rooms_only = 0;
 	char verb[16];
-	int i, j;
+	int i, j, paren_nest;
 	char *data_for_callback[3];
+
+	int selection_left = (-1);
+	int selection_right = (-1);
+
+	int root_pos = 2;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -169,10 +174,32 @@ void imap_list(int num_parms, char *parms[])
 	 * 3. Determine whether there is more than one match pattern
 	 */
 
-	/* Citadel does not yet implement the abovementioned extension, and
-	 * therefore the root and pattern will always be in these positions.
+	/*
+	 * If parameter 2 begins with a '(' character, the client is specifying
+	 * selection options.  Extract their exact position, and then modify our
+	 * expectation of where the root folder will be specified.
+	 * (FIXME this is part of draft-ietf-imapext-list-extensions-18, not finished yet)
 	 */
-	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
+	if (parms[2][0] == '(') {
+		selection_left = 2;
+		paren_nest = 0;
+		for (i=2; i<num_parms; ++i) {
+			for (j=0; j<strlen(parms[i]); ++j) {
+				if (parms[i][j] == '(') ++paren_nest;
+				if (parms[i][j] == ')') --paren_nest;
+			}
+			if (paren_nest == 0) {
+				selection_right = i;	/* found end of selection options */
+				root_pos = i+1;		/* folder root appears after selection options */
+				i = num_parms + 1;	/* break out of the loop */
+			}
+		}
+	}
+
+	/* The folder root appears immediately after the selection options,
+	 * or in position 2 if no selection options were specified.
+	 */
+	snprintf(pattern, sizeof pattern, "%s%s", parms[root_pos], parms[root_pos+1]);
 
 	data_for_callback[0] = pattern;
 	data_for_callback[1] = verb;
@@ -184,7 +211,7 @@ void imap_list(int num_parms, char *parms[])
 
 	else {
 		imap_list_floors(verb, pattern);
-		ForEachRoom(imap_list_listroom, data_for_callback);
+		ForEachRoom(imap_listroom, data_for_callback);
 	}
 
 	cprintf("%s OK %s completed\r\n", parms[0], verb);
