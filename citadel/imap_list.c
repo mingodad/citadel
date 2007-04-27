@@ -62,16 +62,23 @@
 /*
  * Used by LIST and LSUB to show the floors in the listing
  */
-void imap_list_floors(char *verb, char *pattern)
+void imap_list_floors(char *verb, int num_patterns, char **patterns)
 {
 	int i;
 	struct floor *fl;
+	int j = 0;
+	int match = 0;
 
 	for (i = 0; i < MAXFLOORS; ++i) {
 		fl = cgetfloor(i);
 		if (fl->f_flags & F_INUSE) {
-			if (imap_mailbox_matches_pattern
-			    (pattern, fl->f_name)) {
+			match = 0;
+			for (j=0; j<num_patterns; ++j) {
+				if (imap_mailbox_matches_pattern (patterns[j], fl->f_name)) {
+					match = 1;
+				}
+			}
+			if (match) {
 				cprintf("* %s (\\NoSelect) \"/\" ", verb);
 				imap_strout(fl->f_name);
 				cprintf("\r\n");
@@ -96,15 +103,19 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	int yes_output_this_room;
 
 	char **data_for_callback;
-	char *pattern;
 	char *verb;
 	int subscribed_rooms_only;
+	int num_patterns;
+	char **patterns;
+	int i = 0;
+	int match = 0;
 
 	/* Here's how we break down the array of pointers passed to us */
 	data_for_callback = data;
-	pattern = data_for_callback[0];
-	verb = data_for_callback[1];
-	subscribed_rooms_only = (int) data_for_callback[2];
+	verb = data_for_callback[0];
+	subscribed_rooms_only = (int) data_for_callback[1];
+	num_patterns = (int) data_for_callback[2];
+	patterns = (char **) data_for_callback[3];
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
@@ -123,7 +134,13 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 
 	if (yes_output_this_room) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
-		if (imap_mailbox_matches_pattern(pattern, buf)) {
+		match = 0;
+		for (i=0; i<num_patterns; ++i) {
+			if (imap_mailbox_matches_pattern(patterns[i], buf)) {
+				match = 1;
+			}
+		}
+		if (match) {
 			cprintf("* %s () \"/\" ", verb);
 			imap_strout(buf);
 			cprintf("\r\n");
@@ -131,22 +148,25 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	}
 }
 
+#define MAX_PATTERNS 20
 
 /*
  * Implements the LIST and LSUB commands
  */
 void imap_list(int num_parms, char *parms[])
 {
-	char pattern[SIZ];
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j, paren_nest;
 	char *data_for_callback[3];
-
+	int num_patterns = 1;
+	char *patterns[MAX_PATTERNS];
 	int selection_left = (-1);
 	int selection_right = (-1);
-
 	int root_pos = 2;
+	int patterns_left = 3;
+	int patterns_right = 3;
+	int extended_list_in_use = 0;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -169,18 +189,18 @@ void imap_list(int num_parms, char *parms[])
 	/*
 	 * In order to implement draft-ietf-imapext-list-extensions-18
 	 * ("LIST Command Extensions") we need to:
-	 * 1. Extract "selection options"
+	 * 1. Extract "selection options" (DONE, but we don't do anything with it yet)
 	 * 2. Extract "return options"
-	 * 3. Determine whether there is more than one match pattern
+	 * 3. Determine whether there is more than one match pattern (DONE)
 	 */
 
 	/*
 	 * If parameter 2 begins with a '(' character, the client is specifying
 	 * selection options.  Extract their exact position, and then modify our
 	 * expectation of where the root folder will be specified.
-	 * (FIXME this is part of draft-ietf-imapext-list-extensions-18, not finished yet)
 	 */
 	if (parms[2][0] == '(') {
+		extended_list_in_use = 1;
 		selection_left = 2;
 		paren_nest = 0;
 		for (i=2; i<num_parms; ++i) {
@@ -199,22 +219,70 @@ void imap_list(int num_parms, char *parms[])
 	/* The folder root appears immediately after the selection options,
 	 * or in position 2 if no selection options were specified.
 	 */
-	snprintf(pattern, sizeof pattern, "%s%s", parms[root_pos], parms[root_pos+1]);
+	patterns_left = root_pos + 1;
+	patterns_right = root_pos + 1;
 
-	data_for_callback[0] = pattern;
-	data_for_callback[1] = verb;
-	data_for_callback[2] = (char *) subscribed_rooms_only;
+	if (parms[patterns_left][0] == '(') {
+		extended_list_in_use = 1;
+		paren_nest = 0;
+		for (i=patterns_left; i<num_parms; ++i) {
+			for (j=0; j<strlen(parms[i]); ++j) {
+				if (parms[i][j] == '(') ++paren_nest;
+				if (parms[i][j] == ')') --paren_nest;
+			}
+			if (paren_nest == 0) {
+				patterns_right = i;	/* found end of patterns */
+				i = num_parms + 1;	/* break out of the loop */
+			}
+		}
+		num_patterns = patterns_right - patterns_left + 1;
+		for (i=0; i<num_patterns; ++i) {
+			if (i < MAX_PATTERNS) {
+				patterns[i] = malloc(512);
+				snprintf(patterns[i], 512, "%s%s", parms[root_pos], parms[patterns_left+i]);
+				if (i == 0) {
+					strcpy(patterns[i], &patterns[i][1]);
+				}
+				if (i == num_patterns-1) {
+					patterns[i][strlen(patterns[i])-1] = 0;
+				}
+			}
+		}
+	}
+	else {
+		num_patterns = 1;
+		patterns[0] = malloc(512);
+		snprintf(patterns[0], 512, "%s%s", parms[root_pos], parms[patterns_left]);
+	}
 
-	if (strlen(parms[3]) == 0) {
+	data_for_callback[0] = verb;
+	data_for_callback[1] = (char *) subscribed_rooms_only;
+	data_for_callback[2] = (char *) num_patterns;
+	data_for_callback[3] = (char *) patterns;
+
+	/* The non-extended LIST command is required to treat an empty
+	 * ("" string) mailbox name argument as a special request to return the
+	 * hierarchy delimiter and the root name of the name given in the
+	 * reference parameter.
+	 */
+	if ( (strlen(patterns[0]) == 0) && (extended_list_in_use == 0) ) {
 		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", verb);
 	}
 
+	/* Non-empty mailbox names, and any form of the extended LIST command,
+	 * is handled by this loop.
+	 */
 	else {
-		imap_list_floors(verb, pattern);
+		imap_list_floors(verb, num_patterns, patterns);
 		ForEachRoom(imap_listroom, data_for_callback);
+	}
+
+	/* 
+	 * Free the pattern buffers we allocated above.
+	 */
+	for (i=0; i<num_patterns; ++i) {
+		free(patterns[i]);
 	}
 
 	cprintf("%s OK %s completed\r\n", parms[0], verb);
 }
-
-
