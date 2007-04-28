@@ -99,6 +99,7 @@ void imap_list_floors(char *verb, int num_patterns, char **patterns)
 void imap_listroom(struct ctdlroom *qrbuf, void *data)
 {
 	char buf[SIZ];
+	char return_options[256];
 	int ra;
 	int yes_output_this_room;
 
@@ -107,6 +108,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	int subscribed_rooms_only;
 	int num_patterns;
 	char **patterns;
+	int return_subscribed;
 	int i = 0;
 	int match = 0;
 
@@ -116,10 +118,18 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	subscribed_rooms_only = (int) data_for_callback[1];
 	num_patterns = (int) data_for_callback[2];
 	patterns = (char **) data_for_callback[3];
+	return_subscribed = (int) data_for_callback[4];
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
+	strcpy(return_options, "");
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
+
+	if (return_subscribed) {
+		if (ra & UA_KNOWN) {
+			strcat(return_options, "\\Subscribed");
+		}
+	}
 
 	if (subscribed_rooms_only) {
 		if (ra & UA_KNOWN) {
@@ -141,7 +151,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 			}
 		}
 		if (match) {
-			cprintf("* %s () \"/\" ", verb);
+			cprintf("* %s (%s) \"/\" ", verb, return_options);
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -158,15 +168,18 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j, paren_nest;
-	char *data_for_callback[3];
+	char *data_for_callback[5];
 	int num_patterns = 1;
 	char *patterns[MAX_PATTERNS];
 	int selection_left = (-1);
 	int selection_right = (-1);
+	int return_left = (-1);
+	int return_right = (-1);
 	int root_pos = 2;
 	int patterns_left = 3;
 	int patterns_right = 3;
 	int extended_list_in_use = 0;
+	int return_subscribed = 0;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -255,10 +268,41 @@ void imap_list(int num_parms, char *parms[])
 		snprintf(patterns[0], 512, "%s%s", parms[root_pos], parms[patterns_left]);
 	}
 
-	data_for_callback[0] = verb;
+	/* If the word "RETURN" appears after the folder pattern list, then the client
+	 * is specifying return options.
+	 */
+	if (num_parms - patterns_right > 2) if (!strcasecmp(parms[patterns_right+1], "RETURN")) {
+		return_left = patterns_right + 2;
+		extended_list_in_use = 1;
+		paren_nest = 0;
+		for (i=return_left; i<num_parms; ++i) {
+			for (j=0; j<strlen(parms[i]); ++j) {
+				if (parms[i][j] == '(') ++paren_nest;
+				if (parms[i][j] == ')') --paren_nest;
+			}
+
+			/* Might as well look for these while we're in here... */
+			if (parms[i][0] == '(') strcpy(parms[i], &parms[i][1]);
+			if (parms[i][strlen(parms[i])-1] == ')') parms[i][strlen(parms[i])-1] = 0;
+			lprintf(9, "evaluating <%s>\n", parms[i]);
+			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+				return_subscribed = 1;
+			}
+
+			if (paren_nest == 0) {
+				return_right = i;	/* found end of patterns */
+				i = num_parms + 1;	/* break out of the loop */
+			}
+		}
+	}
+
+	/* Now start setting up the data we're going to send to the ForEachRoom() callback.
+	 */
+	data_for_callback[0] = (char *) verb;
 	data_for_callback[1] = (char *) subscribed_rooms_only;
 	data_for_callback[2] = (char *) num_patterns;
 	data_for_callback[3] = (char *) patterns;
+	data_for_callback[4] = (char *) return_subscribed;
 
 	/* The non-extended LIST command is required to treat an empty
 	 * ("" string) mailbox name argument as a special request to return the
