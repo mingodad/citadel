@@ -94,6 +94,10 @@ int CtdlHostAlias(char *fqdn) {
 		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
 			return(hostalias_directory);
 
+		if ( (!strcasecmp(type, "masqdomain"))
+		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
+			return(hostalias_masq);
+
 	}
 
 	return(hostalias_nomatch);
@@ -564,7 +568,7 @@ void directory_key(char *key, char *addr) {
 /* Return nonzero if the supplied address is in a domain we keep in
  * the directory
  */
-int IsDirectory(char *addr) {
+int IsDirectory(char *addr, int allow_masq_domains) {
 	char domain[256];
 	int h;
 
@@ -573,6 +577,9 @@ int IsDirectory(char *addr) {
 
 	h = CtdlHostAlias(domain);
 
+	if ( (h == hostalias_masq) && allow_masq_domains)
+		return(1);
+	
 	if ( (h == hostalias_localhost) || (h == hostalias_directory) ) {
 		return(1);
 	}
@@ -598,7 +605,7 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 
 	lprintf(CTDL_DEBUG, "Dir: %s --> %s\n",
 		internet_addr, citadel_addr);
-	if (IsDirectory(internet_addr) == 0) return;
+	if (IsDirectory(internet_addr, 0) == 0) return;
 
 	directory_key(key, internet_addr);
 
@@ -637,7 +644,7 @@ int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen) {
 	if (num_tokens(internet_addr, '@') != 2) return(-1);
 
 	/* Only do lookups for domains in the directory */
-	if (IsDirectory(internet_addr) == 0) return(-1);
+	if (IsDirectory(internet_addr, 0) == 0) return(-1);
 
 	directory_key(key, internet_addr);
 	cdbrec = cdb_fetch(CDB_DIRECTORY, key, strlen(key) );
@@ -674,7 +681,7 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 		strcat(addr, " <");
 		strcat(addr, msg->cm_fields['F']);
 		strcat(addr, ">");
-		if (IsDirectory(msg->cm_fields['F'])) {
+		if (IsDirectory(msg->cm_fields['F'], 0)) {
 			is_harvestable = 0;
 		}
 	}

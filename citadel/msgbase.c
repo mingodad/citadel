@@ -3214,7 +3214,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				 * because if the address were valid, we would have
 				 * already translated it to a local address by now.
 				 */
-				if (IsDirectory(this_recp)) {
+				if (IsDirectory(this_recp, 0)) {
 					++ret->num_error;
 					invalid = 1;
 				}

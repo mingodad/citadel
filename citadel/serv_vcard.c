@@ -218,7 +218,8 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 		addr = strdup(s);
 		striplt(addr);
 		if (strlen(addr) > 0) {
-			if ( (IsDirectory(addr)) || (!local_addrs_only) ) {
+			if ( (IsDirectory(addr, 1)) || 
+			     (!local_addrs_only) ) {
 				++saved_instance;
 				if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
 					safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
