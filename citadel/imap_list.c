@@ -1,5 +1,5 @@
 /*
- * $Id$ 
+ * $Id: $
  *
  * Implements the LIST and LSUB commands.
  *
