@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id:$
  *
  * Implements the LIST and LSUB commands.
  *
@@ -202,8 +202,12 @@ void imap_list(int num_parms, char *parms[])
 	/*
 	 * In order to implement draft-ietf-imapext-list-extensions-18
 	 * ("LIST Command Extensions") we need to:
-	 * 1. Extract "selection options" (DONE, but we don't do anything with it yet)
-	 * 2. Extract "return options"
+	 * 1. Extract "selection options" (DONE, but we don't do anything with it yet.  We
+	 *                                 need to implement SUBSCRIBED, and RECURSIVEMATCH,
+	 *                                 and silently ignore REMOTE)
+	 * 2. Extract "return options" (DONE, but so far we only implement the SUBSCRIBED
+	 *                              option; we also need to implement the CHILDREN
+	 *                              return option.)
 	 * 3. Determine whether there is more than one match pattern (DONE)
 	 */
 
