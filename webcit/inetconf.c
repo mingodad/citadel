@@ -27,6 +27,7 @@ void display_inetconf(void)
 		ic_smarthost,
 		ic_rbl,
 		ic_spamass,
+		ic_masq,
 		ic_max
 	};
 	char *ic_spec[ic_max];
@@ -42,6 +43,8 @@ void display_inetconf(void)
 	ic_keyword[3] = "smarthost";
 	ic_keyword[4] = "rbl";
 	ic_keyword[5] = "spamassassin";
+	ic_keyword[6] = "masqdomain";
+       
 
 	ic_boxtitle[0] = _("Local host aliases");
 	ic_boxtitle[1] = _("Directory domains");
@@ -49,6 +52,7 @@ void display_inetconf(void)
 	ic_boxtitle[3] = _("Smart hosts");
 	ic_boxtitle[4] = _("RBL hosts");
 	ic_boxtitle[5] = _("SpamAssassin hosts");
+	ic_boxtitle[6] = _("Masqueradable domains");
 
 	ic_desc[0] = _("(domains for which this host receives mail)");
 	ic_desc[1] = _("(domains mapped with the Global Address Book)");
@@ -56,6 +60,7 @@ void display_inetconf(void)
 	ic_desc[3] = _("(if present, forward all outbound mail to one of these hosts)");
 	ic_desc[4] = _("(hosts running a Realtime Blackhole List)");
 	ic_desc[5] = _("(hosts running the SpamAssassin service)");
+	ic_desc[6] = _("(Domains as which users are allowed to masquerade)");
 
 	for (i=0; i<ic_max; ++i) {
 		ic_spec[i] = strdup("");
