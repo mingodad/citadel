@@ -1,3 +1,20 @@
+webcit (7.07-15) stable; urgency=low
+
+  * fixed misbehaviour with ubuntu feisty.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 06 Apr 2007 19:07:00 +0000
+
+webcit (7.07-14) stable; urgency=low
+
+  * update to actual Webcit SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Fri, 06 Apr 2007 19:07:00 +0000
+
+webcit (7.06-13) stable; urgency=high
+
+  * updated mime-parser
+ 
+ -- Wilfried Goesgens <citadel@outgesourced.org>  Mon, 21 Mar 2007 11:09:00 +0100
 webcit (7.06-12) stable; urgency=low
 
   * fixed missing file.
