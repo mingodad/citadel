@@ -508,8 +508,12 @@ a:hover {
 .mailbox_summary {
 	font-size: 10pt;
 	color: #000000;
+	background-color: #FFFFFF;
 }
 
+.mailbox_summary tr {
+	width: 100%;
+}
 
 blockquote {
 	color: navy !important; background-color: RGB(245,245,245) !important; 
