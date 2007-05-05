@@ -2387,14 +2387,14 @@ void readloop(char *oper)
 			"<table cellspacing=0 style=\"width:100%%\">"
 			"<tr>"
 		);
-		wprintf("<td width=%d%%><b><i>%s</i></b> %s</td>"
-			"<td width=%d%%><b><i>%s</i></b> %s</td>"
-			"<td width=%d%%><b><i>%s</i></b> %s"
+		wprintf("<th width=%d%%>%s %s</th>"
+			"<th width=%d%%>%s %s</th>"
+			"<th width=%d%%>%s %s"
 			"&nbsp;"
-			"<input type=\"submit\" name=\"delete_button\" style=\"font-size:6pt\" "
+			"<input type=\"submit\" name=\"delete_button\" id=\"delbutton\" "
 			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
 			" value=\"%s\">"
-			"</td>"
+			"</th>"
 			"</tr>\n"
 			,
 			SUBJ_COL_WIDTH_PCT,

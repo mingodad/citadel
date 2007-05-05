@@ -238,6 +238,7 @@ li.start_page {
 	width: 85%;
 	height: 5%;
 	overflow: none;
+	font-style: italic;
 }
 
 * html #message_list_hdr {
@@ -248,6 +249,11 @@ li.start_page {
 	width: 85%;
 	height: 5%;
 	overflow: none;
+	font-style: italic;
+}
+
+#delbutton {
+	font-size: 6pt;
 }
 
 #message_list {
