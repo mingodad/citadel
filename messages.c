@@ -1608,7 +1608,7 @@ ENDBODY:
 void display_summarized(int num) {
 	char datebuf[64];
 
-	wprintf("<tr id=\"m%ld\" style=\"width:100%%;font-weight:%s;background-color:#ffffff\" "
+	wprintf("<tr id=\"m%ld\" style=\"font-weight:%s;\" "
 		"onMouseDown=\"CtdlMoveMsgMouseDown(event,%ld)\">",
 		WC->summ[num].msgnum,
 		(WC->summ[num].is_new ? "bold" : "normal"),
