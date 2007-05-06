@@ -254,10 +254,6 @@ li.start_page {
 	text-align: left;
 }
 
-#delbutton {
-	font-size: 6pt;
-}
-
 #message_list {
 	position:fixed;
 	display:block;
@@ -418,15 +414,54 @@ a:hover {
 	color: #000088;
 }
 
-.message_header {
+.message {
+	margin: 5px;
+	padding: 0;
+	border: 1px solid darkgrey;
+	background-color: lightgrey;
+}
+
+
+.message_header, .message_subject {
 	font-size: 10pt;
-	color: #000000;
+	color: black;
+	margin: 0;
+	padding: 3px;
+	background-color: lightgrey;
 }
 
 .message_subject {
-	font-size: 10pt;
-	color: #000000;
+	padding-top: 0;
 	font-style: italic;
+	float: left;
+}
+
+
+#delbutton, .msgbuttons a {
+	font-size: 6pt;
+	padding: 2px;
+	margin-left: 2px; 
+	margin-right: 2px; 
+	border: 2px outset darkgrey;
+	color: black;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.msgbuttons {
+	float: right;
+	background-color: lightgrey;
+}
+
+.msgbuttons a span {
+	display: none;
+}
+
+.message_content {
+	background-color: white;
+	margin: 0;
+	padding: 3px;
+        clear: both;
 }
 
 .tablabel {
@@ -474,9 +509,6 @@ a:hover {
 	background-color: #FF0000;
 }
 
-.msgbuttons {
-	font-size: 7pt;
-}
 
 .roomlist_floor {
 	font-size: 12pt;
@@ -523,6 +555,10 @@ a:hover {
 
 .mailbox_summary tr {
 	width: 100%;
+}
+
+.mailbox_summary td {
+	border-top: 1px solid darkgrey;
 }
 
 blockquote {
