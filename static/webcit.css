@@ -303,6 +303,13 @@ li.start_page {
 	cursor: s-resize;
 }
 
+#resize_msglist hr {
+	color: darkgrey;
+	background-color: darkgrey;
+	height: 3px;
+	border: 0;
+}
+
 #preview_pane {
 	position:fixed;
 	display:block;
