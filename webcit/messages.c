@@ -705,16 +705,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/** begin everythingamundo table */
 	if (!printable_view) {
-		wprintf("<div class=\"fix_scrollbar_bug\">\n");
-		wprintf("<table width=100%% border=1 cellspacing=0 "
-			"cellpadding=0><TR><TD>\n");
+		wprintf("<div class=\"fix_scrollbar_bug message\">\n");
 	}
 
 	/** begin message header table */
-	wprintf("<table width=100%% border=0 cellspacing=0 "
-		"cellpadding=1 bgcolor=\"#CCCCCC\"><tr><td>\n");
-
-	wprintf("<span class=\"message_header\">");
+	wprintf("<div class=\"message_header\">");
 	strcpy(m_subject, "");
 	strcpy(m_cc, "");
 
@@ -723,7 +718,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
 			wprintf(" (1)</i><br /><br />\n");
-			wprintf("</span>\n");
+			wprintf("</div>\n");
 			return;
 		}
 		if (!strncasecmp(buf, "nhdr=yes", 8))
@@ -899,32 +894,30 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("****");
 	}
 
-	wprintf("</span>");
+	wprintf("</div>");
+
 #ifdef HAVE_ICONV
 	utf8ify_rfc822_string(m_cc);
 	utf8ify_rfc822_string(m_subject);
 #endif
 	if (strlen(m_cc) > 0) {
-		wprintf("<br />"
-			"<span class=\"message_subject\">");
+		wprintf("<div class=\"message_subject\">");
 		wprintf(_("CC:"));
 		wprintf(" ");
 		escputs(m_cc);
-		wprintf("</span>");
+		wprintf("</div>");
 	}
 	if (strlen(m_subject) > 0) {
-		wprintf("<br />"
-			"<span class=\"message_subject\">");
+		wprintf("<div class=\"message_subject\">");
 		wprintf(_("Subject:"));
 		wprintf(" ");
 		escputs(m_subject);
-		wprintf("</span>");
+		wprintf("</div>");
 	}
-	wprintf("</td>\n");
 
 	/** start msg buttons */
 	if (!printable_view) {
-		wprintf("<td align=right><span class=\"msgbuttons\">\n");
+		wprintf("<div class=\"msgbuttons\">\n");
 
 		/** Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
@@ -939,7 +932,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
 			}
-			wprintf("\">[%s]</a> ", _("Reply"));
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
 		}
 
 		/** ReplyQuoted */
@@ -954,7 +947,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 					urlescputs(m_subject);
 				}
-				wprintf("\">[%s]</a> ", _("ReplyQuoted"));
+				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
 			}
 		}
 
@@ -971,7 +964,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
 			}
-			wprintf("\">[%s]</a> ", _("ReplyAll"));
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
 		}
 
 		/** Forward */
@@ -979,7 +972,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
 			urlescputs(m_subject);
-			wprintf("\">[%s]</a> ", _("Forward"));
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
 		}
 
 		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
@@ -991,27 +984,26 @@ void read_message(long msgnum, int printable_view, char *section) {
 			/** Delete */
 			wprintf("<a href=\"delete_msg?msgid=%ld\" "
 				"onClick=\"return confirm('%s');\">"
-				"[%s]</a> ", msgnum, _("Delete this message?"), _("Delete")
+				"<span>[</span>%s<span>]</span> "
+				"</a> ", msgnum, _("Delete this message?"), _("Delete")
 			);
 		}
 
 		/** Headers */
 		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"[%s]</a>", msgnum, msgnum, _("Headers"));
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
 
 
 		/** Print */
 		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"[%s]</a>", msgnum, msgnum, _("Print"));
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
 
-		wprintf("</span></td>");
+		wprintf("</div>");
 	}
 
-	wprintf("</tr></table>\n");
 
 	/** Begin body */
-	wprintf("<table class=\"messages_background\" "
-		"cellpadding=1 cellspacing=0><tr><td>");
+	wprintf("<div class=\"message_content\" ");
 
 	/**
 	 * Learn the content type
@@ -1179,12 +1171,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 ENDBODY:
-	wprintf("</td></tr></table>\n");
+	wprintf("</div>\n");
 
 	/** end everythingamundo table */
 	if (!printable_view) {
-		wprintf("</td></tr></table>\n");
-		wprintf("</div><br />\n");
+		wprintf("</div>\n");
 	}
 
 	if (num_attach_links > 0) {
@@ -2411,7 +2402,7 @@ void readloop(char *oper)
 
 			"<div class=\"fix_scrollbar_bug\">\n"
 
-			"<table class=\"mailbox_summary\" id=\"summary_headers\" rules=rows "
+			"<table class=\"mailbox_summary\" id=\"summary_headers\" "
 			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
 		);
 	}
