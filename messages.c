@@ -2491,10 +2491,7 @@ void readloop(char *oper)
 		/** Here's the grab-it-to-resize-the-message-list widget */
 		wprintf("<div id=\"resize_msglist\" "
 			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
-			"<div class=\"fix_scrollbar_bug\">"
-			"<table width=100%% border=3 cellspacing=0 "
-			"bgcolor=\"#cccccc\" "
-			"cellpadding=0><TR><TD> </td></tr></table>"
+			"<div class=\"fix_scrollbar_bug\"> <hr>"
 			"</div></div>\n"
 		);
 

@@ -239,6 +239,7 @@ li.start_page {
 	height: 5%;
 	overflow: none;
 	font-style: italic;
+	text-align: left;
 }
 
 * html #message_list_hdr {
@@ -250,6 +251,7 @@ li.start_page {
 	height: 5%;
 	overflow: none;
 	font-style: italic;
+	text-align: left;
 }
 
 #delbutton {
@@ -287,6 +289,7 @@ li.start_page {
 	height: 1%;
 	overflow: none;
 	cursor: s-resize;
+	background-color: #cccccc;
 }
 
 * html #resize_msglist {
