@@ -697,9 +697,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 	serv_printf("MSG4 %ld|%s", msgnum, section);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("<STRONG>");
+		wprintf("<strong>");
 		wprintf(_("ERROR:"));
-		wprintf("</STRONG> %s<br />\n", &buf[4]);
+		wprintf("</strong> %s<br />\n", &buf[4]);
 		return;
 	}
 
@@ -978,7 +978,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
 		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
 			/** Move */
-			wprintf("<a href=\"confirm_move_msg?msgid=%ld\">[%s]</a> ",
+			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
 				msgnum, _("Move"));
 	
 			/** Delete */
@@ -2893,8 +2893,7 @@ void display_enter(void)
 	embed_room_banner(NULL, navbar_none);
 	wprintf("</div>\n");
 	wprintf("<div id=\"content\">\n"
-		"<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"messages_background\"><tr><td>");
+		"<div class=\"fix_scrollbar_bug message \">");
 
 	/** Now check our actual recipients if there are any */
 	if (recipient_required) {
@@ -2936,8 +2935,6 @@ void display_enter(void)
 	/** header bar */
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-	fmt_date(buf, now, 0);
-	wprintf("%s ", buf);
 
 	wprintf(_(" <I>from</I> "));
 
@@ -2989,21 +2986,21 @@ void display_enter(void)
 
 	wprintf(_(" <I>in</I> "));
 	escputs(WC->wc_roomname);
-	wprintf("<br>\n");	/** header bar */
+	wprintf(" (");	/** header bar */
+	fmt_date(buf, now, 0);
+	wprintf("%s)", buf);
+	wprintf("\n");	/** header bar */
 
-	wprintf("<table border=\"0\" width=\"100%%\">\n");
+	wprintf("<div>\n");
 	if (recipient_required) {
 
-		wprintf("<tr><td>");
-		wprintf("<font size=-1>");
+		wprintf("<br/><font size=-1>");
 		wprintf(_("To:"));
-		wprintf("</font>");
-		wprintf("</td><td>"
+		wprintf("</font>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
 		escputs(bstr("recp"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
-		wprintf("</td><td rowspan=3>");
 
 		/** Pop open an address book -- begin **/
 		wprintf(
@@ -3016,29 +3013,20 @@ void display_enter(void)
 		);
 		/** Pop open an address book -- end **/
 
-		wprintf("</td></tr>\n");
-
-		wprintf("<tr><td>");
-		wprintf("<font size=-1>");
+		wprintf("<br/><font size=-1>");
 		wprintf(_("CC:"));
-		wprintf("</font>");
-		wprintf("</td><td>"
+		wprintf("</font>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
 		escputs(bstr("cc"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
-		wprintf("</td></tr>\n");
-
-		wprintf("<tr><td>");
-		wprintf("<font size=-1>");
+		wprintf("<br/><font size=-1>");
 		wprintf(_("BCC:"));
-		wprintf("</font>");
-		wprintf("</td><td>"
+		wprintf("</font>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
 		escputs(bstr("bcc"));
 		wprintf("\" size=50 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
-		wprintf("</td></tr>\n");
 
 		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
 		wprintf("<script type=\"text/javascript\">	\n"
@@ -3047,19 +3035,17 @@ void display_enter(void)
 		);
 	}
 
-	wprintf("<tr><td>");
-	wprintf("<font size=-1>");
+	wprintf("<br /><font size=-1>");
 	if (recipient_required) {
 		wprintf(_("Subject:"));
 	}
 	else {
 		wprintf(_("Subject (optional):"));
 	}
-	wprintf("</font>");
-	wprintf("</td><td>"
+	wprintf("</font>"
 		"<input type=\"text\" name=\"subject\" value=\"");
 	escputs(bstr("subject"));
-	wprintf("\" size=50 maxlength=70></td><td>\n");
+	wprintf("\" size=50 maxlength=70>\n");
 
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (recipient_required) {
@@ -3069,7 +3055,7 @@ void display_enter(void)
 	}
 	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</td></tr></table>\n");
+	wprintf("</div>\n");
 
 	wprintf("<center>");
 
@@ -3198,7 +3184,7 @@ void display_enter(void)
 	}
 
 	wprintf("</form>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</div></div>\n");
 
 DONE:	address_book_popup();
 	wDumpContent(1);
