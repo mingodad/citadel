@@ -417,8 +417,8 @@ a:hover {
 .message {
 	margin: 5px;
 	padding: 0;
-	border: 1px solid darkgrey;
-	background-color: lightgrey;
+	border: 1px solid #999999;
+	background-color: #CCCCCC;
 }
 
 
@@ -427,7 +427,7 @@ a:hover {
 	color: black;
 	margin: 0;
 	padding: 3px;
-	background-color: lightgrey;
+	background-color: #CCCCCC;
 }
 
 .message_subject {
@@ -442,7 +442,8 @@ a:hover {
 	padding: 2px;
 	margin-left: 2px; 
 	margin-right: 2px; 
-	border: 2px outset darkgrey;
+	border: 2px outset #999999;
+	background-color: #EEEEEE;
 	color: black;
 	font-weight: bold;
 	text-transform: uppercase;
@@ -450,7 +451,6 @@ a:hover {
 
 .msgbuttons {
 	float: right;
-	background-color: lightgrey;
 }
 
 .msgbuttons a span {
@@ -462,6 +462,27 @@ a:hover {
 	margin: 0;
 	padding: 3px;
         clear: both;
+}
+
+.message form label {
+        display: block;
+	float: left;
+	margin: 5px;
+	width: 9em;
+	text-align: right;
+}
+
+.message form input, .message form select {
+	margin: 2px;
+}
+
+.send_edit_msg {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-left: auto;
+	margin-right: auto;
+        width: 80%;
+        text-align: center;
 }
 
 .tablabel {
