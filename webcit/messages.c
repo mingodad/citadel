@@ -708,6 +708,94 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("<div class=\"fix_scrollbar_bug message\">\n");
 	}
 
+	/** start msg buttons */
+	if (!printable_view) {
+		wprintf("<div class=\"msgbuttons\">\n");
+
+		/** Reply */
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			wprintf("<a href=\"display_enter");
+			if (WC->is_mailbox) {
+				wprintf("?replyquote=%ld", msgnum);
+			}
+			wprintf("?recp=");
+			urlescputs(reply_to);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
+		}
+
+		/** ReplyQuoted */
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			if (!WC->is_mailbox) {
+				wprintf("<a href=\"display_enter");
+				wprintf("?replyquote=%ld", msgnum);
+				wprintf("?recp=");
+				urlescputs(reply_to);
+				if (strlen(m_subject) > 0) {
+					wprintf("?subject=");
+					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+					urlescputs(m_subject);
+				}
+				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
+			}
+		}
+
+		/** ReplyAll */
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"display_enter");
+			wprintf("?replyquote=%ld", msgnum);
+			wprintf("?recp=");
+			urlescputs(reply_to);
+			wprintf("?cc=");
+			urlescputs(reply_all);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
+		}
+
+		/** Forward */
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
+			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
+			urlescputs(m_subject);
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
+		}
+
+		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
+		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
+			/** Move */
+			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
+				msgnum, _("Move"));
+	
+			/** Delete */
+			wprintf("<a href=\"delete_msg?msgid=%ld\" "
+				"onClick=\"return confirm('%s');\">"
+				"<span>[</span>%s<span>]</span> "
+				"</a> ", msgnum, _("Delete this message?"), _("Delete")
+			);
+		}
+
+		/** Headers */
+		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
+
+
+		/** Print */
+		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
+
+		wprintf("</div>");
+
+	}
+
+
 	/** begin message header table */
 	wprintf("<div class=\"message_header\">");
 	strcpy(m_subject, "");
@@ -912,92 +1000,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf(_("Subject:"));
 		wprintf(" ");
 		escputs(m_subject);
-		wprintf("</div>");
-	}
-
-	/** start msg buttons */
-	if (!printable_view) {
-		wprintf("<div class=\"msgbuttons\">\n");
-
-		/** Reply */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			wprintf("<a href=\"display_enter");
-			if (WC->is_mailbox) {
-				wprintf("?replyquote=%ld", msgnum);
-			}
-			wprintf("?recp=");
-			urlescputs(reply_to);
-			if (strlen(m_subject) > 0) {
-				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-				urlescputs(m_subject);
-			}
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
-		}
-
-		/** ReplyQuoted */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			if (!WC->is_mailbox) {
-				wprintf("<a href=\"display_enter");
-				wprintf("?replyquote=%ld", msgnum);
-				wprintf("?recp=");
-				urlescputs(reply_to);
-				if (strlen(m_subject) > 0) {
-					wprintf("?subject=");
-					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-					urlescputs(m_subject);
-				}
-				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
-			}
-		}
-
-		/** ReplyAll */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter");
-			wprintf("?replyquote=%ld", msgnum);
-			wprintf("?recp=");
-			urlescputs(reply_to);
-			wprintf("?cc=");
-			urlescputs(reply_all);
-			if (strlen(m_subject) > 0) {
-				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-				urlescputs(m_subject);
-			}
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
-		}
-
-		/** Forward */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
-			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
-			urlescputs(m_subject);
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
-		}
-
-		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
-		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
-			/** Move */
-			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
-				msgnum, _("Move"));
-	
-			/** Delete */
-			wprintf("<a href=\"delete_msg?msgid=%ld\" "
-				"onClick=\"return confirm('%s');\">"
-				"<span>[</span>%s<span>]</span> "
-				"</a> ", msgnum, _("Delete this message?"), _("Delete")
-			);
-		}
-
-		/** Headers */
-		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
-
-
-		/** Print */
-		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
-
 		wprintf("</div>");
 	}
 
@@ -2934,13 +2936,15 @@ void display_enter(void)
 
 	/** header bar */
 
-	wprintf("<img src=\"static/newmess3_24x.gif\" align=middle alt=\" \">");
-
+	wprintf("<img src=\"static/newmess3_24x.gif\" class=\"imgedit\">");
+	wprintf("<div>");
+	wprintf("<label for=\"from_id\" > ");
 	wprintf(_(" <I>from</I> "));
+	wprintf("</label>");
 
 	/* Allow the user to select any of his valid screen names */
 
-	wprintf("<select name=\"display_name\" size=1>\n");
+	wprintf("<select name=\"display_name\" size=1 id=\"from_id\">\n");
 
 	serv_puts("GVSN");
 	serv_getln(buf, sizeof buf);
@@ -2991,15 +2995,14 @@ void display_enter(void)
 	wprintf("%s)", buf);
 	wprintf("\n");	/** header bar */
 
-	wprintf("<div>\n");
 	if (recipient_required) {
 
-		wprintf("<br/><font size=-1>");
+		wprintf("<br/><label for=\"recp_id\"> ");
 		wprintf(_("To:"));
-		wprintf("</font>"
+		wprintf("</label>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
 		escputs(bstr("recp"));
-		wprintf("\" size=50 maxlength=1000 />");
+		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 
 		/** Pop open an address book -- begin **/
@@ -3013,19 +3016,19 @@ void display_enter(void)
 		);
 		/** Pop open an address book -- end **/
 
-		wprintf("<br/><font size=-1>");
+		wprintf("<br/><label for=\"cc_id\"> ");
 		wprintf(_("CC:"));
-		wprintf("</font>"
+		wprintf("</label>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
 		escputs(bstr("cc"));
-		wprintf("\" size=50 maxlength=1000 />");
+		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
-		wprintf("<br/><font size=-1>");
+		wprintf("<br/><label for=\"bcc_id\"> ");
 		wprintf(_("BCC:"));
-		wprintf("</font>"
+		wprintf("</label>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
 		escputs(bstr("bcc"));
-		wprintf("\" size=50 maxlength=1000 />");
+		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
 
 		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
@@ -3035,17 +3038,17 @@ void display_enter(void)
 		);
 	}
 
-	wprintf("<br /><font size=-1>");
+	wprintf("<br/><label for=\"subject_id\" > ");
 	if (recipient_required) {
 		wprintf(_("Subject:"));
 	}
 	else {
 		wprintf(_("Subject (optional):"));
 	}
-	wprintf("</font>"
-		"<input type=\"text\" name=\"subject\" value=\"");
+	wprintf("</label>"
+		"<input type=\"text\" name=\"subject\" value=\" \" id=\"subject_id\" ");
 	escputs(bstr("subject"));
-	wprintf("\" size=50 maxlength=70>\n");
+	wprintf("\" size=45 maxlength=70>\n");
 
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (recipient_required) {
@@ -3053,11 +3056,8 @@ void display_enter(void)
 	} else {
 		wprintf(_("Post message"));
 	}
-	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wprintf("\">&nbsp;");
 	wprintf("</div>\n");
-
-	wprintf("<center>");
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
@@ -3124,7 +3124,6 @@ void display_enter(void)
 	}
 
 	wprintf("</textarea>");
-	wprintf("</center><br />\n");
 
 	/**
 	 * The following script embeds the TinyMCE richedit control, and automatically
@@ -3144,6 +3143,17 @@ void display_enter(void)
 		"</script>\n"
 	);
 
+	/** Seth asked for these to be at the top *and* bottom... */
+	wprintf("<div class=\"send_edit_msg\">");
+	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
+	if (recipient_required) {
+		wprintf(_("Send message"));
+	} else {
+		wprintf(_("Post message"));
+	}
+	wprintf("\">&nbsp;"
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wprintf("</div>");
 
 	/** Enumerate any attachments which are already in place... */
 	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
@@ -3164,23 +3174,13 @@ void display_enter(void)
 	/** Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;");
 	wprintf(_("Attach file:"));
-	wprintf(" <input NAME=\"attachfile\" "
-		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
+	wprintf(" <input name=\"attachfile\" "
+		"size=16 type=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
-
-	/** Seth asked for these to be at the top *and* bottom... */
-	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-	if (recipient_required) {
-		wprintf(_("Send message"));
-	} else {
-		wprintf(_("Post message"));
-	}
-	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 
 	/** Make sure we only insert our signature once */
 	if (strcmp(bstr("sig_inserted"), "yes")) {
-		wprintf("<INPUT TYPE=\"hidden\" NAME=\"sig_inserted\" VALUE=\"yes\">\n");
+		wprintf("<input type=\"hidden\" name=\"sig_inserted\" value=\"yes\">\n");
 	}
 
 	wprintf("</form>\n");
