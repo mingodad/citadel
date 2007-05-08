@@ -17,7 +17,7 @@ int fuzzy_match(struct ctdluser *us, char *matchstring);
 void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(char *rfc822, char *fieldname);
 
-int IsDirectory(char *addr);
+int IsDirectory(char *addr, int allow_masq_domains);
 void CtdlDirectoryInit(void);
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
 void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
@@ -33,7 +33,8 @@ enum {
 	hostalias_nomatch,
 	hostalias_localhost,
 	hostalias_gatewaydomain,
-	hostalias_directory
+	hostalias_directory,
+	hostalias_masq
 };
 
 extern char *inetcfg;
