@@ -418,6 +418,16 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				strcpy(&outbuf[i+1], &outbuf[i+8]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&ldquo;", 7)) {
+				outbuf[i] = '\"';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&rdquo;", 7)) {
+				outbuf[i] = '\"';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
 			/* two-digit decimal equivalents */
 			else if ((!strncmp(&outbuf[i], "&#", 2))
 			      && (outbuf[i+4] == ';') ) {
