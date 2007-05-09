@@ -232,18 +232,27 @@ int lingering_close(int fd)
  */
 int is_bogus(char *http_cmd) {
 	char *url;
+	int i, max;
 
 	url = strstr(http_cmd, " ");
 	if (url == NULL) return(1);
 	++url;
 
-	/** Worms and trojans and viruses, oh my! */
-	if (!strncasecmp(url, "/scripts/root.exe", 17)) return(2);
-	if (!strncasecmp(url, "/c/winnt", 8)) return(2);
-	if (!strncasecmp(url, "/MSADC/", 7)) return(2);
+	char *bogus_prefixes[] = {
+		"/scripts/root.exe",	/**< Worms and trojans and viruses, oh my! */
+		"/c/winnt",
+		"/MSADC/",
+		"/_vti",		/**< Broken Microsoft DAV implementation */
+		"/MSOffice"		/**< Stoopid MSOffice thinks everyone is IIS */
+	};
 
-	/** Broken Microsoft DAV implementation */
-	if (!strncasecmp(url, "/_vti", 5)) return(3);
+	max = sizeof(bogus_prefixes) / sizeof(char *);
+
+	for (i=0; i<max; ++i) {
+		if (!strncasecmp(url, bogus_prefixes[i], strlen(bogus_prefixes[i]))) {
+			return(2);
+		}
+	}
 
 	return(0);	/* probably ok */
 }
