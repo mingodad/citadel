@@ -267,6 +267,7 @@ li.start_page {
 	height: 20%;
 	overflow: auto;
 	cursor: pointer;
+        text-align: left;
 }
 
 * html #message_list {
@@ -318,6 +319,7 @@ li.start_page {
 	width: 85%;
 	height: 58%;
 	overflow: auto;
+        text-align: left;
 }
 
 * html #preview_pane {
@@ -423,6 +425,7 @@ a:hover {
 	padding: 0;
 	border: 1px solid #999999;
 	background-color: #CCCCCC;
+        text-align: left;
 }
 
 
@@ -432,6 +435,7 @@ a:hover {
 	margin: 0;
 	padding: 3px;
 	background-color: #CCCCCC;
+        text-align: left;
 }
 
 .message_subject {
