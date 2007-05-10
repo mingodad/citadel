@@ -1213,10 +1213,12 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 	if (!longlist) {
 		color(BRIGHT_WHITE);
 		pprintf("           User Name               Room          ");
-		if (screenwidth >= 50) pprintf(" Idle        From host\n");
+		if (screenwidth >= 80) pprintf(" Idle        From host");
+		pprintf("\n");
 		color(DIM_WHITE);
 		pprintf("   ------------------------- --------------------");
-		if (screenwidth >= 50) pprintf(" ---- ------------------------\n");
+		if (screenwidth >= 80) pprintf(" ---- ------------------------");
+		pprintf("\n");
 	}
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
 	listing = SortOnlineUsers(listing);
@@ -1286,7 +1288,7 @@ void who_is_online(CtdlIPC *ipc, int longlist)
     					roomname[20] = 0;
     					pprintf("%-20s", roomname);
 
-					if (screenwidth >= 50) {
+					if (screenwidth >= 80) {
 						pprintf(" ");
 						if (idletime > rc_idle_threshold) {
 							/* over 1000d, must be gone fishing */
