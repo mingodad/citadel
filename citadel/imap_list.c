@@ -1,5 +1,5 @@
 /*
- * $Id:$
+ * $Id$
  *
  * Implements the LIST and LSUB commands.
  *
@@ -79,7 +79,7 @@ void imap_list_floors(char *verb, int num_patterns, char **patterns)
 				}
 			}
 			if (match) {
-				cprintf("* %s (\\NoSelect) \"/\" ", verb);
+				cprintf("* %s (\\NoSelect \\HasChildren) \"/\" ", verb);
 				imap_strout(fl->f_name);
 				cprintf("\r\n");
 			}
@@ -109,6 +109,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	int num_patterns;
 	char **patterns;
 	int return_subscribed;
+	int return_children;
 	int i = 0;
 	int match = 0;
 
@@ -119,6 +120,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	num_patterns = (int) data_for_callback[2];
 	patterns = (char **) data_for_callback[3];
 	return_subscribed = (int) data_for_callback[4];
+	return_children = (int) data_for_callback[5];
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
@@ -129,6 +131,19 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 		if (ra & UA_KNOWN) {
 			strcat(return_options, "\\Subscribed");
 		}
+	}
+
+	/* Warning: ugly hack.
+	 * We don't have any way to determine the presence of child mailboxes
+	 * without refactoring this entire module.  So we're just going to return
+	 * the \HasChildren attribute for every room.
+	 * We'll fix this later when we have time.
+	 */
+	if (return_children) {
+		if (strlen(return_options) > 0) {
+			strcat(return_options, " ");
+		}
+		strcat(return_options, "\\HasChildren");
 	}
 
 	if (subscribed_rooms_only) {
@@ -168,7 +183,7 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j, paren_nest;
-	char *data_for_callback[5];
+	char *data_for_callback[6];
 	int num_patterns = 1;
 	char *patterns[MAX_PATTERNS];
 	int selection_left = (-1);
@@ -180,6 +195,7 @@ void imap_list(int num_parms, char *parms[])
 	int patterns_right = 3;
 	int extended_list_in_use = 0;
 	int return_subscribed = 0;
+	int return_children = 0;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -202,13 +218,19 @@ void imap_list(int num_parms, char *parms[])
 	/*
 	 * In order to implement draft-ietf-imapext-list-extensions-18
 	 * ("LIST Command Extensions") we need to:
-	 * 1. Extract "selection options" (DONE, but we don't do anything with it yet.  We
-	 *                                 need to implement SUBSCRIBED, and RECURSIVEMATCH,
-	 *                                 and silently ignore REMOTE)
-	 * 2. Extract "return options" (DONE, but so far we only implement the SUBSCRIBED
-	 *                              option; we also need to implement the CHILDREN
-	 *                              return option.)
-	 * 3. Determine whether there is more than one match pattern (DONE)
+	 *
+	 * 1. Extract "selection options"
+	 *				(Extraction: done
+	 *				SUBSCRIBED option: done
+	 *				RECURSIVEMATCH option: not done yet
+	 *				REMOTE: safe to silently ignore)
+	 *
+	 * 2. Extract "return options"
+	 *				(Extraction: done
+	 *				SUBSCRIBED option: done
+	 *				CHILDREN option: done, but needs a non-ugly rewrite)
+	 *
+	 * 3. Determine whether there is more than one match pattern (done)
 	 */
 
 	/*
@@ -231,6 +253,32 @@ void imap_list(int num_parms, char *parms[])
 				i = num_parms + 1;	/* break out of the loop */
 			}
 		}
+	}
+
+	/* If selection options were found, do something with them.
+	 */
+	if ((selection_left > 0) && (selection_right >= selection_left)) {
+
+		/* Strip off the outer parentheses */
+		if (parms[selection_left][0] == '(') {
+			strcpy(parms[selection_left], &parms[selection_left][1]);
+		}
+		if (parms[selection_right][strlen(parms[selection_right])-1] == ')') {
+			parms[selection_right][strlen(parms[selection_right])-1] = 0;
+		}
+
+		for (i=selection_left; i<=selection_right; ++i) {
+
+			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+				subscribed_rooms_only = 1;
+			}
+
+			if (!strcasecmp(parms[i], "RECURSIVEMATCH")) {
+				/* FIXME - do this! */
+			}
+
+		}
+
 	}
 
 	/* The folder root appears immediately after the selection options,
@@ -292,6 +340,9 @@ void imap_list(int num_parms, char *parms[])
 			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
 				return_subscribed = 1;
 			}
+			if (!strcasecmp(parms[i], "CHILDREN")) {
+				return_children = 1;
+			}
 
 			if (paren_nest == 0) {
 				return_right = i;	/* found end of patterns */
@@ -307,6 +358,7 @@ void imap_list(int num_parms, char *parms[])
 	data_for_callback[2] = (char *) num_patterns;
 	data_for_callback[3] = (char *) patterns;
 	data_for_callback[4] = (char *) return_subscribed;
+	data_for_callback[5] = (char *) return_children;
 
 	/* The non-extended LIST command is required to treat an empty
 	 * ("" string) mailbox name argument as a special request to return the

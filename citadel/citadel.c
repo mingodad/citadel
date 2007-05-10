@@ -1212,9 +1212,11 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 
 	if (!longlist) {
 		color(BRIGHT_WHITE);
-		pprintf("           User Name               Room           Idle        From host\n");
+		pprintf("           User Name               Room          ");
+		if (screenwidth >= 50) pprintf(" Idle        From host\n");
 		color(DIM_WHITE);
-		pprintf("   ------------------------- -------------------- ---- ------------------------\n");
+		pprintf("   ------------------------- --------------------");
+		if (screenwidth >= 50) pprintf(" ---- ------------------------\n");
 	}
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
 	listing = SortOnlineUsers(listing);
@@ -1238,14 +1240,9 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 			idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
 
 			if (idletime > rc_idle_threshold) {
-				/*
-				while (strlen(roomname) < 20) {
-					strcat(roomname, " ");
-				}
-				strcpy(&roomname[14], "[idle]");
-				*/
-				if (skipidle)
+				if (skipidle) {
 					isidle = 1;
+				}
 			}
 
 			if (longlist) {
@@ -1274,47 +1271,52 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 				pprintf("\n");
 
 			} else {
-	            if (isidle == 0) {
-    				if (extract_int(buf, 0) == last_session) {
-    					pprintf("        ");
-    				} else {
+				if (isidle == 0) {
+    					if (extract_int(buf, 0) == last_session) {
+    						pprintf("        ");
+    					}
+					else {
+    						color(BRIGHT_MAGENTA);
+    						pprintf("%-3s", flags);
+    					}
+    					last_session = extract_int(buf, 0);
+    					color(BRIGHT_CYAN);
+    					pprintf("%-25s ", username);
     					color(BRIGHT_MAGENTA);
-    					pprintf("%-3s", flags);
-    				}
-    				last_session = extract_int(buf, 0);
-    				color(BRIGHT_CYAN);
-    				pprintf("%-25s ", username);
-    				color(BRIGHT_MAGENTA);
-    				roomname[20] = 0;
-    				pprintf("%-20s ", roomname);
-				if (idletime > rc_idle_threshold) {
-					/* over 1000d, must be gone fishing */
-					if (idlehours > 23999) {
-						pprintf("fish");
-					/* over 10 days */
-					} else if (idlehours > 239) {
-						pprintf("%3ldd",
-							idlehours / 24);
-					/* over 10 hours */
-					} else if (idlehours > 9) {
-						pprintf("%1ldd%02ld",
-							idlehours / 24,
-							idlehours % 24);
-					/* less than 10 hours */
-					} else {
-						pprintf("%1ld:%02ld",
-							idlehours, idlemins);
+    					roomname[20] = 0;
+    					pprintf("%-20s", roomname);
+
+					if (screenwidth >= 50) {
+						pprintf(" ");
+						if (idletime > rc_idle_threshold) {
+							/* over 1000d, must be gone fishing */
+							if (idlehours > 23999) {
+								pprintf("fish");
+							/* over 10 days */
+							} else if (idlehours > 239) {
+								pprintf("%3ldd", idlehours / 24);
+							/* over 10 hours */
+							} else if (idlehours > 9) {
+								pprintf("%1ldd%02ld",
+									idlehours / 24,
+									idlehours % 24);
+							/* less than 10 hours */
+							}
+							else {
+								pprintf("%1ld:%02ld", idlehours, idlemins);
+							}
+						}
+						else {
+							pprintf("    ");
+						}
+						pprintf(" ");
+    						color(BRIGHT_CYAN);
+    						fromhost[24] = '\0';
+    						pprintf("%-24s", fromhost);
 					}
-				}
-				else {
-					pprintf("    ");
-				}
-				pprintf(" ");
-    				color(BRIGHT_CYAN);
-    				fromhost[24] = '\0';
-    				pprintf("%-24s\n", fromhost);
-    				color(DIM_WHITE);
-    	  		}
+					pprintf("\n");
+    					color(DIM_WHITE);
+    	  			}
 			}
 		}
 	}
