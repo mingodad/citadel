@@ -18,6 +18,7 @@ body {
 
 #iconbar {
 	/* position:fixed; */
+	position:absolute;
 	display:block;
 	top:0px;
 	left:0px;
