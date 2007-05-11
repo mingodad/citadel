@@ -459,6 +459,7 @@ a:hover {
 
 .msgbuttons {
 	float: right;
+	visibility: hidden;
 }
 
 .msgbuttons a span {
