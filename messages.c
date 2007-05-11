@@ -704,13 +704,19 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/** begin everythingamundo table */
-	if (!printable_view) {
-		wprintf("<div class=\"fix_scrollbar_bug message\">\n");
-	}
+        if (!printable_view) {
+                wprintf("<div class=\"fix_scrollbar_bug message\" ");
+                wprintf("onMouseOver=document.getElementById(\"msg%ld\").style.visibility=\"visible\" ", msgnum);
+                wprintf("onMouseOut=document.getElementById(\"msg%ld\").style.visibility=\"hidden\" >", msgnum);
+        }
+
+        /** start msg buttons */
+        if (!printable_view) {
+                wprintf("<div id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
 
 	/** start msg buttons */
 	if (!printable_view) {
-		wprintf("<div class=\"msgbuttons\">\n");
+		wprintf("<div id=\"\" class=\"msgbuttons\">\n");
 
 		/** Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
