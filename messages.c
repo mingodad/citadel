@@ -714,10 +714,6 @@ void read_message(long msgnum, int printable_view, char *section) {
         if (!printable_view) {
                 wprintf("<div id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
 
-	/** start msg buttons */
-	if (!printable_view) {
-		wprintf("<div id=\"\" class=\"msgbuttons\">\n");
-
 		/** Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			wprintf("<a href=\"display_enter");
