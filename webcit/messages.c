@@ -2939,6 +2939,11 @@ void display_enter(void)
 	/** header bar */
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" class=\"imgedit\">");
+	wprintf("  ");	/** header bar */
+	fmt_date(buf, now, 0);
+	wprintf("%s", buf);
+	wprintf("\n");	/** header bar */
+
 	wprintf("<div>");
 	wprintf("<label for=\"from_id\" > ");
 	wprintf(_(" <I>from</I> "));
@@ -2992,14 +2997,11 @@ void display_enter(void)
 
 	wprintf(_(" <I>in</I> "));
 	escputs(WC->wc_roomname);
-	wprintf(" (");	/** header bar */
-	fmt_date(buf, now, 0);
-	wprintf("%s)", buf);
-	wprintf("\n");	/** header bar */
+	wprintf("</div>");
 
 	if (recipient_required) {
 
-		wprintf("<br/><label for=\"recp_id\"> ");
+		wprintf("<div style=\"float: left;\"><label for=\"recp_id\"> ");
 		wprintf(_("To:"));
 		wprintf("</label>"
 			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
@@ -3007,16 +3009,6 @@ void display_enter(void)
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 
-		/** Pop open an address book -- begin **/
-		wprintf(
-			"<a href=\"javascript:PopOpenAddressBook('recp_id|%s|cc_id|%s|bcc_id|%s');\" "
-			"title=\"%s\">"
-			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
-			"&nbsp;%s</a>",
-			_("To:"), _("CC:"), _("BCC:"),
-			_("Contacts"), _("Contacts")
-		);
-		/** Pop open an address book -- end **/
 
 		wprintf("<br/><label for=\"cc_id\"> ");
 		wprintf(_("CC:"));
@@ -3038,9 +3030,21 @@ void display_enter(void)
 			" activate_entmsg_autocompleters();	\n"
 			"</script>				\n"
 		);
+		wprintf("</div>");
+
+		/** Pop open an address book -- begin **/
+		wprintf(
+			"<a href=\"javascript:PopOpenAddressBook('recp_id|%s|cc_id|%s|bcc_id|%s');\" "
+			"title=\"%s\">"
+			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
+			"&nbsp;%s</a>",
+			_("To:"), _("CC:"), _("BCC:"),
+			_("Contacts"), _("Contacts")
+		);
+		/** Pop open an address book -- end **/
 	}
 
-	wprintf("<br/><label for=\"subject_id\" > ");
+	wprintf("<div style=\"clear: both;\"><label for=\"subject_id\" > ");
 	if (recipient_required) {
 		wprintf(_("Subject:"));
 	}
@@ -3052,13 +3056,6 @@ void display_enter(void)
 	escputs(bstr("subject"));
 	wprintf("\" size=45 maxlength=70>\n");
 
-	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-	if (recipient_required) {
-		wprintf(_("Send message"));
-	} else {
-		wprintf(_("Post message"));
-	}
-	wprintf("\">&nbsp;");
 	wprintf("</div>\n");
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
@@ -3145,21 +3142,8 @@ void display_enter(void)
 		"</script>\n"
 	);
 
-	/** Seth asked for these to be at the top *and* bottom... */
-	wprintf("<div class=\"send_edit_msg\">");
-	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-	if (recipient_required) {
-		wprintf(_("Send message"));
-	} else {
-		wprintf(_("Post message"));
-	}
-	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</div>");
-
 	/** Enumerate any attachments which are already in place... */
-	wprintf("<img src=\"static/diskette_24x.gif\" border=0 "
-		"align=middle height=16 width=16> ");
+	wprintf("<div style=\"float: left; \"><img src=\"static/diskette_24x.gif\" border=0 ");
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
@@ -3171,7 +3155,7 @@ void display_enter(void)
 		/* wprintf(" (%s, %d bytes)",att->content_type,att->length); */
 		wprintf("</option>\n");
 	}
-	wprintf("</select>");
+	wprintf("</select><br />");
 
 	/** Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;");
@@ -3179,6 +3163,20 @@ void display_enter(void)
 	wprintf(" <input name=\"attachfile\" "
 		"size=16 type=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
+	wprintf("</div>");
+
+	/** Seth asked for these to be at the top *and* bottom... (removed) */
+	wprintf("<div class=\"send_edit_msg\">");
+	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
+	if (recipient_required) {
+		wprintf(_("Send message"));
+	} else {
+		wprintf(_("Post message"));
+	}
+	wprintf("\">&nbsp;"
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wprintf("</div>");
+
 
 	/** Make sure we only insert our signature once */
 	if (strcmp(bstr("sig_inserted"), "yes")) {
