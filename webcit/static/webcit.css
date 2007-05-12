@@ -447,24 +447,33 @@ a:hover {
 
 
 #delbutton, .msgbuttons a {
-	font-size: 6pt;
-	padding: 2px;
-	margin-left: 2px; 
-	margin-right: 2px; 
-	border: 2px outset #999999;
-	background-color: #EEEEEE;
-	color: black;
-	font-weight: bold;
-	text-transform: uppercase;
+        font-size: 7pt;
+        margin: 1px;
+        padding: 2px;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-top: 1px solid #CFCFCF;
+        border-left: 1px solid #CFCFCF;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #000000;
+        background-color: #999999;
+        color: #000000;
+        font-weight: bold;
+        text-align: center;
 }
 
 .msgbuttons {
-	float: right;
-	visibility: hidden;
+        float: right;
+        visibility: hidden;
 }
 
 .msgbuttons a span {
-	display: none;
+        display: none;
+}
+
+.msgbuttons a:hover {
+        background-color: #AAAAAA;
+        text-decoration: none;
 }
 
 .message_content {
@@ -476,14 +485,15 @@ a:hover {
 
 .message form label {
         display: block;
-	float: left;
-	margin: 5px;
-	width: 9em;
-	text-align: right;
+        float: left;
+        margin: 3px;
+        width: 9em;
+        text-align: right;
 }
 
 .message form input, .message form select {
-	margin: 2px;
+        margin: 3px;
+        clear: both;
 }
 
 .send_edit_msg {
