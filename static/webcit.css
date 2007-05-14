@@ -816,16 +816,15 @@ div.auto_complete ul strong.highlight {
         background-color: #CCCCCC;
 }
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background {
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .mainmenu_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
         width: 100%;
         background-color: #ffffff;
 }
 
-.mainmenu_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background { 
+.siteconfig_background { 
         border: 0;
         width: 100%;
-        background-color: #ffffff;
 }
 
 .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .who_background   {
