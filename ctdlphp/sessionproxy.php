@@ -155,6 +155,13 @@ do {
 				}
 			} while ($buf != "000\n");
 
+			// BINARY_FOLLOWS mode
+			if (substr($talkback, 0, 1) == "6") {
+				$bytes = intval(substr($talkback, 4));
+				$buf = fread($ctdlock, $bytes);
+				socket_write($msgsock, $buf, $bytes);
+			}
+
 			// SEND_LISTING mode
 			if (substr($talkback, 0, 1) == "4") do {
 				socket_clear_error($msgsock);
