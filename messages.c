@@ -1819,11 +1819,13 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	int bg = 0;
 	static int NAMESPERPAGE = 60;
 	int num_pages = 0;
-	int page = 0;
 	int tabfirst = 0;
-	char tabfirst_label[SIZ];
+	char tabfirst_label[64];
 	int tablast = 0;
-	char tablast_label[SIZ];
+	char tablast_label[64];
+	char this_tablabel[64];
+	int page = 0;
+	char **tablabels;
 
 	if (num_ab == 0) {
 		wprintf("<br /><br /><br /><div align=\"center\"><i>");
@@ -1836,66 +1838,70 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 		qsort(addrbook, num_ab, sizeof(struct addrbookent), abcmp);
 	}
 
-	num_pages = num_ab / NAMESPERPAGE;
+	num_pages = (num_ab / NAMESPERPAGE) + 1;
 
-	page = atoi(bstr("page"));
+	tablabels = malloc(num_pages * sizeof (char *));
+	if (tablabels == NULL) {
+		wprintf("<br /><br /><br /><div align=\"center\"><i>");
+		wprintf(_("An internal error has occurred."));
+		wprintf("</i></div>\n");
+		return;
+	}
 
-	wprintf("Page: ");
-	for (i=0; i<=num_pages; ++i) {
-		if (i != page) {
-			wprintf("<a href=\"readfwd?page=%d\">", i);
-		}
-		else {
-			wprintf("<B>");
-		}
+	for (i=0; i<num_pages; ++i) {
 		tabfirst = i * NAMESPERPAGE;
 		tablast = tabfirst + NAMESPERPAGE - 1;
 		if (tablast > (num_ab - 1)) tablast = (num_ab - 1);
 		nametab(tabfirst_label, addrbook[tabfirst].ab_name);
 		nametab(tablast_label, addrbook[tablast].ab_name);
-		wprintf("[%s&nbsp;-&nbsp;%s]",
-			tabfirst_label, tablast_label
-		);
-		if (i != page) {
-			wprintf("</A>\n");
-		}
-		else {
-			wprintf("</B>\n");
-		}
+		sprintf(this_tablabel, "%s&nbsp;-&nbsp;%s", tabfirst_label, tablast_label);
+		tablabels[i] = strdup(this_tablabel);
 	}
-	wprintf("<br />\n");
 
-	wprintf("<table border=0 cellspacing=0 "
-		"cellpadding=3 width=100%%>\n"
-	);
+	tabbed_dialog(num_pages, tablabels);
+	page = (-1);
 
 	for (i=0; i<num_ab; ++i) {
 
-		if ((i / NAMESPERPAGE) == page) {
-
-			if ((displayed % 4) == 0) {
-				if (displayed > 0) {
-					wprintf("</tr>\n");
-				}
-				bg = 1 - bg;
-				wprintf("<tr bgcolor=\"#%s\">",
-					(bg ? "DDDDDD" : "FFFFFF")
-				);
+		if ((i / NAMESPERPAGE) != page) {	/* New tab */
+			page = (i / NAMESPERPAGE);
+			if (page > 0) {
+				wprintf("</tr></table>\n");
+				end_tab(page-1, num_pages);
 			}
-	
-			wprintf("<td>");
-	
-			wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
-				addrbook[i].ab_msgnum);
-			wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
-			vcard_n_prettyize(addrbook[i].ab_name);
-			escputs(addrbook[i].ab_name);
-			wprintf("</a></td>\n");
-			++displayed;
+			begin_tab(page, num_pages);
+			wprintf("<table border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
+			displayed = 0;
 		}
+
+		if ((displayed % 4) == 0) {
+			if (displayed > 0) {
+				wprintf("</tr>\n");
+			}
+			bg = 1 - bg;
+			wprintf("<tr bgcolor=\"#%s\">",
+				(bg ? "DDDDDD" : "FFFFFF")
+			);
+		}
+	
+		wprintf("<td>");
+
+		wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
+			addrbook[i].ab_msgnum);
+		wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
+		vcard_n_prettyize(addrbook[i].ab_name);
+		escputs(addrbook[i].ab_name);
+		wprintf("</a></td>\n");
+		++displayed;
 	}
 
 	wprintf("</tr></table>\n");
+	end_tab((num_pages-1), num_pages);
+
+	for (i=0; i<num_pages; ++i) {
+		free(tablabels[i]);
+	}
+	free(tablabels);
 }
 
 
