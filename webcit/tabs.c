@@ -1,5 +1,5 @@
 /*
- * $Id:  $
+ * $Id$
  */
 /**
  * \defgroup TabUtils Utility functions for creating tabbed dialogs
@@ -61,6 +61,7 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
  * \param num_tabs total number oftabs to be printed
  */
 void begin_tab(int tabnum, int num_tabs) {
+	wprintf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
 	wprintf("<div id=\"tabdiv%d\" style=\"display:%s\">",
 		tabnum,
 		( (tabnum == 0) ? "block" : "none" )
@@ -70,7 +71,7 @@ void begin_tab(int tabnum, int num_tabs) {
 /**
  * \brief print the tab-footer
  * \param tabnum number of the tab to print
- * \param num_tabs total number oftabs to be printed
+ * \param num_tabs total number of tabs to be printed
  */
 void end_tab(int tabnum, int num_tabs) {
 	wprintf("</div>\n");
@@ -82,7 +83,6 @@ void end_tab(int tabnum, int num_tabs) {
 			" Nifty(\"table#TheTabs td\", \"small transparent top\");"
 			"</script>"
 		);
-			//" Nifty(\"td#tabtd1\", \"small transparent top\");"
 	}
 }
 
