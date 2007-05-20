@@ -71,13 +71,12 @@ body {
 	background: #445;
 }
 
-
-#banner .room_banner {
+#banner .room_banner, #banner .service_banner {
         float: left;
         width: 48%;
 }
 
-.room_banner img {
+.room_banner img,  .service_banner img {
         float: left;
         margin-top: 0;
         margin-left: 0;
@@ -91,6 +90,20 @@ body {
         color: #FFFFEE;
         margin: 0;
         padding: 2px;
+}
+
+.service_banner h1 {
+        font-size: 12pt;
+        font-weight: bold;
+        color: #FFFFEE;
+        margin: 0;
+        padding: 2px;
+}
+
+.service_banner h2 {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #FFFFEE;
 }
 
 .room_banner .infos {
@@ -845,7 +858,7 @@ div.auto_complete ul strong.highlight {
         background-color: #444455;
 }
 
-.smtpqueue_banner, .summary_banner, .useredit_banner, .userlist_banner, .downloads_banner, .vcard_edit_banner, .who_banner, .room_banner   {
+.smtpqueue_banner, .useredit_banner, .userlist_banner, .downloads_banner, .vcard_edit_banner, .who_banner, .room_banner   {
         border: 0;
         width: 100%;
         background-color: #444455;
