@@ -251,26 +251,25 @@ void summary(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table class=\"summary_banner\"><tr>"
-		"<td><img src=\"static/summscreen_48x.gif\"></td><td>"
-		"<span class=\"titlebar\">"
-	);
-
-	snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
-	escputs(title);
-	wprintf("</span></td><td>\n");
-	wprintf("</td><td aling=right><span class=\"titlebar\">");
-	output_date();
-	wprintf("</span><br />");
-	offer_start_page();
-	wprintf("</td></tr></table>\n");
+        wprintf("<div class=\"service_banner\">\n");
+        wprintf("<img src=\"static/summscreen_48x.gif\">");
+        wprintf("<h1>");
+        snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
+        escputs(title);
+        wprintf("</h1><h2>\n");
+        output_date();
+        wprintf("</h2></div>");
+        wprintf("<ul><li class=\"start_page\">");
+        offer_start_page();
+        wprintf("</li></ul>");
+        wprintf("</div>");
 
 	/**
 	 * You guessed it ... we're going to refresh using ajax.
 	 * In the future we might consider updating individual sections of the summary
 	 * instead of the whole thing.
 	 */
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("<div id=\"content\">\n");
 	summary_inner_div();
 	wprintf("</div>\n");
 
