@@ -24,144 +24,132 @@ void display_main_menu(void)
 	do_template("beginbox");
 
 	wprintf("\n"
-		"<table border=0 cellspacing=1 cellpadding=1 width=100%%>"
+		"<table border=0 cellspacing=1 cellpadding=1 width=99%%>"
 		"<tr>"
 		"<td>");	/**< start of first column */
 
-	wprintf("<a href=\"knrooms\"><span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"knrooms\">");
 	wprintf(_("List known rooms"));
-	wprintf("</span></a><br /><span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("Where can I go from here?"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"gotonext\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"gotonext\">");
 	wprintf(_("Goto next room"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("...with <em>unread</em> messages"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"skip\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"skip\">");
 	wprintf(_("Skip to next room"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("(come back here later)"));
-	wprintf("</span>\n");
+	wprintf("</span></li>\n");
 
 	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
-		wprintf("<br />"
-			"<a href=\"ungoto\">"
-			"<span class=\"mainmenu\">");
+		wprintf("<li><a href=\"ungoto\">");
 		wprintf(_("Ungoto"));
-		wprintf("</span></a><br />"
-			"<span class=\"menudesc\">");
+		wprintf("</a><span>");
 		wprintf(_("(oops! Back to %s)"), WC->ugname);
-		wprintf("</span>\n");
+		wprintf("</span></li>\n");
 	}
+
+	wprintf("</ul>\n");
 
 	wprintf("</td><td>\n");	/* start of second column */
 
-	wprintf("<a href=\"readnew\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"readnew\">");
 	wprintf(_("Read new messages"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("...in this room"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"readfwd\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"readfwd\">");
 	wprintf(_("Read all messages"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("...old <EM>and</EM> new"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"display_enter\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_enter\">");
 	wprintf(_("Enter a message"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("(post in this room)"));
-	wprintf("</span>\n");
+	wprintf("</span></li>\n");
 
 	if (WC->room_flags & QR_VISDIR) {
-		wprintf("<br /><a href=\"display_room_directory\">"
-			"<span class=\"mainmenu\">");
+		wprintf("<li><a href=\"display_room_directory\">");
 		wprintf(_("File library"));
-		wprintf("</span></a><br />"
-			"<span class=\"menudesc\">");
+		wprintf("</a><span>");
 		wprintf(_("(List files available for download)"));
-		wprintf("</span>\n");
+		wprintf("</span></li>\n");
 	}
+
+	wprintf("</ul>\n");
 
 	wprintf("</td><td>");	/* start of third column */
 
-	wprintf("<a href=\"summary\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"summary\">");
 	wprintf(_("Summary page"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("Summary of my account"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"userlist\">\n"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"userlist\">\n");
 	wprintf(_("User list"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("(all registered users)"));
-	wprintf("</span><br />\n");
+	wprintf("</span></li>\n");
 
-	wprintf("<a href=\"termquit\" TARGET=\"_top\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"termquit\" TARGET=\"_top\">");
 	wprintf(_("Log off"));
-	wprintf("</span></a><br />"
-		"<span class=\"menudesc\">");
+	wprintf("</a><span>");
 	wprintf(_("Bye!"));
-	wprintf("</span>\n");
+	wprintf("</span></li>\n");
+
+	wprintf("</ul>\n");
 
 	wprintf("</td></tr></table>\n");
 	do_template("endbox");
 
 	wprintf("</td></tr>"
-		"<tr><td colspan=2></td></tr>"
 		"<tr valign=top><td width=50%%>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Your info"));
 	do_template("beginbox");
 
-	wprintf("<a href=\"display_preferences\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"display_preferences\">");
 	wprintf(_("Change your preferences and settings"));
-	wprintf("</span><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_reg\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_reg\">");
 	wprintf(_("Update your contact information"));
-	wprintf("</span><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_changepw\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_changepw\">");
 	wprintf(_("Change your password"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_editbio\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_editbio\">");
 	wprintf(_("Enter your 'bio'"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_editpic\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_editpic\">");
 	wprintf(_("Edit your online photo"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_sieve\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_sieve\">");
 	wprintf(_("View/edit server-side mail filters"));
-	wprintf("</span></a>\n");
+	wprintf("</a></li>\n");
+
+	wprintf("</ul>\n");
 
 	do_template("endbox");
 
@@ -170,32 +158,31 @@ void display_main_menu(void)
 	svprintf("BOXTITLE", WCS_STRING, _("Advanced room commands"));
 	do_template("beginbox");
 
+	wprintf("<ul class=\"adminitems\">");
+
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<a href=\"display_editroom\">"
-			"<span class=\"mainmenu\">");
+		wprintf("<li><a href=\"display_editroom\">");
 		wprintf(_("Edit or delete this room"));
-		wprintf("</span></a><br />\n");
+		wprintf("</a></li>\n");
 	}
 
-	wprintf("<a href=\"display_private\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_private\">");
 	wprintf(_("Go to a 'hidden' room"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_entroom\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_entroom\">");
 	wprintf(_("Create a new room"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_zap\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_zap\">");
 	wprintf(_("Zap (forget) this room (%s)"), WC->wc_roomname);
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"zapped_list\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"zapped_list\">");
 	wprintf(_("List all forgotten rooms"));
-	wprintf("</span></a>\n");
+	wprintf("</a></li>\n");
+
+	wprintf("</ul>\n");
 
 	do_template("endbox");
 
@@ -210,67 +197,76 @@ void display_main_menu(void)
 void display_aide_menu(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"mainmenu_banner\"><tr><td>"
-		"<span class=\"titlebar\">");
+
+        wprintf("<div id=\"banner\">\n");
+        wprintf("<div class=\"service_banner\">\n");
+        wprintf("<h1>");
 	wprintf(_("System Administration Menu"));
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+        wprintf("</h1>");
+        wprintf("</div></div>");
+
+	wprintf("<div id=\"content\">");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%%><tr valign=top><td>");
+		"<table border=0 width=99%%> "
+		"<tr valign=top><td width=50%% rowspan=2>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Global Configuration"));
 	do_template("beginbox");
 
-	wprintf("<a href=\"display_siteconfig\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"display_siteconfig\">");
 	wprintf(_("Edit site-wide configuration"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_inetconf\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_inetconf\">");
 	wprintf(_("Domain names and Internet mail configuration"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_netconf\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_netconf\">");
 	wprintf(_("Configure replication with other Citadel servers"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
 
-	wprintf("<a href=\"display_smtpqueue\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"display_smtpqueue\">");
 	wprintf(_("View the outbound SMTP queue"));
-	wprintf("</span></A>\n");
+	wprintf("</a></li>\n");
+
+	wprintf("</ul>");
 
 	do_template("endbox");
 
-	wprintf("</td><td>");
+	wprintf("</td><td width=50%%>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("User account management"));
 	do_template("beginbox");
 
-	wprintf("<a href=\"select_user_to_edit\">"
-		"<span class=\"mainmenu\">");
-	wprintf(_("Add, change, delete user accounts"));
-	wprintf("</span></a><br />\n");
+	wprintf("<ul class=\"adminitems\">");
 
-	wprintf("<a href=\"validate\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<li><a href=\"select_user_to_edit\">");
+	wprintf(_("Add, change, delete user accounts"));
+	wprintf("</a></li>\n");
+
+	wprintf("<li><a href=\"validate\">");
 	wprintf(_("Validate new users"));
-	wprintf("</span></a><br />\n");
+	wprintf("</a></li>\n");
+
+	wprintf("</ul>");
 
 	do_template("endbox");
+
+	wprintf("</td></tr><tr><td width=50%%>");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Rooms and Floors"));
 	do_template("beginbox");
 
-	wprintf("<a href=\"display_floorconfig\">"
-		"<span class=\"mainmenu\">");
+	wprintf("<ul class=\"adminitems\">");
+
+	wprintf("<li><a href=\"display_floorconfig\">");
 	wprintf(_("Add, change, or delete floors"));
-	wprintf("</span></a>\n");
+	wprintf("</a></li>\n");
+
+	wprintf("</ul>");
 
 	do_template("endbox");
 

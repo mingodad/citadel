@@ -423,16 +423,6 @@ a:hover {
 	color: #FFFFEE;
 }
 
-.mainmenu {
-	font-size: 10pt;
-	font-weight: bold;
-	color: #880000;
-}
-
-.menudesc {
-	font-size: 8pt;
-	color: #000088;
-}
 
 .message {
 	margin: 5px;
@@ -525,7 +515,7 @@ a:hover {
 }
 
 .boxlabel {
-	font-size: 7pt;
+	font-size: 8pt;
 	font-weight: bold;
 	color: #FFFFEE;
 }
@@ -533,6 +523,29 @@ a:hover {
 .boxlabel a {
 	color: #FFFFEE;
 }
+
+ul.adminitems {
+        list-style-type: none;
+}
+
+ul.adminitems li {
+        list-style: none;
+	font-size: 13px;
+}
+
+ul.adminitems a {
+	font-size: 13px;
+	margin: 5px;
+	color: #880000;
+	font-weight: bold;
+}
+
+ul.adminitems span {
+	display: block;
+	font-size: 8pt;
+	color: #000088;
+}
+
 
 .customize {
 	font-size: 8pt;
@@ -829,7 +842,7 @@ div.auto_complete ul strong.highlight {
         background-color: #CCCCCC;
 }
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .mainmenu_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -852,7 +865,7 @@ div.auto_complete ul strong.highlight {
         background-color: #444455;
 }
 
-.mainmenu_banner, .netconf_banner, .paging_banner, .preferences_banner, .roomops_banner, .setup_banner, .sieve_banner, .siteconfig_banner {
+.netconf_banner, .paging_banner, .preferences_banner, .roomops_banner, .setup_banner, .sieve_banner, .siteconfig_banner {
         border: 0;
         width: 100%;
         background-color: #444455;
