@@ -126,7 +126,7 @@ extern locale_t wc_locales[];
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		710		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	710		/* min required Citadel ver. */
+#define MINIMUM_CIT_VERSION	700		/* min required Citadel ver. */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -455,6 +455,10 @@ void serv_getln(char *strbuf, int bufsize);
 void serv_puts(char *string);
 void who(void);
 void who_inner_div(void);
+void wholist_section(void);
+void tasks_section(void);
+void calendar_section(void);
+void new_messages_section(void);
 void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);

@@ -47,8 +47,6 @@ void new_messages_section(void) {
 	int number_of_rooms_to_check;
 	char *rooms_to_check = "Mail|Lobby";
 
-	svprintf("BOXTITLE", WCS_STRING, _("Messages"));
-	do_template("beginbox");
 
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
 	if (number_of_rooms_to_check == 0) return;
@@ -72,7 +70,6 @@ void new_messages_section(void) {
 		}
 	}
 	wprintf("</table>\n");
-	do_template("endbox");
 
 }
 
@@ -84,16 +81,16 @@ void wholist_section(void) {
 	char buf[SIZ];
 	char user[SIZ];
 
-	svprintf("BOXTITLE", WCS_STRING, _("Who's&nbsp;online&nbsp;now"));
-	do_template("beginbox");
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(user, buf, 1, '|', sizeof user);
-		escputs(user);
-		wprintf("<br />\n");
+                wprintf("<li><a href=\"showuser?who=");
+                urlescputs(user);
+                wprintf("\">");
+                escputs(user);
+                wprintf("</a></li>");
 	}
-	do_template("endbox");
 }
 
 
@@ -106,8 +103,6 @@ void tasks_section(void) {
 	int i;
 #endif
 
-	svprintf("BOXTITLE", WCS_STRING, _("Tasks"));
-	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_TASKS_");
 	if (WC->wc_view != VIEW_TASKS) {
@@ -135,7 +130,6 @@ void tasks_section(void) {
 	wprintf(_("(This server does not support task lists)"));
 	wprintf("</i>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
-	do_template("endbox");
 }
 
 
@@ -148,8 +142,6 @@ void calendar_section(void) {
 	int i;
 #endif
 
-	svprintf("BOXTITLE", WCS_STRING, _("Today&nbsp;on&nbsp;your&nbsp;calendar"));
-	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_CALENDAR_");
 	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
@@ -176,7 +168,6 @@ void calendar_section(void) {
 	wprintf(_("(This server does not support calendars)"));
 	wprintf("</i>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
-	do_template("endbox");
 }
 
 /**
@@ -184,9 +175,6 @@ void calendar_section(void) {
  */
 void server_info_section(void) {
 	char message[512];
-
-	svprintf("BOXTITLE", WCS_STRING, _("About&nbsp;this&nbsp;server"));
-	do_template("beginbox");
 
 	snprintf(message, sizeof message,
 		_("You are connected to %s, running %s with %s, and located in %s.  Your system administrator is %s."),
@@ -196,12 +184,14 @@ void server_info_section(void) {
 		serv_info.serv_bbs_city,
 		serv_info.serv_sysadm);
 	escputs(message);
-	do_template("endbox");
 }
 
 /**
  * \brief summary of inner div????
  */
+
+
+
 void summary_inner_div(void) {
 	/**
 	 * Now let's do three columns of crap.  All portals and all groupware
@@ -218,28 +208,76 @@ void summary_inner_div(void) {
 	 * Column One
 	 */
 	wprintf("<td width=33%%>");
-	wholist_section();
+	wprintf("<div class=\"box\">");	
+	wprintf("<div class=\"boxlabel\">");	
+	wprintf(_("Messages"));
+	wprintf("</div><div class=\"boxcontent\">");	
+	wprintf("<div id=\"msg_inner\">");	
+	new_messages_section();
+	wprintf("</div></div></div>");
+	wprintf("</td>");
 
 	/**
-	 * Column Two
+	 * Column Two 
 	 */
-	wprintf("</td><td width=33%%>");
-	server_info_section();
-	wprintf("<br />");
+	wprintf("<td width=33%%>");
+	wprintf("<div class=\"box\">");	
+	wprintf("<div class=\"boxlabel\">");	
+	wprintf(_("Tasks"));
+	wprintf("</div><div class=\"boxcontent\">");	
+	wprintf("<div id=\"tasks_inner\">");	
 	tasks_section();
+	wprintf("</div></div></div>");
+	wprintf("</td>");
 
 	/**
 	 * Column Three
 	 */
-	wprintf("</td><td width=33%%>");
-	new_messages_section();
-	wprintf("<br />");
+	wprintf("<td width=33%%>");
+	wprintf("<div class=\"box\">");	
+	wprintf("<div class=\"boxlabel\">");	
+	wprintf(_("Today&nbsp;on&nbsp;your&nbsp;calendar"));
+	wprintf("</div><div class=\"boxcontent\">");	
+	wprintf("<div id=\"calendar_inner\">");	
 	calendar_section();
+	wprintf("</div></div></div>");
+	wprintf("</td>");
+
+	wprintf("</tr><tr valign=top>");
+	wprintf("<td colspan=3><br/></td>");
+	wprintf("</tr><tr valign=top>");
+
+	/**
+	 * Row Two - Column One
+	 */
+	wprintf("<td colspan=2>");
+	wprintf("<div class=\"box\">");	
+	wprintf("<div class=\"boxlabel\">");	
+	wprintf(_("Who's&nbsp;online&nbsp;now"));
+	wprintf("</div><div class=\"boxcontent\">");	
+	wprintf("<div id=\"who_inner\">");	
+	who_inner_div(); 
+	wprintf("</div></div></div>");
+	wprintf("</td>");
+
+	/**
+	 * Row Two - Column Two
+	 */
+	wprintf("<td width=33%%>");
+	wprintf("<div class=\"box\">");	
+	wprintf("<div class=\"boxlabel\">");	
+	wprintf(_("About&nbsp;this&nbsp;server"));
+	wprintf("</div><div class=\"boxcontent\">");	
+	wprintf("<div id=\"info_inner\">");	
+	server_info_section();
+	wprintf("</div></div></div>");
+	wprintf("</td>");
+
 
 	/**
 	 * End of columns
 	 */
-	wprintf("</td></tr></table>");
+	wprintf("</tr></table>");
 }
 
 
@@ -275,8 +313,14 @@ void summary(void) {
 
 	wprintf(
 		"<script type=\"text/javascript\">					"
-		" new Ajax.PeriodicalUpdater('content', 'summary_inner_div',		"
+		" new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html',		"
 		"                            { method: 'get', frequency: 60 }  );	"
+		" new Ajax.PeriodicalUpdater('tasks_inner', 'tasks_inner_html',		"
+		"                            { method: 'get', frequency: 120 }  );	"
+		" new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html',		"
+		"                            { method: 'get', frequency: 90 }  );	"
+		" new Ajax.PeriodicalUpdater('who_inner', 'who_inner_html',		"
+		"                            { method: 'get', frequency: 30 }  );	"
 		"</script>							 	\n"
 	);
 
