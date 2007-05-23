@@ -3132,22 +3132,10 @@ void display_enter(void)
 	wprintf("</textarea>");
 
 	/**
-	 * The following script embeds the TinyMCE richedit control, and automatically
+	 * The following template embeds the TinyMCE richedit control, and automatically
 	 * transforms the textarea into a richedit textarea.
 	 */
-	wprintf(
-		"<script language=\"javascript\" type=\"text/javascript\" src=\"tiny_mce/tiny_mce.js\"></script>\n"
-		"<script language=\"javascript\" type=\"text/javascript\">"
-		"tinyMCE.init({"
-		"	mode : \"textareas\", width : \"100%%\", browsers : \"msie,gecko\", "
-		"	theme : \"advanced\", plugins : \"iespell\", "
-		"	theme_advanced_buttons1 : \"bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell, code\", "
-		"	theme_advanced_buttons2 : \"\", "
-		"	theme_advanced_buttons3 : \"\", "
-		"	content_css : \"static/webcit-tinymce.css\" "
-		"});"
-		"</script>\n"
-	);
+	do_template("richedit");
 
 	/** Enumerate any attachments which are already in place... */
 	wprintf("<div style=\"float: left; \"><img src=\"static/diskette_24x.gif\" border=0 ");
@@ -3172,7 +3160,6 @@ void display_enter(void)
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 	wprintf("</div>");
 
-	/** Seth asked for these to be at the top *and* bottom... (removed) */
 	wprintf("<div class=\"send_edit_msg\">");
 	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
 	if (recipient_required) {
