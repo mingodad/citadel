@@ -244,7 +244,10 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Who is online?"));
 		}
-		wprintf("</a></li>\n");
+		 
+		wprintf("</a>\n");
+		wprintf("<ul id=\"wholist\">");
+		wprintf("</ul></li>\n");
 	}
 
 	if (ib_chat) {

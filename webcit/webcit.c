@@ -1388,6 +1388,22 @@ void session_loop(struct httprequest *req)
 		begin_ajax_response();
 		who_inner_div();
 		end_ajax_response();
+	} else if (!strcasecmp(action, "wholist_section")) {
+		begin_ajax_response();
+		wholist_section();
+		end_ajax_response();
+	} else if (!strcasecmp(action, "new_messages_html")) {
+		begin_ajax_response();
+		new_messages_section();
+		end_ajax_response();
+	} else if (!strcasecmp(action, "tasks_inner_html")) {
+		begin_ajax_response();
+		tasks_section();
+		end_ajax_response();
+	} else if (!strcasecmp(action, "calendar_inner_html")) {
+		begin_ajax_response();
+		calendar_section();
+		end_ajax_response();
 	} else if (!strcasecmp(action, "iconbar_ajax_menu")) {
 		begin_ajax_response();
 		do_iconbar();

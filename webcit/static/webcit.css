@@ -1019,3 +1019,21 @@ div.auto_complete ul strong.highlight {
 	background-color: #ffd;
         color: #000;
 }
+
+
+
+#wholist {
+	border: 0;
+}
+
+#wholist li {
+	color: black;
+        text-align: left;
+        list-style: none;
+	border: 0;
+        margin: 0;
+        padding: 2px;
+        white-space: nowrap;
+}
+
+

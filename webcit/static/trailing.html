@@ -1,5 +1,6 @@
 <! start trailing.html>
 <script type="text/javascript">
+ new Ajax.PeriodicalUpdater('wholist', 'wholist_section',{ method: 'get', frequency: 60 }  );
  Rounded("div.box", "small transparent top bottom");
  Rounded("form.box", "small transparent top bottom");
 </script>
