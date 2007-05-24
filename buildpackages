@@ -38,24 +38,25 @@ case $1 in
 	if grep -q "($WEBCIT_VERSION" debian/changelog; then
 	    echo rebuilding package.
 	else
-	    echo "webcit (${WEBCIT_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
-
-  * update to actual Webcit SVN. many new features. see Packages changelog.
-
- -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
-" >/tmp/webcit_changelog
-	    cat debian/changelog >>/tmp/webcit_changelog
-	    mv /tmp/webcit_changelog debian/changelog
-	    
+	    echo "Upstream Version higher than local."	    
 	fi
 	if test "$2" == "src"; then
-	    cd ..; dpkg-source -b "webcit-$WEBCIT_VERSION"
+	    cd ..
+	    rm -rf tmp
+	    mkdir tmp
+	    cp -a webcit-$WEBCIT_VERSION tmp
+	    cd tmp/webcit-$WEBCIT_VERSION
+	    rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.sub config.guess  config.log config.status autom4te.cache
+	    cd ..
+	    tar -czf webcit_${WEBCIT_VERSION}.orig.tar.gz webcit-${WEBCIT_VERSION}/ --exclude "debian/*"
+	    pwd
+	    cd  webcit-${WEBCIT_VERSION}; debuild -S -sa -kw.goesgens@outgesourced.org
 	else
 	    fakeroot dpkg-buildpackage
 	fi
 	;;
     sourcedist)
-	cd ..; tar -cvzf webcit-$WEBCIT_VERSION.tgz webcit-$WEBCIT_VERSION/
+	cd ..; tar -cvzf webcit-${WEBCIT_VERSION}.tgz webcit-${WEBCIT_VERSION}/
 	;;
     *)
 	echo "Not yet implemented. we have: debian "
