@@ -1,8 +1,7 @@
 Source: webcit
 Section: web
 Priority: optional
-Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
-Uploaders: Fathi Boudra <fboudra@free.fr>
+Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
 Build-Depends: debhelper (>= 4), po-debconf, libical-dev, gettext
 Standards-Version: 3.7.2
 
