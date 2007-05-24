@@ -139,18 +139,23 @@ void calendar_month_view_display_events(time_t thetime) {
 								fmt_date(buf, tt, 1);
 								wprintf("<i>%s</i> %s<br>",
 									_("Starting date/time:"), buf);
+
+								/* Embed the 'show end date/time' loop inside here so it
+								 * only executes if this is NOT an all day event.
+								 */
+      								q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+													ICAL_DTEND_PROPERTY);
+								if (q != NULL) {
+									t = icalproperty_get_dtend(q);
+									tt = icaltime_as_timet(t);
+									fmt_date(buf, tt, 1);
+									wprintf("<i>%s</i> %s<br>",
+										_("Ending date/time:"), buf);
+								}
+
 							}
 						}
 					
-      						q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-											ICAL_DTEND_PROPERTY);
-						if (q != NULL) {
-							t = icalproperty_get_dtend(q);
-							tt = icaltime_as_timet(t);
-							fmt_date(buf, tt, 1);
-							wprintf("<i>%s</i> %s<br>",
-								_("Ending date/time:"), buf);
-						}
 					}
 
 					q = icalcomponent_get_first_property(
