@@ -3,6 +3,8 @@
 set -e
 . /usr/share/debconf/confmodule
 
+#DEBHELPER#
+
 case "$1" in
   purge)
 	echo "/etc/citadel/www/keys not removed. "
