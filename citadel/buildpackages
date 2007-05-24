@@ -42,19 +42,20 @@ case $1 in
 	if grep -q "($CITADEL_VERSION" debian/changelog; then
 	    echo rebuilding package.
 	else
-	    echo "citadel (${CITADEL_VERSION}-${PACKAGE_VERSION}) unstable; urgency=low
-
-  * update to actual Citadel SVN. many new features. see Packages changelog.
-
- -- Wilfried Goesgens <citadel@outgesourced.org>  $DATE
-
-" >/tmp/citadel_changelog
-	    cat debian/changelog >>/tmp/citadel_changelog
-	    mv /tmp/citadel_changelog debian/changelog
+	    echo "Upstream Version higher than local."
 	    
 	fi
 	if test "$2" == "src"; then
-	    cd ..; dpkg-source -b "citadel-$CITADEL_VERSION"
+	    cd ..
+	    rm -rf tmp
+	    mkdir tmp
+	    cp -a citadel-$CITADEL_VERSION tmp
+	    cd tmp/citadel-$CITADEL_VERSION
+	    rm -rf `find -name .svn ` svn*tmp config.log config.status
+	    cd ..
+	    tar -czf citadel_${CITADEL_VERSION}.orig.tar.gz citadel-${CITADEL_VERSION}/ --exclude "debian/*"
+	    pwd
+	    cd  citadel-${CITADEL_VERSION}; debuild -S -sa -kw.goesgens@outgesourced.org
 	else
 	    fakeroot dpkg-buildpackage
 	fi
@@ -97,7 +98,7 @@ EMAIL=citadel@outgesourced.org
 
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn -cvzf citadel-$CITADEL_VERSION.tgz citadel-$CITADEL_VERSION/
+	cd ..; tar --exclude .svn --exclude "debian/*" -cvzf citadel-$CITADEL_VERSION.tgz citadel-$CITADEL_VERSION/
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "

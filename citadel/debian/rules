@@ -59,6 +59,7 @@ clean:
 	-$(MAKE) distclean
 
 	dh_clean 
+	rm -f config.status config.log
 
 install: install-indep install-arch
 install-indep:

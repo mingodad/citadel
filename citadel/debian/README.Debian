@@ -1,0 +1,116 @@
+
+ * Citadel and your Systems Mail Transport Agent
+
+The easy way to get citadel doing inbound Mail is 
+to install the "citadel-mta" package. 
+
+You however can use your default MTA to deliver mails
+to citadel using a feature called LMTP (Local Mail
+Transport) which is supported by Postfix, Exim and 
+qpsmp.
+
+Citadel will open its lmtp Unix Domain Socket in 
+/var/run/citadel/lmtp.socket
+This is where you need to point your other MTA at.
+
+
+
+ * Citadel and Exim
+
+Exim is able to do this; however, the Author of this 
+writing doesn't use it, and thus provides you just with 
+this Link to the exim documentation:
+
+http://exim.inode.at/exim-html-3.20/doc/html/spec_17.html
+
+(If you know more, input is welcome)
+
+
+
+ * Citadel and Postfix
+
+Postfix offers more than just LMTP. Postfix also enables 
+you to use DICT-TCP in order to verify whether an email
+will be deliverable rigt after the other mailserver told
+yours whom it wants to send mail to.
+Have a look at this sample main.cf for postfix:
+
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version 
+smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU) 
+biff = no 
+
+# appending .domain is the MUA's job. 
+append_dot_mydomain = no 
+
+# Uncomment the next line to generate "delayed mail" warnings 
+#delay_warning_time = 4h
+myhostname = sample.citadel.org 
+#alias_maps = hash:/etc/aliases 
+#alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination = mail.sample.citadel.org, sample.citadel.org 
+#relayhost = mynetworks = 127.0.0.0/8 
+mailbox_size_limit = 0 
+recipient_delimiter = + 
+inet_interfaces = all 
+# ------------------------------------------------ 
+# checking rules. 
+# get rid of anything useless as early as possible. 
+# * stage one: check if the user is there. 
+# * stage two: check the source. is its helo valid? else buye. 
+# * stage three: check the sender etc. 
+# * stage four: check the open relay Database. hosts registered here won't be accepted. 
+# * stage five: check the content by regex. won't accept Windows executables of any kind. 
+# * stage six: Do virus checking. reject some more extensions. 
+# * stage seven: deliver it to citadel via local transport 
+# make it bite harder if wanted. unknown_local_recipient_reject_code = 550 
+#unknown_address_reject_code = 550 
+#unknown_client_reject_code = 550 
+#unknown_relay_recipient_reject_code = 550 
+#unknown_virtual_alias_reject_code = 550 
+#unknown_virtual_mailbox_reject_code = 550 
+#unknown_address_reject_code = 550 
+#unknown_client_reject_code = 550 
+#unknown_hostname_reject_code = 550 
+#unverified_recipient_reject_code = 550 
+#unverified_sender_reject_code = 550 
+#unverified_recipient_reject_code = 550 
+#
+# nope. don't wanna know. 
+bounce_notice_recipient =  
+# replace 127.0.0.1 with the ip of your citadel server, and 777 with the port you made it open its dict-tcp server
+# in doubt check with netstat -lnp
+# telnet ip port
+# 
+smtpd_recipient_restrictions =
+        tcp:127.0.0.1:777,
+        reject_unauth_destination,
+        reject_unauth_pipelining,
+        reject_non_fqdn_sender,
+        reject_non_fqdn_hostname,
+        reject_invalid_hostname,
+        reject_unknown_recipient_domain,
+        reject_unknown_sender_domain,
+        reject_unknown_hostname,
+        reject_rbl_client list.dsbl.org,
+        reject_rbl_client sbl-xbl.spamhaus.org,
+        reject_rbl_client bl.spamcop.net,
+        reject_rbl_client dnsbl.njabl.org,
+        reject_rbl_client dnsbl.sorbs.net,
+        reject_rbl_client l2.spews.dnsbl.sorbs.net,
+        reject_rhsbl_client rhsbl.sorbs.net,
+        reject_rhsbl_client bogusmx.rfc-ignorant.org,
+        reject_rhsbl_sender rhsbl.sorbs.net,
+        reject_rhsbl_sender bogusmx.rfc-ignorant.org,
+        reject_rhsbl_sender dsn.rfc-ignorant.org
+        reject
+#if we deliver to citadel via lmtp, do it for example like that:
+local_transport = lmtp:unix:/var/run/citadel/lmtp.socket
+# check the output of netstat -lnp for your lmtp.sock location.
+
+
+More informations on this issue can be found at:
+http://www.citadel.org/doku.php/faq:installation:configuring_postfix_to_validate_email_addresses_against_a_citadel_server
+
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>, Thu, 17 May 2007 19:10:39 +0200

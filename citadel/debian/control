@@ -1,8 +1,7 @@
 Source: citadel
 Section: mail
 Priority: extra
-Maintainer: Wilfried Goesgens <citadel@outgesourced.org>
-Uploaders: Fathi Boudra <fboudra@free.fr>
+Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
 Build-Depends: debhelper (>= 4), po-debconf, bison, autotools-dev,
  libdb4.4-dev | libdb4.3-dev, libical-dev, libldap2-dev, libncurses5-dev,
  libpam0g-dev, libsieve2-dev, libssl-dev
@@ -12,7 +11,7 @@ Package: citadel-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
 Recommends: db4.4-util | db4.3-util
-Suggests: citadel-mta
+Suggests: postfix | exim | citadel-mta | mail-transport-agent
 Conflicts: pop3-server, imap-server
 Provides: pop3-server, imap-server
 Description: complete and feature-rich groupware server
