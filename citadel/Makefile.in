@@ -330,7 +330,7 @@ cleaner: clean
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
-	rm -f Makefile sysdep.h config.cache config/.og config.status *.d 
+	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
 
 .c.d:
 	@echo Checking dependencies for $<
