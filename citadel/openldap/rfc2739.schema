@@ -1,6 +1,8 @@
 # (c) 2004 Martin Konold <martin.konold@erfrakon.de>
 # (c) 2006 Art Cancro <ajc@uncensored.citadel.org>
 
+# This file is distributed under the terms of the GNU General Public License v2.
+
 # This schema is derived from RFC 2739 and may act as a substitute
 # when used with OpenLDAP, as the original schema from RFC 2739 
 # is syntactically not accepted by OpenLDAP 2.2.14
