@@ -3138,7 +3138,7 @@ void display_enter(void)
 	do_template("richedit");
 
 	/** Enumerate any attachments which are already in place... */
-	wprintf("<div style=\"float: left; \"><img src=\"static/diskette_24x.gif\" border=0 ");
+	wprintf("<div><img src=\"static/diskette_24x.gif\" border=0 ");
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
@@ -3150,7 +3150,7 @@ void display_enter(void)
 		/* wprintf(" (%s, %d bytes)",att->content_type,att->length); */
 		wprintf("</option>\n");
 	}
-	wprintf("</select><br />");
+	wprintf("</select>");
 
 	/** Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;");
