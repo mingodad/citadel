@@ -176,10 +176,23 @@ int main(int argc, char **argv) {
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	char *sp, *ep;
 	char hostname[256];
+	char **recipients = NULL;
+	int num_recipients = 0;
+	int to_or_cc = 0;
+	int read_recipients_from_headers = 0;
+	char *add_these_recipients = NULL;
 
 	for (i=1; i<argc; ++i) {
 		if (!strcmp(argv[i], "-d")) {
 			debug = 1;
+		}
+		else if (!strcmp(argv[i], "-t")) {
+			read_recipients_from_headers = 1;
+		}
+		else if (argv[i][0] != '-') {
+			++num_recipients;
+			recipients = realloc(recipients, (num_recipients * sizeof (char *)));
+			recipients[num_recipients - 1] = strdup(argv[i]);
 		}
 	}
 	       
@@ -190,22 +203,25 @@ int main(int argc, char **argv) {
 
 	fp = tmpfile();
 	if (fp == NULL) return(errno);
-	serv_sock = uds_connectsock(file_lmtp_socket);
+	serv_sock = uds_connectsock(file_lmtp_socket);	/* FIXME: if called as 'sendmail' connect to file_lmtp_unfiltered_socket */
 	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
+	if (buf[0] != '2') {
+		if (debug) fprintf(stderr, "Could not connect to LMTP socket.\n");
+		cleanup(1);
+	}
 
 	sp = strchr (buf, ' ');
-	if (sp == NULL) cleanup(1);
+	if (sp == NULL) {
+		if (debug) fprintf(stderr, "Could not calculate hostname.\n");
+		cleanup(1);
+	}
 	sp ++;
 	ep = strchr (sp, ' ');
 	if (ep == NULL) cleanup(1);
 	*ep = '\0';
 	strncpy(hostname, sp, sizeof hostname);
 
-	snprintf(fromline, sizeof fromline, "From: %s@%s",
-		 pw->pw_name,
-		 hostname
-	);
+	snprintf(fromline, sizeof fromline, "From: %s@%s", pw->pw_name, hostname);
 	while (fgets(buf, 1024, stdin) != NULL) {
 		if ( ( (buf[0] == 13) || (buf[0] == 10)) && (in_body == 0) ) {
 			in_body = 1;
@@ -219,6 +235,29 @@ int main(int argc, char **argv) {
 				from_header = 1;
 			}
 		}
+
+		if (read_recipients_from_headers) {
+			add_these_recipients = NULL;
+			if ((isspace(buf[0])) && (to_or_cc)) {
+				add_these_recipients = buf;
+			}
+			else {
+				if ((!strncasecmp(buf, "To:", 3)) || (!strncasecmp(buf, "Cc:", 3))) {
+					to_or_cc = 1;
+				}
+				else {
+					to_or_cc = 0;
+				}
+				if (to_or_cc) {
+					add_these_recipients = &buf[3];
+				}
+			}
+
+			if (add_these_recipients) {
+				/* FIXME do something with them */
+			}
+		}
+
 		fprintf(fp, "%s", buf);
 	}
 	strip_trailing_nonprint(fromline);
@@ -236,14 +275,13 @@ int main(int argc, char **argv) {
 	serv_gets(buf);
 	if (buf[0] != '2') cleanup(1);
 
-	for (i=1; i<argc; ++i) {
-		if (argv[i][0] != '-') {
-			snprintf(buf, sizeof buf, "RCPT To: %s", argv[i]);
-			serv_puts(buf);
-			serv_gets(buf);
-			/* if (buf[0] != '2') cleanup(1); */
-		}
+	for (i=0; i<num_recipients; ++i) {
+		snprintf(buf, sizeof buf, "RCPT To: %s", recipients[i]);
+		serv_puts(buf);
+		serv_gets(buf);
+		free(recipients[i]);
 	}
+	free(recipients);
 
 	serv_puts("DATA");
 	serv_gets(buf);
