@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include "citadel.h"
+#include "tools.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -254,7 +255,21 @@ int main(int argc, char **argv) {
 			}
 
 			if (add_these_recipients) {
-				/* FIXME do something with them */
+				int num_recp_on_this_line;
+				char this_recp[256];
+
+				num_recp_on_this_line = num_tokens(add_these_recipients, ',');
+				for (i=0; i<num_recp_on_this_line; ++i) {
+					extract_token(this_recp, add_these_recipients,
+						i, ',', sizeof this_recp);
+					striplt(this_recp);
+					if (strlen(this_recp) > 0) {
+						++num_recipients;
+						recipients = realloc(recipients,
+							(num_recipients * sizeof (char *)));
+						recipients[num_recipients - 1] = strdup(this_recp);
+					}
+				}
 			}
 		}
 
