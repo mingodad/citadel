@@ -81,6 +81,22 @@ LITERAL;
 			'Enter msg</a><BR>' .
 			'<a href="who.php">' .
 			'Who is online?</a><BR>' .
+			'<a href="myinfo.php">' .
+			'My information</a><BR>' .
+			'<A HREF="logout.php">' .
+			'Log out</A>' .
+			'</div>' ;
+		echo	'<div id="demolinks">' .
+			'<a href="testcommand.php">' .
+			'demolist</A><BR>' .
+			'<a href="readmsgs.php?mode=all&count=0">' .
+			'Read all</a><BR>' .
+			'<a href="readmsgs.php?mode=new&count=0">' .
+			'Read new</a><BR>' .
+			'<a href="display_enter.php">' .
+			'Enter msg</a><BR>' .
+			'<a href="who.php">' .
+			'Who is online?</a><BR>' .
 			'<A HREF="logout.php">' .
 			'Log out</A>' .
 			'</div>' ;

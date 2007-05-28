@@ -107,6 +107,37 @@ body>#Menu {width:8em;}
 	text-indent: 0;
 }
 
+#demolinks {
+	position:absolute;
+	top:200px;
+	left:20px;
+	width:8em;
+	padding:0.5em;
+	background-color:#eee;
+	border:1px dashed #999;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	width:8em;
+	}
+/* Again, "be nice to Opera 5". */
+body>#demolinks {width:8em;}
+
+/* For convenience */
+.centered {
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	}
+
+.notebox {
+	background-color:#eee;
+	border:1px dashed #999;
+	margin: 15px;
+	font-size:small;
+	text-indent: 0;
+}
+
 .ctdldbgRead {
         color:#ff0000;
 	background-color:#eee;

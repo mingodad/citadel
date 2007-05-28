@@ -59,6 +59,25 @@ function display_message($msgnum) {
 	echo '</TD></TR></TABLE><BR>' ;
 }
 
+function get_message_partlist($msgnum) {
+
+	// Fetch the message from the server
+	list($ok, $response, $fields) = ctdl_fetch_message($msgnum);
+
+	// Bail out gracefully if the message isn't there.
+	if (!$ok) {
+		echo "Error: " . htmlspecialchars($response) . "<BR>" ;
+		return false;
+	}
+	if (isset($fields['part']))
+	{
+		$parts = explode('|', $fields['part']);
+		return $parts;
+
+	}
+	return false;
+}
+
 
 
 ?>

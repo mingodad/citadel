@@ -32,7 +32,7 @@ if ($retval == FALSE) {
 else {
 	echo "<A HREF=\"welcome.php\">Logged in.  ";
 	echo "Click to continue if your browser does not refresh.</a><BR>";
-	echo "<meta http-equiv=\"refresh\" content=\"0;url=welcome.php\">\n";
+	echo "<meta http-equiv=\"refresh\" content=\"15;url=welcome.php\">\n";
 }
 
 bbs_page_footer();

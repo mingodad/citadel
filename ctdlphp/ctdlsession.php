@@ -71,14 +71,14 @@ function establish_citadel_session() {
 
 		ctdl_iden($identity);	// Identify client
 		ctdl_MessageFormatsPrefered(array("text/html","text/plain"));
-		if ($_SESSION["username"]) {
+		if (isset($_SESSION["username"])) {
 			login_existing_user(
 				$_SESSION["username"],
 				$_SESSION["password"]
 			);
 		}
 
-		if ($_SESSION["room"]) {
+		if (isset($_SESSION["room"])) {
 			ctdl_goto($_SESSION["room"]);
 		}
 		else {

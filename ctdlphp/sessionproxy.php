@@ -17,6 +17,7 @@ include "config_ctdlclient.php";
 
 // sock_gets() -- reads one line of text from a socket
 // 
+$logfd = 
 function sock_gets($sock) {
 	socket_clear_error($msgsock);
 	$buf = socket_read($sock, 4096, PHP_NORMAL_READ);

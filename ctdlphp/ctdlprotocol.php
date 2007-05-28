@@ -20,11 +20,52 @@ function serv_gets($readblock=FALSE) {
 	$buf = fgets($clientsocket, 4096);		// Read line
 	$buf = substr($buf, 0, (strlen($buf)-1) );	// strip trailing LF
 	if (CITADEL_DEBUG_CITPROTO == 1) {
-		if (!$readblock) printf ("<div class='ctdldbgRead'>");
+		if (!$readblock) printf ("<div class='ctdldbgRead'>\n");
 		printf($buf);
-		if (!$readblock) printf ("</div>");
-		else printf ("<br>");
+		if (!$readblock) printf ("\n</div>\n");
+		else printf ("<br>\n");
 	}
+	return $buf;
+}
+
+//
+// serv_get_n() -- generic function to read a binary blob from the server
+//
+function serv_get_n($nBytes) {
+	global $clientsocket;
+
+	if (CITADEL_DEBUG_CITPROTO == 1) {
+		printf ("<div class='ctdldbgRead'>\n");
+		printf("reading ".$nBytes." bytes from server\n");
+		printf ("</div>\n");
+	}
+	$i = 0;
+	$buf = "";
+	$nRead = 0;
+//	while ($nRead < $nBytes)
+	{
+		$buf = fread($clientsocket, $nBytes);
+//		$buf.=fgetc($clientsocket) | die ("fgetc failed");
+//		$buf .= serv_gets(TRUE);
+//		$tbuf = fgets($clientsocket, $nBytes - $nRead);
+		if (CITADEL_DEBUG_CITPROTO == 1) {
+			if (!$buf) printf ("<div class='ctdldbgRead'>\n");
+			printf($buf);
+			if (!$buf) printf ("</div>\n");
+			else printf ("<br>\n");
+		}
+//		$buf .= $tbuf;
+//		$nRead = strlen ($buf);
+
+	}
+		
+	//$buf = fread($clientsocket, $nBytes) | die ("fread failed");		// Read line
+	if (CITADEL_DEBUG_CITPROTO == 1) {
+		printf ("<div class='ctdldbgRead'>\n");
+		printf($buf);
+		printf ("</div>\n");
+	}
+	print_r($buf);
 	return $buf;
 }
 
@@ -37,13 +78,14 @@ function serv_puts($buf) {
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
 	fflush($clientsocket);
 	if (CITADEL_DEBUG_CITPROTO == 1)
-		printf ("<div class='ctdldbgWrite'>".$buf."</div>");
+		printf ("<div class='ctdldbgWrite'>".$buf."</div>\n");
 }
+
 
 function read_array() {
 	$nLines = 0;
 	if (CITADEL_DEBUG_CITPROTO == 1)
-	    printf ("<div class='ctdldbgRead'>");
+	    printf ("<div class='ctdldbgRead'>\n");
 	$buf = serv_gets(TRUE);
 	$ret = array();
 	while (strcasecmp($buf, "000")){
@@ -52,10 +94,35 @@ function read_array() {
 		$nLines++;
 	}
 	if (CITADEL_DEBUG_CITPROTO == 1){
-		echo "read ".$nLines." lines from the server.";
-		printf ("</div>");
+		echo "read ".$nLines." lines from the server.\n";
+		printf ("</div>\n");
 	}
 	return $ret;
+}
+
+function read_binary() {
+	$nLines = 0;
+	if (CITADEL_DEBUG_CITPROTO == 1)
+	    printf ("<div class='ctdldbgRead'>\n");
+	$buf = serv_gets(TRUE);
+	
+	if (CITADEL_DEBUG_CITPROTO == 1){
+		echo "status line from the server\n";
+	}
+
+	$statusline = explode(" ", $buf);
+	
+	if ($statusline[0] == 600)
+	{
+		$buf = serv_get_n($statusline[1]);
+		
+	}
+	
+	if (CITADEL_DEBUG_CITPROTO == 1){
+		echo "read ".$statusline[1]." bytes from the server.\n";
+		printf ("</div>\n");
+	}
+	return array($statusline, $buf);
 }
 
 
@@ -310,6 +377,19 @@ function ctdl_get_serv_info() {
 
 }
 
+//
+// Learn all sorts of interesting things about the Citadel server to
+// which we are connected.
+/* http://www.citadel.org/doku.php/documentation:appproto:connection#info.get.server.info */
+//
+function ctdl_get_registration_info() {
+	serv_puts("GREG");
+	$reply = read_array();
+	print_r($reply);
+//		die ("didn't understand the reply to the INFO command");
+
+}
+
 
 //
 // Display a system banner.  (Returns completed HTML.)
@@ -464,12 +544,11 @@ function ctdl_knrooms() {
 	global $clientsocket;
 
 	serv_puts("LKRA");
-	$results = read_array();
-
-	if (substr($results[0], 0, 1) != "1") {
+	$response = serv_gets();
+	if (substr($response, 0, 1) != "1") {
 		return array(0, NULL);
 	}
-	array_shift($results);
+	$results = read_array();
 	$all_lines = array();
 	$num_lines = 0;
 
@@ -505,6 +584,46 @@ function ctdl_knrooms() {
 
 }
 
+//
+// Fetch the list of known floors.
+//
+/* http://www.citadel.org/doku.php/documentation:appproto:rooms#lflr.list.all.known.floors */
+function ctdl_knfloors() {
+	global $clientsocket;
+
+	serv_puts("LFLR");
+	$response = serv_gets();
+	if (substr($response, 0, 1) != "1") {
+		return array(0, NULL);
+	}
+
+	$results = read_array();
+	$all_lines = array();
+	$num_lines = 0;
+
+	foreach ($results as $result){
+		$oneline = array();
+		$tokens = explode("|",$result);
+
+		$oneline["id"] = $tokens[0];		
+		$oneline["name"]   = $tokens[1];		
+		$oneline["nref"] = $tokens[2];
+
+		if (CITADEL_DEBUG_CITPROTO == 1)
+		{
+			echo "<pre>";
+			print_r($oneline);
+			echo "</pre>";
+
+		}
+		$num_lines = array_push($all_lines, $oneline);
+	}
+
+	return array($num_lines, $all_lines);
+
+}
+
+/* http://www.citadel.org/doku.php/documentation:appproto:rooms#cflr.create.a.new.floor */
 
 //
 // Fetch the list of messages in one room.
@@ -609,6 +728,20 @@ function ctdl_msg4_from_server() {
 
 	return($txt);
 }
+
+
+
+function downoad_attachment($msgnum, $attindex)
+{
+	$command = "DLAT ".$msgnum."|".$attindex;
+	serv_puts($command);
+	$reply = read_binary();
+
+	print_r($reply);
+	return $reply;
+
+}
+
 
 
 ?>
