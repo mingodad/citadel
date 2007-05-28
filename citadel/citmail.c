@@ -28,10 +28,8 @@
 #endif
 #include "citadel_dirs.h"
 
-/* #define DEBUG  */	/* uncomment to get protocol traces */
-
 int serv_sock;
-
+int debug = 0;
 
 void strip_trailing_nonprint(char *buf)
 {
@@ -135,9 +133,7 @@ void serv_gets(char *buf)
 	 */
 	buf[i] = 0;
 	strip_trailing_nonprint(buf);
-#ifdef DEBUG
-	printf("> %s\n", buf);
-#endif
+	if (debug) fprintf(stderr, "> %s\n", buf);
 }
 
 
@@ -146,24 +142,19 @@ void serv_gets(char *buf)
  */
 void serv_puts(char *buf)
 {
-#ifdef DEBUG
-	printf("< %s\n", buf);
-#endif
+	if (debug) fprintf(stderr, "< %s\n", buf);
 	serv_write(buf, strlen(buf));
 	serv_write("\n", 1);
 }
 
 
 
-
-
 void cleanup(int exitcode) {
 	char buf[1024];
 
-	if (exitcode == 1)
-		printf ("Error while sending mail."
-			"Check your maildata and make shure "
-			"citadel is configured properly!");
+	if (exitcode != 0) {
+		fprintf(stderr, "Error while sending mail.  Please check your Citadel configuration.\n");
+	}
 	serv_puts("QUIT");
 	serv_gets(buf);
 	exit(exitcode);
@@ -184,8 +175,14 @@ int main(int argc, char **argv) {
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	char *sp, *ep;
-	       
+	char hostname[256];
 
+	for (i=1; i<argc; ++i) {
+		if (!strcmp(argv[i], "-d")) {
+			debug = 1;
+		}
+	}
+	       
 	/* TODO: should we be able to calculate relative dirs? */
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
@@ -203,10 +200,11 @@ int main(int argc, char **argv) {
 	ep = strchr (sp, ' ');
 	if (ep == NULL) cleanup(1);
 	*ep = '\0';
+	strncpy(hostname, sp, sizeof hostname);
 
 	snprintf(fromline, sizeof fromline, "From: %s@%s",
 		 pw->pw_name,
-		 sp
+		 hostname
 	);
 	while (fgets(buf, 1024, stdin) != NULL) {
 		if ( ( (buf[0] == 13) || (buf[0] == 10)) && (in_body == 0) ) {
@@ -225,8 +223,8 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-
-	serv_puts("LHLO x");
+	sprintf(buf, "LHLO %s", hostname);
+	serv_puts(buf);
 	do {
 		serv_gets(buf);
 		strcat(buf, "    ");
@@ -236,14 +234,14 @@ int main(int argc, char **argv) {
 	snprintf(buf, sizeof buf, "MAIL %s", fromline);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
+	if (buf[0] != '2') cleanup(1);
 
 	for (i=1; i<argc; ++i) {
 		if (argv[i][0] != '-') {
 			snprintf(buf, sizeof buf, "RCPT To: %s", argv[i]);
 			serv_puts(buf);
 			serv_gets(buf);
-			/* if (buf[0]!='2') cleanup(1); */
+			/* if (buf[0] != '2') cleanup(1); */
 		}
 	}
 
@@ -258,7 +256,16 @@ int main(int argc, char **argv) {
 	}
 	serv_puts(".");
 	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
-	else cleanup(0);
+	if (buf[0] != '2') {
+		cleanup(1);
+	}
+	else {
+		cleanup(0);
+	}
+
+	/* We won't actually reach this statement but the compiler will
+	 * display a spurious warning about an invalid return type if
+	 * we don't return an int.
+	 */
 	return(0);
 }
