@@ -62,6 +62,11 @@
 #undef HAVE_RUN_DIR
 #undef RUN_DIR
 
+#undef HAVE_STATICDATA_DIR
+#undef STATICDATA_DIR
+
+#undef HAVE_UTILBIN_DIR
+#undef UTILBIN_DIR
 
 #undef EGD_POOL 
 
