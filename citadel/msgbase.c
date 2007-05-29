@@ -992,7 +992,7 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 
 	*found_it = 1;
 
-	cprintf("%d %d\n", BINARY_FOLLOWS, length);
+	cprintf("%d %d\n", BINARY_FOLLOWS, (int)length);
 	client_write(content, length);
 }
 
