@@ -30,6 +30,18 @@ AC_ARG_WITH(datadir,
 			]
 )
 
+dnl Checks for the Datadir
+AC_ARG_WITH(staticdatadir, 
+		    [  --with-staticdatadir    directory to store citadels system messages under],
+			[ if test "x$withval" != "xno" ; then
+						  AC_DEFINE(HAVE_STATICDATA_DIR)
+						  AC_DEFINE_UNQUOTED(STATICDATA_DIR, "$withval")
+						  MAKE_STATICDATA_DIR=$withval
+						  AC_SUBST(MAKE_STATICDATA_DIR)
+			  fi
+			]
+)
+
 
 dnl Checks for the SSLdir
 dnl this is a bit different than the rest, 
@@ -67,6 +79,18 @@ AC_ARG_WITH(sysconfdir,
 						AC_DEFINE_UNQUOTED(ETC_DIR, "$withval")
 						MAKE_ETC_DIR=$withval
 						AC_SUBST(MAKE_ETC_DIR)
+			  fi
+			]
+)
+
+dnl Checks for where to put our utilities
+AC_ARG_WITH(utility-bindir, 
+			[  --with-utility-bindir       directory where to find helper binaries],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_UTILBIN_DIR)
+						AC_DEFINE_UNQUOTED(UTILBIN_DIR, "$withval")
+						MAKE_UTILBIN_DIR=$withval
+						AC_SUBST(MAKE_UTILBIN_DIR)
 			  fi
 			]
 )
@@ -609,17 +633,22 @@ if test $ac_cv_struct_ut_type = yes; then
 	AC_DEFINE(HAVE_UT_TYPE)
 fi
 
-AC_CACHE_CHECK([for call semantics from getpwuid_r], ac_cv_call_getpwuid_r,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <pwd.h>], [
-  struct passwd pw, *pwp;
-  char pwbuf[64];
-  uid_t uid;
+AC_CACHE_CHECK(
+	[for call semantics from getpwuid_r], 
+	ac_cv_call_getpwuid_r,
+	[AC_TRY_COMPILE([#include <sys/types.h>
+#include <pwd.h>], 
+                         [
+				struct passwd pw, *pwp;
+				char pwbuf[64];
+				uid_t uid;
 
-  getpwuid_r(uid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+				getpwuid_r(uid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+			],
+			ac_cv_call_getpwuid_r=yes, 
+			ac_cv_call_getpwuid_r=no)
+	])
 
-],
-ac_cv_call_getpwuid_r=yes, ac_cv_call_getpwuid_r=no)])
 if test $ac_cv_call_getpwuid_r = no; then
 	AC_DEFINE(SOLARIS_GETPWUID)
 	AC_DEFINE(F_UID_T, "%ld")
@@ -630,6 +659,27 @@ else
 	AC_DEFINE(F_PID_T, "%d")
 	AC_DEFINE(F_XPID_T, "%x")
 fi
+
+dnl AC_CHECK_FUNCS(res_query)
+AC_CACHE_CHECK([for the resolver calls], 
+	       ac_cv_resquery_ok, 
+[AC_TRY_COMPILE([#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>], 
+	        [
+			char *domain="www.google.com";
+			u_char *answer;
+			int len;
+			len = res_query( domain, C_IN, T_A, answer, PACKETSZ );
+		],
+                ac_cv_resquery_ok=yes,
+		ac_cv_resquery_ok=no)
+])
+echo "resquery: $ac_cv_resquery_ok"
+
+dnl if test "$ac_cv_resquery_ok" = "no" ; then
+dnl    AC_DEFINE(RES_QUERY_GONE, "#error resquery not here. can't continue.")
+dnl fi
 
 
 

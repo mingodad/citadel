@@ -231,7 +231,7 @@ void artv_export_message(long msgnum) {
 
 	/* write it in base64 */
 	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "%sbase64 -e >%s", ctdl_sbin_dir, tempfile);
+	snprintf(buf, sizeof buf, "%s -e >%s", file_base64, tempfile);
 	fp = popen(buf, "w");
 	fwrite(smr.ser, smr.len, 1, fp);
 	pclose(fp);
@@ -615,7 +615,7 @@ void artv_import_message(void) {
 
 	/* decode base64 message text */
 	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "%sbase64 -d >%s", ctdl_sbin_dir, tempfile);
+	snprintf(buf, sizeof buf, "%s -d >%s", file_base64, tempfile);
 	fp = popen(buf, "w");
 	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);

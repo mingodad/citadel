@@ -1,10 +1,10 @@
 etc/citadel/mail.aliases
 etc/citadel/public_clients
-etc/citadel/help
-etc/citadel/messages
+usr/share/citadel-server/help
+usr/share/citadel-server/messages
 usr/lib/citadel-server/setup
+usr/lib/citadel-server/base64
 usr/sbin/aidepost
-usr/sbin/base64
 usr/sbin/chkpwd
 usr/sbin/citmail
 usr/sbin/citserver

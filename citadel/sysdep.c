@@ -1013,6 +1013,8 @@ void create_maintenance_threads(void) {
 		lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
 	}
 
+	lprintf(CTDL_NOTICE, "Spawned indexer (%ld) and checkpoint (%ld) thread. \n", 
+		indexer_thread_tid, checkpoint_thread_tid);
 	pthread_attr_destroy(&attr);
 }
 

@@ -45,8 +45,9 @@ char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
 char ctdl_netin_dir[PATH_MAX]="network/spoolin";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
-char ctdl_sbin_dir[PATH_MAX];
-char ctdl_bin_dir[PATH_MAX];
+char ctdl_utilbin_dir[PATH_MAX]="";
+char ctdl_sbin_dir[PATH_MAX]="";
+char ctdl_bin_dir[PATH_MAX]="";
 
 /* some of our files, that are needed in several places */
 char file_citadel_control[PATH_MAX]="";
@@ -62,6 +63,7 @@ char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 char file_chkpwd[PATH_MAX]="";
+char file_base64[PATH_MAX]="";
 
 int home_specified = 0;
 
@@ -110,8 +112,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 #endif
 	COMPUTE_DIRECTORY(ctdl_netcfg_dir);
 	COMPUTE_DIRECTORY(ctdl_etc_dir);
-	COMPUTE_DIRECTORY(ctdl_hlp_dir);
-	COMPUTE_DIRECTORY(ctdl_message_dir);
+
+#ifndef HAVE_UTILBIN_DIR
+	basedir=ctdldir;
+#else
+	basedir=UTILBIN_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_utilbin_dir);
 
 #ifndef HAVE_RUN_DIR
 	basedir=ctdldir;
@@ -119,6 +126,14 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	basedir=RUN_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_run_dir);
+
+#ifndef HAVE_STATICDATA_DIR
+	basedir=ctdldir;
+#else
+	basedir=STATICDATA_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_hlp_dir);
+	COMPUTE_DIRECTORY(ctdl_message_dir);
 
 #ifndef HAVE_DATA_DIR
 	basedir=ctdldir;
@@ -201,6 +216,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 		 sizeof file_chkpwd, 
 		 "%schkpwd",
 		 ctdl_sbin_dir);
+
+	snprintf(file_base64,
+		 sizeof file_chkpwd,
+		 "%sbase64",
+		 ctdl_utilbin_dir);
+
+
 	/* 
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.

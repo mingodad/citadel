@@ -18,7 +18,9 @@ RUN_DIR=@MAKE_RUN_DIR@
 SPOOL_DIR=@MAKE_SPOOL_DIR@
 ETC_DIR=@MAKE_ETC_DIR@
 DATA_DIR=@MAKE_DATA_DIR@
+STATICDATA_DIR=@MAKE_STATICDATA_DIR@
 DOC_DIR=@MAKE_DOC_DIR@
+UTILBIN_DIR=@MAKE_UTILBIN_DIR@
 all: $(TARGETS)
 
 .SUFFIXES: .o .d .c
@@ -26,7 +28,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver setup $(CHKPWD)
+SERVER_TARGETS=citserver $(CHKPWD)
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \
@@ -58,7 +60,8 @@ SERV_MODULES=serv_chat.o \
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
-	base64
+
+UTILBIN_TARGETS= base64 setup
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -114,7 +117,7 @@ client: $(CLIENT_TARGETS)
 
 server: $(SERVER_TARGETS) $(SERV_MODULES)
 
-utils: $(UTIL_TARGETS)
+utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
 
 citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
@@ -227,12 +230,12 @@ install-data-new:
 	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
 	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
 
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/help
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/messages
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/help
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/messages
 	@for i in  \
 		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
-		echo $(INSTALL_DATA) $$i $(DESTDIR)$(ETC_DIR)/$$i; \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(ETC_DIR)/$$i; \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
 	done
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolin
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolout
@@ -276,7 +279,7 @@ install-exec: all
 	@for i in bio bitbucket files images info userpics; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
-	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS); do \
+	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
@@ -296,11 +299,18 @@ install-exec: all
 install-exec-new: all
 	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/sbin; 
 	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR); 
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(UTILBIN_DIR); 
 	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
 			$(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
+		fi \
+	done
+	@for i in $(UTILBIN_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \
 		fi \
 	done
 

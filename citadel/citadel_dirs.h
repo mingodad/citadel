@@ -28,6 +28,7 @@ extern char ctdl_netcfg_dir[PATH_MAX];
 extern char ctdl_bbsbase_dir[PATH_MAX];
 extern char ctdl_sbin_dir[PATH_MAX];
 extern char ctdl_bin_dir[PATH_MAX];
+extern char ctdl_utilbin_dir[PATH_MAX];
 extern char ctdl_key_dir[PATH_MAX];
 
 
@@ -45,6 +46,7 @@ extern char file_crpt_file_key[PATH_MAX];
 extern char file_crpt_file_csr[PATH_MAX];
 extern char file_crpt_file_cer[PATH_MAX];
 extern char file_chkpwd[PATH_MAX];
+extern char file_base64[PATH_MAX];
 
 extern void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir);
 
