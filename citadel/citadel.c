@@ -45,7 +45,7 @@
 #include "client_passwords.h"
 #include "citadel_decls.h"
 #include "tools.h"
-#include "acconfig.h"
+#include "sysdep.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif

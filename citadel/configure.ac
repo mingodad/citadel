@@ -6,10 +6,10 @@ AC_REVISION([$Revision: 5108 $])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
-	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix")
+	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix", [define this to the Citadel home directory])
 	ssl_dir="$ac_default_prefix/keys"
 else
-	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix")
+	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix", [define this to the Citadel home directory])
 	ssl_dir="$prefix/keys"
 fi
 
@@ -22,10 +22,10 @@ dnl Checks for the Datadir
 AC_ARG_WITH(datadir, 
 		    [  --with-datadir          directory to store the databases under],
 			[ if test "x$withval" != "xno" ; then
-					      AC_DEFINE(HAVE_DATA_DIR)
-						  AC_DEFINE_UNQUOTED(DATA_DIR, "$withval")
-						  MAKE_DATA_DIR=$withval
-						  AC_SUBST(MAKE_DATA_DIR)
+					      AC_DEFINE(HAVE_DATA_DIR,[],[use alternate database location?])
+					      AC_DEFINE_UNQUOTED(DATA_DIR, "$withval",[define, if the user suplied a data-directory to use.])
+					      MAKE_DATA_DIR=$withval
+					      AC_SUBST(MAKE_DATA_DIR)
 			  fi
 			]
 )
@@ -34,8 +34,8 @@ dnl Checks for the Datadir
 AC_ARG_WITH(staticdatadir, 
 		    [  --with-staticdatadir    directory to store citadels system messages under],
 			[ if test "x$withval" != "xno" ; then
-						  AC_DEFINE(HAVE_STATICDATA_DIR)
-						  AC_DEFINE_UNQUOTED(STATICDATA_DIR, "$withval")
+						  AC_DEFINE(HAVE_STATICDATA_DIR, [], [should we activate an alternate static text location?])
+						  AC_DEFINE_UNQUOTED(STATICDATA_DIR, "$withval", [where do we put our static text data?])
 						  MAKE_STATICDATA_DIR=$withval
 						  AC_SUBST(MAKE_STATICDATA_DIR)
 			  fi
@@ -62,8 +62,8 @@ dnl Checks for the spooldir
 AC_ARG_WITH(spooldir, 
 			[  --with-spooldir         directory to keep queues under],
 			[ if test "x$withval" != "xno" ; then
-					    AC_DEFINE(HAVE_SPOOL_DIR)
-						AC_DEFINE_UNQUOTED(SPOOL_DIR,"$withval")
+						AC_DEFINE(HAVE_SPOOL_DIR, [], [enable alternate spool dir?])
+						AC_DEFINE_UNQUOTED(SPOOL_DIR,"$withval", [where do we place our spool dirs?])
 						MAKE_SPOOL_DIR=$withval
 						AC_SUBST(MAKE_SPOOL_DIR)
 			   fi
@@ -75,8 +75,8 @@ dnl Checks for the Configdir
 AC_ARG_WITH(sysconfdir, 
 			[  --with-sysconfdir       directory to store the configs under],
 			[ if test "x$withval" != "xno" ; then
-					    AC_DEFINE(HAVE_ETC_DIR)
-						AC_DEFINE_UNQUOTED(ETC_DIR, "$withval")
+					    AC_DEFINE(HAVE_ETC_DIR, [], [should we search our system config in an alternate place?])
+						AC_DEFINE_UNQUOTED(ETC_DIR, "$withval", [where to search our config files])
 						MAKE_ETC_DIR=$withval
 						AC_SUBST(MAKE_ETC_DIR)
 			  fi
@@ -87,8 +87,8 @@ dnl Checks for where to put our utilities
 AC_ARG_WITH(utility-bindir, 
 			[  --with-utility-bindir       directory where to find helper binaries],
 			[ if test "x$withval" != "xno" ; then
-					    AC_DEFINE(HAVE_UTILBIN_DIR)
-						AC_DEFINE_UNQUOTED(UTILBIN_DIR, "$withval")
+					    AC_DEFINE(HAVE_UTILBIN_DIR,[],[should we put our helper binaries to another location?])
+						AC_DEFINE_UNQUOTED(UTILBIN_DIR, "$withval", [were to put our helper programs])
 						MAKE_UTILBIN_DIR=$withval
 						AC_SUBST(MAKE_UTILBIN_DIR)
 			  fi
@@ -98,10 +98,10 @@ AC_ARG_WITH(utility-bindir,
 
 dnl Checks for the run-dir for the sockets
 AC_ARG_WITH(rundir, 
-			[  --with-rundir           directory to store the configs under],
+			[  --with-rundir           directory to place runtime files (UDS) to?],
 			[ if test "x$withval" != "xno" ; then
-					    AC_DEFINE(HAVE_RUN_DIR)
-						AC_DEFINE_UNQUOTED(RUN_DIR, "$withval")
+					    AC_DEFINE(HAVE_RUN_DIR, [], [should we put our non volatile files elsewhere?])
+						AC_DEFINE_UNQUOTED(RUN_DIR, "$withval", [define, where the config should go in unix style])
 						MAKE_RUN_DIR=$withval
 						AC_SUBST(MAKE_RUN_DIR)
 			  fi
@@ -110,11 +110,11 @@ AC_ARG_WITH(rundir,
 
 
 dnl Checks for the Pseudo Random Generator sockets TODO: this keeps being default.
-AC_DEFINE_UNQUOTED(EGD_POOL, "/var/run/egd-pool")
+AC_DEFINE_UNQUOTED(EGD_POOL, "/var/run/egd-pool", [place to keep our pseudo random generator file])
 AC_ARG_WITH(egdpool, 
 			[  --with-egdpool          the socket from Pseudo Random Generator, defaults to /var/run/egd-pool],
 			[ if test "x$withval" != "xno" ; then
-						AC_DEFINE_UNQUOTED(EGD_POOL, "$withval")
+						AC_DEFINE_UNQUOTED(EGD_POOL, "$withval", [the socket from Pseudo Random Generator])
 			  fi
 			]
 )
@@ -182,19 +182,19 @@ case "$host" in
 	dnl Also has stupid non-reentrant gethostbyaddr() and friends.
 	*-*-bsdi[123]*)
 		test -z "$CC" -a -x /usr/bin/shlicc2 && CC=shlicc2
-		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
+		AC_DEFINE(HAVE_NONREENTRANT_NETDB,[], [define this if the OS has broken non-reentrant gethostby{name,addr}() ])
 		AC_MSG_RESULT([Old BSDI])
 	;;
 	*-*-bsdi*)
-		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
+		AC_DEFINE(HAVE_NONREENTRANT_NETDB, [], [define this if the OS has broken non-reentrant gethostby{name,addr}() ])
 		AC_MSG_RESULT([BSD/OS])
 	;;
 	dnl Curses support on Mac OS X is kind of screwed at the moment.
 	dnl TCP buffering isn't ideal under OS X. This define should also be
 	dnl checked in other cases of OS X-Linux differences.
 	*-*-darwin*)
-		AC_DEFINE(DISABLE_CURSES)
-		AC_DEFINE(HAVE_DARWIN)
+		AC_DEFINE(DISABLE_CURSES,[],[define this to disable use of curses])
+		AC_DEFINE(HAVE_DARWIN, [], [define if using OS X/Darwin])
 		AC_MSG_RESULT([Mac OS X])
 	;;
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
@@ -334,7 +334,7 @@ dnl (Linux shadow passwords)
 	fi
 	if test "$ac_cv_func_crypt" = yes -o "$ac_cv_lib_crypt_crypt" = yes -o "$ac_cv_func_pam_start" = yes; then
 		if test "$enable_chkpwd" != no; then
-			AC_DEFINE(ENABLE_CHKPWD)
+			AC_DEFINE(ENABLE_CHKPWD, [], [define this to enable use of the chkpwd program (for shadow passwords)])
 			CHKPWD=chkpwd
 		else
 			AUTH=auth.lo
@@ -444,7 +444,7 @@ if test "$with_ssl" != "no"; then
 	CFLAGS="$saved_CFLAGS"
 	
 	if test "x$ac_cv_openssldir" != "xno" ; then
-		AC_DEFINE(HAVE_OPENSSL)
+		AC_DEFINE(HAVE_OPENSSL, [], [Define if you have OpenSSL.])
 		LIBS="-lssl -lcrypto $LIBS"
 		dnl Need to recover ssldir - test above runs in subshell
 		ssldir=$ac_cv_openssldir
@@ -509,7 +509,7 @@ fi
 
 if test "x$ok_zlib" = xyes ; then
 	SERVER_LIBS="-lz $SERVER_LIBS"
-	AC_DEFINE(HAVE_ZLIB)
+	AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
 fi
 
 
@@ -525,7 +525,7 @@ fi
 
 if test "x$ok_ldap" = xyes ; then
 	SERVER_LIBS="-lldap $SERVER_LIBS"
-	AC_DEFINE(HAVE_LDAP)
+	AC_DEFINE(HAVE_LDAP, [], [define this if you have OpenLDAP client available])
 fi
 
 
@@ -542,7 +542,7 @@ fi
 
 if test "x$ok_libsieve" = xyes ; then
 	SERVER_LIBS="-lsieve $SERVER_LIBS"
-	AC_DEFINE(HAVE_LIBSIEVE)
+	AC_DEFINE(HAVE_LIBSIEVE, [], [define this if you have the libsieve mailbox filtering library available])
 fi
 
 
@@ -577,7 +577,7 @@ main() {
 		], 
 		[
 			SERVER_LIBS="-lical $SERVER_LIBS"
-			AC_DEFINE(HAVE_LIBICAL)
+			AC_DEFINE(HAVE_LIBICAL, [], [define this if you have the libical calendaring library available])
 		]
 	)
 fi
@@ -604,7 +604,7 @@ if test "x$with_ncurses" != xno; then
 	AC_CHECK_HEADERS(ncurses.h,,,[ ])
 fi
 
-AC_CHECK_HEADER(resolv.h,AC_DEFINE(HAVE_RESOLV_H),,
+AC_CHECK_HEADER(resolv.h,AC_DEFINE(HAVE_RESOLV_H, [], [define this if you have the resolv.h header file.]),,
 [#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -630,7 +630,7 @@ AC_CACHE_CHECK([for ut_type in struct utmp], ac_cv_struct_ut_type,
 #include <utmp.h>], [struct utmp ut; ut.ut_type;],
 ac_cv_struct_ut_type=yes, ac_cv_struct_ut_type=no)])
 if test $ac_cv_struct_ut_type = yes; then
-	AC_DEFINE(HAVE_UT_TYPE)
+	AC_DEFINE(HAVE_UT_TYPE, [], [define this if struct utmp has an ut_type member])
 fi
 
 AC_CACHE_CHECK(
@@ -650,14 +650,14 @@ AC_CACHE_CHECK(
 	])
 
 if test $ac_cv_call_getpwuid_r = no; then
-	AC_DEFINE(SOLARIS_GETPWUID)
-	AC_DEFINE(F_UID_T, "%ld")
-	AC_DEFINE(F_PID_T, "%ld")
-	AC_DEFINE(F_XPID_T, "%lx")
+	AC_DEFINE(SOLARIS_GETPWUID,[],[do we need to use solaris call syntax?])
+	AC_DEFINE(F_UID_T, "%ld", [whats the matching format string for uid_t?])
+	AC_DEFINE(F_PID_T, "%ld",  [whats the matching format string for pid_t?])
+	AC_DEFINE(F_XPID_T, "%lx",  [whats the matching format string for xpid_t?])
 else
-	AC_DEFINE(F_UID_T, "%d")
-	AC_DEFINE(F_PID_T, "%d")
-	AC_DEFINE(F_XPID_T, "%x")
+	AC_DEFINE(F_UID_T, "%d",  [whats the matching format string for uid_t?])
+	AC_DEFINE(F_PID_T, "%d",  [whats the matching format string for pid_t?])
+	AC_DEFINE(F_XPID_T, "%x",  [whats the matching format string for xpid_t?])
 fi
 
 dnl AC_CHECK_FUNCS(res_query)
@@ -688,7 +688,7 @@ AC_CACHE_CHECK([for ut_host in struct utmp], ac_cv_struct_ut_host,
 #include <utmp.h>], [struct utmp ut; ut.ut_host;],
 ac_cv_struct_ut_host=yes, ac_cv_struct_ut_host=no)])
 if test $ac_cv_struct_ut_host = yes; then
-	AC_DEFINE(HAVE_UT_HOST)
+	AC_DEFINE(HAVE_UT_HOST, [], [define this if struct utmp has an ut_host member])
 fi
 
 dnl Checks for library functions.
@@ -717,7 +717,7 @@ AC_CACHE_CHECK([for pthread_cancel], ac_cv_func_pthread_cancel,
 #endif],
 ac_cv_func_pthread_cancel=yes, ac_cv_func_pthread_cancel=no)])
 if test "$ac_cv_func_pthread_cancel" = yes; then
-	AC_DEFINE(HAVE_PTHREAD_CANCEL)
+	AC_DEFINE(HAVE_PTHREAD_CANCEL, [], [define this if you have the pthread_cancel() function])
 fi
 
 AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
@@ -734,7 +734,7 @@ ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
 	test "$DATABASE" && TARGETS="client server utils"
 	if test "x$enable_threaded_client" != xno; then
-		AC_DEFINE(THREADED_CLIENT)
+		AC_DEFINE(THREADED_CLIENT, [], [define this if you want to enable the multithreaded client])
 	fi
 fi
 
