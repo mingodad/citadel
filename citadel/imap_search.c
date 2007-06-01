@@ -442,6 +442,15 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 		pos += 2;
 	}
 
+	/* FIXME this is b0rken.  fix it. */
+	else if (imap_is_message_set(itemlist[pos])) {
+		if (is_msg_in_sequence_set(itemlist[pos], seq)) {
+			match = 1;
+		}
+		pos += 1;
+	}
+
+	/* FIXME this is b0rken.  fix it. */
 	else if (!strcasecmp(itemlist[pos], "UID")) {
 		if (is_msg_in_sequence_set(itemlist[pos+1], IMAP->msgids[seq-1])) {
 			match = 1;
@@ -451,8 +460,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	/* Now here come the 'UN' criteria.  Why oh why do we have to
 	 * implement *both* the 'UN' criteria *and* the 'NOT' keyword?  Why
-	 * can't there be *one* way to do things?  Answer: the design of
-	 * IMAP suffers from gratuitous complexity.
+	 * can't there be *one* way to do things?  More gratuitous complexity.
 	 */
 
 	else if (!strcasecmp(itemlist[pos], "UNANSWERED")) {
@@ -604,12 +612,6 @@ void imap_search(int num_parms, char *parms[]) {
 		IMAP->flags[i] |= IMAP_SELECTED;
 	}
 
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[i], 0);
-		}
-	}
-
 	imap_do_search(num_parms-2, &parms[2], 0);
 	cprintf("%s OK SEARCH completed\r\n", parms[0]);
 }
@@ -627,12 +629,6 @@ void imap_uidsearch(int num_parms, char *parms[]) {
 
 	for (i = 0; i < IMAP->num_msgs; ++i) {
 		IMAP->flags[i] |= IMAP_SELECTED;
-	}
-
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[i], 1);
-		}
 	}
 
 	imap_do_search(num_parms-3, &parms[3], 1);
