@@ -5,8 +5,8 @@
  * Uncomment this #define if you are a Citadel developer tracking
  * down memory leaks in the server.  Do NOT do this on a production
  * system because it definitely incurs a lot of additional overhead.
+#define DEBUG_MEMORY_LEAKS
  */
-/* #define DEBUG_MEMORY_LEAKS */
 
 
 #include <pthread.h>

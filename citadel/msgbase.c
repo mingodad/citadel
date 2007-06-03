@@ -530,10 +530,12 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	int num_search_msgs = 0;
 	long *search_msgs = NULL;
 	regex_t re;
+	int need_to_free_re = 0;
 	regmatch_t pm;
 
 	if (content_type) if (strlen(content_type) > 0) {
 		regcomp(&re, content_type, 0);
+		need_to_free_re = 1;
 	}
 
 	/* Learn about the user and room in question */
@@ -548,6 +550,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
+		if (need_to_free_re) regfree(&re);
 		return 0;	/* No messages at all?  No further action. */
 	}
 
@@ -676,6 +679,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			}
 		}
 	free(msglist);		/* Clean up */
+	if (need_to_free_re) regfree(&re);
 	return num_processed;
 }
 
@@ -3617,9 +3621,11 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	struct MetaData smi;
 	regex_t re;
 	regmatch_t pm;
+	int need_to_free_re = 0;
 
 	if (content_type) if (strlen(content_type) > 0) {
 		regcomp(&re, content_type, 0);
+		need_to_free_re = 1;
 	}
 	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
 		room_name, num_dmsgnums, content_type);
@@ -3628,6 +3634,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	if (lgetroom(&qrbuf, room_name) != 0) {
 		lprintf(CTDL_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
 			room_name);
+		if (need_to_free_re) regfree(&re);
 		return (0);	/* room not found */
 	}
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
@@ -3700,6 +3707,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	if (msglist != NULL) free(msglist);
 	if (dellist != NULL) free(dellist);
 	lprintf(CTDL_DEBUG, "%d message(s) deleted.\n", num_deleted);
+	if (need_to_free_re) regfree(&re);
 	return (num_deleted);
 }
 
