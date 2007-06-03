@@ -31,6 +31,7 @@ case "$1" in
 	    "Apache2")
 		webservers="apache2"
 		/usr/sbin/a2enmod proxy||true
+		/usr/sbin/a2enmod proxy_http||true
 		;;
 	    "All")
 		webservers="apache apache-ssl apache2" 
