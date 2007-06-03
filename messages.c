@@ -2373,7 +2373,6 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</div>\n");		/** end of 'content' div */
 
 		wprintf("<script language=\"javascript\" type=\"text/javascript\">"
 			" document.onkeydown = CtdlMsgListKeyPress;	"
@@ -2612,6 +2611,7 @@ DONE:
 		WC->num_summ = 0;
 		WC->summ = NULL;
 	}
+wprintf("</div>\n");		/** end of 'content' div */
 }
 
 
