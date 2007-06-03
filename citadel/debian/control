@@ -9,7 +9,7 @@ Standards-Version: 3.7.2
 
 Package: citadel-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common, openssl
 Recommends: db4.4-util | db4.3-util
 Suggests: postfix | exim | citadel-mta | mail-transport-agent
 Conflicts: pop3-server, imap-server
