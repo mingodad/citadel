@@ -260,7 +260,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 
 
 /**
- * \brief Serialize a struct vcard into a standard text/x-vcard MIME type.
+ * \brief Serialize a struct vcard into its standard format.
  * \param v vCard to serialize
  * \return the serialized vCard
  */

@@ -417,7 +417,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		return;
 	}
 
-	wprintf("<div align=center><table bgcolor=#aaaaaa width=50%%>");
+	wprintf("<div align=center>"
+		"<table bgcolor=#aaaaaa width=50%%>");
 	for (pass=1; pass<=2; ++pass) {
 
 		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
