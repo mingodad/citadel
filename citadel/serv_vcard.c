@@ -15,6 +15,12 @@
  */
 #define VCARD_EXT_FORMAT	"Citadel vCard: personal card for %s at %s"
 
+/*
+ * Citadel will accept either text/vcard or text/x-vcard as the MIME type
+ * for a vCard.  The following definition determines which one it *generates*
+ * when serializing.
+ */
+#define VCARD_MIME_TYPE		"text/x-vcard"
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -446,7 +452,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	if (ser != NULL) {
 		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
 		sprintf(msg->cm_fields['M'],
-			"Content-type: text/vcard"
+			"Content-type: " VCARD_MIME_TYPE
 			"\r\n\r\n%s\r\n", ser);
 		free(ser);
 	}
@@ -610,7 +616,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
 	CtdlWriteObject(USERCONFIGROOM,	/* which room */
-			"text/vcard",	/* MIME type */
+			VCARD_MIME_TYPE,/* MIME type */
 			temp,		/* temp file */
 			u,		/* which user */
 			0,		/* not binary */
@@ -1253,7 +1259,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			if (ser != NULL) {
 				vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
 				sprintf(vmsg->cm_fields['M'],
-					"Content-type: text/vcard"
+					"Content-type: " VCARD_MIME_TYPE
 					"\r\n\r\n%s\r\n", ser);
 				free(ser);
 			}
