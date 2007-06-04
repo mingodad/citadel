@@ -997,12 +997,12 @@ div.auto_complete ul strong.highlight {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	background-color: #ffd;
+	background-color: #fbf4ca;
 }
 
 #address_book_popup_middle_div {
 	position: relative;
-	background-color: #ffd;
+	background-color: #fbf4ca;
 }
 
 #address_book_inner_div {
@@ -1011,12 +1011,12 @@ div.auto_complete ul strong.highlight {
 
 #address_book_inner_div select {
 	width: 100%;
-	background-color: #ffd;
+	background-color: #fbf4ca;
 }
 
 .address_book_popup_title {
         font-size: 12pt;
-	background-color: #ffd;
+	background-color: #fbf4ca;
         color: #000;
 }
 
