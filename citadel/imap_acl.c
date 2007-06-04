@@ -1,7 +1,7 @@
 /*
- * $Id:  $
+ * $Id$
  *
- * Functions which implement RFC2086/RFC4314 (IMAP ACL extension)
+ * Functions which implement RFC2086 (and maybe RFC4314) (IMAP ACL extension)
  *
  */
 
@@ -81,11 +81,9 @@ void imap_acl_flags(char *rights, int ra)
 {
 	strcpy(rights, "");
 
-	/* l - lookup (mailbox is visible to LIST/LSUB commands, SUBSCRIBE mailbox)
-	 * r - read (SELECT the mailbox, perform STATUS)
-	 * s - keep seen/unseen information across sessions (set or clear \SEEN flag
-	 *     via STORE, also set \SEEN during APPEND/COPY/ FETCH BODY[...])
-	 * e - perform EXPUNGE and expunge as a part of CLOSE
+	/* l - lookup (mailbox is visible to LIST/LSUB commands)
+	 * r - read (SELECT the mailbox, perform STATUS et al)
+	 * s - keep seen/unseen information across sessions (STORE SEEN flag)
 	 */
 	if (	(ra & UA_KNOWN)					/* known rooms */
 	   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
@@ -93,29 +91,26 @@ void imap_acl_flags(char *rights, int ra)
 		strcat(rights, "l");
 		strcat(rights, "r");
 		strcat(rights, "s");
-		strcat(rights, "e");
 
 		/* Only output the remaining flags if the room is known */
 
-		/* w - write (set or clear arbitrary flags; not supported in Citadel) */
+		/* w - write (set or clear flags other than SEEN or DELETED, not supported in Citadel */
 
 		/* i - insert (perform APPEND, COPY into mailbox) */
 		/* p - post (send mail to submission address for mailbox - not enforced) */
+		/* c - create (CREATE new sub-mailboxes) */
 		if (ra & UA_POSTALLOWED) {
 			strcat(rights, "i");
 			strcat(rights, "p");
+			strcat(rights, "c");
 		}
 
-		/* k - create mailboxes in this hierarchy */
-
-		/* t - delete messages (set/clear \Deleted flag) */
+		/* d - delete messages (STORE DELETED flag, perform EXPUNGE) */
 		if (ra & UA_DELETEALLOWED) {
-			strcat(rights, "t");
 			strcat(rights, "d");
 		}
 
 		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
-		/* x - delete mailbox (DELETE mailbox, old mailbox name in RENAME) */
 		if (ra & UA_ADMINALLOWED) {
 			/*
 			 * This is the correct place to put the "a" flag.  We are leaving
@@ -126,7 +121,6 @@ void imap_acl_flags(char *rights, int ra)
 			 * perform them.
 			 */
 			/* strcat(rights, "a"); * commented out */
-			strcat(rights, "x");
 		}
 	}
 }
