@@ -30,7 +30,8 @@
 #include "snprintf.h"
 #endif
 #include "sysdep_decls.h"
-#include <clientsocket.h>
+#include "config.h"
+#include "clientsocket.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -53,6 +54,9 @@ int sock_connect(char *host, char *service, char *protocol)
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
+	if (strlen(config.c_ip_addr) > 0) {
+		sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
+	}
 
 	pse = getservbyname(service, protocol);
 	if (pse) {
