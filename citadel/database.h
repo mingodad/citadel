@@ -16,6 +16,7 @@ void cdb_free_tsd(void);
 void cdb_check_handles(void);
 void cdb_trunc(int cdb);
 void *checkpoint_thread(void *arg);
+void cdb_chmod_data(void);
 
 /*
  * Database records beginning with this magic number are assumed to

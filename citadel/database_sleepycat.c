@@ -343,9 +343,6 @@ void open_databases(void)
 	int i;
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
-	DIR *dp;
-	struct dirent *d;
-	char filename[PATH_MAX];
 
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
 	lprintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
@@ -452,18 +449,29 @@ void open_databases(void)
 	}
 
 	cdb_allocate_tsd();
+}
 
-	/* Now make sure we own all the files, because in a few milliseconds
-	 * we're going to drop root privs.
-	 */
+
+/* Make sure we own all the files, because in a few milliseconds
+ * we're going to drop root privs.
+ */
+void cdb_chmod_data(void) {
+	DIR *dp;
+	struct dirent *d;
+	char filename[PATH_MAX];
+
 	dp = opendir(ctdl_data_dir);
 	if (dp != NULL) {
 		while (d = readdir(dp), d != NULL) {
 			if (d->d_name[0] != '.') {
 				snprintf(filename, sizeof filename,
 					 "%s/%s", ctdl_data_dir, d->d_name);
-				chmod(filename, 0600);
-				chown(filename, CTDLUID, (-1));
+				lprintf(9, "chmod(%s, 0600) returned %d\n",
+					filename, chmod(filename, 0600)
+				);
+				lprintf(9, "chown(%s, CTDLUID, -1) returned %d\n",
+					filename, chown(filename, CTDLUID, (-1))
+				);
 			}
 		}
 		closedir(dp);

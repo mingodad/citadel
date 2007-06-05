@@ -241,6 +241,8 @@ int main(int argc, char **argv)
 	 * corresponding group ids
 	 */
 	if (drop_root_perms) {
+		cdb_chmod_data();	/* make sure we own our data files */
+
 #ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
 #else
