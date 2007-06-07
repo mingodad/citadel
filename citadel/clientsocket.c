@@ -89,7 +89,9 @@ int sock_connect(char *host, char *service, char *protocol)
 		return(-1);
 	}
 
-	/* Set the outbound interface for egress */
+	/* If citserver is bound to a specific IP address on the host, make
+	 * sure we use that address for outbound connections.
+	 */
 	memset(&egress_sin, 0, sizeof(egress_sin));
 	egress_sin.sin_family = AF_INET;
 	if (strlen(config.c_ip_addr) > 0) {
@@ -98,10 +100,11 @@ int sock_connect(char *host, char *service, char *protocol)
                 	egress_sin.sin_addr.s_addr = INADDR_ANY;
 		}
 
-		/* If this bind fails, no problem; we can still egress from the default interface */
+		/* If this bind fails, no problem; we can still use INADDR_ANY */
 		bind(s, (struct sockaddr *)&egress_sin, sizeof(egress_sin));
         }
 
+	/* Now try to connect to the remote host. */
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(CTDL_ERR, "Can't connect to %s:%s: %s\n",
 			host, service, strerror(errno));
