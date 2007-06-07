@@ -2,12 +2,12 @@ Source: webcit
 Section: web
 Priority: optional
 Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
-Build-Depends: debhelper (>= 4), po-debconf, libical-dev, gettext
+Build-Depends: debhelper (>= 4), po-debconf, libical-dev, gettext, locales, localepurge
 Standards-Version: 3.7.2
 
 Package: citadel-webcit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, tinymce, citadel-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, tinymce, citadel-common, openssl, locales, localepurge
 Suggests: citadel-server, apache2 | apache
 Description: web-based frontend to Citadel groupware server
  WebCit is a web-based, AJAX-enabled frontend to the Citadel groupware system.
