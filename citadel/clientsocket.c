@@ -43,6 +43,7 @@ int sock_connect(char *host, char *service, char *protocol)
 	struct servent *pse;
 	struct protoent *ppe;
 	struct sockaddr_in sin;
+	struct sockaddr_in egress_sin;
 	int s, type;
 
 	if (host == NULL) return(-1);
@@ -54,9 +55,6 @@ int sock_connect(char *host, char *service, char *protocol)
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
-	if (strlen(config.c_ip_addr) > 0) {
-		sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
-	}
 
 	pse = getservbyname(service, protocol);
 	if (pse) {
@@ -90,6 +88,19 @@ int sock_connect(char *host, char *service, char *protocol)
 		lprintf(CTDL_CRIT, "Can't create socket: %s\n", strerror(errno));
 		return(-1);
 	}
+
+	/* Set the outbound interface for egress */
+	memset(&egress_sin, 0, sizeof(egress_sin));
+	egress_sin.sin_family = AF_INET;
+	if (strlen(config.c_ip_addr) > 0) {
+		egress_sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
+        	if (egress_sin.sin_addr.s_addr == !INADDR_ANY) {
+                	egress_sin.sin_addr.s_addr = INADDR_ANY;
+		}
+
+		/* If this bind fails, no problem; we can still egress from the default interface */
+		bind(s, (struct sockaddr *)&egress_sin, sizeof(egress_sin));
+        }
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(CTDL_ERR, "Can't connect to %s:%s: %s\n",
