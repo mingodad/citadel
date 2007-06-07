@@ -754,7 +754,8 @@ void CtdlRegisterServiceHook(int tcp_port,
 					      tcp_port,
 					      config.c_maxsessions, 
 					      &error);
-		snprintf(message, SIZ, "TCP port %d: ", tcp_port);
+		snprintf(message, SIZ, "TCP port %s:%d: ", 
+			 config.c_ip_addr, tcp_port);
 	}
 
 	if (newfcn->msock > 0) {
