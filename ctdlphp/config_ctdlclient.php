@@ -8,4 +8,5 @@ define('CITADEL_TCP_PORTNO','504');
 
 #do you want to see the server conversation for exploring the protocol?
 define('CITADEL_DEBUG_CITPROTO',1);
+define('CITADEL_DEBUG_PROXY', TRUE);
 ?>

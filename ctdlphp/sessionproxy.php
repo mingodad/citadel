@@ -17,11 +17,21 @@ include "config_ctdlclient.php";
 
 // sock_gets() -- reads one line of text from a socket
 // 
-$logfd = 
+$msgsock;
+if (CITADEL_DEBUG_PROXY)
+{
+	define_syslog_variables();
+	openlog("sessionproxylog", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+}
 function sock_gets($sock) {
+	global $msgsock;
 	socket_clear_error($msgsock);
 	$buf = socket_read($sock, 4096, PHP_NORMAL_READ);
-	if (socket_last_error($buf)) return false;
+	if (CITADEL_DEBUG_PROXY)
+	{
+		syslog(LOG_DEBUG, "gets Read: ".$buf);
+	}
+	if (socket_last_error($sock)) return false;
 
 	if (preg_match("'\n$'s", $buf)) {
 		$buf = substr($buf, 0, strpos($buf, "\n"));
@@ -29,7 +39,6 @@ function sock_gets($sock) {
 
 	return $buf;
 }
-
 
 
 
@@ -129,6 +138,8 @@ do {
 	if ($msgsock >= 0) do {
 		$buf = sock_gets($msgsock);
 		if ($buf !== false) {
+//			fwrite($logfd, ">>");
+//			fwride($logfd, $buf);
 			if (!fwrite($ctdlsock, $buf . "\n")) {
 				fclose($ctdlsock);
 				socket_close($sock);
@@ -136,13 +147,36 @@ do {
 				exit(9);
 			}
 			$talkback = fgets($ctdlsock, 4096);
+			if (CITADEL_DEBUG_PROXY)
+			{
+				syslog(LOG_DEBUG, "talkback: ".$talkback);
+			}
 			if (!$talkback) {
+				if (CITADEL_DEBUG_PROXY)
+				{
+					syslog(LOG_ERROR, "closing socket.");
+				}
 				fclose($ctdlsock);
 				socket_close($sock);
 				system("/bin/rm -f " . $sockname);
 				exit(10);
 			}
         		socket_write($msgsock, $talkback, strlen($talkback));
+
+			// BINARY_FOLLOWS mode
+			if (substr($talkback, 0, 1) == "6") {
+				$bytes = intval(substr($talkback, 4));
+				if (CITADEL_DEBUG_PROXY)
+				{
+					syslog(LOG_DEBUG, "reading ".$bytes." bytes from server");
+				}
+				$buf = fread($ctdlsock, $bytes);
+				if (CITADEL_DEBUG_PROXY)
+				{
+					syslog(LOG_DEBUG, "Read: ".$buf);
+				}
+				socket_write($msgsock, $buf, $bytes);
+			}
 
 			// LISTING_FOLLOWS mode
 			if (substr($talkback, 0, 1) == "1") do {
@@ -155,13 +189,6 @@ do {
 						strlen($buf));
 				}
 			} while ($buf != "000\n");
-
-			// BINARY_FOLLOWS mode
-			if (substr($talkback, 0, 1) == "6") {
-				$bytes = intval(substr($talkback, 4));
-				$buf = fread($ctdlock, $bytes);
-				socket_write($msgsock, $buf, $bytes);
-			}
 
 			// SEND_LISTING mode
 			if (substr($talkback, 0, 1) == "4") do {

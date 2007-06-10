@@ -39,33 +39,13 @@ function serv_get_n($nBytes) {
 		printf("reading ".$nBytes." bytes from server\n");
 		printf ("</div>\n");
 	}
-	$i = 0;
-	$buf = "";
-	$nRead = 0;
-//	while ($nRead < $nBytes)
-	{
-		$buf = fread($clientsocket, $nBytes);
-//		$buf.=fgetc($clientsocket) | die ("fgetc failed");
-//		$buf .= serv_gets(TRUE);
-//		$tbuf = fgets($clientsocket, $nBytes - $nRead);
-		if (CITADEL_DEBUG_CITPROTO == 1) {
-			if (!$buf) printf ("<div class='ctdldbgRead'>\n");
-			printf($buf);
-			if (!$buf) printf ("</div>\n");
-			else printf ("<br>\n");
-		}
-//		$buf .= $tbuf;
-//		$nRead = strlen ($buf);
-
-	}
-		
-	//$buf = fread($clientsocket, $nBytes) | die ("fread failed");		// Read line
+	$buf = fread($clientsocket, $nBytes);
 	if (CITADEL_DEBUG_CITPROTO == 1) {
-		printf ("<div class='ctdldbgRead'>\n");
+		if (!$buf) printf ("<div class='ctdldbgRead'>\n");
 		printf($buf);
-		printf ("</div>\n");
+		if (!$buf) printf ("</div>\n");
+		else printf ("<br>\n");
 	}
-	print_r($buf);
 	return $buf;
 }
 
@@ -117,11 +97,8 @@ function read_binary() {
 		$buf = serv_get_n($statusline[1]);
 		
 	}
-	
-	if (CITADEL_DEBUG_CITPROTO == 1){
-		echo "read ".$statusline[1]." bytes from the server.\n";
-		printf ("</div>\n");
-	}
+	if (CITADEL_DEBUG_CITPROTO == 1)
+	    printf ("</div>\n");
 	return array($statusline, $buf);
 }
 
@@ -736,8 +713,6 @@ function downoad_attachment($msgnum, $attindex)
 	$command = "DLAT ".$msgnum."|".$attindex;
 	serv_puts($command);
 	$reply = read_binary();
-
-	print_r($reply);
 	return $reply;
 
 }
