@@ -301,6 +301,7 @@ install-exec-new: all
 	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
 	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(UTILBIN_DIR); 
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR);
 	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
