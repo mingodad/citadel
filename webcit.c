@@ -262,7 +262,7 @@ void escputs(char *strbuf)
 void urlesc(char *outbuf, char *strbuf)
 {
 	int a, b, c;
-	char *ec = " #&;`'|*?-~<>^()[]{}$\"\\";
+	char *ec = " #&;`'|*?-~<>^()[]{}/$\"\\";
 
 	strcpy(outbuf, "");
 
