@@ -708,7 +708,7 @@ function ctdl_msg4_from_server() {
 
 
 
-function downoad_attachment($msgnum, $attindex)
+function download_attachment($msgnum, $attindex)
 {
 	$command = "DLAT ".$msgnum."|".$attindex;
 	serv_puts($command);

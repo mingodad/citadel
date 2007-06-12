@@ -72,6 +72,7 @@ function get_message_partlist($msgnum) {
 	if (isset($fields['part']))
 	{
 		$parts = explode('|', $fields['part']);
+		print_r($parts);
 		return $parts;
 
 	}

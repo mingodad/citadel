@@ -1,5 +1,5 @@
 <?PHP
-
+$vcard="";
 	include "ctdlheader.php";
 	bbs_page_header();
 
@@ -15,8 +15,7 @@
 		"</TR>" ;
 
         ctdl_goto("My Citadel Config");
-	list($num_msgs, $response, $msgs) = ctdl_msgs($_REQUEST["mode"],
-							$_REQUEST["count"] );
+	list($num_msgs, $response, $msgs) = ctdl_msgs("", "");
 
 	echo "num_msgs: " . $num_msgs . "<BR>\n" ;
 	echo "response: " . htmlspecialchars($response) . "<BR>\n" ;
@@ -25,27 +24,13 @@
 		print_r($msgnum);
 		$result = get_message_partlist($msgnum);
 		if (is_array($result) &&
-		    ($result[4]=="text/vcard"))
+		    ($result[4]=="text/x-vcard"))
 		{
-			$vcard = downoad_attachment($msgnum, $result[2]);
-
-
+			list($size, $vcard) = download_attachment($msgnum, $result[2]);
 		}
 	}
 
-///phpinfo();
-///	list($num_users, $wholist) =
-// ctdl_get_registration_info();
-/*
-	if ($num_users > 0) foreach ($wholist as $x) {
-		echo "<TR>";
-		echo "<TD>", htmlspecialchars($x["user"]), "</TD>";
-		echo "<TD>", htmlspecialchars($x["room"]), "</TD>";
-		echo "<TD>", htmlspecialchars($x["host"]), "</TD>";
-		echo "</TR>\n";
-	}
-*/
-	echo "</TABLE>\n";
+	echo "</TABLE>\n <pre>\n".$vcard."</pre>";
 
 ?>
 
