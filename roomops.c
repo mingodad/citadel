@@ -1516,10 +1516,9 @@ void display_editroom(void)
 				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
-				wprintf(" <a href=\"netedit&cmd=remove&line="
-					"listrecp|");
+				wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line=listrecp|");
 				urlescputs(recp);
-				wprintf("&tab=listserv\">");
+				wprintf("\">");
 				wprintf(_("(remove)"));
 				wprintf("</A><br />");
 			}
@@ -1527,7 +1526,7 @@ void display_editroom(void)
 		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
-		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
+		wprintf("<INPUT TYPE=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</FORM>\n");
 
@@ -1546,10 +1545,10 @@ void display_editroom(void)
 				extract_token(recp, buf, 1, '|', sizeof recp);
 			
 				escputs(recp);
-				wprintf(" <a href=\"netedit&cmd=remove&line="
+				wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line="
 					"digestrecp|");
 				urlescputs(recp);
-				wprintf("&tab=listserv\">");
+				wprintf("\">");
 				wprintf(_("(remove)"));
 				wprintf("</A><br />");
 			}
@@ -1557,12 +1556,27 @@ void display_editroom(void)
 		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
-		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
+		wprintf("<INPUT TYPE=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</FORM>\n");
 		
-		wprintf("</TD></TR></TABLE><hr />\n");
+		wprintf("</TD></TR></TABLE>\n");
 
+		/** Pop open an address book -- begin **/
+		wprintf("<div align=right>"
+			"<a href=\"javascript:PopOpenAddressBook('add_as_listrecp|%s|add_as_digestrecp|%s');\" "
+			"title=\"%s\">"
+			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
+			"&nbsp;%s</a>"
+			"</div>",
+			_("List"),
+			_("Digest"),
+			_("Add recipients from Contacts or other address books"),
+			_("Add recipients from Contacts or other address books")
+		);
+		/** Pop open an address book -- end **/
+
+		wprintf("<hr />");
 		if (self_service(999) == 1) {
 			wprintf(_("This room is configured to allow "
 				"self-service subscribe/unsubscribe requests."));
@@ -1682,6 +1696,7 @@ void display_editroom(void)
 	/** end content of whatever tab is open now */
 	wprintf("</TD></TR></TABLE></div>\n");
 
+	address_book_popup();
 	wDumpContent(1);
 }
 
@@ -2390,6 +2405,7 @@ void netedit(void) {
 	char cmpa1[SIZ];
 	char cmpb0[SIZ];
 	char cmpb1[SIZ];
+	int i, num_addrs;
 
 	if (strlen(bstr("line"))==0) {
 		display_editroom();
@@ -2441,7 +2457,22 @@ void netedit(void) {
 	}
 
 	if (strlen(bstr("add_button")) > 0) {
-		serv_puts(line);
+		num_addrs = num_tokens(bstr("line"), ',');
+		if (num_addrs < 2) {
+			/* just adding one node or address */
+			serv_puts(line);
+		}
+		else {
+			/* adding multiple addresses separated by commas */
+			for (i=0; i<num_addrs; ++i) {
+				strcpy(line, bstr("prefix"));
+				extract_token(buf, bstr("line"), i, ',', sizeof buf);
+				striplt(buf);
+				strcat(line, buf);
+				strcat(line, bstr("suffix"));
+				serv_puts(line);
+			}
+		}
 	}
 
 	serv_puts("000");
