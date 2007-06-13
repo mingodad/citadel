@@ -8,6 +8,10 @@
 include "config_ctdlclient.php";
 
 
+define("FMT_CITADEL", 0);
+define("FMT_FIXED", 1);
+define("FMT_RFC822", 4);
+
 //--------------------------------------------------------------------------------
 //   internal functions for server communication
 //--------------------------------------------------------------------------------
@@ -717,6 +721,77 @@ function download_attachment($msgnum, $attindex)
 
 }
 
+
+function enter_message_0($msgHdr, $contentType, $data)
+{
+	$send = array();
+
+	if (isset($msgHdr['newusermail']))
+		array_unshift($send, $msgHdr['newusermail']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['supplied_euid']))
+		array_unshift($send, $msgHdr['supplied_euid']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['bcc']))
+		array_unshift($send, $msgHdr['bcc']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['cc']))
+		array_unshift($send, $msgHdr['cc']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['do_confirm']))
+		array_unshift($send, $msgHdr['do_confirm']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['newusername']))
+		array_unshift($send, $msgHdr['newusername']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['subject']))
+		array_unshift($send, $msgHdr['subject']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['format_type']))
+		array_unshift($send, $msgHdr['format_type']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['anon_flag']))
+		array_unshift($send, $msgHdr['anon_flag']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['recp']))
+		array_unshift($send, $msgHdr['recp']);
+	else
+		array_unshift($send, "");
+
+	if (isset($msgHdr['post']))
+		array_unshift($send, $msgHdr['post']);
+	else
+		array_unshift($send, "");
+
+	$params = implode('|', $send);
+	serv_puts("ENT0 ".$params);
+
+	$reply=serv_gets();
+	if (substr($reply, 0, 1) != 4)
+		return array(false, array(), array());
+	serv_puts("Content-type: ".$contentType);
+	serv_puts("");
+	serv_puts($data."\r\n");
+	serv_puts("000");
+}
 
 
 ?>
