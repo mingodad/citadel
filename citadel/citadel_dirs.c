@@ -201,15 +201,15 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 
 	snprintf(file_crpt_file_key,
 		 sizeof file_crpt_file_key, 
-		 "%scitadel.key",
+		 "%s/citadel.key",
 		 ctdl_key_dir);
 	snprintf(file_crpt_file_csr,
 		 sizeof file_crpt_file_csr, 
-		 "%scitadel.csr",
+		 "%s/citadel.csr",
 		 ctdl_key_dir);
 	snprintf(file_crpt_file_cer,
 		 sizeof file_crpt_file_cer, 
-		 "%scitadel.cer",
+		 "%s/citadel.cer",
 		 ctdl_key_dir);
 
 	snprintf(file_chkpwd,

@@ -1,20 +1,6 @@
 /*
  * $Id$
  *
- */
-
-/****************************************************************************/
-/*                  YOUR SYSTEM CONFIGURATION                               */
-/* Set all the values in this file appropriately BEFORE compiling any of the*/
-/* C programs. If you are upgrading from an older version of Citadel, it */
-/* is vitally important that the #defines which are labelled "structure size*/
-/* variables" are EXACTLY the same as they were in your old system,         */
-/* otherwise your files will be munged beyond repair.                       */
-/****************************************************************************/
-
-/* $Id$ */
-
-/*
  * NOTE: this file is for client software tuning, not customization.  For
  * making changes to the behavior of the client, you want to edit citadel.rc,
  * not this file.
@@ -40,8 +26,6 @@
  * Note that this will suppress messages before they even get to syslog().
  */
 #define DEFAULT_VERBOSITY	7
-
-
 
 /*
  * NLI is the string that shows up in a <W>ho's online listing for sessions
@@ -113,6 +97,7 @@
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
 #define FNBL_QUEUE_ROOM		"__CitadelFNBLqueue__"
+
 /*
  * Where we keep messages containing the vCards that source our directory.  It
  * makes no sense to change this, because you'd have to change it on every
@@ -120,21 +105,14 @@
  */
 #define ADDRESS_BOOK_ROOM	"Global Address Book"
 
-
 /*
  * How long (in seconds) to retain message entries in the use table
  */
 #define USETABLE_RETAIN		604800L		/* 7 days */
 
 /*
- * Pathnames for cryptographic goodness
+ * The size of per-thread stacks.  If set too low, citserver will randomly crash.
  */
-/*
-#define	CTDL_CRYPTO_DIR		"./keys"
-#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
-#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
-#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
-*/
 #define THREADSTACKSIZE		1048576
 
 /*
@@ -142,4 +120,3 @@
  * tables to disk?
  */
 #define FT_MAX_CACHE		2500
-#
