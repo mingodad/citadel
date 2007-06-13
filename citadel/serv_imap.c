@@ -56,6 +56,7 @@
 #include "imap_search.h"
 #include "imap_store.h"
 #include "imap_acl.h"
+#include "imap_metadata.h"
 #include "imap_misc.h"
 
 #ifdef HAVE_OPENSSL
@@ -437,9 +438,13 @@ void imap_cleanup_function(void)
  */
 void imap_output_capability_string(void) {
 	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=LOGIN");
+
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
 #endif
+
+	/* Comment this out if its unfinished state is choking your client */
+	cprintf(" METADATA LIST-EXTENDED");
 }
 
 /*
@@ -1448,6 +1453,14 @@ void imap_command_loop(void)
 
 	else if (!strcasecmp(parms[1], "MYRIGHTS")) {
 		imap_myrights(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "GETMETADATA")) {
+		imap_getmetadata(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "SETMETADATA")) {
+		imap_setmetadata(num_parms, parms);
 	}
 
 	else if (IMAP->selected == 0) {
