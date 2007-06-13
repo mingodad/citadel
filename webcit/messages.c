@@ -1009,7 +1009,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 
 	/** Begin body */
-	wprintf("<div class=\"message_content\" ");
+	wprintf("<div class=\"message_content\">");
 
 	/**
 	 * Learn the content type
