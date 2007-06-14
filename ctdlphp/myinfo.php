@@ -33,6 +33,26 @@ if ($num_msgs > 0) foreach ($msgs as $msgnum) {
 echo "</TABLE>\n <pre>\n".$vcard."</pre>";
 
 echo "putting it back in!";
+
+$vcard = 
+"begin:vcard
+n:Surename;CName;mitte;Mrs;IV
+title:master
+fn:CName Surename
+org:citadel.org
+adr:blarg;Road To nowhere ;10;Metropolis;NRW;12345;Country
+tel;home:888888888
+tel;work:99999999999
+email;internet:user@samplecitadel.org
+email;internet:me@samplecitadel.org
+email;internet:myself@samplecitadel.org
+email;internet:i@samplecitadel.org
+FBURL;PREF:http://samplecitadel.org/Cname_Lastname.vfb
+UID:Citadel vCard: personal card for Cname Lastname at samplecitadel.org
+end:vcard
+";
+preg_replace('/Sir/', 'Mrs',$vcard);
+echo "Now its: <pre>\n".$vcard."</pre>";
 $entearray=array();
 $entarray['post']=1;
 $entarray['format_type']=FMT_RFC822;
