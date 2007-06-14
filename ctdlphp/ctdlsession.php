@@ -53,6 +53,7 @@ function establish_citadel_session() {
 			" </dev/null ".$stdout."2>&1 " .
 			" 3>&1 4>&1 5>&1 6>&1 7>&1 8>&1 & " ;
 		exec($cmd);
+		sleep(1);
 
 		// Keep attempting connections 10 times per second up to 100 times
 		$attempts = 0;
