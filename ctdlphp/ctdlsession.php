@@ -43,10 +43,10 @@ function establish_citadel_session() {
 
 		// It ain't there, dude.  Open up the proxy.  (PHP version)
 		if (CITADEL_DEBUG_PROXY){
-			$stdout = '>>/tmp/sessionproxyout.txt';
+			$stdout = '>>/tmp/sessionproxyout.txt ';
 		}
 		else{
-			$stdout = '>/dev/null';
+			$stdout = '>/dev/null ';
 		}
 
 		$cmd = "./sessionproxy.php " . $sockname .
