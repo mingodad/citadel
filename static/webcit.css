@@ -486,7 +486,7 @@ a:hover {
         clear: both;
 }
 
-.message form label {
+.message form div label {
         display: block;
         float: left;
         margin: 3px;
@@ -494,9 +494,8 @@ a:hover {
         text-align: right;
 }
 
-.message form input, .message form select {
+.message form div input, .message form div select {
         margin: 3px;
-        clear: both;
 }
 
 .send_edit_msg {
