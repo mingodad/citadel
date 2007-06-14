@@ -14,7 +14,6 @@
 // pages in the system then only have to include ctdlheader.php (since it
 // is required) and they get the others automatically.
 //
-include "config.php";
 include "ctdlsession.php";
 include "ctdlprotocol.php";
 include "ctdlelements.php";
