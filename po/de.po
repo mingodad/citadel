@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-25 22:07-0400\n"
+"POT-Creation-Date: 2007-06-15 10:15-0400\n"
 "PO-Revision-Date: 2007-03-14 23:18+0100\n"
 "Last-Translator: Wilfried Goesgens <dothebart@uncensored.citadel.org>\n"
 "Language-Team:  <en@li.org>\n"
@@ -19,8 +19,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../addressbook_popup.c:125 ../messages.c:3195 ../roomops.c:1531
-#: ../roomops.c:1561
+#: ../addressbook_popup.c:125 ../messages.c:3161 ../roomops.c:1530
+#: ../roomops.c:1560
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -124,7 +124,7 @@ msgstr "Erneut Anmelden"
 msgid "Close window"
 msgstr "Fenster Schließen"
 
-#: ../auth.c:334 ../mainmenu.c:261
+#: ../auth.c:334 ../mainmenu.c:251
 msgid "Validate new users"
 msgstr "Neue Benutzer überprüfen"
 
@@ -141,7 +141,7 @@ msgstr "Aktuelle Berechtigungen: %d (%s)\n"
 msgid "Select access level for this user:"
 msgstr "Berechtigungen dieses Benutzers"
 
-#: ../auth.c:466 ../mainmenu.c:147
+#: ../auth.c:466 ../mainmenu.c:137
 msgid "Change your password"
 msgstr "Ändern Sie Ihr Passwort"
 
@@ -158,11 +158,11 @@ msgid "Change password"
 msgstr "Passwort ändern"
 
 #: ../auth.c:506 ../calendar.c:582 ../event.c:403 ../graphics.c:58
-#: ../iconbar.c:707 ../mainmenu.c:320 ../messages.c:3083 ../messages.c:3205
-#: ../messages.c:3315 ../netconf.c:86 ../netconf.c:149 ../paging.c:54
-#: ../preferences.c:389 ../roomops.c:1339 ../roomops.c:1667 ../roomops.c:2113
-#: ../roomops.c:2262 ../roomops.c:2326 ../sieve.c:179 ../siteconfig.c:655
-#: ../sysmsgs.c:59 ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
+#: ../iconbar.c:710 ../mainmenu.c:317 ../messages.c:3172 ../messages.c:3284
+#: ../netconf.c:86 ../netconf.c:149 ../paging.c:54 ../preferences.c:389
+#: ../roomops.c:1339 ../roomops.c:1681 ../roomops.c:2128 ../roomops.c:2277
+#: ../roomops.c:2341 ../sieve.c:179 ../siteconfig.c:655 ../sysmsgs.c:59
+#: ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
 msgid "Cancel"
 msgstr "Abbruch"
 
@@ -250,7 +250,7 @@ msgstr "Datum:"
 msgid "Starting date/time:"
 msgstr "Startzeit/Datum:"
 
-#: ../calendar.c:186 ../calendar_view.c:152
+#: ../calendar.c:186 ../calendar_view.c:153
 msgid "Ending date/time:"
 msgstr "Endzeit/Datum:"
 
@@ -369,7 +369,7 @@ msgstr "Fälligkeitsdatum:"
 msgid "Save"
 msgstr "Speichern"
 
-#: ../calendar.c:581 ../event.c:401 ../messages.c:994 ../messages.c:2406
+#: ../calendar.c:581 ../event.c:401 ../messages.c:992 ../messages.c:2408
 msgid "Delete"
 msgstr "Löschen"
 
@@ -437,35 +437,35 @@ msgstr "Die Kalenderdarstellung ist nicht verfügbar."
 msgid "The tasks view is not available."
 msgstr "Die Aufgabendarstellung ist nicht verfügbar."
 
-#: ../calendar_view.c:160 ../roomops.c:1484
+#: ../calendar_view.c:165 ../roomops.c:1484
 msgid "Notes:"
 msgstr "Notizen:"
 
-#: ../calendar_view.c:521
+#: ../calendar_view.c:526
 msgid "Week"
 msgstr "Woche"
 
-#: ../calendar_view.c:523
+#: ../calendar_view.c:528
 msgid "Hours"
 msgstr "Stunden"
 
-#: ../calendar_view.c:524 ../messages.c:2401 ../sieve.c:944
+#: ../calendar_view.c:529 ../messages.c:2403 ../sieve.c:944
 msgid "Subject"
 msgstr "Betreff"
 
-#: ../calendar_view.c:525 ../event.c:164
+#: ../calendar_view.c:530 ../event.c:164
 msgid "Start"
 msgstr "Anfang"
 
-#: ../calendar_view.c:526 ../event.c:218
+#: ../calendar_view.c:531 ../event.c:218
 msgid "End"
 msgstr "Ende"
 
-#: ../calendar_view.c:1016
+#: ../calendar_view.c:1021
 msgid "Name of task"
 msgstr "Name der Aufgaben"
 
-#: ../calendar_view.c:1018
+#: ../calendar_view.c:1023
 msgid "Date due"
 msgstr "Fälligkeitsdatum"
 
@@ -503,7 +503,7 @@ msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\n"
 msgid "Add or edit an event"
 msgstr "Ereignis hinzufügen oder ändern"
 
-#: ../event.c:142 ../iconbar.c:121 ../iconbar.c:534
+#: ../event.c:142 ../iconbar.c:121 ../iconbar.c:537
 msgid "Summary"
 msgstr "Zusammenfassung"
 
@@ -515,7 +515,7 @@ msgstr "Ort"
 msgid "All day event"
 msgstr "Ganztägiger Termin"
 
-#: ../event.c:246 ../iconbar.c:197 ../iconbar.c:581
+#: ../event.c:246 ../iconbar.c:197 ../iconbar.c:584
 msgid "Notes"
 msgstr "Notiz"
 
@@ -547,7 +547,7 @@ msgstr "Teilnehmer"
 msgid "(One per line)"
 msgstr "(einen pro Zeile)"
 
-#: ../event.c:359 ../iconbar.c:180 ../iconbar.c:565 ../messages.c:3027
+#: ../event.c:359 ../iconbar.c:180 ../iconbar.c:568 ../messages.c:3050
 msgid "Contacts"
 msgstr "Adressen"
 
@@ -643,11 +643,11 @@ msgstr "Sie haben keine Datei hochgeladen."
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "realloc() Fehler! Konnte %d Bytes nicht allozieren: %s"
 
-#: ../iconbar.c:101 ../iconbar.c:384
+#: ../iconbar.c:101 ../iconbar.c:387
 msgid "Find out more about Citadel"
 msgstr "Mehr über Citadel herausfinden"
 
-#: ../iconbar.c:102 ../iconbar.c:385
+#: ../iconbar.c:102 ../iconbar.c:388
 msgid "CITADEL"
 msgstr "CITADEL"
 
@@ -655,7 +655,7 @@ msgstr "CITADEL"
 msgid "switch to room list"
 msgstr "Auf Raumliste wechseln"
 
-#: ../iconbar.c:114 ../iconbar.c:535
+#: ../iconbar.c:114 ../iconbar.c:538
 msgid "Your summary page"
 msgstr "Meine Übersichtsseite"
 
@@ -671,7 +671,7 @@ msgstr "Posteingang"
 msgid "Go to your personal calendar"
 msgstr "Zu Ihrem persönlichen Kalender"
 
-#: ../iconbar.c:163 ../iconbar.c:598 ../roomops.c:22
+#: ../iconbar.c:163 ../iconbar.c:601 ../roomops.c:22
 msgid "Calendar"
 msgstr "Kalender"
 
@@ -687,7 +687,7 @@ msgstr "Zu Ihren persönlichen Notizen"
 msgid "Go to your personal task list"
 msgstr "Zu Ihrer persönlichen Aufgabenliste"
 
-#: ../iconbar.c:214 ../iconbar.c:613 ../summary.c:109
+#: ../iconbar.c:214 ../iconbar.c:616 ../summary.c:226
 msgid "Tasks"
 msgstr "Aufgaben"
 
@@ -695,7 +695,7 @@ msgstr "Aufgaben"
 msgid "List all of your accessible rooms"
 msgstr "Alle zugänglichen Räume auflisten"
 
-#: ../iconbar.c:229 ../iconbar.c:629
+#: ../iconbar.c:229 ../iconbar.c:632
 msgid "Rooms"
 msgstr "Räume"
 
@@ -703,74 +703,74 @@ msgstr "Räume"
 msgid "See who is online right now"
 msgstr "Sehen Sie, wer gerade angemeldet ist"
 
-#: ../iconbar.c:245 ../iconbar.c:645
+#: ../iconbar.c:245 ../iconbar.c:648
 msgid "Who is online?"
 msgstr "Wer ist da?"
 
-#: ../iconbar.c:263 ../iconbar.c:661
+#: ../iconbar.c:266 ../iconbar.c:664
 msgid "Chat"
 msgstr "Chat"
 
-#: ../iconbar.c:273
+#: ../iconbar.c:276
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
 msgstr ""
 "Erweiterte Optionen Menü: Spezielle Raumkommandos, Benutzerdaten Bearbeiten, "
 "Chatten"
 
-#: ../iconbar.c:280
+#: ../iconbar.c:283
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: ../iconbar.c:290
+#: ../iconbar.c:293
 msgid "Room and system administration functions"
 msgstr "Räume und Verwaltung"
 
-#: ../iconbar.c:297 ../roomops.c:1050
+#: ../iconbar.c:300 ../roomops.c:1050
 msgid "Administration"
 msgstr "Verwaltung"
 
-#: ../iconbar.c:305 ../iconbar.c:314 ../iconbar.c:397 ../iconbar.c:406
-#: ../mainmenu.c:120
+#: ../iconbar.c:308 ../iconbar.c:317 ../iconbar.c:400 ../iconbar.c:409
+#: ../mainmenu.c:110
 msgid "Log off"
 msgstr "Abmelden"
 
-#: ../iconbar.c:306 ../iconbar.c:398
+#: ../iconbar.c:309 ../iconbar.c:401
 msgid "Log off now?"
 msgstr "Jetzt abmelden?"
 
-#: ../iconbar.c:324
+#: ../iconbar.c:327
 msgid "Customize this menu"
 msgstr "Dieses Menü bearbeiten"
 
-#: ../iconbar.c:325
+#: ../iconbar.c:328
 msgid "customize this menu"
 msgstr "Dieses Menü Bearbeiten"
 
-#: ../iconbar.c:391
+#: ../iconbar.c:394
 msgid "switch to menu"
 msgstr "Zurück zum Menü"
 
-#: ../iconbar.c:476
+#: ../iconbar.c:479
 msgid "Customize the icon bar"
 msgstr "Diese Icon-Leiste bearbeiten"
 
-#: ../iconbar.c:488
+#: ../iconbar.c:491
 msgid "Display icons as:"
 msgstr "Icons anzeigen als:"
 
-#: ../iconbar.c:494
+#: ../iconbar.c:497
 msgid "pictures and text"
 msgstr "Bilder und Text"
 
-#: ../iconbar.c:495
+#: ../iconbar.c:498
 msgid "pictures only"
 msgstr "Nur Bilder"
 
-#: ../iconbar.c:496
+#: ../iconbar.c:499
 msgid "text only"
 msgstr "Nur Text"
 
-#: ../iconbar.c:501
+#: ../iconbar.c:504
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
@@ -778,144 +778,153 @@ msgstr ""
 "Die Menüeinträge, die sie auf der Leiste links angezeigt haben möchten "
 "anwählen"
 
-#: ../iconbar.c:519
+#: ../iconbar.c:522
 msgid "Site logo"
 msgstr "Seiten Logo"
 
-#: ../iconbar.c:520
+#: ../iconbar.c:523
 msgid "An icon describing this site"
 msgstr "Ein Icon, das Ihre Seite beschreibt"
 
-#: ../iconbar.c:549
+#: ../iconbar.c:552
 msgid "Mail (inbox)"
 msgstr "Posteingang"
 
-#: ../iconbar.c:550
+#: ../iconbar.c:553
 msgid "A shortcut to your email Inbox"
 msgstr "Eine Abkürzung zu Ihrem Posteingang"
 
-#: ../iconbar.c:566
+#: ../iconbar.c:569
 msgid "Your personal address book"
 msgstr "Ihr eigenes Adressbuch"
 
-#: ../iconbar.c:582
+#: ../iconbar.c:585
 msgid "Your personal notes"
 msgstr "Ihre Notizen"
 
-#: ../iconbar.c:599
+#: ../iconbar.c:602
 msgid "A shortcut to your personal calendar"
 msgstr "Eine Abkürzung zu Ihrem Kalender"
 
-#: ../iconbar.c:614
+#: ../iconbar.c:617
 msgid "A shortcut to your personal task list"
 msgstr "Eine Abkürzung zu Ihrer Aufgabenliste"
 
-#: ../iconbar.c:630
+#: ../iconbar.c:633
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
 msgstr "Liste aller verfügbaren Räume (oder Verzeichnisse) auflisten."
 
-#: ../iconbar.c:646
+#: ../iconbar.c:649
 msgid "Clicking this icon displays a list of all users currently logged in."
 msgstr "Wer ist gerade angemeldet?"
 
-#: ../iconbar.c:662
+#: ../iconbar.c:665
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
 msgstr "Interaktiver Chat mit den anderen Benutzern in diesem Raum"
 
-#: ../iconbar.c:679
+#: ../iconbar.c:682
 msgid "Advanced options"
 msgstr "Erweiterte Optionen"
 
-#: ../iconbar.c:680
+#: ../iconbar.c:683
 msgid "Access to the complete menu of Citadel functions."
 msgstr "Zugriff zu allen Citadel-Menü-Funktionen"
 
-#: ../iconbar.c:696
+#: ../iconbar.c:699
 msgid "Citadel logo"
 msgstr "Citadel Logo"
 
-#: ../iconbar.c:697
+#: ../iconbar.c:700
 msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Den Citadel-Brand anzeigen"
 
-#: ../iconbar.c:706 ../netconf.c:146 ../roomops.c:1338 ../roomops.c:1665
+#: ../iconbar.c:709 ../netconf.c:146 ../roomops.c:1338 ../roomops.c:1679
 #: ../sieve.c:177 ../siteconfig.c:653 ../sysmsgs.c:57 ../useredit.c:381
 #: ../vcard_edit.c:333
 msgid "Save changes"
 msgstr "Änderungen übernehmen"
 
-#: ../iconbar.c:761
+#: ../iconbar.c:764
 msgid ""
 "Your icon bar has been updated.  Please select any of its choices to "
 "continue."
 msgstr "Ihre Icon-Leiste wurde geändert. Klicken Sie ein Icon zum fortfahren."
 
-#: ../inetconf.c:46
+#: ../inetconf.c:49
 msgid "Local host aliases"
 msgstr "Andere Namen für diese Maschine"
 
-#: ../inetconf.c:47
+#: ../inetconf.c:50
 msgid "Directory domains"
 msgstr "Verzeichnis Namen"
 
-#: ../inetconf.c:48
+#: ../inetconf.c:51
 msgid "Gateway domains"
 msgstr "Übergangs Domains"
 
-#: ../inetconf.c:49
+#: ../inetconf.c:52
 msgid "Smart hosts"
 msgstr "Smart Hosts"
 
-#: ../inetconf.c:50
+#: ../inetconf.c:53
 msgid "RBL hosts"
 msgstr "Blacklist-Maschinen"
 
-#: ../inetconf.c:51
+#: ../inetconf.c:54
 msgid "SpamAssassin hosts"
 msgstr "SpamAssassin Maschinen"
 
-#: ../inetconf.c:53
+#: ../inetconf.c:55
+#, fuzzy
+msgid "Masqueradable domains"
+msgstr "Übergangs Domains"
+
+#: ../inetconf.c:57
 msgid "(domains for which this host receives mail)"
 msgstr "(Domäne für die diese Maschine Mail bekommt)"
 
-#: ../inetconf.c:54
+#: ../inetconf.c:58
 msgid "(domains mapped with the Global Address Book)"
 msgstr "(Domäne, auf die das öffentliche Adressbuch zeigt)"
 
-#: ../inetconf.c:55
+#: ../inetconf.c:59
 msgid "(domains whose subdomains match Citadel hosts)"
 msgstr "(Domänen, deren Unterdomänen diese Citadel-Maschinen treffen)"
 
-#: ../inetconf.c:56
+#: ../inetconf.c:60
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr ""
 "(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
 
-#: ../inetconf.c:57
+#: ../inetconf.c:61
 msgid "(hosts running a Realtime Blackhole List)"
 msgstr "(Maschinen, von denen Echtzeit-Blackliste zu beziehen sind)"
 
-#: ../inetconf.c:58
+#: ../inetconf.c:62
 msgid "(hosts running the SpamAssassin service)"
 msgstr "(Maschine, auf der Ihr SpamAssessin läuft)"
 
-#: ../inetconf.c:95
+#: ../inetconf.c:63
+msgid "(Domains as which users are allowed to masquerade)"
+msgstr ""
+
+#: ../inetconf.c:100
 msgid "Internet configuration"
 msgstr "Internet Konfiguration"
 
-#: ../inetconf.c:122
+#: ../inetconf.c:127
 msgid "Delete this entry?"
 msgstr "Eintrag Löschen?"
 
-#: ../inetconf.c:124 ../netconf.c:209 ../smtpqueue.c:120
+#: ../inetconf.c:129 ../netconf.c:209 ../smtpqueue.c:120
 msgid "(Delete)"
 msgstr "(Löschen)"
 
-#: ../inetconf.c:174
+#: ../inetconf.c:179
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s wurde gelöscht."
@@ -955,185 +964,186 @@ msgstr "Zurück..."
 msgid "Basic commands"
 msgstr "Einfache Kommandos"
 
-#: ../mainmenu.c:32
+#: ../mainmenu.c:34
 msgid "List known rooms"
 msgstr "Bekannte Räume aufzählen"
 
-#: ../mainmenu.c:34
+#: ../mainmenu.c:36
 msgid "Where can I go from here?"
 msgstr "Wo komme ich von hier aus hin?"
 
-#: ../mainmenu.c:39 ../roomops.c:695
+#: ../mainmenu.c:40 ../roomops.c:695
 msgid "Goto next room"
 msgstr "Zum nächsten Raum"
 
 #: ../mainmenu.c:42
-msgid "...with <EM>unread</EM> messages"
+#, fuzzy
+msgid "...with <em>unread</em> messages"
 msgstr "... mit <EM>ungelesenen</EM Meldungen"
 
-#: ../mainmenu.c:47
+#: ../mainmenu.c:46
 msgid "Skip to next room"
 msgstr "Weiter zum nächsten Raum"
 
-#: ../mainmenu.c:50
+#: ../mainmenu.c:48
 msgid "(come back here later)"
 msgstr "(später zurückkehren)"
 
-#: ../mainmenu.c:57 ../roomops.c:481
+#: ../mainmenu.c:53 ../roomops.c:481
 msgid "Ungoto"
 msgstr "Zurück"
 
-#: ../mainmenu.c:60
+#: ../mainmenu.c:55
 #, c-format
 msgid "(oops! Back to %s)"
 msgstr "(Hoppla! Zurück zu %s)"
 
-#: ../mainmenu.c:68 ../roomops.c:490
+#: ../mainmenu.c:66 ../roomops.c:490
 msgid "Read new messages"
 msgstr "Neue Beiträge"
 
-#: ../mainmenu.c:71
+#: ../mainmenu.c:68
 msgid "...in this room"
 msgstr "... in diesem Raum"
 
-#: ../mainmenu.c:76 ../roomops.c:590
+#: ../mainmenu.c:72 ../roomops.c:590
 msgid "Read all messages"
 msgstr "Alle Beiträge"
 
-#: ../mainmenu.c:79
+#: ../mainmenu.c:74
 msgid "...old <EM>and</EM> new"
 msgstr "... alte <EM>und</EM> neue"
 
-#: ../mainmenu.c:84 ../roomops.c:670
+#: ../mainmenu.c:78 ../roomops.c:670
 msgid "Enter a message"
 msgstr "Beitrag verfassen"
 
-#: ../mainmenu.c:87
+#: ../mainmenu.c:80
 msgid "(post in this room)"
 msgstr "(Beitrag in diesen Raum stellen)"
 
-#: ../mainmenu.c:93
+#: ../mainmenu.c:85
 msgid "File library"
 msgstr "Dattei Bibliothek"
 
-#: ../mainmenu.c:96
+#: ../mainmenu.c:87
 msgid "(List files available for download)"
 msgstr "(Zum herunterladen verfügbare Dateien anzeigen)"
 
-#: ../mainmenu.c:104
+#: ../mainmenu.c:98
 msgid "Summary page"
 msgstr "Übersichtsseite"
 
-#: ../mainmenu.c:107
+#: ../mainmenu.c:100
 msgid "Summary of my account"
 msgstr "Meine Citadele"
 
-#: ../mainmenu.c:112
+#: ../mainmenu.c:104
 msgid "User list"
 msgstr "Benutzerliste"
 
-#: ../mainmenu.c:115
+#: ../mainmenu.c:106
 msgid "(all registered users)"
 msgstr "(alle Benutzer)"
 
-#: ../mainmenu.c:123
+#: ../mainmenu.c:112
 msgid "Bye!"
 msgstr "Auf Wiedersehen!"
 
-#: ../mainmenu.c:132
+#: ../mainmenu.c:123
 msgid "Your info"
 msgstr "Ihre Biographie"
 
-#: ../mainmenu.c:137
+#: ../mainmenu.c:129
 msgid "Change your preferences and settings"
 msgstr "Ihre persönlichen Einstellungen Ändern"
 
-#: ../mainmenu.c:142
+#: ../mainmenu.c:133
 msgid "Update your contact information"
 msgstr "Ihre Kontaktinformationen Ändern"
 
-#: ../mainmenu.c:152
+#: ../mainmenu.c:141
 msgid "Enter your 'bio'"
 msgstr "Ihr Lebenslauf eingeben"
 
-#: ../mainmenu.c:157
+#: ../mainmenu.c:145
 msgid "Edit your online photo"
 msgstr "Ihr Photo ändern"
 
-#: ../mainmenu.c:162 ../sieve.c:79
+#: ../mainmenu.c:149 ../sieve.c:79
 msgid "View/edit server-side mail filters"
 msgstr "Bearbeiten/Anzeigen von Serverweiten Mail Filtern"
 
-#: ../mainmenu.c:169
+#: ../mainmenu.c:158
 msgid "Advanced room commands"
 msgstr "Erweiterte Raum Kommandos"
 
-#: ../mainmenu.c:175
+#: ../mainmenu.c:165
 msgid "Edit or delete this room"
 msgstr "Diesen Raum bearbeiten oder Löschen"
 
-#: ../mainmenu.c:181
+#: ../mainmenu.c:170
 msgid "Go to a 'hidden' room"
 msgstr "In einen 'versteckten' Raum gehen"
 
-#: ../mainmenu.c:186 ../roomops.c:2009
+#: ../mainmenu.c:174 ../roomops.c:2024
 msgid "Create a new room"
 msgstr "Einen neuen Raum erzeugen"
 
-#: ../mainmenu.c:191
+#: ../mainmenu.c:178
 #, c-format
 msgid "Zap (forget) this room (%s)"
 msgstr "Diesen Raum vergessen (%s)"
 
-#: ../mainmenu.c:196
+#: ../mainmenu.c:182
 msgid "List all forgotten rooms"
 msgstr "Alle vergessenen Räume auflisten"
 
-#: ../mainmenu.c:215
+#: ../mainmenu.c:204
 msgid "System Administration Menu"
 msgstr "System Administrator Menü"
 
-#: ../mainmenu.c:224
+#: ../mainmenu.c:214
 msgid "Global Configuration"
 msgstr "Globale Konfiguration"
 
-#: ../mainmenu.c:229
+#: ../mainmenu.c:220
 msgid "Edit site-wide configuration"
 msgstr "Systemvorgaben bearbeiten"
 
-#: ../mainmenu.c:234
+#: ../mainmenu.c:224
 msgid "Domain names and Internet mail configuration"
 msgstr "Domänenname und Internetmail Konfiguration"
 
-#: ../mainmenu.c:239
+#: ../mainmenu.c:228
 msgid "Configure replication with other Citadel servers"
 msgstr "Die Replikation mit anderen Citadellen Konfigurieren"
 
-#: ../mainmenu.c:244 ../smtpqueue.c:230
+#: ../mainmenu.c:232 ../smtpqueue.c:230
 msgid "View the outbound SMTP queue"
 msgstr "Mailversandt-Warteschlange anzeigen"
 
-#: ../mainmenu.c:251
+#: ../mainmenu.c:241
 msgid "User account management"
 msgstr "Benutzer verwalten"
 
-#: ../mainmenu.c:256
+#: ../mainmenu.c:247
 msgid "Add, change, delete user accounts"
 msgstr "Benutzer Bearbeiten/Löschen/Anlegen "
 
-#: ../mainmenu.c:266
+#: ../mainmenu.c:260
 msgid "Rooms and Floors"
 msgstr "Räume und Etagen"
 
-#: ../mainmenu.c:271
+#: ../mainmenu.c:266
 msgid "Add, change, or delete floors"
 msgstr "Etagen Bearbeiten/Löschen/Hinzufügen"
 
-#: ../mainmenu.c:293
+#: ../mainmenu.c:290
 msgid "Enter a server command"
 msgstr "Ein Server-Kommando eingeben"
 
-#: ../mainmenu.c:302
+#: ../mainmenu.c:299
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1143,169 +1153,174 @@ msgstr ""
 "verwendet werden, direkt einzugeben. Wenn Ihnen dies nichts sagt, wird "
 "dieses Fenster für Sie nicht ohne Studium der Dokumentation von nützen sein"
 
-#: ../mainmenu.c:309
+#: ../mainmenu.c:306
 msgid "Enter command:"
 msgstr "Kommando Eingeben:"
 
-#: ../mainmenu.c:312
+#: ../mainmenu.c:309
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Kommando Eingabe (wenn sie SEND_LISTING Transfer-Modus anfordern):"
 
-#: ../mainmenu.c:316
+#: ../mainmenu.c:313
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "Erkannte Maschinen Kopfzeile ist %s://%s"
 
-#: ../mainmenu.c:318
+#: ../mainmenu.c:315
 msgid "Send command"
 msgstr "Kommando Senden"
 
-#: ../mainmenu.c:347
+#: ../mainmenu.c:344
 msgid "Server command results"
 msgstr "Server Kommando Ergebnisse"
 
-#: ../messages.c:505
+#: ../messages.c:506
 msgid " (work)"
 msgstr " (Firma)"
 
-#: ../messages.c:507
+#: ../messages.c:508
 msgid " (home)"
 msgstr " (Privat)"
 
-#: ../messages.c:509
+#: ../messages.c:510
 msgid " (cell)"
 msgstr " (Handy)"
 
-#: ../messages.c:520 ../vcard_edit.c:250
+#: ../messages.c:521 ../vcard_edit.c:250
 msgid "Address:"
 msgstr "Adresse:"
 
-#: ../messages.c:580
+#: ../messages.c:581
 msgid "Telephone:"
 msgstr "Telefon"
 
-#: ../messages.c:585
+#: ../messages.c:586
 msgid "E-mail:"
 msgstr "Email:"
 
-#: ../messages.c:701 ../messages.c:1332
+#: ../messages.c:702 ../messages.c:1329
 msgid "ERROR:"
 msgstr "FEHLER"
 
-#: ../messages.c:724 ../messages.c:1023 ../messages.c:1341 ../messages.c:1444
+#: ../messages.c:722 ../messages.c:1021 ../messages.c:1338 ../messages.c:1441
 msgid "unexpected end of message"
 msgstr "unerwartetes Meldungsende"
 
-#: ../messages.c:737 ../messages.c:1353
+#: ../messages.c:735 ../messages.c:1350
 msgid "from "
 msgstr "von "
 
-#: ../messages.c:765 ../messages.c:1369
+#: ../messages.c:763 ../messages.c:1366
 msgid "in "
 msgstr "in "
 
-#: ../messages.c:786 ../messages.c:1390
+#: ../messages.c:784 ../messages.c:1387
 msgid "to "
 msgstr "an "
 
-#: ../messages.c:855
+#: ../messages.c:853
 msgid "View"
 msgstr "Anzeigen"
 
-#: ../messages.c:857
+#: ../messages.c:855
 msgid "Download"
 msgstr "Herunterladen"
 
-#: ../messages.c:910 ../messages.c:3026 ../messages.c:3035
+#: ../messages.c:908 ../messages.c:3022 ../messages.c:3049
 msgid "CC:"
 msgstr "CC:"
 
-#: ../messages.c:918 ../messages.c:1426 ../messages.c:3065
+#: ../messages.c:915 ../messages.c:1423 ../messages.c:3057
 msgid "Subject:"
 msgstr "Betreff:"
 
-#: ../messages.c:942 ../rss.c:28
+#: ../messages.c:939 ../rss.c:28
 msgid "Reply"
 msgstr "Antworten"
 
-#: ../messages.c:957
+#: ../messages.c:954
 msgid "ReplyQuoted"
 msgstr "Antworten&amp;Zitieren"
 
-#: ../messages.c:974
+#: ../messages.c:971
 msgid "ReplyAll"
 msgstr "AntwortenAnAlle"
 
-#: ../messages.c:982
+#: ../messages.c:979
 msgid "Forward"
 msgstr "Weiterleiten"
 
-#: ../messages.c:989 ../messages.c:3313
+#: ../messages.c:986 ../messages.c:3282
 msgid "Move"
 msgstr "Verschieben"
 
-#: ../messages.c:994
+#: ../messages.c:992
 msgid "Delete this message?"
 msgstr "Diese Nachricht Löschen?"
 
-#: ../messages.c:1000
+#: ../messages.c:998
 msgid "Headers"
 msgstr "Kopfzeilen"
 
-#: ../messages.c:1005
+#: ../messages.c:1003
 msgid "Print"
 msgstr "Drucken"
 
-#: ../messages.c:1120
+#: ../messages.c:1118
 #, c-format
 msgid "I don't know how to display %s"
 msgstr "Kann %s nicht darstellen"
 
-#: ../messages.c:1159 ../messages.c:1691
+#: ../messages.c:1157 ../messages.c:1688
 msgid "edit"
 msgstr "bearbeiten"
 
-#: ../messages.c:1653 ../messages.c:1963
+#: ../messages.c:1650 ../messages.c:1966
 msgid "(no subject)"
 msgstr "(kein Betreff)"
 
-#: ../messages.c:1783
+#: ../messages.c:1780
 msgid "(no name)"
 msgstr "(kein Name)"
 
-#: ../messages.c:1835
+#: ../messages.c:1834
 msgid "This address book is empty."
 msgstr "Dieses Adressbuch ist leer."
 
-#: ../messages.c:2271
+#: ../messages.c:1848
+#, fuzzy
+msgid "An internal error has occurred."
+msgstr "Ein Fehler ist aufgetreten."
+
+#: ../messages.c:2274
 msgid "Click on any note to edit it."
 msgstr "Auf eine Notiz klicken zum editieren"
 
-#: ../messages.c:2281
+#: ../messages.c:2284
 msgid "No new messages."
 msgstr "Keine neue Nachricht."
 
-#: ../messages.c:2283
+#: ../messages.c:2286
 msgid "No old messages."
 msgstr "Keine alte Nachricht"
 
-#: ../messages.c:2285
+#: ../messages.c:2288
 msgid "No messages here."
 msgstr "Keine Beiträge hier"
 
-#: ../messages.c:2403 ../sieve.c:946 ../smtpqueue.c:174
+#: ../messages.c:2405 ../sieve.c:946 ../smtpqueue.c:174
 msgid "Sender"
 msgstr "Absender"
 
-#: ../messages.c:2405
+#: ../messages.c:2407
 msgid "Date"
 msgstr "Datum"
 
-#: ../messages.c:2518
+#: ../messages.c:2517
 msgid "Reading #"
 msgstr "Lese #"
 
-#: ../messages.c:2571
+#: ../messages.c:2570
 #, c-format
 msgid "of %d messages."
 msgstr "von %d Nachrichten"
@@ -1331,60 +1346,60 @@ msgstr "Nachricht wurde gesendet.\n"
 msgid "Message has been posted.\n"
 msgstr "Beitrag wurde gesendet.\n"
 
-#: ../messages.c:2954
+#: ../messages.c:2957
 msgid " <I>from</I> "
 msgstr " <I>von</I> "
 
-#: ../messages.c:2977
+#: ../messages.c:2981
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: ../messages.c:3002
+#: ../messages.c:3006
 msgid " <I>in</I> "
 msgstr " <I>in</i> "
 
-#: ../messages.c:3011 ../messages.c:3026
+#: ../messages.c:3013 ../messages.c:3049
 msgid "To:"
 msgstr "An:"
 
-#: ../messages.c:3026 ../messages.c:3046
+#: ../messages.c:3029 ../messages.c:3049
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../messages.c:3068
+#: ../messages.c:3060
 msgid "Subject (optional):"
 msgstr "Betreff (optional):"
 
-#: ../messages.c:3078 ../messages.c:3200 ../paging.c:53
-msgid "Send message"
-msgstr "Meldung senden"
-
-#: ../messages.c:3080 ../messages.c:3202
-msgid "Post message"
-msgstr "Beitrag einreichen"
-
-#: ../messages.c:3096
+#: ../messages.c:3077
 msgid "--- forwarded message ---"
 msgstr "--- Weitergeleitete Nachricht ---"
 
-#: ../messages.c:3177
+#: ../messages.c:3143
 msgid "Attachments:"
 msgstr "Anhänge:"
 
-#: ../messages.c:3192
+#: ../messages.c:3158
 msgid "Attach file:"
 msgstr "Datei anhängen:"
 
-#: ../messages.c:3260
+#: ../messages.c:3167 ../paging.c:53
+msgid "Send message"
+msgstr "Meldung senden"
+
+#: ../messages.c:3169
+msgid "Post message"
+msgstr "Beitrag einreichen"
+
+#: ../messages.c:3229
 #, c-format
 msgid "The message was not moved."
 msgstr "Die Meldung wurde nicht verschoben."
 
-#: ../messages.c:3286
+#: ../messages.c:3255
 msgid "Confirm move of message"
 msgstr "Verschieben bestätigen"
 
-#: ../messages.c:3293
+#: ../messages.c:3262
 msgid "Move this message to:"
 msgstr "Meldung verschieben nach:"
 
@@ -1601,7 +1616,7 @@ msgstr "Raum Vergessen"
 msgid "Click on any room to un-zap it and goto that room.\n"
 msgstr "Auf einen beliebigen vergessenen Raum klicken um ihn zu betreten\n"
 
-#: ../roomops.c:283 ../webcit.c:1478 ../webcit.c:1480
+#: ../roomops.c:283 ../webcit.c:1494 ../webcit.c:1496
 msgid "Room info"
 msgstr "Raum Info"
 
@@ -1727,31 +1742,31 @@ msgstr "Das Bannersymbol des Raums ändern"
 msgid "Edit this room's Info file"
 msgstr "Die Infodatei dieses Raums ändern"
 
-#: ../roomops.c:1169 ../roomops.c:2021
+#: ../roomops.c:1169 ../roomops.c:2036
 msgid "Name of room: "
 msgstr "Name des Raums: "
 
-#: ../roomops.c:1176 ../roomops.c:2025
+#: ../roomops.c:1176 ../roomops.c:2040
 msgid "Resides on floor: "
 msgstr "Ist in der Etage: "
 
-#: ../roomops.c:1190 ../roomops.c:2067
+#: ../roomops.c:1190 ../roomops.c:2082
 msgid "Type of room:"
 msgstr "Raum-Typ:"
 
-#: ../roomops.c:1197 ../roomops.c:2076
+#: ../roomops.c:1197 ../roomops.c:2091
 msgid "Public (automatically appears to everyone)"
 msgstr "Öffentlich (Raum zugänglich für jeden)"
 
-#: ../roomops.c:1205 ../roomops.c:2083
+#: ../roomops.c:1205 ../roomops.c:2098
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privat - versteckt (zugänglich für jeden der den Namen weiß)"
 
-#: ../roomops.c:1212 ../roomops.c:2090
+#: ../roomops.c:1212 ../roomops.c:2105
 msgid "Private - require password: "
 msgstr "Privat - erfordert Passwort: "
 
-#: ../roomops.c:1222 ../roomops.c:2098
+#: ../roomops.c:1222 ../roomops.c:2113
 msgid "Private - invitation only"
 msgstr "Privat - nur mit Einladung"
 
@@ -1871,11 +1886,11 @@ msgstr ""
 "<i>Der Inhalt dieses Raums wird per Email als <b>einzelne Nachricht</b> an "
 "die Folgenden Empfänger versendet:</i><br /><br />\n"
 
-#: ../roomops.c:1523 ../roomops.c:1553
+#: ../roomops.c:1522 ../roomops.c:1552
 msgid "(remove)"
 msgstr "(Löschen)"
 
-#: ../roomops.c:1536
+#: ../roomops.c:1535
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
@@ -1883,85 +1898,98 @@ msgstr ""
 "<i> Der Inhalt dieses Raums wird als <b>Tageszusammenfassung</b> an die "
 "folgende Liste versendet:</i><br /><br />\n"
 
-#: ../roomops.c:1567
+#: ../roomops.c:1572
+#, fuzzy
+msgid "List"
+msgstr "Nachname"
+
+#: ../roomops.c:1573
+msgid "Digest"
+msgstr ""
+
+#: ../roomops.c:1574 ../roomops.c:1575
+msgid "Add recipients from Contacts or other address books"
+msgstr ""
+
+#: ../roomops.c:1581
 msgid ""
 "This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Dieser Raum erlaubt Benutzergesteuertes Abonnieren."
 
-#: ../roomops.c:1570
+#: ../roomops.c:1584
 msgid "Click to disable."
 msgstr "Klicken zum Abschalten"
 
-#: ../roomops.c:1572
+#: ../roomops.c:1586
 msgid "The URL for subscribe/unsubscribe is: "
 msgstr "Die URL zum Ab/Bestellen ist: "
 
-#: ../roomops.c:1578
+#: ../roomops.c:1592
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
 msgstr ""
 "Dieser Raum ist <i>nicht</> für Benutzergesteuertes Abonieren freigegeben"
 
-#: ../roomops.c:1582
+#: ../roomops.c:1596
 msgid "Click to enable."
 msgstr "Klicken zum Anschalten"
 
-#: ../roomops.c:1611
+#: ../roomops.c:1625
 msgid "Message expire policy for this room"
 msgstr "Nachrichten Verfallsvorgabe für diesen Raum"
 
-#: ../roomops.c:1617
+#: ../roomops.c:1631
 msgid "Use the default policy for this floor"
 msgstr "Die Vorgaberichtlinie dieser Etage verwenden "
 
-#: ../roomops.c:1621 ../roomops.c:1648 ../siteconfig.c:591 ../siteconfig.c:616
+#: ../roomops.c:1635 ../roomops.c:1662 ../siteconfig.c:591 ../siteconfig.c:616
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Nachrichten nie automatisch löschen"
 
-#: ../roomops.c:1625 ../roomops.c:1652 ../siteconfig.c:595 ../siteconfig.c:620
+#: ../roomops.c:1639 ../roomops.c:1666 ../siteconfig.c:595 ../siteconfig.c:620
 #, c-format
 msgid "Expire by message count"
 msgstr "Nachrichten nach Anzahl löschen"
 
-#: ../roomops.c:1629 ../roomops.c:1656 ../siteconfig.c:599 ../siteconfig.c:624
+#: ../roomops.c:1643 ../roomops.c:1670 ../siteconfig.c:599 ../siteconfig.c:624
 #, c-format
 msgid "Expire by message age"
 msgstr "Lösche Nachrichten älter als"
 
-#: ../roomops.c:1631 ../roomops.c:1658 ../siteconfig.c:601 ../siteconfig.c:626
+#: ../roomops.c:1645 ../roomops.c:1672 ../siteconfig.c:601 ../siteconfig.c:626
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Anzahl der Nachrichten pro Tag: "
 
-#: ../roomops.c:1638
+#: ../roomops.c:1652
 msgid "Message expire policy for this floor"
 msgstr "Nachrichten Verfallsvorgabe für diese Etage"
 
-#: ../roomops.c:1644
+#: ../roomops.c:1658
 msgid "Use the system default"
 msgstr "Die Systemvorgabe benutzen"
 
-#: ../roomops.c:1722 ../roomops.c:3107 ../sieve.c:523
+#: ../roomops.c:1737 ../roomops.c:3138 ../sieve.c:523
 msgid "Cancelled.  Changes were not saved."
 msgstr "Abgebrochen. Änderungen wurden nicht übernommen."
 
-#: ../roomops.c:1871 ../sieve.c:579
+#: ../roomops.c:1886 ../sieve.c:579
 msgid "Your changes have been saved."
 msgstr "Ihre Änderungen wurden gespeichert"
 
-#: ../roomops.c:1903
+#: ../roomops.c:1918
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
 msgstr "<B><I>Benutzer %s des Raums %s verbannt</I></B>\n"
 
-#: ../roomops.c:1917
+#: ../roomops.c:1932
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
 msgstr "<B><I>Benutzer %s in den Raum %s eingeladen.</I></B>\n"
 
-#: ../roomops.c:1945
+#: ../roomops.c:1960
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
@@ -1969,11 +1997,11 @@ msgstr ""
 "Die folgenden Benutzer haben Zugang zu diesem Raum.  Um einen Benutzer von "
 "der Zugriffsliste zu löschen, ihn in der Liste anwählen und 'Bannen' drücken"
 
-#: ../roomops.c:1965
+#: ../roomops.c:1980
 msgid "Kick"
 msgstr "Bannen"
 
-#: ../roomops.c:1969
+#: ../roomops.c:1984
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
@@ -1981,35 +2009,35 @@ msgstr ""
 "Um einem weiteren Benutzer den Zugang zu diesem Raum zu erlauben den "
 "Benutzernamen in das folgende Textfeld eintragen und 'Einladen' drücken"
 
-#: ../roomops.c:1975
+#: ../roomops.c:1990
 msgid "Invite:"
 msgstr "Einladen:"
 
-#: ../roomops.c:1980
+#: ../roomops.c:1995
 msgid "Invite"
 msgstr "Einladen"
 
-#: ../roomops.c:2044
+#: ../roomops.c:2059
 msgid "Default view for room: "
 msgstr "Vorgabe Ansicht für diesen Raum: "
 
-#: ../roomops.c:2106
+#: ../roomops.c:2121
 msgid "Personal (mailbox for you only)"
 msgstr "Persönlich (Briefkasten, nur für Sie)"
 
-#: ../roomops.c:2111
+#: ../roomops.c:2126
 msgid "Create new room"
 msgstr "Neuer Raum"
 
-#: ../roomops.c:2179
+#: ../roomops.c:2194
 msgid "Cancelled.  No new room was created."
 msgstr "Abgebrochen. Keinen neuen Raum erzeugt."
 
-#: ../roomops.c:2222
+#: ../roomops.c:2237
 msgid "Go to a hidden room"
 msgstr "Zu einem versteckten Raum gehen"
 
-#: ../roomops.c:2233
+#: ../roomops.c:2248
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
@@ -2020,23 +2048,23 @@ msgstr ""
 "Raums wissen, Hier eingeben um ihn zu betreten.  Wenn er einmal sichtbar "
 "ist, wird er mit den regulären Räumen gelistet."
 
-#: ../roomops.c:2245
+#: ../roomops.c:2260
 msgid "Enter room name:"
 msgstr "Raumname eingeben:"
 
-#: ../roomops.c:2252
+#: ../roomops.c:2267
 msgid "Enter room password:"
 msgstr "Raumpasswort eingeben:"
 
-#: ../roomops.c:2261
+#: ../roomops.c:2276
 msgid "Go there"
 msgstr "Betreten"
 
-#: ../roomops.c:2314
+#: ../roomops.c:2329
 msgid "Zap (forget/unsubscribe) the current room"
 msgstr "den aktuellen Raum vergessen (vergessen/abmelden)"
 
-#: ../roomops.c:2319
+#: ../roomops.c:2334
 #, c-format
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
@@ -2045,15 +2073,15 @@ msgstr ""
 "Wenn Sie diese Option wählen, wird <em>%s</em>aus der Raumliste "
 "verschwinden.   Wollen Sie das wirklich tun?<br />\n"
 
-#: ../roomops.c:2324
+#: ../roomops.c:2339
 msgid "Zap this room"
 msgstr "Raum vergessen"
 
-#: ../roomops.c:3057 ../roomops.c:3063
+#: ../roomops.c:3088 ../roomops.c:3094
 msgid "Room list"
 msgstr "Raumlisten Anzeige"
 
-#: ../roomops.c:3060
+#: ../roomops.c:3091
 msgid "Folder list"
 msgstr "Ordner Liste"
 
@@ -2721,39 +2749,23 @@ msgstr "FEHLER: konnte Template nicht öffnen"
 msgid "(nothing)"
 msgstr "(Nichts)"
 
-#: ../summary.c:50
-msgid "Messages"
-msgstr "Nachrichten"
-
-#: ../summary.c:87
-msgid "Who's&nbsp;online&nbsp;now"
-msgstr "Wer ist gerade angemeldet"
-
-#: ../summary.c:122
+#: ../summary.c:117
 msgid "(None)"
 msgstr "(Keine)"
 
-#: ../summary.c:135
+#: ../summary.c:130
 msgid "(This server does not support task lists)"
 msgstr "(Dieser Server unterstützt keine Aufgabenlisten)"
 
-#: ../summary.c:151
-msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Heute&nbsp;auf&nbsp;ihrem&nbsp;Kalender"
-
-#: ../summary.c:164
+#: ../summary.c:156
 msgid "(Nothing)"
 msgstr "(Nichts)"
 
-#: ../summary.c:176
+#: ../summary.c:168
 msgid "(This server does not support calendars)"
 msgstr "(Dieser Server unterstützt keine Kalender)"
 
-#: ../summary.c:188
-msgid "About&nbsp;this&nbsp;server"
-msgstr "Über&nbsp;diesen&nbsp;Server"
-
-#: ../summary.c:192
+#: ../summary.c:180
 #, c-format
 msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
@@ -2762,7 +2774,23 @@ msgstr ""
 "Sie sind Angemeldet auf %s, mit %s über %s, in %s.  Ihr Systemverwalter ist %"
 "s"
 
-#: ../summary.c:259
+#: ../summary.c:213
+msgid "Messages"
+msgstr "Nachrichten"
+
+#: ../summary.c:239
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr "Heute&nbsp;auf&nbsp;ihrem&nbsp;Kalender"
+
+#: ../summary.c:256
+msgid "Who's&nbsp;online&nbsp;now"
+msgstr "Wer ist gerade angemeldet"
+
+#: ../summary.c:269
+msgid "About&nbsp;this&nbsp;server"
+msgstr "Über&nbsp;diesen&nbsp;Server"
+
+#: ../summary.c:295
 #, c-format
 msgid "Summary page for %s"
 msgstr "Zusammenfassung für %s"
@@ -3039,19 +3067,19 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1483 ../webcit.c:1485
+#: ../webcit.c:1499 ../webcit.c:1501
 msgid "Your bio"
 msgstr "Ihre Biographie"
 
-#: ../webcit.c:1493
+#: ../webcit.c:1509
 msgid "your photo"
 msgstr "Ihr Photo"
 
-#: ../webcit.c:1499
+#: ../webcit.c:1515
 msgid "the icon for this room"
 msgstr "Das Symbol für diesen Raum "
 
-#: ../webcit.c:1513
+#: ../webcit.c:1529
 msgid "the icon for this floor"
 msgstr "Das Symbol für diese Etage"
 
