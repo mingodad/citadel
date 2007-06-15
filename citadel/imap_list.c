@@ -54,6 +54,7 @@
 #include "imap_store.h"
 #include "imap_acl.h"
 #include "imap_misc.h"
+#include "imap_list.h"
 
 #ifdef HAVE_OPENSSL
 #include "serv_crypto.h"
@@ -110,6 +111,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	char **patterns;
 	int return_subscribed;
 	int return_children;
+	int return_metadata;
 	int i = 0;
 	int match = 0;
 
@@ -121,6 +123,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	patterns = (char **) data_for_callback[3];
 	return_subscribed = (int) data_for_callback[4];
 	return_children = (int) data_for_callback[5];
+	return_metadata = (int) data_for_callback[6];
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
@@ -168,12 +171,16 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 		if (match) {
 			cprintf("* %s (%s) \"/\" ", verb, return_options);
 			imap_strout(buf);
+
+			if (return_metadata) {
+				cprintf(" (METADATA ())");	/* FIXME */
+			}
+
 			cprintf("\r\n");
 		}
 	}
 }
 
-#define MAX_PATTERNS 20
 
 /*
  * Implements the LIST and LSUB commands
@@ -183,7 +190,7 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j, paren_nest;
-	char *data_for_callback[6];
+	char *data_for_callback[7];
 	int num_patterns = 1;
 	char *patterns[MAX_PATTERNS];
 	int selection_left = (-1);
@@ -196,6 +203,10 @@ void imap_list(int num_parms, char *parms[])
 	int extended_list_in_use = 0;
 	int return_subscribed = 0;
 	int return_children = 0;
+	int return_metadata = 0;
+	int select_metadata_left = (-1);
+	int select_metadata_right = (-1);
+	int select_metadata_nest = 0;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -269,17 +280,33 @@ void imap_list(int num_parms, char *parms[])
 
 		for (i=selection_left; i<=selection_right; ++i) {
 
-			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+			/* are we in the middle of a metadata select block? */
+			if ((select_metadata_left >= 0) && (select_metadata_right < 0)) {
+				select_metadata_nest += haschar(parms[i], '(') - haschar(parms[i], ')') ;
+				if (select_metadata_nest == 0) {
+					select_metadata_right = i;
+				}
+			}
+
+			else if (!strcasecmp(parms[i], "METADATA")) {
+				select_metadata_left = i+1;
+				select_metadata_nest = 0;
+			}
+
+			else if (!strcasecmp(parms[i], "SUBSCRIBED")) {
 				subscribed_rooms_only = 1;
 			}
 
-			if (!strcasecmp(parms[i], "RECURSIVEMATCH")) {
+			else if (!strcasecmp(parms[i], "RECURSIVEMATCH")) {
 				/* FIXME - do this! */
 			}
 
 		}
 
 	}
+
+	lprintf(CTDL_DEBUG, "select metadata: %d to %d\n", select_metadata_left, select_metadata_right);
+	/* FIXME blah, we have to do something with this */
 
 	/* The folder root appears immediately after the selection options,
 	 * or in position 2 if no selection options were specified.
@@ -337,11 +364,17 @@ void imap_list(int num_parms, char *parms[])
 			if (parms[i][0] == '(') strcpy(parms[i], &parms[i][1]);
 			if (parms[i][strlen(parms[i])-1] == ')') parms[i][strlen(parms[i])-1] = 0;
 			lprintf(9, "evaluating <%s>\n", parms[i]);
+
 			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
 				return_subscribed = 1;
 			}
-			if (!strcasecmp(parms[i], "CHILDREN")) {
+
+			else if (!strcasecmp(parms[i], "CHILDREN")) {
 				return_children = 1;
+			}
+
+			else if (!strcasecmp(parms[i], "METADATA")) {
+				return_metadata = 1;
 			}
 
 			if (paren_nest == 0) {
@@ -359,6 +392,7 @@ void imap_list(int num_parms, char *parms[])
 	data_for_callback[3] = (char *) patterns;
 	data_for_callback[4] = (char *) return_subscribed;
 	data_for_callback[5] = (char *) return_children;
+	data_for_callback[6] = (char *) return_metadata;
 
 	/* The non-extended LIST command is required to treat an empty
 	 * ("" string) mailbox name argument as a special request to return the

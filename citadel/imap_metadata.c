@@ -1,7 +1,10 @@
 /*
  * $Id:  $
  *
- * IMAP METADATA extension (yet another ugly disaster)
+ * IMAP METADATA extension
+ *
+ * This is a partial implementation of draft-daboo-imap-annotatemore-11
+ * intended to help a specific connector product work with Citadel.
  *
  */
 
@@ -55,8 +58,8 @@
 
 /*
  * Implements the GETMETADATA command.
- (
- ( This is currently a stub which returns no data, because we are not yet
+ *
+ * This is currently a stub which returns no data, because we are not yet
  * using any server annotations.
  */
 void imap_getmetadata(int num_parms, char *parms[]) {
