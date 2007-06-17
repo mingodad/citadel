@@ -329,6 +329,14 @@ void do_iconbar(void) {
 	);
 
 	wprintf("</ul>\n");
+
+        wprintf(
+                "<script type=\"text/javascript\">                                      "
+                " new Ajax.PeriodicalUpdater('wholist', 'wholist_section',             "
+                "                            { method: 'get', frequency: 30 }  );       "
+                "</script>                                                              \n"
+        );
+
 }
 
 
