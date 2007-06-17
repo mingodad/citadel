@@ -976,9 +976,8 @@ msgid "Goto next room"
 msgstr "Aller au prochain salon"
 
 #: ../mainmenu.c:42
-#, fuzzy
 msgid "...with <em>unread</em> messages"
-msgstr "... avec des messages <EM>non lus</EM>"
+msgstr "... avec des messages <em>non lus</em>"
 
 #: ../mainmenu.c:46
 msgid "Skip to next room"
@@ -1011,7 +1010,7 @@ msgstr "Lire tous les messages"
 
 #: ../mainmenu.c:74
 msgid "...old <EM>and</EM> new"
-msgstr "... anciens <EM>et</EM> nouveaux"
+msgstr "... anciens <em>et</em> nouveaux"
 
 #: ../mainmenu.c:78 ../roomops.c:670
 msgid "Enter a message"
@@ -1287,9 +1286,8 @@ msgid "This address book is empty."
 msgstr "Le carnet d'adresses est vide."
 
 #: ../messages.c:1848
-#, fuzzy
 msgid "An internal error has occurred."
-msgstr "Une erreur est apparue."
+msgstr "Une erreur interne est apparue."
 
 #: ../messages.c:2274
 msgid "Click on any note to edit it."
@@ -1784,7 +1782,7 @@ msgstr "Salon en lecture seulement"
 
 #: ../roomops.c:1246
 msgid "All users allowed to post may also delete messages"
-msgstr ""
+msgstr "Tous les usagers autorisés à poster peuvent aussi supprimer les messages"
 
 #: ../roomops.c:1253
 msgid "File directory room"
@@ -1900,17 +1898,16 @@ msgstr ""
 "condensée</b> aux destinataires suivants :</i><br /><br />\n"
 
 #: ../roomops.c:1572
-#, fuzzy
 msgid "List"
-msgstr "Nom"
+msgstr "Liste"
 
 #: ../roomops.c:1573
 msgid "Digest"
-msgstr ""
+msgstr "Résumé"
 
 #: ../roomops.c:1574 ../roomops.c:1575
 msgid "Add recipients from Contacts or other address books"
-msgstr ""
+msgstr "Ajoutez des destinataires de Contacts ou d'autres carnets d'adresses"
 
 #: ../roomops.c:1581
 msgid ""
@@ -1986,12 +1983,12 @@ msgstr "Vos modifications ont été enregistrées."
 #: ../roomops.c:1918
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
-msgstr "<B><I>L'usager %s a été éjecté du salon %s.</I></B>\n"
+msgstr "<b><i>L'usager %s a été éjecté du salon %s.</i></b>\n"
 
 #: ../roomops.c:1932
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
-msgstr "<B><I>L'usager %s a été invité à rejoindre le salon %s.</I></B>\n"
+msgstr "<b><i>L'usager %s a été invité à rejoindre le salon %s.</i></b>\n"
 
 #: ../roomops.c:1960
 msgid ""
