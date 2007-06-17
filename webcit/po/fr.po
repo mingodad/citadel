@@ -96,7 +96,7 @@ msgstr "Quitter"
 #: ../auth.c:75
 #, c-format
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
-msgstr ""
+msgstr "%s - propulsé par <a href=\"http://www.citadel.org\">Citadel</a>"
 
 #: ../auth.c:174 ../auth.c:542
 msgid "Blank passwords are not allowed."
@@ -470,7 +470,7 @@ msgstr "Échéance"
 #: ../downloads.c:19
 #, c-format
 msgid "Files available for download in %s"
-msgstr ""
+msgstr "Les fichiers sont téléchargeables à partir de %s"
 
 #: ../downloads.c:29
 msgid "Filename"
@@ -478,7 +478,7 @@ msgstr "Nom du fichier"
 
 #: ../downloads.c:30
 msgid "Size"
-msgstr ""
+msgstr "Taille"
 
 #: ../downloads.c:31
 msgid "Description"
