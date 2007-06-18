@@ -112,6 +112,7 @@ struct PurgeList *RoomPurgeList = NULL;
 struct ValidRoom *ValidRoomList = NULL;
 struct ValidUser *ValidUserList = NULL;
 int messages_purged;
+int users_not_purged;
 
 struct ctdlroomref *rr = NULL;
 
@@ -374,6 +375,9 @@ void do_uid_user_purge(struct ctdluser *us, void *data) {
 			UserPurgeList = pptr;
 		}
 	}
+	else {
+		++users_not_purged;
+	}
 }
 
 
@@ -386,17 +390,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	time_t now;
 	time_t purge_time;
 	struct PurgeList *pptr;
-
-	/* stupid recovery routine to re-create missing mailboxen.
-	 * don't enable this.
-	struct ctdlroom qrbuf;
-	char mailboxname[ROOMNAMELEN];
-	MailboxName(mailboxname, us, MAILROOM);
-	create_room(mailboxname, 4, "", 0, 1, 1, VIEW_BBS);
-	if (getroom(&qrbuf, mailboxname) != 0) return;
-	lprintf(CTDL_DEBUG, "Got %s\n", qrbuf.QRname);
-	 */
-
 
 	/* Set purge time; if the user overrides the system default, use it */
 	if (us->USuserpurge > 0) {
@@ -450,6 +443,9 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		strcpy(pptr->name, us->fullname);
 		UserPurgeList = pptr;
 	}
+	else {
+		++users_not_purged;
+	}
 
 }
 
@@ -461,6 +457,7 @@ int PurgeUsers(void) {
 	char *transcript = NULL;
 
 	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
+	users_not_purged = 0;
 
 	if (config.c_auth_mode == 1) {
 		/* host auth mode */
@@ -474,20 +471,35 @@ int PurgeUsers(void) {
 	}
 
 	transcript = malloc(SIZ);
-	strcpy(transcript, "The following users have been auto-purged:\n");
 
-	while (UserPurgeList != NULL) {
-		transcript=realloc(transcript, strlen(transcript)+SIZ);
-		snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
-			UserPurgeList->name);
-		purge_user(UserPurgeList->name);
-		pptr = UserPurgeList->next;
-		free(UserPurgeList);
-		UserPurgeList = pptr;
-		++num_users_purged;
+	if (users_not_purged == 0) {
+		strcpy(transcript, "The auto-purger was told to purge every user.  It is\n"
+				"refusing to do this because it usually indicates a problem\n"
+				"such as an inability to communicate with a name service.\n"
+		);
+		while (UserPurgeList != NULL) {
+			pptr = UserPurgeList->next;
+			free(UserPurgeList);
+			UserPurgeList = pptr;
+			++num_users_purged;
+		}
 	}
 
-	if (num_users_purged > 0) aide_message(transcript,"User Purge Message");
+	else {
+		strcpy(transcript, "The following users have been auto-purged:\n");
+		while (UserPurgeList != NULL) {
+			transcript=realloc(transcript, strlen(transcript)+SIZ);
+			snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
+				UserPurgeList->name);
+			purge_user(UserPurgeList->name);
+			pptr = UserPurgeList->next;
+			free(UserPurgeList);
+			UserPurgeList = pptr;
+			++num_users_purged;
+		}
+	}
+
+	if (num_users_purged > 0) aide_message(transcript, "User Purge Message");
 	free(transcript);
 
 	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
