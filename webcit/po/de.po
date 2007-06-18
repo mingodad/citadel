@@ -495,7 +495,7 @@ msgid "Upload"
 msgstr "Hochladen"
 
 #: ../downloads.c:116
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\n"
 
@@ -879,7 +879,6 @@ msgid "SpamAssassin hosts"
 msgstr "SpamAssassin Maschinen"
 
 #: ../inetconf.c:55
-#, fuzzy
 msgid "Masqueradable domains"
 msgstr "Übergangs Domains"
 
@@ -910,7 +909,7 @@ msgstr "(Maschine, auf der Ihr SpamAssessin läuft)"
 
 #: ../inetconf.c:63
 msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
+msgstr "(nicht lokale Domänen, von denen Benutzer Mails schicken dürfen)"
 
 #: ../inetconf.c:100
 msgid "Internet configuration"
@@ -977,9 +976,8 @@ msgid "Goto next room"
 msgstr "Zum nächsten Raum"
 
 #: ../mainmenu.c:42
-#, fuzzy
 msgid "...with <em>unread</em> messages"
-msgstr "... mit <EM>ungelesenen</EM Meldungen"
+msgstr "... mit <em>ungelesenen</em> Meldungen"
 
 #: ../mainmenu.c:46
 msgid "Skip to next room"
@@ -1288,9 +1286,8 @@ msgid "This address book is empty."
 msgstr "Dieses Adressbuch ist leer."
 
 #: ../messages.c:1848
-#, fuzzy
 msgid "An internal error has occurred."
-msgstr "Ein Fehler ist aufgetreten."
+msgstr "Ein interner Fehler ist aufgetreten."
 
 #: ../messages.c:2274
 msgid "Click on any note to edit it."
@@ -1784,7 +1781,7 @@ msgstr "Nicht Schreibbarer Raum"
 
 #: ../roomops.c:1246
 msgid "All users allowed to post may also delete messages"
-msgstr ""
+msgstr "Benutzer, die Schreibrechte haben, dürfen auch löschen"
 
 #: ../roomops.c:1253
 msgid "File directory room"
@@ -1899,17 +1896,16 @@ msgstr ""
 "folgende Liste versendet:</i><br /><br />\n"
 
 #: ../roomops.c:1572
-#, fuzzy
 msgid "List"
-msgstr "Nachname"
+msgstr "Liste"
 
 #: ../roomops.c:1573
 msgid "Digest"
-msgstr ""
+msgstr "Zusammenfassung"
 
 #: ../roomops.c:1574 ../roomops.c:1575
 msgid "Add recipients from Contacts or other address books"
-msgstr ""
+msgstr "Empfänger aus den Kontakten oder anderen Addressbüchern hinzufügen"
 
 #: ../roomops.c:1581
 msgid ""
