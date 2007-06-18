@@ -1,2 +1,2 @@
 /* $Id$ */
-int validpw(uid_t uid, const char *pass);
+int validate_password(uid_t uid, const char *pass);

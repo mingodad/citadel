@@ -443,8 +443,13 @@ void imap_output_capability_string(void) {
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
 #endif
 
-	/* Comment this out if its unfinished state is choking your client */
-	cprintf(" METADATA LIST-EXTENDED");
+	/* We are building a partial implementation of METADATA for the sole purpose
+	 * of interoperating with the ical/vcard version of the Bynari Insight Connector.
+	 * If you were expecting something else, comment out one or both of these
+	 * extension advertisements.
+	 */
+	cprintf(" METADATA");
+	/* cprintf(" LIST-EXTENDED"); */
 }
 
 /*

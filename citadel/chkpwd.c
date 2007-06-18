@@ -55,7 +55,7 @@ int main(void)
 
   strtok(buf, "\n");
 
-  if (validpw(uid, buf))
+  if (validate_password(uid, buf))
     return 0;
 
   return 1;

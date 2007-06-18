@@ -78,11 +78,11 @@ static int conv(int num_msg, const struct pam_message **msg,
 
 
 /*
- * validpw(): check that `pass' is the correct password for `uid'
- *            returns zero if no, nonzero if yes
+ * check that `pass' is the correct password for `uid'
+ * returns zero if no, nonzero if yes
  */
 
-int validpw(uid_t uid, const char *pass)
+int validate_password(uid_t uid, const char *pass)
 {
 #ifdef HAVE_PAM_START
 	struct pam_conv pc;
