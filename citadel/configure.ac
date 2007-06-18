@@ -332,14 +332,6 @@ dnl (Linux shadow passwords)
 					LIBS="-lcrypt $LIBS"])
 		fi
 	fi
-	if test "$ac_cv_func_crypt" = yes -o "$ac_cv_lib_crypt_crypt" = yes -o "$ac_cv_func_pam_start" = yes; then
-		if test "$enable_chkpwd" != no; then
-			AC_DEFINE(ENABLE_CHKPWD, [], [define this to enable use of the chkpwd program (for shadow passwords)])
-			CHKPWD=chkpwd
-		else
-			AUTH=auth.lo
-		fi
-	fi
 
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
@@ -780,7 +772,6 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
-AC_SUBST(CHKPWD)
 AC_SUBST(RESOLV)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)

@@ -30,9 +30,7 @@
 
 #include <string.h>
 #include <limits.h>
-#ifndef ENABLE_CHKPWD
 #include "auth.h"
-#endif
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
@@ -580,10 +578,8 @@ void logout(struct CitContext *who)
 	}
 }
 
-#ifdef ENABLE_CHKPWD
 /*
- * an alternate version of validpw() which executes `chkpwd' instead of
- * verifying the password directly
+ * Validate a password on the host unix system by calling the 'chkpwd' utility
  */
 static int validpw(uid_t uid, const char *pass)
 {
@@ -636,7 +632,6 @@ static int validpw(uid_t uid, const char *pass)
 
 	return 0;
 }
-#endif
 
 void do_login()
 {

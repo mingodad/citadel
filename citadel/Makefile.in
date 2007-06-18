@@ -13,7 +13,6 @@
 ########################################################################
 
 TARGETS=@TARGETS@
-CHKPWD=@CHKPWD@
 RUN_DIR=@MAKE_RUN_DIR@
 SPOOL_DIR=@MAKE_SPOOL_DIR@
 ETC_DIR=@MAKE_ETC_DIR@
@@ -28,7 +27,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver $(CHKPWD)
+SERVER_TARGETS=citserver chkpwd
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \
