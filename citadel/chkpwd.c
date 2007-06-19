@@ -26,8 +26,7 @@ int main(void)
 	char buf[SIZ];
 
 	while (1) {
-		read(0, buf, 16);	/* uid */
-		uid = atoi(buf);
+		read(0, &uid, sizeof(uid_t));	/* uid */
 		read(0, buf, 256);	/* password */
 
 		if (validate_password(uid, buf)) {

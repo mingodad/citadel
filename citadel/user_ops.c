@@ -592,8 +592,7 @@ static int validpw(uid_t uid, const char *pass)
 	lprintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
 
 	begin_critical_section(S_CHKPWD);
-	snprintf(buf, sizeof buf, "%016d", uid);
-	write(chkpwd_write_pipe[1], buf, 16);
+	write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
 	write(chkpwd_write_pipe[1], pass, 256);
 	read(chkpwd_read_pipe[0], buf, 4);
 	end_critical_section(S_CHKPWD);

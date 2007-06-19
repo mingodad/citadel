@@ -53,6 +53,7 @@
 #include "config.h"
 #include "control.h"
 #include "database.h"
+#include "user_ops.h"
 #include "housekeeping.h"
 #include "tools.h"
 #include "citadel_dirs.c"
