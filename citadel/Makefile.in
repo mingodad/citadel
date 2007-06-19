@@ -27,7 +27,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver chkpwd
+SERVER_TARGETS=citserver chkpwd chkpw
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \
@@ -99,7 +99,7 @@ YACC=@YACC@
 
 VPATH=$(srcdir)
 
-SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
+SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
@@ -172,6 +172,9 @@ setup: setup.o tools.o citadel_dirs.o
 
 chkpwd: chkpwd.o auth.o
 	$(CC) chkpwd.o auth.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
+
+chkpw: chkpw.o auth.o citadel_dirs.o
+	$(CC) chkpw.o auth.o citadel_dirs.o $(LDFLAGS) -o chkpw $(chkpwd_LIBS)
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)

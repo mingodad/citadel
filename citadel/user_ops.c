@@ -611,10 +611,16 @@ static int validpw(uid_t uid, const char *pass)
  */
 void start_chkpwd_daemon(void) {
 	pid_t chkpwd_pid;
+	struct stat filestats;
 	int i;
 
 	lprintf(CTDL_DEBUG, "Starting chkpwd daemon for host authentication mode\n");
 
+	if ((stat(file_chkpwd, &filestats)==-1) ||
+	    (filestats.st_size==0)){
+		printf("didn't find chkpwd daemon in %s: %s\n", file_chkpwd, strerror(errno));
+		abort();
+	}
 	if (pipe(chkpwd_write_pipe) != 0) {
 		lprintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
 		abort();
