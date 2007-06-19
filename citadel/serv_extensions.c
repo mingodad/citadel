@@ -103,6 +103,10 @@ void LogPrintMessages(long err)
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
+	if (errormessages!=NULL) free (errormessages);
+	errormessages = NULL;
+	if (portlist!=NULL) free (portlist);
+	portlist = NULL;
 	free(Message);
 }
 
@@ -246,6 +250,8 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 void initialize_server_extensions(void)
 {
 	long filter;
+
+	nSizErrmsg = 0;
 
 	lprintf(CTDL_INFO, "%s\n", serv_bio_init());
 	lprintf(CTDL_INFO, "%s\n", serv_calendar_init());

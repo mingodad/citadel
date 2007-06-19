@@ -766,6 +766,7 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 6, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* country */
 	cprintf("000\n");
+	vcard_free(v);
 }
 
 
