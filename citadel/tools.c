@@ -42,11 +42,18 @@ char *ascmonths[12] = {
 
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
+	int i = 0;
+
 	if (dest == NULL || src == NULL) {
 		fprintf(stderr, "safestrncpy: NULL argument\n");
 		abort();
 	}
-	strncpy(dest, src, n);
+
+	do {
+		dest[i] = src[i];
+		if (dest[i] == 0) return(dest);
+		++i;
+	} while (i<n);
 	dest[n - 1] = 0;
 	return dest;
 }
