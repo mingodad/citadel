@@ -170,9 +170,8 @@ citmail: citmail.o citadel_dirs.o tools.o
 setup: setup.o tools.o citadel_dirs.o
 	$(CC) setup.o tools.o citadel_dirs.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
 
-chkpwd: chkpwd.o auth.o config.o citadel_dirs.o
-	$(CC) chkpwd.o auth.o config.o citadel_dirs.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
-	chmod 4755 chkpwd
+chkpwd: chkpwd.o auth.o
+	$(CC) chkpwd.o auth.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
@@ -299,10 +298,6 @@ install-exec: all
 			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
-	@if test x`find $(DESTDIR)$(prefix)/chkpwd -user root` = x$(DESTDIR)$(prefix)/chkpwd; then \
-		echo chmod u+s $(DESTDIR)$(prefix)/chkpwd; \
-		chmod u+s $(DESTDIR)$(prefix)/chkpwd; \
-	fi
 
 install-exec-new: all
 	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/sbin; 
@@ -336,10 +331,6 @@ install-exec-new: all
 			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
 		fi \
 	done
-	@if test x`find $(DESTDIR)/usr/sbin/chkpwd -user root` = x$(DESTDIR)$(prefix)/chkpwd; then \
-		echo chmod u+s $(DESTDIR)/usr/sbin/chkpwd; \
-		chmod u+s $(DESTDIR)usr/sbin/chkpwd; \
-	fi
 
 clean:
 	rm -f *.o

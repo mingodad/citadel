@@ -131,8 +131,6 @@ AC_ARG_WITH(docdir,
 
 
 
-AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
-
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 			  disable multithreaded client])
 

@@ -22,41 +22,21 @@
 
 int main(void)
 {
-  uid_t uid;
-  struct passwd *pw;
-  char buf[SIZ];
-  int relh=0;
-  int home=0;
-  char relhome[PATH_MAX]="";
-  char ctdldir[PATH_MAX]=CTDLDIR;
+	uid_t uid;
+	char buf[SIZ];
 
-  /* TODO: should we be able to calculate relative dirs? */
-  calc_dirs_n_files(relh, home, relhome, ctdldir);
-  get_config();
-  uid = getuid();
+	while (1) {
+		read(0, buf, 16);	/* uid */
+		uid = atoi(buf);
+		read(0, buf, 256);	/* password */
 
-  if (uid != CTDLUID && uid)
-    {
-      pw = getpwuid(uid);
-      openlog("chkpwd", LOG_CONS, LOG_AUTH);
-      syslog(LOG_WARNING, "invoked by %s (uid %u); possible breakin/probe "
-	     "attempt", pw != NULL ? pw->pw_name : "?", uid);
-      return 1;
-    }
+		if (validate_password(uid, buf)) {
+			write(1, "PASS", 4);
+		}
+		else {
+			write(1, "FAIL", 4);
+		}
+	}
 
-  if (fgets(buf, sizeof buf, stdin) == NULL)
-    return 1;
-
-  strtok(buf, "\n");
-  uid = atoi(buf);
-
-  if (fgets(buf, sizeof buf, stdin) == NULL)
-    return 1;
-
-  strtok(buf, "\n");
-
-  if (validate_password(uid, buf))
-    return 0;
-
-  return 1;
+	return(0);
 }

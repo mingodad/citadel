@@ -83,3 +83,4 @@ int CtdlForgetThisRoom(void);
 void cmd_seen(char *argbuf);
 void cmd_gtsn(char *argbuf);
 void BumpNewMailCounter(long);
+void start_chkpwd_daemon(void);

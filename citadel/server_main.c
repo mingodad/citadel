@@ -237,6 +237,13 @@ int main(int argc, char **argv)
 	initialize_server_extensions();
 
 	/*
+	 * If we need host auth, start our chkpwd daemon.
+	 */
+	if (config.c_auth_mode == 1) {
+		start_chkpwd_daemon();
+	}
+
+	/*
 	 * Now that we've bound the sockets, change to the Citadel user id and its
 	 * corresponding group ids
 	 */

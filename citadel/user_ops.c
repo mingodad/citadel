@@ -48,9 +48,13 @@
 #include "citadel_dirs.h"
 #include "genstamp.h"
 
+/* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
+int chkpwd_write_pipe[2];
+int chkpwd_read_pipe[2];
+
 /*
  * makeuserkey() - convert a username into the format used as a database key
- *                 (it's just the username converted into lower case)
+ *		 (it's just the username converted into lower case)
  */
 static INLINE void makeuserkey(char *key, char *username) {
 	int i, len;
@@ -64,7 +68,7 @@ static INLINE void makeuserkey(char *key, char *username) {
 
 /*
  * getuser()  -  retrieve named user into supplied buffer.
- *               returns 0 on success
+ *	       returns 0 on success
  */
 int getuser(struct ctdluser *usbuf, char name[])
 {
@@ -281,10 +285,10 @@ int is_room_aide(void)
 
 /*
  * getuserbynumber()  -  get user by number
- *                       returns 0 if user was found
+ *		       returns 0 if user was found
  *
  * WARNING: don't use this function unless you absolutely have to.  It does
- *          a sequential search and therefore is computationally expensive.
+ *	  a sequential search and therefore is computationally expensive.
  */
 int getuserbynumber(struct ctdluser *usbuf, long int number)
 {
@@ -309,10 +313,10 @@ int getuserbynumber(struct ctdluser *usbuf, long int number)
 
 /*
  * getuserbyuid()  -     get user by system uid (for PAM mode authentication)
- *                       returns 0 if user was found
+ *		       returns 0 if user was found
  *
  * WARNING: don't use this function unless you absolutely have to.  It does
- *          a sequential search and therefore is computationally expensive.
+ *	  a sequential search and therefore is computationally expensive.
  */
 int getuserbyuid(struct ctdluser *usbuf, uid_t number)
 {
@@ -579,59 +583,68 @@ void logout(struct CitContext *who)
 }
 
 /*
- * Validate a password on the host unix system by calling the 'chkpwd' utility
+ * Validate a password on the host unix system by talking to the chkpwd daemon
  */
 static int validpw(uid_t uid, const char *pass)
 {
-	pid_t pid;
-	int status, pipev[2];
-	char buf[24];
+	char buf[256];
 
-	if (pipe(pipev)) {
-		lprintf(CTDL_ERR, "pipe failed (%s): denying host auth access for "
-			"uid %ld\n", strerror(errno), (long)uid);
-		return 0;
-	}
-	switch (pid = fork()) {
-	case -1:
-		lprintf(CTDL_ERR, "fork failed (%s): denying host auth access for "
-			"uid %ld\n", strerror(errno), (long)uid);
-		close(pipev[0]);
-		close(pipev[1]);
-		return 0;
+	lprintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
 
-	case 0:
-		close(pipev[1]);
-		if (dup2(pipev[0], 0) == -1) {
-			perror("dup2");
-			exit(1);
-		}
-		close(pipev[0]);
+	begin_critical_section(S_CHKPWD);
+	snprintf(buf, sizeof buf, "%016d", uid);
+	write(chkpwd_write_pipe[1], buf, 16);
+	write(chkpwd_write_pipe[1], pass, 256);
+	read(chkpwd_read_pipe[0], buf, 4);
+	end_critical_section(S_CHKPWD);
 
-		execl(file_chkpwd, file_chkpwd, NULL);
-		perror(file_chkpwd);
-		exit(1);
+	if (!strncmp(buf, "PASS", 4)) {
+		lprintf(CTDL_DEBUG, "...pass\n");
+		return(1);
 	}
 
-	close(pipev[0]);
-	write(pipev[1], buf,
-	      snprintf(buf, sizeof buf, "%lu\n", (unsigned long) uid));
-	write(pipev[1], pass, strlen(pass));
-	write(pipev[1], "\n", 1);
-	close(pipev[1]);
-
-	while (waitpid(pid, &status, 0) == -1)
-		if (errno != EINTR) {
-			lprintf(CTDL_ERR, "waitpid failed (%s): denying host auth "
-				"access for uid %ld\n",
-				strerror(errno), (long)uid);
-			return 0;
-		}
-	if (WIFEXITED(status) && !WEXITSTATUS(status))
-		return 1;
-
+	lprintf(CTDL_DEBUG, "...fail\n");
 	return 0;
 }
+
+/* 
+ * Start up the chkpwd daemon so validpw() has something to talk to
+ */
+void start_chkpwd_daemon(void) {
+	pid_t chkpwd_pid;
+	int i;
+
+	lprintf(CTDL_DEBUG, "Starting chkpwd daemon for host authentication mode\n");
+
+	if (pipe(chkpwd_write_pipe) != 0) {
+		lprintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+	if (pipe(chkpwd_read_pipe) != 0) {
+		lprintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+
+	chkpwd_pid = fork();
+	if (chkpwd_pid < 0) {
+		lprintf(CTDL_EMERG, "Unable to fork chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+	if (chkpwd_pid == 0) {
+		lprintf(CTDL_DEBUG, "Now calling dup2() write\n");
+		dup2(chkpwd_write_pipe[0], 0);
+		lprintf(CTDL_DEBUG, "Now calling dup2() write\n");
+		dup2(chkpwd_read_pipe[1], 1);
+		lprintf(CTDL_DEBUG, "Now closing stuff\n");
+		for (i=2; i<256; ++i) close(i);
+		lprintf(CTDL_DEBUG, "Now calling execl(%s)\n", file_chkpwd);
+		execl(file_chkpwd, file_chkpwd, NULL);
+		lprintf(CTDL_EMERG, "Unable to exec chkpwd daemon: %s\n", strerror(errno));
+		abort();
+		exit(errno);
+	}
+}
+
 
 void do_login()
 {
@@ -887,10 +900,10 @@ int create_user(char *newusername, int become_user)
 
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
 	create_room(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
-        if (lgetroom(&qrbuf, mailboxname) == 0) {
-                qrbuf.QRflags2 |= QR2_SYSTEM;
-                lputroom(&qrbuf);
-        }
+	if (lgetroom(&qrbuf, mailboxname) == 0) {
+		qrbuf.QRflags2 |= QR2_SYSTEM;
+		lputroom(&qrbuf);
+	}
 
 	/* Perform any create functions registered by server extensions */
 	PerformUserHooks(&usbuf, EVT_NEWUSER);
@@ -1229,10 +1242,10 @@ void cmd_invt_kick(char *iuser, int op) {
 		/* access granted */
 	} else {
 		/* access denied */
-                cprintf("%d Higher access or room ownership required.\n",
-                        ERROR + HIGHER_ACCESS_REQUIRED);
-                return;
-        }
+		cprintf("%d Higher access or room ownership required.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED);
+		return;
+	}
 
 	if (!strncasecmp(CC->room.QRname, config.c_baseroom,
 			 ROOMNAMELEN)) {
@@ -1635,40 +1648,40 @@ int NewMailCount()
  */
 int InitialMailCheck()
 {
-        int num_newmsgs = 0;
-        int a;
-        char mailboxname[ROOMNAMELEN];
-        struct ctdlroom mailbox;
-        struct visit vbuf;
-        struct cdbdata *cdbfr;
-        long *msglist = NULL;
-        int num_msgs = 0;
+	int num_newmsgs = 0;
+	int a;
+	char mailboxname[ROOMNAMELEN];
+	struct ctdlroom mailbox;
+	struct visit vbuf;
+	struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
 
-        MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
-        if (getroom(&mailbox, mailboxname) != 0)
-                return (0);
-        CtdlGetRelationship(&vbuf, &CC->user, &mailbox);
+	MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
+	if (getroom(&mailbox, mailboxname) != 0)
+		return (0);
+	CtdlGetRelationship(&vbuf, &CC->user, &mailbox);
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
 
-        if (cdbfr != NULL) {
-                msglist = malloc(cdbfr->len);
-                memcpy(msglist, cdbfr->ptr, cdbfr->len);
-                num_msgs = cdbfr->len / sizeof(long);
-                cdb_free(cdbfr);
-        }
-        if (num_msgs > 0)
-                for (a = 0; a < num_msgs; ++a) {
-                        if (msglist[a] > 0L) {
-                                if (msglist[a] > vbuf.v_lastseen) {
-                                        ++num_newmsgs;
-                                }
-                        }
-                }
-        if (msglist != NULL)
-                free(msglist);
+	if (cdbfr != NULL) {
+		msglist = malloc(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	}
+	if (num_msgs > 0)
+		for (a = 0; a < num_msgs; ++a) {
+			if (msglist[a] > 0L) {
+				if (msglist[a] > vbuf.v_lastseen) {
+					++num_newmsgs;
+				}
+			}
+		}
+	if (msglist != NULL)
+		free(msglist);
 
-        return (num_newmsgs);
+	return (num_newmsgs);
 }
 
 

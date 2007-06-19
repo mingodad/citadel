@@ -1260,22 +1260,13 @@ NEW_INST:
 	else
 		gid = pw->pw_gid;
 
-	progress("Setting file permissions", 0, 4);
+	progress("Setting file permissions", 0, 3);
 	chown(ctdl_run_dir, config.c_ctdluid, gid);
-	progress("Setting file permissions", 1, 4);
+	progress("Setting file permissions", 1, 3);
 	chown(file_citadel_config, config.c_ctdluid, gid);
-	progress("Setting file permissions", 2, 4);
-
-	snprintf(aaa, sizeof aaa,
-			 "%schkpwd",
-			 ctdl_sbin_dir);
-	chown(aaa,0,0); /*  config.c_ctdluid, gid); chkpwd needs to be root owned*/
-	progress("Setting file permissions", 3, 4);
-	chmod(aaa, 04755); 
-
-	progress("Setting file permissions", 3, 4);
+	progress("Setting file permissions", 2, 3);
 	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
-	progress("Setting file permissions", 4, 4);
+	progress("Setting file permissions", 3, 3);
 
 	/* 
 	 * If we're running on SysV, install init scripts.
