@@ -234,7 +234,7 @@ alternate_semantics=no
 #
 cmd=1,0,&? (Help)
 cmd=1,0,&Help
-cmd=2,0,&*Doorway
+# cmd=2,0,&*Doorway
 cmd=3,0,&Chat
 #
 # If you want to use an external editor by default, set <E>nter message
@@ -321,9 +321,9 @@ cmd=33,0,&.,&Read,&Textfile formatted
 # dialup use.  They transfer downloaded files to a temporary file and then
 # send them along to a dialup user using the popular protocols.
 #
-cmd=34,0,&.,&Read,file using &Xmodem
-cmd=43,0,&.,&Read,file using &Ymodem
-cmd=45,0,&.,&Read,file using &Zmodem
+# cmd=34,0,&.,&Read,file using &Xmodem
+# cmd=43,0,&.,&Read,file using &Ymodem
+# cmd=45,0,&.,&Read,file using &Zmodem
 cmd=31,0,&.,&Read,&File unformatted
 #
 cmd=13,0,&.,&Read,&New messages
@@ -340,9 +340,9 @@ cmd=37,0,&.,&Enter,&Configuration
 cmd=38,0,&.,&Enter,a new &Room
 cmd=39,0,&.,&Enter,&Textfile
 cmd=77,0,&.,&Enter,&Username
-cmd=40,0,&.,&Enter,file using &Xmodem
-cmd=42,0,&.,&Enter,file using &Ymodem
-cmd=44,0,&.,&Enter,file using &Zmodem
+# cmd=40,0,&.,&Enter,file using &Xmodem
+# cmd=42,0,&.,&Enter,file using &Ymodem
+# cmd=44,0,&.,&Enter,file using &Zmodem
 #
 # Command 57 is the local-file-upload command for users with their own
 # copy of the clientware.  Commands 72-74 are for image uploads.
