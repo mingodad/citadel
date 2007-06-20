@@ -215,10 +215,10 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	snprintf(file_chkpwd,
 		 sizeof file_chkpwd, 
 		 "%schkpwd",
-		 ctdl_sbin_dir);
+		 ctdl_utilbin_dir);
 
 	snprintf(file_base64,
-		 sizeof file_chkpwd,
+		 sizeof file_base64,
 		 "%sbase64",
 		 ctdl_utilbin_dir);
 
