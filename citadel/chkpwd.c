@@ -26,9 +26,12 @@ int main(void)
 	char buf[SIZ];
 
 	while (1) {
+		buf[0] = '\0';
 		read(0, &uid, sizeof(uid_t));	/* uid */
 		read(0, buf, 256);	/* password */
 
+		if (buf[0] == '\0') 
+			return (0);
 		if (validate_password(uid, buf)) {
 			write(1, "PASS", 4);
 		}
