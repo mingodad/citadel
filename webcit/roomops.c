@@ -272,22 +272,36 @@ void zapped_list(void)
  */
 void readinfo(void)
 {
-	char buf[SIZ];
+	char buf[256];
+	char briefinfo[128];
+	char fullinfo[8192];
+	int fullinfo_len = 0;
 
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
+
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			if (fullinfo_len < (sizeof fullinfo - sizeof buf)) {
+				strcpy(&fullinfo[fullinfo_len], buf);
+				fullinfo_len += strlen(buf);
+			}
+		}
+
+		safestrncpy(briefinfo, fullinfo, sizeof briefinfo);
+		strcpy(&briefinfo[50], "...");
+
                 wprintf("<div class=\"infos\" "
                 "onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
                 ">");
-                wprintf(_("Room info"));
-                wprintf("</div><div id=\"room_infos\" style=\"display:none;\">"
-                "<p class=\"close_infos\" "
-                "onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
-                ">");
-		wprintf(_("Close window"));
-		wprintf("</p>");
-                fmout("CENTER");
+		escputs(briefinfo);
+                wprintf("</div><div id=\"room_infos\" style=\"display:none;\">");
+		wprintf("<img class=\"close_infos\" "
+                	"onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
+			"src=\"static/closewindow.gif\" alt=\"%s\">",
+			_("Close window")
+		);
+		escputs(fullinfo);
                 wprintf("</div>");
 	}
 	else {
