@@ -27,7 +27,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver chkpwd chkpw
+SERVER_TARGETS=citserver
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \
@@ -69,7 +69,7 @@ SERV_MODULES=serv_chat.o \
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
 
-UTILBIN_TARGETS= base64 setup
+UTILBIN_TARGETS= base64 setup chkpw chkpwd
 
 prefix=@prefix@
 srcdir=@srcdir@
