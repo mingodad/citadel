@@ -3520,8 +3520,10 @@ void cmd_ent0(char *entargs)
 	 * success without creating the message.
 	 */
 	if (post == 0) {
-		cprintf("%d %s\n", CIT_OK,
-			((valid_to != NULL) ? valid_to->display_recp : "") );
+		cprintf("%d %s|%s\n", CIT_OK,
+			((valid_to != NULL) ? valid_to->display_recp : ""), 
+			 ((CC->room.QRflags2 & QR2_SUBJECTREQ)? 
+			   "SUBJECTREQ" : "SUBJECTOPT") );
 		free_recipients(valid_to);
 		free_recipients(valid_cc);
 		free_recipients(valid_bcc);
