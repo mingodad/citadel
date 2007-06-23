@@ -169,6 +169,7 @@ extern locale_t wc_locales[];
 #define QR2_SYSTEM	1		/**< System room; hide by default	*/
 #define QR2_SELFLIST	2		/**< Self-service mailing list mgmt	*/
 #define QR2_COLLABDEL	4		/**< Anyone who can post can also delete*/
+#define QR2_SUBJECTREQ   8   /**< Subject strongly recommended */
 
 /**
  * user/room access

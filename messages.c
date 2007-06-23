@@ -2838,6 +2838,7 @@ void display_enter(void)
 	char *display_name;
 	struct wc_attachment *att;
 	int recipient_required = 0;
+	int subject_required = 0;
 	int recipient_bad = 0;
 	int i;
 	int is_anonymous = 0;
@@ -2858,6 +2859,7 @@ void display_enter(void)
 	/** First test to see whether this is a room that requires recipients to be entered */
 	serv_puts("ENT0 0");
 	serv_getln(buf, sizeof buf);
+
 	if (!strncmp(buf, "570", 3)) {		/** 570 means that we need a recipient here */
 		recipient_required = 1;
 	}
@@ -2865,6 +2867,12 @@ void display_enter(void)
 		sprintf(WC->ImportantMessage, "%s", &buf[4]);
 		readloop("readnew");
 		return;
+	}
+
+	if ((buf[3] != '\0') && 
+		(buf[4] != '\0') && 
+		!strncmp(&(buf[5]), "SUBJECTREQ", 10)) {
+		subject_required = 1;
 	}
 
 	/**
@@ -3053,7 +3061,7 @@ void display_enter(void)
 	}
 
 	wprintf("<div style=\"clear: both;\"><label for=\"subject_id\" > ");
-	if (recipient_required) {
+	if (recipient_required || subject_required) {
 		wprintf(_("Subject:"));
 	}
 	else {

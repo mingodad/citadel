@@ -1304,6 +1304,12 @@ void display_editroom(void)
 		wprintf("> ");
 		wprintf(_("Permanent (does not auto-purge)"));
 
+		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
+		if (er_flags2 & QR2_SUBJECTREQ)
+			wprintf("CHECKED ");
+		wprintf("> ");
+		wprintf(_("Subject Required (Force users to specify a message subject)"));
+
 		/** start of anon options */
 	
 		wprintf("\n<LI>");
@@ -1828,6 +1834,12 @@ void editroom(void)
 		er_flags |= QR_PERMANENT;
 	} else {
 		er_flags &= ~QR_PERMANENT;
+	}
+
+	if (!strcmp(bstr("subjectreq"), "yes")) {
+		er_flags2 |= QR2_SUBJECTREQ;
+	} else {
+		er_flags2 &= ~QR2_SUBJECTREQ;
 	}
 
 	if (!strcmp(bstr("network"), "yes")) {
