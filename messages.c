@@ -2869,10 +2869,9 @@ void display_enter(void)
 		return;
 	}
 
-	if ((buf[3] != '\0') && 
-		(buf[4] != '\0') && 
-		!strncmp(&(buf[5]), "SUBJECTREQ", 10)) {
-		subject_required = 1;
+	/* Is the server strongly recommending that the user enter a message subject? */
+	if ((buf[3] != '\0') && (buf[4] != '\0')) {
+		subject_required = extract_int(&buf[4], 1);
 	}
 
 	/**
