@@ -573,6 +573,10 @@ void editthisroom(CtdlIPC *ipc)
 				QR2_COLLABDEL);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 					"Permanent room", QR_PERMANENT);
+	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
+								   "Subject Required (Force "
+								   "users to specify a message "
+                                   "subject)", QR2_SUBJECTREQ);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 					"Directory room", QR_DIRECTORY);
 	if (attr->QRflags & QR_DIRECTORY) {
