@@ -1758,7 +1758,7 @@ unsigned create_room(char *new_room_name,
 		qrbuf.QRflags = (qrbuf.QRflags | QR_PASSWORDED);
 	if ( (new_room_type == 4) || (new_room_type == 5) ) {
 		qrbuf.QRflags = (qrbuf.QRflags | QR_MAILBOX);
-		qrbuf.QRflags2 |= QR2_SUBJECTREQ; 
+		/* qrbuf.QRflags2 |= QR2_SUBJECTREQ; */
 	}
 
 	/* If the user is requesting a personal room, set up the room

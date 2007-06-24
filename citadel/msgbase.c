@@ -3334,6 +3334,7 @@ void cmd_ent0(char *entargs)
 	struct recptypes *valid_cc = NULL;
 	struct recptypes *valid_bcc = NULL;
 	char subject[SIZ];
+	int subject_required = 0;
 	int do_confirm = 0;
 	long msgnum;
 	int i, j;
@@ -3516,14 +3517,22 @@ void cmd_ent0(char *entargs)
 		recp[0] = 0;
 	}
 
+	/* Recommend to the client that the use of a message subject is
+	 * strongly recommended in this room, if either the SUBJECTREQ flag
+	 * is set, or if there is one or more Internet email recipients.
+	 */
+	if (CC->room.QRflags2 & QR2_SUBJECTREQ) subject_required = 1;
+	if (valid_to) if (valid_to->num_internet > 0) subject_required = 1;
+	if (valid_cc) if (valid_cc->num_internet > 0) subject_required = 1;
+	if (valid_bcc) if (valid_bcc->num_internet > 0) subject_required = 1;
+
 	/* If we're only checking the validity of the request, return
 	 * success without creating the message.
 	 */
 	if (post == 0) {
-		cprintf("%d %s|%s\n", CIT_OK,
+		cprintf("%d %s|%d\n", CIT_OK,
 			((valid_to != NULL) ? valid_to->display_recp : ""), 
-			 ((CC->room.QRflags2 & QR2_SUBJECTREQ)? 
-			   "SUBJECTREQ" : "SUBJECTOPT") );
+			subject_required);
 		free_recipients(valid_to);
 		free_recipients(valid_cc);
 		free_recipients(valid_bcc);
