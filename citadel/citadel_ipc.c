@@ -838,7 +838,7 @@ int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret)
 
 
 /* ENT0 */
-int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr, char *cret)
+int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, int *subject_required,  const struct ctdlipcmessage *mr, char *cret)
 {
 	register int ret;
 	char cmd[SIZ];
@@ -851,6 +851,14 @@ int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr, 
 			mr->anonymous, mr->type, mr->subject, mr->author);
 	ret = CtdlIPCGenericCommand(ipc, cmd, mr->text, strlen(mr->text), NULL,
 			NULL, cret);
+	if ((flag == 0) && (subject_required != NULL)) {
+		/* Is the server strongly recommending that the user enter a message subject? */
+		if ((cret[3] != '\0') && (cret[4] != '\0')) {
+			*subject_required = extract_int(&cret[4], 1);
+		}
+
+		
+	}
 	return ret;
 }
 

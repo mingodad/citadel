@@ -127,6 +127,7 @@ void* worker(void* data)
 	int argc_;
 	char** argv_;
 	long tmin = LONG_MAX, trun = 0, tmax = LONG_MIN;
+	int subject_required;
 
 	args = (void*)data;
 	argc_ = (int)args[0];
@@ -240,7 +241,7 @@ void* worker(void* data)
 		}
 
 		/* Post the message */
-		r = CtdlIPCPostMessage(ipc, 1, &msg, aaa);
+		r = CtdlIPCPostMessage(ipc, 1, NULL, &msg, aaa);
 		if (r / 100 != 4) {
 			fprintf(stderr, "Citadel refused message entry: %s\n", aaa);
 			pthread_mutex_lock(&count_mutex);

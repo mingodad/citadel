@@ -214,8 +214,9 @@ int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct ctdlroom *qret,
 		char *cret);
 int CtdlIPCGetRoomAide(CtdlIPC *ipc, char *cret);
 int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret);
-int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr,
-		char *cret);
+int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, int *subject_required, 
+					   const struct ctdlipcmessage *mr,
+					   char *cret);
 int CtdlIPCRoomInfo(CtdlIPC *ipc, char **iret, char *cret);
 int CtdlIPCDeleteMessage(CtdlIPC *ipc, long msgnum, char *cret);
 int CtdlIPCMoveMessage(CtdlIPC *ipc, int copy, long msgnum,

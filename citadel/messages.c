@@ -1124,6 +1124,7 @@ int entmsg(CtdlIPC *ipc,
 	struct ctdlipcmessage message;
 	unsigned long *msgarr = NULL;
 	int r;			/* IPC response code */
+	int subject_required = 0;
 
 	if (c > 0)
 		mode = 1;
@@ -1147,7 +1148,7 @@ int entmsg(CtdlIPC *ipc,
 		newprompt("Display name for this message: ", message.author, 40);
 	}
 
-	r = CtdlIPCPostMessage(ipc, 0, &message, buf);
+	r = CtdlIPCPostMessage(ipc, 0, &subject_required, &message, buf);
 
 	if (r / 100 != 2 && r / 10 != 57) {
 		scr_printf("%s\n", buf);
@@ -1207,7 +1208,7 @@ int entmsg(CtdlIPC *ipc,
 
 	/* If it's mail, we've got to check the validity of the recipient... */
 	if (strlen(message.recipient) > 0) {
-		r = CtdlIPCPostMessage(ipc, 0, &message, buf);
+		r = CtdlIPCPostMessage(ipc, 0, &subject_required,  &message, buf);
 		if (r / 100 != 2) {
 			scr_printf("%s\n", buf);
 			return (1);
@@ -1252,7 +1253,7 @@ int entmsg(CtdlIPC *ipc,
 	break_big_lines(message.text);
 
 	/* Transmit message to the server */
-	r = CtdlIPCPostMessage(ipc, 1, &message, buf);
+	r = CtdlIPCPostMessage(ipc, 1, NULL, &message, buf);
 	if (r / 100 != 4) {
 		scr_printf("%s\n", buf);
 		return (1);
