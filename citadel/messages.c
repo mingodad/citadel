@@ -806,12 +806,13 @@ void replace_string(char *filename, long int startpos)
  * Function to begin composing a new message
  */
 int client_make_message(CtdlIPC *ipc,
-		char *filename,		/* temporary file name */
-		char *recipient,	/* NULL if it's not mail */
-		int is_anonymous,
-		int format_type,
-		int mode,
-		char *subject)		/* buffer to store subject line */
+						char *filename,		/* temporary file name */
+						char *recipient,	/* NULL if it's not mail */
+						int is_anonymous,
+						int format_type,
+						int mode,
+						char *subject, 		/* buffer to store subject line */
+						int subject_required)
 {
 	FILE *fp;
 	int a, b, e_ex_code;
@@ -855,6 +856,11 @@ int client_make_message(CtdlIPC *ipc,
 	scr_printf("%s\n", header);
 	if (subject != NULL) if (strlen(subject) > 0) {
 		scr_printf("Subject: %s\n", subject);
+	}
+	
+	if (subject_required) {
+		scr_printf("Internet mail recommends a subject.\n");
+		newprompt("Subject: ", subject, 70);
 	}
 
 	beg = 0L;
@@ -1229,7 +1235,7 @@ int entmsg(CtdlIPC *ipc,
 
 	/* Now compose the message... */
 	if (client_make_message(ipc, temp, message.recipient,
-	   message.anonymous, 0, c, message.subject) != 0) {
+	   message.anonymous, 0, c, message.subject, subject_required) != 0) {
 	    if (msgarr) free(msgarr);	
 		return (2);
 	}

@@ -256,7 +256,7 @@ void page_user(CtdlIPC *ipc)
 			scr_printf("%s\n", &buf[4]);
 			return;
 		}
-		if (client_make_message(ipc, temp, touser, 0, 0, 0, NULL) != 0) {
+		if (client_make_message(ipc, temp, touser, 0, 0, 0, NULL, 0) != 0) {
 			scr_printf("No message sent.\n");
 			return;
 		}
