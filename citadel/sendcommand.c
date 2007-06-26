@@ -142,11 +142,15 @@ int main(int argc, char **argv)
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
+	char rbuf[SIZ];
 
 	int relh=0;
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	fd_set read_fd;
+	struct timeval tv;
+	int ret, err;
 
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
@@ -193,6 +197,9 @@ int main(int argc, char **argv)
 	CtdlIPC_chat_recv(ipc, buf);
 	fprintf(stderr, "%s\n", buf);
 
+	tv.tv_sec = 0;
+	tv.tv_usec = 1000;
+
 	if (buf[0] == '1') {
 		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
@@ -209,6 +216,28 @@ int main(int argc, char **argv)
 					buf[strlen(buf) - 1] = 0;
 			if (strcmp(buf, "000"))
 				CtdlIPC_chat_send(ipc, buf);
+
+			FD_ZERO(&read_fd);
+			FD_SET(ipc->sock, &read_fd);
+			ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
+			err=errno;
+			if (err!=0)
+				printf("select failed: %d", err);
+
+			if (ret == -1) {
+				if (!(errno == EINTR || errno == EAGAIN))
+					printf("select failed: %d", err);
+				return 1;
+			}
+
+			if (ret != 0){
+				rbuf[0] = '\0';
+				read(ipc->sock, rbuf, SIZ);
+				if (rbuf[0]!=0) {
+					printf (rbuf);
+					memset (rbuf, '\0', SIZ);
+				}
+			}
 		} while (strcmp(buf, "000"));
 		CtdlIPC_chat_send(ipc, "000");
 	}
