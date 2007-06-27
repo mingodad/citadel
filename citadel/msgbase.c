@@ -2931,6 +2931,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	char dest_node[256];
 	char buf[1024];
 	struct CtdlMessage *msg;
+	int i;
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -2944,8 +2945,21 @@ struct CtdlMessage *CtdlMakeMessage(
 	striplt(recipient);
 	striplt(recp_cc);
 
-	snprintf(buf, sizeof buf, "cit%ld", author->usernum);	/* Path */
-	msg->cm_fields['P'] = strdup(buf);
+	/* Path or Return-Path */
+	if (my_email == NULL) my_email = "";
+
+	if (strlen(my_email) > 0) {
+		msg->cm_fields['P'] = strdup(my_email);
+	}
+	else {
+		snprintf(buf, sizeof buf, "%s", author->fullname);
+		msg->cm_fields['P'] = strdup(buf);
+	}
+	for (i=0; (msg->cm_fields['P'][i]!=0); ++i) {
+		if (isspace(msg->cm_fields['P'][i])) {
+			msg->cm_fields['P'][i] = '_';
+		}
+	}
 
 	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
 	msg->cm_fields['T'] = strdup(buf);
