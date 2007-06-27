@@ -1,5 +1,5 @@
 /*
- * $Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $
+ * $Id$
  *
  * This module glues libSieve to the Citadel server in order to implement
  * the Sieve mailbox filtering language (RFC 3028).
@@ -59,7 +59,7 @@ char *msiv_extensions = NULL;
  */
 int ctdl_debug(sieve2_context_t *s, void *my)
 {
-	static int ctdl_libsieve_debug = 0;
+	static int ctdl_libsieve_debug = 1;
 
 	if (ctdl_libsieve_debug) {
 /*
@@ -1231,7 +1231,7 @@ char *serv_sieve_init(void)
 {
 	ctdl_sieve_init();
 	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
-	return "$Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $";
+	return "$Id$";
 }
 
 #else	/* HAVE_LIBSIEVE */
@@ -1239,7 +1239,7 @@ char *serv_sieve_init(void)
 char *serv_sieve_init(void)
 {
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Mailbox filtering will be disabled.\n");
-	return "$Id: serv_sieve.c 3850 2005-09-13 14:00:24Z ajc $";
+	return "$Id$";
 }
 
 #endif	/* HAVE_LIBSIEVE */

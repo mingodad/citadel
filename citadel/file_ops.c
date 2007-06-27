@@ -280,7 +280,7 @@ void cmd_netf(char *cmdbuf)
 	putc(255, ofp);
 	putc(MES_NORMAL, ofp);
 	putc(0, ofp);
-	fprintf(ofp, "Pcit%ld", CC->user.usernum);
+	fprintf(ofp, "P%s", CC->user.fullname);
 	putc(0, ofp);
 	time(&now);
 	fprintf(ofp, "T%ld", (long) now);
