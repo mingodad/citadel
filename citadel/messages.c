@@ -858,8 +858,7 @@ int client_make_message(CtdlIPC *ipc,
 		scr_printf("Subject: %s\n", subject);
 	}
 	
-	if (subject_required) {
-		scr_printf("Internet mail recommends a subject.\n");
+	if ( (subject_required) && (strlen(subject) == 0) ) {
 		newprompt("Subject: ", subject, 70);
 	}
 
