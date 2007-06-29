@@ -549,7 +549,7 @@ void smtp_mail(char *argbuf) {
  * Implements the "RCPT To:" command
  */
 void smtp_rcpt(char *argbuf) {
-	char recp[SIZ];
+	char recp[1024];
 	char message_to_spammer[SIZ];
 	struct recptypes *valid = NULL;
 
@@ -570,7 +570,7 @@ void smtp_rcpt(char *argbuf) {
 		return;
 	}
 
-	strcpy(recp, &argbuf[3]);
+	safestrncpy(recp, &argbuf[3], sizeof recp);
 	striplt(recp);
 	stripallbut(recp, '<', '>');
 
@@ -623,8 +623,9 @@ void smtp_rcpt(char *argbuf) {
 	}
 	strcat(SMTP->recipients, recp);
 	SMTP->number_of_recipients += 1;
-	if (valid != NULL) 
+	if (valid != NULL)  {
 		free_recipients(valid);
+	}
 }
 
 
