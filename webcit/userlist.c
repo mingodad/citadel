@@ -151,7 +151,9 @@ void showuser(void)
 		urlescputs(who);
 		wprintf("\">");
 	}
-	wprintf("</td><td><h1>%s</h1></td></tr></table></center>\n", who);
+	wprintf("</td><td><h1>");
+	escputs(who);
+	wprintf("</h1></td></tr></table></center>\n");
 	serv_printf("RBIO %s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
