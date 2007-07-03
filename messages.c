@@ -2603,8 +2603,8 @@ DONE:
 	}
 
 	/** Note: wDumpContent() will output one additional </div> tag. */
+	wprintf("</div>\n");		/** end of 'content' div */
 	wDumpContent(1);
-	if (addrbook != NULL) free(addrbook);
 
 	/** free the summary */
 	if (WC->summ != NULL) {
@@ -2612,7 +2612,7 @@ DONE:
 		WC->num_summ = 0;
 		WC->summ = NULL;
 	}
-wprintf("</div>\n");		/** end of 'content' div */
+	if (addrbook != NULL) free(addrbook);
 }
 
 
