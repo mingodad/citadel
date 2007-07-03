@@ -97,6 +97,8 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	char new_window[SIZ];
 	int brak = 0;
 	int alevel = 0;
+	int scriptlevel = 0;
+	int script_start_pos = (-1);
 	int i;
 	int linklen;
 	char charset[128];
@@ -276,6 +278,17 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	msgend = strchr(msg, 0);
 	while (ptr < msgend) {
 
+		/** Try to sanitize the html of any rogue scripts */
+		if (!strncasecmp(ptr, "<script", 7)) {
+			if (scriptlevel == 0) {
+				script_start_pos = output_length;
+			}
+			++scriptlevel;
+		}
+		if (!strncasecmp(ptr, "</script", 8)) {
+			--scriptlevel;
+		}
+
 		/**
 		 * Change mailto: links to WebCit mail, by replacing the
 		 * link with one that points back to our mail room.  Due to
@@ -292,15 +305,16 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				}
 			}
 			sprintf(&converted_msg[output_length],
-				"<a href=\"display_enter"
-				"?force_room=_MAIL_&recp=");
+				"<a href=\"display_enter?force_room=_MAIL_&recp=");
 			output_length += 47;
 			ptr = &ptr[16];
 			++alevel;
+			++brak;
 		}
 		/** Make external links open in a separate window */
 		else if (!strncasecmp(ptr, "<a href=\"", 9)) {
 			++alevel;
+			++brak;
 			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
 			     &&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
 			     ) {
@@ -336,15 +350,18 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				ptr = &ptr[9];
 			}
 		}
+
 		/**
 		 * Turn anything that looks like a URL into a real link, as long
 		 * as it's not inside a tag already
 		 */
 		else if ( (brak == 0) && (alevel == 0)
 		     && (!strncasecmp(ptr, "http://", 7))) {
-				linklen = 0;
 				/** Find the end of the link */
-				for (i=0; i<=strlen(ptr); ++i) {
+				int strlenptr;
+				linklen = 0;
+				strlenptr = strlen(ptr);
+				for (i=0; i<=strlenptr; ++i) {
 					if ((ptr[i]==0)
 					   ||(isspace(ptr[i]))
 					   ||(ptr[i]==10)
@@ -389,13 +406,23 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			converted_msg[output_length] = *ptr++;
 			converted_msg[++output_length] = 0;
 		}
+
 		/**
 		 * We need to know when we're inside a tag,
 		 * so we don't turn things that look like URL's into
 		 * links, when they're already links - or image sources.
 		 */
-		if (*ptr == '<') ++brak;
-		if (*ptr == '>') --brak;
+		if (*(ptr-1) == '<') {
+			++brak;
+		}
+		if (*(ptr-1) == '>') {
+			--brak;
+			if ((scriptlevel == 0) && (script_start_pos >= 0)) {
+				output_length = script_start_pos;
+				converted_msg[output_length] = 0;
+				script_start_pos = (-1);
+			}
+		}
 		if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 	}
 
