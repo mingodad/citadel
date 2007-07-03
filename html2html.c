@@ -386,17 +386,17 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				}
 		}
 		else {
-			/**
-			 * We need to know when we're inside a tag,
-			 * so we don't turn things that look like URL's into
-			 * links, when they're already links - or image sources.
-			 */
-			if (*ptr == '<') ++brak;
-			if (*ptr == '>') --brak;
-			if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 			converted_msg[output_length] = *ptr++;
 			converted_msg[++output_length] = 0;
 		}
+		/**
+		 * We need to know when we're inside a tag,
+		 * so we don't turn things that look like URL's into
+		 * links, when they're already links - or image sources.
+		 */
+		if (*ptr == '<') ++brak;
+		if (*ptr == '>') --brak;
+		if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 	}
 
 	/**	uncomment these two lines to override conversion	*/
