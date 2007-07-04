@@ -222,30 +222,36 @@ void do_template(void *templatename) {
 	strcpy(inbuf, "");
 
 	while (fgets(inbuf, sizeof inbuf, fp) != NULL) {
-		strcpy(outbuf, "");
+		int len;
 
-		while (strlen(inbuf) > 0) {
+		strcpy(outbuf, "");
+		len = strlen(inbuf);
+		while (len > 0) {
 			pos = (-1);
-			for (i=strlen(inbuf); i>=0; --i) {
+			for (i=len; i>=0; --i) {
 				if ((inbuf[i]=='<')&&(inbuf[i+1]=='?')) pos = i;
 			}
 			if (pos < 0) {
 				wprintf("%s", inbuf);
 				strcpy(inbuf, "");
+				len = 0;
 			}
 			else {
 				strncpy(outbuf, inbuf, pos);
 				outbuf[pos] = 0;
 				wprintf("%s", outbuf);
-				strcpy(inbuf, &inbuf[pos]);
+				memmove(inbuf, &inbuf[pos], len - pos +1);
+				len -= pos;
 				pos = 1;
-				for (i=strlen(inbuf); i>=0; --i) {
+				for (i=len; i>=0; --i) {
 					if (inbuf[i]=='>') pos = i;
 				}
 				strncpy(key, &inbuf[2], pos-2);
 				key[pos-2] = 0;
 				print_value_of(key);
-				strcpy(inbuf, &inbuf[pos+1]);
+				pos++;
+				memmove(inbuf, &inbuf[pos], len - pos + 1);
+				len -= pos;
 			}
 		}
 	}
