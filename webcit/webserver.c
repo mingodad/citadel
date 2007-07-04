@@ -608,7 +608,7 @@ int main(int argc, char **argv)
 	pthread_attr_t attr;	/**< Thread attributes */
 	int a, i;	        	/**< General-purpose variables */
 	char tracefile[PATH_MAX];
-	char ip_addr[256];
+	char ip_addr[256]="0.0.0.0";
 	char dirbuffer[PATH_MAX]="";
 	int relh=0;
 	int home=0;
