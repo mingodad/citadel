@@ -106,7 +106,7 @@ void extract_token(char *dest, const char *source, int parmnum, char separator, 
 void remove_token(char *source, int parmnum, char separator)
 {
 	int i;
-	int len;
+	int len, slen;
 	int curr_parm;
 	int start, end;
 
@@ -115,11 +115,12 @@ void remove_token(char *source, int parmnum, char separator)
 	start = (-1);
 	end = (-1);
 
-	if (strlen(source) == 0) {
+	slen = strlen(source);
+	if (slen == 0) {
 		return;
 	}
 
-	for (i = 0; i < strlen(source); ++i) {
+	for (i = 0; i < slen; ++i) {
 		if ((start < 0) && (curr_parm == parmnum)) {
 			start = i;
 		}
@@ -136,7 +137,7 @@ void remove_token(char *source, int parmnum, char separator)
 	if (end < 0)
 		end = strlen(source);
 
-	strcpy(&source[start], &source[end]);
+	memmove(&source[start], &source[end], slen - end);
 }
 
 
