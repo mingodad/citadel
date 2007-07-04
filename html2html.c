@@ -306,7 +306,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			}
 			sprintf(&converted_msg[output_length],
 				"<a href=\"display_enter?force_room=_MAIL_&recp=");
-			output_length += 47;
+			output_length += 46;
 			ptr = &ptr[16];
 			++alevel;
 			++brak;
