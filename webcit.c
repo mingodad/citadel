@@ -28,11 +28,16 @@ void unescape_input(char *buf)
 {
 	int a, b;
 	char hex[3];
+	long buflen;
 
-	while ((isspace(buf[strlen(buf) - 1])) && (strlen(buf) > 0))
-		buf[strlen(buf) - 1] = 0;
+	buflen = strlen(buf);
 
-	for (a = 0; a < strlen(buf); ++a) {
+	while ((isspace(buf[buflen - 1])) && (buflen > 0)){
+		buf[buflen - 1] = 0;
+		buflen --;
+	}
+
+	for (a = 0; a < buflen; ++a) {
 		if (buf[a] == '+')
 			buf[a] = ' ';
 		if (buf[a] == '%') {
@@ -42,7 +47,9 @@ void unescape_input(char *buf)
 			b = 0;
 			sscanf(hex, "%02x", &b);
 			buf[a] = (char) b;
-			strcpy(&buf[a + 1], &buf[a + 3]);
+			memmove(&buf[a + 1], &buf[a + 3], buflen - a - 2);
+			
+			buflen -=2;
 		}
 	}
 
