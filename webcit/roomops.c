@@ -378,8 +378,9 @@ void embed_room_graphic(void) {
 void embed_view_o_matic(void) {
 	int i;
 
-	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n"
-		"<label for=\"view_name\">");
+	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<label for=\"view_name\">");
 	wprintf(_("View as:"));
 	wprintf("</label> "
 		"<select name=\"newview\" size=\"1\" "
@@ -416,8 +417,9 @@ void embed_view_o_matic(void) {
  * \brief Display a search box
  */
 void embed_search_o_matic(void) {
-	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n"
-		"<label for=\"search_name\">");
+	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<label for=\"search_name\">");
 	wprintf(_("Search: "));
 	wprintf("</label> <input "
 		"type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "

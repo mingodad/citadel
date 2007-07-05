@@ -118,8 +118,9 @@ void display_floorconfig(char *prepend_html)
 	}
 
 	wprintf("<TR><TD>&nbsp;</TD>"
-		"<TD><FORM METHOD=\"POST\" action=\"create_floor\">"
-		"<INPUT TYPE=\"text\" NAME=\"floorname\" "
+		"<TD><FORM METHOD=\"POST\" action=\"create_floor\">");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<INPUT TYPE=\"text\" NAME=\"floorname\" "
 		"MAXLENGTH=\"250\">\n"
 		"<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 		"VALUE=\"%s\">"
