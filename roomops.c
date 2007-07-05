@@ -467,7 +467,8 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
-	svprintf("ROOMNAME", WCS_STRING, "%s", WC->wc_roomname);
+	stresc(buf, WC->wc_roomname, 1, 1);
+	svprintf("ROOMNAME", WCS_STRING, "%s", buf);
 	svprintf("NUMMSGS", WCS_STRING,
 		_("%d new of %d messages"),
 		extract_int(&got[4], 1),
@@ -482,10 +483,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	do_template("roombanner");
 	if (navbar_style != navbar_none) {
 
-		wprintf("<div id=\"navbar\">\n"
-			"<ul>");
-
-		
+		wprintf("<div id=\"navbar\"><ul>");
 
 		if (navbar_style == navbar_default) wprintf(
 			"<li class=\"ungoto\">"
