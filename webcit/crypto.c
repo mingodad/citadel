@@ -356,9 +356,7 @@ int starttls(int sock) {
 		return(4);
 	}
 	BIO_set_close(newssl->rbio, BIO_NOCLOSE);
-	bits =
-	    SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl),
-				&alg_bits);
+	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
 	lprintf(5, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
 		SSL_CIPHER_get_version(SSL_get_current_cipher(newssl)),
