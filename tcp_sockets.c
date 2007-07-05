@@ -202,13 +202,11 @@ void serv_write(char *buf, int nbytes)
  */
 void serv_puts(char *string)
 {
-	char buf[SIZ];
-
 #ifdef SERV_TRACE
 	lprintf(9, "%3d<%s\n", WC->serv_sock, string);
 #endif
-	sprintf(buf, "%s\n", string);
-	serv_write(buf, strlen(buf));
+	serv_write(string, strlen(string));
+	serv_write("\n", 1);
 }
 
 
