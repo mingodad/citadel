@@ -649,21 +649,26 @@ void artv_do_import(void) {
 	char abuf[SIZ];
 	char s_version[SIZ];
 	int version;
+	long iterations;
 
 	unbuffer_output();
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	abuf[0] = '\0';
 	unbuffer_output();
+	iterations = 0;
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		lprintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);
 		if ((abuf[0] == '\0') || (strcasecmp(buf, abuf))) {
 			cprintf ("\n\nImporting datatype %s\n", buf);
-			strncpy (abuf, buf, SIZ);			
+			strncpy (abuf, buf, SIZ);	
+			iterations = 0;
 		}
-			else {
+		else {
 			cprintf(".");
+			if (iterations % 64 == 0)
+				cprintf("\n");
 			
 		}
 		
@@ -683,11 +688,10 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
 		else if (!strcasecmp(buf, "message")) artv_import_message();
 		else break;
-
+		iterations ++;
 	}
 	lprintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
-	cprintf("done.\n");
 	rebuild_euid_index();
 }
 

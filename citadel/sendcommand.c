@@ -142,7 +142,6 @@ int main(int argc, char **argv)
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
-	char rbuf[SIZ];
 
 	int relh=0;
 	int home=0;
@@ -216,11 +215,11 @@ int main(int argc, char **argv)
 					buf[strlen(buf) - 1] = 0;
 			if (strcmp(buf, "000"))
 				CtdlIPC_chat_send(ipc, buf);
-
+			
 			FD_ZERO(&read_fd);
 			FD_SET(ipc->sock, &read_fd);
 			ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
-			err=errno;
+			err = errno;
 			if (err!=0)
 				printf("select failed: %d", err);
 
@@ -230,15 +229,19 @@ int main(int argc, char **argv)
 				return 1;
 			}
 
-			if (ret != 0){
+			if (ret != 0) {
+				size_t n;
+				char rbuf[SIZ];
+
 				rbuf[0] = '\0';
-				read(ipc->sock, rbuf, SIZ);
-				if (rbuf[0]!=0) {
+				n = read(ipc->sock, rbuf, SIZ);
+				if (n>0) {
+					rbuf[n]='\0';
 					printf (rbuf);
-					memset (rbuf, '\0', SIZ);
 				}
 			}
 		} while (strcmp(buf, "000"));
+		CtdlIPC_chat_send(ipc, "\n");
 		CtdlIPC_chat_send(ipc, "000");
 	}
 	fprintf(stderr, "sendcommand: processing ended.\n");
