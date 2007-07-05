@@ -120,7 +120,9 @@ void remove_token(char *source, int parmnum, char separator)
 		return;
 	}
 
-	for (i = 0; i < slen; ++i) {
+	for (i = 0; 
+	     ( (i < slen)  && (end == -1) ); 
+	     ++i) {
 		if ((start < 0) && (curr_parm == parmnum)) {
 			start = i;
 		}
@@ -135,9 +137,9 @@ void remove_token(char *source, int parmnum, char separator)
 	}
 
 	if (end < 0)
-		end = strlen(source);
+		end = slen;
 
-	memmove(&source[start], &source[end], slen - end);
+	memmove(&source[start], &source[end], slen - end + 1);
 }
 
 
