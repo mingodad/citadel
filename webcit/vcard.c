@@ -84,6 +84,7 @@ struct vCard *vcard_load(char *vtext) {
 	char *mycopy, *ptr;
 	char *namebuf, *valuebuf;
 	int i;
+	int len;
 	int colonpos, nlpos;
 
 	if (vtext == NULL) return vcard_new();
@@ -95,12 +96,15 @@ struct vCard *vcard_load(char *vtext) {
 	 * To make it easier to parse, we convert CRLF to LF, and unfold any
 	 * multi-line fields into single lines.
 	 */
-	for (i=0; i<strlen(mycopy); ++i) {
+	len = strlen(mycopy);
+	for (i=0; i<len; ++i) {
 		if (!strncmp(&mycopy[i], "\r\n", 2)) {
-			strcpy(&mycopy[i], &mycopy[i+1]);
+			memmove(&mycopy[i], &mycopy[i+1], len - i);
+			len --;
 		}
 		if ( (mycopy[i]=='\n') && (isspace(mycopy[i+1])) ) {
-			strcpy(&mycopy[i], &mycopy[i+1]);
+			memmove(&mycopy[i], &mycopy[i+1], len - i);
+			len --;
 		}
 	}
 
@@ -108,7 +112,7 @@ struct vCard *vcard_load(char *vtext) {
 	if (v == NULL) return v;
 
 	ptr = mycopy;
-	while (strlen(ptr)>0) {
+	while (*ptr != '\0') {
 		colonpos = (-1);
 		nlpos = (-1);
 		colonpos = pattern2(ptr, ":");
@@ -147,7 +151,7 @@ struct vCard *vcard_load(char *vtext) {
 
 		}
 
-		while ( (*ptr != '\n') && (strlen(ptr)>0) ) {
+		while ( (*ptr != '\n') && (*ptr != '\0') ) {
 			++ptr;
 		}
 		if (*ptr == '\n') ++ptr;
