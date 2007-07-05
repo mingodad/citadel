@@ -1209,7 +1209,9 @@ void session_loop(struct httprequest *req)
 	}
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
-	if (strlen(bstr("nonce")) > 0) {
+	if (!strcasecmp(request_method, "POST")) {
+		lprintf(9, "Comparing supplied nonce %s to session nonce %ld\n", 
+			bstr("nonce"), WC->nonce);
 		if (atoi(bstr("nonce")) != WC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			wprintf("HTTP/1.1 404 Security check failed\r\n");

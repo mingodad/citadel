@@ -67,9 +67,10 @@ void display_note(long msgnum)
 	/** Offer in-place editing. */
 	if (strlen(eid) > 0) {
 		wprintf("<script type=\"text/javascript\">"
-			" new Ajax.InPlaceEditor('note%s', 'updatenote?eid=%s', {rows:5,cols:72}); "
+			"new Ajax.InPlaceEditor('note%s', 'updatenote?nonce=%ld?eid=%s', {rows:5,cols:72});"
 			"</script>\n",
 			eid,
+			WC->nonce,
 			eid
 		);
 	}
