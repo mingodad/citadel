@@ -95,6 +95,7 @@ void display_floorconfig(char *prepend_html)
 			"<INPUT TYPE=\"text\" NAME=\"floorname\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change name"));
@@ -108,6 +109,7 @@ void display_floorconfig(char *prepend_html)
 			"<INPUT TYPE=\"text\" NAME=\"floorcss\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change CSS"));

@@ -217,6 +217,7 @@ void display_preferences(void)
 		"<form name=\"prefform\" action=\"set_preferences\" "
 		"method=\"post\">\n"
 		"<table border=0 cellspacing=5 cellpadding=5>\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	/**
 	 * Room list view

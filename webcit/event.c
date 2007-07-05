@@ -123,6 +123,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	*************************************************************/
 
 	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" action=\"save_event\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);

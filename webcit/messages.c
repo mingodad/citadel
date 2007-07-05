@@ -2950,6 +2950,7 @@ void display_enter(void)
 		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
 	}
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	/** header bar */
 
@@ -3270,6 +3271,7 @@ void confirm_move_msg(void)
 	wprintf("<br />\n");
 
 	wprintf("<form METHOD=\"POST\" action=\"move_msg\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");

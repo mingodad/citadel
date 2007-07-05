@@ -237,6 +237,7 @@ void edit_me(void)
 		wprintf("<br />\n");
 
 		wprintf("<form method=\"POST\" action=\"edit_me\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 		wprintf("<table border=0 width=100%%>\n");
 

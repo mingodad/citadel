@@ -38,6 +38,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<FORM ENCTYPE=\"multipart/form-data\" action=\"%s\" "
 		"METHOD=\"POST\" NAME=\"graphicsupload\">\n", uplurl);
 
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"which_room\" VALUE=\"");
 	urlescputs(bstr("which_room"));
 	wprintf("\">\n");

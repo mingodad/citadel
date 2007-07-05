@@ -468,6 +468,7 @@ void context_loop(int sock)
 		strcpy(TheSession->httpauth_pass, httpauth_pass);
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
+		TheSession->nonce = rand();
 		TheSession->next = SessionList;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);

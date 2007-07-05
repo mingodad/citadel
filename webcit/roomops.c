@@ -1176,6 +1176,7 @@ void display_editroom(void)
 
 	if (!strcmp(tab, "config")) {
 		wprintf("<FORM METHOD=\"POST\" action=\"editroom\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	
 		wprintf("<UL><LI>");
 		wprintf(_("Name of room: "));
@@ -1429,9 +1430,9 @@ void display_editroom(void)
 			extract_token(node, buf, 0, '|', sizeof node);
 			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
 			if (strlen(node) > 0) {
-				wprintf("<FORM METHOD=\"POST\" "
-					"action=\"netedit\">"
-					"<TR><TD>%s</TD>\n", node);
+				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
+				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+				wprintf("<TR><TD>%s</TD>\n", node);
 
 				wprintf("<TD>");
 				if (strlen(remote_room) > 0) {
@@ -1472,9 +1473,9 @@ void display_editroom(void)
 		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
 			extract_token(node, not_shared_with, i, '\n', sizeof node);
 			if (strlen(node) > 0) {
-				wprintf("<FORM METHOD=\"POST\" "
-					"action=\"netedit\">"
-					"<TR><TD>");
+				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
+				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+				wprintf("<TR><TD>");
 				escputs(node);
 				wprintf("</TD><TD>"
 					"<INPUT TYPE=\"INPUT\" "
@@ -1544,6 +1545,7 @@ void display_editroom(void)
 		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</FORM>\n");
@@ -1574,6 +1576,7 @@ void display_editroom(void)
 		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</FORM>\n");
@@ -1638,6 +1641,7 @@ void display_editroom(void)
 		}
 		
 		wprintf("<br /><FORM METHOD=\"POST\" action=\"set_room_policy\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<TABLE border=0 cellspacing=5>\n");
 		wprintf("<TR><TD>");
 		wprintf(_("Message expire policy for this room"));
@@ -1987,6 +1991,7 @@ void display_whok(void)
 	wprintf("<br /><br />");
 	
         wprintf("<CENTER><FORM METHOD=\"POST\" action=\"do_invt_kick\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
@@ -2011,6 +2016,7 @@ void display_whok(void)
 
         wprintf("<CENTER><FORM METHOD=\"POST\" action=\"do_invt_kick\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
         wprintf(_("Invite:"));
 	wprintf(" ");
         wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
@@ -2055,6 +2061,7 @@ void display_entroom(void)
 		"<table class=\"roomops_background\"><tr><td>\n");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf("<UL><LI>");
 	wprintf(_("Name of room: "));
@@ -2277,6 +2284,7 @@ void display_private(char *rname, int req_pass)
 	wprintf("\n<br /><br />");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"goto_private\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf("<table border=\"0\" cellspacing=\"5\" "
 		"cellpadding=\"5\" class=\"roomops_background_alt\">\n"
@@ -2360,6 +2368,7 @@ void display_zap(void)
 		"to do?<br />\n"), WC->wc_roomname);
 
 	wprintf("<FORM METHOD=\"POST\" action=\"zap\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));

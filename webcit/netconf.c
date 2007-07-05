@@ -71,6 +71,7 @@ void display_add_node(void)
 	wprintf("</div>\n<div id=\"content\">\n");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"edit_node\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<CENTER><TABLE border=0>\n");
 	wprintf("<TR><TD>%s</TD>", _("Node name"));
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"node\" MAXLENGTH=\"16\"></TD></TR>\n");
@@ -124,6 +125,7 @@ void display_edit_node(void)
 
 			if (!strcasecmp(node, cnode)) {
 				wprintf("<FORM METHOD=\"POST\" action=\"edit_node\">\n");
+				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 				wprintf("<CENTER><TABLE border=0>\n");
 				wprintf("<TR><TD>");
 				wprintf(_("Node name"));

@@ -494,6 +494,7 @@ void display_customize_iconbar(void) {
 		"<table class=\"iconbar_background\"><tr><td>");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"commit_iconbar\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf("<CENTER>");
 	wprintf(_("Display icons as:"));

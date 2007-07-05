@@ -1200,12 +1200,24 @@ void session_loop(struct httprequest *req)
 		else 
 		{
 			lprintf(9, "Suspicious request. Ignoring.");
-			wprintf("HTTP/1.1 404 Not found. Don't try to Trick me DUDE!\r\n");
+			wprintf("HTTP/1.1 404 Security check failed\r\n");
 			wprintf("Content-Type: text/plain\r\n");
 			wprintf("\r\n");
-			wprintf("Not found. Don't play games on me!\r\n");
+			wprintf("Security check failed.\r\n");
 		}
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
+	}
+
+	/* If the client sent a nonce that is incorrect, kill the request. */
+	if (strlen(bstr("nonce")) > 0) {
+		if (atoi(bstr("nonce")) != WC->nonce) {
+			lprintf(9, "Ignoring request with mismatched nonce.\n");
+			wprintf("HTTP/1.1 404 Security check failed\r\n");
+			wprintf("Content-Type: text/plain\r\n");
+			wprintf("\r\n");
+			wprintf("Security check failed.\r\n");
+			goto SKIP_ALL_THIS_CRAP;
+		}
 	}
 
 	/**
