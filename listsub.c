@@ -168,9 +168,9 @@ void do_listsub(void)
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n"
-			"<TABLE BORDER=0>\n"
-		);
+FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<TABLE BORDER=0>\n");
 
 		wprintf("<TR><TD>Name of list</TD><TD>"
         		"<SELECT NAME=\"room\" SIZE=1>\n");

@@ -403,7 +403,7 @@ void validate(void)
 	wprintf(_("Select access level for this user:"));
 	wprintf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<a href=\"validate&user=");
+		wprintf("<a href=\"validate?nonce=%ld?user=", WC->nonce);
 		urlescputs(user);
 		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
@@ -488,6 +488,7 @@ void display_changepw(void)
 	}
 
 	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<CENTER>"
 		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
 		"BGCOLOR=\"#EEEEEE\">"

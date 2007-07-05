@@ -397,6 +397,7 @@ struct wcsession {
 	char floordiv_expanded[32];		/**< which floordiv currently expanded */
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
+	int nonce;				/**< session nonce (to prevent session riding) */
 };
 
 /** values for WC->current_iconbar */

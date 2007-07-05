@@ -1,5 +1,5 @@
 /* 
- * $Id: $
+ * $Id$
  */
 /**
  * \defgroup Sieve view/edit sieve config
@@ -87,6 +87,7 @@ void display_sieve(void)
 
 
 	wprintf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf(_("When new mail arrives: "));
         wprintf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
@@ -613,6 +614,7 @@ void display_add_remove_scripts(char *message)
 	wprintf("<br /><br />");
 
         wprintf("<center><form method=\"POST\" action=\"create_script\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
         wprintf(_("Script name: "));
         wprintf("<input type=\"text\" name=\"script_name\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
@@ -638,6 +640,7 @@ void display_add_remove_scripts(char *message)
 	
         wprintf("<center>"
 		"<form method=\"POST\" action=\"delete_script\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
         wprintf("<select name=\"script_name\" size=10 style=\"width:100%%\">\n");
 
         serv_puts("MSIV listscripts");

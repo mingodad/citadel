@@ -1,5 +1,5 @@
 /*
- * $Id: downloads.c 4849 2007-01-08 20:05:56Z ajc $
+ * $Id$
  */
 #include "webcit.h"
 
@@ -64,6 +64,7 @@ void display_room_directory(void)
 			"name=\"upload_file_form\""
 			">\n"
 		);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 		wprintf(_("Upload a file:"));
 		wprintf("&nbsp;<input NAME=\"filename\" SIZE=16 TYPE=\"file\">&nbsp;\n");

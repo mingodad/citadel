@@ -111,6 +111,7 @@ void display_siteconfig(void)
 		);
 
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	i = 0;
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {

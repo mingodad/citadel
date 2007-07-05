@@ -130,8 +130,9 @@ void display_inetconf(void)
 				wprintf("</font></a></TD></TR>\n");
 			}
 		}
-		wprintf("<FORM METHOD=\"POST\" action=\"save_inetconf\">\n"
-			"<TR><TD>"
+		wprintf("<FORM METHOD=\"POST\" action=\"save_inetconf\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<TR><TD>"
 			"<INPUT TYPE=\"text\" NAME=\"ename\" MAXLENGTH=\"64\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"etype\" VALUE=\"%s\">", ic_keyword[which]);
 		wprintf("</TD><TD ALIGN=RIGHT>"

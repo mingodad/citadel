@@ -186,6 +186,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	);
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"vcard_edit_background\"><tr><td>\n");
 

@@ -47,6 +47,7 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("<br />");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"%s\">\n", save_cmd);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n");
 	serv_puts(read_cmd);

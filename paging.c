@@ -35,6 +35,7 @@ void display_page(void)
 	wprintf("<br>\n");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"page_user\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
 	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
 
@@ -483,6 +484,7 @@ void chat_send(void) {
 	WC->chat_sock = i;
 
 	wprintf("<FORM METHOD=\"POST\" action=\"chat_send\" NAME=\"chatsendform\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
 		"NAME=\"send_this\">\n", SIZ-10);
 	wprintf("<br />");

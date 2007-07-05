@@ -517,6 +517,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		"<table class=\"calendar_background\"><tr><td>");
 	
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
 
