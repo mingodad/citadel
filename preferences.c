@@ -377,7 +377,9 @@ void display_preferences(void)
 	wprintf("<tr><td>");
 	wprintf(_("Default character set for email headers:"));
 	wprintf("</td><td>");
-	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"%s\">", buf);
+	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
+	escputs(buf);
+	wprintf("\">");
 	wprintf("</td></tr>");
 
 	/** submit buttons */
