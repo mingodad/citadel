@@ -1,5 +1,5 @@
                         WEBCIT for the Citadel System
-                               version 7.06
+                               version 7.11
  
    Copyright (C) 1996-2007 by the authors.  Portions written by:
 	Art Cancro
@@ -13,7 +13,7 @@
 	Martin Mouritzen
 
    This program is open source software released under the terms of the GNU
-   General Public License, version 2.  Please read COPYING.txt for more
+   General Public License, version 3.  Please read COPYING.txt for more
    licensing information.
  
    WebCit bundles the Prototype JavaScript Framework, writen by Sam

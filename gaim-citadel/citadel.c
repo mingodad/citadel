@@ -2,7 +2,7 @@
  * Gaim Citadel plugin.
  * 
  * © 2006 David Given.
- * This code is licensed under the GPL v2. See the file COPYING in this
+ * This code is licensed under the GPL v3. See the file COPYING in this
  * directory for the full license text.
  *
  * $Id:citadel.c 4326 2006-02-18 12:26:22Z hjalfi $
