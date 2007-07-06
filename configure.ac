@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in 4798 2006-12-28 16:34:20Z ajc $
+dnl $Id$
 AC_INIT(webserver.c)
 
 
 PACKAGE=webcit
-VERSION=7.07
+VERSION=7.11
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_SUBST(PACKAGE)
