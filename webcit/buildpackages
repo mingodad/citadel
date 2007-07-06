@@ -56,7 +56,8 @@ case $1 in
 	fi
 	;;
     sourcedist)
-	cd ..; tar -cvzf webcit-${WEBCIT_VERSION}.tgz webcit-${WEBCIT_VERSION}/
+	rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.sub config.guess  config.log config.status autom4te.cache
+	cd ..; tar -cvzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
     *)
 	echo "Not yet implemented. we have: debian "
