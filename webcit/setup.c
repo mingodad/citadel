@@ -339,6 +339,16 @@ void install_init_scripts(void)
 	FILE *fp;
 	char *initfile = "/etc/init.d/webcit";
 
+	fp = fopen(initfile, "r");
+	if (fp != NULL) {
+		if (yesno("WebCit already appears to be configured to start at boot.\n"
+		   "Would you like to keep your boot configuration as is?\n", 1) == 1) {
+			return;
+		}
+		fclose(fp);
+		
+	}
+
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
 		"Would you like to automatically start WebCit at boot?"

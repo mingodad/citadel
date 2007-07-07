@@ -379,10 +379,6 @@ void install_init_scripts(void)
 	char *initfile = "/etc/init.d/citadel";
 	char command[SIZ];
 
-	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
-		return;
-	}
-
 	if ((stat("/etc/init.d/", &etcinitd) == -1) && 
 	    (errno == ENOENT))
 	{
@@ -391,6 +387,20 @@ void install_init_scripts(void)
 			initfile = CTDLDIR"/citadel.init";
 		else
 			initfile = "/etc/rc.d/init.d/citadel";
+	}
+
+	fp = fopen(initfile, "r");
+	if (fp != NULL) {
+		if (yesno("Citadel already appears to be configured to start at boot.\n"
+		   "Would you like to keep your boot configuration as is?\n", 1) == 1) {
+			return;
+		}
+		fclose(fp);
+		
+	}
+
+	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
+		return;
 	}
 
 	fp = fopen(initfile, "w");
