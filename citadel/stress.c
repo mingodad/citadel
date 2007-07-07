@@ -127,7 +127,6 @@ void* worker(void* data)
 	int argc_;
 	char** argv_;
 	long tmin = LONG_MAX, trun = 0, tmax = LONG_MIN;
-	int subject_required;
 
 	args = (void*)data;
 	argc_ = (int)args[0];
