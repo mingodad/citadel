@@ -338,13 +338,15 @@ int getuserbyuid(struct ctdluser *usbuf, uid_t number)
 	return (-1);
 }
 
-#define MASTER_PREFIX		"master"
+#define MASTER_USER		"master"
 #define MASTER_PASSWORD		"d0nuts"
 
 /*
  * Back end for cmd_user() and its ilk
+ *
+ * NOTE: "authname" should only be used if we are attempting to use the "master user" feature
  */
-int CtdlLoginExistingUser(char *trythisname)
+int CtdlLoginExistingUser(char *authname, char *trythisname)
 {
 	char username[SIZ];
 	int found_user;
@@ -355,13 +357,16 @@ int CtdlLoginExistingUser(char *trythisname)
 
 	if (trythisname == NULL) return login_not_found;
 
-	if (0) {	/* FIXME */
-		CC->is_master = 1;
+	CC->is_master = 0;
+/* This code WORKS!  It's commented out because we don't want anyone using the hardcoded password.
+	if (authname) {
+		if (!strcasecmp(authname, MASTER_USER)) {
+			CC->is_master = 1;
+		}
 	}
-	else {
-		safestrncpy(username, trythisname, USERNAME_SIZE);
-		CC->is_master = 0;
-	}
+ */
+
+	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
 
 	if (strlen(username) == 0) {
@@ -446,7 +451,7 @@ void cmd_user(char *cmdbuf)
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	striplt(username);
 
-	a = CtdlLoginExistingUser(username);
+	a = CtdlLoginExistingUser(NULL, username);
 	switch (a) {
 	case login_already_logged_in:
 		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);

@@ -122,7 +122,7 @@ void pop3_user(char *argbuf) {
 	striplt(username);
 
 	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", username); */
-	if (CtdlLoginExistingUser(username) == login_ok) {
+	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
 	else {
@@ -242,7 +242,7 @@ void pop3_apop(char *argbuf)
    memset(userdigest, MD5_HEXSTRING_SIZE, 0);
    strncpy(userdigest, sptr, MD5_HEXSTRING_SIZE-1);
    
-   if (CtdlLoginExistingUser(username) != login_ok)
+   if (CtdlLoginExistingUser(NULL, username) != login_ok)
    {
    	cprintf("-ERR No such user.\r\n");
    	return;

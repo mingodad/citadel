@@ -50,7 +50,7 @@ int GenerateRelationshipIndex(  char *IndexBuf,
                                 long RoomGen,
                                 long UserID);
 int CtdlAssociateSystemUser(char *screenname, char *loginname);
-int CtdlLoginExistingUser(char *username);
+int CtdlLoginExistingUser(char *authname, char *username);
 
 /*
  * Values which may be returned by CtdlLoginExistingUser()

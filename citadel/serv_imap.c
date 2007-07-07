@@ -522,7 +522,7 @@ void imap_login(int num_parms, char *parms[])
 		return;
 	}
 
-	if (CtdlLoginExistingUser(parms[2]) == login_ok) {
+	if (CtdlLoginExistingUser(NULL, parms[2]) == login_ok) {
 		if (CtdlTryPassword(parms[3]) == pass_ok) {
 			cprintf("%s OK [", parms[0]);
 			imap_output_capability_string();
@@ -562,8 +562,9 @@ void imap_authenticate(int num_parms, char *parms[])
 	}
 
 	if (!strcasecmp(parms[2], "PLAIN")) {
-		CtdlEncodeBase64(buf, "Username:", 9);
-		cprintf("+ %s\r\n", buf);
+		// CtdlEncodeBase64(buf, "Username:", 9);
+		// cprintf("+ %s\r\n", buf);
+		cprintf("+ \r\n");
 		IMAP->authstate = imap_as_expecting_plainauth;
 		strcpy(IMAP->authseq, parms[0]);
 		return;
@@ -581,6 +582,7 @@ void imap_auth_plain(char *cmd)
 	char ident[256];
 	char user[256];
 	char pass[256];
+	int result;
 
 	CtdlDecodeBase64(decoded_authstring, cmd, strlen(cmd));
 	safestrncpy(ident, decoded_authstring, sizeof ident);
@@ -588,7 +590,15 @@ void imap_auth_plain(char *cmd)
 	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
 
 	IMAP->authstate = imap_as_normal;
-	if (CtdlLoginExistingUser(user) == login_ok) {
+
+	if (strlen(ident) > 0) {
+		result = CtdlLoginExistingUser(user, ident);
+	}
+	else {
+		result = CtdlLoginExistingUser(NULL, user);
+	}
+
+	if (result == login_ok) {
 		if (CtdlTryPassword(pass) == pass_ok) {
 			cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
 			return;
@@ -602,7 +612,7 @@ void imap_auth_login_user(char *cmd)
 	char buf[SIZ];
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
-	CtdlLoginExistingUser(buf);
+	CtdlLoginExistingUser(NULL, buf);
 	CtdlEncodeBase64(buf, "Password:", 9);
 	cprintf("+ %s\r\n", buf);
 	IMAP->authstate = imap_as_expecting_password;

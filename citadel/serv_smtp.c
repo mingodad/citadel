@@ -315,7 +315,7 @@ void smtp_get_user(char *argbuf) {
 
 	CtdlDecodeBase64(username, argbuf, SIZ);
 	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", username); */
-	if (CtdlLoginExistingUser(username) == login_ok) {
+	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9);
 		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_password;
@@ -353,16 +353,23 @@ void smtp_try_plain(char *encoded_authstring) {
 	char ident[256];
 	char user[256];
 	char pass[256];
+	int result;
 
-	CtdlDecodeBase64(decoded_authstring,
-			encoded_authstring,
-			strlen(encoded_authstring) );
+	CtdlDecodeBase64(decoded_authstring, encoded_authstring, strlen(encoded_authstring) );
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
 	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
 
 	SMTP->command_state = smtp_command;
-	if (CtdlLoginExistingUser(user) == login_ok) {
+
+	if (strlen(ident) > 0) {
+		result = CtdlLoginExistingUser(user, ident);
+	}
+	else {
+		result = CtdlLoginExistingUser(NULL, user);
+	}
+
+	if (result == login_ok) {
 		if (CtdlTryPassword(pass) == pass_ok) {
 			smtp_auth_greeting();
 			return;

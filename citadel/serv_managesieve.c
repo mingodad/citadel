@@ -1,5 +1,5 @@
 /**
- * $Id: $
+ * $Id$
  *
  * This module is an managesieve implementation for the Citadel system.
  * It is compliant with all of the following:
@@ -222,7 +222,7 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		else 
 			retval = CtdlDecodeBase64(auth, parms[2], SIZ);
 
-		if (login_ok == CtdlLoginExistingUser(auth))
+		if (login_ok == CtdlLoginExistingUser(NULL, auth))
 		{
 			char *pass;
 			pass = &(auth[strlen(auth)+1]);
@@ -581,7 +581,7 @@ char *serv_managesieve_init(void)
 				managesieve_command_loop,
 				NULL);
 
-	return "$Id: serv_managesieve.c 4570 2006-08-27 02:07:18Z dothebart $";
+	return "$Id$";
 }
 
 #else	/* HAVE_LIBSIEVE */
@@ -589,7 +589,7 @@ char *serv_managesieve_init(void)
 char *serv_managesieve_init(void)
 {
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Managesieve protocol is disabled..\n");
-	return "$Id:  $";
+	return "$Id$";
 }
 
 #endif	/* HAVE_LIBSIEVE */
