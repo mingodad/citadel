@@ -16,11 +16,6 @@ case "$1" in
         chown -R citadel:citadel /etc/citadel
         chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
 
-        # we're a bit paranoid here,
-        # because of this gave us many errors in the past.
-	chown root:root /usr/sbin/chkpwd
-        chmod 4755 /usr/sbin/chkpwd
-
         db_get citadel/Administrator && admin="$RET"
         db_get citadel/ServerIPAddress && ip_addr="$RET"
         db_get citadel/LoginType && deb_enable_unix_auth="$RET"
