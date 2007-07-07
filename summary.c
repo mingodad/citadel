@@ -85,11 +85,13 @@ void wholist_section(void) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(user, buf, 1, '|', sizeof user);
-                wprintf("<li><a href=\"showuser?who=");
-                urlescputs(user);
-                wprintf("\">");
-                escputs(user);
-                wprintf("</a></li>");
+		if (strcmp(user, NLI)) {
+                	wprintf("<li><a href=\"showuser?who=");
+                	urlescputs(user);
+                	wprintf("\">");
+                	escputs(user);
+                	wprintf("</a></li>");
+		}
 	}
 }
 
