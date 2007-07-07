@@ -44,7 +44,8 @@ struct citimap {
 enum {
 	imap_as_normal,
 	imap_as_expecting_username,
-	imap_as_expecting_password
+	imap_as_expecting_password,
+	imap_as_expecting_plainauth
 };
 
 /* Flags for the above struct.  Note that some of these are for internal use,

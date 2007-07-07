@@ -437,7 +437,7 @@ void imap_cleanup_function(void)
  * output this stuff in other places as well)
  */
 void imap_output_capability_string(void) {
-	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=LOGIN");
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=PLAIN AUTH=LOGIN");
 
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
@@ -561,10 +561,40 @@ void imap_authenticate(int num_parms, char *parms[])
 		return;
 	}
 
+	if (!strcasecmp(parms[2], "PLAIN")) {
+		CtdlEncodeBase64(buf, "Username:", 9);
+		cprintf("+ %s\r\n", buf);
+		IMAP->authstate = imap_as_expecting_plainauth;
+		strcpy(IMAP->authseq, parms[0]);
+		return;
+	}
+
 	else {
 		cprintf("%s NO AUTHENTICATE %s failed\r\n",
 			parms[0], parms[1]);
 	}
+}
+
+void imap_auth_plain(char *cmd)
+{
+	char decoded_authstring[1024];
+	char ident[256];
+	char user[256];
+	char pass[256];
+
+	CtdlDecodeBase64(decoded_authstring, cmd, strlen(cmd));
+	safestrncpy(ident, decoded_authstring, sizeof ident);
+	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
+	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+
+	IMAP->authstate = imap_as_normal;
+	if (CtdlLoginExistingUser(user) == login_ok) {
+		if (CtdlTryPassword(pass) == pass_ok) {
+			cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
+			return;
+		}
+	}
+	cprintf("%s NO authentication failed\r\n", IMAP->authseq);
 }
 
 void imap_auth_login_user(char *cmd)
@@ -585,8 +615,7 @@ void imap_auth_login_pass(char *cmd)
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
 	if (CtdlTryPassword(buf) == pass_ok) {
-		cprintf("%s OK authentication succeeded\r\n",
-			IMAP->authseq);
+		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
 	} else {
 		cprintf("%s NO authentication failed\r\n", IMAP->authseq);
 	}
@@ -1296,6 +1325,9 @@ void imap_command_loop(void)
 	if (IMAP->authstate == imap_as_expecting_password) {
 		lprintf(CTDL_INFO, "IMAP: <password>\n");
 	}
+	else if (IMAP->authstate == imap_as_expecting_plainauth) {
+		lprintf(CTDL_INFO, "IMAP: <plain_auth>\n");
+	}
 	else if (bmstrcasestr(cmdbuf, " LOGIN ")) {
 		lprintf(CTDL_INFO, "IMAP: LOGIN...\n");
 	}
@@ -1316,6 +1348,10 @@ void imap_command_loop(void)
 	/* If we're in the middle of a multi-line command, handle that */
 	if (IMAP->authstate == imap_as_expecting_username) {
 		imap_auth_login_user(cmdbuf);
+		return;
+	}
+	if (IMAP->authstate == imap_as_expecting_plainauth) {
+		imap_auth_plain(cmdbuf);
 		return;
 	}
 	if (IMAP->authstate == imap_as_expecting_password) {

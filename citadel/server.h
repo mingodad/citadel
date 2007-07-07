@@ -70,6 +70,7 @@ struct CitContext {
 	int nologin;		/* not allowed to log in */
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	int curr_view;		/* The view type for the current user/room */
+	int is_master;		/* Is this session logged in using the master user? */
 
 	char net_node[32]	;/* Is the client another Citadel server? */
 	time_t previous_login;	/* Date/time of previous login */

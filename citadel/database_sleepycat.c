@@ -499,6 +499,10 @@ void close_databases(void)
 			"cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
 	}
 
+	/* print some statistics... */
+	dbenv->lock_stat_print(dbenv, DB_STAT_ALL);
+
+	/* close the tables */
 	for (a = 0; a < MAXCDB; ++a) {
 		lprintf(CTDL_INFO, "cdb_*: Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
