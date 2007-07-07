@@ -200,6 +200,11 @@ extern locale_t wc_locales[];
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
+/*
+ * NLI is the string that shows up in a who's online listing for sessions
+ * that are active, but for which no user has yet authenticated.
+ */
+#define NLI	"(not logged in)"
 
 
 /** \brief	Linked list of lines appearing in an HTTP client request */
