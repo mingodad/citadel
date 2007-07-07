@@ -26,7 +26,7 @@ void who_inner_div(void) {
 	wprintf("<th colspan=\"3\"> </th>\n");
 	wprintf("<th>%s</th>\n", _("User name"));
 	wprintf("<th>%s</th>", _("Room"));
-	wprintf("<th>%s</th>\n</tr>\n", _("From host"));
+	wprintf("<th class=\"from_host\">%s</th>\n</tr>\n", _("From host"));
 
 	serv_puts("TIME");
 	serv_getln(buf, sizeof buf);
@@ -109,7 +109,7 @@ void who_inner_div(void) {
 				escputs(realroom);
 				wprintf("</i>");
 			}
-			wprintf("</td>\n\t<td>");
+			wprintf("</td>\n\t<td class=\"from_host\">");
 
 			/** hostname */
 			escputs(host);
@@ -156,7 +156,7 @@ void who(void)
 	wprintf("</td></tr></table>\n");
 	wprintf("</div>\n");
 
-	wprintf("<div id=\"content\">\n");
+	wprintf("<div id=\"content\" class=\"who_is_online\">\n");
 
 	wprintf("<div style=\"display:inline\" id=\"fix_scrollbar_bug\">");
 	who_inner_div();
