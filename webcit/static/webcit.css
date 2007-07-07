@@ -1020,10 +1020,19 @@ div.auto_complete ul strong.highlight {
         color: #000;
 }
 
+.from_host {
+	display: none;
+}
 
+.who_is_online .from_host {
+	display: block;
+}
 
 #wholist {
 	border: 0;
+        margin: 0;
+	max-height: 200px;
+	overflow: auto;
 }
 
 #wholist li {
@@ -1034,6 +1043,7 @@ div.auto_complete ul strong.highlight {
         margin: 0;
         padding: 2px;
         white-space: nowrap;
+	border-top: 1px solid #aaaaaa;
 }
 
 
