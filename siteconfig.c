@@ -531,8 +531,9 @@ void display_siteconfig(void)
 		case 52:
 			sprintf(&access[strlen(access)], "<TR><TD>");
 			sprintf(&access[strlen(access)], _("Enable host based authentication mode"));
-			sprintf(&access[strlen(access)], "</TD><TD><input type=\"checkbox\" NAME=\"c_auth_mode\" VALUE=\"yes\" DISABLED %s>",
-				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&access[strlen(access)], "</TD><TD><input type=\"hidden\" NAME=\"c_auth_mode\" VALUE=\"%s\">%s",
+				buf,
+				((atoi(buf) != 0) ? "Yes" : "No"));
 			sprintf(&access[strlen(access)], "</TD></TR>\n");
 			break;
 		case 53:
@@ -729,7 +730,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_default_cal_zone"));
 	serv_printf("%s", bstr("c_pftcpdict_port"));
 	serv_printf("%s", bstr("c_mgesve_port"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_auth_mode"), "yes") ? "1" : "0")));
+	serv_printf("%s", bstr("c_auth_mode"));
 	serv_printf("%s", bstr("c_funambol_host"));
 	serv_printf("%s", bstr("c_funambol_port"));
 	serv_printf("%s", bstr("c_funambol_source"));
