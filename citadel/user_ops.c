@@ -16,7 +16,9 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
