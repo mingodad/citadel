@@ -21,12 +21,13 @@ void who_inner_div(void) {
 	time_t now;
 	int bg = 0;
 
-	wprintf("<table class=\"who_background\">"
+	wprintf("<table class=\"altern\">"
 		"<tr>\n");
-	wprintf("<th colspan=\"3\"> </th>\n");
+	wprintf("<th class=\"edit_col\"> </th>\n");
+	wprintf("<th colspan=\"2\"> </th>\n");
 	wprintf("<th>%s</th>\n", _("User name"));
 	wprintf("<th>%s</th>", _("Room"));
-	wprintf("<th class=\"from_host\">%s</th>\n</tr>\n", _("From host"));
+	wprintf("<th class=\"host_col\">%s</th>\n</tr>\n", _("From host"));
 
 	serv_puts("TIME");
 	serv_getln(buf, sizeof buf);
@@ -50,12 +51,12 @@ void who_inner_div(void) {
 			last_activity = extract_long(buf, 5);
 
 			bg = 1 - bg;
-			wprintf("<tr bgcolor=\"#%s\">",
-				(bg ? "DDDDDD" : "FFFFFF")
+			wprintf("<tr class=\"%s\">",
+				(bg ? "even" : "odd")
 			);
 
 
-			wprintf("<td>");
+			wprintf("<td class=\"edit_col\">");
 			if ((WC->is_aide) &&
 			    (sess != WC->ctdl_pid)) {
 				wprintf(" <a href=\"terminate_session?which_session=%d", sess);
@@ -67,7 +68,7 @@ void who_inner_div(void) {
 			wprintf("</td>");
 
 			/** (link to page this user) */
-			wprintf("<td><a href=\"display_page?recp=");
+			wprintf("<td width=\"5%\"><a href=\"display_page?recp=");
 			urlescputs(user);
 			wprintf("\">"
 				"<img align=\"middle\" "
@@ -77,7 +78,7 @@ void who_inner_div(void) {
 			wprintf("</td>");
 
 			/** (idle flag) */
-			wprintf("<td>");
+			wprintf("<td width=\"5%\">");
 			if ((now - last_activity) > 900L) {
 				wprintf(" "
 					"<img align=\"middle\" "
@@ -109,7 +110,7 @@ void who_inner_div(void) {
 				escputs(realroom);
 				wprintf("</i>");
 			}
-			wprintf("</td>\n\t<td class=\"from_host\">");
+			wprintf("</td>\n\t<td class=\"host_col\">");
 
 			/** hostname */
 			escputs(host);
