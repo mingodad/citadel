@@ -853,7 +853,7 @@ div.auto_complete ul strong.highlight {
         width: 100%;
 }
 
-.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .who_background   {
+.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background    {
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -1020,11 +1020,11 @@ div.auto_complete ul strong.highlight {
         color: #000;
 }
 
-.from_host {
+.edit_col, .host_col {
 	display: none;
 }
 
-.who_is_online .from_host {
+.who_is_online .edit_col, .who_is_online .host_col {
 	display: block;
 }
 
@@ -1046,4 +1046,15 @@ div.auto_complete ul strong.highlight {
 	border-top: 1px solid #aaaaaa;
 }
 
+table.altern {
+	background-color: #ffffff;
+	width: 100%;
+}
 
+table.altern .even {
+	background-color: #dddddd;
+}
+
+table.altern .odd {
+	background-color: #ffffff;
+}
