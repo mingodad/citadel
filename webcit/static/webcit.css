@@ -1046,6 +1046,10 @@ div.auto_complete ul strong.highlight {
 	border-top: 1px solid #aaaaaa;
 }
 
+#wholist li.activeuser a {
+	background-color: rgb(255,240,146);
+} 
+
 table.altern {
 	background-color: #ffffff;
 	width: 100%;
