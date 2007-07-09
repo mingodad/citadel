@@ -80,13 +80,23 @@ void new_messages_section(void) {
 void wholist_section(void) {
 	char buf[SIZ];
 	char user[SIZ];
+        time_t last_activity;
+        time_t now;
 
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		extract_token(user, buf, 1, '|', sizeof user);
+                last_activity = extract_long(buf, 5);
 		if (strcmp(user, NLI)) {
-                	wprintf("<li><a href=\"showuser?who=");
+                	wprintf("<li span=\"");
+                        if ((now - last_activity) > 900L) {
+                                wprintf("inactiveuser");
+                        }
+                        else {
+                                wprintf("activeuser");
+                        }
+                	wprintf("\"><a href=\"showuser?who=");
                 	urlescputs(user);
                 	wprintf("\">");
                 	escputs(user);
