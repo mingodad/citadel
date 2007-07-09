@@ -1031,6 +1031,7 @@ div.auto_complete ul strong.highlight {
 #wholist {
 	border: 0;
         margin: 0;
+        padding: 0;
 	max-height: 200px;
 	overflow: auto;
 }
@@ -1048,6 +1049,7 @@ div.auto_complete ul strong.highlight {
 
 #wholist li.activeuser a {
 	background-color: rgb(255,240,146);
+        padding-left: 5px;
 } 
 
 table.altern {
