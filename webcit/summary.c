@@ -89,7 +89,7 @@ void wholist_section(void) {
 		extract_token(user, buf, 1, '|', sizeof user);
                 last_activity = extract_long(buf, 5);
 		if (strcmp(user, NLI)) {
-                	wprintf("<li span=\"");
+                	wprintf("<li class=\"");
                         if ((now - last_activity) > 900L) {
                                 wprintf("inactiveuser");
                         }
