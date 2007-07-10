@@ -2952,6 +2952,18 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
+	/** submit or cancel buttons */
+        wprintf("<p class=\"send_edit_msg\">");
+        wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
+        if (recipient_required) {
+                wprintf(_("Send message"));
+        } else {
+                wprintf(_("Post message"));
+        }
+        wprintf("\">&nbsp;"
+                "<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+        wprintf("</p>");
+
 	/** header bar */
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" class=\"imgedit\">");
@@ -3147,7 +3159,7 @@ void display_enter(void)
 	do_template("richedit");
 
 	/** Enumerate any attachments which are already in place... */
-	wprintf("<div><img src=\"static/diskette_24x.gif\" border=0 ");
+	wprintf("<div><img src=\"static/diskette_24x.gif\" class=\"imgedit\" ");
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
@@ -3167,17 +3179,6 @@ void display_enter(void)
 	wprintf(" <input name=\"attachfile\" "
 		"size=16 type=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
-	wprintf("</div>");
-
-	wprintf("<div class=\"send_edit_msg\">");
-	wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-	if (recipient_required) {
-		wprintf(_("Send message"));
-	} else {
-		wprintf(_("Post message"));
-	}
-	wprintf("\">&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 	wprintf("</div>");
 
 
