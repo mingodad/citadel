@@ -449,6 +449,13 @@ a:hover {
 	float: left;
 }
 
+.msgbuttons {
+        float: right;
+        visibility: hidden;
+	margin-top: 0;
+	margin-right: 0;
+	padding: 0;
+}
 
 #delbutton, .msgbuttons a {
         font-size: 7pt;
@@ -464,11 +471,6 @@ a:hover {
         color: #000000;
         font-weight: bold;
         text-align: center;
-}
-
-.msgbuttons {
-        float: right;
-        visibility: hidden;
 }
 
 .msgbuttons a span {
