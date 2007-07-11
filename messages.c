@@ -711,8 +711,99 @@ void read_message(long msgnum, int printable_view, char *section) {
                 wprintf("onMouseOut=document.getElementById(\"msg%ld\").style.visibility=\"hidden\" >", msgnum);
         }
 
+        /** start msg buttons */
+
+        if (!printable_view) {
+                wprintf("<p id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
+
+		/** Reply */
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			wprintf("<a href=\"display_enter");
+			if (WC->is_mailbox) {
+				wprintf("?replyquote=%ld", msgnum);
+			}
+			wprintf("?recp=");
+			urlescputs(reply_to);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
+		}
+
+		/** ReplyQuoted */
+		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
+			if (!WC->is_mailbox) {
+				wprintf("<a href=\"display_enter");
+				wprintf("?replyquote=%ld", msgnum);
+				wprintf("?recp=");
+				urlescputs(reply_to);
+				if (strlen(m_subject) > 0) {
+					wprintf("?subject=");
+					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+					urlescputs(m_subject);
+				}
+				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
+			}
+		}
+
+		/** ReplyAll */
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"display_enter");
+			wprintf("?replyquote=%ld", msgnum);
+			wprintf("?recp=");
+			urlescputs(reply_to);
+			wprintf("?cc=");
+			urlescputs(reply_all);
+			if (strlen(m_subject) > 0) {
+				wprintf("?subject=");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				urlescputs(m_subject);
+			}
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
+		}
+
+		/** Forward */
+		if (WC->wc_view == VIEW_MAILBOX) {
+			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
+			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
+			urlescputs(m_subject);
+			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
+		}
+
+		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
+		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
+			/** Move */
+			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
+				msgnum, _("Move"));
+	
+			/** Delete */
+			wprintf("<a href=\"delete_msg?msgid=%ld\" "
+				"onClick=\"return confirm('%s');\">"
+				"<span>[</span>%s<span>]</span> "
+				"</a> ", msgnum, _("Delete this message?"), _("Delete")
+			);
+		}
+
+		/** Headers */
+		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
+
+
+		/** Print */
+		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
+			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
+
+		wprintf("</p>");
+
+	}
+
 	/** begin message header table */
 	wprintf("<div class=\"message_header\">");
+
+
+
 	strcpy(m_subject, "");
 	strcpy(m_cc, "");
 
@@ -732,6 +823,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
+			wprintf("<br />");
 			wprintf(_("from "));
 			wprintf("<a href=\"showuser?who=");
 #ifdef HAVE_ICONV
@@ -918,93 +1010,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("</div>");
 	}
 
-
-        /** start msg buttons */
-        if (!printable_view) {
-                wprintf("<div id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
-
-		/** Reply */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			wprintf("<a href=\"display_enter");
-			if (WC->is_mailbox) {
-				wprintf("?replyquote=%ld", msgnum);
-			}
-			wprintf("?recp=");
-			urlescputs(reply_to);
-			if (strlen(m_subject) > 0) {
-				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-				urlescputs(m_subject);
-			}
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
-		}
-
-		/** ReplyQuoted */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			if (!WC->is_mailbox) {
-				wprintf("<a href=\"display_enter");
-				wprintf("?replyquote=%ld", msgnum);
-				wprintf("?recp=");
-				urlescputs(reply_to);
-				if (strlen(m_subject) > 0) {
-					wprintf("?subject=");
-					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-					urlescputs(m_subject);
-				}
-				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
-			}
-		}
-
-		/** ReplyAll */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter");
-			wprintf("?replyquote=%ld", msgnum);
-			wprintf("?recp=");
-			urlescputs(reply_to);
-			wprintf("?cc=");
-			urlescputs(reply_all);
-			if (strlen(m_subject) > 0) {
-				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
-				urlescputs(m_subject);
-			}
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
-		}
-
-		/** Forward */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
-			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
-			urlescputs(m_subject);
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
-		}
-
-		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
-		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
-			/** Move */
-			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
-				msgnum, _("Move"));
-	
-			/** Delete */
-			wprintf("<a href=\"delete_msg?msgid=%ld\" "
-				"onClick=\"return confirm('%s');\">"
-				"<span>[</span>%s<span>]</span> "
-				"</a> ", msgnum, _("Delete this message?"), _("Delete")
-			);
-		}
-
-		/** Headers */
-		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
-
-
-		/** Print */
-		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
-
-		wprintf("</div>");
-
-	}
 
 
 
