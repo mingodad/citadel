@@ -439,6 +439,7 @@ void embed_search_o_matic(void) {
 
 void embed_room_banner(char *got, int navbar_style) {
 	char buf[256];
+	char sanitized_roomname[256];
 
 	/**
 	 * We need to have the information returned by a GOTO server command.
@@ -469,8 +470,8 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
-	stresc(buf, WC->wc_roomname, 1, 1);
-	svprintf("ROOMNAME", WCS_STRING, "%s", buf);
+	stresc(sanitized_roomname, WC->wc_roomname, 1, 1);
+	svprintf("ROOMNAME", WCS_STRING, "%s", sanitized_roomname);
 	svprintf("NUMMSGS", WCS_STRING,
 		_("%d new of %d messages"),
 		extract_int(&got[4], 1),
