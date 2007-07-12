@@ -765,7 +765,7 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 #define VIEW_NOTES		5	/**<  Notes view */
 #define VIEW_WIKI		6	/**<  Wiki view */
 #define VIEW_CALBRIEF		7	/**< Brief Calendar view */
-
+#define VIEW_JOURNAL            8       /**< Journal view (not yet implemented in webcit) */
 
 /* These should be empty, but we have them for testing */
 #define DEFAULT_HTTPAUTH_USER	""

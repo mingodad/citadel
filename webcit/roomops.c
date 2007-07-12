@@ -10,7 +10,7 @@
 
 char floorlist[128][SIZ]; /**< list of our floor names */
 
-char *viewdefs[8]; /**< the different kinds of available views */
+char *viewdefs[9]; /**< the different kinds of available views */
 
 /**
  * \brief initialize the viewdefs with localized strings
@@ -24,6 +24,7 @@ void initialize_viewdefs(void) {
 	viewdefs[5] = _("Notes List");
 	viewdefs[6] = _("Wiki");
 	viewdefs[7] = _("Calendar List");
+	viewdefs[8] = _("Journal");
 }
 
 /**
@@ -42,6 +43,7 @@ int is_view_allowed_as_default(int which_view)
 		case VIEW_NOTES:	return(1);
 		case VIEW_WIKI:		return(0);	/**< because it isn't finished yet */
 		case VIEW_CALBRIEF:	return(0);
+		case VIEW_JOURNAL:	return(0);
 		default:		return(0);	/**< should never get here */
 	}
 }
