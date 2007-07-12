@@ -376,6 +376,23 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 					if (linklen > 0) break;
 				}
 				if (linklen > 0) {
+					char *ltreviewptr;
+					char *nbspreviewptr;
+					//* spot for some subject strings tinymce tends to give us.
+					ltreviewptr = strchr(ptr, '<');
+					if (ltreviewptr != NULL) {
+						*ltreviewptr = '\0';
+						linklen = ltreviewptr - ptr;
+					}
+
+					nbspreviewptr = strstr(ptr, "&nbsp;");
+					if (nbspreviewptr != NULL) {
+						///*nbspreviewptr = '\0';
+						linklen = nbspreviewptr - ptr;
+					}
+					if (ltreviewptr != 0)
+						*ltreviewptr = '<';
+
 					content_length += (32 + linklen);
 					if (content_length >= converted_alloc) {
 						converted_alloc += 8192;
