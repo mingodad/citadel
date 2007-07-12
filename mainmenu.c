@@ -48,7 +48,7 @@ void display_main_menu(void)
 	wprintf(_("(come back here later)"));
 	wprintf("</span></li>\n");
 
-	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
+	if ((!IsEmptyStr(WC->ugname)) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<li><a href=\"ungoto\">");
 		wprintf(_("Ungoto"));
 		wprintf("</a><span>");
@@ -332,7 +332,7 @@ void do_generic(void)
 	char *junk;
 	size_t len;
 
-	if (strlen(bstr("sc_button")) == 0) {
+	if (IsEmptyStr(bstr("sc_button"))) {
 		display_main_menu();
 		return;
 	}

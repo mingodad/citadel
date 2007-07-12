@@ -214,7 +214,7 @@ void display_rss(char *roomname, char *request_method)
 		}
 		wprintf(" %s", from);
 		wprintf(" in %s", room);
-		if (strcmp(hnod, serv_info.serv_humannode) && strlen(hnod) > 0) {
+		if (strcmp(hnod, serv_info.serv_humannode) && !IsEmptyStr(hnod)) {
 			wprintf(" on %s", hnod);
 		}
 		wprintf("</title>\n");
@@ -224,20 +224,23 @@ void display_rss(char *roomname, char *request_method)
 		wprintf("      <guid isPermaLink=\"false\">%s</guid>\n", msgn);
 		/** Now the hard part, the message itself */
 		strcpy(content_type, "text/plain");
-		while (serv_getln(buf, sizeof buf), strlen(buf) > 0) {
+		while (serv_getln(buf, sizeof buf), !IsEmptyStr(buf)) {
 			if (!strcmp(buf, "000")) {
 				goto ENDBODY;
 			}
 			if (!strncasecmp(buf, "Content-type: ", 14)) {
+				int len;
 				safestrncpy(content_type, &buf[14], sizeof content_type);
-				for (b = 0; b < strlen(content_type); ++b) {
+				len = strlen (content_type);
+				for (b = 0; b < len; ++b) {
 					if (!strncasecmp(&content_type[b], "charset=", 8)) {
 						safestrncpy(charset, &content_type[b + 8], sizeof charset);
 					}
 				}
-				for (b = 0; b < strlen(content_type); ++b) {
+				for (b = 0; b < len; ++b) {
 					if (content_type[b] == ';') {
 						content_type[b] = 0;
+						len = b - 1;
 					}
 				}
 			}
@@ -290,13 +293,15 @@ void display_rss(char *roomname, char *request_method)
 		else if (!strcasecmp(content_type, "text/plain")) {
 			wprintf("      <description><![CDATA[");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
-				if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
+				int len;
+				len = strlen(buf);
+				if (buf[len-1] == '\n') buf[--len] = 0;
+				if (buf[len-1] == '\r') buf[--len] = 0;
 	
 #ifdef HAVE_ICONV
 				if (ic != (iconv_t)(-1) ) {
 					ibuf = buf;
-					ibuflen = strlen(ibuf);
+					ibuflen = len;
 					obuflen = SIZ;
 					obuf = (char *) malloc(obuflen);
 					osav = obuf;
@@ -306,9 +311,9 @@ void display_rss(char *roomname, char *request_method)
 					free(osav);
 				}
 #endif
-
-				while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
-					buf[strlen(buf) - 1] = 0;
+				len = strlen (buf);
+				while ((!IsEmptyStr(buf)) && (isspace(buf[len - 1])))
+					buf[--len] = 0;
 				if ((bq == 0) &&
 			    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
 					wprintf("<blockquote>");

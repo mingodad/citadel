@@ -48,9 +48,11 @@ void remove_charset_attribute(char *strbuf)
 			remove_token(strbuf, i, ';');
 		}
 	}
-	if (strlen(strbuf) > 0) {
-		if (strbuf[strlen(strbuf)-1] == ';') {
-			strbuf[strlen(strbuf)-1] = 0;
+	if (!IsEmptyStr(strbuf)) {
+		int len;
+		len = strlen(strbuf);
+		if (strbuf[len-1] == ';') {
+			strbuf[len-1] = 0;
 		}
 	}
 }
@@ -180,13 +182,15 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 			int is_partial, int instance, int get_propname) {
 	int i;
 	int found_instance = 0;
+	int len;
 
+	len = strlen(propname);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if ( (!strcasecmp(v->prop[i].name, propname))
 		   || (propname[0] == 0)
 		   || (  (!strncasecmp(v->prop[i].name,
-					propname, strlen(propname)))
-			 && (v->prop[i].name[strlen(propname)] == ';')
+					propname, len))
+			 && (v->prop[i].name[len] == ';')
 			 && (is_partial) ) ) {
 			if (instance == found_instance++) {
 				if (get_propname) {

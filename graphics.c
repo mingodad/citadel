@@ -70,7 +70,7 @@ void do_graphics_upload(char *upl_cmd)
 	int pos = 0;
 	int thisblock;
 
-	if (strlen(bstr("cancel_button")) > 0) {
+	if (!IsEmptyStr(bstr("cancel_button"))) {
 		strcpy(WC->ImportantMessage,
 			_("Graphics upload has been cancelled."));
 		display_main_menu();

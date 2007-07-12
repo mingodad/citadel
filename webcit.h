@@ -53,6 +53,7 @@ extern locale_t wc_locales[];
 #define _(string)	(string)
 #endif
 
+#define IsEmptyStr(a) ((a)[0] == '\0')
 /*
  * Uncomment to dump an HTTP trace to stderr
 #define HTTP_TRACING 1
@@ -590,6 +591,7 @@ void do_edit_vcard(long, char *, char *);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
+void stripltlen(char *, int *);
 void select_user_to_edit(char *message, char *preselect);
 void delete_user(char *);
 void display_edituser(char *who, int is_new);

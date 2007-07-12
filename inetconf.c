@@ -82,12 +82,12 @@ void display_inetconf(void)
 
 		if (which >= 0) {
 			ic_spec[which] = realloc(ic_spec[which], strlen(ic_spec[which]) + strlen(ename) + 2);
-			if (strlen(ic_spec[which]) > 0) strcat(ic_spec[which], "\n");
+			if (!IsEmptyStr(ic_spec[which])) strcat(ic_spec[which], "\n");
 			strcat(ic_spec[which], ename);
 		}
 		else {
 			ic_misc = realloc(ic_misc, strlen(ic_misc) + strlen(buf) + 2);
-			if (strlen(ic_misc) > 0) strcat(ic_misc, "\n");
+			if (!IsEmptyStr(ic_misc)) strcat(ic_misc, "\n");
 			strcat(ic_misc, buf);
 		}
 
@@ -114,7 +114,7 @@ void display_inetconf(void)
 		escputs(ic_desc[which]);
 		wprintf("</span><br />");
 		wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
-		if (strlen(ic_spec[which]) > 0) {
+		if (!IsEmptyStr(ic_spec[which])) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
 				wprintf("<TR><TD ALIGN=LEFT>");
 				extract_token(buf, ic_spec[which], i, '\n', sizeof buf);
@@ -170,7 +170,7 @@ void save_inetconf(void) {
 	if (buf[0] == '1') while (serv_getln(buf, SIZ), strcmp(buf, "000")) {
 		extract_token(ename, buf, 0, '|', SIZ);
 		extract_token(etype, buf, 1, '|', SIZ);
-		if (strlen(buf) == 0) {
+		if (IsEmptyStr(buf)) {
 			/** skip blank lines */
 		}
 		else if ((!strcasecmp(ename, bstr("ename")))
@@ -180,7 +180,7 @@ void save_inetconf(void) {
 			sprintf(WC->ImportantMessage, _("%s has been deleted."), ename);
 		}
 		else {
-			if (strlen(newconfig) > 0) strcat(newconfig, "\n");
+			if (!IsEmptyStr(newconfig)) strcat(newconfig, "\n");
 			strcat(newconfig, buf);
 		}
 	}

@@ -675,9 +675,9 @@ void calendar_day_view(int year, int month, int day) {
 
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 	get_preference("daystart", daystart_str, sizeof daystart_str);
-	if (strlen(daystart_str) > 0) daystart = atoi(daystart_str);
+	if (!IsEmptyStr(daystart_str)) daystart = atoi(daystart_str);
 	get_preference("dayend", dayend_str, sizeof dayend_str);
-	if (strlen(dayend_str) > 0) dayend = atoi(dayend_str);
+	if (!IsEmptyStr(dayend_str)) dayend = atoi(dayend_str);
 	
 
 	/** Figure out the dates for "yesterday" and "tomorrow" links */
@@ -915,12 +915,12 @@ void do_calendar_view(void) {
 	day = tm.tm_mday;
 
 	/** Now see if a date was specified */
-	if (strlen(bstr("year")) > 0) year = atoi(bstr("year"));
-	if (strlen(bstr("month")) > 0) month = atoi(bstr("month"));
-	if (strlen(bstr("day")) > 0) day = atoi(bstr("day"));
+	if (!IsEmptyStr(bstr("year"))) year = atoi(bstr("year"));
+	if (!IsEmptyStr(bstr("month"))) month = atoi(bstr("month"));
+	if (!IsEmptyStr(bstr("day"))) day = atoi(bstr("day"));
 
 	/** How would you like that cooked? */
-	if (strlen(bstr("calview")) > 0) {
+	if (!IsEmptyStr(bstr("calview"))) {
 		strcpy(calview, bstr("calview"));
 	}
 	else {

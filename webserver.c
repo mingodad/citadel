@@ -444,8 +444,8 @@ int client_getln(int sock, char *buf, int bufsiz)
 	 * Strip any trailing non-printable characters.
 	 */
 	buf[i] = 0;
-	while ((strlen(buf) > 0) && (!isprint(buf[strlen(buf) - 1]))) {
-		buf[strlen(buf) - 1] = 0;
+	while ((i > 0) && (!isprint(buf[i - 1]))) {
+		buf[--i] = 0;
 	}
 	return (retval);
 }
@@ -787,7 +787,7 @@ int main(int argc, char **argv)
 	 * exits if it doesn't succeed.
 	 */
 
-	if (strlen(uds_listen_path) > 0) {
+	if (!IsEmptyStr(uds_listen_path)) {
 		lprintf(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
 		msock = ig_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}

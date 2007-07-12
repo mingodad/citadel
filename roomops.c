@@ -625,9 +625,9 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_CALENDAR:
 				case VIEW_CALBRIEF:
 					wprintf("<li class=\"addevent\"><a href=\"display_enter");
-					if (strlen(bstr("year")) > 0) wprintf("?year=%s", bstr("year"));
-					if (strlen(bstr("month")) > 0) wprintf("?month=%s", bstr("month"));
-					if (strlen(bstr("day")) > 0) wprintf("?day=%s", bstr("day"));
+					if (!IsEmptyStr(bstr("year" ))) wprintf("?year=%s", bstr("year"));
+					if (!IsEmptyStr(bstr("month"))) wprintf("?month=%s", bstr("month"));
+					if (!IsEmptyStr(bstr("day"  ))) wprintf("?day=%s", bstr("day"));
 					wprintf("\">"
 						"<img align=\"middle\" src=\"static/addevent_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
@@ -1031,7 +1031,7 @@ void display_editroom(void)
 	int floorvalue = 0;
 
 	tab = bstr("tab");
-	if (strlen(tab) == 0) tab = "admin";
+	if (IsEmptyStr(tab)) tab = "admin";
 
 	load_floorlist();
 	serv_puts("GETR");
@@ -1194,7 +1194,7 @@ void display_editroom(void)
 		wprintf(_("Resides on floor: "));
 		wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
 		for (i = 0; i < 128; ++i)
-			if (strlen(floorlist[i]) > 0) {
+			if (!IsEmptyStr(floorlist[i])) {
 				wprintf("<OPTION ");
 				if (i == er_floor)
 					wprintf("SELECTED ");
@@ -1392,7 +1392,7 @@ void display_editroom(void)
 				shared_with = realloc(shared_with,
 						strlen(shared_with) + 32);
 				strcat(shared_with, node);
-				if (strlen(remote_room) > 0) {
+				if (!IsEmptyStr(remote_room)) {
 					strcat(shared_with, "|");
 					strcat(shared_with, remote_room);
 				}
@@ -1434,13 +1434,13 @@ void display_editroom(void)
 			extract_token(buf, shared_with, i, '\n', sizeof buf);
 			extract_token(node, buf, 0, '|', sizeof node);
 			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
-			if (strlen(node) > 0) {
+			if (!IsEmptyStr(node)) {
 				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
 				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 				wprintf("<TR><TD>%s</TD>\n", node);
 
 				wprintf("<TD>");
-				if (strlen(remote_room) > 0) {
+				if (!IsEmptyStr(remote_room)) {
 					escputs(remote_room);
 				}
 				wprintf("</TD>");
@@ -1450,7 +1450,7 @@ void display_editroom(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"line\" "
 					"VALUE=\"ignet_push_share|");
 				urlescputs(node);
-				if (strlen(remote_room) > 0) {
+				if (!IsEmptyStr(remote_room)) {
 					wprintf("|");
 					urlescputs(remote_room);
 				}
@@ -1477,7 +1477,7 @@ void display_editroom(void)
 
 		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
 			extract_token(node, not_shared_with, i, '\n', sizeof node);
-			if (strlen(node) > 0) {
+			if (!IsEmptyStr(node)) {
 				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
 				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 				wprintf("<TR><TD>");
@@ -1759,7 +1759,7 @@ void editroom(void)
 	int bump;
 
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_editroom();
@@ -1782,7 +1782,7 @@ void editroom(void)
 	er_flags2 = extract_int(&buf[4], 7);
 
 	strcpy(er_roomaide, bstr("er_roomaide"));
-	if (strlen(er_roomaide) == 0) {
+	if (IsEmptyStr(er_roomaide)) {
 		serv_puts("GETA");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
@@ -1793,18 +1793,18 @@ void editroom(void)
 	}
 	strcpy(buf, bstr("er_name"));
 	buf[128] = 0;
-	if (strlen(buf) > 0) {
+	if (!IsEmptyStr(buf)) {
 		strcpy(er_name, buf);
 	}
 
 	strcpy(buf, bstr("er_password"));
 	buf[10] = 0;
-	if (strlen(buf) > 0)
+	if (!IsEmptyStr(buf))
 		strcpy(er_password, buf);
 
 	strcpy(buf, bstr("er_dirname"));
 	buf[15] = 0;
-	if (strlen(buf) > 0)
+	if (!IsEmptyStr(buf))
 		strcpy(er_dirname, buf);
 
 	strcpy(buf, bstr("type"));
@@ -1905,7 +1905,7 @@ void editroom(void)
 	}
 	gotoroom(er_name);
 
-	if (strlen(er_roomaide) > 0) {
+	if (!IsEmptyStr(er_roomaide)) {
 		sprintf(buf, "SETA %s", er_roomaide);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
@@ -1939,7 +1939,7 @@ void do_invt_kick(void) {
 
         strcpy(username, bstr("username"));
 
-        if (strlen(bstr("kick_button")) > 0) {
+        if (!IsEmptyStr(bstr("kick_button"))) {
                 sprintf(buf, "KICK %s", username);
                 serv_puts(buf);
                 serv_getln(buf, sizeof buf);
@@ -1953,7 +1953,7 @@ void do_invt_kick(void) {
                 }
         }
 
-	if (strlen(bstr("invite_button")) > 0) {
+	if (!IsEmptyStr(bstr("invite_button"))) {
                 sprintf(buf, "INVT %s", username);
                 serv_puts(buf);
                 serv_getln(buf, sizeof buf);
@@ -2077,7 +2077,7 @@ void display_entroom(void)
         load_floorlist(); 
         wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
         for (i = 0; i < 128; ++i)
-                if (strlen(floorlist[i]) > 0) {
+                if (!IsEmptyStr(floorlist[i])) {
                         wprintf("<OPTION ");
                         wprintf("VALUE=\"%d\">", i);
                         escputs(floorlist[i]);
@@ -2225,7 +2225,7 @@ void entroom(void)
 	int er_num_type;
 	int er_view;
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  No new room was created."));
 		display_main_menu();
@@ -2326,7 +2326,7 @@ void goto_private(void)
 	char hold_rm[SIZ];
 	char buf[SIZ];
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		display_main_menu();
 		return;
 	}
@@ -2396,7 +2396,7 @@ void zap(void)
 	 */
 	strcpy(final_destination, WC->wc_roomname);
 
-	if (strlen(bstr("ok_button")) > 0) {
+	if (!IsEmptyStr(bstr("ok_button"))) {
 		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -2445,7 +2445,7 @@ void netedit(void) {
 	char cmpb1[SIZ];
 	int i, num_addrs;
 
-	if (strlen(bstr("line"))==0) {
+	if (IsEmptyStr(bstr("line"))) {
 		display_editroom();
 		return;
 	}
@@ -2494,7 +2494,7 @@ void netedit(void) {
 		serv_puts(buf);
 	}
 
-	if (strlen(bstr("add_button")) > 0) {
+	if (!IsEmptyStr(bstr("add_button"))) {
 		num_addrs = num_tokens(bstr("line"), ',');
 		if (num_addrs < 2) {
 			/* just adding one node or address */
@@ -2529,7 +2529,7 @@ void netedit(void) {
  */
 void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 {
-	int i;
+	int i, len;
 
 	/**
 	 * For mailboxes, just do it straight...
@@ -2548,7 +2548,8 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 	/**
 	 * Replace "\" characters with "|" for pseudo-folder-delimiting
 	 */
-	for (i=0; i<strlen(folder); ++i) {
+	len = strlen (folder);
+	for (i=0; i<len; ++i) {
 		if (folder[i] == '\\') folder[i] = '|';
 	}
 }
@@ -2623,8 +2624,10 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 
 		has_subfolders = 0;
 		if ((i+1) < max_folders) {
-			if ( (!strncasecmp(fold[i].name, fold[i+1].name, strlen(fold[i].name)))
-			   && (fold[i+1].name[strlen(fold[i].name)] == '|') ) {
+			int len;
+			len = strlen(fold[i].name);
+			if ( (!strncasecmp(fold[i].name, fold[i+1].name, len))
+			   && (fold[i+1].name[len] == '|') ) {
 				has_subfolders = 1;
 			}
 		}
@@ -2739,7 +2742,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			'|', sizeof floor_name);
 
 		if ( (strcasecmp(floor_name, old_floor_name))
-		   && (strlen(old_floor_name) > 0) ) {
+		   && (!IsEmptyStr(old_floor_name)) ) {
 			/* End inner box */
 			do_template("endbox");
 
@@ -2839,7 +2842,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			'|', sizeof floor_name);
 
 		if ( (strcasecmp(floor_name, old_floor_name))
-		   && (strlen(old_floor_name) > 0) ) {
+		   && (!IsEmptyStr(old_floor_name)) ) {
 			/** End inner box */
 			wprintf("<br>\n");
 			wprintf("</div>\n");	/** floordiv */
@@ -2940,7 +2943,8 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	}
 
 	wprintf("num_drop_targets = %d;\n", num_drop_targets);
-	if (strlen(WC->floordiv_expanded) > 1) {
+	if ((WC->floordiv_expanded[0] != '\0')&&
+	    (WC->floordiv_expanded[1] != '\0')){
 		wprintf("which_div_expanded = '%s';\n", WC->floordiv_expanded);
 	}
 
@@ -3105,7 +3109,7 @@ void knrooms(void)
 
 	/** Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
-		if (strlen(bstr("view")) > 0) {
+		if (!IsEmptyStr(bstr("view"))) {
 			set_preference("roomlistview", bstr("view"), 1);
 		}
 	}
@@ -3171,7 +3175,7 @@ void knrooms(void)
 void set_room_policy(void) {
 	char buf[SIZ];
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_editroom();

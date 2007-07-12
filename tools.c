@@ -47,10 +47,12 @@ int num_tokens(char *source, char tok)
 {
 	int a = 0;
 	int count = 1;
+	int len;
 
 	if (source == NULL)
 		return (0);
-	for (a = 0; a < strlen(source); ++a) {
+	len = strlen(source);
+	for (a = 0; a < len; ++a) {
 		if (source[a] == tok)
 			++count;
 	}
@@ -186,9 +188,10 @@ long extract_long(const char *source, int parmnum)
  */
 int haschar(char *st,char ch)
 {
-	int a, b;
+	int a, b, len;
 	b = 0;
-	for (a = 0; a < strlen(st); ++a)
+	len = strlen(st);
+	for (a = 0; a < len; ++a)
 		if (st[a] == ch)
 			++b;
 	return (b);
@@ -213,10 +216,9 @@ char *memreadline(char *start, char *buf, int maxlen)
 
 	while (1) {
 		ch = *ptr++;
-		if ((len < (maxlen - 1)) && (ch != 13) && (ch != 10)) {
-			buf[strlen(buf) + 1] = 0;
-			buf[strlen(buf)] = ch;
-			++len;
+		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
+			buf[len++] = ch;
+			buf[len] = 0;
 		}
 		if ((ch == 10) || (ch == 0)) {
 			return ptr;
@@ -235,8 +237,11 @@ char *memreadline(char *start, char *buf, int maxlen)
 int pattern2(char *search, char *patn)
 {
 	int a;
-	for (a = 0; a < strlen(search); ++a) {
-		if (!strncasecmp(&search[a], patn, strlen(patn)))
+	int len, plen;
+	len = strlen (search);
+	plen = strlen (patn);
+	for (a = 0; a < len; ++a) {
+		if (!strncasecmp(&search[a], patn, plen))
 			return (a);
 	}
 	return (-1);
@@ -244,24 +249,35 @@ int pattern2(char *search, char *patn)
 
 
 /**
+ * \brief Strip leading and trailing spaces from a string; with premeasured and adjusted length.
+ * \param buf the string to modify
+ * \param len length of the string. 
+ */
+void stripltlen(char *buf, int *len)
+{
+	int delta = 0;
+	if (*len == 0) return;
+	while ((*len > delta) && (isspace(buf[delta]))){
+		delta ++;
+	}
+	memmove (buf, &buf[delta], *len - delta + 1);
+	(*len) -=delta;
+
+	if (*len == 0) return;
+	while (isspace(buf[(*len) - 1])){
+		buf[--(*len)] = '\0';
+	}
+}
+
+/**
  * \brief Strip leading and trailing spaces from a string
  * \param buf the string to modify
  */
 void striplt(char *buf)
 {
-	long len;
-
+	int len;
 	len = strlen(buf);
-	if (len == 0) return;
-	while ((len > 0) && (isspace(buf[0]))){
-		memmove (buf, &buf[1], len);
-		len --;
-	}
-	if (len == 0) return;
-	while (isspace(buf[len - 1])){
-		buf[len - 1] = 0;
-		len --;
-	}
+	stripltlen(buf, &len);
 }
 
 
@@ -323,12 +339,13 @@ void stripout(char *str, char leftboundary, char rightboundary)
 	int a;
 	int lb = (-1);
 	int rb = (-1);
+	int len = strlen(str);
 
 	do {
 		lb = (-1);
 		rb = (-1);
 
-		for (a = 0; a < strlen(str); ++a) {
+		for (a = 0; a < len; ++a) {
 			if (str[a] == leftboundary)
 				lb = a;
 			if (str[a] == rightboundary)
@@ -336,7 +353,8 @@ void stripout(char *str, char leftboundary, char rightboundary)
 		}
 
 		if ((lb > 0) && (rb > lb)) {
-			strcpy(&str[lb - 1], &str[rb + 1]);
+			memmove(&str[lb - 1], &str[rb + 1], len - rb);
+			len -= (rb - lb + 2);
 		}
 
 	} while ((lb > 0) && (rb > lb));

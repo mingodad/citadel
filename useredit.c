@@ -268,12 +268,12 @@ void display_edituser(char *supplied_username, int is_new) {
 	lastcall = extract_long(&buf[4], 7);
 	purgedays = extract_long(&buf[4], 8);
 
-	if (strlen(bstr("edit_abe_button")) > 0) {
+	if (!IsEmptyStr(bstr("edit_abe_button"))) {
 		display_edit_address_book_entry(username, usernum);
 		return;
 	}
 
-	if (strlen(bstr("delete_button")) > 0) {
+	if (!IsEmptyStr(bstr("delete_button"))) {
 		delete_user(username);
 		return;
 	}
@@ -401,7 +401,7 @@ void edituser(void) {
 
 	is_new = atoi(bstr("is_new"));
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		safestrncpy(message, _("Changes were not saved."), sizeof message);
 	}
 	else {

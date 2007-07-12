@@ -19,6 +19,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	long dav_msgnum = (-1);
 	char buf[SIZ];
 	int n = 0;
+	int len;
 
 	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
@@ -30,8 +31,9 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	remove_token(dav_pathname, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */
-	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
-		dav_pathname[strlen(dav_pathname)-1] = 0;
+	len = strlen(dav_pathname);
+	if (dav_pathname[len-1] == '/') {
+		dav_pathname[len-1] = 0;
 	}
 	strcpy(dav_roomname, dav_pathname);
 
@@ -62,7 +64,7 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	 * It's there ... check the ETag and make sure it matches
 	 * the message number.
 	 */
-	if (strlen(dav_ifmatch) > 0) {
+	if (!IsEmptyStr(dav_ifmatch)) {
 		if (atol(dav_ifmatch) != dav_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();

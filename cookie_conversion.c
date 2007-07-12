@@ -31,10 +31,12 @@ void stuff_to_cookie(char *cookie, int session,
 {
 	char buf[SIZ];
 	int i;
+	int len;
 
 	sprintf(buf, "%d|%s|%s|%s|", session, user, pass, room);
 	strcpy(cookie, "");
-	for (i=0; i<strlen(buf); ++i) {
+	len = strlen(buf);
+	for (i=0; i<len; ++i) {
 		sprintf(&cookie[i*2], "%02X", buf[i]);
 	}
 }

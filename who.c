@@ -105,7 +105,7 @@ void who_inner_div(void) {
 			/** room */
 			wprintf("</td>\n\t<td>");
 			escputs(room);
-			if (strlen(realroom) > 0) {
+			if (!IsEmptyStr(realroom) ) {
 				wprintf("<br /><i>");
 				escputs(realroom);
 				wprintf("</i>");
@@ -114,7 +114,7 @@ void who_inner_div(void) {
 
 			/** hostname */
 			escputs(host);
-			if (strlen(realhost) > 0) {
+			if (!IsEmptyStr(realhost)) {
 				wprintf("<br /><i>");
 				escputs(realhost);
 				wprintf("</i>");
@@ -206,19 +206,19 @@ void edit_me(void)
 {
 	char buf[SIZ];
 
-	if (strlen(bstr("change_room_name_button")) > 0) {
+	if (!IsEmptyStr(bstr("change_room_name_button"))) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (strlen(bstr("change_host_name_button")) > 0) {
+	} else if (!IsEmptyStr(bstr("change_host_name_button"))) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (strlen(bstr("change_user_name_button")) > 0) {
+	} else if (!IsEmptyStr(bstr("change_user_name_button"))) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (strlen(bstr("cancel_button")) > 0) {
+	} else if (!IsEmptyStr(bstr("cancel_button"))) {
 		http_redirect("who");
 	} else {
 		output_headers(1, 1, 0, 0, 0, 0);

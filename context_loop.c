@@ -155,12 +155,13 @@ int GenerateSessionID(void)
  * \param sock a socket?
  * \param buf some bunch of chars?
  * \param hold hold what?
+ * TODO: get this comment right
  */
 int req_gets(int sock, char *buf, char *hold)
 {
-	int a;
+	int a, b;
 
-	if (strlen(hold) == 0) {
+	if (IsEmptyStr(hold)) {
 		strcpy(buf, "");
 		a = client_getln(sock, buf, SIZ);
 		if (a<1) return(-1);
@@ -170,12 +171,19 @@ int req_gets(int sock, char *buf, char *hold)
 	strcpy(hold, "");
 
 	if (!strncasecmp(buf, "Cookie: ", 8)) {
-		for (a = 0; a < strlen(buf); ++a)
+		int len;
+		len = strlen(buf);
+		for (a = 0; a < len; ++a)
 			if (buf[a] == ';') {
+				// we don't refresh len, because of we 
+				// only exit from here.
 				sprintf(hold, "Cookie: %s", &buf[a + 1]);
 				buf[a] = 0;
-				while (isspace(hold[8]))
-					strcpy(&hold[8], &hold[9]);
+				b = 8;
+				while (isspace(hold[b]))
+					b++;
+				
+				memmove(&hold[8], &hold[b], len - b + 1);
 				return(0);
 			}
 	}
@@ -188,6 +196,7 @@ int req_gets(int sock, char *buf, char *hold)
  * \param fd the fd to close??????
  * lingering_close() a`la Apache. see
  * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
+ * TODO: get this comment precise.
  */
 
 int lingering_close(int fd)
@@ -349,7 +358,7 @@ void context_loop(int sock)
 
 		safestrncpy(hptr->line, buf, sizeof hptr->line);
 
-	} while (strlen(buf) > 0);
+	} while (!IsEmptyStr(buf));
 
 	/**
 	 * If the request is prefixed by "/webcit" then chop that off.  This
@@ -425,7 +434,7 @@ void context_loop(int sock)
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 
 			/** If HTTP-AUTH, look for a session with matching credentials */
-			if ( (strlen(httpauth_user) > 0)
+			if ( (!IsEmptyStr(httpauth_user))
 			   &&(!strcasecmp(sptr->httpauth_user, httpauth_user))
 			   &&(!strcasecmp(sptr->httpauth_pass, httpauth_pass)) ) {
 				TheSession = sptr;

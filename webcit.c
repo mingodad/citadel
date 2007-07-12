@@ -63,11 +63,11 @@ void addurls(char *url)
 {
 	char *up, *ptr;
 	char buf[SIZ];
-	int a, b;
+	int a, b, len;
 	struct urlcontent *u;
 
 	up = url;
-	while (strlen(up) > 0) {
+	while (!IsEmptyStr(up)) {
 
 		/** locate the = sign */
 		safestrncpy(buf, up, sizeof buf);
@@ -90,21 +90,20 @@ void addurls(char *url)
 
 		/** locate "&" and "?" delimiters */
 		ptr = up;
-		b = strlen(up);
-		for (a = 0; a < strlen(up); ++a) {
+		len = b = strlen(up);
+		for (a = 0; a < len; ++a) {
 			if ( (ptr[0] == '&') || (ptr[0] == '?') ) {
 				b = a;
 				break;
 			}
 			++ptr;
 		}
-		ptr = up;
-		for (a = 0; a < b; ++a)
-			++ptr;
-		strcpy(ptr, "");
+		ptr = up + b;
+		*ptr = '\0';
 
-		u->url_data = malloc(strlen(up) + 2);
-		safestrncpy(u->url_data, up, strlen(up) + 1);
+		len = b;
+		u->url_data = malloc(len + 2);
+		safestrncpy(u->url_data, up, b + 1);
 		u->url_data[b] = 0;
 		unescape_input(u->url_data);
 		up = ptr;
@@ -204,10 +203,11 @@ void wDumpContent(int print_standard_html_footer)
  */
 void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 {
-	int a;
+	int a, len;
 	strcpy(target, "");
 
-	for (a = 0; a < strlen(strbuf); ++a) {
+	len = strlen(strbuf);
+	for (a = 0; a < len; ++a) {
 		if (strbuf[a] == '<')
 			strcat(target, "&lt;");
 		else if (strbuf[a] == '>')
@@ -268,23 +268,27 @@ void escputs(char *strbuf)
  */
 void urlesc(char *outbuf, char *strbuf)
 {
-	int a, b, c;
+	int a, b, c, len, eclen, olen;
 	char *ec = " #&;`'|*?-~<>^()[]{}/$\"\\";
 
 	strcpy(outbuf, "");
-
-	for (a = 0; a < strlen(strbuf); ++a) {
+	len = strlen(strbuf);
+	eclen = strlen(ec);
+	olen = 0;
+	for (a = 0; a < len; ++a) {
 		c = 0;
-		for (b = 0; b < strlen(ec); ++b) {
+		for (b = 0; b < eclen; ++b) {
 			if (strbuf[a] == ec[b])
 				c = 1;
 		}
-		b = strlen(outbuf);
-		if (c == 1)
-			sprintf(&outbuf[b], "%%%02x", strbuf[a]);
-		else
-			sprintf(&outbuf[b], "%c", strbuf[a]);
+		if (c == 1) {
+			sprintf(&outbuf[olen], "%%%02x", strbuf[a]);
+			olen += 3;
+		}
+		else 
+			outbuf[olen ++] = strbuf[a];
 	}
+	outbuf[olen] = '\0';
 }
 
 /**
@@ -307,10 +311,11 @@ void urlescputs(char *strbuf)
  */
 void jsesc(char *target, char *strbuf)
 {
-	int a;
-	strcpy(target, "");
+	int a, len;
 
-	for (a = 0; a < strlen(strbuf); ++a) {
+	target[0]='\0';
+	len = strlen (strbuf);
+	for (a = 0; a < len; ++a) {
 		if (strbuf[a] == '<')
 			strcat(target, "[");
 		else if (strbuf[a] == '>')
@@ -346,10 +351,11 @@ void jsescputs(char *strbuf)
  */
 void msgesc(char *target, char *strbuf)
 {
-	int a;
-	strcpy(target, "");
+	int a, len;
 
-	for (a = 0; a < strlen(strbuf); ++a) {
+	*target='\0';
+	len = strlen(strbuf);
+	for (a = 0; a < len; ++a) {
 		if (strbuf[a] == '\n')
 			strcat(target, " ");
 		else if (strbuf[a] == '\r')
@@ -448,7 +454,7 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 
 
 		/** check for ImportantMessages (these display in a div overlaying the main screen) */
-		if (strlen(WC->ImportantMessage) > 0) {
+		if (!IsEmptyStr(WC->ImportantMessage)) {
 			wprintf("<div id=\"important_message\">\n");
 			wprintf("<span class=\"imsg\">"
 				"%s</span><br />\n", WC->ImportantMessage);
@@ -556,6 +562,7 @@ void output_static(char *what)
 	off_t bytes;
 	char *bigbuffer;
 	char content_type[128];
+	int len;
 
 	fp = fopen(what, "rb");
 	if (fp == NULL) {
@@ -565,33 +572,34 @@ void output_static(char *what)
 		wprintf("\r\n");
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
-		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
+		len = strlen (what);
+		if (!strncasecmp(&what[len - 4], ".gif", 4))
 			safestrncpy(content_type, "image/gif", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
+		else if (!strncasecmp(&what[len - 4], ".txt", 4))
 			safestrncpy(content_type, "text/plain", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".css", 4))
+		else if (!strncasecmp(&what[len - 4], ".css", 4))
 			safestrncpy(content_type, "text/css", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
+		else if (!strncasecmp(&what[len - 4], ".jpg", 4))
 			safestrncpy(content_type, "image/jpeg", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".png", 4))
+		else if (!strncasecmp(&what[len - 4], ".png", 4))
 			safestrncpy(content_type, "image/png", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".ico", 4))
+		else if (!strncasecmp(&what[len - 4], ".ico", 4))
 			safestrncpy(content_type, "image/x-icon", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
+		else if (!strncasecmp(&what[len - 5], ".html", 5))
 			safestrncpy(content_type, "text/html", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".htm", 4))
+		else if (!strncasecmp(&what[len - 4], ".htm", 4))
 			safestrncpy(content_type, "text/html", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))
+		else if (!strncasecmp(&what[len - 4], ".wml", 4))
 			safestrncpy(content_type, "text/vnd.wap.wml", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 5], ".wmls", 5))
+		else if (!strncasecmp(&what[len - 5], ".wmls", 5))
 			safestrncpy(content_type, "text/vnd.wap.wmlscript", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 5], ".wmlc", 5))
+		else if (!strncasecmp(&what[len - 5], ".wmlc", 5))
 			safestrncpy(content_type, "application/vnd.wap.wmlc", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 6], ".wmlsc", 6))
+		else if (!strncasecmp(&what[len - 6], ".wmlsc", 6))
 			safestrncpy(content_type, "application/vnd.wap.wmlscriptc", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 5], ".wbmp", 5))
+		else if (!strncasecmp(&what[len - 5], ".wbmp", 5))
 			safestrncpy(content_type, "image/vnd.wap.wbmp", sizeof content_type);
-		else if (!strncasecmp(&what[strlen(what) - 3], ".js", 3))
+		else if (!strncasecmp(&what[len - 3], ".js", 3))
 			safestrncpy(content_type, "text/javascript", sizeof content_type);
 		else
 			safestrncpy(content_type, "application/octet-stream", sizeof content_type);
@@ -858,7 +866,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 
 	/* Form fields */
-	if ( (length > 0) && (strlen(cbtype) == 0) ) {
+	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
 		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
 		u->next = WC->urlstrings;
 		WC->urlstrings = u;
@@ -870,7 +878,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	}
 
 	/** Uploaded files */
-	if ( (length > 0) && (strlen(cbtype) > 0) ) {
+	if ( (length > 0) && (!IsEmptyStr(cbtype)) ) {
 		WC->upload = malloc(length);
 		if (WC->upload != NULL) {
 			WC->upload_length = length;
@@ -1020,6 +1028,7 @@ void session_loop(struct httprequest *req)
 	int body_start = 0;
 	int is_static = 0;
 	int n_static = 0;
+	int len = 0;
 	/**
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -1108,7 +1117,7 @@ void session_loop(struct httprequest *req)
 			}
 		}
 		else if (!strncasecmp(buf, "Host: ", 6)) {
-			if (strlen(WC->http_host) == 0) {
+			if (IsEmptyStr(WC->http_host)) {
 				safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
 			}
 		}
@@ -1152,13 +1161,18 @@ void session_loop(struct httprequest *req)
 	remove_token(WC->this_page, 0, ' ');
 
 	/** If there are variables in the URL, we must grab them now */
-	for (a = 0; a < strlen(cmd); ++a) {
+	len = strlen(cmd);
+	for (a = 0; a < len; ++a) {
 		if ((cmd[a] == '?') || (cmd[a] == '&')) {
-			for (b = a; b < strlen(cmd); ++b)
-				if (isspace(cmd[b]))
+			for (b = a; b < len; ++b) {
+				if (isspace(cmd[b])){
 					cmd[b] = 0;
+					len = b - 1;
+				}
+			}
 			addurls(&cmd[a + 1]);
 			cmd[a] = 0;
+			len = a - 1;
 		}
 	}
 
@@ -1350,8 +1364,8 @@ void session_loop(struct httprequest *req)
 	 * supplied by the browser, try using them to log in.
 	 */
 	if ((!WC->logged_in)
-	   && (strlen(c_username) > 0)
-	   && (strlen(c_password) > 0)) {
+	   && (!IsEmptyStr(c_username))
+	   && (!IsEmptyStr(c_password))) {
 		serv_printf("USER %s", c_username);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
@@ -1366,7 +1380,7 @@ void session_loop(struct httprequest *req)
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
-	if ((strlen(WC->wc_roomname) == 0) && (strlen(c_roomname) > 0)) {
+	if ((IsEmptyStr(WC->wc_roomname)) && (!IsEmptyStr(c_roomname))) {
 		serv_printf("GOTO %s", c_roomname);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {

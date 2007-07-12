@@ -74,7 +74,7 @@ void utf8ify_rfc822_string(char *buf) {
 	char *isav;			/**< Saved pointer to input buffer */
 	char *osav;			/**< Saved pointer to output buffer */
 	int passes = 0;
-	int i;
+	int i, len;
 	int illegal_non_rfc2047_encoding = 0;
 
 	/** Sometimes, badly formed messages contain strings which were simply
@@ -83,9 +83,11 @@ void utf8ify_rfc822_string(char *buf) {
 	 *  handle it anyway by converting from a user-specified default
 	 *  charset to UTF-8 if we see any nonprintable characters.
 	 */
-	for (i=0; i<strlen(buf); ++i) {
+	len = strlen(buf);
+	for (i=0; i<len; ++i) {
 		if ((buf[i] < 32) || (buf[i] > 126)) {
 			illegal_non_rfc2047_encoding = 1;
+			i = len; ///< take a shortcut, it won't be more than one.
 		}
 	}
 	if (illegal_non_rfc2047_encoding) {
@@ -211,14 +213,15 @@ void utf8ify_rfc822_string(char *buf) {
 void rfc2047encode(char *target, int maxlen, char *source)
 {
 	int need_to_encode = 0;
-	int i;
+	int i, len;
 	unsigned char ch;
 
 	if (target == NULL) return;
-
-	for (i=0; i<strlen(source); ++i) {
+	len = strlen(source);
+	for (i=0; i<len; ++i) {
 		if ((source[i] < 32) || (source[i] > 126)) {
 			need_to_encode = 1;
+			i = len; ///< shortcut. won't become more than 1
 		}
 	}
 
@@ -228,7 +231,7 @@ void rfc2047encode(char *target, int maxlen, char *source)
 	}
 
 	strcpy(target, "=?UTF-8?Q?");
-	for (i=0; i<strlen(source); ++i) {
+	for (i=0; i<len; ++i) {
 		ch = (unsigned char) source[i];
 		if ((ch < 32) || (ch > 126) || (ch == 61)) {
 			sprintf(&target[strlen(target)], "=%02X", ch);
@@ -251,15 +254,14 @@ void rfc2047encode(char *target, int maxlen, char *source)
  */
 void url(char *buf)
 {
-
-	int pos;
+	int pos, len;
 	int start, end;
 	char urlbuf[SIZ];
 	char outbuf[1024];
 	start = (-1);
-	end = strlen(buf);
+	len = end = strlen(buf);
 
-	for (pos = 0; pos < strlen(buf); ++pos) {
+	for (pos = 0; pos < len; ++pos) {
 		if (!strncasecmp(&buf[pos], "http://", 7))
 			start = pos;
 		if (!strncasecmp(&buf[pos], "ftp://", 6))
@@ -269,7 +271,7 @@ void url(char *buf)
 	if (start < 0)
 		return;
 
-	for (pos = strlen(buf); pos > start; --pos) {
+	for (pos = len; pos > start; --pos) {
 		if (  (!isprint(buf[pos]))
 		   || (isspace(buf[pos]))
 		   || (buf[pos] == '{')
@@ -308,29 +310,32 @@ void url(char *buf)
 void vcard_n_prettyize(char *name)
 {
 	char *original_name;
-	int i;
+	int i, j, len;
 
 	original_name = strdup(name);
+	len = strlen(original_name);
 	for (i=0; i<5; ++i) {
-		if (strlen(original_name) > 0) {
-			if (original_name[strlen(original_name)-1] == ' ') {
-				original_name[strlen(original_name)-1] = 0;
+		if (len > 0) {
+			if (original_name[len-1] == ' ') {
+				original_name[--len] = 0;
 			}
-			if (original_name[strlen(original_name)-1] == ';') {
-				original_name[strlen(original_name)-1] = 0;
+			if (original_name[len-1] == ';') {
+				original_name[--len] = 0;
 			}
 		}
 	}
 	strcpy(name, "");
-	for (i=0; i<strlen(original_name); ++i) {
+	j=0;
+	for (i=0; i<len; ++i) {
 		if (original_name[i] == ';') {
-			strcat(name, ", ");
+			name[j++] = ',';
+			name[j++] = ' ';			
 		}
 		else {
-			name[strlen(name)+1] = 0;
-			name[strlen(name)] = original_name[i];
+			name[j++] = original_name[i];
 		}
 	}
+	name[j] = '\0';
 	free(original_name);
 }
 
@@ -422,7 +427,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	for (pass=1; pass<=2; ++pass) {
 
 		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-
+			int len;
 			thisname = strdup(v->prop[i].name);
 			extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
 	
@@ -437,16 +442,20 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					remove_token(thisname, j, ';');
 				}
 			}
+			
+			len = strlen(v->prop[i].value);
 	
 			if (is_qp) {
-				thisvalue = malloc(strlen(v->prop[i].value) + 50);
+				// %ff can become 6 bytes in utf8 
+				thisvalue = malloc(len * 2 + 3); 
 				j = CtdlDecodeQuotedPrintable(
 					thisvalue, v->prop[i].value,
-					strlen(v->prop[i].value) );
+					len);
 				thisvalue[j] = 0;
 			}
 			else if (is_b64) {
-				thisvalue = malloc(strlen(v->prop[i].value) + 50);
+				// ff will become one byte..
+				thisvalue = malloc(len + 50);
 				CtdlDecodeBase64(
 					thisvalue, v->prop[i].value,
 					strlen(v->prop[i].value) );
@@ -459,7 +468,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	
 			/** N is name, but only if there's no FN already there */
 			if (!strcasecmp(firsttoken, "n")) {
-				if (strlen(fullname) == 0) {
+				if (IsEmptyStr(fullname)) {
 					strcpy(fullname, thisvalue);
 					vcard_n_prettyize(fullname);
 				}
@@ -481,7 +490,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 	
 			else if (!strcasecmp(firsttoken, "email")) {
-				if (strlen(mailto) > 0) strcat(mailto, "<br />");
+				if (!IsEmptyStr(mailto)) strcat(mailto, "<br />");
 				strcat(mailto,
 					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
@@ -496,7 +505,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				strcat(mailto, "</A>");
 			}
 			else if (!strcasecmp(firsttoken, "tel")) {
-				if (strlen(phone) > 0) strcat(phone, "<br />");
+				if (!IsEmptyStr(phone)) strcat(phone, "<br />");
 				strcat(phone, thisvalue);
 				for (j=0; j<num_tokens(thisname, ';'); ++j) {
 					extract_token(buf, thisname, j, ';', sizeof buf);
@@ -522,7 +531,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					wprintf("</TD><TD>");
 					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
 						extract_token(buf, thisvalue, j, ';', sizeof buf);
-						if (strlen(buf) > 0) {
+						if (!IsEmptyStr(buf)) {
 							escputs(buf);
 							if (j<3) wprintf("<br />");
 							else wprintf(" ");
@@ -564,24 +573,24 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			"<FONT SIZE=+1><B>");
 			escputs(fullname);
 			wprintf("</B></FONT>");
-			if (strlen(title) > 0) {
+			if (!IsEmptyStr(title)) {
 				wprintf("<div align=right>");
 				escputs(title);
 				wprintf("</div>");
 			}
-			if (strlen(org) > 0) {
+			if (!IsEmptyStr(org)) {
 				wprintf("<div align=right>");
 				escputs(org);
 				wprintf("</div>");
 			}
 			wprintf("</TD></TR>\n");
 		
-			if (strlen(phone) > 0) {
+			if (!IsEmptyStr(phone)) {
 				wprintf("<tr><td>");
 				wprintf(_("Telephone:"));
 				wprintf("</td><td>%s</td></tr>\n", phone);
 			}
-			if (strlen(mailto) > 0) {
+			if (!IsEmptyStr(mailto)) {
 				wprintf("<tr><td>");
 				wprintf(_("E-mail:"));
 				wprintf("</td><td>%s</td></tr>\n", mailto);
@@ -724,7 +733,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 			wprintf("?recp=");
 			urlescputs(reply_to);
-			if (strlen(m_subject) > 0) {
+			if (!IsEmptyStr(m_subject)) {
 				wprintf("?subject=");
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
@@ -739,7 +748,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				wprintf("?replyquote=%ld", msgnum);
 				wprintf("?recp=");
 				urlescputs(reply_to);
-				if (strlen(m_subject) > 0) {
+				if (!IsEmptyStr(m_subject)) {
 					wprintf("?subject=");
 					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 					urlescputs(m_subject);
@@ -756,7 +765,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			urlescputs(reply_to);
 			wprintf("?cc=");
 			urlescputs(reply_all);
-			if (strlen(m_subject) > 0) {
+			if (!IsEmptyStr(m_subject)) {
 				wprintf("?subject=");
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
@@ -838,12 +847,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 			safestrncpy(m_subject, &buf[5], sizeof m_subject);
 		}
 		if (!strncasecmp(buf, "cccc=", 5)) {
+			int len;
 			safestrncpy(m_cc, &buf[5], sizeof m_cc);
-			if (strlen(reply_all) > 0) {
+			if (!IsEmptyStr(reply_all)) {
 				strcat(reply_all, ", ");
 			}
-			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
-				(sizeof reply_all - strlen(reply_all)) );
+			len = strlen(reply_all);
+			safestrncpy(&reply_all[len], &buf[5],
+				(sizeof reply_all - len) );
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
@@ -851,7 +862,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 		if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], WC->wc_roomname))
-		    && (strlen(&buf[5])>0) ) {
+		    && (!IsEmptyStr(&buf[5])) ) {
 			wprintf(_("in "));
 			wprintf("%s&gt; ", &buf[5]);
 		}
@@ -867,18 +878,20 @@ void read_message(long msgnum, int printable_view, char *section) {
 			if ( ((WC->room_flags & QR_NETWORK)
 			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
 			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-			&& (strlen(rfca)==0)
+			&& (IsEmptyStr(rfca))
 			) {
 				wprintf("@%s ", &buf[5]);
 			}
 		}
 		if (!strncasecmp(buf, "rcpt=", 5)) {
+			int len;
 			wprintf(_("to "));
-			if (strlen(reply_all) > 0) {
+			if (!IsEmptyStr(reply_all)) {
 				strcat(reply_all, ", ");
 			}
-			safestrncpy(&reply_all[strlen(reply_all)], &buf[5],
-				(sizeof reply_all - strlen(reply_all)) );
+			len = strlen(reply_all);
+			safestrncpy(&reply_all[len], &buf[5],
+				(sizeof reply_all - len) );
 #ifdef HAVE_ICONV
 			utf8ify_rfc822_string(&buf[5]);
 #endif
@@ -900,12 +913,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 			striplt(mime_name);
 			striplt(mime_filename);
-			if ( (strlen(mime_filename) == 0) && (strlen(mime_name) > 0) ) {
+			if ( (IsEmptyStr(mime_filename)) && (!IsEmptyStr(mime_name)) ) {
 				strcpy(mime_filename, mime_name);
 			}
 
 			if (!strcasecmp(mime_content_type, "message/rfc822")) {
-				if (strlen(mime_submessages) > 0) {
+				if (!IsEmptyStr(mime_submessages)) {
 					strcat(mime_submessages, "|");
 				}
 				strcat(mime_submessages, mime_partnum);
@@ -923,7 +936,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			else if ( ( (!strcasecmp(mime_disposition, "attachment")) 
 			     || (!strcasecmp(mime_disposition, "inline"))
 			     || (!strcasecmp(mime_disposition, ""))
-			     ) && (strlen(mime_content_type) > 0)
+			     ) && (!IsEmptyStr(mime_content_type))
 			) {
 				++num_attach_links;
 				attach_links = realloc(attach_links,
@@ -965,8 +978,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/** Generate a reply-to address */
-	if (strlen(rfca) > 0) {
-		if (strlen(from) > 0) {
+	if (!IsEmptyStr(rfca)) {
+		if (!IsEmptyStr(from)) {
 			snprintf(reply_to, sizeof(reply_to), "%s <%s>", from, rfca);
 		}
 		else {
@@ -974,7 +987,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 	}
 	else {
-		if ( (strlen(node) > 0)
+	if ((!IsEmptyStr(node))
 		   && (strcasecmp(node, serv_info.serv_nodename))
 		   && (strcasecmp(node, serv_info.serv_humannode)) ) {
 			snprintf(reply_to, sizeof(reply_to), "%s @ %s",
@@ -995,23 +1008,20 @@ void read_message(long msgnum, int printable_view, char *section) {
 	utf8ify_rfc822_string(m_cc);
 	utf8ify_rfc822_string(m_subject);
 #endif
-	if (strlen(m_cc) > 0) {
+	if (!IsEmptyStr(m_cc)) {
 		wprintf("<div class=\"message_subject\">");
 		wprintf(_("CC:"));
 		wprintf(" ");
 		escputs(m_cc);
 		wprintf("</div>");
 	}
-	if (strlen(m_subject) > 0) {
+	if (!IsEmptyStr(m_subject)) {
 		wprintf("<div class=\"message_subject\">");
 		wprintf(_("Subject:"));
 		wprintf(" ");
 		escputs(m_subject);
 		wprintf("</div>");
 	}
-
-
-
 
 	/** Begin body */
 	wprintf("<div class=\"message_content\">");
@@ -1020,7 +1030,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
-	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
+	while (serv_getln(buf, sizeof buf), (!IsEmptyStr(buf))) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<i>");
 			wprintf(_("unexpected end of message"));
@@ -1032,22 +1042,27 @@ void read_message(long msgnum, int printable_view, char *section) {
 			striplt(msg4_partnum);
 		}
 		if (!strncasecmp(buf, "Content-type:", 13)) {
+			int len;
 			safestrncpy(mime_content_type, &buf[13], sizeof(mime_content_type));
 			striplt(mime_content_type);
-			for (i=0; i<strlen(mime_content_type); ++i) {
+			len = strlen(mime_content_type);
+			for (i=0; i<len; ++i) {
 				if (!strncasecmp(&mime_content_type[i], "charset=", 8)) {
 					safestrncpy(mime_charset, &mime_content_type[i+8],
 						sizeof mime_charset);
 				}
 			}
-			for (i=0; i<strlen(mime_content_type); ++i) {
+			for (i=0; i<len; ++i) {
 				if (mime_content_type[i] == ';') {
 					mime_content_type[i] = 0;
+					len = i - 1;
 				}
 			}
-			for (i=0; i<strlen(mime_charset); ++i) {
+			len = strlen(mime_charset);
+			for (i=0; i<len; ++i) {
 				if (mime_charset[i] == ';') {
 					mime_charset[i] = 0;
+					len = i - 1;
 				}
 			}
 		}
@@ -1077,8 +1092,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 	else if ( (!strcasecmp(mime_content_type, "text/plain"))
 		|| (!strcasecmp(mime_content_type, "text")) ) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
-			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
+			int len;
+			len = strlen(buf);
+			if (buf[len-1] == '\n') buf[--len] = 0;
+			if (buf[len-1] == '\r') buf[--len] = 0;
 
 #ifdef HAVE_ICONV
 			if (ic != (iconv_t)(-1) ) {
@@ -1094,8 +1111,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 #endif
 
-			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
-				buf[strlen(buf) - 1] = 0;
+			len = strlen(buf);
+			while ((!IsEmptyStr(buf)) && (isspace(buf[len-1])))
+				buf[--len] = 0;
 			if ((bq == 0) &&
 		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
 				wprintf("<blockquote>");
@@ -1126,7 +1144,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/** If there are attached submessages, display them now... */
-	if ( (strlen(mime_submessages) > 0) && (!section[0]) ) {
+	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
 			/** use printable_view to suppress buttons */
@@ -1147,7 +1165,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/** Handler for vCard parts */
-	if (strlen(vcard_partnum) > 0) {
+	if (!IsEmptyStr(vcard_partnum)) {
 		part_source = load_mimepart(msgnum, vcard_partnum);
 		if (part_source != NULL) {
 
@@ -1168,7 +1186,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 
 	/** Handler for calendar parts */
-	if (strlen(cal_partnum) > 0) {
+	if (!IsEmptyStr(cal_partnum)) {
 		part_source = load_mimepart(msgnum, cal_partnum);
 		if (part_source != NULL) {
 			cal_process_attachment(part_source,
@@ -1367,7 +1385,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			}
 			if ((!strncasecmp(buf, "room=", 5))
 			    && (strcasecmp(&buf[5], WC->wc_roomname))
-			    && (strlen(&buf[5])>0) ) {
+			    && (!IsEmptyStr(&buf[5])) ) {
 				wprintf(_("in "));
 				wprintf("%s&gt; ", &buf[5]);
 			}
@@ -1383,7 +1401,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 				if ( ((WC->room_flags & QR_NETWORK)
 				|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
 				&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-				&& (strlen(rfca)==0)
+				&& (IsEmptyStr(rfca))
 				) {
 					wprintf("@%s ", &buf[5]);
 				}
@@ -1424,7 +1442,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 #ifdef HAVE_ICONV
 		utf8ify_rfc822_string(m_subject);
 #endif
-		if (strlen(m_subject) > 0) {
+		if (!IsEmptyStr(m_subject)) {
 			wprintf(_("Subject:"));
 			wprintf(" ");
 			msgescputs(m_subject);
@@ -1441,12 +1459,13 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
-	while (serv_getln(buf, sizeof buf), (strlen(buf) > 0)) {
+	while (serv_getln(buf, sizeof buf), (!IsEmptyStr(buf))) {
 		if (!strcmp(buf, "000")) {
 			wprintf("%s (4)", _("unexpected end of message"));
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			int len;
 			safestrncpy(mime_content_type, &buf[14],
 				sizeof(mime_content_type));
 			for (i=0; i<strlen(mime_content_type); ++i) {
@@ -1455,14 +1474,18 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 						sizeof mime_charset);
 				}
 			}
-			for (i=0; i<strlen(mime_content_type); ++i) {
+			len = strlen(mime_content_type);
+			for (i=0; i<len; ++i) {
 				if (mime_content_type[i] == ';') {
 					mime_content_type[i] = 0;
+					len = i - 1;
 				}
 			}
-			for (i=0; i<strlen(mime_charset); ++i) {
+			len = strlen(mime_charset);
+			for (i=0; i<len; ++i) {
 				if (mime_charset[i] == ';') {
 					mime_charset[i] = 0;
+					len = i - 1;
 				}
 			}
 		}
@@ -1490,13 +1513,15 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	/* Boring old 80-column fixed format text gets handled this way... */
 	else if (!strcasecmp(mime_content_type, "text/plain")) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
-			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
+			int len;
+			len = strlen(buf);
+			if (buf[len-1] == '\n') buf[--len] = 0;
+			if (buf[len-1] == '\r') buf[--len] = 0;
 
 #ifdef HAVE_ICONV
 			if (ic != (iconv_t)(-1) ) {
 				ibuf = buf;
-				ibuflen = strlen(ibuf);
+				ibuflen = len;
 				obuflen = SIZ;
 				obuf = (char *) malloc(obuflen);
 				osav = obuf;
@@ -1507,8 +1532,9 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			}
 #endif
 
-			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
-				buf[strlen(buf) - 1] = 0;
+			len = strlen(buf);
+			while ((!IsEmptyStr(buf)) && (isspace(buf[len - 1]))) 
+				buf[--len] = 0;
 			if ((bq == 0) &&
 		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
 				wprintf("<blockquote>");
@@ -1675,7 +1701,7 @@ void display_addressbook(long msgnum, char alpha) {
 		}
 	}
 
-	if (strlen(vcard_partnum) > 0) {
+	if (!IsEmptyStr(vcard_partnum)) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
@@ -1736,7 +1762,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	int mime_length;
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
-	int i;
+	int i, len;
 	struct message_summary summ;
 
 	if (namebuf == NULL) return;
@@ -1766,7 +1792,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 		}
 	}
 
-	if (strlen(vcard_partnum) > 0) {
+	if (!IsEmptyStr(vcard_partnum)) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
@@ -1779,7 +1805,8 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 
 	lastfirst_firstlast(namebuf);
 	striplt(namebuf);
-	for (i=0; i<strlen(namebuf); ++i) {
+	len = strlen(namebuf);
+	for (i=0; i<len; ++i) {
 		if (namebuf[i] != ';') return;
 	}
 	strcpy(namebuf, _("(no name)"));
@@ -1969,11 +1996,11 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
 				safestrncpy(WC->summ[nummsgs-1].subj,
 					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
-				if (strlen(fullname) > 0) {
+				if (!IsEmptyStr(fullname)) {
 					safestrncpy(WC->summ[nummsgs-1].from,
 						fullname, sizeof WC->summ[nummsgs-1].from);
 				}
-				if (strlen(subject) > 0) {
+				if (!IsEmptyStr(subject)) {
 				safestrncpy(WC->summ[nummsgs-1].subj, subject,
 					sizeof WC->summ[nummsgs-1].subj);
 				}
@@ -1985,7 +2012,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 					strcpy(&WC->summ[nummsgs-1].subj[72], "...");
 				}
 
-				if (strlen(nodename) > 0) {
+				if (!IsEmptyStr(nodename)) {
 					if ( ((WC->room_flags & QR_NETWORK)
 					   || ((strcasecmp(nodename, serv_info.serv_nodename)
 					   && (strcasecmp(nodename, serv_info.serv_fqdn)))))
@@ -2178,13 +2205,13 @@ void readloop(char *oper)
 	get_preference(sortpref_name, sortpref_value, sizeof sortpref_value);
 
 	sortby = bstr("sortby");
-	if ( (strlen(sortby) > 0) && (strcasecmp(sortby, sortpref_value)) ) {
+	if ( (!IsEmptyStr(sortby)) && (strcasecmp(sortby, sortpref_value)) ) {
 		set_preference(sortpref_name, sortby, 1);
 	}
-	if (strlen(sortby) == 0) sortby = sortpref_value;
+	if (IsEmptyStr(sortby)) sortby = sortpref_value;
 
 	/** mailbox sort */
-	if (strlen(sortby) == 0) sortby = "rdate";
+	if (IsEmptyStr(sortby)) sortby = "rdate";
 
 	/** message board sort */
 	if (!strcasecmp(sortby, "reverse")) {
@@ -2761,10 +2788,10 @@ void post_message(void)
 		return;
 	}
 
-	if (strlen(bstr("cancel_button")) > 0) {
+	if (!IsEmptyStr(bstr("cancel_button"))) {
 		sprintf(WC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
-	} else if (strlen(bstr("attach_button")) > 0) {
+	} else if (!IsEmptyStr(bstr("attach_button"))) {
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
@@ -2787,9 +2814,9 @@ void post_message(void)
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '4') {
 			post_mime_to_server();
-			if ( (strlen(bstr("recp")) > 0)
-			   || (strlen(bstr("cc")) > 0)
-			   || (strlen(bstr("bcc")) > 0)
+			if (  (!IsEmptyStr(bstr("recp")))
+			   || (!IsEmptyStr(bstr("cc"  )))
+			   || (!IsEmptyStr(bstr("bcc" )))
 			) {
 				sprintf(WC->ImportantMessage, _("Message has been sent.\n"));
 			}
@@ -2811,13 +2838,13 @@ void post_message(void)
 	 *  We may have been supplied with instructions regarding the location
 	 *  to which we must return after posting.  If found, go there.
 	 */
-	if (strlen(bstr("return_to")) > 0) {
+	if (!IsEmptyStr(bstr("return_to"))) {
 		http_redirect(bstr("return_to"));
 	}
 	/**
 	 *  If we were editing a page in a wiki room, go to that page now.
 	 */
-	else if (strlen(bstr("wikipage")) > 0) {
+	else if (!IsEmptyStr(bstr("wikipage"))) {
 		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("wikipage"));
 		http_redirect(buf);
 	}
@@ -2851,7 +2878,7 @@ void display_enter(void)
 
 	now = time(NULL);
 
-	if (strlen(bstr("force_room")) > 0) {
+	if (!IsEmptyStr(bstr("force_room"))) {
 		gotoroom(bstr("force_room"));
 	}
 
@@ -2930,7 +2957,9 @@ void display_enter(void)
 		serv_getln(buf, sizeof buf);
 
 		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
-			if (strlen(bstr("recp")) + strlen(bstr("cc")) + strlen(bstr("bcc")) > 0) {
+			if (!IsEmptyStr(bstr("recp")) && 
+			    !IsEmptyStr(bstr("cc"  )) && 
+			    !IsEmptyStr(bstr("bcc" ))) {
 				recipient_bad = 1;
 			}
 		}
@@ -3126,10 +3155,12 @@ void display_enter(void)
 	if ( (WC->is_mailbox) && (strcmp(bstr("sig_inserted"), "yes")) ) {
 		get_preference("use_sig", buf, sizeof buf);
 		if (!strcasecmp(buf, "yes")) {
+			int len;
 			get_preference("signature", ebuf, sizeof ebuf);
 			euid_unescapize(buf, ebuf);
 			wprintf("<br>--<br>");
-			for (i=0; i<strlen(buf); ++i) {
+			len = strlen(buf);
+			for (i=0; i<len; ++i) {
 				if (buf[i] == '\n') {
 					wprintf("<br>");
 				}
@@ -3234,7 +3265,7 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	if (strlen(bstr("move_button")) > 0) {
+	if (!IsEmptyStr(bstr("move_button"))) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);

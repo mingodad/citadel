@@ -28,7 +28,7 @@ void groupdav_options(char *dav_pathname) {
 	/*
 	 * If the room name is blank, the client is doing a top-level OPTIONS.
 	 */
-	if (strlen(dav_roomname) == 0) {
+	if (IsEmptyStr(dav_roomname)) {
 		wprintf("HTTP/1.1 200 OK\r\n");
 		groupdav_common_headers();
 		wprintf("Date: %s\r\n", datestring);
@@ -59,7 +59,7 @@ void groupdav_options(char *dav_pathname) {
 	/* If dav_uid is non-empty, client is requesting an OPTIONS on
 	 * a specific item in the room.
 	 */
-	if (strlen(dav_uid) > 0) {
+	if (!IsEmptyStr(dav_uid)) {
 
 		dav_msgnum = locate_message_by_uid(dav_uid);
 		if (dav_msgnum < 0) {
