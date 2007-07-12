@@ -40,7 +40,7 @@ void extract_key(char *target, char *source, char *key)
  */
 char *fixed_partnum(char *supplied_partnum) {
 	if (supplied_partnum == NULL) return "1";
-	if (strlen(supplied_partnum)==0) return "1";
+	if (IsEmptyStr(supplied_partnum)) return "1";
 	return supplied_partnum;
 }
 
@@ -142,7 +142,7 @@ void mime_decode(char *partnum,
 		strcpy(encoding, "");
 
 	/* If this part is not encoded, send as-is */
-	if ( (strlen(encoding) == 0) || (dont_decode)) {
+	if ( (IsEmptyStr(encoding)) || (dont_decode)) {
 		if (CallBack != NULL) {
 			CallBack(name, filename, fixed_partnum(partnum),
 				disposition, part_start,
@@ -301,12 +301,14 @@ void the_mime_parser(char *partnum,
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
 	do {
+		int len;
 		ptr = memreadline(ptr, buf, SIZ);
 		if (ptr >= content_end) {
 			goto end_parser;
 		}
 
-		for (i = 0; i < strlen(buf); ++i) {
+		len = strlen (buf);
+		for (i = 0; i < len; ++i) {
 			if (isspace(buf[i])) {
 				buf[i] = ' ';
 			}
@@ -340,14 +342,14 @@ void the_mime_parser(char *partnum,
 				strcpy(encoding, &header[26]);
 				striplt(encoding);
 			}
-			if (strlen(boundary) == 0)
+			if (IsEmptyStr(boundary))
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
 		}
 		if ((strlen(header) + strlen(buf) + 2) < SIZ) {
 			strcat(header, buf);
 		}
-	} while ((strlen(buf) > 0) && (*ptr != 0));
+	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
 
 	if (strchr(disposition, ';'))
 		*(strchr(disposition, ';')) = '\0';
@@ -356,7 +358,7 @@ void the_mime_parser(char *partnum,
 		*(strchr(content_type, ';')) = '\0';
 	striplt(content_type);
 
-	if (strlen(boundary) > 0) {
+	if (!IsEmptyStr(boundary)) {
 		is_multipart = 1;
 	} else {
 		is_multipart = 0;
@@ -395,7 +397,7 @@ void the_mime_parser(char *partnum,
 					--part_end;	/* omit the trailing CR */
 				}
 
-				if (strlen(partnum) > 0) {
+				if (!IsEmptyStr(partnum)) {
 					snprintf(nested_partnum,
 						 sizeof nested_partnum,
 						 "%s.%d", partnum,
@@ -511,7 +513,7 @@ void the_mime_parser(char *partnum,
 					0, encoding, userdata);
 			}
 			if (CallBack != NULL) {
-				if (strlen(partnum) > 0) {
+				if (!IsEmptyStr(partnum)) {
 					snprintf(nested_partnum,
 						 sizeof nested_partnum,
 						 "%s.%d", partnum,

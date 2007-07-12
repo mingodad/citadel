@@ -198,7 +198,7 @@ void pullquote_fmout(void) {
 void text_to_server(char *ptr)
 {
 	char buf[256];
-	int ch, a, pos;
+	int ch, a, pos, len;
 
 	pos = 0;
 	buf[0] = 0;
@@ -206,9 +206,11 @@ void text_to_server(char *ptr)
 	while (ptr[pos] != 0) {
 		ch = ptr[pos++];
 		if (ch == 10) {
-			while ( (isspace(buf[strlen(buf) - 1]))
-			  && (strlen(buf) > 1) )
-				buf[strlen(buf) - 1] = 0;
+			len = strlen(buf);
+			while ( (isspace(buf[len - 1]))
+				&& (buf[0] !=  '\0') 
+				&& (buf[1] !=  '\0') )
+				buf[--len] = 0;
 			serv_puts(buf);
 			buf[0] = 0;
 			if (ptr[pos] != 0) strcat(buf, " ");

@@ -21,7 +21,7 @@ void display_note(long msgnum)
 	char display_notetext[SIZ];
 	char eid[128];
 	int in_text = 0;
-	int i;
+	int i, len;
 
 	wprintf("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">\n");
 
@@ -51,13 +51,14 @@ void display_note(long msgnum)
 	}
 
 	/** Now sanitize the buffer */
-	for (i=0; i<strlen(notetext); ++i) {
+	len = strlen(notetext);
+	for (i=0; i<len; ++i) {
 		if (isspace(notetext[i])) notetext[i] = ' ';
 	}
 
 	/** Make it HTML-happy and print it. */
 	stresc(display_notetext, notetext, 0, 0);
-	if (strlen(eid) > 0) {
+	if (!IsEmptyStr(eid)) {
 		wprintf("<span id=\"note%s\">%s</span><br />\n", eid, display_notetext);
 	}
 	else {
@@ -65,7 +66,7 @@ void display_note(long msgnum)
 	}
 
 	/** Offer in-place editing. */
-	if (strlen(eid) > 0) {
+	if (!IsEmptyStr(eid)) {
 		wprintf("<script type=\"text/javascript\">"
 			"new Ajax.InPlaceEditor('note%s', 'updatenote?nonce=%ld?eid=%s', {rows:5,cols:72});"
 			"</script>\n",
@@ -87,7 +88,7 @@ void updatenote(void)
 	char display_notetext[SIZ];
 	long msgnum;
 	int in_text = 0;
-	int i;
+	int i, len;
 
 	serv_printf("ENT0 1||0|0||||||%s", bstr("eid"));
 	serv_getln(buf, sizeof buf);
@@ -114,7 +115,8 @@ void updatenote(void)
 				}
 			}
 			/** Now sanitize the buffer */
-			for (i=0; i<strlen(notetext); ++i) {
+			len = strlen(notetext);
+			for (i=0; i<len; ++i) {
 				if (isspace(notetext[i])) notetext[i] = ' ';
 			}
 		

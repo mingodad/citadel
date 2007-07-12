@@ -632,7 +632,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		created_new_vtodo = 1;
 	}
 
-	if (strlen(bstr("save_button")) > 0) {
+	if (!IsEmptyStr(bstr("save_button"))) {
 
 		/** Replace values in the component with ones from the form */
 
@@ -730,7 +730,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	/**
 	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
-	if (strlen(bstr("delete_button")) > 0) {
+	if (!IsEmptyStr(bstr("delete_button"))) {
 		delete_existing = 1;
 	}
 
@@ -796,7 +796,7 @@ void display_using_handler(long msgnum,
 		}
 	}
 
-	if (strlen(relevant_partnum) > 0) {
+	if (!IsEmptyStr(relevant_partnum)) {
 		relevant_source = load_mimepart(msgnum, relevant_partnum);
 		if (relevant_source != NULL) {
 
@@ -853,7 +853,7 @@ void display_edit_task(void) {
 	long msgnum = 0L;
 
 	/** Force change the room if we have to */
-	if (strlen(bstr("taskrm")) > 0) {
+	if (!IsEmptyStr(bstr("taskrm"))) {
 		gotoroom(bstr("taskrm"));
 	}
 
@@ -936,6 +936,7 @@ void do_freebusy(char *req) {
 	char who[SIZ];
 	char buf[SIZ];
 	char *fb;
+	int len;
 
 	extract_token(who, req, 1, ' ', sizeof who);
 	if (!strncasecmp(who, "/freebusy/", 10)) {
@@ -943,10 +944,11 @@ void do_freebusy(char *req) {
 	}
 	unescape_input(who);
 
-	if ( (!strcasecmp(&who[strlen(who)-4], ".vcf"))
-	   || (!strcasecmp(&who[strlen(who)-4], ".ifb"))
-	   || (!strcasecmp(&who[strlen(who)-4], ".vfb")) ) {
-		who[strlen(who)-4] = 0;
+	len = strlen(who);
+	if ( (!strcasecmp(&who[len-4], ".vcf"))
+	   || (!strcasecmp(&who[len-4], ".ifb"))
+	   || (!strcasecmp(&who[len-4], ".vfb")) ) {
+		who[len-4] = 0;
 	}
 
 	lprintf(9, "freebusy requested for <%s>\n", who);

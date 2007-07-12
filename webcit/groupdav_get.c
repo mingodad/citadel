@@ -55,7 +55,7 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
 	int hit = 0;
 
 	/* We only want the first one that we found */
-	if (strlen(epdata->found_section) > 0) return;
+	if (!IsEmptyStr(epdata->found_section)) return;
 
 	/* Check for a content type match */
 	if (strlen(epdata->desired_content_type_1) > 0) {
@@ -63,7 +63,7 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
 			hit = 1;
 		}
 	}
-	if (strlen(epdata->desired_content_type_2) > 0) {
+	if (!IsEmptyStr(epdata->desired_content_type_2)) {
 		if (!strcasecmp(epdata->desired_content_type_2, cbtype)) {
 			hit = 1;
 		}
@@ -72,7 +72,7 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
 	/* Is this the one?  If so, output it. */
 	if (hit) {
 		safestrncpy(epdata->found_section, partnum, sizeof epdata->found_section);
-		if (strlen(cbcharset) > 0) {
+		if (!IsEmptyStr(cbcharset)) {
 			safestrncpy(epdata->charset, cbcharset, sizeof epdata->charset);
 		}
 		wprintf("Content-type: %s; charset=%s\r\n", cbtype, epdata->charset);
@@ -238,7 +238,7 @@ void groupdav_get(char *dav_pathname) {
 
 	/* If epdata.found_section is empty, we haven't output anything yet, so output the whole thing */
 
-	if (strlen(epdata.found_section) == 0) {
+	if (IsEmptyStr(epdata.found_section)) {
 		ptr = msgtext;
 		endptr = &msgtext[msglen];
 	

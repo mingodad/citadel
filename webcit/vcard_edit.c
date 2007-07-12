@@ -363,7 +363,7 @@ void submit_vcard(void) {
 	char buf[SIZ];
 	int i;
 
-	if (strlen(bstr("ok_button")) == 0) { 
+	if (IsEmptyStr(bstr("ok_button"))) { 
 		readloop("readnew");
 		return;
 	}
@@ -419,7 +419,7 @@ void submit_vcard(void) {
 
 	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
 		extract_token(buf, bstr("other_inetemail"), i, '\n', sizeof buf);
-		if (strlen(buf) > 0) {
+		if (!IsEmptyStr(buf)) {
 			vcard_add_prop(v, "email;internet", buf);
 		}
 	}

@@ -43,7 +43,7 @@ void display_login(char *mesg)
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"login_screen\">\n");
 
-	if (mesg != NULL) if (strlen(mesg) > 0) {
+	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
 		stresc(buf, mesg, 0, 0);
 		svprintf("mesg", WCS_STRING, "%s", buf);
 	}
@@ -142,16 +142,16 @@ void do_login(void)
 {
 	char buf[SIZ];
 
-	if (strlen(bstr("language")) > 0) {
+	if (!IsEmptyStr(bstr("language"))) {
 		set_selected_language(bstr("language"));
 		go_selected_language();
 	}
 
-	if (strlen(bstr("exit_action")) > 0) {
+	if (!IsEmptyStr(bstr("exit_action"))) {
 		do_logout();
 		return;
 	}
-	if (strlen(bstr("login_action")) > 0) {
+	if (!IsEmptyStr(bstr("login_action"))) {
 		serv_printf("USER %s", bstr("name"));
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
@@ -169,8 +169,8 @@ void do_login(void)
 			return;
 		}
 	}
-	if (strlen(bstr("newuser_action")) > 0) {
-		if (strlen(bstr("pass")) == 0) {
+	if (!IsEmptyStr(bstr("newuser_action"))) {
+		if (IsEmptyStr(bstr("pass"))) {
 			display_login(_("Blank passwords are not allowed."));
 			return;
 		}
@@ -214,9 +214,11 @@ void do_welcome(void)
 	 */
 	if (WC->is_aide) {
 		if (!setup_wizard) {
+			int len;
 			sprintf(wizard_filename, "setupwiz.%s.%s",
 				ctdlhost, ctdlport);
-			for (i=0; i<strlen(wizard_filename); ++i) {
+			len = strlen(wizard_filename);
+			for (i=0; i<len; ++i) {
 				if (	(wizard_filename[i]==' ')
 					|| (wizard_filename[i] == '/')
 				) {
@@ -245,7 +247,7 @@ void do_welcome(void)
 	 * Go to the user's preferred start page
 	 */
 	get_preference("startpage", buf, sizeof buf);
-	if (strlen(buf)==0) {
+	if (IsEmptyStr(buf)) {
 		safestrncpy(buf, "dotskip&room=_BASEROOM_", sizeof buf);
 		set_preference("startpage", buf, 1);
 	}
@@ -336,8 +338,8 @@ void validate(void)
 
 	/** If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
-	if (strlen(buf) > 0) {
-		if (strlen(bstr("axlevel")) > 0) {
+	if (!IsEmptyStr(buf)) {
+		if (!IsEmptyStr(bstr("axlevel"))) {
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
@@ -469,7 +471,7 @@ void display_changepw(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	if (strlen(WC->ImportantMessage) > 0) {
+	if (!IsEmptyStr(WC->ImportantMessage)) {
 		do_template("beginbox_nt");
 		wprintf("<SPAN CLASS=\"errormsg\">"
 			"%s</SPAN><br />\n", WC->ImportantMessage);
@@ -519,7 +521,7 @@ void changepw(void)
 	char buf[SIZ];
 	char newpass1[32], newpass2[32];
 
-	if (strlen(bstr("change_action")) == 0) {
+	if (IsEmptyStr(bstr("change_action"))) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Cancelled.  Password was not changed."),
 			sizeof WC->ImportantMessage);
@@ -538,7 +540,7 @@ void changepw(void)
 		return;
 	}
 
-	if (strlen(newpass1) == 0) {
+	if (IsEmptyStr(newpass1)) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Blank passwords are not allowed."),
 			sizeof WC->ImportantMessage);

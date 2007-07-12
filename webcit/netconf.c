@@ -18,7 +18,7 @@ void edit_node(void) {
 	char cnode[SIZ];
 	FILE *fp;
 
-	if (strlen(bstr("ok_button")) > 0) {
+	if (!IsEmptyStr(bstr("ok_button"))) {
 		strcpy(node, bstr("node") );
 		fp = tmpfile();
 		if (fp != NULL) {
@@ -300,7 +300,7 @@ void add_node(void)
 
 	strcpy(node, bstr("node"));
 
-	if (strlen(bstr("add_button")) > 0)  {
+	if (!IsEmptyStr(bstr("add_button")))  {
 		sprintf(buf, "NSET addnode|%s", node);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);

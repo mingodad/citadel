@@ -1,5 +1,5 @@
 /* 
- * $Id: $
+ * $Id$
  */
 /**
  * \defgroup SMTPqueue Display the outbound SMTP queue
@@ -26,6 +26,7 @@ void display_queue_msg(long msgnum)
 	char thisrecp[256];
 	char thisdsn[256];
 	long msgid = 0;
+	int len;
 
 	strcpy(sender, "");
 	strcpy(recipients, "");
@@ -36,13 +37,14 @@ void display_queue_msg(long msgnum)
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-		if (strlen(buf) > 0) {
-			if (buf[strlen(buf)-1] == 13) {
-				buf[strlen(buf)-1] = 0;
+		if (!IsEmptyStr(buf)) {
+			len = strlen(buf);
+			if (buf[len - 1] == 13) {
+				buf[len - 1] = 0;
 			}
 		}
 
-		if ( (strlen(buf) == 0) && (in_body == 0) ) {
+		if ( (IsEmptyStr(buf) == 0) && (in_body == 0) ) {
 			in_body = 1;
 		}
 
@@ -99,7 +101,7 @@ void display_queue_msg(long msgnum)
 
 				if (strlen(recipients) + strlen(thisrecp) + strlen(thisdsn) + 100
 				   < sizeof recipients) {
-					if (strlen(recipients) > 0) {
+					if (!IsEmptyStr(recipients)) {
 						strcat(recipients, "<br />");
 					}
 					stresc(&recipients[strlen(recipients)], thisrecp, 1, 1);

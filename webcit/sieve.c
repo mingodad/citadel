@@ -197,10 +197,11 @@ void display_sieve(void)
  * \brief	Helper function for output_sieve_rule() to output strings with quotes escaped
  */
 void osr_sanitize(char *str) {
-	int i;
+	int i, len;
 
 	if (str == NULL) return;
-	for (i=0; i<strlen(str); ++i) {
+	len = strlen(str);
+	for (i=0; i<len; ++i) {
 		if (str[i]=='\"') {
 			str[i] = '\'' ;
 		}
@@ -519,7 +520,7 @@ void save_sieve(void) {
 	char this_name[64];
 	char buf[256];
 
-	if (strlen(bstr("save_button")) == 0) {
+	if (IsEmptyStr(bstr("save_button"))) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_main_menu();

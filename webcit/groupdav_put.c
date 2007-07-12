@@ -99,7 +99,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * client is expecting.  If not, the server probably contains a newer
 	 * version, so we fail...
 	 */
-	if (strlen(dav_ifmatch) > 0) {
+	if (!IsEmptyStr(dav_ifmatch)) {
 		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
 		old_msgnum = locate_message_by_uid(dav_uid);
 		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);

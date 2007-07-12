@@ -32,11 +32,12 @@ void groupdav_common_headers(void) {
  * string conversion function
  */
 void euid_escapize(char *target, char *source) {
-	int i;
+	int i, len;
 	int target_length = 0;
 
 	strcpy(target, "");
-	for (i=0; i<strlen(source); ++i) {
+	len = strlen(source);
+	for (i=0; i<len; ++i) {
 		if ( (isalnum(source[i])) || (source[i]=='-') || (source[i]=='_') ) {
 			target[target_length] = source[i];
 			target[++target_length] = 0;
@@ -52,13 +53,14 @@ void euid_escapize(char *target, char *source) {
  * string conversion function
  */
 void euid_unescapize(char *target, char *source) {
-	int a, b;
+	int a, b, len;
 	char hex[3];
 	int target_length = 0;
 
 	strcpy(target, "");
 
-	for (a = 0; a < strlen(source); ++a) {
+	len = strlen(source);
+	for (a = 0; a < len; ++a) {
 		if (source[a] == '=') {
 			hex[0] = source[a + 1];
 			hex[1] = source[a + 2];
@@ -93,7 +95,7 @@ void groupdav_main(struct httprequest *req,
 	char dav_ifmatch[256];
 	int dav_depth;
 	char *ds;
-	int i;
+	int i, len;
 
 	strcpy(dav_method, "");
 	strcpy(dav_pathname, "");
@@ -102,7 +104,7 @@ void groupdav_main(struct httprequest *req,
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
-			if (strlen(WC->http_host) == 0) {
+			if (IsEmptyStr(WC->http_host)) {
                         	safestrncpy(WC->http_host, &rptr->line[6],
 					sizeof WC->http_host);
 			}
@@ -160,13 +162,16 @@ void groupdav_main(struct httprequest *req,
 	 * If there's an If-Match: header, strip out the quotes if present, and
 	 * then if all that's left is an asterisk, make it go away entirely.
 	 */
-	if (strlen(dav_ifmatch) > 0) {
-		striplt(dav_ifmatch);
+	len = strlen(dav_ifmatch);
+	if (len > 0) {
+		stripltlen(dav_ifmatch, &len);
 		if (dav_ifmatch[0] == '\"') {
-			strcpy(dav_ifmatch, &dav_ifmatch[1]);
-			for (i=0; i<strlen(dav_ifmatch); ++i) {
+			memmove (dav_ifmatch, &dav_ifmatch[1], len);
+			len --;
+			for (i=0; i<len; ++i) {
 				if (dav_ifmatch[i] == '\"') {
 					dav_ifmatch[i] = 0;
+					len = i - 1;
 				}
 			}
 		}
@@ -238,7 +243,7 @@ void groupdav_main(struct httprequest *req,
  * Output our host prefix for globally absolute URL's.
  */  
 void groupdav_identify_host(void) {
-	if (strlen(WC->http_host) > 0) {
+	if (!IsEmptyStr(WC->http_host)) {
 		wprintf("%s://%s",
 			(is_https ? "https" : "http"),
 			WC->http_host);

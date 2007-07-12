@@ -1,5 +1,5 @@
 /*
- * $Id:  $
+ * $Id$
  */
 /**
  *
@@ -51,7 +51,7 @@ void display_wiki_page(void)
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	str_wiki_index(pagename);
 
-	if (strlen(roomname) > 0) {
+	if (!IsEmptyStr(roomname)) {
 
 		/* If we're not in the correct room, try going there. */
 		if (strcasecmp(roomname, WC->wc_roomname)) {
@@ -77,7 +77,7 @@ void display_wiki_page(void)
 		return;
 	}
 
-	if (strlen(pagename) == 0) {
+	if (IsEmptyStr(pagename)) {
 		strcpy(pagename, "home");
 	}
 

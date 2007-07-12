@@ -69,7 +69,7 @@ void page_user(void)
 
 	safestrncpy(recp, bstr("recp"), sizeof recp);
 
-	if (strlen(bstr("send_button")) == 0) {
+	if (IsEmptyStr(bstr("send_button"))) {
 		safestrncpy(WC->ImportantMessage,
 			_("Message was not sent."),
 			sizeof WC->ImportantMessage
@@ -339,10 +339,11 @@ void chat_recv(void) {
 		wprintf("<img src=\"static/blank.gif\" onLoad=\"parent.window.close();\">\n");
 	}
 
-	if (strlen(output_data) > 0) {
-
-		if (output_data[strlen(output_data)-1] == '\n') {
-			output_data[strlen(output_data)-1] = 0;
+	if (!IsEmptyStr(output_data)) {
+		int len;
+		len = strlen(output_data);
+		if (output_data[len-1] == '\n') {
+			output_data[len-1] = 0;
 		}
 
 		/** Output our fun to the other frame. */
@@ -438,15 +439,15 @@ void chat_send(void) {
 		strcpy(send_this, "");
 	}
 
-	if (strlen(bstr("help_button")) > 0) {
+	if (!IsEmptyStr(bstr("help_button"))) {
 		strcpy(send_this, "/help");
 	}
 
-	if (strlen(bstr("list_button")) > 0) {
+	if (!IsEmptyStr(bstr("list_button"))) {
 		strcpy(send_this, "/who");
 	}
 
-	if (strlen(bstr("exit_button")) > 0) {
+	if (!IsEmptyStr(bstr("exit_button"))) {
 		strcpy(send_this, "/quit");
 	}
 
@@ -462,7 +463,7 @@ void chat_send(void) {
 	WC->serv_sock = WC->chat_sock;
 	WC->chat_sock = i;
 
-	while (strlen(send_this) > 0) {
+	while (!IsEmptyStr(send_this)) {
 		if (strlen(send_this) < 67) {
 			serv_puts(send_this);
 			strcpy(send_this, "");

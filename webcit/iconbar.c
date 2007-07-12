@@ -746,7 +746,7 @@ void commit_iconbar(void) {
 		"ib_citadel"
 	};
 
-	if (strlen(bstr("ok_button")) == 0) {
+	if (IsEmptyStr(bstr("ok_button"))) {
 		display_main_menu();
 		return;
 	}
@@ -754,13 +754,14 @@ void commit_iconbar(void) {
 	sprintf(iconbar, "ib_displayas=%d", atoi(bstr("ib_displayas")));
 
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
-		sprintf(&iconbar[strlen(iconbar)], ",%s=", boxen[i]);
+		char *Val;
 		if (!strcasecmp(bstr(boxen[i]), "yes")) {
-			sprintf(&iconbar[strlen(iconbar)], "1");
+			Val = "1";
 		}
 		else {
-			sprintf(&iconbar[strlen(iconbar)], "0");
+			Val = "0";
 		}
+		sprintf(&iconbar[strlen(iconbar)], ",%s=%s", boxen[i], Val);
 	}
 
 	set_preference("iconbar", iconbar, 1);

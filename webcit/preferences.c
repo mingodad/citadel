@@ -405,7 +405,7 @@ void set_preferences(void)
 {
 	char ebuf[300];
 
-	if (strlen(bstr("change_button")) == 0) {
+	if (IsEmptyStr(bstr("change_button"))) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Cancelled.  No settings were changed."),
 			sizeof WC->ImportantMessage);

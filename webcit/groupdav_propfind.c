@@ -251,7 +251,7 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
-	if (strlen(dav_roomname) == 0) {
+	if (IsEmptyStr(dav_roomname)) {
 		groupdav_collection_list(dav_pathname, dav_depth);
 		return;
 	}
@@ -277,7 +277,7 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 	 * a specific item in the room.  This is not valid GroupDAV, but
 	 * it is valid WebDAV.
 	 */
-	if (strlen(dav_uid) > 0) {
+	if (!IsEmptyStr(dav_uid)) {
 
 		dav_msgnum = locate_message_by_uid(dav_uid);
 		if (dav_msgnum < 0) {
@@ -410,7 +410,7 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 			}
 		}
 
-		if (strlen(uid) > 0) {
+		if (!IsEmptyStr(uid)) {
 			wprintf("<response>");
 				wprintf("<href>");
 					groupdav_identify_host();
