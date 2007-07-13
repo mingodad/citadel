@@ -832,7 +832,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
-			wprintf("<br />");
 			wprintf(_("from "));
 			wprintf("<a href=\"showuser?who=");
 #ifdef HAVE_ICONV
@@ -900,7 +899,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
+			wprintf("<span>");
 			wprintf("%s ", now);
+			wprintf("</span>");
 		}
 
 		if (!strncasecmp(buf, "part=", 5)) {
