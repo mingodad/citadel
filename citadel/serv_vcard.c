@@ -1384,5 +1384,6 @@ char *serv_vcard_init(void)
 		chown(filename, CTDLUID, (-1));
 	}
 
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -821,6 +821,8 @@ char *serv_chat_init(void)
 	CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
 	CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
 	CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 

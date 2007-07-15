@@ -2055,6 +2055,12 @@ void cmd_netp(char *cmdbuf)
 		CC->net_node);
 }
 
+int network_room_handler (struct ctdlroom *room)
+{
+	network_queue_room(room, NULL);
+	return 0;
+}
+
 /*
  * Module entry point
  */
@@ -2066,5 +2072,8 @@ char *serv_network_init(void)
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 	CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
+        CtdlRegisterRoomHook(network_room_handler);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -589,6 +589,8 @@ char *serv_managesieve_init(void)
 char *serv_managesieve_init(void)
 {
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Managesieve protocol is disabled..\n");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 

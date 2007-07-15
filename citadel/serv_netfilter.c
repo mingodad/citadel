@@ -106,5 +106,7 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 char *serv_netfilter_init(void)
 {
 	CtdlRegisterNetprocHook(filter_the_idiots);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

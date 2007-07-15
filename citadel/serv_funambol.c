@@ -223,5 +223,7 @@ char *serv_funambol_init(void)
 {
 	create_notify_queue();
 	CtdlRegisterSessionHook(do_notify_queue, EVT_TIMER);
-        return "$Id: serv_funambol.c $";
+
+	/* return our Subversion id for the Log */
+        return "$Id$";
 }

@@ -139,6 +139,8 @@ char *serv_bio_init(void)
         CtdlRegisterProtoHook(cmd_ebio, "EBIO", "Enter your bio");
         CtdlRegisterProtoHook(cmd_rbio, "RBIO", "Read a user's bio");
         CtdlRegisterProtoHook(cmd_lbio, "LBIO", "List users with bios");
+
+	/* return our Subversion id for the Log */
         return "$Id$";
 }
 

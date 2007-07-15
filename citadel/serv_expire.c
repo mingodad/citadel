@@ -840,5 +840,7 @@ char *serv_expire_init(void)
 {
 	CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -72,5 +72,7 @@ char *serv_test_init(void)
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+
+   /* return our Subversion id for the Log */
    return "$Id$";
 }

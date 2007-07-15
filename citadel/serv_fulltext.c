@@ -471,5 +471,7 @@ char *serv_fulltext_init(void)
 {
 	initialize_ft_cache();
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

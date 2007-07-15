@@ -2147,6 +2147,8 @@ char *serv_calendar_init(void)
 	CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
 	CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
 #endif
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 

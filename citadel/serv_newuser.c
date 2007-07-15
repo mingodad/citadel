@@ -95,5 +95,7 @@ void CopyNewUserGreetings(void) {
 char *serv_newuser_init(void)
 {
    CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
+
+   /* return our Subversion id for the Log */
    return "$Id$";
 }

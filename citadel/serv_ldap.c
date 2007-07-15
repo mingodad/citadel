@@ -597,5 +597,7 @@ char *serv_ldap_init(void)
 	}
 
 #endif				/* HAVE_LDAP */
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

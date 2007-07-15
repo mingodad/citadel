@@ -725,5 +725,7 @@ char *serv_pop3_init(void)
 				NULL);
 #endif
 	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

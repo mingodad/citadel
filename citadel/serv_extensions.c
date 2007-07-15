@@ -37,6 +37,8 @@ struct NetprocFunctionHook *NetprocHookTable = NULL;
 struct DeleteFunctionHook *DeleteHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
 struct FixedOutputHook *FixedOutputTable = NULL;
+struct RoomFunctionHook *RoomHookTable = NULL;
+
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -502,6 +504,53 @@ void CtdlDestroyMessageHook(void)
 }
 
 
+void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
+{
+	struct RoomFunctionHook *newfcn;
+
+	newfcn = (struct RoomFunctionHook *)
+	    malloc(sizeof(struct RoomFunctionHook));
+	newfcn->next = RoomHookTable;
+	newfcn->fcn_ptr = fcn_ptr;
+	RoomHookTable = newfcn;
+
+	lprintf(CTDL_INFO, "Registered a new room function\n");
+}
+
+
+void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
+{
+	struct RoomFunctionHook *cur, *p;
+
+	for (cur = RoomHookTable; cur != NULL; cur = cur->next) {
+		while (cur != NULL && fcn_ptr == cur->fcn_ptr) {
+			lprintf(CTDL_INFO, "Unregistered room function\n");
+			p = cur->next;
+			if (cur == RoomHookTable) {
+				RoomHookTable = p;
+			}
+			free(cur);
+			cur = p;
+		}
+	}
+}
+
+
+void CtdlDestroyRoomHooks(void)
+{
+	struct RoomFunctionHook *cur, *p;
+
+	cur = RoomHookTable;
+	while (cur != NULL)
+	{
+		lprintf(CTDL_INFO, "Unregistered room function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	RoomHookTable = NULL;
+}
+
 void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
 	struct NetprocFunctionHook *newfcn;
@@ -893,6 +942,23 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	return total_retval;
 }
 
+
+int PerformRoomHooks(struct ctdlroom *target_room)
+{
+	struct RoomFunctionHook *fcn;
+	int total_retval = 0;
+
+	lprintf(CTDL_DEBUG, "Performing room hooks\n");
+
+	for (fcn = RoomHookTable; fcn != NULL; fcn = fcn->next) {
+		total_retval = total_retval +
+			(*fcn->fcn_ptr) (target_room);
+	}
+
+	/* Return the sum of the return codes from the hook functions.
+	 */
+	return total_retval;
+}
 
 
 int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)

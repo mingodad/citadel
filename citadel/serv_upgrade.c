@@ -229,5 +229,7 @@ void check_server_upgrades(void) {
 char *serv_upgrade_init(void)
 {
 	check_server_upgrades();
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

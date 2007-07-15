@@ -76,6 +76,12 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
 void CtdlDestroyNetprocHooks(void);
 int PerformNetprocHooks(struct CtdlMessage *, char *);
 
+void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *) );
+void CtdlUnregisterRoomHook(int (*fnc_ptr)(struct ctdlroom *) );
+void CtdlDestroyRoomHooks(void);
+int PerformRoomHooks(struct ctdlroom *);
+
+
 void CtdlRegisterDeleteHook(void (*handler)(char *, long) );
 void CtdlUnregisterDeleteHook(void (*handler)(char *, long) );
 void CtdlDestroyDeleteHooks(void);

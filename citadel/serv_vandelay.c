@@ -729,5 +729,7 @@ void cmd_artv(char *cmdbuf) {
 char *serv_vandelay_init(void)
 {
 	CtdlRegisterProtoHook(cmd_artv, "ARTV", "import/export data store");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

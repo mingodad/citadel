@@ -1225,6 +1225,16 @@ BAIL:	res = sieve2_free(&sieve2_context);
 
 }
 
+int serv_sieve_room(struct ctdlroom *room)
+{
+      if (!strcasecmp(&room->QRname[11], MAILROOM)) {
+              sieve_queue_room(room);
+/*
+              return 1;
+*/
+      }
+      return 0;
+}
 
 
 char *serv_sieve_init(void)
@@ -1239,6 +1249,9 @@ char *serv_sieve_init(void)
 char *serv_sieve_init(void)
 {
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Mailbox filtering will be disabled.\n");
+        CtdlRegisterRoomHook(serv_sieve_room);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 

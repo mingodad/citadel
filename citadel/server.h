@@ -379,7 +379,6 @@ extern struct MessageFunctionHook *MessageHookTable;
 #define EVT_SMTPSCAN	203	/* called before submitting a msg from SMTP */
 
 
-
 /*
  * NetprocFunctionHook extensions are used for hooks which implement handlers
  * for incoming network messages.
@@ -439,6 +438,17 @@ struct ServiceFunctionHook {
 	int msock;
 };
 extern struct ServiceFunctionHook *ServiceHookTable;
+
+
+/*
+ * RoomFunctionHook extensions are used for hooks which impliment room
+ * processing functions when new messages are added EG. SIEVE.
+ */
+struct RoomFunctionHook {
+	struct RoomFunctionHook *next;
+	int (*fcn_ptr) (struct ctdlroom *);
+};
+extern struct RoomFunctionHook *RoomHookTable;
 
 
 

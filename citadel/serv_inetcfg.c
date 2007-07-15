@@ -181,6 +181,8 @@ char *serv_inetcfg_init(void)
 {
 	CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
 	inetcfg_init();
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 

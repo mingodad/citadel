@@ -1849,5 +1849,7 @@ char *serv_smtp_init(void)
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
 	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

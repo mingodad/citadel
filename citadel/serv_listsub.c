@@ -565,5 +565,7 @@ void cmd_subs(char *cmdbuf) {
 char *serv_listsub_init(void)
 {
 	CtdlRegisterProtoHook(cmd_subs, "SUBS", "List subscribe/unsubscribe");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

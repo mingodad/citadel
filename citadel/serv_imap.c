@@ -1596,5 +1596,7 @@ char *serv_imap_init(void)
 				NULL, imaps_greeting, imap_command_loop, NULL);
 #endif
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }

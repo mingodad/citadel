@@ -260,5 +260,7 @@ char *serv_rwho_init(void)
         CtdlRegisterProtoHook(cmd_rchg, "RCHG", "Masquerade roomname");
         CtdlRegisterProtoHook(cmd_uchg, "UCHG", "Masquerade username");
         CtdlRegisterProtoHook(cmd_stel, "STEL", "Enter/exit stealth mode");
+
+	/* return our Subversion id for the Log */
         return "$Id$";
 }

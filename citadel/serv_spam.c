@@ -148,5 +148,7 @@ bail:	close(sock);
 char *serv_spam_init(void)
 {
 	CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
+
+	/* return our Subversion id for the Log */
         return "$Id$";
 }

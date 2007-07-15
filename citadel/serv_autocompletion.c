@@ -252,5 +252,7 @@ void cmd_auto(char *argbuf) {
 
 char *serv_autocompletion_init(void) {
 	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
+
+	/* return our Subversion id for the Log */
 	return "$Id$";
 }
