@@ -433,24 +433,17 @@ a:hover {
         text-align: left;
 }
 
-.message_header span {
-	display: compact;
-        white-space: nowrap;
-}
-
-.message_header, .message_subject {
+.message_header, .message_header p {
 	font-size: 10pt;
 	color: black;
 	margin: 0;
-	padding: 3px;
+	padding: 0;
 	background-color: #CCCCCC;
         text-align: left;
 }
 
-.message_subject {
-	padding-top: 0;
+.message_header .message_subject {
 	font-style: italic;
-	float: left;
 }
 
 .msgbuttons {
@@ -463,15 +456,14 @@ a:hover {
 
 #delbutton, .msgbuttons a {
         font-size: 7pt;
-        margin: 1px;
+        margin-left: 5px;
+	margin-right: 5px;
         padding: 2px;
-        padding-left: 5px;
-        padding-right: 5px;
         border-top: 1px solid #CFCFCF;
         border-left: 1px solid #CFCFCF;
         border-right: 1px solid #808080;
         border-bottom: 1px solid #000000;
-        background-color: #999999;
+        background-color: #BBBBBB;
         color: #000000;
         font-weight: bold;
         text-align: center;
