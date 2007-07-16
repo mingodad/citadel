@@ -83,6 +83,15 @@ void wholist_section(void) {
         time_t last_activity;
         time_t now;
 
+	serv_puts("TIME");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		now = extract_long(&buf[4], 0);
+	}
+	else {
+		now = time(NULL);
+	}
+
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
