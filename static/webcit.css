@@ -1683,6 +1683,11 @@ div.auto_complete ul strong.highlight {
         padding-left: 5px;
 } 
 
+#wholist li.inactiveuser a {
+	background-color: transparent;
+        padding-left: 5px;
+} 
+
 table.altern {
 	background-color: #ffffff;
 	width: 100%;
