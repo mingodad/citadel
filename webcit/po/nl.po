@@ -2800,8 +2800,8 @@ msgstr "Bewerk %s"
 #: ../sysmsgs.c:44
 #, c-format
 msgid ""
-"Enter %s below.  Text is formatted to the reader's screen width.  To defeat "
-"the formatting, indent a line at least one space."
+"Enter %s below. Text is formatted to the reader's browser."
+" A newline is forced by preceding the next line by a blank."
 msgstr ""
 "Voeg hieronder %s toe.  Tekst wordt weergegeven op de breedte van het scherm "
 "van de lezer. Voor de goede weergave zorg dat een regel in elk geval een "

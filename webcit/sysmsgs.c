@@ -41,9 +41,8 @@ void display_edit(char *description, char *check_cmd,
 	do_template("beginbox");
 
 	wprintf("<div>");
-	wprintf(_("Enter %s below.  Text is formatted to "
-		"the reader's screen width.  To defeat the "
-		"formatting, indent a line at least one space."), description);
+	wprintf(_("Enter %s below. Text is formatted to the reader's browser."
+		" A newline is forced by preceding the next line by a blank."), description);
 	wprintf("<br />");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"%s\">\n", save_cmd);

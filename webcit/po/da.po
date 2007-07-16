@@ -2831,8 +2831,8 @@ msgstr "Editér %s"
 #: ../sysmsgs.c:44
 #, c-format
 msgid ""
-"Enter %s below.  Text is formatted to the reader's screen width.  To defeat "
-"the formatting, indent a line at least one space."
+"Enter %s below. Text is formatted to the reader's browser."
+" A newline is forced by preceding the next line by a blank."
 msgstr ""
 "Skriv %s nedenfor.  Tekst er formatteret til læserens skærmbredde.  For at "
 "overvinde formatteringen, indfør en linie mindst et mellemrum."
