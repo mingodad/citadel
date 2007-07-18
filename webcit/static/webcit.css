@@ -845,7 +845,7 @@ div.auto_complete ul strong.highlight {
         background-color: #CCCCCC;
 }
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -862,7 +862,7 @@ div.auto_complete ul strong.highlight {
         background-color: #ffffff;
 }
 
-.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .iconbar_banner, .inetconf_banner, .listsub_banner {
+.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .inetconf_banner, .listsub_banner {
         border: 0;
         width: 100%;
         background-color: #444455;
@@ -1465,7 +1465,7 @@ div.auto_complete ul strong.highlight {
         background-color: #CCCCCC;
 }
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .iconbar_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -1482,7 +1482,7 @@ div.auto_complete ul strong.highlight {
         background-color: #ffffff;
 }
 
-.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .iconbar_banner, .inetconf_banner, .listsub_banner {
+.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .inetconf_banner, .listsub_banner {
         border: 0;
         width: 100%;
         background-color: #444455;
