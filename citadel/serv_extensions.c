@@ -948,11 +948,10 @@ int PerformRoomHooks(struct ctdlroom *target_room)
 	struct RoomFunctionHook *fcn;
 	int total_retval = 0;
 
-	lprintf(CTDL_DEBUG, "Performing room hooks\n");
+	lprintf(CTDL_DEBUG, "Performing room hooks for <%s>\n", target_room->QRname);
 
 	for (fcn = RoomHookTable; fcn != NULL; fcn = fcn->next) {
-		total_retval = total_retval +
-			(*fcn->fcn_ptr) (target_room);
+		total_retval = total_retval + (*fcn->fcn_ptr) (target_room);
 	}
 
 	/* Return the sum of the return codes from the hook functions.

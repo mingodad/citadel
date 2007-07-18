@@ -398,8 +398,12 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
 	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\n");
-	sieve2_setvalue_string(s, "to", cs->envelope_to);
-	sieve2_setvalue_string(s, "from", cs->envelope_from);
+	if (strlen(cs->envelope_to) > 0) {
+		sieve2_setvalue_string(s, "to", cs->envelope_to);
+	}
+	if (strlen(cs->envelope_from) > 0) {
+		sieve2_setvalue_string(s, "from", cs->envelope_from);
+	}
 	return SIEVE2_OK;
 }
 
@@ -482,6 +486,7 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 	ptr->next = sieve_list;
 	sieve_list = ptr;
 	end_critical_section(S_SIEVELIST);
+	lprintf(CTDL_DEBUG, "<%s> queued for Sieve processing\n", which_room->QRname);
 }
 
 
@@ -1227,13 +1232,10 @@ BAIL:	res = sieve2_free(&sieve2_context);
 
 int serv_sieve_room(struct ctdlroom *room)
 {
-      if (!strcasecmp(&room->QRname[11], MAILROOM)) {
-              sieve_queue_room(room);
-/*
-              return 1;
-*/
-      }
-      return 0;
+	if (!strcasecmp(&room->QRname[11], MAILROOM)) {
+		sieve_queue_room(room);
+	}
+	return 0;
 }
 
 
@@ -1241,6 +1243,7 @@ char *serv_sieve_init(void)
 {
 	ctdl_sieve_init();
 	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
+        CtdlRegisterRoomHook(serv_sieve_room);
 	return "$Id$";
 }
 
@@ -1249,7 +1252,6 @@ char *serv_sieve_init(void)
 char *serv_sieve_init(void)
 {
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Mailbox filtering will be disabled.\n");
-        CtdlRegisterRoomHook(serv_sieve_room);
 
 	/* return our Subversion id for the Log */
 	return "$Id$";
