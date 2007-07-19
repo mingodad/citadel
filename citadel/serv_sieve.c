@@ -398,12 +398,8 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
 	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\n");
-	if (strlen(cs->envelope_to) > 0) {
-		sieve2_setvalue_string(s, "to", cs->envelope_to);
-	}
-	if (strlen(cs->envelope_from) > 0) {
-		sieve2_setvalue_string(s, "from", cs->envelope_from);
-	}
+	sieve2_setvalue_string(s, "to", cs->envelope_to);
+	sieve2_setvalue_string(s, "from", cs->envelope_from);
 	return SIEVE2_OK;
 }
 
@@ -574,9 +570,16 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		strcpy(my.envelope_from, "");
 	}
 
-	/* Keep track of the envelope-to address */
+	/* Keep track of the envelope-to address (use body-to if not found) */
 	if (msg->cm_fields['V'] != NULL) {
 		safestrncpy(my.envelope_to, msg->cm_fields['V'], sizeof my.envelope_to);
+	}
+	else if (msg->cm_fields['R'] != NULL) {
+		safestrncpy(my.envelope_to, msg->cm_fields['R'], sizeof my.envelope_to);
+		if (msg->cm_fields['D'] != NULL) {
+			strcat(my.envelope_to, "@");
+			strcat(my.envelope_to, msg->cm_fields['D']);
+		}
 	}
 	else {
 		strcpy(my.envelope_to, "");
