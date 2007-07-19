@@ -618,7 +618,7 @@ msgid ""
 "GIF format (JPEG, PNG, etc. won't work)."
 msgstr ""
 "Vous pouvez télécharger n'importe quelle image, pour autant qu'elle soit au "
-"format GIF (JPEG, PNG, etc. ne fonctionnent pas)."
+"format GIF (JPEG, PNG, etc. ne conviennent pas)."
 
 #: ../graphics.c:50
 msgid "Please select a file to upload:"
@@ -715,7 +715,7 @@ msgstr "Options avancées de gestion des salons, des comptes et du clavardage"
 
 #: ../iconbar.c:283
 msgid "Advanced"
-msgstr "Avancé"
+msgstr "Aide et préférences"
 
 #: ../iconbar.c:293
 msgid "Room and system administration functions"
@@ -1070,11 +1070,11 @@ msgstr "Poser votre portrait"
 
 #: ../mainmenu.c:149 ../sieve.c:79
 msgid "View/edit server-side mail filters"
-msgstr "Voir / éditer les filtres de courriel sur le serveur"
+msgstr "Éditer les filtres de courriels"
 
 #: ../mainmenu.c:158
 msgid "Advanced room commands"
-msgstr "Commandes avancées du salon"
+msgstr "Commandes avancées des salons"
 
 #: ../mainmenu.c:165
 msgid "Edit or delete this room"
