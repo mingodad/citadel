@@ -103,7 +103,9 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		char *title;
 
-		wprintf("<h2><span>");
+		wprintf("<div id=\"%s_title\">", divname);
+		wprintf("<img src=\"static/calarea_48x.gif\">");
+		wprintf("<span>");
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
 			title = _("Meeting invitation");
@@ -120,12 +122,8 @@ void cal_process_object(icalcomponent *cal,
 		}
 		wprintf("</span>");
 
-		wprintf("<div id=\"%s_title\">", divname);
-		wprintf("<img src=\"static/calarea_48x.gif\">"
-			"&nbsp;&nbsp;%s",
-			title
-		);
-		wprintf("</h2>");
+		wprintf("&nbsp;&nbsp;%s",title);
+		wprintf("</div>");
 	}
 
 	wprintf("<dl>");
@@ -265,14 +263,14 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</dl>");
 
 		/** Display the Accept/Decline buttons */
-		wprintf("<div id=\"%s_question\">"
+		wprintf("<p id=\"%s_question\" class=\"buttons\">"
 			"%s "
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Accept');\">%s</a>"
-			" | "
+			"<span> | </span>"
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Tentative');\">%s</a>"
-			" | "
+			"<span> | </span>"
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Decline');\">%s</a>"
-			"</div>\n",
+			"</p>\n",
 			divname,
 			_("How would you like to respond to this invitation?"),
 			divname, divname, msgnum, cal_partnum, _("Accept"),
@@ -293,12 +291,12 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/** Display the update buttons */
-		wprintf("<div id=\"%s_question\">"
+		wprintf("<div id=\"%s_question\" class=\"buttons\">"
 			"%s"
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
-			" | "
+			"<span> | </span>"
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Ignore');\">%s</a>"
-			"</div>\n",
+			"</p>\n",
 			divname,
 			_("Click <i>Update</i> to accept this reply and update your calendar."),
 			divname, divname, msgnum, cal_partnum, _("Update"),
