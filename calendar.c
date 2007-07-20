@@ -92,7 +92,7 @@ void cal_process_object(icalcomponent *cal,
 
 	/** Leading HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<div align=center><table border=0 bgcolor=\"#ffd\">\n");
+		wprintf("<div class=\"mimepart\">\n");
 	}
 
 	/** Look for a method */
@@ -103,6 +103,7 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		char *title;
 
+		wprintf("<h2><span>");
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
 			title = _("Meeting invitation");
@@ -117,32 +118,33 @@ void cal_process_object(icalcomponent *cal,
 			title = _("This is an unknown type of calendar item.");
 			break;
 		}
+		wprintf("</span>");
 
-		wprintf("<tr><td colspan=\"2\">\n");
 		wprintf("<div id=\"%s_title\">", divname);
-		wprintf("<img align=\"center\" "
-			"src=\"static/calarea_48x.gif\">"
-			"&nbsp;&nbsp;<b>%s</b></div></td></TD></TR>\n",
+		wprintf("<img src=\"static/calarea_48x.gif\">"
+			"&nbsp;&nbsp;%s",
 			title
 		);
+		wprintf("</h2>");
 	}
 
+	wprintf("<dl>");
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>");
+		wprintf("<dt>");
 		wprintf(_("Summary:"));
-		wprintf("</B></TD><TD>");
+		wprintf("</dt><dd>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</TD></TR>\n");
+		wprintf("</dd>\n");
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>");
+		wprintf("<dt>");
 		wprintf(_("Location:"));
-		wprintf("</B></TD><TD>");
+		wprintf("</dt><dd>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</TD></TR>\n");
+		wprintf("</dd>\n");
 	}
 
 	/**
@@ -164,16 +166,16 @@ void cal_process_object(icalcomponent *cal,
 				d_tm.tm_mon = t.month - 1;
 				d_tm.tm_mday = t.day;
 				wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
-				wprintf("<TR><TD><B>");
+				wprintf("<dt>");
 				wprintf(_("Date:"));
-				wprintf("</B></TD><TD>%s</TD></TR>", d_str);
+				wprintf("</dt><dd>%s</dd>", d_str);
 			}
 			else {
 				tt = icaltime_as_timet(t);
 				fmt_date(buf, tt, 0);
-				wprintf("<TR><TD><B>");
+				wprintf("<dt>");
 				wprintf(_("Starting date/time:"));
-				wprintf("</B></TD><TD>%s</TD></TR>", buf);
+				wprintf("</dt><dd>%s</dd>", buf);
 			}
 		}
 	
@@ -182,27 +184,27 @@ void cal_process_object(icalcomponent *cal,
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
 			fmt_date(buf, tt, 0);
-			wprintf("<TR><TD><B>");
+			wprintf("<dt>");
 			wprintf(_("Ending date/time:"));
-			wprintf("</B></TD><TD>%s</TD></TR>", buf);
+			wprintf("</dt><dd>%s</dd>", buf);
 		}
 
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<TR><TD><B>");
+		wprintf("<dt>");
 		wprintf(_("Description:"));
-		wprintf("</B></TD><TD>");
+		wprintf("</dt><dd>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</TD></TR>\n");
+		wprintf("</dd>\n");
 	}
 
 	/** If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		wprintf("<TR><TD><B>");
+		wprintf("<dt>");
 		wprintf(_("Attendee:"));
-		wprintf("</B></TD><TD>");
+		wprintf("</dt><dd>");
 		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
@@ -216,7 +218,7 @@ void cal_process_object(icalcomponent *cal,
 			partstat_as_string(buf, p);
 			escputs(buf);
 		}
-		wprintf("</TD></TR>\n");
+		wprintf("</dd>\n");
 	}
 
 	/** If the component has subcomponents, recurse through them. */
@@ -248,31 +250,29 @@ void cal_process_object(icalcomponent *cal,
 						_("This event would conflict with '%s' which is already in your calendar."), conflict_name);
 				}
 
-				wprintf("<TR><TD><B><I>%s</I></B></TD><td>",
+				wprintf("<dt>%s",
 					(is_update ?
 						_("Update:") :
 						_("CONFLICT:")
 					)
 				);
 				escputs(conflict_message);
-				wprintf("</TD></TR>\n");
+				wprintf("</dt>\n");
 			}
 		}
 		lprintf(9, "...done.\n");
 
+		wprintf("</dl>");
+
 		/** Display the Accept/Decline buttons */
-		wprintf("<tr><td colspan=2>"
-			"<div id=\"%s_question\">"
+		wprintf("<div id=\"%s_question\">"
 			"%s "
-			"<font size=+1>"
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Accept');\">%s</a>"
 			" | "
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Tentative');\">%s</a>"
 			" | "
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Decline');\">%s</a>"
-			"</font>"
-			"</div>"
-			"</td></tr>\n",
+			"</div>\n",
 			divname,
 			_("How would you like to respond to this invitation?"),
 			divname, divname, msgnum, cal_partnum, _("Accept"),
@@ -293,16 +293,12 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/** Display the update buttons */
-		wprintf("<tr><td colspan=2>"
-			"<div id=\"%s_question\">"
+		wprintf("<div id=\"%s_question\">"
 			"%s"
-			"<font size=+1>"
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
 			" | "
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Ignore');\">%s</a>"
-			"</font>"
-			"</div>"
-			"</td></tr>\n",
+			"</div>\n",
 			divname,
 			_("Click <i>Update</i> to accept this reply and update your calendar."),
 			divname, divname, msgnum, cal_partnum, _("Update"),
@@ -313,7 +309,7 @@ void cal_process_object(icalcomponent *cal,
 
 	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("</tr></table></div>\n");
+		wprintf("</div>\n");
 	}
 }
 

@@ -309,15 +309,14 @@ void summary(void) {
 	char title[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-        wprintf("<div class=\"service_banner\">\n");
+	wprintf("<div id=\"banner\" class=\"service\">\n");
         wprintf("<img src=\"static/summscreen_48x.gif\">");
         wprintf("<h1>");
         snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
         escputs(title);
         wprintf("</h1><h2>\n");
         output_date();
-        wprintf("</h2></div>");
+        wprintf("</h2>");
         wprintf("<ul><li class=\"start_page\">");
         offer_start_page();
         wprintf("</li></ul>");
