@@ -71,12 +71,12 @@ body {
 	background: #445;
 }
 
-#banner .room_banner, #banner .service_banner {
+#banner .room_banner, #banner .service {
         float: left;
         width: 48%;
 }
 
-.room_banner img,  .service_banner img {
+.room_banner img,  .service img {
         float: left;
         margin-top: 0;
         margin-left: 0;
@@ -92,7 +92,7 @@ body {
         padding: 2px;
 }
 
-.service_banner h1 {
+.service h1 {
         font-size: 12pt;
         font-weight: bold;
         color: #FFFFEE;
@@ -100,7 +100,7 @@ body {
         padding: 2px;
 }
 
-.service_banner h2 {
+.service h2 {
         font-size: 11pt;
         font-weight: bold;
         color: #FFFFEE;

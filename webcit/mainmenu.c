@@ -198,12 +198,11 @@ void display_aide_menu(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 
-        wprintf("<div id=\"banner\">\n");
-        wprintf("<div class=\"service_banner\">\n");
+        wprintf("<div id=\"banner\" class=\"service\">\n");
         wprintf("<h1>");
 	wprintf(_("System Administration Menu"));
         wprintf("</h1>");
-        wprintf("</div></div>");
+        wprintf("</div>");
 
 	wprintf("<div id=\"content\">");
 

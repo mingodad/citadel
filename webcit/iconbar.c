@@ -485,7 +485,7 @@ void display_customize_iconbar(void) {
 	}
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\" class=\"service_banner\">\n");
+	wprintf("<div id=\"banner\" class=\"service\">\n");
 	wprintf("<h1>");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</h1></div>\n");
@@ -791,7 +791,7 @@ void commit_iconbar(void) {
 	set_preference("iconbar", iconbar, 1);
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\" class=\"service_banner\">\n");
+	wprintf("<div id=\"banner\" class=\"service\">\n");
 	wprintf("<h1>");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</h1></div>\n");
