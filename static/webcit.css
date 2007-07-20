@@ -445,7 +445,32 @@ a:hover {
 .message_header .message_subject {
 	font-style: italic;
 }
+.mimepart {
+	margin-top: 0;
+	margin-left: 15%;
+	width: 55%;
+	padding: 10px;
+	background-color: #FFFFDD;
+}
 
+.mimepart div {
+        font-weight: bold;
+}
+
+.mimepart div span {
+	font-style: italic;
+}
+
+.mimepart dl, .mimepart dl dt, .mimepart dl dd {
+	font-size: 10pt;
+	color: black;
+        text-align: left;
+}
+.mimepart dl dt {
+	display: compact;
+        font-weight: bold;
+}
+	
 .msgbuttons {
         float: right;
         visibility: hidden;
@@ -454,8 +479,8 @@ a:hover {
 	padding: 0;
 }
 
-#delbutton, .msgbuttons a {
-        font-size: 7pt;
+#delbutton, .buttons a, .msgbuttons a {
+        font-size: 8pt;
         margin-left: 5px;
 	margin-right: 5px;
         padding: 2px;
@@ -469,11 +494,11 @@ a:hover {
         text-align: center;
 }
 
-.msgbuttons a span {
+.msgbuttons a span, .buttons span {
         display: none;
 }
 
-.msgbuttons a:hover {
+.buttons a:hover, .msgbuttons a:hover {
         background-color: #AAAAAA;
         text-decoration: none;
 }
