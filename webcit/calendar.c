@@ -254,8 +254,9 @@ void cal_process_object(icalcomponent *cal,
 						_("CONFLICT:")
 					)
 				);
+				wprintf("</dt><dd>");
 				escputs(conflict_message);
-				wprintf("</dt>\n");
+				wprintf("</dd>\n");
 			}
 		}
 		lprintf(9, "...done.\n");
@@ -291,7 +292,7 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/** Display the update buttons */
-		wprintf("<div id=\"%s_question\" class=\"buttons\">"
+		wprintf("<p id=\"%s_question\" class=\"buttons\">"
 			"%s"
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
 			"<span> | </span>"
@@ -307,7 +308,7 @@ void cal_process_object(icalcomponent *cal,
 
 	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("</div>\n");
+		wprintf("<p>&nbsp;</p></</div>\n");
 	}
 }
 
