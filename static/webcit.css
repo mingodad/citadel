@@ -431,6 +431,7 @@ a:hover {
 	border: 1px solid #999999;
 	background-color: #CCCCCC;
         text-align: left;
+	clear: both;
 }
 
 .message_header, .message_header p {
@@ -448,12 +449,13 @@ a:hover {
 .mimepart {
 	margin-top: 0;
 	margin-left: 15%;
-	width: 55%;
-	padding: 10px;
+	width: 70%;
+	padding: 1%;
 	background-color: #FFFFDD;
 }
 
 .mimepart div {
+	font-size: 12pt;
         font-weight: bold;
 }
 
@@ -461,16 +463,36 @@ a:hover {
 	font-style: italic;
 }
 
-.mimepart dl, .mimepart dl dt, .mimepart dl dd {
-	font-size: 10pt;
-	color: black;
-        text-align: left;
+.mimepart dl {
+	width: 100%;
 }
 .mimepart dl dt {
-	display: compact;
-        font-weight: bold;
+	width: 30%;
+	float: left;
+	margin: 0 0 0 0;
+	padding: .5em;
+	border-top: 1px solid #999;
+	font-weight: bold;
 }
-	
+
+/* hack ie5 mac \*/
+dt { clear: both; }
+/* end hack */
+
+.mimepart dl dd {
+	float: left;
+	width: 65%;
+	margin: 0 0 0 0;
+	padding: .5em;
+	border-top: 1px solid #999;
+}
+
+.mimepart p {
+	margin-top: 1em;
+	margin-bottom: 0;
+	clear: both;
+}
+
 .msgbuttons {
         float: right;
         visibility: hidden;
@@ -1054,25 +1076,6 @@ div.auto_complete ul strong.highlight {
 
 .who_is_online .edit_col, .who_is_online .host_col {
 	display: block;
-}
-
-#wholist {
-	border: 0;
-        margin: 0;
-        padding: 0;
-	max-height: 200px;
-	overflow: auto;
-}
-
-#wholist li {
-	color: black;
-        text-align: left;
-        list-style: none;
-	border: 0;
-        margin: 0;
-        padding: 2px;
-        white-space: splay: compact;
-
 }
 
 .message_header, .message_subject {
