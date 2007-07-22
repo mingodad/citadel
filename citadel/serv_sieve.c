@@ -55,23 +55,10 @@ char *msiv_extensions = NULL;
 
 /*
  * Callback function to send libSieve trace messages to Citadel log facility
- * Set ctdl_libsieve_debug=1 to see extremely verbose libSieve trace
  */
 int ctdl_debug(sieve2_context_t *s, void *my)
 {
-	static int ctdl_libsieve_debug = 1;
-
-	if (ctdl_libsieve_debug) {
-/*
-		lprintf(CTDL_DEBUG, "Sieve: level [%d] module [%s] file [%s] function [%s]\n",
-			sieve2_getvalue_int(s, "level"),
-			sieve2_getvalue_string(s, "module"),
-			sieve2_getvalue_string(s, "file"),
-			sieve2_getvalue_string(s, "function"));
- */
-		lprintf(CTDL_DEBUG, "Sieve: %s\n",
-			sieve2_getvalue_string(s, "message"));
-	}
+	lprintf(CTDL_DEBUG, "Sieve: %s\n", sieve2_getvalue_string(s, "message"));
 	return SIEVE2_OK;
 }
 
@@ -498,6 +485,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	int i;
 	size_t headers_len = 0;
+	int len = 0;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
@@ -570,6 +558,15 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		strcpy(my.envelope_from, "");
 	}
 
+	len = strlen(my.envelope_from);
+	for (i=0; i<len; ++i) {
+		if (isspace(my.envelope_from[i])) my.envelope_from[i] = '_';
+	}
+	if (haschar(my.envelope_from, '@') == 0) {
+		strcat(my.envelope_from, "@");
+		strcat(my.envelope_from, config.c_fqdn);
+	}
+
 	/* Keep track of the envelope-to address (use body-to if not found) */
 	if (msg->cm_fields['V'] != NULL) {
 		safestrncpy(my.envelope_to, msg->cm_fields['V'], sizeof my.envelope_to);
@@ -583,6 +580,15 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 	else {
 		strcpy(my.envelope_to, "");
+	}
+
+	len = strlen(my.envelope_to);
+	for (i=0; i<len; ++i) {
+		if (isspace(my.envelope_to[i])) my.envelope_to[i] = '_';
+	}
+	if (haschar(my.envelope_to, '@') == 0) {
+		strcat(my.envelope_to, "@");
+		strcat(my.envelope_to, config.c_fqdn);
 	}
 
 	CtdlFreeMessage(msg);
