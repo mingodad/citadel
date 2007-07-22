@@ -1252,7 +1252,10 @@ char *serv_sieve_init(void)
 {
 	ctdl_sieve_init();
 	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
+
         CtdlRegisterRoomHook(serv_sieve_room);
+
+        /* return our Subversion id for the Log */
 	return "$Id$";
 }
 
