@@ -2143,22 +2143,8 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 		lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() skips repl checks\n");
 	}
 
-#if 0
-	/* Submit this room for net processing */
-	network_queue_room(&CC->room, NULL);
-#endif
-
 	/* Submit this room for processing by hooks */
 	PerformRoomHooks(&CC->room);
-
-#if 0
-#ifdef HAVE_LIBSIEVE
-	/* If this is someone's inbox, submit the room for sieve processing */
-	if (!strcasecmp(&CC->room.QRname[11], MAILROOM)) {
-		sieve_queue_room(&CC->room);
-	}
-#endif /* HAVE_LIBSIEVE */
-#endif
 
 	/* Go back to the room we were in before we wandered here... */
 	getroom(&CC->room, hold_rm);

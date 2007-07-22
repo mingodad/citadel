@@ -1255,6 +1255,8 @@ char *serv_sieve_init(void)
 
         CtdlRegisterRoomHook(serv_sieve_room);
 
+        CtdlRegisterSessionHook(perform_sieve_processing, EVT_HOUSE);
+
         /* return our Subversion id for the Log */
 	return "$Id$";
 }

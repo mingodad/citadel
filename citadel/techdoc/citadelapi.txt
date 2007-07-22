@@ -165,7 +165,40 @@ registered.
  void CtdlUnregisterMessageHook(int (*handler) (struct CtdlMessage *),
  				int EventType)
 
- Please write documentation for me!
+
+ CtdlRegisterMessageHook() registers a function with the message
+handling subsystem. This function will be called with one parameter, 
+a pointer to a CtdlMessage structure, when the message triggers an event 
+of type EventType. The registered function should return non zero if it 
+has handled the event to prevent other hook functions from also processing 
+the event.
+
+ CtdlUnregisterMessageHook() removes a function from the list of registered 
+message handlers. To successfully remove a function registered with 
+CtdlRegisterMessageHook() CtdlUnregisterMessageHook() must be called with 
+the same parameters.
+
+ Possible values for EventType are:
+    EVT_BEFOREREAD   Called after a message is loaded from disk but before
+it is presented for reading.
+    EVT_BEFORESAVE   Called before the message is saved to disk. returning 
+non zero for this event will prevent the message being saved to disk in the
+normal manner.
+    EVT_AFTERSAVE    Called after the message is saved to disk but before
+any IGnet spooling is carried out.
+    EVT_SMTPSCAN     Called during the SMTP reception of a message after the 
+message is received and before the response is sent to the sender. This is
+intended for spam filters and virus checkers. A positive return code will
+cause the message to be rejected by the SMTP server.
+
+
+ void CtdlRegisterRoomHook(int (*fcn_ptr) (char *))
+ void CtdlUnregisterRoomHook(int (*fcn_ptr) (char *))
+
+ Register or remove a function with the room processing system.
+Registered functions are called in the order they are registered when a message
+is added to a room. This allows modules such as Sieve to process new messages
+appearing in a room.
 
 
  void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)

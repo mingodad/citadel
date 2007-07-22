@@ -346,7 +346,7 @@ extern struct SessionFunctionHook *SessionHookTable;
 
 #define EVT_TIMER	50	/* Timer events are called once per minute
 				   and are not tied to any session */
-
+#define EVT_HOUSE	51	/* as needed houskeeping stuff */
 /*
  * UserFunctionHook extensions are used for any type of hook which implements
  * an operation on a user or username (potentially) other than the one

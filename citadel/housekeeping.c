@@ -170,9 +170,8 @@ void do_housekeeping(void) {
 
 	/* First, do the "as often as needed" stuff... */
 	JournalRunQueue();
-#ifdef HAVE_LIBSIEVE
-	perform_sieve_processing();
-#endif
+
+	PerformSessionHooks(EVT_HOUSE);	/* perform as needed housekeeping */
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {
