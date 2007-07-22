@@ -339,7 +339,7 @@ clean:
 	rm -f *.o
 
 cleaner: clean
-	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) *.la
+	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
