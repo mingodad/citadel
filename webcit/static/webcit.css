@@ -447,15 +447,24 @@ a:hover {
 	font-style: italic;
 }
 .mimepart {
-	margin-top: 0;
+	margin-top: 15px;
+	margin-bottom: 15px;
 	margin-left: 15%;
 	width: 70%;
-	padding: 1%;
+	padding: 0;
 	background-color: #FFFFDD;
+	border: 2px solid lightgrey;
+}
+
+.mimepart img {
+        vertical-align: middle;
 }
 
 .mimepart div {
-	font-size: 12pt;
+	margin:0 ;
+	padding: 5px;
+        background-color: #FFFFFF;
+	font-size: 11pt;
         font-weight: bold;
 }
 
@@ -465,7 +474,9 @@ a:hover {
 
 .mimepart dl {
 	width: 100%;
+	padding: 5px;
 }
+
 .mimepart dl dt {
 	width: 30%;
 	float: left;
@@ -481,7 +492,7 @@ dt { clear: both; }
 
 .mimepart dl dd {
 	float: left;
-	width: 65%;
+	width: 62%;
 	margin: 0 0 0 0;
 	padding: .5em;
 	border-top: 1px solid #999;
