@@ -308,7 +308,7 @@ void cal_process_object(icalcomponent *cal,
 
 	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<p>&nbsp;</p></</div>\n");
+		wprintf("<p>&nbsp;</p></div>\n");
 	}
 }
 
@@ -359,8 +359,7 @@ void respond_to_request(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<table border=0 cellpadding=0><tr><td>");
-		wprintf("<td><img align=\"center\" src=\"static/calarea_48x.gif\"></td><td><b><i>");
+		wprintf("<img src=\"static/calarea_48x.gif\"><span>");
 		if (!strcasecmp(bstr("sc"), "accept")) {
 			wprintf(_("You have accepted this meeting invitation.  "
 				"It has been entered into your calendar.")
@@ -376,10 +375,11 @@ void respond_to_request(void) {
 		}
 		wprintf(" ");
 		wprintf(_("A reply has been sent to the meeting organizer."));
-		wprintf("</i></b></td></tr></table>");
+		wprintf("</span>");
 	} else {
-		wprintf("<img align=\"center\" src=\"static/error.gif\">&nbsp;<b><i>");
+		wprintf("<img align=\"center\" src=\"static/error.gif\"><span>");
 		wprintf("%s\n", &buf[4]);
+		wprintf("</span>");
 	}
 
 	end_ajax_response();
@@ -403,8 +403,7 @@ void handle_rsvp(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<table border=0 cellpadding=0><tr><td>");
-		wprintf("<td><img align=\"center\" src=\"static/calarea_48x.gif\"></td><td><b><i>");
+		wprintf("<img src=\"static/calarea_48x.gif\"><span>");
 		if (!strcasecmp(bstr("sc"), "update")) {
 			wprintf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
@@ -412,9 +411,10 @@ void handle_rsvp(void) {
 				"Your calendar has <b>not</b> been updated.")
 			);
 		}
-		wprintf("</i></b></td></tr></table>");
+		wprintf("</span>");
 	} else {
-		wprintf("<img src=\"static/error.gif\" align=center> %s\n", &buf[4]);
+		wprintf("<img src=\"static/error.gif\"><span> %s\n", &buf[4]);
+		wprintf("</span>");
 	}
 
 	end_ajax_response();
