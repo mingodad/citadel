@@ -216,7 +216,8 @@ void osr_sanitize(char *str) {
  * \brief	Output parseable Sieve script code based on rules input
  */
 void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp, int sizeval,
-			char *action, char *fileinto, char *redirect, char *automsg, char *final)
+			char *action, char *fileinto, char *redirect, char *automsg, char *final,
+			char *my_addresses)
 {
 	char *comp1 = "";
 	char *comp2 = "";
@@ -381,7 +382,7 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 	}
 
 	else if (!strcasecmp(action, "vacation")) {
-		serv_printf("vacation \"%s\";", automsg);
+		serv_printf("vacation :addresses [%s]\n\"%s\";", my_addresses, automsg);
 	}
 
 
@@ -420,13 +421,27 @@ void parse_fields_from_rule_editor(void) {
 	char redirect[256];
 	char automsg[1024];
 	char final[32];
-
 	int i;
 	char buf[256];
 	char fname[256];
 	char rule[2048];
 	char encoded_rule[4096];
+	char my_addresses[4096];
+	
+	/* Enumerate my email addresses in case they are needed for a vacation rule */
+	my_addresses[0] = 0;
+	serv_puts("GVEA");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		if (!IsEmptyStr(my_addresses)) {
+			strcat(my_addresses, ",\n");
+		}
+		strcat(my_addresses, "\"");
+		strcat(my_addresses, buf);
+		strcat(my_addresses, "\"");
+	}
 
+	/* Now generate the script and write it to the Citadel server */
 	serv_printf("MSIV putscript|%s|", RULES_SCRIPT);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
@@ -494,7 +509,7 @@ void parse_fields_from_rule_editor(void) {
 			CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
 			serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
 			output_sieve_rule(hfield, compare, htext, sizecomp, sizeval,
-					action, fileinto, redirect, automsg, final);
+					action, fileinto, redirect, automsg, final, my_addresses);
 			serv_printf("");
 		}
 
