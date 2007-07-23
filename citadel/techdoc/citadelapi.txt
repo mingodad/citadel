@@ -119,6 +119,12 @@ EventType.  The available session hook types are:
 #define EVT_NEWROOM	3	/* Changing rooms */
 #define EVT_LOGOUT	4	/* A user is logging out */
 #define EVT_SETPASS	5	/* Setting or changing password */
+#define EVT_CMD		6	/* Called after each server command */
+#define EVT_RWHO	7	/* An RWHO command is being executed */
+#define EVT_ASYNC	8	/* Doing asynchronous message */
+
+#define EVT_TIMER	50	/* Timer events are called once per minute */
+#define EVT_HOUSE	51	/* Housekeeping event */
 
  CtdlUnregisterSessionHook() removes a session hook.  It must be called with
 the same fcn_ptr and EventTYpe which were previously registered.
