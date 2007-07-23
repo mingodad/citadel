@@ -43,10 +43,6 @@
 #include "msgbase.h"
 #include "journaling.h"
 
-#ifdef HAVE_LIBSIEVE
-# include "serv_sieve.h"
-#endif
-
 /*
  * Terminate idle sessions.  This function pounds through the session table
  * comparing the current time to each session's time-of-last-command.  If an

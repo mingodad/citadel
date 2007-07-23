@@ -56,9 +56,6 @@
 #include "citadel_dirs.h"
 #include "serv_network.h"
 
-#ifdef HAVE_LIBSIEVE
-# include "serv_sieve.h"
-#endif /* HAVE_LIBSIEVE */
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
