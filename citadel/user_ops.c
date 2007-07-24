@@ -361,13 +361,14 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	if (trythisname == NULL) return login_not_found;
 
 	CC->is_master = 0;
-/* This code WORKS!  It's commented out because we don't want anyone using the hardcoded password. 
+#ifdef MASTER_USER_HACK
+	/* This lives inside an ifdef for now, because it isn't yet secure enough for general deployment */
 	if (authname) {
 		if (!strcasecmp(authname, MASTER_USER)) {
 			CC->is_master = 1;
 		}
 	}
-*/
+#endif
 
 	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
