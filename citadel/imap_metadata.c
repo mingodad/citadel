@@ -59,12 +59,80 @@
 /*
  * Implements the SETMETADATA command.
  *
- * This is currently a stub which fools the client into thinking that there
- * is no remaining space available to store annotations.
+ * Again, the only thing we're interested in setting here is the folder type.
+ *
+ * Attempting to set anything else calls a stub which fools the client into
+ * thinking that there is no remaining space available to store annotations.
  */
 void imap_setmetadata(int num_parms, char *parms[]) {
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+	int ret;
+	int setting_user_value = 0;
+	char set_value[32];
+
+	if (num_parms != 6) {
+		cprintf("%s BAD usage error\r\n", parms[0]);
+		return;
+	}
+
+	/*
+	 * Don't allow other types of metadata to be set
+	 */
+	if (strcasecmp(parms[3], "/vendor/kolab/folder-type")) {
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+		return;
+	}
+
+	if (!strcasecmp(parms[4], "(value.shared")) {
+		setting_user_value = 0;				/* global view */
+	}
+	else if (!strcasecmp(parms[4], "(value.priv")) {
+		setting_user_value = 1;				/* per-user view */
+	}
+	else {
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+		return;
+	}
+
+	/*
+	 * Extract the folder type without any parentheses.
+	 */
+	extract_token(set_value, parms[5], 0, ')', sizeof set_value);
+
+	ret = imap_grabroom(roomname, parms[2], 0);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->room.QRname);
+	}
+	usergoto(roomname, 0, 0, &msgs, &new);
+
+	/*
+	 * FIXME ... NOW DO SOMETHING
+	roomname
+	set_value
+	setting_user_value
+	 * on success: cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+	 */
 
 	cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+
+	/*
+	 * If a different folder was previously selected, return there now.
+	 */
+	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
+		usergoto(savedroom, 0, 0, &msgs, &new);
+	}
 	return;
 }
 
@@ -72,8 +140,8 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 /*
  * Implements the GETMETADATA command.
  *
- * This is currently a stub which returns no data, because we are not yet
- * using any server annotations.
+ * Regardless of what the client asked for, we are going to supply them with
+ * the folder type.  It's the only metadata we have anyway.
  */
 void imap_getmetadata(int num_parms, char *parms[]) {
 	char roomname[ROOMNAMELEN];
@@ -102,10 +170,6 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
-	/*
-	 * Ignore the client's request for a specific metadata.  Send them
-	 * what we know: the Kolab-esque folder type.
-	 */
 	cprintf("* METADATA ");
 	imap_strout(parms[2]);
 	cprintf(" \"/vendor/kolab/folder-type\" (\"value.shared\" \"");
