@@ -1815,7 +1815,6 @@ void smtp_cleanup_function(void) {
 
 CTDL_MODULE_INIT(smtp)
 {
-
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 				NULL,
 				smtp_mta_greeting,
@@ -1837,16 +1836,16 @@ CTDL_MODULE_INIT(smtp)
 				NULL);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-							file_lmtp_socket,
-							lmtp_greeting,
-							smtp_command_loop,
-							NULL);
+				file_lmtp_socket,
+				lmtp_greeting,
+				smtp_command_loop,
+				NULL);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
-							file_lmtp_unfiltered_socket,
-							lmtp_unfiltered_greeting,
-							smtp_command_loop,
-							NULL);
+				file_lmtp_unfiltered_socket,
+				lmtp_unfiltered_greeting,
+				smtp_command_loop,
+				NULL);
 
 	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
