@@ -458,18 +458,21 @@ a:hover {
 
 .mimepart img {
         vertical-align: middle;
+	float: left;
 }
 
 .mimepart div {
-	margin:0 ;
+        vertical-align: middle;
+	margin: 0 0 15px 0 ;
 	padding: 5px;
-        background-color: #FFFFFF;
 	font-size: 11pt;
         font-weight: bold;
 }
 
 .mimepart div span {
+        vertical-align: top;
 	font-style: italic;
+	display: block;
 }
 
 .mimepart dl {
