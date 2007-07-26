@@ -32,12 +32,10 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -46,7 +44,7 @@
 #include "tools.h"
 #include "citadel_dirs.h"
 
-
+#include "ctdl_module.h"
 
 /*
  * enter user bio
@@ -134,7 +132,7 @@ void cmd_lbio(char *cmdbuf) {
 
 
 
-char *serv_bio_init(void)
+CTDL_MODULE_INIT(bio)
 {
         CtdlRegisterProtoHook(cmd_ebio, "EBIO", "Enter your bio");
         CtdlRegisterProtoHook(cmd_rbio, "RBIO", "Read a user's bio");

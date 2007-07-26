@@ -51,11 +51,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -64,6 +62,9 @@
 #include "control.h"
 #include "serv_network.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
 
 
 struct PurgeList {
@@ -836,7 +837,7 @@ void cmd_fsck(char *argbuf) {
 
 /*****************************************************************************/
 
-char *serv_expire_init(void)
+CTDL_MODULE_INIT(expire)
 {
 	CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");

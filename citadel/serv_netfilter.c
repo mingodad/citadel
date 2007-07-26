@@ -32,12 +32,10 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -45,6 +43,10 @@
 #include "msgbase.h"
 #include "serv_network.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
+
 
 /*
  * This handler detects whether an incoming network message is from some
@@ -103,7 +105,7 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 }
 
 
-char *serv_netfilter_init(void)
+CTDL_MODULE_INIT(netfilter)
 {
 	CtdlRegisterNetprocHook(filter_the_idiots);
 

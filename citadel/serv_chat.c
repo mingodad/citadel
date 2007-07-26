@@ -31,9 +31,7 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_extensions.h"
 #include "serv_chat.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
@@ -45,6 +43,11 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+
+#include "ctdl_module.h"
+
+
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
@@ -810,7 +813,7 @@ void cmd_reqt(char *argbuf) {
 
 
 
-char *serv_chat_init(void)
+CTDL_MODULE_INIT(chat)
 {
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for instant messages");

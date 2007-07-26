@@ -32,11 +32,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "database.h"
 #include "msgbase.h"
 #include "control.h"
@@ -44,6 +42,10 @@
 #include "tools.h"
 #include "serv_fulltext.h"
 #include "ft_wordbreaker.h"
+
+
+#include "ctdl_module.h"
+
 
 
 long ft_newhighest = 0L;
@@ -467,7 +469,7 @@ void initialize_ft_cache(void) {
 
 /*****************************************************************************/
 
-char *serv_fulltext_init(void)
+CTDL_MODULE_INIT(fulltext)
 {
 	initialize_ft_cache();
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");

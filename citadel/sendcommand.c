@@ -33,7 +33,6 @@
 #include "tools.h"
 #include "citadel_ipc.h"
 #include "server.h"
-#include "serv_extensions.h"
 #include "config.h"
 
 #define LOCKFILE "/tmp/LCK.sendcommand"

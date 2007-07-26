@@ -50,11 +50,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -70,6 +68,11 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+
+#include "ctdl_module.h"
+
+
 
 /* Nonzero while we are doing network processing */
 static int doing_queue = 0;
@@ -2064,7 +2067,7 @@ int network_room_handler (struct ctdlroom *room)
 /*
  * Module entry point
  */
-char *serv_network_init(void)
+CTDL_MODULE_INIT(network)
 {
 	create_spool_dirs();
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");

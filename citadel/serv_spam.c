@@ -36,12 +36,10 @@
 #include <sys/socket.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -51,6 +49,9 @@
 #include "internet_addressing.h"
 #include "domain.h"
 #include "clientsocket.h"
+
+
+#include "ctdl_module.h"
 
 
 
@@ -145,7 +146,7 @@ bail:	close(sock);
 
 
 
-char *serv_spam_init(void)
+CTDL_MODULE_INIT(spam)
 {
 	CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
 

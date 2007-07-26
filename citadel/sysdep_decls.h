@@ -1,5 +1,7 @@
 /* $Id$ */
 
+#ifndef SYSDEP_DECLS_H
+#define SYSDEP_DECLS_H
 
 /*
  * Uncomment this #define if you are a Citadel developer tracking
@@ -12,6 +14,7 @@
 #include <pthread.h>
 #include "sysdep.h"
 #include "server.h"
+
 
 /* Logging levels - correspond to syslog(3) */
 enum LogLevel {
@@ -103,3 +106,5 @@ void dump_heap(void);
 void create_maintenance_threads(void);
 extern pthread_t indexer_thread_tid;
 extern pthread_t checkpoint_thread_tid;
+
+#endif /* SYSDEP_DECLS_H */

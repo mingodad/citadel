@@ -46,12 +46,14 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_extensions.h"
 #include "citserver.h"
 #include "database.h"
 #include "msgbase.h"
 #include "sysdep_decls.h"
 #include "config.h"
+
+#include "ctdl_module.h"
+
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */

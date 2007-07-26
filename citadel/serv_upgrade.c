@@ -31,12 +31,10 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "database.h"
 #include "room_ops.h"
 #include "user_ops.h"
@@ -45,6 +43,8 @@
 #include "serv_upgrade.h"
 #include "euidindex.h"
 
+
+#include "ctdl_module.h"
 
 
 /* 
@@ -226,7 +226,7 @@ void check_server_upgrades(void) {
 }
 
 
-char *serv_upgrade_init(void)
+CTDL_MODULE_INIT(upgrade)
 {
 	check_server_upgrades();
 

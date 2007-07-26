@@ -33,17 +33,19 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
+
 
 #ifdef HAVE_LIBSIEVE
 
@@ -1247,9 +1249,13 @@ int serv_sieve_room(struct ctdlroom *room)
 	return 0;
 }
 
+#endif	/* HAVE_LIBSIEVE */
 
-char *serv_sieve_init(void)
+CTDL_MODULE_INIT(sieve)
 {
+
+#ifdef HAVE_LIBSIEVE
+
 	ctdl_sieve_init();
 	CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 
@@ -1257,18 +1263,13 @@ char *serv_sieve_init(void)
 
         CtdlRegisterSessionHook(perform_sieve_processing, EVT_HOUSE);
 
+#else	/* HAVE_LIBSIEVE */
+
+	lprintf(CTDL_INFO, "This server is missing libsieve.  Mailbox filtering will be disabled.\n");
+
+#endif	/* HAVE_LIBSIEVE */
+
         /* return our Subversion id for the Log */
 	return "$Id$";
 }
 
-#else	/* HAVE_LIBSIEVE */
-
-char *serv_sieve_init(void)
-{
-	lprintf(CTDL_INFO, "This server is missing libsieve.  Mailbox filtering will be disabled.\n");
-
-	/* return our Subversion id for the Log */
-	return "$Id$";
-}
-
-#endif	/* HAVE_LIBSIEVE */

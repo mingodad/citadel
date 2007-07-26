@@ -43,11 +43,9 @@
 #include <ctype.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -61,6 +59,9 @@
 #ifdef HAVE_OPENSSL
 #include "serv_crypto.h"
 #endif
+
+
+#include "ctdl_module.h"
 
 
 
@@ -710,7 +711,7 @@ void pop3_command_loop(void) {
 
 
 
-char *serv_pop3_init(void)
+CTDL_MODULE_INIT(pop3)
 {
 	CtdlRegisterServiceHook(config.c_pop3_port,
 				NULL,

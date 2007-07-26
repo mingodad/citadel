@@ -1,0 +1,45 @@
+SYSTEM TESTING PROPOSAL
+
+This document is intended as a discussion of possible automated tests. It does
+not describe any existing tests.
+
+
+---
+
+
+First we should create a client that leverages expect (or something similar) to
+perform automated testing of the client interface. Tests can be written as
+expect scripts.
+
+Each system being tested will need to create an aide level user for the test
+client to connect as.
+
+The test client will create another user to carry out the tests. This allows the
+aide level user to vary the level of the test user and check the access level
+code.
+
+----
+
+
+For a first step each test site should create a test user that can send internet
+mail.
+This test user needs some sieve rules to forward mail around (eventually this
+will be created automatically by the test client). These rules will forward mail
+to other test users at other sites participating in the test system and to a
+networked room.
+Each system participating in the test should share some rooms.
+
+The idea is:
+	1. A test site posts a message to its test user using citmail or some
+other email prog.
+	2. The sieve rules forward the message to each of the other test users
+at the other sites.
+	3. The sieve rules for the other test users detect that the message was
+forwarded to them and they file it into a networked room
+	4. By virtue of the networked room the message returns to the
+originating system where the administrator can see it.
+
+Once I (davew) have written my module to alter the message body we can have it
+add text to the message to indicate the full path of the message.
+
+

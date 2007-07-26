@@ -38,16 +38,19 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+
+
+#include "ctdl_module.h"
+
+
 
 extern struct CitContext *ContextList;
 
@@ -92,7 +95,7 @@ void CopyNewUserGreetings(void) {
 }
 
 
-char *serv_newuser_init(void)
+CTDL_MODULE_INIT(newuser)
 {
    CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
 

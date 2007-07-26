@@ -31,11 +31,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -43,6 +41,11 @@
 #include "serv_ldap.h"
 #include "vcard.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
+
+
 
 #ifdef HAVE_LDAP
 
@@ -587,7 +590,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 /*
  * Initialize the LDAP connector module ... or don't, if we don't have LDAP.
  */
-char *serv_ldap_init(void)
+CTDL_MODULE_INIT(ldap)
 {
 #ifdef HAVE_LDAP
 	CtdlRegisterCleanupHook(serv_ldap_cleanup);

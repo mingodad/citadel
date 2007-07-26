@@ -35,18 +35,19 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
 
 
 /*
@@ -127,7 +128,7 @@ void cmd_mrtg(char *argbuf) {
 }
 
 
-char *serv_mrtg_init(void)
+CTDL_MODULE_INIT(mrtg)
 {
         CtdlRegisterProtoHook(cmd_mrtg, "MRTG", "Supply stats to MRTG");
 

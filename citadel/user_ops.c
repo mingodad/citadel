@@ -38,7 +38,6 @@
 #include "server.h"
 #include "database.h"
 #include "user_ops.h"
-#include "serv_extensions.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"

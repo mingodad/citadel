@@ -34,11 +34,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -50,6 +48,7 @@
 #include "domain.h"
 
 
+#include "ctdl_module.h"
 
 
 void inetcfg_setTo(struct CtdlMessage *msg) {
@@ -177,7 +176,7 @@ void inetcfg_init(void) {
 /*****************************************************************************/
 
 
-char *serv_inetcfg_init(void)
+CTDL_MODULE_INIT(inetcfg)
 {
 	CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
 	inetcfg_init();

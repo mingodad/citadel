@@ -31,8 +31,6 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_extensions.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
@@ -44,6 +42,8 @@
 #include "vcard.h"
 #include "serv_fulltext.h"
 #include "serv_autocompletion.h"
+
+#include "ctdl_module.h"
 
 
 #ifndef HAVE_SNPRINTF
@@ -250,7 +250,7 @@ void cmd_auto(char *argbuf) {
 }
 
 
-char *serv_autocompletion_init(void) {
+CTDL_MODULE_INIT(autocompletion) {
 	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
 
 	/* return our Subversion id for the Log */

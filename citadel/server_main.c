@@ -58,6 +58,9 @@
 #include "tools.h"
 #include "citadel_dirs.c"
 
+#include "modules_init.h"
+
+
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
@@ -235,7 +238,14 @@ int main(int argc, char **argv)
 	 */
 	lprintf(CTDL_INFO, "Initializing server extensions\n");
 	size = strlen(ctdl_home_directory) + 9;
+	
+/*
 	initialize_server_extensions();
+*/
+	
+	initialise_modules();
+	
+	
 
 	/*
 	 * If we need host auth, start our chkpwd daemon.

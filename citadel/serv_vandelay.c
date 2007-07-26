@@ -32,11 +32,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
@@ -44,6 +42,12 @@
 #include "room_ops.h"
 #include "control.h"
 #include "euidindex.h"
+
+
+#include "ctdl_module.h"
+
+
+
 
 #define END_OF_MESSAGE	"---eom---dbd---"
 
@@ -726,7 +730,7 @@ void cmd_artv(char *cmdbuf) {
 
 
 
-char *serv_vandelay_init(void)
+CTDL_MODULE_INIT(vandelay)
 {
 	CtdlRegisterProtoHook(cmd_artv, "ARTV", "import/export data store");
 

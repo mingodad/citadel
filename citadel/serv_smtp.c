@@ -57,12 +57,10 @@
 #include <arpa/inet.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -85,6 +83,11 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+
+#include "ctdl_module.h"
+
+
 
 struct citsmtp {		/* Information about the current session */
 	int command_state;
@@ -1810,7 +1813,7 @@ void smtp_cleanup_function(void) {
 
 
 
-char *serv_smtp_init(void)
+CTDL_MODULE_INIT(smtp)
 {
 
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */

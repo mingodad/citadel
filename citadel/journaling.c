@@ -1,5 +1,5 @@
 /*
- * $Id:  $
+ * $Id$
  *
  * Message journaling functions.
  *
@@ -31,7 +31,6 @@
 #include <sys/stat.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_extensions.h"
 #include "database.h"
 #include "msgbase.h"
 #include "support.h"

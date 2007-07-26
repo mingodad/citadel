@@ -22,10 +22,8 @@
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
-#include "sysdep_decls.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "user_ops.h"
 #include "room_ops.h"
 #include "tools.h"
@@ -34,11 +32,14 @@
 #include "internet_addressing.h"
 #include "serv_calendar.h"
 #include "euidindex.h"
+#include "ctdl_module.h"
 
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
 
 #include <ical.h>
 #include "ical_dezonify.h"
+
+
 
 struct ical_respond_data {
 	char desired_partnum[SIZ];
@@ -2136,7 +2137,7 @@ void ical_fixed_output(char *ptr, int len) {
 /*
  * Register this module with the Citadel server.
  */
-char *serv_calendar_init(void)
+CTDL_MODULE_INIT(calendar)
 {
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);

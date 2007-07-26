@@ -31,17 +31,18 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
+
+#include "ctdl_module.h"
+
 
 
 /*
@@ -102,7 +103,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 }
 
 
-char *serv_notes_init(void)
+CTDL_MODULE_INIT(notes)
 {
 	CtdlRegisterMessageHook(serv_notes_beforesave, EVT_BEFORESAVE);
 

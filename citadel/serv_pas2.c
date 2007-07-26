@@ -21,15 +21,16 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#include "sysdep_decls.h"
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
-#include "serv_extensions.h"
 #include "user_ops.h"
 #include "md5.h"
 #include "tools.h"
+
+
+#include "ctdl_module.h"
 
 
 void cmd_pas2(char *argbuf)
@@ -85,7 +86,7 @@ void cmd_pas2(char *argbuf)
 
 
 
-char *serv_pas2_init(void)
+CTDL_MODULE_INIT(pas2)
 {
         CtdlRegisterProtoHook(cmd_pas2, "PAS2", "APOP-based login");
 

@@ -64,7 +64,8 @@ SERV_MODULES=serv_chat.o \
 	ical_dezonify.o \
 	serv_ldap.o \
 	serv_autocompletion.o \
-	serv_funambol.o
+	serv_funambol.o \
+	serv_test.o
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -119,7 +120,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
 	crc16.c journaling.c citadel_dirs.c imap_list.c imap_metadata.c
 
-DEP_FILES=$(SOURCES:.c=.d)
+DEP_FILES=$(SOURCES:.c=.d) modules_init.d
 
 client: $(CLIENT_TARGETS)
 
@@ -144,6 +145,9 @@ citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 
 parsedate.o: parsedate.c
 
+modules_init.c: mk_module_init.sh $(SOURCES)
+		$(srcdir)/mk_module_init.sh
+
 SERV_OBJS = server_main.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	tools.o $(DATABASE:.c=.o) domain.o \
@@ -152,7 +156,7 @@ SERV_OBJS = server_main.o \
 	locate_host.o housekeeping.o mime_parser.o html.o \
 	internet_addressing.o journaling.o \
 	serv_crypto.o parsedate.o genstamp.o \
-	clientsocket.o $(AUTH) $(SERV_MODULES)
+	clientsocket.o modules_init.o $(AUTH) $(SERV_MODULES)
 
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver
@@ -336,10 +340,11 @@ install-exec-new: all
 	done
 
 clean:
-	rm -f *.o
+	rm -f *.o 
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
+	rm -rf modules_init.c modules_init.h
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f

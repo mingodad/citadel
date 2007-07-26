@@ -32,7 +32,6 @@
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "config.h"

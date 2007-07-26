@@ -37,11 +37,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -62,6 +60,10 @@
 #ifdef HAVE_OPENSSL
 #include "serv_crypto.h"
 #endif
+
+
+#include "ctdl_module.h"
+
 
 /* imap_rename() uses this struct containing list of rooms to rename */
 struct irl {
@@ -1587,7 +1589,7 @@ void imap_command_loop(void)
 /*
  * This function is called to register the IMAP extension with Citadel.
  */
-char *serv_imap_init(void)
+CTDL_MODULE_INIT(imap)
 {
 	CtdlRegisterServiceHook(config.c_imap_port,
 				NULL, imap_greeting, imap_command_loop, NULL);

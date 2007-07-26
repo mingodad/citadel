@@ -31,12 +31,10 @@
 #include <sys/socket.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -47,6 +45,12 @@
 #include "domain.h"
 #include "clientsocket.h"
 #include "serv_funambol.h"
+
+
+
+#include "ctdl_module.h"
+
+
 /*
  * Create the notify message queue
  */
@@ -219,7 +223,7 @@ void notify_funambol(long msgnum, void *userdata) {
 
 
 
-char *serv_funambol_init(void)
+CTDL_MODULE_INIT(funambol)
 {
 	create_notify_queue();
 	CtdlRegisterSessionHook(do_notify_queue, EVT_TIMER);

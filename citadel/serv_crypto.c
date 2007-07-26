@@ -35,10 +35,13 @@
 #include "server.h"
 #include "serv_crypto.h"
 #include "sysdep_decls.h"
-#include "serv_extensions.h"
 #include "citadel.h"
 #include "config.h"
 
+
+#include "ctdl_module.h"
+/* TODO: should we use the standard module init stuff to start this? */
+/* TODO: should we register an event handler to call destruct_ssl? */
 
 #ifdef HAVE_OPENSSL
 SSL_CTX *ssl_ctx;		/* SSL context */

@@ -40,12 +40,10 @@
 #include <arpa/inet.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -67,6 +65,11 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+
+#include "ctdl_module.h"
+
+
 
 #ifdef HAVE_LIBSIEVE
 
@@ -571,9 +574,12 @@ void managesieve_command_loop(void) {
 }
 
 
+#endif	/* HAVE_LIBSIEVE */
 
-char *serv_managesieve_init(void)
+CTDL_MODULE_INIT(managesieve)
 {
+
+#ifdef HAVE_LIBSIEVE
 
 	CtdlRegisterServiceHook(config.c_managesieve_port,	/* MGSVE */
 				NULL,
@@ -581,17 +587,14 @@ char *serv_managesieve_init(void)
 				managesieve_command_loop,
 				NULL);
 
-	return "$Id$";
-}
-
 #else	/* HAVE_LIBSIEVE */
 
-char *serv_managesieve_init(void)
-{
 	lprintf(CTDL_INFO, "This server is missing libsieve.  Managesieve protocol is disabled..\n");
+
+#endif	/* HAVE_LIBSIEVE */
 
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
 
-#endif	/* HAVE_LIBSIEVE */
+

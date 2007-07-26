@@ -29,17 +29,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
-#include "citadel.h"
-#include "server.h"
-#include "sysdep_decls.h"
-#include "citserver.h"
-#include "support.h"
-#include "config.h"
-#include "serv_extensions.h"
-#include "room_ops.h"
-#include "policy.h"
-#include "database.h"
-#include "msgbase.h"
+#include "ctdl_module.h"
 
 extern struct CitContext *ContextList;
 
@@ -65,13 +55,16 @@ void LoginTest(void) {
 	lprintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
-char *serv_test_init(void)
+/* To insert this module into the server activate the next block by changing the #if 0 to #if 1 */
+CTDL_MODULE_INIT(test)
 {
+#if 0
    CtdlRegisterCleanupHook(CleanupTest);
    CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+#endif
 
    /* return our Subversion id for the Log */
    return "$Id$";

@@ -16,7 +16,6 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_extensions.h"
 #include "config.h"
 
 struct config config;

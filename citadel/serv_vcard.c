@@ -49,12 +49,10 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -66,6 +64,11 @@
 #include "vcard.h"
 #include "serv_ldap.h"
 #include "serv_vcard.h"
+
+
+#include "ctdl_module.h"
+
+
 
 /*
  * set global flag calling for an aide to validate new users
@@ -1326,19 +1329,9 @@ void vcard_fixed_output(char *ptr, int len) {
 }
 
 
-char *serv_postfix_tcpdict(void)
-{
-	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
-				NULL,
-				check_get_greeting,
-				check_get,
-				NULL);
-	return "$Id$";
-}
 
 
-
-char *serv_vcard_init(void)
+CTDL_MODULE_INIT(vcard)
 {
 	struct ctdlroom qr;
 	char filename[256];
@@ -1384,6 +1377,13 @@ char *serv_vcard_init(void)
 		chown(filename, CTDLUID, (-1));
 	}
 
+	/* for postfix tcpdict */
+	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
+				NULL,
+				check_get_greeting,
+				check_get,
+				NULL);
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

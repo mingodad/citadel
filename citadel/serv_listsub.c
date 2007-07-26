@@ -35,11 +35,9 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -54,6 +52,10 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+
+
+#include "ctdl_module.h"
 
 
 /*
@@ -562,7 +564,7 @@ void cmd_subs(char *cmdbuf) {
 /*
  * Module entry point
  */
-char *serv_listsub_init(void)
+CTDL_MODULE_INIT(listsub)
 {
 	CtdlRegisterProtoHook(cmd_subs, "SUBS", "List subscribe/unsubscribe");
 
