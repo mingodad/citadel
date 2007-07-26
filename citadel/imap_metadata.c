@@ -1,5 +1,5 @@
 /*
- * $Id:  $
+ * $Id$
  *
  * IMAP METADATA extension
  *
@@ -70,6 +70,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	int ret;
 	int setting_user_value = 0;
 	char set_value[32];
+	int set_view = VIEW_BBS;
 
 	if (num_parms != 6) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -96,9 +97,31 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * Extract the folder type without any parentheses.
+	 * Extract the folder type without any parentheses.  Then learn
+	 * the Citadel view type based on the supplied folder type.
 	 */
 	extract_token(set_value, parms[5], 0, ')', sizeof set_value);
+	if (!strncasecmp(set_value, "mail", 4)) {
+		set_view = VIEW_MAILBOX;
+	}
+	else if (!strncasecmp(set_value, "event", 5)) {
+		set_view = VIEW_CALENDAR;
+	}
+	else if (!strncasecmp(set_value, "contact", 7)) {
+		set_view = VIEW_ADDRESSBOOK;
+	}
+	else if (!strncasecmp(set_value, "journal", 7)) {
+		set_view = VIEW_JOURNAL;
+	}
+	else if (!strncasecmp(set_value, "note", 4)) {
+		set_view = VIEW_NOTES;
+	}
+	else if (!strncasecmp(set_value, "task", 4)) {
+		set_view = VIEW_TASKS;
+	}
+	else {
+		set_view = VIEW_MAILBOX;
+	}
 
 	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
@@ -119,10 +142,12 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	/*
 	 * FIXME ... NOW DO SOMETHING
 	roomname
-	set_value
+	set_view
 	setting_user_value
 	 * on success: cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
 	 */
+	lprintf(CTDL_DEBUG, "*** SETMETADATA room='%s' user=%d value=%d\n",
+		roomname, setting_user_value, set_view);
 
 	cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
 
