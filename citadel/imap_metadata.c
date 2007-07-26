@@ -3,8 +3,7 @@
  *
  * IMAP METADATA extension
  *
- * This is a partial implementation of draft-daboo-imap-annotatemore-11
- * intended to help a specific connector product work with Citadel.
+ * This is an implementation of the Bynari variant of the METADATA extension.
  *
  */
 
