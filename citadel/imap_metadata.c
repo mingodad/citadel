@@ -71,6 +71,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	int setting_user_value = 0;
 	char set_value[32];
 	int set_view = VIEW_BBS;
+	struct visit vbuf;
 
 	if (num_parms != 6) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -140,16 +141,38 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/*
-	 * FIXME ... NOW DO SOMETHING
-	roomname
-	set_view
-	setting_user_value
-	 * on success: cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+	 * Always set the per-user view to the requested one.
 	 */
-	lprintf(CTDL_DEBUG, "*** SETMETADATA room='%s' user=%d value=%d\n",
-		roomname, setting_user_value, set_view);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+	vbuf.v_view = set_view;
+	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 
-	cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+	/* If this is a "value.priv" set operation, we're done. */
+
+	if (setting_user_value)
+	{
+		cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+	}
+
+	/* If this is a "value.shared" set operation, we are allowed to perform it
+	 * under certain conditions.
+	 */
+	else if (	(is_room_aide())					/* aide or room aide */
+		||	(	(CC->room.QRflags & QR_MAILBOX)
+			&&	(CC->user.usernum == atol(CC->room.QRname))	/* mailbox owner */
+			)
+		||	(msgs == 0)		/* hack: if room is empty, assume we just created it */
+	) {
+		lgetroom(&CC->room, CC->room.QRname);
+		CC->room.QRdefaultview = set_view;
+		lputroom(&CC->room);
+		cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+	}
+
+	/* If we got to this point, we don't have permission to set the default view. */
+	else {
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+	}
 
 	/*
 	 * If a different folder was previously selected, return there now.
