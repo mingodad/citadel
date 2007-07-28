@@ -73,12 +73,13 @@ if [ -d "modules" ] ; then
 					if [ $RES != "X" ] ; then
 						RES_OUT=`echo $RES | cut -b2-`
 						echo -e "Found entry point in file modules/$j/$k"
-						echo -n "\t" >> $C_FILE
-						echo -E "lprintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));" >> $C_FILE
+						echo -e -n "\t" >> $C_FILE
+						echo -E "lprintf (CTDL_INFO, \"%s\n\", CTDL_INIT_CALL($RES_OUT));" >> $C_FILE
 						echo -E "CTDL_MODULE_INIT($RES_OUT) ;" >> $H_FILE
 					fi
 				fi
 			done
+			cd ..
 		fi
 	done
 fi
@@ -98,12 +99,13 @@ if [ -d "user_modules" ] ; then
 					if [ $RES != "X" ] ; then
 						RES_OUT=`echo $RES | cut -b2-`
 						echo -e "Found entry point in file user_modules/$j/$k"
-						echo -n "\t" >> $C_FILE
-						echo -E "lprintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));" >> $C_FILE
+						echo -e -n "\t" >> $C_FILE
+						echo -E "lprintf (CTDL_INFO, \"%s\n\", CTDL_INIT_CALL($RES_OUT));" >> $C_FILE
 						echo -E "CTDL_MODULE_INIT($RES_OUT) ;" >> $H_FILE
 					fi
 				fi
 			done
+			cd ..
 		fi
 	done
 fi

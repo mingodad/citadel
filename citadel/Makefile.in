@@ -65,7 +65,7 @@ SERV_MODULES=serv_chat.o \
 	serv_ldap.o \
 	serv_autocompletion.o \
 	serv_funambol.o \
-	serv_test.o
+	modules/test/serv_test.o
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -113,12 +113,13 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	serv_crypto.c serv_expire.c serv_imap.c serv_inetcfg.c \
 	serv_listsub.c serv_mrtg.c serv_netfilter.c serv_network.c \
 	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
-	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
+	serv_spam.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c serv_managesieve.c server_main.c \
 	serv_sieve.c serv_funambol.c setup.c snprintf.c imap_acl.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
-	crc16.c journaling.c citadel_dirs.c imap_list.c imap_metadata.c
+	crc16.c journaling.c citadel_dirs.c imap_list.c imap_metadata.c \
+	modules/test/serv_test.c
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d
 
