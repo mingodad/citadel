@@ -342,6 +342,9 @@ install-exec-new: all
 
 clean:
 	rm -f *.o 
+	for i in $(srcdir)/modules/* ; do \
+		rm -f $$i/*.o ;\
+	done
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
@@ -350,6 +353,9 @@ cleaner: clean
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
+	for i in $(srcdir)/modules/* ; do \
+		rm -f $$i/*.d ;\
+	done
 
 .c.d:
 	@echo Checking dependencies for $<
