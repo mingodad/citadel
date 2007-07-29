@@ -78,6 +78,8 @@ void create_worker(void);
 extern int num_sessions;
 extern volatile int time_to_die;
 extern volatile int shutdown_and_halt;
+extern volatile int running_as_daemon;
+extern volatile int restart_server;
 
 extern int verbosity;
 extern int rescan[];

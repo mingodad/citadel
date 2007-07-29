@@ -175,6 +175,8 @@ void master_cleanup(int exitcode) {
 	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
 	
+	if (restart_server != 0)
+		exit(1);
 	exit(exitcode);
 }
 
@@ -746,11 +748,30 @@ void cmd_ipgm(char *argbuf)
 /*
  * Shut down the server
  */
-void cmd_down(void) {
+void cmd_down(char *argbuf) {
+	char *Reply ="%d Shutting down server.  Goodbye.\n";
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	cprintf("%d Shutting down server.  Goodbye.\n", CIT_OK);
+	if (!IsEmptyStr(argbuf))
+	{
+		int state = CIT_OK;
+		restart_server = extract_int(argbuf, 0);
+		
+		if (restart_server > 0)
+			Reply = "%d Restarting server.  See you soon.\n";
+		if ((restart_server > 0) && !running_as_daemon)
+		{
+			lprintf(CTDL_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
+			Reply = "%d Warning, not running in deamon mode. maybe we will come up again, but don't lean on it.\n";
+			state = ERROR;
+		}
+		cprintf(Reply, state);
+	}
+	else
+	{
+		cprintf(Reply, CIT_OK);
+	}
 	time_to_die = 1;
 }
 
@@ -1237,7 +1258,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"DOWN",4)) {
-		cmd_down();
+		cmd_down(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"HALT",4)) {

@@ -69,8 +69,6 @@
 #include "snprintf.h"
 #endif
 
-int running_as_daemon = 0;
-
 /*
  * Here's where it all begins.
  */

@@ -99,7 +99,6 @@ pthread_t checkpoint_thread_tid;
 
 int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
-extern int running_as_daemon;
 
 void DestroyWorkerList(void);
 
@@ -157,6 +156,8 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 
 volatile int time_to_die = 0;
 volatile int shutdown_and_halt = 0;
+volatile int restart_server = 0;
+volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
 	lprintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);

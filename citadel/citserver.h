@@ -26,7 +26,7 @@ void cmd_term (char *cmdbuf);
 void cmd_more (void);
 void cmd_echo (char *etext);
 void cmd_ipgm (char *argbuf);
-void cmd_down (void);
+void cmd_down (char *argbuf);
 void cmd_halt (void);
 void cmd_scdn (char *argbuf);
 void cmd_extn (char *argbuf);

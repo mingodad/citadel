@@ -21,6 +21,8 @@ int strncasecmp(char *, char *, int);
 #define strcasecmp(x,y) strncasecmp(x,y,INT_MAX);
 #endif
 
+#define IsEmptyStr(a) ((a)[0] == '\0')
+
 #define num_parms(source)		num_tokens(source,(char)'|')
 void stripout(char *str, char leftboundary, char rightboundary);
 void stripallbut(char *str, char leftboundary, char rightboundary);
