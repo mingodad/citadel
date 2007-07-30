@@ -799,7 +799,7 @@ void cmd_scdn(char *argbuf)
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	new_state = extract_int(argbuf, 0);
-	if (new_state > 1)
+	if ((new_state == 2) || (new_state == 3))
 	{
 		restart_server = 1;
 		if (!running_as_daemon)
