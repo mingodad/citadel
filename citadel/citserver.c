@@ -793,14 +793,29 @@ void cmd_halt(void) {
 void cmd_scdn(char *argbuf)
 {
 	int new_state;
+	int state = CIT_OK;
+	char *Reply = "%d %d\n";
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	new_state = extract_int(argbuf, 0);
+	if (new_state > 1)
+	{
+		restart_server = 1;
+		if (!running_as_daemon)
+		{
+			lprintf(CTDL_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
+			Reply = "%d %d Warning, not running in deamon mode. maybe we will come up again, but don't lean on it.\n";
+			state = ERROR;
+		}
+
+		restart_server = extract_int(argbuf, 0);
+		new_state -= 2;
+	}
 	if ((new_state == 0) || (new_state == 1)) {
 		ScheduledShutdown = new_state;
 	}
-	cprintf("%d %d\n", CIT_OK, ScheduledShutdown);
+	cprintf(Reply, state, ScheduledShutdown);
 }
 
 
