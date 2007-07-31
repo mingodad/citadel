@@ -150,7 +150,8 @@ case "$1" in
 	if test -n "$MODERN"; then
 	    case "$?" in
 		0|1)
-		    do_start
+		    do_start $WEBCIT_HTTP_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT "" "$WEBCIT_APACHEFLAG"
+		    do_start $WEBCIT_HTTPS_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT -s  "$WEBCIT_APACHEFLAG"
 		    case "$?" in
 			0) log_end_msg 0 ;;
 			1) log_end_msg 1 ;; # Old process is still running
@@ -163,7 +164,8 @@ case "$1" in
 		    ;;
 	    esac
 	else
-	    do_start
+	    do_start $WEBCIT_HTTP_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT "" "$WEBCIT_APACHEFLAG"
+	    do_start $WEBCIT_HTTPS_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT -s  "$WEBCIT_APACHEFLAG"
 	fi
 	;;
   *)
