@@ -28,13 +28,14 @@ EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
 SERVER_TARGETS=citserver
-SERV_MODULES=serv_chat.o \
-	serv_upgrade.o \
-	serv_smtp.o \
-	serv_spam.o \
-	serv_pop3.o \
-	serv_vcard.o vcard.o \
-	serv_mrtg.o \
+SERV_MODULES=modules/chat/serv_chat.o \
+	modules/upgrade/serv_upgrade.o \
+	modules/smtp/serv_smtp.o \
+	modules/spam/serv_spam.o \
+	modules/pop3/serv_pop3.o \
+	modules/vcard/serv_vcard.o \
+	vcard.o \
+	modules/mrtg/serv_mrtg.o \
 	serv_imap.o \
 	imap_fetch.o \
 	imap_misc.o \
@@ -44,27 +45,29 @@ SERV_MODULES=serv_chat.o \
 	imap_metadata.o \
 	imap_tools.o \
 	imap_list.o \
-	serv_fulltext.o \
-	ft_wordbreaker.o \
+	modules/fulltext/serv_fulltext.o \
+	modules/fulltext/ft_wordbreaker.o \
 	crc16.o \
-	serv_network.o \
-	serv_listsub.o \
-	serv_netfilter.o \
-	serv_newuser.o \
-	serv_notes.o \
-	serv_pas2.o md5.o \
-	serv_inetcfg.o \
-	serv_rwho.o \
-	serv_bio.o \
-	serv_expire.o \
-	serv_vandelay.o \
-	serv_calendar.o \
-	serv_sieve.o \
-	serv_managesieve.o \
+	modules/network/serv_network.o \
+	modules/listsub/serv_listsub.o \
+	modules/netfilter/serv_netfilter.o \
+	modules/newuser/serv_newuser.o \
+	modules/notes/serv_notes.o \
+	modules/pas2/serv_pas2.o \
+	md5.o \
+	modules/inetcfg/serv_inetcfg.o \
+	modules/rwho/serv_rwho.o \
+	modules/bio/serv_bio.o \
+	modules/expire/serv_expire.o \
+	modules/vandelay/serv_vandelay.o \
+	modules/calendar/serv_calendar.o \
+	modules/crypto/serv_crypto.o \
+	modules/sieve/serv_sieve.o \
+	modules/managesieve/serv_managesieve.o \
 	ical_dezonify.o \
-	serv_ldap.o \
-	serv_autocompletion.o \
-	serv_funambol.o \
+	modules/ldap/serv_ldap.o \
+	modules/autocompletion/serv_autocompletion.o \
+	modules/funambol/serv_funambol.o \
 	modules/test/serv_test.o
 
 UTIL_TARGETS=aidepost msgform \
@@ -106,18 +109,42 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c ical_dezonify.c imap_fetch.c imap_misc.c \
 	imap_search.c imap_store.c imap_tools.c internet_addressing.c \
-	ipc_c_tcp.c locate_host.c md5.c messages.c  serv_autocompletion.c \
+	ipc_c_tcp.c locate_host.c md5.c messages.c  \
+	modules/autocompletion/serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c euidindex.c \
-	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \
-	serv_crypto.c serv_expire.c serv_imap.c serv_inetcfg.c \
-	serv_listsub.c serv_mrtg.c serv_netfilter.c serv_network.c \
-	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
-	serv_spam.c serv_mrtg.c serv_spam.c serv_upgrade.c \
-	serv_vandelay.c serv_vcard.c serv_managesieve.c server_main.c \
-	serv_sieve.c serv_funambol.c setup.c snprintf.c imap_acl.c \
+	screen.c sendcommand.c \
+	modules/bio/serv_bio.c \
+	modules/calendar/serv_calendar.c \
+	modules/chat/serv_chat.c \
+	modules/crypto/serv_crypto.c \
+	modules/expire/serv_expire.c \
+	serv_imap.c \
+	modules/inetcfg/serv_inetcfg.c \
+	modules/listsub/serv_listsub.c \
+	modules/mrtg/serv_mrtg.c \
+	modules/netfilter/serv_netfilter.c \
+	modules/network/serv_network.c \
+	modules/ldap/serv_ldap.c \
+	modules/newuser/serv_newuser.c \
+	modules/pas2/serv_pas2.c \
+	modules/pop3/serv_pop3.c \
+	modules/rwho/serv_rwho.c \
+	modules/smtp/serv_smtp.c \
+	modules/spam/serv_spam.c \
+	modules/upgrade/serv_upgrade.c \
+	modules/vandelay/serv_vandelay.c \
+	modules/vcard/serv_vcard.c \
+	modules/managesieve/serv_managesieve.c \
+	server_main.c \
+	modules/sieve/serv_sieve.c \
+	modules/funambol/serv_funambol.c \
+	setup.c snprintf.c imap_acl.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
-	whobbs.c vcard.c serv_notes.c serv_fulltext.c ft_wordbreaker.c \
+	whobbs.c vcard.c \
+	modules/notes/serv_notes.c \
+	modules/fulltext/serv_fulltext.c \
+	modules/fulltext/ft_wordbreaker.c \
 	crc16.c journaling.c citadel_dirs.c imap_list.c imap_metadata.c \
 	modules/test/serv_test.c
 
@@ -156,7 +183,7 @@ SERV_OBJS = server_main.o \
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o mime_parser.o html.o \
 	internet_addressing.o journaling.o \
-	serv_crypto.o parsedate.o genstamp.o \
+	parsedate.o genstamp.o \
 	clientsocket.o modules_init.o $(AUTH) $(SERV_MODULES)
 
 citserver: $(SERV_OBJS)
