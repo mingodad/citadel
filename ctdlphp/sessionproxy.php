@@ -14,10 +14,10 @@ include "config_ctdlclient.php";
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
 // This program is released under the terms of the GNU General Public License.
 
+global $msgsock;
 
 // sock_gets() -- reads one line of text from a socket
 // 
-$msgsock;
 if (CITADEL_DEBUG_PROXY)
 {
 	define_syslog_variables();
@@ -96,7 +96,7 @@ chmod($sockname, 0600);
 
 // We need to get a connection to the Citadel server going now.
 
-$ctdlsock = fsockopen(SOCKET_PREFIX.CITADEL_HOSTNAME, CITADEL_TCP_PORTNO, $errno, $errstr, 30);
+$ctdlsock = fsockopen(CITADEL_HOSTNAME, CITADEL_TCP_PORTNO, $errno, $errstr, 30);
 if (!$ctdlsock) {
 	socket_close ($sock);
 	system("/bin/rm -f " . $sockname);

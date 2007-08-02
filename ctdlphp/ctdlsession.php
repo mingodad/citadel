@@ -35,7 +35,7 @@ function establish_citadel_session() {
 
 	$sockname = "/tmp/" . $session . ".socket" ;
 
-	$clientsocket = fsockopen(SOCKET_PREFIX.$sockname, 0, $errno, $errstr, 5);
+	$clientsocket = fsockopen('unix://' . $sockname, 0, $errno, $errstr, 5);
 	if (!$clientsocket) {
 		// It ain't there, dude.  Open up the proxy. (C version)
 		//$cmd = "./sessionproxy " . $sockname ;
