@@ -52,7 +52,7 @@ int num_tokens(char *source, char tok)
 		return (0);
 	}
 
-	while (*ptr) {
+	while (*ptr != '\0') {
 		if (*ptr++ == tok) {
 			++count;
 		}
