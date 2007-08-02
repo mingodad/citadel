@@ -45,17 +45,19 @@ char *safestrncpy(char *dest, const char *src, size_t n)
  */
 int num_tokens(char *source, char tok)
 {
-	int a = 0;
 	int count = 1;
-	int len;
+	char *ptr = source;
 
-	if (source == NULL)
+	if (source == NULL) {
 		return (0);
-	len = strlen(source);
-	for (a = 0; a < len; ++a) {
-		if (source[a] == tok)
-			++count;
 	}
+
+	while (*ptr) {
+		if (*ptr++ == tok) {
+			++count;
+		}
+	}
+	
 	return (count);
 }
 
