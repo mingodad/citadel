@@ -451,6 +451,8 @@ void open_databases(void)
 	}
 
 	cdb_allocate_tsd();
+	
+	CtdlRegisterMaintenanceThread ("checkpoint", checkpoint_thread);
 }
 
 

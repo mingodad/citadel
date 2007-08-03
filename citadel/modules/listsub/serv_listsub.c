@@ -45,7 +45,6 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
-#include "serv_network.h"
 #include "clientsocket.h"
 #include "file_ops.h"
 

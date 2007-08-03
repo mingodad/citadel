@@ -53,7 +53,7 @@
 #include "control.h"
 #include "tools.h"
 #include "euidindex.h"
-#include "serv_network.h"
+#include "serv_network.h"	/* Needed for destroy_network_queue_room called from master_cleanup */
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -125,6 +125,7 @@ void master_startup(void) {
  */
 void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
+	struct MaintenanceThreadHook *m_fcn;
 	static int already_cleaning_up = 0;
 
 	if (already_cleaning_up) while(1) sleep(1);
@@ -138,13 +139,11 @@ void master_cleanup(int exitcode) {
 	/* Close the AdjRefCount queue file */
 	AdjRefCount(-1, 0);
 
-	/* Shut down the indexer thread */
-	lprintf(CTDL_INFO, "Waiting for the indexer thread to shut down\n");
-	pthread_join(indexer_thread_tid, NULL);
-
-	/* Shut down the checkpoint thread */
-	lprintf(CTDL_INFO, "Waiting for the checkpoint thread to shut down\n");
-	pthread_join(checkpoint_thread_tid, NULL);
+	for (m_fcn = MaintenanceThreadHookTable; m_fcn != NULL; m_fcn = m_fcn->next) {
+		lprintf(CTDL_INFO, "Waiting for maintenance thread \"%s\" to shut down\n", m_fcn->name);
+		pthread_join(m_fcn->MaintenanceThread_tid, NULL);
+	}
+	
 
 	/* Close databases */
 	lprintf(CTDL_INFO, "Closing databases\n");

@@ -55,9 +55,6 @@
 #include "imap_misc.h"
 #include "imap_list.h"
 
-#ifdef HAVE_OPENSSL
-#include "serv_crypto.h"
-#endif
 
 /*
  * Used by LIST and LSUB to show the floors in the listing

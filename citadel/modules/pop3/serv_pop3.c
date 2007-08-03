@@ -56,9 +56,6 @@
 #include "serv_pop3.h"
 #include "md5.h"
 
-#ifdef HAVE_OPENSSL
-#include "serv_crypto.h"
-#endif
 
 
 #include "ctdl_module.h"
@@ -99,12 +96,10 @@ void pop3_greeting(void) {
 /*
  * POP3S is just like POP3, except it goes crypto right away.
  */
-#ifdef HAVE_OPENSSL
 void pop3s_greeting(void) {
-	CtdlStartTLS(NULL, NULL, NULL);
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	pop3_greeting();
 }
-#endif
 
 
 
@@ -589,7 +584,6 @@ void pop3_uidl(char *argbuf) {
 /*
  * implements the STLS command (Citadel API version)
  */
-#ifdef HAVE_OPENSSL
 void pop3_stls(void)
 {
 	char ok_response[SIZ];
@@ -602,9 +596,8 @@ void pop3_stls(void)
 		"-ERR TLS not supported here\r\n");
 	sprintf(error_response,
 		"-ERR Internal error\r\n");
-	CtdlStartTLS(ok_response, nosup_response, error_response);
+	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 }
-#endif
 
 
 

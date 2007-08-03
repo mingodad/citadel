@@ -49,12 +49,11 @@
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
-#include "serv_fulltext.h"
+#include "serv_fulltext.h"	/* Needed for ft_search and ft_index_message */
 #include "vcard.h"
 #include "euidindex.h"
 #include "journaling.h"
 #include "citadel_dirs.h"
-#include "serv_network.h"
 
 
 long config_msgnum;

@@ -57,10 +57,6 @@
 #include "imap_metadata.h"
 #include "imap_misc.h"
 
-#ifdef HAVE_OPENSSL
-#include "serv_crypto.h"
-#endif
-
 
 #include "ctdl_module.h"
 
@@ -506,12 +502,10 @@ void imap_greeting(void)
 /*
  * IMAPS is just like IMAP, except it goes crypto right away.
  */
-#ifdef HAVE_OPENSSL
 void imaps_greeting(void) {
-	CtdlStartTLS(NULL, NULL, NULL);
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	imap_greeting();
 }
-#endif
 
 
 /*
@@ -639,7 +633,6 @@ void imap_auth_login_pass(char *cmd)
 /*
  * implements the STARTTLS command (Citadel API version)
  */
-#ifdef HAVE_OPENSSL
 void imap_starttls(int num_parms, char *parms[])
 {
 	char ok_response[SIZ];
@@ -655,9 +648,8 @@ void imap_starttls(int num_parms, char *parms[])
 	sprintf(error_response,
 		"%s BAD Internal error\r\n",
 		parms[0]);
-	CtdlStartTLS(ok_response, nosup_response, error_response);
+	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 }
-#endif
 
 
 /*

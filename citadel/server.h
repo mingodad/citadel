@@ -451,6 +451,15 @@ struct RoomFunctionHook {
 extern struct RoomFunctionHook *RoomHookTable;
 
 
+struct MaintenanceThreadHook {
+	struct MaintenanceThreadHook *next;
+	char *name;
+	void *(*fcn_ptr) (void *arg);
+	pthread_t MaintenanceThread_tid;
+};
+extern struct MaintenanceThreadHook *MaintenanceThreadHookTable;
+
+
 
 /* Defines the relationship of a user to a particular room */
 struct visit {

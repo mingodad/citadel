@@ -48,7 +48,7 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "genstamp.h"
-#include "serv_fulltext.h"
+#include "serv_fulltext.h"	/* Needed for ft_search */
 
 
 /*

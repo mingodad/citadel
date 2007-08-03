@@ -62,4 +62,11 @@ void CtdlRegisterFixedOutputHook(char *content_type,
 );
 void CtdlUnRegisterFixedOutputHook(char *content_type);
 
+void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg));
+
+/* TODODRW: This needs to be changed into a hook type interface
+ * for now we have this horrible hack
+ */
+void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *error_response);
+
 #endif /* CTDL_MODULE_H */

@@ -106,7 +106,5 @@ void dump_heap(void);
 #endif
 
 void create_maintenance_threads(void);
-extern pthread_t indexer_thread_tid;
-extern pthread_t checkpoint_thread_tid;
 
 #endif /* SYSDEP_DECLS_H */

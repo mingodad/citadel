@@ -297,7 +297,7 @@ int main(int argc, char **argv)
 	}
 	end_critical_section(S_WORKER_LIST);
 
-	/* Create the indexer thread. */
+	/* Create the maintenance threads. */
 	create_maintenance_threads();
 
 	/* This thread is now useless.  It can't be turned into a worker

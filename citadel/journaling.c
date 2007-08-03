@@ -47,7 +47,7 @@
 #include "genstamp.h"
 #include "internet_addressing.h"
 #include "vcard.h"
-#include "serv_vcard.h"
+#include "serv_vcard.h"	/* Needed for vcard_getuser and extract_inet_email_addrs */
 #include "journaling.h"
 
 struct jnlq *jnlq = NULL;	/* journal queue */

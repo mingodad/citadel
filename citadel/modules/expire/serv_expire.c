@@ -60,7 +60,7 @@
 #include "msgbase.h"
 #include "user_ops.h"
 #include "control.h"
-#include "serv_network.h"
+#include "serv_network.h"	/* Needed for defenition of UseTable */
 #include "tools.h"
 
 

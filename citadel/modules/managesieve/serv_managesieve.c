@@ -51,16 +51,12 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
+#include "imap_tools.h"	/* Needed for imap_parameterize */
 #include "genstamp.h"
 #include "domain.h"
 #include "clientsocket.h"
 #include "locate_host.h"
 #include "citadel_dirs.h"
-
-#ifdef HAVE_OPENSSL
-#include "serv_crypto.h"
-#endif
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -246,17 +242,15 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 }
 
 
-#ifdef HAVE_OPENSSL
 /**
  * STARTTLS command chapter 2.2 
  */
 void cmd_mgsve_starttls(void)
 { /** answer with OK, and fire off tls session. */
 	cprintf("OK\r\n");
-	CtdlStartTLS(NULL, NULL, NULL);
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	cmd_mgsve_caps();
 }
-#endif
 
 
 
@@ -477,7 +471,6 @@ void mgsve_auth(char *argbuf) {
 /*
  * implements the STARTTLS command (Citadel API version)
  */
-#ifdef HAVE_OPENSSL
 void _mgsve_starttls(void)
 {
 	char ok_response[SIZ];
@@ -490,9 +483,8 @@ void _mgsve_starttls(void)
 		"554 5.7.3 TLS not supported here\r\n");
 	sprintf(error_response,
 		"554 5.7.3 Internal error\r\n");
-	CtdlStartTLS(ok_response, nosup_response, error_response);
+	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 }
-#endif
 
 
 /* 

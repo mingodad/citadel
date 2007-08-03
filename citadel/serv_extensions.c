@@ -23,6 +23,8 @@
 #include "tools.h"
 #include "config.h"
 
+#include "modules/crypto/serv_crypto.h"	/* Needed until a universal crypto startup hook is implimented for CtdlStartTLS */
+
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 #include "snprintf.h"
@@ -38,7 +40,7 @@ struct DeleteFunctionHook *DeleteHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
 struct FixedOutputHook *FixedOutputTable = NULL;
 struct RoomFunctionHook *RoomHookTable = NULL;
-
+struct MaintenanceThreadHook *MaintenanceThreadHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -1013,4 +1015,29 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 		if (total_sent) break;
 	}
 	return total_sent;
+}
+
+void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc)(void *arg))
+{
+	struct MaintenanceThreadHook *newfcn;
+
+	newfcn = (struct MaintenanceThreadHook *)
+	    malloc(sizeof(struct MaintenanceThreadHook));
+	newfcn->name = name;
+	newfcn->next = MaintenanceThreadHookTable;
+	newfcn->fcn_ptr = thread_proc;
+	MaintenanceThreadHookTable = newfcn;
+
+	lprintf(CTDL_INFO, "Registered a new maintenance thread function\n");
+}
+
+
+/*
+ * Dirty hack until we impliment a hook mechanism for this
+ */
+void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *error_response)
+{
+#ifdef HAVE_OPENSSL
+	CtdlStartTLS (ok_response, nosup_response, error_response);
+#endif
 }

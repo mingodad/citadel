@@ -74,10 +74,6 @@
 #include "locate_host.h"
 #include "citadel_dirs.h"
 
-#ifdef HAVE_OPENSSL
-#include "serv_crypto.h"
-#endif
-
 
 
 #ifndef HAVE_SNPRINTF
@@ -168,12 +164,10 @@ void smtp_greeting(int is_msa)
 /*
  * SMTPS is just like SMTP, except it goes crypto right away.
  */
-#ifdef HAVE_OPENSSL
 void smtps_greeting(void) {
-	CtdlStartTLS(NULL, NULL, NULL);
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	smtp_greeting(0);
 }
-#endif
 
 
 /*
@@ -797,7 +791,6 @@ void smtp_data(void) {
 /*
  * implements the STARTTLS command (Citadel API version)
  */
-#ifdef HAVE_OPENSSL
 void smtp_starttls(void)
 {
 	char ok_response[SIZ];
@@ -810,10 +803,9 @@ void smtp_starttls(void)
 		"554 5.7.3 TLS not supported here\r\n");
 	sprintf(error_response,
 		"554 5.7.3 Internal error\r\n");
-	CtdlStartTLS(ok_response, nosup_response, error_response);
+	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 	smtp_rset(0);
 }
-#endif
 
 
 

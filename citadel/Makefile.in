@@ -36,15 +36,15 @@ SERV_MODULES=modules/chat/serv_chat.o \
 	modules/vcard/serv_vcard.o \
 	vcard.o \
 	modules/mrtg/serv_mrtg.o \
-	serv_imap.o \
-	imap_fetch.o \
-	imap_misc.o \
-	imap_search.o \
-	imap_store.o \
-	imap_acl.o \
-	imap_metadata.o \
-	imap_tools.o \
-	imap_list.o \
+	modules/imap/serv_imap.o \
+	modules/imap/imap_fetch.o \
+	modules/imap/imap_misc.o \
+	modules/imap/imap_search.o \
+	modules/imap/imap_store.o \
+	modules/imap/imap_acl.o \
+	modules/imap/imap_metadata.o \
+	modules/imap/imap_tools.o \
+	modules/imap/imap_list.o \
 	modules/fulltext/serv_fulltext.o \
 	modules/fulltext/ft_wordbreaker.o \
 	crc16.o \
@@ -107,8 +107,8 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
-	housekeeping.c html.c ical_dezonify.c imap_fetch.c imap_misc.c \
-	imap_search.c imap_store.c imap_tools.c internet_addressing.c \
+	housekeeping.c html.c ical_dezonify.c \
+	internet_addressing.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	modules/autocompletion/serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
@@ -119,7 +119,15 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	modules/chat/serv_chat.c \
 	modules/crypto/serv_crypto.c \
 	modules/expire/serv_expire.c \
-	serv_imap.c \
+	modules/imap/serv_imap.c \
+	modules/imap/imap_search.c \
+	modules/imap/imap_store.c \
+	modules/imap/imap_tools.c \
+	modules/imap/imap_fetch.c \
+	modules/imap/imap_misc.c \
+	modules/imap/imap_acl.c \
+	modules/imap/imap_list.c \
+	modules/imap/imap_metadata.c \
 	modules/inetcfg/serv_inetcfg.c \
 	modules/listsub/serv_listsub.c \
 	modules/mrtg/serv_mrtg.c \
@@ -139,13 +147,13 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	server_main.c \
 	modules/sieve/serv_sieve.c \
 	modules/funambol/serv_funambol.c \
-	setup.c snprintf.c imap_acl.c \
+	setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c \
 	modules/notes/serv_notes.c \
 	modules/fulltext/serv_fulltext.c \
 	modules/fulltext/ft_wordbreaker.c \
-	crc16.c journaling.c citadel_dirs.c imap_list.c imap_metadata.c \
+	crc16.c journaling.c citadel_dirs.c \
 	modules/test/serv_test.c
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d

@@ -473,6 +473,7 @@ CTDL_MODULE_INIT(fulltext)
 {
 	initialize_ft_cache();
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
+	CtdlRegisterMaintenanceThread ("indexer", indexer_thread);
 
 	/* return our Subversion id for the Log */
 	return "$Id$";

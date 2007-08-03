@@ -61,8 +61,7 @@
 #include "database.h"
 #include "housekeeping.h"
 #include "tools.h"
-#include "serv_crypto.h"
-#include "serv_fulltext.h"
+#include "modules/crypto/serv_crypto.h"	/* Needed for init_ssl, client_write_ssl, client_read_ssl, destruct_ssl */
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -94,8 +93,6 @@ struct CitContext masterCC;
 time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
-pthread_t indexer_thread_tid;
-pthread_t checkpoint_thread_tid;
 
 int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
@@ -980,8 +977,7 @@ void DestroyWorkerList(void)
 }
 
 /*
- * Create the indexer thread and begin its operation.
- * Then create the checkpoint thread and begin its operation.
+ * Create the maintenance threads and begin their operation.
  */
 void create_maintenance_threads(void) {
 	int ret;
@@ -1004,17 +1000,23 @@ void create_maintenance_threads(void) {
 		pthread_attr_destroy(&attr);
 		return;
 	}
+	
+	struct MaintenanceThreadHook *fcn;
 
-	if ((ret = pthread_create(&indexer_thread_tid, &attr, indexer_thread, NULL) != 0)) {
-		lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
+	lprintf(CTDL_DEBUG, "Performing startup of maintenance thread hooks\n");
+
+	for (fcn = MaintenanceThreadHookTable; fcn != NULL; fcn = fcn->next) {
+		if ((ret = pthread_create(&(fcn->MaintenanceThread_tid), &attr, fcn->fcn_ptr, NULL) != 0)) {
+			lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
+		}
+		else
+		{
+			lprintf(CTDL_NOTICE, "Spawned a new maintenance thread \"%s\" (%ld). \n", fcn->name,
+				fcn->MaintenanceThread_tid);
+		}
 	}
 
-	if ((ret = pthread_create(&checkpoint_thread_tid, &attr, checkpoint_thread, NULL) != 0)) {
-		lprintf(CTDL_ALERT, "Can't create thread: %s\n", strerror(ret));
-	}
 
-	lprintf(CTDL_NOTICE, "Spawned indexer (%ld) and checkpoint (%ld) thread. \n", 
-		indexer_thread_tid, checkpoint_thread_tid);
 	pthread_attr_destroy(&attr);
 }
 
