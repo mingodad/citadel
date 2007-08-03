@@ -82,10 +82,10 @@ int strncasecmp(char *lstr, char *rstr, int len)
 /*
  * num_tokens()  -  discover number of parameters/tokens in a string
  */
-int num_tokens(char *source, char tok)
+int num_tokens(const char *source, char tok)
 {
 	int count = 1;
-	char *ptr = source;
+	const char *ptr = source;
 
 	if (source == NULL) {
 		return (0);
