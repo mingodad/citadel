@@ -48,7 +48,6 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "genstamp.h"
-#include "serv_fulltext.h"	/* Needed for ft_search */
 
 
 /*
@@ -545,7 +544,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	 */
 	if (config.c_enable_fulltext) for (i=0; i<(num_items-1); ++i) {
 		if (!strcasecmp(itemlist[i], "BODY")) {
-			ft_search(&fts_num_msgs, &fts_msgs, itemlist[i+1]);
+			CtdlModuleDoSearch(&fts_num_msgs, &fts_msgs, itemlist[i+1], "fulltext");
 			if (fts_num_msgs > 0) {
 				for (j=0; j < IMAP->num_msgs; ++j) {
 					if (IMAP->flags[j] & IMAP_SELECTED) {

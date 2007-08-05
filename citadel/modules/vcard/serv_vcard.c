@@ -881,6 +881,8 @@ void vcard_delete_remove(char *room, long msgnum) {
 	int linelen;
 
 	if (msgnum <= 0L) return;
+	
+	if (room == NULL) return;
 
 	if (strcasecmp(room, ADDRESS_BOOK_ROOM)) {
 		return;

@@ -41,6 +41,7 @@ struct ServiceFunctionHook *ServiceHookTable = NULL;
 struct FixedOutputHook *FixedOutputTable = NULL;
 struct RoomFunctionHook *RoomHookTable = NULL;
 struct MaintenanceThreadHook *MaintenanceThreadHookTable = NULL;
+struct SearchFunctionHook *SearchFunctionHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -889,6 +890,54 @@ void CtdlDestroyServiceHook(void)
 		cur = p;
 	}
 	ServiceHookTable = NULL;
+}
+
+void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name)
+{
+	struct SearchFunctionHook *newfcn;
+
+	if (!name || !fcn_ptr) {
+		return;
+	}
+	
+	newfcn = (struct SearchFunctionHook *)
+	    malloc(sizeof(struct SearchFunctionHook));
+	newfcn->next = SearchFunctionHookTable;
+	newfcn->name = name;
+	newfcn->fcn_ptr = fcn_ptr;
+	SearchFunctionHookTable = newfcn;
+
+	lprintf(CTDL_INFO, "Registered a new search function (%s)\n", name);
+}
+
+void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name)
+{
+	struct SearchFunctionHook *cur, *p;
+	
+	for (cur = SearchFunctionHookTable; cur != NULL; cur = cur->next) {
+		while (fcn_ptr && (cur->fcn_ptr == fcn_ptr) && name && !strcmp(name, cur->name)) {
+			lprintf(CTDL_INFO, "Unregistered search function(%s)\n", name);
+			p = cur->next;
+			if (cur == SearchFunctionHookTable) {
+				SearchFunctionHookTable = p;
+			}
+			free (cur);
+			cur = p;
+		}
+	}
+}
+
+void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, char *search_string, char *func_name)
+{
+	struct SearchFunctionHook *fcn = NULL;
+
+	for (fcn = SearchFunctionHookTable; fcn != NULL; fcn = fcn->next) {
+		if (!func_name || !strcmp(func_name, fcn->name)) {
+			(*fcn->fcn_ptr) (num_msgs, search_msgs, search_string);
+			return;
+		}
+	}
+	*num_msgs = 0;
 }
 
 

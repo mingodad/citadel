@@ -64,6 +64,8 @@ void CtdlUnRegisterFixedOutputHook(char *content_type);
 
 void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg));
 
+void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name);
+
 /* TODODRW: This needs to be changed into a hook type interface
  * for now we have this horrible hack
  */

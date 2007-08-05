@@ -49,7 +49,6 @@
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
-#include "serv_fulltext.h"	/* Needed for ft_search and ft_index_message */
 #include "vcard.h"
 #include "euidindex.h"
 #include "journaling.h"
@@ -610,7 +609,13 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	 * over again.
 	 */
 	if ( (num_msgs > 0) && (mode == MSGS_SEARCH) && (search_string) ) {
-		ft_search(&num_search_msgs, &search_msgs, search_string);
+
+		/* Call search module via hook mechanism.
+		 * NULL means use any search function available.
+		 * otherwise replace with a char * to name of search routine
+		 */
+		CtdlModuleDoSearch(&num_search_msgs, &search_msgs, search_string, "fulltext");
+
 		if (num_search_msgs > 0) {
 	
 			int orig_num_msgs;
@@ -4079,11 +4084,9 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	 */
 	if (smi.meta_refcount == 0) {
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
-
-		/* Remove from fulltext index */
-		if (config.c_enable_fulltext) {
-			ft_index_message(msgnum, 0);
-		}
+		
+		/* Call delete hooks with NULL room to show it has gone altogether */
+		PerformDeleteHooks(NULL, msgnum);
 
 		/* Remove from message base */
 		delnum = msgnum;

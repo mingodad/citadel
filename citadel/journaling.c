@@ -92,6 +92,14 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 /*
  * Convert a local user name to an internet email address for the journal
  */
+ 
+/*
+ * TODODRW: change this into a CtdlModuleDo type function that returns alternative address info
+ * for this local user. Something like CtdlModuleGoGetAddr(char *localuser, int type, char *alt_addr, size_t alt_addr_len)
+ * where type can be ADDR_EMAIL, ADDR_FIDO, ADDR_UUCP, ADDR_WEB, ADDR_POSTAL etc etc.
+ * This then begs the question of what should be returned. Is it wise to return a single char* using a comma as a
+ * delimiter? Or would it be better to return a linked list of some kind?
+ */
 void local_to_inetemail(char *inetemail, char *localuser, size_t inetemail_len) {
 	struct ctdluser us;
 	struct vCard *v;

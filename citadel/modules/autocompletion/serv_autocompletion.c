@@ -40,7 +40,6 @@
 #include "room_ops.h"
 #include "database.h"
 #include "vcard.h"
-#include "serv_fulltext.h"
 #include "serv_autocompletion.h"
 
 #include "ctdl_module.h"
@@ -205,7 +204,7 @@ void cmd_auto(char *argbuf) {
 	 * Search-reduce the results if we have the full text index available
 	 */
 	if (config.c_enable_fulltext) {
-		ft_search(&fts_num_msgs, &fts_msgs, search_string);
+		CtdlModuleDoSearch(&fts_num_msgs, &fts_msgs, search_string, "fulltext");
 		if (fts_msgs) {
 			for (i=0; i<num_msgs; ++i) {
 				search_match = 0;

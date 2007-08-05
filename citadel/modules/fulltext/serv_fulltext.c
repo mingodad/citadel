@@ -467,12 +467,24 @@ void initialize_ft_cache(void) {
 }
 
 
+void ft_delete_remove(char *room, long msgnum)
+{
+	if (room) return;
+	
+	/* Remove from fulltext index */
+	if (config.c_enable_fulltext) {
+		ft_index_message(msgnum, 0);
+	}
+}
+
 /*****************************************************************************/
 
 CTDL_MODULE_INIT(fulltext)
 {
 	initialize_ft_cache();
 	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
+	CtdlRegisterDeleteHook(ft_delete_remove);
+	CtdlRegisterSearchFuncHook(ft_search, "fulltext");
 	CtdlRegisterMaintenanceThread ("indexer", indexer_thread);
 
 	/* return our Subversion id for the Log */

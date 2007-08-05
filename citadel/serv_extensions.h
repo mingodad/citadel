@@ -55,4 +55,6 @@ void CtdlDestroyServiceHook(void);
 void CtdlDestroyFixedOutputHooks(void);
 int PerformFixedOutputHooks(char *, char *, int);
 
+void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, char *search_string, char *func_name);
+
 #endif /* SERV_EXTENSIONS_H */

@@ -460,6 +460,13 @@ struct MaintenanceThreadHook {
 extern struct MaintenanceThreadHook *MaintenanceThreadHookTable;
 
 
+struct SearchFunctionHook {
+	struct SearchFunctionHook *next;
+	void (*fcn_ptr) (int *, long **, char *);
+	char *name;
+};
+extern struct SearchFunctionHook *SearchFunctionHookTable;
+
 
 /* Defines the relationship of a user to a particular room */
 struct visit {
