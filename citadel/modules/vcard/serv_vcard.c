@@ -63,7 +63,7 @@
 #include "mime_parser.h"
 #include "vcard.h"
 #include "serv_vcard.h"
-
+#include "serv_ldap.h"
 
 #include "ctdl_module.h"
 
