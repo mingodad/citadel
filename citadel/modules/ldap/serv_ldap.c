@@ -49,6 +49,8 @@
 
 #ifdef HAVE_LDAP
 
+#define LDAP_DEPRECATED 1	/* to stop warnings with newer libraries */
+
 #include <ldap.h>
 
 LDAP *dirserver = NULL;
