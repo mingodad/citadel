@@ -14,6 +14,7 @@
  */
 void display_main_menu(void)
 {
+	char buf[SIZ];
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
@@ -120,71 +121,31 @@ void display_main_menu(void)
 	wprintf("</td></tr>"
 		"<tr valign=top><td width=50%%>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Your info"));
-	do_template("beginbox");
-
-	wprintf("<ul class=\"adminitems\">");
-
-	wprintf("<li><a href=\"display_preferences\">");
-	wprintf(_("Change your preferences and settings"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_reg\">");
-	wprintf(_("Update your contact information"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_changepw\">");
-	wprintf(_("Change your password"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_editbio\">");
-	wprintf(_("Enter your 'bio'"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_editpic\">");
-	wprintf(_("Edit your online photo"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_sieve\">");
-	wprintf(_("View/edit server-side mail filters"));
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>\n");
-
-	do_template("endbox");
+	print_menu_box(_("Your info"), "adminitems", 6,
+		       "display_preferences", _("Change your preferences and settings"),
+		       "display_reg", _("Update your contact information"),
+		       "display_changepw", _("Change your password"),
+		       "display_editbio", _("Enter your 'bio'"),
+		       "display_editpic", _("Edit your online photo"), 
+		       "display_sieve", _("View/edit server-side mail filters"));
 
 	wprintf("</td><td width=50%%>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Advanced room commands"));
-	do_template("beginbox");
+	snprintf(buf, SIZ, _("Zap (forget) this room (%s)"), WC->wc_roomname);
 
-	wprintf("<ul class=\"adminitems\">");
-
-	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<li><a href=\"display_editroom\">");
-		wprintf(_("Edit or delete this room"));
-		wprintf("</a></li>\n");
-	}
-
-	wprintf("<li><a href=\"display_private\">");
-	wprintf(_("Go to a 'hidden' room"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_entroom\">");
-	wprintf(_("Create a new room"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_zap\">");
-	wprintf(_("Zap (forget) this room (%s)"), WC->wc_roomname);
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"zapped_list\">");
-	wprintf(_("List all forgotten rooms"));
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>\n");
-
-	do_template("endbox");
+	if ((WC->axlevel >= 6) || (WC->is_room_aide)) 
+		print_menu_box(_("Advanced room commands"),"adminitems", 5,
+			       "display_editroom", _("Edit or delete this room"),
+			       "display_private", _("Go to a 'hidden' room"),
+			       "display_entroom", _("Create a new room"),
+			       "display_zap",buf,
+			       "zapped_list",_("List all forgotten rooms"));
+	else
+		print_menu_box(_("Advanced room commands"),"adminitems", 4,
+			       "display_private", _("Go to a 'hidden' room"),
+			       "display_entroom", _("Create a new room"),
+			       "display_zap",buf,
+			       "zapped_list",_("List all forgotten rooms"));
 
 	wprintf("</td></tr></table></div>");
 	wDumpContent(2);
@@ -210,64 +171,28 @@ void display_aide_menu(void)
 		"<table border=0 width=99%%> "
 		"<tr valign=top><td width=50%% rowspan=2>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Global Configuration"));
-	do_template("beginbox");
 
-	wprintf("<ul class=\"adminitems\">");
-
-	wprintf("<li><a href=\"display_siteconfig\">");
-	wprintf(_("Edit site-wide configuration"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_inetconf\">");
-	wprintf(_("Domain names and Internet mail configuration"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_netconf\">");
-	wprintf(_("Configure replication with other Citadel servers"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"display_smtpqueue\">");
-	wprintf(_("View the outbound SMTP queue"));
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>");
-
-	do_template("endbox");
+	print_menu_box(_("Global Configuration"), "adminitems", 4,
+		       "display_siteconfig", _("Edit site-wide configuration"), 
+		       "display_inetconf",_("Domain names and Internet mail configuration"),
+		       "display_netconf", _("Configure replication with other Citadel servers"), 
+		       "display_smtpqueue", _("View the outbound SMTP queue"));
+	
+	print_menu_box(_("Shutdown Citadel"), "adminitems", 3, 
+		       "server_shutdown?when=now", _("Restart Imediate"),
+		       "server_shutdown?when=page", _("Restart after paging Users"),
+		       "server_shutdown?when=idle", _("Restart when everybody is idle."));
 
 	wprintf("</td><td width=50%%>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("User account management"));
-	do_template("beginbox");
-
-	wprintf("<ul class=\"adminitems\">");
-
-	wprintf("<li><a href=\"select_user_to_edit\">");
-	wprintf(_("Add, change, delete user accounts"));
-	wprintf("</a></li>\n");
-
-	wprintf("<li><a href=\"validate\">");
-	wprintf(_("Validate new users"));
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>");
-
-	do_template("endbox");
+	print_menu_box(_("User account management"), "adminitems", 2, 
+		       "select_user_to_edit", _("Add, change, delete user accounts"),
+		       "validate", _("Validate new users"));
 
 	wprintf("</td></tr><tr><td width=50%%>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Rooms and Floors"));
-	do_template("beginbox");
-
-	wprintf("<ul class=\"adminitems\">");
-
-	wprintf("<li><a href=\"display_floorconfig\">");
-	wprintf(_("Add, change, or delete floors"));
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>");
-
-	do_template("endbox");
+	print_menu_box(_("Rooms and Floors"), "adminitems", 1, 
+		       "display_floorconfig", _("Add, change, or delete floors"));
 
 	wprintf("</td></tr></table></div>");
 	wDumpContent(2);

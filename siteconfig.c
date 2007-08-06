@@ -561,7 +561,7 @@ void display_siteconfig(void)
 			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
 			sprintf(&funambol[strlen(funambol)], _("Funambol auth details (user:pass in Base64)"));
 			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
-			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VAUE=\"%s\">", buf);
 			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
 			break;
 		}
