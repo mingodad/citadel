@@ -13,6 +13,9 @@
 #include "webserver.h"
 #include "mime_parser.h"
 
+#include <stdio.h>
+#include <stdarg.h>
+
 /**
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
@@ -549,6 +552,39 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 	client_write(thing, (size_t)length);
 }
 
+/**
+ * \brief print menu box like used in the floor view or admin interface.
+ * This function takes pair of strings as va_args, 
+ * \param Title Title string of the box
+ * \param Class CSS Class for the box
+ * \param nLines How many string pairs should we print? (URL, UrlText)
+ * \param ... Pairs of URL Strings and their Names
+ */
+void print_menu_box(char* Title, char *Class, int nLines, ...)
+{
+	va_list arg_list;
+	long i;
+	
+	svprintf("BOXTITLE", WCS_STRING, Title);
+	do_template("beginbox");
+	
+	wprintf("<ul class=\"%s\">", Class);
+	
+	va_start(arg_list, (nLines * 2));
+	for (i = 0; i < nLines * 2; i += 2)
+	{ 
+		wprintf("<li><a href=\"%s\">", va_arg(arg_list, char *));
+		wprintf((char *) va_arg(arg_list, char *));
+		wprintf("</a></li>\n");
+	}
+	va_end (arg_list);
+	
+	wprintf("</a></li>\n");
+	
+	wprintf("</ul>");
+	
+	do_template("endbox");
+}
 
 
 /**
