@@ -254,50 +254,52 @@ void rfc2047encode(char *target, int maxlen, char *source)
  */
 void url(char *buf)
 {
-	int pos, len;
-	int start, end;
+	int len;
+	char *start, *end, *pos;
 	char urlbuf[SIZ];
 	char outbuf[1024];
-	start = (-1);
-	len = end = strlen(buf);
 
-	for (pos = 0; pos < len; ++pos) {
-		if (!strncasecmp(&buf[pos], "http://", 7))
+	start = NULL;
+	len = strlen(buf);
+	end = buf + len;
+	for (pos = buf; (pos < end) && (start == NULL); ++pos) {
+		if (!strncasecmp(pos, "http://", 7))
 			start = pos;
-		if (!strncasecmp(&buf[pos], "ftp://", 6))
+		if (!strncasecmp(pos, "ftp://", 6))
 			start = pos;
 	}
 
-	if (start < 0)
+	if (start == NULL)
 		return;
 
-	for (pos = len; pos > start; --pos) {
-		if (  (!isprint(buf[pos]))
-		   || (isspace(buf[pos]))
-		   || (buf[pos] == '{')
-		   || (buf[pos] == '}')
-		   || (buf[pos] == '|')
-		   || (buf[pos] == '\\')
-		   || (buf[pos] == '^')
-		   || (buf[pos] == '[')
-		   || (buf[pos] == ']')
-		   || (buf[pos] == '`')
-		   || (buf[pos] == '<')
-		   || (buf[pos] == '>')
-		   || (buf[pos] == '(')
-		   || (buf[pos] == ')')
+	for (pos = buf+len; pos > start; --pos) {
+		if (  (!isprint(*pos))
+		   || (isspace(*pos))
+		   || (*pos == '{')
+		   || (*pos == '}')
+		   || (*pos == '|')
+		   || (*pos == '\\')
+		   || (*pos == '^')
+		   || (*pos == '[')
+		   || (*pos == ']')
+		   || (*pos == '`')
+		   || (*pos == '<')
+		   || (*pos == '>')
+		   || (*pos == '(')
+		   || (*pos == ')')
 		) {
 			end = pos;
 		}
 	}
 
-	strncpy(urlbuf, &buf[start], end - start);
-	urlbuf[end - start] = 0;
+	strncpy(urlbuf, start, end - start);
+	urlbuf[end - start] = '\0';
 
-	strncpy(outbuf, buf, start);
-	sprintf(&outbuf[start], "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+	if (start != buf)
+		strncpy(outbuf, buf, start - buf );
+	sprintf(&outbuf[start-buf], "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
 		LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
-	strcat(outbuf, &buf[end]);
+	strcat(outbuf, end);
 	if ( strlen(outbuf) < 250 )
 		strcpy(buf, outbuf);
 }
