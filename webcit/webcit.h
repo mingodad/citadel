@@ -491,6 +491,7 @@ void url(char *buf);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, char *strbuf);
 void msgescputs(char *strbuf);
+void msgescputs1(char *strbuf);
 int extract_int(const char *source, int parmnum);
 long extract_long(const char *source, int parmnum);
 void stripout(char *str, char leftboundary, char rightboundary);
