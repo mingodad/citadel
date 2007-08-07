@@ -372,6 +372,27 @@ void msgesc(char *target, char *strbuf)
 }
 
 /**
+ * \brief print a string to the client after cleaning it with msgesc() and stresc()
+ * \param strbuf string to be printed
+ */
+void msgescputs1( char *strbuf)
+{
+	char *outbuf;
+	char *outbuf2;
+	int buflen;
+
+	if (strbuf == NULL) return;
+	buflen = 3 * strlen(strbuf) + SIZ;
+	outbuf = malloc( buflen);
+	outbuf2 = malloc( buflen);
+	msgesc(outbuf, strbuf);
+	stresc(outbuf2, outbuf, 0, 0);
+	wprintf("%s", outbuf2);
+	free(outbuf);
+	free(outbuf2);
+}
+
+/**
  * \brief print a string to the client after cleaning it with msgesc()
  * \param strbuf string to be printed
  */

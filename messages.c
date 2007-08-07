@@ -1548,7 +1548,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			}
 			wprintf("<tt>");
 			url(buf);
-			msgescputs(buf);
+			msgescputs1(buf);
 			wprintf("</tt><br />");
 		}
 		wprintf("</i><br />");
