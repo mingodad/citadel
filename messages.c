@@ -2468,7 +2468,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatictop\">");
+		wprintf("<form name=\"msgomatic\" class=\"selector_top\" >");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2515,12 +2515,11 @@ void readloop(char *oper)
 		}
 
 		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?summary=%d\">"
-			"ALL"
-			"</option> ",
+			"?maxmsgs=9999999?summary=%d\">",
 			oper,
 			WC->msgarr[0], is_summary);
-
+		wprintf(_("All"));
+		wprintf("</option>");
 		wprintf("</select> ");
 		wprintf(_("of %d messages."), nummsgs);
 
@@ -2530,15 +2529,19 @@ void readloop(char *oper)
 			"[selectedIndex].value\">\n"
 		);
 
-		wprintf("<option %s value=\"%s?sortby=forward\">oldest to newest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=forward\">",
 			(bbs_reverse ? "" : "selected"),
 			oper
 		);
+		wprintf(_("oldest to newest"));
+		wprintf("</option>\n");
 	
-		wprintf("<option %s value=\"%s?sortby=reverse\">newest to oldest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=reverse\">",
 			(bbs_reverse ? "selected" : ""),
 			oper
 		);
+		wprintf(_("newest to oldest"));
+		wprintf("</option>\n");
 	
 		wprintf("</select></form>\n");
 		/** end bbview scroller */
@@ -2633,7 +2636,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatic\">");
+		wprintf("<form name=\"msgomatic\" class=\"selector_bottom\" >");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2680,12 +2683,11 @@ void readloop(char *oper)
 		}
 
 		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?summary=%d\">"
-			"ALL"
-			"</option> ",
+			"?maxmsgs=9999999?summary=%d\">",
 			oper,
 			WC->msgarr[0], is_summary);
-
+		wprintf(_("All"));
+		wprintf("</option>");
 		wprintf("</select> ");
 		wprintf(_("of %d messages."), nummsgs);
 
@@ -2695,15 +2697,19 @@ void readloop(char *oper)
 			"[selectedIndex].value\">\n"
 		);
 
-		wprintf("<option %s value=\"%s?sortby=forward\">oldest to newest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=forward\">",
 			(bbs_reverse ? "" : "selected"),
 			oper
 		);
+		wprintf(_("oldest to newest"));
+		wprintf("</option>\n");
 	
-		wprintf("<option %s value=\"%s?sortby=reverse\">newest to oldest</option>\n",
+		wprintf("<option %s value=\"%s?sortby=reverse\">",
 			(bbs_reverse ? "selected" : ""),
 			oper
 		);
+		wprintf(_("newest to oldest"));
+		wprintf("</option>\n");
 	
 		wprintf("</select></form>\n");
 		/** end bbview scroller */
