@@ -2452,6 +2452,100 @@ void readloop(char *oper)
 		);
 	}
 
+
+	/**
+	 * Set the "is_bbview" variable if it appears that we are looking at
+	 * a classic bulletin board view.
+	 */
+	if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
+	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
+		is_bbview = 1;
+	}
+
+	/**
+	 * If we're not currently looking at ALL requested
+	 * messages, then display the selector bar
+	 */
+	if (is_bbview) {
+		/** begin bbview scroller */
+		wprintf("<form name=\"msgomatictop\">");
+		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
+
+		wprintf("<select name=\"whichones\" size=\"1\" "
+			"OnChange=\"location.href=msgomatictop.whichones.options"
+			"[selectedIndex].value\">\n");
+
+		if (bbs_reverse) {
+			for (b=nummsgs-1; b>=0; b = b - maxmsgs) {
+				hi = b + 1;
+				lo = b - maxmsgs + 2;
+				if (lo < 1) lo = 1;
+				wprintf("<option %s value="
+					"\"%s"
+					"?startmsg=%ld"
+					"?maxmsgs=%d"
+					"?summary=%d\">"
+					"%d-%d</option> \n",
+					((WC->msgarr[lo-1] == startmsg) ? "selected" : ""),
+					oper,
+					WC->msgarr[lo-1],
+					maxmsgs,
+					is_summary,
+					hi, lo);
+			}
+		}
+		else {
+			for (b=0; b<nummsgs; b = b + maxmsgs) {
+				lo = b + 1;
+				hi = b + maxmsgs + 1;
+				if (hi > nummsgs) hi = nummsgs;
+				wprintf("<option %s value="
+					"\"%s"
+					"?startmsg=%ld"
+					"?maxmsgs=%d"
+					"?summary=%d\">"
+					"%d-%d</option> \n",
+					((WC->msgarr[b] == startmsg) ? "selected" : ""),
+					oper,
+					WC->msgarr[lo-1],
+					maxmsgs,
+					is_summary,
+					lo, hi);
+			}
+		}
+
+		wprintf("<option value=\"%s?startmsg=%ld"
+			"?maxmsgs=9999999?summary=%d\">"
+			"ALL"
+			"</option> ",
+			oper,
+			WC->msgarr[0], is_summary);
+
+		wprintf("</select> ");
+		wprintf(_("of %d messages."), nummsgs);
+
+		/** forward/reverse */
+		wprintf("&nbsp;<select name=\"direction\" size=\"1\" "
+			"OnChange=\"location.href=msgomatictop.direction.options"
+			"[selectedIndex].value\">\n"
+		);
+
+		wprintf("<option %s value=\"%s?sortby=forward\">oldest to newest</option>\n",
+			(bbs_reverse ? "" : "selected"),
+			oper
+		);
+	
+		wprintf("<option %s value=\"%s?sortby=reverse\">newest to oldest</option>\n",
+			(bbs_reverse ? "selected" : ""),
+			oper
+		);
+	
+		wprintf("</select></form>\n");
+		/** end bbview scroller */
+	}
+
+
+
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
@@ -2492,14 +2586,6 @@ void readloop(char *oper)
 		}
 	}
 
-	/**
-	 * Set the "is_bbview" variable if it appears that we are looking at
-	 * a classic bulletin board view.
-	 */
-	if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
-	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
-		is_bbview = 1;
-	}
 
 	/** Output loop */
 	if (displayed_msgs != NULL) {
