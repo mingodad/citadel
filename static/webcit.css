@@ -8,10 +8,8 @@ body {
 	padding: 0 0 0 0;
 	height: 100%;
 	overflow: auto;
-	// background-color: #D8D8D8;
-	background-color: #8888AA;
-	background-image:url(/static/gradient_background.jpg);
-	color: #000000;
+	background: rgb(212,218,234) url(/static/gradient_background.jpg) repeat-x;
+	color: black;
 	font-weight: normal;
 	font-size: 10pt;
 	font-family: sans-serif;
