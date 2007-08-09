@@ -115,16 +115,17 @@ int CtdlHostAlias(char *fqdn) {
  */
 int fuzzy_match(struct ctdluser *us, char *matchstring) {
 	int a;
+	long len;
 
 	if ( (!strncasecmp(matchstring, "cit", 3)) 
 	   && (atol(&matchstring[3]) == us->usernum)) {
 		return 0;
 	}
 
-
-	for (a=0; a<strlen(us->fullname); ++a) {
+	len = strlen(matchstring);
+	for (a=0; !IsEmptyStr(&us->fullname[a]); ++a) {
 		if (!strncasecmp(&us->fullname[a],
-		   matchstring, strlen(matchstring))) {
+		   matchstring, len)) {
 			return 0;
 		}
 	}
@@ -552,7 +553,7 @@ void directory_key(char *key, char *addr) {
 	int i;
 	int keylen = 0;
 
-	for (i=0; i<strlen(addr); ++i) {
+	for (i=0; !IsEmptyStr(&addr[i]); ++i) {
 		if (!isspace(addr[i])) {
 			key[keylen++] = tolower(addr[i]);
 		}

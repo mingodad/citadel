@@ -135,7 +135,7 @@ RCL:		if (send_complete_line) {
 		/* if it's time to word wrap, send a partial line */
 		if (strlen(wbuf) >= (77 - strlen(fullname))) {
 			pos = 0;
-			for (a = 0; a < strlen(wbuf); ++a) {
+			for (a = 0; !IsEmptyStr(&wbuf[a]); ++a) {
 				if (wbuf[a] == 32)
 					pos = a;
 			}

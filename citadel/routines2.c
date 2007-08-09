@@ -327,7 +327,7 @@ void upload(CtdlIPC *ipc, int c)
 	else
 		newprompt("Enter filename: ", flnm, 15);
 
-	for (a = 0; a < strlen(flnm); ++a)
+	for (a = 0; !IsEmptyStr(&flnm[0]); ++a)
 		if ((flnm[a] == '/') || (flnm[a] == '\\') || (flnm[a] == '>')
 		    || (flnm[a] == '?') || (flnm[a] == '*')
 		    || (flnm[a] == ';') || (flnm[a] == '&'))
@@ -592,7 +592,7 @@ void list_bio(CtdlIPC *ipc)
 		pprintf("%s\n", buf);
 		return;
 	}
-	while (resp && strlen(resp)) {
+	while (resp && !IsEmptyStr(resp)) {
 		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		if ((pos + strlen(buf) + 5) > screenwidth) {

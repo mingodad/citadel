@@ -1057,7 +1057,7 @@ void entroom(CtdlIPC *ipc)
 	if (IsEmptyStr(new_room_name)) {
 		return;
 	}
-	for (a = 0; a < strlen(new_room_name); ++a) {
+	for (a = 0; !IsEmptyStr(&new_room_name[a]); ++a) {
 		if (new_room_name[a] == '|') {
 			new_room_name[a] = '_';
 		}
@@ -1084,7 +1084,7 @@ void entroom(CtdlIPC *ipc)
 	new_room_type = b - 1;
 	if (new_room_type == 2) {
 		newprompt("Enter a room password: ", new_room_pass, 9);
-		for (a = 0; a < strlen(new_room_pass); ++a)
+		for (a = 0; !IsEmptyStr(&new_room_pass[a]); ++a)
 			if (new_room_pass[a] == '|')
 				new_room_pass[a] = '_';
 	} else {

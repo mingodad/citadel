@@ -100,7 +100,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		if (!IsEmptyStr(inbuf)) {
 
 		    /* Fold in all the spacing */
-		    for (i=0; i<strlen(inbuf); ++i) {
+		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {
 			if (inbuf[i]==10) inbuf[i]=32;
 			if (inbuf[i]==13) inbuf[i]=32;
 			if (inbuf[i]==9) inbuf[i]=32;
@@ -109,12 +109,12 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				inbuf[i] = '?';
 			} */
 		    }
-		    for (i=0; i<strlen(inbuf); ++i) {
+		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {
 			while ((inbuf[i]==32)&&(inbuf[i+1]==32))
 				strcpy(&inbuf[i], &inbuf[i+1]);
 		    }
 
-		    for (i=0; i<strlen(inbuf); ++i) {
+		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {
 
 			ch = inbuf[i];
 
@@ -252,7 +252,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		}
 
 		/* Convert &; tags to the forbidden characters */
-		if (!IsEmptyStr(outbuf)) for (i=0; i<strlen(outbuf); ++i) {
+		if (!IsEmptyStr(outbuf)) for (i=0; !IsEmptyStr(&outbuf[i]); ++i) {
 
 			/* Character entity references */
 			if (!strncasecmp(&outbuf[i], "&nbsp;", 6)) {
@@ -458,7 +458,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		do {
 			did_out = 0;
 			if (!IsEmptyStr(outbuf)) {
-			    for (i = 0; i<strlen(outbuf); ++i) {
+			    for (i = 0; !IsEmptyStr(&outbuf[i]); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
 
 					strncpy(&outptr[output_len],

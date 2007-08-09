@@ -587,7 +587,7 @@ void artv_import_visit(void) {
 
 	client_getln(buf, sizeof buf);
 	vbuf.v_lastseen = atol(buf);
-	for (i=0; i<strlen(buf); ++i) if (!isdigit(buf[i])) is_textual_seen = 1;
+	for (i=0; !IsEmptyStr(&buf[i]); ++i) if (!isdigit(buf[i])) is_textual_seen = 1;
 	if (is_textual_seen)	strcpy(vbuf.v_seen, buf);
 
 	client_getln(vbuf.v_answered, sizeof vbuf.v_answered);

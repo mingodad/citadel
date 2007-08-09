@@ -126,7 +126,7 @@ void cmd_delf(char *filename)
 			ERROR + FILE_NOT_FOUND);
 		return;
 	}
-	for (a = 0; a < strlen(filename); ++a) {
+	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 		if (filename[a] == '/') {
 			filename[a] = '_';
 		}
@@ -178,7 +178,7 @@ void cmd_movf(char *cmdbuf)
 		return;
 	}
 
-	for (a = 0; a < strlen(filename); ++a) {
+	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 		if (filename[a] == '/') {
 			filename[a] = '_';
 		}
@@ -247,7 +247,7 @@ void cmd_netf(char *cmdbuf)
 		return;
 	}
 
-	for (a = 0; a < strlen(filename); ++a) {
+	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 		if (filename[a] == '/') {
 			filename[a] = '_';
 		}
@@ -367,7 +367,7 @@ void cmd_open(char *cmdbuf)
 		return;
 	}
 
-	for (a = 0; a < strlen(filename); ++a) {
+	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 		if (filename[a] == '/') {
 			filename[a] = '_';
 		}
@@ -433,7 +433,7 @@ void cmd_oimg(char *cmdbuf)
 	} else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
 	} else {
-		for (a = 0; a < strlen(filename); ++a) {
+		for (a = 0; !IsEmptyStr(&filename[0]); ++a) {
 			filename[a] = tolower(filename[a]);
 			if (filename[a] == '/') {
 				filename[a] = '_';
@@ -485,7 +485,7 @@ void cmd_uopn(char *cmdbuf)
 		return;
 	}
 
-	for (a = 0; a < strlen(CC->upl_file); ++a) {
+	for (a = 0; !IsEmptyStr(&CC->upl_file[a]); ++a) {
 		if (CC->upl_file[a] == '/') {
 			CC->upl_file[a] = '_';
 		}
@@ -544,7 +544,7 @@ void cmd_uimg(char *cmdbuf)
 
 	strcpy(CC->upl_path, "");
 
-	for (a = 0; a < strlen(basenm); ++a) {
+	for (a = 0; !IsEmptyStr(&basenm[a]); ++a) {
 		basenm[a] = tolower(basenm[a]);
 		if (basenm[a] == '/') {
 			basenm[a] = '_';

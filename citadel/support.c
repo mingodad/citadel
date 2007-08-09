@@ -29,7 +29,7 @@ void strproc(char *string)
 	if (IsEmptyStr(string)) return;
 
 	/* Convert non-printable characters to blanks */
-	for (a=0; a<strlen(string); ++a) {
+	for (a=0; !IsEmptyStr(&string[a]); ++a) {
 		if (string[a]<32) string[a]=32;
 		if (string[a]>126) string[a]=32;
 	}
@@ -41,7 +41,7 @@ void strproc(char *string)
 		string[strlen(string)-1]=0;
 
 	/* Remove double blanks */
-	for (a=0; a<strlen(string); ++a) {
+	for (a=0; !IsEmptyStr(&string[a]); ++a) {
 		if ((string[a]==32)&&(string[a+1]==32)) {
 			strcpy(&string[a],&string[a+1]);
 			a=0;
@@ -49,7 +49,7 @@ void strproc(char *string)
 	}
 
 	/* remove characters which would interfere with the network */
-	for (a=0; a<strlen(string); ++a) {
+	for (a=0; !IsEmptyStr(&string[a]); ++a) {
 		while (string[a]=='!') strcpy(&string[a],&string[a+1]);
 		while (string[a]=='@') strcpy(&string[a],&string[a+1]);
 		while (string[a]=='_') strcpy(&string[a],&string[a+1]);
@@ -83,7 +83,7 @@ int getstring(FILE *fp, char *string)
 			string[a-1]=0;
 		} while(string[0]=='#');
 	return(strlen(string));
-	}
+}
 
 
 /*
@@ -91,9 +91,11 @@ int getstring(FILE *fp, char *string)
  */ 
 int pattern2(char *search, char *patn)
 {
-	int a;
-	for (a=0; a<strlen(search); ++a) {
-		if (!strncasecmp(&search[a],patn,strlen(patn))) return(a);
+	int a, len;
+	
+	len = strlen(patn);
+	for (a=0; !IsEmptyStr(&search[a]); ++a) {
+		if (!strncasecmp(&search[a],patn, len)) return(a);
 		}
 	return(-1);
 	}

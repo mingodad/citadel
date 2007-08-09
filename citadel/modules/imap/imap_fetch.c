@@ -510,13 +510,15 @@ void imap_strip_headers(char *section) {
 	if (!strncasecmp(which_fields, "HEADER.FIELDS.NOT", 17))
 		headers_not = 1;
 
-	for (i=0; i<strlen(which_fields); ++i) {
+	for (i=0; !IsEmptyStr(&which_fields[i]); ++i) {
 		if (which_fields[i]=='(')
 			strcpy(which_fields, &which_fields[i+1]);
 	}
-	for (i=0; i<strlen(which_fields); ++i) {
-		if (which_fields[i]==')')
+	for (i=0; !IsEmptyStr(&which_fields[i]); ++i) {
+		if (which_fields[i]==')') {
 			which_fields[i] = 0;
+			break;
+		}
 	}
 	num_parms = imap_parameterize(parms, which_fields);
 
@@ -1084,7 +1086,7 @@ void imap_handle_macros(char *str) {
 	int i;
 	int nest = 0;
 
-	for (i=0; i<strlen(str); ++i) {
+	for (i=0; !IsEmptyStr(&str[i]); ++i) {
 		if (str[i]=='(') ++nest;
 		if (str[i]=='[') ++nest;
 		if (str[i]=='<') ++nest;
@@ -1125,11 +1127,11 @@ void imap_handle_macros(char *str) {
 int imap_extract_data_items(char **argv, char *items) {
 	int num_items = 0;
 	int nest = 0;
-	int i, initial_len;
+	int i;
 	char *start;
 
 	/* Convert all whitespace to ordinary space characters. */
-	for (i=0; i<strlen(items); ++i) {
+	for (i=0; !IsEmptyStr(&items[i]); ++i) {
 		if (isspace(items[i])) items[i]=' ';
 	}
 

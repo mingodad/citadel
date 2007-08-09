@@ -125,7 +125,7 @@ int utf8_getc(char** ptr)
 	loop:
 		if (r < 0x80)
 		{
-			*ptr = p;
+			*ptr = (char*) p;
 			v = r;
 			break;
 		}
@@ -146,7 +146,7 @@ int utf8_getc(char** ptr)
 				m<<=5;
 			} while (r & 0x40);
 			
-			*ptr = p;
+			*ptr = (char*)p;
 
 			v &= ~m;
 			break;
@@ -376,7 +376,7 @@ void imap_strout(char *buf)
 {
 	int i;
 	int is_literal = 0;
-	int len;
+	long len;
 
 	if (buf == NULL) {	/* yeah, we handle this */
 		cprintf("NIL");
@@ -390,7 +390,7 @@ void imap_strout(char *buf)
 	}
 
 	if (is_literal) {
-		cprintf("{%ld}\r\n%s", (long)strlen(buf), buf);
+		cprintf("{%ld}\r\n%s", len, buf);
 	} else {
 		cprintf("\"%s\"", buf);
 	}
@@ -632,7 +632,7 @@ int imap_is_message_set(char *buf)
 	if (!strcasecmp(buf, "ALL"))
 		return (1);	/* macro?  why?  */
 
-	for (i = 0; i < strlen(buf); ++i) {	/* now start the scan */
+	for (i = 0; !IsEmptyStr(&buf[i]); ++i) {	/* now start the scan */
 		if (
 			   (!isdigit(buf[i]))
 			   && (buf[i] != ':')

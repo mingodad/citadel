@@ -258,7 +258,7 @@ void imap_print_instant_messages(void) {
 		free(ptr);
 		ptr = holdptr;
 
-		for (i=0; i<strlen(dumpomatic); ++i) {
+		for (i=0; !IsEmptyStr(&dumpomatic[i]); ++i) {
 			if (!isprint(dumpomatic[i])) dumpomatic[i] = ' ';
 			if (dumpomatic[i]=='\\') dumpomatic[i]='/';
 			if (dumpomatic[i]=='\"') dumpomatic[i]='\'';

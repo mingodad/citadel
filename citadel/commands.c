@@ -186,7 +186,7 @@ void pprintf(const char *format, ...) {
         vsnprintf(buf, sizeof(buf), format, arg_ptr);   
         va_end(arg_ptr);   
 
-	for (i=0; i<strlen(buf); ++i) {
+	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
 		scr_putc(buf[i]);
 		if (buf[i]==10) {
 			++lines_printed;
@@ -636,7 +636,7 @@ void strprompt(char *prompt, char *str, int len)
 		scr_printf("%s", str);
 	}
 	else {
-		for (i=0; i<strlen(str); ++i) {
+		for (i=0; !IsEmptyStr(&str[i]); ++i) {
 			scr_printf("*");
 		}
 	}
@@ -689,7 +689,7 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 		snprintf(buf, sizeof buf, "%d", i);
 		strprompt(prompt, buf, 15);
 		i = atoi(buf);
-		for (p=0; p<strlen(buf); ++p) {
+		for (p=0; !IsEmptyStr(&buf[p]); ++p) {
 			if ( (!isdigit(buf[p]))
 			   && ( (buf[p]!='-') || (p!=0) )  )
 				i = imin - 1;
@@ -963,7 +963,7 @@ char keycmd(char *cmdstr)
 {
 	int a;
 
-	for (a = 0; a < strlen(cmdstr); ++a)
+	for (a = 0; !IsEmptyStr(&cmdstr[a]); ++a)
 		if (cmdstr[a] == '&')
 			return (tolower(cmdstr[a + 1]));
 	return (0);
@@ -979,34 +979,37 @@ char *cmd_expand(char *strbuf, int mode)
 	int a;
 	static char exp[64];
 	char buf[1024];
+	char *ptr;
 
 	strcpy(exp, strbuf);
 
-	for (a = 0; a < strlen(exp); ++a) {
-		if (strbuf[a] == '&') {
+	ptr = exp;
+	while (!IsEmptyStr(ptr)){
+		if (*ptr == '&') {
 
 			/* dont echo these non mnemonic command keys */
-			int noecho = strbuf[a+1] == '<' || strbuf[a+1] == '>' || strbuf[a+1] == '+' || strbuf[a+1] == '-';
+			int noecho = *(ptr+1) == '<' || *(ptr+1) == '>' || 
+				*(ptr+1) == '+' || *(ptr+1) == '-';
 
 			if (mode == 0) {
-				strcpy(&exp[a], &exp[a + 1 + noecho]);
+				strcpy(ptr, ptr + 1 + noecho);
 			}
 			if (mode == 1) {
-				exp[a] = '<';
-				strcpy(buf, &exp[a + 2]);
-				exp[a + 2] = '>';
-				exp[a + 3] = 0;
+				*ptr = '<';
+				strcpy(buf, ptr + 2);
+				*(ptr + 2) = '>';
+				*(ptr+ 3) = 0;
 				strcat(exp, buf);
 			}
 		}
-		if (!strncmp(&exp[a], "^r", 2)) {
+		if (!strncmp(ptr, "^r", 2)) {
 			strcpy(buf, exp);
-			strcpy(&exp[a], room_name);
-			strcat(exp, &buf[a + 2]);
+			strcpy(ptr, room_name);
+			strcat(exp, &buf[ptr - exp + 2]);
 		}
-		if (!strncmp(&exp[a], "^c", 2)) {
-			exp[a] = ',';
-			strcpy(&exp[a + 1], &exp[a + 2]);
+		if (!strncmp(ptr, "^c", 2)) {
+			*ptr = ',';
+			strcpy(ptr + 1], ptr + 2]);
 		}
 	}
 
@@ -1048,7 +1051,7 @@ int requires_string(struct citcmd *cptr, int ncomp)
 	char buf[64];
 
 	strcpy(buf, cptr->c_keys[ncomp - 1]);
-	for (a = 0; a < strlen(buf); ++a) {
+	for (a = 0; !IsEmptyStr(&buf[a]); ++a) {
 		if (buf[a] == ':')
 			return (1);
 	}
@@ -1579,7 +1582,7 @@ void look_for_ansi(void)
 			}
 		} while (FD_ISSET(0, &rfds));
 
-		for (a = 0; a < strlen(abuf); ++a) {
+		for (a = 0; !IsEmptyStr(&abuf[a]); ++a) {
 			if ((abuf[a] == 27) && (abuf[a + 1] == '[')
 			    && (abuf[a + 2] == '?')) {
 				enable_color = 1;
@@ -1596,7 +1599,7 @@ void keyopt(char *buf) {
 	int i;
 
 	color(DIM_WHITE);
-	for (i=0; i<strlen(buf); ++i) {
+	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
 		if (buf[i]=='<') {
 			pprintf("%c", buf[i]);
 			color(BRIGHT_MAGENTA);
@@ -1626,7 +1629,7 @@ char keymenu(char *menuprompt, char *menustring) {
 	choices = num_tokens(menustring, '|');
 
 	if (menuprompt != NULL) do_prompt = 1;
-	if (menuprompt != NULL) if (strlen(menuprompt)==0) do_prompt = 0;
+	if (menuprompt != NULL) if (IsEmptyStr(menuprompt)) do_prompt = 0;
 
 	while (1) {
 		if (display_prompt) {
@@ -1660,11 +1663,11 @@ char keymenu(char *menuprompt, char *menustring) {
 
 		for (i=0; i<choices; ++i) {
 			extract_token(buf, menustring, i, '|', sizeof buf);
-			for (c=1; c<strlen(buf); ++c) {
+			for (c=1; !IsEmptyStr(&buf[c]); ++c) {
 				if ( (ch == tolower(buf[c]))
 				   && (buf[c-1]=='<')
 				   && (buf[c+1]=='>') ) {
-					for (a=0; a<strlen(buf); ++a) {
+					for (a=0; !IsEmptyStr(&buf[a]); ++a) {
 						if ( (a!=(c-1)) && (a!=(c+1))) {
 							scr_putc(buf[a]);
 						}

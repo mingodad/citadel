@@ -282,7 +282,6 @@ void b_putroom(struct ctdlroom *qrbuf, char *room_name)
 	char lowercase_name[ROOMNAMELEN];
 	char *aptr, *bptr;
 	long len;
-	int a;
 
 	aptr = room_name;
 	bptr = lowercase_name;

@@ -1692,7 +1692,7 @@ int CtdlOutputPreLoadedMsg(
 		}
 	}
 
-	for (i=0; i<strlen(suser); ++i) {
+	for (i=0; !IsEmptyStr(&suser[i]); ++i) {
 		suser[i] = tolower(suser[i]);
 		if (!isalnum(suser[i])) suser[i]='_';
 	}
@@ -1715,7 +1715,7 @@ int CtdlOutputPreLoadedMsg(
 		else if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONOPT)) {
 			cprintf("From: \"anonymous\" <x@x.org>%s", nl);
 		}
-		else if (strlen(fuser) > 0) {
+		else if (!IsEmptyStr(fuser)) {
 			cprintf("From: \"%s\" <%s>%s", luser, fuser, nl);
 		}
 		else {
@@ -2385,7 +2385,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (msg->cm_fields['P'] == NULL) {
 		if (msg->cm_fields['A'] != NULL) {
 			msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
-			for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
+			for (a=0; !IsEmptyStr(&msg->cm_fields['P'][a]); ++a) {
 				if (isspace(msg->cm_fields['P'][a])) {
 					msg->cm_fields['P'][a] = ' ';
 				}
@@ -3140,7 +3140,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 	ret->recptypes_magic = RECPTYPES_MAGIC;
 
 	/* Change all valid separator characters to commas */
-	for (i=0; i<strlen(recipients); ++i) {
+	for (i=0; !IsEmptyStr(&recipients[i]); ++i) {
 		if ((recipients[i] == ';') || (recipients[i] == '|')) {
 			recipients[i] = ',';
 		}
@@ -3171,7 +3171,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
-		for (j=0; j<=strlen(this_recp); ++j) {
+		for (j=0; !IsEmptyStr(&this_recp[j]); ++j) {
 			if (this_recp[j]=='_') {
 				this_recp_cooked[j] = ' ';
 			}

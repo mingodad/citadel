@@ -84,7 +84,7 @@ void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 	color(COLOR_POP);
 	stty_ctdl(0);
 	b=inkey();
-	for (a=0; a<strlen(ipc->ServInfo.moreprompt); ++a)
+	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[0]); ++a)
 		scr_putc(' ');
 	scr_putc(13);
 	stty_ctdl(1);
@@ -345,10 +345,11 @@ int getstring(FILE *fp, char *string)
 
 /* Searches for patn in search string */
 int pattern(char *search, char *patn) {
-	int a,b;
-
-	for (a=0; a<strlen(search); ++a) {
-		b=strncasecmp(&search[a],patn,strlen(patn));
+	int a,b,len;
+	
+	len = strlen(patn);
+	for (a=0; !IsEmptyStr(&search[a]); ++a) {
+		b=strncasecmp(&search[a],patn,len);
 		if (b==0) return(b);
 	}
 	return(-1);
@@ -362,7 +363,7 @@ void strproc(char *string)
 	if (IsEmptyStr(string)) return;
 
 	/* Convert non-printable characters to blanks */
-	for (a=0; a<strlen(string); ++a) {
+	for (a=0; !IsEmptyStr(&string[a]); ++a) {
 		if (string[a]<32) string[a]=32;
 		if (string[a]>126) string[a]=32;
 	}
@@ -451,7 +452,7 @@ void locate_host(CtdlIPC* ipc, char *hbuf)
 	pclose(who);
 
 	b = 0;
-	for (a=0; a<strlen(buf); ++a) {
+	for (a=0; !IsEmptyStr(&buf[a]); ++a) {
 		if ((buf[a]=='(')||(buf[a]==')')) ++b;
 	}
 	if (b<2) {

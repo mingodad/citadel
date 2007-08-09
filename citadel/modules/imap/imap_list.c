@@ -250,7 +250,7 @@ void imap_list(int num_parms, char *parms[])
 		selection_left = 2;
 		paren_nest = 0;
 		for (i=2; i<num_parms; ++i) {
-			for (j=0; j<strlen(parms[i]); ++j) {
+			for (j=0; !IsEmptyStr(&parms[i][j]); ++j) {
 				if (parms[i][j] == '(') ++paren_nest;
 				if (parms[i][j] == ')') --paren_nest;
 			}
@@ -314,7 +314,7 @@ void imap_list(int num_parms, char *parms[])
 		extended_list_in_use = 1;
 		paren_nest = 0;
 		for (i=patterns_left; i<num_parms; ++i) {
-			for (j=0; j<strlen(parms[i]); ++j) {
+			for (j=0; !IsEmptyStr(&parms[i][j]); ++j) {
 				if (parms[i][j] == '(') ++paren_nest;
 				if (parms[i][j] == ')') --paren_nest;
 			}
@@ -351,7 +351,7 @@ void imap_list(int num_parms, char *parms[])
 		extended_list_in_use = 1;
 		paren_nest = 0;
 		for (i=return_left; i<num_parms; ++i) {
-			for (j=0; j<strlen(parms[i]); ++j) {
+			for (j=0; !IsEmptyStr(&parms[i][j]); ++j) {
 				if (parms[i][j] == '(') ++paren_nest;
 				if (parms[i][j] == ')') --paren_nest;
 			}

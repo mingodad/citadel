@@ -334,8 +334,11 @@ int is_public_client(void)
 
 		fp = fopen(public_clients_file, "r");
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
-			for (i=0; i<strlen(buf); ++i) {
+			char *ptr;
+			ptr = buf;
+			while (!IsEmptyStr(*ptr)) {
 				if (buf[i] == '#') buf[i] = 0;
+				else ptr++;
 			}
 			while (isspace((buf[strlen(buf)-1]))) {
 				buf[strlen(buf)-1] = 0;
@@ -534,7 +537,7 @@ void cmd_emsg(char *mname)
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
-	for (a=0; a<strlen(buf); ++a) {		/* security measure */
+	for (a=0; !IsEmptyStr(&buf[a]); ++a) {		/* security measure */
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
