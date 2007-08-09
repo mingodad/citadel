@@ -798,7 +798,7 @@ void smtp_starttls(void)
 	char error_response[SIZ];
 
 	sprintf(ok_response,
-		"200 2.0.0 Begin TLS negotiation now\r\n");
+		"220 2.0.0 Begin TLS negotiation now\r\n");
 	sprintf(nosup_response,
 		"554 5.7.3 TLS not supported here\r\n");
 	sprintf(error_response,
