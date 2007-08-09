@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-06-15 10:15-0400\n"
+"POT-Creation-Date: 2007-08-09 00:05-0400\n"
 "PO-Revision-Date: 2007-06-19 00:28+0200\n"
 "Last-Translator: Wim Kuilman <wim.kuilman@esdalcollege.nl>\n"
 "Language-Team: Nederlands <nl@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
-#: ../addressbook_popup.c:125 ../messages.c:3161 ../roomops.c:1530
-#: ../roomops.c:1560
+#: ../addressbook_popup.c:125 ../messages.c:3311 ../roomops.c:1555
+#: ../roomops.c:1586
 msgid "Add"
 msgstr "Toevoegen"
 
@@ -62,14 +62,15 @@ msgid ""
 "your browser is configured to block pop-up windows, you will not be able to "
 "receive any instant messages.<br /></ul>"
 msgstr ""
-"<ul><li><b>Als u al een account heeft op %s</b>, vul dan uw gebruikersnaam en "
-"wachtwoord in en klik op &quot;Inloggen.&quot; <li><b>Als u een nieuwe "
-"gebruiker bent</b>, vul uw naam in en het wachtwoord dat u wilt gebruiken en klik "
-"op &quot;Nieuwe gebruiker.&quot; <li>Log correct uit als u klaar bent. <li>Uw"
-" browser moet <i>frames</i> en <i>cookies</i> ondersteunen. "
-"<li>Als uw browser pop-up vensters blokkeert, zult u geen directe berichten kunnen ontvangen.<br /></ul>"
+"<ul><li><b>Als u al een account heeft op %s</b>, vul dan uw gebruikersnaam "
+"en wachtwoord in en klik op &quot;Inloggen.&quot; <li><b>Als u een nieuwe "
+"gebruiker bent</b>, vul uw naam in en het wachtwoord dat u wilt gebruiken en "
+"klik op &quot;Nieuwe gebruiker.&quot; <li>Log correct uit als u klaar bent. "
+"<li>Uw browser moet <i>frames</i> en <i>cookies</i> ondersteunen. <li>Als uw "
+"browser pop-up vensters blokkeert, zult u geen directe berichten kunnen "
+"ontvangen.<br /></ul>"
 
-#: ../auth.c:68 ../who.c:263
+#: ../auth.c:68 ../who.c:265
 msgid "User name:"
 msgstr "Gebruikersnaam: "
 
@@ -85,7 +86,7 @@ msgstr "Taal: "
 msgid "Login"
 msgstr "Inloggen"
 
-#: ../auth.c:73 ../paging.c:492
+#: ../auth.c:73 ../paging.c:495
 msgid "Exit"
 msgstr "Stoppen"
 
@@ -94,7 +95,7 @@ msgstr "Stoppen"
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr "%s - op basis van <a href=\"http://www.citadel.org\">Citadel</a>"
 
-#: ../auth.c:174 ../auth.c:542
+#: ../auth.c:174 ../auth.c:545
 msgid "Blank passwords are not allowed."
 msgstr "Wachtwoorden mogen niet leeg zijn."
 
@@ -102,7 +103,7 @@ msgstr "Wachtwoorden mogen niet leeg zijn."
 msgid "Your password was not accepted."
 msgstr "Uw wachtwoord is niet geaccepteerd."
 
-#: ../auth.c:303
+#: ../auth.c:305
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -110,61 +111,61 @@ msgstr ""
 "Dit programma was niet in staat om contact te maken - of te houden met de "
 "Citadel server. Meld dit probleem alstublieft bij uw systeembeheerder."
 
-#: ../auth.c:310
+#: ../auth.c:312
 msgid "Log in again"
 msgstr "Opnieuw inloggen"
 
-#: ../auth.c:313 ../roomops.c:288
+#: ../auth.c:315 ../roomops.c:304
 msgid "Close window"
 msgstr "Venster sluiten"
 
-#: ../auth.c:334 ../mainmenu.c:251
+#: ../auth.c:336 ../mainmenu.c:190
 msgid "Validate new users"
 msgstr "Nieuwe gebruikers goedkeuren"
 
-#: ../auth.c:354
+#: ../auth.c:356
 msgid "No users require validation at this time."
 msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
-#: ../auth.c:395
+#: ../auth.c:397
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Huidig toegangsniveau %d (%s)\n"
 
-#: ../auth.c:403
+#: ../auth.c:405
 msgid "Select access level for this user:"
 msgstr "Selecteer toegangsniveau voor deze gebruiker: "
 
-#: ../auth.c:466 ../mainmenu.c:137
+#: ../auth.c:468 ../mainmenu.c:127
 msgid "Change your password"
 msgstr "Uw wachtwoord wijzigen"
 
-#: ../auth.c:495
+#: ../auth.c:498
 msgid "Enter new password:"
 msgstr "Uw nieuwe wachtwoord: "
 
-#: ../auth.c:499
+#: ../auth.c:502
 msgid "Enter it again to confirm:"
 msgstr "Nogmaals als bevestiging: "
 
-#: ../auth.c:504
+#: ../auth.c:507
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: ../auth.c:506 ../calendar.c:582 ../event.c:403 ../graphics.c:58
-#: ../iconbar.c:710 ../mainmenu.c:317 ../messages.c:3172 ../messages.c:3284
-#: ../netconf.c:86 ../netconf.c:149 ../paging.c:54 ../preferences.c:389
-#: ../roomops.c:1339 ../roomops.c:1681 ../roomops.c:2128 ../roomops.c:2277
-#: ../roomops.c:2341 ../sieve.c:179 ../siteconfig.c:655 ../sysmsgs.c:59
-#: ../useredit.c:381 ../vcard_edit.c:334 ../who.c:273
+#: ../auth.c:509 ../calendar.c:578 ../event.c:404 ../graphics.c:59
+#: ../iconbar.c:740 ../mainmenu.c:242 ../messages.c:3092 ../messages.c:3424
+#: ../netconf.c:87 ../netconf.c:151 ../paging.c:55 ../preferences.c:392
+#: ../roomops.c:1363 ../roomops.c:1708 ../roomops.c:2164 ../roomops.c:2314
+#: ../roomops.c:2379 ../sieve.c:180 ../siteconfig.c:657 ../sysmsgs.c:59
+#: ../useredit.c:384 ../vcard_edit.c:335 ../who.c:275
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: ../auth.c:523
+#: ../auth.c:526
 msgid "Cancelled.  Password was not changed."
 msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 
-#: ../auth.c:534
+#: ../auth.c:537
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
 
@@ -188,8 +189,8 @@ msgid ""
 "with calendaring enabled.</I><br />\n"
 msgstr ""
 "<I>Dit bericht bevat agenda/rooster informatie, maar ondersteuning voor "
-"agenda's is niet beschikbaar op dit systeem. Vraag uw systeembeheerder a.u.b. "
-"een nieuwe versie van Citadel te installeren met ondersteuning voor "
+"agenda's is niet beschikbaar op dit systeem. Vraag uw systeembeheerder a.u."
+"b. een nieuwe versie van Citadel te installeren met ondersteuning voor "
 "agenda's</I><br />\n"
 
 #: ../calendar.c:38
@@ -212,23 +213,23 @@ msgstr ""
 "Webcit service niet is geïnstalleerd met 'te-doen'-ondersteuning. Neem "
 "alstublieft contact op met uw systeembeheerder.</i><br />\n"
 
-#: ../calendar.c:108
+#: ../calendar.c:111
 msgid "Meeting invitation"
 msgstr "Uitnodiging bijeenkomst"
 
-#: ../calendar.c:111
+#: ../calendar.c:114
 msgid "Attendee's reply to your invitation"
 msgstr "Antwoord van de deelnemer op uw uitnodiging"
 
-#: ../calendar.c:114
+#: ../calendar.c:117
 msgid "Published event"
 msgstr "Gepubliceerde afspraak"
 
-#: ../calendar.c:117
+#: ../calendar.c:120
 msgid "This is an unknown type of calendar item."
 msgstr "Dit is een onbekend agenda item."
 
-#: ../calendar.c:133 ../calendar.c:526 ../calendar_view.c:102
+#: ../calendar.c:133 ../calendar.c:522 ../calendar_view.c:102
 msgid "Summary:"
 msgstr "Omschrijving: "
 
@@ -248,7 +249,7 @@ msgstr "Startdatum/-tijd: "
 msgid "Ending date/time:"
 msgstr "Einddatum/-tijd: "
 
-#: ../calendar.c:195 ../calendar.c:562 ../downloads.c:70
+#: ../calendar.c:195 ../calendar.c:558 ../downloads.c:71
 msgid "Description:"
 msgstr "Beschrijving: "
 
@@ -274,39 +275,41 @@ msgstr "Update: "
 msgid "CONFLICT:"
 msgstr "CONFLICT: "
 
-#: ../calendar.c:277
+#: ../calendar.c:276
 msgid "How would you like to respond to this invitation?"
 msgstr "Hoe wilt u reageren op deze uitnodiging?"
 
-#: ../calendar.c:278
+#: ../calendar.c:277
 msgid "Accept"
 msgstr "Accepteren"
 
-#: ../calendar.c:279
+#: ../calendar.c:278
 msgid "Tentative"
 msgstr "Voorwaardelijk"
 
-#: ../calendar.c:280
+#: ../calendar.c:279
 msgid "Decline"
 msgstr "Afwijzen"
 
-#: ../calendar.c:307
+#: ../calendar.c:302
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr "Klik <i>Bijwerken</i> om deze reactie te accepteren en uw agenda bij te werken."
+msgstr ""
+"Klik <i>Bijwerken</i> om deze reactie te accepteren en uw agenda bij te "
+"werken."
 
-#: ../calendar.c:308
+#: ../calendar.c:303
 msgid "Update"
 msgstr "Bijwerken"
 
-#: ../calendar.c:309
+#: ../calendar.c:304
 msgid "Ignore"
 msgstr "Negeren"
 
-#: ../calendar.c:335
+#: ../calendar.c:330
 msgid "There was an error parsing this calendar item."
 msgstr "Fout opgetreden bij het plaatsen van dit agenda-item."
 
-#: ../calendar.c:370
+#: ../calendar.c:364
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
@@ -314,7 +317,7 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst geaccepteerd. Uw agenda is "
 "bijgewerkt."
 
-#: ../calendar.c:374
+#: ../calendar.c:368
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
@@ -322,7 +325,7 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst voorwaardelijk geaccepteerd. "
 "Het staat 'met potlood' in uw agenda."
 
-#: ../calendar.c:378
+#: ../calendar.c:372
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
@@ -330,15 +333,15 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst afgewezen. Het is niet in uw "
 "agenda opgenomen."
 
-#: ../calendar.c:383
+#: ../calendar.c:377
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Een antwoord is gestuurd naar de organisator van deze bijeenkomst."
 
-#: ../calendar.c:414
+#: ../calendar.c:408
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr "Uw agenda is bijgewerkt om dit 'verzoek om antwoord' weer te geven."
 
-#: ../calendar.c:416
+#: ../calendar.c:410
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
@@ -346,23 +349,23 @@ msgstr ""
 "U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is <b>niet</"
 "b> bijgewerkt."
 
-#: ../calendar.c:510
+#: ../calendar.c:505
 msgid "Edit task"
 msgstr "Taak bewerken"
 
-#: ../calendar.c:537
+#: ../calendar.c:533
 msgid "Start date:"
 msgstr "Startdatum:"
 
-#: ../calendar.c:550
+#: ../calendar.c:546
 msgid "Due date:"
 msgstr "Streefdatum: "
 
-#: ../calendar.c:580 ../event.c:400
+#: ../calendar.c:576 ../event.c:401
 msgid "Save"
 msgstr "Bewaren"
 
-#: ../calendar.c:581 ../event.c:401 ../messages.c:992 ../messages.c:2408
+#: ../calendar.c:577 ../event.c:402 ../messages.c:994 ../messages.c:2442
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -430,7 +433,7 @@ msgstr "De agenda view is niet beschikbaar."
 msgid "The tasks view is not available."
 msgstr "De weergave taken is niet beschikbaar."
 
-#: ../calendar_view.c:165 ../roomops.c:1484
+#: ../calendar_view.c:165 ../roomops.c:1508
 msgid "Notes:"
 msgstr "Notities: "
 
@@ -442,15 +445,15 @@ msgstr "Week"
 msgid "Hours"
 msgstr "Uren"
 
-#: ../calendar_view.c:529 ../messages.c:2403 ../sieve.c:944
+#: ../calendar_view.c:529 ../messages.c:2437 ../sieve.c:963
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: ../calendar_view.c:530 ../event.c:164
+#: ../calendar_view.c:530 ../event.c:165
 msgid "Start"
 msgstr "Start"
 
-#: ../calendar_view.c:531 ../event.c:218
+#: ../calendar_view.c:531 ../event.c:219
 msgid "End"
 msgstr "Eind"
 
@@ -479,15 +482,15 @@ msgstr "Grootte"
 msgid "Description"
 msgstr "Beschrijving"
 
-#: ../downloads.c:68
+#: ../downloads.c:69
 msgid "Upload a file:"
 msgstr "Upload een bestand:"
 
-#: ../downloads.c:72 ../graphics.c:54
+#: ../downloads.c:73 ../graphics.c:55
 msgid "Upload"
 msgstr "Uploaden"
 
-#: ../downloads.c:116
+#: ../downloads.c:117
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "Fout opgetreden bij ophalen dit bestand: %s\n"
@@ -496,55 +499,55 @@ msgstr "Fout opgetreden bij ophalen dit bestand: %s\n"
 msgid "Add or edit an event"
 msgstr "Gebeurtenis toevoegen of bewerken"
 
-#: ../event.c:142 ../iconbar.c:121 ../iconbar.c:537
+#: ../event.c:143 ../iconbar.c:121 ../iconbar.c:549
 msgid "Summary"
 msgstr "Samenvatting"
 
-#: ../event.c:153
+#: ../event.c:154
 msgid "Location"
 msgstr "Locatie"
 
-#: ../event.c:207
+#: ../event.c:208
 msgid "All day event"
 msgstr "Gebeurtenis hele dag"
 
-#: ../event.c:246 ../iconbar.c:197 ../iconbar.c:584
+#: ../event.c:247 ../iconbar.c:197 ../iconbar.c:600
 msgid "Notes"
 msgstr "Notities"
 
-#: ../event.c:288
+#: ../event.c:289
 msgid "Organizer"
 msgstr "Organisator"
 
-#: ../event.c:293
+#: ../event.c:294
 msgid "(you are the organizer)"
 msgstr "(u bent de organisator)"
 
-#: ../event.c:311
+#: ../event.c:312
 msgid "Show time as:"
 msgstr "Toon tijd als:"
 
-#: ../event.c:333
+#: ../event.c:334
 msgid "Free"
 msgstr "Vrij"
 
-#: ../event.c:340
+#: ../event.c:341
 msgid "Busy"
 msgstr "Bezet"
 
-#: ../event.c:346 ../event.c:358
+#: ../event.c:347 ../event.c:359
 msgid "Attendees"
 msgstr "Deelnemers"
 
-#: ../event.c:349
+#: ../event.c:350
 msgid "(One per line)"
 msgstr "(Een per regel)"
 
-#: ../event.c:359 ../iconbar.c:180 ../iconbar.c:568 ../messages.c:3050
+#: ../event.c:360 ../iconbar.c:180 ../iconbar.c:583 ../messages.c:3198
 msgid "Contacts"
 msgstr "Contacten"
 
-#: ../event.c:402
+#: ../event.c:403
 msgid "Check attendee availability"
 msgstr "Controleer beschikbaarheid deelnemers"
 
@@ -581,24 +584,24 @@ msgstr "(verwijder verdieping)"
 msgid "(edit graphic)"
 msgstr "(bewerk afbeelding)"
 
-#: ../floors.c:100
+#: ../floors.c:101
 msgid "Change name"
 msgstr "Naam wijzigen"
 
-#: ../floors.c:113
+#: ../floors.c:115
 msgid "Change CSS"
 msgstr "CSS wijzigen"
 
-#: ../floors.c:125
+#: ../floors.c:128
 msgid "Create new floor"
 msgstr "Maak nieuwe verdieping aan"
 
-#: ../floors.c:146
+#: ../floors.c:149
 #, c-format
 msgid "Floor has been deleted."
 msgstr "Verdieping is verwijderd"
 
-#: ../floors.c:169
+#: ../floors.c:172
 #, c-format
 msgid "New floor has been created."
 msgstr "Nieuwe verdieping aangemaakt"
@@ -607,7 +610,7 @@ msgstr "Nieuwe verdieping aangemaakt"
 msgid "Image upload"
 msgstr "Afbeelding uploaden"
 
-#: ../graphics.c:45
+#: ../graphics.c:46
 msgid ""
 "You can upload any image directly from your computer, as long as it is in "
 "GIF format (JPEG, PNG, etc. won't work)."
@@ -615,32 +618,32 @@ msgstr ""
 "U kunt direct vanaf uw computer een plaatje uploaden zolang het maar in GIF-"
 "formaat is (JPG, PNG, etc werken niet)."
 
-#: ../graphics.c:50
+#: ../graphics.c:51
 msgid "Please select a file to upload:"
 msgstr "Selecteer een bestand om te uploaden: "
 
-#: ../graphics.c:56
+#: ../graphics.c:57
 msgid "Reset form"
 msgstr "Formulier wissen"
 
-#: ../graphics.c:74
+#: ../graphics.c:75
 msgid "Graphics upload has been cancelled."
 msgstr "Uploaden van afbeelding is afgebroken."
 
-#: ../graphics.c:81
+#: ../graphics.c:82
 msgid "You didn't upload a file."
 msgstr "U heeft geen bestand geüpload."
 
-#: ../html2html.c:122
+#: ../html2html.c:124
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "realloc() fout! kon niet %d bytes krijgen: %s"
 
-#: ../iconbar.c:101 ../iconbar.c:387
+#: ../iconbar.c:101 ../iconbar.c:399
 msgid "Find out more about Citadel"
 msgstr "Meer informatie over Citadel"
 
-#: ../iconbar.c:102 ../iconbar.c:388
+#: ../iconbar.c:102 ../iconbar.c:400
 msgid "CITADEL"
 msgstr "CITADEL"
 
@@ -648,7 +651,7 @@ msgstr "CITADEL"
 msgid "switch to room list"
 msgstr "Switch naar lijst ruimtes"
 
-#: ../iconbar.c:114 ../iconbar.c:538
+#: ../iconbar.c:114 ../iconbar.c:550
 msgid "Your summary page"
 msgstr "Uw samenvattingspagina"
 
@@ -664,7 +667,7 @@ msgstr "Mail"
 msgid "Go to your personal calendar"
 msgstr "Ga naar uw persoonlijke agenda"
 
-#: ../iconbar.c:163 ../iconbar.c:601 ../roomops.c:22
+#: ../iconbar.c:163 ../iconbar.c:618 ../roomops.c:22
 msgid "Calendar"
 msgstr "Agenda"
 
@@ -680,7 +683,7 @@ msgstr "Ga naar uw persoonlijke notities"
 msgid "Go to your personal task list"
 msgstr "Ga naar uw persoonlijke takenlijst"
 
-#: ../iconbar.c:214 ../iconbar.c:616 ../summary.c:226
+#: ../iconbar.c:214 ../iconbar.c:635 ../summary.c:247
 msgid "Tasks"
 msgstr "Taken"
 
@@ -688,7 +691,7 @@ msgstr "Taken"
 msgid "List all of your accessible rooms"
 msgstr "Lijst van voor u toegankelijke ruimtes"
 
-#: ../iconbar.c:229 ../iconbar.c:632
+#: ../iconbar.c:229 ../iconbar.c:653
 msgid "Rooms"
 msgstr "Ruimtes"
 
@@ -696,160 +699,180 @@ msgstr "Ruimtes"
 msgid "See who is online right now"
 msgstr "Bekijk wie nu online is"
 
-#: ../iconbar.c:245 ../iconbar.c:648
+#: ../iconbar.c:245 ../iconbar.c:673
 msgid "Who is online?"
 msgstr "Wie is online?"
 
-#: ../iconbar.c:266 ../iconbar.c:664
+#: ../iconbar.c:269 ../iconbar.c:691
 msgid "Chat"
 msgstr "Chat"
 
-#: ../iconbar.c:276
+#: ../iconbar.c:279
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr "Uitgebreide menuopties: Uitgebreide opdrachten ruimtes, Account info, enz."
+msgstr ""
+"Uitgebreide menuopties: Uitgebreide opdrachten ruimtes, Account info, enz."
 
-#: ../iconbar.c:283
+#: ../iconbar.c:286
 msgid "Advanced"
 msgstr "Uitgebreid"
 
-#: ../iconbar.c:293
+#: ../iconbar.c:296
 msgid "Room and system administration functions"
 msgstr "Functies ruimte- en systeembeheer"
 
-#: ../iconbar.c:300 ../roomops.c:1050
+#: ../iconbar.c:303 ../roomops.c:1067
 msgid "Administration"
 msgstr "Beheer "
 
-#: ../iconbar.c:308 ../iconbar.c:317 ../iconbar.c:400 ../iconbar.c:409
-#: ../mainmenu.c:110
+#: ../iconbar.c:311 ../iconbar.c:320 ../iconbar.c:412 ../iconbar.c:421
+#: ../mainmenu.c:111
 msgid "Log off"
 msgstr "Uitloggen"
 
-#: ../iconbar.c:309 ../iconbar.c:401
+#: ../iconbar.c:312 ../iconbar.c:413
 msgid "Log off now?"
 msgstr "Nu uitloggen?"
 
-#: ../iconbar.c:327
+#: ../iconbar.c:330
 msgid "Customize this menu"
 msgstr "Dit menu aanpassen"
 
-#: ../iconbar.c:328
+#: ../iconbar.c:331
 msgid "customize this menu"
 msgstr "Dit menu aanpassen"
 
-#: ../iconbar.c:394
+#: ../iconbar.c:406
 msgid "switch to menu"
 msgstr "Switch naar menu"
 
-#: ../iconbar.c:479
+#: ../iconbar.c:490 ../iconbar.c:796
 msgid "Customize the icon bar"
 msgstr "Lijst menuitems aanpassen."
 
-#: ../iconbar.c:491
+#: ../iconbar.c:501
 msgid "Display icons as:"
 msgstr "Laat menuitems zien als: "
 
-#: ../iconbar.c:497
+#: ../iconbar.c:507
 msgid "pictures and text"
 msgstr "plaatjes en tekst"
 
-#: ../iconbar.c:498
+#: ../iconbar.c:508
 msgid "pictures only"
 msgstr "alleen plaatjes"
 
-#: ../iconbar.c:499
+#: ../iconbar.c:509
 msgid "text only"
 msgstr "alleen tekst"
 
-#: ../iconbar.c:504
+#: ../iconbar.c:514
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
 msgstr ""
-"Selecteer de menuitems die u graag weergegeven wilt zien in menubalk "
-"aan de linkerzijde van het scherm"
+"Selecteer de menuitems die u graag weergegeven wilt zien in menubalk aan de "
+"linkerzijde van het scherm"
 
-#: ../iconbar.c:522
+#: ../iconbar.c:530 ../iconbar.c:547 ../iconbar.c:564 ../iconbar.c:581
+#: ../iconbar.c:598 ../iconbar.c:616 ../iconbar.c:633 ../iconbar.c:651
+#: ../iconbar.c:670 ../iconbar.c:689 ../iconbar.c:708 ../iconbar.c:727
+#: ../netconf.c:245
+msgid "Yes"
+msgstr "Ja"
+
+#: ../iconbar.c:531 ../iconbar.c:548 ../iconbar.c:565 ../iconbar.c:582
+#: ../iconbar.c:599 ../iconbar.c:617 ../iconbar.c:634 ../iconbar.c:652
+#: ../iconbar.c:671 ../iconbar.c:690 ../iconbar.c:709 ../iconbar.c:728
+#: ../netconf.c:248
+msgid "No"
+msgstr "Nee"
+
+#: ../iconbar.c:532
 msgid "Site logo"
 msgstr "Logo van de site"
 
-#: ../iconbar.c:523
+#: ../iconbar.c:533
 msgid "An icon describing this site"
 msgstr "Logo van het bedrijf of de instelling"
 
-#: ../iconbar.c:552
+#: ../iconbar.c:566
 msgid "Mail (inbox)"
 msgstr "Mail (inbox)"
 
-#: ../iconbar.c:553
+#: ../iconbar.c:567
 msgid "A shortcut to your email Inbox"
 msgstr "Een snelkoppeling naar uw email Inbox"
 
-#: ../iconbar.c:569
+#: ../iconbar.c:584
 msgid "Your personal address book"
 msgstr "Uw persoonlijk adresboek"
 
-#: ../iconbar.c:585
+#: ../iconbar.c:601
 msgid "Your personal notes"
 msgstr "Uw persoonlijke notities"
 
-#: ../iconbar.c:602
+#: ../iconbar.c:619
 msgid "A shortcut to your personal calendar"
 msgstr "Uw persoonlijke agenda"
 
-#: ../iconbar.c:617
+#: ../iconbar.c:636
 msgid "A shortcut to your personal task list"
 msgstr "Uw persoonlijke takenlijst"
 
-#: ../iconbar.c:633
+#: ../iconbar.c:654
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
 msgstr ""
-"Hiermee wordt u een lijst van alle toegankelijke "
-"ruimtes (of mappen) getoond"
+"Hiermee wordt u een lijst van alle toegankelijke ruimtes (of mappen) getoond"
 
-#: ../iconbar.c:649
+#: ../iconbar.c:672
+#, fuzzy
+msgid "Yes with users list"
+msgstr "Switch naar lijst ruimtes"
+
+#: ../iconbar.c:674
 msgid "Clicking this icon displays a list of all users currently logged in."
 msgstr ""
-"Hiermee wordt een lijst getoond van alle gebruikers "
-"die op dat moment zijn ingelogd."
+"Hiermee wordt een lijst getoond van alle gebruikers die op dat moment zijn "
+"ingelogd."
 
-#: ../iconbar.c:665
+#: ../iconbar.c:692
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
-msgstr "Hiermee kunt u in 'real-time' chatten met andere gebruikers in dezelfde ruimte."
+msgstr ""
+"Hiermee kunt u in 'real-time' chatten met andere gebruikers in dezelfde "
+"ruimte."
 
-#: ../iconbar.c:682
+#: ../iconbar.c:710
 msgid "Advanced options"
 msgstr "Uitgebreide opties"
 
-#: ../iconbar.c:683
+#: ../iconbar.c:711
 msgid "Access to the complete menu of Citadel functions."
 msgstr "Toegang tot het complete menu van Citadelfuncties."
 
-#: ../iconbar.c:699
+#: ../iconbar.c:729
 msgid "Citadel logo"
 msgstr "Citadel logo"
 
-#: ../iconbar.c:700
+#: ../iconbar.c:730
 msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Toont het 'Powered by Citadel' icoontje."
 
-#: ../iconbar.c:709 ../netconf.c:146 ../roomops.c:1338 ../roomops.c:1679
-#: ../sieve.c:177 ../siteconfig.c:653 ../sysmsgs.c:57 ../useredit.c:381
-#: ../vcard_edit.c:333
+#: ../iconbar.c:739 ../netconf.c:148 ../roomops.c:1362 ../roomops.c:1706
+#: ../sieve.c:178 ../siteconfig.c:655 ../sysmsgs.c:57 ../useredit.c:384
+#: ../vcard_edit.c:334
 msgid "Save changes"
 msgstr "Wijzigingen bewaren"
 
-#: ../iconbar.c:764
+#: ../iconbar.c:803
 msgid ""
 "Your icon bar has been updated.  Please select any of its choices to "
 "continue."
 msgstr ""
-"Uw menubalk is bijgewerkt. U kunt nu hieruit een keuze om verder te "
-"gaan."
+"Uw menubalk is bijgewerkt. U kunt nu hieruit een keuze om verder te gaan."
 
 #: ../inetconf.c:49
 msgid "Local host aliases"
@@ -915,11 +938,11 @@ msgstr "Internet configuratie"
 msgid "Delete this entry?"
 msgstr "Deze vermelding verwijderen?"
 
-#: ../inetconf.c:129 ../netconf.c:209 ../smtpqueue.c:120
+#: ../inetconf.c:129 ../netconf.c:211 ../smtpqueue.c:122
 msgid "(Delete)"
 msgstr "(Verwijderen)"
 
-#: ../inetconf.c:179
+#: ../inetconf.c:180
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s is verwijderd."
@@ -957,189 +980,205 @@ msgstr ""
 msgid "Go back..."
 msgstr "Ga terug..."
 
-#: ../mainmenu.c:23
+#: ../mainmenu.c:24
 msgid "Basic commands"
 msgstr "Basiscommando's"
 
-#: ../mainmenu.c:34
+#: ../mainmenu.c:35
 msgid "List known rooms"
 msgstr "Lijst van bekende ruimtes"
 
-#: ../mainmenu.c:36
+#: ../mainmenu.c:37
 msgid "Where can I go from here?"
 msgstr "Waar kan ik van hieruit naar toe?"
 
-#: ../mainmenu.c:40 ../roomops.c:695
+#: ../mainmenu.c:41 ../roomops.c:712
 msgid "Goto next room"
 msgstr "Ga naar volgende ruimte"
 
-#: ../mainmenu.c:42
+#: ../mainmenu.c:43
 msgid "...with <em>unread</em> messages"
 msgstr "...met <em>ongelezen</em> berichten"
 
-#: ../mainmenu.c:46
+#: ../mainmenu.c:47
 msgid "Skip to next room"
 msgstr "Ga naar volgende ruimte"
 
-#: ../mainmenu.c:48
+#: ../mainmenu.c:49
 msgid "(come back here later)"
 msgstr "(kom hier later terug)"
 
-#: ../mainmenu.c:53 ../roomops.c:481
+#: ../mainmenu.c:54 ../roomops.c:498
 msgid "Ungoto"
 msgstr "Ongedaan maken"
 
-#: ../mainmenu.c:55
+#: ../mainmenu.c:56
 #, c-format
 msgid "(oops! Back to %s)"
 msgstr "(oeps! Terug naar %s)"
 
-#: ../mainmenu.c:66 ../roomops.c:490
+#: ../mainmenu.c:67 ../roomops.c:507
 msgid "Read new messages"
 msgstr "Lees nieuwe berichten"
 
-#: ../mainmenu.c:68
+#: ../mainmenu.c:69
 msgid "...in this room"
 msgstr "...in deze ruimte"
 
-#: ../mainmenu.c:72 ../roomops.c:590
+#: ../mainmenu.c:73 ../roomops.c:607
 msgid "Read all messages"
 msgstr "Lees alle berichten"
 
-#: ../mainmenu.c:74
+#: ../mainmenu.c:75
 msgid "...old <EM>and</EM> new"
 msgstr "...oude <EM>en</EM> nieuwe"
 
-#: ../mainmenu.c:78 ../roomops.c:670
+#: ../mainmenu.c:79 ../roomops.c:687
 msgid "Enter a message"
 msgstr "Bericht opstellen"
 
-#: ../mainmenu.c:80
+#: ../mainmenu.c:81
 msgid "(post in this room)"
 msgstr "(in deze ruimte plaatsen)"
 
-#: ../mainmenu.c:85
+#: ../mainmenu.c:86
 msgid "File library"
 msgstr "Bestandsbibliotheek"
 
-#: ../mainmenu.c:87
+#: ../mainmenu.c:88
 msgid "(List files available for download)"
 msgstr "(Toon bestanden beschikbaar voor download)"
 
-#: ../mainmenu.c:98
+#: ../mainmenu.c:99
 msgid "Summary page"
 msgstr "Samenvattingspagina"
 
-#: ../mainmenu.c:100
+#: ../mainmenu.c:101
 msgid "Summary of my account"
 msgstr "Samenvatting van mijn account"
 
-#: ../mainmenu.c:104
+#: ../mainmenu.c:105
 msgid "User list"
 msgstr "Gebruikerslijst"
 
-#: ../mainmenu.c:106
+#: ../mainmenu.c:107
 msgid "(all registered users)"
 msgstr "(alle geregistreerde gebruikers)"
 
-#: ../mainmenu.c:112
+#: ../mainmenu.c:113
 msgid "Bye!"
 msgstr "Tot ziens!"
 
-#: ../mainmenu.c:123
+#: ../mainmenu.c:124
 msgid "Your info"
 msgstr "Uw informatie"
 
-#: ../mainmenu.c:129
+#: ../mainmenu.c:125
 msgid "Change your preferences and settings"
 msgstr "Uw voorkeuren en instellingen wijzigen"
 
-#: ../mainmenu.c:133
+#: ../mainmenu.c:126
 msgid "Update your contact information"
 msgstr "Uw contactinformatie bijwerken"
 
-#: ../mainmenu.c:141
+#: ../mainmenu.c:128
 msgid "Enter your 'bio'"
 msgstr "Uw 'CV' toevoegen"
 
-#: ../mainmenu.c:145
+#: ../mainmenu.c:129
 msgid "Edit your online photo"
 msgstr "Uw online foto bewerken"
 
-#: ../mainmenu.c:149 ../sieve.c:79
+#: ../mainmenu.c:130 ../sieve.c:79
 msgid "View/edit server-side mail filters"
 msgstr "Mailfilters op de server bekijken/bewerken"
 
-#: ../mainmenu.c:158
-msgid "Advanced room commands"
-msgstr "Uitgebreide opdrachten ruimtes"
-
-#: ../mainmenu.c:165
-msgid "Edit or delete this room"
-msgstr "Bewerk of verwijder deze ruimte"
-
-#: ../mainmenu.c:170
-msgid "Go to a 'hidden' room"
-msgstr "Ga naar een 'verborgen' ruimte"
-
-#: ../mainmenu.c:174 ../roomops.c:2024
-msgid "Create a new room"
-msgstr "Maak een nieuwe ruimte aan"
-
-#: ../mainmenu.c:178
+#: ../mainmenu.c:134
 #, c-format
 msgid "Zap (forget) this room (%s)"
 msgstr "Zap (vergeet) deze ruimte (%s)"
 
-#: ../mainmenu.c:182
+#: ../mainmenu.c:137 ../mainmenu.c:144
+msgid "Advanced room commands"
+msgstr "Uitgebreide opdrachten ruimtes"
+
+#: ../mainmenu.c:138
+msgid "Edit or delete this room"
+msgstr "Bewerk of verwijder deze ruimte"
+
+#: ../mainmenu.c:139 ../mainmenu.c:145
+msgid "Go to a 'hidden' room"
+msgstr "Ga naar een 'verborgen' ruimte"
+
+#: ../mainmenu.c:140 ../mainmenu.c:146 ../roomops.c:2059
+msgid "Create a new room"
+msgstr "Maak een nieuwe ruimte aan"
+
+#: ../mainmenu.c:142 ../mainmenu.c:148
 msgid "List all forgotten rooms"
 msgstr "Toon alle vergeten ruimtes"
 
-#: ../mainmenu.c:204
+#: ../mainmenu.c:164
 msgid "System Administration Menu"
 msgstr "Menu Systeembeheer"
 
-#: ../mainmenu.c:214
+#: ../mainmenu.c:175
 msgid "Global Configuration"
 msgstr "Instellingen Totaal"
 
-#: ../mainmenu.c:220
+#: ../mainmenu.c:176
 msgid "Edit site-wide configuration"
 msgstr "Bewerk 'site-brede' instellingen"
 
-#: ../mainmenu.c:224
+#: ../mainmenu.c:177
 msgid "Domain names and Internet mail configuration"
 msgstr "Domeinnamen en Internet mail instellingen"
 
-#: ../mainmenu.c:228
+#: ../mainmenu.c:178
 msgid "Configure replication with other Citadel servers"
 msgstr "Stel replicatie met andere Citadel servers in"
 
-#: ../mainmenu.c:232 ../smtpqueue.c:230
+#: ../mainmenu.c:179 ../smtpqueue.c:232
 msgid "View the outbound SMTP queue"
 msgstr "Toon de SMTP-wachtrij naar buiten"
 
-#: ../mainmenu.c:241
+#: ../mainmenu.c:181
+msgid "Shutdown Citadel"
+msgstr ""
+
+#: ../mainmenu.c:182
+msgid "Restart Now"
+msgstr ""
+
+#: ../mainmenu.c:183
+msgid "Restart after paging users"
+msgstr ""
+
+#: ../mainmenu.c:184
+msgid "Restart when all users are idle"
+msgstr ""
+
+#: ../mainmenu.c:188
 msgid "User account management"
 msgstr "Beheer gebruikeraccounts"
 
-#: ../mainmenu.c:247
+#: ../mainmenu.c:189
 msgid "Add, change, delete user accounts"
 msgstr "Gebruikeraccounts toevoegen, wijzigen of verwijderen"
 
-#: ../mainmenu.c:260
+#: ../mainmenu.c:194
 msgid "Rooms and Floors"
 msgstr "Ruimtes en Verdiepingen"
 
-#: ../mainmenu.c:266
+#: ../mainmenu.c:195
 msgid "Add, change, or delete floors"
 msgstr "Verdiepingen toevoegen, wijzigen of verwijderen "
 
-#: ../mainmenu.c:290
+#: ../mainmenu.c:214
 msgid "Enter a server command"
 msgstr "Voer een servercommando in"
 
-#: ../mainmenu.c:299
+#: ../mainmenu.c:223
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1149,316 +1188,320 @@ msgstr ""
 "niet worden ondersteund door Webcit. Als u niet weet wat dat betekent, dan "
 "is dit scherm van weinig nut voor u."
 
-#: ../mainmenu.c:306
+#: ../mainmenu.c:231
 msgid "Enter command:"
 msgstr "Voer commando in: "
 
-#: ../mainmenu.c:309
+#: ../mainmenu.c:234
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Commando invoer (indien aanvraag SEND_LISTING overdrachtsmode): "
 
-#: ../mainmenu.c:313
+#: ../mainmenu.c:238
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "Gevonden host header is %s://%s"
 
-#: ../mainmenu.c:315
+#: ../mainmenu.c:240
 msgid "Send command"
 msgstr "Verstuur commando"
 
-#: ../mainmenu.c:344
+#: ../mainmenu.c:269
 msgid "Server command results"
 msgstr "Resultaten servercommando"
 
-#: ../messages.c:506
+#: ../messages.c:517
 msgid " (work)"
 msgstr " (werk)"
 
-#: ../messages.c:508
+#: ../messages.c:519
 msgid " (home)"
 msgstr " (thuis)"
 
-#: ../messages.c:510
+#: ../messages.c:521
 msgid " (cell)"
 msgstr " (mobiel)"
 
-#: ../messages.c:521 ../vcard_edit.c:250
+#: ../messages.c:532 ../vcard_edit.c:251
 msgid "Address:"
 msgstr "Adres: "
 
-#: ../messages.c:581
+#: ../messages.c:592
 msgid "Telephone:"
 msgstr "Telefoon: "
 
-#: ../messages.c:586
+#: ../messages.c:597
 msgid "E-mail:"
 msgstr "E-mail: "
 
-#: ../messages.c:702 ../messages.c:1329
+#: ../messages.c:713 ../messages.c:1354
 msgid "ERROR:"
 msgstr "FOUT: "
 
-#: ../messages.c:722 ../messages.c:1021 ../messages.c:1338 ../messages.c:1441
+#: ../messages.c:734 ../messages.c:1038 ../messages.c:1363 ../messages.c:1466
 msgid "unexpected end of message"
 msgstr "onverwacht einde van bericht"
 
-#: ../messages.c:735 ../messages.c:1350
+#: ../messages.c:747 ../messages.c:1375
 msgid "from "
 msgstr "van "
 
-#: ../messages.c:763 ../messages.c:1366
+#: ../messages.c:777 ../messages.c:1391
 msgid "in "
 msgstr "in "
 
-#: ../messages.c:784 ../messages.c:1387
+#: ../messages.c:799 ../messages.c:1412
 msgid "to "
 msgstr "aan "
 
-#: ../messages.c:853
+#: ../messages.c:871
 msgid "View"
 msgstr "View"
 
-#: ../messages.c:855
+#: ../messages.c:873
 msgid "Download"
 msgstr "Download"
 
-#: ../messages.c:908 ../messages.c:3022 ../messages.c:3049
-msgid "CC:"
-msgstr "CC: "
-
-#: ../messages.c:915 ../messages.c:1423 ../messages.c:3057
-msgid "Subject:"
-msgstr "Onderwerp: "
-
-#: ../messages.c:939 ../rss.c:28
+#: ../messages.c:941 ../rss.c:28
 msgid "Reply"
 msgstr "Antwoord"
 
-#: ../messages.c:954
+#: ../messages.c:956
 msgid "ReplyQuoted"
 msgstr "AntwoordQuoted"
 
-#: ../messages.c:971
+#: ../messages.c:973
 msgid "ReplyAll"
 msgstr "AntwoordAllen"
 
-#: ../messages.c:979
+#: ../messages.c:981
 msgid "Forward"
 msgstr "Doorsturen"
 
-#: ../messages.c:986 ../messages.c:3282
+#: ../messages.c:988 ../messages.c:3422
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: ../messages.c:992
+#: ../messages.c:994
 msgid "Delete this message?"
 msgstr "Verwijder dit bericht?"
 
-#: ../messages.c:998
+#: ../messages.c:1000
 msgid "Headers"
 msgstr "Headers"
 
-#: ../messages.c:1003
+#: ../messages.c:1005
 msgid "Print"
 msgstr "Print"
 
-#: ../messages.c:1118
+#: ../messages.c:1013 ../messages.c:3170 ../messages.c:3197
+msgid "CC:"
+msgstr "CC: "
+
+#: ../messages.c:1020 ../messages.c:1448 ../messages.c:3205
+msgid "Subject:"
+msgstr "Onderwerp: "
+
+#: ../messages.c:1143
 #, c-format
 msgid "I don't know how to display %s"
 msgstr "Ik weet niet hoe ik %s moet tonen"
 
-#: ../messages.c:1157 ../messages.c:1688
+#: ../messages.c:1182 ../messages.c:1721
 msgid "edit"
 msgstr "bewerken"
 
-#: ../messages.c:1650 ../messages.c:1966
+#: ../messages.c:1683 ../messages.c:2000
 msgid "(no subject)"
 msgstr "(geen onderwerp)"
 
-#: ../messages.c:1780
+#: ../messages.c:1814
 msgid "(no name)"
 msgstr "(geen naam)"
 
-#: ../messages.c:1834
+#: ../messages.c:1868
 msgid "This address book is empty."
 msgstr "Dit adresboek is leeg."
 
-#: ../messages.c:1848
+#: ../messages.c:1882
 msgid "An internal error has occurred."
 msgstr "Er is een interne fout opgetreden."
 
-#: ../messages.c:2274
+#: ../messages.c:2308
 msgid "Click on any note to edit it."
 msgstr "Klik op willekeurige notitie om te bewerken."
 
-#: ../messages.c:2284
+#: ../messages.c:2318
 msgid "No new messages."
 msgstr "Geen nieuwe berichten."
 
-#: ../messages.c:2286
+#: ../messages.c:2320
 msgid "No old messages."
 msgstr "Geen oude berichten."
 
-#: ../messages.c:2288
+#: ../messages.c:2322
 msgid "No messages here."
 msgstr "Hier geen berichten."
 
-#: ../messages.c:2405 ../sieve.c:946 ../smtpqueue.c:174
+#: ../messages.c:2439 ../sieve.c:965 ../smtpqueue.c:176
 msgid "Sender"
 msgstr "Afzender"
 
-#: ../messages.c:2407
+#: ../messages.c:2441
 msgid "Date"
 msgstr "Datum"
 
-#: ../messages.c:2517
+#: ../messages.c:2472 ../messages.c:2640
 msgid "Reading #"
 msgstr "Lezen #"
 
-#: ../messages.c:2570
+#: ../messages.c:2521 ../messages.c:2689 ../sieve.c:974
+msgid "All"
+msgstr "Alles"
+
+#: ../messages.c:2524 ../messages.c:2692
 #, c-format
 msgid "of %d messages."
 msgstr "van %d berichten."
 
-#: ../messages.c:2761
+#: ../messages.c:2536 ../messages.c:2704
+msgid "oldest to newest"
+msgstr ""
+
+#: ../messages.c:2543 ../messages.c:2711
+msgid "newest to oldest"
+msgstr ""
+
+#: ../messages.c:2887
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Afgebroken.  Bericht is niet geplaatst."
 
-#: ../messages.c:2767
+#: ../messages.c:2893
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatisch afgebroken omdat u dit bericht al heeft bewaard."
 
-#: ../messages.c:2789
+#: ../messages.c:2915
 #, c-format
 msgid "Message has been sent.\n"
 msgstr "Bericht is verstuurd.\n"
 
-#: ../messages.c:2792
+#: ../messages.c:2918
 #, c-format
 msgid "Message has been posted.\n"
 msgstr "Bericht is geplaatst.\n"
 
-#: ../messages.c:2957
-msgid " <I>from</I> "
-msgstr " <I>van</I> "
-
-#: ../messages.c:2981
-msgid "Anonymous"
-msgstr "Anoniem"
-
-#: ../messages.c:3006
-msgid " <I>in</I> "
-msgstr " <I>in</I> "
-
-#: ../messages.c:3013 ../messages.c:3049
-msgid "To:"
-msgstr "Naar: "
-
-#: ../messages.c:3029 ../messages.c:3049
-msgid "BCC:"
-msgstr "BCC: "
-
-#: ../messages.c:3060
-msgid "Subject (optional):"
-msgstr "Onderwerp (optioneel): "
-
-#: ../messages.c:3077
-msgid "--- forwarded message ---"
-msgstr "--- doorgestuurd bericht ---"
-
-#: ../messages.c:3143
-msgid "Attachments:"
-msgstr "Bijlagen: "
-
-#: ../messages.c:3158
-msgid "Attach file:"
-msgstr "Bijlage toevoegen: "
-
-#: ../messages.c:3167 ../paging.c:53
+#: ../messages.c:3087 ../paging.c:54
 msgid "Send message"
 msgstr "Bericht versturen"
 
-#: ../messages.c:3169
+#: ../messages.c:3089
 msgid "Post message"
 msgstr "Bericht plaatsen"
 
-#: ../messages.c:3229
+#: ../messages.c:3105
+msgid " <I>from</I> "
+msgstr " <I>van</I> "
+
+#: ../messages.c:3129
+msgid "Anonymous"
+msgstr "Anoniem"
+
+#: ../messages.c:3154
+msgid " <I>in</I> "
+msgstr " <I>in</I> "
+
+#: ../messages.c:3161 ../messages.c:3197
+msgid "To:"
+msgstr "Naar: "
+
+#: ../messages.c:3177 ../messages.c:3197
+msgid "BCC:"
+msgstr "BCC: "
+
+#: ../messages.c:3208
+msgid "Subject (optional):"
+msgstr "Onderwerp (optioneel): "
+
+#: ../messages.c:3225
+msgid "--- forwarded message ---"
+msgstr "--- doorgestuurd bericht ---"
+
+#: ../messages.c:3293
+msgid "Attachments:"
+msgstr "Bijlagen: "
+
+#: ../messages.c:3308
+msgid "Attach file:"
+msgstr "Bijlage toevoegen: "
+
+#: ../messages.c:3368
 #, c-format
 msgid "The message was not moved."
 msgstr "Het bericht is niet verplaatst."
 
-#: ../messages.c:3255
+#: ../messages.c:3394
 msgid "Confirm move of message"
 msgstr "Bevestig verplaatsen bericht"
 
-#: ../messages.c:3262
+#: ../messages.c:3401
 msgid "Move this message to:"
 msgstr "Dit bericht verplaatsen naar: "
 
-#: ../netconf.c:68 ../netconf.c:183
+#: ../netconf.c:68 ../netconf.c:185
 msgid "Add a new node"
 msgstr "Een nieuw knooppunt toevoegen"
 
-#: ../netconf.c:75 ../netconf.c:129 ../siteconfig.c:120
+#: ../netconf.c:76 ../netconf.c:131 ../siteconfig.c:121
 #, c-format
 msgid "Node name"
 msgstr "Naam knooppunt"
 
-#: ../netconf.c:77 ../netconf.c:133
+#: ../netconf.c:78 ../netconf.c:135
 msgid "Shared secret"
 msgstr "Gedeeld geheim"
 
-#: ../netconf.c:79 ../netconf.c:137
+#: ../netconf.c:80 ../netconf.c:139
 msgid "Host or IP address"
 msgstr "Host of IP adres"
 
-#: ../netconf.c:81 ../netconf.c:141
+#: ../netconf.c:82 ../netconf.c:143
 msgid "Port number"
 msgstr "Poortnummer"
 
-#: ../netconf.c:84
+#: ../netconf.c:85
 msgid "Add node"
 msgstr "Knooppunt toevoegen"
 
-#: ../netconf.c:110
+#: ../netconf.c:111
 msgid "Edit node configuration for "
 msgstr "Knooppunt instellingen bewerken voor "
 
-#: ../netconf.c:176
+#: ../netconf.c:178
 msgid "Network configuration"
 msgstr "Netwerk instellingen"
 
-#: ../netconf.c:189
+#: ../netconf.c:191
 msgid "Currently configured nodes"
 msgstr "Nu ingestelde knooppunten"
 
-#: ../netconf.c:204
+#: ../netconf.c:206
 msgid "(Edit)"
 msgstr "(Bewerken)"
 
-#: ../netconf.c:229
+#: ../netconf.c:231
 msgid "Confirm delete"
 msgstr "Verwijdering bevestigen"
 
-#: ../netconf.c:236
+#: ../netconf.c:238
 msgid "Are you sure you want to delete "
 msgstr "Weet u zeker dat u wilt verwijderen "
 
-#: ../netconf.c:243
-msgid "Yes"
-msgstr "Ja"
-
-#: ../netconf.c:246
-msgid "No"
-msgstr "Nee"
-
-#: ../netconf.c:309
+#: ../netconf.c:311
 msgid "Back to menu"
 msgstr "Terug naar het menu"
 
-#: ../notes.c:126 ../vcard_edit.c:386 ../vcard_edit.c:430
+#: ../notes.c:129 ../vcard_edit.c:387 ../vcard_edit.c:431
 msgid "An error has occurred."
 msgstr "Er is een fout opgetreden."
 
@@ -1470,19 +1513,19 @@ msgstr "Stuur direct bericht"
 msgid "Send an instant message to: "
 msgstr "Stuur direct bericht naar: "
 
-#: ../paging.c:45
+#: ../paging.c:46
 msgid "Enter message text:"
 msgstr "Tekst bericht toevoegen: "
 
-#: ../paging.c:73
+#: ../paging.c:74
 msgid "Message was not sent."
 msgstr "Bericht is niet verstuurd."
 
-#: ../paging.c:87
+#: ../paging.c:88
 msgid "Message has been sent to "
 msgstr "Bericht is verstuurd naar "
 
-#: ../paging.c:152
+#: ../paging.c:153
 msgid ""
 "You have one or more instant messages waiting, but the Citadel Instant "
 "Messenger window failed to open.  This is probably because you have a popup "
@@ -1494,23 +1537,23 @@ msgstr ""
 "pop-up vensters blokkeert. Zorg alstublieft dat uw pop-up blocker popups van "
 "deze site accepteert als u directe berichten wilt ontvangen."
 
-#: ../paging.c:291 ../paging.c:453
+#: ../paging.c:292 ../paging.c:455
 msgid "An error occurred while setting up the chat socket."
 msgstr "Er is een fout opgetreden bij het opzetten van de chat socket."
 
-#: ../paging.c:318
+#: ../paging.c:319
 msgid "Now exiting chat mode."
 msgstr "Nu chatmode verlaten."
 
-#: ../paging.c:489
+#: ../paging.c:492
 msgid "Send"
 msgstr "Versturen"
 
-#: ../paging.c:490
+#: ../paging.c:493
 msgid "Help"
 msgstr "Help"
 
-#: ../paging.c:491
+#: ../paging.c:494
 msgid "List users"
 msgstr "Gebruikerslijst"
 
@@ -1518,59 +1561,59 @@ msgstr "Gebruikerslijst"
 msgid "Preferences and settings"
 msgstr "Voorkeuren en instellingen"
 
-#: ../preferences.c:226
+#: ../preferences.c:227
 msgid "Room list view"
 msgstr "Bekijk als ruimte"
 
-#: ../preferences.c:232
+#: ../preferences.c:233
 msgid "Tree (folders) view"
 msgstr "Bekijk als boomstructuur (mappen)"
 
-#: ../preferences.c:238
+#: ../preferences.c:239
 msgid "Table (rooms) view"
 msgstr "Tabel (ruimte) instelling"
 
-#: ../preferences.c:249
+#: ../preferences.c:250
 msgid "Calendar hour format"
 msgstr "Agenda uurformaat"
 
-#: ../preferences.c:255
+#: ../preferences.c:256
 msgid "12 hour (am/pm)"
 msgstr "12 uurs (vm/nm)"
 
-#: ../preferences.c:261
+#: ../preferences.c:262
 msgid "24 hour"
 msgstr "24 uur"
 
-#: ../preferences.c:272
+#: ../preferences.c:273
 msgid "Calendar day view begins at:"
 msgstr "Dag in agenda begint om: "
 
-#: ../preferences.c:301
+#: ../preferences.c:302
 msgid "Calendar day view ends at:"
 msgstr "Dag in agenda eindigt om: "
 
-#: ../preferences.c:330
+#: ../preferences.c:331
 msgid "Attach signature to email messages?"
 msgstr "Ondertekening aan emailberichten toevoegen?"
 
-#: ../preferences.c:348
+#: ../preferences.c:349
 msgid "No signature"
 msgstr "Geen ondertekening"
 
-#: ../preferences.c:354
+#: ../preferences.c:355
 msgid "Use this signature:"
 msgstr "Gebruik deze ondertekening: "
 
-#: ../preferences.c:378
+#: ../preferences.c:379
 msgid "Default character set for email headers:"
 msgstr "Standaard tekenset voor emailheaders: "
 
-#: ../preferences.c:388
+#: ../preferences.c:391
 msgid "Change"
 msgstr "Wijzigen"
 
-#: ../preferences.c:407
+#: ../preferences.c:410
 msgid "Cancelled.  No settings were changed."
 msgstr "Afgebroken. Geen instellingen gewijzigd."
 
@@ -1602,260 +1645,265 @@ msgstr "Wiki"
 msgid "Calendar List"
 msgstr "Agendalijst"
 
-#: ../roomops.c:258
+#: ../roomops.c:27
+msgid "Journal"
+msgstr ""
+
+#: ../roomops.c:260
 msgid "Zapped (forgotten) rooms"
 msgstr "Zapped (vergeten) ruimtes"
 
-#: ../roomops.c:264
+#: ../roomops.c:266
 msgid "Click on any room to un-zap it and goto that room.\n"
 msgstr "Klik op willekeurige ruimte om te unzappen en ga naar die ruimte.\n"
 
-#: ../roomops.c:283 ../webcit.c:1494 ../webcit.c:1496
-msgid "Room info"
-msgstr "Informatie over deze ruimte"
-
-#: ../roomops.c:369
+#: ../roomops.c:386
 msgid "View as:"
 msgstr "Toon als: "
 
-#: ../roomops.c:407
+#: ../roomops.c:425
 msgid "Search: "
 msgstr "Zoek: "
 
-#: ../roomops.c:458
+#: ../roomops.c:478
 #, c-format
 msgid "%d new of %d messages"
 msgstr "%d nieuw van %d berichten"
 
-#: ../roomops.c:504
+#: ../roomops.c:521
 msgid "View contacts"
 msgstr "Toon contacten"
 
-#: ../roomops.c:515
+#: ../roomops.c:532
 msgid "Day view"
 msgstr "Toon dag"
 
-#: ../roomops.c:524
+#: ../roomops.c:541
 msgid "Month view"
 msgstr "Toon maand"
 
-#: ../roomops.c:535
+#: ../roomops.c:552
 msgid "Calendar list"
 msgstr "Agendalijst"
 
-#: ../roomops.c:546
+#: ../roomops.c:563
 msgid "View tasks"
 msgstr "Toon taken"
 
-#: ../roomops.c:557
+#: ../roomops.c:574
 msgid "View notes"
 msgstr "Toon notities"
 
-#: ../roomops.c:568
+#: ../roomops.c:585
 msgid "View message list"
 msgstr "Toon berichtenlijst"
 
-#: ../roomops.c:579
+#: ../roomops.c:596
 msgid "Wiki home"
 msgstr "Wiki home"
 
-#: ../roomops.c:605
+#: ../roomops.c:622
 msgid "Add new contact"
 msgstr "Nieuw contact toevoegen"
 
-#: ../roomops.c:618
+#: ../roomops.c:635
 msgid "Add new event"
 msgstr "Nieuwe afspraak toevoegen"
 
-#: ../roomops.c:628
+#: ../roomops.c:645
 msgid "Add new task"
 msgstr "Nieuwe taak toevoegen"
 
-#: ../roomops.c:638
+#: ../roomops.c:655
 msgid "Add new note"
 msgstr "Nieuwe notitie toevoegen"
 
-#: ../roomops.c:650
+#: ../roomops.c:667
 msgid "Edit this page"
 msgstr "Deze pagina bewerken"
 
-#: ../roomops.c:660
+#: ../roomops.c:677
 msgid "Write mail"
 msgstr "Bericht opstellen"
 
-#: ../roomops.c:683
-msgid "Leave all messages marked as unread, go to next room with unread messages"
+#: ../roomops.c:700
+msgid ""
+"Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Laat alle berichten gemarkeerd als ongelezen, ga naar de volgende ruimte met "
 "ongelezen berichten"
 
-#: ../roomops.c:684
+#: ../roomops.c:701
 msgid "Skip this room"
 msgstr "Spring deze ruimte over"
 
-#: ../roomops.c:694
+#: ../roomops.c:711
 msgid "Mark all messages as read, go to next room with unread messages"
 msgstr ""
 "Markeer alle berichten als gelezen, ga naar de volgende ruimte met ongelezen "
 "berichten"
 
-#: ../roomops.c:1066
+#: ../roomops.c:1083
 msgid "Configuration"
 msgstr "Instellingen"
 
-#: ../roomops.c:1082
+#: ../roomops.c:1099
 msgid "Message expire policy"
 msgstr "Instelling bericht verlopen"
 
-#: ../roomops.c:1098
+#: ../roomops.c:1115
 msgid "Access controls"
 msgstr "Toegangscontrole"
 
-#: ../roomops.c:1114
+#: ../roomops.c:1131
 msgid "Sharing"
 msgstr "Delen"
 
-#: ../roomops.c:1130
+#: ../roomops.c:1147
 msgid "Mailing list service"
 msgstr "Mailinglist service"
 
-#: ../roomops.c:1152
+#: ../roomops.c:1169
 msgid "Are you sure you want to delete this room?"
 msgstr "Weet u zeker dat u deze ruimte wilt verwijderen?"
 
-#: ../roomops.c:1154
+#: ../roomops.c:1171
 msgid "Delete this room"
 msgstr "Deze ruimte verwijderen"
 
-#: ../roomops.c:1157
+#: ../roomops.c:1174
 msgid "Set or change the icon for this room's banner"
 msgstr "Zet of wijzig het icoontje voor de banner van deze ruimte"
 
-#: ../roomops.c:1160
+#: ../roomops.c:1177
 msgid "Edit this room's Info file"
 msgstr "Bewerk het Infobestand van deze ruimte"
 
-#: ../roomops.c:1169 ../roomops.c:2036
+#: ../roomops.c:1187 ../roomops.c:2072
 msgid "Name of room: "
 msgstr "Naam van de ruimte: "
 
-#: ../roomops.c:1176 ../roomops.c:2040
+#: ../roomops.c:1194 ../roomops.c:2076
 msgid "Resides on floor: "
 msgstr "Bevindt zich op verdieping: "
 
-#: ../roomops.c:1190 ../roomops.c:2082
+#: ../roomops.c:1208 ../roomops.c:2118
 msgid "Type of room:"
 msgstr "Soort ruimte: "
 
-#: ../roomops.c:1197 ../roomops.c:2091
+#: ../roomops.c:1215 ../roomops.c:2127
 msgid "Public (automatically appears to everyone)"
 msgstr "Openbaar (verschijnt automatisch voor iedereen)"
 
-#: ../roomops.c:1205 ../roomops.c:2098
+#: ../roomops.c:1223 ../roomops.c:2134
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privé - verborgen (toegankelijk voor iedereen die z'n naam kent)"
 
-#: ../roomops.c:1212 ../roomops.c:2105
+#: ../roomops.c:1230 ../roomops.c:2141
 msgid "Private - require password: "
 msgstr "Privé - wachtwoord nodig: "
 
-#: ../roomops.c:1222 ../roomops.c:2113
+#: ../roomops.c:1240 ../roomops.c:2149
 msgid "Private - invitation only"
 msgstr "Privé - Alleen op uitnodiging"
 
-#: ../roomops.c:1226
+#: ../roomops.c:1244
 msgid "If private, cause current users to forget room"
 msgstr "Als privé, zorg dat huidige gebruikers ruimte vergeten"
 
-#: ../roomops.c:1234
+#: ../roomops.c:1252
 msgid "Preferred users only"
 msgstr "Alleen beheerders"
 
-#: ../roomops.c:1240
+#: ../roomops.c:1258
 msgid "Read-only room"
 msgstr "Alleen-lezen ruimte"
 
-#: ../roomops.c:1246
+#: ../roomops.c:1264
 msgid "All users allowed to post may also delete messages"
 msgstr "Alle gebruikers die berichten mogen plaatsen mogen ook wissen"
 
-#: ../roomops.c:1253
+#: ../roomops.c:1271
 msgid "File directory room"
 msgstr "Ruimte met Bestandsmappen"
 
-#: ../roomops.c:1256
+#: ../roomops.c:1274
 msgid "Directory name: "
 msgstr "Naam van map: "
 
-#: ../roomops.c:1264
+#: ../roomops.c:1282
 msgid "Uploading allowed"
 msgstr "Uploaden toegestaan"
 
-#: ../roomops.c:1270
+#: ../roomops.c:1288
 msgid "Downloading allowed"
 msgstr "Downloaden toegestaan"
 
-#: ../roomops.c:1276
+#: ../roomops.c:1294
 msgid "Visible directory"
 msgstr "Zichtbare map"
 
-#: ../roomops.c:1285
+#: ../roomops.c:1303
 msgid "Network shared room"
 msgstr "Netwerkgedeelde ruimte"
 
-#: ../roomops.c:1291
+#: ../roomops.c:1309
 msgid "Permanent (does not auto-purge)"
 msgstr "Permanent (wordt niet automatisch opgeruimd)"
 
-#: ../roomops.c:1296
+#: ../roomops.c:1315
+msgid "Subject Required (Force users to specify a message subject)"
+msgstr ""
+
+#: ../roomops.c:1320
 msgid "Anonymous messages"
 msgstr "Anonieme berichten"
 
-#: ../roomops.c:1304
+#: ../roomops.c:1328
 msgid "No anonymous messages"
 msgstr "Geen anonieme berichten"
 
-#: ../roomops.c:1310
+#: ../roomops.c:1334
 msgid "All messages are anonymous"
 msgstr "Alle berichten zijn anoniem"
 
-#: ../roomops.c:1316
+#: ../roomops.c:1340
 msgid "Prompt user when entering messages"
 msgstr "Gebruiker vragen bij invoer bericht"
 
-#: ../roomops.c:1322
+#: ../roomops.c:1346
 msgid "Room aide: "
 msgstr "Ruimte Beheerder: "
 
-#: ../roomops.c:1394
+#: ../roomops.c:1418
 msgid "Shared with"
 msgstr "Gedeeld met"
 
-#: ../roomops.c:1397
+#: ../roomops.c:1421
 msgid "Not shared with"
 msgstr "Niet gedeeld met"
 
-#: ../roomops.c:1402 ../roomops.c:1447
+#: ../roomops.c:1426 ../roomops.c:1471
 msgid "Remote node name"
 msgstr "Knooppunt op afstand"
 
-#: ../roomops.c:1404 ../roomops.c:1449
+#: ../roomops.c:1428 ../roomops.c:1473
 msgid "Remote room name"
 msgstr "Naam van ruimte op afstand"
 
-#: ../roomops.c:1406 ../roomops.c:1451
+#: ../roomops.c:1430 ../roomops.c:1475
 msgid "Actions"
 msgstr "Acties"
 
-#: ../roomops.c:1439
+#: ../roomops.c:1463
 msgid "Unshare"
 msgstr "Niet delen"
 
-#: ../roomops.c:1476
+#: ../roomops.c:1500
 msgid "Share"
 msgstr "Delen"
 
-#: ../roomops.c:1485
+#: ../roomops.c:1509
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
 "'shared' list sends messages out, but in order to receive messages, the "
@@ -1868,56 +1916,57 @@ msgstr ""
 "toevoegen aan de 'gedeelde' lijst stuurt berichten naar buiten, maar om "
 "berichten te ontvangen, moet het andere knooppunt ook zijn ingesteld om "
 "berichten naar uw systeem te verzenden. <LI>Als de naam van de ruimte op "
-"afstand leeg is weet u zeker dat de naam van de ruimte gelijk wordt geacht aan de "
-"ruimte op het knooppunt op afstand. <LI>Als de naam van de ruimte op afstand "
-"verschilt moet de ruimte op afstand zelf ook een naam ingesteld krijgen.</"
-"UL></I><br />\n"
+"afstand leeg is weet u zeker dat de naam van de ruimte gelijk wordt geacht "
+"aan de ruimte op het knooppunt op afstand. <LI>Als de naam van de ruimte op "
+"afstand verschilt moet de ruimte op afstand zelf ook een naam ingesteld "
+"krijgen.</UL></I><br />\n"
 
-#: ../roomops.c:1506
+#: ../roomops.c:1530
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
 msgstr ""
-"<i>De berichten in deze ruimte worden als <b> losse berichten</b> "
-"gemaild naar de volgende ontvangers: </i><br /><br />\n"
+"<i>De berichten in deze ruimte worden als <b> losse berichten</b> gemaild "
+"naar de volgende ontvangers: </i><br /><br />\n"
 
-#: ../roomops.c:1522 ../roomops.c:1552
+#: ../roomops.c:1546 ../roomops.c:1577
 msgid "(remove)"
 msgstr "(verwijderen)"
 
-#: ../roomops.c:1535
+#: ../roomops.c:1560
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
 msgstr ""
-"<i>De berichten in deze ruimte worden als <b>als één pakket</b> gemaild "
-"naar de volgende ontvangers: </i><br /><br />\n"
+"<i>De berichten in deze ruimte worden als <b>als één pakket</b> gemaild naar "
+"de volgende ontvangers: </i><br /><br />\n"
 
-#: ../roomops.c:1572
+#: ../roomops.c:1598
 msgid "List"
 msgstr "Los"
 
-#: ../roomops.c:1573
+#: ../roomops.c:1599
 msgid "Digest"
 msgstr "Pakket"
 
-#: ../roomops.c:1574 ../roomops.c:1575
+#: ../roomops.c:1600 ../roomops.c:1601
 msgid "Add recipients from Contacts or other address books"
 msgstr "Voeg ontvangers toe uit 'Contacten' of andere adresboeken"
 
-#: ../roomops.c:1581
-msgid "This room is configured to allow self-service subscribe/unsubscribe requests."
+#: ../roomops.c:1607
+msgid ""
+"This room is configured to allow self-service subscribe/unsubscribe requests."
 msgstr "Deze ruimte is ingesteld voor self-service bij abonneren/verwijderen."
 
-#: ../roomops.c:1584
+#: ../roomops.c:1610
 msgid "Click to disable."
 msgstr "Klik om uit te zetten."
 
-#: ../roomops.c:1586
+#: ../roomops.c:1612
 msgid "The URL for subscribe/unsubscribe is: "
 msgstr "De URL voor abonneren/verwijderen is: "
 
-#: ../roomops.c:1592
+#: ../roomops.c:1618
 msgid ""
 "This room is <i>not</i> configured to allow self-service subscribe/"
 "unsubscribe requests."
@@ -1925,65 +1974,65 @@ msgstr ""
 "Deze ruimte is <i>niet</i> ingesteld voor self-service bij abonneren/"
 "verwijderen."
 
-#: ../roomops.c:1596
+#: ../roomops.c:1622
 msgid "Click to enable."
 msgstr "Klik om aan te zetten."
 
-#: ../roomops.c:1625
+#: ../roomops.c:1652
 msgid "Message expire policy for this room"
 msgstr "Instelling voor verlopen berichten in deze ruimte"
 
-#: ../roomops.c:1631
+#: ../roomops.c:1658
 msgid "Use the default policy for this floor"
 msgstr "Gebruik de standaardinstelling voor deze ruimte"
 
-#: ../roomops.c:1635 ../roomops.c:1662 ../siteconfig.c:591 ../siteconfig.c:616
+#: ../roomops.c:1662 ../roomops.c:1689 ../siteconfig.c:593 ../siteconfig.c:618
 #, c-format
 msgid "Never automatically expire messages"
 msgstr "Nooit berichten automatisch laten verlopen"
 
-#: ../roomops.c:1639 ../roomops.c:1666 ../siteconfig.c:595 ../siteconfig.c:620
+#: ../roomops.c:1666 ../roomops.c:1693 ../siteconfig.c:597 ../siteconfig.c:622
 #, c-format
 msgid "Expire by message count"
 msgstr "Verlopen door aantal berichten"
 
-#: ../roomops.c:1643 ../roomops.c:1670 ../siteconfig.c:599 ../siteconfig.c:624
+#: ../roomops.c:1670 ../roomops.c:1697 ../siteconfig.c:601 ../siteconfig.c:626
 #, c-format
 msgid "Expire by message age"
 msgstr "Verlopen door ouderdom bericht"
 
-#: ../roomops.c:1645 ../roomops.c:1672 ../siteconfig.c:601 ../siteconfig.c:626
+#: ../roomops.c:1672 ../roomops.c:1699 ../siteconfig.c:603 ../siteconfig.c:628
 #, c-format
 msgid "Number of messages or days: "
 msgstr "Aantal berichten of dagen: "
 
-#: ../roomops.c:1652
+#: ../roomops.c:1679
 msgid "Message expire policy for this floor"
 msgstr "Instelling voor het verlopen van berichten op deze verdieping"
 
-#: ../roomops.c:1658
+#: ../roomops.c:1685
 msgid "Use the system default"
 msgstr "Gebruik systeemstandaard"
 
-#: ../roomops.c:1737 ../roomops.c:3138 ../sieve.c:523
+#: ../roomops.c:1764 ../roomops.c:3180 ../sieve.c:540
 msgid "Cancelled.  Changes were not saved."
 msgstr "Afgebroken. Wijzigingen niet bewaard."
 
-#: ../roomops.c:1886 ../sieve.c:579
+#: ../roomops.c:1919 ../sieve.c:596
 msgid "Your changes have been saved."
 msgstr "Uw wijzigingen zijn bewaard."
 
-#: ../roomops.c:1918
+#: ../roomops.c:1951
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
 msgstr "<B><I>Gebruiker %s uit deze ruimte verwijderd. %s.</I></B>\n"
 
-#: ../roomops.c:1932
+#: ../roomops.c:1965
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
 msgstr "<B><I>Gebruiker %s uitgenodigd in deze ruimte %s.</I></B>\n"
 
-#: ../roomops.c:1960
+#: ../roomops.c:1993
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
@@ -1992,11 +2041,11 @@ msgstr ""
 "verwijderen uit de toegangslijst, selecteer de gebruikersnaam en klik "
 "'Verwijderen'"
 
-#: ../roomops.c:1980
+#: ../roomops.c:2014
 msgid "Kick"
 msgstr "Verwijderen"
 
-#: ../roomops.c:1984
+#: ../roomops.c:2018
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
@@ -2004,35 +2053,35 @@ msgstr ""
 "Om een andere gebruiker toegang te geven tot deze ruimte vul hieronder de "
 "gebruikersnaam in en klik op 'Uitnodigen'."
 
-#: ../roomops.c:1990
+#: ../roomops.c:2025
 msgid "Invite:"
 msgstr "Uitnodigen: "
 
-#: ../roomops.c:1995
+#: ../roomops.c:2030
 msgid "Invite"
 msgstr "Uitnodigen"
 
-#: ../roomops.c:2059
+#: ../roomops.c:2095
 msgid "Default view for room: "
 msgstr "Standaard weergave voor ruimte: "
 
-#: ../roomops.c:2121
+#: ../roomops.c:2157
 msgid "Personal (mailbox for you only)"
 msgstr "Persoonlijk (mailbox voor u alleen)"
 
-#: ../roomops.c:2126
+#: ../roomops.c:2162
 msgid "Create new room"
 msgstr "Maak een nieuwe ruimte aan"
 
-#: ../roomops.c:2194
+#: ../roomops.c:2230
 msgid "Cancelled.  No new room was created."
 msgstr "Afgebroken. Geen nieuwe ruimte aangemaakt"
 
-#: ../roomops.c:2237
+#: ../roomops.c:2273
 msgid "Go to a hidden room"
 msgstr "Ga naar een verborgen ruimte"
 
-#: ../roomops.c:2248
+#: ../roomops.c:2284
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
@@ -2044,40 +2093,40 @@ msgstr ""
 "eenmaal toegang heeft tot een privéruimte, zal het verschijnen in uw normale "
 "lijst met ruimtes, zodat u hier niet steeds hoeft terug te keren."
 
-#: ../roomops.c:2260
+#: ../roomops.c:2297
 msgid "Enter room name:"
 msgstr "Geef naam ruimte: "
 
-#: ../roomops.c:2267
+#: ../roomops.c:2304
 msgid "Enter room password:"
 msgstr "Geef wachtwoord ruimte: "
 
-#: ../roomops.c:2276
+#: ../roomops.c:2313
 msgid "Go there"
 msgstr "Ga er naar toe"
 
-#: ../roomops.c:2329
+#: ../roomops.c:2366
 msgid "Zap (forget/unsubscribe) the current room"
 msgstr "Zap (vergeet/verwijder uit) de huidige ruimte"
 
-#: ../roomops.c:2334
+#: ../roomops.c:2371
 #, c-format
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
 msgstr ""
-"Als u deze optie selecteert verdwijnt <em>%s</em> uit uw lijst met ruimtes.  Is "
-"dat wat u wilt?<br />\n"
+"Als u deze optie selecteert verdwijnt <em>%s</em> uit uw lijst met ruimtes.  "
+"Is dat wat u wilt?<br />\n"
 
-#: ../roomops.c:2339
+#: ../roomops.c:2377
 msgid "Zap this room"
 msgstr "Zap deze ruimte"
 
-#: ../roomops.c:3088 ../roomops.c:3094
+#: ../roomops.c:3130 ../roomops.c:3136
 msgid "Room list"
 msgstr "Lijst van ruimtes"
 
-#: ../roomops.c:3091
+#: ../roomops.c:3133
 msgid "Folder list"
 msgstr "Lijst van mappen"
 
@@ -2093,41 +2142,41 @@ msgstr "Niet ingelogd"
 msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr "Fout in binnenhalen RSS feed: kon geen berichten vinden\n"
 
-#: ../sieve.c:91
+#: ../sieve.c:92
 msgid "When new mail arrives: "
 msgstr "Als nieuwe mail binnenkomt: "
 
-#: ../sieve.c:95
+#: ../sieve.c:96
 msgid "Leave it in my inbox without filtering"
 msgstr "Laat het in mijn Inbox zonder filtering"
 
-#: ../sieve.c:99
+#: ../sieve.c:100
 msgid "Filter it according to rules selected below"
 msgstr "Filter het volgens onderstaande regels"
 
-#: ../sieve.c:104
+#: ../sieve.c:105
 msgid "Filter it through a manually edited script (advanced users only)"
 msgstr ""
 "Filter het door een handmatig aangemaakt script (alleen gevorderde "
 "gebruikers)"
 
-#: ../sieve.c:115
+#: ../sieve.c:116
 msgid "Your incoming mail will not be filtered through any scripts."
 msgstr "Uw inkomende mail zal door geen enkel script worden gefilterd."
 
-#: ../sieve.c:130
+#: ../sieve.c:131
 msgid "The currently active script is: "
 msgstr "Het nu actieve script is: "
 
-#: ../sieve.c:145 ../sieve.c:599
+#: ../sieve.c:146 ../sieve.c:616
 msgid "Add or delete scripts"
 msgstr "Toevoegen of verwijderen scripts"
 
-#: ../sieve.c:608
+#: ../sieve.c:625
 msgid "Add a new script"
 msgstr "Voeg een nieuw script toe"
 
-#: ../sieve.c:611
+#: ../sieve.c:628
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
@@ -2135,27 +2184,27 @@ msgstr ""
 "Om een nieuw script te maken voer de gewenste scriptnaam in en klik op "
 "'Aanmaken'"
 
-#: ../sieve.c:616
+#: ../sieve.c:634
 msgid "Script name: "
 msgstr "Naam van het script: "
 
-#: ../sieve.c:619 ../useredit.c:51
+#: ../sieve.c:637 ../useredit.c:52
 msgid "Create"
 msgstr "Aanmaken"
 
-#: ../sieve.c:623
+#: ../sieve.c:641
 msgid "Edit scripts"
 msgstr "Scripts bewerken"
 
-#: ../sieve.c:626
+#: ../sieve.c:644
 msgid "Return to the script editing screen"
 msgstr "Terug naar het bewerkingsscherm voor script"
 
-#: ../sieve.c:632
+#: ../sieve.c:650
 msgid "Delete scripts"
 msgstr "Scripts verwijderen"
 
-#: ../sieve.c:635
+#: ../sieve.c:653
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
@@ -2163,167 +2212,163 @@ msgstr ""
 "Om een bestaand script te verwijderen, selecteer de scriptnaam en klik "
 "'Verwijderen'."
 
-#: ../sieve.c:658
+#: ../sieve.c:677
 msgid "Delete script"
 msgstr "Script verwijderen"
 
-#: ../sieve.c:658
+#: ../sieve.c:677
 msgid "Delete this script?"
 msgstr "Dit script verwijderen?"
 
-#: ../sieve.c:695
+#: ../sieve.c:714
 msgid "A script by that name already exists."
 msgstr "Een script met die naam bestaat al"
 
-#: ../sieve.c:704
+#: ../sieve.c:723
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
 msgstr ""
-"Een nieuw script is aangemaakt. Terug naar het bewerkingsscherm voor bewerking "
-"en activering."
+"Een nieuw script is aangemaakt. Terug naar het bewerkingsscherm voor "
+"bewerking en activering."
 
-#: ../sieve.c:921
+#: ../sieve.c:940
 msgid "Move rule up"
 msgstr "Regel naar boven"
 
-#: ../sieve.c:926
+#: ../sieve.c:945
 msgid "Move rule down"
 msgstr "Regel naar beneden"
 
-#: ../sieve.c:931
+#: ../sieve.c:950
 msgid "Delete rule"
 msgstr "Verwijder regel"
 
-#: ../sieve.c:939
+#: ../sieve.c:958
 msgid "If"
 msgstr "als"
 
-#: ../sieve.c:942
+#: ../sieve.c:961
 msgid "From"
 msgstr "van"
 
-#: ../sieve.c:943
+#: ../sieve.c:962
 msgid "To or Cc"
 msgstr "Aan of Cc"
 
-#: ../sieve.c:945
+#: ../sieve.c:964
 msgid "Reply-to"
 msgstr "Antwoord aan"
 
-#: ../sieve.c:947
+#: ../sieve.c:966
 msgid "Resent-From"
 msgstr "Afwijzen-Van"
 
-#: ../sieve.c:948
+#: ../sieve.c:967
 msgid "Resent-To"
 msgstr "Afwijzen-Aan"
 
-#: ../sieve.c:949
+#: ../sieve.c:968
 msgid "Envelope From"
 msgstr "Envelop Van"
 
-#: ../sieve.c:950
+#: ../sieve.c:969
 msgid "Envelope To"
 msgstr "Envelop Aan"
 
-#: ../sieve.c:951
+#: ../sieve.c:970
 msgid "X-Mailer"
 msgstr "X-Mailer"
 
-#: ../sieve.c:952
+#: ../sieve.c:971
 msgid "X-Spam-Flag"
 msgstr "X-Spam-Flag"
 
-#: ../sieve.c:953
+#: ../sieve.c:972
 msgid "X-Spam-Status"
 msgstr "X-Spam-Status"
 
-#: ../sieve.c:954
+#: ../sieve.c:973
 msgid "Message size"
 msgstr "Berichtgrootte"
 
-#: ../sieve.c:955
-msgid "All"
-msgstr "Alles"
-
-#: ../sieve.c:974
+#: ../sieve.c:993
 msgid "contains"
 msgstr "bevat"
 
-#: ../sieve.c:975
+#: ../sieve.c:994
 msgid "does not contain"
 msgstr "bevat niet"
 
-#: ../sieve.c:976
+#: ../sieve.c:995
 msgid "is"
 msgstr "is"
 
-#: ../sieve.c:977
+#: ../sieve.c:996
 msgid "is not"
 msgstr "is niet"
 
-#: ../sieve.c:978
+#: ../sieve.c:997
 msgid "matches"
 msgstr "komt overeen met"
 
-#: ../sieve.c:979
+#: ../sieve.c:998
 msgid "does not match"
 msgstr "komt niet overeen met"
 
-#: ../sieve.c:999
+#: ../sieve.c:1018
 msgid "(All messages)"
 msgstr "(Alle berichten)"
 
-#: ../sieve.c:1003
+#: ../sieve.c:1022
 msgid "is larger than"
 msgstr "is groter dan"
 
-#: ../sieve.c:1004
+#: ../sieve.c:1023
 msgid "is smaller than"
 msgstr "is kleiner dan"
 
-#: ../sieve.c:1027
+#: ../sieve.c:1046
 msgid "Keep"
 msgstr "Bewaren"
 
-#: ../sieve.c:1028
+#: ../sieve.c:1047
 msgid "Discard silently"
 msgstr "Stil verwijderen"
 
-#: ../sieve.c:1029
+#: ../sieve.c:1048
 msgid "Reject"
 msgstr "Afwijzen"
 
-#: ../sieve.c:1030
+#: ../sieve.c:1049
 msgid "Move message to"
 msgstr "Verplaats bericht naar"
 
-#: ../sieve.c:1031
+#: ../sieve.c:1050
 msgid "Forward to"
 msgstr "Doorsturen naar"
 
-#: ../sieve.c:1032
+#: ../sieve.c:1051
 msgid "Vacation"
 msgstr "Vakantie"
 
-#: ../sieve.c:1069
+#: ../sieve.c:1088
 msgid "Message:"
 msgstr "Bericht: "
 
-#: ../sieve.c:1079
+#: ../sieve.c:1098
 msgid "continue processing"
 msgstr "doorgaan met bewerking"
 
-#: ../sieve.c:1080
+#: ../sieve.c:1099
 msgid "stop"
 msgstr "stop"
 
-#: ../sieve.c:1083
+#: ../sieve.c:1102
 msgid "and then"
 msgstr "en dan"
 
-#: ../sieve.c:1104
+#: ../sieve.c:1123
 msgid "Add rule"
 msgstr "Voeg regel toe"
 
@@ -2405,7 +2450,8 @@ msgstr "Stel het automatisch verlopen van oude berichten in."
 
 #: ../siteconfig.c:102
 msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr "Deze instellingen kunnen worden overschreven op verdieping- of ruimteniveau."
+msgstr ""
+"Deze instellingen kunnen worden overschreven op verdieping- of ruimteniveau."
 
 #: ../siteconfig.c:106
 msgid "Indexing and Journaling"
@@ -2415,244 +2461,245 @@ msgstr "Indexering en Journaling"
 msgid "Warning: these facilities are resource intensive."
 msgstr "Waarschuwing: dit vraagt veel van het systeem."
 
-#: ../siteconfig.c:127
+#: ../siteconfig.c:128
 #, c-format
 msgid "Fully qualified domain name"
 msgstr "Fully qualified domain name"
 
-#: ../siteconfig.c:134
+#: ../siteconfig.c:135
 #, c-format
 msgid "Human-readable node name"
 msgstr "Leesbare knooppuntnaam"
 
-#: ../siteconfig.c:141
+#: ../siteconfig.c:142
 #, c-format
 msgid "Telephone number"
 msgstr "Telefoonnummer"
 
-#: ../siteconfig.c:148
+#: ../siteconfig.c:149
 #, c-format
 msgid "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Sta automatisch beheerdersstatus in voor gebruikers die privé ruimtes "
 "aanmaken"
 
-#: ../siteconfig.c:156
+#: ../siteconfig.c:157
 #, c-format
 msgid "Server connection idle timeout (in seconds)"
 msgstr "Serververbinding timeout (in seconden)"
 
-#: ../siteconfig.c:163
+#: ../siteconfig.c:164
 #, c-format
 msgid "Initial access level for new users"
 msgstr "Begin toegangsniveau voor nieuwe gebruikers"
 
-#: ../siteconfig.c:177
+#: ../siteconfig.c:178
 #, c-format
 msgid "Require registration for new users"
 msgstr "Registratie nodig voor nieuwe gebruikers"
 
-#: ../siteconfig.c:185
+#: ../siteconfig.c:186
 #, c-format
 msgid "Quarantine messages from problem users"
 msgstr "Quarantaine berichten van probleemgebruikers"
 
-#: ../siteconfig.c:193
+#: ../siteconfig.c:194
 #, c-format
 msgid "Name of quarantine room"
 msgstr "Naam van de quarantaineruimte"
 
-#: ../siteconfig.c:200
+#: ../siteconfig.c:201
 #, c-format
 msgid "Paginator prompt (for text mode clients)"
 msgstr "Prompt volgende pagina (voor textmode clients)"
 
-#: ../siteconfig.c:207
+#: ../siteconfig.c:208
 #, c-format
 msgid "Restrict access to Internet mail"
 msgstr "Toegang tot Internetmail beperken"
 
-#: ../siteconfig.c:215
+#: ../siteconfig.c:216
 #, c-format
 msgid "Geographic location of this system"
 msgstr "Geografische locatie van dit systeem"
 
-#: ../siteconfig.c:222
+#: ../siteconfig.c:223
 #, c-format
 msgid "Name of system administrator"
 msgstr "Naam van de systeembeheerder"
 
-#: ../siteconfig.c:229
+#: ../siteconfig.c:230
 #, c-format
 msgid "Maximum concurrent sessions (0 = no limit)"
 msgstr "Maximale gelijktijdige sessies (0 = geen limiet)"
 
-#: ../siteconfig.c:236
+#: ../siteconfig.c:237
 #, c-format
 msgid "Default user purge time (days)"
 msgstr "Standaard opruimen gebruiker (dagen)"
 
-#: ../siteconfig.c:243
+#: ../siteconfig.c:244
 #, c-format
 msgid "Default room purge time (days)"
 msgstr "Standaard opruimen ruimte (dagen)"
 
-#: ../siteconfig.c:250
+#: ../siteconfig.c:251
 #, c-format
 msgid "Name of room to log pages"
 msgstr "Naam van de ruimte voor log pagina's"
 
-#: ../siteconfig.c:257
+#: ../siteconfig.c:258
 #, c-format
 msgid "Access level required to create rooms"
 msgstr "Benodigd toegangsniveau om ruimte aan te maken"
 
-#: ../siteconfig.c:271
+#: ../siteconfig.c:272
 #, c-format
 msgid "Maximum message length"
 msgstr "Maximale lengte bericht"
 
-#: ../siteconfig.c:278
+#: ../siteconfig.c:279
 #, c-format
 msgid "Minimum number of worker threads"
 msgstr "Minimum aantal worker threads"
 
-#: ../siteconfig.c:285
+#: ../siteconfig.c:286
 #, c-format
 msgid "Maximum number of worker threads"
 msgstr "Maximum aantal worker threads"
 
-#: ../siteconfig.c:292
+#: ../siteconfig.c:293
 #, c-format
 msgid "POP3 listener port (-1 to disable)"
 msgstr "POP3 listener port (-1 to disable)"
 
-#: ../siteconfig.c:299
+#: ../siteconfig.c:300
 #, c-format
 msgid "SMTP MTA port (-1 to disable)"
 msgstr "SMTP MTA port (-1 to disable)"
 
-#: ../siteconfig.c:306
+#: ../siteconfig.c:307
 #, c-format
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr "Corrigeer gedwongen Van: regels tijdens authenticated SMTP"
 
-#: ../siteconfig.c:314
+#: ../siteconfig.c:315
 #, c-format
 msgid "Allow aides to zap (forget) rooms"
 msgstr "Sta beheerders toe ruimtes te zappen (vergeten)"
 
-#: ../siteconfig.c:322
+#: ../siteconfig.c:323
 #, c-format
 msgid "IMAP listener port (-1 to disable)"
 msgstr "IMAP listener port (-1 to disable)"
 
-#: ../siteconfig.c:329
+#: ../siteconfig.c:330
 #, c-format
 msgid "Network run frequency (in seconds)"
 msgstr "Network run frequency (in seconden)"
 
-#: ../siteconfig.c:336
+#: ../siteconfig.c:337
 #, c-format
 msgid "Disable self-service user account creation"
 msgstr "Schakel de self-service uit bij het aanmaken van een account"
 
-#: ../siteconfig.c:344
+#: ../siteconfig.c:345
 #, c-format
 msgid "Hour to run database auto-purge"
 msgstr "Tijd waarop database opgeruimd wordt"
 
-#: ../siteconfig.c:360
+#: ../siteconfig.c:361
 #, c-format
 msgid "Host name of LDAP server (blank to disable)"
 msgstr "Hostnaam van de LDAP server (blanco is uit)"
 
-#: ../siteconfig.c:367
+#: ../siteconfig.c:368
 #, c-format
 msgid "Port number of LDAP server (blank to disable)"
 msgstr "Poortnummer van de LDAP server (blanco is uit)"
 
-#: ../siteconfig.c:374
+#: ../siteconfig.c:375
 #, c-format
 msgid "Base DN"
 msgstr "Base DN"
 
-#: ../siteconfig.c:381
+#: ../siteconfig.c:382
 #, c-format
 msgid "Bind DN"
 msgstr "Bind DN"
 
-#: ../siteconfig.c:388
+#: ../siteconfig.c:389
 #, c-format
 msgid "Password for bind DN"
 msgstr "Wachtwoord voor bind DN"
 
-#: ../siteconfig.c:396
+#: ../siteconfig.c:397
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
 msgstr "Server IP adres (0.0.0.0 voor 'elk')"
 
-#: ../siteconfig.c:403
+#: ../siteconfig.c:404
 #, c-format
 msgid "SMTP MSA port (-1 to disable)"
 msgstr "SMTP MSA port (-1 to disable)"
 
-#: ../siteconfig.c:410
+#: ../siteconfig.c:411
 #, c-format
 msgid "IMAP over SSL port (-1 to disable)"
 msgstr "IMAP over SSL port (-1 to disable)"
 
-#: ../siteconfig.c:417
+#: ../siteconfig.c:418
 #, c-format
 msgid "POP3 over SSL port (-1 to disable)"
 msgstr "POP3 over SSL port (-1 to disable)"
 
-#: ../siteconfig.c:424
+#: ../siteconfig.c:425
 #, c-format
 msgid "SMTP over SSL port (-1 to disable)"
 msgstr "SMTP over SSL port (-1 to disable"
 
-#: ../siteconfig.c:431
+#: ../siteconfig.c:432
 #, c-format
 msgid "Enable full text index"
 msgstr "Geef full-text index vrij"
 
-#: ../siteconfig.c:439
+#: ../siteconfig.c:440
 #, c-format
 msgid "Automatically delete committed database logs"
 msgstr "Wis automatisch bewaarde database logs"
 
-#: ../siteconfig.c:447
+#: ../siteconfig.c:448
 #, c-format
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Verwijder direct gewiste berichten in IMAP"
 
-#: ../siteconfig.c:455
+#: ../siteconfig.c:456
 #, c-format
 msgid "Allow unauthenticated SMTP clients to spoof this site's domains"
-msgstr "Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
+msgstr ""
+"Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
 
-#: ../siteconfig.c:463
+#: ../siteconfig.c:464
 #, c-format
 msgid "Perform journaling of email messages"
 msgstr "Voer journaliseren van emailberichten uit"
 
-#: ../siteconfig.c:471
+#: ../siteconfig.c:472
 #, c-format
 msgid "Perform journaling of non-email messages"
 msgstr "Voer journaliseren van niet-emailberichten uit"
 
-#: ../siteconfig.c:479
+#: ../siteconfig.c:480
 #, c-format
 msgid "Email destination of journalized messages"
 msgstr "Bestemming van gejournaliseerde berichten"
 
-#: ../siteconfig.c:490
+#: ../siteconfig.c:491
 #, c-format
 msgid "Default timezone for unzoned calendar items"
 msgstr "Standaard tijdzone voor agenda-items zonder zone"
 
-#: ../siteconfig.c:518
+#: ../siteconfig.c:519
 #, c-format
 msgid ""
 "<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
@@ -2661,80 +2708,80 @@ msgstr ""
 "<a href=\"http://www.postfix.org/tcp_table.5.html\">Postfix TCP Dictionary "
 "Port </a> (-1 to disable)"
 
-#: ../siteconfig.c:525
+#: ../siteconfig.c:526
 #, c-format
 msgid "ManageSieve Port (-1 to disable)"
 msgstr "ManageSieve Port (-1 to disable)"
 
-#: ../siteconfig.c:532
+#: ../siteconfig.c:533
 #, c-format
 msgid "Enable host based authentication mode"
 msgstr "Sta host based authenticatie toe "
 
-#: ../siteconfig.c:539
+#: ../siteconfig.c:541
 #, c-format
 msgid "Funambol server host (blank to disable)"
 msgstr "Funambol server (blanco is uit)"
 
-#: ../siteconfig.c:546
+#: ../siteconfig.c:548
 #, c-format
 msgid "Funambol server port "
 msgstr "Funambol serverpoort "
 
-#: ../siteconfig.c:553
+#: ../siteconfig.c:555
 #, c-format
 msgid "Funambol sync source"
 msgstr "Funambol sync bron"
 
-#: ../siteconfig.c:560
+#: ../siteconfig.c:562
 #, c-format
 msgid "Funambol auth details (user:pass in Base64)"
 msgstr "Funambol auth details (user:pass in Base64)"
 
-#: ../siteconfig.c:587
+#: ../siteconfig.c:589
 #, c-format
 msgid "Default message expire policy for public rooms"
 msgstr "Standaardinstelling voor het laten verlopen van openbare ruimtes"
 
-#: ../siteconfig.c:608
+#: ../siteconfig.c:610
 #, c-format
 msgid "Default message expire policy for private mailboxes"
 msgstr "Standaardinstelling voor het laten verlopen van privé mailboxen"
 
-#: ../siteconfig.c:612
+#: ../siteconfig.c:614
 #, c-format
 msgid "Same policy as public rooms"
 msgstr "Zelfde instelling als openbare ruimtes"
 
-#: ../siteconfig.c:745
+#: ../siteconfig.c:747
 msgid "Your system configuration has been updated."
 msgstr "Uw systeeminstellingen zijn bijgewerkt."
 
-#: ../smtpqueue.c:168
+#: ../smtpqueue.c:170
 msgid "Message ID"
 msgstr "Message ID"
 
-#: ../smtpqueue.c:170
+#: ../smtpqueue.c:172
 msgid "Date/time submitted"
 msgstr "Datum/tijd ingesteld"
 
-#: ../smtpqueue.c:172
+#: ../smtpqueue.c:174
 msgid "Last attempt"
 msgstr "Laatste poging"
 
-#: ../smtpqueue.c:176
+#: ../smtpqueue.c:178
 msgid "Recipients"
 msgstr "Ontvangers"
 
-#: ../smtpqueue.c:188
+#: ../smtpqueue.c:190
 msgid "The queue is empty."
 msgstr "De queue is leeg"
 
-#: ../smtpqueue.c:194
+#: ../smtpqueue.c:196
 msgid "You do not have permission to view this resource."
 msgstr "U heeft geen toestemming deze bron te bekijken."
 
-#: ../smtpqueue.c:247
+#: ../smtpqueue.c:249
 msgid "Refresh this page"
 msgstr "Ververs deze pagina"
 
@@ -2746,23 +2793,23 @@ msgstr "FOUT: kon template niet openen"
 msgid "(nothing)"
 msgstr "(niets)"
 
-#: ../summary.c:117
+#: ../summary.c:138
 msgid "(None)"
 msgstr "(Niemand)"
 
-#: ../summary.c:130
+#: ../summary.c:151
 msgid "(This server does not support task lists)"
 msgstr "(Deze server ondersteunt geen takenlijsten)"
 
-#: ../summary.c:156
+#: ../summary.c:177
 msgid "(Nothing)"
 msgstr "(Niets)"
 
-#: ../summary.c:168
+#: ../summary.c:189
 msgid "(This server does not support calendars)"
 msgstr "(Deze server ondersteunt geen agenda's)"
 
-#: ../summary.c:180
+#: ../summary.c:201
 #, c-format
 msgid ""
 "You are connected to %s, running %s with %s, and located in %s.  Your system "
@@ -2771,23 +2818,23 @@ msgstr ""
 "U bent verbonden met %s, waar %s op draait met %s, en gevestigd in %s. Uw "
 "systeembeheerder is %s."
 
-#: ../summary.c:213
+#: ../summary.c:234
 msgid "Messages"
 msgstr "Berichten"
 
-#: ../summary.c:239
+#: ../summary.c:260
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Vandaag&nbsp;op&nbsp;uw&nbsp;agenda"
 
-#: ../summary.c:256
+#: ../summary.c:277
 msgid "Who's&nbsp;online&nbsp;now"
 msgstr "Wie is nu online"
 
-#: ../summary.c:269
+#: ../summary.c:290
 msgid "About&nbsp;this&nbsp;server"
 msgstr "Over&nbsp;deze&nbsp;server"
 
-#: ../summary.c:295
+#: ../summary.c:315
 #, c-format
 msgid "Summary page for %s"
 msgstr "Samenvattingspagina voor %s"
@@ -2800,8 +2847,8 @@ msgstr "Bewerk %s"
 #: ../sysmsgs.c:44
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser."
-" A newline is forced by preceding the next line by a blank."
+"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"forced by preceding the next line by a blank."
 msgstr ""
 "Voeg hieronder %s toe.  Tekst wordt weergegeven op de breedte van het scherm "
 "van de lezer. Voor de goede weergave zorg dat een regel in elk geval een "
@@ -2833,15 +2880,15 @@ msgstr ""
 "Om een nieuw gebruikersaccount aan te maken vul de gewenste gebruikersnaam "
 "hieronder in en klik op 'Aanmaken'."
 
-#: ../useredit.c:48
+#: ../useredit.c:49
 msgid "New user: "
 msgstr "Nieuwe gebruiker: "
 
-#: ../useredit.c:57
+#: ../useredit.c:58
 msgid "Edit or Delete users"
 msgstr "Gebruikers bewerken of verwijderen"
 
-#: ../useredit.c:60
+#: ../useredit.c:61
 msgid ""
 "To edit an existing user account, select the user name from the list and "
 "click 'Edit'."
@@ -2849,69 +2896,70 @@ msgstr ""
 "Om een bestaande gebruiker te bewerken, selecteer de gebruikersnaam en klik "
 "op 'Bewerken'"
 
-#: ../useredit.c:83
+#: ../useredit.c:85
 msgid "Edit configuration"
 msgstr "Instellingen bewerken"
 
-#: ../useredit.c:84
+#: ../useredit.c:86
 msgid "Edit address book entry"
 msgstr "Item adresboek bewerken"
 
-#: ../useredit.c:86
+#: ../useredit.c:88
 msgid "Delete user"
 msgstr "Gebruiker verwijderen"
 
-#: ../useredit.c:86
+#: ../useredit.c:88
 msgid "Delete this user?"
 msgstr "Deze gebruiker verwijderen?"
 
-#: ../useredit.c:204
-msgid "An error occurred while trying to create or edit this address book entry."
+#: ../useredit.c:206
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "Er is een fout opgetreden tijdens het aanmaken of bewerken van dit adresboek "
 "item."
 
-#: ../useredit.c:283
+#: ../useredit.c:285
 msgid "Edit user account: "
 msgstr "Gebruikersaccount bewerken:"
 
-#: ../useredit.c:303
+#: ../useredit.c:306
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: ../useredit.c:310
+#: ../useredit.c:313
 msgid "Permission to send Internet mail"
 msgstr "Toestemming om Internetmail te verzenden"
 
-#: ../useredit.c:319
+#: ../useredit.c:322
 msgid "Number of logins"
 msgstr "Aantal logins"
 
-#: ../useredit.c:326
+#: ../useredit.c:329
 msgid "Messages submitted"
 msgstr "Bericht geplaatst"
 
-#: ../useredit.c:333
+#: ../useredit.c:336
 msgid "Access level"
 msgstr "Toegangsniveau"
 
-#: ../useredit.c:347
+#: ../useredit.c:350
 msgid "User ID number"
 msgstr "Gebruiker ID nummer"
 
-#: ../useredit.c:355
+#: ../useredit.c:358
 msgid "Date and time of last login"
 msgstr "Datum en tijd laatste login"
 
-#: ../useredit.c:370
+#: ../useredit.c:373
 msgid "Auto-purge after this many days"
 msgstr "Opruimen na dit aantal dagen"
 
-#: ../useredit.c:402
+#: ../useredit.c:405
 msgid "Changes were not saved."
 msgstr "Wijzigingen niet bewaard."
 
-#: ../useredit.c:486
+#: ../useredit.c:489
 #, c-format
 msgid "A new user has been created."
 msgstr "Nieuwe gebruiker aangemaakt."
@@ -2949,7 +2997,7 @@ msgstr "Totaal aantal berichten"
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
-#: ../userlist.c:165
+#: ../userlist.c:167
 #, c-format
 msgid "Click here to send an instant message to %s"
 msgstr "Klik hier om direct een bericht te sturen naar %s"
@@ -2958,101 +3006,101 @@ msgstr "Klik hier om direct een bericht te sturen naar %s"
 msgid "Edit contact information"
 msgstr "Bewerk contactinformatie"
 
-#: ../vcard_edit.c:198
+#: ../vcard_edit.c:199
 msgid "Prefix"
 msgstr "Aanhef"
 
-#: ../vcard_edit.c:198
+#: ../vcard_edit.c:199
 msgid "First"
 msgstr "Voornaam"
 
-#: ../vcard_edit.c:198
+#: ../vcard_edit.c:199
 msgid "Middle"
 msgstr "Voorvoegsel"
 
-#: ../vcard_edit.c:198
+#: ../vcard_edit.c:199
 msgid "Last"
 msgstr "Achternaam"
 
-#: ../vcard_edit.c:198
+#: ../vcard_edit.c:199
 msgid "Suffix"
 msgstr "Suffix"
 
-#: ../vcard_edit.c:219
+#: ../vcard_edit.c:220
 msgid "Display name:"
 msgstr "Naamweergave: "
 
-#: ../vcard_edit.c:226
+#: ../vcard_edit.c:227
 msgid "Title:"
 msgstr "Titel: "
 
-#: ../vcard_edit.c:233
+#: ../vcard_edit.c:234
 msgid "Organization:"
 msgstr "Organisatie: "
 
-#: ../vcard_edit.c:244
+#: ../vcard_edit.c:245
 msgid "PO box:"
 msgstr "Postbus: "
 
-#: ../vcard_edit.c:260
+#: ../vcard_edit.c:261
 msgid "City:"
 msgstr "Plaats: "
 
-#: ../vcard_edit.c:266
+#: ../vcard_edit.c:267
 msgid "State:"
 msgstr "Prov.: "
 
-#: ../vcard_edit.c:272
+#: ../vcard_edit.c:273
 msgid "ZIP code:"
 msgstr "Postcode: "
 
-#: ../vcard_edit.c:278
+#: ../vcard_edit.c:279
 msgid "Country:"
 msgstr "Land: "
 
-#: ../vcard_edit.c:288
+#: ../vcard_edit.c:289
 msgid "Home telephone:"
 msgstr "Telefoon thuis: "
 
-#: ../vcard_edit.c:294
+#: ../vcard_edit.c:295
 msgid "Work telephone:"
 msgstr "Telefoon werk: "
 
-#: ../vcard_edit.c:305
+#: ../vcard_edit.c:306
 msgid "Primary Internet e-mail address"
 msgstr "Primair e-mailadres: "
 
-#: ../vcard_edit.c:312
+#: ../vcard_edit.c:313
 msgid "Internet e-mail aliases"
 msgstr "Internet e-mail aliases"
 
-#: ../webcit.c:683
+#: ../webcit.c:755
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
 
-#: ../webcit.c:767
+#: ../webcit.c:839
 msgid "Make this my start page"
 msgstr "Maak hiervan mijn startpagina"
 
-#: ../webcit.c:786
+#: ../webcit.c:858
 msgid "You no longer have a start page selected."
 msgstr "U heeft geen startpagina meer geselecteerd."
 
-#: ../webcit.c:822
+#: ../webcit.c:894
 msgid "Authorization Required"
 msgstr "Autorisatie vereist"
 
-#: ../webcit.c:824
+#: ../webcit.c:896
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
-"De opgevraagde bron vereist een geldige gebruikersnaam en wachtwoord. U "
-"kon niet worden ingelogd in: %s\n"
+"De opgevraagde bron vereist een geldige gebruikersnaam en wachtwoord. U kon "
+"niet worden ingelogd in: %s\n"
 
-#: ../webcit.c:1239
+#: ../webcit.c:1331
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3067,52 +3115,56 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../webcit.c:1499 ../webcit.c:1501
+#: ../webcit.c:1586 ../webcit.c:1588
+msgid "Room info"
+msgstr "Informatie over deze ruimte"
+
+#: ../webcit.c:1591 ../webcit.c:1593
 msgid "Your bio"
 msgstr "Uw CV"
 
-#: ../webcit.c:1509
+#: ../webcit.c:1601
 msgid "your photo"
 msgstr "uw foto"
 
-#: ../webcit.c:1515
+#: ../webcit.c:1607
 msgid "the icon for this room"
 msgstr "het icoontje voor deze ruimte"
 
-#: ../webcit.c:1529
+#: ../webcit.c:1621
 msgid "the icon for this floor"
 msgstr "het icoontje voor deze verdieping"
 
-#: ../who.c:27
+#: ../who.c:28
 msgid "User name"
 msgstr "Gebruikersnaam"
 
-#: ../who.c:28
+#: ../who.c:29
 msgid "Room"
 msgstr "Ruimte"
 
-#: ../who.c:29
+#: ../who.c:30
 msgid "From host"
 msgstr "Van host"
 
-#: ../who.c:62
+#: ../who.c:63
 msgid "(kill)"
 msgstr "(beëindig)"
 
-#: ../who.c:65
+#: ../who.c:66
 msgid "(edit)"
 msgstr "(bewerk)"
 
-#: ../who.c:141
+#: ../who.c:142
 msgid "Do you really want to kill this session?"
 msgstr "Wilt u deze sessie echt beëindigen?"
 
-#: ../who.c:151
+#: ../who.c:152
 #, c-format
 msgid "Users currently on %s"
 msgstr "Gebruikers op dit moment op %s"
 
-#: ../who.c:166
+#: ../who.c:167
 #, c-format
 msgid ""
 "Click on a name to read user info.  Click on %s to send an instant message "
@@ -3121,11 +3173,11 @@ msgstr ""
 "Klik op een naam om de gebruikersinfomatie te lezen. Klik op %s om een "
 "direct bericht naar die gebruiker te sturen."
 
-#: ../who.c:228
+#: ../who.c:229
 msgid "Edit your session display"
 msgstr "Bewerk uw sessie weergave"
 
-#: ../who.c:232
+#: ../who.c:233
 msgid ""
 "This screen allows you to change the way your session appears in the 'Who is "
 "online' listing. To turn off any 'fake' name you've previously set, simply "
@@ -3137,23 +3189,23 @@ msgstr ""
 "eerst had geplaatst klik eenvoudig op de 'Wijzig' knop zonder iets in te "
 "vullen in het betreffende veld."
 
-#: ../who.c:244
+#: ../who.c:246
 msgid "Room name:"
 msgstr "Naam ruimte: "
 
-#: ../who.c:249
+#: ../who.c:251
 msgid "Change room name"
 msgstr "Naam ruimte wijzigen"
 
-#: ../who.c:253
+#: ../who.c:255
 msgid "Host name:"
 msgstr "Hostnaam:"
 
-#: ../who.c:258
+#: ../who.c:260
 msgid "Change host name"
 msgstr "Hostnaam wijzigen"
 
-#: ../who.c:268
+#: ../who.c:270
 msgid "Change user name"
 msgstr "Gebruikersnaam wijzigen"
 
@@ -3177,6 +3229,5 @@ msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
-"Selecteer de 'Deze pagina bewerken' link in de banner van de ruimte als u deze "
-"pagina wilt aanmaken."
-
+"Selecteer de 'Deze pagina bewerken' link in de banner van de ruimte als u "
+"deze pagina wilt aanmaken."

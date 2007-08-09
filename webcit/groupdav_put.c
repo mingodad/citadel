@@ -183,7 +183,9 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		groupdav_identify_host();
 		wprintf("/groupdav/");
 		urlescputs(dav_roomname);
-		wprintf("/%s\r\n", dav_uid);
+	        char escaped_uid[1024];
+	        euid_escapize(escaped_uid, dav_uid);
+	        wprintf("/%s\r\n", escaped_uid);
 		wprintf("\r\n");
 		return;
 	}
