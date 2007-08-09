@@ -283,7 +283,7 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 	int i;
 
 	if (new_message_flags == NULL) return;
-	if (strlen(new_message_flags) == 0) return;
+	if (IsEmptyStr(new_message_flags)) return;
 
 	safestrncpy(flags, new_message_flags, sizeof flags);
 

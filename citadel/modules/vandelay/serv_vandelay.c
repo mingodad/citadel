@@ -199,7 +199,7 @@ void artv_export_visits(void) {
 		cprintf("%ld\n", vbuf.v_roomgen);
 		cprintf("%ld\n", vbuf.v_usernum);
 
-		if (strlen(vbuf.v_seen) > 0) {
+		if (!IsEmptyStr(vbuf.v_seen)) {
 			cprintf("%s\n", vbuf.v_seen);
 		}
 		else {

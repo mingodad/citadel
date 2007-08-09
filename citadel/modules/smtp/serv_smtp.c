@@ -359,7 +359,7 @@ void smtp_try_plain(char *encoded_authstring) {
 
 	SMTP->command_state = smtp_command;
 
-	if (strlen(ident) > 0) {
+	if (!IsEmptyStr(ident)) {
 		result = CtdlLoginExistingUser(user, ident);
 	}
 	else {
@@ -490,7 +490,7 @@ void smtp_mail(char *argbuf) {
 	char node[SIZ];
 	char name[SIZ];
 
-	if (strlen(SMTP->from) != 0) {
+	if (!IsEmptyStr(SMTP->from)) {
 		cprintf("503 5.1.0 Only one sender permitted\r\n");
 		return;
 	}
@@ -512,7 +512,7 @@ void smtp_mail(char *argbuf) {
 	 * address so we don't have to contend with the empty string causing
 	 * other code to fail when it's expecting something there.
 	 */
-	if (strlen(SMTP->from) == 0) {
+	if (IsEmptyStr(SMTP->from)) {
 		strcpy(SMTP->from, "someone@somewhere.org");
 	}
 
@@ -557,7 +557,7 @@ void smtp_rcpt(char *argbuf) {
 	char message_to_spammer[SIZ];
 	struct recptypes *valid = NULL;
 
-	if (strlen(SMTP->from) == 0) {
+	if (IsEmptyStr(SMTP->from)) {
 		cprintf("503 5.5.1 Need MAIL before RCPT\r\n");
 		return;
 	}
@@ -622,7 +622,7 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	cprintf("250 2.1.5 RCPT ok <%s>\r\n", recp);
-	if (strlen(SMTP->recipients) > 0) {
+	if (!IsEmptyStr(SMTP->recipients)) {
 		strcat(SMTP->recipients, ",");
 	}
 	strcat(SMTP->recipients, recp);
@@ -648,7 +648,7 @@ void smtp_data(void) {
 	int i;
 	char result[SIZ];
 
-	if (strlen(SMTP->from) == 0) {
+	if (IsEmptyStr(SMTP->from)) {
 		cprintf("503 5.5.1 Need MAIL command first.\r\n");
 		return;
 	}
@@ -991,7 +991,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			scan_done = 1;
 		}
 	} while (scan_done == 0);
-	if (strlen(mailfrom)==0) strcpy(mailfrom, "someone@somewhere.org");
+	if (IsEmptyStr(mailfrom)) strcpy(mailfrom, "someone@somewhere.org");
 	stripallbut(mailfrom, '<', '>');
 
 	/* Figure out what mail exchanger host we have to connect to */
@@ -1105,7 +1105,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* Do an AUTH command if necessary */
-	if (strlen(mx_user) > 0) {
+	if (!IsEmptyStr(mx_user)) {
 		char encoded[1024];
 		sprintf(buf, "%s%c%s%c%s", mx_user, '\0', mx_user, '\0', mx_pass);
 		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2);
@@ -1428,7 +1428,7 @@ void smtp_do_bounce(char *instr) {
 
 		/* First try the user who sent the message */
 		lprintf(CTDL_DEBUG, "bounce to user? <%s>\n", bounceto);
-		if (strlen(bounceto) == 0) {
+		if (IsEmptyStr(bounceto)) {
 			lprintf(CTDL_ERR, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}

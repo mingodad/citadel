@@ -626,7 +626,7 @@ int imap_is_message_set(char *buf)
 
 	if (buf == NULL)
 		return (0);	/* stupidity checks */
-	if (strlen(buf) == 0)
+	if (IsEmptyStr(buf))
 		return (0);
 
 	if (!strcasecmp(buf, "ALL"))

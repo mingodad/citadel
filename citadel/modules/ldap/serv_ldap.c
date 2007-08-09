@@ -468,7 +468,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 		 */
 		if ( (!strcasecmp(v->prop[i].name, "fburl"))
 		   ||(!strncasecmp(v->prop[i].name, "fburl;", 6)) ) {
-			if ( (strlen(calFBURL) == 0)
+			if ( (IsEmptyStr(calFBURL))
 			   || (!strncasecmp(v->prop[i].name, "fburl;pref", 10)) ) {
 				safestrncpy(calFBURL, v->prop[i].value, sizeof calFBURL);
 			}
@@ -488,8 +488,8 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* "givenname" (first name) based on info in vCard */
-	if (strlen(givenname) == 0) strcpy(givenname, "_");
-	if (strlen(sn) == 0) strcpy(sn, "_");
+	if (IsEmptyStr(givenname)) strcpy(givenname, "_");
+	if (IsEmptyStr(sn)) strcpy(sn, "_");
 	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
@@ -524,7 +524,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	}
 
 	/* Add a "calFBURL" attribute if a calendar free/busy URL exists */
-	if (strlen(calFBURL) > 0) {
+	if (!IsEmptyStr(calFBURL)) {
 		attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 		attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
 		memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
@@ -597,7 +597,7 @@ CTDL_MODULE_INIT(ldap)
 #ifdef HAVE_LDAP
 	CtdlRegisterCleanupHook(serv_ldap_cleanup);
 
-	if (strlen(config.c_ldap_host) > 0) {
+	if (!IsEmptyStr(config.c_ldap_host)) {
 		CtdlConnectToLdap();
 	}
 

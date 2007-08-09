@@ -450,7 +450,7 @@ void do_confirm(char *room, char *token) {
 	 * make another pass at the file, stripping out lines referring to
 	 * that address.
 	 */
-	if (strlen(address_to_unsubscribe) > 0) {
+	if (!IsEmptyStr(address_to_unsubscribe)) {
 		holdbuf = malloc(SIZ);
 		begin_critical_section(S_NETCONFIGS);
 		ncfp = fopen(filename, "r+");
@@ -506,7 +506,12 @@ void do_confirm(char *room, char *token) {
 	 */
 	if (success) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
-		lprintf(CTDL_NOTICE, "Mailing list: %s %ssubscribed to %s with token %s\n", email, (strlen(address_to_unsubscribe) > 0) ? "un" : "", room, token);
+		lprintf(CTDL_NOTICE, 
+			"Mailing list: %s %ssubscribed to %s with token %s\n", 
+			email, 
+			(!IsEmptyStr(address_to_unsubscribe)) ? "un" : "", 
+			room, 
+			token);
 	}
 	else {
 		cprintf("%d Invalid token.\n", ERROR + ILLEGAL_VALUE);

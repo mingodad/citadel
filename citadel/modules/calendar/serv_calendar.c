@@ -1955,14 +1955,14 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 		0
 	);
 
-	if (strlen(imm.uid) > 0) {
+	if (!IsEmptyStr(imm.uid)) {
 		if (msg->cm_fields['E'] != NULL) {
 			free(msg->cm_fields['E']);
 		}
 		msg->cm_fields['E'] = strdup(imm.uid);
 		lprintf(CTDL_DEBUG, "Saving calendar UID <%s>\n", msg->cm_fields['E']);
 	}
-	if (strlen(imm.subject) > 0) {
+	if (!IsEmptyStr(imm.subject)) {
 		if (msg->cm_fields['U'] != NULL) {
 			free(msg->cm_fields['U']);
 		}

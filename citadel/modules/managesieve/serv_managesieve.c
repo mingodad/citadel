@@ -155,12 +155,12 @@ long GetSizeToken(char * token)
 	char *cursor = token;
 	char *number;
 
-	while ((*cursor != '\0') && 
+	while (!IsEmptyStr(cursor) && 
 	       (*cursor != '{'))
 	{
 		cursor++;
 	}
-	if (*cursor == '\0') 
+	if (IsEmptyStr(cursor)) 
 		return -1;
 	number = cursor + 1;
 	while ((*cursor != '\0') && 
@@ -172,7 +172,7 @@ long GetSizeToken(char * token)
 	if (cursor[-1] == '+')
 		cursor--;
 
-	if (*cursor == '\0') 
+	if (IsEmptyStr(cursor)) 
 		return -1;
 	
 	return atol(number);

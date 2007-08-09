@@ -184,7 +184,7 @@ void do_chat_listing(int allflag)
 
 		GenerateRoomDisplay(roomname, ccptr, CC);
 		if ((CC->user.axlevel < 6)
-		   && (strlen(ccptr->fake_roomname)>0)) {
+		   && (!IsEmptyStr(ccptr->fake_roomname))) {
 			strcpy(roomname, ccptr->fake_roomname);
 		}
 
@@ -204,7 +204,7 @@ void do_chat_listing(int allflag)
 
 			GenerateRoomDisplay(roomname, ccptr, CC);
 			if ((CC->user.axlevel < 6)
-		   	&& (strlen(ccptr->fake_roomname)>0)) {
+		   	&& (!IsEmptyStr(ccptr->fake_roomname))) {
 				strcpy(roomname, ccptr->fake_roomname);
 			}
 
@@ -282,7 +282,7 @@ void cmd_chat(char *argbuf)
 		}
 
 		/* if we have a complete line, do send processing */
-		if (strlen(cmdbuf) > 0)
+		if (!IsEmptyStr(cmdbuf))
 			if (cmdbuf[strlen(cmdbuf) - 1] == 10) {
 				cmdbuf[strlen(cmdbuf) - 1] = 0;
 				time(&CC->lastcmd);
@@ -644,7 +644,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM);
 
 		/* Now save a copy in the global log room, if configured */
-		if (strlen(config.c_logpages) > 0) {
+		if (!IsEmptyStr(config.c_logpages)) {
 			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
 			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
 		}
@@ -722,7 +722,7 @@ void cmd_sexp(char *argbuf)
 		      strcmp(x_msg, "000")) {
 			x_big_msgbuf = realloc(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
-			if (strlen(x_big_msgbuf) > 0)
+			if (!IsEmptyStr(x_big_msgbuf))
 			   if (x_big_msgbuf[strlen(x_big_msgbuf)] != '\n')
 				strcat(x_big_msgbuf, "\n");
 			strcat(x_big_msgbuf, x_msg);
@@ -735,7 +735,7 @@ void cmd_sexp(char *argbuf)
 		message_sent = PerformXmsgHooks(lun, x_user, x_msg);
 
 		if (message_sent > 0) {
-			if (strlen(x_msg) > 0)
+			if (!IsEmptyStr(x_msg))
 				cprintf("%d Message sent", CIT_OK);
 			else
 				cprintf("%d Ok to send message", CIT_OK);

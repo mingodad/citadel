@@ -176,7 +176,7 @@ void cmd_auto(char *argbuf) {
 		
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(search_string, argbuf, 0, '|', sizeof search_string);
-	if (strlen(search_string) == 0) {
+	if (IsEmptyStr(search_string)) {
 		cprintf("%d You supplied an empty partial.\n",
 			ERROR + ILLEGAL_VALUE);
 		return;

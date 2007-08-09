@@ -587,7 +587,7 @@ void imap_auth_plain(char *cmd)
 
 	IMAP->authstate = imap_as_normal;
 
-	if (strlen(ident) > 0) {
+	if (!IsEmptyStr(ident)) {
 		result = CtdlLoginExistingUser(user, ident);
 	}
 	else {

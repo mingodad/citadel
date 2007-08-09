@@ -62,7 +62,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 		do {
 			extract_token(buf, conf, 0, '\n', sizeof buf);
 			strcpy(conf, &conf[strlen(buf)+1]);
-		} while ( (strlen(conf)>0) && (strlen(buf)>0) );
+		} while ( (!IsEmptyStr(conf)) && (!IsEmptyStr(buf)) );
 
 		if (inetcfg != NULL) free(inetcfg);
 		inetcfg = conf;

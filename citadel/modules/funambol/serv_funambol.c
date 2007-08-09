@@ -112,7 +112,7 @@ void notify_funambol(long msgnum, void *userdata) {
 		goto nuke;
 	}
 	/* Are we allowed to push? */
-	if ( strlen(config.c_funambol_host) == 0) {
+	if (IsEmptyStr(config.c_funambol_host)) {
 		goto nuke;
 	} else {
 		lprintf(CTDL_INFO, "Push enabled\n");

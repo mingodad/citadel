@@ -176,9 +176,9 @@ void imap_getacl(int num_parms, char *parms[]) {
 		cdb_free(cdbus);
 
 		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
-		if (strlen(temp.fullname) > 0) {
+		if (!IsEmptyStr(temp.fullname)) {
 			imap_acl_flags(rights, ra);
-			if (strlen(rights) > 0) {
+			if (!IsEmptyStr(rights)) {
 				cprintf(" ");
 				imap_strout(temp.fullname);
 				cprintf(" %s", rights);

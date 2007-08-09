@@ -141,8 +141,9 @@ struct FilterList *load_filter_list(void) {
 		/* Cowardly refuse to add an any/any/any entry that would
 		 * end up filtering every single message.
 		 */
-		if (strlen(nptr->fl_user) + strlen(nptr->fl_room)
-		   + strlen(nptr->fl_node) == 0) {
+		if (IsEmptyStr(nptr->fl_user) && 
+		    IsEmptyStr(nptr->fl_room) &&
+		    IsEmptyStr(nptr->fl_node)) {
 			free(nptr);
 		}
 		else {
@@ -183,7 +184,7 @@ int network_usetable(struct CtdlMessage *msg) {
 	if (msg->cm_fields['I'] == NULL) {
 		return(0);
 	}
-	if (strlen(msg->cm_fields['I']) == 0) {
+	if (IsEmptyStr(msg->cm_fields['I'])) {
 		return(0);
 	}
 
@@ -257,7 +258,7 @@ void write_network_map(void) {
 			for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
 				serialized_map = realloc(serialized_map,
 							(strlen(serialized_map)+SIZ) );
-				if (strlen(nmptr->nodename) > 0) {
+				if (!IsEmptyStr(nmptr->nodename)) {
 					snprintf(&serialized_map[strlen(serialized_map)],
 						SIZ,
 						"%s|%ld|%s\n",
@@ -793,7 +794,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				if (msg->cm_fields['C'] != NULL) {
 					free(msg->cm_fields['C']);
 				}
-				if (strlen(mptr->remote_roomname) > 0) {
+				if (!IsEmptyStr(mptr->remote_roomname)) {
 					msg->cm_fields['C'] = strdup(mptr->remote_roomname);
 				}
 				else {
@@ -919,7 +920,7 @@ void network_spoolout_room(char *room_to_spool) {
 			extract_token(roomname, buf, 2, '|', sizeof roomname);
 			strcpy(nexthop, "xxx");
 			if (is_valid_node(nexthop, NULL, nodename) == 0) {
-				if (strlen(nexthop) == 0) {
+				if (IsEmptyStr(nexthop)) {
 					mptr = (struct maplist *)
 						malloc(sizeof(struct maplist));
 					mptr->next = sc.ignet_push_shares;
@@ -1029,7 +1030,7 @@ void network_spoolout_room(char *room_to_spool) {
 			}
 			fprintf(fp, "ignet_push_share|%s",
 				sc.ignet_push_shares->remote_nodename);
-			if (strlen(sc.ignet_push_shares->remote_roomname) > 0) {
+			if (!IsEmptyStr(sc.ignet_push_shares->remote_roomname)) {
 				fprintf(fp, "|%s", sc.ignet_push_shares->remote_roomname);
 			}
 			fprintf(fp, "\n");
@@ -1307,7 +1308,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	else {
 		strcpy(force_room, "");
 	}
-	if ( (valid == NULL) && (strlen(force_room) == 0) ) {
+	if ( (valid == NULL) && IsEmptyStr(force_room) ) {
 		strcpy(force_room, config.c_aideroom);
 	}
 	CtdlSubmitMsg(msg, valid, force_room);
@@ -1392,7 +1393,7 @@ void network_process_buffer(char *buffer, long size) {
 				serialize_message(&sermsg, msg);
 
 				/* now send it */
-				if (strlen(nexthop) == 0) {
+				if (IsEmptyStr(nexthop)) {
 					strcpy(nexthop, msg->cm_fields['D']);
 				}
 				snprintf(filename, 
@@ -1629,7 +1630,7 @@ void network_purge_spoolout(void) {
 		strcpy(nexthop, "");
 		i = is_valid_node(nexthop, NULL, d->d_name);
 	
-		if ( (i != 0) || (strlen(nexthop) > 0) ) {
+		if ( (i != 0) || !IsEmptyStr(nexthop) ) {
 			unlink(filename);
 		}
 	}
@@ -1865,8 +1866,8 @@ void network_poll_other_citadel_nodes(int full_poll) {
 		extract_token(secret, linebuf, 1, '|', sizeof secret);
 		extract_token(host, linebuf, 2, '|', sizeof host);
 		extract_token(port, linebuf, 3, '|', sizeof port);
-		if ( (strlen(node) > 0) && (strlen(secret) > 0) 
-		   && (strlen(host) > 0) && strlen(port) > 0) {
+		if ( !IsEmptyStr(node) && !IsEmptyStr(secret) 
+		   && !IsEmptyStr(host) && !IsEmptyStr(port)) {
 			poll = full_poll;
 			if (poll == 0) {
 				snprintf(spoolfile, 

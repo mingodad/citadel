@@ -166,7 +166,7 @@ void cmd_rchg(char *argbuf)
 
 	extract_token(newroomname, argbuf, 0, '|', sizeof newroomname);
 	newroomname[ROOMNAMELEN-1] = 0;
-	if (strlen(newroomname) > 0) {
+	if (!IsEmptyStr(newroomname)) {
 		safestrncpy(CC->fake_roomname, newroomname,
 			sizeof(CC->fake_roomname) );
 	}
@@ -184,7 +184,7 @@ void cmd_hchg(char *argbuf)
 	char newhostname[64];
 
 	extract_token(newhostname, argbuf, 0, '|', sizeof newhostname);
-	if (strlen(newhostname) > 0) {
+	if (!IsEmptyStr(newhostname)) {
 		safestrncpy(CC->fake_hostname, newhostname,
 			sizeof(CC->fake_hostname) );
 	}
@@ -207,7 +207,7 @@ void cmd_uchg(char *argbuf)
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	if (strlen(newusername) > 0) {
+	if (!IsEmptyStr(newusername)) {
 		CC->cs_flags &= ~CS_STEALTH;
 		memset(CC->fake_username, 0, 32);
 		if (strncasecmp(newusername, CC->curr_user,

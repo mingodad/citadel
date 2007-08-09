@@ -204,7 +204,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 			ptr = memreadline(ptr, buf, sizeof buf);
 			if (*ptr != 0) {
 				striplt(buf);
-				if (strlen(buf) == 0) {
+				if (IsEmptyStr(buf)) {
 					headers_size = ptr - IMAP->cached_rfc822_data;
 				}
 			}
@@ -273,16 +273,16 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 
 	if (!strcasecmp(desired_section, mbuf2)) {
 		cprintf("Content-type: %s", cbtype);
-		if (strlen(cbcharset) > 0)
+		if (!IsEmptyStr(cbcharset))
 			cprintf("; charset=\"%s\"", cbcharset);
-		if (strlen(name) > 0)
+		if (!IsEmptyStr(name))
 			cprintf("; name=\"%s\"", name);
 		cprintf("\r\n");
-		if (strlen(encoding) > 0)
+		if (!IsEmptyStr(encoding))
 			cprintf("Content-Transfer-Encoding: %s\r\n", encoding);
-		if (strlen(encoding) > 0) {
+		if (!IsEmptyStr(encoding)) {
 			cprintf("Content-Disposition: %s", disp);
-			if (strlen(filename) > 0) {
+			if (!IsEmptyStr(filename)) {
 				cprintf("; filename=\"%s\"", filename);
 			}
 			cprintf("\r\n");
@@ -362,7 +362,7 @@ void imap_output_envelope_addr(char *addr) {
 		return;
 	}
 
-	if (strlen(addr) == 0) {
+	if (IsEmptyStr(addr)) {
 		cprintf("NIL ");
 		return;
 	}
@@ -548,7 +548,7 @@ void imap_strip_headers(char *section) {
 			strcat(boiled_headers, "\r\n");
 		}
 
-		if (strlen(buf) == 0) done_headers = 1;
+		if (IsEmptyStr(buf)) done_headers = 1;
 		if (buf[0]=='\r') done_headers = 1;
 		if (buf[0]=='\n') done_headers = 1;
 	}
@@ -582,7 +582,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	if (strchr(section, '[') != NULL) {
 		stripallbut(section, '[', ']');
 	}
-	lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((strlen(section)==0) ? "(empty)" : "") );
+	lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((IsEmptyStr(section)0) ? "(empty)" : "") );
 	if (!strncasecmp(section, "HEADER", 6)) {
 		need_body = 0;
 	}
@@ -617,7 +617,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		is_partial = 1;
 	}
 	if (is_partial == 0) strcpy(partial, "");
-	/* if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial); */
+	/* if (!IsEmptyStr(partial)) lprintf(CTDL_DEBUG, "Partial is %s\n", partial); */
 
 	if (IMAP->cached_body == NULL) {
 		CC->redirect_buffer = malloc(SIZ);
@@ -761,7 +761,7 @@ void imap_fetch_bodystructure_part(
 	char cbmaintype[128];
 	char cbsubtype[128];
 
-	if (cbtype != NULL) if (strlen(cbtype)>0) have_cbtype = 1;
+	if (cbtype != NULL) if (!IsEmptyStr(cbtype)) have_cbtype = 1;
 	if (have_cbtype) {
 		extract_token(cbmaintype, cbtype, 0, '/', sizeof cbmaintype);
 		extract_token(cbsubtype, cbtype, 1, '/', sizeof cbsubtype);
@@ -780,7 +780,7 @@ void imap_fetch_bodystructure_part(
 	if (cbcharset == NULL) {
 		cprintf("(\"CHARSET\" \"US-ASCII\"");
 	}
-	else if (strlen(cbcharset) == 0) {
+	else if (IsEmptyStr(cbcharset)) {
 		cprintf("(\"CHARSET\" \"US-ASCII\"");
 	}
 	else {
@@ -788,7 +788,7 @@ void imap_fetch_bodystructure_part(
 		imap_strout(cbcharset);
 	}
 
-	if (name != NULL) if (strlen(name)>0) {
+	if (name != NULL) if (!IsEmptyStr(name)) {
 		cprintf(" \"NAME\" ");
 		imap_strout(name);
 	}
@@ -798,7 +798,7 @@ void imap_fetch_bodystructure_part(
 	cprintf("NIL ");	/* Body ID */
 	cprintf("NIL ");	/* Body description */
 
-	if (encoding != NULL) if (strlen(encoding) > 0)  have_encoding = 1;
+	if (encoding != NULL) if (!IsEmptyStr(encoding))  have_encoding = 1;
 	if (have_encoding) {
 		imap_strout(encoding);
 	}
@@ -838,13 +838,13 @@ void imap_fetch_bodystructure_part(
 	if (disp == NULL) {
 		cprintf("NIL");
 	}
-	else if (strlen(disp) == 0) {
+	else if (IsEmptyStr(disp)) {
 		cprintf("NIL");
 	}
 	else {
 		cprintf("(");
 		imap_strout(disp);
-		if (filename != NULL) if (strlen(filename)>0) {
+		if (filename != NULL) if (!IsEmptyStr(filename)) {
 			cprintf(" (\"FILENAME\" ");
 			imap_strout(filename);
 			cprintf(")");
@@ -903,7 +903,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		ptr = rfc822;
 		while (ptr = memreadline(ptr, buf, sizeof buf), *ptr != 0) {
 			++lines;
-			if ((strlen(buf) == 0) && (rfc822_body == NULL)) {
+			if ((IsEmptyStr(buf)) && (rfc822_body == NULL)) {
 				rfc822_body = ptr;
 			}
 		}

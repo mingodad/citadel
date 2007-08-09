@@ -111,7 +111,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 		if (s != NULL) {
 			addr = strdup(s);
 			striplt(addr);
-			if (strlen(addr) > 0) {
+			if (!IsEmptyStr(addr)) {
 				if (callback != NULL) {
 					callback(addr, citadel_address);
 				}
@@ -225,7 +225,7 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 	while (s = vcard_get_prop(v, "email;internet", 0, instance++, 0),  s != NULL) {
 		addr = strdup(s);
 		striplt(addr);
-		if (strlen(addr) > 0) {
+		if (!IsEmptyStr(addr)) {
 			if ( (IsDirectory(addr, 1)) || 
 			     (!local_addrs_only) ) {
 				++saved_instance;
@@ -923,7 +923,7 @@ void cmd_gvsn(char *argbuf)
 
 	cprintf("%d valid screen names:\n", LISTING_FOLLOWS);
 	cprintf("%s\n", CC->user.fullname);
-	if ( (strlen(CC->cs_inet_fn) > 0) && (strcasecmp(CC->user.fullname, CC->cs_inet_fn)) ) {
+	if ( (!IsEmptyStr(CC->cs_inet_fn)) && (strcasecmp(CC->user.fullname, CC->cs_inet_fn)) ) {
 		cprintf("%s\n", CC->cs_inet_fn);
 	}
 	cprintf("000\n");
@@ -942,10 +942,10 @@ void cmd_gvea(char *argbuf)
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	cprintf("%d valid email addresses:\n", LISTING_FOLLOWS);
-	if (strlen(CC->cs_inet_email) > 0) {
+	if (!IsEmptyStr(CC->cs_inet_email)) {
 		cprintf("%s\n", CC->cs_inet_email);
 	}
-	if (strlen(CC->cs_inet_other_emails) > 0) {
+	if (!IsEmptyStr(CC->cs_inet_other_emails)) {
 		num_secondary_emails = num_tokens(CC->cs_inet_other_emails, '|');
 		for (i=0; i<num_secondary_emails; ++i) {
 			extract_token(buf, CC->cs_inet_other_emails,i,'|',sizeof CC->cs_inet_other_emails);
@@ -1245,7 +1245,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$", NULL,
 		strip_addresses_already_have, aptr->collected_addresses);
 
-	if (strlen(aptr->collected_addresses) > 0)
+	if (!IsEmptyStr(aptr->collected_addresses))
 	   for (i=0; i<num_tokens(aptr->collected_addresses, ','); ++i) {
 
 		/* Make a vCard out of each address */

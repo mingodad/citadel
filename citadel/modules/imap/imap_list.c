@@ -139,7 +139,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	 * We'll fix this later when we have time.
 	 */
 	if (return_children) {
-		if (strlen(return_options) > 0) {
+		if (!IsEmptyStr(return_options)) {
 			strcat(return_options, " ");
 		}
 		strcat(return_options, "\\HasChildren");
@@ -395,7 +395,7 @@ void imap_list(int num_parms, char *parms[])
 	 * hierarchy delimiter and the root name of the name given in the
 	 * reference parameter.
 	 */
-	if ( (strlen(patterns[0]) == 0) && (extended_list_in_use == 0) ) {
+	if ( (IsEmptyStr(patterns[0])) && (extended_list_in_use == 0) ) {
 		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", verb);
 	}
 

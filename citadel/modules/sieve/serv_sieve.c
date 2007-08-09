@@ -230,7 +230,7 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 	lprintf(CTDL_DEBUG, "Action is REJECT\n");
 
 	/* If we don't know who sent the message, do a DISCARD instead. */
-	if (strlen(cs->sender) == 0) {
+	if (IsEmptyStr(cs->sender)) {
 		lprintf(CTDL_INFO, "Unknown sender.  Doing DISCARD instead of REJECT.\n");
 		return ctdl_discard(s, my);
 	}
@@ -969,7 +969,7 @@ int msiv_setactive(struct sdm_userdata *u, char *script_name) {
 
 	/* First see if the supplied value is ok */
 
-	if (strlen(script_name) == 0) {
+	if (IsEmptyStr(script_name)) {
 		ok = 1;
 	}
 	else {
@@ -1108,7 +1108,7 @@ void cmd_msiv(char *argbuf) {
 
 	if (!strcasecmp(subcmd, "putscript")) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
-		if (strlen(script_name) > 0) {
+		if (!IsEmptyStr(script_name)) {
 			cprintf("%d Transmit script now\n", SEND_LISTING);
 			script_content = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
 			msiv_putscript(&u, script_name, script_content);

@@ -83,7 +83,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 			}
 
 			lprintf(9, "UUID of note is: %s\n", uuid);
-			if (strlen(uuid) > 0) {
+			if (!IsEmptyStr(uuid)) {
 
 				if (msg->cm_fields['E'] != NULL) {
 					free(msg->cm_fields['E']);
