@@ -582,7 +582,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	if (strchr(section, '[') != NULL) {
 		stripallbut(section, '[', ']');
 	}
-	lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((IsEmptyStr(section)0) ? "(empty)" : "") );
+	lprintf(CTDL_DEBUG, "Section is: %s%s\n", 
+		section, 
+		IsEmptyStr(section) ? "(empty)" : "");
 	if (!strncasecmp(section, "HEADER", 6)) {
 		need_body = 0;
 	}
