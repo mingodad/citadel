@@ -97,7 +97,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		}
 
 		/* Do some parsing */
-		if (strlen(inbuf)>0) {
+		if (!IsEmptyStr(inbuf)) {
 
 		    /* Fold in all the spacing */
 		    for (i=0; i<strlen(inbuf); ++i) {
@@ -252,7 +252,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		}
 
 		/* Convert &; tags to the forbidden characters */
-		if (strlen(outbuf)>0) for (i=0; i<strlen(outbuf); ++i) {
+		if (!IsEmptyStr(outbuf)) for (i=0; i<strlen(outbuf); ++i) {
 
 			/* Character entity references */
 			if (!strncasecmp(&outbuf[i], "&nbsp;", 6)) {
@@ -457,7 +457,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		/* Output any lines terminated with hard line breaks */
 		do {
 			did_out = 0;
-			if (strlen(outbuf)>0) {
+			if (!IsEmptyStr(outbuf)) {
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
 

@@ -118,7 +118,7 @@ void entregis(CtdlIPC *ipc)
 	if (r / 100 == 1) {
 		int a = 0;
 
-		while (reg && strlen(reg) > 0) {
+		while (reg && !IsEmptyStr(reg)) {
 
 			extract_token(buf, reg, 0, '\n', sizeof buf);
 			remove_token(reg, 0, '\n');
@@ -450,7 +450,7 @@ int val_user(CtdlIPC *ipc, char *user, int do_validate)
 				scr_printf("%s\n", buf);
 			if (a == 11)
 				scr_printf("%s\n", buf);
-		} while (strlen(resp));
+		} while (!IsEmptyStr(resp));
 		scr_printf("Current access level: %d (%s)\n", ax, axdefs[ax]);
 	} else {
 		scr_printf("%s\n%s\n", user, &cmd[4]);
@@ -537,7 +537,7 @@ void deletefile(CtdlIPC *ipc)
 	char buf[256];
 
 	newprompt("Filename: ", filename, 31);
-	if (strlen(filename) == 0)
+	if (IsEmptyStr(filename))
 		return;
 	CtdlIPCDeleteFile(ipc, filename, buf);
 	err_printf("%s\n", buf);
@@ -551,7 +551,7 @@ void netsendfile(CtdlIPC *ipc)
 	char filename[32], destsys[20], buf[256];
 
 	newprompt("Filename: ", filename, 31);
-	if (strlen(filename) == 0)
+	if (IsEmptyStr(filename))
 		return;
 	newprompt("System to send to: ", destsys, 19);
 	CtdlIPCNetSendFile(ipc, filename, destsys, buf);
@@ -569,7 +569,7 @@ void movefile(CtdlIPC *ipc)
 	char buf[256];
 
 	newprompt("Filename: ", filename, 63);
-	if (strlen(filename) == 0)
+	if (IsEmptyStr(filename))
 		return;
 	newprompt("Enter target room: ", newroom, ROOMNAMELEN - 1);
 	CtdlIPCMoveFile(ipc, filename, newroom, buf);
@@ -629,7 +629,7 @@ void read_bio(CtdlIPC *ipc)
 		pprintf("%s\n", buf);
 		return;
 	}
-	while (strlen(resp)) {
+	while (!IsEmptyStr(resp)) {
 		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		pprintf("%s\n", buf);
@@ -713,7 +713,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		"Allow Aides to Zap (forget) rooms",
 		atoi(&sc[26][0]))));
 
-	if (strlen(&sc[18][0]) > 0) logpages = 1;
+	if (!IsEmptyStr(&sc[18][0])) logpages = 1;
 	else logpages = 0;
 	logpages = boolprompt("Log all pages", logpages);
 	if (logpages) {
@@ -958,7 +958,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 	
 	r = CtdlIPCGetSystemConfigByType(ipc, INTERNETCFG, &resp, buf);
 	if (r / 100 == 1) {
-		while (strlen(resp)) {
+		while (!IsEmptyStr(resp)) {
 			extract_token(buf, resp, 0, '\n', sizeof buf);
 			remove_token(resp, 0, '\n');
 			++num_recs;
@@ -994,7 +994,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 				newprompt("Enter host name: ",
 					buf, 50);
 				striplt(buf);
-				if (strlen(buf) > 0) {
+				if (!IsEmptyStr(buf)) {
 					++num_recs;
 					if (num_recs == 1)
 						recs = malloc(sizeof(char *));
@@ -1074,7 +1074,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	char *listing = NULL;
 	int r;
 
-	if (strlen(editor_paths[0]) == 0) {
+	if (IsEmptyStr(editor_paths[0])) {
 		scr_printf("You must have an external editor configured in"
 			" order to use this function.\n");
 		return;
@@ -1096,7 +1096,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 
 	r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 	if (r / 100 == 1) {
-		while(listing && strlen(listing)) {
+		while(listing && !IsEmptyStr(listing)) {
 			extract_token(buf, listing, 0, '\n', sizeof buf);
 			remove_token(listing, 0, '\n');
 			extract_token(instr, buf, 0, '|', sizeof instr);
@@ -1151,7 +1151,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 		/* Load all netconfig entries that are *not* of the type we are editing */
 		r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 		if (r / 100 == 1) {
-			while(listing && strlen(listing)) {
+			while(listing && !IsEmptyStr(listing)) {
 				extract_token(buf, listing, 0, '\n', sizeof buf);
 				remove_token(listing, 0, '\n');
 				extract_token(instr, buf, 0, '|', sizeof instr);
@@ -1172,7 +1172,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 				if (buf[i] == '#') buf[i] = 0;
 			}
 			striplt(buf);
-			if (strlen(buf) > 0) {
+			if (!IsEmptyStr(buf)) {
 				fprintf(changefp, "%s|%s\n", entrytype, buf);
 			}
 		}
@@ -1213,7 +1213,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 	int r;
 
 	r = CtdlIPCGetSystemConfigByType(ipc, IGNETCFG, &listing, buf);
-	if (r / 100 == 1) while (*listing && strlen(listing)) {
+	if (r / 100 == 1) while (*listing && !IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
@@ -1342,7 +1342,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 	int r;
 
 	r = CtdlIPCGetSystemConfigByType(ipc, FILTERLIST, &listing, buf);
-	if (r / 100 == 1) while (*listing && strlen(listing)) {
+	if (r / 100 == 1) while (*listing && !IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 

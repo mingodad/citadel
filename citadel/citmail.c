@@ -34,7 +34,7 @@ int debug = 0;
 
 void strip_trailing_nonprint(char *buf)
 {
-        while ( (strlen(buf)>0) && (!isprint(buf[strlen(buf) - 1])) )
+        while ( (!IsEmptyStr(buf)) && (!isprint(buf[strlen(buf) - 1])) )
                 buf[strlen(buf) - 1] = 0;
 }
 
@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
 					extract_token(this_recp, add_these_recipients,
 						i, ',', sizeof this_recp);
 					striplt(this_recp);
-					if (strlen(this_recp) > 0) {
+					if (!IsEmptyStr(this_recp)) {
 						++num_recipients;
 						recipients = realloc(recipients,
 							(num_recipients * sizeof (char *)));

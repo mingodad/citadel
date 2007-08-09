@@ -285,7 +285,7 @@ void enter_config(CtdlIPC *ipc, int mode)
 				       "Be unlisted in userlog",
 				       US_UNLISTED, 0);
 
-		if (strlen(editor_paths[0]) > 0) {
+		if (!IsEmptyStr(editor_paths[0])) {
 			user->flags = set_attr(ipc, user->flags,
 				"Always enter messages with the full-screen editor",
 				US_EXTEDIT, 0);
@@ -359,7 +359,7 @@ void strproc(char *string)
 {
 	int a;
 
-	if (strlen(string)==0) return;
+	if (IsEmptyStr(string)) return;
 
 	/* Convert non-printable characters to blanks */
 	for (a=0; a<strlen(string); ++a) {
@@ -468,7 +468,7 @@ void locate_host(CtdlIPC* ipc, char *hbuf)
 		if (buf[a]==')') buf[a] = 0;
 	}
 
-	if (strlen(buf)==0) strcpy(hbuf, ipc->ServInfo.fqdn);
+	if (IsEmptyStr(buf)) strcpy(hbuf, ipc->ServInfo.fqdn);
 	else strncpy(hbuf,buf,24);
 #else
 	char *tty = ttyname(0);

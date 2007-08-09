@@ -403,7 +403,7 @@ void cmd_iden(char *argbuf)
 	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
 	CC->cs_clientname[31] = 0;
 
-	if (strlen(from_host) > 0) {
+	if (!IsEmptyStr(from_host)) {
 		if (CC->is_local_socket) do_lookup = 1;
 		else if (is_public_client()) do_lookup = 1;
 	}
@@ -474,12 +474,12 @@ void cmd_mesg(char *mname)
 	/* Otherwise, look for the requested file by name. */
 	else {
 		mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
-		if (strlen(targ) == 0) {
+		if (IsEmptyStr(targ)) {
 			snprintf(buf2, sizeof buf2, "%s.%d",
 							buf, CC->cs_clientdev);
 			mesg_locate(targ, sizeof targ, buf2, 2,
 							(const char **)dirs);
-			if (strlen(targ) == 0) {
+			if (IsEmptyStr(targ)) {
 				mesg_locate(targ, sizeof targ, buf, 2,
 							(const char **)dirs);
 			}	
@@ -489,7 +489,7 @@ void cmd_mesg(char *mname)
 	free(dirs[0]);
 	free(dirs[1]);
 
-	if (strlen(targ)==0) {
+	if (IsEmptyStr(targ)) {
 		cprintf("%d '%s' not found.  (Searching in %s and %s)\n",
 			ERROR + FILE_NOT_FOUND,
 			mname,
@@ -545,7 +545,7 @@ void cmd_emsg(char *mname)
 	free(dirs[0]);
 	free(dirs[1]);
 
-	if (strlen(targ)==0) {
+	if (IsEmptyStr(targ)) {
 		snprintf(targ, sizeof targ, 
 				 "%s/%s",
 				 ctdl_hlp_dir, buf);

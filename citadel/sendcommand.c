@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 			home_specified = 1;
 			home=1;
 		} else {
-			if (strlen(cmd) > 0)
+			if (!IsEmptyStr(cmd))
 				strcat(cmd, " ");
 			strcat(cmd, argv[a]);
 		}
@@ -206,10 +206,10 @@ int main(int argc, char **argv)
 		do {
 			if (fgets(buf, sizeof buf, stdin) == NULL)
 				strcpy(buf, "000");
-			if (strlen(buf) > 0)
+			if (!IsEmptyStr(buf))
 				if (buf[strlen(buf) - 1] == '\n')
 					buf[strlen(buf) - 1] = 0;
-			if (strlen(buf) > 0)
+			if (!IsEmptyStr(buf))
 				if (buf[strlen(buf) - 1] == '\r')
 					buf[strlen(buf) - 1] = 0;
 			if (strcmp(buf, "000"))

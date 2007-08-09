@@ -11,7 +11,7 @@ DEB_DESTDIR = $(CURDIR)/debian/tmp
 CFLAGS = -Wall -g
 
 #ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0 -ggdb
+	CFLAGS += -O0 -ggdb -pg
 #else
 #	CFLAGS += -O2
 #endif

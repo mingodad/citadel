@@ -588,7 +588,7 @@ void cmd_lrms_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lrms(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
@@ -626,7 +626,7 @@ void cmd_lkra_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lkra(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
@@ -662,7 +662,7 @@ void cmd_lprm_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lprm(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	cprintf("%d Publiic rooms:\n", LISTING_FOLLOWS);
@@ -695,7 +695,7 @@ void cmd_lkrn_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lkrn(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
@@ -734,7 +734,7 @@ void cmd_lkro_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lkro(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
@@ -773,7 +773,7 @@ void cmd_lzrm_backend(struct ctdlroom *qrbuf, void *data)
 void cmd_lzrm(char *argbuf)
 {
 	int FloorBeingSearched = (-1);
-	if (strlen(argbuf) > 0)
+	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
@@ -1158,7 +1158,7 @@ void cmd_rdir(void)
 			safestrncpy(comment, "", sizeof comment);
 			fseek(fd, 0L, 0);
 			while ((fgets(buf, sizeof buf, fd) != NULL)
-			       && (strlen(comment) == 0)) {
+			       && (IsEmptyStr(comment))) {
 				buf[strlen(buf) - 1] = 0;
 				if ((!strncasecmp(buf, flnm, strlen(flnm)))
 				    && (buf[strlen(flnm)] == ' '))
@@ -1520,7 +1520,7 @@ void cmd_seta(char *new_ra)
 	 * the room table, otherwise it would deadlock!
 	 */
 	if (post_notice == 1) {
-		if (strlen(usbuf.fullname) > 0)
+		if (!IsEmptyStr(usbuf.fullname))
 			snprintf(buf, sizeof buf,
 				"%s is now the room aide for \"%s\".\n",
 				usbuf.fullname, CC->room.QRname);
@@ -1551,7 +1551,7 @@ void cmd_rinf(void)
 	}
 	cprintf("%d Info:\n", LISTING_FOLLOWS);
 	while (fgets(buf, sizeof buf, info_fp) != NULL) {
-		if (strlen(buf) > 0)
+		if (!IsEmptyStr(buf))
 			buf[strlen(buf) - 1] = 0;
 		cprintf("%s\n", buf);
 	}
@@ -1841,7 +1841,7 @@ void cmd_cre8(char *args)
 	new_room_pass[9] = 0;
 	new_room_floor = 0;
 
-	if ((strlen(new_room_name) == 0) && (cre8_ok == 1)) {
+	if ((IsEmptyStr(new_room_name)) && (cre8_ok == 1)) {
 		cprintf("%d Invalid room name.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
@@ -1876,7 +1876,7 @@ void cmd_cre8(char *args)
 		return;
 	}
 
-	if ((strlen(new_room_name) == 0) && (cre8_ok == 0)) {
+	if ((IsEmptyStr(new_room_name)) && (cre8_ok == 0)) {
 		cprintf("%d Ok to create rooms.\n", CIT_OK);
 		return;
 	}
@@ -2016,7 +2016,7 @@ void cmd_cflr(char *argbuf)
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	if (strlen(new_floor_name) == 0) {
+	if (IsEmptyStr(new_floor_name)) {
 		cprintf("%d Blank floor name not allowed.\n",
 			ERROR + ILLEGAL_VALUE);
 		return;

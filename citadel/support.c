@@ -16,7 +16,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "support.h"
-
+#include "tools.h"
 
 /*
  * strproc()  -  make a string 'nice'
@@ -26,7 +26,7 @@ void strproc(char *string)
 	int a;
 
 	if (string == NULL) return;
-	if (strlen(string)==0) return;
+	if (IsEmptyStr(string)) return;
 
 	/* Convert non-printable characters to blanks */
 	for (a=0; a<strlen(string); ++a) {
@@ -35,9 +35,9 @@ void strproc(char *string)
 	}
 
 	/* Remove leading and trailing blanks */
-	while( (string[0]<33) && (strlen(string)>0) )
+	while( (string[0]<33) && (!IsEmptyStr(string)) )
 		strcpy(string,&string[1]);
-	while( (string[strlen(string)-1]<33) && (strlen(string)>0) )
+	while( (string[strlen(string)-1]<33) && (!IsEmptyStr(string)) )
 		string[strlen(string)-1]=0;
 
 	/* Remove double blanks */

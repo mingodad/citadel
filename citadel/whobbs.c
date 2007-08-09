@@ -23,22 +23,30 @@ void logoff(int code)
 
 static void escapize(char *buf, size_t n) {
 	char hold[512];
-	int i;
+	int i, len;
+	size_t tmp;
 
 	strcpy(hold, buf);
 	strcpy(buf, "");
-
-	for (i=0; i<strlen(hold); ++i) {
-		size_t tmp = strlen(buf);
-
-		if (hold[i]=='<')
+	tmp = 0;
+	len = strlen(hold);
+	for (i=0; i<len; ++i) {
+		if (hold[i]=='<') {
 			snprintf(&buf[tmp], n - tmp, "&lt;");
-		else if (hold[i]=='>')
+			tmp += 4;
+		}
+		else if (hold[i]=='>'){
 			snprintf(&buf[tmp], n - tmp, "&gt;");
-		else if (hold[i]==34)
+			tmp += 4;
+		}
+		else if (hold[i]==34){
 			snprintf(&buf[tmp], n - tmp, "&quot;");
-		else
+			tmp += 6;
+		}
+		else{
 			snprintf(&buf[tmp], n - tmp, "%c", hold[i]);
+			tmp ++;
+		}
 	}
 }
 
@@ -135,7 +143,7 @@ int main(int argc, char **argv)
 	}
 
 
-	while (strlen(listing) > 0) {
+	while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 

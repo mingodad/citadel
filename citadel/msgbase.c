@@ -528,7 +528,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	int need_to_free_re = 0;
 	regmatch_t pm;
 
-	if (content_type) if (strlen(content_type) > 0) {
+	if (content_type) if (!IsEmptyStr(content_type)) {
 		regcomp(&re, content_type, 0);
 		need_to_free_re = 1;
 	}
@@ -558,7 +558,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 		/* If the caller is looking for a specific MIME type, filter
 		 * out all messages which are not of the type requested.
 	 	 */
-		if (content_type != NULL) if (strlen(content_type) > 0) {
+		if (content_type != NULL) if (!IsEmptyStr(content_type)) {
 
 			/* This call to GetMetaData() sits inside this loop
 			 * so that we only do the extra database read per msg
@@ -1207,7 +1207,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	ma->did_print = 1;
 
 	if ( (!strcasecmp(cbtype, "text/plain")) 
-	   || (strlen(cbtype)==0) ) {
+	   || (IsEmptyStr(cbtype)) ) {
 		wptr = content;
 		if (length > 0) {
 			client_write(wptr, length);
@@ -1308,12 +1308,12 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 				++add_newline;
 			}
 			cprintf("Content-type: %s", cbtype);
-			if (strlen(cbcharset) > 0) {
+			if (!IsEmptyStr(cbcharset)) {
 				cprintf("; charset=%s", cbcharset);
 			}
 			cprintf("\nContent-length: %d\n",
 				(int)(length + add_newline) );
-			if (strlen(encoding) > 0) {
+			if (!IsEmptyStr(encoding)) {
 				cprintf("Content-transfer-encoding: %s\n", encoding);
 			}
 			else {
@@ -1414,7 +1414,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* Here is the weird form of this command, to process only an
 	 * encapsulated message/rfc822 section.
 	 */
-	if (section) if (strlen(section)>0) if (strcmp(section, "0")) {
+	if (section) if (!IsEmptyStr(section)) if (strcmp(section, "0")) {
 		memset(&encap, 0, sizeof encap);
 		safestrncpy(encap.desired_section, section, sizeof encap.desired_section);
 		mime_parser(TheMessage->cm_fields['M'],
@@ -1605,7 +1605,7 @@ int CtdlOutputPreLoadedMsg(
 		 */
 		suppress_f = 0;
 		if (TheMessage->cm_fields['N'] != NULL)
-		   if (strlen(TheMessage->cm_fields['N']) > 0)
+		   if (!IsEmptyStr(TheMessage->cm_fields['N']))
 		      if (haschar(TheMessage->cm_fields['N'], '.') == 0) {
 			suppress_f = 1;
 		}
@@ -1820,7 +1820,7 @@ START_TEXT:
 				buf[strlen(buf)] = ch;
 			}
 		}
-		if (strlen(buf) > 0)
+		if (!IsEmptyStr(buf))
 			cprintf("%s%s", buf, nl);
 	}
 
@@ -2325,7 +2325,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	/* No exclusive id?  Don't do anything. */
 	if (msg == NULL) return;
 	if (msg->cm_fields['E'] == NULL) return;
-	if (strlen(msg->cm_fields['E']) == 0) return;
+	if (IsEmptyStr(msg->cm_fields['E'])) return;
 	/*lprintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
 		msg->cm_fields['E'], CC->room.QRname);*/
 
@@ -2451,7 +2451,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* ...or if this message is destined for Aide> then go there. */
-	if (strlen(force_room) > 0) {
+	if (!IsEmptyStr(force_room)) {
 		strcpy(actual_rm, force_room);
 	}
 
@@ -2574,7 +2574,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
-			if (strlen(config.c_funambol_host) > 0) {
+			if (!IsEmptyStr(config.c_funambol_host)) {
 			/* Generate a instruction message for the Funambol notification
 			 * server, in the same style as the SMTP queue
 			 */
@@ -2942,7 +2942,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	/* Path or Return-Path */
 	if (my_email == NULL) my_email = "";
 
-	if (strlen(my_email) > 0) {
+	if (!IsEmptyStr(my_email)) {
 		msg->cm_fields['P'] = strdup(my_email);
 	}
 	else {
@@ -2983,10 +2983,10 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['D'] = strdup(dest_node);
 	}
 
-	if (strlen(my_email) > 0) {
+	if (!IsEmptyStr(my_email)) {
 		msg->cm_fields['F'] = strdup(my_email);
 	}
-	else if ( (author == &CC->user) && (strlen(CC->cs_inet_email) > 0) ) {
+	else if ( (author == &CC->user) && (!IsEmptyStr(CC->cs_inet_email)) ) {
 		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
 	}
 
@@ -3148,7 +3148,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 
 	/* Now start extracting recipients... */
 
-	while (strlen(recipients) > 0) {
+	while (!IsEmptyStr(recipients)) {
 
 		for (i=0; i<=strlen(recipients); ++i) {
 			if (recipients[i] == '\"') in_quotes = 1 - in_quotes;
@@ -3185,7 +3185,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				if (!strcasecmp(this_recp, "sysop")) {
 					++ret->num_room;
 					strcpy(this_recp, config.c_aideroom);
-					if (strlen(ret->recp_room) > 0) {
+					if (!IsEmptyStr(ret->recp_room)) {
 						strcat(ret->recp_room, "|");
 					}
 					strcat(ret->recp_room, this_recp);
@@ -3193,7 +3193,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				else if (getuser(&tempUS, this_recp) == 0) {
 					++ret->num_local;
 					strcpy(this_recp, tempUS.fullname);
-					if (strlen(ret->recp_local) > 0) {
+					if (!IsEmptyStr(ret->recp_local)) {
 						strcat(ret->recp_local, "|");
 					}
 					strcat(ret->recp_local, this_recp);
@@ -3201,7 +3201,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				else if (getuser(&tempUS, this_recp_cooked) == 0) {
 					++ret->num_local;
 					strcpy(this_recp, tempUS.fullname);
-					if (strlen(ret->recp_local) > 0) {
+					if (!IsEmptyStr(ret->recp_local)) {
 						strcat(ret->recp_local, "|");
 					}
 					strcat(ret->recp_local, this_recp);
@@ -3209,7 +3209,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				else if ( (!strncasecmp(this_recp, "room_", 5))
 				      && (!getroom(&tempQR, &this_recp_cooked[5])) ) {
 					++ret->num_room;
-					if (strlen(ret->recp_room) > 0) {
+					if (!IsEmptyStr(ret->recp_room)) {
 						strcat(ret->recp_room, "|");
 					}
 					strcat(ret->recp_room, &this_recp_cooked[5]);
@@ -3232,7 +3232,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				}
 				else {
 					++ret->num_internet;
-					if (strlen(ret->recp_internet) > 0) {
+					if (!IsEmptyStr(ret->recp_internet)) {
 						strcat(ret->recp_internet, "|");
 					}
 					strcat(ret->recp_internet, this_recp);
@@ -3240,7 +3240,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				break;
 			case MES_IGNET:
 				++ret->num_ignet;
-				if (strlen(ret->recp_ignet) > 0) {
+				if (!IsEmptyStr(ret->recp_ignet)) {
 					strcat(ret->recp_ignet, "|");
 				}
 				strcat(ret->recp_ignet, this_recp);
@@ -3251,7 +3251,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				break;
 		}
 		if (invalid) {
-			if (strlen(ret->errormsg) == 0) {
+			if (IsEmptyStr(ret->errormsg)) {
 				snprintf(append, sizeof append,
 					 "Invalid recipient: %s",
 					 this_recp);
@@ -3264,7 +3264,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 			}
 		}
 		else {
-			if (strlen(ret->display_recp) == 0) {
+			if (IsEmptyStr(ret->display_recp)) {
 				strcpy(append, this_recp);
 			}
 			else {
@@ -3382,7 +3382,7 @@ void cmd_ent0(char *entargs)
 
 	/* Check some other permission type things. */
 
-	if (strlen(newusername) == 0) {
+	if (IsEmptyStr(newusername)) {
 		strcpy(newusername, CC->user.fullname);
 	}
 	if (  (CC->user.axlevel < 6)
@@ -3397,15 +3397,15 @@ void cmd_ent0(char *entargs)
 	}
 
 
-	if (strlen(newuseremail) == 0) {
+	if (IsEmptyStr(newuseremail)) {
 		newuseremail_ok = 1;
 	}
 
-	if (strlen(newuseremail) > 0) {
+	if (!IsEmptyStr(newuseremail)) {
 		if (!strcasecmp(newuseremail, CC->cs_inet_email)) {
 			newuseremail_ok = 1;
 		}
-		else if (strlen(CC->cs_inet_other_emails) > 0) {
+		else if (!IsEmptyStr(CC->cs_inet_other_emails)) {
 			j = num_tokens(CC->cs_inet_other_emails, '|');
 			for (i=0; i<j; ++i) {
 				extract_token(buf, CC->cs_inet_other_emails, i, '|', sizeof buf);
@@ -3562,7 +3562,7 @@ void cmd_ent0(char *entargs)
 	msg = CtdlMakeMessage(&CC->user, recp, cc,
 		CC->room.QRname, anonymous, format_type,
 		newusername, newuseremail, subject,
-		((strlen(supplied_euid) > 0) ? supplied_euid : NULL),
+		((!IsEmptyStr(supplied_euid)) ? supplied_euid : NULL),
 		NULL);
 
 	/* Put together one big recipients struct containing to/cc/bcc all in
@@ -3570,19 +3570,19 @@ void cmd_ent0(char *entargs)
 	 */
 	char *all_recps = malloc(SIZ * 3);
 	strcpy(all_recps, recp);
-	if (strlen(cc) > 0) {
-		if (strlen(all_recps) > 0) {
+	if (!IsEmptyStr(cc)) {
+		if (!IsEmptyStr(all_recps)) {
 			strcat(all_recps, ",");
 		}
 		strcat(all_recps, cc);
 	}
-	if (strlen(bcc) > 0) {
-		if (strlen(all_recps) > 0) {
+	if (!IsEmptyStr(bcc)) {
+		if (!IsEmptyStr(all_recps)) {
 			strcat(all_recps, ",");
 		}
 		strcat(all_recps, bcc);
 	}
-	if (strlen(all_recps) > 0) {
+	if (!IsEmptyStr(all_recps)) {
 		valid = validate_recipients(all_recps);
 	}
 	else {
@@ -3642,7 +3642,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	regmatch_t pm;
 	int need_to_free_re = 0;
 
-	if (content_type) if (strlen(content_type) > 0) {
+	if (content_type) if (!IsEmptyStr(content_type)) {
 		regcomp(&re, content_type, 0);
 		need_to_free_re = 1;
 	}
@@ -3685,7 +3685,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 				}
 			}
 
-			if (strlen(content_type) == 0) {
+			if (IsEmptyStr(content_type)) {
 				delete_this |= 0x02;
 			} else {
 				GetMetaData(&smi, msglist[i]);
@@ -4270,7 +4270,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	if (conf != NULL) do {
 		extract_token(buf, conf, 0, '\n', sizeof buf);
 		strcpy(conf, &conf[strlen(buf)+1]);
-	} while ( (strlen(conf)>0) && (strlen(buf)>0) );
+	} while ( (!IsEmptyStr(conf)) && (!IsEmptyStr(buf)) );
 
 	return(conf);
 }

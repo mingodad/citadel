@@ -220,7 +220,7 @@ void print_instant(void)
 	if (rc_exp_beep) {
 		ctdl_beep();
 	}
-	if (strlen(rc_exp_cmd) == 0) {
+	if (IsEmptyStr(rc_exp_cmd)) {
 		color(BRIGHT_RED);
 		scr_printf("\r---");
 	}
@@ -245,7 +245,7 @@ void print_instant(void)
 			return;
 		}
 	
-		if (strlen(rc_exp_cmd) > 0) {
+		if (!IsEmptyStr(rc_exp_cmd)) {
 			outpipe = popen(rc_exp_cmd, "w");
 			if (outpipe != NULL) {
 				/* Header derived from flags */
@@ -582,7 +582,7 @@ void ctdl_getline(char *string, int lim)
 
 GLA:	a = inkey();
 	/* a = (a & 127); ** commented out because it isn't just an ASCII world anymore */
-	if ((a == 8 || a == 23) && (strlen(string) == 0))
+	if ((a == 8 || a == 23) && (IsEmptyStr(string)))
 		goto GLA;
 	if ((a != 10) && (a != 8) && (strlen(string) == lim))
 		goto GLA;
@@ -595,7 +595,7 @@ GLA:	a = inkey();
 		do {
 			string[strlen(string) - 1] = 0;
 			scr_putc(8); scr_putc(32); scr_putc(8);
-		} while (strlen(string) && string[strlen(string) - 1] != ' ');
+		} while (!IsEmptyStr(string) && string[strlen(string) - 1] != ' ');
 		goto GLA;
 	}
 	if ((a == 10)) {
@@ -788,7 +788,7 @@ void load_command_set(void)
 		logoff(NULL, 3);
 	}
 	while (fgets(buf, sizeof buf, ccfile) != NULL) {
-		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
+		while ((!IsEmptyStr(buf)) ? (isspace(buf[strlen(buf) - 1])) : 0)
 			buf[strlen(buf) - 1] = 0;
 
 		if (!strncasecmp(buf, "encrypt=", 8)) {
@@ -929,7 +929,7 @@ void load_command_set(void)
 			a = 0;
 			b = 0;
 			buf[strlen(buf) + 1] = 0;
-			while (strlen(buf) > 0) {
+			while (!IsEmptyStr(buf)) {
 				b = strlen(buf);
 				for (d = strlen(buf); d >= 0; --d)
 					if (buf[d] == ',')

@@ -69,7 +69,7 @@ int CtdlHostAlias(char *fqdn) {
 	char host[256], type[256];
 
 	if (fqdn == NULL) return(hostalias_nomatch);
-	if (strlen(fqdn) == 0) return(hostalias_nomatch);
+	if (IsEmptyStr(fqdn)) return(hostalias_nomatch);
 	if (!strcasecmp(fqdn, "localhost")) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
@@ -174,7 +174,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	stripout(name, '<', '>');
 
 	/* strip anything to the left of a bang */
-	while ((strlen(name) > 0) && (haschar(name, '!') > 0))
+	while ((!IsEmptyStr(name)) && (haschar(name, '!') > 0))
 		strcpy(name, &name[1]);
 
 	/* and anything to the right of a @ or % */
@@ -194,7 +194,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	/* but if there are a set of quotes, that supersedes everything */
 	if (haschar(rfc822, 34) == 2) {
 		strcpy(name, rfc822);
-		while ((strlen(name) > 0) && (name[0] != 34)) {
+		while ((!IsEmptyStr(name)) && (name[0] != 34)) {
 			strcpy(&name[0], &name[1]);
 		}
 		strcpy(&name[0], &name[1]);
@@ -214,7 +214,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	}
 
 	/* strip anything to the left of a bang */
-	while ((strlen(user) > 0) && (haschar(user, '!') > 0))
+	while ((!IsEmptyStr(user)) && (haschar(user, '!') > 0))
 		strcpy(user, &user[1]);
 
 	/* and anything to the right of a @ or % */
@@ -249,15 +249,15 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	else {
 
 		/* strip anything to the left of a @ */
-		while ((strlen(node) > 0) && (haschar(node, '@') > 0))
+		while ((!IsEmptyStr(node)) && (haschar(node, '@') > 0))
 			strcpy(node, &node[1]);
 	
 		/* strip anything to the left of a % */
-		while ((strlen(node) > 0) && (haschar(node, '%') > 0))
+		while ((!IsEmptyStr(node)) && (haschar(node, '%') > 0))
 			strcpy(node, &node[1]);
 	
 		/* reduce multiple system bang paths to node!user */
-		while ((strlen(node) > 0) && (haschar(node, '!') > 1))
+		while ((!IsEmptyStr(node)) && (haschar(node, '!') > 1))
 			strcpy(node, &node[1]);
 	
 		/* now get rid of the user portion of a node!user string */
@@ -275,7 +275,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	 * but no name outside the brackets, we now have an empty name.  In
 	 * this case, use the user portion of the address as the name.
 	 */
-	if ((strlen(name) == 0) && (strlen(user) > 0)) {
+	if ((IsEmptyStr(name)) && (!IsEmptyStr(user))) {
 		strcpy(name, user);
 	}
 }
@@ -707,7 +707,7 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 				if ( (h != hostalias_localhost) && (h != hostalias_directory) ) {
 					coll = realloc(coll, strlen(coll) + strlen(addr) + 4);
 					if (coll == NULL) return(NULL);
-					if (strlen(coll) > 0) {
+					if (!IsEmptyStr(coll)) {
 						strcat(coll, ",");
 					}
 					striplt(addr);
@@ -717,7 +717,7 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 		}
 	}
 
-	if (strlen(coll) == 0) {
+	if (IsEmptyStr(coll)) {
 		free(coll);
 		return(NULL);
 	}

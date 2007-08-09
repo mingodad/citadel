@@ -79,7 +79,7 @@ void load_floorlist(CtdlIPC *ipc)
 		strcpy(floorlist[0], "Main Floor");
 		return;
 	}
-	while (*listing && strlen(listing)) {
+	while (*listing && !IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 		extract_token(floorlist[extract_int(buf, 0)], buf, 1, '|', SIZ);
@@ -518,7 +518,7 @@ void editthisroom(CtdlIPC *ipc)
 	} else {
 		strcpy(raide, "");
 	}
-	if (strlen(raide) == 0) {
+	if (IsEmptyStr(raide)) {
 		strcpy(raide, "none");
 	}
 
@@ -701,7 +701,7 @@ void dotungoto(CtdlIPC *ipc, char *towhere)
 		scr_printf("Must specify a room to ungoto.\n");
 		return;
       }
-	if (strlen(towhere) == 0)
+	if (IsEmptyStr(towhere))
       {
 		scr_printf("Must specify a room to ungoto.\n");
 		return;
@@ -801,7 +801,7 @@ void destination_directory(char *dest, const char *supplied_filename)
 {
 	static char save_dir[SIZ] = { 0 };
 
-	if (strlen(save_dir) == 0) {
+	if (IsEmptyStr(save_dir)) {
 		if (getenv("HOME") == NULL) {
 			strcpy(save_dir, ".");
 		}
@@ -936,7 +936,7 @@ void roomdir(CtdlIPC *ipc)
 	extract_token(flnm, buf, 1, '|', sizeof flnm);
 	pprintf("\nDirectory of %s on %s\n", flnm, comment);
 	pprintf("-----------------------\n");
-	while (listing && *listing && strlen(listing)) {
+	while (listing && *listing && !IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
@@ -1054,7 +1054,7 @@ void entroom(CtdlIPC *ipc)
 	}
 
 	newprompt("Name for new room? ", new_room_name, ROOMNAMELEN - 1);
-	if (strlen(new_room_name) == 0) {
+	if (IsEmptyStr(new_room_name)) {
 		return;
 	}
 	for (a = 0; a < strlen(new_room_name); ++a) {
@@ -1134,7 +1134,7 @@ void readinfo(CtdlIPC *ipc)
 	else
 		strcpy(raide, "");
 
-	if (strlen(raide) > 0)
+	if (!IsEmptyStr(raide))
 		scr_printf("Room aide is %s.\n\n", raide);
 
 	r = CtdlIPCRoomInfo(ipc, &text, buf);
@@ -1164,7 +1164,7 @@ void whoknows(CtdlIPC *ipc)
 		pprintf("%s\n", buf);
 		return;
 	}
-	while (strlen(listing) > 0) {
+	while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 		if (sigcaught == 0)
@@ -1181,7 +1181,7 @@ void do_edit(CtdlIPC *ipc,
 	char cmd[SIZ];
 	int b, cksum, editor_exit;
 
-	if (strlen(editor_paths[0]) == 0) {
+	if (IsEmptyStr(editor_paths[0])) {
 		scr_printf("Do you wish to re-enter %s? ", desc);
 		if (yesno() == 0)
 			return;
@@ -1197,7 +1197,7 @@ void do_edit(CtdlIPC *ipc,
 		return;
 	}
 
-	if (strlen(editor_paths[0]) > 0) {
+	if (!IsEmptyStr(editor_paths[0])) {
 		CtdlIPC_chat_send(ipc, read_cmd);
 		CtdlIPC_chat_recv(ipc, cmd);
 		if (cmd[0] == '1') {
@@ -1211,7 +1211,7 @@ void do_edit(CtdlIPC *ipc,
 
 	cksum = file_checksum(temp);
 
-	if (strlen(editor_paths[0]) > 0) {
+	if (!IsEmptyStr(editor_paths[0])) {
 		char tmp[SIZ];
 
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
@@ -1380,7 +1380,7 @@ void kill_floor(CtdlIPC *ipc)
 		floornum_to_delete = (-1);
 		scr_printf("(Press return to abort)\n");
 		newprompt("Delete which floor? ", buf, 255);
-		if (strlen(buf) == 0)
+		if (IsEmptyStr(buf))
 			return;
 		for (a = 0; a < 128; ++a)
 			if (!strcasecmp(&floorlist[a][0], buf))

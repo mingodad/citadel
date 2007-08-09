@@ -31,6 +31,7 @@
 #endif
 
 #include <errno.h>
+#include "tools.h"
 
 
 int qwk = 0;
@@ -91,7 +92,7 @@ TOP:	do {
 		if (b == 'M') {
 			if (qwk == 0) {
 				printf("\n");
-				if (strlen(subject) != 0)
+				if (!IsEmptyStr(subject))
 					printf("Subject: %s\n", subject);
 			}
 			if (aflag != 1)

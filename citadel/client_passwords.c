@@ -53,7 +53,7 @@ void get_stored_password(
 	strcpy(password, "");
 
 	determine_pwfilename(pwfile, sizeof pwfile);
-	if (strlen(pwfile)==0) return;
+	if (IsEmptyStr(pwfile)) return;
 
 	fp = fopen(pwfile, "r");
 	if (fp == NULL) return;
@@ -91,7 +91,7 @@ void set_stored_password(
 	char hostbuf[256], portbuf[256], ubuf[256], pbuf[256];
 
 	determine_pwfilename(pwfile, sizeof pwfile);
-	if (strlen(pwfile)==0) return;
+	if (IsEmptyStr(pwfile)) return;
 
 	oldfp = fopen(pwfile, "r");
 	if (oldfp == NULL) oldfp = fopen("/dev/null", "r");
@@ -113,7 +113,7 @@ void set_stored_password(
 			fprintf(fp, "%s\n", buf64);
 		}
 	}
-	if (strlen(username) > 0) {
+	if (!IsEmptyStr(username)) {
 		snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 			host, port, username, password);
 		CtdlEncodeBase64(buf64, buf, strlen(buf));

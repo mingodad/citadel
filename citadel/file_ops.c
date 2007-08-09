@@ -70,13 +70,13 @@ int network_talking_to(char *nodename, int operation) {
 
 		case NTT_REMOVE:
 			if (nttlist == NULL) break;
-			if (strlen(nttlist) == 0) break;
+			if (IsEmptyStr(nttlist)) break;
 			ptr = malloc(strlen(nttlist));
 			if (ptr == NULL) break;
 			strcpy(ptr, "");
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
 				extract_token(buf, nttlist, i, '|', sizeof buf);
-				if ( (strlen(buf) > 0)
+				if ( (!IsEmptyStr(buf))
 				     && (strcasecmp(buf, nodename)) ) {
 						strcat(ptr, buf);
 						strcat(ptr, "|");
@@ -88,7 +88,7 @@ int network_talking_to(char *nodename, int operation) {
 
 		case NTT_CHECK:
 			if (nttlist == NULL) break;
-			if (strlen(nttlist) == 0) break;
+			if (IsEmptyStr(nttlist)) break;
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
 				extract_token(buf, nttlist, i, '|', sizeof buf);
 				if (!strcasecmp(buf, nodename)) ++retval;
@@ -121,7 +121,7 @@ void cmd_delf(char *filename)
 		return;
 	}
 
-	if (strlen(filename) == 0) {
+	if (IsEmptyStr(filename)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -172,7 +172,7 @@ void cmd_movf(char *cmdbuf)
 		return;
 	}
 
-	if (strlen(filename) == 0) {
+	if (IsEmptyStr(filename)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -241,7 +241,7 @@ void cmd_netf(char *cmdbuf)
 		return;
 	}
 
-	if (strlen(filename) == 0) {
+	if (IsEmptyStr(filename)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -355,7 +355,7 @@ void cmd_open(char *cmdbuf)
 		return;
 	}
 
-	if (strlen(filename) == 0) {
+	if (IsEmptyStr(filename)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -402,7 +402,7 @@ void cmd_oimg(char *cmdbuf)
 
 	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 
-	if (strlen(filename) == 0) {
+	if (IsEmptyStr(filename)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -473,7 +473,7 @@ void cmd_uopn(char *cmdbuf)
 		return;
 	}
 
-	if (strlen(CC->upl_file) == 0) {
+	if (IsEmptyStr(CC->upl_file)) {
 		cprintf("%d You must specify a file name.\n",
 			ERROR + FILE_NOT_FOUND);
 		return;
@@ -578,7 +578,7 @@ void cmd_uimg(char *cmdbuf)
 		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->room, ctdl_image_dir);
 	}
 
-	if (strlen(CC->upl_path) == 0) {
+	if (IsEmptyStr(CC->upl_path)) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
@@ -766,7 +766,7 @@ void cmd_ndop(char *cmdbuf)
 	char pathname[256];
 	struct stat statbuf;
 
-	if (strlen(CC->net_node) == 0) {
+	if (IsEmptyStr(CC->net_node)) {
 		cprintf("%d Not authenticated as a network node.\n",
 			ERROR + NOT_LOGGED_IN);
 		return;
@@ -815,7 +815,7 @@ void cmd_nuop(char *cmdbuf)
 {
 	static int seq = 1;
 
-	if (strlen(CC->net_node) == 0) {
+	if (IsEmptyStr(CC->net_node)) {
 		cprintf("%d Not authenticated as a network node.\n",
 			ERROR + NOT_LOGGED_IN);
 		return;

@@ -507,7 +507,7 @@ void cmd_conf(char *argbuf)
 			 CC->curr_user);
 		aide_message(buf,"Citadel Configuration Manager Message");
 
-		if (strlen(config.c_logpages) > 0)
+		if (!IsEmptyStr(config.c_logpages))
 			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
 
 		/* If full text indexing has been disabled, invalidate the

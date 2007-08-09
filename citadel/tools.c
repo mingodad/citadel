@@ -377,11 +377,11 @@ char *rfc2047encode(char *line, long length)
  */
 void striplt(char *buf)
 {
-	if (strlen(buf) == 0) return;
-        while ((strlen(buf) > 0) && (isspace(buf[0])))
+	if (IsEmptyStr(buf)) return;
+        while ((!IsEmptyStr(buf)) && (isspace(buf[0])))
                 strcpy(buf, &buf[1]);
-	if (strlen(buf) == 0) return;
-        while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
+	if (IsEmptyStr(buf)) return;
+        while ((!IsEmptyStr(buf)) && (isspace(buf[strlen(buf) - 1])))
                 buf[strlen(buf) - 1] = 0;
 }
 

@@ -77,7 +77,7 @@ void remove_charset_attribute(char *strbuf)
 			remove_token(strbuf, i, ';');
 		}
 	}
-	if (strlen(strbuf) > 0) {
+	if (!IsEmptyStr(strbuf)) {
 		if (strbuf[strlen(strbuf)-1] == ';') {
 			strbuf[strlen(strbuf)-1] = 0;
 		}
@@ -124,7 +124,7 @@ struct vCard *vcard_load(char *vtext) {
 	 * To make it easier to parse, we convert CRLF to LF, and unfold any
 	 * multi-line fields into single lines.
 	 */
-	for (i=0; i<strlen(mycopy); ++i) {
+	for (i=0; !IsEmptyStr(&mycopy[i]); ++i) {
 		if (!strncmp(&mycopy[i], "\r\n", 2)) {
 			strcpy(&mycopy[i], &mycopy[i+1]);
 		}
@@ -137,7 +137,7 @@ struct vCard *vcard_load(char *vtext) {
 	if (v == NULL) return v;
 
 	ptr = mycopy;
-	while (strlen(ptr)>0) {
+	while (!IsEmptyStr(ptr)) {
 		colonpos = (-1);
 		nlpos = (-1);
 		colonpos = pattern2(ptr, ":");
@@ -176,7 +176,7 @@ struct vCard *vcard_load(char *vtext) {
 
 		}
 
-		while ( (*ptr != '\n') && (strlen(ptr)>0) ) {
+		while ( (*ptr != '\n') && (!IsEmptyStr(ptr)) ) {
 			++ptr;
 		}
 		if (*ptr == '\n') ++ptr;
@@ -317,7 +317,7 @@ char *vcard_serialize(struct vCard *v)
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if ( (strcasecmp(v->prop[i].name, "end")) && (v->prop[i].value != NULL) ) {
 			is_utf8 = 0;
-			for (j=0; j<strlen(v->prop[i].value); ++j) {
+			for (j=0; !IsEmptyStr(&v->prop[i].value[j]); ++j) {
 				if ( (v->prop[i].value[j] < 32) || (v->prop[i].value[j] > 126) ) {
 					is_utf8 = 1;
 				}

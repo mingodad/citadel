@@ -31,6 +31,7 @@
 #include "sysdep_decls.h"
 #include "config.h"
 #include "clientsocket.h"
+#include "tools.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -45,12 +46,12 @@ int sock_connect(char *host, char *service, char *protocol)
 	struct sockaddr_in egress_sin;
 	int s, type;
 
-	if (host == NULL) return(-1);
-	if (strlen(host) == 0) return(-1);
-	if (service == NULL) return(-1);
-	if (strlen(service) == 0) return(-1);
-	if (protocol == NULL) return(-1);
-	if (strlen(protocol) == 0) return(-1);
+	if ((host == NULL) || IsEmptyStr(host)) 
+		return(-1);
+	if ((service == NULL) || IsEmptyStr(service)) 
+		return(-1);
+	if ((protocol == NULL) || IsEmptyStr(protocol)) 
+		return(-1);
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -93,7 +94,7 @@ int sock_connect(char *host, char *service, char *protocol)
 	 */
 	memset(&egress_sin, 0, sizeof(egress_sin));
 	egress_sin.sin_family = AF_INET;
-	if (strlen(config.c_ip_addr) > 0) {
+	if (!IsEmptyStr(config.c_ip_addr)) {
 		egress_sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
         	if (egress_sin.sin_addr.s_addr == !INADDR_ANY) {
                 	egress_sin.sin_addr.s_addr = INADDR_ANY;
@@ -209,7 +210,7 @@ int sock_gets(int sock, char *buf)
 	/* Strip any trailing CR and LF characters.
 	 */
 	buf[i] = 0;
-	while ( (strlen(buf)>0)
+	while ( (!IsEmptyStr(buf))
 	      && ((buf[strlen(buf)-1]==13)
 	      || (buf[strlen(buf)-1]==10)) ) {
 		buf[strlen(buf)-1] = 0;

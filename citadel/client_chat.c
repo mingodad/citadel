@@ -113,7 +113,7 @@ void chatmode(CtdlIPC *ipc)
 			if ((ch == 10) || (ch == 13)) {
 				send_complete_line = 1;
 			} else if ((ch == 8) || (ch == 127)) {
-				if (strlen(wbuf) > 0) {
+				if (!IsEmptyStr(wbuf)) {
 					wbuf[strlen(wbuf) - 1] = 0;
 					sln_printf("%c %c", 8, 8);
 				}

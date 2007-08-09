@@ -272,7 +272,7 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 		}
 
 		if (a == 8) {
-			if (strlen(wordbuf) > 0) {
+			if (!IsEmptyStr(wordbuf)) {
 				wordbuf[strlen(wordbuf) - 1] = 0;
 				scr_putc(8);
 				scr_putc(32);
@@ -284,10 +284,10 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 				scr_putc(8);
 				scr_putc(32);
 				scr_putc(8);
-			} while (strlen(wordbuf) && wordbuf[strlen(wordbuf) - 1] != ' ');
+			} while (!IsEmptyStr(wordbuf) && wordbuf[strlen(wordbuf) - 1] != ' ');
 		} else if (a == 13) {
 			scr_printf("\n");
-			if (strlen(wordbuf) == 0)
+			if (IsEmptyStr(wordbuf))
 				finished = 1;
 			else {
 				for (b = 0; b < strlen(wordbuf); ++b)
@@ -436,17 +436,17 @@ int read_message(CtdlIPC *ipc,
 				message->nhdr ? "yes" : "no",
 				message->author, message->type,
 				message->msgid);
-		if (strlen(message->subject)) {
+		if (!IsEmptyStr(message->subject)) {
 			pprintf("subj=%s\n", message->subject);
 		}
-		if (strlen(message->email)) {
+		if (!IsEmptyStr(message->email)) {
 			pprintf("rfca=%s\n", message->email);
 		}
 		pprintf("hnod=%s\nroom=%s\nnode=%s\ntime=%s",
 				message->hnod, message->room,
 				message->node, 
 				asctime(localtime(&message->time)));
-		if (strlen(message->recipient)) {
+		if (!IsEmptyStr(message->recipient)) {
 			pprintf("rcpt=%s\n", message->recipient);
 		}
 		if (message->attachments) {
@@ -486,7 +486,7 @@ int read_message(CtdlIPC *ipc,
 		fmt_date(now, sizeof now, message->time, 0);
 		if (dest) {
 			fprintf(dest, "%s from %s ", now, message->author);
-			if (strlen(message->email)) {
+			if (!IsEmptyStr(message->email)) {
 				fprintf(dest, "<%s> ", message->email);
 			}
 		} else {
@@ -496,7 +496,7 @@ int read_message(CtdlIPC *ipc,
 			scr_printf("from ");
 			color(BRIGHT_CYAN);
 			scr_printf("%s ", message->author);
-			if (strlen(message->email)) {
+			if (!IsEmptyStr(message->email)) {
 				color(DIM_WHITE);
 				scr_printf("<");
 				color(BRIGHT_BLUE);
@@ -505,11 +505,11 @@ int read_message(CtdlIPC *ipc,
 				scr_printf("> ");
 			}
 		}
-		if (strlen(message->node)) {
+		if (!IsEmptyStr(message->node)) {
 			if ((room_flags & QR_NETWORK)
 			    || ((strcasecmp(message->node, ipc->ServInfo.nodename)
 			     && (strcasecmp(message->node, ipc->ServInfo.fqdn))))) {
-				if (strlen(message->email) == 0) {
+				if (IsEmptyStr(message->email)) {
 					if (dest) {
 						fprintf(dest, "@%s ", message->node);
 					} else {
@@ -522,7 +522,7 @@ int read_message(CtdlIPC *ipc,
 			}
 		}
 		if (strcasecmp(message->hnod, ipc->ServInfo.humannode)
-		    && (strlen(message->hnod)) && (!strlen(message->email))) {
+		    && (!IsEmptyStr(message->hnod)) && (IsEmptyStr(message->email))) {
 			if (dest) {
 				fprintf(dest, "(%s) ", message->hnod);
 			} else {
@@ -534,7 +534,7 @@ int read_message(CtdlIPC *ipc,
 				scr_printf(") ");
 			}
 		}
-		if (strcasecmp(message->room, room_name) && (strlen(message->email) == 0)) {
+		if (strcasecmp(message->room, room_name) && (IsEmptyStr(message->email))) {
 			if (dest) {
 				fprintf(dest, "in %s> ", message->room);
 			} else {
@@ -544,7 +544,7 @@ int read_message(CtdlIPC *ipc,
 				scr_printf("%s> ", message->room);
 			}
 		}
-		if (strlen(message->recipient)) {
+		if (!IsEmptyStr(message->recipient)) {
 			if (dest) {
 				fprintf(dest, "to %s ", message->recipient);
 			} else {
@@ -564,8 +564,8 @@ int read_message(CtdlIPC *ipc,
 
 	/* Set the reply-to address to an Internet e-mail address if possible
 	 */
-	if (message->email != NULL) if (strlen(message->email) > 0) {
-		if (strlen(message->author) > 0) {
+	if (message->email != NULL) if (!IsEmptyStr(message->email)) {
+		if (!IsEmptyStr(message->author)) {
 			snprintf(reply_to, sizeof reply_to, "%s <%s>", message->author, message->email);
 		}
 		else {
@@ -588,7 +588,7 @@ int read_message(CtdlIPC *ipc,
 	if (message->subject != NULL) {
 		safestrncpy(reply_subject, message->subject,
 						sizeof reply_subject);
-		if (strlen(message->subject) > 0) {
+		if (!IsEmptyStr(message->subject)) {
 			if (dest) {
 				fprintf(dest, "Subject: %s\n",
 							message->subject);
@@ -710,7 +710,7 @@ int read_message(CtdlIPC *ipc,
 			   || (!strcasecmp(ptr->disposition, ""))
 			) {
 				if ( (strcasecmp(ptr->number, message->mime_chosen))
-				   && (strlen(ptr->mimetype) > 0)
+				   && (!IsEmptyStr(ptr->mimetype))
 				) {
 					color(DIM_WHITE);
 					pprintf("Part ");
@@ -760,7 +760,7 @@ void replace_string(char *filename, long int startpos)
 
 	scr_printf("Enter text to be replaced:\n: ");
 	ctdl_getline(srch_str, (sizeof(srch_str)-1) );
-	if (strlen(srch_str) == 0)
+	if (IsEmptyStr(srch_str))
 		return;
 
 	scr_printf("Enter text to replace it with:\n: ");
@@ -794,7 +794,7 @@ void replace_string(char *filename, long int startpos)
 		}
 	}
 	fseek(fp, wpos, 0);
-	if (strlen(buf) > 0)
+	if (!IsEmptyStr(buf))
 		fwrite((char *) buf, strlen(buf), 1, fp);
 	wpos = ftell(fp);
 	fclose(fp);
@@ -824,9 +824,9 @@ int client_make_message(CtdlIPC *ipc,
 
 	if (mode >= 2)
 	{
-		if((mode-2) < MAX_EDITORS && strlen(editor_paths[mode-2]) > 0) {
+		if((mode-2) < MAX_EDITORS && !IsEmptyStr(editor_paths[mode-2])) {
 			editor_path = editor_paths[mode-2];
-		} else if (strlen(editor_paths[0]) > 0) {
+		} else if (!IsEmptyStr(editor_paths[0])) {
 			editor_path = editor_paths[0];
 		} else {
 			err_printf("*** No editor available, "
@@ -847,18 +847,18 @@ int client_make_message(CtdlIPC *ipc,
 			datestr,
 			(is_anonymous ? "[anonymous]" : fullname)
 			);
-		if (strlen(recipient) > 0) {
+		if (!IsEmptyStr(recipient)) {
 			size_t tmp = strlen(header);
 			snprintf(&header[tmp], sizeof header - tmp,
 				" to %s", recipient);
 		}
 	}
 	scr_printf("%s\n", header);
-	if (subject != NULL) if (strlen(subject) > 0) {
+	if (subject != NULL) if (!IsEmptyStr(subject)) {
 		scr_printf("Subject: %s\n", subject);
 	}
 	
-	if ( (subject_required) && (strlen(subject) == 0) ) {
+	if ( (subject_required) && (IsEmptyStr(subject)) ) {
 		newprompt("Subject: ", subject, 70);
 	}
 
@@ -973,11 +973,11 @@ MECR:	if (mode >= 2) {
 	if (b == 's') goto MEFIN;
 	if (b == 'p') {
 		scr_printf(" %s from %s", datestr, fullname);
-		if (strlen(recipient) > 0) {
+		if (!IsEmptyStr(recipient)) {
 			scr_printf(" to %s", recipient);
 		}
 		scr_printf("\n");
-		if (subject != NULL) if (strlen(subject) > 0) {
+		if (subject != NULL) if (!IsEmptyStr(subject)) {
 			scr_printf("Subject: %s\n", subject);
 		}
 		fp = fopen(filename, "r");
@@ -1182,7 +1182,7 @@ int entmsg(CtdlIPC *ipc,
 			} else {
 				scr_printf("Enter recipient: ");
 				ctdl_getline(buf, (SIZ-100) );
-				if (strlen(buf) == 0)
+				if (IsEmptyStr(buf))
 					return (1);
 			}
 		} else
@@ -1191,7 +1191,7 @@ int entmsg(CtdlIPC *ipc,
 	strcpy(message.recipient, buf);
 
 	if (is_reply) {
-		if (strlen(reply_subject) > 0) {
+		if (!IsEmptyStr(reply_subject)) {
 			if (!strncasecmp(reply_subject,
 			   "Re: ", 3)) {
 				strcpy(message.subject, reply_subject);
@@ -1212,7 +1212,7 @@ int entmsg(CtdlIPC *ipc,
 	}
 
 	/* If it's mail, we've got to check the validity of the recipient... */
-	if (strlen(message.recipient) > 0) {
+	if (!IsEmptyStr(message.recipient)) {
 		r = CtdlIPCPostMessage(ipc, 0, &subject_required,  &message, buf);
 		if (r / 100 != 2) {
 			scr_printf("%s\n", buf);
@@ -1647,7 +1647,7 @@ RMSGREAD:	scr_flush();
 			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top ");
 			if (rc_url_cmd[0] && num_urls)
 				keyopt("<U>RLview ");
-			if (has_images > 0 && strlen(imagecmd) > 0)
+			if (has_images > 0 && !IsEmptyStr(imagecmd))
 				keyopt("<I>mages ");
 			keyopt("<?>help -> ");
 
@@ -1668,7 +1668,7 @@ RMSGREAD:	scr_flush();
 						e = 0;
 				}
 /* print only if available */
-				if ((e == 'p') && (strlen(printcmd) == 0))
+				if ((e == 'p') && (IsEmptyStr(printcmd)))
 					e = 0;
 /* can't file if not allowed */
 				    if ((e == 'f')
@@ -1676,10 +1676,10 @@ RMSGREAD:	scr_flush();
 					e = 0;
 /* link only if browser avail*/
 				    if ((e == 'u')
-					&& (strlen(rc_url_cmd) == 0))
+					&& (IsEmptyStr(rc_url_cmd)))
 					e = 0;
 				if ((e == 'i')
-					&& (!strlen(imagecmd) || !has_images))
+					&& (IsEmptyStr(imagecmd) || !has_images))
 					e = 0;
 			} while ((e != 'a') && (e != 'n') && (e != 's')
 				 && (e != 'd') && (e != 'm') && (e != 'p')
@@ -1759,7 +1759,7 @@ RMSGREAD:	scr_flush();
 					" M  Move message to another room\n");
 			}
 			scr_printf(" C  Copy message to another room\n");
-			if (strlen(printcmd) > 0)
+			if (!IsEmptyStr(printcmd))
 				scr_printf(" P  Print this message\n");
 			scr_printf(
 				" Q  Quote portions of this message for your next post\n"
@@ -1769,9 +1769,9 @@ RMSGREAD:	scr_flush();
 			if (rc_allow_attachments)
 				scr_printf
 				    (" F  (save attachments to a file)\n");
-			if (strlen(rc_url_cmd) > 0)
+			if (!IsEmptyStr(rc_url_cmd))
 				scr_printf(" U  (list URL's for display)\n");
-			if (strlen(imagecmd) > 0 && has_images > 0)
+			if (!IsEmptyStr(imagecmd) && has_images > 0)
 				scr_printf(" I  Image viewer\n");
 			scr_printf("\n");
 			goto RMSGREAD;
@@ -1800,7 +1800,7 @@ RMSGREAD:	scr_flush();
 		case 'c':
 			newprompt("Enter target room: ",
 				  targ, ROOMNAMELEN - 1);
-			if (strlen(targ) > 0) {
+			if (!IsEmptyStr(targ)) {
 				r = CtdlIPCMoveMessage(ipc, (e == 'c' ? 1 : 0),
 						       msg_arr[a], targ, cmd);
 				scr_printf("%s\n", cmd);
@@ -1825,7 +1825,7 @@ RMSGREAD:	scr_flush();
 				 * Part 1 won't have a filename; use the
 				 * subject of the message instead. IO
 				 */
-				if (!strlen(filename))
+				if (IsEmptyStr(filename))
 					strcpy(filename, reply_subject);
 				destination_directory(save_to, filename);
 				save_buffer(attachment,
@@ -1935,7 +1935,7 @@ void check_message_base(CtdlIPC *ipc)
 		return;
 	}
 
-	while (transcript && strlen(transcript)) {
+	while (transcript && !IsEmptyStr(transcript)) {
 		lines_printed = 1;
 		extract_token(buf, transcript, 0, '\n', sizeof buf);
 		remove_token(transcript, 0, '\n');

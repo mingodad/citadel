@@ -641,7 +641,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		printf("Enter new value or press return to leave unchanged:\n");
 		fgets(buf, sizeof buf, stdin);
 		buf[strlen(buf) - 1] = 0;
-		if (strlen(buf) != 0)
+		if (!IsEmptyStr(buf))
 			strcpy(str, buf);
 		break;
 
@@ -1079,11 +1079,11 @@ int main(int argc, char *argv[])
 	fclose(fp);
 
 	/* set some sample/default values in place of blanks... */
-	if (strlen(config.c_nodename) == 0)
+	if (IsEmptyStr(config.c_nodename))
 		safestrncpy(config.c_nodename, my_utsname.nodename,
 			    sizeof config.c_nodename);
 	strtok(config.c_nodename, ".");
-	if (strlen(config.c_fqdn) == 0) {
+	if (IsEmptyStr(config.c_fqdn) ) {
 		if ((he = gethostbyname(my_utsname.nodename)) != NULL)
 			safestrncpy(config.c_fqdn, he->h_name,
 				    sizeof config.c_fqdn);
@@ -1091,20 +1091,20 @@ int main(int argc, char *argv[])
 			safestrncpy(config.c_fqdn, my_utsname.nodename,
 				    sizeof config.c_fqdn);
 	}
-	if (strlen(config.c_humannode) == 0)
+	if (IsEmptyStr(config.c_humannode))
 		strcpy(config.c_humannode, "My System");
-	if (strlen(config.c_phonenum) == 0)
+	if (IsEmptyStr(config.c_phonenum))
 		strcpy(config.c_phonenum, "US 800 555 1212");
 	if (config.c_initax == 0) {
 		config.c_initax = 4;
 	}
-	if (strlen(config.c_moreprompt) == 0)
+	if (IsEmptyStr(config.c_moreprompt))
 		strcpy(config.c_moreprompt, "<more>");
-	if (strlen(config.c_twitroom) == 0)
+	if (IsEmptyStr(config.c_twitroom))
 		strcpy(config.c_twitroom, "Trashcan");
-	if (strlen(config.c_baseroom) == 0)
+	if (IsEmptyStr(config.c_baseroom))
 		strcpy(config.c_baseroom, BASEROOM);
-	if (strlen(config.c_aideroom) == 0)
+	if (IsEmptyStr(config.c_aideroom))
 		strcpy(config.c_aideroom, "Aide");
 	if (config.c_port_number == 0) {
 		config.c_port_number = 504;

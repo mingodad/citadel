@@ -223,7 +223,7 @@ void userlist(CtdlIPC *ipc, char *patn)
 
 	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
 	pprintf("------------------------- ----- - ---------- ----- -----\n");
-	if (listing != NULL) while (strlen(listing) > 0) {
+	if (listing != NULL) while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
@@ -420,7 +420,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			}
 		}
 
-		if (strlen(bbb) == 0) {
+		if (IsEmptyStr(bbb)) {
 			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
@@ -484,7 +484,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 					newmailcount);
 		}
 		color(DIM_WHITE);
-		if (strlen(rc_gotmail_cmd) > 0) {
+		if (!IsEmptyStr(rc_gotmail_cmd)) {
 			system(rc_gotmail_cmd);
 		}
 	}
@@ -659,7 +659,7 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 			mptr = tmp;
 		}
 	}
-	if (strlen(targ) > 0) {
+	if (!IsEmptyStr(targ)) {
 		gf_toroom(ipc, targ, mode);
 		return;
 	}
@@ -681,7 +681,7 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 			mptr = tmp;
 		}
 	}
-	if (strlen(targ) > 0) {
+	if (!IsEmptyStr(targ)) {
 		gf_toroom(ipc, targ, mode);
 	} else {
 		scr_printf("There are no rooms on '%s'.\n", &floorlist[tofloor][0]);
@@ -950,7 +950,7 @@ void read_config(CtdlIPC *ipc)
 	    scr_printf("Enable color support: ");                              color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_COLOR)? "Yes" : "No");	     color(DIM_WHITE);
 	}
 	scr_printf("Be unlisted in userlog: ");                                color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_UNLISTED)? "Yes" : "No");    color(DIM_WHITE);
-	if (strlen(editor_paths[0]) > 0) {
+	if (!IsEmptyStr(editor_paths[0])) {
     	scr_printf("Always enter messages with the full-screen editor: "); color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_EXTEDIT)? "Yes" : "No");     color(DIM_WHITE);
 	}
 	free(user);
@@ -1076,7 +1076,7 @@ int set_password(CtdlIPC *ipc)
 	char pass2[20];
 	char buf[SIZ];
 
-	if (strlen(rc_password) > 0) {
+	if (!IsEmptyStr(rc_password)) {
 		strcpy(pass1, rc_password);
 		strcpy(pass2, rc_password);
 	} else {
@@ -1223,7 +1223,7 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
 	listing = SortOnlineUsers(listing);
 	if (r / 100 == 1) {
-		while (strlen(listing) > 0) {
+		while (!IsEmptyStr(listing)) {
 			int isidle = 0;
 			
 			/* Get another line */
@@ -1263,11 +1263,13 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 					(long) idlemins,
 					(long) idlesecs);
 
-				if ( (strlen(actual_user)+strlen(actual_room)+strlen(actual_host)) > 0) {
+				if ( (!IsEmptyStr(actual_user)&&
+				      !IsEmptyStr(actual_room)&&
+				      !IsEmptyStr(actual_host))) {
 					pprintf("(really ");
-					if (strlen(actual_user)>0) pprintf("<%s> ", actual_user);
-					if (strlen(actual_room)>0) pprintf("in <%s> ", actual_room);
-					if (strlen(actual_host)>0) pprintf("from <%s> ", actual_host);
+					if (!IsEmptyStr(actual_user)) pprintf("<%s> ", actual_user);
+					if (!IsEmptyStr(actual_room)) pprintf("in <%s> ", actual_room);
+					if (!IsEmptyStr(actual_host)) pprintf("from <%s> ", actual_host);
 					pprintf(")\n");
 				}
 				pprintf("\n");
@@ -1557,7 +1559,7 @@ int main(int argc, char **argv)
  GSTA:	/* See if we have a username and password on disk */
 	if (rc_remember_passwords) {
 		get_stored_password(hostbuf, portbuf, fullname, password);
-		if (strlen(fullname) > 0) {
+		if (!IsEmptyStr(fullname)) {
 			r = CtdlIPCTryLogin(ipc, fullname, aaa);
 			if (r / 100 == 3) {
 				if (*nonce) {
@@ -1580,7 +1582,7 @@ int main(int argc, char **argv)
 	termn8 = 0;
 	newnow = 0;
 	do {
-		if (strlen(rc_username) > 0) {
+		if (!IsEmptyStr(rc_username)) {
 			strcpy(fullname, rc_username);
 		} else {
 			newprompt("Enter your name: ", fullname, 29);
@@ -1592,7 +1594,7 @@ int main(int argc, char **argv)
 	} while (
 		 (!strcasecmp(fullname, "bbs"))
 		 || (!strcasecmp(fullname, "new"))
-		 || (strlen(fullname) == 0));
+		 || (IsEmptyStr(fullname)));
 
 	if (!strcasecmp(fullname, "off")) {
 		mcmd = 29;
@@ -1604,7 +1606,7 @@ int main(int argc, char **argv)
 		goto NEWUSR;
 
 	/* password authentication */
-	if (strlen(rc_password) > 0) {
+	if (!IsEmptyStr(rc_password)) {
 		strcpy(password, rc_password);
 	} else {
 		newprompt("\rPlease enter your password: ", password, -19);
@@ -1624,11 +1626,11 @@ int main(int argc, char **argv)
 		goto PWOK;
 	}
 	scr_printf("<< wrong password >>\n");
-	if (strlen(rc_password) > 0)
+	if (!IsEmptyStr(rc_password))
 		logoff(ipc, 2);
 	goto GSTA;
 
-NEWUSR:	if (strlen(rc_password) == 0) {
+NEWUSR:	if (IsEmptyStr(rc_password)) {
 		scr_printf("'%s' not found.\n", fullname);
 		scr_printf("Type 'off' if you would like to exit.\n");
 		if (ipc->ServInfo.newuser_disabled == 1) {
@@ -1683,7 +1685,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			if (b > 1)
 				scr_printf("*** You have %d new private messages in Mail>\n", b);
 			color(DIM_WHITE);
-			if (strlen(rc_gotmail_cmd) > 0) {
+			if (!IsEmptyStr(rc_gotmail_cmd)) {
 				system(rc_gotmail_cmd);
 			}
 		}
@@ -1784,13 +1786,13 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				dotgoto(ipc, "_MAIL_", 1, 0);
 				break;
 			case 20:
-				if (strlen(argbuf) > 0) {
+				if (!IsEmptyStr(argbuf)) {
 					updatels(ipc);
 					dotgoto(ipc, argbuf, 0, 0);
 				}
 				break;
 			case 52:
-				if (strlen(argbuf) > 0) {
+				if (!IsEmptyStr(argbuf)) {
 					if (rc_alt_semantics) {
 						updatelsa(ipc);
 					}

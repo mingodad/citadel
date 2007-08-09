@@ -704,7 +704,7 @@ int client_getln(char *buf, int bufsize)
 	/* Strip the trailing LF, and the trailing CR if present.
 	 */
 	buf[i] = 0;
-	while ( (strlen(buf) > 0) && ((buf[strlen(buf)-1]==10) || (buf[strlen(buf)-1] == 13)) ) {
+	while ( (!IsEmptyStr(buf)) && ((buf[strlen(buf)-1]==10) || (buf[strlen(buf)-1] == 13)) ) {
 		buf[strlen(buf)-1] = 0;
 	}
 	if (retval < 0) safestrncpy(buf, "000", bufsize);

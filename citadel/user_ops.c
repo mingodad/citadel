@@ -372,7 +372,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
 
-	if (strlen(username) == 0) {
+	if (IsEmptyStr(username)) {
 		return login_not_found;
 	}
 
@@ -519,7 +519,7 @@ void session_startup(void)
 	 */
 	snprintf(CC->cs_inet_email, sizeof CC->cs_inet_email, "%s@%s",
 		CC->user.fullname, config.c_fqdn);
-	for (i=0; i<strlen(CC->cs_inet_email); ++i) {
+	for (i=0; !IsEmptyStr(&CC->cs_inet_email[i]); ++i) {
 		if (isspace(CC->cs_inet_email[i])) {
 			CC->cs_inet_email[i] = '_';
 		}
@@ -585,7 +585,7 @@ void logout(struct CitContext *who)
 	/*
 	 * If we were talking to a network node, we're not anymore...
 	 */
-	if (strlen(who->net_node) > 0) {
+	if (!IsEmptyStr(who->net_node)) {
 		network_talking_to(who->net_node, NTT_REMOVE);
 	}
 
@@ -996,7 +996,7 @@ void cmd_newu(char *cmdbuf)
 	username[25] = 0;
 	strproc(username);
 
-	if (strlen(username) == 0) {
+	if (IsEmptyStr(username)) {
 		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
@@ -1046,7 +1046,7 @@ void cmd_setp(char *new_pw)
 		return;
 	}
 	strproc(new_pw);
-	if (strlen(new_pw) == 0) {
+	if (IsEmptyStr(new_pw)) {
 		cprintf("%d Password unchanged.\n", CIT_OK);
 		return;
 	}
@@ -1080,7 +1080,7 @@ void cmd_creu(char *cmdbuf)
 	strproc(username);
 	strproc(password);
 
-	if (strlen(username) == 0) {
+	if (IsEmptyStr(username)) {
 		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
@@ -1088,13 +1088,13 @@ void cmd_creu(char *cmdbuf)
 	a = create_user(username, 0);
 
 	if (a == 0) {
-		if (strlen(password) > 0) {
+		if (!IsEmptyStr(password)) {
 			lgetuser(&tmp, username);
 			safestrncpy(tmp.password, password, sizeof(tmp.password));
 			lputuser(&tmp);
 		}
 		cprintf("%d User '%s' created %s.\n", CIT_OK, username,
-				(strlen(password) > 0) ? "and password set" :
+				(!IsEmptyStr(password)) ? "and password set" :
 				"with no password");
 		return;
 	} else if (a == ERROR + ALREADY_EXISTS) {
