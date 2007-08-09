@@ -380,6 +380,8 @@ clean:
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.o ;\
 	done
+	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS)
+
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
