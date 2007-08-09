@@ -280,19 +280,28 @@ int lgetroom(struct ctdlroom *qrbuf, char *room_name)
 void b_putroom(struct ctdlroom *qrbuf, char *room_name)
 {
 	char lowercase_name[ROOMNAMELEN];
+	char *aptr, *bptr;
+	long len;
 	int a;
 
-	for (a = 0; a <= strlen(room_name); ++a) {
-		lowercase_name[a] = tolower(room_name[a]);
+	aptr = room_name;
+	bptr = lowercase_name;
+	while (!IsEmptyStr(aptr))
+	{
+		*bptr = tolower(*aptr);
+		aptr++;
+		bptr++;
 	}
+	*bptr='\0';
 
+	len = bptr - lowercase_name;
 	if (qrbuf == NULL) {
 		cdb_delete(CDB_ROOMS,
-			   lowercase_name, strlen(lowercase_name));
+			   lowercase_name, len);
 	} else {
 		time(&qrbuf->QRmtime);
 		cdb_store(CDB_ROOMS,
-			  lowercase_name, strlen(lowercase_name),
+			  lowercase_name, len,
 			  qrbuf, sizeof(struct ctdlroom));
 	}
 }
