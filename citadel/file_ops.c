@@ -433,7 +433,7 @@ void cmd_oimg(char *cmdbuf)
 	} else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
 	} else {
-		for (a = 0; !IsEmptyStr(&filename[0]); ++a) {
+		for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 			filename[a] = tolower(filename[a]);
 			if (filename[a] == '/') {
 				filename[a] = '_';

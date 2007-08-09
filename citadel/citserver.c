@@ -337,7 +337,10 @@ int is_public_client(void)
 			char *ptr;
 			ptr = buf;
 			while (!IsEmptyStr(ptr)) {
-				if (buf[i] == '#') buf[i] = 0;
+				if (*ptr == '#') {
+					*ptr = 0;
+					break;
+				}
 				else ptr++;
 			}
 			while (isspace((buf[strlen(buf)-1]))) {
