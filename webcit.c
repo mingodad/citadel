@@ -591,8 +591,8 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 	
 	wprintf("<ul class=\"%s\">", Class);
 	
-	va_start(arg_list, (nLines * 2));
-	for (i = 0; i < nLines * 2; i += 2)
+	va_start(arg_list, nLines);
+	for (i = 0; i < nLines; ++i)
 	{ 
 		wprintf("<li><a href=\"%s\">", va_arg(arg_list, char *));
 		wprintf((char *) va_arg(arg_list, char *));

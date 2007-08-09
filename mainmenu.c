@@ -179,9 +179,9 @@ void display_aide_menu(void)
 		       "display_smtpqueue", _("View the outbound SMTP queue"));
 	
 	print_menu_box(_("Shutdown Citadel"), "adminitems", 3, 
-		       "server_shutdown?when=now", _("Restart Imediate"),
-		       "server_shutdown?when=page", _("Restart after paging Users"),
-		       "server_shutdown?when=idle", _("Restart when everybody is idle."));
+		       "server_shutdown?when=now", _("Restart Now"),
+		       "server_shutdown?when=page", _("Restart after paging users"),
+		       "server_shutdown?when=idle", _("Restart when all users are idle"));
 
 	wprintf("</td><td width=50%%>");
 
