@@ -1009,7 +1009,7 @@ char *cmd_expand(char *strbuf, int mode)
 		}
 		if (!strncmp(ptr, "^c", 2)) {
 			*ptr = ',';
-			strcpy(ptr + 1], ptr + 2]);
+			strcpy(ptr + 1, ptr + 2);
 		}
 	}
 

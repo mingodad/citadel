@@ -336,7 +336,7 @@ int is_public_client(void)
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
 			char *ptr;
 			ptr = buf;
-			while (!IsEmptyStr(*ptr)) {
+			while (!IsEmptyStr(ptr)) {
 				if (buf[i] == '#') buf[i] = 0;
 				else ptr++;
 			}

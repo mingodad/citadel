@@ -1129,6 +1129,7 @@ int imap_extract_data_items(char **argv, char *items) {
 	int nest = 0;
 	int i;
 	char *start;
+	long initial_len;
 
 	/* Convert all whitespace to ordinary space characters. */
 	for (i=0; !IsEmptyStr(&items[i]); ++i) {
