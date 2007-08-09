@@ -479,31 +479,34 @@ int is_msg_in_sequence_set(char *mset, long msgnum) {
 }
 
 
-/*
- * Utility function to "readline" from memory
- * (returns new pointer)
+/** 
+ * \brief Utility function to "readline" from memory
+ * \param start Location in memory from which we are reading.
+ * \param buf the buffer to place the string in.
+ * \param maxlen Size of string buffer
+ * \return Pointer to the source memory right after we stopped reading.
  */
 char *memreadline(char *start, char *buf, int maxlen)
 {
-        char ch;
-        char *ptr;
-        int len = 0;    /* tally our own length to avoid strlen() delays */
+	char ch;
+	char *ptr;
+	int len = 0;		/**< tally our own length to avoid strlen() delays */
 
-        ptr = start;
-        memset(buf, 0, maxlen);
+	ptr = start;
+	memset(buf, 0, maxlen);
 
-        while (1) {
-                ch = *ptr++;
-                if ( (len < (maxlen - 1)) && (ch != 13) && (ch != 10) ) {
-                        buf[strlen(buf) + 1] = 0;
-                        buf[strlen(buf)] = ch;
-                        ++len;
-                }
-                if ((ch == 10) || (ch == 0)) {
-                        return ptr;
-                }
-        }
+	while (1) {
+		ch = *ptr++;
+		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
+			buf[len++] = ch;
+			buf[len] = 0;
+		}
+		if ((ch == 10) || (ch == 0)) {
+			return ptr;
+		}
+	}
 }
+
 
 
 /*
