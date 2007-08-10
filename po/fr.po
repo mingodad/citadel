@@ -449,7 +449,7 @@ msgstr "Heures"
 
 #: ../calendar_view.c:529 ../messages.c:2437 ../sieve.c:963
 msgid "Subject"
-msgstr "Sujet"
+msgstr "Objet"
 
 #: ../calendar_view.c:530 ../event.c:165
 msgid "Start"
@@ -827,9 +827,8 @@ msgid ""
 msgstr "La liste des paliers et de tous les salons accessibles"
 
 #: ../iconbar.c:672
-#, fuzzy
 msgid "Yes with users list"
-msgstr "passer aux salons"
+msgstr "Oui, avec la liste des usagers"
 
 #: ../iconbar.c:674
 msgid "Clicking this icon displays a list of all users currently logged in."
@@ -1142,11 +1141,11 @@ msgstr "Voir la queue SMTP sortante"
 
 #: ../mainmenu.c:181
 msgid "Shutdown Citadel"
-msgstr ""
+msgstr "Arrêter Citadel"
 
 #: ../mainmenu.c:182
 msgid "Restart Now"
-msgstr ""
+msgstr "Redémarrer maintenant"
 
 #: ../mainmenu.c:183
 msgid "Restart after paging users"
@@ -1363,11 +1362,11 @@ msgstr "des %d messages."
 
 #: ../messages.c:2536 ../messages.c:2704
 msgid "oldest to newest"
-msgstr ""
+msgstr "du plus ancien au plus récent"
 
 #: ../messages.c:2543 ../messages.c:2711
 msgid "newest to oldest"
-msgstr ""
+msgstr "du plus récent au plus ancien"
 
 #: ../messages.c:2887
 #, c-format
@@ -1647,7 +1646,7 @@ msgstr "Agenda"
 
 #: ../roomops.c:27
 msgid "Journal"
-msgstr ""
+msgstr "Journal"
 
 #: ../roomops.c:260
 msgid "Zapped (forgotten) rooms"
@@ -1854,7 +1853,7 @@ msgstr "Permanent (pas de purge automatique des contenus)"
 
 #: ../roomops.c:1315
 msgid "Subject Required (Force users to specify a message subject)"
-msgstr ""
+msgstr "L'objet est requis (les usagers sont obligés de remplir ce champ)"
 
 #: ../roomops.c:1320
 msgid "Anonymous messages"
