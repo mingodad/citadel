@@ -108,86 +108,36 @@ int num_tokens(const char *source, char tok)
  */
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	const char *s;		/* source */
-	const char *start;
-	const char *end;
-	int count = 0;
-	int len = 0;
-	/* Locate desired parameter */
+	const char *s;			/* source */
+	int len = 0;			/* running total length of extracted string */
+	int current_token = 0;		/* token currently being processed */
+
 	s = source;
-	while (1) {
-		/* End of string, bail! */
-		if (IsEmptyStr(s)) {
-			*dest = '\0';
-			return -1;		/* Parameter not found */
-		}
-		if (*s == separator) {
-			count++;
-			if (count == parmnum)
-				start = s + 1; // we found da start border!
-			else if (count == parmnum + 1)
-			{
-				end = s; // we found da end border!
-				break; // so we're done.
-			}
-		}
-		s++;
+
+	if (dest == NULL) {
+		return(-1);
 	}
 
-	len = end - start;
-	if (len > maxlen){
-		/** TODO: do find an alternative for this if we're not inside of the server
-		lprintf (ERROR, 
-			 "Warning: Tokenizer failed due to space. better use grab_token here? "
-			 "(Token: %d N: %d Extractstring at: %s FullString: %s", 
-			 (char)separator, parmnum, start, source);
-		*/
-		*dest = '\0';
-		return -1;		/* Parameter exceeds space */
-	}		
-	memcpy(dest, start, len);
-	dest[len]='\0';
-	return len;
-}
+	dest[0] = 0;
 
-/*
- * extract_token() - a string tokenizer
- * returns -1 if not found, or length of token.
- */
-long grab_token(char **dest, const char *source, int parmnum, char separator)
-{
-	const char *s;		/* source */
-	const char *start;
-	const char *end;
-	int count = 0;
-	int len = 0;
-
-	/* Locate desired parameter */
-	s = source;
-	while (1) {
-		/* End of string, bail! */
-		if (IsEmptyStr(s)) {
-			*dest = '\0';
-			return -1;		/* Parameter not found */
-		}
-		if (*s == separator) {
-			count++;
-			if (count == parmnum)
-				start = s + 1; // we found da start border!
-			else if (count == parmnum + 1)
-			{
-				end = s; // we found da end border!
-				break; // so we're done.
-			}
-		}
-		s++;
+	if (s == NULL) {
+		return(-1);
 	}
 
-	len = end - start;
-	*dest = (char*)malloc (len + 1);
-	memcpy(*dest, start, len);
-	(*dest)[len]='\0';
-	return len;
+	while (*s) {
+		if (*s == separator) {
+			++current_token;
+		}
+		else if ( (current_token == parmnum) && (len < maxlen) ) {
+			dest[len] = *s;
+			++len;
+		}
+		++s;
+	}
+
+	dest[len] = 0;
+	if (current_token < parmnum) return(-1);
+	return(len);
 }
 
 
