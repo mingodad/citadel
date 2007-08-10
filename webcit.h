@@ -585,7 +585,7 @@ void do_template(void *templatename);
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
 int num_tokens (char *source, char tok);
-void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
+long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
 int pattern2(char *search, char *patn);

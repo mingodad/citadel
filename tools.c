@@ -61,44 +61,43 @@ int num_tokens(char *source, char tok)
 	return (count);
 }
 
-/**
- * brief a string tokenizer
- * \param dest destination string 
- * \param source the string to grab tokens from
- * \param parmnum the n'th token to grab
- * \param separator the tokenizer string
- * \param maxlen the length of dest
+/*
+ * extract_token() - a string tokenizer
+ * returns -1 if not found, or length of token.
  */
-void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
+long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	char *d;		/* dest */
-	const char *s;		/* source */
-	int count = 0;
-	int len = 0;
+	const char *s;			/* source */
+	int len = 0;			/* running total length of extracted string */
+	int current_token = 0;		/* token currently being processed */
+
+	s = source;
+
+	if (dest == NULL) {
+		return(-1);
+	}
 
 	dest[0] = 0;
 
-	/* Locate desired parameter */
-	s = source;
-	while (count < parmnum) {
-		/* End of string, bail! */
-		if (!*s) {
-			s = NULL;
-			break;
-		}
+	if (s == NULL) {
+		return(-1);
+	}
+
+	while (*s) {
 		if (*s == separator) {
-			count++;
+			++current_token;
 		}
-		s++;
+		else if ( (current_token == parmnum) && (len < maxlen) ) {
+			dest[len] = *s;
+			++len;
+		}
+		++s;
 	}
-	if (!s) return;		/* Parameter not found */
 
-	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
-		*d = *s;
-	}
-	*d = 0;
+	dest[len] = 0;
+	if (current_token < parmnum) return(-1);
+	return(len);
 }
-
 
 
 /**
