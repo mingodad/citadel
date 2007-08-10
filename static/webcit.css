@@ -71,12 +71,12 @@ body {
 	background: #445;
 }
 
-#banner .room_banner, #banner .service {
+#banner .room_banner {
         float: left;
         width: 48%;
 }
 
-.room_banner img,  .service img {
+#banner img {
         float: left;
         margin-top: 0;
         margin-left: 0;
@@ -84,7 +84,7 @@ body {
         margin-right: 5px;
 }
 
-.room_banner h1 {
+#banner h1 {
         font-size: 14pt;
         font-weight: bold;
         color: #FFFFEE;
@@ -92,15 +92,7 @@ body {
         padding: 2px;
 }
 
-.service h1 {
-        font-size: 12pt;
-        font-weight: bold;
-        color: #FFFFEE;
-        margin: 0;
-        padding: 2px;
-}
-
-.service h2 {
+#banner h2 {
         font-size: 11pt;
         font-weight: bold;
         color: #FFFFEE;
@@ -207,6 +199,7 @@ li.start_page {
 }
 
 #navbar ul li img {
+        float: none;
 	margin-top: 0;
 	margin-right: 2px;
 	margin-bottom:0 ;
@@ -619,18 +612,6 @@ ul.adminitems span {
 	font-style: italic;
 	color: #000044;
 	background-color: #DDDDCC;
-}
-
-.room_banner_room_name {
-}
-
-.room_banner_room_info {
-}
-
-.room_banner_new_messages {
-}
-
-.room_banner_start_page {
 }
 
 .view_name, .search_name, .selectbox, .inputbox {
@@ -1526,25 +1507,6 @@ div.auto_complete ul strong.highlight {
         width: 100%;
         background-color: #ffffff;
 }
-
-.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .inetconf_banner, .listsub_banner {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
-.netconf_banner, .paging_banner, .preferences_banner, .roomops_banner, .setup_banner, .sieve_banner, .siteconfig_banner {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
-.smtpqueue_banner, .useredit_banner, .userlist_banner, .downloads_banner, .vcard_edit_banner, .who_banner, .room_banner   {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
 
 .vcard_edit_background_alt, .roomops_background_alt {
         border: 0;

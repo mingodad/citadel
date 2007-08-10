@@ -227,12 +227,12 @@ void display_smtpqueue(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"smtpqueue_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("View the outbound SMTP queue"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"smtpqueue_background\">"

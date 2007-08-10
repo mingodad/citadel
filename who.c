@@ -143,21 +143,17 @@ void who(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table class=\"who_banner\"><tr><td>");
-	wprintf("<img src=\"static/usermanag_48x.gif\" alt=\" \" "
-		"align=middle "
-		">");
-	wprintf("<span class=\"titlebar\"> ");
-
+	wprintf("<img src=\"static/usermanag_48x.gif\">");
+	wprintf("<h1>");
 	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
 	escputs(title);
-
-	wprintf("</span></td><td align=right>");
+	wprintf("</h1>");
+        wprintf("<ul><li class=\"start_page\">");
 	offer_start_page();
-	wprintf("</td></tr></table>\n");
-	wprintf("</div>\n");
+	wprintf("</li></ul>");
+	wprintf("</div>");
 
-	wprintf("<div id=\"content\" class=\"who_is_online\">\n");
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div style=\"display:inline\" id=\"fix_scrollbar_bug\">");
 	who_inner_div();

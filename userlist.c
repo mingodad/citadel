@@ -42,15 +42,14 @@ void userlist(void)
 			bio = bptr;
 		}
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"userlist_banner\"><tr><td>"
-		"<span class=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	snprintf(title, sizeof title, _("User list for %s"), serv_info.serv_humannode);
 	escputs(title);
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+        wprintf("</div>");
+
+        wprintf("<div id=\"content\" class=\"service\">\n");
 
 	serv_puts("LIST");
 	serv_getln(buf, sizeof buf);
@@ -122,15 +121,14 @@ void showuser(void)
 	strcpy(who, bstr("who"));
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"userlist_banner\"><tr>"
-		"<td><img src=\"static/usermanag_48x.gif\"></td>"
-		"<td align=left><span class=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<img src=\"static/usermanag_48x.gif\">");
+        wprintf("<h1>");
 	wprintf(_("User profile"));
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+        wprintf("</h1>");
+        wprintf("</div>");
+
+        wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"userlist_background\"><tr><td>\n");

@@ -485,11 +485,12 @@ void display_customize_iconbar(void) {
 	}
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\" class=\"service\">\n");
+	wprintf("<div id=\"banner\">");
 	wprintf("<h1>");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</h1></div>\n");
-	wprintf("<div id=\"content\" class=\"customize_menu\">\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
@@ -791,11 +792,12 @@ void commit_iconbar(void) {
 	set_preference("iconbar", iconbar, 1);
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\" class=\"service\">\n");
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
 	wprintf(_("Customize the icon bar"));
 	wprintf("</h1></div>\n");
-	wprintf("<div id=\"content\" class=\"customize_menu\">\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 	wprintf(
 		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
 		"<img src=\"static/advanpage2_48x.gif\">"

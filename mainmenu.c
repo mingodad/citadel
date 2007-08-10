@@ -159,13 +159,13 @@ void display_aide_menu(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 
-        wprintf("<div id=\"banner\" class=\"service\">\n");
+        wprintf("<div id=\"banner\">\n");
         wprintf("<h1>");
 	wprintf(_("System Administration Menu"));
         wprintf("</h1>");
-        wprintf("</div>");
+        wprintf("</div>\n");
 
-	wprintf("<div id=\"content\">");
+	wprintf("<div id=\"content\" class=\"service\">");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=99%%> "
@@ -208,13 +208,13 @@ void display_aide_menu(void)
 void display_generic(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"mainmenu_banner\"><tr><td>"
-		"<span class=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Enter a server command"));
-	wprintf("</span></td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"mainmenu_background\"><tr><td>\n");

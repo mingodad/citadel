@@ -3389,12 +3389,12 @@ void confirm_move_msg(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Confirm move of message"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<CENTER>");
 

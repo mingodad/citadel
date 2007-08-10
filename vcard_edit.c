@@ -175,15 +175,13 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	/** Display the form */
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"vcard_edit_banner\"><tr><td>"
-		"<span class=\"titlebar\">"
-		"<img src=\"static/savecontact_48x.gif\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<img src=\"static/savecontact_48x.gif\">");
+	wprintf("<h1>");
 	wprintf(_("Edit contact information"));
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);

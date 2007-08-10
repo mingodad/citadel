@@ -28,14 +28,13 @@ void display_floorconfig(char *prepend_html)
 	int refcount;
 
         output_headers(1, 1, 2, 0, 0, 0);
-        wprintf("<div id=\"banner\">\n"
-                "<TABLE class=\"floors_banner\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">");
+        wprintf("<div id=\"banner\">\n");
+        wprintf("<h1>");
 	wprintf(_("Add/change/delete floors"));
-	wprintf("</SPAN>"
-                "</TD></TR></TABLE>\n"
-                "</div>\n<div id=\"content\">\n"
-        );
+	wprintf("</h1>");
+        wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
                                                                                                                              
 	if (prepend_html != NULL) {
 		wprintf("<br /><b><i>");

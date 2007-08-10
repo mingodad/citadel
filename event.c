@@ -70,14 +70,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	/** Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"event_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Add or edit an event"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<script type=\"text/javascript\">"
 		"function grey_all_day() { "

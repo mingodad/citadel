@@ -13,15 +13,14 @@ void display_room_directory(void)
 	char title[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"downloads_banner\"><tr><td>"
-		"<span class=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	snprintf(title, sizeof title, _("Files available for download in %s"), WC->wc_roomname);
 	escputs(title);
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"downloads_background\"><tr><td>\n");
