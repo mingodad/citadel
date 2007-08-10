@@ -128,9 +128,12 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		if (*s == separator) {
 			++current_token;
 		}
-		else if ( (current_token == parmnum) && (len < maxlen) ) {
+		if ( (current_token == parmnum) && (len < maxlen) ) {
 			dest[len] = *s;
 			++len;
+		}
+		else if ((current_token > parmnum) || (len >= maxlen)) {
+			break;
 		}
 		++s;
 	}
@@ -408,8 +411,11 @@ int haschar(const char *st,int ch)
 	b = 0;
 	ptr = st;
 	while (!IsEmptyStr(ptr))
+	{
 		if (*ptr == ch)
 			++b;
+		ptr ++;
+	}
 	return (b);
 }
 
