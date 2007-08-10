@@ -27,6 +27,7 @@
 
 #include "tools.h"
 #include "citadel.h"
+#include "sysdep_decls.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -103,35 +104,90 @@ int num_tokens(const char *source, char tok)
 
 /*
  * extract_token() - a string tokenizer
+ * returns -1 if not found, or length of token.
  */
-void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
+long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	char *d;		/* dest */
 	const char *s;		/* source */
+	const char *start;
+	const char *end;
 	int count = 0;
 	int len = 0;
-
-	strcpy(dest, "");
-
 	/* Locate desired parameter */
 	s = source;
-	while (count < parmnum) {
+	while (1) {
 		/* End of string, bail! */
-		if (!*s) {
-			s = NULL;
-			break;
+		if (IsEmptyStr(s)) {
+			*dest = '\0';
+			return -1;		/* Parameter not found */
 		}
 		if (*s == separator) {
 			count++;
+			if (count == parmnum)
+				start = s + 1; // we found da start border!
+			else if (count == parmnum + 1)
+			{
+				end = s; // we found da end border!
+				break; // so we're done.
+			}
 		}
 		s++;
 	}
-	if (!s) return;		/* Parameter not found */
 
-	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
-		*d = *s;
+	len = end - start;
+	if (len > maxlen){
+		/** TODO: do find an alternative for this if we're not inside of the server
+		lprintf (ERROR, 
+			 "Warning: Tokenizer failed due to space. better use grab_token here? "
+			 "(Token: %d N: %d Extractstring at: %s FullString: %s", 
+			 (char)separator, parmnum, start, source);
+		*/
+		*dest = '\0';
+		return -1;		/* Parameter exceeds space */
+	}		
+	memcpy(dest, start, len);
+	dest[len]='\0';
+	return len;
+}
+
+/*
+ * extract_token() - a string tokenizer
+ * returns -1 if not found, or length of token.
+ */
+long grab_token(char **dest, const char *source, int parmnum, char separator)
+{
+	const char *s;		/* source */
+	const char *start;
+	const char *end;
+	int count = 0;
+	int len = 0;
+
+	/* Locate desired parameter */
+	s = source;
+	while (1) {
+		/* End of string, bail! */
+		if (IsEmptyStr(s)) {
+			*dest = '\0';
+			return -1;		/* Parameter not found */
+		}
+		if (*s == separator) {
+			count++;
+			if (count == parmnum)
+				start = s + 1; // we found da start border!
+			else if (count == parmnum + 1)
+			{
+				end = s; // we found da end border!
+				break; // so we're done.
+			}
+		}
+		s++;
 	}
-	*d = 0;
+
+	len = end - start;
+	*dest = (char*)malloc (len + 1);
+	memcpy(*dest, start, len);
+	(*dest)[len]='\0';
+	return len;
 }
 
 
@@ -389,15 +445,20 @@ void striplt(char *buf)
 
 
 
-/* 
- * Return the number of occurances of character ch in string st
- */ 
-int haschar(const char *st, int ch)
+/**
+ * \brief check for the presence of a character within a string (returns count)
+ * \param st the string to examine
+ * \param ch the char to search
+ * \return the position inside of st
+ */
+int haschar(const char *st,int ch)
 {
-	int a, b;
+	const char *ptr;
+	int b;
 	b = 0;
-	for (a = 0; a < strlen(st); ++a)
-		if (st[a] == ch)
+	ptr = st;
+	while (!IsEmptyStr(ptr))
+		if (*ptr == ch)
 			++b;
 	return (b);
 }

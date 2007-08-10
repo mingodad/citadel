@@ -1,7 +1,8 @@
 /* $Id$ */
 char *safestrncpy(char *dest, const char *src, size_t n);
 int num_tokens (const char *source, char tok);
-void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
+long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
+long grab_token(char **dest, const char *source, int parmnum, char separator);
 int extract_int (const char *source, int parmnum);
 long extract_long (const char *source, int parmnum);
 unsigned long extract_unsigned_long(const char *source, int parmnum);
