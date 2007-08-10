@@ -24,14 +24,13 @@ void select_user_to_edit(char *message, char *preselect)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table class=\"useredit_banner\"><tr>"
-		"<td>"
-		"<span class=\"titlebar\">"
-		"<img src=\"static/usermanag_48x.gif\">");
+	wprintf("<img src=\"static/usermanag_48x.gif\">");
+        wprintf("<h1>");
 	wprintf(_("Edit or delete users"));
-	wprintf("</span></td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+        wprintf("</h1>");
+        wprintf("</div>");
+
+        wprintf("<div id=\"content\" class=\"service\">\n");
 
 	if (message != NULL) wprintf(message);
 
@@ -280,12 +279,13 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table class=\"useredit_banner\"><tr><td>");
-	wprintf("<span class=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Edit user account: "));
 	escputs(username);
-	wprintf("</span></td></tr></table>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+        wprintf("</h1>");
+        wprintf("</div>");
+
+        wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"useredit_background\"><tr><td>\n");

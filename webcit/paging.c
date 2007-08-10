@@ -18,15 +18,14 @@ void display_page(void)
 	strcpy(recp, bstr("recp"));
 
         output_headers(1, 1, 2, 0, 0, 0);
-        wprintf("<div id=\"banner\">\n"
-                "<TABLE class=\"paging_banner\"><TR><TD>"
-                "<SPAN CLASS=\"titlebar\">");
+        wprintf("<div id=\"banner\">\n");
+        wprintf("<h1>");
 	wprintf(_("Send instant message"));
-	wprintf("</SPAN>"
-                "</TD></TR></TABLE>\n"
-                "</div>\n<div id=\"content\">\n"
-        );
-                                                                                                                             
+	wprintf("</h1>");
+        wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
+
         wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"paging_background\"><tr><td>\n");
 

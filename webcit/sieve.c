@@ -73,13 +73,13 @@ void display_sieve(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"sieve_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">"
-		"<img src=\"static/advanpage2_48x.gif\">");
+	wprintf("<img src=\"static/advanpage2_48x.gif\">");
+	wprintf("<h1>");
 	wprintf(_("View/edit server-side mail filters"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"sieve_background\">"
@@ -609,14 +609,12 @@ void display_add_remove_scripts(char *message)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<table class=\"sieve_banner\"><tr>"
-		"<td>"
-		"<span class=\"titlebar\">"
-		"<img src=\"static/advanpage2_48x.gif\">");
+	wprintf("<img src=\"static/advanpage2_48x.gif\">");
 	wprintf(_("Add or delete scripts"));
-	wprintf("</span></td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>\n");
+	wprintf("</div>\n");
+	
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	if (message != NULL) wprintf(message);
 

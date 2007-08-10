@@ -29,13 +29,11 @@ void do_setup_wizard(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"setup_banner\"><TR><TD>");
-	wprintf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64 ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;First time setup");
-	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n"
-		"<div id=\"content\">\n");
+	wprintf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64");
+	wprintf("<h1>&nbsp;First time setup</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<form method=\"post\" action=\"setup_wizard\">\n"

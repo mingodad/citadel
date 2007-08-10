@@ -63,12 +63,12 @@ void display_add_node(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Add a new node"));
-	wprintf("</SPAN>");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<FORM METHOD=\"POST\" action=\"edit_node\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
@@ -106,13 +106,13 @@ void display_edit_node(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Edit node configuration for "));
 	escputs(node);
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
 	serv_getln(buf, sizeof buf);
@@ -173,12 +173,12 @@ void display_netconf(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Network configuration"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<CENTER>");
 	wprintf("<a href=\"display_add_node\">");
@@ -226,12 +226,12 @@ void display_confirm_delete_node(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"netconf_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Confirm delete"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\" >\n");
 
 	strcpy(node, bstr("node"));
 	wprintf("<CENTER>");

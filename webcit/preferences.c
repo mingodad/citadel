@@ -199,15 +199,16 @@ void display_preferences(void)
 	int i;
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"preferences_banner\"><TR><TD>");
-	wprintf("<img src=\"static/advanpage2_48x.gif\" ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;");
+	wprintf("<img src=\"static/advanpage2_48x.gif\">");
+	wprintf("<h1>");
 	wprintf(_("Preferences and settings"));
-	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
+	wprintf("</h1>");
+	wprintf("<ul><li>");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n"
-		"<div id=\"content\">\n");
+	wprintf("</li></ul>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"preferences_background\"><tr><td>\n");

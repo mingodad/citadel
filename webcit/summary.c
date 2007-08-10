@@ -309,12 +309,12 @@ void summary(void) {
 	char title[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\" class=\"service\">\n");
+	wprintf("<div id=\"banner\">\n");
         wprintf("<img src=\"static/summscreen_48x.gif\">");
         wprintf("<h1>");
         snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
         escputs(title);
-        wprintf("</h1><h2>\n");
+        wprintf("</h1><h2>");
         output_date();
         wprintf("</h2>");
         wprintf("<ul><li class=\"start_page\">");
@@ -327,7 +327,7 @@ void summary(void) {
 	 * In the future we might consider updating individual sections of the summary
 	 * instead of the whole thing.
 	 */
-	wprintf("<div id=\"content\">\n");
+	wprintf("<div id=\"content\" class=\"service\">\n");
 	summary_inner_div();
 	wprintf("</div>\n");
 

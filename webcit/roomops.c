@@ -2053,14 +2053,13 @@ void display_entroom(void)
 	}
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"roomops_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Create a new room"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"roomops_background\"><tr><td>\n");
@@ -2267,14 +2266,13 @@ void entroom(void)
 void display_private(char *rname, int req_pass)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"roomops_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Go to a hidden room"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"roomops_background\"><tr><td>\n");
@@ -2361,12 +2359,12 @@ void display_zap(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"roomops_zap\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Zap (forget/unsubscribe) the current room"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf(_("If you select this option, <em>%s</em> will "
 		"disappear from your room list.  Is this what you wish "
@@ -3122,10 +3120,8 @@ void knrooms(void)
 	}
 
 	/** title bar */
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"roomops_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">"
-	);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	if (!strcasecmp(listviewpref, "rooms")) {
 		wprintf(_("Room list"));
 	}
@@ -3135,32 +3131,32 @@ void knrooms(void)
 	if (!strcasecmp(listviewpref, "table")) {
 		wprintf(_("Room list"));
 	}
-	wprintf("</SPAN></TD>\n");
+	wprintf("</h1>\n");
 
 	/** offer the ability to switch views */
-	wprintf("<TD ALIGN=RIGHT><FORM NAME=\"roomlistomatic\">\n"
-		"<SELECT NAME=\"newview\" SIZE=\"1\" "
+	wprintf("<form name=\"roomlistomatic\">\n"
+		"<select name=\"newview\" size=\"1\" "
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
-	wprintf("<OPTION %s VALUE=\"knrooms&view=rooms\">"
+	wprintf("<option %s value=\"knrooms&view=rooms\">"
 		"View as room list"
-		"</OPTION>\n",
+		"</option>\n",
 		( !strcasecmp(listviewpref, "rooms") ? "SELECTED" : "" )
 	);
 
-	wprintf("<OPTION %s VALUE=\"knrooms&view=folders\">"
+	wprintf("<option %s value=\"knrooms&view=folders\">"
 		"View as folder list"
-		"</OPTION>\n",
+		"</option>\n",
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("</SELECT><br />");
+	wprintf("</select>");
+	wprintf("</form>");
 	offer_start_page();
-	wprintf("</FORM></TD></TR></TABLE>\n");
-	wprintf("</div>\n"
-		"</div>\n"
-		"<div id=\"content\">\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	/** Display the room list in the user's preferred format */
 	list_all_rooms_by_floor(listviewpref);

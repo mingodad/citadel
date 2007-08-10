@@ -95,12 +95,12 @@ void display_inetconf(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE class=\"inetconf_banner\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">");
+	wprintf("<h1>");
 	wprintf(_("Internet configuration"));
-	wprintf("</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr><td valign=top>\n");

@@ -330,11 +330,13 @@ void validate(void)
 	int a;
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"auth_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Validate new users"));
-	wprintf("</SPAN></TD></TR></TABLE>\n</div>\n<div id=\"content\">\n");
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	/** If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -462,14 +464,13 @@ void display_changepw(void)
 	char buf[SIZ];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"auth_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Change your password"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
 		do_template("beginbox_nt");

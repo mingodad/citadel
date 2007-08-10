@@ -21,14 +21,13 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	output_headers(1, 1, 0, 0, 0, 0);
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"graphics_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Image upload"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"graphics_background\"><tr><td>\n");

@@ -498,15 +498,14 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	}
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<TABLE class=\"calendar_banner\"><TR>"
-		"<TD><img src=\"static/taskmanag_48x.gif\"></TD>"
-		"<td><SPAN CLASS=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<img src=\"static/taskmanag_48x.gif\">");
+	wprintf("<h1>");
 	wprintf(_("Edit task"));
-	wprintf("</SPAN>"
-		"</TD></TR></TABLE>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar_background\"><tr><td>");

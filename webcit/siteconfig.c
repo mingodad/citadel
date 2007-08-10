@@ -33,14 +33,13 @@ void display_siteconfig(void)
 	int mboxvalue = 0;
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n"
-		"<table class=\"siteconfig_banner\"><tr><td>"
-		"<span class=\"titlebar\">");
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<h1>");
 	wprintf(_("Site configuration"));
-	wprintf("</span>"
-		"</td></tr></table>\n"
-		"</div>\n<div id=\"content\">\n"
-	);
+	wprintf("</h1>");
+	wprintf("</div>\n");
+
+	wprintf("</div id=\"content\" class=\"service\">\n");
 
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
