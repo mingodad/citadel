@@ -420,6 +420,9 @@ a:hover {
 	color: #FFFFEE;
 }
 
+.selector_top, .selector_bottom {
+        text-align: center;
+}
 
 .message {
 	margin: 5px;
