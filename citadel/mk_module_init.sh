@@ -36,6 +36,7 @@ $ECHO $MINUS_e " */\n\n\n" >> $C_FILE
 
 #echo $MINUS_e "#include \"sysdep.h\"\n" >> $C_FILE
 $ECHO $MINUS_e "#include <stdlib.h>\n" >> $C_FILE
+$ECHO $MINUS_e "#include <time.h>\n" >> $C_FILE
 #echo $MINUS_e "#include <ctype.h>\n" >> $C_FILE
 #echo $MINUS_e "#include \"citadel.h\"\n" >> $C_FILE
 $ECHO $MINUS_e "#include \"modules_init.h\"\n" >> $C_FILE

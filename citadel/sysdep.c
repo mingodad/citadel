@@ -506,13 +506,14 @@ void flush_output(void) {
 	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
 	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
 }
-#elif HAVE_DARWIN
+#else 
+#ifdef HAVE_DARWIN
 /* Stub functions for Darwin/OS X where TCP buffering isn't liked at all */
 void buffer_output(void) {
-CC->buffering = 0;
+	CC->buffering = 0;
 }
 void unbuffer_output(void) {
-CC->buffering = 0;
+	CC->buffering = 0;
 }
 void flush_output(void) {
 }
@@ -542,7 +543,8 @@ void unbuffer_output(void) {
 		CC->output_buffer = NULL;
 	}
 }
-#endif
+#endif /* HAVE_DARWIN */
+#endif /* HAVE_TCP_BUFFERING */
 
 
 
