@@ -105,12 +105,12 @@ int num_tokens(const char *source, char tok)
 /*
  * extract_token() - a string tokenizer
  * returns -1 if not found, or length of token.
- */
+ * /
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	const char *s;			/* source */
-	int len = 0;			/* running total length of extracted string */
-	int current_token = 0;		/* token currently being processed */
+	const char *s;			/* source * /
+	int len = 0;			/* running total length of extracted string * /
+	int current_token = 0;		/* token currently being processed * /
 
 	s = source;
 
@@ -142,6 +142,42 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 	if (current_token < parmnum) return(-1);
 	return(len);
 }
+*/
+
+/*
+ * extract_token() - a string tokenizer
+ */
+long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
+{
+	char *d;		/* dest */
+	const char *s;		/* source */
+	int count = 0;
+	int len = 0;
+
+	strcpy(dest, "");
+
+	/* Locate desired parameter */
+	s = source;
+	while (count < parmnum) {
+		/* End of string, bail! */
+		if (!*s) {
+			s = NULL;
+			break;
+		}
+		if (*s == separator) {
+			count++;
+		}
+		s++;
+	}
+	if (!s) return -1;		/* Parameter not found */
+
+	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
+		*d = *s;
+	}
+	*d = 0;
+	return 0;
+}
+
 
 
 /*
