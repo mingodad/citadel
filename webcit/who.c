@@ -153,18 +153,19 @@ void who(void)
 	wprintf("</li></ul>");
 	wprintf("</div>");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div style=\"display:inline\" id=\"fix_scrollbar_bug\">");
+	wprintf("<div id=\"content\" class=\"service fix_scrollbar_bug\">\n");
+	wprintf("<div class=\"box\">");
+	wprintf("<div class=\"boxcontent\">");
+        wprintf("<div id=\"who_inner\" >");
 	who_inner_div();
-	wprintf("</div>\n");
+	wprintf("</div>");
 
-	wprintf("<div id=\"instructions\" align=center>");
+	wprintf("<div class=\"instructions\">");
 	wprintf(_("Click on a name to read user info.  Click on %s "
 		"to send an instant message to that user."),
 		"<img align=\"middle\" src=\"static/citadelchat_16x.gif\" alt=\"(p)\" border=\"0\">"
 	);
-	wprintf("</div>\n");
+	wprintf("</div></div>\n");
 
 	/**
 	 * JavaScript to make the ajax refresh happen:
@@ -175,7 +176,7 @@ void who(void)
 	 */
 	wprintf(
 		"<script type=\"text/javascript\">					"
-		" new Ajax.PeriodicalUpdater('fix_scrollbar_bug', 'who_inner_html',	"
+		" new Ajax.PeriodicalUpdater('who_inner', 'who_inner_html',	"
 		"                            { method: 'get', frequency: 30 }  );	"
 		"</script>							 	\n"
 	);
