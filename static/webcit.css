@@ -242,6 +242,14 @@ li.start_page {
 	/* overflow-x: hidden; */
 }
 
+.service {
+        text-align: center;
+}
+
+.instructions {
+
+}
+
 #message_list_hdr {
 	position:fixed;
 	display:block;
@@ -910,25 +918,6 @@ div.auto_complete ul strong.highlight {
         background-color: #ffffff;
 }
 
-.auth_banner, .event_banner, .floors_banner, .calendar_banner, .graphics_banner, .inetconf_banner, .listsub_banner {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
-.netconf_banner, .paging_banner, .preferences_banner, .roomops_banner, .setup_banner, .sieve_banner, .siteconfig_banner {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
-.smtpqueue_banner, .useredit_banner, .userlist_banner, .downloads_banner, .vcard_edit_banner, .who_banner, .room_banner   {
-        border: 0;
-        width: 100%;
-        background-color: #444455;
-}
-
-
 .vcard_edit_background_alt, .roomops_background_alt {
         border: 0;
         width: 100%;
@@ -937,7 +926,7 @@ div.auto_complete ul strong.highlight {
 
 
 .box {
-        width: 100%;
+        width: 98%;
         padding: 0px;
         background-color: #FFFFFF;
 }
@@ -1692,7 +1681,7 @@ div.auto_complete ul strong.highlight {
 
 table.altern {
 	background-color: #ffffff;
-	width: 100%;
+	width: 98%;
 }
 
 table.altern .even {
