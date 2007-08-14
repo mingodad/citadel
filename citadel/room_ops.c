@@ -225,12 +225,16 @@ int getroom(struct ctdlroom *qrbuf, char *room_name)
 	struct cdbdata *cdbqr;
 	char lowercase_name[ROOMNAMELEN];
 	char personal_lowercase_name[ROOMNAMELEN];
-	int a;
+	char *dptr, *sptr, *eptr;
 
-	for (a = 0; room_name[a] && a < sizeof lowercase_name - 1; ++a) {
-		lowercase_name[a] = tolower(room_name[a]);
+	dptr = lowercase_name;
+	sptr = room_name;
+	eptr = (dptr + (sizeof lowercase_name - 1));
+	while (!IsEmptyStr(sptr) && (dptr < eptr)){
+		*dptr = tolower(*sptr);
+		sptr++; dptr++;
 	}
-	lowercase_name[a] = 0;
+	*dptr = '\0';
 
 	memset(qrbuf, 0, sizeof(struct ctdlroom));
 
