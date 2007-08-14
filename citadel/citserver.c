@@ -26,6 +26,10 @@
 # endif
 #endif
 
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
+
 #include <ctype.h>
 #include <string.h>
 #include <dirent.h>
@@ -66,6 +70,28 @@ int ScheduledShutdown = 0;
 int do_defrag = 0;
 time_t server_startup_time;
 
+/**
+ * \brief print the actual stack frame.
+ */
+void cit_backtrace(void)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+
+
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			lprintf(1, "%s\n", strings[i]);
+		else
+			lprintf(1, "%p\n", stack_frames[i]);
+	}
+	free(strings);
+#endif
+}
 /*
  * Various things that need to be initialized at startup
  */

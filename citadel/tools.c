@@ -101,16 +101,18 @@ int num_tokens(const char *source, char tok)
 	return (count);
 }
 
+//extern void cit_backtrace(void);
+
 
 /*
  * extract_token() - a string tokenizer
  * returns -1 if not found, or length of token.
- * /
+ */
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	const char *s;			/* source * /
-	int len = 0;			/* running total length of extracted string * /
-	int current_token = 0;		/* token currently being processed * /
+	const char *s;			//* source * /
+	int len = 0;			//* running total length of extracted string * /
+	int current_token = 0;		//* token currently being processed * /
 
 	s = source;
 
@@ -118,6 +120,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		return(-1);
 	}
 
+//	cit_backtrace();
+//	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	dest[0] = 0;
 
 	if (s == NULL) {
@@ -128,7 +132,9 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		if (*s == separator) {
 			++current_token;
 		}
-		if ( (current_token == parmnum) && (len < maxlen) ) {
+		if ( (current_token == parmnum) && 
+		     (*s != separator) && 
+		     (len < maxlen) ) {
 			dest[len] = *s;
 			++len;
 		}
@@ -138,28 +144,36 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		++s;
 	}
 
-	dest[len] = 0;
-	if (current_token < parmnum) return(-1);
+	dest[len] = '\0';
+	if (current_token < parmnum) {
+//		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+		return(-1);
+	}
+//	lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
 	return(len);
 }
-*/
+//*/
+
 
 /*
  * extract_token() - a string tokenizer
- */
+ * /
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	char *d;		/* dest */
-	const char *s;		/* source */
+	char *d;		//* dest * /
+	const char *s;		//* source * /
 	int count = 0;
 	int len = 0;
 
+	
+//	cit_backtrace();
+	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	strcpy(dest, "");
 
-	/* Locate desired parameter */
+	//* Locate desired parameter * /
 	s = source;
 	while (count < parmnum) {
-		/* End of string, bail! */
+		//* End of string, bail! * /
 		if (!*s) {
 			s = NULL;
 			break;
@@ -169,15 +183,19 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		}
 		s++;
 	}
-	if (!s) return -1;		/* Parameter not found */
-
+	if (!s) {
+		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+		return -1;		//* Parameter not found * /
+	}
+	
 	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
 		*d = *s;
 	}
 	*d = 0;
+	lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
 	return 0;
 }
-
+*/
 
 
 /*

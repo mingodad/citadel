@@ -294,7 +294,7 @@ dnl Checks for libraries.
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
-AC_CHECK_FUNCS(crypt gethostbyname connect)
+AC_CHECK_FUNCS(crypt gethostbyname connect backtrace)
 
 if test "$ac_cv_func_gethostbyname" = no; then
 	AC_CHECK_LIB(nsl, gethostbyname)
