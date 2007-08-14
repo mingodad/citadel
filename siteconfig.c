@@ -39,23 +39,21 @@ void display_siteconfig(void)
 	wprintf("</h1>");
 	wprintf("</div>\n");
 
-	wprintf("</div id=\"content\" class=\"service\">\n");
+	wprintf("</div id=\"content\" class=\"service fix_scrollbar_bug\">\n");
 
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-        	wprintf("<table class=\"siteconfig_banner\"><tr><td>");
-        	wprintf("<span class=\"titlebar\">");
+        	wprintf("<div class=\"errormsg\">");
 		wprintf(_("Error"));
-		wprintf("</span>\n");
-        	wprintf("</td></tr></table><br />\n");
+        	wprintf("<br />\n");
         	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
+		wprintf("</div>\n");
 		return;
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"siteconfig_background\"><tr><td>");
+	wprintf("<table><tr><td>");
 
 	char *tabnames[] = {
 		_("General"),
@@ -655,7 +653,7 @@ void display_siteconfig(void)
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
 	wprintf("</div></FORM>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</td></tr></table>\n");
 	wDumpContent(1);
 }
 

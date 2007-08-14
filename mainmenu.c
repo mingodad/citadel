@@ -168,9 +168,8 @@ void display_aide_menu(void)
 	wprintf("<div id=\"content\" class=\"service\">");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=99%%> "
-		"<tr valign=top><td width=50%% rowspan=2>");
-
+		"<table border=0 width=90%%> "
+		"<tr valign=top><td width=50%% valign=\"top\">");
 
 	print_menu_box(_("Global Configuration"), "adminitems", 4,
 		       "display_siteconfig", _("Edit site-wide configuration"), 
@@ -178,18 +177,21 @@ void display_aide_menu(void)
 		       "display_netconf", _("Configure replication with other Citadel servers"), 
 		       "display_smtpqueue", _("View the outbound SMTP queue"));
 	
-	print_menu_box(_("Shutdown Citadel"), "adminitems", 3, 
-		       "server_shutdown?when=now", _("Restart Now"),
-		       "server_shutdown?when=page", _("Restart after paging users"),
-		       "server_shutdown?when=idle", _("Restart when all users are idle"));
-
-	wprintf("</td><td width=50%%>");
+	wprintf("</td><td width=50%% valign=\"top\">");
 
 	print_menu_box(_("User account management"), "adminitems", 2, 
 		       "select_user_to_edit", _("Add, change, delete user accounts"),
 		       "validate", _("Validate new users"));
 
-	wprintf("</td></tr><tr><td width=50%%>");
+	wprintf("</td></tr><tr><td width=50%% valign=\"top\">");
+
+
+	print_menu_box(_("Shutdown Citadel"), "adminitems", 3, 
+		       "server_shutdown?when=now", _("Restart Now"),
+		       "server_shutdown?when=page", _("Restart after paging users"),
+		       "server_shutdown?when=idle", _("Restart when all users are idle"));
+
+	wprintf("</td><td width=50%% valign=\"top\">");
 
 	print_menu_box(_("Rooms and Floors"), "adminitems", 1, 
 		       "display_floorconfig", _("Add, change, or delete floors"));
