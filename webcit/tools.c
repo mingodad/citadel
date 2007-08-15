@@ -187,13 +187,14 @@ long extract_long(const char *source, int parmnum)
  * \param ch the char to search
  * \return the position inside of st
  */
-int haschar(char *st,char ch)
+int haschar(const char *st,char ch)
 {
-	int a, b, len;
+	const char *ptr;
+	int b;
 	b = 0;
-	len = strlen(st);
-	for (a = 0; a < len; ++a)
-		if (st[a] == ch)
+	ptr = st;
+	while (!IsEmptyStr(ptr))
+		if (*ptr == ch)
 			++b;
 	return (b);
 }
@@ -213,15 +214,13 @@ char *memreadline(char *start, char *buf, int maxlen)
 	int len = 0;		/**< tally our own length to avoid strlen() delays */
 
 	ptr = start;
-	memset(buf, 0, maxlen);
-
 	while (1) {
 		ch = *ptr++;
 		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
 			buf[len++] = ch;
-			buf[len] = 0;
 		}
 		if ((ch == 10) || (ch == 0)) {
+			buf[len] = 0;
 			return ptr;
 		}
 	}
