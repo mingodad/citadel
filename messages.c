@@ -2468,7 +2468,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatic\" class=\"selector_top\" >");
+		wprintf("<form name=\"msgomatictop\" class=\"selector_top\" >");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2524,24 +2524,23 @@ void readloop(char *oper)
 		wprintf(_("of %d messages."), nummsgs);
 
 		/** forward/reverse */
-		wprintf("&nbsp;<select name=\"direction\" size=\"1\" "
-			"OnChange=\"location.href=msgomatictop.direction.options"
-			"[selectedIndex].value\">\n"
-		);
-
-		wprintf("<option %s value=\"%s?sortby=forward\">",
-			(bbs_reverse ? "" : "selected"),
+		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+			"OnChange=\"location.href='%s?sortby=forward'\"",  
+			(bbs_reverse ? "" : "checked"),
 			oper
 		);
+		wprintf(">");
 		wprintf(_("oldest to newest"));
-		wprintf("</option>\n");
-	
-		wprintf("<option %s value=\"%s?sortby=reverse\">",
-			(bbs_reverse ? "selected" : ""),
+		wprintf("&nbsp;&nbsp;&nbsp;&nbsp;");
+
+		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+			"OnChange=\"location.href='%s?sortby=reverse'\"", 
+			(bbs_reverse ? "checked" : ""),
 			oper
 		);
+		wprintf(">");
 		wprintf(_("newest to oldest"));
-		wprintf("</option>\n");
+		wprintf("\n");
 	
 		wprintf("</select></form>\n");
 		/** end bbview scroller */
@@ -2692,26 +2691,24 @@ void readloop(char *oper)
 		wprintf(_("of %d messages."), nummsgs);
 
 		/** forward/reverse */
-		wprintf("&nbsp;<select name=\"direction\" size=\"1\" "
-			"OnChange=\"location.href=msgomatic.direction.options"
-			"[selectedIndex].value\">\n"
-		);
-
-		wprintf("<option %s value=\"%s?sortby=forward\">",
-			(bbs_reverse ? "" : "selected"),
+		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+			"OnChange=\"location.href='%s?sortby=forward'\"",  
+			(bbs_reverse ? "" : "checked"),
 			oper
 		);
+		wprintf(">");
 		wprintf(_("oldest to newest"));
-		wprintf("</option>\n");
-	
-		wprintf("<option %s value=\"%s?sortby=reverse\">",
-			(bbs_reverse ? "selected" : ""),
+		wprintf("&nbsp;&nbsp;&nbsp;&nbsp;");
+		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+			"OnChange=\"location.href='%s?sortby=reverse'\"", 
+			(bbs_reverse ? "checked" : ""),
 			oper
 		);
+		wprintf(">");
 		wprintf(_("newest to oldest"));
-		wprintf("</option>\n");
-	
-		wprintf("</select></form>\n");
+		wprintf("\n");
+
+		wprintf("</form>\n");
 		/** end bbview scroller */
 	}
 
