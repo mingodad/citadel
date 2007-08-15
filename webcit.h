@@ -498,7 +498,7 @@ void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
-int haschar(char *, char);
+int haschar(const char *, char);
 void readloop(char *oper);
 void read_message(long msgnum, int printable_view, char *section);
 void embed_message(char *msgnum_as_string);

@@ -25,6 +25,7 @@ int msock;			    /**< master listening socket */
 int is_https = 0;		/**< Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/**< Follow X-Forwarded-For: header */
 int home_specified = 0; /**< did the user specify a homedir? */
+int time_to_die = 0;            /**< shold we shut down? */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -455,8 +456,21 @@ int client_getln(int sock, char *buf, int bufsiz)
  * param signum the signal we want to forward
  */
 pid_t current_child;
-void graceful_shutdown(int signum) {
+void graceful_shutdown_watcher(int signum) {
+	lprintf (1, "bye; shutting down watcher.");
 	kill(current_child, signum);
+	exit(0);
+}
+
+/**
+ * \brief shut us down the regular way.
+ * param signum the signal we want to forward
+ */
+pid_t current_child;
+void graceful_shutdown(int signum) {
+//	kill(current_child, signum);
+	lprintf (1, "bye going down gracefull.");
+	time_to_die = 1;
 	exit(0);
 }
 
@@ -499,6 +513,7 @@ void start_daemon(char *pid_file)
 	freopen("/dev/null", "r", stdin);
 	freopen("/dev/null", "w", stdout);
 	freopen("/dev/null", "w", stderr);
+	signal(SIGTERM, graceful_shutdown_watcher);
 
 	do {
 		current_child = fork();
@@ -511,7 +526,7 @@ void start_daemon(char *pid_file)
 	
 		else if (current_child == 0) {
 			signal(SIGTERM, graceful_shutdown);
-			return; /* continue starting citadel. */
+			return; /* continue starting webcit. */
 		}
 	
 		else {
@@ -713,6 +728,9 @@ int main(int argc, char **argv)
 	if (running_as_daemon) {
 		start_daemon(pidfile);
 	}
+	else {
+		signal(SIGTERM, graceful_shutdown);
+	}
 
 	/** Tell 'em who's in da house */
 	lprintf(1, SERVER "\n");
@@ -837,7 +855,6 @@ void worker_entry(void)
 {
 	int ssock;
 	int i = 0;
-	int time_to_die = 0;
 	int fail_this_transaction = 0;
 
 	do {
@@ -883,6 +900,7 @@ void worker_entry(void)
 
 	} while (!time_to_die);
 
+	lprintf (1, "bye");
 	pthread_exit(NULL);
 }
 

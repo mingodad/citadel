@@ -94,7 +94,7 @@ dnl AC_HEADER_TIME
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
-dnl AC_CHECK_FUNCS(strerror)
+AC_CHECK_FUNCS(backtrace)
 AC_REPLACE_FUNCS(snprintf)
 
 dnl Checks for the libical calendaring library.
