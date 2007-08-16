@@ -211,7 +211,7 @@ void cmd_movf(char *cmdbuf)
 
 	/* this is a crude method of copying the file description */
 	snprintf(buf, sizeof buf,
-		 "cat ./files/%s/filedir |grep %s >>./files/%s/filedir",
+		 "cat ./files/%s/filedir |grep \"%s\" >>./files/%s/filedir",
 		 CC->room.QRdirname, filename, qrbuf.QRdirname);
 	system(buf);
 	cprintf("%d File '%s' has been moved.\n", CIT_OK, filename);
