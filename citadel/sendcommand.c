@@ -237,6 +237,7 @@ int main(int argc, char **argv)
 				if (n>0) {
 					rbuf[n]='\0';
 					printf (rbuf);
+					fflush (stdout);
 				}
 			}
 		} while (strcmp(buf, "000"));
