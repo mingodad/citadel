@@ -407,7 +407,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 		return(-1);
 	}
 
-	chmod(sockpath, 0777);
+	fchmod(s, 0777);
 	return(s);
 }
 
