@@ -248,8 +248,12 @@ li.start_page {
 }
 
 .service {
-        text-align: center;
 }
+
+.service table, .service form {
+	width: 100%;
+}
+
 
 .instructions {
 
