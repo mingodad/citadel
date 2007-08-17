@@ -168,7 +168,7 @@ void display_aide_menu(void)
 	wprintf("<div id=\"content\" class=\"service\">");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=90%%> "
+		"<table> "
 		"<tr valign=top><td width=50%% valign=\"top\">");
 
 	print_menu_box(_("Global Configuration"), "adminitems", 4,

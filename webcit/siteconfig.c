@@ -39,7 +39,7 @@ void display_siteconfig(void)
 	wprintf("</h1>");
 	wprintf("</div>\n");
 
-	wprintf("</div id=\"content\" class=\"service fix_scrollbar_bug\">\n");
+	wprintf("<div id=\"content\" class=\"service fix_scrollbar_bug\">\n");
 
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
