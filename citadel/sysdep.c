@@ -351,7 +351,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 	int s;
 	int i;
 	int actual_queue_len;
-
+	long ret, ret2;
 	actual_queue_len = queue_len;
 	if (actual_queue_len < 5) actual_queue_len = 5;
 
@@ -407,7 +407,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 		return(-1);
 	}
 
-	fchmod(s, 0777);
+	chmod(sockpath, S_ISGID|S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
 	return(s);
 }
 
