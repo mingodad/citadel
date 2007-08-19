@@ -12,6 +12,7 @@ struct UserProcList {
 	char user[64];
 };
 
+void cit_backtrace(void);
 void master_startup (void);
 void master_cleanup (int exitcode);
 void RemoveContext (struct CitContext *);
