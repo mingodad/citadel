@@ -57,7 +57,7 @@
 #include "control.h"
 #include "tools.h"
 #include "euidindex.h"
-#include "serv_network.h"	/* Needed for destroy_network_queue_room called from master_cleanup */
+/*#include "serv_network.h"*/	/* Needed for destroy_network_queue_room called from master_cleanup */
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -176,7 +176,7 @@ void master_cleanup(int exitcode) {
 	close_databases();
 
 	/* flush the networker stuff */
-	destroy_network_queue_room();
+/*	destroy_network_queue_room();*/
 
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();

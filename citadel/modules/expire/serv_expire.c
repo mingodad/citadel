@@ -622,6 +622,11 @@ int PurgeUseTable(void) {
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
+	/*
+	 * TODODRW: change this to create a new function time_t cdb_get_timestamp( struct cdbdata *)
+	 * this will release this file from the serv_network.h
+	 * Maybe it could be a macro that extracts and casts the reult
+	 */
                 memcpy(&ut, cdbut->ptr,
                        ((cdbut->len > sizeof(struct UseTable)) ?
                         sizeof(struct UseTable) : cdbut->len));
