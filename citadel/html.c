@@ -448,26 +448,26 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		}
 
 		/* Make sure the output buffer is big enough */
-		if ((output_len + strlen(outbuf) + SIZ)
-		   > outptr_buffer_size) {
+		if ((output_len + strlen(outbuf) + SIZ) > outptr_buffer_size) {
 			outptr_buffer_size += SIZ;
 			outptr = realloc(outptr, outptr_buffer_size);
+			if (outptr == NULL) {
+				abort();
+			}
 		}
 
 		/* Output any lines terminated with hard line breaks */
 		do {
 			did_out = 0;
-			if (!IsEmptyStr(outbuf)) {
-			    for (i = 0; !IsEmptyStr(&outbuf[i]); ++i) {
+			if (strlen(outbuf) > 0) {
+			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
 
-					strncpy(&outptr[output_len],
-						outbuf, i+1);
+					strncpy(&outptr[output_len], outbuf, i+1);
 					output_len += (i+1);
 
 					if (do_citaformat) {
-						strcpy(&outptr[output_len],
-							" ");
+						strcpy(&outptr[output_len], " ");
 						++output_len;
 					}
 
