@@ -587,9 +587,19 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	lprintf(CTDL_DEBUG, "Section is: %s%s\n", 
 		section, 
 		IsEmptyStr(section) ? "(empty)" : "");
-	if (!strncasecmp(section, "HEADER", 6)) {
-		need_body = 0;
-	}
+
+	/*
+	 * We used to have this great optimization in place that would avoid
+	 * fetching the entire RFC822 message from disk if the client was only
+	 * asking for the headers.  Unfortunately, fetching only the Citadel
+	 * headers omits "Content-type:" and this behavior breaks the iPhone
+	 * email client.  So we have to fetch the whole message from disk.  The
+	 *
+	 *	if (!strncasecmp(section, "HEADER", 6)) {
+	 *		need_body = 0;
+	 *	}
+	 *
+	 */
 
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
