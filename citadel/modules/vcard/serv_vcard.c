@@ -404,7 +404,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		sprintf(buf, "http://%s/%s.vfb",
 			config.c_fqdn,
 			usbuf.fullname);
-		for (i=0; !IsEmptyStr(&buf[i]); ++i) {
+		for (i=0; buf[i]; ++i) {
 			if (buf[i] == ' ') buf[i] = '_';
 		}
 		vcard_set_prop(v, "FBURL;PREF", buf, 0);
@@ -675,7 +675,7 @@ void cmd_regi(char *argbuf) {
 		if (a==2) strcpy(tmpcity, buf);
 		if (a==3) strcpy(tmpstate, buf);
 		if (a==4) {
-			for (c=0; !IsEmptyStr(&buf[c]); ++c) {
+			for (c=0; buf[c]; ++c) {
 				if ((buf[c]>='0') && (buf[c]<='9')) {
 					b = strlen(tmpzip);
 					tmpzip[b] = buf[c];
@@ -789,7 +789,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	v = vcard_new();
 	if (v == NULL) return;
 	sprintf(buf, "%s@%s", usbuf->fullname, config.c_fqdn);
-	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
+	for (i=0; buf[i]; ++i) {
 		if (buf[i] == ' ') buf[i] = '_';
 	}
 	vcard_add_prop(v, "fn", usbuf->fullname);
@@ -1178,7 +1178,7 @@ struct vCard *vcard_new_from_rfc822_addr(char *addr) {
 	vcard_set_prop(v, "email;internet", email, 0);
 
 	snprintf(uid, sizeof uid, "collected: %s %s@%s", name, user, node);
-	for (i=0; !IsEmptyStr(&uid[i]); ++i) {
+	for (i=0; uid[i]; ++i) {
 		if (isspace(uid[i])) uid[i] = '_';
 		uid[i] = tolower(uid[i]);
 	}
