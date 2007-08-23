@@ -411,9 +411,11 @@ int read_message(CtdlIPC *ipc,
 	if (r / 100 != 1) {
 		err_printf("*** msg #%ld: %d %s\n", num, r, buf);
 		++lines_printed;
-		lines_printed =
-		    checkpagin(lines_printed, pagin, screenheight);
+		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 		stty_ctdl(0);
+		free(message->text);
+		free_parts(message->attachments);
+		free(message);
 		return (0);
 	}
 
@@ -461,6 +463,9 @@ int read_message(CtdlIPC *ipc,
 		}
 		pprintf("\n");
 		stty_ctdl(0);
+		free(message->text);
+		free_parts(message->attachments);
+		free(message);
 		return (0);
 	}
 
@@ -669,7 +674,7 @@ int read_message(CtdlIPC *ipc,
 
 			if (sigcaught == 0) {
 				linelen = strlen(lineptr);
-				if (lineptr[linelen-1] == '\r') {
+				if (linelen && (lineptr[linelen-1] == '\r')) {
 					lineptr[--linelen] = 0;
 				}
 				if (dest) {
@@ -697,6 +702,7 @@ int read_message(CtdlIPC *ipc,
 			scr_printf("\n");
 			++lines_printed;
 			lines_printed = checkpagin(lines_printed, pagin, screenheight);
+			fr = sigcaught;		
 		}
 	}
 
@@ -1630,10 +1636,10 @@ RMSGREAD:	scr_flush();
 
 			r = CtdlIPCSetMessageSeen(ipc, msg_arr[a], 1, buf);
 		}
-		if (e == 3)
+		if (e == SIGQUIT)
 			return;
-		if (((userflags & US_NOPROMPT) || (e == 2))
-		    && (((room_flags & QR_MAILBOX) == 0)
+		if (((userflags & US_NOPROMPT) || (e == SIGINT))
+			&& (((room_flags & QR_MAILBOX) == 0)
 			|| (rc_force_mail_prompts == 0))) {
 			e = 'n';
 		} else {

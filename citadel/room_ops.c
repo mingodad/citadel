@@ -520,7 +520,7 @@ int sort_msglist(long listptrs[], int oldcount)
 
 	/* and yank any nulls */
 	while ((numitems > 0) && (listptrs[0] == 0L)) {
-		memcpy(&listptrs[0], &listptrs[1],
+		memmove(&listptrs[0], &listptrs[1],
 		       (sizeof(long) * (numitems - 1)));
 		--numitems;
 	}
@@ -1882,7 +1882,7 @@ void cmd_cre8(char *args)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (CC->user.axlevel < config.c_createax || CC->internal_pgm) {
+	if (CC->user.axlevel < config.c_createax && !CC->internal_pgm) {
 		cprintf("%d You need higher access to create rooms.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

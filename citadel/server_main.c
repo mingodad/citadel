@@ -87,6 +87,11 @@ int main(int argc, char **argv)
 #ifdef HAVE_RUN_DIR
 	struct stat filestats;
 #endif
+
+	/* initialise semaphores here. Patch by Matt and davew
+	 * its called here as they are needed by lprintf for thread safety
+	 */
+	InitialiseSemaphores();
 	
 	/* initialize the master context */
 	InitializeMasterCC();

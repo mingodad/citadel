@@ -237,6 +237,7 @@ enum {
 	S_RPLIST,
 	S_SIEVELIST,
 	S_CHKPWD,
+	S_LOG,
 	MAX_SEMAPHORES
 };
 

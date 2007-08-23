@@ -103,6 +103,7 @@ void DestroyWorkerList(void);
  * lprintf()  ...   Write logging information
  */
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
+	char *buf;
 	va_list arg_ptr;
 
 	if (enable_syslog) {
@@ -112,7 +113,9 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 	}
 
 	/* stderr output code */
-	if (enable_syslog || running_as_daemon) return;
+	if (enable_syslog || running_as_daemon) {
+		return;
+	}
 
 	/* if we run in forground and syslog is disabled, log to terminal */
 	if (loglevel <= verbosity) { 
@@ -124,24 +127,30 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
+//	begin_critical_section(S_LOG);
+
+		buf = malloc(SIZ+strlen(format));
+
 		if (CC->cs_pid != 0) {
-			fprintf(stderr,
+			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
 				tim.tm_year + 1900, tim.tm_mon + 1,
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec,
 				CC->cs_pid);
 		} else {
-			fprintf(stderr,
+			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
 				tim.tm_year + 1900, tim.tm_mon + 1,
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec);
 		}
-		va_start(arg_ptr, format);   
-			vfprintf(stderr, format, arg_ptr);   
+		strcat(buf, format);
+		va_start(arg_ptr, buf);   
+		vfprintf(stderr, buf, arg_ptr);   
 		va_end(arg_ptr);   
 		fflush(stderr);
+//	end_critical_section(S_LOG);
 	}
 }   
 
@@ -162,11 +171,25 @@ static RETSIGTYPE signal_cleanup(int signum) {
 	master_cleanup(signum);
 }
 
+
+
+
+void InitialiseSemaphores(void)
+{
+	int i;
+
+	/* Set up a bunch of semaphores to be used for critical sections */
+	for (i=0; i<MAX_SEMAPHORES; ++i) {
+		pthread_mutex_init(&Critters[i], NULL);
+	}
+}
+
+
+
 /*
  * Some initialization stuff...
  */
 void init_sysdep(void) {
-	int i;
 	sigset_t set;
 
 	/* Avoid vulnerabilities related to FD_SETSIZE if we can. */
@@ -184,11 +207,6 @@ void init_sysdep(void) {
 #ifdef HAVE_OPENSSL
 	init_ssl();
 #endif
-
-	/* Set up a bunch of semaphores to be used for critical sections */
-	for (i=0; i<MAX_SEMAPHORES; ++i) {
-		pthread_mutex_init(&Critters[i], NULL);
-	}
 
 	/*
 	 * Set up a place to put thread-specific data.

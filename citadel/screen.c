@@ -86,7 +86,7 @@ void status_line(const char *humannode, const char *site_location,
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 void wait_indicator(int state) {
 
-	if (!isendwin() && statuswindow) {
+	if (statuswindow && !isendwin()) {
 
 		mvwinch(statuswindow, 0, screenwidth - 2);
 		switch (state) {

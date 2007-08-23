@@ -74,6 +74,7 @@ void become_session(struct CitContext *which_con);
 void InitializeMasterCC(void);
 void init_master_fdset(void);
 void create_worker(void);
+void InitialiseSemaphores(void);
 
 extern int num_sessions;
 extern volatile int time_to_die;

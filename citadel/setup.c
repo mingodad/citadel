@@ -752,8 +752,8 @@ void edit_value(int curr)
 					config.c_ctdluid = atoi(ctdluidname);
 				}
 			}
-		}
 #endif
+		}
 		break;
 
 	case 3:

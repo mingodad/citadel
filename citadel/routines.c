@@ -59,7 +59,7 @@ struct utmp *getutline(struct utmp *ut);
 #define IFNAIDE if (axlevel<6)
 
 extern unsigned userflags;
-extern char *axdefs[7];
+//extern char *axdefs[8];
 extern char sigcaught;
 extern char rc_floor_mode;
 extern int rc_ansi_color;
@@ -159,7 +159,10 @@ void edituser(CtdlIPC *ipc, int cmd)
 
 	if (cmd == 96) {
 		scr_printf("Do you want to delete this user? ");
-		if (!yesno()) return;
+		if (!yesno()) {
+			free(user);
+			return;
+		}
 		user->axlevel = 0;
 	}
 	

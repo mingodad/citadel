@@ -121,7 +121,7 @@ int CtdlIPCEcho(CtdlIPC *ipc, const char *arg, char *cret)
 int CtdlIPCQuit(CtdlIPC *ipc)
 {
 	register int ret = 221;		/* Default to successful quit */
-	char aaa[128];
+	char aaa[SIZ]; 
 
 	CtdlIPC_lock(ipc);
 	if (ipc->sock > -1) {
@@ -149,7 +149,7 @@ int CtdlIPCQuit(CtdlIPC *ipc)
 int CtdlIPCLogout(CtdlIPC *ipc)
 {
 	register int ret;
-	char aaa[128];
+	char aaa[SIZ];
 
 	CtdlIPC_lock(ipc);
 	CtdlIPC_putline(ipc, "LOUT");
@@ -2335,6 +2335,7 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 	char aaa[SIZ];
 	char buf[4096];
 	FILE *fd;
+	int ferr;
 
 	if (!cret) return -1;
 	if (!path) return -1;
@@ -2379,7 +2380,9 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 	}
 	if (progress_gauge_callback)
 		progress_gauge_callback(ipc, 1, 1);
-	return (!ferror(fd) ? ret : -2);
+	ferr = ferror(fd);
+	fclose(fd);
+	return (!ferr ? ret : -2);
 }
 
 
@@ -2870,8 +2873,8 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 			serv_read(ipc, &buf[i], 1);
 
 	/* Strip the trailing newline (and carriage return, if present) */
-	if (buf[i] == 10) buf[i--] = 0;
-	if (buf[i] == 13) buf[i--] = 0;
+	if (i>=0 && buf[i] == 10) buf[i--] = 0;
+	if (i>=0 && buf[i] == 13) buf[i--] = 0;
 }
 
 void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)

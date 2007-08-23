@@ -175,9 +175,6 @@ void master_cleanup(int exitcode) {
 	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();
 
-	/* flush the networker stuff */
-/*	destroy_network_queue_room();*/
-
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
 	
@@ -369,8 +366,9 @@ int is_public_client(void)
 				}
 				else ptr++;
 			}
-			while (isspace((buf[strlen(buf)-1]))) {
-				buf[strlen(buf)-1] = 0;
+			ptr--;
+			while (ptr>buf && isspace(*ptr)) {
+				*(ptr--) = 0;
 			}
 			if (hostname_to_dotted_quad(addrbuf, buf) == 0) {
 				if ((strlen(public_clients) +

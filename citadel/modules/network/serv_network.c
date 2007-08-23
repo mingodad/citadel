@@ -1435,6 +1435,7 @@ void network_process_buffer(char *buffer, long size) {
 	 * connected that it's inevitable.)
 	 */
 	if (network_usetable(msg) != 0) {
+		CtdlFreeMessage(msg);
 		return;
 	}
 
@@ -1706,9 +1707,9 @@ void receive_spool(int sock, char *remote_nodename) {
 		return;
 	}
 	if (download_len > 0)
-		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>",
+		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>\n",
 				download_len, remote_nodename);
-	lprintf(CTDL_DEBUG, "%s", buf);
+	lprintf(CTDL_DEBUG, "%s\n", buf);
 	/* TODO: make move inline. forking is verry expensive. */
 	snprintf(buf, 
 			 sizeof buf, 

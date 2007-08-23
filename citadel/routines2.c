@@ -51,7 +51,7 @@
 
 extern char temp[];
 extern char tempdir[];
-extern char *axdefs[7];
+extern char *axdefs[8];
 extern long highest_msg_read;
 extern long maxmsgnum;
 extern unsigned room_flags;
@@ -451,6 +451,11 @@ int val_user(CtdlIPC *ipc, char *user, int do_validate)
 			if (a == 11)
 				scr_printf("%s\n", buf);
 		} while (!IsEmptyStr(resp));
+
+/* TODODRW: discrepancy here. Parts of the code refer to axdefs[7] as the highest
+ * but most of it limits it to axdefs[6].
+ * Webcit limits to 6 as does the code here but there are 7 in axdefs.h
+ */
 		scr_printf("Current access level: %d (%s)\n", ax, axdefs[ax]);
 	} else {
 		scr_printf("%s\n%s\n", user, &cmd[4]);

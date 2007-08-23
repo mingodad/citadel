@@ -84,6 +84,7 @@ void chatmode(CtdlIPC *ipc)
 
 	strcpy(buf, "");
 	strcpy(wbuf, "");
+	strcpy(last_user, ""); 
 	color(BRIGHT_YELLOW);
 	sln_printf_if("\n");
 	sln_printf("> ");
