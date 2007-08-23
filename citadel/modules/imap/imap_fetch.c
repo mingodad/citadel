@@ -793,6 +793,10 @@ void imap_fetch_bodystructure_part(
 
 	cprintf("(");							/* begin body parameter list */
 
+	/* "NAME" must appear as the first parameter.  This is not required by IMAP,
+	 * but the Asterisk voicemail application blindly assumes that NAME will be in
+	 * the first position.  If it isn't, it rejects the message.
+	 */
 	if (name != NULL) if (!IsEmptyStr(name)) {
 		cprintf("\"NAME\" ");
 		imap_strout(name);
