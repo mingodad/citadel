@@ -84,7 +84,7 @@ void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 	color(COLOR_POP);
 	stty_ctdl(0);
 	b=inkey();
-	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[0]); ++a)
+	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[a]); ++a)
 		scr_putc(' ');
 	scr_putc(13);
 	stty_ctdl(1);
