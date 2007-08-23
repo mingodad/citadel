@@ -454,7 +454,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	snprintf(buf, sizeof buf, "[%s]", CC->room.QRname);
 	msg->cm_fields['U'] = strdup(buf);
 	sprintf(buf, "room_%s@%s", CC->room.QRname, config.c_fqdn);
-	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
+	for (i=0; buf[i]; ++i) {
 		if (isspace(buf[i])) buf[i]='_';
 		buf[i] = tolower(buf[i]);
 	}
@@ -612,7 +612,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 			snprintf(msg->cm_fields['R'], 256,
 				"room_%s@%s", CC->room.QRname,
 				config.c_fqdn);
-			for (i=0; !IsEmptyStr(&msg->cm_fields['R'][i]); ++i) {
+			for (i=0; msg->cm_fields['R'][i]; ++i) {
 				if (isspace(msg->cm_fields['R'][i])) {
 					msg->cm_fields['R'][i] = '_';
 				}
@@ -702,7 +702,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				snprintf(msg->cm_fields['F'], SIZ,
 					"room_%s@%s", CC->room.QRname,
 					config.c_fqdn);
-				for (i=0; !IsEmptyStr(&msg->cm_fields['F'][i]); ++i) {
+				for (i=0; msg->cm_fields['F'][i]; ++i) {
 					if (isspace(msg->cm_fields['F'][i])) {
 						msg->cm_fields['F'][i] = '_';
 					}
@@ -973,7 +973,7 @@ void network_spoolout_room(char *room_to_spool) {
 	/* If we wrote a digest, deliver it and then close it */
 	snprintf(buf, sizeof buf, "room_%s@%s",
 		CC->room.QRname, config.c_fqdn);
-	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
+	for (i=0; buf[i]; ++i) {
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
