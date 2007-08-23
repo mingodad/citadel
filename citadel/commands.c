@@ -979,37 +979,34 @@ char *cmd_expand(char *strbuf, int mode)
 	int a;
 	static char exp[64];
 	char buf[1024];
-	char *ptr;
 
 	strcpy(exp, strbuf);
 
-	ptr = exp;
-	while (!IsEmptyStr(ptr)){
-		if (*ptr == '&') {
+	for (a = 0; exp[a]; ++a) {
+		if (strbuf[a] == '&') {
 
 			/* dont echo these non mnemonic command keys */
-			int noecho = *(ptr+1) == '<' || *(ptr+1) == '>' || 
-				*(ptr+1) == '+' || *(ptr+1) == '-';
+			int noecho = strbuf[a+1] == '<' || strbuf[a+1] == '>' || strbuf[a+1] == '+' || strbuf[a+1] == '-';
 
 			if (mode == 0) {
-				strcpy(ptr, ptr + 1 + noecho);
+				strcpy(&exp[a], &exp[a + 1 + noecho]);
 			}
 			if (mode == 1) {
-				*ptr = '<';
-				strcpy(buf, ptr + 2);
-				*(ptr + 2) = '>';
-				*(ptr+ 3) = 0;
+				exp[a] = '<';
+				strcpy(buf, &exp[a + 2]);
+				exp[a + 2] = '>';
+				exp[a + 3] = 0;
 				strcat(exp, buf);
 			}
 		}
-		if (!strncmp(ptr, "^r", 2)) {
+		if (!strncmp(&exp[a], "^r", 2)) {
 			strcpy(buf, exp);
-			strcpy(ptr, room_name);
-			strcat(exp, &buf[ptr - exp + 2]);
+			strcpy(&exp[a], room_name);
+			strcat(exp, &buf[a + 2]);
 		}
-		if (!strncmp(ptr, "^c", 2)) {
-			*ptr = ',';
-			strcpy(ptr + 1, ptr + 2);
+		if (!strncmp(&exp[a], "^c", 2)) {
+			exp[a] = ',';
+			strcpy(&exp[a + 1], &exp[a + 2]);
 		}
 	}
 
