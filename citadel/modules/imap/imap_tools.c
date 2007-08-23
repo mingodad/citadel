@@ -632,7 +632,7 @@ int imap_is_message_set(char *buf)
 	if (!strcasecmp(buf, "ALL"))
 		return (1);	/* macro?  why?  */
 
-	for (i = 0; !IsEmptyStr(&buf[i]); ++i) {	/* now start the scan */
+	for (i = 0; buf[i]; ++i) {	/* now start the scan */
 		if (
 			   (!isdigit(buf[i]))
 			   && (buf[i] != ':')
