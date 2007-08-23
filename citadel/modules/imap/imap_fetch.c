@@ -751,7 +751,7 @@ void imap_fetch_bodystructure_post(
 	imap_strout(subtype);
 
 	/* body language */
-	cprintf(" NIL");
+	/* cprintf(" NIL"); We thought we needed this at one point, but maybe we don't... */
 
 	cprintf(")");
 }
@@ -774,7 +774,6 @@ void imap_fetch_bodystructure_part(
 	size_t i;
 	char cbmaintype[128];
 	char cbsubtype[128];
-	char iteration[128];
 
 	if (cbtype != NULL) if (!IsEmptyStr(cbtype)) have_cbtype = 1;
 	if (have_cbtype) {
@@ -786,51 +785,36 @@ void imap_fetch_bodystructure_part(
 		strcpy(cbsubtype, "PLAIN");
 	}
 
-	/* If this is the second or subsequent part of a multipart sequence,
-	 * we need to output another space here.  We do this by obtaining the
-	 * last subpart token of the partnum and converting it to a number.
-	 */
-	if (strrchr(partnum, '.')) {
-		safestrncpy(iteration, (strrchr(partnum, '.')+1), sizeof iteration);
-	}
-	else {
-		safestrncpy(iteration, partnum, sizeof iteration);
-	}
-	if (atoi(iteration) > 1) {
+	cprintf("(");
+	imap_strout(cbmaintype);					/* body type */
+	cprintf(" ");
+	imap_strout(cbsubtype);						/* body subtype */
+	cprintf(" ");
+
+	cprintf("(");							/* begin body parameter list */
+
+	if (name != NULL) if (!IsEmptyStr(name)) {
+		cprintf("\"NAME\" ");
+		imap_strout(name);
 		cprintf(" ");
 	}
 
-
-	/* output loop */
-
-	cprintf("(");
-	imap_strout(cbmaintype);
-	cprintf(" ");
-	imap_strout(cbsubtype);
-	cprintf(" ");
-
+	cprintf("\"CHARSET\" ");
 	if (cbcharset == NULL) {
-		cprintf("(\"CHARSET\" \"US-ASCII\"");
+		imap_strout("US-ASCII");
 	}
-	else if (IsEmptyStr(cbcharset)) {
-		cprintf("(\"CHARSET\" \"US-ASCII\"");
+	else if (cbcharset[0] == 0) {
+		imap_strout("US-ASCII");
 	}
 	else {
-		cprintf("(\"CHARSET\" ");
 		imap_strout(cbcharset);
 	}
+	cprintf(") ");							/* end body parameter list */
 
-	if (name != NULL) if (!IsEmptyStr(name)) {
-		cprintf(" \"NAME\" ");
-		imap_strout(name);
-	}
+	cprintf("NIL ");						/* Body ID */
+	cprintf("NIL ");						/* Body description */
 
-	cprintf(") ");
-
-	cprintf("NIL ");	/* Body ID */
-	cprintf("NIL ");	/* Body description */
-
-	if (encoding != NULL) if (!IsEmptyStr(encoding))  have_encoding = 1;
+	if (encoding != NULL) if (encoding[0] != 0)  have_encoding = 1;
 	if (have_encoding) {
 		imap_strout(encoding);
 	}
