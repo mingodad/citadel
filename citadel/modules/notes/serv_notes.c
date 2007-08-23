@@ -76,7 +76,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 	while (--a > 0) {
 		if (!strncasecmp(p, "X-KOrg-Note-Id: ", 16)) {	/* Found it */
 			safestrncpy(uuid, p + 16, sizeof(uuid));
-			for (i = 0; !IsEmptyStr(&uuid[i]); ++i) {
+			for (i = 0; uuid[i]; ++i) {
 				if ( (uuid[i] == '\r') || (uuid[i] == '\n') ) {
 					uuid[i] = 0;
 					break;
