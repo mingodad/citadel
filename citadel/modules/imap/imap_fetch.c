@@ -774,6 +774,7 @@ void imap_fetch_bodystructure_part(
 	size_t i;
 	char cbmaintype[128];
 	char cbsubtype[128];
+	char iteration[128];
 
 	if (cbtype != NULL) if (!IsEmptyStr(cbtype)) have_cbtype = 1;
 	if (have_cbtype) {
@@ -784,6 +785,23 @@ void imap_fetch_bodystructure_part(
 		strcpy(cbmaintype, "TEXT");
 		strcpy(cbsubtype, "PLAIN");
 	}
+
+	/* If this is the second or subsequent part of a multipart sequence,
+	 * we need to output another space here.  We do this by obtaining the
+	 * last subpart token of the partnum and converting it to a number.
+	 */
+	if (strrchr(partnum, '.')) {
+		safestrncpy(iteration, (strrchr(partnum, '.')+1), sizeof iteration);
+	}
+	else {
+		safestrncpy(iteration, partnum, sizeof iteration);
+	}
+	if (atoi(iteration) > 1) {
+		cprintf(" ");
+	}
+
+
+	/* output loop */
 
 	cprintf("(");
 	imap_strout(cbmaintype);
