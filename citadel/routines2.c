@@ -327,7 +327,7 @@ void upload(CtdlIPC *ipc, int c)
 	else
 		newprompt("Enter filename: ", flnm, 15);
 
-	for (a = 0; !IsEmptyStr(&flnm[0]); ++a)
+	for (a = 0; !IsEmptyStr(&flnm[a]); ++a)
 		if ((flnm[a] == '/') || (flnm[a] == '\\') || (flnm[a] == '>')
 		    || (flnm[a] == '?') || (flnm[a] == '*')
 		    || (flnm[a] == ';') || (flnm[a] == '&'))
