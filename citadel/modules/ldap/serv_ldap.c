@@ -82,13 +82,13 @@ void CtdlCreateLdapRoot(void) {
 
 	/* We just want the top-level dc, not the whole hierarchy */
 	strcpy(topdc, config.c_ldap_base_dn);
-	for (i=0; !IsEmptyStr(&topdc[i]); ++i) {
+	for (i=0; topdc[i]; ++i) {
 		if (topdc[i] == ',') {
 			topdc[i] = 0;
 			break;
 		}
 	}
-	for (i=0; !IsEmptyStr(&topdc[i]); ++i) {
+	for (i=0; topdc[i]; ++i) {
 		if (topdc[i] == '=') strcpy(topdc, &topdc[i+1]);
 	}
 
