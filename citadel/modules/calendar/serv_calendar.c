@@ -1274,7 +1274,7 @@ void ical_freebusy(char *who) {
 		strcat(buf, "@");
 		strcat(buf, config.c_fqdn);
 	}
-	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
+	for (i=0; buf[i]; ++i) {
 		if (buf[i]==' ') buf[i] = '_';
 	}
 	icalcomponent_add_property(fb, icalproperty_new_organizer(buf));
