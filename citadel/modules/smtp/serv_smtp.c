@@ -958,7 +958,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		if (!strncasecmp(buf, "From:", 5)) {
 			safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
 			striplt(mailfrom);
-			for (i=0; !IsEmptyStr(&mailfrom[i]); ++i) {
+			for (i=0; mailfrom[i]; ++i) {
 				if (!isprint(mailfrom[i])) {
 					strcpy(&mailfrom[i], &mailfrom[i+1]);
 					i=0;
@@ -968,7 +968,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			/* Strip out parenthesized names */
 			lp = (-1);
 			rp = (-1);
-			for (i=0; !IsEmptyStr(&mailfrom[i]); ++i) {
+			for (i=0; mailfrom[i]; ++i) {
 				if (mailfrom[i] == '(') lp = i;
 				if (mailfrom[i] == ')') rp = i;
 			}
@@ -979,7 +979,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			/* Prefer brokketized names */
 			lp = (-1);
 			rp = (-1);
-			for (i=0; !IsEmptyStr(&mailfrom[i]); ++i) {
+			for (i=0; mailfrom[i]; ++i) {
 				if (mailfrom[i] == '<') lp = i;
 				if (mailfrom[i] == '>') rp = i;
 			}
