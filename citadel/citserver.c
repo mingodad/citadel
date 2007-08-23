@@ -57,7 +57,6 @@
 #include "control.h"
 #include "tools.h"
 #include "euidindex.h"
-/*#include "serv_network.h"*/	/* Needed for destroy_network_queue_room called from master_cleanup */
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
