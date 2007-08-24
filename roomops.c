@@ -863,6 +863,8 @@ void gotonext(void)
 		 */
 		mptr = (struct march *) malloc(sizeof(struct march));
 		mptr->next = NULL;
+		mptr->march_order = 0;
+	    	mptr->march_floor = 0;
 		strcpy(mptr->march_name, "_BASEROOM_");
 		if (WC->march == NULL) {
 			WC->march = mptr;

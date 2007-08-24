@@ -35,7 +35,7 @@ void unescape_input(char *buf)
 
 	buflen = strlen(buf);
 
-	while ((isspace(buf[buflen - 1])) && (buflen > 0)){
+	while ((buflen > 0) && (isspace(buf[buflen - 1]))){
 		buf[buflen - 1] = 0;
 		buflen --;
 	}
