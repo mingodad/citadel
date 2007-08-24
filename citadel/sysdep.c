@@ -150,6 +150,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		vfprintf(stderr, buf, arg_ptr);   
 		va_end(arg_ptr);   
 		fflush(stderr);
+		free (buf);
 //	end_critical_section(S_LOG);
 	}
 }   
