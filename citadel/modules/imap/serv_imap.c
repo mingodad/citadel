@@ -435,10 +435,14 @@ void imap_cleanup_function(void)
  * output this stuff in other places as well)
  */
 void imap_output_capability_string(void) {
-	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID ACL AUTH=PLAIN AUTH=LOGIN");
+	cprintf("CAPABILITY IMAP4REV1 NAMESPACE ID AUTH=PLAIN AUTH=LOGIN");
 
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) cprintf(" STARTTLS");
+#endif
+
+#ifndef DISABLE_IMAP_ACL
+	cprintf(" ACL");
 #endif
 
 	/* We are building a partial implementation of METADATA for the sole purpose
