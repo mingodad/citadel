@@ -950,6 +950,12 @@ div.auto_complete ul strong.highlight {
         text-align: center;
 }
 
+.boxcontent .col1,  .boxcontent .col2  { 
+	float: left;
+	width: 33%;
+}
+
+
 #login_screen {
 	margin: 3%;
 }
