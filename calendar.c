@@ -786,6 +786,9 @@ void display_using_handler(long msgnum,
 			if (!strcasecmp(mime_content_type, "text/calendar")) {
 				strcpy(relevant_partnum, mime_partnum);
 			}
+			else if (!strcasecmp(mime_content_type, "text/vtodo")) {
+				strcpy(relevant_partnum, mime_partnum);
+			}
 
 		}
 	}
