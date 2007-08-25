@@ -24,12 +24,8 @@ void display_main_menu(void)
 	svprintf("BOXTITLE", WCS_STRING, _("Basic commands"));
 	do_template("beginbox");
 
-	wprintf("\n"
-		"<table border=0 cellspacing=1 cellpadding=1 width=99%%>"
-		"<tr valign=\"top\">"
-		"<td>");	/**< start of first column */
-
-	wprintf("<ul class=\"adminitems\">");
+	/**< start of first column */
+	wprintf("<ul class=\"adminitems col1\">");
 
 	wprintf("<li><a href=\"knrooms\">");
 	wprintf(_("List known rooms"));
@@ -59,9 +55,9 @@ void display_main_menu(void)
 
 	wprintf("</ul>\n");
 
-	wprintf("</td><td>\n");	/* start of second column */
+	/* start of second column */
 
-	wprintf("<ul class=\"adminitems\">");
+	wprintf("<ul class=\"adminitems col2\">");
 
 	wprintf("<li><a href=\"readnew\">");
 	wprintf(_("Read new messages"));
@@ -91,9 +87,9 @@ void display_main_menu(void)
 
 	wprintf("</ul>\n");
 
-	wprintf("</td><td>");	/* start of third column */
+	/* start of third column */
 
-	wprintf("<ul class=\"adminitems\">");
+	wprintf("<ul class=\"adminitems lastcol\">");
 
 	wprintf("<li><a href=\"summary\">");
 	wprintf(_("Summary page"));
@@ -115,7 +111,8 @@ void display_main_menu(void)
 
 	wprintf("</ul>\n");
 
-	wprintf("</td></tr></table>\n");
+	wprintf("&nbsp;");
+
 	do_template("endbox");
 
 	wprintf("</td></tr>"
