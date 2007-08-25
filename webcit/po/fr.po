@@ -3085,11 +3085,11 @@ msgstr "Une erreur est apparue en récupérant cette partie : %s\n"
 
 #: ../webcit.c:839
 msgid "Make this my start page"
-msgstr "Faire de cette page ma page de départ"
+msgstr "En faire ma page d'accueil"
 
 #: ../webcit.c:858
 msgid "You no longer have a start page selected."
-msgstr "Vous n'avez pas encore choisi de page de départ."
+msgstr "Vous n'avez pas encore choisi de page d'accueil."
 
 #: ../webcit.c:894
 msgid "Authorization Required"

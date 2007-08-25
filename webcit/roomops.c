@@ -3136,7 +3136,11 @@ void knrooms(void)
 	wprintf("</h1>\n");
 
 	/** offer the ability to switch views */
-	wprintf("<form name=\"roomlistomatic\">\n"
+	wprintf("<ul class=\"room_actions\">\n");
+	wprintf("<li class=\"start_page\">");
+	offer_start_page();
+	wprintf("</li>");
+	wprintf("<li><form name=\"roomlistomatic\">\n"
 		"<select name=\"newview\" size=\"1\" "
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
@@ -3154,9 +3158,8 @@ void knrooms(void)
 	);
 
 	wprintf("</select>");
-	wprintf("</form>");
-	offer_start_page();
-	wprintf("</div>\n");
+	wprintf("</form></li>");
+	wprintf("</ul></div>\n");
 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
