@@ -18,7 +18,7 @@ void display_main_menu(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=100%%>"
+		"<table class=\"advanced\">"
 		"<tr><td colspan=\"2\">\n");
 
 	svprintf("BOXTITLE", WCS_STRING, _("Basic commands"));
@@ -26,7 +26,7 @@ void display_main_menu(void)
 
 	wprintf("\n"
 		"<table border=0 cellspacing=1 cellpadding=1 width=99%%>"
-		"<tr>"
+		"<tr valign=\"top\">"
 		"<td>");	/**< start of first column */
 
 	wprintf("<ul class=\"adminitems\">");

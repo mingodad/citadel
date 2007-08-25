@@ -192,39 +192,32 @@ void set_preference(char *key, char *value, int save_to_server) {
  */
 void display_preferences(void)
 {
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	char ebuf[300];
 	char buf[256];
 	char calhourformat[16];
 	int i;
 
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/advanpage2_48x.gif\">");
-	wprintf("<h1>");
-	wprintf(_("Preferences and settings"));
-	wprintf("</h1>");
-	wprintf("<ul><li>");
-	offer_start_page();
-	wprintf("</li></ul>\n");
-	wprintf("</div>\n");
+        wprintf("<div class=\"box\">\n");
+        wprintf("<div class=\"boxlabel\">");
+        wprintf(_("Preferences and settings"));
+        wprintf("</div>");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"preferences_background\"><tr><td>\n");
+        wprintf("<div class=\"boxcontent\">");
 
 	/** begin form */
-	wprintf("<center>\n"
-		"<form name=\"prefform\" action=\"set_preferences\" "
-		"method=\"post\">\n"
-		"<table border=0 cellspacing=5 cellpadding=5>\n");
+	wprintf("<form name=\"prefform\" action=\"set_preferences\" "
+		"method=\"post\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+
+	/** begin table */
+        wprintf("<table class=\"altern\">\n");
 
 	/**
 	 * Room list view
 	 */
 	get_preference("roomlistview", buf, sizeof buf);
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Room list view"));
 	wprintf("</td><td>");
 
@@ -232,13 +225,13 @@ void display_preferences(void)
 	if (!strcasecmp(buf, "folders")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("Tree (folders) view"));
-	wprintf("<br></input>\n");
+	wprintf("</input>&nbsp;&nbsp;&nbsp;");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"rooms\"");
 	if (!strcasecmp(buf, "rooms")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("Table (rooms) view"));
-	wprintf("<br></input>\n");
+	wprintf("</input>\n");
 
 	wprintf("</td></tr>\n");
 
@@ -247,7 +240,7 @@ void display_preferences(void)
 	 */
 	get_preference("calhourformat", calhourformat, sizeof calhourformat);
 	if (calhourformat[0] == 0) strcpy(calhourformat, "12");
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Calendar hour format"));
 	wprintf("</td><td>");
 
@@ -255,13 +248,13 @@ void display_preferences(void)
 	if (!strcasecmp(calhourformat, "12")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("12 hour (am/pm)"));
-	wprintf("<br></input>\n");
+	wprintf("</input>&nbsp;&nbsp;&nbsp;");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"24\"");
 	if (!strcasecmp(calhourformat, "24")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("24 hour"));
-	wprintf("<br></input>\n");
+	wprintf("</input>\n");
 
 	wprintf("</td></tr>\n");
 
@@ -270,28 +263,28 @@ void display_preferences(void)
 	 */
 	get_preference("daystart", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "8");
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Calendar day view begins at:"));
 	wprintf("</td><td>");
 
-	wprintf("<SELECT NAME=\"daystart\" SIZE=\"1\">\n");
+	wprintf("<select name=\"daystart\" size=\"1\">\n");
 	for (i=0; i<=23; ++i) {
 
 		if (!strcasecmp(calhourformat, "24")) {
-			wprintf("<OPTION %s VALUE=\"%d\">%d:00</OPTION>\n",
-				((atoi(buf) == i) ? "SELECTED" : ""),
+			wprintf("<option %s value=\"%d\">%d:00</option>\n",
+				((atoi(buf) == i) ? "selected" : ""),
 				i, i
 			);
 		}
 		else {
-			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-				((atoi(buf) == i) ? "SELECTED" : ""),
+			wprintf("<option %s value=\"%d\">%s</option>\n",
+				((atoi(buf) == i) ? "selected" : ""),
 				i, hourname[i]
 			);
 		}
 
 	}
-	wprintf("</SELECT>\n");
+	wprintf("</select>\n");
 	wprintf("</td></tr>\n");
 
 	/**
@@ -299,28 +292,28 @@ void display_preferences(void)
 	 */
 	get_preference("dayend", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "17");
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Calendar day view ends at:"));
 	wprintf("</td><td>");
 
-	wprintf("<SELECT NAME=\"dayend\" SIZE=\"1\">\n");
+	wprintf("<select name=\"dayend\" size=\"1\">\n");
 	for (i=0; i<=23; ++i) {
 
 		if (!strcasecmp(calhourformat, "24")) {
-			wprintf("<OPTION %s VALUE=\"%d\">%d:00</OPTION>\n",
-				((atoi(buf) == i) ? "SELECTED" : ""),
+			wprintf("<option %s value=\"%d\">%d:00</option>\n",
+				((atoi(buf) == i) ? "selected" : ""),
 				i, i
 			);
 		}
 		else {
-			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-				((atoi(buf) == i) ? "SELECTED" : ""),
+			wprintf("<option %s value=\"%d\">%s</option>\n",
+				((atoi(buf) == i) ? "selected" : ""),
 				i, hourname[i]
 			);
 		}
 
 	}
-	wprintf("</SELECT>\n");
+	wprintf("</select>\n");
 	wprintf("</td></tr>\n");
 
 	/**
@@ -328,7 +321,7 @@ void display_preferences(void)
 	 */
 	get_preference("use_sig", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "no");
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Attach signature to email messages?"));
 	wprintf("</td><td>");
 
@@ -348,7 +341,7 @@ void display_preferences(void)
 	if (!strcasecmp(buf, "no")) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("No signature"));
-	wprintf("<br></input>\n");
+	wprintf("</input>&nbsp,&nbsp;&nbsp;\n");
 
 	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
 	if (!strcasecmp(buf, "yes")) wprintf(" checked");
@@ -364,7 +357,7 @@ void display_preferences(void)
 		"</div>"
 	);
 
-	wprintf("<br></input>\n");
+	wprintf("</input>\n");
 
 	wprintf("</td></tr>\n");
 
@@ -376,7 +369,7 @@ void display_preferences(void)
 	/** Character set to assume is in use for improperly encoded headers */
 	get_preference("default_header_charset", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "UTF-8");
-	wprintf("<tr><td>");
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Default character set for email headers:"));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
@@ -385,17 +378,22 @@ void display_preferences(void)
 	wprintf("</td></tr>");
 
 	/** submit buttons */
-	wprintf("</table>\n"
-		"<input type=\"submit\" name=\"change_button\" value=\"%s\">"
+	wprintf("<tr class=\"even buttons\"><td colspan=\"2\">");
+	wprintf("<input type=\"submit\" name=\"change_button\" value=\"%s\">"
 		"&nbsp;"
 		"<INPUT type=\"submit\" name=\"cancel_button\" value=\"%s\">\n",
 		_("Change"),
 		_("Cancel")
 	);
+	wprintf("</td></tr>");
+
+
+	/** end table */
+	wprintf("</table>\n");
 
 	/** end form */
-	wprintf("</form></center>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</form>\n");
+	wprintf("</div>\n");
 	wDumpContent(1);
 }
 
