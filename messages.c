@@ -3286,7 +3286,7 @@ void display_enter(void)
 	do_template("richedit");
 
 	/** Enumerate any attachments which are already in place... */
-	wprintf("<div><img src=\"static/diskette_24x.gif\" class=\"imgedit\" ");
+	wprintf("<div class=\"attachment buttons\"><img src=\"static/diskette_24x.gif\" class=\"imgedit\" > ");
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
@@ -3303,7 +3303,7 @@ void display_enter(void)
 	/** Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;");
 	wprintf(_("Attach file:"));
-	wprintf(" <input name=\"attachfile\" "
+	wprintf(" <input name=\"attachfile\" class=\"attachfile\" "
 		"size=16 type=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
 	wprintf("</div>");

@@ -1003,7 +1003,7 @@ msgstr "Passer au salon suivant"
 
 #: ../mainmenu.c:49
 msgid "(come back here later)"
-msgstr "(revenir ici plus tard)"
+msgstr "Revenir ici plus tard"
 
 #: ../mainmenu.c:54 ../roomops.c:498
 msgid "Ungoto"
@@ -1012,7 +1012,7 @@ msgstr "Revenir"
 #: ../mainmenu.c:56
 #, c-format
 msgid "(oops! Back to %s)"
-msgstr "(oops! retour à %s)"
+msgstr "oops! Retour à %s"
 
 #: ../mainmenu.c:67 ../roomops.c:507
 msgid "Read new messages"
@@ -1060,7 +1060,7 @@ msgstr "Liste des usagers"
 
 #: ../mainmenu.c:107
 msgid "(all registered users)"
-msgstr "(tous les usagers enregistrés)"
+msgstr "Tous les usagers enregistrés"
 
 #: ../mainmenu.c:113
 msgid "Bye!"
@@ -1675,11 +1675,11 @@ msgstr "Voir les contacts"
 
 #: ../roomops.c:532
 msgid "Day view"
-msgstr "Présentation par jour"
+msgstr "Vue journalière"
 
 #: ../roomops.c:541
 msgid "Month view"
-msgstr "Présentation par mois"
+msgstr "Vue mensuelle"
 
 #: ../roomops.c:552
 msgid "Calendar list"
@@ -1707,15 +1707,15 @@ msgstr "Ajouter un nouveau contact"
 
 #: ../roomops.c:635
 msgid "Add new event"
-msgstr "Ajouter un nouvel événement"
+msgstr "Ajouter un événement"
 
 #: ../roomops.c:645
 msgid "Add new task"
-msgstr "Ajouter une nouvelle tâche"
+msgstr "Ajouter une tâche"
 
 #: ../roomops.c:655
 msgid "Add new note"
-msgstr "Ajouter une nouvelle note"
+msgstr "Ajouter une note"
 
 #: ../roomops.c:667
 msgid "Edit this page"
