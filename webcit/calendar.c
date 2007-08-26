@@ -635,9 +635,15 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
-		icalcomponent_add_property(vtodo,
-			icalproperty_new_summary(bstr("summary")));
-		
+	 	if (!IsEmptyStr(bstr("summary"))) {
+	
+		 	icalcomponent_add_property(vtodo,
+				  	icalproperty_new_summary(bstr("summary")));
+	 	} else {
+		 	icalcomponent_add_property(vtodo,
+					icalproperty_new_summary("Untitled Task"));
+	 	}
+	
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
