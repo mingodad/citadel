@@ -13,6 +13,7 @@ struct UserProcList {
 };
 
 void cit_backtrace(void);
+void cit_panic_backtrace(int SigNum);
 void master_startup (void);
 void master_cleanup (int exitcode);
 void RemoveContext (struct CitContext *);
@@ -39,6 +40,7 @@ void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);
 extern int do_defrag;
+extern int panic_fd;
 char CtdlCheckExpress(void);
 
 int CtdlAccessCheck(int);

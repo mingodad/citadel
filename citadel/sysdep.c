@@ -62,6 +62,7 @@
 #include "housekeeping.h"
 #include "tools.h"
 #include "modules/crypto/serv_crypto.h"	/* Needed for init_ssl, client_write_ssl, client_read_ssl, destruct_ssl */
+#include "ecrash.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -103,8 +104,8 @@ void DestroyWorkerList(void);
  * lprintf()  ...   Write logging information
  */
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
-	char *buf;
 	va_list arg_ptr;
+	char buf[SIZ], buf2[SIZ];
 
 	if (enable_syslog) {
 		va_start(arg_ptr, format);
@@ -113,9 +114,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 	}
 
 	/* stderr output code */
-	if (enable_syslog || running_as_daemon) {
-		return;
-	}
+	if (enable_syslog || running_as_daemon) return;
 
 	/* if we run in forground and syslog is disabled, log to terminal */
 	if (loglevel <= verbosity) { 
@@ -127,10 +126,6 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
-//	begin_critical_section(S_LOG);
-
-		buf = malloc(SIZ+strlen(format));
-
 		if (CC->cs_pid != 0) {
 			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
@@ -145,13 +140,12 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec);
 		}
-		strcat(buf, format);
-		va_start(arg_ptr, buf);   
-		vfprintf(stderr, buf, arg_ptr);   
+		va_start(arg_ptr, format);   
+			vsprintf(buf2, format, arg_ptr);   
 		va_end(arg_ptr);   
+
+		fprintf(stderr, "%s%s", buf, buf2);
 		fflush(stderr);
-		free (buf);
-//	end_critical_section(S_LOG);
 	}
 }   
 
@@ -370,7 +364,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 	int s;
 	int i;
 	int actual_queue_len;
-	long ret, ret2;
+
 	actual_queue_len = queue_len;
 	if (actual_queue_len < 5) actual_queue_len = 5;
 
@@ -619,6 +613,7 @@ void client_write(char *buf, int nbytes)
 				nbytes - bytes_written,
 				strerror(errno), errno);
 			cit_backtrace();
+			lprintf(CTDL_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			CC->kill_me = 1;
 			return;
 		}
@@ -777,6 +772,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
 	CtdlDestroyServiceHook();
+	eCrash_Uninit();
 }
 
 
@@ -1161,6 +1157,9 @@ void *worker_thread(void *arg) {
 
 	cdb_allocate_tsd();
 
+	// Register for tracing
+	eCrash_RegisterThread("WorkerThread", 0);
+
 	while (!time_to_die) {
 
 		/* make doubly sure we're not holding any stale db handles
@@ -1265,7 +1264,9 @@ do_select:	force_purge = 0;
 						serviceptr->h_command_function;
 					con->h_async_function =
 						serviceptr->h_async_function;
-
+					con->ServiceName =
+						serviceptr->ServiceName;
+					
 					/* Determine whether it's a local socket */
 					if (serviceptr->sockpath != NULL)
 						con->is_local_socket = 1;
@@ -1338,6 +1339,7 @@ SKIP_SELECT:
 	}
 	if (con != NULL) free (con);//// TODO: could this harm other threads? 
 	/* If control reaches this point, the server is shutting down */	
+	eCrash_UnregisterThread();
 	return(NULL);
 }
 

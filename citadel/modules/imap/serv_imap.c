@@ -1582,16 +1582,19 @@ void imap_command_loop(void)
 }
 
 
+const char *CitadelServiceIMAP="IMAP";
+const char *CitadelServiceIMAPS="IMAPS";
+
 /*
  * This function is called to register the IMAP extension with Citadel.
  */
 CTDL_MODULE_INIT(imap)
 {
 	CtdlRegisterServiceHook(config.c_imap_port,
-				NULL, imap_greeting, imap_command_loop, NULL);
+				NULL, imap_greeting, imap_command_loop, NULL, CitadelServiceIMAP);
 #ifdef HAVE_OPENSSL
 	CtdlRegisterServiceHook(config.c_imaps_port,
-				NULL, imaps_greeting, imap_command_loop, NULL);
+				NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
 #endif
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
 

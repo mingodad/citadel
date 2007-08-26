@@ -87,14 +87,14 @@ CFLAGS=@CFLAGS@ -I ./include/
 CPPFLAGS=@CPPFLAGS@ -I. -I ./include/
 DATABASE=@DATABASE@
 DEFS=@DEFS@
-LDFLAGS=@LDFLAGS@
+LDFLAGS=@LDFLAGS@ -rdynamic
 LIBS=@LIBS@
 LIBOBJS=@LIBOBJS@
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 RESOLV=@RESOLV@
 SHELL=/bin/sh
-SERVER_LDFLAGS=@SERVER_LDFLAGS@
+SERVER_LDFLAGS=@SERVER_LDFLAGS@ -rdynamic
 SERVER_LIBS=@SERVER_LIBS@
 SETUP_LIBS=@SETUP_LIBS@
 YACC=@YACC@
@@ -108,7 +108,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c ical_dezonify.c \
-	internet_addressing.c \
+	internet_addressing.c ecrash.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	modules/autocompletion/serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
@@ -169,7 +169,7 @@ citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	routines2.o screen.o tools.o citadel_dirs.o $(LIBOBJS)
 	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o screen.o tools.o citadel_dirs.o $(LIBOBJS) \
+	routines2.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS) \
 	$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
@@ -191,7 +191,7 @@ SERV_OBJS = server_main.o \
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o mime_parser.o html.o \
 	internet_addressing.o journaling.o \
-	parsedate.o genstamp.o \
+	parsedate.o genstamp.o ecrash.o \
 	clientsocket.o modules_init.o $(AUTH) $(SERV_MODULES)
 
 citserver: $(SERV_OBJS)

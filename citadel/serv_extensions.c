@@ -776,11 +776,11 @@ void CtdlDestroyXmsgHooks(void)
 
 
 void CtdlRegisterServiceHook(int tcp_port,
-			char *sockpath,
-			void (*h_greeting_function) (void),
-			void (*h_command_function) (void),
-			void (*h_async_function) (void)
-			)
+			     char *sockpath,
+			     void (*h_greeting_function) (void),
+			     void (*h_command_function) (void),
+			     void (*h_async_function) (void),
+			     const char *ServiceName)
 {
 	struct ServiceFunctionHook *newfcn;
 	char *message;
@@ -797,13 +797,14 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->h_greeting_function = h_greeting_function;
 	newfcn->h_command_function = h_command_function;
 	newfcn->h_async_function = h_async_function;
+	newfcn->ServiceName = ServiceName;
 
 	if (sockpath != NULL) {
 		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions, &error);
 		snprintf(message, SIZ, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
-		lprintf(CTDL_INFO, "Service has been manually disabled, skipping\n");
+		lprintf(CTDL_INFO, "Service %s has been manually disabled, skipping\n", ServiceName);
 		free (message);
 		free(newfcn);
 		return;
@@ -813,8 +814,8 @@ void CtdlRegisterServiceHook(int tcp_port,
 					      tcp_port,
 					      config.c_maxsessions, 
 					      &error);
-		snprintf(message, SIZ, "TCP port %s:%d: ", 
-			 config.c_ip_addr, tcp_port);
+		snprintf(message, SIZ, "TCP port %s:%d: (%s) ", 
+			 config.c_ip_addr, tcp_port, ServiceName);
 	}
 
 	if (newfcn->msock > 0) {

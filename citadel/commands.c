@@ -58,6 +58,7 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
+#include "ecrash.h"
 
 struct citcmd {
 	struct citcmd *next;
@@ -393,9 +394,19 @@ static int async_ka_enabled = 0;
 
 static void *ka_thread(void *arg)
 {
+	char threadName[256];
+
+	// Set up our name
+	sprintf(threadName, "ka_Thread n");
+
+	// Register for tracing
+	eCrash_RegisterThread(threadName, 0);
+
 	really_do_keepalive();
 	pthread_detach(ka_thr_handle);
 	ka_thr_active = 0;
+	
+	eCrash_UnregisterThread();
 	return NULL;
 }
 

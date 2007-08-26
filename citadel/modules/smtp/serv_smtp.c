@@ -1803,7 +1803,11 @@ void smtp_cleanup_function(void) {
 
 
 
-
+const char *CitadelServiceSMTP_MTA="SMTP-MTA";
+const char *CitadelServiceSMTPS_MTA="SMTPs-MTA";
+const char *CitadelServiceSMTP_MSA="SMTP-MSA";
+const char *CitadelServiceSMTP_LMTP="LMTP";
+const char *CitadelServiceSMTP_LMTP_UNF="LMTP-UnF";
 
 CTDL_MODULE_INIT(smtp)
 {
@@ -1811,33 +1815,38 @@ CTDL_MODULE_INIT(smtp)
 				NULL,
 				smtp_mta_greeting,
 				smtp_command_loop,
-				NULL);
+				NULL, 
+				CitadelServiceSMTP_MTA);
 
 #ifdef HAVE_OPENSSL
 	CtdlRegisterServiceHook(config.c_smtps_port,
 				NULL,
 				smtps_greeting,
 				smtp_command_loop,
-				NULL);
+				NULL,
+				CitadelServiceSMTPS_MTA);
 #endif
 
 	CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
 				NULL,
 				smtp_msa_greeting,
 				smtp_command_loop,
-				NULL);
+				NULL,
+				CitadelServiceSMTP_MSA);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
 				file_lmtp_socket,
 				lmtp_greeting,
 				smtp_command_loop,
-				NULL);
+				NULL,
+				CitadelServiceSMTP_LMTP);
 
 	CtdlRegisterServiceHook(0,			/* local LMTP */
 				file_lmtp_unfiltered_socket,
 				lmtp_unfiltered_greeting,
 				smtp_command_loop,
-				NULL);
+				NULL,
+				CitadelServiceSMTP_LMTP_UNF);
 
 	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);

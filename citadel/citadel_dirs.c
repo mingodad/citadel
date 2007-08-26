@@ -59,6 +59,7 @@ char file_arcq[PATH_MAX]="";
 char file_citadel_socket[PATH_MAX]="";
 char file_mail_aliases[PATH_MAX]="";
 char file_pid_file[PATH_MAX]="";
+char file_pid_paniclog[PATH_MAX]="";
 char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
@@ -195,10 +196,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 				"%scitadel.socket",
 			 ctdl_run_dir);
 	snprintf(file_pid_file, 
-			 sizeof file_pid_file,
-				"%scitadel.pid",
-			 ctdl_run_dir);
-
+		 sizeof file_pid_file,
+		 "%scitadel.pid",
+		 ctdl_run_dir);
+	snprintf(file_pid_paniclog, 
+		 sizeof file_pid_paniclog, 
+		 "%spanic.log",
+		 ctdl_home_directory);
 	snprintf(file_crpt_file_key,
 		 sizeof file_crpt_file_key, 
 		 "%s/citadel.key",

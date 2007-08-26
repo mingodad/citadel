@@ -45,10 +45,11 @@ void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 void CtdlUnregisterProtoHook(void (*handler)(char *), char *cmd);
 
 void CtdlRegisterServiceHook(int tcp_port,
-			char *sockpath,
-                        void (*h_greeting_function) (void),
-                        void (*h_command_function) (void),
-                        void (*h_async_function) (void)
+			     char *sockpath,
+			     void (*h_greeting_function) (void),
+			     void (*h_command_function) (void),
+			     void (*h_async_function) (void),
+			     const char *ServiceName
 );
 void CtdlUnregisterServiceHook(int tcp_port,
 			char *sockpath,

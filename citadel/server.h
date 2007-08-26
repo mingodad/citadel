@@ -143,6 +143,7 @@ struct CitContext {
 	struct citmgsve *MGSVE; /**< Managesieve Session struct */
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
+	const char* ServiceName; /**< whats our actual purpose? */
 };
 
 typedef struct CitContext t_context;
@@ -437,6 +438,7 @@ struct ServiceFunctionHook {
 	void (*h_command_function) (void) ;
 	void (*h_async_function) (void) ;
 	int msock;
+	const char* ServiceName; /* this is just for debugging and logging purposes. */
 };
 extern struct ServiceFunctionHook *ServiceHookTable;
 

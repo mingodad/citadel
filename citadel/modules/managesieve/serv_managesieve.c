@@ -567,7 +567,7 @@ void managesieve_command_loop(void) {
 
 
 #endif	/* HAVE_LIBSIEVE */
-
+const char* CitadelServiceManageSieve = "ManageSieve";
 CTDL_MODULE_INIT(managesieve)
 {
 
@@ -577,7 +577,8 @@ CTDL_MODULE_INIT(managesieve)
 				NULL,
 				managesieve_greeting,
 				managesieve_command_loop,
-				NULL);
+				NULL, 
+				CitadelServiceManageSieve);
 
 #else	/* HAVE_LIBSIEVE */
 

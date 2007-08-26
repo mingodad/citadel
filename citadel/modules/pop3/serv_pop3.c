@@ -702,6 +702,8 @@ void pop3_command_loop(void) {
 
 }
 
+const char *CitadelServicePop3="POP3";
+const char *CitadelServicePop3S="POP3S";
 
 
 CTDL_MODULE_INIT(pop3)
@@ -710,13 +712,15 @@ CTDL_MODULE_INIT(pop3)
 				NULL,
 				pop3_greeting,
 				pop3_command_loop,
-				NULL);
+				NULL,
+				CitadelServicePop3);
 #ifdef HAVE_OPENSSL
 	CtdlRegisterServiceHook(config.c_pop3s_port,
 				NULL,
 				pop3s_greeting,
 				pop3_command_loop,
-				NULL);
+				NULL,
+				CitadelServicePop3S);
 #endif
 	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
 

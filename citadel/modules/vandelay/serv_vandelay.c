@@ -670,7 +670,7 @@ void artv_do_import(void) {
 			iterations = 0;
 		}
 		else {
-			cprintf(".");
+  			cprintf(".");
 			if (iterations % 64 == 0)
 				cprintf("\n");
 			

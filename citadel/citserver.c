@@ -68,6 +68,7 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 time_t server_startup_time;
+int panic_fd;
 
 /**
  * \brief print the actual stack frame.
@@ -91,6 +92,31 @@ void cit_backtrace(void)
 	free(strings);
 #endif
 }
+
+/**
+ * \brief print the actual stack frame.
+ */
+void cit_panic_backtrace(int SigNum)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[10];
+	size_t size, i;
+	char **strings;
+
+	printf("caught signal 11\n");
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			lprintf(1, "%s\n", strings[i]);
+		else
+			lprintf(1, "%p\n", stack_frames[i]);
+	}
+	free(strings);
+#endif
+	exit(-1);
+}
+
 /*
  * Various things that need to be initialized at startup
  */

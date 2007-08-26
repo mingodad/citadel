@@ -59,7 +59,7 @@
 #include "citadel_dirs.c"
 
 #include "modules_init.h"
-
+#include "ecrash.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -68,6 +68,8 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+const char *CitadelServiceUDS="citadel-UDS";
+const char *CitadelServiceTCP="citadel-TCP";
 
 /*
  * Here's where it all begins.
@@ -87,6 +89,8 @@ int main(int argc, char **argv)
 #ifdef HAVE_RUN_DIR
 	struct stat filestats;
 #endif
+	eCrashParameters params;
+//	eCrashSymbolTable symbol_table;
 
 	/* initialise semaphores here. Patch by Matt and davew
 	 * its called here as they are needed by lprintf for thread safety
@@ -154,13 +158,31 @@ int main(int argc, char **argv)
 	}
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
-
 	/* daemonize, if we were asked to */
 	if (running_as_daemon) {
 		start_daemon(0);
 		drop_root_perms = 1;
 	}
 
+	bzero(&params, sizeof(params));
+	params.filename = file_pid_paniclog;
+	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
+	params.filep = fopen(file_pid_paniclog, "a+");
+	params.debugLevel = ECRASH_DEBUG_VERBOSE;
+	params.dumpAllThreads = TRUE;
+	params.useBacktraceSymbols = 1;
+///	BuildSymbolTable(&symbol_table);
+//	params.symbolTable = &symbol_table;
+	params.signals[0]=SIGSEGV;
+	params.signals[1]=SIGILL;
+	params.signals[2]=SIGBUS;
+	params.signals[3]=SIGABRT;
+
+	eCrash_Init(&params);
+		
+	eCrash_RegisterThread("MasterThread", 0);
+
+///	signal(SIGSEGV, cit_panic_backtrace);
 	/* Initialize the syslogger.  Yes, we are really using 0 as the
 	 * facility, because we are going to bitwise-OR the facility to
 	 * the severity of each message, allowing us to write to other
@@ -222,10 +244,11 @@ int main(int argc, char **argv)
 	 * Bind the server to a Unix-domain socket.
 	 */
 	CtdlRegisterServiceHook(0,
-							file_citadel_socket,
-							citproto_begin_session,
-							do_command_loop,
-							do_async_loop);
+				file_citadel_socket,
+				citproto_begin_session,
+				do_command_loop,
+				do_async_loop,
+				CitadelServiceUDS);
 
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
@@ -234,7 +257,8 @@ int main(int argc, char **argv)
 				NULL,
 				citproto_begin_session,
 				do_command_loop,
-				do_async_loop);
+				do_async_loop,
+				CitadelServiceTCP);
 
 	/*
 	 * Load any server-side extensions available here.

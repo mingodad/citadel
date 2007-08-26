@@ -52,6 +52,7 @@
 #include "screen.h"
 #include "citadel_dirs.h"
 
+#include "ecrash.h"
 #include "md5.h"
 
 #define IFEXPERT if (userflags&US_EXPERT)
@@ -109,6 +110,23 @@ extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 extern int next_lazy_cmd;
 
 CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
+
+
+/*
+ * lprintf()  ...   Write logging information; 
+ *                  simple here to have the same 
+ *                  symbols in the client.
+ */
+enum LogLevel {CTDL_EMERG};
+
+void lprintf(enum LogLevel loglevel, const char *format, ...) {   
+	va_list arg_ptr;
+
+	va_start(arg_ptr, format);
+	vfprintf(stderr, format, arg_ptr);   
+	va_end(arg_ptr);   
+	fflush(stderr);
+}   
 
 /*
  * here is our 'clean up gracefully and exit' routine
@@ -1387,9 +1405,27 @@ int main(int argc, char **argv)
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
     int lp; 
+	eCrashParameters params;
+//	eCrashSymbolTable symbol_table;
 
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
+
+	bzero(&params, sizeof(params));
+	params.filename = file_pid_paniclog;
+//	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
+	params.filep = fopen(file_pid_paniclog, "a+");
+	params.debugLevel = ECRASH_DEBUG_VERBOSE;
+	params.dumpAllThreads = TRUE;
+	params.useBacktraceSymbols = 1;
+///	BuildSymbolTable(&symbol_table);
+//	params.symbolTable = &symbol_table;
+	params.signals[0]=SIGSEGV;
+	params.signals[1]=SIGILL;
+	params.signals[2]=SIGBUS;
+	params.signals[3]=SIGABRT;
+
+	eCrash_Init(&params);
 	
 	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(err_printf);

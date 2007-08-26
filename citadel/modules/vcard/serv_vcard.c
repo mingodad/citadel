@@ -1330,7 +1330,7 @@ void vcard_fixed_output(char *ptr, int len) {
 }
 
 
-
+const char *CitadelServiceDICT_TCP="DICT_TCP";
 
 CTDL_MODULE_INIT(vcard)
 {
@@ -1383,7 +1383,8 @@ CTDL_MODULE_INIT(vcard)
 				NULL,
 				check_get_greeting,
 				check_get,
-				NULL);
+				NULL,
+				CitadelServiceDICT_TCP);
 	
 	/* return our Subversion id for the Log */
 	return "$Id$";
