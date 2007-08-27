@@ -22,7 +22,9 @@ void recp_autocomplete(char *partial) {
 		"Server: %s\r\n"
 		"Connection: close\r\n"
 		"Pragma: no-cache\r\n"
-		"Cache-Control: no-store\r\n",
+		"Cache-Control: no-store\r\n"
+		"Expires: -1\r\n"
+		,
 		SERVER);
 	begin_burst();
 

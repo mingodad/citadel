@@ -448,6 +448,7 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 	else {
 		wprintf("Pragma: no-cache\r\n"
 			"Cache-Control: no-store\r\n"
+			"Expires: -1\r\n"
 		);
 	}
 
@@ -962,7 +963,9 @@ void begin_ajax_response(void) {
                 "Server: %s\r\n"
                 "Connection: close\r\n"
                 "Pragma: no-cache\r\n"
-                "Cache-Control: no-cache\r\n",
+                "Cache-Control: no-cache\r\n"
+		"Expires: -1\r\n"
+		,
                 SERVER);
         begin_burst();
 }
