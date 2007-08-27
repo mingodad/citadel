@@ -58,7 +58,7 @@ static char *portlist = NULL;
 static size_t nSizPort = 0;
 
 static char *errormessages = NULL;
-static size_t nSizErrmsg = 0;
+size_t nSizErrmsg = 0;
 
 
 static long   DetailErrorFlags;
