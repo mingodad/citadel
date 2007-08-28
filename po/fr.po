@@ -3012,7 +3012,7 @@ msgstr "Modifier l'information du contact"
 
 #: ../vcard_edit.c:199
 msgid "Prefix"
-msgstr "Titre"
+msgstr "Civilité"
 
 #: ../vcard_edit.c:199
 msgid "First"
