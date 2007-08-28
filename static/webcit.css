@@ -898,19 +898,6 @@ div.auto_complete ul strong.highlight {
         width: 100%;
 }
 
-.tab_cell_label {
-	font-size: 10pt;
-	font-weight: bold;
-	color: #000000;
-        background-color: #FFFFFF;
-}
-
-.tab_cell, .tab_cell_edit {
-	font-size: 10pt;
-	font-weight: bold;
-	color: #000000;
-        background-color: #CCCCCC;
-}
 
 .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
@@ -1128,6 +1115,43 @@ table.altern .odd {
 }
 
 
-.adminlist {
+.adminlist, .tabbed_dialog {
         list-style: none;
 }
+
+ul.tabbed_dialog {
+margin: 3% 0 0 2%;
+padding:0;
+float: left;
+width: 20%;
+}
+
+.tabbed_dialog .tablabel {
+margin: 0 0 3% 0;
+padding: 0.4em;
+}
+
+.tabcontent {
+margin-left: 22%;
+background-color: #ffffff;
+width: 74%;
+padding: 10px;
+height:60%;
+min-height:40%;
+max-height:90%;
+}
+
+.tab_cell_label {
+	font-size: 10pt;
+	font-weight: bold;
+	color: #000000;
+        background-color: #FFFFFF;
+}
+
+.tab_cell, .tab_cell_edit {
+	font-size: 10pt;
+	font-weight: bold;
+	color: #000000;
+        background-color: #CCCCCC;
+}
+
