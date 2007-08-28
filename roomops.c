@@ -153,7 +153,7 @@ void room_tree_list(struct roomlisting *rp)
 		wprintf(")");
 	else
 		wprintf("&gt;");
-	wprintf("</A><TT> </TT>\n");
+	wprintf("</a><tt> </tt>\n");
 
 	room_tree_list(rp->rnext);
 	free(rp);
@@ -255,7 +255,7 @@ void listrms(char *variety)
  */
 void zapped_list(void)
 {
-	output_headers(1, 1, 0, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
 	do_template("beginbox");
@@ -327,7 +327,7 @@ void embed_room_graphic(void) {
 	serv_puts("OIMG _roompic_");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("<IMG HEIGHT=64 src=\"image&name=_roompic_&room=");
+		wprintf("<img height=\"64px\" src=\"image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		serv_puts("CLOS");
@@ -1053,148 +1053,122 @@ void display_editroom(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
+	wprintf("<div class=\"fix_scrollbar_bug\">");
+
 	/** print the tabbed dialog */
-	wprintf("<br />"
-		"<div class=\"fix_scrollbar_bug\">"
-		"<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
-		"<TR ALIGN=CENTER>"
-		"<TD>&nbsp;</TD>\n");
+	wprintf("<ul class=\"tabbed_dialog\">\n");
 
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "admin")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Administration"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=admin\">");
+		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=admin\">");
+		wprintf(_("Administration"));
+		wprintf("</a>");
 	}
-	wprintf(_("Administration"));
-	if (!strcmp(tab, "admin")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
+	wprintf("</li>\n");
 
-	wprintf("<TD>&nbsp;</TD>\n");
-
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "config")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Configuration"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=config\">");
+		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=config\">");
+		wprintf(_("Configuration"));
+		wprintf("</a>");
 	}
-	wprintf(_("Configuration"));
-	if (!strcmp(tab, "config")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
-
-	wprintf("<TD>&nbsp;</TD>\n");
-
+	wprintf("</li>\n");
+	
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "expire")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Message expire policy"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=expire\">");
+		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=expire\">");
+		wprintf(_("Message expire policy"));
+		wprintf("</a>");
 	}
-	wprintf(_("Message expire policy"));
-	if (!strcmp(tab, "expire")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
+	wprintf("</li>\n");
 
-	wprintf("<TD>&nbsp;</TD>\n");
-
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "access")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Access controls"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=access\">");
+		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=access\">");
+		wprintf(_("Access controls"));
+		wprintf("</a>");
 	}
-	wprintf(_("Access controls"));
-	if (!strcmp(tab, "access")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
+	wprintf("</li>\n");
 
-	wprintf("<TD>&nbsp;</TD>\n");
-
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "sharing")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Sharing"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
+		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
+		wprintf(_("Sharing"));
+		wprintf("</a>");
 	}
-	wprintf(_("Sharing"));
-	if (!strcmp(tab, "sharing")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
+	wprintf("</li>\n");
 
-	wprintf("<TD>&nbsp;</TD>\n");
-
+	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "listserv")) {
-		wprintf("<TD class=\"roomops_cell_label\"><SPAN CLASS=\"tablabel\">");
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Mailing list service"));
 	}
 	else {
-		wprintf("<TD class=\"roomops_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
+		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
+		wprintf(_("Mailing list service"));
+		wprintf("</a>");
 	}
-	wprintf(_("Mailing list service"));
-	if (!strcmp(tab, "listserv")) {
-		wprintf("</SPAN></TD>\n");
-	}
-	else {
-		wprintf("</A></TD>\n");
-	}
+	wprintf("</li>\n");
 
-	wprintf("<TD>&nbsp;</TD>\n");
-
-	wprintf("</TR></TABLE></div>\n");
+	wprintf("</ul>\n");
 	/** end tabbed dialog */	
 
 	/** begin content of whatever tab is open now */
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<TABLE class=\"roomops_background\">\n"
-		"<TR><TD>\n");
 
 	if (!strcmp(tab, "admin")) {
-		wprintf("<UL>"
-			"<LI><a href=\"delete_room\" "
+		wprintf("<div class=\"tabcontent\">");
+		wprintf("<ul>"
+			"<li><a href=\"delete_room\" "
 			"onClick=\"return confirm('");
 		wprintf(_("Are you sure you want to delete this room?"));
 		wprintf("');\">\n");
 		wprintf(_("Delete this room"));
-		wprintf("</A>\n"
-			"<LI><a href=\"display_editroompic\">\n");
+		wprintf("</a>\n"
+			"<li><a href=\"display_editroompic\">\n");
 		wprintf(_("Set or change the icon for this room's banner"));
-		wprintf("</A>\n"
-			"<LI><a href=\"display_editinfo\">\n");
+		wprintf("</a>\n"
+			"<li><a href=\"display_editinfo\">\n");
 		wprintf(_("Edit this room's Info file"));
-		wprintf("</A>\n"
-			"</UL>");
+		wprintf("</a>\n"
+			"</ul>");
+		wprintf("</div>");
 	}
 
 	if (!strcmp(tab, "config")) {
-		wprintf("<FORM METHOD=\"POST\" action=\"editroom\">\n");
+		wprintf("<div class=\"tabcontent\">");
+		wprintf("<form method=\"POST\" action=\"editroom\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	
-		wprintf("<UL><LI>");
+		wprintf("<ul><li>");
 		wprintf(_("Name of room: "));
-		wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
+		wprintf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
 			er_name,
 			(sizeof(er_name)-1)
 		);
 	
-		wprintf("<LI>");
+		wprintf("<li>");
 		wprintf(_("Resides on floor: "));
-		wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+		wprintf("<select NAME=\"er_floor\" SIZE=\"1\">\n");
 		for (i = 0; i < 128; ++i)
 			if (!IsEmptyStr(floorlist[i])) {
 				wprintf("<OPTION ");
@@ -1204,36 +1178,36 @@ void display_editroom(void)
 				escputs(floorlist[i]);
 				wprintf("</OPTION>\n");
 			}
-		wprintf("</SELECT>\n");
+		wprintf("</select>\n");
 	
-		wprintf("<LI>");
+		wprintf("<li>");
 		wprintf(_("Type of room:"));
-		wprintf("<UL>\n");
+		wprintf("<ul>\n");
 
-		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
+		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
 		if ((er_flags & QR_PRIVATE) == 0)
 		wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Public (automatically appears to everyone)"));
 		wprintf("\n");
 
-		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
+		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
 		if ((er_flags & QR_PRIVATE) &&
 		    (er_flags & QR_GUESSNAME))
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
+		wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
 		if ((er_flags & QR_PRIVATE) &&
 		    (er_flags & QR_PASSWORDED))
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Private - require password: "));
-		wprintf("\n<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
+		wprintf("\n<input type=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
 			er_password);
 	
-		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
+		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
 		if ((er_flags & QR_PRIVATE)
 		    && ((er_flags & QR_GUESSNAME) == 0)
 		    && ((er_flags & QR_PASSWORDED) == 0))
@@ -1241,76 +1215,76 @@ void display_editroom(void)
 		wprintf("> ");
 		wprintf(_("Private - invitation only"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
 		wprintf("> ");
 		wprintf(_("If private, cause current users to forget room"));
 	
-		wprintf("\n</UL>\n");
+		wprintf("\n</ul>\n");
 	
-		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
+		wprintf("<li><input type=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
 		if (er_flags & QR_PREFONLY)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Preferred users only"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
 		if (er_flags & QR_READONLY)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Read-only room"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
 		if (er_flags2 & QR2_COLLABDEL)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("All users allowed to post may also delete messages"));
 	
 		/** directory stuff */
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
 		if (er_flags & QR_DIRECTORY)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("File directory room"));
 
-		wprintf("\n<UL><LI>");
+		wprintf("\n<ul><li>");
 		wprintf(_("Directory name: "));
-		wprintf("<INPUT TYPE=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",
+		wprintf("<input type=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",
 			er_dirname);
 
-		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
+		wprintf("<li><input type=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
 		if (er_flags & QR_UPLOAD)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Uploading allowed"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
 		if (er_flags & QR_DOWNLOAD)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Downloading allowed"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
 		if (er_flags & QR_VISDIR)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Visible directory"));
-		wprintf("</UL>\n");
+		wprintf("</ul>\n");
 	
 		/** end of directory stuff */
 	
-		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
+		wprintf("<li><input type=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
 		if (er_flags & QR_NETWORK)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Network shared room"));
 
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
 		if (er_flags & QR_PERMANENT)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Permanent (does not auto-purge)"));
 
-		wprintf("\n<LI><INPUT TYPE=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
+		wprintf("\n<li><input type=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
 		if (er_flags2 & QR2_SUBJECTREQ)
 			wprintf("CHECKED ");
 		wprintf("> ");
@@ -1318,33 +1292,33 @@ void display_editroom(void)
 
 		/** start of anon options */
 	
-		wprintf("\n<LI>");
+		wprintf("\n<li>");
 		wprintf(_("Anonymous messages"));
-		wprintf("<UL>\n");
+		wprintf("<ul>\n");
 	
-		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
+		wprintf("<li><input type=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
 		if (((er_flags & QR_ANONONLY) == 0)
 		    && ((er_flags & QR_ANONOPT) == 0))
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("No anonymous messages"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
+		wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
 		if (er_flags & QR_ANONONLY)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("All messages are anonymous"));
 	
-		wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
+		wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
 		if (er_flags & QR_ANONOPT)
 			wprintf("CHECKED ");
 		wprintf("> ");
 		wprintf(_("Prompt user when entering messages"));
-		wprintf("</UL>\n");
+		wprintf("</ul>\n");
 	
 	/* end of anon options */
 	
-		wprintf("<LI>");
+		wprintf("<li>");
 		wprintf(_("Room aide: "));
 		serv_puts("GETA");
 		serv_getln(buf, sizeof buf);
@@ -1352,23 +1326,25 @@ void display_editroom(void)
 			wprintf("<em>%s</em>\n", &buf[4]);
 		} else {
 			extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
-			wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+			wprintf("<input type=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
 		}
 	
-		wprintf("</UL><CENTER>\n");
-		wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
-			"<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
+		wprintf("</ul><CENTER>\n");
+		wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
+			"<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
 			"&nbsp;"
-			"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
+			"<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
 			"</CENTER>\n",
 			_("Save changes"),
 			_("Cancel")
 		);
+		wprintf("</div>");
 	}
 
 
 	/** Sharing the room with other Citadel nodes... */
 	if (!strcmp(tab, "sharing")) {
+		wprintf("<div class=\"tabcontent\">");
 
 		shared_with = strdup("");
 		not_shared_with = strdup("");
@@ -1415,41 +1391,41 @@ void display_editroom(void)
 
 		/** Display the stuff */
 		wprintf("<CENTER><br />"
-			"<TABLE border=1 cellpadding=5><TR>"
-			"<TD><B><I>");
+			"<table border=1 cellpadding=5><tr>"
+			"<td><B><I>");
 		wprintf(_("Shared with"));
-		wprintf("</I></B></TD>"
-			"<TD><B><I>");
+		wprintf("</I></B></td>"
+			"<td><B><I>");
 		wprintf(_("Not shared with"));
-		wprintf("</I></B></TD></TR>\n"
-			"<TR><TD VALIGN=TOP>\n");
+		wprintf("</I></B></td></tr>\n"
+			"<tr><td VALIGN=TOP>\n");
 
-		wprintf("<TABLE border=0 cellpadding=5><TR class=\"roomops_cell\"><TD>");
+		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
 		wprintf(_("Remote node name"));
-		wprintf("</TD><TD>");
+		wprintf("</td><td>");
 		wprintf(_("Remote room name"));
-		wprintf("</TD><TD>");
+		wprintf("</td><td>");
 		wprintf(_("Actions"));
-		wprintf("</TD></TR>\n");
+		wprintf("</td></tr>\n");
 
 		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
 			extract_token(buf, shared_with, i, '\n', sizeof buf);
 			extract_token(node, buf, 0, '|', sizeof node);
 			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
 			if (!IsEmptyStr(node)) {
-				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
+				wprintf("<form method=\"POST\" action=\"netedit\">");
 				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-				wprintf("<TR><TD>%s</TD>\n", node);
+				wprintf("<tr><td>%s</td>\n", node);
 
-				wprintf("<TD>");
+				wprintf("<td>");
 				if (!IsEmptyStr(remote_room)) {
 					escputs(remote_room);
 				}
-				wprintf("</TD>");
+				wprintf("</td>");
 
-				wprintf("<TD>");
+				wprintf("<td>");
 		
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"line\" "
+				wprintf("<input type=\"hidden\" NAME=\"line\" "
 					"VALUE=\"ignet_push_share|");
 				urlescputs(node);
 				if (!IsEmptyStr(remote_room)) {
@@ -1457,77 +1433,79 @@ void display_editroom(void)
 					urlescputs(remote_room);
 				}
 				wprintf("\">");
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" "
+				wprintf("<input type=\"hidden\" NAME=\"tab\" "
 					"VALUE=\"sharing\">\n");
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"cmd\" "
+				wprintf("<input type=\"hidden\" NAME=\"cmd\" "
 					"VALUE=\"remove\">\n");
-				wprintf("<INPUT TYPE=\"submit\" "
+				wprintf("<input type=\"submit\" "
 					"NAME=\"unshare_button\" VALUE=\"%s\">", _("Unshare"));
-				wprintf("</TD></TR></FORM>\n");
+				wprintf("</td></tr></form>\n");
 			}
 		}
 
-		wprintf("</TABLE>\n");
-		wprintf("</TD><TD VALIGN=TOP>\n");
-		wprintf("<TABLE border=0 cellpadding=5><TR class=\"roomops_cell\"><TD>");
+		wprintf("</table>\n");
+		wprintf("</td><td VALIGN=TOP>\n");
+		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
 		wprintf(_("Remote node name"));
-		wprintf("</TD><TD>");
+		wprintf("</td><td>");
 		wprintf(_("Remote room name"));
-		wprintf("</TD><TD>");
+		wprintf("</td><td>");
 		wprintf(_("Actions"));
-		wprintf("</TD></TR>\n");
+		wprintf("</td></tr>\n");
 
 		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
 			extract_token(node, not_shared_with, i, '\n', sizeof node);
 			if (!IsEmptyStr(node)) {
-				wprintf("<FORM METHOD=\"POST\" action=\"netedit\">");
+				wprintf("<form method=\"POST\" action=\"netedit\">");
 				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-				wprintf("<TR><TD>");
+				wprintf("<tr><td>");
 				escputs(node);
-				wprintf("</TD><TD>"
-					"<INPUT TYPE=\"INPUT\" "
+				wprintf("</td><td>"
+					"<input type=\"INPUT\" "
 					"NAME=\"suffix\" "
 					"MAXLENGTH=128>"
-					"</TD><TD>");
-				wprintf("<INPUT TYPE=\"hidden\" "
+					"</td><td>");
+				wprintf("<input type=\"hidden\" "
 					"NAME=\"line\" "
 					"VALUE=\"ignet_push_share|");
 				urlescputs(node);
 				wprintf("|\">");
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" "
+				wprintf("<input type=\"hidden\" NAME=\"tab\" "
 					"VALUE=\"sharing\">\n");
-				wprintf("<INPUT TYPE=\"hidden\" NAME=\"cmd\" "
+				wprintf("<input type=\"hidden\" NAME=\"cmd\" "
 					"VALUE=\"add\">\n");
-				wprintf("<INPUT TYPE=\"submit\" "
+				wprintf("<input type=\"submit\" "
 					"NAME=\"add_button\" VALUE=\"%s\">", _("Share"));
-				wprintf("</TD></TR></FORM>\n");
+				wprintf("</td></tr></form>\n");
 			}
 		}
 
-		wprintf("</TABLE>\n");
-		wprintf("</TD></TR>"
-			"</TABLE></CENTER><br />\n"
-			"<I><B>%s</B><UL><LI>", _("Notes:"));
+		wprintf("</table>\n");
+		wprintf("</td></tr>"
+			"</table></CENTER><br />\n"
+			"<I><B>%s</B><ul><li>", _("Notes:"));
 		wprintf(_("When sharing a room, "
 			"it must be shared from both ends.  Adding a node to "
 			"the 'shared' list sends messages out, but in order to"
 			" receive messages, the other nodes must be configured"
 			" to send messages out to your system as well. "
-			"<LI>If the remote room name is blank, it is assumed "
+			"<li>If the remote room name is blank, it is assumed "
 			"that the room name is identical on the remote node."
-			"<LI>If the remote room name is different, the remote "
+			"<li>If the remote room name is different, the remote "
 			"node must also configure the name of the room here."
-			"</UL></I><br />\n"
+			"</ul></I><br />\n"
 		));
 
+		wprintf("</div>");
 	}
 
 	/** Mailing list management */
 	if (!strcmp(tab, "listserv")) {
+		wprintf("<div class=\"tabcontent\">");
 
 		wprintf("<br /><center>"
-			"<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
-			"<TR><TD VALIGN=TOP>");
+			"<table BORDER=0 WIDTH=100%% CELLPADDING=5>"
+			"<tr><td VALIGN=TOP>");
 
 		wprintf(_("<i>The contents of this room are being "
 			"mailed <b>as individual messages</b> "
@@ -1549,15 +1527,15 @@ void display_editroom(void)
 				wprintf("</A><br />");
 			}
 		}
-		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
+		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
+			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
+			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<INPUT TYPE=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
-		wprintf("</FORM>\n");
+		wprintf("<input type=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
+		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
+		wprintf("</form>\n");
 
-		wprintf("</TD><TD VALIGN=TOP>\n");
+		wprintf("</td><td VALIGN=TOP>\n");
 		
 		wprintf(_("<i>The contents of this room are being "
 			"mailed <b>in digest form</b> "
@@ -1580,15 +1558,15 @@ void display_editroom(void)
 				wprintf("</A><br />");
 			}
 		}
-		wprintf("<br /><FORM METHOD=\"POST\" action=\"netedit\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
+		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
+			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
+			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<INPUT TYPE=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
-		wprintf("</FORM>\n");
+		wprintf("<input type=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
+		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
+		wprintf("</form>\n");
 		
-		wprintf("</TD></TR></TABLE>\n");
+		wprintf("</td></tr></table>\n");
 
 		/** Pop open an address book -- begin **/
 		wprintf("<div align=right>"
@@ -1627,11 +1605,13 @@ void display_editroom(void)
 
 
 		wprintf("</CENTER>\n");
+		wprintf("</div>");
 	}
 
 
 	/** Mailing list management */
 	if (!strcmp(tab, "expire")) {
+		wprintf("<div class=\"tabcontent\">");
 
 		serv_puts("GPEX room");
 		serv_getln(buf, sizeof buf);
@@ -1647,83 +1627,86 @@ void display_editroom(void)
 			floorvalue = extract_int(&buf[4], 1);
 		}
 		
-		wprintf("<br /><FORM METHOD=\"POST\" action=\"set_room_policy\">\n");
+		wprintf("<br /><form method=\"POST\" action=\"set_room_policy\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<TABLE border=0 cellspacing=5>\n");
-		wprintf("<TR><TD>");
+		wprintf("<table border=0 cellspacing=5>\n");
+		wprintf("<tr><td>");
 		wprintf(_("Message expire policy for this room"));
 		wprintf("<br />(");
 		escputs(WC->wc_roomname);
-		wprintf(")</TD><TD>");
-		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
+		wprintf(")</td><td>");
+		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
 			((roompolicy == 0) ? "CHECKED" : "") );
 		wprintf(_("Use the default policy for this floor"));
 		wprintf("<br />\n");
-		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
+		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
 			((roompolicy == 1) ? "CHECKED" : "") );
 		wprintf(_("Never automatically expire messages"));
 		wprintf("<br />\n");
-		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
+		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
 			((roompolicy == 2) ? "CHECKED" : "") );
 		wprintf(_("Expire by message count"));
 		wprintf("<br />\n");
-		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
+		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
 			((roompolicy == 3) ? "CHECKED" : "") );
 		wprintf(_("Expire by message age"));
 		wprintf("<br />");
 		wprintf(_("Number of messages or days: "));
-		wprintf("<INPUT TYPE=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
-		wprintf("</TD></TR>\n");
+		wprintf("<input type=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
+		wprintf("</td></tr>\n");
 
 		if (WC->axlevel >= 6) {
-			wprintf("<TR><TD COLSPAN=2><hr /></TD></TR>\n");
-			wprintf("<TR><TD>");
+			wprintf("<tr><td COLSPAN=2><hr /></td></tr>\n");
+			wprintf("<tr><td>");
 			wprintf(_("Message expire policy for this floor"));
 			wprintf("<br />(");
 			escputs(floorlist[WC->wc_floor]);
-			wprintf(")</TD><TD>");
-			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
+			wprintf(")</td><td>");
+			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
 				((floorpolicy == 0) ? "CHECKED" : "") );
 			wprintf(_("Use the system default"));
 			wprintf("<br />\n");
-			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
+			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
 				((floorpolicy == 1) ? "CHECKED" : "") );
 			wprintf(_("Never automatically expire messages"));
 			wprintf("<br />\n");
-			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
+			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
 				((floorpolicy == 2) ? "CHECKED" : "") );
 			wprintf(_("Expire by message count"));
 			wprintf("<br />\n");
-			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
+			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
 				((floorpolicy == 3) ? "CHECKED" : "") );
 			wprintf(_("Expire by message age"));
 			wprintf("<br />");
 			wprintf(_("Number of messages or days: "));
-			wprintf("<INPUT TYPE=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
+			wprintf("<input type=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
 				floorvalue);
 		}
 
 		wprintf("<CENTER>\n");
-		wprintf("<TR><TD COLSPAN=2><hr /><CENTER>\n");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
+		wprintf("<tr><td COLSPAN=2><hr /><CENTER>\n");
+		wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 		wprintf("&nbsp;");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-		wprintf("</CENTER></TD><TR>\n");
+		wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
+		wprintf("</CENTER></td><tr>\n");
 
-		wprintf("</TABLE>\n"
-			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
-			"</FORM>\n"
+		wprintf("</table>\n"
+			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
+			"</form>\n"
 		);
 
+		wprintf("</div>");
 	}
 
 	/** Mailing list management */
 	if (!strcmp(tab, "access")) {
+		wprintf("<div class=\"tabcontent\">");
 		display_whok();
+		wprintf("</div>");
 	}
 
 	/** end content of whatever tab is open now */
-	wprintf("</TD></TR></TABLE></div>\n");
+	wprintf("</div>\n");
 
 	address_book_popup();
 	wDumpContent(1);
@@ -1991,16 +1974,16 @@ void display_whok(void)
         extract_token(room, &buf[4], 0, '|', sizeof room);
 
         
-	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP><TD>");
+	wprintf("<table border=0 CELLSPACING=10><tr VALIGN=TOP><td>");
 	wprintf(_("The users listed below have access to this room.  "
 		"To remove a user from the access list, select the user "
 		"name from the list and click 'Kick'."));
 	wprintf("<br /><br />");
 	
-        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"do_invt_kick\">\n");
+        wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
-        wprintf("<SELECT NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
+	wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
+        wprintf("<select NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
         serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
@@ -2011,27 +1994,27 @@ void display_whok(void)
                         wprintf("\n");
                 }
         }
-        wprintf("</SELECT><br />\n");
+        wprintf("</select><br />\n");
 
         wprintf("<input type=\"submit\" name=\"kick_button\" value=\"%s\">", _("Kick"));
-        wprintf("</FORM></CENTER>\n");
+        wprintf("</form></CENTER>\n");
 
-	wprintf("</TD><TD>");
+	wprintf("</td><td>");
 	wprintf(_("To grant another user access to this room, enter the "
 		"user name in the box below and click 'Invite'."));
 	wprintf("<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" action=\"do_invt_kick\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
+        wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
+	wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
         wprintf(_("Invite:"));
 	wprintf(" ");
         wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
         	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
         	"<input type=\"submit\" value=\"%s\">"
-		"</FORM></CENTER>\n", _("Invite"));
+		"</form></CENTER>\n", _("Invite"));
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
         wDumpContent(1);
 }
 
@@ -2054,37 +2037,36 @@ void display_entroom(void)
 		return;
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Create a new room"));
-	wprintf("</h1>");
-	wprintf("</div>");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"roomops_background\"><tr><td>\n");
+	svprintf("BOXTITLE", WCS_STRING, _("Create a new room"));
+	do_template("beginbox");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
-	wprintf("<UL><LI>");
-	wprintf(_("Name of room: "));
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"127\">\n");
+	wprintf("<table class=\"altern\"> ");
 
-        wprintf("<LI>");
+	wprintf("<tr class=\"even\"><td>");
+	wprintf(_("Name of room: "));
+	wprintf("</td><td>");
+	wprintf("<input type=\"text\" NAME=\"er_name\" MAXLENGTH=\"127\">\n");
+        wprintf("</td></tr>");
+
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Resides on floor: "));
+	wprintf("</td><td>");
         load_floorlist(); 
-        wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+        wprintf("<select name=\"er_floor\" size=\"1\">\n");
         for (i = 0; i < 128; ++i)
                 if (!IsEmptyStr(floorlist[i])) {
-                        wprintf("<OPTION ");
-                        wprintf("VALUE=\"%d\">", i);
+                        wprintf("<option ");
+                        wprintf("value=\"%d\">", i);
                         escputs(floorlist[i]);
-                        wprintf("</OPTION>\n");
+                        wprintf("</option>\n");
                 }
-        wprintf("</SELECT>\n");
+        wprintf("</select>\n");
+        wprintf("</td></tr>");
 
 		/**
 		 * Our clever little snippet of JavaScript automatically selects
@@ -2092,9 +2074,10 @@ void display_entroom(void)
 		 * it selects a mailbox room otherwise.  The user can override this,
 		 * of course.  We also disable the floor selector for mailboxes.
 		 */
-		wprintf("<LI>");
-		wprintf(_("Default view for room: "));
-        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\" OnChange=\""
+	wprintf("<tr class=\"even\"><td>");
+	wprintf(_("Default view for room: "));
+	wprintf("</td><td>");
+        wprintf("<select name=\"er_view\" size=\"1\" OnChange=\""
 		"	if ( (this.form.er_view.value == 0)		"
 		"	   || (this.form.er_view.value == 6) ) {	"
 		"		this.form.type[0].checked=true;		"
@@ -2107,70 +2090,80 @@ void display_entroom(void)
 		"\">\n");
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
 		if (is_view_allowed_as_default(i)) {
-			wprintf("<OPTION %s VALUE=\"%d\">",
-				((i == 0) ? "SELECTED" : ""), i );
+			wprintf("<option %s value=\"%d\">",
+				((i == 0) ? "selected" : ""), i );
 			escputs(viewdefs[i]);
-			wprintf("</OPTION>\n");
+			wprintf("</option>\n");
 		}
 	}
-	wprintf("</SELECT>\n");
+	wprintf("</select>\n");
+	wprintf("</td></tr>");
 
-	wprintf("<LI>");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Type of room:"));
-	wprintf("<UL>\n");
+	wprintf("</td><td>");
+	wprintf("<ul class=\"adminlist\">\n");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
+	wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
 	wprintf("CHECKED OnChange=\""
 		"	if (this.form.type[0].checked == true) {	"
 		"		this.form.er_floor.disabled = false;	"
 		"	}						"
 		"\"> ");
 	wprintf(_("Public (automatically appears to everyone)"));
+	wprintf("</li>");
 
-	wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"hidden\" OnChange=\""
+	wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" OnChange=\""
 		"	if (this.form.type[1].checked == true) {	"
 		"		this.form.er_floor.disabled = false;	"
 		"	}						"
 		"\"> ");
 	wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
+	wprintf("</li>");
 
-	wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" OnChange=\""
+	wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" OnChange=\""
 		"	if (this.form.type[2].checked == true) {	"
 		"		this.form.er_floor.disabled = false;	"
 		"	}						"
 		"\"> ");
 	wprintf(_("Private - require password: "));
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" MAXLENGTH=\"9\">\n");
+	wprintf("<input type=\"text\" NAME=\"er_password\" MAXLENGTH=\"9\">\n");
+	wprintf("</li>");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" OnChange=\""
+	wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" OnChange=\""
 		"	if (this.form.type[3].checked == true) {	"
 		"		this.form.er_floor.disabled = false;	"
 		"	}						"
 		"\"> ");
 	wprintf(_("Private - invitation only"));
+	wprintf("</li>");
 
-	wprintf("\n<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"personal\" "
+	wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"personal\" "
 		"OnChange=\""
 		"	if (this.form.type[4].checked == true) {	"
 		"		this.form.er_floor.disabled = true;	"
 		"	}						"
 		"\"> ");
 	wprintf(_("Personal (mailbox for you only)"));
+	wprintf("</li>");
 
-	wprintf("\n</UL>\n");
+	wprintf("\n</ul>\n");
+	wprintf("</td></tr></table>\n");
 
-	wprintf("<CENTER>\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Create new room"));
+	wprintf("<div class=\"buttons\">\n");
+	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">", _("Create new room"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-	wprintf("</CENTER>\n");
-	wprintf("</FORM>\n<hr />");
+	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">", _("Cancel"));
+	wprintf("</div>\n");
+	wprintf("</form>\n<hr />");
 	serv_printf("MESG roomaccess");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		fmout("CENTER");
+		fmout("LEFT");
 	}
-	wprintf("</td></tr></table></div>\n");
+
+	do_template("endbox");
+
 	wDumpContent(1);
 }
 
@@ -2267,54 +2260,48 @@ void entroom(void)
  */
 void display_private(char *rname, int req_pass)
 {
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Go to a hidden room"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	svprintf("BOXTITLE", WCS_STRING, _("Go to a hidden room"));
+	do_template("beginbox");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"roomops_background\"><tr><td>\n");
-
-	wprintf("<CENTER>\n");
-	wprintf("<br />");
+	wprintf("<p>");
 	wprintf(_("If you know the name of a hidden (guess-name) or "
 		"passworded room, you can enter that room by typing "
 		"its name below.  Once you gain access to a private "
 		"room, it will appear in your regular room listings "
 		"so you don't have to keep returning here."));
-	wprintf("\n<br /><br />");
+	wprintf("</p>");
 
-	wprintf("<FORM METHOD=\"POST\" action=\"goto_private\">\n");
+	wprintf("<form method=\"post\" action=\"goto_private\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 
-	wprintf("<table border=\"0\" cellspacing=\"5\" "
-		"cellpadding=\"5\" class=\"roomops_background_alt\">\n"
-		"<TR><TD>");
+	wprintf("<table class=\"altern\"> "
+		"<tr class=\"even\"><td>");
 	wprintf(_("Enter room name:"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"gr_name\" "
-		"VALUE=\"%s\" MAXLENGTH=\"128\">\n", rname);
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"gr_name\" "
+		"value=\"%s\" maxlength=\"128\">\n", rname);
 
 	if (req_pass) {
-		wprintf("</TD></TR><TR><TD>");
+		wprintf("</td></tr><tr class=\"odd\"><td>");
 		wprintf(_("Enter room password:"));
-		wprintf("</TD><TD>");
-		wprintf("<INPUT TYPE=\"password\" NAME=\"gr_pass\" MAXLENGTH=\"9\">\n");
+		wprintf("</td><td>");
+		wprintf("<input type=\"password\" name=\"gr_pass\" maxlength=\"9\">\n");
 	}
-	wprintf("</TD></TR></TABLE><br />\n");
+	wprintf("</td></tr></table>\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
+	wprintf("<div class=\"buttons\">\n");
+	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">",
+		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">",
 		_("Go there"),
 		_("Cancel")
 	);
-	wprintf("</FORM>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</div></form>\n");
+
+	do_template("endbox");
+
 	wDumpContent(1);
 }
 
@@ -2372,12 +2359,12 @@ void display_zap(void)
 		"disappear from your room list.  Is this what you wish "
 		"to do?<br />\n"), WC->wc_roomname);
 
-	wprintf("<FORM METHOD=\"POST\" action=\"zap\">\n");
+	wprintf("<form method=\"POST\" action=\"zap\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
+	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-	wprintf("</FORM>\n");
+	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
+	wprintf("</form>\n");
 	wDumpContent(1);
 }
 
@@ -2644,17 +2631,17 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 
 		if (levels == 1) {
-			wprintf("<SPAN CLASS=\"roomlist_floor\">");
+			wprintf("<span class=\"roomlist_floor\">");
 		}
 		else if (fold[i].hasnewmsgs) {
-			wprintf("<SPAN CLASS=\"roomlist_new\">");
+			wprintf("<span class=\"roomlist_new\">");
 		}
 		else {
-			wprintf("<SPAN CLASS=\"roomlist_old\">");
+			wprintf("<span class=\"roomlist_old\">");
 		}
 		extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 		escputs(buf);
-		wprintf("</SPAN>");
+		wprintf("</span>");
 
 		wprintf("</a>', ");
 		if (has_subfolders) {
@@ -2730,7 +2717,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	if (boxes_per_column < 1) boxes_per_column = 1;
 
 	/** Outer table (for columnization) */
-	wprintf("<TABLE BORDER=0 WIDTH=96%% CELLPADDING=5>"
+	wprintf("<table BORDER=0 WIDTH=96%% CELLPADDING=5>"
 		"<tr><td valign=top>");
 
 	levels = 0;
@@ -2777,14 +2764,14 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 				wprintf("<i>");
 			}
 			if (fold[i].hasnewmsgs) {
-				wprintf("<SPAN CLASS=\"roomlist_new\">");
+				wprintf("<span class=\"roomlist_new\">");
 			}
 			else {
-				wprintf("<SPAN CLASS=\"roomlist_old\">");
+				wprintf("<span class=\"roomlist_old\">");
 			}
 			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 			escputs(buf);
-			wprintf("</SPAN>");
+			wprintf("</span>");
 			if (fold[i].selectable) {
 				wprintf("</A>");
 			}
@@ -2800,7 +2787,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	/** End the final inner box */
 	do_template("endbox");
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 }
 
 /**
@@ -2902,17 +2889,17 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 				wprintf("<i>");
 			}
 			if (fold[i].hasnewmsgs) {
-				wprintf("<SPAN CLASS=\"ib_roomlist_new\">");
+				wprintf("<span class=\"ib_roomlist_new\">");
 			}
 			else {
-				wprintf("<SPAN CLASS=\"ib_roomlist_old\">");
+				wprintf("<span class=\"ib_roomlist_old\">");
 			}
 			extract_token(buf, fold[i].name, levels-1, '|', sizeof buf);
 			escputs(buf);
 			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 				wprintf(" (INBOX)");
 			}
-			wprintf("</SPAN>");
+			wprintf("</span>");
 			if (fold[i].selectable) {
 				wprintf("</A>");
 			}
