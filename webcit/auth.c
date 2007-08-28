@@ -463,27 +463,17 @@ void display_changepw(void)
 {
 	char buf[SIZ];
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Change your password"));
-	wprintf("</h1>");
-	wprintf("</div>");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	svprintf("BOXTITLE", WCS_STRING, _("Change your password"));
+	do_template("beginbox");
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
-		do_template("beginbox_nt");
-		wprintf("<SPAN CLASS=\"errormsg\">"
-			"%s</SPAN><br />\n", WC->ImportantMessage);
-		do_template("endbox");
+		wprintf("<span class=\"errormsg\">"
+			"%s</span><br />\n", WC->ImportantMessage);
 		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"auth_validate\"><tr><td>\n");
-
-	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
@@ -492,24 +482,25 @@ void display_changepw(void)
 
 	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-	wprintf("<CENTER>"
-		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
-		"BGCOLOR=\"#EEEEEE\">"
-		"<TR><TD>");
+	wprintf("<table class=\"altern\" ");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Enter new password:"));
-	wprintf("</TD>\n");
-	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
-	wprintf("<TR><TD>");
+	wprintf("</td><td>");
+	wprintf("<input type=\"password\" name=\"newpass1\" value=\"\" maxlength=\"20\"></td></tr>\n");
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Enter it again to confirm:"));
-	wprintf("</TD>\n");
-	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
+	wprintf("</td><td>");
+	wprintf("<input type=\"password\" name=\"newpass2\" value=\"\" maxlength=\"20\"></td></tr>\n");
+	wprintf("</table>\n");
 
-	wprintf("</TABLE><br />\n");
-	wprintf("<INPUT type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
+	wprintf("<div class=\"buttons\">\n");
+	wprintf("<input type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</form></center>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("<input type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
+	wprintf("</div>\n");
+	wprintf("</form>\n");
+
+	do_template("endbox");
 	wDumpContent(1);
 }
 

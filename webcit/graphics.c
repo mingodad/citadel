@@ -20,25 +20,16 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	}
 	output_headers(1, 1, 0, 0, 0, 0);
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Image upload"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	svprintf("BOXTITLE", WCS_STRING, _("Image upload"));
+	do_template("beginbox");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"graphics_background\"><tr><td>\n");
-
-	wprintf("<CENTER>\n");
-
-	wprintf("<FORM ENCTYPE=\"multipart/form-data\" action=\"%s\" "
-		"METHOD=\"POST\" NAME=\"graphicsupload\">\n", uplurl);
+	wprintf("<form enctype=\"multipart/form-data\" action=\"%s\" "
+		"method=\"post\" name=\"graphicsupload\">\n", uplurl);
 
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"which_room\" VALUE=\"");
+	wprintf("<input type=\"hidden\" name=\"which_room\" value=\"");
 	urlescputs(bstr("which_room"));
 	wprintf("\">\n");
 
@@ -48,17 +39,18 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<br /><br />\n");
 
 	wprintf(_("Please select a file to upload:"));
-	wprintf("<br /><br />\n");
-	wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
-	wprintf("<br /><br />");
-	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"upload_button\" VALUE=\"%s\">\n", _("Upload"));
+	wprintf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
+	wprintf("<div class=\"buttons\">");
+	wprintf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"%s\">\n", _("Reset form"));
+	wprintf("<input type=\"reset\" value=\"%s\">\n", _("Reset form"));
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
-	wprintf("</FORM>\n");
-	wprintf("</CENTER>\n");
-	wprintf("</td></tr></table></div>\n");
+	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wprintf("</div>\n");
+	wprintf("</form>\n");
+
+	do_template("endbox");
+
 	wDumpContent(1);
 }
 

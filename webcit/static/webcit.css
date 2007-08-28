@@ -167,9 +167,9 @@ li.search form, li.view form {
 	padding: 0;
 }
 
-li.nummsgs {
+p.nummsgs {
         font-size: 10pt;
-        color: #DDDDCC;
+        color: #FFFFFF;
 }
 
 li.start_page {
@@ -899,7 +899,7 @@ div.auto_complete ul strong.highlight {
 }
 
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
+.event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
         border: 0;
         width: 100%;
         background-color: #ffffff;
@@ -910,13 +910,13 @@ div.auto_complete ul strong.highlight {
         width: 100%;
 }
 
-.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background    {
+.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background    {
         border: 0;
         width: 100%;
         background-color: #ffffff;
 }
 
-.vcard_edit_background_alt, .roomops_background_alt {
+.roomops_background_alt {
         border: 0;
         width: 100%;
         background-color: #dddddd;

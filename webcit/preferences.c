@@ -377,19 +377,18 @@ void display_preferences(void)
 	wprintf("\">");
 	wprintf("</td></tr>");
 
+	/** end table */
+	wprintf("</table>\n");
+
 	/** submit buttons */
-	wprintf("<tr class=\"even buttons\"><td colspan=\"2\">");
+	wprintf("<div class=\"buttons\"> ");
 	wprintf("<input type=\"submit\" name=\"change_button\" value=\"%s\">"
 		"&nbsp;"
 		"<INPUT type=\"submit\" name=\"cancel_button\" value=\"%s\">\n",
 		_("Change"),
 		_("Cancel")
 	);
-	wprintf("</td></tr>");
-
-
-	/** end table */
-	wprintf("</table>\n");
+	wprintf("</div>\n");
 
 	/** end form */
 	wprintf("</form>\n");

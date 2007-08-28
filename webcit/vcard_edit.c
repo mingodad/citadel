@@ -174,14 +174,10 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	}
 
 	/** Display the form */
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/savecontact_48x.gif\">");
-	wprintf("<h1>");
-	wprintf(_("Edit contact information"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	output_headers(1, 1, 1, 0, 0, 0);
+
+	svprintf("BOXTITLE", WCS_STRING, _("Edit contact information"));
+	do_template("beginbox");
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
@@ -324,16 +320,17 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	urlescputs(return_to);
 	wprintf("\">\n");
 
-	wprintf("<center>\n"
+	wprintf("<div class=\"buttons\">\n"
 		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
 		"&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
-		"</center></form>\n",
+		"</div></form>\n",
 		_("Save changes"),
 		_("Cancel")
 	);
 	
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</td></tr></table>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
