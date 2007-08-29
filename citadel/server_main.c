@@ -89,9 +89,10 @@ int main(int argc, char **argv)
 #ifdef HAVE_RUN_DIR
 	struct stat filestats;
 #endif
+#ifdef HAVE_BACKTRACE
 	eCrashParameters params;
 //	eCrashSymbolTable symbol_table;
-
+#endif
 	/* initialise semaphores here. Patch by Matt and davew
 	 * its called here as they are needed by lprintf for thread safety
 	 */
@@ -164,6 +165,7 @@ int main(int argc, char **argv)
 		drop_root_perms = 1;
 	}
 
+#ifdef HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
 	params.filename = file_pid_paniclog;
 	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
@@ -183,6 +185,7 @@ int main(int argc, char **argv)
 	eCrash_RegisterThread("MasterThread", 0);
 
 ///	signal(SIGSEGV, cit_panic_backtrace);
+#endif
 	/* Initialize the syslogger.  Yes, we are really using 0 as the
 	 * facility, because we are going to bitwise-OR the facility to
 	 * the severity of each message, allowing us to write to other

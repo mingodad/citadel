@@ -394,6 +394,7 @@ static int async_ka_enabled = 0;
 
 static void *ka_thread(void *arg)
 {
+#ifdef HAVE_BACKTRACE
 	char threadName[256];
 
 	// Set up our name
@@ -401,12 +402,14 @@ static void *ka_thread(void *arg)
 
 	// Register for tracing
 	eCrash_RegisterThread(threadName, 0);
-
+#endif
 	really_do_keepalive();
 	pthread_detach(ka_thr_handle);
 	ka_thr_active = 0;
 	
+#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
+#endif
 	return NULL;
 }
 

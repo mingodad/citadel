@@ -27,7 +27,7 @@
 #include "ecrash.h"
 
 #define NIY()	printf("%s: Not Implemented Yet!\n", __FUNCTION__)
-
+#ifdef HAVE_BACKTRACE
 static eCrashParameters gbl_params;
 static int gbl_fd=-1;
 
@@ -644,3 +644,4 @@ int eCrash_UnregisterThread( void )
 	return removeThreadFromList(pthread_self());
 } /* eCrash_UnregisterThread */
 
+#endif

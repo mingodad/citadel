@@ -1405,12 +1405,14 @@ int main(int argc, char **argv)
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
     int lp; 
+#ifdef HAVE_BACKTRACE
 	eCrashParameters params;
 //	eCrashSymbolTable symbol_table;
-
+#endif
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
+#ifdef HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
 	params.filename = file_pid_paniclog;
 //	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
@@ -1426,7 +1428,7 @@ int main(int argc, char **argv)
 	params.signals[3]=SIGABRT;
 
 	eCrash_Init(&params);
-	
+#endif	
 	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(err_printf);
 	setCryptoStatusHook(statusHook);
