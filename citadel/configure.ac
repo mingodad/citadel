@@ -299,9 +299,23 @@ AC_CHECK_FUNCS(crypt gethostbyname connect )
 
 dnl disable backtrace if we don't want it.
 AC_ARG_WITH(backtrace, 
-		    [  --with-backtrace          Disable backtrace dumps in the syslog],
+		    [  --with-backtrace          enable backtrace dumps in the syslog],
 			[ if test "x$withval" != "xno" ; then
+			     CFLAGS="$CFLAGS  -rdynamic "
+			     LDFLAGS="$LDFLAGS  -rdynamic "
+			     SERVER_LDFLAGS="$SERVER_LDFLAGS  -rdynamic "
                              AC_CHECK_FUNCS(backtrace)
+			  fi
+			]
+)
+
+dnl disable backtrace if we don't want it.
+AC_ARG_WITH(gprof, 
+		    [  --with-gprof          enable profiling],
+			[ if test "x$withval" != "xno" ; then
+			     CFLAGS="$CFLAGS  -pg "
+			     LDFLAGS="$LDFLAGS  -pg "
+			     SERVER_LDFLAGS="$SERVER_LDFLAGS  -pg "
 			  fi
 			]
 )

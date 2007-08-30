@@ -76,7 +76,6 @@ int panic_fd;
 void cit_backtrace(void)
 {
 #ifdef HAVE_BACKTRACE
-snatoehu
 	void *stack_frames[50];
 	size_t size, i;
 	char **strings;
