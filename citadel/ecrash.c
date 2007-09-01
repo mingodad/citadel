@@ -21,13 +21,13 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <execinfo.h>
 #include <pthread.h>
 #include "sysdep_decls.h"
 #include "ecrash.h"
 
 #define NIY()	printf("%s: Not Implemented Yet!\n", __FUNCTION__)
 #ifdef HAVE_BACKTRACE
+#include <execinfo.h>
 static eCrashParameters gbl_params;
 static int gbl_fd=-1;
 

@@ -772,7 +772,9 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
 	CtdlDestroyServiceHook();
+	#ifdef HAVE_BACKTRACE
 	eCrash_Uninit();
+	#endif
 }
 
 
@@ -1158,8 +1160,9 @@ void *worker_thread(void *arg) {
 	cdb_allocate_tsd();
 
 	// Register for tracing
+	#ifdef HAVE_BACKTRACE
 	eCrash_RegisterThread("WorkerThread", 0);
-
+	#endif
 	while (!time_to_die) {
 
 		/* make doubly sure we're not holding any stale db handles
@@ -1339,7 +1342,9 @@ SKIP_SELECT:
 	}
 	if (con != NULL) free (con);//// TODO: could this harm other threads? 
 	/* If control reaches this point, the server is shutting down */	
+	#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
+	#endif
 	return(NULL);
 }
 
