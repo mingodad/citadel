@@ -36,9 +36,12 @@ void do_tasks_view(void) {
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
 	time_t event_tt;
+	time_t event_tte;
 	struct tm event_tm;
+	struct tm event_te;
 	struct tm today_tm;
 	icalproperty *p = NULL;
+	icalproperty *pe = NULL;
 	icalproperty *q = NULL;
 	struct icaltimetype t;
 	int month, day, year;
@@ -59,7 +62,12 @@ void calendar_month_view_display_events(time_t thetime) {
 	for (i=0; i<(WC->num_cal); ++i) {
 		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
-		if (p != NULL) {
+		pe = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+						      ICAL_DTEND_PROPERTY);
+		if ((p != NULL) && (pe != NULL)) {
+			t = icalproperty_get_dtend(pe);
+			event_tte = icaltime_as_timet(t);
+
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
 
@@ -68,14 +76,19 @@ void calendar_month_view_display_events(time_t thetime) {
 
 			if (all_day_event) {
 				gmtime_r(&event_tt, &event_tm);
+				gmtime_r(&event_tte, &event_te);
 			}
 			else {
 				localtime_r(&event_tt, &event_tm);
+				localtime_r(&event_tte, &event_te);
 			}
 
-			if ((event_tm.tm_year == today_tm.tm_year)
-			   && (event_tm.tm_mon == today_tm.tm_mon)
-			   && (event_tm.tm_mday == today_tm.tm_mday)) {
+			if ((event_tm.tm_year <= today_tm.tm_year)
+			   && (event_tm.tm_mon <= today_tm.tm_mon)
+			   && (event_tm.tm_mday <= today_tm.tm_mday)
+			   && (event_te.tm_year >= today_tm.tm_year)
+			   && (event_te.tm_mon >= today_tm.tm_mon)
+			   && (event_te.tm_mday >= today_tm.tm_mday)) {
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i].cal,
@@ -587,9 +600,13 @@ void calendar_day_view_display_events(int year, int month,
 					int day, int hour) {
 	int i;
 	icalproperty *p;
+	icalproperty *pe = NULL;
 	struct icaltimetype t;
+	struct icaltimetype te;
 	time_t event_tt;
-	struct tm *event_tm;
+	time_t event_tte;
+	struct tm event_te;
+	struct tm event_tm;
 	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
@@ -600,7 +617,12 @@ void calendar_day_view_display_events(int year, int month,
 	for (i=0; i<(WC->num_cal); ++i) {
 		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
-		if (p != NULL) {
+		pe = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+						      ICAL_DTEND_PROPERTY);
+		if ((p != NULL) && (pe != NULL)) {
+			te = icalproperty_get_dtend(pe);
+			event_tte = icaltime_as_timet(te);
+
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
 			if (t.is_date) {
@@ -611,19 +633,23 @@ void calendar_day_view_display_events(int year, int month,
 			}
 
 			if (all_day_event) {
-				event_tm = gmtime(&event_tt);
+				gmtime_r(&event_tt, &event_tm);
+				gmtime_r(&event_tte, &event_te);
 			}
 			else {
-				event_tm = localtime(&event_tt);
+				localtime_r(&event_tt, &event_tm);
+				localtime_r(&event_tte, &event_te);
 			}
 
-			if ((event_tm->tm_year == (year-1900))
-			   && (event_tm->tm_mon == (month-1))
-			   && (event_tm->tm_mday == day)
-			   && ( ((event_tm->tm_hour == hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)) )
-			   ) {
-
-
+			if ((event_tm.tm_year <= (year-1900))
+			    && (event_tm.tm_mon <= (month-1))
+			    && (event_tm.tm_mday <= day)
+			    && ( ((event_tm.tm_hour <= hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)))
+			    && (event_te.tm_year >= (year-1900))
+			    && (event_te.tm_mon >= (month-1))
+			    && (event_te.tm_mday >= day)
+			    && ( ((event_te.tm_hour >= hour)&&(!te.is_date)) || ((hour<0)&&(te.is_date)) ))
+			{
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
