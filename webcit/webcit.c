@@ -1646,8 +1646,6 @@ void session_loop(struct httprequest *req)
 		delete_node();
 	} else if (!strcasecmp(action, "display_add_node")) {
 		display_add_node();
-	} else if (!strcasecmp(action, "add_node")) {
-		add_node();
 	} else if (!strcasecmp(action, "terminate_session")) {
 		slrp_highest();
 		terminate_session();

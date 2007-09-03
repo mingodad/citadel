@@ -556,7 +556,6 @@ void display_netconf(void);
 void display_confirm_delete_node(void);
 void delete_node(void);
 void display_add_node(void);
-void add_node(void);
 void terminate_session(void);
 void edit_me(void);
 void display_siteconfig(void);
