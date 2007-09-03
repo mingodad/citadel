@@ -31,24 +31,28 @@ void edit_node(void) {
 						fprintf(fp, "%s\n", buf);
 					}
 				}
-			fprintf(fp, "%s|%s|%s|%s\n", 
+			rewind(fp);
+		}
+
+		serv_puts("CONF putsys|application/x-citadel-ignet-config");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '4') {
+			if (fp != NULL) {
+				while (fgets(buf, sizeof buf, fp) != NULL) {
+					buf[strlen(buf)-1] = 0;
+					if (buf[0] != 0) {
+						serv_puts(buf);
+					}
+				}
+				fclose(fp);
+			}
+			serv_printf("%s|%s|%s|%s", 
 				bstr("node"),
 				bstr("secret"),
 				bstr("host"),
 				bstr("port") );
 			}
-			rewind(fp);
-
-			serv_puts("CONF putsys|application/x-citadel-ignet-config");
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '4') {
-				while (fgets(buf, sizeof buf, fp) != NULL) {
-					buf[strlen(buf)-1] = 0;
-					serv_puts(buf);
-				}
-				serv_puts("000");
-			}
-			fclose(fp);
+			serv_puts("000");
 		}
 	}
 
@@ -80,7 +84,7 @@ void display_add_node(void)
 	wprintf("<TR><TD>%s</TD>", _("Host or IP address"));
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"host\" MAXLENGTH=\"64\"></TD></TR>\n");
 	wprintf("<TR><TD>%s</TD>", _("Port number"));
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\"></TD></TR>\n");
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" VALUE=\"504\" MAXLENGTH=\"8\"></TD></TR>\n");
 	wprintf("</TABLE><br />");
        	wprintf("<INPUT TYPE=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Add node"));
 	wprintf("&nbsp;");
@@ -288,34 +292,6 @@ void delete_node(void)
 	}
 
 	display_netconf();
-}
-
-/**
- * \brief add a new node
- */
-void add_node(void)
-{
-	char node[SIZ];
-	char buf[SIZ];
-
-	strcpy(node, bstr("node"));
-
-	if (!IsEmptyStr(bstr("add_button")))  {
-		sprintf(buf, "NSET addnode|%s", node);
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') {
-			output_headers(1, 1, 0, 0, 0, 0);
-			server_to_text();
-			wprintf("<a href=\"display_netconf\">");
-			wprintf(_("Back to menu"));
-			wprintf("</A>\n");
-			wDumpContent(1);
-		} else {
-			strcpy(WC->ImportantMessage, &buf[4]);
-			display_netconf();
-		}
-	}
 }
 
 
