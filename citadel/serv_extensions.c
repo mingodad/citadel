@@ -61,7 +61,7 @@ static char *errormessages = NULL;
 size_t nSizErrmsg = 0;
 
 
-static long   DetailErrorFlags;
+long   DetailErrorFlags;
 
 char *ErrSubject = "Startup Problems";
 char *ErrGeneral = "Citadel had trouble on starting up. %s This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
@@ -107,6 +107,8 @@ void LogPrintMessages(long err)
 
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
+	lprintf(0,Message);
+	lprintf(0,ErrSubject);
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
 	if (errormessages!=NULL) free (errormessages);
 	errormessages = NULL;

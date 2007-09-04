@@ -43,7 +43,7 @@ $ECHO $MINUS_e "#include \"modules_init.h\"\n" >> $C_FILE
 $ECHO $MINUS_e "#include \"sysdep_decls.h\"\n" >> $C_FILE
 $ECHO $MINUS_e "\n\n\n" >> $C_FILE
 $ECHO $MINUS_e "void LogPrintMessages(long err);\n" >> $C_FILE
-$ECHO $MINUS_e "static long DetailErrorFlags;\n" >> $C_FILE
+$ECHO $MINUS_e "extern long DetailErrorFlags;\n" >> $C_FILE
 $ECHO $MINUS_e "\n\n\n" >> $C_FILE
 
 $ECHO $MINUS_e "void initialise_modules (void)\n" >> $C_FILE
