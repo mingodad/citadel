@@ -1679,7 +1679,16 @@ int CtdlOutputPreLoadedMsg(
 				else if (i == 'N')
 					safestrncpy(snode, mptr, sizeof snode);
 				else if (i == 'R')
-					cprintf("To: %s%s", mptr, nl);
+				{
+					if (haschar(mptr, '@') == 0)
+					{
+						cprintf("To: %s@%s%s", mptr, config.c_fqdn, nl);
+					}
+					else
+					{
+						cprintf("To: %s%s", mptr, nl);
+					}
+				}
 				else if (i == 'T') {
 					datestring(datestamp, sizeof datestamp,
 						atol(mptr), DATESTRING_RFC822);
