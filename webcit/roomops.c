@@ -3110,6 +3110,7 @@ void knrooms(void)
 
 	/** title bar */
 	wprintf("<div id=\"banner\">\n");
+	wprintf("<div class=\"room_banner\">");
 	wprintf("<h1>");
 	if (!strcasecmp(listviewpref, "rooms")) {
 		wprintf(_("Room list"));
@@ -3120,7 +3121,7 @@ void knrooms(void)
 	if (!strcasecmp(listviewpref, "table")) {
 		wprintf(_("Room list"));
 	}
-	wprintf("</h1>\n");
+	wprintf("</h1></div>\n");
 
 	/** offer the ability to switch views */
 	wprintf("<ul class=\"room_actions\">\n");

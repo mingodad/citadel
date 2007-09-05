@@ -143,12 +143,14 @@ void who(void)
 	);
 
 	wprintf("<div id=\"banner\">\n");
+	wprintf("<div class=\"room_banner\">");
 	wprintf("<img src=\"static/usermanag_48x.gif\">");
 	wprintf("<h1>");
 	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
 	escputs(title);
-	wprintf("</h1>");
-        wprintf("<ul><li class=\"start_page\">");
+	wprintf("</h1></div>");
+	wprintf("<ul class=\"room_actions\">\n");
+	wprintf("<li class=\"start_page\">");
 	offer_start_page();
 	wprintf("</li></ul>");
 	wprintf("</div>");
