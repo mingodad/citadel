@@ -769,18 +769,22 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 		sprintf(&text[strlen(text)], CTDLSIEVECONFIGSEPARATOR);
 	}
 
-	/* Save the config */
-	quickie_message("Citadel", NULL, NULL, u->config_roomname,
-			text,
-			4,
-			"Sieve configuration"
-	);
-	
-	free (text);
-	/* And delete the old one */
-	if (u->config_msgnum > 0) {
-		CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "");
+	if (yes_write_to_disk)
+	{
+		/* Save the config */
+		quickie_message("Citadel", NULL, NULL, u->config_roomname,
+				text,
+				4,
+				"Sieve configuration"
+		);
+		
+		/* And delete the old one */
+		if (u->config_msgnum > 0) {
+			CtdlDeleteMessages(u->config_roomname, &u->config_msgnum, 1, "");
+		}
 	}
+
+	free (text);
 
 }
 
