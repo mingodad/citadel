@@ -1093,11 +1093,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 	/** Boring old 80-column fixed format text gets handled this way... */
 	else if ( (!strcasecmp(mime_content_type, "text/plain"))
 		|| (!strcasecmp(mime_content_type, "text")) ) {
+		buf [0] = '\0';
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			int len;
 			len = strlen(buf);
-			if (buf[len-1] == '\n') buf[--len] = 0;
-			if (buf[len-1] == '\r') buf[--len] = 0;
+			if ((len > 0) && buf[len-1] == '\n') buf[--len] = 0;
+			if ((len > 0) && buf[len-1] == '\r') buf[--len] = 0;
 
 #ifdef HAVE_ICONV
 			if (ic != (iconv_t)(-1) ) {
