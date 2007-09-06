@@ -404,6 +404,7 @@ struct wcsession {
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	int nonce;				/**< session nonce (to prevent session riding) */
+	int time_format_cache;                  /**< which timeformat does our user like? */
 };
 
 /** values for WC->current_iconbar */
@@ -717,6 +718,7 @@ void end_tab(int tabnum, int num_tabs);
 void str_wiki_index(char *s);
 void display_wiki_page(void);
 char *bmstrcasestr(char *text, char *pattern);
+int get_time_format_cached (void);
 
 #ifdef HAVE_ICONV
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);
@@ -780,3 +782,10 @@ void http_datestring(char *buf, size_t n, time_t xtime);
  */
 #define WC_EXIT_BIND		101	/* Can't bind to the port */
 #define WC_EXIT_SSL		102	/* Can't initialize SSL */
+
+
+#define WC_TIMEFORMAT_NONE 0
+#define WC_TIMEFORMAT_AMPM 1
+#define WC_TIMEFORMAT_24 2
+
+

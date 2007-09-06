@@ -52,9 +52,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	time_t monthselect_time;
 	struct tm monthselect_tm;
 	char monthselect_str[32];
-	char calhourformat[16];
-
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
+	int time_format;
+	
+	time_format = get_time_format_cached ();
 
 	now = time(NULL);
 	localtime_r(&now, &tm_now);
@@ -116,7 +116,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 
-		if (!strcasecmp(calhourformat, "24")) {
+	if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
 				((tm.tm_hour == i) ? "SELECTED" : ""),
 				i, i
