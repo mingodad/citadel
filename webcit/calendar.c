@@ -776,6 +776,7 @@ void display_using_handler(long msgnum,
 	char *relevant_source = NULL;
 	icalcomponent *cal, *c;
 
+	relevant_partnum[0] = '\0';
 	sprintf(buf, "MSG0 %ld|0", msgnum);	/* unfortunately we need the mime headers */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
