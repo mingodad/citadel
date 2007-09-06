@@ -204,15 +204,16 @@ void wDumpContent(int print_standard_html_footer)
  * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
  * \param nolinebreaks if set, linebreaks are removed from the string.
  */
-void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
+long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
 {
-	char *aptr, *bptr;
+	char *aptr, *bptr, *eptr;
 
 	*target = '\0';
 	aptr = strbuf;
 	bptr = target;
+	eptr = target + tSize - 6; // our biggest unit to put in... 
 
-	while (!IsEmptyStr(aptr) ){
+	while ((bptr < eptr) && !IsEmptyStr(aptr) ){
 		if (*aptr == '<') {
 			memcpy(bptr, "&lt;", 4);
 			bptr += 4;
@@ -250,10 +251,10 @@ void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 			bptr += 6;
 		}
 		else if ((*aptr == '\n') && (nolinebreaks)) {
-			strcat(bptr, "");	/* nothing */
+			*bptr='\0';	/* nothing */
 		}
 		else if ((*aptr == '\r') && (nolinebreaks)) {
-			strcat(bptr, "");	/* nothing */
+			*bptr='\0';	/* nothing */
 		}
 		else{
 			*bptr = *aptr;
@@ -262,6 +263,9 @@ void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 		aptr ++;
 	}
 	*bptr = '\0';
+	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+		return -1;
+	return (bptr - target);
 }
 
 /**
@@ -273,10 +277,12 @@ void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
 	char *buf;
+	long Siz;
 
 	if (strbuf == NULL) return;
-	buf = malloc( (3 * strlen(strbuf)) + SIZ );
-	stresc(buf, strbuf, nbsp, nolinebreaks);
+	Siz = (3 * strlen(strbuf)) + SIZ ;
+	buf = malloc(Siz);
+	stresc(buf, Siz, strbuf, nbsp, nolinebreaks);
 	wprintf("%s", buf);
 	free(buf);
 }
@@ -412,7 +418,7 @@ void msgescputs1( char *strbuf)
 	outbuf = malloc( buflen);
 	outbuf2 = malloc( buflen);
 	msgesc(outbuf, strbuf);
-	stresc(outbuf2, outbuf, 0, 0);
+	stresc(outbuf2, buflen, outbuf, 0, 0);
 	wprintf("%s", outbuf2);
 	free(outbuf);
 	free(outbuf2);

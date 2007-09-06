@@ -80,7 +80,7 @@ void page_user(void)
 		if (buf[0] == '4') {
 			text_to_server(bstr("msgtext"));
 			serv_puts("000");
-			stresc(buf, recp, 0, 0);
+			stresc(buf, 256, recp, 0, 0);
 			snprintf(WC->ImportantMessage,
 				sizeof WC->ImportantMessage,
 				"%s%s.",

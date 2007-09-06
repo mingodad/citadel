@@ -57,7 +57,7 @@ void display_note(long msgnum)
 	}
 
 	/** Make it HTML-happy and print it. */
-	stresc(display_notetext, notetext, 0, 0);
+	stresc(display_notetext, SIZ, notetext, 0, 0);
 	if (!IsEmptyStr(eid)) {
 		wprintf("<span id=\"note%s\">%s</span><br />\n", eid, display_notetext);
 	}
@@ -121,7 +121,7 @@ void updatenote(void)
 			}
 		
 			/** Make it HTML-happy and print it. */
-			stresc(display_notetext, notetext, 0, 0);
+			stresc(display_notetext, SIZ, notetext, 0, 0);
 			wprintf("%s\n", display_notetext);
 		}
 	}
