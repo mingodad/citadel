@@ -50,10 +50,10 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	struct tm today_tm;
 	time_t today_timet;
 	int hour;
-	char calhourformat[16];
-
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
-
+	int time_format;
+	
+	time_format = get_time_format_cached ();
+/// TODO: what about the time format?
 	today_timet = time(NULL);
 	localtime_r(&today_timet, &today_tm);
 
@@ -91,6 +91,25 @@ void fmt_date(char *buf, time_t thetime, int brief)
 
 
 /**
+ * \brief learn the users timeformat preference.
+ */
+int get_time_format_cached (void)
+{
+	char calhourformat[16];
+	int *time_format_cache;
+	time_format_cache = &(WC->time_format_cache);
+	if (*time_format_cache == WC_TIMEFORMAT_NONE)
+	{
+		get_preference("calhourformat", calhourformat, sizeof calhourformat);
+		if (!strcasecmp(calhourformat, "24")) 
+			*time_format_cache = WC_TIMEFORMAT_24;
+		else
+			*time_format_cache = WC_TIMEFORMAT_AMPM;
+	}
+	return *time_format_cache;
+}
+
+/**
  * \brief Format TIME ONLY for output 
  * \param buf the output buffer
  * \param thetime time to format into buf
@@ -99,10 +118,9 @@ void fmt_time(char *buf, time_t thetime)
 {
 	struct tm *tm;
 	int hour;
-	char calhourformat[16];
-
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
-
+	int time_format;
+	
+	time_format = get_time_format_cached ();
 	buf[0] = 0;
 	tm = localtime(&thetime);
 	hour = tm->tm_hour;
@@ -111,7 +129,7 @@ void fmt_time(char *buf, time_t thetime)
 	else if (hour > 12)
 		hour = hour - 12;
 
-	if (!strcasecmp(calhourformat, "24")) {
+	if (time_format == WC_TIMEFORMAT_24) {
 		sprintf(buf, "%2d:%02d",
 			tm->tm_hour, tm->tm_min
 		);

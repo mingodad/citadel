@@ -195,8 +195,10 @@ void display_preferences(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	char ebuf[300];
 	char buf[256];
-	char calhourformat[16];
 	int i;
+	int time_format;
+	
+	time_format = get_time_format_cached ();
 
         wprintf("<div class=\"box\">\n");
         wprintf("<div class=\"boxlabel\">");
@@ -238,20 +240,21 @@ void display_preferences(void)
 	/**
 	 * Calendar hour format
 	 */
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
-	if (calhourformat[0] == 0) strcpy(calhourformat, "12");
+
 	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Calendar hour format"));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"12\"");
-	if (!strcasecmp(calhourformat, "12")) wprintf(" checked");
+	if (time_format == WC_TIMEFORMAT_AMPM) 
+		wprintf(" checked");
 	wprintf(">");
 	wprintf(_("12 hour (am/pm)"));
 	wprintf("</input>&nbsp;&nbsp;&nbsp;");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"24\"");
-	if (!strcasecmp(calhourformat, "24")) wprintf(" checked");
+	if (time_format == WC_TIMEFORMAT_24)
+		wprintf(" checked");
 	wprintf(">");
 	wprintf(_("24 hour"));
 	wprintf("</input>\n");
@@ -270,7 +273,7 @@ void display_preferences(void)
 	wprintf("<select name=\"daystart\" size=\"1\">\n");
 	for (i=0; i<=23; ++i) {
 
-		if (!strcasecmp(calhourformat, "24")) {
+		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<option %s value=\"%d\">%d:00</option>\n",
 				((atoi(buf) == i) ? "selected" : ""),
 				i, i
@@ -299,7 +302,7 @@ void display_preferences(void)
 	wprintf("<select name=\"dayend\" size=\"1\">\n");
 	for (i=0; i<=23; ++i) {
 
-		if (!strcasecmp(calhourformat, "24")) {
+		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<option %s value=\"%d\">%d:00</option>\n",
 				((atoi(buf) == i) ? "selected" : ""),
 				i, i
@@ -401,7 +404,11 @@ void display_preferences(void)
  */
 void set_preferences(void)
 {
+	char *fmt;
 	char ebuf[300];
+	int *time_format_cache;
+	
+	time_format_cache = &(WC->time_format_cache);
 
 	if (IsEmptyStr(bstr("change_button"))) {
 		safestrncpy(WC->ImportantMessage, 
@@ -416,7 +423,13 @@ void set_preferences(void)
 	 * we don't send the prefs file to the server repeatedly
 	 */
 	set_preference("roomlistview", bstr("roomlistview"), 0);
-	set_preference("calhourformat", bstr("calhourformat"), 0);
+	fmt = bstr("calhourformat");
+	set_preference("calhourformat", fmt, 0);
+	if (!strcasecmp(fmt, "24")) 
+		*time_format_cache = WC_TIMEFORMAT_24;
+	else
+		*time_format_cache = WC_TIMEFORMAT_AMPM;
+
 	set_preference("use_sig", bstr("use_sig"), 0);
 	set_preference("daystart", bstr("daystart"), 0);
 	set_preference("dayend", bstr("dayend"), 0);

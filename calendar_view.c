@@ -220,11 +220,12 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	struct icaltimetype t;
 	int month, day, year;
 	int all_day_event = 0;
-	char calhourformat[16];
 	char *timeformat;
+	int time_format;
+	
+	time_format = get_time_format_cached ();
 
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
-	if (!strcasecmp(calhourformat, "24")) 	timeformat="%k:%M";
+	if (time_format == WC_TIMEFORMAT_24) timeformat="%k:%M";
 	else timeformat="%I:%M %p";
 
 	localtime_r(&thetime, &today_tm);
@@ -710,14 +711,14 @@ void calendar_day_view_display_events(int year, int month,
 void calendar_day_view(int year, int month, int day) {
 	int hour;
 	struct icaltimetype today, yesterday, tomorrow;
-	char calhourformat[16];
 	int daystart = 8;
 	int dayend = 17;
 	char daystart_str[16], dayend_str[16];
 	struct tm d_tm;
 	char d_str[128];
-
-	get_preference("calhourformat", calhourformat, sizeof calhourformat);
+	int time_format;
+	
+	time_format = get_time_format_cached ();
 	get_preference("daystart", daystart_str, sizeof daystart_str);
 	if (!IsEmptyStr(daystart_str)) daystart = atoi(daystart_str);
 	get_preference("dayend", dayend_str, sizeof dayend_str);
@@ -773,7 +774,7 @@ void calendar_day_view(int year, int month, int day) {
 			year, month, day, hour
 		);
 
-		if (!strcasecmp(calhourformat, "24")) {
+		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("%2d:00</a> ", hour);
 		}
 		else {

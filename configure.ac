@@ -363,7 +363,6 @@ AC_ARG_WITH(backtrace,
 			  fi
 			]
 )
-echo "$CFLAGS $LDFLAGS"
 
 if test "$prefix" = NONE; then
 	LOCALEDIR=$ac_default_prefix
