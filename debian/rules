@@ -11,14 +11,18 @@
 
 DESTDIR=$(CURDIR)/debian/citadel-webcit
 
-
-
-CFLAGS = -Wall -g -ggdb
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
+EXTRA_ARGS=
+PROFILE_ARGS=
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling"
+ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
+	PROFILE_ARGS= --with-gprof
+endif
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP 
+	LDFLAGS += -pg 
+	EXTRA_ARGS =  --with-backtrace
 else
-	CFLAGS += -O0 -ggdb
+	CFLAGS += -O2
 endif
 
 configure: configure-stamp
@@ -34,7 +38,8 @@ configure-stamp:
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
 		--with-zlib --with-ssl --with-libiconf \
-		--with-newt --with-included-gettext
+		--with-newt --with-included-gettext \
+		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
 
 	touch configure-stamp
 

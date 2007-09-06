@@ -94,7 +94,6 @@ dnl AC_HEADER_TIME
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(backtrace)
 AC_REPLACE_FUNCS(snprintf)
 
 dnl Checks for the libical calendaring library.
@@ -145,6 +144,7 @@ if test "x$ok_zlib" = xyes ; then
         LIBS="-lz $LIBS"
         AC_DEFINE(HAVE_ZLIB)
 fi
+
 
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
@@ -343,6 +343,27 @@ fi
 
 AC_SUBST(SETUP_LIBS)
 
+dnl disable backtrace if we don't want it.
+AC_ARG_WITH(gprof, 
+		    [  --with-gprof          enable profiling],
+			[ if test "x$withval" != "xno" ; then
+			     CFLAGS="$CFLAGS  -pg "
+			     LDFLAGS="$LDFLAGS  -pg "
+			  fi
+			]
+)
+
+dnl disable backtrace if we don't want it.
+AC_ARG_WITH(backtrace, 
+		    [  --with-backtrace          enable backtrace dumps in the syslog],
+			[ if test "x$withval" != "xno" ; then
+			     CFLAGS="$CFLAGS  -rdynamic "
+			     LDFLAGS="$LDFLAGS  -rdynamic "
+                             AC_CHECK_FUNCS(backtrace)
+			  fi
+			]
+)
+echo "$CFLAGS $LDFLAGS"
 
 if test "$prefix" = NONE; then
 	LOCALEDIR=$ac_default_prefix
