@@ -206,36 +206,62 @@ void wDumpContent(int print_standard_html_footer)
  */
 void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 {
-	int a, len;
-	strcpy(target, "");
+	char *aptr, *bptr;
 
-	len = strlen(strbuf);
-	for (a = 0; a < len; ++a) {
-		if (strbuf[a] == '<')
-			strcat(target, "&lt;");
-		else if (strbuf[a] == '>')
-			strcat(target, "&gt;");
-		else if (strbuf[a] == '&')
-			strcat(target, "&amp;");
-		else if (strbuf[a] == '\"')
-			strcat(target, "&quot;");
-		else if (strbuf[a] == '\'') 
-			strcat(target, "&#39;");
-		else if (strbuf[a] == LB)
-			strcat(target, "<");
-		else if (strbuf[a] == RB)
-			strcat(target, ">");
-		else if (strbuf[a] == QU)
-			strcat(target, "\"");
-		else if ((strbuf[a] == 32) && (nbsp == 1))
-			strcat(target, "&nbsp;");
-		else if ((strbuf[a] == '\n') && (nolinebreaks))
-			strcat(target, "");	/* nothing */
-		else if ((strbuf[a] == '\r') && (nolinebreaks))
-			strcat(target, "");	/* nothing */
-		else
-			strncat(target, &strbuf[a], 1);
+	*target = '\0';
+	aptr = strbuf;
+	bptr = target;
+
+	while (!IsEmptyStr(aptr) ){
+		if (*aptr == '<') {
+			memcpy(bptr, "&lt;", 4);
+			bptr += 4;
+		}
+		else if (*aptr == '>') {
+			memcpy(bptr, "&gt;", 4);
+			bptr += 4;
+		}
+		else if (*aptr == '&') {
+			memcpy(bptr, "&amp;", 5);
+			bptr += 5;
+		}
+		else if (*aptr == '\"') {
+			memcpy(bptr, "&quot;", 6);
+			bptr += 6;
+		}
+		else if (*aptr == '\'') {
+			memcpy(bptr, "&#39;", 5);
+			bptr += 5;
+		}
+		else if (*aptr == LB) {
+			*bptr = '<';
+			bptr ++;
+		}
+		else if (*aptr == RB) {
+			*bptr = '>';
+			bptr ++;
+		}
+		else if (*aptr == QU) {
+			*bptr ='"';
+			bptr ++;
+		}
+		else if ((*aptr == 32) && (nbsp == 1)) {
+			memcpy(bptr, "&nbsp;", 6);
+			bptr += 6;
+		}
+		else if ((*aptr == '\n') && (nolinebreaks)) {
+			strcat(bptr, "");	/* nothing */
+		}
+		else if ((*aptr == '\r') && (nolinebreaks)) {
+			strcat(bptr, "");	/* nothing */
+		}
+		else{
+			*bptr = *aptr;
+			bptr++;
+		}
+		aptr ++;
 	}
+	*bptr = '\0';
 }
 
 /**
