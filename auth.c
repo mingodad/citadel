@@ -44,8 +44,8 @@ void display_login(char *mesg)
 	wprintf("<div id=\"login_screen\">\n");
 
 	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
-		stresc(buf, mesg, 0, 0);
-		svprintf("mesg", WCS_STRING, "%s", buf);
+			stresc(buf, SIZ,  mesg, 0, 0);
+			svprintf("mesg", WCS_STRING, "%s", buf);
 	}
 
 	svprintf("LOGIN_INSTRUCTIONS", WCS_STRING,

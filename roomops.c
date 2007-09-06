@@ -472,7 +472,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
-	stresc(sanitized_roomname, WC->wc_roomname, 1, 1);
+	stresc(sanitized_roomname, 256, WC->wc_roomname, 1, 1);
 	svprintf("ROOMNAME", WCS_STRING, "%s", sanitized_roomname);
 	svprintf("NUMMSGS", WCS_STRING,
 		_("%d new of %d messages"),
@@ -2745,7 +2745,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 		if (levels == 1) {
 			/** Begin inner box */
-			stresc(boxtitle, floor_name, 1, 0);
+			stresc(boxtitle, 256, floor_name, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			do_template("beginbox");
 		}
@@ -2838,7 +2838,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 		if (levels == 1) {
 			/** Begin floor */
-			stresc(floordivtitle, floor_name, 0, 0);
+			stresc(floordivtitle, 256, floor_name, 0, 0);
 			sprintf(floordiv_id, "floordiv%d", i);
 			wprintf("<span class=\"ib_roomlist_floor\" "
 				"onClick=\"expand_floor('%s')\">"

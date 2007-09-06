@@ -69,8 +69,8 @@ void do_listsub(void)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			stresc(escaped_email, email, 0, 0);
-			stresc(escaped_room, room, 0, 0);
+			stresc(escaped_email, 256, email, 0, 0);
+			stresc(escaped_room, 256, room, 0, 0);
 
 			wprintf("<CENTER><H1>");
 			wprintf(_("Confirmation request sent"));

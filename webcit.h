@@ -486,7 +486,7 @@ void output_headers(    int do_httpheaders,
 void wprintf(const char *format,...);
 void output_static(char *what);
 void print_menu_box(char* Title, char *Class, int nLines, ...);
-void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks);
+long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
 void url(char *buf);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);

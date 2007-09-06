@@ -493,6 +493,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	
 			else if (!strcasecmp(firsttoken, "email")) {
 				if (!IsEmptyStr(mailto)) strcat(mailto, "<br />");
+				long len;
 				strcat(mailto,
 					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
@@ -503,7 +504,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				urlesc(&mailto[strlen(mailto)], ">");
 
 				strcat(mailto, "\">");
-				stresc(&mailto[strlen(mailto)], thisvalue, 1, 1);
+				len = strlen(mailto);
+				stresc(mailto+len, SIZ - len, thisvalue, 1, 1);
 				strcat(mailto, "</A>");
 			}
 			else if (!strcasecmp(firsttoken, "tel")) {
@@ -1836,8 +1838,8 @@ int abcmp(const void *ab1, const void *ab2) {
  * \param tabbuf the tabbuffer to add name to
  * \param name the name to add to the tabbuffer
  */
-void nametab(char *tabbuf, char *name) {
-	stresc(tabbuf, name, 0, 0);
+void nametab(char *tabbuf, long len, char *name) {
+	stresc(tabbuf, len, name, 0, 0);
 	tabbuf[0] = toupper(tabbuf[0]);
 	tabbuf[1] = tolower(tabbuf[1]);
 	tabbuf[2] = tolower(tabbuf[2]);
@@ -1889,8 +1891,8 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 		tabfirst = i * NAMESPERPAGE;
 		tablast = tabfirst + NAMESPERPAGE - 1;
 		if (tablast > (num_ab - 1)) tablast = (num_ab - 1);
-		nametab(tabfirst_label, addrbook[tabfirst].ab_name);
-		nametab(tablast_label, addrbook[tablast].ab_name);
+		nametab(tabfirst_label, 64, addrbook[tabfirst].ab_name);
+		nametab(tablast_label, 64, addrbook[tablast].ab_name);
 		sprintf(this_tablabel, "%s&nbsp;-&nbsp;%s", tabfirst_label, tablast_label);
 		tablabels[i] = strdup(this_tablabel);
 	}

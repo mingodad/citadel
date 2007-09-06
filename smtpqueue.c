@@ -96,18 +96,38 @@ void display_queue_msg(long msgnum)
 			}
 
 			if (!strcasecmp(keyword, "remote")) {
+				int RcptLen;
+				int TRcptLen;
+				int TDsn;
+				int NLen;
 				extract_token(thisrecp, buf, 1, '|', sizeof thisrecp);
 				extract_token(thisdsn, buf, 3, '|', sizeof thisdsn);
-
-				if (strlen(recipients) + strlen(thisrecp) + strlen(thisdsn) + 100
+				RcptLen = strlen(recipients);
+				TRcptLen = strlen(thisrecp);
+				TDsn = strlen(thisdsn);
+				if ( RcptLen + TRcptLen + TDsn + 100
 				   < sizeof recipients) {
 					if (!IsEmptyStr(recipients)) {
-						strcat(recipients, "<br />");
+						// copy the \0 to be sure..
+						memcpy (&recipients[RcptLen], "<br />\0",  7);
+						RcptLen += 6;
 					}
-					stresc(&recipients[strlen(recipients)], thisrecp, 1, 1);
-					strcat(recipients, "<br />&nbsp;&nbsp;<i>");
-					stresc(&recipients[strlen(recipients)], thisdsn, 1, 1);
-					strcat(recipients, "</i>");
+					NLen = stresc(&recipients[RcptLen], 
+						      sizeof recipients - RcptLen, 
+						      thisrecp, 1, 1);
+					if (NLen != -1)
+					{
+						RcptLen += NLen;
+						NLen = sizeof "<br />&nbsp;&nbsp;<i>";
+						memcpy(recipients, "<br />&nbsp;&nbsp;<i>", 
+						       NLen);
+						RcptLen += NLen - 1;
+						NLen = stresc(&recipients[RcptLen], 
+							      sizeof recipients - RcptLen, 
+							      thisdsn, 1, 1);
+						if (NLen != -1)
+							memcpy (recipients, "</i>\0", 5);
+					} /// else bail out?
 				}
 
 			}
