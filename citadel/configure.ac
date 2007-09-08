@@ -276,8 +276,7 @@ if test "x$enable_pie" = xyes; then
 	fi
 fi
 
-echo $CC snaothus---------------------
-AC_MSG_CHECKING([how to compile with POSIX threads])
+AC_MSG_CHECKING([how to create dependancy checks])
 		 if test -n "`$CC -V 2>&1 |grep Sun`"; then 
 		     	DEPEND_FLAG=-xM;
 		 else 
