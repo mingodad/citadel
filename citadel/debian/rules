@@ -10,12 +10,16 @@ DEB_DESTDIR = $(CURDIR)/debian/tmp
 
 CFLAGS = -Wall -g
 
+
+EXTRA_ARGS=
+PROFILE_ARGS=
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling"
+ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
+	PROFILE_ARGS= --with-gprof
+endif
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP 
-	LDFLAGS += -pg 
-	SERVER_LDFLAGS += -lm
-#	SERVER_LDFLAGS += -pg
-	EXTRA_ARGS = --with-profiling --with-backtrace
+	EXTRA_ARGS = --with-backtrace
 else
 	CFLAGS += -O2
 endif
@@ -40,7 +44,7 @@ configure-stamp:
 		--with-ldap \
 		--with-libical \
 		--with-libsieve \
-		--enable-debug $(EXTRA_ARGS)
+		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
 
 	touch configure-stamp
 
