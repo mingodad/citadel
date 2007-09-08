@@ -386,9 +386,11 @@ void display_shutdown(void)
 		else
 		{
 			// TODO: page the users... wait longer...
+			serv_printf("SEXP broadcast|%s", message);
+			serv_getln(buf, sizeof buf); // should we care?
 			wprintf("<html>\n"
 				"<head>\n"
-				"<meta http-equiv=\"refresh\" content=\"5; URL=server_shutdown?when=now&\"/>\n"
+				"<meta http-equiv=\"refresh\" content=\"65; URL=server_shutdown?when=now&\"/>\n"
 				"</head>\n"
 				"<body bgcolor=\"#FFFFFF\">\n"
 				"Please wait while your users are being paged, the citadel server will be restarted after that... "
