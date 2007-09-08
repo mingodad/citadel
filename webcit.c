@@ -1505,6 +1505,8 @@ void session_loop(struct httprequest *req)
 		url_do_template();
 	} else if (!strcasecmp(action, "display_aide_menu")) {
 		display_aide_menu();
+	} else if (!strcasecmp(action, "server_shutdown")) {
+		display_shutdown();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
 	} else if (!strcasecmp(action, "who")) {

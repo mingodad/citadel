@@ -453,6 +453,7 @@ void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
 void display_aide_menu(void);
+void display_shutdown(void);
 void display_advanced_menu(void);
 void slrp_highest(void);
 void gotonext(void);

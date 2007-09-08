@@ -199,8 +199,6 @@ void display_aide_menu(void)
 
 
 
-
-
 /**
  * \brief Display the screen to enter a generic server command
  */
@@ -335,6 +333,79 @@ void display_menubar(int as_single_page) {
 	}
 
 
+}
+
+
+/**
+ * \brief Display the wait / input dialog while restarting the server.
+ */
+void display_shutdown(void)
+{
+	char buf[SIZ];
+	char *when;
+	
+	when=bstr("when");
+	if (!strcmp(when, "now")){
+		serv_printf("DOWN 1");
+		serv_getln(buf, sizeof buf);
+		if (atol(buf) == 500)
+		{ /* upsie. maybe the server is not running as daemon? */
+			wprintf("<html><head></head><body>Attention: %s</body></html>", &buf[4]);
+
+		}
+		else {
+			wprintf("<html>\n"
+				"<head>\n"
+				"<meta http-equiv=\"refresh\" content=\"5; URL=knrooms\"/>\n"
+				"</head>\n"
+				"<body bgcolor=\"#FFFFFF\">\n"
+				"Please wait while the citadel server is restarted... "
+				"</body>\n</html>\n"
+				);
+		}
+	}
+	else if (!strcmp(when, "page")) {
+		char *message;
+	       
+		message = bstr("message");
+		if ((message == NULL) || (IsEmptyStr(message)))
+		{
+			wprintf("<html>\n"
+				"<head>\n"
+				"</head>\n"
+				"<body bgcolor=\"#FFFFFF\">\n"
+				"<form action=\"server_shutdown\">\n"
+				"<input type=\"hidden\" name=\"when\" value=\"page\">\n"
+				"<input type=\"text\" name=\"message\" value=\"message\">\n"
+				"<input type=\"submit\" value=\"go\">\n"
+				"</form>\n"
+				"</body>\n</html>\n"
+				);
+			
+		}
+		else
+		{
+			// TODO: page the users... wait longer...
+			wprintf("<html>\n"
+				"<head>\n"
+				"<meta http-equiv=\"refresh\" content=\"5; URL=server_shutdown?when=now&\"/>\n"
+				"</head>\n"
+				"<body bgcolor=\"#FFFFFF\">\n"
+				"Please wait while your users are being paged, the citadel server will be restarted after that... "
+				"</body>\n</html>\n"
+				);
+			
+		}
+	}
+	else if (!strcmp(when, "idle")) {
+		serv_printf("SCDN 3");
+		serv_getln(buf, sizeof buf);
+		if (atol(buf) == 500)
+		{ /* upsie. maybe the server is not running as daemon? */
+			wprintf("<html><head></head><body>Attention: %s</body></html>", &buf[4]);
+
+		}
+	}
 }
 
 
