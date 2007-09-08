@@ -20,6 +20,7 @@ DATA_DIR=@MAKE_DATA_DIR@
 STATICDATA_DIR=@MAKE_STATICDATA_DIR@
 DOC_DIR=@MAKE_DOC_DIR@
 UTILBIN_DIR=@MAKE_UTILBIN_DIR@
+DEPEND_FLAG=@DEPEND_FLAG@
 all: $(TARGETS)
 
 .SUFFIXES: .o .d .c
@@ -87,7 +88,7 @@ CFLAGS=@CFLAGS@ -I ./include/
 CPPFLAGS=@CPPFLAGS@ -I. -I ./include/
 DATABASE=@DATABASE@
 DEFS=@DEFS@
-LDFLAGS=@LDFLAGS@ -rdynamic
+LDFLAGS=@LDFLAGS@
 LIBS=@LIBS@
 LIBOBJS=@LIBOBJS@
 INSTALL=@INSTALL@
@@ -396,7 +397,7 @@ distclean: cleaner
 
 .c.d:
 	@echo Checking dependencies for $<
-	@$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@
+	@$(CC) $(DEPEND_FLAG) $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@
 	@test -s $@ || rm -f $@
 
 Makefile: $(srcdir)/Makefile.in config.status

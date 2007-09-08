@@ -244,6 +244,8 @@ dnl DEFS="$DEFS $PTHREAD_DEFS"
 dnl Checks for programs.
 AC_PROG_CC
 
+
+
 dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	if test "$CC" = icc; then
@@ -274,6 +276,15 @@ if test "x$enable_pie" = xyes; then
 	fi
 fi
 
+echo $CC snaothus---------------------
+AC_MSG_CHECKING([how to compile with POSIX threads])
+		 if test -n "`$CC -V 2>&1 |grep Sun`"; then 
+		     	DEPEND_FLAG=-xM;
+		 else 
+		        DEPEND_FLAG=-M
+	         fi
+AC_SUBST(DEPEND_FLAG)
+
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
@@ -294,7 +305,7 @@ dnl Checks for libraries.
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
-AC_CHECK_FUNCS(crypt gethostbyname connect )
+AC_CHECK_FUNCS(crypt gethostbyname connect flock)
 
 
 dnl disable backtrace if we don't want it.
@@ -780,6 +791,7 @@ AC_CACHE_CHECK([the weather], ac_cv_weather, [
 		;;
 	esac
 	])
+
 
 
 
