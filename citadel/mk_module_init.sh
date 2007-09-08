@@ -44,9 +44,9 @@ cat <<EOF  >$C_FILE
 #include <time.h>
 #include <ctype.h>
 #include <stdio.h>
-#include "citadel.h\"\n"
-#include "modules_init.h\"
-#include "sysdep_decls.h\"
+#include "citadel.h"
+#include "modules_init.h"
+#include "sysdep_decls.h"
 
 
 void LogPrintMessages(long err);
