@@ -22,8 +22,8 @@ CFG_VALUE(STRING_BUF(c_ip_addr, 20),		" IP address to listen on          ");
 CFG_VALUE(INTEGER(c_port_number),		" Cit listener port (usually 504)  ");
 NO_ARTV(CFG_VALUE(INTEGER(c_ipgm_secret),		" internal program authentication  "));
 CFG_VALUE(SUBSTRUCT(struct ExpirePolicy c_ep), " System default msg expire policy ");
-SUBSTRUCT_ELEMENT(INTEGER(c_ep.expire_mode));
-SUBSTRUCT_ELEMENT(INTEGER(c_ep.expire_value));
+SUBSTRUCT_ELEMENT(INTEGER(c_ep.expire_mode);)
+SUBSTRUCT_ELEMENT(INTEGER(c_ep.expire_value);)
 CFG_VALUE(INTEGER(c_userpurge),		" System default user purge (days) ");
 CFG_VALUE(INTEGER(c_roompurge),		" System default room purge (days) ");
 CFG_VALUE(STRING_BUF(c_logpages, ROOMNAMELEN),	" Room to log pages to (or not)    ");
@@ -44,8 +44,8 @@ CFG_VALUE(STRING_BUF(c_baseroom, ROOMNAMELEN),	" Name of baseroom (Lobby)	    ")
 CFG_VALUE(STRING_BUF(c_aideroom, ROOMNAMELEN),	" Name of aideroom (Aide)	    ");
 CFG_VALUE(INTEGER(c_purge_hour),		" Hour during which db purges run  ");
 CFG_VALUE(SUBSTRUCT(struct ExpirePolicy c_mbxep),	" Expire policy for mailbox rooms  ");
-SUBSTRUCT_ELEMENT(INTEGER(c_mbxep.expire_mode));
-SUBSTRUCT_ELEMENT(INTEGER(c_mbxep.expire_value));
+SUBSTRUCT_ELEMENT(INTEGER(c_mbxep.expire_mode);)
+SUBSTRUCT_ELEMENT(INTEGER(c_mbxep.expire_value);)
 CFG_VALUE(STRING_BUF(c_ldap_host, 128),		" Host where LDAP service lives    ");
 CFG_VALUE(INTEGER(c_ldap_port),		" Port on host where LDAP lives    ");
 CFG_VALUE(STRING_BUF(c_ldap_base_dn, 256),	" LDAP base DN                     ");
