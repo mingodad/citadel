@@ -98,6 +98,7 @@ void pop3_greeting(void) {
  */
 void pop3s_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
 	pop3_greeting();
 }
 

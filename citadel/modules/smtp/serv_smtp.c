@@ -166,6 +166,7 @@ void smtp_greeting(int is_msa)
  */
 void smtps_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
 	smtp_greeting(0);
 }
 
