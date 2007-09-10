@@ -140,24 +140,24 @@ TAGS clean-recursive distclean-recursive depend-recursive check-recursive \
 	  fi ; \
 	done
 
-all-progs-recursive install-progs-recursive install-strip-progs-recursive \
-  uninstall-progs-recursive:
-	@for subdir in $(PROG_SUBDIRS); do \
-	  if test -d $$subdir ; then \
-	    target=`echo $@|$(SED) 's/-progs-recursive//'`; \
-	    echo making $$target in $$subdir; \
-	    (cd $$subdir && $(MAKE) $$target) || exit 1; \
-	  fi ; \
-	done
+all-progs-recursive install-progs-recursive install-strip-progs-recursive  \
+	uninstall-progs-recursive:
+#	@for subdir in $(PROG_SUBDIRS); do \
+#	  if test -d $$subdir ; then \
+#	    target=`echo $@|$(SED) 's/-progs-recursive//'`; \
+#	    echo making $$target in $$subdir; \
+#	    (cd $$subdir && $(MAKE) $$target) || exit 1; \
+#	  fi ; \
+#	done
 
 all-libs-recursive install-libs-recursive install-strip-libs-recursive \
   uninstall-libs-recursive install-shlibs-libs-recursive \
   install-shlibs-strip-libs-recursive uninstall-shlibs-libs-recursive:
-	@for subdir in $(LIB_SUBDIRS); do \
-	  if test -d $$subdir ; then \
-	    target=`echo $@|$(SED) 's/-libs-recursive//'`; \
-	    echo making $$target in $$subdir; \
-	    (cd $$subdir && $(MAKE) $$target) || exit 1; \
-	  fi ; \
-	done
+#	@for subdir in $(LIB_SUBDIRS); do \
+#	  if test -d $$subdir ; then \
+#	    target=`echo $@|$(SED) 's/-libs-recursive//'`; \
+#	    echo making $$target in $$subdir; \
+#	    (cd $$subdir && $(MAKE) $$target) || exit 1; \
+#	  fi ; \
+#	done
 
