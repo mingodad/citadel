@@ -189,7 +189,7 @@ void notify_funambol(long msgnum, void *userdata) {
 		);
 		strcat(SOAPHeader,buf);
 	strcat(SOAPHeader,"Pragma: no-cache\r\nSOAPAction: \"\"\r\n");
-	sprintf(buf, "Content-Length: %d\r\n",
+	sprintf(buf, "Content-Length: " SIZE_T_FMT "\r\n",
 		strlen(SOAPData));
 	strcat(SOAPHeader, buf);
 	sprintf(buf, "Authorization: Basic %s\r\n\r\n",

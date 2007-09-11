@@ -219,11 +219,14 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		text_size = 0;
 	}
 
-	lprintf(CTDL_DEBUG, "RFC822: headers=%d, text=%d, total=%d\n",
+	lprintf(CTDL_DEBUG, 
+		"RFC822: headers=" SIZE_T_FMT 
+		", text=" SIZE_T_FMT
+		", total=" SIZE_T_FMT "\n",
 		headers_size, text_size, total_size);
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
-		cprintf("RFC822.SIZE %d", total_size);
+		cprintf("RFC822.SIZE " SIZE_T_FMT, total_size);
 		return;
 	}
 
@@ -242,7 +245,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		bytes_to_send = text_size;
 	}
 
-	cprintf("%s {%d}\r\n", whichfmt, bytes_to_send);
+	cprintf("%s {" SIZE_T_FMT "}\r\n", whichfmt, bytes_to_send);
 	client_write(ptr, bytes_to_send);
 }
 
@@ -694,16 +697,16 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	}
 
 	if (is_partial == 0) {
-		cprintf("BODY[%s] {%d}\r\n", section, IMAP->cached_body_len);
+		cprintf("BODY[%s] {" SIZE_T_FMT "}\r\n", section, IMAP->cached_body_len);
 		pstart = 0;
 		pbytes = IMAP->cached_body_len;
 	}
 	else {
-		sscanf(partial, "%d.%d", &pstart, &pbytes);
+		sscanf(partial, SIZE_T_FMT "." SIZE_T_FMT, &pstart, &pbytes);
 		if (pbytes > (IMAP->cached_body_len - pstart)) {
 			pbytes = IMAP->cached_body_len - pstart;
 		}
-		cprintf("BODY[%s]<%d> {%d}\r\n", section, pstart, pbytes);
+		cprintf("BODY[%s]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", section, pstart, pbytes);
 	}
 
 	/* Here we go -- output it */
@@ -934,7 +937,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 
 		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
-			"\"7BIT\" %d %d)", rfc822_body_len, lines);
+			"\"7BIT\" " SIZE_T_FMT " %d)", rfc822_body_len, lines);
 
 		return;
 	}

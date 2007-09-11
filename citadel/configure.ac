@@ -284,6 +284,7 @@ AC_MSG_CHECKING([how to create dependancy checks])
 	         fi
 AC_SUBST(DEPEND_FLAG)
 
+
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
@@ -297,6 +298,7 @@ AC_CHECK_SIZEOF(char, 0)
 AC_CHECK_SIZEOF(short, 0)
 AC_CHECK_SIZEOF(int, 0)
 AC_CHECK_SIZEOF(long, 0)
+AC_CHECK_SIZEOF(size_t, 0)
 dnl AC_CHECK_SIZEOF(long long, 0)
 
 dnl Checks for libraries.

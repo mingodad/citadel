@@ -15,6 +15,12 @@
 #include "sysdep.h"
 #include "server.h"
 
+#if SIZEOF_SIZE_T == 8
+#define SIZE_T_FMT "%ld"
+#else 
+#define SIZE_T_FMT "%d"
+#endif
+
 
 /* Logging levels - correspond to syslog(3) */
 enum LogLevel {
