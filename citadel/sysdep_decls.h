@@ -15,7 +15,7 @@
 #include "sysdep.h"
 #include "server.h"
 
-#if SIZEOF_SIZE_T == 8
+#if SIZEOF_SIZE_T == SIZEOF_LONG
 #define SIZE_T_FMT "%ld"
 #else 
 #define SIZE_T_FMT "%d"
