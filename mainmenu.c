@@ -359,10 +359,13 @@ void display_shutdown(void)
 				"<meta http-equiv=\"refresh\" content=\"15; URL=knrooms\"/>\n"
 				"</head>\n"
 				"<body bgcolor=\"#FFFFFF\">\n"
-				"Please wait while the citadel server is restarted... "
-				"</body>\n</html>\n"
+				"<img src=\"static/throbber.gif\" /> <font color=\"#AAAAAA\">%s </font>"
+				"</body>\n</html>\n",
+				_("Please wait while the Citadel server is restarted... ")
 				);
 		}
+		wDumpContent(0);
+		lingering_close(WC->http_sock);
 		sleeeeeeeeeep(10);
 		serv_printf("NOOP");
 		serv_printf("NOOP");
@@ -373,17 +376,19 @@ void display_shutdown(void)
 		message = bstr("message");
 		if ((message == NULL) || (IsEmptyStr(message)))
 		{
-			wprintf("<html>\n"
-				"<head>\n"
-				"</head>\n"
-				"<body bgcolor=\"#FFFFFF\">\n"
-				"<form action=\"server_shutdown\">\n"
+			output_headers(1, 1, 1, 0, 0, 0);
+			svprintf("BOXTITLE", WCS_STRING, _("Message to your Users:"));
+			do_template("beginbox");
+			wprintf("<form action=\"server_shutdown\">\n"
 				"<input type=\"hidden\" name=\"when\" value=\"page\">\n"
-				"<input type=\"text\" name=\"message\" value=\"message\">\n"
+				"<input type=\"text\" name=\"message\" value=\"%s\">\n"
 				"<input type=\"submit\" value=\"go\">\n"
-				"</form>\n"
-				"</body>\n</html>\n"
+				"</form>\n",
+				_("The citadel server has to be restarted. It 'll be back in a minute.")
 				);
+			do_template("endbox");
+			wDumpContent(1);
+
 			
 		}
 		else
@@ -393,12 +398,12 @@ void display_shutdown(void)
 			serv_getln(buf, sizeof buf); // should we care?
 			wprintf("<html>\n"
 				"<head>\n"
-				"<meta http-equiv=\"refresh\" content=\"65; URL=server_shutdown?when=now&\"/>\n"
+				"<meta http-equiv=\"refresh\" content=\"15; URL=knrooms\"/>\n"
 				"</head>\n"
 				"<body bgcolor=\"#FFFFFF\">\n"
-				"Please wait while your users are being paged, the citadel server will be restarted after that... "
-				"</body>\n</html>\n"
-				);
+				"<img src=\"static/throbber.gif\" /> <font color=\"#AAAAAA\">%s </font>"
+				"</body>\n</html>\n",
+				_("Please wait while your users are being paged, the citadel server will be restarted after that... "));
 			
 		}
 	}
