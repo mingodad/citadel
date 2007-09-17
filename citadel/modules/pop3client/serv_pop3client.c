@@ -27,17 +27,65 @@
 #include "config.h"
 #include "tools.h"
 #include "room_ops.h"
-
-
 #include "ctdl_module.h"
 
+struct pop3aggr {
+	struct pop3aggr *next;
+	char roomname[ROOMNAMELEN];
+	char pop3host[128];
+	char pop3user[128];
+	char pop3pass[128];
+};
+
+struct pop3aggr *palist = NULL;
 
 #ifdef POP3_AGGREGATION
 
-void pop3client_do_room(struct ctdlroom *qrbuf, void *data)
-{
 
-	lprintf(CTDL_DEBUG, "POP3 aggregation for <%s>\n", qrbuf->QRname);
+void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass)
+{
+	lprintf(CTDL_DEBUG, "POP3: %s %s %s %s\n", roomname, pop3host, pop3user, pop3pass);
+}
+
+
+/*
+ * Scan a room's netconfig to determine whether it requires POP3 aggregation
+ */
+void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
+{
+	char filename[PATH_MAX];
+	char buf[1024];
+	char instr[32];
+	FILE *fp;
+	struct pop3aggr *pptr;
+
+	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+
+	/* Only do net processing for rooms that have netconfigs */
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		return;
+	}
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+
+		extract_token(instr, buf, 0, '|', sizeof instr);
+		if (!strcasecmp(instr, "pop3client")) {
+			pptr = (struct pop3aggr *) malloc(sizeof(struct pop3aggr));
+			if (pptr != NULL) {
+				extract_token(pptr->roomname, buf, 1, '|', sizeof pptr->roomname);
+				extract_token(pptr->pop3host, buf, 2, '|', sizeof pptr->pop3host);
+				extract_token(pptr->pop3user, buf, 3, '|', sizeof pptr->pop3user);
+				extract_token(pptr->pop3pass, buf, 4, '|', sizeof pptr->pop3pass);
+				pptr->next = palist;
+				palist = pptr;
+			}
+		}
+
+	}
+
+	fclose(fp);
 
 }
 
@@ -45,6 +93,7 @@ void pop3client_do_room(struct ctdlroom *qrbuf, void *data)
 void pop3client_scan(void) {
 	static time_t last_run = 0L;
 	static int doing_pop3client = 0;
+	struct pop3aggr *pptr;
 
 	/*
 	 * Run POP3 aggregation no more frequently than once every n seconds
@@ -63,9 +112,16 @@ void pop3client_scan(void) {
 	doing_pop3client = 1;
 
 	lprintf(CTDL_DEBUG, "pop3client started\n");
-	ForEachRoom(pop3client_do_room, NULL);
-	lprintf(CTDL_DEBUG, "pop3client ended\n");
+	ForEachRoom(pop3client_scan_room, NULL);
 
+	while (palist != NULL) {
+		pop3_do_fetching(palist->roomname, palist->pop3host, palist->pop3user, palist->pop3pass);
+		pptr = palist;
+		palist = palist->next;
+		free(pptr);
+	}
+
+	lprintf(CTDL_DEBUG, "pop3client ended\n");
 	doing_pop3client = 0;
 }
 
@@ -80,3 +136,4 @@ CTDL_MODULE_INIT(pop3client)
 	/* return our Subversion id for the Log */
         return "$Id:  $";
 }
+

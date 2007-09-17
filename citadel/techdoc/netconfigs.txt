@@ -87,3 +87,9 @@ the room.
    This is somewhat finicky, which is why it is not officially supported, and
 why there are no facilities in the user interface to configure it.  If you want
 to use this option you are on your own.
+ 
+ 
+ INSTRUCTION:  pop3client
+ SYNTAX:       pop3client|hostname|username|password
+   Periodically fetch messages from a remote POP3 account and store them in this
+room.  Messages will be deleted from the remote account once successfully stored.
