@@ -254,47 +254,6 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 	return 0;
 }
 
-#if 0
-void initialize_server_extensions(void)
-{
-	long filter;
-
-	nSizErrmsg = 0;
-
-	/*lprintf(CTDL_INFO, "%s\n", serv_bio_init());
-	lprintf(CTDL_INFO, "%s\n", serv_calendar_init());
-	lprintf(CTDL_INFO, "%s\n", serv_notes_init());
-	lprintf(CTDL_INFO, "%s\n", serv_ldap_init());
-	lprintf(CTDL_INFO, "%s\n", serv_chat_init());
-	lprintf(CTDL_INFO, "%s\n", serv_expire_init());
-	lprintf(CTDL_INFO, "%s\n", serv_imap_init());
-	lprintf(CTDL_INFO, "%s\n", serv_upgrade_init());
-	lprintf(CTDL_INFO, "%s\n", serv_inetcfg_init());
-	lprintf(CTDL_INFO, "%s\n", serv_listsub_init());
-	lprintf(CTDL_INFO, "%s\n", serv_mrtg_init());
-	lprintf(CTDL_INFO, "%s\n", serv_netfilter_init());
-	lprintf(CTDL_INFO, "%s\n", serv_network_init());
-	lprintf(CTDL_INFO, "%s\n", serv_newuser_init());
-	lprintf(CTDL_INFO, "%s\n", serv_pas2_init());
-	lprintf(CTDL_INFO, "%s\n", serv_smtp_init());
-	lprintf(CTDL_INFO, "%s\n", serv_pop3_init());
-	lprintf(CTDL_INFO, "%s\n", serv_rwho_init());
-	lprintf(CTDL_INFO, "%s\n", serv_spam_init());*/
-	/* lprintf(CTDL_INFO, "%s\n", serv_test_init()); */
-	/*lprintf(CTDL_INFO, "%s\n", serv_vandelay_init());
-	lprintf(CTDL_INFO, "%s\n", serv_vcard_init());
-	lprintf(CTDL_INFO, "%s\n", serv_fulltext_init());
-	lprintf(CTDL_INFO, "%s\n", serv_autocompletion_init());
-	lprintf(CTDL_INFO, "%s\n", serv_postfix_tcpdict());
-	lprintf(CTDL_INFO, "%s\n", serv_sieve_init());
-	lprintf(CTDL_INFO, "%s\n", serv_managesieve_init());
-	lprintf(CTDL_INFO, "%s\n", serv_funambol_init());*/
-	for (filter = 1; filter != 0; filter = filter << 1)
-		if ((filter & DetailErrorFlags) != 0)
-			LogPrintMessages(filter);
-}
-
-#endif
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 {

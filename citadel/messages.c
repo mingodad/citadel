@@ -1021,65 +1021,6 @@ MEABT2:	unlink(filename);
 }
 
 
-#if 0
-/*
- * Transmit message text to the server.
- * 
- * This loop also implements a "tick" counter that displays the progress, if
- * we're sending something that will take a long time to transmit.
- */
-void transmit_message(CtdlIPC *ipc, FILE *fp)
-{
-	char buf[SIZ];
-	int ch, a;
-	long msglen;
-	time_t lasttick;
-
-	fseek(fp, 0L, SEEK_END);
-	msglen = ftell(fp);
-	rewind(fp);
-	lasttick = time(NULL);
-	strcpy(buf, "");
-	while (ch = getc(fp), (ch >= 0)) {
-		if (ch == 10) {
-			if (!strcmp(buf, "000"))
-				strcpy(buf, ">000");
-			CtdlIPC_putline(ipc, buf);
-			strcpy(buf, "");
-		} else {
-			a = strlen(buf);
-			buf[a + 1] = 0;
-			buf[a] = ch;
-			if ((ch == 32) && (strlen(buf) > 200)) {
-				buf[a] = 0;
-				if (!strcmp(buf, "000"))
-					strcpy(buf, ">000");
-				CtdlIPC_putline(ipc, buf);
-				strcpy(buf, "");
-			}
-			if (strlen(buf) > 250) {
-				if (!strcmp(buf, "000"))
-					strcpy(buf, ">000");
-				CtdlIPC_putline(ipc, buf);
-				strcpy(buf, "");
-			}
-		}
-
-		if ((time(NULL) - lasttick) > 2L) {
-			scr_printf(" %3ld%% completed\r",
-			       ((ftell(fp) * 100L) / msglen));
-			scr_flush();
-			lasttick = time(NULL);
-		}
-
-	}
-	CtdlIPC_putline(ipc, buf);
-	scr_printf("                \r");
-	scr_flush();
-}
-#endif
-
-
 /*
  * Make sure there's room in msg_arr[] for at least one more.
  */

@@ -55,6 +55,7 @@ SERV_MODULES=modules/chat/serv_chat.o \
 	modules/newuser/serv_newuser.o \
 	modules/notes/serv_notes.o \
 	modules/pas2/serv_pas2.o \
+	modules/pop3client/serv_pop3client.o \
 	md5.o \
 	modules/inetcfg/serv_inetcfg.o \
 	modules/rwho/serv_rwho.o \
@@ -137,6 +138,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	modules/ldap/serv_ldap.c \
 	modules/newuser/serv_newuser.c \
 	modules/pas2/serv_pas2.c \
+	modules/pop3client/serv_pop3client.c \
 	modules/pop3/serv_pop3.c \
 	modules/rwho/serv_rwho.c \
 	modules/smtp/serv_smtp.c \
