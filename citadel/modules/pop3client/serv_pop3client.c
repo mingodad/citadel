@@ -28,6 +28,7 @@
 #include "tools.h"
 #include "room_ops.h"
 #include "ctdl_module.h"
+#include "clientsocket.h"
 
 struct pop3aggr {
 	struct pop3aggr *next;
@@ -44,7 +45,42 @@ struct pop3aggr *palist = NULL;
 
 void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass)
 {
+	int sock;
+	char buf[SIZ];
+
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s %s\n", roomname, pop3host, pop3user, pop3pass);
+	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
+	sock = sock_connect(pop3host, "110", "tcp");
+	if (sock < 0) {
+		lprintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
+		return;
+	}
+	
+	lprintf(CTDL_DEBUG, "Connected!\n");
+
+	/* Read the server greeting */
+	if (sock_gets(sock, buf) < 0) goto bail;
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	/* Identify ourselves */
+	snprintf(buf, sizeof buf, "USER %s", pop3user);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_gets(sock, buf) < 0) goto bail;
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	/* Password */
+	snprintf(buf, sizeof buf, "PASS %s", pop3pass);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_gets(sock, buf) < 0) goto bail;
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	sock_puts(sock, "QUIT");
+bail:	sock_close(sock);
 }
 
 
@@ -74,10 +110,10 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 		if (!strcasecmp(instr, "pop3client")) {
 			pptr = (struct pop3aggr *) malloc(sizeof(struct pop3aggr));
 			if (pptr != NULL) {
-				extract_token(pptr->roomname, buf, 1, '|', sizeof pptr->roomname);
-				extract_token(pptr->pop3host, buf, 2, '|', sizeof pptr->pop3host);
-				extract_token(pptr->pop3user, buf, 3, '|', sizeof pptr->pop3user);
-				extract_token(pptr->pop3pass, buf, 4, '|', sizeof pptr->pop3pass);
+				safestrncpy(pptr->roomname, qrbuf->QRname, sizeof pptr->roomname);
+				extract_token(pptr->pop3host, buf, 1, '|', sizeof pptr->pop3host);
+				extract_token(pptr->pop3user, buf, 2, '|', sizeof pptr->pop3user);
+				extract_token(pptr->pop3pass, buf, 3, '|', sizeof pptr->pop3pass);
 				pptr->next = palist;
 				palist = pptr;
 			}
@@ -136,4 +172,3 @@ CTDL_MODULE_INIT(pop3client)
 	/* return our Subversion id for the Log */
         return "$Id:  $";
 }
-
