@@ -158,6 +158,7 @@ void pop3client_scan(void) {
 	}
 
 	lprintf(CTDL_DEBUG, "pop3client ended\n");
+	last_run = time(NULL);
 	doing_pop3client = 0;
 }
 
