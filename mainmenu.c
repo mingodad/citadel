@@ -356,13 +356,16 @@ void display_shutdown(void)
 		else {
 			wprintf("<html>\n"
 				"<head>\n"
-				"<meta http-equiv=\"refresh\" content=\"5; URL=knrooms\"/>\n"
+				"<meta http-equiv=\"refresh\" content=\"15; URL=knrooms\"/>\n"
 				"</head>\n"
 				"<body bgcolor=\"#FFFFFF\">\n"
 				"Please wait while the citadel server is restarted... "
 				"</body>\n</html>\n"
 				);
 		}
+		sleeeeeeeeeep(10);
+		serv_printf("NOOP");
+		serv_printf("NOOP");
 	}
 	else if (!strcmp(when, "page")) {
 		char *message;
