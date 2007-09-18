@@ -1655,7 +1655,7 @@ void receive_spool(int sock, char *remote_nodename) {
 
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	if (sock_puts(sock, "NDOP") < 0) return;
-	if (sock_gets(sock, buf) < 0) return;
+	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
@@ -1680,7 +1680,7 @@ void receive_spool(int sock, char *remote_nodename) {
 			unlink(tempfilename);
 			return;
 		}
-		if (sock_gets(sock, buf) < 0) {
+		if (sock_getln(sock, buf, sizeof buf) < 0) {
 			fclose(fp);
 			unlink(tempfilename);
 			return;
@@ -1702,7 +1702,7 @@ void receive_spool(int sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	if (sock_gets(sock, buf) < 0) {
+	if (sock_getln(sock, buf, sizeof buf) < 0) {
 		unlink(tempfilename);
 		return;
 	}
@@ -1736,7 +1736,7 @@ void transmit_spool(int sock, char *remote_nodename)
 	char sfname[128];
 
 	if (sock_puts(sock, "NUOP") < 0) return;
-	if (sock_gets(sock, buf) < 0) return;
+	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
@@ -1763,7 +1763,7 @@ void transmit_spool(int sock, char *remote_nodename)
 				close(fd);
 				return;
 			}
-			if (sock_gets(sock, buf) < 0) {
+			if (sock_getln(sock, buf, sizeof buf) < 0) {
 				close(fd);
 				return;
 			}
@@ -1785,7 +1785,7 @@ void transmit_spool(int sock, char *remote_nodename)
 ABORTUPL:
 	close(fd);
 	if (sock_puts(sock, "UCLS 1") < 0) return;
-	if (sock_gets(sock, buf) < 0) return;
+	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	lprintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n",
 			bytes_written, remote_nodename);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
@@ -1818,14 +1818,14 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	lprintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
-	if (sock_gets(sock, buf) < 0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 
 	/* Identify ourselves */
 	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_gets(sock, buf) < 0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (buf[0] != '2') goto bail;
 

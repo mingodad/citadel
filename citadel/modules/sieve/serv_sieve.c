@@ -1114,7 +1114,7 @@ void cmd_msiv(char *argbuf) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
 		if (!IsEmptyStr(script_name)) {
 			cprintf("%d Transmit script now\n", SEND_LISTING);
-			script_content = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
+			script_content = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
 			msiv_putscript(&u, script_name, script_content);
 			changes_made = 1;
 		}

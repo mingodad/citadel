@@ -29,6 +29,8 @@
 #include "room_ops.h"
 #include "ctdl_module.h"
 #include "clientsocket.h"
+#include "msgbase.h"
+#include "internet_addressing.h"
 
 struct pop3aggr {
 	struct pop3aggr *next;
@@ -47,6 +49,14 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 {
 	int sock;
 	char buf[SIZ];
+	int msg_to_fetch = 0;
+	int *msglist = NULL;
+	int num_msgs = 0;
+	int alloc_msgs = 0;
+	int i;
+	char *body = NULL;
+	struct CtdlMessage *msg = NULL;
+	long msgnum = 0;
 
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s %s\n", roomname, pop3host, pop3user, pop3pass);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
@@ -59,7 +69,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
-	if (sock_gets(sock, buf) < 0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -67,7 +77,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "USER %s", pop3user);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_gets(sock, buf) < 0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -75,12 +85,76 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "PASS %s", pop3pass);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_gets(sock, buf) < 0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	sock_puts(sock, "QUIT");
+	/* Get the list of messages */
+	snprintf(buf, sizeof buf, "LIST");
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	do {
+		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		lprintf(CTDL_DEBUG, ">%s\n", buf);
+		msg_to_fetch = atoi(buf);
+		if (msg_to_fetch > 0) {
+			if (alloc_msgs == 0) {
+				alloc_msgs = 100;
+				msglist = malloc((alloc_msgs * (sizeof(int))));
+			}
+			else if (num_msgs >= alloc_msgs) {
+				alloc_msgs = alloc_msgs * 2;
+				msglist = realloc(msglist, (alloc_msgs * sizeof(int)));
+			}
+			if (msglist == NULL) goto bail;
+			msglist[num_msgs++] = msg_to_fetch;
+		}
+	} while (buf[0] != '.');
+
+	if (num_msgs) for (i=0; i<num_msgs; ++i) {
+
+		/* Tell the server to fetch the message */
+		snprintf(buf, sizeof buf, "RETR %d", msglist[i]);
+		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		if (sock_puts(sock, buf) <0) goto bail;
+		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		lprintf(CTDL_DEBUG, ">%s\n", buf);
+		if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+		/* If we get to this point, the message is on its way.  Read it. */
+		body = CtdlReadMessageBody(".", config.c_maxmsglen, NULL, 1, sock);
+		if (body == NULL) goto bail;
+
+		lprintf(CTDL_DEBUG, "Converting message...\n");
+		msg = convert_internet_message(body);
+		body = NULL;	/* yes, this should be dereferenced, NOT freed */
+
+		/* Do Something With It (tm) */
+		msgnum = CtdlSubmitMsg(msg, NULL, roomname);
+		if (msgnum > 0L) {
+			/* Message has been committed to the store, so delete it from the remote server */
+			snprintf(buf, sizeof buf, "DELE %d", msglist[i]);
+			lprintf(CTDL_DEBUG, "<%s\n", buf);
+			if (sock_puts(sock, buf) <0) goto bail;
+			if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+			lprintf(CTDL_DEBUG, ">%s\n", buf);
+			if (strncasecmp(buf, "+OK", 3)) goto bail;
+		}
+		CtdlFreeMessage(msg);
+	}
+
+	/* Log out */
+	snprintf(buf, sizeof buf, "QUIT");
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	sock_close(sock);
+	if (msglist) free(msglist);
 }
 
 

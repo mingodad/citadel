@@ -53,6 +53,7 @@
 #include "euidindex.h"
 #include "journaling.h"
 #include "citadel_dirs.h"
+#include "clientsocket.h"
 
 
 long config_msgnum;
@@ -2819,7 +2820,8 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			size_t maxlen,		/* maximum message length */
 			char *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
-			int crlf		/* CRLF newlines instead of LF */
+			int crlf,		/* CRLF newlines instead of LF */
+			int sock		/* socket handle or 0 for this session's client socket */
 			) {
 	char buf[1024];
 	int linelen;
@@ -2859,7 +2861,12 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 	/* read in the lines of message text one by one */
 	do {
-		if (client_getln(buf, (sizeof buf - 3)) < 1) finished = 1;
+		if (sock > 0) {
+			if (sock_getln(sock, buf, (sizeof buf - 3)) < 0) finished = 1;
+		}
+		else {
+			if (client_getln(buf, (sizeof buf - 3)) < 1) finished = 1;
+		}
 		if (!strcmp(buf, terminator)) finished = 1;
 		if (crlf) {
 			strcat(buf, "\r\n");
@@ -3029,7 +3036,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['M'] = preformatted_text;
 	}
 	else {
-		msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
+		msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
 	}
 
 	return(msg);

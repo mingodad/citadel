@@ -1457,7 +1457,7 @@ void ical_putics(void)
 	}
 
 	cprintf("%d Transmit data now\n", SEND_LISTING);
-        calstream = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0);
+        calstream = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
 	if (calstream == NULL) {
 		return;
 	}

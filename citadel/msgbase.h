@@ -126,7 +126,7 @@ void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
 				int do_repl_check, struct CtdlMessage *supplied_msg);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
-char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf);
+char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf, int sock);
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */

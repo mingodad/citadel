@@ -673,7 +673,7 @@ void smtp_data(void) {
 			config.c_fqdn,
 			nowstamp);
 	
-	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1);
+	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1, 0);
 	if (body == NULL) {
 		cprintf("550 5.6.5 "
 			"Unable to save message: internal error.\r\n");

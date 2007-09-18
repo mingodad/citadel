@@ -540,8 +540,7 @@ void cmd_conf(char *argbuf)
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		unbuffer_output();
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		confptr = CtdlReadMessageBody("000",
-				config.c_maxmsglen, NULL, 0);
+		confptr = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
 		CtdlPutSysConfig(confname, confptr);
 		free(confptr);
 	}

@@ -118,14 +118,14 @@ int spam_assassin(struct CtdlMessage *msg) {
 	
 	/* Response */
 	lprintf(CTDL_DEBUG, "Awaiting response\n");
-        if (sock_gets(sock, buf) < 0) {
+        if (sock_getln(sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
         lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "SPAMD", 5)) {
 		goto bail;
 	}
-        if (sock_gets(sock, buf) < 0) {
+        if (sock_getln(sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
         lprintf(CTDL_DEBUG, "<%s\n", buf);

@@ -202,7 +202,7 @@ void notify_funambol(long msgnum, void *userdata) {
 	
 	/* Response */
 	lprintf(CTDL_DEBUG, "Awaiting response\n");
-        if (sock_gets(sock, buf) < 0) {
+        if (sock_getln(sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
         lprintf(CTDL_DEBUG, "<%s\n", buf);

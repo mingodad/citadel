@@ -189,7 +189,7 @@ int sock_write(int sock, char *buf, int nbytes)
  * Input string from socket - implemented in terms of sock_read()
  * 
  */
-int sock_gets(int sock, char *buf)
+int sock_getln(int sock, char *buf, int bufsize)
 {
 	int i;
 
@@ -197,13 +197,13 @@ int sock_gets(int sock, char *buf)
 	 */
 	for (i = 0;; i++) {
 		if (sock_read(sock, &buf[i], 1) < 0) return(-1);
-		if (buf[i] == '\n' || i == (SIZ-1))
+		if (buf[i] == '\n' || i == (bufsize-1))
 			break;
 	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
-	if (i == (SIZ-1))
+	if (i == (bufsize-1))
 		while (buf[i] != '\n')
 			if (sock_read(sock, &buf[i], 1) < 0) return(-1);
 
@@ -227,12 +227,12 @@ int ml_sock_gets(int sock, char *buf) {
 	char bigbuf[1024];
 	int g;
 
-	g = sock_gets(sock, buf);
+	g = sock_getln(sock, buf, SIZ);
 	if (g < 4) return(g);
 	if (buf[3] != '-') return(g);
 
 	do {
-		g = sock_gets(sock, bigbuf);
+		g = sock_getln(sock, bigbuf, SIZ);
 		if (g < 0) return(g);
 	} while ( (g >= 4) && (bigbuf[3] == '-') );
 
