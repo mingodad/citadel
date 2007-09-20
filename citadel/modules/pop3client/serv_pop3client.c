@@ -1,9 +1,7 @@
 /*
- * $Id: $
+ * $Id$
  *
- * Aggregate remote POP3 accounts
- *
- * NOTE: this is disabled in Citadel 7.20 -- enable with -DPOP3_AGGREGATION at your own risk.
+ * Consolidate mail from remote POP3 accounts.
  *
  */
 
@@ -46,9 +44,6 @@ struct pop3aggr {
 };
 
 struct pop3aggr *palist = NULL;
-
-#ifdef POP3_AGGREGATION
-
 
 void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass)
 {
@@ -241,14 +236,11 @@ void pop3client_scan(void) {
 	doing_pop3client = 0;
 }
 
-#endif
 
 CTDL_MODULE_INIT(pop3client)
 {
-#ifdef POP3_AGGREGATION
 	CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
-#endif
 
 	/* return our Subversion id for the Log */
-        return "$Id:  $";
+        return "$Id$";
 }
