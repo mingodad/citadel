@@ -71,7 +71,6 @@ static void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes);
 #ifdef HAVE_OPENSSL
 static void serv_read_ssl(CtdlIPC *ipc, char *buf, unsigned int bytes);
 static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes);
-static void ssl_lock(int mode, int n, const char *file, int line);
 static void endtls(SSL *ssl);
 #ifdef THREADED_CLIENT
 static unsigned long id_callback(void);
@@ -2755,6 +2754,17 @@ static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 }
 
 
+#ifdef THREADED_CLIENT
+static void ssl_lock(int mode, int n, const char *file, int line)
+{
+	if (mode & CRYPTO_LOCK)
+		pthread_mutex_lock(Critters[n]);
+	else
+		pthread_mutex_unlock(Critters[n]);
+}
+#endif /* THREADED_CLIENT */
+
+
 static void CtdlIPC_init_OpenSSL(void)
 {
 	int a;
@@ -2835,15 +2845,6 @@ static void CtdlIPC_init_OpenSSL(void)
 }
 
 
-static void ssl_lock(int mode, int n, const char *file, int line)
-{
-#ifdef THREADED_CLIENT
-	if (mode & CRYPTO_LOCK)
-		pthread_mutex_lock(Critters[n]);
-	else
-		pthread_mutex_unlock(Critters[n]);
-#endif /* THREADED_CLIENT */
-}
 
 #ifdef THREADED_CLIENT
 static unsigned long id_callback(void) {
