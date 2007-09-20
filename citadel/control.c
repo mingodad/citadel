@@ -272,6 +272,8 @@ void cmd_conf(char *argbuf)
 	        cprintf("%s\n", config.c_funambol_source);
 	        cprintf("%s\n", config.c_funambol_auth);
 		cprintf("%d\n", config.c_rbl_at_greeting);
+		cprintf("%s\n", config.c_master_user);
+		cprintf("%s\n", config.c_master_pass);
 		cprintf("000\n");
 	}
 
@@ -498,6 +500,12 @@ void cmd_conf(char *argbuf)
 				break;
 			case 57:
 				config.c_rbl_at_greeting = atoi(buf);
+				break;
+			case 58:
+				safestrncpy(config.c_master_user, buf, sizeof config.c_master_user);
+				break;
+			case 59:
+				safestrncpy(config.c_master_pass, buf, sizeof config.c_master_pass);
 				break;
 			}
 			++a;

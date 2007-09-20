@@ -287,79 +287,13 @@ void artv_do_export(void) {
 
 	cprintf("version\n%d\n", REV_LEVEL);
 
-	/* export the config file */
+	/* export the config file (this is done using x-macros) */
 	cprintf("config\n");
 
 #include "artv_serialize.h"
 #include "dtds/config-defs.h"
 #include "undef_data.h"
 
-/*
-	cprintf("%s\n", config.c_nodename);
-	cprintf("%s\n", config.c_fqdn);
-	cprintf("%s\n", config.c_humannode);
-	cprintf("%s\n", config.c_phonenum);
-	cprintf("%ld\n", (long)config.c_ctdluid);
-	cprintf("%d\n", config.c_creataide);
-	cprintf("%d\n", config.c_sleeping);
-	cprintf("%d\n", config.c_initax);
-	cprintf("%d\n", config.c_regiscall);
-	cprintf("%d\n", config.c_twitdetect);
-	cprintf("%s\n", config.c_twitroom);
-	cprintf("%s\n", config.c_moreprompt);
-	cprintf("%d\n", config.c_restrict);
-	cprintf("%s\n", config.c_site_location);
-	cprintf("%s\n", config.c_sysadm);
-	cprintf("%d\n", config.c_setup_level);
-	cprintf("%d\n", config.c_maxsessions);
-	cprintf("%d\n", config.c_port_number);
-	cprintf("%d\n", config.c_ep.expire_mode);
-	cprintf("%d\n", config.c_ep.expire_value);
-	cprintf("%d\n", config.c_userpurge);
-	cprintf("%d\n", config.c_roompurge);
-	cprintf("%s\n", config.c_logpages);
-	cprintf("%d\n", config.c_createax);
-	cprintf("%ld\n", config.c_maxmsglen);
-	cprintf("%d\n", config.c_min_workers);
-	cprintf("%d\n", config.c_max_workers);
-	cprintf("%d\n", config.c_pop3_port);
-	cprintf("%d\n", config.c_smtp_port);
-	cprintf("%d\n", config.c_purge_hour);
-	cprintf("%d\n", config.c_mbxep.expire_mode);
-	cprintf("%d\n", config.c_mbxep.expire_value);
-	cprintf("%s\n", config.c_ldap_host);
-	cprintf("%d\n", config.c_ldap_port);
-	cprintf("%s\n", config.c_ldap_base_dn);
-	cprintf("%s\n", config.c_ldap_bind_dn);
-	cprintf("%s\n", config.c_ldap_bind_pw);
-	cprintf("%s\n", config.c_ip_addr);
-	cprintf("%d\n", config.c_msa_port);
-	cprintf("%d\n", config.c_imaps_port);
-	cprintf("%d\n", config.c_pop3s_port);
-	cprintf("%d\n", config.c_smtps_port);
-	cprintf("%d\n", config.c_rfc822_strict_from);
-	cprintf("%d\n", config.c_aide_zap);
-	cprintf("%d\n", config.c_imap_port);
-	cprintf("%ld\n", config.c_net_freq);
-	cprintf("%d\n", config.c_disable_newu);
-	cprintf("%s\n", config.c_baseroom);
-	cprintf("%s\n", config.c_aideroom);
-	cprintf("%d\n", config.c_auto_cull);
-	cprintf("%d\n", config.c_instant_expunge);
-	cprintf("%d\n", config.c_allow_spoofing);
-	cprintf("%d\n", config.c_journal_email);
-	cprintf("%d\n", config.c_journal_pubmsgs);
-	cprintf("%s\n", config.c_journal_dest);
-	cprintf("%s\n", config.c_default_cal_zone);
-	cprintf("%d\n", config.c_pftcpdict_port);
-	cprintf("%d\n", config.c_managesieve_port);
-	cprintf("%d\n", config.c_auth_mode);
-	cprintf("%s\n", config.c_funambol_host);
-	cprintf("%d\n", config.c_funambol_port);
-	cprintf("%s\n", config.c_funambol_source);
-	cprintf("%s\n", config.c_funambol_auth);
-	cprintf("%d\n", config.c_rbl_at_greeting);
-*/
 	/* Export the control file */
 	get_control();
 	cprintf("control\n");
@@ -391,72 +325,6 @@ void artv_import_config(void) {
 #include "dtds/config-defs.h"
 #include "undef_data.h"
 
-/*
-	client_getln(config.c_nodename, sizeof config.c_nodename);
-	client_getln(config.c_fqdn, sizeof config.c_fqdn);
-	client_getln(config.c_humannode, sizeof config.c_humannode);
-	client_getln(config.c_phonenum, sizeof config.c_phonenum);
-	client_getln(buf, sizeof buf);	config.c_ctdluid = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_creataide = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_sleeping = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_initax = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_regiscall = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_twitdetect = atoi(buf);
-	client_getln(config.c_twitroom, sizeof config.c_twitroom);
-	client_getln(config.c_moreprompt, sizeof config.c_moreprompt);
-	client_getln(buf, sizeof buf);	config.c_restrict = atoi(buf);
-	client_getln(config.c_site_location, sizeof config.c_site_location);
-	client_getln(config.c_sysadm, sizeof config.c_sysadm);
-	client_getln(buf, sizeof buf);	config.c_setup_level = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_maxsessions = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_port_number = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_ep.expire_mode = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_ep.expire_value = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_userpurge = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_roompurge = atoi(buf);
-	client_getln(config.c_logpages, sizeof config.c_logpages);
-	client_getln(buf, sizeof buf);	config.c_createax = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_maxmsglen = atol(buf);
-	client_getln(buf, sizeof buf);	config.c_min_workers = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_max_workers = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_pop3_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_smtp_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_purge_hour = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_mbxep.expire_mode = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_mbxep.expire_value = atoi(buf);
-	client_getln(config.c_ldap_host, sizeof config.c_ldap_host);
-	client_getln(buf, sizeof buf);	config.c_ldap_port = atoi(buf);
-	client_getln(config.c_ldap_base_dn, sizeof config.c_ldap_base_dn);
-	client_getln(config.c_ldap_bind_dn, sizeof config.c_ldap_bind_dn);
-	client_getln(config.c_ldap_bind_pw, sizeof config.c_ldap_bind_pw);
-	client_getln(config.c_ip_addr, sizeof config.c_ip_addr);
-	client_getln(buf, sizeof buf);	config.c_msa_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_imaps_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_pop3s_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_smtps_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_rfc822_strict_from = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_aide_zap = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_imap_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_net_freq = atol(buf);
-	client_getln(buf, sizeof buf);	config.c_disable_newu = atoi(buf);
-	client_getln(config.c_baseroom, sizeof config.c_baseroom);
-	client_getln(config.c_aideroom, sizeof config.c_aideroom);
-	client_getln(buf, sizeof buf);	config.c_auto_cull = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_instant_expunge = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_allow_spoofing = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_journal_email = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_journal_pubmsgs = atoi(buf);
-	client_getln(config.c_journal_dest, sizeof config.c_journal_dest);
-	client_getln(config.c_default_cal_zone, sizeof config.c_default_cal_zone);
-	client_getln(buf, sizeof buf);	config.c_pftcpdict_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_managesieve_port = atoi(buf);
-	client_getln(buf, sizeof buf);	config.c_auth_mode = atoi(buf);
-	client_getln(config.c_funambol_host, sizeof config.c_funambol_host);
-	client_getln(buf, sizeof buf); config.c_funambol_port = atoi(buf);
-	client_getln(config.c_funambol_source, sizeof config.c_funambol_source);
-	client_getln(config.c_funambol_auth, sizeof config.c_funambol_auth);
-	client_getln(buf, sizeof buf);	config.c_rbl_at_greeting = atoi(buf);
-*/
 	config.c_enable_fulltext = 0;	/* always disable */
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");

@@ -47,12 +47,12 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	720		/* This version */
+#define REV_LEVEL	721		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	706		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	721		/* Oldest compatible export files */
 
-#define SERVER_TYPE 0	/* zero for stock Citadel; other developers please
-			   obtain SERVER_TYPE codes for your implementations */
+#define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
+					   obtain SERVER_TYPE codes for your implementations */
 
 /* Various length constants */
 
@@ -126,19 +126,19 @@ struct ctdluser {			/* User record                      */
 #include "dtds/user-defs.h"
 #include "undef_data.h"
 */
-	int version;			/* Cit vers. which created this rec */
-	uid_t uid;			/* Associate with a unix account?   */
-	char password[32];		/* password (for Citadel-only users)*/
-	unsigned flags;			/* See US_ flags below              */
-	long timescalled;		/* Total number of logins           */
-	long posted;			/* Number of messages posted (ever) */
-	cit_uint8_t axlevel;		/* Access level                     */
-	long usernum;			/* User number (never recycled)     */
-	time_t lastcall;		/* Last time the user called        */
-	int USuserpurge;		/* Purge time (in days) for user    */
-	char fullname[64];		/* Name for Citadel messages & mail */
-	cit_uint8_t USscreenwidth;	/* Screen width (for textmode users)*/
-	cit_uint8_t USscreenheight;	/* Screen height(for textmode users)*/
+	int version;			/* Cit vers. which created this rec  */
+	uid_t uid;			/* Associate with a unix account?    */
+	char password[32];		/* password                          */
+	unsigned flags;			/* See US_ flags below               */
+	long timescalled;		/* Total number of logins            */
+	long posted;			/* Number of messages ever submitted */
+	cit_uint8_t axlevel;		/* Access level                      */
+	long usernum;			/* User number (never recycled)      */
+	time_t lastcall;		/* Date/time of most recent login    */
+	int USuserpurge;		/* Purge time (in days) for user     */
+	char fullname[64];		/* Display name (primary identifier) */
+	cit_uint8_t USscreenwidth;	/* Screen width (for textmode users) */
+	cit_uint8_t USscreenheight;	/* Screen height(for textmode users) */
 };
 
 

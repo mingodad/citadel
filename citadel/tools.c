@@ -160,8 +160,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
  * /
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	char *d;		//* dest * /
-	const char *s;		//* source * /
+	char *d;		// dest
+	const char *s;		// source
 	int count = 0;
 	int len = 0;
 
@@ -170,10 +170,10 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	strcpy(dest, "");
 
-	//* Locate desired parameter * /
+	//  Locate desired parameter 
 	s = source;
 	while (count < parmnum) {
-		//* End of string, bail! * /
+		//  End of string, bail!
 		if (!*s) {
 			s = NULL;
 			break;
@@ -185,7 +185,7 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 	}
 	if (!s) {
 		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
-		return -1;		//* Parameter not found * /
+		return -1;		// Parameter not found
 	}
 	
 	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
