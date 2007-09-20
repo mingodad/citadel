@@ -1,5 +1,7 @@
-
 /**
+ *
+ * $Id$
+ *
  * this file contains the defines that cause our x-macros to serialize for artv export
  */
 #define CFG_VALUE(a,b) a
@@ -19,8 +21,6 @@
 
 #define TIME(a) client_getln(cbuf, sizeof cbuf); buf->a = atol(cbuf)
 #define UID_T(a) client_getln(cbuf, sizeof cbuf); buf->a = atol(cbuf)
-
-
 
 #define STRING_BUF(a, b) client_getln(buf->a, b)
 #define STRING(a) client_getln(buf->a, sizeof buf->a)

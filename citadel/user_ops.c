@@ -340,9 +340,6 @@ int getuserbyuid(struct ctdluser *usbuf, uid_t number)
 	return (-1);
 }
 
-#define MASTER_USER		"master"
-#define MASTER_PASSWORD		"d0nuts"
-
 /*
  * Back end for cmd_user() and its ilk
  *
@@ -359,16 +356,15 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 
 	if (trythisname == NULL) return login_not_found;
 
+	/* If a "master user" is defined, handle its authentication if specified */
 	CC->is_master = 0;
-#ifdef MASTER_USER_HACK
-	/* This lives inside an ifdef for now, because it isn't yet secure enough for general deployment */
-	if (authname) {
-		if (!strcasecmp(authname, MASTER_USER)) {
+	if (strlen(config.c_master_user) > 0) if (strlen(config.c_master_pass) > 0) if (authname) {
+		if (!strcasecmp(authname, config.c_master_user)) {
 			CC->is_master = 1;
 		}
 	}
-#endif
 
+	/* Continue attempting user validation... */
 	safestrncpy(username, trythisname, USERNAME_SIZE);
 	striplt(username);
 
@@ -697,7 +693,7 @@ int CtdlTryPassword(char *password)
 	code = (-1);
 
 	if (CC->is_master) {
-		code = strcmp(password, MASTER_PASSWORD);
+		code = strcmp(password, config.c_master_pass);
 	}
 
 	else if (config.c_auth_mode == 1) {

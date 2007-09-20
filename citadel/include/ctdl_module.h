@@ -1,15 +1,14 @@
-/* $Id:$ */
+/* $Id$ */
 
 #ifndef CTDL_MODULE_H
 #define CTDL_MODULE_H
 
-
 #include "server.h"
 #include "sysdep_decls.h"
+
 /*
  * define macros for module init stuff
  */
- 
  
 #define CTDL_MODULE_INIT(module_name) char *ctdl_module_##module_name##_init (void)
 

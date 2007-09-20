@@ -1,6 +1,7 @@
-
-
 /**
+ * 
+ * $Id: $
+ *
  * this file contains the defines that convert our x-macros to datatypes
  */
 
@@ -21,7 +22,6 @@
 
 #undef TIME
 #undef UID_T    
-
 
 #undef STRING_BUF
 #undef STRING

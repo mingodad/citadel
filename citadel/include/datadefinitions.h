@@ -1,6 +1,7 @@
-
-
 /**
+ *
+ * $Id$
+ *
  * this file contains the defines that convert our x-macros to datatypes
  */
 #define CFG_VALUE(a,b) a
@@ -22,8 +23,5 @@
 #define TIME(a) time_t a
 #define UID_T(a) uid_t a
 
-
-
 #define STRING_BUF(a, b) char a[b]
 #define STRING(a) char *a
-

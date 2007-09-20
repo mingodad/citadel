@@ -1,5 +1,7 @@
-
 /**
+ *
+ * $Id$
+ *
  * this file contains the defines that cause our x-macros to serialize for artv export
  */
 
@@ -20,8 +22,6 @@
 
 #define TIME(a) cprintf("%ld\n", (long)buf->a)
 #define UID_T(a) cprintf("%ld\n", (long)buf->a)
-
-
 
 #define STRING_BUF(a, b) cprintf("%s\n", buf->a)
 #define STRING(a) cprintf("%s\n", buf->a)
