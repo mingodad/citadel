@@ -1,5 +1,10 @@
 /*
+ * $Id: $
+ *
  * Aggregate remote POP3 accounts
+ *
+ * NOTE: this is disabled in Citadel 7.20 -- enable with -DPOP3_AGGREGATION at your own risk.
+ *
  */
 
 #include <stdlib.h>
