@@ -43,6 +43,8 @@ cat <<EOF  >$C_FILE
 #include <time.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "citadel.h"
 #include "modules_init.h"
 #include "sysdep_decls.h"
