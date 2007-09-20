@@ -508,7 +508,9 @@ void imap_greeting(void)
  */
 void imaps_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+#ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
+#endif
 	imap_greeting();
 }
 
