@@ -561,6 +561,29 @@ void display_siteconfig(void)
 			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VAUE=\"%s\">", buf);
 			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
 			break;
+		case 57:
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Perform RBL checks upon connect instead of after RCPT"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_rbl_at_greeting\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
+		case 58:
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Master user name (blank to disable)"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"text\" NAME=\"c_master_user\" MAXLENGTH=\"31\" VALUE=\"%s\">", buf);
+			sprintf(&access[strlen(access)], "</TD></TR>\n");
+			break;
+		case 59:
+			sprintf(&access[strlen(access)], "<TR><TD>");
+			sprintf(&access[strlen(access)], _("Master user password"));
+			sprintf(&access[strlen(access)], "</TD><TD>");
+			sprintf(&access[strlen(access)], "<input type=\"password\" NAME=\"c_master_pass\" MAXLENGTH=\"31\" VALUE=\"%s\">",
+			buf);
+			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
+			break;
 		}
 	
 	}
@@ -732,6 +755,9 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_funambol_port"));
 	serv_printf("%s", bstr("c_funambol_source"));
 	serv_printf("%s", bstr("c_funambol_auth"));
+	serv_printf("%s", bstr("c_rbl_at_greeting"));
+	serv_printf("%s", bstr("c_master_user"));
+	serv_printf("%s", bstr("c_master_pass"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));

@@ -649,7 +649,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 58
+#define NUM_CONFIGS 60
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -780,7 +780,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	if (ipc->ServInfo.supports_ldap) {
 		a = strlen(&sc[32][0]);
 		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
-		a = boolprompt("Connect this Citadel to an LDAP directory", a);
+		a = boolprompt("Connect this Citadel to an external LDAP directory", a);
 		if (a) {
 			strprompt("Host name of LDAP server",
 				&sc[32][0], 127);
@@ -870,11 +870,35 @@ void do_system_configuration(CtdlIPC *ipc)
 	}
 
 	/* Funambol push stuff */
-	strprompt("Funambol server (blank to disable)", &sc[53][0], 63);
-	strprompt("Funambol server port", &sc[54][0], 5);
-	strprompt("Funambol sync source", &sc[55][0], 63);
-	strprompt("Funambol authentication details (user:pass in Base64)", &sc[56][0],63);
-	
+	int yes_funambol = 0;
+	if (strlen(sc[53]) > 0) yes_funambol = 1;
+	yes_funambol = boolprompt("Connect to an external Funambol sync server", yes_funambol);
+	if (yes_funambol) {
+		strprompt("Funambol server (blank to disable)", &sc[53][0], 63);
+		strprompt("Funambol server port", &sc[54][0], 5);
+		strprompt("Funambol sync source", &sc[55][0], 63);
+		strprompt("Funambol authentication details (user:pass in Base64)", &sc[56][0],63);
+	}
+	else {
+		sc[53][0] = 0;
+		sc[54][0] = 0;
+		sc[55][0] = 0;
+		sc[56][0] = 0;
+	}
+
+	/* Master user account */
+	int yes_muacct = 0;
+	if (strlen(sc[58]) > 0) yes_muacct = 1;
+	yes_muacct = boolprompt("Enable a 'master user' account", yes_muacct);
+	if (yes_muacct) {
+		strprompt("Master user name", &sc[58][0], 31);
+		strprompt("Master user password", &sc[59][0], -31);
+	}
+	else {
+		strcpy(&sc[58][0], "");
+		strcpy(&sc[59][0], "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+	}
+
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {

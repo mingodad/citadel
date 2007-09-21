@@ -98,9 +98,14 @@ void pop3_greeting(void) {
  */
 void pop3s_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+
+/* kill session if no crypto */
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
+	if (!CC->redirect_ssl) CC->kill_me = 1;
+#else
+	CC->kill_me = 1;
 #endif
+
 	pop3_greeting();
 }
 
