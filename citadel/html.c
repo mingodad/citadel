@@ -311,6 +311,13 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 				strcpy(&outbuf[i+3], &outbuf[i+6]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&bull;", 6)) {
+				outbuf[i] = ' ';
+				outbuf[i+1] = '*';
+				outbuf[i+2] = ' ';
+				strcpy(&outbuf[i+3], &outbuf[i+6]);
+			}
+
 			else if (!strncasecmp(&outbuf[i], "&hellip;", 8)) {
 				outbuf[i] = '.';
 				outbuf[i+1] = '.';
