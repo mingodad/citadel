@@ -38,6 +38,7 @@
 #include "axdefs.h"
 #include "routines.h"
 #include "routines2.h"
+#include "tuiconfig.h"
 #include "rooms.h"
 #include "messages.h"
 #include "commands.h"
@@ -2285,6 +2286,10 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 			case 126:           /* .KShared */
     			 dotknown(ipc, 6, NULL);
 				 break;
+
+			case 127:           /* Configure POP3 aggregation */
+				do_pop3client_configuration(ipc);
+				break;
 
 			default: /* allow some math on the command */
 				/* commands 100... to 100+MAX_EDITORS-1 will

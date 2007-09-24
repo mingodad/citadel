@@ -354,6 +354,7 @@ cmd=77,0,&.,&Enter,&Username
 #
 cmd=41,0,&.,&Enter,re&Gistration
 cmd=4,0,&.,&Enter,&Message
+cmd=127,0,&.,&Enter,remote POP&3 accounts
 
 # If you have an external editor defined, it will appear on command 46.
 cmd=46,0,&.,&Enter,message with &Editor

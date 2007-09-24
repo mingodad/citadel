@@ -114,7 +114,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	modules/autocompletion/serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
-	room_ops.c rooms.c routines.c routines2.c euidindex.c \
+	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
 	screen.c sendcommand.c \
 	modules/bio/serv_bio.c \
 	modules/calendar/serv_calendar.c \
@@ -169,10 +169,10 @@ utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
 
 citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS)
+	routines2.o tuiconfig.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS)
 	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS) \
+	routines2.o tuiconfig.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS) \
 	$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
