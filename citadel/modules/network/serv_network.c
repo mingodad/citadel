@@ -366,7 +366,11 @@ void cmd_gnet(char *argbuf) {
 	char buf[SIZ];
 	FILE *fp;
 
-	if (CtdlAccessCheck(ac_room_aide)) return;
+	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
+		/* users can edit the netconfigs for their own mailbox rooms */
+	}
+	else if (CtdlAccessCheck(ac_room_aide)) return;
+
 	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	cprintf("%d Network settings for room #%ld <%s>\n",
 		LISTING_FOLLOWS,
@@ -389,11 +393,15 @@ void cmd_snet(char *argbuf) {
 	char tempfilename[SIZ];
 	char filename[SIZ];
 	char buf[SIZ];
-	FILE *fp;
+	FILE *fp, *newfp;
 
 	unbuffer_output();
 
-	if (CtdlAccessCheck(ac_room_aide)) return;
+	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
+		/* users can edit the netconfigs for their own mailbox rooms */
+	}
+	else if (CtdlAccessCheck(ac_room_aide)) return;
+
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 
@@ -411,15 +419,23 @@ void cmd_snet(char *argbuf) {
 	}
 	fclose(fp);
 
-	/* Now copy the temp file to its permanent location
-	 * (We use /bin/mv instead of link() because they may be on
-	 * different filesystems)
+	/* Now copy the temp file to its permanent location.
+	 * (We copy instead of link because they may be on different filesystems)
 	 */
-	unlink(filename);
-	snprintf(buf, sizeof buf, "/bin/mv %s %s", tempfilename, filename);
 	begin_critical_section(S_NETCONFIGS);
-	system(buf);
+	fp = fopen(tempfilename, "r");
+	if (fp != NULL) {
+		newfp = fopen(filename, "w");
+		if (newfp != NULL) {
+			while (fgets(buf, sizeof buf, fp) != NULL) {
+				fprintf(newfp, "%s", buf);
+			}
+			fclose(newfp);
+			fclose(fp);
+		}
+	}
 	end_critical_section(S_NETCONFIGS);
+	unlink(tempfilename);
 }
 
 
