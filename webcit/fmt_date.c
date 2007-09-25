@@ -72,12 +72,18 @@ void fmt_date(char *buf, time_t thetime, int brief)
 		if ((tm.tm_year == today_tm.tm_year)
 		  &&(tm.tm_mon == today_tm.tm_mon)
 		  &&(tm.tm_mday == today_tm.tm_mday)) {
-			wc_strftime(buf, 32, "%l:%M%p", &tm);
+			if (time_format == WC_TIMEFORMAT_24) 
+				wc_strftime(buf, 32, "%k:%M", &tm);
+			else
+				wc_strftime(buf, 32, "%l:%M%p", &tm);
 		}
 		/** Otherwise, for messages up to 6 months old, show the
 		 * month and day, and the time */
 		else if (today_timet - thetime < 15552000) {
-			wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
+			if (time_format == WC_TIMEFORMAT_24) 
+				wc_strftime(buf, 32, "%b %d %k:%M", &tm);
+			else
+				wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
 		}
 		/** older than 6 months, show only the date */
 		else {
