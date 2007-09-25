@@ -665,6 +665,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char mime_partnum[256];
 	char mime_name[256];
 	char mime_filename[256];
+	char escaped_mime_filename[256];
 	char mime_content_type[256];
 	char mime_charset[256];
 	char mime_disposition[256];
@@ -857,6 +858,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				attach_links = realloc(attach_links,
 					(num_attach_links*sizeof(struct attach_link)));
 				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
+				urlesc(escaped_mime_filename, mime_filename);
 				snprintf(attach_links[num_attach_links-1].html, 1024,
 					"<img src=\"static/diskette_24x.gif\" "
 					"border=0 align=middle>\n"
@@ -868,10 +870,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 					" ]<br />\n",
 					mime_filename,
 					mime_content_type, mime_length,
-					msgnum, mime_partnum, mime_filename,
+					msgnum, mime_partnum, escaped_mime_filename,
 					msgnum, mime_partnum,
 					_("View"),
-					msgnum, mime_partnum, mime_filename,
+					msgnum, mime_partnum, escaped_mime_filename,
 					_("Download")
 				);
 			}
