@@ -538,6 +538,19 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	int is_in_list = 0;
 	int num_results = 0;
 
+	/* Strip parentheses.  We realize that this method will not work
+	 * in all cases, but it seems to work with all currently available
+	 * client software.  Revisit later...
+	 */
+	for (i=0; i<num_items; ++i) {
+		if (itemlist[i][0] == '(') {
+			strcpy(&itemlist[i][0], &itemlist[i][1]);
+		}
+		if (itemlist[i][strlen(itemlist[i])-1] == ')') {
+			itemlist[i][strlen(itemlist[i])-1] = 0;
+		}
+	}
+
 	/* If there is a BODY search criterion in the query, use our full
 	 * text index to disqualify messages that don't have any chance of
 	 * matching.  (Only do this if the index is enabled!!)
