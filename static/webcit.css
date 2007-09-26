@@ -1,694 +1,473 @@
-
-* html {
-	overflow: hidden;
+@media print {
+	input#toggler, .toolbar { display: none }
 }
 
-body {
-	margin:0;
-	padding: 0 0 0 0;
-	height: 100%;
-	overflow: auto;
-	background: rgb(100,100,200) url(/static/gradient_background.jpg) repeat-x;
-	color: black;
-	font-weight: normal;
-	font-size: 10pt;
-	font-family: sans-serif;
-	text-align: center;
-}
 
-#global {
-	margin: 0;
-	padding: 0;
-}
+/* Typography & colors */
 
-#iconbar {
-	/* position:fixed; */
-	position:absolute;
-	display:block;
-	top:0px;
-	left:0px;
-	width: 15%;
-	/* height:100%; */
-	background: #ffffee;
-        text-align: left;
-}
+html {	font-size: 100%;}
 
-* html #iconbar {
-	position:absolute;
-	display:block;
-	top:0px;
-	left:0px;
-	width: 15%;
-	/* height:100%; */
-	background: #ffffee;
-}
-
-.logo, .logo_citadel {
-        display: block;
-        text-align: center;
-        border-bottom: 1px solid #aaaaaa;
-        margin: 0;
-        padding: 0;
-}
-
-.logo_citadel a, .logo_citadel img {
-        border: none;
-}
-
-#banner {
-	position:fixed;
-	display:block;
-	top:0px;
-	left: 15%;
-	width: 85%;
-	height: 15%;
-	background: #445;
-        text-align: left;
-}
-
-* html #banner {
-	position:absolute;
-	display:block;
-	top:0px;
-	left: 15%;
-	width: 85%;
-	height: 15%;
-	background: #445;
-}
-
-#banner .room_banner {
-        float: left;
-        width: 48%;
-}
-
-#banner img {
-        float: left;
-        margin-top: 0;
-        margin-left: 0;
-        margin-bottom: 5px;
-        margin-right: 5px;
-}
+body { font-size: 11pt}
 
 #banner h1 {
-        font-size: 14pt;
-        font-weight: bold;
-        color: #FFFFEE;
-        margin: 0;
-        padding: 2px;
+font-size:16pt;
 }
 
-#banner h2 {
-        font-size: 11pt;
-        font-weight: bold;
-        color: #FFFFEE;
+#banner h2,#banner .titlebar, .address_book_popup_title {
+font-size:13pt;
 }
 
-.room_banner .infos {
-        font-size: 8pt;
-	color: #FFFFEE;
-        text-align: center;
-        padding: 2px;
-	cursor: help;
-}
-
-#room_infos {
-        position: absolute;
-        top: 0px;
-        left: 50%;
-        width: 45%;
-        padding: 11px;
-        margin: 0px;
-        z-index: 100;
-        color: #666;
-        background: white;
-	cursor: pointer;
-        font-size: 10pt;
-	color: black;
-        text-align: left;
-        padding: 2px;
-	margin-top: 5px;
-}
-
-img.close_infos {
-	float: right;
-}
-
-#banner ul {
-        float: right;
-        text-align: right;
-        width: 48%;
-        margin: 0;
-        padding: 0;
-}
-
-#banner ul li {
-        text-align: right;
-        clear: right;
-        list-style: none;
-        margin: 0;
-        padding: 2px;
-        white-space: nowrap;
-}
-
-li.search {
-        font-size: 10pt;
-        float: left;
-        color: #FFFFFF;
-}
-
-li.view {
-        font-size: 10pt;
-        float: right;
-        color: #FFFFFF;
-}
-
-li.search form, li.view form {
-	margin: 0;
-	padding: 0;
-}
-
-p.nummsgs {
-        font-size: 10pt;
-        color: #FFFFFF;
-}
-
-li.start_page {
-        font-size: 8pt;
-        color: #DDDDCC;
+#button, #content .msgbuttons a,input#delbutton,.attachfile,.logbuttons input,.buttons input,  #wholist li, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span  {
+font-size: 10pt;
 }
 
 
-#navbar {
-	position: absolute; 
-	bottom: 0px; 
-	left: 0px;
-}
-
-#navbar ul {
-	float: left;
-	width: 95%;
-        margin: 0;
-        padding: 0;
-        white-space: nowrap;
-        text-align: left;
-}
-
-#navbar ul li {
-	display: inline;
-	list-style: none;
-	margin-top: 0;
-	margin-right: 5px;
-	margin-bottom:0 ;
-	margin-left: 20px;
-        white-space: nowrap;
-}
-
-#navbar ul li img {
-        float: none;
-	margin-top: 0;
-	margin-right: 2px;
-	margin-bottom:0 ;
-	margin-left: 2px;
-}
-
-.navbar_link {
-	font-size: 7pt;
-	color: #FFFFEE;
+body {
+background-color:#004E79;
+font-family:"Trebuchet MS", "Verdana", "Bitstream Vera Sans", sans-serif;
+font-weight:400;
 }
 
 
-#important_message {
-	position:absolute;
-	top:0px; right:0px;
-	background-color: #880000;
-	z-index: 2;
+#banner, #banner a, .selector_top,.selector_bottom {
+color:#FFFFFF;
 }
 
-#content {
-	position:fixed;
-	display:block;
-	top: 16%;
-	left: 15%;
-	width: 85%;
-	height: 84%;
-	overflow: auto;
-	/* overflow-x: hidden; */
-        text-align: left;
+#content, #address_book_popup_container_div,#address_book_popup_middle_div,#address_book_inner_div select {
+background-color:#6C91A6;
+color: #000000
 }
 
-* html #content {
-	position:absolute;
-	display:block;
-	top: 16%;
-	left: 15%;
-	width: 85%;
-	height: 84%;
-	overflow: auto;
-	/* overflow-x: hidden; */
+#address_book_popup {
+background-color:#fff;
+border:1px solid black;
+color:#000;
 }
 
-.service {
+#banner h1,#banner h2 {
+font-weight:700;
 }
 
-.service table, .service form {
-	width: 100%;
+#banner ul.room_actions li.start_page a,#navbar,.selector_top,.selector_bottom {
+background-color:#022750;
 }
 
-
-.instructions {
-
-}
-
-#message_list_hdr {
-	position:fixed;
-	display:block;
-	top: 16%;
-	left: 15%;
-	width: 85%;
-	height: 5%;
-	overflow: hidden;
-	font-style: italic;
-	text-align: left;
-}
-
-* html #message_list_hdr {
-	position:absolute;
-	display:block;
-	top: 16%;
-	left: 15%;
-	width: 85%;
-	height: 5%;
-	overflow: hidden;
-	font-style: italic;
-	text-align: left;
-}
-
-#message_list {
-	position:fixed;
-	display:block;
-	top: 21%;
-	left: 15%;
-	width: 85%;
-	height: 20%;
-	overflow: auto;
-	cursor: pointer;
-        text-align: left;
-}
-
-* html #message_list {
-	position:absolute;
-	display:block;
-	top: 21%;
-	left: 15%;
-	width: 85%;
-	height: 20%;
-	overflow: auto;
-	cursor: pointer;
-}
-
-#resize_msglist {
-	position:fixed;
-	display:block;
-	top: 41%;
-	left: 15%;
-	width: 85%;
-	height: 1%;
-	overflow: hidden;
-	cursor: s-resize;
-	background-color: #cccccc;
-	background-image:url(/static/resizegrippy.gif);
-	background-repeat: no-repeat;
-	background-position: center; 
-}
-
-* html #resize_msglist {
-	position:absolute;
-	display:block;
-	top: 41%;
-	left: 15%;
-	width: 85%;
-	height: 1%;
-	overflow: hidden;
-	cursor: s-resize;
-}
-
-#resize_msglist hr {
-	color: darkgrey;
-	background-color: darkgrey;
-	height: 3px;
-	border: 0;
-}
-
-#preview_pane {
-	position:fixed;
-	display:block;
-	top: 42%;
-	left: 15%;
-	width: 85%;
-	height: 58%;
-	overflow: auto;
-        text-align: left;
-}
-
-* html #preview_pane {
-	position:absolute;
-	display:block;
-	top: 42%;
-	left: 15%;
-	width: 85%;
-	height: 58%;
-	overflow: auto;
-}
-
-
-.fix_scrollbar_bug {
-	margin-right:1px;		/* Gecko and other non-broken browsers */
-	width: expression('97%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
-}
-
-#button {
-	width: 100%;
-	background-color: #ffffee;
-	color: #aaaaaa;
-	font-size: 8pt;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	border: none;
-}
-
-#button li, #button li.switch {
-	border-bottom: 1px solid #aaaaaa;
-	margin: 0;
-}
-
-#button li.switch {
-	text-align: center;
-}
-
-#button img {
-	vertical-align: middle;
-	padding-left: 2px;
-	padding-right: 5px;
+#button li {
+border:0;
+border-bottom:2px groove #CCCCCC;
+border-right:2px groove #CCCCCC;
 }
 
 #button li a {
-	display: block;
-	background-color: #ffffee;
-	color: #000000;
-	text-decoration: none;
-	width: 100%;
+color:#000000;
+text-decoration:none;
 }
 
-html>body #button li a {
-	width: auto;
+#button li.switch {
+border:0;
+border-bottom:1px solid #AAAAAA;
 }
 
-#button li a:hover {
-	background-image:url(/static/body-background.gif);
-	color: #000000;
+#content .msgbuttons a,input#delbutton,.attachfile,.logbuttons input,.buttons input {
+background-color:transparent;
+border:2px groove #CCCCCC;
+color:black;
 }
 
-a:link {
-	color: #0000FF;
-	text-decoration: none;
+#iconbar #button {
+border:none;
+list-style:none;
 }
 
-a:visited {
-	color: #0000FF;
-	text-decoration: none;
+#iconbar,#room_infos {
+background-color:#F0FFFF;
+color:#666666;
 }
 
-a:active {
-	color: #0000FF;
-	text-decoration: none;
+#important_message {
+background-color:#AD1C00;
+color:#FFFFFF;
 }
 
-a:hover {
-	text-decoration: underline;
+#login_form #uname,#login_form #pname {
+background-color:#F0FFFF;
+color:#666666;
+text-align:left;
 }
 
-.menubar_link {
-	font-size: 9pt;
+#login_form,.roomops_cell,.roomops_cell_edit {
+background-color:#CCCCCC;
 }
 
-.titlebar {
-	font-size: 12pt;
-	color: #FFFFEE;
+#message_list {
+background-color:#FFFFFF;
+text-align:left;
 }
 
-.selector_top, .selector_bottom {
-        text-align: center;
+#message_list_hdr form input {
+border:0;
+margin:0;
 }
 
-.message {
-	margin: 5px;
-	padding: 0;
-	border: 1px solid #999999;
-	background-color: #CCCCCC;
-        text-align: left;
-	clear: both;
+#message_list_hdr select {
+background-color:#005380;
+border:1px solid #6C91A6;
 }
 
-.message_header, .message_header p {
-	font-size: 10pt;
-	color: black;
-	margin: 0;
-	padding: 0;
-	background-color: #CCCCCC;
-        text-align: left;
+#message_list_hdr table {
+background-color:#CCCCCC;
+font-style:italic;
+text-align:left;
 }
 
-.message_header .message_subject {
-	font-style: italic;
-}
-.mimepart {
-	margin-top: 15px;
-	margin-bottom: 15px;
-	margin-left: 15%;
-	width: 70%;
-	padding: 0;
-	background-color: #FFFFDD;
-	border: 2px solid lightgrey;
+#resize_msglist {
+background-color:#CCCCCC;
+background-image:url(/static/resizegrippy.gif);
+background-position:center;
+background-repeat:no-repeat;
 }
 
-.mimepart img {
-        vertical-align: middle;
-	float: left;
+#resize_msglist hr {
+background-color:#999999;
+border:0;
+color:#999999;
+height:3px;
 }
 
-.mimepart div {
-        vertical-align: middle;
-	margin: 0 0 15px 0 ;
-	padding: 5px;
-	font-size: 11pt;
-        font-weight: bold;
+#roomlist_div,.editednode,.editednodeinput {
+background-color:#FFFFFF;
+color:#000000;
 }
 
-.mimepart div span {
-        vertical-align: top;
-	font-style: italic;
-	display: block;
+#wholist li {
+border:0;
+border-top:1px solid #AAAAAA;
 }
 
-.mimepart dl {
-	width: 100%;
-	padding: 5px;
+#wholist li.activeuser a {
+background-color:#FEF07D;
 }
 
-.mimepart dl dt {
-	width: 30%;
-	float: left;
-	margin: 0 0 0 0;
-	padding: .5em;
-	border-top: 1px solid #999;
-	font-weight: bold;
+.address_book_popup_title {
+background-color:#fbf4ca;
+color:#000;
 }
 
-/* hack ie5 mac \*/
-dt { clear: both; }
-/* end hack */
-
-.mimepart dl dd {
-	float: left;
-	width: 62%;
-	margin: 0 0 0 0;
-	padding: .5em;
-	border-top: 1px solid #999;
+.adminlist,.tabbed_dialog {
+list-style:none;
 }
 
-.mimepart p {
-	margin-top: 1em;
-	margin-bottom: 0;
-	clear: both;
+.auth_validate,.event_background,.calendar_background,.calendar_view_background,.graphics_background,.messages_background,.paging_background,.preferences_background,.roomops_background,.sieve_background,.siteconfig_background,.smtpqueue_background,.tabs_background,.useredit_background,.userlist_background,.downloads_background,.vcard_edit_background {
+background-color:#FFFFFF;
+border:0;
 }
 
-.msgbuttons {
-        float: right;
-        visibility: hidden;
-	margin-top: 0;
-	margin-right: 0;
-	padding: 0;
+.box,#wholist li.inactiveuser a {
+background-color:transparent;
 }
 
-#delbutton, .buttons a, .msgbuttons a {
-        font-size: 8pt;
-        margin-left: 5px;
-	margin-right: 5px;
-        padding: 2px;
-        border-top: 1px solid #CFCFCF;
-        border-left: 1px solid #CFCFCF;
-        border-right: 1px solid #808080;
-        border-bottom: 1px solid #000000;
-        background-color: #BBBBBB;
-        color: #000000;
-        font-weight: bold;
-        text-align: center;
+.boxcontent,.service form div,table.altern .odd,.message_content {
+background-color:#FFFFFF;
 }
 
-.msgbuttons a span, .buttons span {
-        display: none;
+.buttons a {
+color:#000000;
+font-weight:700;
 }
 
-.buttons a:hover, .msgbuttons a:hover {
-        background-color: #AAAAAA;
-        text-decoration: none;
+.buttons a:hover,.msgbuttons a:hover {
+background-image:url(/static/body-background.gif);
+color:#000000;
+text-decoration:none;
 }
-
-.message_content {
-	background-color: white;
-	margin: 0;
-	padding: 3px;
-        clear: both;
-}
-
-.message form div label {
-        display: block;
-        float: left;
-        margin: 3px;
-        width: 9em;
-        text-align: right;
-}
-
-.message form div input, .message form div select {
-        margin: 3px;
-}
-
-.imgedit {
-        vertical-align: middle;
-}
-
-.send_edit_msg {
-        float: right;
-        margin-top: 0;
-        margin-right: 0;
-        padding-top: 2px;
-        padding-bottom: 2px;
-        padding-right: 50px;
-        padding-left: 50px;
-}
-
-
-.boxlabel {
-	font-size: 8pt;
-	font-weight: bold;
-	color: #FFFFEE;
-}
-
-.boxlabel a {
-	color: #FFFFEE;
-}
-
-ul.adminitems {
-        list-style-type: none;
-}
-
-ul.adminitems li {
-        list-style: none;
-	font-size: 13px;
-}
-
-ul.adminitems a {
-	font-size: 13px;
-	margin: 5px;
-	color: #880000;
-	font-weight: bold;
-}
-
-ul.adminitems span {
-	display: block;
-	font-size: 8pt;
-	color: #000088;
-}
-
 
 .customize {
-	font-size: 8pt;
-	font-style: italic;
-	color: #000044;
-	background-color: #DDDDCC;
+background-color:#DDDDCC;
+color:#000044;
+font-style:italic;
 }
 
-.view_name, .search_name, .selectbox, .inputbox {
-	font-size: 7pt;
-	background: #444455; 
-	color: #ddddcc;
+.default {
+font-style:normal;
+text-decoration:underline;
 }
 
-.menubar_bg {
-	background-color: #FF0000;
+.editednodeinput {
+border:1px solid #000000;
+height:17px;
+width:150px;
 }
 
-
-.roomlist_floor {
-	font-size: 12pt;
-	font-weight: bold;
-	color: #000000;
+.error a:link,.error a:visited,.error a:active {
+background:none;
+color:#DC143C;
+text-decoration:underline;
 }
 
-.roomlist_new {
-	font-size: 10pt;
-	color: #880000;
-	font-weight: bold;
+.error strong {
+background:#FFD700;
+color:#DC143C;
+text-decoration:none;
 }
 
-.roomlist_old {
-	font-size: 10pt;
-	color: #000088;
+.error strong a:link,.error strong a:visited,.error strong a:active {
+background:#FFD700;
+color:#DC143C;
 }
 
-.ib_roomlist_floor {
-	font-size: 8pt;
-	font-weight: bold;
-	color: #000000;
-	cursor: pointer;
+.errormsg {
+background:none;
+color:#AA0000;
+font-style:italic;
+font-weight:700;
 }
 
-.ib_roomlist_new {
-	font-size: 10px;
-	color: #880000;
-	font-weight: bold;
-	cursor: pointer;
+.floors_config,.roomops_zap {
+background-color:#770000;
+border:0;
 }
 
-.ib_roomlist_old {
-	font-size: 10px;
-	color: #000088;
-	cursor: pointer;
+.ib_roomlist_floor,.ib_roomlist_new,.ib_roomlist_old {
+cursor:pointer;
+}
+
+.imsg {
+background:none;
+color:#AAAAAA;
+font-style:italic;
+font-weight:700;
+}
+
+.login_message {
+color:#AD1C00;
+font-weight:700;
+text-transform:uppercase;
+}
+
+.logo,.logo_citadel {
+border-bottom:1px solid #CCCCCC;
+}
+
+.logo_citadel a,.logo_citadel img {
+border:none;
 }
 
 .mailbox_summary {
-	font-size: 10pt;
-	color: #000000;
-	background-color: #FFFFFF;
+background-color:#FFFFFF;
+color:#000000;
 }
 
-.mailbox_summary tr {
-	width: 100%;
+.menubar_bg {
+background-color:#FF0000;
 }
 
-.mailbox_summary td {
-	border-top: 1px solid darkgrey;
+.message {
+background-color:#CCCCCC;
+border:1px outset #999999;
+clear:both;
+text-align:left;
+}
+
+.message_header {
+background-color:#CCCCCC;
+color:black;
+text-align:left;
+}
+
+.message_header .message_subject {
+font-style:italic;
+}
+
+.mimepart {
+background-color:#FFFFDD;
+border:2px solid #CCCCCC;
+}
+
+.mimepart div span {
+display:block;
+font-style:italic;
+}
+
+.mimepart dl dd,.mailbox_summary td {
+border-top:1px solid #999999;
+}
+
+.mimepart dl dt {
+border-top:1px solid #999999;
+font-weight:700;
+}
+
+.room_actions form select {
+background-color:#0E608C;
+border:1px solid #6C91A6;
+color:#FFFFFF;
+cursor:pointer;
+}
+
+.room_actions li.search input {
+background-color:#FFFFEE;
+}
+
+.room_banner .infos {
+cursor:help;
+}
+
+.roomlist_floor,.ib_roomlist_floor {
+color:#000000;
+}
+
+.roomlist_floor,.ib_roomlist_floor,.roomlist_new,.ib_roomlist_new,.room_banner .nummsgs,.mimepart div,.required {
+font-weight:700;
+}
+
+.roomlist_new,.ib_roomlist_new {
+color:#880000;
+}
+
+.roomlist_old,.ib_roomlist_old {
+color:#000088;
+}
+
+.roomops_cell_label,.boxlabel,.tab_cell_label {
+background-color:#FF7814;
+color:#FFFFFF;
+font-weight:700;
+}
+
+.selectbox {
+background-color:#FF8000;
+}
+
+.tab_cell,.tab_cell_edit {
+background-color:#CCCCCC;
+font-weight:700;
+}
+
+.tabcontent {
+background-color:#FFFFFF;
+border-left:3px solid #FF7814;
+}
+
+.tablabel,.treetitle {
+color:#000000;
+font-weight:700;
+}
+
+.treetitleselectedblured {
+background-color:menu;
+color:windowtext;
+}
+
+.treetitleselectedfocused {
+background-color:highlight;
+color:highlighttext;
+}
+
+.vcard_edit_background_alt,.roomops_background_alt {
+background-color:#dddddd;
+border:0;
+}
+
+.warning {
+background:none;
+color:#FF4500;
+text-decoration:none;
+}
+
+.warning a:link,.warning a:visited,.warning a:active {
+background:none;
+color:#FF4500;
+text-decoration:underline;
+}
+
+.warning strong {
+background:#FFD700;
+color:#FF4500;
+text-decoration:none;
+}
+
+.warning strong a:link,.warning strong a:visited,.warning strong a:active {
+background:#FFD700;
+color:#FF4500;
+}
+
+a {
+text-decoration:none;
+}
+
+a:active {
+color:#8B0000;
+}
+
+a:link {
+color:blue;
+}
+
+a:visited {
+color:purple;
+}
+
+
+div.auto_complete {
+background:#FFFFFF;
+}
+
+div.auto_complete ul {
+background:#fff;
+border:1px solid #888;
+list-style-type:none;
+}
+
+div.auto_complete ul li.selected {
+background-color:#ffc;
+}
+
+div.auto_complete ul strong.highlight {
+color:#800;
+}
+
+input,select {
+border:1px solid #999999;
+}
+
+input:hover,#button li a:hover,#wholist li a:hover {
+background-color:#CCCCCC;
+color:#000000;
+}
+
+table.altern {
+border-bottom:solid 2px #DDDDDD;
+border-top:solid 2px #DDDDDD;
+}
+
+table.altern .even {
+background-color:#DDDDDD;
+}
+
+td li.frameset,.elements li.frameset {
+background:none;
+color:#808080;
+font-weight:lighter;
+}
+
+td li.transitional,.elements li.transitional {
+background:none;
+color:#696969;
+font-weight:lighter;
+}
+
+ul.adminitems {
+list-style-type:disc;
+padding:0;
+}
+
+ul.adminitems li {
+color:#FF8000;
+font-weight:700;
+}
+
+ul.adminitems li span {
+color:#666666;
 }
 
 blockquote {
@@ -717,216 +496,127 @@ var sub {
 	font-style: normal;
 }
 
-.note {
-	font-size: 85%;
-	margin-left: 10%;
+
+/* Layout */
+
+* html {
+	overflow: hidden;
 }
 
-.toolbar {
+body {
+	margin:0;
+	padding: 0 0 0 0;
+	height: 100%;
+	overflow: hidden;
 	text-align: center;
 }
 
-.toolbar IMG {
-	float: right;
+#global {
+	margin: 0;
+	padding: 0;
 }
 
-.errormsg {
-	color: #AA0000;
-	background: none;
-	font-weight: bold;
-	font-style: italic;
+#important_message {
+	position:absolute;
+	top:0px; 
+	right:0px;
+	z-index: 2;
 }
 
-.imsg {
-	color: #aaaaaa;
-	background: none;
-	font-weight: bold;
-	font-style: italic;
-	text-align: center;
+#login_screen {
+	margin: 0;
+	padding: 3% 6% 3% 6%;
 }
 
-.warning {
-	color: #FF4500;
-	background: none;
-	text-decoration: none;
+#iconbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 16%;
+        text-align: left;
 }
 
-.error strong {
-	color: #DC143C;
-	background: #FFD700;
-	text-decoration: none;
+#banner {
+	position: absolute;
+	top: 0;
+	left: 16%;
+	width: 84%;
+	height: 16%;
+        text-align: left;
 }
 
-.warning strong {
-	color: #FF4500;
-	background: #FFD700;
-	text-decoration: none;
+#navbar {
+	position: absolute;
+	bottom: 0; 
+	left: 0;
+	width: 100%;
 }
 
-.warning a:link, .warning a:visited, .warning a:active {
-	color: #FF4500;
-	background: none;
-	text-decoration: underline;
+#content {
+	position: absolute;
+	top: 16.5%;
+	left: 16%;
+	width: 84%;
+	height: 83.5%;
+	overflow: auto;
+        text-align: left;
 }
 
-.error a:link, .error a:visited, .error a:active {
-	color: #DC143C;
-	background: none;
-	text-decoration: underline;
+#message_list_hdr {
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 5%;
+	overflow: hidden;
+	text-align: left;
 }
 
-.error strong a:link, .error strong a:visited, .error strong a:active {
-	color: #DC143C;
-	background: #FFD700;
-}
-
-.warning strong a:link, .warning strong a:visited, .warning strong a:active {
-	color: #FF4500;
-	background: #FFD700;
-}
-
-colgroup.entity {
-	text-align: center;
-}
-
-.default {
-	text-decoration: underline;
-	font-style: normal;
-}
-
-.required {
-	font-weight: bold;
-}
-
-td li.transitional, .elements li.transitional {
-	font-weight: lighter;
-	color: #696969;
-	background: none;
-}
-
-td li.frameset, .elements li.frameset {
-	font-weight: lighter;
-	color: #808080;
-	background: none;
+#message_list {
+	position: absolute;
+	top: 5%;
+	left: 0;
+	width: 100%;
+	height: 20%;
+	overflow: auto;
+	cursor: pointer;
+        text-align: left;
 }
 
 
-@media print {
-	input#toggler, .toolbar { display: none }
+#resize_msglist {
+	position: absolute;
+	top: 25%;
+	left: 0;
+	width: 100%;
+	height: 1%;
+	overflow: hidden;
+	cursor: s-resize;
+}
+
+#preview_pane {
+	position: absolute;
+	top: 26%;
+	left: 0%;
+	width: 100%;
+	height: 74%;
+	overflow: auto;
+        text-align: left;
 }
 
 
-.treetitle {
-	padding:2px;
-	cursor:default;
-	
-	font-size: 11px;
-	color: #000000;
-}
-.editednode {
-	padding:2px;
-	cursor:default;
-	background-color: #FFFFFF;;
-	color: #000000;
-	
-	font-size: 11px;
-}
-.editednodeinput {
-	background-color: #FFFFFF;;
-	color: #000000;
-	
-	width: 150px;
-	height: 17px;
-	
-	border-style: solid;
-	border-width: 1px;
-	border-color: #000000;
-	
-	font-size: 11px;
-}
-.treetitleselectedfocused {
-	padding:2px;
-	cursor:default;
-	background-color: highlight;
-	color: highlighttext;
-	
-	font-size: 11px;
-}
-.treetitleselectedblured {
-	padding:2px;
-	cursor:default;
-	background-color: menu;
-	color: windowtext;
-	font-size: 11px;
+.fix_scrollbar_bug {
+	margin-right:1px;		/* Gecko and other non-broken browsers */
+	width: expression('96%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
 }
 
 
-
-div.auto_complete {
-	width: 350px;
-	background: #fff;
-}
-
-div.auto_complete ul {
-	border:1px solid #888;
-	margin:0;
-	padding:0;
-	width:100%;
-	list-style-type: none;
-	background: #fff;
-}
-
-div.auto_complete ul li {
-	margin:0;
-	padding:3px;
-}
-
-div.auto_complete ul li.selected {
-	background-color: #ffc;
-} 
-
-div.auto_complete ul strong.highlight {
-	color: #800;
-	margin:0;
-	padding:0;
-}
-
-
-.floors_config, .roomops_zap {
-        border: 0;
-        background-color: #770000;
-        width: 100%;
-}
-
-
-.event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background { 
-        border: 0;
-        width: 100%;
-        background-color: #ffffff;
-}
-
-.siteconfig_background { 
-        border: 0;
-        width: 100%;
-}
-
-.smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background    {
-        border: 0;
-        width: 100%;
-        background-color: #ffffff;
-}
-
-.roomops_background_alt {
-        border: 0;
-        width: 100%;
-        background-color: #dddddd;
-}
-
+/* Boxes */
 
 .box {
         width: 100%;
-        padding: 0px;
-        background-color: #FFFFFF;
+        padding: 0;
 }
 
 .boxlabel, .boxcontent {
@@ -934,69 +624,46 @@ div.auto_complete ul strong.highlight {
 }
 
 .boxlabel {
-        background-color: #000088;
         text-align: center;
 }
 
-.boxcontent .col1,  .boxcontent .col2  { 
-	float: left;
-	width: 33%;
-}
 
 
-#login_screen {
-	margin: 3%;
-}
+/* Login */
 
-.login_content {
-        background-color: white;
-}
-
-.login_message, .login_hello {
+#login_screen .login_message, .login_hello {
         position: relative;
         margin-left: auto;
         margin-right: auto;
-        width: 80%;
+        width: 60%;
         text-align: center;
 }
 
-.login_image {
+#login_screen .login_image {
         display: block;
         margin-left: auto;
         margin-right: auto;
         text-align: center;
 }
 
-.login_message {
-	color: red;
-	font-weight: bold;
-	font-size: 16px;
-}
-
-#login_form {
+#login_screen #login_form {
         position: relative;
         display: block;
-        margin-top: 20px;
         margin-left: auto;
         margin-right: auto;
-        margin-bottom: 20px;
-        padding: 6px;
-        width: 300px;
-        background-color: #DDDDDD;
+        margin-bottom: 0;
+        padding: 10px;
+        width: 308px;
+        text-align: center;
 }
 
 #login_form input, #login_form label, #login_form select {
         display: block;
         float: left;
-        margin: 6px;
+        margin: 6pt;
 }
 
-#login_form label {
-        width: 130px;
-        text-align: left;
-}
-
-#pname, #uname {
+#login_form label, #pname, #uname {
         width: 130px;
         text-align: left;
 }
@@ -1005,71 +672,55 @@ div.auto_complete ul strong.highlight {
         clear: left;
 }
 
-#login_form .logbuttons {
-        margin-left: auto;
-        margin-right: auto;
-}
-
-#login_form .logbutton {
-	width: auto;
-        text-align: center;
-}
-
 .login_infos {
         display: block;
-        margin-top: 30px;
+        margin-top: 20px;
         margin-left: auto;
         margin-right: auto;
         width: 80% ;
         text-align: left;
 }
 
-#address_book_popup {
-        position: absolute;
-        top: 100px;
-        right: 25px;
-        width: 320px;
-	height: auto;
-        z-index: 100;
-	background-color: #fff;
-	color: #000;
-	display: none;
-	border: 1px solid black;
+
+/* Iconbar */
+
+.logo, .logo_citadel {
+        display: block;
+        text-align: center;
+        margin: 0;
+        padding: 0;
 }
 
-#address_book_popup_container_div {
-	position: relative;
+#iconbar #button {
 	width: 100%;
-	height: 100%;
-	background-color: #fbf4ca;
+	margin: 0;
+	padding: 0;
 }
 
-#address_book_popup_middle_div {
-	position: relative;
-	background-color: #fbf4ca;
+#button li {
+	margin: 4px 8px 4px 8px;
+	padding: 2px
 }
 
-#address_book_inner_div {
-	margin: 5px;
+#button li.switch {
+	margin: 0;
+	padding: 0;
+	text-align: center;
 }
 
-#address_book_inner_div select {
-	width: 100%;
-	background-color: #fbf4ca;
+#button img {
+	vertical-align: middle;
+	padding-left: 2px;
+	padding-right: 5px;
 }
 
-.address_book_popup_title {
-        font-size: 12pt;
-	background-color: #fbf4ca;
-        color: #000;
-}
-
-.edit_col, .host_col {
-	display: none;
-}
-
-.who_is_online .edit_col, .who_is_online .host_col {
+#button li a {
 	display: block;
+	width: 100%;
+}
+
+html>body #button li a {
+	width: auto;
 }
 
 #wholist {
@@ -1081,77 +732,460 @@ div.auto_complete ul strong.highlight {
 }
 
 #wholist li {
-	color: black;
-        text-align: left;
+        text-align: center;
         list-style: none;
-	border: 0;
         margin: 0;
         padding: 2px;
         white-space: nowrap;
-	border-top: 1px solid #aaaaaa;
 }
 
-#wholist li.activeuser a {
-	background-color: rgb(255,240,146);
-        padding-left: 5px;
-} 
 
-#wholist li.inactiveuser a {
-	background-color: transparent;
-        padding-left: 5px;
-} 
+/* Banner */
+
+#banner {
+        text-align: left;
+}
+
+#banner .room_banner {
+	margin: 0;
+	padding: 0;
+	float: left;
+}
+
+#banner img {
+        float: left;
+	margin: 0 5px 15px 0;
+}
+
+#banner h1, #banner h2, #banner .room_banner .infos, #banner .room_banner p {
+	margin: 2px;
+        padding: 0;
+}
+
+#room_infos {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 45%;
+        padding: 11px;
+        z-index: 10;
+	cursor: pointer;
+        text-align: left;
+        padding: 10px 2px 2px 2px;
+}
+
+#room_infos img.close_infos {
+	float: right;
+}
+
+#banner ul.room_actions {
+        list-style: none;
+	margin: 0;
+	padding: 0
+}
+
+#banner ul.room_actions li {
+        margin: 0 0 4px 0;
+        padding: 2px;
+        white-space: nowrap;
+	text-align: right;
+}
+
+#banner ul.room_actions li select, #banner ul.room_actions li input {
+        margin: 0;
+        padding: 0;
+}
+
+/* Navbar */
+
+#navbar ul, .selector_top, .selector_bottom {
+	width: 100%;
+        margin: 0 auto 0 auto;
+	padding: 2px;
+        white-space: nowrap;
+        text-align: center;
+}
+
+#navbar ul li {
+	display: inline;
+	list-style: none;
+	margin: 0 8px 0 8px;
+        white-space: nowrap;
+}
+
+#navbar ul li img {
+        float: none;
+	margin: 0 2px 0 2px;
+}
+ 
+
+/* Content */
+
+#content .box {
+	margin-top: 2%;
+	margin-left: auto;
+	margin-right: auto;
+	width: 95%;
+	text-align: left;
+}
+.boxcontent table {
+	margin: 0;
+	padding: 0;
+}
+
+#content table .box {
+	margin: 0;
+	width: 100%;
+	text-align: left;
+}
+
+.service, .advanced, .who_is_online {
+	text-align: center;
+	width: 100%;
+}
+
+.service table, .advanced table, .who_is_online table {
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	text-align: left;
+}
+
+.advanced table table {
+	margin: 0;
+	padding: 0;
+}
+
+
+.instructions {
+
+}
+
+#message_list_hdr table {
+	position: absolute;
+	bottom: 0; 
+	left: 0;
+	width: 100%;	
+}
+
+.selector_top, .selector_bottom {
+        text-align: center;
+}
+
+.message {
+	margin: 1%;
+	padding: 0;
+}
+
+.message_header p {
+	margin: 2px 0 2px 0;
+	padding: 0;
+}
+
+
+
+.msgbuttons a {
+	margin: 0 2px 0 2px;
+	padding: 0 2px 0 2px;
+}
+
+.mimepart {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	margin-left: 15%;
+	width: 70%;
+	padding: 0;
+}
+
+.mimepart img {
+        vertical-align: middle;
+	float: left;
+}
+
+.mimepart div {
+        vertical-align: middle;
+	margin: 0 0 15px 0 ;
+	padding: 5px;
+}
+
+.mimepart div span {
+        vertical-align: top;
+}
+
+.mimepart dl {
+	width: 100%;
+	padding: 5px;
+}
+
+.mimepart dl dt {
+	width: 30%;
+	float: left;
+	margin: 0 0 0 0;
+	padding: .5em;
+}
+
+/* hack ie5 mac \*/
+dt { clear: both; }
+/* end hack */
+
+.mimepart dl dd {
+	float: left;
+	width: 62%;
+	margin: 0 0 0 0;
+	padding: .5em;
+}
+
+.mimepart p {
+	margin-top: 1em;
+	margin-bottom: 0;
+	clear: both;
+}
+
+.msgbuttons {
+        float: right;
+        visibility: hidden;
+	margin-top: 0 10px 0 0;
+	margin-right: 0;
+	padding: 0;
+}
+
+.buttons a {
+        text-align: center;
+}
+
+.msgbuttons a span, .buttons span {
+        display: none;
+}
+
+.message_content {
+	margin: 0;
+	padding: 3px;
+        clear: both;
+}
+
+.message form div label {
+        display: block;
+        float: left;
+        margin: 3px;
+        width: 9em;
+        text-align: right;
+}
+
+.message form div input, .message form div select {
+        margin: 3px;
+}
+
+.imgedit {
+        vertical-align: middle;
+}
+
+.send_edit_msg {
+        float: right;
+        margin-top: 0 ;
+        margin-right: 0;
+        padding-top: 2px 50px 2px 50px;
+}
+
+
+.mailbox_summary tr {
+	width: 100%;
+}
+
+
+.note {
+	font-size: 85%;
+	margin-left: 10%;
+}
+
+.toolbar {
+	text-align: center;
+}
+
+.toolbar img {
+	float: right;
+}
+
+.imsg {
+	text-align: center;
+}
+
+
+colgroup.entity {
+	text-align: center;
+}
+
+
+div.auto_complete {
+	background: #fff;
+}
+
+div.auto_complete ul {
+	margin:0;
+	padding:0;
+	width:100%;
+}
+
+div.auto_complete ul li {
+	margin:0;
+	padding:3px;
+}
+
+
+div.auto_complete ul strong.highlight {
+	margin:0;
+	padding:0;
+}
+
+.floors_config, .roomops_zap {
+        width: 100%;
+}
+
+
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .vcard_edit_background_alt, .roomops_background_alt   {
+        width: 100%;
+}
+
+
+#address_book_popup {
+        position: absolute;
+        top: 100px;
+        right: 25px;
+        width: 320px;
+	height: auto;
+        z-index: 100;
+	display: none;
+}
+
+#address_book_popup_container_div {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+#address_book_popup_middle_div {
+	position: relative;
+}
+
+#address_book_inner_div {
+	margin: 5px;
+}
+
+#address_book_inner_div select {
+	width: 100%;
+}
+
+.edit_col, .host_col {
+	display: none;
+}
+
+.who_is_online .edit_col, .who_is_online .host_col {
+	display: block;
+}
+
+
+
+
+/* System Administration Menu */
+
+
+ul.adminitems {
+        margin: 15px;
+	padding: 0;
+}
+
+ul.adminitems li {
+        margin: 0.5em;
+	padding: 0;
+}
+
+ul.adminitems li span {
+	display: block;
+}
+
+
+
+/* Room list - Tree Node */
+
+.treetitle, .editednode, .treetitleselectedfocused, .treetitleselectedblured {
+	padding:2px;
+	cursor:default;
+}
+
 
 table.altern {
-	background-color: #ffffff;
-	width: 98%;
+	margin: 0 auto 0 auto;
+	width: 98%
+} 
+
+table.altern tr td {
+	height: 2em;	
+} 
+
+/* Advanced menu */
+
+.advanced .boxcontent ul {
+	margin-left: 4em;
 }
 
-table.altern .even {
-	background-color: #dddddd;
+.advanced .boxcontent .col1, .advanced .boxcontent .col2  { 
+	float: left;
+	width: 33%;
 }
 
-table.altern .odd {
-	background-color: #ffffff;
+.advanced .boxcontent .col2, .advanced .boxcontent .lastcol  {
+	margin-left: 0;
+	margin-bottom: 4em;
+}
+
+/* Site configuration */
+
+#TheTabs {
+}
+
+.tabs_background {
+	margin-top: 0;
+}
+
+/* Links and buttons */
+
+.send_edit_msg {
+	margin: 0 15px 0 0;
 }
 
 
-.adminlist, .tabbed_dialog {
-        list-style: none;
+
+.logbuttons, .buttons {
+	margin: 2px auto 2px auto;
+	width: 95%;
+	text-align: center;
 }
+
+/* Tabs */
+
+.tab_cell_label, .tab_cell, .tab_cell_edit {
+	margin: 0;
+        padding: 0 15px 0 15px;
+
+}
+
+
 
 ul.tabbed_dialog {
-margin: 3% 0 0 2%;
-padding:0;
-float: left;
-width: 20%;
+	margin: 3% 0 0 2%;
+	padding:0;
+	float: left;
+	width: 20%;
 }
 
 .tabbed_dialog .tablabel {
-margin: 0 0 3% 0;
-padding: 0.4em;
+	margin: 0 0 3% 0;
+	padding: 0.4em;
 }
 
 .tabcontent {
-margin-left: 22%;
-background-color: #ffffff;
-width: 74%;
-padding: 10px;
-height:60%;
-min-height:40%;
-max-height:90%;
+	margin-top: 2%;
+	margin-left: 22%;
+	width: 74%;
+	padding: 10px;
 }
-
-.tab_cell_label {
-	font-size: 10pt;
-	font-weight: bold;
-	color: #000000;
-        background-color: #FFFFFF;
-}
-
-.tab_cell, .tab_cell_edit {
-	font-size: 10pt;
-	font-weight: bold;
-	color: #000000;
-        background-color: #CCCCCC;
-}
-
