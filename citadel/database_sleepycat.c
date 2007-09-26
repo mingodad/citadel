@@ -504,7 +504,9 @@ void close_databases(void)
 	}
 
 	/* print some statistics... */
+#ifdef DB_STAT_ALL
 	dbenv->lock_stat_print(dbenv, DB_STAT_ALL);
+#endif
 
 	/* close the tables */
 	for (a = 0; a < MAXCDB; ++a) {
