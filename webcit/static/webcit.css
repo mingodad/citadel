@@ -839,7 +839,7 @@ html>body #button li a {
 	text-align: left;
 }
 
-.service, .advanced, .who_is_online {
+.service, .who_is_online {
 	text-align: center;
 	width: 100%;
 }
@@ -1123,6 +1123,13 @@ table.altern tr td {
 } 
 
 /* Advanced menu */
+
+table.advanced {
+	margin: 15px auto 0 auto;
+	width: 98%
+	border-collapse: separate;
+	border-spacing: 15px;
+} 
 
 .advanced .boxcontent ul {
 	margin-left: 4em;
