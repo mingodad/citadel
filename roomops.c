@@ -1031,6 +1031,8 @@ void display_editroom(void)
 	int roomvalue = 0;
 	int floorpolicy = 0;
 	int floorvalue = 0;
+	char pop3_host[128];
+	char pop3_user[32];
 
 	tab = bstr("tab");
 	if (IsEmptyStr(tab)) tab = "admin";
@@ -1126,6 +1128,18 @@ void display_editroom(void)
 	else {
 		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
 		wprintf(_("Mailing list service"));
+		wprintf("</a>");
+	}
+	wprintf("</li>\n");
+
+	wprintf("<li class=\"tablabel ");
+	if (!strcmp(tab, "feeds")) {
+		wprintf(" tab_cell_label\">");
+		wprintf(_("Remote retrieval"));
+	}
+	else {
+		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=feeds\">");
+		wprintf(_("Remote retrieval"));
 		wprintf("</a>");
 	}
 	wprintf("</li>\n");
@@ -1433,10 +1447,8 @@ void display_editroom(void)
 					urlescputs(remote_room);
 				}
 				wprintf("\">");
-				wprintf("<input type=\"hidden\" NAME=\"tab\" "
-					"VALUE=\"sharing\">\n");
-				wprintf("<input type=\"hidden\" NAME=\"cmd\" "
-					"VALUE=\"remove\">\n");
+				wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"sharing\">\n");
+				wprintf("<input type=\"hidden\" NAME=\"cmd\" VALUE=\"remove\">\n");
 				wprintf("<input type=\"submit\" "
 					"NAME=\"unshare_button\" VALUE=\"%s\">", _("Unshare"));
 				wprintf("</td></tr></form>\n");
@@ -1609,7 +1621,7 @@ void display_editroom(void)
 	}
 
 
-	/** Mailing list management */
+	/** Configuration of The Dreaded Auto-Purger */
 	if (!strcmp(tab, "expire")) {
 		wprintf("<div class=\"tabcontent\">");
 
@@ -1698,12 +1710,82 @@ void display_editroom(void)
 		wprintf("</div>");
 	}
 
-	/** Mailing list management */
+	/** Access controls */
 	if (!strcmp(tab, "access")) {
 		wprintf("<div class=\"tabcontent\">");
 		display_whok();
 		wprintf("</div>");
 	}
+
+	/** Fetch messages from remote locations */
+	if (!strcmp(tab, "feeds")) {
+		wprintf("<div class=\"tabcontent\">");
+
+		wprintf("<i>");
+		wprintf(_("Retrieve messages from these remote POP3 accounts and store them in this room:"));
+		wprintf("</i><br /><br />\n");
+
+		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
+		wprintf(_("Remote host"));
+		wprintf("</td><td>");
+		wprintf(_("User name"));
+		wprintf("</td><td>");
+		wprintf(_("Password"));
+		wprintf("</td></tr>");
+
+		serv_puts("GNET");
+		serv_getln(buf, sizeof buf);
+		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			extract_token(cmd, buf, 0, '|', sizeof cmd);
+			if (!strcasecmp(cmd, "pop3client")) {
+				safestrncpy(recp, &buf[11], sizeof recp);
+				wprintf("<tr>");
+
+				wprintf("<td>");
+				extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
+				escputs(pop3_host);
+				wprintf("</td>");
+
+				wprintf("<td>");
+				extract_token(pop3_user, buf, 2, '|', sizeof pop3_user);
+				escputs(pop3_user);
+				wprintf("</td>");
+
+				wprintf("<td>*****</td>");		/* Don't show the password */
+
+				wprintf("<td>");
+				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
+				urlescputs(recp);
+				wprintf("\">");
+				wprintf(_("(remove)"));
+				wprintf("</A></td>");
+			
+				wprintf("</tr>");
+			}
+		}
+
+		wprintf("<form method=\"POST\" action=\"netedit\">\n"
+			"<tr>"
+			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"feeds\">"
+			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"pop3client|\">\n");
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<td>");
+		wprintf("<input type=\"text\" id=\"add_as_pop3host\" NAME=\"line_pop3host\">\n");
+		wprintf("</td>");
+		wprintf("<td>");
+		wprintf("<input type=\"text\" id=\"add_as_pop3user\" NAME=\"line_pop3user\">\n");
+		wprintf("</td>");
+		wprintf("<td>");
+		wprintf("<input type=\"password\" id=\"add_as_pop3pass\" NAME=\"line_pop3pass\">\n");
+		wprintf("</td>");
+		wprintf("<td>");
+		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
+		wprintf("</td></tr>");
+		wprintf("</form></table>\n");
+
+		wprintf("</div>");
+	}
+
 
 	/** end content of whatever tab is open now */
 	wprintf("</div>\n");
@@ -2432,14 +2514,25 @@ void netedit(void) {
 	char cmpb1[SIZ];
 	int i, num_addrs;
 
-	if (IsEmptyStr(bstr("line"))) {
+	if (!IsEmptyStr(bstr("line_pop3host"))) {
+		strcpy(line, bstr("prefix"));
+		strcat(line, bstr("line_pop3host"));
+		strcat(line, "|");
+		strcat(line, bstr("line_pop3user"));
+		strcat(line, "|");
+		strcat(line, bstr("line_pop3pass"));
+		strcat(line, bstr("suffix"));
+	}
+	else if (!IsEmptyStr(bstr("line"))) {
+		strcpy(line, bstr("prefix"));
+		strcat(line, bstr("line"));
+		strcat(line, bstr("suffix"));
+	}
+	else {
 		display_editroom();
 		return;
 	}
 
-	strcpy(line, bstr("prefix"));
-	strcat(line, bstr("line"));
-	strcat(line, bstr("suffix"));
 
 	fp = tmpfile();
 	if (fp == NULL) {
