@@ -130,7 +130,7 @@ void display_main_menu(void)
 
 	snprintf(buf, SIZ, _("Zap (forget) this room (%s)"), WC->wc_roomname);
 
-	if ((WC->axlevel >= 6) || (WC->is_room_aide)) 
+	if ( (WC->axlevel >= 6) || (WC->is_room_aide) || (WC->is_mailbox) )
 		print_menu_box(_("Advanced room commands"),"adminitems", 5,
 			       "display_editroom", _("Edit or delete this room"),
 			       "display_private", _("Go to a 'hidden' room"),
