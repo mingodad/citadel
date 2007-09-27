@@ -223,7 +223,7 @@ void summary_inner_div(void) {
 	 */
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%%><tr valign=top>");
+		"<table class=\"advanced\"><tr valign=top>");
 
 	/**
 	 * Column One
@@ -264,8 +264,6 @@ void summary_inner_div(void) {
 	wprintf("</div></div></div>");
 	wprintf("</td>");
 
-	wprintf("</tr><tr valign=top>");
-	wprintf("<td colspan=3><br/></td>");
 	wprintf("</tr><tr valign=top>");
 
 	/**
