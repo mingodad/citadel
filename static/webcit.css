@@ -10,7 +10,7 @@ html {	font-size: 100%;}
 body { font-size: 11pt}
 
 #banner h1 {
-font-size:16pt;
+font-size:15pt;
 }
 
 #banner h2,#banner .titlebar, .address_book_popup_title {
@@ -18,7 +18,7 @@ font-size:13pt;
 }
 
 #button, #content .msgbuttons a,input#delbutton,.attachfile,.logbuttons input,.buttons input,  #wholist li, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span  {
-font-size: 10pt;
+font-size: 9pt;
 }
 
 
@@ -539,7 +539,7 @@ body {
 #banner {
 	position: absolute;
 	top: 0;
-	left: 16%;
+	left: 17%;
 	width: 84%;
 	height: 16%;
         text-align: left;
@@ -554,10 +554,10 @@ body {
 
 #content {
 	position: absolute;
-	top: 16.5%;
+	top: 17%;
 	left: 16%;
 	width: 84%;
-	height: 83.5%;
+	height: 83%;
 	overflow: auto;
         text-align: left;
 }
