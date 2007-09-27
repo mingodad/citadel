@@ -1038,21 +1038,6 @@ void display_editroom(void)
 	if (IsEmptyStr(tab)) tab = "admin";
 
 	load_floorlist();
-	serv_puts("GETR");
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
-		display_main_menu();
-		return;
-	}
-	extract_token(er_name, &buf[4], 0, '|', sizeof er_name);
-	extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
-	extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
-	er_flags = extract_int(&buf[4], 3);
-	er_floor = extract_int(&buf[4], 4);
-	er_flags2 = extract_int(&buf[4], 7);
-
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
@@ -1072,65 +1057,69 @@ void display_editroom(void)
 	}
 	wprintf("</li>\n");
 
-	wprintf("<li class=\"tablabel ");
-	if (!strcmp(tab, "config")) {
-		wprintf(" tab_cell_label\">");
-		wprintf(_("Configuration"));
-	}
-	else {
-		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=config\">");
-		wprintf(_("Configuration"));
-		wprintf("</a>");
-	}
-	wprintf("</li>\n");
+	if ( (WC->axlevel >= 6) || (WC->is_room_aide) ) {
+
+		wprintf("<li class=\"tablabel ");
+		if (!strcmp(tab, "config")) {
+			wprintf(" tab_cell_label\">");
+			wprintf(_("Configuration"));
+		}
+		else {
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=config\">");
+			wprintf(_("Configuration"));
+			wprintf("</a>");
+		}
+		wprintf("</li>\n");
+
+		wprintf("<li class=\"tablabel ");
+		if (!strcmp(tab, "expire")) {
+			wprintf(" tab_cell_label\">");
+			wprintf(_("Message expire policy"));
+		}
+		else {
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=expire\">");
+			wprintf(_("Message expire policy"));
+			wprintf("</a>");
+		}
+		wprintf("</li>\n");
 	
-	wprintf("<li class=\"tablabel ");
-	if (!strcmp(tab, "expire")) {
-		wprintf(" tab_cell_label\">");
-		wprintf(_("Message expire policy"));
-	}
-	else {
-		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=expire\">");
-		wprintf(_("Message expire policy"));
-		wprintf("</a>");
-	}
-	wprintf("</li>\n");
+		wprintf("<li class=\"tablabel ");
+		if (!strcmp(tab, "access")) {
+			wprintf(" tab_cell_label\">");
+			wprintf(_("Access controls"));
+		}
+		else {
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=access\">");
+			wprintf(_("Access controls"));
+			wprintf("</a>");
+		}
+		wprintf("</li>\n");
 
-	wprintf("<li class=\"tablabel ");
-	if (!strcmp(tab, "access")) {
-		wprintf(" tab_cell_label\">");
-		wprintf(_("Access controls"));
-	}
-	else {
-		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=access\">");
-		wprintf(_("Access controls"));
-		wprintf("</a>");
-	}
-	wprintf("</li>\n");
+		wprintf("<li class=\"tablabel ");
+		if (!strcmp(tab, "sharing")) {
+			wprintf(" tab_cell_label\">");
+			wprintf(_("Sharing"));
+		}
+		else {
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
+			wprintf(_("Sharing"));
+			wprintf("</a>");
+		}
+		wprintf("</li>\n");
 
-	wprintf("<li class=\"tablabel ");
-	if (!strcmp(tab, "sharing")) {
-		wprintf(" tab_cell_label\">");
-		wprintf(_("Sharing"));
-	}
-	else {
-		wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
-		wprintf(_("Sharing"));
-		wprintf("</a>");
-	}
-	wprintf("</li>\n");
+		wprintf("<li class=\"tablabel ");
+		if (!strcmp(tab, "listserv")) {
+			wprintf(" tab_cell_label\">");
+			wprintf(_("Mailing list service"));
+		}
+		else {
+			wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
+			wprintf(_("Mailing list service"));
+			wprintf("</a>");
+		}
+		wprintf("</li>\n");
 
-	wprintf("<li class=\"tablabel ");
-	if (!strcmp(tab, "listserv")) {
-		wprintf(" tab_cell_label\">");
-		wprintf(_("Mailing list service"));
 	}
-	else {
-		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
-		wprintf(_("Mailing list service"));
-		wprintf("</a>");
-	}
-	wprintf("</li>\n");
 
 	wprintf("<li class=\"tablabel ");
 	if (!strcmp(tab, "feeds")) {
@@ -1170,188 +1159,208 @@ void display_editroom(void)
 
 	if (!strcmp(tab, "config")) {
 		wprintf("<div class=\"tabcontent\">");
-		wprintf("<form method=\"POST\" action=\"editroom\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-	
-		wprintf("<ul><li>");
-		wprintf(_("Name of room: "));
-		wprintf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
-			er_name,
-			(sizeof(er_name)-1)
-		);
-	
-		wprintf("<li>");
-		wprintf(_("Resides on floor: "));
-		wprintf("<select NAME=\"er_floor\" SIZE=\"1\">\n");
-		for (i = 0; i < 128; ++i)
-			if (!IsEmptyStr(floorlist[i])) {
-				wprintf("<OPTION ");
-				if (i == er_floor)
-					wprintf("SELECTED ");
-				wprintf("VALUE=\"%d\">", i);
-				escputs(floorlist[i]);
-				wprintf("</OPTION>\n");
-			}
-		wprintf("</select>\n");
-	
-		wprintf("<li>");
-		wprintf(_("Type of room:"));
-		wprintf("<ul>\n");
-
-		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-		if ((er_flags & QR_PRIVATE) == 0)
-		wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Public (automatically appears to everyone)"));
-		wprintf("\n");
-
-		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
-		if ((er_flags & QR_PRIVATE) &&
-		    (er_flags & QR_GUESSNAME))
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
-	
-		wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
-		if ((er_flags & QR_PRIVATE) &&
-		    (er_flags & QR_PASSWORDED))
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Private - require password: "));
-		wprintf("\n<input type=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
-			er_password);
-	
-		wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
-		if ((er_flags & QR_PRIVATE)
-		    && ((er_flags & QR_GUESSNAME) == 0)
-		    && ((er_flags & QR_PASSWORDED) == 0))
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Private - invitation only"));
-	
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
-		wprintf("> ");
-		wprintf(_("If private, cause current users to forget room"));
-	
-		wprintf("\n</ul>\n");
-	
-		wprintf("<li><input type=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
-		if (er_flags & QR_PREFONLY)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Preferred users only"));
-	
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
-		if (er_flags & QR_READONLY)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Read-only room"));
-	
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
-		if (er_flags2 & QR2_COLLABDEL)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("All users allowed to post may also delete messages"));
-	
-		/** directory stuff */
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
-		if (er_flags & QR_DIRECTORY)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("File directory room"));
-
-		wprintf("\n<ul><li>");
-		wprintf(_("Directory name: "));
-		wprintf("<input type=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",
-			er_dirname);
-
-		wprintf("<li><input type=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
-		if (er_flags & QR_UPLOAD)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Uploading allowed"));
-	
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
-		if (er_flags & QR_DOWNLOAD)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Downloading allowed"));
-	
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
-		if (er_flags & QR_VISDIR)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Visible directory"));
-		wprintf("</ul>\n");
-	
-		/** end of directory stuff */
-	
-		wprintf("<li><input type=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
-		if (er_flags & QR_NETWORK)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Network shared room"));
-
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
-		if (er_flags & QR_PERMANENT)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Permanent (does not auto-purge)"));
-
-		wprintf("\n<li><input type=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
-		if (er_flags2 & QR2_SUBJECTREQ)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Subject Required (Force users to specify a message subject)"));
-
-		/** start of anon options */
-	
-		wprintf("\n<li>");
-		wprintf(_("Anonymous messages"));
-		wprintf("<ul>\n");
-	
-		wprintf("<li><input type=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
-		if (((er_flags & QR_ANONONLY) == 0)
-		    && ((er_flags & QR_ANONOPT) == 0))
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("No anonymous messages"));
-	
-		wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
-		if (er_flags & QR_ANONONLY)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("All messages are anonymous"));
-	
-		wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
-		if (er_flags & QR_ANONOPT)
-			wprintf("CHECKED ");
-		wprintf("> ");
-		wprintf(_("Prompt user when entering messages"));
-		wprintf("</ul>\n");
-	
-	/* end of anon options */
-	
-		wprintf("<li>");
-		wprintf(_("Room aide: "));
-		serv_puts("GETA");
+		serv_puts("GETR");
 		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') {
-			wprintf("<em>%s</em>\n", &buf[4]);
-		} else {
-			extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
-			wprintf("<input type=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+
+		if (!strncmp(buf, "550", 3)) {
+			wprintf("<br><br><div align=center>%s</div><br><br>\n",
+				_("Higher access is required to access this function.")
+			);
 		}
+		else if (buf[0] != '2') {
+			wprintf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
+		}
+		else {
+			extract_token(er_name, &buf[4], 0, '|', sizeof er_name);
+			extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
+			extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
+			er_flags = extract_int(&buf[4], 3);
+			er_floor = extract_int(&buf[4], 4);
+			er_flags2 = extract_int(&buf[4], 7);
 	
-		wprintf("</ul><CENTER>\n");
-		wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
-			"<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
-			"&nbsp;"
-			"<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
-			"</CENTER>\n",
-			_("Save changes"),
-			_("Cancel")
-		);
+			wprintf("<form method=\"POST\" action=\"editroom\">\n");
+			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		
+			wprintf("<ul><li>");
+			wprintf(_("Name of room: "));
+			wprintf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
+				er_name,
+				(sizeof(er_name)-1)
+			);
+		
+			wprintf("<li>");
+			wprintf(_("Resides on floor: "));
+			wprintf("<select NAME=\"er_floor\" SIZE=\"1\">\n");
+			for (i = 0; i < 128; ++i)
+				if (!IsEmptyStr(floorlist[i])) {
+					wprintf("<OPTION ");
+					if (i == er_floor)
+						wprintf("SELECTED ");
+					wprintf("VALUE=\"%d\">", i);
+					escputs(floorlist[i]);
+					wprintf("</OPTION>\n");
+				}
+			wprintf("</select>\n");
+		
+			wprintf("<li>");
+			wprintf(_("Type of room:"));
+			wprintf("<ul>\n");
+	
+			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
+			if ((er_flags & QR_PRIVATE) == 0)
+			wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Public (automatically appears to everyone)"));
+			wprintf("\n");
+	
+			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
+			if ((er_flags & QR_PRIVATE) &&
+		    	(er_flags & QR_GUESSNAME))
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
+		
+			wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
+			if ((er_flags & QR_PRIVATE) &&
+		    	(er_flags & QR_PASSWORDED))
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Private - require password: "));
+			wprintf("\n<input type=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
+				er_password);
+		
+			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
+			if ((er_flags & QR_PRIVATE)
+		    	&& ((er_flags & QR_GUESSNAME) == 0)
+		    	&& ((er_flags & QR_PASSWORDED) == 0))
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Private - invitation only"));
+		
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
+			wprintf("> ");
+			wprintf(_("If private, cause current users to forget room"));
+		
+			wprintf("\n</ul>\n");
+		
+			wprintf("<li><input type=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
+			if (er_flags & QR_PREFONLY)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Preferred users only"));
+		
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
+			if (er_flags & QR_READONLY)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Read-only room"));
+		
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
+			if (er_flags2 & QR2_COLLABDEL)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("All users allowed to post may also delete messages"));
+		
+			/** directory stuff */
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
+			if (er_flags & QR_DIRECTORY)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("File directory room"));
+	
+			wprintf("\n<ul><li>");
+			wprintf(_("Directory name: "));
+			wprintf("<input type=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",
+				er_dirname);
+	
+			wprintf("<li><input type=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
+			if (er_flags & QR_UPLOAD)
+			wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Uploading allowed"));
+		
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
+			if (er_flags & QR_DOWNLOAD)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Downloading allowed"));
+		
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
+			if (er_flags & QR_VISDIR)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Visible directory"));
+			wprintf("</ul>\n");
+		
+			/** end of directory stuff */
+	
+			wprintf("<li><input type=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
+			if (er_flags & QR_NETWORK)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Network shared room"));
+	
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
+			if (er_flags & QR_PERMANENT)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Permanent (does not auto-purge)"));
+	
+			wprintf("\n<li><input type=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
+			if (er_flags2 & QR2_SUBJECTREQ)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Subject Required (Force users to specify a message subject)"));
+	
+			/** start of anon options */
+		
+			wprintf("\n<li>");
+			wprintf(_("Anonymous messages"));
+			wprintf("<ul>\n");
+		
+			wprintf("<li><input type=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
+			if (((er_flags & QR_ANONONLY) == 0)
+		    	&& ((er_flags & QR_ANONOPT) == 0))
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("No anonymous messages"));
+	
+			wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
+			if (er_flags & QR_ANONONLY)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("All messages are anonymous"));
+		
+			wprintf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
+			if (er_flags & QR_ANONOPT)
+				wprintf("CHECKED ");
+			wprintf("> ");
+			wprintf(_("Prompt user when entering messages"));
+			wprintf("</ul>\n");
+		
+		/* end of anon options */
+		
+			wprintf("<li>");
+			wprintf(_("Room aide: "));
+			serv_puts("GETA");
+			serv_getln(buf, sizeof buf);
+			if (buf[0] != '2') {
+				wprintf("<em>%s</em>\n", &buf[4]);
+			} else {
+				extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
+				wprintf("<input type=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+			}
+		
+			wprintf("</ul><CENTER>\n");
+			wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
+				"<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
+				"&nbsp;"
+				"<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
+				"</CENTER>\n",
+				_("Save changes"),
+				_("Cancel")
+			);
+		}
 		wprintf("</div>");
 	}
 
@@ -1627,85 +1636,93 @@ void display_editroom(void)
 
 		serv_puts("GPEX room");
 		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
+		if (!strncmp(buf, "550", 3)) {
+			wprintf("<br><br><div align=center>%s</div><br><br>\n",
+				_("Higher access is required to access this function.")
+			);
+		}
+		else if (buf[0] != '2') {
+			wprintf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
+		}
+		else {
 			roompolicy = extract_int(&buf[4], 0);
 			roomvalue = extract_int(&buf[4], 1);
-		}
 		
-		serv_puts("GPEX floor");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			floorpolicy = extract_int(&buf[4], 0);
-			floorvalue = extract_int(&buf[4], 1);
-		}
-		
-		wprintf("<br /><form method=\"POST\" action=\"set_room_policy\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<table border=0 cellspacing=5>\n");
-		wprintf("<tr><td>");
-		wprintf(_("Message expire policy for this room"));
-		wprintf("<br />(");
-		escputs(WC->wc_roomname);
-		wprintf(")</td><td>");
-		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
-			((roompolicy == 0) ? "CHECKED" : "") );
-		wprintf(_("Use the default policy for this floor"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
-			((roompolicy == 1) ? "CHECKED" : "") );
-		wprintf(_("Never automatically expire messages"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
-			((roompolicy == 2) ? "CHECKED" : "") );
-		wprintf(_("Expire by message count"));
-		wprintf("<br />\n");
-		wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
-			((roompolicy == 3) ? "CHECKED" : "") );
-		wprintf(_("Expire by message age"));
-		wprintf("<br />");
-		wprintf(_("Number of messages or days: "));
-		wprintf("<input type=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
-		wprintf("</td></tr>\n");
-
-		if (WC->axlevel >= 6) {
-			wprintf("<tr><td COLSPAN=2><hr /></td></tr>\n");
+			serv_puts("GPEX floor");
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '2') {
+				floorpolicy = extract_int(&buf[4], 0);
+				floorvalue = extract_int(&buf[4], 1);
+			}
+			
+			wprintf("<br /><form method=\"POST\" action=\"set_room_policy\">\n");
+			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+			wprintf("<table border=0 cellspacing=5>\n");
 			wprintf("<tr><td>");
-			wprintf(_("Message expire policy for this floor"));
+			wprintf(_("Message expire policy for this room"));
 			wprintf("<br />(");
-			escputs(floorlist[WC->wc_floor]);
+			escputs(WC->wc_roomname);
 			wprintf(")</td><td>");
-			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
-				((floorpolicy == 0) ? "CHECKED" : "") );
-			wprintf(_("Use the system default"));
+			wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
+				((roompolicy == 0) ? "CHECKED" : "") );
+			wprintf(_("Use the default policy for this floor"));
 			wprintf("<br />\n");
-			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
-				((floorpolicy == 1) ? "CHECKED" : "") );
+			wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
+				((roompolicy == 1) ? "CHECKED" : "") );
 			wprintf(_("Never automatically expire messages"));
 			wprintf("<br />\n");
-			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
-				((floorpolicy == 2) ? "CHECKED" : "") );
+			wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
+				((roompolicy == 2) ? "CHECKED" : "") );
 			wprintf(_("Expire by message count"));
 			wprintf("<br />\n");
-			wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
-				((floorpolicy == 3) ? "CHECKED" : "") );
+			wprintf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
+				((roompolicy == 3) ? "CHECKED" : "") );
 			wprintf(_("Expire by message age"));
 			wprintf("<br />");
 			wprintf(_("Number of messages or days: "));
-			wprintf("<input type=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
-				floorvalue);
+			wprintf("<input type=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
+			wprintf("</td></tr>\n");
+	
+			if (WC->axlevel >= 6) {
+				wprintf("<tr><td COLSPAN=2><hr /></td></tr>\n");
+				wprintf("<tr><td>");
+				wprintf(_("Message expire policy for this floor"));
+				wprintf("<br />(");
+				escputs(floorlist[WC->wc_floor]);
+				wprintf(")</td><td>");
+				wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
+					((floorpolicy == 0) ? "CHECKED" : "") );
+				wprintf(_("Use the system default"));
+				wprintf("<br />\n");
+				wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
+					((floorpolicy == 1) ? "CHECKED" : "") );
+				wprintf(_("Never automatically expire messages"));
+				wprintf("<br />\n");
+				wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
+					((floorpolicy == 2) ? "CHECKED" : "") );
+				wprintf(_("Expire by message count"));
+				wprintf("<br />\n");
+				wprintf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
+					((floorpolicy == 3) ? "CHECKED" : "") );
+				wprintf(_("Expire by message age"));
+				wprintf("<br />");
+				wprintf(_("Number of messages or days: "));
+				wprintf("<input type=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
+					floorvalue);
+			}
+	
+			wprintf("<CENTER>\n");
+			wprintf("<tr><td COLSPAN=2><hr /><CENTER>\n");
+			wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
+			wprintf("&nbsp;");
+			wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
+			wprintf("</CENTER></td><tr>\n");
+	
+			wprintf("</table>\n"
+				"<input type=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
+				"</form>\n"
+			);
 		}
-
-		wprintf("<CENTER>\n");
-		wprintf("<tr><td COLSPAN=2><hr /><CENTER>\n");
-		wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
-		wprintf("&nbsp;");
-		wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-		wprintf("</CENTER></td><tr>\n");
-
-		wprintf("</table>\n"
-			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
-			"</form>\n"
-		);
 
 		wprintf("</div>");
 	}
