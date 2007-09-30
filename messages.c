@@ -2755,6 +2755,7 @@ void post_mime_to_server(void) {
 	struct wc_attachment *att;
 	char *encoded;
 	size_t encoded_length;
+	size_t encoded_strlen;
 
 	/** RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
@@ -2794,7 +2795,7 @@ void post_mime_to_server(void) {
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
-			CtdlEncodeBase64(encoded, att->data, att->length, 1);
+			encoded_strlen = CtdlEncodeBase64(&encoded, att->data, att->length, &encoded_length, 1);
 
 			serv_printf("--%s", boundary);
 			serv_printf("Content-type: %s", att->content_type);
@@ -2802,7 +2803,7 @@ void post_mime_to_server(void) {
 				"filename=\"%s\"", att->filename);
 			serv_puts("Content-transfer-encoding: base64");
 			serv_puts("");
-			serv_write(encoded, strlen(encoded));
+			serv_write(encoded, encoded_strlen);
 			serv_puts("");
 			serv_puts("");
 			free(encoded);
