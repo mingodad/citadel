@@ -67,9 +67,9 @@ int num_tokens(char *source, char tok)
  */
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
-	const char *s;			/* source */
-	int len = 0;			/* running total length of extracted string */
-	int current_token = 0;		/* token currently being processed */
+	const char *s;			//* source * /
+	int len = 0;			//* running total length of extracted string * /
+	int current_token = 0;		//* token currently being processed * /
 
 	s = source;
 
@@ -77,6 +77,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		return(-1);
 	}
 
+//	cit_backtrace();
+//	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	dest[0] = 0;
 
 	if (s == NULL) {
@@ -87,17 +89,27 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		if (*s == separator) {
 			++current_token;
 		}
-		else if ( (current_token == parmnum) && (len < maxlen) ) {
+		if ( (current_token == parmnum) && 
+		     (*s != separator) && 
+		     (len < maxlen) ) {
 			dest[len] = *s;
 			++len;
+		}
+		else if ((current_token > parmnum) || (len >= maxlen)) {
+			break;
 		}
 		++s;
 	}
 
-	dest[len] = 0;
-	if (current_token < parmnum) return(-1);
+	dest[len] = '\0';
+	if (current_token < parmnum) {
+//		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+		return(-1);
+	}
+//	lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
 	return(len);
 }
+//*/
 
 
 /**
@@ -385,14 +397,18 @@ void sleeeeeeeeeep(int seconds)
  * \param dest encrypted string
  * \param source the string to encrypt
  * \param sourcelen the length of the source data (may contain string terminators)
+ * \return the length of the encoded string.
  */
 
-void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks)
+size_t CtdlEncodeBase64(char **pdest, const char *source, size_t sourcelen, size_t *destlen, int linebreaks)
 {
 	int i, hiteof = FALSE;
 	int spos = 0;
 	int dpos = 0;
 	int thisline = 0;
+	char *dest;
+
+	dest = *pdest;
 
 	/**  Fill dtable with character encodings.  */
 
@@ -442,11 +458,31 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int line
 				}
 			}
 			for (i = 0; i < 4; i++) {
+				if (dpos > *destlen)
+				{
+					int newlen;
+					char *newbuf;
+					newlen = *destlen + *destlen / 2;
+					newbuf = (char*) malloc(newlen);
+					memcpy(newbuf, dest, *destlen);
+					*pdest = dest = newbuf;
+					*destlen = newlen;
+				}
 				dest[dpos++] = ogroup[i];
 				dest[dpos] = 0;
 			}
 			thisline += 4;
 			if ( (linebreaks) && (thisline > 70) ) {
+				if (dpos + 3 > *destlen)
+				{
+					int newlen;
+					char *newbuf;
+					newlen = *destlen + *destlen / 2;
+					newbuf = (char*) malloc(newlen);
+					memcpy(newbuf, dest, *destlen);
+					*pdest = dest = newbuf;
+					*destlen = newlen;
+				}
 				dest[dpos++] = '\r';
 				dest[dpos++] = '\n';
 				dest[dpos] = 0;
@@ -455,11 +491,22 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int line
 		}
 	}
 	if ( (linebreaks) && (thisline > 70) ) {
+		if (dpos + 3 > *destlen)
+		{
+			int newlen;
+			char *newbuf;
+			newlen = *destlen + 5;
+			newbuf = (char*) malloc(newlen);
+			memcpy(newbuf, dest, *destlen);
+			*pdest = dest = newbuf;
+			*destlen = newlen;
+		}
 		dest[dpos++] = '\r';
 		dest[dpos++] = '\n';
 		dest[dpos] = 0;
 		thisline = 0;
 	}
+	return dpos;
 }
 
 

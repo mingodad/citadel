@@ -425,9 +425,12 @@ void parse_fields_from_rule_editor(void) {
 	char buf[256];
 	char fname[256];
 	char rule[2048];
-	char encoded_rule[4096];
+	char encoded_rule;
 	char my_addresses[4096];
+	long encoded_len;
 	
+	encoded_len = 4096;
+	encoded_rule = (char*) malloc (encoded_len);
 	/* Enumerate my email addresses in case they are needed for a vacation rule */
 	my_addresses[0] = 0;
 	serv_puts("GVEA");
@@ -506,7 +509,7 @@ void parse_fields_from_rule_editor(void) {
 				redirect, automsg, final
 			);
 	
-			CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
+			CtdlEncodeBase64(&encoded_rule, rule, strlen(rule)+1, &encoded_len, 0);
 			serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
 			output_sieve_rule(hfield, compare, htext, sizecomp, sizeval,
 					action, fileinto, redirect, automsg, final, my_addresses);
@@ -518,7 +521,7 @@ void parse_fields_from_rule_editor(void) {
 
 	serv_puts("stop;");
 	serv_puts("000");
-
+	free(encoded_rule);
 }
 
 
