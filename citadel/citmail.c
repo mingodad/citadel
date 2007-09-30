@@ -154,7 +154,8 @@ void cleanup(int exitcode) {
 	char buf[1024];
 
 	if (exitcode != 0) {
-		fprintf(stderr, "Error while sending mail.  Please check your Citadel configuration.\n");
+		fprintf(stderr, "Error #%d occurred while sending mail.\n", exitcode);
+		fprintf(stderr, "Please check your Citadel configuration.\n");
 	}
 	serv_puts("QUIT");
 	serv_gets(buf);
@@ -207,6 +208,7 @@ int main(int argc, char **argv) {
 	serv_sock = uds_connectsock(file_lmtp_socket);	/* FIXME: if called as 'sendmail' connect to file_lmtp_unfiltered_socket */
 	serv_gets(buf);
 	if (buf[0] != '2') {
+		fprintf(stderr, "%s\n", &buf[4]);
 		if (debug) fprintf(stderr, "Could not connect to LMTP socket.\n");
 		cleanup(1);
 	}
@@ -214,11 +216,11 @@ int main(int argc, char **argv) {
 	sp = strchr (buf, ' ');
 	if (sp == NULL) {
 		if (debug) fprintf(stderr, "Could not calculate hostname.\n");
-		cleanup(1);
+		cleanup(2);
 	}
 	sp ++;
 	ep = strchr (sp, ' ');
-	if (ep == NULL) cleanup(1);
+	if (ep == NULL) cleanup(3);
 	*ep = '\0';
 	strncpy(hostname, sp, sizeof hostname);
 
@@ -283,12 +285,12 @@ int main(int argc, char **argv) {
 		serv_gets(buf);
 		strcat(buf, "    ");
 	} while (buf[3] == '-');
-	if (buf[0] != '2') cleanup(1);
+	if (buf[0] != '2') cleanup(4);
 
 	snprintf(buf, sizeof buf, "MAIL %s", fromline);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0] != '2') cleanup(1);
+	if (buf[0] != '2') cleanup(5);
 
 	for (i=0; i<num_recipients; ++i) {
 		snprintf(buf, sizeof buf, "RCPT To: %s", recipients[i]);
@@ -300,7 +302,7 @@ int main(int argc, char **argv) {
 
 	serv_puts("DATA");
 	serv_gets(buf);
-	if (buf[0]!='3') cleanup(1);
+	if (buf[0]!='3') cleanup(6);
 
 	rewind(fp);
 	while (fgets(buf, sizeof buf, fp) != NULL) {
@@ -310,7 +312,8 @@ int main(int argc, char **argv) {
 	serv_puts(".");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		cleanup(1);
+		fprintf(stderr, "%s\n", &buf[4]);
+		cleanup(7);
 	}
 	else {
 		cleanup(0);
