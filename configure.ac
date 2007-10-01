@@ -5,19 +5,31 @@ AC_INIT(webserver.c)
 
 PACKAGE=webcit
 VERSION=7.13
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [our package name])
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [our package version])
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 
 AC_SUBST(PROG_SUBDIRS)
+AC_DEFINE(PROG_SUBDIRS, [], [Program dirs])
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
+
+dnl Make sure we see all GNU and Solaris extensions.
+AC_GNU_SOURCE
+
 AC_CHECK_PROG(SED, sed, sed, no)
 AC_PREFIX_DEFAULT(/usr/local/webcit)
+if test "$prefix" = NONE; then
+	AC_DEFINE_UNQUOTED(WEBCITDIR, "$ac_default_prefix", [define this to the Citadel home directory])
+	ssl_dir="$ac_default_prefix/keys"
+else
+	AC_DEFINE_UNQUOTED(WEBCITDIR, "$prefix", [define this to the Citadel home directory])
+	ssl_dir="$prefix/keys"
+fi
 
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
@@ -125,7 +137,7 @@ main() {
 		], 
 		[
 			LIBS="-lical $LIBS"
-			AC_DEFINE(HAVE_LIBICAL)
+			AC_DEFINE(HAVE_LIBICAL,[],[whether we have libical available])
 		]
 	)
 fi
@@ -142,7 +154,7 @@ fi
 
 if test "x$ok_zlib" = xyes ; then
         LIBS="-lz $LIBS"
-        AC_DEFINE(HAVE_ZLIB)
+        AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
 fi
 
 
@@ -227,7 +239,7 @@ if test "$with_ssl" != "no"; then
 	CFLAGS="$saved_CFLAGS"
 	
 	if test "x$ac_cv_openssldir" != "xno" ; then
-		AC_DEFINE(HAVE_OPENSSL)
+		AC_DEFINE(HAVE_OPENSSL,[],[whethe we have openssl])
 		LIBS="-lssl -lcrypto $LIBS"
 		dnl Need to recover ssldir - test above runs in subshell
 		ssldir=$ac_cv_openssldir
@@ -255,6 +267,19 @@ if test "$with_ssl" != "no"; then
 		fi
 	fi
 fi
+dnl Checks for the SSLdir
+dnl this is a bit different than the rest, 
+dnl because of the citadel used to have a keys/ subdir.
+AC_ARG_WITH(ssldir, 
+		    [  --with-ssldir          directory to store the ssl certificates under],
+			[ if test "x$withval" != "xno" ; then
+					      
+						  ssl_dir="$withval"
+			  fi
+			AC_SUBST(MAKE_SSL_DIR)
+			]
+)
+AC_DEFINE_UNQUOTED(SSL_DIR, "$ssl_dir", [were should we put our keys?])
 
 dnl Here is the check for a usable iconv
 
@@ -280,7 +305,7 @@ fi
 
 if test "$ok_iconv" != "no"; then
 	AC_MSG_RESULT(WebCit will be built with character set conversion.)
-	AC_DEFINE(HAVE_ICONV)
+	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
 else
 	AC_MSG_RESULT(WebCit will be built without character set conversion.)
 fi
@@ -335,7 +360,7 @@ fi
 
 if test "$ok_nls" != "no"; then
 	AC_MSG_RESULT(WebCit will be built with national language support.)
-	AC_DEFINE(ENABLE_NLS)
+	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
 	PROG_SUBDIRS="$PROG_SUBDIRS po"
 else
 	AC_MSG_RESULT(WebCit will be built without national language support.)
@@ -365,46 +390,75 @@ AC_ARG_WITH(backtrace,
 )
 
 if test "$prefix" = NONE; then
-	LOCALEDIR=$ac_default_prefix
-	WWWDIR=$ac_default_prefix
-	EDITORDIR=$ac_default_prefix/tiny_mce
+   	datadir=$ac_default_prefix
+	localedir=$ac_default_prefix
+	wwwdir=$ac_default_prefix
+	rundir=$ac_default_prefix
+	editordir=$ac_default_prefix/tiny_mce
 else
-	LOCALEDIR=$prefix
-	WWWDIR=$prefix
-	EDITORDIR=$prefix/tiny_mce
+	localedir=$prefix
+	wwwdir=$prefix
+	datadir=$prefix
+	rundir=$prefix
+	editordir=$prefix/tiny_mce
 fi
 
 dnl where to put the locale files
 AC_ARG_WITH(localedir, 
 		    [  --with-localedir          directory to put the locale files to],
 			[ if test "x$withval" != "xno" ; then
-						  LOCALEDIR=$withval
+			    localedir=$withval
 			  fi
 			]
 )
-AC_SUBST(LOCALEDIR)
+AC_DEFINE_UNQUOTED(LOCALEDIR, "$localedir",[where to find our pot files])
 
 dnl Checks where to put our templates
 AC_ARG_WITH(wwwdir, 
 		    [  --with-wwwdir             directory to put our templates],
 			[ if test "x$withval" != "xno" ; then
-						  WWWDIR=$withval
+				wwwdir=$withval
 			  fi
 			]
 )
-AC_SUBST(WWWDIR)
+AC_DEFINE_UNQUOTED(WWWDIR, "$wwwdir", [where to find our templates and pics])
+
+
+
+dnl Checks for the run-dir for the sockets
+AC_ARG_WITH(rundir, 
+			[  --with-rundir           directory to place runtime files (UDS) to?],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_RUN_DIR, [], [should we put our non volatile files elsewhere?])
+						
+						rundir=$withval
+						AC_SUBST(MAKE_RUN_DIR)
+			  fi
+			]
+)
+AC_DEFINE_UNQUOTED(RUNDIR, "$rundir", [define, where the config should go in unix style])
+
+dnl Checks for the Datadir
+AC_ARG_WITH(datadir, 
+		    [  --with-datadir          directory to store the databases under],
+			[ if test "x$withval" != "xno" ; then
+					      datadir=$withval
+			  fi
+			]
+)
+AC_DEFINE_UNQUOTED(DATADIR, "$datadir",[define, if the user suplied a data-directory to use.])
 
 dnl Checks where to put our editor
 AC_ARG_WITH(editordir, 
 		    [  --with-editordir             directory to put our editor],
 			[ if test "x$withval" != "xno" ; then
-						  EDITORDIR=$withval
+				editordir=$withval
 			  fi
 			]
 )
-AC_SUBST(EDITORDIR)
+AC_DEFINE_UNQUOTED(EDITORDIR, "$editordir", [where to find our mail editor])
 
-
+AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile po/Makefile )
 
 echo ------------------------------------------------------------------------

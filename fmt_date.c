@@ -53,7 +53,6 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	int time_format;
 	
 	time_format = get_time_format_cached ();
-/// TODO: what about the time format?
 	today_timet = time(NULL);
 	localtime_r(&today_timet, &today_tm);
 

@@ -7,7 +7,7 @@
  *
  */
 
-#include "config.h"
+#include "sysdep.h"
 #include "webcit.h"
 #include "webserver.h"
 
@@ -373,7 +373,7 @@ void install_init_scripts(void)
 	{
 		if ((stat("/etc/rc.d/init.d/", &etcinitd) == -1) &&
 		    (errno == ENOENT))
-			initfile = PREFIX"/webcit.init";
+			initfile = WEBCITDIR"/webcit.init";
 		else
 			initfile = "/etc/rc.d/init.d/webcit";
 	}
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, PREFIX);
+	strcpy(setup_directory, WEBCITDIR);
 	if ( (using_web_installer) && (getenv("WEBCIT") != NULL) ) {
 		strcpy(setup_directory, getenv("WEBCIT"));
 	}

@@ -1,7 +1,6 @@
 /* $Id$ */
 
-#include "config.h"
-
+#include "sysdep.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -424,6 +423,10 @@ extern pthread_key_t MyConKey;
 #ifdef HAVE_OPENSSL
 #define THREADSSL ((SSL *)pthread_getspecific(ThreadSSL))
 extern pthread_key_t ThreadSSL;
+extern char ctdl_key_dir[PATH_MAX];
+extern char file_crpt_file_key[PATH_MAX];
+extern char file_crpt_file_csr[PATH_MAX];
+extern char file_crpt_file_cer[PATH_MAX];
 #endif
 
 struct serv_info serv_info;
