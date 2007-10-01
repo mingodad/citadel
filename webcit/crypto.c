@@ -7,7 +7,7 @@
  */
 
 /*@{*/
-#include "config.h"
+#include "sysdep.h"
 #ifdef HAVE_OPENSSL
 
 #include "webcit.h"
@@ -15,9 +15,9 @@
 /** \todo dirify */
 /** where to find the keys */
 #define	CTDL_CRYPTO_DIR		"./keys" 
-#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key" /**< the key */
-#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr" /**< the csr file */
-#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer" /**< the cer file */
+#define CTDL_KEY_PATH		file_crpt_file_key /**< the key */
+#define CTDL_CSR_PATH		file_crpt_file_csr /**< the csr file */
+#define CTDL_CER_PATH		file_crpt_file_cer /**< the cer file */
 #define SIGN_DAYS		365 /**< how long our certificate should live */
 
 SSL_CTX *ssl_ctx;		/**< SSL context */

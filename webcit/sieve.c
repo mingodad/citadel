@@ -425,9 +425,9 @@ void parse_fields_from_rule_editor(void) {
 	char buf[256];
 	char fname[256];
 	char rule[2048];
-	char encoded_rule;
+	char *encoded_rule;
 	char my_addresses[4096];
-	long encoded_len;
+	size_t encoded_len;
 	
 	encoded_len = 4096;
 	encoded_rule = (char*) malloc (encoded_len);

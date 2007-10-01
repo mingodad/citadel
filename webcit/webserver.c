@@ -31,6 +31,12 @@ extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
+
+char ctdl_key_dir[PATH_MAX]=SSL_DIR;
+char file_crpt_file_key[PATH_MAX]="";
+char file_crpt_file_csr[PATH_MAX]="";
+char file_crpt_file_cer[PATH_MAX]="";
+
 char socket_dir[PATH_MAX];      /**< where to talk to our citadel server */
 static const char editor_absolut_dir[PATH_MAX]=EDITORDIR; /**< nailed to what configure gives us. */
 static char static_dir[PATH_MAX]; /**< calculated on startup */
@@ -770,6 +776,20 @@ int main(int argc, char **argv)
 	COMPUTE_DIRECTORY(static_dir);
 	basedir=DATADIR "/static.local";
 	COMPUTE_DIRECTORY(static_local_dir);
+
+	snprintf(file_crpt_file_key,
+		 sizeof file_crpt_file_key, 
+		 "%s/citadel.key",
+		 ctdl_key_dir);
+	snprintf(file_crpt_file_csr,
+		 sizeof file_crpt_file_csr, 
+		 "%s/citadel.csr",
+		 ctdl_key_dir);
+	snprintf(file_crpt_file_cer,
+		 sizeof file_crpt_file_cer, 
+		 "%s/citadel.cer",
+		 ctdl_key_dir);
+
 	/** we should go somewhere we can leave our coredump, if enabled... */
 	lprintf(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {

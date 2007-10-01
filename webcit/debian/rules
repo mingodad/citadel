@@ -18,7 +18,7 @@ ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP 
+	CFLAGS += -O0 -ggdb -rdynamic -MD -MP 
 	LDFLAGS += -pg 
 	EXTRA_ARGS =  --with-backtrace
 else
@@ -37,6 +37,7 @@ configure-stamp:
 		--with-editordir=/usr/share/tinymce/www \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
+                --with-ssldir=/etc/ssl/webcit/ \
 		--with-zlib --with-ssl --with-libiconf \
 		--with-newt --with-included-gettext \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
