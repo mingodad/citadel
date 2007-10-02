@@ -400,6 +400,27 @@ var sub {
 	font-style: normal;
 }
 
+.calendar {
+	background-color: #204B78;
+}
+
+.day {
+	font-weight: 700;
+}
+
+.calout {
+	background-color: #DDDDDD;
+}
+
+.calday {
+	background-color: #FFFFFF;
+}
+
+.calweekend {
+	background-color: #EEEECC;
+}
+
+
 
 /* Links */
 
@@ -1073,4 +1094,18 @@ ul.tabbed_dialog {
 	margin-left: 22%;
 	width: 74%;
 	padding: 10px;
+}
+
+/* Calendar view */
+
+.calendar {
+	margin: 2% auto 0 auto;
+	width: 98%;
+}
+
+.calday, .calout, .calweekend {
+	width: 14%;
+	height: 60px;
+	text-align: left;
+	vertical-align: top;
 }
