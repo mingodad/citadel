@@ -355,8 +355,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	/** Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
-		"bgcolor=#204B78><TR><TD>\n");
+		"<table class=\"calendar\"> \n <tr><td>"); 
 
 	wprintf("<table width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
 
@@ -414,17 +413,17 @@ void calendar_month_view(int year, int month, int day) {
 				wprintf("<tr>");
 			}
 
-			wprintf("<td bgcolor=\"#%s\" width=14%% height=60 align=left valign=top><b>",
-				((tm.tm_mon != month-1) ? "DDDDDD" :
-				((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
-				"FFFFFF"))
+			wprintf("<td class=\"cal%s\"><div class=\"day\">",
+				((tm.tm_mon != month-1) ? "out" :
+				((tm.tm_wday==0 || tm.tm_wday==6) ? "weekend" :
+				"day"))
 			);
 			if ((i==0) || (tm.tm_mday == 1)) {
 				wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
 				wprintf("%s ", colheader_label);
 			}
 			wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
-				"%d</a></b><br />",
+				"%d</a></div>",
 				tm.tm_year + 1900,
 				tm.tm_mon + 1,
 				tm.tm_mday,
