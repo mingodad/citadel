@@ -3008,7 +3008,7 @@ void display_enter(void)
 	 * message" command really means "add new entry."
 	 */
 	if (WC->wc_default_view == VIEW_ADDRESSBOOK) {
-		do_edit_vcard(-1, "", "");
+		do_edit_vcard(-1, "", "", WC->wc_roomname);
 		return;
 	}
 

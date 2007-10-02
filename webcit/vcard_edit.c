@@ -18,7 +18,7 @@
  * \param partnum what???
  * \param return_to where to go back in the browser after edit ????
  */
-void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
+void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room) {
 	char buf[SIZ];
 	char *serialized_vcard = NULL;
 	size_t total_len = 0;
@@ -181,6 +181,13 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+
+	if (force_room != NULL) {
+		wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
+		escputs(force_room);
+		wprintf("\">\n");
+	}
+
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"vcard_edit_background\"><tr><td>\n");
 
@@ -344,7 +351,7 @@ void edit_vcard(void) {
 
 	msgnum = atol(bstr("msgnum"));
 	partnum = bstr("partnum");
-	do_edit_vcard(msgnum, partnum, "");
+	do_edit_vcard(msgnum, partnum, "", NULL);
 }
 
 
@@ -361,6 +368,10 @@ void submit_vcard(void) {
 	if (IsEmptyStr(bstr("ok_button"))) { 
 		readloop("readnew");
 		return;
+	}
+
+	if (!IsEmptyStr(bstr("force_room"))) {
+		gotoroom(bstr("force_room"));
 	}
 
 	sprintf(buf, "ENT0 1|||4||");

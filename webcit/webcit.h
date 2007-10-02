@@ -593,7 +593,7 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
 int pattern2(char *search, char *patn);
-void do_edit_vcard(long, char *, char *);
+void do_edit_vcard(long, char *, char *, char *);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
