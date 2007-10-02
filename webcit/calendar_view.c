@@ -38,7 +38,6 @@ void calendar_month_view_display_events(time_t thetime) {
 	time_t event_tt;
 	time_t event_tte;
 	struct tm event_tm;
-	struct tm event_te;
 	struct tm today_tm;
 	icalproperty *p = NULL;
 	icalproperty *pe = NULL;
@@ -46,6 +45,8 @@ void calendar_month_view_display_events(time_t thetime) {
 	struct icaltimetype t;
 	int month, day, year;
 	int all_day_event = 0;
+	int multi_day_event = 0;
+	int show_event = 0;
 	time_t tt;
 	char buf[256];
 
@@ -73,27 +74,33 @@ void calendar_month_view_display_events(time_t thetime) {
 
 			if (all_day_event) {
 				gmtime_r(&event_tt, &event_tm); 
-				gmtime_r(&event_tt, &event_te);// allday events don't have end-dates.
+				// are we today?
+				show_event = ((event_tm.tm_year <= today_tm.tm_year)
+					     && (event_tm.tm_mon <= today_tm.tm_mon)
+					     && (event_tm.tm_mday <= today_tm.tm_mday));
 			}
 			else {
 				localtime_r(&event_tt, &event_tm);
 				if (pe != NULL)
 				{
+					struct tm event_ttm;
 					t = icalproperty_get_dtend(pe);
 					event_tte = icaltime_as_timet(t);
-					localtime_r(&event_tte, &event_te);
+					
+					gmtime_r(&event_tte, &event_ttm); 
+					// are we in the range of the event?
+					show_event = ((event_tt <= thetime) && 
+						      (event_tte >= thetime));
 				}
-				else 
-					localtime_r(&event_tt, &event_te);
+				else {
+					// are we today?
+					show_event = ((event_tm.tm_year <= today_tm.tm_year)
+						      && (event_tm.tm_mon <= today_tm.tm_mon)
+						      && (event_tm.tm_mday <= today_tm.tm_mday));
+				}
 			}
 
-			if ((event_tm.tm_year <= today_tm.tm_year)
-			   && (event_tm.tm_mon <= today_tm.tm_mon)
-			   && (event_tm.tm_mday <= today_tm.tm_mday)
-			   && (event_te.tm_year >= today_tm.tm_year)
-			   && (event_te.tm_mon >= today_tm.tm_mon)
-			   && (event_te.tm_mday >= today_tm.tm_mday)) {
-
+			if (show_event) {
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
