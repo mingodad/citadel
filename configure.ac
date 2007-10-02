@@ -412,6 +412,8 @@ AC_ARG_WITH(localedir,
 			]
 )
 AC_DEFINE_UNQUOTED(LOCALEDIR, "$localedir",[where to find our pot files])
+LOCALEDIR=$localedir
+AC_SUBST(LOCALEDIR)
 
 dnl Checks where to put our templates
 AC_ARG_WITH(wwwdir, 
@@ -422,7 +424,8 @@ AC_ARG_WITH(wwwdir,
 			]
 )
 AC_DEFINE_UNQUOTED(WWWDIR, "$wwwdir", [where to find our templates and pics])
-
+WWWDIR=$wwwdir
+AC_SUBST(WWWDIR)
 
 
 dnl Checks for the run-dir for the sockets

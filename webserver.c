@@ -772,9 +772,9 @@ int main(int argc, char **argv)
 			 (dirbuffer[0]!='\0')?"/":"");
 	basedir=RUNDIR;
 	COMPUTE_DIRECTORY(socket_dir);
-	basedir=DATADIR "/static";
+	basedir=WWWDIR "/static";
 	COMPUTE_DIRECTORY(static_dir);
-	basedir=DATADIR "/static.local";
+	basedir=WWWDIR "/static.local";
 	COMPUTE_DIRECTORY(static_local_dir);
 
 	snprintf(file_crpt_file_key,

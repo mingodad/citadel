@@ -17,9 +17,8 @@ top_builddir=`pwd`
 LIB_SUBDIRS=
 PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
-#LOCALEDIR=@LOCALEDIR@
-#WWWDIR=@WWWDIR@
-#EDITORDIR=@EDITORDIR@
+LOCALEDIR=@LOCALEDIR@
+WWWDIR=@WWWDIR@
 
 # End of configuration section
 
@@ -73,18 +72,6 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 .cpp.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
 
-#.c.o:
-#	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) \
-#		-DWEBCITDIR=\"$(WWWDIR)\" \
-#		-DLOCALEDIR=\"$(LOCALEDIR)\" \
-#		-DEDITORDIR=\"$(EDITORDIR)\" $<
-#
-#.cpp.o:
-#	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) \
-#		-DWEBCITDIR=\"$(WWWDIR)\" \
-#		-DLOCALEDIR=\"$(LOCALEDIR)\"  \
-#		-DEDITORDIR=\"$(EDITORDIR)\"$<
-#
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
 
