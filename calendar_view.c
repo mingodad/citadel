@@ -325,6 +325,7 @@ void calendar_month_view(int year, int month, int day) {
 	time_t colheader_time;
 	struct tm colheader_tm;
 	char colheader_label[32];
+	int chg_month = 0;
 
 	/** Determine what day to start.
 	 * First, back up to the 1st of the month...
@@ -394,39 +395,51 @@ void calendar_month_view(int year, int month, int day) {
 	}
 	wprintf("</tr>\n");
 
-	/** Now do 35 days */
-	for (i = 0; i < 35; ++i) {
-		localtime_r(&thetime, &tm);
 
-		/** Before displaying Sunday, start a new row */
-		if ((i % 7) == 0) {
-			wprintf("<tr>");
-		}
+        /** Now do 35 or 42 days */
+        for (i = 0; i < 42; ++i) {
+                localtime_r(&thetime, &tm);
 
-		wprintf("<td bgcolor=\"#%s\" width=14%% height=60 align=left valign=top><b>",
-			((tm.tm_mon != month-1) ? "DDDDDD" :
-			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
-			"FFFFFF"))
-		);
-		if ((i==0) || (tm.tm_mday == 1)) {
-			wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
-			wprintf("%s ", colheader_label);
-		}
-		wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
-			"%d</a></b><br />",
-			tm.tm_year + 1900,
-			tm.tm_mon + 1,
-			tm.tm_mday,
-			tm.tm_mday);
+                if ((i < 35) || (chg_month == 0)) {
 
-		/** put the data here, stupid */
-		calendar_month_view_display_events(thetime);
+                        if ((i > 27) && ((tm.tm_mday == 1) || (tm.tm_mday == 31))) {
+                                chg_month = 1;
+                        }
+                        if (i > 35) {
+                                chg_month = 0;
+                        }
 
-		wprintf("</td>");
+			/** Before displaying Sunday, start a new row */
+			if ((i % 7) == 0) {
+				wprintf("<tr>");
+			}
 
-		/** After displaying Saturday, end the row */
-		if ((i % 7) == 6) {
-			wprintf("</tr>\n");
+			wprintf("<td bgcolor=\"#%s\" width=14%% height=60 align=left valign=top><b>",
+				((tm.tm_mon != month-1) ? "DDDDDD" :
+				((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
+				"FFFFFF"))
+			);
+			if ((i==0) || (tm.tm_mday == 1)) {
+				wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
+				wprintf("%s ", colheader_label);
+			}
+			wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
+				"%d</a></b><br />",
+				tm.tm_year + 1900,
+				tm.tm_mon + 1,
+				tm.tm_mday,
+				tm.tm_mday);
+
+			/** put the data here, stupid */
+			calendar_month_view_display_events(thetime);
+
+			wprintf("</td>");
+
+			/** After displaying Saturday, end the row */
+			if ((i % 7) == 6) {
+				wprintf("</tr>\n");
+			}
+
 		}
 
 		thetime += (time_t)86400;		/** ahead 24 hours */
