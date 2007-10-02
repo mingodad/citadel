@@ -8,9 +8,7 @@ html {	font-size: 100%;}
 
 body { font-size: 11pt}
 
-#banner h1 {
-	font-size: 16pt;
-}
+#banner h1 { font-size: 16pt; }
 
 #banner h2,#banner .titlebar, .address_book_popup_title {
 	font-size: 13pt;
@@ -20,17 +18,12 @@ body { font-size: 11pt}
 	font-size: 10pt;
 }
 
-
 /* Color */
 
 body {
 	background-color: #004E79;
 	font-family: "Trebuchet MS", "Verdana", "Bitstream Vera Sans", sans-serif;
 	font-weight: 400;
-}
-
-.box, #wholist li.inactiveuser a {
-	background-color: transparent;
 }
 
 .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
@@ -41,6 +34,10 @@ body {
 #login_form, #message_list_hdr table, #resize_msglist, .message, .message_header, .vcard_edit_background_alt,.roomops_background_alt 
  {
 	background-color: #CCC;
+}
+
+.box, #wholist li.inactiveuser a {
+	background-color: transparent;
 }
 
 .room_banner .infos {
@@ -129,7 +126,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	color: #000;
 }
 
-#content .msgbuttons a,input#delbutton,.attachfile,.logbuttons input,.buttons input {
+input#delbutton,.attachfile, .logbuttons input,.buttons input {
 	background-color: transparent;
 	border: 2px groove #AAA;
 	color: #000;
@@ -169,7 +166,6 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 .message_header .message_subject {
 	font-style: italic;
 }
-
 
 .adminlist,.tabbed_dialog {
 	list-style: none;
@@ -297,33 +293,28 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	color: highlighttext;
 }
 
-.warning
-{
+.warning a: link,.warning a:visited,.warning a:active, .warning {
 	background: none;
 	color: #FF4500;
+}
+
+.warning, .warning strong {
 	text-decoration: none;
 }
 
-.warning a: link,.warning a:visited,.warning a:active
-{
-	background: none;
-	color: #FF4500;
+.warning a: link,.warning a:visited,.warning a:active {
 	text-decoration: underline;
 }
 
-.warning strong
-{
-	background: #FFD700;
-	color: #FF4500;
-	text-decoration: none;
-}
-
-.warning strong a: link,.warning strong a:visited,.warning strong a:active
-{
+.warning strong {
 	background: #FFD700;
 	color: #FF4500;
 }
 
+.warning strong a: link,.warning strong a:visited,.warning strong a:active {
+	background: #FFD700;
+	color: #FF4500;
+}
 
 blockquote {
 	background-color: #f5f5f5 !important;
@@ -397,7 +388,6 @@ ul.adminitems {
 }
 
 ul.adminitems li {
-	color: #FF8000;
 	font-weight: 700;
 }
 
@@ -411,26 +401,26 @@ var sub {
 }
 
 
-a {
-	text-decoration: none;
+/* Links */
+
+a {	text-decoration: none; }
+
+a:active { color: #AD1C00; }
+
+a:link { color: blue; }
+
+a:visited { color: purple; }
+
+.msgbuttons a {
+	border: 2px groove #AAA;
+	color: #000;
 }
 
-a:active {
-	color: #AD1C00;
-}
-
-a:link {
-	color: blue;
-}
-
-a:visited {
-	color: purple;
-}
-
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover, ul.adminitems li {
 	background-color: #AD1C00;
 	color: #FFF;
 }
+
 
 /* Layout */
 
@@ -541,6 +531,8 @@ body, #global {
 }
 
 
+
+
 /* Boxes */
 
 .box {
@@ -559,22 +551,20 @@ body, #global {
 
 /* Login */
 
-#login_screen .login_message, .login_hello, #global center {
- 	position: relative;
+#login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
+	display: block;
  	margin: 0 auto 0 auto;
+}
+
+#login_screen .login_message, .login_hello, #global center {
  	width: 80%;
 }
 
 #login_screen .login_image {
- 	display: block;
- 	margin: 0 auto 0 auto;
  	width: 65%;
 }
 
 #login_screen #login_form {
- 	position: relative;
- 	display: block;
- 	margin: 0 auto 0 auto;
  	padding: 10px;
  	width: 320px;
 }
@@ -604,30 +594,29 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel {
- 	display: block;
- 	text-align: center;
+.logo, .logo_citadel, #iconbar #button, #button li.switch, #wholist {
  	margin: 0;
  	padding: 0;
 }
 
+.logo, .logo_citadel, #button li.switch, #wholist li {
+	text-align: center;
+}
+
+.logo, .logo_citadel {
+ 	display: block;
+}
+
 #iconbar #button {
 	width: 100%;
-	margin: 0;
-	padding: 0;
 }
 
 #button li {
 	margin: 4px 8px 4px 8px;
 	padding: 0;
-	text-align: left;
 }
 
-#button li.switch {
-	margin: 0;
-	padding: 0;
-	text-align: center;
-}
+
 
 #button img {
 	vertical-align: middle;
@@ -646,14 +635,11 @@ html>body #button li a {
 
 #wholist {
 	border: 0;
- 	margin: 0;
- 	padding: 0;
 	max-height: 200px;
 	overflow: auto;
 }
 
 #wholist li {
- 	text-align: center;
  	list-style: none;
  	margin: 0;
  	padding: 2px;
@@ -800,7 +786,7 @@ html>body #button li a {
 
 .msgbuttons a {
 	margin: 0 2px 0 2px;
-	padding: 0 2px 0 2px;
+	padding: 1px;
 }
 
 .mimepart {
@@ -845,7 +831,7 @@ dt { clear: both; }
 .mimepart dl dd {
 	float: left;
 	width: 62%;
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: .5em;
 }
 
@@ -858,8 +844,7 @@ dt { clear: both; }
 .msgbuttons {
  	float: right;
  	visibility: hidden;
-	margin-top: 0 10px 0 0;
-	margin-right: 0;
+	margin-top: 0;
 	padding: 0;
 }
 
@@ -1057,8 +1042,6 @@ table.advanced {
 .send_edit_msg {
 	margin: 0 15px 0 0;
 }
-
-
 
 .logbuttons, .buttons {
 	margin: 2px auto 2px auto;
