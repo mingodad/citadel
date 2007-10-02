@@ -54,6 +54,8 @@ Developer codes (and where known, client codes)
  
  69     Anticlimactic Teleservices
         Don Kimberlin (err head) <donkimberlin@hotmail.com>
+
+ 71	Robert Barta <rho@cpan.org>
  
  177	Kevin Fisher <kgf@golden.net>
  
