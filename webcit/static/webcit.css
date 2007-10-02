@@ -416,7 +416,7 @@ a:visited { color: purple; }
 	color: #000;
 }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover, ul.adminitems li {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
