@@ -8,8 +8,12 @@
 
 /*@{*/
 
-#include "webcit.h"
+#include "sysdep.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
+#include "webcit.h"
 
 /**
  * \brief Clear out the list of substitution variables local to this session
@@ -190,27 +194,36 @@ void print_value_of(char *keyname) {
 	}
 }
 
-
+extern char *static_dirs[PATH_MAX];  /**< Disk representation */
 
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
 void do_template(void *templatename) {
+	char flat_filename[PATH_MAX];
 	char filename[PATH_MAX];
 	FILE *fp;
 	char inbuf[1024];
 	char outbuf[sizeof inbuf];
 	char key[sizeof inbuf];
 	int i, pos;
+	struct stat mystat;
 
-	strcpy(filename, "static/");
-	strcat(filename, templatename);
+	strcpy(flat_filename, templatename);
 	if (WC->is_wap)
-		strcat(filename, ".wml");
+		strcat(flat_filename, ".wml");
 	else
-		strcat(filename, ".html");
+		strcat(flat_filename, ".html");
 	
+	strcpy(filename, static_dirs[1]);
+	strcat(filename, flat_filename);
+	if (stat(filename, &mystat) == -1)
+	{
+		strcpy(filename, static_dirs[0]);
+		strcat(filename, flat_filename);
+	}
+
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		wprintf(_("ERROR: could not open template "));
