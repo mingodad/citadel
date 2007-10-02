@@ -445,10 +445,10 @@ void display_reg(int during_login)
 	}
 
 	if (during_login) {
-		do_edit_vcard(vcard_msgnum, "1", "do_welcome");
+		do_edit_vcard(vcard_msgnum, "1", "do_welcome", USERCONFIGROOM);
 	}
 	else {
-		do_edit_vcard(vcard_msgnum, "1", "display_main_menu");
+		do_edit_vcard(vcard_msgnum, "1", "display_main_menu", USERCONFIGROOM);
 	}
 
 }
