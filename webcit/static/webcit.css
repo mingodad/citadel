@@ -561,12 +561,22 @@ body, #global {
  	padding: 0;
 }
 
+#content .box {
+	margin: 2% auto 0 auto;
+	width: 95%;
+	text-align: center;
+}
+
 .boxlabel, .boxcontent {
  	padding: 5px;
 }
 
 .boxlabel {
  	text-align: center;
+}
+
+.boxcontent {
+ 	text-align: left;
 }
 
 
@@ -748,12 +758,6 @@ html>body #button li a {
 
 /* Content */
 
-#content .box {
-	margin-top: 2% auto 0 auto;
-	width: 95%;
-	text-align: left;
-}
-
 .boxcontent table {
 	margin: 0;
 	padding: 0;
@@ -770,7 +774,7 @@ html>body #button li a {
 	width: 100%;
 }
 
-.service table, .advanced table, .who_is_online table {
+.service table, .advanced table {
 	margin-top: 0 auto 0 auto;
 	width: 100%;
 	text-align: left;
@@ -782,6 +786,7 @@ html>body #button li a {
 }
 
 .instructions {
+	text-align: center;
 }
 
 #message_list_hdr table {
@@ -983,7 +988,7 @@ div.auto_complete ul strong.highlight {
 	margin: 4px 5px 0 5px;
 }
 
-.edit_col, .host_col {
+.service .edit_col, .service .host_col {
 	display: none;
 }
 
@@ -1030,7 +1035,7 @@ table.altern tr td {
 
 table.advanced {
 	margin: 0 auto 0 auto;
-	width: 98%
+	width: 96%;
 	border-collapse: separate;
 	border-spacing: 15px;
 } 
