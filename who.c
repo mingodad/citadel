@@ -155,8 +155,12 @@ void who(void)
 	wprintf("</li></ul>");
 	wprintf("</div>");
 
-	wprintf("<div id=\"content\" class=\"service fix_scrollbar_bug\">\n");
+	wprintf("<div id=\"content\" class=\"fix_scrollbar_bug who_is_online\">\n");
 	wprintf("<div class=\"box\">");
+	wprintf("<div class=\"boxlabel\">");	
+	snprintf(title, sizeof title, _("Users currently on %s"), serv_info.serv_humannode);
+	escputs(title);
+	wprintf("</div>");	
 	wprintf("<div class=\"boxcontent\">");
         wprintf("<div id=\"who_inner\" >");
 	who_inner_div();
