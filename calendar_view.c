@@ -36,6 +36,7 @@ void do_tasks_view(void) {
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
 	time_t event_tt;
+	time_t event_tt_stripped;
 	time_t event_tte;
 	struct tm event_tm;
 	struct tm today_tm;
@@ -46,6 +47,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	int month, day, year;
 	int all_day_event = 0;
 	int multi_day_event = 0;
+	int fill_day_event = 0;
 	int show_event = 0;
 	time_t tt;
 	char buf[256];
@@ -61,6 +63,8 @@ void calendar_month_view_display_events(time_t thetime) {
 	year = today_tm.tm_year + 1900;
 
 	for (i=0; i<(WC->num_cal); ++i) {
+		fill_day_event = 0;
+		multi_day_event = 0;
 		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
 		pe = icalcomponent_get_first_property(WC->disp_cal[i].cal,
@@ -68,35 +72,52 @@ void calendar_month_view_display_events(time_t thetime) {
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
-
 			if (t.is_date) all_day_event = 1;
 			else all_day_event = 0;
 
 			if (all_day_event) {
 				gmtime_r(&event_tt, &event_tm); 
+				event_tm.tm_sec = 0;
+				event_tm.tm_min = 0;
+				event_tm.tm_hour = 0; 
 				// are we today?
-				show_event = ((event_tm.tm_year <= today_tm.tm_year)
-					     && (event_tm.tm_mon <= today_tm.tm_mon)
-					     && (event_tm.tm_mday <= today_tm.tm_mday));
+				event_tt_stripped = mktime (&event_tm);
+				show_event = thetime == event_tt_stripped;
 			}
 			else {
 				localtime_r(&event_tt, &event_tm);
-				if (pe != NULL)
+				// we're not interested in the hours. 
+				// we just want the date for easy comparison.
+				event_tm.tm_min = 0;
+				event_tm.tm_hour = 0; 
+				event_tt_stripped = mktime (&event_tm);
+				if (pe != NULL)  // do we have a span?
 				{
 					struct tm event_ttm;
+					time_t event_end_stripped;
+
 					t = icalproperty_get_dtend(pe);
-					event_tte = icaltime_as_timet(t);
-					
+					event_tte = icaltime_as_timet(t);					
 					gmtime_r(&event_tte, &event_ttm); 
+					event_ttm.tm_sec = 0;
+					event_ttm.tm_min = 0;
+					event_ttm.tm_hour = 0;
+					event_end_stripped = mktime(&event_ttm);
+
+					// do we span ore than one day?
+					multi_day_event = event_tt_stripped != event_end_stripped;
+
 					// are we in the range of the event?
-					show_event = ((event_tt <= thetime) && 
-						      (event_tte >= thetime));
+					show_event = ((event_tt_stripped <= thetime) && 
+						      (event_end_stripped >= thetime));
+
+					// are we not start or end day?
+					fill_day_event = ((event_tt_stripped < thetime) && 
+						      (event_end_stripped > thetime));
 				}
 				else {
 					// are we today?
-					show_event = ((event_tm.tm_year <= today_tm.tm_year)
-						      && (event_tm.tm_mon <= today_tm.tm_mon)
-						      && (event_tm.tm_mday <= today_tm.tm_mday));
+					show_event = event_tt_stripped == thetime;
 				}
 			}
 
