@@ -542,9 +542,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = (long *) cdbfr->ptr;
-		cdbfr->ptr = NULL;	/* CtdlForEachMessage() now owns this memory */
 		num_msgs = cdbfr->len / sizeof(long);
-		cdb_free(cdbfr);
 	} else {
 		if (need_to_free_re) regfree(&re);
 		return 0;	/* No messages at all?  No further action. */
@@ -680,7 +678,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 				++num_processed;
 			}
 		}
-	free(msglist);		/* Clean up */
+	cdb_free(cdbfr);	/* Clean up */
 	if (need_to_free_re) regfree(&re);
 	return num_processed;
 }
