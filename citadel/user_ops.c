@@ -62,6 +62,13 @@ static INLINE void makeuserkey(char *key, char *username) {
 	int i, len;
 
 	len = strlen(username);
+	if (len >= USERNAME_SIZE)
+	{
+		lprintf (CTDL_EMERG, "Username to long: %s", username);
+		cit_backtrace ();
+		len = USERNAME_SIZE - 1; 
+		username[USERNAME_SIZE - 1]='\0';
+	}
 	for (i=0; i<=len; ++i) {
 		key[i] = tolower(username[i]);
 	}
