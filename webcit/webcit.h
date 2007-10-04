@@ -649,6 +649,8 @@ void display_smtpqueue_inner_div(void);
 void display_sieve(void);
 void display_rules_editor_inner_div(void);
 void save_sieve(void);
+void display_pushemail(void);
+void save_pushemail(void);
 void display_add_remove_scripts(char *);
 void create_script(void);
 void delete_script(void);

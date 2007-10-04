@@ -23,7 +23,7 @@
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
-/**
+/**   
  * \brief remove escaped strings from i.e. the url string (like %20 for blanks)
  * \param buf the buffer to examine
  */
@@ -1763,6 +1763,10 @@ void session_loop(struct httprequest *req)
 		display_sieve();
 	} else if (!strcasecmp(action, "save_sieve")) {
 		save_sieve();
+	} else if (!strcasecmp(action, "display_pushemail")) {
+		display_pushemail();
+	} else if (!strcasecmp(action, "save_pushemail")) {
+		save_pushemail();
 	} else if (!strcasecmp(action, "display_add_remove_scripts")) {
 		display_add_remove_scripts(NULL);
 	} else if (!strcasecmp(action, "create_script")) {

@@ -118,13 +118,14 @@ void display_main_menu(void)
 	wprintf("</td></tr>"
 		"<tr valign=top><td width=50%%>");
 
-	print_menu_box(_("Your info"), "adminitems", 6,
+	print_menu_box(_("Your info"), "adminitems", 7,
 		       "display_preferences", _("Change your preferences and settings"),
 		       "display_reg", _("Update your contact information"),
 		       "display_changepw", _("Change your password"),
 		       "display_editbio", _("Enter your 'bio'"),
 		       "display_editpic", _("Edit your online photo"), 
-		       "display_sieve", _("View/edit server-side mail filters"));
+		       "display_sieve", _("View/edit server-side mail filters"),
+		       "display_pushemail", _("Edit your push email settings"));
 
 	wprintf("</td><td width=50%%>");
 

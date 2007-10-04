@@ -94,7 +94,7 @@ void do_iconbar(void) {
         if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\" target=\"aboutcit\"> "
+                "title=\"%s\"> "
                 "<img "
                 "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
                 "</div>\n",
@@ -114,8 +114,8 @@ void do_iconbar(void) {
 			">", _("Your summary page")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-				"src=\"static/summscreen_32x.gif\">");
+			wprintf("<img width=\"32\" height=\"32\" "
+				"src=\"static/summscreen_32x.gif\" alt=\"%s\">", _("Summary"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Summary"));
@@ -131,8 +131,8 @@ void do_iconbar(void) {
 			_("Go to your email inbox")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-				"src=\"static/privatemess_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+				"src=\"static/privatemess_32x.gif\" alt=\"%s\">", _("Mail"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Mail"));
@@ -156,8 +156,8 @@ void do_iconbar(void) {
 			_("Go to your personal calendar")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/calarea_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/calarea_32x.gif\" alt=\"%s\">", _("Calendar"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Calendar"));
@@ -173,8 +173,8 @@ void do_iconbar(void) {
 			_("Go to your personal address book")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/viewcontacts_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/viewcontacts_32x.gif\" alt=\"%s\">", _("Contacts"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Contacts"));
@@ -190,8 +190,8 @@ void do_iconbar(void) {
 			_("Go to your personal notes")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/storenotes_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/storenotes_32x.gif\" alt=\"%s\">", _("Notes"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Notes"));
@@ -207,8 +207,8 @@ void do_iconbar(void) {
 			_("Go to your personal task list")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/taskmanag_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/taskmanag_32x.gif\" alt=\"%s\">", _("Tasks"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Tasks"));
@@ -222,8 +222,8 @@ void do_iconbar(void) {
 			_("List all of your accessible rooms")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/chatrooms_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/chatrooms_32x.gif\" alt=\"%s\">", _("Rooms"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Rooms"));
@@ -238,8 +238,8 @@ void do_iconbar(void) {
 			_("See who is online right now")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/usermanag_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/usermanag_32x.gif\" alt=\"%s\">", _("Who is online?"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Who is online?"));
@@ -262,8 +262,8 @@ void do_iconbar(void) {
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/citadelchat_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/citadelchat_32x.gif\" alt=\"%s\">", _("Chat"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Chat"));
@@ -279,8 +279,8 @@ void do_iconbar(void) {
 			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/advanpage2_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/advanpage2_32x.gif\" alt=\"%s\">", _("Advanced"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Advanced"));
@@ -296,8 +296,8 @@ void do_iconbar(void) {
 			_("Room and system administration functions")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-			"src=\"static/advanpage2_32x.gif\">");
+			wprintf("<img  width=\"32\" height=\"32\" "
+			"src=\"static/advanpage2_32x.gif\" alt=\"%s\">", _("Administration"));
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf(_("Administration"));
@@ -313,8 +313,8 @@ void do_iconbar(void) {
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
-		"src=\"static/logoff_32x.gif\">");
+	wprintf("<img  width=\"32\" height=\"32\" "
+		"src=\"static/logoff_32x.gif\" alt=\"%s\">", _("Log off"));
 	}
 	if (ib_displayas != IB_PICONLY) {
 		wprintf(_("Log off"));
@@ -392,7 +392,7 @@ void do_iconbar_roomlist(void) {
         if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\" target=\"aboutcit\"> "
+                "title=\"%s\"> "
                 "<img "
                 "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
                 "</div>\n",
@@ -414,7 +414,7 @@ void do_iconbar_roomlist(void) {
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+	wprintf("<img  width=\"32\" height=\"32\" "
 		"src=\"static/logoff_32x.gif\">");
 	}
 	if (ib_displayas != IB_PICONLY) {
@@ -718,7 +718,7 @@ void display_customize_iconbar(void) {
 		"<input type=\"radio\" name=\"ib_citadel\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_citadel\" value=\"no\" %s> %s <br />"
 		"</td><td>"
-		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"<img  width=\"48\" height=\"48\" "
 		"src=\"static/citadel-logo.gif\" alt=\"&nbsp;\">"
 		"</td><td>"
 		"<b>%s</b><br />"
