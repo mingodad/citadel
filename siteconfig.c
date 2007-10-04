@@ -558,7 +558,7 @@ void display_siteconfig(void)
 			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
 			sprintf(&funambol[strlen(funambol)], _("Funambol auth details (user:pass in Base64)"));
 			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
-			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VAUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_funambol_auth\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
 			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
 			break;
 		case 57:
@@ -583,6 +583,13 @@ void display_siteconfig(void)
 			sprintf(&access[strlen(access)], "<input type=\"password\" NAME=\"c_master_pass\" MAXLENGTH=\"31\" VALUE=\"%s\">",
 			buf);
 			sprintf(&directory[strlen(directory)], "</TD></TR>\n");
+			break;
+		case 60:
+			sprintf(&funambol[strlen(funambol)], "<TR><TD>");
+			sprintf(&funambol[strlen(funambol)], _("External pager tool (blank to disable)"));
+			sprintf(&funambol[strlen(funambol)], "</TD><TD>");
+			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_pager_program\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
 			break;
 		}
 	
@@ -758,6 +765,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_rbl_at_greeting"));
 	serv_printf("%s", bstr("c_master_user"));
 	serv_printf("%s", bstr("c_master_pass"));
+	serv_printf("%s", bstr("c_pager_program"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
