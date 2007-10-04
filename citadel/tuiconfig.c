@@ -303,9 +303,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	/* External pager stuff */
 	int yes_pager = 0;
 	if (strlen(sc[60]) > 0) yes_pager = 1;
-	yes_pager = boolprompt("Configure an external pager command", yes_pager);
+	yes_pager = boolprompt("Configure an external pager tool", yes_pager);
 	if (yes_pager) {
-		strprompt("Paging command", &sc[60][0], 255);
+		strprompt("External pager tool", &sc[60][0], 255);
 	}
 	else {
 		sc[60][0] = 0;
