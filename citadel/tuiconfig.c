@@ -63,7 +63,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 60
+#define NUM_CONFIGS 61
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -298,6 +298,17 @@ void do_system_configuration(CtdlIPC *ipc)
 		sc[54][0] = 0;
 		sc[55][0] = 0;
 		sc[56][0] = 0;
+	}
+
+	/* External pager stuff */
+	int yes_pager = 0;
+	if (strlen(sc[60]) > 0) yes_pager = 1;
+	yes_pager = boolprompt("Configure an external pager command", yes_pager);
+	if (yes_pager) {
+		strprompt("Paging command", &sc[60][0], 255);
+	}
+	else {
+		sc[60][0] = 0;
 	}
 
 	/* Master user account */
