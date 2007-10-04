@@ -82,3 +82,4 @@ CFG_VALUE(STRING_BUF(c_funambol_auth, 256),	" Funambol auth details ");
 CFG_VALUE(CHAR(c_rbl_at_greeting),		" Check RBL's at connect instead of after RCPT ");
 CFG_VALUE(STRING_BUF(c_master_user, 32),	" Master user name ");
 CFG_VALUE(STRING_BUF(c_master_pass, 32),	" Master user password ");
+CFG_VALUE(STRING_BUF(c_pager_program, 256), 	" External pager program (blank to disable)");

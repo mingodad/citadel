@@ -70,6 +70,7 @@ SERV_MODULES=modules/chat/serv_chat.o \
 	modules/ldap/serv_ldap.o \
 	modules/autocompletion/serv_autocompletion.o \
 	modules/funambol/serv_funambol.o \
+	modules/pager/serv_pager.o \
 	modules/test/serv_test.o
 
 UTIL_TARGETS=aidepost msgform \

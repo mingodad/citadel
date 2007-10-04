@@ -37,19 +37,20 @@
 #include "control.h"
 #include "room_ops.h"
 #include "user_ops.h"
-#include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
 #include "domain.h"
 #include "clientsocket.h"
-#include "serv_funambol.h"
 
+#include "serv_funambol.h"
+#include "serv_pager.h"
 
 
 #include "ctdl_module.h"
 
+#define FUNAMBOL_CONFIG_TEXT "funambol"
 
 /*
  * Create the notify message queue
@@ -111,13 +112,18 @@ void notify_funambol(long msgnum, void *userdata) {
 	if ( msg->cm_fields['W'] == NULL) {
 		goto nuke;
 	}
+	long configMsgNum = pager_getConfigMessage(msg->cm_fields['W']);
+	int allowed = funambol_isAllowedByPrefs(configMsgNum);
+	if (allowed != 0) {
+		return;
+	}
 	/* Are we allowed to push? */
 	if (IsEmptyStr(config.c_funambol_host)) {
-		goto nuke;
+		return;
 	} else {
 		lprintf(CTDL_INFO, "Push enabled\n");
 	}
-	
+	// Does the user want it?
 	sprintf(port, "%d", config.c_funambol_port);
                 lprintf(CTDL_INFO, "Connecting to Funambol at <%s>\n", config.c_funambol_host);
                 sock = sock_connect(config.c_funambol_host, port, "tcp");
@@ -125,7 +131,7 @@ void notify_funambol(long msgnum, void *userdata) {
 
 	if (sock < 0) {
 		/* If the service isn't running, pass for now */
-		return;
+		goto nuke;
 	}
 	
 	/* Build a SOAP message, delicately, by hand */
@@ -221,7 +227,17 @@ void notify_funambol(long msgnum, void *userdata) {
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
 
-
+int funambol_isAllowedByPrefs(long configMsgNum) {
+	// Do a simple string search to see if 'funambol' is selected as the 
+	// type. This string would be at the very top of the message contents.
+	if (configMsgNum == -1) {
+		return -1;
+	}
+	struct CtdlMessage *prefMsg;
+	prefMsg = CtdlFetchMessage(configMsgNum, 1);
+	char *msgContents = prefMsg->cm_fields['M'];
+	return strncasecmp(msgContents, FUNAMBOL_CONFIG_TEXT, strlen(FUNAMBOL_CONFIG_TEXT));
+}
 
 CTDL_MODULE_INIT(funambol)
 {

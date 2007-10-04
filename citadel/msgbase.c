@@ -2582,7 +2582,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
-			if (!IsEmptyStr(config.c_funambol_host)) {
+			if (!IsEmptyStr(config.c_funambol_host) || !IsEmptyStr(config.c_pager_program)) {
 			/* Generate a instruction message for the Funambol notification
 			 * server, in the same style as the SMTP queue
 			 */

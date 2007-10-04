@@ -274,6 +274,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_rbl_at_greeting);
 		cprintf("%s\n", config.c_master_user);
 		cprintf("%s\n", config.c_master_pass);
+		cprintf("%s\n", config.c_pager_program);
 		cprintf("000\n");
 	}
 
@@ -506,6 +507,11 @@ void cmd_conf(char *argbuf)
 				break;
 			case 59:
 				safestrncpy(config.c_master_pass, buf, sizeof config.c_master_pass);
+				break;
+			case 60:
+				safestrncpy(config.c_pager_program,
+					buf,
+					sizeof config.c_pager_program);
 				break;
 			}
 			++a;
