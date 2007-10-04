@@ -854,7 +854,11 @@ void start_daemon(int unused) {
 		else {
 			fp = fopen(file_pid_file, "w");
 			if (fp != NULL) {
-				fprintf(fp, ""F_PID_T"\n", child);
+		/*
+		 * NB.. The pid file contains the pid of the actual server.
+		 * This is not the pid of the watcher process
+		 */
+				fprintf(fp, ""F_PID_T"\n", current_child);
 				fclose(fp);
 			}
 			waitpid(current_child, &status, 0);
