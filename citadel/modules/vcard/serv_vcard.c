@@ -358,7 +358,8 @@ void vcard_add_to_directory(long msgnum, void *data) {
 	}
 
 #ifdef HAVE_LDAP
-	ctdl_vcard_to_ldap(msg, V2L_WRITE);
+	if (!IsEmptyStr(config.c_ldap_base_dn))
+		ctdl_vcard_to_ldap(msg, V2L_WRITE);
 #endif
 
 	CtdlFreeMessage(msg);
