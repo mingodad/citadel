@@ -651,6 +651,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 {
 	int len,rlen;
 	fd_set rfds;
+	int fd;
 	struct timeval tv;
 	int retval;
 
@@ -660,20 +661,21 @@ int client_read_to(char *buf, int bytes, int timeout)
 	}
 #endif
 	len = 0;
+	fd = CC->client_socket;
 	while(len<bytes) {
 		FD_ZERO(&rfds);
-		FD_SET(CC->client_socket, &rfds);
+		FD_SET(fd, &rfds);
 		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
 
-		retval = select( (CC->client_socket)+1, 
-					&rfds, NULL, NULL, &tv);
+		retval = select( (fd)+1, 
+				 &rfds, NULL, NULL, &tv);
 
-		if (FD_ISSET(CC->client_socket, &rfds) == 0) {
+		if (FD_ISSET(fd, &rfds) == 0) {
 			return(0);
 		}
 
-		rlen = read(CC->client_socket, &buf[len], bytes-len);
+		rlen = read(fd, &buf[len], bytes-len);
 		if (rlen<1) {
 			/* The socket has been disconnected! */
 			CC->kill_me = 1;
@@ -721,10 +723,13 @@ int client_getln(char *buf, int bufsize)
 	/* Strip the trailing LF, and the trailing CR if present.
 	 */
 	buf[i] = 0;
-	while ( (!IsEmptyStr(buf)) && ((buf[strlen(buf)-1]==10) || (buf[strlen(buf)-1] == 13)) ) {
-		buf[strlen(buf)-1] = 0;
+	while ( (i > 0)
+		&& ( (buf[i - 1]==13)
+		     || ( buf[i - 1]==10)) ) {
+		i--;
+		buf[i] = 0;
 	}
-	if (retval < 0) safestrncpy(buf, "000", bufsize);
+	if (retval < 0) safestrncpy(&buf[i], "000", bufsize - i);
 	return(retval);
 }
 

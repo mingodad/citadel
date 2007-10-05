@@ -210,12 +210,13 @@ int sock_getln(int sock, char *buf, int bufsize)
 	/* Strip any trailing CR and LF characters.
 	 */
 	buf[i] = 0;
-	while ( (!IsEmptyStr(buf))
-	      && ((buf[strlen(buf)-1]==13)
-	      || (buf[strlen(buf)-1]==10)) ) {
-		buf[strlen(buf)-1] = 0;
+	while ( (i > 0)
+		&& ( (buf[i - 1]==13)
+		     || ( buf[i - 1]==10)) ) {
+		i--;
+		buf[i] = 0;
 	}
-	return(strlen(buf));
+	return(i);
 }
 
 /*
