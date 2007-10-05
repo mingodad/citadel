@@ -417,16 +417,15 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 CTDL_MODULE_INIT(ldap)
 {
 #ifdef HAVE_LDAP
-	CtdlRegisterCleanupHook(serv_ldap_cleanup);
-	CtdlRegisterDirectoryServiceFunc(CtdlDeleteFromLdap, DIRECTORY_USER_DEL, "ldap");
-	CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapHostOU, DIRECTORY_CREATE_HOST, "ldap");
-	CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapObject, DIRECTORY_CREATE_OBJECT, "ldap");
-	CtdlRegisterDirectoryServiceFunc(CtdlAddLdapAttr, DIRECTORY_ATTRIB_ADD, "ldap");
-	CtdlRegisterDirectoryServiceFunc(CtdlSaveLdapObject, DIRECTORY_SAVE_OBJECT, "ldap");
-	CtdlRegisterDirectoryServiceFunc(CtdlFreeLdapObject, DIRECTORY_FREE_OBJECT, "ldap");
-	
-
-	if (!IsEmptyStr(config.c_ldap_host)) {
+	if (!IsEmptyStr(config.c_ldap_base_dn))
+	{
+		CtdlRegisterCleanupHook(serv_ldap_cleanup);
+		CtdlRegisterDirectoryServiceFunc(CtdlDeleteFromLdap, DIRECTORY_USER_DEL, "ldap");
+		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapHostOU, DIRECTORY_CREATE_HOST, "ldap");
+		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapObject, DIRECTORY_CREATE_OBJECT, "ldap");
+		CtdlRegisterDirectoryServiceFunc(CtdlAddLdapAttr, DIRECTORY_ATTRIB_ADD, "ldap");
+		CtdlRegisterDirectoryServiceFunc(CtdlSaveLdapObject, DIRECTORY_SAVE_OBJECT, "ldap");
+		CtdlRegisterDirectoryServiceFunc(CtdlFreeLdapObject, DIRECTORY_FREE_OBJECT, "ldap");
 		CtdlConnectToLdap();
 	}
 

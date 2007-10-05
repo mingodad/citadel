@@ -138,7 +138,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
  */
  
  
-void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
+void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	struct vCard *v = NULL;
 	int i;
 	int num_emails = 0;
@@ -357,10 +357,7 @@ void vcard_add_to_directory(long msgnum, void *data) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
 
-#ifdef HAVE_LDAP
-	if (!IsEmptyStr(config.c_ldap_base_dn))
-		ctdl_vcard_to_ldap(msg, V2L_WRITE);
-#endif
+	ctdl_vcard_to_directory(msg, V2L_WRITE);
 
 	CtdlFreeMessage(msg);
 }
@@ -1090,9 +1087,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 		   || (!strncasecmp(ptr, "Content-type: text/vcard", 24)) ) {
 			/* Bingo!  A vCard is being deleted. */
 			vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
-#ifdef HAVE_LDAP
-			ctdl_vcard_to_ldap(msg, V2L_DELETE);
-#endif
+			ctdl_vcard_to_directory(msg, V2L_DELETE);
 		}
 		ptr = strchr((char *)ptr, '\n');
 		if (ptr != NULL) ++ptr;
