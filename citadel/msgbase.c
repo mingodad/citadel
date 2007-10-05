@@ -3185,6 +3185,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
+		j = 0;
 		for (j=0; !IsEmptyStr(&this_recp[j]); ++j) {
 			if (this_recp[j]=='_') {
 				this_recp_cooked[j] = ' ';
@@ -3193,6 +3194,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				this_recp_cooked[j] = this_recp[j];
 			}
 		}
+		this_recp_cooked[j] = '\0';
 		invalid = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
