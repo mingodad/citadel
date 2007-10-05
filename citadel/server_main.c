@@ -216,9 +216,6 @@ int main(int argc, char **argv)
 	config.c_ipgm_secret = rand();
 	put_config();
 
-	lprintf(CTDL_INFO, "Acquiring control record\n");
-	get_control();
-
 #ifdef HAVE_RUN_DIR
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
@@ -242,6 +239,9 @@ int main(int argc, char **argv)
 	 * Do non system dependent startup functions.
 	 */
 	master_startup();
+
+	lprintf(CTDL_INFO, "Acquiring control record\n");
+	get_control();
 
 	/*
 	 * Bind the server to a Unix-domain socket.

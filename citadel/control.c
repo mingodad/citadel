@@ -39,6 +39,8 @@
 #include "citserver.h"
 #include "tools.h"
 #include "room_ops.h"
+#include "user_ops.h"
+#include "database.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -47,7 +49,7 @@
 struct CitControl CitControl;
 extern struct config config;
 FILE *control_fp = NULL;
-
+long control_highest_user = 0;
 
 
 /*
@@ -68,6 +70,55 @@ void lock_control(void)
 		exit(CTDLEXIT_CONTROL);
 	}
 #endif
+}
+
+/*
+ * callback to get highest room number when rebuilding control file
+ */
+void control_find_highest(struct ctdlroom *qrbuf, void *data)
+{
+	struct ctdlroom room;
+	struct cdbdata *cdbfr;
+	long *msglist;
+	int num_msgs=0;
+	int c;
+	
+	
+	if (qrbuf->QRnumber > CitControl.MMnextroom)
+		CitControl.MMnextroom = qrbuf->QRnumber;
+		
+	getroom (&room, qrbuf->QRname);
+	
+	/* Load the message list */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &room.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		msglist = (long *) cdbfr->ptr;
+		num_msgs = cdbfr->len / sizeof(long);
+	} else {
+		return;	/* No messages at all?  No further action. */
+	}
+
+	if (num_msgs>0)
+	{
+		for (c=0; c<num_msgs; c++)
+		{
+			if (msglist[c] > CitControl.MMhighest)
+				CitControl.MMhighest = msglist[c];
+		}
+	}
+	cdb_free(cdbfr);
+	return;
+}
+
+
+/*
+ * Callback to get highest user number.
+ */
+ 
+void control_find_user (struct ctdluser *EachUser, void *out_data)
+{
+	if (EachUser->usernum > CitControl.MMnextuser)
+		CitControl.MMnextuser = EachUser->usernum;
 }
 
 
@@ -102,6 +153,9 @@ void get_control(void)
 			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
+			// Find highest room number and message number.
+			ForEachRoom(control_find_highest, NULL);
+			ForEachUser(control_find_user, NULL);
 			fwrite(&CitControl, sizeof(struct CitControl),
 			       1, control_fp);
 			rewind(control_fp);
