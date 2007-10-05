@@ -39,7 +39,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "serv_ldap.h"
-#include "vcard.h"
 #include "tools.h"
 
 
@@ -126,8 +125,10 @@ void CtdlCreateLdapRoot(void) {
 
 /*
  * Create an OU node representing a Citadel host.
+ * parameter cn is not used, its just there to keep the hook interface consistant
+ * parameter object not used here, present for interface compatability
  */
-void CtdlCreateHostOU(char *host) {
+int CtdlCreateLdapHostOU(char *cn, char *host, void **object) {
 	char *dc_values[2];
 	char *objectClass_values[3];
 	LDAPMod dc, objectClass;
@@ -166,7 +167,9 @@ void CtdlCreateHostOU(char *host) {
 	else if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_CRIT, "ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
+		return -1;
 	}
+	return 0;
 }
 
 
@@ -210,346 +213,107 @@ void CtdlConnectToLdap(void) {
 }
 
 
-/* 
- * vCard-to-LDAP conversions.
- *
- * If 'op' is set to V2L_WRITE, then write
- * (add, or change if already exists) a directory entry to the
- * LDAP server, based on the information supplied in a vCard.
- *
- * If 'op' is set to V2L_DELETE, then delete the entry from LDAP.
+
+/*
+ * Create a base LDAP object for the interface
  */
-void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
-	struct vCard *v = NULL;
-	int i, j;
-	char this_dn[SIZ];
-	LDAPMod **attrs = NULL;
+ 
+int CtdlCreateLdapObject(char *cn, char *ou, void **object)
+{
+	// We do nothing here, this just gets the base structure created by the interface.
+	lprintf (CTDL_DEBUG, "Created ldap object\n");
+	return 0;
+}
+
+
+/*
+ * Add an attribute to the ldap object
+ */
+ 
+int CtdlAddLdapAttr(char *cn, char *ou, void **object)
+{
+	LDAPMod **attrs ;
 	int num_attrs = 0;
-	int num_emails = 0;
-	int alias_attr = (-1);
-	int num_phones = 0;
-	int phone_attr = (-1);
-	int have_addr = 0;
-	int have_cn = 0;
-
-	char givenname[128];
-	char sn[128];
-	char uid[256];
-	char street[256];
-	char city[128];
-	char state[3];
-	char zipcode[10];
-	char calFBURL[256];
-
-	if (dirserver == NULL) return;
-	if (msg == NULL) return;
-	if (msg->cm_fields['M'] == NULL) return;
-	if (msg->cm_fields['A'] == NULL) return;
-	if (msg->cm_fields['N'] == NULL) return;
-
-	/* Initialize variables */
-	strcpy(givenname, "");
-	strcpy(sn, "");
-	strcpy(calFBURL, "");
-
-	sprintf(this_dn, "cn=%s,ou=%s,%s",
-		msg->cm_fields['A'],
-		msg->cm_fields['N'],
-		config.c_ldap_base_dn
-	);
-		
-	sprintf(uid, "%s@%s",
-		msg->cm_fields['A'],
-		msg->cm_fields['N']
-	);
-
-	/* Are we just deleting?  If so, it's simple... */
-	if (op == V2L_DELETE) {
-		lprintf(CTDL_DEBUG, "Calling ldap_delete_s()\n");
-		begin_critical_section(S_LDAP);
-		i = ldap_delete_s(dirserver, this_dn);
-		end_critical_section(S_LDAP);
-		if (i != LDAP_SUCCESS) {
-			lprintf(CTDL_ERR, "ldap_delete_s() failed: %s (%d)\n",
-				ldap_err2string(i), i);
-		}
-		return;
-	}
-
-	/*
-	 * If we get to this point then it must be a V2L_WRITE operation.
-	 */
-
-	/* First make sure the OU for the user's home Citadel host is created */
-	CtdlCreateHostOU(msg->cm_fields['N']);
-
-	/* The first LDAP attribute will be an 'objectclass' list.  Citadel
-	 * doesn't do anything with this.  It's just there for compatibility
-	 * with Kolab.
-	 */
-	num_attrs = 1;
-	attrs = malloc( (sizeof(LDAPMod *) * num_attrs) );
-	attrs[0] = malloc(sizeof(LDAPMod));
-	memset(attrs[0], 0, sizeof(LDAPMod));
-	attrs[0]->mod_op	= LDAP_MOD_ADD;
-	attrs[0]->mod_type	= "objectclass";
-	attrs[0]->mod_values	= malloc(3 * sizeof(char *));
-	attrs[0]->mod_values[0]	= strdup("citadelInetOrgPerson");
-	attrs[0]->mod_values[1]	= NULL;
-
-	/* Convert the vCard fields to LDAP properties */
-	v = vcard_load(msg->cm_fields['M']);
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) if (striplt(v->prop[i].value), strlen(v->prop[i].value) > 0) {
-
-		if (!strcasecmp(v->prop[i].name, "n")) {
-			extract_token(sn,		v->prop[i].value, 0, ';', sizeof sn);
-			extract_token(givenname,	v->prop[i].value, 1, ';', sizeof givenname);
-		}
-
-		if (!strcasecmp(v->prop[i].name, "fn")) {
-			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-			attrs[num_attrs-1]->mod_type		= "cn";
-			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
-			attrs[num_attrs-1]->mod_values[1]	= NULL;
-			have_cn = 1;
-		}
-
-		if (!strcasecmp(v->prop[i].name, "title")) {
-			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-			attrs[num_attrs-1]->mod_type		= "title";
-			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
-			attrs[num_attrs-1]->mod_values[1]	= NULL;
-		}
-
-		if (!strcasecmp(v->prop[i].name, "org")) {
-			attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-			attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-			attrs[num_attrs-1]->mod_type		= "o";
-			attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-			attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
-			attrs[num_attrs-1]->mod_values[1]	= NULL;
-		}
-
-		if ( (!strcasecmp(v->prop[i].name, "adr"))
-		   ||(!strncasecmp(v->prop[i].name, "adr;", 4)) ) {
-			/* Unfortunately, we can only do a single address */
-			if (!have_addr) {
-				have_addr = 1;
-				strcpy(street, "");
-				extract_token(&street[strlen(street)],
-					v->prop[i].value, 0, ';', (sizeof street - strlen(street))); /* po box */
-				strcat(street, " ");
-				extract_token(&street[strlen(street)],
-					v->prop[i].value, 1, ';', (sizeof street - strlen(street))); /* extend addr */
-				strcat(street, " ");
-				extract_token(&street[strlen(street)],
-					v->prop[i].value, 2, ';', (sizeof street - strlen(street))); /* street */
-				striplt(street);
-				extract_token(city, v->prop[i].value, 3, ';', sizeof city);
-				extract_token(state, v->prop[i].value, 4, ';', sizeof state);
-				extract_token(zipcode, v->prop[i].value, 5, ';', sizeof zipcode);
-
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-				attrs[num_attrs-1]->mod_type		= "street";
-				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdup(street);
-				attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-				attrs[num_attrs-1]->mod_type		= "l";
-				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdup(city);
-				attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-				attrs[num_attrs-1]->mod_type		= "st";
-				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdup(state);
-				attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-				attrs[num_attrs-1]->mod_type		= "postalcode";
-				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdup(zipcode);
-				attrs[num_attrs-1]->mod_values[1]	= NULL;
-			}
-		}
-
-		if ( (!strcasecmp(v->prop[i].name, "tel"))
-		   ||(!strncasecmp(v->prop[i].name, "tel;", 4)) ) {
-			++num_phones;
-			/* The first 'tel' property creates the 'telephoneNumber' attribute */
-			if (num_phones == 1) {
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				phone_attr = num_attrs-1;
-				attrs[phone_attr] = malloc(sizeof(LDAPMod));
-				memset(attrs[phone_attr], 0, sizeof(LDAPMod));
-				attrs[phone_attr]->mod_op		= LDAP_MOD_ADD;
-				attrs[phone_attr]->mod_type		= "telephoneNumber";
-				attrs[phone_attr]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[phone_attr]->mod_values[0]	= strdup(v->prop[i].value);
-				attrs[phone_attr]->mod_values[1]	= NULL;
-			}
-			/* Subsequent 'tel' properties *add to* the 'telephoneNumber' attribute */
-			else {
-				attrs[phone_attr]->mod_values = realloc(attrs[phone_attr]->mod_values,
-								     num_phones * sizeof(char *));
-				attrs[phone_attr]->mod_values[num_phones-1]
-									= strdup(v->prop[i].value);
-				attrs[phone_attr]->mod_values[num_phones]
-									= NULL;
-			}
-		}
-
-
-		if ( (!strcasecmp(v->prop[i].name, "email"))
-		   ||(!strcasecmp(v->prop[i].name, "email;internet")) ) {
+	int num_values = 0;
+	int cur_attr;
 	
-			++num_emails;
-			lprintf(CTDL_DEBUG, "email addr %d\n", num_emails);
-
-			/* The first email address creates the 'mail' attribute */
-			if (num_emails == 1) {
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-				attrs[num_attrs-1]->mod_type		= "mail";
-				attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[num_attrs-1]->mod_values[0]	= strdup(v->prop[i].value);
-				attrs[num_attrs-1]->mod_values[1]	= NULL;
-			}
-			/* The second email address creates the 'alias' attribute */
-			else if (num_emails == 2) {
-				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-				alias_attr = num_attrs-1;
-				attrs[alias_attr] = malloc(sizeof(LDAPMod));
-				memset(attrs[alias_attr], 0, sizeof(LDAPMod));
-				attrs[alias_attr]->mod_op		= LDAP_MOD_ADD;
-				attrs[alias_attr]->mod_type		= "alias";
-				attrs[alias_attr]->mod_values		= malloc(2 * sizeof(char *));
-				attrs[alias_attr]->mod_values[0]	= strdup(v->prop[i].value);
-				attrs[alias_attr]->mod_values[1]	= NULL;
-			}
-			/* Subsequent email addresses *add to* the 'alias' attribute */
-			else if (num_emails > 2) {
-				attrs[alias_attr]->mod_values = realloc(attrs[alias_attr]->mod_values,
-								     num_emails * sizeof(char *));
-				attrs[alias_attr]->mod_values[num_emails-2]
-									= strdup(v->prop[i].value);
-				attrs[alias_attr]->mod_values[num_emails-1]
-									= NULL;
-			}
-
-
-		}
-
-		/* Calendar free/busy URL (take the first one we find, but if a subsequent
-		 * one contains the "pref" designation then we go with that instead.)
-		 */
-		if ( (!strcasecmp(v->prop[i].name, "fburl"))
-		   ||(!strncasecmp(v->prop[i].name, "fburl;", 6)) ) {
-			if ( (IsEmptyStr(calFBURL))
-			   || (!strncasecmp(v->prop[i].name, "fburl;pref", 10)) ) {
-				safestrncpy(calFBURL, v->prop[i].value, sizeof calFBURL);
-			}
-		}
-
-	}
-	vcard_free(v);	/* Don't need this anymore. */
-
-	/* "sn" (surname) based on info in vCard */
-	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-	attrs[num_attrs-1]->mod_type		= "sn";
-	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdup(sn);
-	attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-	/* "givenname" (first name) based on info in vCard */
-	if (IsEmptyStr(givenname)) strcpy(givenname, "_");
-	if (IsEmptyStr(sn)) strcpy(sn, "_");
-	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-	attrs[num_attrs-1]->mod_type		= "givenname";
-	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdup(givenname);
-	attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-	/* "uid" is a Kolab compatibility thing.  We just do cituser@citnode */
-	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-	attrs[num_attrs-1]->mod_type		= "uid";
-	attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-	attrs[num_attrs-1]->mod_values[0]	= strdup(uid);
-	attrs[num_attrs-1]->mod_values[1]	= NULL;
-
-	/* Add a "cn" (Common Name) attribute based on the user's screen name,
-	 * but only there was no 'fn' (full name) property in the vCard	
-	 */
-	if (!have_cn) {
-		attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-		attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-		memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-		attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-		attrs[num_attrs-1]->mod_type		= "cn";
-		attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-		attrs[num_attrs-1]->mod_values[0]	= strdup(msg->cm_fields['A']);
-		attrs[num_attrs-1]->mod_values[1]	= NULL;
-	}
-
-	/* Add a "calFBURL" attribute if a calendar free/busy URL exists */
-	if (!IsEmptyStr(calFBURL)) {
-		attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-		attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
-		memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
-		attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
-		attrs[num_attrs-1]->mod_type		= "calFBURL";
-		attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
-		attrs[num_attrs-1]->mod_values[0]	= strdup(calFBURL);
-		attrs[num_attrs-1]->mod_values[1]	= NULL;
+	
+	lprintf (CTDL_DEBUG, "Adding ldap attribute\n");
+	
+	attrs = *object;
+	if (attrs)
+	{
+		while (attrs[num_attrs])
+			num_attrs++;
 	}
 	
+	for (cur_attr = 0; cur_attr < num_attrs ; cur_attr++)
+	{
+		if (!strcmp(attrs[cur_attr]->mod_type, cn))
+		{	// Adding a value to the attribute
+			if (attrs[cur_attr]->mod_values)
+			{
+				while (attrs[cur_attr]->mod_values[num_values])
+					num_values++;
+			}
+			attrs[cur_attr]->mod_values = realloc(attrs[cur_attr]->mod_values, (num_values + 2) * (sizeof(char *)));
+			attrs[cur_attr]->mod_values[num_values] = strdup(ou);
+			attrs[cur_attr]->mod_values[num_values+1] = NULL;
+			return 0;
+		}
+	}
+	if (num_attrs)
+		attrs = realloc(attrs, (sizeof(LDAPMod *)) * (num_attrs + 2));
+	else
+		attrs = malloc((sizeof(LDAPMod *)) * (num_attrs + 2));
+	attrs[num_attrs] = malloc(sizeof(LDAPMod));
+	memset(attrs[num_attrs], 0, sizeof(LDAPMod));
+	attrs[num_attrs+1] = NULL;
+	attrs[num_attrs]->mod_op	= LDAP_MOD_ADD;
+	attrs[num_attrs]->mod_type	= strdup(cn);
+	attrs[num_attrs]->mod_values	= malloc(2 * sizeof(char *));
+	attrs[num_attrs]->mod_values[0]	= strdup(ou);
+	attrs[num_attrs]->mod_values[1]	= NULL;
+	*object = attrs;
+	return 0;
+}
+
+
+/*
+ * SAve the object to the LDAP server
+ */
+int CtdlSaveLdapObject(char *cn, char *ou, void **object)
+{
+	int i, j;
+	
+	char this_dn[SIZ];
+	LDAPMod **attrs ;
+	int num_attrs = 0;
+	int count = 0;
+	
+	if (dirserver == NULL) return -1;
+	if (ou == NULL) return -1;
+	if (cn == NULL) return -1;
+	
+	sprintf(this_dn, "cn=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+
 	/* The last attribute must be a NULL one. */
-	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
-	attrs[num_attrs - 1] = NULL;
+	attrs = (LDAPMod **)*object;
+	if (attrs)
+	{
+		while (attrs[num_attrs])
+			num_attrs++;
+	}
 	
 	lprintf(CTDL_DEBUG, "Calling ldap_add_s() for '%s'\n", this_dn);
+	
 	begin_critical_section(S_LDAP);
 	i = ldap_add_s(dirserver, this_dn, attrs);
 	end_critical_section(S_LDAP);
 
 	/* If the entry already exists, repopulate it instead */
 	if (i == LDAP_ALREADY_EXISTS) {
-		for (j=0; j<(num_attrs-1); ++j) {
+		for (j=0; j<(num_attrs); ++j) {
 			attrs[j]->mod_op = LDAP_MOD_REPLACE;
 		}
 		lprintf(CTDL_DEBUG, "Calling ldap_modify_s() for '%s'\n", this_dn);
@@ -561,6 +325,27 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_ERR, "ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
+		return -1;
+	}
+	return 0;
+}
+
+
+/*
+ * Free the object
+ */
+int CtdlFreeLdapObject(char *cn, char *ou, void **object)
+{
+	int i, j;
+	
+	LDAPMod **attrs ;
+	int num_attrs = 0;
+
+	attrs = (LDAPMod **)*object;
+	if (attrs)
+	{
+		while (attrs[num_attrs])
+			num_attrs++;
 	}
 
 	lprintf(CTDL_DEBUG, "Freeing attributes\n");
@@ -584,8 +369,42 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 			free(attrs[i]);
 		}
 	}
+	free(attrs[i]);
 	free(attrs);
-	lprintf(CTDL_DEBUG, "LDAP write operation complete.\n");
+	*object = NULL;
+	return 0;
+}
+
+
+/*
+ * Delete a record from the LDAP
+ *
+ * parameter object not used here, present for hook interface compatability
+ */
+int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
+{
+	int i;
+	
+	char this_dn[SIZ];
+	
+	if (dirserver == NULL) return -1;
+	if (ou == NULL) return -1;
+	if (cn == NULL) return -1;
+	
+	sprintf(this_dn, "cn=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	
+	lprintf(CTDL_DEBUG, "Calling ldap_delete_s()\n");
+	
+	begin_critical_section(S_LDAP);
+	i = ldap_delete_s(dirserver, this_dn);
+	end_critical_section(S_LDAP);
+	
+	if (i != LDAP_SUCCESS) {
+		lprintf(CTDL_ERR, "ldap_delete_s() failed: %s (%d)\n",
+			ldap_err2string(i), i);
+		return -1;
+	}
+	return 0;
 }
 
 
@@ -599,6 +418,13 @@ CTDL_MODULE_INIT(ldap)
 {
 #ifdef HAVE_LDAP
 	CtdlRegisterCleanupHook(serv_ldap_cleanup);
+	CtdlRegisterDirectoryServiceFunc(CtdlDeleteFromLdap, DIRECTORY_USER_DEL, "ldap");
+	CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapHostOU, DIRECTORY_CREATE_HOST, "ldap");
+	CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapObject, DIRECTORY_CREATE_OBJECT, "ldap");
+	CtdlRegisterDirectoryServiceFunc(CtdlAddLdapAttr, DIRECTORY_ATTRIB_ADD, "ldap");
+	CtdlRegisterDirectoryServiceFunc(CtdlSaveLdapObject, DIRECTORY_SAVE_OBJECT, "ldap");
+	CtdlRegisterDirectoryServiceFunc(CtdlFreeLdapObject, DIRECTORY_FREE_OBJECT, "ldap");
+	
 
 	if (!IsEmptyStr(config.c_ldap_host)) {
 		CtdlConnectToLdap();

@@ -25,6 +25,8 @@
 
 #include "modules/crypto/serv_crypto.h"	/* Needed until a universal crypto startup hook is implimented for CtdlStartTLS */
 
+#include "ctdl_module.h"
+
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 #include "snprintf.h"
@@ -50,6 +52,19 @@ struct ProtoFunctionHook {
 	struct ProtoFunctionHook *next;
 } *ProtoHookList = NULL;
 
+
+struct DirectoryServiceHook {
+	int (*handler) (char *cn, char *ou, void **object);
+	int cmd;
+	char *module;
+	struct DirectoryServiceHook *next;
+} *DirectoryServiceHookList = NULL;
+
+struct DirectoryObject {
+	char *module;
+	void *object;
+	struct DirectoryObject *next;
+};
 
 #define ERR_PORT (1 << 1)
 
@@ -1042,6 +1057,118 @@ void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc)(void *arg))
 	lprintf(CTDL_INFO, "Registered a new maintenance thread function\n");
 }
 
+
+
+int CtdlRegisterDirectoryServiceFunc(int (*func)(char *cn, char *ou, void **object), int cmd, char *module)
+{
+	struct DirectoryServiceHook *newfcn;
+	
+	newfcn = DirectoryServiceHookList;
+	while (newfcn)
+	{
+		if (newfcn->cmd == cmd && !strcmp(newfcn->module, module))
+		{
+			lprintf(CTDL_ERR, "Directory service function already handled by module %s\n", module);
+			return -1;
+		}
+		newfcn = newfcn->next;
+	}
+	
+	newfcn = (struct DirectoryServiceHook *) malloc (sizeof(struct DirectoryServiceHook));
+	newfcn->handler = func;
+	newfcn->cmd = cmd;
+	newfcn->module = module;
+	newfcn->next = DirectoryServiceHookList;
+	DirectoryServiceHookList = newfcn;
+	
+	lprintf(CTDL_INFO, "Registered a new directory service function from module %s\n", module);
+	return 0;
+}
+
+int CtdlDoDirectoryServiceFunc(char *cn, char *ou, void **object, char *module, int cmd)
+{
+	struct DirectoryServiceHook *curfcn;
+	struct DirectoryObject *our_object_list = NULL;
+	struct DirectoryObject *newobject = NULL;
+	struct DirectoryObject *oldobject = NULL;
+	
+	
+	curfcn = DirectoryServiceHookList;
+	if (object)
+		our_object_list = (struct DirectoryObject *) *object;
+	
+	while (curfcn)
+	{
+		if (curfcn->cmd == cmd)
+		{
+			if (!module)
+			{
+				if (cmd == DIRECTORY_CREATE_OBJECT)
+				{
+					newobject = (struct DirectoryObject*) malloc (sizeof(struct DirectoryObject));
+					newobject->module = curfcn->module;
+					newobject->object = NULL;
+					newobject->next = our_object_list;
+					our_object_list = newobject;
+				}
+				if (our_object_list)
+				{
+					for(newobject = our_object_list; newobject; newobject=newobject->next)
+					{
+						if (!strcmp(newobject->module, curfcn->module))
+							(void) curfcn->handler(cn, ou, &newobject->object);
+					}
+				}
+				else
+					(void) curfcn->handler(cn, ou, NULL);
+
+				continue;
+			}
+			else 
+			{
+				if(!strcmp(curfcn->module, module))
+				{
+					if (cmd == DIRECTORY_CREATE_OBJECT)
+					{
+						newobject = (struct DirectoryObject*) malloc (sizeof(struct DirectoryObject));
+						newobject->module = module;
+						newobject->object = NULL;
+						newobject->next = our_object_list;
+						our_object_list = newobject;
+					}
+					if (our_object_list)
+					{
+						for(newobject = our_object_list; newobject; newobject=newobject->next)
+						{
+							if (!strcmp(newobject->module, curfcn->module))
+								(void) curfcn->handler(cn, ou, &newobject->object);
+						}
+					}
+					else
+						(void) (curfcn->handler(cn, ou, NULL));
+
+					break;
+				}
+			}
+		}
+		curfcn=curfcn->next;
+	}
+	if (our_object_list)
+	{
+		*object = our_object_list;
+		if (cmd == DIRECTORY_FREE_OBJECT)
+		{	// The objects pointed to by the list should have been freed by the module that created it
+			for(newobject = our_object_list; newobject; )
+			{
+				oldobject=newobject;
+				newobject=newobject->next;
+				free(oldobject);
+			}
+			*object=NULL;
+		}
+	}
+	return 0;
+}
 
 /*
  * Dirty hack until we impliment a hook mechanism for this

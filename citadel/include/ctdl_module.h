@@ -66,6 +66,21 @@ void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg))
 
 void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name);
 
+
+/*
+ * Directory services hooks for LDAP etc
+ */
+
+#define DIRECTORY_USER_DEL 1	// Delete a user entry
+#define DIRECTORY_CREATE_HOST 2	// Create a host entry if not already there.
+#define DIRECTORY_CREATE_OBJECT 3	// Create a new object for directory entry
+#define DIRECTORY_ATTRIB_ADD 4	// Add an attribute to the directory entry object
+#define DIRECTORY_SAVE_OBJECT 5	// Save the object to the directory service
+#define DIRECTORY_FREE_OBJECT 6	// Free the object and its attributes
+
+int CtdlRegisterDirectoryServiceFunc(int (*func)(char *cn, char *ou, void **object), int cmd, char *module);
+int CtdlDoDirectoryServiceFunc(char *cn, char *ou, void **object, char *module, int cmd);
+
 /* TODODRW: This needs to be changed into a hook type interface
  * for now we have this horrible hack
  */

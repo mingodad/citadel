@@ -63,7 +63,6 @@
 #include "mime_parser.h"
 #include "vcard.h"
 #include "serv_vcard.h"
-#include "serv_ldap.h"
 
 #include "ctdl_module.h"
 
@@ -125,6 +124,195 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	} while(found_something);
 
 	vcard_free(v);
+}
+
+
+/* 
+ * vCard-to-LDAP conversions.
+ *
+ * If 'op' is set to V2L_WRITE, then write
+ * (add, or change if already exists) a directory entry to the
+ * LDAP server, based on the information supplied in a vCard.
+ *
+ * If 'op' is set to V2L_DELETE, then delete the entry from LDAP.
+ */
+ 
+ 
+void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
+	struct vCard *v = NULL;
+	int i;
+	int num_emails = 0;
+	int num_phones = 0;
+	int have_addr = 0;
+	int have_cn = 0;
+	
+	void *objectlist = NULL;
+
+	char givenname[128];
+	char sn[128];
+	char uid[256];
+	char street[256];
+	char city[128];
+	char state[3];
+	char zipcode[10];
+	char calFBURL[256];
+
+	if (msg == NULL) return;
+	if (msg->cm_fields['M'] == NULL) return;
+	if (msg->cm_fields['A'] == NULL) return;
+	if (msg->cm_fields['N'] == NULL) return;
+
+	/* Initialize variables */
+	strcpy(givenname, "");
+	strcpy(sn, "");
+	strcpy(calFBURL, "");
+
+	sprintf(uid, "%s@%s",
+		msg->cm_fields['A'],
+		msg->cm_fields['N']
+	);
+
+	/* Are we just deleting?  If so, it's simple... */
+	if (op == V2L_DELETE) {
+		(void) CtdlDoDirectoryServiceFunc (msg->cm_fields['A'], msg->cm_fields['N'], NULL, "ldap", DIRECTORY_USER_DEL);
+		return;
+	}
+
+	/*
+	 * If we get to this point then it must be a V2L_WRITE operation.
+	 */
+
+	/* First make sure the OU for the user's home Citadel host is created */
+	(void) CtdlDoDirectoryServiceFunc (NULL, msg->cm_fields['N'], NULL, "ldap", DIRECTORY_CREATE_HOST);
+	
+	/* Next create the directory service object */
+	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_CREATE_OBJECT);
+
+	/* The first LDAP attribute will be an 'objectclass' list.  Citadel
+	 * doesn't do anything with this.  It's just there for compatibility
+	 * with Kolab.
+	 */
+	(void) CtdlDoDirectoryServiceFunc("objectclass", "citadelInetOrgPerson", &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+
+	/* Convert the vCard fields to LDAP properties */
+	v = vcard_load(msg->cm_fields['M']);
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) if (striplt(v->prop[i].value), strlen(v->prop[i].value) > 0) {
+
+		if (!strcasecmp(v->prop[i].name, "n")) {
+			extract_token(sn,		v->prop[i].value, 0, ';', sizeof sn);
+			extract_token(givenname,	v->prop[i].value, 1, ';', sizeof givenname);
+		}
+
+		if (!strcasecmp(v->prop[i].name, "fn")) {
+			(void) CtdlDoDirectoryServiceFunc("cn", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			have_cn = 1;
+		}
+
+		if (!strcasecmp(v->prop[i].name, "title")) {
+			(void) CtdlDoDirectoryServiceFunc("title", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+		}
+
+		if (!strcasecmp(v->prop[i].name, "org")) {
+			(void) CtdlDoDirectoryServiceFunc("o", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+		}
+
+		if ( (!strcasecmp(v->prop[i].name, "adr"))
+		   ||(!strncasecmp(v->prop[i].name, "adr;", 4)) ) {
+			/* Unfortunately, we can only do a single address */
+			if (!have_addr) {
+				have_addr = 1;
+				strcpy(street, "");
+				extract_token(&street[strlen(street)],
+					v->prop[i].value, 0, ';', (sizeof street - strlen(street))); /* po box */
+				strcat(street, " ");
+				extract_token(&street[strlen(street)],
+					v->prop[i].value, 1, ';', (sizeof street - strlen(street))); /* extend addr */
+				strcat(street, " ");
+				extract_token(&street[strlen(street)],
+					v->prop[i].value, 2, ';', (sizeof street - strlen(street))); /* street */
+				striplt(street);
+				extract_token(city, v->prop[i].value, 3, ';', sizeof city);
+				extract_token(state, v->prop[i].value, 4, ';', sizeof state);
+				extract_token(zipcode, v->prop[i].value, 5, ';', sizeof zipcode);
+
+				(void) CtdlDoDirectoryServiceFunc("street", street, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+				(void) CtdlDoDirectoryServiceFunc("l", city, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+				(void) CtdlDoDirectoryServiceFunc("st", state, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+				(void) CtdlDoDirectoryServiceFunc("postalcode", zipcode, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			}
+		}
+
+		if ( (!strcasecmp(v->prop[i].name, "tel"))
+		   ||(!strncasecmp(v->prop[i].name, "tel;", 4)) ) {
+			++num_phones;
+			/* The first 'tel' property creates the 'telephoneNumber' attribute */
+			if (num_phones == 1) {
+				(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			}
+			/* Subsequent 'tel' properties *add to* the 'telephoneNumber' attribute */
+			else {
+				(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			}
+		}
+
+
+		if ( (!strcasecmp(v->prop[i].name, "email"))
+		   ||(!strcasecmp(v->prop[i].name, "email;internet")) ) {
+	
+			++num_emails;
+			lprintf(CTDL_DEBUG, "email addr %d\n", num_emails);
+
+			/* The first email address creates the 'mail' attribute */
+			if (num_emails == 1) {
+				(void) CtdlDoDirectoryServiceFunc("mail", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			}
+			/* The second and subsequent email address creates the 'alias' attribute */
+			else if (num_emails >= 2) {
+				(void) CtdlDoDirectoryServiceFunc("alias", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+			}
+		}
+
+		/* Calendar free/busy URL (take the first one we find, but if a subsequent
+		 * one contains the "pref" designation then we go with that instead.)
+		 */
+		if ( (!strcasecmp(v->prop[i].name, "fburl"))
+		   ||(!strncasecmp(v->prop[i].name, "fburl;", 6)) ) {
+			if ( (IsEmptyStr(calFBURL))
+			   || (!strncasecmp(v->prop[i].name, "fburl;pref", 10)) ) {
+				safestrncpy(calFBURL, v->prop[i].value, sizeof calFBURL);
+			}
+		}
+
+	}
+	vcard_free(v);	/* Don't need this anymore. */
+
+	/* "sn" (surname) based on info in vCard */
+	(void) CtdlDoDirectoryServiceFunc("sn", sn, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+
+	/* "givenname" (first name) based on info in vCard */
+	if (IsEmptyStr(givenname)) strcpy(givenname, "_");
+	if (IsEmptyStr(sn)) strcpy(sn, "_");
+	(void) CtdlDoDirectoryServiceFunc("givenname", givenname, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+
+	/* "uid" is a Kolab compatibility thing.  We just do cituser@citnode */
+	(void) CtdlDoDirectoryServiceFunc("uid", uid, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+
+	/* Add a "cn" (Common Name) attribute based on the user's screen name,
+	 * but only there was no 'fn' (full name) property in the vCard	
+	 */
+	if (!have_cn) {
+		(void) CtdlDoDirectoryServiceFunc("cn", msg->cm_fields['A'], &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+	}
+
+	/* Add a "calFBURL" attribute if a calendar free/busy URL exists */
+	if (!IsEmptyStr(calFBURL)) {
+		(void) CtdlDoDirectoryServiceFunc("calFBURL", calFBURL, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+	}
+	
+	(void) CtdlDoDirectoryServiceFunc(msg->cm_fields['A'], msg->cm_fields['N'], &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
+
+	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_FREE_OBJECT);
+	lprintf(CTDL_DEBUG, "LDAP write operation complete.\n");
 }
 
 
