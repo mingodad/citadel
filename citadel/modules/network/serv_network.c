@@ -1666,8 +1666,9 @@ void receive_spool(int sock, char *remote_nodename) {
 	char buf[SIZ];
 	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
+	char filename[PATH_MAX];
 	long plen;
-	FILE *fp;
+	FILE *fp, *newfp;
 
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	if (sock_puts(sock, "NDOP") < 0) return;
@@ -1726,15 +1727,30 @@ void receive_spool(int sock, char *remote_nodename) {
 		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>\n",
 				download_len, remote_nodename);
 	lprintf(CTDL_DEBUG, "%s\n", buf);
-	/* TODO: make move inline. forking is verry expensive. */
+	
+	/* Now copy the temp file to its permanent location.
+	 * (We copy instead of link because they may be on different filesystems)
+	 */
+	begin_critical_section(S_NETSPOOL);
 	snprintf(buf, 
 			 sizeof buf, 
-			 "mv %s %s/%s.%ld",
-			 tempfilename, 
+			 "%s/%s.%ld",
 			 ctdl_netin_dir,
 			 remote_nodename, 
 			 (long) getpid());
-	system(buf);
+	fp = fopen(tempfilename, "r");
+	if (fp != NULL) {
+		newfp = fopen(filename, "w");
+		if (newfp != NULL) {
+			while (fgets(buf, sizeof buf, fp) != NULL) {
+				fprintf(newfp, "%s", buf);
+			}
+			fclose(newfp);
+			fclose(fp);
+		}
+	}
+	end_critical_section(S_NETSPOOL);
+	unlink(tempfilename);
 }
 
 
