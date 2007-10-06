@@ -339,7 +339,7 @@ install-exec: all
 			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
-	mkdir $(DESTDIR)$(prefix)/unstripped
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/unstripped
 	cp $(SERVER_TARGETS) $(DESTDIR)$(prefix)/unstripped/
 
 	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema; do \
