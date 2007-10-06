@@ -23,7 +23,7 @@
  */
 void strproc(char *string)
 {
-	int a;
+	int a, b;
 
 	if (string == NULL) return;
 	if (IsEmptyStr(string)) return;
@@ -34,11 +34,15 @@ void strproc(char *string)
 		if (string[a]>126) string[a]=32;
 	}
 
+	/* a is now the length of our string. */
 	/* Remove leading and trailing blanks */
-	while( (string[0]<33) && (!IsEmptyStr(string)) )
-		strcpy(string,&string[1]);
-	while( (string[strlen(string)-1]<33) && (!IsEmptyStr(string)) )
-		string[strlen(string)-1]=0;
+	while( (string[a-1]<33) && (!IsEmptyStr(string)) )
+		string[--a]=0;
+	b = 0;
+	while( (string[b]<33) && (!IsEmptyStr(&string[b])) )
+		b++;
+	if (b > 0)
+		memmove(string,&string[b], a - b + 1);
 
 	/* Remove double blanks */
 	for (a=0; !IsEmptyStr(&string[a]); ++a) {

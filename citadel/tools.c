@@ -440,12 +440,18 @@ char *rfc2047encode(char *line, long length)
  */
 void striplt(char *buf)
 {
+	size_t len;
+	int a;
 	if (IsEmptyStr(buf)) return;
-        while ((!IsEmptyStr(buf)) && (isspace(buf[0])))
-                strcpy(buf, &buf[1]);
+	len = strlen(buf);
+        while ((!IsEmptyStr(buf)) && (isspace(buf[len - 1])))
+                buf[--len] = 0;
 	if (IsEmptyStr(buf)) return;
-        while ((!IsEmptyStr(buf)) && (isspace(buf[strlen(buf) - 1])))
-                buf[strlen(buf) - 1] = 0;
+	a = 0;
+        while ((!IsEmptyStr(buf)) && (isspace(buf[a])))
+		a++;
+	if (a > 0)
+                memmove(buf, &buf[a], len - a + 1);
 }
 
 

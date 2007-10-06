@@ -180,6 +180,7 @@ void put_visit(struct visit *newvisit)
 	char IndexBuf[32];
 	int IndexLen = 0;
 
+	memset (IndexBuf, 0, sizeof (IndexBuf));
 	/* Generate an index */
 	IndexLen = GenerateRelationshipIndex(IndexBuf,
 					     newvisit->v_roomnum,
