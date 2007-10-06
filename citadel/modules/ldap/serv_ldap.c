@@ -422,6 +422,16 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 	i = ldap_delete_s(dirserver, this_dn);
 	end_critical_section(S_LDAP);
 	
+	if (i == LDAP_SERVER_DOWN)
+	{	// failed to connect so try to re init the connection
+		serv_ldap_cleanup();
+		CtdlConnectToLdap();
+		// And try the delete again.
+		begin_critical_section(S_LDAP);
+		i = ldap_delete_s(dirserver, this_dn);
+		end_critical_section(S_LDAP);
+	}
+
 	if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_ERR, "LDAP: ldap_delete_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
