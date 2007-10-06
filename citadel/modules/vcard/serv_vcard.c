@@ -663,6 +663,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	int linelen;
 	long I;
 	struct vCard *v;
+	int is_UserConf=0;
+	int is_GAB=0;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -670,7 +672,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	 * message, don't bother.
 	 */
 	if (msg->cm_fields['O'] == NULL) return(0);
-	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
+	if (!strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) is_UserConf = 1;
+	if (!strcasecmp(msg->cm_fields['O'], ADDRESS_BOOK_ROOM)) is_GAB = 1;
+	if (!is_UserConf && !is_GAB) return(0);
 	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields['M'];
@@ -698,8 +702,11 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
 			vcard_free(v);
 
-			/* Put it in the Global Address Book room... */
-			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I, 1, msg);
+			if (!is_GAB)
+			{	// This is not the GAB
+				/* Put it in the Global Address Book room... */
+				CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I, 1, msg);
+			}
 
 			/* ...and also in the directory database. */
 			vcard_add_to_directory(I, NULL);
