@@ -156,6 +156,7 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	char state[3];
 	char zipcode[10];
 	char calFBURL[256];
+	char *EUID=NULL;
 
 	if (msg == NULL) return;
 	if (msg->cm_fields['M'] == NULL) return;
@@ -300,17 +301,21 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	/* Add a "cn" (Common Name) attribute based on the user's screen name,
 	 * but only there was no 'fn' (full name) property in the vCard	
 	 */
-	if (!have_cn) {
+	if (!have_cn)
 		(void) CtdlDoDirectoryServiceFunc("cn", msg->cm_fields['A'], &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
-	}
 
 	/* Add a "calFBURL" attribute if a calendar free/busy URL exists */
 	if (!IsEmptyStr(calFBURL)) {
 		(void) CtdlDoDirectoryServiceFunc("calFBURL", calFBURL, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 	}
 	
-	(void) CtdlDoDirectoryServiceFunc(msg->cm_fields['A'], msg->cm_fields['N'], &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
-
+	// Add this messages EUID as the primary key for this entry.
+	EUID=msg->cm_fields['E'];
+	(void) CtdlDoDirectoryServiceFunc("euid", EUID, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+	
+	
+	(void) CtdlDoDirectoryServiceFunc(EUID, msg->cm_fields['N'], &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
+	
 	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_FREE_OBJECT);
 	lprintf(CTDL_DEBUG, "LDAP write operation complete.\n");
 }

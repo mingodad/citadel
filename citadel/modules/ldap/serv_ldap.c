@@ -295,28 +295,51 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 	if (ou == NULL) return -1;
 	if (cn == NULL) return -1;
 	
-	sprintf(this_dn, "cn=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	sprintf(this_dn, "euid=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	
+	lprintf(CTDL_INFO, "LDAP: Calling ldap_add_s() for dn of '%s'\n", this_dn);
 
 	/* The last attribute must be a NULL one. */
 	attrs = (LDAPMod **)*object;
 	if (attrs)
 	{
 		while (attrs[num_attrs])
+		{
+			count = 0;
+			while (attrs[num_attrs]->mod_values[count])
+			{
+				lprintf (CTDL_DEBUG, "LDAP: attribute %d, value %d = \'%s=%s\'\n", num_attrs, count, attrs[num_attrs]->mod_type, attrs[num_attrs]->mod_values[count]);
+				count++;
+			}
 			num_attrs++;
+		}
 	}
-	
-	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_add_s() for '%s'\n", this_dn);
+	else
+	{
+		lprintf(CTDL_ERR, "LDAP: no attributes in CtdlSaveLdapObject\n");
+		return -1;
+	}
 	
 	begin_critical_section(S_LDAP);
 	i = ldap_add_s(dirserver, this_dn, attrs);
 	end_critical_section(S_LDAP);
+	
+	if (i == LDAP_SERVER_DOWN)
+	{	// failed to connect so try to re init the connection
+		serv_ldap_cleanup();
+		CtdlConnectToLdap();
+		// And try the save again.
+		begin_critical_section(S_LDAP);
+		i = ldap_add_s(dirserver, this_dn, attrs);
+		end_critical_section(S_LDAP);
+	}
 
 	/* If the entry already exists, repopulate it instead */
 	if (i == LDAP_ALREADY_EXISTS) {
 		for (j=0; j<(num_attrs); ++j) {
 			attrs[j]->mod_op = LDAP_MOD_REPLACE;
 		}
-		lprintf(CTDL_DEBUG, "LDAP: Calling ldap_modify_s() for '%s'\n", this_dn);
+		lprintf(CTDL_INFO, "LDAP: Calling ldap_modify_s() for dn of '%s'\n", this_dn);
 		begin_critical_section(S_LDAP);
 		i = ldap_modify_s(dirserver, this_dn, attrs);
 		end_critical_section(S_LDAP);

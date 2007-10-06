@@ -40,6 +40,13 @@ attributetype ( 1.3.6.1.4.1.25404.1.1.1
   SUBSTR caseIgnoreIA5SubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
 
+# euid used to provide unique identifier for GAB entries
+attributetype ( 1.3.6.1.4.1.25404.1.1.2
+  NAME 'euid'
+  DESC 'unique GAB entry'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.44{256} )
+
 ##########################
 # citadel object classes #
 ##########################
@@ -53,6 +60,7 @@ objectclass ( 1.3.6.1.4.1.25404.1.2.1
   DESC 'Citadel Internet Organizational Person'
   SUP inetOrgPerson
   STRUCTURAL
+  MUST ( euid )
   MAY ( c $
       alias $
       calFBURL )
