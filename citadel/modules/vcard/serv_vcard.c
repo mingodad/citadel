@@ -175,7 +175,7 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 
 	/* Are we just deleting?  If so, it's simple... */
 	if (op == V2L_DELETE) {
-		(void) CtdlDoDirectoryServiceFunc (msg->cm_fields['A'], msg->cm_fields['N'], NULL, "ldap", DIRECTORY_USER_DEL);
+		(void) CtdlDoDirectoryServiceFunc (msg->cm_fields['E'], msg->cm_fields['N'], NULL, "ldap", DIRECTORY_USER_DEL);
 		return;
 	}
 
@@ -235,6 +235,12 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 				extract_token(city, v->prop[i].value, 3, ';', sizeof city);
 				extract_token(state, v->prop[i].value, 4, ';', sizeof state);
 				extract_token(zipcode, v->prop[i].value, 5, ';', sizeof zipcode);
+
+				// ldap requires these fields to be something
+				if (IsEmptyStr(street)) strcpy(street, "_");
+				if (IsEmptyStr(zipcode)) strcpy(zipcode, "_");
+				if (IsEmptyStr(city)) strcpy(city, "_");
+				if (IsEmptyStr(state)) strcpy(state, "_");
 
 				(void) CtdlDoDirectoryServiceFunc("street", street, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 				(void) CtdlDoDirectoryServiceFunc("l", city, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);

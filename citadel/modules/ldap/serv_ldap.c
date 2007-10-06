@@ -414,7 +414,7 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 	if (ou == NULL) return -1;
 	if (cn == NULL) return -1;
 	
-	sprintf(this_dn, "cn=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	sprintf(this_dn, "euid=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
 	
 	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
 	
