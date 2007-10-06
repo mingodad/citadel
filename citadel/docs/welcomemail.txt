@@ -9,11 +9,11 @@
      * IMAP Directory Services. Access your Inbox and other Rooms easily via
        IMAP.
      * POP3 Mail Delivery. If you'd like to poll mails over to your Client,
-       use Pop3.
+       use POP3.
      * [1]GroupDAV Calendaring and Address book Access. Connect your
        Calendaring Client to a central Storage, and share calendars with
        others.
-     * ICal Access to your personal Calendar.
+     * iCalendar-over-WebDAV ("Webcal") Access to your personal Calendar.
      * SMTP / MSA access with TLS support. Receive mails from others or relay
        your own Client via your Citadel.
 
