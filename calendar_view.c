@@ -9,23 +9,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifndef WEBCIT_WITH_CALENDAR_SERVICE
-
-/**\brief stub for non-libical builds */
-void do_calendar_view(void) {
-	wprintf("<center><i>");
-	wprintf(_("The calendar view is not available."));
-	wprintf("</i></center><br />\n");
-}
-
-/**\brief stub for non-libical builds */
-void do_tasks_view(void) {	
-	wprintf("<center><I>");
-	wprintf(_("The tasks view is not available."));
-	wprintf("</i></center><br />\n");
-}
-
-#else	/* WEBCIT_WITH_CALENDAR_SERVICE */
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 /****************************************************************************/
 
@@ -1154,6 +1138,23 @@ void do_tasks_view(void) {
 	free_calendar_buffer();
 
 }
+
+#else	/* WEBCIT_WITH_CALENDAR_SERVICE */
+
+/**\brief stub for non-libical builds */
+void do_calendar_view(void) {
+	wprintf("<center><i>");
+	wprintf(_("The calendar view is not available."));
+	wprintf("</i></center><br />\n");
+}
+
+/**\brief stub for non-libical builds */
+void do_tasks_view(void) {	
+	wprintf("<center><I>");
+	wprintf(_("The tasks view is not available."));
+	wprintf("</i></center><br />\n");
+}
+
 
 #endif	/* WEBCIT_WITH_CALENDAR_SERVICE */
 
