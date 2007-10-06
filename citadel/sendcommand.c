@@ -150,6 +150,8 @@ int main(int argc, char **argv)
 	struct timeval tv;
 	int ret, err;
 
+	CtdlInitBase64Table();
+
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	strcpy(cmd, "");

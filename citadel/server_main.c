@@ -96,6 +96,7 @@ int main(int argc, char **argv)
 	/* initialise semaphores here. Patch by Matt and davew
 	 * its called here as they are needed by lprintf for thread safety
 	 */
+	CtdlInitBase64Table();
 	InitialiseSemaphores();
 	
 	/* initialize the master context */

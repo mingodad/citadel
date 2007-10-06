@@ -72,6 +72,7 @@ int main(int argc, char **argv)
 	char hostbuf[SIZ], portbuf[SIZ];
 	CtdlIPC *ipc = NULL;
 
+	CtdlInitBase64Table();
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
 	CtdlIPC_chat_recv(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {

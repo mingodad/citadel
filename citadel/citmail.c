@@ -184,6 +184,8 @@ int main(int argc, char **argv) {
 	int read_recipients_from_headers = 0;
 	char *add_these_recipients = NULL;
 
+	CtdlInitBase64Table();
+
 	for (i=1; i<argc; ++i) {
 		if (!strcmp(argv[i], "-d")) {
 			debug = 1;

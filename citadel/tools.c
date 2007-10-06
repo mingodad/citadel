@@ -33,7 +33,8 @@
 #define FALSE 0
 
 typedef unsigned char byte;	      /* Byte type */
-static byte dtable[256];	      /* base64 encode / decode table */
+static byte dtable[256] = "\0";	      /* base64 decode table */
+static byte etable[256] = "\0";	      /* base64 encode table */
 
 /* Month strings for date conversions */
 char *ascmonths[12] = {
@@ -278,6 +279,41 @@ unsigned long extract_unsigned_long(const char *source, int parmnum)
 }
 
 
+
+void CtdlInitBase64Table(void)
+{
+	int i;
+	/*	Fill dtable with character encodings.  */
+	
+	/* Encoder Table */
+	for (i = 0; i < 26; i++) {
+		etable[i] = 'A' + i;
+		etable[26 + i] = 'a' + i;
+	}
+	for (i = 0; i < 10; i++) {
+		etable[52 + i] = '0' + i;
+	}
+	etable[62] = '+';
+	etable[63] = '/';
+	
+	/* Decoder Table */
+	for (i = 0; i < 255; i++) {
+		dtable[i] = 0x80;
+	}
+	for (i = 'A'; i <= 'Z'; i++) {
+		dtable[i] = 0 + (i - 'A');
+	}
+	for (i = 'a'; i <= 'z'; i++) {
+		dtable[i] = 26 + (i - 'a');
+	}
+	for (i = '0'; i <= '9'; i++) {
+		dtable[i] = 52 + (i - '0');
+	}
+	dtable['+'] = 62;
+	dtable['/'] = 63;
+	dtable['='] = 0;
+}
+
 /*
  * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by
  * John Walker, found in full in the file "base64.c" included with this
@@ -290,18 +326,6 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
     int i, hiteof = FALSE;
     int spos = 0;
     int dpos = 0;
-
-    /*	Fill dtable with character encodings.  */
-
-    for (i = 0; i < 26; i++) {
-        dtable[i] = 'A' + i;
-        dtable[26 + i] = 'a' + i;
-    }
-    for (i = 0; i < 10; i++) {
-        dtable[52 + i] = '0' + i;
-    }
-    dtable[62] = '+';
-    dtable[63] = '/';
 
     while (!hiteof) {
 	byte igroup[3], ogroup[4];
@@ -317,10 +341,10 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 	    igroup[n] = (byte) c;
 	}
 	if (n > 0) {
-	    ogroup[0] = dtable[igroup[0] >> 2];
-	    ogroup[1] = dtable[((igroup[0] & 3) << 4) | (igroup[1] >> 4)];
-	    ogroup[2] = dtable[((igroup[1] & 0xF) << 2) | (igroup[2] >> 6)];
-	    ogroup[3] = dtable[igroup[2] & 0x3F];
+	    ogroup[0] = etable[igroup[0] >> 2];
+	    ogroup[1] = etable[((igroup[0] & 3) << 4) | (igroup[1] >> 4)];
+	    ogroup[2] = etable[((igroup[1] & 0xF) << 2) | (igroup[2] >> 6)];
+	    ogroup[3] = etable[igroup[2] & 0x3F];
 
             /* Replace characters in output stream with "=" pad
 	       characters if fewer than three characters were
@@ -351,21 +375,6 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
     int dpos = 0;
     int spos = 0;
 
-    for (i = 0; i < 255; i++) {
-	dtable[i] = 0x80;
-    }
-    for (i = 'A'; i <= 'Z'; i++) {
-        dtable[i] = 0 + (i - 'A');
-    }
-    for (i = 'a'; i <= 'z'; i++) {
-        dtable[i] = 26 + (i - 'a');
-    }
-    for (i = '0'; i <= '9'; i++) {
-        dtable[i] = 52 + (i - '0');
-    }
-    dtable['+'] = 62;
-    dtable['/'] = 63;
-    dtable['='] = 0;
 
     /*CONSTANTCONDITION*/
     while (TRUE) {

@@ -6,6 +6,7 @@ long grab_token(char **dest, const char *source, int parmnum, char separator);
 int extract_int (const char *source, int parmnum);
 long extract_long (const char *source, int parmnum);
 unsigned long extract_unsigned_long(const char *source, int parmnum);
+void CtdlInitBase64Table(void);
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void striplt(char *);

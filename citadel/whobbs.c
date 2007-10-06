@@ -75,6 +75,7 @@ int main(int argc, char **argv)
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 
+	CtdlInitBase64Table();
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir);
 
