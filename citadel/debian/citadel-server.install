@@ -6,6 +6,7 @@ usr/lib/citadel-server/setup
 usr/lib/citadel-server/base64
 usr/lib/citadel-server/chkpwd
 usr/lib/citadel-server/chkpw
+usr/lib/citadel-server/citserver.unstripped
 usr/sbin/aidepost
 usr/sbin/citmail
 usr/sbin/citserver

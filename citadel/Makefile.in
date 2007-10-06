@@ -339,6 +339,9 @@ install-exec: all
 			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 		fi \
 	done
+	mkdir $(DESTDIR)$(prefix)/unstripped
+	cp $(SERVER_TARGETS) $(DESTDIR)$(prefix)/unstripped/
+
 	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
@@ -358,6 +361,7 @@ install-exec-new: all
 			$(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
 		fi \
 	done
+	cp citserver $(DESTDIR)/$(UTILBIN_DIR)/citserver.unstripped
 	@for i in $(UTILBIN_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \
