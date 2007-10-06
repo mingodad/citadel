@@ -111,6 +111,7 @@ extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 extern int next_lazy_cmd;
 
 CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
+int enable_syslog = 0;
 
 
 /*

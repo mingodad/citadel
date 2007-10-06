@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
+#include <syslog.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pthread.h>
@@ -29,12 +30,16 @@
 #ifdef HAVE_BACKTRACE
 #include <execinfo.h>
 static eCrashParameters gbl_params;
-static int gbl_fd=-1;
 
 static int    gbl_backtraceEntries;
 static void **gbl_backtraceBuffer;
 static char **gbl_backtraceSymbols;
 static int    gbl_backtraceDoneFlag = 0;
+
+static void *stack_frames[50];
+static size_t size, NThread;
+static char **strings;
+static char StrBuf[SIZ];
 
 /* 
  * Private structures for our thread list
@@ -145,31 +150,6 @@ static int removeThreadFromList(pthread_t thread)
 } // removeThreadFromList
 
 /*!
- * Output text to a fd, looping to avoid being interrupted.
- *
- * @param str   String to output
- * @param bytes String length
- * @param fd    File descriptor to write to
- *
- * @returns bytes written, or error on failure.
- */
-static int blockingWrite(char *str, int bytes, int fd)
-{
-	int offset=0;
-	int bytesWritten;
-	int totalWritten = 0;
-	
-	while (bytes > 0) {
-		bytesWritten = write(fd, &str[offset], bytes);
-		if (bytesWritten < 1) break;
-		totalWritten += bytesWritten;
-		bytes -= bytesWritten;
-	}
-
-	return totalWritten;
-
-} // blockingWrite
-/*!
  * Print out a line of output to all our destinations
  *
  * One by one, output a line of text to all of our output destinations.
@@ -182,126 +162,21 @@ static int blockingWrite(char *str, int bytes, int fd)
  */
 static void outputPrintf(char *format, ...)
 {
-	// Our output line of text
-	static char outputLine[MAX_LINE_LEN];
-	//int bytesInLine;
 	va_list ap;
-	//int return_value=0;
 
 	va_start(ap, format);
 
-	return lprintf(CTDL_EMERG, format, ap);
-
-/*
-	bytesInLine = vsnprintf(outputLine, MAX_LINE_LEN-1, format, ap);
-	if (bytesInLine > -1 && bytesInLine < (MAX_LINE_LEN-1)) {
-		// We're a happy camper -- start printing
-		if (gbl_params.filename) {
-			// append to our file -- hopefully it's been opened
-			if (gbl_fd != -1) {
-			   if (blockingWrite(outputLine, bytesInLine, gbl_fd)) {
-					return_value=-2;
-			   }
-			}
-		}
-
-		// Write to our file pointer
-		if (gbl_params.filep != NULL) {
-			if (fwrite(outputLine, bytesInLine, 1, gbl_params.filep) != 1) {
-				return_value=-3;
-			}
-			fflush(gbl_params.filep);
-		}
-
-		// Write to our fd
-		if (gbl_params.fd != -1) {
-		   if (blockingWrite(outputLine, bytesInLine, gbl_params.fd)) {
-				return_value=-4;
-		   }
-		}
-	} else {
-		// We overran our string.
-		return_value=-1;
+	if (enable_syslog)
+	{
+		snprintf (StrBuf, SIZ, format, ap);
+		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
 	}
-*/
+	else
+		lprintf(CTDL_EMERG, format, ap);
+
 } // outputPrintf
 
-/*!
- * Initialize our output (open files, etc)
- *
- * This file initializes all output streams, since we're about
- * to have output.
- *
- */
-static void outputInit( void )
-{
-	if (gbl_params.filename) {
-		/* First try append */
-		gbl_fd = open(gbl_params.filename, O_WRONLY|O_APPEND);
-		if (gbl_fd < 0) {
-			gbl_fd = open(gbl_params.filename, O_RDWR|O_CREAT,
-						  S_IREAD|S_IWRITE|S_IRGRP|S_IROTH); // 0644
-			if (gbl_fd < 0) {
-				gbl_fd = -1;
-			}
-		}
-	}
-} // outputInit
 
-
-/*!
- * Finalize our output (close files, etc)
- *
- * This file closes all output streams.
- *
- */
-static void outputFini( void )
-{
-/* -> these seem to run into mutexes in the libc...
-	if (gbl_fd > -1)
-		close(gbl_fd);
-
-	if (gbl_params.filep != NULL)
-		fclose(gbl_params.filep);
-
-	if (gbl_params.fd > -1)
-		close(gbl_params.fd);
-*/
-	// Just in case someone tries to call outputPrintf after outputFini
-	gbl_fd = gbl_params.fd = -1;
-	gbl_params.filep = NULL;
-
-	sync();
-
-} // outputFini
-
-static void *lookupClosestSymbol(eCrashSymbolTable *table,
-				                 void *address)
-{
-	int addr;
-	eCrashSymbol *last=NULL;
-
-	// For now, use a linear lookup.
-	DPRINTF(ECRASH_DEBUG_VERBOSE,
-					"Looking for %p in %d symbols\n", address, table->numSymbols);
-	for (addr=0; addr < table->numSymbols; addr++) {
-		DPRINTF(ECRASH_DEBUG_VERBOSE,
-			"  Examining [%d] %p\n", addr,
-						table->symbols[addr].address);
-		if (table->symbols[addr].address > address) {
-			break;
-		}
-		last = &table->symbols[addr];
-	}
-
-	// last will either be NULL, or the last address less than the
-	// one we're looking for.
-	DPRINTF(ECRASH_DEBUG_VERBOSE,
-					"Returning %s (%p)\n", last?last->function:"(nil)",
-		    last?last->address:0);
-	return last;
-
-} // lookupClosestSymbol
 
 /*!
  * Dump our backtrace into a global location
@@ -313,20 +188,42 @@ static void *lookupClosestSymbol(eCrashSymbolTable *table,
 static void createGlobalBacktrace( void )
 {
 
-	gbl_backtraceEntries = backtrace(gbl_backtraceBuffer,
-					                 gbl_params.maxStackDepth);
-
-	/* This is NOT signal safe -- it calls malloc.  We need to
-	   let the caller pass in a pointer to a symbol table inside of
-	   our params. TODO */
-
-	if (!gbl_params.symbolTable) {
-		if (gbl_params.useBacktraceSymbols != FALSE) {
-			gbl_backtraceSymbols = backtrace_symbols(gbl_backtraceBuffer,
-					                         		 gbl_backtraceEntries);
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	if (enable_syslog)
+		for (NThread = 0; NThread < size; NThread++) 
+		{
+			snprintf (StrBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
+			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+		}
+	else 
+		for (NThread = 0; NThread < size; NThread++) 
+			lprintf(1, "RAW: %p\n", stack_frames[NThread]);
+	strings = backtrace_symbols(stack_frames, size);
+	for (NThread = 0; NThread < size; NThread++) {
+		if (strings != NULL) {
+			if (enable_syslog)
+			{// vsyslogs printf compliance sucks.
+				snprintf (StrBuf, SIZ, "RAW: %p  ", strings[NThread]);
+				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+			}
+			else
+				lprintf(1, "%s\n", strings[NThread]);
 		}
 	}
+} /* createGlobalBacktrace */
+static void outputRawtrace( void )
+{
 
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	if (enable_syslog)
+		for (NThread = 0; NThread < size; NThread++) 
+		{
+			snprintf (StrBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
+			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+		}
+	else 
+		for (NThread = 0; NThread < size; NThread++) 
+			lprintf(1, "RAW: %p\n", stack_frames[NThread]);
 } /* createGlobalBacktrace */
 
 /*!
@@ -337,29 +234,13 @@ static void outputGlobalBacktrace ( void )
 	int i;
 
 	for (i=0; i < gbl_backtraceEntries; i++) {
-		if (gbl_params.symbolTable) {
-			eCrashSymbol *symbol;
-
-			symbol = lookupClosestSymbol(gbl_params.symbolTable,
-						                 gbl_backtraceBuffer[i]);
-				
-			if (symbol) {
-	       		outputPrintf("*      Frame %02d: %s+%u\n",
-								i, symbol->function,
-								gbl_backtraceBuffer[i] - symbol->address);
-			} else {
-				outputPrintf("*      Frame %02d: %p\n", i,
-								gbl_backtraceBuffer[i]);
-			}
+		if (gbl_backtraceSymbols != FALSE) {
+	        	outputPrintf("*      Frame %02x: %s\n",
+				     i, gbl_backtraceSymbols[i]);
 		} else {
-			if (gbl_backtraceSymbols != FALSE) {
-	        	outputPrintf("*      Frame %02d: %s\n",
-								i, gbl_backtraceSymbols[i]);
-			} else {
-				outputPrintf("*      Frame %02d: %p\n", i,
-								gbl_backtraceBuffer[i]);
-			}
-		} // symbolTable
+			outputPrintf("*      Frame %02x: %p\n", i,
+				     gbl_backtraceBuffer[i]);
+		}
 	}
 } // outputGlobalBacktrace
 
@@ -414,7 +295,7 @@ static void outputBacktraceThreads( void )
  */
 static void crash_handler(int signo)
 {
-	outputInit();
+	outputRawtrace();
 	outputPrintf("*********************************************************\n");
 	outputPrintf("*               eCrash Crash Handler\n");
 	outputPrintf("*********************************************************\n");
@@ -434,8 +315,6 @@ static void crash_handler(int signo)
 	outputPrintf("*********************************************************\n");
 	outputPrintf("*               eCrash Crash Handler\n");
 	outputPrintf("*********************************************************\n");
-
-	outputFini();
 
 	exit(signo);
 } // crash_handler
