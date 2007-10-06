@@ -67,13 +67,6 @@ extern locale_t wc_locales[];
 #include <zlib.h>
 #endif
 
-#ifdef HAVE_ICAL_H
-#ifdef HAVE_LIBICAL
-#define WEBCIT_WITH_CALENDAR_SERVICE 1
-#endif
-#endif
-
-
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 /* Work around PACKAGE/VERSION defs that are (not supposed to be?) in ical.h */

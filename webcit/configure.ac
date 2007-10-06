@@ -108,6 +108,7 @@ AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS(snprintf)
 
+webcit_with_calendar_service=no
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
         AC_CHECK_HEADERS(ical.h,
@@ -138,11 +139,14 @@ main() {
 		[
 			LIBS="-lical $LIBS"
 			AC_DEFINE(HAVE_LIBICAL,[],[whether we have libical available])
+			webcit_with_calendar_service=yes
 		]
 	)
 fi
 
-
+if test "$webcit_with_calendar_service" == "yes"; then
+			AC_DEFINE(WEBCIT_WITH_CALENDAR_SERVICE,[],[whether we can do with calendar.])
+fi
 
 dnl Checks for the zlib compression library.
 if test "x$with_zlib" != xno ; then
