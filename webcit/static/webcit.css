@@ -21,7 +21,7 @@ body { font-size: 11pt}
 /* Color */
 
 body {
-	background-color: #004E79;
+	background-color: #6C91A6;
 	font-family: "Trebuchet MS", "Verdana", "Bitstream Vera Sans", sans-serif;
 	font-weight: 400;
 }
@@ -113,7 +113,12 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	color: #FFF;
 }
 
-#banner, #banner a {
+#banner {
+	background-color: #004E79;
+	color: #FFF
+
+}
+#banner a {
 	color: #FFF
 }
 
@@ -167,7 +172,7 @@ input#delbutton,.attachfile, .logbuttons input,.buttons input {
 	font-style: italic;
 }
 
-.adminlist,.tabbed_dialog {
+.adminlist {
 	list-style: none;
 }
 
@@ -280,7 +285,7 @@ input#delbutton,.attachfile, .logbuttons input,.buttons input {
 
 .tabcontent {
 	background-color: #FFF;
-	border-left: 3px solid #FF7814;
+	border-top: 3px solid #FF7814;
 }
 
 .treetitleselectedblured {
@@ -467,7 +472,7 @@ body, #global {
 	z-index: 2;
 }
 
-#login_screen {
+#login_screen, #logout_screen {
 	margin: 0;
 	padding: 3% 6% 3% 6%;
 }
@@ -1078,34 +1083,69 @@ table.advanced {
 /* Tabs */
 
 .tab_cell_label, .tab_cell, .tab_cell_edit {
-	margin: 0;
- 	padding: 0 15px 0 15px;
 }
 
 ul.tabbed_dialog {
-	margin: 3% 0 0 2%;
+        list-style: none;
+	margin: 3% auto 0 auto;
+	width: 90%;
 	padding: 0;
-	float: left;
-	width: 20%;
+ 	white-space: nowrap;
+        text-align: center;
+        vertical-align: middle;
 }
 
-.tabbed_dialog .tablabel {
-	margin: 0 0 3% 0;
-	padding: 0.4em;
+ul.tabbed_dialog li {
+	margin: 0 3% 0 3%;
+	padding: 2px;
+        float: left;
 }
 
 .tabcontent {
-	margin-top: 2%;
-	margin-left: 22%;
-	width: 74%;
+	margin: 3% auto 0 auto;
+	width: 95%;
 	padding: 10
+	clear: both;
 }
 
 /* Calendar view */
 
 .calendar {
-	margin: 2% auto 0 auto;
-	width: 98%;
+	background-color: #204B78;
+	margin: 0;
+	width: 100%;
+	height: 302px;
+}
+
+dl.middle_of_the_day {
+	padding:0 ;
+	margin: 0;
+        position: absolute ;
+        top: 0;
+        left: 0;
+        width: 500px;
+        clip: rect(0px 500px 300px 0px); 
+        clip: rect(0px, 500px, 300px, 0px); 
+}
+
+.middle_of_the_day dt {
+	background-color: #FFFFFF;
+	padding:0 ;
+        width: 100%;
+        border-bottom: 1px solid grey;
+        height: 30px;
+}
+
+.hour_label, .extra_events dl dt {
+	background-color: #CCCCDD;
+        vertical-align: middle;
+	text-align: left;	
+}
+
+.hour_events, .extra_events {
+	background-color: #FFFFFF;
+        vertical-align: top;
+	text-align: left;	
 }
 
 .calday, .calout, .calweekend {
@@ -1114,3 +1154,11 @@ ul.tabbed_dialog {
 	text-align: left;
 	vertical-align: top;
 }
+
+.event {
+	opacity: .5;
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+}
+
