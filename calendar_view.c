@@ -787,8 +787,20 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<table class=\"calendar\"><tr> \n");
 
 	/** Innermost cell (contains hours etc.) */
-	wprintf("<td width=60%%>");
-       	wprintf("<dl class=\"middle_of_the_day\">");
+	wprintf("<td class=\"middle_of_the_day\">");
+       	wprintf("<dl style=\" "
+		"       padding:0 ;"
+		"       margin: 0;"
+        	"	position: absolute ;"
+        	"	top: 0;"
+		"        left: 0;"
+		"        width: 500px;"
+		"        clip: rect(0px 500px %dpx 0px);"
+		"        clip: rect(0px, 500px, %dpx, 0px);"
+		"\">",
+	(dayend - daystart) * 30,
+	(dayend - daystart) * 30
+	); 
 	/** Now the middle of the day... */	
 	for (hour = 0; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
 		if (hour >= daystart) {
@@ -819,7 +831,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</td>");			/* end of innermost table */
 
 	/** Extra events on the middle */
-        wprintf("<td width=20%% class=\"extra_events\">");
+        wprintf("<td class=\"extra_events\">");
 
         wprintf("<dl>");
 
