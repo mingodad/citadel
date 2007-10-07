@@ -290,7 +290,11 @@ void do_logout(void)
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
-	wprintf("<center>");
+	wprintf("<div id=\"logout_screen\">");
+        wprintf("<div class=\"box\">");
+        wprintf("<div class=\"boxlabel\">");
+	wprintf(_("Log off"));
+        wprintf("</div><div class=\"boxcontent\">");	
 	serv_puts("MESG goodbye");
 	serv_getln(buf, sizeof buf);
 
@@ -308,12 +312,12 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<hr /><a href=\".\">");
+	wprintf("<hr /><div><a href=\".\">");
 	wprintf(_("Log in again"));
-	wprintf("</A>&nbsp;&nbsp;&nbsp;"
+	wprintf("</a>&nbsp;&nbsp;&nbsp;"
 		"<a href=\"javascript:window.close();\">");
 	wprintf(_("Close window"));
-	wprintf("</a></center>\n");
+	wprintf("</a></div></div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
