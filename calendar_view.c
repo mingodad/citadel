@@ -627,10 +627,11 @@ void calendar_week_view(int year, int month, int day) {
  * \param inner a flag to display between daystart and dayend
  * (Specify inner to 1 to show inner events)
  * (Specify inner to 0 to show "all day events and events after dayend)
+ * \param dstart daystart 
  */
 void calendar_day_view_display_events(int year, int month,
 					int day, int hour,
-					int inner) {
+					int inner, int dstart) {
 	int i;
 	icalproperty *p;
 	icalproperty *pe = NULL;
@@ -717,7 +718,7 @@ void calendar_day_view_display_events(int year, int month,
                                                        		"style=\"position: absolute; "
                                                        		"top:%dpx; left:100px; "
                                                        		"height:%dpx; \" >",
-                                               			(1 + (event_te.tm_hour - hour) + (hour * 30) - (8 * 30)),
+                                               			(1 + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
                                                			((event_te.tm_hour - hour) * 30)
 							);
 						}
@@ -823,7 +824,7 @@ void calendar_day_view(int year, int month, int day) {
 		}
 
 		/* put the data here, stupid */
-		calendar_day_view_display_events(year, month, day, hour, 1 );
+		calendar_day_view_display_events(year, month, day, hour, 1 , daystart);
 
 	}
 
@@ -837,18 +838,18 @@ void calendar_day_view(int year, int month, int day) {
 
         /** Display all-day events) */
 	wprintf("<dt>All day events</dt>");
-                calendar_day_view_display_events(year, month, day, -1, 0 );
+                calendar_day_view_display_events(year, month, day, -1, 0 , daystart);
 
         /** Display events before daystart */
 	wprintf("<dt>Before day start</dt>");
         for (hour = 0; hour <= (daystart-1); ++hour) {
-                calendar_day_view_display_events(year, month, day, hour, 0 );
+                calendar_day_view_display_events(year, month, day, hour, 0, daystart );
         }
 
         /** Display events after dayend... */
 	wprintf("<dt>After</dt>");
         for (hour = (dayend+1); hour <= 23; ++hour) {
-                calendar_day_view_display_events(year, month, day, hour, 0 );
+                calendar_day_view_display_events(year, month, day, hour, 0, daystart );
         }
 
         wprintf("</dl>");
