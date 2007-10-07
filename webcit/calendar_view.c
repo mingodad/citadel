@@ -623,10 +623,14 @@ void calendar_week_view(int year, int month, int day) {
  * \param year the year
  * \param month the month
  * \param day the day
- * \param hour the hour we want to start displaying?????
+ * \param hour the hour we want to start displaying
+ * \param inner a flag to display between daystart and dayend
+ * (Specify inner to 1 to show inner events)
+ * (Specify inner to 0 to show "all day events and events after dayend)
  */
 void calendar_day_view_display_events(int year, int month,
-					int day, int hour) {
+					int day, int hour,
+					int inner) {
 	int i;
 	icalproperty *p;
 	icalproperty *pe = NULL;
@@ -699,31 +703,43 @@ void calendar_day_view_display_events(int year, int month,
 				if (p != NULL) {
 
 					if (all_day_event) {
-						wprintf("<table border=1 cellpadding=2><TR>"
-							"<td bgcolor=\"#CCCCCC\">"
-						);
+                                        wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+                                                WC->disp_cal[i].cal_msgnum,
+                                                year, month, day, hour
+                                        );
+                                        escputs((char *)
+                                                icalproperty_get_comment(p));
+                                        wprintf("</a></dd>\n");
 					}
-
-					wprintf("<font size=-1>"
-						"<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
-						WC->disp_cal[i].cal_msgnum,
-						year, month, day
-					);
-					escputs((char *)
-						icalproperty_get_comment(p));
-					wprintf("</a></font><br />\n");
-
-					if (all_day_event) {
-						wprintf("</td></tr></table>");
+					else {
+						if (inner) {
+                                               		wprintf("<dd  class=\"event\" "
+                                                       		"style=\"position: absolute; "
+                                                       		"top:%dpx; left:100px; "
+                                                       		"height:%dpx; \" >",
+                                               			(1 + (event_te.tm_hour - hour) + (hour * 30) - (8 * 30)),
+                                               			((event_te.tm_hour - hour) * 30)
+							);
+						}
+						else {
+                                        		wprintf("<dd>");
+						}
+                                        	wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+                                               		WC->disp_cal[i].cal_msgnum,
+                                               		year, month, day, hour
+                                        	);
+                                        	escputs((char *)
+                                               		icalproperty_get_comment(p));
+                                        	wprintf("</a></dd>\n");
+                                       	  
 					}
 				}
-
 			}
-
 
 		}
 	}
 }
+
 
 
 /**
@@ -765,73 +781,69 @@ void calendar_day_view(int year, int month, int day) {
 	++tomorrow.day;
 	tomorrow = icaltime_normalize(tomorrow);
 
-
-	/** Outer table (to get the background color) */
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
-		"bgcolor=#204B78><tr><td>\n");
+	wprintf("<div class=\"fix_scrollbar_bug\">");
 
 	/** Inner table (the real one) */
-	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78><tr>\n");
+	wprintf("<table class=\"calendar\"><tr> \n");
 
-	/** Innermost table (contains hours etc.) */
-	wprintf("<td width=80%%>"
-		"<table width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78>\n");
-
-	/** Display events before 8:00 (hour=-1 is all-day events) */
-	wprintf("<tr>"
-		"<td bgcolor=\"#CCCCDD\" valign=middle width=10%%></td>"
-		"<td bgcolor=\"#FFFFFF\" valign=top>");
-	for (hour = (-1); hour <= (daystart-1); ++hour) {
-		calendar_day_view_display_events(year, month, day, hour);
-	}
-	wprintf("</td></tr>\n");
-
+	/** Innermost cell (contains hours etc.) */
+	wprintf("<td width=60%%>");
+       	wprintf("<dl class=\"middle_of_the_day\">");
 	/** Now the middle of the day... */	
-	for (hour = daystart; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<tr height=30><td bgcolor=\"#CCCCDD\" align=middle "
-			"valign=middle width=10%%>");
-		wprintf("<a href=\"display_edit_event?msgnum=0"
-			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
-			year, month, day, hour
-		);
-
-		if (time_format == WC_TIMEFORMAT_24) {
-			wprintf("%2d:00</a> ", hour);
-		}
-		else {
-			wprintf("%d:00%s</a> ",
-				(hour <= 12 ? hour : hour-12),
-				(hour < 12 ? "am" : "pm")
+	for (hour = 0; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
+		if (hour >= daystart) {
+			wprintf("<dt><a href=\"display_edit_event?msgnum=0"
+				"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+				year, month, day, hour
 			);
-		}
 
-		wprintf("</td><td bgcolor=\"#FFFFFF\" valign=top>");
+			if (time_format == WC_TIMEFORMAT_24) {
+				wprintf("%2d:00</a> ", hour);
+			}
+			else {
+				wprintf("%d:00%s</a> ",
+					(hour <= 12 ? hour : hour-12),
+					(hour < 12 ? "am" : "pm")
+				);
+			}
+
+		wprintf("</dt>");
+		}
 
 		/* put the data here, stupid */
-		calendar_day_view_display_events(year, month, day, hour);
+		calendar_day_view_display_events(year, month, day, hour, 1 );
 
-		wprintf("</td></tr>\n");
 	}
 
-	/** Display events after 5:00... */
-	wprintf("<tr>"
-		"<td bgcolor=\"#CCCCDD\" valign=middle width=10%%></td>"
-		"<td bgcolor=\"#FFFFFF\" valign=top>");
-	for (hour = (dayend+1); hour <= 23; ++hour) {
-		calendar_day_view_display_events(year, month, day, hour);
-	}
-	wprintf("</td></tr>\n");
+       	wprintf("</dl>");
+	wprintf("</td>");			/* end of innermost table */
 
+	/** Extra events on the middle */
+        wprintf("<td width=20%% class=\"extra_events\">");
 
-	wprintf("</table>"			/* end of innermost table */
-		"</td>"
-	);
+        wprintf("<dl>");
 
-	wprintf("<td width=20%% valign=top>");	/* begin stuff-on-the-right */
+        /** Display all-day events) */
+	wprintf("<dt>All day events</dt>");
+                calendar_day_view_display_events(year, month, day, -1, 0 );
 
+        /** Display events before daystart */
+	wprintf("<dt>Before day start</dt>");
+        for (hour = 0; hour <= (daystart-1); ++hour) {
+                calendar_day_view_display_events(year, month, day, hour, 0 );
+        }
+
+        /** Display events after dayend... */
+	wprintf("<dt>After</dt>");
+        for (hour = (dayend+1); hour <= 23; ++hour) {
+                calendar_day_view_display_events(year, month, day, hour, 0 );
+        }
+
+        wprintf("</dl>");
+
+	wprintf("</td>");	/** end extra on the middle */
+
+	wprintf("<td width=20%% valign=top>");	/** begin stuff-on-the-right */
 
 	/** Begin todays-date-with-left-and-right-arrows */
 	wprintf("<table border=0 width=100%% "
@@ -865,7 +877,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
 	wprintf("<img align=middle src=\"static/nextdate_32x.gif\""
-		" border=0></A>\n");
+		" border=0></a>\n");
 	wprintf("</td>");
 
 	wprintf("</tr></table>\n");
@@ -875,18 +887,12 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("</font></center>\n");
 
-	wprintf("</td>");			/** end stuff-on-the-right */
+	wprintf("</td></tr>");			/** end stuff-on-the-right */
 
-
-
-	wprintf("</tr></table>"			/** end of inner table */
-		"</td></tr></table></div>"	/** end of outer table */
-	);
-
-
+	wprintf("</table>"			/** end of inner table */
+		"</div>");
 
 }
-
 /**
  * \brief Display today's events.
  */
