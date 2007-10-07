@@ -1117,18 +1117,14 @@ ul.tabbed_dialog li {
 	height: 302px;
 }
 
-dl.middle_of_the_day {
-	padding:0 ;
-	margin: 0;
-        position: absolute ;
-        top: 0;
-        left: 0;
+td.middle_of_the_day {
         width: 500px;
-        clip: rect(0px 500px 300px 0px); 
-        clip: rect(0px, 500px, 300px, 0px); 
 }
 
-.middle_of_the_day dt {
+.middle_of_the_day dl {
+}
+
+.middle_of_the_day dl dt {
 	background-color: #FFFFFF;
 	padding:0 ;
         width: 100%;
