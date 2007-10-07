@@ -1576,8 +1576,8 @@ msgid "Table (rooms) view"
 msgstr "Bord (rum) visning"
 
 #: ../preferences.c:250
-msgid "Calendar hour format"
-msgstr "Kalender time format"
+msgid "Time format"
+msgstr "Time format"
 
 #: ../preferences.c:256
 msgid "12 hour (am/pm)"
