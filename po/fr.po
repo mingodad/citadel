@@ -1573,8 +1573,8 @@ msgid "Table (rooms) view"
 msgstr "Vue en tableaux"
 
 #: ../preferences.c:250
-msgid "Calendar hour format"
-msgstr "Format horaire de l'agenda"
+msgid "Time format"
+msgstr "Format horaire"
 
 #: ../preferences.c:256
 msgid "12 hour (am/pm)"

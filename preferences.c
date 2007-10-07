@@ -238,11 +238,11 @@ void display_preferences(void)
 	wprintf("</td></tr>\n");
 
 	/**
-	 * Calendar hour format
+	 * Time hour format
 	 */
 
 	wprintf("<tr class=\"odd\"><td>");
-	wprintf(_("Calendar hour format"));
+	wprintf(_("Time format"));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"12\"");
