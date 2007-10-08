@@ -19,13 +19,8 @@
  */
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
-	time_t event_tt;
-	time_t event_tt_stripped;
-	time_t event_tte;
-	struct tm event_tm;
 	struct tm today_tm;
 	icalproperty *p = NULL;
-	icalproperty *pe = NULL;
 	icalproperty *q = NULL;
 	struct icaltimetype t;
 	int month, day, year;
@@ -35,8 +30,12 @@ void calendar_month_view_display_events(time_t thetime) {
 	int show_event = 0;
 	time_t tt;
 	char buf[256];
+	struct wcsession *WCC;
+	struct disp_cal *Cal;
 
-	if (WC->num_cal == 0) {
+	WCC = WC;
+
+	if (WCC->num_cal == 0) {
 		wprintf("<br /><br /><br />\n");
 		return;
 	}
@@ -46,171 +45,130 @@ void calendar_month_view_display_events(time_t thetime) {
 	day = today_tm.tm_mday;
 	year = today_tm.tm_year + 1900;
 
-	for (i=0; i<(WC->num_cal); ++i) {
+	for (i=0; i<(WCC->num_cal); ++i) {
 		fill_day_event = 0;
 		multi_day_event = 0;
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-						ICAL_DTSTART_PROPERTY);
-		pe = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-						      ICAL_DTEND_PROPERTY);
-		if (p != NULL) {
-			t = icalproperty_get_dtstart(p);
-			event_tt = icaltime_as_timet(t);
-			if (t.is_date) all_day_event = 1;
-			else all_day_event = 0;
 
-			if (all_day_event) {
-				gmtime_r(&event_tt, &event_tm); 
-				event_tm.tm_sec = 0;
-				event_tm.tm_min = 0;
-				event_tm.tm_hour = 0; 
-				// are we today?
-				event_tt_stripped = mktime (&event_tm);
-				show_event = thetime == event_tt_stripped;
-			}
-			else {
-				localtime_r(&event_tt, &event_tm);
-				// we're not interested in the hours. 
-				// we just want the date for easy comparison.
-				event_tm.tm_min = 0;
-				event_tm.tm_hour = 0; 
-				event_tt_stripped = mktime (&event_tm);
-				if (pe != NULL)  // do we have a span?
-				{
-					struct tm event_ttm;
-					time_t event_end_stripped;
+		Cal = &WCC->disp_cal[i];
+		all_day_event =  Cal->start_hour == -1;
+		show_event = thetime == Cal->start_day;
+	
+		if (Cal->multi_day_event) {
 
-					t = icalproperty_get_dtend(pe);
-					event_tte = icaltime_as_timet(t);					
-					gmtime_r(&event_tte, &event_ttm); 
-					event_ttm.tm_sec = 0;
-					event_ttm.tm_min = 0;
-					event_ttm.tm_hour = 0;
-					event_end_stripped = mktime(&event_ttm);
+			// are we in the range of the event?
+			show_event = (Cal->start_day <= thetime) && 
+				(Cal->end_day >= thetime);
 
-					// do we span ore than one day?
-					multi_day_event = event_tt_stripped != event_end_stripped;
+			// are we not start or end day?
+			fill_day_event = (Cal->start_day < thetime) && 
+				(Cal->end_day > thetime);
+		}
 
-					// are we in the range of the event?
-					show_event = ((event_tt_stripped <= thetime) && 
-						      (event_end_stripped >= thetime));
+		if (show_event) {
+			p = icalcomponent_get_first_property(
+				Cal->cal,
+				ICAL_SUMMARY_PROPERTY);
+			if (p != NULL) {
 
-					// are we not start or end day?
-					fill_day_event = ((event_tt_stripped < thetime) && 
-						      (event_end_stripped > thetime));
-				}
-				else {
-					// are we today?
-					show_event = event_tt_stripped == thetime;
-				}
-			}
-
-			if (show_event) {
-				p = icalcomponent_get_first_property(
-							WC->disp_cal[i].cal,
-							ICAL_SUMMARY_PROPERTY);
-				if (p != NULL) {
-
-					if (all_day_event) {
-						wprintf("<table border=0 cellpadding=2><TR>"
-							"<td bgcolor=\"#CCCCDD\">"
+				if (all_day_event) {
+					wprintf("<table border=0 cellpadding=2><TR>"
+						"<td bgcolor=\"#CCCCDD\">"
 						);
-					}
+				}
 
-					wprintf("<font size=-1>"
-						"<a href=\"display_edit_event?"
-						"msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\""
-						" btt_tooltext=\"",
-						WC->disp_cal[i].cal_msgnum,
-						bstr("calview"),
-						bstr("year"),
-						bstr("month"),
-						bstr("day")
+				wprintf("<font size=-1>"
+					"<a href=\"display_edit_event?"
+					"msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\""
+					" btt_tooltext=\"",
+					WC->disp_cal[i].cal_msgnum,
+					bstr("calview"),
+					bstr("year"),
+					bstr("month"),
+					bstr("day")
 					);
 
-					wprintf("<i>%s</i> ", _("Summary:"));
-					escputs((char *)icalproperty_get_comment(p));
+				wprintf("<i>%s</i> ", _("Summary:"));
+				escputs((char *)icalproperty_get_comment(p));
+				wprintf("<br />");
+				
+				q = icalcomponent_get_first_property(
+					WC->disp_cal[i].cal,
+					ICAL_LOCATION_PROPERTY);
+				if (q) {
+					wprintf("<i>%s</i> ", _("Location:"));
+					escputs((char *)icalproperty_get_comment(q));
 					wprintf("<br />");
-
-					q = icalcomponent_get_first_property(
-							WC->disp_cal[i].cal,
-							ICAL_LOCATION_PROPERTY);
-					if (q) {
-						wprintf("<i>%s</i> ", _("Location:"));
-						escputs((char *)icalproperty_get_comment(q));
-						wprintf("<br />");
 					}
-
-					/**
-					 * Only show start/end times if we're actually looking at the VEVENT
-					 * component.  Otherwise it shows bogus dates for e.g. timezones
-					 */
-					if (icalcomponent_isa(WC->disp_cal[i].cal) == ICAL_VEVENT_COMPONENT) {
 				
-      						q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-										ICAL_DTSTART_PROPERTY);
-						if (q != NULL) {
-							t = icalproperty_get_dtstart(q);
-				
-							if (t.is_date) {
-								struct tm d_tm;
-								char d_str[32];
-								memset(&d_tm, 0, sizeof d_tm);
-								d_tm.tm_year = t.year - 1900;
-								d_tm.tm_mon = t.month - 1;
-								d_tm.tm_mday = t.day;
-								wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
-								wprintf("<i>%s</i> %s<br>",
-									_("Date:"), d_str);
-							}
-							else {
+				/**
+				 * Only show start/end times if we're actually looking at the VEVENT
+				 * component.  Otherwise it shows bogus dates for e.g. timezones
+				 */
+				if (icalcomponent_isa(Cal->cal) == ICAL_VEVENT_COMPONENT) {
+					
+					q = icalcomponent_get_first_property(Cal->cal,
+									     ICAL_DTSTART_PROPERTY);
+					if (q != NULL) {
+						t = icalproperty_get_dtstart(q);
+						
+						if (t.is_date) {
+							struct tm d_tm;
+							char d_str[32];
+							memset(&d_tm, 0, sizeof d_tm);
+							d_tm.tm_year = t.year - 1900;
+							d_tm.tm_mon = t.month - 1;
+							d_tm.tm_mday = t.day;
+							wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
+							wprintf("<i>%s</i> %s<br>",
+								_("Date:"), d_str);
+						}
+						else {
+							tt = icaltime_as_timet(t);
+							fmt_date(buf, tt, 1);
+							wprintf("<i>%s</i> %s<br>",
+								_("Starting date/time:"), buf);
+							
+							/* Embed the 'show end date/time' loop inside here so it
+							 * only executes if this is NOT an all day event.
+							 */
+							q = icalcomponent_get_first_property(Cal->cal,
+											     ICAL_DTEND_PROPERTY);
+							if (q != NULL) {
+								t = icalproperty_get_dtend(q);
 								tt = icaltime_as_timet(t);
 								fmt_date(buf, tt, 1);
 								wprintf("<i>%s</i> %s<br>",
-									_("Starting date/time:"), buf);
-
-								/* Embed the 'show end date/time' loop inside here so it
-								 * only executes if this is NOT an all day event.
-								 */
-      								q = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-													ICAL_DTEND_PROPERTY);
-								if (q != NULL) {
-									t = icalproperty_get_dtend(q);
-									tt = icaltime_as_timet(t);
-									fmt_date(buf, tt, 1);
-									wprintf("<i>%s</i> %s<br>",
-										_("Ending date/time:"), buf);
-								}
-
+									_("Ending date/time:"), buf);
 							}
+							
 						}
+					}
 					
-					}
-
-					q = icalcomponent_get_first_property(
-							WC->disp_cal[i].cal,
-							ICAL_DESCRIPTION_PROPERTY);
-					if (q) {
-						wprintf("<i>%s</i> ", _("Notes:"));
-						escputs((char *)icalproperty_get_comment(q));
-						wprintf("<br />");
-					}
-
-					wprintf("\">");
-					escputs((char *)
-						icalproperty_get_comment(p));
-					wprintf("</a></font><br />\n");
-
-					if (all_day_event) {
-						wprintf("</td></tr></table>");
-					}
-
 				}
-
+				
+				q = icalcomponent_get_first_property(
+					Cal->cal,
+					ICAL_DESCRIPTION_PROPERTY);
+				if (q) {
+					wprintf("<i>%s</i> ", _("Notes:"));
+					escputs((char *)icalproperty_get_comment(q));
+					wprintf("<br />");
+				}
+				
+				wprintf("\">");
+				escputs((char *)
+					icalproperty_get_comment(p));
+				wprintf("</a></font><br />\n");
+				
+				if (all_day_event) {
+					wprintf("</td></tr></table>");
+				}
+				
 			}
-
-
+			
 		}
+		
+		
 	}
 }
 
@@ -629,99 +587,70 @@ void calendar_week_view(int year, int month, int day) {
  * (Specify inner to 0 to show "all day events and events after dayend)
  * \param dstart daystart 
  */
-void calendar_day_view_display_events(int year, int month,
+void calendar_day_view_display_events(time_t thetime, int year, int month,
 					int day, int hour,
 					int inner, int dstart) {
 	int i;
 	icalproperty *p;
+	time_t event_start;
+	time_t event_end;
 	icalproperty *l;
 	icalproperty *n;
-	icalproperty *pe = NULL;
-	struct icaltimetype t;
-	struct icaltimetype te;
-	time_t event_tt;
-	time_t event_tte;
 	struct tm event_te;
 	struct tm event_tm;
+	int show_event = 0;
 	int all_day_event = 0;
+	struct wcsession *WCC;
+	struct disp_cal *Cal;
 
-	if (WC->num_cal == 0) {
+	WCC = WC;
+
+	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
 		return;
 	}
 
-	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-						ICAL_DTSTART_PROPERTY);
-		pe = icalcomponent_get_first_property(WC->disp_cal[i].cal,
-						      ICAL_DTEND_PROPERTY);
-		if (p != NULL) {
-			t = icalproperty_get_dtstart(p);
-			event_tt = icaltime_as_timet(t);
-			if (t.is_date) {
-				all_day_event = 1;
-			}
-			else {
-				all_day_event = 0;
-			}
+	event_start = thetime + 60 * 60 * hour;
+	event_end = thetime + 60 * 60 * (hour + 1);
 
+	for (i=0; i<(WCC->num_cal); ++i) {
+		Cal = &WCC->disp_cal[i];
+		all_day_event =  Cal->start_hour == -1;
+
+		show_event = 0;
+		if (! all_day_event && inner)
+		{
+			show_event = (thetime == Cal->start_day) && 
+				(event_start <= Cal->start_hour) &&
+				((Cal->end_hour != -1)? 
+				   (Cal->end_hour < event_end) : 1);
+
+		}
+		else
+		{
+			show_event = !inner && (Cal->start_day == thetime);
+		}
+
+		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
+		if ((show_event) && (p != NULL)) {
 			if (all_day_event) {
-				gmtime_r(&event_tt, &event_tm);
-				gmtime_r(&event_tt, &event_te);
+				wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+					Cal->cal_msgnum,year, month, day, hour);
+				escputs((char *) icalproperty_get_comment(p));
+				wprintf("</a></dd>\n");
 			}
 			else {
-				localtime_r(&event_tt, &event_tm);
-				if (pe != NULL)
-				{
-					te = icalproperty_get_dtend(pe);
-					event_tte = icaltime_as_timet(te);
-					localtime_r(&event_tte, &event_te);
-				}
-				else 
-					localtime_r(&event_tt, &event_te);
-			}
-
-			if (((event_tm.tm_year <= (year-1900))
-			     && (event_tm.tm_mon <= (month-1))
-			     && (event_tm.tm_mday <= day)
-			     && (event_te.tm_year >= (year-1900))
-			     && (event_te.tm_mon >= (month-1))
-			     && (event_te.tm_mday >= day))
-			    && (
-                                 // are we in the start hour?
-				    ((event_tm.tm_mday == day)
-				     && (event_tm.tm_hour == hour) 
-				     && (!t.is_date)) 
-                                 // are we an all day event?
-				    || ((hour<0)&&(t.is_date))
-                                 // does it span multible days and we're not at the start day?
-				    || ((hour<0)
-					&& (event_tm.tm_mday < day) 
-					&& (event_te.tm_mday >= day))
-				    ))
-			{
-				p = icalcomponent_get_first_property(
-							WC->disp_cal[i].cal,
-							ICAL_SUMMARY_PROPERTY);
-				if (p != NULL) {
-
-					if (all_day_event) {
-                                        wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-                                                WC->disp_cal[i].cal_msgnum,
-                                                year, month, day, hour
-                                        );
-                                        escputs((char *)
-                                                icalproperty_get_comment(p));
-                                        wprintf("</a></dd>\n");
-					}
-					else {
-						if (inner) {
-                                               		wprintf("<dd  class=\"event\" "
-                                                       		"style=\"position: absolute; "
-                                                       		"top:%dpx; left:100px; "
-                                                       		"height:%dpx; \" >",
-                                               			(1 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
+				wprintf("<dd  class=\"event\" "
+					"style=\"position: absolute; "
+					"top:%dpx; left:100px; "
+					"height:%dpx; \" >",
+					(1 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
                                                			(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
+					);
+			}/*
+			else {
+				wprintf("<dd>");
+				}* /
 							);
 						}
 						else {
@@ -764,6 +693,17 @@ void calendar_day_view_display_events(int year, int month,
 			}
 
 		}
+
+		/* TODO: whats that? thierry, when do we need to show this?
+		wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+			WC->disp_cal[i].cal_msgnum,
+			year, month, day, hour
+			);
+		escputs((char *)
+			icalproperty_get_comment(p));
+		wprintf("</a></dd>\n");
+		*/
+		}
 	}
 }
 
@@ -784,6 +724,7 @@ void calendar_day_view(int year, int month, int day) {
 	struct tm d_tm;
 	char d_str[128];
 	int time_format;
+	time_t today_t;
 	
 	time_format = get_time_format_cached ();
 	get_preference("daystart", daystart_str, sizeof daystart_str);
@@ -791,6 +732,12 @@ void calendar_day_view(int year, int month, int day) {
 	get_preference("dayend", dayend_str, sizeof dayend_str);
 	if (!IsEmptyStr(dayend_str)) dayend = atoi(dayend_str);
 	
+	/** Today's date */
+	memset(&d_tm, 0, sizeof d_tm);
+	d_tm.tm_year = year - 1900;
+	d_tm.tm_mon = month - 1;
+	d_tm.tm_mday = day;
+	gmtime_r(&today_t, &d_tm); 
 
 	/** Figure out the dates for "yesterday" and "tomorrow" links */
 
@@ -851,7 +798,7 @@ void calendar_day_view(int year, int month, int day) {
 		}
 
 		/* put the data here, stupid */
-		calendar_day_view_display_events(year, month, day, hour, 1 , daystart);
+		calendar_day_view_display_events(today_t, year, month, day, hour, 1 , daystart);
 
 	}
 
@@ -865,18 +812,18 @@ void calendar_day_view(int year, int month, int day) {
 
         /** Display all-day events) */
 	wprintf("<dt>All day events</dt>");
-                calendar_day_view_display_events(year, month, day, -1, 0 , daystart);
+                calendar_day_view_display_events(today_t, year, month, day, -1, 0 , daystart);
 
         /** Display events before daystart */
 	wprintf("<dt>Before day start</dt>");
         for (hour = 0; hour <= (daystart-1); ++hour) {
-                calendar_day_view_display_events(year, month, day, hour, 0, daystart );
+                calendar_day_view_display_events(today_t, year, month, day, hour, 0, daystart );
         }
 
         /** Display events after dayend... */
 	wprintf("<dt>After</dt>");
         for (hour = (dayend+1); hour <= 23; ++hour) {
-                calendar_day_view_display_events(year, month, day, hour, 0, daystart );
+                calendar_day_view_display_events(today_t, year, month, day, hour, 0, daystart );
         }
 
         wprintf("</dl>");
@@ -897,11 +844,6 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>");
 	wprintf("</td>");
 
-	/** Today's date */
-	memset(&d_tm, 0, sizeof d_tm);
-	d_tm.tm_year = year - 1900;
-	d_tm.tm_mon = month - 1;
-	d_tm.tm_mday = day;
 	wc_strftime(d_str, sizeof d_str,
 		"<td align=center>"
 		"<font size=+2>%B</font><br />"

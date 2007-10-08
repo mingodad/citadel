@@ -444,15 +444,71 @@ void handle_rsvp(void) {
  * \param cal Our calendar to process
  * \param msgnum number of the mesage in our db
  */
-void display_individual_cal(icalcomponent *cal, long msgnum) {
+void display_individual_cal(icalcomponent *cal, long msgnum) 
+{
+	icalproperty *ps = NULL;
+	struct icaltimetype t;
+	struct wcsession *WCC;
+	struct disp_cal *Cal;
+	struct tm event;
+	time_t event_ts;
 
-	WC->num_cal += 1;
+	WCC = WC;
 
-	WC->disp_cal = realloc(WC->disp_cal,
-			(sizeof(struct disp_cal) * WC->num_cal) );
-	WC->disp_cal[WC->num_cal - 1].cal = icalcomponent_new_clone(cal);
+	WCC->num_cal += 1;
 
-	WC->disp_cal[WC->num_cal - 1].cal_msgnum = msgnum;
+	WCC->disp_cal = realloc(WCC->disp_cal,
+			(sizeof(struct disp_cal) * WCC->num_cal) );
+
+	Cal = &WCC->disp_cal[WCC->num_cal - 1];
+	Cal->cal = icalcomponent_new_clone(cal);
+
+	Cal->cal_msgnum = msgnum;
+
+	//! Precalculate some Values we can use for easy comparison later.
+	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+	if (ps != NULL) {
+		t = icalproperty_get_dtstart(ps);
+		event_ts = icaltime_as_timet(t);
+		if (t.is_date) { //! calculate whether we are a day event.
+			Cal->start_hour = -1;
+			Cal->end_hour = -1;
+			Cal->end_day = -1;
+			gmtime_r(&event_ts, &event); 
+			event.tm_sec = 0;
+			event.tm_min = 0;
+			event.tm_hour = 0; 
+			Cal->start_day = mktime (&event);
+		}
+		else { //! Precalc start day and start day + hour
+			localtime_r(&event_ts, &event);
+			event.tm_sec = 0;
+			event.tm_min = 0;
+			Cal->start_hour = mktime (&event);
+			event.tm_hour = 0; 			
+			Cal->start_day = mktime (&event);
+	
+			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+			if (ps != NULL) { //!  Precalc the end day and end day + hour
+				t = icalproperty_get_dtstart(ps);
+				event_ts = icaltime_as_timet(t);
+				localtime_r(&event_ts, &event);
+				event.tm_sec = 0;
+				event.tm_min = 0;
+				Cal->end_hour = mktime (&event);
+				event.tm_hour = 0; 			
+				Cal->end_day = mktime (&event);
+			}
+			else
+			{
+				Cal->end_hour = -1;
+				Cal->end_day = -1;
+			}	
+		}
+
+
+	}
+	Cal->multi_day_event = Cal->start_day != Cal->end_day;
 }
 
 
