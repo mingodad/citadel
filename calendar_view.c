@@ -718,8 +718,8 @@ void calendar_day_view_display_events(int year, int month,
                                                        		"style=\"position: absolute; "
                                                        		"top:%dpx; left:100px; "
                                                        		"height:%dpx; \" >",
-                                               			(1 + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
-                                               			((event_te.tm_hour - hour) * 30)
+                                               			(1 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
+                                               			(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
 							);
 						}
 						else {
