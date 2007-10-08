@@ -634,6 +634,8 @@ void calendar_day_view_display_events(int year, int month,
 					int inner, int dstart) {
 	int i;
 	icalproperty *p;
+	icalproperty *l;
+	icalproperty *n;
 	icalproperty *pe = NULL;
 	struct icaltimetype t;
 	struct icaltimetype te;
@@ -725,10 +727,34 @@ void calendar_day_view_display_events(int year, int month,
 						else {
                                         		wprintf("<dd>");
 						}
-                                        	wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+                                        	wprintf("<a href=\"display_edit_event?"
+							"msgnum=%ld&calview=day&year=%d"
+							"&month=%d&day=%d&hour=%d\""
+							" btt_tooltext=\"",
                                                		WC->disp_cal[i].cal_msgnum,
                                                		year, month, day, hour
                                         	);
+	                                        wprintf("<i>%s</i> ", _("Summary:"));
+        	                                escputs((char *)icalproperty_get_comment(p));
+                	                        wprintf("<br />");
+	
+        	                                l = icalcomponent_get_first_property(
+                	                                        WC->disp_cal[i].cal,
+                        	                                ICAL_LOCATION_PROPERTY);
+                                	        if (l) {
+                                        	        wprintf("<i>%s</i> ", _("Location:"));
+                                                	escputs((char *)icalproperty_get_comment(l));
+                                               	 	wprintf("<br />");
+                                       	 	}	
+        	                                n = icalcomponent_get_first_property(
+	                                                        WC->disp_cal[i].cal,
+                	                                        ICAL_DESCRIPTION_PROPERTY);
+                        	                if (n) {
+                                	                wprintf("<i>%s</i> ", _("Notes:"));
+                                        	        escputs((char *)icalproperty_get_comment(n));
+                                                	wprintf("<br />");
+                                        	}
+						wprintf("\">");
                                         	escputs((char *)
                                                		icalproperty_get_comment(p));
                                         	wprintf("</a></dd>\n");
@@ -785,19 +811,20 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
 	/** Inner table (the real one) */
-	wprintf("<table class=\"calendar\"><tr> \n");
+	wprintf("<table class=\"calendar\" id=\"inner_day\"><tr> \n");
 
 	/** Innermost cell (contains hours etc.) */
-	wprintf("<td class=\"middle_of_the_day\">");
-       	wprintf("<dl style=\" "
-		"       padding:0 ;"
-		"       margin: 0;"
-        	"	position: absolute ;"
-        	"	top: 0;"
-		"        left: 0;"
-		"        width: 500px;"
-		"        clip: rect(0px 500px %dpx 0px);"
-		"        clip: rect(0px, 500px, %dpx, 0px);"
+	wprintf("<td class=\"middle_of_the_day\" >");
+       	wprintf("<dl 	"
+		"style=\" 			"
+		"       padding:0 ;		"
+		"       margin: 0;		"
+        	"	position: absolute ;	"
+        	"	top: 0;			"
+		"       left: 0;		"
+		"       width: 500px;		"
+		"       clip: rect(0px 500px %dpx 0px);"
+		"       clip: rect(0px, 500px, %dpx, 0px);"
 		"\">",
 	(dayend - daystart) * 30,
 	(dayend - daystart) * 30
@@ -904,6 +931,12 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("</table>"			/** end of inner table */
 		"</div>");
+
+        wprintf("<script type=\"text/javascript\">"
+                " setTimeout(\"btt_enableTooltips('inner_day')\", 1); "
+                "</script>\n"
+        );
+
 
 }
 /**
