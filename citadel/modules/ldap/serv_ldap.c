@@ -53,17 +53,66 @@
 #include <ldap.h>
 
 LDAP *dirserver = NULL;
+int ldap_time_disconnect = 0;
+
 
 /*
  * LDAP connector cleanup function
  */
 void serv_ldap_cleanup(void)
 {
-	if (!dirserver) return;
-
-	lprintf(CTDL_INFO, "LDAP: Unbinding from directory server\n");
-	ldap_unbind(dirserver);
+	if (dirserver)
+	{
+		lprintf(CTDL_INFO, "LDAP: Unbinding from directory server\n");
+		ldap_unbind(dirserver);
+	}
 	dirserver = NULL;
+	ldap_time_disconnect=0;
+}
+
+
+
+
+
+int CtdlConnectToLdap(void) {
+	int i;
+	int ldap_version = 3;
+
+	if (ldap_time_disconnect && dirserver)
+	{	// Already connected
+		ldap_time_disconnect=5;	// reset the timer.
+		return 0;
+	}
+		
+	lprintf(CTDL_INFO, "LDAP: Connecting to LDAP server %s:%d...\n",
+	config.c_ldap_host, config.c_ldap_port);
+
+	dirserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
+	if (dirserver == NULL) {
+		lprintf(CTDL_CRIT, "LDAP: Could not connect to %s:%d : %s\n",
+			config.c_ldap_host,
+			config.c_ldap_port,
+			strerror(errno));
+		aide_message(strerror(errno), "LDAP: Could not connect to server.");
+		return -1;
+	}
+
+	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+
+	lprintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
+
+	i = ldap_simple_bind_s(dirserver,
+				config.c_ldap_bind_dn,
+				config.c_ldap_bind_pw
+	);
+	if (i != LDAP_SUCCESS) {
+		lprintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+		dirserver = NULL;	/* FIXME disconnect from ldap */
+		aide_message(ldap_err2string(i), "LDAP: Cannot bind to server");
+		return -1;
+	}
+	ldap_time_disconnect=5;
+	return 0;
 }
 
 
@@ -109,7 +158,13 @@ void CtdlCreateLdapRoot(void) {
 
 	/* Perform the transaction */
 	lprintf(CTDL_DEBUG, "LDAP: Setting up Base DN node...\n");
+
 	begin_critical_section(S_LDAP);
+	if (CtdlConnectToLdap())
+	{
+		end_critical_section(S_LDAP);
+		return;
+	}
 	i = ldap_add_s(dirserver, config.c_ldap_base_dn, mods);
 	end_critical_section(S_LDAP);
 
@@ -157,7 +212,13 @@ int CtdlCreateLdapHostOU(char *cn, char *host, void **object) {
 
 	/* Perform the transaction */
 	lprintf(CTDL_DEBUG, "LDAP: Setting up Host OU node...\n");
+	
 	begin_critical_section(S_LDAP);
+	if (CtdlConnectToLdap())
+	{
+		end_critical_section(S_LDAP);
+		return -1;
+	}
 	i = ldap_add_s(dirserver, dn, mods);
 	end_critical_section(S_LDAP);
 
@@ -174,43 +235,6 @@ int CtdlCreateLdapHostOU(char *cn, char *host, void **object) {
 
 
 
-
-
-
-
-
-void CtdlConnectToLdap(void) {
-	int i;
-	int ldap_version = 3;
-
-	lprintf(CTDL_INFO, "LDAP: Connecting to LDAP server %s:%d...\n",
-		config.c_ldap_host, config.c_ldap_port);
-
-	dirserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
-	if (dirserver == NULL) {
-		lprintf(CTDL_CRIT, "LDAP: Could not connect to %s:%d : %s\n",
-			config.c_ldap_host,
-			config.c_ldap_port,
-			strerror(errno));
-		return;
-	}
-
-	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
-
-	lprintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
-
-	i = ldap_simple_bind_s(dirserver,
-				config.c_ldap_bind_dn,
-				config.c_ldap_bind_pw
-	);
-	if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
-		dirserver = NULL;	/* FIXME disconnect from ldap */
-		return;
-	}
-
-	CtdlCreateLdapRoot();
-}
 
 
 
@@ -321,17 +345,19 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 	}
 	
 	begin_critical_section(S_LDAP);
+	if (CtdlConnectToLdap())
+	{
+		end_critical_section(S_LDAP);
+		return -1;
+	}
+	
 	i = ldap_add_s(dirserver, this_dn, attrs);
-	end_critical_section(S_LDAP);
 	
 	if (i == LDAP_SERVER_DOWN)
-	{	// failed to connect so try to re init the connection
-		serv_ldap_cleanup();
-		CtdlConnectToLdap();
-		// And try the save again.
-		begin_critical_section(S_LDAP);
-		i = ldap_add_s(dirserver, this_dn, attrs);
+	{
+		aide_message("The LDAP server appears to be down.\nThe save to LDAP did not occurr.\n", "LDAP: save failed");
 		end_critical_section(S_LDAP);
+		return -1;
 	}
 
 	/* If the entry already exists, repopulate it instead */
@@ -340,16 +366,17 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 			attrs[j]->mod_op = LDAP_MOD_REPLACE;
 		}
 		lprintf(CTDL_INFO, "LDAP: Calling ldap_modify_s() for dn of '%s'\n", this_dn);
-		begin_critical_section(S_LDAP);
 		i = ldap_modify_s(dirserver, this_dn, attrs);
-		end_critical_section(S_LDAP);
 	}
 
 	if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_ERR, "LDAP: ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
+		aide_message("The LDAP server refused the save command.\nDid you update the schema?\n", "LDAP: save failed (schema?)");
+		end_critical_section(S_LDAP);
 		return -1;
 	}
+	end_critical_section(S_LDAP);
 	return 0;
 }
 
@@ -419,25 +446,46 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
 	
 	begin_critical_section(S_LDAP);
+	if (CtdlConnectToLdap())
+	{
+		end_critical_section(S_LDAP);
+		return -1;
+	}
+	
 	i = ldap_delete_s(dirserver, this_dn);
-	end_critical_section(S_LDAP);
 	
 	if (i == LDAP_SERVER_DOWN)
-	{	// failed to connect so try to re init the connection
-		serv_ldap_cleanup();
-		CtdlConnectToLdap();
-		// And try the delete again.
-		begin_critical_section(S_LDAP);
-		i = ldap_delete_s(dirserver, this_dn);
+	{
 		end_critical_section(S_LDAP);
+		aide_message("The LDAP server appears to be down.\nThe delete from LDAP did not occurr.\n", "LDAP: delete failed");
+		return -1;
 	}
 
 	if (i != LDAP_SUCCESS) {
 		lprintf(CTDL_ERR, "LDAP: ldap_delete_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
+		end_critical_section(S_LDAP);
+		aide_message(ldap_err2string(i), "LDAP: delete failed");
 		return -1;
 	}
+	end_critical_section(S_LDAP);
 	return 0;
+}
+
+
+
+
+void ldap_disconnect_timer(void)
+{
+	begin_critical_section(S_LDAP);
+	if(ldap_time_disconnect)
+	{
+		ldap_time_disconnect--;
+		end_critical_section(S_LDAP);
+		return;
+	}
+	serv_ldap_cleanup();
+	end_critical_section(S_LDAP);
 }
 
 
@@ -453,13 +501,14 @@ CTDL_MODULE_INIT(ldap)
 	if (!IsEmptyStr(config.c_ldap_base_dn))
 	{
 		CtdlRegisterCleanupHook(serv_ldap_cleanup);
+		CtdlRegisterSessionHook(ldap_disconnect_timer, EVT_TIMER);
 		CtdlRegisterDirectoryServiceFunc(CtdlDeleteFromLdap, DIRECTORY_USER_DEL, "ldap");
 		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapHostOU, DIRECTORY_CREATE_HOST, "ldap");
 		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapObject, DIRECTORY_CREATE_OBJECT, "ldap");
 		CtdlRegisterDirectoryServiceFunc(CtdlAddLdapAttr, DIRECTORY_ATTRIB_ADD, "ldap");
 		CtdlRegisterDirectoryServiceFunc(CtdlSaveLdapObject, DIRECTORY_SAVE_OBJECT, "ldap");
 		CtdlRegisterDirectoryServiceFunc(CtdlFreeLdapObject, DIRECTORY_FREE_OBJECT, "ldap");
-		CtdlConnectToLdap();
+		CtdlCreateLdapRoot();
 	}
 
 #endif				/* HAVE_LDAP */

@@ -323,7 +323,7 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	(void) CtdlDoDirectoryServiceFunc(EUID, msg->cm_fields['N'], &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
 	
 	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_FREE_OBJECT);
-	lprintf(CTDL_DEBUG, "LDAP write operation complete.\n");
+	lprintf(CTDL_DEBUG, "Directory Services write operation complete.\n");
 }
 
 
