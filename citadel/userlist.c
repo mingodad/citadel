@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include "citadel_ipc.h"
 #include "tools.h"
+#include "citadel_dirs.h"
 
 void logoff(int code)
 {
@@ -71,8 +72,14 @@ int main(int argc, char **argv)
 	char buf[SIZ];
 	char hostbuf[SIZ], portbuf[SIZ];
 	CtdlIPC *ipc = NULL;
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
 
 	CtdlInitBase64Table();
+	calc_dirs_n_files(relh, home, relhome, ctdldir);
+
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
 	CtdlIPC_chat_recv(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
