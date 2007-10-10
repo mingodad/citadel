@@ -128,6 +128,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 	if (s == NULL) {
 		return(-1);
 	}
+	
+	maxlen--;
 
 	while (*s) {
 		if (*s == separator) {
