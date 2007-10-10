@@ -278,7 +278,14 @@ int CtdlAddLdapAttr(char *cn, char *ou, void **object)
 			if (attrs[cur_attr]->mod_values)
 			{
 				while (attrs[cur_attr]->mod_values[num_values])
+				{
+					if (!strcmp(ou, attrs[cur_attr]->mod_values[num_values]))
+					{
+						lprintf(CTDL_DEBUG, "LDAP: Ignoring duplicate attribute/value pair\n");
+						return 0;
+					}
 					num_values++;
+				}
 			}
 			attrs[cur_attr]->mod_values = realloc(attrs[cur_attr]->mod_values, (num_values + 2) * (sizeof(char *)));
 			attrs[cur_attr]->mod_values[num_values] = strdup(ou);
