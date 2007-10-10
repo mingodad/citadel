@@ -445,7 +445,8 @@ void imap_append(int num_parms, char *parms[]) {
 			new_msgnum = CtdlSubmitMsg(msg, NULL, "");
 		}
 		if (new_msgnum >= 0L) {
-			cprintf("%s OK APPEND completed\r\n", parms[0]);
+			cprintf("%s OK [APPENDUID %ld %ld] APPEND completed\r\n",
+				parms[0], GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
 		}
 		else {
 			cprintf("%s BAD Error %ld saving message to disk.\r\n",

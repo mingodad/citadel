@@ -2,6 +2,9 @@
  */
 
 
+#define GLOBAL_UIDVALIDITY_VALUE	1L
+
+
 void imap_cleanup_function(void);
 void imap_greeting(void);
 void imap_command_loop(void);
