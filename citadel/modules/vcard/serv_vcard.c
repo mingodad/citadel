@@ -141,8 +141,6 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	struct vCard *v = NULL;
 	int i;
-	int num_emails = 0;
-	int num_phones = 0;
 	int have_addr = 0;
 	int have_cn = 0;
 	
@@ -156,7 +154,7 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	char state[3];
 	char zipcode[10];
 	char calFBURL[256];
-	char *EUID=NULL;
+	char ldap_dn[SIZ];
 
 	if (msg == NULL) return;
 	if (msg->cm_fields['M'] == NULL) return;
@@ -173,9 +171,11 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 		msg->cm_fields['N']
 	);
 
+	sprintf(ldap_dn, "euid=%s,ou=%s", msg->cm_fields['E'], msg->cm_fields['N']);
+	
 	/* Are we just deleting?  If so, it's simple... */
 	if (op == V2L_DELETE) {
-		(void) CtdlDoDirectoryServiceFunc (msg->cm_fields['E'], msg->cm_fields['N'], NULL, "ldap", DIRECTORY_USER_DEL);
+		(void) CtdlDoDirectoryServiceFunc (ldap_dn, NULL, NULL, "ldap", DIRECTORY_USER_DEL);
 		return;
 	}
 
@@ -249,34 +249,18 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 			}
 		}
 
+		if (!strcasecmp(v->prop[i].name, "tel;home"))
+			(void) CtdlDoDirectoryServiceFunc("homePhone", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+		else
 		if ( (!strcasecmp(v->prop[i].name, "tel"))
 		   ||(!strncasecmp(v->prop[i].name, "tel;", 4)) ) {
-			++num_phones;
-			/* The first 'tel' property creates the 'telephoneNumber' attribute */
-			if (num_phones == 1) {
-				(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
-			}
-			/* Subsequent 'tel' properties *add to* the 'telephoneNumber' attribute */
-			else {
-				(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
-			}
+			(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		}
 
 
 		if ( (!strcasecmp(v->prop[i].name, "email"))
 		   ||(!strcasecmp(v->prop[i].name, "email;internet")) ) {
-	
-			++num_emails;
-			lprintf(CTDL_DEBUG, "email addr %d\n", num_emails);
-
-			/* The first email address creates the 'mail' attribute */
-			if (num_emails == 1) {
-				(void) CtdlDoDirectoryServiceFunc("mail", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
-			}
-			/* The second and subsequent email address creates the 'alias' attribute */
-			else if (num_emails >= 2) {
-				(void) CtdlDoDirectoryServiceFunc("alias", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
-			}
+			(void) CtdlDoDirectoryServiceFunc("mail", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		}
 
 		/* Calendar free/busy URL (take the first one we find, but if a subsequent
@@ -316,11 +300,10 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	}
 	
 	// Add this messages EUID as the primary key for this entry.
-	EUID=msg->cm_fields['E'];
-	(void) CtdlDoDirectoryServiceFunc("euid", EUID, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+	(void) CtdlDoDirectoryServiceFunc("euid", msg->cm_fields['E'], &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 	
 	
-	(void) CtdlDoDirectoryServiceFunc(EUID, msg->cm_fields['N'], &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
+	(void) CtdlDoDirectoryServiceFunc(ldap_dn, NULL, &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
 	
 	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_FREE_OBJECT);
 	lprintf(CTDL_DEBUG, "Directory Services write operation complete.\n");

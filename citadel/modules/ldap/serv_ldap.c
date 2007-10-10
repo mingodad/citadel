@@ -262,7 +262,7 @@ int CtdlAddLdapAttr(char *cn, char *ou, void **object)
 	int cur_attr;
 	
 	
-	lprintf (CTDL_DEBUG, "LDAP: Adding ldap attribute name:\"%s\" vlaue:\"%s\"\n", cn, ou);
+	lprintf (CTDL_DEBUG, "LDAP: Adding ldap attribute name:\"%s\" value:\"%s\"\n", cn, ou);
 	
 	attrs = *object;
 	if (attrs)
@@ -316,10 +316,9 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 	int count = 0;
 	
 	if (dirserver == NULL) return -1;
-	if (ou == NULL) return -1;
 	if (cn == NULL) return -1;
 	
-	sprintf(this_dn, "euid=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	sprintf(this_dn, "%s,%s", cn, config.c_ldap_base_dn);
 	
 	lprintf(CTDL_INFO, "LDAP: Calling ldap_add_s() for dn of '%s'\n", this_dn);
 
@@ -441,7 +440,7 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 	if (ou == NULL) return -1;
 	if (cn == NULL) return -1;
 	
-	sprintf(this_dn, "euid=%s,ou=%s,%s", cn, ou, config.c_ldap_base_dn);
+	sprintf(this_dn, "%s,%s", cn, config.c_ldap_base_dn);
 	
 	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
 	
