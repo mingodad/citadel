@@ -29,7 +29,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 	if (wc_locales[WC->selected_language] == NULL) {
 		return strftime(s, max, format, tm);
 	}
-	else {
+	else { // TODO: this gives empty strings on debian.
 		return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
 	}
 #else
@@ -56,13 +56,13 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	today_timet = time(NULL);
 	localtime_r(&today_timet, &today_tm);
 
-	localtime_r(&thetime, &tm);
+	localtime_r(&thetime, &tm);/*
 	hour = tm.tm_hour;
 	if (hour == 0)
 		hour = 12;
 	else if (hour > 12)
 		hour = hour - 12;
-
+				   */
 	buf[0] = 0;
 
 	if (brief) {
