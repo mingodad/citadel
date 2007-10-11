@@ -52,7 +52,6 @@ void calendar_month_view_display_events(time_t thetime) {
 		Cal = &WCC->disp_cal[i];
 		all_day_event =  Cal->start_hour == -1;
 		show_event = thetime == Cal->start_day;
-	
 		if (Cal->multi_day_event) {
 
 			// are we in the range of the event?
@@ -301,6 +300,9 @@ void calendar_month_view(int year, int month, int day) {
 	 * First, back up to the 1st of the month...
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
+	if (WC->num_cal > 0) 
+		localtime_r(&WC->disp_cal[0].start_day, &starting_tm);
+
 	starting_tm.tm_year = year - 1900;
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
@@ -734,10 +736,13 @@ void calendar_day_view(int year, int month, int day) {
 	
 	/** Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
+	if (WC->num_cal > 0) 
+		localtime_r(&WC->disp_cal[0].start_day, &d_tm);
+
 	d_tm.tm_year = year - 1900;
 	d_tm.tm_mon = month - 1;
 	d_tm.tm_mday = day;
-	gmtime_r(&today_t, &d_tm); 
+	today_t = mktime(&d_tm); 
 
 	/** Figure out the dates for "yesterday" and "tomorrow" links */
 
