@@ -144,6 +144,35 @@ int imap_do_copy(char *destination_folder) {
 }
 
 
+/*
+ * Output the [COPYUID xxx yyy] response code required by RFC2359
+ * to tell the client the UID's of the messages that were copied (if any).
+ * We are assuming that the IMAP_SELECTED flag is still set on any relevant
+ * messages in our source room.  Since the Citadel system uses UID's that
+ * are both globally unique and persistent across a room-to-room copy, we
+ * can get this done quite easily.
+ */
+void imap_output_copyuid_response(void) {
+	int i;
+	int num_output = 0;
+  
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_SELECTED) {
+			++num_output;
+			if (num_output == 1) {
+				cprintf("[COPYUID ");
+			}
+			else if (num_output > 1) {
+				cprintf(",");
+			}
+			cprintf("%ld", IMAP->msgids[i]);
+		}
+	}
+	if (num_output > 0) {
+		cprintf("] ");
+	}
+}
+
 
 /*
  * This function is called by the main command loop.
@@ -166,7 +195,9 @@ void imap_copy(int num_parms, char *parms[]) {
 
 	ret = imap_do_copy(parms[3]);
 	if (!ret) {
-		cprintf("%s OK COPY completed\r\n", parms[0]);
+		cprintf("%s OK ", parms[0]);
+		imap_output_copyuid_response();
+		cprintf("COPY completed\r\n");
 	}
 	else {
 		cprintf("%s NO COPY failed (error %d)\r\n", parms[0], ret);
@@ -192,7 +223,9 @@ void imap_uidcopy(int num_parms, char *parms[]) {
 	}
 
 	if (imap_do_copy(parms[4]) == 0) {
-		cprintf("%s OK UID COPY completed\r\n", parms[0]);
+		cprintf("%s OK ", parms[0]);
+		imap_output_copyuid_response();
+		cprintf("UID COPY completed\r\n");
 	}
 	else {
 		cprintf("%s NO UID COPY failed\r\n", parms[0]);
