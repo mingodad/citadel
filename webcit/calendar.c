@@ -471,11 +471,12 @@ void display_individual_cal(icalcomponent *cal, long msgnum)
 	if (ps != NULL) {
 		t = icalproperty_get_dtstart(ps);
 		event_ts = icaltime_as_timet(t);
+
 		if (t.is_date) { //! calculate whether we are a day event.
 			Cal->start_hour = -1;
 			Cal->end_hour = -1;
 			Cal->end_day = -1;
-			gmtime_r(&event_ts, &event); 
+			localtime_r(&event_ts, &event); 
 			event.tm_sec = 0;
 			event.tm_min = 0;
 			event.tm_hour = 0; 
