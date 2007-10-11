@@ -29,6 +29,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	int fill_day_event = 0;
 	int show_event = 0;
 	time_t tt;
+	time_t dst_day;
 	char buf[256];
 	struct wcsession *WCC;
 	struct disp_cal *Cal;
@@ -44,7 +45,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	month = today_tm.tm_mon + 1;
 	day = today_tm.tm_mday;
 	year = today_tm.tm_year + 1900;
-
+	dst_day = thetime - 3600;
 	for (i=0; i<(WCC->num_cal); ++i) {
 		fill_day_event = 0;
 		multi_day_event = 0;
@@ -52,11 +53,16 @@ void calendar_month_view_display_events(time_t thetime) {
 		Cal = &WCC->disp_cal[i];
 		all_day_event =  Cal->start_hour == -1;
 		show_event = thetime == Cal->start_day;
-		if (Cal->multi_day_event) {
+//		lprintf(1,"Date: %d %d %d %d\n", thetime, Cal->start_day, day, thetime - Cal->start_day);
+		if (!all_day_event) {
 
 			// are we in the range of the event?
 			show_event = (Cal->start_day <= thetime) && 
 				(Cal->end_day >= thetime);
+			if (!show_event)
+				// are we in the range of the event?
+				show_event = (Cal->start_day <= dst_day) && 
+					(Cal->end_day >= dst_day);
 
 			// are we not start or end day?
 			fill_day_event = (Cal->start_day < thetime) && 
@@ -300,8 +306,6 @@ void calendar_month_view(int year, int month, int day) {
 	 * First, back up to the 1st of the month...
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
-	if (WC->num_cal > 0) 
-		localtime_r(&WC->disp_cal[0].start_day, &starting_tm);
 
 	starting_tm.tm_year = year - 1900;
 	starting_tm.tm_mon = month - 1;
