@@ -451,6 +451,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum)
 	struct wcsession *WCC;
 	struct disp_cal *Cal;
 	struct tm event;
+	struct tm event_hr;
 	time_t event_ts;
 
 	WCC = WC;
@@ -484,7 +485,8 @@ void display_individual_cal(icalcomponent *cal, long msgnum)
 			localtime_r(&event_ts, &event);
 			event.tm_sec = 0;
 			event.tm_min = 0;
-			Cal->start_hour = mktime (&event);
+			memcpy (&event_hr, &event, sizeof(struct tm));
+			Cal->start_hour = mktime (&event_hr);
 			event.tm_hour = 0; 			
 			Cal->start_day = mktime (&event);
 	
@@ -495,6 +497,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum)
 				localtime_r(&event_ts, &event);
 				event.tm_sec = 0;
 				event.tm_min = 0;
+				memcpy (&event_hr, &event, sizeof(struct tm));
 				Cal->end_hour = mktime (&event);
 				event.tm_hour = 0; 			
 				Cal->end_day = mktime (&event);
