@@ -197,6 +197,9 @@ void display_preferences(void)
 	char buf[256];
 	int i;
 	int time_format;
+	time_t tt;
+	struct tm tm;
+	char daylabel[32];
 	
 	time_format = get_time_format_cached ();
 
@@ -320,11 +323,37 @@ void display_preferences(void)
 	wprintf("</td></tr>\n");
 
 	/**
+	 * Day of week to begin calendar month view
+	 */
+	get_preference("weekstart", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "17");
+	wprintf("<tr class=\"even\"><td>");
+	wprintf(_("Week starts on:"));
+	wprintf("</td><td>");
+
+	wprintf("<select name=\"weekstart\" size=\"1\">\n");
+
+	for (i=0; i<=1; ++i) {
+                tt = time(NULL);
+                localtime_r(&tt, &tm);
+		tm.tm_wday = i;
+                wc_strftime(daylabel, sizeof daylabel, "%A", &tm);
+
+		wprintf("<option %s value=\"%d\">%s</option>\n",
+			((atoi(buf) == i) ? "selected" : ""),
+			i, daylabel
+		);
+	}
+
+	wprintf("</select>\n");
+	wprintf("</td></tr>\n");
+
+	/**
 	 * Signature
 	 */
 	get_preference("use_sig", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "no");
-	wprintf("<tr class=\"even\"><td>");
+	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Attach signature to email messages?"));
 	wprintf("</td><td>");
 
@@ -372,7 +401,7 @@ void display_preferences(void)
 	/** Character set to assume is in use for improperly encoded headers */
 	get_preference("default_header_charset", buf, sizeof buf);
 	if (buf[0] == 0) strcpy(buf, "UTF-8");
-	wprintf("<tr class=\"odd\"><td>");
+	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Default character set for email headers:"));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
@@ -430,6 +459,7 @@ void set_preferences(void)
 	else
 		*time_format_cache = WC_TIMEFORMAT_AMPM;
 
+	set_preference("weekstart", bstr("weekstart"), 0);
 	set_preference("use_sig", bstr("use_sig"), 0);
 	set_preference("daystart", bstr("daystart"), 0);
 	set_preference("dayend", bstr("dayend"), 0);
