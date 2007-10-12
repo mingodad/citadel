@@ -1733,7 +1733,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	 */
 	begin_critical_section(S_NETSPOOL);
 	snprintf(filename, 
-			 sizeof buf, 
+			 sizeof filename, 
 			 "%s/%s.%ld",
 			 ctdl_netin_dir,
 			 remote_nodename, 
