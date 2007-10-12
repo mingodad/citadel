@@ -597,20 +597,16 @@ void calendar_week_view(int year, int month, int day) {
  * \param month the month
  * \param day the day
  * \param hour the hour we want to start displaying
- * \param inner a flag to display between daystart and dayend
- * (Specify inner to 1 to show inner events)
- * (Specify inner to 0 to show "all day events and events after dayend)
  * \param dstart daystart 
+ * \param dend dayend 
  */
 void calendar_day_view_display_events(time_t thetime, int year, int month,
 					int day, int hour,
-					int inner, int dstart) {
+					int dstart, int dend) {
 	int i;
 	icalproperty *p;
 	time_t event_start;
 	time_t event_end;
-	icalproperty *l;
-	icalproperty *n;
 	struct tm event_te;
 	struct tm event_tm;
 	int show_event = 0;
@@ -633,7 +629,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		all_day_event =  Cal->start_hour == -1;
 
 		show_event = 0;
-		if (! all_day_event && inner)
+		if (! all_day_event )
 		{
 			show_event = (thetime == Cal->start_day) && 
 				(event_start <= Cal->start_hour) &&
@@ -643,85 +639,26 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		}
 		else
 		{
-			show_event = !inner && (Cal->start_day == thetime);
+			show_event =  (Cal->start_day == thetime);
 		}
 
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
 		if ((show_event) && (p != NULL)) {
-			if (all_day_event) {
-				wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-					Cal->cal_msgnum,year, month, day, hour);
-				escputs((char *) icalproperty_get_comment(p));
-				wprintf("</a></dd>\n");
+			if (all_day_event && (hour == -1)) {
+			wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+				Cal->cal_msgnum, year, month, day, hour);
+			escputs((char *) icalproperty_get_comment(p));
+			wprintf("</a></dd>\n");
 			}
 			else {
-				wprintf("<dd  class=\"event\" "
-					"style=\"position: absolute; "
-					"top:%dpx; left:100px; "
-					"height:%dpx; \" >",
-					(1 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
-                                               			(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
-					);
-			}/*
-			else {
-				wprintf("<dd>");
-				}* /
-							);
-						}
-						else {
-                                        		wprintf("<dd>");
-						}
-                                        	wprintf("<a href=\"display_edit_event?"
-							"msgnum=%ld&calview=day&year=%d"
-							"&month=%d&day=%d&hour=%d\""
-							" btt_tooltext=\"",
-                                               		WC->disp_cal[i].cal_msgnum,
-                                               		year, month, day, hour
-                                        	);
-	                                        wprintf("<i>%s</i> ", _("Summary:"));
-        	                                escputs((char *)icalproperty_get_comment(p));
-                	                        wprintf("<br />");
-	
-        	                                l = icalcomponent_get_first_property(
-                	                                        WC->disp_cal[i].cal,
-                        	                                ICAL_LOCATION_PROPERTY);
-                                	        if (l) {
-                                        	        wprintf("<i>%s</i> ", _("Location:"));
-                                                	escputs((char *)icalproperty_get_comment(l));
-                                               	 	wprintf("<br />");
-                                       	 	}	
-        	                                n = icalcomponent_get_first_property(
-	                                                        WC->disp_cal[i].cal,
-                	                                        ICAL_DESCRIPTION_PROPERTY);
-                        	                if (n) {
-                                	                wprintf("<i>%s</i> ", _("Notes:"));
-                                        	        escputs((char *)icalproperty_get_comment(n));
-                                                	wprintf("<br />");
-                                        	}
-						wprintf("\">");
-                                        	escputs((char *)
-                                               		icalproperty_get_comment(p));
-                                        	wprintf("</a></dd>\n");
-                                       	  
-					}
-				}
+			wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+				Cal->cal_msgnum, year, month, day, hour);
+			escputs((char *) icalproperty_get_comment(p));
+			wprintf("</a></dd>\n");
 			}
-
-		}
-
-		/* TODO: whats that? thierry, when do we need to show this?
-		wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-			WC->disp_cal[i].cal_msgnum,
-			year, month, day, hour
-			);
-		escputs((char *)
-			icalproperty_get_comment(p));
-		wprintf("</a></dd>\n");
-		*/
 		}
 	}
 }
-
 
 
 /**
@@ -779,44 +716,31 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<table class=\"calendar\" id=\"inner_day\"><tr> \n");
 
 	/** Innermost cell (contains hours etc.) */
-	wprintf("<td class=\"middle_of_the_day\" >");
-       	wprintf("<dl 	"
-		"style=\" 			"
-		"       padding:0 ;		"
-		"       margin: 0;		"
-        	"	position: absolute ;	"
-        	"	top: 0;			"
-		"       left: 0;		"
-		"       width: 500px;		"
-		"       clip: rect(0px 500px %dpx 0px);"
-		"       clip: rect(0px, 500px, %dpx, 0px);"
-		"\">",
-	(dayend - daystart) * 30,
-	(dayend - daystart) * 30
-	); 
+	wprintf("<td class=\"events_of_the_day\" >");
+       	wprintf("<dl class=\"events\" >");
 	/** Now the middle of the day... */	
-	for (hour = 0; hour <= dayend; ++hour) {	/* could do HEIGHT=xx */
-		if (hour >= daystart) {
-			wprintf("<dt><a href=\"display_edit_event?msgnum=0"
-				"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
-				year, month, day, hour
+	for (hour = 0; hour < 24; ++hour) {	/* could do HEIGHT=xx */
+		wprintf("<dt class=\"hour%s\"><a href=\"display_edit_event?msgnum=0"
+			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+			(hour < daystart ? "before" : (hour > dayend ? "after" : "")),
+			year, month, day, hour
+		);
+
+		if (time_format == WC_TIMEFORMAT_24) {
+			wprintf("%2d:00</a> ", hour);
+		}
+		else {
+			wprintf("%d:00%s</a> ",
+				(hour <= 12 ? hour : hour-12),
+				(hour < 12 ? "am" : "pm")
 			);
-
-			if (time_format == WC_TIMEFORMAT_24) {
-				wprintf("%2d:00</a> ", hour);
-			}
-			else {
-				wprintf("%d:00%s</a> ",
-					(hour <= 12 ? hour : hour-12),
-					(hour < 12 ? "am" : "pm")
-				);
-			}
-
-		wprintf("</dt>");
 		}
 
+		wprintf("</dt>");
+	
+
 		/* put the data here, stupid */
-		calendar_day_view_display_events(today_t, year, month, day, hour, 1 , daystart);
+		calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
 
 	}
 
@@ -830,19 +754,7 @@ void calendar_day_view(int year, int month, int day) {
 
         /** Display all-day events) */
 	wprintf("<dt>All day events</dt>");
-                calendar_day_view_display_events(today_t, year, month, day, -1, 0 , daystart);
-
-        /** Display events before daystart */
-	wprintf("<dt>Before day start</dt>");
-        for (hour = 0; hour <= (daystart-1); ++hour) {
-                calendar_day_view_display_events(today_t, year, month, day, hour, 0, daystart );
-        }
-
-        /** Display events after dayend... */
-	wprintf("<dt>After</dt>");
-        for (hour = (dayend+1); hour <= 23; ++hour) {
-                calendar_day_view_display_events(today_t, year, month, day, hour, 0, daystart );
-        }
+                calendar_day_view_display_events(today_t, year, month, day, -1, daystart, dayend);
 
         wprintf("</dl>");
 
