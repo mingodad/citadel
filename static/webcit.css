@@ -1117,20 +1117,37 @@ ul.tabbed_dialog li {
 	height: 302px;
 }
 
-td.middle_of_the_day {
+td.events_of_the_day {
         width: 500px;
 }
 
-.middle_of_the_day dl {
+.events_of_the_day dl {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left:0;
+        width: 500px;
 }
 
-.middle_of_the_day dl dt {
+.events_of_the_day dl dt {
 	background-color: #FFFFFF;
+	margin: 0;
 	padding:0 ;
         width: 100%;
         border-bottom: 1px solid grey;
-        height: 30px;
 }
+
+.events_of_the_day dl dt.hour {
+        height: 30px;
+	font-size: 16px;
+}
+
+.events_of_the_day dl dt.hourbefore,  .events_of_the_day dl dt.hourafter  {
+        height: 10px;
+	font-size: 8px;
+}
+
 
 .hour_label, .extra_events dl dt {
 	background-color: #CCCCDD;
