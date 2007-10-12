@@ -1732,7 +1732,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	 * (We copy instead of link because they may be on different filesystems)
 	 */
 	begin_critical_section(S_NETSPOOL);
-	snprintf(buf, 
+	snprintf(filename, 
 			 sizeof buf, 
 			 "%s/%s.%ld",
 			 ctdl_netin_dir,
