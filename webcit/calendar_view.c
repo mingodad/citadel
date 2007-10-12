@@ -52,7 +52,6 @@ void calendar_month_view_display_events(time_t thetime) {
 
 		Cal = &WCC->disp_cal[i];
 		all_day_event =  Cal->start_hour == -1;
-		show_event = thetime == Cal->start_day;
 //		lprintf(1,"Date: %d %d %d %d\n", thetime, Cal->start_day, day, thetime - Cal->start_day);
 		if (!all_day_event) {
 
@@ -68,7 +67,10 @@ void calendar_month_view_display_events(time_t thetime) {
 			fill_day_event = (Cal->start_day < thetime) && 
 				(Cal->end_day > thetime);
 		}
-
+		else 
+		{
+			show_event = (thetime == Cal->start_day) || (dst_day == Cal->start_day);
+		}
 		if (show_event) {
 			p = icalcomponent_get_first_property(
 				Cal->cal,
