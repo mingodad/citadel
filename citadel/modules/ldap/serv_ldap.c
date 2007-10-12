@@ -74,7 +74,7 @@ void serv_ldap_cleanup(void)
 
 
 
-int CtdlConnectToLdap(void)
+int connect_to_ldap(void)
 {
 	int i;
 	int ldap_version = 3;
@@ -123,7 +123,7 @@ int CtdlConnectToLdap(void)
 /*
  * Create the root node.  If it's already there, so what?
  */
-void CtdlCreateLdapRoot(void)
+void create_ldap_root(void)
 {
 	char *dc_values[2];
 	char *objectClass_values[3];
@@ -165,7 +165,7 @@ void CtdlCreateLdapRoot(void)
 	lprintf(CTDL_DEBUG, "LDAP: Setting up Base DN node...\n");
 
 	begin_critical_section(S_LDAP);
-	if (CtdlConnectToLdap()) {
+	if (connect_to_ldap()) {
 		end_critical_section(S_LDAP);
 		return;
 	}
@@ -187,7 +187,7 @@ void CtdlCreateLdapRoot(void)
  * parameter cn is not used, its just there to keep the hook interface consistant
  * parameter object not used here, present for interface compatability
  */
-int CtdlCreateLdapHostOU(char *cn, char *host, void **object)
+int create_ldap_host_OU(char *cn, char *host, void **object)
 {
 	char *dc_values[2];
 	char *objectClass_values[3];
@@ -219,7 +219,7 @@ int CtdlCreateLdapHostOU(char *cn, char *host, void **object)
 	lprintf(CTDL_DEBUG, "LDAP: Setting up Host OU node...\n");
 
 	begin_critical_section(S_LDAP);
-	if (CtdlConnectToLdap()) {
+	if (connect_to_ldap()) {
 		end_critical_section(S_LDAP);
 		return -1;
 	}
@@ -246,7 +246,7 @@ int CtdlCreateLdapHostOU(char *cn, char *host, void **object)
  * Create a base LDAP object for the interface
  */
 
-int CtdlCreateLdapObject(char *cn, char *ou, void **object)
+int create_ldap_object(char *cn, char *ou, void **object)
 {
 	// We do nothing here, this just gets the base structure created by the interface.
 	lprintf(CTDL_DEBUG, "LDAP: Created ldap object\n");
@@ -258,7 +258,7 @@ int CtdlCreateLdapObject(char *cn, char *ou, void **object)
  * Add an attribute to the ldap object
  */
 
-int CtdlAddLdapAttr(char *cn, char *ou, void **object)
+int add_ldap_object(char *cn, char *ou, void **object)
 {
 	LDAPMod **attrs;
 	int num_attrs = 0;
@@ -322,7 +322,7 @@ int CtdlAddLdapAttr(char *cn, char *ou, void **object)
 /*
  * SAve the object to the LDAP server
  */
-int CtdlSaveLdapObject(char *cn, char *ou, void **object)
+int save_ldap_object(char *cn, char *ou, void **object)
 {
 	int i, j;
 
@@ -359,12 +359,12 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 		}
 	} else {
 		lprintf(CTDL_ERR,
-			"LDAP: no attributes in CtdlSaveLdapObject\n");
+			"LDAP: no attributes in save_ldap_object\n");
 		return -1;
 	}
 
 	begin_critical_section(S_LDAP);
-	if (CtdlConnectToLdap()) {
+	if (connect_to_ldap()) {
 		end_critical_section(S_LDAP);
 		return -1;
 	}
@@ -407,7 +407,7 @@ int CtdlSaveLdapObject(char *cn, char *ou, void **object)
 /*
  * Free the object
  */
-int CtdlFreeLdapObject(char *cn, char *ou, void **object)
+int free_ldap_object(char *cn, char *ou, void **object)
 {
 	int i, j;
 
@@ -455,7 +455,7 @@ int CtdlFreeLdapObject(char *cn, char *ou, void **object)
  *
  * parameter object not used here, present for hook interface compatability
  */
-int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
+int delete_from_ldap(char *cn, char *ou, void **object)
 {
 	int i;
 
@@ -473,7 +473,7 @@ int CtdlDeleteFromLdap(char *cn, char *ou, void **object)
 	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
 
 	begin_critical_section(S_LDAP);
-	if (CtdlConnectToLdap()) {
+	if (connect_to_ldap()) {
 		end_critical_section(S_LDAP);
 		return -1;
 	}
@@ -528,25 +528,25 @@ CTDL_MODULE_INIT(ldap)
 	if (!IsEmptyStr(config.c_ldap_base_dn)) {
 		CtdlRegisterCleanupHook(serv_ldap_cleanup);
 		CtdlRegisterSessionHook(ldap_disconnect_timer, EVT_TIMER);
-		CtdlRegisterDirectoryServiceFunc(CtdlDeleteFromLdap,
+		CtdlRegisterDirectoryServiceFunc(delete_from_ldap,
 						 DIRECTORY_USER_DEL,
 						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapHostOU,
+		CtdlRegisterDirectoryServiceFunc(create_ldap_host_OU,
 						 DIRECTORY_CREATE_HOST,
 						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(CtdlCreateLdapObject,
+		CtdlRegisterDirectoryServiceFunc(create_ldap_object,
 						 DIRECTORY_CREATE_OBJECT,
 						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(CtdlAddLdapAttr,
+		CtdlRegisterDirectoryServiceFunc(add_ldap_object,
 						 DIRECTORY_ATTRIB_ADD,
 						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(CtdlSaveLdapObject,
+		CtdlRegisterDirectoryServiceFunc(save_ldap_object,
 						 DIRECTORY_SAVE_OBJECT,
 						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(CtdlFreeLdapObject,
+		CtdlRegisterDirectoryServiceFunc(free_ldap_object,
 						 DIRECTORY_FREE_OBJECT,
 						 "ldap");
-		CtdlCreateLdapRoot();
+		create_ldap_root();
 	}
 #endif				/* HAVE_LDAP */
 
