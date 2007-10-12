@@ -301,9 +301,16 @@ void calendar_month_view(int year, int month, int day) {
 	struct tm colheader_tm;
 	char colheader_label[32];
 	int chg_month = 0;
+	int weekstart = 0;
+	char weekstart_buf[16];
 
-	/** Determine what day to start.
-	 * First, back up to the 1st of the month...
+	/* Determine what day to start.
+	 */
+	get_preference("weekstart", weekstart_buf, sizeof weekstart_buf);
+	weekstart = atoi(weekstart_buf);
+
+	/*
+	 * Now back up to the 1st of the month...
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
 
@@ -322,9 +329,9 @@ void calendar_month_view(int year, int month, int day) {
 	previous_month = thetime - (time_t)864000L;	/* back 10 days */
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
-	/** Now back up until we're on a Sunday */
+	/** Now back up until we're on the user's preferred start day */
 	localtime_r(&thetime, &tm);
-	while (tm.tm_wday != 0) {
+	while (tm.tm_wday != weekstart) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
 		localtime_r(&thetime, &tm);
 	}
