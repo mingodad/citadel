@@ -631,10 +631,9 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		show_event = 0;
 		if (! all_day_event )
 		{
-			show_event = (thetime == Cal->start_day) && 
-				(event_start <= Cal->start_hour) &&
-				((Cal->end_hour != -1)? 
-				   (Cal->end_hour < event_end) : 1);
+			show_event = (Cal->start_day == thetime) && 
+				(Cal->start_hour >= event_start) &&
+				(Cal->start_hour < (event_start + 1));
 
 		}
 		else
@@ -649,9 +648,16 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 				Cal->cal_msgnum, year, month, day, hour);
 			escputs((char *) icalproperty_get_comment(p));
 			wprintf("</a></dd>\n");
-			}
-			else {
-			wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+			} 
+			if (!all_day_event) {
+			wprintf("<dd  class=\"event\" "
+				"style=\"position: absolute; "
+				"top:%dpx; left:100px; "
+				"height:%dpx; \" >",
+				(100 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
+				(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
+			);
+			wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
 				Cal->cal_msgnum, year, month, day, hour);
 			escputs((char *) icalproperty_get_comment(p));
 			wprintf("</a></dd>\n");
@@ -659,7 +665,6 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		}
 	}
 }
-
 
 /**
  * \brief view one day
