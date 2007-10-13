@@ -594,6 +594,36 @@ char *memreadline(char *start, char *buf, int maxlen)
 }
 
 
+/** 
+ * \brief Utility function to "readline" from memory
+ * \param start Location in memory from which we are reading.
+ * \param buf the buffer to place the string in.
+ * \param maxlen Size of string buffer
+ * \param retlen the length of the returned string
+ * \return Pointer to the source memory right after we stopped reading.
+ */
+char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen)
+{
+	char ch;
+	char *ptr;
+	int len = 0;		/**< tally our own length to avoid strlen() delays */
+
+	ptr = start;
+
+	while (1) {
+		ch = *ptr++;
+		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
+			buf[len++] = ch;
+		}
+		if ((ch == 10) || (ch == 0)) {
+			buf[len] = 0;
+			*retlen = len;
+			return ptr;
+		}
+	}
+}
+
+
 
 
 /*
