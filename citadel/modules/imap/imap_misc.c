@@ -351,6 +351,7 @@ void imap_append(int num_parms, char *parms[]) {
 	int msgs, new;
 	int i;
 	char new_message_flags[SIZ];
+	struct citimap *Imap;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -385,20 +386,21 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
+	Imap = IMAP;
 	imap_free_transmitted_message();	/* just in case. */
-	IMAP->transmitted_message = malloc(literal_length + 1);
-	if (IMAP->transmitted_message == NULL) {
+	Imap->transmitted_message = malloc(literal_length + 1);
+	if (Imap->transmitted_message == NULL) {
 		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
 		return;
 	}
-	IMAP->transmitted_length = literal_length;
+	Imap->transmitted_length = literal_length;
 
 	cprintf("+ Transmit message now.\r\n");
 
 	bytes_transferred = 0;
 
-	ret = client_read(IMAP->transmitted_message, literal_length);
-	IMAP->transmitted_message[literal_length] = 0;
+	ret = client_read(Imap->transmitted_message, literal_length);
+	Imap->transmitted_message[literal_length] = 0;
 
 	if (ret != 1) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
@@ -415,18 +417,18 @@ void imap_append(int num_parms, char *parms[]) {
 	lprintf(CTDL_DEBUG, "Converting CRLF to LF\n");
 	stripped_length = 0;
 	for (i=0; i<literal_length; ++i) {
-		if (strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
-			IMAP->transmitted_message[stripped_length++] =
-				IMAP->transmitted_message[i];
+		if (strncmp(&Imap->transmitted_message[i], "\r\n", 2)) {
+			Imap->transmitted_message[stripped_length++] =
+				Imap->transmitted_message[i];
 		}
 	}
 	literal_length = stripped_length;
-	IMAP->transmitted_message[literal_length] = 0;	/* reterminate it */
+	Imap->transmitted_message[literal_length] = 0;	/* reterminate it */
 
 	lprintf(CTDL_DEBUG, "Converting message format\n");
-	msg = convert_internet_message(IMAP->transmitted_message);
-	IMAP->transmitted_message = NULL;
-	IMAP->transmitted_length = 0;
+	msg = convert_internet_message(Imap->transmitted_message);
+	Imap->transmitted_message = NULL;
+	Imap->transmitted_length = 0;
 
 	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
@@ -439,7 +441,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * usergoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
-	if (IMAP->selected) {
+	if (Imap->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
@@ -493,7 +495,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * If another folder is selected, go back to that room so we can resume
 	 * our happy day without violent explosions.
 	 */
-	if (IMAP->selected) {
+	if (Imap->selected) {
 		usergoto(savedroom, 0, 0, &msgs, &new);
 	}
 
