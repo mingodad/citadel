@@ -373,12 +373,6 @@ struct wcsession {
 	struct disp_cal {					
 		icalcomponent *cal;		/**< cal items for display */
 		long cal_msgnum;		/**< cal msgids for display */
-		/* to speed up processing we pre-calc some values here. */
-		time_t start_day;               /**< which day do we start */
-		time_t start_hour;              /**< which day + hour do we start */
-		time_t end_day;                 /**< which day do we end */
-		time_t end_hour;                /**< which day + hour do we end? */
-		int multi_day_event;            /**< do we span several days? */
 	} *disp_cal;						
 	int num_cal;				/**< number of calendar items for display */
 #endif											
@@ -687,6 +681,12 @@ void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 void check_attendee_availability(icalcomponent *supplied_vevent);
 void do_freebusy(char *req);
+int ical_ctdl_is_overlap(
+                        struct icaltimetype t1start,
+                        struct icaltimetype t1end,
+                        struct icaltimetype t2start,
+                        struct icaltimetype t2end
+);
 #endif
 
 #ifdef ENABLE_NLS

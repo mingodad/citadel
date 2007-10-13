@@ -25,7 +25,6 @@
  * Figure out which time zone needs to be used for timestamps that are
  * not UTC and do not have a time zone specified.
  *
- * FIXME - most sites are not in New York :)
  */
 icaltimezone *get_default_icaltimezone(void) {
 
