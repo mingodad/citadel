@@ -15,10 +15,10 @@
 #include "sysdep.h"
 #include "server.h"
 
-#if SIZEOF_SIZE_T == SIZEOF_LONG
-#define SIZE_T_FMT "%ld"
-#else 
+#if SIZEOF_SIZE_T == SIZEOF_INT 
 #define SIZE_T_FMT "%d"
+#else
+#define SIZE_T_FMT "%ld"
 #endif
 
 
