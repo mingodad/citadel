@@ -571,26 +571,28 @@ void client_write(char *buf, int nbytes)
 #ifndef HAVE_TCP_BUFFERING
 	int old_buffer_len = 0;
 #endif
+	t_context *Ctx;
 
-	if (CC->redirect_buffer != NULL) {
-		if ((CC->redirect_len + nbytes + 2) >= CC->redirect_alloc) {
-			CC->redirect_alloc = (CC->redirect_alloc * 2) + nbytes;
-			CC->redirect_buffer = realloc(CC->redirect_buffer,
-						CC->redirect_alloc);
+	Ctx = CC;
+	if (Ctx->redirect_buffer != NULL) {
+		if ((Ctx->redirect_len + nbytes + 2) >= Ctx->redirect_alloc) {
+			Ctx->redirect_alloc = (Ctx->redirect_alloc * 2) + nbytes;
+			Ctx->redirect_buffer = realloc(Ctx->redirect_buffer,
+						Ctx->redirect_alloc);
 		}
-		memcpy(&CC->redirect_buffer[CC->redirect_len], buf, nbytes);
-		CC->redirect_len += nbytes;
-		CC->redirect_buffer[CC->redirect_len] = 0;
+		memcpy(&Ctx->redirect_buffer[Ctx->redirect_len], buf, nbytes);
+		Ctx->redirect_len += nbytes;
+		Ctx->redirect_buffer[Ctx->redirect_len] = 0;
 		return;
 	}
 
 #ifndef HAVE_TCP_BUFFERING
 	/* If we're buffering for later, do that now. */
-	if (CC->buffering) {
-		old_buffer_len = CC->buffer_len;
-		CC->buffer_len += nbytes;
-		CC->output_buffer = realloc(CC->output_buffer, CC->buffer_len);
-		memcpy(&CC->output_buffer[old_buffer_len], buf, nbytes);
+	if (Ctx->buffering) {
+		old_buffer_len = Ctx->buffer_len;
+		Ctx->buffer_len += nbytes;
+		Ctx->output_buffer = realloc(Ctx->output_buffer, Ctx->buffer_len);
+		memcpy(&Ctx->output_buffer[old_buffer_len], buf, nbytes);
 		return;
 	}
 #endif
@@ -598,14 +600,14 @@ void client_write(char *buf, int nbytes)
 	/* Ok, at this point we're not buffering.  Go ahead and write. */
 
 #ifdef HAVE_OPENSSL
-	if (CC->redirect_ssl) {
+	if (Ctx->redirect_ssl) {
 		client_write_ssl(buf, nbytes);
 		return;
 	}
 #endif
 
 	while (bytes_written < nbytes) {
-		retval = write(CC->client_socket, &buf[bytes_written],
+		retval = write(Ctx->client_socket, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
 			lprintf(CTDL_ERR,
@@ -614,7 +616,7 @@ void client_write(char *buf, int nbytes)
 				strerror(errno), errno);
 			cit_backtrace();
 			lprintf(CTDL_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
-			CC->kill_me = 1;
+			Ctx->kill_me = 1;
 			return;
 		}
 		bytes_written = bytes_written + retval;
