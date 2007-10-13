@@ -17,64 +17,77 @@
  * \brief Display one day of a whole month view of a calendar
  * \param thetime the month we want to see 
  */
-void calendar_month_view_display_events(time_t thetime) {
+void calendar_month_view_display_events(int year, int month, int day)
+{
 	int i;
-	struct tm today_tm;
 	icalproperty *p = NULL;
 	icalproperty *q = NULL;
 	struct icaltimetype t;
-	int month, day, year;
+	struct icaltimetype end_t;
+	struct icaltimetype today_start_t;
+	struct icaltimetype today_end_t;
 	int all_day_event = 0;
-	int multi_day_event = 0;
-	int fill_day_event = 0;
 	int show_event = 0;
-	time_t tt;
-	time_t dst_day;
 	char buf[256];
-	struct wcsession *WCC;
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	struct disp_cal *Cal;
-
-	WCC = WC;
+	time_t tt;
 
 	if (WCC->num_cal == 0) {
 		wprintf("<br /><br /><br />\n");
 		return;
 	}
 
-	localtime_r(&thetime, &today_tm);
-	month = today_tm.tm_mon + 1;
-	day = today_tm.tm_mday;
-	year = today_tm.tm_year + 1900;
-	dst_day = thetime - 3600;
+	/* Create an imaginary event which spans the 24 hours of today.  Any events which
+	 * overlap with this one take place at least partially in this day.
+	 */
+	memset(&today_start_t, 0, sizeof today_start_t);
+	today_start_t.year = year;
+	today_start_t.month = month;
+	today_start_t.day = day;
+	today_start_t.hour = 0;
+	today_start_t.minute = 0;
+	memset(&today_end_t, 0, sizeof today_end_t);
+	today_end_t.year = year;
+	today_end_t.month = month;
+	today_end_t.day = day;
+	today_end_t.hour = 23;
+	today_end_t.minute = 59;
+
+	/* Now loop through our list of events to see which ones occur today.
+	 */
 	for (i=0; i<(WCC->num_cal); ++i) {
-		fill_day_event = 0;
-		multi_day_event = 0;
-
 		Cal = &WCC->disp_cal[i];
-		all_day_event =  Cal->start_hour == -1;
-//		lprintf(1,"Date: %d %d %d %d\n", thetime, Cal->start_day, day, thetime - Cal->start_day);
-		if (!all_day_event) {
-
-			// are we in the range of the event?
-			show_event = (Cal->start_day <= thetime) && 
-				(Cal->end_day >= thetime);
-			if (!show_event)
-				// are we in the range of the event?
-				show_event = (Cal->start_day <= dst_day) && 
-					(Cal->end_day >= dst_day);
-
-			// are we not start or end day?
-			fill_day_event = (Cal->start_day < thetime) && 
-				(Cal->end_day > thetime);
+		all_day_event = 0;
+		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+		if (q != NULL) {
+			t = icalproperty_get_dtstart(q);
 		}
-		else 
+		else {
+			memset(&t, 0, sizeof t);
+		}
+		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+		if (q != NULL) {
+			end_t = icalproperty_get_dtend(q);
+		}
+		else {
+			memset(&end_t, 0, sizeof end_t);
+		}
+		if (t.is_date) all_day_event = 1;
+
+		if (all_day_event)
 		{
-			show_event = (thetime == Cal->start_day) || (dst_day == Cal->start_day);
+			show_event = ((t.year == year) && (t.month == month) && (t.day == day));
 		}
+		else
+		{
+			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
+		}
+
+		/* If we determined that this event occurs today, then display it.
+	 	 */
 		if (show_event) {
-			p = icalcomponent_get_first_property(
-				Cal->cal,
-				ICAL_SUMMARY_PROPERTY);
+			p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
 
 				if (all_day_event) {
@@ -113,8 +126,7 @@ void calendar_month_view_display_events(time_t thetime) {
 				 */
 				if (icalcomponent_isa(Cal->cal) == ICAL_VEVENT_COMPONENT) {
 					
-					q = icalcomponent_get_first_property(Cal->cal,
-									     ICAL_DTSTART_PROPERTY);
+					q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 					if (q != NULL) {
 						t = icalproperty_get_dtstart(q);
 						
@@ -138,14 +150,12 @@ void calendar_month_view_display_events(time_t thetime) {
 							/* Embed the 'show end date/time' loop inside here so it
 							 * only executes if this is NOT an all day event.
 							 */
-							q = icalcomponent_get_first_property(Cal->cal,
-											     ICAL_DTEND_PROPERTY);
+							q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
 							if (q != NULL) {
 								t = icalproperty_get_dtend(q);
 								tt = icaltime_as_timet(t);
 								fmt_date(buf, tt, 1);
-								wprintf("<i>%s</i> %s<br>",
-									_("Ending date/time:"), buf);
+								wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
 							
 						}
@@ -153,9 +163,7 @@ void calendar_month_view_display_events(time_t thetime) {
 					
 				}
 				
-				q = icalcomponent_get_first_property(
-					Cal->cal,
-					ICAL_DESCRIPTION_PROPERTY);
+				q = icalcomponent_get_first_property(Cal->cal, ICAL_DESCRIPTION_PROPERTY);
 				if (q) {
 					wprintf("<i>%s</i> ", _("Notes:"));
 					escputs((char *)icalproperty_get_comment(q));
@@ -415,7 +423,11 @@ void calendar_month_view(int year, int month, int day) {
 				tm.tm_mday);
 
 			/** put the data here, stupid */
-			calendar_month_view_display_events(thetime);
+			calendar_month_view_display_events(
+				tm.tm_year + 1900,
+				tm.tm_mon + 1,
+				tm.tm_mday
+			);
 
 			wprintf("</td>");
 
@@ -604,17 +616,21 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					int day, int hour,
 					int dstart, int dend) {
 	int i;
-	icalproperty *p;
+	icalproperty *p = NULL;
+	icalproperty *q = NULL;
 	time_t event_start;
 	time_t event_end;
 	struct tm event_te;
 	struct tm event_tm;
 	int show_event = 0;
 	int all_day_event = 0;
-	struct wcsession *WCC;
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	struct disp_cal *Cal;
+	struct icaltimetype t;
+	struct icaltimetype end_t;
+	struct icaltimetype today_start_t;
+	struct icaltimetype today_end_t;
 
-	WCC = WC;
 
 	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
@@ -624,43 +640,79 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	event_start = thetime + 60 * 60 * hour;
 	event_end = thetime + 60 * 60 * (hour + 1);
 
+
+	/* Create an imaginary event which spans the 24 hours of today.  Any events which
+	 * overlap with this one take place at least partially in this day.
+	 */
+	memset(&today_start_t, 0, sizeof today_start_t);
+	today_start_t.year = year;
+	today_start_t.month = month;
+	today_start_t.day = day;
+	today_start_t.hour = 0;
+	today_start_t.minute = 0;
+	memset(&today_end_t, 0, sizeof today_end_t);
+	today_end_t.year = year;
+	today_end_t.month = month;
+	today_end_t.day = day;
+	today_end_t.hour = 23;
+	today_end_t.minute = 59;
+
+
+	/* Now loop through our list of events to see which ones occur today.
+	 */
 	for (i=0; i<(WCC->num_cal); ++i) {
 		Cal = &WCC->disp_cal[i];
-		all_day_event =  Cal->start_hour == -1;
 
-		show_event = 0;
-		if (! all_day_event )
+		all_day_event = 0;
+		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+		if (q != NULL) {
+			t = icalproperty_get_dtstart(q);
+		}
+		else {
+			memset(&t, 0, sizeof t);
+		}
+		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+		if (q != NULL) {
+			end_t = icalproperty_get_dtend(q);
+		}
+		else {
+			memset(&end_t, 0, sizeof end_t);
+		}
+		if (t.is_date) all_day_event = 1;
+
+		if (all_day_event)
 		{
-			show_event = (Cal->start_day == thetime) && 
-				(Cal->start_hour >= event_start) &&
-				(Cal->start_hour < (event_start + 1));
-
+			show_event = ((t.year == year) && (t.month == month) && (t.day == day));
 		}
 		else
 		{
-			show_event =  (Cal->start_day == thetime);
+			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
 		}
 
+		/* If we determined that this event occurs today, then display it.
+	 	 */
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
 		if ((show_event) && (p != NULL)) {
-			if (all_day_event && (hour == -1)) {
-			wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-				Cal->cal_msgnum, year, month, day, hour);
-			escputs((char *) icalproperty_get_comment(p));
-			wprintf("</a></dd>\n");
-			} 
-			if (!all_day_event) {
-			wprintf("<dd  class=\"event\" "
-				"style=\"position: absolute; "
-				"top:%dpx; left:100px; "
-				"height:%dpx; \" >",
-				(100 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
-				(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
-			);
-			wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-				Cal->cal_msgnum, year, month, day, hour);
-			escputs((char *) icalproperty_get_comment(p));
-			wprintf("</a></dd>\n");
+			if (all_day_event)
+			{
+				wprintf("<dd><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+					Cal->cal_msgnum, year, month, day, hour);
+				escputs((char *) icalproperty_get_comment(p));
+				wprintf("</a></dd>\n");
+			}
+			else 
+			{
+				wprintf("<dd  class=\"event\" "
+					"style=\"position: absolute; "
+					"top:%dpx; left:100px; "
+					"height:%dpx; \" >",
+					(100 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
+					(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
+				);
+				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+					Cal->cal_msgnum, year, month, day, hour);
+				escputs((char *) icalproperty_get_comment(p));
+				wprintf("</a></dd>\n");
 			}
 		}
 	}
@@ -682,7 +734,7 @@ void calendar_day_view(int year, int month, int day) {
 	char d_str[128];
 	int time_format;
 	time_t today_t;
-	
+
 	time_format = get_time_format_cached ();
 	get_preference("daystart", daystart_str, sizeof daystart_str);
 	if (!IsEmptyStr(daystart_str)) daystart = atoi(daystart_str);
@@ -691,9 +743,6 @@ void calendar_day_view(int year, int month, int day) {
 	
 	/** Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
-	if (WC->num_cal > 0) 
-		localtime_r(&WC->disp_cal[0].start_day, &d_tm);
-
 	d_tm.tm_year = year - 1900;
 	d_tm.tm_mon = month - 1;
 	d_tm.tm_mday = day;
@@ -813,9 +862,9 @@ void calendar_day_view(int year, int month, int day) {
                 " setTimeout(\"btt_enableTooltips('inner_day')\", 1); "
                 "</script>\n"
         );
-
-
 }
+
+
 /**
  * \brief Display today's events.
  */

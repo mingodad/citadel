@@ -49,21 +49,13 @@ void fmt_date(char *buf, time_t thetime, int brief)
 	struct tm tm;
 	struct tm today_tm;
 	time_t today_timet;
-	int hour;
 	int time_format;
 	
 	time_format = get_time_format_cached ();
 	today_timet = time(NULL);
 	localtime_r(&today_timet, &today_tm);
 
-	localtime_r(&thetime, &tm);/*
-	hour = tm.tm_hour;
-	if (hour == 0)
-		hour = 12;
-	else if (hour > 12)
-		hour = hour - 12;
-				   */
-	buf[0] = 0;
+	localtime_r(&thetime, &tm);
 
 	if (brief) {
 
@@ -76,8 +68,7 @@ void fmt_date(char *buf, time_t thetime, int brief)
 			else
 				wc_strftime(buf, 32, "%l:%M%p", &tm);
 		}
-		/** Otherwise, for messages up to 6 months old, show the
-		 * month and day, and the time */
+		/** Otherwise, for messages up to 6 months old, show the month and day, and the time */
 		else if (today_timet - thetime < 15552000) {
 			if (time_format == WC_TIMEFORMAT_24) 
 				wc_strftime(buf, 32, "%b %d %k:%M", &tm);
