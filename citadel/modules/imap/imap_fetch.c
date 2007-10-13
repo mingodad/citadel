@@ -1079,16 +1079,19 @@ void imap_do_fetch(int num_items, char **itemlist) {
  */
 void imap_macro_replace(char *str, char *find, char *replace) {
 	char holdbuf[SIZ];
+	int findlen;
 
-	if (!strncasecmp(str, find, strlen(find))) {
-		if (str[strlen(find)]==' ') {
-			strcpy(holdbuf, &str[strlen(find)+1]);
+	findlen = strlen(find);
+
+	if (!strncasecmp(str, find, findlen)) {
+		if (str[findlen]==' ') {
+			strcpy(holdbuf, &str[findlen+1]);
 			strcpy(str, replace);
 			strcat(str, " ");
 			strcat(str, holdbuf);
 		}
-		if (str[strlen(find)]==0) {
-			strcpy(holdbuf, &str[strlen(find)+1]);
+		if (str[findlen]==0) {
+			strcpy(holdbuf, &str[findlen+1]);
 			strcpy(str, replace);
 		}
 	}
@@ -1219,6 +1222,7 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	long lo, hi;
 	char actual_range[SIZ];
+	struct citimap *Imap;
 
 	/* 
 	 * Handle the "ALL" macro
@@ -1230,11 +1234,12 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 		safestrncpy(actual_range, supplied_range, sizeof actual_range);
 	}
 
+	Imap = IMAP;
 	/*
 	 * Clear out the IMAP_SELECTED flags for all messages.
 	 */
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_SELECTED;
+	for (i = 0; i < Imap->num_msgs; ++i) {
+		Imap->flags[i] = Imap->flags[i] & ~IMAP_SELECTED;
 	}
 
 	/*
@@ -1256,16 +1261,16 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 		hi = atol(histr);
 
 		/* Loop through the array, flipping bits where appropriate */
-		for (i = 1; i <= IMAP->num_msgs; ++i) {
+		for (i = 1; i <= Imap->num_msgs; ++i) {
 			if (is_uid) {	/* fetch by sequence number */
-				if ( (IMAP->msgids[i-1]>=lo)
-				   && (IMAP->msgids[i-1]<=hi)) {
-					IMAP->flags[i-1] |= IMAP_SELECTED;
+				if ( (Imap->msgids[i-1]>=lo)
+				   && (Imap->msgids[i-1]<=hi)) {
+					Imap->flags[i-1] |= IMAP_SELECTED;
 				}
 			}
 			else {		/* fetch by uid */
 				if ( (i>=lo) && (i<=hi)) {
-					IMAP->flags[i-1] |= IMAP_SELECTED;
+					Imap->flags[i-1] |= IMAP_SELECTED;
 				}
 			}
 		}
