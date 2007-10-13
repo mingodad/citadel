@@ -658,7 +658,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	starting_tm.tm_year = year - 1900;
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
-	starting_tm.tm_hour = 0;
+	starting_tm.tm_hour = hour;
 	starting_tm.tm_min = 0;
 	today_start_t = icaltime_from_timet_with_zone(mktime(&starting_tm), 0, icaltimezone_get_utc_timezone());
 	today_start_t.is_utc = 1;
@@ -667,7 +667,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	ending_tm.tm_year = year - 1900;
 	ending_tm.tm_mon = month - 1;
 	ending_tm.tm_mday = day;
-	ending_tm.tm_hour = 23;
+	ending_tm.tm_hour = hour;
 	ending_tm.tm_min = 59;
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
 	today_end_t.is_utc = 1;
@@ -696,7 +696,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 		if (all_day_event)
 		{
-			show_event = ((t.year == year) && (t.month == month) && (t.day == day));
+			show_event = ((t.year == year) && (t.month == month) && (t.day == day) && (hour == -1));
 		}
 		else
 		{
