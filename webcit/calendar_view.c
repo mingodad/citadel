@@ -26,6 +26,8 @@ void calendar_month_view_display_events(int year, int month, int day)
 	struct icaltimetype end_t;
 	struct icaltimetype today_start_t;
 	struct icaltimetype today_end_t;
+	struct tm starting_tm;
+	struct tm ending_tm;
 	int all_day_event = 0;
 	int show_event = 0;
 	char buf[256];
@@ -39,20 +41,26 @@ void calendar_month_view_display_events(int year, int month, int day)
 	}
 
 	/* Create an imaginary event which spans the 24 hours of today.  Any events which
-	 * overlap with this one take place at least partially in this day.
+	 * overlap with this one take place at least partially in this day.  We have to
+	 * convert it from a struct tm in order to make it UTC.
 	 */
-	memset(&today_start_t, 0, sizeof today_start_t);
-	today_start_t.year = year;
-	today_start_t.month = month;
-	today_start_t.day = day;
-	today_start_t.hour = 0;
-	today_start_t.minute = 0;
-	memset(&today_end_t, 0, sizeof today_end_t);
-	today_end_t.year = year;
-	today_end_t.month = month;
-	today_end_t.day = day;
-	today_end_t.hour = 23;
-	today_end_t.minute = 59;
+	memset(&starting_tm, 0, sizeof(struct tm));
+	starting_tm.tm_year = year - 1900;
+	starting_tm.tm_mon = month - 1;
+	starting_tm.tm_mday = day;
+	starting_tm.tm_hour = 0;
+	starting_tm.tm_min = 0;
+	today_start_t = icaltime_from_timet_with_zone(mktime(&starting_tm), 0, icaltimezone_get_utc_timezone());
+	today_start_t.is_utc = 1;
+
+	memset(&ending_tm, 0, sizeof(struct tm));
+	ending_tm.tm_year = year - 1900;
+	ending_tm.tm_mon = month - 1;
+	ending_tm.tm_mday = day;
+	ending_tm.tm_hour = 23;
+	ending_tm.tm_min = 59;
+	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
+	today_end_t.is_utc = 1;
 
 	/* Now loop through our list of events to see which ones occur today.
 	 */
@@ -630,6 +638,8 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	struct icaltimetype end_t;
 	struct icaltimetype today_start_t;
 	struct icaltimetype today_end_t;
+	struct tm starting_tm;
+	struct tm ending_tm;
 
 
 	if (WCC->num_cal == 0) {
@@ -644,19 +654,23 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	/* Create an imaginary event which spans the 24 hours of today.  Any events which
 	 * overlap with this one take place at least partially in this day.
 	 */
-	memset(&today_start_t, 0, sizeof today_start_t);
-	today_start_t.year = year;
-	today_start_t.month = month;
-	today_start_t.day = day;
-	today_start_t.hour = 0;
-	today_start_t.minute = 0;
-	memset(&today_end_t, 0, sizeof today_end_t);
-	today_end_t.year = year;
-	today_end_t.month = month;
-	today_end_t.day = day;
-	today_end_t.hour = 23;
-	today_end_t.minute = 59;
+	memset(&starting_tm, 0, sizeof(struct tm));
+	starting_tm.tm_year = year - 1900;
+	starting_tm.tm_mon = month - 1;
+	starting_tm.tm_mday = day;
+	starting_tm.tm_hour = 0;
+	starting_tm.tm_min = 0;
+	today_start_t = icaltime_from_timet_with_zone(mktime(&starting_tm), 0, icaltimezone_get_utc_timezone());
+	today_start_t.is_utc = 1;
 
+	memset(&ending_tm, 0, sizeof(struct tm));
+	ending_tm.tm_year = year - 1900;
+	ending_tm.tm_mon = month - 1;
+	ending_tm.tm_mday = day;
+	ending_tm.tm_hour = 23;
+	ending_tm.tm_min = 59;
+	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
+	today_end_t.is_utc = 1;
 
 	/* Now loop through our list of events to see which ones occur today.
 	 */
