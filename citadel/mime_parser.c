@@ -269,6 +269,8 @@ void the_mime_parser(char *partnum,
 	char nested_partnum[256];
 	int crlf_in_use = 0;
 	char *evaluate_crlf_ptr = NULL;
+	int buflen = 0;
+	int headerlen = 0;
 
 	ptr = content_start;
 	content_length = 0;
@@ -313,13 +315,14 @@ void the_mime_parser(char *partnum,
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
+	headerlen = 0;
 	do {
-		ptr = memreadline(ptr, buf, SIZ);
+		ptr = memreadlinelen(ptr, buf, SIZ, &buflen);
 		if (ptr >= content_end) {
 			goto end_parser;
 		}
 
-		for (i = 0; i < strlen(buf); ++i) {
+		for (i = 0; i < buflen; ++i) {
 			if (isspace(buf[i])) {
 				buf[i] = ' ';
 			}
@@ -356,11 +359,14 @@ void the_mime_parser(char *partnum,
 			if (strlen(boundary) == 0)
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
+			headerlen = 0;
 		}
-		if ((strlen(header) + strlen(buf) + 2) < SIZ) {
-			strcat(header, buf);
+		if ((headerlen + buflen + 2) < SIZ) {
+			memcpy(&header[headerlen], buf, buflen);
+			headerlen += buflen;
+			header[headerlen] = '\0';
 		}
-	} while ((strlen(buf) > 0) && (*ptr != 0));
+	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
 
 	if (strchr(disposition, ';'))
 		*(strchr(disposition, ';')) = '\0';
@@ -369,7 +375,7 @@ void the_mime_parser(char *partnum,
 		*(strchr(content_type, ';')) = '\0';
 	striplt(content_type);
 
-	if (strlen(boundary) > 0) {
+	if (!IsEmptyStr(boundary)) {
 		is_multipart = 1;
 	} else {
 		is_multipart = 0;
@@ -408,7 +414,7 @@ void the_mime_parser(char *partnum,
 					--part_end;	/* omit the trailing CR */
 				}
 
-				if (strlen(partnum) > 0) {
+				if (!IsEmptyStr(partnum)) {
 					snprintf(nested_partnum,
 						 sizeof nested_partnum,
 						 "%s.%d", partnum,
