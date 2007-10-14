@@ -176,8 +176,17 @@ if [ -d "user_modules" ] ; then
 				if [ -f "$k" ] ; then
 # Add this .c file to the Makefile included list of SOURCES
 cat <<EOF >> $SRC_FILE
-SOURCES=\$(SOURCES) $k
+SOURCES=\$(SOURCES) user_modules/$j/$k
 EOF
+
+# Generate a .o file name
+O_FILE=`basename $k .c`
+O_FILE="$O_FILE.o"
+# Add this .o file to the Makefile included list of SERV_MODULES
+cat <<EOF >> $MOD_FILE
+SERV_MODULES += user_modules/$j/$O_FILE
+EOF
+	
 					RES=X`grep CTDL_MODULE_INIT $k | cut -f2 -d\( | cut -f1 -d\)`
 					if [ $RES != "X" ] ; then
 						RES_OUT=`echo $RES | cut -b2-`
