@@ -104,7 +104,6 @@ char curr_floor = 0;		/* number of current floor */
 char floorlist[128][SIZ];	/* names of floors */
 int termn8 = 0;			/* Set to nonzero to cause a logoff */
 int secure;			/* Set to nonzero when wire is encrypted */
-int can_do_msg4 = 0;		/* Set to nonzero if the server can handle MSG4 commands */
 
 extern char instant_msgs;	/* instant messages waiting! */
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
@@ -1155,8 +1154,9 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 	 * isn't really all that great, it's probably better to just go with
 	 * the plain text when we have it available.
 	 */
-	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "text/plain|text/html") / 100 )== 2) {
-		can_do_msg4 = 1;
+	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "text/plain|text/html") / 100 ) != 2) {
+		scr_printf("ERROR: Extremely old server; MSG4 framework not supported.\n");
+		logoff(ipc, 0);
 	}
 }
 

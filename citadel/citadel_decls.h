@@ -30,5 +30,4 @@ void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code);
 void formout(CtdlIPC *ipc, char *name);
 void sighandler(int which_sig);
 extern int secure;
-extern int can_do_msg4;
 void remove_march(char *roomname, int floornum);

@@ -405,9 +405,7 @@ int read_message(CtdlIPC *ipc,
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
 
-	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0),
-				(can_do_msg4 ? 4 : 0),
-				&message, buf);
+	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0), 4, &message, buf);
 	if (r / 100 != 1) {
 		err_printf("*** msg #%ld: %d %s\n", num, r, buf);
 		++lines_printed;
@@ -707,7 +705,7 @@ int read_message(CtdlIPC *ipc,
 	}
 
 	/* Enumerate any attachments */
-	if ( (pagin == 1) && (can_do_msg4) && (message->attachments) ) {
+	if ( (pagin == 1) && (message->attachments) ) {
 		struct parts *ptr;
 
 		for (ptr = message->attachments; ptr; ptr = ptr->next) {

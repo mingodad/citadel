@@ -49,6 +49,7 @@
  */
 char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat) {
 	char inbuf[SIZ];
+	int inbuf_len = 0;
 	char outbuf[SIZ];
 	char tag[1024];
 	int done_reading = 0;
@@ -78,12 +79,13 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 
 	do {
 		/* Fill the input buffer */
-		if ( (done_reading == 0) && (strlen(inbuf) < (SIZ-128)) ) {
+		inbuf_len = strlen(inbuf);
+		if ( (done_reading == 0) && (inbuf_len < (SIZ-128)) ) {
 
 			ch = *inptr++;
 			if (ch != 0) {
-				inbuf[strlen(inbuf)+1] = 0;
-				inbuf[strlen(inbuf)] = ch;
+				inbuf[inbuf_len++] = ch;
+				inbuf[inbuf_len] = 0;
 			} 
 			else {
 				done_reading = 1;
@@ -98,6 +100,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 
 		/* Do some parsing */
 		if (!IsEmptyStr(inbuf)) {
+
 
 		    /* Fold in all the spacing */
 		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {
