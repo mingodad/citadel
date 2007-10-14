@@ -642,7 +642,8 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	struct icaltimetype today_end_t;
 	struct tm starting_tm;
 	struct tm ending_tm;
-
+	int top;
+	int height;
 
 	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
@@ -723,12 +724,35 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 				event_tte = icaltime_as_timet(end_t);
 				localtime_r(&event_tte, &event_tm);
 				if (hour == event_te.tm_hour) {
+					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
+						top = (event_te.tm_hour * 11) -1;
+						height= (event_tm.tm_hour - event_te.tm_hour) * 11;
+					}
+					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour >= dstart)) {
+						top = (event_te.tm_hour * 11) - 1;
+						height = ((dstart - event_te.tm_hour) * 11) + ((event_tm.tm_hour - dstart) * 31);
+					}
+					if ((event_te.tm_hour <= dstart) && (event_tm.tm_hour > dend)) {
+						top = (event_te.tm_hour * 11) - 1;
+						height = ((dstart - event_te.tm_hour) * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 10);
+					}
+					if ((event_te.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
+						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 31);
+					}
+					if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend) && (event_tm.tm_hour > dend)) {
+						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) - 1;
+						height = (((dend - event_te.tm_hour + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 11));
+					}
+					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
+						top = (dstart * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - event_te.tm_hour) * 11) - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 11);
+					}
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:100px; "
 					"height:%dpx; \" >",
-					((dstart * 11) + (event_te.tm_hour - dstart) * (event_te.tm_hour < dstart? 11 : 31)),
-					((event_tm.tm_hour - event_te.tm_hour) * 30)
+					top, height
 					);
 				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\">",
 					Cal->cal_msgnum, year, month, day, t.hour, hour);
