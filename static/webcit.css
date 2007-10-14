@@ -1161,6 +1161,13 @@ td.events_of_the_day {
 	text-align: left;	
 }
 
+
+.extra_events ul, .extra_events ul li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
 .calday, .calout, .calweekend {
 	width: 14%;
 	height: 60px;
