@@ -100,17 +100,37 @@ int enable_syslog = 0;
 
 void DestroyWorkerList(void);
 
+
+/*
+ * Create an interface to lprintf that follows the coding convention.
+ * This is here until such time as we have replaced all calls to lprintf with CtdlLogPrintf
+ */
+ 
+void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...)
+{
+	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vlprintf(loglevel, format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+
 /*
  * lprintf()  ...   Write logging information
  */
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
+	va_start(arg_ptr, format);
+	vlprintf(loglevel, format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+void vlprintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
+{
 	char buf[SIZ], buf2[SIZ];
 
 	if (enable_syslog) {
-		va_start(arg_ptr, format);
-			vsyslog((syslog_facility | loglevel), format, arg_ptr);
-		va_end(arg_ptr);
+		vsyslog((syslog_facility | loglevel), format, arg_ptr);
 	}
 
 	/* stderr output code */
@@ -140,9 +160,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec);
 		}
-		va_start(arg_ptr, format);   
-			vsprintf(buf2, format, arg_ptr);   
-		va_end(arg_ptr);   
+		vsprintf(buf2, format, arg_ptr);   
 
 		fprintf(stderr, "%s%s", buf, buf2);
 		fflush(stderr);

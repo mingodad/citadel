@@ -1,5 +1,8 @@
 /* $Id$ */
 
+#ifndef MSGBASE_H
+#define MSGBASE_H
+
 #define aide_message(text, subject)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,0,subject)
 
 enum {
@@ -175,3 +178,5 @@ struct CtdlMessage *CtdlMakeMessage(
 );
 int CtdlCheckInternetMailPermission(struct ctdluser *who);
 int CtdlIsMe(char *addr, int addr_buf_len);
+
+#endif /* MSGBASE_H */

@@ -37,7 +37,6 @@
 #include "room_ops.h"
 #include "policy.h"
 #include "database.h"
-#include "msgbase.h"
 #include "serv_ldap.h"
 #include "tools.h"
 
@@ -62,7 +61,7 @@ int ldap_time_disconnect = 0;
 void serv_ldap_cleanup(void)
 {
 	if (dirserver) {
-		lprintf(CTDL_INFO,
+		CtdlLogPrintf(CTDL_INFO,
 			"LDAP: Unbinding from directory server\n");
 		ldap_unbind(dirserver);
 	}
@@ -84,16 +83,16 @@ int connect_to_ldap(void)
 		return 0;
 	}
 
-	lprintf(CTDL_INFO, "LDAP: Connecting to LDAP server %s:%d...\n",
+	CtdlLogPrintf(CTDL_INFO, "LDAP: Connecting to LDAP server %s:%d...\n",
 		config.c_ldap_host, config.c_ldap_port);
 
 	dirserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (dirserver == NULL) {
-		lprintf(CTDL_CRIT,
+		CtdlLogPrintf(CTDL_CRIT,
 			"LDAP: Could not connect to %s:%d : %s\n",
 			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno));
-		aide_message(strerror(errno),
+		CtdlAideMessage(strerror(errno),
 			     "LDAP: Could not connect to server.");
 		return -1;
 	}
@@ -101,16 +100,16 @@ int connect_to_ldap(void)
 	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION,
 			&ldap_version);
 
-	lprintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
+	CtdlLogPrintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
 
 	i = ldap_simple_bind_s(dirserver,
 			       config.c_ldap_bind_dn,
 			       config.c_ldap_bind_pw);
 	if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n",
+		CtdlLogPrintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n",
 			ldap_err2string(i), i);
 		dirserver = NULL;	/* FIXME disconnect from ldap */
-		aide_message(ldap_err2string(i),
+		CtdlAideMessage(ldap_err2string(i),
 			     "LDAP: Cannot bind to server");
 		return -1;
 	}
@@ -162,7 +161,7 @@ void create_ldap_root(void)
 	mods[2] = NULL;
 
 	/* Perform the transaction */
-	lprintf(CTDL_DEBUG, "LDAP: Setting up Base DN node...\n");
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: Setting up Base DN node...\n");
 
 	begin_critical_section(S_LDAP);
 	if (connect_to_ldap()) {
@@ -173,10 +172,10 @@ void create_ldap_root(void)
 	end_critical_section(S_LDAP);
 
 	if (i == LDAP_ALREADY_EXISTS) {
-		lprintf(CTDL_INFO,
+		CtdlLogPrintf(CTDL_INFO,
 			"LDAP: Base DN is already present in the directory; no need to add it again.\n");
 	} else if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_CRIT, "LDAP: ldap_add_s() failed: %s (%d)\n",
+		CtdlLogPrintf(CTDL_CRIT, "LDAP: ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 	}
 }
@@ -216,7 +215,7 @@ int create_ldap_host_OU(char *cn, char *host, void **object)
 	mods[2] = NULL;
 
 	/* Perform the transaction */
-	lprintf(CTDL_DEBUG, "LDAP: Setting up Host OU node...\n");
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: Setting up Host OU node...\n");
 
 	begin_critical_section(S_LDAP);
 	if (connect_to_ldap()) {
@@ -227,10 +226,10 @@ int create_ldap_host_OU(char *cn, char *host, void **object)
 	end_critical_section(S_LDAP);
 
 	if (i == LDAP_ALREADY_EXISTS) {
-		lprintf(CTDL_INFO,
+		CtdlLogPrintf(CTDL_INFO,
 			"LDAP: Host OU is already present in the directory; no need to add it again.\n");
 	} else if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_CRIT, "LDAP: ldap_add_s() failed: %s (%d)\n",
+		CtdlLogPrintf(CTDL_CRIT, "LDAP: ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 		return -1;
 	}
@@ -249,7 +248,7 @@ int create_ldap_host_OU(char *cn, char *host, void **object)
 int create_ldap_object(char *cn, char *ou, void **object)
 {
 	// We do nothing here, this just gets the base structure created by the interface.
-	lprintf(CTDL_DEBUG, "LDAP: Created ldap object\n");
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: Created ldap object\n");
 	return 0;
 }
 
@@ -266,7 +265,7 @@ int add_ldap_object(char *cn, char *ou, void **object)
 	int cur_attr;
 
 
-	lprintf(CTDL_DEBUG,
+	CtdlLogPrintf(CTDL_DEBUG,
 		"LDAP: Adding ldap attribute name:\"%s\" value:\"%s\"\n",
 		cn, ou);
 
@@ -285,7 +284,7 @@ int add_ldap_object(char *cn, char *ou, void **object)
 					    (ou,
 					     attrs[cur_attr]->
 					     mod_values[num_values])) {
-						lprintf(CTDL_DEBUG,
+						CtdlLogPrintf(CTDL_DEBUG,
 							"LDAP: Ignoring duplicate attribute/value pair\n");
 						return 0;
 					}
@@ -338,7 +337,7 @@ int save_ldap_object(char *cn, char *ou, void **object)
 
 	sprintf(this_dn, "%s,%s", cn, config.c_ldap_base_dn);
 
-	lprintf(CTDL_INFO, "LDAP: Calling ldap_add_s() for dn of '%s'\n",
+	CtdlLogPrintf(CTDL_INFO, "LDAP: Calling ldap_add_s() for dn of '%s'\n",
 		this_dn);
 
 	/* The last attribute must be a NULL one. */
@@ -347,7 +346,7 @@ int save_ldap_object(char *cn, char *ou, void **object)
 		while (attrs[num_attrs]) {
 			count = 0;
 			while (attrs[num_attrs]->mod_values[count]) {
-				lprintf(CTDL_DEBUG,
+				CtdlLogPrintf(CTDL_DEBUG,
 					"LDAP: attribute %d, value %d = \'%s=%s\'\n",
 					num_attrs, count,
 					attrs[num_attrs]->mod_type,
@@ -358,7 +357,7 @@ int save_ldap_object(char *cn, char *ou, void **object)
 			num_attrs++;
 		}
 	} else {
-		lprintf(CTDL_ERR,
+		CtdlLogPrintf(CTDL_ERR,
 			"LDAP: no attributes in save_ldap_object\n");
 		return -1;
 	}
@@ -372,7 +371,7 @@ int save_ldap_object(char *cn, char *ou, void **object)
 	i = ldap_add_s(dirserver, this_dn, attrs);
 
 	if (i == LDAP_SERVER_DOWN) {
-		aide_message
+		CtdlAideMessage
 		    ("The LDAP server appears to be down.\nThe save to LDAP did not occurr.\n",
 		     "LDAP: save failed");
 		end_critical_section(S_LDAP);
@@ -384,16 +383,16 @@ int save_ldap_object(char *cn, char *ou, void **object)
 		for (j = 0; j < (num_attrs); ++j) {
 			attrs[j]->mod_op = LDAP_MOD_REPLACE;
 		}
-		lprintf(CTDL_INFO,
+		CtdlLogPrintf(CTDL_INFO,
 			"LDAP: Calling ldap_modify_s() for dn of '%s'\n",
 			this_dn);
 		i = ldap_modify_s(dirserver, this_dn, attrs);
 	}
 
 	if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_ERR, "LDAP: ldap_add_s() failed: %s (%d)\n",
+		CtdlLogPrintf(CTDL_ERR, "LDAP: ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
-		aide_message
+		CtdlAideMessage
 		    ("The LDAP server refused the save command.\nDid you update the schema?\n",
 		     "LDAP: save failed (schema?)");
 		end_critical_section(S_LDAP);
@@ -420,7 +419,7 @@ int free_ldap_object(char *cn, char *ou, void **object)
 			num_attrs++;
 	}
 
-	lprintf(CTDL_DEBUG, "LDAP: Freeing attributes\n");
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: Freeing attributes\n");
 	/* Free the attributes */
 	for (i = 0; i < num_attrs; ++i) {
 		if (attrs[i] != NULL) {
@@ -470,7 +469,7 @@ int delete_from_ldap(char *cn, char *ou, void **object)
 
 	sprintf(this_dn, "%s,%s", cn, config.c_ldap_base_dn);
 
-	lprintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: Calling ldap_delete_s()\n");
 
 	begin_critical_section(S_LDAP);
 	if (connect_to_ldap()) {
@@ -482,18 +481,18 @@ int delete_from_ldap(char *cn, char *ou, void **object)
 
 	if (i == LDAP_SERVER_DOWN) {
 		end_critical_section(S_LDAP);
-		aide_message
+		CtdlAideMessage
 		    ("The LDAP server appears to be down.\nThe delete from LDAP did not occurr.\n",
 		     "LDAP: delete failed");
 		return -1;
 	}
 
 	if (i != LDAP_SUCCESS) {
-		lprintf(CTDL_ERR,
+		CtdlLogPrintf(CTDL_ERR,
 			"LDAP: ldap_delete_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 		end_critical_section(S_LDAP);
-		aide_message(ldap_err2string(i), "LDAP: delete failed");
+		CtdlAideMessage(ldap_err2string(i), "LDAP: delete failed");
 		return -1;
 	}
 	end_critical_section(S_LDAP);

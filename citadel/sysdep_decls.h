@@ -50,6 +50,8 @@ void lprintf (enum LogLevel loglevel, const char *format, ...);
 void cprintf (const char *format, ...);
 #endif
 
+void vlprintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
+
 extern pthread_key_t MyConKey;			/* TSD key for MyContext() */
 
 extern int enable_syslog;

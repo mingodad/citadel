@@ -5,6 +5,7 @@
 
 #include "server.h"
 #include "sysdep_decls.h"
+#include "msgbase.h"
 
 /*
  * define macros for module init stuff
@@ -14,6 +15,18 @@
 
 #define CTDL_INIT_CALL(module_name) ctdl_module_##module_name##_init ()
 
+
+/*
+ * Prototype for making log entries in Citadel.
+ */
+
+void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
+
+/*
+ * Fix the interface to aide_message so that it complies with the Coding style
+ */
+ 
+#define CtdlAideMessage(TEXT, SUBJECT) aide_message(TEXT, SUBJECT)
 
 /*
  * Hook functions available to modules.
