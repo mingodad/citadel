@@ -29,49 +29,12 @@ EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
 SERVER_TARGETS=citserver
-SERV_MODULES=modules/chat/serv_chat.o \
-	modules/upgrade/serv_upgrade.o \
-	modules/smtp/serv_smtp.o \
-	modules/spam/serv_spam.o \
-	modules/pop3/serv_pop3.o \
-	modules/vcard/serv_vcard.o \
-	vcard.o \
-	modules/mrtg/serv_mrtg.o \
-	modules/imap/serv_imap.o \
-	modules/imap/imap_fetch.o \
-	modules/imap/imap_misc.o \
-	modules/imap/imap_search.o \
-	modules/imap/imap_store.o \
-	modules/imap/imap_acl.o \
-	modules/imap/imap_metadata.o \
-	modules/imap/imap_tools.o \
-	modules/imap/imap_list.o \
-	modules/fulltext/serv_fulltext.o \
-	modules/fulltext/ft_wordbreaker.o \
+SERV_MODULES=vcard.o \
 	crc16.o \
-	modules/network/serv_network.o \
-	modules/listsub/serv_listsub.o \
-	modules/netfilter/serv_netfilter.o \
-	modules/newuser/serv_newuser.o \
-	modules/notes/serv_notes.o \
-	modules/pas2/serv_pas2.o \
-	modules/pop3client/serv_pop3client.o \
 	md5.o \
-	modules/inetcfg/serv_inetcfg.o \
-	modules/rwho/serv_rwho.o \
-	modules/bio/serv_bio.o \
-	modules/expire/serv_expire.o \
-	modules/vandelay/serv_vandelay.o \
-	modules/calendar/serv_calendar.o \
-	modules/crypto/serv_crypto.o \
-	modules/sieve/serv_sieve.o \
-	modules/managesieve/serv_managesieve.o \
-	ical_dezonify.o \
-	modules/ldap/serv_ldap.o \
-	modules/autocompletion/serv_autocompletion.o \
-	modules/funambol/serv_funambol.o \
-	modules/pager/serv_pager.o \
-	modules/test/serv_test.o
+	ical_dezonify.o
+
+include Make_modules
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
@@ -113,52 +76,16 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	housekeeping.c html.c ical_dezonify.c \
 	internet_addressing.c ecrash.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
-	modules/autocompletion/serv_autocompletion.c \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
 	screen.c sendcommand.c \
-	modules/bio/serv_bio.c \
-	modules/calendar/serv_calendar.c \
-	modules/chat/serv_chat.c \
-	modules/crypto/serv_crypto.c \
-	modules/expire/serv_expire.c \
-	modules/imap/serv_imap.c \
-	modules/imap/imap_search.c \
-	modules/imap/imap_store.c \
-	modules/imap/imap_tools.c \
-	modules/imap/imap_fetch.c \
-	modules/imap/imap_misc.c \
-	modules/imap/imap_acl.c \
-	modules/imap/imap_list.c \
-	modules/imap/imap_metadata.c \
-	modules/inetcfg/serv_inetcfg.c \
-	modules/listsub/serv_listsub.c \
-	modules/mrtg/serv_mrtg.c \
-	modules/netfilter/serv_netfilter.c \
-	modules/network/serv_network.c \
-	modules/ldap/serv_ldap.c \
-	modules/newuser/serv_newuser.c \
-	modules/pas2/serv_pas2.c \
-	modules/pop3client/serv_pop3client.c \
-	modules/pop3/serv_pop3.c \
-	modules/rwho/serv_rwho.c \
-	modules/smtp/serv_smtp.c \
-	modules/spam/serv_spam.c \
-	modules/upgrade/serv_upgrade.c \
-	modules/vandelay/serv_vandelay.c \
-	modules/vcard/serv_vcard.c \
-	modules/managesieve/serv_managesieve.c \
 	server_main.c \
-	modules/sieve/serv_sieve.c \
-	modules/funambol/serv_funambol.c \
 	setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
 	whobbs.c vcard.c \
-	modules/notes/serv_notes.c \
-	modules/fulltext/serv_fulltext.c \
-	modules/fulltext/ft_wordbreaker.c \
-	crc16.c journaling.c citadel_dirs.c \
-	modules/test/serv_test.c
+	crc16.c journaling.c citadel_dirs.c
+
+include Make_sources
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d
 
@@ -185,8 +112,12 @@ citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 
 parsedate.o: parsedate.c
 
-modules_init.c: mk_module_init.sh $(SOURCES)
-		$(srcdir)/mk_module_init.sh
+Make_sources: modules_init.c
+
+Make_modules: modules_init.c
+
+modules_init.c: mk_module_init.sh $(SOURCES) 
+	$(srcdir)/mk_module_init.sh
 
 SERV_OBJS = server_main.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
@@ -393,7 +324,7 @@ clean:
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
-	rm -rf modules_init.c modules_init.h
+	rm -rf modules_init.c modules_init.h Make_modules Make_sources
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f

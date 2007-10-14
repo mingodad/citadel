@@ -14,6 +14,11 @@
 
 #define CTDL_INIT_CALL(module_name) ctdl_module_##module_name##_init ()
 
+
+/*
+ * Hook functions available to modules.
+ */
+
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 
