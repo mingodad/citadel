@@ -1169,9 +1169,17 @@ td.events_of_the_day {
 }
 
 .event {
-	opacity: .5;
+	filter:alpha(opacity=50);   /* Internet Explorer 6     */
+	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
+	opacity: 0.5;               /* CSS3 and Mozilla  */
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
+}
+
+.event a {
+   filter:alpha(opacity=100); 
+   -moz-opacity:1.0;         
+   opacity: 1.0;            
 }
 

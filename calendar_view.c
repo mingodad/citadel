@@ -1,4 +1,4 @@
-/*
+ /*
  * $Id$
  */
 /**
@@ -628,6 +628,8 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	icalproperty *q = NULL;
 	time_t event_start;
 	time_t event_end;
+	time_t event_tt;
+	time_t event_tte;
 	struct tm event_te;
 	struct tm event_tm;
 	int show_event = 0;
@@ -670,7 +672,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	ending_tm.tm_hour = hour;
 	ending_tm.tm_min = 59;
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
-	today_end_t.is_utc = 1;
+/*	today_end_t.is_utc = 1;*/
 
 	/* Now loop through our list of events to see which ones occur today.
 	 */
@@ -681,6 +683,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 		if (q != NULL) {
 			t = icalproperty_get_dtstart(q);
+			event_tt = icaltime_as_timet(t);
 		}
 		else {
 			memset(&t, 0, sizeof t);
@@ -701,6 +704,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		else
 		{
 			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
+			localtime_r(&event_tt, &event_te);
 		}
 
 		/* If we determined that this event occurs today, then display it.
@@ -716,17 +720,22 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 			}
 			else 
 			{
+				event_tte = icaltime_as_timet(end_t);
+				localtime_r(&event_tte, &event_tm);
+				if (hour == event_te.tm_hour) {
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:100px; "
 					"height:%dpx; \" >",
-					(100 + (event_tm.tm_min / 2) + (event_te.tm_hour - hour) + (hour * 30) - (dstart * 30)),
-					(((event_te.tm_min - event_tm.tm_min) / 2) +(event_te.tm_hour - hour) * 30)
-				);
-				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
-					Cal->cal_msgnum, year, month, day, hour);
+					((dstart * 11) + (event_te.tm_hour - dstart) * (event_te.tm_hour < dstart? 11 : 31)),
+					((event_tm.tm_hour - event_te.tm_hour) * 30)
+					);
+				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\">",
+					Cal->cal_msgnum, year, month, day, t.hour, hour);
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
+				}
+				
 			}
 		}
 	}
