@@ -800,6 +800,9 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	int top = 0;
 	int height = 0;
 	int gap = 0;
+	int startmin = 0;
+	int diffmin = 0;
+	int endmin = 0;
 
 	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
@@ -878,64 +881,84 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 			if (all_day_event) 
 			{
-				wprintf("<li><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+				wprintf("<li class=\"event\"> "
+				"<a href=\"display_edit_event?"
+				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+				" class=\"event_title\" >",
 					Cal->cal_msgnum, year, month, day, hour);
 				escputs((char *) icalproperty_get_comment(p));
-				wprintf("</a> (");
+				wprintf("</a> <span>(");
 				wprintf(_("All day event"));
-				wprintf(")</li>\n");
+				wprintf(")</span></li>\n");
 			}
 			else if (ongoing_event && (hour == -1)) 
 			{
-				wprintf("<li><a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\">",
+				wprintf("<li class=\"event\"> "
+				"<a href=\"display_edit_event?"
+				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+				" class=\"event_title\" >",
 					Cal->cal_msgnum, year, month, day, hour);
 				escputs((char *) icalproperty_get_comment(p));
-				wprintf("</a> (");
+				wprintf("</a> <span>(");
 				wprintf(_("Ongoing event"));
-				wprintf(")</li>\n");
+				wprintf(")</span></li>\n");
 			}
 			else 
 			{
+				gap++;
 				if ((hour == event_te.tm_hour) && ! ongoing_event ) {
 
 					if (event_te.tm_mday != today_start_t.day)	event_te.tm_hour = 0;
 					if (event_tm.tm_mday != today_start_t.day) event_tm.tm_hour = 24;
 
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
-						top = (event_te.tm_hour * 11) -1;
-						height= (event_tm.tm_hour - event_te.tm_hour) * 11;
+						startmin = diffmin = event_te.tm_min / 6;
+						endmin = ((event_tm.tm_hour == hour) ? (event_tm.tm_min / 2) : (event_tm.tm_min / 6)) ;
+						top = (event_te.tm_hour * 11) + startmin -1;
+						height= ((event_tm.tm_hour - event_te.tm_hour) * 11) + endmin - diffmin ;
 					}
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour >= dstart)) {
-						top = (event_te.tm_hour * 11) - 1;
-						height = ((dstart - event_te.tm_hour) * 11) + ((event_tm.tm_hour - dstart) * 31);
+						startmin = diffmin = event_te.tm_min / 6;
+						endmin = event_tm.tm_min / 2;
+						top = (event_te.tm_hour * 11) + startmin - 1;
+						height = ((dstart - event_te.tm_hour) * 11) + ((event_tm.tm_hour - dstart) * 31) + endmin - (diffmin * 3);
 					}
 					if ((event_te.tm_hour <= dstart) && (event_tm.tm_hour > dend)) {
-						top = (event_te.tm_hour * 11) - 1;
-						height = ((dstart - event_te.tm_hour) * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 10);
+						startmin = diffmin = ((event_te.tm_hour == hour) ? (event_te.tm_min / 2) : (event_te.tm_min / 6)) ;
+						endmin = event_tm.tm_min / 6; 
+						top = (event_te.tm_hour * 11)  + startmin - 1;
+						height = ((dstart - event_te.tm_hour) * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 10) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
-						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 31);
+						startmin = diffmin = (event_te.tm_min / 2);
+						endmin = event_tm.tm_min / 2;
+						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) + startmin - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 31) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend) && (event_tm.tm_hour > dend)) {
-						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) - 1;
-						height = (((dend - event_te.tm_hour + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 11));
+						startmin = diffmin = (event_te.tm_min / 2);
+						endmin = event_tm.tm_min / 6;
+						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31)  + diffmin - 1;
+						height = (((dend - event_te.tm_hour + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 11)) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
-						top = (dstart * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - event_te.tm_hour) * 11) - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 11);
+						startmin = diffmin = event_te.tm_min / 6;
+						endmin = event_tm.tm_min / 6;
+						top = (dstart * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - event_te.tm_hour) * 11) + startmin - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 11) + endmin - diffmin;
 					}
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
 					"height:%dpx; \" >",
-					top, (50 + (gap * 50)), height
+					top, (gap * 40), height
 					);
-				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\">",
+				wprintf("<a href=\"display_edit_event?"
+					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\" "
+					"class=\"event_title\" >",
 					Cal->cal_msgnum, year, month, day, t.hour, hour);
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
-				gap++;
 				}
 				
 			}
