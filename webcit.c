@@ -1533,6 +1533,10 @@ void session_loop(struct httprequest *req)
 		begin_ajax_response();
 		calendar_section();
 		end_ajax_response();
+	} else if (!strcasecmp(action, "mini_calendar")) {
+		begin_ajax_response();
+		ajax_mini_calendar();
+		end_ajax_response();
 	} else if (!strcasecmp(action, "iconbar_ajax_menu")) {
 		begin_ajax_response();
 		do_iconbar();
