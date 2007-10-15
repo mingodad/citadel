@@ -848,7 +848,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
 		if ((show_event) && (p != NULL)) {
 
-			if ((t.day != today_start_t.day) && (end_t.day != today_start_t.day)) ongoing_event = 1; 
+			if ((event_te.tm_mday != today_start_t.day) && (event_tm.tm_mday != today_start_t.day)) ongoing_event = 1; 
 
 			if (all_day_event) 
 			{
@@ -872,8 +872,8 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 			{
 				if ((hour == event_te.tm_hour) && ! ongoing_event ) {
 
-					if (t.day != today_start_t.day)	event_te.tm_hour = 0;
-					if (end_t.day != today_start_t.day) event_tm.tm_hour = 24;
+					if (event_te.tm_mday != today_start_t.day)	event_te.tm_hour = 0;
+					if (event_tm.tm_mday != today_start_t.day) event_tm.tm_hour = 24;
 
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
 						top = (event_te.tm_hour * 11) -1;
