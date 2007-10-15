@@ -1190,3 +1190,32 @@ td.events_of_the_day {
    opacity: 1.0;            
 }
 
+.mini_calendar {
+   color: #fff;
+}
+
+.mini_calendar a {
+   color: #fff;
+}
+
+.mini_calendar a: link,.mini_calendar a:visited {
+   color: #fff;
+}
+
+.mini_calendar a:hover,.mini_calendar a:active {
+   color: #fff;
+   background-color: #AD1C00;
+}
+
+.mini_calendar td a {
+   color: #fff;
+}
+
+.mini_calendar td a: link,.mini_calendar td a:visited {
+   color: #fff;
+}
+
+.mini_calendar td a:hover,.mini_calendar td a:active {
+   color: #fff;
+   background-color: #AD1C00;
+}

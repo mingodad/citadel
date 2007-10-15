@@ -13,6 +13,135 @@
 
 /****************************************************************************/
 
+
+/**
+ */
+void embeddable_mini_calendar(int year, int month, char *urlformat)
+{
+	struct tm starting_tm;
+	struct tm tm;
+	time_t thetime;
+	int i;
+	time_t previous_month;
+	time_t next_month;
+	time_t colheader_time;
+	struct tm colheader_tm;
+	char colheader_label[32];
+	int weekstart = 0;
+	char weekstart_buf[16];
+	char url[256];
+	char div_id[256];
+
+	snprintf(div_id, sizeof div_id, "mini_calendar_%d", rand() );
+
+	/* Determine what day to start.
+	 */
+	get_preference("weekstart", weekstart_buf, sizeof weekstart_buf);
+	weekstart = atoi(weekstart_buf);
+
+	/*
+	 * Now back up to the 1st of the month...
+	 */
+	memset(&starting_tm, 0, sizeof(struct tm));
+
+	starting_tm.tm_year = year - 1900;
+	starting_tm.tm_mon = month - 1;
+	starting_tm.tm_mday = 1;
+	thetime = mktime(&starting_tm);
+
+	memcpy(&tm, &starting_tm, sizeof(struct tm));
+	while (tm.tm_mday != 1) {
+		thetime = thetime - (time_t)86400;	/* go back 24 hours */
+		localtime_r(&thetime, &tm);
+	}
+
+	/** Determine previous and next months ... for links */
+	previous_month = thetime - (time_t)864000L;	/* back 10 days */
+	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
+
+	/** Now back up until we're on the user's preferred start day */
+	localtime_r(&thetime, &tm);
+	while (tm.tm_wday != weekstart) {
+		thetime = thetime - (time_t)86400;	/* go back 24 hours */
+		localtime_r(&thetime, &tm);
+	}
+
+	wprintf("<div class=\"mini_calendar\" id=\"%s\">\n", div_id);
+
+	localtime_r(&previous_month, &tm);
+
+	wprintf("<a href=\"javascript:minical_previous_month();\">&laquo;</a>");
+	wprintf("&nbsp;");
+/* previous month
+	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
+	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
+*/
+
+	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
+	wprintf("&nbsp;&nbsp;"
+		"<span class=\"mini_calendar_month_label\">"
+		"%s %d"
+		"</span>"
+		"&nbsp;&nbsp;", colheader_label, year);
+
+	wprintf("&nbsp;");
+	wprintf("<a href=\"javascript:minical_next_month();\">&raquo;</a>");
+/*
+	localtime_r(&next_month, &tm);
+	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
+	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
+*/
+
+	wprintf("<table border=0 cellpadding=1 cellspacing=1 class=\"mini_calendar_days\">"
+		"<tr>");
+	colheader_time = thetime;
+	for (i=0; i<7; ++i) {
+		colheader_time = thetime + (i * 86400) ;
+		localtime_r(&colheader_time, &colheader_tm);
+		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
+		wprintf("<th>%c</th>", colheader_label[0]);
+
+	}
+	wprintf("</tr>\n");
+
+
+        /** Now do 35 or 42 days */
+        for (i = 0; i < 42; ++i) {
+                localtime_r(&thetime, &tm);
+
+                if (i < 35) {
+
+			/** Before displaying Sunday, start a new row */
+			if ((i % 7) == 0) {
+				wprintf("<tr>");
+			}
+
+			if (tm.tm_mon == month-1) {
+				snprintf(url, sizeof url, urlformat,
+					tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday);
+				wprintf("<td><a href=\"%s\">%d</a></td>", url, tm.tm_mday);
+			}
+			else {
+				wprintf("<td> </td>");
+			}
+
+			/** After displaying one week, end the row */
+			if ((i % 7) == 6) {
+				wprintf("</tr>\n");
+			}
+
+		}
+
+		thetime += (time_t)86400;		/** ahead 24 hours */
+	}
+
+	wprintf("</table>"			/** end of inner table */
+		"</div>\n");
+}
+
+
 /**
  * \brief Display one day of a whole month view of a calendar
  * \param thetime the month we want to see 
@@ -882,7 +1011,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("</td>");	/** end extra on the middle */
 
-	wprintf("<td width=20%% valign=top>");	/** begin stuff-on-the-right */
+	wprintf("<td width=20%% align=center valign=top>");	/** begin stuff-on-the-right */
 
 	/** Begin todays-date-with-left-and-right-arrows */
 	wprintf("<table border=0 width=100%% "
@@ -917,7 +1046,9 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</tr></table>\n");
 	/** End todays-date-with-left-and-right-arrows */
 
-	/** \todo In the future we might want to put a month-o-matic here */
+	/** Embed a mini month calendar in this space */
+	wprintf("<br />\n");
+	embeddable_mini_calendar(year, month, "readfwd?calview=day&year=%d&month=%d&day=%d");
 
 	wprintf("</font></center>\n");
 
