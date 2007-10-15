@@ -774,6 +774,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	struct tm ending_tm;
 	int top = 0;
 	int height = 0;
+	int gap = 0;
 
 	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
@@ -901,14 +902,15 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					}
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
-					"top:%dpx; left:100px; "
+					"top:%dpx; left:%dpx; "
 					"height:%dpx; \" >",
-					top, height
+					top, (50 + (gap * 50)), height
 					);
 				wprintf("<a href=\"display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\">",
 					Cal->cal_msgnum, year, month, day, t.hour, hour);
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
+				gap++;
 				}
 				
 			}
