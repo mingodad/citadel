@@ -14,14 +14,12 @@
 /****************************************************************************/
 
 
-/**
- */
 void embeddable_mini_calendar(int year, int month, char *urlformat)
 {
 	struct tm starting_tm;
 	struct tm tm;
 	time_t thetime;
-	int i;
+	int i, len;
 	time_t previous_month;
 	time_t next_month;
 	time_t colheader_time;
@@ -31,6 +29,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 	char weekstart_buf[16];
 	char url[256];
 	char div_id[256];
+	char escaped_urlformat[256];
 
 	snprintf(div_id, sizeof div_id, "mini_calendar_%d", rand() );
 
@@ -68,15 +67,10 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 	wprintf("<div class=\"mini_calendar\" id=\"%s\">\n", div_id);
 
+	/* Previous month link */
 	localtime_r(&previous_month, &tm);
-
-	wprintf("<a href=\"javascript:minical_previous_month();\">&laquo;</a>");
-	wprintf("&nbsp;");
-/* previous month
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"javascript:minical_change_month(%d,%d);\">&laquo;</a>", 
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
-*/
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wprintf("&nbsp;&nbsp;"
@@ -85,14 +79,10 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 		"</span>"
 		"&nbsp;&nbsp;", colheader_label, year);
 
-	wprintf("&nbsp;");
-	wprintf("<a href=\"javascript:minical_next_month();\">&raquo;</a>");
-/*
+	/* Next month link */
 	localtime_r(&next_month, &tm);
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"javascript:minical_change_month(%d,%d);\">&raquo;</a>",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
-*/
 
 	wprintf("<table border=0 cellpadding=1 cellspacing=1 class=\"mini_calendar_days\">"
 		"<tr>");
@@ -139,6 +129,41 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 	wprintf("</table>"			/** end of inner table */
 		"</div>\n");
+
+	/* javascript for previous and next month */
+	len = strlen(urlformat);
+	for (i=0; i<len; ++i) {
+		sprintf(&escaped_urlformat[i*2], "%02X", urlformat[i]);
+	}
+
+	wprintf("<script type=\"text/javascript\">							"
+		"	function minical_change_month(year, month) {					"
+		"		p = 'year=' + year + '&month=' + month					"
+		"			+ '&urlformat=%s&r=' + CtdlRandomString();			"
+		"		new Ajax.Updater('%s', 'mini_calendar', 				"
+		"			{ method: 'get', parameters: p, evalScripts: true } );		"
+		"	}										"
+		"</script>\n"
+		,
+		escaped_urlformat, div_id
+	);
+
+}
+
+/* ajax embedder for the above mini calendar */
+void ajax_mini_calendar(void) {
+	char urlformat[256];
+	int i, len;
+	char *escaped_urlformat;
+
+	escaped_urlformat = bstr("urlformat");
+        len = strlen(escaped_urlformat) * 2 ;
+	for (i=0; i<len; ++i) {
+		urlformat[i] = xtoi(&escaped_urlformat[i*2], 2);
+		urlformat[i+1] = 0;
+	}
+
+	embeddable_mini_calendar( atoi(bstr("year")), atoi(bstr("month")), urlformat );
 }
 
 
@@ -1334,6 +1359,9 @@ void do_tasks_view(void) {
 	wprintf("</i></center><br />\n");
 }
 
+/**\brief stub for non-libical builds */
+void ajax_mini_calendar(void) {
+}
 
 #endif	/* WEBCIT_WITH_CALENDAR_SERVICE */
 

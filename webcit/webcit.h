@@ -464,6 +464,7 @@ void who_inner_div(void);
 void wholist_section(void);
 void tasks_section(void);
 void calendar_section(void);
+void ajax_mini_calendar(void);
 void new_messages_section(void);
 void fmout(char *align);
 void pullquote_fmout(void);
@@ -724,6 +725,7 @@ void str_wiki_index(char *s);
 void display_wiki_page(void);
 char *bmstrcasestr(char *text, char *pattern);
 int get_time_format_cached (void);
+int xtoi(char *in, size_t len);
 
 #ifdef HAVE_ICONV
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);
