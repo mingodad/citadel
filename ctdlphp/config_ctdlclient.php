@@ -2,6 +2,11 @@
 
 // Please override these defaults in config_ctdlclient_local.php, not here.
 
+#do you want to see the server conversation for exploring the protocol?
+define('CITADEL_DEBUG_PROXY', FALSE);
+#switch this if you're using php5
+define('SOCKET_PREFIX', "unix://");
+#define('SOCKET_PREFIX', "");
 include "config_ctdlclient_local.php";
 
 // Examples:
@@ -30,4 +35,7 @@ if (!defined('CITADEL_DEBUG_PROXY')) {
 	define('CITADEL_DEBUG_PROXY', FALSE);
 }
 
+if (!defined('CITADEL_DEBUG_HTML')) {
+	define('CITADEL_DEBUG_HTML', FALSE);
+}
 ?>

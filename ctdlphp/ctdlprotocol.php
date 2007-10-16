@@ -7,11 +7,40 @@
 // One program is released under the terms of the GNU General Public License.
 include "config_ctdlclient.php";
 
-
+define('VIEW_BBS'                ,'0');       /* Bulletin board view */
+define('VIEW_MAILBOX'            ,'1');       /* Mailbox summary */
+define('VIEW_ADDRESSBOOK'        ,'2');       /* Address book view */
+define('VIEW_CALENDAR'           ,'3');       /* Calendar view */
+define('VIEW_TASKS'              ,'4');       /* Tasks view */
+define('VIEW_NOTES'              ,'5');       /* Notes view */
 define("FMT_CITADEL", 0);
 define("FMT_FIXED", 1);
 define("FMT_RFC822", 4);
 
+function debugLog($string)
+{
+	print ($string);
+}
+
+function dbgprintf_wrapin($string, $html)
+{
+	if (!CITADEL_DEBUG_HTML){
+		if ($html)
+			debugLog("<< ".$string);
+	}
+	else 
+		printf($string);
+}
+function dbgprintf_wrapout($string, $html)
+{
+	if (!CITADEL_DEBUG_HTML){
+		if ($html)
+			debugLog("<< ".$string);
+	}
+	else
+		printf($string);
+
+}
 //--------------------------------------------------------------------------------
 //   internal functions for server communication
 //--------------------------------------------------------------------------------
@@ -24,10 +53,10 @@ function serv_gets($readblock=FALSE) {
 	$buf = fgets($clientsocket, 4096);		// Read line
 	$buf = substr($buf, 0, (strlen($buf)-1) );	// strip trailing LF
 	if (CITADEL_DEBUG_CITPROTO == 1) {
-		if (!$readblock) printf ("<div class='ctdldbgRead'>\n");
-		printf($buf);
-		if (!$readblock) printf ("\n</div>\n");
-		else printf ("<br>\n");
+		if (!$readblock) dbgprintf_wrapin("<div class='ctdldbgRead'>\n", false);
+		dbgprintf_wrapin($buf, true);
+		if (!$readblock) dbgprintf_wrapin ("\n</div>\n", false);
+		else dbgprintf_wrapin ("<br>\n", false);
 	}
 	return $buf;
 }
@@ -39,16 +68,16 @@ function serv_get_n($nBytes) {
 	global $clientsocket;
 
 	if (CITADEL_DEBUG_CITPROTO == 1) {
-		printf ("<div class='ctdldbgRead'>\n");
-		printf("reading ".$nBytes." bytes from server\n");
-		printf ("</div>\n");
+		dbgprintf_wrapin ("<div class='ctdldbgRead'>\n", false);
+		dbgprintf_wrapin("reading ".$nBytes." bytes from server\n", true);
+		dbgprintf_wrapin ("</div>\n", false);
 	}
 	$buf = fread($clientsocket, $nBytes);
 	if (CITADEL_DEBUG_CITPROTO == 1) {
-		if (!$buf) printf ("<div class='ctdldbgRead'>\n");
-		printf($buf);
-		if (!$buf) printf ("</div>\n");
-		else printf ("<br>\n");
+		if (!$buf) dbgprintf_wrapin ("<div class='ctdldbgRead'>\n", false);
+		dbgprintf_wrapin($buf, true);
+		if (!$buf) dbgprintf_wrapin ("</div>\n", false);
+		else dbgprintf_wrapin ("<br>\n", false);
 	}
 	return $buf;
 }
@@ -61,15 +90,18 @@ function serv_puts($buf) {
 	
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
 	fflush($clientsocket);
-	if (CITADEL_DEBUG_CITPROTO == 1)
-		printf ("<div class='ctdldbgWrite'>".$buf."</div>\n");
+	if (CITADEL_DEBUG_CITPROTO == 1) {
+		dbgprintf_wrapin("<div class='ctdldbgWrite'>", false);
+		dbgprintf_wrapin($buf, true);
+		dbgprintf_wrapin("</div>\n", false);
+	}
 }
 
 
 function read_array() {
 	$nLines = 0;
 	if (CITADEL_DEBUG_CITPROTO == 1)
-	    printf ("<div class='ctdldbgRead'>\n");
+		dbgprintf_wrapout("<div class='ctdldbgRead'>\n", false);
 	$buf = serv_gets(TRUE);
 	$ret = array();
 	while (strcasecmp($buf, "000")){
@@ -78,8 +110,8 @@ function read_array() {
 		$nLines++;
 	}
 	if (CITADEL_DEBUG_CITPROTO == 1){
-		echo "read ".$nLines." lines from the server.\n";
-		printf ("</div>\n");
+		dbgprintf_wrapout("read ".$nLines." lines from the server.\n", true);
+		dbgprintf_wrapout ("</div>\n", false);
 	}
 	return $ret;
 }
@@ -87,11 +119,11 @@ function read_array() {
 function read_binary() {
 	$nLines = 0;
 	if (CITADEL_DEBUG_CITPROTO == 1)
-	    printf ("<div class='ctdldbgRead'>\n");
+		dbgprintf_wrapout ("<div class='ctdldbgRead'>\n", false);
 	$buf = serv_gets(TRUE);
 	
 	if (CITADEL_DEBUG_CITPROTO == 1){
-		echo "status line from the server\n";
+		dbgprintf_wrapout("status line from the server\n", true);
 	}
 
 	$statusline = explode(" ", $buf);
@@ -102,7 +134,7 @@ function read_binary() {
 		
 	}
 	if (CITADEL_DEBUG_CITPROTO == 1)
-	    printf ("</div>\n");
+		dbgprintf_wrapout ("</div>\n", false);
 	return array($statusline, $buf);
 }
 
@@ -259,7 +291,11 @@ function login_existing_user($user, $pass) {
 
 	serv_puts("USER " . $user);
 	$resp = serv_gets();
+	
+	if (substr($resp, 0, 3) == 541) // we're already logged in. 
+		return array(TRUE, substr($resp, 4));
 	if (substr($resp, 0, 1) != "3") {
+		
 		return array(FALSE, substr($resp, 4));
 	}
 
@@ -347,9 +383,9 @@ function ctdl_get_serv_info() {
 		$server_info["serv_sysadmin"]  = $reply[7];
 		if (CITADEL_DEBUG_CITPROTO == 1)
 		{
-			echo "<pre>";
-			print_r($server_info);
-			echo "</pre>";
+			dbgprintf_wrapout("<pre>", false);
+			dbgprintf_wrapout(print_r($server_info, true), true);
+			dbgprintf_wrapout("</pre>", false);
 		}
 		return $server_info;
 	}
@@ -366,7 +402,7 @@ function ctdl_get_serv_info() {
 function ctdl_get_registration_info() {
 	serv_puts("GREG");
 	$reply = read_array();
-	print_r($reply);
+	dbgprintf_wrapout(print_r($reply, true), true);
 //		die ("didn't understand the reply to the INFO command");
 
 }
@@ -451,9 +487,9 @@ function ctdl_rwho() {
 		// IGnore the rest of the fields for now.
 		if (CITADEL_DEBUG_CITPROTO == 1)
 		{
-			echo "<pre>";
-			print_r($oneline);
-			echo "</pre>";
+			dbgprintf_wrapout("<pre>", false);
+			dbgprintf_wrapout(print_r($oneline, true), true);
+			dbgprintf_wrapout("</pre>", false);;
 
 		}
 
@@ -501,9 +537,9 @@ function ctdl_goto($to_where) {
 		$_SESSION["room"] = $room;
 		if (CITADEL_DEBUG_CITPROTO == 1)
 		{
-			echo "<pre>";
-			print_r($room_state);
-			echo "</pre>";
+			dbgprintf_wrapout("<pre>", false);
+			dbgprintf_wrapout(print_r($room_state, true), true);
+			dbgprintf_wrapout("</pre>", false);
 
 		}
 
@@ -553,9 +589,9 @@ function ctdl_knrooms() {
 
 		if (CITADEL_DEBUG_CITPROTO == 1)
 		{
-			echo "<pre>";
-			print_r($oneline);
-			echo "</pre>";
+			dbgprintf_wrapout("<pre>", false);
+			dbgprintf_wrapout(print_r($oneline, true), true);
+			dbgprintf_wrapout("</pre>", false);
 
 		}
 		$num_lines = array_push($all_lines, $oneline);
@@ -592,10 +628,9 @@ function ctdl_knfloors() {
 
 		if (CITADEL_DEBUG_CITPROTO == 1)
 		{
-			echo "<pre>";
-			print_r($oneline);
-			echo "</pre>";
-
+			dbgprintf_wrapout("<pre>", false);
+			dbgprintf_wrapout(print_r($oneline, true), true);
+			dbgprintf_wrapout("</pre>", false);
 		}
 		$num_lines = array_push($all_lines, $oneline);
 	}
@@ -615,7 +650,7 @@ function ctdl_msgs($mode, $count) {
 
 	serv_puts("MSGS " . $mode . "|" . $count);
 	$responses = read_array();
-	print_r($responses);
+	dbgprintf_wrapout(print_r($responses, true), false);
 
 	$response = array_shift($responses);
 
@@ -626,7 +661,7 @@ function ctdl_msgs($mode, $count) {
 	
 	if (CITADEL_DEBUG_CITPROTO == 1)
 	{
-		printf("found ".$num_msgs." messages.");
+		dbgprintf_wrapout("found ".$num_msgs." messages.", true);
 	}
 	return array($num_msgs, $response, $responses);
 }
@@ -639,7 +674,7 @@ function ctdl_fetch_message($msgnum) {
 	serv_puts("MSG4 " . $msgnum);
 
 	if (CITADEL_DEBUG_CITPROTO == 1)
-	    printf ("<div class='ctdldbgRead'>");
+		dbgprintf_wrapout("<div class='ctdldbgRead'>", false);
 	$response = serv_gets(TRUE);
 
 	if (substr($response, 0, 1) != "1") {
@@ -650,11 +685,11 @@ function ctdl_fetch_message($msgnum) {
 	while (strcmp($buf = serv_gets(TRUE), "000")) {
 		if (substr($buf, 0, 4) == "text") {
 			if (CITADEL_DEBUG_CITPROTO == 1)
-				printf ("</div>\n<h3>Message Body Follows</h3><div class='ctdldbgRead'>");
+				dbgprintf_wrapout("</div>\n<h3>Message Body Follows</h3><div class='ctdldbgRead'>", false);
 			// We're in the text body.  New loop here.
 			$fields["text"] = ctdl_msg4_from_server();
 			if (CITADEL_DEBUG_CITPROTO == 1)
-				printf ("</div>");
+				dbgprintf_wrapout ("</div>", false);
 			return array(TRUE, substr($response, 4), $fields);
 		}
 		else {
@@ -664,6 +699,34 @@ function ctdl_fetch_message($msgnum) {
 
 	// Message terminated prematurely (no text body)
 	return array(FALSE, substr($response, 4), $fields);
+}
+
+// Load a message from the server.
+function ctdl_fetch_message_rfc822($msgnum) {
+	global $clientsocket;
+
+	serv_puts("MSG2 " . $msgnum);
+
+	if (CITADEL_DEBUG_CITPROTO == 1)
+		dbgprintf_wrapout("<div class='ctdldbgRead'>", false);
+	$response = serv_gets(TRUE);
+
+	if (substr($response, 0, 1) != "1") {
+		return array(FALSE, NULL);
+	}
+	$message = "";
+	$buf="";
+	while ($buf = serv_gets(TRUE)) {
+//		dbgprintf_wrapout($buf, true);
+		if ($buf=="000")
+			break;
+		$message = $message . "\n" . $buf;
+		$buf = "";
+	}
+
+//	dbgprintf_wrapout($message, true);
+	// Message terminated prematurely (no text body)
+	return array(TRUE, $message);
 }
 
 // Support function for ctdl_fetch_message(). This handles the text body
