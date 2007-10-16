@@ -70,7 +70,13 @@ void serv_ldap_cleanup(void)
 }
 
 
-
+/*
+ * connect_to_ldap
+ *
+ * BIG FAT WARNING
+ * Make sure this function is only called from within a begin_critical_section(S_LDAP)
+ * If you don't things will break!!!!!.
+ */
 
 
 int connect_to_ldap(void)

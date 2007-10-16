@@ -140,7 +140,7 @@ void imap_do_store(int num_items, char **itemlist) {
 				bits_to_twiddle |= IMAP_SEEN;
 			}
 			if ((!strcasecmp(flag, "\\Answered")) 
-			   || (!strcasecmp(flag, "\\Answered"))) {
+			   || (!strcasecmp(flag, "Answered"))) {
 				bits_to_twiddle |= IMAP_ANSWERED;
 			}
 		}
