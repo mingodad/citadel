@@ -728,6 +728,11 @@ html>body #button li a {
 	display: inline;
 }
 
+#banner ul.room_actions li form {
+        margin: 0;
+        padding: 0;
+}
+
 #banner ul.room_actions li select, #banner ul.room_actions li input {
 	margin-top: 8px;
 	margin-right: 4px;
@@ -1168,7 +1173,7 @@ td.events_of_the_day {
 }
 
 .extra_events ul li {
-	margin: 2px;
+	margin: 4px;
 }
 
 .calday, .calout, .calweekend {
