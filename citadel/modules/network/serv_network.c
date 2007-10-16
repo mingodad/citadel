@@ -431,8 +431,8 @@ void cmd_snet(char *argbuf) {
 				fprintf(newfp, "%s", buf);
 			}
 			fclose(newfp);
-			fclose(fp);
 		}
+		fclose(fp);
 	}
 	end_critical_section(S_NETCONFIGS);
 	unlink(tempfilename);
@@ -1746,8 +1746,8 @@ void receive_spool(int sock, char *remote_nodename) {
 				fprintf(newfp, "%s", buf);
 			}
 			fclose(newfp);
-			fclose(fp);
 		}
+		fclose(fp);
 	}
 	end_critical_section(S_NETSPOOL);
 	unlink(tempfilename);
