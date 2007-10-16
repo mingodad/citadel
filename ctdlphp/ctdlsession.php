@@ -35,7 +35,10 @@ function establish_citadel_session() {
 
 	$sockname = "/tmp/" . $session . ".socket" ;
 
-	$clientsocket = fsockopen('unix://' . $sockname, 0, $errno, $errstr, 5);
+	if (is_array(stat($sockname)))
+		$clientsocket = fsockopen(SOCKET_PREFIX.$sockname, 0, $errno, $errstr, 5);
+	else
+		$clientsocket = false;
 	if (!$clientsocket) {
 		// It ain't there, dude.  Open up the proxy. (C version)
 		//$cmd = "./sessionproxy " . $sockname ;
@@ -59,7 +62,10 @@ function establish_citadel_session() {
 		$attempts = 0;
 		while (!$clientsocket) {
 			usleep(100);
-			$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
+			if (is_array(stat($sockname)))
+				$clientsocket = fsockopen(SOCKET_PREFIX.$sockname, 0, $errno, $errstr, 5);
+			else 
+				$clientsocket = false;
 			$attempts += 1;
 			if ($attempts > 100) {
 				echo "ERROR: unable to start connection proxy. ";
@@ -96,7 +102,7 @@ function establish_citadel_session() {
 
 	if (!isset($_SESSION["serv_humannode"])) {
 		$server_info = ctdl_get_serv_info();
-		print_r($server_info);
+		// print_r($server_info);
 		$keys = array_keys($server_info);
 		foreach ($keys as $key)
 			$_SESSION[$key] = $server_info[$key];
