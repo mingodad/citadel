@@ -799,7 +799,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	struct tm ending_tm;
 	int top = 0;
 	int height = 0;
-	int gap = 0;
+	int gap = 1;
 	int startmin = 0;
 	int diffmin = 0;
 	int endmin = 0;
@@ -914,38 +914,38 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
 						startmin = diffmin = event_te.tm_min / 6;
 						endmin = ((event_tm.tm_hour == hour) ? (event_tm.tm_min / 2) : (event_tm.tm_min / 6)) ;
-						top = (event_te.tm_hour * 11) + startmin -1;
-						height= ((event_tm.tm_hour - event_te.tm_hour) * 11) + endmin - diffmin ;
+						top = (event_te.tm_hour * 10) + startmin -1;
+						height= ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin ;
 					}
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour >= dstart)) {
 						startmin = diffmin = event_te.tm_min / 6;
 						endmin = event_tm.tm_min / 2;
-						top = (event_te.tm_hour * 11) + startmin - 1;
-						height = ((dstart - event_te.tm_hour) * 11) + ((event_tm.tm_hour - dstart) * 31) + endmin - (diffmin * 3);
+						top = (event_te.tm_hour * 10) + startmin - 1;
+						height = ((dstart - event_te.tm_hour) * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin - (diffmin * 3);
 					}
 					if ((event_te.tm_hour <= dstart) && (event_tm.tm_hour > dend)) {
 						startmin = diffmin = ((event_te.tm_hour == hour) ? (event_te.tm_min / 2) : (event_te.tm_min / 6)) ;
 						endmin = event_tm.tm_min / 6; 
-						top = (event_te.tm_hour * 11)  + startmin - 1;
-						height = ((dstart - event_te.tm_hour) * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 10) + endmin - diffmin;
+						top = (event_te.tm_hour * 10)  + startmin - 1;
+						height = ((dstart - event_te.tm_hour) * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
 						startmin = diffmin = (event_te.tm_min / 2);
 						endmin = event_tm.tm_min / 2;
-						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31) + startmin - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 31) + endmin - diffmin;
+						top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 30) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend) && (event_tm.tm_hour > dend)) {
 						startmin = diffmin = (event_te.tm_min / 2);
 						endmin = event_tm.tm_min / 6;
-						top = (dstart * 11) + ((event_te.tm_hour - dstart) * 31)  + diffmin - 1;
-						height = (((dend - event_te.tm_hour + 1) * 31) + ((event_tm.tm_hour - dend - 1) * 11)) + endmin - diffmin;
+						top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30)  + diffmin - 1;
+						height = (((dend - event_te.tm_hour + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10)) + endmin - diffmin;
 					}
 					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
 						startmin = diffmin = event_te.tm_min / 6;
 						endmin = event_tm.tm_min / 6;
-						top = (dstart * 11) + ((dend - dstart + 1) * 31) + ((event_tm.tm_hour - event_te.tm_hour) * 11) + startmin - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 11) + endmin - diffmin;
+						top = (dstart * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - event_te.tm_hour) * 10) + startmin - 1;
+						height = ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin;
 					}
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
@@ -982,6 +982,9 @@ void calendar_day_view(int year, int month, int day) {
 	char d_str[128];
 	int time_format;
 	time_t today_t;
+	int timeline = 30;
+	int extratimeline = 0;
+	int gap = 0;
 
 	time_format = get_time_format_cached ();
 	get_preference("daystart", daystart_str, sizeof daystart_str);
@@ -1020,11 +1023,21 @@ void calendar_day_view(int year, int month, int day) {
 	/** Innermost cell (contains hours etc.) */
 	wprintf("<td class=\"events_of_the_day\" >");
        	wprintf("<dl class=\"events\" >");
-	/** Now the middle of the day... */	
-	for (hour = 0; hour < 24; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<dt class=\"hour%s\"><a href=\"display_edit_event?msgnum=0"
+
+	/** Now the middle of the day... */
+
+	extratimeline = timeline / 3;	
+
+	for (hour = 0; hour < daystart; ++hour) {	/* could do HEIGHT=xx */
+		wprintf("<dt class=\"extrahour\" 	"
+			"style=\"		"
+			"position: absolute; 	"
+			"top: %dpx; left: 0px; 	"
+			"height: %dpx;		"	
+			"\" >			"
+			"<a href=\"display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
-			(hour < daystart ? "before" : (hour > dayend ? "after" : "")),
+			(hour * extratimeline ), extratimeline, 
 			year, month, day, hour
 		);
 
@@ -1040,11 +1053,74 @@ void calendar_day_view(int year, int month, int day) {
 
 		wprintf("</dt>");
 	
-
 		/* put the data here, stupid */
 		calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
 
 	}
+
+	gap = daystart * extratimeline;
+
+        for (hour = daystart; hour <= dayend; ++hour) {       /* could do HEIGHT=xx */
+                wprintf("<dt class=\"hour\"     "
+                        "style=\"               "
+                        "position: absolute;    "
+                        "top: %dpx; left: 0px;  "
+                        "height: %dpx;          "
+                        "\" >                   "
+                        "<a href=\"display_edit_event?msgnum=0"
+                        "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+                        gap + ((hour - daystart) * timeline ), timeline,
+                        year, month, day, hour
+                );
+
+                if (time_format == WC_TIMEFORMAT_24) {
+                        wprintf("%2d:00</a> ", hour);
+                }
+                else {
+                        wprintf("%d:00%s</a> ",
+                                (hour <= 12 ? hour : hour-12),
+                                (hour < 12 ? "am" : "pm")
+                        );
+                }
+
+                wprintf("</dt>");
+
+                /* put the data here, stupid */
+                calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
+
+        }
+
+	gap = gap + ((dayend - daystart + 1) * timeline);
+
+        for (hour = (dayend + 1); hour < 24; ++hour) {       /* could do HEIGHT=xx */
+                wprintf("<dt class=\"extrahour\"     "
+                        "style=\"               "
+                        "position: absolute;    "
+                        "top: %dpx; left: 0px;  "
+                        "height: %dpx;          "
+                        "\" >                   "
+                        "<a href=\"display_edit_event?msgnum=0"
+                        "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+                        gap + ((hour - dayend - 1) * extratimeline ), extratimeline,
+                        year, month, day, hour
+                );
+
+                if (time_format == WC_TIMEFORMAT_24) {
+                        wprintf("%2d:00</a> ", hour);
+                }
+                else {
+                        wprintf("%d:00%s</a> ",
+                                (hour <= 12 ? hour : hour-12),
+                                (hour < 12 ? "am" : "pm")
+                        );
+                }
+
+                wprintf("</dt>");
+
+                /* put the data here, stupid */
+                calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
+
+        }
 
        	wprintf("</dl>");
 	wprintf("</td>");			/* end of innermost table */

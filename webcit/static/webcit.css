@@ -1138,18 +1138,15 @@ td.events_of_the_day {
 .events_of_the_day dl dt {
 	background-color: #FFFFFF;
 	margin: 0;
-	padding:0 ;
-        width: 100%;
-        border-bottom: 1px solid grey;
+        width: 500px;
+        border: 1px solid #CCC;
 }
 
 .events_of_the_day dl dt.hour {
-        height: 30px;
 	font-size: 16px;
 }
 
-.events_of_the_day dl dt.hourbefore,  .events_of_the_day dl dt.hourafter  {
-        height: 10px;
+.events_of_the_day dl dt.extrahour {
 	font-size: 8px;
 }
 
