@@ -15,22 +15,23 @@
 
 void extract_key(char *target, char *source, char *key)
 {
-	int a, b;
+	char *ptr;
+	char looking_for[256];
 
-	strcpy(target, source);
-	for (a = 0; a < strlen(target); ++a) {
-		if ((!strncasecmp(&target[a], key, strlen(key)))
-		    && (target[a + strlen(key)] == '=')) {
-			strcpy(target, &target[a + strlen(key) + 1]);
-			if (target[0] == 34)
-				strcpy(target, &target[1]);
-			for (b = 0; b < strlen(target); ++b)
-				if (target[b] == 34)
-					target[b] = 0;
-			return;
+	snprintf(looking_for, sizeof looking_for, "%s=", key);
+
+	ptr = bmstrcasestr(source, looking_for);
+	if (ptr == NULL) {
+		strcpy(target, "");
+		return;
+	}
+	strcpy(target, (ptr + strlen(looking_for)));
+
+	for (ptr=target; (*ptr != 0); ++ptr) {
+		if (*ptr == '\"') {
+			strcpy(ptr, ptr+1);
 		}
 	}
-	strcpy(target, "");
 }
 
 
