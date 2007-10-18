@@ -58,7 +58,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	struct CtdlMessage *msg = NULL;
 	long msgnum = 0;
 
-	lprintf(CTDL_DEBUG, "POP3: %s %s %s %s\n", roomname, pop3host, pop3user, pop3pass);
+	lprintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
 	sock = sock_connect(pop3host, "110", "tcp");
 	if (sock < 0) {
@@ -73,8 +73,12 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	/* Identify ourselves */
-	snprintf(buf, sizeof buf, "USER %s", pop3user);
+	/* Identify ourselves.  NOTE: we have to append a CR to each command.  The LF will
+	 * automatically be appended by sock_puts().  Believe it or not, leaving out the CR
+	 * will cause problems if the server happens to be Exchange, which is so b0rken it
+	 * actually barfs on LF-terminated newlines.
+	 */
+	snprintf(buf, sizeof buf, "USER %s\r", pop3user);
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
@@ -82,15 +86,15 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	/* Password */
-	snprintf(buf, sizeof buf, "PASS %s", pop3pass);
-	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	snprintf(buf, sizeof buf, "PASS %s\r", pop3pass);
+	lprintf(CTDL_DEBUG, "<PASS <password>\n");
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	/* Get the list of messages */
-	snprintf(buf, sizeof buf, "LIST");
+	snprintf(buf, sizeof buf, "LIST\r");
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
@@ -118,7 +122,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (num_msgs) for (i=0; i<num_msgs; ++i) {
 
 		/* Tell the server to fetch the message */
-		snprintf(buf, sizeof buf, "RETR %d", msglist[i]);
+		snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		if (sock_puts(sock, buf) <0) goto bail;
 		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
@@ -137,7 +141,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		msgnum = CtdlSubmitMsg(msg, NULL, roomname);
 		if (msgnum > 0L) {
 			/* Message has been committed to the store, so delete it from the remote server */
-			snprintf(buf, sizeof buf, "DELE %d", msglist[i]);
+			snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
 			lprintf(CTDL_DEBUG, "<%s\n", buf);
 			if (sock_puts(sock, buf) <0) goto bail;
 			if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
@@ -148,7 +152,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	}
 
 	/* Log out */
-	snprintf(buf, sizeof buf, "QUIT");
+	snprintf(buf, sizeof buf, "QUIT\r");
 	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
