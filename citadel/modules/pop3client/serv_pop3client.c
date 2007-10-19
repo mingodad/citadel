@@ -57,6 +57,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	char *body = NULL;
 	struct CtdlMessage *msg = NULL;
 	long msgnum = 0;
+	char this_uidl[64];
 
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
@@ -120,6 +121,15 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	} while (buf[0] != '.');
 
 	if (num_msgs) for (i=0; i<num_msgs; ++i) {
+
+		/* Find out the UIDL of the message, to determine whether we've already downloaded it */
+		snprintf(buf, sizeof buf, "UIDL %d\r", msglist[i]);
+		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		if (sock_puts(sock, buf) <0) goto bail;
+		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		lprintf(CTDL_DEBUG, ">%s\n", buf);
+		if (strncasecmp(buf, "+OK", 3)) goto bail;
+		extract_token(this_uidl, buf, 3, ' ', sizeof this_uidl);
 
 		/* Tell the server to fetch the message */
 		snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
