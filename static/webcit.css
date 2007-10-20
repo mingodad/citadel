@@ -1097,31 +1097,41 @@ table.advanced {
 
 /* Tabs */
 
-.tab_cell_label, .tab_cell, .tab_cell_edit {
+#TheTabs {
+        margin: 3% auto 0 auto;
+        width: 94%;
 }
 
 ul.tabbed_dialog {
         list-style: none;
-	margin: 3% auto 0 auto;
-	width: 96%;
-	padding: 0;
- 	white-space: nowrap;
+        margin: 3% auto 0 auto;
+        width: 96%;
+        padding: 0;
+        white-space: nowrap;
         text-align: center;
         vertical-align: middle;
 }
 
 ul.tabbed_dialog li {
-	margin: 0 3% 0 3%;
-	padding: 4px;
+        margin: 0 3% 0 3%;
+        padding: 4px;
         float: left;
 }
 
 .tabcontent {
-	margin: 3% auto 0 auto;
+	margin: 0 auto 0 auto;
 	width: 96%;
 	padding: 10px;
 	clear: both;
 }
+
+.tabcontent_submit {
+        margin: 0 auto 0 auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+}
+
 
 /* Calendar view */
 
