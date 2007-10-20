@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -34,6 +36,7 @@
 #include "clientsocket.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
+#include "citadel_dirs.h"
 
 struct pop3aggr {
 	struct pop3aggr *next;
@@ -254,6 +257,11 @@ void pop3client_scan(void) {
 	 */
 	if (doing_pop3client) return;
 	doing_pop3client = 1;
+
+	/* We can silently fail on these if the directory already exists. */
+	mkdir(ctdl_uidlmap_dir, 0700);
+	chmod(ctdl_uidlmap_dir, 0700);
+	chown(ctdl_uidlmap_dir, config.c_ctdluid, -1);
 
 	lprintf(CTDL_DEBUG, "pop3client started\n");
 	ForEachRoom(pop3client_scan_room, NULL);

@@ -1229,6 +1229,10 @@ NEW_INST:
 	chmod(ctdl_netcfg_dir, 0700);
 	chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
 
+	mkdir(ctdl_uidlmap_dir, 0700);
+	chmod(ctdl_uidlmap_dir, 0700);
+	chown(ctdl_uidlmap_dir, config.c_ctdluid, -1);
+
 	/* Delete files and directories used by older Citadel versions */
 	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 	unlink("citadel.log");
