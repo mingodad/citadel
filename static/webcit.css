@@ -1087,7 +1087,10 @@ table.advanced {
 
 /* Tabs */
 
-.tab_cell_label, .tab_cell, .tab_cell_edit {
+
+#TheTabs {
+	margin: 3% auto 0 auto;
+	width: 94%;
 }
 
 ul.tabbed_dialog {
@@ -1107,10 +1110,17 @@ ul.tabbed_dialog li {
 }
 
 .tabcontent {
-	margin: 3% auto 0 auto;
+	margin: 0 auto 0 auto;
 	width: 96%;
 	padding: 10px;
 	clear: both;
+}
+
+.tabcontent_submit {
+	margin: 0 auto 0 auto;
+	width: 50%;
+	padding: 10px;
+	text-align: center;
 }
 
 /* Calendar view */

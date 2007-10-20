@@ -22,37 +22,34 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 		"	if (which_tab == previously_selected_tab) {				"
 		" 		return;								"
 		"	}									"
-		"	$('tabtd'+previously_selected_tab).style.backgroundColor = '#cccccc';	"
 		"	$('tabdiv'+previously_selected_tab).style.display = 'none';		"
-		"	$('tabtd'+which_tab).style.backgroundColor = '#ffffff';			"
 		"	$('tabdiv'+which_tab).style.display = 'block';				"
 		"	previously_selected_tab = which_tab;					"
 		"}										"
 		"</script>									\n"
 	);
 
-	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%%\">"
+	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
 		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
 	);
 
 	for (i=0; i<num_tabs; ++i) {
-		wprintf("<td id=\"tabtd%d\" bgcolor=\"#%s\" "
+		wprintf("<td id=\"tabtd%d\" class=\"%s\" "
 			"onClick='tabsel(\"%d\");'"
-			">"
-			"<span class=\"tablabel\">",
+			">",
 			i,
-			( (i==0) ? "ffffff" : "cccccc" ),
+			( (i==0) ? "tab_cell_label" : "tab_cell_edit" ),
 			i,
 			i
 		);
 		wprintf("%s", tabnames[i]);
-		wprintf("</span></td>");
+		wprintf("</td>");
 
 		wprintf("<td>&nbsp;</td>\n");
 	}
 
 	wprintf("</tr></table>\n");
-	wprintf("<table class=\"tabs_background\"><tr><td>");
+	wprintf("<div class=\"tabcontent\">");
 }
 
 /**
@@ -78,9 +75,11 @@ void end_tab(int tabnum, int num_tabs) {
 	wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
 
 	if (tabnum == num_tabs-1) {
-		wprintf("</td></tr></table>\n");
+		wprintf("</div>\n");
 		wprintf("<script type=\"text/javascript\">"
 			" Nifty(\"table#TheTabs td\", \"small transparent top\");"
+			" Nifty(\"div.tabcontent\", \"big transparent bottom\");"
+			" Nifty(\"div.tabcontent_submit\", \"big transparent bottom\");"
 			"</script>"
 		);
 	}

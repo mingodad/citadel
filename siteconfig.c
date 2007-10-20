@@ -53,7 +53,7 @@ void display_siteconfig(void)
 		return;
 	}
 
-	wprintf("<table><tr><td>");
+	wprintf("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" ><tr><td>");
 
 	char *tabnames[] = {
 		_("General"),
@@ -678,7 +678,7 @@ void display_siteconfig(void)
 	begin_tab(5, 8);	client_write(purger, strlen(purger));		 end_tab(5, 8);
 	begin_tab(6, 8);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 8);
 	begin_tab(7, 8);	client_write(funambol, strlen(funambol));	 end_tab(7, 8);
-	wprintf("<div align=\"center\"><br>");
+	wprintf("<div class=\"tabcontent_submit\">");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
