@@ -26,7 +26,7 @@ body {
 	font-weight: 400;
 }
 
-.boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
+#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
 	background-color: #FFF;
 	color: #000;
 }
@@ -59,7 +59,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+#iconbar ul li a, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
 	color: #666;
 }
@@ -81,8 +81,8 @@ body {
 
 #button li {
 	border: none;
-	border-bottom: 2px groove #AAA;
-	border-right: 2px groove #AAA;
+	border-bottom: 2px groove #CCC;
+	border-right: 2px groove #CCC;
 }
 
 .logo_citadel a,.logo_citadel img {
