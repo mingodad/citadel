@@ -61,7 +61,7 @@ body {
 
 #iconbar ul li a, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
-	color: #666;
+	color: #333;
 }
 
 #iconbar #button {
