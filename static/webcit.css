@@ -1093,7 +1093,7 @@ table.advanced {
 ul.tabbed_dialog {
         list-style: none;
 	margin: 3% auto 0 auto;
-	width: 90%;
+	width: 96%;
 	padding: 0;
  	white-space: nowrap;
         text-align: center;
@@ -1102,14 +1102,14 @@ ul.tabbed_dialog {
 
 ul.tabbed_dialog li {
 	margin: 0 3% 0 3%;
-	padding: 2px;
+	padding: 4px;
         float: left;
 }
 
 .tabcontent {
 	margin: 3% auto 0 auto;
-	width: 95%;
-	padding: 10
+	width: 96%;
+	padding: 10px;
 	clear: both;
 }
 
