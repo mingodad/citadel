@@ -1236,4 +1236,10 @@ li.event span, a.event_title {
 .mini_calendar td a:hover,.mini_calendar td a:active {
    color: #fff;
    background-color: #AD1C00;
+
+}
+
+.menudesc {
+	margin: 4px;
+	padding: 4px;
 }

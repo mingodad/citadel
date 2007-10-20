@@ -19,6 +19,7 @@ void display_inetconf(void)
 	char etype[SIZ];
 	int i;
 	int which;
+	int bg = 0;
 
 	enum {
 		ic_localhost,
@@ -114,10 +115,16 @@ void display_inetconf(void)
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
 		wprintf("</span><br />");
-		wprintf("<table border=0 cellspacing=\"2px\" cellpadding=\"2px\" width=94%%>\n");
+		wprintf("<table border=0 cellspacing=\"2px\" cellpadding=\"2px\" width=94%% "
+			"class=\"altern\" >\n");
+		bg = 0;
 		if (!IsEmptyStr(ic_spec[which])) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
-				wprintf("<tr><td align=left>");
+                        	bg = 1 - bg;
+				wprintf("<tr class=\"%s\">",
+                                	(bg ? "even" : "odd")
+                        	);
+				wprintf("<td align=left>");
 				extract_token(buf, ic_spec[which], i, '\n', sizeof buf);
 				escputs(buf);
 				wprintf("</td><td align=left>"
@@ -130,6 +137,7 @@ void display_inetconf(void)
 				wprintf(_("Delete"));
 				wprintf("</a></span></td></tr>\n");
 			}
+
 		}
 		wprintf("<form method=\"post\" action=\"save_inetconf\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
