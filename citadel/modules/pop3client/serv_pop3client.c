@@ -43,6 +43,11 @@ struct pop3aggr {
 	char pop3pass[128];
 };
 
+struct uidl {
+	struct uidl *next;
+	char uidl[64];
+};
+
 struct pop3aggr *palist = NULL;
 
 void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass)
@@ -58,6 +63,8 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	struct CtdlMessage *msg = NULL;
 	long msgnum = 0;
 	char this_uidl[64];
+	struct uidl *new_uidl_map = NULL;
+	struct uidl *uptr;
 
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
@@ -131,6 +138,13 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
 		extract_token(this_uidl, buf, 3, ' ', sizeof this_uidl);
 
+		uptr = (struct uidl *) malloc(sizeof(struct uidl));
+		if (uptr != NULL) {
+			safestrncpy(uptr->uidl, this_uidl, sizeof uptr->uidl);
+			uptr->next = new_uidl_map;
+			new_uidl_map = uptr;
+		}
+
 		/* Tell the server to fetch the message */
 		snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
@@ -169,6 +183,12 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	sock_close(sock);
 	if (msglist) free(msglist);
+
+	while (new_uidl_map != NULL) {
+		uptr = new_uidl_map->next;
+		free(new_uidl_map);
+		new_uidl_map = uptr;
+	}
 }
 
 
