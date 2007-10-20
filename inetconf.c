@@ -103,42 +103,44 @@ void display_inetconf(void)
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table border=0 width=100%%><tr><td valign=top>\n");
+		"<table border=0 width=100%% cellspacing=\"10px\" cellpadding=\"10px\"> "
+		"<tr><td valign=top width=50%%>\n");
 	for (which=0; which<ic_max; ++which) {
 		if (which == (ic_max / 2)) {
-			wprintf("</TD><TD VALIGN=TOP>");
+			wprintf("</td><td valign=top>");
 		}
 		svprintf("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
 		do_template("beginbox");
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
 		wprintf("</span><br />");
-		wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
+		wprintf("<table border=0 cellspacing=\"2px\" cellpadding=\"2px\" width=94%%>\n");
 		if (!IsEmptyStr(ic_spec[which])) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
-				wprintf("<TR><TD ALIGN=LEFT>");
+				wprintf("<tr><td align=left>");
 				extract_token(buf, ic_spec[which], i, '\n', sizeof buf);
 				escputs(buf);
-				wprintf("</TD><TD ALIGN=RIGHT>"
+				wprintf("</td><td align=left>"
+					"<span class=\"button_link\">"
 					"<a href=\"save_inetconf?oper=delete&ename=");
 				escputs(buf);
 				wprintf("&etype=%s\" ", ic_keyword[which]);
 				wprintf("onClick=\"return confirm('%s');\">",
 					_("Delete this entry?"));
-				wprintf("<font size=-1>");
-				wprintf(_("(Delete)"));
-				wprintf("</font></a></TD></TR>\n");
+				wprintf(_("Delete"));
+				wprintf("</a></span></td></tr>\n");
 			}
 		}
-		wprintf("<FORM METHOD=\"POST\" action=\"save_inetconf\">\n");
+		wprintf("<form method=\"post\" action=\"save_inetconf\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<TR><TD>"
-			"<INPUT TYPE=\"text\" NAME=\"ename\" MAXLENGTH=\"64\">"
-			"<INPUT TYPE=\"hidden\" NAME=\"etype\" VALUE=\"%s\">", ic_keyword[which]);
-		wprintf("</TD><TD ALIGN=RIGHT>"
-			"<INPUT TYPE=\"submit\" NAME=\"oper\" VALUE=\"Add\">"
-			"</TD></TR></TABLE></FORM>\n");
+		wprintf("<tr><td>"
+			"<input type=\"text\" name=\"ename\" maxlength=\"64\">"
+			"<input type=\"hidden\" name=\"etype\" VALUE=\"%s\">", ic_keyword[which]);
+		wprintf("</td><td align=left>"
+			"<input type=\"submit\" name=\"oper\" value=\"Add\">"
+			"</td></tr></table></form>\n");
 		do_template("endbox");
+		wprintf("<br />");
 	}
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);

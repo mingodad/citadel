@@ -14,7 +14,7 @@ body { font-size: 11pt}
 	font-size: 13pt;
 }
 
-#button, #content .msgbuttons a,input#delbutton,.attachfile,.logbuttons input,.buttons input, #wholist li, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, #wholist li, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
 	font-size: 10pt;
 }
 
@@ -44,11 +44,11 @@ body {
 	cursor: help;
 }
 
-input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
+.button_link, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
 	background-color: #fbf4ca;
 }
 
-input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
+.button_link, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
 	border: 1px solid #999;
 	color: #333;
 }
@@ -448,6 +448,10 @@ a:visited { color: purple; }
 }
 
 
+.button_link a {
+	color: #333;
+}
+
 /* Layout */
 
 * html {
@@ -820,6 +824,12 @@ html>body #button li a {
 	padding: 0;
 }
 
+
+
+.button_link {
+	padding: 0 2px 0 2px;
+}
+
 .msgbuttons a {
 	margin: 0 2px 0 2px;
 	padding: 1px;
@@ -1087,10 +1097,7 @@ table.advanced {
 
 /* Tabs */
 
-
-#TheTabs {
-	margin: 3% auto 0 auto;
-	width: 94%;
+.tab_cell_label, .tab_cell, .tab_cell_edit {
 }
 
 ul.tabbed_dialog {
@@ -1110,17 +1117,10 @@ ul.tabbed_dialog li {
 }
 
 .tabcontent {
-	margin: 0 auto 0 auto;
+	margin: 3% auto 0 auto;
 	width: 96%;
 	padding: 10px;
 	clear: both;
-}
-
-.tabcontent_submit {
-	margin: 0 auto 0 auto;
-	width: 50%;
-	padding: 10px;
-	text-align: center;
 }
 
 /* Calendar view */
