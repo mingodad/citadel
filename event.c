@@ -185,7 +185,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			tm_now.tm_sec = 0;
 		}
 		else {
-			tm_now.tm_hour = 9;
+			tm_now.tm_hour = 0;
 			tm_now.tm_min = 0;
 			tm_now.tm_sec = 0;
 		}
