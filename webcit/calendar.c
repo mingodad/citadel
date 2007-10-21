@@ -264,14 +264,15 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</dl>");
 
 		/** Display the Accept/Decline buttons */
-		wprintf("<p id=\"%s_question\" class=\"buttons\">"
+		wprintf("<p id=\"%s_question\">"
 			"%s "
+			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Accept');\">%s</a>"
-			"<span> | </span>"
+			"</span>&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Tentative');\">%s</a>"
-			"<span> | </span>"
+			"</span>&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Decline');\">%s</a>"
-			"</p>\n",
+			"</span></p>\n",
 			divname,
 			_("How would you like to respond to this invitation?"),
 			divname, divname, msgnum, cal_partnum, _("Accept"),
@@ -292,12 +293,13 @@ void cal_process_object(icalcomponent *cal,
 		 ***********/
 
 		/** Display the update buttons */
-		wprintf("<p id=\"%s_question\" class=\"buttons\">"
-			"%s"
+		wprintf("<p id=\"%s_question\" >"
+			"%s "
+			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
-			"<span> | </span>"
+			"</span>&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Ignore');\">%s</a>"
-			"</p>\n",
+			"</span></p>\n",
 			divname,
 			_("Click <i>Update</i> to accept this reply and update your calendar."),
 			divname, divname, msgnum, cal_partnum, _("Update"),
