@@ -53,6 +53,12 @@ if test -f $DEFAULT; then
   . $DEFAULT
 fi
 
+if test -z "$TZ"; then
+	if test -e /etc/timezone; then
+		TZ=`cat /etc/timezone`
+		export TZ
+	fi
+fi
 #
 # Function that starts the daemon/service
 #
