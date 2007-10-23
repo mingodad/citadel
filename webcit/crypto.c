@@ -152,10 +152,12 @@ void init_ssl(void)
 		}
 	}
 
-	/**
-	 * Generate a CSR if we don't have one.
+	/*
+	 * If there is no certificate file on disk, we will be generating a self-signed certificate
+	 * in the next step.  Therefore, if we have neither a CSR nor a certificate, generate
+	 * the CSR in this step so that the next step may commence.
 	 */
-	if (access(CTDL_CSR_PATH, R_OK) != 0) {
+	if ( (access(CTDL_CER_PATH, R_OK) != 0) && (access(CTDL_CSR_PATH, R_OK) != 0) ) {
 		lprintf(5, "Generating a certificate signing request.\n");
 
 		/**
