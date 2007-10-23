@@ -449,6 +449,7 @@ a:visited { color: purple; }
 
 
 .button_link a {
+	font-weight: normal;
 	color: #333;
 }
 
@@ -898,7 +899,7 @@ dt { clear: both; }
  	text-align: center;
 }
 
-.msgbuttons a span, .buttons span {
+.msgbuttons a span {
  	display: none;
 }
 

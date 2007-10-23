@@ -312,12 +312,13 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<hr /><div><a href=\".\">");
+	wprintf("<hr /><div class=\"buttons\"> "
+		"<span class=\"button_link\"><a href=\".\">");
 	wprintf(_("Log in again"));
-	wprintf("</a>&nbsp;&nbsp;&nbsp;"
+	wprintf("</a></span>&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 		"<a href=\"javascript:window.close();\">");
 	wprintf(_("Close window"));
-	wprintf("</a></div></div></div></div>\n");
+	wprintf("</a></span></div></div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
