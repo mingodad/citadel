@@ -475,7 +475,9 @@ void graceful_shutdown_watcher(int signum) {
 pid_t current_child;
 void graceful_shutdown(int signum) {
 //	kill(current_child, signum);
-	lprintf (1, "bye going down gracefull.");
+	char wd[SIZ];
+	getcwd(wd, SIZ);
+	lprintf (1, "bye going down gracefull.[%s]\n", wd);
 	time_to_die = 1;
 	exit(0);
 }
