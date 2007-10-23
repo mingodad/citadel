@@ -804,6 +804,10 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	int diffmin = 0;
 	int endmin = 0;
 
+        char buf[256];
+        struct tm d_tm;
+        char d_str[32];
+
 	if (WCC->num_cal == 0) {
 		// \todo FIXME wprintf("<br /><br /><br />\n");
 		return;
@@ -875,29 +879,76 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		/* If we determined that this event occurs today, then display it.
 	 	 */
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
+
 		if ((show_event) && (p != NULL)) {
 
 			if ((event_te.tm_mday != today_start_t.day) && (event_tm.tm_mday != today_start_t.day)) ongoing_event = 1; 
 
 			if (all_day_event) 
 			{
-				wprintf("<li class=\"event\"> "
-				"<a href=\"display_edit_event?"
-				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
-				" class=\"event_title\" >",
-					Cal->cal_msgnum, year, month, day, hour);
-				escputs((char *) icalproperty_get_comment(p));
-				wprintf("</a> <span>(");
-				wprintf(_("All day event"));
-				wprintf(")</span></li>\n");
+                              wprintf("<li class=\"event\"> "
+                                "<a href=\"display_edit_event?"
+                                "msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+                                " class=\"event_title\" "
+                                " btt_tooltext=\"",
+                                        Cal->cal_msgnum, year, month, day, hour);
+                                wprintf("<i>%s</i><br />", _("All day event"));
+                                wprintf("<i>%s</i> ",    _("Summary:"));
+                                escputs((char *) icalproperty_get_comment(p));
+                                wprintf("<br />");
+				q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Location:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                        }
+                                memset(&d_tm, 0, sizeof d_tm);
+                                d_tm.tm_year = t.year - 1900;
+                                d_tm.tm_mon = t.month - 1;
+                                d_tm.tm_mday = t.day;
+                                wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
+                                wprintf("<i>%s</i> %s<br>",_("Date:"), d_str);
+				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Notes:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                }
+                                wprintf("\">");
+                                escputs((char *) icalproperty_get_comment(p));
+                                wprintf("</a> <span>(");
+                                wprintf(_("All day event"));
+                                wprintf(")</span></li>\n");
 			}
 			else if (ongoing_event && (hour == -1)) 
 			{
 				wprintf("<li class=\"event\"> "
 				"<a href=\"display_edit_event?"
 				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
-				" class=\"event_title\" >",
-					Cal->cal_msgnum, year, month, day, hour);
+				" class=\"event_title\" " 
+                                "btt_tooltext=\"",
+				Cal->cal_msgnum, year, month, day, hour);
+                                wprintf("<i>%s</i><br />", _("Ongoing event"));
+                                wprintf("<i>%s</i> ",    _("Summary:"));
+                                escputs((char *) icalproperty_get_comment(p));
+                                wprintf("<br />");
+                                q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Location:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                        }
+                                fmt_date(buf, event_tt, 1);
+                                wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
+                                fmt_date(buf, event_tte, 1);
+                                wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+                                q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Notes:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                }
+                                wprintf("\">");
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a> <span>(");
 				wprintf(_("Ongoing event"));
@@ -944,7 +995,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
 						startmin = diffmin = event_te.tm_min / 6;
 						endmin = event_tm.tm_min / 6;
-						top = (dstart * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - event_te.tm_hour) * 10) + startmin - 1;
+						top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour) * 10) + startmin - 1;
 						height = ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin;
 					}
 				wprintf("<dd  class=\"event\" "
@@ -955,8 +1006,30 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					);
 				wprintf("<a href=\"display_edit_event?"
 					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\" "
-					"class=\"event_title\" >",
+					"class=\"event_title\" "
+                               		"btt_tooltext=\"",
 					Cal->cal_msgnum, year, month, day, t.hour, hour);
+                                wprintf("<i>%s</i> ",    _("Summary:"));
+                                escputs((char *) icalproperty_get_comment(p));
+                                wprintf("<br />");
+                                q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Location:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                        }
+                                fmt_date(buf, event_tt, 1);
+                                wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
+                                fmt_date(buf, event_tte, 1);
+                                wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
+                                if (q) {
+                                        wprintf("<i>%s</i> ", _("Notes:"));
+                                        escputs((char *)icalproperty_get_comment(q));
+                                        wprintf("<br />");
+                                }
+                                wprintf("\">");
+
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
 				}
