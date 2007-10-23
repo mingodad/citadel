@@ -813,6 +813,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 		return;
 	}
 
+	lprintf (2, "printing %d\n", hour); /// TODO: remove me.
 	event_start = thetime + 60 * 60 * hour;
 	event_end = thetime + 60 * 60 * (hour + 1);
 
@@ -998,6 +999,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 						top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour) * 10) + startmin - 1;
 						height = ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin;
 					}
+				} // TODO: we seem to end up here for some reason if we're just a one hour event.  Thierry, please decide what to do then...
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
@@ -1032,7 +1034,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
-				}
+				
 				
 			}
 		}

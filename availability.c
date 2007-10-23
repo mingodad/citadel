@@ -48,6 +48,57 @@ icalcomponent *get_freebusy_for_user(char *who) {
 }
 
 
+/* TODO: temporary copy from libical, apply this patch to libical... */
+int webcit_icaltime_compare(const struct icaltimetype a_in, const struct icaltimetype b_in) 
+{
+    struct icaltimetype a, b;
+
+    a = icaltime_convert_to_zone(a_in, icaltimezone_get_utc_timezone());
+    b = icaltime_convert_to_zone(b_in, icaltimezone_get_utc_timezone());
+
+    if (a.year > b.year)
+	return 1;
+    else if (a.year < b.year)
+	return -1;
+
+    else if (a.month > b.month)
+	return 1;
+    else if (a.month < b.month)
+	return -1;
+
+    else if (a.day > b.day)
+	return 1;
+    else if (a.day < b.day)
+	return -1;
+
+    /* if both are dates, we are done */
+    if (a.is_date && b.is_date)
+	return 0;
+
+    /* else, if only one is a date (and we already know the date part is equal),
+       then the other is greater */
+    else if (b.is_date)
+	return 1;
+    else if (a.is_date)
+	return -1;
+
+    else if (a.hour > b.hour)
+	return 1;
+    else if (a.hour < b.hour)
+	return -1;
+
+    else if (a.minute > b.minute)
+	return 1;
+    else if (a.minute < b.minute)
+	return -1;
+
+    else if (a.second > b.second)
+	return 1;
+    else if (a.second < b.second)
+	return -1;
+
+    return 0;
+}
 
 
 /**
@@ -94,6 +145,8 @@ int ical_ctdl_is_overlap(
 		}
 	}
 
+	lprintf (2,"Comparing t1start %d:%d t1end %d:%d t2start %d:%d t2end %d:%d \n", t1start.hour, t1start.minute, t1end.hour, t1end.minute, t2start.hour, t2start.minute, t2end.hour, t2end.minute);// TODO: remove me.
+
 	/** Now check for overlaps using date *and* time. */
 
 	/** First, bail out if either event 1 or event 2 is missing end time. */
@@ -101,10 +154,11 @@ int ical_ctdl_is_overlap(
 	if (icaltime_is_null_time(t2end)) return(0);
 
 	/** If event 1 ends before event 2 starts, we're in the clear. */
-	if (icaltime_compare(t1end, t2start) <= 0) return(0);
-
+	if (webcit_icaltime_compare(t1end, t2start) <= 0) return(0);
+	lprintf(2,"first pased \n");
 	/** If event 2 ends before event 1 starts, we're also ok. */
-	if (icaltime_compare(t2end, t1start) <= 0) return(0);
+	if (webcit_icaltime_compare(t2end, t1start) <= 0) return(0);
+	lprintf(2,"second pased \n");
 
 	/** Otherwise, they overlap. */
 	return(1);
