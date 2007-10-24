@@ -21,11 +21,11 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
 
 int verbosity = 9;		/**< Logging level */
-int msock;			    /**< master listening socket */
+int msock;			/**< master listening socket */
 int is_https = 0;		/**< Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/**< Follow X-Forwarded-For: header */
-int home_specified = 0; /**< did the user specify a homedir? */
-int time_to_die = 0;            /**< shold we shut down? */
+int home_specified = 0;		/**< did the user specify a homedir? */
+int time_to_die = 0;            /**< Nonzero if server is shutting down */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -37,14 +37,14 @@ char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 
-char socket_dir[PATH_MAX];      /**< where to talk to our citadel server */
-static const char editor_absolut_dir[PATH_MAX]=EDITORDIR; /**< nailed to what configure gives us. */
-static char static_dir[PATH_MAX]; /**< calculated on startup */
-static char static_local_dir[PATH_MAX]; /**< calculated on startup */
-char  *static_dirs[]={ /**< needs same sort order as the web mapping */
-	(char*)static_dir,                  /** our templates on disk */
-	(char*)static_local_dir,            /** user provided templates disk */
-	(char*)editor_absolut_dir           /** the editor on disk */
+char socket_dir[PATH_MAX];			/**< where to talk to our citadel server */
+static const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/**< nailed to what configure gives us. */
+static char static_dir[PATH_MAX];		/**< calculated on startup */
+static char static_local_dir[PATH_MAX];		/**< calculated on startup */
+char  *static_dirs[]={				/**< needs same sort order as the web mapping */
+	(char*)static_dir,			/** our templates on disk */
+	(char*)static_local_dir,		/** user provided templates disk */
+	(char*)editor_absolut_dir		/** the editor on disk */
 };
 
 /**
@@ -55,21 +55,19 @@ char  *static_dirs[]={ /**< needs same sort order as the web mapping */
 char *static_content_dirs[] = {
 	"static",                     /** static templates */
 	"static.local",               /** site local static templates */
-	"tiny_mce"                    /** the JS editor */
+	"tiny_mce"                    /** rich text editor */
 };
 
 int ndirs=3;
 
 
-char *server_cookie = NULL; /**< our Cookie connection to the client */
-
+char *server_cookie = NULL;	/**< our Cookie connection to the client */
 int http_port = PORT_NUM;	/**< Port to listen on */
-
-char *ctdlhost = DEFAULT_HOST; /**< our name */
-char *ctdlport = DEFAULT_PORT; /**< our Port */
-int setup_wizard = 0;          /**< should we run the setup wizard? \todo */
-char wizard_filename[PATH_MAX];/**< where's the setup wizard? */
-int running_as_daemon = 0;     /**< should we deamonize on startup? */
+char *ctdlhost = DEFAULT_HOST;	/**< our name */
+char *ctdlport = DEFAULT_PORT;	/**< our Port */
+int setup_wizard = 0;		/**< should we run the setup wizard? \todo */
+char wizard_filename[PATH_MAX];	/**< where's the setup wizard? */
+int running_as_daemon = 0;	/**< should we deamonize on startup? */
 
 
 /** 
@@ -77,7 +75,7 @@ int running_as_daemon = 0;     /**< should we deamonize on startup? */
  * a TCP port.  The server shuts down if the bind fails.
  * \param ip_addr ip to bind to
  * \param port_number the port to bind to 
- * \param queue_len the size of the input queue ????
+ * \param queue_len Number of incoming connections to allow in the queue
  */
 int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
@@ -127,7 +125,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 /**
  * \brief Create a Unix domain socket and listen on it
  * \param sockpath file name of the unix domain socket
- * \param queue_len queue size of the kernel fifo????
+ * \param queue_len Number of incoming connections to allow in the queue
  */
 int ig_uds_server(char *sockpath, int queue_len)
 {
@@ -178,10 +176,10 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 /**
  * \brief Read data from the client socket.
- * \param sock socket fd to read from ???
+ * \param sock socket fd to read from
  * \param buf buffer to read into 
- * \param bytes how large is the read buffer?
- * \param timeout how long should we wait for input?
+ * \param bytes number of bytes to read
+ * \param timeout Number of seconds to wait before timing out
  * \return values are\
  *      1       Requested number of bytes has been read.\
  *      0       Request timed out.\
@@ -277,7 +275,7 @@ ssize_t client_write(const void *buf, size_t count)
 }
 
 /**
- * \brief what burst???
+ * \brief Begin buffering HTTP output so we can transmit it all in one write operation later.
  */
 void begin_burst(void)
 {
@@ -299,10 +297,10 @@ void begin_burst(void)
 #define DEF_MEM_LEVEL 8 /**< memlevel??? */
 #define OS_CODE 0x03	/**< unix */
 int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
-						  uLongf * destLen,     /**< length of the compresed data */
-						  const Bytef * source, /**< source to encode */
-						  uLong sourceLen,      /**< length of the source to encode */
-						  int level)            /**< what level??? */
+			  uLongf * destLen,     /**< length of the compresed data */
+			  const Bytef * source, /**< source to encode */
+			  uLong sourceLen,      /**< length of source to encode */
+			  int level)            /**< compression level */
 {
 	const int gz_magic[2] = { 0x1f, 0x8b };	/** gzip magic header */
 
@@ -356,7 +354,7 @@ int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
 #endif
 
 /**
- * \brief what burst???
+ * \brief Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
  */
 void end_burst(void)
 {
@@ -374,7 +372,7 @@ void end_burst(void)
 	WC->burst = NULL;
 
 #ifdef HAVE_ZLIB
-	/* Handle gzip compression */
+	/* Perform gzip compression, if enabled and supported by client */
 	if (WC->gzip_ok) {
 		char *compressed_data = NULL;
 		uLongf compressed_len;
@@ -394,7 +392,7 @@ void end_burst(void)
 			free(compressed_data);
 		}
 	}
-#endif				/* HAVE_ZLIB */
+#endif	/* HAVE_ZLIB */
 
 	wprintf("Content-length: %d\r\n\r\n", the_len);
 	client_write(the_data, the_len);
@@ -408,9 +406,9 @@ void end_burst(void)
  * \brief Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
- * \param sock the socket fd to read from???
+ * \param sock the socket fd to read from
  * \param buf the buffer to write to
- * \param bytes how large is the buffer
+ * \param bytes Number of bytes to read
  */
 int client_read(int sock, char *buf, int bytes)
 {
@@ -422,10 +420,10 @@ int client_read(int sock, char *buf, int bytes)
  * \brief Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
- * \param sock socket fd to get client line from???
+ * \param sock socket fd to get client line from
  * \param buf buffer to write read data to
  * \param bufsiz how many bytes to read
- * \return  numer of bytes read???
+ * \return  number of bytes read???
  */
 int client_getln(int sock, char *buf, int bufsiz)
 {
