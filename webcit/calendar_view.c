@@ -883,7 +883,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 		if ((show_event) && (p != NULL)) {
 
-			if ((event_te.tm_mday != today_start_t.day) && (event_tm.tm_mday != today_start_t.day)) ongoing_event = 1; 
+			if ((event_te.tm_mday != day) || (event_tm.tm_mday != day)) ongoing_event = 1; 
 
 			if (all_day_event) 
 			{
@@ -958,10 +958,13 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 			else 
 			{
 				gap++;
-				if ((hour == event_te.tm_hour) && ! ongoing_event ) {
+				if ((today_start_t.hour == t.hour)
+					&& ((event_te.tm_mday == day) 
+					|| (event_tm.tm_mday == day)))
+ 					{
 
-					if (event_te.tm_mday != today_start_t.day)	event_te.tm_hour = 0;
-					if (event_tm.tm_mday != today_start_t.day) event_tm.tm_hour = 24;
+					if (event_te.tm_mday != day) event_te.tm_hour = 0;
+					if (event_tm.tm_mday != day) event_tm.tm_hour = 24;
 
 					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
 						startmin = diffmin = event_te.tm_min / 6;
@@ -996,10 +999,10 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
 						startmin = diffmin = event_te.tm_min / 6;
 						endmin = event_tm.tm_min / 6;
-						top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour) * 10) + startmin - 1;
+						top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour + 1) * 10) + startmin - 1;
 						height = ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin;
 					}
-				} // TODO: we seem to end up here for some reason if we're just a one hour event.  Thierry, please decide what to do then...
+				 // TODO: we seem to end up here for some reason if we're just a one hour event.  Thierry, please decide what to do then...
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
@@ -1035,7 +1038,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
 				
-				
+			 }	
 			}
 		}
 	}
