@@ -24,6 +24,8 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 		"	}									"
 		"	$('tabdiv'+previously_selected_tab).style.display = 'none';		"
 		"	$('tabdiv'+which_tab).style.display = 'block';				"
+		"	$('tabtd'+previously_selected_tab).className = 'tab_cell_edit';		"
+		"	$('tabtd'+which_tab).className = 'tab_cell_label';			"
 		"	previously_selected_tab = which_tab;					"
 		"}										"
 		"</script>									\n"
