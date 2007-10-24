@@ -51,7 +51,6 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	}
 
 	wprintf("</tr></table>\n");
-	wprintf("<div class=\"tabcontent\">");
 }
 
 /**
@@ -61,7 +60,7 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
  */
 void begin_tab(int tabnum, int num_tabs) {
 	wprintf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
-	wprintf("<div id=\"tabdiv%d\" style=\"display:%s\">",
+	wprintf("<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
 		tabnum,
 		( (tabnum == 0) ? "block" : "none" )
 	);
@@ -77,13 +76,12 @@ void end_tab(int tabnum, int num_tabs) {
 	wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
 
 	if (tabnum == num_tabs-1) {
-		wprintf("</div>\n");
+
 		wprintf("<script type=\"text/javascript\">"
 			" Nifty(\"table#TheTabs td\", \"small transparent top\");"
-			" Nifty(\"div.tabcontent\", \"big transparent bottom\");"
-			" Nifty(\"div.tabcontent_submit\", \"big transparent bottom\");"
 			"</script>"
 		);
+
 	}
 }
 
