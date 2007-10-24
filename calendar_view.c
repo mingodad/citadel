@@ -774,14 +774,17 @@ void calendar_week_view(int year, int month, int day) {
  * \param dstart daystart 
  * \param dend dayend 
  */
-void calendar_day_view_display_events(time_t thetime, int year, int month,
-					int day, int hour,
-					int dstart, int dend) {
+void calendar_day_view_display_events(time_t thetime,
+				int year,
+				int month,
+				int day,
+				int notime_events,
+				int dstart,
+				int dend)
+{
 	int i;
 	icalproperty *p = NULL;
 	icalproperty *q = NULL;
-	time_t event_start;
-	time_t event_end;
 	time_t event_tt;
 	time_t event_tte;
 	struct tm event_te;
@@ -798,7 +801,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	struct tm starting_tm;
 	struct tm ending_tm;
 	int top = 0;
-	int height = 0;
+	int bottom = 0;
 	int gap = 1;
 	int startmin = 0;
 	int diffmin = 0;
@@ -809,23 +812,18 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
         char d_str[32];
 
 	if (WCC->num_cal == 0) {
-		// \todo FIXME wprintf("<br /><br /><br />\n");
+		/* nothing to display */
 		return;
 	}
 
-	lprintf (2, "printing %d\n", hour); /// TODO: remove me.
-	event_start = thetime + 60 * 60 * hour;
-	event_end = thetime + 60 * 60 * (hour + 1);
-
-
-	/* Create an imaginary event which spans the current hour.  Any events which
+	/* Create an imaginary event which spans the current day.  Any events which
 	 * overlap with this one take place at least partially in this day.
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
 	starting_tm.tm_year = year - 1900;
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
-	starting_tm.tm_hour = hour;
+	starting_tm.tm_hour = 0;
 	starting_tm.tm_min = 0;
 	today_start_t = icaltime_from_timet_with_zone(mktime(&starting_tm), 0, icaltimezone_get_utc_timezone());
 	today_start_t.is_utc = 1;
@@ -834,7 +832,7 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 	ending_tm.tm_year = year - 1900;
 	ending_tm.tm_mon = month - 1;
 	ending_tm.tm_mday = day;
-	ending_tm.tm_hour = hour;
+	ending_tm.tm_hour = 23;
 	ending_tm.tm_min = 59;
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
 	today_end_t.is_utc = 1;
@@ -869,14 +867,13 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 		if (all_day_event)
 		{
-			show_event = ((t.year == year) && (t.month == month) && (t.day == day) && (hour == -1));
+			show_event = ((t.year == year) && (t.month == month) && (t.day == day) && (notime_events));
 		}
 		else
 		{
 			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
 		}
 
- 
 		/* If we determined that this event occurs today, then display it.
 	 	 */
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
@@ -885,14 +882,14 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 			if ((event_te.tm_mday != day) || (event_tm.tm_mday != day)) ongoing_event = 1; 
 
-			if (all_day_event) 
+			if (all_day_event && notime_events)
 			{
                               wprintf("<li class=\"event\"> "
                                 "<a href=\"display_edit_event?"
-                                "msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+                                "msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
                                 " class=\"event_title\" "
                                 " btt_tooltext=\"",
-                                        Cal->cal_msgnum, year, month, day, hour);
+                                        Cal->cal_msgnum, year, month, day);
                                 wprintf("<i>%s</i><br />", _("All day event"));
                                 wprintf("<i>%s</i> ",    _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
@@ -921,14 +918,14 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
                                 wprintf(_("All day event"));
                                 wprintf(")</span></li>\n");
 			}
-			else if (ongoing_event && (hour == -1)) 
+			else if (ongoing_event && notime_events) 
 			{
 				wprintf("<li class=\"event\"> "
 				"<a href=\"display_edit_event?"
-				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
 				" class=\"event_title\" " 
                                 "btt_tooltext=\"",
-				Cal->cal_msgnum, year, month, day, hour);
+				Cal->cal_msgnum, year, month, day);
                                 wprintf("<i>%s</i><br />", _("Ongoing event"));
                                 wprintf("<i>%s</i> ",    _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
@@ -955,65 +952,58 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 				wprintf(_("Ongoing event"));
 				wprintf(")</span></li>\n");
 			}
-			else 
+			else if (!all_day_event && !ongoing_event && !notime_events)
 			{
 				gap++;
-				if ((today_start_t.hour == t.hour)
-					&& ((event_te.tm_mday == day) 
-					|| (event_tm.tm_mday == day)))
- 					{
 
-					if (event_te.tm_mday != day) event_te.tm_hour = 0;
-					if (event_tm.tm_mday != day) event_tm.tm_hour = 24;
+				if (event_te.tm_mday != day) event_te.tm_hour = 0;
+				if (event_tm.tm_mday != day) event_tm.tm_hour = 24;
 
-					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour <= dstart)) {
-						startmin = diffmin = event_te.tm_min / 6;
-						endmin = ((event_tm.tm_hour == hour) ? (event_tm.tm_min / 2) : (event_tm.tm_min / 6)) ;
-						top = (event_te.tm_hour * 10) + startmin -1;
-						height= ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin ;
-					}
-					if ((event_te.tm_hour < dstart) && (event_tm.tm_hour >= dstart)) {
-						startmin = diffmin = event_te.tm_min / 6;
-						endmin = event_tm.tm_min / 2;
-						top = (event_te.tm_hour * 10) + startmin - 1;
-						height = ((dstart - event_te.tm_hour) * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin - (diffmin * 3);
-					}
-					if ((event_te.tm_hour <= dstart) && (event_tm.tm_hour > dend)) {
-						startmin = diffmin = ((event_te.tm_hour == hour) ? (event_te.tm_min / 2) : (event_te.tm_min / 6)) ;
-						endmin = event_tm.tm_min / 6; 
-						top = (event_te.tm_hour * 10)  + startmin - 1;
-						height = ((dstart - event_te.tm_hour) * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10) + endmin - diffmin;
-					}
-					if ((event_te.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
-						startmin = diffmin = (event_te.tm_min / 2);
-						endmin = event_tm.tm_min / 2;
-						top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 30) + endmin - diffmin;
-					}
-					if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend) && (event_tm.tm_hour > dend)) {
-						startmin = diffmin = (event_te.tm_min / 2);
-						endmin = event_tm.tm_min / 6;
-						top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30)  + diffmin - 1;
-						height = (((dend - event_te.tm_hour + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10)) + endmin - diffmin;
-					}
-					if ((event_te.tm_hour > dend) && (event_tm.tm_hour > dend)) {
-						startmin = diffmin = event_te.tm_min / 6;
-						endmin = event_tm.tm_min / 6;
-						top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour + 1) * 10) + startmin - 1;
-						height = ((event_tm.tm_hour - event_te.tm_hour) * 10) + endmin - diffmin;
-					}
-				 // TODO: we seem to end up here for some reason if we're just a one hour event.  Thierry, please decide what to do then...
+				/* Calculate the location of the top of the box */
+				if (event_te.tm_hour < dstart) {
+					startmin = diffmin = event_te.tm_min / 6;
+					top = (event_te.tm_hour * 10) + startmin -1;
+				}
+				else if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend)) {
+					startmin = diffmin = (event_te.tm_min / 2);
+					top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin - 1;
+				}
+				else if (event_te.tm_hour >dend) {
+					startmin = diffmin = event_te.tm_min / 6;
+					top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour + 1) * 10) + startmin - 1;
+				}
+				else {
+					/* should never get here */
+				}
+
+				/* Calculate the location of the bottom of the box */
+				if (event_tm.tm_hour < dstart) {
+					endmin = diffmin = event_tm.tm_min / 6;
+					bottom = (event_tm.tm_hour * 10) + endmin -1;
+				}
+				else if ((event_tm.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
+					endmin = diffmin = (event_tm.tm_min / 2);
+					bottom = (dstart * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin - 1;
+				}
+				else if (event_tm.tm_hour >dend) {
+					endmin = diffmin = event_tm.tm_min / 6;
+					bottom = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_tm.tm_hour + 1) * 10) + endmin - 1;
+				}
+				else {
+					/* should never get here */
+				}
+
 				wprintf("<dd  class=\"event\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
 					"height:%dpx; \" >",
-					top, (gap * 40), height
+					top, (gap * 40), (bottom-top)
 					);
 				wprintf("<a href=\"display_edit_event?"
-					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d&case=%d\" "
+					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
 					"class=\"event_title\" "
                                		"btt_tooltext=\"",
-					Cal->cal_msgnum, year, month, day, t.hour, hour);
+					Cal->cal_msgnum, year, month, day, t.hour);
                                 wprintf("<i>%s</i> ",    _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wprintf("<br />");
@@ -1037,8 +1027,6 @@ void calendar_day_view_display_events(time_t thetime, int year, int month,
 
 				escputs((char *) icalproperty_get_comment(p));
 				wprintf("</a></dd>\n");
-				
-			 }	
 			}
 		}
 	}
@@ -1130,10 +1118,6 @@ void calendar_day_view(int year, int month, int day) {
 		}
 
 		wprintf("</dt>");
-	
-		/* put the data here, stupid */
-		calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
-
 	}
 
 	gap = daystart * extratimeline;
@@ -1162,10 +1146,6 @@ void calendar_day_view(int year, int month, int day) {
                 }
 
                 wprintf("</dt>");
-
-                /* put the data here, stupid */
-                calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
-
         }
 
 	gap = gap + ((dayend - daystart + 1) * timeline);
@@ -1194,22 +1174,21 @@ void calendar_day_view(int year, int month, int day) {
                 }
 
                 wprintf("</dt>");
-
-                /* put the data here, stupid */
-                calendar_day_view_display_events(today_t, year, month, day, hour, daystart, dayend);
-
         }
+
+	/* Display events with start and end times on this day */
+	calendar_day_view_display_events(today_t, year, month, day, 0, daystart, dayend);
 
        	wprintf("</dl>");
 	wprintf("</td>");			/* end of innermost table */
 
-	/** Extra events on the middle */
+	/** Display extra events (start/end times not present or not today) in the middle column */
         wprintf("<td class=\"extra_events\">");
 
         wprintf("<ul>");
 
-        /** Display all-day events) */
-                calendar_day_view_display_events(today_t, year, month, day, -1, daystart, dayend);
+        /** Display all-day events */
+	calendar_day_view_display_events(today_t, year, month, day, 1, daystart, dayend);
 
         wprintf("</ul>");
 
