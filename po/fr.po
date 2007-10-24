@@ -1215,9 +1215,8 @@ msgid "Please wait while the Citadel server is restarted... "
 msgstr ""
 
 #: ../mainmenu.c:381
-#, fuzzy
 msgid "Message to your Users:"
-msgstr "Le message n'a pas été envoyé."
+msgstr "Message aux usagers:"
 
 #: ../mainmenu.c:388
 msgid "The citadel server has to be restarted. It 'll be back in a minute."
@@ -1384,10 +1383,12 @@ msgid "of %d messages."
 msgstr "des %d messages."
 
 #: ../messages.c:2538 ../messages.c:2705
+#, c-format
 msgid "oldest to newest"
 msgstr "du plus ancien au plus récent"
 
 #: ../messages.c:2547 ../messages.c:2713
+#, c-format
 msgid "newest to oldest"
 msgstr "du plus récent au plus ancien"
 
@@ -1612,9 +1613,8 @@ msgid "Calendar day view ends at:"
 msgstr "Heure de fin de journée :"
 
 #: ../preferences.c:331
-#, fuzzy
 msgid "Week starts on:"
-msgstr "Redémarrer maintenant"
+msgstr "La semaine démarre le:"
 
 #: ../preferences.c:357
 msgid "Attach signature to email messages?"
@@ -1940,7 +1940,6 @@ msgid "Share"
 msgstr "Partager"
 
 #: ../roomops.c:1508
-#, fuzzy
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
 "'shared' list sends messages out, but in order to receive messages, the "
@@ -2059,7 +2058,6 @@ msgid ""
 msgstr ""
 
 #: ../roomops.c:1746
-#, fuzzy
 msgid "Remote host"
 msgstr "Serveurs de relais"
 
@@ -2802,22 +2800,22 @@ msgstr "Détails de l'authentification Funambol (user:pass en base 64)"
 #: ../siteconfig.c:566
 #, c-format
 msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
+msgstr "Perform RBL checks upon connect instead of after RCPT"
 
 #: ../siteconfig.c:574
-#, fuzzy, c-format
+#, c-format
 msgid "Master user name (blank to disable)"
-msgstr "Nom d'hôte du serveur Funambol (laisser vide pour désactiver)"
+msgstr "Nom de l'administrateur (laisser vide pour désactiver)"
 
 #: ../siteconfig.c:581
-#, fuzzy, c-format
+#, c-format
 msgid "Master user password"
-msgstr "Entrez un nouveau mot de passe :"
+msgstr "Mot de passe de l'administrateur"
 
 #: ../siteconfig.c:589
 #, fuzzy, c-format
 msgid "External pager tool (blank to disable)"
-msgstr "Nom d'hôte du serveur Funambol (laisser vide pour désactiver)"
+msgstr "External pager tool (blank to disable)"
 
 #: ../siteconfig.c:616
 #, c-format
