@@ -14,8 +14,12 @@ body { font-size: 11pt}
 	font-size: 13pt;
 }
 
-#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, #wholist li, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
 	font-size: 10pt;
+}
+
+#wholist li {
+	font-size: 8pt;
 }
 
 /* Color */
@@ -1254,3 +1258,4 @@ li.event span, a.event_title {
 	margin: 4px;
 	padding: 4px;
 }
+
