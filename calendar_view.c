@@ -952,7 +952,7 @@ void calendar_day_view_display_events(time_t thetime,
 				wprintf(_("Ongoing event"));
 				wprintf(")</span></li>\n");
 			}
-			else if (!all_day_event && !ongoing_event && !notime_events)
+			else if (!all_day_event && !notime_events)
 			{
 				gap++;
 
