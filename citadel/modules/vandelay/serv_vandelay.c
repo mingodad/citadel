@@ -260,12 +260,14 @@ void artv_export_messages(void) {
 	char buf[SIZ];
 	long msgnum;
 	int count = 0;
+	t_context *Ctx;
 
+	Ctx = CC;
 	artv_global_message_list = fopen(artv_tempfilename1, "r");
 	if (artv_global_message_list != NULL) {
 		lprintf(CTDL_INFO, "Opened %s\n", artv_tempfilename1);
-		while (fgets(buf, sizeof(buf),
-		      artv_global_message_list) != NULL) {
+		while ((Ctx->kill_me != 1) && 
+		       (fgets(buf, sizeof(buf), artv_global_message_list) != NULL)) {
 			msgnum = atol(buf);
 			if (msgnum > 0L) {
 				artv_export_message(msgnum);
@@ -274,7 +276,10 @@ void artv_export_messages(void) {
 		}
 		fclose(artv_global_message_list);
 	}
-	lprintf(CTDL_INFO, "Exported %d messages.\n", count);
+	if (Ctx->kill_me != 1)
+		lprintf(CTDL_INFO, "Exported %d messages.\n", count);
+	else
+		lprintf(CTDL_ERR, "Export aborted due to client disconnect! \n");
 }
 
 
@@ -283,6 +288,9 @@ void artv_export_messages(void) {
 void artv_do_export(void) {
 	struct config *buf;
 	buf = &config;
+	t_context *Ctx;
+
+	Ctx = CC;
 	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);
 
 	cprintf("version\n%d\n", REV_LEVEL);
@@ -302,12 +310,16 @@ void artv_do_export(void) {
 	cprintf("%ld\n", CitControl.MMnextuser);
 	cprintf("%ld\n", CitControl.MMnextroom);
 	cprintf("%d\n", CitControl.version);
-
-	artv_export_users();
-	artv_export_rooms();
-	artv_export_floors();
-	artv_export_visits();
-	artv_export_messages();
+	if (Ctx->kill_me != 1)
+		artv_export_users();
+	if (Ctx->kill_me != 1)
+		artv_export_rooms();
+	if (Ctx->kill_me != 1)
+		artv_export_floors();
+	if (Ctx->kill_me != 1)
+		artv_export_visits();
+	if (Ctx->kill_me != 1)
+		artv_export_messages();
 
 	cprintf("000\n");
 }
