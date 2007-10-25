@@ -962,15 +962,15 @@ void calendar_day_view_display_events(time_t thetime,
 				/* Calculate the location of the top of the box */
 				if (event_te.tm_hour < dstart) {
 					startmin = diffmin = event_te.tm_min / 6;
-					top = (event_te.tm_hour * 10) + startmin -1;
+					top = (event_te.tm_hour * 10) + startmin;
 				}
 				else if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend)) {
 					startmin = diffmin = (event_te.tm_min / 2);
-					top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin - 1;
+					top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin;
 				}
 				else if (event_te.tm_hour >dend) {
 					startmin = diffmin = event_te.tm_min / 6;
-					top = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_te.tm_hour + 1) * 10) + startmin - 1;
+					top = (dstart * 10) + ((dend - dstart - 1) * 30) + ((event_tm.tm_hour - dend + 1) * 10) + startmin ;
 				}
 				else {
 					/* should never get here */
@@ -979,15 +979,15 @@ void calendar_day_view_display_events(time_t thetime,
 				/* Calculate the location of the bottom of the box */
 				if (event_tm.tm_hour < dstart) {
 					endmin = diffmin = event_tm.tm_min / 6;
-					bottom = (event_tm.tm_hour * 10) + endmin -1;
+					bottom = (event_tm.tm_hour * 10) + endmin;
 				}
 				else if ((event_tm.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
 					endmin = diffmin = (event_tm.tm_min / 2);
-					bottom = (dstart * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin - 1;
+					bottom = (dstart * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin ;
 				}
 				else if (event_tm.tm_hour >dend) {
 					endmin = diffmin = event_tm.tm_min / 6;
-					bottom = (dstart * 10) + ((dend - dstart) * 30) + ((event_tm.tm_hour - event_tm.tm_hour + 1) * 10) + endmin - 1;
+					bottom = (dstart * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10) + endmin;
 				}
 				else {
 					/* should never get here */
