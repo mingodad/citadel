@@ -260,14 +260,11 @@ void calendar_month_view_display_events(int year, int month, int day)
 
 				wprintf("<font size=-1>"
 					"<a href=\"display_edit_event?"
-					"msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\""
+					"msgnum=%ld&calview=month&year=%d&month=%d&day=%d\""
 					" btt_tooltext=\"",
 					WC->disp_cal[i].cal_msgnum,
-					bstr("calview"),
-					bstr("year"),
-					bstr("month"),
-					bstr("day")
-					);
+					year, month, day
+				);
 
 				wprintf("<i>%s</i> ", _("Summary:"));
 				escputs((char *)icalproperty_get_comment(p));
@@ -422,12 +419,11 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					minutes=difftime % 60;
 					wprintf("<tr><td bgcolor='%s'>%i:%2i</td><td bgcolor='%s'>"
 							"<font size=-1>"
-							"<a href=\"display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
+							"<a href=\"display_edit_event?msgnum=%ld&calview=calbrief&year=%s&month=%s&day=%s\">",
 							daycolor,
 							hours, minutes,
 							daycolor,
 							WC->disp_cal[i].cal_msgnum,
-							bstr("calview"),
 							bstr("year"),
 							bstr("month"),
 							bstr("day")
@@ -1102,7 +1098,7 @@ void calendar_day_view(int year, int month, int day) {
 			"height: %dpx;		"	
 			"\" >			"
 			"<a href=\"display_edit_event?msgnum=0"
-			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+			"&calview=day&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			(hour * extratimeline ), extratimeline, 
 			year, month, day, hour
 		);
@@ -1129,7 +1125,7 @@ void calendar_day_view(int year, int month, int day) {
                         "top: %dpx; left: 0px;  "
                         "height: %dpx;          "
                         "\" >                   "
-                        "<a href=\"display_edit_event?msgnum=0"
+                        "<a href=\"display_edit_event?msgnum=0&calview=day"
                         "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
                         gap + ((hour - daystart) * timeline ), timeline,
                         year, month, day, hour
@@ -1157,7 +1153,7 @@ void calendar_day_view(int year, int month, int day) {
                         "top: %dpx; left: 0px;  "
                         "height: %dpx;          "
                         "\" >                   "
-                        "<a href=\"display_edit_event?msgnum=0"
+                        "<a href=\"display_edit_event?msgnum=0&calview=day"
                         "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
                         gap + ((hour - dayend - 1) * extratimeline ), extratimeline,
                         year, month, day, hour
