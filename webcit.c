@@ -466,7 +466,7 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 		wprintf("Content-type: text/html; charset=utf-8\r\n"
 			"Server: %s / %s\n"
 			"Connection: close\r\n",
-			SERVER, serv_info.serv_software
+			PACKAGE_STRING, serv_info.serv_software
 		);
 	}
 
@@ -571,7 +571,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 		"Server: %s\r\n"
 		"Connection: close\r\n",
 		content_type,
-		SERVER);
+		PACKAGE_STRING);
 
 #ifdef HAVE_ZLIB
 	/** If we can send the data out compressed, please do so. */
@@ -998,7 +998,7 @@ void begin_ajax_response(void) {
                 "Cache-Control: no-cache\r\n"
 		"Expires: -1\r\n"
 		,
-                SERVER);
+                PACKAGE_STRING);
         begin_burst();
 }
 

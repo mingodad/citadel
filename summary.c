@@ -201,7 +201,7 @@ void server_info_section(void) {
 		_("You are connected to %s, running %s with %s, and located in %s.  Your system administrator is %s."),
 		serv_info.serv_humannode,
 		serv_info.serv_software,
-		SERVER,
+		PACKAGE_STRING,
 		serv_info.serv_bbs_city,
 		serv_info.serv_sysadm);
 	escputs(message);

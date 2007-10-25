@@ -25,7 +25,7 @@ void recp_autocomplete(char *partial) {
 		"Cache-Control: no-store\r\n"
 		"Expires: -1\r\n"
 		,
-		SERVER);
+		PACKAGE_STRING);
 	begin_burst();
 
 	wprintf("<ul>");
