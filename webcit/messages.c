@@ -1929,7 +1929,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 		wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
 			addrbook[i].ab_msgnum);
-		wprintf("?maxmsgs=1?summary=0?alpha=%s\">", bstr("alpha"));
+		wprintf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
 		vcard_n_prettyize(addrbook[i].ab_name);
 		escputs(addrbook[i].ab_name);
 		wprintf("</a></td>\n");
@@ -2196,19 +2196,20 @@ void readloop(char *oper)
 	char *sendsort_button;
 	char *datesort_button;
 	int bbs_reverse = 0;
+	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
 
-	if (WC->wc_view == VIEW_WIKI) {
-		sprintf(buf, "wiki?room=%s?page=home", WC->wc_roomname);
+	if (WCC->wc_view == VIEW_WIKI) {
+		sprintf(buf, "wiki?room=%s?page=home", WCC->wc_roomname);
 		http_redirect(buf);
 		return;
 	}
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
-	is_summary = atoi(bstr("summary"));
+	is_summary = atoi(bstr("is_summary"));
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
-	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WC->wc_roomname);
+	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WCC->wc_roomname);
 	get_preference(sortpref_name, sortpref_value, sizeof sortpref_value);
 
 	sortby = bstr("sortby");
@@ -2247,7 +2248,7 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL");
 	}
 
-	if ((WC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
+	if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
 		if (!strcmp(oper, "do_search")) {
 			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
@@ -2257,7 +2258,7 @@ void readloop(char *oper)
 		}
 	}
 
-	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
+	if ((WCC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		if (!strcmp(oper, "do_search")) {
 			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
@@ -2293,17 +2294,17 @@ void readloop(char *oper)
 
 	is_singlecard = atoi(bstr("is_singlecard"));
 
-	if (WC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
+	if (WCC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_default_view == VIEW_TASKS) {		/**< tasks */
+	if (WCC->wc_default_view == VIEW_TASKS) {		/**< tasks */
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_default_view == VIEW_NOTES) {		/**< notes */
+	if (WCC->wc_default_view == VIEW_NOTES) {		/**< notes */
 		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
@@ -2336,11 +2337,11 @@ void readloop(char *oper)
 		for (a = 0; a < nummsgs; ++a) {
 			/** Are you a new message, or an old message? */
 			if (is_summary) {
-				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
-					WC->summ[a].is_new = 0;
+				if (is_msg_in_mset(old_msgs, WCC->msgarr[a])) {
+					WCC->summ[a].is_new = 0;
 				}
 				else {
-					WC->summ[a].is_new = 1;
+					WCC->summ[a].is_new = 1;
 				}
 			}
 		}
@@ -2348,68 +2349,68 @@ void readloop(char *oper)
 
 	if (startmsg == 0L) {
 		if (bbs_reverse) {
-			startmsg = WC->msgarr[(nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0];
+			startmsg = WCC->msgarr[(nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0];
 		}
 		else {
-			startmsg = WC->msgarr[0];
+			startmsg = WCC->msgarr[0];
 		}
 	}
 
 	if (is_summary) {
 		if (!strcasecmp(sortby, "subject")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_subj);
 		}
 		else if (!strcasecmp(sortby, "rsubject")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rsubj);
 		}
 		else if (!strcasecmp(sortby, "sender")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_sender);
 		}
 		else if (!strcasecmp(sortby, "rsender")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rsender);
 		}
 		else if (!strcasecmp(sortby, "date")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_date);
 		}
 		else if (!strcasecmp(sortby, "rdate")) {
-			qsort(WC->summ, WC->num_summ,
+			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rdate);
 		}
 	}
 
 	if (!strcasecmp(sortby, "subject")) {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsubject\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsubject\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsubject")) {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=subject\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
+		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "sender")) {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rsender\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsender\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rsender")) {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=sender\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
+		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (!strcasecmp(sortby, "date")) {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rdate\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
 	else if (!strcasecmp(sortby, "rdate")) {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=date\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=date\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?summary=1?sortby=rdate\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
+		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rdate\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
 	if (is_summary) {
@@ -2489,11 +2490,11 @@ void readloop(char *oper)
 					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
-					"?summary=%d\">"
+					"?is_summary=%d\">"
 					"%d-%d</option> \n",
-					((WC->msgarr[lo-1] == startmsg) ? "selected" : ""),
+					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
 					oper,
-					WC->msgarr[lo-1],
+					WCC->msgarr[lo-1],
 					maxmsgs,
 					is_summary,
 					hi, lo);
@@ -2508,11 +2509,11 @@ void readloop(char *oper)
 					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
-					"?summary=%d\">"
+					"?is_summary=%d\">"
 					"%d-%d</option> \n",
-					((WC->msgarr[b] == startmsg) ? "selected" : ""),
+					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
 					oper,
-					WC->msgarr[lo-1],
+					WCC->msgarr[lo-1],
 					maxmsgs,
 					is_summary,
 					lo, hi);
@@ -2520,9 +2521,9 @@ void readloop(char *oper)
 		}
 
 		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?summary=%d\">",
+			"?maxmsgs=9999999?is_summary=%d\">",
 			oper,
-			WC->msgarr[0], is_summary);
+			WCC->msgarr[0], is_summary);
 		wprintf(_("All"));
 		wprintf("</option>");
 		wprintf("</select> ");
@@ -2554,36 +2555,36 @@ void readloop(char *oper)
 
 
 	for (a = 0; a < nummsgs; ++a) {
-		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
+		if ((WCC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
 			/** Display the message */
 			if (is_summary) {
 				display_summarized(a);
 			}
 			else if (is_addressbook) {
-				fetch_ab_name(WC->msgarr[a], buf);
+				fetch_ab_name(WCC->msgarr[a], buf);
 				++num_ab;
 				addrbook = realloc(addrbook,
 					(sizeof(struct addrbookent) * num_ab) );
 				safestrncpy(addrbook[num_ab-1].ab_name, buf,
 					sizeof(addrbook[num_ab-1].ab_name));
-				addrbook[num_ab-1].ab_msgnum = WC->msgarr[a];
+				addrbook[num_ab-1].ab_msgnum = WCC->msgarr[a];
 			}
 			else if (is_calendar) {
-				display_calendar(WC->msgarr[a]);
+				display_calendar(WCC->msgarr[a]);
 			}
 			else if (is_tasks) {
-				display_task(WC->msgarr[a]);
+				display_task(WCC->msgarr[a]);
 			}
 			else if (is_notes) {
-				display_note(WC->msgarr[a]);
+				display_note(WCC->msgarr[a]);
 			}
 			else {
 				if (displayed_msgs == NULL) {
 					displayed_msgs = malloc(sizeof(long) *
 								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
 				}
-				displayed_msgs[num_displayed] = WC->msgarr[a];
+				displayed_msgs[num_displayed] = WCC->msgarr[a];
 			}
 
 			if (lowest_displayed < 0) lowest_displayed = a;
@@ -2656,11 +2657,11 @@ void readloop(char *oper)
 					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
-					"?summary=%d\">"
+					"?is_summary=%d\">"
 					"%d-%d</option> \n",
-					((WC->msgarr[lo-1] == startmsg) ? "selected" : ""),
+					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
 					oper,
-					WC->msgarr[lo-1],
+					WCC->msgarr[lo-1],
 					maxmsgs,
 					is_summary,
 					hi, lo);
@@ -2675,11 +2676,11 @@ void readloop(char *oper)
 					"\"%s"
 					"?startmsg=%ld"
 					"?maxmsgs=%d"
-					"?summary=%d\">"
+					"?is_summary=%d\">"
 					"%d-%d</option> \n",
-					((WC->msgarr[b] == startmsg) ? "selected" : ""),
+					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
 					oper,
-					WC->msgarr[lo-1],
+					WCC->msgarr[lo-1],
 					maxmsgs,
 					is_summary,
 					lo, hi);
@@ -2687,9 +2688,9 @@ void readloop(char *oper)
 		}
 
 		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?summary=%d\">",
+			"?maxmsgs=9999999?is_summary=%d\">",
 			oper,
-			WC->msgarr[0], is_summary);
+			WCC->msgarr[0], is_summary);
 		wprintf(_("All"));
 		wprintf("</option>");
 		wprintf("</select> ");
@@ -2735,10 +2736,10 @@ DONE:
 	wDumpContent(1);
 
 	/** free the summary */
-	if (WC->summ != NULL) {
-		free(WC->summ);
-		WC->num_summ = 0;
-		WC->summ = NULL;
+	if (WCC->summ != NULL) {
+		free(WCC->summ);
+		WCC->num_summ = 0;
+		WCC->summ = NULL;
 	}
 	if (addrbook != NULL) free(addrbook);
 }

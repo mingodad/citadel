@@ -34,6 +34,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	int i;
 	int sequence = 0;
 
+	lprintf(9, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
+		msgnum, bstr("calview"), bstr("year"), bstr("month"), bstr("day")
+	);
+
 	now = time(NULL);
 	strcpy(organizer_string, "");
 	strcpy(attendee_string, "");
