@@ -22,7 +22,7 @@ void groupdav_common_headers(void) {
 	wprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n",
-		SERVER, serv_info.serv_software
+		PACKAGE_STRING, serv_info.serv_software
 	);
 }
 

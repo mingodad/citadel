@@ -128,7 +128,7 @@ void display_rss(char *roomname, char *request_method)
 	wprintf("Last-Modified: %s\r\n", date);
 /*	if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
 	wprintf("Content-Type: application/rss+xml\r\n");
-	wprintf("$erver: %s\r\n", SERVER);
+	wprintf("$erver: %s\r\n", PACKAGE_STRING);
 	wprintf("Connection: close\r\n");
 	wprintf("\r\n");
 	if (!strcasecmp(request_method, "HEAD"))
@@ -157,7 +157,7 @@ void display_rss(char *roomname, char *request_method)
 	if (now) {
 		wprintf("   <pubDate>%s</pubDate>\n", date);
 	}
-	wprintf("   <generator>%s</generator>\n", SERVER);
+	wprintf("   <generator>%s</generator>\n", PACKAGE_STRING);
 	wprintf("   <docs>http://blogs.law.harvard.edu/tech/rss</docs>\n");
 	wprintf("   <ttl>30</ttl>\n");
 

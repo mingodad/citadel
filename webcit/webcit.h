@@ -68,32 +68,32 @@ extern locale_t wc_locales[];
 #endif
 
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 /* Work around PACKAGE/VERSION defs that are (not supposed to be?) in ical.h */
 #ifdef PACKAGE
 # define CTDL_PACKAGE PACKAGE
 # undef PACKAGE
 #endif
+
+#ifdef PACKAGE_STRING
+# define CTDL_PACKAGE_STRING PACKAGE_STRING
+//# undef PACKAGE_STRING
+#endif
+
 #ifdef VERSION
 # define CTDL_VERSION VERSION
 # undef VERSION
 #endif
+
 #include <ical.h>
-#ifdef CTDL_PACKAGE
-# ifdef PACKAGE
-#  undef PACKAGE
-# endif
-# define PACKAGE CTDL_PACKAGE
-# undef CTDL_PACKAGE
-#endif
-#ifdef CTDL_VERSION
-# ifdef VERSION
-#  undef VERSION
-# endif
-# define VERSION CTDL_VERSION
-# undef CTDL_VERSION
-#endif
-#endif
+
+#undef PACKAGE
+#undef VERSION
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+#undef PACKAGE_BUGREPORT
+#include "sysdep.h"
 
 
 
@@ -115,7 +115,6 @@ extern locale_t wc_locales[];
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v7.22"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		722		/* This version of WebCit */

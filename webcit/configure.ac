@@ -1,14 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
-AC_INIT(webserver.c)
-
-
-PACKAGE=webcit
-VERSION=7.22
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [our package name])
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [our package version])
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
+AC_INIT([WebCit], [7.22], [http://www.citadel.org/])
 
 AC_SUBST(PROG_SUBDIRS)
 AC_DEFINE(PROG_SUBDIRS, [], [Program dirs])

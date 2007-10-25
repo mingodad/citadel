@@ -1257,7 +1257,7 @@ void print_message(char *msgnum_as_string) {
 	wprintf("Content-type: text/html\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n",
-		SERVER);
+		PACKAGE_STRING);
 	begin_burst();
 
 	wprintf("\r\n\r\n<html>\n"
@@ -1288,7 +1288,7 @@ void display_headers(char *msgnum_as_string) {
 	wprintf("Content-type: text/plain\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n",
-		SERVER);
+		PACKAGE_STRING);
 	begin_burst();
 
 	serv_printf("MSG2 %ld|3", msgnum);
@@ -2760,7 +2760,7 @@ void post_mime_to_server(void) {
 
 	/** RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
-	serv_puts("X-Mailer: " SERVER);
+	serv_puts("X-Mailer: " PACKAGE_STRING);
 
 	/** If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
