@@ -4,7 +4,7 @@ AC_INIT(webserver.c)
 
 
 PACKAGE=webcit
-VERSION=7.13
+VERSION=7.22
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [our package name])
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [our package version])
 AC_SUBST(PACKAGE)
