@@ -533,9 +533,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		 */
 		prop = icalproperty_new_dtstart(event_start);
 		if (all_day_event) {
-			icalproperty_set_value(prop,
-				icalvalue_new_date(event_start)
-			);
+			icalproperty_set_value(prop, icalvalue_new_date(event_start));
 		}
 
 		if (prop) icalcomponent_add_property(vevent, prop);
@@ -575,33 +573,25 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 				icalproperty_free(prop);
 			}
 
-			lprintf(9, "adding new property...\n");
 			icalcomponent_add_property(vevent, icalproperty_new_transp(formtransp));
-			lprintf(9, "...added it.\n");
 		}
 
 		/** Give this event a UID if it doesn't have one. */
-		lprintf(9, "Give this event a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vevent,
 		   ICAL_UID_PROPERTY) == NULL) {
 			generate_uuid(buf);
-			icalcomponent_add_property(vevent,
-				icalproperty_new_uid(buf)
-			);
+			icalcomponent_add_property(vevent, icalproperty_new_uid(buf));
 		}
 
 		/** Increment the sequence ID */
-		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
 			i = icalproperty_get_sequence(prop);
-			lprintf(9, "Sequence was %d\n", i);
 			if (i > sequence) sequence = i;
 			icalcomponent_remove_property(vevent, prop);
 			icalproperty_free(prop);
 		}
 		++sequence;
-		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
 		icalcomponent_add_property(vevent,
 			icalproperty_new_sequence(sequence)
 		);
@@ -610,7 +600,6 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		 * Set the organizer, only if one does not already exist *and*
 		 * the form is supplying one
 		 */
-		lprintf(9, "Setting the organizer...\n");
 		strcpy(buf, bstr("organizer"));
 		if ( (icalcomponent_get_first_property(vevent,
 		   ICAL_ORGANIZER_PROPERTY) == NULL) 
@@ -627,7 +616,6 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/**
 		 * Add any new attendees listed in the web form
 		 */
-		lprintf(9, "Add any new attendees\n");
 
 		/* First, strip out the parenthesized partstats.  */
 		strcpy(form_attendees, bstr("attendees"));
@@ -649,7 +637,6 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			extract_token(buf, form_attendees, i, '\n', sizeof buf);
 			striplt(buf);
 			if (!IsEmptyStr(buf)) {
-				lprintf(9, "Attendee: <%s>\n", buf);
 				sprintf(attendee_string, "MAILTO:%s", buf);
 				foundit = 0;
 
@@ -671,8 +658,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/**
 		 * Remove any attendees *not* listed in the web form
 		 */
-STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
-		for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
+STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
 			strcpy(attendee_string, icalproperty_get_attendee(attendee));
 			if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
 				strcpy(attendee_string, &attendee_string[7]);
@@ -698,14 +684,12 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		 * can't encapsulate something that may already be encapsulated
 		 * somewhere else.
 		 */
-		lprintf(9, "Encapsulating into full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vevent));
 
 		/* Set the method to PUBLISH */
 		icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
 		/** If the user clicked 'Save' then save it to the server. */
-		lprintf(9, "Serializing it for saving\n");
 		if ( (encaps != NULL) && (!IsEmptyStr(bstr("save_button"))) ) {
 			serv_puts("ENT0 1|||4|||1|");
 			serv_getln(buf, sizeof buf);
@@ -717,7 +701,6 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 			}
 			if ( (buf[0] == '8') || (buf[0] == '4') ) {
 				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-					lprintf(9, "ENT0 REPLY: %s\n", buf);
 				}
 			}
 			if (buf[0] == '2') {
@@ -743,7 +726,6 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 	/**
 	 * If the user clicked 'Delete' then delete it.
 	 */
-	lprintf(9, "Checking to see if we have to delete an old event\n");
 	if ( (!IsEmptyStr(bstr("delete_button"))) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_getln(buf, sizeof buf);
