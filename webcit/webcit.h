@@ -581,6 +581,7 @@ void svcallback(char *keyname, void (*fcn_ptr)() );
 void do_template(void *templatename);
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
+char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 int num_tokens (char *source, char tok);
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);

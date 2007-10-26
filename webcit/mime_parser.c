@@ -17,6 +17,7 @@ void extract_key(char *target, char *source, char *key)
 {
 	char *ptr;
 	char looking_for[256];
+	int double_quotes = 0;
 
 	snprintf(looking_for, sizeof looking_for, "%s=", key);
 
@@ -28,8 +29,21 @@ void extract_key(char *target, char *source, char *key)
 	strcpy(target, (ptr + strlen(looking_for)));
 
 	for (ptr=target; (*ptr != 0); ++ptr) {
+
+		/* A semicolon means we've hit the end of the key, unless we're inside double quotes */
+		if ( (double_quotes != 1) && (*ptr == ';')) {
+			*ptr = 0;
+		}
+
+		/* if we find double quotes, we've got a great set of string boundaries */
 		if (*ptr == '\"') {
-			strcpy(ptr, ptr+1);
+			++double_quotes;
+			if (double_quotes == 1) {
+				strcpy(ptr, ptr+1);
+			}
+			else {
+				*ptr = 0;
+			}
 		}
 	}
 }
@@ -41,7 +55,7 @@ void extract_key(char *target, char *source, char *key)
  */
 char *fixed_partnum(char *supplied_partnum) {
 	if (supplied_partnum == NULL) return "1";
-	if (IsEmptyStr(supplied_partnum)) return "1";
+	if (strlen(supplied_partnum)==0) return "1";
 	return supplied_partnum;
 }
 
@@ -143,7 +157,7 @@ void mime_decode(char *partnum,
 		strcpy(encoding, "");
 
 	/* If this part is not encoded, send as-is */
-	if ( (IsEmptyStr(encoding)) || (dont_decode)) {
+	if ( (strlen(encoding) == 0) || (dont_decode)) {
 		if (CallBack != NULL) {
 			CallBack(name, filename, fixed_partnum(partnum),
 				disposition, part_start,
@@ -257,6 +271,8 @@ void the_mime_parser(char *partnum,
 	char nested_partnum[256];
 	int crlf_in_use = 0;
 	char *evaluate_crlf_ptr = NULL;
+	int buflen = 0;
+	int headerlen = 0;
 
 	ptr = content_start;
 	content_length = 0;
@@ -301,15 +317,14 @@ void the_mime_parser(char *partnum,
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
+	headerlen = 0;
 	do {
-		int len;
-		ptr = memreadline(ptr, buf, SIZ);
+		ptr = memreadlinelen(ptr, buf, SIZ, &buflen);
 		if (ptr >= content_end) {
 			goto end_parser;
 		}
 
-		len = strlen (buf);
-		for (i = 0; i < len; ++i) {
+		for (i = 0; i < buflen; ++i) {
 			if (isspace(buf[i])) {
 				buf[i] = ' ';
 			}
@@ -321,6 +336,7 @@ void the_mime_parser(char *partnum,
 				striplt(content_type);
 				extract_key(content_type_name, content_type, "name");
 				extract_key(charset, content_type, "charset");
+				extract_key(boundary, header, "boundary");
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
@@ -343,12 +359,13 @@ void the_mime_parser(char *partnum,
 				strcpy(encoding, &header[26]);
 				striplt(encoding);
 			}
-			if (IsEmptyStr(boundary))
-				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
+			headerlen = 0;
 		}
-		if ((strlen(header) + strlen(buf) + 2) < SIZ) {
-			strcat(header, buf);
+		if ((headerlen + buflen + 2) < SIZ) {
+			memcpy(&header[headerlen], buf, buflen);
+			headerlen += buflen;
+			header[headerlen] = '\0';
 		}
 	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
 
@@ -514,7 +531,7 @@ void the_mime_parser(char *partnum,
 					0, encoding, userdata);
 			}
 			if (CallBack != NULL) {
-				if (!IsEmptyStr(partnum)) {
+				if (strlen(partnum) > 0) {
 					snprintf(nested_partnum,
 						 sizeof nested_partnum,
 						 "%s.%d", partnum,
@@ -616,5 +633,3 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
-
-/*@}*/
