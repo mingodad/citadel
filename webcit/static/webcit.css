@@ -441,9 +441,10 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-.msgbuttons a {
-	border: 2px groove #AAA;
-	color: #000;
+.button_link a, .msgbuttons a {
+	border: 1px solid #999;
+	color: #333;
+	background-color: #fbf4ca;
 }
 
 #important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
@@ -692,6 +693,11 @@ html>body #button li a {
 }
 
 
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
+	margin: 4px;
+	padding: 0;
+}
+
 /* Banner */
 
 #banner .room_banner {
@@ -824,15 +830,9 @@ html>body #button li a {
 	padding: 0;
 }
 
-
-
-.button_link {
-	padding: 0 2px 0 2px;
-}
-
-.msgbuttons a {
-	margin: 0 2px 0 2px;
-	padding: 1px;
+.button_link a, .msgbuttons a {
+	margin: 0 3px 0 3px;
+	padding: 2px;
 }
 
 .mimepart {
@@ -904,20 +904,21 @@ dt { clear: both; }
 
 .message_content {
 	margin: 0;
-	padding: 3px;
+	padding: 0.3em;
  	clear: both;
 }
 
 .message form div label {
  	display: block;
  	float: left;
- 	margin: 3px;
+ 	margin: 0.3em;
  	width: 9em;
  	text-align: right;
 }
 
 .message form div input, .message form div select {
- 	margin: 3px;
+ 	margin: 0.3em;
+
 }
 
 .imgedit {
