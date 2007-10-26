@@ -793,15 +793,10 @@ html>body #button li a {
 	width: 100%;
 }
 
-.service table, .advanced table {
+.service table {
 	margin-top: 0 auto 0 auto;
 	width: 100%;
 	text-align: left;
-}
-
-.advanced table table {
-	margin: 0;
-	padding: 0;
 }
 
 .instructions {
