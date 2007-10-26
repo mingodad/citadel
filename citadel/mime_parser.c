@@ -30,6 +30,7 @@ void extract_key(char *target, char *source, char *key)
 {
 	char *ptr;
 	char looking_for[256];
+	int double_quotes = 0;
 
 	snprintf(looking_for, sizeof looking_for, "%s=", key);
 
@@ -41,8 +42,21 @@ void extract_key(char *target, char *source, char *key)
 	strcpy(target, (ptr + strlen(looking_for)));
 
 	for (ptr=target; (*ptr != 0); ++ptr) {
+
+		/* A semicolon means we've hit the end of the key, unless we're inside double quotes */
+		if ( (double_quotes != 1) && (*ptr == ';')) {
+			*ptr = 0;
+		}
+
+		/* if we find double quotes, we've got a great set of string boundaries */
 		if (*ptr == '\"') {
-			strcpy(ptr, ptr+1);
+			++double_quotes;
+			if (double_quotes == 1) {
+				strcpy(ptr, ptr+1);
+			}
+			else {
+				*ptr = 0;
+			}
 		}
 	}
 }
@@ -335,6 +349,7 @@ void the_mime_parser(char *partnum,
 				striplt(content_type);
 				extract_key(content_type_name, content_type, "name");
 				extract_key(charset, content_type, "charset");
+				extract_key(boundary, header, "boundary");
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
@@ -357,8 +372,6 @@ void the_mime_parser(char *partnum,
 				strcpy(encoding, &header[26]);
 				striplt(encoding);
 			}
-			if (strlen(boundary) == 0)
-				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
 			headerlen = 0;
 		}

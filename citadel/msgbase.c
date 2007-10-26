@@ -1034,9 +1034,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 */
 	ch = *mptr++;
 	if (ch != 255) {
-		lprintf(CTDL_ERR,
-			"Message %ld appears to be corrupted.\n",
-			msgnum);
+		lprintf(CTDL_ERR, "Message %ld appears to be corrupted.\n", msgnum);
 		cdb_free(dmsgtext);
 		return NULL;
 	}
@@ -1199,8 +1197,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	 * we've already printed another section, skip this one.
 	 */	
    	if ( (ma->is_ma) && (ma->did_print) ) {
-		lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n",
-			partnum, cbtype);
+		lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n", partnum, cbtype);
 		return;
 	}
 	ma->did_print = 1;
@@ -1268,6 +1265,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
 				if (i < ma->chosen_pref) {
+					lprintf(CTDL_DEBUG, "Setting chosen part: <%s>\n", partnum);
 					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
 					ma->chosen_pref = i;
 				}
