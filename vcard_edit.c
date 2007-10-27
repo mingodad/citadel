@@ -157,7 +157,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 				extract_token(faxtel, value, 0, ';', sizeof faxtel);
 			}
 	
-			else if (!strcasecmp(key, "tel;mobile")) {
+			else if (!strcasecmp(key, "tel;cell")) {
 				extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
 			}
 	
@@ -446,7 +446,7 @@ void submit_vcard(void) {
 	vcard_add_prop(v, "tel;home", bstr("hometel"));
 	vcard_add_prop(v, "tel;work", bstr("worktel"));
 	vcard_add_prop(v, "tel;fax", bstr("faxtel"));
-	vcard_add_prop(v, "tel;mobile", bstr("mobiletel"));
+	vcard_add_prop(v, "tel;cell", bstr("mobiletel"));
 	vcard_add_prop(v, "email;internet", bstr("primary_inetemail"));
 
 	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
