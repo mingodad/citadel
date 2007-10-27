@@ -315,6 +315,7 @@ struct folder {
 	int is_mailbox;	/**< is it a mailbox?  */
 	int selectable;	/**< can we select it ??? */
 	int view;       /**< whats its default view? inbox/calendar.... */
+	int num_rooms;	/**< If this is a floor, how many rooms does it have */
 };
 
 /**
