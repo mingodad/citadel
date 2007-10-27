@@ -3069,7 +3069,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 	int ra_flags = 0;
 	int flags = 0;
 	int num_floors = 1;	/** add an extra one for private folders */
-
+	char buf2[SIZ];
+	
 	/** If our cached folder list is very old, burn it. */
 	if (WC->cache_fold != NULL) {
 		if ((time(NULL) - WC->cache_timestamp) > 300) {
@@ -3138,9 +3139,33 @@ void list_all_rooms_by_floor(char *viewpref) {
 				fold[max_folders].floor,
 				fold[max_folders].is_mailbox);
 		fold[max_folders].selectable = 1;
+		/* Increase the room count for the associtaed floor */
+		if (fold[max_folders].is_mailbox)
+			fold[0].num_rooms++;
+		else
+			fold[fold[max_folders].floor+1].num_rooms++;
 		++max_folders;
 	}
-
+	
+	/*
+	 * Remove any floors that don't have rooms
+	 */
+	get_preference("emptyfloors", buf2, sizeof buf2);
+	if (buf2[0]==0 || (strcasecmp(buf2, "no") == 0))
+	{
+		for (i=0; i<num_floors; i++)
+		{
+        		if (fold[i].num_rooms == 0) {
+                		for (j=i; j<max_folders; j++) {
+                        		memcpy(&fold[j], &fold[j+1], sizeof(struct folder));
+                		}
+                		max_folders--;
+                		num_floors--;
+                		i--;
+        		}
+		}
+	}
+	
 	/** Bubble-sort the folder list */
 	for (i=0; i<max_folders; ++i) {
 		for (j=0; j<(max_folders-1)-i; ++j) {

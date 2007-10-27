@@ -409,6 +409,30 @@ void display_preferences(void)
 	wprintf("\">");
 	wprintf("</td></tr>");
 
+	/**
+	 * Show empty floors?
+	 */
+
+	get_preference("emptyfloors", buf, sizeof buf);
+	if (buf[0] == 0) strcpy(buf, "no");
+	wprintf("<tr class=\"odd\"><td>");
+	wprintf(_("Show empty floors"));
+	wprintf("</td><td>");
+
+	wprintf("<input type=\"radio\" name=\"emptyfloors\" VALUE=\"yes\"");
+	if (!strcasecmp(buf, "yes")) wprintf(" checked");
+	wprintf(">");
+	wprintf(_("Yes"));
+	wprintf("</input>&nbsp;&nbsp;&nbsp;");
+
+	wprintf("<input type=\"radio\" name=\"emptyfloors\" VALUE=\"no\"");
+	if (!strcasecmp(buf, "no")) wprintf(" checked");
+	wprintf(">");
+	wprintf(_("No"));
+	wprintf("</input>\n");
+
+	wprintf("</td></tr>\n");
+
 	/** end table */
 	wprintf("</table>\n");
 
@@ -464,6 +488,7 @@ void set_preferences(void)
 	set_preference("daystart", bstr("daystart"), 0);
 	set_preference("dayend", bstr("dayend"), 0);
 	set_preference("default_header_charset", bstr("default_header_charset"), 0);
+	set_preference("emptyfloors", bstr("emptyfloors"), 0);
 
 	euid_escapize(ebuf, bstr("signature"));
 	set_preference("signature", ebuf, 1);
