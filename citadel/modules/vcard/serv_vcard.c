@@ -252,6 +252,12 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 		if (!strcasecmp(v->prop[i].name, "tel;home"))
 			(void) CtdlDoDirectoryServiceFunc("homePhone", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		else
+		if (!strcasecmp(v->prop[i].name, "tel;fax"))
+			(void) CtdlDoDirectoryServiceFunc("facsimileTelephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+		else
+		if (!strcasecmp(v->prop[i].name, "tel;cell"))
+			(void) CtdlDoDirectoryServiceFunc("mobile", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
+		else
 		if ( (!strcasecmp(v->prop[i].name, "tel"))
 		   ||(!strncasecmp(v->prop[i].name, "tel;", 4)) ) {
 			(void) CtdlDoDirectoryServiceFunc("telephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
