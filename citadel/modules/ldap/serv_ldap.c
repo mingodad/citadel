@@ -54,7 +54,6 @@
 LDAP *dirserver = NULL;
 int ldap_time_disconnect = 0;
 
-
 /*
  * LDAP connector cleanup function
  */
@@ -84,8 +83,8 @@ int connect_to_ldap(void)
 	int i;
 	int ldap_version = 3;
 
-	if (ldap_time_disconnect && dirserver) {	// Already connected
-		ldap_time_disconnect = 5;	// reset the timer.
+	if (dirserver) {	// Already connected
+		ldap_time_disconnect = 1 ;	// reset the timer.
 		return 0;
 	}
 
@@ -119,7 +118,7 @@ int connect_to_ldap(void)
 			     "LDAP: Cannot bind to server");
 		return -1;
 	}
-	ldap_time_disconnect = 5;
+	ldap_time_disconnect = 1;
 	return 0;
 }
 
