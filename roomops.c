@@ -1190,26 +1190,32 @@ void display_editroom(void)
 		
 			wprintf("<li>");
 			wprintf(_("Resides on floor: "));
-			wprintf("<select NAME=\"er_floor\" SIZE=\"1\">\n");
+			wprintf("<select NAME=\"er_floor\" SIZE=\"1\"");
+			if (er_flags & QR_MAILBOX)
+				wprintf("disabled >\n");
 			for (i = 0; i < 128; ++i)
 				if (!IsEmptyStr(floorlist[i])) {
 					wprintf("<OPTION ");
-					if (i == er_floor)
+					if (i == er_floor )
 						wprintf("SELECTED ");
 					wprintf("VALUE=\"%d\">", i);
 					escputs(floorlist[i]);
 					wprintf("</OPTION>\n");
 				}
 			wprintf("</select>\n");
-		
+
 			wprintf("<li>");
 			wprintf(_("Type of room:"));
 			wprintf("<ul>\n");
 	
 			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-			if ((er_flags & QR_PRIVATE) == 0)
-			wprintf("CHECKED ");
-			wprintf("> ");
+			if ((er_flags & (QR_PRIVATE + QR_MAILBOX)) == 0)
+				wprintf("CHECKED ");
+			wprintf("OnChange=\""
+				"	if (this.form.type[0].checked == true) {	"
+				"		this.form.er_floor.disabled = false;	"
+				"	}						"
+				"\"> ");
 			wprintf(_("Public (automatically appears to everyone)"));
 			wprintf("\n");
 	
@@ -1217,14 +1223,22 @@ void display_editroom(void)
 			if ((er_flags & QR_PRIVATE) &&
 		    	(er_flags & QR_GUESSNAME))
 				wprintf("CHECKED ");
-			wprintf("> ");
+			wprintf(" OnChange=\""
+				"	if (this.form.type[1].checked == true) {	"
+				"		this.form.er_floor.disabled = false;	"
+				"	}						"
+				"\"> ");
 			wprintf(_("Private - hidden (accessible to anyone who knows its name)"));
 		
 			wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
 			if ((er_flags & QR_PRIVATE) &&
 		    	(er_flags & QR_PASSWORDED))
 				wprintf("CHECKED ");
-			wprintf("> ");
+			wprintf(" OnChange=\""
+				"	if (this.form.type[2].checked == true) {	"
+				"		this.form.er_floor.disabled = false;	"
+				"	}						"
+				"\"> ");
 			wprintf(_("Private - require password: "));
 			wprintf("\n<input type=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
 				er_password);
@@ -1234,9 +1248,23 @@ void display_editroom(void)
 		    	&& ((er_flags & QR_GUESSNAME) == 0)
 		    	&& ((er_flags & QR_PASSWORDED) == 0))
 				wprintf("CHECKED ");
-			wprintf("> ");
+			wprintf(" OnChange=\""
+				"	if (this.form.type[3].checked == true) {	"
+				"		this.form.er_floor.disabled = false;	"
+				"	}						"
+				"\"> ");
 			wprintf(_("Private - invitation only"));
 		
+			wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"personal\" ");
+			if (er_flags & QR_MAILBOX)
+				wprintf("CHECKED ");
+			wprintf (" OnChange=\""
+				"	if (this.form.type[4].checked == true) {	"
+				"		this.form.er_floor.disabled = true;	"
+				"	}						"
+				"\"> ");
+			wprintf(_("Personal (mailbox for you only)"));
+			
 			wprintf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
 			wprintf("> ");
 			wprintf(_("If private, cause current users to forget room"));
@@ -1903,6 +1931,12 @@ void editroom(void)
 	if (!strcmp(buf, "passworded")) {
 		er_flags |= (QR_PRIVATE | QR_PASSWORDED);
 	}
+	if (!strcmp(buf, "personal")) {
+		er_flags |= QR_MAILBOX;
+	} else {
+		er_flags &= ~QR_MAILBOX;
+	}
+	
 	if (!strcmp(bstr("prefonly"), "yes")) {
 		er_flags |= QR_PREFONLY;
 	} else {
@@ -1915,6 +1949,7 @@ void editroom(void)
 		er_flags &= ~QR_READONLY;
 	}
 
+	
 	if (!strcmp(bstr("collabdel"), "yes")) {
 		er_flags2 |= QR2_COLLABDEL;
 	} else {
