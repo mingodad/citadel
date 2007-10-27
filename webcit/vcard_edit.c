@@ -42,6 +42,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	char hometel[256];
 	char worktel[256];
 	char faxtel[256];
+	char mobiletel[256];
 	char primary_inetemail[256];
 	char other_inetemail[SIZ];
 	char extrafields[SIZ];
@@ -64,6 +65,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	hometel[0] = 0;
 	worktel[0] = 0;
 	faxtel[0] = 0;
+	mobiletel[0] = 0;
 	primary_inetemail[0] = 0;
 	other_inetemail[0] = 0;
 	title[0] = 0;
@@ -153,6 +155,10 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	
 			else if (!strcasecmp(key, "tel;fax")) {
 				extract_token(faxtel, value, 0, ';', sizeof faxtel);
+			}
+	
+			else if (!strcasecmp(key, "tel;mobile")) {
+				extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
 			}
 	
 			else if (!strcasecmp(key, "email;internet")) {
@@ -302,8 +308,14 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	wprintf(_("Work telephone:"));
 	wprintf("</td>"
 		"<td><input type=\"text\" name=\"worktel\" "
-		"value=\"%s\" maxlength=\"29\"></td>\n",
+		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		worktel);
+	wprintf("<tr><td>");
+	wprintf(_("Mobile telephone:"));
+	wprintf("</td>"
+		"<td><input type=\"text\" name=\"mobiletel\" "
+		"value=\"%s\" maxlength=\"29\"></td>\n",
+		mobiletel);
 	wprintf("<td>");
 	wprintf(_("Fax number:"));
 	wprintf("</td>"
@@ -434,6 +446,7 @@ void submit_vcard(void) {
 	vcard_add_prop(v, "tel;home", bstr("hometel"));
 	vcard_add_prop(v, "tel;work", bstr("worktel"));
 	vcard_add_prop(v, "tel;fax", bstr("faxtel"));
+	vcard_add_prop(v, "tel;mobile", bstr("mobiletel"));
 	vcard_add_prop(v, "email;internet", bstr("primary_inetemail"));
 
 	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
