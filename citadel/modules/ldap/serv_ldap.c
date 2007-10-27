@@ -54,6 +54,12 @@
 LDAP *dirserver = NULL;
 int ldap_time_disconnect = 0;
 
+
+
+/* There is a forward referance so.... */
+int delete_from_ldap(char *cn, char *ou, void **object);
+
+
 /*
  * LDAP connector cleanup function
  */
@@ -328,7 +334,7 @@ int add_ldap_object(char *cn, char *ou, void **object)
  */
 int save_ldap_object(char *cn, char *ou, void **object)
 {
-	int i, j;
+	int i;
 
 	char this_dn[SIZ];
 	LDAPMod **attrs;
@@ -384,14 +390,21 @@ int save_ldap_object(char *cn, char *ou, void **object)
 	}
 
 	/* If the entry already exists, repopulate it instead */
+	/* repopulating doesn't work as Citadel may want some attributes to be deleted.
+	 * we have no way of knowing which attributes to delete and LDAP won't work it out for us
+	 * so now we delete the old entry and create a new one.
+	 */
 	if (i == LDAP_ALREADY_EXISTS) {
-		for (j = 0; j < (num_attrs); ++j) {
-			attrs[j]->mod_op = LDAP_MOD_REPLACE;
-		}
+		end_critical_section(S_LDAP);
 		CtdlLogPrintf(CTDL_INFO,
-			"LDAP: Calling ldap_modify_s() for dn of '%s'\n",
+			"LDAP: Create, already exists, deleteing first.\n");
+		if (delete_from_ldap(cn, ou, NULL))
+			return -1;
+		begin_critical_section(S_LDAP);
+		CtdlLogPrintf(CTDL_INFO,
+			"LDAP: Calling ldap_add_s() to recreate for dn of '%s'\n",
 			this_dn);
-		i = ldap_modify_s(dirserver, this_dn, attrs);
+		i = ldap_add_s(dirserver, this_dn, attrs);
 	}
 
 	if (i != LDAP_SUCCESS) {
@@ -466,8 +479,6 @@ int delete_from_ldap(char *cn, char *ou, void **object)
 	char this_dn[SIZ];
 
 	if (dirserver == NULL)
-		return -1;
-	if (ou == NULL)
 		return -1;
 	if (cn == NULL)
 		return -1;
