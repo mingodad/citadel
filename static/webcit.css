@@ -48,11 +48,11 @@ body {
 	cursor: help;
 }
 
-.button_link, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
+input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
 	background-color: #fbf4ca;
 }
 
-.button_link, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
+input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
 	border: 1px solid #999;
 	color: #333;
 }
@@ -132,12 +132,6 @@ body {
 
 #content {
 	background-color: #6C91A6;
-	color: #000;
-}
-
-input#delbutton,.attachfile, .logbuttons input,.buttons input {
-	background-color: transparent;
-	border: 2px groove #AAA;
 	color: #000;
 }
 
@@ -441,21 +435,17 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-.button_link a, .msgbuttons a {
-	border: 1px solid #999;
-	color: #333;
-	background-color: #fbf4ca;
-}
-
 #important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
 
-
-.button_link a {
-	font-weight: normal;
+.button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	background-color: transparent;
+	border: 2px groove #CCC;
 	color: #333;
+	font-weight: bold;
+	cursor: pointer;
 }
 
 /* Layout */
@@ -480,6 +470,7 @@ body, #global {
 	top: 0; 
 	right: 0;
 	z-index: 2;
+	padding: 3px;
 }
 
 #login_screen, #logout_screen {
