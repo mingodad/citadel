@@ -2143,12 +2143,23 @@ void display_whok(void)
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
         wprintf(_("Invite:"));
 	wprintf(" ");
-        wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
+        wprintf("<input type=\"text\" name=\"username\" id=\"username_id\" style=\"width:100%%\"><br />\n"
         	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
         	"<input type=\"submit\" value=\"%s\">"
 		"</form></CENTER>\n", _("Invite"));
+		/** Pop open an address book -- begin **/
+		wprintf(
+			"<a href=\"javascript:PopOpenAddressBook('username_id|%s');\" "
+			"title=\"%s\">"
+			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
+			"&nbsp;%s</a>",
+			_("User"), 
+			_("Users"), _("Users")
+		);
+		/** Pop open an address book -- end **/
 
 	wprintf("</td></tr></table>\n");
+	address_book_popup();
         wDumpContent(1);
 }
 
