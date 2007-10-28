@@ -591,6 +591,14 @@ void display_siteconfig(void)
 			sprintf(&funambol[strlen(funambol)], "<input type=\"text\" NAME=\"c_pager_program\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
 			sprintf(&funambol[strlen(funambol)], "</TD></TR>\n");
 			break;
+		case 61:
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Keep original from headers in IMAP"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_imap_keep_from\" VALUE=\"yes\" %s>",
+				((atoi(buf) != 0) ? "CHECKED" : ""));
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
 		}
 	
 	}
@@ -766,6 +774,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_master_user"));
 	serv_printf("%s", bstr("c_master_pass"));
 	serv_printf("%s", bstr("c_pager_program"));
+	serv_printf("%s", ((!strcasecmp(bstr("c_imap_keep_from"), "yes") ? "1" : "0")));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
