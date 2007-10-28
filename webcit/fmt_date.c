@@ -81,7 +81,10 @@ void fmt_date(char *buf, time_t thetime, int brief)
 		}
 	}
 	else {
-		wc_strftime(buf, 32, "%c", &tm);
+		if (time_format == WC_TIMEFORMAT_24)
+			wc_strftime(buf, 32, "%a %b %d %Y %T %Z", &tm);
+		else
+			wc_strftime(buf, 32, "%a %b %d %Y %r %Z", &tm);
 	}
 }
 
