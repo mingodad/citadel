@@ -83,3 +83,4 @@ CFG_VALUE(CHAR(c_rbl_at_greeting),		" Check RBL's at connect instead of after RC
 CFG_VALUE(STRING_BUF(c_master_user, 32),	" Master user name ");
 CFG_VALUE(STRING_BUF(c_master_pass, 32),	" Master user password ");
 CFG_VALUE(STRING_BUF(c_pager_program, 256), 	" External pager program (blank to disable)");
+CFG_VALUE(CHAR(c_imap_keep_from),		" IMAP keep original from header in msgs");

@@ -329,6 +329,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_master_user);
 		cprintf("%s\n", config.c_master_pass);
 		cprintf("%s\n", config.c_pager_program);
+		cprintf("%d\n", config.c_imap_keep_from);
 		cprintf("000\n");
 	}
 
@@ -566,6 +567,9 @@ void cmd_conf(char *argbuf)
 				safestrncpy(config.c_pager_program,
 					buf,
 					sizeof config.c_pager_program);
+				break;
+			case 61:
+				config.c_imap_keep_from = atoi(buf);
 				break;
 			}
 			++a;

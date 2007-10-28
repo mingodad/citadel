@@ -454,7 +454,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * private mailboxes.
 	 */
 	if (CC->logged_in) {
-	   if ( (CC->room.QRflags & QR_MAILBOX) == 0) {
+	   if ( ((CC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
 		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
