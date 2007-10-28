@@ -72,6 +72,11 @@ typedef struct _CtdlIPC {
 	int uploading;
 	/* Time the last command was sent to the server */
 	time_t last_command_sent;
+	/* Our buffer for linebuffered read. */
+	char *Buf;
+	size_t BufSize;
+	size_t BufUsed;
+	char *BufPtr;
 	/* Callback for update on whether the IPC is locked */
 	void (*network_status_cb)(int state);
 } CtdlIPC;

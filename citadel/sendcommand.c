@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 				n = read(ipc->sock, rbuf, SIZ);
 				if (n>0) {
 					rbuf[n]='\0';
-					printf (rbuf);
+					fprintf (stderr, rbuf);
 					fflush (stdout);
 				}
 			}

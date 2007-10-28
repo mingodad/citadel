@@ -2854,28 +2854,140 @@ static unsigned long id_callback(void) {
 #endif /* HAVE_OPENSSL */
 
 
+int
+ReadNetworkChunk(CtdlIPC* ipc)
+{
+	fd_set read_fd;
+	int ret, err;
+	struct timeval tv;
+
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+	while (1)
+	{
+		FD_ZERO(&read_fd);
+		FD_SET(ipc->sock, &read_fd);
+		ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
+		if (ret == -1) {
+			if (!(errno == EINTR || errno == EAGAIN))
+				fprintf(stderr, "\nselect failed: %d %s\n", err, strerror(err));
+			return -1;
+		}
+		
+		if (ret != 0) {
+			size_t n;
+			
+			*(ipc->BufPtr) = '\0';
+			n = read(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1);
+			if (n > 0) {
+				ipc->BufPtr[n]='\0';
+				ipc->BufUsed += n;
+				return n;
+			}
+		}
+	}
+}
+
 /*
  * input string from socket - implemented in terms of serv_read()
  */
 static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 {
 	int i;
+	char *aptr, *bptr, *aeptr, *beptr;
 
-	/* Read one character at a time. */
-	for (i = 0;; i++) {
-		serv_read(ipc, &buf[i], 1);
-		if (buf[i] == '\n' || i == (SIZ-1))
-			break;
+	beptr = buf + SIZ;
+#if defined(HAVE_OPENSSL)
+ 	if (ipc->ssl) {
+		
+		/* Read one character at a time. */
+ 		for (i = 0;; i++) {
+ 			serv_read(ipc, &buf[i], 1);
+ 			if (buf[i] == '\n' || i == (SIZ-1))
+ 				break;
+ 		}
+		
+		/* If we got a long line, discard characters until the newline. */
+ 		if (i == (SIZ-1))
+ 			while (buf[i] != '\n')
+ 				serv_read(ipc, &buf[i], 1);
+		
+		/* Strip the trailing newline (and carriage return, if present) */
+ 		if (i>=0 && buf[i] == 10) buf[i--] = 0;
+ 		if (i>=0 && buf[i] == 13) buf[i--] = 0;
+ 	}
+ 	else
+#endif
+	{
+		if (ipc->Buf == NULL)
+		{
+			ipc->BufSize = SIZ;
+			ipc->Buf = (char*) malloc(ipc->BufSize + 10);
+			*(ipc->Buf) = '\0';
+			ipc->BufPtr = ipc->Buf;
+		}
+
+		if (ipc->BufUsed == 0)
+			while (	ReadNetworkChunk(ipc) < 0 )
+				sleep (1);
+
+		while (1)
+		{
+			
+			aptr = ipc->BufPtr;
+			bptr = buf;
+			aeptr = ipc->Buf + ipc->BufSize;
+			while ((aptr < aeptr) && 
+			       (bptr < beptr) &&
+			       (*aptr != '\0') && 
+			       (*aptr != '\n'))
+				*(bptr++) = *(aptr++);
+			if ((*aptr == '\n') && (aptr < aeptr))
+			{
+				/* Terminate it right, remove the line breaks */
+				while ((aptr < aeptr) && ((*aptr == '\n') || (*aptr == '\r')))
+					aptr ++;
+				while ((aptr < aeptr ) && (*(aptr + 1) == '\0') )
+					aptr ++;
+				*(bptr++) = '\0';
+//				fprintf(stderr, "parsing %d %d %d - %d %d %d\n", ipc->BufPtr - ipc->Buf, aptr - ipc->BufPtr, ipc->BufUsed , *aptr, *(aptr-1), *(aptr+1));
+				if ((bptr > buf + 1) && (*(bptr-1) == '\r'))
+					*(--bptr) = '\0';
+				
+				/* is there more in the buffer we need to read later? */
+				if (ipc->Buf + ipc->BufUsed > aptr)
+				{
+					ipc->BufPtr = aptr;
+				}
+				else
+				{
+					ipc->BufUsed = 0;
+					ipc->BufPtr = ipc->Buf;
+				}
+				return;
+				
+			}/* should we move our read stuf to the bufferstart so we have more space at the end? */
+			else if ((ipc->BufPtr != ipc->Buf) && 
+				 (ipc->BufUsed > (ipc->BufSize  - (ipc->BufSize / 4))))
+			{
+				size_t NewBufSize = ipc->BufSize * 2;
+				int delta = (ipc->BufPtr - ipc->Buf);
+				char *NewBuf;
+
+				/* if the line would end after our buffer, we should use a bigger buffer. */
+				NewBuf = (char *)malloc (NewBufSize + 10);
+				memcpy (NewBuf, ipc->BufPtr, ipc->BufUsed - delta);
+				free(ipc->Buf);
+				ipc->Buf = ipc->BufPtr = NewBuf;
+				ipc->BufUsed -= delta;
+				ipc->BufSize = NewBufSize;
+			}
+			else {
+			}			
+			if (ReadNetworkChunk(ipc) <0)
+				return;
+		}
 	}
-
-	/* If we got a long line, discard characters until the newline. */
-	if (i == (SIZ-1))
-		while (buf[i] != '\n')
-			serv_read(ipc, &buf[i], 1);
-
-	/* Strip the trailing newline (and carriage return, if present) */
-	if (i>=0 && buf[i] == 10) buf[i--] = 0;
-	if (i>=0 && buf[i] == 13) buf[i--] = 0;
 }
 
 void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
@@ -2942,6 +3054,9 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	ipc->uploading = 0;
 	ipc->last_command_sent = 0L;
 	ipc->network_status_cb = NULL;
+	ipc->Buf = NULL;
+	ipc->BufUsed = 0;
+	ipc->BufPtr = NULL;
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */
@@ -3019,6 +3134,10 @@ void CtdlIPC_delete(CtdlIPC* ipc)
 		shutdown(ipc->sock, 2);	/* Close it up */
 		ipc->sock = -1;
 	}
+	if (ipc->Buf != NULL)
+		free (ipc->Buf);
+	ipc->Buf = NULL;
+	ipc->BufPtr = NULL;
 	ifree(ipc);
 }
 
