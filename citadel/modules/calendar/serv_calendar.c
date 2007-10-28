@@ -105,12 +105,15 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 
 /*
  * Write a calendar object into the specified user's calendar room.
+ * If the supplied user is NULL, this function writes the calendar object
+ * to the currently selected room.
  */
 void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
-	FILE *fp;
-	char *ser;
-	icalcomponent *encaps;
+	FILE *fp = NULL;
+	char *ser = NULL;
+	icalcomponent *encaps = NULL;
+	struct CtdlMessage *msg = NULL;
 
 	if (cal == NULL) return;
 
@@ -118,35 +121,59 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	 * a full VCALENDAR component, and save that instead.
 	 */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
-		encaps = ical_encapsulate_subcomponent(
-			icalcomponent_new_clone(cal)
-		);
+		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(cal));
 		ical_write_to_cal(u, encaps);
 		icalcomponent_free(encaps);
 		return;
 	}
 
-	CtdlMakeTempFileName(temp, sizeof temp);
 	ser = icalcomponent_as_ical_string(cal);
 	if (ser == NULL) return;
 
-	/* Make a temp file out of it */
-	fp = fopen(temp, "w");
-	if (fp == NULL) return;
-	fwrite(ser, strlen(ser), 1, fp);
-	fclose(fp);
+	/* If the caller supplied a user, write to that user's default calendar room */
+	if (u) {
+		/* Make a temp file out of it */
+		CtdlMakeTempFileName(temp, sizeof temp);
+		fp = fopen(temp, "w");
+		if (fp != NULL) {
+			fwrite(ser, strlen(ser), 1, fp);
+			fclose(fp);
+		
+			/* This handy API function does all the work for us. */
+			CtdlWriteObject(USERCALENDARROOM,	/* which room */
+				"text/calendar",	/* MIME type */
+				temp,			/* temp file */
+				u,			/* which user */
+				0,			/* not binary */
+				0,			/* don't delete others of this type */
+				0			/* no flags */
+			);
+			unlink(temp);
+		}
+	}
 
-	/* This handy API function does all the work for us.
-	 */
-	CtdlWriteObject(USERCALENDARROOM,	/* which room */
-			"text/calendar",	/* MIME type */
-			temp,			/* temp file */
-			u,			/* which user */
-			0,			/* not binary */
-			0,		/* don't delete others of this type */
-			0);			/* no flags */
+	/* If the caller did not supply a user, write to the currently selected room */
+	if (!u) {
+		msg = malloc(sizeof(struct CtdlMessage));
+		memset(msg, 0, sizeof(struct CtdlMessage));
+		msg->cm_magic = CTDLMESSAGE_MAGIC;
+		msg->cm_anon_type = MES_NORMAL;
+		msg->cm_format_type = 4;
+		msg->cm_fields['A'] = strdup(CC->user.fullname);
+		msg->cm_fields['O'] = strdup(CC->room.QRname);
+		msg->cm_fields['N'] = strdup(config.c_nodename);
+		msg->cm_fields['H'] = strdup(config.c_humannode);
+		msg->cm_fields['M'] = malloc(strlen(ser) + 40);
+		strcpy(msg->cm_fields['M'], "Content-type: text/calendar\r\n\r\n");
+		strcat(msg->cm_fields['M'], ser);
+	
+		/* Now write the data */
+		CtdlSubmitMsg(msg, NULL, "");
+		CtdlFreeMessage(msg);
+	}
 
-	unlink(temp);
+	/* In either case, now we can free the serialized calendar object */
+	free(ser);
 }
 
 
@@ -1478,7 +1505,7 @@ void ical_putics(void)
 	 * in.  This will almost never happen.
 	 */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
-		ical_write_to_cal(&CC->user, cal);
+		ical_write_to_cal(NULL, cal);
 	}
 	/*
 	 * In the more likely event that we're looking at a VCALENDAR with the VEVENT
@@ -1488,7 +1515,7 @@ void ical_putics(void)
 		for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 		    (c != NULL);
 		    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-			ical_write_to_cal(&CC->user, c);
+			ical_write_to_cal(NULL, c);
 		}
 	}
 
