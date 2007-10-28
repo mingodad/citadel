@@ -1053,7 +1053,7 @@ msgstr "Übersichtsseite"
 
 #: ../mainmenu.c:97
 msgid "Summary of my account"
-msgstr "Meine Benutzerkonto"
+msgstr "Mein Benutzerkonto"
 
 #: ../mainmenu.c:101
 msgid "User list"
