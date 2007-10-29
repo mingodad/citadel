@@ -386,7 +386,8 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\n");
+	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\nEnvFrom: %s\n  EnvTo: %s\n",
+		cs->envelope_from, cs->envelope_to);
 
 	if (cs->envelope_from != NULL) {
 		if ((cs->envelope_from[0] != '@')&&(cs->envelope_from[strlen(cs->envelope_from)-1] != '@')) {
@@ -576,9 +577,11 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	/* Keep track of the envelope-from address (use body-from if not found) */
 	if (msg->cm_fields['P'] != NULL) {
 		safestrncpy(my.envelope_from, msg->cm_fields['P'], sizeof my.envelope_from);
+		stripallbut(my.envelope_from, '<', '>');
 	}
 	else if (msg->cm_fields['F'] != NULL) {
 		safestrncpy(my.envelope_from, msg->cm_fields['F'], sizeof my.envelope_from);
+		stripallbut(my.envelope_from, '<', '>');
 	}
 	else {
 		strcpy(my.envelope_from, "");
@@ -596,6 +599,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	/* Keep track of the envelope-to address (use body-to if not found) */
 	if (msg->cm_fields['V'] != NULL) {
 		safestrncpy(my.envelope_to, msg->cm_fields['V'], sizeof my.envelope_to);
+		stripallbut(my.envelope_to, '<', '>');
 	}
 	else if (msg->cm_fields['R'] != NULL) {
 		safestrncpy(my.envelope_to, msg->cm_fields['R'], sizeof my.envelope_to);
@@ -603,6 +607,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 			strcat(my.envelope_to, "@");
 			strcat(my.envelope_to, msg->cm_fields['D']);
 		}
+		stripallbut(my.envelope_to, '<', '>');
 	}
 	else {
 		strcpy(my.envelope_to, "");
