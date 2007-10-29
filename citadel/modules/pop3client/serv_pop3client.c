@@ -139,12 +139,12 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
 		extract_token(this_uidl, buf, 2, ' ', sizeof this_uidl);
 
-		snprintf(utmsgid, sizeof utmsgid, "pop3/%s/%s@%s", pop3user, this_uidl, pop3host);
+		snprintf(utmsgid, sizeof utmsgid, "pop3/%s/%s@%s", roomname, this_uidl, pop3host);
 
 		cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 		if (cdbut != NULL) {
-			lprintf(CTDL_DEBUG, "%s has ALREADY BEEN SEEN\n", utmsgid);
 			/* message has already been seen */
+			lprintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
 			cdb_free(cdbut);
 
 			/* rewrite the record anyway, to update the timestamp */
@@ -152,12 +152,8 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			ut.ut_timestamp = time(NULL);
 			cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
 		}
-
 		else {
-			/* message has not been seen -- fetch it! */
-			lprintf(CTDL_DEBUG, "%s has NOT BEEN SEEN\n", utmsgid);
-
-			/* Tell the server to fetch the message */
+			/* Message has not been seen. Tell the server to fetch the message... */
 			snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
 			lprintf(CTDL_DEBUG, "<%s\n", buf);
 			if (sock_puts(sock, buf) <0) goto bail;
@@ -193,7 +189,6 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 						&ut, sizeof(struct UseTable) );
 			}
 			CtdlFreeMessage(msg);
-
 		}
 	}
 
