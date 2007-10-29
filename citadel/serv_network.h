@@ -28,11 +28,6 @@ struct NetMap {
 };
 
 
-struct UseTable {
-	char ut_msgid[SIZ];
-	time_t ut_timestamp;
-};
-
 struct FilterList {
 	struct FilterList *next;
 	char fl_user[SIZ];

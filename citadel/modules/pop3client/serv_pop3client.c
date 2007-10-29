@@ -36,6 +36,7 @@
 #include "clientsocket.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
+#include "database.h"
 #include "citadel_dirs.h"
 
 struct pop3aggr {
@@ -46,12 +47,8 @@ struct pop3aggr {
 	char pop3pass[128];
 };
 
-struct uidl {
-	struct uidl *next;
-	char uidl[64];
-};
-
 struct pop3aggr *palist = NULL;
+
 
 void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass, int delete_from_server)
 {
@@ -66,8 +63,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	struct CtdlMessage *msg = NULL;
 	long msgnum = 0;
 	char this_uidl[64];
-	struct uidl *new_uidl_map = NULL;
-	struct uidl *uptr;
+	char utmsgid[SIZ];
+	struct cdbdata *cdbut;
+	struct UseTable ut;
 
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
@@ -139,45 +137,64 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 		lprintf(CTDL_DEBUG, ">%s\n", buf);
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
-		extract_token(this_uidl, buf, 3, ' ', sizeof this_uidl);
+		extract_token(this_uidl, buf, 2, ' ', sizeof this_uidl);
 
-		uptr = (struct uidl *) malloc(sizeof(struct uidl));
-		if (uptr != NULL) {
-			safestrncpy(uptr->uidl, this_uidl, sizeof uptr->uidl);
-			uptr->next = new_uidl_map;
-			new_uidl_map = uptr;
+		snprintf(utmsgid, sizeof utmsgid, "pop3/%s/%s@%s", pop3user, this_uidl, pop3host);
+
+		cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
+		if (cdbut != NULL) {
+			lprintf(CTDL_DEBUG, "%s has ALREADY BEEN SEEN\n", utmsgid);
+			/* message has already been seen */
+			cdb_free(cdbut);
+
+			/* rewrite the record anyway, to update the timestamp */
+			strcpy(ut.ut_msgid, utmsgid);
+			ut.ut_timestamp = time(NULL);
+			cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
 		}
 
-		/* Tell the server to fetch the message */
-		snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
-		lprintf(CTDL_DEBUG, "<%s\n", buf);
-		if (sock_puts(sock, buf) <0) goto bail;
-		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-		lprintf(CTDL_DEBUG, ">%s\n", buf);
-		if (strncasecmp(buf, "+OK", 3)) goto bail;
+		else {
+			/* message has not been seen -- fetch it! */
+			lprintf(CTDL_DEBUG, "%s has NOT BEEN SEEN\n", utmsgid);
 
-		/* If we get to this point, the message is on its way.  Read it. */
-		body = CtdlReadMessageBody(".", config.c_maxmsglen, NULL, 1, sock);
-		if (body == NULL) goto bail;
+			/* Tell the server to fetch the message */
+			snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
+			lprintf(CTDL_DEBUG, "<%s\n", buf);
+			if (sock_puts(sock, buf) <0) goto bail;
+			if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+			lprintf(CTDL_DEBUG, ">%s\n", buf);
+			if (strncasecmp(buf, "+OK", 3)) goto bail;
+	
+			/* If we get to this point, the message is on its way.  Read it. */
+			body = CtdlReadMessageBody(".", config.c_maxmsglen, NULL, 1, sock);
+			if (body == NULL) goto bail;
+	
+			lprintf(CTDL_DEBUG, "Converting message...\n");
+			msg = convert_internet_message(body);
+			body = NULL;	/* yes, this should be dereferenced, NOT freed */
+	
+			/* Do Something With It (tm) */
+			msgnum = CtdlSubmitMsg(msg, NULL, roomname);
+			if (msgnum > 0L) {
+				/* Message has been committed to the store */
+	
+				if (delete_from_server) {
+					snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
+					lprintf(CTDL_DEBUG, "<%s\n", buf);
+					if (sock_puts(sock, buf) <0) goto bail;
+					if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+					lprintf(CTDL_DEBUG, ">%s\n", buf); /* errors here are non-fatal */
+				}
 
-		lprintf(CTDL_DEBUG, "Converting message...\n");
-		msg = convert_internet_message(body);
-		body = NULL;	/* yes, this should be dereferenced, NOT freed */
-
-		/* Do Something With It (tm) */
-		msgnum = CtdlSubmitMsg(msg, NULL, roomname);
-		if (msgnum > 0L) {
-			/* Message has been committed to the store */
-
-			if (delete_from_server) {
-				snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
-				lprintf(CTDL_DEBUG, "<%s\n", buf);
-				if (sock_puts(sock, buf) <0) goto bail;
-				if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-				lprintf(CTDL_DEBUG, ">%s\n", buf);	/* errors here are non-fatal */
+				/* write the uidl to the use table so we don't fetch this message again */
+				strcpy(ut.ut_msgid, utmsgid);
+				ut.ut_timestamp = time(NULL);
+				cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid),
+						&ut, sizeof(struct UseTable) );
 			}
+			CtdlFreeMessage(msg);
+
 		}
-		CtdlFreeMessage(msg);
 	}
 
 	/* Log out */
@@ -188,12 +205,6 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	sock_close(sock);
 	if (msglist) free(msglist);
-
-	while (new_uidl_map != NULL) {
-		uptr = new_uidl_map->next;
-		free(new_uidl_map);
-		new_uidl_map = uptr;
-	}
 }
 
 

@@ -520,6 +520,16 @@ struct ser_ret {
 };
 
 
+/*
+ * The S_USETABLE database is used in several modules now, so we define its format here.
+ */
+struct UseTable {
+	char ut_msgid[SIZ];
+	time_t ut_timestamp;
+};
+
+
+
 /* Preferred field order 							*/
 /*               **********			Important fields		*/
 /*                         ***************	Semi-important fields		*/
