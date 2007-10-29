@@ -387,8 +387,32 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
 	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\n");
-	sieve2_setvalue_string(s, "to", cs->envelope_to);
-	sieve2_setvalue_string(s, "from", cs->envelope_from);
+
+	if (cs->envelope_from != NULL) {
+		if ((cs->envelope_from[0] != '@')&&(cs->envelope_from[strlen(cs->envelope_from)-1] != '@')) {
+			sieve2_setvalue_string(s, "from", cs->envelope_from);
+		}
+		else {
+			sieve2_setvalue_string(s, "from", "invalid_envelope_from@example.org");
+		}
+	}
+	else {
+		sieve2_setvalue_string(s, "from", "null_envelope_from@example.org");
+	}
+
+
+	if (cs->envelope_to != NULL) {
+		if ((cs->envelope_to[0] != '@') && (cs->envelope_to[strlen(cs->envelope_to)-1] != '@')) {
+			sieve2_setvalue_string(s, "to", cs->envelope_to);
+		}
+		else {
+			sieve2_setvalue_string(s, "to", "invalid_envelope_to@example.org");
+		}
+	}
+	else {
+		sieve2_setvalue_string(s, "to", "null_envelope_to@example.org");
+	}
+
 	return SIEVE2_OK;
 }
 

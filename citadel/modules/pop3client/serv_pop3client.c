@@ -45,12 +45,13 @@ struct pop3aggr {
 	char pop3host[128];
 	char pop3user[128];
 	char pop3pass[128];
+	int keep;
 };
 
 struct pop3aggr *palist = NULL;
 
 
-void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass, int delete_from_server)
+void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass, int keep)
 {
 	int sock;
 	char buf[SIZ];
@@ -174,7 +175,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			if (msgnum > 0L) {
 				/* Message has been committed to the store */
 	
-				if (delete_from_server) {
+				if (!keep) {
 					snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
 					lprintf(CTDL_DEBUG, "<%s\n", buf);
 					if (sock_puts(sock, buf) <0) goto bail;
@@ -233,6 +234,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				extract_token(pptr->pop3host, buf, 1, '|', sizeof pptr->pop3host);
 				extract_token(pptr->pop3user, buf, 2, '|', sizeof pptr->pop3user);
 				extract_token(pptr->pop3pass, buf, 3, '|', sizeof pptr->pop3pass);
+				pptr->keep = extract_int(buf, 4);
 				pptr->next = palist;
 				palist = pptr;
 			}
@@ -270,8 +272,8 @@ void pop3client_scan(void) {
 	ForEachRoom(pop3client_scan_room, NULL);
 
 	while (palist != NULL) {
-		/* FIXME set delete_from_server to 1 if the user wants to */
-		pop3_do_fetching(palist->roomname, palist->pop3host, palist->pop3user, palist->pop3pass, 0);
+		pop3_do_fetching(palist->roomname, palist->pop3host,
+				palist->pop3user, palist->pop3pass, palist->keep);
 		pptr = palist;
 		palist = palist->next;
 		free(pptr);

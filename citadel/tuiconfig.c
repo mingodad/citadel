@@ -953,27 +953,28 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 		scr_printf(	"### "
 			"      Remote POP3 host       "
 			"         User name           "
-			"    Password     "
+			"Keep on server? "
 			"\n");
 		color(DIM_WHITE);
 		scr_printf(	"--- "
 			"---------------------------- "
 			"---------------------------- "
-			"---------------- "
+			"--------------- "
 			"\n");
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
 		scr_printf("%3d ", i+1);
+
 		extract_token(buf, recs[i], 1, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-28s ", buf);
+
 		extract_token(buf, recs[i], 2, '|', sizeof buf);
 		color(BRIGHT_MAGENTA);
 		scr_printf("%-28s ", buf);
-		extract_token(buf, recs[i], 3, '|', sizeof buf);
+
 		color(BRIGHT_CYAN);
-		scr_printf("%-16s\n", buf);
-		extract_token(buf, recs[i], 4, '|', sizeof buf);
+		scr_printf("%-15s\n", (extract_int(recs[i], 4) ? "Yes" : "No") );
 		color(DIM_WHITE);
 		}
 
@@ -981,19 +982,21 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 		switch(ch) {
 			case 'a':
 				++num_recs;
-				if (num_recs == 1)
+				if (num_recs == 1) {
 					recs = malloc(sizeof(char *));
-				else recs = realloc(recs,
-					(sizeof(char *)) * num_recs);
+				}
+				else {
+					recs = realloc(recs, (sizeof(char *)) * num_recs);
+				}
 				strcpy(buf, "pop3client|");
-				newprompt("Enter host name: ",
-					&buf[strlen(buf)], 28);
+				newprompt("Enter host name: ", &buf[strlen(buf)], 28);
 				strcat(buf, "|");
-				newprompt("Enter user name: ",
-					&buf[strlen(buf)], 28);
+				newprompt("Enter user name: ", &buf[strlen(buf)], 28);
 				strcat(buf, "|");
-				newprompt("Enter password : ",
-					&buf[strlen(buf)], 16);
+				newprompt("Enter password : ", &buf[strlen(buf)], 16);
+				strcat(buf, "|");
+				scr_printf("Keep messages on server instead of deleting them? ");
+				sprintf(&buf[strlen(buf)], "%d", yesno());
 				strcat(buf, "|");
 				recs[num_recs-1] = strdup(buf);
 				modified = 1;
