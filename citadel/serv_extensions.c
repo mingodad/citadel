@@ -92,7 +92,8 @@ char *ErrPortWhere = "Admin->System Preferences->Network.\n\nThe failed ports an
 char *ErrPortHint = "If you want citadel to provide you with that functionality, "
 "check the output of \"netstat -lnp\" on linux Servers or \"netstat -na\" on *BSD"
 " and stop the programm, that binds these ports. You should eventually remove "
-" their initscripts in /etc/init.d so that you won't get this trouble once more.\n";
+" their initscripts in /etc/init.d so that you won't get this trouble once more.\n"
+" After that goto Administration -> Shutdown Citadel to make Citadel retry to bind this port.\n";
 
 
 void LogPrintMessages(long err)
