@@ -78,6 +78,7 @@ char* const message =
 #  include <time.h>
 # endif
 #endif
+#include "tools.h"
 #include "citadel_ipc.h"
 
 #ifndef HAVE_PTHREAD_H

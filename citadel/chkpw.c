@@ -105,7 +105,8 @@ int main(int argc, char **argv) {
 	}
 	while(1) {
 		printf("\n\nUsername: ");
-		gets(buf);
+		fgets(buf, sizeof buf, stdin);
+		buf[strlen(buf)-1] = 0;
 		p = getpwnam(buf);
 		if (p == NULL) {
 			printf("Not found\n");
@@ -114,7 +115,8 @@ int main(int argc, char **argv) {
 			uid = p->pw_uid;
 			printf("     uid: %d\n", uid);
 			printf("Password: ");
-			gets(buf);
+			fgets(buf, sizeof buf, stdin);
+			buf[strlen(buf)-1] = 0;
 			validpw(uid, buf);
 		}
 	}

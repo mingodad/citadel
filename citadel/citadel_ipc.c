@@ -2858,7 +2858,8 @@ int
 ReadNetworkChunk(CtdlIPC* ipc)
 {
 	fd_set read_fd;
-	int ret, err;
+	int ret = 0;
+	int err = 0;
 	struct timeval tv;
 
 	tv.tv_sec = 1;

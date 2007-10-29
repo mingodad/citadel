@@ -53,7 +53,7 @@ struct uidl {
 
 struct pop3aggr *palist = NULL;
 
-void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass)
+void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass, int delete_from_server)
 {
 	int sock;
 	char buf[SIZ];
@@ -167,13 +167,15 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		/* Do Something With It (tm) */
 		msgnum = CtdlSubmitMsg(msg, NULL, roomname);
 		if (msgnum > 0L) {
-			/* Message has been committed to the store, so delete it from the remote server */
-			snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
-			lprintf(CTDL_DEBUG, "<%s\n", buf);
-			if (sock_puts(sock, buf) <0) goto bail;
-			if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-			lprintf(CTDL_DEBUG, ">%s\n", buf);
-			if (strncasecmp(buf, "+OK", 3)) goto bail;
+			/* Message has been committed to the store */
+
+			if (delete_from_server) {
+				snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
+				lprintf(CTDL_DEBUG, "<%s\n", buf);
+				if (sock_puts(sock, buf) <0) goto bail;
+				if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+				lprintf(CTDL_DEBUG, ">%s\n", buf);	/* errors here are non-fatal */
+			}
 		}
 		CtdlFreeMessage(msg);
 	}
@@ -258,16 +260,12 @@ void pop3client_scan(void) {
 	if (doing_pop3client) return;
 	doing_pop3client = 1;
 
-	/* We can silently fail on these if the directory already exists. */
-	mkdir(ctdl_uidlmap_dir, 0700);
-	chmod(ctdl_uidlmap_dir, 0700);
-	chown(ctdl_uidlmap_dir, config.c_ctdluid, -1);
-
 	lprintf(CTDL_DEBUG, "pop3client started\n");
 	ForEachRoom(pop3client_scan_room, NULL);
 
 	while (palist != NULL) {
-		pop3_do_fetching(palist->roomname, palist->pop3host, palist->pop3user, palist->pop3pass);
+		/* FIXME set delete_from_server to 1 if the user wants to */
+		pop3_do_fetching(palist->roomname, palist->pop3host, palist->pop3user, palist->pop3pass, 0);
 		pptr = palist;
 		palist = palist->next;
 		free(pptr);

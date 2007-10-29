@@ -45,7 +45,6 @@ char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
 char ctdl_netin_dir[PATH_MAX]="network/spoolin";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
-char ctdl_uidlmap_dir[PATH_MAX]="uidlmaps";
 char ctdl_utilbin_dir[PATH_MAX]="";
 char ctdl_sbin_dir[PATH_MAX]="";
 char ctdl_bin_dir[PATH_MAX]="";
@@ -113,7 +112,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	basedir=ETC_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_netcfg_dir);
-	COMPUTE_DIRECTORY(ctdl_uidlmap_dir);
 	COMPUTE_DIRECTORY(ctdl_etc_dir);
 
 #ifndef HAVE_UTILBIN_DIR
