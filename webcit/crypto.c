@@ -14,7 +14,7 @@
 #include "webserver.h"
 /** \todo dirify */
 /** where to find the keys */
-#define	CTDL_CRYPTO_DIR		"./keys" 
+#define	CTDL_CRYPTO_DIR		ctdl_key_dir
 #define CTDL_KEY_PATH		file_crpt_file_key /**< the key */
 #define CTDL_CSR_PATH		file_crpt_file_csr /**< the csr file */
 #define CTDL_CER_PATH		file_crpt_file_cer /**< the cer file */
@@ -148,6 +148,10 @@ void init_ssl(void)
 				}
 				fclose(fp);
 			}
+			else {
+				lprintf(3, "Cannot write key: %s\n", CTDL_KEY_PATH);
+				exit(0);
+			}
 			RSA_free(rsa);
 		}
 	}
@@ -221,6 +225,10 @@ void init_ssl(void)
 							PEM_write_X509_REQ(fp, req);
 							fclose(fp);
 						}
+						else {
+							lprintf(3, "Cannot write key: %s\n", CTDL_CSR_PATH);
+							exit(0);
+						}
 					}
 
 					X509_REQ_free(req);
@@ -291,6 +299,10 @@ void init_ssl(void)
 							chmod(CTDL_CER_PATH, 0600);
 							PEM_write_X509(fp, cer);
 							fclose(fp);
+						}
+						else {
+							lprintf(3, "Cannot write key: %s\n", CTDL_CER_PATH);
+							exit(0);
 						}
 					}
 					X509_free(cer);
