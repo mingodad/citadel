@@ -1260,7 +1260,11 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	
 	ma = (struct ma_info *)cbuserdata;
 
-	if (ma->is_ma > 0) {
+	// NOTE: REMOVING THIS CONDITIONAL FIXES BUG 220
+	//       http://bugzilla.citadel.org/show_bug.cgi?id=220
+	// I don't know if there are any side effects!  Please TEST TEST TEST
+	//if (ma->is_ma > 0) {
+	if (1) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
 			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
@@ -1443,9 +1447,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	}
 
 	/* Ok, output the message now */
-	retcode = CtdlOutputPreLoadedMsg(
-		TheMessage, mode,
-		headers_only, do_proto, crlf);
+	retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf);
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -1454,7 +1456,6 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
- * 
  */
 int CtdlOutputPreLoadedMsg(
 		struct CtdlMessage *TheMessage,
