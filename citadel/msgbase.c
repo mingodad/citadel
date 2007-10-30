@@ -1264,15 +1264,14 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	//       http://bugzilla.citadel.org/show_bug.cgi?id=220
 	// I don't know if there are any side effects!  Please TEST TEST TEST
 	//if (ma->is_ma > 0) {
-	if (1) {
-		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
-			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
-			if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
-				if (i < ma->chosen_pref) {
-					lprintf(CTDL_DEBUG, "Setting chosen part: <%s>\n", partnum);
-					safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
-					ma->chosen_pref = i;
-				}
+
+	for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
+		extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
+		if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
+			if (i < ma->chosen_pref) {
+				lprintf(CTDL_DEBUG, "Setting chosen part: <%s>\n", partnum);
+				safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
+				ma->chosen_pref = i;
 			}
 		}
 	}
