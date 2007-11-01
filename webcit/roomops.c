@@ -2897,6 +2897,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		   && (!IsEmptyStr(old_floor_name)) ) {
 			/* End inner box */
 			do_template("endbox");
+			wprintf("<br>");
 
 			++num_boxes;
 			if ((num_boxes % boxes_per_column) == 0) {
