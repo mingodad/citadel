@@ -304,7 +304,7 @@ void escputs(char *strbuf)
 void urlesc(char *outbuf, char *strbuf)
 {
 	int a, b, c, len, eclen, olen;
-	char *ec = " #&;`'|*?-~<>^()[]{}/$\"\\";
+	char *ec = " +#&;`'|*?-~<>^()[]{}/$\"\\";
 
 	strcpy(outbuf, "");
 	len = strlen(strbuf);
