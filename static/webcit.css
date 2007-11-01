@@ -193,7 +193,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	width: 150px;
 }
 
-.error a: link,.error a:visited,.error a:active {
+.error a:link, .error a:visited, .error a:active {
 	background: none;
 	color: #DC143C;
 	text-decoration: underline;
@@ -205,7 +205,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	text-decoration: none;
 }
 
-.error strong a: link,.error strong a:visited,.error strong a:active {
+.error strong a:link,.error strong a:visited,.error strong a:active {
 	background: #FFD700;
 	color: #DC143C;
 }
@@ -296,7 +296,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	color: highlighttext;
 }
 
-.warning a: link,.warning a:visited,.warning a:active, .warning {
+.warning a:link,.warning a:visited,.warning a:active, .warning {
 	background: none;
 	color: #FF4500;
 }
@@ -305,7 +305,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	text-decoration: none;
 }
 
-.warning a: link,.warning a:visited,.warning a:active {
+.warning a:link,.warning a:visited,.warning a:active {
 	text-decoration: underline;
 }
 
@@ -314,7 +314,7 @@ input, select, #login_form #uname, #login_form #pname, .room_actions form select
 	color: #FF4500;
 }
 
-.warning strong a: link,.warning strong a:visited,.warning strong a:active {
+.warning strong a:link,.warning strong a:visited,.warning strong a:active {
 	background: #FFD700;
 	color: #FF4500;
 }
@@ -791,7 +791,7 @@ html>body #button li a {
 }
 
 .service table {
-	margin-top: 0 auto 0 auto;
+	margin: 0 auto 0 auto;
 	width: 100%;
 	text-align: left;
 }
@@ -1228,7 +1228,7 @@ li.event span, a.event_title {
    color: #fff;
 }
 
-.mini_calendar a: link,.mini_calendar a:visited {
+.mini_calendar a:link,.mini_calendar a:visited {
    color: #fff;
 }
 
@@ -1241,7 +1241,7 @@ li.event span, a.event_title {
    color: #fff;
 }
 
-.mini_calendar td a: link,.mini_calendar td a:visited {
+.mini_calendar td a:link,.mini_calendar td a:visited {
    color: #fff;
 }
 
