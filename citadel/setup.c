@@ -1251,7 +1251,6 @@ NEW_INST:
 	disable_other_mta("dovecot");
 	disable_other_mta("exim");
 	disable_other_mta("exim4");
-	disable_other_mta("hula");
 	disable_other_mta("imapd");
 	disable_other_mta("mta");
 	disable_other_mta("pop3d");
@@ -1261,7 +1260,6 @@ NEW_INST:
 	disable_other_mta("saslauthd");
 	disable_other_mta("sendmail");
 	disable_other_mta("vmailmgrd");
-	disable_other_mta("zimbra");
 #endif
 
 	/* Check for the 'db' nss and offer to disable it */

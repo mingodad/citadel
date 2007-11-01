@@ -153,6 +153,7 @@ AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if presen
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_libsieve, [  --with-libsieve         use libsieve mail sorting library])
+AC_ARG_WITH(with_expat, [  --with-expat            use Expat XML parser])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -577,6 +578,22 @@ fi
 
 
 
+dnl Checks for the Expat XML parser.
+if test "x$with_expat" != xno ; then
+	AC_CHECK_HEADERS(expat.h,
+		[AC_CHECK_LIB(expat, XML_ParserCreateNS,
+			[ok_expat=yes],,
+	)])
+fi
+
+if test "x$ok_expat" = xyes ; then
+	SERVER_LIBS="-lexpat $SERVER_LIBS"
+	AC_DEFINE(HAVE_EXPAT, [], [define this if you have the Expat XML parser available])
+fi
+
+
+
+
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
 	AC_CHECK_HEADERS(ical.h,
@@ -830,6 +847,7 @@ echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'LDAP support:                    ' $ok_ldap
 echo 'Sieve mailbox filtering support: ' $ok_libsieve
+echo 'Expat XML parser present:        ' $ok_expat
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
 echo '(gmake) to compile Citadel.'
