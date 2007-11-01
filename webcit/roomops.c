@@ -3120,11 +3120,14 @@ void list_all_rooms_by_floor(char *viewpref) {
 	struct folder ftmp;
 	int max_folders = 0;
 	int alloc_folders = 0;
+	int *floor_mapping;
+	int IDMax;
 	int i, j;
 	int ra_flags = 0;
 	int flags = 0;
 	int num_floors = 1;	/** add an extra one for private folders */
 	char buf2[SIZ];
+	char buf3[SIZ];
 	
 	/** If our cached folder list is very old, burn it. */
 	if (WC->cache_fold != NULL) {
@@ -3162,10 +3165,19 @@ void list_all_rooms_by_floor(char *viewpref) {
 		}
 		memset(&fold[max_folders], 0, sizeof(struct folder));
 		extract_token(fold[max_folders].name, buf, 1, '|', sizeof fold[max_folders].name);
+		extract_token(buf3, buf, 0, '|', SIZ);
+		fold[max_folders].floor = atol (buf3);
 		++max_folders;
 		++num_floors;
 	}
-
+	IDMax = 0;
+	for (i=0; i<num_floors; i++)
+		if (IDMax < fold[i].floor)
+			IDMax = fold[i].floor;
+	floor_mapping = malloc (sizeof (int) * (num_floors + 1));
+	for (i=0; i<num_floors; i++)
+		floor_mapping[fold[i].floor]=i;
+	
 	/** refresh the messages index for this room */
 //	serv_puts("GOTO ");
 //	while (serv_getln(buf, sizeof buf), strcmp(buf, "000"));
@@ -3195,10 +3207,13 @@ void list_all_rooms_by_floor(char *viewpref) {
 				fold[max_folders].is_mailbox);
 		fold[max_folders].selectable = 1;
 		/* Increase the room count for the associtaed floor */
-		if (fold[max_folders].is_mailbox)
+		if (fold[max_folders].is_mailbox) {
 			fold[0].num_rooms++;
-		else
-			fold[fold[max_folders].floor+1].num_rooms++;
+		}
+		else {
+			i = floor_mapping[fold[max_folders].floor];
+			fold[i].num_rooms++;
+		}
 		++max_folders;
 	}
 	
@@ -3271,6 +3286,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 	WC->cache_max_folders = max_folders;
 	WC->cache_num_floors = num_floors;
 	WC->cache_timestamp = time(NULL);
+	free(floor_mapping);
 }
 
 
