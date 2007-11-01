@@ -514,6 +514,12 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	size_t headers_len = 0;
 	int len = 0;
 
+	if (userdata == NULL)
+	{
+		lprintf(CTDL_EMERG, "Cant process Message <%ld>without Userdata!\n", msgnum);
+		return;
+	}
+
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
 	msg = CtdlFetchMessage(msgnum, 0);
