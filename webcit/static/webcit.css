@@ -920,7 +920,17 @@ dt { clear: both; }
  	float: right;
  	margin-top: 0 ;
  	margin-right: 0;
- 	padding-top: 2px 50px 2px 50px;
+ 	padding: 2px 50px 2px 50px;
+}
+
+.edit_msg_table th {
+	text-align: right;
+	padding-right: 5px;
+	color: #333;
+}
+
+.edit_msg_table #recp_id, .edit_msg_table #cc_id, .edit_msg_table #bcc_id, .edit_msg_table #subject_id  {
+	width: 98%
 }
 
 .mailbox_summary tr {

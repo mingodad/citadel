@@ -3104,10 +3104,13 @@ void display_enter(void)
 	wprintf("%s", buf);
 	wprintf("\n");	/** header bar */
 
-	wprintf("<div>");
-	wprintf("<label for=\"from_id\" > ");
+	wprintf("<table width=\"100%%\" class=\"edit_msg_table\">");
+	wprintf("<tr>");
+	wprintf("<th><label for=\"from_id\" > ");
 	wprintf(_(" <I>from</I> "));
-	wprintf("</label>");
+	wprintf("</label></th>");
+
+	wprintf("<td colspan=\"2\">");
 
 	/* Allow the user to select any of his valid screen names */
 
@@ -3157,40 +3160,19 @@ void display_enter(void)
 
 	wprintf(_(" <I>in</I> "));
 	escputs(WC->wc_roomname);
-	wprintf("</div>");
+
+	wprintf("</td></tr>");
 
 	if (recipient_required) {
 
-		wprintf("<div style=\"float: left;\"><label for=\"recp_id\"> ");
+		wprintf("<tr><th><label for=\"recp_id\"> ");
 		wprintf(_("To:"));
-		wprintf("</label>"
-			"<input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
+		wprintf("</label></th>"
+			"<td><input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
 		escputs(bstr("recp"));
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
-
-
-		wprintf("<br/><label for=\"cc_id\"> ");
-		wprintf(_("CC:"));
-		wprintf("</label>"
-			"<input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
-		escputs(bstr("cc"));
-		wprintf("\" size=45 maxlength=1000 />");
-		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
-		wprintf("<br/><label for=\"bcc_id\"> ");
-		wprintf(_("BCC:"));
-		wprintf("</label>"
-			"<input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
-		escputs(bstr("bcc"));
-		wprintf("\" size=45 maxlength=1000 />");
-		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
-
-		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
-		wprintf("<script type=\"text/javascript\">	\n"
-			" activate_entmsg_autocompleters();	\n"
-			"</script>				\n"
-		);
-		wprintf("</div>");
+		wprintf("</td><td rowspan=\"3\" align=\"left\" valign=\"top\"");
 
 		/** Pop open an address book -- begin **/
 		wprintf(
@@ -3202,21 +3184,50 @@ void display_enter(void)
 			_("Contacts"), _("Contacts")
 		);
 		/** Pop open an address book -- end **/
+
+		wprintf("</td></tr>");
+
+		wprintf("<tr><th><label for=\"cc_id\"> ");
+		wprintf(_("CC:"));
+		wprintf("</label></th>"
+			"<td><input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
+		escputs(bstr("cc"));
+		wprintf("\" size=45 maxlength=1000 />");
+		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
+		wprintf("</td></tr>");
+
+		wprintf("<tr><th><label for=\"bcc_id\"> ");
+		wprintf(_("BCC:"));
+		wprintf("</label></th>"
+			"<td><input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
+		escputs(bstr("bcc"));
+		wprintf("\" size=45 maxlength=1000 />");
+		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
+		wprintf("</td></tr>");
+
+		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
+		wprintf("<script type=\"text/javascript\">	\n"
+			" activate_entmsg_autocompleters();	\n"
+			"</script>				\n"
+		);
+
 	}
 
-	wprintf("<div style=\"clear: both;\"><label for=\"subject_id\" > ");
+	wprintf("<tr><th><label for=\"subject_id\" > ");
 	if (recipient_required || subject_required) {
 		wprintf(_("Subject:"));
 	}
 	else {
 		wprintf(_("Subject (optional):"));
 	}
-	wprintf("</label>"
+	wprintf("</label></th>"
+		"<td colspan=\"2\">"
 		"<input type=\"text\" name=\"subject\" id=\"subject_id\" value=\" ");
 	escputs(bstr("subject"));
 	wprintf("\" size=45 maxlength=70>\n");
+	wprintf("</td></tr>");
 
-	wprintf("</div>\n");
+	wprintf("<tr><td colspan=\"3\"\n");
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
@@ -3320,7 +3331,9 @@ void display_enter(void)
 	if (strcmp(bstr("sig_inserted"), "yes")) {
 		wprintf("<input type=\"hidden\" name=\"sig_inserted\" value=\"yes\">\n");
 	}
-
+	
+	wprintf("</td></tr></table>");
+	
 	wprintf("</form>\n");
 	wprintf("</div></div>\n");
 
