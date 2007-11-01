@@ -77,9 +77,21 @@ void artv_export_users_backend(struct ctdluser *buf, void *data) {
 	cprintf("%d\n", buf->USscreenheight);
 }
 
+void artv_dump_users_backend(struct ctdluser *buf, void *data) {
+	cprintf("user\n");
+
+#include "artv_dump.h"
+#include "dtds/user-defs.h"
+#include "undef_data.h"
+}
+
 
 void artv_export_users(void) {
 	ForEachUser(artv_export_users_backend, NULL);
+}
+
+void artv_dump_users(void) {
+	ForEachUser(artv_dump_users_backend, NULL);
 }
 
 
@@ -87,6 +99,11 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 	cprintf("%ld\n", msgnum);
 	fprintf(artv_global_message_list, "%ld\n", msgnum);
 }
+
+void artv_dump_room_msg(long msgnum, void *userdata) {
+	cprintf(" msgnum: %ld\n", msgnum);
+	fprintf(artv_global_message_list, "%ld\n", msgnum);
+}//// TODO
 
 
 void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
@@ -128,6 +145,28 @@ void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
 
 }
 
+void artv_dump_rooms_backend(struct ctdlroom *buf, void *data) {
+	cprintf("room\n");
+
+#include "artv_dump.h"
+#include "dtds/room-defs.h"
+#include "undef_data.h"
+
+	getroom(&CC->room, buf->QRname);
+	/* format of message list export is all message numbers output
+	 * one per line terminated by a 0.
+	 */
+//*/
+	getroom(&CC->room, buf->QRname);
+	/* format of message list export is all message numbers output
+	 * one per line terminated by a 0.
+	 */
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
+		artv_dump_room_msg, NULL);
+	cprintf("\n\n");
+
+}
+
 
 
 void artv_export_rooms(void) {
@@ -135,6 +174,26 @@ void artv_export_rooms(void) {
 	artv_global_message_list = fopen(artv_tempfilename1, "w");
 	if (artv_global_message_list != NULL) {
 		ForEachRoom(artv_export_rooms_backend, NULL);
+		fclose(artv_global_message_list);
+	}
+
+	/*
+	 * Process the 'global' message list.  (Sort it and remove dups.
+	 * Dups are ok because a message may be in more than one room, but
+	 * this will be handled by exporting the reference count, not by
+	 * exporting the message multiple times.)
+	 */
+	snprintf(cmd, sizeof cmd, "sort <%s >%s", artv_tempfilename1, artv_tempfilename2);
+	system(cmd);
+	snprintf(cmd, sizeof cmd, "uniq <%s >%s", artv_tempfilename2, artv_tempfilename1);
+	system(cmd);
+}
+
+void artv_dump_rooms(void) {
+	char cmd[SIZ];
+	artv_global_message_list = fopen(artv_tempfilename1, "w");
+	if (artv_global_message_list != NULL) {
+		ForEachRoom(artv_dump_rooms_backend, NULL);
 		fclose(artv_global_message_list);
 	}
 
@@ -174,6 +233,22 @@ void artv_export_floors(void) {
 	}
 }
 
+void artv_dump_floors(void) {
+        struct floor qfbuf, *buf;
+        int i;
+
+        for (i=0; i < MAXFLOORS; ++i) {
+		cprintf("floor\n");
+		cprintf("%d\n", i);
+                getfloor(&qfbuf, i);
+		buf = &qfbuf;
+
+#include "artv_serialize.h"
+#include "dtds/floor-defs.h"
+#include "undef_data.h"
+	}
+}
+
 
 
 
@@ -209,6 +284,40 @@ void artv_export_visits(void) {
 		cprintf("%s\n", vbuf.v_answered);
 		cprintf("%u\n", vbuf.v_flags);
 		cprintf("%d\n", vbuf.v_view);
+	}
+}
+
+/* 
+ *  Traverse the visits file...
+ */
+void artv_dump_visits(void) {
+	struct visit vbuf;
+	struct cdbdata *cdbv;
+
+	cdb_rewind(CDB_VISIT);
+
+	while (cdbv = cdb_next_item(CDB_VISIT), cdbv != NULL) {
+		memset(&vbuf, 0, sizeof(struct visit));
+		memcpy(&vbuf, cdbv->ptr,
+		       ((cdbv->len > sizeof(struct visit)) ?
+			sizeof(struct visit) : cdbv->len));
+		cdb_free(cdbv);
+
+		cprintf("---visit---\n");
+		cprintf(" Room-Num: %ld\n", vbuf.v_roomnum);
+		cprintf(" Room-Gen%ld\n", vbuf.v_roomgen);
+		cprintf(" User-Num%ld\n", vbuf.v_usernum);
+
+		if (!IsEmptyStr(vbuf.v_seen)) {
+			cprintf(" Seen: %s\n", vbuf.v_seen);
+		}
+		else {
+			cprintf(" LastSeen: %ld\n", vbuf.v_lastseen);
+		}
+
+		cprintf(" Answered: %s\n", vbuf.v_answered);
+		cprintf(" Flags: %u\n", vbuf.v_flags);
+		cprintf(" View: %d\n", vbuf.v_view);
 	}
 }
 
@@ -254,6 +363,47 @@ void artv_export_message(long msgnum) {
 	cprintf("%s\n", END_OF_MESSAGE);
 }
 
+void artv_dump_message(long msgnum) {
+	struct MetaData smi;
+	struct CtdlMessage *msg;
+	struct ser_ret smr;
+	FILE *fp;
+	char buf[SIZ];
+	char tempfile[PATH_MAX];
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) return;	/* fail silently */
+
+	cprintf("message\n");
+	GetMetaData(&smi, msgnum);
+	cprintf(" MessageNum: %ld\n", msgnum);
+	cprintf(" MetaRefcount: %d\n", smi.meta_refcount);
+	cprintf(" MetaContentType: %s\n", smi.meta_content_type);
+
+	serialize_message(&smr, msg);
+	CtdlFreeMessage(msg);
+
+	/* write it in base64 * /
+	CtdlMakeTempFileName(tempfile, sizeof tempfile);
+	snprintf(buf, sizeof buf, "%s -e >%s", file_base64, tempfile);
+	fp = popen(buf, "w");
+	fwrite(smr.ser, smr.len, 1, fp);
+	pclose(fp);
+
+	free(smr.ser);
+
+	fp = fopen(tempfile, "r");
+	unlink(tempfile);
+	if (fp != NULL) {
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+			buf[strlen(buf)-1] = 0;
+			cprintf("%s\n", buf);
+		}
+		fclose(fp);
+		}*/
+	cprintf("%s\n", END_OF_MESSAGE);
+}
+
 
 
 void artv_export_messages(void) {
@@ -271,6 +421,32 @@ void artv_export_messages(void) {
 			msgnum = atol(buf);
 			if (msgnum > 0L) {
 				artv_export_message(msgnum);
+				++count;
+			}
+		}
+		fclose(artv_global_message_list);
+	}
+	if (Ctx->kill_me != 1)
+		lprintf(CTDL_INFO, "Exported %d messages.\n", count);
+	else
+		lprintf(CTDL_ERR, "Export aborted due to client disconnect! \n");
+}
+
+void artv_dump_messages(void) {
+	char buf[SIZ];
+	long msgnum;
+	int count = 0;
+	t_context *Ctx;
+
+	Ctx = CC;
+	artv_global_message_list = fopen(artv_tempfilename1, "r");
+	if (artv_global_message_list != NULL) {
+		lprintf(CTDL_INFO, "Opened %s\n", artv_tempfilename1);
+		while ((Ctx->kill_me != 1) && 
+		       (fgets(buf, sizeof(buf), artv_global_message_list) != NULL)) {
+			msgnum = atol(buf);
+			if (msgnum > 0L) {
+				artv_dump_message(msgnum);
 				++count;
 			}
 		}
@@ -320,6 +496,45 @@ void artv_do_export(void) {
 		artv_export_visits();
 	if (Ctx->kill_me != 1)
 		artv_export_messages();
+
+	cprintf("000\n");
+}
+
+void artv_do_dump(void) {
+	struct config *buf;
+	buf = &config;
+	t_context *Ctx;
+
+	Ctx = CC;
+	cprintf("%d dumping Citadel structures.\n", LISTING_FOLLOWS);
+
+	cprintf("version\n%d\n", REV_LEVEL);
+
+	/* export the config file (this is done using x-macros) */
+	cprintf("config\n");
+
+#include "artv_serialize.h"
+#include "dtds/config-defs.h"
+#include "undef_data.h"
+
+	/* Export the control file */
+	get_control();
+	cprintf("control\n");
+	cprintf("%ld\n", CitControl.MMhighest);
+	cprintf("%u\n", CitControl.MMflags);
+	cprintf("%ld\n", CitControl.MMnextuser);
+	cprintf("%ld\n", CitControl.MMnextroom);
+	cprintf("%d\n", CitControl.version);
+	if (Ctx->kill_me != 1)
+		artv_dump_users();
+	if (Ctx->kill_me != 1)
+		artv_dump_rooms();
+	if (Ctx->kill_me != 1)
+		artv_dump_floors();
+	if (Ctx->kill_me != 1)
+		artv_dump_visits();
+	if (Ctx->kill_me != 1)
+		artv_dump_messages();
 
 	cprintf("000\n");
 }
@@ -599,6 +814,7 @@ void cmd_artv(char *cmdbuf) {
 	extract_token(cmd, cmdbuf, 0, '|', sizeof cmd);
 	if (!strcasecmp(cmd, "export")) artv_do_export();
 	else if (!strcasecmp(cmd, "import")) artv_do_import();
+	else if (!strcasecmp(cmd, "dump")) artv_do_dump();
 	else cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
 
 	unlink(artv_tempfilename1);
