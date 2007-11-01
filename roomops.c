@@ -3175,7 +3175,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 	for (i=0; i<num_floors; i++)
 		if (IDMax < fold[i].floor)
 			IDMax = fold[i].floor;
-	floor_mapping = malloc (sizeof (int) * (num_floors + 1));
+	floor_mapping = malloc (sizeof (int) * (IDMax + 1));
+	memset (floor_mapping, 0, sizeof (int) * (IDMax + 1));
 	for (i=0; i<num_floors; i++)
 		floor_mapping[fold[i].floor]=i;
 	
