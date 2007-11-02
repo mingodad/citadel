@@ -4,7 +4,7 @@
 
 !include "${NSISDIR}\Contrib\Modern UI\System.nsh"
 !define MUI_PRODUCT "Citadel"
-!define MUI_VERSION "7.21"
+!define MUI_VERSION "7.23"
 !define MUI_WELCOMEPAGE
 !define MUI_LICENSEPAGE
 !define MUI_COMPONENTSPAGE
