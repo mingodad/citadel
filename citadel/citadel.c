@@ -2292,6 +2292,10 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				do_pop3client_configuration(ipc);
 				break;
 
+			case 128:           /* Configure XML/RSS feed retrieval */
+				do_rssclient_configuration(ipc);
+				break;
+
 			default: /* allow some math on the command */
 				/* commands 100... to 100+MAX_EDITORS-1 will
 				   call the appropriate editor... in other

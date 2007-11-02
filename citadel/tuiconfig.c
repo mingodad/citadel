@@ -1067,3 +1067,148 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 }
 
 
+
+
+
+
+/*
+ * RSS feed retrieval client configuration
+ */
+void do_rssclient_configuration(CtdlIPC *ipc)
+{
+	char buf[SIZ];
+	int num_recs = 0;
+	char **recs = NULL;
+	char ch;
+	int badkey;
+	int i, j;
+	int quitting = 0;
+	int modified = 0;
+	char *listing = NULL;
+	char *other_listing = NULL;
+	int r;
+	char instr[SIZ];
+
+	r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
+	if (r / 100 == 1) {
+		while(listing && !IsEmptyStr(listing)) {
+			extract_token(buf, listing, 0, '\n', sizeof buf);
+			remove_token(listing, 0, '\n');
+			extract_token(instr, buf, 0, '|', sizeof instr);
+			if (!strcasecmp(instr, "rssclient")) {
+
+				++num_recs;
+				if (num_recs == 1) recs = malloc(sizeof(char *));
+				else recs = realloc(recs, (sizeof(char *)) * num_recs);
+				recs[num_recs-1] = malloc(SIZ);
+				strcpy(recs[num_recs-1], buf);
+
+			}
+		}
+	}
+	if (listing) {
+		free(listing);
+		listing = NULL;
+	}
+
+	do {
+		scr_printf("\n");
+		color(BRIGHT_WHITE);
+		scr_printf("### Feed URL\n");
+		color(DIM_WHITE);
+		scr_printf("--- "
+			"---------------------------------------------------------------------------"
+			"\n");
+		
+		for (i=0; i<num_recs; ++i) {
+		color(DIM_WHITE);
+		scr_printf("%3d ", i+1);
+
+		extract_token(buf, recs[i], 1, '|', sizeof buf);
+		color(BRIGHT_CYAN);
+		scr_printf("%-75s\n", buf);
+
+		color(DIM_WHITE);
+		}
+
+		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
+		switch(ch) {
+			case 'a':
+				++num_recs;
+				if (num_recs == 1) {
+					recs = malloc(sizeof(char *));
+				}
+				else {
+					recs = realloc(recs, (sizeof(char *)) * num_recs);
+				}
+				strcpy(buf, "rssclient|");
+				newprompt("Enter feed URL: ", &buf[strlen(buf)], 75);
+				strcat(buf, "|");
+				recs[num_recs-1] = strdup(buf);
+				modified = 1;
+				break;
+			case 'd':
+				i = intprompt("Delete which one", 1, 1, num_recs) - 1;
+				free(recs[i]);
+				--num_recs;
+				for (j=i; j<num_recs; ++j)
+					recs[j] = recs[j+1];
+				modified = 1;
+				break;
+			case 's':
+				r = 1;
+				for (i = 0; i < num_recs; ++i) {
+					r += 1 + strlen(recs[i]);
+				}
+				listing = (char*) calloc(1, r);
+				if (!listing) {
+					err_printf("Can't save config - out of memory!\n");
+					logoff(ipc, 1);
+				}
+				if (num_recs) for (i = 0; i < num_recs; ++i) {
+					strcat(listing, recs[i]);
+					strcat(listing, "\n");
+				}
+
+				/* Retrieve all the *other* records for merging */
+				r = CtdlIPCGetRoomNetworkConfig(ipc, &other_listing, buf);
+				if (r / 100 == 1) {
+					for (i=0; i<num_tokens(other_listing, '\n'); ++i) {
+						extract_token(buf, other_listing, i, '\n', sizeof buf);
+						if (strncasecmp(buf, "rssclient|", 10)) {
+							listing = realloc(listing, strlen(listing) +
+								strlen(buf) + 10);
+							strcat(listing, buf);
+							strcat(listing, "\n");
+						}
+					}
+				}
+				free(other_listing);
+				r = CtdlIPCSetRoomNetworkConfig(ipc, listing, buf);
+				free(listing);
+				listing = NULL;
+
+				if (r / 100 != 4) {
+					scr_printf("%s\n", buf);
+				} else {
+					scr_printf("Wrote %d records.\n", num_recs);
+					modified = 0;
+				}
+				quitting = 1;
+				break;
+			case 'q':
+				quitting = !modified || boolprompt(
+					"Quit without saving", 0);
+				break;
+			default:
+				badkey = 1;
+		}
+	} while (!quitting);
+
+	if (recs != NULL) {
+		for (i=0; i<num_recs; ++i) free(recs[i]);
+		free(recs);
+	}
+}
+
+
