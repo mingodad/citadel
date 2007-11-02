@@ -1704,7 +1704,7 @@ void receive_spool(int sock, char *remote_nodename) {
 		}
 		if (buf[0] == '6') {
 			plen = extract_long(&buf[4], 0);
-			if (sock_read(sock, pbuf, plen) < 0) {
+			if (sock_read(sock, pbuf, plen, 1) < 0) {
 				fclose(fp);
 				unlink(tempfilename);
 				return;

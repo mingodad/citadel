@@ -5,8 +5,8 @@
  */
 
 int sock_connect(char *host, char *service, char *protocol);
-int sock_read_to(int sock, char *buf, int bytes, int timeout);
-int sock_read(int sock, char *buf, int bytes);
+int sock_read_to(int sock, char *buf, int bytes, int timeout, int keep_reading_until_full);
+int sock_read(int sock, char *buf, int bytes, int keep_reading_until_full);
 int sock_write(int sock, char *buf, int nbytes);
 int ml_sock_gets(int sock, char *buf);
 int sock_getln(int sock, char *buf, int bufsize);

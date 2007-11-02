@@ -343,9 +343,7 @@ char *make_apop_string(char *realpass, char *nonce, char *buffer, size_t n)
    int i;
    
    MD5Init(&ctx);
-/*   scr_printf("MD5@@: Adding nonce: %s\n", nonce); */
    MD5Update(&ctx, (u_char*)nonce, strlen(nonce));
-/*   scr_printf("MD5@@: Adding password %s\n", realpass); */
    MD5Update(&ctx, (u_char*)realpass, strlen(realpass));
    MD5Final(rawdigest, &ctx);
    for (i=0; i<MD5_DIGEST_LEN; i++)
@@ -354,7 +352,6 @@ char *make_apop_string(char *realpass, char *nonce, char *buffer, size_t n)
       buffer[i*2] = tolower(buffer[i*2]);
       buffer[(i*2)+1] = tolower(buffer[(i*2)+1]);
    }
-/*   scr_printf("MD5@@: Result is %s\n", buffer); */
    return buffer;
 }
 

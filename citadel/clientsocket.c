@@ -120,8 +120,9 @@ int sock_connect(char *host, char *service, char *protocol)
 /*
  * sock_read_to() - input binary data from socket, with a settable timeout.
  * Returns the number of bytes read, or -1 for error.
+ * If keep_reading_until_full is nonzero, we keep reading until we get the number of requested bytes
  */
-int sock_read_to(int sock, char *buf, int bytes, int timeout)
+int sock_read_to(int sock, char *buf, int bytes, int timeout, int keep_reading_until_full)
 {
 	int len,rlen;
 	fd_set rfds;
@@ -129,7 +130,7 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout)
 	int retval;
 
 	len = 0;
-	while(len<bytes) {
+	while (len<bytes) {
 		FD_ZERO(&rfds);
 		FD_SET(sock, &rfds);
 		tv.tv_sec = timeout;
@@ -149,6 +150,7 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout)
 			return(-1);
 		}
 		len = len + rlen;
+		if (!keep_reading_until_full) return(len);
 	}
 	return(bytes);
 }
@@ -158,9 +160,9 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout)
  * sock_read() - input binary data from socket.
  * Returns the number of bytes read, or -1 for error.
  */
-INLINE int sock_read(int sock, char *buf, int bytes)
+INLINE int sock_read(int sock, char *buf, int bytes, int keep_reading_until_full)
 {
-	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT);
+	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT, keep_reading_until_full);
 }
 
 
@@ -196,7 +198,7 @@ int sock_getln(int sock, char *buf, int bufsize)
 	/* Read one character at a time.
 	 */
 	for (i = 0;; i++) {
-		if (sock_read(sock, &buf[i], 1) < 0) return(-1);
+		if (sock_read(sock, &buf[i], 1, 1) < 0) return(-1);
 		if (buf[i] == '\n' || i == (bufsize-1))
 			break;
 	}
@@ -205,7 +207,7 @@ int sock_getln(int sock, char *buf, int bufsize)
 	 */
 	if (i == (bufsize-1))
 		while (buf[i] != '\n')
-			if (sock_read(sock, &buf[i], 1) < 0) return(-1);
+			if (sock_read(sock, &buf[i], 1, 1) < 0) return(-1);
 
 	/* Strip any trailing CR and LF characters.
 	 */
