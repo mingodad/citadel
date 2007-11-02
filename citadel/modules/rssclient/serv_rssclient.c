@@ -273,7 +273,7 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	}
 
 	if ( (!strcasecmp(el, "rss")) || (!strcasecmp(el, "rdf")) ) {
-		lprintf(CTDL_DEBUG, "KILL THE PARSER, KILL THE PARSER, KILL THE PARSER!\n");
+		lprintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
 		ri->done_parsing = 1;
 	}
 
@@ -309,11 +309,12 @@ void rss_xml_chardata(void *data, const XML_Char *s, int len) {
 
 
 /* 
- * Parses an url into hostname, port number and resource identifier.
+ * Parse a URL into host, port number, and resource identifier.
  */
 int parse_url(char *url, char *hostname, int *port, char *identifier)
 {
-	char protocol[1024], scratch[1024];
+	char protocol[1024];
+	char scratch[1024];
 	char *ptr = NULL;
 	char *nptr = NULL;
 	
@@ -322,6 +323,7 @@ int parse_url(char *url, char *hostname, int *port, char *identifier)
 	if (!ptr) {
 		return(1);	/* no protocol specified */
 	}
+
 	strcpy(ptr, "");
 	strcpy(protocol, scratch);
 	if (strcmp(protocol, "http")) {
@@ -361,10 +363,6 @@ int parse_url(char *url, char *hostname, int *port, char *identifier)
 }
 
 
-
-
-
-
 /*
  * Begin a feed parse
  */
@@ -377,7 +375,12 @@ void rss_do_fetching(char *url, char *rooms) {
 	XML_Parser xp;
 	int sock = (-1);
 	int got_bytes = (-1);
+	int redirect_count = 0;
 
+	/* Parse the URL */
+	if (parse_url(url, rsshost, &rssport, rssurl) != 0) {
+		lprintf(CTDL_ALERT, "Invalid URL: %s\n", url);
+	}
 
 	xp = XML_ParserCreateNS("UTF-8", ':');
 	if (!xp) {
@@ -391,41 +394,33 @@ void rss_do_fetching(char *url, char *rooms) {
 	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
 	XML_SetUserData(xp, &ri);
 
-	/* Parse the URL */
-	
-retry:	sock = (-1);
-	if (parse_url(url, rsshost, &rssport, rssurl) != 0) {
-		lprintf(CTDL_ALERT, "Invalid URL: %s\n", url);
-	}
-	else {
-		lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
-		sprintf(buf, "%d", rssport);
-		sock = sock_connect(rsshost, buf, "tcp");
-	}
-
+retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
+	sprintf(buf, "%d", rssport);
+	sock = sock_connect(rsshost, buf, "tcp");
 	if (sock >= 0) {
 		lprintf(CTDL_DEBUG, "Connected!\n");
 
-		snprintf(buf, sizeof buf, "GET %s HTTP/1.0\r", rssurl);
+		snprintf(buf, sizeof buf, "GET %s HTTP/1.0", rssurl);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
-		snprintf(buf, sizeof buf, "Server: %s\r", rsshost);
+		snprintf(buf, sizeof buf, "Host: %s", rsshost);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
-		sock_puts(sock, "\r");
+		sock_puts(sock, "");
 
 		if (sock_getln(sock, buf, sizeof buf) >= 0) {
 		lprintf(CTDL_DEBUG, ">%s\n", buf);
 			remove_token(buf, 0, ' ');
+
+			/* 200 OK */
 			if (buf[0] == '2') {
 
 			        while (got_bytes = sock_getln(sock, buf, sizeof buf),
 				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
-					/* FIXME handle 302 redirects!! */
+					/* discard headers */
 				}
-
 
 				while (got_bytes = sock_read(sock, buf, sizeof buf, 0),
 				      ((got_bytes>=0) && (ri.done_parsing == 0)) ) {
@@ -433,6 +428,25 @@ retry:	sock = (-1);
 				}
 				if (ri.done_parsing == 0) XML_Parse(xp, "", 0, 1);
 			}
+
+			/* 30X redirect */
+			else if ( (!strncmp(buf, "30", 2)) && (redirect_count < 16) ) {
+			        while (got_bytes = sock_getln(sock, buf, sizeof buf),
+				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
+					if (!strncasecmp(buf, "Location:", 9)) {
+						++redirect_count;
+						strcpy(buf, &buf[9]);
+						striplt(buf);
+						if (parse_url(buf, rsshost, &rssport, rssurl) == 0) {
+							goto retry;
+						}
+						else {
+							lprintf(CTDL_ALERT, "Invalid URL: %s\n", buf);
+						}
+					}
+				}
+			}
+
 		}
 		sock_close(sock);
 	}
