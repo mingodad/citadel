@@ -59,7 +59,6 @@ struct rss_item {
 	char *link;
 	char *description;
 	time_t pubdate;
-	int channel_tag_nesting;
 	char channel_title[256];
 	int item_tag_nesting;
 };
@@ -206,11 +205,15 @@ time_t rdf_parsedate(char *p)
 
 
 
-void rss_xml_start(void *data, const char *el, const char **attr) {
+void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
 	struct rss_item *ri = (struct rss_item *) data;
+	char el[256];
+	char *sep = NULL;
 
-	if (!strcasecmp(el, "channel")) {
-		++ri->channel_tag_nesting;
+	/* Axe the namespace, we don't care about it */
+	safestrncpy(el, supplied_el, sizeof el);
+	while (sep = strchr(el, ':'), sep) {
+		strcpy(el, ++sep);
 	}
 
 	if (!strcasecmp(el, "item")) {
@@ -243,18 +246,13 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	char el[256];
 	char *sep = NULL;
 
-
 	/* Axe the namespace, we don't care about it */
 	safestrncpy(el, supplied_el, sizeof el);
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
 	}
 
-	if (!strcasecmp(el, "channel")) {
-		--ri->channel_tag_nesting;
-	}
-
-	if ( (!strcasecmp(el, "title")) && (ri->channel_tag_nesting > 0) && (ri->item_tag_nesting == 0) ) {
+	if ( (!strcasecmp(el, "title")) && (ri->item_tag_nesting == 0) ) {
 		safestrncpy(ri->channel_title, ri->chardata, sizeof ri->channel_title);
 		striplt(ri->channel_title);
 	}
