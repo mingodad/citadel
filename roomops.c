@@ -1768,7 +1768,7 @@ void display_editroom(void)
 
 		wprintf("<i>");
 		wprintf(_("Retrieve messages from these remote POP3 accounts and store them in this room:"));
-		wprintf("</i><br /><br />\n");
+		wprintf("</i><br />\n");
 
 		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
 		wprintf(_("Remote host"));
@@ -1839,9 +1839,10 @@ void display_editroom(void)
 
 		wprintf("<i>");
 		wprintf(_("Fetch the following RSS feeds and store them in this room:"));
-		wprintf("</i><br /><br />\n");
+		wprintf("</i><br />\n");
 
 		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
+		wprintf("<img src=\"static/rss_16x.png\" width=\"16\" height=\"16\" alt=\" \"> ");
 		wprintf(_("Feed URL"));
 		wprintf("</td><td>");
 		wprintf("</td></tr>");
