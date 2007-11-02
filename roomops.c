@@ -1033,6 +1033,7 @@ void display_editroom(void)
 	int floorvalue = 0;
 	char pop3_host[128];
 	char pop3_user[32];
+	int bg = 0;
 
 	tab = bstr("tab");
 	if (IsEmptyStr(tab)) tab = "admin";
@@ -1770,23 +1771,29 @@ void display_editroom(void)
 		wprintf(_("Retrieve messages from these remote POP3 accounts and store them in this room:"));
 		wprintf("</i><br />\n");
 
-		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
+		wprintf("<table class=\"altern\" border=0 cellpadding=5>"
+			"<tr class=\"even\"><th>");
 		wprintf(_("Remote host"));
-		wprintf("</td><td>");
+		wprintf("</th><th>");
 		wprintf(_("User name"));
-		wprintf("</td><td>");
+		wprintf("</th><th>");
 		wprintf(_("Password"));
-		wprintf("</td><td>");
+		wprintf("</th><th>");
 		wprintf(_("Keep messages on server?"));
-		wprintf("</td><td> </td></tr>");
+		wprintf("</th><th> </th></tr>");
 
 		serv_puts("GNET");
 		serv_getln(buf, sizeof buf);
+		bg = 1;
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "pop3client")) {
 				safestrncpy(recp, &buf[11], sizeof recp);
-				wprintf("<tr>");
+
+                                bg = 1 - bg;
+                                wprintf("<tr class=\"%s\">",
+                                        (bg ? "even" : "odd")
+                                );
 
 				wprintf("<td>");
 				extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
@@ -1802,12 +1809,12 @@ void display_editroom(void)
 
 				wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
 
-				wprintf("<td>");
+				wprintf("<td class=\"button_link\">");
 				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
 				urlescputs(recp);
 				wprintf("\">");
 				wprintf(_("(remove)"));
-				wprintf("</A></td>");
+				wprintf("</a></td>");
 			
 				wprintf("</tr>");
 			}
@@ -1815,8 +1822,8 @@ void display_editroom(void)
 
 		wprintf("<form method=\"POST\" action=\"netedit\">\n"
 			"<tr>"
-			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"feeds\">"
-			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"pop3client|\">\n");
+			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
+			"<input type=\"hidden\" name=\"prefix\" value=\"pop3client|\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<td>");
 		wprintf("<input type=\"text\" id=\"add_as_pop3host\" NAME=\"line_pop3host\">\n");
@@ -1841,31 +1848,37 @@ void display_editroom(void)
 		wprintf(_("Fetch the following RSS feeds and store them in this room:"));
 		wprintf("</i><br />\n");
 
-		wprintf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
+		wprintf("<table class=\"altern\" border=0 cellpadding=5>"
+			"<tr class=\"even\"><th>");
 		wprintf("<img src=\"static/rss_16x.png\" width=\"16\" height=\"16\" alt=\" \"> ");
 		wprintf(_("Feed URL"));
-		wprintf("</td><td>");
-		wprintf("</td></tr>");
+		wprintf("</th><th>");
+		wprintf("</th></tr>");
 
 		serv_puts("GNET");
 		serv_getln(buf, sizeof buf);
+		bg = 1;
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "rssclient")) {
 				safestrncpy(recp, &buf[10], sizeof recp);
-				wprintf("<tr>");
+
+                                bg = 1 - bg;
+                                wprintf("<tr class=\"%s\">",
+                                        (bg ? "even" : "odd")
+                                );
 
 				wprintf("<td>");
 				extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
 				escputs(pop3_host);
 				wprintf("</td>");
 
-				wprintf("<td>");
+				wprintf("<td class=\"button_link\">");
 				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=rssclient|");
 				urlescputs(recp);
 				wprintf("\">");
 				wprintf(_("(remove)"));
-				wprintf("</A></td>");
+				wprintf("</a></td>");
 			
 				wprintf("</tr>");
 			}
@@ -1873,15 +1886,15 @@ void display_editroom(void)
 
 		wprintf("<form method=\"POST\" action=\"netedit\">\n"
 			"<tr>"
-			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"feeds\">"
-			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"rssclient|\">\n");
+			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
+			"<input type=\"hidden\" name=\"prefix\" value=\"rssclient|\">\n");
 		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 		wprintf("<td>");
-		wprintf("<input type=\"text\" id=\"add_as_pop3host\" SIZE=\"72\" "
-			"MAXLENGTH=\"256\" NAME=\"line_pop3host\">\n");
+		wprintf("<input type=\"text\" id=\"add_as_pop3host\" size=\"72\" "
+			"maxlength=\"256\" name=\"line_pop3host\">\n");
 		wprintf("</td>");
 		wprintf("<td>");
-		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
+		wprintf("<input type=\"submit\" name=\"add_button\" value=\"%s\">", _("Add"));
 		wprintf("</td></tr>");
 		wprintf("</form></table>\n");
 
