@@ -59,6 +59,9 @@ struct rss_item {
 	char *link;
 	char *description;
 	time_t pubdate;
+	int channel_tag_nesting;
+	char channel_title[256];
+	int item_tag_nesting;
 };
 
 struct rssnetcfg *rnclist = NULL;
@@ -140,6 +143,9 @@ void rss_save_item(struct rss_item *ri) {
 		msg->cm_fields['U'] = strdup(ri->title);
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
+		if (!IsEmptyStr(ri->channel_title)) {
+			msg->cm_fields['O'] = strdup(ri->channel_title);
+		}
 
 		msglen = 1024 + strlen(ri->link) + strlen(ri->description) ;
 		msg->cm_fields['M'] = malloc(msglen);
@@ -203,7 +209,12 @@ time_t rdf_parsedate(char *p)
 void rss_xml_start(void *data, const char *el, const char **attr) {
 	struct rss_item *ri = (struct rss_item *) data;
 
+	if (!strcasecmp(el, "channel")) {
+		++ri->channel_tag_nesting;
+	}
+
 	if (!strcasecmp(el, "item")) {
+		++ri->item_tag_nesting;
 
 		/* Initialize the feed item data structure */
 		if (ri->guid != NULL) free(ri->guid);
@@ -234,10 +245,18 @@ void rss_xml_end(void *data, const char *supplied_el) {
 
 
 	/* Axe the namespace, we don't care about it */
-
 	safestrncpy(el, supplied_el, sizeof el);
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
+	}
+
+	if (!strcasecmp(el, "channel")) {
+		--ri->channel_tag_nesting;
+	}
+
+	if ( (!strcasecmp(el, "title")) && (ri->channel_tag_nesting > 0) && (ri->item_tag_nesting == 0) ) {
+		safestrncpy(ri->channel_title, ri->chardata, sizeof ri->channel_title);
+		striplt(ri->channel_title);
 	}
 
 	if (!strcasecmp(el, "guid")) {
@@ -269,6 +288,7 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	}
 
 	if (!strcasecmp(el, "item")) {
+		--ri->item_tag_nesting;
 		rss_save_item(ri);
 	}
 
