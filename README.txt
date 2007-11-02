@@ -1,9 +1,11 @@
                         WEBCIT for the Citadel System
-                               version 7.11
+                               version 7.23
  
    Copyright (C) 1996-2007 by the authors.  Portions written by:
+ 
 	Art Cancro
-	Wilifried Goesgens
+	Wilfried Goesgens
+	Dave West
 	Nathan Bryant
 	Nick Grossman
 	Andru Luvisi
