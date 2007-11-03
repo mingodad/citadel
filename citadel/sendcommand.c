@@ -247,6 +247,9 @@ int main(int argc, char **argv)
 		CtdlIPC_chat_send(ipc, "000");
 	}
 	fprintf(stderr, "sendcommand: processing ended.\n");
-	cleanup(0);
+	if (stricmp(cmd, "DOWN"))
+		cleanup(0);
+	else	/* If we downed the server we can't to do CtdlIPCQuit in cleanup()*/
+		nq_cleanup(0);
 	return 0;
 }
