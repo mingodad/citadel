@@ -2932,11 +2932,11 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 			while (	ReadNetworkChunk(ipc) < 0 )
 				sleep (1);
 
+		bptr = buf;
+
 		while (1)
 		{
-			
 			aptr = ipc->BufPtr;
-			bptr = buf;
 			aeptr = ipc->Buf + ipc->BufSize;
 			while ((aptr < aeptr) && 
 			       (bptr < beptr) &&
@@ -2983,8 +2983,6 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 				ipc->BufUsed -= delta;
 				ipc->BufSize = NewBufSize;
 			}
-			else {
-			}			
 			if (ReadNetworkChunk(ipc) <0)
 				return;
 		}
