@@ -188,6 +188,10 @@ int main(int argc, char **argv)
 			(int) getpid(),
 			ctdl_home_directory);
 	fflush(stderr);
+
+	alarm(5);
+	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
+	
 	np_attach_to_server(UDS, ctdl_home_directory);
 	fflush(stderr);
 	setIPCDeathHook(sendcommand_die);
@@ -203,6 +207,7 @@ int main(int argc, char **argv)
 	if (buf[0] == '1') {
 		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
+			alarm(5); /* Kick the watchdog timer */
 		}
 	} else if (buf[0] == '4') {
 		do {
@@ -242,12 +247,14 @@ int main(int argc, char **argv)
 					fflush (stdout);
 				}
 			}
+			alarm(5); /* Kick the watchdog timer */
 		} while (strcmp(buf, "000"));
 		CtdlIPC_chat_send(ipc, "\n");
 		CtdlIPC_chat_send(ipc, "000");
 	}
+	alarm(0);	/* Shutdown the watchdog timer */
 	fprintf(stderr, "sendcommand: processing ended.\n");
-	if (stricmp(cmd, "DOWN"))
+	if (strcasecmp(cmd, "DOWN"))
 		cleanup(0);
 	else	/* If we downed the server we can't to do CtdlIPCQuit in cleanup()*/
 		nq_cleanup(0);
