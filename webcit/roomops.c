@@ -441,8 +441,11 @@ void embed_search_o_matic(void) {
 
 void embed_room_banner(char *got, int navbar_style) {
 	char buf[256];
+	char buf2[1024];
 	char sanitized_roomname[256];
-
+	char with_files[256];
+	int file_count=0;
+	
 	/**
 	 * We need to have the information returned by a GOTO server command.
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
@@ -472,8 +475,20 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
+	/* Is this a directory room and does it contain files? */
+	if (WC->room_flags & QR_VISDIR)
+	{
+		serv_puts("RDIR");
+		serv_getln(buf2, sizeof buf2);
+		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
+			file_count++;
+		snprintf (with_files, sizeof with_files, " (%d file%s)", file_count, ((file_count>1) ? "s" : ""));
+	}
+	else
+		strcpy (with_files, "");
+		
 	stresc(sanitized_roomname, 256, WC->wc_roomname, 1, 1);
-	svprintf("ROOMNAME", WCS_STRING, "%s", sanitized_roomname);
+	svprintf("ROOMNAME", WCS_STRING, "%s%s", sanitized_roomname, with_files);
 	svprintf("NUMMSGS", WCS_STRING,
 		_("%d new of %d messages"),
 		extract_int(&got[4], 1),
