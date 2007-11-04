@@ -1,5 +1,0 @@
-Quick Installation Instructions:
-
-./configure --prefix=/usr/local
-gmake
-(as root) gmake install
