@@ -366,10 +366,6 @@ void artv_export_message(long msgnum) {
 void artv_dump_message(long msgnum) {
 	struct MetaData smi;
 	struct CtdlMessage *msg;
-	struct ser_ret smr;
-	FILE *fp;
-	char buf[SIZ];
-	char tempfile[PATH_MAX];
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
@@ -380,27 +376,9 @@ void artv_dump_message(long msgnum) {
 	cprintf(" MetaRefcount: %d\n", smi.meta_refcount);
 	cprintf(" MetaContentType: %s\n", smi.meta_content_type);
 
-	serialize_message(&smr, msg);
+	dump_message(msg, 80);
 	CtdlFreeMessage(msg);
 
-	/* write it in base64 * /
-	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "%s -e >%s", file_base64, tempfile);
-	fp = popen(buf, "w");
-	fwrite(smr.ser, smr.len, 1, fp);
-	pclose(fp);
-
-	free(smr.ser);
-
-	fp = fopen(tempfile, "r");
-	unlink(tempfile);
-	if (fp != NULL) {
-		while (fgets(buf, sizeof(buf), fp) != NULL) {
-			buf[strlen(buf)-1] = 0;
-			cprintf("%s\n", buf);
-		}
-		fclose(fp);
-		}*/
 	cprintf("%s\n", END_OF_MESSAGE);
 }
 
@@ -513,7 +491,7 @@ void artv_do_dump(void) {
 	/* export the config file (this is done using x-macros) */
 	cprintf("config\n");
 
-#include "artv_serialize.h"
+#include "artv_dump.h"
 #include "dtds/config-defs.h"
 #include "undef_data.h"
 

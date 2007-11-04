@@ -2640,7 +2640,7 @@ static void serv_read(CtdlIPC *ipc, char *buf, unsigned int bytes)
 /*
  * send binary to server
  */
-static void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
+void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 {
 	unsigned int bytes_written = 0;
 	int retval;
@@ -2858,25 +2858,26 @@ int
 ReadNetworkChunk(CtdlIPC* ipc)
 {
 	fd_set read_fd;
+	int tries;
 	int ret = 0;
 	int err = 0;
 	struct timeval tv;
+	size_t n;
 
 	tv.tv_sec = 1;
-	tv.tv_usec = 0;
+	tv.tv_usec = 1000;
+	tries = 0;
+	n = 0;
 	while (1)
 	{
+		errno=0;
 		FD_ZERO(&read_fd);
 		FD_SET(ipc->sock, &read_fd);
 		ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
-		if (ret == -1) {
-			if (!(errno == EINTR || errno == EAGAIN))
-				fprintf(stderr, "\nselect failed: %d %s\n", err, strerror(err));
-			return -1;
-		}
 		
-		if (ret != 0) {
-			size_t n;
+//		fprintf(stderr, "\nselect failed: %d %d %s\n", ret,  err, strerror(err));
+		
+		if (ret > 0) {
 			
 			*(ipc->BufPtr) = '\0';
 			n = read(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1);
@@ -2885,7 +2886,28 @@ ReadNetworkChunk(CtdlIPC* ipc)
 				ipc->BufUsed += n;
 				return n;
 			}
+			else 
+				return n;
 		}
+		else if (ret < 0) {
+			if (!(errno == EINTR || errno == EAGAIN))
+				error_printf( "\nselect failed: %d %s\n", err, strerror(err));
+			return -1;
+		}/*
+		else {
+			tries ++;
+			if (tries >= 10)
+			n = read(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1);
+			if (n > 0) {
+				ipc->BufPtr[n]='\0';
+				ipc->BufUsed += n;
+				return n;
+			}
+			else {
+				connection_died(ipc, 0);
+				return -1;
+			}
+			}*/
 	}
 }
 
@@ -2894,8 +2916,10 @@ ReadNetworkChunk(CtdlIPC* ipc)
  */
 static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 {
-	int i;
+	int i, ntries;
 	char *aptr, *bptr, *aeptr, *beptr;
+
+//	error_printf("---\n");
 
 	beptr = buf + SIZ;
 #if defined(HAVE_OPENSSL)
@@ -2928,10 +2952,12 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 			ipc->BufPtr = ipc->Buf;
 		}
 
+		ntries = 0;
+//		while ((ipc->BufUsed == 0)||(ntries++ > 10))
 		if (ipc->BufUsed == 0)
-			while (	ReadNetworkChunk(ipc) < 0 )
-				sleep (1);
+			ReadNetworkChunk(ipc);
 
+////		if (ipc->BufUsed != 0) while (1)
 		bptr = buf;
 
 		while (1)
@@ -2951,7 +2977,7 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 				while ((aptr < aeptr ) && (*(aptr + 1) == '\0') )
 					aptr ++;
 				*(bptr++) = '\0';
-//				fprintf(stderr, "parsing %d %d %d - %d %d %d\n", ipc->BufPtr - ipc->Buf, aptr - ipc->BufPtr, ipc->BufUsed , *aptr, *(aptr-1), *(aptr+1));
+//				fprintf(stderr, "parsing %d %d %d - %d %d %d %s\n", ipc->BufPtr - ipc->Buf, aptr - ipc->BufPtr, ipc->BufUsed , *aptr, *(aptr-1), *(aptr+1), buf);
 				if ((bptr > buf + 1) && (*(bptr-1) == '\r'))
 					*(--bptr) = '\0';
 				
@@ -2965,6 +2991,7 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 					ipc->BufUsed = 0;
 					ipc->BufPtr = ipc->Buf;
 				}
+//				error_printf("----bla6\n");
 				return;
 				
 			}/* should we move our read stuf to the bufferstart so we have more space at the end? */
@@ -2984,9 +3011,14 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 				ipc->BufSize = NewBufSize;
 			}
 			if (ReadNetworkChunk(ipc) <0)
+			{
+//				error_printf("----bla\n");
 				return;
+			}
 		}
+///		error_printf("----bl45761%s\nipc->BufUsed");
 	}
+//	error_printf("----bla1\n");
 }
 
 void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)

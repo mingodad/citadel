@@ -1811,21 +1811,26 @@ START_TEXT:
 	 * what message transfer format is in use.
 	 */
 	if (TheMessage->cm_format_type == FMT_FIXED) {
+		int buflen;
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/plain\n\n");
 		}
-		strcpy(buf, "");
+		*buf = '\0';
+		buflen = 0;
 		while (ch = *mptr++, ch > 0) {
 			if (ch == 13)
 				ch = 10;
-			if ((ch == 10) || (strlen(buf) > 250)) {
+			if ((ch == 10) || (buflen > 250)) {
+				buf[buflen] = '\0';
 				cprintf("%s%s", buf, nl);
-				strcpy(buf, "");
+				*buf = '\0';
+				buflen = 0;
 			} else {
-				buf[strlen(buf) + 1] = 0;
-				buf[strlen(buf)] = ch;
+				buf[buflen] = ch;
+				buflen++;
 			}
 		}
+		buf[buflen] = '\0';
 		if (!IsEmptyStr(buf))
 			cprintf("%s%s", buf, nl);
 	}
@@ -2310,6 +2315,43 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 	if (ret->len != wlen) lprintf(CTDL_ERR, "ERROR: len=%ld wlen=%ld\n",
 		(long)ret->len, (long)wlen);
+
+	return;
+}
+
+
+/*
+ * Serialize a struct CtdlMessage into the format used on disk and network.
+ * 
+ * This function loads up a "struct ser_ret" (defined in server.h) which
+ * contains the length of the serialized message and a pointer to the
+ * serialized message in memory.  THE LATTER MUST BE FREED BY THE CALLER.
+ */
+void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
+		  long Siz)                     /* how many chars ? */
+{
+	size_t wlen;
+	int i;
+	static char *forder = FORDER;
+	char *buf;
+
+	/*
+	 * Check for valid message format
+	 */
+	if (is_valid_message(msg) == 0) {
+		lprintf(CTDL_ERR, "dump_message() aborting due to invalid message\n");
+		return;
+	}
+
+	buf = (char*) malloc (Siz + 1);
+
+	wlen = 3;
+	
+	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
+			snprintf (buf, Siz, " msg[%c] = %s ...\n", (char) forder[i], 
+				   msg->cm_fields[(int)forder[i]]);
+			client_write (buf, strlen(buf));
+		}
 
 	return;
 }

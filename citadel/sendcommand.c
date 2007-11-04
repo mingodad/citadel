@@ -77,12 +77,40 @@ void nq_cleanup(int e)
 	exit(e);
 }
 
+/*
+ * send binary to server
+ */
+void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
+{
+	unsigned int bytes_written = 0;
+	int retval;
+/*
+#if defined(HAVE_OPENSSL)
+	if (ipc->ssl) {
+		serv_write_ssl(ipc, buf, nbytes);
+		return;
+	}
+#endif
+*/
+	while (bytes_written < nbytes) {
+		retval = write(ipc->sock, &buf[bytes_written],
+			       nbytes - bytes_written);
+		if (retval < 1) {
+			connection_died(ipc, 0);
+			return;
+		}
+		bytes_written += retval;
+	}
+}
+
+
 void cleanup(int e)
 {
 	static int nested = 0;
 
 	alarm(30);
 	signal(SIGALRM, nq_cleanup);
+	serv_write(ipc, "\n", 1);
 	if (nested++ < 1)
 		CtdlIPCQuit(ipc);
 	nq_cleanup(e);

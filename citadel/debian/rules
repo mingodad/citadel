@@ -13,7 +13,7 @@ CFLAGS = -Wall -g
 
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff"
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
@@ -22,6 +22,12 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	EXTRA_ARGS = --with-backtrace
 else
 	CFLAGS += -O2
+endif
+
+ifneq (,$(findstring threadoff,$(DEB_BUILD_OPTIONS)))
+	THREAD_ARGS=--without-threaded-client
+else
+	THREAD_ARGS=
 endif
 
 configure: configure-stamp
@@ -44,7 +50,7 @@ configure-stamp:
 		--with-ldap \
 		--with-libical \
 		--with-libsieve \
-		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
+		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS) $(THREAD_ARGS)
 
 	touch configure-stamp
 

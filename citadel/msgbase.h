@@ -124,6 +124,7 @@ void CtdlWriteObject(char *, char *, char *, struct ctdluser *,
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
+void dump_message(struct CtdlMessage *msg, long Siz);
 int is_valid_message(struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,

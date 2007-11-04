@@ -632,7 +632,7 @@ void client_write(char *buf, int nbytes)
 				"client_write(%d bytes) failed: %s (%d)\n",
 				nbytes - bytes_written,
 				strerror(errno), errno);
-			// cit_backtrace();
+			cit_backtrace();
 			// lprintf(CTDL_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			Ctx->kill_me = 1;
 			return;
