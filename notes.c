@@ -90,14 +90,12 @@ void updatenote(void)
 	int in_text = 0;
 	int i, len;
 
-	
 	serv_printf("ENT0 1||0|0||||||%s", bstr("eid"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
 		text_to_server(bstr("value"));
 		serv_puts("000");
 	}
-	lprintf(1, "eid=%s, value=\"%s\"\n", bstr("eid"), bstr("value"));
 
 	begin_ajax_response();
 	msgnum = locate_message_by_uid(bstr("eid"));
