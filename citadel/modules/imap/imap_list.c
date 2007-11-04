@@ -105,9 +105,9 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	int subscribed_rooms_only;
 	int num_patterns;
 	char **patterns;
-	int return_subscribed;
-	int return_children;
-	int return_metadata;
+	int return_subscribed = 0;
+	int return_children = 0;
+	int return_metadata = 0;
 	int i = 0;
 	int match = 0;
 
