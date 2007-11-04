@@ -928,10 +928,10 @@ void begin_session(struct CitContext *con)
 	strcpy(con->lastcmdname, "    ");
 	strcpy(con->cs_clientname, "(unknown)");
 	strcpy(con->curr_user, NLI);
-	strcpy(con->net_node, "");
-	strcpy(con->fake_username, "");
-	strcpy(con->fake_hostname, "");
-	strcpy(con->fake_roomname, "");
+	*con->net_node = '\0';
+	*con->fake_username = '\0';
+	*con->fake_hostname = '\0';
+	*con->fake_roomname = '\0';
 	generate_nonce(con);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
