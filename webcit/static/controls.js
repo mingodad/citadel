@@ -456,8 +456,6 @@ Ajax.InPlaceEditor.prototype = {
     this.element = $(element);
 
     this.options = Object.extend({
-      delText: "delete",
-      deleteingText: "Deleteing",
       okText: "ok",
       cancelText: "cancel",
       savingText: "Saving...",
@@ -543,11 +541,6 @@ Ajax.InPlaceEditor.prototype = {
     okButton.value = this.options.okText;
     form.appendChild(okButton);
 
-    delButton = document.createElement("input");
-    delButton.type = "submit";
-    delButton.value = this.options.delText;
-    form.appendChild(delButton);
-    
     cancelLink = document.createElement("a");
     cancelLink.href = "#";
     cancelLink.appendChild(document.createTextNode(this.options.cancelText));
