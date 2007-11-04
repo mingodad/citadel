@@ -453,6 +453,8 @@ void striplt(char *buf)
 {
 	size_t len;
 	int a;
+
+	if (buf==NULL) return;
 	if (IsEmptyStr(buf)) return;
 	len = strlen(buf);
         while ((!IsEmptyStr(buf)) && (isspace(buf[len - 1])))

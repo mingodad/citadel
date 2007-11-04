@@ -252,35 +252,35 @@ void rss_xml_end(void *data, const char *supplied_el) {
 		strcpy(el, ++sep);
 	}
 
-	if ( (!strcasecmp(el, "title")) && (ri->item_tag_nesting == 0) ) {
+	if ( (!strcasecmp(el, "title")) && (ri->item_tag_nesting == 0) && (ri->chardata != NULL) ) {
 		safestrncpy(ri->channel_title, ri->chardata, sizeof ri->channel_title);
 		striplt(ri->channel_title);
 	}
 
-	if (!strcasecmp(el, "guid")) {
+	if ( (!strcasecmp(el, "guid")) && (ri->chardata != NULL) ) {
 		if (ri->guid != NULL) free(ri->guid);
 		striplt(ri->chardata);
 		ri->guid = strdup(ri->chardata);
 	}
 
-	if (!strcasecmp(el, "title")) {
+	if ( (!strcasecmp(el, "title")) && (ri->chardata != NULL) ) {
 		if (ri->title != NULL) free(ri->title);
 		striplt(ri->chardata);
 		ri->title = strdup(ri->chardata);
 	}
 
-	if (!strcasecmp(el, "link")) {
+	if ( (!strcasecmp(el, "link")) && (ri->chardata != NULL) ) {
 		if (ri->link != NULL) free(ri->link);
 		striplt(ri->chardata);
 		ri->link = strdup(ri->chardata);
 	}
 
-	if (!strcasecmp(el, "description")) {
+	if ( (!strcasecmp(el, "description")) && (ri->chardata != NULL) ) {
 		if (ri->description != NULL) free(ri->description);
 		ri->description = strdup(ri->chardata);
 	}
 
-	if ( (!strcasecmp(el, "pubdate")) || (!strcasecmp(el, "date")) ) {
+	if ( ((!strcasecmp(el, "pubdate")) || (!strcasecmp(el, "date"))) && (ri->chardata != NULL) ) {
 		striplt(ri->chardata);
 		ri->pubdate = rdf_parsedate(ri->chardata);
 	}
