@@ -824,7 +824,7 @@ void cmd_down(char *argbuf) {
 	}
 	else
 	{
-		cprintf(Reply, CIT_OK);
+		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN);
 	}
 	time_to_die = 1;
 }
