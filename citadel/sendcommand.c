@@ -177,6 +177,7 @@ int main(int argc, char **argv)
 	fd_set read_fd;
 	struct timeval tv;
 	int ret, err;
+	int server_shutting_down = 0;
 
 	CtdlInitBase64Table();
 
@@ -232,6 +233,10 @@ int main(int argc, char **argv)
 	tv.tv_sec = 0;
 	tv.tv_usec = 1000;
 
+	if (!strncasecmp(&buf[1], "31", 2)) {
+		server_shutting_down = 1;
+	}
+
 	if (buf[0] == '1') {
 		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
@@ -282,9 +287,16 @@ int main(int argc, char **argv)
 	}
 	alarm(0);	/* Shutdown the watchdog timer */
 	fprintf(stderr, "sendcommand: processing ended.\n");
-	if (strcasecmp(cmd, "DOWN"))
-		cleanup(0);
-	else	/* If we downed the server we can't to do CtdlIPCQuit in cleanup()*/
+
+	/* Clean up and log off ... unless the server indicated that the command
+	 * we sent is shutting it down, in which case we want to just cut the
+	 * connection and exit.
+	 */
+	if (server_shutting_down) {
 		nq_cleanup(0);
+	}
+	else {
+		cleanup(0);
+	}
 	return 0;
 }
