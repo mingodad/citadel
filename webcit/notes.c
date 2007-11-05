@@ -23,8 +23,7 @@ void display_note(long msgnum)
 	int in_text = 0;
 	int i, len;
 
-	wprintf("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">\n");
-
+//	wprintf("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">\n");
 	serv_printf("MSG0 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -58,6 +57,26 @@ void display_note(long msgnum)
 
 	/** Make it HTML-happy and print it. */
 	stresc(display_notetext, SIZ, notetext, 0, 0);
+/* Lets try it as a draggable */
+	if (!IsEmptyStr(eid)) {
+		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%s\" alt=\"Note\" ", eid); 
+		wprintf ("class=\"notes\">\n");
+		wprintf ("<script type=\"text/javascript\">\n");
+//		wprintf ("//<![CDATA[\n");
+		wprintf ("new Draggable (\"note_%s\", {revert:true})\n", eid);
+//		wprintf ("//]]>\n");
+		wprintf ("</script>\n");
+	}
+	else {
+		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%s\" ", msgnum); 
+		wprintf ("class=\"notes\">\n");
+		wprintf ("<script type=\"text/javascript\">\n");
+//		wprintf ("//<![CDATA[\n");
+		wprintf ("new Draggable (\"note_%s\", {revert:true})\n", msgnum);
+//		wprintf ("//]]>\n");
+		wprintf ("</script>\n");
+	}
+	
 	if (!IsEmptyStr(eid)) {
 		wprintf("<span id=\"note%s\">%s</span><br />\n", eid, display_notetext);
 	}
