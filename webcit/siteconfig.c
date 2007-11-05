@@ -770,7 +770,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_funambol_port"));
 	serv_printf("%s", bstr("c_funambol_source"));
 	serv_printf("%s", bstr("c_funambol_auth"));
-	serv_printf("%s", bstr("c_rbl_at_greeting"));
+	serv_printf("%s", ((!strcasecmp(bstr("c_rbl_at_greeting"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_master_user"));
 	serv_printf("%s", bstr("c_master_pass"));
 	serv_printf("%s", bstr("c_pager_program"));
