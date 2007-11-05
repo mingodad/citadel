@@ -2914,6 +2914,9 @@ ReadNetworkChunk(CtdlIPC* ipc)
 /*
  * input string from socket - implemented in terms of serv_read()
  */
+
+#ifdef CHUNKED_READ
+
 static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 {
 	int i, ntries;
@@ -3020,6 +3023,33 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 	}
 //	error_printf("----bla1\n");
 }
+
+#else	/* CHUNKED_READ */
+
+static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
+{
+	int i;
+
+	/* Read one character at a time. */
+	for (i = 0;; i++) {
+		serv_read(ipc, &buf[i], 1);
+		if (buf[i] == '\n' || i == (SIZ-1))
+			break;
+	}
+
+	/* If we got a long line, discard characters until the newline. */
+	if (i == (SIZ-1))
+		while (buf[i] != '\n')
+			serv_read(ipc, &buf[i], 1);
+
+	/* Strip the trailing newline (and carriage return, if present) */
+	if (i>=0 && buf[i] == 10) buf[i--] = 0;
+	if (i>=0 && buf[i] == 13) buf[i--] = 0;
+}
+
+
+#endif	/* CHUNKED_READ */
+
 
 void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
 {
