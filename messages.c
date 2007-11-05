@@ -2552,6 +2552,12 @@ void readloop(char *oper)
 		/** end bbview scroller */
 	}
 
+	if (is_notes)
+	{
+		wprintf ("<script src=\"/static/dragdrop.js\" type=\"text/javascript\"></script>\n");
+	}
+
+
 
 
 	for (a = 0; a < nummsgs; ++a) {
@@ -2593,7 +2599,6 @@ void readloop(char *oper)
 			++num_displayed;
 		}
 	}
-
 
 	/** Output loop */
 	if (displayed_msgs != NULL) {
@@ -2717,6 +2722,40 @@ void readloop(char *oper)
 		wprintf("</form>\n");
 		/** end bbview scroller */
 	}
+	
+	if (is_notes)
+	{
+//		wprintf ("</div>\n");
+		wprintf ("<div id=\"wastebin\" align=middle>Drop notes here to remove them.</div>\n");
+		wprintf ("<script type=\"text/javascript\">\n");
+//		wprintf ("//<![CDATA[\n");
+		wprintf ("Droppables.add(\"wastebin\",\n");
+		wprintf ("\t{\n");
+		wprintf ("\t\taccept:'notes',\n");
+		wprintf ("\t\tonDrop:function(element)\n");
+		wprintf ("\t\t{\n");
+		wprintf ("\t\t\tElement.hide(element);\n");
+		wprintf ("\t\t\tnew Ajax.Updater('notes', 'delnote',\n");
+		wprintf ("\t\t\t{\n");
+		wprintf ("\t\t\t\tasynchronous:true,\n");
+		wprintf ("\t\t\t\tevalScripts:true,\n");
+		wprintf ("\t\t\t\tonComplete:function(request)\n");
+		wprintf ("\t\t\t\t{\n");
+		wprintf ("\t\t\t\t\tElement.hide('indicator')\n");
+		wprintf ("\t\t\t\t},\n");
+		wprintf ("\t\t\t\tonLoading:function(request)\n");
+		wprintf ("\t\t\t\t{\n");
+		wprintf ("\t\t\t\t\tElement.show('indicator')\n");
+		wprintf ("\t\t\t\t},\n");
+		wprintf ("\t\t\t\tparameters:'id=' + encodeURIComponent(element.id)\n");
+		wprintf ("\t\t\t})\n");
+		wprintf ("\t\t}\n");
+		wprintf ("\t})\n");
+//		wprintf ("//]]>\n");
+		wprintf ("</script>\n");
+	}
+
+
 
 DONE:
 	if (is_tasks) {
