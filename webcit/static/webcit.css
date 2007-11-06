@@ -442,7 +442,7 @@ a:visited { color: purple; }
 
 .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
 	background-color: transparent;
-	border: 2px groove #CCC;
+	border: 2px groove #EEE;
 	color: #333;
 	font-weight: bold;
 	cursor: pointer;
@@ -827,7 +827,7 @@ html>body #button li a {
 }
 
 .button_link a, .msgbuttons a, .logbutton {
-	margin: 0 3px 0 3px;
+	margin: 3px;
 	padding: 2px;
 }
 
@@ -856,6 +856,7 @@ html>body #button li a {
 
 .mimepart dl {
 	width: 100%;
+	margin-left: 5px;
 	padding: 5px;
 }
 
@@ -886,8 +887,7 @@ dt { clear: both; }
 .msgbuttons {
  	float: right;
  	visibility: hidden;
-	margin-top: 0;
-	padding: 0;
+	padding: 2px;
 }
 
 .buttons a {
@@ -932,6 +932,11 @@ dt { clear: both; }
 	text-align: right;
 	padding-right: 5px;
 	color: #333;
+	width: 20%;
+}
+
+.edit_msg_table td { 
+	width: 40%;
 }
 
 .edit_msg_table #recp_id, .edit_msg_table #cc_id, .edit_msg_table #bcc_id, .edit_msg_table #subject_id  {
