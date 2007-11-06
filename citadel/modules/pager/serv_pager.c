@@ -1,7 +1,11 @@
 /*
+ * \file serv_pager.c
+ * @author Mathew McBride
+ * 
  * This module implements an external pager hook for when notifcation
  * of a new email is wanted.
  * Based on bits of serv_funambol
+ * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
  */
 
 #include "sysdep.h"
@@ -51,8 +55,11 @@
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"
 #define PAGER_CONFIG_TEXT  "textmessage"
 
-/*
- * Create the notify message queue. We use the exact same room 
+/*! \brief Create the notify message queue. We use the exact same room 
+ *			as the Funambol module. 
+ *
+ *	Run at server startup, creates FNBL_QUEUE_ROOM if it doesn't exist
+ *	and sets as system room. 
  */
 void create_pager_queue(void) {
 	struct ctdlroom qrbuf;
@@ -68,6 +75,9 @@ void create_pager_queue(void) {
 		lputroom(&qrbuf);
 	}
 }
+/*! 
+ * \brief Run through the pager room queue
+ */
 void do_pager_queue(void) {
 	static int doing_queue = 0;
 
@@ -96,12 +106,14 @@ void do_pager_queue(void) {
 	doing_queue = 0;
 }
 
-/*
- * Call the external tool
+/*!
+ * \brief Call the external pager tool as set by the administrator
+ * @param msgnum The message number of the 'hint' message passed from do_pager_queue
+ * @param userdata userdata struct as passed by CtdlForEachMessage
+ *
  */
 void notify_pager(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
-	struct ctdlroom qrbuf;
 	
 	/* W means 'wireless', which contains the unix name */
 	msg = CtdlFetchMessage(msgnum, 1);
@@ -128,7 +140,7 @@ void notify_pager(long msgnum, void *userdata) {
 	}
 	char *num = pager_getUserPhoneNumber(configMsgNum);
 	char command[SIZ];
-	snprintf(command, sizeof command, "%s %s -u %s", config.c_pager_program, num, &msg->cm_fields['W']);
+	snprintf(command, sizeof command, "%s %s -u %s", config.c_pager_program, num, msg->cm_fields['W']);
 	system(command);
 	
 	nuke:
@@ -137,12 +149,13 @@ void notify_pager(long msgnum, void *userdata) {
 	todelete[0] = msgnum;
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
-
+/*! \brief Get configuration message for pager/funambol system from the 
+ *			users "My Citadel Config" room
+ */
 long pager_getConfigMessage(char *username) {
 	struct ctdlroom qrbuf; // scratch for room
 	struct ctdluser user; // ctdl user instance
 	char configRoomName[ROOMNAMELEN];
-	struct CtdlMessage *template;
 	struct CtdlMessage *msg;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -152,8 +165,8 @@ long pager_getConfigMessage(char *username) {
 	getuser(&user, username);
 	
 	MailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
-	int prefroom = getroom(&qrbuf, configRoomName);
-	
+	// Fill qrbuf
+	getroom(&qrbuf, configRoomName);
 	/* Do something really, really stoopid here. Raid the room on ourselves,
 		loop through the messages manually and find it. I don't want 
 		to use a CtdlForEachMessage callback here, as we would be 
@@ -165,6 +178,7 @@ long pager_getConfigMessage(char *username) {
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
+		lprintf(CTDL_DEBUG, "pager_getConfigMessage: No config messages found\n");
 		return -1;	/* No messages at all?  No further action. */
 	}
 	int a;
@@ -204,7 +218,7 @@ int pager_doesUserWant(long configMsgNum) {
 	/* warning: fetching twice gravely inefficient, will fix some time */
 char *pager_getUserPhoneNumber(long configMsgNum) {
 	if (configMsgNum == -1) {
-		return;
+		return NULL;
 	}
 	struct CtdlMessage *prefMsg;
 	prefMsg = CtdlFetchMessage(configMsgNum, 1);

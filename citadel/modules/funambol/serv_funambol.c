@@ -97,8 +97,11 @@ void do_notify_queue(void) {
 	doing_queue = 0;
 }
 
-/*
- * Connect to the Funambol server and scan a message.
+/*! \brief Sends a message to the Funambol server 
+ *			to notify of new email
+ * 
+ * Connect to the Funambol server via HTTP and send a SOAP request
+ * to notify of new email
  */
 void notify_funambol(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
@@ -110,11 +113,13 @@ void notify_funambol(long msgnum, void *userdata) {
 	/* W means 'Wireless'... */
 	msg = CtdlFetchMessage(msgnum, 1);
 	if ( msg->cm_fields['W'] == NULL) {
+		lprintf(CTDL_ERR, "serv_funambol: msg->cm-fields['W'] is NULL\n");
 		goto nuke;
 	}
 	long configMsgNum = pager_getConfigMessage(msg->cm_fields['W']);
 	int allowed = funambol_isAllowedByPrefs(configMsgNum);
 	if (allowed != 0) {
+		lprintf(CTDL_DEBUG, "serv_funambol: User does not want Funambol push. Aborting\n");
 		return;
 	}
 	/* Are we allowed to push? */
@@ -226,11 +231,14 @@ void notify_funambol(long msgnum, void *userdata) {
 	todelete[0] = msgnum;
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
-
+/*! \brief Checks a preference message to see if Funambol push is configured by user
+ *
+ */
 int funambol_isAllowedByPrefs(long configMsgNum) {
 	// Do a simple string search to see if 'funambol' is selected as the 
 	// type. This string would be at the very top of the message contents.
 	if (configMsgNum == -1) {
+		lprintf(CTDL_ERR, "funambol_isAllowedByPrefs was passed a non-existant config message id\n");
 		return -1;
 	}
 	struct CtdlMessage *prefMsg;
