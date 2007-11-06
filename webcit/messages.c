@@ -3211,7 +3211,7 @@ void display_enter(void)
 		escputs(bstr("recp"));
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
-		wprintf("</td><td rowspan=\"3\" align=\"left\" valign=\"top\"");
+		wprintf("</td><td rowspan=\"3\" align=\"left\" valign=\"top\">");
 
 		/** Pop open an address book -- begin **/
 		wprintf(
@@ -3363,7 +3363,7 @@ void display_enter(void)
 	wprintf(" <input name=\"attachfile\" class=\"attachfile\" "
 		"size=16 type=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
-	wprintf("</div>");
+	wprintf("</div>");	/* End of "attachment buttons" div */
 
 
 	/** Make sure we only insert our signature once */
@@ -3374,8 +3374,9 @@ void display_enter(void)
 	wprintf("</td></tr></table>");
 	
 	wprintf("</form>\n");
-	wprintf("</div></div>\n");
+	wprintf("</div>\n");	/* end of "fix_scrollbar_bug" div */
 
+	/* NOTE: address_book_popup() will close the "content" div.  Don't close it here. */
 DONE:	address_book_popup();
 	wDumpContent(1);
 }
