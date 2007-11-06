@@ -139,7 +139,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	}
 
 	/** Do a first pass to isolate the message body */
-	ptr = msg;
+	ptr = msg + 1;
 	msgstart = msg;
 	msgend = &msg[content_length];
 
