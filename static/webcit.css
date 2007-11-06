@@ -440,7 +440,6 @@ a:visited { color: purple; }
 .button_link a, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
 	border: 1px solid #999;
 	color: #333;
-	text-align: center;
 }
 
 
@@ -448,6 +447,7 @@ a:visited { color: purple; }
 	font-weight: bold;
 	cursor: pointer;
         -moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	text-align: center;
 }
 
 /* Layout */
