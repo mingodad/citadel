@@ -237,7 +237,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			 * from the start time.
 			 */
 			t_end = t_start;
-			t_end.hour += 0;
+			t_end.hour += 1;
 			t_end.second = 0;
 			t_end = icaltime_normalize(t_end);
 			/* t_end = icaltime_from_timet(now, 0); */

@@ -897,7 +897,7 @@ msgstr "Serveurs SpamAssassin"
 #: ../inetconf.c:55
 #, fuzzy
 msgid "Masqueradable domains"
-msgstr "Domaines de niveau supérieur"
+msgstr "Masqueradable domains"
 
 #: ../inetconf.c:57
 msgid "(domains for which this host receives mail)"
@@ -1212,7 +1212,7 @@ msgstr "Résultat de la commande serveur"
 
 #: ../mainmenu.c:365
 msgid "Please wait while the Citadel server is restarted... "
-msgstr ""
+msgstr "S'il vous plaît, patientez pendant que le serveur Citadel redémarre..."
 
 #: ../mainmenu.c:381
 msgid "Message to your Users:"
@@ -1220,7 +1220,7 @@ msgstr "Message aux usagers:"
 
 #: ../mainmenu.c:388
 msgid "The citadel server has to be restarted. It 'll be back in a minute."
-msgstr ""
+msgstr "Le serveur Citadel doit redémarrer. Il sera de nouveau en service dans une minute"
 
 #: ../mainmenu.c:407
 msgid ""
