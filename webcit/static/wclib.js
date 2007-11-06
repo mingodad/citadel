@@ -560,7 +560,8 @@ function add_new_note() {
 	new_eid = CtdlRandomString();
 
 	$('new_notes_here').innerHTML = $('new_notes_here').innerHTML
-		+ '<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">'
+		+ '<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"' + new_eid + '\" alt=\"Note\" class=\"notes\">'
+		+ '<script type=\"text/javascript\">new Draggable (\"%s\", {revert:true})</script>'
 		+ '<span id=\"note' + new_eid + '\">' + Date() + '</span><br />'
 	;
 
