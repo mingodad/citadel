@@ -3266,7 +3266,7 @@ void display_enter(void)
 	wprintf("\" size=45 maxlength=70>\n");
 	wprintf("</td></tr>");
 
-	wprintf("<tr><td colspan=\"3\"\n");
+	wprintf("<tr><td colspan=\"3\">\n");
 
 	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
 
