@@ -12,6 +12,7 @@
 
 
 #include <pthread.h>
+#include <stdarg.h>
 #include "sysdep.h"
 #include "server.h"
 
