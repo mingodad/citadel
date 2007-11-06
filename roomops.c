@@ -475,24 +475,25 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
-	/* Is this a directory room and does it contain files? */
+	/* Is this a directory room and does it contain files and how many? */
 	if (WC->room_flags & QR_VISDIR)
 	{
 		serv_puts("RDIR");
 		serv_getln(buf2, sizeof buf2);
 		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
 			file_count++;
-		snprintf (with_files, sizeof with_files, " (%d file%s)", file_count, ((file_count>1) ? "s" : ""));
+		snprintf (with_files, sizeof with_files, "; %d file%s", file_count, ((file_count>1) || (file_count == 0) ? "s" : ""));
 	}
 	else
 		strcpy (with_files, "");
 		
 	stresc(sanitized_roomname, 256, WC->wc_roomname, 1, 1);
-	svprintf("ROOMNAME", WCS_STRING, "%s%s", sanitized_roomname, with_files);
+	svprintf("ROOMNAME", WCS_STRING, "%s", sanitized_roomname);
 	svprintf("NUMMSGS", WCS_STRING,
-		_("%d new of %d messages"),
+		_("%d new of %d messages%s"),
 		extract_int(&got[4], 1),
-		extract_int(&got[4], 2)
+		extract_int(&got[4], 2),
+		with_files
 	);
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
