@@ -427,7 +427,7 @@ void embed_search_o_matic(void) {
 		"type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
 		"id=\"search_name\" class=\"inputbox\">\n"
 	);
-	wprintf("</select></form>\n");
+	wprintf("</form>\n");
 }
 
 
