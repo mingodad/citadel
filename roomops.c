@@ -476,7 +476,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->wc_view = extract_int(&got[4], 11);
 
 	/* Is this a directory room and does it contain files and how many? */
-	if (WC->room_flags & QR_VISDIR)
+	if ((WC->room_flags & QR_DIRECTORY) && (WC->room_flags & QR_VISDIR))
 	{
 		serv_puts("RDIR");
 		serv_getln(buf2, sizeof buf2);
