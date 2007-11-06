@@ -48,15 +48,6 @@ body {
 	cursor: help;
 }
 
-.button_link a, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
-	background-color: #fbf4ca;
-}
-
-.button_link a, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
-	border: 1px solid #999;
-	color: #333;
-}
-
 .login_message {
 	color: #AD1C00;
 	font-weight: 700;
@@ -440,17 +431,23 @@ a:visited { color: purple; }
 	color: #FFF;
 }
 
-.msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
-	background-color: transparent;
-	border: 2px groove #EEE;
-	color: #333;
-	font-weight: bold;
-	cursor: pointer;
+
+
+.button_link a, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	background-color: #fbf4ca;
 }
 
-.button_link a {
+.button_link a, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	border: 1px solid #999;
 	color: #333;
+	text-align: center;
+}
+
+
+.button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	font-weight: bold;
 	cursor: pointer;
+        -moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
 }
 
 /* Layout */
@@ -826,9 +823,9 @@ html>body #button li a {
 	padding: 0;
 }
 
-.button_link a, .msgbuttons a, .logbutton {
+.button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
 	margin: 3px;
-	padding: 2px;
+	padding: 2px 4px 2px 4px;
 }
 
 .mimepart {
@@ -1097,10 +1094,6 @@ table.advanced {
 
 /* Links and buttons */
 
-.send_edit_msg {
-	margin: 0 15px 0 0;
-}
-
 .logbuttons, .buttons {
 	margin: 2px auto 2px auto;
 	width: 96%;
@@ -1215,8 +1208,8 @@ td.events_of_the_day {
 .event {
 	filter:alpha(opacity=50);   /* Internet Explorer 6     */
 	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
-	opacity: 0.5;               /* CSS3 and Mozilla  */
-	-moz-border-radius: 8px;    /* CSS3 and Mozilla  */
+	opacity: 0.5;               /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
