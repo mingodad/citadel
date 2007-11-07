@@ -2474,7 +2474,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatictop\" class=\"selector_top\" >");
+		wprintf("<form name=\"msgomatictop\" class=\"selector_top\" > \n <p>");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2548,7 +2548,7 @@ void readloop(char *oper)
 		wprintf(_("newest to oldest"));
 		wprintf("\n");
 	
-		wprintf("</select></form>\n");
+		wprintf("</p></form>\n");
 		/** end bbview scroller */
 	}
 
@@ -2646,7 +2646,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatic\" class=\"selector_bottom\" >");
+		wprintf("<form name=\"msgomatic\" class=\"selector_bottom\" > \n <p>");
 		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
@@ -2719,7 +2719,7 @@ void readloop(char *oper)
 		wprintf(_("newest to oldest"));
 		wprintf("\n");
 
-		wprintf("</form>\n");
+		wprintf("</p></form>\n");
 		/** end bbview scroller */
 	}
 	

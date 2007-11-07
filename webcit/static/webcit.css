@@ -444,11 +444,19 @@ a:visited { color: purple; }
 
 
 .button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
-	font-weight: bold;
 	cursor: pointer;
         -moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
 	text-align: center;
 }
+
+.button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	font-weight: bold;
+}
+
+.msgbuttons a, input#delbutton {
+	font-weight: normal;
+}
+
 
 /* Layout */
 
@@ -813,6 +821,11 @@ html>body #button li a {
  	text-align: center;
 }
 
+.selector_top p,.selector_bottom p {
+	margin: 0;
+	padding: 2px;
+}
+
 .message {
 	margin: 1%;
 	padding: 0;
@@ -823,10 +836,16 @@ html>body #button li a {
 	padding: 0;
 }
 
-.button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
+.button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
 	margin: 3px;
 	padding: 2px 4px 2px 4px;
 }
+
+.msgbuttons a, input#delbutton {
+	margin: 0 3px 0 3px;
+	padding: 2px 4px 2px 4px;
+}
+
 
 .mimepart {
 	margin-top: 15px;
