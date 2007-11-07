@@ -539,7 +539,7 @@ void calendar_month_view(int year, int month, int day) {
 		colheader_time = thetime + (i * 86400) ;
 		localtime_r(&colheader_time, &colheader_tm);
 		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
-		wprintf("<td align=center width=14%%>"
+		wprintf("<th align=center width=14%%>"
 			"<font color=\"#FFFFFF\">%s</font></th>", colheader_label);
 
 	}
