@@ -482,7 +482,10 @@ void embed_room_banner(char *got, int navbar_style) {
 		serv_getln(buf2, sizeof buf2);
 		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
 			file_count++;
-		snprintf (with_files, sizeof with_files, "; %d file%s", file_count, ((file_count>1) || (file_count == 0) ? "s" : ""));
+		snprintf (with_files, sizeof with_files, 
+			  "; <a href=\"display_room_directory\"> %d %s </a>", 
+			  file_count, 
+			  ((file_count>1) || (file_count == 0)  ? _("files") : _("file")));
 	}
 	else
 		strcpy (with_files, "");
