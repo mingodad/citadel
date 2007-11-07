@@ -2167,7 +2167,7 @@ msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
 msgstr ""
-"Wenn Sie diese Option wählen, wird <em>%s</em>aus der Raumliste "
+"Wenn Sie diese Option wählen, wird <em>%s</em> aus der Raumliste "
 "verschwinden.   Wollen Sie das wirklich tun?<br />\n"
 
 #: ../roomops.c:2463
