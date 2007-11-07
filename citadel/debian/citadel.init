@@ -74,10 +74,18 @@ do_stop()
 	#   other if a failure occurred
         if $SENDCOMMAND "DOWN" >/dev/null 2>&1 ; then
 	    rm -f $PIDFILE
-
+	    count=1;
 	    while test -S /var/run/citadel/citadel.socket; do 
+		count=$(($count+1))
 		sleep 1
 		echo -n "."
+		if test "$count" == "10"; then
+		    killall citserver
+		fi
+		if test "$count" == "20"; then
+		    killall -9 citserver
+		    rm -rf /var/run/citadel/*
+		fi
 	    done
 		return 0
 	else
