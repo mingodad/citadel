@@ -126,6 +126,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		encaps = ical_encapsulate_subcomponent(tmp);
 		ical_write_to_cal(u, encaps);
 		icalcomponent_free(tmp);
+		icalcomponent_free(encaps);
 		return;
 	}
 
