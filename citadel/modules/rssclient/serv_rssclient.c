@@ -426,6 +426,14 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
+		snprintf(buf, sizeof buf, "User-Agent: %s", CITADEL);
+		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		sock_puts(sock, buf);
+
+		snprintf(buf, sizeof buf, "Accept: */*");
+		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		sock_puts(sock, buf);
+
 		sock_puts(sock, "");
 
 		if (sock_getln(sock, buf, sizeof buf) >= 0) {
