@@ -159,6 +159,7 @@ body {
 
 .message_header .message_subject {
 	font-style: italic;
+	float: left;	
 }
 
 .adminlist {
@@ -600,7 +601,7 @@ body, #global {
 
 #login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
 	display: block;
- 	margin: 0 auto 0 auto;
+ 	margin: 5px auto 5px auto;
 }
 
 #login_screen .login_message, .login_hello, #global center {
@@ -608,8 +609,13 @@ body, #global {
 }
 
 #login_screen .login_image {
- 	width: 65%;
+        width: 135px;
 }
+
+#login_screen .login_image img {
+        text-align: center;
+}
+
 
 #login_screen #login_form {
  	padding: 10px;
@@ -833,7 +839,7 @@ html>body #button li a {
 
 .message_header p {
 	margin: 2px 0 2px 0;
-	padding: 0;
+	padding: 0 0 2px 0;
 }
 
 .button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
