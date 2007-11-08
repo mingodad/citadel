@@ -779,7 +779,7 @@ void display_using_handler(long msgnum,
 	icalcomponent *cal, *c;
 
 	relevant_partnum[0] = '\0';
-	sprintf(buf, "MSG0 %ld|0", msgnum);	/* unfortunately we need the mime headers */
+	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;

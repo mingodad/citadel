@@ -2559,7 +2559,6 @@ void readloop(char *oper)
 
 
 
-
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WCC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
