@@ -3,7 +3,7 @@ if test -x Makefile; then
     make clean
 fi
 ./bootstrap
-export WEBCIT_`grep VERSION= configure.ac |sed -e "s;';;g"`
+export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;WEBCIT;"`
 
 PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
