@@ -114,6 +114,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	char *ser = NULL;
 	icalcomponent *encaps = NULL;
 	struct CtdlMessage *msg = NULL;
+	icalcomponent *tmp=NULL;
 
 	if (cal == NULL) return;
 
@@ -121,9 +122,10 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	 * a full VCALENDAR component, and save that instead.
 	 */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
-		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(cal));
+		tmp = icalcomponent_new_clone(cal);
+		encaps = ical_encapsulate_subcomponent(tmp);
 		ical_write_to_cal(u, encaps);
-		icalcomponent_free(encaps);
+		icalcomponent_free(tmp);
 		return;
 	}
 
@@ -173,7 +175,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	}
 
 	/* In either case, now we can free the serialized calendar object */
-	free(ser);
+//	free(ser);
 }
 
 
