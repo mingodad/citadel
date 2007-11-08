@@ -6,6 +6,7 @@
 	Art Cancro
 	Wilfried Goesgens
 	Dave West
+	Thierry Pasquier
 	Nathan Bryant
 	Nick Grossman
 	Andru Luvisi
