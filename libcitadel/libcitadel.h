@@ -3,4 +3,4 @@
  *
  */
 
-static char *libcitadel_version_string(void);
+char *libcitadel_version_string(void);
