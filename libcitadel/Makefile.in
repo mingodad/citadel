@@ -1,0 +1,104 @@
+#########################################################################
+#                                                                       #
+# Process this file with top-level configure script to produce Makefile #
+#                                                                       #
+#########################################################################
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+man1dir = @mandir@/man1
+
+top_builddir = .
+
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+mkinstalldirs = $(SHELL) $(top_srcdir)/conftools/mkinstalldirs
+
+APIHEADER = $(srcdir)/lib/libcitadel.h
+LIBRARY = libcitadel.la
+
+DESTDIR = $(INSTALL_ROOT)
+
+default:  buildlib
+
+buildlib: $(LIBRARY)
+
+all: $(LIBRARY)
+
+clean:
+	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs
+	rm -rf .libs libcitadel.la
+
+clobber: clean
+
+distclean: clean
+	rm -f config.status config.log config.cache libtool
+	rm -f Makefile
+
+install: $(LIBRARY) $(APIHEADER)
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
+	$(LIBTOOL) --mode=install $(INSTALL) $(LIBRARY) $(DESTDIR)$(libdir)/$(LIBRARY)
+	for FN in $(APIHEADER) ; do $(INSTALL_DATA) $$FN $(DESTDIR)$(includedir) ; done
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$(LIBRARY)
+	rm -f $(DESTDIR)$(includedir)/libcitadel.h
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	@for d in lib ; do \
+		(mkdir $$d 2> /dev/null || test 1) ; \
+	done
+
+CC = @CC@
+CXX = @CXX@
+LIBTOOL = @LIBTOOL@
+
+INCLUDES = -I$(srcdir)/lib -I.
+LDFLAGS = @LDFLAGS@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+CXXFLAGS = @CXXFLAGS@
+VSNFLAG = -version-info @LIBCURRENT@:@LIBREVISION@:@LIBAGE@
+
+### autoconf this?
+LTFLAGS = --silent
+
+COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(DEFS) $(CPPFLAGS)
+CXXCOMPILE = $(CXX) $(INCLUDES) $(CXXFLAGS) $(DEFS) $(CPPFLAGS)
+LTCOMPILE = $(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE)
+LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) -rpath $(libdir) $(LDFLAGS) -o $@
+LINK_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) $(LDFLAGS) -o $@
+LINK_CXX_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(CXXCOMPILE) $(LDFLAGS) -o $@
+
+LIB_OBJS = lib/libcitadel.lo
+$(LIBRARY): $(LIB_OBJS)
+	$(LINK_LIB) $(LIB_OBJS)
+
+lib/libcitadel.lo: lib/libcitadel.c lib/libcitadel.h
+
+.SUFFIXES: .c .cpp .lo .o
+
+.cpp.o:
+	$(CXXCOMPILE) -o $@ -c $<
+.c.o:
+	$(COMPILE) -o $@ -c $<
+.c.lo:
+	$(LTCOMPILE) -o $@ -c $<
+
+.PHONY: buildlib all \
+	clean distclean extraclean maintainer-clean \
+	dist distdir \
+	install uninstall
