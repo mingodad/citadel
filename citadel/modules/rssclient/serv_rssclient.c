@@ -126,6 +126,7 @@ void rss_save_item(struct rss_item *ri) {
 	else {
 		/* Item has not been seen, so save it. */
 
+		if (ri->description == NULL) ri->description = strdup("");
 		for (i=strlen(ri->description); i>=0; --i) {
 			if (isspace(ri->description[i])) {
 				ri->description[i] = ' ';
