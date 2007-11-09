@@ -6,7 +6,6 @@ dnl Ensure that libcitadel is configured with autoconf 2.52 or newer
 AC_PREREQ(2.52)
 
 AC_INIT(citadel, 1.00, example@example.com)
-undefine([expat_version])
 
 AC_CONFIG_SRCDIR(Makefile.in)
 AC_CONFIG_AUX_DIR(conftools)
@@ -30,7 +29,6 @@ LIBAGE=0
 sinclude(conftools/libtool.m4)
 sinclude(conftools/ac_c_bigendian_cross.m4)
 
-AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
 AC_SUBST(LIBCURRENT)
@@ -60,10 +58,6 @@ dnl Checks for header files.
 AC_HEADER_STDC
 
 dnl Checks for typedefs, structures, and compiler characteristics.
-
-dnl Note: Avoid using AC_C_BIGENDIAN because it does not
-dnl work in a cross compile.
-AC_C_BIGENDIAN_CROSS
 
 AC_C_CONST
 AC_TYPE_SIZE_T
