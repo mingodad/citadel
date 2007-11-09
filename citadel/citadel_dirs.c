@@ -102,8 +102,8 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	snprintf(ctdl_sbin_dir, sizeof ctdl_sbin_dir, "/usr/sbin/");
 	snprintf(ctdl_bin_dir, sizeof ctdl_bin_dir, "/usr/bin/");
 #else
-	snprintf(ctdl_sbin_dir, sizeof ctdl_sbin_dir, basedir);
-	snprintf(ctdl_bin_dir, sizeof ctdl_bin_dir, basedir);
+	snprintf(ctdl_sbin_dir, sizeof ctdl_sbin_dir, ctdldir);
+	snprintf(ctdl_bin_dir, sizeof ctdl_bin_dir, ctdldir);
 #endif
 
 #ifndef HAVE_ETC_DIR
