@@ -527,6 +527,9 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
 		if (!strcasecmp(instr, "rssclient")) {
+
+			use_this_rncptr = NULL;
+
 			extract_token(feedurl, buf, 1, '|', sizeof feedurl);
 
 			/* If any other rooms have requested the same feed, then we will just add this
