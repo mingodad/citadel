@@ -87,6 +87,7 @@ void display_address_book_inner_div() {
 	char target_id[64];
 	char target_label[64];
 	int i;
+	char saved_roomname[128];
 
 	begin_ajax_response();
 
@@ -107,8 +108,8 @@ void display_address_book_inner_div() {
 	}
 
 	else {
-		serv_printf("GOTO %s", bstr("which_addr_book"));
-		serv_getln(buf, sizeof buf);
+		safestrncpy(saved_roomname, WC->wc_roomname, sizeof saved_roomname);
+		gotoroom(bstr("which_addr_book"));
 		serv_puts("DVCA");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -118,6 +119,7 @@ void display_address_book_inner_div() {
 			escputs(buf);
 			wprintf("</option>\n");
 		}
+		gotoroom(bstr(saved_roomname));
 	}
 
 	wprintf("</select>\n");
