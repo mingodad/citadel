@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 
 	CtdlInitBase64Table();
 
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 
 	/* If this environment variable is set, we assume that the program
 	 * is being called as a cgi-bin from a webserver and will output

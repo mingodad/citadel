@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 	char ctdldir[PATH_MAX]=CTDLDIR;
 
 	CtdlInitBase64Table();
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
 	CtdlIPC_chat_recv(ipc, buf);

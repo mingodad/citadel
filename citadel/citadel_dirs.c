@@ -89,7 +89,10 @@ int home_specified = 0;
 			 dirbuffer,\
 			 (dirbuffer[0]!='\0')?"/":"");
 
-void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir)
+#define DBG_PRINT(A) if (dbg==1) fprintf (stderr,"%s : %s \n", #A, A)
+
+
+void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctdldir, int dbg)
 {
 	const char* basedir = "";
 	char dirbuffer[PATH_MAX] = "";
@@ -231,16 +234,51 @@ void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdl
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.
 	 */
-		snprintf(file_mail_aliases, 
-				 sizeof file_mail_aliases,
-				 "%smail.aliases",
+	snprintf(file_mail_aliases, 
+		 sizeof file_mail_aliases,
+		 "%smail.aliases",
 #ifdef HAVE_ETC_DIR
-				 ctdl_etc_dir
+		 ctdl_etc_dir
 #else
-				 ctdl_spool_dir
+		 ctdl_spool_dir
 #endif
-				 );
+		);
 
+	DBG_PRINT(ctdl_bio_dir);
+	DBG_PRINT(ctdl_bb_dir);
+	DBG_PRINT(ctdl_data_dir);
+	DBG_PRINT(ctdl_file_dir);
+	DBG_PRINT(ctdl_hlp_dir);
+	DBG_PRINT(ctdl_image_dir);
+	DBG_PRINT(ctdl_info_dir);
+	DBG_PRINT(ctdl_key_dir);
+	DBG_PRINT(ctdl_message_dir);
+	DBG_PRINT(ctdl_usrpic_dir);
+	DBG_PRINT(ctdl_etc_dir);
+	DBG_PRINT(ctdl_run_dir);
+	DBG_PRINT(ctdl_spool_dir);
+	DBG_PRINT(ctdl_netout_dir);
+	DBG_PRINT(ctdl_netin_dir);
+	DBG_PRINT(ctdl_netcfg_dir);
+	DBG_PRINT(ctdl_bbsbase_dir);
+	DBG_PRINT(ctdl_sbin_dir);
+	DBG_PRINT(ctdl_bin_dir);
+	DBG_PRINT(ctdl_utilbin_dir);
+	DBG_PRINT(file_citadel_control);
+	DBG_PRINT(file_citadel_rc);
+	DBG_PRINT(file_citadel_config);
+	DBG_PRINT(file_lmtp_socket);
+	DBG_PRINT(file_lmtp_unfiltered_socket);
+	DBG_PRINT(file_arcq);
+	DBG_PRINT(file_citadel_socket);
+	DBG_PRINT(file_mail_aliases);
+	DBG_PRINT(file_pid_file);
+	DBG_PRINT(file_pid_paniclog);
+	DBG_PRINT(file_crpt_file_key);
+	DBG_PRINT(file_crpt_file_csr);
+	DBG_PRINT(file_crpt_file_cer);
+	DBG_PRINT(file_chkpwd);
+	DBG_PRINT(file_base64);
 }
 
 

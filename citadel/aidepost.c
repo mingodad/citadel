@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	char ctdldir[PATH_MAX]=CTDLDIR;
 
 	/* TODO: should we be able to calculate relative dirs? */
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 
 
 	get_config();

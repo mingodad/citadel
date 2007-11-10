@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 	int uid;
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	
-	calc_dirs_n_files(0,0,"", ctdldir);
+	calc_dirs_n_files(0,0,"", ctdldir, 0);
 	
 	printf("\n\n ** host auth mode test utility **\n\n");
 	start_chkpwd_daemon();

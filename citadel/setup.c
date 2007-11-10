@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
 		safestrncpy(relhome, ctdl_home_directory, sizeof relhome);
 	}
 
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	
 	enable_home=(relh|home);
 

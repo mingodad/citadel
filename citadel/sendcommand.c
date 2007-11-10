@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	get_config();
 
 	signal(SIGINT, cleanup);

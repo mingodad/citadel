@@ -84,6 +84,7 @@ int main(int argc, char **argv)
 	size_t size;
 	int relh=0;
 	int home=0;
+	int dbg=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 #ifdef HAVE_RUN_DIR
@@ -140,6 +141,10 @@ int main(int argc, char **argv)
 			do_defrag = 1;
 		}
 
+		else if (!strncmp(argv[a], "-D", 2)) {
+			dbg = 1;
+		}
+
 		/* -r tells the server not to drop root permissions. don't use
 		 * this unless you know what you're doing. this should be
 		 * removed in the next release if it proves unnecessary. */
@@ -151,7 +156,7 @@ int main(int argc, char **argv)
 			lprintf(CTDL_EMERG,	"citserver: usage: "
 					"citserver "
 					"[-lLogFacility] "
-					"[-d] [-f]"
+					"[-d] [-f] [-D] "
 					" [-tTraceFile]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
@@ -159,7 +164,7 @@ int main(int argc, char **argv)
 
 	}
 
-	calc_dirs_n_files(relh, home, relhome, ctdldir);
+	calc_dirs_n_files(relh, home, relhome, ctdldir, dbg);
 	/* daemonize, if we were asked to */
 	if (running_as_daemon) {
 		start_daemon(0);
