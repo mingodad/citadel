@@ -1287,7 +1287,6 @@ void ical_freebusy(char *who) {
 	if (fb == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR + INTERNAL_ERROR);
-		icalcomponent_free(encaps);
 		getroom(&CC->room, hold_rm);
 		return;
 	}
