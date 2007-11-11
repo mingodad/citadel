@@ -477,6 +477,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 	size_t bbb_len;
 	int multipart_hunting = 0;
 	char multipart_prefix[128];
+	char encoding[256];
 
 	if (!cret) return -1;
 	if (!mret) return -1;
@@ -484,6 +485,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 	if (!*mret) return -1;
 	if (!msgnum) return -1;
 
+	strcpy(encoding, "");
 	strcpy(mret[0]->content_type, "");
 	sprintf(aaa, "MSG%d %ld|%d", as_mime, msgnum, headers);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, &bbb, &bbb_len, cret);
@@ -596,6 +598,11 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 						strcpy(mret[0]->mime_chosen, &mret[0]->mime_chosen[23]);
 						striplt(mret[0]->mime_chosen);
 					}
+					if (!strncasecmp(bbb, "Content-transfer-encoding:", 26)) {
+						extract_token(encoding, bbb, 0, '\n', sizeof encoding);
+						strcpy(encoding, &encoding[26]);
+						striplt(encoding);
+					}
 					remove_token(bbb, 0, '\n');
 				} while ((bbb[0] != 0) && (bbb[0] != '\n'));
 				remove_token(bbb, 0, '\n');
@@ -604,8 +611,25 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 
 		}
 		if (strlen(bbb)) {
+
+			if ( (!strcasecmp(encoding, "base64")) || (!strcasecmp(encoding, "quoted-printable")) ) {
+				char *ccc = NULL;
+				int bytes_decoded = 0;
+				ccc = malloc(strlen(bbb) + 32768);
+				if (!strcasecmp(encoding, "base64")) {
+					bytes_decoded = CtdlDecodeBase64(ccc, bbb, strlen(bbb));
+				}
+				else if (!strcasecmp(encoding, "quoted-printable")) {
+					bytes_decoded = CtdlDecodeQuotedPrintable(ccc, bbb, strlen(bbb));
+				}
+				ccc[bytes_decoded] = 0;
+				free(bbb);
+				bbb = ccc;
+			}
+
 			/* FIXME: Strip trailing whitespace */
 			bbb = (char *)realloc(bbb, (size_t)(strlen(bbb) + 1));
+
 		} else {
 			bbb = (char *)realloc(bbb, 1);
 			*bbb = '\0';

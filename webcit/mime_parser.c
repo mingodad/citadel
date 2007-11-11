@@ -62,43 +62,6 @@ char *fixed_partnum(char *supplied_partnum) {
 
 
 /*
- * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
- * according to RFC2045 section 6.7
- */
-int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
-	unsigned int ch;
-	int decoded_length = 0;
-	int pos = 0;
-
-	while (pos < sourcelen)
-	{
-		if (!strncmp(&encoded[pos], "=\r\n", 3))
-		{
-			pos += 3;
-		}
-		else if (!strncmp(&encoded[pos], "=\n", 2))
-		{
-			pos += 2;
-		}
-		else if (encoded[pos] == '=')
-		{
-			ch = 0;
-			sscanf(&encoded[pos+1], "%02x", &ch);
-			pos += 3;
-			decoded[decoded_length++] = ch;
-		}
-		else
-		{
-			decoded[decoded_length++] = encoded[pos];
-			pos += 1;
-		}
-	}
-	decoded[decoded_length] = 0;
-	return(decoded_length);
-}
-
-
-/*
  * Given a message or message-part body and a length, handle any necessary
  * decoding and pass the request up the stack.
  */

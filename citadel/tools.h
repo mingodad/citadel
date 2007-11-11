@@ -9,6 +9,7 @@ unsigned long extract_unsigned_long(const char *source, int parmnum);
 void CtdlInitBase64Table(void);
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
+int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void striplt(char *);
 int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);

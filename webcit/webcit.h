@@ -634,6 +634,7 @@ void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd, int with_headers);
 size_t CtdlEncodeBase64(char **dest, const char *source, size_t sourcelen, size_t *destlen, int linebreaks);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
+int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void free_attachments(struct wcsession *sess);
 void free_march_list(struct wcsession *wcf);
 void set_room_policy(void);
