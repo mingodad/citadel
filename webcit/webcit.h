@@ -2,6 +2,9 @@
 
 #include "sysdep.h"
 
+
+#include <sys/select.h>
+
 #include <ctype.h>
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -404,7 +407,11 @@ enum {
 	current_iconbar_menu,     /**< view the icon menue */
 	current_iconbar_roomlist  /**< view the roomtree */
 };
-
+enum {
+	S_SELECT,
+	S_SHUTDOWN,
+	MAX_SEMAPHORES
+};
 
 #define num_parms(source)		num_tokens(source, '|') 
 
@@ -434,6 +441,12 @@ extern char wizard_filename[];
 extern time_t if_modified_since;
 extern int follow_xff;
 void do_setup_wizard(void);
+
+
+void InitialiseSemaphores(void);
+void begin_critical_section(int which_one);
+void end_critical_section(int which_one);
+
 
 void stuff_to_cookie(char *cookie, int session,
 			char *user, char *pass, char *room);
@@ -556,6 +569,8 @@ void display_confirm_delete_node(void);
 void delete_node(void);
 void display_add_node(void);
 void terminate_session(void);
+void shutdown_sessions(void);
+void do_housekeeping(void);
 void edit_me(void);
 void display_siteconfig(void);
 void siteconfig(void);

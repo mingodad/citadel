@@ -109,6 +109,8 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
+	fcntl(s, F_SETFL, O_NONBLOCK);/// TODO
+	
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
 		exit(WC_EXIT_BIND);
@@ -474,10 +476,17 @@ pid_t current_child;
 void graceful_shutdown(int signum) {
 //	kill(current_child, signum);
 	char wd[SIZ];
+	FILE *FD;
+	int fd;
 	getcwd(wd, SIZ);
-	lprintf (1, "bye going down gracefull.[%s]\n", wd);
+	lprintf (1, "bye going down gracefull.[%d][%s]\n", signum, wd);
+	fd = msock;
+	msock = -1;
 	time_to_die = 1;
-	exit(0);
+	FD=fdopen(fd, "a+");
+	fflush (FD);
+	fclose (FD);
+	close(fd);
 }
 
 
@@ -519,7 +528,8 @@ void start_daemon(char *pid_file)
 	freopen("/dev/null", "r", stdin);
 	freopen("/dev/null", "w", stdout);
 	freopen("/dev/null", "w", stderr);
-	signal(SIGTERM, graceful_shutdown_watcher);
+///	signal(SIGTERM, graceful_shutdown_watcher);
+	signal(SIGHUP, graceful_shutdown_watcher);
 
 	do {
 		current_child = fork();
@@ -531,12 +541,15 @@ void start_daemon(char *pid_file)
 		}
 	
 		else if (current_child == 0) {
-			signal(SIGTERM, graceful_shutdown);
+////			signal(SIGTERM, graceful_shutdown);
+			signal(SIGHUP, graceful_shutdown);
+
 			return; /* continue starting webcit. */
 		}
 	
 		else {
-			signal(SIGTERM, SIG_IGN);
+////			signal(SIGTERM, SIG_IGN);
+			signal(SIGHUP, SIG_IGN);
 			if (pid_file) {
 				fp = fopen(pid_file, "w");
 				if (fp != NULL) {
@@ -735,7 +748,8 @@ int main(int argc, char **argv)
 		start_daemon(pidfile);
 	}
 	else {
-		signal(SIGTERM, graceful_shutdown);
+///		signal(SIGTERM, graceful_shutdown);
+		signal(SIGHUP, graceful_shutdown);
 	}
 
 	/** Tell 'em who's in da house */
@@ -806,6 +820,7 @@ int main(int argc, char **argv)
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
 		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
 	}
+	InitialiseSemaphores ();
 
 	/**
 	 * Set up a place to put thread-specific SSL data.
@@ -876,15 +891,76 @@ void worker_entry(void)
 	int ssock;
 	int i = 0;
 	int fail_this_transaction = 0;
+	int ret;
+	struct timeval tv;
+	fd_set readset, tempset;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 10000;
+	FD_ZERO(&readset);
+	FD_SET(msock, &readset);
 
 	do {
 		/** Only one thread can accept at a time */
 		fail_this_transaction = 0;
-		ssock = accept(msock, NULL, 0);
-		if (ssock < 0) {
-			lprintf(2, "accept() failed: %s\n",
-				strerror(errno));
-		} else {
+		ssock = -1; 
+		errno = EAGAIN;
+		do {
+			ret = -1; /* just one at once should select... */
+			begin_critical_section(S_SELECT);
+
+			FD_ZERO(&tempset);
+			if (msock > 0) FD_SET(msock, &tempset);
+			tv.tv_sec = 0;
+			tv.tv_usec = 10000;
+			if (msock > 0)	ret = select(msock+1, &tempset, NULL, NULL,  &tv);
+			end_critical_section(S_SELECT);
+			if ((ret < 0) && (errno != EINTR) && (errno != EAGAIN))
+			{// EINTR and EAGAIN are thrown but not of interest.
+				lprintf(2, "accept() failed:%d %s\n",
+					errno, strerror(errno));
+			}
+			else if ((ret > 0) && (msock > 0) && FD_ISSET(msock, &tempset))
+			{// Successfully selected, and still not shutting down? Accept!
+				ssock = accept(msock, NULL, 0);
+			}
+			
+		} while ((msock > 0) && (ssock < 0)  && (time_to_die == 0));
+
+		if ((msock == -1)||(time_to_die))
+		{// ok, we're going down.
+			int shutdown = 0;
+
+			/* the first to come here will have to do the cleanup.
+			 * make shure its realy just one.
+			 */
+			begin_critical_section(S_SHUTDOWN);
+			if (msock == -1)
+			{
+				msock = -2;
+				shutdown = 1;
+			}
+			end_critical_section(S_SHUTDOWN);
+			if (shutdown == 1)
+			{// we're the one to cleanup the mess.
+				lprintf(2, "I'm master shutdown: tagging sessions to be killed.\n");
+				shutdown_sessions();
+				lprintf(2, "master shutdown: waiting for others\n");
+				sleeeeeeeeeep(1); // wait so some others might finish...
+				lprintf(2, "master shutdown: cleaning up sessions\n");
+				do_housekeeping();
+				lprintf(2, "master shutdown exiting!.\n");				
+				exit(0);
+			}
+			break;
+		}
+		if (ssock < 0 ) continue;
+
+		if (msock < 0) {
+			if (ssock > 0) close (ssock);
+			lprintf(2, "inbetween.");
+			pthread_exit(NULL);
+		} else { // Got it? do some real work!
 			/** Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
@@ -920,7 +996,7 @@ void worker_entry(void)
 
 	} while (!time_to_die);
 
-	lprintf (1, "bye");
+	lprintf (1, "bye\n");
 	pthread_exit(NULL);
 }
 
