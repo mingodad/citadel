@@ -1865,7 +1865,7 @@ START_TEXT:
 				*choose_preferred, *fixed_output_pre,
 				*fixed_output_post, (void *)&ma, 0);
 			mime_parser(mptr, NULL,
-				*output_preferred, NULL, NULL, (void *)&ma, 0);
+				*output_preferred, NULL, NULL, (void *)&ma, CC->msg4_dont_decode);
 		}
 		else {
 			ma.use_fo_hooks = 1;
@@ -1974,9 +1974,14 @@ void cmd_msg4(char *cmdbuf)
  */
 void cmd_msgp(char *cmdbuf)
 {
-	safestrncpy(CC->preferred_formats, cmdbuf,
-			sizeof(CC->preferred_formats));
-	cprintf("%d ok\n", CIT_OK);
+	if (!strcasecmp(cmdbuf, "dont_decode")) {
+		CC->msg4_dont_decode = 1;
+		cprintf("%d MSG4 will not pre-decode messages.\n", CIT_OK);
+	}
+	else {
+		safestrncpy(CC->preferred_formats, cmdbuf, sizeof(CC->preferred_formats));
+		cprintf("%d Preferred MIME formats have been set.\n", CIT_OK);
+	}
 }
 
 

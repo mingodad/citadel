@@ -134,16 +134,18 @@ struct CitContext {
 	char fake_hostname[64];
 	char fake_roomname[ROOMNAMELEN];
 
-	char preferred_formats[256];		/* Preferred MIME formats */
+	/* Preferred MIME formats */
+	char preferred_formats[256];
+	int msg4_dont_decode;
 
 	/* Dynamically allocated session data */
 	struct citimap *IMAP;
 	struct citpop3 *POP3;
 	struct citsmtp *SMTP;
-	struct citmgsve *MGSVE; /**< Managesieve Session struct */
+	struct citmgsve *MGSVE;			/**< Managesieve Session struct */
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
-	const char* ServiceName; /**< whats our actual purpose? */
+	const char* ServiceName;		/**< whats our actual purpose? */
 };
 
 typedef struct CitContext t_context;
