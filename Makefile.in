@@ -51,7 +51,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
 	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o \
 	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
-	downloads.o  addressbook_popup.o pushemail.o \
+	downloads.o  addressbook_popup.o pushemail.o sysdep.o \
 	$(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
@@ -63,7 +63,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
 	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o \
-	gettext.o downloads.o addressbook_popup.o pushemail.o \
+	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:

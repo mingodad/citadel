@@ -40,6 +40,7 @@ configure-stamp:
                 --with-ssldir=/etc/ssl/webcit/ \
 		--with-zlib --with-ssl --with-libiconf \
 		--with-newt --with-included-gettext \
+		--with-datadir=/var/run/citadel \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
 
 	touch configure-stamp

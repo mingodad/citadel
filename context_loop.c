@@ -37,6 +37,15 @@ void free_attachments(struct wcsession *sess) {
 	}
 }
 
+
+void shutdown_sessions(void)
+{
+	struct wcsession *sptr;
+	
+	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
+			sptr->killthis = 1;
+	}
+}
 /**
  * \brief what??????
  */
