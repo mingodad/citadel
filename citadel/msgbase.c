@@ -2416,6 +2416,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	struct addresses_to_be_filed *aptr = NULL;
 	char *saved_rfc822_version = NULL;
 	int qualified_for_journaling = 0;
+	struct CitContext *CCC = CC;		/* CachedCitContext - performance boost */
 
 	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2482,16 +2483,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	lprintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
-	strcpy(hold_rm, CC->room.QRname);
-	strcpy(actual_rm, CC->room.QRname);
+	lprintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CCC->room.QRname : SENTITEMS);
+	strcpy(hold_rm, CCC->room.QRname);
+	strcpy(actual_rm, CCC->room.QRname);
 	if (recps != NULL) {
 		strcpy(actual_rm, SENTITEMS);
 	}
 
 	/* If the user is a twit, move to the twit room for posting */
 	if (TWITDETECT) {
-		if (CC->user.axlevel == 2) {
+		if (CCC->user.axlevel == 2) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
 			lprintf(CTDL_DEBUG, "Diverting to twit room\n");
@@ -2504,8 +2505,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	lprintf(CTDL_DEBUG, "Final selection: %s\n", actual_rm);
-	if (strcasecmp(actual_rm, CC->room.QRname)) {
-		/* getroom(&CC->room, actual_rm); */
+	if (strcasecmp(actual_rm, CCC->room.QRname)) {
+		/* getroom(&CCC->room, actual_rm); */
 		usergoto(actual_rm, 0, 1, NULL, NULL);
 	}
 
@@ -2513,7 +2514,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * If this message has no O (room) field, generate one.
 	 */
 	if (msg->cm_fields['O'] == NULL) {
-		msg->cm_fields['O'] = strdup(CC->room.QRname);
+		msg->cm_fields['O'] = strdup(CCC->room.QRname);
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
@@ -2524,7 +2525,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * If this message has an Exclusive ID, and the room is replication
 	 * checking enabled, then do replication checks.
 	 */
-	if (DoesThisRoomNeedEuidIndexing(&CC->room)) {
+	if (DoesThisRoomNeedEuidIndexing(&CCC->room)) {
 		ReplicationChecks(msg);
 	}
 
@@ -2554,19 +2555,19 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * 2. If journaling is enabled, we will need an RFC822 version of the
 	 *    message to attach to the journalized copy.
 	 */
-	if (CC->redirect_buffer != NULL) {
-		lprintf(CTDL_ALERT, "CC->redirect_buffer is not NULL during message submission!\n");
+	if (CCC->redirect_buffer != NULL) {
+		lprintf(CTDL_ALERT, "CCC->redirect_buffer is not NULL during message submission!\n");
 		abort();
 	}
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CCC->redirect_buffer = malloc(SIZ);
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
-	smi.meta_rfc822_length = CC->redirect_len;
-	saved_rfc822_version = CC->redirect_buffer;
-	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
+	smi.meta_rfc822_length = CCC->redirect_len;
+	saved_rfc822_version = CCC->redirect_buffer;
+	CCC->redirect_buffer = NULL;
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = 0;
 
 	PutMetaData(&smi);
 
@@ -2577,7 +2578,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if ((!CC->internal_pgm) || (recps == NULL)) {
+	if ((!CCC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 1, msg) != 0) {
 			lprintf(CTDL_ERR, "ERROR saving message pointer!\n");
 			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
@@ -2602,9 +2603,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Bump this user's messages posted counter. */
 	lprintf(CTDL_DEBUG, "Updating user\n");
-	lgetuser(&CC->user, CC->curr_user);
-	CC->user.posted = CC->user.posted + 1;
-	lputuser(&CC->user);
+	lgetuser(&CCC->user, CCC->curr_user);
+	CCC->user.posted = CCC->user.posted + 1;
+	lputuser(&CCC->user);
 
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
@@ -2685,7 +2686,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			snprintf(submit_filename, sizeof submit_filename,
 					 "%s/netmail.%04lx.%04x.%04x",
 					 ctdl_netin_dir,
-					 (long) getpid(), CC->cs_pid, ++seqnum);
+					 (long) getpid(), CCC->cs_pid, ++seqnum);
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
 				fwrite(smr.ser, smr.len, 1, network_fp);
@@ -2702,7 +2703,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Go back to the room we started from */
 	lprintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
-	if (strcasecmp(hold_rm, CC->room.QRname))
+	if (strcasecmp(hold_rm, CCC->room.QRname))
 		usergoto(hold_rm, 0, 1, NULL, NULL);
 
 	/* For internet mail, generate delivery instructions.
@@ -2747,7 +2748,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * Any addresses to harvest for someone's address book?
 	 */
-	if ( (CC->logged_in) && (recps != NULL) ) {
+	if ( (CCC->logged_in) && (recps != NULL) ) {
 		collected_addresses = harvest_collected_addresses(msg);
 	}
 
@@ -2757,7 +2758,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			malloc(sizeof(struct addresses_to_be_filed));
 		aptr->next = atbf;
 		MailboxName(actual_rm, sizeof actual_rm,
-			&CC->user, USERCONTACTSROOM);
+			&CCC->user, USERCONTACTSROOM);
 		aptr->roomname = strdup(actual_rm);
 		aptr->collected_addresses = collected_addresses;
 		atbf = aptr;
