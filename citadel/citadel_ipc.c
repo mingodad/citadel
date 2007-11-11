@@ -2904,7 +2904,8 @@ ReadNetworkChunk(CtdlIPC* ipc)
 		if (ret > 0) {
 			
 			*(ipc->BufPtr) = '\0';
-			n = read(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1);
+//			n = read(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1);
+			n = recv(ipc->sock, ipc->BufPtr, ipc->BufSize  - (ipc->BufPtr - ipc->Buf) - 1, 0);
 			if (n > 0) {
 				ipc->BufPtr[n]='\0';
 				ipc->BufUsed += n;
@@ -2938,7 +2939,7 @@ ReadNetworkChunk(CtdlIPC* ipc)
 /*
  * input string from socket - implemented in terms of serv_read()
  */
-
+#define CHUNKED_READ
 #ifdef CHUNKED_READ
 
 static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
