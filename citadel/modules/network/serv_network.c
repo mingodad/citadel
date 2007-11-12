@@ -1359,10 +1359,11 @@ void network_process_buffer(char *buffer, long size) {
 	/* Validate just a little bit.  First byte should be FF and
 	 * last byte should be 00.
 	 */
-	memcpy(&firstbyte, &buffer[0], 1);
-	memcpy(&lastbyte, &buffer[size-1], 1);
+	firstbyte = buffer[0];
+	lastbyte = buffer[size-1];
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
-		lprintf(CTDL_ERR, "Corrupt message!  Ignoring.\n");
+		lprintf(CTDL_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
+			size, firstbyte, lastbyte);
 		return;
 	}
 
