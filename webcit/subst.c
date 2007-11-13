@@ -18,22 +18,29 @@
 /**
  * \brief Clear out the list of substitution variables local to this session
  */
-void clear_local_substs(void) {
+void clear_substs(struct wcsession *wc) {
 	struct wcsubst *ptr;
 
-	while (WC->vars != NULL) {
-		ptr = WC->vars->next;
+	while (wc->vars != NULL) {
+		ptr = wc->vars->next;
 
-		if ((WC->vars->wcs_type == WCS_STRING)
-		   || (WC->vars->wcs_type == WCS_SERVCMD)) {
-			free(WC->vars->wcs_value);
+		if ((wc->vars->wcs_type == WCS_STRING)
+		   || (wc->vars->wcs_type == WCS_SERVCMD)) {
+			free(wc->vars->wcs_value);
 		}
 
-		free(WC->vars);
-		WC->vars = ptr;
+		free(wc->vars);
+		wc->vars = ptr;
 	}
 
-	WC->vars = NULL;
+	wc->vars = NULL;
+}
+
+/**
+ * \brief Clear out the list of substitution variables local to this session
+ */
+void clear_local_substs(void) {
+	clear_substs (WC);
 }
 
 
@@ -58,15 +65,16 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
 		if (!strcasecmp(scan->wcs_key, keyname)) {
 			ptr = scan;
-			free(ptr->wcs_value);
+			if (ptr->wcs_value != NULL)
+				free(ptr->wcs_value);
 		}
 	}
 
 	/** Otherwise allocate a new one */
 	if (ptr == NULL) {
 		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
-		ptr->next = WC->vars;
 		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		ptr->next = WC->vars;
 		WC->vars = ptr;
 	}
 
@@ -76,6 +84,7 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
+	ptr->wcs_function = NULL;
 	ptr->wcs_type = keytype;
 	ptr->wcs_value = strdup(wbuf);
 }
@@ -87,14 +96,32 @@ void svprintf(char *keyname, int keytype, const char *format,...)
  */
 void svcallback(char *keyname, void (*fcn_ptr)() )
 {
+	struct wcsubst *scan;
 	struct wcsubst *ptr;
 
-	ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
-	ptr->next = WC->vars;
+	/**
+	 * First scan through to see if we're doing a replacement of
+	 * an existing key
+	 */
+	ptr = NULL;
+	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
+		if (!strcasecmp(scan->wcs_key, keyname)) {
+			ptr = scan;
+			if (ptr->wcs_value != NULL)
+				free(ptr->wcs_value);
+		}
+	}
+
+	/** Otherwise allocate a new one */
+	if (ptr == NULL) {
+		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		ptr->next = WC->vars;
+		WC->vars = ptr;
+	}
+	ptr->wcs_value = NULL;
 	ptr->wcs_type = WCS_FUNCTION;
-	strcpy(ptr->wcs_key, keyname);
 	ptr->wcs_function = fcn_ptr;
-	WC->vars = ptr;
 }
 
 
