@@ -52,73 +52,37 @@
 static char *noise_words[] = {
 	"about",
 	"after",
-	"all",
 	"also",
-	"an",
-	"and",
 	"another",
-	"any",
-	"are",
-	"as",
-	"at",
-	"be",
 	"because",
 	"been",
 	"before",
 	"being",
 	"between",
 	"both",
-	"but",
-	"by",
 	"came",
-	"can",
 	"come",
 	"could",
-	"did",
-	"do",
 	"each",
-	"for",
 	"from",
-	"get",
-	"got",
-	"had",
-	"has",
 	"have",
-	"he",
-	"her",
 	"here",
-	"him",
 	"himself",
-	"his",
-	"how",
-	"if",
-	"in",
 	"into",
-	"is",
-	"it",
 	"like",
 	"make",
 	"many",
-	"me",
 	"might",
 	"more",
 	"most",
 	"much",
 	"must",
-	"my",
 	"never",
-	"now",
-	"of",
-	"on",
 	"only",
-	"or",
 	"other",
-	"our",
-	"out",
 	"over",
 	"said",
 	"same",
-	"see",
 	"should",
 	"since",
 	"some",
@@ -127,7 +91,6 @@ static char *noise_words[] = {
 	"take",
 	"than",
 	"that",
-	"the",
 	"their",
 	"them",
 	"then",
@@ -137,14 +100,8 @@ static char *noise_words[] = {
 	"this",
 	"those",
 	"through",
-	"to",
-	"too",
 	"under",
-	"up",
 	"very",
-	"was",
-	"way",
-	"we",
 	"well",
 	"were",
 	"what",
@@ -153,7 +110,6 @@ static char *noise_words[] = {
 	"while",
 	"with",
 	"would",
-	"you",
 	"your"
 };
 
@@ -212,27 +168,20 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 		ch = *ptr;
 		if ( (!isalnum(ch)) && (word_start) ) {
 			word_end = ptr;
-			--word_end;
+//			--word_end;
 
 			/* extract the word */
-			word_len = word_end - word_start + 1;
-			safestrncpy(word, word_start, sizeof word);
+			word_len = word_end - word_start;
 			if (word_len >= sizeof word) {
 				lprintf(CTDL_DEBUG, "Invalid word length: %d\n", word_len);
-				word[(sizeof word_len) - 1] = 0;
+				safestrncpy(word, word_start, sizeof word);
+				word[(sizeof word) - 1] = 0;
 			}
 			else {
+				safestrncpy(word, word_start, word_len+1);
 				word[word_len] = 0;
 			}
 			word_start = NULL;
-
-			/* disqualify noise words */
-			for (i=0; i<(sizeof(noise_words)/sizeof(char *)); ++i) {
-				if (!strcasecmp(word, noise_words[i])) {
-					word_len = 0;
-					break;
-				}
-			}
 
 			/* are we ok with the length? */
 			if ( (word_len >= WB_MIN)
@@ -240,6 +189,16 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 				for (i=0; i<word_len; ++i) {
 					word[i] = tolower(word[i]);
 				}
+				/* disqualify noise words */
+				for (i=0; i<(sizeof(noise_words)/sizeof(char *)); ++i) {
+					if (!strcmp(word, noise_words[i])) {
+						word_len = 0;
+						break;
+					}
+				}
+				if (word_len == 0)
+					continue;
+
 				word_crc = (int)
 					CalcCRC16Bytes(word_len, word);
 

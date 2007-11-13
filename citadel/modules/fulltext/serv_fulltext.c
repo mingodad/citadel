@@ -219,7 +219,9 @@ void do_fulltext_indexing(void) {
 	int i;
 	static time_t last_index = 0L;
 	static time_t last_progress = 0L;
-
+	time_t run_time = 0L;
+	time_t end_time = 0L;
+	
 	/*
 	 * Don't do this if the site doesn't have it enabled.
 	 */
@@ -242,17 +244,18 @@ void do_fulltext_indexing(void) {
 	if (CitControl.MMfulltext >= CitControl.MMhighest) {
 		return;		/* nothing to do! */
 	}
-
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started\n");
+	
+	run_time = time(NULL);
+	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started (%ld)\n", run_time);
 	
 	/*
 	 * If we've switched wordbreaker modules, burn the index and start
 	 * over.
 	 */
 	begin_critical_section(S_CONTROL);
-	lprintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
-			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID);
 	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
+		lprintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
+			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID);
 		lprintf(CTDL_INFO, "(re)initializing full text index\n");
 		cdb_trunc(CDB_FULLTEXT);
 		CitControl.MMfulltext = 0L;
@@ -310,6 +313,8 @@ void do_fulltext_indexing(void) {
 		ft_num_alloc = 0;
 		ft_newmsgs = NULL;
 	}
+	end_time = time(NULL);
+	lprintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
 
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();

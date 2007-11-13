@@ -9,12 +9,12 @@
  * later on, or even if we update this one, we can use a different ID so the
  * system knows it needs to throw away the existing index and rebuild it.
  */
-#define	FT_WORDBREAKER_ID	0x001f
+#define	FT_WORDBREAKER_ID	0x0021
 
 /*
  * Minimum and maximum length of words to index
  */
-#define WB_MIN			3
+#define WB_MIN			4	// nothing with 3 or less chars
 #define WB_MAX			40
 
 void wordbreaker(char *text, int *num_tokens, int **tokens);
