@@ -2939,7 +2939,6 @@ ReadNetworkChunk(CtdlIPC* ipc)
 /*
  * input string from socket - implemented in terms of serv_read()
  */
-#define CHUNKED_READ
 #ifdef CHUNKED_READ
 
 static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
