@@ -591,6 +591,7 @@ void page_popup(void);
 void chat_recv(void);
 void chat_send(void);
 void http_redirect(char *);
+void clear_substs(struct wcsession *wc);
 void clear_local_substs(void);
 void svprintf(char *keyname, int keytype, const char *format,...);
 void svcallback(char *keyname, void (*fcn_ptr)() );
