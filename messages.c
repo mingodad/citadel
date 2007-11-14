@@ -3126,7 +3126,7 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
-	urlescputs(WC->wc_roomname);
+	escputs(WC->wc_roomname);
 	wprintf("\">\n");
 
 	/** submit or cancel buttons */
