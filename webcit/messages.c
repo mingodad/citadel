@@ -2874,6 +2874,10 @@ void post_message(void)
 	int is_anonymous = 0;
 	char *display_name;
 
+	if (!IsEmptyStr(bstr("force_room"))) {
+		gotoroom(bstr("force_room"));
+	}
+
 	display_name = bstr("display_name");
 	if (!strcmp(display_name, "__ANONYMOUS__")) {
 		display_name = "";
@@ -3121,6 +3125,9 @@ void display_enter(void)
 	}
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
+	urlescputs(WC->wc_roomname);
+	wprintf("\">\n");
 
 	/** submit or cancel buttons */
         wprintf("<p class=\"send_edit_msg\">");
