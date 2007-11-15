@@ -1356,9 +1356,7 @@ void network_process_buffer(char *buffer, long size) {
 	unsigned char firstbyte;
 	unsigned char lastbyte;
 
-	/* Validate just a little bit.  First byte should be FF and
-	 * last byte should be 00.
-	 */
+	/* Validate just a little bit.  First byte should be FF and * last byte should be 00. */
 	firstbyte = buffer[0];
 	lastbyte = buffer[size-1];
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
@@ -1549,12 +1547,13 @@ void network_process_file(char *filename) {
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "Error opening %s: %s\n",
-			filename, strerror(errno));
+		lprintf(CTDL_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
 		return;
 	}
 
-	lprintf(CTDL_INFO, "network: processing <%s>\n", filename);
+	fseek(fp, 0L, SEEK_END);
+	lprintf(CTDL_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
+	rewind(fp);
 
 	/* Look for messages in the data stream and break them out */
 	while (ch = getc(fp), ch >= 0) {
@@ -1662,8 +1661,9 @@ void network_purge_spoolout(void) {
  * receive network spool from the remote system
  */
 void receive_spool(int sock, char *remote_nodename) {
-	long download_len;
-	long bytes_received;
+	long download_len = 0L;
+	long bytes_received = 0L;
+	long bytes_copied = 0L;
 	char buf[SIZ];
 	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
@@ -1724,9 +1724,9 @@ void receive_spool(int sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	if (download_len > 0)
-		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>\n",
-				download_len, remote_nodename);
+	if (download_len > 0) {
+		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
+	}
 	lprintf(CTDL_DEBUG, "%s\n", buf);
 	
 	/* Now copy the temp file to its permanent location.
@@ -1738,13 +1738,21 @@ void receive_spool(int sock, char *remote_nodename) {
 			 "%s/%s.%ld",
 			 ctdl_netin_dir,
 			 remote_nodename, 
-			 (long) getpid());
+			 (long) getpid()
+	);
 	fp = fopen(tempfilename, "r");
 	if (fp != NULL) {
 		newfp = fopen(filename, "w");
 		if (newfp != NULL) {
-			while (fgets(buf, sizeof buf, fp) != NULL) {
-				fprintf(newfp, "%s", buf);
+			bytes_copied = 0L;
+			while (bytes_copied < download_len) {
+				plen = download_len - bytes_copied;
+				if (plen > sizeof buf) {
+					plen = sizeof buf;
+				}
+				fread(buf, plen, 1, fp);
+				fwrite(buf, plen, 1, newfp);
+				bytes_copied += plen;
 			}
 			fclose(newfp);
 		}
