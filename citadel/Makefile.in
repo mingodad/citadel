@@ -37,7 +37,7 @@ SERV_MODULES=vcard.o \
 include Make_modules
 
 UTIL_TARGETS=aidepost msgform \
-	citmail userlist sendcommand \
+	citmail userlist sendcommand getmail\
 
 UTILBIN_TARGETS= base64 setup chkpw chkpwd
 
@@ -78,7 +78,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
-	screen.c sendcommand.c \
+	screen.c sendcommand.c getmail.c \
 	server_main.c \
 	setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
@@ -160,6 +160,10 @@ stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIB
 sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  $(LIBOBJS)
 	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  \
 	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
+
+getmail: getmail.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  $(LIBOBJS)
+	$(CC) getmail.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  \
+	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o getmail $(LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
