@@ -68,11 +68,11 @@ void display_note(long msgnum)
 		wprintf ("</script>\n");
 	}
 	else {
-		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%s\" ", msgnum); 
+		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%ld\" ", msgnum); 
 		wprintf ("class=\"notes\">\n");
 		wprintf ("<script type=\"text/javascript\">\n");
 //		wprintf ("//<![CDATA[\n");
-		wprintf ("new Draggable (\"note_%s\", {revert:true})\n", msgnum);
+		wprintf ("new Draggable (\"note_%ld\", {revert:true})\n", msgnum);
 //		wprintf ("//]]>\n");
 		wprintf ("</script>\n");
 	}
