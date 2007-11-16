@@ -399,27 +399,36 @@ void open_databases(void)
 		exit(CTDLEXIT_DB);
 	}
 
-	flags =
-	    DB_CREATE | DB_RECOVER | DB_INIT_MPOOL |
-	    DB_PRIVATE | DB_INIT_TXN | DB_INIT_LOCK | DB_THREAD;
-	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n",
-		ctdl_data_dir, flags);
+	flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE | DB_INIT_TXN | DB_INIT_LOCK | DB_THREAD | DB_RECOVER;
+	lprintf(CTDL_DEBUG, "dbenv->open(dbenv, %s, %d, 0)\n", ctdl_data_dir, flags);
 	ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
+	if (ret == DB_RUNRECOVERY) {
+		lprintf(CTDL_ALERT, "dbenv->open: %s\n", db_strerror(ret));
+		lprintf(CTDL_ALERT, "Attempting recovery...\n");
+		flags |= DB_RECOVER;
+		ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
+	}
+	if (ret == DB_RUNRECOVERY) {
+		lprintf(CTDL_ALERT, "dbenv->open: %s\n", db_strerror(ret));
+		lprintf(CTDL_ALERT, "Attempting catastrophic recovery...\n");
+		flags &= ~DB_RECOVER;
+		flags |= DB_RECOVER_FATAL;
+		ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
+	}
 	if (ret) {
-		lprintf(CTDL_DEBUG, "cdb_*: dbenv->open: %s\n",
-			db_strerror(ret));
+		lprintf(CTDL_DEBUG, "dbenv->open: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
 		exit(CTDLEXIT_DB);
 	}
 
-	lprintf(CTDL_INFO, "cdb_*: Starting up DB\n");
+	lprintf(CTDL_INFO, "Starting up DB\n");
 
 	for (i = 0; i < MAXCDB; ++i) {
 
 		/* Create a database handle */
 		ret = db_create(&dbp[i], dbenv, 0);
 		if (ret) {
-			lprintf(CTDL_DEBUG, "cdb_*: db_create: %s\n",
+			lprintf(CTDL_DEBUG, "db_create: %s\n",
 				db_strerror(ret));
 			exit(CTDLEXIT_DB);
 		}
@@ -438,14 +447,14 @@ void open_databases(void)
 				   DB_CREATE | DB_AUTO_COMMIT | DB_THREAD,
 				   0600);
 		if (ret) {
-			lprintf(CTDL_EMERG, "cdb_*: db_open[%d]: %s\n", i,
+			lprintf(CTDL_EMERG, "db_open[%d]: %s\n", i,
 				db_strerror(ret));
 			exit(CTDLEXIT_DB);
 		}
 	}
 
 	if ((ret = pthread_key_create(&tsdkey, dest_tsd))) {
-		lprintf(CTDL_EMERG, "cdb_*: pthread_key_create: %s\n",
+		lprintf(CTDL_EMERG, "pthread_key_create: %s\n",
 			strerror(ret));
 		exit(CTDLEXIT_DB);
 	}
@@ -481,7 +490,7 @@ void cdb_chmod_data(void) {
 		closedir(dp);
 	}
 
-	lprintf(CTDL_DEBUG, "cdb_*: open_databases() finished\n");
+	lprintf(CTDL_DEBUG, "open_databases() finished\n");
 
 	CtdlRegisterProtoHook(cmd_cull, "CULL", "Cull database logs");
 }
@@ -500,7 +509,7 @@ void close_databases(void)
 
 	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
 		lprintf(CTDL_EMERG,
-			"cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
+			"txn_checkpoint: %s\n", db_strerror(ret));
 	}
 
 	/* print some statistics... */
@@ -510,11 +519,11 @@ void close_databases(void)
 
 	/* close the tables */
 	for (a = 0; a < MAXCDB; ++a) {
-		lprintf(CTDL_INFO, "cdb_*: Closing database %d\n", a);
+		lprintf(CTDL_INFO, "Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
 			lprintf(CTDL_EMERG,
-				"cdb_*: db_close: %s\n", db_strerror(ret));
+				"db_close: %s\n", db_strerror(ret));
 		}
 
 	}
@@ -523,7 +532,7 @@ void close_databases(void)
 	ret = dbenv->close(dbenv, 0);
 	if (ret) {
 		lprintf(CTDL_EMERG,
-			"cdb_*: DBENV->close: %s\n", db_strerror(ret));
+			"DBENV->close: %s\n", db_strerror(ret));
 	}
 }
 
