@@ -36,16 +36,16 @@ distclean: clean
 		po/Makefile \
 		$(srcdir)/TAGS
 
-setup: setup.o tools.o
-	$(CC) setup.o tools.o \
+setup: setup.o
+	$(CC) setup.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) $(SETUP_LIBS) -o setup
 
-webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
+webserver: webserver.o context_loop.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	vcard.o vcard_edit.o preferences.o html2html.o listsub.o \
-	mime_parser.o graphics.o netconf.o siteconfig.o subst.o rss.o \
+	graphics.o netconf.o siteconfig.o subst.o rss.o \
 	calendar.o calendar_tools.o calendar_view.o event.o smtpqueue.o \
 	availability.o iconbar.o crypto.o inetconf.o notes.o wiki.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
@@ -53,11 +53,11 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
 	downloads.o  addressbook_popup.o pushemail.o sysdep.o \
 	$(LIBOBJS)
-	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
+	$(CC) webserver.o context_loop.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	locate_host.o siteconfig.o subst.o vcard.o vcard_edit.o floors.o \
-	mime_parser.o graphics.o netconf.o preferences.o html2html.o rss.o \
+	graphics.o netconf.o preferences.o html2html.o rss.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o event.o wiki.o \
 	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \

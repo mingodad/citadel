@@ -302,7 +302,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 						}
 						else {
 							tt = icaltime_as_timet(t);
-							fmt_date(buf, tt, 1);
+							webcit_fmt_date(buf, tt, 1);
 							wprintf("<i>%s</i> %s<br>",
 								_("Starting date/time:"), buf);
 							
@@ -313,7 +313,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 							if (q != NULL) {
 								t = icalproperty_get_dtend(q);
 								tt = icaltime_as_timet(t);
-								fmt_date(buf, tt, 1);
+								webcit_fmt_date(buf, tt, 1);
 								wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
 							
@@ -932,9 +932,9 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
                                         }
-                                fmt_date(buf, event_tt, 1);
+                                webcit_fmt_date(buf, event_tt, 1);
                                 wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                fmt_date(buf, event_tte, 1);
+                                webcit_fmt_date(buf, event_tte, 1);
                                 wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
@@ -1009,9 +1009,9 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
                                         }
-                                fmt_date(buf, event_tt, 1);
+                                webcit_fmt_date(buf, event_tt, 1);
                                 wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                fmt_date(buf, event_tte, 1);
+                                webcit_fmt_date(buf, event_tte, 1);
                                 wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
@@ -1480,7 +1480,7 @@ void do_tasks_view(void) {
 		wprintf("</td>\n");
 
 		due = get_task_due_date(WC->disp_cal[i].cal);
-		fmt_date(buf, due, 0);
+		webcit_fmt_date(buf, due, 0);
 		wprintf("<td><font");
 		if (due < time(NULL)) {
 			wprintf(" color=\"#FF0000\"");

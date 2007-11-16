@@ -11,7 +11,6 @@
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
-#include "mime_parser.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1831,6 +1830,19 @@ SKIP_ALL_THIS_CRAP:
 		free(WC->upload);
 		WC->upload_length = 0;
 	}
+}
+
+/**
+ * \brief Replacement for sleep() that uses select() in order to avoid SIGALRM
+ * \param seconds how many seconds should we sleep?
+ */
+void sleeeeeeeeeep(int seconds)
+{
+	struct timeval tv;
+
+	tv.tv_sec = seconds;
+	tv.tv_usec = 0;
+	select(0, NULL, NULL, NULL, &tv);
 }
 
 

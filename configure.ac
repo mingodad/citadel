@@ -100,6 +100,25 @@ AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS(snprintf)
 
+
+dnl Check for libcitadel
+AC_CHECK_HEADER(libcitadel.h,
+	[AC_CHECK_LIB(citadel, libcitadel_version_string,
+		[
+			AC_MSG_RESULT(OK)
+			LIBS="-lcitadel $LIBS"
+		],
+		[
+			AC_MSG_ERROR(libcitadel was not found or is not usable.  Please install libcitadel.)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(libcitadel.h was not found or is not usable.  Please install libcitadel.)
+	]
+)
+
+
 webcit_with_calendar_service=no
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
