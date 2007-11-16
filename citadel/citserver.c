@@ -40,6 +40,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -55,7 +56,6 @@
 #include "file_ops.h"
 #include "policy.h"
 #include "control.h"
-#include "tools.h"
 #include "euidindex.h"
 
 #ifndef HAVE_SNPRINTF

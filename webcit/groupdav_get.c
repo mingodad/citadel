@@ -8,7 +8,6 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
-#include "mime_parser.h"
 
 
 /*

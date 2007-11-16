@@ -31,12 +31,11 @@
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
-
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "support.h"
 #include "vcard.h"
-#include "tools.h"
 
 
 

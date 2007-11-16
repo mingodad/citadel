@@ -15,12 +15,12 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "config.h"
 
 #include "modules/crypto/serv_crypto.h"	/* Needed until a universal crypto startup hook is implimented for CtdlStartTLS */

@@ -44,6 +44,7 @@
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"
@@ -55,7 +56,6 @@
 #include "database.h"
 #include "user_ops.h"
 #include "housekeeping.h"
-#include "tools.h"
 #include "citadel_dirs.c"
 
 #include "modules_init.h"
@@ -215,6 +215,7 @@ int main(int argc, char **argv)
 		"General Public License.\n");
 	lprintf(CTDL_NOTICE, "\n");
 	lprintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
+	lprintf(CTDL_INFO, "%s\n", libcitadel_version_string());
 
 	/* Load site-specific parameters, and set the ipgm secret */
 	lprintf(CTDL_INFO, "Loading citadel.config\n");

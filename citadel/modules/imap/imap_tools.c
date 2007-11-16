@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "sysdep_decls.h"
-#include "tools.h"
 #include "room_ops.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"

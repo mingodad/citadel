@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -42,7 +43,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "serv_imap.h"
 #include "imap_tools.h"

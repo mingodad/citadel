@@ -32,13 +32,13 @@
 #include <sys/select.h>
 #endif
 #include <stdarg.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "client_chat.h"
 #include "commands.h"
 #include "routines.h"
 #include "citadel_decls.h"
-#include "tools.h"
 #include "rooms.h"
 #include "messages.h"
 #ifndef HAVE_SNPRINTF

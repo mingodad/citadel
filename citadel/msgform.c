@@ -31,8 +31,7 @@
 #endif
 
 #include <errno.h>
-#include "tools.h"
-
+#include <libcitadel.h>
 
 int qwk = 0;
 

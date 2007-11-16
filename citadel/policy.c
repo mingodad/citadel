@@ -23,6 +23,7 @@
 #endif
 
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
@@ -33,7 +34,6 @@
 #include "user_ops.h"
 #include "msgbase.h"
 #include "citserver.h"
-#include "tools.h"
 
 
 /*

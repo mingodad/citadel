@@ -144,7 +144,7 @@ void display_queue_msg(long msgnum)
 
 	wprintf("</td><td>");
 	if (submitted > 0) {
-		fmt_date(buf, submitted, 1);
+		webcit_fmt_date(buf, submitted, 1);
 		wprintf("%s", buf);
 	}
 	else {
@@ -153,7 +153,7 @@ void display_queue_msg(long msgnum)
 
 	wprintf("</td><td>");
 	if (last_attempt > 0) {
-		fmt_date(buf, last_attempt, 1);
+		webcit_fmt_date(buf, last_attempt, 1);
 		wprintf("%s", buf);
 	}
 	else {

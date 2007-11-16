@@ -44,7 +44,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
  * \param thetime time to convert to string 
  * \param brief do we want compact view?????
  */
-void fmt_date(char *buf, time_t thetime, int brief)
+void webcit_fmt_date(char *buf, time_t thetime, int brief)
 {
 	struct tm tm;
 	struct tm today_tm;

@@ -19,6 +19,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -26,9 +27,7 @@
 #include "config.h"
 #include "user_ops.h"
 #include "room_ops.h"
-#include "tools.h"
 #include "msgbase.h"
-#include "mime_parser.h"
 #include "internet_addressing.h"
 #include "serv_calendar.h"
 #include "euidindex.h"

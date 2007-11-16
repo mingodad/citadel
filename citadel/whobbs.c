@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_dirs.h"
-#include "tools.h"
 
 void logoff(int code)
 {

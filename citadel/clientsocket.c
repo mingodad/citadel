@@ -23,6 +23,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #ifndef HAVE_SNPRINTF
@@ -31,7 +32,6 @@
 #include "sysdep_decls.h"
 #include "config.h"
 #include "clientsocket.h"
-#include "tools.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

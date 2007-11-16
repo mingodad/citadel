@@ -17,12 +17,12 @@
 #include <limits.h>
 #include <netdb.h>
 #include <string.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "locate_host.h"
 #include "sysdep_decls.h"
 #include "config.h"
-#include "tools.h"
 #include "domain.h"
 
 #ifdef HAVE_RESOLV_H

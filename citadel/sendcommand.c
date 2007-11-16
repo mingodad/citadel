@@ -29,8 +29,8 @@
 #include <signal.h>
 #include <errno.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
-#include "tools.h"
 #include "citadel_ipc.h"
 #include "server.h"
 #include "config.h"

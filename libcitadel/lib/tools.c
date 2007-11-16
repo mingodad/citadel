@@ -1,18 +1,18 @@
 /*
- * $Id$
- *
- * Utility functions that are used by both the client and server.
  *
  */
 
-#include "sysdep.h"
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <signal.h>
+#include <sys/types.h>
 #include <ctype.h>
 #include <string.h>
-#include <stdarg.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <limits.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -25,9 +25,8 @@
 # endif
 #endif
 
-#include "tools.h"
-#include "citadel.h"
-#include "sysdep_decls.h"
+#include "libcitadel.h"
+
 
 #define TRUE  1
 #define FALSE 0
@@ -59,25 +58,6 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 	dest[n - 1] = 0;
 	return dest;
 }
-
-
-
-#ifndef HAVE_STRNCASECMP
-int strncasecmp(char *lstr, char *rstr, int len)
-{
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-	}
-	return(0);
-}
-#endif
 
 
 
@@ -316,55 +296,88 @@ void CtdlInitBase64Table(void)
 	dtable['='] = 0;
 }
 
+
 /*
- * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by
- * John Walker, found in full in the file "base64.c" included with this
- * distribution.  We are moving in the direction of eventually discarding
- * the separate executables, and using the ones in our code exclusively.
+ * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by John Walker.
  */
 
-void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
+size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks)
 {
-    int i, hiteof = FALSE;
-    int spos = 0;
-    int dpos = 0;
+	int i, hiteof = FALSE;
+	int spos = 0;
+	int dpos = 0;
+	int thisline = 0;
 
-    while (!hiteof) {
-	byte igroup[3], ogroup[4];
-	int c, n;
+	/**  Fill dtable with character encodings.  */
 
-	igroup[0] = igroup[1] = igroup[2] = 0;
-	for (n = 0; n < 3; n++) {
-	    if (spos >= sourcelen) {
-		hiteof = TRUE;
-		break;
-	    }
-	    c = source[spos++];
-	    igroup[n] = (byte) c;
+	for (i = 0; i < 26; i++) {
+		dtable[i] = 'A' + i;
+		dtable[26 + i] = 'a' + i;
 	}
-	if (n > 0) {
-	    ogroup[0] = etable[igroup[0] >> 2];
-	    ogroup[1] = etable[((igroup[0] & 3) << 4) | (igroup[1] >> 4)];
-	    ogroup[2] = etable[((igroup[1] & 0xF) << 2) | (igroup[2] >> 6)];
-	    ogroup[3] = etable[igroup[2] & 0x3F];
+	for (i = 0; i < 10; i++) {
+		dtable[52 + i] = '0' + i;
+	}
+	dtable[62] = '+';
+	dtable[63] = '/';
 
-            /* Replace characters in output stream with "=" pad
-	       characters if fewer than three characters were
-	       read from the end of the input stream. */
+	while (!hiteof) {
+		byte igroup[3], ogroup[4];
+		int c, n;
 
-	    if (n < 3) {
-                ogroup[3] = '=';
-		if (n < 2) {
-                    ogroup[2] = '=';
+		igroup[0] = igroup[1] = igroup[2] = 0;
+		for (n = 0; n < 3; n++) {
+			if (spos >= sourcelen) {
+				hiteof = TRUE;
+				break;
+			}
+			c = source[spos++];
+			igroup[n] = (byte) c;
 		}
-	    }
-	    for (i = 0; i < 4; i++) {
-		dest[dpos++] = ogroup[i];
-		dest[dpos] = 0;
-	    }
+		if (n > 0) {
+			ogroup[0] = dtable[igroup[0] >> 2];
+			ogroup[1] =
+			    dtable[((igroup[0] & 3) << 4) |
+				   (igroup[1] >> 4)];
+			ogroup[2] =
+			    dtable[((igroup[1] & 0xF) << 2) |
+				   (igroup[2] >> 6)];
+			ogroup[3] = dtable[igroup[2] & 0x3F];
+
+			/**
+			 * Replace characters in output stream with "=" pad
+			 * characters if fewer than three characters were
+			 * read from the end of the input stream. 
+			 */
+
+			if (n < 3) {
+				ogroup[3] = '=';
+				if (n < 2) {
+					ogroup[2] = '=';
+				}
+			}
+			for (i = 0; i < 4; i++) {
+				dest[dpos++] = ogroup[i];
+				dest[dpos] = 0;
+			}
+			thisline += 4;
+			if ( (linebreaks) && (thisline > 70) ) {
+				dest[dpos++] = '\r';
+				dest[dpos++] = '\n';
+				dest[dpos] = 0;
+				thisline = 0;
+			}
+		}
 	}
-    }
+	if ( (linebreaks) && (thisline > 70) ) {
+		dest[dpos++] = '\r';
+		dest[dpos++] = '\n';
+		dest[dpos] = 0;
+		thisline = 0;
+	}
+
+	return(dpos);
 }
+
 
 
 /* 
@@ -416,42 +429,6 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
     }
 }
 
-/*
- * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
- * according to RFC2045 section 6.7
- */
-int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
-	unsigned int ch;
-	int decoded_length = 0;
-	int pos = 0;
-
-	while (pos < sourcelen)
-	{
-		if (!strncmp(&encoded[pos], "=\r\n", 3))
-		{
-			pos += 3;
-		}
-		else if (!strncmp(&encoded[pos], "=\n", 2))
-		{
-			pos += 2;
-		}
-		else if (encoded[pos] == '=')
-		{
-			ch = 0;
-			sscanf(&encoded[pos+1], "%02x", &ch);
-			pos += 3;
-			decoded[decoded_length++] = ch;
-		}
-		else
-		{
-			decoded[decoded_length++] = encoded[pos];
-			pos += 1;
-		}
-	}
-	decoded[decoded_length] = 0;
-	return(decoded_length);
-}
-
 
 /*
  * if we send out non ascii subjects, we encode it this way.
@@ -474,7 +451,7 @@ char *rfc2047encode(char *line, long length)
 
 	result = (char*) malloc(strlen(UTF8_HEADER) + 4 + length * 2);
 	strncpy (result, UTF8_HEADER, strlen (UTF8_HEADER));
-	CtdlEncodeBase64(result + strlen(UTF8_HEADER), line, length);
+	CtdlEncodeBase64(result + strlen(UTF8_HEADER), line, length, 0);
 	end = strlen (result);
         result[end]='?';
 	result[end+1]='=';
@@ -766,9 +743,9 @@ char *strcpy(char *dest, const char *src) {
 void generate_uuid(char *buf) {
 	static int seq = 0;
 
-	sprintf(buf, "%lx-"F_XPID_T"-%x",
+	sprintf(buf, "%lx-%lx-%x",
 		time(NULL),
-		getpid(),
+		(long)getpid(),
 		(seq++)
 	);
 }
@@ -843,8 +820,8 @@ void CtdlMakeTempFileName(char *name, int len) {
 	int i = 0;
 
 	while (i++, i < 100) {
-		snprintf(name, len, "/tmp/ctdl."F_XPID_T".%04x",
-			getpid(),
+		snprintf(name, len, "/tmp/ctdl.%4lx.%04x",
+			(long)getpid(),
 			rand()
 		);
 		if (!access(name, F_OK)) {
@@ -852,3 +829,84 @@ void CtdlMakeTempFileName(char *name, int len) {
 		}
 	}
 }
+
+
+
+/*
+ * Determine whether the specified message number is contained within the specified set.
+ * Returns nonzero if the specified message number is in the specified message set string.
+ */
+int is_msg_in_mset(char *mset, long msgnum) {
+	int num_sets;
+	int s;
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];       /* was 1024 */
+	long lo, hi;
+
+	/*
+	 * Now set it for all specified messages.
+	 */
+	num_sets = num_tokens(mset, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, mset, s, ',', sizeof setstr);
+
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':', sizeof histr);
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
+			}
+		}
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
+		if ((msgnum >= lo) && (msgnum <= hi)) return(1);
+	}
+
+	return(0);
+}
+
+
+/**
+ * \brief searches for a  paternn within asearch string
+ * \param search the string to search 
+ * \param patn the pattern to find in string
+ * \returns position in string
+ */
+int pattern2(char *search, char *patn)
+{
+	int a;
+	int len, plen;
+	len = strlen (search);
+	plen = strlen (patn);
+	for (a = 0; a < len; ++a) {
+		if (!strncasecmp(&search[a], patn, plen))
+			return (a);
+	}
+	return (-1);
+}
+
+
+/**
+ * \brief Strip leading and trailing spaces from a string; with premeasured and adjusted length.
+ * \param buf the string to modify
+ * \param len length of the string. 
+ */
+void stripltlen(char *buf, int *len)
+{
+	int delta = 0;
+	if (*len == 0) return;
+	while ((*len > delta) && (isspace(buf[delta]))){
+		delta ++;
+	}
+	memmove (buf, &buf[delta], *len - delta + 1);
+	(*len) -=delta;
+
+	if (*len == 0) return;
+	while (isspace(buf[(*len) - 1])){
+		buf[--(*len)] = '\0';
+	}
+}
+

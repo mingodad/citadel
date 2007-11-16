@@ -29,6 +29,7 @@
 #  include <time.h>
 # endif
 #endif
+
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
@@ -38,6 +39,8 @@
 #ifdef HAVE_UTMPX_H
 #include <utmpx.h>
 #endif
+
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "screen.h"
@@ -51,7 +54,6 @@ struct utmp *getutline(struct utmp *ut);
 #include "citadel.h"
 #include "routines.h"
 #include "commands.h"
-#include "tools.h"
 #include "citadel_decls.h"
 #include "routines2.h"
 

@@ -28,6 +28,7 @@
 #include <limits.h>
 #include <errno.h>
 #include "citadel.h"
+#include <libcitadel.h>
 #include "server.h"
 #include "database.h"
 #include "config.h"
@@ -38,7 +39,6 @@
 #include "msgbase.h"
 #include "citserver.h"
 #include "control.h"
-#include "tools.h"
 #include "citadel_dirs.h"
 
 struct floor *floorcache[MAXFLOORS];

@@ -28,6 +28,7 @@
 #endif
 
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "config.h"
@@ -37,7 +38,6 @@
 #include "support.h"
 #include "room_ops.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "citserver.h"
 
 #ifndef HAVE_SNPRINTF

@@ -25,12 +25,12 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "tools.h"
 #include "room_ops.h"
 #include "ctdl_module.h"
 #include "clientsocket.h"

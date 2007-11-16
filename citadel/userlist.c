@@ -21,10 +21,10 @@
 # endif
 #endif
 
+#include <libcitadel.h>
 #include "citadel.h"
 #include <unistd.h>
 #include "citadel_ipc.h"
-#include "tools.h"
 #include "citadel_dirs.h"
 
 void logoff(int code)

@@ -29,6 +29,7 @@
 #include <string.h>
 #include <limits.h>
 #include <sys/socket.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -39,7 +40,6 @@
 #include "user_ops.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "domain.h"
 #include "clientsocket.h"

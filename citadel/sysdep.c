@@ -52,6 +52,7 @@
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -60,7 +61,6 @@
 #include "config.h"
 #include "database.h"
 #include "housekeeping.h"
-#include "tools.h"
 #include "modules/crypto/serv_crypto.h"	/* Needed for init_ssl, client_write_ssl, client_read_ssl, destruct_ssl */
 #include "ecrash.h"
 

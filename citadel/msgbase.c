@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"
@@ -44,8 +45,6 @@
 #include "file_ops.h"
 #include "config.h"
 #include "control.h"
-#include "tools.h"
-#include "mime_parser.h"
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
@@ -4234,7 +4233,8 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		CtdlEncodeBase64(
 			&encoded_message[strlen(encoded_message)],
 			raw_message,
-			(int)raw_length
+			(int)raw_length,
+			0
 		);
 	}
 	else {

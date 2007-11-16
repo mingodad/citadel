@@ -7,7 +7,6 @@ void enter_config(CtdlIPC* ipc, int mode);
 void locate_host(CtdlIPC* ipc, char *hbuf);
 void misc_server_cmd(CtdlIPC *ipc, char *cmd);
 int nukedir(char *dirname);
-int num_parms(char *source);
 void strproc(char *string);
 void back(int spaces);
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);

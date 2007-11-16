@@ -43,6 +43,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "commands.h"
@@ -50,7 +51,6 @@
 #include "citadel_decls.h"
 #include "routines.h"
 #include "routines2.h"
-#include "tools.h"
 #include "rooms.h"
 #include "client_chat.h"
 #include "citadel_dirs.h"

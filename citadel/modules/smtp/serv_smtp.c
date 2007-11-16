@@ -55,6 +55,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -66,7 +67,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "genstamp.h"
 #include "domain.h"
@@ -316,7 +316,7 @@ void smtp_get_user(char *argbuf) {
 	CtdlDecodeBase64(username, argbuf, SIZ);
 	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
-		CtdlEncodeBase64(buf, "Password:", 9);
+		CtdlEncodeBase64(buf, "Password:", 9, 0);
 		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_password;
 	}
@@ -399,7 +399,7 @@ void smtp_auth(char *argbuf) {
 			smtp_get_user(&argbuf[6]);
 		}
 		else {
-			CtdlEncodeBase64(username_prompt, "Username:", 9);
+			CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
 			cprintf("334 %s\r\n", username_prompt);
 			SMTP->command_state = smtp_user;
 		}
@@ -1111,7 +1111,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	if (!IsEmptyStr(mx_user)) {
 		char encoded[1024];
 		sprintf(buf, "%s%c%s%c%s", mx_user, '\0', mx_user, '\0', mx_pass);
-		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2);
+		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2, 0);
 		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", encoded);
 		lprintf(CTDL_DEBUG, ">%s", buf);
 		sock_write(sock, buf, strlen(buf));

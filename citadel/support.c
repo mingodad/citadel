@@ -13,10 +13,10 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "support.h"
-#include "tools.h"
 
 /*
  * strproc()  -  make a string 'nice'
@@ -90,19 +90,6 @@ int getstring(FILE *fp, char *string)
 }
 
 
-/*
- * pattern2()  -  searches for patn within search string, returns pos 
- */ 
-int pattern2(char *search, char *patn)
-{
-	int a, len;
-	
-	len = strlen(patn);
-	for (a=0; !IsEmptyStr(&search[a]); ++a) {
-		if (!strncasecmp(&search[a],patn, len)) return(a);
-		}
-	return(-1);
-	}
 
 
 /*

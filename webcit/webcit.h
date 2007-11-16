@@ -38,6 +38,8 @@
 #include <signal.h>
 #include <sys/utsname.h>
 
+#include <libcitadel.h>
+
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
 #endif
@@ -413,7 +415,9 @@ enum {
 	MAX_SEMAPHORES
 };
 
+#ifndef num_parms
 #define num_parms(source)		num_tokens(source, '|') 
+#endif
 
 /* Per-session data */
 #define WC ((struct wcsession *)pthread_getspecific(MyConKey))
@@ -504,13 +508,10 @@ void escputs1(char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, char *strbuf);
 void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
-int extract_int(const char *source, int parmnum);
-long extract_long(const char *source, int parmnum);
 void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
-int haschar(const char *, char);
 void readloop(char *oper);
 void read_message(long msgnum, int printable_view, char *section);
 void embed_message(char *msgnum_as_string);
@@ -582,7 +583,6 @@ void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
-void fmt_date(char *buf, time_t thetime, int brief);
 void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 time_t httpdate_to_timestamp(char *buf);
@@ -599,7 +599,6 @@ void do_template(void *templatename);
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
 char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
-int num_tokens (char *source, char tok);
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
@@ -648,9 +647,6 @@ void do_tasks_view(void);
 void free_calendar_buffer(void);
 void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd, int with_headers);
-size_t CtdlEncodeBase64(char **dest, const char *source, size_t sourcelen, size_t *destlen, int linebreaks);
-int CtdlDecodeBase64(char *dest, const char *source, size_t length);
-int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void free_attachments(struct wcsession *sess);
 void free_march_list(struct wcsession *wcf);
 void set_room_policy(void);
@@ -741,9 +737,9 @@ void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
 void str_wiki_index(char *s);
 void display_wiki_page(void);
-char *bmstrcasestr(char *text, char *pattern);
 int get_time_format_cached (void);
 int xtoi(char *in, size_t len);
+void webcit_fmt_date(char *buf, time_t thetime, int brief);
 
 #ifdef HAVE_ICONV
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);

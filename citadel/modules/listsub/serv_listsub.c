@@ -33,6 +33,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -43,7 +44,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "clientsocket.h"
 #include "file_ops.h"
@@ -74,7 +74,7 @@ void listsub_generate_token(char *buf) {
 	);
 
 	/* Convert it to base64 so it looks cool */	
-	CtdlEncodeBase64(buf, sourcebuf, strlen(sourcebuf));
+	CtdlEncodeBase64(buf, sourcebuf, strlen(sourcebuf), 0);
 }
 
 

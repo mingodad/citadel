@@ -16,9 +16,9 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdio.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
-#include "tools.h"
 #include "commands.h"
 #include "client_passwords.h"
 
@@ -109,14 +109,14 @@ void set_stored_password(
 		   || (strcasecmp(portbuf, port)) ) {
 			snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 				hostbuf, portbuf, ubuf, pbuf);
-			CtdlEncodeBase64(buf64, buf, strlen(buf));
+			CtdlEncodeBase64(buf64, buf, strlen(buf), 0);
 			fprintf(fp, "%s\n", buf64);
 		}
 	}
 	if (!IsEmptyStr(username)) {
 		snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 			host, port, username, password);
-		CtdlEncodeBase64(buf64, buf, strlen(buf));
+		CtdlEncodeBase64(buf64, buf, strlen(buf), 0);
 		fprintf(fp, "%s\n", buf64);
 	}
 	fclose(oldfp);

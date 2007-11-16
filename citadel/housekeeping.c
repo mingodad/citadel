@@ -30,7 +30,7 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#include "tools.h"
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"

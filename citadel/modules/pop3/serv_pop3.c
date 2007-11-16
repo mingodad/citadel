@@ -41,6 +41,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -51,7 +52,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "serv_pop3.h"
 #include "md5.h"

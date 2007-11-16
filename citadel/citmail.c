@@ -22,8 +22,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
-#include "tools.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif

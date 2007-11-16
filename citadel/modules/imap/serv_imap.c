@@ -35,6 +35,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -45,7 +46,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "serv_imap.h"
 #include "imap_tools.h"
@@ -557,7 +557,7 @@ void imap_authenticate(int num_parms, char *parms[])
 	}
 
 	if (!strcasecmp(parms[2], "LOGIN")) {
-		CtdlEncodeBase64(buf, "Username:", 9);
+		CtdlEncodeBase64(buf, "Username:", 9, 0);
 		cprintf("+ %s\r\n", buf);
 		IMAP->authstate = imap_as_expecting_username;
 		strcpy(IMAP->authseq, parms[0]);
@@ -565,7 +565,7 @@ void imap_authenticate(int num_parms, char *parms[])
 	}
 
 	if (!strcasecmp(parms[2], "PLAIN")) {
-		// CtdlEncodeBase64(buf, "Username:", 9);
+		// CtdlEncodeBase64(buf, "Username:", 9, 0);
 		// cprintf("+ %s\r\n", buf);
 		cprintf("+ \r\n");
 		IMAP->authstate = imap_as_expecting_plainauth;
@@ -616,7 +616,7 @@ void imap_auth_login_user(char *cmd)
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
 	CtdlLoginExistingUser(NULL, buf);
-	CtdlEncodeBase64(buf, "Password:", 9);
+	CtdlEncodeBase64(buf, "Password:", 9, 0);
 	cprintf("+ %s\r\n", buf);
 	IMAP->authstate = imap_as_expecting_password;
 	return;

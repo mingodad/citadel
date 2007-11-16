@@ -76,12 +76,12 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	housekeeping.c html.c ical_dezonify.c \
 	internet_addressing.c ecrash.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
-	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
+	msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
 	screen.c sendcommand.c getmail.c \
 	server_main.c \
 	setup.c snprintf.c \
-	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
+	stress.c support.c sysdep.c user_ops.c userlist.c \
 	whobbs.c vcard.c \
 	crc16.c journaling.c citadel_dirs.c
 
@@ -97,10 +97,10 @@ utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
 
 citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o tuiconfig.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS)
+	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS)
 	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
 	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o tuiconfig.o screen.o tools.o citadel_dirs.o ecrash.o $(LIBOBJS) \
+	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS) \
 	$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
@@ -121,10 +121,10 @@ modules_init.c: mk_module_init.sh $(SOURCES)
 
 SERV_OBJS = server_main.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
-	tools.o $(DATABASE:.c=.o) domain.o \
+	$(DATABASE:.c=.o) domain.o \
 	control.o policy.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o euidindex.o \
-	locate_host.o housekeeping.o mime_parser.o html.o \
+	locate_host.o housekeeping.o html.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o \
 	clientsocket.o modules_init.o $(AUTH) $(SERV_MODULES)
@@ -138,12 +138,12 @@ citserver: $(SERV_OBJS)
 aidepost: aidepost.o config.o
 	$(CC) aidepost.o config.o citadel_dirs.o $(LDFLAGS) -o aidepost $(LIBS)
 
-citmail: citmail.o citadel_dirs.o tools.o
-	$(CC) citmail.o citadel_dirs.o tools.o $(LDFLAGS) -o citmail $(LIBS)
+citmail: citmail.o citadel_dirs.o
+	$(CC) citmail.o citadel_dirs.o $(LDFLAGS) -o citmail $(LIBS)
 
 # setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
-setup: setup.o tools.o citadel_dirs.o
-	$(CC) setup.o tools.o citadel_dirs.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
+setup: setup.o citadel_dirs.o
+	$(CC) setup.o citadel_dirs.o $(LDFLAGS) -o setup $(LIBS) $(SETUP_LIBS)
 
 chkpwd: chkpwd.o auth.o
 	$(CC) chkpwd.o auth.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
@@ -151,25 +151,25 @@ chkpwd: chkpwd.o auth.o
 chkpw: chkpw.o auth.o citadel_dirs.o
 	$(CC) chkpw.o auth.o citadel_dirs.o $(LDFLAGS) -o chkpw $(chkpwd_LIBS)
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
-stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
-	$(CC) stress.o ipc_c_tcp.o tools.o citadel_ipc.o citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
+stress$(EXEEXT): stress.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
+	$(CC) stress.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
 
-sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  $(LIBOBJS)
-	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  \
+sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o config.o  $(LIBOBJS)
+	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o config.o  \
 	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
 
-getmail: getmail.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  $(LIBOBJS)
-	$(CC) getmail.o ipc_c_tcp.o citadel_ipc.o tools.o config.o  \
+getmail: getmail.o ipc_c_tcp.o citadel_ipc.o config.o  $(LIBOBJS)
+	$(CC) getmail.o ipc_c_tcp.o citadel_ipc.o config.o  \
 	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o getmail $(LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
 
-userlist: userlist.o ipc_c_tcp.o citadel_ipc.o tools.o citadel_dirs.o $(LIBOBJS)
-	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o tools.o citadel_dirs.o \
+userlist: userlist.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
+	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o \
 	$(LIBOBJS) $(LDFLAGS) -o userlist $(LIBS)
 
 msgform: msgform.o

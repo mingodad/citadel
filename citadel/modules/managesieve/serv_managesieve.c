@@ -38,6 +38,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -49,7 +50,6 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"	/* Needed for imap_parameterize */
 #include "genstamp.h"
@@ -444,7 +444,7 @@ void mgsve_auth(char *argbuf) {
 		if (strlen(argbuf) >= 7) {
 		}
 		else {
-			CtdlEncodeBase64(username_prompt, "Username:", 9);
+			CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
 			cprintf("334 %s\r\n", username_prompt);
 		}
 		return;

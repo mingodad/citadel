@@ -29,6 +29,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -39,7 +40,6 @@
 #include "room_ops.h"
 #include "user_ops.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "serv_upgrade.h"
 #include "euidindex.h"
 

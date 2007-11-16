@@ -19,12 +19,12 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "rooms.h"
 #include "commands.h"
-#include "tools.h"
 #include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

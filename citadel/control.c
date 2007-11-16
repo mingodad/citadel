@@ -29,6 +29,7 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/file.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
@@ -37,7 +38,6 @@
 #include "config.h"
 #include "msgbase.h"
 #include "citserver.h"
-#include "tools.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "database.h"

@@ -33,6 +33,7 @@
 
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "auth.h"
 #include "citadel.h"
 #include "server.h"
@@ -45,7 +46,6 @@
 #include "control.h"
 #include "msgbase.h"
 #include "config.h"
-#include "tools.h"
 #include "citserver.h"
 #include "citadel_dirs.h"
 #include "genstamp.h"

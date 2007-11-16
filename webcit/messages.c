@@ -210,7 +210,7 @@ void utf8ify_rfc822_string(char *buf) {
  * \param	maxlen		Maximum size of target buffer.
  * \param	source		Source string to be encoded.
  */
-void rfc2047encode(char *target, int maxlen, char *source)
+void webcit_rfc2047encode(char *target, int maxlen, char *source)
 {
 	int need_to_encode = 0;
 	int i, len;
@@ -813,7 +813,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf(" ");
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, atol(&buf[5]), 0);
+			webcit_fmt_date(now, atol(&buf[5]), 0);
 			wprintf("<span>");
 			wprintf("%s ", now);
 			wprintf("</span>");
@@ -1418,7 +1418,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 				wprintf("%s ", &buf[5]);
 			}
 			if (!strncasecmp(buf, "time=", 5)) {
-				fmt_date(now, atol(&buf[5]), 0);
+				webcit_fmt_date(now, atol(&buf[5]), 0);
 				wprintf("%s ", now);
 			}
 		}
@@ -1659,7 +1659,7 @@ void display_summarized(int num) {
 	wprintf("</td>");
 
 	wprintf("<td width=%d%%>", DATE_PLUS_BUTTONS_WIDTH_PCT);
-	fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
+	webcit_fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
 	escputs(datebuf);
 	wprintf("</td>");
 
@@ -2834,7 +2834,7 @@ void post_mime_to_server(void) {
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
-			encoded_strlen = CtdlEncodeBase64(&encoded, att->data, att->length, &encoded_length, 1);
+			encoded_strlen = CtdlEncodeBase64(encoded, att->data, att->length, 1);
 
 			serv_printf("--%s", boundary);
 			serv_printf("Content-type: %s", att->content_type);
@@ -2939,7 +2939,7 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
+		webcit_rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
 		sprintf(buf, "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s",
 			bstr("recp"),
 			is_anonymous,
@@ -3145,7 +3145,7 @@ void display_enter(void)
 
 	wprintf("<img src=\"static/newmess3_24x.gif\" class=\"imgedit\">");
 	wprintf("  ");	/** header bar */
-	fmt_date(buf, now, 0);
+	webcit_fmt_date(buf, now, 0);
 	wprintf("%s", buf);
 	wprintf("\n");	/** header bar */
 

@@ -28,6 +28,7 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
@@ -35,7 +36,6 @@
 #include "support.h"
 #include "config.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "room_ops.h"
 #include "html.h"
  

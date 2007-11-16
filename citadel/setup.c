@@ -21,12 +21,11 @@
 #include <limits.h>
 #include <pwd.h>
 #include <time.h>
-
+#include <libcitadel.h>
 #include "citadel.h"
 #include "axdefs.h"
 #include "sysdep.h"
 #include "config.h"
-#include "tools.h"
 #include "citadel_dirs.h"
 
 #define MAXSETUP 5	/* How many setup questions to ask */

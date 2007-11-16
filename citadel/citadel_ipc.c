@@ -29,10 +29,10 @@
 #ifdef THREADED_CLIENT
 #include <pthread.h>
 #endif
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
-#include "tools.h"
 #include "citadel_dirs.h"
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;

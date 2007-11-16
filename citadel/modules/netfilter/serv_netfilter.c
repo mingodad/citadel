@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -42,7 +43,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "serv_network.h"	/* Needed for defenition of FilterList */
-#include "tools.h"
 
 
 #include "ctdl_module.h"

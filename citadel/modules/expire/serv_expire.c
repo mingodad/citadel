@@ -49,6 +49,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -61,7 +62,6 @@
 #include "user_ops.h"
 #include "control.h"
 #include "serv_network.h"	/* Needed for defenition of UseTable */
-#include "tools.h"
 
 
 #include "ctdl_module.h"

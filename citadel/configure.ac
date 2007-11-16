@@ -393,6 +393,26 @@ fi
 
 test -d /usr/kerberos/include && CPPFLAGS="$CPPFLAGS -I/usr/kerberos/include"
 
+
+dnl Check for libcitadel
+AC_CHECK_HEADER(libcitadel.h,
+	[AC_CHECK_LIB(citadel, libcitadel_version_string,
+		[
+			AC_MSG_RESULT(OK)
+			LIBS="-lcitadel $LIBS"
+		],
+		[
+			AC_MSG_ERROR(libcitadel was not found or is not usable.  Please install libcitadel.)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(libcitadel.h was not found or is not usable.  Please install libcitadel.)
+	]
+)
+
+
+
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
 	saved_LIBS="$LIBS"

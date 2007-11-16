@@ -83,11 +83,13 @@ LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG)
 LINK_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) $(LDFLAGS) -o $@
 LINK_CXX_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(CXXCOMPILE) $(LDFLAGS) -o $@
 
-LIB_OBJS = lib/libcitadel.lo
+LIB_OBJS = lib/libcitadel.lo lib/mime_parser.lo lib/tools.lo
 $(LIBRARY): $(LIB_OBJS)
 	$(LINK_LIB) $(LIB_OBJS)
 
 lib/libcitadel.lo: lib/libcitadel.c lib/libcitadel.h
+lib/mime_parser.lo: lib/mime_parser.c lib/libcitadel.h
+lib/tools.lo: lib/tools.c lib/libcitadel.h
 
 .SUFFIXES: .c .cpp .lo .o
 

@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -37,7 +38,6 @@
 #include "config.h"
 #include "database.h"
 #include "msgbase.h"
-#include "tools.h"
 #include "user_ops.h"
 #include "room_ops.h"
 #include "control.h"

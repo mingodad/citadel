@@ -21,13 +21,13 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
 #include "user_ops.h"
 #include "md5.h"
-#include "tools.h"
 
 
 #include "ctdl_module.h"

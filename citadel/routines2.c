@@ -30,6 +30,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <libcitadel.h>
 #include "sysdep.h"
 #include "citadel.h"
 #include "citadel_ipc.h"
@@ -37,7 +38,6 @@
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
-#include "tools.h"
 #include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

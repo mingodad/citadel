@@ -32,7 +32,7 @@
 #include <pwd.h>
 #include <stdarg.h>
 #include <errno.h>
-
+#include <libcitadel.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "axdefs.h"
@@ -45,7 +45,6 @@
 #include "client_chat.h"
 #include "client_passwords.h"
 #include "citadel_decls.h"
-#include "tools.h"
 #include "sysdep.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

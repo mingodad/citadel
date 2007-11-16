@@ -29,13 +29,13 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "serv_chat.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "tools.h"
 #include "msgbase.h"
 #include "user_ops.h"
 #include "room_ops.h"

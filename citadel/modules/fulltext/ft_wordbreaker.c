@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -40,7 +41,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "control.h"
-#include "tools.h"
 #include "ft_wordbreaker.h"
 #include "crc16.h"
 

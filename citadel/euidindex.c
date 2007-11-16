@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
@@ -41,7 +42,6 @@
 #include "file_ops.h"
 #include "config.h"
 #include "control.h"
-#include "tools.h"
 #include "euidindex.h"
 
 /*

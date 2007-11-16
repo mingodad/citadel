@@ -170,7 +170,7 @@ void cal_process_object(icalcomponent *cal,
 			}
 			else {
 				tt = icaltime_as_timet(t);
-				fmt_date(buf, tt, 0);
+				webcit_fmt_date(buf, tt, 0);
 				wprintf("<dt>");
 				wprintf(_("Starting date/time:"));
 				wprintf("</dt><dd>%s</dd>", buf);
@@ -181,7 +181,7 @@ void cal_process_object(icalcomponent *cal,
 		if (p != NULL) {
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
-			fmt_date(buf, tt, 0);
+			webcit_fmt_date(buf, tt, 0);
 			wprintf("<dt>");
 			wprintf(_("Ending date/time:"));
 			wprintf("</dt><dd>%s</dd>", buf);

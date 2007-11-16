@@ -67,6 +67,7 @@ char* const message =
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <libcitadel.h>
 #include "sysdep.h"
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -78,7 +79,6 @@ char* const message =
 #  include <time.h>
 # endif
 #endif
-#include "tools.h"
 #include "citadel_ipc.h"
 
 #ifndef HAVE_PTHREAD_H

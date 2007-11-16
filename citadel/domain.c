@@ -19,12 +19,11 @@
 #endif
 #include <resolv.h>
 #endif
-
+#include <libcitadel.h>
 #include "sysdep_decls.h"
 #include "citadel.h"
 #include "domain.h"
 #include "server.h"
-#include "tools.h"
 #include "internet_addressing.h"
 
 
