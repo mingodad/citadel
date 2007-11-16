@@ -7,7 +7,6 @@
  */
 /*@{*/
 #include "webcit.h"
-#include "vcard.h"
 
 /**
  * \brief Edit the vCard component of a MIME message.  
