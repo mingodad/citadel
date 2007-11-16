@@ -101,8 +101,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		return(-1);
 	}
 
-//	cit_backtrace();
-//	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
+	//cit_backtrace();
+	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	dest[0] = 0;
 
 	if (s == NULL) {
@@ -129,10 +129,10 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 
 	dest[len] = '\0';
 	if (current_token < parmnum) {
-//		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+		//lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
 		return(-1);
 	}
-//	lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
+	//lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
 	return(len);
 }
 //*/
@@ -149,8 +149,8 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 	int len = 0;
 
 	
-//	cit_backtrace();
-	lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
+	//cit_backtrace();
+	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 	strcpy(dest, "");
 
 	//  Locate desired parameter 
@@ -167,7 +167,7 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		s++;
 	}
 	if (!s) {
-		lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+		//lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
 		return -1;		// Parameter not found
 	}
 	
@@ -175,7 +175,7 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 		*d = *s;
 	}
 	*d = 0;
-	lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
+	//lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
 	return 0;
 }
 */
