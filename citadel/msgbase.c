@@ -48,7 +48,6 @@
 #include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
-#include "vcard.h"
 #include "euidindex.h"
 #include "journaling.h"
 #include "citadel_dirs.h"

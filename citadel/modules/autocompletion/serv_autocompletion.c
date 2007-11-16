@@ -39,7 +39,6 @@
 #include "user_ops.h"
 #include "room_ops.h"
 #include "database.h"
-#include "vcard.h"
 #include "serv_autocompletion.h"
 
 #include "ctdl_module.h"

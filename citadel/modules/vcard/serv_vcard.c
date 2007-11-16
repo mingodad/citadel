@@ -60,7 +60,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "vcard.h"
 #include "serv_vcard.h"
 
 #include "ctdl_module.h"

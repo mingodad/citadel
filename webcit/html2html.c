@@ -8,7 +8,6 @@
  */
 /*@{*/
 #include "webcit.h"
-#include "vcard.h"
 #include "webserver.h"
 
 
