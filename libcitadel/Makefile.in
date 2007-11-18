@@ -18,6 +18,8 @@ libdir = @libdir@
 includedir = @includedir@
 man1dir = @mandir@/man1
 
+datarootdir = @datarootdir@
+
 top_builddir = .
 
 
