@@ -63,7 +63,7 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 AC_CHECK_FUNCS(memmove bcopy)
 
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(Makefile libcitadel.pc)
 AC_OUTPUT
 
 abs_srcdir="`cd $srcdir && pwd`"

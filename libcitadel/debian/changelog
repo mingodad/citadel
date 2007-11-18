@@ -1,0 +1,6 @@
+libcitadel (7.24-1) unstable; urgency=low
+  
+    * initial debian release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 18 Nov 2007 23:55:21 +0100
+  

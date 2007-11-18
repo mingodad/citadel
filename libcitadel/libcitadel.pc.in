@@ -1,0 +1,14 @@
+# libcitadel pkg-config file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libcitadel
+Description: citadel suite tools library
+URL: http://www.citadel.org/
+Version: @VERSION@
+Conflicts:
+Libs: -L${libdir} -lcitadel
+Cflags: -I${includedir}

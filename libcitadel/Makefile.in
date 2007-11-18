@@ -21,7 +21,8 @@ man1dir = @mandir@/man1
 datarootdir = @datarootdir@
 
 top_builddir = .
-
+pkgconfig_DATA = libcitadel.pc
+pkgconfigdir = $(libdir)/pkgconfig
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -39,6 +40,21 @@ buildlib: $(LIBRARY)
 
 all: $(LIBRARY)
 
+libcitadel.pc: $(top_builddir)/config.status libcitadel.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+
+pkgconfigDATA_INSTALL = $(INSTALL_DATA)
+install-pkgconfigDATA: $(pkgconfig_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgconfigdir)
+	@list='$(pkgconfig_DATA)'; for p in $$list; do \
+		if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+		f="`echo $$p | sed -e 's|^.*/||'`"; \
+		echo " $(pkgconfigDATA_INSTALL) $$d$$p $(DESTDIR)$(pkgconfigdir)/$$f"; \
+		$(pkgconfigDATA_INSTALL) $$d$$p $(DESTDIR)$(pkgconfigdir)/$$f; \
+	done
+
+
 clean:
 	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs
 	rm -rf .libs libcitadel.la
@@ -49,7 +65,7 @@ distclean: clean
 	rm -f config.status config.log config.cache libtool
 	rm -f Makefile
 
-install: $(LIBRARY) $(APIHEADER)
+install: $(LIBRARY) $(APIHEADER) install-pkgconfigDATA
 	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
 	$(LIBTOOL) --mode=install $(INSTALL) $(LIBRARY) $(DESTDIR)$(libdir)/$(LIBRARY)
 	for FN in $(APIHEADER) ; do $(INSTALL_DATA) $$FN $(DESTDIR)$(includedir) ; done
