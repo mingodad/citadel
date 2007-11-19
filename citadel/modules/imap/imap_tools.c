@@ -772,6 +772,10 @@ int imap_datecmp(char *datestr, time_t msgtime) {
 	int msgday, msgmonth, msgyear;
 	struct tm msgtm;
 
+	char *imap_datecmp_ascmonths[12] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	};
+
 	if (datestr == NULL) return(0);
 
 	/* Expecting a date in the form dd-Mmm-yyyy */
@@ -783,7 +787,7 @@ int imap_datecmp(char *datestr, time_t msgtime) {
 	year = atoi(yearstr);
 	month = 0;
 	for (i=0; i<12; ++i) {
-		if (!strcasecmp(monthstr, ascmonths[i])) {
+		if (!strcasecmp(monthstr, imap_datecmp_ascmonths[i])) {
 			month = i;
 		}
 	}
