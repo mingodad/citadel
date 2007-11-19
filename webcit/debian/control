@@ -2,7 +2,8 @@ Source: webcit
 Section: web
 Priority: optional
 Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
-Build-Depends: debhelper (>= 4), po-debconf, libical-dev, gettext, locales
+Build-Depends: debhelper (>= 4), po-debconf, libical-dev, gettext, locales,
+ libcitadel-dev
 Standards-Version: 3.7.2
 
 Package: citadel-webcit
