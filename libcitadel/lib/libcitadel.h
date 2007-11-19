@@ -180,7 +180,6 @@ char *myfgets(char *s, int size, FILE *stream);
 void urlesc(char *outbuf, char *strbuf);
 char *CtdlTempFileName(char *prefix1, int prefix2);
 FILE *CtdlTempFile(void);
-char *ascmonths[12];
 void generate_uuid(char *buf);
 char *bmstrcasestr(char *text, char *pattern);
 void CtdlMakeTempFileName(char *name, int len);
