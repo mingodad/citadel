@@ -276,7 +276,7 @@ install-exec: all
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/unstripped
 	cp $(SERVER_TARGETS) $(DESTDIR)$(prefix)/unstripped/
 
-	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema; do \
+	@for i in utilsmenu database_cleanup.sh migrate_aliases.sh citadel-openldap.schema; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
@@ -296,6 +296,7 @@ install-exec-new: all
 		fi \
 	done
 	cp citserver $(DESTDIR)/$(UTILBIN_DIR)/citserver.unstripped
+	cp migrate_aliases.sh $(DESTDIR)/$(UTILBIN_DIR)/
 	@for i in $(UTILBIN_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \

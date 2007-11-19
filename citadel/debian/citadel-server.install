@@ -7,6 +7,7 @@ usr/lib/citadel-server/base64
 usr/lib/citadel-server/chkpwd
 usr/lib/citadel-server/chkpw
 usr/lib/citadel-server/citserver.unstripped
+usr/lib/citadel-server/migrate_aliases.sh
 usr/sbin/aidepost
 usr/sbin/citmail
 usr/sbin/citserver
