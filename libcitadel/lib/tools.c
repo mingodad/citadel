@@ -1,5 +1,6 @@
 /*
- *
+ * A basic toolset containing miscellaneous functions for string manipluation,
+ * encoding/decoding, and a bunch of other stuff.
  */
 
 
@@ -34,12 +35,6 @@
 typedef unsigned char byte;	      /* Byte type */
 static byte dtable[256] = "\0";	      /* base64 decode table */
 static byte etable[256] = "\0";	      /* base64 encode table */
-
-/* Month strings for date conversions */
-char *ascmonths[12] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
 
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
@@ -518,6 +513,11 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 	struct tm tm;
 	int hour;
 
+	/* Month strings for date conversions ... this needs to be localized eventually */
+	char *fmt_date_months[12] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	};
+
 	strcpy(buf, "");
 	localtime_r(&thetime, &tm);
 
@@ -527,7 +527,7 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 
 	if (seconds) {
 		snprintf(buf, n, "%s %d %4d %d:%02d:%02d%s",
-			ascmonths[tm.tm_mon],
+			fmt_date_months[tm.tm_mon],
 			tm.tm_mday,
 			tm.tm_year + 1900,
 			hour,
@@ -537,7 +537,7 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 		);
 	} else {
 		snprintf(buf, n, "%s %d %4d %d:%02d%s",
-			ascmonths[tm.tm_mon],
+			fmt_date_months[tm.tm_mon],
 			tm.tm_mday,
 			tm.tm_year + 1900,
 			hour,
@@ -869,7 +869,7 @@ int is_msg_in_mset(char *mset, long msgnum) {
 }
 
 
-/**
+/*
  * \brief searches for a  paternn within asearch string
  * \param search the string to search 
  * \param patn the pattern to find in string

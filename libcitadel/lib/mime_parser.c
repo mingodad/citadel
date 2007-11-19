@@ -3,7 +3,7 @@
  *
  * This is the MIME parser for Citadel.
  *
- * Copyright (c) 1998-2007 by Art Cancro
+ * Copyright (c) 1998-2007 by the citadel.org development team.
  * This code is distributed under the GNU General Public License v3.
  *
  */
@@ -19,7 +19,6 @@
 #include <errno.h>
 
 #include "libcitadel.h"
-
 
 void extract_key(char *target, char *source, char *key)
 {

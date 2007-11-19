@@ -3,7 +3,7 @@
  *
  * vCard implementation for Citadel
  *
- * Copyright (C) 1999-2007 by Art Cancro
+ * Copyright (C) 1999-2007 by the citadel.org development team.
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
