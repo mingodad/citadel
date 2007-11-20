@@ -71,16 +71,14 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
-#	dh_installdocs -plibnetfilter-log1
-#	ln -sf libnetfilter-log1 debian/libnetfilter-log1-dbg/usr/share/doc/libnetfilter-log1-dbg
-#	ln -sf libnetfilter-log1 debian/libnetfilter-log-dev/usr/share/doc/libnetfilter-log-dev
-#	dh_installchangelogs -plibnetfilter-log1
+#	dh_installdocs -plibcitadel1
+	dh_installchangelogs -plibcitadel
 	dh_install -a --sourcedir=debian/tmp
 	dh_link -a
-#	dh_strip -a --dbg-package=libnetfilter-log1-dbg
+	dh_strip -a --dbg-package=libcitadel1-dbg
 	dh_compress -a
 	dh_fixperms -a
-#	dh_makeshlibs -a -V 'libnetfilter-log1 (>= 0.0.13)'
+	dh_makeshlibs -a -V 'libcitadel'
 	dh_installdeb -a
 	dh_shlibdeps -a
 	dh_gencontrol -a
