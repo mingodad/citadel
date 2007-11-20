@@ -190,6 +190,20 @@ void AddPortError(char *Port, char *ErrorMessage)
 }
 
 
+int DLoader_Exec_Cmd(char *cmdbuf)
+{
+	struct ProtoFunctionHook *p;
+
+	for (p = ProtoHookList; p; p = p->next) {
+		if (!strncasecmp(cmdbuf, p->cmd, 4)) {
+			p->handler(&cmdbuf[5]);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
 	struct ProtoFunctionHook *p;
@@ -254,20 +268,6 @@ void CtdlDestroyProtoHooks(void)
 		cur = p;
 	}
 	ProtoHookList = NULL;
-}
-
-
-int DLoader_Exec_Cmd(char *cmdbuf)
-{
-	struct ProtoFunctionHook *p;
-
-	for (p = ProtoHookList; p; p = p->next) {
-		if (!strncasecmp(cmdbuf, p->cmd, 4)) {
-			p->handler(&cmdbuf[5]);
-			return 1;
-		}
-	}
-	return 0;
 }
 
 
