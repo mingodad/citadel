@@ -739,7 +739,9 @@ void output_image()
 		 * Instead of an ugly 404, send a 1x1 transparent GIF
 		 * when there's no such image on the server.
 		 */
-		output_static("static/blank.gif");
+		char blank_gif[SIZ];
+		snprintf (blank_gif, SIZ, "%s%s", static_dirs[0], "/blank.gif");
+		output_static(blank_gif);
 	}
 
 
