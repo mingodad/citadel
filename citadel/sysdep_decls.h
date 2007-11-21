@@ -84,6 +84,8 @@ void InitializeMasterCC(void);
 void init_master_fdset(void);
 void create_worker(void);
 void InitialiseSemaphores(void);
+void ctdl_internal_thread_gc (int shutdown);
+
 
 extern int num_sessions;
 extern volatile int time_to_die;
@@ -98,6 +100,19 @@ extern struct worker_node {
         pthread_t tid;
         struct worker_node *next;
 } *worker_list;
+
+
+extern struct CtdlThreadNode {
+	pthread_t tid;
+	char *name;
+	void *(*thread_func) (void *arg);
+	void *user_args;
+	int flags;
+	int running;
+	int valid;
+	struct CtdlThreadNode *prev;
+	struct CtdlThreadNode *next;
+} *CtdlThreadList;
 
 extern int SyslogFacility(char *name);
 extern int syslog_facility;

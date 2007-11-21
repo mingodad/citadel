@@ -786,7 +786,7 @@ void sysdep_master_cleanup(void) {
 #ifdef HAVE_OPENSSL
 	destruct_ssl();
 #endif
-	serv_calendar_destroy();
+	serv_calendar_destroy();	// FIXME: Shouldn't be here, should be by a cleanup hook surely.
 	CtdlDestroyProtoHooks();
 	CtdlDestroyDeleteHooks();
 	CtdlDestroyXmsgHooks();
@@ -944,6 +944,292 @@ int convert_login(char NameToConvert[]) {
 	}
 }
 
+
+
+/*
+ * New thread interface.
+ * To create a thread you must call one of the create thread functions.
+ * You must pass it the address of (a pointer to a CtdlThreadNode initialised to NULL) like this
+ * struct CtdlThreadNode *node = NULL;
+ * pass in &node
+ * If the thread is created *node will point to the thread control structure for the created thread.
+ * If the thread creation fails *node remains NULL
+ * Do not free the memory pointed to by *node, it doesn't belong to you.
+ * If your thread function returns it will be started again without creating a new thread.
+ * If your thread function wants to exit it should call CtdlThreadExit(ret_code);
+ * This new interface duplicates much of the eCrash stuff. We should go for closer integration since that would
+ * remove the need for the calls to eCrashRegisterThread and friends
+ */
+
+// FIXME: these defines should be else where
+#define CTDLTHREAD_BIGSTACK	0x0001
+
+struct CtdlThreadNode *CtdlThreadList = NULL;
+static pthread_mutex_t ThreadWaiterMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t ThreadWaiterCond = PTHREAD_COND_INITIALIZER;
+
+
+/*
+ * So we now have a sleep command that works with threads but it is in seconds
+ */
+void CtdlThreadSleep(int secs)
+{
+
+	struct timespec wake_time;
+	struct timeval time_now;
+	
+	
+	memset (&wake_time, 0, sizeof(struct timespec));
+	gettimeofday(&time_now, NULL);
+	wake_time.tv_sec = time_now.tv_sec + secs;
+	pthread_cond_timedwait(&ThreadWaiterCond, &ThreadWaiterMutex, &wake_time);
+}
+
+
+/*
+ * Routine to clean up our thread function on exit
+ */
+void ctdl_internal_thread_cleanup(void *arg)
+{
+	struct CtdlThreadNode *this_thread;
+	// arg is a pointer to our thread structure
+	this_thread = (struct CtdlThreadNode *) arg;
+	if (this_thread->valid)
+	{
+		/*
+		 * In here we were called by the current thread because it is exiting
+		 * NB. WE ARE THE CURRENT THREAD
+		 */
+		CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (%ld) exited.\n", this_thread->name, this_thread->tid);
+		this_thread->running = FALSE;
+		this_thread->valid = FALSE;	// needs to be last thing else house keeping will unlink us too early
+		/*
+		 * Our thread is exiting either because it wanted to end or because the server is stopping
+		 * We need to clean up
+		 */
+		#ifdef HAVE_BACKTRACE
+		eCrash_UnregisterThread();
+		#endif
+	}
+	else
+	{
+		if (this_thread->tid == pthread_self())
+		{
+			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC a thread is trying to clean up after itself.\n");
+			time_to_die = -1;
+			return;
+		}
+		/*
+		 * In here we were called by some other thread that wants to clean up any dead threads
+		 * NB. WE ARE NOT THE THREAD BEING CLEANED
+		 */
+		// We probably got called by house keeping or master shutdown so we unlink the dead threads here
+		num_threads--;
+		
+		begin_critical_section(S_THREAD_LIST);
+		if(this_thread->name)
+			free(this_thread->name);
+		if(this_thread->prev)
+			this_thread->prev->next = this_thread->next;
+		if(this_thread->next)
+			this_thread->next->prev = this_thread->next;
+		end_critical_section(S_THREAD_LIST);
+		free(this_thread);
+	}
+}
+
+
+/*
+ * Garbage collection routine.
+ * Gets called by do_housekeeping() and in master_cleanup() to clean up the thread list
+ */
+void ctdl_internal_thread_gc (int shutdown)
+{
+	struct CtdlThreadNode *this_thread, *that_thread;
+	
+	this_thread = CtdlThreadList;
+	while(this_thread)
+	{
+		that_thread = this_thread;
+		this_thread = this_thread->next;
+		
+		if(shutdown && that_thread->valid)
+		{	// We want the threads to shutdown so first ask it nicely
+			that_thread->running = FALSE;
+			// Wait for it to exit
+			CtdlThreadSleep(1);
+			
+			if(that_thread->valid)	// Be more brutal about it
+				pthread_cancel (that_thread->tid);
+			// Wait for it to exit
+			CtdlThreadSleep(1);
+		}
+		
+		if (that_thread->valid == FALSE)
+		{
+			CtdlLogPrintf(CTDL_NOTICE, "Joining thread \"%s\" (%ld)\n", that_thread->name, that_thread->tid);
+			pthread_join(that_thread->tid, NULL);
+			ctdl_internal_thread_cleanup(that_thread);
+		}
+	}
+}
+ 
+/*
+ * Runtime function for a Citadel Thread.
+ * This initialises the threads environment and then calls the user supplied thread function
+ * Note that this is the REAL thread function and wraps the users thread function.
+ */ 
+void *ctdl_internal_thread_func (void *arg)
+{
+	struct CtdlThreadNode *this_thread;
+	void *ret = NULL;
+
+	// Get our thread data structure
+	this_thread = (struct CtdlThreadNode *) arg;
+	// Tell the world we are here
+	CtdlLogPrintf(CTDL_NOTICE, "Spawned a new thread \"%s\" (%ld). \n", this_thread->name, this_thread->tid);
+
+	num_threads++;	// Increase the count of threads in the system.
+	
+	// Register for tracing
+	#ifdef HAVE_BACKTRACE
+	eCrash_RegisterThread(this_thread->name, 0);
+	#endif
+
+	// Register the cleanup function to take care of when we exit.
+	pthread_cleanup_push(ctdl_internal_thread_cleanup, arg);
+	
+	this_thread->running = TRUE;
+	
+	while ((!time_to_die) && (this_thread->running))
+	{	// Call the users thread function
+		ret = (this_thread->thread_func)(this_thread->user_args);
+	}
+	
+	/*
+	 * Our thread is exiting either because it wanted to end or because the server is stopping
+	 * We need to clean up
+	 */
+	#ifdef HAVE_BACKTRACE
+	eCrash_UnregisterThread();
+	#endif
+	
+	pthread_cleanup_pop(1);	// Execute our cleanup routine and remove it
+	
+	return(ret);
+}
+
+
+ 
+/*
+ * Internal function to create a thread.
+ * Must be called from within a S_THREAD_LIST critical section
+ */ 
+int ctdl_internal_create_thread(char *name, int flags, void *(*thread_func) (void *arg), void *arg, struct CtdlThreadNode **new_thread)
+{
+	int ret = 0;
+	pthread_attr_t attr;
+	struct CtdlThreadNode *this_thread;
+	
+	if (*new_thread)
+	{
+		lprintf(CTDL_EMERG, "Possible attempt to overwrite an existing thread!!!\n");
+		return -1;
+	}
+	
+	this_thread = malloc(sizeof(struct CtdlThreadNode));
+	if (this_thread == NULL) {
+		lprintf(CTDL_EMERG, "can't allocate CtdlThreadNode, exiting\n");
+		return ret;
+	}
+	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
+	memset (this_thread, 0, sizeof(struct CtdlThreadNode));
+	
+	if ((ret = pthread_attr_init(&attr))) {
+		lprintf(CTDL_EMERG, "pthread_attr_init: %s\n", strerror(ret));
+		free(this_thread);
+		return ret;
+	}
+
+	/* Our per-thread stacks need to be bigger than the default size,
+	 * otherwise the MIME parser crashes on FreeBSD, and the IMAP service
+	 * crashes on 64-bit Linux.
+	 */
+	if (flags & CTDLTHREAD_BIGSTACK)
+	{
+		if ((ret = pthread_attr_setstacksize(&attr, THREADSTACKSIZE))) {
+			lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n",
+				strerror(ret));
+			pthread_attr_destroy(&attr);
+			free(this_thread);
+			return ret;
+		}
+	}
+
+	/*
+	 * If we got here we are going to create the thread so we must initilise the structure
+	 * first because most implimentations of threading can't create it in a stopped state
+	 * and it might want to do things with its structure that aren't initialised otherwise.
+	 */
+	if(name)
+	{
+		this_thread->name = strdup(name);
+	}
+	else
+	{
+		this_thread->name = strdup("Unknown Thread");
+	}
+	this_thread->flags = flags;
+	this_thread->thread_func = thread_func;
+	this_thread->user_args = arg;
+	this_thread->valid = 1;	// Need this to prevent house keeping unlinking us from the list
+	/*
+	 * We pass this_thread into the thread as its args so that it can find out information
+	 * about itself and it has a bit of storage space for itself, not to mention that the REAL
+	 * thread function needs to finish off the setup of the structure
+	 */
+	if ((ret = pthread_create(&this_thread->tid, &attr, ctdl_internal_thread_func, this_thread) != 0))
+	{
+
+		lprintf(CTDL_ALERT, "Can't create thread: %s\n",
+			strerror(ret));
+		if (this_thread->name)
+			free (this_thread->name);
+		free(this_thread);
+		pthread_attr_destroy(&attr);
+		return ret;
+	}
+	
+	this_thread->next = CtdlThreadList;
+	CtdlThreadList = this_thread;
+	*new_thread = this_thread;
+	pthread_attr_destroy(&attr);
+	return 0;
+}
+
+/*
+ * Wrapper function to create a thread
+ * ensures the critical section and other protections are in place.
+ * char *name = name to give to thread, if NULL, use generic name
+ * int flags = flags to determine type of thread and standard facilities
+ */
+int CtdlCreateThread(char *name, int flags, void *(*thread_func) (void *arg), void *arg,  struct CtdlThreadNode **new_thread)
+{
+	int ret;
+	
+	begin_critical_section(S_THREAD_LIST);
+	ret = ctdl_internal_create_thread(name, flags, thread_func, arg, new_thread);
+	end_critical_section(S_THREAD_LIST);
+	return ret;
+}
+
+
+	
+/*
+ * Old thread interface.
+ */
+
+
 struct worker_node *worker_list = NULL;
 
 
@@ -966,6 +1252,7 @@ void create_worker(void) {
 	if ((ret = pthread_attr_init(&attr))) {
 		lprintf(CTDL_EMERG, "pthread_attr_init: %s\n", strerror(ret));
 		time_to_die = -1;
+		free(n);
 		return;
 	}
 
@@ -978,6 +1265,7 @@ void create_worker(void) {
 			strerror(ret));
 		time_to_die = -1;
 		pthread_attr_destroy(&attr);
+		free(n);
 		return;
 	}
 
@@ -986,6 +1274,10 @@ void create_worker(void) {
 
 		lprintf(CTDL_ALERT, "Can't create worker thread: %s\n",
 			strerror(ret));
+		time_to_die = -1;
+		pthread_attr_destroy(&attr);
+		free(n);
+		return;
 	}
 
 	n->next = worker_list;

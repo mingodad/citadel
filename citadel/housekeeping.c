@@ -168,6 +168,8 @@ void do_housekeeping(void) {
 	JournalRunQueue();
 
 	PerformSessionHooks(EVT_HOUSE);	/* perform as needed housekeeping */
+	
+	ctdl_internal_thread_gc(0);
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {
