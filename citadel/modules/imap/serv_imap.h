@@ -67,7 +67,7 @@ enum {
 #define IMAP_RECENT		64	/* reportable but not setable */
 
 
-#define IMAP CC->IMAP
+#define IMAP ((struct citimap *)CC->session_specific_data)
 
 /*
  * When loading arrays of message ID's into memory, increase the buffer to

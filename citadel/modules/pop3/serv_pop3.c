@@ -85,7 +85,7 @@ void pop3_cleanup_function(void) {
 void pop3_greeting(void) {
 	strcpy(CC->cs_clientname, "POP3 session");
 	CC->internal_pgm = 1;
-	POP3 = malloc(sizeof(struct citpop3));
+	CC->session_specific_data = malloc(sizeof(struct citpop3));
 	memset(POP3, 0, sizeof(struct citpop3));
 
 	cprintf("+OK Citadel POP3 server %s\r\n",

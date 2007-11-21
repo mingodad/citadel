@@ -491,7 +491,7 @@ void imap_greeting(void)
 {
 
 	strcpy(CC->cs_clientname, "IMAP session");
-	IMAP = malloc(sizeof (struct citimap));
+	CC->session_specific_data = malloc(sizeof(struct citimap));
 	memset(IMAP, 0, sizeof(struct citimap));
 	IMAP->authstate = imap_as_normal;
 	IMAP->cached_rfc822_data = NULL;

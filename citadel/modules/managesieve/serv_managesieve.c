@@ -95,11 +95,12 @@ enum { 	/** Command states for login authentication */
 	mgsve_plain
 };
 
-#define MGSVE          CC->MGSVE
+#define MGSVE          ((struct citmgsve *)CC->session_specific_data)
 
 /*****************************************************************************/
 /*                      MANAGESIEVE Server                                   */
 /*****************************************************************************/
+
 
 void sieve_outbuf_append(char *str)
 {
@@ -144,7 +145,7 @@ void managesieve_greeting(void) {
 
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
-	MGSVE = malloc(sizeof(struct citmgsve));
+	CC->session_specific_data = malloc(sizeof(struct citmgsve));
 	memset(MGSVE, 0, sizeof(struct citmgsve));
 	cmd_mgsve_caps();
 }
@@ -565,6 +566,20 @@ void managesieve_command_loop(void) {
 
 }
 
+/*
+ * This cleanup function blows away the temporary memory and files used by
+ * the server.
+ */
+void managesieve_cleanup_function(void) {
+
+	/* Don't do this stuff if this is not a managesieve session! */
+	if (CC->h_command_function != managesieve_command_loop) return;
+
+	lprintf(CTDL_DEBUG, "Performing managesieve cleanup hook\n");
+	free(MGSVE);
+}
+
+
 
 #endif	/* HAVE_LIBSIEVE */
 const char* CitadelServiceManageSieve = "ManageSieve";
@@ -572,13 +587,13 @@ CTDL_MODULE_INIT(managesieve)
 {
 
 #ifdef HAVE_LIBSIEVE
-
-	CtdlRegisterServiceHook(config.c_managesieve_port,	/* MGSVE */
+	CtdlRegisterServiceHook(config.c_managesieve_port,
 				NULL,
 				managesieve_greeting,
 				managesieve_command_loop,
 				NULL, 
 				CitadelServiceManageSieve);
+	CtdlRegisterSessionHook(managesieve_cleanup_function, EVT_STOP);
 
 #else	/* HAVE_LIBSIEVE */
 

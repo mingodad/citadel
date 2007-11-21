@@ -105,7 +105,7 @@ enum {				/* Command states for login authentication */
 	smtp_plain
 };
 
-#define SMTP		CC->SMTP
+#define SMTP		((struct citsmtp *)CC->session_specific_data)
 
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
@@ -127,7 +127,7 @@ void smtp_greeting(int is_msa)
 	strcpy(CC->cs_clientname, "SMTP session");
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
-	SMTP = malloc(sizeof(struct citsmtp));
+	CC->session_specific_data = malloc(sizeof(struct citsmtp));
 	memset(SMTP, 0, sizeof(struct citsmtp));
 	SMTP->is_msa = is_msa;
 

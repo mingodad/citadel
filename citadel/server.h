@@ -139,10 +139,7 @@ struct CitContext {
 	int msg4_dont_decode;
 
 	/* Dynamically allocated session data */
-	struct citimap *IMAP;
-	struct citpop3 *POP3;
-	struct citsmtp *SMTP;
-	struct citmgsve *MGSVE;			/**< Managesieve Session struct */
+	char *session_specific_data;		/* Used by individual protocol modules */
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
 	const char* ServiceName;		/**< whats our actual purpose? */
