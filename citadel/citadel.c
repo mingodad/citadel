@@ -239,8 +239,8 @@ void userlist(CtdlIPC *ipc, char *patn)
 		return;
 	}
 
-	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
-	pprintf("------------------------- ----- - ---------- ----- -----\n");
+	pprintf("       User Name           Num  L Last Visit Logins Messages\n");
+	pprintf("------------------------- ----- - ---------- ------ --------\n");
 	if (listing != NULL) while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
@@ -257,7 +257,7 @@ void userlist(CtdlIPC *ipc, char *patn)
 			       (tmbuf.tm_mon + 1),
 			       tmbuf.tm_mday,
 			       (tmbuf.tm_year + 1900));
-			pprintf("%5ld %5ld\n", extract_long(buf, 4), extract_long(buf, 5));
+			pprintf("%6ld %8ld\n", extract_long(buf, 4), extract_long(buf, 5));
 		    }
 
 		}

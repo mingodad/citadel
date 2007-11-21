@@ -45,8 +45,8 @@ void userlist(CtdlIPC *ipc) {
 		printf("%s\n", buf);
 		return;
 	}
-	printf("       User Name           Num  L  LastCall  Calls Posts\n");
-	printf("------------------------- ----- - ---------- ----- -----\n");
+	printf("       User Name           Num  L Last Visit Logins Messages\n");
+	printf("------------------------- ----- - ---------- ------ --------\n");
 	while (strlen(listing) > 0) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
@@ -60,7 +60,7 @@ void userlist(CtdlIPC *ipc) {
 			(tmbuf.tm_mon+1),
 			tmbuf.tm_mday,
 			(tmbuf.tm_year + 1900));
-		printf("%5ld %5ld\n",
+		printf("%6ld %8ld\n",
 			extract_long(buf,4),extract_long(buf,5));
 	}
 	printf("\n");
