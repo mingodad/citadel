@@ -78,7 +78,7 @@ binary-arch: build install
 	dh_strip -a --dbg-package=libcitadel1-dbg
 	dh_compress -a
 	dh_fixperms -a
-	dh_makeshlibs -a -V 'libcitadel'
+	dh_makeshlibs -a -V 'libcitadel1'
 	dh_installdeb -a
 	dh_shlibdeps -a
 	dh_gencontrol -a
