@@ -233,9 +233,13 @@ void do_fulltext_indexing(void) {
 	 * Make sure we don't run the indexer too frequently.
 	 * FIXME move the setting into config
 	 */
+/*
+ * The thread sleeps for 300 seconds so we don't need this here any more
+ 
 	if ( (time(NULL) - last_index) < 300L) {
 		return;
 	}
+*/
 
 	/*
 	 * Check to see whether the fulltext index is up to date; if there
@@ -293,7 +297,7 @@ void do_fulltext_indexing(void) {
 			ft_index_message(ft_newmsgs[i], 1);
 
 			/* Check to see if we need to quit early */
-			if (time_to_die) {
+			if (CtdlThreadCheckStop()) {
 				lprintf(CTDL_DEBUG, "Indexer quitting early\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
@@ -344,13 +348,13 @@ void *indexer_thread(void *arg) {
 
 	cdb_allocate_tsd();
 
-	while (!time_to_die) {
+	while (!CtdlThreadCheckStop()) {
 		do_fulltext_indexing();
-		sleep(1);
+		CtdlThreadSleep(300);
 	}
 
 	lprintf(CTDL_DEBUG, "indexer_thread() exiting\n");
-	pthread_exit(NULL);
+	return NULL;
 }
 
 
@@ -486,12 +490,17 @@ void ft_delete_remove(char *room, long msgnum)
 
 CTDL_MODULE_INIT(fulltext)
 {
-	initialize_ft_cache();
-	CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
-	CtdlRegisterDeleteHook(ft_delete_remove);
-	CtdlRegisterSearchFuncHook(ft_search, "fulltext");
-	CtdlRegisterMaintenanceThread ("indexer", indexer_thread);
-
+	if (!threading)
+	{
+		initialize_ft_cache();
+		CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
+		CtdlRegisterDeleteHook(ft_delete_remove);
+		CtdlRegisterSearchFuncHook(ft_search, "fulltext");
+	}
+	else
+	{
+		CtdlThreadCreate("indexer", CTDLTHREAD_BIGSTACK, indexer_thread, NULL);
+	}
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -130,8 +130,11 @@ void cmd_mrtg(char *argbuf) {
 
 CTDL_MODULE_INIT(mrtg)
 {
-        CtdlRegisterProtoHook(cmd_mrtg, "MRTG", "Supply stats to MRTG");
-
+	if (!threading)
+	{
+	        CtdlRegisterProtoHook(cmd_mrtg, "MRTG", "Supply stats to MRTG");
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

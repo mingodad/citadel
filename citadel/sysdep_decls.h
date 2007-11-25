@@ -84,11 +84,10 @@ void InitializeMasterCC(void);
 void init_master_fdset(void);
 void create_worker(void);
 void InitialiseSemaphores(void);
-void ctdl_internal_thread_gc (int shutdown);
 
 
 extern int num_sessions;
-extern volatile int time_to_die;
+extern volatile int exit_signal;
 extern volatile int shutdown_and_halt;
 extern volatile int running_as_daemon;
 extern volatile int restart_server;
@@ -102,16 +101,47 @@ extern struct worker_node {
 } *worker_list;
 
 
+
+/*
+ * Thread stuff
+ */
+#define CTDLTHREAD_BIGSTACK	0x0001
+#define CTDLTHREAD_WORKER	0x0002
+
+void ctdl_internal_thread_gc (void);
+void ctdl_thread_internal_init(void);
+struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+
+enum CtdlThreadState {
+	CTDL_THREAD_INVALID,
+	CTDL_THREAD_VALID,
+	CTDL_THREAD_CREATE,
+	CTDL_THREAD_CANCELLED,
+	CTDL_THREAD_EXITED,
+	CTDL_THREAD_STOPPING,
+	CTDL_THREAD_STOP_REQ,	/* Do NOT put any running states before this state */
+	CTDL_THREAD_SLEEPING,
+	CTDL_THREAD_RUNNING,
+	CTDL_THREAD_LAST_STATE
+};
+
 extern struct CtdlThreadNode {
-	pthread_t tid;
-	char *name;
-	void *(*thread_func) (void *arg);
-	void *user_args;
-	int flags;
-	int running;
-	int valid;
-	struct CtdlThreadNode *prev;
-	struct CtdlThreadNode *next;
+	pthread_t tid;				/* id as returned by pthread_create() */
+	pid_t pid;				/* pid, as best the OS will let us determine */
+	struct CitConext *Context;		/* The session context that this thread mught be working on or NULL if none */
+	long number;				/* A unigue number for this thread (not implimented yet) */
+	int wakefd_recv;			/* An fd that this thread can sleep on (not implimented yet) */
+	int wakefd_send;			/* An fd that this thread can send out on (Not implimented yet) */
+	char *name;				/* A name for this thread */
+	void *(*thread_func) (void *arg);	/* The actual function that does this threads work */
+	void *user_args;			/* Arguments passed to this threads work function */
+	long flags;				/* Flags that describe this thread */
+	enum CtdlThreadState state;				/* Flag to show state of this thread */
+	pthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
+	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others (also used for sleeping) */
+	pthread_attr_t attr;			/* Attributes of this thread */
+	struct CtdlThreadNode *prev;		/* Previous thread in the thread table */
+	struct CtdlThreadNode *next;		/* Next thread in the thread table */
 } *CtdlThreadList;
 
 extern int SyslogFacility(char *name);

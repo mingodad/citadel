@@ -79,12 +79,15 @@ extern long DetailErrorFlags;
 
 
 
-void initialise_modules (void)
+void initialise_modules (int threading)
 {
     long filter;
     nSizErrmsg = 0;
 
-    lprintf (CTDL_INFO, "New citadel module init proceedure.\n");
+    if (threading)
+        CtdlLogPrintf (CTDL_INFO, "Initialise modules, CtdlThreads enabled.\n");
+    else
+        CtdlLogPrintf (CTDL_INFO, "Initialise modules, CtdlThreads not yet enabled.\n");
 EOF
 
 
@@ -100,7 +103,7 @@ cat <<EOF > $H_FILE
 #define MODULES_INIT_H
 #include "ctdl_module.h"
 extern size_t nSizErrmsg;
-void initialise_modules (void);
+void initialise_modules (int threading);
 
 EOF
 

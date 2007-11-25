@@ -815,16 +815,19 @@ void cmd_reqt(char *argbuf) {
 
 CTDL_MODULE_INIT(chat)
 {
-	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
-	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for instant messages");
-	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get instant messages");
-	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
-	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
-	CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
-	CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
-	CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
-	CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
-
+	if (!threading)
+	{
+		CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
+		CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for instant messages");
+		CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get instant messages");
+		CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
+		CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
+		CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
+		CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
+		CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
+		CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -42,7 +42,6 @@ struct DeleteFunctionHook *DeleteHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
 struct FixedOutputHook *FixedOutputTable = NULL;
 struct RoomFunctionHook *RoomHookTable = NULL;
-struct MaintenanceThreadHook *MaintenanceThreadHookTable = NULL;
 struct SearchFunctionHook *SearchFunctionHookTable = NULL;
 
 struct ProtoFunctionHook {
@@ -1044,19 +1043,6 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 	return total_sent;
 }
 
-void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc)(void *arg))
-{
-	struct MaintenanceThreadHook *newfcn;
-
-	newfcn = (struct MaintenanceThreadHook *)
-	    malloc(sizeof(struct MaintenanceThreadHook));
-	newfcn->name = name;
-	newfcn->next = MaintenanceThreadHookTable;
-	newfcn->fcn_ptr = thread_proc;
-	MaintenanceThreadHookTable = newfcn;
-
-	lprintf(CTDL_INFO, "Registered a new maintenance thread function\n");
-}
 
 
 

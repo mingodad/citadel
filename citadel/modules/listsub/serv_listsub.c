@@ -570,8 +570,11 @@ void cmd_subs(char *cmdbuf) {
  */
 CTDL_MODULE_INIT(listsub)
 {
-	CtdlRegisterProtoHook(cmd_subs, "SUBS", "List subscribe/unsubscribe");
-
+	if (!threading)
+	{
+		CtdlRegisterProtoHook(cmd_subs, "SUBS", "List subscribe/unsubscribe");
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

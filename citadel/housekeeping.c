@@ -43,6 +43,9 @@
 #include "msgbase.h"
 #include "journaling.h"
 
+#include "ctdl_module.h"
+
+
 /*
  * Terminate idle sessions.  This function pounds through the session table
  * comparing the current time to each session's time-of-last-command.  If an
@@ -76,8 +79,7 @@ void terminate_idle_sessions(void) {
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		lprintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
-		time_to_die = 1;
-		master_cleanup(0);
+		CtdlThreadStopAll();
 	}
 }
 
@@ -168,8 +170,6 @@ void do_housekeeping(void) {
 	JournalRunQueue();
 
 	PerformSessionHooks(EVT_HOUSE);	/* perform as needed housekeeping */
-	
-	ctdl_internal_thread_gc(0);
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {

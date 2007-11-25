@@ -806,8 +806,11 @@ void cmd_artv(char *cmdbuf) {
 
 CTDL_MODULE_INIT(vandelay)
 {
-	CtdlRegisterProtoHook(cmd_artv, "ARTV", "import/export data store");
-
+	if (!threading)
+	{
+		CtdlRegisterProtoHook(cmd_artv, "ARTV", "import/export data store");
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -11,9 +11,9 @@
  * define macros for module init stuff
  */
  
-#define CTDL_MODULE_INIT(module_name) char *ctdl_module_##module_name##_init (void)
+#define CTDL_MODULE_INIT(module_name) char *ctdl_module_##module_name##_init (int threading)
 
-#define CTDL_INIT_CALL(module_name) ctdl_module_##module_name##_init ()
+#define CTDL_INIT_CALL(module_name) ctdl_module_##module_name##_init (threading)
 
 
 /*
@@ -103,5 +103,20 @@ int CtdlDoDirectoryServiceFunc(char *cn, char *ou, void **object, char *module, 
  * for now we have this horrible hack
  */
 void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *error_response);
+
+
+/*
+ * Citadel Threads API
+ */
+struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+void CtdlThreadSleep(int secs);
+void CtdlThreadStop(struct CtdlThreadNode *thread);
+int CtdlThreadCheckStop(void);
+void CtdlThreadCancel(struct CtdlThreadNode *thread);
+char *CtdlThreadName(struct CtdlThreadNode *thread, char *name);
+struct CtdlThreadNode *CtdlThreadSelf(void);
+int CtdlThreadGetCount(void);
+void CtdlThreadGC(void);
+void CtdlThreadStopAll(void);
 
 #endif /* CTDL_MODULE_H */

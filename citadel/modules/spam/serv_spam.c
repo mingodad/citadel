@@ -148,8 +148,11 @@ bail:	close(sock);
 
 CTDL_MODULE_INIT(spam)
 {
-	CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
-
+	if (!threading)
+	{
+		CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

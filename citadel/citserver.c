@@ -62,6 +62,9 @@
 #include "snprintf.h"
 #endif
 
+#include "ctdl_module.h"
+
+
 struct CitContext *ContextList = NULL;
 struct CitContext* next_session = NULL;
 char *unique_session_numbers;
@@ -176,7 +179,6 @@ void master_startup(void) {
  */
 void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
-	struct MaintenanceThreadHook *m_fcn;
 	static int already_cleaning_up = 0;
 
 	if (already_cleaning_up) while(1) sleep(1);
@@ -189,12 +191,6 @@ void master_cleanup(int exitcode) {
 
 	/* Close the AdjRefCount queue file */
 	AdjRefCount(-1, 0);
-
-	for (m_fcn = MaintenanceThreadHookTable; m_fcn != NULL; m_fcn = m_fcn->next) {
-		lprintf(CTDL_INFO, "Waiting for maintenance thread \"%s\" to shut down\n", m_fcn->name);
-		pthread_join(m_fcn->MaintenanceThread_tid, NULL);
-	}
-	
 
 	/* Close databases */
 	lprintf(CTDL_INFO, "Closing databases\n");
@@ -826,7 +822,7 @@ void cmd_down(char *argbuf) {
 	{
 		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN);
 	}
-	time_to_die = 1;
+	CtdlThreadStopAll();
 }
 
 /*
@@ -837,7 +833,7 @@ void cmd_halt(void) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	cprintf("%d Halting server.  Goodbye.\n", CIT_OK);
-	time_to_die = 1;
+	CtdlThreadStopAll();
 	shutdown_and_halt = 1;
 }
 

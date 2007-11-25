@@ -1814,48 +1814,51 @@ const char *CitadelServiceSMTP_LMTP_UNF="LMTP-UnF";
 
 CTDL_MODULE_INIT(smtp)
 {
-	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
-				NULL,
-				smtp_mta_greeting,
-				smtp_command_loop,
-				NULL, 
-				CitadelServiceSMTP_MTA);
+	if (!threading)
+	{
+		CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
+					NULL,
+					smtp_mta_greeting,
+					smtp_command_loop,
+					NULL, 
+					CitadelServiceSMTP_MTA);
 
 #ifdef HAVE_OPENSSL
-	CtdlRegisterServiceHook(config.c_smtps_port,
-				NULL,
-				smtps_greeting,
-				smtp_command_loop,
-				NULL,
-				CitadelServiceSMTPS_MTA);
+		CtdlRegisterServiceHook(config.c_smtps_port,
+					NULL,
+					smtps_greeting,
+					smtp_command_loop,
+					NULL,
+					CitadelServiceSMTPS_MTA);
 #endif
 
-	CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
-				NULL,
-				smtp_msa_greeting,
-				smtp_command_loop,
-				NULL,
-				CitadelServiceSMTP_MSA);
+		CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
+					NULL,
+					smtp_msa_greeting,
+					smtp_command_loop,
+					NULL,
+					CitadelServiceSMTP_MSA);
 
-	CtdlRegisterServiceHook(0,			/* local LMTP */
-				file_lmtp_socket,
-				lmtp_greeting,
-				smtp_command_loop,
-				NULL,
-				CitadelServiceSMTP_LMTP);
+		CtdlRegisterServiceHook(0,			/* local LMTP */
+					file_lmtp_socket,
+					lmtp_greeting,
+					smtp_command_loop,
+					NULL,
+					CitadelServiceSMTP_LMTP);
 
-	CtdlRegisterServiceHook(0,			/* local LMTP */
-				file_lmtp_unfiltered_socket,
-				lmtp_unfiltered_greeting,
-				smtp_command_loop,
-				NULL,
-				CitadelServiceSMTP_LMTP_UNF);
+		CtdlRegisterServiceHook(0,			/* local LMTP */
+					file_lmtp_unfiltered_socket,
+					lmtp_unfiltered_greeting,
+					smtp_command_loop,
+					NULL,
+					CitadelServiceSMTP_LMTP_UNF);
 
-	smtp_init_spoolout();
-	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
-	CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
-	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
-
+		smtp_init_spoolout();
+		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
+		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
+		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

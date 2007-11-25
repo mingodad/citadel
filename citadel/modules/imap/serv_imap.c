@@ -1596,14 +1596,17 @@ const char *CitadelServiceIMAPS="IMAPS";
  */
 CTDL_MODULE_INIT(imap)
 {
-	CtdlRegisterServiceHook(config.c_imap_port,
-				NULL, imap_greeting, imap_command_loop, NULL, CitadelServiceIMAP);
+	if (!threading)
+	{
+		CtdlRegisterServiceHook(config.c_imap_port,
+					NULL, imap_greeting, imap_command_loop, NULL, CitadelServiceIMAP);
 #ifdef HAVE_OPENSSL
-	CtdlRegisterServiceHook(config.c_imaps_port,
-				NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
+		CtdlRegisterServiceHook(config.c_imaps_port,
+					NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
 #endif
-	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
-
+		CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

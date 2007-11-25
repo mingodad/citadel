@@ -249,8 +249,10 @@ void cmd_auto(char *argbuf) {
 
 
 CTDL_MODULE_INIT(autocompletion) {
-	CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
-
+	if (!threading)
+	{
+		CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
+	}
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -249,9 +249,11 @@ int funambol_isAllowedByPrefs(long configMsgNum) {
 
 CTDL_MODULE_INIT(funambol)
 {
-	create_notify_queue();
-	CtdlRegisterSessionHook(do_notify_queue, EVT_TIMER);
-
+	if (!threading)
+	{
+		create_notify_queue();
+		CtdlRegisterSessionHook(do_notify_queue, EVT_TIMER);
+	}
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

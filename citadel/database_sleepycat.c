@@ -280,16 +280,20 @@ void cmd_cull(char *argbuf) {
 /*
  * Request a checkpoint of the database.
  */
-static void cdb_checkpoint(void)
+void cdb_checkpoint(void)
 {
 	int ret;
-	static time_t last_run = 0L;
+//	static time_t last_run = 0L;
 
 	/* Only do a checkpoint once per minute. */
+/*
+ * Don't need this any more, since the thread that calls us sleeps for 60 seconds between calls
+ 
 	if ((time(NULL) - last_run) < 60L) {
 		return;
 	}
 	last_run = time(NULL);
+*/
 
 	lprintf(CTDL_DEBUG, "-- db checkpoint --\n");
 	ret = dbenv->txn_checkpoint(dbenv,
@@ -309,29 +313,6 @@ static void cdb_checkpoint(void)
 }
 
 
-/*
- * Main loop for the checkpoint thread.
- */
-void *checkpoint_thread(void *arg) {
-	struct CitContext checkpointCC;
-
-	lprintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
-
-	memset(&checkpointCC, 0, sizeof(struct CitContext));
-	checkpointCC.internal_pgm = 1;
-	checkpointCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&checkpointCC );
-
-	cdb_allocate_tsd();
-
-	while (!time_to_die) {
-		cdb_checkpoint();
-		sleep(1);
-	}
-
-	lprintf(CTDL_DEBUG, "checkpoint_thread() exiting\n");
-	pthread_exit(NULL);
-}
 
 /*
  * Open the various databases we'll be using.  Any database which
@@ -461,7 +442,6 @@ void open_databases(void)
 
 	cdb_allocate_tsd();
 	
-	CtdlRegisterMaintenanceThread ("checkpoint", checkpoint_thread);
 }
 
 

@@ -276,11 +276,7 @@ int main(int argc, char **argv)
 	lprintf(CTDL_INFO, "Initializing server extensions\n");
 	size = strlen(ctdl_home_directory) + 9;
 	
-/*
-	initialize_server_extensions();
-*/
-	
-	initialise_modules();
+	initialise_modules(0);
 	
 	
 
@@ -326,25 +322,34 @@ int main(int argc, char **argv)
 	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
 
 	/*
+	 * Initialise the thread system
+	 */
+	ctdl_thread_internal_init();
+	
+	/*
 	 * Now create a bunch of worker threads.
 	 */
-	lprintf(CTDL_DEBUG, "Starting %d worker threads\n",
+	CtdlLogPrintf(CTDL_DEBUG, "Starting %d worker threads\n",
 		config.c_min_workers-1);
-	begin_critical_section(S_WORKER_LIST);
+	begin_critical_section(S_THREAD_LIST);
 	for (i=0; i<(config.c_min_workers-1); ++i) {
-		create_worker();
+		ctdl_internal_create_thread("Worker Thread", CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
 	}
-	end_critical_section(S_WORKER_LIST);
+	end_critical_section(S_THREAD_LIST);
 
-	/* Create the maintenance threads. */
-	create_maintenance_threads();
+	/* Second call to module init functions now that threading is up */
+	initialise_modules(1);
 
-	/* This thread is now useless.  It can't be turned into a worker
-	 * thread because its stack is too small, but it can't be killed
-	 * either because the whole server process would exit.  So we just
-	 * join to the first worker thread and exit when it exits.
+	/*
+	 * This thread is now used for garbage collection of other threads in the thread list
 	 */
-	pthread_join(worker_list->tid, NULL);
-	master_cleanup(0);
+	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", pthread_self());
+	while (CtdlThreadGetCount())
+		ctdl_internal_thread_gc();
+	/*
+	 * If the above loop exits we must be shutting down since we obviously have no threads
+	 */
+	 	
+	master_cleanup(exit_signal);
 	return(0);
 }

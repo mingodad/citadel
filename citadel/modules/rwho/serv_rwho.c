@@ -255,12 +255,15 @@ void cmd_stel(char *cmdbuf)
 
 CTDL_MODULE_INIT(rwho)
 {
-        CtdlRegisterProtoHook(cmd_rwho, "RWHO", "Display who is online");
-        CtdlRegisterProtoHook(cmd_hchg, "HCHG", "Masquerade hostname");
-        CtdlRegisterProtoHook(cmd_rchg, "RCHG", "Masquerade roomname");
-        CtdlRegisterProtoHook(cmd_uchg, "UCHG", "Masquerade username");
-        CtdlRegisterProtoHook(cmd_stel, "STEL", "Enter/exit stealth mode");
-
+	if(!threading)
+	{
+	        CtdlRegisterProtoHook(cmd_rwho, "RWHO", "Display who is online");
+        	CtdlRegisterProtoHook(cmd_hchg, "HCHG", "Masquerade hostname");
+	        CtdlRegisterProtoHook(cmd_rchg, "RCHG", "Masquerade roomname");
+        	CtdlRegisterProtoHook(cmd_uchg, "UCHG", "Masquerade username");
+	        CtdlRegisterProtoHook(cmd_stel, "STEL", "Enter/exit stealth mode");
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

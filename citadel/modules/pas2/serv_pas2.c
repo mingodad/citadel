@@ -88,8 +88,11 @@ void cmd_pas2(char *argbuf)
 
 CTDL_MODULE_INIT(pas2)
 {
-        CtdlRegisterProtoHook(cmd_pas2, "PAS2", "APOP-based login");
-
+	if (!threading)
+	{
+	        CtdlRegisterProtoHook(cmd_pas2, "PAS2", "APOP-based login");
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

@@ -622,11 +622,15 @@ void rssclient_scan(void) {
 
 CTDL_MODULE_INIT(rssclient)
 {
+	if (!threading)
+	{
 #ifdef HAVE_EXPAT
-	CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
+		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 #else
-	 lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  RSS client will be disabled.\n");
+		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  RSS client will be disabled.\n");
 #endif
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id: serv_rssclient.c 5652 2007-10-29 20:14:48Z ajc $";
 }

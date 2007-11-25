@@ -287,8 +287,11 @@ void pop3client_scan(void) {
 
 CTDL_MODULE_INIT(pop3client)
 {
-	CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
-
+	if (!threading)
+	{
+		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id$";
 }

@@ -107,8 +107,11 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 
 CTDL_MODULE_INIT(netfilter)
 {
-	CtdlRegisterNetprocHook(filter_the_idiots);
-
+	if (!threading)
+	{
+		CtdlRegisterNetprocHook(filter_the_idiots);
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

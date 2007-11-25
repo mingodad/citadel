@@ -59,11 +59,14 @@ void LoginTest(void) {
 CTDL_MODULE_INIT(test)
 {
 #if 0
-   CtdlRegisterCleanupHook(CleanupTest);
-   CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
-   CtdlRegisterSessionHook(SessionStartTest, EVT_START);
-   CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
-   CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+	if (!threading)
+	{
+		CtdlRegisterCleanupHook(CleanupTest);
+		CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
+		CtdlRegisterSessionHook(SessionStartTest, EVT_START);
+		CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
+		CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+	}
 #endif
 
    /* return our Subversion id for the Log */

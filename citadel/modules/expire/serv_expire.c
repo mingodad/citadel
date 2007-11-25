@@ -844,9 +844,12 @@ void cmd_fsck(char *argbuf) {
 
 CTDL_MODULE_INIT(expire)
 {
-	CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
-	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
-
+	if (!threading)
+	{
+		CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
+		CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

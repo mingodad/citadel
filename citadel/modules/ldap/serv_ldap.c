@@ -539,32 +539,35 @@ void ldap_disconnect_timer(void)
  */
 CTDL_MODULE_INIT(ldap)
 {
+	if (!threading)
+	{
 #ifdef HAVE_LDAP
-	if (!IsEmptyStr(config.c_ldap_base_dn)) {
-		CtdlRegisterCleanupHook(serv_ldap_cleanup);
-		CtdlRegisterSessionHook(ldap_disconnect_timer, EVT_TIMER);
-		CtdlRegisterDirectoryServiceFunc(delete_from_ldap,
-						 DIRECTORY_USER_DEL,
-						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(create_ldap_host_OU,
-						 DIRECTORY_CREATE_HOST,
-						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(create_ldap_object,
-						 DIRECTORY_CREATE_OBJECT,
-						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(add_ldap_object,
-						 DIRECTORY_ATTRIB_ADD,
-						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(save_ldap_object,
-						 DIRECTORY_SAVE_OBJECT,
-						 "ldap");
-		CtdlRegisterDirectoryServiceFunc(free_ldap_object,
-						 DIRECTORY_FREE_OBJECT,
-						 "ldap");
-		create_ldap_root();
-	}
+		if (!IsEmptyStr(config.c_ldap_base_dn)) {
+			CtdlRegisterCleanupHook(serv_ldap_cleanup);
+			CtdlRegisterSessionHook(ldap_disconnect_timer, EVT_TIMER);
+			CtdlRegisterDirectoryServiceFunc(delete_from_ldap,
+							 DIRECTORY_USER_DEL,
+							 "ldap");
+			CtdlRegisterDirectoryServiceFunc(create_ldap_host_OU,
+							 DIRECTORY_CREATE_HOST,
+							 "ldap");
+			CtdlRegisterDirectoryServiceFunc(create_ldap_object,
+							 DIRECTORY_CREATE_OBJECT,
+							 "ldap");
+			CtdlRegisterDirectoryServiceFunc(add_ldap_object,
+							 DIRECTORY_ATTRIB_ADD,
+							 "ldap");
+			CtdlRegisterDirectoryServiceFunc(save_ldap_object,
+							 DIRECTORY_SAVE_OBJECT,
+							 "ldap");
+			CtdlRegisterDirectoryServiceFunc(free_ldap_object,
+							 DIRECTORY_FREE_OBJECT,
+							 "ldap");
+			create_ldap_root();
+		}
 #endif				/* HAVE_LDAP */
-
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

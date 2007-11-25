@@ -97,8 +97,11 @@ void CopyNewUserGreetings(void) {
 
 CTDL_MODULE_INIT(newuser)
 {
-   CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
-
-   /* return our Subversion id for the Log */
-   return "$Id$";
+	if (!threading)
+	{
+		CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
+	}
+	
+	/* return our Subversion id for the Log */
+	return "$Id$";
 }

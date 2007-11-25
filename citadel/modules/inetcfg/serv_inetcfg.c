@@ -178,9 +178,12 @@ void inetcfg_init(void) {
 
 CTDL_MODULE_INIT(inetcfg)
 {
-	CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
-	inetcfg_init();
-
+	if (!threading)
+	{
+		CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
+		inetcfg_init();
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

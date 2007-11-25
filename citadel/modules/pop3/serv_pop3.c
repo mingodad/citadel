@@ -716,22 +716,25 @@ const char *CitadelServicePop3S="POP3S";
 
 CTDL_MODULE_INIT(pop3)
 {
-	CtdlRegisterServiceHook(config.c_pop3_port,
-				NULL,
-				pop3_greeting,
-				pop3_command_loop,
-				NULL,
-				CitadelServicePop3);
+	if(!threading)
+	{
+		CtdlRegisterServiceHook(config.c_pop3_port,
+					NULL,
+					pop3_greeting,
+					pop3_command_loop,
+					NULL,
+					CitadelServicePop3);
 #ifdef HAVE_OPENSSL
-	CtdlRegisterServiceHook(config.c_pop3s_port,
-				NULL,
-				pop3s_greeting,
-				pop3_command_loop,
-				NULL,
-				CitadelServicePop3S);
+		CtdlRegisterServiceHook(config.c_pop3s_port,
+					NULL,
+					pop3s_greeting,
+					pop3_command_loop,
+					NULL,
+					CitadelServicePop3S);
 #endif
-	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
-
+		CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

@@ -106,8 +106,11 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 CTDL_MODULE_INIT(notes)
 {
-	CtdlRegisterMessageHook(serv_notes_beforesave, EVT_BEFORESAVE);
-
+	if (!threading)
+	{
+		CtdlRegisterMessageHook(serv_notes_beforesave, EVT_BEFORESAVE);
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

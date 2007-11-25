@@ -113,7 +113,7 @@
 /*
  * The size of per-thread stacks.  If set too low, citserver will randomly crash.
  */
-#define THREADSTACKSIZE		1048576
+#define THREADSTACKSIZE		0x100000
 
 /*
  * How many messages may the full text indexer scan before flushing its

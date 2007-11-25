@@ -1527,53 +1527,56 @@ CTDL_MODULE_INIT(vcard)
 	char filename[256];
 	FILE *fp;
 
-	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
-	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
-	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
-	CtdlRegisterDeleteHook(vcard_delete_remove);
-	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
-	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
-	CtdlRegisterProtoHook(cmd_igab, "IGAB",
-					"Initialize Global Address Book");
-	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
-	CtdlRegisterProtoHook(cmd_gvsn, "GVSN", "Get Valid Screen Names");
-	CtdlRegisterProtoHook(cmd_gvea, "GVEA", "Get Valid Email Addresses");
-	CtdlRegisterProtoHook(cmd_dvca, "DVCA", "Dump VCard Addresses");
-	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
-	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
-	CtdlRegisterNetprocHook(vcard_extract_from_network);
-	CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
-	CtdlRegisterFixedOutputHook("text/x-vcard", vcard_fixed_output);
-	CtdlRegisterFixedOutputHook("text/vcard", vcard_fixed_output);
+	if (!threading)
+	{
+		CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
+		CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
+		CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
+		CtdlRegisterDeleteHook(vcard_delete_remove);
+		CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
+		CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
+		CtdlRegisterProtoHook(cmd_igab, "IGAB",
+						"Initialize Global Address Book");
+		CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
+		CtdlRegisterProtoHook(cmd_gvsn, "GVSN", "Get Valid Screen Names");
+		CtdlRegisterProtoHook(cmd_gvea, "GVEA", "Get Valid Email Addresses");
+		CtdlRegisterProtoHook(cmd_dvca, "DVCA", "Dump VCard Addresses");
+		CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
+		CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
+		CtdlRegisterNetprocHook(vcard_extract_from_network);
+		CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
+		CtdlRegisterFixedOutputHook("text/x-vcard", vcard_fixed_output);
+		CtdlRegisterFixedOutputHook("text/vcard", vcard_fixed_output);
 
-	/* Create the Global ADdress Book room if necessary */
-	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
+		/* Create the Global ADdress Book room if necessary */
+		create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
 
-	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (!lgetroom(&qr, ADDRESS_BOOK_ROOM)) {
-		qr.QRep.expire_mode = EXPIRE_MANUAL;
-		qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
-		lputroom(&qr);
+		/* Set expiration policy to manual; otherwise objects will be lost! */
+		if (!lgetroom(&qr, ADDRESS_BOOK_ROOM)) {
+			qr.QRep.expire_mode = EXPIRE_MANUAL;
+			qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
+			lputroom(&qr);
 
-		/*
-		 * Also make sure it has a netconfig file, so the networker runs
-		 * on this room even if we don't share it with any other nodes.
-		 * This allows the CANCEL messages (i.e. "Purge this vCard") to be
-		 * purged.
-		 */
-		assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
-		fp = fopen(filename, "a");
-		if (fp != NULL) fclose(fp);
-		chown(filename, CTDLUID, (-1));
+			/*
+			 * Also make sure it has a netconfig file, so the networker runs
+			 * on this room even if we don't share it with any other nodes.
+			 * This allows the CANCEL messages (i.e. "Purge this vCard") to be
+			 * purged.
+			 */
+			assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
+			fp = fopen(filename, "a");
+			if (fp != NULL) fclose(fp);
+			chown(filename, CTDLUID, (-1));
+		}
+
+		/* for postfix tcpdict */
+		CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
+					NULL,
+					check_get_greeting,
+					check_get,
+					NULL,
+					CitadelServiceDICT_TCP);
 	}
-
-	/* for postfix tcpdict */
-	CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
-				NULL,
-				check_get_greeting,
-				check_get,
-				NULL,
-				CitadelServiceDICT_TCP);
 	
 	/* return our Subversion id for the Log */
 	return "$Id$";

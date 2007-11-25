@@ -2167,16 +2167,19 @@ void ical_fixed_output(char *ptr, int len) {
  */
 CTDL_MODULE_INIT(calendar)
 {
+	if (!threading)
+	{
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
-	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
-	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
-	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
-	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
-	CtdlRegisterSessionHook(ical_session_startup, EVT_START);
-	CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
-	CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
+		CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
+		CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
+		CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
+		CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
+		CtdlRegisterSessionHook(ical_session_startup, EVT_START);
+		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
+		CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
 #endif
-
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

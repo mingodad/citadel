@@ -228,8 +228,11 @@ void check_server_upgrades(void) {
 
 CTDL_MODULE_INIT(upgrade)
 {
-	check_server_upgrades();
-
+	if (!threading)
+	{
+		check_server_upgrades();
+	}
+	
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

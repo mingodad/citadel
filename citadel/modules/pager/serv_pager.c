@@ -228,9 +228,12 @@ char *pager_getUserPhoneNumber(long configMsgNum) {
 }
 CTDL_MODULE_INIT(pager)
 {
-	create_pager_queue();
-	CtdlRegisterSessionHook(do_pager_queue, EVT_TIMER);
-
+	if (!threading)
+	{
+		create_pager_queue();
+		CtdlRegisterSessionHook(do_pager_queue, EVT_TIMER);
+	}
+	
 	/* return our Subversion id for the Log */
         return "$Id: serv_pager.c $";
 }

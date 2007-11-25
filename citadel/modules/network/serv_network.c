@@ -2112,15 +2112,17 @@ int network_room_handler (struct ctdlroom *room)
  */
 CTDL_MODULE_INIT(network)
 {
-	create_spool_dirs();
-	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
-	CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
-	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
-	CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
-	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
-        CtdlRegisterRoomHook(network_room_handler);
-	CtdlRegisterCleanupHook(destroy_network_queue_room);
-	
+	if (!threading)
+	{
+		create_spool_dirs();
+		CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
+		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
+		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
+		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
+		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
+	        CtdlRegisterRoomHook(network_room_handler);
+		CtdlRegisterCleanupHook(destroy_network_queue_room);
+	}
 
 	/* return our Subversion id for the Log */
 	return "$Id$";
