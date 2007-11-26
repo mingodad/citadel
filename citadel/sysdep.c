@@ -996,8 +996,11 @@ struct CtdlThreadNode *CtdlThreadList = NULL;
  */
 /*static pthread_mutex_t thread_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t thread_gc_cond = PTHREAD_COND_INITIALIZER;
-*/static pthread_t GC_thread;
+*/
+static pthread_t GC_thread;
 static char *CtdlThreadStates[CTDL_THREAD_LAST_STATE];
+double CtdlThreadLoadAvg;
+
 /*
  * Pinched the following bits regarding signals from Kannel.org
  */
@@ -1112,16 +1115,44 @@ void ctdl_thread_internal_init(void)
 	CtdlThreadList = this_thread;
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
+	/* Set up start times */
+	gettimeofday(&this_thread->start_time, NULL);		/* Time this thread started */
+	memcpy(&this_thread->last_state_change, &this_thread->start_time, sizeof (struct timeval));	/* Changed state so mark it. */
 }
 
 
+/*
+ * A function to update a threads load averages
+ */
+ void ctdl_thread_internal_update_avgs(struct CtdlThreadNode *this_thread)
+ {
+	struct timeval now, result;
+	double last_duration;
+
+	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
+	gettimeofday(&now, NULL);
+	timersub(&now, &(this_thread->last_state_change), &result);
+	// result now has a timeval for the time we spent in the last state since we last updated
+	last_duration = (double)result.tv_sec + ((double)result.tv_usec / (double) 1000000);
+	if (this_thread->state == CTDL_THREAD_SLEEPING)
+		this_thread->avg_sleeping += last_duration;
+	if (this_thread->state == CTDL_THREAD_RUNNING)
+		this_thread->avg_running += last_duration;
+	if (this_thread->state == CTDL_THREAD_BLOCKED)
+		this_thread->avg_blocked += last_duration;
+	memcpy (&this_thread->last_state_change, &now, sizeof (struct timeval));
+	pthread_mutex_unlock(&this_thread->ThreadMutex);
+}
 
 /*
  * A function to chenge the state of a thread
  */
 void ctdl_thread_internal_change_state (struct CtdlThreadNode *this_thread, enum CtdlThreadState new_state)
 {
-
+	/*
+	 * Wether we change state or not we need update the load values
+	 */
+	ctdl_thread_internal_update_avgs(this_thread);
 	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
 	if ((new_state == CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_STOP_REQ))
 		this_thread->state = new_state;
@@ -1392,6 +1423,7 @@ static void ctdl_internal_thread_cleanup(void *arg)
 void ctdl_internal_thread_gc (void)
 {
 	struct CtdlThreadNode *this_thread, *that_thread = NULL;
+	double load_avg;
 	int workers = 0;
 	
 	/* 
@@ -1411,12 +1443,25 @@ void ctdl_internal_thread_gc (void)
 	 */
 	begin_critical_section(S_THREAD_LIST);
 	this_thread = CtdlThreadList;
+	load_avg = 0;
 	while(this_thread)
 	{
 		that_thread = this_thread;
 		this_thread = this_thread->next;
 		
-		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%ld) \"%s\".\n", that_thread->name, that_thread->tid, CtdlThreadStates[that_thread->state]);
+		/* Update load averages */
+		ctdl_thread_internal_update_avgs(that_thread);
+		pthread_mutex_lock(&that_thread->ThreadMutex);
+		that_thread->load_avg = that_thread->avg_sleeping + that_thread->avg_running + that_thread->avg_blocked;
+		that_thread->load_avg = that_thread->avg_running / that_thread->load_avg / 100;
+		that_thread->avg_sleeping /= 10;
+		that_thread->avg_running /= 10;
+		that_thread->avg_blocked /= 10;
+		load_avg += that_thread->load_avg;
+		
+		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%ld) \"%s\" %f %f %f %f.\n", that_thread->name, that_thread->tid, CtdlThreadStates[that_thread->state], that_thread->avg_sleeping, that_thread->avg_running, that_thread->avg_blocked, that_thread->load_avg);
+		pthread_mutex_unlock(&that_thread->ThreadMutex);
+
 		/* Do we need to clean up this thread? */
 		if (that_thread->state != CTDL_THREAD_EXITED)
 		{
@@ -1470,7 +1515,6 @@ void ctdl_internal_thread_gc (void)
 		pthread_cond_destroy(&that_thread->ThreadCond);
 		pthread_attr_destroy(&that_thread->attr);
 		free(that_thread);
-		that_thread = NULL;
 	}
 	
 	/* Sanity check number of worker threads */
@@ -1480,8 +1524,9 @@ void ctdl_internal_thread_gc (void)
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n", workers, num_workers);
 		return;
 	}
-	
+	CtdlThreadLoadAvg = load_avg/num_threads;
 	end_critical_section(S_THREAD_LIST);
+	CtdlLogPrintf(CTDL_INFO, "System load average %f.\n", CtdlThreadLoadAvg);
 }
 
 
@@ -1506,6 +1551,8 @@ static void *ctdl_internal_thread_func (void *arg)
 	this_thread = (struct CtdlThreadNode *) arg;
 	this_thread->state = CTDL_THREAD_RUNNING;
 	this_thread->pid = getpid();
+	gettimeofday(&this_thread->start_time, NULL);		/* Time this thread started */
+	memcpy(&this_thread->last_state_change, &this_thread->start_time, sizeof (struct timeval));	/* Changed state so mark it. */
 	end_critical_section(S_THREAD_LIST);
 		
 	// Tell the world we are here

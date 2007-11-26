@@ -143,6 +143,12 @@ extern struct CtdlThreadNode {
 	pthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
 	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others (also used for sleeping) */
 	pthread_attr_t attr;			/* Attributes of this thread */
+	struct timeval start_time;		/* Time this thread was started */
+	struct timeval last_state_change;	/* Time when this thread last changed state */
+	double avg_sleeping;			/* Average sleeping time */
+	double avg_running;			/* Average running time */
+	double avg_blocked;			/* Average blocked time */
+	double load_avg;			/* Load average for this thread */
 	struct CtdlThreadNode *prev;		/* Previous thread in the thread table */
 	struct CtdlThreadNode *next;		/* Next thread in the thread table */
 } *CtdlThreadList;
