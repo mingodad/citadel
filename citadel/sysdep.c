@@ -994,9 +994,9 @@ struct CtdlThreadNode *CtdlThreadList = NULL;
 /*
  * Condition variable and Mutex for thread garbage collection
  */
-static pthread_mutex_t thread_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
+/*static pthread_mutex_t thread_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t thread_gc_cond = PTHREAD_COND_INITIALIZER;
-static pthread_t GC_thread;
+*/static pthread_t GC_thread;
 static char *CtdlThreadStates[CTDL_THREAD_LAST_STATE];
 /*
  * Pinched the following bits regarding signals from Kannel.org
@@ -1056,6 +1056,9 @@ static void ctdl_thread_internal_restore_signals(sigset_t *old_set)
 
 void ctdl_thread_internal_init(void)
 {
+	struct CtdlThreadNode *this_thread;
+	int ret = 0;
+	
 	GC_thread = pthread_self();
 	CtdlThreadStates[CTDL_THREAD_INVALID] = strdup ("Invalid Thread");
 	CtdlThreadStates[CTDL_THREAD_VALID] = strdup("Valid Thread");
@@ -1066,6 +1069,39 @@ void ctdl_thread_internal_init(void)
 	CtdlThreadStates[CTDL_THREAD_STOP_REQ] = strdup("Thread Stop Requested");
 	CtdlThreadStates[CTDL_THREAD_SLEEPING] = strdup("Thread Sleeping");
 	CtdlThreadStates[CTDL_THREAD_RUNNING] = strdup("Thread Running");
+	
+	
+	/* Get ourself a thread entry */
+	this_thread = malloc(sizeof(struct CtdlThreadNode));
+	if (this_thread == NULL) {
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
+		return;
+	}
+	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
+	memset (this_thread, 0, sizeof(struct CtdlThreadNode));
+	
+	/* We are garbage collector so create us as running */
+	this_thread->state = CTDL_THREAD_RUNNING;
+	
+	if ((ret = pthread_attr_init(&this_thread->attr))) {
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_init: %s\n", strerror(ret));
+		free(this_thread);
+		return;
+	}
+
+	this_thread->name = strdup("Garbage Collection Thread");
+	
+	pthread_mutex_init (&(this_thread->ThreadMutex), NULL);
+	pthread_cond_init (&(this_thread->ThreadCond), NULL);
+	
+	this_thread->tid = GC_thread;
+	
+	num_threads++;	// Increase the count of threads in the system.
+
+	this_thread->next = CtdlThreadList;
+	CtdlThreadList = this_thread;
+	if (this_thread->next)
+		this_thread->next->prev = this_thread;
 }
 
 /*
@@ -1079,12 +1115,15 @@ void CtdlThreadStopAll(void)
 	this_thread = CtdlThreadList;
 	while(this_thread)
 	{
-		pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
-		if (this_thread->state > CTDL_THREAD_STOP_REQ)
-			this_thread->state = CTDL_THREAD_STOP_REQ;
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
-		pthread_cond_signal(&this_thread->ThreadCond);
-		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
+		if (this_thread->thread_func) // Don't tell garbage collector to stop
+		{
+			pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
+			if (this_thread->state > CTDL_THREAD_STOP_REQ)
+				this_thread->state = CTDL_THREAD_STOP_REQ;
+			pthread_mutex_unlock(&this_thread->ThreadMutex);
+			pthread_cond_signal(&this_thread->ThreadCond);
+			CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
+		}
 		this_thread = this_thread->next;
 	}
 	end_critical_section(S_THREAD_LIST);
@@ -1096,7 +1135,20 @@ void CtdlThreadStopAll(void)
  */
 void CtdlThreadGC(void)
 {
-	pthread_cond_signal(&thread_gc_cond);
+	struct CtdlThreadNode *this_thread;
+	
+	CtdlLogPrintf(CTDL_DEBUG, "Thread system signalling garbage collection.\n");
+	
+	begin_critical_section(S_THREAD_LIST);
+	this_thread = CtdlThreadList;
+	while(this_thread)
+	{
+		if (!this_thread->thread_func)
+			pthread_cond_signal(&this_thread->ThreadCond);
+			
+		this_thread = this_thread->next;
+	}
+	end_critical_section(S_THREAD_LIST);
 }
 
 
@@ -1232,6 +1284,8 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 		this_thread = thread;
 	if (!this_thread)
 		return;
+	if (!(this_thread->thread_func))
+		return; 	// Don't stop garbage collector
 		
 	begin_critical_section (S_THREAD_LIST);
 	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
@@ -1305,6 +1359,7 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	#endif
 	this_thread->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
 	end_critical_section(S_THREAD_LIST);
+	CtdlThreadGC();
 }
 
 
@@ -1316,20 +1371,35 @@ static void ctdl_internal_thread_cleanup(void *arg)
  */
 void ctdl_internal_thread_gc (void)
 {
-	struct CtdlThreadNode *this_thread, *that_thread;
-	struct timespec wake_time;
+	struct CtdlThreadNode *this_thread, *that_thread = NULL;
+/*	struct timespec wake_time;
 	struct timeval time_now;
-	int workers = 0;
+*/	int workers = 0;
 	
 	/* 
 	 * Wait on the condition variable that tells us garbage collection is needed
 	 * We wake up every 10 seconds just in case someone forgot to inform us of a thread exiting
 	 */
-	pthread_mutex_lock(&thread_gc_mutex);
+/*	pthread_mutex_lock(&thread_gc_mutex);
 	memset (&wake_time, 0, sizeof(struct timespec));
 	gettimeofday(&time_now, NULL);
 	wake_time.tv_sec = time_now.tv_sec + 10;
 	pthread_cond_timedwait(&thread_gc_cond, &thread_gc_mutex, &wake_time);
+*/
+	CtdlThreadSleep(10);
+	
+	/* Handle exiting of garbage collector thread */
+	if(num_threads == 1)
+	{
+		CtdlThreadList->state = CTDL_THREAD_EXITED;
+//		if (that_thread)
+//		{
+//			if (that_thread->state == CTDL_THREAD_STOP_REQ)
+//				that_thread->state = CTDL_THREAD_STOPPING;
+//			else if (that_thread->state == CTDL_THREAD_STOPPING)
+//				that_thread->state = CTDL_THREAD_EXITED;
+//		}
+	}
 	
 	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
 	/*
@@ -1351,12 +1421,12 @@ void ctdl_internal_thread_gc (void)
 			continue;
 		}
 		
-		if (pthread_equal(that_thread->tid, pthread_self()))
+		if (pthread_equal(that_thread->tid, pthread_self()) && that_thread->thread_func)
 		{	/* Sanity check */
 			end_critical_section(S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
-			pthread_mutex_unlock(&thread_gc_mutex);
-			CtdlThreadStopAll();
+/*			pthread_mutex_unlock(&thread_gc_mutex);
+*/			CtdlThreadStopAll();
 			return;
 		}
 		
@@ -1364,8 +1434,8 @@ void ctdl_internal_thread_gc (void)
 		{	/* Sanity check */
 			end_critical_section (S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
-			pthread_mutex_unlock(&thread_gc_mutex);
-			CtdlThreadStopAll();
+/*			pthread_mutex_unlock(&thread_gc_mutex);
+*/			CtdlThreadStopAll();
 			return;
 		}
 
@@ -1383,8 +1453,10 @@ void ctdl_internal_thread_gc (void)
 		/*
 		 * Join on the thread to do clean up and prevent memory leaks
 		 * Also makes sure the thread has cleaned up after itself before we remove it from the list
+		 * If that thread has no function it must be the garbage collector
 		 */
-		pthread_join (that_thread->tid, NULL);
+		if (that_thread->thread_func)
+			pthread_join (that_thread->tid, NULL);
 		
 		/*
 		 * Now we own that thread entry
@@ -1396,6 +1468,7 @@ void ctdl_internal_thread_gc (void)
 		pthread_cond_destroy(&that_thread->ThreadCond);
 		pthread_attr_destroy(&that_thread->attr);
 		free(that_thread);
+		that_thread = NULL;
 	}
 	
 	/* Sanity check number of worker threads */
@@ -1403,12 +1476,12 @@ void ctdl_internal_thread_gc (void)
 	{
 		end_critical_section(S_THREAD_LIST);
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n", workers, num_workers);
-		pthread_mutex_unlock(&thread_gc_mutex);
+//		pthread_mutex_unlock(&thread_gc_mutex);
 //		CtdlThreadStopAll();
 		return;
 	}
-	pthread_mutex_unlock(&thread_gc_mutex);
-
+//	pthread_mutex_unlock(&thread_gc_mutex);
+	
 	end_critical_section(S_THREAD_LIST);
 }
 
