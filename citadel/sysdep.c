@@ -259,7 +259,8 @@ void init_sysdep(void) {
 	 * whole Citadel service would come down whenever a single client
 	 * socket breaks.
 	 */
-	signal(SIGPIPE, SIG_IGN);
+	//signal(SIGPIPE, SIG_IGN);
+	signal(SIGPIPE, signal_cleanup);
 }
 
 
@@ -754,13 +755,39 @@ int client_getln(char *buf, int bufsize)
 }
 
 
+/*
+ * Cleanup any contexts that are left lying around
+ */
+void context_cleanup(void)
+{
+	struct CitContext *ptr = NULL;
+	struct CitContext *rem = NULL;
+
+	/*
+	 * Clean up the contexts.
+	 * There are no threads so no critical_section stuff is needed.
+	 */
+	ptr = ContextList;
+	while (ptr != NULL){
+		/* Remove the session from the active list */
+		rem = ptr->next;
+		--num_sessions;
+		
+		lprintf(CTDL_DEBUG, "Purging session %d\n", ptr->cs_pid);
+		RemoveContext(ptr);
+		free (ptr);
+		ptr = rem;
+	}
+	
+}
+
 
 /*
  * The system-dependent part of master_cleanup() - close the master socket.
  */
 void sysdep_master_cleanup(void) {
 	struct ServiceFunctionHook *serviceptr;
-
+	
 	/*
 	 * close all protocol master sockets
 	 */
@@ -782,10 +809,12 @@ void sysdep_master_cleanup(void) {
 			unlink(serviceptr->sockpath);
 		}
 	}
+	
+	context_cleanup();
+	
 #ifdef HAVE_OPENSSL
 	destruct_ssl();
 #endif
-	serv_calendar_destroy();	// FIXME: Shouldn't be here, should be by a cleanup hook surely.
 	CtdlDestroyProtoHooks();
 	CtdlDestroyDeleteHooks();
 	CtdlDestroyXmsgHooks();
@@ -800,7 +829,6 @@ void sysdep_master_cleanup(void) {
 	eCrash_Uninit();
 	#endif
 }
-
 
 
 
@@ -1544,6 +1572,8 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 
 	this_thread->next = CtdlThreadList;
 	CtdlThreadList = this_thread;
+	if (this_thread->next)
+		this_thread->next->prev = this_thread;
 	// Register for tracing
 	#ifdef HAVE_BACKTRACE
 	eCrash_RegisterThread(this_thread->name, 0);
@@ -1582,7 +1612,7 @@ struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_f
  * if such an action is appropriate.
  */
 void dead_session_purge(int force) {
-	struct CitContext *ptr;		/* general-purpose utility pointer */
+	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
 	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
 
 	if (force == 0) {
@@ -1593,25 +1623,28 @@ void dead_session_purge(int force) {
 	time(&last_purge);
 
 	begin_critical_section(S_SESSION_TABLE);
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if ( (ptr->state == CON_IDLE) && (ptr->kill_me) ) {
-
+	ptr = ContextList;
+	while (ptr) {
+		ptr2 = ptr;
+		ptr = ptr->next;
+		
+		if ( (ptr2->state == CON_IDLE) && (ptr2->kill_me) ) {
 			/* Remove the session from the active list */
-			if (ptr->prev) {
-				ptr->prev->next = ptr->next;
+			if (ptr2->prev) {
+				ptr2->prev->next = ptr2->next;
 			}
 			else {
-				ContextList = ptr->next;
+				ContextList = ptr2->next;
 			}
-			if (ptr->next) {
-				ptr->next->prev = ptr->prev;
+			if (ptr2->next) {
+				ptr2->next->prev = ptr2->prev;
 			}
 
 			--num_sessions;
 
 			/* And put it on our to-be-destroyed list */
-			ptr->next = rem;
-			rem = ptr;
+			ptr2->next = rem;
+			rem = ptr2;
 
 		}
 	}
@@ -1867,10 +1900,7 @@ SKIP_SELECT:
 		do_housekeeping();
 		check_sched_shutdown();
 	}
-	if (con != NULL) free (con);//// TODO: could this harm other threads? 
 	/* If control reaches this point, the server is shutting down */	
-	begin_critical_section(S_THREAD_LIST);
-	end_critical_section(S_THREAD_LIST);
 	return(NULL);
 }
 

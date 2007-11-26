@@ -2160,6 +2160,12 @@ void ical_fixed_output(char *ptr, int len) {
 }
 
 
+
+void serv_calendar_destroy(void)
+{
+	icaltimezone_free_builtin_timezones();
+}
+
 #endif	/* CITADEL_WITH_CALENDAR_SERVICE */
 
 /*
@@ -2177,6 +2183,7 @@ CTDL_MODULE_INIT(calendar)
 		CtdlRegisterSessionHook(ical_session_startup, EVT_START);
 		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
 		CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
+		CtdlRegisterCleanupHook(serv_calendar_destroy);
 #endif
 	}
 	
@@ -2184,11 +2191,3 @@ CTDL_MODULE_INIT(calendar)
 	return "$Id$";
 }
 
-
-
-void serv_calendar_destroy(void)
-{
-#ifdef CITADEL_WITH_CALENDAR_SERVICE
-	icaltimezone_free_builtin_timezones();
-#endif
-}

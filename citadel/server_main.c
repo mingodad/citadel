@@ -349,7 +349,6 @@ int main(int argc, char **argv)
 	/*
 	 * If the above loop exits we must be shutting down since we obviously have no threads
 	 */
-	 	
 	master_cleanup(exit_signal);
 	return(0);
 }

@@ -424,9 +424,9 @@ void delete_instant_messages(void) {
 			free(CC->FirstExpressMessage->text);
 		free(CC->FirstExpressMessage);
 		CC->FirstExpressMessage = ptr;
-		}
-	end_critical_section(S_SESSION_TABLE);
 	}
+	end_critical_section(S_SESSION_TABLE);
+}
 
 
 
