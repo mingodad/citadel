@@ -111,6 +111,7 @@ extern struct worker_node {
 
 void ctdl_internal_thread_gc (void);
 void ctdl_thread_internal_init(void);
+void ctdl_thread_internal_cleanup(void);
 struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 
 enum CtdlThreadState {
@@ -122,6 +123,7 @@ enum CtdlThreadState {
 	CTDL_THREAD_STOPPING,
 	CTDL_THREAD_STOP_REQ,	/* Do NOT put any running states before this state */
 	CTDL_THREAD_SLEEPING,
+	CTDL_THREAD_BLOCKED,
 	CTDL_THREAD_RUNNING,
 	CTDL_THREAD_LAST_STATE
 };

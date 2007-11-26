@@ -1054,6 +1054,16 @@ static void ctdl_thread_internal_restore_signals(sigset_t *old_set)
 }
 
 
+void ctdl_thread_internal_cleanup(void)
+{
+	int i;
+	
+	for (i=0; i<CTDL_THREAD_LAST_STATE; i++)
+	{
+		free (CtdlThreadStates[i]);
+	}
+}
+
 void ctdl_thread_internal_init(void)
 {
 	struct CtdlThreadNode *this_thread;
@@ -1069,7 +1079,7 @@ void ctdl_thread_internal_init(void)
 	CtdlThreadStates[CTDL_THREAD_STOP_REQ] = strdup("Thread Stop Requested");
 	CtdlThreadStates[CTDL_THREAD_SLEEPING] = strdup("Thread Sleeping");
 	CtdlThreadStates[CTDL_THREAD_RUNNING] = strdup("Thread Running");
-	
+	CtdlThreadStates[CTDL_THREAD_BLOCKED] = strdup("Thread Blocked");
 	
 	/* Get ourself a thread entry */
 	this_thread = malloc(sizeof(struct CtdlThreadNode));
@@ -1104,6 +1114,25 @@ void ctdl_thread_internal_init(void)
 		this_thread->next->prev = this_thread;
 }
 
+
+
+/*
+ * A function to chenge the state of a thread
+ */
+void ctdl_thread_internal_change_state (struct CtdlThreadNode *this_thread, enum CtdlThreadState new_state)
+{
+
+	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
+	if ((new_state == CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_STOP_REQ))
+		this_thread->state = new_state;
+	if (((new_state == CTDL_THREAD_SLEEPING) || (new_state == CTDL_THREAD_BLOCKED)) && (this_thread->state == CTDL_THREAD_RUNNING))
+		this_thread->state = new_state;
+	if ((new_state == CTDL_THREAD_RUNNING) && ((this_thread->state == CTDL_THREAD_SLEEPING) || (this_thread->state == CTDL_THREAD_BLOCKED)))
+		this_thread->state = new_state;
+	pthread_mutex_unlock(&this_thread->ThreadMutex);
+}
+
+
 /*
  * A function to tell all threads to exit
  */
@@ -1117,10 +1146,7 @@ void CtdlThreadStopAll(void)
 	{
 		if (this_thread->thread_func) // Don't tell garbage collector to stop
 		{
-			pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
-			if (this_thread->state > CTDL_THREAD_STOP_REQ)
-				this_thread->state = CTDL_THREAD_STOP_REQ;
-			pthread_mutex_unlock(&this_thread->ThreadMutex);
+			ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 			pthread_cond_signal(&this_thread->ThreadCond);
 			CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
 		}
@@ -1245,7 +1271,7 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 	}
 	
 	begin_critical_section(S_THREAD_LIST);
-	this_thread->state = CTDL_THREAD_CANCELLED;
+	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_CANCELLED);
 	pthread_cancel(this_thread->tid);
 	end_critical_section (S_THREAD_LIST);
 }
@@ -1296,10 +1322,7 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 		return; 	// Don't stop garbage collector
 		
 	begin_critical_section (S_THREAD_LIST);
-	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
-	if (this_thread->state > CTDL_THREAD_STOP_REQ)
-		this_thread->state = CTDL_THREAD_STOP_REQ;
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 	pthread_cond_signal(&this_thread->ThreadCond);
 	end_critical_section(S_THREAD_LIST);
 }
@@ -1312,7 +1335,6 @@ void CtdlThreadSleep(int secs)
 	struct timespec wake_time;
 	struct timeval time_now;
 	struct CtdlThreadNode *self;
-	int state;
 	
 	
 	self = CtdlThreadSelf();
@@ -1323,18 +1345,9 @@ void CtdlThreadSleep(int secs)
 	}
 	
 	begin_critical_section(S_THREAD_LIST);
+	ctdl_thread_internal_change_state (self, CTDL_THREAD_SLEEPING);
 	pthread_mutex_lock(&self->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
-	state = self->state;
-	if (state == CTDL_THREAD_RUNNING)
-		self->state = CTDL_THREAD_SLEEPING;
 	end_critical_section(S_THREAD_LIST);
-	
-	if(state != CTDL_THREAD_RUNNING)
-	{
-		CtdlLogPrintf(CTDL_DEBUG, "CtdlThreadSleep() called by a thread that is not running.\n");
-		pthread_mutex_unlock(&self->ThreadMutex);
-		return;
-	}
 	
 	memset (&wake_time, 0, sizeof(struct timespec));
 	gettimeofday(&time_now, NULL);
@@ -1342,9 +1355,8 @@ void CtdlThreadSleep(int secs)
 	wake_time.tv_nsec = time_now.tv_usec * 10;
 	pthread_cond_timedwait(&self->ThreadCond, &self->ThreadMutex, &wake_time);
 	begin_critical_section(S_THREAD_LIST);
-	if (self->state == CTDL_THREAD_SLEEPING) /* Don't change state if something else changed it while we were asleep */
-		self->state = state;
 	pthread_mutex_unlock(&self->ThreadMutex);
+	ctdl_thread_internal_change_state (self, CTDL_THREAD_RUNNING);
 	end_critical_section(S_THREAD_LIST);
 }
 
@@ -1659,6 +1671,20 @@ struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_f
 
 
 
+/*
+ * A warapper function for select so we can show a thread as blocked
+ */
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout)
+{
+	struct CtdlThreadNode *self;
+	int ret;
+	
+	self = CtdlThreadSelf();
+	ctdl_thread_internal_change_state(self, CTDL_THREAD_BLOCKED);
+	ret = select(n, readfds, writefds, exceptfds, timeout);
+	ctdl_thread_internal_change_state(self, CTDL_THREAD_RUNNING);
+	return ret;
+}
 
 /*
  * Purge all sessions which have the 'kill_me' flag set.
@@ -1828,7 +1854,8 @@ do_select:	force_purge = 0;
 		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
+			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
+//			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 
 		if (CtdlThreadCheckStop()) return(NULL);
