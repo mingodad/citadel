@@ -1310,7 +1310,7 @@ void session_loop(struct httprequest *req)
 			wprintf("HTTP/1.1 404 Security check failed\r\n");
 			wprintf("Content-Type: text/plain\r\n");
 			wprintf("\r\n");
-			wprintf("Security check failed.\r\n");
+			wprintf("You have sent a malformed or invalid request.\r\n");
 		}
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
 	}

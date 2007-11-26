@@ -1,18 +1,13 @@
 /*
  * $Id$
- */
-/**
- * \defgroup ListSubForms Web forms for handling mailing list subscribe/unsubscribe requests.
- * \ingroup WebcitDisplayItems
+ *
+ * Web forms for handling mailing list subscribe/unsubscribe requests.
  */
 
-/*@{*/
 #include "webcit.h"
 
-
-
-/**
- * \brief List subscription handling
+/*
+ * List subscription handling
  */
 void do_listsub(void)
 {
@@ -50,13 +45,14 @@ void do_listsub(void)
 	strcpy(email, bstr("email"));
 	strcpy(subtype, bstr("subtype"));
 
-	wprintf("<CENTER>"
-		"<TABLE class=\"listsub_banner\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">");
-	wprintf(_("List subscribe/unsubscribe"));
-	wprintf("</SPAN></TD></TR></TABLE><br />\n");
+	wprintf("<div align=center>");
+	wprintf("<table border=0 width=75%%><tr><td>");
 
-	/**
+	svprintf("BOXTITLE", WCS_STRING, _("List subscribe/unsubscribe"));
+	do_template("beginbox");
+	wprintf("<div align=center><br>");
+
+	/*
 	 * Subscribe command
 	 */
 	if (!strcasecmp(cmd, "subscribe")) {
@@ -98,7 +94,7 @@ void do_listsub(void)
 		}
 	}
 
-	/**
+	/*
 	 * Unsubscribe command
 	 */
 	else if (!strcasecmp(cmd, "unsubscribe")) {
@@ -136,7 +132,7 @@ void do_listsub(void)
 		}
 	}
 
-	/**
+	/*
 	 * Confirm command
 	 */
 	else if (!strcasecmp(cmd, "confirm")) {
@@ -164,16 +160,14 @@ void do_listsub(void)
 		wprintf("%s</CENTER><br />\n", &buf[4]);
 	}
 
-	/**
+	/*
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
-		wprintf("<TABLE BORDER=0>\n");
+FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 
-		wprintf("<TR><TD>Name of list</TD><TD>"
-        		"<SELECT NAME=\"room\" SIZE=1>\n");
+		wprintf("Name of list: "
+        		"<select name=\"room\" size=1>\n");
 
         	serv_puts("LPRM");
         	serv_getln(buf, sizeof buf);
@@ -182,39 +176,37 @@ FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n");
 				extract_token(sroom, buf, 0, '|', sizeof sroom);
 				self = extract_int(buf, 4) & QR2_SELFLIST ;
 				if (self) {
-					wprintf("<OPTION VALUE=\"");
+					wprintf("<option value=\"");
 					escputs(sroom);
 					wprintf("\">");
 					escputs(sroom);
-					wprintf("</OPTION>\n");
+					wprintf("</option>\n");
 				}
                 	}
 		}
-        	wprintf("</SELECT>"
-			"</TD></TR>\n");
+        	wprintf("</select><br><br>\n");
 
-		wprintf("<TR><TD>Your e-mail address</TD><TD>"
+		wprintf("Your e-mail address: "
 			"<INPUT TYPE=\"text\" NAME=\"email\" "
 			"VALUE=\""
 		);
 		escputs(email);
-		wprintf("\" MAXLENGTH=128></TD></TR>\n");
+		wprintf("\" maxlength=128 size=60><br><br>\n");
 
-		wprintf("</TABLE>"
-			"(If subscribing) preferred format: "
+		wprintf("(If subscribing) preferred format: "
 			"<INPUT TYPE=\"radio\" NAME=\"subtype\" "
 			"VALUE=\"list\" CHECKED>One message at a time&nbsp; "
 			"<INPUT TYPE=\"radio\" NAME=\"subtype\" "
 			"VALUE=\"digest\">Digest format&nbsp; "
-			"<br />\n"
+			"<br><br>\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
 			" VALUE=\"subscribe\">\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
-			" VALUE=\"unsubscribe\">\n"
+			" VALUE=\"unsubscribe\"><br><br>\n"
 			"</FORM>\n"
 		);
 
-		wprintf("<br />When you attempt to subscribe or unsubscribe to "
+		wprintf("<hr>When you attempt to subscribe or unsubscribe to "
 			"a mailing list, you will receive an e-mail containing"
 			" one additional web link to click on for final "
 			"confirmation.  This extra step is for your "
@@ -224,11 +216,11 @@ FORM:		wprintf("<FORM METHOD=\"POST\" action=\"listsub\">\n");
 
 	}
 
+	wprintf("</div>");
+	do_template("endbox");
+	wprintf("</td></tr></table></div>");
+
 	wprintf("</BODY></HTML>\n");
 	wDumpContent(0);
 	end_webcit_session();
 }
-
-
-
-/*@}*/
