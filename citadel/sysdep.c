@@ -1236,6 +1236,14 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 		CtdlThreadStopAll();
 		return;
 	}
+	
+	if (!this_thread->thread_func)
+	{
+		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC. Attempt to CtdlThreadCancel() the garbage collector.\n");
+		CtdlThreadStopAll();
+		return;
+	}
+	
 	begin_critical_section(S_THREAD_LIST);
 	this_thread->state = CTDL_THREAD_CANCELLED;
 	pthread_cancel(this_thread->tid);
@@ -1372,34 +1380,18 @@ static void ctdl_internal_thread_cleanup(void *arg)
 void ctdl_internal_thread_gc (void)
 {
 	struct CtdlThreadNode *this_thread, *that_thread = NULL;
-/*	struct timespec wake_time;
-	struct timeval time_now;
-*/	int workers = 0;
+	int workers = 0;
 	
 	/* 
 	 * Wait on the condition variable that tells us garbage collection is needed
 	 * We wake up every 10 seconds just in case someone forgot to inform us of a thread exiting
 	 */
-/*	pthread_mutex_lock(&thread_gc_mutex);
-	memset (&wake_time, 0, sizeof(struct timespec));
-	gettimeofday(&time_now, NULL);
-	wake_time.tv_sec = time_now.tv_sec + 10;
-	pthread_cond_timedwait(&thread_gc_cond, &thread_gc_mutex, &wake_time);
-*/
+	
 	CtdlThreadSleep(10);
 	
 	/* Handle exiting of garbage collector thread */
 	if(num_threads == 1)
-	{
 		CtdlThreadList->state = CTDL_THREAD_EXITED;
-//		if (that_thread)
-//		{
-//			if (that_thread->state == CTDL_THREAD_STOP_REQ)
-//				that_thread->state = CTDL_THREAD_STOPPING;
-//			else if (that_thread->state == CTDL_THREAD_STOPPING)
-//				that_thread->state = CTDL_THREAD_EXITED;
-//		}
-	}
 	
 	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
 	/*
@@ -1425,8 +1417,7 @@ void ctdl_internal_thread_gc (void)
 		{	/* Sanity check */
 			end_critical_section(S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
-/*			pthread_mutex_unlock(&thread_gc_mutex);
-*/			CtdlThreadStopAll();
+			CtdlThreadStopAll();
 			return;
 		}
 		
@@ -1434,8 +1425,7 @@ void ctdl_internal_thread_gc (void)
 		{	/* Sanity check */
 			end_critical_section (S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
-/*			pthread_mutex_unlock(&thread_gc_mutex);
-*/			CtdlThreadStopAll();
+			CtdlThreadStopAll();
 			return;
 		}
 
@@ -1476,11 +1466,8 @@ void ctdl_internal_thread_gc (void)
 	{
 		end_critical_section(S_THREAD_LIST);
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n", workers, num_workers);
-//		pthread_mutex_unlock(&thread_gc_mutex);
-//		CtdlThreadStopAll();
 		return;
 	}
-//	pthread_mutex_unlock(&thread_gc_mutex);
 	
 	end_critical_section(S_THREAD_LIST);
 }
