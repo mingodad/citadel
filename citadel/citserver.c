@@ -299,6 +299,7 @@ void cmd_info(void) {
 	/* Output load averages */
 	cprintf("%f\n", CtdlThreadLoadAvg);
 	cprintf("%f\n", CtdlThreadWorkerAvg);
+	cprintf("%d\n", CtdlThreadGetCount());
 	
 	cprintf("000\n");
 }

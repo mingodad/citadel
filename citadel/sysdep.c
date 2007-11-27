@@ -1432,7 +1432,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 		ctdl_thread_internal_update_avgs(that_thread);
 		pthread_mutex_lock(&that_thread->ThreadMutex);
 		that_thread->load_avg = that_thread->avg_sleeping + that_thread->avg_running + that_thread->avg_blocked;
-		that_thread->load_avg = that_thread->avg_running / that_thread->load_avg / 100;
+		that_thread->load_avg = that_thread->avg_running / that_thread->load_avg * 100;
 		that_thread->avg_sleeping /= 2;
 		that_thread->avg_running /= 2;
 		that_thread->avg_blocked /= 2;
@@ -1442,7 +1442,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 			worker_avg += that_thread->load_avg;
 			workers++;
 		}
-/*		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%ld) \"%s\" %f %f %f %f.\n",
+		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%ld) \"%s\" %f %f %f %f.\n",
 			that_thread->name,
 			that_thread->tid,
 			CtdlThreadStates[that_thread->state],
@@ -1450,13 +1450,13 @@ void ctdl_thread_internal_calc_loadavg(void)
 			that_thread->avg_running,
 			that_thread->avg_blocked,
 			that_thread->load_avg);
-*/
+
 		pthread_mutex_unlock(&that_thread->ThreadMutex);
 		that_thread = that_thread->next;
 	}
 	CtdlThreadLoadAvg = load_avg/num_threads;
 	CtdlThreadWorkerAvg = worker_avg/workers;
-//	CtdlLogPrintf(CTDL_INFO, "System load average %f, workers averag %f\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg);
+	CtdlLogPrintf(CTDL_INFO, "System load average %f, workers averag %f\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg);
 	end_critical_section(S_THREAD_LIST);
 }
 
