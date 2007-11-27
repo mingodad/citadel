@@ -58,6 +58,9 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
 
 	lprintf(CTDL_DEBUG, "New stream detected.\n");
+
+	if (CC->logged_in) logout(CC);	/* Client may try to log in twice.  Handle this. */
+
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {
 			safestrncpy(XMPP->server_name, attr[1], sizeof XMPP->server_name);
