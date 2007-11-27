@@ -259,8 +259,7 @@ void init_sysdep(void) {
 	 * whole Citadel service would come down whenever a single client
 	 * socket breaks.
 	 */
-	//signal(SIGPIPE, SIG_IGN);
-	signal(SIGPIPE, signal_cleanup);
+	signal(SIGPIPE, SIG_IGN);
 }
 
 
