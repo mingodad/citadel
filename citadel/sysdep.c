@@ -1410,7 +1410,7 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	#endif
 	this_thread->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
 	end_critical_section(S_THREAD_LIST);
-	CtdlThreadGC();
+//	CtdlThreadGC();
 }
 
 
@@ -1799,7 +1799,7 @@ void dead_session_purge(int force) {
 	begin_critical_section(S_THREAD_LIST);
 	if ( (num_sessions > num_workers)
 	   && (num_workers < config.c_max_workers) ) {
-		ctdl_internal_create_thread(NULL, CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
+		ctdl_internal_create_thread("Worker Thread", CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
 	}
 	end_critical_section(S_THREAD_LIST);
 	// FIXME: reduce the number of worker threads too
