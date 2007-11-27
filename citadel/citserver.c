@@ -296,7 +296,10 @@ void cmd_info(void) {
 	}
 
 	cprintf("%s\n", config.c_default_cal_zone);
-
+	/* Output load averages */
+	cprintf("%f\n", CtdlThreadLoadAvg);
+	cprintf("%f\n", CtdlThreadWorkerAvg);
+	
 	cprintf("000\n");
 }
 

@@ -344,8 +344,18 @@ int main(int argc, char **argv)
 	 * This thread is now used for garbage collection of other threads in the thread list
 	 */
 	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", pthread_self());
+
+	/* Sleep 10 seconds before first garbage collection */	
+	CtdlThreadSleep(10);
+	
 	while (CtdlThreadGetCount())
+	{
+		ctdl_thread_internal_calc_loadavg();
+		CtdlThreadSleep(1);
 		ctdl_internal_thread_gc();
+		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
+			ctdl_internal_thread_gc();
+	}
 	/*
 	 * If the above loop exits we must be shutting down since we obviously have no threads
 	 */

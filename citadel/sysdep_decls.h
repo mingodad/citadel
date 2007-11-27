@@ -108,10 +108,13 @@ extern struct worker_node {
  */
 #define CTDLTHREAD_BIGSTACK	0x0001
 #define CTDLTHREAD_WORKER	0x0002
+extern double CtdlThreadLoadAvg;
+extern double CtdlThreadWorkerAvg;
 
 void ctdl_internal_thread_gc (void);
 void ctdl_thread_internal_init(void);
 void ctdl_thread_internal_cleanup(void);
+void ctdl_thread_internal_calc_loadavg(void);
 struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 
 enum CtdlThreadState {
