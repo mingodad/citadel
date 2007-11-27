@@ -118,5 +118,16 @@ struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
+#ifdef WITH_THREADLOG
+#define CtdlThreadPushName(NAME) \
+	char *_push_name; \
+	_push_name = CtdlThreadName(CtdlThreadSelf(), NAME)
+
+#define CtdlThreadPopName() \
+	free (CtdlThreadName(CtdlThreadSelf(), _push_name))
+#else
+#define CtdlThreadPushName(NAME)
+#define CtdlThreadPopName()
+#endif
 
 #endif /* CTDL_MODULE_H */

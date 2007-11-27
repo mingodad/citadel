@@ -71,14 +71,14 @@ void terminate_idle_sessions(void) {
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (killed > 0)
-		lprintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
+		CtdlLogPrintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
 }
 
 
 
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
-		lprintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
+		CtdlLogPrintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
 		CtdlThreadStopAll();
 	}
 }
@@ -104,7 +104,7 @@ void check_ref_counts(void) {
 
 	int new_refcounts[MAXFLOORS];
 
-	lprintf(CTDL_DEBUG, "Checking floor reference counts\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Checking floor reference counts\n");
 	for (a=0; a<MAXFLOORS; ++a) {
 		new_refcounts[a] = 0;
 	}
@@ -123,7 +123,7 @@ void check_ref_counts(void) {
 			flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
 		}
 		lputfloor(&flbuf, a);
-		lprintf(CTDL_DEBUG, "Floor %d: %d rooms\n", a, new_refcounts[a]);
+		CtdlLogPrintf(CTDL_DEBUG, "Floor %d: %d rooms\n", a, new_refcounts[a]);
 	}
 }	
 
@@ -140,6 +140,8 @@ void do_housekeeping(void) {
 	int do_perminute_housekeeping_now = 0;
 	time_t now;
 
+	CtdlThreadPushName("do_housekeeping");
+	
 	/*
 	 * We do it this way instead of wrapping the whole loop in an
 	 * S_HOUSEKEEPING critical section because it eliminates the need to
@@ -158,6 +160,7 @@ void do_housekeeping(void) {
 	end_critical_section(S_HOUSEKEEPING);
 
 	if (do_housekeeping_now == 0) {
+		CtdlThreadPopName();
 		return;
 	}
 
@@ -181,4 +184,5 @@ void do_housekeeping(void) {
 	 * All done.
 	 */
 	housekeeping_in_progress = 0;
+	CtdlThreadPopName();
 }

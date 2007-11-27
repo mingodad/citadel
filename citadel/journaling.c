@@ -48,6 +48,8 @@
 #include "serv_vcard.h"			/* Needed for vcard_getuser and extract_inet_email_addrs */
 #include "journaling.h"
 
+#include "ctdl_module.h"
+
 struct jnlq *jnlq = NULL;	/* journal queue */
 
 /*
@@ -260,6 +262,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 void JournalRunQueue(void) {
 	struct jnlq *jptr = NULL;
 
+	CtdlThreadPushName("JournalRunQueue");
 	while (jnlq != NULL) {
 		begin_critical_section(S_JOURNAL_QUEUE);
 		if (jnlq != NULL) {
@@ -269,6 +272,7 @@ void JournalRunQueue(void) {
 		end_critical_section(S_JOURNAL_QUEUE);
 		JournalRunQueueMsg(jptr);
 	}
+	CtdlThreadPopName();
 }
 
 

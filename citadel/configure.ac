@@ -333,6 +333,15 @@ AC_ARG_WITH(gprof,
 			]
 )
 
+dnl disable thread table reporting
+AC_ARG_WITH(threadlog,
+		[ --with-threadlog      enable logging of thread table],
+			[ if test "x$withval" != "xno" ; then
+				AC_DEFINE(WITH_THREADLOG, [], [Define if you want logging of the thread tables.])
+			  fi
+			]
+)
+
 
 if test "$ac_cv_func_gethostbyname" = no; then
 	AC_CHECK_LIB(nsl, gethostbyname)

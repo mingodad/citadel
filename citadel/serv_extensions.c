@@ -922,22 +922,29 @@ void PerformSessionHooks(int EventType)
 {
 	struct SessionFunctionHook *fcn = NULL;
 
+	CtdlThreadPushName("PerformSessionHooks");
+	
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			(*fcn->h_function_pointer) ();
 		}
 	}
+	CtdlThreadPopName();
+	
 }
 
 void PerformUserHooks(struct ctdluser *usbuf, int EventType)
 {
 	struct UserFunctionHook *fcn = NULL;
 
+	CtdlThreadPushName("PerformUserHooks");
+	
 	for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			(*fcn->h_function_pointer) (usbuf);
 		}
 	}
+	CtdlThreadPopName();
 }
 
 int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
@@ -945,6 +952,8 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	struct MessageFunctionHook *fcn = NULL;
 	int total_retval = 0;
 
+	CtdlThreadPushName("PerformMessageHooks");
+	
 	/* Other code may elect to protect this message from server-side
 	 * handlers; if this is the case, don't do anything.
 	lprintf(CTDL_DEBUG, "** Event type is %d, flags are %d\n",
@@ -952,6 +961,7 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	 */
 	if (msg->cm_flags & CM_SKIP_HOOKS) {
 		lprintf(CTDL_DEBUG, "Skipping hooks\n");
+		CtdlThreadPopName();
 		return(0);
 	}
 
@@ -968,6 +978,7 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	 * this is an EVT_BEFORESAVE event, a nonzero return code will cause
 	 * the save operation to abort.
 	 */
+	CtdlThreadPopName();
 	return total_retval;
 }
 
@@ -977,6 +988,8 @@ int PerformRoomHooks(struct ctdlroom *target_room)
 	struct RoomFunctionHook *fcn;
 	int total_retval = 0;
 
+	CtdlThreadPushName("PerformRoomHooks");
+	
 	lprintf(CTDL_DEBUG, "Performing room hooks for <%s>\n", target_room->QRname);
 
 	for (fcn = RoomHookTable; fcn != NULL; fcn = fcn->next) {
@@ -985,6 +998,7 @@ int PerformRoomHooks(struct ctdlroom *target_room)
 
 	/* Return the sum of the return codes from the hook functions.
 	 */
+	CtdlThreadPopName();
 	return total_retval;
 }
 
@@ -994,6 +1008,8 @@ int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 	struct NetprocFunctionHook *fcn;
 	int total_retval = 0;
 
+	CtdlThreadPushName("PerformNetprocHooks");
+	
 	for (fcn = NetprocHookTable; fcn != NULL; fcn = fcn->next) {
 		total_retval = total_retval +
 			(*fcn->h_function_pointer) (msg, target_room);
@@ -1002,6 +1018,7 @@ int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 	/* Return the sum of the return codes from the hook functions.
 	 * A nonzero return code will cause the message to *not* be imported.
 	 */
+	CtdlThreadPopName();
 	return total_retval;
 }
 
@@ -1010,9 +1027,12 @@ void PerformDeleteHooks(char *room, long msgnum)
 {
 	struct DeleteFunctionHook *fcn;
 
+	CtdlThreadPushName("PerformDeleteHooks");
+	
 	for (fcn = DeleteHookTable; fcn != NULL; fcn = fcn->next) {
 		(*fcn->h_function_pointer) (room, msgnum);
 	}
+	CtdlThreadPopName();
 }
 
 
@@ -1025,6 +1045,8 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 	int total_sent = 0;
 	int p;
 
+	CtdlThreadPushName("PerformXmsgHooks");
+	
 	for (p=0; p<MAX_XMSG_PRI; ++p) {
 		for (fcn = XmsgHookTable; fcn != NULL; fcn = fcn->next) {
 			if (fcn->order == p) {
@@ -1040,6 +1062,7 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 		 */
 		if (total_sent) break;
 	}
+	CtdlThreadPopName();
 	return total_sent;
 }
 

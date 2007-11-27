@@ -1263,13 +1263,11 @@ char *CtdlThreadName(struct CtdlThreadNode *thread, char *name)
 		return NULL;
 	}
 	begin_critical_section(S_THREAD_LIST);
+	old_name = this_thread->name;
 	if (name)
-	{
-		old_name = this_thread->name;
 		this_thread->name = strdup (name);
-		free(old_name);
-	}
-	old_name = strdup(this_thread->name);
+	else
+		old_name = strdup(old_name);
 	end_critical_section (S_THREAD_LIST);
 	return (old_name);
 }	
@@ -1441,6 +1439,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 			worker_avg += that_thread->load_avg;
 			workers++;
 		}
+#ifdef WITH_THREADLOG
 		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%ld) \"%s\" %f %f %f %f.\n",
 			that_thread->name,
 			that_thread->tid,
@@ -1449,13 +1448,15 @@ void ctdl_thread_internal_calc_loadavg(void)
 			that_thread->avg_running,
 			that_thread->avg_blocked,
 			that_thread->load_avg);
-
+#endif
 		pthread_mutex_unlock(&that_thread->ThreadMutex);
 		that_thread = that_thread->next;
 	}
 	CtdlThreadLoadAvg = load_avg/num_threads;
 	CtdlThreadWorkerAvg = worker_avg/workers;
+#ifdef WITH_THREADLOG
 	CtdlLogPrintf(CTDL_INFO, "System load average %f, workers averag %f\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg);
+#endif
 	end_critical_section(S_THREAD_LIST);
 }
 
@@ -1473,7 +1474,9 @@ void ctdl_internal_thread_gc (void)
 	if(num_threads == 1)
 		CtdlThreadList->state = CTDL_THREAD_EXITED;
 	
+#ifdef WITH_THREADLOG
 	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
+#endif
 	/*
 	 * Woke up to do garbage collection
 	 */
@@ -1767,9 +1770,12 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 void dead_session_purge(int force) {
 	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
 	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
-
+	
+	CtdlThreadPushName("dead_session_purge");
+	
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
+			CtdlThreadPopName();
 			return;	/* Too soon, go away */
 		}
 	}
@@ -1823,6 +1829,9 @@ void dead_session_purge(int force) {
 	}
 	end_critical_section(S_THREAD_LIST);
 	// FIXME: reduce the number of worker threads too
+	
+	CtdlThreadPopName();
+	
 }
 
 
