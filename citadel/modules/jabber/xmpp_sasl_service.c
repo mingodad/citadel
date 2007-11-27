@@ -106,6 +106,8 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 		return;
 	}
 
+        if (CC->logged_in) logout(CC);  /* Client may try to log in twice.  Handle this. */
+
 	if (xmpp_auth_plain(authstring) == 0) {
 		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
 	}
