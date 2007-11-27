@@ -85,7 +85,9 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
 
 	/* A really bad SASL implementation... */
-	xmpp_output_auth_mechs();
+	if (!CC->logged_in) {
+		xmpp_output_auth_mechs();
+	}
 
 	/* ...and the ability to close XML tags using angle brackets.  We should patent this. */
 	cprintf("</stream:features>");
