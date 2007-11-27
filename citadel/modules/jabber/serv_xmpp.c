@@ -84,7 +84,7 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* Sessions... */
 	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
 
-	/* A really bad SASL implementation... */
+	/* SASL (but only if we're not already logged in; this is important!) ... */
 	if (!CC->logged_in) {
 		xmpp_output_auth_mechs();
 	}
