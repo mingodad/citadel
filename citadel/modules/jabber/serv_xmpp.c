@@ -186,6 +186,11 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			cprintf("</iq>");
 		}
 
+		else if (XMPP->iq_session) {
+			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_bind_id);
+			cprintf("</iq>");
+		}
+
 		else {
 			cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_bind_id);
 			cprintf("<error></error>");
@@ -195,6 +200,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		/* Now clear these fields out so they don't get used by a future stanza */
 		XMPP->iq_bind_id[0] = 0;
 		XMPP->iq_client_resource[0] = 0;
+		XMPP->iq_session = 1;
 	}
 
 	else if (!strcasecmp(el, "auth")) {
@@ -204,6 +210,10 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 		/* Now clear these fields out so they don't get used by a future stanza */
 		XMPP->sasl_auth_mech[0] = 0;
+	}
+
+	else if (!strcasecmp(el, "session")) {
+		XMPP->iq_session = 1;
 	}
 
 	XMPP->chardata_len = 0;

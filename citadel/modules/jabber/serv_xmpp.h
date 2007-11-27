@@ -13,6 +13,7 @@ struct citxmpp {			/* Information about the current session */
 
 	char iq_bind_id[256];		/* for <iq> stanzas */
 	char iq_client_resource[256];	/* resource name requested by the client */
+	int iq_session;			/* nonzero == client is requesting a session */
 
 	char sasl_auth_mech[32];	/* SASL auth mechanism requested by the client */
 };
