@@ -11,9 +11,10 @@ struct citxmpp {			/* Information about the current session */
 	int chardata_alloc;
 	char client_jid[256];		/* "full JID" of the client */
 
-	char iq_type[256];
-	char iq_id[256];		/* for <iq> stanzas */
-	char iq_to[256];		/* for <iq> stanzas */
+	char iq_type[256];		/* for <iq> stanzas */
+	char iq_id[256];
+	char iq_from[256];
+	char iq_to[256];
 	char iq_client_resource[256];	/* resource name requested by the client */
 	int iq_session;			/* nonzero == client is requesting a session */
 	char iq_query_xmlns[256];	/* Namespace of <query> */
@@ -28,4 +29,4 @@ void xmpp_greeting(void);
 void xmpp_command_loop(void);
 void xmpp_sasl_auth(char *, char *);
 void xmpp_output_auth_mechs(void);
-void xmpp_query_namespace(char *, char *, char *);
+void xmpp_query_namespace(char *, char *, char *, char *);

@@ -128,6 +128,9 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 			else if (!strcasecmp(attr[i], "id")) {
 				safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
 			}
+			else if (!strcasecmp(attr[i], "from")) {
+				safestrncpy(XMPP->iq_from, attr[i+1], sizeof XMPP->iq_from);
+			}
 			else if (!strcasecmp(attr[i], "to")) {
 				safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
 			}
@@ -179,7 +182,8 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			 * Query on a namespace
 			 */
 			if (!IsEmptyStr(XMPP->iq_query_xmlns)) {
-				xmpp_query_namespace(XMPP->iq_id, XMPP->iq_to, XMPP->iq_query_xmlns);
+				xmpp_query_namespace(XMPP->iq_id, XMPP->iq_from,
+						XMPP->iq_to, XMPP->iq_query_xmlns);
 			}
 
 			/*
@@ -227,6 +231,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 		/* Now clear these fields out so they don't get used by a future stanza */
 		XMPP->iq_id[0] = 0;
+		XMPP->iq_from[0] = 0;
 		XMPP->iq_to[0] = 0;
 		XMPP->iq_type[0] = 0;
 		XMPP->iq_client_resource[0] = 0;

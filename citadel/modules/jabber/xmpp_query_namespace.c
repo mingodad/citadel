@@ -47,24 +47,87 @@
 #include <expat.h>
 #include "serv_xmpp.h"
 
+
+/* 
+ * Return the results for a "jabber:iq:roster:query"
+ *
+ * Since we are not yet managing a roster, we simply return the entire wholist.
+ *
+ */
+void jabber_iq_roster_query(void)
+{
+	struct CitContext *cptr;
+	int aide = (CC->user.axlevel >= 6);
+
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
+
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+
+		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide)) {
+			cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
+				cptr->cs_inet_email,
+				cptr->user.fullname
+			);
+			cprintf("<group>%s</group>", config.c_humannode);
+			cprintf("</item>");
+		}
+	}
+
+/**** these remain here for documentation example only
+
+	cprintf("<item jid=\"romeo@example.net\" name=\"Romeo\" subscription=\"both\">");
+	cprintf("<group>Friends</group>");
+	cprintf("</item>");
+
+	cprintf("<item jid=\"mercutio@example.org\" name=\"Mercutio\" subscription=\"from\">");
+	cprintf("<group>Friends</group>");
+	cprintf("</item>");
+
+	cprintf("<item jid=\"benvolio@example.org\" name=\"Benvolio\" subscription=\"both\">");
+	cprintf("<group>Friends</group>");
+	cprintf("</item>");
+
+ ****/
+
+	cprintf("</query>");
+}
+
+
 /*
  * TODO: handle queries on some or all of these namespaces
-
+ *
 xmpp_query_namespace(purple5b5c1e58, splorph.xand.com, http://jabber.org/protocol/disco#items:query)
 xmpp_query_namespace(purple5b5c1e59, splorph.xand.com, http://jabber.org/protocol/disco#info:query)
 xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
 xmpp_query_namespace(purple5b5c1e5b, , jabber:iq:roster:query)
- 
+ *
  */
 
-void xmpp_query_namespace(char *iq_id, char *iq_to, char *query_xmlns) {
+void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns) {
 
-	lprintf(CTDL_DEBUG, "[31mxmpp_query_namespace(%s, %s, %s)[0m\n", iq_id, iq_to, query_xmlns);
+	lprintf(CTDL_DEBUG, "[31mxmpp_query_namespace(%s, %s, %s, %s)[0m\n",
+		iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
-	 * Unknown query.  Return the XML equivalent of a blank stare (empty result)
+	 * Beginning of query result.
 	 */
-	cprintf("<iq type=\"result\" id=\"%s\">", iq_id);
+	cprintf("<iq type=\"result\" ");
+	if (!IsEmptyStr(iq_from)) {
+		cprintf("to=\"%s\" ", iq_from);
+	}
+	cprintf("id=\"%s\">", iq_id);
+
+	/*
+	 * Is this a query we know how to handle?
+	 */
+	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
+		jabber_iq_roster_query();
+	}
+
+	/*
+	 * End of query result.  If we didn't hit any known namespaces then we will
+	 * have simply delivered an empty result stanza, which should be ok.
+	 */
 	cprintf("</iq>");
 
 }
