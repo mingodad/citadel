@@ -122,6 +122,9 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 			if (!strcasecmp(attr[i], "type")) iqtype = attr[i+1];
 			if (!strcasecmp(attr[i], "id")) iqid = attr[i+1];
 		}
+		if (iqtype != NULL) {
+			safestrncpy(XMPP->iq_type, iqtype, sizeof XMPP->iq_type);
+		}
 		if ((iqtype != NULL) && (iqid != NULL)) {
 			if (!strcasecmp(iqtype, "set")) {
 				safestrncpy(XMPP->iq_bind_id, iqid, sizeof XMPP->iq_bind_id);
@@ -165,10 +168,17 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "iq")) {
 
+		/*
+		 * iq type="get"
+		 */
+		if (!strcasecmp(XMPP->iq_type, "get")) {
+			lprintf(CTDL_DEBUG, "[32m DISCO DUCK! [0m\n");
+		}
 
-		/* If this <iq> stanza was a "bind" attempt, process it ... */
-
-		if ( (!IsEmptyStr(XMPP->iq_bind_id)) && (!IsEmptyStr(XMPP->iq_client_resource)) ) {
+		/*
+		 * If this <iq> stanza was a "bind" attempt, process it ...
+		 */
+		else if ( (!IsEmptyStr(XMPP->iq_bind_id)) && (!IsEmptyStr(XMPP->iq_client_resource)) ) {
 
 			/* Generate the "full JID" of the client resource */
 
@@ -202,7 +212,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		/* Now clear these fields out so they don't get used by a future stanza */
 		XMPP->iq_bind_id[0] = 0;
 		XMPP->iq_client_resource[0] = 0;
-		XMPP->iq_session = 1;
+		XMPP->iq_session = 0;
 	}
 
 	else if (!strcasecmp(el, "auth")) {

@@ -11,6 +11,7 @@ struct citxmpp {			/* Information about the current session */
 	int chardata_alloc;
 	char client_jid[256];		/* "full JID" of the client */
 
+	char iq_type[256];
 	char iq_bind_id[256];		/* for <iq> stanzas */
 	char iq_client_resource[256];	/* resource name requested by the client */
 	int iq_session;			/* nonzero == client is requesting a session */

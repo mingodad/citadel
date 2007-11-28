@@ -99,7 +99,7 @@ void xmpp_output_auth_mechs(void) {
  */
 void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 
-	if (strcasecmp(XMPP->sasl_auth_mech, "PLAIN")) {
+	if (strcasecmp(sasl_auth_mech, "PLAIN")) {
 		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
 		cprintf("<invalid-mechanism/>");
 		cprintf("</failure>");
