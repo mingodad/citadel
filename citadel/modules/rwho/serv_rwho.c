@@ -154,7 +154,7 @@ void cmd_rwho(char *argbuf) {
 	 */
 	PerformSessionHooks(EVT_RWHO);
 	cprintf("000\n");
-	}
+}
 
 
 /*
@@ -246,11 +246,6 @@ void cmd_stel(char *cmdbuf)
 	cprintf("%d %d\n", CIT_OK,
 		((CC->cs_flags & CS_STEALTH) ? 1 : 0) );
 }
-
-
-
-
-
 
 
 CTDL_MODULE_INIT(rwho)
