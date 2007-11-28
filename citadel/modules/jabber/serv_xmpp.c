@@ -115,19 +115,21 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 		xmpp_stream_start(data, supplied_el, attr);
 	}
 
+	else if (!strcasecmp(el, "query")) {
+		XMPP->iq_query_xmlns[0] = 0;
+		safestrncpy(XMPP->iq_query_xmlns, supplied_el, sizeof XMPP->iq_query_xmlns);
+	}
+
 	else if (!strcasecmp(el, "iq")) {
-		const char *iqtype = NULL;
-		const char *iqid = NULL;
 		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "type")) iqtype = attr[i+1];
-			if (!strcasecmp(attr[i], "id")) iqid = attr[i+1];
-		}
-		if (iqtype != NULL) {
-			safestrncpy(XMPP->iq_type, iqtype, sizeof XMPP->iq_type);
-		}
-		if ((iqtype != NULL) && (iqid != NULL)) {
-			if (!strcasecmp(iqtype, "set")) {
-				safestrncpy(XMPP->iq_bind_id, iqid, sizeof XMPP->iq_bind_id);
+			if (!strcasecmp(attr[i], "type")) {
+				safestrncpy(XMPP->iq_type, attr[i+1], sizeof XMPP->iq_type);
+			}
+			else if (!strcasecmp(attr[i], "id")) {
+				safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
+			}
+			else if (!strcasecmp(attr[i], "to")) {
+				safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
 			}
 		}
 	}
@@ -169,16 +171,30 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	else if (!strcasecmp(el, "iq")) {
 
 		/*
-		 * iq type="get"
+		 * iq type="get" (handle queries)
 		 */
 		if (!strcasecmp(XMPP->iq_type, "get")) {
-			lprintf(CTDL_DEBUG, "[32m DISCO DUCK! [0m\n");
+
+			/*
+			 * Query on a namespace
+			 */
+			if (!IsEmptyStr(XMPP->iq_query_xmlns)) {
+				xmpp_query_namespace(XMPP->iq_id, XMPP->iq_to, XMPP->iq_query_xmlns);
+			}
+
+			/*
+			 * Unknown queries ... return the XML equivalent of a blank stare
+			 */
+			else {
+				cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
+				cprintf("</iq>");
+			}
 		}
 
 		/*
 		 * If this <iq> stanza was a "bind" attempt, process it ...
 		 */
-		else if ( (!IsEmptyStr(XMPP->iq_bind_id)) && (!IsEmptyStr(XMPP->iq_client_resource)) ) {
+		else if ( (!IsEmptyStr(XMPP->iq_id)) && (!IsEmptyStr(XMPP->iq_client_resource)) ) {
 
 			/* Generate the "full JID" of the client resource */
 
@@ -191,7 +207,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 			/* Tell the client what its JID is */
 
-			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_bind_id);
+			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
 			cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
 			cprintf("<jid>%s</jid>", XMPP->client_jid);
 			cprintf("</bind>");
@@ -199,20 +215,23 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		}
 
 		else if (XMPP->iq_session) {
-			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_bind_id);
+			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
 			cprintf("</iq>");
 		}
 
 		else {
-			cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_bind_id);
+			cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
 			cprintf("<error></error>");
 			cprintf("</iq>");
 		}
 
 		/* Now clear these fields out so they don't get used by a future stanza */
-		XMPP->iq_bind_id[0] = 0;
+		XMPP->iq_id[0] = 0;
+		XMPP->iq_to[0] = 0;
+		XMPP->iq_type[0] = 0;
 		XMPP->iq_client_resource[0] = 0;
 		XMPP->iq_session = 0;
+		XMPP->iq_query_xmlns[0] = 0;
 	}
 
 	else if (!strcasecmp(el, "auth")) {
