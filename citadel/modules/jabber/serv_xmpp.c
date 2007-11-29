@@ -1,5 +1,5 @@
 /*
- * $Id:  $ 
+ * $Id$ 
  *
  * XMPP (Jabber) service for the Citadel system
  * Copyright (c) 2007 by Art Cancro
@@ -78,18 +78,16 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* The features of this stream are... */
 	cprintf("<stream:features>");
 
-	/* Binding... */
-	cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
-
-	/* Sessions... */
-	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
-
-	/* SASL (but only if we're not already logged in; this is important!) ... */
 	if (!CC->logged_in) {
+		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
 	}
+	else {
+		/* If we've logged in, now offer binding and sessions as our feature set */
+		cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
+		cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
+	}
 
-	/* ...and the ability to close XML tags using angle brackets.  We should patent this. */
 	cprintf("</stream:features>");
 }
 
@@ -202,10 +200,16 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 			/* Generate the "full JID" of the client resource */
 
+			// snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
+			//	"%d@%s/%s",
+			//	CC->cs_pid,
+			//	config.c_fqdn,
+			//	XMPP->iq_client_resource
+			//);
+
 			snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
-				"%d@%s/%s",
-				CC->cs_pid,
-				config.c_fqdn,
+				"%s/%s",
+				CC->cs_inet_email,
 				XMPP->iq_client_resource
 			);
 
@@ -364,5 +368,5 @@ CTDL_MODULE_INIT(jabber)
 	}
 
 	/* return our Subversion id for the Log */
-	return "$Id: $";
+	return "$Id$";
 }
