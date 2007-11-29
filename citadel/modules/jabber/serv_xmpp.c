@@ -89,6 +89,8 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	}
 
 	cprintf("</stream:features>");
+
+	CC->is_async = 1;		/* XMPP sessions are inherently async-capable */
 }
 
 
@@ -354,6 +356,15 @@ void xmpp_command_loop(void) {
 	XML_Parse(XMPP->xp, cmdbuf, 1, 0);
 }
 
+
+/*
+ * Async loop for XMPP sessions (handles the transmission of unsolicited stanzas)
+ */
+void xmpp_async_loop(void) {
+	jabber_output_incoming_messages();
+}
+
+
 const char *CitadelServiceXMPP="XMPP";
 
 #endif	/* HAVE_EXPAT */
@@ -362,12 +373,11 @@ CTDL_MODULE_INIT(jabber)
 {
 #ifdef HAVE_EXPAT
 	if (!threading) {
-		/* CtdlRegisterServiceHook(config.c_xmpp_port,		FIXME	*/
-		CtdlRegisterServiceHook(5222,
+		CtdlRegisterServiceHook(5222,			/* FIXME change to config.c_xmpp_port */
 					NULL,
 					xmpp_greeting,
 					xmpp_command_loop,
-					NULL,
+					xmpp_async_loop,
 					CitadelServiceXMPP);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
 	#else
