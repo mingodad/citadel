@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  *
  */
 
@@ -30,3 +30,4 @@ void xmpp_command_loop(void);
 void xmpp_sasl_auth(char *, char *);
 void xmpp_output_auth_mechs(void);
 void xmpp_query_namespace(char *, char *, char *, char *);
+void jabber_wholist_presence_dump(void);

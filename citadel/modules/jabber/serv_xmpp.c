@@ -256,6 +256,14 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		XMPP->iq_session = 1;
 	}
 
+	else if (!strcasecmp(el, "presence")) {
+
+		/* Respond to a <presence> update by firing back with presence information
+		 * on the entire wholist.  Check this assumption, it's probably wrong.
+		 */
+		jabber_wholist_presence_dump();
+	}
+
 	XMPP->chardata_len = 0;
 	if (XMPP->chardata_alloc > 0) {
 		XMPP->chardata[0] = 0;

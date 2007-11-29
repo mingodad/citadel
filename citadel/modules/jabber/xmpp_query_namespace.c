@@ -1,5 +1,5 @@
 /*
- * $Id:  $ 
+ * $Id$ 
  *
  * Handle <iq> <get> <query> type situations (namespace queries)
  *
@@ -51,7 +51,8 @@
 /* 
  * Return the results for a "jabber:iq:roster:query"
  *
- * Since we are not yet managing a roster, we simply return the entire wholist.
+ * Since we are not yet managing a roster, we simply return the entire wholist
+ * (minus any entries for this user -- don't tell me about myself)
  *
  */
 void jabber_iq_roster_query(void)
@@ -63,7 +64,10 @@ void jabber_iq_roster_query(void)
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 
-		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide)) {
+		if (
+		   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+		   && (cptr->user.usernum != CC->user.usernum)
+		   ) {
 			cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
 				cptr->cs_inet_email,
 				cptr->user.fullname
@@ -72,22 +76,6 @@ void jabber_iq_roster_query(void)
 			cprintf("</item>");
 		}
 	}
-
-/**** these remain here for documentation example only
-
-	cprintf("<item jid=\"romeo@example.net\" name=\"Romeo\" subscription=\"both\">");
-	cprintf("<group>Friends</group>");
-	cprintf("</item>");
-
-	cprintf("<item jid=\"mercutio@example.org\" name=\"Mercutio\" subscription=\"from\">");
-	cprintf("<group>Friends</group>");
-	cprintf("</item>");
-
-	cprintf("<item jid=\"benvolio@example.org\" name=\"Benvolio\" subscription=\"both\">");
-	cprintf("<group>Friends</group>");
-	cprintf("</item>");
-
- ****/
 
 	cprintf("</query>");
 }
@@ -99,7 +87,6 @@ void jabber_iq_roster_query(void)
 xmpp_query_namespace(purple5b5c1e58, splorph.xand.com, http://jabber.org/protocol/disco#items:query)
 xmpp_query_namespace(purple5b5c1e59, splorph.xand.com, http://jabber.org/protocol/disco#info:query)
 xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
-xmpp_query_namespace(purple5b5c1e5b, , jabber:iq:roster:query)
  *
  */
 
