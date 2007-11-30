@@ -1863,15 +1863,6 @@ void dead_session_purge(int force) {
 		rem = rem->next;
 		free(ptr);
 	}
-
-	/* Raise the size of the worker thread pool if necessary. */
-	begin_critical_section(S_THREAD_LIST);
-	if ( (num_sessions > num_workers)
-	   && (num_workers < config.c_max_workers) ) {
-		ctdl_internal_create_thread("Worker Thread", CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
-	}
-	end_critical_section(S_THREAD_LIST);
-	// FIXME: reduce the number of worker threads too
 }
 
 

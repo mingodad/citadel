@@ -407,24 +407,51 @@ void go_threading(void)
 					);
 #endif
 				CtdlThreadStop(last_worker);
-//				ctdl_thread_internal_change_state (last_worker, CTDL_THREAD_STOP_REQ);
-//				pthread_mutex_lock(&last_worker->ThreadMutex);
-//				pthread_cond_signal(&last_worker->ThreadCond);
-//				pthread_mutex_unlock(&last_worker->ThreadMutex);
 			}
 		}
 	
+		/*
+		 * If all our workers are working hard, start some more to help out
+		 * with things
+		 */
+		begin_critical_section(S_THREAD_LIST);
+		/* FIXME: come up with a better way to dynamically alter the number of threads
+		 * based on the system load
+		 */
+//		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkers() < num_sessions))
+		// && (CtdlThreadLoadAvg < 90) )
+		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadWorkerAvg > 60) && (CtdlThreadLoadAvg < 90) )
+		{
+			end_critical_section(S_THREAD_LIST);
+			for (i=0; i<5 ; i++)
+//			for (i=0; i< (num_sessions - CtdlThreadGetWorkers()) ; i++)
+//			for (i=0; i< (10 - (55 - CtdlThreadWorkerAvg) / CtdlThreadWorkerAvg / CtdlThreadGetWorkers()) ; i++)
+			{
+				begin_critical_section(S_THREAD_LIST);
+				ctdl_internal_create_thread("Worker Thread",
+					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
+					worker_thread,
+					NULL
+					);
+				end_critical_section(S_THREAD_LIST);
+			}
+		}
+		else
+			end_critical_section(S_THREAD_LIST);
 		
-		CtdlThreadSleep(1);
 		begin_critical_section(S_THREAD_LIST);
 		ctdl_internal_thread_gc();
 		end_critical_section(S_THREAD_LIST);
+		
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
 		{
 			begin_critical_section(S_THREAD_LIST);
 			ctdl_internal_thread_gc();
 			end_critical_section(S_THREAD_LIST);
 		}
+		
+		if (CtdlThreadGetCount())
+			CtdlThreadSleep(1);
 	}
 	/*
 	 * If the above loop exits we must be shutting down since we obviously have no threads
