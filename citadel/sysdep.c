@@ -1534,14 +1534,14 @@ void ctdl_internal_thread_gc (void)
 		if (pthread_equal(that_thread->tid, pthread_self()) && that_thread->thread_func)
 		{	/* Sanity check */
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
-			CtdlThreadStopAll();
+			abort();
 			return;
 		}
 		
 		if (num_threads <= 0)
 		{	/* Sanity check */
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
-			CtdlThreadStopAll();
+			abort();
 			return;
 		}
 
@@ -1583,6 +1583,7 @@ void ctdl_internal_thread_gc (void)
 			"Thread system WARNING, discrepancy in number of worker threads. Counted %d, should be %d.\n",
 			workers, num_workers
 			);
+		abort();
 		return;
 	}
 }
