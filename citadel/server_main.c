@@ -368,8 +368,12 @@ void go_threading(void)
 	 */
 	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", pthread_self());
 
-	/* Sleep 10 seconds before first garbage collection */	
-	CtdlThreadSleep(10);
+	/*
+	 * We do a lot of locking and unlocking of the thread list in here.
+	 * We do this so that we can repeatedly release time for other threads
+	 * that may be waiting on the thread list.
+	 * We are a low priority thread so we can afford to do this
+	 */
 	
 	while (CtdlThreadGetCount())
 	{
@@ -379,6 +383,38 @@ void go_threading(void)
 		begin_critical_section(S_THREAD_LIST);
 		ctdl_thread_internal_calc_loadavg();
 		end_critical_section(S_THREAD_LIST);
+	
+		/* Reduce the size of the worker thread pool if necessary. */
+		if ((CtdlThreadGetWorkers() > config.c_min_workers) && (CtdlThreadWorkerAvg < 20))
+		{
+			/* Ask a worker thread to stop as we no longer need it */
+			begin_critical_section(S_THREAD_LIST);
+			last_worker = CtdlThreadList;
+			while (last_worker)
+			{
+				if (last_worker->flags & CTDLTHREAD_WORKER && last_worker->state > CTDL_THREAD_STOPPING)
+					break;
+				else
+					last_worker = last_worker->next;
+			}
+			end_critical_section(S_THREAD_LIST);
+			if (last_worker)
+			{
+#ifdef WITH_THREADLOG
+				CtdlLogPrintf(CTDL_DEBUG, "Thread system, stopping excess worker thread \"%s\" (%ld).\n",
+					last_worker->name,
+					last_worker->tid
+					);
+#endif
+				CtdlThreadStop(last_worker);
+//				ctdl_thread_internal_change_state (last_worker, CTDL_THREAD_STOP_REQ);
+//				pthread_mutex_lock(&last_worker->ThreadMutex);
+//				pthread_cond_signal(&last_worker->ThreadCond);
+//				pthread_mutex_unlock(&last_worker->ThreadMutex);
+			}
+		}
+	
+		
 		CtdlThreadSleep(1);
 		begin_critical_section(S_THREAD_LIST);
 		ctdl_internal_thread_gc();
