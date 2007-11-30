@@ -69,11 +69,9 @@ void jabber_output_incoming_messages(void) {
 	 	 */
 		cprintf("<message to=\"%s\" from=\"FIXME@example.org\" type=\"chat\">", XMPP->client_jid);
 		if (ptr->text != NULL) {
-			cprintf("<body>");
-			memfmout(ptr->text, 0, "\n");
-			if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
+			striplt(ptr->text);
+			cprintf("<body>%s</body>", ptr->text);
 			free(ptr->text);
-			cprintf("</body>");
 		}
 		cprintf("</message>");
 		free(ptr);
