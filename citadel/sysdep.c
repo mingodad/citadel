@@ -1150,7 +1150,6 @@ void ctdl_thread_internal_init(void)
 	struct timeval now, result;
 	double last_duration;
 
-	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
 	gettimeofday(&now, NULL);
 	timersub(&now, &(this_thread->last_state_change), &result);
 	// result now has a timeval for the time we spent in the last state since we last updated
@@ -1162,7 +1161,6 @@ void ctdl_thread_internal_init(void)
 	if (this_thread->state == CTDL_THREAD_BLOCKED)
 		this_thread->avg_blocked += last_duration;
 	memcpy (&this_thread->last_state_change, &now, sizeof (struct timeval));
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
 }
 
 /*
@@ -1173,8 +1171,8 @@ void ctdl_thread_internal_change_state (struct CtdlThreadNode *this_thread, enum
 	/*
 	 * Wether we change state or not we need update the load values
 	 */
-	ctdl_thread_internal_update_avgs(this_thread);
 	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
+	ctdl_thread_internal_update_avgs(this_thread);
 	if ((new_state == CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_STOP_REQ))
 		this_thread->state = new_state;
 	if (((new_state == CTDL_THREAD_SLEEPING) || (new_state == CTDL_THREAD_BLOCKED)) && (this_thread->state == CTDL_THREAD_RUNNING))
@@ -1448,8 +1446,8 @@ void ctdl_thread_internal_calc_loadavg(void)
 	while(that_thread)
 	{
 		/* Update load averages */
-		ctdl_thread_internal_update_avgs(that_thread);
 		pthread_mutex_lock(&that_thread->ThreadMutex);
+		ctdl_thread_internal_update_avgs(that_thread);
 		that_thread->load_avg = that_thread->avg_sleeping + that_thread->avg_running + that_thread->avg_blocked;
 		that_thread->load_avg = that_thread->avg_running / that_thread->load_avg * 100;
 		that_thread->avg_sleeping /= 2;
