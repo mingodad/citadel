@@ -1357,7 +1357,7 @@ int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread)
 		pthread_mutex_unlock(&this_thread->ThreadMutex);
 		return -1;
 	}
-	else if(this_thread->state < CTDL_THREAD_STOP_REQ)
+	else if((this_thread->state < CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_CREATE))
 	{
 		pthread_mutex_unlock(&this_thread->ThreadMutex);
 		return -1;
@@ -1605,9 +1605,17 @@ static void *ctdl_internal_thread_func (void *arg)
 	 * can continue its execution.
 	 */
 	begin_critical_section(S_THREAD_LIST);
+	// Register the cleanup function to take care of when we exit.
+	pthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
 	// Get our thread data structure
 	this_thread = (struct CtdlThreadNode *) arg;
-	this_thread->state = CTDL_THREAD_RUNNING;
+	/* Only change to running state if we weren't asked to stop during the create cycle
+	 * Other wise there is a window to allow this threads creation to continue to full grown and
+	 * therby prevent a shutdown of the server.
+	 */
+	if (!CtdlThreadCheckStop(this_thread))
+		this_thread->state = CTDL_THREAD_RUNNING;
+	
 	this_thread->pid = getpid();
 	gettimeofday(&this_thread->start_time, NULL);		/* Time this thread started */
 	memcpy(&this_thread->last_state_change, &this_thread->start_time, sizeof (struct timeval));	/* Changed state so mark it. */
@@ -1616,14 +1624,13 @@ static void *ctdl_internal_thread_func (void *arg)
 	// Tell the world we are here
 	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (%ld). \n", this_thread->name, this_thread->tid);
 
-	// Register the cleanup function to take care of when we exit.
-	pthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
 	
 	
 	/*
-	 * run the thread to do the work
+	 * run the thread to do the work but only if we haven't been asked to stop
 	 */
-	ret = (this_thread->thread_func)(this_thread->user_args);
+	if (!CtdlThreadCheckStop(this_thread))
+		ret = (this_thread->thread_func)(this_thread->user_args);
 	
 	/*
 	 * Our thread is exiting either because it wanted to end or because the server is stopping
