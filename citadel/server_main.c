@@ -354,9 +354,15 @@ int main(int argc, char **argv)
 		ctdl_thread_internal_calc_loadavg();
 		end_critical_section(S_THREAD_LIST);
 		CtdlThreadSleep(1);
+		begin_critical_section(S_THREAD_LIST);
 		ctdl_internal_thread_gc();
+		end_critical_section(S_THREAD_LIST);
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
+		{
+			begin_critical_section(S_THREAD_LIST);
 			ctdl_internal_thread_gc();
+			end_critical_section(S_THREAD_LIST);
+		}
 	}
 	/*
 	 * If the above loop exits we must be shutting down since we obviously have no threads

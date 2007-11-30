@@ -1517,7 +1517,6 @@ void ctdl_internal_thread_gc (void)
 	/*
 	 * Woke up to do garbage collection
 	 */
-	begin_critical_section(S_THREAD_LIST);
 	this_thread = CtdlThreadList;
 	while(this_thread)
 	{
@@ -1534,7 +1533,6 @@ void ctdl_internal_thread_gc (void)
 		
 		if (pthread_equal(that_thread->tid, pthread_self()) && that_thread->thread_func)
 		{	/* Sanity check */
-			end_critical_section(S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
 			CtdlThreadStopAll();
 			return;
@@ -1542,7 +1540,6 @@ void ctdl_internal_thread_gc (void)
 		
 		if (num_threads <= 0)
 		{	/* Sanity check */
-			end_critical_section (S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
 			CtdlThreadStopAll();
 			return;
@@ -1582,14 +1579,12 @@ void ctdl_internal_thread_gc (void)
 	/* Sanity check number of worker threads */
 	if (workers != num_workers)
 	{
-		end_critical_section(S_THREAD_LIST);
 		CtdlLogPrintf(CTDL_WARNING,
 			"Thread system WARNING, discrepancy in number of worker threads. Counted %d, should be %d.\n",
 			workers, num_workers
 			);
 		return;
 	}
-	end_critical_section(S_THREAD_LIST);
 }
 
 
