@@ -1458,7 +1458,6 @@ void ctdl_thread_internal_calc_loadavg(void)
 	double load_avg, worker_avg;
 	int workers = 0;
 
-	begin_critical_section(S_THREAD_LIST);
 	that_thread = CtdlThreadList;
 	load_avg = 0;
 	worker_avg = 0;
@@ -1494,9 +1493,8 @@ void ctdl_thread_internal_calc_loadavg(void)
 	CtdlThreadLoadAvg = load_avg/num_threads;
 	CtdlThreadWorkerAvg = worker_avg/workers;
 #ifdef WITH_THREADLOG
-	CtdlLogPrintf(CTDL_INFO, "System load average %f, workers averag %f\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg);
+	CtdlLogPrintf(CTDL_INFO, "System load average %f, workers averag %f, threads %d, workers %d, sessions %d\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
 #endif
-	end_critical_section(S_THREAD_LIST);
 }
 
 
@@ -1585,7 +1583,10 @@ void ctdl_internal_thread_gc (void)
 	if (workers != num_workers)
 	{
 		end_critical_section(S_THREAD_LIST);
-		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n", workers, num_workers);
+		CtdlLogPrintf(CTDL_WARNING,
+			"Thread system WARNING, discrepancy in number of worker threads. Counted %d, should be %d.\n",
+			workers, num_workers
+			);
 		return;
 	}
 	end_critical_section(S_THREAD_LIST);
@@ -1706,6 +1707,11 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 	this_thread->flags = flags;
 	this_thread->thread_func = thread_func;
 	this_thread->user_args = args;
+	/* Set this new thread with an avg_blocked of 2. We do this so that its creation affects the
+	 * load average for the system. If we don't do this then we create a mass of threads at the same time 
+	 * because the creation didn't affect the load average.
+	 */
+	this_thread->avg_blocked = 2;
 	pthread_mutex_init (&(this_thread->ThreadMutex), NULL);
 	pthread_cond_init (&(this_thread->ThreadCond), NULL);
 	
@@ -1759,6 +1765,7 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 	#ifdef HAVE_BACKTRACE
 	eCrash_RegisterThread(this_thread->name, 0);
 	#endif
+	ctdl_thread_internal_calc_loadavg();
 	return this_thread;
 }
 
