@@ -350,6 +350,8 @@ int main(int argc, char **argv)
 	
 	while (CtdlThreadGetCount())
 	{
+		if (exit_signal)
+			CtdlThreadStopAll();
 		begin_critical_section(S_THREAD_LIST);
 		ctdl_thread_internal_calc_loadavg();
 		end_critical_section(S_THREAD_LIST);

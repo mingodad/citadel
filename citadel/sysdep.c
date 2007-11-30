@@ -1997,9 +1997,9 @@ do_select:	force_purge = 0;
 				goto do_select;
 			}
 		}
-		else if(retval == 0) {
-			goto SKIP_SELECT;
-		}
+//		else if(retval == 0) {
+//			goto SKIP_SELECT;
+//		}
 		/* Next, check to see if it's a new client connecting
 		 * on a master socket.
 		 */

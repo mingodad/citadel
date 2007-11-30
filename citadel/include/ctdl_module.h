@@ -111,7 +111,7 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
 struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
-int CtdlThreadCheckStop(struct CtdlThreadNode *thread);
+int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread);
 void CtdlThreadCancel(struct CtdlThreadNode *thread);
 char *CtdlThreadName(struct CtdlThreadNode *thread, char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
