@@ -1579,12 +1579,11 @@ void ctdl_internal_thread_gc (void)
 	/* Sanity check number of worker threads */
 	if (workers != num_workers)
 	{
-		CtdlLogPrintf(CTDL_WARNING,
-			"Thread system WARNING, discrepancy in number of worker threads. Counted %d, should be %d.\n",
+		CtdlLogPrintf(CTDL_EMERG,
+			"Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n",
 			workers, num_workers
 			);
 		abort();
-		return;
 	}
 }
 
