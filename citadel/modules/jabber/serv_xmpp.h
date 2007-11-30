@@ -10,6 +10,7 @@ struct citxmpp {			/* Information about the current session */
 	int chardata_len;
 	int chardata_alloc;
 	char client_jid[256];		/* "full JID" of the client */
+	int last_event_processed;
 
 	char iq_type[256];		/* for <iq> stanzas */
 	char iq_id[256];
@@ -26,17 +27,27 @@ struct citxmpp {			/* Information about the current session */
 
 struct xmpp_event {
 	struct xmpp_event *next;
+	int event_seq;
+	time_t event_time;
 	int event_type;
 	char event_jid[256];
 };
 
 extern struct xmpp_event *xmpp_queue;
 
+enum {
+	XMPP_EVT_LOGIN,
+	XMPP_EVT_LOGOUT
+};
+
 void xmpp_cleanup_function(void);
 void xmpp_greeting(void);
 void xmpp_command_loop(void);
+void xmpp_async_loop(void);
 void xmpp_sasl_auth(char *, char *);
 void xmpp_output_auth_mechs(void);
 void xmpp_query_namespace(char *, char *, char *, char *);
 void jabber_wholist_presence_dump(void);
 void jabber_output_incoming_messages(void);
+void xmpp_queue_event(int, char *);
+void xmpp_process_events(void);

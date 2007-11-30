@@ -362,6 +362,7 @@ void xmpp_command_loop(void) {
  * Async loop for XMPP sessions (handles the transmission of unsolicited stanzas)
  */
 void xmpp_async_loop(void) {
+	xmpp_process_events();
 	jabber_output_incoming_messages();
 }
 
@@ -370,12 +371,15 @@ void xmpp_async_loop(void) {
  * Login hook for XMPP sessions
  */
 void xmpp_login_hook(void) {
+	xmpp_queue_event(XMPP_EVT_LOGIN, CC->cs_inet_email);
+}
 
-	// we need to somehow alert all xmpp sessions that we are here
-	// and do a roster push followed by a presence push
 
-	lprintf(CTDL_DEBUG, "LOGIN HOOOOOOOOOOOOOKK!!!\n");
-
+/*
+ * Logout hook for XMPP sessions
+ */
+void xmpp_logout_hook(void) {
+	xmpp_queue_event(XMPP_EVT_LOGOUT, CC->cs_inet_email);
 }
 
 
@@ -395,6 +399,7 @@ CTDL_MODULE_INIT(jabber)
 					CitadelServiceXMPP);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
+                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGOUT);
 
 	#else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  Jabber service will be disabled.\n");

@@ -1,5 +1,5 @@
 /*
- * $Id:  $ 
+ * $Id$ 
  *
  * Barebones SASL authentication service for XMPP (Jabber) clients.
  *
