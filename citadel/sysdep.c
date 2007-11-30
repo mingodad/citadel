@@ -1188,6 +1188,9 @@ void ctdl_thread_internal_change_state (struct CtdlThreadNode *this_thread, enum
  */
 void CtdlThreadStopAll(void)
 {
+	//FIXME: The signalling of the condition should not be in the critical_section
+	// We need to build a list of threads we are going to signal and then signal them afterwards
+	
 	struct CtdlThreadNode *this_thread;
 	
 	begin_critical_section(S_THREAD_LIST);
@@ -1197,7 +1200,9 @@ void CtdlThreadStopAll(void)
 		if (this_thread->thread_func) // Don't tell garbage collector to stop
 		{
 			ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
+//			pthread_mutex_lock(&this_thread->ThreadMutex);
 			pthread_cond_signal(&this_thread->ThreadCond);
+//			pthread_mutex_unlock(&this_thread->ThreadMutex);
 			CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
 		}
 		this_thread = this_thread->next;
@@ -1220,8 +1225,11 @@ void CtdlThreadGC(void)
 	while(this_thread)
 	{
 		if (!this_thread->thread_func)
+		{
+//			pthread_mutex_lock(&this_thread->ThreadMutex);
 			pthread_cond_signal(&this_thread->ThreadCond);
-			
+//			pthread_mutex_unlock(&this_thread->ThreadMutex);
+		}
 		this_thread = this_thread->next;
 	}
 	end_critical_section(S_THREAD_LIST);
@@ -1371,7 +1379,9 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 		
 	begin_critical_section (S_THREAD_LIST);
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
+//	pthread_mutex_lock(&this_thread->ThreadMutex);
 	pthread_cond_signal(&this_thread->ThreadCond);
+//	pthread_mutex_unlock(&this_thread->ThreadMutex);
 	end_critical_section(S_THREAD_LIST);
 }
 
