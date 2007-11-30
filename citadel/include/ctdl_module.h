@@ -118,6 +118,8 @@ struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout, struct CtdlThreadNode *self);
+
 /* Macros to speed up getting outr thread */
 #define CT _this_cit_thread
 #define CT_PUSH() \

@@ -1785,12 +1785,10 @@ struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_f
 /*
  * A warapper function for select so we can show a thread as blocked
  */
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout)
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout, struct CtdlThreadNode *self)
 {
-	struct CtdlThreadNode *self;
 	int ret;
 	
-	self = CtdlThreadSelf();
 	ctdl_thread_internal_change_state(self, CTDL_THREAD_BLOCKED);
 	ret = select(n, readfds, writefds, exceptfds, timeout);
 	ctdl_thread_internal_change_state(self, CTDL_THREAD_RUNNING);
@@ -1973,7 +1971,7 @@ do_select:	force_purge = 0;
 		if (!CtdlThreadCheckStop(CT)) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
+			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv, CT);
 //			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 
