@@ -108,14 +108,6 @@ extern struct worker_node {
  */
 #define CTDLTHREAD_BIGSTACK	0x0001
 #define CTDLTHREAD_WORKER	0x0002
-extern double CtdlThreadLoadAvg;
-extern double CtdlThreadWorkerAvg;
-
-void ctdl_internal_thread_gc (void);
-void ctdl_thread_internal_init(void);
-void ctdl_thread_internal_cleanup(void);
-void ctdl_thread_internal_calc_loadavg(void);
-struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 
 enum CtdlThreadState {
 	CTDL_THREAD_INVALID,
@@ -142,7 +134,7 @@ extern struct CtdlThreadNode {
 	void *(*thread_func) (void *arg);	/* The actual function that does this threads work */
 	void *user_args;			/* Arguments passed to this threads work function */
 	long flags;				/* Flags that describe this thread */
-	enum CtdlThreadState state;				/* Flag to show state of this thread */
+	enum CtdlThreadState state;		/* Flag to show state of this thread */
 	pthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
 	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others (also used for sleeping) */
 	pthread_attr_t attr;			/* Attributes of this thread */
@@ -155,6 +147,18 @@ extern struct CtdlThreadNode {
 	struct CtdlThreadNode *prev;		/* Previous thread in the thread table */
 	struct CtdlThreadNode *next;		/* Next thread in the thread table */
 } *CtdlThreadList;
+
+
+extern double CtdlThreadLoadAvg;
+extern double CtdlThreadWorkerAvg;
+
+void ctdl_internal_thread_gc (void);
+void ctdl_thread_internal_init(void);
+void ctdl_thread_internal_cleanup(void);
+void ctdl_thread_internal_calc_loadavg(void);
+struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+
+
 
 extern int SyslogFacility(char *name);
 extern int syslog_facility;
