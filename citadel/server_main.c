@@ -350,7 +350,9 @@ int main(int argc, char **argv)
 	
 	while (CtdlThreadGetCount())
 	{
+		begin_critical_section(S_THREAD_LIST);
 		ctdl_thread_internal_calc_loadavg();
+		end_critical_section(S_THREAD_LIST);
 		CtdlThreadSleep(1);
 		ctdl_internal_thread_gc();
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
