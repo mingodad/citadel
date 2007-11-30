@@ -180,7 +180,6 @@ volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
 	CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
-	CtdlThreadStopAll();
 	exit_signal = signum;
 }
 
