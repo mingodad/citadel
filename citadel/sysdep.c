@@ -1442,7 +1442,9 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
 	#endif
+	pthread_mutex_lock(&this_thread->ThreadMutex);
 	this_thread->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
+	pthread_mutex_unlock(&this_thread->ThreadMutex);
 	end_critical_section(S_THREAD_LIST);
 //	CtdlThreadGC();
 }
