@@ -1810,17 +1810,16 @@ void dead_session_purge(int force) {
 	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
 	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
 	
-	CtdlThreadPushName("dead_session_purge");
-	
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
-			CtdlThreadPopName();
 			return;	/* Too soon, go away */
 		}
 	}
 	time(&last_purge);
 
-	begin_critical_section(S_SESSION_TABLE);
+	if (try_critical_section(S_SESSION_TABLE))
+		return;
+		
 	ptr = ContextList;
 	while (ptr) {
 		ptr2 = ptr;
@@ -1839,11 +1838,9 @@ void dead_session_purge(int force) {
 			}
 
 			--num_sessions;
-
 			/* And put it on our to-be-destroyed list */
 			ptr2->next = rem;
 			rem = ptr2;
-
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
@@ -1972,7 +1969,6 @@ do_select:	force_purge = 0;
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
 			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv, CT);
-//			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 
 		if (CtdlThreadCheckStop(CT)) return(NULL);
