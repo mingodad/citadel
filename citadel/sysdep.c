@@ -1808,10 +1808,6 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
  * few seconds, because running it after every single unbind would waste a lot
  * of CPU time and keep the context list locked too much.  To force it to run
  * anyway, set "force" to nonzero.
- *
- *
- * After that's done, we raise the size of the worker thread pool
- * if such an action is appropriate.
  */
 void dead_session_purge(int force) {
 	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
