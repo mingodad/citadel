@@ -1872,9 +1872,6 @@ void dead_session_purge(int force) {
 	}
 	end_critical_section(S_THREAD_LIST);
 	// FIXME: reduce the number of worker threads too
-	
-	CtdlThreadPopName();
-	
 }
 
 
