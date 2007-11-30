@@ -262,6 +262,29 @@ void init_sysdep(void) {
 }
 
 
+
+/*
+ * Obtain a semaphore lock to begin a critical section.
+ * but only if no one else has one
+ */
+int try_critical_section(int which_one)
+{
+	/* For all types of critical sections except those listed here,
+	 * ensure nobody ever tries to do a critical section within a
+	 * transaction; this could lead to deadlock.
+	 */
+	if (	(which_one != S_FLOORCACHE)
+#ifdef DEBUG_MEMORY_LEAKS
+		&& (which_one != S_DEBUGMEMLEAKS)
+#endif
+		&& (which_one != S_RPLIST)
+	) {
+		cdb_check_handles();
+	}
+	return (pthread_mutex_trylock(&Critters[which_one]));
+}
+
+
 /*
  * Obtain a semaphore lock to begin a critical section.
  */
