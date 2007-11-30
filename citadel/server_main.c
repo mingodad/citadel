@@ -375,6 +375,7 @@ void go_threading(void)
 	{
 		if (exit_signal)
 			CtdlThreadStopAll();
+		check_sched_shutdown();
 		begin_critical_section(S_THREAD_LIST);
 		ctdl_thread_internal_calc_loadavg();
 		end_critical_section(S_THREAD_LIST);

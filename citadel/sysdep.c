@@ -2102,7 +2102,6 @@ SKIP_SELECT:
 
 		dead_session_purge(force_purge);
 		do_housekeeping();
-		check_sched_shutdown();
 	}
 	/* If control reaches this point, the server is shutting down */	
 	return(NULL);
