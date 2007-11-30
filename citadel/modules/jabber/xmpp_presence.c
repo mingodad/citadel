@@ -66,5 +66,4 @@ void jabber_wholist_presence_dump(void)
 	}
 }
 
-
 #endif	/* HAVE_EXPAT */

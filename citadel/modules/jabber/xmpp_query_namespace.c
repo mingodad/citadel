@@ -48,6 +48,18 @@
 #include "serv_xmpp.h"
 
 
+/*
+ * Output a single roster item, for roster queries or pushes
+ */
+void jabber_roster_item(struct CitContext *cptr) {
+	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
+		cptr->cs_inet_email,
+		cptr->user.fullname
+	);
+	cprintf("<group>%s</group>", config.c_humannode);
+	cprintf("</item>");
+}
+
 /* 
  * Return the results for a "jabber:iq:roster:query"
  *
@@ -68,12 +80,7 @@ void jabber_iq_roster_query(void)
 		   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
 		   && (cptr->user.usernum != CC->user.usernum)
 		   ) {
-			cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
-				cptr->cs_inet_email,
-				cptr->user.fullname
-			);
-			cprintf("<group>%s</group>", config.c_humannode);
-			cprintf("</item>");
+			jabber_roster_item(cptr);
 		}
 	}
 

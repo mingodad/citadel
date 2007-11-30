@@ -24,6 +24,14 @@ struct citxmpp {			/* Information about the current session */
 
 #define XMPP ((struct citxmpp *)CC->session_specific_data)
 
+struct xmpp_event {
+	struct xmpp_event *next;
+	int event_type;
+	char event_jid[256];
+};
+
+extern struct xmpp_event *xmpp_queue;
+
 void xmpp_cleanup_function(void);
 void xmpp_greeting(void);
 void xmpp_command_loop(void);

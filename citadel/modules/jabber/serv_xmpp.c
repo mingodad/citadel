@@ -51,6 +51,7 @@
 #include <expat.h>
 #include "serv_xmpp.h"
 
+struct xmpp_event *xmpp_queue = NULL;
 
 /* We have just received a <stream> tag from the client, so send them ours */
 
@@ -365,6 +366,19 @@ void xmpp_async_loop(void) {
 }
 
 
+/*
+ * Login hook for XMPP sessions
+ */
+void xmpp_login_hook(void) {
+
+	// we need to somehow alert all xmpp sessions that we are here
+	// and do a roster push followed by a presence push
+
+	lprintf(CTDL_DEBUG, "LOGIN HOOOOOOOOOOOOOKK!!!\n");
+
+}
+
+
 const char *CitadelServiceXMPP="XMPP";
 
 #endif	/* HAVE_EXPAT */
@@ -380,6 +394,8 @@ CTDL_MODULE_INIT(jabber)
 					xmpp_async_loop,
 					CitadelServiceXMPP);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
+                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
+
 	#else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  Jabber service will be disabled.\n");
 #endif
