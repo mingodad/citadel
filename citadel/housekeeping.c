@@ -140,8 +140,6 @@ void do_housekeeping(void) {
 	int do_perminute_housekeeping_now = 0;
 	time_t now;
 
-	CtdlThreadPushName("do_housekeeping");
-	
 	/*
 	 * We do it this way instead of wrapping the whole loop in an
 	 * S_HOUSEKEEPING critical section because it eliminates the need to
@@ -160,7 +158,6 @@ void do_housekeeping(void) {
 	end_critical_section(S_HOUSEKEEPING);
 
 	if (do_housekeeping_now == 0) {
-		CtdlThreadPopName();
 		return;
 	}
 
@@ -184,5 +181,4 @@ void do_housekeeping(void) {
 	 * All done.
 	 */
 	housekeeping_in_progress = 0;
-	CtdlThreadPopName();
 }

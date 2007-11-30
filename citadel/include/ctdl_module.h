@@ -127,17 +127,4 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 	struct CtdlThreadNode *_this_cit_thread;\
 	_this_cit_thread = CtdlThreadSelf()
 
-
-#ifdef WITH_THREADLOG
-#define CtdlThreadPushName(NAME) \
-	char *_push_name; \
-	_push_name = CtdlThreadName(CtdlThreadSelf(), NAME)
-
-#define CtdlThreadPopName() \
-	free (CtdlThreadName(CtdlThreadSelf(), _push_name))
-#else
-#define CtdlThreadPushName(NAME)
-#define CtdlThreadPopName()
-#endif
-
 #endif /* CTDL_MODULE_H */

@@ -262,7 +262,6 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 void JournalRunQueue(void) {
 	struct jnlq *jptr = NULL;
 
-	CtdlThreadPushName("JournalRunQueue");
 	while (jnlq != NULL) {
 		begin_critical_section(S_JOURNAL_QUEUE);
 		if (jnlq != NULL) {
@@ -272,7 +271,6 @@ void JournalRunQueue(void) {
 		end_critical_section(S_JOURNAL_QUEUE);
 		JournalRunQueueMsg(jptr);
 	}
-	CtdlThreadPopName();
 }
 
 
