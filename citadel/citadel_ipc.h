@@ -9,7 +9,6 @@
 #define DEFAULT_PORT		"citadel"
 
 #include "sysdep.h"
-#include "server.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -18,6 +17,8 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #endif
+
+#include "server.h"
 
 #ifdef __cplusplus
 extern "C" {
