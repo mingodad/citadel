@@ -111,13 +111,20 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
 struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
-int CtdlThreadCheckStop(void);
+int CtdlThreadCheckStop(struct CtdlThreadNode *thread);
 void CtdlThreadCancel(struct CtdlThreadNode *thread);
 char *CtdlThreadName(struct CtdlThreadNode *thread, char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
+/* Macros to speed up getting outr thread */
+#define CT _this_cit_thread
+#define CT_PUSH() \
+	struct CtdlThreadNode *_this_cit_thread;\
+	_this_cit_thread = CtdlThreadSelf()
+
+
 #ifdef WITH_THREADLOG
 #define CtdlThreadPushName(NAME) \
 	char *_push_name; \

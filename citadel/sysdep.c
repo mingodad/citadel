@@ -1244,6 +1244,11 @@ int CtdlThreadGetCount(void)
 	return num_threads;
 }
 
+int CtdlThreadGetWorkers(void)
+{
+	return num_workers;
+}
+
 /*
  * A function to find the thread structure for this thread
  */
@@ -1287,7 +1292,7 @@ char *CtdlThreadName(struct CtdlThreadNode *thread, char *name)
 		this_thread = thread;
 	if (!this_thread)
 	{
-		CtdlLogPrintf(CTDL_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread.\n");
+		CtdlLogPrintf(CTDL_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread. %s\n", name);
 		return NULL;
 	}
 	begin_critical_section(S_THREAD_LIST);
@@ -1337,25 +1342,27 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 /*
  * A function for a thread to check if it has been asked to stop
  */
-int CtdlThreadCheckStop(void)
+int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread)
 {
-	struct CtdlThreadNode *this_thread;
-	
-	this_thread = CtdlThreadSelf();
 	if (!this_thread)
 	{
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, CtdlThreadCheckStop() called by a non thread.\n");
 		CtdlThreadStopAll();
 		return -1;
 	}
+	pthread_mutex_lock(&this_thread->ThreadMutex);
 	if(this_thread->state == CTDL_THREAD_STOP_REQ)
 	{
 		this_thread->state = CTDL_THREAD_STOPPING;
+		pthread_mutex_unlock(&this_thread->ThreadMutex);
 		return -1;
 	}
 	else if(this_thread->state < CTDL_THREAD_STOP_REQ)
+	{
+		pthread_mutex_unlock(&this_thread->ThreadMutex);
 		return -1;
-		
+	}
+	pthread_mutex_unlock(&this_thread->ThreadMutex);
 	return 0;
 }
 
@@ -1908,10 +1915,12 @@ void *worker_thread(void *arg) {
 	struct timeval tv;
 	int force_purge = 0;
 	int m;
-
+	
+	CT_PUSH();
+	
 	cdb_allocate_tsd();
 
-	while (!CtdlThreadCheckStop()) {
+	while (!CtdlThreadCheckStop(CT)) {
 
 		/* make doubly sure we're not holding any stale db handles
 		 * which might cause a deadlock.
@@ -1957,14 +1966,14 @@ do_select:	force_purge = 0;
 			}
 		}
 
-		if (!CtdlThreadCheckStop()) {
+		if (!CtdlThreadCheckStop(CT)) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
 			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
 //			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 
-		if (CtdlThreadCheckStop()) return(NULL);
+		if (CtdlThreadCheckStop(CT)) return(NULL);
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -1978,7 +1987,7 @@ do_select:	force_purge = 0;
 			if (errno != EINTR) {
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
-			} else if (!CtdlThreadCheckStop()) {
+			} else if (!CtdlThreadCheckStop(CT)) {
 				CtdlLogPrintf(CTDL_DEBUG, "Un handled select failure.\n");
 				goto do_select;
 			}
