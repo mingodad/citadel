@@ -71,13 +71,17 @@
 const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";
 
+
+void go_threading(void);
+
+
 /*
  * Here's where it all begins.
  */
 int main(int argc, char **argv)
 {
 	char facility[32];
-	int a, i;			/* General-purpose variables */
+	int a;			/* General-purpose variables */
 	struct passwd pw, *pwp = NULL;
 	char pwbuf[SIZ];
 	int drop_root_perms = 1;
@@ -321,20 +325,39 @@ int main(int argc, char **argv)
 	/* We want to check for idle sessions once per minute */
 	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
 
+	go_threading();
+	
+	
+	master_cleanup(exit_signal);
+	return(0);
+}
+
+
+
+void go_threading(void)
+{
+	int i;
+	struct CtdlThreadNode *last_worker;
+	
+	/* We can't use CT_PUSH() here so we do it the long way 
+	 * So we can still use CT for current thread */
+	struct CtdlThreadNode *_this_cit_thread;
+	
 	/*
 	 * Initialise the thread system
 	 */
 	ctdl_thread_internal_init();
-	
+	_this_cit_thread = CtdlThreadSelf();
 	/*
 	 * Now create a bunch of worker threads.
 	 */
-	CtdlLogPrintf(CTDL_DEBUG, "Starting %d worker threads\n",
-		config.c_min_workers-1);
+	CtdlLogPrintf(CTDL_DEBUG, "Starting %d worker threads\n", config.c_min_workers);
 	begin_critical_section(S_THREAD_LIST);
-	for (i=0; i<(config.c_min_workers-1); ++i) {
+	i=0;	/* Always start at least 1 worker thread */
+	do
+	{
 		ctdl_internal_create_thread("Worker Thread", CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
-	}
+	} while (++i < config.c_min_workers);
 	end_critical_section(S_THREAD_LIST);
 
 	/* Second call to module init functions now that threading is up */
@@ -370,7 +393,4 @@ int main(int argc, char **argv)
 	 * If the above loop exits we must be shutting down since we obviously have no threads
 	 */
 	ctdl_thread_internal_cleanup();
-	
-	master_cleanup(exit_signal);
-	return(0);
 }
