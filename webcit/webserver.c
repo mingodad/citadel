@@ -949,6 +949,8 @@ void worker_entry(void)
 				sleeeeeeeeeep(1); // wait so some others might finish...
 				lprintf(2, "master shutdown: cleaning up sessions\n");
 				do_housekeeping();
+				free_zone_directory ();
+				icaltimezone_release_zone_tab ();
 				lprintf(2, "master shutdown exiting!.\n");				
 				exit(0);
 			}
