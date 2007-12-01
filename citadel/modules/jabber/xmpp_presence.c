@@ -66,4 +66,11 @@ void jabber_wholist_presence_dump(void)
 	}
 }
 
+
+void xmpp_presence_notify(char *presence_jid, char *presence_type) {
+	/* FIXME subject this to the same conditions as above */
+	cprintf("<presence type=\"%s\" from=\"%s\">", presence_type, presence_jid);
+}
+
+
 #endif	/* HAVE_EXPAT */

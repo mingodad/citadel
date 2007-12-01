@@ -51,3 +51,4 @@ void jabber_wholist_presence_dump(void);
 void jabber_output_incoming_messages(void);
 void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
+void xmpp_presence_notify(char *, char *);

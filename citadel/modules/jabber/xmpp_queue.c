@@ -117,7 +117,17 @@ void xmpp_process_events(void) {
 	for (xptr=xmpp_queue; xptr!=NULL; xptr=xptr->next) {
 		if (xptr->event_seq > XMPP->last_event_processed) {
 
-			/* FIXME do something */
+			switch(xptr->event_type) {
+
+				case XMPP_EVT_LOGIN:
+					xmpp_presence_notify(xptr->event_jid, "available");
+					break;
+
+				case XMPP_EVT_LOGOUT:
+					xmpp_presence_notify(xptr->event_jid, "unavailable");
+					break;
+
+			}
 
 			if (xptr->event_seq > highest_event) {
 				highest_event = xptr->event_seq;

@@ -399,7 +399,7 @@ CTDL_MODULE_INIT(jabber)
 					CitadelServiceXMPP);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
-                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGOUT);
+                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
 
 	#else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  Jabber service will be disabled.\n");
