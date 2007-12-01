@@ -10,6 +10,8 @@
 modules_init.c
 modules_init.h
 Makefile
+Make_modules
+Make_sources
 aclocal.m4
 aidepost
 autom4te.cache
