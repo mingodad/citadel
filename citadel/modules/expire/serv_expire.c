@@ -713,49 +713,85 @@ int PurgeEuidIndexTable(void) {
 }
 
 
-void purge_databases(void) {
-	int retval;
-	static time_t last_purge = 0;
-	time_t now;
-	struct tm tm;
+void *purge_databases(void *args)
+{
+        int retval;
+        static time_t last_purge = 0;
+        time_t now;
+        struct tm tm;
 
-	/* Do the auto-purge if the current hour equals the purge hour,
-	 * but not if the operation has already been performed in the
-	 * last twelve hours.  This is usually enough granularity.
-	 */
-	now = time(NULL);
-	localtime_r(&now, &tm);
-	if (tm.tm_hour != config.c_purge_hour) return;
-	if ((now - last_purge) < 43200) return;
+        CT_PUSH();	// Makes it easier to access this threads structure
 
-	lprintf(CTDL_INFO, "Auto-purger: starting.\n");
+        cdb_allocate_tsd();
 
-	retval = PurgeUsers();
-	lprintf(CTDL_NOTICE, "Purged %d users.\n", retval);
+        while (!CtdlThreadCheckStop(CT)) {
+                /* Do the auto-purge if the current hour equals the purge hour,
+                 * but not if the operation has already been performed in the
+                 * last twelve hours.  This is usually enough granularity.
+                 */
+                now = time(NULL);
+                localtime_r(&now, &tm);
+                if ((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200)) {
+                        CtdlThreadSleep(60);
+                        continue;
+                }
 
-	PurgeMessages();
-	lprintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
 
-	retval = PurgeRooms();
-	lprintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
+                lprintf(CTDL_INFO, "Auto-purger: starting.\n");
 
-	retval = PurgeVisits();
-	lprintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
+		if (!CtdlThreadCheckStop(CT))
+		{
+			retval = PurgeUsers();
+                	lprintf(CTDL_NOTICE, "Purged %d users.\n", retval);
+		}
+		
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	PurgeMessages();
+                	lprintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
+		}
 
-	retval = PurgeUseTable();
-	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	retval = PurgeRooms();
+                	lprintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
+		}
 
-	retval = PurgeEuidIndexTable();
-	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	retval = PurgeVisits();
+                	lprintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
+		}
 
-	retval = TDAP_ProcessAdjRefCountQueue();
-	lprintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
+		if (!CtdlThreadCheckStop(CT))
+		{
+			retval = PurgeUseTable();
+                	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
+		}
 
-	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	retval = PurgeEuidIndexTable();
+                	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
+		}
 
-	last_purge = now;	/* So we don't do it again soon */
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	retval = TDAP_ProcessAdjRefCountQueue();
+                	lprintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
+		}
+
+		if (!CtdlThreadCheckStop(CT))
+		{
+                	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
+	                last_purge = now;	/* So we don't do it again soon */
+		}
+		else
+                	lprintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
+
+        }
+        return NULL;
 }
-
 /*****************************************************************************/
 
 
@@ -846,10 +882,10 @@ CTDL_MODULE_INIT(expire)
 {
 	if (!threading)
 	{
-		CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 		CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
 	}
-	
+	else
+		CtdlThreadCreate("Auto Purger", CTDLTHREAD_BIGSTACK, purge_databases, NULL);
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
