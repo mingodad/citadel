@@ -138,11 +138,11 @@ main() {
         sscanf(ICAL_VERSION, "%d.%d", &major, &minor);
         v = 100*major + minor;
         printf("libical version: %i\n", v);
-        if (v >= 24) {
+        if (v >= 30) {
                 printf("This version is ok.\n");
 		return(0);
 	}
-	printf("libical 0.24 or newer required.\n");
+	printf("libical 0.30 or newer required.\n");
 	printf("Citadel will be built without calendar support.\n");
 	return(1);
 }
