@@ -130,6 +130,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 					t,
 					icaltimezone_get_utc_timezone()
 		);
+		icaltimezone_free (t, 1);
 		TheTime.is_utc = 1;
 	}
 
