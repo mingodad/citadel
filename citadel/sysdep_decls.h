@@ -136,7 +136,9 @@ extern struct CtdlThreadNode {
 	long flags;				/* Flags that describe this thread */
 	enum CtdlThreadState state;		/* Flag to show state of this thread */
 	pthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
-	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others (also used for sleeping) */
+	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others */
+	pthread_mutex_t SleepMutex;		/* A mutex for sleeping */
+	pthread_cond_t SleepCond;		/* A condition variable for sleeping */
 	pthread_attr_t attr;			/* Attributes of this thread */
 	struct timeval start_time;		/* Time this thread was started */
 	struct timeval last_state_change;	/* Time when this thread last changed state */

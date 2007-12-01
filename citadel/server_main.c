@@ -392,10 +392,14 @@ void go_threading(void)
 			last_worker = CtdlThreadList;
 			while (last_worker)
 			{
+				pthread_mutex_lock(&last_worker->ThreadMutex);
 				if (last_worker->flags & CTDLTHREAD_WORKER && last_worker->state > CTDL_THREAD_STOPPING)
+				{
+					pthread_mutex_unlock(&last_worker->ThreadMutex);
 					break;
-				else
-					last_worker = last_worker->next;
+				}
+				pthread_mutex_unlock(&last_worker->ThreadMutex);
+				last_worker = last_worker->next;
 			}
 			end_critical_section(S_THREAD_LIST);
 			if (last_worker)
@@ -414,40 +418,32 @@ void go_threading(void)
 		 * If all our workers are working hard, start some more to help out
 		 * with things
 		 */
-		begin_critical_section(S_THREAD_LIST);
 		/* FIXME: come up with a better way to dynamically alter the number of threads
 		 * based on the system load
 		 */
 //		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkers() < num_sessions))
 		// && (CtdlThreadLoadAvg < 90) )
-		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadWorkerAvg > 60) && (CtdlThreadLoadAvg < 90) )
+		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60) && (CtdlThreadGetLoadAvg() < 90) )
 		{
-			end_critical_section(S_THREAD_LIST);
 			for (i=0; i<5 ; i++)
 //			for (i=0; i< (num_sessions - CtdlThreadGetWorkers()) ; i++)
 //			for (i=0; i< (10 - (55 - CtdlThreadWorkerAvg) / CtdlThreadWorkerAvg / CtdlThreadGetWorkers()) ; i++)
 			{
-				begin_critical_section(S_THREAD_LIST);
-				ctdl_internal_create_thread("Worker Thread",
+//				begin_critical_section(S_THREAD_LIST);
+				CtdlThreadCreate("Worker Thread",
 					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
 					worker_thread,
 					NULL
 					);
-				end_critical_section(S_THREAD_LIST);
+//				end_critical_section(S_THREAD_LIST);
 			}
 		}
-		else
-			end_critical_section(S_THREAD_LIST);
 		
-		begin_critical_section(S_THREAD_LIST);
-		ctdl_internal_thread_gc();
-		end_critical_section(S_THREAD_LIST);
+		CtdlThreadGC();		
 		
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
 		{
-			begin_critical_section(S_THREAD_LIST);
-			ctdl_internal_thread_gc();
-			end_critical_section(S_THREAD_LIST);
+			CtdlThreadGC();		
 		}
 		
 		if (CtdlThreadGetCount())

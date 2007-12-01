@@ -117,6 +117,8 @@ char *CtdlThreadName(struct CtdlThreadNode *thread, char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 int CtdlThreadGetWorkers(void);
+double CtdlThreadGetWorkerAvg(void);
+double CtdlThreadGetLoadAvg(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
 int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout, struct CtdlThreadNode *self);
