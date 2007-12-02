@@ -81,6 +81,7 @@ void xmpp_queue_event(int event_type, char *email_addr) {
 	new_event->event_time = time(NULL);
 	new_event->event_seq = ++seq;
 	new_event->event_type = event_type;
+	new_event->session_which_generated_this_event = CC->cs_pid;
 	safestrncpy(new_event->event_jid, email_addr, sizeof new_event->event_jid);
 
 	/* Add it to the list */
@@ -120,11 +121,15 @@ void xmpp_process_events(void) {
 			switch(xptr->event_type) {
 
 				case XMPP_EVT_LOGIN:
-					xmpp_presence_notify(xptr->event_jid, "available");
+					if (xptr->session_which_generated_this_event != CC->cs_pid) {
+						xmpp_presence_notify(xptr->event_jid, "available");
+					}
 					break;
 
 				case XMPP_EVT_LOGOUT:
-					xmpp_presence_notify(xptr->event_jid, "unavailable");
+					if (xptr->session_which_generated_this_event != CC->cs_pid) {
+						xmpp_presence_notify(xptr->event_jid, "unavailable");
+					}
 					break;
 
 			}

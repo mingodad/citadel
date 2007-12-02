@@ -67,9 +67,34 @@ void jabber_wholist_presence_dump(void)
 }
 
 
+
+/*
+ * When a user logs in or out of the local Citadel system, notify all Jabber sessions
+ * about it.
+ */
 void xmpp_presence_notify(char *presence_jid, char *presence_type) {
+	struct CitContext *cptr;
+	static int unsolicited_id;
+
 	/* FIXME subject this to the same conditions as above */
-	cprintf("<presence type=\"%s\" from=\"%s\">", presence_type, presence_jid);
+
+	if (IsEmptyStr(presence_jid)) return;
+	lprintf(CTDL_DEBUG, "Sending presence info about <%s> to session %d\n", presence_jid, CC->cs_pid);
+
+	/* Transmit an unsolicited roster update 
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+		if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
+			cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
+			cprintf("<query xmlns=\"jabber:iq:roster\">");
+			jabber_roster_item(cptr);
+			cprintf("</query>"
+				"</iq>");
+		}
+	} */
+
+	/* Now transmit unsolicited presence information
+	cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+	*/
 }
 
 

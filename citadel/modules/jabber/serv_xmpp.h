@@ -31,6 +31,7 @@ struct xmpp_event {
 	time_t event_time;
 	int event_type;
 	char event_jid[256];
+	int session_which_generated_this_event;
 };
 
 extern struct xmpp_event *xmpp_queue;
@@ -52,3 +53,4 @@ void jabber_output_incoming_messages(void);
 void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
 void xmpp_presence_notify(char *, char *);
+void jabber_roster_item(struct CitContext *);
