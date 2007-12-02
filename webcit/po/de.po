@@ -1093,7 +1093,7 @@ msgstr "Bearbeiten/Anzeigen von serverweiten Mail-Filtern"
 
 #: ../mainmenu.c:128
 msgid "Edit your push email settings"
-msgstr ""
+msgstr "Bearbeiten Sie ihre Push-Email einstellungen"
 
 #: ../mainmenu.c:132
 #, c-format
