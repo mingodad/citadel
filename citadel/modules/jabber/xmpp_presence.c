@@ -105,7 +105,7 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 	if (!strcasecmp(presence_type, "unavailable")) {
 		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
 		cprintf("<query xmlns=\"jabber:iq:roster\">");
-		cprintf("<item jid=\"%s\" subscription=\"none\">", presence_jid);
+		cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);
 		cprintf("<group>%s</group>", config.c_humannode);
 		cprintf("</item>");
 		cprintf("</query>"
