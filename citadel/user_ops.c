@@ -1102,11 +1102,14 @@ void cmd_creu(char *cmdbuf)
 				"with no password");
 		return;
 	} else if (a == ERROR + ALREADY_EXISTS) {
-		cprintf("%d '%s' already exists.\n",
-			ERROR + ALREADY_EXISTS, username);
+		cprintf("%d '%s' already exists.\n", ERROR + ALREADY_EXISTS, username);
+		return;
+	} else if ( (config.c_auth_mode == 1) && (a == ERROR + NO_SUCH_USER) ) {
+		cprintf("%d User accounts are not created within Citadel in host authentication mode.\n",
+			ERROR + NO_SUCH_USER);
 		return;
 	} else {
-		cprintf("%d An error occured creating the user account.\n", ERROR + INTERNAL_ERROR);
+		cprintf("%d An error occurred creating the user account.\n", ERROR + INTERNAL_ERROR);
 	}
 }
 

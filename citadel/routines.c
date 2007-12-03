@@ -123,7 +123,7 @@ void edituser(CtdlIPC *ipc, int cmd)
 					newnow = 1;
 					continue;
 				}
-				scr_printf("%s\n",&buf[4]);
+				scr_printf("%s\n", buf);
 			}
 		}
 		free(user);
