@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 //	eCrashSymbolTable symbol_table;
 #endif
 	/* initialise semaphores here. Patch by Matt and davew
-	 * its called here as they are needed by lprintf for thread safety
+	 * its called here as they are needed by CtdlLogPrintf for thread safety
 	 */
 	CtdlInitBase64Table();
 	InitialiseSemaphores();
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
 
 		/* any other parameter makes it crash and burn */
 		else {
-			lprintf(CTDL_EMERG,	"citserver: usage: "
+			CtdlLogPrintf(CTDL_EMERG,	"citserver: usage: "
 					"citserver "
 					"[-lLogFacility] "
 					"[-d] [-f] [-D] "
@@ -207,22 +207,22 @@ int main(int argc, char **argv)
 	}
 	
 	/* Tell 'em who's in da house */
-	lprintf(CTDL_NOTICE, "\n");
-	lprintf(CTDL_NOTICE, "\n");
-	lprintf(CTDL_NOTICE,
+	CtdlLogPrintf(CTDL_NOTICE, "\n");
+	CtdlLogPrintf(CTDL_NOTICE, "\n");
+	CtdlLogPrintf(CTDL_NOTICE,
 		"*** Citadel server engine v%d.%02d ***\n",
 		(REV_LEVEL/100), (REV_LEVEL%100));
-	lprintf(CTDL_NOTICE,
+	CtdlLogPrintf(CTDL_NOTICE,
 		"Copyright (C) 1987-2007 by the Citadel development team.\n");
-	lprintf(CTDL_NOTICE,
+	CtdlLogPrintf(CTDL_NOTICE,
 		"This program is distributed under the terms of the GNU "
 		"General Public License.\n");
-	lprintf(CTDL_NOTICE, "\n");
-	lprintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
-	lprintf(CTDL_INFO, "%s\n", libcitadel_version_string());
+	CtdlLogPrintf(CTDL_NOTICE, "\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
+	CtdlLogPrintf(CTDL_INFO, "%s\n", libcitadel_version_string());
 
 	/* Load site-specific parameters, and set the ipgm secret */
-	lprintf(CTDL_INFO, "Loading citadel.config\n");
+	CtdlLogPrintf(CTDL_INFO, "Loading citadel.config\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 	 */
 	master_startup();
 
-	lprintf(CTDL_INFO, "Acquiring control record\n");
+	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
 	get_control();
 
 	/*
@@ -274,10 +274,18 @@ int main(int argc, char **argv)
 				do_async_loop,
 				CitadelServiceTCP);
 
+				
+	/*
+	 * Run any upgrade entry points
+	 */
+	CtdlLogPrintf(CTDL_INFO, "Upgrading modules.\n");
+	upgrade_modules();
+	
+	
 	/*
 	 * Load any server-side extensions available here.
 	 */
-	lprintf(CTDL_INFO, "Initializing server extensions\n");
+	CtdlLogPrintf(CTDL_INFO, "Initializing server extensions\n");
 	size = strlen(ctdl_home_directory) + 9;
 	
 	initialise_modules(0);
@@ -304,18 +312,18 @@ int main(int argc, char **argv)
 		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
 #endif
 		if (pwp == NULL)
-			lprintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
+			CtdlLogPrintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				   "Group IDs will be incorrect.\n", (long)CTDLUID,
 				strerror(errno));
 		else {
 			initgroups(pw.pw_name, pw.pw_gid);
 			if (setgid(pw.pw_gid))
-				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
+				CtdlLogPrintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
 					strerror(errno));
 		}
-		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)CTDLUID);
+		CtdlLogPrintf(CTDL_INFO, "Changing uid to %ld\n", (long)CTDLUID);
 		if (setuid(CTDLUID) != 0) {
-			lprintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
+			CtdlLogPrintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
 #if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
 		prctl(PR_SET_DUMPABLE, 1);
@@ -439,11 +447,11 @@ void go_threading(void)
 			}
 		}
 		
-		CtdlThreadGC();		
+		CtdlThreadGC();
 		
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
 		{
-			CtdlThreadGC();		
+			CtdlThreadGC();
 		}
 		
 		if (CtdlThreadGetCount())

@@ -15,6 +15,10 @@
 
 #define CTDL_INIT_CALL(module_name) ctdl_module_##module_name##_init (threading)
 
+#define CTDL_MODULE_UPGRADE(module_name) char *ctdl_module_##module_name##_upgrade (void)
+
+#define CTDL_UPGRADE_CALL(module_name) ctdl_module_##module_name##_upgrade ()
+
 
 /*
  * Prototype for making log entries in Citadel.

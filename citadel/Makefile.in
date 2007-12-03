@@ -86,7 +86,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 
 include Make_sources
 
-DEP_FILES=$(SOURCES:.c=.d) modules_init.d
+DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
 
 client: $(CLIENT_TARGETS)
 
@@ -115,6 +115,8 @@ Make_sources: modules_init.c
 
 Make_modules: modules_init.c
 
+modules_upgrade.c: modules_init.c
+
 modules_init.c: mk_module_init.sh $(SOURCES) 
 	$(srcdir)/mk_module_init.sh
 
@@ -126,7 +128,7 @@ SERV_OBJS = server_main.o \
 	locate_host.o housekeeping.o html.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o \
-	clientsocket.o modules_init.o $(AUTH) $(SERV_MODULES)
+	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES)
 
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver
@@ -328,7 +330,7 @@ clean:
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
-	rm -rf modules_init.c modules_init.h Make_modules Make_sources
+	rm -rf modules_upgrade.c modules_init.c modules_init.h Make_modules Make_sources
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
