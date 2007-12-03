@@ -98,6 +98,10 @@ void jabber_send_message(char *message_to, char *message_body) {
 	if (recp) {
 		message_sent = PerformXmsgHooks(CC->user.fullname, CC->cs_inet_email, recp, message_body);
 	}
+
+	free(XMPP->message_body);
+	XMPP->message_body = NULL;
+	XMPP->message_to[0] = 0;
 }
 
 

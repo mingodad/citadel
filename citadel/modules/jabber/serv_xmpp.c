@@ -154,6 +154,10 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 			}
 		}
 	}
+
+	else if (!strcasecmp(el, "html")) {
+		++XMPP->html_tag_level;
+	}
 }
 
 
@@ -268,7 +272,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		jabber_wholist_presence_dump();
 	}
 
-	else if (!strcasecmp(el, "body")) {
+	else if ( (!strcasecmp(el, "body")) && (XMPP->html_tag_level == 0) ) {
 		if (XMPP->message_body != NULL) {
 			free(XMPP->message_body);
 			XMPP->message_body = NULL;
@@ -280,6 +284,11 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "message")) {
 		jabber_send_message(XMPP->message_to, XMPP->message_body);
+		XMPP->html_tag_level = 0;
+	}
+
+	else if (!strcasecmp(el, "html")) {
+		--XMPP->html_tag_level;
 	}
 
 	XMPP->chardata_len = 0;
