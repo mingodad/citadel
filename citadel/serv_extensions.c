@@ -697,13 +697,12 @@ int PerformFixedOutputHooks(char *content_type, char *content, int content_lengt
 
 
 
-void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
+void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int order)
 {
 
 	struct XmsgFunctionHook *newfcn;
 
-	newfcn = (struct XmsgFunctionHook *)
-	    malloc(sizeof(struct XmsgFunctionHook));
+	newfcn = (struct XmsgFunctionHook *) malloc(sizeof(struct XmsgFunctionHook));
 	newfcn->next = XmsgHookTable;
 	newfcn->order = order;
 	newfcn->h_function_pointer = fcn_ptr;
@@ -712,7 +711,7 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 }
 
 
-void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
+void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int order)
 {
 	struct XmsgFunctionHook *cur, *p;
 
@@ -1019,7 +1018,7 @@ void PerformDeleteHooks(char *room, long msgnum)
 
 
 
-int PerformXmsgHooks(char *sender, char *recp, char *msg)
+int PerformXmsgHooks(char *sender, char *sender_email, char *recp, char *msg)
 {
 	struct XmsgFunctionHook *fcn;
 	int total_sent = 0;
@@ -1030,7 +1029,7 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 			if (fcn->order == p) {
 				total_sent +=
 					(*fcn->h_function_pointer)
-						(sender, recp, msg);
+						(sender, sender_email, recp, msg);
 			}
 		}
 		/* Break out of the loop if a higher-priority function

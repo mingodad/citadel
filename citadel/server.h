@@ -188,12 +188,12 @@ extern struct CitContext *ContextList;
 extern int ScheduledShutdown;
 extern struct CitControl CitControl;
 
-
 struct ExpressMessage {
 	struct ExpressMessage *next;
 	time_t timestamp;	/* When this message was sent */
 	unsigned flags;		/* Special instructions */
-	char sender[64];	/* Name of sending user */
+	char sender[256];	/* Name of sending user */
+	char sender_email[256];	/* Email or JID of sending user */
 	char *text;		/* Message text (if applicable) */
 };
 

@@ -486,13 +486,14 @@ void cmd_gexp(char *argbuf) {
 	CC->FirstExpressMessage = CC->FirstExpressMessage->next;
 	end_critical_section(S_SESSION_TABLE);
 
-	cprintf("%d %d|%ld|%d|%s|%s\n",
+	cprintf("%d %d|%ld|%d|%s|%s|%s\n",
 		LISTING_FOLLOWS,
 		((ptr->next != NULL) ? 1 : 0),		/* more msgs? */
 		(long)ptr->timestamp,			/* time sent */
 		ptr->flags,				/* flags */
 		ptr->sender,				/* sender of msg */
-		config.c_nodename			/* static for now */
+		config.c_nodename,			/* static for now (and possibly deprecated) */
+		ptr->sender_email			/* email or jid of sender */
 	);
 
 	if (ptr->text != NULL) {
@@ -557,7 +558,7 @@ void add_xmsg_to_context(struct CitContext *ccptr,
  * Returns the number of users to which the message was sent.
  * Sending a zero-length message tests for recipients without sending messages.
  */
-int send_instant_message(char *lun, char *x_user, char *x_msg)
+int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 {
 	int message_sent = 0;		/* number of successful sends */
 	struct CitContext *ccptr;
@@ -598,10 +599,11 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 				memset(newmsg, 0,
 					sizeof (struct ExpressMessage));
 				time(&(newmsg->timestamp));
-				safestrncpy(newmsg->sender, lun,
-					    sizeof newmsg->sender);
-				if (!strcasecmp(x_user, "broadcast"))
+				safestrncpy(newmsg->sender, lun, sizeof newmsg->sender);
+				safestrncpy(newmsg->sender_email, lem, sizeof newmsg->sender_email);
+				if (!strcasecmp(x_user, "broadcast")) {
 					newmsg->flags |= EM_BROADCAST;
+				}
 				newmsg->text = strdup(x_msg);
 
 				add_xmsg_to_context(ccptr, newmsg);
@@ -631,6 +633,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		logmsg->cm_anon_type = MES_NORMAL;
 		logmsg->cm_format_type = 0;
 		logmsg->cm_fields['A'] = strdup(lun);
+		logmsg->cm_fields['F'] = strdup(lem);
 		logmsg->cm_fields['N'] = strdup(NODENAME);
 		logmsg->cm_fields['O'] = strdup(PAGELOGROOM);
 		logmsg->cm_fields['R'] = strdup(x_user);
@@ -677,6 +680,7 @@ void cmd_sexp(char *argbuf)
 	char x_user[USERNAME_SIZE];
 	char x_msg[1024];
 	char *lun;
+	char *lem;
 	char *x_big_msgbuf = NULL;
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
@@ -687,6 +691,8 @@ void cmd_sexp(char *argbuf)
 		lun = CC->fake_username;
 	else
 		lun = CC->user.fullname;
+
+	lem = CC->cs_inet_email;
 
 	extract_token(x_user, argbuf, 0, '|', sizeof x_user);
 	extract_token(x_msg, argbuf, 1, '|', sizeof x_msg);
@@ -702,7 +708,7 @@ void cmd_sexp(char *argbuf)
 	}
 	/* This loop handles text-transfer pages */
 	if (!strcmp(x_msg, "-")) {
-		message_sent = PerformXmsgHooks(lun, x_user, "");
+		message_sent = PerformXmsgHooks(lun, lem, x_user, "");
 		if (message_sent == 0) {
 			if (getuser(NULL, x_user))
 				cprintf("%d '%s' does not exist.\n",
@@ -727,12 +733,12 @@ void cmd_sexp(char *argbuf)
 				strcat(x_big_msgbuf, "\n");
 			strcat(x_big_msgbuf, x_msg);
 		}
-		PerformXmsgHooks(lun, x_user, x_big_msgbuf);
+		PerformXmsgHooks(lun, lem, x_user, x_big_msgbuf);
 		free(x_big_msgbuf);
 
 		/* This loop handles inline pages */
 	} else {
-		message_sent = PerformXmsgHooks(lun, x_user, x_msg);
+		message_sent = PerformXmsgHooks(lun, lem, x_user, x_msg);
 
 		if (message_sent > 0) {
 			if (!IsEmptyStr(x_msg))

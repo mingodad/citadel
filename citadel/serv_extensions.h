@@ -113,7 +113,7 @@ extern struct DeleteFunctionHook *DeleteHookTable;
  */
 struct XmsgFunctionHook {
 	struct XmsgFunctionHook *next;
-	int (*h_function_pointer) (char *, char *, char *);
+	int (*h_function_pointer) (char *, char *, char *, char *);
 	int order;
 };
 extern struct XmsgFunctionHook *XmsgHookTable;
@@ -169,7 +169,7 @@ void PerformSessionHooks(int EventType);
 void CtdlDestroyUserHooks(void);
 void PerformUserHooks(struct ctdluser *usbuf, int EventType);
 
-int PerformXmsgHooks(char *, char *, char *);
+int PerformXmsgHooks(char *, char *, char *, char *);
 void CtdlDestroyXmsgHooks(void);
 
 

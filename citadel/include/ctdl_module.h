@@ -38,8 +38,8 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlRegisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
 void CtdlUnregisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
 
-void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
-void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
+void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *, char *), int order);
+void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *, char *), int order);
 
 void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 							int EventType);

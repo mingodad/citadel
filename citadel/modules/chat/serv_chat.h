@@ -8,7 +8,7 @@ void cmd_pexp (char *argbuf); /* arg unused */
 void cmd_sexp (char *argbuf);
 void delete_instant_messages(void);
 void cmd_gexp(char *);
-int send_instant_message(char *, char *, char *);
+int send_instant_message(char *, char *, char *, char *);
 
 struct savelist {
 	struct savelist *next;
