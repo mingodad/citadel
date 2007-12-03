@@ -77,5 +77,29 @@ void jabber_output_incoming_messages(void) {
 	}
 }
 
+/*
+ * Client is sending a message.
+ */
+void jabber_send_message(char *message_to, char *message_body) {
+	char *recp = NULL;
+	int message_sent = 0;
+	struct CitContext *cptr;
+
+	if (message_body == NULL) return;
+	if (message_to == NULL) return;
+	if (IsEmptyStr(message_to)) return;
+
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+		if (!strcasecmp(cptr->cs_inet_email, message_to)) {
+			recp = cptr->user.fullname;
+		}
+	}
+
+	if (recp) {
+		message_sent = PerformXmsgHooks(CC->user.fullname, CC->cs_inet_email, recp, message_body);
+	}
+}
+
+
 
 #endif	/* HAVE_EXPAT */

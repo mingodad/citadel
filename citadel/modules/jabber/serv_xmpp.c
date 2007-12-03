@@ -146,6 +146,14 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 			}
 		}
 	}
+
+	else if (!strcasecmp(el, "message")) {
+		for (i=0; attr[i] != NULL; i+=2) {
+			if (!strcasecmp(attr[i], "to")) {
+				safestrncpy(XMPP->message_to, attr[i+1], sizeof XMPP->message_to);
+			}
+		}
+	}
 }
 
 
@@ -202,13 +210,6 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		else if ( (!IsEmptyStr(XMPP->iq_id)) && (!IsEmptyStr(XMPP->iq_client_resource)) ) {
 
 			/* Generate the "full JID" of the client resource */
-
-			// snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
-			//	"%d@%s/%s",
-			//	CC->cs_pid,
-			//	config.c_fqdn,
-			//	XMPP->iq_client_resource
-			//);
 
 			snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
 				"%s/%s",
@@ -267,6 +268,20 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		jabber_wholist_presence_dump();
 	}
 
+	else if (!strcasecmp(el, "body")) {
+		if (XMPP->message_body != NULL) {
+			free(XMPP->message_body);
+			XMPP->message_body = NULL;
+		}
+		if (XMPP->chardata_len > 0) {
+			XMPP->message_body = strdup(XMPP->chardata);
+		}
+	}
+
+	else if (!strcasecmp(el, "message")) {
+		jabber_send_message(XMPP->message_to, XMPP->message_body);
+	}
+
 	XMPP->chardata_len = 0;
 	if (XMPP->chardata_alloc > 0) {
 		XMPP->chardata[0] = 0;
@@ -306,6 +321,9 @@ void xmpp_cleanup_function(void) {
 		XMPP->chardata = NULL;
 		XMPP->chardata_len = 0;
 		XMPP->chardata_alloc = 0;
+		if (XMPP->message_body != NULL) {
+			free(XMPP->message_body);
+		}
 	}
 	XML_ParserFree(XMPP->xp);
 	free(XMPP);

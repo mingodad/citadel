@@ -21,6 +21,9 @@ struct citxmpp {			/* Information about the current session */
 	char iq_query_xmlns[256];	/* Namespace of <query> */
 
 	char sasl_auth_mech[32];	/* SASL auth mechanism requested by the client */
+
+	char message_to[256];
+	char *message_body;		/* Message body in transit */
 };
 
 #define XMPP ((struct citxmpp *)CC->session_specific_data)
@@ -55,3 +58,4 @@ void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
 void xmpp_presence_notify(char *, char *);
 void jabber_roster_item(struct CitContext *);
+void jabber_send_message(char *, char *);
