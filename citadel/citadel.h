@@ -47,9 +47,9 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	724		/* This version */
+#define REV_LEVEL	725		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	722		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	725		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */

@@ -84,3 +84,5 @@ CFG_VALUE(STRING_BUF(c_master_user, 32),	" Master user name ");
 CFG_VALUE(STRING_BUF(c_master_pass, 32),	" Master user password ");
 CFG_VALUE(STRING_BUF(c_pager_program, 256), 	" External pager program (blank to disable)");
 CFG_VALUE(CHAR(c_imap_keep_from),		" IMAP keep original from header in msgs");
+CFG_VALUE(INTEGER(c_xmpp_c2s_port),		" XMPP client-to-server port (usually 5222)");
+CFG_VALUE(INTEGER(c_xmpp_s2s_port),		" XMPP server-to-server port (usually 5269)");

@@ -437,7 +437,7 @@ CTDL_MODULE_INIT(jabber)
 {
 #ifdef HAVE_EXPAT
 	if (!threading) {
-		CtdlRegisterServiceHook(5222,			/* FIXME change to config.c_xmpp_port */
+		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
 					NULL,
 					xmpp_greeting,
 					xmpp_command_loop,

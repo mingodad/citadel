@@ -599,6 +599,20 @@ void display_siteconfig(void)
 				((atoi(buf) != 0) ? "CHECKED" : ""));
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
+		case 62:
+			sprintf(&network[strlen(network)], "<tr><td>");
+			sprintf(&network[strlen(network)], _("XMPP (Jabber) client to server port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</td><td>");
+			sprintf(&network[strlen(network)], "<input type=\"text\" name=\"c_xmpp_c2s_port\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
+		case 63:
+			sprintf(&network[strlen(network)], "<tr><td>");
+			sprintf(&network[strlen(network)], _("XMPP (Jabber) server to server port (-1 to disable)"));
+			sprintf(&network[strlen(network)], "</td><td>-1");
+			sprintf(&network[strlen(network)], "<input type=\"hidden\" name=\"c_xmpp_s2s_port\" value=\"%s\">\n", buf);
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
 		}
 	
 	}
@@ -775,6 +789,8 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_master_pass"));
 	serv_printf("%s", bstr("c_pager_program"));
 	serv_printf("%s", ((!strcasecmp(bstr("c_imap_keep_from"), "yes") ? "1" : "0")));
+	serv_printf("%s", bstr("c_xmpp_c2s_port"));
+	serv_printf("%s", bstr("c_xmpp_s2s_port"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));

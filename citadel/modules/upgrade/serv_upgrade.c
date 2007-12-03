@@ -181,6 +181,11 @@ void update_config(void) {
 		config.c_auto_cull = 1;
 	}
 
+	if (CitControl.version < 725) {
+		config.c_xmpp_c2s_port = 5222;
+		config.c_xmpp_s2s_port = 5269;
+	}
+
 	put_config();
 }
 

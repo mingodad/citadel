@@ -330,6 +330,8 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_master_pass);
 		cprintf("%s\n", config.c_pager_program);
 		cprintf("%d\n", config.c_imap_keep_from);
+		cprintf("%d\n", config.c_xmpp_c2s_port);
+		cprintf("%d\n", config.c_xmpp_s2s_port);
 		cprintf("000\n");
 	}
 
@@ -570,6 +572,12 @@ void cmd_conf(char *argbuf)
 				break;
 			case 61:
 				config.c_imap_keep_from = atoi(buf);
+				break;
+			case 62:
+				config.c_xmpp_c2s_port = atoi(buf);
+				break;
+			case 63:
+				config.c_xmpp_s2s_port = atoi(buf);
 				break;
 			}
 			++a;

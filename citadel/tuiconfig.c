@@ -63,7 +63,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 61
+#define NUM_CONFIGS 63
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -171,6 +171,11 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("SMTPS server port (-1 to disable)", &sc[41][0], 5);
 	strprompt("Postfix TCP Dictionary Port server port (-1 to disable)", &sc[50][0], 5);
 	strprompt("ManageSieve server port (-1 to disable)", &sc[51][0], 5);
+	strprompt("XMPP (Jabber) client to server port (-1 to disable)", &sc[62][0], 5);
+
+	/* No prompt because we don't implement this service yet, it's just a placeholder */
+	/* strprompt("XMPP (Jabber) server to server port (-1 to disable)", &sc[63][0], 5); */
+
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no
 	 */
@@ -180,6 +185,16 @@ void do_system_configuration(CtdlIPC *ipc)
 		a);
 	a = (a ? 0 : 1);
 	snprintf(sc[25], sizeof sc[25], "%d", a);
+
+	/* This logic flips the question around, because it's one of those
+	 * situations where 0=yes and 1=no
+	 */
+	a = atoi(sc[61]);
+	a = (a ? 0 : 1);
+	a = boolprompt("Force IMAP posts in public rooms to be from the user who submitted them", a);
+	a = (a ? 0 : 1);
+	snprintf(sc[61], sizeof sc[61], "%d", a);
+
 	snprintf(sc[45], sizeof sc[45], "%d", (boolprompt(
 		"Allow unauthenticated SMTP clients to spoof my domains",
 		atoi(&sc[45][0]))));
