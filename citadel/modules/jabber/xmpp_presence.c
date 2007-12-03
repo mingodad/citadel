@@ -75,18 +75,27 @@ void jabber_wholist_presence_dump(void)
 void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 	struct CitContext *cptr;
 	static int unsolicited_id;
-
-	/* FIXME subject this to the same conditions as above */
-
-	/* FIXME make sure don't do this for multiple logins of the same user (login)
-	 * or until the last concurrent login is logged out (logout)
-	 */
+	int visible_sessions = 0;
+	int aide = (CC->user.axlevel >= 6);
 
 	if (IsEmptyStr(presence_jid)) return;
-	lprintf(CTDL_DEBUG, "Sending presence info about <%s> to session %d\n", presence_jid, CC->cs_pid);
 
-	/* Transmit an unsolicited roster update if the presence is anything other than "unavailable" */
-	if (strcasecmp(presence_type, "unavailable")) {
+	/* Count the visible sessions for this user */
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+		if (  (!strcasecmp(cptr->cs_inet_email, presence_jid)) 
+		   && (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+		   ) {
+			++visible_sessions;
+		}
+	}
+
+	lprintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
+		visible_sessions, presence_jid, CC->cs_pid);
+
+	if ( (strcasecmp(presence_type, "unavailable")) && (visible_sessions == 1) ) {
+		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
+
+		/* Do an unsolicited roster update that adds a new contact. */
 		for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 			if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
 				cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
@@ -96,13 +105,18 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 					"</iq>");
 			}
 		}
+
+		/* Transmit presence information */
+		cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
 	}
 
-	/* Now transmit unsolicited presence information */
-	cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+	if ( (!strcasecmp(presence_type, "unavailable")) && (visible_sessions == 0) ) {
+		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
 
-	/* For "unavailable" we do an unsolicited roster update that deletes the contact. */
-	if (!strcasecmp(presence_type, "unavailable")) {
+		/* Transmit non-presence information */
+		cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+
+		/* Do an unsolicited roster update that deletes the contact. */
 		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
 		cprintf("<query xmlns=\"jabber:iq:roster\">");
 		cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);

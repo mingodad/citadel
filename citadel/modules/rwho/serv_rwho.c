@@ -238,9 +238,11 @@ void cmd_stel(char *cmdbuf)
 
 	if (requested_mode == 1) {
 		CC->cs_flags = CC->cs_flags | CS_STEALTH;
+		PerformSessionHooks(EVT_STEALTH);
 	}
 	if (requested_mode == 0) {
 		CC->cs_flags = CC->cs_flags & ~CS_STEALTH;
+		PerformSessionHooks(EVT_UNSTEALTH);
 	}
 
 	cprintf("%d %d\n", CIT_OK,

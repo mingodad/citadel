@@ -308,6 +308,8 @@ struct cdbdata {
 #define EVT_CMD		6	/* Called after each server command */
 #define EVT_RWHO	7	/* An RWHO command is being executed */
 #define EVT_ASYNC	8	/* Doing asynchronous messages */
+#define EVT_STEALTH	9	/* Entering stealth mode */
+#define EVT_UNSTEALTH	10	/* Exiting stealth mode */
 
 #define EVT_TIMER	50	/* Timer events are called once per minute
 				   and are not tied to any session */
