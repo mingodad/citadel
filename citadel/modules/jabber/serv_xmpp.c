@@ -79,6 +79,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* The features of this stream are... */
 	cprintf("<stream:features>");
 
+#ifdef HAVE_OPENSSL_XXXX_COMMENTED_OUT
+	/* TLS encryption (but only if it isn't already active) */
+	if (!CC->redirect_ssl) {
+		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
+	}
+#endif
+
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
@@ -289,6 +296,17 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "html")) {
 		--XMPP->html_tag_level;
+	}
+
+	else if (!strcasecmp(el, "starttls")) {
+#ifdef HAVE_OPENSSL
+	cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+	if (!CC->redirect_ssl) CC->kill_me = 1;
+#else
+	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	CC->kill_me = 1;
+#endif
 	}
 
 	XMPP->chardata_len = 0;
