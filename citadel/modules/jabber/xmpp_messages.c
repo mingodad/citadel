@@ -64,10 +64,9 @@ void jabber_output_incoming_messages(void) {
 		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
 		end_critical_section(S_SESSION_TABLE);
 
-		/* FIXME we have to get the sender's email address.  This may involve tweaking
-		 * the core IM module a bit.
-	 	 */
-		cprintf("<message to=\"%s\" from=\"FIXME@example.org\" type=\"chat\">", XMPP->client_jid);
+		cprintf("<message to=\"%s\" from=\"%s\" type=\"chat\">",
+			XMPP->client_jid,
+			ptr->sender_email);
 		if (ptr->text != NULL) {
 			striplt(ptr->text);
 			cprintf("<body>%s</body>", ptr->text);
