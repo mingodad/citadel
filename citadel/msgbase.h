@@ -148,7 +148,13 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 );
 int CtdlCopyMsgsToRoom(long *msgnum, int num_msgs, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);
+
+enum {
+	POST_LOGGED_IN,
+	POST_EXTERNAL,
+	CHECK_EXISTANCE
+};
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n, int PostPublic);
 
 
 /* values for which_set */

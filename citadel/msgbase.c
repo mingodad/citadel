@@ -3090,12 +3090,30 @@ struct CtdlMessage *CtdlMakeMessage(
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
  * returns 0 on success.
  */
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n, int PostPublic) {
 	int ra;
 
-	if (!(CC->logged_in)) {
+	if (!(CC->logged_in) && 
+	    (PostPublic == POST_LOGGED_IN)) {
 		snprintf(errmsgbuf, n, "Not logged in.");
 		return (ERROR + NOT_LOGGED_IN);
+	}
+	else if (PostPublic == CHECK_EXISTANCE) {
+		return (0);
+	}
+	else if (!(CC->logged_in)) {
+		if ((CC->room.QRflags & QR_READONLY)) {
+			snprintf(errmsgbuf, n, "Not logged in.");
+			return (ERROR + NOT_LOGGED_IN);
+		}
+		else if (CC->room.QRflags2 & QR2_SUBSONLY){
+			////TODO: check if we're in that list...
+			return (0);
+		}
+		else if (CC->room.QRflags2 & QR2_MODERATED) {
+			return (0);
+		}
+
 	}
 
 	if ((CC->user.axlevel < 2)
@@ -3160,6 +3178,9 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 	int invalid;
 	struct ctdluser tempUS;
 	struct ctdlroom tempQR;
+	struct ctdlroom tempQR2;
+	int err = 0;
+	char errmsg[SIZ];
 	int in_quotes = 0;
 
 	/* Initialize */
@@ -3268,11 +3289,31 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 				}
 				else if ( (!strncasecmp(this_recp, "room_", 5))
 				      && (!getroom(&tempQR, &this_recp_cooked[5])) ) {
-					++ret->num_room;
-					if (!IsEmptyStr(ret->recp_room)) {
-						strcat(ret->recp_room, "|");
+
+				      	/* Save room so we can restore it later */
+					tempQR2 = CC->room;
+					CC->room = tempQR;
+					
+					/* Check permissions to send mail to this room */
+					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, POST_EXTERNAL);
+					//// TODO: CHECK_EXISTANCE for dict_tcp
+					if (err)
+					{
+						cprintf("%d %s\n", err, errmsg);
+						++ret->num_error;
+						invalid = 1;
+					} 
+					else {
+						++ret->num_room;
+						if (!IsEmptyStr(ret->recp_room)) {
+							strcat(ret->recp_room, "|");
+						}
+						strcat(ret->recp_room, &this_recp_cooked[5]);
 					}
-					strcat(ret->recp_room, &this_recp_cooked[5]);
+					
+					/* Restore room in case something needs it */
+					CC->room = tempQR2;
+
 				}
 				else {
 					++ret->num_error;
@@ -3433,7 +3474,7 @@ void cmd_ent0(char *entargs)
 
 	/* first check to make sure the request is valid. */
 
-	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg);
+	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, POST_LOGGED_IN);
 	if (err)
 	{
 		cprintf("%d %s\n", err, errmsg);
