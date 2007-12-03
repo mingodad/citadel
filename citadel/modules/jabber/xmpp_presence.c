@@ -78,22 +78,39 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 
 	/* FIXME subject this to the same conditions as above */
 
+	/* FIXME make sure don't do this for multiple logins of the same user (login)
+	 * or until the last concurrent login is logged out (logout)
+	 */
+
 	if (IsEmptyStr(presence_jid)) return;
 	lprintf(CTDL_DEBUG, "Sending presence info about <%s> to session %d\n", presence_jid, CC->cs_pid);
 
-	/* Transmit an unsolicited roster update */
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
-			cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
-			cprintf("<query xmlns=\"jabber:iq:roster\">");
-			jabber_roster_item(cptr);
-			cprintf("</query>"
-				"</iq>");
+	/* Transmit an unsolicited roster update if the presence is anything other than "unavailable" */
+	if (strcasecmp(presence_type, "unavailable")) {
+		for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+			if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
+				cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
+				cprintf("<query xmlns=\"jabber:iq:roster\">");
+				jabber_roster_item(cptr);
+				cprintf("</query>"
+					"</iq>");
+			}
 		}
 	}
 
 	/* Now transmit unsolicited presence information */
 	cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+
+	/* For "unavailable" we do an unsolicited roster update that deletes the contact. */
+	if (!strcasecmp(presence_type, "unavailable")) {
+		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
+		cprintf("<query xmlns=\"jabber:iq:roster\">");
+		cprintf("<item jid=\"%s\" subscription=\"none\">", presence_jid);
+		cprintf("<group>%s</group>", config.c_humannode);
+		cprintf("</item>");
+		cprintf("</query>"
+			"</iq>");
+	}
 }
 
 
