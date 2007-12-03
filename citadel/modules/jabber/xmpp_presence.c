@@ -53,7 +53,7 @@
  */
 void jabber_wholist_presence_dump(void)
 {
-	struct CitContext *cptr;
+	struct CitContext *cptr = NULL;
 	int aide = (CC->user.axlevel >= 6);
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
@@ -81,7 +81,7 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 	if (IsEmptyStr(presence_jid)) return;
 	lprintf(CTDL_DEBUG, "Sending presence info about <%s> to session %d\n", presence_jid, CC->cs_pid);
 
-	/* Transmit an unsolicited roster update 
+	/* Transmit an unsolicited roster update */
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
 			cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
@@ -90,11 +90,10 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 			cprintf("</query>"
 				"</iq>");
 		}
-	} */
+	}
 
-	/* Now transmit unsolicited presence information
+	/* Now transmit unsolicited presence information */
 	cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
-	*/
 }
 
 

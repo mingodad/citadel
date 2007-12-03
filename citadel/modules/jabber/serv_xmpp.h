@@ -35,6 +35,7 @@ struct xmpp_event {
 };
 
 extern struct xmpp_event *xmpp_queue;
+extern int queue_event_seq;
 
 enum {
 	XMPP_EVT_LOGIN,

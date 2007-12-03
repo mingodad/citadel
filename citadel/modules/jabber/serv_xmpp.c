@@ -320,6 +320,7 @@ void xmpp_greeting(void) {
 	strcpy(CC->cs_clientname, "Jabber session");
 	CC->session_specific_data = malloc(sizeof(struct citxmpp));
 	memset(XMPP, 0, sizeof(struct citxmpp));
+	XMPP->last_event_processed = queue_event_seq;
 
 	/* XMPP does not use a greeting, but we still have to initialize some things. */
 

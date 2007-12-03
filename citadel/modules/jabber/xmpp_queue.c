@@ -47,11 +47,10 @@
 #include <expat.h>
 #include "serv_xmpp.h"
 
-
+int queue_event_seq = 0;
 
 void xmpp_queue_event(int event_type, char *email_addr) {
 
-	static int seq = 0;
 	struct xmpp_event *xptr = NULL;
 	struct xmpp_event *new_event = NULL;
 	struct xmpp_event *last = NULL;
@@ -79,7 +78,7 @@ void xmpp_queue_event(int event_type, char *email_addr) {
 	new_event = (struct xmpp_event *) malloc(sizeof(struct xmpp_event));
 	new_event->next = NULL;
 	new_event->event_time = time(NULL);
-	new_event->event_seq = ++seq;
+	new_event->event_seq = ++queue_event_seq;
 	new_event->event_type = event_type;
 	new_event->session_which_generated_this_event = CC->cs_pid;
 	safestrncpy(new_event->event_jid, email_addr, sizeof new_event->event_jid);
