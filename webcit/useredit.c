@@ -485,9 +485,18 @@ void create_user(void) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		sprintf(WC->ImportantMessage,
-			_("A new user has been created."));
+		sprintf(WC->ImportantMessage, _("A new user has been created."));
 		display_edituser(username, 1);
+	}
+	else if (!strncmp(buf, "570", 3)) {
+		sprintf(error_message,
+			"<img src=\"static/error.gif\" align=center>"
+			"%s<br /><br />\n",
+			_("You are attempting to create a new user from within Citadel "
+			"while running in host based authentication mode.  In this mode, "
+			"you must create new users on the host system, not within Citadel.")
+		);
+		select_user_to_edit(error_message, NULL);
 	}
 	else {
 		sprintf(error_message,
