@@ -1003,8 +1003,6 @@ int convert_login(char NameToConvert[]) {
  * If the thread is created *node will point to the thread control structure for the created thread.
  * If the thread creation fails *node remains NULL
  * Do not free the memory pointed to by *node, it doesn't belong to you.
- * If your thread function returns it will be started again without creating a new thread.
- * If your thread function wants to exit it should call CtdlThreadExit(ret_code);
  * This new interface duplicates much of the eCrash stuff. We should go for closer integration since that would
  * remove the need for the calls to eCrashRegisterThread and friends
  */
@@ -1128,7 +1126,7 @@ void ctdl_thread_internal_init(void)
 		return;
 	}
 
-	this_thread->name = strdup("Garbage Collection Thread");
+	this_thread->name = "Garbage Collection Thread";
 	
 	this_thread->tid = GC_thread;
 	
@@ -1318,12 +1316,12 @@ struct CtdlThreadNode *CtdlThreadSelf(void)
 
 /*
  * A function to rename a thread
- * Returns a char * and the caller owns the memory and should free it
+ * Returns a const char *
  */
-char *CtdlThreadName(struct CtdlThreadNode *thread, char *name)
+const char *CtdlThreadName(struct CtdlThreadNode *thread, const char *name)
 {
 	struct CtdlThreadNode *this_thread;
-	char *old_name;
+	const char *old_name;
 	
 	if (!thread)
 		this_thread = CtdlThreadSelf();
@@ -1338,9 +1336,7 @@ char *CtdlThreadName(struct CtdlThreadNode *thread, char *name)
 	pthread_mutex_lock(&this_thread->ThreadMutex);
 	old_name = this_thread->name;
 	if (name)
-		this_thread->name = strdup (name);
-	else
-		old_name = strdup(old_name);
+		this_thread->name = name;
 	pthread_mutex_unlock(&this_thread->ThreadMutex);
 //	end_critical_section (S_THREAD_LIST);
 	return (old_name);
@@ -1627,8 +1623,6 @@ void CtdlThreadGC (void)
 		 * Now we own that thread entry
 		 */
 		CtdlLogPrintf(CTDL_INFO, "Garbage Collection for thread \"%s\" (%ld).\n", that_thread->name, that_thread->tid);
-		if(that_thread->name)
-			free(that_thread->name);
 		pthread_mutex_destroy(&that_thread->ThreadMutex);
 		pthread_cond_destroy(&that_thread->ThreadCond);
 		pthread_mutex_destroy(&that_thread->SleepMutex);
@@ -1792,11 +1786,11 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 	 */
 	if(name)
 	{
-		this_thread->name = strdup(name);
+		this_thread->name = name;
 	}
 	else
 	{
-		this_thread->name = strdup("Un-named Thread");
+		this_thread->name = "Un-named Thread";
 	}
 	
 	this_thread->flags = flags;
@@ -1832,8 +1826,6 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 
 		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
 			strerror(ret));
-		if (this_thread->name)
-			free (this_thread->name);
 		pthread_mutex_destroy(&(this_thread->ThreadMutex));
 		pthread_cond_destroy(&(this_thread->ThreadCond));
 		pthread_mutex_destroy(&(this_thread->SleepMutex));
@@ -1884,7 +1876,7 @@ struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_f
 /*
  * A warapper function for select so we can show a thread as blocked
  */
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout, struct CtdlThreadNode *self)
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, struct CtdlThreadNode *self)
 {
 	int ret;
 	
@@ -2073,9 +2065,9 @@ do_select:	force_purge = 0;
 				goto do_select;
 			}
 		}
-//		else if(retval == 0) {
-//			goto SKIP_SELECT;
-//		}
+		else if(retval == 0) {
+			goto SKIP_SELECT;
+		}
 		/* Next, check to see if it's a new client connecting
 		 * on a master socket.
 		 */

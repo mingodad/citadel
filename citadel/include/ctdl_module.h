@@ -117,7 +117,7 @@ void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
 int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread);
 void CtdlThreadCancel(struct CtdlThreadNode *thread);
-char *CtdlThreadName(struct CtdlThreadNode *thread, char *name);
+const char *CtdlThreadName(struct CtdlThreadNode *thread, const char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 int CtdlThreadGetWorkers(void);
@@ -125,7 +125,7 @@ double CtdlThreadGetWorkerAvg(void);
 double CtdlThreadGetLoadAvg(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timeval *timeout, struct CtdlThreadNode *self);
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, struct CtdlThreadNode *self);
 
 /* Macros to speed up getting outr thread */
 #define CT _this_cit_thread
