@@ -383,12 +383,15 @@ void go_threading(void)
 		if (exit_signal)
 			CtdlThreadStopAll();
 		check_sched_shutdown();
-		begin_critical_section(S_THREAD_LIST);
-		ctdl_thread_internal_calc_loadavg();
-		end_critical_section(S_THREAD_LIST);
-	
+		if (CT->state > CTDL_THREAD_STOP_REQ)
+		{
+			begin_critical_section(S_THREAD_LIST);
+			ctdl_thread_internal_calc_loadavg();
+			end_critical_section(S_THREAD_LIST);
+		}
+		
 		/* Reduce the size of the worker thread pool if necessary. */
-		if ((CtdlThreadGetWorkers() > config.c_min_workers) && (CtdlThreadWorkerAvg < 20))
+		if ((CtdlThreadGetWorkers() > config.c_min_workers) && (CtdlThreadWorkerAvg < 20) && (CT->state > CTDL_THREAD_STOP_REQ))
 		{
 			/* Ask a worker thread to stop as we no longer need it */
 			begin_critical_section(S_THREAD_LIST);

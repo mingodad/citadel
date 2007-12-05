@@ -1261,15 +1261,10 @@ void CtdlThreadStopAll(void)
 	this_thread = CtdlThreadList;
 	while(this_thread)
 	{
-		if (this_thread->thread_func) // Don't tell garbage collector to stop
-		{
-			ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
-//			pthread_mutex_lock(&this_thread->ThreadMutex);
-			pthread_cond_signal(&this_thread->ThreadCond);
-			pthread_cond_signal(&this_thread->SleepCond);
-//			pthread_mutex_unlock(&this_thread->ThreadMutex);
-			CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
-		}
+		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
+		pthread_cond_signal(&this_thread->ThreadCond);
+		pthread_cond_signal(&this_thread->SleepCond);
+		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
 		this_thread = this_thread->next;
 	}
 	end_critical_section(S_THREAD_LIST);
@@ -1291,10 +1286,8 @@ void CtdlThreadWakeAll(void)
 	{
 		if (!this_thread->thread_func)
 		{
-//			pthread_mutex_lock(&this_thread->ThreadMutex);
 			pthread_cond_signal(&this_thread->ThreadCond);
 			pthread_cond_signal(&this_thread->SleepCond);
-//			pthread_mutex_unlock(&this_thread->ThreadMutex);
 		}
 		this_thread = this_thread->next;
 	}
@@ -1395,10 +1388,8 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 		return;
 	}
 	
-//	begin_critical_section(S_THREAD_LIST);
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_CANCELLED);
 	pthread_cancel(this_thread->tid);
-//	end_critical_section (S_THREAD_LIST);
 }
 
 
@@ -1448,13 +1439,9 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 	if (!(this_thread->thread_func))
 		return; 	// Don't stop garbage collector
 		
-//	begin_critical_section (S_THREAD_LIST);
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
-//	pthread_mutex_lock(&this_thread->ThreadMutex);
 	pthread_cond_signal(&this_thread->ThreadCond);
 	pthread_cond_signal(&this_thread->SleepCond);
-//	pthread_mutex_unlock(&this_thread->ThreadMutex);
-//	end_critical_section(S_THREAD_LIST);
 }
 
 /*
@@ -1477,19 +1464,13 @@ void CtdlThreadSleep(int secs)
 	wake_time.tv_sec = time_now.tv_sec + secs;
 	wake_time.tv_nsec = time_now.tv_usec * 10;
 
-//	begin_critical_section(S_THREAD_LIST);
 	ctdl_thread_internal_change_state (CT, CTDL_THREAD_SLEEPING);
-//	end_critical_section(S_THREAD_LIST);
 	
-//	pthread_mutex_lock(&self->SleepMutex); /* Prevent something asking us to awaken before we've gone to sleep */
 	pthread_mutex_lock(&CT->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
 	pthread_cond_timedwait(&CT->SleepCond, &CT->ThreadMutex, &wake_time);
 	pthread_mutex_unlock(&CT->ThreadMutex);
-//	pthread_mutex_unlock(&self->SleepMutex);
 	
-//	begin_critical_section(S_THREAD_LIST);
 	ctdl_thread_internal_change_state (CT, CTDL_THREAD_RUNNING);
-//	end_critical_section(S_THREAD_LIST);
 }
 
 
@@ -1503,15 +1484,14 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	 * NB. WE ARE THE CURRENT THREAD
 	 */
 	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (%ld) exited.\n", CT->name, CT->tid);
-//	begin_critical_section(S_THREAD_LIST);
+	
 	#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
 	#endif
+	
 	pthread_mutex_lock(&CT->ThreadMutex);
 	CT->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
 	pthread_mutex_unlock(&CT->ThreadMutex);
-//	end_critical_section(S_THREAD_LIST);
-//	CtdlThreadGC();
 }
 
 /*
