@@ -222,8 +222,6 @@ void do_fulltext_indexing(void) {
 	time_t run_time = 0L;
 	time_t end_time = 0L;
 	
-	CT_PUSH();
-	
 	/*
 	 * Don't do this if the site doesn't have it enabled.
 	 */
@@ -299,7 +297,7 @@ void do_fulltext_indexing(void) {
 			ft_index_message(ft_newmsgs[i], 1);
 
 			/* Check to see if we need to quit early */
-			if (CtdlThreadCheckStop(CT)) {
+			if (CtdlThreadCheckStop()) {
 				lprintf(CTDL_DEBUG, "Indexer quitting early\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
@@ -341,7 +339,7 @@ void do_fulltext_indexing(void) {
 void *indexer_thread(void *arg) {
 	struct CitContext indexerCC;
 
-	CT_PUSH();
+	CtdlThreadAllocTSD();
 	
 	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
@@ -350,9 +348,7 @@ void *indexer_thread(void *arg) {
 	indexerCC.cs_pid = 0;
 	pthread_setspecific(MyConKey, (void *)&indexerCC );
 
-	cdb_allocate_tsd();
-
-	while (!CtdlThreadCheckStop(CT)) {
+	while (!CtdlThreadCheckStop()) {
 		do_fulltext_indexing();
 		CtdlThreadSleep(300);
 	}
@@ -503,7 +499,7 @@ CTDL_MODULE_INIT(fulltext)
 	}
 	else
 	{
-		CtdlThreadCreate("indexer", CTDLTHREAD_BIGSTACK, indexer_thread, NULL);
+		CtdlThreadCreate("Indexer", CTDLTHREAD_BIGSTACK, indexer_thread, NULL);
 	}
 	/* return our Subversion id for the Log */
 	return "$Id$";

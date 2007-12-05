@@ -115,9 +115,9 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
 struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
-int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread);
+int CtdlThreadCheckStop(void);
 void CtdlThreadCancel(struct CtdlThreadNode *thread);
-const char *CtdlThreadName(struct CtdlThreadNode *thread, const char *name);
+const char *CtdlThreadName(const char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);
 int CtdlThreadGetWorkers(void);
@@ -126,11 +126,13 @@ double CtdlThreadGetLoadAvg(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
 int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, struct CtdlThreadNode *self);
+void CtdlThreadAllocTSD(void);
 
 /* Macros to speed up getting outr thread */
-#define CT _this_cit_thread
-#define CT_PUSH() \
-	struct CtdlThreadNode *_this_cit_thread;\
-	_this_cit_thread = CtdlThreadSelf()
+
+#define MYCURSORS	(((ThreadTSD*)pthread_getspecific(ThreadKey))->cursors)
+#define MYTID		(((ThreadTSD*)pthread_getspecific(ThreadKey))->tid)
+#define CT		(((ThreadTSD*)pthread_getspecific(ThreadKey))->self)
+
 
 #endif /* CTDL_MODULE_H */

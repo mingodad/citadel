@@ -14,7 +14,22 @@
 #include <pthread.h>
 #include <stdarg.h>
 #include "sysdep.h"
+
+#ifdef HAVE_DB_H
+#include <db.h>
+#elif defined(HAVE_DB4_DB_H)
+#include <db4/db.h>
+#else
+#error Neither <db.h> nor <db4/db.h> was found by configure. Install db4-devel.
+#endif
+
+
+#if DB_VERSION_MAJOR < 4 || DB_VERSION_MINOR < 1
+#error Citadel requires Berkeley DB v4.1 or newer.  Please upgrade.
+#endif
+
 #include "server.h"
+#include "database.h"
 
 #if SIZEOF_SIZE_T == SIZEOF_INT 
 #define SIZE_T_FMT "%d"
@@ -96,11 +111,6 @@ extern volatile int restart_server;
 extern int verbosity;
 extern int rescan[];
 
-extern struct worker_node {
-        pthread_t tid;
-        struct worker_node *next;
-} *worker_list;
-
 
 
 /*
@@ -150,14 +160,22 @@ extern struct CtdlThreadNode {
 	struct CtdlThreadNode *next;		/* Next thread in the thread table */
 } *CtdlThreadList;
 
+typedef struct {
+	DB_TXN *tid;		/* Transaction handle */
+	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
+	struct CtdlThreadNode *self;	/* Pointer to this threads control structure */
+}ThreadTSD ;
 
 extern double CtdlThreadLoadAvg;
 extern double CtdlThreadWorkerAvg;
+extern pthread_key_t ThreadKey;
 
+void ctdl_thread_internal_init_tsd(void);
 void ctdl_internal_thread_gc (void);
 void ctdl_thread_internal_init(void);
 void ctdl_thread_internal_cleanup(void);
 void ctdl_thread_internal_calc_loadavg(void);
+void ctdl_thread_internal_free_tsd(void);
 struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 
 

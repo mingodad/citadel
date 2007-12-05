@@ -720,11 +720,9 @@ void *purge_databases(void *args)
         time_t now;
         struct tm tm;
 
-        CT_PUSH();	// Makes it easier to access this threads structure
+	CtdlThreadAllocTSD();
 
-        cdb_allocate_tsd();
-
-        while (!CtdlThreadCheckStop(CT)) {
+        while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,
                  * but not if the operation has already been performed in the
                  * last twelve hours.  This is usually enough granularity.
@@ -739,49 +737,49 @@ void *purge_databases(void *args)
 
                 lprintf(CTDL_INFO, "Auto-purger: starting.\n");
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUsers();
                 	lprintf(CTDL_NOTICE, "Purged %d users.\n", retval);
 		}
 		
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	PurgeMessages();
                 	lprintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeRooms();
                 	lprintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeVisits();
                 	lprintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUseTable();
                 	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeEuidIndexTable();
                 	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	retval = TDAP_ProcessAdjRefCountQueue();
                 	lprintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
 		}
 
-		if (!CtdlThreadCheckStop(CT))
+		if (!CtdlThreadCheckStop())
 		{
                 	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
 	                last_purge = now;	/* So we don't do it again soon */

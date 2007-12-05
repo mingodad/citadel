@@ -58,19 +58,11 @@
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */
 
-struct cdbtsd {			/* Thread-specific DB stuff */
-	DB_TXN *tid;		/* Transaction handle */
-	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
-};
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
 #endif
 
-static pthread_key_t tsdkey;
-
-#define MYCURSORS	(((struct cdbtsd*)pthread_getspecific(tsdkey))->cursors)
-#define MYTID		(((struct cdbtsd*)pthread_getspecific(tsdkey))->tid)
 
 /* Verbose logging callback */
 void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
@@ -157,10 +149,10 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 		}
 }
 
-static void check_handles(void *arg)
+void check_handles(void *arg)
 {
 	if (arg != NULL) {
-		struct cdbtsd *tsd = (struct cdbtsd *) arg;
+		ThreadTSD *tsd = (ThreadTSD *) arg;
 
 		bailIfCursor(tsd->cursors, "in check_handles");
 
@@ -172,46 +164,9 @@ static void check_handles(void *arg)
 	}
 }
 
-static void dest_tsd(void *arg)
-{
-	if (arg != NULL) {
-		check_handles(arg);
-		free(arg);
-	}
-}
-
-/*
- * Ensure that we have a key for thread-specific data.  We don't
- * put anything in here that Citadel cares about; this is just database
- * related stuff like cursors and transactions.
- *
- * This should be called immediately after startup by any thread which wants
- * to use database calls, except for whatever thread calls open_databases.
- */
-void cdb_allocate_tsd(void)
-{
-	struct cdbtsd *tsd;
-
-	if (pthread_getspecific(tsdkey) != NULL)
-		return;
-
-	tsd = malloc(sizeof(struct cdbtsd));
-
-	tsd->tid = NULL;
-
-	memset(tsd->cursors, 0, sizeof tsd->cursors);
-	pthread_setspecific(tsdkey, tsd);
-}
-
-void cdb_free_tsd(void)
-{
-	dest_tsd(pthread_getspecific(tsdkey));
-	pthread_setspecific(tsdkey, NULL);
-}
-
 void cdb_check_handles(void)
 {
-	check_handles(pthread_getspecific(tsdkey));
+	check_handles(pthread_getspecific(ThreadKey));
 }
 
 
@@ -434,14 +389,6 @@ void open_databases(void)
 		}
 	}
 
-	if ((ret = pthread_key_create(&tsdkey, dest_tsd))) {
-		lprintf(CTDL_EMERG, "pthread_key_create: %s\n",
-			strerror(ret));
-		exit(CTDLEXIT_DB);
-	}
-
-	cdb_allocate_tsd();
-	
 }
 
 
@@ -485,8 +432,8 @@ void close_databases(void)
 	int a;
 	int ret;
 
-	cdb_free_tsd();
-
+	ctdl_thread_internal_free_tsd();
+	
 	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
 		lprintf(CTDL_EMERG,
 			"txn_checkpoint: %s\n", db_strerror(ret));

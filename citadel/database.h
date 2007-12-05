@@ -1,4 +1,9 @@
 /* $Id$ */
+
+#ifndef DATABASE_H
+#define DATABASE_H
+
+
 void defrag_databases (void);
 void open_databases (void);
 void close_databases (void);
@@ -18,6 +23,7 @@ void cdb_trunc(int cdb);
 void *checkpoint_thread(void *arg);
 void cdb_chmod_data(void);
 void cdb_checkpoint(void);
+void check_handles(void *arg);
 
 /*
  * Database records beginning with this magic number are assumed to
@@ -36,4 +42,5 @@ struct CtdlCompressHeader {
 	size_t compressed_len;
 };
 
+#endif /* DATABASE_H */
 

@@ -135,6 +135,10 @@ void master_startup(void) {
 	lprintf(CTDL_INFO, "Opening databases\n");
 	open_databases();
 
+	ctdl_thread_internal_init_tsd();
+	
+	CtdlThreadAllocTSD();
+	
 	if (do_defrag) {
 		defrag_databases();
 	}

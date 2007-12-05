@@ -1020,6 +1020,8 @@ static pthread_t GC_thread;
 static char *CtdlThreadStates[CTDL_THREAD_LAST_STATE];
 double CtdlThreadLoadAvg = 0;
 double CtdlThreadWorkerAvg = 0;
+pthread_key_t ThreadKey;
+
 /*
  * Pinched the following bits regarding signals from Kannel.org
  */
@@ -1076,6 +1078,64 @@ static void ctdl_thread_internal_restore_signals(sigset_t *old_set)
 }
 
 
+
+/*
+ * A function to destroy the TSD
+ */
+static void ctdl_thread_internal_dest_tsd(void *arg)
+{
+	if (arg != NULL) {
+		check_handles(arg);
+		free(arg);
+	}
+}
+
+
+/*
+ * A function to initialise the thread TSD
+ */
+void ctdl_thread_internal_init_tsd(void)
+{
+	int ret;
+	
+	if ((ret = pthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
+		lprintf(CTDL_EMERG, "pthread_key_create: %s\n",
+			strerror(ret));
+		exit(CTDLEXIT_DB);
+	}
+}
+
+/*
+ * Ensure that we have a key for thread-specific data. 
+ *
+ * This should be called immediately after startup by any thread 
+ * 
+ */
+void CtdlThreadAllocTSD(void)
+{
+	ThreadTSD *tsd;
+
+	if (pthread_getspecific(ThreadKey) != NULL)
+		return;
+
+	tsd = malloc(sizeof(ThreadTSD));
+
+	tsd->tid = NULL;
+
+	memset(tsd->cursors, 0, sizeof tsd->cursors);
+	tsd->self = NULL;
+	
+	pthread_setspecific(ThreadKey, tsd);
+}
+
+
+void ctdl_thread_internal_free_tsd(void)
+{
+	ctdl_thread_internal_dest_tsd(pthread_getspecific(ThreadKey));
+	pthread_setspecific(ThreadKey, NULL);
+}
+
+
 void ctdl_thread_internal_cleanup(void)
 {
 	int i;
@@ -1084,6 +1144,7 @@ void ctdl_thread_internal_cleanup(void)
 	{
 		free (CtdlThreadStates[i]);
 	}
+	ctdl_thread_internal_free_tsd();
 }
 
 void ctdl_thread_internal_init(void)
@@ -1129,6 +1190,7 @@ void ctdl_thread_internal_init(void)
 	this_thread->name = "Garbage Collection Thread";
 	
 	this_thread->tid = GC_thread;
+	CT = this_thread;
 	
 	num_threads++;	// Increase the count of threads in the system.
 
@@ -1283,34 +1345,6 @@ double CtdlThreadGetLoadAvg(void)
 	return ret;
 }
 
-/*
- * A function to find the thread structure for this thread
- */
-struct CtdlThreadNode *CtdlThreadSelf(void)
-{
-	pthread_t self_tid;
-	struct CtdlThreadNode *this_thread;
-	
-	self_tid = pthread_self();
-	
-	begin_critical_section(S_THREAD_LIST);
-	this_thread = CtdlThreadList;
-	while(this_thread)
-	{
-		pthread_mutex_lock(&this_thread->ThreadMutex);
-		if (pthread_equal(self_tid, this_thread->tid))
-		{
-			pthread_mutex_unlock(&this_thread->ThreadMutex);
-			end_critical_section(S_THREAD_LIST);
-			return this_thread;
-		}
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
-		this_thread = this_thread->next;
-	}
-	end_critical_section(S_THREAD_LIST);
-	return NULL;
-}
-
 
 
 
@@ -1318,27 +1352,20 @@ struct CtdlThreadNode *CtdlThreadSelf(void)
  * A function to rename a thread
  * Returns a const char *
  */
-const char *CtdlThreadName(struct CtdlThreadNode *thread, const char *name)
+const char *CtdlThreadName(const char *name)
 {
-	struct CtdlThreadNode *this_thread;
 	const char *old_name;
 	
-	if (!thread)
-		this_thread = CtdlThreadSelf();
-	else
-		this_thread = thread;
-	if (!this_thread)
+	if (!CT)
 	{
 		CtdlLogPrintf(CTDL_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread. %s\n", name);
 		return NULL;
 	}
-//	begin_critical_section(S_THREAD_LIST);
-	pthread_mutex_lock(&this_thread->ThreadMutex);
-	old_name = this_thread->name;
+	pthread_mutex_lock(&CT->ThreadMutex);
+	old_name = CT->name;
 	if (name)
-		this_thread->name = name;
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
-//	end_critical_section (S_THREAD_LIST);
+		CT->name = name;
+	pthread_mutex_unlock(&CT->ThreadMutex);
 	return (old_name);
 }	
 
@@ -1351,7 +1378,7 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 	struct CtdlThreadNode *this_thread;
 	
 	if (!thread)
-		this_thread = CtdlThreadSelf();
+		this_thread = CT;
 	else
 		this_thread = thread;
 	if (!this_thread)
@@ -1379,27 +1406,27 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
 /*
  * A function for a thread to check if it has been asked to stop
  */
-int CtdlThreadCheckStop(struct CtdlThreadNode *this_thread)
+int CtdlThreadCheckStop(void)
 {
-	if (!this_thread)
+	if (!CT)
 	{
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, CtdlThreadCheckStop() called by a non thread.\n");
 		CtdlThreadStopAll();
 		return -1;
 	}
-	pthread_mutex_lock(&this_thread->ThreadMutex);
-	if(this_thread->state == CTDL_THREAD_STOP_REQ)
+	pthread_mutex_lock(&CT->ThreadMutex);
+	if(CT->state == CTDL_THREAD_STOP_REQ)
 	{
-		this_thread->state = CTDL_THREAD_STOPPING;
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
+		CT->state = CTDL_THREAD_STOPPING;
+		pthread_mutex_unlock(&CT->ThreadMutex);
 		return -1;
 	}
-	else if((this_thread->state < CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_CREATE))
+	else if((CT->state < CTDL_THREAD_STOP_REQ) && (CT->state > CTDL_THREAD_CREATE))
 	{
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
+		pthread_mutex_unlock(&CT->ThreadMutex);
 		return -1;
 	}
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	pthread_mutex_unlock(&CT->ThreadMutex);
 	return 0;
 }
 
@@ -1413,7 +1440,7 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 	struct CtdlThreadNode *this_thread;
 	
 	if (!thread)
-		this_thread = CtdlThreadSelf();
+		this_thread = CT;
 	else
 		this_thread = thread;
 	if (!this_thread)
@@ -1437,11 +1464,9 @@ void CtdlThreadSleep(int secs)
 {
 	struct timespec wake_time;
 	struct timeval time_now;
-	struct CtdlThreadNode *self;
 	
 	
-	self = CtdlThreadSelf();
-	if (!self)
+	if (!CT)
 	{
 		CtdlLogPrintf(CTDL_WARNING, "CtdlThreadSleep() called by something that is not a thread. Should we die?\n");
 		return;
@@ -1453,17 +1478,17 @@ void CtdlThreadSleep(int secs)
 	wake_time.tv_nsec = time_now.tv_usec * 10;
 
 //	begin_critical_section(S_THREAD_LIST);
-	ctdl_thread_internal_change_state (self, CTDL_THREAD_SLEEPING);
+	ctdl_thread_internal_change_state (CT, CTDL_THREAD_SLEEPING);
 //	end_critical_section(S_THREAD_LIST);
 	
 //	pthread_mutex_lock(&self->SleepMutex); /* Prevent something asking us to awaken before we've gone to sleep */
-	pthread_mutex_lock(&self->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
-	pthread_cond_timedwait(&self->SleepCond, &self->ThreadMutex, &wake_time);
-	pthread_mutex_unlock(&self->ThreadMutex);
+	pthread_mutex_lock(&CT->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
+	pthread_cond_timedwait(&CT->SleepCond, &CT->ThreadMutex, &wake_time);
+	pthread_mutex_unlock(&CT->ThreadMutex);
 //	pthread_mutex_unlock(&self->SleepMutex);
 	
 //	begin_critical_section(S_THREAD_LIST);
-	ctdl_thread_internal_change_state (self, CTDL_THREAD_RUNNING);
+	ctdl_thread_internal_change_state (CT, CTDL_THREAD_RUNNING);
 //	end_critical_section(S_THREAD_LIST);
 }
 
@@ -1473,20 +1498,18 @@ void CtdlThreadSleep(int secs)
  */
 static void ctdl_internal_thread_cleanup(void *arg)
 {
-	struct CtdlThreadNode *this_thread;
-	this_thread = CtdlThreadSelf();
 	/*
 	 * In here we were called by the current thread because it is exiting
 	 * NB. WE ARE THE CURRENT THREAD
 	 */
-	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (%ld) exited.\n", this_thread->name, this_thread->tid);
+	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (%ld) exited.\n", CT->name, CT->tid);
 //	begin_critical_section(S_THREAD_LIST);
 	#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
 	#endif
-	pthread_mutex_lock(&this_thread->ThreadMutex);
-	this_thread->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	pthread_mutex_lock(&CT->ThreadMutex);
+	CT->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
+	pthread_mutex_unlock(&CT->ThreadMutex);
 //	end_critical_section(S_THREAD_LIST);
 //	CtdlThreadGC();
 }
@@ -1669,6 +1692,8 @@ static void *ctdl_internal_thread_func (void *arg)
 	// Register the cleanup function to take care of when we exit.
 	pthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
 	// Get our thread data structure
+	CtdlThreadAllocTSD();
+	CT = this_thread;
 	this_thread->pid = getpid();
 	memcpy(&this_thread->last_state_change, &this_thread->start_time, sizeof (struct timeval));	/* Changed state so mark it. */
 	/* Only change to running state if we weren't asked to stop during the create cycle
@@ -1677,7 +1702,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	 */
 	pthread_mutex_unlock(&this_thread->ThreadMutex);
 		
-	if (!CtdlThreadCheckStop(this_thread))
+	if (!CtdlThreadCheckStop())
 	{
 		pthread_mutex_lock(&this_thread->ThreadMutex);
 		this_thread->state = CTDL_THREAD_RUNNING;
@@ -1698,7 +1723,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	/*
 	 * run the thread to do the work but only if we haven't been asked to stop
 	 */
-	if (!CtdlThreadCheckStop(this_thread))
+	if (!CtdlThreadCheckStop())
 		ret = (this_thread->thread_func)(this_thread->user_args);
 	
 	/*
@@ -1990,11 +2015,8 @@ void *worker_thread(void *arg) {
 	int force_purge = 0;
 	int m;
 	
-	CT_PUSH();
-	
-	cdb_allocate_tsd();
 
-	while (!CtdlThreadCheckStop(CT)) {
+	while (!CtdlThreadCheckStop()) {
 
 		/* make doubly sure we're not holding any stale db handles
 		 * which might cause a deadlock.
@@ -2040,13 +2062,13 @@ do_select:	force_purge = 0;
 			}
 		}
 
-		if (!CtdlThreadCheckStop(CT)) {
+		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
 			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv, CT);
 		}
 
-		if (CtdlThreadCheckStop(CT)) return(NULL);
+		if (CtdlThreadCheckStop()) return(NULL);
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -2060,7 +2082,7 @@ do_select:	force_purge = 0;
 			if (errno != EINTR) {
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
-			} else if (!CtdlThreadCheckStop(CT)) {
+			} else if (!CtdlThreadCheckStop()) {
 				CtdlLogPrintf(CTDL_DEBUG, "Un handled select failure.\n");
 				goto do_select;
 			}

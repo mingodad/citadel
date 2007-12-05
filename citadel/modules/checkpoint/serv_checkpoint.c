@@ -44,7 +44,7 @@
 void *checkpoint_thread(void *arg) {
 	struct CitContext checkpointCC;
 
-	CT_PUSH();
+	CtdlThreadAllocTSD();
 	
 	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
 
@@ -53,9 +53,7 @@ void *checkpoint_thread(void *arg) {
 	checkpointCC.cs_pid = 0;
 	pthread_setspecific(MyConKey, (void *)&checkpointCC );
 
-	cdb_allocate_tsd();
-
-	while (!CtdlThreadCheckStop(CT)) {
+	while (!CtdlThreadCheckStop()) {
 		cdb_checkpoint();
 		CtdlThreadSleep(60);
 	}

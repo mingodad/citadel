@@ -347,15 +347,10 @@ void go_threading(void)
 	int i;
 	struct CtdlThreadNode *last_worker;
 	
-	/* We can't use CT_PUSH() here so we do it the long way 
-	 * So we can still use CT for current thread */
-	struct CtdlThreadNode *_this_cit_thread;
-	
 	/*
 	 * Initialise the thread system
 	 */
 	ctdl_thread_internal_init();
-	_this_cit_thread = CtdlThreadSelf();
 	/*
 	 * Now create a bunch of worker threads.
 	 */
