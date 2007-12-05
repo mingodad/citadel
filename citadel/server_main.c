@@ -426,7 +426,7 @@ void go_threading(void)
 		 */
 //		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkers() < num_sessions))
 		// && (CtdlThreadLoadAvg < 90) )
-		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60) && (CtdlThreadGetLoadAvg() < 90) )
+		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60) && (CtdlThreadGetLoadAvg() < 90) && (CT->state > CTDL_THREAD_STOP_REQ))
 		{
 			for (i=0; i<5 ; i++)
 //			for (i=0; i< (num_sessions - CtdlThreadGetWorkers()) ; i++)

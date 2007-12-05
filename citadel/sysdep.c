@@ -1838,8 +1838,8 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 	 * when no signals will be processed, but during that time they
 	 * should be queued by the operating system.
 	 */
-	if (pthread_equal(GC_thread, pthread_self())) 
-	    sigtrick = ctdl_thread_internal_block_signals(&old_signal_set) == 0;
+//	if (pthread_equal(GC_thread, pthread_self())) 
+//	    sigtrick = ctdl_thread_internal_block_signals(&old_signal_set) == 0;
 
 	/*
 	 * We pass this_thread into the thread as its args so that it can find out information
@@ -1857,13 +1857,13 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 		pthread_cond_destroy(&(this_thread->SleepCond));
 		pthread_attr_destroy(&this_thread->attr);
 		free(this_thread);
-		if (sigtrick)
-			ctdl_thread_internal_restore_signals(&old_signal_set);
+//		if (sigtrick)
+//			ctdl_thread_internal_restore_signals(&old_signal_set);
 		return NULL;
 	}
 	
-	if (sigtrick)
-		ctdl_thread_internal_restore_signals(&old_signal_set);
+//	if (sigtrick)
+//		ctdl_thread_internal_restore_signals(&old_signal_set);
 	
 	num_threads++;	// Increase the count of threads in the system.
 	if(this_thread->flags & CTDLTHREAD_WORKER)
