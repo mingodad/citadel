@@ -793,7 +793,10 @@ void context_cleanup(void)
 	/* We need to update the ContextList because some modules may want to itterate it
 	 * Question is should we NULL it before iterating here or should we just keep updating it
 	 * as we remove items?
+	 *
+	 * Answer is to NULL it first to prevent modules from doing any actions on the list at all
 	 */
+	ContextList=NULL;
 	while (ptr != NULL){
 		/* Remove the session from the active list */
 		rem = ptr->next;
@@ -803,7 +806,6 @@ void context_cleanup(void)
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;
-		ContextList = rem; // Update ContextList since a module may try to iterate the list.
 	}
 }
 
@@ -851,6 +853,8 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
 	CtdlDestroyServiceHook();
+	CtdlDestroyRoomHooks();
+	CtdlDestroyDirectoryServiceFuncs();
 	#ifdef HAVE_BACKTRACE
 	eCrash_Uninit();
 	#endif

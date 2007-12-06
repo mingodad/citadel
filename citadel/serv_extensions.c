@@ -1156,6 +1156,21 @@ int CtdlDoDirectoryServiceFunc(char *cn, char *ou, void **object, char *module, 
 	return 0;
 }
 
+void CtdlDestroyDirectoryServiceFuncs(void)
+{
+	struct DirectoryServiceHook *cur, *next;
+	
+	cur = DirectoryServiceHookList;
+	DirectoryServiceHookList = NULL;
+	while (cur)
+	{
+		next = cur->next;
+		CtdlLogPrintf(CTDL_INFO, "Destroyed directory service function for module %s.\n", cur->module);
+		free(cur);
+		cur = next;
+	}
+}
+
 /*
  * Dirty hack until we impliment a hook mechanism for this
  */
