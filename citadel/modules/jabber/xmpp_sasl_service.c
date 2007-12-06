@@ -119,4 +119,17 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 	}
 }
 
+/*
+ * Offer non-SASL authentication to legacy clients.
+ */
+void jabber_offer_non_sasl_authentication(void) {
+	cprintf("<query xmlns=\"jabber:iq:auth\">"
+		"<username/>"
+		"<password/>"
+		/* "<digest/>" */
+		/* "<resource/>" */
+		"</query>"
+	);
+}
+
 #endif	/* HAVE_EXPAT */

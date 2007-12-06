@@ -89,6 +89,9 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
+
+		/* Also offer non-SASL authentication */
+		cprintf("<auth xmlns=\"http://jabber.org/features/iq-auth\"/>");
 	}
 
 	/* Offer binding and sessions as part of our feature set */

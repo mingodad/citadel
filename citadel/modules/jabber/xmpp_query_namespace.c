@@ -113,8 +113,13 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	/*
 	 * Is this a query we know how to handle?
 	 */
+
 	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
 		jabber_iq_roster_query();
+	}
+
+	else if (!strcasecmp(query_xmlns, "jabber:iq:auth")) {
+		jabber_offer_non_sasl_authentication();
 	}
 
 	/*

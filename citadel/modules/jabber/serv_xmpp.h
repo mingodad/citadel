@@ -60,3 +60,4 @@ void xmpp_process_events(void);
 void xmpp_presence_notify(char *, char *);
 void jabber_roster_item(struct CitContext *);
 void jabber_send_message(char *, char *);
+void jabber_offer_non_sasl_authentication(void);
