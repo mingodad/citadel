@@ -57,8 +57,7 @@ struct xmpp_event *xmpp_queue = NULL;
 
 void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
-
-	lprintf(CTDL_DEBUG, "New stream detected.\n");
+	lprintf(CTDL_DEBUG, "New XMPP stream.\n");
 
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {

@@ -31,7 +31,6 @@ CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
 SERVER_TARGETS=citserver
 SERV_MODULES=crc16.o \
 	md5.o \
-	sha1.o \
 	ical_dezonify.o
 
 include Make_modules
@@ -75,7 +74,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c ical_dezonify.c \
 	internet_addressing.c ecrash.c \
-	ipc_c_tcp.c locate_host.c md5.c sha1.c messages.c  \
+	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
 	screen.c sendcommand.c getmail.c \

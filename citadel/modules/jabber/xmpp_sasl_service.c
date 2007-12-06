@@ -3,8 +3,7 @@
  *
  * Barebones SASL authentication service for XMPP (Jabber) clients.
  *
- * Why barebones?  Because RFC3920 says we "must" support DIGEST-MD5 but
- * we only support PLAIN.
+ * Note: RFC3920 says we "must" support DIGEST-MD5 but we only support PLAIN.
  *
  * Copyright (c) 2007 by Art Cancro
  * This code is released under the terms of the GNU General Public License.
@@ -126,8 +125,8 @@ void jabber_offer_non_sasl_authentication(void) {
 	cprintf("<query xmlns=\"jabber:iq:auth\">"
 		"<username/>"
 		"<password/>"
-		/* "<digest/>" */
-		/* "<resource/>" */
+		"<digest/>"
+		"<resource/>"
 		"</query>"
 	);
 }
