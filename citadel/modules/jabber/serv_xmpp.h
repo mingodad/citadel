@@ -25,6 +25,8 @@ struct citxmpp {			/* Information about the current session */
 	char message_to[256];
 	char *message_body;		/* Message body in transit */
 	int html_tag_level;		/* <html> tag nesting level */
+
+	int bind_requested;		/* In this stanza, client is asking server to bind a resource. */
 };
 
 #define XMPP ((struct citxmpp *)CC->session_specific_data)
