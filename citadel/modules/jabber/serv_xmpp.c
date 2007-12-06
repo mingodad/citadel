@@ -90,11 +90,10 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
 	}
-	else {
-		/* If we've logged in, now offer binding and sessions as our feature set */
-		cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
-		cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
-	}
+
+	/* Offer binding and sessions as part of our feature set */
+	cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
+	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
 
 	cprintf("</stream:features>");
 
