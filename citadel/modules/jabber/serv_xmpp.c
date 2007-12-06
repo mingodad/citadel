@@ -89,8 +89,8 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
 
-		/* Also offer non-SASL authentication 
-		cprintf("<auth xmlns=\"http://jabber.org/features/iq-auth\"/>"); */
+		/* Also offer non-SASL authentication */
+		cprintf("<auth xmlns=\"http://jabber.org/features/iq-auth\"/>");
 	}
 
 	/* Offer binding and sessions as part of our feature set */
@@ -193,6 +193,23 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		if (XMPP->chardata_len > 0) {
 			safestrncpy(XMPP->iq_client_resource, XMPP->chardata,
 				sizeof XMPP->iq_client_resource);
+			striplt(XMPP->iq_client_resource);
+		}
+	}
+
+	if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
+		if (XMPP->chardata_len > 0) {
+			safestrncpy(XMPP->iq_client_username, XMPP->chardata,
+				sizeof XMPP->iq_client_username);
+			striplt(XMPP->iq_client_username);
+		}
+	}
+
+	if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
+		if (XMPP->chardata_len > 0) {
+			safestrncpy(XMPP->iq_client_password, XMPP->chardata,
+				sizeof XMPP->iq_client_password);
+			striplt(XMPP->iq_client_password);
 		}
 	}
 
@@ -219,6 +236,22 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 				cprintf("</iq>");
 			}
 		}
+
+		/*
+		 * Non SASL authentication
+		 */
+		else if (
+			(!strcasecmp(XMPP->iq_type, "set"))
+			&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
+			) {
+
+			jabber_non_sasl_authenticate(
+				XMPP->iq_id,
+				XMPP->iq_client_username,
+				XMPP->iq_client_password,
+				XMPP->iq_client_resource
+			);
+		}	
 
 		/*
 		 * If this <iq> stanza was a "bind" attempt, process it ...

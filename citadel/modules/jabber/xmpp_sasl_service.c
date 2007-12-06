@@ -118,4 +118,34 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 	}
 }
 
+
+
+/*
+ * Non-SASL authentication
+ */
+void jabber_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
+	int result;
+
+        if (CC->logged_in) logout(CC);  /* Client may try to log in twice.  Handle this. */
+
+	result = CtdlLoginExistingUser(NULL, username);
+	if (result == login_ok) {
+		result = CtdlTryPassword(password);
+		if (result == pass_ok) {
+			cprintf("<iq type=\"result\" id=\"%s\"></iq>", iq_id);	/* success */
+			return;
+		}
+	}
+
+	/* failure */
+	cprintf("<iq type=\"error\" id=\"%s\">", iq_id);
+	cprintf("<error code=\"401\" type=\"auth\">"
+		"<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+		"</error>"
+		"</iq>"
+	);
+}
+
+
+
 #endif	/* HAVE_EXPAT */

@@ -16,6 +16,8 @@ struct citxmpp {			/* Information about the current session */
 	char iq_id[256];
 	char iq_from[256];
 	char iq_to[256];
+	char iq_client_username[256];	/* username requested by the client (NON SASL ONLY) */
+	char iq_client_password[256];	/* password requested by the client (NON SASL ONLY) */
 	char iq_client_resource[256];	/* resource name requested by the client */
 	int iq_session;			/* nonzero == client is requesting a session */
 	char iq_query_xmlns[256];	/* Namespace of <query> */
@@ -62,3 +64,4 @@ void xmpp_process_events(void);
 void xmpp_presence_notify(char *, char *);
 void jabber_roster_item(struct CitContext *);
 void jabber_send_message(char *, char *);
+void jabber_non_sasl_authenticate(char *, char *, char *, char *);
