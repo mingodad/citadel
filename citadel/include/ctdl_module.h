@@ -113,6 +113,7 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
  * Citadel Threads API
  */
 struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+struct CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) (void *arg), void *args, time_t when);
 void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
 int CtdlThreadCheckStop(void);

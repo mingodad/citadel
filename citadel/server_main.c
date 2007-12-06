@@ -388,6 +388,8 @@ void go_threading(void)
 			begin_critical_section(S_THREAD_LIST);
 			ctdl_thread_internal_calc_loadavg();
 			end_critical_section(S_THREAD_LIST);
+			
+			ctdl_thread_internal_check_scheduled(); /* start scheduled threads */
 		}
 		
 		/* Reduce the size of the worker thread pool if necessary. */

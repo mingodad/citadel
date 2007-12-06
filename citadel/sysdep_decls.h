@@ -136,6 +136,7 @@ enum CtdlThreadState {
 extern struct CtdlThreadNode {
 	pthread_t tid;				/* id as returned by pthread_create() */
 	pid_t pid;				/* pid, as best the OS will let us determine */
+	time_t when;				/* When to start a scheduled thread */
 	struct CitConext *Context;		/* The session context that this thread mught be working on or NULL if none */
 	long number;				/* A unigue number for this thread (not implimented yet) */
 	int wakefd_recv;			/* An fd that this thread can sleep on (not implimented yet) */
@@ -177,6 +178,7 @@ void ctdl_thread_internal_cleanup(void);
 void ctdl_thread_internal_calc_loadavg(void);
 void ctdl_thread_internal_free_tsd(void);
 struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+void ctdl_thread_internal_check_scheduled(void);
 
 
 
