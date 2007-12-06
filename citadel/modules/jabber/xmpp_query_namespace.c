@@ -118,10 +118,6 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		jabber_iq_roster_query();
 	}
 
-	else if (!strcasecmp(query_xmlns, "jabber:iq:auth")) {
-		jabber_offer_non_sasl_authentication();
-	}
-
 	/*
 	 * End of query result.  If we didn't hit any known namespaces then we will
 	 * have simply delivered an empty result stanza, which should be ok.

@@ -88,6 +88,7 @@ void jabber_send_message(char *message_to, char *message_body) {
 	if (message_body == NULL) return;
 	if (message_to == NULL) return;
 	if (IsEmptyStr(message_to)) return;
+	if (!CC->logged_in) return;
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (!strcasecmp(cptr->cs_inet_email, message_to)) {
