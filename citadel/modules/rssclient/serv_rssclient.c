@@ -580,17 +580,18 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 /*
  * Scan for rooms that have RSS client requests configured
  */
-void rssclient_scan(void) {
+void *rssclient_scan(void *args) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
 	struct rssnetcfg *rptr = NULL;
 
+	CtdlThreadAllocTSD();
 	/*
 	 * Run RSS client no more frequently than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < config.c_net_freq ) {
-		return;
-	}
+//	if ( (time(NULL) - last_run) < config.c_net_freq ) {
+//		return;
+//	}
 
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run
@@ -598,7 +599,7 @@ void rssclient_scan(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_rssclient) return;
+	if (doing_rssclient) return NULL;
 	doing_rssclient = 1;
 
 	lprintf(CTDL_DEBUG, "rssclient started\n");
@@ -615,6 +616,8 @@ void rssclient_scan(void) {
 	lprintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
+	CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, last_run + config.c_net_freq);
+	return NULL;
 }
 
 
@@ -622,10 +625,11 @@ void rssclient_scan(void) {
 
 CTDL_MODULE_INIT(rssclient)
 {
-	if (!threading)
+	if (threading)
 	{
 #ifdef HAVE_EXPAT
-		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
+//		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
+		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
 #else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  RSS client will be disabled.\n");
 #endif

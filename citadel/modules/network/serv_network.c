@@ -2043,7 +2043,7 @@ void create_spool_dirs(void) {
  * 
  * Run through the rooms doing various types of network stuff.
  */
-void network_do_queue(void) {
+void *network_do_queue(void *args) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
@@ -2062,7 +2062,7 @@ void network_do_queue(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_queue) return;
+	if (doing_queue) return NULL;
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
@@ -2134,6 +2134,8 @@ void network_do_queue(void) {
 	}
 
 	doing_queue = 0;
+	CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, time(NULL) + 60);
+	return NULL;
 }
 
 
@@ -2209,11 +2211,12 @@ CTDL_MODULE_INIT(network)
 		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
-		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
+//		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	        CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room);
 	}
-
+	else
+		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, 0);
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
