@@ -126,7 +126,7 @@ double CtdlThreadGetWorkerAvg(void);
 double CtdlThreadGetLoadAvg(void);
 void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, struct CtdlThreadNode *self);
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 void CtdlThreadAllocTSD(void);
 
 /* Macros to speed up getting outr thread */

@@ -2041,13 +2041,13 @@ void ctdl_thread_internal_check_scheduled(void)
 /*
  * A warapper function for select so we can show a thread as blocked
  */
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, struct CtdlThreadNode *self)
+int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
 {
 	int ret;
 	
-	ctdl_thread_internal_change_state(self, CTDL_THREAD_BLOCKED);
+	ctdl_thread_internal_change_state(CT, CTDL_THREAD_BLOCKED);
 	ret = select(n, readfds, writefds, exceptfds, timeout);
-	ctdl_thread_internal_change_state(self, CTDL_THREAD_RUNNING);
+	ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
 	return ret;
 }
 
@@ -2205,7 +2205,7 @@ do_select:	force_purge = 0;
 		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv, CT);
+			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 
 		if (CtdlThreadCheckStop()) return(NULL);

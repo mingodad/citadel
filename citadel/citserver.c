@@ -990,12 +990,16 @@ void citproto_begin_session() {
  */
 void do_command_loop(void) {
 	char cmdbuf[SIZ];
-
+	char *old_name = NULL;
+	
+	old_name = CtdlThreadName("do_command_loop");
+	
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		lprintf(CTDL_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
+		CtdlThreadName(old_name);
 		return;
 	}
 
@@ -1024,6 +1028,8 @@ void do_command_loop(void) {
 		safestrncpy(CC->lastcmdname, cmdbuf, sizeof(CC->lastcmdname));
 		time(&CC->lastidle);
 	}
+	
+	CtdlThreadName(cmdbuf);
 		
 	if ((strncasecmp(cmdbuf, "ENT0", 4))
 	   && (strncasecmp(cmdbuf, "MESG", 4))
@@ -1395,6 +1401,7 @@ void do_command_loop(void) {
 
 	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
+	CtdlThreadName(old_name);
 }
 
 
