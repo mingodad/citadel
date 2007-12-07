@@ -87,7 +87,7 @@ struct RoomProcList *rplist = NULL;
 /*
  * We build a map of network nodes during processing.
  */
-struct NetMap *the_netmap = NULL;
+NetMap *the_netmap = NULL;
 int netmap_changed = 0;
 char *working_ignetcfg = NULL;
 
@@ -117,12 +117,12 @@ void load_working_ignetcfg(void) {
 /*
  * Keep track of what messages to reject
  */
-struct FilterList *load_filter_list(void) {
+FilterList *load_filter_list(void) {
 	char *serialized_list = NULL;
 	int i;
 	char buf[SIZ];
-	struct FilterList *newlist = NULL;
-	struct FilterList *nptr;
+	FilterList *newlist = NULL;
+	FilterList *nptr;
 
 	serialized_list = CtdlGetSysConfig(FILTERLIST);
 	if (serialized_list == NULL) return(NULL); /* if null, no entries */
@@ -130,7 +130,7 @@ struct FilterList *load_filter_list(void) {
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
 		extract_token(buf, serialized_list, i, '\n', sizeof buf);
-		nptr = (struct FilterList *) malloc(sizeof(struct FilterList));
+		nptr = (FilterList *) malloc(sizeof(FilterList));
 		extract_token(nptr->fl_user, buf, 0, '|', sizeof nptr->fl_user);
 		striplt(nptr->fl_user);
 		extract_token(nptr->fl_room, buf, 1, '|', sizeof nptr->fl_room);
@@ -157,7 +157,7 @@ struct FilterList *load_filter_list(void) {
 }
 
 
-void free_filter_list(struct FilterList *fl) {
+void free_filter_list(FilterList *fl) {
 	if (fl == NULL) return;
 	free_filter_list(fl->next);
 	free(fl);
@@ -222,7 +222,7 @@ void read_network_map(void) {
 	char *serialized_map = NULL;
 	int i;
 	char buf[SIZ];
-	struct NetMap *nmptr;
+	NetMap *nmptr;
 
 	serialized_map = CtdlGetSysConfig(IGNETMAP);
 	if (serialized_map == NULL) return;	/* if null, no entries */
@@ -230,7 +230,7 @@ void read_network_map(void) {
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
 		extract_token(buf, serialized_map, i, '\n', sizeof buf);
-		nmptr = (struct NetMap *) malloc(sizeof(struct NetMap));
+		nmptr = (NetMap *) malloc(sizeof(NetMap));
 		extract_token(nmptr->nodename, buf, 0, '|', sizeof nmptr->nodename);
 		nmptr->lastcontact = extract_long(buf, 1);
 		extract_token(nmptr->nexthop, buf, 2, '|', sizeof nmptr->nexthop);
@@ -248,7 +248,7 @@ void read_network_map(void) {
  */
 void write_network_map(void) {
 	char *serialized_map = NULL;
-	struct NetMap *nmptr;
+	NetMap *nmptr;
 
 
 	if (netmap_changed) {
@@ -295,7 +295,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	char linebuf[SIZ];
 	char buf[SIZ];
 	int retval;
-	struct NetMap *nmptr;
+	NetMap *nmptr;
 
 	if (node == NULL) {
 		return(-1);
@@ -442,7 +442,7 @@ void cmd_snet(char *argbuf) {
 /*
  * Deliver digest messages
  */
-void network_deliver_digest(struct SpoolControl *sc) {
+void network_deliver_digest(SpoolControl *sc) {
 	char buf[SIZ];
 	int i;
 	struct CtdlMessage *msg = NULL;
@@ -450,7 +450,7 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	char *recps = NULL;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	struct namelist *nptr;
+	namelist *nptr;
 
 	if (sc->num_msgs_spooled < 1) {
 		fclose(sc->digestfp);
@@ -529,11 +529,11 @@ void network_deliver_digest(struct SpoolControl *sc) {
 /*
  * Deliver list messages to everyone on the list ... efficiently
  */
-void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
+void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	char *recps = NULL;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	struct namelist *nptr;
+	namelist *nptr;
 
 	/* Don't do this if there were no recipients! */
 	if (sc->listrecps == NULL) return;
@@ -579,13 +579,13 @@ void network_deliver_list(struct CtdlMessage *msg, struct SpoolControl *sc) {
  * Spools out one message from the list.
  */
 void network_spool_msg(long msgnum, void *userdata) {
-	struct SpoolControl *sc;
+	SpoolControl *sc;
 	int i;
 	char *newpath = NULL;
 	size_t instr_len = SIZ;
 	struct CtdlMessage *msg = NULL;
-	struct namelist *nptr;
-	struct maplist *mptr;
+	namelist *nptr;
+	maplist *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[SIZ];
@@ -596,7 +596,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	int ok_to_participate = 0;
 	struct recptypes *valid;
 
-	sc = (struct SpoolControl *)userdata;
+	sc = (SpoolControl *)userdata;
 
 	/*
 	 * Process mailing list recipients
@@ -856,76 +856,56 @@ void network_spool_msg(long msgnum, void *userdata) {
 }
 	
 
-/*
- * Batch up and send all outbound traffic from the current room
- */
-void network_spoolout_room(char *room_to_spool) {
-	char filename[SIZ];
-	char buf[SIZ];
+int read_spoolcontrol_file(SpoolControl **scc, char *filename)
+{
+	FILE *fp;
 	char instr[SIZ];
+	char buf[SIZ];
 	char nodename[256];
 	char roomname[ROOMNAMELEN];
 	char nexthop[256];
-	FILE *fp;
-	struct SpoolControl sc;
-	struct namelist *nptr = NULL;
-	struct maplist *mptr = NULL;
 	size_t miscsize = 0;
 	size_t linesize = 0;
 	int skipthisline = 0;
-	int i;
+	namelist *nptr = NULL;
+	maplist *mptr = NULL;
+	SpoolControl *sc;
 
-	/*
-	 * If the room doesn't exist, don't try to perform its networking tasks.
-	 * Normally this should never happen, but once in a while maybe a room gets
-	 * queued for networking and then deleted before it can happen.
-	 */
-	if (getroom(&CC->room, room_to_spool) != 0) {
-		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
-		return;
-	}
-
-	memset(&sc, 0, sizeof(struct SpoolControl));
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-
-	begin_critical_section(S_NETCONFIGS);
-
-	/* Only do net processing for rooms that have netconfigs */
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
-		end_critical_section(S_NETCONFIGS);
-		return;
+		return 0;
 	}
-
-	lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
+	sc = malloc(sizeof(SpoolControl));
+	memset(sc, 0, sizeof(SpoolControl));
+	*scc = sc;
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
 		if (!strcasecmp(instr, "lastsent")) {
-			sc.lastsent = extract_long(buf, 1);
+			sc->lastsent = extract_long(buf, 1);
 		}
 		else if (!strcasecmp(instr, "listrecp")) {
-			nptr = (struct namelist *)
-				malloc(sizeof(struct namelist));
-			nptr->next = sc.listrecps;
+			nptr = (namelist *)
+				malloc(sizeof(namelist));
+			nptr->next = sc->listrecps;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc.listrecps = nptr;
+			sc->listrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "participate")) {
-			nptr = (struct namelist *)
-				malloc(sizeof(struct namelist));
-			nptr->next = sc.participates;
+			nptr = (namelist *)
+				malloc(sizeof(namelist));
+			nptr->next = sc->participates;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc.participates = nptr;
+			sc->participates = nptr;
 		}
 		else if (!strcasecmp(instr, "digestrecp")) {
-			nptr = (struct namelist *)
-				malloc(sizeof(struct namelist));
-			nptr->next = sc.digestrecps;
+			nptr = (namelist *)
+				malloc(sizeof(namelist));
+			nptr->next = sc->digestrecps;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc.digestrecps = nptr;
+			sc->digestrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
 			/* by checking each node's validity, we automatically
@@ -937,12 +917,12 @@ void network_spoolout_room(char *room_to_spool) {
 			strcpy(nexthop, "xxx");
 			if (is_valid_node(nexthop, NULL, nodename) == 0) {
 				if (IsEmptyStr(nexthop)) {
-					mptr = (struct maplist *)
-						malloc(sizeof(struct maplist));
-					mptr->next = sc.ignet_push_shares;
+					mptr = (maplist *)
+						malloc(sizeof(maplist));
+					mptr->next = sc->ignet_push_shares;
 					strcpy(mptr->remote_nodename, nodename);
 					strcpy(mptr->remote_roomname, roomname);
-					sc.ignet_push_shares = mptr;
+					sc->ignet_push_shares = mptr;
 				}
 			}
 		}
@@ -965,9 +945,9 @@ void network_spoolout_room(char *room_to_spool) {
 
 			if (skipthisline == 0) {
 				linesize = strlen(buf);
-				sc.misc = realloc(sc.misc,
+				sc->misc = realloc(sc->misc,
 					(miscsize + linesize + 2) );
-				sprintf(&sc.misc[miscsize], "%s\n", buf);
+				sprintf(&sc->misc[miscsize], "%s\n", buf);
 				miscsize = miscsize + linesize + 1;
 			}
 		}
@@ -975,16 +955,180 @@ void network_spoolout_room(char *room_to_spool) {
 
 	}
 	fclose(fp);
+	return 1;
+}
+
+void free_spoolcontrol_struct(SpoolControl **scc)
+{
+	SpoolControl *sc;
+	namelist *nptr = NULL;
+	maplist *mptr = NULL;
+
+	sc = *scc;
+	while (sc->listrecps != NULL) {
+		nptr = sc->listrecps->next;
+		free(sc->listrecps);
+		sc->listrecps = nptr;
+	}
+	/* Do the same for digestrecps */
+	while (sc->digestrecps != NULL) {
+		nptr = sc->digestrecps->next;
+		free(sc->digestrecps);
+		sc->digestrecps = nptr;
+	}
+	/* Do the same for participates */
+	while (sc->participates != NULL) {
+		nptr = sc->participates->next;
+		free(sc->participates);
+		sc->participates = nptr;
+	}
+	while (sc->ignet_push_shares != NULL) {
+		mptr = sc->ignet_push_shares->next;
+		free(sc->ignet_push_shares);
+		sc->ignet_push_shares = mptr;
+	}
+	free(sc->misc);
+	free(sc);
+	*scc=NULL;
+}
+
+int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
+{
+	FILE *fp;
+	SpoolControl *sc;
+	namelist *nptr = NULL;
+	maplist *mptr = NULL;
+
+	sc = *scc;
+	fp = fopen(filename, "w");
+	if (fp == NULL) {
+		lprintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
+			filename, strerror(errno));
+		free_spoolcontrol_struct(scc);
+	}
+	else {
+		fprintf(fp, "lastsent|%ld\n", sc->lastsent);
+
+		/* Write out the listrecps while freeing from memory at the
+		 * same time.  Am I clever or what?  :)
+		 */
+		while (sc->listrecps != NULL) {
+			fprintf(fp, "listrecp|%s\n", sc->listrecps->name);
+			nptr = sc->listrecps->next;
+			free(sc->listrecps);
+			sc->listrecps = nptr;
+		}
+		/* Do the same for digestrecps */
+		while (sc->digestrecps != NULL) {
+			fprintf(fp, "digestrecp|%s\n", sc->digestrecps->name);
+			nptr = sc->digestrecps->next;
+			free(sc->digestrecps);
+			sc->digestrecps = nptr;
+		}
+		/* Do the same for participates */
+		while (sc->participates != NULL) {
+			fprintf(fp, "participate|%s\n", sc->participates->name);
+			nptr = sc->participates->next;
+			free(sc->participates);
+			sc->participates = nptr;
+		}
+		while (sc->ignet_push_shares != NULL) {
+			/* by checking each node's validity, we automatically
+			 * purge nodes which do not exist from room network
+			 * configurations at this time.
+			 */
+			if (is_valid_node(NULL, NULL, sc->ignet_push_shares->remote_nodename) == 0) {
+			}
+			fprintf(fp, "ignet_push_share|%s",
+				sc->ignet_push_shares->remote_nodename);
+			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
+				fprintf(fp, "|%s", sc->ignet_push_shares->remote_roomname);
+			}
+			fprintf(fp, "\n");
+			mptr = sc->ignet_push_shares->next;
+			free(sc->ignet_push_shares);
+			sc->ignet_push_shares = mptr;
+		}
+		if (sc->misc != NULL) {
+			fwrite(sc->misc, strlen(sc->misc), 1, fp);
+		}
+		free(sc->misc);
+
+		fclose(fp);
+		free(sc);
+		*scc=NULL;
+	}
+	return 1;
+}
+int is_recipient(SpoolControl *sc, char *Name)
+{
+	namelist *nptr;
+
+	nptr = sc->listrecps;
+	while (nptr != NULL) {
+		if (strcmp(Name, nptr->name)==0)
+			return 1;
+		nptr = nptr->next;
+	}
+	/* Do the same for digestrecps */
+	nptr = sc->digestrecps;
+	while (nptr != NULL) {
+		if (strcmp(Name, nptr->name)==0)
+			return 1;
+		nptr = nptr->next;
+	}
+	/* Do the same for participates */
+	nptr = sc->participates;
+	while (nptr != NULL) {
+		if (strcmp(Name, nptr->name)==0)
+			return 1;
+		nptr = nptr->next;
+	}
+	return 0;
+}
+
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_spoolout_room(char *room_to_spool) {
+	char buf[SIZ];
+	char filename[SIZ];
+	SpoolControl *sc;
+	int i;
+
+	/*
+	 * If the room doesn't exist, don't try to perform its networking tasks.
+	 * Normally this should never happen, but once in a while maybe a room gets
+	 * queued for networking and then deleted before it can happen.
+	 */
+	if (getroom(&CC->room, room_to_spool) != 0) {
+		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
+		return;
+	}
+
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+
+	lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
+	begin_critical_section(S_NETCONFIGS);
+
+	/* Only do net processing for rooms that have netconfigs */
+
+	if (!read_spoolcontrol_file(&sc, filename))
+	{
+		end_critical_section(S_NETCONFIGS);
+		return;
+	}
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc.digestrecps != NULL) {
-		sc.digestfp = tmpfile();
-		fprintf(sc.digestfp, "Content-type: text/plain\n\n");
+	if (sc->digestrecps != NULL) {
+		sc->digestfp = tmpfile();
+		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL,
-		network_spool_msg, &sc);
+	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
+		network_spool_msg, sc);
 
 	/* If we wrote a digest, deliver it and then close it */
 	snprintf(buf, sizeof buf, "room_%s@%s",
@@ -993,8 +1137,8 @@ void network_spoolout_room(char *room_to_spool) {
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
-	if (sc.digestfp != NULL) {
-		fprintf(sc.digestfp,	" -----------------------------------"
+	if (sc->digestfp != NULL) {
+		fprintf(sc->digestfp,	" -----------------------------------"
 					"------------------------------------"
 					"-------\n"
 					"You are subscribed to the '%s' "
@@ -1002,65 +1146,11 @@ void network_spoolout_room(char *room_to_spool) {
 					"To post to the list: %s\n",
 					CC->room.QRname, buf
 		);
-		network_deliver_digest(&sc);	/* deliver and close */
+		network_deliver_digest(sc);	/* deliver and close */
 	}
 
 	/* Now rewrite the config file */
-	fp = fopen(filename, "w");
-	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
-	}
-	else {
-		fprintf(fp, "lastsent|%ld\n", sc.lastsent);
-
-		/* Write out the listrecps while freeing from memory at the
-		 * same time.  Am I clever or what?  :)
-		 */
-		while (sc.listrecps != NULL) {
-			fprintf(fp, "listrecp|%s\n", sc.listrecps->name);
-			nptr = sc.listrecps->next;
-			free(sc.listrecps);
-			sc.listrecps = nptr;
-		}
-		/* Do the same for digestrecps */
-		while (sc.digestrecps != NULL) {
-			fprintf(fp, "digestrecp|%s\n", sc.digestrecps->name);
-			nptr = sc.digestrecps->next;
-			free(sc.digestrecps);
-			sc.digestrecps = nptr;
-		}
-		/* Do the same for participates */
-		while (sc.participates != NULL) {
-			fprintf(fp, "participate|%s\n", sc.participates->name);
-			nptr = sc.participates->next;
-			free(sc.participates);
-			sc.participates = nptr;
-		}
-		while (sc.ignet_push_shares != NULL) {
-			/* by checking each node's validity, we automatically
-			 * purge nodes which do not exist from room network
-			 * configurations at this time.
-			 */
-			if (is_valid_node(NULL, NULL, sc.ignet_push_shares->remote_nodename) == 0) {
-			}
-			fprintf(fp, "ignet_push_share|%s",
-				sc.ignet_push_shares->remote_nodename);
-			if (!IsEmptyStr(sc.ignet_push_shares->remote_roomname)) {
-				fprintf(fp, "|%s", sc.ignet_push_shares->remote_roomname);
-			}
-			fprintf(fp, "\n");
-			mptr = sc.ignet_push_shares->next;
-			free(sc.ignet_push_shares);
-			sc.ignet_push_shares = mptr;
-		}
-		if (sc.misc != NULL) {
-			fwrite(sc.misc, strlen(sc.misc), 1, fp);
-		}
-		free(sc.misc);
-
-		fclose(fp);
-	}
+	writenfree_spoolcontrol_file (&sc, filename);
 	end_critical_section(S_NETCONFIGS);
 }
 
@@ -1072,7 +1162,7 @@ void network_spoolout_room(char *room_to_spool) {
  * network processing.  This can be used to bring a new node into sync.
  */
 int network_sync_to(char *target_node) {
-	struct SpoolControl sc;
+	SpoolControl sc;
 	int num_spooled = 0;
 	int found_node = 0;
 	char buf[256];
@@ -1100,9 +1190,9 @@ int network_sync_to(char *target_node) {
 			found_node = 1;
 			
 			/* Concise syntax because we don't need a full linked-list */
-			memset(&sc, 0, sizeof(struct SpoolControl));
-			sc.ignet_push_shares = (struct maplist *)
-				malloc(sizeof(struct maplist));
+			memset(&sc, 0, sizeof(SpoolControl));
+			sc.ignet_push_shares = (maplist *)
+				malloc(sizeof(maplist));
 			sc.ignet_push_shares->next = NULL;
 			safestrncpy(sc.ignet_push_shares->remote_nodename,
 				sc_node,
@@ -1171,7 +1261,7 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 void destroy_network_queue_room(void)
 {
 	struct RoomProcList *cur, *p;
-	struct NetMap *nmcur, *nmp;
+	NetMap *nmcur, *nmp;
 
 	cur = rplist;
 	begin_critical_section(S_RPLIST);
@@ -1203,7 +1293,7 @@ void destroy_network_queue_room(void)
  */
 void network_learn_topology(char *node, char *path) {
 	char nexthop[256];
-	struct NetMap *nmptr;
+	NetMap *nmptr;
 
 	strcpy(nexthop, "");
 
@@ -1218,7 +1308,7 @@ void network_learn_topology(char *node, char *path) {
 	}
 
 	/* If we got here then it's not in the map, so add it. */
-	nmptr = (struct NetMap *) malloc(sizeof (struct NetMap));
+	nmptr = (NetMap *) malloc(sizeof (NetMap));
 	strcpy(nmptr->nodename, node);
 	nmptr->lastcontact = time(NULL);
 	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);

@@ -54,7 +54,7 @@
  * is found, the message is rejected.
  */
 int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
-	struct FilterList *fptr;
+	FilterList *fptr;
 	int zap_user = 0;
 	int zap_room = 0;
 	int zap_node = 0;
