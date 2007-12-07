@@ -720,8 +720,6 @@ void *purge_databases(void *args)
         time_t now;
         struct tm tm;
 
-	CtdlThreadAllocTSD();
-
         while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,
                  * but not if the operation has already been performed in the

@@ -2054,6 +2054,7 @@ void *network_do_queue(void *args) {
 	 */
 	if ( (time(NULL) - last_run) < config.c_net_freq ) {
 		full_processing = 0;
+		CtdlLogPrintf(CTDL_DEBUG, "Network full processing in %ld seconds.\n", config.c_net_freq - (time(NULL)- last_run));
 	}
 
 	/*

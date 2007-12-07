@@ -162,13 +162,13 @@ void rss_save_item(struct rss_item *ri) {
 
 		CtdlSubmitMsg(msg, recp, NULL);
 		CtdlFreeMessage(msg);
-		free_recipients(recp);
 
 		/* write the uidl to the use table so we don't store this item again */
 		strcpy(ut.ut_msgid, utmsgid);
 		ut.ut_timestamp = time(NULL);
 		cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
 	}
+	free_recipients(recp);
 }
 
 

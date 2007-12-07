@@ -44,8 +44,6 @@
 void *checkpoint_thread(void *arg) {
 	struct CitContext checkpointCC;
 
-	CtdlThreadAllocTSD();
-	
 	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
 
 	memset(&checkpointCC, 0, sizeof(struct CitContext));

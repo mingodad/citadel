@@ -339,8 +339,6 @@ void do_fulltext_indexing(void) {
 void *indexer_thread(void *arg) {
 	struct CitContext indexerCC;
 
-	CtdlThreadAllocTSD();
-	
 	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
 	memset(&indexerCC, 0, sizeof(struct CitContext));

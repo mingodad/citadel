@@ -1519,6 +1519,7 @@ void CtdlThreadGC (void)
 {
 	struct CtdlThreadNode *this_thread, *that_thread;
 	int workers = 0;
+	int ret=0;
 	
 	begin_critical_section(S_THREAD_LIST);
 	
@@ -1585,11 +1586,17 @@ void CtdlThreadGC (void)
 		/*
 		 * Join on the thread to do clean up and prevent memory leaks
 		 * Also makes sure the thread has cleaned up after itself before we remove it from the list
-		 * If that thread has no function it must be the garbage collector
+		 * We can join on the garbage collector thread the join should just return EDEADLCK
 		 */
-		if (that_thread->thread_func)
-			pthread_join (that_thread->tid, NULL);
-		
+		ret = pthread_join (that_thread->tid, NULL);
+		if (ret == EDEADLK)
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection on own thread.\n");
+		else if (ret == EINVAL)
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, that thread already joined on.\n");
+		else if (ret == ESRCH)
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, no thread to join on.\n");
+		else if (ret != 0)
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, pthread_join returned an unknown error.\n");
 		/*
 		 * Now we own that thread entry
 		 */
@@ -1969,6 +1976,10 @@ void ctdl_thread_internal_check_scheduled(void)
 	
 	now = time(NULL);
 	
+#ifdef WITH_THREADLOG
+	CtdlLogPrintf(CTDL_DEBUG, "Checking for scheduled threads to start.\n");
+#endif
+
 	this_thread = CtdlThreadSchedList;
 	while(this_thread)
 	{
@@ -1978,19 +1989,26 @@ void ctdl_thread_internal_check_scheduled(void)
 		if (now > that_thread->when)
 		{
 			/* Unlink from schedule list */
-			if (that_thread->next)
-				that_thread->next->prev = that_thread->prev;
 			if (that_thread->prev)
 				that_thread->prev->next = that_thread->next;
 			else
 				CtdlThreadSchedList = that_thread->next;
-			
+			if (that_thread->next)
+				that_thread->next->prev = that_thread->prev;
+				
+			that_thread->next = that_thread->prev = NULL;
+#ifdef WITH_THREADLOG
+			CtdlLogPrintf(CTDL_DEBUG, "About to start scheduled thread \"%s\".\n", that_thread->name);
+#endif
 			begin_critical_section(S_THREAD_LIST);
 			if (CT->state > CTDL_THREAD_STOP_REQ)
 			{	/* Only start it if the system is not stopping */
 				pthread_mutex_lock(&that_thread->ThreadMutex);
 				if (ctdl_thread_internal_start_scheduled (that_thread) == NULL)
 				{
+#ifdef WITH_THREADLOG
+			CtdlLogPrintf(CTDL_DEBUG, "Failed to start scheduled thread \"%s\".\n", that_thread->name);
+#endif
 					pthread_mutex_unlock(&that_thread->ThreadMutex);
 					pthread_mutex_destroy(&(that_thread->ThreadMutex));
 					pthread_cond_destroy(&(that_thread->ThreadCond));
@@ -2001,13 +2019,19 @@ void ctdl_thread_internal_check_scheduled(void)
 				}
 				else
 				{
-					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a sceduled thread \"%s\".\n",
-						that_thread->name);
+					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (%ld).\n",
+						that_thread->name, that_thread->tid);
 					pthread_mutex_unlock(&that_thread->ThreadMutex);
 					ctdl_thread_internal_calc_loadavg();
 				}
 			}
 			end_critical_section(S_THREAD_LIST);
+		}
+		else
+		{
+#ifdef WITH_THREADLOG
+			CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" will start in %ld seconds.\n", that_thread->name, that_thread->when - time(NULL));
+#endif
 		}
 	}
 	end_critical_section(S_SCHEDULE_LIST);
