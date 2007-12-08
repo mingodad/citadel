@@ -479,8 +479,8 @@ const char *CitadelServiceXMPP="XMPP";
 
 CTDL_MODULE_INIT(jabber)
 {
-#ifdef HAVE_EXPAT
 	if (!threading) {
+#ifdef HAVE_EXPAT
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
 					NULL,
 					xmpp_greeting,
