@@ -1370,19 +1370,24 @@ void imap_command_loop(void)
 		return;
 	}
 
-	/* Ok, at this point we're in normal command mode.  The first thing
-	 * we do is print any incoming pages (yeah! we really do!)
-	 */
-	imap_print_instant_messages();
 
-	/*
-	 * Before processing the command that was just entered... if we happen
-	 * to have a folder selected, we'd like to rescan that folder for new
-	 * messages, and for deletions/changes of existing messages.  This
-	 * could probably be optimized somehow, but IMAP sucks...
+	/* Ok, at this point we're in normal command mode.
+	 * If the command just submitted does not contain a literal, we
+	 * might think about delivering some untagged stuff...
 	 */
-	if (IMAP->selected) {
-		imap_rescan_msgids();
+	if (cmdbuf[strlen(cmdbuf)-1] != '}') {
+
+		imap_print_instant_messages();
+	
+		/*
+		 * Before processing the command that was just entered... if we happen
+		 * to have a folder selected, we'd like to rescan that folder for new
+		 * messages, and for deletions/changes of existing messages.  This
+		 * could probably be optimized somehow, but IMAP sucks...
+		 */
+		if (IMAP->selected) {
+			imap_rescan_msgids();
+		}
 	}
 
 	/* Now for the command set. */
