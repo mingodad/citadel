@@ -598,7 +598,8 @@ void smtp_rcpt(char *argbuf) {
 		}
 	}
 
-	valid = validate_recipients(recp);
+	valid = validate_recipients(recp, 
+				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 	if (valid->num_error != 0) {
 		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
 		free_recipients(valid);
@@ -721,7 +722,8 @@ void smtp_data(void) {
 	msg->cm_fields['V'] = strdup(SMTP->recipients);
 
 	/* Submit the message into the Citadel system. */
-	valid = validate_recipients(SMTP->recipients);
+	valid = validate_recipients(SMTP->recipients, 
+				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 
 	/* If there are modules that want to scan this message before final
 	 * submission (such as virus checkers or spam filters), call them now
@@ -1437,7 +1439,7 @@ void smtp_do_bounce(char *instr) {
 		}
 
 		/* Can we deliver the bounce to the original sender? */
-		valid = validate_recipients(bounceto);
+		valid = validate_recipients(bounceto, 0);
 		if (valid != NULL) {
 			if (valid->num_error == 0) {
 				CtdlSubmitMsg(bmsg, valid, "");

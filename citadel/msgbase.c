@@ -2841,7 +2841,7 @@ void quickie_message(char *from, char *fromaddr, char *to, char *room, char *tex
 	msg->cm_fields['N'] = strdup(NODENAME);
 	if (to != NULL) {
 		msg->cm_fields['R'] = strdup(to);
-		recp = validate_recipients(to);
+		recp = validate_recipients(to, 0);
 	}
 	if (subject != NULL) {
 		msg->cm_fields['U'] = strdup(subject);
@@ -3166,7 +3166,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
  *
  * Caller needs to free the result using free_recipients()
  */
-struct recptypes *validate_recipients(char *supplied_recipients) {
+struct recptypes *validate_recipients(char *supplied_recipients, int Flags) {
 	struct recptypes *ret;
 	char *recipients = NULL;
 	char this_recp[256];
@@ -3295,8 +3295,7 @@ struct recptypes *validate_recipients(char *supplied_recipients) {
 					CC->room = tempQR;
 					
 					/* Check permissions to send mail to this room */
-					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, POST_EXTERNAL);
-					//// TODO: CHECK_EXISTANCE for dict_tcp
+					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, Flags);
 					if (err)
 					{
 						cprintf("%d %s\n", err, errmsg);
@@ -3542,14 +3541,14 @@ void cmd_ent0(char *entargs)
 			strcpy(bcc, "");
 		}
 
-		valid_to = validate_recipients(recp);
+		valid_to = validate_recipients(recp, 0);
 		if (valid_to->num_error > 0) {
 			cprintf("%d Invalid recipient (To)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
 			return;
 		}
 
-		valid_cc = validate_recipients(cc);
+		valid_cc = validate_recipients(cc, 0);
 		if (valid_cc->num_error > 0) {
 			cprintf("%d Invalid recipient (CC)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
@@ -3557,7 +3556,7 @@ void cmd_ent0(char *entargs)
 			return;
 		}
 
-		valid_bcc = validate_recipients(bcc);
+		valid_bcc = validate_recipients(bcc, 0);
 		if (valid_bcc->num_error > 0) {
 			cprintf("%d Invalid recipient (BCC)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
@@ -3684,7 +3683,7 @@ void cmd_ent0(char *entargs)
 		strcat(all_recps, bcc);
 	}
 	if (!IsEmptyStr(all_recps)) {
-		valid = validate_recipients(all_recps);
+		valid = validate_recipients(all_recps, 0);
 	}
 	else {
 		valid = NULL;
@@ -4402,7 +4401,7 @@ int CtdlIsMe(char *addr, int addr_buf_len)
 	struct recptypes *recp;
 	int i;
 
-	recp = validate_recipients(addr);
+	recp = validate_recipients(addr, 0);
 	if (recp == NULL) return(0);
 
 	if (recp->num_local == 0) {

@@ -422,7 +422,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	 	* is an e-mail address
 	 	*/
 		if (found_user != 0) {
-			valid = validate_recipients(username);
+			valid = validate_recipients(username, 0);
 			if (valid != NULL) {
 				if (valid->num_local == 1) {
 					found_user = getuser(&CC->user, valid->recp_local);

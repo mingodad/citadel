@@ -104,7 +104,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 
 	lprintf(CTDL_DEBUG, "Action is REDIRECT, recipient <%s>\n", recp);
 
-	valid = validate_recipients(recp);
+	valid = validate_recipients(recp, 0);
 	if (valid == NULL) {
 		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
 		return SIEVE2_ERROR_BADARGS;
