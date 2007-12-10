@@ -3103,35 +3103,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 		return (ERROR + NOT_LOGGED_IN);
 	}
 	else if (PostPublic == CHECK_EXISTANCE) {
-		SpoolControl *sc;
-		char filename[SIZ];
-		char room_to_spool[SIZ];
-		int found;
-
-		if (RemoteIdentifier == NULL)
-		{
-			snprintf(errmsgbuf, n, "Need sender to permit access.");
-			return (0);
-		}
-		if (getroom(&CC->room, room_to_spool) != 0) {
-			lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
-			return (0);
-		}
-		
-		assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-		
-		lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
-		begin_critical_section(S_NETCONFIGS);
-		if (!read_spoolcontrol_file(&sc, filename))
-		{
-			end_critical_section(S_NETCONFIGS);
-			snprintf(errmsgbuf, n, "No Subscribers found.");
-			return (0);
-		}
-		end_critical_section(S_NETCONFIGS);
-		found = is_recipient (sc, RemoteIdentifier);
-		free_spoolcontrol_struct(&sc);
-		return (found);
+		return (0); // We're Evaling whether a recipient exists
 	}
 	else if (!(CC->logged_in)) {
 		if ((CC->room.QRflags & QR_READONLY)) {
@@ -3139,8 +3111,35 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			return (ERROR + NOT_LOGGED_IN);
 		}
 		else if (CC->room.QRflags2 & QR2_SUBSONLY){
-			////TODO: check if we're in that list...
-			return (0);
+			SpoolControl *sc;
+			char filename[SIZ];
+			char room_to_spool[SIZ];
+			int found;
+
+			if (RemoteIdentifier == NULL)
+			{
+				snprintf(errmsgbuf, n, "Need sender to permit access.");
+				return (0);
+			}
+			if (getroom(&CC->room, room_to_spool) != 0) {
+				lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
+				return (0);
+			}
+		
+			assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+		
+			lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
+			begin_critical_section(S_NETCONFIGS);
+			if (!read_spoolcontrol_file(&sc, filename))
+			{
+				end_critical_section(S_NETCONFIGS);
+				snprintf(errmsgbuf, n, "No Subscribers found.");
+				return (0);
+			}
+			end_critical_section(S_NETCONFIGS);
+			found = is_recipient (sc, RemoteIdentifier);
+			free_spoolcontrol_struct(&sc);
+			return (found);
 		}
 		else if (CC->room.QRflags2 & QR2_MODERATED) {
 			return (0);
