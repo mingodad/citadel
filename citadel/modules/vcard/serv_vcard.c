@@ -1271,7 +1271,7 @@ void check_get(void) {
 		char *argbuf = &cmdbuf[4];
 		
 		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
-		rcpt = validate_recipients(internet_addr, CHECK_EXISTANCE);
+		rcpt = validate_recipients(internet_addr, NULL, CHECK_EXISTANCE);
 		if ((rcpt != NULL)&&
 			(
 			 (*rcpt->recp_local != '\0')||

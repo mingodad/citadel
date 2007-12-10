@@ -264,7 +264,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 				if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
 					strcpy(attendee_string, &attendee_string[7]);
 					striplt(attendee_string);
-					recp = validate_recipients(attendee_string, 0);
+					recp = validate_recipients(attendee_string, NULL, 0);
 					if (recp != NULL) {
 						if (!strcasecmp(recp->recp_local, CC->user.fullname)) {
 							if (me_attend) icalproperty_free(me_attend);
@@ -350,7 +350,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			reply_message_text);
 	
 		if (msg != NULL) {
-			valid = validate_recipients(organizer_string, 0);
+			valid = validate_recipients(organizer_string, NULL, 0);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
 			free_recipients(valid);
@@ -1214,7 +1214,7 @@ void ical_freebusy(char *who) {
 	/* If not found, try it as an unqualified email address. */
 	if (found_user != 0) {
 		strcpy(buf, who);
-		recp = validate_recipients(buf, 0);
+		recp = validate_recipients(buf, NULL, 0);
 		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
 		if (recp != NULL) {
 			if (recp->num_local == 1) {
@@ -1230,7 +1230,7 @@ void ical_freebusy(char *who) {
 	if (found_user != 0) {
 		snprintf(buf, sizeof buf, "%s@%s", who, config.c_fqdn);
 		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
-		recp = validate_recipients(buf, 0);
+		recp = validate_recipients(buf, NULL, 0);
 		if (recp != NULL) {
 			if (recp->num_local == 1) {
 				found_user = getuser(&usbuf, recp->recp_local);
@@ -1253,7 +1253,7 @@ void ical_freebusy(char *who) {
 			   || (!strcasecmp(type, "directory")) ) {
 				snprintf(buf, sizeof buf, "%s@%s", who, host);
 				lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
-				recp = validate_recipients(buf, 0);
+				recp = validate_recipients(buf, NULL, 0);
 				if (recp != NULL) {
 					if (recp->num_local == 1) {
 						found_user = getuser(&usbuf, recp->recp_local);
@@ -1794,7 +1794,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			request_message_text);
 	
 		if (msg != NULL) {
-			valid = validate_recipients(attendees_string, 0);
+			valid = validate_recipients(attendees_string, NULL, 0);
 			CtdlSubmitMsg(msg, valid, "");
 			CtdlFreeMessage(msg);
 			free_recipients(valid);

@@ -51,7 +51,7 @@ void free_spoolcontrol_struct(SpoolControl **scc);
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);
 
-int is_recipient(SpoolControl *sc, char *Name);
+int is_recipient(SpoolControl *sc, const char *Name);
 
 
 void network_queue_room(struct ctdlroom *, void *);

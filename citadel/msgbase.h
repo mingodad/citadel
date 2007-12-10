@@ -154,7 +154,10 @@ enum {
 	POST_EXTERNAL,
 	CHECK_EXISTANCE
 };
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n, int PostPublic);
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
+					  size_t n, 
+					  const char* RemoteIdentifier,
+					  int PostPublic);
 
 
 /* values for which_set */
@@ -167,7 +170,10 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		struct ctdluser *which_user, struct ctdlroom *which_room);
 void CtdlGetSeen(char *buf, int which_set);
 
-struct recptypes *validate_recipients(char *recipients, int Flags);
+struct recptypes *validate_recipients(char *recipients,
+ 				      const char *RemoteIdentifier, 
+				      int Flags);
+
 void free_recipients(struct recptypes *);
 
 struct CtdlMessage *CtdlMakeMessage(

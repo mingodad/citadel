@@ -483,7 +483,13 @@ void smtp_data_clear(void) {
 	SMTP->message_originated_locally = 0;
 }
 
+const char *smtp_get_Recipients(void)
+{
+	if (SMTP == NULL)
+		return NULL;
+	else return SMTP->from;
 
+}
 
 /*
  * Implements the "MAIL From:" command
@@ -599,6 +605,7 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	valid = validate_recipients(recp, 
+				    smtp_get_Recipients (),
 				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 	if (valid->num_error != 0) {
 		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
@@ -723,6 +730,7 @@ void smtp_data(void) {
 
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(SMTP->recipients, 
+				    smtp_get_Recipients (),
 				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 
 	/* If there are modules that want to scan this message before final
@@ -1439,7 +1447,7 @@ void smtp_do_bounce(char *instr) {
 		}
 
 		/* Can we deliver the bounce to the original sender? */
-		valid = validate_recipients(bounceto, 0);
+		valid = validate_recipients(bounceto, smtp_get_Recipients (), 0);
 		if (valid != NULL) {
 			if (valid->num_error == 0) {
 				CtdlSubmitMsg(bmsg, valid, "");

@@ -518,7 +518,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	}
 
 	/* Now submit the message */
-	valid = validate_recipients(recps, 0);
+	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
 	CtdlSubmitMsg(msg, valid, NULL);
 	CtdlFreeMessage(msg);
@@ -565,7 +565,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	}
 
 	/* Now submit the message */
-	valid = validate_recipients(recps, 0);
+	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
 	CtdlSubmitMsg(msg, valid, NULL);
 	free_recipients(valid);
@@ -734,7 +734,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					}
 					msg->cm_fields['R'] = strdup(nptr->name);
 	
-					valid = validate_recipients(nptr->name, 0);
+					valid = validate_recipients(nptr->name, NULL, 0);
 					CtdlSubmitMsg(msg, valid, "");
 					free_recipients(valid);
 				}
@@ -1060,7 +1060,7 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 	}
 	return 1;
 }
-int is_recipient(SpoolControl *sc, char *Name)
+int is_recipient(SpoolControl *sc, const char *Name)
 {
 	namelist *nptr;
 
@@ -1403,7 +1403,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	free(oldpath);
 
 	/* Now submit the message */
-	valid = validate_recipients(recipient, 0);
+	valid = validate_recipients(recipient, NULL, 0);
 	if (valid != NULL) if (valid->num_error != 0) {
 		free_recipients(valid);
 		valid = NULL;
@@ -1561,7 +1561,7 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* Otherwise, does it have a recipient?  If so, validate it... */
 	else if (msg->cm_fields['R'] != NULL) {
-		recp = validate_recipients(msg->cm_fields['R'], 0);
+		recp = validate_recipients(msg->cm_fields['R'], NULL, 0);
 		if (recp != NULL) if (recp->num_error != 0) {
 			network_bounce(msg,
 				"A message you sent could not be delivered due to an invalid address.\n"

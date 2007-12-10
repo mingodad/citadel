@@ -52,6 +52,7 @@
 #include "journaling.h"
 #include "citadel_dirs.h"
 #include "clientsocket.h"
+#include "serv_network.h"
 
 
 long config_msgnum;
@@ -2841,7 +2842,7 @@ void quickie_message(char *from, char *fromaddr, char *to, char *room, char *tex
 	msg->cm_fields['N'] = strdup(NODENAME);
 	if (to != NULL) {
 		msg->cm_fields['R'] = strdup(to);
-		recp = validate_recipients(to, 0);
+		recp = validate_recipients(to, NULL, 0);
 	}
 	if (subject != NULL) {
 		msg->cm_fields['U'] = strdup(subject);
@@ -3090,7 +3091,10 @@ struct CtdlMessage *CtdlMakeMessage(
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
  * returns 0 on success.
  */
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n, int PostPublic) {
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
+					  size_t n, 
+					  const char* RemoteIdentifier,
+					  int PostPublic) {
 	int ra;
 
 	if (!(CC->logged_in) && 
@@ -3099,7 +3103,35 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n, int PostPub
 		return (ERROR + NOT_LOGGED_IN);
 	}
 	else if (PostPublic == CHECK_EXISTANCE) {
-		return (0);
+		SpoolControl *sc;
+		char filename[SIZ];
+		char room_to_spool[SIZ];
+		int found;
+
+		if (RemoteIdentifier == NULL)
+		{
+			snprintf(errmsgbuf, n, "Need sender to permit access.");
+			return (0);
+		}
+		if (getroom(&CC->room, room_to_spool) != 0) {
+			lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
+			return (0);
+		}
+		
+		assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+		
+		lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
+		begin_critical_section(S_NETCONFIGS);
+		if (!read_spoolcontrol_file(&sc, filename))
+		{
+			end_critical_section(S_NETCONFIGS);
+			snprintf(errmsgbuf, n, "No Subscribers found.");
+			return (0);
+		}
+		end_critical_section(S_NETCONFIGS);
+		found = is_recipient (sc, RemoteIdentifier);
+		free_spoolcontrol_struct(&sc);
+		return (found);
 	}
 	else if (!(CC->logged_in)) {
 		if ((CC->room.QRflags & QR_READONLY)) {
@@ -3166,7 +3198,9 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
  *
  * Caller needs to free the result using free_recipients()
  */
-struct recptypes *validate_recipients(char *supplied_recipients, int Flags) {
+struct recptypes *validate_recipients(char *supplied_recipients, 
+				      const char *RemoteIdentifier, 
+				      int Flags) {
 	struct recptypes *ret;
 	char *recipients = NULL;
 	char this_recp[256];
@@ -3295,7 +3329,10 @@ struct recptypes *validate_recipients(char *supplied_recipients, int Flags) {
 					CC->room = tempQR;
 					
 					/* Check permissions to send mail to this room */
-					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, Flags);
+					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, 
+										    sizeof errmsg, 
+										    RemoteIdentifier,
+										    Flags);
 					if (err)
 					{
 						cprintf("%d %s\n", err, errmsg);
@@ -3473,7 +3510,7 @@ void cmd_ent0(char *entargs)
 
 	/* first check to make sure the request is valid. */
 
-	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, POST_LOGGED_IN);
+	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, NULL, POST_LOGGED_IN);
 	if (err)
 	{
 		cprintf("%d %s\n", err, errmsg);
@@ -3541,14 +3578,14 @@ void cmd_ent0(char *entargs)
 			strcpy(bcc, "");
 		}
 
-		valid_to = validate_recipients(recp, 0);
+		valid_to = validate_recipients(recp, NULL, 0);
 		if (valid_to->num_error > 0) {
 			cprintf("%d Invalid recipient (To)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
 			return;
 		}
 
-		valid_cc = validate_recipients(cc, 0);
+		valid_cc = validate_recipients(cc, NULL, 0);
 		if (valid_cc->num_error > 0) {
 			cprintf("%d Invalid recipient (CC)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
@@ -3556,7 +3593,7 @@ void cmd_ent0(char *entargs)
 			return;
 		}
 
-		valid_bcc = validate_recipients(bcc, 0);
+		valid_bcc = validate_recipients(bcc, NULL, 0);
 		if (valid_bcc->num_error > 0) {
 			cprintf("%d Invalid recipient (BCC)\n", ERROR + NO_SUCH_USER);
 			free_recipients(valid_to);
@@ -3683,7 +3720,7 @@ void cmd_ent0(char *entargs)
 		strcat(all_recps, bcc);
 	}
 	if (!IsEmptyStr(all_recps)) {
-		valid = validate_recipients(all_recps, 0);
+		valid = validate_recipients(all_recps, NULL, 0);
 	}
 	else {
 		valid = NULL;
@@ -4401,7 +4438,7 @@ int CtdlIsMe(char *addr, int addr_buf_len)
 	struct recptypes *recp;
 	int i;
 
-	recp = validate_recipients(addr, 0);
+	recp = validate_recipients(addr, NULL, 0);
 	if (recp == NULL) return(0);
 
 	if (recp->num_local == 0) {

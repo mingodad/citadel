@@ -230,7 +230,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 	 * Search for the specified user
 	 */
 	ret = (-1);
-	valid = validate_recipients(parms[3], 0);
+	valid = validate_recipients(parms[3], NULL, 0);
 	if (valid != NULL) {
 		if (valid->num_local == 1) {
 			ret = getuser(&temp, valid->recp_local);
