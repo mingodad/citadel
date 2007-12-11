@@ -310,6 +310,9 @@ void do_logout(void)
 			"connected to the Citadel server.  Please report "
 			"this problem to your system administrator.")
 		);
+		wprintf("<a href=\"http://www.citadel.org/doku.php/"
+			"faq:mastering_your_os:net#netstat\">%s</a>", 
+			_("Read More..."));
 	}
 
 	wprintf("<hr /><div class=\"buttons\"> "
