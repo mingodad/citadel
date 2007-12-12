@@ -883,7 +883,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
 
-			if (!strcasecmp(mime_content_type, "text/calendar")) {
+			if (  (!strcasecmp(mime_content_type, "text/calendar"))
+			   || (!strcasecmp(mime_content_type, "application/ics")) ) {
 				strcpy(cal_partnum, mime_partnum);
 			}
 

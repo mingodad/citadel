@@ -383,7 +383,8 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 		}
 	}
 
-	if (strcasecmp(cbtype, "text/calendar")) {
+	if (  (strcasecmp(cbtype, "text/calendar"))
+	   && (strcasecmp(cbtype, "application/ics")) ) {
 		return;
 	}
 
@@ -529,7 +530,8 @@ void ical_locate_original_event(char *name, char *filename, char *partnum, char 
 
 	struct original_event_container *oec = NULL;
 
-	if (strcasecmp(cbtype, "text/calendar")) {
+	if (  (strcasecmp(cbtype, "text/calendar"))
+	   && (strcasecmp(cbtype, "application/ics")) ) {
 		return;
 	}
 	oec = (struct original_event_container *) cbuserdata;
@@ -1883,7 +1885,8 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 	imm = (struct icalmessagemod *)cbuserdata;
 
 	/* We're only interested in calendar data. */
-	if (strcasecmp(cbtype, "text/calendar")) {
+	if (  (strcasecmp(cbtype, "text/calendar"))
+	   && (strcasecmp(cbtype, "application/ics")) ) {
 		return;
 	}
 
@@ -2018,7 +2021,8 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 	icalcomponent *cal;
 
 	/* We're only interested in calendar items here. */
-	if (strcasecmp(cbtype, "text/calendar")) {
+	if (  (strcasecmp(cbtype, "text/calendar"))
+	   && (strcasecmp(cbtype, "application/ics")) ) {
 		return;
 	}
 
@@ -2027,7 +2031,8 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 	 * ical_obj_beforesave() sees it there, it'll set the Exclusive msgid
 	 * to that string.
 	 */
-	if (!strcasecmp(cbtype, "text/calendar")) {
+	if (  (!strcasecmp(cbtype, "text/calendar"))
+	   || (!strcasecmp(cbtype, "application/ics")) ) {
 		cal = icalcomponent_new_from_string(content);
 		if (cal != NULL) {
 			ical_saving_vevent(cal);
@@ -2183,6 +2188,7 @@ CTDL_MODULE_INIT(calendar)
 		CtdlRegisterSessionHook(ical_session_startup, EVT_START);
 		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
 		CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
+		CtdlRegisterFixedOutputHook("application/ics", ical_fixed_output);
 		CtdlRegisterCleanupHook(serv_calendar_destroy);
 #endif
 	}
