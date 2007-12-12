@@ -764,7 +764,6 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
  *
  */
 void display_using_handler(long msgnum,
-			char *mimetype,
 			icalcomponent_kind which_kind,
 			void (*callback)(icalcomponent *, long)
 	) {
@@ -792,13 +791,12 @@ void display_using_handler(long msgnum,
 			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
 			mime_length = extract_int(&buf[5], 5);
 
-			if (!strcasecmp(mime_content_type, "text/calendar")) {
+			if (  (!strcasecmp(mime_content_type, "text/calendar"))
+			   || (!strcasecmp(mime_content_type, "application/ics"))
+			   || (!strcasecmp(mime_content_type, "text/vtodo"))
+			) {
 				strcpy(relevant_partnum, mime_partnum);
 			}
-			else if (!strcasecmp(mime_content_type, "text/vtodo")) {
-				strcpy(relevant_partnum, mime_partnum);
-			}
-
 		}
 	}
 
@@ -837,7 +835,7 @@ void display_using_handler(long msgnum,
  * \param msgnum number of the mesage in our db
  */
 void display_calendar(long msgnum) {
-	display_using_handler(msgnum, "text/calendar",
+	display_using_handler(msgnum,
 				ICAL_VEVENT_COMPONENT,
 				display_individual_cal);
 }
@@ -847,7 +845,7 @@ void display_calendar(long msgnum) {
  * \param msgnum number of the mesage in our db
  */
 void display_task(long msgnum) {
-	display_using_handler(msgnum, "text/calendar",
+	display_using_handler(msgnum,
 				ICAL_VTODO_COMPONENT,
 				display_individual_cal);
 }
@@ -866,7 +864,7 @@ void display_edit_task(void) {
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
 		/** existing task */
-		display_using_handler(msgnum, "text/calendar",
+		display_using_handler(msgnum,
 				ICAL_VTODO_COMPONENT,
 				display_edit_individual_task);
 	}
@@ -884,7 +882,7 @@ void save_task(void) {
 
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, "text/calendar",
+		display_using_handler(msgnum,
 				ICAL_VTODO_COMPONENT,
 				save_individual_task);
 	}
@@ -902,7 +900,7 @@ void display_edit_event(void) {
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
 		/* existing event */
-		display_using_handler(msgnum, "text/calendar",
+		display_using_handler(msgnum,
 				ICAL_VEVENT_COMPONENT,
 				display_edit_individual_event);
 	}
@@ -921,7 +919,7 @@ void save_event(void) {
 	msgnum = atol(bstr("msgnum"));
 
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, "text/calendar",
+		display_using_handler(msgnum,
 				ICAL_VEVENT_COMPONENT,
 				save_individual_event);
 	}
@@ -979,5 +977,3 @@ void do_freebusy(char *req) {
 
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
-
-/*@}*/
