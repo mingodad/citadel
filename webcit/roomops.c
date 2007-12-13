@@ -959,6 +959,16 @@ void ungoto(void)
 	smart_goto(buf);
 }
 
+typedef struct __room_states {
+	char password[SIZ];
+	char dirname[SIZ];
+	char name[SIZ];
+	int flags;
+	int floor;
+	int order;
+	int view;
+	int flags2;
+}room_states;
 
 
 
@@ -977,7 +987,7 @@ int self_service(int newval) {
 	char name[SIZ];
 	char password[SIZ];
 	char dirname[SIZ];
-	int flags, floor, order, view, flags2;
+        int flags, floor, order, view, flags2;
 
 	serv_puts("GETR");
 	serv_getln(buf, sizeof buf);
@@ -1018,6 +1028,67 @@ int self_service(int newval) {
 
 	return(newval);
 
+}
+
+int
+is_selflist(room_states *RoomFlags)
+{
+	return ((RoomFlags->flags2 & QR2_SELFLIST) != 0);
+}
+
+int
+is_publiclist(room_states *RoomFlags)
+{
+	return ((RoomFlags->flags2 & QR2_SUBSONLY) != 0);
+}
+
+int
+is_moderatedlist(room_states *RoomFlags)
+{
+	return ((RoomFlags->flags2 & QR2_MODERATED) != 0);
+}
+
+/**
+ * \brief Set/clear/read the "self-service list subscribe" flag for a room
+ * 
+ * \param newval set to 0 to clear, 1 to set, any other value to leave unchanged.
+ * \return return the new value.
+ */
+
+int get_roomflags(room_states *RoomOps) 
+{
+	char buf[SIZ];
+	
+	serv_puts("GETR");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') return(0);
+
+	extract_token(RoomOps->name, &buf[4], 0, '|', sizeof RoomOps->name);
+	extract_token(RoomOps->password, &buf[4], 1, '|', sizeof RoomOps->password);
+	extract_token(RoomOps->dirname, &buf[4], 2, '|', sizeof RoomOps->dirname);
+	RoomOps->flags = extract_int(&buf[4], 3);
+	RoomOps->floor = extract_int(&buf[4], 4);
+	RoomOps->order = extract_int(&buf[4], 5);
+	RoomOps->view = extract_int(&buf[4], 6);
+	RoomOps->flags2 = extract_int(&buf[4], 7);
+	return (1);
+}
+
+int set_roomflags(room_states *RoomOps)
+{
+	char buf[SIZ];
+
+	serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
+		    RoomOps->name, 
+		    RoomOps->password, 
+		    RoomOps->dirname, 
+		    RoomOps->flags,
+		    RoomOps->floor, 
+		    RoomOps->order, 
+		    RoomOps->view, 
+		    RoomOps->flags2);
+	serv_getln(buf, sizeof buf);
+	return (1);
 }
 
 
@@ -1570,6 +1641,7 @@ void display_editroom(void)
 
 	/** Mailing list management */
 	if (!strcmp(tab, "listserv")) {
+		room_states RoomFlags;
 		wprintf("<div class=\"tabcontent\">");
 
 		wprintf("<br /><center>"
@@ -1651,27 +1723,37 @@ void display_editroom(void)
 		);
 		/** Pop open an address book -- end **/
 
-		wprintf("<hr />");
-		if (self_service(999) == 1) {
-			wprintf(_("This room is configured to allow "
-				"self-service subscribe/unsubscribe requests."));
-			wprintf("<a href=\"toggle_self_service?newval=0&tab=listserv\">");
-			wprintf(_("Click to disable."));
-			wprintf("</A><br />\n");
-			wprintf(_("The URL for subscribe/unsubscribe is: "));
-			wprintf("<TT>%s://%s/listsub</TT><br />\n",
-				(is_https ? "https" : "http"),
-				WC->http_host);
-		}
-		else {
-			wprintf(_("This room is <i>not</i> configured to allow "
-				"self-service subscribe/unsubscribe requests."));
-			wprintf(" <a href=\"toggle_self_service?newval=1&"
-				"tab=listserv\">");
-			wprintf(_("Click to enable."));
-			wprintf("</A><br />\n");
-		}
+		wprintf("<br />\n<form method=\"GET\" action=\"toggle_self_service\">\n");
 
+		get_roomflags (&RoomFlags);
+		
+		/* Self Service subscription? */
+		wprintf("<table><tr><td>\n");
+		wprintf(_("Allow self-service subscribe/unsubscribe requests."));
+		wprintf("</td><td><input type=\"checkbox\" name=\"QR2_SelfList\" value=\"yes\" %s></td></tr>\n"
+			" <tr><td colspan=\"2\">\n",
+			(is_selflist(&RoomFlags))?"checked":"");
+		wprintf(_("The URL for subscribe/unsubscribe is: "));
+		wprintf("<TT>%s://%s/listsub</TT></td></tr>\n",
+			(is_https ? "https" : "http"),
+			WC->http_host);
+		/* Public posting? */
+		wprintf("<tr><td>");
+		wprintf(_("Allow public postings to this room."));
+		wprintf("</td><td><input type=\"checkbox\" name=\"QR2_SubsOnly\" value=\"yes\" %s></td></tr>\n",
+			(is_publiclist(&RoomFlags))?"checked":"");
+		
+		/* Moderated List? */
+		wprintf("<tr><td>");
+		wprintf(_("Room post publication needs Aide permission."));
+		wprintf("</td><td><input type=\"checkbox\" name=\"QR2_Moderated\" value=\"yes\" %s></td></tr>\n",
+			(is_moderatedlist(&RoomFlags))?"checked":"");
+
+
+		wprintf("<tr><td colspan=\"2\" align=\"center\">"
+			"<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\"></td></tr>", _("Save changes"));
+		wprintf("</table></form>");
+			
 
 		wprintf("</CENTER>\n");
 		wprintf("</div>");
@@ -1933,10 +2015,24 @@ void display_editroom(void)
  * \brief Toggle self-service list subscription
  */
 void toggle_self_service(void) {
-	int newval = 0;
+//	int newval = 0;
+	room_states RoomFlags;
 
-	newval = atoi(bstr("newval"));
-	self_service(newval);
+	get_roomflags (&RoomFlags);
+
+	// Yank out the bits we want to change
+	RoomFlags.flags2 = RoomFlags.flags2 &	
+		!(QR2_SELFLIST|QR2_SUBSONLY|QR2_MODERATED);
+
+	if (!strcmp(bstr("QR2_SelfList"), "yes")) 
+		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SELFLIST;
+	if (!strcmp(bstr("QR2_SubsOnly"), "yes")) 
+		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SUBSONLY;
+	if (!strcmp(bstr("QR2_Moderated"), "yes")) 
+		RoomFlags.flags2 = RoomFlags.flags2 | QR2_MODERATED;
+
+	set_roomflags (&RoomFlags);
+	
 	display_editroom();
 }
 
