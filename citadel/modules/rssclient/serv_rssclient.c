@@ -35,6 +35,7 @@
 #include "ctdl_module.h"
 #include "clientsocket.h"
 #include "msgbase.h"
+#include "parsedate.h"
 #include "database.h"
 #include "citadel_dirs.h"
 #include "md5.h"
@@ -179,6 +180,7 @@ void rss_save_item(struct rss_item *ri) {
 time_t rdf_parsedate(char *p)
 {
 	struct tm tm;
+	time_t t = 0;
 
 	if (!p) return 0L;
 	if (strlen(p) < 10) return 0L;
@@ -195,13 +197,16 @@ time_t rdf_parsedate(char *p)
 			tm.tm_hour = atoi(&p[11]);
 			tm.tm_min = atoi(&p[14]);
 		}
+		return mktime(&tm);
 	}
 
-	else {
-		/* FIXME try an imap timestamp conversion */
-	}
+	/* hmm... try RFC822 date stamp format */
 
-	return mktime(&tm);
+	t = parsedate(p);
+	if (t > 0) return(t);
+
+	/* yeesh.  ok, just return the current date and time. */
+	return(time(NULL));
 }
 
 
