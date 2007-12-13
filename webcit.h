@@ -167,6 +167,8 @@ extern locale_t wc_locales[];
 #define QR2_SELFLIST	2		/**< Self-service mailing list mgmt	*/
 #define QR2_COLLABDEL	4		/**< Anyone who can post can also delete*/
 #define QR2_SUBJECTREQ   8   /**< Subject strongly recommended */
+#define QR2_SUBSONLY	16		/* Listservice Subscribers may post */
+#define QR2_MODERATED	32		/* Listservice aide has to permit posts  */
 
 /**
  * user/room access
