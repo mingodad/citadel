@@ -180,7 +180,15 @@ volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
 	CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
-	exit_signal = signum;
+#ifdef THREADS_USESIGNALS
+	if (CT)
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, signum);
+		CT->signal = signum;
+	}
+	else
+#endif
+		exit_signal = signum;
 }
 
 
@@ -1229,6 +1237,9 @@ void CtdlThreadStopAll(void)
 	this_thread = CtdlThreadList;
 	while(this_thread)
 	{
+#ifdef THREADS_USESIGNALS
+		pthread_kill(this_thread->tid, SIGHUP);
+#endif
 		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 		pthread_cond_signal(&this_thread->ThreadCond);
 		pthread_cond_signal(&this_thread->SleepCond);
@@ -1268,22 +1279,12 @@ void CtdlThreadWakeAll(void)
  */
 int CtdlThreadGetCount(void)
 {
-	int ret;
-	
-	begin_critical_section(S_THREAD_LIST);
-	ret = num_threads;
-	end_critical_section(S_THREAD_LIST);
-	return ret;
+	return  num_threads;
 }
 
 int CtdlThreadGetWorkers(void)
 {
-	int ret;
-	
-	begin_critical_section(S_THREAD_LIST);
-	ret =  num_workers;
-	end_critical_section(S_THREAD_LIST);
-	return ret;
+	return  num_workers;
 }
 
 double CtdlThreadGetWorkerAvg(void)
@@ -1322,6 +1323,7 @@ const char *CtdlThreadName(const char *name)
 		CtdlLogPrintf(CTDL_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread. %s\n", name);
 		return NULL;
 	}
+// FIXME: do we need this lock? I think not since the pointer asignmaent should be atomic
 	pthread_mutex_lock(&CT->ThreadMutex);
 	old_name = CT->name;
 	if (name)
@@ -1367,20 +1369,29 @@ void CtdlThreadCancel(struct CtdlThreadNode *thread)
  */
 int CtdlThreadCheckStop(void)
 {
+	int state;
+	
 	if (!CT)
 	{
 		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, CtdlThreadCheckStop() called by a non thread.\n");
 		CtdlThreadStopAll();
 		return -1;
 	}
+	
+	state = CT->state;
+
+#ifdef THREADS_USERSIGNALS
+	if (CT->signal)
+		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
+#endif
 	pthread_mutex_lock(&CT->ThreadMutex);
-	if(CT->state == CTDL_THREAD_STOP_REQ)
+	if(state == CTDL_THREAD_STOP_REQ)
 	{
 		CT->state = CTDL_THREAD_STOPPING;
 		pthread_mutex_unlock(&CT->ThreadMutex);
 		return -1;
 	}
-	else if((CT->state < CTDL_THREAD_STOP_REQ) && (CT->state > CTDL_THREAD_CREATE))
+	else if((state < CTDL_THREAD_STOP_REQ) && (state > CTDL_THREAD_CREATE))
 	{
 		pthread_mutex_unlock(&CT->ThreadMutex);
 		return -1;
@@ -1406,7 +1417,9 @@ void CtdlThreadStop(struct CtdlThreadNode *thread)
 		return;
 	if (!(this_thread->thread_func))
 		return; 	// Don't stop garbage collector
-		
+#ifdef THREADS_USESIGNALS
+	pthread_kill(this_thread->tid, SIGHUP);	
+#endif
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 	pthread_cond_signal(&this_thread->ThreadCond);
 	pthread_cond_signal(&this_thread->SleepCond);
@@ -1742,7 +1755,9 @@ struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void 
 	 */
 	if (flags & CTDLTHREAD_BIGSTACK)
 	{
+#ifdef WITH_THREADLOG
 		CtdlLogPrintf(CTDL_INFO, "Thread system. Creating BIG STACK thread.\n");
+#endif
 		if ((ret = pthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
 			pthread_mutex_unlock(&this_thread->ThreadMutex);
 			pthread_mutex_destroy(&(this_thread->ThreadMutex));

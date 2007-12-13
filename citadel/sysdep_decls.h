@@ -141,6 +141,7 @@ extern struct CtdlThreadNode {
 	long number;				/* A unigue number for this thread (not implimented yet) */
 	int wakefd_recv;			/* An fd that this thread can sleep on (not implimented yet) */
 	int wakefd_send;			/* An fd that this thread can send out on (Not implimented yet) */
+	int signal;				/* A field to store a signal we caught. */
 	const char *name;			/* A name for this thread */
 	void *(*thread_func) (void *arg);	/* The actual function that does this threads work */
 	void *user_args;			/* Arguments passed to this threads work function */

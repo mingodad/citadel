@@ -380,6 +380,8 @@ void go_threading(void)
 	
 	while (CtdlThreadGetCount())
 	{
+		if (CT->signal)
+			exit_signal = CT->signal;
 		if (exit_signal)
 			CtdlThreadStopAll();
 		check_sched_shutdown();
