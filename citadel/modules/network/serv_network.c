@@ -1063,24 +1063,26 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 int is_recipient(SpoolControl *sc, const char *Name)
 {
 	namelist *nptr;
+	size_t len;
 
+	len = strlen(Name);
 	nptr = sc->listrecps;
 	while (nptr != NULL) {
-		if (strcmp(Name, nptr->name)==0)
+		if (strncmp(Name, nptr->name, len)==0)
 			return 1;
 		nptr = nptr->next;
 	}
 	/* Do the same for digestrecps */
 	nptr = sc->digestrecps;
 	while (nptr != NULL) {
-		if (strcmp(Name, nptr->name)==0)
+		if (strncmp(Name, nptr->name, len)==0)
 			return 1;
 		nptr = nptr->next;
 	}
 	/* Do the same for participates */
 	nptr = sc->participates;
 	while (nptr != NULL) {
-		if (strcmp(Name, nptr->name)==0)
+		if (strncmp(Name, nptr->name, len)==0)
 			return 1;
 		nptr = nptr->next;
 	}

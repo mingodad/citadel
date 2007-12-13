@@ -3113,19 +3113,14 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 		else if (CC->room.QRflags2 & QR2_SUBSONLY){
 			SpoolControl *sc;
 			char filename[SIZ];
-			char room_to_spool[SIZ];
 			int found;
 
 			if (RemoteIdentifier == NULL)
 			{
 				snprintf(errmsgbuf, n, "Need sender to permit access.");
-				return (0);
+				return (ERROR + USERNAME_REQUIRED);
 			}
-			if (getroom(&CC->room, room_to_spool) != 0) {
-				lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
-				return (0);
-			}
-		
+
 			assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 		
 			lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
@@ -3134,12 +3129,15 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			{
 				end_critical_section(S_NETCONFIGS);
 				snprintf(errmsgbuf, n, "No Subscribers found.");
-				return (0);
+				return (ERROR + NO_SUCH_USER);
 			}
 			end_critical_section(S_NETCONFIGS);
 			found = is_recipient (sc, RemoteIdentifier);
 			free_spoolcontrol_struct(&sc);
-			return (found);
+			if (found)
+				return (0);
+			else
+				return (ERROR + NO_SUCH_USER);
 		}
 		else if (CC->room.QRflags2 & QR2_MODERATED) {
 			return (0);
