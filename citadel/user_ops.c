@@ -397,12 +397,12 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		if (tempPwdPtr == NULL) {
 			return login_not_found;
 		}
-		lprintf(CTDL_DEBUG, "found it! uid=%ld, gecos=%s\n", (long)pd.pw_uid, pd.pw_gecos);
 	
 		/* Locate the associated Citadel account.
 		 * If not found, make one attempt to create it.
 		 */
 		found_user = getuserbyuid(&CC->user, pd.pw_uid);
+		lprintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %ld\n", (long)pd.pw_uid, pd.pw_gecos, found_user);
 		if (found_user != 0) {
 			create_user(username, 0);
 			found_user = getuserbyuid(&CC->user, pd.pw_uid);
@@ -883,6 +883,17 @@ int create_user(char *newusername, int become_user)
 		if (tempPwdPtr != NULL) {
 			extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
 			uid = pd.pw_uid;
+			if (IsEmptyStr (username))
+			{
+				lprintf (CTDL_EMERG, 
+					 "Can't find Realname for user %s [%d] in the Host Auth Database; giving up.\n", 
+					 newusername, pd.pw_uid);
+				snprintf(buf, SIZ, 
+					 "Can't find Realname for user %s [%d] in the Host Auth Database; giving up.\n",
+					 newusername, pd.pw_uid);
+				aide_message(buf, "User Creation Failure Notice");
+
+			}
 		}
 		else {
 			return (ERROR + NO_SUCH_USER);
