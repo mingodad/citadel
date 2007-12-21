@@ -3141,7 +3141,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			else
 				return (ERROR + NO_SUCH_USER);
 		}
-		return (ERROR + NOT_LOGGED_IN);
+		return (0);
 
 	}
 
