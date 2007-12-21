@@ -58,7 +58,7 @@ extern "C" {
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 #define QR2_COLLABDEL	4		/* Anyone who can post can delete   */
 #define QR2_SUBJECTREQ	8		/* Subject strongly recommended */
-#define QR2_SUBSONLY	16		/* Listservice Subscribers may post */
+#define QR2_SMTP_PUBLIC	16		/* Listservice Subscribers may post */
 #define QR2_MODERATED	32		/* Listservice aide has to permit posts  */
 
 #define US_NEEDVALID	1		/* User needs to be validated       */

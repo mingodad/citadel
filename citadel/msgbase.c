@@ -3110,7 +3110,11 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			snprintf(errmsgbuf, n, "Not logged in.");
 			return (ERROR + NOT_LOGGED_IN);
 		}
-		else if (CC->room.QRflags2 & QR2_SUBSONLY){
+		if (CC->room.QRflags2 & QR2_MODERATED) {
+			snprintf(errmsgbuf, n, "Not logged in Moderation feature not yet implemented!");
+			return (ERROR + NOT_LOGGED_IN);
+		}
+		if (CC->room.QRflags2 & QR2_SMTP_PUBLIC == 0){
 			SpoolControl *sc;
 			char filename[SIZ];
 			int found;
@@ -3122,8 +3126,6 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			}
 
 			assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-		
-			lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
 			begin_critical_section(S_NETCONFIGS);
 			if (!read_spoolcontrol_file(&sc, filename))
 			{
@@ -3139,9 +3141,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			else
 				return (ERROR + NO_SUCH_USER);
 		}
-		else if (CC->room.QRflags2 & QR2_MODERATED) {
-			return (0);
-		}
+		return (ERROR + NOT_LOGGED_IN);
 
 	}
 
