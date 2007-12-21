@@ -1039,7 +1039,7 @@ is_selflist(room_states *RoomFlags)
 int
 is_publiclist(room_states *RoomFlags)
 {
-	return ((RoomFlags->flags2 & QR2_SUBSONLY) != 0);
+	return ((RoomFlags->flags2 & QR2_SMTP_PUBLIC) != 0);
 }
 
 int
@@ -1739,7 +1739,7 @@ void display_editroom(void)
 			WC->http_host);
 		/* Public posting? */
 		wprintf("<tr><td>");
-		wprintf(_("Allow public postings to this room."));
+		wprintf(_("Allow non-subscribers to mail to this room."));
 		wprintf("</td><td><input type=\"checkbox\" name=\"QR2_SubsOnly\" value=\"yes\" %s></td></tr>\n",
 			(is_publiclist(&RoomFlags))?"checked":"");
 		
