@@ -43,13 +43,13 @@
 #endif
 
 
-#include <pthread.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
 #include "database.h"
 #include "msgbase.h"
 #include "sysdep_decls.h"
+#include "threads.h"
 #include "config.h"
 
 #include "ctdl_module.h"

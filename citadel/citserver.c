@@ -44,6 +44,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
+#include "threads.h"
 #include "citserver.h"
 #include "config.h"
 #include "database.h"
@@ -196,13 +197,13 @@ void master_cleanup(int exitcode) {
 	/* Close the AdjRefCount queue file */
 	AdjRefCount(-1, 0);
 
+	/* Do system-dependent stuff */
+	sysdep_master_cleanup();
+	
 	/* Close databases */
 	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();
 
-	/* Do system-dependent stuff */
-	sysdep_master_cleanup();
-	
 #ifdef DEBUG_MEMORY_LEAKS
 	dump_heap();
 #endif

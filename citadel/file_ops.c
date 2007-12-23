@@ -39,6 +39,7 @@
 #include "room_ops.h"
 #include "msgbase.h"
 #include "citserver.h"
+#include "threads.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

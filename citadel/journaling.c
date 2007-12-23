@@ -49,6 +49,7 @@
 #include "journaling.h"
 
 #include "ctdl_module.h"
+#include "threads.h"
 
 struct jnlq *jnlq = NULL;	/* journal queue */
 

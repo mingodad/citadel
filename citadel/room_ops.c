@@ -40,6 +40,7 @@
 #include "citserver.h"
 #include "control.h"
 #include "citadel_dirs.h"
+#include "threads.h"
 
 struct floor *floorcache[MAXFLOORS];
 

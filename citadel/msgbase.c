@@ -53,7 +53,7 @@
 #include "citadel_dirs.h"
 #include "clientsocket.h"
 #include "serv_network.h"
-
+#include "threads.h"
 
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;

@@ -38,9 +38,6 @@
 #include <stdarg.h>
 #include <grp.h>
 #include <pwd.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
@@ -49,6 +46,7 @@
 #include "server.h"
 #include "serv_extensions.h"
 #include "sysdep_decls.h"
+#include "threads.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
@@ -338,129 +336,4 @@ int main(int argc, char **argv)
 	
 	master_cleanup(exit_signal);
 	return(0);
-}
-
-
-
-void go_threading(void)
-{
-	int i;
-	struct CtdlThreadNode *last_worker;
-	
-	/*
-	 * Initialise the thread system
-	 */
-	ctdl_thread_internal_init();
-	/*
-	 * Now create a bunch of worker threads.
-	 */
-	CtdlLogPrintf(CTDL_DEBUG, "Starting %d worker threads\n", config.c_min_workers);
-	begin_critical_section(S_THREAD_LIST);
-	i=0;	/* Always start at least 1 worker thread */
-	do
-	{
-		ctdl_internal_create_thread("Worker Thread", CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER, worker_thread, NULL);
-	} while (++i < config.c_min_workers);
-	end_critical_section(S_THREAD_LIST);
-
-	/* Second call to module init functions now that threading is up */
-	initialise_modules(1);
-
-	/*
-	 * This thread is now used for garbage collection of other threads in the thread list
-	 */
-	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", pthread_self());
-
-	/*
-	 * We do a lot of locking and unlocking of the thread list in here.
-	 * We do this so that we can repeatedly release time for other threads
-	 * that may be waiting on the thread list.
-	 * We are a low priority thread so we can afford to do this
-	 */
-	
-	while (CtdlThreadGetCount())
-	{
-		if (CT->signal)
-			exit_signal = CT->signal;
-		if (exit_signal)
-			CtdlThreadStopAll();
-		check_sched_shutdown();
-		if (CT->state > CTDL_THREAD_STOP_REQ)
-		{
-			begin_critical_section(S_THREAD_LIST);
-			ctdl_thread_internal_calc_loadavg();
-			end_critical_section(S_THREAD_LIST);
-			
-			ctdl_thread_internal_check_scheduled(); /* start scheduled threads */
-		}
-		
-		/* Reduce the size of the worker thread pool if necessary. */
-		if ((CtdlThreadGetWorkers() > config.c_min_workers) && (CtdlThreadWorkerAvg < 20) && (CT->state > CTDL_THREAD_STOP_REQ))
-		{
-			/* Ask a worker thread to stop as we no longer need it */
-			begin_critical_section(S_THREAD_LIST);
-			last_worker = CtdlThreadList;
-			while (last_worker)
-			{
-				pthread_mutex_lock(&last_worker->ThreadMutex);
-				if (last_worker->flags & CTDLTHREAD_WORKER && last_worker->state > CTDL_THREAD_STOPPING)
-				{
-					pthread_mutex_unlock(&last_worker->ThreadMutex);
-					break;
-				}
-				pthread_mutex_unlock(&last_worker->ThreadMutex);
-				last_worker = last_worker->next;
-			}
-			end_critical_section(S_THREAD_LIST);
-			if (last_worker)
-			{
-#ifdef WITH_THREADLOG
-				CtdlLogPrintf(CTDL_DEBUG, "Thread system, stopping excess worker thread \"%s\" (%ld).\n",
-					last_worker->name,
-					last_worker->tid
-					);
-#endif
-				CtdlThreadStop(last_worker);
-			}
-		}
-	
-		/*
-		 * If all our workers are working hard, start some more to help out
-		 * with things
-		 */
-		/* FIXME: come up with a better way to dynamically alter the number of threads
-		 * based on the system load
-		 */
-//		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkers() < num_sessions))
-		// && (CtdlThreadLoadAvg < 90) )
-		if ((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60) && (CtdlThreadGetLoadAvg() < 90) && (CT->state > CTDL_THREAD_STOP_REQ))
-		{
-			for (i=0; i<5 ; i++)
-//			for (i=0; i< (num_sessions - CtdlThreadGetWorkers()) ; i++)
-//			for (i=0; i< (10 - (55 - CtdlThreadWorkerAvg) / CtdlThreadWorkerAvg / CtdlThreadGetWorkers()) ; i++)
-			{
-//				begin_critical_section(S_THREAD_LIST);
-				CtdlThreadCreate("Worker Thread",
-					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
-					worker_thread,
-					NULL
-					);
-//				end_critical_section(S_THREAD_LIST);
-			}
-		}
-		
-		CtdlThreadGC();
-		
-		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
-		{
-			CtdlThreadGC();
-		}
-		
-		if (CtdlThreadGetCount())
-			CtdlThreadSleep(1);
-	}
-	/*
-	 * If the above loop exits we must be shutting down since we obviously have no threads
-	 */
-	ctdl_thread_internal_cleanup();
 }

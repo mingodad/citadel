@@ -41,6 +41,7 @@
 #include "room_ops.h"
 #include "user_ops.h"
 #include "database.h"
+#include "threads.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

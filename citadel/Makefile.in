@@ -82,7 +82,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	setup.c snprintf.c \
 	stress.c support.c sysdep.c user_ops.c userlist.c \
 	whobbs.c \
-	crc16.c journaling.c citadel_dirs.c
+	crc16.c journaling.c citadel_dirs.c threads.c
 
 include Make_sources
 
@@ -127,7 +127,7 @@ SERV_OBJS = server_main.o \
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o html.o \
 	internet_addressing.o journaling.o \
-	parsedate.o genstamp.o ecrash.o \
+	parsedate.o genstamp.o ecrash.o threads.o\
 	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES)
 
 citserver: $(SERV_OBJS)

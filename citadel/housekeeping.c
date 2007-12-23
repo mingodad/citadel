@@ -44,7 +44,7 @@
 #include "journaling.h"
 
 #include "ctdl_module.h"
-
+#include "threads.h"
 
 /*
  * Terminate idle sessions.  This function pounds through the session table
