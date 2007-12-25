@@ -164,6 +164,7 @@ void serv_dspam_shutdown (void)
 
 CTDL_MODULE_INIT(dspam)
 {
+	return;
 	if (!threading)
 	{
 #ifdef HAVE_LIBDSPAM
