@@ -35,6 +35,7 @@
 #include "msgbase.h"
 #include "sysdep_decls.h"
 #include "config.h"
+#include "threads.h"
 
 #include "ctdl_module.h"
  

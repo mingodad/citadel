@@ -42,7 +42,7 @@
 #include "room_ops.h"
 #include "serv_fulltext.h"
 #include "ft_wordbreaker.h"
-
+#include "threads.h"
 
 #include "ctdl_module.h"
 

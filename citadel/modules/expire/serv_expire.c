@@ -62,7 +62,7 @@
 #include "user_ops.h"
 #include "control.h"
 #include "serv_network.h"	/* Needed for defenition of UseTable */
-
+#include "threads.h"
 
 #include "ctdl_module.h"
 
