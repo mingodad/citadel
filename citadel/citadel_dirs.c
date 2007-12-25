@@ -30,6 +30,7 @@ char ctdl_home_directory[PATH_MAX] = "";
 char ctdl_bio_dir[PATH_MAX]="bio";
 char ctdl_bb_dir[PATH_MAX]="bitbucket";
 char ctdl_data_dir[PATH_MAX]="data";
+char ctdl_dspam_dir[PATH_MAX]="dspam";
 char ctdl_file_dir[PATH_MAX]="files";
 char ctdl_hlp_dir[PATH_MAX]="help";
 char ctdl_image_dir[PATH_MAX]="images";
@@ -147,6 +148,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	COMPUTE_DIRECTORY(ctdl_bio_dir);
 	COMPUTE_DIRECTORY(ctdl_bb_dir);
 	COMPUTE_DIRECTORY(ctdl_data_dir);
+	COMPUTE_DIRECTORY(ctdl_dspam_dir);
 	COMPUTE_DIRECTORY(ctdl_file_dir);
 	COMPUTE_DIRECTORY(ctdl_image_dir);
 	COMPUTE_DIRECTORY(ctdl_info_dir);
@@ -247,6 +249,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	DBG_PRINT(ctdl_bio_dir);
 	DBG_PRINT(ctdl_bb_dir);
 	DBG_PRINT(ctdl_data_dir);
+	DBG_PRINT(ctdl_dspam_dir);
 	DBG_PRINT(ctdl_file_dir);
 	DBG_PRINT(ctdl_hlp_dir);
 	DBG_PRINT(ctdl_image_dir);

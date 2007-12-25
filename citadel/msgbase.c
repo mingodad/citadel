@@ -1708,7 +1708,7 @@ int CtdlOutputPreLoadedMsg(
 		}
 
 		/* Construct a fun message id */
-		cprintf("Message-ID: <%s", mid);
+		cprintf("Message-ID: <%s", mid);/// todo: this possibly breaks threadding mails.
 		if (strchr(mid, '@')==NULL) {
 			cprintf("@%s", snode);
 		}

@@ -153,6 +153,7 @@ AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if presen
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_libsieve, [  --with-libsieve         use libsieve mail sorting library])
+AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
 AC_ARG_WITH(with_expat, [  --with-expat            use Expat XML parser])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
@@ -605,6 +606,20 @@ if test "x$ok_libsieve" = xyes ; then
 fi
 
 
+dnl Checks for the libdspam mail spam scanning library.
+if test "x$with_libdspam" != xno ; then
+	AC_CHECK_HEADERS(dspam/libdspam.h,
+		[AC_CHECK_LIB(dspam, dspam_init,
+			[ok_libdspam=yes],,
+	)])
+fi
+
+if test "x$ok_libdspam" = xyes ; then
+	SERVER_LIBS="-ldspam $SERVER_LIBS"
+	AC_DEFINE(HAVE_LIBDSPAM, [], [define this if you have the libdspam mail spam scanning library available])
+fi
+
+
 
 
 dnl Checks for the Expat XML parser.
@@ -876,6 +891,7 @@ echo 'zlib compression:                ' $ok_zlib
 echo 'Calendar support:                ' $ok_libical
 echo 'LDAP support:                    ' $ok_ldap
 echo 'Sieve mailbox filtering support: ' $ok_libsieve
+echo 'DSpam Scanning support:          ' $ok_libdspam
 echo 'Expat XML parser present:        ' $ok_expat
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
