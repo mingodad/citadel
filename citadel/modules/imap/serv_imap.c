@@ -1253,20 +1253,20 @@ void imap_rename(int num_parms, char *parms[])
 		return;
 	}
 	if (r == crr_already_exists) {
-		cprintf("%s '%s' already exists.\r\n", parms[0], parms[2]);
+		cprintf("%s NO '%s' already exists.\r\n", parms[0], parms[2]);
 		return;
 	}
 	if (r == crr_noneditable) {
-		cprintf("%s This folder is not editable.\r\n", parms[0]);
+		cprintf("%s NO This folder is not editable.\r\n", parms[0]);
 		return;
 	}
 	if (r == crr_invalid_floor) {
-		cprintf("%s Folder root does not exist.\r\n", parms[0]);
+		cprintf("%s NO Folder root does not exist.\r\n", parms[0]);
 		return;
 	}
 	if (r == crr_access_denied) {
-		cprintf("%s You do not have permission to edit "
-			"this folder.\r\n", parms[0]);
+		cprintf("%s NO You do not have permission to edit this folder.\r\n",
+			parms[0]);
 		return;
 	}
 	if (r != crr_ok) {
