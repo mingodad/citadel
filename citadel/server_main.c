@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 		"*** Citadel server engine v%d.%02d ***\n",
 		(REV_LEVEL/100), (REV_LEVEL%100));
 	CtdlLogPrintf(CTDL_NOTICE,
-		"Copyright (C) 1987-2007 by the Citadel development team.\n");
+		"Copyright (C) 1987-2008 by the Citadel development team.\n");
 	CtdlLogPrintf(CTDL_NOTICE,
 		"This program is distributed under the terms of the GNU "
 		"General Public License.\n");
