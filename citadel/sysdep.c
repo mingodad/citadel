@@ -84,7 +84,7 @@ struct igheap *igheap = NULL;
 #endif
 
 
-pthread_key_t MyConKey;				/* TSD key for MyContext() */
+citthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
@@ -216,7 +216,7 @@ void init_sysdep(void) {
 	 * CitContext structure (in the ContextList linked list) of the
 	 * session to which the calling thread is currently bound.
 	 */
-	if (pthread_key_create(&MyConKey, NULL) != 0) {
+	if (citthread_key_create(&MyConKey, NULL) != 0) {
 		CtdlLogPrintf(CTDL_CRIT, "Can't create TSD key: %s\n",
 			strerror(errno));
 	}
@@ -414,7 +414,7 @@ struct CitContext *MyContext(void) {
 
 	register struct CitContext *c;
 
-	return ((c = (struct CitContext *) pthread_getspecific(MyConKey),
+	return ((c = (struct CitContext *) citthread_getspecific(MyConKey),
 		c == NULL) ? &masterCC : c
 	);
 }
@@ -1030,7 +1030,7 @@ void InitializeMasterCC(void) {
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
 INLINE void become_session(struct CitContext *which_con) {
-	pthread_setspecific(MyConKey, (void *)which_con );
+	citthread_setspecific(MyConKey, (void *)which_con );
 }
 
 

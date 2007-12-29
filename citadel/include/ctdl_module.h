@@ -117,7 +117,7 @@ struct CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread
 void CtdlThreadSleep(int secs);
 void CtdlThreadStop(struct CtdlThreadNode *thread);
 int CtdlThreadCheckStop(void);
-void CtdlThreadCancel(struct CtdlThreadNode *thread);
+/* void CtdlThreadCancel2(struct CtdlThreadNode *thread); Leave this out, it should never be needed */
 const char *CtdlThreadName(const char *name);
 struct CtdlThreadNode *CtdlThreadSelf(void);
 int CtdlThreadGetCount(void);

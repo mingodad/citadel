@@ -21,6 +21,7 @@
 #endif
 
 #include "server.h"
+#include "sysdep_decls.h"
 
 /*
  * Thread stuff
@@ -42,7 +43,7 @@ enum CtdlThreadState {
 typedef struct CtdlThreadNode CtdlThreadNode;
 
 struct CtdlThreadNode{
-	pthread_t tid;				/* id as returned by pthread_create() */
+	citthread_t tid;				/* id as returned by citthread_create() */
 	pid_t pid;				/* pid, as best the OS will let us determine */
 	time_t when;				/* When to start a scheduled thread */
 	struct CitContext *Context;		/* The session context that this thread mught be working on or NULL if none */
@@ -55,11 +56,11 @@ struct CtdlThreadNode{
 	void *user_args;			/* Arguments passed to this threads work function */
 	long flags;				/* Flags that describe this thread */
 	enum CtdlThreadState state;		/* Flag to show state of this thread */
-	pthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
-	pthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others */
-	pthread_mutex_t SleepMutex;		/* A mutex for sleeping */
-	pthread_cond_t SleepCond;		/* A condition variable for sleeping */
-	pthread_attr_t attr;			/* Attributes of this thread */
+	citthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
+	citthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others */
+	citthread_mutex_t SleepMutex;		/* A mutex for sleeping */
+	citthread_cond_t SleepCond;		/* A condition variable for sleeping */
+	citthread_attr_t attr;			/* Attributes of this thread */
 	struct timeval start_time;		/* Time this thread was started */
 	struct timeval last_state_change;	/* Time when this thread last changed state */
 	double avg_sleeping;			/* Average sleeping time */
@@ -82,7 +83,7 @@ struct ThreadTSD {
 
 extern double CtdlThreadLoadAvg;
 extern double CtdlThreadWorkerAvg;
-extern pthread_key_t ThreadKey;
+extern citthread_key_t ThreadKey;
 
 void ctdl_thread_internal_init_tsd(void);
 void ctdl_internal_thread_gc (void);

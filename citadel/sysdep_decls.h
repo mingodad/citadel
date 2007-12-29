@@ -11,9 +11,12 @@
  */
 
 
-#include <pthread.h>
 #include <stdarg.h>
 #include "sysdep.h"
+
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
 
 #ifdef HAVE_DB_H
 #include <db.h>
@@ -113,6 +116,48 @@ extern int rescan[];
 
 extern int SyslogFacility(char *name);
 extern int syslog_facility;
+
+
+/*
+ * Typdefs and stuff to abstract pthread for Citadel
+ */
+#ifdef HAVE_PTHREAD_H
+
+typedef pthread_t	citthread_t;
+typedef pthread_key_t	citthread_key_t;
+typedef pthread_mutex_t	citthread_mutex_t;
+typedef pthread_cond_t	citthread_cond_t;
+typedef pthread_attr_t	citthread_attr_t;
+
+
+#define citthread_mutex_init	pthread_mutex_init
+#define citthread_cond_init	pthread_cond_init
+#define citthread_attr_init	pthread_attr_init
+#define citthread_mutex_trylock	pthread_mutex_trylock
+#define citthread_mutex_lock	pthread_mutex_lock
+#define citthread_mutex_unlock	pthread_mutex_unlock
+#define citthread_key_create	pthread_key_create
+#define citthread_getspecific	pthread_getspecific
+#define citthread_setspecific	pthread_setspecific
+#define citthread_mutex_destroy	pthread_mutex_destroy
+#define citthread_cond_destroy	pthread_cond_destroy
+#define citthread_attr_destroy	pthread_attr_destroy
+
+#define citthread_kill		pthread_kill
+#define citthread_cond_signal	pthread_cond_signal
+#define citthread_cancel	pthread_cancel
+#define citthread_cond_timedwait	pthread_cond_timedwait
+#define citthread_equal		pthread_equal
+#define citthread_self		pthread_self
+#define citthread_create	pthread_create
+#define citthread_attr_setstacksize	pthread_attr_setstacksize
+#define citthread_join		pthread_join
+#define citthread_cleanup_push	pthread_cleanup_push
+#define citthread_cleanup_pop	pthread_cleanup_pop
+
+
+#endif /* HAVE_PTHREAD_H */
+
 
 #ifdef DEBUG_MEMORY_LEAKS
 #define malloc(x) tracked_malloc(x, __FILE__, __LINE__)

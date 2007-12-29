@@ -56,19 +56,13 @@ static int num_workers = 0;			/* Current number of worker threads */
 CtdlThreadNode *CtdlThreadList = NULL;
 CtdlThreadNode *CtdlThreadSchedList = NULL;
 
-/*
- * Condition variable and Mutex for thread garbage collection
- */
-/*static pthread_mutex_t thread_gc_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t thread_gc_cond = PTHREAD_COND_INITIALIZER;
-*/
-static pthread_t GC_thread;
+static citthread_t GC_thread;
 static char *CtdlThreadStates[CTDL_THREAD_LAST_STATE];
 double CtdlThreadLoadAvg = 0;
 double CtdlThreadWorkerAvg = 0;
-pthread_key_t ThreadKey;
+citthread_key_t ThreadKey;
 
-pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
+citthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 
 
 
@@ -78,7 +72,7 @@ void InitialiseSemaphores(void)
 
 	/* Set up a bunch of semaphores to be used for critical sections */
 	for (i=0; i<MAX_SEMAPHORES; ++i) {
-		pthread_mutex_init(&Critters[i], NULL);
+		citthread_mutex_init(&Critters[i], NULL);
 	}
 }
 
@@ -103,7 +97,7 @@ int try_critical_section(int which_one)
 	) {
 		cdb_check_handles();
 	}
-	return (pthread_mutex_trylock(&Critters[which_one]));
+	return (citthread_mutex_trylock(&Critters[which_one]));
 }
 
 
@@ -126,7 +120,7 @@ void begin_critical_section(int which_one)
 	) {
 		cdb_check_handles();
 	}
-	pthread_mutex_lock(&Critters[which_one]);
+	citthread_mutex_lock(&Critters[which_one]);
 }
 
 /*
@@ -134,7 +128,7 @@ void begin_critical_section(int which_one)
  */
 void end_critical_section(int which_one)
 {
-	pthread_mutex_unlock(&Critters[which_one]);
+	citthread_mutex_unlock(&Critters[which_one]);
 }
 
 
@@ -157,8 +151,8 @@ void ctdl_thread_internal_init_tsd(void)
 {
 	int ret;
 	
-	if ((ret = pthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
-		lprintf(CTDL_EMERG, "pthread_key_create: %s\n",
+	if ((ret = citthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
+		lprintf(CTDL_EMERG, "citthread_key_create: %s\n",
 			strerror(ret));
 		exit(CTDLEXIT_DB);
 	}
@@ -174,7 +168,7 @@ void CtdlThreadAllocTSD(void)
 {
 	ThreadTSD *tsd;
 
-	if (pthread_getspecific(ThreadKey) != NULL)
+	if (citthread_getspecific(ThreadKey) != NULL)
 		return;
 
 	tsd = malloc(sizeof(ThreadTSD));
@@ -184,14 +178,14 @@ void CtdlThreadAllocTSD(void)
 	memset(tsd->cursors, 0, sizeof tsd->cursors);
 	tsd->self = NULL;
 	
-	pthread_setspecific(ThreadKey, tsd);
+	citthread_setspecific(ThreadKey, tsd);
 }
 
 
 void ctdl_thread_internal_free_tsd(void)
 {
-	ctdl_thread_internal_dest_tsd(pthread_getspecific(ThreadKey));
-	pthread_setspecific(ThreadKey, NULL);
+	ctdl_thread_internal_dest_tsd(citthread_getspecific(ThreadKey));
+	citthread_setspecific(ThreadKey, NULL);
 }
 
 
@@ -211,11 +205,11 @@ void ctdl_thread_internal_cleanup(void)
 	{
 		that_thread = this_thread;
 		this_thread = this_thread->next;
-		pthread_mutex_destroy(&that_thread->ThreadMutex);
-		pthread_cond_destroy(&that_thread->ThreadCond);
-		pthread_mutex_destroy(&that_thread->SleepMutex);
-		pthread_cond_destroy(&that_thread->SleepCond);
-		pthread_attr_destroy(&that_thread->attr);
+		citthread_mutex_destroy(&that_thread->ThreadMutex);
+		citthread_cond_destroy(&that_thread->ThreadCond);
+		citthread_mutex_destroy(&that_thread->SleepMutex);
+		citthread_cond_destroy(&that_thread->SleepCond);
+		citthread_attr_destroy(&that_thread->attr);
 		free(that_thread);
 	}
 	ctdl_thread_internal_free_tsd();
@@ -226,7 +220,7 @@ void ctdl_thread_internal_init(void)
 	CtdlThreadNode *this_thread;
 	int ret = 0;
 	
-	GC_thread = pthread_self();
+	GC_thread = citthread_self();
 	CtdlThreadStates[CTDL_THREAD_INVALID] = strdup ("Invalid Thread");
 	CtdlThreadStates[CTDL_THREAD_VALID] = strdup("Valid Thread");
 	CtdlThreadStates[CTDL_THREAD_CREATE] = strdup("Thread being Created");
@@ -247,16 +241,16 @@ void ctdl_thread_internal_init(void)
 	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
 	memset (this_thread, 0, sizeof(CtdlThreadNode));
 	
-	pthread_mutex_init (&(this_thread->ThreadMutex), NULL);
-	pthread_cond_init (&(this_thread->ThreadCond), NULL);
-	pthread_mutex_init (&(this_thread->SleepMutex), NULL);
-	pthread_cond_init (&(this_thread->SleepCond), NULL);
+	citthread_mutex_init (&(this_thread->ThreadMutex), NULL);
+	citthread_cond_init (&(this_thread->ThreadCond), NULL);
+	citthread_mutex_init (&(this_thread->SleepMutex), NULL);
+	citthread_cond_init (&(this_thread->SleepCond), NULL);
 	
 	/* We are garbage collector so create us as running */
 	this_thread->state = CTDL_THREAD_RUNNING;
 	
-	if ((ret = pthread_attr_init(&this_thread->attr))) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_init: %s\n", strerror(ret));
+	if ((ret = citthread_attr_init(&this_thread->attr))) {
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
 		free(this_thread);
 		return;
 	}
@@ -289,7 +283,7 @@ void ctdl_thread_internal_init(void)
 	gettimeofday(&now, NULL);
 	timersub(&now, &(this_thread->last_state_change), &result);
 	/* I don't think these mutex's are needed here */
-	pthread_mutex_lock(&this_thread->ThreadMutex);
+	citthread_mutex_lock(&this_thread->ThreadMutex);
 	// result now has a timeval for the time we spent in the last state since we last updated
 	last_duration = (double)result.tv_sec + ((double)result.tv_usec / (double) 1000000);
 	if (this_thread->state == CTDL_THREAD_SLEEPING)
@@ -299,7 +293,7 @@ void ctdl_thread_internal_init(void)
 	if (this_thread->state == CTDL_THREAD_BLOCKED)
 		this_thread->avg_blocked += last_duration;
 	memcpy (&this_thread->last_state_change, &now, sizeof (struct timeval));
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	citthread_mutex_unlock(&this_thread->ThreadMutex);
 }
 
 /*
@@ -312,14 +306,14 @@ void ctdl_thread_internal_change_state (CtdlThreadNode *this_thread, enum CtdlTh
 	 */
 	ctdl_thread_internal_update_avgs(this_thread);
 	/* This mutex not needed here? */
-	pthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
+	citthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
 	if ((new_state == CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_STOP_REQ))
 		this_thread->state = new_state;
 	if (((new_state == CTDL_THREAD_SLEEPING) || (new_state == CTDL_THREAD_BLOCKED)) && (this_thread->state == CTDL_THREAD_RUNNING))
 		this_thread->state = new_state;
 	if ((new_state == CTDL_THREAD_RUNNING) && ((this_thread->state == CTDL_THREAD_SLEEPING) || (this_thread->state == CTDL_THREAD_BLOCKED)))
 		this_thread->state = new_state;
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	citthread_mutex_unlock(&this_thread->ThreadMutex);
 }
 
 
@@ -338,11 +332,11 @@ void CtdlThreadStopAll(void)
 	while(this_thread)
 	{
 #ifdef THREADS_USESIGNALS
-		pthread_kill(this_thread->tid, SIGHUP);
+		citthread_killl(this_thread->tid, SIGHUP);
 #endif
 		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
-		pthread_cond_signal(&this_thread->ThreadCond);
-		pthread_cond_signal(&this_thread->SleepCond);
+		citthread_cond_signal(&this_thread->ThreadCond);
+		citthread_cond_signal(&this_thread->SleepCond);
 		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
 		this_thread = this_thread->next;
 	}
@@ -365,8 +359,8 @@ void CtdlThreadWakeAll(void)
 	{
 		if (!this_thread->thread_func)
 		{
-			pthread_cond_signal(&this_thread->ThreadCond);
-			pthread_cond_signal(&this_thread->SleepCond);
+			citthread_cond_signal(&this_thread->ThreadCond);
+			citthread_cond_signal(&this_thread->SleepCond);
 		}
 		this_thread = this_thread->next;
 	}
@@ -456,9 +450,8 @@ void CtdlThreadCancel(CtdlThreadNode *thread)
 	}
 	
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_CANCELLED);
-	pthread_cancel(this_thread->tid);
+	citthread_cancel(this_thread->tid);
 }
-
 
 
 /*
@@ -511,11 +504,11 @@ void CtdlThreadStop(CtdlThreadNode *thread)
 	if (!(this_thread->thread_func))
 		return; 	// Don't stop garbage collector
 #ifdef THREADS_USESIGNALS
-	pthread_kill(this_thread->tid, SIGHUP);	
+	citthread_kill(this_thread->tid, SIGHUP);	
 #endif
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
-	pthread_cond_signal(&this_thread->ThreadCond);
-	pthread_cond_signal(&this_thread->SleepCond);
+	citthread_cond_signal(&this_thread->ThreadCond);
+	citthread_cond_signal(&this_thread->SleepCond);
 }
 
 /*
@@ -540,9 +533,9 @@ void CtdlThreadSleep(int secs)
 
 	ctdl_thread_internal_change_state (CT, CTDL_THREAD_SLEEPING);
 	
-	pthread_mutex_lock(&CT->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
-	pthread_cond_timedwait(&CT->SleepCond, &CT->ThreadMutex, &wake_time);
-	pthread_mutex_unlock(&CT->ThreadMutex);
+	citthread_mutex_lock(&CT->ThreadMutex); /* Prevent something asking us to awaken before we've gone to sleep */
+	citthread_cond_timedwait(&CT->SleepCond, &CT->ThreadMutex, &wake_time);
+	citthread_mutex_unlock(&CT->ThreadMutex);
 	
 	ctdl_thread_internal_change_state (CT, CTDL_THREAD_RUNNING);
 }
@@ -563,9 +556,9 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	eCrash_UnregisterThread();
 	#endif
 	
-	pthread_mutex_lock(&CT->ThreadMutex);
+	citthread_mutex_lock(&CT->ThreadMutex);
 	CT->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
-	pthread_mutex_unlock(&CT->ThreadMutex);
+	citthread_mutex_unlock(&CT->ThreadMutex);
 }
 
 /*
@@ -584,7 +577,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 	{
 		/* Update load averages */
 		ctdl_thread_internal_update_avgs(that_thread);
-		pthread_mutex_lock(&that_thread->ThreadMutex);
+		citthread_mutex_lock(&that_thread->ThreadMutex);
 		that_thread->load_avg = (that_thread->avg_sleeping + that_thread->avg_running) / (that_thread->avg_sleeping + that_thread->avg_running + that_thread->avg_blocked) * 100;
 		that_thread->avg_sleeping /= 2;
 		that_thread->avg_running /= 2;
@@ -605,7 +598,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 			that_thread->avg_blocked,
 			that_thread->load_avg);
 #endif
-		pthread_mutex_unlock(&that_thread->ThreadMutex);
+		citthread_mutex_unlock(&that_thread->ThreadMutex);
 		that_thread = that_thread->next;
 	}
 	CtdlThreadLoadAvg = load_avg/num_threads;
@@ -652,7 +645,7 @@ void CtdlThreadGC (void)
 			continue;
 		}
 		
-		if (pthread_equal(that_thread->tid, pthread_self()) && that_thread->thread_func)
+		if (citthread_equal(that_thread->tid, citthread_self()) && that_thread->thread_func)
 		{	/* Sanity check */
 			end_critical_section(S_THREAD_LIST);
 			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
@@ -679,16 +672,16 @@ void CtdlThreadGC (void)
 		if(that_thread->next)
 			that_thread->next->prev = that_thread->prev;
 		
-		pthread_cond_signal(&that_thread->ThreadCond);
-		pthread_cond_signal(&that_thread->SleepCond);	// Make sure this thread is awake
-		pthread_mutex_lock(&that_thread->ThreadMutex);	// Make sure it has done what its doing
-		pthread_mutex_unlock(&that_thread->ThreadMutex);
+		citthread_cond_signal(&that_thread->ThreadCond);
+		citthread_cond_signal(&that_thread->SleepCond);	// Make sure this thread is awake
+		citthread_mutex_lock(&that_thread->ThreadMutex);	// Make sure it has done what its doing
+		citthread_mutex_unlock(&that_thread->ThreadMutex);
 		/*
 		 * Join on the thread to do clean up and prevent memory leaks
 		 * Also makes sure the thread has cleaned up after itself before we remove it from the list
 		 * We can join on the garbage collector thread the join should just return EDEADLCK
 		 */
-		ret = pthread_join (that_thread->tid, NULL);
+		ret = citthread_join (that_thread->tid, NULL);
 		if (ret == EDEADLK)
 			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection on own thread.\n");
 		else if (ret == EINVAL)
@@ -696,16 +689,16 @@ void CtdlThreadGC (void)
 		else if (ret == ESRCH)
 			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, no thread to join on.\n");
 		else if (ret != 0)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, pthread_join returned an unknown error.\n");
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, citthread_join returned an unknown error.\n");
 		/*
 		 * Now we own that thread entry
 		 */
 		CtdlLogPrintf(CTDL_INFO, "Garbage Collection for thread \"%s\" (%ld).\n", that_thread->name, that_thread->tid);
-		pthread_mutex_destroy(&that_thread->ThreadMutex);
-		pthread_cond_destroy(&that_thread->ThreadCond);
-		pthread_mutex_destroy(&that_thread->SleepMutex);
-		pthread_cond_destroy(&that_thread->SleepCond);
-		pthread_attr_destroy(&that_thread->attr);
+		citthread_mutex_destroy(&that_thread->ThreadMutex);
+		citthread_cond_destroy(&that_thread->ThreadCond);
+		citthread_mutex_destroy(&that_thread->SleepMutex);
+		citthread_cond_destroy(&that_thread->SleepCond);
+		citthread_attr_destroy(&that_thread->attr);
 		free(that_thread);
 	}
 	sys_workers = num_workers;
@@ -742,10 +735,10 @@ static void *ctdl_internal_thread_func (void *arg)
 	begin_critical_section(S_THREAD_LIST);
 	this_thread = (CtdlThreadNode *) arg;
 	gettimeofday(&this_thread->start_time, NULL);		/* Time this thread started */
-	pthread_mutex_lock(&this_thread->ThreadMutex);
+	citthread_mutex_lock(&this_thread->ThreadMutex);
 	
 	// Register the cleanup function to take care of when we exit.
-	pthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
+	citthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
 	// Get our thread data structure
 	CtdlThreadAllocTSD();
 	CT = this_thread;
@@ -755,13 +748,13 @@ static void *ctdl_internal_thread_func (void *arg)
 	 * Other wise there is a window to allow this threads creation to continue to full grown and
 	 * therby prevent a shutdown of the server.
 	 */
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	citthread_mutex_unlock(&this_thread->ThreadMutex);
 		
 	if (!CtdlThreadCheckStop())
 	{
-		pthread_mutex_lock(&this_thread->ThreadMutex);
+		citthread_mutex_lock(&this_thread->ThreadMutex);
 		this_thread->state = CTDL_THREAD_RUNNING;
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
+		citthread_mutex_unlock(&this_thread->ThreadMutex);
 	}
 	end_critical_section(S_THREAD_LIST);
 	
@@ -785,7 +778,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	 * Our thread is exiting either because it wanted to end or because the server is stopping
 	 * We need to clean up
 	 */
-	pthread_cleanup_pop(1);	// Execute our cleanup routine and remove it
+	citthread_cleanup_pop(1);	// Execute our cleanup routine and remove it
 	
 	return(ret);
 }
@@ -816,22 +809,22 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	memset (this_thread, 0, sizeof(CtdlThreadNode));
 	
 	/* Create the mutex's early so we can use them */
-	pthread_mutex_init (&(this_thread->ThreadMutex), NULL);
-	pthread_cond_init (&(this_thread->ThreadCond), NULL);
-	pthread_mutex_init (&(this_thread->SleepMutex), NULL);
-	pthread_cond_init (&(this_thread->SleepCond), NULL);
+	citthread_mutex_init (&(this_thread->ThreadMutex), NULL);
+	citthread_cond_init (&(this_thread->ThreadCond), NULL);
+	citthread_mutex_init (&(this_thread->SleepMutex), NULL);
+	citthread_cond_init (&(this_thread->SleepCond), NULL);
 	
-	pthread_mutex_lock(&this_thread->ThreadMutex);
+	citthread_mutex_lock(&this_thread->ThreadMutex);
 	
 	this_thread->state = CTDL_THREAD_CREATE;
 	
-	if ((ret = pthread_attr_init(&this_thread->attr))) {
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
-		pthread_mutex_destroy(&(this_thread->ThreadMutex));
-		pthread_cond_destroy(&(this_thread->ThreadCond));
-		pthread_mutex_destroy(&(this_thread->SleepMutex));
-		pthread_cond_destroy(&(this_thread->SleepCond));
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_init: %s\n", strerror(ret));
+	if ((ret = citthread_attr_init(&this_thread->attr))) {
+		citthread_mutex_unlock(&this_thread->ThreadMutex);
+		citthread_mutex_destroy(&(this_thread->ThreadMutex));
+		citthread_cond_destroy(&(this_thread->ThreadCond));
+		citthread_mutex_destroy(&(this_thread->SleepMutex));
+		citthread_cond_destroy(&(this_thread->SleepCond));
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
 		free(this_thread);
 		return NULL;
 	}
@@ -845,14 +838,14 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 #ifdef WITH_THREADLOG
 		CtdlLogPrintf(CTDL_INFO, "Thread system. Creating BIG STACK thread.\n");
 #endif
-		if ((ret = pthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
-			pthread_mutex_unlock(&this_thread->ThreadMutex);
-			pthread_mutex_destroy(&(this_thread->ThreadMutex));
-			pthread_cond_destroy(&(this_thread->ThreadCond));
-			pthread_mutex_destroy(&(this_thread->SleepMutex));
-			pthread_cond_destroy(&(this_thread->SleepCond));
-			pthread_attr_destroy(&this_thread->attr);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_setstacksize: %s\n",
+		if ((ret = citthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
+			citthread_mutex_unlock(&this_thread->ThreadMutex);
+			citthread_mutex_destroy(&(this_thread->ThreadMutex));
+			citthread_cond_destroy(&(this_thread->ThreadCond));
+			citthread_mutex_destroy(&(this_thread->SleepMutex));
+			citthread_cond_destroy(&(this_thread->SleepCond));
+			citthread_attr_destroy(&this_thread->attr);
+			CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_setstacksize: %s\n",
 				strerror(ret));
 			free(this_thread);
 			return NULL;
@@ -887,17 +880,17 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	 * about itself and it has a bit of storage space for itself, not to mention that the REAL
 	 * thread function needs to finish off the setup of the structure
 	 */
-	if ((ret = pthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
+	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
 
 		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
 			strerror(ret));
-		pthread_mutex_unlock(&this_thread->ThreadMutex);
-		pthread_mutex_destroy(&(this_thread->ThreadMutex));
-		pthread_cond_destroy(&(this_thread->ThreadCond));
-		pthread_mutex_destroy(&(this_thread->SleepMutex));
-		pthread_cond_destroy(&(this_thread->SleepCond));
-		pthread_attr_destroy(&this_thread->attr);
+		citthread_mutex_unlock(&this_thread->ThreadMutex);
+		citthread_mutex_destroy(&(this_thread->ThreadMutex));
+		citthread_cond_destroy(&(this_thread->ThreadCond));
+		citthread_mutex_destroy(&(this_thread->SleepMutex));
+		citthread_cond_destroy(&(this_thread->SleepCond));
+		citthread_attr_destroy(&this_thread->attr);
 		free(this_thread);
 		return NULL;
 	}
@@ -911,7 +904,7 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
 	
-	pthread_mutex_unlock(&this_thread->ThreadMutex);
+	citthread_mutex_unlock(&this_thread->ThreadMutex);
 	
 	ctdl_thread_internal_calc_loadavg();
 	return this_thread;
@@ -959,19 +952,19 @@ CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) 
 	memset (this_thread, 0, sizeof(CtdlThreadNode));
 	
 	/* Create the mutex's early so we can use them */
-	pthread_mutex_init (&(this_thread->ThreadMutex), NULL);
-	pthread_cond_init (&(this_thread->ThreadCond), NULL);
-	pthread_mutex_init (&(this_thread->SleepMutex), NULL);
-	pthread_cond_init (&(this_thread->SleepCond), NULL);
+	citthread_mutex_init (&(this_thread->ThreadMutex), NULL);
+	citthread_cond_init (&(this_thread->ThreadCond), NULL);
+	citthread_mutex_init (&(this_thread->SleepMutex), NULL);
+	citthread_cond_init (&(this_thread->SleepCond), NULL);
 	
 	this_thread->state = CTDL_THREAD_CREATE;
 	
-	if ((ret = pthread_attr_init(&this_thread->attr))) {
-		pthread_mutex_destroy(&(this_thread->ThreadMutex));
-		pthread_cond_destroy(&(this_thread->ThreadCond));
-		pthread_mutex_destroy(&(this_thread->SleepMutex));
-		pthread_cond_destroy(&(this_thread->SleepCond));
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_init: %s\n", strerror(ret));
+	if ((ret = citthread_attr_init(&this_thread->attr))) {
+		citthread_mutex_destroy(&(this_thread->ThreadMutex));
+		citthread_cond_destroy(&(this_thread->ThreadCond));
+		citthread_mutex_destroy(&(this_thread->SleepMutex));
+		citthread_cond_destroy(&(this_thread->SleepCond));
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
 		free(this_thread);
 		return NULL;
 	}
@@ -983,13 +976,13 @@ CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) 
 	if (flags & CTDLTHREAD_BIGSTACK)
 	{
 		CtdlLogPrintf(CTDL_INFO, "Thread system. Creating BIG STACK thread.\n");
-		if ((ret = pthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
-			pthread_mutex_destroy(&(this_thread->ThreadMutex));
-			pthread_cond_destroy(&(this_thread->ThreadCond));
-			pthread_mutex_destroy(&(this_thread->SleepMutex));
-			pthread_cond_destroy(&(this_thread->SleepCond));
-			pthread_attr_destroy(&this_thread->attr);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system, pthread_attr_setstacksize: %s\n",
+		if ((ret = citthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
+			citthread_mutex_destroy(&(this_thread->ThreadMutex));
+			citthread_cond_destroy(&(this_thread->ThreadCond));
+			citthread_mutex_destroy(&(this_thread->SleepMutex));
+			citthread_cond_destroy(&(this_thread->SleepCond));
+			citthread_attr_destroy(&this_thread->attr);
+			CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_setstacksize: %s\n",
 				strerror(ret));
 			free(this_thread);
 			return NULL;
@@ -1045,7 +1038,7 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 	 * about itself and it has a bit of storage space for itself, not to mention that the REAL
 	 * thread function needs to finish off the setup of the structure
 	 */
-	if ((ret = pthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
+	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
 
 		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
@@ -1105,25 +1098,25 @@ void ctdl_thread_internal_check_scheduled(void)
 			begin_critical_section(S_THREAD_LIST);
 			if (CT->state > CTDL_THREAD_STOP_REQ)
 			{	/* Only start it if the system is not stopping */
-				pthread_mutex_lock(&that_thread->ThreadMutex);
+				citthread_mutex_lock(&that_thread->ThreadMutex);
 				if (ctdl_thread_internal_start_scheduled (that_thread) == NULL)
 				{
 #ifdef WITH_THREADLOG
 			CtdlLogPrintf(CTDL_DEBUG, "Failed to start scheduled thread \"%s\".\n", that_thread->name);
 #endif
-					pthread_mutex_unlock(&that_thread->ThreadMutex);
-					pthread_mutex_destroy(&(that_thread->ThreadMutex));
-					pthread_cond_destroy(&(that_thread->ThreadCond));
-					pthread_mutex_destroy(&(that_thread->SleepMutex));
-					pthread_cond_destroy(&(that_thread->SleepCond));
-					pthread_attr_destroy(&that_thread->attr);
+					citthread_mutex_unlock(&that_thread->ThreadMutex);
+					citthread_mutex_destroy(&(that_thread->ThreadMutex));
+					citthread_cond_destroy(&(that_thread->ThreadCond));
+					citthread_mutex_destroy(&(that_thread->SleepMutex));
+					citthread_cond_destroy(&(that_thread->SleepCond));
+					citthread_attr_destroy(&that_thread->attr);
 					free(that_thread);
 				}
 				else
 				{
 					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (%ld).\n",
 						that_thread->name, that_thread->tid);
-					pthread_mutex_unlock(&that_thread->ThreadMutex);
+					citthread_mutex_unlock(&that_thread->ThreadMutex);
 					ctdl_thread_internal_calc_loadavg();
 				}
 			}
@@ -1176,7 +1169,7 @@ void go_threading(void)
 	/*
 	 * This thread is now used for garbage collection of other threads in the thread list
 	 */
-	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", pthread_self());
+	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", citthread_self());
 
 	/*
 	 * We do a lot of locking and unlocking of the thread list in here.
@@ -1212,13 +1205,13 @@ void go_threading(void)
 			last_worker = CtdlThreadList;
 			while (last_worker)
 			{
-				pthread_mutex_lock(&last_worker->ThreadMutex);
+				citthread_mutex_lock(&last_worker->ThreadMutex);
 				if (last_worker->flags & CTDLTHREAD_WORKER && (last_worker->state > CTDL_THREAD_STOPPING) && (last_worker->Context == NULL))
 				{
-					pthread_mutex_unlock(&last_worker->ThreadMutex);
+					citthread_mutex_unlock(&last_worker->ThreadMutex);
 					break;
 				}
-				pthread_mutex_unlock(&last_worker->ThreadMutex);
+				citthread_mutex_unlock(&last_worker->ThreadMutex);
 				last_worker = last_worker->next;
 			}
 			end_critical_section(S_THREAD_LIST);
