@@ -25,8 +25,6 @@
 /*
  * Thread stuff
  */
-#define CTDLTHREAD_BIGSTACK	0x0001
-#define CTDLTHREAD_WORKER	0x0002
 
 enum CtdlThreadState {
 	CTDL_THREAD_INVALID,

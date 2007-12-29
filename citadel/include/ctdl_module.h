@@ -6,7 +6,7 @@
 #include "server.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"
-
+#include "threads.h"
 /*
  * define macros for module init stuff
  */
@@ -128,6 +128,9 @@ void CtdlThreadGC(void);
 void CtdlThreadStopAll(void);
 int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 void CtdlThreadAllocTSD(void);
+
+#define CTDLTHREAD_BIGSTACK	0x0001
+#define CTDLTHREAD_WORKER	0x0002
 
 /* Macros to speed up getting outr thread */
 
