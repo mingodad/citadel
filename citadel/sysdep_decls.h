@@ -127,6 +127,4 @@ char *tracked_strdup(const char *s, char *file, int line);
 void dump_heap(void);
 #endif
 
-void create_maintenance_threads(void);
-
 #endif /* SYSDEP_DECLS_H */
