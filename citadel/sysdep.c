@@ -442,7 +442,6 @@ struct CitContext *CreateNewContext(void) {
 	 * being set up.
 	 */
 	me->state = CON_EXECUTING;
-
 	/*
 	 * Generate a unique session number and insert this context into
 	 * the list.
@@ -457,7 +456,7 @@ struct CitContext *CreateNewContext(void) {
 	}
 	++num_sessions;
 	end_critical_section(S_SESSION_TABLE);
-	return(me);
+	return (me);
 }
 
 
@@ -747,10 +746,9 @@ void context_cleanup(void)
 }
 
 
-/*
- * The system-dependent part of master_cleanup() - close the master socket.
- */
-void sysdep_master_cleanup(void) {
+
+void close_masters (void)
+{
 	struct ServiceFunctionHook *serviceptr;
 	
 	/*
@@ -760,20 +758,32 @@ void sysdep_master_cleanup(void) {
 	    serviceptr = serviceptr->next ) {
 
 		if (serviceptr->tcp_port > 0)
+		{
 			CtdlLogPrintf(CTDL_INFO, "Closing listener on port %d\n",
 				serviceptr->tcp_port);
-
+			serviceptr->tcp_port = 0;
+		}
+		
 		if (serviceptr->sockpath != NULL)
 			CtdlLogPrintf(CTDL_INFO, "Closing listener on '%s'\n",
 				serviceptr->sockpath);
 
 		close(serviceptr->msock);
-
 		/* If it's a Unix domain socket, remove the file. */
 		if (serviceptr->sockpath != NULL) {
 			unlink(serviceptr->sockpath);
+			serviceptr->sockpath = NULL;
 		}
 	}
+}
+
+
+/*
+ * The system-dependent part of master_cleanup() - close the master socket.
+ */
+void sysdep_master_cleanup(void) {
+	
+	close_masters();
 	
 	context_cleanup();
 	
@@ -1027,7 +1037,32 @@ INLINE void become_session(struct CitContext *which_con) {
 
 /* 
  * This loop just keeps going and going and going...
- */	
+ */
+/*
+ * FIXME:
+ * This current implimentation of worker_thread creates a bottle neck in several situations
+ * The first thing to remember is that a single thread can handle more than one connection at a time.
+ * More threads mean less memory for the system to run in.
+ * So for efficiency we want every thread to be doing something useful or waiting in the main loop for
+ * something to happen anywhere.
+ * This current implimentation requires worker threads to wait in other locations, after it has
+ * been committed to a single connection which is very wasteful.
+ * As an extreme case consider this:
+ * A slow client connects and this slow client sends only one character each second.
+ * With this current implimentation a single worker thread is dispatched to handle that connection
+ * until such times as the client timeout expires, an error occurs on the socket or the client
+ * completes its transmission.
+ * THIS IS VERY BAD since that thread could have handled a read from many more clients in each one
+ * second interval between chars.
+ *
+ * It is my intention to re-write this code and the associated client_getln, client_read functions
+ * to allow any thread to read data on behalf of any connection (context).
+ * To do this I intend to have this main loop read chars into a buffer stored in the context.
+ * Once the correct criteria for a full buffer is met then we will dispatch a thread to 
+ * process it.
+ * This worker thread loop also needs to be able to handle binary data.
+ */
+ 
 void *worker_thread(void *arg) {
 	int i;
 	int highest;
