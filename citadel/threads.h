@@ -39,12 +39,13 @@ enum CtdlThreadState {
 	CTDL_THREAD_RUNNING,
 	CTDL_THREAD_LAST_STATE
 };
+typedef struct CtdlThreadNode CtdlThreadNode;
 
-extern struct CtdlThreadNode {
+struct CtdlThreadNode{
 	pthread_t tid;				/* id as returned by pthread_create() */
 	pid_t pid;				/* pid, as best the OS will let us determine */
 	time_t when;				/* When to start a scheduled thread */
-	struct CitConext *Context;		/* The session context that this thread mught be working on or NULL if none */
+	struct CitContext *Context;		/* The session context that this thread mught be working on or NULL if none */
 	long number;				/* A unigue number for this thread (not implimented yet) */
 	int wakefd_recv;			/* An fd that this thread can sleep on (not implimented yet) */
 	int wakefd_send;			/* An fd that this thread can send out on (Not implimented yet) */
@@ -65,15 +66,19 @@ extern struct CtdlThreadNode {
 	double avg_running;			/* Average running time */
 	double avg_blocked;			/* Average blocked time */
 	double load_avg;			/* Load average for this thread */
-	struct CtdlThreadNode *prev;		/* Previous thread in the thread table */
-	struct CtdlThreadNode *next;		/* Next thread in the thread table */
-} *CtdlThreadList;
+	CtdlThreadNode *prev;		/* Previous thread in the thread table */
+	CtdlThreadNode *next;		/* Next thread in the thread table */
+} ;
+ 
+extern CtdlThreadNode *CtdlThreadList;
 
-typedef struct {
+typedef struct ThreadTSD ThreadTSD;
+
+struct ThreadTSD {
 	DB_TXN *tid;		/* Transaction handle */
 	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
-	struct CtdlThreadNode *self;	/* Pointer to this threads control structure */
-}ThreadTSD ;
+	CtdlThreadNode *self;	/* Pointer to this threads control structure */
+} ;
 
 extern double CtdlThreadLoadAvg;
 extern double CtdlThreadWorkerAvg;
@@ -85,7 +90,7 @@ void ctdl_thread_internal_init(void);
 void ctdl_thread_internal_cleanup(void);
 void ctdl_thread_internal_calc_loadavg(void);
 void ctdl_thread_internal_free_tsd(void);
-struct CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
+CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 void ctdl_thread_internal_check_scheduled(void);
 
 void InitialiseSemaphores(void);
