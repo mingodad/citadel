@@ -71,11 +71,6 @@ pthread_key_t ThreadKey;
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 
 
-/* Mutex's and condition vars for the various select stuff */
-pthread_mutex_t worker_select_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t worker_select_mutex2 = PTHREAD_MUTEX_INITIALIZER;
-
-
 
 void InitialiseSemaphores(void)
 {
