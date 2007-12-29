@@ -991,7 +991,7 @@ void citproto_begin_session() {
  */
 void do_command_loop(void) {
 	char cmdbuf[SIZ];
-	char *old_name = NULL;
+	const char *old_name = NULL;
 	
 	old_name = CtdlThreadName("do_command_loop");
 	
