@@ -31,6 +31,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
+#include "threads.h"
 #include "room_ops.h"
 #include "ctdl_module.h"
 #include "clientsocket.h"
