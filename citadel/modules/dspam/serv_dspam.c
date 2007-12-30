@@ -52,29 +52,74 @@
 #undef HAVE_CONFIG_H
 #include <dspam/libdspam.h>
 #define HAVE_CONFIG_H
+
+typedef struct stringlist stringlist;
+
+struct stringlist {
+	char *Str;
+	long len;
+	stringlist *Next;
+};
+	
+
 /*
  * Citadel protocol to manage sieve scripts.
  * This is basically a simplified (read: doesn't resemble IMAP) version
  * of the 'managesieve' protocol.
  */
 void cmd_tspam(char *argbuf) {
-	
+	char buf[SIZ];
+	long len;
+	long count;
+	stringlist *Messages; 
+	stringlist *NextMsg; 
 
+	Messages = NULL;
+	NextMsg = NULL;
+	count = 0;
+	if (CtdlAccessCheck(ac_room_aide)) return;
+	if (atoi(argbuf) == 0) {
+		cprintf("%d Ok.\n", CIT_OK);
+		return;
+	}
+	cprintf("%d Send info...\n", SEND_LISTING);
+
+	do {
+		len = client_getln(buf, sizeof buf);
+		if (strcmp(buf, "000")) {
+			if (Messages == NULL) {
+				Messages = malloc (sizeof (stringlist));
+				NextMsg = Messages;
+			}
+			else {
+				Messages->Next = malloc (sizeof (stringlist));
+				NextMsg = NextMsg->Next;
+			}
+			NextMsg->Next = NULL;
+			NextMsg->Str = malloc (len+1);
+			NextMsg->len = len;
+			memcpy (NextMsg->Str, buf, len + 1);/// maybe split spam /ham per line?
+			count++;
+		}
+	} while (strcmp(buf, "000"));
+/// is there a way to filter foreachmessage by a list?
 	/* tag mails as spam or Ham */
 	/* probably do: dspam_init(ctdl_dspam_dir); dspam_process dspam_addattribute; dspam_destroy*/
 	// extract DSS_ERROR or DSS_CORPUS from the commandline. error->ham; corpus -> spam?
+	/// todo: send answer listing...
 }
 
 
 
 void ctdl_dspam_init(void) {
 
-	libdspam_init("bdb");/* <which database backend do we prefer? */
+///	libdspam_init("bdb");/* <which database backend do we prefer? */
 
 }
 
 void dspam_do_msg(long msgnum, void *userdata) 
 {
+	char *msgtext;
 	DSPAM_CTX *CTX;               	/* DSPAM Context */
 	struct CtdlMessage *msg;
 	struct _ds_spam_signature SIG;        /* signature */
@@ -82,11 +127,23 @@ void dspam_do_msg(long msgnum, void *userdata)
 	CTX = *(DSPAM_CTX**) userdata;
 	msg = CtdlFetchMessage(msgnum, 0);
 	if (msg == NULL) return;
+
+
+	/* Message */
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
+	msgtext = CC->redirect_buffer;
+// don't need?	msglen = CC->redirect_len;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
 
 	/* Call DSPAM's processor with the message text */
-	if (dspam_process (CTX, msg->cm_fields['A']) != 0)
+	if (dspam_process (CTX, msgtext) != 0)
 	{
+		free(msgtext);
 		lprintf(CTDL_CRIT, "ERROR: dspam_process failed");
 		return;
 	}
@@ -102,9 +159,11 @@ void dspam_do_msg(long msgnum, void *userdata)
 		if (SIG.data != NULL)
 			memcpy (SIG.data, CTX->signature->data, CTX->signature->length);
 	}
+	free(msgtext);
+
 	SIG.length = CTX->signature->length;
 	/* Print processing results */
-	printf ("Probability: %2.4f Confidence: %2.4f, Result: %s\n",
+	lprintf (CTDL_DEBUG, "Probability: %2.4f Confidence: %2.4f, Result: %s\n",
 		CTX->probability,
 		CTX->confidence,
 		(CTX->result == DSR_ISSPAM) ? "Spam" : "Innocent");
@@ -149,7 +208,7 @@ int serv_dspam_room(struct ctdlroom *room)
 	/* Use CHAIN tokenizer */
 	CTX->tokenizer = DSZ_CHAIN;
 
-	CtdlForEachMessage(MSGS_GT, NULL, NULL, NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, 1, NULL, NULL, NULL,
 			   dspam_do_msg,
 			   (void *) &CTX);
 
@@ -164,6 +223,7 @@ void serv_dspam_shutdown (void)
 
 CTDL_MODULE_INIT(dspam)
 {
+	return "$Id: serv_dspam.c 5876 2007-12-10 23:22:03Z dothebart $" "disabled.";
 	if (!threading)
 	{
 #ifdef HAVE_LIBDSPAM
