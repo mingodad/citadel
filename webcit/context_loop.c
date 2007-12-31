@@ -1,20 +1,17 @@
 /*
  * $Id$
- */
-/**
- * \defgroup WebServerII some of the webserver stuff.
+ *
  * This is the other half of the webserver.  It handles the task of hooking
  * up HTTP requests with the sessions they belong to, using HTTP cookies to
  * keep track of things.  If the HTTP request doesn't belong to any currently
  * active session, a new session is started.
- * \ingroup WebcitHttpServer 
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
-/** Only one thread may manipulate SessionList at a time... */
+/* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t SessionListMutex;
 
 struct wcsession *SessionList = NULL; /**< our sessions ????*/
@@ -22,9 +19,8 @@ struct wcsession *SessionList = NULL; /**< our sessions ????*/
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
 
 
-/**
- * \brief free the memory used for viewing atachments
- * \param sess the session object to destroy
+/*
+ * free the memory used for viewing atachments
  */
 void free_attachments(struct wcsession *sess) {
 	struct wc_attachment *att;
@@ -46,9 +42,7 @@ void shutdown_sessions(void)
 			sptr->killthis = 1;
 	}
 }
-/**
- * \brief what??????
- */
+
 void do_housekeeping(void)
 {
 	struct wcsession *sptr, *ss;
@@ -160,12 +154,8 @@ int GenerateSessionID(void)
 }
 
 
-/**
- * \brief Collapse multiple cookies on one line
- * \param sock a socket?
- * \param buf some bunch of chars?
- * \param hold hold what?
- * TODO: get this comment right
+/*
+ * Collapse multiple cookies on one line
  */
 int req_gets(int sock, char *buf, char *hold)
 {
@@ -201,14 +191,10 @@ int req_gets(int sock, char *buf, char *hold)
 	return(0);
 }
 
-/**
- * \brief close some fd for some reason???
- * \param fd the fd to close??????
+/*
  * lingering_close() a`la Apache. see
  * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
- * TODO: get this comment precise.
  */
-
 int lingering_close(int fd)
 {
 	char buf[SIZ];
@@ -494,42 +480,41 @@ void context_loop(int sock)
 		session_is_new = 1;
 	}
 
-	/**
+	/*
 	 * A future improvement might be to check the session integrity
 	 * at this point before continuing.
 	 */
 
-	/**
+	/*
 	 * Bind to the session and perform the transaction
 	 */
-	pthread_mutex_lock(&TheSession->SessionMutex);		/*< bind */
+	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
-	TheSession->lastreq = time(NULL);			/*< log */
+	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
 #ifdef ENABLE_NLS
 	if (session_is_new) {
 		httplang_to_locale(accept_language);
 	}
-	go_selected_language();				/*< set locale */
+	go_selected_language();					/* set locale */
 #endif
-	session_loop(req);				/*< do transaction */
+	session_loop(req);					/* do transaction */
 #ifdef ENABLE_NLS
-	stop_selected_language();			/*< unset locale */
+	stop_selected_language();				/* unset locale */
 #endif
-	pthread_mutex_unlock(&TheSession->SessionMutex);	/*< unbind */
+	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
-	/** Free the request buffer */
+	/* Free the request buffer */
 	while (req != NULL) {
 		hptr = req->next;
 		free(req);
 		req = hptr;
 	}
 
-	/**
+	/*
 	 * Free up any session-local substitution variables which
 	 * were set during this transaction
 	 */
 	clear_local_substs();
 }
-/*@}*/
