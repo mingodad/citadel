@@ -32,15 +32,23 @@
  * Figure out which time zone needs to be used for timestamps that are
  * not UTC and do not have a time zone specified.
  */
-icaltimezone *get_default_icaltimezone(void)
-{
-        icaltimezone *zone = NULL;
+icaltimezone *get_default_icaltimezone(void) {
 
-	if (!zone) {
-                zone = icaltimezone_get_builtin_timezone(config.c_default_cal_zone);
-	}
+        icaltimezone *zone = NULL;
+	char *default_zone_name = config.c_default_cal_zone;
+	//char *default_zone_name = "America/New_York";
+
         if (!zone) {
+                zone = icaltimezone_get_builtin_timezone(default_zone_name);
+        }
+        if (!zone) {
+		lprintf(CTDL_ALERT,
+			"Unable to load '%s' time zone.  Defaulting to UTC.\n",
+			default_zone_name);
                 zone = icaltimezone_get_utc_timezone();
+	}
+	if (!zone) {
+		lprintf(1, "Unable to load UTC time zone!\n");
 	}
         return zone;
 }

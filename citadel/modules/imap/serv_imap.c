@@ -1234,6 +1234,7 @@ void imap_rename(int num_parms, char *parms[])
 	struct irl *irl = NULL;	/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
 	struct irlparms irlparms;
+	char buf[1024];
 
 	if (strchr(parms[3], '\\') != NULL) {
 		cprintf("%s NO Invalid character in folder name\r\n",
@@ -1275,7 +1276,6 @@ void imap_rename(int num_parms, char *parms[])
 		return;
 	}
 
-
 	/* If this is the INBOX, then RFC2060 says we have to just move the
 	 * contents.  In a Citadel environment it's easier to rename the room
 	 * (already did that) and create a new inbox.
@@ -1305,6 +1305,13 @@ void imap_rename(int num_parms, char *parms[])
 			free(irlp);
 		}
 	}
+
+	snprintf(buf, sizeof buf, "IMAP folder \"%s\" renamed to \"%s\" by %s\n",
+		parms[2],
+		parms[3],
+		CC->curr_user
+	);
+	aide_message(buf, "IMAP folder rename");
 
 	cprintf("%s OK RENAME completed\r\n", parms[0]);
 }
