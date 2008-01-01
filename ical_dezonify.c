@@ -25,12 +25,17 @@
 icaltimezone *get_default_icaltimezone(void) {
 
         icaltimezone *zone = NULL;
+	char *default_zone_name = serv_info.serv_default_cal_zone;
 
         if (!zone) {
-                zone = icaltimezone_get_builtin_timezone(serv_info.serv_default_cal_zone);
+                zone = icaltimezone_get_builtin_timezone(default_zone_name);
         }
         if (!zone) {
+		lprintf(1, "Unable to load '%s' time zone.  Defaulting to UTC.\n", default_zone_name);
                 zone = icaltimezone_get_utc_timezone();
+	}
+	if (!zone) {
+		lprintf(1, "Unable to load UTC time zone!\n");
 	}
         return zone;
 }
