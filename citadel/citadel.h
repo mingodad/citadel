@@ -284,6 +284,12 @@ enum {
 #define VIEW_CALBRIEF		7	/* Brief Calendar view */
 #define VIEW_JOURNAL		8	/* Journal view (not yet implemented in native clients) */
 
+/*
+ * Authentication modes
+ */
+#define AUTHMODE_NATIVE		0	/* native Citadel authentication */
+#define AUTHMODE_HOST		1	/* host integrated */
+
 #ifdef __cplusplus
 }
 #endif

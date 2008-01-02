@@ -293,11 +293,11 @@ void cmd_info(void) {
 	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
 #endif
 
-	if (config.c_auth_mode == 1) {
-		cprintf("1\n");	/* "create new user" never works with host auth */
+	if (config.c_auth_mode == AUTHMODE_NATIVE) {
+		cprintf("%d\n", config.c_disable_newu);
 	}
 	else {
-		cprintf("%d\n", config.c_disable_newu); /* otherwise, site defined */
+		cprintf("1\n");	/* "create new user" does not work with non-native auth modes */
 	}
 
 	cprintf("%s\n", config.c_default_cal_zone);

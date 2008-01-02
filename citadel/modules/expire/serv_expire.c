@@ -460,15 +460,18 @@ int PurgeUsers(void) {
 	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
 	users_not_purged = 0;
 
-	if (config.c_auth_mode == 1) {
-		/* host auth mode */
-		ForEachUser(do_uid_user_purge, NULL);
-	}
-	else {
-		/* native auth mode */
-		if (config.c_userpurge > 0) {
-			ForEachUser(do_user_purge, NULL);
-		}
+	switch(config.c_auth_mode) {
+		case AUTHMODE_NATIVE:
+			if (config.c_userpurge > 0) {
+				ForEachUser(do_user_purge, NULL);
+			}
+			break;
+		case AUTHMODE_HOST:
+			ForEachUser(do_uid_user_purge, NULL);
+			break;
+		default:
+			lprintf(CTDL_DEBUG, "Unknown authentication mode!\n");
+			break;
 	}
 
 	transcript = malloc(SIZ);

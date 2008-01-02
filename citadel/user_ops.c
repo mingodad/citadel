@@ -381,7 +381,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		return login_not_found;
 	}
 
-	if (config.c_auth_mode == 1) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -509,7 +509,7 @@ void session_startup(void)
 	/* If we're authenticating off the host system, automatically give
 	 * root the highest level of access.
 	 */
-	if (config.c_auth_mode == 1) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 		if (CC->user.uid == 0) {
 			CC->user.axlevel = 6;
 		}
@@ -705,7 +705,7 @@ int CtdlTryPassword(char *password)
 		code = strcmp(password, config.c_master_pass);
 	}
 
-	else if (config.c_auth_mode == 1) {
+	else if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -868,7 +868,7 @@ int create_user(char *newusername, int become_user)
 	safestrncpy(username, newusername, sizeof username);
 	strproc(username);
 
-	if (config.c_auth_mode == 1) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -987,7 +987,7 @@ void cmd_newu(char *cmdbuf)
 	int a;
 	char username[26];
 
-	if (config.c_auth_mode == 1) {
+	if (config.c_auth_mode != AUTHMODE_NATIVE) {
 		cprintf("%d This system does not use native mode authentication.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -1116,7 +1116,7 @@ void cmd_creu(char *cmdbuf)
 	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n", ERROR + ALREADY_EXISTS, username);
 		return;
-	} else if ( (config.c_auth_mode == 1) && (a == ERROR + NO_SUCH_USER) ) {
+	} else if ( (config.c_auth_mode != AUTHMODE_NATIVE) && (a == ERROR + NO_SUCH_USER) ) {
 		cprintf("%d User accounts are not created within Citadel in host authentication mode.\n",
 			ERROR + NO_SUCH_USER);
 		return;

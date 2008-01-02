@@ -106,9 +106,10 @@ void get_config(void) {
 	if (config.c_net_freq < 300L) 
 		config.c_net_freq = 300L;
 
-	/* "create new user" never works with host auth */
-	if (config.c_auth_mode == 1)
+	/* "create new user" only works with native authentication mode */
+	if (config.c_auth_mode != AUTHMODE_NATIVE) {
 		config.c_disable_newu = 1;
+	}
 }
 
 

@@ -785,10 +785,10 @@ void edit_value(int curr)
 		{
 			if (getenv("ENABLE_UNIX_AUTH")) {
 				if (!strcasecmp(getenv("ENABLE_UNIX_AUTH"), "yes")) {
-					config.c_auth_mode = 1;
+					config.c_auth_mode = AUTHMODE_HOST;
 				}
 				else {
-					config.c_auth_mode = 0;
+					config.c_auth_mode = AUTHMODE_NATIVE;
 				}
 			}
 		}

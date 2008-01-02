@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	/*
 	 * If we need host auth, start our chkpwd daemon.
 	 */
-	if (config.c_auth_mode == 1) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 		start_chkpwd_daemon();
 	}
 
