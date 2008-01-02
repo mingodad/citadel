@@ -124,18 +124,13 @@ void ical_dezonify_backend(icalcomponent *cal,
 		}
 
 		if (t == NULL) {
-			icaltimezone_convert_time(&TheTime,
-						get_default_icaltimezone(),
-						icaltimezone_get_utc_timezone()
-			);
+			t = icaltimezone_copy(get_default_icaltimezone());
 		}
-		else {
-			icaltimezone_convert_time(&TheTime,
-						t,
-						icaltimezone_get_utc_timezone()
+		icaltimezone_convert_time(&TheTime,
+					  t,
+					  icaltimezone_get_utc_timezone()
 			);
-			icaltimezone_free (t, 1);
-		}
+		icaltimezone_free (t, 1);
 		TheTime.is_utc = 1;
 	}
 

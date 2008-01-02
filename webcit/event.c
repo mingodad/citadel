@@ -710,6 +710,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			if (buf[0] == '2') {
 				strcpy(WC->ImportantMessage, &buf[4]);
 			}
+			icalmemory_free_ring ();
 			icalcomponent_free(encaps);
 		}
 

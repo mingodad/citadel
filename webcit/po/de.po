@@ -1645,7 +1645,7 @@ msgstr "Vorgabezeichensatz für EMail Kopfzeilen"
 
 #: ../preferences.c:419
 msgid "Show empty floors"
-msgstr ""
+msgstr "Leere Verzeichnisse Anzeigen"
 
 #: ../preferences.c:444
 msgid "Change"
