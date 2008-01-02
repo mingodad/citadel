@@ -47,6 +47,8 @@ case $1 in
 	    cp -a webcit-$WEBCIT_VERSION tmp
 	    cd tmp/webcit-$WEBCIT_VERSION
 	    rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.guess  config.log config.status autom4te.cache
+	    find -type f -exec chmod a-x {} \;
+	    chmod a+x configure
 	    cd ..
 	    tar -czf webcit_${WEBCIT_VERSION}.orig.tar.gz webcit-${WEBCIT_VERSION}/ --exclude "debian/*"
 	    pwd
