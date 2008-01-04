@@ -125,7 +125,7 @@ void sieve_outbuf_append(char *str)
  */
 void cmd_mgsve_caps(void)
 { 
-	cprintf("\"IMPLEMENTATION\" \"CITADEL Sieve v6.84\"\r\n" /* TODO: put citversion here. */
+	cprintf("\"IMPLEMENTATION\" \"CITADEL Sieve " PACKAGE_VERSION "\"\r\n" 
 		"\"SASL\" \"PLAIN\"\r\n" /*DIGEST-MD5 GSSAPI  SASL sucks.*/
 #ifdef HAVE_OPENSSL
 /* if TLS is already there, should we say that again? */
@@ -143,7 +143,7 @@ void managesieve_greeting(void) {
 
 	strcpy(CC->cs_clientname, "Managesieve session");
 
-	CC->internal_pgm = 1;
+	CC->internal_pgm = 0;
 	CC->cs_flags |= CS_STEALTH;
 	CC->session_specific_data = malloc(sizeof(struct citmgsve));
 	memset(MGSVE, 0, sizeof(struct citmgsve));
@@ -214,7 +214,11 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 	{
 		char auth[SIZ];
 		int retval;
-		char *message = ReadString(GetSizeToken(parms[2]), parms[0]);
+		char *message;
+
+		message = NULL;
+		if (parms[2][0] == '{')
+			message = ReadString(GetSizeToken(parms[2]), parms[0]);
 		
 		if (message != NULL) {/**< do we have tokenized login? */
 			retval = CtdlDecodeBase64(auth, MGSVE->transmitted_message, SIZ);
@@ -237,7 +241,6 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 			}
 		}
 	}
-	
 	cprintf("NO \"Authentication Failure.\"\r\n");/* we just support auth plain. */
 	CC->kill_me = 1;
 }
@@ -531,7 +534,7 @@ void managesieve_command_loop(void) {
 		cmd_mgsve_caps();
 	} 
 	/** these commands need to be authenticated. throw it out if it tries. */
-	else if (!CtdlAccessCheck(ac_logged_in))
+	else if (CC->logged_in != 0)
 	{
 		msiv_load(&u);
 		if ((length>= 9) && (!strncasecmp(parms[0], "HAVESPACE", 9))){
@@ -558,7 +561,7 @@ void managesieve_command_loop(void) {
 		msiv_store(&u, changes_made);
 	}
 	else {
-		cprintf("No\r\n");
+		cprintf("No Invalid access or command.\r\n");
 		lprintf(CTDL_INFO, "illegal Managesieve command: %s", parms[0]);
 		CC->kill_me = 1;
 	}
