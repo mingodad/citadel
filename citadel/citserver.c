@@ -301,10 +301,18 @@ void cmd_info(void) {
 	}
 
 	cprintf("%s\n", config.c_default_cal_zone);
+
 	/* Output load averages */
 	cprintf("%f\n", CtdlThreadLoadAvg);
 	cprintf("%f\n", CtdlThreadWorkerAvg);
 	cprintf("%d\n", CtdlThreadGetCount());
+
+	/* Does this server support Sieve mail filtering? */
+#ifdef HAVE_LIBSIEVE
+	cprintf("1\n");		/* yes */
+#else
+	cprintf("0\n");		/* no */
+#endif
 	
 	cprintf("000\n");
 }

@@ -225,19 +225,20 @@ struct urlcontent {
  * \brief information about us ???
  */ 
 struct serv_info {
-	int serv_pid;			/**< Process ID of the Citadel server */
-	char serv_nodename[32];		/**< Node name of the Citadel server */
-	char serv_humannode[64];	/**< human readable node name of the Citadel server */
-	char serv_fqdn[64];		/**< fully quallified Domain Name (such as uncensored.citadel.org) */
-	char serv_software[64];		/**< What version does our connected citadel server use */
-	int serv_rev_level;		/**< Whats the citadel server revision */
-	char serv_bbs_city[64];		/**< Geographic location of the Citadel server */
-	char serv_sysadm[64];		/**< Name of system administrator */
-	char serv_moreprompt[256];	/**< Whats the commandline textprompt */
-	int serv_ok_floors;		/**< nonzero == server supports floors */
-	int serv_supports_ldap;		/**< is the server linked against an ldap tree for adresses? */
-	int serv_newuser_disabled;	/**< Has the server disabled self-service new user creation? */
-	char serv_default_cal_zone[128];/**< Default timezone for unspecified calendar items */
+	int serv_pid;			/* Process ID of the Citadel server */
+	char serv_nodename[32];		/* Node name of the Citadel server */
+	char serv_humannode[64];	/* human readable node name of the Citadel server */
+	char serv_fqdn[64];		/* fully quallified Domain Name (such as uncensored.citadel.org) */
+	char serv_software[64];		/* What version does our connected citadel server use */
+	int serv_rev_level;		/* Whats the citadel server revision */
+	char serv_bbs_city[64];		/* Geographic location of the Citadel server */
+	char serv_sysadm[64];		/* Name of system administrator */
+	char serv_moreprompt[256];	/* Whats the commandline textprompt */
+	int serv_ok_floors;		/* nonzero == server supports floors */
+	int serv_supports_ldap;		/* is the server linked against an ldap tree for adresses? */
+	int serv_newuser_disabled;	/* Has the server disabled self-service new user creation? */
+	char serv_default_cal_zone[128];/* Default timezone for unspecified calendar items */
+	int serv_supports_sieve;	/* Does the server support Sieve mail filtering? */
 };
 
 

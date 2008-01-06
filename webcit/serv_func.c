@@ -92,6 +92,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 16:
 			safestrncpy(serv_info.serv_default_cal_zone, buf, sizeof serv_info.serv_default_cal_zone);
 			break;
+		case 19:
+			serv_info.serv_supports_sieve = atoi(buf);
+			break;
 		}
 		++a;
 	}
