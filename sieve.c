@@ -1,19 +1,44 @@
 /* 
  * $Id$
  */
-/**
- * \defgroup Sieve view/edit sieve config
- * \ingroup WebcitDisplayItems
- */
-/*@{*/
+
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
 #define MAX_RULES	25
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
 
-/**
- * \brief view/edit sieve config
+
+/*
+ * dummy panel indicating to the user that the server doesn't support Sieve
+ */
+void display_no_sieve(void) {
+
+	output_headers(1, 1, 2, 0, 0, 0);
+
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<img src=\"static/advanpage2_48x.gif\">");
+	wprintf("<h1>");
+	wprintf(_("View/edit server-side mail filters"));
+	wprintf("</h1>\n");
+	wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
+
+	wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<table class=\"sieve_background\">"
+		"<tr><td valign=top>\n");
+
+	wprintf(_("This installation of Citadel was built without support for server-side mail filtering."
+		"<br>Please contact your system administrator if you require this feature.<br>"));
+
+	wprintf("</td></tr></table></div>\n");
+	wDumpContent(1);
+}
+
+
+/*
+ * view/edit sieve config
  */
 void display_sieve(void)
 {
@@ -23,7 +48,11 @@ void display_sieve(void)
 	char buf[256];
 	int i;
 	int rules_script_is_active = 0;
-	
+
+	if (!serv_info.serv_supports_sieve) {
+		display_no_sieve();
+		return;
+	}
 
 	memset(script_names, 0, sizeof script_names);
 
@@ -193,8 +222,8 @@ void display_sieve(void)
 
 
 
-/**
- * \brief	Helper function for output_sieve_rule() to output strings with quotes escaped
+/*
+ * Helper function for output_sieve_rule() to output strings with quotes escaped
  */
 void osr_sanitize(char *str) {
 	int i, len;
@@ -212,8 +241,8 @@ void osr_sanitize(char *str) {
 }
 
 
-/**
- * \brief	Output parseable Sieve script code based on rules input
+/*
+ * Output parseable Sieve script code based on rules input
  */
 void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp, int sizeval,
 			char *action, char *fileinto, char *redirect, char *automsg, char *final,
@@ -405,8 +434,8 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 
 
 
-/**
- * \brief Translate the fields from the rule editor into something we can save...
+/*
+ * Translate the fields from the rule editor into something we can save...
  */
 void parse_fields_from_rule_editor(void) {
 
@@ -522,8 +551,8 @@ void parse_fields_from_rule_editor(void) {
 
 
 
-/**
- * \brief save sieve config
+/*
+ * save sieve config
  */
 void save_sieve(void) {
 	int bigaction;
@@ -598,8 +627,8 @@ void save_sieve(void) {
 }
 
 
-/**
- * \brief show a list of available scripts to add/remove them
+/*
+ * show a list of available scripts to add/remove them
  */
 void display_add_remove_scripts(char *message)
 {
@@ -682,8 +711,8 @@ void display_add_remove_scripts(char *message)
 
 
 
-/**
- * \brief delete a script
+/*
+ * delete a script
  */
 void delete_script(void) {
 	char buf[256];
@@ -695,8 +724,8 @@ void delete_script(void) {
 		
 
 
-/**
- * \brief create a new script
+/*
+ * create a new script
  * take the web environment script name and create it on the citadel server
  */
 void create_script(void) {
@@ -1126,9 +1155,3 @@ void display_rules_editor_inner_div(void) {
 
 	free(rooms);
 }
-
-
-
-
-
-/*@}*/
