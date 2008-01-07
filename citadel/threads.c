@@ -735,7 +735,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	begin_critical_section(S_THREAD_LIST);
 	this_thread = (CtdlThreadNode *) arg;
 	gettimeofday(&this_thread->start_time, NULL);		/* Time this thread started */
-	citthread_mutex_lock(&this_thread->ThreadMutex);
+//	citthread_mutex_lock(&this_thread->ThreadMutex);
 	
 	// Register the cleanup function to take care of when we exit.
 	citthread_cleanup_push(ctdl_internal_thread_cleanup, NULL);
@@ -748,7 +748,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	 * Other wise there is a window to allow this threads creation to continue to full grown and
 	 * therby prevent a shutdown of the server.
 	 */
-	citthread_mutex_unlock(&this_thread->ThreadMutex);
+//	citthread_mutex_unlock(&this_thread->ThreadMutex);
 		
 	if (!CtdlThreadCheckStop())
 	{
@@ -784,27 +784,15 @@ static void *ctdl_internal_thread_func (void *arg)
 }
 
 
- 
+
+
 /*
- * Internal function to create a thread.
- * Must be called from within a S_THREAD_LIST critical section
- */ 
-CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args)
+ * Function to initialise an empty thread structure
+ */
+CtdlThreadNode *ctdl_internal_init_thread_struct(CtdlThreadNode *this_thread, long flags)
 {
 	int ret = 0;
-	CtdlThreadNode *this_thread;
-
-	if (num_threads >= 32767)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system. Thread list full.\n");
-		return NULL;
-	}
-		
-	this_thread = malloc(sizeof(CtdlThreadNode));
-	if (this_thread == NULL) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
-		return NULL;
-	}
+	
 	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
 	memset (this_thread, 0, sizeof(CtdlThreadNode));
 	
@@ -813,8 +801,6 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	citthread_cond_init (&(this_thread->ThreadCond), NULL);
 	citthread_mutex_init (&(this_thread->SleepMutex), NULL);
 	citthread_cond_init (&(this_thread->SleepCond), NULL);
-	
-	citthread_mutex_lock(&this_thread->ThreadMutex);
 	
 	this_thread->state = CTDL_THREAD_CREATE;
 	
@@ -852,6 +838,45 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 		}
 	}
 
+	/* Set this new thread with an avg_blocked of 2. We do this so that its creation affects the
+	 * load average for the system. If we don't do this then we create a mass of threads at the same time 
+	 * because the creation didn't affect the load average.
+	 */
+	this_thread->avg_blocked = 2;
+	
+	return (this_thread);
+}
+
+
+
+ 
+/*
+ * Internal function to create a thread.
+ */ 
+CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args)
+{
+	int ret = 0;
+	CtdlThreadNode *this_thread;
+
+	if (num_threads >= 32767)
+	{
+		CtdlLogPrintf(CTDL_EMERG, "Thread system. Thread list full.\n");
+		return NULL;
+	}
+		
+	this_thread = malloc(sizeof(CtdlThreadNode));
+	if (this_thread == NULL) {
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
+		return NULL;
+	}
+	
+	/* Initialise the thread structure */
+	if (ctdl_internal_init_thread_struct(this_thread, flags) == NULL)
+	{
+		free(this_thread);
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't initialise CtdlThreadNode, exiting\n");
+		return NULL;
+	}
 	/*
 	 * If we got here we are going to create the thread so we must initilise the structure
 	 * first because most implimentations of threading can't create it in a stopped state
@@ -869,12 +894,10 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	this_thread->flags = flags;
 	this_thread->thread_func = thread_func;
 	this_thread->user_args = args;
-	/* Set this new thread with an avg_blocked of 2. We do this so that its creation affects the
-	 * load average for the system. If we don't do this then we create a mass of threads at the same time 
-	 * because the creation didn't affect the load average.
-	 */
-	this_thread->avg_blocked = 2;
 	
+//	citthread_mutex_lock(&this_thread->ThreadMutex);
+	
+	begin_critical_section(S_THREAD_LIST);
 	/*
 	 * We pass this_thread into the thread as its args so that it can find out information
 	 * about itself and it has a bit of storage space for itself, not to mention that the REAL
@@ -882,7 +905,7 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	 */
 	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
-
+		end_critical_section(S_THREAD_LIST);
 		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
 			strerror(ret));
 		citthread_mutex_unlock(&this_thread->ThreadMutex);
@@ -903,10 +926,11 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	CtdlThreadList = this_thread;
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
-	
-	citthread_mutex_unlock(&this_thread->ThreadMutex);
-	
 	ctdl_thread_internal_calc_loadavg();
+	
+//	citthread_mutex_unlock(&this_thread->ThreadMutex);
+	end_critical_section(S_THREAD_LIST);
+	
 	return this_thread;
 }
 
@@ -920,9 +944,7 @@ CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (v
 {
 	CtdlThreadNode *ret = NULL;
 	
-	begin_critical_section(S_THREAD_LIST);
 	ret = ctdl_internal_create_thread(name, flags, thread_func, args);
-	end_critical_section(S_THREAD_LIST);
 	return ret;
 }
 
@@ -934,7 +956,6 @@ CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (v
  */ 
 CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) (void *arg), void *args, time_t when)
 {
-	int ret = 0;
 	CtdlThreadNode *this_thread;
 
 	if (num_threads >= 32767)
@@ -948,45 +969,12 @@ CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) 
 		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
 		return NULL;
 	}
-	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
-	memset (this_thread, 0, sizeof(CtdlThreadNode));
-	
-	/* Create the mutex's early so we can use them */
-	citthread_mutex_init (&(this_thread->ThreadMutex), NULL);
-	citthread_cond_init (&(this_thread->ThreadCond), NULL);
-	citthread_mutex_init (&(this_thread->SleepMutex), NULL);
-	citthread_cond_init (&(this_thread->SleepCond), NULL);
-	
-	this_thread->state = CTDL_THREAD_CREATE;
-	
-	if ((ret = citthread_attr_init(&this_thread->attr))) {
-		citthread_mutex_destroy(&(this_thread->ThreadMutex));
-		citthread_cond_destroy(&(this_thread->ThreadCond));
-		citthread_mutex_destroy(&(this_thread->SleepMutex));
-		citthread_cond_destroy(&(this_thread->SleepCond));
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
-		free(this_thread);
-		return NULL;
-	}
-
-	/* Our per-thread stacks need to be bigger than the default size,
-	 * otherwise the MIME parser crashes on FreeBSD, and the IMAP service
-	 * crashes on 64-bit Linux.
-	 */
-	if (flags & CTDLTHREAD_BIGSTACK)
+	/* Initialise the thread structure */
+	if (ctdl_internal_init_thread_struct(this_thread, flags) == NULL)
 	{
-		CtdlLogPrintf(CTDL_INFO, "Thread system. Creating BIG STACK thread.\n");
-		if ((ret = citthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
-			citthread_mutex_destroy(&(this_thread->ThreadMutex));
-			citthread_cond_destroy(&(this_thread->ThreadCond));
-			citthread_mutex_destroy(&(this_thread->SleepMutex));
-			citthread_cond_destroy(&(this_thread->SleepCond));
-			citthread_attr_destroy(&this_thread->attr);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_setstacksize: %s\n",
-				strerror(ret));
-			free(this_thread);
-			return NULL;
-		}
+		free(this_thread);
+		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't initialise CtdlThreadNode, exiting\n");
+		return NULL;
 	}
 
 	/*
@@ -1006,11 +994,6 @@ CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) 
 	this_thread->flags = flags;
 	this_thread->thread_func = thread_func;
 	this_thread->user_args = args;
-	/* Set this new thread with an avg_blocked of 2. We do this so that its creation affects the
-	 * load average for the system. If we don't do this then we create a mass of threads at the same time 
-	 * because the creation didn't affect the load average.
-	 */
-	this_thread->avg_blocked = 2;
 	
 	/*
 	 * When to start this thread
@@ -1033,6 +1016,8 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 {
 	int ret = 0;
 	
+//	citthread_mutex_lock(&that_thread->ThreadMutex);
+	begin_critical_section(S_THREAD_LIST);
 	/*
 	 * We pass this_thread into the thread as its args so that it can find out information
 	 * about itself and it has a bit of storage space for itself, not to mention that the REAL
@@ -1040,9 +1025,15 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 	 */
 	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
-
-		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
-			strerror(ret));
+		end_critical_section(S_THREAD_LIST);
+		CtdlLogPrintf(CTDL_DEBUG, "Failed to start scheduled thread \"%s\": %s\n", this_thread->name, strerror(ret));
+//		citthread_mutex_unlock(&this_thread->ThreadMutex);
+		citthread_mutex_destroy(&(this_thread->ThreadMutex));
+		citthread_cond_destroy(&(this_thread->ThreadCond));
+		citthread_mutex_destroy(&(this_thread->SleepMutex));
+		citthread_cond_destroy(&(this_thread->SleepCond));
+		citthread_attr_destroy(&this_thread->attr);
+		free(this_thread);
 		return NULL;
 	}
 	
@@ -1055,6 +1046,11 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 	CtdlThreadList = this_thread;
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
+//	citthread_mutex_unlock(&that_thread->ThreadMutex);
+	
+	ctdl_thread_internal_calc_loadavg();
+	end_critical_section(S_THREAD_LIST);
+	
 	
 	return this_thread;
 }
@@ -1095,39 +1091,23 @@ void ctdl_thread_internal_check_scheduled(void)
 #ifdef WITH_THREADLOG
 			CtdlLogPrintf(CTDL_DEBUG, "About to start scheduled thread \"%s\".\n", that_thread->name);
 #endif
-			begin_critical_section(S_THREAD_LIST);
 			if (CT->state > CTDL_THREAD_STOP_REQ)
 			{	/* Only start it if the system is not stopping */
-				citthread_mutex_lock(&that_thread->ThreadMutex);
-				if (ctdl_thread_internal_start_scheduled (that_thread) == NULL)
+				if (ctdl_thread_internal_start_scheduled (that_thread))
 				{
 #ifdef WITH_THREADLOG
-			CtdlLogPrintf(CTDL_DEBUG, "Failed to start scheduled thread \"%s\".\n", that_thread->name);
-#endif
-					citthread_mutex_unlock(&that_thread->ThreadMutex);
-					citthread_mutex_destroy(&(that_thread->ThreadMutex));
-					citthread_cond_destroy(&(that_thread->ThreadCond));
-					citthread_mutex_destroy(&(that_thread->SleepMutex));
-					citthread_cond_destroy(&(that_thread->SleepCond));
-					citthread_attr_destroy(&that_thread->attr);
-					free(that_thread);
-				}
-				else
-				{
-					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (%ld).\n",
+					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (%ud).\n",
 						that_thread->name, that_thread->tid);
-					citthread_mutex_unlock(&that_thread->ThreadMutex);
-					ctdl_thread_internal_calc_loadavg();
+#endif
 				}
 			}
-			end_critical_section(S_THREAD_LIST);
 		}
+#ifdef WITH_THREADLOG
 		else
 		{
-#ifdef WITH_THREADLOG
 			CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" will start in %ld seconds.\n", that_thread->name, that_thread->when - time(NULL));
-#endif
 		}
+#endif
 	}
 	end_critical_section(S_SCHEDULE_LIST);
 }
@@ -1243,7 +1223,7 @@ void go_threading(void)
 			for (i=0; i<5 ; i++)
 			{
 #ifdef NEW_WORKER
-				CtdlThreadCreate("Worker Thread",
+				CtdlThreadCreate("Worker Thread (new)",
 					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
 					new_worker_thread,
 					NULL
