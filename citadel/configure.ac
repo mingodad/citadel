@@ -382,7 +382,12 @@ dnl (Linux shadow passwords)
 	fi
 
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
-AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
+AC_CHECK_LIB(resolv, res_query,
+	RESOLV="$RESOLV -lresolv",
+	[
+		AC_MSG_ERROR(libresolv was not found.  Citadel requires the resolver library.)
+	]
+)
 
 if test "x$with_ncurses" != "xno"; then
 	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])

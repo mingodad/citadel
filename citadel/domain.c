@@ -102,9 +102,6 @@ int getmx(char *mxbuf, char *dest) {
 			u_char bytes[1024];
 			HEADER header;
     } answer;
-#else
-	char buf[SIZ];
-	FILE *fp;
 #endif
 
 	int ret;
@@ -125,24 +122,7 @@ int getmx(char *mxbuf, char *dest) {
 
 	/*
 	 * No smart-host?  Look up the best MX for a site.
-	 */
-
-#ifndef HAVE_RESOLV_H
-
-	/*
-	 * On systems with b0rken or non-standard resolver libraries, learn
-	 * the MX records by calling "nslookup" from the command line.
-	 *
-	 * Someday.
-	 *
-	 */
-
-	return(0);
-
-#else /* HAVE_RESOLV_H */
-
-	/*
-	 * Make a call to the standard resolver library.
+	 * Make a call to the resolver library.
 	 */
 
 	ret = res_query(
@@ -216,7 +196,6 @@ int getmx(char *mxbuf, char *dest) {
 			}
 		}
 	}
-#endif /* HAVE_RESOLV_H */
 
 	/* Sort the MX records by preference */
 	if (num_mxrecs > 1) {
