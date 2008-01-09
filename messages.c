@@ -3267,7 +3267,7 @@ void display_enter(void)
 	}
 	wprintf("</label></th>"
 		"<td colspan=\"2\">"
-		"<input type=\"text\" name=\"subject\" id=\"subject_id\" value=\" ");
+		"<input type=\"text\" name=\"subject\" id=\"subject_id\" value=\"");
 	escputs(bstr("subject"));
 	wprintf("\" size=45 maxlength=70>\n");
 	wprintf("</td></tr>");
@@ -3340,8 +3340,12 @@ void display_enter(void)
 		}
 	}
 
-	wprintf("</textarea>");
+	wprintf("</textarea>\n");
 
+	/** Make sure we only insert our signature once */
+	/** We don't care if it was there or not before, it needs to be there now. */
+	wprintf("<input type=\"hidden\" name=\"sig_inserted\" value=\"yes\">\n");
+	
 	/**
 	 * The following template embeds the TinyMCE richedit control, and automatically
 	 * transforms the textarea into a richedit textarea.
@@ -3372,11 +3376,6 @@ void display_enter(void)
 	wprintf("</div>");	/* End of "attachment buttons" div */
 
 
-	/** Make sure we only insert our signature once */
-	if (strcmp(bstr("sig_inserted"), "yes")) {
-		wprintf("<input type=\"hidden\" name=\"sig_inserted\" value=\"yes\">\n");
-	}
-	
 	wprintf("</td></tr></table>");
 	
 	wprintf("</form>\n");
