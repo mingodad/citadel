@@ -229,11 +229,15 @@ int main(int argc, char **argv)
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
 	if (stat(ctdl_run_dir, &filestats)==-1){
+#ifdef HAVE_GETPWUID_R
 #ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
-#else
+#else // SOLARIS_GETPWUID
 		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
-#endif
+#endif // SOLARIS_GETPWUID
+#else // HAVE_GETPWUID_R
+		pwp = NULL;
+#endif // HAVE_GETPWUID_R
 		mkdir(ctdl_run_dir, 0755);
 		chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid);
 	}
@@ -304,11 +308,16 @@ int main(int argc, char **argv)
 	if (drop_root_perms) {
 		cdb_chmod_data();	/* make sure we own our data files */
 
+#ifdef HAVE_GETPWUID_R
 #ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
-#else
+#else // SOLARIS_GETPWUID
 		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
-#endif
+#endif // SOLARIS_GETPWUID
+#else // HAVE_GETPWUID_R
+		pwp = NULL;
+#endif // HAVE_GETPWUID_R
+
 		if (pwp == NULL)
 			CtdlLogPrintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				   "Group IDs will be incorrect.\n", (long)CTDLUID,

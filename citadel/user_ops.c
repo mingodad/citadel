@@ -390,11 +390,15 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		char pwdbuffer[256];
 	
 		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
+#ifdef HAVE_GETPWNAM_R
 #ifdef SOLARIS_GETPWUID
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer);
-#else
+#else // SOLARIS_GETPWUID
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
-#endif
+#endif // SOLARIS_GETPWUID
+#else // HAVE_GETPWNAM_R
+		tempPwdPtr = NULL;
+#endif // HAVE_GETPWNAM_R
 		if (tempPwdPtr == NULL) {
 			return login_not_found;
 		}
@@ -876,11 +880,15 @@ int create_user(char *newusername, int become_user)
 		struct passwd *tempPwdPtr;
 		char pwdbuffer[256];
 	
+#ifdef HAVE_GETPWNAM_R
 #ifdef SOLARIS_GETPWUID
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof(pwdbuffer));
-#else
+#else // SOLARIS_GETPWUID
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
-#endif
+#endif // SOLARIS_GETPWUID
+#else // HAVE_GETPWNAM_R
+		tempPwdPtr = NULL;
+#endif // HAVE_GETPWNAM_R
 		if (tempPwdPtr != NULL) {
 			extract_token(username, pd.pw_gecos, 0, ',', sizeof username);
 			uid = pd.pw_uid;

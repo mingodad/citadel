@@ -308,7 +308,7 @@ dnl Checks for libraries.
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
-AC_CHECK_FUNCS(crypt gethostbyname connect flock)
+AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r)
 
 
 dnl disable backtrace if we don't want it.

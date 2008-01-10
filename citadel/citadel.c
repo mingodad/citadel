@@ -2341,3 +2341,4 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 	goto GSTA;
 
 }	/* end main() */
+
