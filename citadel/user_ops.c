@@ -392,14 +392,18 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
 #ifdef HAVE_GETPWNAM_R
 #ifdef SOLARIS_GETPWUID
+		lprintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer);
 #else // SOLARIS_GETPWUID
+		lprintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
 #endif // SOLARIS_GETPWUID
 #else // HAVE_GETPWNAM_R
+		lprintf(CTDL_DEBUG, "SHOULD NEVER GET HERE!!!\n");
 		tempPwdPtr = NULL;
 #endif // HAVE_GETPWNAM_R
 		if (tempPwdPtr == NULL) {
+			lprintf(CTDL_DEBUG, "no such user <%s>\n", username);
 			return login_not_found;
 		}
 	
