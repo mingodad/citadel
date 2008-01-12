@@ -215,8 +215,11 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		char auth[SIZ];
 		int retval;
 		char *message;
+		char *username;
+		char *password;
 
 		message = NULL;
+		memset (auth, 0, SIZ);
 		if (parms[2][0] == '{')
 			message = ReadString(GetSizeToken(parms[2]), parms[0]);
 		
@@ -225,8 +228,11 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		}
 		else 
 			retval = CtdlDecodeBase64(auth, parms[2], SIZ);
-
-		if (login_ok == CtdlLoginExistingUser(NULL, auth))
+		username = auth;
+		if ((*username == '\0') && (*(username + 1) != '\0'))
+			username ++;
+		
+		if (login_ok == CtdlLoginExistingUser(NULL, username))
 		{
 			char *pass;
 			pass = &(auth[strlen(auth)+1]);
