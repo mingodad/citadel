@@ -295,35 +295,6 @@ void escputs(char *strbuf)
 	escputs1(strbuf, 0, 0);
 }
 
-/** 
- * \brief Escape a string for feeding out as a URL.
- * \param outbuf the output buffer
- * \param strbuf the input buffer
- */
-void urlesc(char *outbuf, char *strbuf)
-{
-	int a, b, c, len, eclen, olen;
-	char *ec = " +#&;`'|*?-~<>^()[]{}/$\"\\";
-
-	strcpy(outbuf, "");
-	len = strlen(strbuf);
-	eclen = strlen(ec);
-	olen = 0;
-	for (a = 0; a < len; ++a) {
-		c = 0;
-		for (b = 0; b < eclen; ++b) {
-			if (strbuf[a] == ec[b])
-				c = 1;
-		}
-		if (c == 1) {
-			sprintf(&outbuf[olen], "%%%02x", strbuf[a]);
-			olen += 3;
-		}
-		else 
-			outbuf[olen ++] = strbuf[a];
-	}
-	outbuf[olen] = '\0';
-}
 
 /**
  * \brief urlescape buffer and print it to the client
@@ -333,7 +304,7 @@ void urlescputs(char *strbuf)
 {
 	char outbuf[SIZ];
 	
-	urlesc(outbuf, strbuf);
+	urlesc(outbuf, SIZ, strbuf);
 	wprintf("%s", outbuf);
 }
 
@@ -1282,7 +1253,7 @@ void session_loop(struct httprequest *req)
 	if (ContentLength > 0) {
 		content = malloc(ContentLength + SIZ);
 		memset(content, 0, ContentLength + SIZ);
-		sprintf(content, "Content-type: %s\n"
+		snprintf(content,  ContentLength + SIZ, "Content-type: %s\n"
 				"Content-length: %d\n\n",
 				ContentType, ContentLength);
 		body_start = strlen(content);
@@ -1388,7 +1359,7 @@ void session_loop(struct httprequest *req)
 	if (!WC->connected) {
 		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
-			sprintf(buf, "%s/citadel.socket", ctdlport);
+			snprintf(buf, SIZ, "%s/citadel.socket", ctdlport);
 			WC->serv_sock = uds_connectsock(buf);
 		}
 		else {
@@ -1681,7 +1652,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit(_("Room info"), "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
-		sprintf(buf, "RBIO %s", WC->wc_fullname);
+		snprintf(buf, SIZ, "RBIO %s", WC->wc_fullname);
 		display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
 	} else if (!strcasecmp(action, "editbio")) {
 		save_edit(_("Your bio"), "EBIO", 0);
@@ -1710,13 +1681,13 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "create_floor")) {
 		create_floor();
 	} else if (!strcasecmp(action, "display_editfloorpic")) {
-		sprintf(buf, "UIMG 0|_floorpic_|%s",
+		snprintf(buf, SIZ, "UIMG 0|_floorpic_|%s",
 			bstr("which_floor"));
 		display_graphics_upload(_("the icon for this floor"),
 					buf,
 					"editfloorpic");
 	} else if (!strcasecmp(action, "editfloorpic")) {
-		sprintf(buf, "UIMG 1|_floorpic_|%s",
+		snprintf(buf, SIZ, "UIMG 1|_floorpic_|%s",
 			bstr("which_floor"));
 		do_graphics_upload(buf);
 	} else if (!strcasecmp(action, "display_reg")) {

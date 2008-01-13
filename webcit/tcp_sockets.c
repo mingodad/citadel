@@ -220,13 +220,16 @@ void serv_printf(const char *format,...)
 {
 	va_list arg_ptr;
 	char buf[SIZ];
+	size_t len;
 
 	va_start(arg_ptr, format);
 	vsnprintf(buf, sizeof buf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	strcat(buf, "\n");
-	serv_write(buf, strlen(buf));
+	len = strlen(buf);
+	buf[len++] = '\n';
+	buf[len] = '\0';
+	serv_write(buf, len);
 #ifdef SERV_TRACE
 	lprintf(9, "<%s", buf);
 #endif

@@ -491,7 +491,6 @@ void pullquote_fmout(void);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
 char *bstr(char *key);
-void urlesc(char *, char *);
 void urlescputs(char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);
