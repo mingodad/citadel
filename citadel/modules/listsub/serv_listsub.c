@@ -156,7 +156,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	/* Generate and send the confirmation request */
 
-	urlesc(urlroom, qrbuf.QRname);
+	urlesc(urlroom, ROOMNAMELEN, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
 
@@ -296,7 +296,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	/* Generate and send the confirmation request */
 
-	urlesc(urlroom, qrbuf.QRname);
+	urlesc(urlroom, ROOMNAMELEN, qrbuf.QRname);
 
 	snprintf(confirmation_request, sizeof confirmation_request,
 
