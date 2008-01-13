@@ -493,7 +493,7 @@ void serv_printf(const char *format,...);
 char *bstr(char *key);
 void urlesc(char *, char *);
 void urlescputs(char *);
-void jsesc(char *, char *);
+void jsesc(char *, size_t, char *);
 void jsescputs(char *);
 void output_headers(    int do_httpheaders,
 			int do_htmlhead,
@@ -769,7 +769,7 @@ void client_write_ssl(char *buf, int nbytes);
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
-int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
+int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
 

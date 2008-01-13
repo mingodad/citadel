@@ -343,27 +343,58 @@ void urlescputs(char *strbuf)
  * \param target output string
  * \param strbuf input string
  */
-void jsesc(char *target, char *strbuf)
+void jsesc(char *target, size_t tlen, char *strbuf)
 {
-	int a, len;
+	int len;
+	char *tend;
+	char *send;
+	char *tptr;
+	char *sptr;
 
 	target[0]='\0';
 	len = strlen (strbuf);
-	for (a = 0; a < len; ++a) {
-		if (strbuf[a] == '<')
-			strcat(target, "[");
-		else if (strbuf[a] == '>')
-			strcat(target, "]");
-		else if (strbuf[a] == '\"')
-			strcat(target, "&quot;");
-		else if (strbuf[a] == '&')
-			strcat(target, "&amp;;");
-		else if (strbuf[a] == '\'') 
-			strcat(target, "\\'");
-		else {
-			strncat(target, &strbuf[a], 1);
+	send = strbuf + len;
+	sptr = strbuf;
+	tptr = target;
+	
+	while (!IsEmptyStr(sptr) && 
+	       (sptr < send) &&
+	       (tptr < tend)) {
+	       
+		if (*sptr == '<')
+			*tptr = '[';
+		else if (*sptr == '>')
+			*tptr = ']';
+		else if (*sptr == '\'') {
+			if (tend - tptr < 3)
+				return;
+			*(tptr++) = '\\';
+			*tptr = '\'';
 		}
+		else if (*sptr == '"') {
+			if (tend - tptr < 8)
+				return;
+			*(tptr++) = '&';
+			*(tptr++) = 'q';
+			*(tptr++) = 'u';
+			*(tptr++) = 'o';
+			*(tptr++) = 't';
+			*tptr = ';';
+		}
+		else if (*sptr == '&') {
+			if (tend - tptr < 7)
+				return;
+			*(tptr++) = '&';
+			*(tptr++) = 'a';
+			*(tptr++) = 'm';
+			*(tptr++) = 'p';
+			*tptr = ';';
+		} else {
+			*tptr = *sptr;
+		}
+		tptr++; sptr++;
 	}
+	*tptr = '\0';
 }
 
 /**
@@ -374,7 +405,7 @@ void jsescputs(char *strbuf)
 {
 	char outbuf[SIZ];
 	
-	jsesc(outbuf, strbuf);
+	jsesc(outbuf, SIZ, strbuf);
 	wprintf("%s", outbuf);
 }
 
@@ -576,9 +607,9 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 	/** If we can send the data out compressed, please do so. */
 	if (WC->gzip_ok) {
 		char *compressed_data = NULL;
-		uLongf compressed_len;
+		size_t compressed_len;
 
-		compressed_len = (uLongf) ((length * 101) / 100) + 100;
+		compressed_len =  ((length * 101) / 100) + 100;
 		compressed_data = malloc(compressed_len);
 
 		if (compress_gzip((Bytef *) compressed_data,

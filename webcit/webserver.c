@@ -299,7 +299,7 @@ void begin_burst(void)
 #define DEF_MEM_LEVEL 8 /**< memlevel??? */
 #define OS_CODE 0x03	/**< unix */
 int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
-			  uLongf * destLen,     /**< length of the compresed data */
+			  size_t * destLen,     /**< length of the compresed data */
 			  const Bytef * source, /**< source to encode */
 			  uLong sourceLen,      /**< length of source to encode */
 			  int level)            /**< compression level */
@@ -307,10 +307,11 @@ int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
 	const int gz_magic[2] = { 0x1f, 0x8b };	/** gzip magic header */
 
 	/** write gzip header */
-	sprintf((char *) dest, "%c%c%c%c%c%c%c%c%c%c",
-		gz_magic[0], gz_magic[1], Z_DEFLATED,
-		0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /** xflags */ ,
-		OS_CODE);
+	snprintf((char *) dest, *destLen, 
+		 "%c%c%c%c%c%c%c%c%c%c",
+		 gz_magic[0], gz_magic[1], Z_DEFLATED,
+		 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /** xflags */ ,
+		 OS_CODE);
 
 	/* normal deflate */
 	z_stream stream;
@@ -377,9 +378,9 @@ void end_burst(void)
 	/* Perform gzip compression, if enabled and supported by client */
 	if (WC->gzip_ok) {
 		char *compressed_data = NULL;
-		uLongf compressed_len;
+		size_t compressed_len;
 
-		compressed_len = (uLongf) ((the_len * 101) / 100) + 100;
+		compressed_len = ((the_len * 101) / 100) + 100;
 		compressed_data = malloc(compressed_len);
 
 		if (compress_gzip((Bytef *) compressed_data,
