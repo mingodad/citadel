@@ -508,7 +508,7 @@ long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
 void url(char *buf);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);
-void msgesc(char *target, char *strbuf);
+void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
 void stripout(char *str, char leftboundary, char rightboundary);

@@ -157,7 +157,7 @@ int GenerateSessionID(void)
 /*
  * Collapse multiple cookies on one line
  */
-int req_gets(int sock, char *buf, char *hold)
+int req_gets(int sock, char *buf, char *hold, size_t hlen)
 {
 	int a, b;
 
@@ -177,7 +177,7 @@ int req_gets(int sock, char *buf, char *hold)
 			if (buf[a] == ';') {
 				// we don't refresh len, because of we 
 				// only exit from here.
-				sprintf(hold, "Cookie: %s", &buf[a + 1]);
+				snprintf(hold, hlen, "Cookie: %s", &buf[a + 1]);
 				buf[a] = 0;
 				b = 8;
 				while (isspace(hold[b]))
@@ -303,7 +303,7 @@ void context_loop(int sock)
 	 */
 	memset(hold, 0, sizeof(hold));
 	do {
-		if (req_gets(sock, buf, hold) < 0) return;
+		if (req_gets(sock, buf, hold, SIZ) < 0) return;
 
 		/**
 		 * Can we compress?
