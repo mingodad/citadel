@@ -455,7 +455,7 @@ void begin_critical_section(int which_one);
 void end_critical_section(int which_one);
 
 
-void stuff_to_cookie(char *cookie, int session,
+void stuff_to_cookie(char *cookie, size_t clen, int session,
 			char *user, char *pass, char *room);
 void cookie_to_stuff(char *cookie, int *session,
                 char *user, size_t user_len,

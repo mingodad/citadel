@@ -535,7 +535,7 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 		);
 	}
 
-	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
+	stuff_to_cookie(cookie, 1024, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
 
 	if (unset_cookies) {

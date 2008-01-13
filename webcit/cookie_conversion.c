@@ -26,18 +26,18 @@ typedef unsigned char byte;	      /**< Byte type */
  * \param pass his passphrase
  * \param room the room he wants to enter
  */
-void stuff_to_cookie(char *cookie, int session,
+void stuff_to_cookie(char *cookie, size_t clen, int session,
 		char *user, char *pass, char *room)
 {
 	char buf[SIZ];
 	int i;
 	int len;
 
-	sprintf(buf, "%d|%s|%s|%s|", session, user, pass, room);
+	snprintf(buf, SIZ, "%d|%s|%s|%s|", session, user, pass, room);
 	strcpy(cookie, "");
 	len = strlen(buf);
 	for (i=0; i<len; ++i) {
-		sprintf(&cookie[i*2], "%02X", buf[i]);
+		snprintf(&cookie[i*2], clen - i * 2, "%02X", buf[i]);
 	}
 }
 
