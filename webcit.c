@@ -414,23 +414,42 @@ void jsescputs(char *strbuf)
  * \param target target buffer
  * \param strbuf source buffer
  */
-void msgesc(char *target, char *strbuf)
+void msgesc(char *target, size_t tlen, char *strbuf)
 {
-	int a, len;
+	int len;
+	char *tend;
+	char *send;
+	char *tptr;
+	char *sptr;
 
-	*target='\0';
-	len = strlen(strbuf);
-	for (a = 0; a < len; ++a) {
-		if (strbuf[a] == '\n')
-			strcat(target, " ");
-		else if (strbuf[a] == '\r')
-			strcat(target, " ");
-		else if (strbuf[a] == '\'')
-			strcat(target, "&#39;");
-		else {
-			strncat(target, &strbuf[a], 1);
+	target[0]='\0';
+	len = strlen (strbuf);
+	send = strbuf + len;
+	sptr = strbuf;
+	tptr = target;
+
+	while (!IsEmptyStr(sptr) && 
+	       (sptr < send) &&
+	       (tptr < tend)) {
+	       
+		if (*sptr == '\n')
+			*tptr = ' ';
+		else if (*sptr == '\r')
+			*tptr = ' ';
+		else if (*sptr == '\'') {
+			if (tend - tptr < 8)
+				return;
+			*(tptr++) = '&';
+			*(tptr++) = '#';
+			*(tptr++) = '3';
+			*(tptr++) = '9';
+			*tptr = ';';
+		} else {
+			*tptr = *sptr;
 		}
+		tptr++; sptr++;
 	}
+	*tptr = '\0';
 }
 
 /**
@@ -447,7 +466,7 @@ void msgescputs1( char *strbuf)
 	buflen = 3 * strlen(strbuf) + SIZ;
 	outbuf = malloc( buflen);
 	outbuf2 = malloc( buflen);
-	msgesc(outbuf, strbuf);
+	msgesc(outbuf, buflen, strbuf);
 	stresc(outbuf2, buflen, outbuf, 0, 0);
 	wprintf("%s", outbuf2);
 	free(outbuf);
@@ -460,10 +479,12 @@ void msgescputs1( char *strbuf)
  */
 void msgescputs(char *strbuf) {
 	char *outbuf;
+	size_t len;
 
 	if (strbuf == NULL) return;
-	outbuf = malloc( (3 * strlen(strbuf)) + SIZ);
-	msgesc(outbuf, strbuf);
+	len =  (3 * strlen(strbuf)) + SIZ;
+	outbuf = malloc(len);
+	msgesc(outbuf, len, strbuf);
 	wprintf("%s", outbuf);
 	free(outbuf);
 }
