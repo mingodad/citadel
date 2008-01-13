@@ -133,7 +133,7 @@ void check_ref_counts(void) {
  * only allow housekeeping to execute once per minute, and we only allow one
  * instance to run at a time.
  */
-void do_housekeeping(void) {
+void *do_housekeeping(void *args) {
 	static int housekeeping_in_progress = 0;
 	static time_t last_timer = 0L;
 	int do_housekeeping_now = 0;
@@ -146,29 +146,36 @@ void do_housekeeping(void) {
 	 * S_HOUSEKEEPING critical section because it eliminates the need to
 	 * potentially have multiple concurrent mutexes in progress.
 	 */
-	begin_critical_section(S_HOUSEKEEPING);
+	while (!CtdlThreadCheckStop())
+	{
+	CtdlThreadName("House keeping - sleeping");
+	CtdlThreadSleep(1);
+	
+/*	begin_critical_section(S_HOUSEKEEPING);
 	if (housekeeping_in_progress == 0) {
 		do_housekeeping_now = 1;
 		housekeeping_in_progress = 1;
+*/
 		now = time(NULL);
 		if ( (now - last_timer) > (time_t)60 ) {
 			do_perminute_housekeeping_now = 1;
 			last_timer = time(NULL);
 		}
+/*
 	}
 	end_critical_section(S_HOUSEKEEPING);
 
 	if (do_housekeeping_now == 0) {
 		return;
 	}
-
+*/
 	/*
 	 * Ok, at this point we've made the decision to run the housekeeping
 	 * loop.  Everything below this point is real work.
 	 */
 
 	/* First, do the "as often as needed" stuff... */
-	old_name = CtdlThreadName("House Keeping - Journal");
+	CtdlThreadName("House Keeping - Journal");
 	JournalRunQueue();
 
 	CtdlThreadName("House Keeping - EVT_HOUSE");
@@ -176,14 +183,15 @@ void do_housekeeping(void) {
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {
+		do_perminute_housekeeping_now = 0;
 		cdb_check_handles();			/* suggested by Justin Case */
 		CtdlThreadName("House Keeping - EVT_TIMER");
 		PerformSessionHooks(EVT_TIMER);		/* Run any timer hooks */
 	}
-
+	}
 	/*
 	 * All done.
 	 */
 	housekeeping_in_progress = 0;
-	CtdlThreadName(old_name);
+	return NULL;
 }

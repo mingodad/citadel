@@ -145,8 +145,10 @@ typedef pthread_attr_t	citthread_attr_t;
 
 #define citthread_kill		pthread_kill
 #define citthread_cond_signal	pthread_cond_signal
+#define citthread_cond_broadcast	pthread_cond_broadcast
 #define citthread_cancel	pthread_cancel
 #define citthread_cond_timedwait	pthread_cond_timedwait
+#define citthread_cond_wait	pthread_cond_wait
 #define citthread_equal		pthread_equal
 #define citthread_self		pthread_self
 #define citthread_create	pthread_create
