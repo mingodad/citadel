@@ -698,29 +698,35 @@ char *myfgets(char *s, int size, FILE *stream) {
 	return ret;
 }
 
-/*
- * Escape a string for feeding out as a URL.
- * Output buffer must be big enough to handle escape expansion!
+/** 
+ * \brief Escape a string for feeding out as a URL.
+ * \param outbuf the output buffer
+ * \param oblen the size of outbuf to sanitize
+ * \param strbuf the input buffer
  */
-void urlesc(char *outbuf, char *strbuf)
+void urlesc(char *outbuf, size_t oblen, char *strbuf)
 {
-	int a, b, c;
-	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
+	int a, b, c, len, eclen, olen;
+	char *ec = " +#&;`'|*?-~<>^()[]{}/$\"\\";
 
 	strcpy(outbuf, "");
-
-	for (a = 0; a < (int)strlen(strbuf); ++a) {
+	len = strlen(strbuf);
+	eclen = strlen(ec);
+	olen = 0;
+	for (a = 0; a < len; ++a) {
 		c = 0;
-		for (b = 0; b < strlen(ec); ++b) {
+		for (b = 0; b < eclen; ++b) {
 			if (strbuf[a] == ec[b])
 				c = 1;
 		}
-		b = strlen(outbuf);
-		if (c == 1)
-			sprintf(&outbuf[b], "%%%02x", strbuf[a]);
-		else
-			sprintf(&outbuf[b], "%c", strbuf[a]);
+		if (c == 1) {
+			snprintf(&outbuf[olen], oblen - olen, "%%%02x", strbuf[a]);
+			olen += 3;
+		}
+		else 
+			outbuf[olen ++] = strbuf[a];
 	}
+	outbuf[olen] = '\0';
 }
 
 
