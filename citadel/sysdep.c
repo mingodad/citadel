@@ -155,7 +155,7 @@ void vlprintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec);
 		}
-		vsprintf(buf2, format, arg_ptr);   
+		vsnprintf(buf2, SIZ, format, arg_ptr);   
 
 		fprintf(stderr, "%s%s", buf, buf2);
 		fflush(stderr);

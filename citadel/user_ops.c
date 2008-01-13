@@ -1657,8 +1657,9 @@ void cmd_asup(char *cmdbuf)
 	}
 
 	if (deleted) {
-		sprintf(notify, "User \"%s\" has been deleted by %s.\n",
-			usbuf.fullname, CC->user.fullname);
+		snprintf(notify, SIZ, 
+			 "User \"%s\" has been deleted by %s.\n",
+			 usbuf.fullname, CC->user.fullname);
 		aide_message(notify, "User Deletion Message");
 	}
 

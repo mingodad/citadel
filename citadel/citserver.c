@@ -360,10 +360,15 @@ int is_public_client(void)
 	char addrbuf[1024];
 	FILE *fp;
 	int i;
+	char *public_clientspos;
+	char *public_clientsend;
+	char *paddr = NULL;
 	struct stat statbuf;
 	static time_t pc_timestamp = 0;
 	static char public_clients[SIZ];
 	static char public_clients_file[SIZ];
+
+#define LOCALHOSTSTR "127.0.0.1"
 
 	snprintf(public_clients_file, 
 			 sizeof public_clients_file,
@@ -387,36 +392,45 @@ int is_public_client(void)
 		begin_critical_section(S_PUBLIC_CLIENTS);
 		lprintf(CTDL_INFO, "Loading %s\n", public_clients_file);
 
-		safestrncpy(public_clients, "127.0.0.1", sizeof public_clients);
+		public_clientspos = &public_clients[0];
+		public_clientsend = public_clientspos + SIZ;
+		safestrncpy(public_clientspos, LOCALHOSTSTR, sizeof public_clients);
+		public_clientspos += sizeof(LOCALHOSTSTR) - 1;
+		
 		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
-			strcat(public_clients, "|");
-			strcat(public_clients, addrbuf);
+			*(public_clientspos++) = '|';
+			paddr = &addrbuf[0];
+			while (!IsEmptyStr (paddr) && 
+			       (public_clientspos < public_clientsend))
+				*(public_clientspos++) = *(paddr++);
 		}
 
 		fp = fopen(public_clients_file, "r");
-		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
-			char *ptr;
-			ptr = buf;
-			while (!IsEmptyStr(ptr)) {
-				if (*ptr == '#') {
-					*ptr = 0;
-					break;
-				}
+		if (fp != NULL) 
+			while ((fgets(buf, sizeof buf, fp)!=NULL) &&
+			       (public_clientspos < public_clientsend)){
+				char *ptr;
+				ptr = buf;
+				while (!IsEmptyStr(ptr)) {
+					if (*ptr == '#') {
+						*ptr = 0;
+						break;
+					}
 				else ptr++;
-			}
-			ptr--;
-			while (ptr>buf && isspace(*ptr)) {
-				*(ptr--) = 0;
-			}
-			if (hostname_to_dotted_quad(addrbuf, buf) == 0) {
-				if ((strlen(public_clients) +
-				   strlen(addrbuf) + 2)
-				   < sizeof(public_clients)) {
-					strcat(public_clients, "|");
-					strcat(public_clients, addrbuf);
+				}
+				ptr--;
+				while (ptr>buf && isspace(*ptr)) {
+					*(ptr--) = 0;
+				}
+				if (hostname_to_dotted_quad(addrbuf, buf) == 0) {
+					*(public_clientspos++) = '|';
+					paddr = addrbuf;
+					while (!IsEmptyStr(paddr) && 
+					       (public_clientspos < public_clientsend)){
+						*(public_clientspos++) = *(paddr++);
+					}
 				}
 			}
-		}
 		fclose(fp);
 		pc_timestamp = time(NULL);
 		end_critical_section(S_PUBLIC_CLIENTS);
@@ -643,6 +657,7 @@ void GenerateRoomDisplay(char *real_room,
 			struct CitContext *viewer) {
 
 	int ra;
+	int rlen;
 
 	strcpy(real_room, viewed->room.QRname);
 	if (viewed->room.QRflags & QR_MAILBOX) {
@@ -656,9 +671,10 @@ void GenerateRoomDisplay(char *real_room,
 	}
 
 	if (viewed->cs_flags & CS_CHAT) {
-		while (strlen(real_room) < 14)
-			strcat(real_room, " ");
-
+		rlen = strlen(real_room);
+		while (rlen < 14)
+			real_room[rlen] = ' ';
+		real_room[15] = '\0';
 		strcpy(&real_room[14], "<chat>");
 	}
 
