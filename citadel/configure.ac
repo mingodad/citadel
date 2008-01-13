@@ -289,9 +289,9 @@ AC_SUBST(DEPEND_FLAG)
 
 AC_PROG_INSTALL
 AC_PROG_YACC
-missing_dir=`cd $ac_aux_dir && pwd`
-AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
-AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
+dnl missing_dir=`cd $ac_aux_dir && pwd`
+dnl AC_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+dnl AC_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
 
 dnl Checks for system services.
 
@@ -381,13 +381,20 @@ dnl (Linux shadow passwords)
 		fi
 	fi
 
-test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
-AC_CHECK_LIB(resolv, res_query,
-	RESOLV="$RESOLV -lresolv",
-	[
-		AC_MSG_ERROR(libresolv was not found.  Citadel requires the resolver library.)
-	]
-)
+case "`uname -a`" in 
+ OpenBSD*)
+	echo "we don't need to check for resolv on openbsd"  
+	;;
+ *)
+	test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
+	AC_CHECK_LIB(resolv, res_query,
+		RESOLV="$RESOLV -lresolv",
+		[
+			AC_MSG_ERROR(libresolv was not found.  Citadel requires the resolver library.)
+		]
+	)
+	;;
+esac
 
 if test "x$with_ncurses" != "xno"; then
 	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
@@ -759,6 +766,7 @@ dnl AC_CHECK_FUNCS(res_query)
 AC_CACHE_CHECK([for the resolver calls], 
 	       ac_cv_resquery_ok, 
 [AC_TRY_COMPILE([#include <netinet/in.h>
+#include <sys/types.h>
 #include <arpa/nameser.h>
 #include <resolv.h>], 
 	        [
