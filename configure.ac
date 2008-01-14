@@ -318,6 +318,26 @@ if test "$ok_nls" != "no"; then
 	)
 fi
 
+if test "$ok_iconv" = "no"; then
+	LD_FLAGS_BEFORE=$LDFLAGS
+	LDFLAGS="$LDFLAGS -liconv"
+		AC_TRY_RUN([
+			#include <iconv.h>
+			main() {
+			       iconv_t ic = (iconv_t)(-1) ;
+			       ic = iconv_open("UTF-8", "us-ascii");
+			       iconv_close(ic);
+			       exit(0);
+			}
+			],
+			ok_iconv=yes,
+			ok_iconv=no
+		)
+		if test "$ok_iconv" != "no"; then
+		   LDFLAGS=$LD_FLAGS_BEFORE
+		fi
+fi
+
 if test "$ok_iconv" != "no"; then
 	AC_MSG_RESULT(WebCit will be built with character set conversion.)
 	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
