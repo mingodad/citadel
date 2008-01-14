@@ -491,16 +491,20 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 	
 			else if (!strcasecmp(firsttoken, "email")) {
+				size_t len;
 				if (!IsEmptyStr(mailto)) strcat(mailto, "<br />");
-				long len;
 				strcat(mailto,
 					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
 
-				urlesc(&mailto[strlen(mailto)], fullname);
-				urlesc(&mailto[strlen(mailto)], " <");
-				urlesc(&mailto[strlen(mailto)], thisvalue);
-				urlesc(&mailto[strlen(mailto)], ">");
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len,  fullname);
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, " <");
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, thisvalue);
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, ">");
 
 				strcat(mailto, "\">");
 				len = strlen(mailto);
@@ -857,7 +861,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				attach_links = realloc(attach_links,
 					(num_attach_links*sizeof(struct attach_link)));
 				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
-				urlesc(escaped_mime_filename, mime_filename);
+				urlesc(escaped_mime_filename, 265, mime_filename);
 				snprintf(attach_links[num_attach_links-1].html, 1024,
 					"<img src=\"static/diskette_24x.gif\" "
 					"border=0 align=middle>\n"
