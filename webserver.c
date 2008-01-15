@@ -466,7 +466,8 @@ pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
 	lprintf (1, "bye; shutting down watcher.");
 	kill(current_child, signum);
-//	exit(0);
+	if (signum != SIGHUP)
+		exit(0);
 }
 
 /**
@@ -541,14 +542,14 @@ void start_daemon(char *pid_file)
 			exit(errno);
 		}
 	
-		else if (current_child == 0) {
-			signal(SIGTERM, graceful_shutdown);
+		else if (current_child == 0) {	// child process
+//			signal(SIGTERM, graceful_shutdown);
 			signal(SIGHUP, graceful_shutdown);
 
 			return; /* continue starting webcit. */
 		}
 	
-		else {
+		else { // watcher process
 //			signal(SIGTERM, SIG_IGN);
 //			signal(SIGHUP, SIG_IGN);
 			if (pid_file) {
