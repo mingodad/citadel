@@ -403,16 +403,14 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* The default rule is to not purge. */
 	purge = 0;
 
-	/* If the user hasn't called in two months, his/her account
+	/* If the user hasn't called in two months and expiring of accounts is turned on, his/her account
 	 * has expired, so purge the record.
 	 */
-	now = time(NULL);
-	if ((now - us->lastcall) > purge_time) purge = 1;
-
-	/* If the user set his/her password to 'deleteme', he/she
-	 * wishes to be deleted, so purge the record.
-	 */
-	if (!strcasecmp(us->password, "deleteme")) purge = 1;
+	if (config.c_userpurge > 0)
+	{
+		now = time(NULL);
+		if ((now - us->lastcall) > purge_time) purge = 1;
+	}
 
 	/* If the record is marked as permanent, don't purge it.
 	 */
@@ -428,6 +426,12 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->axlevel == 0) purge = 1;
 
+	/* If the user set his/her password to 'deleteme', he/she
+	 * wishes to be deleted, so purge the record.
+	 * Moved this lower down so that aides and permanent users get purged if they ask to be.
+	 */
+	if (!strcasecmp(us->password, "deleteme")) purge = 1;
+	
 	/* 0 calls is impossible.  If there are 0 calls, it must
 	 * be a corrupted record, so purge it.
 	 */
@@ -462,9 +466,7 @@ int PurgeUsers(void) {
 
 	switch(config.c_auth_mode) {
 		case AUTHMODE_NATIVE:
-			if (config.c_userpurge > 0) {
-				ForEachUser(do_user_purge, NULL);
-			}
+			ForEachUser(do_user_purge, NULL);
 			break;
 		case AUTHMODE_HOST:
 			ForEachUser(do_uid_user_purge, NULL);
