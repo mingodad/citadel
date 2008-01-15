@@ -827,7 +827,7 @@ void display_using_handler(long msgnum,
 			free(relevant_source);
 		}
 	}
-
+	icalmemory_free_ring();
 }
 
 /**
