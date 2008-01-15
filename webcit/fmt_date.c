@@ -225,7 +225,7 @@ time_t httpdate_to_timestamp(char *buf)
 	/** Got everything; let's go */
 	/** First, change to UTC */
 	if (getenv("TZ"))
-		sprintf(tz, "TZ=%s", getenv("TZ"));
+		snprintf(tz, 256, "TZ=%s", getenv("TZ"));
 	else
 		strcpy(tz, "TZ=");
 	putenv("TZ=UTC");
