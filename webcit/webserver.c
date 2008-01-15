@@ -466,7 +466,7 @@ pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
 	lprintf (1, "bye; shutting down watcher.");
 	kill(current_child, signum);
-	exit(0);
+//	exit(0);
 }
 
 /**
@@ -529,7 +529,7 @@ void start_daemon(char *pid_file)
 	freopen("/dev/null", "r", stdin);
 	freopen("/dev/null", "w", stdout);
 	freopen("/dev/null", "w", stderr);
-///	signal(SIGTERM, graceful_shutdown_watcher);
+	signal(SIGTERM, graceful_shutdown_watcher);
 	signal(SIGHUP, graceful_shutdown_watcher);
 
 	do {
@@ -542,19 +542,19 @@ void start_daemon(char *pid_file)
 		}
 	
 		else if (current_child == 0) {
-////			signal(SIGTERM, graceful_shutdown);
+			signal(SIGTERM, graceful_shutdown);
 			signal(SIGHUP, graceful_shutdown);
 
 			return; /* continue starting webcit. */
 		}
 	
 		else {
-////			signal(SIGTERM, SIG_IGN);
-			signal(SIGHUP, SIG_IGN);
+//			signal(SIGTERM, SIG_IGN);
+//			signal(SIGHUP, SIG_IGN);
 			if (pid_file) {
 				fp = fopen(pid_file, "w");
 				if (fp != NULL) {
-					fprintf(fp, "%d\n", current_child);
+					fprintf(fp, "%d\n", getpid());
 					fclose(fp);
 				}
 			}
