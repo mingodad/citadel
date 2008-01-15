@@ -1,3 +1,43 @@
+webcit (7.24-24) stable; urgency=high
+
+  * fixed missing locales and image calculation
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 21 Nov 2007 0:01:21 +0002
+webcit (7.24-23) stable; urgency=high
+
+  * crash in notes fixed.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 16 Nov 2007 0:01:21 +0002
+webcit (7.23-22) stable; urgency=high
+
+  * fix some IE rendering bugs
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 8 Nov 2007 23:01:21 +0002
+webcit (7.22-21) stable; urgency=high
+
+  * fixed ssl related directory access crash
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Di, 30 Oct 2007 18:10:00 +0002
+webcit (7.22-20) stable; urgency=high
+
+  * Lots of stylesheet fixes. Performance improvements.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Do, 25 Oct 2007 18:10:00 +0002
+webcit (7.13-19) stable; urgency=high
+
+  * update to actual Webcit release. Fix several conditions of CPU abuse.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fr, 3 Aug 2007 18:10:00 +0002
+webcit (7.12-18) stable; urgency=high
+
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 8 Jul 2007 8:10:00 +0000
+webcit (7.11-17) stable; urgency=high
+
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fr, 6 Jul 2007 22:10:00 +0000
 webcit (7.07-0ubuntu1) stable; urgency=low
 
   * initial ubuntu release.
