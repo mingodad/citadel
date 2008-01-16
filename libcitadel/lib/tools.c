@@ -228,8 +228,10 @@ int extract_int(const char *source, int parmnum)
 {
 	char buf[32];
 	
-	extract_token(buf, source, parmnum, '|', sizeof buf);
-	return(atoi(buf));
+	if (extract_token(buf, source, parmnum, '|', sizeof buf) > 0)
+		return(atoi(buf));
+	else
+		return 0;
 }
 
 /*
@@ -239,8 +241,10 @@ long extract_long(const char *source, int parmnum)
 {
 	char buf[32];
 	
-	extract_token(buf, source, parmnum, '|', sizeof buf);
-	return(atol(buf));
+	if (extract_token(buf, source, parmnum, '|', sizeof buf) > 0)
+		return(atol(buf));
+	else
+		return 0;
 }
 
 
@@ -251,8 +255,10 @@ unsigned long extract_unsigned_long(const char *source, int parmnum)
 {
 	char buf[32];
 
-	extract_token(buf, source, parmnum, '|', sizeof buf);
-	return strtoul(buf, NULL, 10);
+	if (extract_token(buf, source, parmnum, '|', sizeof buf) > 0)
+		return strtoul(buf, NULL, 10);
+	else 
+		return 0;
 }
 
 
