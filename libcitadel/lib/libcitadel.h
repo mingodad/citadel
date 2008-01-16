@@ -3,12 +3,30 @@
  *
  */
 
+
+#define LIBCITADEL_VERSION_NUMBER	101
+
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
  */
 #ifndef SIZ
 #define SIZ	4096
 #endif
+
+
+/*
+ * Views
+ */
+#define	VIEW_BBS		0	/* Bulletin board view */
+#define VIEW_MAILBOX		1	/* Mailbox summary */
+#define VIEW_ADDRESSBOOK	2	/* Address book view */
+#define VIEW_CALENDAR		3	/* Calendar view */
+#define VIEW_TASKS		4	/* Tasks view */
+#define VIEW_NOTES		5	/* Notes view */
+#define	VIEW_WIKI		6	/* Wiki view */
+#define VIEW_CALBRIEF		7	/* Brief Calendar view */
+#define VIEW_JOURNAL		8	/* Journal view (not yet implemented in native clients) */
+
 
 #ifndef IsEmptyStr
 #define IsEmptyStr(a) ((a)[0] == '\0')
@@ -19,6 +37,7 @@
  */
 
 char *libcitadel_version_string(void);
+int libcitadel_version_number(void);
 
 
 /*

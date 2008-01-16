@@ -1,14 +1,12 @@
 /*
  * $Id$
- */
-/**
- * \defgroup Webserver This contains a simple multithreaded TCP server manager.  It sits around
+ *
+ * This contains a simple multithreaded TCP server manager.  It sits around
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
- * \ingroup WebcitHttpServer
+ *
  */
 
-/*@{*/
 #include "webcit.h"
 #include "webserver.h"
 
@@ -20,12 +18,12 @@
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
 
-int verbosity = 9;		/**< Logging level */
-int msock;			/**< master listening socket */
-int is_https = 0;		/**< Nonzero if I am an HTTPS service */
-int follow_xff = 0;		/**< Follow X-Forwarded-For: header */
-int home_specified = 0;		/**< did the user specify a homedir? */
-int time_to_die = 0;            /**< Nonzero if server is shutting down */
+int verbosity = 9;		/* Logging level */
+int msock;			/* master listening socket */
+int is_https = 0;		/* Nonzero if I am an HTTPS service */
+int follow_xff = 0;		/* Follow X-Forwarded-For: header */
+int home_specified = 0;		/* did the user specify a homedir? */
+int time_to_die = 0;            /* Nonzero if server is shutting down */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -37,17 +35,17 @@ char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 
-char socket_dir[PATH_MAX];			/**< where to talk to our citadel server */
-static const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/**< nailed to what configure gives us. */
-static char static_dir[PATH_MAX];		/**< calculated on startup */
-static char static_local_dir[PATH_MAX];		/**< calculated on startup */
-char  *static_dirs[]={				/**< needs same sort order as the web mapping */
-	(char*)static_dir,			/** our templates on disk */
-	(char*)static_local_dir,		/** user provided templates disk */
-	(char*)editor_absolut_dir		/** the editor on disk */
+char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
+static const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
+static char static_dir[PATH_MAX];		/* calculated on startup */
+static char static_local_dir[PATH_MAX];		/* calculated on startup */
+char  *static_dirs[]={				/* needs same sort order as the web mapping */
+	(char*)static_dir,			/* our templates on disk */
+	(char*)static_local_dir,		/* user provided templates disk */
+	(char*)editor_absolut_dir		/* the editor on disk */
 };
 
-/**
+/*
  * Subdirectories from which the client may request static content
  *
  * (If you add more, remember to increment 'ndirs' below)
@@ -61,21 +59,22 @@ char *static_content_dirs[] = {
 int ndirs=3;
 
 
-char *server_cookie = NULL;	/**< our Cookie connection to the client */
-int http_port = PORT_NUM;	/**< Port to listen on */
-char *ctdlhost = DEFAULT_HOST;	/**< our name */
-char *ctdlport = DEFAULT_PORT;	/**< our Port */
-int setup_wizard = 0;		/**< should we run the setup wizard? \todo */
-char wizard_filename[PATH_MAX];	/**< where's the setup wizard? */
-int running_as_daemon = 0;	/**< should we deamonize on startup? */
+char *server_cookie = NULL;	/* our Cookie connection to the client */
+int http_port = PORT_NUM;	/* Port to listen on */
+char *ctdlhost = DEFAULT_HOST;	/* our name */
+char *ctdlport = DEFAULT_PORT;	/* our Port */
+int setup_wizard = 0;		/* should we run the setup wizard? \todo */
+char wizard_filename[PATH_MAX];	/* where's the setup wizard? */
+int running_as_daemon = 0;	/* should we deamonize on startup? */
 
 
-/** 
- * \brief This is a generic function to set up a master socket for listening on
+/* 
+ * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
- * \param ip_addr ip to bind to
- * \param port_number the port to bind to 
- * \param queue_len Number of incoming connections to allow in the queue
+ *
+ * ip_addr 	IP address to bind
+ * port_number	port number to bind
+ * queue_len	number of incoming connections to allow in the queue
  */
 int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
@@ -105,7 +104,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
-	/** Set some socket options that make sense. */
+	/* Set some socket options that make sense. */
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
@@ -124,7 +123,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 
 
-/**
+/*
  * \brief Create a Unix domain socket and listen on it
  * \param sockpath file name of the unix domain socket
  * \param queue_len Number of incoming connections to allow in the queue
@@ -141,7 +140,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	i = unlink(sockpath);
 	if (i != 0) if (errno != ENOENT) {
-		lprintf(1, "citserver: can't unlink %s: %s\n",
+		lprintf(1, "webserver: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
@@ -152,19 +151,19 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "citserver: Can't create a socket: %s\n",
+		lprintf(1, "webserver: Can't create a socket: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		lprintf(1, "citserver: Can't bind: %s\n",
+		lprintf(1, "webserver: Can't bind: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(1, "citserver: Can't listen: %s\n",
+		lprintf(1, "webserver: Can't listen: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
@@ -176,7 +175,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 
 
-/**
+/*
  * \brief Read data from the client socket.
  * \param sock socket fd to read from
  * \param buf buffer to read into 
@@ -231,7 +230,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 	return (1);
 }
 
-/**
+/*
  * \brief write data to the client
  * \param buf data to write to the client
  * \param count size of buffer
@@ -276,7 +275,7 @@ ssize_t client_write(const void *buf, size_t count)
 	return (write(WC->http_sock, buf, count));
 }
 
-/**
+/*
  * \brief Begin buffering HTTP output so we can transmit it all in one write operation later.
  */
 void begin_burst(void)
@@ -291,26 +290,26 @@ void begin_burst(void)
 }
 
 
-/**
+/*
  * \brief uses the same calling syntax as compress2(), but it
  * creates a stream compatible with HTTP "Content-encoding: gzip"
  */
 #ifdef HAVE_ZLIB
-#define DEF_MEM_LEVEL 8 /**< memlevel??? */
-#define OS_CODE 0x03	/**< unix */
-int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
-			  size_t * destLen,     /**< length of the compresed data */
-			  const Bytef * source, /**< source to encode */
-			  uLong sourceLen,      /**< length of source to encode */
-			  int level)            /**< compression level */
+#define DEF_MEM_LEVEL 8 /*< memlevel??? */
+#define OS_CODE 0x03	/*< unix */
+int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
+			  size_t * destLen,     /*< length of the compresed data */
+			  const Bytef * source, /*< source to encode */
+			  uLong sourceLen,      /*< length of source to encode */
+			  int level)            /*< compression level */
 {
-	const int gz_magic[2] = { 0x1f, 0x8b };	/** gzip magic header */
+	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
 
-	/** write gzip header */
+	/* write gzip header */
 	snprintf((char *) dest, *destLen, 
 		 "%c%c%c%c%c%c%c%c%c%c",
 		 gz_magic[0], gz_magic[1], Z_DEFLATED,
-		 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /** xflags */ ,
+		 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /* xflags */ ,
 		 OS_CODE);
 
 	/* normal deflate */
@@ -356,7 +355,7 @@ int ZEXPORT compress_gzip(Bytef * dest,         /**< compressed buffer*/
 }
 #endif
 
-/**
+/*
  * \brief Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
  */
 void end_burst(void)
@@ -405,7 +404,7 @@ void end_burst(void)
 
 
 
-/**
+/*
  * \brief Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
@@ -419,7 +418,7 @@ int client_read(int sock, char *buf, int bytes)
 }
 
 
-/**
+/*
  * \brief Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
@@ -432,23 +431,23 @@ int client_getln(int sock, char *buf, int bufsiz)
 {
 	int i, retval;
 
-	/** Read one character at a time.*/
+	/* Read one character at a time.*/
 	for (i = 0;; i++) {
 		retval = client_read(sock, &buf[i], 1);
 		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
 		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
-			/** Non printable character recieved from client */
+			/* Non printable character recieved from client */
 			return(-1);
 		}
 	}
 
-	/** If we got a long line, discard characters until the newline. */
+	/* If we got a long line, discard characters until the newline. */
 	if (i == (bufsiz-1))
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(sock, &buf[i], 1);
 
-	/**
+	/*
 	 * Strip any trailing non-printable characters.
 	 */
 	buf[i] = 0;
@@ -458,7 +457,7 @@ int client_getln(int sock, char *buf, int bufsiz)
 	return (retval);
 }
 
-/**
+/*
  * \brief shut us down the regular way.
  * param signum the signal we want to forward
  */
@@ -470,7 +469,7 @@ void graceful_shutdown_watcher(int signum) {
 		exit(0);
 }
 
-/**
+/*
  * \brief shut us down the regular way.
  * param signum the signal we want to forward
  */
@@ -492,7 +491,7 @@ void graceful_shutdown(int signum) {
 }
 
 
-/**
+/*
  * \brief	Start running as a daemon.  
  *
  * param	do_close_stdio		Only close stdio if set.
@@ -596,22 +595,22 @@ void start_daemon(char *pid_file)
 	exit(WEXITSTATUS(status));
 }
 
-/**
+/*
  * \brief	Spawn an additional worker thread into the pool.
  */
 void spawn_another_worker_thread()
 {
-	pthread_t SessThread;	/**< Thread descriptor */
-	pthread_attr_t attr;	/**< Thread attributes */
+	pthread_t SessThread;	/*< Thread descriptor */
+	pthread_attr_t attr;	/*< Thread attributes */
 	int ret;
 
 	lprintf(3, "Creating a new thread\n");
 
-	/** set attributes for the new thread */
+	/* set attributes for the new thread */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	/**
+	/*
 	 * Our per-thread stacks need to be bigger than the default size, otherwise
 	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
 	 * 64-bit Linux.
@@ -622,27 +621,27 @@ void spawn_another_worker_thread()
 		pthread_attr_destroy(&attr);
 	}
 
-	/** now create the thread */
+	/* now create the thread */
 	if (pthread_create(&SessThread, &attr,
 			   (void *(*)(void *)) worker_entry, NULL)
 	    != 0) {
 		lprintf(1, "Can't create thread: %s\n", strerror(errno));
 	}
 
-	/** free up the attributes */
+	/* free up the attributes */
 	pthread_attr_destroy(&attr);
 }
 
-/**
+/*
  * \brief Here's where it all begins.
  * \param argc number of commandline args
  * \param argv the commandline arguments
  */
 int main(int argc, char **argv)
 {
-	pthread_t SessThread;	/**< Thread descriptor */
-	pthread_attr_t attr;	/**< Thread attributes */
-	int a, i;	        	/**< General-purpose variables */
+	pthread_t SessThread;	/*< Thread descriptor */
+	pthread_attr_t attr;	/*< Thread attributes */
+	int a, i;	        	/*< General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
 	char dirbuffer[PATH_MAX]="";
@@ -658,14 +657,23 @@ int main(int argc, char **argv)
 	char *locale = NULL;
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
-	char uds_listen_path[PATH_MAX];	/**< listen on a unix domain socket? */
+	char uds_listen_path[PATH_MAX];	/*< listen on a unix domain socket? */
+
+	/* Ensure that we are linked to the correct version of libcitadel */
+	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
+		fprintf(stderr, " You are running libcitadel version %d.%02d\n",
+			(libcitadel_version_number() / 100), (libcitadel_version_number() % 100));
+		fprintf(stderr, "WebCit was compiled against version %d.%02d\n",
+			(LIBCITADEL_VERSION_NUMBER / 100), (LIBCITADEL_VERSION_NUMBER % 100));
+		return(1);
+	}
 
 	strcpy(uds_listen_path, "");
 
 	if (getenv("TZ") == NULL)
 		putenv("TZ=UTC");
 
-	/** Parse command line */
+	/* Parse command line */
 #ifdef HAVE_OPENSSL
 	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cfs")) != EOF)
 #else
@@ -757,7 +765,7 @@ int main(int argc, char **argv)
 		signal(SIGHUP, graceful_shutdown);
 	}
 
-	/** Tell 'em who's in da house */
+	/* Tell 'em who's in da house */
 	lprintf(1, PACKAGE_STRING "\n");
 	lprintf(1, "Copyright (C) 1996-2008 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
@@ -765,7 +773,7 @@ int main(int argc, char **argv)
 	);
 
 
-	/** initialize the International Bright Young Thing */
+	/* initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
 	initialize_locales();
 	locale = setlocale(LC_ALL, "");
@@ -809,7 +817,7 @@ int main(int argc, char **argv)
 		 "%s/citadel.cer",
 		 ctdl_key_dir);
 
-	/** we should go somewhere we can leave our coredump, if enabled... */
+	/* we should go somewhere we can leave our coredump, if enabled... */
 	lprintf(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
@@ -817,7 +825,7 @@ int main(int argc, char **argv)
 	initialize_viewdefs();
 	initialize_axdefs();
 
-	/**
+	/*
 	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
 	 * wcsession struct to which the thread is currently bound.
@@ -827,7 +835,7 @@ int main(int argc, char **argv)
 	}
 	InitialiseSemaphores ();
 
-	/**
+	/*
 	 * Set up a place to put thread-specific SSL data.
 	 * We don't stick this in the wcsession struct because SSL starts
 	 * up before the session is bound, and it gets torn down between
@@ -839,7 +847,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	/**
+	/*
 	 * Bind the server to our favorite port.
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
@@ -859,7 +867,7 @@ int main(int argc, char **argv)
 
 	pthread_mutex_init(&SessionListMutex, NULL);
 
-	/**
+	/*
 	 * Start up the housekeeping thread
 	 */
 	pthread_attr_init(&attr);
@@ -868,7 +876,7 @@ int main(int argc, char **argv)
 		       (void *(*)(void *)) housekeeping_loop, NULL);
 
 
-	/**
+	/*
 	 * If this is an HTTPS server, fire up SSL
 	 */
 #ifdef HAVE_OPENSSL
@@ -877,7 +885,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	/** Start a few initial worker threads */
+	/* Start a few initial worker threads */
 	for (i = 0; i < (MIN_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
 	}
@@ -888,7 +896,7 @@ int main(int argc, char **argv)
 }
 
 
-/**
+/*
  * Entry point for worker threads
  */
 void worker_entry(void)
@@ -906,7 +914,7 @@ void worker_entry(void)
 	FD_SET(msock, &readset);
 
 	do {
-		/** Only one thread can accept at a time */
+		/* Only one thread can accept at a time */
 		fail_this_transaction = 0;
 		ssock = -1; 
 		errno = EAGAIN;
@@ -972,12 +980,12 @@ void worker_entry(void)
 			lprintf(2, "inbetween.");
 			pthread_exit(NULL);
 		} else { // Got it? do some real work!
-			/** Set the SO_REUSEADDR socket option */
+			/* Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 				   &i, sizeof(i));
 
-			/** If we are an HTTPS server, go crypto now. */
+			/* If we are an HTTPS server, go crypto now. */
 #ifdef HAVE_OPENSSL
 			if (is_https) {
 				if (starttls(ssock) != 0) {
@@ -989,17 +997,17 @@ void worker_entry(void)
 
 			if (fail_this_transaction == 0) {
 
-				/** Perform an HTTP transaction... */
+				/* Perform an HTTP transaction... */
 				context_loop(ssock);
 
-				/** Shut down SSL/TLS if required... */
+				/* Shut down SSL/TLS if required... */
 #ifdef HAVE_OPENSSL
 				if (is_https) {
 					endtls();
 				}
 #endif
 
-				/** ...and close the socket. */
+				/* ...and close the socket. */
 				lingering_close(ssock);
 			}
 
@@ -1011,7 +1019,7 @@ void worker_entry(void)
 	pthread_exit(NULL);
 }
 
-/**
+/*
  * \brief logprintf. log messages 
  * logs to stderr if loglevel is lower than the verbosity set at startup
  * \param loglevel level of the message
@@ -1032,7 +1040,7 @@ int lprintf(int loglevel, const char *format, ...)
 }
 
 
-/**
+/*
  * \brief print the actual stack frame.
  */
 void wc_backtrace(void)

@@ -18,3 +18,6 @@ char *libcitadel_version_string(void) {
 	return "$Id$";
 }
 
+int libcitadel_version_number(void) {
+	return LIBCITADEL_VERSION_NUMBER;
+}

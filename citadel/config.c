@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "config.h"
@@ -52,6 +53,7 @@ void get_config(void) {
 		perror(file_citadel_config);
 		exit(CTDLEXIT_CONFIG);
 	}
+
 #ifndef __CYGWIN__
 	if (st.st_uid != CTDLUID) {
 		fprintf(stderr, "%s must be owned by uid="F_UID_T" but "F_UID_T" owns it!\n", 
@@ -65,16 +67,25 @@ void get_config(void) {
 		exit(CTDLEXIT_CONFIG);
 	}
 #endif
+
 	fclose(cfp);
 
+	/* Ensure that we are linked to the correct version of libcitadel */
+	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
+		fprintf(stderr, "    You are running libcitadel version %d.%02d\n",
+			(libcitadel_version_number() / 100), (libcitadel_version_number() % 100));
+		fprintf(stderr, "citserver was compiled against version %d.%02d\n",
+			(LIBCITADEL_VERSION_NUMBER / 100), (LIBCITADEL_VERSION_NUMBER % 100));
+		exit(CTDLEXIT_LIBCITADEL);
+	}
+
+
+	/* Check to see whether 'setup' must first be run to update data file formats */
 	if (config.c_setup_level < REV_MIN) {
-		fprintf(stderr, "config: Your data files are out of date.  ");
-		fprintf(stderr, "Run setup to update them.\n");
-		fprintf(stderr,
-			"        This program requires level %d.%02d\n",
+		fprintf(stderr, "Your data files are out of date.  Run setup to update them.\n");
+		fprintf(stderr, "        This program requires level %d.%02d\n",
 			(REV_LEVEL / 100), (REV_LEVEL % 100));
-		fprintf(stderr,
-			"        Data files are currently at %d.%02d\n",
+		fprintf(stderr, "        Data files are currently at %d.%02d\n",
 			(config.c_setup_level / 100),
 			(config.c_setup_level % 100));
 		exit(CTDLEXIT_OOD);
