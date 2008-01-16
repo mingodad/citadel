@@ -1145,7 +1145,7 @@ do_select:	force_purge = 0;
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
 			} else if (!CtdlThreadCheckStop()) {
-				CtdlLogPrintf(CTDL_DEBUG, "Un handled select failure.\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select.\n");
 				goto do_select;
 			}
 		}
