@@ -154,6 +154,8 @@ main() {
 		]
 	)
 fi
+ok_libical=$webcit_with_calendar_service
+
 
 if test "$webcit_with_calendar_service" == "yes"; then
 			AC_DEFINE(WEBCIT_WITH_CALENDAR_SERVICE,[],[whether we can do with calendar.])
