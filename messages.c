@@ -1655,7 +1655,12 @@ void display_summarized(int num) {
 	);
 
 	wprintf("<td width=%d%%>", SUBJ_COL_WIDTH_PCT);
-	escputs(WC->summ[num].subj);
+
+#ifdef HAVE_ICONV
+	utf8ify_rfc822_string(WC->summ[num].subj);
+	utf8ify_rfc822_string(WC->summ[num].from);
+#endif	
+	escputs(WC->summ[num].subj);//////////////////////////////////TODO: QP DECODE
 	wprintf("</td>");
 
 	wprintf("<td width=%d%%>", SENDER_COL_WIDTH_PCT);

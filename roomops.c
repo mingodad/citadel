@@ -5,7 +5,8 @@
 
 #include "webcit.h"
 
-char floorlist[128][SIZ]; /**< list of our floor names */
+#define MAX_FLOORS 128
+char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
 char *viewdefs[9]; /**< the different kinds of available views */
 
@@ -52,7 +53,7 @@ void load_floorlist(void)
 	int a;
 	char buf[SIZ];
 
-	for (a = 0; a < 128; ++a)
+	for (a = 0; a < MAX_FLOORS; ++a)
 		floorlist[a][0] = 0;
 
 	serv_puts("LFLR");
@@ -2864,7 +2865,13 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 	 * Otherwise, prefix the floor name as a "public folders" moniker
 	 */
 	else {
-		sprintf(folder, "%s|%s", floorlist[floor], room);
+		if (floor > MAX_FLOORS) {
+			wc_backtrace ();
+			sprintf(folder, "%%%%%|%s", room);
+		}
+		else {
+			sprintf(folder, "%s|%s", floorlist[floor], room);
+		}
 	}
 
 	/**
