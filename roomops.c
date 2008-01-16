@@ -1,19 +1,16 @@
 /*
  * $Id$
+ * Lots of different room-related operations.
  */
-/**
- * \defgroup RoomOps Lots of different room-related operations.
- * \ingroup CitadelCommunitacion
- */
-/*@{*/
+
 #include "webcit.h"
 
 char floorlist[128][SIZ]; /**< list of our floor names */
 
 char *viewdefs[9]; /**< the different kinds of available views */
 
-/**
- * \brief initialize the viewdefs with localized strings
+/*
+ * Initialize the viewdefs with localized strings
  */
 void initialize_viewdefs(void) {
 	viewdefs[0] = _("Bulletin Board");
@@ -27,10 +24,8 @@ void initialize_viewdefs(void) {
 	viewdefs[8] = _("Journal");
 }
 
-/**
- * \brief	Determine which views are allowed as the default for creating a new room.
- *
- * \param	which_view	The view ID being queried.
+/*
+ * Determine which views are allowed as the default for creating a new room.
  */
 int is_view_allowed_as_default(int which_view)
 {
@@ -49,8 +44,8 @@ int is_view_allowed_as_default(int which_view)
 }
 
 
-/**
- * \brief load the list of floors
+/*
+ * load the list of floors
  */
 void load_floorlist(void)
 {
@@ -72,10 +67,8 @@ void load_floorlist(void)
 }
 
 
-/**
- * \brief	Free a session's march list
- *
- * \param	wcf		Pointer to session being cleared
+/*
+ * Free a session's march list
  */
 void free_march_list(struct wcsession *wcf)
 {
@@ -91,8 +84,8 @@ void free_march_list(struct wcsession *wcf)
 
 
 
-/**
- * \brief remove a room from the march list
+/*
+ * remove a room from the march list
  */
 void remove_march(char *aaa)
 {
@@ -122,9 +115,8 @@ void remove_march(char *aaa)
 
 
 
-/**
- * \brief display rooms in tree structure???
- * \param rp the roomlist to build a tree from
+/*
+ * display rooms in tree structure
  */
 void room_tree_list(struct roomlisting *rp)
 {
