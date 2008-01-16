@@ -39,7 +39,8 @@ void unescape_input(char *buf)
 		buflen --;
 	}
 
-	for (a = 0; a < buflen; ++a) {
+	a = 0; 
+	while (a < buflen) {
 		if (buf[a] == '+')
 			buf[a] = ' ';
 		if (buf[a] == '%') {
@@ -53,6 +54,7 @@ void unescape_input(char *buf)
 			
 			buflen -=2;
 		}
+		a++;
 	}
 
 }
