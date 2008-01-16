@@ -28,7 +28,7 @@ all: all-progs-recursive webserver setup
 .SUFFIXES: .cpp .c .o
 
 clean:
-	rm -f *.o webcit webserver
+	rm -f *.o webcit webserver setup
 	rm -fr locale/*
 
 distclean: clean
