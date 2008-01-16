@@ -506,7 +506,7 @@ void sieve_queue_room(struct ctdlroom *which_room) {
  */
 void sieve_do_msg(long msgnum, void *userdata) {
 	struct sdm_userdata *u = (struct sdm_userdata *) userdata;
-	sieve2_context_t *sieve2_context = u->sieve2_context;
+	sieve2_context_t *sieve2_context;
 	struct ctdl_sieve my;
 	int res;
 	struct CtdlMessage *msg;
@@ -519,6 +519,8 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		lprintf(CTDL_EMERG, "Cant process Message <%ld>without Userdata!\n", msgnum);
 		return;
 	}
+
+	sieve2_context = u->sieve2_context;
 
 	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
