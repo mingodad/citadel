@@ -124,7 +124,8 @@ void ical_dezonify_backend(icalcomponent *cal,
 		}
 
 		if (t == NULL) {
-			t = icaltimezone_copy(get_default_icaltimezone());
+			// FIXME t = icaltimezone_copy(get_default_icaltimezone());
+			t = get_default_icaltimezone();
 		}
 		icaltimezone_convert_time(&TheTime,
 					  t,
