@@ -822,7 +822,6 @@ int main(int argc, char **argv)
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
 	}	
-	CtdlInitBase64Table();
 	initialize_viewdefs();
 	initialize_axdefs();
 
