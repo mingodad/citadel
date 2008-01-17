@@ -359,6 +359,8 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	char username[SIZ];
 	int found_user;
 
+	lprintf(9, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
+
 	if ((CC->logged_in)) {
 		return login_already_logged_in;
 	}
