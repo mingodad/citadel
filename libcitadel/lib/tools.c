@@ -309,18 +309,6 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 	int dpos = 0;
 	int thisline = 0;
 
-	/**  Fill dtable with character encodings.  */
-
-	for (i = 0; i < 26; i++) {
-		dtable[i] = 'A' + i;
-		dtable[26 + i] = 'a' + i;
-	}
-	for (i = 0; i < 10; i++) {
-		dtable[52 + i] = '0' + i;
-	}
-	dtable[62] = '+';
-	dtable[63] = '/';
-
 	while (!hiteof) {
 		byte igroup[3], ogroup[4];
 		int c, n;
@@ -335,16 +323,16 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 			igroup[n] = (byte) c;
 		}
 		if (n > 0) {
-			ogroup[0] = dtable[igroup[0] >> 2];
+			ogroup[0] = etable[igroup[0] >> 2];
 			ogroup[1] =
-			    dtable[((igroup[0] & 3) << 4) |
+			    etable[((igroup[0] & 3) << 4) |
 				   (igroup[1] >> 4)];
 			ogroup[2] =
-			    dtable[((igroup[1] & 0xF) << 2) |
+			    etable[((igroup[1] & 0xF) << 2) |
 				   (igroup[2] >> 6)];
-			ogroup[3] = dtable[igroup[2] & 0x3F];
+			ogroup[3] = etable[igroup[2] & 0x3F];
 
-			/**
+			/*
 			 * Replace characters in output stream with "=" pad
 			 * characters if fewer than three characters were
 			 * read from the end of the input stream. 
@@ -391,8 +379,6 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
     int dpos = 0;
     int spos = 0;
 
-
-    /*CONSTANTCONDITION*/
     while (TRUE) {
 	byte a[4], b[4], o[3];
 
