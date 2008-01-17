@@ -234,9 +234,6 @@ void init_sysdep(void) {
 	// sigaddset(&set, SIGILL);	we want core dumps
 	// sigaddset(&set, SIGBUS);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
-	sigemptyset(&set);
-	sigaddset(&set, SIGUSR1);
-	sigprocmask(SIG_BLOCK, &set, NULL);
 
 	signal(SIGINT, signal_cleanup);
 	signal(SIGQUIT, signal_cleanup);
@@ -457,7 +454,6 @@ struct CitContext *CreateNewContext(void) {
 	if (me->next != NULL) {
 		me->next->prev = me;
 	}
-	me->client_expires_at.tv_sec = config.c_sleeping;
 	++num_sessions;
 	end_critical_section(S_SESSION_TABLE);
 	return (me);
@@ -1256,6 +1252,7 @@ SKIP_SELECT:
 		}
 
 		dead_session_purge(force_purge);
+		do_housekeeping();
 	}
 	/* If control reaches this point, the server is shutting down */	
 	return(NULL);

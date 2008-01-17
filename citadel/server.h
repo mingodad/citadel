@@ -16,17 +16,6 @@
 #include <openssl/ssl.h>
 #endif
 
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
 /*
  * New format for a message in memory
  */
@@ -90,7 +79,6 @@ struct CitContext {
 	unsigned cs_flags;	/* miscellaneous flags */
 	void (*h_command_function) (void) ;	/* service command function */
 	void (*h_async_function) (void) ;	/* do async msgs function */
-	void (*h_greeting_function) (void) ;	/* service startup function */
 	int is_async;		/* Nonzero if client accepts async msgs */
 	int async_waiting;	/* Nonzero if there are async msgs waiting */
 	int input_waiting;	/* Nonzero if there is client input waiting */
@@ -156,8 +144,6 @@ struct CitContext {
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
 	const char* ServiceName;		/**< whats our actual purpose? */
-	
-	struct timeval client_expires_at;		/** When this client will expire */
 };
 
 typedef struct CitContext t_context;
@@ -174,7 +160,6 @@ typedef struct CitContext t_context;
  */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
-	CON_START,		/* This context is starting up */
 	CON_READY,		/* This context needs attention */
 	CON_EXECUTING		/* This context is bound to a thread */
 };

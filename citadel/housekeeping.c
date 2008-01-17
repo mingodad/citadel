@@ -128,31 +128,47 @@ void check_ref_counts(void) {
 }	
 
 /*
- * This is the housekeeping thread. We
- * only allow housekeeping to execute once per minute.
+ * This is the housekeeping loop.  Worker threads come through here after
+ * processing client requests but before jumping back into the pool.  We
+ * only allow housekeeping to execute once per minute, and we only allow one
+ * instance to run at a time.
  */
-void *do_housekeeping(void *args) {
+void do_housekeeping(void) {
+	static int housekeeping_in_progress = 0;
 	static time_t last_timer = 0L;
+	int do_housekeeping_now = 0;
 	int do_perminute_housekeeping_now = 0;
 	time_t now;
+	const char *old_name;
 
-	while (!CtdlThreadCheckStop())
-	{
-	CtdlThreadName("House keeping - sleeping");
-	CtdlThreadSleep(1);
-	
+	/*
+	 * We do it this way instead of wrapping the whole loop in an
+	 * S_HOUSEKEEPING critical section because it eliminates the need to
+	 * potentially have multiple concurrent mutexes in progress.
+	 */
+	begin_critical_section(S_HOUSEKEEPING);
+	if (housekeeping_in_progress == 0) {
+		do_housekeeping_now = 1;
+		housekeeping_in_progress = 1;
 		now = time(NULL);
 		if ( (now - last_timer) > (time_t)60 ) {
 			do_perminute_housekeeping_now = 1;
 			last_timer = time(NULL);
 		}
+	}
+	end_critical_section(S_HOUSEKEEPING);
+
+	if (do_housekeeping_now == 0) {
+		return;
+	}
+
 	/*
 	 * Ok, at this point we've made the decision to run the housekeeping
 	 * loop.  Everything below this point is real work.
 	 */
 
 	/* First, do the "as often as needed" stuff... */
-	CtdlThreadName("House Keeping - Journal");
+	old_name = CtdlThreadName("House Keeping - Journal");
 	JournalRunQueue();
 
 	CtdlThreadName("House Keeping - EVT_HOUSE");
@@ -160,14 +176,14 @@ void *do_housekeeping(void *args) {
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {
-		do_perminute_housekeeping_now = 0;
 		cdb_check_handles();			/* suggested by Justin Case */
 		CtdlThreadName("House Keeping - EVT_TIMER");
 		PerformSessionHooks(EVT_TIMER);		/* Run any timer hooks */
 	}
-	}
+
 	/*
 	 * All done.
 	 */
-	return NULL;
+	housekeeping_in_progress = 0;
+	CtdlThreadName(old_name);
 }
