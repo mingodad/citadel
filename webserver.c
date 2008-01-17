@@ -821,7 +821,8 @@ int main(int argc, char **argv)
 	lprintf(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
-	}
+	}	
+	CtdlInitBase64Table();
 	initialize_viewdefs();
 	initialize_axdefs();
 
