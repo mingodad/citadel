@@ -183,8 +183,6 @@ int main(int argc, char **argv)
 	struct ctdlipcmessage *mret;
 	char cret[SIZ];
 
-	CtdlInitBase64Table();
-
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	/*

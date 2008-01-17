@@ -299,8 +299,6 @@ int main(int argc, char** argv)
 	int i;			/* Counters */
 	long runtime;		/* Run time for each thread */
 
-	CtdlInitBase64Table();
-
 	/* Read argument list */
 	for (i = 0; i < argc; i++) {
 		if (!strcmp(argv[i], "-n")) {

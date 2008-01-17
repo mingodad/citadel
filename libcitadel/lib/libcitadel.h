@@ -4,7 +4,7 @@
  */
 
 
-#define LIBCITADEL_VERSION_NUMBER	101
+#define LIBCITADEL_VERSION_NUMBER	102
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.

@@ -1417,7 +1417,6 @@ int main(int argc, char **argv)
 	eCrashParameters params;
 //	eCrashSymbolTable symbol_table;
 #endif
-	CtdlInitBase64Table();
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 
 #ifdef HAVE_BACKTRACE

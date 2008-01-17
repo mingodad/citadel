@@ -949,8 +949,6 @@ int main(int argc, char *argv[])
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	
-	CtdlInitBase64Table();
-
 	/* set an invalid setup type */
 	setup_type = (-1);
 

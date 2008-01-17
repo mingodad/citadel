@@ -179,8 +179,6 @@ int main(int argc, char **argv)
 	int ret, err;
 	int server_shutting_down = 0;
 
-	CtdlInitBase64Table();
-
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	strcpy(cmd, "");
