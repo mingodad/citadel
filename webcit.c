@@ -327,6 +327,7 @@ void jsesc(char *target, size_t tlen, char *strbuf)
 	target[0]='\0';
 	len = strlen (strbuf);
 	send = strbuf + len;
+	tend = target + tlen;
 	sptr = strbuf;
 	tptr = target;
 	
@@ -398,6 +399,7 @@ void msgesc(char *target, size_t tlen, char *strbuf)
 	target[0]='\0';
 	len = strlen (strbuf);
 	send = strbuf + len;
+	tend = target + tlen;
 	sptr = strbuf;
 	tptr = target;
 
