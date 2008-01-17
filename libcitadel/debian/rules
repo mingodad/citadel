@@ -4,6 +4,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+export DH_COMPAT = 5
+
 DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
@@ -32,7 +34,9 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp install*-stamp
-	[ ! -f Makefile ] || $(MAKE) distclean
+
+	-$(MAKE) distclean
+
 	dh_clean
 
 install: install-stamp
