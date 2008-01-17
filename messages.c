@@ -1656,10 +1656,6 @@ void display_summarized(int num) {
 
 	wprintf("<td width=%d%%>", SUBJ_COL_WIDTH_PCT);
 
-#ifdef HAVE_ICONV
-	utf8ify_rfc822_string(WC->summ[num].subj);
-	utf8ify_rfc822_string(WC->summ[num].from);
-#endif	
 	escputs(WC->summ[num].subj);//////////////////////////////////TODO: QP DECODE
 	wprintf("</td>");
 
@@ -2017,13 +2013,13 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 						fullname, sizeof WC->summ[nummsgs-1].from);
 				}
 				if (!IsEmptyStr(subject)) {
-				safestrncpy(WC->summ[nummsgs-1].subj, subject,
-					sizeof WC->summ[nummsgs-1].subj);
-				}
 #ifdef HAVE_ICONV
 				/** Handle subjects with RFC2047 encoding */
-				utf8ify_rfc822_string(WC->summ[nummsgs-1].subj);
+					utf8ify_rfc822_string(subject);
 #endif
+					safestrncpy(WC->summ[nummsgs-1].subj, subject,
+						    sizeof WC->summ[nummsgs-1].subj);
+				}
 				if (strlen(WC->summ[nummsgs-1].subj) > 75) {
 					strcpy(&WC->summ[nummsgs-1].subj[72], "...");
 				}

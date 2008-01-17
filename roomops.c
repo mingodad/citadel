@@ -2867,7 +2867,7 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 	else {
 		if (floor > MAX_FLOORS) {
 			wc_backtrace ();
-			sprintf(folder, "%%%%%|%s", room);
+			sprintf(folder, "%%%%%%|%s", room);
 		}
 		else {
 			sprintf(folder, "%s|%s", floorlist[floor], room);
