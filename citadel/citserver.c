@@ -657,7 +657,6 @@ void GenerateRoomDisplay(char *real_room,
 			struct CitContext *viewer) {
 
 	int ra;
-	int rlen;
 
 	strcpy(real_room, viewed->room.QRname);
 	if (viewed->room.QRflags & QR_MAILBOX) {
@@ -671,10 +670,9 @@ void GenerateRoomDisplay(char *real_room,
 	}
 
 	if (viewed->cs_flags & CS_CHAT) {
-		rlen = strlen(real_room);
-		while (rlen < 14)
-			real_room[rlen] = ' ';
-		real_room[15] = '\0';
+		while (strlen(real_room) < 14) {
+			strcat(real_room, " ");
+		}
 		strcpy(&real_room[14], "<chat>");
 	}
 
