@@ -184,10 +184,8 @@ void update_config(void) {
 	if (CitControl.version < 725) {
 		config.c_xmpp_c2s_port = 5222;
 		config.c_xmpp_s2s_port = 5269;
-		/* Wipe config.c_funambol_auth as support for previous
-		 * module is deprecated */
-		 strcpy(config.c_funambol_auth, " ");
 	}
+
 	put_config();
 }
 
