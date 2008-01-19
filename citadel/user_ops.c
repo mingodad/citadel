@@ -606,6 +606,10 @@ void logout(struct CitContext *who)
 
 	/* Do modular stuff... */
 	PerformSessionHooks(EVT_LOGOUT);
+	
+	/* Check to see if the user was deleted whilst logged in and purge them if necessary */
+	if (who->user.axlevel == 0)
+		purge_user(who->user.fullname);
 
 	/* Free any output buffers */
 	if (who->output_buffer != NULL) {
