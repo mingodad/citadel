@@ -336,7 +336,8 @@ if test "$ok_iconv" = "no"; then
 			ok_iconv=no
 		)
 		if test "$ok_iconv" != "no"; then
-		   LDFLAGS=$LD_FLAGS_BEFORE
+		   LDFLAGS=$LD_FLAGS_BEFORE 
+		   LIBS="$LIBS -liconv"
 		fi
 fi
 

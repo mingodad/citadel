@@ -50,6 +50,8 @@ extern char file_crpt_file_cer[PATH_MAX];
 extern char file_chkpwd[PATH_MAX];
 extern char file_base64[PATH_MAX];
 
+extern char file_funambol_msg[PATH_MAX];
+
 extern void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir, int dbg);
 
 

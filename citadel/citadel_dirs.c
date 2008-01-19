@@ -66,6 +66,7 @@ char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 char file_chkpwd[PATH_MAX]="";
 char file_base64[PATH_MAX]="";
+char file_funambol_msg[PATH_MAX] = "";
 
 int home_specified = 0;
 
@@ -245,7 +246,12 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 		 ctdl_spool_dir
 #endif
 		);
-
+                
+        snprintf(file_funambol_msg,
+                sizeof file_funambol_msg,
+                "%sfunambol_newmail_soap.xml",
+                ctdl_spool_dir);
+        
 	DBG_PRINT(ctdl_bio_dir);
 	DBG_PRINT(ctdl_bb_dir);
 	DBG_PRINT(ctdl_data_dir);
@@ -282,6 +288,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	DBG_PRINT(file_crpt_file_cer);
 	DBG_PRINT(file_chkpwd);
 	DBG_PRINT(file_base64);
+	DBG_PRINT(file_funambol_msg);
 }
 
 
