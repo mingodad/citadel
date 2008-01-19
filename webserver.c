@@ -670,9 +670,6 @@ int main(int argc, char **argv)
 
 	strcpy(uds_listen_path, "");
 
-	if (getenv("TZ") == NULL)
-		putenv("TZ=UTC");
-
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
 	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cfs")) != EOF)
