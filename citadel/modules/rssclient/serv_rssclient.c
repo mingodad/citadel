@@ -471,6 +471,7 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 						strcpy(buf, &buf[9]);
 						striplt(buf);
 						if (parse_url(buf, rsshost, &rssport, rssurl) == 0) {
+							sock_close(sock);
 							goto retry;
 						}
 						else {
