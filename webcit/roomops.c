@@ -2573,6 +2573,10 @@ void entroom(void)
 		display_main_menu();
 		return;
 	}
+	/** TODO: Room created, now udate the left hand icon bar for this user */
+	burn_folder_cache(0);	/* burn the old folder cache */
+	
+	
 	gotoroom(er_name);
 	do_change_view(er_view);		/* Now go there */
 }
@@ -2729,8 +2733,10 @@ void delete_room(void)
 {
 	char buf[SIZ];
 
+	
 	serv_puts("KILL 1");
 	serv_getln(buf, sizeof buf);
+	burn_folder_cache(0);	/* Burn the cahce of known rooms to update the icon bar */
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -3285,6 +3291,25 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 
 /**
+ * \brief Burn the cached folder list.  
+ * \param age How old the cahce needs to be before we burn it.
+ */
+
+void burn_folder_cache(time_t age)
+{
+	/** If our cached folder list is very old, burn it. */
+	if (WC->cache_fold != NULL) {
+		if ((time(NULL) - WC->cache_timestamp) > age) {
+			free(WC->cache_fold);
+			WC->cache_fold = NULL;
+		}
+	}
+}
+
+
+
+
+/**
  * \brief Show the room list.  
  * (only should get called by
  * knrooms() because that's where output_headers() is called from)
@@ -3308,13 +3333,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 	char buf3[SIZ];
 	
 	/** If our cached folder list is very old, burn it. */
-	if (WC->cache_fold != NULL) {
-		if ((time(NULL) - WC->cache_timestamp) > 300) {
-			free(WC->cache_fold);
-			WC->cache_fold = NULL;
-		}
-	}
-
+	burn_folder_cache(300);
+	
 	/** Can we do the iconbar roomlist from cache? */
 	if ((WC->cache_fold != NULL) && (!strcasecmp(viewpref, "iconbar"))) {
 		do_iconbar_view(WC->cache_fold, WC->cache_max_folders, WC->cache_num_floors);
