@@ -4,7 +4,7 @@
  */
 
 #include "webcit.h"
-
+#include "webserver.h"
 #define MAX_FLOORS 128
 char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
@@ -841,6 +841,7 @@ void gotonext(void)
 	struct march *mptr, *mptr2;
 	char room_name[128];
 	char next_room[128];
+	int ELoop = 0;
 
 	/**
 	 * First check to see if the march-mode list is already allocated.
@@ -852,6 +853,14 @@ void gotonext(void)
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1')
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				if (IsEmptyStr(buf)) {
+					if (ELoop > 10000)
+						return;
+					if (ELoop % 100 == 0)
+						sleeeeeeeeeep(1);
+					ELoop ++;
+					continue;					
+				}
 				extract_token(room_name, buf, 0, '|', sizeof room_name);
 				if (strcasecmp(room_name, WC->wc_roomname)) {
 					mptr = (struct march *) malloc(sizeof(struct march));
@@ -859,15 +868,13 @@ void gotonext(void)
 					safestrncpy(mptr->march_name, room_name, sizeof mptr->march_name);
 					mptr->march_floor = extract_int(buf, 2);
 					mptr->march_order = extract_int(buf, 3);
-					if (WC->march == NULL) {
+					if (WC->march == NULL) 
 						WC->march = mptr;
-					} else {
-						mptr2 = WC->march;
-						while (mptr2->next != NULL)
-							mptr2 = mptr2->next;
+					else 
 						mptr2->next = mptr;
-					}
+					mptr2 = mptr;
 				}
+				buf[0] = '\0';
 			}
 		/**
 		 * add _BASEROOM_ to the end of the march list, so the user will end up
