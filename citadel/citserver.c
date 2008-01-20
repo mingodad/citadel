@@ -984,7 +984,12 @@ void begin_session(struct CitContext *con)
 		con->nologin = 1;
 	}
 
-	lprintf(CTDL_NOTICE, "Session started.\n");
+	if (!CC->is_local_socket) {
+		lprintf(CTDL_NOTICE, "Session started from %s [%s].\n", con->cs_host, con->cs_addr);
+	}
+	else {
+		lprintf(CTDL_NOTICE, "Session started via local socket.\n");
+	}
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
