@@ -676,6 +676,7 @@ void begin_ajax_response(void);
 void end_ajax_response(void);
 void initialize_viewdefs(void);
 void initialize_axdefs(void);
+void burn_folder_cache(time_t age);
 void list_all_rooms_by_floor(char *viewpref);
 void display_room_directory(void);
 void download_file(char *);
