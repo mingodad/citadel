@@ -2009,6 +2009,10 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				safestrncpy(WC->summ[nummsgs-1].subj,
 					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
 				if (!IsEmptyStr(fullname)) {
+#ifdef HAVE_ICONV
+				/** Handle senders with RFC2047 encoding */
+					utf8ify_rfc822_string(fullname);
+#endif
 					safestrncpy(WC->summ[nummsgs-1].from,
 						fullname, sizeof WC->summ[nummsgs-1].from);
 				}
