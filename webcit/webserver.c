@@ -279,6 +279,7 @@ ssize_t client_write(const void *buf, size_t count)
 	write(2, buf, count);
 	write(2, "\033[30m", 5);
 #endif
+	fdflags = fcntl(WC->http_sock, F_GETFL);
 
         while (bytesWritten < count) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
