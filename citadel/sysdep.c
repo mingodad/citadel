@@ -547,7 +547,9 @@ void client_write(char *buf, int nbytes)
 #ifndef HAVE_TCP_BUFFERING
 	int old_buffer_len = 0;
 #endif
+	fd_set wset;
 	t_context *Ctx;
+	int fdflags;
 
 	Ctx = CC;
 	if (Ctx->redirect_buffer != NULL) {
@@ -582,7 +584,23 @@ void client_write(char *buf, int nbytes)
 	}
 #endif
 
+	fdflags = fcntl(Ctx->client_socket, F_GETFL);
+
 	while (bytes_written < nbytes) {
+		if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+			FD_ZERO(&wset);
+			FD_SET(Ctx->client_socket, &wset);
+			if (select(1, NULL, &wset, NULL, NULL) == -1) {
+				CtdlLogPrintf(CTDL_ERR,
+					"client_write(%d bytes) select failed: %s (%d)\n",
+					nbytes - bytes_written,
+					strerror(errno), errno);
+				cit_backtrace();
+				Ctx->kill_me = 1;
+				return;
+			}
+		}
+
 		retval = write(Ctx->client_socket, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {

@@ -12,6 +12,8 @@ PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
 ACTUAL_DIR=`pwd`
 
+
+rm -rf debian/citadel-client debian/citadel-common debian/citadel-doc debian/citadel-mta debian/citadel-server debian/citadel-suite debian/tmp
 if echo "$ACTUAL_DIR" |grep -q "$CITADEL_VERSION"; then
 	echo "directory ($ACTUAL_DIR) naming scheme seems right. nothing done."
 else

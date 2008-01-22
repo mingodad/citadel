@@ -4,6 +4,9 @@
 #export DH_VERBOSE=1
 
 # This has to be exported to make some magic below work.
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
 export DH_OPTIONS
 
 DEB_DESTDIR = $(CURDIR)/debian/tmp
@@ -73,7 +76,7 @@ clean:
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp configure-stamp
 
-	-$(MAKE) distclean
+	[ ! -f Makefile ] || $(MAKE) distclean
 
 	dh_clean 
 	rm -f config.status config.log
