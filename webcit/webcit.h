@@ -326,6 +326,15 @@ struct folder {
 	int num_rooms;	/**< If this is a floor, how many rooms does it have */
 };
 
+
+/* Linked list member for a list of webcit preferences for a user
+ */
+struct wcpref {
+	struct wcpref *next;
+	char *pref_key;
+	char *pref_value;
+};
+
 /**
  * \brief One of these is kept for each active Citadel session.
  * HTTP transactions are bound to on e at a time.
@@ -375,7 +384,6 @@ struct wcsession {
 	struct wcsubst *vars;			/**< HTTP variable substitutions for this page */
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
-	char *preferences;			/**< WebCit preferences for this user */
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE		
 	/** \brief ical???? */				
 	struct disp_cal {					
@@ -405,6 +413,7 @@ struct wcsession {
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	int nonce;				/**< session nonce (to prevent session riding) */
 	int time_format_cache;                  /**< which timeformat does our user like? */
+	struct wcpref *first_pref;		/* linked list of preferences */
 };
 
 /** values for WC->current_iconbar */

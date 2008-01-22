@@ -1,22 +1,52 @@
 /*
  * $Id$
- */
-/**
- * \defgroup ManagePrefs Manage user preferences with a little help from the Citadel server.
- * \ingroup CitadelConfig
+ *
+ * Manage user preferences with a little help from the Citadel server.
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 
-/**
- * \brief display preferences dialog
+/* This function is for private use -- callers should use set_preference() instead
+ */
+void store_preference(char *key, char *value) {
+
+	struct wcpref *ptr = NULL;
+
+	if (WC->first_pref == NULL) {
+		WC->first_pref = malloc(sizeof(struct wcpref));
+		WC->first_pref->next = NULL;
+		WC->first_pref->pref_key = strdup(key);
+		WC->first_pref->pref_value = strdup(value);
+		return;
+	}
+
+	for (ptr = WC->first_pref; ptr != NULL; ptr = ptr->next) {
+		if (!strcasecmp(ptr->pref_key, key)) {
+			free(ptr->pref_value);
+			ptr->pref_value = strdup(value);
+			return;
+		}
+	}
+
+	ptr = malloc(sizeof(struct wcpref));
+	ptr->pref_key = strdup(key);
+	ptr->pref_value = strdup(value);
+	ptr->next = WC->first_pref;
+	WC->first_pref = ptr;
+}
+
+
+/*
+ * display preferences dialog
  */
 void load_preferences(void) {
 	char buf[SIZ];
+	char key[SIZ];
+	char value[SIZ];
 	long msgnum = 0L;
 
 	serv_printf("GOTO %s", USERCONFIGROOM);
@@ -42,32 +72,22 @@ void load_preferences(void) {
 			}
 			if (!strcmp(buf, "text")) {
 				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-					if (WC->preferences == NULL) {
-						WC->preferences = malloc(SIZ);
-						strcpy(WC->preferences, "");
-					}
-					else {
-						WC->preferences = realloc(
-							WC->preferences,
-							strlen(WC->preferences)
-							+SIZ
-						);
-					}
-					strcat(WC->preferences, buf);
-					strcat(WC->preferences, "\n");
+					extract_token(key, buf, 0, '|', sizeof key);
+					extract_token(value, buf, 1, '|', sizeof value);
+					store_preference(key, value);
 				}
 			}
 		}
 	}
 
-	/** Go back to the room we're supposed to be in */
+	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
 
-/**
- * \brief Goto the user's configuration room, creating it if necessary.
- * \return 0 on success or nonzero upon failure.
+/*
+ * Goto the user's configuration room, creating it if necessary.
+ * return 0 on success or nonzero upon failure.
  */
 int goto_config_room(void) {
 	char buf[SIZ];
@@ -84,12 +104,13 @@ int goto_config_room(void) {
 	return(0);
 }
 
-/**
- * \brief save the modifications
+/*
+ * save the modifications
  */
 void save_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
+	struct wcpref *ptr;
 
 	if (goto_config_room() != 0) return;	/* oh well. */
 	serv_puts("MSGS ALL|0|1");
@@ -110,85 +131,55 @@ void save_preferences(void) {
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
-		serv_puts(WC->preferences);
+		for (ptr = WC->first_pref; ptr != NULL; ptr = ptr->next) {
+			serv_printf("%s|%s", ptr->pref_key, ptr->pref_value);
+		}
 		serv_puts("");
 		serv_puts("000");
 	}
 
-	/** Go back to the room we're supposed to be in */
+	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }
 
-/**
- * \brief query the actual setting of key in the citadel database
- * \param key config key to query
- * \param value value to the key to get
- * \param value_len length of the value string
+/*
+ * query the actual setting of key in the citadel database
+ * key config	key to query
+ * value	value to the key to get
+ * value_len	length of the value string
  */
 void get_preference(char *key, char *value, size_t value_len) {
-	int num_prefs;
-	int i;
-	char buf[SIZ];
-	char thiskey[SIZ];
+	struct wcpref *ptr;
 
 	strcpy(value, "");
 
-	num_prefs = num_tokens(WC->preferences, '\n');
-	for (i=0; i<num_prefs; ++i) {
-		extract_token(buf, WC->preferences, i, '\n', sizeof buf);
-		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
-		if (!strcasecmp(thiskey, key)) {
-			extract_token(value, buf, 1, '|', value_len);
+	for (ptr = WC->first_pref;  ptr != NULL; ptr = ptr->next) {
+		if (!strcasecmp(ptr->pref_key, key)) {
+			safestrncpy(value, ptr->pref_value, value_len);
+			return;
 		}
 	}
 }
 
-/**
- * \brief	Write a key into the webcit preferences database for this user
+/*
+ *Write a key into the webcit preferences database for this user
  *
- * \params	key		key whichs value is to be modified
- * \param	value		value to set
- * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
+ * key		key whichs value is to be modified
+ * value		value to set
+ * save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
 void set_preference(char *key, char *value, int save_to_server) {
-	int num_prefs;
-	int i;
-	char buf[SIZ];
-	char thiskey[SIZ];
-	char *newprefs = NULL;
-	size_t newprefs_len = 0;
 
-	newprefs_len = strlen(key) + strlen(value) + 10;
-	if (WC->preferences != NULL) newprefs_len += strlen(WC->preferences);
-	newprefs = malloc(newprefs_len);
-	if (newprefs == NULL) return;
-	strcpy(newprefs, "");
-
-	num_prefs = num_tokens(WC->preferences, '\n');
-	for (i=0; i<num_prefs; ++i) {
-		extract_token(buf, WC->preferences, i, '\n', sizeof buf);
-		if (num_tokens(buf, '|') == 2) {
-			extract_token(thiskey, buf, 0, '|', sizeof thiskey);
-			if (strcasecmp(thiskey, key)) {
-				strcat(newprefs, buf);
-				strcat(newprefs, "\n");
-			}
-		}
-	}
-
-	sprintf(&newprefs[strlen(newprefs)], "%s|%s\n", key, value);
-	free(WC->preferences);
-	WC->preferences = newprefs;
-
+	store_preference(key, value);
 	if (save_to_server) save_preferences();
 }
 
 
 
 
-/** 
- * \brief display form for changing your preferences and settings
+/*
+ * display form for changing your preferences and settings
  */
 void display_preferences(void)
 {

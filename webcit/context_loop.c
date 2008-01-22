@@ -92,8 +92,13 @@ void do_housekeeping(void)
 		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
 		close(sessions_to_kill->serv_sock);
 		close(sessions_to_kill->chat_sock);
-		if (sessions_to_kill->preferences != NULL) {
-			free(sessions_to_kill->preferences);
+		while (sessions_to_kill->first_pref != NULL) {
+			struct wcpref *ptr;
+			ptr = sessions_to_kill->first_pref->next;
+			free(sessions_to_kill->first_pref->pref_key);
+			free(sessions_to_kill->first_pref->pref_value);
+			free(sessions_to_kill->first_pref);
+			sessions_to_kill->first_pref = ptr;
 		}
 		if (sessions_to_kill->cache_fold != NULL) {
 			free(sessions_to_kill->cache_fold);
