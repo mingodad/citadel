@@ -92,20 +92,17 @@ void do_housekeeping(void)
 		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
 		close(sessions_to_kill->serv_sock);
 		close(sessions_to_kill->chat_sock);
-		while (sessions_to_kill->first_pref != NULL) {
-			struct wcpref *ptr;
-			ptr = sessions_to_kill->first_pref->next;
-			free(sessions_to_kill->first_pref->pref_key);
-			free(sessions_to_kill->first_pref->pref_value);
-			free(sessions_to_kill->first_pref);
-			sessions_to_kill->first_pref = ptr;
-		}
+//		if (sessions_to_kill->preferences != NULL) {
+//			free(sessions_to_kill->preferences);
+//		}
 		if (sessions_to_kill->cache_fold != NULL) {
 			free(sessions_to_kill->cache_fold);
 		}
 		free_attachments(sessions_to_kill);
 		free_march_list(sessions_to_kill);
 		clear_substs(sessions_to_kill);
+		DeleteHash(&(sessions_to_kill->hash_prefs));
+		
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
 		free(sessions_to_kill);
@@ -476,6 +473,7 @@ void context_loop(int sock)
 
 		strcpy(TheSession->httpauth_user, httpauth_user);
 		strcpy(TheSession->httpauth_pass, httpauth_pass);
+		TheSession->hash_prefs = NewHash();	/* Get a hash table for the user preferences */
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
 		TheSession->nonce = rand();
