@@ -234,3 +234,32 @@ char *vcard_get_prop(struct vCard *v, char *propname, int is_partial,
 char *vcard_serialize(struct vCard *);
 void vcard_fn_to_n(char *vname, char *n, size_t vname_size);
 void remove_charset_attribute(char *strbuf);
+
+typedef struct HashList HashList;
+
+typedef struct HashKey HashKey;
+
+typedef struct HashPos HashPos;
+
+typedef void (*DeleteHashDataFunc)(void * Data);
+
+
+
+HashList *NewHash(void);
+void DeleteHash(HashList **Hash);
+
+
+int GetHash(HashList *Hash, char *HKey, long HKLen, void **Data);
+
+void Put(HashList *Hash, char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
+
+int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
+
+int GetHashKeys(HashList *Hash, const char ***List);
+
+int PrintHash(HashList *Hash);
+
+HashPos *GetNewHashPos(void);
+void DeleteHashPos(HashPos **DelMe);
+
+int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);

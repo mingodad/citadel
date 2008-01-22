@@ -1,0 +1,55 @@
+This file is for notes on converting things to use the hash functions Dothebart added.
+
+
+Convert the server config to use these functions.
+Alter citserver to read key value pairs for the config instead of an ordered file.
+Alter citserver to store the config in the data base.
+Add code to serv_upgrade to convert the current file into a normal message in the DB.
+serv_upgrade will read the file create at setup time on first boot to get it into
+the DB this way the existing setup tools don't need to be altered.
+
+Webcit can then ask for the site wide config using normal MSG* commands.
+Webcit will need to parse the message into key value pairs which is dead simple to do.
+
+Hmm, just a thought but has anyone wondered about locking things like this so 2 Aides can't
+change them at the same time which would result in some changes getting lost.
+
+
+
+We can use this code for any key value pair situation since the has should be faster than sequential search.
+Possible candidates are.
+
+
+get_user and friends.
+Load the user list into the hash at boot.
+Write new entries to the DB when the occur.
+Use 2 hashes so we can quickly get user by name or number. This might be possible since
+the hash value can be any object. user name hash is master and sync'd wuth DB and has real destructor,
+user number hash uses exact same user object but dummy destructor that does nothing. That way
+destructing a key from the hash has expected results. Destructor could also call purge_user maybe? 
+Perhaps delay writing changes if the server is busy.
+This would save on DB accesses which can be a bottle neck.
+Definately would save on DB reads.
+
+
+netconfigs??
+
+
+mail.aliases
+Load into a hash at startup and done with?
+Perhaps even bring this into the DB as a MSG update the MSG if the file changes for backward compat. Then
+we can make it changeable via client. File gets out of date though.
+Read from the DB as needed, cache into the hash?
+
+
+Webcit URL's
+Some of these might benefit from a hash.
+bstr does a sequential search for the key so a hash would be faster in cases where the URL contains lots of
+stuff like site config and probably more.
+
+
+Since the hash can store arbitrary objects we can probably use it to store contexts and threads.
+At first this seems as though it won't do much for performance but done right I think we will be
+able to do away with the locking of the entire list and reduce the granularity to locking only the context/thread struct
+we are currently working on.
+Perhaps a modified hash that locks the retrieved entry and unlocks the entry by a call to unlock key.
