@@ -108,7 +108,10 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
-	fcntl(s, F_SETFL, O_NONBLOCK);/// TODO
+	fcntl(s, F_SETFL, O_NONBLOCK); /* maide: this statement is incorrect
+					  there should be a preceding F_GETFL
+					  and a bitwise OR with the previous
+					  fd flags */
 	
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
@@ -237,8 +240,12 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
  */
 ssize_t client_write(const void *buf, size_t count)
 {
-	char *newptr;
-	size_t newalloc;
+        char *newptr;
+        size_t newalloc;
+        size_t bytesWritten = 0;
+        ssize_t res;
+        fd_set wset;
+        int fdflags;
 
 	if (WC->burst != NULL) {
 		if ((WC->burst_len + count) >= WC->burst_alloc) {
@@ -272,7 +279,26 @@ ssize_t client_write(const void *buf, size_t count)
 	write(2, buf, count);
 	write(2, "\033[30m", 5);
 #endif
-	return (write(WC->http_sock, buf, count));
+
+        while (bytesWritten < count) {
+                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(WC->http_sock, &wset);
+                        if (select(1, NULL, &wset, NULL, NULL) == -1) {
+                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                return -1;
+                        }
+                }
+
+                if ((res = write(WC->http_sock, (char*)buf + bytesWritten,
+                  count - bytesWritten)) == -1) {
+                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+                        return res;
+                }
+                bytesWritten += res;
+        }
+
+	return bytesWritten;
 }
 
 /*
