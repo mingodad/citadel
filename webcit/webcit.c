@@ -676,6 +676,8 @@ void output_static(char *what)
 	FILE *fp;
 	struct stat statbuf;
 	off_t bytes;
+	off_t count = 0;
+	size_t res;
 	char *bigbuffer;
 	char content_type[128];
 	int len;
@@ -683,10 +685,10 @@ void output_static(char *what)
 	fp = fopen(what, "rb");
 	if (fp == NULL) {
 		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
-		wprintf("HTTP/1.1 404 %s\n", strerror(errno));
+		wprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 		wprintf("Content-Type: text/plain\r\n");
 		wprintf("\r\n");
-		wprintf("Cannot open %s: %s\n", what, strerror(errno));
+		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
 	} else {
 		len = strlen (what);
 		if (!strncasecmp(&what[len - 4], ".gif", 4))
@@ -720,10 +722,35 @@ void output_static(char *what)
 		else
 			safestrncpy(content_type, "application/octet-stream", sizeof content_type);
 
-		fstat(fileno(fp), &statbuf);
+		if (fstat(fileno(fp), &statbuf) == -1) {
+			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
+			wprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
+			wprintf("Content-Type: text/plain\r\n");
+			wprintf("\r\n");
+			wprintf("Cannot fstat %s: %s\n", what, strerror(errno));
+			return;
+		}
+
+		count = 0;
 		bytes = statbuf.st_size;
-		bigbuffer = malloc(bytes + 2);
-		fread(bigbuffer, bytes, 1, fp);
+		if ((bigbuffer = malloc(bytes + 2)) == NULL) {
+			lprintf(9, "output_static('%s')  -- MALLOC FAILED (%s) --\n", what, strerror(errno));
+			wprintf("HTTP/1.1 500 internal server error\r\n");
+			wprintf("Content-Type: text/plain\r\n");
+			wprintf("\r\n");
+			return;
+		}
+		while (count < bytes) {
+			if ((res = fread(bigbuffer + count, 1, bytes - count, fp)) == 0) {
+				lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) %zu bytes of %zu --\n", what, strerror(errno), bytes - count, bytes);
+				wprintf("HTTP/1.1 500 internal server error \r\n");
+				wprintf("Content-Type: text/plain\r\n");
+				wprintf("\r\n");
+				return;
+			}
+			count += res;
+		}
+
 		fclose(fp);
 
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
