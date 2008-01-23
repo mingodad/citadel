@@ -45,12 +45,19 @@ int notify_funambol_server(char *user) {
 		lprintf(CTDL_DEBUG, "Connected to Funambol!\n");
 	else 
 		goto bail;
-	// Load the template SOAP message
+	// Load the template SOAP message. Get mallocs done too
 	template = fopen(file_funambol_msg, "r");
 	buf = malloc(SIZ);
 	memset(buf, 0, SIZ);
 	SOAPMessage = malloc(3072);
 	memset(SOAPMessage, 0, 3072);
+	
+	SOAPHeader  = malloc(SIZ);
+	memset(SOAPHeader, 0, SIZ);
+	
+	funambolCreds = malloc(strlen(config.c_funambol_auth)*2);
+	memset(funambolCreds, 0, strlen(config.c_funambol_auth)*2);
+	
 	while(fgets(buf, SIZ, template) != NULL) {
 		strcat(SOAPMessage, buf);
 	}
@@ -58,15 +65,15 @@ int notify_funambol_server(char *user) {
 	
 	if (strlen(SOAPMessage) < 0) {
 		printf("Cannot load template file\r\n");
-		goto bail;
+		goto free;
 	}
 	// Do substitutions
 	help_subst(SOAPMessage, "^notifyuser", user);
 	help_subst(SOAPMessage, "^syncsource", config.c_funambol_source);
 	
 	/* Build the HTTP request header */
-	SOAPHeader  = malloc(SIZ);
-	memset(SOAPHeader, 0, SIZ);
+
+	
 	sprintf(SOAPHeader, "POST %s HTTP/1.0\r\nContent-type: text/xml; charset=utf-8\r\n",
 		FUNAMBOL_WS);
 	strcat(SOAPHeader,"Accept: application/soap+xml, application/dime, multipart/related, text/*\r\n");
@@ -82,8 +89,7 @@ int notify_funambol_server(char *user) {
 		strlen(SOAPMessage));
 	strcat(SOAPHeader, buf);
 	
-	funambolCreds = malloc(strlen(config.c_funambol_auth)*2);
-	memset(funambolCreds, 0, strlen(config.c_funambol_auth)*2);
+	
 
 	CtdlEncodeBase64(funambolCreds, config.c_funambol_auth, strlen(config.c_funambol_auth), 0);
 	
@@ -99,21 +105,21 @@ int notify_funambol_server(char *user) {
 	/* Response */
 	lprintf(CTDL_DEBUG, "Awaiting response\n");
         if (sock_getln(sock, buf, SIZ) < 0) {
-                goto bail;
+                goto free;
         }
         lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK"))) {
 		
-		goto bail;
+		goto free;
 	}
 	lprintf(CTDL_DEBUG, "Funambol notified\n");
-	
+free:
+	if (funambolCreds != NULL) free(funambolCreds);
+	if (SOAPMessage != NULL) free(SOAPMessage);
+	if (buf != NULL) free(buf);
+	if (SOAPHeader != NULL) free(SOAPHeader);
 bail:
 	close(sock);
-	free(funambolCreds);
-	free(SOAPMessage);
-	free(buf);
-	free(SOAPHeader);
 	return 0;
 }
 
