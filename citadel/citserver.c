@@ -1070,6 +1070,10 @@ void do_command_loop(void) {
 		cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
 	}
 	
+	if (!strncasecmp(cmdbuf, "XYZZY", 5)) {
+		cprintf("%d Nothing happens.\n", CIT_OK);
+	}
+	
 	else if (!strncasecmp(cmdbuf, "QNOP", 4)) {
 		/* do nothing, this command returns no response */
 	}
