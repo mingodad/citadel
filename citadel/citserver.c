@@ -1070,7 +1070,7 @@ void do_command_loop(void) {
 		cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
 	}
 	
-	if (!strncasecmp(cmdbuf, "XYZZY", 5)) {
+	else if (!strncasecmp(cmdbuf, "XYZZY", 5)) {
 		cprintf("%d Nothing happens.\n", CIT_OK);
 	}
 	
@@ -1425,9 +1425,8 @@ void do_command_loop(void) {
 	}
 
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {
-		cprintf("%d Unrecognized or unsupported command.\n",
-			ERROR + CMD_NOT_SUPPORTED);
-	       }
+		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);
+	}
 
 	unbuffer_output();
 
