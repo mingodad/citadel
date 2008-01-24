@@ -657,11 +657,12 @@ struct attach_link {
 };
 
 
-/**
- * \brief I wanna SEE that message!  
- * \param msgnum the citadel number of the message to display
- * \param printable_view are we doing a print view?
- * \param section Optional for encapsulated message/rfc822 submessage)
+/*
+ * I wanna SEE that message!
+ *
+ * msgnum		Message number to display
+ * printable_view	Nonzero to display a printable view
+ * section		Optional for encapsulated message/rfc822 submessage
  */
 void read_message(long msgnum, int printable_view, char *section) {
 	char buf[SIZ];
@@ -1041,10 +1042,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 	 */
 	strcpy(mime_content_type, "text/plain");
 	while (serv_getln(buf, sizeof buf), (!IsEmptyStr(buf))) {
+		lprintf(9, "GOT: <%s>\n", buf);
 		if (!strcmp(buf, "000")) {
-			wprintf("<i>");
-			wprintf(_("unexpected end of message"));
-			wprintf(" (2)</i><br /><br />\n");
+			/* This is not necessarily an error condition.  See bug #226. */
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "X-Citadel-MSG4-Partnum:", 23)) {
@@ -1154,7 +1154,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
-	/** If there are attached submessages, display them now... */
+ENDBODY:	/* If there are attached submessages, display them now... */
+
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
@@ -1210,7 +1211,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 		part_source = NULL;
 	}
 
-ENDBODY:
 	wprintf("</div>\n");
 
 	/** end everythingamundo table */
