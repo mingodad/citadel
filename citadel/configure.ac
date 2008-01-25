@@ -381,33 +381,6 @@ dnl (Linux shadow passwords)
 		fi
 	fi
 
-case "`uname -a`" in 
- OpenBSD*)
-	echo "we don't need to check for resolv on openbsd"  
-	;;
- *)
-	test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
-	AC_CHECK_LIB(resolv, res_query,
-		RESOLV="$RESOLV -lresolv",
-		[dnl Have to include resolv.h as res_query is sometimes defined as a macro
-			AC_MSG_CHECKING([for res_query in -lresolv (with resolv.h if present)])
- 			saved_libs="$LIBS"
- 			LIBS="-lresolv $LIBS"
- 			AC_TRY_LINK([
- 				#ifdef HAVE_RESOLV_H
- 				#include <resolv.h>
- 				#endif],
- 				[res_query(0,0,0,0,0)],
- 				[AC_MSG_RESULT(yes)
- 						have_res_query=yes],
- 				[AC_MSG_RESULT(no)
-					AC_MSG_ERROR(libresolv was not found.  Citadel requires the resolver library.)
- 				])
-         ]
-	)
-	;;
-esac
-
 if test "x$with_ncurses" != "xno"; then
 	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
 	AC_SEARCH_LIBS(scrollok, [ncurses curses])
@@ -774,27 +747,35 @@ else
 	AC_DEFINE(F_XPID_T, "%x",  [whats the matching format string for xpid_t?])
 fi
 
-dnl AC_CHECK_FUNCS(res_query)
-AC_CACHE_CHECK([for the resolver calls], 
-	       ac_cv_resquery_ok, 
-[AC_TRY_COMPILE([#include <netinet/in.h>
-#include <sys/types.h>
-#include <arpa/nameser.h>
-#include <resolv.h>], 
-	        [
-			char *domain="www.google.com";
-			u_char *answer;
-			int len;
-			len = res_query( domain, C_IN, T_A, answer, PACKETSZ );
-		],
-                ac_cv_resquery_ok=yes,
-		ac_cv_resquery_ok=no)
-])
-echo "resquery: $ac_cv_resquery_ok"
 
-dnl if test "$ac_cv_resquery_ok" = "no" ; then
-dnl    AC_DEFINE(RES_QUERY_GONE, "#error resquery not here. can't continue.")
-dnl fi
+dnl Our own happy little check for the resolver library.
+
+case "`uname -a`" in 
+ OpenBSD*)
+	echo "we don't need to check for resolv on openbsd"  
+	;;
+ *)
+	test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
+	AC_CHECK_LIB(resolv, res_query,
+		RESOLV="$RESOLV -lresolv",
+		[dnl Have to include resolv.h as res_query is sometimes defined as a macro
+			AC_MSG_CHECKING([for res_query in -lresolv (with resolv.h if present)])
+ 			saved_libs="$LIBS"
+ 			LIBS="-lresolv $LIBS"
+ 			AC_TRY_LINK([
+ 				#ifdef HAVE_RESOLV_H
+ 				#include <resolv.h>
+ 				#endif],
+ 				[res_query(0,0,0,0,0)],
+ 				[AC_MSG_RESULT(yes)
+ 						have_res_query=yes],
+ 				[AC_MSG_RESULT(no)
+					AC_MSG_ERROR(libresolv was not found.  Citadel requires the resolver library.)
+ 				])
+         ]
+	)
+	;;
+esac
 
 
 
