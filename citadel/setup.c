@@ -446,9 +446,12 @@ void install_init_scripts(void)
 				setup_directory
 			);
 	fprintf(fp,	"		;;\n"
-			"restart)	$0 stop\n"
-			"		$0 start\n"
-			"		;;\n"
+			"restart)	if $CITADEL_DIR/sendcommand DOWN 1 >/dev/null 2>&1 ; then\n"
+			"			echo \"ok\"\n"
+			"		else\n"
+			"			echo \"failed\"\n"
+			"		fi\n"
+		        "               ;;\n"
 			"*)		echo \"Usage: $0 {start|stop|restart}\"\n"
 			"		exit 1\n"
 			"		;;\n"

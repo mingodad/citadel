@@ -98,8 +98,13 @@ do_stop()
 # Function that sends a SIGHUP to the daemon/service
 #
 do_reload() {
-        do_stop
-        do_start
+	# Return
+	#   0 if daemon could not be restarted
+	#   1 if daemon has been restarted
+	#   other if a failure occurred
+        if $SENDCOMMAND "DOWN 1" 2>&1|grep '200 Restarting'>/dev/null ; then
+	    return 1
+	fi
 	return 0
 }
 
@@ -140,25 +145,18 @@ case "$1" in
 	    echo "Restarting $DESC" "$NAME"
 	fi
 
-	do_stop
+	do_reload
 
 	if test -n "$MODERN"; then
 	    case "$?" in
-		0|1)
-		    do_start
-		    case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
-		    esac
+		0)
+		    log_end_msg 0
 		    ;;
-		*)
+		1)
 	  	# Failed to stop
 		    log_end_msg 1
 		    ;;
 	    esac
-	else
-	    do_start
 	fi
 	;;
   *)
