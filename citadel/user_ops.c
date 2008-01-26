@@ -810,6 +810,10 @@ int purge_user(char pname[])
 
 	makeuserkey(usernamekey, pname);
 
+	/* If the name is empty we can't find them in the DB any way so just return */
+	if (IsEmptyStr(pname))
+		return (ERROR + NO_SUCH_USER);
+
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(CTDL_ERR, "Cannot purge user <%s> - not found\n", pname);
 		return (ERROR + NO_SUCH_USER);
