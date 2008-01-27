@@ -73,17 +73,18 @@ do_stop()
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
         if $SENDCOMMAND "DOWN" >/dev/null 2>&1 ; then
+	    PID=`cat $PIDFILE`
 	    rm -f $PIDFILE
 	    count=0;
-	    while test -S /var/run/citadel/citadel.socket; do 
+	    while test -S /var/run/citadel/citadel.socket -o -d /proc/$PID; do 
 		count=$(($count+1))
 		sleep 1
 		echo -n "."
 		if test "$count" = "10"; then
-		    killall citserver
+		    kill $PID
 		fi
 		if test "$count" = "20"; then
-		    killall -9 citserver
+		    kill -9 $PID
 		    rm -rf /var/run/citadel/*
 		fi
 	    done
