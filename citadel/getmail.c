@@ -132,14 +132,15 @@ void logoff(int e)
 void np_attach_to_server(char *host, char *port)
 {
 	char buf[SIZ];
-	char hostbuf[256], portbuf[256];
+	char hostbuf[256] = "";
+	char portbuf[256] = "";
 	char *args[] =
-	{"sendcommand", NULL};
+	{"getmail", NULL};
 	int r;
 
 	fprintf(stderr, "Attaching to server...\n");
-	strcpy(hostbuf, host);
-	strcpy(portbuf, port);
+	strncpy(hostbuf, host, 256);
+	strncpy(portbuf, port, 256);
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
 	if (!ipc) {
 		fprintf(stderr, "Can't connect: %s\n", strerror(errno));
@@ -166,7 +167,7 @@ void sendcommand_die(void) {
  */
 int main(int argc, char **argv)
 {
-	int a;
+	int a, r, i;
 	char cmd[5][SIZ];
 	char buf[SIZ];
 
@@ -182,6 +183,7 @@ int main(int argc, char **argv)
 	struct ctdlipcroom *Room;
 	struct ctdlipcmessage *mret;
 	char cret[SIZ];
+	unsigned long *msgarr;
 
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
@@ -212,7 +214,7 @@ int main(int argc, char **argv)
 	signal(SIGHUP, cleanup);
 	signal(SIGTERM, cleanup);
 
-	fprintf(stderr, "sendcommand: started (pid=%d) "
+	fprintf(stderr, "getmail: started (pid=%d) "
 			"running in %s\n",
 			(int) getpid(),
 			ctdl_home_directory);
@@ -221,14 +223,22 @@ int main(int argc, char **argv)
 	alarm(5);
 	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
 	
-	np_attach_to_server(UDS, ctdl_home_directory);
+	np_attach_to_server(UDS, ctdl_run_dir);
 	fflush(stderr);
 	setIPCDeathHook(sendcommand_die);
 
 	fprintf(stderr, "GOTO %s\n", cmd[0]);
 	CtdlIPCGotoRoom(ipc, cmd[0], "", &Room, cret);
 	fprintf(stderr, "%s\n", cret);
-	CtdlIPCGetSingleMessage(ipc, atol(cmd[1]) ,atol(cmd[2]),4, &mret, cret);
+
+	r = CtdlIPCGetMessages(ipc, 0, 0, NULL, &msgarr, buf);
+	for (i = 0; i < r ; i ++)
+	{
+		printf("Message: %ld\n", msgarr[i]);
+	}
+
+
+	CtdlIPCGetSingleMessage(ipc, atol(cmd[1]) ,atol(cmd[1]),4, &mret, cret);
 	fprintf(stderr, "%s\n", cret);
 	fprintf(stderr, "%s: %s\n", "path", mret->path);
 	fprintf(stderr, "%s: %s\n", "subject", mret->subject);
