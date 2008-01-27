@@ -1,0 +1,14 @@
+iconbar|ib_displayas=0,ib_logo=0,ib_summary=1,ib_inbox=1,ib_calendar=1,ib_contacts=1,ib_notes=1,ib
+_tasks=1,ib_rooms=1,ib_users=2,ib_chat=1,ib_advanced=1,ib_logoff=0,ib_citadel=1
+roomlistview|rooms
+emptyfloors|yes
+weekstart|0
+use_sig|no
+startpage|dotskip&room=_BASEROOM_
+signature|
+daystart|8
+floordiv_expanded|
+current_iconbar|0
+calhourformat|24
+dayend|17
+

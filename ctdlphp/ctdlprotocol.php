@@ -26,7 +26,7 @@ function dbgprintf_wrapin($string, $html)
 {
 	if (!CITADEL_DEBUG_HTML){
 		if ($html)
-			debugLog("<< ".$string);
+			debugLog("<< ".$string."\n");
 	}
 	else 
 		printf($string);
@@ -35,7 +35,7 @@ function dbgprintf_wrapout($string, $html)
 {
 	if (!CITADEL_DEBUG_HTML){
 		if ($html)
-			debugLog("<< ".$string);
+			debugLog("<< ".$string."\n");
 	}
 	else
 		printf($string);
@@ -786,7 +786,7 @@ function ctdl_msg4_from_server() {
 			}
 			else if (!strcasecmp($msgformat, "text/plain")) {
 				$txt .= "\r\n".$buf;
-				$modified_ .= "<TT>" . htmlspecialchars($buf) . "</TT><BR>\n" ;
+				$modified_txt .= "<TT>" . htmlspecialchars($buf) . "</TT><BR>\n" ;
 
 			}
 			else if (!strcasecmp($msgformat, "text/x-citadel-variformat")) {
