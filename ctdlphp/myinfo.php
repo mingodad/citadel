@@ -19,18 +19,36 @@ list($num_msgs, $response, $msgs) = ctdl_msgs("", "");
 
 echo "num_msgs: " . $num_msgs . "<BR>\n" ;
 echo "response: " . htmlspecialchars($response) . "<BR>\n" ;
-
+$Webcit_Preferences = array();
+$Webcit_PrefMsgid = 0;
 if ($num_msgs > 0) foreach ($msgs as $msgnum) {
 	print_r($msgnum);
-	$result = get_message_partlist($msgnum);
-	if (is_array($result) &&
-	    ($result[4]=="text/x-vcard"))
-	{
-		list($size, $vcard) = download_attachment($msgnum, $result[2]);
+
+	// Fetch the message from the server
+	list($ok, $response, $fields) = ctdl_fetch_message($msgnum);
+
+	// Bail out gracefully if the message isn't there.
+	if (!$ok) {
+		echo "Error: " . htmlspecialchars($response) . "<BR>" ;
+		return false;
 	}
+	if (isset($fields['part']))
+	{
+		$parts = explode('|', $fields['part']);
+		print_r($parts);
+		if ($parts[4]=="text/x-vcard")
+			list($size, $vcard) = download_attachment($msgnum, $result[2]);
+		else
+			ctdl_dele($msgnum);
+	}
+	else if ($fields['subj'] == "__ WebCit Preferences __")
+	{
+		$Webcit_PrefMsgid = $msgnum;
+		$Webcit_Preferences = $fields;
+	} 
 }
 
-echo "</TABLE>\n <pre>\n".$vcard."</pre>";
+echo "</TABLE>\n--------------------------------------- <pre>\n". $vcard."</pre>";
 
 echo "putting it back in!";
 
@@ -53,10 +71,25 @@ end:vcard
 ";
 preg_replace('/Sir/', 'Mrs',$vcard);
 echo "Now its: <pre>\n".$vcard."</pre>";
-$entearray=array();
+$entarray=array();
 $entarray['post']=1;
 $entarray['format_type']=FMT_RFC822;
 enter_message_0($entarray, "text/x-vcard; charset=UTF-8", $vcard);
+
+
+if ($Webcit_PrefMsgid != '0')
+{
+	ctdl_dele($Webcit_PrefMsgid);
+	
+	$entarray=array();
+	$entarray['post']=1;
+	$entarray['format_type']=FMT_FIXED;
+	$entarray['subject'] = $Webcit_Preferences['subj'];
+	$entarray['anon_flag'] = '0';
+	enter_message_0($entarray,
+			"", 
+			"somevar|somevalue\r\n".$Webcit_Preferences['text']);
+}
 ?>
 
 <BR>Sample links<BR>

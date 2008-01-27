@@ -54,7 +54,10 @@ function display_message($msgnum) {
 	}
 
 	// Do message text
-	echo $fields["text"] . "<BR>";
+	if ($fields['formatet_text'] != "")
+		echo $fields['formatet_text'] . "<BR>";
+	else 
+		echo $fields["text"] . "<BR>";
 
 	echo '</TD></TR></TABLE><BR>' ;
 }

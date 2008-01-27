@@ -372,7 +372,7 @@ function become_logged_in($server_parms) {
 function ctdl_get_serv_info() {
 	serv_puts("INFO");
 	$reply = read_array();
-	if ((count($reply) == 18) &&
+	if ((count($reply) == 22) &&
 	    substr($reply[0], 0, 1) == "1") {
 		$server_info=array();
 		$server_info["serv_nodename"]  = $reply[1];
@@ -390,8 +390,12 @@ function ctdl_get_serv_info() {
 		return $server_info;
 	}
 	else 
-		die ("didn't understand the reply to the INFO command");
-
+	{
+		dbgprintf_wrapin ("didn't understand the reply to the INFO command".
+				  print_r($reply, TRUE), false);
+		
+		die ("CTDLPHP: didn't understand the reply to the INFO command");
+	}
 }
 
 //
@@ -432,6 +436,26 @@ function ctdl_mesg($msgname) {
 
 	$msgtext .= "</DIV>\n";
 	return($msgtext);
+}
+
+//
+// Delete a Message.
+// http://www.citadel.org/doku.php/documentation:appproto:room_indexes_and_messages#dele.delete.a.message
+
+function ctdl_dele($msgname) {
+	global $clientsocket;
+
+	$msgtext = "<DIV ALIGN=CENTER>\n";
+
+	serv_puts("DELE " . $msgname);
+	$response = serv_gets();
+
+	if (substr($response[0], 0, 1) == "1") {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
 }
 
 /* http://www.citadel.org/doku.php/documentation:appproto:connection#mesg.read.system.message */
@@ -687,7 +711,9 @@ function ctdl_fetch_message($msgnum) {
 			if (CITADEL_DEBUG_CITPROTO == 1)
 				dbgprintf_wrapout("</div>\n<h3>Message Body Follows</h3><div class='ctdldbgRead'>", false);
 			// We're in the text body.  New loop here.
-			$fields["text"] = ctdl_msg4_from_server();
+			$texts = ctdl_msg4_from_server();
+			$fields["text"] = $texts[0];
+			$fields["formated_text"]=$texts[1];
 			if (CITADEL_DEBUG_CITPROTO == 1)
 				dbgprintf_wrapout ("</div>", false);
 			return array(TRUE, substr($response, 4), $fields);
@@ -719,7 +745,10 @@ function ctdl_fetch_message_rfc822($msgnum) {
 	while ($buf = serv_gets(TRUE)) {
 //		dbgprintf_wrapout($buf, true);
 		if ($buf=="000")
+		{
+			$message .= "\n.\n";
 			break;
+		}
 		$message = $message . "\n" . $buf;
 		$buf = "";
 	}
@@ -735,6 +764,7 @@ function ctdl_fetch_message_rfc822($msgnum) {
 function ctdl_msg4_from_server() {
 
 	$txt = "";
+	$modified_txt = "";
 	$msgformat = "text/plain";
 	$in_body = FALSE;
 
@@ -755,7 +785,9 @@ function ctdl_msg4_from_server() {
 				$txt .= $buf;
 			}
 			else if (!strcasecmp($msgformat, "text/plain")) {
-				$txt .= "<TT>" . htmlspecialchars($buf) . "</TT><BR>\n" ;
+				$txt .= "\r\n".$buf;
+				$modified_ .= "<TT>" . htmlspecialchars($buf) . "</TT><BR>\n" ;
+
 			}
 			else if (!strcasecmp($msgformat, "text/x-citadel-variformat")) {
 				if (substr($previous_line, 0, 1) == " ") {
@@ -770,7 +802,7 @@ function ctdl_msg4_from_server() {
 		}
 	}
 
-	return($txt);
+	return(array($txt, $modified_txt));
 }
 
 

@@ -34,11 +34,15 @@ function establish_citadel_session() {
 	// session, and it's found in the /tmp directory.
 
 	$sockname = "/tmp/" . $session . ".socket" ;
-
+	$errno = 0; 
+	$errstr = "";
 	if (is_array(stat($sockname)))
 		$clientsocket = fsockopen(SOCKET_PREFIX.$sockname, 0, $errno, $errstr, 5);
 	else
 		$clientsocket = false;
+//// TODO: if we get connection refused...
+	echo "$socketname - $errno - $errstr";
+	
 	if (!$clientsocket) {
 		// It ain't there, dude.  Open up the proxy. (C version)
 		//$cmd = "./sessionproxy " . $sockname ;
