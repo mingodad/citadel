@@ -967,14 +967,26 @@ int main(int argc, char *argv[])
 			strcpy(aaa, &aaa[2]);
 			setup_type = atoi(aaa);
 		}
-		if (!strcmp(argv[a], "-i")) {
+		else if (!strcmp(argv[a], "-i")) {
 			info_only = 1;
 		}
-		if (!strcmp(argv[a], "-q")) {
+		else if (!strcmp(argv[a], "-q")) {
 			setup_type = UI_SILENT;
 		}
+		else if (!strncmp(argv[a], "-h", 2)) {
+			relh=argv[a][2]!='/';
+			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
+								   sizeof ctdl_home_directory);
+			else
+				safestrncpy(relhome, &argv[a][2],
+							sizeof relhome);
+			home_specified = 1;
+			home=1;
+		}
+
 	}
 
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 
 	/* If a setup type was not specified, try to determine automatically
 	 * the best one to use out of all available types.
@@ -996,17 +1008,6 @@ int main(int argc, char *argv[])
 		set_str_val(0, setup_directory);
 	}
 
-	home=(setup_directory[1]!='\0');
-	relh=home&(setup_directory[1]!='/');
-	if (!relh) {
-		safestrncpy(ctdl_home_directory, setup_directory, sizeof ctdl_home_directory);
-	}
-	else {
-		safestrncpy(relhome, ctdl_home_directory, sizeof relhome);
-	}
-
-	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
-	
 	enable_home=(relh|home);
 
 	if (home) {
