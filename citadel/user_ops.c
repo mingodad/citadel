@@ -413,7 +413,8 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		 * If not found, make one attempt to create it.
 		 */
 		found_user = getuserbyuid(&CC->user, pd.pw_uid);
-		lprintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %ld\n", (long)pd.pw_uid, pd.pw_gecos, found_user);
+		lprintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %d\n",
+			(long)pd.pw_uid, pd.pw_gecos, found_user);
 		if (found_user != 0) {
 			create_user(username, 0);
 			found_user = getuserbyuid(&CC->user, pd.pw_uid);

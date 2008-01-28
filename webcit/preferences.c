@@ -1,28 +1,21 @@
 /*
  * $Id$
- */
-/**
- * \defgroup ManagePrefs Manage user preferences with a little help from the Citadel server.
- * \ingroup CitadelConfig
+ *
+ * Manage user preferences with a little help from the Citadel server.
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
-
-//// tmp
-#include <stdio.h>
-
-/**
- * \brief display preferences dialog
+/*
+ * display preferences dialog
  */
 void load_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
 	char key[SIZ], value[SIZ];
-	char *pBuf;
 	
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_getln(buf, sizeof buf);
@@ -56,7 +49,7 @@ void load_preferences(void) {
 		}
 	}
 
-	/** Go back to the room we're supposed to be in */
+	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof buf);
 }

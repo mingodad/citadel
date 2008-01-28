@@ -405,7 +405,6 @@ dnl Check for libcitadel
 AC_CHECK_HEADER(libcitadel.h,
 	[AC_CHECK_LIB(citadel, libcitadel_version_string,
 		[
-			AC_MSG_RESULT(OK)
 			LIBS="-lcitadel $LIBS"
 		],
 		[
@@ -416,6 +415,28 @@ AC_CHECK_HEADER(libcitadel.h,
 	[
 		AC_MSG_ERROR(libcitadel.h was not found or is not usable.  Please install libcitadel.)
 	]
+)
+
+
+
+dnl Check to see if libcitadel is new enough
+AC_MSG_CHECKING(checking libcitadel version)
+AC_TRY_RUN(
+	[
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <libcitadel.h>
+#include "citadel.h"
+main() {
+        if (LIBCITADEL_VERSION_NUMBER >= LIBCITADEL_MIN) {
+		return(0);
+	}
+	return(1);
+}
+	], 
+	AC_MSG_RESULT(ok),
+	AC_MSG_ERROR(libcitadel is too old.  Please upgrade it first.)
 )
 
 

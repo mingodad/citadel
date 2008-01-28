@@ -37,10 +37,16 @@ int is_view_allowed_as_default(int which_view)
 		case VIEW_CALENDAR:	return(1);
 		case VIEW_TASKS:	return(1);
 		case VIEW_NOTES:	return(1);
-		case VIEW_WIKI:		return(0);	/**< because it isn't finished yet */
+
+#ifdef TECH_PREVIEW
+		case VIEW_WIKI:		return(1);
+#else /* TECH_PREVIEW */
+		case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
+#endif /* TECH_PREVIEW */
+
 		case VIEW_CALBRIEF:	return(0);
 		case VIEW_JOURNAL:	return(0);
-		default:		return(0);	/**< should never get here */
+		default:		return(0);	/* should never get here */
 	}
 }
 
@@ -827,8 +833,9 @@ char *pop_march(int desired_floor)
 
 
 
-/**
- *\brief Goto next room having unread messages.
+/*
+ * Goto next room having unread messages.
+ *
  * We want to skip over rooms that the user has already been to, and take the
  * user back to the lobby when done.  The room we end up in is placed in
  * newroom - which is set to 0 (the lobby) initially.
@@ -838,12 +845,13 @@ char *pop_march(int desired_floor)
 void gotonext(void)
 {
 	char buf[256];
-	struct march *mptr, *mptr2;
+	struct march *mptr = NULL;
+	struct march *mptr2 = NULL;
 	char room_name[128];
 	char next_room[128];
 	int ELoop = 0;
 
-	/**
+	/*
 	 * First check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
@@ -876,7 +884,7 @@ void gotonext(void)
 				}
 				buf[0] = '\0';
 			}
-		/**
+		/*
 		 * add _BASEROOM_ to the end of the march list, so the user will end up
 		 * in the system base room (usually the Lobby>) at the end of the loop
 		 */
@@ -893,7 +901,7 @@ void gotonext(void)
 				mptr2 = mptr2->next;
 			mptr2->next = mptr;
 		}
-		/**
+		/*
 		 * ...and remove the room we're currently in, so a <G>oto doesn't make us
 		 * walk around in circles
 		 */
@@ -910,9 +918,8 @@ void gotonext(void)
 }
 
 
-/**
- * \brief goto next room
- * \param next_room next room to go to
+/*
+ * goto next room
  */
 void smart_goto(char *next_room) {
 	gotoroom(next_room);
@@ -921,8 +928,8 @@ void smart_goto(char *next_room) {
 
 
 
-/**
- * \brief mark all messages in current room as having been read
+/*
+ * mark all messages in current room as having been read
  */
 void slrp_highest(void)
 {
@@ -933,8 +940,8 @@ void slrp_highest(void)
 }
 
 
-/**
- * \brief un-goto the previous room
+/*
+ * un-goto the previous room
  */
 void ungoto(void)
 {
@@ -968,16 +975,16 @@ typedef struct __room_states {
 	int order;
 	int view;
 	int flags2;
-}room_states;
+} room_states;
 
 
 
 
-/**
- * \brief Set/clear/read the "self-service list subscribe" flag for a room
+/*
+ * Set/clear/read the "self-service list subscribe" flag for a room
  * 
- * \param newval set to 0 to clear, 1 to set, any other value to leave unchanged.
- * \return return the new value.
+ * set newval to 0 to clear, 1 to set, any other value to leave unchanged.
+ * returns the new value.
  */
 
 int self_service(int newval) {
@@ -1030,29 +1037,26 @@ int self_service(int newval) {
 
 }
 
-int
-is_selflist(room_states *RoomFlags)
+int is_selflist(room_states *RoomFlags)
 {
 	return ((RoomFlags->flags2 & QR2_SELFLIST) != 0);
 }
 
-int
-is_publiclist(room_states *RoomFlags)
+int is_publiclist(room_states *RoomFlags)
 {
 	return ((RoomFlags->flags2 & QR2_SMTP_PUBLIC) != 0);
 }
 
-int
-is_moderatedlist(room_states *RoomFlags)
+int is_moderatedlist(room_states *RoomFlags)
 {
 	return ((RoomFlags->flags2 & QR2_MODERATED) != 0);
 }
 
-/**
- * \brief Set/clear/read the "self-service list subscribe" flag for a room
+/*
+ * Set/clear/read the "self-service list subscribe" flag for a room
  * 
- * \param newval set to 0 to clear, 1 to set, any other value to leave unchanged.
- * \return return the new value.
+ * set newval to 0 to clear, 1 to set, any other value to leave unchanged.
+ * returns the new value.
  */
 
 int get_roomflags(room_states *RoomOps) 
@@ -1096,8 +1100,8 @@ int set_roomflags(room_states *RoomOps)
 
 
 
-/**
- * \brief display the form for editing a room
+/*
+ * display the form for editing a room
  */
 void display_editroom(void)
 {
@@ -1225,9 +1229,9 @@ void display_editroom(void)
 	wprintf("</li>\n");
 
 	wprintf("</ul>\n");
-	/** end tabbed dialog */	
+	/* end tabbed dialog */	
 
-	/** begin content of whatever tab is open now */
+	/* begin content of whatever tab is open now */
 
 	if (!strcmp(tab, "admin")) {
 		wprintf("<div class=\"tabcontent\">");
@@ -1484,7 +1488,7 @@ void display_editroom(void)
 	}
 
 
-	/** Sharing the room with other Citadel nodes... */
+	/* Sharing the room with other Citadel nodes... */
 	if (!strcmp(tab, "sharing")) {
 		wprintf("<div class=\"tabcontent\">");
 
@@ -1531,7 +1535,7 @@ void display_editroom(void)
 			}
 		}
 
-		/** Display the stuff */
+		/* Display the stuff */
 		wprintf("<CENTER><br />"
 			"<table border=1 cellpadding=5><tr>"
 			"<td><B><I>");
@@ -1639,7 +1643,7 @@ void display_editroom(void)
 		wprintf("</div>");
 	}
 
-	/** Mailing list management */
+	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 		room_states RoomFlags;
 		wprintf("<div class=\"tabcontent\">");
@@ -1721,7 +1725,7 @@ void display_editroom(void)
 			_("Add recipients from Contacts or other address books"),
 			_("Add recipients from Contacts or other address books")
 		);
-		/** Pop open an address book -- end **/
+		/* Pop open an address book -- end **/
 
 		wprintf("<br />\n<form method=\"GET\" action=\"toggle_self_service\">\n");
 
@@ -1760,7 +1764,7 @@ void display_editroom(void)
 	}
 
 
-	/** Configuration of The Dreaded Auto-Purger */
+	/* Configuration of The Dreaded Auto-Purger */
 	if (!strcmp(tab, "expire")) {
 		wprintf("<div class=\"tabcontent\">");
 
@@ -1857,14 +1861,14 @@ void display_editroom(void)
 		wprintf("</div>");
 	}
 
-	/** Access controls */
+	/* Access controls */
 	if (!strcmp(tab, "access")) {
 		wprintf("<div class=\"tabcontent\">");
 		display_whok();
 		wprintf("</div>");
 	}
 
-	/** Fetch messages from remote locations */
+	/* Fetch messages from remote locations */
 	if (!strcmp(tab, "feeds")) {
 		wprintf("<div class=\"tabcontent\">");
 
@@ -2003,7 +2007,7 @@ void display_editroom(void)
 	}
 
 
-	/** end content of whatever tab is open now */
+	/* end content of whatever tab is open now */
 	wprintf("</div>\n");
 
 	address_book_popup();
@@ -2011,17 +2015,16 @@ void display_editroom(void)
 }
 
 
-/** 
- * \brief Toggle self-service list subscription
+/* 
+ * Toggle self-service list subscription
  */
 void toggle_self_service(void) {
-//	int newval = 0;
 	room_states RoomFlags;
 
 	get_roomflags (&RoomFlags);
 
-	// Yank out the bits we want to change
-	RoomFlags.flags2 = RoomFlags.flags2 &	
+	/* Yank out the bits we want to change */
+	RoomFlags.flags2 = RoomFlags.flags2 &
 		!(QR2_SELFLIST|QR2_SMTP_PUBLIC|QR2_MODERATED);
 
 	if (!strcasecmp(bstr("QR2_SelfList"), "yes")) 
@@ -2038,8 +2041,8 @@ void toggle_self_service(void) {
 
 
 
-/**
- * \brief save new parameters for a room
+/*
+ * save new parameters for a room
  */
 void editroom(void)
 {
@@ -2226,8 +2229,8 @@ void editroom(void)
 }
 
 
-/**
- * \brief Display form for Invite, Kick, and show Who Knows a room
+/*
+ * Display form for Invite, Kick, and show Who Knows a room
  */
 void do_invt_kick(void) {
         char buf[SIZ], room[SIZ], username[SIZ];
@@ -2276,8 +2279,8 @@ void do_invt_kick(void) {
 
 
 
-/**
- * \brief Display form for Invite, Kick, and show Who Knows a room
+/*
+ * Display form for Invite, Kick, and show Who Knows a room
  */
 void display_whok(void)
 {
@@ -2332,7 +2335,7 @@ void display_whok(void)
         	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
         	"<input type=\"submit\" value=\"%s\">"
 		"</form></CENTER>\n", _("Invite"));
-		/** Pop open an address book -- begin **/
+		/* Pop open an address book -- begin **/
 		wprintf(
 			"<a href=\"javascript:PopOpenAddressBook('username_id|%s');\" "
 			"title=\"%s\">"
@@ -2341,7 +2344,7 @@ void display_whok(void)
 			_("User"), 
 			_("Users"), _("Users")
 		);
-		/** Pop open an address book -- end **/
+		/* Pop open an address book -- end **/
 
 	wprintf("</td></tr></table>\n");
 	address_book_popup();
@@ -2350,8 +2353,8 @@ void display_whok(void)
 
 
 
-/**
- * \brief display the form for entering a new room
+/*
+ * display the form for entering a new room
  */
 void display_entroom(void)
 {
@@ -2398,7 +2401,7 @@ void display_entroom(void)
         wprintf("</select>\n");
         wprintf("</td></tr>");
 
-		/**
+		/*
 		 * Our clever little snippet of JavaScript automatically selects
 		 * a public room if the view is set to Bulletin Board or wiki, and
 		 * it selects a mailbox room otherwise.  The user can override this,
@@ -2500,8 +2503,8 @@ void display_entroom(void)
 
 
 
-/**
- * \brief support function for entroom() -- sets the default view 
+/*
+ * support function for entroom() -- sets the default view 
  */
 void er_set_default_view(int newview) {
 
@@ -2536,8 +2539,8 @@ void er_set_default_view(int newview) {
 
 
 
-/**
- * \brief enter a new room
+/*
+ * Create a new room
  */
 void entroom(void)
 {

@@ -4,7 +4,7 @@
  */
 
 
-#define LIBCITADEL_VERSION_NUMBER	102
+#define LIBCITADEL_VERSION_NUMBER	103
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -15,7 +15,8 @@
 
 
 /*
- * Views
+ * View definitions.
+ * Note that not all views are implemented in all clients.
  */
 #define	VIEW_BBS		0	/* Bulletin board view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
@@ -25,7 +26,7 @@
 #define VIEW_NOTES		5	/* Notes view */
 #define	VIEW_WIKI		6	/* Wiki view */
 #define VIEW_CALBRIEF		7	/* Brief Calendar view */
-#define VIEW_JOURNAL		8	/* Journal view (not yet implemented in native clients) */
+#define VIEW_JOURNAL		8	/* Journal view */
 
 
 #ifndef IsEmptyStr

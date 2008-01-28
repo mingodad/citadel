@@ -480,6 +480,7 @@ const char *CitadelServiceXMPP="XMPP";
 CTDL_MODULE_INIT(jabber)
 {
 	if (!threading) {
+#ifdef TECH_PREVIEW
 #ifdef HAVE_EXPAT
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
 					NULL,
@@ -495,6 +496,7 @@ CTDL_MODULE_INIT(jabber)
 	#else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  Jabber service will be disabled.\n");
 #endif
+#endif	/* TECH_PREVIEW */
 	}
 
 	/* return our Subversion id for the Log */
