@@ -1335,6 +1335,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	char from[256];
 	char node[256];
 	char rfca[256];
+	char to[256];
 	char reply_to[512];
 	char now[256];
 	int format_type = 0;
@@ -1419,7 +1420,11 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			}
 			if (!strncasecmp(buf, "rcpt=", 5)) {
 				wprintf(_("to "));
-				wprintf("%s ", &buf[5]);
+				strcpy(to, &buf[5]);
+#ifdef HAVE_ICONV
+				utf8ify_rfc822_string(to);
+#endif
+				wprintf("%s ", to);
 			}
 			if (!strncasecmp(buf, "time=", 5)) {
 				webcit_fmt_date(now, atol(&buf[5]), 0);
@@ -3218,12 +3223,22 @@ void display_enter(void)
 	wprintf("</td></tr>");
 
 	if (recipient_required) {
-
+		char *ccraw;
+		char *copy;
+		size_t len;
 		wprintf("<tr><th><label for=\"recp_id\"> ");
 		wprintf(_("To:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
-		escputs(bstr("recp"));
+		ccraw = bstr("recp");
+		len = strlen(ccraw);
+		copy = (char*) malloc(len * 2 + 1);
+		memcpy(copy, ccraw, len + 1); 
+#ifdef HAVE_ICONV
+		utf8ify_rfc822_string(copy);
+#endif
+		escputs(copy);
+		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
 		wprintf("</td><td rowspan=\"3\" align=\"left\" valign=\"top\">");
@@ -3245,7 +3260,15 @@ void display_enter(void)
 		wprintf(_("CC:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
-		escputs(bstr("cc"));
+		ccraw = bstr("cc");
+		len = strlen(ccraw);
+		copy = (char*) malloc(len * 2 + 1);
+		memcpy(copy, ccraw, len + 1); 
+#ifdef HAVE_ICONV
+		utf8ify_rfc822_string(copy);
+#endif
+		escputs(copy);
+		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
 		wprintf("</td></tr>");
@@ -3254,7 +3277,15 @@ void display_enter(void)
 		wprintf(_("BCC:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
-		escputs(bstr("bcc"));
+		ccraw = bstr("bcc");
+		len = strlen(ccraw);
+		copy = (char*) malloc(len * 2 + 1);
+		memcpy(copy, ccraw, len + 1); 
+#ifdef HAVE_ICONV
+		utf8ify_rfc822_string(copy);
+#endif
+		escputs(copy);
+		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");
 		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
 		wprintf("</td></tr>");
