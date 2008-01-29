@@ -7,7 +7,7 @@
  * RFC  821 - Simple Mail Transfer Protocol
  * RFC  876 - Survey of SMTP Implementations
  * RFC 1047 - Duplicate messages and SMTP
- * RFC 1854 - command pipelining
+ * RFC 1652 - 8 bit MIME
  * RFC 1869 - Extended Simple Mail Transfer Protocol
  * RFC 1870 - SMTP Service Extension for Message Size Declaration
  * RFC 1893 - Enhanced Mail System Status Codes
@@ -260,29 +260,22 @@ void smtp_hello(char *argbuf, int which_command) {
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 
 #ifdef HAVE_OPENSSL
-
-		/* Only offer the PIPELINING command if TLS is inactive,
-		 * because of flow control issues.  Also, avoid offering TLS
-		 * if TLS is already active.  Finally, we only offer TLS on
+		/*
+		 * Offer TLS, but only if TLS is not already active.
+		 * Furthermore, only offer TLS when running on
 		 * the SMTP-MSA port, not on the SMTP-MTA port, due to
 		 * questionable reliability of TLS in certain sending MTA's.
 		 */
 		if ( (!CC->redirect_ssl) && (SMTP->is_msa) ) {
-			cprintf("250-PIPELINING\r\n");
 			cprintf("250-STARTTLS\r\n");
 		}
-
-#else	/* HAVE_OPENSSL */
-
-		/* Non SSL enabled server, so always offer PIPELINING. */
-		cprintf("250-PIPELINING\r\n");
-
 #endif	/* HAVE_OPENSSL */
 
-		cprintf("250-AUTH LOGIN PLAIN\r\n");
-		cprintf("250-AUTH=LOGIN PLAIN\r\n");
-
-		cprintf("250 ENHANCEDSTATUSCODES\r\n");
+		cprintf("250-AUTH LOGIN PLAIN\r\n"
+			"250-AUTH=LOGIN PLAIN\r\n"
+			"250-8BITMIME\r\n"
+			"250 ENHANCEDSTATUSCODES\r\n"
+		);
 	}
 }
 
