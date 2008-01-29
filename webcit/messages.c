@@ -113,7 +113,7 @@ void utf8ify_rfc822_string(char *buf) {
 	}
 
 	/* pre evaluate the first pair */
-	end = NULL;
+	nextend = end = NULL;
 	len = strlen(buf);
 	start = strstr(buf, "=?");
 	if (start != NULL)
