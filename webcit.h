@@ -140,6 +140,13 @@ extern locale_t wc_locales[];
 #define DEFAULT_MAXMSGS		20
 
 
+#ifdef LIBCITADEL_VERSION_NUMBER
+#if LIBCITADEL_VERSION_NUMBER < LIBCITADEL_MIN
+#error libcitadel is too old.  Please upgrade it before continuing.
+#endif
+#endif
+
+
 /*
  * Room flags (from Citadel)
  *
