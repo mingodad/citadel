@@ -55,6 +55,12 @@ extern "C" {
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */
 
+#ifdef LIBCITADEL_VERSION_NUMBER
+#if LIBCITADEL_VERSION_NUMBER < LIBCITADEL_MIN
+#error libcitadel is too old.  Please upgrade it before continuing.
+#endif
+#endif
+
 /* Various length constants */
 
 #define UGLISTLEN	100	/* you get a ungoto list of this size */

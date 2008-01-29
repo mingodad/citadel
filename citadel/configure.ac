@@ -889,29 +889,6 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(database_cleanup.sh)
 
 
-dnl Check to see if libcitadel is new enough
-dnl The test is way down here because it needs sysdep.h to be generated first
-AC_MSG_CHECKING(libcitadel version)
-AC_TRY_RUN(
-	[
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <libcitadel.h>
-#include "citadel.h"
-main() {
-        if (LIBCITADEL_VERSION_NUMBER >= LIBCITADEL_MIN) {
-		return(0);
-	}
-	return(1);
-}
-	], 
-	AC_MSG_RESULT(ok),
-	AC_MSG_ERROR(libcitadel is too old.  Please upgrade it first.)
-)
-
-
-
 if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
 fi

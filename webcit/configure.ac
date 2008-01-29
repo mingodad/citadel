@@ -118,24 +118,6 @@ AC_CHECK_HEADER(libcitadel.h,
 )
 
 
-dnl Check to see if libcitadel is new enough
-AC_MSG_CHECKING(checking libcitadel version)
-AC_TRY_RUN(
-	[
-#include "webcit.h"
-main() {
-        if (LIBCITADEL_VERSION_NUMBER >= LIBCITADEL_MIN) {
-		return(0);
-	}
-	return(1);
-}
-	], 
-	AC_MSG_RESULT(ok),
-	AC_MSG_ERROR(libcitadel is too old.  Please upgrade it first.)
-)
-
-
-
 webcit_with_calendar_service=no
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
