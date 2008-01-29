@@ -73,7 +73,7 @@ void utf8ify_rfc822_string(char *buf) {
 	char *isav;			/**< Saved pointer to input buffer */
 	char *osav;			/**< Saved pointer to output buffer */
 	int passes = 0;
-	int i, len;
+	int i, len, delta;
 	int illegal_non_rfc2047_encoding = 0;
 
 	/** Sometimes, badly formed messages contain strings which were simply
@@ -112,6 +112,7 @@ void utf8ify_rfc822_string(char *buf) {
 		}
 	}
 
+	len = strlen(buf);
 	start = strstr(buf, "=?");
 	while ((start != NULL) && 
 	       ((end = strstr(start, "?=")) != NULL))
@@ -136,12 +137,13 @@ void utf8ify_rfc822_string(char *buf) {
 			{
 				memmove (end + 2,
 					 next,
-					 nextend - next);
+					 len - (next - start));
 				// now fill the gab at the end with blanks
-				ptr = nextend;
-				ptr -= next - end + 2;
-				while (ptr < nextend)
-					*(ptr++) = ' ';
+				delta = (next - end) - 2;
+				len -= delta;
+				buf[len] = '\0';
+				// move next to its new location.
+				next = end + 2;
 			}
 		}
 		start = next;
