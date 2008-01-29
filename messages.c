@@ -60,7 +60,7 @@ iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
  * \param buf the stringbuffer to process
  */
 void utf8ify_rfc822_string(char *buf) {
-	char *start, *end;
+	char *start, *end, *next, *nextend, *ptr;
 	char newbuf[1024];
 	char charset[128];
 	char encoding[16];
@@ -110,6 +110,41 @@ void utf8ify_rfc822_string(char *buf) {
 				free(isav);
 			}
 		}
+	}
+
+	start = strstr(buf, "=?");
+	while ((start != NULL) && 
+	       ((end = strstr(start, "?=")) != NULL))
+	{
+		next = strstr(end, "=?");
+		if (next != NULL)
+			nextend = strstr(next, "?=");
+		if (nextend == NULL)
+			next = NULL;
+		if ((next != NULL) && 
+		    ((next - end) > 2))
+		{
+			ptr = end + 2;
+			while ((ptr < next) && 
+			       (isspace(*ptr) ||
+				(*ptr == '\r') ||
+				(*ptr == '\n') || 
+				(*ptr == '\t')))
+				ptr ++;
+			// did we find a gab just filled with blanks?
+			if (ptr == next)
+			{
+				memmove (end + 2,
+					 next,
+					 nextend - next);
+				// now fill the gab at the end with blanks
+				ptr = nextend;
+				ptr -= next - end + 2;
+				while (ptr < nextend)
+					*(ptr++) = ' ';
+			}
+		}
+		start = next;
 	}
 
 	/** Now we handle foreign character sets properly encoded
