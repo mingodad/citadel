@@ -714,33 +714,33 @@ struct attach_link {
  */
 void read_message(long msgnum, int printable_view, char *section) {
 	char buf[SIZ];
-	char mime_partnum[256];
-	char mime_name[256];
-	char mime_filename[256];
-	char escaped_mime_filename[256];
-	char mime_content_type[256];
-	char mime_charset[256];
-	char mime_disposition[256];
+	char mime_partnum[256] = "";
+	char mime_name[256] = "";
+	char mime_filename[256] = "";
+	char escaped_mime_filename[256] = "";
+	char mime_content_type[256] = "";
+	char mime_charset[256] = "";
+	char mime_disposition[256] = "";
 	int mime_length;
 	struct attach_link *attach_links = NULL;
 	int num_attach_links = 0;
-	char mime_submessages[256];
-	char m_subject[256];
-	char m_cc[1024];
-	char from[256];
-	char node[256];
-	char rfca[256];
-	char reply_to[512];
-	char reply_all[4096];
-	char now[64];
+	char mime_submessages[256] = "";
+	char m_subject[256] = "";
+	char m_cc[1024] = "";
+	char from[256] = "";
+	char node[256] = "";
+	char rfca[256] = "";
+	char reply_to[512] = "";
+	char reply_all[4096] = "";
+	char now[64] = "";
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
 	int i = 0;
-	char vcard_partnum[256];
-	char cal_partnum[256];
+	char vcard_partnum[256] = "";
+	char cal_partnum[256] = "";
 	char *part_source = NULL;
-	char msg4_partnum[32];
+	char msg4_partnum[32] = "";
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;		   /**< Buffer of characters to be converted */
@@ -750,13 +750,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char *osav;		   /**< Saved pointer to output buffer       */
 #endif
 
-	strcpy(from, "");
-	strcpy(node, "");
-	strcpy(rfca, "");
-	strcpy(reply_to, "");
-	strcpy(reply_all, "");
-	strcpy(vcard_partnum, "");
-	strcpy(cal_partnum, "");
 	strcpy(mime_content_type, "text/plain");
 	strcpy(mime_charset, "us-ascii");
 	strcpy(mime_submessages, "");
