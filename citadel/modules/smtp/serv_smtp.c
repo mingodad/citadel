@@ -10,9 +10,7 @@
  * RFC 1652 - 8 bit MIME
  * RFC 1869 - Extended Simple Mail Transfer Protocol
  * RFC 1870 - SMTP Service Extension for Message Size Declaration
- * RFC 1893 - Enhanced Mail System Status Codes
  * RFC 2033 - Local Mail Transfer Protocol
- * RFC 2034 - SMTP Service Extension for Returning Enhanced Error Codes
  * RFC 2197 - SMTP Service Extension for Command Pipelining
  * RFC 2476 - Message Submission
  * RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
@@ -212,7 +210,7 @@ void lmtp_unfiltered_greeting(void) {
  * Login greeting common to all auth methods
  */
 void smtp_auth_greeting(void) {
-		cprintf("235 2.0.0 Hello, %s\r\n", CC->user.fullname);
+		cprintf("235 Hello, %s\r\n", CC->user.fullname);
 		lprintf(CTDL_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
@@ -273,8 +271,7 @@ void smtp_hello(char *argbuf, int which_command) {
 
 		cprintf("250-AUTH LOGIN PLAIN\r\n"
 			"250-AUTH=LOGIN PLAIN\r\n"
-			"250-8BITMIME\r\n"
-			"250 ENHANCEDSTATUSCODES\r\n"
+			"250 8BITMIME\r\n"
 		);
 	}
 }
@@ -314,7 +311,7 @@ void smtp_get_user(char *argbuf) {
 		SMTP->command_state = smtp_password;
 	}
 	else {
-		cprintf("500 5.7.0 No such user.\r\n");
+		cprintf("500 No such user.\r\n");
 		SMTP->command_state = smtp_command;
 	}
 }
@@ -332,7 +329,7 @@ void smtp_get_pass(char *argbuf) {
 		smtp_auth_greeting();
 	}
 	else {
-		cprintf("535 5.7.0 Authentication failed.\r\n");
+		cprintf("535 Authentication failed.\r\n");
 	}
 	SMTP->command_state = smtp_command;
 }
@@ -368,7 +365,7 @@ void smtp_try_plain(char *encoded_authstring) {
 			return;
 		}
 	}
-	cprintf("504 5.7.4 Authentication failed.\r\n");
+	cprintf("504 Authentication failed.\r\n");
 }
 
 
@@ -381,7 +378,7 @@ void smtp_auth(char *argbuf) {
 	char encoded_authstring[1024];
 
 	if (CC->logged_in) {
-		cprintf("504 5.7.4 Already logged in.\r\n");
+		cprintf("504 Already logged in.\r\n");
 		return;
 	}
 
@@ -413,7 +410,7 @@ void smtp_auth(char *argbuf) {
 	}
 
 	if (strncasecmp(method, "login", 5) ) {
-		cprintf("504 5.7.4 Unknown authentication method.\r\n");
+		cprintf("504 Unknown authentication method.\r\n");
 		return;
 	}
 
@@ -460,7 +457,7 @@ void smtp_rset(int do_response) {
 	SMTP->is_unfiltered = is_unfiltered;
 
 	if (do_response) {
-		cprintf("250 2.0.0 Zap!\r\n");
+		cprintf("250 Zap!\r\n");
 	}
 }
 
@@ -493,12 +490,12 @@ void smtp_mail(char *argbuf) {
 	char name[SIZ];
 
 	if (!IsEmptyStr(SMTP->from)) {
-		cprintf("503 5.1.0 Only one sender permitted\r\n");
+		cprintf("503 Only one sender permitted\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "From:", 5)) {
-		cprintf("501 5.1.7 Syntax error\r\n");
+		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
@@ -523,7 +520,7 @@ void smtp_mail(char *argbuf) {
 	 */
 	if (CC->logged_in) {
 		safestrncpy(SMTP->from, CC->cs_inet_email, sizeof SMTP->from);
-		cprintf("250 2.1.0 Sender ok <%s>\r\n", SMTP->from);
+		cprintf("250 Sender ok <%s>\r\n", SMTP->from);
 		SMTP->message_originated_locally = 1;
 		return;
 	}
@@ -538,15 +535,13 @@ void smtp_mail(char *argbuf) {
 	else if (config.c_allow_spoofing == 0) {
 		process_rfc822_addr(SMTP->from, user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
-			cprintf("550 5.7.1 "
-				"You must log in to send mail from %s\r\n",
-				node);
+			cprintf("550 You must log in to send mail from %s\r\n", node);
 			strcpy(SMTP->from, "");
 			return;
 		}
 	}
 
-	cprintf("250 2.0.0 Sender ok\r\n");
+	cprintf("250 Sender ok\r\n");
 }
 
 
@@ -560,18 +555,17 @@ void smtp_rcpt(char *argbuf) {
 	struct recptypes *valid = NULL;
 
 	if (IsEmptyStr(SMTP->from)) {
-		cprintf("503 5.5.1 Need MAIL before RCPT\r\n");
+		cprintf("503 Need MAIL before RCPT\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "To:", 3)) {
-		cprintf("501 5.1.7 Syntax error\r\n");
+		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
 	if ( (SMTP->is_msa) && (!CC->logged_in) ) {
-		cprintf("550 5.1.8 "
-			"You must log in to send mail on this port.\r\n");
+		cprintf("550 You must log in to send mail on this port.\r\n");
 		strcpy(SMTP->from, "");
 		return;
 	}
@@ -581,7 +575,7 @@ void smtp_rcpt(char *argbuf) {
 	stripallbut(recp, '<', '>');
 
 	if ( (strlen(recp) + strlen(SMTP->recipients) + 1 ) >= SIZ) {
-		cprintf("452 4.5.3 Too many recipients\r\n");
+		cprintf("452 Too many recipients\r\n");
 		return;
 	}
 
@@ -601,7 +595,7 @@ void smtp_rcpt(char *argbuf) {
 				    smtp_get_Recipients (),
 				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 	if (valid->num_error != 0) {
-		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
+		cprintf("599 Error: %s\r\n", valid->errormsg);
 		free_recipients(valid);
 		return;
 	}
@@ -609,7 +603,7 @@ void smtp_rcpt(char *argbuf) {
 	if (valid->num_internet > 0) {
 		if (CC->logged_in) {
                         if (CtdlCheckInternetMailPermission(&CC->user)==0) {
-				cprintf("551 5.7.1 <%s> - you do not have permission to send Internet mail\r\n", recp);
+				cprintf("551 <%s> - you do not have permission to send Internet mail\r\n", recp);
                                 free_recipients(valid);
                                 return;
                         }
@@ -619,13 +613,13 @@ void smtp_rcpt(char *argbuf) {
 	if (valid->num_internet > 0) {
 		if ( (SMTP->message_originated_locally == 0)
 		   && (SMTP->is_lmtp == 0) ) {
-			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
+			cprintf("551 <%s> - relaying denied\r\n", recp);
 			free_recipients(valid);
 			return;
 		}
 	}
 
-	cprintf("250 2.1.5 RCPT ok <%s>\r\n", recp);
+	cprintf("250 RCPT ok <%s>\r\n", recp);
 	if (!IsEmptyStr(SMTP->recipients)) {
 		strcat(SMTP->recipients, ",");
 	}
@@ -653,12 +647,12 @@ void smtp_data(void) {
 	char result[SIZ];
 
 	if (IsEmptyStr(SMTP->from)) {
-		cprintf("503 5.5.1 Need MAIL command first.\r\n");
+		cprintf("503 Need MAIL command first.\r\n");
 		return;
 	}
 
 	if (SMTP->number_of_recipients < 1) {
-		cprintf("503 5.5.1 Need RCPT command first.\r\n");
+		cprintf("503 Need RCPT command first.\r\n");
 		return;
 	}
 
@@ -678,8 +672,7 @@ void smtp_data(void) {
 	
 	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1, 0);
 	if (body == NULL) {
-		cprintf("550 5.6.5 "
-			"Unable to save message: internal error.\r\n");
+		cprintf("550 Unable to save message: internal error.\r\n");
 		return;
 	}
 
@@ -894,7 +887,7 @@ void smtp_command_loop(void) {
 	}
 #endif
 	else {
-		cprintf("502 5.0.0 I'm afraid I can't do that.\r\n");
+		cprintf("502 I'm afraid I can't do that.\r\n");
 	}
 
 
