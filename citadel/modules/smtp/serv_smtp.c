@@ -512,7 +512,7 @@ void smtp_mail(char *argbuf) {
 	 * other code to fail when it's expecting something there.
 	 */
 	if (IsEmptyStr(SMTP->from)) {
-		strcpy(SMTP->from, "someone@somewhere.org");
+		strcpy(SMTP->from, "someone@example.com");
 	}
 
 	/* If this SMTP connection is from a logged-in user, force the 'from'
@@ -733,8 +733,7 @@ void smtp_data(void) {
 	if (scan_errors > 0) {	/* We don't want this message! */
 
 		if (msg->cm_fields['0'] == NULL) {
-			msg->cm_fields['0'] = strdup(
-				"5.7.1 Message rejected by filter");
+			msg->cm_fields['0'] = strdup("Message rejected by filter");
 		}
 
 		sprintf(result, "550 %s\r\n", msg->cm_fields['0']);
@@ -743,10 +742,10 @@ void smtp_data(void) {
 	else {			/* Ok, we'll accept this message. */
 		msgnum = CtdlSubmitMsg(msg, valid, "");
 		if (msgnum > 0L) {
-			sprintf(result, "250 2.0.0 Message accepted.\r\n");
+			sprintf(result, "250 Message accepted.\r\n");
 		}
 		else {
-			sprintf(result, "550 5.5.0 Internal delivery error\r\n");
+			sprintf(result, "550 Internal delivery error\r\n");
 		}
 	}
 
@@ -797,11 +796,11 @@ void smtp_starttls(void)
 	char error_response[SIZ];
 
 	sprintf(ok_response,
-		"220 2.0.0 Begin TLS negotiation now\r\n");
+		"220 Begin TLS negotiation now\r\n");
 	sprintf(nosup_response,
-		"554 5.7.3 TLS not supported here\r\n");
+		"554 TLS not supported here\r\n");
 	sprintf(error_response,
-		"554 5.7.3 Internal error\r\n");
+		"554 Internal error\r\n");
 	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 	smtp_rset(0);
 }
