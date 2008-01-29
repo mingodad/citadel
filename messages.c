@@ -112,16 +112,22 @@ void utf8ify_rfc822_string(char *buf) {
 		}
 	}
 
+	/* pre evaluate the first pair */
+	end = NULL;
 	len = strlen(buf);
 	start = strstr(buf, "=?");
-	while ((start != NULL) && 
-	       ((end = strstr(start, "?=")) != NULL))
+	if (start != NULL)
+		end = strstr(start, "?=");
+
+	while ((start != NULL) && (end != NULL))
 	{
 		next = strstr(end, "=?");
 		if (next != NULL)
 			nextend = strstr(next, "?=");
 		if (nextend == NULL)
 			next = NULL;
+
+		/* did we find two partitions */
 		if ((next != NULL) && 
 		    ((next - end) > 2))
 		{
@@ -132,21 +138,26 @@ void utf8ify_rfc822_string(char *buf) {
 				(*ptr == '\n') || 
 				(*ptr == '\t')))
 				ptr ++;
-			// did we find a gab just filled with blanks?
+			/* did we find a gab just filled with blanks? */
 			if (ptr == next)
 			{
 				memmove (end + 2,
 					 next,
 					 len - (next - start));
-				// now fill the gab at the end with blanks
+
+				/* now terminate the gab at the end */
 				delta = (next - end) - 2;
 				len -= delta;
 				buf[len] = '\0';
-				// move next to its new location.
-				next = end + 2;
+
+				/* move next to its new location. */
+				next -= delta;
+				nextend -= delta;
 			}
 		}
+		/* our next-pair is our new first pair now. */
 		start = next;
+		end = nextend;
 	}
 
 	/** Now we handle foreign character sets properly encoded
