@@ -926,13 +926,13 @@ void offer_start_page(void) {
 	wprintf("\">");
 	wprintf(_("Make this my start page"));
 	wprintf("</a>");
-/*
+#ifdef TECH_PREVIEW
 	wprintf("<br/><a href=\"rss?room=");
 	urlescputs(WC->wc_roomname);
 	wprintf("\" title=\"RSS 2.0 feed for ");
 	escputs(WC->wc_roomname);
 	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
-*/
+#endif
 }
 
 
@@ -1474,10 +1474,12 @@ void session_loop(struct httprequest *req)
 	}
 
 	/** This needs to run early */
+#ifdef TECH_PREVIEW
 	if (!strcasecmp(action, "rss")) {
 		display_rss(bstr("room"), request_method);
 		goto SKIP_ALL_THIS_CRAP;
 	}
+#endif
 
 	/** 
 	 * The GroupDAV stuff relies on HTTP authentication instead of
