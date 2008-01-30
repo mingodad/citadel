@@ -1276,13 +1276,13 @@ void process_quote(void)
 	line = 0;
 	fgets(buf, 128, qfile);
 	while (fgets(buf, 128, qfile) != NULL) {
-		scr_printf("%2d %s", ++line, buf);
+		scr_printf("%3d %s", ++line, buf);
 	}
-	scr_printf("Begin quoting at [ 1] : ");
-	ctdl_getline(buf, 3);
+	scr_printf("Begin quoting at [1] : ");
+	ctdl_getline(buf, 4);
 	qstart = (buf[0] == 0) ? (1) : atoi(buf);
 	scr_printf("  End quoting at [%d] : ", line);
-	ctdl_getline(buf, 3);
+	ctdl_getline(buf, 4);
 	qend = (buf[0] == 0) ? (line) : atoi(buf);
 	rewind(qfile);
 	line = 0;
