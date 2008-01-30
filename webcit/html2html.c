@@ -359,6 +359,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 				/** Find the end of the link */
 				int strlenptr;
 				linklen = 0;
+				
 				strlenptr = strlen(ptr);
 				for (i=0; i<=strlenptr; ++i) {
 					if ((ptr[i]==0)
@@ -371,13 +372,30 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 					   ||(ptr[i]=='>')
 					   ||(ptr[i]=='[')
 					   ||(ptr[i]==']')
+					   ||(ptr[i]=='"')
+					   ||(ptr[i]=='\'')
 					) linklen = i;
+					/* did s.b. send us an entity? */
+					if (ptr[i] == '&') {
+						if ((ptr[i+2] ==';') ||
+						    (ptr[i+3] ==';') ||
+						    (ptr[i+5] ==';') ||
+						    (ptr[i+6] ==';') ||
+						    (ptr[i+7] ==';'))
+							linklen = i;
+					}
 					if (linklen > 0) break;
 				}
 				if (linklen > 0) {
 					char *ltreviewptr;
 					char *nbspreviewptr;
-					//* spot for some subject strings tinymce tends to give us.
+					char linkedchar;
+					int len = linklen;
+					
+					len = linklen;
+					linkedchar = ptr[len];
+					ptr[len] = '\0';
+					/* spot for some subject strings tinymce tends to give us. */
 					ltreviewptr = strchr(ptr, '<');
 					if (ltreviewptr != NULL) {
 						*ltreviewptr = '\0';
@@ -391,6 +409,8 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 					}
 					if (ltreviewptr != 0)
 						*ltreviewptr = '<';
+
+					ptr[len] = linkedchar;
 
 					content_length += (32 + linklen);
 					if (content_length >= converted_alloc) {
