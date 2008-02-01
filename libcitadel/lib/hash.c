@@ -42,7 +42,9 @@ int PrintHash(HashList *Hash)
 		free (Hash->MyKeys);
 
 	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nMembersUsed);
+#ifdef DEBUG
 	printf("----------------------------------\n");
+#endif
 	for (i=0; i < Hash->nMembersUsed; i++) {
 		
 		if (Hash->LookupTable[i] == NULL)
@@ -57,9 +59,13 @@ int PrintHash(HashList *Hash)
 			foo = Hash->LookupTable[i]->HashKey;
 			bar = (char*) Hash->Members[Hash->LookupTable[i]->Position]->Data;
 		}
+#ifdef DEBUG
 		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' \n", i, key, foo, bar);
+#endif
 	}
+#ifdef DEBUG
 	printf("----------------------------------\n");
+#endif
 	return 0;
 }
 
