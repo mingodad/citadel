@@ -153,8 +153,7 @@ void ctdl_thread_internal_init_tsd(void)
 	int ret;
 	
 	if ((ret = citthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
-		lprintf(CTDL_EMERG, "citthread_key_create: %s\n",
-			strerror(ret));
+		lprintf(CTDL_EMERG, "citthread_key_create: %s\n", strerror(ret));
 		exit(CTDLEXIT_DB);
 	}
 }
@@ -338,7 +337,8 @@ void CtdlThreadStopAll(void)
 		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 		citthread_cond_signal(&this_thread->ThreadCond);
 		citthread_cond_signal(&this_thread->SleepCond);
-		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (%ld).\n", this_thread->name, this_thread->tid);
+		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (0x%08lx).\n",
+			this_thread->name, this_thread->tid);
 		this_thread = this_thread->next;
 	}
 	end_critical_section(S_THREAD_LIST);
@@ -551,7 +551,7 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	 * In here we were called by the current thread because it is exiting
 	 * NB. WE ARE THE CURRENT THREAD
 	 */
-	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (%ld) exited.\n", CT->name, CT->tid);
+	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", CT->name, CT->tid);
 	
 	#ifdef HAVE_BACKTRACE
 	eCrash_UnregisterThread();
@@ -694,7 +694,8 @@ void CtdlThreadGC (void)
 		/*
 		 * Now we own that thread entry
 		 */
-		CtdlLogPrintf(CTDL_INFO, "Garbage Collection for thread \"%s\" (%ld).\n", that_thread->name, that_thread->tid);
+		CtdlLogPrintf(CTDL_INFO, "Garbage Collection for thread \"%s\" (0x%08lx).\n",
+			that_thread->name, that_thread->tid);
 		citthread_mutex_destroy(&that_thread->ThreadMutex);
 		citthread_cond_destroy(&that_thread->ThreadCond);
 		citthread_mutex_destroy(&that_thread->SleepMutex);
@@ -765,9 +766,8 @@ static void *ctdl_internal_thread_func (void *arg)
 	#endif
 	
 	// Tell the world we are here
-	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (%ld). \n", this_thread->name, this_thread->tid);
-
-	
+	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (0x%08lx).\n",
+		this_thread->name, this_thread->tid);
 	
 	/*
 	 * run the thread to do the work but only if we haven't been asked to stop
@@ -1106,7 +1106,8 @@ void ctdl_thread_internal_check_scheduled(void)
 #ifdef WITH_THREADLOG
 		else
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" will start in %ld seconds.\n", that_thread->name, that_thread->when - time(NULL));
+			CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" will start in %ld seconds.\n",
+				that_thread->name, that_thread->when - time(NULL));
 		}
 #endif
 	}
@@ -1199,7 +1200,7 @@ void go_threading(void)
 			if (last_worker)
 			{
 #ifdef WITH_THREADLOG
-				CtdlLogPrintf(CTDL_DEBUG, "Thread system, stopping excess worker thread \"%s\" (%ld).\n",
+				CtdlLogPrintf(CTDL_DEBUG, "Thread system, stopping excess worker thread \"%s\" (0x%08lx).\n",
 					last_worker->name,
 					last_worker->tid
 					);

@@ -282,6 +282,7 @@ enum {
  */
 #define AUTHMODE_NATIVE		0	/* native Citadel authentication */
 #define AUTHMODE_HOST		1	/* host integrated */
+#define AUTHMODE_LDAP		2	/* external LDAP authentication */
 
 #ifdef __cplusplus
 }
