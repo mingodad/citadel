@@ -46,13 +46,13 @@ case $1 in
 	    cd ..
 	    rm -rf tmp
 	    mkdir tmp
-	    cp -a webcit-$WEBCIT_VERSION tmp
+	    cp -rL webcit-$WEBCIT_VERSION tmp
 	    cd tmp/webcit-$WEBCIT_VERSION
 	    rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.guess  config.log config.status autom4te.cache
 	    find -type f -exec chmod a-x {} \;
 	    chmod a+x configure debian/rules 
 	    cd ..
-	    tar -czf webcit_${WEBCIT_VERSION}.orig.tar.gz webcit-${WEBCIT_VERSION}/ --exclude "debian/*"
+	    tar -chzf webcit_${WEBCIT_VERSION}.orig.tar.gz webcit-${WEBCIT_VERSION}/ --exclude "debian/*"
 	    pwd
 	    cd  webcit-${WEBCIT_VERSION}; debuild -S -sa -kw.goesgens@outgesourced.org
 	else
@@ -60,7 +60,7 @@ case $1 in
 	fi
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn --exclude "debian/*" -cvzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
+	cd ..; tar --exclude .svn --exclude "debian/*" -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
     *)
 	echo "Not yet implemented. we have: debian "
