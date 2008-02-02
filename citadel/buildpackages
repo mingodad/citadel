@@ -55,7 +55,7 @@ case $1 in
 	    cd tmp/citadel-$CITADEL_VERSION
 	    rm -rf `find -name .svn ` svn*tmp config.log config.status
 	    find -type f -exec chmod a-x {} \;
-	    chmod a+x configure
+	    chmod a+x configure mk_module_init.sh debian/rules mkinstalldirs
 	    cd ..
 	    tar -czf citadel_${CITADEL_VERSION}.orig.tar.gz citadel-${CITADEL_VERSION}/ --exclude "debian/*"
 	    pwd
