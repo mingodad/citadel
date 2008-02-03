@@ -27,7 +27,7 @@ fullscreen=no
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
 #
-editor=vi
+# editor=vi
 
 # Or, you could have multiple editors available, like this:
 # ("editor" and "editor0" are the same internally)
