@@ -885,6 +885,7 @@ AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
+./mk_module_init.sh
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(database_cleanup.sh)
 
