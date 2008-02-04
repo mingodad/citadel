@@ -83,6 +83,7 @@ void artv_dump_users_backend(struct ctdluser *buf, void *data) {
 #include "artv_dump.h"
 #include "dtds/user-defs.h"
 #include "undef_data.h"
+	cprintf("\n");
 }
 
 
@@ -103,6 +104,7 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 void artv_dump_room_msg(long msgnum, void *userdata) {
 	cprintf(" msgnum: %ld\n", msgnum);
 	fprintf(artv_global_message_list, "%ld\n", msgnum);
+	cprintf("\n");
 }//// TODO
 
 
@@ -455,7 +457,8 @@ void artv_do_export(void) {
 #include "artv_serialize.h"
 #include "dtds/config-defs.h"
 #include "undef_data.h"
-
+	cprintf("\n");
+	
 	/* Export the control file */
 	get_control();
 	cprintf("control\n");
@@ -498,11 +501,11 @@ void artv_do_dump(void) {
 	/* Export the control file */
 	get_control();
 	cprintf("control\n");
-	cprintf("%ld\n", CitControl.MMhighest);
-	cprintf("%u\n", CitControl.MMflags);
-	cprintf("%ld\n", CitControl.MMnextuser);
-	cprintf("%ld\n", CitControl.MMnextroom);
-	cprintf("%d\n", CitControl.version);
+	cprintf(" MMhighest: %ld\n", CitControl.MMhighest);
+	cprintf(" MMflags: %u\n", CitControl.MMflags);
+	cprintf(" MMnextuser: %ld\n", CitControl.MMnextuser);
+	cprintf(" MMnextroom: %ld\n", CitControl.MMnextroom);
+	cprintf(" version: %d\n\n", CitControl.version);
 	if (Ctx->kill_me != 1)
 		artv_dump_users();
 	if (Ctx->kill_me != 1)

@@ -126,6 +126,9 @@ void logoff(int e)
 	cleanup(e);
 }
 
+static char *args[] =
+{"getmail", NULL};
+
 /*
  * Connect sendcommand to the Citadel server running on this computer.
  */
@@ -134,8 +137,6 @@ void np_attach_to_server(char *host, char *port)
 	char buf[SIZ];
 	char hostbuf[256] = "";
 	char portbuf[256] = "";
-	char *args[] =
-	{"getmail", NULL};
 	int r;
 
 	fprintf(stderr, "Attaching to server...\n");
@@ -170,7 +171,8 @@ int main(int argc, char **argv)
 	int a, r, i;
 	char cmd[5][SIZ];
 	char buf[SIZ];
-
+	int MessageToRetrieve;
+	int MessageFound = 0;
 	int relh=0;
 	int home=0;
 	int n=0;
@@ -220,8 +222,8 @@ int main(int argc, char **argv)
 			ctdl_home_directory);
 	fflush(stderr);
 
-	alarm(5);
-	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
+//	alarm(5);
+//	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
 	
 	np_attach_to_server(UDS, ctdl_run_dir);
 	fflush(stderr);
@@ -231,20 +233,39 @@ int main(int argc, char **argv)
 	CtdlIPCGotoRoom(ipc, cmd[0], "", &Room, cret);
 	fprintf(stderr, "%s\n", cret);
 
+	MessageToRetrieve = atol(cmd[1]);
+
 	r = CtdlIPCGetMessages(ipc, 0, 0, NULL, &msgarr, buf);
-	for (i = 0; i < r ; i ++)
+	printf("Messages: ");
+	for (i = 0; msgarr[i] > 0 ; i ++)
 	{
-		printf("Message: %ld\n", msgarr[i]);
+//		printf(" %ld ", msgarr[i]);
+		if (msgarr[i] == MessageToRetrieve)
+			MessageFound = 1;
 	}
+	if (!MessageFound)
+		printf("Message %d not found in the above list.", MessageToRetrieve);
+	printf("\n");
 
-
-	CtdlIPCGetSingleMessage(ipc, atol(cmd[1]) ,atol(cmd[1]),4, &mret, cret);
+	CtdlIPCGetSingleMessage(ipc,  MessageToRetrieve,0,4, &mret, cret);
 	fprintf(stderr, "%s\n", cret);
 	fprintf(stderr, "%s: %s\n", "path", mret->path);
+	fprintf(stderr, "%s: %s\n", "author", mret->author);
 	fprintf(stderr, "%s: %s\n", "subject", mret->subject);
 	fprintf(stderr, "%s: %s\n", "email", mret->email);
+	fprintf(stderr, "%s: %s\n", "text", mret->text);
+
+	///if (
+
+
 	CtdlIPCQuit(ipc);
 	exit (1);
+
+
+
+
+
+
 	CtdlIPC_chat_send(ipc, cmd[4]);
 	CtdlIPC_chat_recv(ipc, buf);
 	fprintf(stderr, "%s\n", buf);
