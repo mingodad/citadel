@@ -820,7 +820,7 @@ void CtdlMakeTempFileName(char *name, int len) {
 	int i = 0;
 
 	while (i++, i < 100) {
-		snprintf(name, len, "/tmp/ctdl.%4lx.%04x",
+		snprintf(name, len, "/tmp/ctdl.%04lx.%04x",
 			(long)getpid(),
 			rand()
 		);
