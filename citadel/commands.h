@@ -64,6 +64,7 @@ void pprintf(const char *format, ...);
 
 
 extern char rc_url_cmd[SIZ];
+extern char rc_open_cmd[SIZ];
 extern char rc_gotmail_cmd[SIZ];
 extern int lines_printed;
 extern int rc_remember_passwords;

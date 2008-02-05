@@ -81,6 +81,7 @@ int rc_color_use_bg;
 int rc_prompt_control = 0;
 time_t rc_idle_threshold = (time_t)900;
 char rc_url_cmd[SIZ];
+char rc_open_cmd[SIZ];
 char rc_gotmail_cmd[SIZ];
 
 char *gl_string;
@@ -772,6 +773,7 @@ void load_command_set(void)
 	rc_ansi_color = 0;
 	rc_color_use_bg = 0;
 	strcpy(rc_url_cmd, "");
+	strcpy(rc_open_cmd, "");
 	strcpy(rc_gotmail_cmd, "");
 #ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
@@ -907,6 +909,9 @@ void load_command_set(void)
 
 		if (!strncasecmp(buf, "urlcmd=", 7))
 			strcpy(rc_url_cmd, &buf[7]);
+
+		if (!strncasecmp(buf, "opencmd=", 7))
+			strcpy(rc_open_cmd, &buf[8]);
 
 		if (!strncasecmp(buf, "gotmailcmd=", 11))
 			strcpy(rc_gotmail_cmd, &buf[11]);

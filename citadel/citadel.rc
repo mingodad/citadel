@@ -137,6 +137,18 @@ remember_passwords=0
 # browser you have configured as the system default.
 #urlcmd=open "%s"
 
+# If OPENCMD is defined, users can hit 'O' after reading a message which
+# contains attachments, to open the attachments using that command.  This
+# allows attachments to be opened directly from the Citadel client without
+# having to first save them in a file.  The "allow_attachments" option (see
+# above) must be enabled in order for this to work.
+# 
+# xdg-open works on most newer Linux systems
+opencmd=xdg-open "%s"
+#
+# This probably will work on a Macintosh
+#opencmd=open "%s"
+
 # If GOTMAILCMD is defined, the specified command will be executed.  This
 # might be nice for playing sounds or providing any other type of notification.
 #

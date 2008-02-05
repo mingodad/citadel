@@ -70,6 +70,7 @@ int msg_arr_size = 0;
 int num_msgs;
 char rc_alt_semantics;
 extern char room_name[];
+extern char tempdir[];
 extern unsigned room_flags;
 extern unsigned room_flags2;
 extern long highest_msg_read;
@@ -1470,8 +1471,9 @@ void readmsgs(CtdlIPC *ipc,
 	char filename[PATH_MAX];
 	char save_to[PATH_MAX];
 	void *attachment = NULL;	/* Downloaded attachment */
-	FILE *dest = NULL;	/* Alternate destination other than screen */
+	FILE *dest = NULL;		/* Alternate destination other than screen */
 	int r;				/* IPC response code */
+	static int att_seq = 0;		/* Attachment download sequence number */
 
 	if (c < 0)
 		b = (num_msgs - 1);
@@ -1631,7 +1633,7 @@ RMSGREAD:	scr_flush();
 				 && (e != 'q') && (e != 'b') && (e != 'h')
 				 && (e != 'r') && (e != 'f') && (e != '?')
 				 && (e != 'u') && (e != 'c') && (e != 'y')
-				 && (e != 'i'));
+				 && (e != 'i') && (e != 'o') );
 			switch (e) {
 			case 's':
 				scr_printf("Stop");
@@ -1665,6 +1667,9 @@ RMSGREAD:	scr_flush();
 				break;
 			case 'r':
 				scr_printf("Reply");
+				break;
+			case 'o':
+				scr_printf("Open attachments");
 				break;
 			case 'f':
 				scr_printf("File");
@@ -1711,9 +1716,10 @@ RMSGREAD:	scr_flush();
 				" H  Headers (display message headers only)\n");
 			if (is_mail)
 				scr_printf(" R  Reply to this message\n");
-			if (rc_allow_attachments)
-				scr_printf
-				    (" F  (save attachments to a file)\n");
+			if (rc_allow_attachments) {
+				scr_printf(" O  (Open attachments)\n");
+				scr_printf(" F  (save attachments to a File)\n");
+			}
 			if (!IsEmptyStr(rc_url_cmd))
 				scr_printf(" U  (list URL's for display)\n");
 			if (!IsEmptyStr(imagecmd) && has_images > 0)
@@ -1757,9 +1763,9 @@ RMSGREAD:	scr_flush();
 			if (r / 100 != 2)	/* r will be init'ed, FIXME */
 				goto RMSGREAD;	/* the logic here sucks */
 			break;
+		case 'o':
 		case 'f':
-			newprompt("Which section? ", filename,
-				  ((sizeof filename) - 1));
+			newprompt("Which section? ", filename, ((sizeof filename) - 1));
 			r = CtdlIPCAttachmentDownload(ipc, msg_arr[a],
 					filename, &attachment, progress, cmd);
 			if (r / 100 != 2) {
@@ -1770,12 +1776,23 @@ RMSGREAD:	scr_flush();
 				 * Part 1 won't have a filename; use the
 				 * subject of the message instead. IO
 				 */
-				if (IsEmptyStr(filename))
+				if (IsEmptyStr(filename)) {
 					strcpy(filename, reply_subject);
-				destination_directory(save_to, filename);
-				save_buffer(attachment,
-						extract_unsigned_long(cmd, 0),
-						save_to);
+				}
+				if (e == 'o') {		/* open attachment */
+					mkdir(tempdir, 0700);
+					snprintf(save_to, sizeof save_to, "%s/%04x.%s",
+						tempdir,
+						++att_seq,
+						filename);
+					save_buffer(attachment, extract_unsigned_long(cmd, 0), save_to);
+					snprintf(cmd, sizeof cmd, rc_open_cmd, save_to);
+					system(cmd);
+				}
+				else {			/* save attachment to disk */
+					destination_directory(save_to, filename);
+					save_buffer(attachment, extract_unsigned_long(cmd, 0), save_to);
+				}
 			}
 			if (attachment) {
 				free(attachment);
