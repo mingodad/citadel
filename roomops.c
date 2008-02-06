@@ -2023,16 +2023,24 @@ void toggle_self_service(void) {
 
 	get_roomflags (&RoomFlags);
 
-	/* Yank out the bits we want to change */
-	RoomFlags.flags2 = RoomFlags.flags2 &
-		!(QR2_SELFLIST|QR2_SMTP_PUBLIC|QR2_MODERATED);
-
 	if (!strcasecmp(bstr("QR2_SelfList"), "yes")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SELFLIST;
+	else 
+		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SELFLIST;
+
 	if (!strcasecmp(bstr("QR2_SMTP_PUBLIC"), "yes")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
+	else
+		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
+
 	if (!strcasecmp(bstr("QR2_Moderated"), "yes")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_MODERATED;
+	else
+		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_MODERATED;
+	if (!strcasecmp(bstr("QR2_SubsOnly"), "yes")) 
+		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
+	else
+		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
 
 	set_roomflags (&RoomFlags);
 	
