@@ -35,6 +35,10 @@ else
 				RECOVER=`ls /usr/bin/db*recover |sort |tail -n 1`
 				DUMP=`ls /usr/bin/db*dump |sort |tail -n 1`
 				LOAD=`ls /usr/bin/db*load |sort |tail -n 1`
+			else
+				RECOVER=`ls /usr/bin/db*recover`
+				DUMP=`ls /usr/bin/db*dump`
+				LOAD=`ls /usr/bin/db*load`
 			fi
 		else
 			echo "database_cleanup.sh cannot find the Berkeley DB utilities.  Exiting." 1>&2
