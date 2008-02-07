@@ -23,6 +23,7 @@
 #include "sysconfig.h"
 #include "config.h"
 #include "sysdep_decls.h"
+#include "msgbase.h"
 
 /*
 * \brief Sends a message to the Funambol server notifying 
@@ -37,7 +38,6 @@ int notify_funambol_server(char *user) {
 	char *SOAPHeader;
 	char *funambolCreds;
 	FILE *template;
-	FILE *fnblConf;
 	
 	sprintf(port, "%d", config.c_funambol_port);
 	sock = sock_connect(config.c_funambol_host, port, "tcp");
@@ -98,8 +98,8 @@ int notify_funambol_server(char *user) {
 		funambolCreds);
 	strcat(SOAPHeader, buf);
 	
-	int written_header = sock_write(sock, SOAPHeader, strlen(SOAPHeader));
-	int written_body = sock_write(sock, SOAPMessage, strlen(SOAPMessage));
+	sock_write(sock, SOAPHeader, strlen(SOAPHeader));
+	sock_write(sock, SOAPMessage, strlen(SOAPMessage));
 	sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
