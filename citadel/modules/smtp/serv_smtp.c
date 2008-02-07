@@ -595,7 +595,7 @@ void smtp_rcpt(char *argbuf) {
 				    smtp_get_Recipients (),
 				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
 	if (valid->num_error != 0) {
-		cprintf("599 Error: %s\r\n", valid->errormsg);
+		cprintf("550 %s\r\n", valid->errormsg);
 		free_recipients(valid);
 		return;
 	}

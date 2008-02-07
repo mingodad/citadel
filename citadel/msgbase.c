@@ -3130,16 +3130,21 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			if (!read_spoolcontrol_file(&sc, filename))
 			{
 				end_critical_section(S_NETCONFIGS);
-				snprintf(errmsgbuf, n, "This mailing list only accepts posts from subscribers.");
+				snprintf(errmsgbuf, n,
+					"This mailing list only accepts posts from subscribers.");
 				return (ERROR + NO_SUCH_USER);
 			}
 			end_critical_section(S_NETCONFIGS);
 			found = is_recipient (sc, RemoteIdentifier);
 			free_spoolcontrol_struct(&sc);
-			if (found)
+			if (found) {
 				return (0);
-			else
+			}
+			else {
+				snprintf(errmsgbuf, n,
+					"This mailing list only accepts posts from subscribers.");
 				return (ERROR + NO_SUCH_USER);
+			}
 		}
 		return (0);
 
@@ -3292,6 +3297,7 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 		}
 		this_recp_cooked[j] = '\0';
 		invalid = 0;
+		errmsg[0] = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
 				if (!strcasecmp(this_recp, "sysop")) {
@@ -3329,10 +3335,10 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, 
 										    sizeof errmsg, 
 										    RemoteIdentifier,
-										    Flags);
+										    Flags
+					);
 					if (err)
 					{
-						cprintf("%d %s\n", err, errmsg);
 						++ret->num_error;
 						invalid = 1;
 					} 
@@ -3385,15 +3391,16 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 				break;
 		}
 		if (invalid) {
-			if (IsEmptyStr(ret->errormsg)) {
-				snprintf(append, sizeof append,
-					 "Invalid recipient: %s",
-					 this_recp);
+			if (IsEmptyStr(errmsg)) {
+				snprintf(append, sizeof append, "Invalid recipient: %s", this_recp);
 			}
 			else {
-				snprintf(append, sizeof append, ", %s", this_recp);
+				snprintf(append, sizeof append, "%s", errmsg);
 			}
-			if ( (strlen(ret->errormsg) + strlen(append)) < SIZ) {
+			if ( (strlen(ret->errormsg) + strlen(append) + 3) < SIZ) {
+				if (!IsEmptyStr(ret->errormsg)) {
+					strcat(ret->errormsg, "; ");
+				}
 				strcat(ret->errormsg, append);
 			}
 		}
@@ -3577,14 +3584,14 @@ void cmd_ent0(char *entargs)
 
 		valid_to = validate_recipients(recp, NULL, 0);
 		if (valid_to->num_error > 0) {
-			cprintf("%d Invalid recipient (To)\n", ERROR + NO_SUCH_USER);
+			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_to->errormsg);
 			free_recipients(valid_to);
 			return;
 		}
 
 		valid_cc = validate_recipients(cc, NULL, 0);
 		if (valid_cc->num_error > 0) {
-			cprintf("%d Invalid recipient (CC)\n", ERROR + NO_SUCH_USER);
+			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_cc->errormsg);
 			free_recipients(valid_to);
 			free_recipients(valid_cc);
 			return;
@@ -3592,7 +3599,7 @@ void cmd_ent0(char *entargs)
 
 		valid_bcc = validate_recipients(bcc, NULL, 0);
 		if (valid_bcc->num_error > 0) {
-			cprintf("%d Invalid recipient (BCC)\n", ERROR + NO_SUCH_USER);
+			cprintf("%d %s\n", ERROR + NO_SUCH_USER, valid_bcc->errormsg);
 			free_recipients(valid_to);
 			free_recipients(valid_cc);
 			free_recipients(valid_bcc);
