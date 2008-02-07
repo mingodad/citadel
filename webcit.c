@@ -538,14 +538,15 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 
 		/** check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (!IsEmptyStr(WC->ImportantMessage)) {
-			wprintf("<div id=\"important_message\">\n");
-			wprintf("<span class=\"imsg\">"
-				"%s</span><br />\n", WC->ImportantMessage);
-			wprintf("</div>\n");
-			wprintf("<script type=\"text/javascript\">\n"
-				"	 setTimeout('hide_imsg_popup()', 3000);	\n"
+			wprintf("<div id=\"important_message\">\n"
+				"<span class=\"imsg\">");
+			escputs(WC->ImportantMessage);
+			wprintf("</span><br />\n"
+				"</div>\n"
+				"<script type=\"text/javascript\">\n"
+				"	 setTimeout('hide_imsg_popup()', 5000);	\n"
 				"</script>\n");
-			safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
+			WC->ImportantMessage[0] = 0;
 		}
 
 		if ( (WC->logged_in) && (!unset_cookies) ) {
