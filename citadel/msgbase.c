@@ -3130,7 +3130,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			if (!read_spoolcontrol_file(&sc, filename))
 			{
 				end_critical_section(S_NETCONFIGS);
-				snprintf(errmsgbuf, n, "No Subscribers found.");
+				snprintf(errmsgbuf, n, "This mailing list only accepts posts from subscribers.");
 				return (ERROR + NO_SUCH_USER);
 			}
 			end_critical_section(S_NETCONFIGS);
