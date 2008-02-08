@@ -11,10 +11,10 @@ DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 CFLAGS = -Wall -g
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-  CFLAGS += -O0
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0 -ggdb -rdynamic -MD -MP 
 else
-  CFLAGS += -O2 -fno-strict-aliasing
+	CFLAGS += -O2
 endif
 
 build: build-stamp

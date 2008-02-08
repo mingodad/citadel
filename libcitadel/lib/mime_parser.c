@@ -637,3 +637,63 @@ void mime_parser(char *content_start,
 			PostMultiPartCallBack,
 			userdata, dont_decode);
 }
+
+
+
+
+
+
+typedef struct _MimeGuess {
+	const char *Pattern;
+	size_t PatternLen;
+	long PatternOffset;
+	const char *MimeString;
+} MimeGuess;
+
+MimeGuess MyMimes [] = {
+	{
+		"GIF",
+		3,
+		0,
+		"image/gif"
+	},
+	{
+		"\xff\xd8",
+		2,
+		0,
+		"image/jpeg"
+	},
+	{
+		"\x89PNG",
+		4,
+		0,
+		"image/png"
+	},
+	{ // last...
+		"",
+		0,
+		0,
+		""
+	}
+};
+
+
+const char *GuessMimeType(char *data, size_t dlen)
+{
+	int MimeIndex = 0;
+
+	while (MyMimes[MimeIndex].PatternLen != 0)
+	{
+		if ((MyMimes[MimeIndex].PatternLen + 
+		     MyMimes[MimeIndex].PatternOffset < dlen) &&
+		    strncmp(MyMimes[MimeIndex].Pattern, 
+			    &data[MyMimes[MimeIndex].PatternOffset], 
+			    MyMimes[MimeIndex].PatternLen) == 0)
+		{
+			break;
+		}
+		MimeIndex ++;
+	}
+	return MyMimes[MimeIndex].MimeString;
+
+}

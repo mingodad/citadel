@@ -4,7 +4,7 @@
  */
 
 
-#define LIBCITADEL_VERSION_NUMBER	103
+#define LIBCITADEL_VERSION_NUMBER	104
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -167,6 +167,8 @@ void the_mime_parser(char *partnum,
 		      void *userdata,
 		      int dont_decode
 );
+
+const char *GuessMimeType(char *data, size_t dlen);
 
 
 
