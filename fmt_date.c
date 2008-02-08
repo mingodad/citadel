@@ -147,7 +147,6 @@ time_t httpdate_to_timestamp(char *buf)
 	time_t t = 0;
 	struct tm tt;
 	char *c;
-	char tz[256];
 
 	/** Skip day of week, to number */
 	for (c = buf; *c != ' '; c++)
@@ -213,18 +212,15 @@ time_t httpdate_to_timestamp(char *buf)
 	tt.tm_sec = atoi(c);
 	for (; *c && *c != ' '; c++);
 
-	/* Got everything; let's go */
-	/* First, change to UTC */
-	if (getenv("TZ"))
-		snprintf(tz, 256, "TZ=%s", getenv("TZ"));
-	else
-		strcpy(tz, "TZ=");
-	putenv("TZ=UTC");
+	/* Got everything; let's go.  The global 'timezone' variable contains the
+	 * local timezone's offset from UTC, in seconds, so we add that to tm_sec.
+	 * This produces an illegal value for tm_sec, but mktime() will normalize
+	 * it for us.  This eliminates the need to temporarily switch the environment
+	 * variable TZ to UTC, which is good because it fails to switch back on
+	 * some systems.
+	 */
 	tzset();
+	tt.tm_sec += timezone;
 	t = mktime(&tt);
-	putenv(tz);
-	tzset();
 	return t;
 }
-
-
