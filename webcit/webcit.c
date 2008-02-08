@@ -1696,18 +1696,35 @@ void session_loop(struct httprequest *req)
 		delete_room();
 	} else if (!strcasecmp(action, "validate")) {
 		validate();
+		/* The users photo display / upload facility */
 	} else if (!strcasecmp(action, "display_editpic")) {
 		display_graphics_upload(_("your photo"),
 					"UIMG 0|_userpic_",
 					"editpic");
 	} else if (!strcasecmp(action, "editpic")) {
 		do_graphics_upload("UIMG 1|_userpic_");
+                /* room picture dispay / upload facility */
 	} else if (!strcasecmp(action, "display_editroompic")) {
 		display_graphics_upload(_("the icon for this room"),
 					"UIMG 0|_roompic_",
 					"editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
 		do_graphics_upload("UIMG 1|_roompic_");
+		/* the greetingpage hello pic */
+	} else if (!strcasecmp(action, "display_edithello")) {
+		display_graphics_upload(_("the Greetingpicture for the login prompt"),
+					"UIMG 0|hello.gif",
+					"edithellopic");
+	} else if (!strcasecmp(action, "edithellopic")) {
+		do_graphics_upload("UIMG 1|hello.gif");
+		/* the logoff banner */
+	} else if (!strcasecmp(action, "display_editgoodbyepic")) {
+		display_graphics_upload(_("the Logoff banner picture"),
+					"UIMG 0|goodbuye.gif",
+					"editgoodbuyepic");
+	} else if (!strcasecmp(action, "editgoodbuyepic")) {
+		do_graphics_upload("UIMG 1|goodbuye.gif");
+
 	} else if (!strcasecmp(action, "delete_floor")) {
 		delete_floor();
 	} else if (!strcasecmp(action, "rename_floor")) {
