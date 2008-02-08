@@ -34,8 +34,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("\">\n");
 
 	wprintf(_("You can upload any image directly from your computer, "
-		"as long as it is in GIF format (JPEG, PNG, etc. won't "
-		"work)."));
+		  "as long as it is in GIF, JPEG or PNG"));
 	wprintf("<br /><br />\n");
 
 	wprintf(_("Please select a file to upload:"));
