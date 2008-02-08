@@ -350,6 +350,7 @@ fi
 
 
 dnl Here is the check for libintl etc.
+AC_CHECK_FUNCS(strftime_l uselocale gettext)
 
 AC_ARG_ENABLE(nls,
 	[  --disable-nls           do not use Native Language Support],

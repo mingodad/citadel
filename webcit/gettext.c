@@ -226,20 +226,34 @@ void set_selected_language(char *lang) {
  * \brief Activate the selected language for this session.
  */
 void go_selected_language(void) {
+#ifdef HAVE_USELOCALE
 	if (WC->selected_language < 0) return;
 	uselocale(wc_locales[WC->selected_language]);	/** switch locales */
 	textdomain(textdomain(NULL));			/** clear the cache */
+#endif
 }
 
 /**
  * \brief Deactivate the selected language for this session.
  */
 void stop_selected_language(void) {
+#ifdef HAVE_USELOCALE
 	uselocale(LC_GLOBAL_LOCALE);			/** switch locales */
 	textdomain(textdomain(NULL));			/** clear the cache */
+#endif
 }
 
-
+void preset_locale(void)
+{
+#ifndef HAVE_USELOCALE
+#ifdef HAVE_GETTEXT
+	char *language;
+	
+	language = getenv("LANG");
+	setlocale(LC_MESSAGES, language);
+#endif
+#endif
+}
 /**
  * \brief Create a locale_t for each available language
  */
@@ -294,6 +308,9 @@ void go_selected_language(void) {
 void stop_selected_language(void) {
 }
 
+void preset_locale(void)
+{
+}
 #endif	/* ENABLE_NLS */
 
 
