@@ -806,6 +806,7 @@ int main(int argc, char **argv)
 	free(mo);
 	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
 	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
+	preset_locale();
 #endif
 
 

@@ -726,7 +726,7 @@ char *read_server_text(void);
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
-void http_transmit_thing(char *thing, size_t length, char *content_type,
+void http_transmit_thing(char *thing, size_t length, const char *content_type,
 			 int is_static);
 void unescape_input(char *buf);
 void do_iconbar(void);
@@ -742,6 +742,7 @@ void offer_languages(void);
 void set_selected_language(char *);
 void go_selected_language(void);
 void stop_selected_language(void);
+void preset_locale(void);
 void httplang_to_locale(char *LocaleString);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
