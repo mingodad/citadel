@@ -322,7 +322,7 @@ void cmd_netf(char *cmdbuf)
  * It examines the file and displays the OK result code and some information
  * about the file.  NOTE: this stuff is Unix dependent.
  */
-void OpenCmdResult(char *filename, char *mime_type)
+void OpenCmdResult(char *filename, const char *mime_type)
 {
 	struct stat statbuf;
 	time_t modtime;
@@ -396,6 +396,7 @@ void cmd_oimg(char *cmdbuf)
 {
 	char filename[256];
 	char pathname[PATH_MAX];
+	char MimeTestBuf[32];
 	struct ctdluser usbuf;
 	char which_user[USERNAME_SIZE];
 	int which_floor;
@@ -423,13 +424,13 @@ void cmd_oimg(char *cmdbuf)
 			return;
 		}
 		snprintf(pathname, sizeof pathname, 
-				 "%s/%ld.gif",
+				 "%s/%ld",
 				 ctdl_usrpic_dir,
 				 usbuf.usernum);
 	} else if (!strcasecmp(filename, "_floorpic_")) {
 		which_floor = extract_int(cmdbuf, 1);
 		snprintf(pathname, sizeof pathname,
-				 "%s/floor.%d.gif",
+				 "%s/floor.%d",
 				 ctdl_image_dir, which_floor);
 	} else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
@@ -441,19 +442,24 @@ void cmd_oimg(char *cmdbuf)
 			}
 		}
 		snprintf(pathname, sizeof pathname,
-				 "%s/%s.gif",
+				 "%s/%s",
 				 ctdl_image_dir,
 				 filename);
 	}
 
 	CC->download_fp = fopen(pathname, "rb");
 	if (CC->download_fp == NULL) {
+		strcat(pathname, ".gif");
+		CC->download_fp = fopen(pathname, "rb");
+	}
+	if (CC->download_fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
 			ERROR + FILE_NOT_FOUND, pathname, strerror(errno));
 		return;
 	}
-
-	OpenCmdResult(pathname, "image/gif");
+	fread(&MimeTestBuf[0], 1, 32, CC->download_fp);
+	rewind (CC->download_fp);
+	OpenCmdResult(pathname, GuessMimeType(&MimeTestBuf[0], 32));
 }
 
 /*

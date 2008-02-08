@@ -625,6 +625,11 @@ static int validpw(uid_t uid, const char *pass)
 {
 	char buf[256];
 
+	if (IsEmptyStr(pass)) {
+		lprintf(CTDL_DEBUG, "refusing to check empty password for uid=%d using chkpwd...\n", uid);
+		return 0;
+	}
+
 	lprintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
 
 	begin_critical_section(S_CHKPWD);

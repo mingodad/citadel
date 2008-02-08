@@ -2,7 +2,7 @@
 void cmd_delf (char *filename);
 void cmd_movf (char *cmdbuf);
 void cmd_netf (char *cmdbuf);
-void OpenCmdResult (char *, char *);
+void OpenCmdResult (char *, const char *);
 void cmd_open (char *cmdbuf);
 void cmd_oimg (char *cmdbuf);
 void cmd_uopn (char *cmdbuf);
