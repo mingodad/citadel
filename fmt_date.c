@@ -213,14 +213,14 @@ time_t httpdate_to_timestamp(char *buf)
 	for (; *c && *c != ' '; c++);
 
 	/* Got everything; let's go.  The global 'timezone' variable contains the
-	 * local timezone's offset from UTC, in seconds, so we add that to tm_sec.
+	 * local timezone's offset from UTC, in seconds, so we apply that to tm_sec.
 	 * This produces an illegal value for tm_sec, but mktime() will normalize
 	 * it for us.  This eliminates the need to temporarily switch the environment
 	 * variable TZ to UTC, which is good because it fails to switch back on
 	 * some systems.
 	 */
 	tzset();
-	tt.tm_sec += timezone;
+	tt.tm_sec -= timezone;
 	t = mktime(&tt);
 	return t;
 }
