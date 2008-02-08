@@ -763,44 +763,6 @@ void output_static(char *what)
 	}
 }
 
-
-
-typedef struct _MimeGuess {
-	const char *Pattern;
-	size_t PatternLen;
-	long PatternOffset;
-	const char *MimeString;
-} MimeGuess;
-
-MimeGuess MyMimes [] = {
-	{
-		"GIF",
-		3,
-		0,
-		"image/gif"
-	},
-	{
-		"\xff\xd8",
-		2,
-		0,
-		"image/jpeg"
-	},
-	{
-		"\x89PNG",
-		4,
-		0,
-		"image/png"
-	},
-	{ // last...
-		"",
-		0,
-		0,
-		""
-	}
-};
-
-
-
 /**
  * \brief When the browser requests an image file from the Citadel server,
  * this function is called to transmit it.
@@ -810,7 +772,7 @@ void output_image()
 	char buf[SIZ];
 	char *xferbuf = NULL;
 	off_t bytes;
-	int MimeIndex = 0;
+	const char *MimeType;
 
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_getln(buf, sizeof buf);
@@ -823,21 +785,13 @@ void output_image()
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
 
-		while (MyMimes[MimeIndex].PatternLen != 0)
-		{
-			if (strncmp(MyMimes[MimeIndex].Pattern, 
-				    &xferbuf[MyMimes[MimeIndex].PatternOffset], 
-				    MyMimes[MimeIndex].PatternLen) == 0)
-				break;
-			MimeIndex ++;
-		}
-
+		MimeType = GuessMimeType (xferbuf, bytes);
 		/** Write it to the browser */
-		if (MyMimes[MimeIndex].PatternLen != 0)
+		if (!IsEmptyStr(MimeType))
 		{
 			http_transmit_thing(xferbuf, 
 					    (size_t)bytes, 
-					    MyMimes[MimeIndex].MimeString, 
+					    MimeType, 
 					    0);
 			free(xferbuf);
 			return;
