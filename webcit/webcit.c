@@ -680,7 +680,7 @@ void output_static(char *what)
 	off_t count = 0;
 	size_t res;
 	char *bigbuffer;
-	char content_type[128];
+	const char *content_type;
 	int len;
 
 	fp = fopen(what, "rb");
@@ -692,36 +692,7 @@ void output_static(char *what)
 		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
 	} else {
 		len = strlen (what);
-		if (!strncasecmp(&what[len - 4], ".gif", 4))
-			safestrncpy(content_type, "image/gif", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".txt", 4))
-			safestrncpy(content_type, "text/plain", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".css", 4))
-			safestrncpy(content_type, "text/css", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".jpg", 4))
-			safestrncpy(content_type, "image/jpeg", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".png", 4))
-			safestrncpy(content_type, "image/png", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".ico", 4))
-			safestrncpy(content_type, "image/x-icon", sizeof content_type);
-		else if (!strncasecmp(&what[len - 5], ".html", 5))
-			safestrncpy(content_type, "text/html", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".htm", 4))
-			safestrncpy(content_type, "text/html", sizeof content_type);
-		else if (!strncasecmp(&what[len - 4], ".wml", 4))
-			safestrncpy(content_type, "text/vnd.wap.wml", sizeof content_type);
-		else if (!strncasecmp(&what[len - 5], ".wmls", 5))
-			safestrncpy(content_type, "text/vnd.wap.wmlscript", sizeof content_type);
-		else if (!strncasecmp(&what[len - 5], ".wmlc", 5))
-			safestrncpy(content_type, "application/vnd.wap.wmlc", sizeof content_type);
-		else if (!strncasecmp(&what[len - 6], ".wmlsc", 6))
-			safestrncpy(content_type, "application/vnd.wap.wmlscriptc", sizeof content_type);
-		else if (!strncasecmp(&what[len - 5], ".wbmp", 5))
-			safestrncpy(content_type, "image/vnd.wap.wbmp", sizeof content_type);
-		else if (!strncasecmp(&what[len - 3], ".js", 3))
-			safestrncpy(content_type, "text/javascript", sizeof content_type);
-		else
-			safestrncpy(content_type, "application/octet-stream", sizeof content_type);
+		content_type = GuessMimeByFilename(what, len);
 
 		if (fstat(fileno(fp), &statbuf) == -1) {
 			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
@@ -1547,6 +1518,8 @@ void session_loop(struct httprequest *req)
 
 	if (!strcasecmp(action, "image")) {
 		output_image();
+	} else if (!strcasecmp(action, "display_mime_icon")) {
+		display_mime_icon();
 
 		/**
 		 * All functions handled below this point ... make sure we log in
@@ -1706,31 +1679,31 @@ void session_loop(struct httprequest *req)
 		/* The users photo display / upload facility */
 	} else if (!strcasecmp(action, "display_editpic")) {
 		display_graphics_upload(_("your photo"),
-					"UIMG 0|_userpic_",
+					"_userpic_",
 					"editpic");
 	} else if (!strcasecmp(action, "editpic")) {
-		do_graphics_upload("UIMG 1|_userpic_");
+		do_graphics_upload("_userpic_");
                 /* room picture dispay / upload facility */
 	} else if (!strcasecmp(action, "display_editroompic")) {
 		display_graphics_upload(_("the icon for this room"),
-					"UIMG 0|_roompic_",
+					"_roompic_",
 					"editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
-		do_graphics_upload("UIMG 1|_roompic_");
+		do_graphics_upload("_roompic_");
 		/* the greetingpage hello pic */
 	} else if (!strcasecmp(action, "display_edithello")) {
 		display_graphics_upload(_("the Greetingpicture for the login prompt"),
-					"UIMG 0|hello.gif",
+					"hello",
 					"edithellopic");
 	} else if (!strcasecmp(action, "edithellopic")) {
-		do_graphics_upload("UIMG 1|hello.gif");
+		do_graphics_upload("hello");
 		/* the logoff banner */
 	} else if (!strcasecmp(action, "display_editgoodbyepic")) {
 		display_graphics_upload(_("the Logoff banner picture"),
-					"UIMG 0|goodbuye.gif",
+					"UIMG 0|%s|goodbuye",
 					"editgoodbuyepic");
 	} else if (!strcasecmp(action, "editgoodbuyepic")) {
-		do_graphics_upload("UIMG 1|goodbuye.gif");
+		do_graphics_upload("UIMG 1|%s|goodbuye");
 
 	} else if (!strcasecmp(action, "delete_floor")) {
 		delete_floor();

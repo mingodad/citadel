@@ -8,6 +8,7 @@ void display_room_directory(void)
 	char buf[1024];
 	char filename[256];
 	char filesize[256];
+	char mimetype[64];
 	char comment[512];
 	int bg = 0;
 	char title[256];
@@ -24,10 +25,11 @@ void display_room_directory(void)
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"downloads_background\"><tr><td>\n");
-	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th></tr>\n",
-			_("Filename"),
-			_("Size"),
-			_("Description")
+	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
+		_("Filename"),
+		_("Size"),
+		_("Content"),
+		_("Description")
 	);
 
 	serv_puts("RDIR");
@@ -36,19 +38,20 @@ void display_room_directory(void)
 	{
 		extract_token(filename, buf, 0, '|', sizeof filename);
 		extract_token(filesize, buf, 1, '|', sizeof filesize);
-		extract_token(comment, buf, 2, '|', sizeof comment);
+		extract_token(mimetype, buf, 2, '|', sizeof mimetype);
+		extract_token(comment,  buf, 3, '|', sizeof comment);
 		bg = 1 - bg;
 		wprintf("<tr bgcolor=\"#%s\">", (bg ? "DDDDDD" : "FFFFFF"));
 		wprintf("<td>"
 			"<a href=\"download_file/");
 		urlescputs(filename);
-		wprintf("\"><img src=\"static/diskette_24x.gif\" border=0 align=middle>\n");
+		wprintf("\"><img src=\"display_mime_icon?type=%s\" border=0 align=middle>\n", mimetype);
 					escputs(filename);	wprintf("</a></td>");
 		wprintf("<td>");	escputs(filesize);	wprintf("</td>");
+		wprintf("<td>");	escputs(mimetype);	wprintf("</td>");
 		wprintf("<td>");	escputs(comment);	wprintf("</td>");
 		wprintf("</tr>\n");
 	}
-
 	wprintf("</table>\n");
 
 	/** Now offer the ability to upload files... */
@@ -78,6 +81,15 @@ void display_room_directory(void)
 	wDumpContent(1);
 }
 
+extern char* static_dirs[];
+void display_mime_icon(void)
+{
+	char diskette[SIZ];
+
+	snprintf (diskette, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
+	output_static(diskette);
+
+}
 
 void download_file(char *filename)
 {
@@ -122,38 +134,41 @@ void download_file(char *filename)
 
 void upload_file(void)
 {
+	const char *MimeType;
 	char buf[1024];
 	size_t bytes_transmitted = 0;
 	size_t blocksize;
+	struct wcsession *WCC = WC;     /* stack this for faster access (WC is a function) */
 
-	serv_printf("UOPN %s|%s", WC->upload_filename, bstr("description"));
+	MimeType = GuessMimeType(WCC->upload, WCC->upload_length); 
+	serv_printf("UOPN %s|%s|%s", WCC->upload_filename, MimeType, bstr("description"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2')
 	{
-		strcpy(WC->ImportantMessage, &buf[4]);
+		strcpy(WCC->ImportantMessage, &buf[4]);
 		display_room_directory();
 		return;
 	}
 
-	while (bytes_transmitted < WC->upload_length)
+	while (bytes_transmitted < WCC->upload_length)
 	{
 		blocksize = 4096;
-		if (blocksize > (WC->upload_length - bytes_transmitted))
+		if (blocksize > (WCC->upload_length - bytes_transmitted))
 		{
-			blocksize = (WC->upload_length - bytes_transmitted);
+			blocksize = (WCC->upload_length - bytes_transmitted);
 		}
 		serv_printf("WRIT %d", blocksize);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '7')
 		{
 			blocksize = atoi(&buf[4]);
-			serv_write(&WC->upload[bytes_transmitted], blocksize);
+			serv_write(&WCC->upload[bytes_transmitted], blocksize);
 			bytes_transmitted += blocksize;
 		}
 	}
 
 	serv_puts("UCLS 1");
 	serv_getln(buf, sizeof buf);
-	strcpy(WC->ImportantMessage, &buf[4]);
+	strcpy(WCC->ImportantMessage, &buf[4]);
 	display_room_directory();
 }

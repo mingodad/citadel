@@ -510,6 +510,7 @@ void output_headers(    int do_httpheaders,
 			int cache);
 void wprintf(const char *format,...);
 void output_static(char *what);
+void display_mime_icon(void);
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
