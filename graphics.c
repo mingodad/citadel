@@ -7,11 +7,13 @@
 
 #include "webcit.h"
 
-void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
+void display_graphics_upload(char *description, char *filename, char *uplurl)
 {
 	char buf[SIZ];
 
-	serv_puts(check_cmd);
+
+	snprintf(buf, SIZ, "UIMG 0||%s", filename);
+	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
@@ -33,12 +35,14 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	urlescputs(bstr("which_room"));
 	wprintf("\">\n");
 
-	wprintf(_("You can upload any image directly from your computer, "
-		  "as long as it is in GIF, JPEG or PNG"));
+	wprintf(_("You can upload an image directly from your computer"));
 	wprintf("<br /><br />\n");
 
 	wprintf(_("Please select a file to upload:"));
 	wprintf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
+
+	wprintf("<div class=\"uploadpic\"><img src=\"image&name=%s\"></div>\n", filename);
+
 	wprintf("<div class=\"buttons\">");
 	wprintf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
 	wprintf("&nbsp;");
@@ -53,12 +57,14 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wDumpContent(1);
 }
 
-void do_graphics_upload(char *upl_cmd)
+void do_graphics_upload(char *filename)
 {
+	const char *MimeType;
 	char buf[SIZ];
 	int bytes_remaining;
 	int pos = 0;
 	int thisblock;
+	bytes_remaining = WC->upload_length;
 
 	if (!IsEmptyStr(bstr("cancel_button"))) {
 		strcpy(WC->ImportantMessage,
@@ -73,14 +79,17 @@ void do_graphics_upload(char *upl_cmd)
 		display_main_menu();
 		return;
 	}
-	serv_puts(upl_cmd);
+	
+	MimeType = GuessMimeType(&WC->upload[0], bytes_remaining);
+	snprintf(buf, SIZ, "UIMG 1|%s|%s", MimeType, filename);
+	serv_puts(buf);
+
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
 		return;
 	}
-	bytes_remaining = WC->upload_length;
 	while (bytes_remaining) {
 		thisblock = ((bytes_remaining > 4096) ? 4096 : bytes_remaining);
 		serv_printf("WRIT %d", thisblock);

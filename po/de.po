@@ -631,7 +631,7 @@ msgstr "Eine neue Etage wurde erstellt."
 
 #: ../graphics.c:25
 msgid "Image upload"
-msgstr "Bild hochgeladen"
+msgstr "Bild hochladen"
 
 #: ../graphics.c:36
 msgid ""
