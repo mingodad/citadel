@@ -754,6 +754,9 @@ case "`uname -a`" in
  OpenBSD*)
 	echo "we don't need to check for resolv on openbsd"  
 	;;
+ FreeBSD*)
+	echo "we don't need to check for resolv on freeBSD"  
+	;;
  *)
 	test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 	AC_CHECK_LIB(resolv, res_query,
