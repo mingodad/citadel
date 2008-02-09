@@ -220,7 +220,7 @@ time_t httpdate_to_timestamp(char *buf)
 	 * some systems.
 	 */
 	tzset();
-	tt.tm_sec -= timezone;
+	tt.tm_sec = tt.tm_sec - (int)timezone;
 	t = mktime(&tt);
 	return t;
 }
