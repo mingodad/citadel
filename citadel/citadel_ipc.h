@@ -261,7 +261,7 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
-		const char *path,
+		const char *path, 
 		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
@@ -330,7 +330,7 @@ int CtdlIPCSendListing(CtdlIPC *ipc, const char *listing);
 size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,
 		size_t bytes, char *cret);
 int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret);
-int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
+int CtdlIPCWriteUpload(CtdlIPC *ipc, FILE *uploadFP,
 		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);

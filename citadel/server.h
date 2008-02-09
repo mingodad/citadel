@@ -103,6 +103,7 @@ struct CitContext {
 	char upl_path[PATH_MAX];
 	char upl_comment[256];
 	char upl_filedir[PATH_MAX];
+	char upl_mimetype[64];
 	char dl_is_net;
 	char upload_type;
 
@@ -360,6 +361,7 @@ struct MetaData {
 	int meta_refcount;		/* Number of rooms pointing to this msg */
 	char meta_content_type[64];	/* Cached MIME content-type */
 	long meta_rfc822_length;	/* Cache of RFC822-translated msg length */
+	char mimetype[64];              /* if we were able to guess the mimetype for the data */ 
 };
 
 /* Calls to AdjRefCount() are queued and deferred, so the user doesn't

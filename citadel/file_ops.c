@@ -470,7 +470,8 @@ void cmd_uopn(char *cmdbuf)
 	int a;
 
 	extract_token(CC->upl_file, cmdbuf, 0, '|', sizeof CC->upl_file);
-	extract_token(CC->upl_comment, cmdbuf, 1, '|', sizeof CC->upl_comment);
+	extract_token(CC->upl_mimetype, cmdbuf, 1, '|', sizeof CC->upl_mimetype);
+	extract_token(CC->upl_comment, cmdbuf, 2, '|', sizeof CC->upl_comment);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -542,7 +543,8 @@ void cmd_uimg(char *cmdbuf)
 	}
 
 	is_this_for_real = extract_int(cmdbuf, 0);
-	extract_token(basenm, cmdbuf, 1, '|', sizeof basenm);
+	extract_token(CC->upl_mimetype, cmdbuf, 1, '|', sizeof CC->upl_mimetype);
+	extract_token(basenm, cmdbuf, 2, '|', sizeof basenm);
 	if (CC->upload_fp != NULL) {
 		cprintf("%d You already have an upload file open.\n",
 			ERROR + RESOURCE_BUSY);
@@ -682,15 +684,18 @@ void cmd_ucls(char *cmd)
 			fp = fopen(CC->upl_filedir, "w");
 		}
 		if (fp != NULL) {
-			fprintf(fp, "%s %s\n", CC->upl_file,
+			fprintf(fp, "%s %s %s\n", CC->upl_file,
+				CC->upl_mimetype,
 				CC->upl_comment);
 			fclose(fp);
 		}
 
 		/* put together an upload notice */
 		snprintf(upload_notice, sizeof upload_notice,
-			"NEW UPLOAD: '%s'\n %s\n",
-			CC->upl_file, CC->upl_comment);
+			"NEW UPLOAD: '%s'\n %s\n%s\n",
+			 CC->upl_file, 
+			 CC->upl_comment, 
+			 CC->upl_mimetype);
 		quickie_message(CC->curr_user, NULL, NULL, CC->room.QRname,
 				upload_notice, 0, NULL);
 	} else {

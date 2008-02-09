@@ -922,6 +922,7 @@ void roomdir(CtdlIPC *ipc)
 	char flnm[256];
 	char flsz[32];
 	char comment[256];
+	char mimetype[256];
 	char buf[256];
 	char *listing = NULL;	/* Returned directory listing */
 	int r;
@@ -942,12 +943,13 @@ void roomdir(CtdlIPC *ipc)
 
 		extract_token(flnm, buf, 0, '|', sizeof flnm);
 		extract_token(flsz, buf, 1, '|', sizeof flsz);
-		extract_token(comment, buf, 2, '|', sizeof comment);
+		extract_token(mimetype, buf, 2, '|', sizeof mimetype);
+		extract_token(comment, buf, 3, '|', sizeof comment);
 		if (strlen(flnm) <= 14)
-			pprintf("%-14s %8s %s\n", flnm, flsz, comment);
+			pprintf("%-14s %8s %s [%s]\n", flnm, flsz, comment, mimetype);
 		else
-			pprintf("%s\n%14s %8s %s\n", flnm, "", flsz,
-				comment);
+			pprintf("%s\n%14s %8s %s [%s]\n", flnm, "", flsz,
+				comment, mimetype);
 	}
 	if (listing) free(listing);
 }

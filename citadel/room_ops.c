@@ -1123,6 +1123,8 @@ void cmd_rdir(void)
 	struct dirent *filedir_entry;
 	int d_namelen;
 	char buf2[SIZ];
+	char mimebuf[64];
+	long len;
 	
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
@@ -1139,48 +1141,62 @@ void cmd_rdir(void)
 		cprintf("%d not here.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
-	cprintf("%d %s|%s/%s\n", LISTING_FOLLOWS, config.c_fqdn, ctdl_file_dir, CC->room.QRdirname);
-	
+
 	snprintf(buf, sizeof buf, "%s/%s", ctdl_file_dir, CC->room.QRdirname);
 	filedir = opendir (buf);
-	if (filedir)
-	{
-		snprintf(buf, sizeof buf, "%s/%s/filedir", ctdl_file_dir, CC->room.QRdirname);
-		fd = fopen(buf, "r");
-		if (fd == NULL)
-			fd = fopen("/dev/null", "r");
-		while ((filedir_entry = readdir(filedir)))
-		{
-			if (strcasecmp(filedir_entry->d_name, "filedir") && filedir_entry->d_name[0] != '.')
-			{
-#ifdef _DIRENT_HAVE_D_NAMELEN
-				d_namelen = filedir_entry->d_namelen;
-#else
-				d_namelen = strlen(filedir_entry->d_name);
-#endif
-				snprintf(buf, sizeof buf, "%s/%s/%s", ctdl_file_dir, CC->room.QRdirname, filedir_entry->d_name);
-				stat(buf, &statbuf);	/* stat the file */
-				if (!(statbuf.st_mode & S_IFREG))
-				{
-					snprintf(buf2, sizeof buf2, "Command RDIR found something that is not a useable file. It should be cleaned up.\n RDIR found this non regular file:\n%s\n", buf);
-					aide_message(buf2, "RDIR found bad file");
-					continue;	/* not a useable file type so don't show it */
-				}
-				safestrncpy(comment, "", sizeof comment);
-				fseek(fd, 0L, 0);	/* rewind descriptions file */
-				/* Get the description from the descriptions file */
-				while ((fgets(buf, sizeof buf, fd) != NULL) && (IsEmptyStr(comment))) 
-				{
-					buf[strlen(buf) - 1] = 0;
-					if ((!strncasecmp(buf, filedir_entry->d_name, d_namelen)) && (buf[d_namelen] == ' '))
-						safestrncpy(comment, &buf[d_namelen + 1], sizeof comment);
-				}
-				cprintf("%s|%ld|%s\n", filedir_entry->d_name, (long)statbuf.st_size, comment);
-			}
-		}
-		fclose(fd);
-		closedir(filedir);
+	
+	if (filedir == NULL) {
+		cprintf("%d not here.\n", ERROR + HIGHER_ACCESS_REQUIRED);
+		return;
 	}
+	cprintf("%d %s|%s/%s\n", LISTING_FOLLOWS, config.c_fqdn, ctdl_file_dir, CC->room.QRdirname);
+	
+	snprintf(buf, sizeof buf, "%s/%s/filedir", ctdl_file_dir, CC->room.QRdirname);
+	fd = fopen(buf, "r");
+	if (fd == NULL)
+		fd = fopen("/dev/null", "r");
+	while ((filedir_entry = readdir(filedir)))
+	{
+		if (strcasecmp(filedir_entry->d_name, "filedir") && filedir_entry->d_name[0] != '.')
+		{
+#ifdef _DIRENT_HAVE_D_NAMELEN
+			d_namelen = filedir_entry->d_namelen;
+#else
+			d_namelen = strlen(filedir_entry->d_name);
+#endif
+			snprintf(buf, sizeof buf, "%s/%s/%s", ctdl_file_dir, CC->room.QRdirname, filedir_entry->d_name);
+			stat(buf, &statbuf);	/* stat the file */
+			if (!(statbuf.st_mode & S_IFREG))
+			{
+				snprintf(buf2, sizeof buf2, "Command RDIR found something that is not a useable file. It should be cleaned up.\n RDIR found this non regular file:\n%s\n", buf);
+				aide_message(buf2, "RDIR found bad file");
+				continue;	/* not a useable file type so don't show it */
+			}
+			safestrncpy(comment, "", sizeof comment);
+			fseek(fd, 0L, 0);	/* rewind descriptions file */
+			/* Get the description from the descriptions file */
+			while ((fgets(buf, sizeof buf, fd) != NULL) && (IsEmptyStr(comment))) 
+			{
+				buf[strlen(buf) - 1] = 0;
+				if ((!strncasecmp(buf, filedir_entry->d_name, d_namelen)) && (buf[d_namelen] == ' '))
+					safestrncpy(comment, &buf[d_namelen + 1], sizeof comment);
+			}
+			len = extract_token (mimebuf, comment, 0,' ', 64);
+			if ((len <0) || strchr(mimebuf, '/') == NULL)
+			{
+				snprintf (mimebuf, 64, "application/octetstream");
+				len = 0;
+			}
+			cprintf("%s|%ld|%s|%s\n", 
+				filedir_entry->d_name, 
+				(long)statbuf.st_size, 
+				mimebuf, 
+				&comment[len]);
+		}
+	}
+	fclose(fd);
+	closedir(filedir);
+	
 	cprintf("000\n");
 }
 

@@ -1326,14 +1326,18 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 
 
 /* UOPN */
-int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
-		const char *path,
+int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment, 
+		const char *path, 
 		void (*progress_gauge_callback)
 			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
 	char *aaa;
+	FILE *uploadFP;
+	char MimeTestBuf[64];
+	const char *MimeType;
+	long len;
 
 	if (!cret) return -1;
 	if (!save_as) return -1;
@@ -1342,15 +1346,24 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 	if (!*path) return -1;
 	if (ipc->uploading) return -1;
 
+	uploadFP = fopen(path, "r");
+	if (!uploadFP) return -2;
+
+	len = fread(&MimeTestBuf[0], 1, 64, uploadFP);
+	rewind (uploadFP);
+	if (len < 0) 
+		return -3;
+
+	MimeType = GuessMimeType(&MimeTestBuf[0], len);
 	aaa = (char *)malloc(strlen(save_as) + strlen(comment) + 7);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "UOPN %s|%s", save_as, comment);
+	sprintf(aaa, "UOPN %s|%s|%s", save_as, MimeType,  comment);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
 	if (ret / 100 == 2) {
 		ipc->uploading = 1;
-		ret = CtdlIPCWriteUpload(ipc, path, progress_gauge_callback, cret);
+		ret = CtdlIPCWriteUpload(ipc, uploadFP, progress_gauge_callback, cret);
 		ret = CtdlIPCEndUpload(ipc, (ret == -2 ? 1 : 0), cret);
 		ipc->uploading = 0;
 	}
@@ -1366,7 +1379,11 @@ int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 		char *cret)
 {
 	register int ret;
+	FILE *uploadFP;
 	char *aaa;
+	char MimeTestBuf[64];
+	const char *MimeType;
+	long len;
 
 	if (!cret) return -1;
 	if (!save_as) return -1;
@@ -1377,12 +1394,21 @@ int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 	aaa = (char *)malloc(strlen(save_as) + 17);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "UIMG %d|%s", for_real, save_as);
+	uploadFP = fopen(path, "r");
+	if (!uploadFP) return -2;
+
+	len = fread(&MimeTestBuf[0], 1, 64, uploadFP);
+	rewind (uploadFP);
+	if (len < 0) 
+		return -3;
+	MimeType = GuessMimeType(&MimeTestBuf[0], 64);
+
+	sprintf(aaa, "UIMG %d|%s|%s", for_real, MimeType, save_as);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
 	if (ret / 100 == 2 && for_real) {
 		ipc->uploading = 1;
-		ret = CtdlIPCWriteUpload(ipc, path, progress_gauge_callback, cret);
+		ret = CtdlIPCWriteUpload(ipc, uploadFP, progress_gauge_callback, cret);
 		ret = CtdlIPCEndUpload(ipc, (ret == -2 ? 1 : 0), cret);
 		ipc->uploading = 0;
 	}
@@ -2347,7 +2373,7 @@ int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret)
 
 
 /* WRIT */
-int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
+int CtdlIPCWriteUpload(CtdlIPC *ipc, FILE *uploadFP,
 		void (*progress_gauge_callback)
 			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
@@ -2357,15 +2383,10 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 	size_t bytes;
 	char aaa[SIZ];
 	char buf[4096];
-	FILE *fd;
+	FILE *fd = uploadFP;
 	int ferr;
 
 	if (!cret) return -1;
-	if (!path) return -1;
-	if (!*path) return -1;
-
-	fd = fopen(path, "r");
-	if (!fd) return -2;
 
 	fseek(fd, 0L, SEEK_END);
 	bytes = ftell(fd);
