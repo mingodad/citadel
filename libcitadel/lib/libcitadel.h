@@ -4,6 +4,12 @@
  */
 
 
+
+/*
+ * since we reference time_t...
+ */
+#include <time.h>
+
 #define LIBCITADEL_VERSION_NUMBER	104
 
 /*
