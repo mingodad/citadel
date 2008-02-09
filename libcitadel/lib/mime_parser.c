@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include "xdgmime/xdgmime.h"
 #include "libcitadel.h"
 
 void extract_key(char *target, char *source, char *key)
@@ -680,6 +681,8 @@ MimeGuess MyMimes [] = {
 
 const char *GuessMimeType(char *data, size_t dlen)
 {
+	return (xdg_mime_get_mime_type_for_data(data, dlen));
+/*
 	int MimeIndex = 0;
 
 	while (MyMimes[MimeIndex].PatternLen != 0)
@@ -695,5 +698,43 @@ const char *GuessMimeType(char *data, size_t dlen)
 		MimeIndex ++;
 	}
 	return MyMimes[MimeIndex].MimeString;
+*/
+}
 
+
+const char* GuessMimeByFilename(const char *what, size_t len)
+{
+	return xdg_mime_get_mime_type_from_file_name(what);
+/*
+	if (!strncasecmp(&what[len - 4], ".gif", 4))
+		return "image/gif";
+	else if (!strncasecmp(&what[len - 3], ".js", 3))
+		return  "text/javascript";
+	else if (!strncasecmp(&what[len - 4], ".txt", 4))
+		return "text/plain";
+	else if (!strncasecmp(&what[len - 4], ".css", 4))
+		return "text/css";
+	else if (!strncasecmp(&what[len - 4], ".jpg", 4))
+		return "image/jpeg";
+	else if (!strncasecmp(&what[len - 4], ".png", 4))
+		return "image/png";
+	else if (!strncasecmp(&what[len - 4], ".ico", 4))
+		return "image/x-icon";
+	else if (!strncasecmp(&what[len - 5], ".html", 5))
+		return "text/html";
+	else if (!strncasecmp(&what[len - 4], ".htm", 4))
+		return "text/html";
+	else if (!strncasecmp(&what[len - 4], ".wml", 4))
+		return "text/vnd.wap.wml";
+	else if (!strncasecmp(&what[len - 5], ".wmls", 5))
+		return "text/vnd.wap.wmlscript";
+	else if (!strncasecmp(&what[len - 5], ".wmlc", 5))
+		return "application/vnd.wap.wmlc";
+	else if (!strncasecmp(&what[len - 6], ".wmlsc", 6))
+		return "application/vnd.wap.wmlscriptc";
+	else if (!strncasecmp(&what[len - 5], ".wbmp", 5))
+		return "image/vnd.wap.wbmp";
+	else
+		return "application/octet-stream";
+*/
 }

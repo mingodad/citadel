@@ -101,7 +101,20 @@ LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG)
 LINK_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) $(LDFLAGS) -o $@
 LINK_CXX_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(CXXCOMPILE) $(LDFLAGS) -o $@
 
-LIB_OBJS = lib/libcitadel.lo lib/mime_parser.lo lib/tools.lo lib/vcard.lo lib/hash.lo lib/lookup3.lo
+LIB_OBJS = lib/libcitadel.lo \
+	lib/mime_parser.lo \
+	lib/tools.lo \
+	lib/vcard.lo \
+	lib/hash.lo \
+	lib/lookup3.lo \
+	lib/xdgmime/xdgmime.lo \
+	lib/xdgmime/xdgmimeglob.lo \
+	lib/xdgmime/xdgmimeint.lo \
+	lib/xdgmime/xdgmimemagic.lo \
+	lib/xdgmime/xdgmimealias.lo \
+	lib/xdgmime/xdgmimeparent.lo \
+	lib/xdgmime/xdgmimecache.lo
+
 $(LIBRARY): $(LIB_OBJS)
 	$(LINK_LIB) $(LIB_OBJS)
 
@@ -111,6 +124,13 @@ lib/tools.lo: lib/tools.c lib/libcitadel.h
 lib/vcard.lo: lib/vcard.c lib/libcitadel.h
 lib/lookup3.lo: lib/lookup3.c lib/libcitadel.h
 lib/hash.lo: lib/hash.c lib/libcitadel.h
+lib/xdgmime/xdgmime.lo: lib/xdgmime/xdgmime.c 
+lib/xdgmime/xdgmimeglob.lo:  lib/xdgmime/xdgmimeglob.c 
+lib/xdgmime/xdgmimeint.lo:  lib/xdgmime/xdgmimeint.c 
+lib/xdgmime/xdgmimemagic.lo:  lib/xdgmime/xdgmimemagic.c 
+lib/xdgmime/xdgmimealias.lo:  lib/xdgmime/xdgmimealias.c 
+lib/xdgmime/xdgmimeparent.lo:  lib/xdgmime/xdgmimeparent.c 
+lib/xdgmime/xdgmimecache.lo: lib/xdgmime/xdgmimecache.c
 
 .SUFFIXES: .c .cpp .lo .o
 
@@ -125,3 +145,15 @@ lib/hash.lo: lib/hash.c lib/libcitadel.h
 	clean distclean extraclean maintainer-clean \
 	dist distdir \
 	install uninstall
+
+
+
+
+#
+#xdgmime.o 
+#xdgmimeglob.o 
+#xdgmimeint.o 
+#xdgmimemagic.o 
+#xdgmimealias.o 
+#xdgmimeparent.o 
+#xdgmimecache.o

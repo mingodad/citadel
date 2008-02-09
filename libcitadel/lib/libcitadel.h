@@ -169,6 +169,7 @@ void the_mime_parser(char *partnum,
 );
 
 const char *GuessMimeType(char *data, size_t dlen);
+const char* GuessMimeByFilename(const char *what, size_t len);
 
 
 

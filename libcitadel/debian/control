@@ -9,7 +9,7 @@ Homepage: http://citadel.org
 
 Package: libcitadel1
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, shared-mime-info
 Description: Citadel toolbox
  This library contains the commonly used routines for the citadel suite.
 
