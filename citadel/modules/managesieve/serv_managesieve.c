@@ -216,7 +216,6 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		int retval;
 		char *message;
 		char *username;
-		char *password;
 
 		message = NULL;
 		memset (auth, 0, SIZ);

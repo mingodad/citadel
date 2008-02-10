@@ -123,7 +123,7 @@ void process_notify(long msgnum, void *usrdata) {
      * 3. A Funambol server has been entered
      *
      */
-    if (configMsgNum == -1 || strncasecmp(configMsg, "none", 4) == 0 &&
+    if ((configMsgNum == -1) || (strncasecmp(configMsg, "none", 4) == 0) &&
     IsEmptyStr(config.c_pager_program) && IsEmptyStr(config.c_funambol_host)) {
         lprintf(CTDL_DEBUG, "No external notifiers configured on system/user");
         goto nuke;

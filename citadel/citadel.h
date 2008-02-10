@@ -77,6 +77,7 @@ extern "C" {
 /*
  * Message expiration policy stuff
  */
+typedef struct ExpirePolicy ExpirePolicy;
 struct ExpirePolicy {
 /*
 #include "datadefinitions.h"
@@ -98,6 +99,7 @@ struct ExpirePolicy {
  * fetches from the server.  This allows the client to "march" through
  * relevant rooms without having to ask the server each time where to go next.
  */
+typedef struct march march;
 struct march {
 /*
 #include "datadefinitions.h"
@@ -127,6 +129,7 @@ struct march {
 /*
  * User records.
  */
+typedef struct ctdluser ctdluser;
 struct ctdluser {			/* User record                      */
 /*
 #include "datadefinitions.h"
@@ -158,6 +161,7 @@ struct ctdluser {			/* User record                      */
 /*
  * Room records.
  */
+typedef struct ctdlroom ctdlroom;
 struct ctdlroom {
 /*
 #include "datadefinitions.h"
@@ -204,6 +208,7 @@ struct ctdlroom {
 /*
  * Floor record.  The floor number is implicit in its location in the file.
  */
+typedef struct floor floor;
 struct floor {
 /*
 #include "datadefinitions.h"

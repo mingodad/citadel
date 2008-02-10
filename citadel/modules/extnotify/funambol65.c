@@ -17,10 +17,10 @@
 #include <time.h>
 #include <libcitadel.h>
 
+#include "citadel.h"
 #include "citadel_dirs.h"
 #include "clientsocket.h"
 #include "sysdep.h"
-#include "sysconfig.h"
 #include "config.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"

@@ -62,7 +62,7 @@
 
 int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2);
 
-struct march *march = NULL;
+march *marchptr = NULL;
 
 /* globals associated with the client program */
 char temp[PATH_MAX];		/* Name of general-purpose temp file */
@@ -291,18 +291,18 @@ void remove_march(char *roomname, int floornum)
 {
 	struct march *mptr, *mptr2;
 
-	if (march == NULL)
+	if (marchptr == NULL)
 		return;
 
-	if ((!strcasecmp(march->march_name, roomname))
-	    || ((!strcasecmp(roomname, "_FLOOR_")) && (march->march_floor == floornum))) {
-		mptr = march->next;
-		free(march);
-		march = mptr;
+	if ((!strcasecmp(marchptr->march_name, roomname))
+	    || ((!strcasecmp(roomname, "_FLOOR_")) && (marchptr->march_floor == floornum))) {
+		mptr = marchptr->next;
+		free(marchptr);
+		marchptr = mptr;
 		return;
 	}
-	mptr2 = march;
-	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+	mptr2 = marchptr;
+	for (mptr = marchptr; mptr != NULL; mptr = mptr->next) {
 
 		if ((!strcasecmp(mptr->march_name, roomname))
 		    || ((!strcasecmp(roomname, "_FLOOR_"))
@@ -526,9 +526,9 @@ void gotonext(CtdlIPC *ipc)
 	/* Check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
-	if (march == NULL) {
+	if (marchptr == NULL) {
 		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages,
-					AllFloors, &march, buf);
+					AllFloors, &marchptr, buf);
 
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
@@ -538,10 +538,10 @@ void gotonext(CtdlIPC *ipc)
 		mptr->march_order = 0;
  	   	mptr->march_floor = 0;
 		strcpy(mptr->march_name, "_BASEROOM_");
-		if (march == NULL) {
-			march = mptr;
+		if (marchptr == NULL) {
+			marchptr = mptr;
 		} else {
-			mptr2 = march;
+			mptr2 = marchptr;
 			while (mptr2->next != NULL)
 				mptr2 = mptr2->next;
 			mptr2->next = mptr;
@@ -552,8 +552,8 @@ void gotonext(CtdlIPC *ipc)
  */
 		remove_march(room_name, 0);
 	}
-	if (march != NULL) {
-		strcpy(next_room, pop_march(curr_floor, march));
+	if (marchptr != NULL) {
+		strcpy(next_room, pop_march(curr_floor, marchptr));
 	} else {
 		strcpy(next_room, "_BASEROOM_");
 	}
@@ -655,7 +655,7 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 		scr_printf("No floor '%s'.\n", towhere);
 		return;
 	}
-	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+	for (mptr = marchptr; mptr != NULL; mptr = mptr->next) {
 		if ((mptr->march_floor) == tofloor) {
 			gf_toroom(ipc, mptr->march_name, mode);
 			return;
@@ -2319,8 +2319,8 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 	termn8 = 0;
 	color(ORIGINAL_PAIR);
 	scr_printf("\n");
-	while (march != NULL) {
-		remove_march(march->march_name, 0);
+	while (marchptr != NULL) {
+		remove_march(marchptr->march_name, 0);
 	}
 	if (mcmd == 30) {
 		sln_printf("\n\nType 'off' to disconnect, or next user...\n");
