@@ -158,6 +158,12 @@ void master_startup(void) {
                 lputroom(&qrbuf);
         }
 
+	/* Aide needs to be public postable, else we're not RFC conformant. */
+        if (lgetroom(&qrbuf, AIDEROOM) == 0) {
+                qrbuf.QRflags2 |= QR2_SMTP_PUBLIC;
+                lputroom(&qrbuf);
+        }
+
 	lprintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
