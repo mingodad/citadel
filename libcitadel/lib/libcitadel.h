@@ -10,7 +10,7 @@
  */
 #include <time.h>
 
-#define LIBCITADEL_VERSION_NUMBER	104
+#define LIBCITADEL_VERSION_NUMBER	105
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
