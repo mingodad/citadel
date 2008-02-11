@@ -319,25 +319,21 @@ if test "$ok_nls" != "no"; then
 	)
 fi
 
-if test "$ok_iconv" = "no"; then
-	LD_FLAGS_BEFORE=$LDFLAGS
-	LDFLAGS="$LDFLAGS -liconv"
-		AC_TRY_RUN([
-			#include <iconv.h>
-			main() {
-			       iconv_t ic = (iconv_t)(-1) ;
-			       ic = iconv_open("UTF-8", "us-ascii");
-			       iconv_close(ic);
-			       exit(0);
-			}
-			],
-			ok_iconv=yes,
-			ok_iconv=no
+dnl Check for iconv in external libiconv
+if test "$ok_nls" != "no"; then
+	if test "$ok_nls" == "no" ; then
+		AC_MSG_RESULT(Checking for an external libiconv...)
+		AC_CHECK_HEADER(iconv.h,
+			[
+				AC_CHECK_LIB(iconv, iconv_open,
+					[
+						LIBS="-liconv $LIBS"
+						ok_iconv=yes
+					]
+				)
+			]
 		)
-		if test "$ok_iconv" != "no"; then
-		   LDFLAGS=$LD_FLAGS_BEFORE 
-		   LIBS="$LIBS -liconv"
-		fi
+	fi
 fi
 
 if test "$ok_iconv" != "no"; then
