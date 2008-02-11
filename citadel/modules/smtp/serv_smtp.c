@@ -593,7 +593,9 @@ void smtp_rcpt(char *argbuf) {
 
 	valid = validate_recipients(recp, 
 				    smtp_get_Recipients (),
-				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
+				    (SMTP->is_lmtp)? POST_LMTP:
+				       (CC->logged_in)? POST_LOGGED_IN:
+				                        POST_EXTERNAL);
 	if (valid->num_error != 0) {
 		cprintf("550 %s\r\n", valid->errormsg);
 		free_recipients(valid);
@@ -717,7 +719,9 @@ void smtp_data(void) {
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(SMTP->recipients, 
 				    smtp_get_Recipients (),
-				    (CC->logged_in)? POST_LOGGED_IN:POST_EXTERNAL);
+				    (SMTP->is_lmtp)? POST_LMTP:
+				       (CC->logged_in)? POST_LOGGED_IN:
+				                        POST_EXTERNAL);
 
 	/* If there are modules that want to scan this message before final
 	 * submission (such as virus checkers or spam filters), call them now

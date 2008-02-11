@@ -3106,6 +3106,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 		return (0); // We're Evaling whether a recipient exists
 	}
 	else if (!(CC->logged_in)) {
+		
 		if ((CC->room.QRflags & QR_READONLY)) {
 			snprintf(errmsgbuf, n, "Not logged in.");
 			return (ERROR + NOT_LOGGED_IN);
@@ -3114,7 +3115,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 			snprintf(errmsgbuf, n, "Not logged in Moderation feature not yet implemented!");
 			return (ERROR + NOT_LOGGED_IN);
 		}
-		if ((CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
+		if ((PostPublic!=POST_LMTP) &&(CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
 			SpoolControl *sc;
 			char filename[SIZ];
 			int found;

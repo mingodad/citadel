@@ -152,7 +152,8 @@ int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 enum {
 	POST_LOGGED_IN,
 	POST_EXTERNAL,
-	CHECK_EXISTANCE
+	CHECK_EXISTANCE,
+	POST_LMTP
 };
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
 					  size_t n, 
