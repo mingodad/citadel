@@ -57,7 +57,7 @@ fi
 dnl Checks for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADER(sys/mman.h, AC_DEFINE_UNQUOTED(HAVE_MMAP, [whether whe have sys/mmap.h]))
+AC_CHECK_HEADER(sys/mman.h, [CFLAGS="$CFLAGS -D HAVE_MMAP"])
 
 
 dnl Checks for typedefs, structures, and compiler characteristics.
