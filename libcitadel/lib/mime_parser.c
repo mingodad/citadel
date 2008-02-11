@@ -681,8 +681,6 @@ MimeGuess MyMimes [] = {
 
 const char *GuessMimeType(char *data, size_t dlen)
 {
-	return (xdg_mime_get_mime_type_for_data(data, dlen));
-/*
 	int MimeIndex = 0;
 
 	while (MyMimes[MimeIndex].PatternLen != 0)
@@ -693,19 +691,21 @@ const char *GuessMimeType(char *data, size_t dlen)
 			    &data[MyMimes[MimeIndex].PatternOffset], 
 			    MyMimes[MimeIndex].PatternLen) == 0)
 		{
-			break;
+			return MyMimes[MimeIndex].MimeString;
 		}
 		MimeIndex ++;
 	}
-	return MyMimes[MimeIndex].MimeString;
-*/
+	/* 
+	 * ok, our simple minded algorythm didn't find anything, 
+	 * let the big chegger try it, he wil default to application/octet-stream
+	 */
+	return (xdg_mime_get_mime_type_for_data(data, dlen));
 }
 
 
 const char* GuessMimeByFilename(const char *what, size_t len)
 {
-	return xdg_mime_get_mime_type_from_file_name(what);
-/*
+	/* we know some hardcoded on our own, try them... */
 	if (!strncasecmp(&what[len - 4], ".gif", 4))
 		return "image/gif";
 	else if (!strncasecmp(&what[len - 3], ".js", 3))
@@ -735,6 +735,6 @@ const char* GuessMimeByFilename(const char *what, size_t len)
 	else if (!strncasecmp(&what[len - 5], ".wbmp", 5))
 		return "image/vnd.wap.wbmp";
 	else
-		return "application/octet-stream";
-*/
+		/* and let xdgmime do the fallback. */
+		return xdg_mime_get_mime_type_from_file_name(what);
 }
