@@ -73,6 +73,10 @@ do_stop()
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
         if $SENDCOMMAND "DOWN" >/dev/null 2>&1 ; then
+	    if test ! -f "$PIDFILE"; then 
+	    	echo Unable to find Citserver. Not running?
+		return 1
+	    fi
 	    PID=`cat $PIDFILE`
 	    rm -f $PIDFILE
 	    count=0;
