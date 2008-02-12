@@ -1083,7 +1083,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 	 */
 	strcpy(mime_content_type, "text/plain");
 	while (serv_getln(buf, sizeof buf), (!IsEmptyStr(buf))) {
-		lprintf(9, "GOT: <%s>\n", buf);
 		if (!strcmp(buf, "000")) {
 			/* This is not necessarily an error condition.  See bug #226. */
 			goto ENDBODY;

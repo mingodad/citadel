@@ -108,10 +108,8 @@ void save_preferences(void) {
 		Hash = WC->hash_prefs;
 		PrintHash(Hash);
 		HashPos = GetNewHashPos();
-		printf("_______> writing entries\n");
 		while (GetNextHashPos(Hash, HashPos, &len, &Key, (void**)&Value)!=0)
 		{
-			printf("__________>%s -> %s \n", Key, Value);
 			serv_printf("%s|%s", Key, Value);
 		}
 		serv_puts("");
