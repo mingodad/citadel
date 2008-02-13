@@ -610,7 +610,11 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	/* 
 	 * Set the EUID of the message to the UID of the vCard.
 	 */
-	if (msg->cm_fields['E'] != NULL) free(msg->cm_fields['E']);
+	if (msg->cm_fields['E'] != NULL)
+	{
+		free(msg->cm_fields['E']);
+		msg->cm_fields['E'] = NULL;
+	}
 	s = vcard_get_prop(v, "UID", 0, 0, 0);
 	if (s != NULL) {
 		msg->cm_fields['E'] = strdup(s);
