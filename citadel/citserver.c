@@ -70,7 +70,6 @@ struct CitContext *ContextList = NULL;
 struct CitContext* next_session = NULL;
 char *unique_session_numbers;
 int ScheduledShutdown = 0;
-int do_defrag = 0;
 time_t server_startup_time;
 int panic_fd;
 
@@ -140,10 +139,6 @@ void master_startup(void) {
 	
 	CtdlThreadAllocTSD();
 	
-	if (do_defrag) {
-		defrag_databases();
-	}
-
 	check_ref_counts();
 
 	lprintf(CTDL_INFO, "Creating base rooms (if necessary)\n");

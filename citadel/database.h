@@ -4,7 +4,6 @@
 #define DATABASE_H
 
 
-void defrag_databases (void);
 void open_databases (void);
 void close_databases (void);
 int cdb_store (int cdb, void *key, int keylen, void *data, int datalen);

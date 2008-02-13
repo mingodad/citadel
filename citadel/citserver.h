@@ -39,7 +39,6 @@ void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);
-extern int do_defrag;
 extern int panic_fd;
 char CtdlCheckExpress(void);
 

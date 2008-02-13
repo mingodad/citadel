@@ -171,19 +171,6 @@ void cdb_check_handles(void)
 
 
 /*
- * Reclaim unused space in the databases.  We need to do each one of
- * these discretely, rather than in a loop.
- *
- * This is a stub function in the Sleepycat DB backend, because there is no
- * such API call available.
- */
-void defrag_databases(void)
-{
-	/* do nothing */
-}
-
-
-/*
  * Cull the database logs
  */
 static void cdb_cull_logs(void)

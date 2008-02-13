@@ -138,10 +138,6 @@ int main(int argc, char **argv)
 			freopen(&argv[a][2], "w", stderr);
 		}
 
-		else if (!strncmp(argv[a], "-f", 2)) {
-			do_defrag = 1;
-		}
-
 		else if (!strncmp(argv[a], "-D", 2)) {
 			dbg = 1;
 		}
@@ -157,7 +153,7 @@ int main(int argc, char **argv)
 			CtdlLogPrintf(CTDL_EMERG,	"citserver: usage: "
 					"citserver "
 					"[-lLogFacility] "
-					"[-d] [-f] [-D] "
+					"[-d] [-D] "
 					" [-tTraceFile]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
@@ -180,19 +176,14 @@ int main(int argc, char **argv)
 	params.debugLevel = ECRASH_DEBUG_VERBOSE;
 	params.dumpAllThreads = TRUE;
 	params.useBacktraceSymbols = 1;
-///	BuildSymbolTable(&symbol_table);
-//	params.symbolTable = &symbol_table;
 	params.signals[0]=SIGSEGV;
 	params.signals[1]=SIGILL;
 	params.signals[2]=SIGBUS;
 	params.signals[3]=SIGABRT;
-
 	eCrash_Init(&params);
-		
 	eCrash_RegisterThread("MasterThread", 0);
-
-///	signal(SIGSEGV, cit_panic_backtrace);
 #endif
+
 	/* Initialize the syslogger.  Yes, we are really using 0 as the
 	 * facility, because we are going to bitwise-OR the facility to
 	 * the severity of each message, allowing us to write to other
