@@ -968,6 +968,25 @@ void cmd_greg(char *argbuf)
 
 
 
+
+
+/*
+ * Add an email alias to a users vcard
+ */
+
+void vcard_add_alias(struct ctdluser *usbuf, char *addr)
+{
+	struct vCard *v;
+	
+	v = vcard_get_user(usbuf);
+	vcard_add_prop(v, "email;internet", addr);
+	vcard_write_user(usbuf, v);
+	vcard_free(v);
+}
+
+
+
+
 /*
  * When a user is being created, create his/her vCard.
  */

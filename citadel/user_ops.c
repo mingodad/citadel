@@ -50,6 +50,7 @@
 #include "citadel_dirs.h"
 #include "genstamp.h"
 #include "threads.h"
+#include "serv_vcard.h"	/* FIXME: Get this dependancy out. Needed for vcard_add_alias */
 
 /* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
 int chkpwd_write_pipe[2];
@@ -873,6 +874,8 @@ int purge_user(char pname[])
 }
 
 
+
+
 /*
  * create_user()  -  back end processing to create a new user
  *
@@ -976,6 +979,23 @@ int create_user(char *newusername, int become_user)
 
 	/* Perform any create functions registered by server extensions */
 	PerformUserHooks(&usbuf, EVT_NEWUSER);
+
+	/* In host auth mode the user was created with an email address of the users
+	 * full name from the passwd gecos field.
+	 * Not sure what would have happened if that wasn't set to something
+	 * but thats another story
+	 * We need to add an email alias to the users vCard for the proper username
+	 */
+	if (config.c_auth_mode == AUTHMODE_HOST)
+	{
+		char user_alias[SIZ];
+		
+		if (strcmp(username, newusername))
+		{
+			sprintf(user_alias, "%s@%s", newusername, config.c_fqdn);
+			vcard_add_alias(&usbuf, user_alias);
+		}
+	}
 
 	/* Everything below this line can be bypassed if administratively
 	 * creating a user, instead of doing self-service account creation
