@@ -349,8 +349,8 @@ void display_siteconfig(void)
 				sprintf(&purger[strlen(purger)], "<OPTION %s VALUE=\"%d\">%d:00%s</OPTION>\n",
 					((atoi(buf) == j) ? "SELECTED" : ""),
 					j,
-					((j == 0) ? 12 : ((j>12) ? j-12 : j)),
-					((j >= 12) ? "pm" : "am")
+					(get_time_format_cached() == WC_TIMEFORMAT_24) ? j : ((j == 0) ? 12 : ((j>12) ? j-12 : j)),
+					(get_time_format_cached() == WC_TIMEFORMAT_24) ? "" : ((j >= 12) ? "pm" : "am")
 				);
 			}
 			sprintf(&purger[strlen(purger)], "</SELECT>");
