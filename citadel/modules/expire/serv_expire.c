@@ -114,6 +114,7 @@ struct ValidRoom *ValidRoomList = NULL;
 struct ValidUser *ValidUserList = NULL;
 int messages_purged;
 int users_not_purged;
+char *users_corrupt_msg = NULL;
 
 struct ctdlroomref *rr = NULL;
 
@@ -383,6 +384,7 @@ void do_uid_user_purge(struct ctdluser *us, void *data) {
 
 
 
+
 /*
  * Back end function to check user accounts for expiration.
  */
@@ -441,6 +443,28 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 * also impossible.
 	 */
 	if (us->usernum < 1L) purge = 1;
+	
+	/* If the user has no full name entry then we can't purge them
+	 * since the actual purge can't find them.
+	 * This shouldn't happen but does somehow.
+	 * So we make an Aide message to alert to it but don't add it to the purge list
+	 */
+	if (IsEmptyStr(us->fullname))
+	{
+		purge=0;
+		if (users_corrupt_msg == NULL)
+		{
+			users_corrupt_msg = malloc(SIZ);
+			strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
+			"Unfortunately the auto-purger is not yet able to fix this problem.\n"
+			"This problem is not considered serious since a user with no name can\n"
+			"not log in.\n");
+		}
+		
+		users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+SIZ);
+		snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], SIZ, " %ld\n", us->usernum);
+	}
+
 
 	if (purge == 1) {
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
@@ -508,6 +532,14 @@ int PurgeUsers(void) {
 	if (num_users_purged > 0) aide_message(transcript, "User Purge Message");
 	free(transcript);
 
+	if(users_corrupt_msg)
+	{
+		aide_message(users_corrupt_msg, "User Corruption Message");
+		free (users_corrupt_msg);
+		users_corrupt_msg = NULL;
+	}
+	
+		
 	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
 }
