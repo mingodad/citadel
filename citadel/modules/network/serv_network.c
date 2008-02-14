@@ -785,8 +785,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 			/* Check for valid node name */
 			if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
-				lprintf(CTDL_ERR, "Invalid node <%s>\n",
-					mptr->remote_nodename);
+				lprintf(CTDL_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
 				send = 0;
 			}
 
@@ -909,23 +908,13 @@ int read_spoolcontrol_file(SpoolControl **scc, char *filename)
 			sc->digestrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
-			/* by checking each node's validity, we automatically
-			 * purge nodes which do not exist from room network
-			 * configurations at this time.
-			 */
 			extract_token(nodename, buf, 1, '|', sizeof nodename);
 			extract_token(roomname, buf, 2, '|', sizeof roomname);
-			strcpy(nexthop, "xxx");
-			if (is_valid_node(nexthop, NULL, nodename) == 0) {
-				if (IsEmptyStr(nexthop)) {
-					mptr = (maplist *)
-						malloc(sizeof(maplist));
-					mptr->next = sc->ignet_push_shares;
-					strcpy(mptr->remote_nodename, nodename);
-					strcpy(mptr->remote_roomname, roomname);
-					sc->ignet_push_shares = mptr;
-				}
-			}
+			mptr = (maplist *) malloc(sizeof(maplist));
+			mptr->next = sc->ignet_push_shares;
+			strcpy(mptr->remote_nodename, nodename);
+			strcpy(mptr->remote_roomname, roomname);
+			sc->ignet_push_shares = mptr;
 		}
 		else {
 			/* Preserve 'other' lines ... *unless* they happen to
@@ -1034,14 +1023,7 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 			sc->participates = nptr;
 		}
 		while (sc->ignet_push_shares != NULL) {
-			/* by checking each node's validity, we automatically
-			 * purge nodes which do not exist from room network
-			 * configurations at this time.
-			 */
-			if (is_valid_node(NULL, NULL, sc->ignet_push_shares->remote_nodename) == 0) {
-			}
-			fprintf(fp, "ignet_push_share|%s",
-				sc->ignet_push_shares->remote_nodename);
+			fprintf(fp, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
 			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
 				fprintf(fp, "|%s", sc->ignet_push_shares->remote_roomname);
 			}
@@ -1480,9 +1462,7 @@ void network_process_buffer(char *buffer, long size) {
 
 			/* route the message */
 			strcpy(nexthop, "");
-			if (is_valid_node(nexthop, NULL,
-			   msg->cm_fields['D']) == 0) {
-
+			if (is_valid_node(nexthop, NULL, msg->cm_fields['D']) == 0) {
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
 					oldpath = msg->cm_fields['P'];
