@@ -247,6 +247,7 @@ struct serv_info {
 	int serv_newuser_disabled;	/* Has the server disabled self-service new user creation? */
 	char serv_default_cal_zone[128];/* Default timezone for unspecified calendar items */
 	int serv_supports_sieve;	/* Does the server support Sieve mail filtering? */
+	int serv_fulltext_enabled;	/* Does the server have the full text index enabled? */
 };
 
 

@@ -422,8 +422,9 @@ void embed_search_o_matic(void) {
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<label for=\"search_name\">");
 	wprintf(_("Search: "));
-	wprintf("</label> <input "
-		"type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
+	wprintf("</label> <input ");
+	wprintf("%s", serv_info.serv_fulltext_enabled ? "" : "disabled ");
+	wprintf("type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
 		"id=\"search_name\" class=\"inputbox\">\n"
 	);
 	wprintf("</form>\n");
