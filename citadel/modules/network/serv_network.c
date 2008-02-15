@@ -863,7 +863,6 @@ int read_spoolcontrol_file(SpoolControl **scc, char *filename)
 	char buf[SIZ];
 	char nodename[256];
 	char roomname[ROOMNAMELEN];
-	char nexthop[256];
 	size_t miscsize = 0;
 	size_t linesize = 0;
 	int skipthisline = 0;

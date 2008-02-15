@@ -314,6 +314,8 @@ void cmd_info(void) {
 #else
 	cprintf("0\n");		/* no */
 #endif
+
+	cprintf("%d\n", config.c_enable_fulltext);
 	
 	cprintf("000\n");
 }

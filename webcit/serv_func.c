@@ -1,21 +1,17 @@
 /*
  * $Id$
  */
-/**
- * \defgroup ServFuncs Handles various types of data transfer operations with the Citadel service.
- * \ingroup CitadelCommunitacion
- */
 
-/*@{*/ 
 #include "webcit.h"
 #include "webserver.h"
 
 struct serv_info serv_info; /**< our connection data to the server */
 
-/**
- * \brief get info about the server we've connected to
- * \param browser_host the citadell we want to connect to
- * \param user_agent which browser uses our client?
+/*
+ * get info about the server we've connected to
+ *
+ * browser_host		the citadell we want to connect to
+ * user_agent		which browser uses our client?
  */
 void get_serv_info(char *browser_host, char *user_agent)
 {
@@ -92,8 +88,11 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 16:
 			safestrncpy(serv_info.serv_default_cal_zone, buf, sizeof serv_info.serv_default_cal_zone);
 			break;
-		case 19:
+		case 20:
 			serv_info.serv_supports_sieve = atoi(buf);
+			break;
+		case 21:
+			serv_info.serv_fulltext_enabled = atoi(buf);
 			break;
 		}
 		++a;
