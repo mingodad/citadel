@@ -2029,6 +2029,13 @@ void *network_do_queue(void *args) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
+	struct CitContext networkerCC;
+
+	/* Give the networker its own private CitContext */
+	memset(&networkerCC, 0, sizeof(struct CitContext));
+	networkerCC.internal_pgm = 1;
+	networkerCC.cs_pid = 0;
+	pthread_setspecific(MyConKey, (void *)&networkerCC );
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -2194,7 +2201,6 @@ CTDL_MODULE_INIT(network)
 		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
-//		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	        CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room);
 	}

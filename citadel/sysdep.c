@@ -141,6 +141,7 @@ void vlprintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
+/*
 		if (CC->cs_pid != 0) {
 			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
@@ -155,6 +156,11 @@ void vlprintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec);
 		}
+FIXME temp i want to see CC */
+			sprintf(buf,
+				"%2d:%02d:%02d.%06ld 0x%08lx ",
+				tim.tm_hour, tim.tm_min,
+				tim.tm_sec, (long)tv.tv_usec, CC);
 		vsnprintf(buf2, SIZ, format, arg_ptr);   
 
 		fprintf(stderr, "%s%s", buf, buf2);

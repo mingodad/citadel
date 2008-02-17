@@ -591,14 +591,15 @@ void *rssclient_scan(void *args) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
 	struct rssnetcfg *rptr = NULL;
+	struct CitContext rssclientCC;
+
+	/* Give this thread its own private CitContext */
+	memset(&rssclientCC, 0, sizeof(struct CitContext));
+	rssclientCC.internal_pgm = 1;
+	rssclientCC.cs_pid = 0;
+	pthread_setspecific(MyConKey, (void *)&rssclientCC );
 
 	CtdlThreadAllocTSD();
-	/*
-	 * Run RSS client no more frequently than once every n seconds
-	 */
-//	if ( (time(NULL) - last_run) < config.c_net_freq ) {
-//		return;
-//	}
 
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run
@@ -635,7 +636,6 @@ CTDL_MODULE_INIT(rssclient)
 	if (threading)
 	{
 #ifdef HAVE_EXPAT
-//		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
 #else
 		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  RSS client will be disabled.\n");
