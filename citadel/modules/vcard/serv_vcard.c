@@ -968,25 +968,6 @@ void cmd_greg(char *argbuf)
 
 
 
-
-
-/*
- * Add an email alias to a users vcard
- */
-
-void vcard_add_alias(struct ctdluser *usbuf, char *addr)
-{
-	struct vCard *v;
-	
-	v = vcard_get_user(usbuf);
-	vcard_add_prop(v, "email;internet", addr);
-	vcard_write_user(usbuf, v);
-	vcard_free(v);
-}
-
-
-
-
 /*
  * When a user is being created, create his/her vCard.
  */
@@ -1002,14 +983,30 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	/* Create and save the vCard */
 	v = vcard_new();
 	if (v == NULL) return;
-	sprintf(buf, "%s@%s", usbuf->fullname, config.c_fqdn);
-	for (i=0; buf[i]; ++i) {
-		if (buf[i] == ' ') buf[i] = '_';
-	}
 	vcard_add_prop(v, "fn", usbuf->fullname);
 	vcard_add_prop(v, "n", vname);
 	vcard_add_prop(v, "adr", "adr:;;_;_;_;00000;__");
+
+	/* If using host auth mode, we add an email address based on the login */
+	if (config.c_auth_mode == AUTHMODE_HOST) {
+		struct passwd pwd;
+		struct passwd **result;
+		char pwd_buffer[SIZ];
+
+		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, result) == 0) {
+			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
+			vcard_add_prop(v, "email;internet", buf);
+		}
+	}
+
+	/* Everyone gets an email address based on their display name */
+	snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, config.c_fqdn);
+	for (i=0; buf[i]; ++i) {
+		if (buf[i] == ' ') buf[i] = '_';
+	}
 	vcard_add_prop(v, "email;internet", buf);
+
+
 	vcard_write_user(usbuf, v);
 	vcard_free(v);
 }

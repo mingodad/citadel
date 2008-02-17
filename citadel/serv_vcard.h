@@ -9,4 +9,3 @@ enum {
 	V2L_DELETE
 };
 
-void vcard_add_alias(struct ctdluser *usbuf, char *addr);
