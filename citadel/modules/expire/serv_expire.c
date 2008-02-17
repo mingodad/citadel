@@ -756,6 +756,14 @@ void *purge_databases(void *args)
         static time_t last_purge = 0;
         time_t now;
         struct tm tm;
+	struct CitContext purgerCC;
+
+	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
+
+	memset(&purgerCC, 0, sizeof(struct CitContext));
+	purgerCC.internal_pgm = 1;
+	purgerCC.cs_pid = 0;
+	pthread_setspecific(MyConKey, (void *)&purgerCC );
 
         while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,
