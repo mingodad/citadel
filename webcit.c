@@ -1864,6 +1864,8 @@ void session_loop(struct httprequest *req)
 		updatenote();
 	} else if (!strcasecmp(action, "display_room_directory")) {
 		display_room_directory();
+	} else if (!strcasecmp(action, "display_pictureview")) {
+		display_pictureview();
 	} else if (!strcasecmp(action, "download_file")) {
 		download_file(index[1]);
 	} else if (!strcasecmp(action, "upload_file")) {
