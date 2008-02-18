@@ -493,7 +493,12 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 			
 			len = strlen(v->prop[i].value);
-	
+			/* if we have some untagged QP, detect it here. */
+			if (!is_qp && (strstr(v->prop[i].value, "=?")!=NULL))
+#ifdef HAVE_ICONV
+				utf8ify_rfc822_string(v->prop[i].value);
+#endif
+
 			if (is_qp) {
 				// %ff can become 6 bytes in utf8 
 				thisvalue = malloc(len * 2 + 3); 
@@ -681,6 +686,9 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
 	if (name != NULL) {
+#ifdef HAVE_ICONV
+		utf8ify_rfc822_string(name);
+#endif
 		strcpy(buf, name);
 		this_alpha = buf[0];
 	}
