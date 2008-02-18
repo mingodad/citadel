@@ -2,6 +2,7 @@
  * $Id$
  */
 #include "webcit.h"
+#include "webserver.h"
 
 void display_room_directory(void)
 {
@@ -12,6 +13,7 @@ void display_room_directory(void)
 	char comment[512];
 	int bg = 0;
 	char title[256];
+	int havepics = 0;
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
@@ -51,6 +53,8 @@ void display_room_directory(void)
 		wprintf("<td>");	escputs(mimetype);	wprintf("</td>");
 		wprintf("<td>");	escputs(comment);	wprintf("</td>");
 		wprintf("</tr>\n");
+		if (!havepics && (strstr(mimetype, "image") != NULL))
+			havepics = 1;
 	}
 	wprintf("</table>\n");
 
@@ -78,7 +82,75 @@ void display_room_directory(void)
 	}
 
 	wprintf("</div>\n");
+	if (havepics)
+		wprintf("<div class=\"buttons\"><a href=\"display_pictureview&frame=1\">%s</a></div>", _("Slideshow"));
 	wDumpContent(1);
+}
+
+
+void display_pictureview(void)
+{
+	char buf[1024];
+	char filename[256];
+	char filesize[256];
+	char mimetype[64];
+	char comment[512];
+	char title[256];
+	int n = 0;
+		
+
+	if (atol(bstr("frame")) == 1) {
+
+		output_headers(1, 1, 2, 0, 0, 0);
+		wprintf("<div id=\"banner\">\n");
+		wprintf("<h1>");
+		snprintf(title, sizeof title, _("Pictures in %s"), WC->wc_roomname);
+		escputs(title);
+		wprintf("</h1>");
+		wprintf("</div>\n");
+		
+		wprintf("<div id=\"content\" class=\"service\">\n");
+
+		wprintf("<div class=\"fix_scrollbar_bug\">"
+			"<table class=\"downloads_background\"><tr><td>\n");
+
+
+
+		wprintf("<script type=\"text/javascript\" language=\"JavaScript\" > \nvar fadeimages=new Array()\n");
+
+		serv_puts("RDIR");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))  {
+				extract_token(filename, buf, 0, '|', sizeof filename);
+				extract_token(filesize, buf, 1, '|', sizeof filesize);
+				extract_token(mimetype, buf, 2, '|', sizeof mimetype);
+				extract_token(comment,  buf, 3, '|', sizeof comment);
+				if (strstr(mimetype, "image") != NULL) {
+					wprintf("fadeimages[%d]=[\"download_file/", n);
+					escputs(filename);
+					wprintf("\", \"\", \"\"]\n");
+
+					/*
+							   //mimetype);
+					   escputs(filename);	wprintf("</a></td>");
+					   wprintf("<td>");	escputs(filesize);	wprintf("</td>");
+					   wprintf("<td>");	escputs(mimetype);	wprintf("</td>");
+					   wprintf("<td>");	escputs(comment);	wprintf("</td>");
+					   wprintf("</tr>\n");
+					*/
+					n++;
+				}
+			}
+		wprintf("</script>\n");
+		wprintf("<tr><td><script type=\"text/javascript\" src=\"static/fadeshow.js\">\n</script>\n");
+		wprintf("<script type=\"text/javascript\" >\n");
+		wprintf("new fadeshow(fadeimages, 500, 400, 0, 3000, 1, \"R\");\n");
+		wprintf("</script></td><th>\n");
+		wprintf("</div>\n");
+	}
+	wDumpContent(1);
+
+
 }
 
 extern char* static_dirs[];

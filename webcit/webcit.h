@@ -689,6 +689,7 @@ void initialize_axdefs(void);
 void burn_folder_cache(time_t age);
 void list_all_rooms_by_floor(char *viewpref);
 void display_room_directory(void);
+void display_picture(void);
 void download_file(char *);
 void upload_file(void);
 
