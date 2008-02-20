@@ -1,4 +1,8 @@
 #!/bin/bash
+if test -z "$1"; then
+    echo "Usage: $0 mail.aliases"
+    exit
+fi
 
 CITALIAS=$1
 if test -f /etc/aliases; then
@@ -15,7 +19,7 @@ if test -f /etc/aliases; then
     for ((i=1; i <= $NLINES; i++)); do 
 	ALIAS=`head -n $i /tmp/aliases |tail -n 1`
 	ORG=`echo $ALIAS|sed "s;,.*;;"`
-	if grep $ORG $CITALIAS; then
+	if grep "$ORG" "$CITALIAS"; then
 	    echo "Ignoring Alias $ORG as its alreday there"
 	else
 	    echo "$ALIAS" >>$CITALIAS

@@ -54,7 +54,7 @@ set >/tmp/citsetup
                 cat $WELCOMEHTML; 
                 printf "\r\n\r\n--$SEPERATOR--\r\n\r\n") | \
                     /usr/sbin/citmail -bm -r "$FROM" "$TO"
-	    /usr/lib/citadel-server/migrate_aliases.sh
+	    /usr/lib/citadel-server/migrate_aliases.sh /etc/citadel/mail.aliases
         fi
 
         if test -S /var/run/citadel/citadel.socket; then 
