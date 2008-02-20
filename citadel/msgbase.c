@@ -2473,15 +2473,18 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(content_type, "text/plain");
 		mptr = bmstrcasestr(msg->cm_fields['M'], "Content-type:");
 		if (mptr != NULL) {
+			char *aptr;
 			safestrncpy(content_type, &mptr[13], sizeof content_type);
 			striplt(content_type);
-			for (a = 0; a < strlen(content_type); ++a) {
-				if ((content_type[a] == ';')
-				    || (content_type[a] == ' ')
-				    || (content_type[a] == 13)
-				    || (content_type[a] == 10)) {
-					content_type[a] = 0;
+			aptr = content_type;
+			while (!IsEmptyStr(aptr)) {
+				if ((*aptr == ';')
+				    || (*aptr == ' ')
+				    || (*aptr == 13)
+				    || (*aptr == 10)) {
+					*aptr = 0;
 				}
+				else aptr++;
 			}
 		}
 	}
@@ -3282,6 +3285,8 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 		}
 
 		striplt(this_recp);
+		if (IsEmptyStr(this_recp))
+			break;
 		lprintf(CTDL_DEBUG, "Evaluating recipient #%d: %s\n", num_recps, this_recp);
 		++num_recps;
 		mailtype = alias(this_recp);

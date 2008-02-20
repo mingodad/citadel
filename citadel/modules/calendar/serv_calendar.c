@@ -1680,6 +1680,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalproperty *attendee = NULL;
 	char summary_string[SIZ];
 	icalproperty *summary = NULL;
+	size_t reqsize;
 
 	if (cal == NULL) {
 		lprintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
@@ -1778,9 +1779,10 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
 
-	request_message_text = malloc(strlen(serialized_request) + SIZ);
+	reqsize = strlen(serialized_request) + SIZ;
+	request_message_text = malloc(reqsize);
 	if (request_message_text != NULL) {
-		sprintf(request_message_text,
+		snprintf(request_message_text, reqsize,
 			"Content-type: text/calendar\r\n\r\n%s\r\n",
 			serialized_request
 		);
