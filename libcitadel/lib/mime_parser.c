@@ -16,6 +16,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <errno.h>
 
 #include "xdgmime/xdgmime.h"
@@ -737,4 +739,133 @@ const char* GuessMimeByFilename(const char *what, size_t len)
 	else
 		/* and let xdgmime do the fallback. */
 		return xdg_mime_get_mime_type_from_file_name(what);
+}
+
+static HashList *IconHash = NULL;
+
+typedef struct IconName IconName;
+
+struct IconName {
+	char *FlatName;
+	char *FileName;
+};
+
+static void DeleteIcon(void *IconNamePtr)
+{
+	IconName *Icon = (IconName*) IconNamePtr;
+	free(Icon->FlatName);
+	free(Icon->FileName);
+}
+
+static const char *PrintFlat(void *IconNamePtr)
+{
+	IconName *Icon = (IconName*) IconNamePtr;
+	return Icon->FlatName;
+}
+static const char *PrintFile(void *IconNamePtr)
+{
+	IconName *Icon = (IconName*) IconNamePtr;
+	return Icon->FileName;
+}
+#define GENSTR "x-generic"
+#define IGNORE_PREFIX_1 "gnome-mime"
+int LoadIconDir(const char *DirName)
+{
+	DIR *filedir = NULL;
+	struct dirent *filedir_entry;
+	int d_namelen;
+	int d_without_ext;
+	IconName *Icon;
+
+	filedir = opendir (DirName);
+	IconHash = NewHash();
+	if (filedir == NULL) {
+		return 0;
+	}
+
+	while ((filedir_entry = readdir(filedir)))
+	{
+		char *MinorPtr;
+		char *PStart;
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		d_without_ext = d_namelen;
+		while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
+			d_without_ext --;
+		if ((d_without_ext == 0) || (d_namelen < 3))
+			continue;
+
+		if ((sizeof(IGNORE_PREFIX_1) < d_namelen) &&
+		    (strncmp(IGNORE_PREFIX_1, 
+			     filedir_entry->d_name, 
+			     sizeof(IGNORE_PREFIX_1) - 1) == 0)) {
+			PStart = filedir_entry->d_name + sizeof(IGNORE_PREFIX_1);
+			d_without_ext -= sizeof(IGNORE_PREFIX_1);
+		}
+		else {
+			PStart = filedir_entry->d_name;
+		}
+		Icon = malloc(sizeof(IconName));
+
+		Icon->FileName = malloc(d_namelen + 1);
+		memcpy(Icon->FileName, filedir_entry->d_name, d_namelen + 1);
+
+		Icon->FlatName = malloc(d_without_ext + 1);
+		memcpy(Icon->FlatName, PStart, d_without_ext);
+		Icon->FlatName[d_without_ext] = '\0';
+		/* Try to find Minor type in image-jpeg */
+		MinorPtr = strchr(Icon->FlatName, '-');
+		if (MinorPtr != NULL) {
+			size_t MinorLen;
+			MinorLen = 1 + d_without_ext - (MinorPtr - Icon->FlatName + 1);
+			if ((MinorLen == sizeof(GENSTR)) && 
+			    (strncmp(MinorPtr + 1, GENSTR, sizeof(GENSTR)) == 0)) {
+				/* ok, we found a generic filename. cut the generic. */
+				*MinorPtr = '\0';
+				d_without_ext = d_without_ext - (MinorPtr - Icon->FlatName);
+			}
+			else { /* Map the major / minor separator to / */
+				*MinorPtr = '/';
+			}
+		}
+
+//		PrintHash(IconHash, PrintFlat, PrintFile);
+//		printf("%s - %s\n", Icon->FlatName, Icon->FileName);
+		Put(IconHash, Icon->FlatName, d_without_ext, Icon, DeleteIcon);
+//		PrintHash(IconHash, PrintFlat, PrintFile);
+	}
+	return 1;
+}
+
+const char *GetIconFilename(char *MimeType, size_t len)
+{
+	IconName *Icon;
+	
+	if(IconHash == NULL)
+		return NULL;
+
+	GetHash(IconHash, MimeType, len, (void**)&Icon);
+	/* didn't find the exact mimetype? try major only. */
+	if (Icon == NULL) {
+		char * pMinor;
+		pMinor = strchr(MimeType, '/');
+		if (pMinor != NULL) {
+			*pMinor = '\0';
+			GetHash(IconHash, MimeType, pMinor - MimeType, (void**)&Icon);
+		}
+	}
+	if (Icon == NULL) {
+		return NULL;
+	}
+
+	/*printf("Getting: [%s] == [%s] -> [%s]\n", MimeType, Icon->FlatName, Icon->FileName);*/
+	return Icon->FileName;
+}
+
+void ShutDownLibCitadel(void)
+{
+	DeleteHash(&IconHash);
 }

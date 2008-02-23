@@ -31,11 +31,12 @@ struct HashList {
 struct HashPos {
 	long Position;
 };
-
-int PrintHash(HashList *Hash)
+#define DEBUG
+int PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
 {
-	char *foo;
-	char *bar;
+	const char *foo;
+	const char *bar;
+	const char *bla = "";
 	long key;
 	long i;
 	if (Hash->MyKeys != NULL)
@@ -57,10 +58,13 @@ int PrintHash(HashList *Hash)
 		{
 			key = Hash->LookupTable[i]->Key;
 			foo = Hash->LookupTable[i]->HashKey;
-			bar = (char*) Hash->Members[Hash->LookupTable[i]->Position]->Data;
+			if (First != NULL)
+				bar = First(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+			if (Second != NULL)
+				bla = Second(Hash->Members[Hash->LookupTable[i]->Position]->Data);
 		}
 #ifdef DEBUG
-		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' \n", i, key, foo, bar);
+		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' ; %s\n", i, key, foo, bar, bla);
 #endif
 	}
 #ifdef DEBUG
@@ -147,10 +151,14 @@ static void InsertHashItem(HashList *Hash,
 		NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
 		memset(&NewPayloadArea[Hash->MemberSize], 0, sizeof(Payload*) * Hash->MemberSize);
 		memcpy(NewPayloadArea, Hash->Members, sizeof(Payload*) * Hash->MemberSize);
+		free(Hash->Members);
+		Hash->Members = NewPayloadArea;
 
 		NewTable = malloc(sizeof(HashKey*) * Hash->MemberSize * 2);
 		memset(&NewTable[Hash->MemberSize], 0, sizeof(HashKey*) * Hash->MemberSize);
-		memcpy(NewTable, &Hash->LookupTable, sizeof(HashKey*) * Hash->MemberSize);
+		memcpy(NewTable, Hash->LookupTable, sizeof(HashKey*) * Hash->MemberSize);
+		free(Hash->LookupTable);
+		Hash->LookupTable = NewTable;
 
 		Hash->MemberSize *= 2;
 	}
@@ -264,14 +272,16 @@ void Put(HashList *Hash, char *HKey, long HKLen, void *Data, DeleteHashDataFunc 
 	}
 }
 
-int GetHash(HashList *Hash, char *HKey, long HKLen, void **Data)
+int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 {
 	long HashBinKey;
 	long HashAt;
 
-	HashBinKey = CalcHashKey(HKey, HKLen);
+	HashBinKey = CalcHashKey((char*)HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
-	if ((HashAt < 0) || (HashAt >= Hash->nMembersUsed)) {
+	if ((HashAt < 0) || 
+	    (HashAt >= Hash->nMembersUsed) || 
+	    (Hash->LookupTable[HashAt]->Key != HashBinKey)) {
 		*Data = NULL;
 		return 0;
 	}
@@ -289,7 +299,7 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 	return 0;
 }
 
-int GetHashKeys(HashList *Hash, const char ***List)
+int GetHashKeys(HashList *Hash, char ***List)
 {
 	long i;
 	if (Hash->MyKeys != NULL)
@@ -300,7 +310,7 @@ int GetHashKeys(HashList *Hash, const char ***List)
 	
 		Hash->MyKeys[i] = Hash->LookupTable[i]->HashKey;
 	}
-	*List = Hash->MyKeys;
+	*List = (char**)Hash->MyKeys;
 	return Hash->nMembersUsed;
 }
 

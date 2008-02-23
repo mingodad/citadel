@@ -9,8 +9,8 @@
  * since we reference time_t...
  */
 #include <time.h>
-
-#define LIBCITADEL_VERSION_NUMBER	105
+#include <stdlib.h>
+#define LIBCITADEL_VERSION_NUMBER	106
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -177,6 +177,11 @@ void the_mime_parser(char *partnum,
 const char *GuessMimeType(char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);
 
+/** Run once at Programstart */
+int LoadIconDir(const char *DirName);
+/** guess an icon to the mimetype */
+const char *GetIconFilename(char *MimeType, size_t len);
+void ShutDownLibCitadel(void);
 
 
 /* tools */
@@ -245,6 +250,10 @@ char *vcard_serialize(struct vCard *);
 void vcard_fn_to_n(char *vname, char *n, size_t vname_size);
 void remove_charset_attribute(char *strbuf);
 
+/**
+ * Citadels Hashlist Implementation
+ */
+
 typedef struct HashList HashList;
 
 typedef struct HashKey HashKey;
@@ -252,24 +261,24 @@ typedef struct HashKey HashKey;
 typedef struct HashPos HashPos;
 
 typedef void (*DeleteHashDataFunc)(void * Data);
-
-
+typedef const char *(*PrintHashContent)(void * Data);
 
 HashList *NewHash(void);
+
 void DeleteHash(HashList **Hash);
 
-
-int GetHash(HashList *Hash, char *HKey, long HKLen, void **Data);
+int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 
 void Put(HashList *Hash, char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
 
 int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
 
-int GetHashKeys(HashList *Hash, const char ***List);
+int GetHashKeys(HashList *Hash, char ***List);
 
-int PrintHash(HashList *Hash);
+int PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
 
 HashPos *GetNewHashPos(void);
+
 void DeleteHashPos(HashPos **DelMe);
 
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);
