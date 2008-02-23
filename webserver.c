@@ -39,10 +39,12 @@ char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
 static const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
 static char static_dir[PATH_MAX];		/* calculated on startup */
 static char static_local_dir[PATH_MAX];		/* calculated on startup */
+static char static_icon_dir[PATH_MAX];          /* where should we find our mime icons? */
 char  *static_dirs[]={				/* needs same sort order as the web mapping */
 	(char*)static_dir,			/* our templates on disk */
 	(char*)static_local_dir,		/* user provided templates disk */
-	(char*)editor_absolut_dir		/* the editor on disk */
+	(char*)editor_absolut_dir,		/* the editor on disk */
+	(char*)static_icon_dir                  /* our icons... */
 };
 
 /*
@@ -826,6 +828,8 @@ int main(int argc, char **argv)
 	COMPUTE_DIRECTORY(socket_dir);
 	basedir=WWWDIR "/static";
 	COMPUTE_DIRECTORY(static_dir);
+	basedir=WWWDIR "/static/icons";
+	COMPUTE_DIRECTORY(static_icon_dir);
 	basedir=WWWDIR "/static.local";
 	COMPUTE_DIRECTORY(static_local_dir);
 
@@ -846,7 +850,8 @@ int main(int argc, char **argv)
 	lprintf(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
-	}	
+	}
+	LoadIconDir(static_icon_dir);
 	initialize_viewdefs();
 	initialize_axdefs();
 
