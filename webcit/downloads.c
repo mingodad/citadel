@@ -156,10 +156,16 @@ void display_pictureview(void)
 extern char* static_dirs[];
 void display_mime_icon(void)
 {
-	char diskette[SIZ];
+	char FileBuf[SIZ];
+	const char *FileName;
 
-	snprintf (diskette, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
-	output_static(diskette);
+	FileName = GetIconFilename(bstr("type"), strlen(bstr("type")));
+
+	if (FileName == NULL)
+		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
+	else
+		snprintf (FileBuf, SIZ, "%s%s", static_dirs[3], FileName);
+	output_static(FileBuf);
 
 }
 
