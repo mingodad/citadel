@@ -140,7 +140,7 @@ void tasks_section(void) {
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
-			display_task(WC->msgarr[i]);
+			display_task(WC->msgarr[i], 0);
 		}
 	}
 
@@ -179,7 +179,7 @@ void calendar_section(void) {
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
-			display_calendar(WC->msgarr[i]);
+			display_calendar(WC->msgarr[i], 0);
 		}
 		calendar_summary_view();
 	}

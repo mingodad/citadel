@@ -1230,7 +1230,7 @@ td.events_of_the_day {
 	vertical-align: top;
 }
 
-.event {
+.event_framed_unread {
 	filter:alpha(opacity=50);   /* Internet Explorer 6     */
 	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
 	opacity: 0.5;               /* CSS3 draft and Mozilla  */
@@ -1241,7 +1241,45 @@ td.events_of_the_day {
 	padding: 0 4px 0 4px; 
 }
 
-li.event span, a.event_title {
+li.event_framed_unread span, a.event_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_framed_read {
+	filter:alpha(opacity=50);   /* Internet Explorer 6     */
+	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
+	opacity: 0.5;               /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+	padding: 0 4px 0 4px; 
+}
+
+li.event_framed_read span, a.event_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_read {
+}
+
+li.event_read span, a.event_read_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_unread {
+}
+
+li.event_unread span, a.event_read_title {
 	filter:alpha(opacity=100); 
    	-moz-opacity:1.0;         
    	opacity: 1.0;

@@ -17,7 +17,7 @@
  * \param supplied_vevent the event to edit
  * \param msgnum reference on the citserver
  */
-void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
+void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
 	icalcomponent *vevent;
 	icalproperty *p;
 	icalvalue *v;
@@ -55,8 +55,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
 			display_edit_individual_event(
 				icalcomponent_get_first_component(
-					vevent, ICAL_VEVENT_COMPONENT
-				), msgnum
+					vevent, ICAL_VEVENT_COMPONENT), 
+				msgnum, from, unread
 			);
 			return;
 		}
@@ -428,7 +428,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
  * \param supplied_vevent the event to save
  * \param msgnum the index on the citserver
  */
-void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
+void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
 	char buf[SIZ];
 	icalproperty *prop;
 	icalcomponent *vevent, *encaps;
@@ -457,8 +457,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
 			save_individual_event(
 				icalcomponent_get_first_component(
-					vevent, ICAL_VEVENT_COMPONENT
-				), msgnum
+					vevent, ICAL_VEVENT_COMPONENT), 
+				msgnum, from, unread
 			);
 			return;
 		}
@@ -721,7 +721,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			check_attendee_availability(encaps);
 
 			/** This displays the form again, with our annotations */
-			display_edit_individual_event(encaps, msgnum);
+			display_edit_individual_event(encaps, msgnum, from, unread);
 
 			icalcomponent_free(encaps);
 		}

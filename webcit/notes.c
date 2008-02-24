@@ -14,7 +14,7 @@
  * \brief display sticky notes
  * \param msgnum the citadel mesage number
  */
-void display_note(long msgnum)
+void display_note(long msgnum, int unread)
 {
 	char buf[SIZ];
 	char notetext[SIZ];
