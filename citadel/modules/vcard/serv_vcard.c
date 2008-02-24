@@ -987,6 +987,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	vcard_add_prop(v, "n", vname);
 	vcard_add_prop(v, "adr", "adr:;;_;_;_;00000;__");
 
+#ifdef HAVE_GETPWUID_R
 	/* If using host auth mode, we add an email address based on the login */
 	if (config.c_auth_mode == AUTHMODE_HOST) {
 		struct passwd pwd;
@@ -998,6 +999,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 			vcard_add_prop(v, "email;internet", buf);
 		}
 	}
+#endif
 
 	/* Everyone gets an email address based on their display name */
 	snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, config.c_fqdn);
