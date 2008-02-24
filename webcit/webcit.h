@@ -51,7 +51,9 @@
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #include <locale.h>
+#ifdef HAVE_USELOCALE
 extern locale_t wc_locales[];
+#endif
 #define _(string)	gettext(string)
 #else
 #define _(string)	(string)

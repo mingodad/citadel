@@ -27,7 +27,9 @@ char *AvailLang[NUM_LANGS] = {
 	"nl_NL"
 };
 
+#ifdef HAVE_USELOCALE
 locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
+#endif
 
 /** Keep information about one locale */
 typedef struct _lang_pref{
@@ -259,11 +261,14 @@ void preset_locale(void)
  */
 void initialize_locales(void) {
 	int i;
-	locale_t Empty_Locale;
 	char buf[32];
+
+#ifdef HAVE_USELOCALE
+	locale_t Empty_Locale;
 
 	/* create default locale */
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
+#endif
 
 	for (i = 0; i < NUM_LANGS; ++i) {
 		if (i == 0) {
@@ -272,6 +277,7 @@ void initialize_locales(void) {
 		else {
 			sprintf(buf, "%s.UTF8", AvailLang[i]);
 		}
+#ifdef HAVE_USELOCALE
 		wc_locales[i] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			buf,
@@ -286,6 +292,7 @@ void initialize_locales(void) {
 		else {
 			lprintf(3, "Configured available locale: %s\n", buf);
 		}
+#endif
 	}
 }
 
