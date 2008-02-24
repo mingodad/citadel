@@ -352,30 +352,30 @@ AC_ARG_ENABLE(nls,
 	[  --disable-nls           do not use Native Language Support],
 	ok_nls=no, ok_nls=yes)
 
-if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(Checking for per-thread NLS support...)
-	AC_TRY_RUN([
-                #define _GNU_SOURCE
-                #include <libintl.h>
-                #include <locale.h>
-                #include <time.h>
-                main() {
-                        char *foo = NULL;
-                        char baz[32];
-			struct tm *tm;
-                        uselocale(LC_GLOBAL_LOCALE);
-                        foo = gettext("bar");
-			if (0) {
-                        	strftime_l(baz, sizeof baz, "%c", tm, LC_GLOBAL_LOCALE);
-			}
-                        exit(0);
-		}
-	],
-		ok_uselocale=yes,
-		ok_uselocale=no
-	)
-	ok_nls=$ok_uselocale
-fi
+dnl if test "$ok_nls" != "no"; then
+dnl 	AC_MSG_RESULT(Checking for per-thread NLS support...)
+dnl 	AC_TRY_RUN([
+dnl                 #define _GNU_SOURCE
+dnl                 #include <libintl.h>
+dnl                 #include <locale.h>
+dnl                 #include <time.h>
+dnl                 main() {
+dnl                         char *foo = NULL;
+dnl                         char baz[32];
+dnl 			struct tm *tm;
+dnl                         uselocale(LC_GLOBAL_LOCALE);
+dnl                         foo = gettext("bar");
+dnl 			if (0) {
+dnl                         	strftime_l(baz, sizeof baz, "%c", tm, LC_GLOBAL_LOCALE);
+dnl 			}
+dnl                         exit(0);
+dnl 		}
+dnl 	],
+dnl 		ok_uselocale=yes,
+dnl 		ok_uselocale=no
+dnl 	)
+dnl 	ok_nls=$ok_uselocale
+dnl fi
 
 if test "$ok_nls" != "no"; then
 	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)

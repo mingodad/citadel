@@ -21,7 +21,8 @@ typedef unsigned char byte;
  */
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 {
-#ifdef ENABLE_NLS
+
+#ifdef HAVE_USELOCALE
 	if (wc_locales[WC->selected_language] == NULL) {
 		return strftime(s, max, format, tm);
 	}
