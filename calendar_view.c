@@ -259,14 +259,16 @@ void calendar_month_view_display_events(int year, int month, int day)
 				}
 
 				wprintf("<font size=-1>"
-					"<a href=\"display_edit_event?"
+					"<a class=\"event%s\" href=\"display_edit_event?"
 					"msgnum=%ld&calview=month&year=%d&month=%d&day=%d\""
 					" btt_tooltext=\"",
+					(Cal->unread)?"_unread":"_read",
 					WC->disp_cal[i].cal_msgnum,
 					year, month, day
 				);
 
-				wprintf("<i>%s</i> ", _("Summary:"));
+				wprintf("<i>%s: %s</i><br />", _("From"), Cal->from);
+				wprintf("<i>%s</i> ",          _("Summary:"));
 				escputs((char *)icalproperty_get_comment(p));
 				wprintf("<br />");
 				
@@ -356,12 +358,14 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	time_t event_tt;
 	time_t event_tts;
 	time_t event_tte;
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	struct tm event_tms;
 	struct tm event_tme;
 	struct tm today_tm;
 	icalproperty *p;
 	icalproperty *e;
 	struct icaltimetype t;
+	struct disp_cal *Cal;
 	int month, day, year;
 	int all_day_event = 0;
 	char *timeformat;
@@ -378,7 +382,8 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	year = today_tm.tm_year + 1900;
 
 	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+		Cal = &WCC->disp_cal[i];
+		p = icalcomponent_get_first_property(Cal->cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
@@ -418,16 +423,17 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					hours=(int)(difftime / 60);
 					minutes=difftime % 60;
 					wprintf("<tr><td bgcolor='%s'>%i:%2i</td><td bgcolor='%s'>"
-							"<font size=-1>"
-							"<a href=\"display_edit_event?msgnum=%ld&calview=calbrief&year=%s&month=%s&day=%s\">",
-							daycolor,
-							hours, minutes,
-							daycolor,
-							WC->disp_cal[i].cal_msgnum,
-							bstr("year"),
-							bstr("month"),
-							bstr("day")
-							);
+						"<font size=-1>"
+						"<a class=\"event%s\" href=\"display_edit_event?msgnum=%ld&calview=calbrief&year=%s&month=%s&day=%s\">",
+						daycolor,
+						hours, minutes,
+						(Cal->unread)?"_unread":"_read",						
+						daycolor,
+						WC->disp_cal[i].cal_msgnum,
+						bstr("year"),
+						bstr("month"),
+						bstr("day")
+						);
 
 					escputs((char *)
 							icalproperty_get_comment(p));
@@ -880,14 +886,16 @@ void calendar_day_view_display_events(time_t thetime,
 
 			if (all_day_event && notime_events)
 			{
-                              wprintf("<li class=\"event\"> "
+                              wprintf("<li class=\"event_framed%s\"> "
                                 "<a href=\"display_edit_event?"
                                 "msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
                                 " class=\"event_title\" "
                                 " btt_tooltext=\"",
+				      (Cal->unread)?"_unread":"_read",
                                         Cal->cal_msgnum, year, month, day);
-                                wprintf("<i>%s</i><br />", _("All day event"));
-                                wprintf("<i>%s</i> ",    _("Summary:"));
+                                wprintf("<i>%s</i><br />",      _("All day event"));
+				wprintf("<i>%s: %s</i><br />",  _("From"), Cal->from);
+                                wprintf("<i>%s</i> ",           _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wprintf("<br />");
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
@@ -916,14 +924,16 @@ void calendar_day_view_display_events(time_t thetime,
 			}
 			else if (ongoing_event && notime_events) 
 			{
-				wprintf("<li class=\"event\"> "
+				wprintf("<li class=\"event_framed%s\"> "
 				"<a href=\"display_edit_event?"
 				"msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
 				" class=\"event_title\" " 
                                 "btt_tooltext=\"",
+					(Cal->unread)?"_unread":"_read",
 				Cal->cal_msgnum, year, month, day);
-                                wprintf("<i>%s</i><br />", _("Ongoing event"));
-                                wprintf("<i>%s</i> ",    _("Summary:"));
+                                wprintf("<i>%s</i><br />",     _("Ongoing event"));
+				wprintf("<i>%s: %s</i><br />", _("From"), Cal->from);
+                                wprintf("<i>%s</i> ",          _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wprintf("<br />");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
@@ -989,10 +999,11 @@ void calendar_day_view_display_events(time_t thetime,
 					/* should never get here */
 				}
 
-				wprintf("<dd  class=\"event\" "
+				wprintf("<dd  class=\"event_framed%s\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
 					"height:%dpx; \" >",
+					(Cal->unread)?"_unread":"_read",
 					top, (gap * 40), (bottom-top)
 					);
 				wprintf("<a href=\"display_edit_event?"
@@ -1000,7 +1011,8 @@ void calendar_day_view_display_events(time_t thetime,
 					"class=\"event_title\" "
                                		"btt_tooltext=\"",
 					Cal->cal_msgnum, year, month, day, t.hour);
-                                wprintf("<i>%s</i> ",    _("Summary:"));
+				wprintf("<i>%s: %s</i><br />", _("From"), Cal->from);
+                                wprintf("<i>%s</i> ",          _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wprintf("<br />");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);

@@ -2346,7 +2346,7 @@ void readloop(char *oper)
 	 * new messages.
 	 */
 	strcpy(old_msgs, "");
-	if (is_summary) {
+	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR)){
 		serv_puts("GTSN");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -2358,7 +2358,7 @@ void readloop(char *oper)
 
 	if (WCC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
 		is_calendar = 1;
-		strcpy(cmd, "MSGS ALL");
+		strcpy(cmd, "MSGS ALL|||1");
 		maxmsgs = 32767;
 	}
 	if (WCC->wc_default_view == VIEW_TASKS) {		/**< tasks */
@@ -2395,7 +2395,7 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
-	if (is_summary) {
+	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR)){
 		for (a = 0; a < nummsgs; ++a) {
 			/** Are you a new message, or an old message? */
 			if (is_summary) {
@@ -2638,13 +2638,13 @@ void readloop(char *oper)
 				addrbook[num_ab-1].ab_msgnum = WCC->msgarr[a];
 			}
 			else if (is_calendar) {
-				display_calendar(WCC->msgarr[a]);
+				display_calendar(WCC->msgarr[a], WCC->summ[a].is_new);
 			}
 			else if (is_tasks) {
-				display_task(WCC->msgarr[a]);
+				display_task(WCC->msgarr[a], WCC->summ[a].is_new);
 			}
 			else if (is_notes) {
-				display_note(WCC->msgarr[a]);
+				display_note(WCC->msgarr[a], WCC->summ[a].is_new);
 			}
 			else {
 				if (displayed_msgs == NULL) {

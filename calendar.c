@@ -446,13 +446,16 @@ void handle_rsvp(void) {
  * \param cal Our calendar to process
  * \param msgnum number of the mesage in our db
  */
-void display_individual_cal(icalcomponent *cal, long msgnum)
+void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread)
 {
 	struct wcsession *WCC = WC;	/* stack this for faster access (WC is a function) */
 
 	WCC->num_cal += 1;
 	WCC->disp_cal = realloc(WC->disp_cal, (sizeof(struct disp_cal) * WCC->num_cal) );
 	WCC->disp_cal[WCC->num_cal - 1].cal = icalcomponent_new_clone(cal);
+	WCC->disp_cal[WCC->num_cal - 1].unread = unread;
+	WCC->disp_cal[WCC->num_cal - 1].from = malloc (strlen(from) + 1);
+	strcpy (WCC->disp_cal[WCC->num_cal - 1].from, from);
 	ical_dezonify(WCC->disp_cal[WCC->num_cal - 1].cal);
 	WCC->disp_cal[WCC->num_cal - 1].cal_msgnum = msgnum;
 }
@@ -465,7 +468,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum)
  * \param supplied_vtodo the todo item we want to edit
  * \param msgnum number of the mesage in our db
  */
-void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
+void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread) {
 	icalcomponent *vtodo;
 	icalproperty *p;
 	struct icaltimetype t;
@@ -489,7 +492,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			display_edit_individual_task(
 				icalcomponent_get_first_component(
 					vtodo, ICAL_VTODO_COMPONENT
-				), msgnum
+					), 
+				msgnum,
+				from, unread
 			);
 			return;
 		}
@@ -594,7 +599,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
  * \param supplied_vtodo the task to save
  * \param msgnum number of the mesage in our db
  */
-void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
+void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread) {
 	char buf[SIZ];
 	int delete_existing = 0;
 	icalproperty *prop;
@@ -617,8 +622,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		if (icalcomponent_isa(vtodo) == ICAL_VCALENDAR_COMPONENT) {
 			save_individual_task(
 				icalcomponent_get_first_component(
-					vtodo, ICAL_VTODO_COMPONENT
-				), msgnum
+					vtodo, ICAL_VTODO_COMPONENT), 
+				msgnum, from, unread
 			);
 			return;
 		}
@@ -763,11 +768,12 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
  * \param callback a funcion \todo
  *
  */
-void display_using_handler(long msgnum,
-			icalcomponent_kind which_kind,
-			void (*callback)(icalcomponent *, long)
+void display_using_handler(long msgnum, int unread,
+			   icalcomponent_kind which_kind,
+			   void (*callback)(icalcomponent *, long, char*, int)
 	) {
 	char buf[1024];
+	char from[128] = "";
 	char mime_partnum[256];
 	char mime_filename[256];
 	char mime_content_type[256];
@@ -798,6 +804,9 @@ void display_using_handler(long msgnum,
 				strcpy(relevant_partnum, mime_partnum);
 			}
 		}
+		else if (!strncasecmp(buf, "from=", 4)) {
+			extract_token(from, buf, 1, '=', sizeof(from));
+		}
 	}
 
 	if (!IsEmptyStr(relevant_partnum)) {
@@ -811,7 +820,7 @@ void display_using_handler(long msgnum,
 
 				/** Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {
-					callback(cal, msgnum);
+					callback(cal, msgnum, from, unread);
 				}
 
 				/** Subcomponents of desired type */
@@ -820,7 +829,7 @@ void display_using_handler(long msgnum,
 	    			    (c != 0);
 	    			    c = icalcomponent_get_next_component(cal,
 				    which_kind)) {
-					callback(c, msgnum);
+					callback(c, msgnum, from, unread);
 				}
 				icalcomponent_free(cal);
 			}
@@ -834,8 +843,8 @@ void display_using_handler(long msgnum,
  * \brief display whole calendar
  * \param msgnum number of the mesage in our db
  */
-void display_calendar(long msgnum) {
-	display_using_handler(msgnum,
+void display_calendar(long msgnum, int unread) {
+	display_using_handler(msgnum, unread,
 				ICAL_VEVENT_COMPONENT,
 				display_individual_cal);
 }
@@ -844,8 +853,8 @@ void display_calendar(long msgnum) {
  * \brief display whole taksview
  * \param msgnum number of the mesage in our db
  */
-void display_task(long msgnum) {
-	display_using_handler(msgnum,
+void display_task(long msgnum, int unread) {
+	display_using_handler(msgnum, unread,
 				ICAL_VTODO_COMPONENT,
 				display_individual_cal);
 }
@@ -864,13 +873,13 @@ void display_edit_task(void) {
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
 		/** existing task */
-		display_using_handler(msgnum,
+		display_using_handler(msgnum, 0,
 				ICAL_VTODO_COMPONENT,
 				display_edit_individual_task);
 	}
 	else {
 		/** new task */
-		display_edit_individual_task(NULL, 0L);
+		display_edit_individual_task(NULL, 0L, "", 0);
 	}
 }
 
@@ -882,12 +891,12 @@ void save_task(void) {
 
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
-		display_using_handler(msgnum,
+		display_using_handler(msgnum, 0,
 				ICAL_VTODO_COMPONENT,
 				save_individual_task);
 	}
 	else {
-		save_individual_task(NULL, 0L);
+		save_individual_task(NULL, 0L, "", 0);
 	}
 }
 
@@ -900,13 +909,13 @@ void display_edit_event(void) {
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
 		/* existing event */
-		display_using_handler(msgnum,
+		display_using_handler(msgnum, 0,
 				ICAL_VEVENT_COMPONENT,
 				display_edit_individual_event);
 	}
 	else {
 		/* new event */
-		display_edit_individual_event(NULL, 0L);
+		display_edit_individual_event(NULL, 0L, "", 0);
 	}
 }
 
@@ -919,12 +928,12 @@ void save_event(void) {
 	msgnum = atol(bstr("msgnum"));
 
 	if (msgnum > 0L) {
-		display_using_handler(msgnum,
+		display_using_handler(msgnum, 0,
 				ICAL_VEVENT_COMPONENT,
 				save_individual_event);
 	}
 	else {
-		save_individual_event(NULL, 0L);
+		save_individual_event(NULL, 0L, "", 0);
 	}
 }
 

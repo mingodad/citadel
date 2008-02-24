@@ -390,6 +390,8 @@ struct wcsession {
 	struct disp_cal {					
 		icalcomponent *cal;		/**< cal items for display */
 		long cal_msgnum;		/**< cal msgids for display */
+		char *from;                     /**< owner of this component */
+		int unread;                     /**< already seen by the user? */
 	} *disp_cal;						
 	int num_cal;				/**< number of calendar items for display */
 #endif											
@@ -650,9 +652,9 @@ void summary(void);
 void summary_inner_div(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
-void display_calendar(long msgnum);
-void display_task(long msgnum);
-void display_note(long msgnum);
+void display_calendar(long msgnum, int unread);
+void display_task(long msgnum, int unread);
+void display_note(long msgnum, int unread);
 void updatenote(void);
 void do_calendar_view(void);
 void do_tasks_view(void);
@@ -690,6 +692,7 @@ void burn_folder_cache(time_t age);
 void list_all_rooms_by_floor(char *viewpref);
 void display_room_directory(void);
 void display_picture(void);
+void display_pictureview(void);
 void download_file(char *);
 void upload_file(void);
 
@@ -701,8 +704,8 @@ void save_event(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 void icaltime_from_webform(struct icaltimetype *result, char *prefix);
 void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
-void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum);
-void save_individual_event(icalcomponent *supplied_vtodo, long msgnum);
+void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread);
+void save_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread);
 void respond_to_request(void);
 void handle_rsvp(void);
 void ical_dezonify(icalcomponent *cal);
