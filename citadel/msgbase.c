@@ -4016,6 +4016,10 @@ void cmd_move(char *args)
 	/* Permit message removal from collaborative delete rooms */
 	if (CC->room.QRflags2 & QR2_COLLABDEL) permit = 1;
 
+	/* Users allowed to post into the target room may move into it too. */
+	if ((CC->room.QRflags & QR_MAILBOX) && 
+	    (qtemp.QRflags & UA_POSTALLOWED))  permit = 1;
+
 	/* User must have access to target room */
 	if (!(ra & UA_KNOWN))  permit = 0;
 
