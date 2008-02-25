@@ -802,7 +802,9 @@ int main(int argc, char **argv)
 	/* initialize the International Bright Young Thing */
 #ifdef ENABLE_NLS
 	initialize_locales();
+
 	locale = setlocale(LC_ALL, "");
+
 	mo = malloc(strlen(webcitdir) + 20);
 	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
 	free(mo);

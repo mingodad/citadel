@@ -200,6 +200,9 @@ void offer_languages(void) {
 	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
 	for (i=0; i < NUM_LANGS; ++i) {
+#ifndef HAVE_USELOCALE
+		if (strcmp(AvailLang[i], getenv("LANG")) == 0)
+#endif
 		wprintf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
 			AvailLang[i],
@@ -216,12 +219,13 @@ void offer_languages(void) {
  */
 void set_selected_language(char *lang) {
 	int i;
-
+#ifdef HAVE_USELOCALE
 	for (i=0; i<NUM_LANGS; ++i) {
 		if (!strcasecmp(lang, AvailLang[i])) {
 			WC->selected_language = i;
 		}
 	}
+#endif
 }
 
 /**
@@ -232,6 +236,11 @@ void go_selected_language(void) {
 	if (WC->selected_language < 0) return;
 	uselocale(wc_locales[WC->selected_language]);	/** switch locales */
 	textdomain(textdomain(NULL));			/** clear the cache */
+#else
+	char *language;
+	
+	language = getenv("LANG");
+	setlocale(LC_MESSAGES, language);
 #endif
 }
 
@@ -251,6 +260,7 @@ void preset_locale(void)
 #ifdef HAVE_GETTEXT
 	char *language;
 	
+	lprintf(9, "Nailing locale to %s\n", getenv("LANG"));
 	language = getenv("LANG");
 	setlocale(LC_MESSAGES, language);
 #endif
