@@ -61,11 +61,30 @@ int xmpp_auth_plain(char *authstring)
 	char user[256];
 	char pass[256];
 	int result;
+	char *ptr = NULL;
+
+
+	/* Take apart the authentication string */
 
 	CtdlDecodeBase64(decoded_authstring, authstring, strlen(authstring));
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
 	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+
+
+	/* If there are underscores in either string, change them to spaces.  Some clients
+	 * do not allow spaces so we can tell the user to substitute underscores if their
+	 * login name contains spaces.
+	 */
+	while (ptr=strstr(ident, "_")) {
+		*ptr = ' ';
+	}
+
+	while (ptr=strstr(user, "_")) {
+		*ptr = ' ';
+	}
+
+	/* Now attempt authentication */
 
 	if (!IsEmptyStr(ident)) {
 		result = CtdlLoginExistingUser(user, ident);

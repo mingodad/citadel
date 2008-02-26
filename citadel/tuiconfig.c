@@ -172,11 +172,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Postfix TCP Dictionary Port server port (-1 to disable)", &sc[50][0], 5);
 	strprompt("ManageSieve server port (-1 to disable)", &sc[51][0], 5);
 
-#ifdef TECH_PREVIEW
 	strprompt("XMPP (Jabber) client to server port (-1 to disable)", &sc[62][0], 5);
 	/* No prompt because we don't implement this service yet, it's just a placeholder */
 	/* strprompt("XMPP (Jabber) server to server port (-1 to disable)", &sc[63][0], 5); */
-#endif
 
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no

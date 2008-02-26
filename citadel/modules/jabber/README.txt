@@ -1,9 +1,4 @@
-
- Are you reading this?
- 
- You shouldn't be.
- 
- I haven't released this code yet.
- 
- Go away.
+  
+ This directory contains an *unfinished* XMPP (Jabber) module for
+the Citadel system.  It does not work.  Go away.
  

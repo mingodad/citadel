@@ -602,8 +602,6 @@ void display_siteconfig(void)
 				((atoi(buf) != 0) ? "CHECKED" : ""));
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
-
-#ifdef TECH_PREVIEW
 		case 62:
 			sprintf(&network[strlen(network)], "<tr><td>");
 			sprintf(&network[strlen(network)], _("XMPP (Jabber) client to server port (-1 to disable)"));
@@ -618,20 +616,6 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "<input type=\"hidden\" name=\"c_xmpp_s2s_port\" value=\"%s\">\n", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
-#else	/* TECH_PREVIEW */
-		case 62:
-			sprintf(&network[strlen(network)], "<tr><td>");
-			sprintf(&network[strlen(network)], "</td><td>");
-			sprintf(&network[strlen(network)], "<input type=\"hidden\" name=\"c_xmpp_c2s_port\" value=\"%s\">", buf);
-			sprintf(&network[strlen(network)], "</TD></TR>\n");
-			break;
-		case 63:
-			sprintf(&network[strlen(network)], "<tr><td>");
-			sprintf(&network[strlen(network)], "</td><td>");
-			sprintf(&network[strlen(network)], "<input type=\"hidden\" name=\"c_xmpp_s2s_port\" value=\"%s\">\n", buf);
-			sprintf(&network[strlen(network)], "</TD></TR>\n");
-			break;
-#endif	/* TECH_PREVIEW */
 		}
 	
 	}

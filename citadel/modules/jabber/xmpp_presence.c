@@ -92,7 +92,10 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 	lprintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
 		visible_sessions, presence_jid, CC->cs_pid);
 
-	if ( (strcasecmp(presence_type, "unavailable")) && (visible_sessions == 1) ) {
+	if (
+	   ( (strcasecmp(presence_type, "unavailable")) || (strcasecmp(presence_type, "unsubscribed")) )
+	   && (visible_sessions == 1) ) {
+
 		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */

@@ -128,6 +128,7 @@ void xmpp_process_events(void) {
 				case XMPP_EVT_LOGOUT:
 					if (xptr->session_which_generated_this_event != CC->cs_pid) {
 						xmpp_presence_notify(xptr->event_jid, "unavailable");
+						xmpp_presence_notify(xptr->event_jid, "unsubscribed");
 					}
 					break;
 
