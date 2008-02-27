@@ -6,38 +6,7 @@
  * released under the terms of the GNU General Public License.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <limits.h>
-#include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "control.h"
-#include "sysdep_decls.h"
-#include "support.h"
-#include "config.h"
-#include "msgbase.h"
-#include "room_ops.h"
-#include "html.h"
+#include "webcit.h"
  
 
 /*
