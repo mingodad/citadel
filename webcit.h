@@ -638,7 +638,6 @@ void get_preference(char *key, char *value, size_t value_len);
 void set_preference(char *key, char *value, int save_to_server);
 void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);
-char *safestrncpy(char *dest, const char *src, size_t n);
 void display_addressbook(long msgnum, char alpha);
 void offer_start_page(void);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);

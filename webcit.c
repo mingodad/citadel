@@ -67,16 +67,18 @@ void addurls(char *url)
 {
 	char *up, *ptr;
 	char buf[SIZ];
-	int a, b, len;
+	int a, b, len, n;
 	struct urlcontent *u;
 
 	up = url;
 	while (!IsEmptyStr(up)) {
 
 		/** locate the = sign */
-		safestrncpy(buf, up, sizeof buf);
+		n = safestrncpy(buf, up, sizeof buf);
+		if (n < 0) /** hm, we exceeded the buffer... hmmm what todo now? */
+			n = -n;
 		b = (-1);
-		for (a = 255; a >= 0; --a)
+		for (a = n; a >= 0; --a)
 			if (buf[a] == '=')
 				b = a;
 		if (b < 0)
