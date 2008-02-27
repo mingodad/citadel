@@ -10,6 +10,7 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
+#include "html.h"
 
 #define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
@@ -2855,6 +2856,7 @@ void post_mime_to_server(void) {
 	static int seq = 0;
 	struct wc_attachment *att;
 	char *encoded;
+	char *txtmail;
 	size_t encoded_length;
 	size_t encoded_strlen;
 
@@ -2867,7 +2869,7 @@ void post_mime_to_server(void) {
 		is_multipart = 1;
 	}
 
-	if (is_multipart) {
+//	if (is_multipart) {
 		sprintf(boundary, "Citadel--Multipart--%s--%04x--%04x",
 			serv_info.serv_fqdn,
 			getpid(),
@@ -2875,11 +2877,15 @@ void post_mime_to_server(void) {
 		);
 
 		/** Remember, serv_printf() appends an extra newline */
-		serv_printf("Content-type: multipart/mixed; "
-			"boundary=\"%s\"\n", boundary);
+		if (is_multipart)
+			serv_printf("Content-type: multipart/mixed; "
+				    "boundary=\"%s\"\n", boundary);
+		else
+			serv_printf("Content-type: multipart/alternative; "
+				    "boundary=\"%s\"\n", boundary);
 		serv_printf("This is a multipart message in MIME format.\n");
 		serv_printf("--%s", boundary);
-	}
+//	}
 
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("Content-Transfer-Encoding: quoted-printable");
@@ -2887,6 +2893,16 @@ void post_mime_to_server(void) {
 	serv_puts("<html><body>\r\n");
 	text_to_server_qp(bstr("msgtext"));	/** Transmit message in quoted-printable encoding */
 	serv_puts("</body></html>\r\n");
+
+	serv_puts("Content-type: text/plain; charset=utf-8");
+	serv_puts("Content-Transfer-Encoding: quoted-printable");
+	serv_puts("");
+
+	txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
+	text_to_server_qp(txtmail);	/** Transmit message in quoted-printable encoding */
+	free(txtmail);
+	if (!is_multipart)
+	    serv_printf("--%s", boundary);
 	
 	if (is_multipart) {
 
