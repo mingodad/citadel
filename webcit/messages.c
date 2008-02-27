@@ -10,7 +10,6 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
-#include "html.h"
 
 #define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
@@ -2851,14 +2850,26 @@ DONE:
  * ... this is where the actual message gets transmitted to the server.
  */
 void post_mime_to_server(void) {
-	char boundary[SIZ];
+	char top_boundary[SIZ];
+	char alt_boundary[SIZ];
 	int is_multipart = 0;
 	static int seq = 0;
 	struct wc_attachment *att;
 	char *encoded;
-	char *txtmail;
 	size_t encoded_length;
 	size_t encoded_strlen;
+	char *txtmail = NULL;
+
+	sprintf(top_boundary, "Citadel--Multipart--%s--%04x--%04x",
+		serv_info.serv_fqdn,
+		getpid(),
+		++seq
+	);
+	sprintf(alt_boundary, "Citadel--Multipart--%s--%04x--%04x",
+		serv_info.serv_fqdn,
+		getpid(),
+		++seq
+	);
 
 	/** RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
@@ -2869,23 +2880,30 @@ void post_mime_to_server(void) {
 		is_multipart = 1;
 	}
 
-//	if (is_multipart) {
-		sprintf(boundary, "Citadel--Multipart--%s--%04x--%04x",
-			serv_info.serv_fqdn,
-			getpid(),
-			++seq
-		);
-
+	if (is_multipart) {
 		/** Remember, serv_printf() appends an extra newline */
-		if (is_multipart)
-			serv_printf("Content-type: multipart/mixed; "
-				    "boundary=\"%s\"\n", boundary);
-		else
-			serv_printf("Content-type: multipart/alternative; "
-				    "boundary=\"%s\"\n", boundary);
+		serv_printf("Content-type: multipart/mixed; "
+			"boundary=\"%s\"\n", top_boundary);
 		serv_printf("This is a multipart message in MIME format.\n");
-		serv_printf("--%s", boundary);
-//	}
+		serv_printf("--%s", top_boundary);
+	}
+
+
+
+	/* Remember, serv_printf() appends an extra newline */
+	serv_printf("Content-type: multipart/alternative; "
+		"boundary=\"%s\"\n", alt_boundary);
+	serv_printf("This is a multipart message in MIME format.\n");
+	serv_printf("--%s", alt_boundary);
+
+	serv_puts("Content-type: text/plain; charset=utf-8");
+	serv_puts("Content-Transfer-Encoding: quoted-printable");
+	serv_puts("");
+	txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
+        text_to_server_qp(txtmail);     /** Transmit message in quoted-printable encoding */
+        free(txtmail);
+
+	serv_printf("--%s", alt_boundary);
 
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("Content-Transfer-Encoding: quoted-printable");
@@ -2894,15 +2912,12 @@ void post_mime_to_server(void) {
 	text_to_server_qp(bstr("msgtext"));	/** Transmit message in quoted-printable encoding */
 	serv_puts("</body></html>\r\n");
 
-	serv_puts("Content-type: text/plain; charset=utf-8");
-	serv_puts("Content-Transfer-Encoding: quoted-printable");
-	serv_puts("");
 
-	txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
-	text_to_server_qp(txtmail);	/** Transmit message in quoted-printable encoding */
-	free(txtmail);
-	if (!is_multipart)
-	    serv_printf("--%s", boundary);
+	serv_printf("--%s--", alt_boundary);
+
+
+
+
 	
 	if (is_multipart) {
 
@@ -2914,7 +2929,7 @@ void post_mime_to_server(void) {
 			if (encoded == NULL) break;
 			encoded_strlen = CtdlEncodeBase64(encoded, att->data, att->length, 1);
 
-			serv_printf("--%s", boundary);
+			serv_printf("--%s", top_boundary);
 			serv_printf("Content-type: %s", att->content_type);
 			serv_printf("Content-disposition: attachment; "
 				"filename=\"%s\"", att->filename);
@@ -2925,7 +2940,7 @@ void post_mime_to_server(void) {
 			serv_puts("");
 			free(encoded);
 		}
-		serv_printf("--%s--", boundary);
+		serv_printf("--%s--", top_boundary);
 	}
 
 	serv_puts("000");
