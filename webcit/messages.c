@@ -551,9 +551,11 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					"?force_room=_MAIL_?recp=");
 
 				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, "\"");
+				len = strlen(mailto);
 				urlesc(&mailto[len], SIZ - len,  fullname);
 				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len, " <");
+				urlesc(&mailto[len], SIZ - len, "\" <");
 				len = strlen(mailto);
 				urlesc(&mailto[len], SIZ - len, thisvalue);
 				len = strlen(mailto);
