@@ -188,7 +188,7 @@ void ShutDownLibCitadel(void);
 
 
 
-char *safestrncpy(char *dest, const char *src, size_t n);
+int safestrncpy(char *dest, const char *src, size_t n);
 int num_tokens (const char *source, char tok);
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 long grab_token(char **dest, const char *source, int parmnum, char separator);
