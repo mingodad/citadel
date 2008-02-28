@@ -246,6 +246,10 @@ install-doc:
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 	done
+	@for i in `cd openldap; find $(srcdir)/ -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) openldap/$$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) openldap/$$i $(DESTDIR)$(prefix)/$$i; \
+	done
 	echo $(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
 	$(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
 
@@ -259,6 +263,10 @@ install-doc-new:
 	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+	done
+	@for i in `cd openldap; find $(srcdir)/ -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) openldap/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
 	done
 	$(INSTALL_DATA) README.txt $(DESTDIR)$(DOC_DIR)/README.txt
 
