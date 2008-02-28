@@ -42,7 +42,6 @@
 #include "messages.h"
 #include "commands.h"
 #include "rooms.h"
-#include "html.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif

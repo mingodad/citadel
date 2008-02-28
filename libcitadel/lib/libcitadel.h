@@ -10,7 +10,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
-#define LIBCITADEL_VERSION_NUMBER	106
+#define LIBCITADEL_VERSION_NUMBER	107
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -221,6 +221,7 @@ char *rfc2047encode(char *line, long length);
 int is_msg_in_mset(char *mset, long msgnum);
 int pattern2(char *search, char *patn);
 void stripltlen(char *, int *);
+char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat);
 
 
 

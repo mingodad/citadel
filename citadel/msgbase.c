@@ -45,7 +45,6 @@
 #include "file_ops.h"
 #include "config.h"
 #include "control.h"
-#include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
 #include "euidindex.h"

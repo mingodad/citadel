@@ -42,7 +42,6 @@
 #include "file_ops.h"
 #include "config.h"
 #include "control.h"
-#include "html.h"
 #include "genstamp.h"
 #include "internet_addressing.h"
 #include "serv_vcard.h"			/* Needed for vcard_getuser and extract_inet_email_addrs */

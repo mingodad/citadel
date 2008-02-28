@@ -113,7 +113,8 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/xdgmime/xdgmimemagic.lo \
 	lib/xdgmime/xdgmimealias.lo \
 	lib/xdgmime/xdgmimeparent.lo \
-	lib/xdgmime/xdgmimecache.lo
+	lib/xdgmime/xdgmimecache.lo \
+	lib/html_to_ascii.lo
 
 $(LIBRARY): $(LIB_OBJS)
 	$(LINK_LIB) $(LIB_OBJS)
@@ -131,6 +132,7 @@ lib/xdgmime/xdgmimemagic.lo:  lib/xdgmime/xdgmimemagic.c
 lib/xdgmime/xdgmimealias.lo:  lib/xdgmime/xdgmimealias.c 
 lib/xdgmime/xdgmimeparent.lo:  lib/xdgmime/xdgmimeparent.c 
 lib/xdgmime/xdgmimecache.lo: lib/xdgmime/xdgmimecache.c
+lib/html_to_ascii.lo: lib/html_to_ascii.c
 
 .SUFFIXES: .c .cpp .lo .o
 
