@@ -126,7 +126,7 @@ extern locale_t wc_locales[];
 #define CLIENT_ID		4
 #define CLIENT_VERSION		730		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	730		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		106		/* min required libcitadel ver */
+#define	LIBCITADEL_MIN		107		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -759,7 +759,6 @@ void display_wiki_page(void);
 int get_time_format_cached (void);
 int xtoi(char *in, size_t len);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
-char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat);
 
 
 #ifdef HAVE_ICONV
