@@ -95,10 +95,10 @@ server: $(SERVER_TARGETS) $(SERV_MODULES)
 utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
 
 citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
-	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
+	commands.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
 	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS)
 	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
-	commands.o html.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
+	commands.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
 	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS) \
 	$(LDFLAGS) -o citadel $(LIBS)
 
@@ -122,7 +122,7 @@ SERV_OBJS = server_main.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o policy.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o euidindex.o \
-	locate_host.o housekeeping.o html.o \
+	locate_host.o housekeeping.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o\
 	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES)
