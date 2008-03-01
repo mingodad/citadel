@@ -9,7 +9,8 @@ Standards-Version: 3.7.2
 Package: citadel-webcit
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, tinymce, citadel-common, openssl, locales
-Suggests: citadel-server, apache2 | apache, localepurge, shared-mime-info
+Suggests: citadel-server, apache2 | apache, localepurge, gnome-icon-theme
+Recommends: shared-mime-info
 Description: web-based frontend to Citadel groupware server
  WebCit is a web-based, AJAX-enabled frontend to the Citadel groupware system.
  It is an attractive web middleware layer that allows user-friendly access.
