@@ -16,7 +16,8 @@ case "$1" in
 
 	db_get citadel/WebcitApacheIntegration &&WWWTYPE="$RET"
 	db_stop
-
+# Hack: make webcit use gnome icons. roll your own if wanted.
+	ln -s /usr/share/icons/gnome/24x24/mimetypes  /usr/share/citadel-webcit/static/icons
 	#DEBHELPER#
 	
 # update the webserver, if needed
