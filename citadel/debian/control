@@ -10,7 +10,7 @@ Standards-Version: 3.7.3
 Package: citadel-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common, openssl
-Recommends: db4.4-util | db4.3-util
+Recommends: db4.4-util | db4.3-util shared-mime-info
 Suggests: postfix | exim | citadel-mta | mail-transport-agent
 Conflicts: pop3-server, imap-server
 Provides: pop3-server, imap-server
@@ -166,6 +166,7 @@ Description: complete and feature-rich groupware server (mail transport agent)
 
 Package: citadel-client
 Architecture: any
+Recommends: shared-mime-info
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
 Description: complete and feature-rich groupware server (command line client)
  This is package contains the command line client for Citadel, a complete and
