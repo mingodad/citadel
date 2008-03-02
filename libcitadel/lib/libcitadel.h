@@ -10,7 +10,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
-#define LIBCITADEL_VERSION_NUMBER	107
+#define LIBCITADEL_VERSION_NUMBER	108
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -263,6 +263,7 @@ typedef struct HashPos HashPos;
 
 typedef void (*DeleteHashDataFunc)(void * Data);
 typedef const char *(*PrintHashContent)(void * Data);
+typedef int (*CompareFunc)(const void* Item1, const void*Item2);
 
 HashList *NewHash(void);
 
@@ -283,3 +284,10 @@ HashPos *GetNewHashPos(void);
 void DeleteHashPos(HashPos **DelMe);
 
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);
+
+void SortByHashKey(HashList *Hash);
+void SortByHashKeyStr(HashList *Hash);
+
+const void *GetSearchPayload(const void *HashVoid);
+void SortByPayload(HashList *Hash, CompareFunc SortBy);
+
