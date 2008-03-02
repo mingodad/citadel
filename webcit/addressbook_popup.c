@@ -28,7 +28,10 @@ void address_book_popup(void) {
  */
 void display_address_book_middle_div(void) {
 	char buf[256];
-	char ebuf[256];
+	long len;
+	char *Name, *Namee;
+	HashList *List;
+	HashPos  *it;
 
 	begin_ajax_response();
 
@@ -46,18 +49,29 @@ void display_address_book_middle_div(void) {
 	escputs(serv_info.serv_humannode);
 	wprintf("</option>\n");
 
+	
+	List = NewHash();
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+	if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (extract_int(buf, 6) == VIEW_ADDRESSBOOK) {
-			extract_token(ebuf, buf, 0, '|', sizeof ebuf);
-			wprintf("<option value=\"");
-			urlescputs(ebuf);
-			wprintf("\">");
-			escputs(ebuf);
-			wprintf("</option>\n");
+			Name = (char*) malloc(len + 1);
+			len = extract_token(Name, buf, 0, '|', len);
+			Put(List, Name, len, Name, NULL);
 		}
 	}
+
+	SortByHashKey(List);
+	it = GetNewHashPos();
+	while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
+		wprintf("<option value=\"");
+		urlescputs(Namee);
+		wprintf("\">");
+		escputs(Namee);
+		wprintf("</option>\n");
+	}
+	DeleteHashPos(&it);
+	DeleteHash(&List);
 	wprintf("</select></form>");
 
 	wprintf("</td>");
@@ -82,29 +96,42 @@ void display_address_book_middle_div(void) {
  */
 void display_address_book_inner_div() {
 	char buf[256];
-	char username[256];
 	int num_targets = 0;
 	char target_id[64];
 	char target_label[64];
+	long len;
+	char *Name, *Namee;
+	HashList *List;
+	HashPos  *it;
 	int i;
 	char saved_roomname[128];
 
 	begin_ajax_response();
 
+	List = NewHash();
 	wprintf("<div align=center><form onSubmit=\"return false;\">"
 		"<select multiple name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 
 	if (!strcasecmp(bstr("which_addr_book"), "__LOCAL_USERS__")) {
 		serv_puts("LIST");
 		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(username, buf, 0, '|', sizeof username);
+		if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			Name = (char*) malloc(len + 1);
+			len = extract_token(Name, buf, 0, '|', len + 1);
+			Put(List, Name, len, Name, NULL);
+
+		}
+		SortByHashKey(List);
+		it = GetNewHashPos();
+		while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
 			wprintf("<option value=\"");
-			escputs(username);
+			urlescputs(Namee);
 			wprintf("\">");
-			escputs(username);
+			escputs(Namee);
 			wprintf("</option>\n");
 		}
+		DeleteHashPos(&it);
+		DeleteHash(&List);
 	}
 
 	else {
@@ -112,13 +139,23 @@ void display_address_book_inner_div() {
 		gotoroom(bstr("which_addr_book"));
 		serv_puts("DVCA");
 		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			Name = (char*) malloc(len + 1);
+			len = extract_token(Name, buf, 0, '|', len + 1);
+			Put(List, Name, len, Name, NULL);
+
+		}
+		SortByHashKey(List);
+		it = GetNewHashPos();
+		while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
 			wprintf("<option value=\"");
-			escputs(buf);
+			urlescputs(Namee);
 			wprintf("\">");
-			escputs(buf);
+			escputs(Namee);
 			wprintf("</option>\n");
 		}
+		DeleteHashPos(&it);
+		DeleteHash(&List);
 		gotoroom(bstr(saved_roomname));
 	}
 

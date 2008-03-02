@@ -149,7 +149,7 @@ void serv_read(char *buf, int bytes)
 /**
  * \brief input string from pipe
  */
-void serv_getln(char *strbuf, int bufsize)
+int serv_getln(char *strbuf, int bufsize)
 {
 	int ch, len;
 	char buf[2];
@@ -167,6 +167,7 @@ void serv_getln(char *strbuf, int bufsize)
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
 #endif
+	return len;
 }
 
 

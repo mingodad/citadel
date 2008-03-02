@@ -492,21 +492,37 @@ void display_siteconfig(void)
 			sprintf(&general[strlen(general)], "</TD><TD>");
 			sprintf(&general[strlen(general)], "<select name=\"c_default_cal_zone\" size=\"1\">\n");
 
-			sprintf(&general[strlen(general)], "<option %s value=\"UTC\">UTC</option>\n",
-				(!strcasecmp(buf, "UTC") ? "selected" : "")
-			);
-
 			icalarray *zones;
 			int z;
+			long len;
 			char this_zone[128];
+			char *ZName, *ZNamee;
+			HashList *List;
+			HashPos  *it;
+
+			List = NewHash();
+			len = sizeof("UTC") + 1;
+			ZName = malloc(len + 1);
+			memcpy(ZName, "UTC", len + 1);
+			Put(List, ZName, len, ZName, NULL);
 			zones = icaltimezone_get_builtin_timezones();
 			for (z = 0; z < zones->num_elements; ++z) {
 				strcpy(this_zone, icaltimezone_get_location(icalarray_element_at(zones, z)));
+				len = strlen(this_zone);
+				ZName = (char*)malloc(len +1);
+				memcpy(ZName, this_zone, len + 1);
+				Put(List, ZName, len, ZName, NULL);
+			}
+			SortByHashKey(List);
+			it = GetNewHashPos();
+			while (GetNextHashPos(List, it, &len, &ZName, (void**)&ZNamee)) {
 				sprintf(&general[strlen(general)], "<option %s value=\"%s\">%s</option>\n",
-					(!strcasecmp(this_zone, buf) ? "selected" : ""),
-					this_zone, this_zone
+					(!strcasecmp(ZName, buf) ? "selected" : ""),
+					ZName, ZName
 				);
 			}
+			DeleteHashPos(&it);
+			DeleteHash(&List);
 
 			sprintf(&general[strlen(general)], "</select>");
 			sprintf(&general[strlen(general)], "</TD></TR>\n");

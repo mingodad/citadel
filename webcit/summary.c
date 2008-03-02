@@ -75,47 +75,6 @@ void new_messages_section(void) {
 
 
 /**
- * \brief Wholist section
- */
-void wholist_section(void) {
-	char buf[SIZ];
-	char user[SIZ];
-        time_t last_activity;
-        time_t now;
-
-	serv_puts("TIME");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		now = extract_long(&buf[4], 0);
-	}
-	else {
-		now = time(NULL);
-	}
-
-	serv_puts("RWHO");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		extract_token(user, buf, 1, '|', sizeof user);
-                last_activity = extract_long(buf, 5);
-		if (strcmp(user, NLI)) {
-                	wprintf("<li class=\"");
-                        if ((now - last_activity) > 900L) {
-                                wprintf("inactiveuser");
-                        }
-                        else {
-                                wprintf("activeuser");
-                        }
-                	wprintf("\"><a href=\"showuser?who=");
-                	urlescputs(user);
-                	wprintf("\">");
-                	escputs(user);
-                	wprintf("</a></li>");
-		}
-	}
-}
-
-
-/**
  * \brief Task list section
  */
 void tasks_section(void) {
