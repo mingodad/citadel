@@ -50,6 +50,7 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 
 int GetWholistSection(HashList *List, time_t now)
 {
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	UserStateStruct *User, *OldUser;
 	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
 		realroom[SIZ], realhost[SIZ];
@@ -89,6 +90,9 @@ int GetWholistSection(HashList *List, time_t now)
 			if (GetHash(List, User->UserName, User->UserNameLen, (void**)&OldUser)) {
 				OldUser->SessionCount++;
 				if (!User->Idle) {
+					if (User->Session == WCC->ctdl_pid) 
+						OldUser->Session = User->Session;
+
 					OldUser->Idle = User->Idle;
 					OldUser->LastActive = User->LastActive;
 				}
@@ -115,7 +119,6 @@ void who_inner_div(void) {
 	HashPos  *it;
 	char *UserName;
 	long len;
-	int sess;
 	time_t now;
 	int bg = 0;
 
@@ -151,11 +154,11 @@ void who_inner_div(void) {
 
 			wprintf("<td class=\"edit_col\">");
 			if ((WCC->is_aide) &&
-			    (sess != WCC->ctdl_pid)) {
-				wprintf(" <a href=\"terminate_session?which_session=%d", sess);
+			    (User->Session != WCC->ctdl_pid)) {
+				wprintf(" <a href=\"terminate_session?which_session=%d", User->Session);
 				wprintf("\" onClick=\"return ConfirmKill();\">%s</a>", _("(kill)"));
 			}
-			if (sess == WCC->ctdl_pid) {
+			if (User->Session == WCC->ctdl_pid) {
 				wprintf(" <a href=\"edit_me\">%s</a>", _("(edit)"));
 			}
 			wprintf("</td>");
