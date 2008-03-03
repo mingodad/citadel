@@ -52,10 +52,10 @@ install-stamp: build-stamp
 
 # Build architecture-independent files here.
 binary-indep: build install
-	dh_testdir -i
+#	dh_testdir -i
 	dh_testroot -i
-	dh_installdocs -i -A README
-	dh_installchangelogs -i debian/no-upstream-changelog
+#	dh_installdocs -i -A README
+#	dh_installchangelogs -i debian/no-upstream-changelog
 #	dh_install -i --sourcedir=debian/tmp
 #	dh_link -i
 #	dh_strip -i
