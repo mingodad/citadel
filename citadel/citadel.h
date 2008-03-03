@@ -50,7 +50,7 @@ extern "C" {
 #define REV_LEVEL	732		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	725		/* Oldest compatible export files */
-#define LIBCITADEL_MIN	107		/* Minimum required version of libcitadel */
+#define LIBCITADEL_MIN	108		/* Minimum required version of libcitadel */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */
