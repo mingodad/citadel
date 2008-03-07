@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * This module implementsserver commands related to the display and
+ * This module implements server commands related to the display and
  * manipulation of the "Who's online" list.
  *
  */

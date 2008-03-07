@@ -34,6 +34,7 @@ void cmd_qusr (char *who);
 void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
 void cmd_view (char *cmdbuf);
+void cmd_renu (char *cmdbuf);
 int NewMailCount(void);
 int InitialMailCheck(void);
 void put_visit(struct visit *newvisit);
@@ -84,3 +85,11 @@ void cmd_seen(char *argbuf);
 void cmd_gtsn(char *argbuf);
 void BumpNewMailCounter(long);
 void start_chkpwd_daemon(void);
+
+
+#define RENAMEUSER_OK			0	/* Operation succeeded */
+#define RENAMEUSER_LOGGED_IN		1	/* Cannot rename a user who is currently logged in */
+#define RENAMEUSER_NOT_FOUND		2	/* The old user name does not exist */
+#define RENAMEUSER_ALREADY_EXISTS	3	/* An account with the desired new name already exists */
+
+int rename_user(char *oldname, char *newname);

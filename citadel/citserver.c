@@ -1427,6 +1427,10 @@ void do_command_loop(void) {
 		cmd_isme(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf, "RENU", 4)) {
+		cmd_renu(&cmdbuf[5]);
+	}
+
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {
 		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);
 	}

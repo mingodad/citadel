@@ -148,6 +148,61 @@ void lputuser(struct ctdluser *usbuf)
 	end_critical_section(S_USERS);
 }
 
+
+/*
+ * rename_user()  -  this is tricky because the user's display name is the database key
+ *
+ * Returns 0 on success or nonzero if there was an error...
+ *
+ */
+int rename_user(char *oldname, char *newname) {
+	struct CitContext *cptr;
+	int retcode = RENAMEUSER_OK;
+	struct ctdluser usbuf;
+
+	char oldnamekey[USERNAME_SIZE];
+	char newnamekey[USERNAME_SIZE];
+
+	/* We cannot rename a user who is currently logged in */
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+		if (!strcasecmp(cptr->user.fullname, oldname)) {
+			return(RENAMEUSER_LOGGED_IN);
+		}
+	}
+
+	/* Create the database keys... */
+	makeuserkey(oldnamekey, oldname);
+	makeuserkey(newnamekey, newname);
+
+	/* Lock up and get going */
+	begin_critical_section(S_USERS);
+
+	if (getuser(&usbuf, newname) == 0) {
+		retcode = RENAMEUSER_ALREADY_EXISTS;
+	}
+	else {
+
+		if (getuser(&usbuf, oldname) != 0) {
+			retcode = RENAMEUSER_NOT_FOUND;
+		}
+
+		else {		/* Sanity checks succeeded.  Now rename the user. */
+
+			lprintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
+			cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
+			safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
+			putuser(&usbuf);
+			retcode = RENAMEUSER_OK;
+		}
+	
+	}
+
+	end_critical_section(S_USERS);
+	return(retcode);
+}
+
+
+
 /*
  * Index-generating function used by Ctdl[Get|Set]Relationship
  */
@@ -1782,4 +1837,41 @@ void cmd_view(char *cmdbuf) {
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 	
 	cprintf("%d ok\n", CIT_OK);
+}
+
+
+/*
+ * Rename a user
+ */
+void cmd_renu(char *cmdbuf)
+{
+	int retcode;
+	char oldname[USERNAME_SIZE];
+	char newname[USERNAME_SIZE];
+
+	if (CtdlAccessCheck(ac_aide)) {
+		return;
+	}
+
+	extract_token(oldname, cmdbuf, 0, '|', sizeof oldname);
+	extract_token(newname, cmdbuf, 1, '|', sizeof newname);
+
+	retcode = rename_user(oldname, newname);
+	switch(retcode) {
+		case RENAMEUSER_OK:
+			cprintf("%d '%s' has been renamed to '%s'.\n", CIT_OK, oldname, newname);
+			return;
+		case RENAMEUSER_LOGGED_IN:
+			cprintf("%d '%s' is currently logged in and cannot be renamed.\n",
+				ERROR + ALREADY_LOGGED_IN , oldname);
+			return;
+		case RENAMEUSER_NOT_FOUND:
+			cprintf("%d '%s' does not exist.\n", ERROR + NO_SUCH_USER, oldname);
+			return;
+		case RENAMEUSER_ALREADY_EXISTS:
+			cprintf("%d A user named '%s' already exists.\n", ERROR + ALREADY_EXISTS, newname);
+			return;
+	}
+
+	cprintf("%d An unknown error occurred.\n", ERROR);
 }
