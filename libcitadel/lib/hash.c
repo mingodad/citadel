@@ -378,6 +378,10 @@ int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 	long HashBinKey;
 	long HashAt;
 
+	if (HKLen <= 0) {
+		*Data = NULL;
+		return  0;
+	}
 	/** first, find out were we could be... */
 	HashBinKey = CalcHashKey((char*)HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
