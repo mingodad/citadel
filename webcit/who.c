@@ -60,6 +60,8 @@ int GetWholistSection(HashList *List, time_t now)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (BufLen = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			if (BufLen <= 0)
+			    continue;
 			User = (UserStateStruct*) malloc(sizeof(UserStateStruct));
 			User->Session = extract_int(buf, 0);
 
