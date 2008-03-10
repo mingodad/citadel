@@ -243,6 +243,9 @@ void utf8ify_rfc822_string(char *buf) {
 	}
 
 }
+#else
+inline void utf8ify_rfc822_string(char *a){};
+
 #endif
 
 
@@ -495,9 +498,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			len = strlen(v->prop[i].value);
 			/* if we have some untagged QP, detect it here. */
 			if (!is_qp && (strstr(v->prop[i].value, "=?")!=NULL))
-#ifdef HAVE_ICONV
 				utf8ify_rfc822_string(v->prop[i].value);
-#endif
 
 			if (is_qp) {
 				// %ff can become 6 bytes in utf8 
@@ -688,9 +689,7 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
 	if (name != NULL) {
-#ifdef HAVE_ICONV
 		utf8ify_rfc822_string(name);
-#endif
 		strcpy(buf, name);
 		this_alpha = buf[0];
 	}
@@ -729,6 +728,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char mime_filename[256] = "";
 	char escaped_mime_filename[256] = "";
 	char mime_content_type[256] = "";
+	const char *mime_content_type_ptr;
 	char mime_charset[256] = "";
 	char mime_disposition[256] = "";
 	int mime_length;
@@ -804,9 +804,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			strcpy(from, &buf[5]);
 			wprintf(_("from "));
 			wprintf("<a href=\"showuser?who=");
-#ifdef HAVE_ICONV
 			utf8ify_rfc822_string(from);
-#endif
 			urlescputs(from);
 			wprintf("\">");
 			escputs(from);
@@ -861,9 +859,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			len = strlen(reply_all);
 			safestrncpy(&reply_all[len], &buf[5],
 				(sizeof reply_all - len) );
-#ifdef HAVE_ICONV
 			utf8ify_rfc822_string(&buf[5]);
-#endif
 			escputs(&buf[5]);
 			wprintf(" ");
 		}
@@ -913,9 +909,16 @@ void read_message(long msgnum, int printable_view, char *section) {
 				attach_links = realloc(attach_links,
 					(num_attach_links*sizeof(struct attach_link)));
 				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
+				utf8ify_rfc822_string(mime_filename);
+
+				mime_content_type_ptr = mime_content_type;
+				if (strcasecmp(mime_content_type, "application/octet-stream") == 0) {
+					mime_content_type_ptr = GuessMimeByFilename(mime_filename, 
+										    strlen(mime_filename));
+				}
 				urlesc(escaped_mime_filename, 265, mime_filename);
 				snprintf(attach_links[num_attach_links-1].html, 1024,
-					"<img src=\"static/diskette_24x.gif\" "
+					"<img src=\"display_mime_icon?type=%s\" "
 					"border=0 align=middle>\n"
 					"%s (%s, %d bytes) [ "
 					"<a href=\"mimepart/%ld/%s/%s\""
@@ -923,6 +926,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 					" | "
 					"<a href=\"mimepart_download/%ld/%s/%s\">%s</a>"
 					" ]<br />\n",
+					mime_content_type_ptr,
 					mime_filename,
 					mime_content_type, mime_length,
 					msgnum, mime_partnum, escaped_mime_filename,
@@ -975,10 +979,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("****");
 	}
 
-#ifdef HAVE_ICONV
 	utf8ify_rfc822_string(m_cc);
 	utf8ify_rfc822_string(m_subject);
-#endif
 
         /** start msg buttons */
 
@@ -1433,9 +1435,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			if (!strncasecmp(buf, "from=", 5)) {
 				strcpy(from, &buf[5]);
 				wprintf(_("from "));
-#ifdef HAVE_ICONV
 				utf8ify_rfc822_string(from);
-#endif
 				msgescputs(from);
 			}
 			if (!strncasecmp(buf, "subj=", 5)) {
@@ -1471,9 +1471,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			if (!strncasecmp(buf, "rcpt=", 5)) {
 				wprintf(_("to "));
 				strcpy(to, &buf[5]);
-#ifdef HAVE_ICONV
 				utf8ify_rfc822_string(to);
-#endif
 				wprintf("%s ", to);
 			}
 			if (!strncasecmp(buf, "time=", 5)) {
@@ -1505,9 +1503,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	if (include_headers) {
 		wprintf("<br>");
 
-#ifdef HAVE_ICONV
 		utf8ify_rfc822_string(m_subject);
-#endif
 		if (!IsEmptyStr(m_subject)) {
 			wprintf(_("Subject:"));
 			wprintf(" ");
@@ -2064,18 +2060,14 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				safestrncpy(WC->summ[nummsgs-1].subj,
 					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
 				if (!IsEmptyStr(fullname)) {
-#ifdef HAVE_ICONV
 				/** Handle senders with RFC2047 encoding */
 					utf8ify_rfc822_string(fullname);
-#endif
 					safestrncpy(WC->summ[nummsgs-1].from,
 						fullname, sizeof WC->summ[nummsgs-1].from);
 				}
 				if (!IsEmptyStr(subject)) {
-#ifdef HAVE_ICONV
 				/** Handle subjects with RFC2047 encoding */
 					utf8ify_rfc822_string(subject);
-#endif
 					safestrncpy(WC->summ[nummsgs-1].subj, subject,
 						    sizeof WC->summ[nummsgs-1].subj);
 				}
@@ -2095,10 +2087,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 
 				WC->summ[nummsgs-1].date = datestamp;
 	
-#ifdef HAVE_ICONV
 				/** Handle senders with RFC2047 encoding */
 				utf8ify_rfc822_string(WC->summ[nummsgs-1].from);
-#endif
 				if (strlen(WC->summ[nummsgs-1].from) > 25) {
 					strcpy(&WC->summ[nummsgs-1].from[22], "...");
 				}
@@ -3315,9 +3305,7 @@ void display_enter(void)
 		len = strlen(ccraw);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
-#ifdef HAVE_ICONV
 		utf8ify_rfc822_string(copy);
-#endif
 		escputs(copy);
 		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");
@@ -3345,9 +3333,7 @@ void display_enter(void)
 		len = strlen(ccraw);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
-#ifdef HAVE_ICONV
 		utf8ify_rfc822_string(copy);
-#endif
 		escputs(copy);
 		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");
@@ -3362,9 +3348,7 @@ void display_enter(void)
 		len = strlen(ccraw);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
-#ifdef HAVE_ICONV
 		utf8ify_rfc822_string(copy);
-#endif
 		escputs(copy);
 		free(copy);
 		wprintf("\" size=45 maxlength=1000 />");

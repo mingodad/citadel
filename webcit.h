@@ -790,9 +790,7 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
 
-#ifdef HAVE_ICONV
 void utf8ify_rfc822_string(char *buf);
-#endif
 
 void begin_burst(void);
 void end_burst(void);
