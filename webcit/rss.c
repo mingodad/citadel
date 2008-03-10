@@ -182,14 +182,10 @@ void display_rss(char *roomname, char *request_method)
 				goto ENDITEM;	/** screw it */
 			} else if (!strncasecmp(buf, "from=", 5)) {
 				strcpy(from, &buf[5]);
-#ifdef HAVE_ICONV
 				utf8ify_rfc822_string(from);
-#endif
 			} else if (!strncasecmp(buf, "subj=", 5)) {
 				strcpy(subj, &buf[5]);
-#ifdef HAVE_ICONV
 				utf8ify_rfc822_string(subj);
-#endif
 			} else if (!strncasecmp(buf, "hnod=", 5)) {
 				strcpy(node, &buf[5]);
 			} else if (!strncasecmp(buf, "room=", 5)) {
