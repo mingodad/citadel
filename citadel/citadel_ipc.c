@@ -367,6 +367,22 @@ int CtdlIPCSetConfig(CtdlIPC *ipc, struct ctdluser *uret, char *cret)
 }
 
 
+/* RENU */
+int CtdlIPCRenameUser(CtdlIPC *ipc, char *oldname, char *newname, char *cret)
+{
+	register int ret;
+	char cmd[256];
+
+	if (!oldname) return -2;
+	if (!newname) return -2;
+	if (!cret) return -2;
+
+	snprintf(cmd, sizeof cmd, "RENU %s|%s", oldname, newname);
+	ret = CtdlIPCGenericCommand(ipc, cmd, NULL, 0, NULL, NULL, cret);
+	return ret;
+}
+
+
 /* GOTO */
 int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		struct ctdlipcroom **rret, char *cret)

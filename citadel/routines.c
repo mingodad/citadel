@@ -108,9 +108,13 @@ void edituser(CtdlIPC *ipc, int cmd)
 {
 	char buf[SIZ];
 	char who[USERNAME_SIZE];
+	char newname[USERNAME_SIZE];
 	struct ctdluser *user = NULL;
 	int newnow = 0;
 	int r;				/* IPC response code */
+	int change_name = 0;
+
+	strcpy(newname, "");
 
 	newprompt("User name: ", who, 29);
 	while ((r = CtdlIPCAideGetUserParameters(ipc, who, &user, buf)) / 100 != 2) {
@@ -133,14 +137,31 @@ void edituser(CtdlIPC *ipc, int cmd)
 	if (cmd == 25) {
 		val_user(ipc, user->fullname, 0); /* Display registration */
 
+		if (!newnow) {
+			change_name = 1;
+			while (change_name == 1) {
+				if (boolprompt("Change name", 0)) {
+					strprompt("New name", newname, USERNAME_SIZE-1);
+					r = CtdlIPCRenameUser(ipc, user->fullname, newname, buf);
+					if (r / 100 != 2) {
+						scr_printf("%s\n", buf);
+					}
+					else {
+						strcpy(user->fullname, newname);
+						change_name = 0;
+					}
+				}
+				else {
+					change_name = 0;
+				}
+			}
+		}
+
 		if (newnow || boolprompt("Change password", 0)) {
 			strprompt("Password", user->password, -19);
 		}
 	
 		user->axlevel = intprompt("Access level", user->axlevel, 0, 6);
-/*	  	user->flags = set_attr(ipc, user->flags,
-			"Permission to send Internet mail",
-			US_INTERNET, 0); */
 		if (boolprompt("Permission to send Internet mail", (user->flags & US_INTERNET)))
 			user->flags |= US_INTERNET;
 		else
@@ -167,7 +188,7 @@ void edituser(CtdlIPC *ipc, int cmd)
 		}
 		user->axlevel = 0;
 	}
-	
+
 	r = CtdlIPCAideSetUserParameters(ipc, user, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);

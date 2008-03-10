@@ -299,6 +299,7 @@ time_t CtdlIPCServerTime(CtdlIPC *ipc, char *crert);
 int CtdlIPCAideGetUserParameters(CtdlIPC *ipc, const char *who,
 				 struct ctdluser **uret, char *cret);
 int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct ctdluser *uret, char *cret);
+int CtdlIPCRenameUser(CtdlIPC *ipc, char *oldname, char *newname, char *cret);
 int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy **policy, char *cret);
 int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
