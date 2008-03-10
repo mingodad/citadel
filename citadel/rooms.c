@@ -596,6 +596,12 @@ void editthisroom(CtdlIPC *ipc)
 	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
 				"Self-service list subscribe/unsubscribe",
 				QR2_SELFLIST);
+	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
+				"public posting to this room via room_roomname@yourcitadel.org",
+				QR2_SMTP_PUBLIC);
+	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
+				"moderated mailinglist",
+				QR2_MODERATED);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 			       "Automatically make all messages anonymous",
 			       QR_ANONONLY);
