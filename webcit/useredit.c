@@ -303,6 +303,13 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("<center><table>");
 
 	wprintf("<tr><td>");
+	wprintf(_("User name:"));
+	wprintf("</td><td>"
+		"<input type=\"text\" name=\"newname\" value=\"");
+	escputs(username);
+	wprintf("\" maxlength=\"63\"></td></tr>\n");
+
+	wprintf("<tr><td>");
 	wprintf(_("Password"));
 	wprintf("</td><td>"
 		"<input type=\"password\" name=\"password\" value=\"");
@@ -398,12 +405,16 @@ void edituser(void) {
 	char buf[SIZ];
 	int is_new = 0;
 	unsigned int flags = 0;
+	char *username;
 
 	is_new = atoi(bstr("is_new"));
+	safestrncpy(message, "", sizeof message);
+	username = bstr("username");
 
 	if (IsEmptyStr(bstr("ok_button"))) {
 		safestrncpy(message, _("Changes were not saved."), sizeof message);
 	}
+	
 	else {
 		flags = atoi(bstr("flags"));
 		if (!strcasecmp(bstr("inetmail"), "yes")) {
@@ -413,8 +424,21 @@ void edituser(void) {
 			flags &= ~US_INTERNET ;
 		}
 
+		if (bstr("newname") != NULL) if (strcasecmp(bstr("username"), bstr("newname"))) {
+			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
+			serv_getln(buf, sizeof buf);
+			if (buf[0] != '2') {
+				sprintf(&message[strlen(message)],
+					"<img src=\"static/error.gif\" align=center>"
+					"%s<br /><br />\n", &buf[4]);
+			}
+			else {
+				username = bstr("newname");
+			}
+		}
+
 		serv_printf("ASUP %s|%s|%d|%s|%s|%s|%s|%s|%s|",
-			bstr("username"),
+			username,
 			bstr("password"),
 			flags,
 			bstr("timescalled"),
@@ -426,12 +450,9 @@ void edituser(void) {
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '2') {
-			sprintf(message,
+			sprintf(&message[strlen(message)],
 				"<img src=\"static/error.gif\" align=center>"
 				"%s<br /><br />\n", &buf[4]);
-		}
-		else {
-			safestrncpy(message, "", sizeof message);
 		}
 	}
 
@@ -440,14 +461,14 @@ void edituser(void) {
 	 * the vCard edit screen.
 	 */
 	if (is_new) {
-		display_edit_address_book_entry( bstr("username"), atol(bstr("usernum")) );
+		display_edit_address_book_entry(username, atol(bstr("usernum")) );
 	}
 	else {
-		select_user_to_edit(message, bstr("username"));
+		select_user_to_edit(message, username);
 	}
 }
 
-/**
+/*
  * \brief burge a user 
  * \param username the name of the user to remove
  */
