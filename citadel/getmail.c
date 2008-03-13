@@ -164,6 +164,36 @@ void sendcommand_die(void) {
 
 
 /*
+ * saves filelen bytes from file at pathname
+ */
+int save_buffer(void *file, size_t filelen, const char *pathname)
+{
+	size_t block = 0;
+	size_t bytes_written = 0;
+	FILE *fp;
+
+	fp = fopen(pathname, "w");
+	if (!fp) {
+		fprintf(stderr, "Cannot open '%s': %s\n", pathname, strerror(errno));
+		return 0;
+	}
+	do {
+		block = fwrite((char *)file + bytes_written, 1,
+				filelen - bytes_written, fp);
+		bytes_written += block;
+	} while (errno == EINTR && bytes_written < filelen);
+	fclose(fp);
+
+	if (bytes_written < filelen) {
+		fprintf(stderr,"Trouble saving '%s': %s\n", pathname,
+				strerror(errno));
+		return 0;
+	}
+	return 1;
+}
+
+
+/*
  * main
  */
 int main(int argc, char **argv)
@@ -186,6 +216,7 @@ int main(int argc, char **argv)
 	struct ctdlipcmessage *mret;
 	char cret[SIZ];
 	unsigned long *msgarr;
+	struct parts *att;
 
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
@@ -254,6 +285,32 @@ int main(int argc, char **argv)
 	fprintf(stderr, "%s: %s\n", "subject", mret->subject);
 	fprintf(stderr, "%s: %s\n", "email", mret->email);
 	fprintf(stderr, "%s: %s\n", "text", mret->text);
+
+	att = mret->attachments;
+
+	while (att != NULL){
+		void *attachment;
+		char tmp[PATH_MAX];
+		char buf[SIZ];
+
+		fprintf(stderr, "Attachment: [%s] %s\n", att->number, att->filename);
+		r = CtdlIPCAttachmentDownload(ipc, MessageToRetrieve, att->number, &attachment, NULL, buf);
+		printf("----\%s\n----\n", buf);
+		if (r / 100 != 2) {
+			printf("%s\n", buf);
+		} else {
+			size_t len;
+			
+			len = (size_t)extract_long(buf, 0);
+			CtdlMakeTempFileName(tmp, sizeof tmp);
+			strcat(tmp, att->filename);
+			printf("Saving Attachment to %s", tmp);
+			save_buffer(attachment, len, tmp);
+			free(attachment);
+		}
+		att = att->next;
+
+	}
 
 	///if (
 
