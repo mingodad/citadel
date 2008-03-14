@@ -1,15 +1,13 @@
 /* 
  * $Id$
+ *
+ * Display the outbound SMTP queue
  */
-/**
- * \defgroup SMTPqueue Display the outbound SMTP queue
- * \ingroup CitadelConfig
- */
-/*@{*/
+
 #include "webcit.h"
 
-/**
- * \brief display one message in the queue
+/*
+ * display one message in the queue
  */
 void display_queue_msg(long msgnum)
 {
@@ -23,13 +21,17 @@ void display_queue_msg(long msgnum)
 	int number_of_attempts = 0;
 	char sender[256];
 	char recipients[65536];
+	int recipients_len = 0;
 	char thisrecp[256];
 	char thisdsn[256];
+	char thismsg[512];
+	int thismsg_len;
 	long msgid = 0;
 	int len;
 
 	strcpy(sender, "");
 	strcpy(recipients, "");
+	recipients_len = 0;
 
 	serv_printf("MSG2 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
@@ -96,38 +98,29 @@ void display_queue_msg(long msgnum)
 			}
 
 			if (!strcasecmp(keyword, "remote")) {
-				int RcptLen;
-				int TRcptLen;
-				int TDsn;
-				int NLen;
+				thismsg[0] = 0;
+
 				extract_token(thisrecp, buf, 1, '|', sizeof thisrecp);
 				extract_token(thisdsn, buf, 3, '|', sizeof thisdsn);
-				RcptLen = strlen(recipients);
-				TRcptLen = strlen(thisrecp);
-				TDsn = strlen(thisdsn);
-				if ( RcptLen + TRcptLen + TDsn + 100
-				   < sizeof recipients) {
-					if (!IsEmptyStr(recipients)) {
-						// copy the \0 to be sure..
-						memcpy (&recipients[RcptLen], "<br />\0",  7);
-						RcptLen += 6;
+
+				if (!IsEmptyStr(thisrecp)) {
+					stresc(thismsg, sizeof thismsg, thisrecp, 1, 1);
+					if (!IsEmptyStr(thisdsn)) {
+						strcat(thismsg, "<br />&nbsp;&nbsp;<i>");
+						stresc(&thismsg[strlen(thismsg)], sizeof thismsg,
+							thisdsn, 1, 1);
+						strcat(thismsg, "</i>");
 					}
-					NLen = stresc(&recipients[RcptLen], 
-						      sizeof recipients - RcptLen, 
-						      thisrecp, 1, 1);
-					if (NLen != -1)
-					{
-						RcptLen += NLen;
-						NLen = sizeof "<br />&nbsp;&nbsp;<i>";
-						memcpy(recipients, "<br />&nbsp;&nbsp;<i>", 
-						       NLen);
-						RcptLen += NLen - 1;
-						NLen = stresc(&recipients[RcptLen], 
-							      sizeof recipients - RcptLen, 
-							      thisdsn, 1, 1);
-						if (NLen != -1)
-							memcpy (recipients, "</i>\0", 5);
-					} /// else bail out?
+					thismsg_len = strlen(thismsg);
+
+					if ((recipients_len + thismsg_len + 100) < sizeof recipients) {
+						if (!IsEmptyStr(recipients)) {
+							strcpy(&recipients[recipients_len], "<br />");
+							recipients_len += 6;
+						}
+						strcpy(&recipients[recipients_len], thismsg);
+						recipients_len += thismsg_len;
+					}
 				}
 
 			}
