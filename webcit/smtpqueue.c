@@ -44,7 +44,7 @@ void display_queue_msg(long msgnum)
 			}
 		}
 
-		if ( (IsEmptyStr(buf) == 0) && (in_body == 0) ) {
+		if ( (IsEmptyStr(buf)) && (in_body == 0) ) {
 			in_body = 1;
 		}
 
