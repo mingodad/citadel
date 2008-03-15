@@ -2986,7 +2986,6 @@ struct CtdlMessage *CtdlMakeMessage(
 	char dest_node[256];
 	char buf[1024];
 	struct CtdlMessage *msg;
-	int i;
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
