@@ -895,10 +895,10 @@ int pattern2(char *search, char *patn)
 }
 
 
-/**
- * \brief Strip leading and trailing spaces from a string; with premeasured and adjusted length.
- * \param buf the string to modify
- * \param len length of the string. 
+/*
+ * Strip leading and trailing spaces from a string; with premeasured and adjusted length.
+ * buf - the string to modify
+ * len - length of the string. 
  */
 void stripltlen(char *buf, int *len)
 {
@@ -916,3 +916,21 @@ void stripltlen(char *buf, int *len)
 	}
 }
 
+
+/*
+ * Convert all whitespace characters in a supplied string to underscores
+ */
+void convert_spaces_to_underscores(char *str)
+{
+	int len;
+	int i;
+
+	if (!str) return;
+
+	len = strlen(str);
+	for (i=0; i<len; ++i) {
+		if (isspace(str[i])) {
+			str[i] = '_';
+		}
+	}
+}

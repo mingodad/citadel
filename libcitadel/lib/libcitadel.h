@@ -10,7 +10,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
-#define LIBCITADEL_VERSION_NUMBER	108
+#define LIBCITADEL_VERSION_NUMBER	109
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -291,3 +291,4 @@ void SortByHashKeyStr(HashList *Hash);
 const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
 
+void convert_spaces_to_underscores(char *str);

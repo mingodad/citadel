@@ -590,11 +590,7 @@ void session_startup(void)
 	 */
 	snprintf(CC->cs_inet_email, sizeof CC->cs_inet_email, "%s@%s",
 		CC->user.fullname, config.c_fqdn);
-	for (i=0; !IsEmptyStr(&CC->cs_inet_email[i]); ++i) {
-		if (isspace(CC->cs_inet_email[i])) {
-			CC->cs_inet_email[i] = '_';
-		}
-	}
+	convert_spaces_to_underscores(CC->cs_inet_email);
 
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)

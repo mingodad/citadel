@@ -3010,11 +3010,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		snprintf(buf, sizeof buf, "%s", author->fullname);
 		msg->cm_fields['P'] = strdup(buf);
 	}
-	for (i=0; (msg->cm_fields['P'][i]!=0); ++i) {
-		if (isspace(msg->cm_fields['P'][i])) {
-			msg->cm_fields['P'][i] = '_';
-		}
-	}
+	convert_spaces_to_underscores(msg->cm_fields['P']);
 
 	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
 	msg->cm_fields['T'] = strdup(buf);
