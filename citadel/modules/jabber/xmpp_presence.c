@@ -72,7 +72,7 @@ void jabber_wholist_presence_dump(void)
  * When a user logs in or out of the local Citadel system, notify all Jabber sessions
  * about it.
  */
-void xmpp_presence_notify(char *presence_jid, char *presence_type) {
+void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
 	static int unsolicited_id;
 	int visible_sessions = 0;
@@ -92,9 +92,7 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 	lprintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
 		visible_sessions, presence_jid, CC->cs_pid);
 
-	if (
-	   ( (strcasecmp(presence_type, "unavailable")) || (strcasecmp(presence_type, "unsubscribed")) )
-	   && (visible_sessions == 1) ) {
+	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
 
 		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
 
@@ -110,14 +108,15 @@ void xmpp_presence_notify(char *presence_jid, char *presence_type) {
 		}
 
 		/* Transmit presence information */
-		cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+		cprintf("<presence type=\"available\" from=\"%s\"></presence>", presence_jid);
 	}
 
-	if ( (!strcasecmp(presence_type, "unavailable")) && (visible_sessions == 0) ) {
+	if (visible_sessions == 0) {
 		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
 
 		/* Transmit non-presence information */
-		cprintf("<presence type=\"%s\" from=\"%s\"></presence>", presence_type, presence_jid);
+		cprintf("<presence type=\"unavailable\" from=\"%s\"></presence>", presence_jid);
+		cprintf("<presence type=\"unsubscribed\" from=\"%s\"></presence>", presence_jid);
 
 		/* Do an unsolicited roster update that deletes the contact. */
 		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);

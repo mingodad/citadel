@@ -61,7 +61,7 @@ void jabber_wholist_presence_dump(void);
 void jabber_output_incoming_messages(void);
 void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
-void xmpp_presence_notify(char *, char *);
+void xmpp_presence_notify(char *, int);
 void jabber_roster_item(struct CitContext *);
 void jabber_send_message(char *, char *);
 void jabber_non_sasl_authenticate(char *, char *, char *, char *);

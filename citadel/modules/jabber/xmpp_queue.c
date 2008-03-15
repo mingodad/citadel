@@ -120,18 +120,11 @@ void xmpp_process_events(void) {
 			switch(xptr->event_type) {
 
 				case XMPP_EVT_LOGIN:
-					if (xptr->session_which_generated_this_event != CC->cs_pid) {
-						xmpp_presence_notify(xptr->event_jid, "available");
-					}
-					break;
-
 				case XMPP_EVT_LOGOUT:
 					if (xptr->session_which_generated_this_event != CC->cs_pid) {
-						xmpp_presence_notify(xptr->event_jid, "unavailable");
-						xmpp_presence_notify(xptr->event_jid, "unsubscribed");
+						xmpp_presence_notify(xptr->event_jid, xptr->event_type);
 					}
 					break;
-
 			}
 
 			if (xptr->event_seq > highest_event) {
