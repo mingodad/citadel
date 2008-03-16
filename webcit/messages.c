@@ -735,7 +735,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	struct attach_link *attach_links = NULL;
 	int num_attach_links = 0;
 	char mime_submessages[256] = "";
-	char m_subject[256] = "";
+	char m_subject[1024] = "";
 	char m_cc[1024] = "";
 	char from[256] = "";
 	char node[256] = "";
