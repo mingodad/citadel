@@ -75,12 +75,13 @@ void jabber_iq_roster_query(void)
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-
-		if (
-		   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
-		   && (cptr->user.usernum != CC->user.usernum)
-		   ) {
-			jabber_roster_item(cptr);
+		if (cptr->logged_in) {
+			if (
+			   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+			   && (cptr->user.usernum != CC->user.usernum)
+			   ) {
+				jabber_roster_item(cptr);
+			}
 		}
 	}
 

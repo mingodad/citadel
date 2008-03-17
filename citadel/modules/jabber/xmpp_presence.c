@@ -57,11 +57,14 @@ void jabber_wholist_presence_dump(void)
 	int aide = (CC->user.axlevel >= 6);
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (
-		   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))		/* aides can see everyone */
-		   && (cptr->user.usernum != CC->user.usernum)		/* don't tell me about myself */
-		   ) {
-			cprintf("<presence type=\"available\" from=\"%s\"></presence>", cptr->cs_inet_email);
+		if (cptr->logged_in) {
+			if (
+			   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))		/* aides see everyone */
+			   && (cptr->user.usernum != CC->user.usernum)		/* don't show myself */
+			   ) {
+				cprintf("<presence type=\"available\" from=\"%s\"></presence>",
+					cptr->cs_inet_email);
+			}
 		}
 	}
 }
@@ -82,10 +85,12 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 	/* Count the visible sessions for this user */
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (  (!strcasecmp(cptr->cs_inet_email, presence_jid)) 
-		   && (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
-		   ) {
-			++visible_sessions;
+		if (cptr->logged_in) {
+			if (  (!strcasecmp(cptr->cs_inet_email, presence_jid)) 
+			   && (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+			   ) {
+				++visible_sessions;
+			}
 		}
 	}
 
@@ -98,12 +103,15 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-			if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
-				cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
-				cprintf("<query xmlns=\"jabber:iq:roster\">");
-				jabber_roster_item(cptr);
-				cprintf("</query>"
-					"</iq>");
+			if (cptr->logged_in) {
+				if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
+					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
+						++unsolicited_id);
+					cprintf("<query xmlns=\"jabber:iq:roster\">");
+					jabber_roster_item(cptr);
+					cprintf("</query>"
+						"</iq>");
+				}
 			}
 		}
 

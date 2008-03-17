@@ -91,8 +91,10 @@ void jabber_send_message(char *message_to, char *message_body) {
 	if (!CC->logged_in) return;
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (!strcasecmp(cptr->cs_inet_email, message_to)) {
-			recp = cptr->user.fullname;
+		if (cptr->logged_in) {
+			if (!strcasecmp(cptr->cs_inet_email, message_to)) {
+				recp = cptr->user.fullname;
+			}
 		}
 	}
 

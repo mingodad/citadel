@@ -100,7 +100,7 @@ void xmpp_queue_event(int event_type, char *email_addr) {
 
 	/* Tell the sessions that something is happening */
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (cptr->h_async_function == xmpp_async_loop) {
+		if ((cptr->logged_in) && (cptr->h_async_function == xmpp_async_loop)) {
 			cptr->async_waiting = 1;
 		}
 	}
