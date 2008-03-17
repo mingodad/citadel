@@ -436,8 +436,9 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	
 	/* 0 calls is impossible.  If there are 0 calls, it must
 	 * be a corrupted record, so purge it.
+	 * Actually it is possible if an Aide created the user so now we check for less than 0 (DRW)
 	 */
-	if (us->timescalled == 0) purge = 1;
+	if (us->timescalled < 0) purge = 1;
 
 	/* User number 0, as well as any negative user number, is
 	 * also impossible.
