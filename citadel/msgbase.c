@@ -3308,22 +3308,6 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					}
 					strcat(ret->recp_room, this_recp);
 				}
-				else if (getuser(&tempUS, this_recp) == 0) {
-					++ret->num_local;
-					strcpy(this_recp, tempUS.fullname);
-					if (!IsEmptyStr(ret->recp_local)) {
-						strcat(ret->recp_local, "|");
-					}
-					strcat(ret->recp_local, this_recp);
-				}
-				else if (getuser(&tempUS, this_recp_cooked) == 0) {
-					++ret->num_local;
-					strcpy(this_recp, tempUS.fullname);
-					if (!IsEmptyStr(ret->recp_local)) {
-						strcat(ret->recp_local, "|");
-					}
-					strcat(ret->recp_local, this_recp);
-				}
 				else if ( (!strncasecmp(this_recp, "room_", 5))
 				      && (!getroom(&tempQR, &this_recp_cooked[5])) ) {
 
@@ -3353,6 +3337,22 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					/* Restore room in case something needs it */
 					CC->room = tempQR2;
 
+				}
+				else if (getuser(&tempUS, this_recp) == 0) {
+					++ret->num_local;
+					strcpy(this_recp, tempUS.fullname);
+					if (!IsEmptyStr(ret->recp_local)) {
+						strcat(ret->recp_local, "|");
+					}
+					strcat(ret->recp_local, this_recp);
+				}
+				else if (getuser(&tempUS, this_recp_cooked) == 0) {
+					++ret->num_local;
+					strcpy(this_recp, tempUS.fullname);
+					if (!IsEmptyStr(ret->recp_local)) {
+						strcat(ret->recp_local, "|");
+					}
+					strcat(ret->recp_local, this_recp);
 				}
 				else {
 					++ret->num_error;
