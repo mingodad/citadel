@@ -129,7 +129,7 @@ AC_TRY_RUN([
 dnl Check for iconv in external libiconv
 if test "$ok_iconv" = no; then
 	AC_MSG_CHECKING(Checking for an external libiconv)
-	OLD_LDFLAGS=$LDFLAGS
+	OLD_LDFLAGS="$LDFLAGS"
 	LDFLAGS="$LDFLAGS -liconv"
 	AC_TRY_RUN([
 			#include <iconv.h>
@@ -145,7 +145,7 @@ if test "$ok_iconv" = no; then
 			],
 			[ 
 			  ok_iconv=no
-			  LDFLAGS=$OLDLDFLAGS
+			  LDFLAGS="$OLD_LDFLAGS"
 			  AC_MSG_RESULT([no])
 			]
 		)
@@ -158,8 +158,6 @@ else
 fi
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
-
-
 
 dnl Check for libcitadel
 AC_CHECK_HEADER(libcitadel.h,
