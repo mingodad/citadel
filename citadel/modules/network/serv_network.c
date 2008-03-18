@@ -1761,6 +1761,16 @@ void receive_spool(int sock, char *remote_nodename) {
 	}
 
 	while (bytes_received < download_len) {
+		/**
+		 * If shutting down we can exit here and unlink the temp file.
+		 * this shouldn't loose us any messages.
+		 */
+		if (CtdlThreadCheckStop())
+		{
+			fclose(fp);
+			unlink(tempfilename);
+			return;
+		}
 		snprintf(buf, sizeof buf, "READ %ld|%ld",
 			bytes_received,
 		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
@@ -1788,10 +1798,19 @@ void receive_spool(int sock, char *remote_nodename) {
 	}
 
 	fclose(fp);
+	/** Last chance for shutdown exit */
+	if (CtdlThreadCheckStop())
+	{
+		unlink(tempfilename);
+		return;
+	}
 	if (sock_puts(sock, "CLOS") < 0) {
 		unlink(tempfilename);
 		return;
 	}
+	/**
+	 * From here on we must complete or messages will get lost
+	 */
 	if (sock_getln(sock, buf, sizeof buf) < 0) {
 		unlink(tempfilename);
 		return;
@@ -1871,6 +1890,13 @@ void transmit_spool(int sock, char *remote_nodename)
 	while (plen = (long) read(fd, pbuf, IGNET_PACKET_SIZE), plen > 0L) {
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
+			/** Exit if shutting down */
+			if (CtdlThreadCheckStop())
+			{
+				close(fd);
+				return;
+			}
+			
 			snprintf(buf, sizeof buf, "WRIT %ld", bytes_to_write);
 			if (sock_puts(sock, buf) < 0) {
 				close(fd);
@@ -1897,13 +1923,20 @@ void transmit_spool(int sock, char *remote_nodename)
 
 ABORTUPL:
 	close(fd);
+	/** Last chance for shutdown exit */
+	if(CtdlThreadCheckStop())
+		return;
+		
 	if (sock_puts(sock, "UCLS 1") < 0) return;
+	/**
+	 * From here on we must complete or messages will get lost
+	 */
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
-	lprintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n",
+	CtdlLogPrintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n",
 			bytes_written, remote_nodename);
-	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
-		lprintf(CTDL_DEBUG, "Removing <%s>\n", sfname);
+		CtdlLogPrintf(CTDL_DEBUG, "Removing <%s>\n", sfname);
 		unlink(sfname);
 	}
 }
@@ -1919,16 +1952,16 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
-	lprintf(CTDL_NOTICE, "Connecting to <%s> at %s:%s\n", node, host, port);
+	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s> at %s:%s\n", node, host, port);
 
 	sock = sock_connect(host, port, "tcp");
 	if (sock < 0) {
-		lprintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 		network_talking_to(node, NTT_REMOVE);
 		return;
 	}
 	
-	lprintf(CTDL_DEBUG, "Connected!\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
@@ -1936,15 +1969,17 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	/* Identify ourselves */
 	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
-	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (buf[0] != '2') goto bail;
 
 	/* At this point we are authenticated. */
-	receive_spool(sock, node);
-	transmit_spool(sock, node);
+	if (!CtdlThreadCheckStop())
+		receive_spool(sock, node);
+	if (!CtdlThreadCheckStop())
+		transmit_spool(sock, node);
 
 	sock_puts(sock, "QUIT");
 bail:	sock_close(sock);
@@ -1969,12 +2004,14 @@ void network_poll_other_citadel_nodes(int full_poll) {
 	char spoolfile[256];
 
 	if (working_ignetcfg == NULL) {
-		lprintf(CTDL_DEBUG, "No nodes defined - not polling\n");
+		CtdlLogPrintf(CTDL_DEBUG, "No nodes defined - not polling\n");
 		return;
 	}
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
+		if(CtdlThreadCheckStop())
+			return;
 		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
 		extract_token(node, linebuf, 0, '|', sizeof node);
 		extract_token(secret, linebuf, 1, '|', sizeof secret);
@@ -2074,14 +2111,14 @@ void *network_do_queue(void *args) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	if (full_processing) {
-		lprintf(CTDL_DEBUG, "network: loading outbound queue\n");
+	if (full_processing && !CtdlThreadCheckStop()) {
+		CtdlLogPrintf(CTDL_DEBUG, "network: loading outbound queue\n");
 		ForEachRoom(network_queue_room, NULL);
 	}
 
 	if (rplist != NULL) {
-		lprintf(CTDL_DEBUG, "network: running outbound queue\n");
-		while (rplist != NULL) {
+		CtdlLogPrintf(CTDL_DEBUG, "network: running outbound queue\n");
+		while (rplist != NULL && !CtdlThreadCheckStop()) {
 			char spoolroomname[ROOMNAMELEN];
 			safestrncpy(spoolroomname, rplist->name, sizeof spoolroomname);
 			begin_critical_section(S_RPLIST);
@@ -2106,7 +2143,8 @@ void *network_do_queue(void *args) {
 	}
 
 	/* If there is anything in the inbound queue, process it */
-	network_do_spoolin();
+	if (!CtdlThreadCheckStop())
+		network_do_spoolin();
 
 	/* Save the network map back to disk */
 	write_network_map();
@@ -2117,14 +2155,17 @@ void *network_do_queue(void *args) {
 
 	network_purge_spoolout();
 
-	lprintf(CTDL_DEBUG, "network: queue run completed\n");
+	CtdlLogPrintf(CTDL_DEBUG, "network: queue run completed\n");
 
 	if (full_processing) {
 		last_run = time(NULL);
 	}
 
 	doing_queue = 0;
-	CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, time(NULL) + 60);
+	if (!CtdlThreadCheckStop()) // Only reschedule if system is not stopping
+		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, time(NULL) + 60);
+	else
+		CtdlLogPrintf(CTDL_DEBUG, "network: Task STOPPED.\n");
 	return NULL;
 }
 
