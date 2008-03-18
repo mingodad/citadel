@@ -1886,6 +1886,8 @@ void display_editroom(void)
 		wprintf(_("Password"));
 		wprintf("</th><th>");
 		wprintf(_("Keep messages on server?"));
+		wprintf("</th><th>");
+		wprintf(_("Interval"));
 		wprintf("</th><th> </th></tr>");
 
 		serv_puts("GNET");
@@ -1915,6 +1917,8 @@ void display_editroom(void)
 
 				wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
 
+				wprintf("<td>%ld</td>", extract_long(buf, 5));	// Fetching interval
+			
 				wprintf("<td class=\"button_link\">");
 				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
 				urlescputs(recp);
@@ -1942,6 +1946,9 @@ void display_editroom(void)
 		wprintf("</td>");
 		wprintf("<td>");
 		wprintf("<input type=\"checkbox\" id=\"add_as_pop3keep\" NAME=\"line_pop3keep\" VALUE=\"1\">");
+		wprintf("</td>");
+		wprintf("<td>");
+		wprintf("<input type=\"text\" id=\"add_as_pop3int\" NAME=\"line_pop3int\" MAXLENGTH=\"5\">");
 		wprintf("</td>");
 		wprintf("<td>");
 		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
@@ -2789,6 +2796,8 @@ void netedit(void) {
 		strcat(line, bstr("line_pop3pass"));
 		strcat(line, "|");
 		strcat(line, atoi(bstr("line_pop3keep")) ? "1" : "0" );
+		strcat(line, "|");
+		sprintf(&line[strlen(line)],"%ld", atol(bstr("line_pop3int")));
 		strcat(line, bstr("suffix"));
 	}
 	else if (!IsEmptyStr(bstr("line"))) {
