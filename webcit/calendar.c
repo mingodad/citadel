@@ -1,68 +1,14 @@
 /*
  * $Id$
+ *
+ * Functions which handle calendar objects and their processing/display.
  */
-/**
- * \defgroup calav Functions which handle calendar objects and their processing/display.
- * \ingroup Calendaring
- */
-/* @{ */
 
 #include "webcit.h"
 #include "webserver.h"
 
-#ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
-/**
- * \brief get around non existing types
- * Handler stubs for builds with no calendar library available
- * \param part_source dummy pointer to the source
- * \param msgnum number of the mesage in the db
- * \param cal_partnum number of the calendar part
- */
-void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
-
-	wprintf(_("<I>This message contains calendaring/scheduling information,"
-		" but support for calendars is not available on this "
-		"particular system.  Please ask your system administrator to "
-		"install a new version of the Citadel web service with "
-		"calendaring enabled.</I><br />\n")
-	);
-
-}
-
-/**
- * \brief say we can't display calendar items
- * \param msgnum number of the mesage in our db
- */
-void display_calendar(long msgnum) {
-	wprintf(_("<i>"
-		"Cannot display calendar item.  You are seeing this error "
-		"because your WebCit service has not been installed with "
-		"calendar support.  Please contact your system administrator."
-		"</i><br />\n"));
-}
-
-/**
- * \brief say we can't display task items
- * \param msgnum number of the mesage in our db
- */
-void display_task(long msgnum) {
-	wprintf(_("<i>"
-		"Cannot display to-do item.  You are seeing this error "
-		"because your WebCit service has not been installed with "
-		"calendar support.  Please contact your system administrator."
-		"</i><br />\n"));
-}
-/** ok, we have calendaring available */
-#else /* WEBCIT_WITH_CALENDAR_SERVICE */
-
-
-/******   End of handler stubs.  Everything below this line is real.   ******/
-
-
-
-
-/**
+/*
  * \brief Process a calendar object
  * ...at this point it's already been deserialized by cal_process_attachment()
  * \param cal the calendar object
@@ -982,7 +928,4 @@ void do_freebusy(char *req) {
 	free(fb);
 }
 
-
-
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 

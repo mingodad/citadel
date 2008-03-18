@@ -64,11 +64,6 @@
 
 
 #include "ctdl_module.h"
-
-
-
-#ifdef HAVE_LIBSIEVE
-
 #include "serv_sieve.h"
 
 
@@ -589,13 +584,11 @@ void managesieve_cleanup_function(void) {
 
 
 
-#endif	/* HAVE_LIBSIEVE */
 const char* CitadelServiceManageSieve = "ManageSieve";
 CTDL_MODULE_INIT(managesieve)
 {
 	if (!threading)
 	{
-#ifdef HAVE_LIBSIEVE
 		CtdlRegisterServiceHook(config.c_managesieve_port,
 					NULL,
 					managesieve_greeting,
@@ -603,12 +596,6 @@ CTDL_MODULE_INIT(managesieve)
 					NULL, 
 					CitadelServiceManageSieve);
 		CtdlRegisterSessionHook(managesieve_cleanup_function, EVT_STOP);
-
-#else	/* HAVE_LIBSIEVE */
-
-		lprintf(CTDL_INFO, "This server is missing libsieve.  Managesieve protocol is disabled..\n");
-
-#endif	/* HAVE_LIBSIEVE */
 	}
 	
 	/* return our Subversion id for the Log */

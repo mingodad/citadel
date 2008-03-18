@@ -33,6 +33,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#include <expat.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -42,9 +43,6 @@
 #include "internet_addressing.h"
 #include "md5.h"
 #include "ctdl_module.h"
-
-#ifdef HAVE_EXPAT
-#include <expat.h>
 #include "serv_xmpp.h"
 
 
@@ -107,6 +105,3 @@ void jabber_send_message(char *message_to, char *message_body) {
 	XMPP->message_to[0] = 0;
 }
 
-
-
-#endif	/* HAVE_EXPAT */

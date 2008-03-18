@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <expat.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -40,9 +41,6 @@
 #include "database.h"
 #include "citadel_dirs.h"
 #include "md5.h"
-
-#ifdef HAVE_EXPAT
-#include <expat.h>
 
 
 struct rssnetcfg {
@@ -629,19 +627,12 @@ void *rssclient_scan(void *args) {
 }
 
 
-#endif	/* HAVE_EXPAT */
-
 CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
-#ifdef HAVE_EXPAT
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
-#else
-		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  RSS client will be disabled.\n");
-#endif
 	}
-	
 	/* return our Subversion id for the Log */
         return "$Id: serv_rssclient.c 5652 2007-10-29 20:14:48Z ajc $";
 }

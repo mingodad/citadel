@@ -35,6 +35,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#include <expat.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -45,9 +46,6 @@
 #include "internet_addressing.h"
 #include "md5.h"
 #include "ctdl_module.h"
-
-#ifdef HAVE_EXPAT
-#include <expat.h>
 #include "serv_xmpp.h"
 
 
@@ -76,13 +74,8 @@ int xmpp_auth_plain(char *authstring)
 	 * do not allow spaces so we can tell the user to substitute underscores if their
 	 * login name contains spaces.
 	 */
-	while (ptr=strstr(ident, "_")) {
-		*ptr = ' ';
-	}
-
-	while (ptr=strstr(user, "_")) {
-		*ptr = ' ';
-	}
+	convert_spaces_to_underscores(ident);
+	convert_spaces_to_underscores(user);
 
 	/* Now attempt authentication */
 
@@ -164,7 +157,3 @@ void jabber_non_sasl_authenticate(char *iq_id, char *username, char *password, c
 		"</iq>"
 	);
 }
-
-
-
-#endif	/* HAVE_EXPAT */

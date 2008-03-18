@@ -33,6 +33,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#include <expat.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -42,9 +43,6 @@
 #include "internet_addressing.h"
 #include "md5.h"
 #include "ctdl_module.h"
-
-#ifdef HAVE_EXPAT
-#include <expat.h>
 #include "serv_xmpp.h"
 
 
@@ -138,5 +136,3 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	cprintf("</iq>");
 
 }
-
-#endif	/* HAVE_EXPAT */

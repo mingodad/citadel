@@ -387,8 +387,6 @@ struct wcsession {
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE		
-	/** \brief ical???? */				
 	struct disp_cal {					
 		icalcomponent *cal;		/**< cal items for display */
 		long cal_msgnum;		/**< cal msgids for display */
@@ -396,7 +394,6 @@ struct wcsession {
 		int unread;                     /**< already seen by the user? */
 	} *disp_cal;						
 	int num_cal;				/**< number of calendar items for display */
-#endif											
 	struct wc_attachment *first_attachment;	/**< linked list of attachments for 'enter message' */
 	char last_chat_user[256];		/**< ??? todo */
 	char ImportantMessage[SIZ];		/**< ??? todo */
@@ -697,7 +694,6 @@ void display_pictureview(void);
 void download_file(char *);
 void upload_file(void);
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);
 void save_task(void);
 void display_edit_event(void);
@@ -720,7 +716,6 @@ int ical_ctdl_is_overlap(
                         struct icaltimetype t2start,
                         struct icaltimetype t2end
 );
-#endif
 
 #ifdef ENABLE_NLS
 void initialize_locales(void);

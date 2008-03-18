@@ -33,6 +33,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <libcitadel.h>
+#include <expat.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -46,9 +47,6 @@
 #include "internet_addressing.h"
 #include "md5.h"
 #include "ctdl_module.h"
-
-#ifdef HAVE_EXPAT
-#include <expat.h>
 #include "serv_xmpp.h"
 
 struct xmpp_event *xmpp_queue = NULL;
@@ -475,12 +473,9 @@ void xmpp_logout_hook(void) {
 
 const char *CitadelServiceXMPP="XMPP";
 
-#endif	/* HAVE_EXPAT */
-
 CTDL_MODULE_INIT(jabber)
 {
 	if (!threading) {
-#ifdef HAVE_EXPAT
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
 					NULL,
 					xmpp_greeting,
@@ -492,9 +487,6 @@ CTDL_MODULE_INIT(jabber)
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH);
-	#else
-		lprintf(CTDL_INFO, "This server is missing the Expat XML parser.  Jabber service will be disabled.\n");
-#endif
 	}
 
 	/* return our Subversion id for the Log */

@@ -556,8 +556,6 @@ void cmd_user(char *cmdbuf)
  */
 void session_startup(void)
 {
-	int i = 0;
-
 	lprintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);

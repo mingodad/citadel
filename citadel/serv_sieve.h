@@ -1,9 +1,7 @@
 /*
- * $Id: $
+ * $Id$
  */
 
-
-#ifdef HAVE_LIBSIEVE
 
 #include <sieve2.h>
 #include <sieve2_error.h>
@@ -68,5 +66,3 @@ char *msiv_getscript(struct sdm_userdata *u, char *script_name);
 int msiv_deletescript(struct sdm_userdata *u, char *script_name);
 void msiv_putscript(struct sdm_userdata *u, char *script_name, char *script_content);
 extern char *msiv_extensions;
-
-#endif /* HAVE_LIBSIEVE */

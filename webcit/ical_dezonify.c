@@ -14,9 +14,6 @@
 #include "webserver.h"
 
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-
-
 /*
  * Figure out which time zone needs to be used for timestamps that are
  * not UTC and do not have a time zone specified.
@@ -212,5 +209,3 @@ void ical_dezonify(icalcomponent *cal) {
 	lprintf(9, "ical_dezonify() completed\n");
 }
 
-
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */

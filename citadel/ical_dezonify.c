@@ -16,15 +16,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <ical.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "config.h"
-
-#ifdef CITADEL_WITH_CALENDAR_SERVICE
-#include <ical.h>
 #include "ical_dezonify.h"
 
 
@@ -228,5 +226,3 @@ void ical_dezonify(icalcomponent *cal) {
 
 	/* lprintf(9, "ical_dezonify() completed\n"); */
 }
-
-#endif /* CITADEL_WITH_CALENDAR_SERVICE */

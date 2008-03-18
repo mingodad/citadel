@@ -151,10 +151,7 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
-AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
-AC_ARG_WITH(with_libsieve, [  --with-libsieve         use libsieve mail sorting library])
 AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
-AC_ARG_WITH(with_expat, [  --with-expat            use Expat XML parser])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -589,20 +586,6 @@ fi
 
 
 
-dnl Checks for the libsieve mailbox sorting library.
-if test "x$with_libsieve" != xno ; then
-	AC_CHECK_HEADERS(sieve2.h,
-		[AC_CHECK_LIB(sieve, sieve2_license,
-			[ok_libsieve=yes],,
-	)])
-fi
-
-if test "x$ok_libsieve" = xyes ; then
-	SERVER_LIBS="-lsieve $SERVER_LIBS"
-	AC_DEFINE(HAVE_LIBSIEVE, [], [define this if you have the libsieve mailbox filtering library available])
-fi
-
-
 dnl Checks for the libdspam mail spam scanning library.
 if test "x$with_libdspam" != xno ; then
 	AC_CHECK_HEADERS(dspam/libdspam.h,
@@ -618,56 +601,55 @@ fi
 
 
 
-
 dnl Checks for the Expat XML parser.
-if test "x$with_expat" != xno ; then
-	AC_CHECK_HEADERS(expat.h,
-		[AC_CHECK_LIB(expat, XML_ParserCreateNS,
-			[ok_expat=yes],,
-	)])
-fi
-
-if test "x$ok_expat" = xyes ; then
-	SERVER_LIBS="-lexpat $SERVER_LIBS"
-	AC_DEFINE(HAVE_EXPAT, [], [define this if you have the Expat XML parser available])
-fi
-
-
-
-
-dnl Checks for the libical calendaring library.
-if test "x$with_libical" != xno ; then
-	AC_CHECK_HEADERS(ical.h,
-		[AC_CHECK_LIB(ical, icalcomponent_new,
-			[ok_libical=yes],,
-	)])
-fi
-
-if test "x$ok_libical" = xyes ; then
-
-	AC_TRY_RUN(
+AC_CHECK_HEADER(expat.h,
+	[AC_CHECK_LIB(expat, XML_ParserCreateNS,
 		[
-#include <ical.h>
-main() {
-        int major, minor, v;
-        sscanf(ICAL_VERSION, "%d.%d", &major, &minor);
-        v = 100*major + minor;
-        printf("libical version: %i\n", v);
-        if (v >= 24) {
-                printf("This version is ok.\n");
-		return(0);
-	}
-	printf("libical 0.24 or newer required.\n");
-	printf("Citadel will be built without calendar support.\n");
-	return(1);
-}
-		], 
+			SERVER_LIBS="-lexpat $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(The Expat XML parser was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(expat.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+
+dnl Checks for the libical iCalendar library.
+AC_CHECK_HEADER(ical.h,
+	[AC_CHECK_LIB(ical, icalcomponent_new,
 		[
 			SERVER_LIBS="-lical $SERVER_LIBS"
-			AC_DEFINE(HAVE_LIBICAL, [], [define this if you have the libical calendaring library available])
+		],
+		[
+			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
 		]
-	)
-fi
+	,
+	)],
+	[
+		AC_MSG_ERROR(ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+
+dnl Checks for the libsieve mailbox sorting library.
+AC_CHECK_HEADER(sieve2.h,
+	[AC_CHECK_LIB(sieve, sieve2_license,
+		[
+			SERVER_LIBS="-lsieve $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(libsieve was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(sieve2.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
 
 
 
@@ -899,11 +881,8 @@ fi
 
 echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
-echo 'Calendar support:                ' $ok_libical
 echo 'LDAP support:                    ' $ok_ldap
-echo 'Sieve mailbox filtering support: ' $ok_libsieve
 echo 'DSpam Scanning support:          ' $ok_libdspam
-echo 'Expat XML parser present:        ' $ok_expat
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
 echo '(gmake) to compile Citadel.'

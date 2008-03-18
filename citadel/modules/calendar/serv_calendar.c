@@ -19,6 +19,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include <ical.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -32,10 +33,6 @@
 #include "serv_calendar.h"
 #include "euidindex.h"
 #include "ctdl_module.h"
-
-#ifdef CITADEL_WITH_CALENDAR_SERVICE
-
-#include <ical.h>
 #include "ical_dezonify.h"
 
 
@@ -2173,8 +2170,6 @@ void serv_calendar_destroy(void)
 	icaltimezone_free_builtin_timezones();
 }
 
-#endif	/* CITADEL_WITH_CALENDAR_SERVICE */
-
 /*
  * Register this module with the Citadel server.
  */
@@ -2182,7 +2177,6 @@ CTDL_MODULE_INIT(calendar)
 {
 	if (!threading)
 	{
-#ifdef CITADEL_WITH_CALENDAR_SERVICE
 		CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 		CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 		CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
@@ -2192,7 +2186,6 @@ CTDL_MODULE_INIT(calendar)
 		CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
 		CtdlRegisterFixedOutputHook("application/ics", ical_fixed_output);
 		CtdlRegisterCleanupHook(serv_calendar_destroy);
-#endif
 	}
 	
 	/* return our Subversion id for the Log */

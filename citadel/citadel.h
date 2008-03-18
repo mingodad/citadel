@@ -11,15 +11,6 @@
 #define CITADEL_H
 /* #include <dmalloc.h> uncomment if using dmalloc */
 
-/* Build Citadel with the calendar service only if the header *and*
- * library for libical are both present.
- */
-#ifdef HAVE_LIBICAL
-#ifdef HAVE_ICAL_H
-#define CITADEL_WITH_CALENDAR_SERVICE 1
-#endif
-#endif
-
 #include "sysdep.h"
 #include <limits.h>
 #include "sysconfig.h"

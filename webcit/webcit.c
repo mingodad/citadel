@@ -1,13 +1,11 @@
 /*
  * $Id$
- */
-/**
- * \defgroup MainServer This is the main transaction loop of the web service.  It maintains a
+ *
+ * This is the main transaction loop of the web service.  It maintains a
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
- * \ingroup WebcitHttpServer
  */
-/*@{*/
+
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
@@ -15,7 +13,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/**
+/*
  * String to unset the cookie.
  * Any date "in the past" will work, so I chose my birthday, right down to
  * the exact minute.  :)
@@ -1422,12 +1420,10 @@ void session_loop(struct httprequest *req)
 		do_listsub();
 		goto SKIP_ALL_THIS_CRAP;
 	}
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	if (!strcasecmp(action, "freebusy")) {
 		do_freebusy(cmd);
 		goto SKIP_ALL_THIS_CRAP;
 	}
-#endif
 
 	/**
 	 * If we're not logged in, but we have HTTP Authentication data,
@@ -1786,7 +1782,6 @@ void session_loop(struct httprequest *req)
 		display_floorconfig(NULL);
 	} else if (!strcasecmp(action, "toggle_self_service")) {
 		toggle_self_service();
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	} else if (!strcasecmp(action, "display_edit_task")) {
 		display_edit_task();
 	} else if (!strcasecmp(action, "save_task")) {
@@ -1799,7 +1794,6 @@ void session_loop(struct httprequest *req)
 		respond_to_request();
 	} else if (!strcasecmp(action, "handle_rsvp")) {
 		handle_rsvp();
-#endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();
 	} else if (!strcasecmp(action, "summary_inner_div")) {

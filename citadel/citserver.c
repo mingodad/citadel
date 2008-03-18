@@ -308,13 +308,7 @@ void cmd_info(void) {
 	cprintf("%f\n", CtdlThreadWorkerAvg);
 	cprintf("%d\n", CtdlThreadGetCount());
 
-	/* Does this server support Sieve mail filtering? */
-#ifdef HAVE_LIBSIEVE
-	cprintf("1\n");		/* yes */
-#else
-	cprintf("0\n");		/* no */
-#endif
-
+	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
 	cprintf("%d\n", config.c_enable_fulltext);
 	
 	cprintf("000\n");

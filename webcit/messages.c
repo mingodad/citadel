@@ -1,12 +1,10 @@
 /*
  * $Id$
- */
-/**
- * \defgroup MsgDisp Functions which deal with the fetching and displaying of messages.
- * \ingroup WebcitDisplayItems
+ *
+ * Functions which deal with the fetching and displaying of messages.
  *
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
@@ -3140,8 +3138,7 @@ void display_enter(void)
 		return;
 	}
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	/**
+	/*
 	 * Are we perhaps in a calendar room?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
@@ -3150,7 +3147,7 @@ void display_enter(void)
 		return;
 	}
 
-	/**
+	/*
 	 * Are we perhaps in a tasks view?  If so, then an "enter
 	 * message" command really means "add new task."
 	 */
@@ -3158,9 +3155,8 @@ void display_enter(void)
 		display_edit_task();
 		return;
 	}
-#endif
 
-	/**
+	/*
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
 	 */
