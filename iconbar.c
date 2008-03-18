@@ -1,11 +1,9 @@
 /*
  * $Id$
+ *
+ * Displays and customizes the iconbar.
  */
-/**
- * \defgroup IconBar Displays and customizes the iconbar.
- * \ingroup MenuInfrastructure
- */
-/*@{*/
+
 #include "webcit.h"
 
 
@@ -602,7 +600,6 @@ void display_customize_iconbar(void) {
 		_("Your personal notes")
 	);
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	bar = 1 - bar;
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_calendar\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
@@ -636,7 +633,6 @@ void display_customize_iconbar(void) {
 		_("Tasks"),
 		_("A shortcut to your personal task list")
 	);
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
 	bar = 1 - bar;
 	wprintf("<tr class=\"%s\"><td>"

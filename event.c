@@ -1,18 +1,14 @@
 /*
  * $Id$
+ *
+ * Editing calendar events.
  */
-/**
- * \defgroup EditCal Editing calendar events.
- * \ingroup Calendaring
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-
-/**
+/*
  * \brief Display an event by itself (for editing)
  * \param supplied_vevent the event to edit
  * \param msgnum reference on the citserver
@@ -747,6 +743,3 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 }
 
 
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
-
-/*@}*/

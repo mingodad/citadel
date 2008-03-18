@@ -994,12 +994,10 @@ void worker_entry(void)
 				sleeeeeeeeeep(1); // wait so some others might finish...
 				lprintf(2, "master shutdown: cleaning up sessions\n");
 				do_housekeeping();
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 				lprintf(2, "master shutdown: cleaning up libical\n");
 				free_zone_directory ();
 				icaltimezone_release_zone_tab ();
 				icalmemory_free_ring ();
-#endif
 				lprintf(2, "master shutdown exiting!.\n");				
 				exit(0);
 			}

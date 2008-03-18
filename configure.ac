@@ -23,7 +23,6 @@ else
 	ssl_dir="$prefix/keys"
 fi
 
-AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(ssl,
 	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
@@ -176,47 +175,22 @@ AC_CHECK_HEADER(libcitadel.h,
 )
 
 
-webcit_with_calendar_service=no
-dnl Checks for the libical calendaring library.
-if test "x$with_libical" != xno ; then
-        AC_CHECK_HEADERS(ical.h,
-                [AC_CHECK_LIB(ical, icalcomponent_new,
-                        [ok_libical=yes],,
-        )])
-fi
-
-if test "x$ok_libical" = xyes ; then
-
-	AC_TRY_RUN(
-		[
-#include <ical.h>
-main() {
-        int major, minor, v;
-        sscanf(ICAL_VERSION, "%d.%d", &major, &minor);
-        v = 100*major + minor;
-        printf("libical version: %i\n", v);
-        if (v >= 30) {
-                printf("This version is ok.\n");
-		return(0);
-	}
-	printf("libical 0.30 or newer required.\n");
-	printf("Citadel will be built without calendar support.\n");
-	return(1);
-}
-		], 
+dnl Checks for the libical iCalendar library.
+AC_CHECK_HEADER(ical.h,
+	[AC_CHECK_LIB(ical, icalcomponent_new,
 		[
 			LIBS="-lical $LIBS"
-			AC_DEFINE(HAVE_LIBICAL,[],[whether we have libical available])
-			webcit_with_calendar_service=yes
+		],
+		[
+			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
 		]
-	)
-fi
-ok_libical=$webcit_with_calendar_service
+	,
+	)],
+	[
+		AC_MSG_ERROR(ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
 
-
-if test "$webcit_with_calendar_service" == "yes"; then
-			AC_DEFINE(WEBCIT_WITH_CALENDAR_SERVICE,[],[whether we can do with calendar.])
-fi
 
 dnl Checks for the zlib compression library.
 if test "x$with_zlib" != xno ; then
@@ -483,7 +457,6 @@ AC_OUTPUT(Makefile po/Makefile )
 
 echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
-echo 'Calendar support:                ' $ok_libical
 echo 'Character set conversion support:' $ok_iconv
 echo 'National language support:       ' $ok_nls
 echo 

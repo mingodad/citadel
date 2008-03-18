@@ -1,15 +1,13 @@
 /*
  * $Id$
+ *
+ * Displays the "Summary Page"
  */
-/**
- * \defgroup SymaryFuncs Displays the "Summary Page"
- * \ingroup WebcitDisplayItems
- */
-/*@{*/
+
 #include "webcit.h"
 
-/**
- * \brief Display today's date in a friendly format
+/*
+ * Display today's date in a friendly format
  */
 void output_date(void) {
 	struct tm tm;
@@ -78,12 +76,9 @@ void new_messages_section(void) {
  * \brief Task list section
  */
 void tasks_section(void) {
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	int num_msgs = 0;
 	int i;
-#endif
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_TASKS_");
 	if (WC->wc_view != VIEW_TASKS) {
 		num_msgs = 0;
@@ -104,12 +99,6 @@ void tasks_section(void) {
 	}
 
 	calendar_summary_view();
-
-#else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<i>");
-	wprintf(_("(This server does not support task lists)"));
-	wprintf("</i>\n");
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 }
 
 
@@ -117,12 +106,9 @@ void tasks_section(void) {
  * \brief Calendar section
  */
 void calendar_section(void) {
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	int num_msgs = 0;
 	int i;
-#endif
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("_CALENDAR_");
 	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
 		num_msgs = 0;
@@ -142,12 +128,6 @@ void calendar_section(void) {
 		}
 		calendar_summary_view();
 	}
-
-#else /* WEBCIT_WITH_CALENDAR_SERVICE */
-	wprintf("<i>");
-	wprintf(_("(This server does not support calendars)"));
-	wprintf("</i>\n");
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 }
 
 /**

@@ -1,17 +1,11 @@
- /*
+/*
  * $Id$
+ *
+ * Handles the HTML display of calendar items.
  */
-/**
- * \defgroup CalHtmlHandles Handles the HTML display of calendar items.
- * \ingroup Calendaring
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
-
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-
-/****************************************************************************/
 
 
 void embeddable_mini_calendar(int year, int month, char *urlformat)
@@ -1507,26 +1501,3 @@ void do_tasks_view(void) {
 
 }
 
-#else	/* WEBCIT_WITH_CALENDAR_SERVICE */
-
-/**\brief stub for non-libical builds */
-void do_calendar_view(void) {
-	wprintf("<center><i>");
-	wprintf(_("The calendar view is not available."));
-	wprintf("</i></center><br />\n");
-}
-
-/**\brief stub for non-libical builds */
-void do_tasks_view(void) {	
-	wprintf("<center><I>");
-	wprintf(_("The tasks view is not available."));
-	wprintf("</i></center><br />\n");
-}
-
-/**\brief stub for non-libical builds */
-void ajax_mini_calendar(void) {
-}
-
-#endif	/* WEBCIT_WITH_CALENDAR_SERVICE */
-
-/** @} */

@@ -1,16 +1,14 @@
 /*
  * $Id$
+ *
+ * Administrative screen for site-wide configuration
  */
-/**
- * \defgroup AdminConfig Administrative screen for site-wide configuration
- * \ingroup CitadelConfig
- */
-/*@{*/
+
 
 #include "webcit.h"
 #include "webserver.h"
 
-/**
+/*
  * \brief display all configuration items
  */
 void display_siteconfig(void)
@@ -486,7 +484,6 @@ void display_siteconfig(void)
 			if (strlen(buf) == 0) {
 				strcpy(buf, "UTC");
 			}
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 			sprintf(&general[strlen(general)], "<TR><TD>");
 			sprintf(&general[strlen(general)], _("Default timezone for unzoned calendar items"));
 			sprintf(&general[strlen(general)], "</TD><TD>");
@@ -526,9 +523,6 @@ void display_siteconfig(void)
 
 			sprintf(&general[strlen(general)], "</select>");
 			sprintf(&general[strlen(general)], "</TD></TR>\n");
-#else /* WEBCIT_WITH_CALENDAR_SERVICE */
-			wprintf("<input type=\"hidden\" name=\"c_default_cal_zone\" value=\"%s\">\n", buf);
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 			break;
 		case 50:
 			sprintf(&network[strlen(network)], "<TR><TD>");

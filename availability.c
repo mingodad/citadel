@@ -1,23 +1,13 @@
 /*
  * $Id$
- */
-/**
  *
- * \defgroup CalendarAv  Check attendee availability for scheduling a meeting.
- * \ingroup Calendaring
  */
-/*@{*/
 
 
 #include "webcit.h"
 #include "webserver.h"
 
-/** only available if we have calendaring */
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-
-
-
-/**
+/*
  * \brief verify users avaiability
  * Utility function to fetch a VFREEBUSY type of thing for
  * any specified user.
@@ -261,7 +251,3 @@ void check_attendee_availability(icalcomponent *vevent) {
 
 }
 
-
-#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
-
-/** @} */

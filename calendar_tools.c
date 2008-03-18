@@ -1,11 +1,9 @@
 /*
  * $Id$
+ *
+ * Miscellaneous functions which handle calendar components.
  */
-/**
- * \defgroup MiscCal Miscellaneous functions which handle calendar components.
- * \ingroup Calendaring
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
@@ -17,9 +15,7 @@ char *hourname[] = {
 	"7pm", "8pm", "9pm", "10pm", "11pm"
 };
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
-
-/**
+/*
  * \brief display and edit date/time
  * The display_icaltimetype_as_webform() and icaltime_from_webform() functions
  * handle the display and editing of date/time properties in web pages.  The
@@ -294,7 +290,3 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 }
 
 
-
-
-#endif
-/*@}*/
