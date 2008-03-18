@@ -24,6 +24,8 @@ void display_siteconfig(void)
 	char purger[SIZ];
 	char idxjnl[SIZ];
 	char funambol[SIZ];
+	char pop3[SIZ];
+	
 	/** expire policy settings */
 	int sitepolicy = 0;
 	int sitevalue = 0;
@@ -61,7 +63,8 @@ void display_siteconfig(void)
 		_("Directory"),
 		_("Auto-purger"),
 		_("Indexing/Journaling"),
-		_("Push Email")
+		_("Push Email"),
+		_("Pop3 Fetching")
 	};
 
 	sprintf(general, "<center><h1>%s</h1><table border=\"0\">",
@@ -105,6 +108,10 @@ void display_siteconfig(void)
 		_("Push Email")
 		);
 
+	sprintf(pop3, "<center><h1>%s</h1><table border=\"0\">",
+		_("POP3 Mail Fetching")
+		);
+		
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	
@@ -626,6 +633,21 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "<input type=\"hidden\" name=\"c_xmpp_s2s_port\" value=\"%s\">\n", buf);
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
+		case 64:
+			sprintf(&pop3[strlen(pop3)], "<tr><td>");
+			sprintf(&pop3[strlen(pop3)], _("POP3 fetch frequency in seconds"));
+			sprintf(&pop3[strlen(pop3)], "</td><td>");
+			sprintf(&pop3[strlen(pop3)], "<input type=\"text\" name=\"c_pop3_fetch\" MAXLENGTH=\"5\" value=\"%s\">\n", buf);
+			sprintf(&pop3[strlen(pop3)], "</TD></TR>\n");
+			break;
+		case 65:
+			sprintf(&pop3[strlen(pop3)], "<tr><td>");
+			sprintf(&pop3[strlen(pop3)], _("POP3 fastest fetch frequency in seconds"));
+			sprintf(&pop3[strlen(pop3)], "</td><td>");
+			sprintf(&pop3[strlen(pop3)], "<input type=\"text\" name=\"c_pop3_fastest\" MAXLENGTH=\"5\" value=\"%s\">\n", buf);
+			sprintf(&pop3[strlen(pop3)], "</TD></TR>\n");
+			break;
+			
 		}
 	
 	}
@@ -702,17 +724,19 @@ void display_siteconfig(void)
 	sprintf(&purger[strlen(purger)], "</table>");
 	sprintf(&idxjnl[strlen(idxjnl)], "</table>");
 	sprintf(&funambol[strlen(funambol)], "</table>");
+	sprintf(&pop3[strlen(pop3)], "</table>");
 
-	tabbed_dialog(8, tabnames);
+	tabbed_dialog(9, tabnames);
 
-	begin_tab(0, 8);	client_write(general, strlen(general));		 end_tab(0, 8);
-	begin_tab(1, 8);	client_write(access, strlen(access));		 end_tab(1, 8);
-	begin_tab(2, 8);	client_write(network, strlen(network));		 end_tab(2, 8);
-	begin_tab(3, 8);	client_write(tuning, strlen(tuning));		 end_tab(3, 8);
-	begin_tab(4, 8);	client_write(directory, strlen(directory));	 end_tab(4, 8);
-	begin_tab(5, 8);	client_write(purger, strlen(purger));		 end_tab(5, 8);
-	begin_tab(6, 8);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 8);
-	begin_tab(7, 8);	client_write(funambol, strlen(funambol));	 end_tab(7, 8);
+	begin_tab(0, 9);	client_write(general, strlen(general));		 end_tab(0, 9);
+	begin_tab(1, 9);	client_write(access, strlen(access));		 end_tab(1, 9);
+	begin_tab(2, 9);	client_write(network, strlen(network));		 end_tab(2, 9);
+	begin_tab(3, 9);	client_write(tuning, strlen(tuning));		 end_tab(3, 9);
+	begin_tab(4, 9);	client_write(directory, strlen(directory));	 end_tab(4, 9);
+	begin_tab(5, 9);	client_write(purger, strlen(purger));		 end_tab(5, 9);
+	begin_tab(6, 9);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 9);
+	begin_tab(7, 9);	client_write(funambol, strlen(funambol));	 end_tab(7, 9);
+	begin_tab(8, 9);	client_write(pop3, strlen(pop3));	 	 end_tab(8, 9);
 	wprintf("<div class=\"tabcontent_submit\">");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
@@ -804,6 +828,8 @@ void siteconfig(void)
 	serv_printf("%s", ((!strcasecmp(bstr("c_imap_keep_from"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_xmpp_c2s_port"));
 	serv_printf("%s", bstr("c_xmpp_s2s_port"));
+	serv_printf("%s", bstr("c_pop3_fetch"));
+	serv_printf("%s", bstr("c_pop3_fastest"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
