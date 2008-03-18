@@ -46,6 +46,7 @@ struct pop3aggr {
 	char pop3user[128];
 	char pop3pass[128];
 	int keep;
+	time_t interval;
 };
 
 struct pop3aggr *palist = NULL;
@@ -70,18 +71,28 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 	lprintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
+	
+	if (CtdlThreadCheckStop())
+		return;
+		
 	sock = sock_connect(pop3host, "110", "tcp");
 	if (sock < 0) {
 		lprintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 		return;
 	}
 	
+	if (CtdlThreadCheckStop())
+		goto bail;
+
 	lprintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	if (CtdlThreadCheckStop())
+		goto bail;
 
 	/* Identify ourselves.  NOTE: we have to append a CR to each command.  The LF will
 	 * automatically be appended by sock_puts().  Believe it or not, leaving out the CR
@@ -95,6 +106,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
+	if (CtdlThreadCheckStop())
+		goto bail;
+
 	/* Password */
 	snprintf(buf, sizeof buf, "PASS %s\r", pop3pass);
 	lprintf(CTDL_DEBUG, "<PASS <password>\n");
@@ -102,6 +116,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
+
+	if (CtdlThreadCheckStop())
+		goto bail;
 
 	/* Get the list of messages */
 	snprintf(buf, sizeof buf, "LIST\r");
@@ -111,7 +128,13 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
+	if (CtdlThreadCheckStop())
+		goto bail;
+
 	do {
+		if (CtdlThreadCheckStop())
+			goto bail;
+
 		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 		lprintf(CTDL_DEBUG, ">%s\n", buf);
 		msg_to_fetch = atoi(buf);
@@ -142,6 +165,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 		snprintf(utmsgid, sizeof utmsgid, "pop3/%s/%s@%s", roomname, this_uidl, pop3host);
 
+		if (CtdlThreadCheckStop())
+			goto bail;
+
 		cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 		if (cdbut != NULL) {
 			/* message has already been seen */
@@ -162,6 +188,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			lprintf(CTDL_DEBUG, ">%s\n", buf);
 			if (strncasecmp(buf, "+OK", 3)) goto bail;
 	
+			if (CtdlThreadCheckStop())
+				goto bail;
+
 			/* If we get to this point, the message is on its way.  Read it. */
 			body = CtdlReadMessageBody(".", config.c_maxmsglen, NULL, 1, sock);
 			if (body == NULL) goto bail;
@@ -215,6 +244,9 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	FILE *fp;
 	struct pop3aggr *pptr;
 
+	if (CtdlThreadCheckStop())
+		return;
+
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
 	/* Only do net processing for rooms that have netconfigs */
@@ -235,6 +267,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				extract_token(pptr->pop3user, buf, 2, '|', sizeof pptr->pop3user);
 				extract_token(pptr->pop3pass, buf, 3, '|', sizeof pptr->pop3pass);
 				pptr->keep = extract_int(buf, 4);
+				pptr->interval = extract_long(buf, 5);
 				pptr->next = palist;
 				palist = pptr;
 			}
@@ -251,11 +284,17 @@ void pop3client_scan(void) {
 	static time_t last_run = 0L;
 	static int doing_pop3client = 0;
 	struct pop3aggr *pptr;
+	time_t fastest_scan;
+	
+	if (config.c_pop3_fastest < config.c_pop3_fetch)
+		fastest_scan = config.c_pop3_fastest;
+	else
+		fastest_scan = config.c_pop3_fetch;
 
 	/*
 	 * Run POP3 aggregation no more frequently than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < config.c_net_freq ) {
+	if ( (time(NULL) - last_run) < fastest_scan ) {
 		return;
 	}
 
@@ -271,9 +310,11 @@ void pop3client_scan(void) {
 	lprintf(CTDL_DEBUG, "pop3client started\n");
 	ForEachRoom(pop3client_scan_room, NULL);
 
-	while (palist != NULL) {
-		pop3_do_fetching(palist->roomname, palist->pop3host,
-				palist->pop3user, palist->pop3pass, palist->keep);
+	while (palist != NULL && !CtdlThreadCheckStop()) {
+		if ((palist->interval && time(NULL) > (last_run + palist->interval))
+			|| (time(NULL) > last_run + config.c_pop3_fetch))
+				pop3_do_fetching(palist->roomname, palist->pop3host,
+					palist->pop3user, palist->pop3pass, palist->keep);
 		pptr = palist;
 		palist = palist->next;
 		free(pptr);
