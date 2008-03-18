@@ -52,6 +52,8 @@
  */
 void cmd_rwho(char *argbuf) {
 	struct CitContext *cptr;
+	struct CitContext *nptr;
+	int nContexts, i;
 	int spoofed = 0;
 	int user_spoofed = 0;
 	int room_spoofed = 0;
@@ -61,10 +63,31 @@ void cmd_rwho(char *argbuf) {
 	char real_room[ROOMNAMELEN], room[ROOMNAMELEN];
 	char host[64], flags[5];
 	
+	/* So that we don't keep the context list locked for a long time
+	 * we create a copy of it first
+	 */
+	
+
+	nContexts = num_sessions;
+	nptr = malloc(sizeof(struct CitContext) * nContexts);
+	if (!nptr)
+	{
+		/* Couldn't malloc so we have to bail but stick to the protocol */
+		cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
+		cprintf("000\n");
+		return;
+	}
+	begin_critical_section(S_SESSION_TABLE);
+	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
+	{
+		memcpy(&nptr[i], cptr, sizeof (struct CitContext));
+	}
+	end_critical_section (S_SESSION_TABLE);
+	
 	aide = CC->user.axlevel >= 6;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
 	
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) 
+	for (i=0; i<nContexts; i++) 
 	{
 		flags[0] = '\0';
 		spoofed = 0;
@@ -72,33 +95,33 @@ void cmd_rwho(char *argbuf) {
 		room_spoofed = 0;
 		host_spoofed = 0;
 		
-		if (cptr->cs_flags & CS_POSTING)
+		if (nptr[i].cs_flags & CS_POSTING)
 		   strcat(flags, "*");
 		else
 		   strcat(flags, ".");
 		   
-		if (cptr->fake_username[0])
+		if (nptr[i].fake_username[0])
 		{
-		   strcpy(un, cptr->fake_username);
+		   strcpy(un, nptr[i].fake_username);
 		   spoofed = 1;
 		   user_spoofed = 1;
 		}
 		else
-		   strcpy(un, cptr->curr_user);
+		   strcpy(un, nptr[i].curr_user);
 		   
-		if (cptr->fake_hostname[0])
+		if (nptr[i].fake_hostname[0])
 		{
-		   strcpy(host, cptr->fake_hostname);
+		   strcpy(host, nptr[i].fake_hostname);
 		   spoofed = 1;
 		   host_spoofed = 1;
 		}
 		else
-		   strcpy(host, cptr->cs_host);
+		   strcpy(host, nptr[i].cs_host);
 
-		GenerateRoomDisplay(real_room, cptr, CC);
+		GenerateRoomDisplay(real_room, &nptr[i], CC);
 
-		if (cptr->fake_roomname[0]) {
-			strcpy(room, cptr->fake_roomname);
+		if (nptr[i].fake_roomname[0]) {
+			strcpy(room, nptr[i].fake_roomname);
 			spoofed = 1;
 			room_spoofed = 1;
 		}
@@ -110,21 +133,21 @@ void cmd_rwho(char *argbuf) {
                 	strcat(flags, "+");
 		}
 		
-		if ((cptr->cs_flags & CS_STEALTH) && (aide)) {
+		if ((nptr[i].cs_flags & CS_STEALTH) && (aide)) {
 			strcat(flags, "-");
 		}
 		
-		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+		if (((nptr[i].cs_flags&CS_STEALTH)==0) || (aide))
 		{
 			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s|",
-				cptr->cs_pid, un, room,
-				host, cptr->cs_clientname,
-				(long)(cptr->lastidle),
-				cptr->lastcmdname, flags
+				nptr[i].cs_pid, un, room,
+				host, nptr[i].cs_clientname,
+				(long)(nptr[i].lastidle),
+				nptr[i].lastcmdname, flags
 			);
 
 			if ((user_spoofed) && (aide)) {
-				cprintf("%s|", cptr->curr_user);
+				cprintf("%s|", nptr[i].curr_user);
 			}
 			else {
 				cprintf("|");
@@ -138,15 +161,18 @@ void cmd_rwho(char *argbuf) {
 			}
 	
 			if ((host_spoofed) && (aide)) {
-				cprintf("%s|", cptr->cs_host);
+				cprintf("%s|", nptr[i].cs_host);
 			}
 			else {
 				cprintf("|");
 			}
 	
-			cprintf("%d\n", cptr->logged_in);
+			cprintf("%d\n", nptr[i].logged_in);
 		}
 	}
+	
+	/* release out copy of the context list */
+	free(nptr);
 
 	/* Now it's magic time.  Before we finish, call any EVT_RWHO hooks
 	 * so that external paging modules such as serv_icq can add more
