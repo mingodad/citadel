@@ -63,7 +63,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 63
+#define NUM_CONFIGS 65
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -282,6 +282,8 @@ void do_system_configuration(CtdlIPC *ipc)
 	}
 
 	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
+	strprompt("Default frequency to run POP3 collection (in seconds)", &sc[64][0], 5);
+	strprompt("Fastest frequency to run POP3 collection (in seconds)", &sc[65][0], 5);
 	strprompt("Hour to run purges (0-23)", &sc[31][0], 2);
 	snprintf(sc[42], sizeof sc[42], "%d", (boolprompt(
 		"Enable full text search index (warning: resource intensive)",
@@ -969,12 +971,14 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 			"      Remote POP3 host       "
 			"         User name           "
 			"Keep on server? "
+			"Fetching inteval"
 			"\n");
 		color(DIM_WHITE);
 		scr_printf(	"--- "
 			"---------------------------- "
 			"---------------------------- "
 			"--------------- "
+			"---------------- "
 			"\n");
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
@@ -989,7 +993,9 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 		scr_printf("%-28s ", buf);
 
 		color(BRIGHT_CYAN);
-		scr_printf("%-15s\n", (extract_int(recs[i], 4) ? "Yes" : "No") );
+		scr_printf("%-15s ", (extract_int(recs[i], 4) ? "Yes" : "No") );
+		color(BRIGHT_MAGENTA);
+		scr_printf("%ld\n", extract_long(recs[i], 5) );
 		color(DIM_WHITE);
 		}
 
@@ -1012,6 +1018,8 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 				strcat(buf, "|");
 				scr_printf("Keep messages on server instead of deleting them? ");
 				sprintf(&buf[strlen(buf)], "%d", yesno());
+				strcat(buf, "|");
+				newprompt("Enter interval : ", &buf[strlen(buf)], 5);
 				strcat(buf, "|");
 				recs[num_recs-1] = strdup(buf);
 				modified = 1;
