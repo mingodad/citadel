@@ -64,7 +64,7 @@ void display_siteconfig(void)
 		_("Auto-purger"),
 		_("Indexing/Journaling"),
 		_("Push Email"),
-		_("Pop3 Fetching")
+		_("Pop3")
 	};
 
 	sprintf(general, "<center><h1>%s</h1><table border=\"0\">",
@@ -109,7 +109,7 @@ void display_siteconfig(void)
 		);
 
 	sprintf(pop3, "<center><h1>%s</h1><table border=\"0\">",
-		_("POP3 Mail Fetching")
+		_("POP3")
 		);
 		
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
@@ -294,11 +294,11 @@ void display_siteconfig(void)
 			sprintf(&tuning[strlen(tuning)], "</td></tr>\n");
 			break;
 		case 23:
-			sprintf(&network[strlen(network)], "<tr><td>");
-			sprintf(&network[strlen(network)], _("POP3 listener port (-1 to disable)"));
-			sprintf(&network[strlen(network)], "</td><td>");
-			sprintf(&network[strlen(network)], "<input type=\"text\" name=\"c_pop3_port\" maxlength=\"5\" value=\"%s\">", buf);
-			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			sprintf(&pop3[strlen(pop3)], "<tr><td>");
+			sprintf(&pop3[strlen(pop3)], _("POP3 listener port (-1 to disable)"));
+			sprintf(&pop3[strlen(pop3)], "</td><td>");
+			sprintf(&pop3[strlen(pop3)], "<input type=\"text\" name=\"c_pop3_port\" maxlength=\"5\" value=\"%s\">", buf);
+			sprintf(&pop3[strlen(pop3)], "</TD></TR>\n");
 			break;
 		case 24:
 			sprintf(&network[strlen(network)], "<TR><TD>");
@@ -419,11 +419,11 @@ void display_siteconfig(void)
 			sprintf(&network[strlen(network)], "</TD></TR>\n");
 			break;
 		case 40:
-			sprintf(&network[strlen(network)], "<TR><TD>");
-			sprintf(&network[strlen(network)], _("POP3 over SSL port (-1 to disable)"));
-			sprintf(&network[strlen(network)], "</TD><TD>");
-			sprintf(&network[strlen(network)], "<input type=\"text\" NAME=\"c_pop3s_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
-			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			sprintf(&pop3[strlen(pop3)], "<TR><TD>");
+			sprintf(&pop3[strlen(pop3)], _("POP3 over SSL port (-1 to disable)"));
+			sprintf(&pop3[strlen(pop3)], "</TD><TD>");
+			sprintf(&pop3[strlen(pop3)], "<input type=\"text\" NAME=\"c_pop3s_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			sprintf(&pop3[strlen(pop3)], "</TD></TR>\n");
 			break;
 		case 41:
 			sprintf(&network[strlen(network)], "<TR><TD>");
