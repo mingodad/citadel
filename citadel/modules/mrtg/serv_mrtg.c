@@ -83,6 +83,7 @@ void mrtg_users(void) {
 	
 	struct CitContext *cptr;
 
+	begin_critical_section(S_SESSION_TABLE);
         for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 
 		if (cptr->internal_pgm == 0) {
@@ -94,7 +95,8 @@ void mrtg_users(void) {
 		}
 
 	}
-
+	end_critical_section(S_SESSION_TABLE);
+	
 	mrtg_output(connected_users, active_users);
 }
 
