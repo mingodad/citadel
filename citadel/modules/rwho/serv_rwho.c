@@ -68,8 +68,7 @@ void cmd_rwho(char *argbuf) {
 	 */
 	
 
-	nContexts = num_sessions;
-	nptr = malloc(sizeof(struct CitContext) * nContexts);
+	nptr = CtdlGetContextArray(&nContexts) ;
 	if (!nptr)
 	{
 		/* Couldn't malloc so we have to bail but stick to the protocol */
@@ -77,12 +76,6 @@ void cmd_rwho(char *argbuf) {
 		cprintf("000\n");
 		return;
 	}
-	begin_critical_section(S_SESSION_TABLE);
-	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
-	{
-		memcpy(&nptr[i], cptr, sizeof (struct CitContext));
-	}
-	end_critical_section (S_SESSION_TABLE);
 	
 	aide = CC->user.axlevel >= 6;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
