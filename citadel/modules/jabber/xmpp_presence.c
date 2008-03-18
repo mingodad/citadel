@@ -86,15 +86,20 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
 	static int unsolicited_id;
 	int visible_sessions = 0;
+	int nContexts, i;
 	int aide = (CC->user.axlevel >= 6);
 
 	if (IsEmptyStr(presence_jid)) return;
 
+	cptr = CtdlGetContextArray(&nContexts);
+	if (!cptr)
+		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
+		
 	/* Count the visible sessions for this user */
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (cptr->logged_in) {
-			if (  (!strcasecmp(cptr->cs_inet_email, presence_jid)) 
-			   && (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
+	for (i=0; i<nContexts; i++) {
+		if (cptr[i].logged_in) {
+			if (  (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) 
+			   && (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
 			   ) {
 				++visible_sessions;
 			}
@@ -109,13 +114,13 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
-		for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-			if (cptr->logged_in) {
-				if (!strcasecmp(cptr->cs_inet_email, presence_jid)) {
+		for (i=0; i<nContexts; i++) {
+			if (cptr[i].logged_in) {
+				if (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) {
 					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
 						++unsolicited_id);
 					cprintf("<query xmlns=\"jabber:iq:roster\">");
-					jabber_roster_item(cptr);
+					jabber_roster_item(&cptr[i]);
 					cprintf("</query>"
 						"</iq>");
 				}
@@ -142,6 +147,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		cprintf("</query>"
 			"</iq>");
 	}
+	free(cptr);
 }
 
 
