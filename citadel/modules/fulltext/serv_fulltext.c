@@ -207,6 +207,9 @@ void ft_index_msg(long msgnum, void *userdata) {
  */
 void ft_index_room(struct ctdlroom *qrbuf, void *data)
 {
+	if (CtdlThreadCheckStop())
+		return;
+		
 	getroom(&CC->room, qrbuf->QRname);
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, ft_index_msg, NULL);
 }
@@ -318,8 +321,12 @@ void do_fulltext_indexing(void) {
 		ft_newmsgs = NULL;
 	}
 	end_time = time(NULL);
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
 
+	if (CtdlThreadCheckStop())
+		return;
+	
+	lprintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
+		
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();
 	begin_critical_section(S_CONTROL);
