@@ -460,6 +460,24 @@ struct CitContext *CreateNewContext(void) {
 }
 
 
+struct CitContext *CtdlGetContextArray(int *count)
+{
+	int nContexts, i;
+	struct CitContext *nptr, *cptr;
+	
+	nContexts = num_sessions;
+	nptr = malloc(sizeof(struct CitContext) * nContexts);
+	if (!nptr)
+		return NULL;
+	begin_critical_section(S_SESSION_TABLE);
+	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
+		memcpy(&nptr[i], cptr, sizeof (struct CitContext));
+	end_critical_section (S_SESSION_TABLE);
+	
+	*count = i;
+	return nptr;
+}
+
 /*
  * The following functions implement output buffering. If the kernel supplies
  * native TCP buffering (Linux & *BSD), use that; otherwise, emulate it with

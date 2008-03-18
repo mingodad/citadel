@@ -138,5 +138,15 @@ void CtdlThreadAllocTSD(void);
 #define MYTID		(((ThreadTSD*)pthread_getspecific(ThreadKey))->tid)
 #define CT		(((ThreadTSD*)pthread_getspecific(ThreadKey))->self)
 
+/** return the current context list as an array and do it in a safe manner
+ * The returned data is a copy so only reading is useful
+ * The number of contexts is returned in count.
+ * Beware, this does not copy any of the data pointed to by the context.
+ * This means that you can not rely on things like the redirect buffer being valid.
+ * You must free the returned pointer when done.
+ */
+struct CitContext *CtdlGetContextArray (int *count);
+
+
 
 #endif /* CTDL_MODULE_H */
