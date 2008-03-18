@@ -54,19 +54,26 @@
 void jabber_wholist_presence_dump(void)
 {
 	struct CitContext *cptr = NULL;
+	int nContexts, i;
+	
 	int aide = (CC->user.axlevel >= 6);
 
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (cptr->logged_in) {
+	cptr = CtdlGetContextArray(&nContexts);
+	if (!cptr)
+		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
+		
+	for (i=0; i<nContexts; i++) {
+		if (cptr[i].logged_in) {
 			if (
-			   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))		/* aides see everyone */
-			   && (cptr->user.usernum != CC->user.usernum)		/* don't show myself */
+			   (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))		/* aides see everyone */
+			   && (cptr[i].user.usernum != CC->user.usernum)		/* don't show myself */
 			   ) {
 				cprintf("<presence type=\"available\" from=\"%s\"></presence>",
-					cptr->cs_inet_email);
+					cptr[i].cs_inet_email);
 			}
 		}
 	}
+	free(cptr);
 }
 
 

@@ -99,11 +99,13 @@ void xmpp_queue_event(int event_type, char *email_addr) {
 	end_critical_section(S_XMPP_QUEUE);
 
 	/* Tell the sessions that something is happening */
+	begin_critical_section(S_SESSION_TABLE);
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if ((cptr->logged_in) && (cptr->h_async_function == xmpp_async_loop)) {
 			cptr->async_waiting = 1;
 		}
 	}
+	end_critical_section(S_SESSION_TABLE);
 }
 
 

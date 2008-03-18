@@ -70,21 +70,26 @@ void jabber_roster_item(struct CitContext *cptr) {
 void jabber_iq_roster_query(void)
 {
 	struct CitContext *cptr;
+	int nContexts, i;
 	int aide = (CC->user.axlevel >= 6);
 
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (cptr->logged_in) {
+	cptr = CtdlGetContextArray(&nContexts);
+	if (!cptr)
+		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
+		
+	for (i=0; i<nContexts; i++) {
+		if (cptr[i].logged_in) {
 			if (
-			   (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
-			   && (cptr->user.usernum != CC->user.usernum)
+			   (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
+			   && (cptr[i].user.usernum != CC->user.usernum)
 			   ) {
-				jabber_roster_item(cptr);
+				jabber_roster_item(&cptr[i]);
 			}
 		}
 	}
-
+	free (cptr);
 	cprintf("</query>");
 }
 
