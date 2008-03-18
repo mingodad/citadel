@@ -638,8 +638,23 @@ void CtdlThreadGC (void)
 		that_thread = this_thread;
 		this_thread = this_thread->next;
 		
+		if ((that_thread->state == CTDL_THREAD_STOP_REQ || that_thread->state == CTDL_THREAD_STOPPING)
+			&& (!citthread_equal(that_thread->tid, citthread_self())))
+				that_thread->stop_ticker++;
+		
+		if (that_thread->stop_ticker == 5)
+		{
+			CtdlLogPrintf(CTDL_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate withing 5 ticks. Canceling it.\n", that_thread->name, that_thread->tid);
+			if ((that_thread->flags & CTDLTHREAD_WORKER) == 0)
+				CtdlLogPrintf(CTDL_INFO, "Thread System: A non worker thread was canceled this may cause message loss.\n");
+			that_thread->state = CTDL_THREAD_CANCELLED;
+			that_thread->stop_ticker++;
+			citthread_cancel(that_thread->tid);
+			continue;
+		}
+		
 		/* Do we need to clean up this thread? */
-		if (that_thread->state != CTDL_THREAD_EXITED)
+		if ((that_thread->state != CTDL_THREAD_EXITED) && (that_thread->state != CTDL_THREAD_CANCELLED))
 		{
 			if(that_thread->flags & CTDLTHREAD_WORKER)
 				workers++;	/* Sanity check on number of worker threads */
@@ -690,7 +705,7 @@ void CtdlThreadGC (void)
 		else if (ret == ESRCH)
 			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, no thread to join on.\n");
 		else if (ret != 0)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, citthread_join returned an unknown error.\n");
+			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, citthread_join returned an unknown error(%d).\n", ret);
 		/*
 		 * Now we own that thread entry
 		 */

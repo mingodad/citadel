@@ -56,6 +56,7 @@ struct CtdlThreadNode{
 	void *user_args;			/* Arguments passed to this threads work function */
 	long flags;				/* Flags that describe this thread */
 	enum CtdlThreadState state;		/* Flag to show state of this thread */
+	int stop_ticker;			/* A counter to determine how long it has taken for this thread to exit */
 	citthread_mutex_t ThreadMutex;		/* A mutex to sync this thread to others if this thread allows (also used for sleeping) */
 	citthread_cond_t ThreadCond;		/* A condition variable to sync this thread with others */
 	citthread_mutex_t SleepMutex;		/* A mutex for sleeping */
