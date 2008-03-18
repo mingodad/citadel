@@ -404,6 +404,9 @@ void rss_do_fetching(char *url, char *rooms) {
 	if (parse_url(url, rsshost, &rssport, rssurl) != 0) {
 		lprintf(CTDL_ALERT, "Invalid URL: %s\n", url);
 	}
+	
+	if (CtdlThreadCheckStop())
+		return;
 
 	xp = XML_ParserCreateNS("UTF-8", ':');
 	if (!xp) {
@@ -417,44 +420,72 @@ void rss_do_fetching(char *url, char *rooms) {
 	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
 	XML_SetUserData(xp, &ri);
 
+	if (CtdlThreadCheckStop())
+	{
+		XML_ParserFree(xp);
+		return;
+	}
+	
 retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 	sprintf(buf, "%d", rssport);
 	sock = sock_connect(rsshost, buf, "tcp");
 	if (sock >= 0) {
 		lprintf(CTDL_DEBUG, "Connected!\n");
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		snprintf(buf, sizeof buf, "GET %s HTTP/1.0", rssurl);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		snprintf(buf, sizeof buf, "Host: %s", rsshost);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		snprintf(buf, sizeof buf, "User-Agent: %s", CITADEL);
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		snprintf(buf, sizeof buf, "Accept: */*");
 		lprintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		sock_puts(sock, "");
 
+		if (CtdlThreadCheckStop())
+			goto shutdown ;
+			
 		if (sock_getln(sock, buf, sizeof buf) >= 0) {
-		lprintf(CTDL_DEBUG, ">%s\n", buf);
+			lprintf(CTDL_DEBUG, ">%s\n", buf);
 			remove_token(buf, 0, ' ');
 
 			/* 200 OK */
 			if (buf[0] == '2') {
 
-			        while (got_bytes = sock_getln(sock, buf, sizeof buf),
+				while (got_bytes = sock_getln(sock, buf, sizeof buf),
 				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
+					if (CtdlThreadCheckStop())
+						goto shutdown ;
 					/* discard headers */
 				}
 
 				while (got_bytes = sock_read(sock, buf, sizeof buf, 0),
 				      ((got_bytes>=0) && (ri.done_parsing == 0)) ) {
+					if (CtdlThreadCheckStop())
+						goto shutdown ;
 					XML_Parse(xp, buf, got_bytes, 0);
 				}
 				if (ri.done_parsing == 0) XML_Parse(xp, "", 0, 1);
@@ -464,6 +495,8 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 			else if ( (!strncmp(buf, "30", 2)) && (redirect_count < 16) ) {
 			        while (got_bytes = sock_getln(sock, buf, sizeof buf),
 				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
+					if (CtdlThreadCheckStop())
+						goto shutdown ;
 					if (!strncasecmp(buf, "Location:", 9)) {
 						++redirect_count;
 						strcpy(buf, &buf[9]);
@@ -480,6 +513,7 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 			}
 
 		}
+shutdown:
 		sock_close(sock);
 	}
 	else {
@@ -522,13 +556,16 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
+	if (CtdlThreadCheckStop())
+		return;
+		
 	/* Only do net processing for rooms that have netconfigs */
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		return;
 	}
 
-	while (fgets(buf, sizeof buf, fp) != NULL) {
+	while (fgets(buf, sizeof buf, fp) != NULL && !CtdlThreadCheckStop()) {
 		buf[strlen(buf)-1] = 0;
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
@@ -611,7 +648,7 @@ void *rssclient_scan(void *args) {
 	lprintf(CTDL_DEBUG, "rssclient started\n");
 	ForEachRoom(rssclient_scan_room, NULL);
 
-	while (rnclist != NULL) {
+	while (rnclist != NULL && !CtdlThreadCheckStop()) {
 		rss_do_fetching(rnclist->url, rnclist->rooms);
 		rptr = rnclist;
 		rnclist = rnclist->next;
@@ -622,7 +659,10 @@ void *rssclient_scan(void *args) {
 	lprintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
-	CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, last_run + config.c_net_freq);
+	if (!CtdlThreadCheckStop())
+		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, last_run + config.c_net_freq);
+	else
+		CtdlLogPrintf(CTDL_DEBUG, "rssclient: Task STOPPED.\n");
 	return NULL;
 }
 
