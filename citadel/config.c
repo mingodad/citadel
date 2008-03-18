@@ -117,6 +117,16 @@ void get_config(void) {
 	if (config.c_net_freq < 300L) 
 		config.c_net_freq = 300L;
 
+	/* Same goes for POP3 */
+	if (config.c_pop3_fetch == 0L)
+		config.c_pop3_fetch = 3600L;	/* once per hour default */
+	if (config.c_pop3_fetch < 300L) 
+		config.c_pop3_fetch = 300L;
+	if (config.c_pop3_fastest == 0L)
+		config.c_pop3_fastest = 3600L;	/* once per hour default */
+	if (config.c_pop3_fastest < 300L) 
+		config.c_pop3_fastest = 300L;
+
 	/* "create new user" only works with native authentication mode */
 	if (config.c_auth_mode != AUTHMODE_NATIVE) {
 		config.c_disable_newu = 1;

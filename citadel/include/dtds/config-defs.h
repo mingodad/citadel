@@ -86,3 +86,5 @@ CFG_VALUE(STRING_BUF(c_pager_program, 256), 	" External pager program (blank to 
 CFG_VALUE(CHAR(c_imap_keep_from),		" IMAP keep original from header in msgs");
 CFG_VALUE(INTEGER(c_xmpp_c2s_port),		" XMPP client-to-server port (usually 5222)");
 CFG_VALUE(INTEGER(c_xmpp_s2s_port),		" XMPP server-to-server port (usually 5269)");
+CFG_VALUE(TIME(c_pop3_fetch),		" How often to fetch POP3 messages");
+CFG_VALUE(TIME(c_pop3_fastest),		" Users can specify POP3 fetching this often");
