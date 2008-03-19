@@ -500,7 +500,8 @@ void display_siteconfig(void)
 			int z;
 			long len;
 			char this_zone[128];
-			char *ZName, *ZNamee;
+			char *ZName;
+			void *ZNamee;
 			HashList *List;
 			HashPos  *it;
 
@@ -519,9 +520,9 @@ void display_siteconfig(void)
 			}
 			SortByHashKey(List);
 			it = GetNewHashPos();
-			while (GetNextHashPos(List, it, &len, &ZName, (void**)&ZNamee)) {
+			while (GetNextHashPos(List, it, &len, &ZName, &ZNamee)) {
 				sprintf(&general[strlen(general)], "<option %s value=\"%s\">%s</option>\n",
-					(!strcasecmp(ZName, buf) ? "selected" : ""),
+					(!strcasecmp((char*)ZName, buf) ? "selected" : ""),
 					ZName, ZName
 				);
 			}

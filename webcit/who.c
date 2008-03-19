@@ -52,6 +52,7 @@ int GetWholistSection(HashList *List, time_t now)
 {
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	UserStateStruct *User, *OldUser;
+	void *VOldUser;
 	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
 		realroom[SIZ], realhost[SIZ];
 	size_t BufLen;
@@ -89,7 +90,8 @@ int GetWholistSection(HashList *List, time_t now)
 			User->Idle = (now - User->LastActive) > 900L;
 			User->SessionCount = 1;
 
-			if (GetHash(List, User->UserName, User->UserNameLen, (void**)&OldUser)) {
+			if (GetHash(List, User->UserName, User->UserNameLen, &VOldUser)) {
+				OldUser = VOldUser;
 				OldUser->SessionCount++;
 				if (!User->Idle) {
 					if (User->Session == WCC->ctdl_pid) 
@@ -115,6 +117,7 @@ int GetWholistSection(HashList *List, time_t now)
  */
 void who_inner_div(void) {
 	UserStateStruct *User;
+	void *VUser;
 	char buf[SIZ];
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	HashList *List;
@@ -146,8 +149,8 @@ void who_inner_div(void) {
 
 	if (GetWholistSection(List, now)) {
 		it = GetNewHashPos();
-		while (GetNextHashPos(List, it, &len, &UserName, (void**)&User)) {
-
+		while (GetNextHashPos(List, it, &len, &UserName, &VUser)) {
+			User = VUser;
 			bg = 1 - bg;
 			wprintf("<tr class=\"%s\">",
 				(bg ? "even" : "odd")
@@ -393,6 +396,7 @@ void edit_me(void)
  */
 void wholist_section(void) {
 	UserStateStruct *User;
+	void *VUser;
 	HashList *List;
 	HashPos  *it;
 	char *UserName;
@@ -414,7 +418,8 @@ void wholist_section(void) {
 	if (GetWholistSection(List, now)) {
 		SortByPayload(List, CompareUserStruct);
 		it = GetNewHashPos();
-		while (GetNextHashPos(List, it, &len, &UserName, (void**)&User)) {
+		while (GetNextHashPos(List, it, &len, &UserName, &VUser)) {
+			User = VUser;
 			if (strcmp(User->UserName, NLI)) {
 				wprintf("<li class=\"");
 				if (User->Idle) {

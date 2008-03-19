@@ -107,15 +107,15 @@ void save_preferences(void) {
 		long len;
 		HashPos *HashPos;
 		HashList *Hash;
-		char *Value;
+		void *Value;
 		char *Key;
 		
 		Hash = WC->hash_prefs;
 		PrintHash(Hash, PrintPref, NULL);
 		HashPos = GetNewHashPos();
-		while (GetNextHashPos(Hash, HashPos, &len, &Key, (void**)&Value)!=0)
+		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
 		{
-			serv_printf("%s|%s", Key, Value);
+			serv_printf("%s|%s", Key, (char*)Value);
 		}
 		serv_puts("");
 		serv_puts("000");
