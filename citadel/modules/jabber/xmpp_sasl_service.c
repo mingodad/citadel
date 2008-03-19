@@ -59,7 +59,6 @@ int xmpp_auth_plain(char *authstring)
 	char user[256];
 	char pass[256];
 	int result;
-	char *ptr = NULL;
 
 
 	/* Take apart the authentication string */
@@ -117,7 +116,7 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 		return;
 	}
 
-        if (CC->logged_in) logout(CC);  /* Client may try to log in twice.  Handle this. */
+        if (CC->logged_in) logout();  /* Client may try to log in twice.  Handle this. */
 
 	if (xmpp_auth_plain(authstring) == 0) {
 		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
@@ -138,7 +137,7 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 void jabber_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
 
-        if (CC->logged_in) logout(CC);  /* Client may try to log in twice.  Handle this. */
+        if (CC->logged_in) logout();  /* Client may try to log in twice.  Handle this. */
 
 	result = CtdlLoginExistingUser(NULL, username);
 	if (result == login_ok) {
