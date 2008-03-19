@@ -759,7 +759,7 @@ void *purge_databases(void *args)
         struct tm tm;
 	struct CitContext purgerCC;
 
-	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
+	lprintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
 
 	memset(&purgerCC, 0, sizeof(struct CitContext));
 	purgerCC.internal_pgm = 1;
