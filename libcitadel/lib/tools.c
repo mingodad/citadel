@@ -772,6 +772,9 @@ char *bmstrcasestr(char *text, char *pattern) {
 	size_t textlen;
 	size_t patlen;
 
+	if (!text) return(NULL);
+	if (!pattern) return(NULL);
+
 	textlen = strlen (text);
 	patlen = strlen (pattern);
 
