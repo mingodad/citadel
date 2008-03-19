@@ -9,7 +9,7 @@ int is_room_aide (void);
 int getuserbynumber (struct ctdluser *usbuf, long int number);
 void cmd_user (char *cmdbuf);
 void session_startup (void);
-void logout (struct CitContext *who);
+void logout (void);
 void cmd_pass (char *buf);
 int purge_user (char *pname);
 int create_user (char *newusername, int become_user);

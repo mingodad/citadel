@@ -142,7 +142,7 @@ int CtdlIPCQuit(CtdlIPC *ipc)
 
 
 /*
- * Asks the server to logout.  Should always return 200, even if no user
+ * Asks the server to log out.  Should always return 200, even if no user
  * was logged in.  The user will not be logged in after this!
  */
 int CtdlIPCLogout(CtdlIPC *ipc)

@@ -619,50 +619,51 @@ void logged_in_response(void)
 /* 
  * misc things to be taken care of when a user is logged out
  */
-void logout(struct CitContext *who)
+void logout(void)
 {
+	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
+	/*
+	 * If there is a download in progress, abort it.
+	 */
+	if (CCC->download_fp != NULL) {
+		fclose(CCC->download_fp);
+		CCC->download_fp = NULL;
+	}
+
+	/*
+	 * If there is an upload in progress, abort it.
+	 */
+	if (CCC->upload_fp != NULL) {
+		abort_upl(CCC);
+	}
+
+	/*
+	 * If we were talking to a network node, we're not anymore...
+	 */
+	if (!IsEmptyStr(CCC->net_node)) {
+		network_talking_to(CCC->net_node, NTT_REMOVE);
+	}
+
+	/* Run any hooks registered by modules... */
+	PerformSessionHooks(EVT_LOGOUT);
+	
 	/*
 	 * Clear out some session data.  Most likely, the CitContext for this
 	 * session is about to get nuked when the session disconnects, but
 	 * since it's possible to log in again without reconnecting, we cannot
 	 * make that assumption.
 	 */
-	strcpy(who->fake_username, "");
-	strcpy(who->fake_hostname, "");
-	strcpy(who->fake_roomname, "");
-	who->logged_in = 0;
+	strcpy(CCC->fake_username, "");
+	strcpy(CCC->fake_hostname, "");
+	strcpy(CCC->fake_roomname, "");
+	CCC->logged_in = 0;
 
-	/*
-	 * If there is a download in progress, abort it.
-	 */
-	if (who->download_fp != NULL) {
-		fclose(who->download_fp);
-		who->download_fp = NULL;
-	}
-
-	/*
-	 * If there is an upload in progress, abort it.
-	 */
-	if (who->upload_fp != NULL) {
-		abort_upl(who);
-	}
-
-	/*
-	 * If we were talking to a network node, we're not anymore...
-	 */
-	if (!IsEmptyStr(who->net_node)) {
-		network_talking_to(who->net_node, NTT_REMOVE);
-	}
-
-	/* Do modular stuff... */
-	PerformSessionHooks(EVT_LOGOUT);
-	
 	/* Check to see if the user was deleted whilst logged in and purge them if necessary */
-	if (who->user.axlevel == 0)
-		purge_user(who->user.fullname);
+	if (CCC->user.axlevel == 0)
+		purge_user(CCC->user.fullname);
 
 	/* Free any output buffers */
-	if (who->output_buffer != NULL) {
+	if (CCC->output_buffer != NULL) {
 		unbuffer_output();
 	}
 }

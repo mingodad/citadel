@@ -248,12 +248,9 @@ void RemoveContext (struct CitContext *con)
 	 *       might make references to "CC" assuming it's the right one.
 	 */
 	become_session(con);
+	logout();
 	PerformSessionHooks(EVT_STOP);
 	become_session(NULL);
-
-	/* Now handle all of the administrivia. */
-	lprintf(CTDL_DEBUG, "Calling logout(%d)\n", con->cs_pid);
-	logout(con);
 
 	lprintf(CTDL_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
@@ -1085,7 +1082,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
-		if (CC->logged_in) logout(CC);
+		if (CC->logged_in) logout();
 		cprintf("%d logged out.\n", CIT_OK);
 	}
 
