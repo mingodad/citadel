@@ -29,7 +29,8 @@ void address_book_popup(void) {
 void display_address_book_middle_div(void) {
 	char buf[256];
 	long len;
-	char *Name, *Namee;
+	char *Name;
+	void *Namee;
 	HashList *List;
 	HashPos  *it;
 
@@ -63,11 +64,11 @@ void display_address_book_middle_div(void) {
 
 	SortByHashKey(List);
 	it = GetNewHashPos();
-	while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
+	while (GetNextHashPos(List, it, &len, &Name, &Namee)) {
 		wprintf("<option value=\"");
-		urlescputs(Namee);
+		urlescputs((char*)Namee);
 		wprintf("\">");
-		escputs(Namee);
+		escputs((char*)Namee);
 		wprintf("</option>\n");
 	}
 	DeleteHashPos(&it);
@@ -100,7 +101,8 @@ void display_address_book_inner_div() {
 	char target_id[64];
 	char target_label[64];
 	long len;
-	char *Name, *Namee;
+	char *Name;
+	void *Namee;
 	HashList *List;
 	HashPos  *it;
 	int i;
@@ -123,11 +125,11 @@ void display_address_book_inner_div() {
 		}
 		SortByHashKey(List);
 		it = GetNewHashPos();
-		while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
+		while (GetNextHashPos(List, it, &len, &Name, &Namee)) {
 			wprintf("<option value=\"");
-			escputs(Namee);
+			escputs((char*)Namee);
 			wprintf("\">");
-			escputs(Namee);
+			escputs((char*)Namee);
 			wprintf("</option>\n");
 		}
 		DeleteHashPos(&it);
@@ -149,9 +151,9 @@ void display_address_book_inner_div() {
 		it = GetNewHashPos();
 		while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
 			wprintf("<option value=\"");
-			escputs(Namee);
+			escputs((char*)Namee);
 			wprintf("\">");
-			escputs(Namee);
+			escputs((char*)Namee);
 			wprintf("</option>\n");
 		}
 		DeleteHashPos(&it);
