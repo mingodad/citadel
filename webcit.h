@@ -250,6 +250,7 @@ struct serv_info {
 	char serv_default_cal_zone[128];/* Default timezone for unspecified calendar items */
 	int serv_supports_sieve;	/* Does the server support Sieve mail filtering? */
 	int serv_fulltext_enabled;	/* Does the server have the full text index enabled? */
+	char serv_svn_revision[256];	/* SVN revision of the server */
 };
 
 

@@ -137,10 +137,11 @@ void server_info_section(void) {
 	char message[512];
 
 	snprintf(message, sizeof message,
-		_("You are connected to %s, running %s with %s, and located in %s.  Your system administrator is %s."),
+		_("You are connected to %s, running %s with %s, server build %s and located in %s.  Your system administrator is %s."),
 		serv_info.serv_humannode,
 		serv_info.serv_software,
 		PACKAGE_STRING,
+		serv_info.serv_svn_revision,
 		serv_info.serv_bbs_city,
 		serv_info.serv_sysadm);
 	escputs(message);
