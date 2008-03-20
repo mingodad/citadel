@@ -2294,7 +2294,7 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS OLD");
 	}
 	else if (!strcmp(oper, "do_search")) {
-		sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+		snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 	}
 	else {
 		strcpy(cmd, "MSGS ALL");
@@ -2303,7 +2303,7 @@ void readloop(char *oper)
 	if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
 		if (!strcmp(oper, "do_search")) {
-			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 		}
 		else {
 			strcpy(cmd, "MSGS ALL");
@@ -2313,7 +2313,7 @@ void readloop(char *oper)
 	if ((WCC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		if (!strcmp(oper, "do_search")) {
-			sprintf(cmd, "MSGS SEARCH|%s", bstr("query"));
+			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 		}
 		else {
 			strcpy(cmd, "MSGS ALL");
@@ -2322,7 +2322,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {			/**< fetch header summary */
-		snprintf(cmd, sizeof cmd, "MSGS %s|%s||1",
+		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
 			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
 			(!strcmp(oper, "do_search") ? bstr("query") : "")
 		);
