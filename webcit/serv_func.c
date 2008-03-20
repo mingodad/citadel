@@ -92,6 +92,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 21:
 			serv_info.serv_fulltext_enabled = atoi(buf);
 			break;
+		case 22:
+			safestrncpy(serv_info.serv_svn_revision, buf, sizeof serv_info.serv_svn_revision);
+			break;
 		}
 		++a;
 	}

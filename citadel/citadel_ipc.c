@@ -80,6 +80,9 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
 static void CtdlIPC_putline(CtdlIPC *ipc, const char *buf);
 
 
+
+const char *svn_revision(void);
+
 /*
  * Does nothing.  The server should always return 200.
  */
@@ -716,6 +719,20 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 			case 14:	ipc->ServInfo.supports_ldap = atoi(buf);
 					break;
 			case 15:	ipc->ServInfo.newuser_disabled = atoi(buf);
+					break;
+			case 16:	strcpy(ipc->ServInfo.default_cal_zone, buf);
+					break;
+			case 17:	ipc->ServInfo.load_avg = atof(buf);
+					break;
+			case 18:	ipc->ServInfo.worker_avg = atof(buf);
+					break;
+			case 19:	ipc->ServInfo.thread_count = atoi(buf);
+					break;
+			case 20:	ipc->ServInfo.has_sieve = atoi(buf);
+					break;
+			case 21:	ipc->ServInfo.fulltext_enabled = atoi(buf);
+					break;
+			case 22:	strcpy(ipc->ServInfo.svn_revision, buf);
 					break;
 			}
 		}

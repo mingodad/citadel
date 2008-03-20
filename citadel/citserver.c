@@ -307,6 +307,7 @@ void cmd_info(void) {
 
 	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
 	cprintf("%d\n", config.c_enable_fulltext);
+	cprintf("%s\n", svn_revision());
 	
 	cprintf("000\n");
 }

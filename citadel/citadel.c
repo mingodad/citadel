@@ -1020,6 +1020,7 @@ void system_info(CtdlIPC *ipc)
 
 	scr_printf("You are connected to %s (%s) @%s\n", ipc->ServInfo.nodename, ipc->ServInfo.humannode, ipc->ServInfo.fqdn);
 	scr_printf("running %s with text client v%.2f,\n", ipc->ServInfo.software, (float)REV_LEVEL/100);
+	scr_printf("server build %s,\n", ipc->ServInfo.svn_revision, (float)REV_LEVEL/100);
     scr_printf("and located in %s.\n", ipc->ServInfo.site_location);
     scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
     scr_printf("Server uptime: %s\n", mrtg_server_uptime);

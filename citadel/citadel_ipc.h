@@ -48,6 +48,13 @@ struct CtdlServInfo {
 	int supports_qnop;
 	int supports_ldap;
 	int newuser_disabled;
+	char default_cal_zone[256];
+	double load_avg;
+	double worker_avg;
+	int thread_count;
+	int has_sieve;
+	int fulltext_enabled;
+	char svn_revision[256];
 };
 
 /* This class is responsible for the server connection */
