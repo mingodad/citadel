@@ -84,7 +84,11 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	whobbs.c \
 	crc16.c journaling.c citadel_dirs.c threads.c
 
+
 include Make_sources
+
+svn_revision.c: ${SOURCES}
+	./mk_svn_revision.sh
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
 
@@ -125,7 +129,8 @@ SERV_OBJS = server_main.o \
 	locate_host.o housekeeping.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o\
-	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES)
+	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES) \
+	svn_revision.o
 
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver

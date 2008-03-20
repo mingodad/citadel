@@ -72,6 +72,10 @@ const char *CitadelServiceTCP="citadel-TCP";
 
 void go_threading(void);
 
+/*
+ * For the subversion revision number
+ */
+const char *svn_revision(void);
 
 /*
  * Here's where it all begins.
@@ -200,6 +204,8 @@ int main(int argc, char **argv)
 	CtdlLogPrintf(CTDL_NOTICE,
 		"*** Citadel server engine v%d.%02d ***\n",
 		(REV_LEVEL/100), (REV_LEVEL%100));
+	CtdlLogPrintf(CTDL_NOTICE,
+		"*** Build number %s ***\n", svn_revision());
 	CtdlLogPrintf(CTDL_NOTICE,
 		"Copyright (C) 1987-2008 by the Citadel development team.\n");
 	CtdlLogPrintf(CTDL_NOTICE,
