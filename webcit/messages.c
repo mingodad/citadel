@@ -2220,7 +2220,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
  */
 void readloop(char *oper)
 {
-	char cmd[256];
+	char cmd[256] = "";
 	char buf[SIZ];
 	char old_msgs[SIZ];
 	int a, b;
