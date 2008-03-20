@@ -1161,8 +1161,8 @@ do_select:	force_purge = 0;
 			tv.tv_usec = 0;
 			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
 		}
-
-		if (CtdlThreadCheckStop()) return(NULL);
+		else
+			return NULL;
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -1182,6 +1182,7 @@ do_select:	force_purge = 0;
 			}
 		}
 		else if(retval == 0) {
+			if (CtdlThreadCheckStop()) return(NULL);
 			goto SKIP_SELECT;
 		}
 		/* Next, check to see if it's a new client connecting

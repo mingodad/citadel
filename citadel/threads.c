@@ -57,7 +57,7 @@ static int num_workers = 0;			/* Current number of worker threads */
 CtdlThreadNode *CtdlThreadList = NULL;
 CtdlThreadNode *CtdlThreadSchedList = NULL;
 
-static citthread_t GC_thread;
+static CtdlThreadNode *GC_thread = NULL;
 static char *CtdlThreadStates[CTDL_THREAD_LAST_STATE];
 double CtdlThreadLoadAvg = 0;
 double CtdlThreadWorkerAvg = 0;
@@ -220,7 +220,6 @@ void ctdl_thread_internal_init(void)
 	CtdlThreadNode *this_thread;
 	int ret = 0;
 	
-	GC_thread = citthread_self();
 	CtdlThreadStates[CTDL_THREAD_INVALID] = strdup ("Invalid Thread");
 	CtdlThreadStates[CTDL_THREAD_VALID] = strdup("Valid Thread");
 	CtdlThreadStates[CTDL_THREAD_CREATE] = strdup("Thread being Created");
@@ -257,7 +256,8 @@ void ctdl_thread_internal_init(void)
 
 	this_thread->name = "Garbage Collection Thread";
 	
-	this_thread->tid = GC_thread;
+	this_thread->tid = citthread_self();
+	GC_thread = this_thread;
 	CT = this_thread;
 	
 	num_threads++;	// Increase the count of threads in the system.
@@ -626,9 +626,9 @@ void CtdlThreadGC (void)
 	if(num_threads == 1)
 		CtdlThreadList->state = CTDL_THREAD_EXITED;
 	
-#ifdef WITH_THREADLOG
+// #ifdef WITH_THREADLOG
 	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
-#endif
+// #endif
 	/*
 	 * Woke up to do garbage collection
 	 */
@@ -641,10 +641,18 @@ void CtdlThreadGC (void)
 		if ((that_thread->state == CTDL_THREAD_STOP_REQ || that_thread->state == CTDL_THREAD_STOPPING)
 			&& (!citthread_equal(that_thread->tid, citthread_self())))
 				that_thread->stop_ticker++;
+		else
+		{
+			/**
+			 * Catch the situation where a worker was asked to stop but couldn't and we are not
+			 * shutting down.
+			 */
+			that_thread->stop_ticker = 0;
+		}
 		
 		if (that_thread->stop_ticker == 5)
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate withing 5 ticks. It would be cancelled now.\n", that_thread->name, that_thread->tid);
+			CtdlLogPrintf(CTDL_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate within 5 ticks. It would be cancelled now.\n", that_thread->name, that_thread->tid);
 			if ((that_thread->flags & CTDLTHREAD_WORKER) == 0)
 				CtdlLogPrintf(CTDL_INFO, "Thread System: A non worker thread would have been canceled this may cause message loss.\n");
 //			that_thread->state = CTDL_THREAD_CANCELLED;
@@ -1139,7 +1147,36 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 	
 	ctdl_thread_internal_change_state(CT, CTDL_THREAD_BLOCKED);
 	ret = select(n, readfds, writefds, exceptfds, timeout);
-	ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
+	/**
+	 * If the select returned <= 0 then it failed due to an error
+	 * or timeout so this thread could stop if asked to do so.
+	 * Anything else means it needs to continue unless the system is shutting down
+	 */
+	if (ret <= 0)
+	{
+		/**
+		 * select says nothing to do so we can change to running if we haven't been asked to stop.
+		 */
+		ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
+	}
+	else
+	{
+		/**
+		 * The select says this thread needs to do something useful.
+		 * This thread was in an idle state so it may have been asked to stop
+		 * but if the system isn't shutting down this thread is no longer
+		 * idle and select has given it a task to do so it must not stop
+		 * In this condition we need to force it into the running state.
+		 * CtdlThreadGC will clear its ticker for us.
+		 */
+		if (GC_thread->state > CTDL_THREAD_STOP_REQ)
+		{
+			citthread_mutex_lock(&CT->ThreadMutex); /* To prevent race condition of a sleeping thread */
+			CT->state = CTDL_THREAD_RUNNING;
+			citthread_mutex_unlock(&CT->ThreadMutex);
+		}
+	}
+
 	return ret;
 }
 
