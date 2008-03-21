@@ -58,6 +58,7 @@
 #include "policy.h"
 #include "control.h"
 #include "euidindex.h"
+#include "svn_revision.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

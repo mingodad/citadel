@@ -54,6 +54,7 @@
 #include "database.h"
 #include "user_ops.h"
 #include "housekeeping.h"
+#include "svn_revision.h"
 #include "citadel_dirs.c"
 
 #include "modules_init.h"
@@ -71,11 +72,6 @@ const char *CitadelServiceTCP="citadel-TCP";
 
 
 void go_threading(void);
-
-/*
- * For the subversion revision number
- */
-const char *svn_revision(void);
 
 /*
  * Here's where it all begins.
@@ -202,15 +198,11 @@ int main(int argc, char **argv)
 	CtdlLogPrintf(CTDL_NOTICE, "\n");
 	CtdlLogPrintf(CTDL_NOTICE, "\n");
 	CtdlLogPrintf(CTDL_NOTICE,
-		"*** Citadel server engine v%d.%02d ***\n",
-		(REV_LEVEL/100), (REV_LEVEL%100));
-	CtdlLogPrintf(CTDL_NOTICE,
-		"*** Build number %s ***\n", svn_revision());
-	CtdlLogPrintf(CTDL_NOTICE,
-		"Copyright (C) 1987-2008 by the Citadel development team.\n");
-	CtdlLogPrintf(CTDL_NOTICE,
-		"This program is distributed under the terms of the GNU "
-		"General Public License.\n");
+		"*** Citadel server engine v%d.%02d (build %s) ***\n",
+		(REV_LEVEL/100), (REV_LEVEL%100), svn_revision());
+	CtdlLogPrintf(CTDL_NOTICE, "Copyright (C) 1987-2008 by the Citadel development team.\n");
+	CtdlLogPrintf(CTDL_NOTICE, "This program is distributed under the terms of the GNU "
+					"General Public License.\n");
 	CtdlLogPrintf(CTDL_NOTICE, "\n");
 	CtdlLogPrintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
 	CtdlLogPrintf(CTDL_INFO, "%s\n", libcitadel_version_string());
