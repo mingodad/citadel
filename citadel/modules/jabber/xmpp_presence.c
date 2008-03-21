@@ -104,12 +104,12 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		}
 	}
 
-	lprintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
+	CtdlLogPrintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
 		visible_sessions, presence_jid, CC->cs_pid);
 
 	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
 
-		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
+		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		for (i=0; i<nContexts; i++) {
@@ -130,7 +130,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	}
 
 	if (visible_sessions == 0) {
-		lprintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
+		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
 
 		/* Transmit non-presence information */
 		cprintf("<presence type=\"unavailable\" from=\"%s\"></presence>", presence_jid);

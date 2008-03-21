@@ -414,7 +414,7 @@ void imap_append(int num_parms, char *parms[]) {
 	client_getln(buf, sizeof buf);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
-	lprintf(CTDL_DEBUG, "Converting CRLF to LF\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Converting CRLF to LF\n");
 	stripped_length = 0;
 	for (i=0; i<literal_length; ++i) {
 		if (strncmp(&Imap->transmitted_message[i], "\r\n", 2)) {
@@ -425,7 +425,7 @@ void imap_append(int num_parms, char *parms[]) {
 	literal_length = stripped_length;
 	Imap->transmitted_message[literal_length] = 0;	/* reterminate it */
 
-	lprintf(CTDL_DEBUG, "Converting message format\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Converting message format\n");
 	msg = convert_internet_message(Imap->transmitted_message);
 	Imap->transmitted_message = NULL;
 	Imap->transmitted_length = 0;

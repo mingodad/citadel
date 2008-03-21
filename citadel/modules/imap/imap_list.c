@@ -54,6 +54,7 @@
 #include "imap_acl.h"
 #include "imap_misc.h"
 #include "imap_list.h"
+#include "ctdl_module.h"
 
 
 /*
@@ -301,7 +302,7 @@ void imap_list(int num_parms, char *parms[])
 
 	}
 
-	lprintf(CTDL_DEBUG, "select metadata: %d to %d\n", select_metadata_left, select_metadata_right);
+	CtdlLogPrintf(CTDL_DEBUG, "select metadata: %d to %d\n", select_metadata_left, select_metadata_right);
 	/* FIXME blah, we have to do something with this */
 
 	/* The folder root appears immediately after the selection options,
@@ -359,7 +360,7 @@ void imap_list(int num_parms, char *parms[])
 			/* Might as well look for these while we're in here... */
 			if (parms[i][0] == '(') strcpy(parms[i], &parms[i][1]);
 			if (parms[i][strlen(parms[i])-1] == ')') parms[i][strlen(parms[i])-1] = 0;
-			lprintf(9, "evaluating <%s>\n", parms[i]);
+			CtdlLogPrintf(9, "evaluating <%s>\n", parms[i]);
 
 			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
 				return_subscribed = 1;

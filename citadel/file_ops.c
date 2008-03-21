@@ -97,7 +97,7 @@ int network_talking_to(char *nodename, int operation) {
 			break;
 	}
 
-	if (nttlist != NULL) lprintf(CTDL_DEBUG, "nttlist=<%s>\n", nttlist);
+	if (nttlist != NULL) CtdlLogPrintf(CTDL_DEBUG, "nttlist=<%s>\n", nttlist);
 	end_critical_section(S_NTTLIST);
 	return(retval);
 }

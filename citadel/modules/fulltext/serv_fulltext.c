@@ -81,7 +81,7 @@ void ft_flush_cache(void) {
 
 	for (i=0; i<65536; ++i) {
 		if ((time(NULL) - last_update) >= 10) {
-			lprintf(CTDL_INFO,
+			CtdlLogPrintf(CTDL_INFO,
 				"Flushing index cache to disk (%d%% complete)\n",
 				(i * 100 / 65536)
 			);
@@ -95,7 +95,7 @@ void ft_flush_cache(void) {
 			ftc_msgs[i] = NULL;
 		}
 	}
-	lprintf(CTDL_INFO, "Flushed index cache to disk (100%% complete)\n");
+	CtdlLogPrintf(CTDL_INFO, "Flushed index cache to disk (100%% complete)\n");
 }
 
 
@@ -110,7 +110,7 @@ void ft_index_message(long msgnum, int op) {
 	char *msgtext;
 	int tok;
 
-	lprintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
+	CtdlLogPrintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
 		(op ? "adding" : "removing") , msgnum
 	);
 
@@ -125,11 +125,11 @@ void ft_index_message(long msgnum, int op) {
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
-	lprintf(CTDL_DEBUG, "Wordbreaking message %ld...\n", msgnum);
+	CtdlLogPrintf(CTDL_DEBUG, "Wordbreaking message %ld...\n", msgnum);
 	wordbreaker(msgtext, &num_tokens, &tokens);
 	free(msgtext);
 
-	lprintf(CTDL_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
+	CtdlLogPrintf(CTDL_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -175,7 +175,7 @@ void ft_index_message(long msgnum, int op) {
 				}
 			}
 			else {
-				lprintf(CTDL_ALERT, "Invalid token %d !!\n", tok);
+				CtdlLogPrintf(CTDL_ALERT, "Invalid token %d !!\n", tok);
 			}
 		}
 
@@ -253,7 +253,7 @@ void do_fulltext_indexing(void) {
 	}
 	
 	run_time = time(NULL);
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() started (%ld)\n", run_time);
+	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() started (%ld)\n", run_time);
 	
 	/*
 	 * If we've switched wordbreaker modules, burn the index and start
@@ -261,9 +261,9 @@ void do_fulltext_indexing(void) {
 	 */
 	begin_critical_section(S_CONTROL);
 	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
-		lprintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
+		CtdlLogPrintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
 			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID);
-		lprintf(CTDL_INFO, "(re)initializing full text index\n");
+		CtdlLogPrintf(CTDL_INFO, "(re)initializing full text index\n");
 		cdb_trunc(CDB_FULLTEXT);
 		CitControl.MMfulltext = 0L;
 		put_control();
@@ -290,7 +290,7 @@ void do_fulltext_indexing(void) {
 		/* Here it is ... do each message! */
 		for (i=0; i<ft_num_msgs; ++i) {
 			if (time(NULL) != last_progress) {
-				lprintf(CTDL_DEBUG,
+				CtdlLogPrintf(CTDL_DEBUG,
 					"Indexed %d of %d messages (%d%%)\n",
 						i, ft_num_msgs,
 						((i*100) / ft_num_msgs)
@@ -301,14 +301,14 @@ void do_fulltext_indexing(void) {
 
 			/* Check to see if we need to quit early */
 			if (CtdlThreadCheckStop()) {
-				lprintf(CTDL_DEBUG, "Indexer quitting early\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Indexer quitting early\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
 			}
 
 			/* Check to see if we have to maybe flush to disk */
 			if (i >= FT_MAX_CACHE) {
-				lprintf(CTDL_DEBUG, "Time to flush.\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Time to flush.\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
 			}
@@ -325,7 +325,7 @@ void do_fulltext_indexing(void) {
 	if (CtdlThreadCheckStop())
 		return;
 	
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
+	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
 		
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();
@@ -336,7 +336,7 @@ void do_fulltext_indexing(void) {
 	end_critical_section(S_CONTROL);
 	last_index = time(NULL);
 
-	lprintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
+	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
 	return;
 }
 
@@ -346,7 +346,7 @@ void do_fulltext_indexing(void) {
 void *indexer_thread(void *arg) {
 	struct CitContext indexerCC;
 
-	lprintf(CTDL_DEBUG, "indexer_thread() initializing\n");
+	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
 	memset(&indexerCC, 0, sizeof(struct CitContext));
 	indexerCC.internal_pgm = 1;
@@ -358,7 +358,7 @@ void *indexer_thread(void *arg) {
 		CtdlThreadSleep(300);
 	}
 
-	lprintf(CTDL_DEBUG, "indexer_thread() exiting\n");
+	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() exiting\n");
 	return NULL;
 }
 

@@ -71,7 +71,7 @@ void pop3_cleanup_function(void) {
 	/* Don't do this stuff if this is not a POP3 session! */
 	if (CC->h_command_function != pop3_command_loop) return;
 
-	lprintf(CTDL_DEBUG, "Performing POP3 cleanup hook\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Performing POP3 cleanup hook\n");
 	if (POP3->msgs != NULL) free(POP3->msgs);
 
 	free(POP3);
@@ -125,7 +125,7 @@ void pop3_user(char *argbuf) {
 	strcpy(username, argbuf);
 	striplt(username);
 
-	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", username); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
@@ -208,7 +208,7 @@ void pop3_login(void)
 	if (msgs >= 0) {
 		cprintf("+OK %s is logged in (%d messages)\r\n",
 			CC->user.fullname, msgs);
-		lprintf(CTDL_NOTICE, "POP3 authenticated %s\n", CC->user.fullname);
+		CtdlLogPrintf(CTDL_NOTICE, "POP3 authenticated %s\n", CC->user.fullname);
 	}
 	else {
 		cprintf("-ERR Can't open your mailbox\r\n");
@@ -280,7 +280,7 @@ void pop3_pass(char *argbuf) {
 	strcpy(password, argbuf);
 	striplt(password);
 
-	/* lprintf(CTDL_DEBUG, "Trying <%s>\n", password); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", password); */
 	if (CtdlTryPassword(password) == pass_ok) {
 		pop3_login();
 	}
@@ -622,15 +622,15 @@ void pop3_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		lprintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
+		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
 	if (!strncasecmp(cmdbuf, "PASS", 4)) {
-		lprintf(CTDL_INFO, "POP3: PASS...\r\n");
+		CtdlLogPrintf(CTDL_INFO, "POP3: PASS...\r\n");
 	}
 	else {
-		lprintf(CTDL_INFO, "POP3: %s\r\n", cmdbuf);
+		CtdlLogPrintf(CTDL_INFO, "POP3: %s\r\n", cmdbuf);
 	}
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 

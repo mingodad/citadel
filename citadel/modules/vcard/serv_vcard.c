@@ -310,7 +310,7 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 	(void) CtdlDoDirectoryServiceFunc(ldap_dn, NULL, &objectlist, "ldap", DIRECTORY_SAVE_OBJECT);
 	
 	(void) CtdlDoDirectoryServiceFunc(NULL, NULL, &objectlist, "ldap", DIRECTORY_FREE_OBJECT);
-	lprintf(CTDL_DEBUG, "Directory Services write operation complete.\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Directory Services write operation complete.\n");
 }
 
 
@@ -327,18 +327,18 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	 * probably just the networker or something.
 	 */
 	if (CC->logged_in) {
-		lprintf(CTDL_DEBUG, "Checking for <%s>...\n", internet_addr);
+		CtdlLogPrintf(CTDL_DEBUG, "Checking for <%s>...\n", internet_addr);
 		if (CtdlDirectoryLookup(buf, internet_addr, sizeof buf) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
 				/* This address belongs to someone else.
 				 * Bail out silently without saving.
 				 */
-				lprintf(CTDL_DEBUG, "DOOP!\n");
+				CtdlLogPrintf(CTDL_DEBUG, "DOOP!\n");
 				return;
 			}
 		}
 	}
-	lprintf(CTDL_INFO, "Adding %s (%s) to directory\n",
+	CtdlLogPrintf(CTDL_INFO, "Adding %s (%s) to directory\n",
 			citadel_addr, internet_addr);
 	CtdlDirectoryAddUser(internet_addr, citadel_addr);
 }
@@ -465,7 +465,7 @@ void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
 	if (  (!strcasecmp(cbtype, "text/x-vcard"))
 	   || (!strcasecmp(cbtype, "text/vcard")) ) {
 
-		lprintf(CTDL_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
+		CtdlLogPrintf(CTDL_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
 		if (*v != NULL) {
 			vcard_free(*v);
 		}
@@ -543,7 +543,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	s = vcard_get_prop(v, "FN", 0, 0, 0);
-	if (s) lprintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
+	if (s) CtdlLogPrintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
 
 	if (yes_my_citadel_config) {
 		/* Bingo!  The user is uploading a new vCard, so
@@ -978,7 +978,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	struct vCard *v;
 
 	vcard_fn_to_n(vname, usbuf->fullname, sizeof vname);
-	lprintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
+	CtdlLogPrintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
 
 	/* Create and save the vCard */
 	v = vcard_new();
@@ -1280,11 +1280,11 @@ void check_get(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		lprintf(CTDL_CRIT, "Client disconnected: ending session.\n");
+		CtdlLogPrintf(CTDL_CRIT, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(CTDL_INFO, ": %s\n", cmdbuf);
+	CtdlLogPrintf(CTDL_INFO, ": %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
 
 	if (strcasecmp(cmdbuf, "GET "));
@@ -1302,13 +1302,13 @@ void check_get(void) {
 		{
 
 			cprintf("200 OK %s\n", internet_addr);
-			lprintf(CTDL_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
+			CtdlLogPrintf(CTDL_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
 		}
 		else 
 		{
 			cprintf("500 REJECT noone here by that name.\n");
 			
-			lprintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
+			CtdlLogPrintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
 		if (rcpt != NULL) free_recipients(rcpt);
 	}
@@ -1332,7 +1332,7 @@ void vcard_create_room(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCONTACTSROOM)) {
-		lprintf(CTDL_ERR, "Couldn't get the user CONTACTS room!\n");
+		CtdlLogPrintf(CTDL_ERR, "Couldn't get the user CONTACTS room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
@@ -1481,7 +1481,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			}
 			vcard_free(v);
 
-			lprintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
+			CtdlLogPrintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
 			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname);
 			CtdlFreeMessage(vmsg);
 		}

@@ -55,7 +55,7 @@ void xmpp_queue_event(int event_type, char *email_addr) {
 	int purged_something = 0;
 	struct CitContext *cptr;
 
-	lprintf(CTDL_DEBUG, "xmpp_queue_event(%d, %s)\n", event_type, email_addr);
+	CtdlLogPrintf(CTDL_DEBUG, "xmpp_queue_event(%d, %s)\n", event_type, email_addr);
 
 	/* Purge events more than a minute old */
 	begin_critical_section(S_XMPP_QUEUE);

@@ -73,14 +73,14 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	while (rplist != NULL) {
 
 		if (lgetroom(&qr, rplist->name) == 0) {
-			lprintf(CTDL_DEBUG, "Processing <%s>...\n", rplist->name);
+			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", rplist->name);
 			if ( (qr.QRflags & QR_MAILBOX) == 0) {
-				lprintf(CTDL_DEBUG, "  -- not a mailbox\n");
+				CtdlLogPrintf(CTDL_DEBUG, "  -- not a mailbox\n");
 			}
 			else {
 
 				qr.QRgen = time(NULL);
-				lprintf(CTDL_DEBUG, "  -- fixed!\n");
+				CtdlLogPrintf(CTDL_DEBUG, "  -- fixed!\n");
 			}
 			lputroom(&qr);
 		}
@@ -95,7 +95,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
  * quick fix to bump mailbox generation numbers
  */
 void bump_mailbox_generation_numbers(void) {
-	lprintf(CTDL_WARNING, "Applying security fix to mailbox rooms\n");
+	CtdlLogPrintf(CTDL_WARNING, "Applying security fix to mailbox rooms\n");
 	ForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
 	return;
@@ -128,7 +128,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	while (uplist != NULL) {
 
 		if (lgetuser(&us, uplist->user) == 0) {
-			lprintf(CTDL_DEBUG, "Processing <%s>...\n", uplist->user);
+			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", uplist->user);
 			if (us.uid == CTDLUID) {
 				us.uid = (-1);
 			}
@@ -145,7 +145,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
  * quick fix to change all CTDLUID users to (-1)
  */
 void convert_ctdluid_to_minusone(void) {
-	lprintf(CTDL_WARNING, "Applying uid changes\n");
+	CtdlLogPrintf(CTDL_WARNING, "Applying uid changes\n");
 	ForEachUser(cbtm_backend, NULL);
 	cbtm_backend(NULL, NULL);
 	return;
@@ -195,12 +195,12 @@ void update_config(void) {
 void check_server_upgrades(void) {
 
 	get_control();
-	lprintf(CTDL_INFO, "Server-hosted upgrade level is %d.%02d\n",
+	CtdlLogPrintf(CTDL_INFO, "Server-hosted upgrade level is %d.%02d\n",
 		(CitControl.version / 100),
 		(CitControl.version % 100) );
 
 	if (CitControl.version < REV_LEVEL) {
-		lprintf(CTDL_WARNING,
+		CtdlLogPrintf(CTDL_WARNING,
 			"Server hosted updates need to be processed at "
 			"this time.  Please wait...\n");
 	}
@@ -211,7 +211,7 @@ void check_server_upgrades(void) {
 	update_config();
 
 	if ((CitControl.version > 000) && (CitControl.version < 555)) {
-		lprintf(CTDL_EMERG,
+		CtdlLogPrintf(CTDL_EMERG,
 			"Your data files are from a version of Citadel\n"
 			"that is too old to be upgraded.  Sorry.\n");
 		exit(EXIT_FAILURE);

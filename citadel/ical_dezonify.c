@@ -40,13 +40,13 @@ icaltimezone *get_default_icaltimezone(void) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);
         }
         if (!zone) {
-		lprintf(CTDL_ALERT,
+		CtdlLogPrintf(CTDL_ALERT,
 			"Unable to load '%s' time zone.  Defaulting to UTC.\n",
 			default_zone_name);
                 zone = icaltimezone_get_utc_timezone();
 	}
 	if (!zone) {
-		lprintf(1, "Unable to load UTC time zone!\n");
+		CtdlLogPrintf(1, "Unable to load UTC time zone!\n");
 	}
         return zone;
 }
@@ -81,14 +81,14 @@ void ical_dezonify_backend(icalcomponent *cal,
 
 		/* Convert it to an icaltimezone type. */
 		if (tzid != NULL) {
-			/* lprintf(9, "                * Stringy supplied timezone is: '%s'\n", tzid); */
+			/* CtdlLogPrintf(9, "                * Stringy supplied timezone is: '%s'\n", tzid); */
 			if ( (!strcasecmp(tzid, "UTC")) || (!strcasecmp(tzid, "GMT")) ) {
 				utc_declared_as_tzid = 1;
-				/* lprintf(9, "                * ...and we handle that internally.\n"); */
+				/* CtdlLogPrintf(9, "                * ...and we handle that internally.\n"); */
 			}
 			else {
 				t = icalcomponent_get_timezone(cal, tzid);
-				/* lprintf(9, "                * ...and I %s have tzdata for that zone.\n",
+				/* CtdlLogPrintf(9, "                * ...and I %s have tzdata for that zone.\n",
 					(t ? "DO" : "DO NOT")
 				); */
 			}
@@ -114,24 +114,24 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	/* lprintf(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime)); */
+	/* CtdlLogPrintf(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime)); */
 
 	if (TheTime.is_utc) {
-		/* lprintf(9, "                * This property is ALREADY UTC.\n"); */
+		/* CtdlLogPrintf(9, "                * This property is ALREADY UTC.\n"); */
 	}
 
 	else if (utc_declared_as_tzid) {
-		/* lprintf(9, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid); */
+		/* CtdlLogPrintf(9, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid); */
 		TheTime.is_utc = 1;
 	}
 
 	else {
 		/* Do the conversion. */
 		if (t != NULL) {
-			/* lprintf(9, "                * Timezone prop found.  Converting to UTC.\n"); */
+			/* CtdlLogPrintf(9, "                * Timezone prop found.  Converting to UTC.\n"); */
 		}
 		else {
-			/* lprintf(9, "                * Converting default timezone to UTC.\n"); */
+			/* CtdlLogPrintf(9, "                * Converting default timezone to UTC.\n"); */
 		}
 
 		if (t == NULL) {
@@ -146,7 +146,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 	}
 
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
-	/* lprintf(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime)); */
+	/* CtdlLogPrintf(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime)); */
 
 	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
@@ -212,7 +212,7 @@ void ical_dezonify_recurse(icalcomponent *cal, icalcomponent *rcal) {
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
-	/* lprintf(9, "ical_dezonify() started\n"); */
+	/* CtdlLogPrintf(9, "ical_dezonify() started\n"); */
 
 	/* Convert all times to UTC */
 	ical_dezonify_recurse(cal, cal);
@@ -224,5 +224,5 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_free(vt);
 	}
 
-	/* lprintf(9, "ical_dezonify() completed\n"); */
+	/* CtdlLogPrintf(9, "ical_dezonify() completed\n"); */
 }

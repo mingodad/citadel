@@ -336,7 +336,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "From")) {
 		process_rfc822_addr(value, user, node, name);
-		lprintf(CTDL_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
+		CtdlLogPrintf(CTDL_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
 			msg->cm_fields['A'] = strdup(name);
@@ -366,7 +366,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "Message-ID")) {
 		if (msg->cm_fields['I'] != NULL) {
-			lprintf(CTDL_WARNING, "duplicate message id\n");
+			CtdlLogPrintf(CTDL_WARNING, "duplicate message id\n");
 		}
 
 		if (msg->cm_fields['I'] == NULL) {
@@ -560,7 +560,7 @@ void directory_key(char *key, char *addr) {
 	}
 	key[keylen++] = 0;
 
-	lprintf(CTDL_DEBUG, "Directory key is <%s>\n", key);
+	CtdlLogPrintf(CTDL_DEBUG, "Directory key is <%s>\n", key);
 }
 
 
@@ -603,7 +603,7 @@ void CtdlDirectoryInit(void) {
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
-	lprintf(CTDL_DEBUG, "Dir: %s --> %s\n",
+	CtdlLogPrintf(CTDL_DEBUG, "Dir: %s --> %s\n",
 		internet_addr, citadel_addr);
 	if (IsDirectory(internet_addr, 0) == 0) return;
 

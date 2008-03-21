@@ -51,7 +51,6 @@
  * display who's online
  */
 void cmd_rwho(char *argbuf) {
-	struct CitContext *cptr;
 	struct CitContext *nptr;
 	int nContexts, i;
 	int spoofed = 0;

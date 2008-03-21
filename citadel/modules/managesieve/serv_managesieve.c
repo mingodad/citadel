@@ -264,7 +264,7 @@ void cmd_mgsve_starttls(void)
 void cmd_mgsve_logout(struct sdm_userdata *u)
 {
 	cprintf("OK\r\n");
-	lprintf(CTDL_NOTICE, "MgSve bye.");
+	CtdlLogPrintf(CTDL_NOTICE, "MgSve bye.");
 	CC->kill_me = 1;
 }
 
@@ -513,11 +513,11 @@ void managesieve_command_loop(void) {
 		length = strlen(parms[0]);
 	}
 	if (length < 1) {
-		lprintf(CTDL_CRIT, "Client disconnected: ending session.\n");
+		CtdlLogPrintf(CTDL_CRIT, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(CTDL_INFO, "MANAGESIEVE: %s\n", cmdbuf);
+	CtdlLogPrintf(CTDL_INFO, "MANAGESIEVE: %s\n", cmdbuf);
 	if ((length>= 12) && (!strncasecmp(parms[0], "AUTHENTICATE", 12))){
 		cmd_mgsve_auth(num_parms, parms, &u);
 	}
@@ -562,7 +562,7 @@ void managesieve_command_loop(void) {
 	}
 	else {
 		cprintf("No Invalid access or command.\r\n");
-		lprintf(CTDL_INFO, "illegal Managesieve command: %s", parms[0]);
+		CtdlLogPrintf(CTDL_INFO, "illegal Managesieve command: %s", parms[0]);
 		CC->kill_me = 1;
 	}
 
@@ -578,7 +578,7 @@ void managesieve_cleanup_function(void) {
 	/* Don't do this stuff if this is not a managesieve session! */
 	if (CC->h_command_function != managesieve_command_loop) return;
 
-	lprintf(CTDL_DEBUG, "Performing managesieve cleanup hook\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Performing managesieve cleanup hook\n");
 	free(MGSVE);
 }
 

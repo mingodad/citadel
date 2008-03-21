@@ -115,7 +115,7 @@ void rss_save_item(struct rss_item *ri) {
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 	if (cdbut != NULL) {
 		/* Item has already been seen */
-		lprintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
+		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
 		cdb_free(cdbut);
 
 		/* rewrite the record anyway, to update the timestamp */
@@ -296,7 +296,7 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	}
 
 	if ( (!strcasecmp(el, "rss")) || (!strcasecmp(el, "rdf")) ) {
-		lprintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
 		ri->done_parsing = 1;
 	}
 
@@ -402,7 +402,7 @@ void rss_do_fetching(char *url, char *rooms) {
 
 	/* Parse the URL */
 	if (parse_url(url, rsshost, &rssport, rssurl) != 0) {
-		lprintf(CTDL_ALERT, "Invalid URL: %s\n", url);
+		CtdlLogPrintf(CTDL_ALERT, "Invalid URL: %s\n", url);
 	}
 	
 	if (CtdlThreadCheckStop())
@@ -410,7 +410,7 @@ void rss_do_fetching(char *url, char *rooms) {
 
 	xp = XML_ParserCreateNS("UTF-8", ':');
 	if (!xp) {
-		lprintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
 		return;
 	}
 
@@ -426,38 +426,38 @@ void rss_do_fetching(char *url, char *rooms) {
 		return;
 	}
 	
-retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
+retry:	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 	sprintf(buf, "%d", rssport);
 	sock = sock_connect(rsshost, buf, "tcp");
 	if (sock >= 0) {
-		lprintf(CTDL_DEBUG, "Connected!\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
 
 		if (CtdlThreadCheckStop())
 			goto shutdown ;
 			
 		snprintf(buf, sizeof buf, "GET %s HTTP/1.0", rssurl);
-		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
 		if (CtdlThreadCheckStop())
 			goto shutdown ;
 			
 		snprintf(buf, sizeof buf, "Host: %s", rsshost);
-		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
 		if (CtdlThreadCheckStop())
 			goto shutdown ;
 			
 		snprintf(buf, sizeof buf, "User-Agent: %s", CITADEL);
-		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
 		if (CtdlThreadCheckStop())
 			goto shutdown ;
 			
 		snprintf(buf, sizeof buf, "Accept: */*");
-		lprintf(CTDL_DEBUG, "<%s\n", buf);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		sock_puts(sock, buf);
 
 		if (CtdlThreadCheckStop())
@@ -469,7 +469,7 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 			goto shutdown ;
 			
 		if (sock_getln(sock, buf, sizeof buf) >= 0) {
-			lprintf(CTDL_DEBUG, ">%s\n", buf);
+			CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 			remove_token(buf, 0, ' ');
 
 			/* 200 OK */
@@ -506,7 +506,7 @@ retry:	lprintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
 							goto retry;
 						}
 						else {
-							lprintf(CTDL_ALERT, "Invalid URL: %s\n", buf);
+							CtdlLogPrintf(CTDL_ALERT, "Invalid URL: %s\n", buf);
 						}
 					}
 				}
@@ -517,7 +517,7 @@ shutdown:
 		sock_close(sock);
 	}
 	else {
-		lprintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 	}
 
 	XML_ParserFree(xp);
@@ -645,7 +645,7 @@ void *rssclient_scan(void *args) {
 	if (doing_rssclient) return NULL;
 	doing_rssclient = 1;
 
-	lprintf(CTDL_DEBUG, "rssclient started\n");
+	CtdlLogPrintf(CTDL_DEBUG, "rssclient started\n");
 	ForEachRoom(rssclient_scan_room, NULL);
 
 	while (rnclist != NULL && !CtdlThreadCheckStop()) {
@@ -656,7 +656,7 @@ void *rssclient_scan(void *args) {
 		free(rptr);
 	}
 
-	lprintf(CTDL_DEBUG, "rssclient ended\n");
+	CtdlLogPrintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
 	if (!CtdlThreadCheckStop())

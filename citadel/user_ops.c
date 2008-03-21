@@ -65,7 +65,7 @@ static INLINE void makeuserkey(char *key, char *username) {
 	len = strlen(username);
 	if (len >= USERNAME_SIZE)
 	{
-		lprintf (CTDL_EMERG, "Username to long: %s", username);
+		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
 		username[USERNAME_SIZE - 1]='\0';
@@ -188,7 +188,7 @@ int rename_user(char *oldname, char *newname) {
 
 		else {		/* Sanity checks succeeded.  Now rename the user. */
 
-			lprintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
+			CtdlLogPrintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
 			cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
 			safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
 			putuser(&usbuf);
@@ -414,7 +414,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	char username[SIZ];
 	int found_user;
 
-	lprintf(9, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
+	CtdlLogPrintf(9, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
 
 	if ((CC->logged_in)) {
 		return login_already_logged_in;
@@ -446,21 +446,21 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		struct passwd *tempPwdPtr;
 		char pwdbuffer[256];
 	
-		lprintf(CTDL_DEBUG, "asking host about <%s>\n", username);
+		CtdlLogPrintf(CTDL_DEBUG, "asking host about <%s>\n", username);
 #ifdef HAVE_GETPWNAM_R
 #ifdef SOLARIS_GETPWUID
-		lprintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
 		tempPwdPtr = getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer);
 #else // SOLARIS_GETPWUID
-		lprintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Calling getpwnam_r()\n");
 		getpwnam_r(username, &pd, pwdbuffer, sizeof pwdbuffer, &tempPwdPtr);
 #endif // SOLARIS_GETPWUID
 #else // HAVE_GETPWNAM_R
-		lprintf(CTDL_DEBUG, "SHOULD NEVER GET HERE!!!\n");
+		CtdlLogPrintf(CTDL_DEBUG, "SHOULD NEVER GET HERE!!!\n");
 		tempPwdPtr = NULL;
 #endif // HAVE_GETPWNAM_R
 		if (tempPwdPtr == NULL) {
-			lprintf(CTDL_DEBUG, "no such user <%s>\n", username);
+			CtdlLogPrintf(CTDL_DEBUG, "no such user <%s>\n", username);
 			return login_not_found;
 		}
 	
@@ -468,7 +468,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		 * If not found, make one attempt to create it.
 		 */
 		found_user = getuserbyuid(&CC->user, pd.pw_uid);
-		lprintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %d\n",
+		CtdlLogPrintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %d\n",
 			(long)pd.pw_uid, pd.pw_gecos, found_user);
 		if (found_user != 0) {
 			create_user(username, 0);
@@ -556,7 +556,7 @@ void cmd_user(char *cmdbuf)
  */
 void session_startup(void)
 {
-	lprintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
+	CtdlLogPrintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);
 	++(CC->user.timescalled);
@@ -676,11 +676,11 @@ static int validpw(uid_t uid, const char *pass)
 	char buf[256];
 
 	if (IsEmptyStr(pass)) {
-		lprintf(CTDL_DEBUG, "refusing to check empty password for uid=%d using chkpwd...\n", uid);
+		CtdlLogPrintf(CTDL_DEBUG, "refusing to check empty password for uid=%d using chkpwd...\n", uid);
 		return 0;
 	}
 
-	lprintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
+	CtdlLogPrintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
 
 	begin_critical_section(S_CHKPWD);
 	write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
@@ -689,11 +689,11 @@ static int validpw(uid_t uid, const char *pass)
 	end_critical_section(S_CHKPWD);
 
 	if (!strncmp(buf, "PASS", 4)) {
-		lprintf(CTDL_DEBUG, "...pass\n");
+		CtdlLogPrintf(CTDL_DEBUG, "...pass\n");
 		return(1);
 	}
 
-	lprintf(CTDL_DEBUG, "...fail\n");
+	CtdlLogPrintf(CTDL_DEBUG, "...fail\n");
 	return 0;
 }
 
@@ -705,7 +705,7 @@ void start_chkpwd_daemon(void) {
 	struct stat filestats;
 	int i;
 
-	lprintf(CTDL_DEBUG, "Starting chkpwd daemon for host authentication mode\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Starting chkpwd daemon for host authentication mode\n");
 
 	if ((stat(file_chkpwd, &filestats)==-1) ||
 	    (filestats.st_size==0)){
@@ -713,29 +713,29 @@ void start_chkpwd_daemon(void) {
 		abort();
 	}
 	if (pipe(chkpwd_write_pipe) != 0) {
-		lprintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
 		abort();
 	}
 	if (pipe(chkpwd_read_pipe) != 0) {
-		lprintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
 		abort();
 	}
 
 	chkpwd_pid = fork();
 	if (chkpwd_pid < 0) {
-		lprintf(CTDL_EMERG, "Unable to fork chkpwd daemon: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_EMERG, "Unable to fork chkpwd daemon: %s\n", strerror(errno));
 		abort();
 	}
 	if (chkpwd_pid == 0) {
-		lprintf(CTDL_DEBUG, "Now calling dup2() write\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Now calling dup2() write\n");
 		dup2(chkpwd_write_pipe[0], 0);
-		lprintf(CTDL_DEBUG, "Now calling dup2() write\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Now calling dup2() write\n");
 		dup2(chkpwd_read_pipe[1], 1);
-		lprintf(CTDL_DEBUG, "Now closing stuff\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Now closing stuff\n");
 		for (i=2; i<256; ++i) close(i);
-		lprintf(CTDL_DEBUG, "Now calling execl(%s)\n", file_chkpwd);
+		CtdlLogPrintf(CTDL_DEBUG, "Now calling execl(%s)\n", file_chkpwd);
 		execl(file_chkpwd, file_chkpwd, NULL);
-		lprintf(CTDL_EMERG, "Unable to exec chkpwd daemon: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_EMERG, "Unable to exec chkpwd daemon: %s\n", strerror(errno));
 		abort();
 		exit(errno);
 	}
@@ -754,19 +754,19 @@ int CtdlTryPassword(char *password)
 	int code;
 
 	if ((CC->logged_in)) {
-		lprintf(CTDL_WARNING, "CtdlTryPassword: already logged in\n");
+		CtdlLogPrintf(CTDL_WARNING, "CtdlTryPassword: already logged in\n");
 		return pass_already_logged_in;
 	}
 	if (!strcmp(CC->curr_user, NLI)) {
-		lprintf(CTDL_WARNING, "CtdlTryPassword: no user selected\n");
+		CtdlLogPrintf(CTDL_WARNING, "CtdlTryPassword: no user selected\n");
 		return pass_no_user;
 	}
 	if (getuser(&CC->user, CC->curr_user)) {
-		lprintf(CTDL_ERR, "CtdlTryPassword: internal error\n");
+		CtdlLogPrintf(CTDL_ERR, "CtdlTryPassword: internal error\n");
 		return pass_internal_error;
 	}
 	if (password == NULL) {
-		lprintf(CTDL_INFO, "CtdlTryPassword: NULL password string supplied\n");
+		CtdlLogPrintf(CTDL_INFO, "CtdlTryPassword: NULL password string supplied\n");
 		return pass_wrong_password;
 	}
 	code = (-1);
@@ -820,7 +820,7 @@ int CtdlTryPassword(char *password)
 		do_login();
 		return pass_ok;
 	} else {
-		lprintf(CTDL_WARNING, "Bad password specified for <%s>\n", CC->curr_user);
+		CtdlLogPrintf(CTDL_WARNING, "Bad password specified for <%s>\n", CC->curr_user);
 		return pass_wrong_password;
 	}
 }
@@ -871,7 +871,7 @@ int purge_user(char pname[])
 		return (ERROR + NO_SUCH_USER);
 
 	if (getuser(&usbuf, pname) != 0) {
-		lprintf(CTDL_ERR, "Cannot purge user <%s> - not found\n", pname);
+		CtdlLogPrintf(CTDL_ERR, "Cannot purge user <%s> - not found\n", pname);
 		return (ERROR + NO_SUCH_USER);
 	}
 	/* Don't delete a user who is currently logged in.  Instead, just
@@ -887,12 +887,12 @@ int purge_user(char pname[])
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (user_is_logged_in == 1) {
-		lprintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
+		CtdlLogPrintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
 		putuser(&usbuf);
 		return (1);
 	}
-	lprintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
+	CtdlLogPrintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
 
 	/* Perform any purge functions registered by server extensions */
 	PerformUserHooks(&usbuf, EVT_PURGEUSER);
@@ -964,7 +964,7 @@ int create_user(char *newusername, int become_user)
 			uid = pd.pw_uid;
 			if (IsEmptyStr (username))
 			{
-				lprintf (CTDL_EMERG, 
+				CtdlLogPrintf (CTDL_EMERG, 
 					 "Can't find Realname for user %s [%d] in the Host Auth Database; giving up.\n", 
 					 newusername, pd.pw_uid);
 				snprintf(buf, SIZ, 
@@ -1050,7 +1050,7 @@ int create_user(char *newusername, int become_user)
 		CC->cs_addr
 	);
 	aide_message(buf, "User Creation Notice");
-	lprintf(CTDL_NOTICE, "New user <%s> created\n", username);
+	CtdlLogPrintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
 }
 
@@ -1148,7 +1148,7 @@ void cmd_setp(char *new_pw)
 	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
 	lputuser(&CC->user);
 	cprintf("%d Password changed.\n", CIT_OK);
-	lprintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
+	CtdlLogPrintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
 

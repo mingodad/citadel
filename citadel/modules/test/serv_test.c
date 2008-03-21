@@ -34,25 +34,25 @@
 extern struct CitContext *ContextList;
 
 void CleanupTest(void) {
-	lprintf(CTDL_DEBUG, "--- test of adding an unload hook --- \n");
+	CtdlLogPrintf(CTDL_DEBUG, "--- test of adding an unload hook --- \n");
 	}
 
 void NewRoomTest(void) {
-	lprintf(CTDL_DEBUG, "--- test module was told we're now in a new room ---\n");
+	CtdlLogPrintf(CTDL_DEBUG, "--- test module was told we're now in a new room ---\n");
 	}
 
 void SessionStartTest(void) {
-	lprintf(CTDL_DEBUG, "--- starting up session %d ---\n",
+	CtdlLogPrintf(CTDL_DEBUG, "--- starting up session %d ---\n",
 		CC->cs_pid);
 	}
 
 void SessionStopTest(void) {
-	lprintf(CTDL_DEBUG, "--- ending session %d ---\n", 
+	CtdlLogPrintf(CTDL_DEBUG, "--- ending session %d ---\n", 
 		CC->cs_pid);
 	}
 
 void LoginTest(void) {
-	lprintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
+	CtdlLogPrintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
 /* To insert this module into the server activate the next block by changing the #if 0 to #if 1 */

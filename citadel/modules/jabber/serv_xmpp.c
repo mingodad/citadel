@@ -55,7 +55,7 @@ struct xmpp_event *xmpp_queue = NULL;
 
 void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
-	lprintf(CTDL_DEBUG, "New XMPP stream.\n");
+	CtdlLogPrintf(CTDL_DEBUG, "New XMPP stream.\n");
 
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {
@@ -112,10 +112,10 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 		strcpy(el, ++sep);
 	}
 
-	lprintf(CTDL_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
+	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
 
 	for (i=0; attr[i] != NULL; i+=2) {
-		lprintf(CTDL_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
+		CtdlLogPrintf(CTDL_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
 	}
 
 	if (!strcasecmp(el, "stream")) {
@@ -182,9 +182,9 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		strcpy(el, ++sep);
 	}
 
-	lprintf(CTDL_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
+	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
 	if (XMPP->chardata_len > 0) {
-		lprintf(CTDL_DEBUG, "          chardata: %s\n", XMPP->chardata);
+		CtdlLogPrintf(CTDL_DEBUG, "          chardata: %s\n", XMPP->chardata);
 	}
 
 	if (!strcasecmp(el, "resource")) {
@@ -384,7 +384,7 @@ void xmpp_cleanup_function(void) {
 	/* Don't do this stuff if this is not a XMPP session! */
 	if (CC->h_command_function != xmpp_command_loop) return;
 
-	lprintf(CTDL_DEBUG, "Performing XMPP cleanup hook\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Performing XMPP cleanup hook\n");
 	if (XMPP->chardata != NULL) {
 		free(XMPP->chardata);
 		XMPP->chardata = NULL;
@@ -413,7 +413,7 @@ void xmpp_greeting(void) {
 
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
 	if (XMPP->xp == NULL) {
-		lprintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
 		CC->kill_me = 1;
 		return;
 	}
@@ -435,7 +435,7 @@ void xmpp_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	retval = client_read(cmdbuf, 1);
 	if (retval != 1) {
-		lprintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
+		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}

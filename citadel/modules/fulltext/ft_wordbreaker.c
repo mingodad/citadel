@@ -43,6 +43,7 @@
 #include "control.h"
 #include "ft_wordbreaker.h"
 #include "crc16.h"
+#include "ctdl_module.h"
 
 /*
  * Noise words are not included in search indices.
@@ -173,7 +174,7 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 			/* extract the word */
 			word_len = word_end - word_start;
 			if (word_len >= sizeof word) {
-				lprintf(CTDL_DEBUG, "Invalid word length: %d\n", word_len);
+				CtdlLogPrintf(CTDL_DEBUG, "Invalid word length: %d\n", word_len);
 				safestrncpy(word, word_start, sizeof word);
 				word[(sizeof word) - 1] = 0;
 			}

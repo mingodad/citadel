@@ -49,6 +49,7 @@
 #include "imap_tools.h"
 #include "imap_fetch.h"
 #include "genstamp.h"
+#include "ctdl_module.h"
 
 
 
@@ -218,7 +219,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		text_size = 0;
 	}
 
-	lprintf(CTDL_DEBUG, 
+	CtdlLogPrintf(CTDL_DEBUG, 
 		"RFC822: headers=" SIZE_T_FMT 
 		", text=" SIZE_T_FMT
 		", total=" SIZE_T_FMT "\n",
@@ -586,7 +587,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	if (strchr(section, '[') != NULL) {
 		stripallbut(section, '[', ']');
 	}
-	lprintf(CTDL_DEBUG, "Section is: %s%s\n", 
+	CtdlLogPrintf(CTDL_DEBUG, "Section is: %s%s\n", 
 		section, 
 		IsEmptyStr(section) ? "(empty)" : "");
 
@@ -633,7 +634,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		is_partial = 1;
 	}
 	if (is_partial == 0) strcpy(partial, "");
-	/* if (!IsEmptyStr(partial)) lprintf(CTDL_DEBUG, "Partial is %s\n", partial); */
+	/* if (!IsEmptyStr(partial)) CtdlLogPrintf(CTDL_DEBUG, "Partial is %s\n", partial); */
 
 	if (IMAP->cached_body == NULL) {
 		CC->redirect_buffer = malloc(SIZ);

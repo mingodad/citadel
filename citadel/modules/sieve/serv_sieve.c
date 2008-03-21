@@ -54,7 +54,7 @@ char *msiv_extensions = NULL;
  */
 int ctdl_debug(sieve2_context_t *s, void *my)
 {
-	lprintf(CTDL_DEBUG, "Sieve: %s\n", sieve2_getvalue_string(s, "message"));
+	CtdlLogPrintf(CTDL_DEBUG, "Sieve: %s\n", sieve2_getvalue_string(s, "message"));
 	return SIEVE2_OK;
 }
 
@@ -64,7 +64,7 @@ int ctdl_debug(sieve2_context_t *s, void *my)
  */
 int ctdl_errparse(sieve2_context_t *s, void *my)
 {
-	lprintf(CTDL_WARNING, "Error in script, line %d: %s\n",
+	CtdlLogPrintf(CTDL_WARNING, "Error in script, line %d: %s\n",
 		sieve2_getvalue_int(s, "lineno"),
 		sieve2_getvalue_string(s, "message")
 	);
@@ -77,7 +77,7 @@ int ctdl_errparse(sieve2_context_t *s, void *my)
  */
 int ctdl_errexec(sieve2_context_t *s, void *my)
 {
-	lprintf(CTDL_WARNING, "Error executing script: %s\n",
+	CtdlLogPrintf(CTDL_WARNING, "Error executing script: %s\n",
 		sieve2_getvalue_string(s, "message")
 	);
 	return SIEVE2_OK;
@@ -96,22 +96,22 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 
 	safestrncpy(recp, sieve2_getvalue_string(s, "address"), sizeof recp);
 
-	lprintf(CTDL_DEBUG, "Action is REDIRECT, recipient <%s>\n", recp);
+	CtdlLogPrintf(CTDL_DEBUG, "Action is REDIRECT, recipient <%s>\n", recp);
 
 	valid = validate_recipients(recp, NULL, 0);
 	if (valid == NULL) {
-		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
+		CtdlLogPrintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
 		return SIEVE2_ERROR_BADARGS;
 	}
 	if (valid->num_error > 0) {
-		lprintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
+		CtdlLogPrintf(CTDL_WARNING, "REDIRECT failed: bad recipient <%s>\n", recp);
 		free_recipients(valid);
 		return SIEVE2_ERROR_BADARGS;
 	}
 
 	msg = CtdlFetchMessage(cs->msgnum, 1);
 	if (msg == NULL) {
-		lprintf(CTDL_WARNING, "REDIRECT failed: unable to fetch msg %ld\n", cs->msgnum);
+		CtdlLogPrintf(CTDL_WARNING, "REDIRECT failed: unable to fetch msg %ld\n", cs->msgnum);
 		free_recipients(valid);
 		return SIEVE2_ERROR_BADARGS;
 	}
@@ -131,7 +131,7 @@ int ctdl_keep(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 	
-	lprintf(CTDL_DEBUG, "Action is KEEP\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Action is KEEP\n");
 
 	cs->keep = 1;
 	cs->cancel_implicit_keep = 1;
@@ -150,7 +150,7 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	char foldername[256];
 	char original_room_name[ROOMNAMELEN];
 
-	lprintf(CTDL_DEBUG, "Action is FILEINTO, destination is <%s>\n", dest_folder);
+	CtdlLogPrintf(CTDL_DEBUG, "Action is FILEINTO, destination is <%s>\n", dest_folder);
 
 	/* FILEINTO 'INBOX' is the same thing as KEEP */
 	if ( (!strcasecmp(dest_folder, "INBOX")) || (!strcasecmp(dest_folder, MAILROOM)) ) {
@@ -173,7 +173,7 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	}
 
 	if (c != 0) {
-		lprintf(CTDL_WARNING, "FILEINTO failed: target <%s> does not exist\n", dest_folder);
+		CtdlLogPrintf(CTDL_WARNING, "FILEINTO failed: target <%s> does not exist\n", dest_folder);
 		return SIEVE2_ERROR_BADARGS;
 	}
 
@@ -204,7 +204,7 @@ int ctdl_discard(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "Action is DISCARD\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Action is DISCARD\n");
 
 	/* Cancel the implicit keep.  That's all there is to it. */
 	cs->cancel_implicit_keep = 1;
@@ -221,11 +221,11 @@ int ctdl_reject(sieve2_context_t *s, void *my)
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 	char *reject_text = NULL;
 
-	lprintf(CTDL_DEBUG, "Action is REJECT\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Action is REJECT\n");
 
 	/* If we don't know who sent the message, do a DISCARD instead. */
 	if (IsEmptyStr(cs->sender)) {
-		lprintf(CTDL_INFO, "Unknown sender.  Doing DISCARD instead of REJECT.\n");
+		CtdlLogPrintf(CTDL_INFO, "Unknown sender.  Doing DISCARD instead of REJECT.\n");
 		return ctdl_discard(s, my);
 	}
 
@@ -276,7 +276,7 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	char *vacamsg_text = NULL;
 	char vacamsg_subject[1024];
 
-	lprintf(CTDL_DEBUG, "Action is VACATION\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Action is VACATION\n");
 
 	message = sieve2_getvalue_string(s, "message");
 	if (message == NULL) return SIEVE2_ERROR_BADARGS;
@@ -296,7 +296,7 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	for (vptr = cs->u->first_vacation; vptr != NULL; vptr = vptr->next) {
 		if (!strcasecmp(vptr->fromaddr, cs->sender)) {
 			if ( (time(NULL) - vptr->timestamp) < (days * 86400) ) {
-				lprintf(CTDL_DEBUG, "Already alerted <%s> recently.\n", cs->sender);
+				CtdlLogPrintf(CTDL_DEBUG, "Already alerted <%s> recently.\n", cs->sender);
 				return SIEVE2_OK;
 			}
 		}
@@ -380,7 +380,7 @@ int ctdl_getenvelope(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "Action is GETENVELOPE\nEnvFrom: %s\n  EnvTo: %s\n",
+	CtdlLogPrintf(CTDL_DEBUG, "Action is GETENVELOPE\nEnvFrom: %s\n  EnvTo: %s\n",
 		cs->envelope_from, cs->envelope_to);
 
 	if (cs->envelope_from != NULL) {
@@ -452,13 +452,13 @@ int ctdl_getscript(sieve2_context_t *s, void *my) {
 
 	for (sptr=cs->u->first_script; sptr!=NULL; sptr=sptr->next) {
 		if (sptr->script_active > 0) {
-			lprintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
+			CtdlLogPrintf(CTDL_DEBUG, "ctdl_getscript() is using script '%s'\n", sptr->script_name);
 			sieve2_setvalue_string(s, "script", sptr->script_content);
 			return SIEVE2_OK;
 		}
 	}
 		
-	lprintf(CTDL_DEBUG, "ctdl_getscript() found no active script\n");
+	CtdlLogPrintf(CTDL_DEBUG, "ctdl_getscript() found no active script\n");
 	return SIEVE2_ERROR_GETSCRIPT;
 }
 
@@ -469,7 +469,7 @@ int ctdl_getheaders(sieve2_context_t *s, void *my) {
 
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	lprintf(CTDL_DEBUG, "ctdl_getheaders() was called\n");
+	CtdlLogPrintf(CTDL_DEBUG, "ctdl_getheaders() was called\n");
 	sieve2_setvalue_string(s, "allheaders", cs->rfc822headers);
 	return SIEVE2_OK;
 }
@@ -490,7 +490,7 @@ void sieve_queue_room(struct ctdlroom *which_room) {
 	ptr->next = sieve_list;
 	sieve_list = ptr;
 	end_critical_section(S_SIEVELIST);
-	lprintf(CTDL_DEBUG, "<%s> queued for Sieve processing\n", which_room->QRname);
+	CtdlLogPrintf(CTDL_DEBUG, "<%s> queued for Sieve processing\n", which_room->QRname);
 }
 
 
@@ -510,13 +510,13 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	if (userdata == NULL)
 	{
-		lprintf(CTDL_EMERG, "Cant process Message <%ld>without Userdata!\n", msgnum);
+		CtdlLogPrintf(CTDL_EMERG, "Cant process Message <%ld>without Userdata!\n", msgnum);
 		return;
 	}
 
 	sieve2_context = u->sieve2_context;
 
-	lprintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
+	CtdlLogPrintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
 	msg = CtdlFetchMessage(msgnum, 0);
 	if (msg == NULL) return;
@@ -628,10 +628,10 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
-	lprintf(CTDL_DEBUG, "Calling sieve2_execute()\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Calling sieve2_execute()\n");
 	res = sieve2_execute(sieve2_context, &my);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_execute() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_execute() returned %d: %s\n", res, sieve2_errstr(res));
 	}
 
 	free(my.rfc822headers);
@@ -642,11 +642,11 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	 * if no other action was successfully taken.
 	 */
 	if ( (!my.keep) && (my.cancel_implicit_keep) ) {
-		lprintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
+		CtdlLogPrintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
 		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
 	}
 
-	lprintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
+	CtdlLogPrintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
 	u->lastproc = msgnum;
 
 	return;
@@ -866,7 +866,7 @@ void sieve_do_room(char *roomname) {
 	 */
 	snprintf(u.config_roomname, sizeof u.config_roomname, "%010ld.%s", atol(roomname), USERCONFIGROOM);
 	if (getroom(&CC->room, u.config_roomname) != 0) {
-		lprintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", u.config_roomname);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", u.config_roomname);
 		return;
 	}
 
@@ -878,14 +878,14 @@ void sieve_do_room(char *roomname) {
 		get_sieve_config_backend, (void *)&u );
 
 	if (u.config_msgnum < 0) {
-		lprintf(CTDL_DEBUG, "No Sieve rules exist.  No processing is required.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "No Sieve rules exist.  No processing is required.\n");
 		return;
 	}
 
-	lprintf(CTDL_DEBUG, "Rules found.  Performing Sieve processing for <%s>\n", roomname);
+	CtdlLogPrintf(CTDL_DEBUG, "Rules found.  Performing Sieve processing for <%s>\n", roomname);
 
 	if (getroom(&CC->room, roomname) != 0) {
-		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", roomname);
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", roomname);
 		return;
 	}
 
@@ -893,13 +893,13 @@ void sieve_do_room(char *roomname) {
 	
 	res = sieve2_alloc(&sieve2_context);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
 		return;
 	}
 
 	res = sieve2_callbacks(sieve2_context, ctdl_sieve_callbacks);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
 		goto BAIL;
 	}
 
@@ -910,7 +910,7 @@ void sieve_do_room(char *roomname) {
 	my.u = &u;
 	res = sieve2_validate(sieve2_context, &my);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_validate() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_validate() returned %d: %s\n", res, sieve2_errstr(res));
 		goto BAIL;
 	}
 
@@ -925,7 +925,7 @@ void sieve_do_room(char *roomname) {
 BAIL:
 	res = sieve2_free(&sieve2_context);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
 	}
 
 	/* Rewrite the config if we have to */
@@ -940,7 +940,7 @@ void perform_sieve_processing(void) {
 	struct RoomProcList *ptr = NULL;
 
 	if (sieve_list != NULL) {
-		lprintf(CTDL_DEBUG, "Begin Sieve processing\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Begin Sieve processing\n");
 		while (sieve_list != NULL) {
 			char spoolroomname[ROOMNAMELEN];
 			safestrncpy(spoolroomname, sieve_list->name, sizeof spoolroomname);
@@ -1248,7 +1248,7 @@ void ctdl_sieve_init(void) {
 		strcpy(&cred[55], "...");
 	}
 
-	lprintf(CTDL_INFO, "%s\n",cred);
+	CtdlLogPrintf(CTDL_INFO, "%s\n",cred);
 	free(cred);
 
 	/* Briefly initialize a Sieve parser instance just so we can list the
@@ -1256,22 +1256,22 @@ void ctdl_sieve_init(void) {
 	 */
 	res = sieve2_alloc(&sieve2_context);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_alloc() returned %d: %s\n", res, sieve2_errstr(res));
 		return;
 	}
 
 	res = sieve2_callbacks(sieve2_context, ctdl_sieve_callbacks);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_callbacks() returned %d: %s\n", res, sieve2_errstr(res));
 		goto BAIL;
 	}
 
 	msiv_extensions = strdup(sieve2_listextensions(sieve2_context));
-	lprintf(CTDL_INFO, "Extensions: %s\n", msiv_extensions);
+	CtdlLogPrintf(CTDL_INFO, "Extensions: %s\n", msiv_extensions);
 
 BAIL:	res = sieve2_free(&sieve2_context);
 	if (res != SIEVE2_OK) {
-		lprintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
+		CtdlLogPrintf(CTDL_CRIT, "sieve2_free() returned %d: %s\n", res, sieve2_errstr(res));
 	}
 
 }

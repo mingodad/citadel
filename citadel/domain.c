@@ -147,7 +147,7 @@ int getmx(char *mxbuf, char *dest) {
 	
 		for (qdcount = ntohs(answer.header.qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
 			if ((ret = dn_skipname(ptr, endptr)) < 0) {
-				lprintf(CTDL_DEBUG, "dn_skipname error\n");
+				CtdlLogPrintf(CTDL_DEBUG, "dn_skipname error\n");
 				return(0);
 			}
 		}

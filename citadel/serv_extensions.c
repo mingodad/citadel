@@ -122,8 +122,8 @@ void LogPrintMessages(long err)
 
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
-	lprintf(0,Message);
-	lprintf(0,ErrSubject);
+	CtdlLogPrintf(0,Message);
+	CtdlLogPrintf(0,ErrSubject);
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
 	if (errormessages!=NULL) free (errormessages);
 	errormessages = NULL;
@@ -219,7 +219,7 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 	p->desc = desc;
 	p->next = ProtoHookList;
 	ProtoHookList = p;
-	lprintf(CTDL_INFO, "Registered server command %s (%s)\n", cmd, desc);
+	CtdlLogPrintf(CTDL_INFO, "Registered server command %s (%s)\n", cmd, desc);
 }
 
 
@@ -236,7 +236,7 @@ void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
 		while (cur != NULL &&
 				handler == cur->handler &&
 				!strcmp(cmd, cur->cmd)) {
-			lprintf(CTDL_INFO, "Unregistered server command %s (%s)\n",
+			CtdlLogPrintf(CTDL_INFO, "Unregistered server command %s (%s)\n",
 					cmd, cur->desc);
 			p = cur->next;
 			if (cur == ProtoHookList) {
@@ -260,7 +260,7 @@ void CtdlDestroyProtoHooks(void)
 	cur = ProtoHookList; 
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed server command %s (%s)\n",
+		CtdlLogPrintf(CTDL_INFO, "Destroyed server command %s (%s)\n",
 			cur->cmd, cur->desc);
 		p = cur->next;
 		free(cur);
@@ -281,7 +281,7 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 	newfcn->h_function_pointer = fcn_ptr;
 	CleanupHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new cleanup function\n");
+	CtdlLogPrintf(CTDL_INFO, "Registered a new cleanup function\n");
 }
 
 
@@ -293,7 +293,7 @@ void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				fcn_ptr == cur->h_function_pointer) {
-			lprintf(CTDL_INFO, "Unregistered cleanup function\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered cleanup function\n");
 			p = cur->next;
 			if (cur == CleanupHookTable) {
 				CleanupHookTable = p;
@@ -311,7 +311,7 @@ void CtdlDestroyCleanupHooks(void)
 	cur = CleanupHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed cleanup function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed cleanup function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -332,7 +332,7 @@ void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 	newfcn->eventtype = EventType;
 	SessionHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new session function (type %d)\n",
+	CtdlLogPrintf(CTDL_INFO, "Registered a new session function (type %d)\n",
 		EventType);
 }
 
@@ -346,7 +346,7 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 		while (cur != NULL &&
 				fcn_ptr == cur->h_function_pointer &&
 				EventType == cur->eventtype) {
-			lprintf(CTDL_INFO, "Unregistered session function (type %d)\n",
+			CtdlLogPrintf(CTDL_INFO, "Unregistered session function (type %d)\n",
 					EventType);
 			p = cur->next;
 			if (cur == SessionHookTable) {
@@ -365,7 +365,7 @@ void CtdlDestroySessionHooks(void)
 	cur = SessionHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed session function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed session function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -386,7 +386,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 	newfcn->eventtype = EventType;
 	UserHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new user function (type %d)\n",
+	CtdlLogPrintf(CTDL_INFO, "Registered a new user function (type %d)\n",
 		EventType);
 }
 
@@ -400,7 +400,7 @@ void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 		while (cur != NULL &&
 				fcn_ptr == cur->h_function_pointer &&
 				EventType == cur->eventtype) {
-			lprintf(CTDL_INFO, "Unregistered user function (type %d)\n",
+			CtdlLogPrintf(CTDL_INFO, "Unregistered user function (type %d)\n",
 					EventType);
 			p = cur->next;
 			if (cur == UserHookTable) {
@@ -419,7 +419,7 @@ void CtdlDestroyUserHooks(void)
 	cur = UserHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed user function \n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed user function \n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -441,7 +441,7 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 	newfcn->eventtype = EventType;
 	MessageHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new message function (type %d)\n",
+	CtdlLogPrintf(CTDL_INFO, "Registered a new message function (type %d)\n",
 		EventType);
 }
 
@@ -456,7 +456,7 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 		while (cur != NULL &&
 				handler == cur->h_function_pointer &&
 				EventType == cur->eventtype) {
-			lprintf(CTDL_INFO, "Unregistered message function (type %d)\n",
+			CtdlLogPrintf(CTDL_INFO, "Unregistered message function (type %d)\n",
 					EventType);
 			p = cur->next;
 			if (cur == MessageHookTable) {
@@ -475,7 +475,7 @@ void CtdlDestroyMessageHook(void)
 	cur = MessageHookTable; 
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed message function \n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed message function \n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -494,7 +494,7 @@ void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 	newfcn->fcn_ptr = fcn_ptr;
 	RoomHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new room function\n");
+	CtdlLogPrintf(CTDL_INFO, "Registered a new room function\n");
 }
 
 
@@ -504,7 +504,7 @@ void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 
 	for (cur = RoomHookTable; cur != NULL; cur = cur->next) {
 		while (cur != NULL && fcn_ptr == cur->fcn_ptr) {
-			lprintf(CTDL_INFO, "Unregistered room function\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered room function\n");
 			p = cur->next;
 			if (cur == RoomHookTable) {
 				RoomHookTable = p;
@@ -523,7 +523,7 @@ void CtdlDestroyRoomHooks(void)
 	cur = RoomHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Unregistered room function\n");
+		CtdlLogPrintf(CTDL_INFO, "Unregistered room function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -541,7 +541,7 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 	newfcn->h_function_pointer = handler;
 	NetprocHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new netproc function\n");
+	CtdlLogPrintf(CTDL_INFO, "Registered a new netproc function\n");
 }
 
 
@@ -553,7 +553,7 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				handler == cur->h_function_pointer ) {
-			lprintf(CTDL_INFO, "Unregistered netproc function\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered netproc function\n");
 			p = cur->next;
 			if (cur == NetprocHookTable) {
 				NetprocHookTable = p;
@@ -571,7 +571,7 @@ void CtdlDestroyNetprocHooks(void)
 	cur = NetprocHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Unregistered netproc function\n");
+		CtdlLogPrintf(CTDL_INFO, "Unregistered netproc function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -590,7 +590,7 @@ void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 	newfcn->h_function_pointer = handler;
 	DeleteHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new netproc function\n");
+	CtdlLogPrintf(CTDL_INFO, "Registered a new netproc function\n");
 }
 
 
@@ -602,7 +602,7 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				handler == cur->h_function_pointer ) {
-			lprintf(CTDL_INFO, "Unregistered netproc function\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered netproc function\n");
 			p = cur->next;
 			if (cur == DeleteHookTable) {
 				DeleteHookTable = p;
@@ -619,7 +619,7 @@ void CtdlDestroyDeleteHooks(void)
 	cur = DeleteHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed netproc function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed netproc function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;		
@@ -641,7 +641,7 @@ void CtdlRegisterFixedOutputHook(char *content_type, void (*handler)(char *, int
 	safestrncpy(newfcn->content_type, content_type, sizeof newfcn->content_type);
 	FixedOutputTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new fixed output function for %s\n", newfcn->content_type);
+	CtdlLogPrintf(CTDL_INFO, "Registered a new fixed output function for %s\n", newfcn->content_type);
 }
 
 
@@ -652,7 +652,7 @@ void CtdlUnregisterFixedOutputHook(char *content_type)
 	for (cur = FixedOutputTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
 		while (cur != NULL && (!strcasecmp(content_type, cur->content_type))) {
-			lprintf(CTDL_INFO, "Unregistered fixed output function for %s\n", content_type);
+			CtdlLogPrintf(CTDL_INFO, "Unregistered fixed output function for %s\n", content_type);
 			p = cur->next;
 			if (cur == FixedOutputTable) {
 				FixedOutputTable = p;
@@ -670,7 +670,7 @@ void CtdlDestroyFixedOutputHooks(void)
 	cur = FixedOutputTable; 
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed fixed output function for %s\n", cur->content_type);
+		CtdlLogPrintf(CTDL_INFO, "Destroyed fixed output function for %s\n", cur->content_type);
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -707,7 +707,7 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int o
 	newfcn->order = order;
 	newfcn->h_function_pointer = fcn_ptr;
 	XmsgHookTable = newfcn;
-	lprintf(CTDL_INFO, "Registered a new x-msg function (priority %d)\n", order);
+	CtdlLogPrintf(CTDL_INFO, "Registered a new x-msg function (priority %d)\n", order);
 }
 
 
@@ -720,7 +720,7 @@ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int
 		while (cur != NULL &&
 				fcn_ptr == cur->h_function_pointer &&
 				order == cur->order) {
-			lprintf(CTDL_INFO, "Unregistered x-msg function "
+			CtdlLogPrintf(CTDL_INFO, "Unregistered x-msg function "
 					"(priority %d)\n", order);
 			p = cur->next;
 			if (cur == XmsgHookTable) {
@@ -739,7 +739,7 @@ void CtdlDestroyXmsgHooks(void)
 	cur = XmsgHookTable;
 	while (cur != NULL)
 	{
-		lprintf(CTDL_INFO, "Destroyed x-msg function "
+		CtdlLogPrintf(CTDL_INFO, "Destroyed x-msg function "
 			"(priority %d)\n", cur->order);
 		p = cur->next;
 			
@@ -779,7 +779,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 		snprintf(message, SIZ, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
-		lprintf(CTDL_INFO, "Service %s has been manually disabled, skipping\n", ServiceName);
+		CtdlLogPrintf(CTDL_INFO, "Service %s has been manually disabled, skipping\n", ServiceName);
 		free (message);
 		free(newfcn);
 		return;
@@ -796,12 +796,12 @@ void CtdlRegisterServiceHook(int tcp_port,
 	if (newfcn->msock > 0) {
 		ServiceHookTable = newfcn;
 		strcat(message, "registered.");
-		lprintf(CTDL_INFO, "%s\n", message);
+		CtdlLogPrintf(CTDL_INFO, "%s\n", message);
 	}
 	else {
 		AddPortError(message, error);
 		strcat(message, "FAILED.");
-		lprintf(CTDL_CRIT, "%s\n", message);
+		CtdlLogPrintf(CTDL_CRIT, "%s\n", message);
 		free(error);
 		free(newfcn);
 	}
@@ -828,12 +828,12 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 				tcp_port == cur->tcp_port) {
 			close(cur->msock);
 			if (sockpath) {
-				lprintf(CTDL_INFO, "Closed UNIX domain socket %s\n",
+				CtdlLogPrintf(CTDL_INFO, "Closed UNIX domain socket %s\n",
 						sockpath);
 			} else if (tcp_port) {
-				lprintf(CTDL_INFO, "Closed TCP port %d\n", tcp_port);
+				CtdlLogPrintf(CTDL_INFO, "Closed TCP port %d\n", tcp_port);
 			} else {
-				lprintf(CTDL_INFO, "Unregistered unknown service\n");
+				CtdlLogPrintf(CTDL_INFO, "Unregistered unknown service\n");
 			}
 			p = cur->next;
 			if (cur == ServiceHookTable) {
@@ -854,12 +854,12 @@ void CtdlDestroyServiceHook(void)
 	{
 		close(cur->msock);
 		if (cur->sockpath) {
-			lprintf(CTDL_INFO, "Closed UNIX domain socket %s\n",
+			CtdlLogPrintf(CTDL_INFO, "Closed UNIX domain socket %s\n",
 				cur->sockpath);
 		} else if (cur->tcp_port) {
-			lprintf(CTDL_INFO, "Closed TCP port %d\n", cur->tcp_port);
+			CtdlLogPrintf(CTDL_INFO, "Closed TCP port %d\n", cur->tcp_port);
 		} else {
-			lprintf(CTDL_INFO, "Unregistered unknown service\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered unknown service\n");
 		}
 		p = cur->next;
 		free(cur);
@@ -883,7 +883,7 @@ void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *n
 	newfcn->fcn_ptr = fcn_ptr;
 	SearchFunctionHookTable = newfcn;
 
-	lprintf(CTDL_INFO, "Registered a new search function (%s)\n", name);
+	CtdlLogPrintf(CTDL_INFO, "Registered a new search function (%s)\n", name);
 }
 
 void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name)
@@ -892,7 +892,7 @@ void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char 
 	
 	for (cur = SearchFunctionHookTable; cur != NULL; cur = cur->next) {
 		while (fcn_ptr && (cur->fcn_ptr == fcn_ptr) && name && !strcmp(name, cur->name)) {
-			lprintf(CTDL_INFO, "Unregistered search function(%s)\n", name);
+			CtdlLogPrintf(CTDL_INFO, "Unregistered search function(%s)\n", name);
 			p = cur->next;
 			if (cur == SearchFunctionHookTable) {
 				SearchFunctionHookTable = p;
@@ -946,11 +946,11 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 	/* Other code may elect to protect this message from server-side
 	 * handlers; if this is the case, don't do anything.
-	lprintf(CTDL_DEBUG, "** Event type is %d, flags are %d\n",
+	CtdlLogPrintf(CTDL_DEBUG, "** Event type is %d, flags are %d\n",
 		EventType, msg->cm_flags);
 	 */
 	if (msg->cm_flags & CM_SKIP_HOOKS) {
-		lprintf(CTDL_DEBUG, "Skipping hooks\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Skipping hooks\n");
 		return(0);
 	}
 
@@ -976,7 +976,7 @@ int PerformRoomHooks(struct ctdlroom *target_room)
 	struct RoomFunctionHook *fcn;
 	int total_retval = 0;
 
-	lprintf(CTDL_DEBUG, "Performing room hooks for <%s>\n", target_room->QRname);
+	CtdlLogPrintf(CTDL_DEBUG, "Performing room hooks for <%s>\n", target_room->QRname);
 
 	for (fcn = RoomHookTable; fcn != NULL; fcn = fcn->next) {
 		total_retval = total_retval + (*fcn->fcn_ptr) (target_room);
@@ -1054,7 +1054,7 @@ int CtdlRegisterDirectoryServiceFunc(int (*func)(char *cn, char *ou, void **obje
 	{
 		if (newfcn->cmd == cmd && !strcmp(newfcn->module, module))
 		{
-			lprintf(CTDL_ERR, "Directory service function already handled by module %s\n", module);
+			CtdlLogPrintf(CTDL_ERR, "Directory service function already handled by module %s\n", module);
 			return -1;
 		}
 		newfcn = newfcn->next;
@@ -1067,7 +1067,7 @@ int CtdlRegisterDirectoryServiceFunc(int (*func)(char *cn, char *ou, void **obje
 	newfcn->next = DirectoryServiceHookList;
 	DirectoryServiceHookList = newfcn;
 	
-	lprintf(CTDL_INFO, "Registered a new directory service function from module %s\n", module);
+	CtdlLogPrintf(CTDL_INFO, "Registered a new directory service function from module %s\n", module);
 	return 0;
 }
 

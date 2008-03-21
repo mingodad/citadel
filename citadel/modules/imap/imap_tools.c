@@ -18,7 +18,7 @@
 #include "room_ops.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"
-
+#include "ctdl_module.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -211,7 +211,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* lprintf(CTDL_DEBUG, "toimap %s\r\n", src); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "toimap %s\r\n", src); */
 
 	for (;;)
 	{
@@ -277,7 +277,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	if (state == 1)
 		utf7_closeb64(&dest, v, i);
-	/* lprintf(CTDL_DEBUG, "    -> %s\r\n", destp); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "    -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -295,7 +295,7 @@ static char* fromimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* lprintf(CTDL_DEBUG, "fromimap %s\r\n", src); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "fromimap %s\r\n", src); */
 
 	do {
 		c = *p++;
@@ -353,7 +353,7 @@ static char* fromimap(char* destp, char* destend, char* src)
 			}
 	} while (c != '\0');
 
-	/* lprintf(CTDL_DEBUG, "      -> %s\r\n", destp); */
+	/* CtdlLogPrintf(CTDL_DEBUG, "      -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -582,7 +582,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	ret = (0 | IR_MAILBOX);
 
 exit:
-	lprintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
+	CtdlLogPrintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
 }
 

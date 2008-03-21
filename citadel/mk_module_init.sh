@@ -144,7 +144,7 @@ do
 		RES_OUT=`echo $RES | cut -b2-`
 		/usr/bin/printf "Found entry point in file $i\n"
 cat <<EOF  >> $C_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
 
 EOF
 cat <<EOF >>$H_FILE
@@ -156,7 +156,7 @@ EOF
 		RES_OUT=`echo $RES | cut -b2-`
 		/usr/bin/printf "Found upgrade point in file $i\n"
 cat <<EOF  >> $U_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 
 EOF
 cat <<EOF >>$H_FILE
@@ -194,7 +194,7 @@ EOF
 						/usr/bin/printf "Found entry point in file modules/$j/$k\n"
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
 EOF
 # Add this entry point to the .h file
 cat <<EOF >> $H_FILE
@@ -207,7 +207,7 @@ EOF
 						/usr/bin/printf "Found upgrade point in file modules/$j/$k\n"
 # Add this entry point to the .c file
 cat <<EOF >> $U_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 EOF
 # Add this entry point to the .h file
 cat <<EOF >> $H_FILE
@@ -250,7 +250,7 @@ EOF
 						RES_OUT=`echo $RES | cut -b2-`
 						/usr/bin/printf "Found entry point in file user_modules/$j/$k\n"
 cat <<EOF >> $C_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL($RES_OUT));
 EOF
 cat <<EOF >> $H_FILE
 CTDL_MODULE_INIT($RES_OUT);
@@ -261,7 +261,7 @@ EOF
 						RES_OUT=`echo $RES | cut -b2-`
 						/usr/bin/printf "Found upgrade point in file user_modules/$j/$k\n"
 cat <<EOF >> $U_FILE
-	lprintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 EOF
 cat <<EOF >> $H_FILE
 CTDL_MODULE_UPGRADE($RES_OUT);

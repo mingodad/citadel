@@ -153,7 +153,7 @@ void ctdl_thread_internal_init_tsd(void)
 	int ret;
 	
 	if ((ret = citthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
-		lprintf(CTDL_EMERG, "citthread_key_create: %s\n", strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "citthread_key_create: %s\n", strerror(ret));
 		exit(CTDLEXIT_DB);
 	}
 }

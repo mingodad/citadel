@@ -144,12 +144,12 @@ void dspam_do_msg(long msgnum, void *userdata)
 	if (dspam_process (CTX, msgtext) != 0)
 	{
 		free(msgtext);
-		lprintf(CTDL_CRIT, "ERROR: dspam_process failed");
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: dspam_process failed");
 		return;
 	}
 	if (CTX->signature == NULL)
 	{
-		lprintf(CTDL_CRIT,"No signature provided\n");
+		CtdlLogPrintf(CTDL_CRIT,"No signature provided\n");
 	}
 	else
 	{
@@ -163,7 +163,7 @@ void dspam_do_msg(long msgnum, void *userdata)
 
 	SIG.length = CTX->signature->length;
 	/* Print processing results */
-	lprintf (CTDL_DEBUG, "Probability: %2.4f Confidence: %2.4f, Result: %s\n",
+	CtdlLogPrintf (CTDL_DEBUG, "Probability: %2.4f Confidence: %2.4f, Result: %s\n",
 		CTX->probability,
 		CTX->confidence,
 		(CTX->result == DSR_ISSPAM) ? "Spam" : "Innocent");
@@ -199,7 +199,7 @@ int serv_dspam_room(struct ctdlroom *room)
 	/// else -> todo: global user for public rooms etc.
 	if (CTX == NULL)
 	{
-		lprintf(CTDL_CRIT, "ERROR: dspam_init failed!\n");
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: dspam_init failed!\n");
 		return ERROR + INTERNAL_ERROR;
 	}
 	/* Use graham and robinson algorithms, graham's p-values */
@@ -238,7 +238,7 @@ CTDL_MODULE_INIT(dspam)
 
 #else	/* HAVE_LIBDSPAM */
 
-		lprintf(CTDL_INFO, "This server is missing libdspam Spam filtering will be disabled.\n");
+		CtdlLogPrintf(CTDL_INFO, "This server is missing libdspam Spam filtering will be disabled.\n");
 
 #endif	/* HAVE_LIBDSPAM */
 	}

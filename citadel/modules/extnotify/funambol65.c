@@ -24,6 +24,7 @@
 #include "config.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"
+#include "ctdl_module.h"
 
 /*
 * \brief Sends a message to the Funambol server notifying 
@@ -42,7 +43,7 @@ int notify_funambol_server(char *user) {
 	sprintf(port, "%d", config.c_funambol_port);
 	sock = sock_connect(config.c_funambol_host, port, "tcp");
 	if (sock >= 0) 
-		lprintf(CTDL_DEBUG, "Connected to Funambol!\n");
+		CtdlLogPrintf(CTDL_DEBUG, "Connected to Funambol!\n");
 	else 
 		goto bail;
 	// Load the template SOAP message. Get mallocs done too
@@ -103,16 +104,16 @@ int notify_funambol_server(char *user) {
 	sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
-	lprintf(CTDL_DEBUG, "Awaiting response\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
         if (sock_getln(sock, buf, SIZ) < 0) {
                 goto free;
         }
-        lprintf(CTDL_DEBUG, "<%s\n", buf);
+        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK"))) {
 		
 		goto free;
 	}
-	lprintf(CTDL_DEBUG, "Funambol notified\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
 free:
 	if (funambolCreds != NULL) free(funambolCreds);
 	if (SOAPMessage != NULL) free(SOAPMessage);

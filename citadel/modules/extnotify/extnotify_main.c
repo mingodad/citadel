@@ -90,16 +90,16 @@ void do_extnotify_queue(void) {
     /*
      * Go ahead and run the queue
      */
-    lprintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
+    CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
     
     if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
-        lprintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+        CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
         return;
     }
     CtdlForEachMessage(MSGS_ALL, 0L, NULL,
             SPOOLMIME, NULL, process_notify, NULL);
     
-    lprintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
+    CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
     doing_queue = 0;
 }
 /*!
@@ -125,7 +125,7 @@ void process_notify(long msgnum, void *usrdata) {
      */
     if ((configMsgNum == -1) || (strncasecmp(configMsg, "none", 4) == 0) &&
     IsEmptyStr(config.c_pager_program) && IsEmptyStr(config.c_funambol_host)) {
-        lprintf(CTDL_DEBUG, "No external notifiers configured on system/user");
+        CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
         goto nuke;
     }
     // Can Funambol take the message?
@@ -156,7 +156,7 @@ char *extNotify_getPrefs(long configMsgNum, char *configMsg) {
     // Do a simple string search to see if 'funambol' is selected as the
     // type. This string would be at the very top of the message contents.
     if (configMsgNum == -1) {
-        lprintf(CTDL_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
+        CtdlLogPrintf(CTDL_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
         return "none";
     }
     struct CtdlMessage *prefMsg;
@@ -194,7 +194,7 @@ long extNotify_getConfigMessage(char *username) {
         num_msgs = cdbfr->len / sizeof(long);
         cdb_free(cdbfr);
     } else {
-        lprintf(CTDL_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
+        CtdlLogPrintf(CTDL_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
         return -1;	/* No messages at all?  No further action. */
     }
     int a;

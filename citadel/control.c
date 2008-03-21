@@ -66,8 +66,8 @@ void lock_control(void)
  */
 
 	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
-		lprintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
-		lprintf(CTDL_EMERG, "Is another citserver already running?\n");
+		CtdlLogPrintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
+		CtdlLogPrintf(CTDL_EMERG, "Is another citserver already running?\n");
 		exit(CTDLEXIT_CONTROL);
 	}
 #endif
@@ -163,7 +163,7 @@ void get_control(void)
 		}
 	}
 	if (control_fp == NULL) {
-		lprintf(CTDL_ALERT, "ERROR opening %s: %s\n",
+		CtdlLogPrintf(CTDL_ALERT, "ERROR opening %s: %s\n",
 				file_citadel_control,
 				strerror(errno));
 		return;

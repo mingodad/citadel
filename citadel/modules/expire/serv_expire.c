@@ -225,12 +225,12 @@ void DoPurgeMessages(FILE *purgelist) {
 void PurgeMessages(void) {
 	FILE *purgelist;
 
-	lprintf(CTDL_DEBUG, "PurgeMessages() called\n");
+	CtdlLogPrintf(CTDL_DEBUG, "PurgeMessages() called\n");
 	messages_purged = 0;
 
 	purgelist = tmpfile();
 	if (purgelist == NULL) {
-		lprintf(CTDL_CRIT, "Can't create purgelist temp file: %s\n",
+		CtdlLogPrintf(CTDL_CRIT, "Can't create purgelist temp file: %s\n",
 			strerror(errno));
 		return;
 	}
@@ -297,7 +297,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		age = time(NULL) - (qrbuf->QRmtime);
 		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
-		lprintf(CTDL_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
 	} /* !QR_MAILBOX */
 
@@ -319,7 +319,7 @@ int PurgeRooms(void) {
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
-	lprintf(CTDL_DEBUG, "PurgeRooms() called\n");
+	CtdlLogPrintf(CTDL_DEBUG, "PurgeRooms() called\n");
 
 
 	/* Load up a table full of valid user numbers so we can delete
@@ -356,7 +356,7 @@ int PurgeRooms(void) {
 	if (num_rooms_purged > 0) aide_message(transcript, "Room Autopurger Message");
 	free(transcript);
 
-	lprintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
+	CtdlLogPrintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
 }
 
@@ -486,7 +486,7 @@ int PurgeUsers(void) {
 	int num_users_purged = 0;
 	char *transcript = NULL;
 
-	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
+	CtdlLogPrintf(CTDL_DEBUG, "PurgeUsers() called\n");
 	users_not_purged = 0;
 
 	switch(config.c_auth_mode) {
@@ -497,7 +497,7 @@ int PurgeUsers(void) {
 			ForEachUser(do_uid_user_purge, NULL);
 			break;
 		default:
-			lprintf(CTDL_DEBUG, "Unknown authentication mode!\n");
+			CtdlLogPrintf(CTDL_DEBUG, "Unknown authentication mode!\n");
 			break;
 	}
 
@@ -541,7 +541,7 @@ int PurgeUsers(void) {
 	}
 	
 		
-	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
+	CtdlLogPrintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
 }
 
@@ -656,7 +656,7 @@ int PurgeUseTable(void) {
 	struct UPurgeList *uptr; 
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	lprintf(CTDL_DEBUG, "Purge use table: phase 1\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: phase 1\n");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
@@ -683,7 +683,7 @@ int PurgeUseTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	lprintf(CTDL_DEBUG, "Purge use table: phase 2\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: phase 2\n");
 	while (ul != NULL) {
 		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
 		uptr = ul->next;
@@ -691,7 +691,7 @@ int PurgeUseTable(void) {
 		ul = uptr;
 	}
 
-	lprintf(CTDL_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
+	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -710,7 +710,7 @@ int PurgeEuidIndexTable(void) {
 	struct CtdlMessage *msg = NULL;
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	lprintf(CTDL_DEBUG, "Purge EUID index: phase 1\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Purge EUID index: phase 1\n");
 	cdb_rewind(CDB_EUIDINDEX);
 	while(cdbei = cdb_next_item(CDB_EUIDINDEX), cdbei != NULL) {
 
@@ -737,7 +737,7 @@ int PurgeEuidIndexTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	lprintf(CTDL_DEBUG, "Purge euid index: phase 2\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Purge euid index: phase 2\n");
 	while (el != NULL) {
 		cdb_delete(CDB_EUIDINDEX, el->ep_key, el->ep_keylen);
 		free(el->ep_key);
@@ -746,7 +746,7 @@ int PurgeEuidIndexTable(void) {
 		el = eptr;
 	}
 
-	lprintf(CTDL_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
+	CtdlLogPrintf(CTDL_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -759,7 +759,7 @@ void *purge_databases(void *args)
         struct tm tm;
 	struct CitContext purgerCC;
 
-	lprintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
+	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
 
 	memset(&purgerCC, 0, sizeof(struct CitContext));
 	purgerCC.internal_pgm = 1;
@@ -779,57 +779,57 @@ void *purge_databases(void *args)
                 }
 
 
-                lprintf(CTDL_INFO, "Auto-purger: starting.\n");
+                CtdlLogPrintf(CTDL_INFO, "Auto-purger: starting.\n");
 
 		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUsers();
-                	lprintf(CTDL_NOTICE, "Purged %d users.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d users.\n", retval);
 		}
 		
 		if (!CtdlThreadCheckStop())
 		{
                 	PurgeMessages();
-                	lprintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
+                	CtdlLogPrintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeRooms();
-                	lprintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeVisits();
-                	lprintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUseTable();
-                	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeEuidIndexTable();
-                	lprintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = TDAP_ProcessAdjRefCountQueue();
-                	lprintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
+                	CtdlLogPrintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
-                	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
+                	CtdlLogPrintf(CTDL_INFO, "Auto-purger: finished.\n");
 	                last_purge = now;	/* So we don't do it again soon */
 		}
 		else
-                	lprintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
+                	CtdlLogPrintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
 
         }
         return NULL;

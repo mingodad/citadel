@@ -103,7 +103,7 @@ xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
 
 void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns) {
 
-	lprintf(CTDL_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
+	CtdlLogPrintf(CTDL_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.

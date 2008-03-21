@@ -306,7 +306,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	 * First try the neighbor nodes
 	 */
 	if (working_ignetcfg == NULL) {
-		lprintf(CTDL_ERR, "working_ignetcfg is NULL!\n");
+		CtdlLogPrintf(CTDL_ERR, "working_ignetcfg is NULL!\n");
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
 		}
@@ -354,7 +354,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	/*
 	 * If we get to this point, the supplied node name is bogus.
 	 */
-	lprintf(CTDL_ERR, "Invalid node name <%s>\n", node);
+	CtdlLogPrintf(CTDL_ERR, "Invalid node name <%s>\n", node);
 	return(-1);
 }
 
@@ -504,7 +504,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
+		CtdlLogPrintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
 		abort();
 	}
 
@@ -551,7 +551,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
+		CtdlLogPrintf(CTDL_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
 		abort();
 	}
 
@@ -785,12 +785,12 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 			/* Check for valid node name */
 			if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
-				lprintf(CTDL_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
+				CtdlLogPrintf(CTDL_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
 				send = 0;
 			}
 
 			/* Check for split horizon */
-			lprintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
+			CtdlLogPrintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
 			bang = num_tokens(msg->cm_fields['P'], '!');
 			if (bang > 1) for (i=0; i<(bang-1); ++i) {
 				extract_token(buf, msg->cm_fields['P'],
@@ -825,7 +825,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					snprintf(filename, sizeof filename,"%s/%s",
 						 	ctdl_netout_dir,
 						 	mptr->remote_nodename);
-					lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
+					CtdlLogPrintf(CTDL_DEBUG, "Appending to %s\n", filename);
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
 						fwrite(sermsg.ser,
@@ -833,7 +833,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 						fclose(fp);
 					}
 					else {
-						lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
+						CtdlLogPrintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
 					}
 	
 					/* free the serialized version */
@@ -991,7 +991,7 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 	sc = *scc;
 	fp = fopen(filename, "w");
 	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
 			filename, strerror(errno));
 		free_spoolcontrol_struct(scc);
 	}
@@ -1087,13 +1087,13 @@ void network_spoolout_room(char *room_to_spool) {
 	 * queued for networking and then deleted before it can happen.
 	 */
 	if (getroom(&CC->room, room_to_spool) != 0) {
-		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
 	}
 
 	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 
-	lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
+	CtdlLogPrintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
 	begin_critical_section(S_NETCONFIGS);
 
 	/* Only do net processing for rooms that have netconfigs */
@@ -1198,7 +1198,7 @@ int network_sync_to(char *target_node) {
 	/* Concise cleanup because we know there's only one node in the sc */
 	free(sc.ignet_push_shares);
 
-	lprintf(CTDL_NOTICE, "Synchronized %d messages to <%s>\n",
+	CtdlLogPrintf(CTDL_NOTICE, "Synchronized %d messages to <%s>\n",
 		num_spooled, target_node);
 	return(num_spooled);
 }
@@ -1317,7 +1317,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	static int serialnum = 0;
 	size_t size;
 
-	lprintf(CTDL_DEBUG, "entering network_bounce()\n");
+	CtdlLogPrintf(CTDL_DEBUG, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
 
@@ -1406,7 +1406,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	/* Clean up */
 	if (valid != NULL) free_recipients(valid);
 	CtdlFreeMessage(msg);
-	lprintf(CTDL_DEBUG, "leaving network_bounce()\n");
+	CtdlLogPrintf(CTDL_DEBUG, "leaving network_bounce()\n");
 }
 
 
@@ -1434,7 +1434,7 @@ void network_process_buffer(char *buffer, long size) {
 	firstbyte = buffer[0];
 	lastbyte = buffer[size-1];
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
-		lprintf(CTDL_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
+		CtdlLogPrintf(CTDL_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
 			size, firstbyte, lastbyte);
 		return;
 	}
@@ -1488,7 +1488,7 @@ void network_process_buffer(char *buffer, long size) {
 						 "%s/%s",
 						 ctdl_netout_dir,
 						 nexthop);
-				lprintf(CTDL_DEBUG, "Appending to %s\n", filename);
+				CtdlLogPrintf(CTDL_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
 					fwrite(sermsg.ser,
@@ -1496,7 +1496,7 @@ void network_process_buffer(char *buffer, long size) {
 					fclose(fp);
 				}
 				else {
-					lprintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
+					CtdlLogPrintf(CTDL_ERR, "%s: %s\n", filename, strerror(errno));
 				}
 				free(sermsg.ser);
 				CtdlFreeMessage(msg);
@@ -1619,12 +1619,12 @@ void network_process_file(char *filename) {
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
+		CtdlLogPrintf(CTDL_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
 		return;
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	lprintf(CTDL_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
+	CtdlLogPrintf(CTDL_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
 	rewind(fp);
 
 	/* Look for messages in the data stream and break them out */
@@ -1667,11 +1667,11 @@ void network_do_spoolin(void) {
 	 */
 	if (stat(ctdl_netin_dir, &statbuf)) return;
 	if (statbuf.st_mtime == last_spoolin_mtime) {
-		lprintf(CTDL_DEBUG, "network: nothing in inbound queue\n");
+		CtdlLogPrintf(CTDL_DEBUG, "network: nothing in inbound queue\n");
 		return;
 	}
 	last_spoolin_mtime = statbuf.st_mtime;
-	lprintf(CTDL_DEBUG, "network: processing inbound queue\n");
+	CtdlLogPrintf(CTDL_DEBUG, "network: processing inbound queue\n");
 
 	/*
 	 * Ok, there's something interesting in there, so scan it.
@@ -1746,7 +1746,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
 	if (sock_puts(sock, "NDOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
-	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
 	}
@@ -1755,7 +1755,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	bytes_received = 0L;
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
-		lprintf(CTDL_CRIT, "cannot open download file locally: %s\n",
+		CtdlLogPrintf(CTDL_CRIT, "cannot open download file locally: %s\n",
 			strerror(errno));
 		return;
 	}
@@ -1816,9 +1816,9 @@ void receive_spool(int sock, char *remote_nodename) {
 		return;
 	}
 	if (download_len > 0) {
-		lprintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
+		CtdlLogPrintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
 	}
-	lprintf(CTDL_DEBUG, "%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
 	
 	/* Now copy the temp file to its permanent location.
 	 * (We copy instead of link because they may be on different filesystems)
@@ -1869,7 +1869,7 @@ void transmit_spool(int sock, char *remote_nodename)
 
 	if (sock_puts(sock, "NUOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
-	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
 	}
@@ -1881,7 +1881,7 @@ void transmit_spool(int sock, char *remote_nodename)
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
 		if (errno != ENOENT) {
-			lprintf(CTDL_CRIT, "cannot open upload file locally: %s\n",
+			CtdlLogPrintf(CTDL_CRIT, "cannot open upload file locally: %s\n",
 				strerror(errno));
 		}
 		return;
@@ -1965,7 +1965,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	/* Read the server greeting */
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-	lprintf(CTDL_DEBUG, ">%s\n", buf);
+	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 
 	/* Identify ourselves */
 	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
@@ -2188,7 +2188,7 @@ void cmd_netp(char *cmdbuf)
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
 	if (doing_queue) {
-		lprintf(CTDL_WARNING, "Network node <%s> refused - spooling", node);
+		CtdlLogPrintf(CTDL_WARNING, "Network node <%s> refused - spooling", node);
 		cprintf("%d spooling - try again in a few minutes\n",
 			ERROR + RESOURCE_BUSY);
 		return;
@@ -2199,27 +2199,27 @@ void cmd_netp(char *cmdbuf)
 	v = is_valid_node(nexthop, secret, node);
 
 	if (v != 0) {
-		lprintf(CTDL_WARNING, "Unknown node <%s>\n", node);
+		CtdlLogPrintf(CTDL_WARNING, "Unknown node <%s>\n", node);
 		cprintf("%d authentication failed\n",
 			ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		lprintf(CTDL_WARNING, "Bad password for network node <%s>", node);
+		CtdlLogPrintf(CTDL_WARNING, "Bad password for network node <%s>", node);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		lprintf(CTDL_WARNING, "Duplicate session for network node <%s>", node);
+		CtdlLogPrintf(CTDL_WARNING, "Duplicate session for network node <%s>", node);
 		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
 		return;
 	}
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
-	lprintf(CTDL_NOTICE, "Network node <%s> logged in\n", CC->net_node);
+	CtdlLogPrintf(CTDL_NOTICE, "Network node <%s> logged in\n", CC->net_node);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
 		CC->net_node);
 }

@@ -933,7 +933,7 @@ void usergoto(char *where, int display_result, int transiently,
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
-	lprintf(CTDL_DEBUG, "<%s> %d new of %d total messages\n",
+	CtdlLogPrintf(CTDL_DEBUG, "<%s> %d new of %d total messages\n",
 		CC->room.QRname,
 		new_messages, total_messages
 	);
@@ -1073,7 +1073,7 @@ void cmd_goto(char *gargs)
 				   ((ra & UA_KNOWN) == 0) &&
 			           (CC->user.axlevel < 6)
                                   ) {
-				lprintf(CTDL_DEBUG, "Failed to acquire private room\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Failed to acquire private room\n");
 			} else {
 				memcpy(&CC->room, &QRscratch,
 					sizeof(struct ctdlroom));
@@ -1249,7 +1249,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	long owner = 0L;
 	char actual_old_name[ROOMNAMELEN];
 
-	lprintf(CTDL_DEBUG, "CtdlRenameRoom(%s, %s, %d)\n",
+	CtdlLogPrintf(CTDL_DEBUG, "CtdlRenameRoom(%s, %s, %d)\n",
 		old_name, new_name, new_floor);
 
 	if (new_floor >= 0) {
@@ -1340,11 +1340,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		lprintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
+		CtdlLogPrintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
 		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
 		lputfloor(&flbuf, new_floor);
-		lprintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
+		CtdlLogPrintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	
@@ -1593,7 +1593,7 @@ void schedule_room_for_deletion(struct ctdlroom *qrbuf)
 	char old_name[ROOMNAMELEN];
 	static int seq = 0;
 
-	lprintf(CTDL_NOTICE, "Scheduling room <%s> for deletion\n",
+	CtdlLogPrintf(CTDL_NOTICE, "Scheduling room <%s> for deletion\n",
 		qrbuf->QRname);
 
 	safestrncpy(old_name, qrbuf->QRname, sizeof old_name);
@@ -1631,7 +1631,7 @@ void delete_room(struct ctdlroom *qrbuf)
 	char filename[100];
 	/* TODO: filename magic? does this realy work? */
 
-	lprintf(CTDL_NOTICE, "Deleting room <%s>\n", qrbuf->QRname);
+	CtdlLogPrintf(CTDL_NOTICE, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_info_dir);
@@ -1762,11 +1762,11 @@ unsigned create_room(char *new_room_name,
 	struct floor flbuf;
 	struct visit vbuf;
 
-	lprintf(CTDL_DEBUG, "create_room(name=%s, type=%d, view=%d)\n",
+	CtdlLogPrintf(CTDL_DEBUG, "create_room(name=%s, type=%d, view=%d)\n",
 		new_room_name, new_room_type, new_room_view);
 
 	if (getroom(&qrbuf, new_room_name) == 0) {
-		lprintf(CTDL_DEBUG, "%s already exists.\n", new_room_name);
+		CtdlLogPrintf(CTDL_DEBUG, "%s already exists.\n", new_room_name);
 		return(0);
 	}
 
@@ -1974,9 +1974,9 @@ void cmd_einf(char *ok)
 		return;
 	}
 	assoc_file_name(infofilename, sizeof infofilename, &CC->room, ctdl_info_dir);
-	lprintf(CTDL_DEBUG, "opening\n");
+	CtdlLogPrintf(CTDL_DEBUG, "opening\n");
 	fp = fopen(infofilename, "w");
-	lprintf(CTDL_DEBUG, "checking\n");
+	CtdlLogPrintf(CTDL_DEBUG, "checking\n");
 	if (fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
 		  ERROR + INTERNAL_ERROR, infofilename, strerror(errno));

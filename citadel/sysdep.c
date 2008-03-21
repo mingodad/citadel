@@ -97,30 +97,16 @@ int enable_syslog = 0;
 
 
 /*
- * Create an interface to lprintf that follows the coding convention.
- * This is here until such time as we have replaced all calls to lprintf with CtdlLogPrintf
+ * CtdlLogPrintf()  ...   Write logging information
  */
- 
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...)
-{
+void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
 	va_start(arg_ptr, format);
-	vlprintf(loglevel, format, arg_ptr);
+	vCtdlLogPrintf(loglevel, format, arg_ptr);
 	va_end(arg_ptr);
 }
 
-
-/*
- * lprintf()  ...   Write logging information
- */
-void lprintf(enum LogLevel loglevel, const char *format, ...) {   
-	va_list arg_ptr;
-	va_start(arg_ptr, format);
-	vlprintf(loglevel, format, arg_ptr);
-	va_end(arg_ptr);
-}
-
-void vlprintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
+void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 {
 	char buf[SIZ], buf2[SIZ];
 
@@ -774,7 +760,7 @@ void context_cleanup(void)
 		rem = ptr->next;
 		--num_sessions;
 		
-		lprintf(CTDL_DEBUG, "Purging session %d\n", ptr->cs_pid);
+		CtdlLogPrintf(CTDL_DEBUG, "Purging session %d\n", ptr->cs_pid);
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;

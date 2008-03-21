@@ -62,14 +62,13 @@ enum LogLevel {
 };
 
 #ifdef __GNUC__
-void lprintf (enum LogLevel loglevel, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
 #else
-void lprintf (enum LogLevel loglevel, const char *format, ...);
 void cprintf (const char *format, ...);
 #endif
 
-void vlprintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
+void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
+void vCtdlLogPrintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
 
 extern pthread_key_t MyConKey;			/* TSD key for MyContext() */
 
