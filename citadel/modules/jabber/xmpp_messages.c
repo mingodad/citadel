@@ -103,5 +103,6 @@ void jabber_send_message(char *message_to, char *message_body) {
 	free(XMPP->message_body);
 	XMPP->message_body = NULL;
 	XMPP->message_to[0] = 0;
+	time(&CC->lastidle);
 }
 
