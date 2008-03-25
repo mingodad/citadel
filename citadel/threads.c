@@ -471,7 +471,7 @@ int CtdlThreadCheckStop(void)
 	
 	state = CT->state;
 
-#ifdef THREADS_USERSIGNALS
+#ifdef THREADS_USESIGNALS
 	if (CT->signal)
 		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
 #endif
