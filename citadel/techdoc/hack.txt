@@ -255,8 +255,7 @@ E	Exclusive ID	A persistent alphanumeric Message ID used for
 F	rFc822 address	For Internet mail, this is the delivery address of the
 			message author.
 H	Human node name	Human-readable name of system message originated on.
-I	Original ID	A 32-bit integer containing the message ID on the
-			system the message *originated* on.
+I	Message ID	An RFC822-compatible message ID for this message.
 J	Journal		The presence of this field indicates that the message
 			is disqualified from being journaled, perhaps because
 			it is itself a journalized message and we wish to
@@ -286,6 +285,8 @@ T	date/Time	A 32-bit integer containing the date and time of
 U       sUbject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.
 V	enVelope-to	The recipient specified in incoming SMTP messages.
+W	Weferences	Sort of like thread-id + references + in-reply-to
+			(not yet implemented.  coming soon.)
 Y	carbon copY	Optional, and only in Mail messages.
 0	Error		This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are
