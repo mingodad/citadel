@@ -100,7 +100,7 @@ char *msgkeys[] = {
 	"time",
 	"subj",
 	NULL,
-	NULL,
+	"wefw",
 	NULL,
 	"cccc",
 	NULL
@@ -1688,6 +1688,20 @@ int CtdlOutputPreLoadedMsg(
 					datestring(datestamp, sizeof datestamp,
 						atol(mptr), DATESTRING_RFC822);
 					cprintf("Date: %s%s", datestamp, nl);
+				}
+				else if (i == 'W') {
+					cprintf("References: ");
+					k = num_tokens(mptr, '|');
+					for (i=0; i<k; ++i) {
+						extract_token(buf, mptr, i, '|', sizeof buf);
+						cprintf("<%s>", buf);
+						if (i == (k-1)) {
+							cprintf("%s", nl);
+						}
+						else {
+							cprintf(" ");
+						}
+					}
 				}
 			}
 		}

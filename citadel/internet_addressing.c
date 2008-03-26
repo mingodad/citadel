@@ -397,9 +397,61 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "References")) {
+		if (msg->cm_fields['W'] != NULL) {
+			free(msg->cm_fields['W']);
+		}
+		msg->cm_fields['W'] = strdup(value);
+		processed = 1;
+	}
+
+	else if (!strcasecmp(key, "In-reply-to")) {
+		if (msg->cm_fields['W'] == NULL) {		/* References: supersedes In-reply-to: */
+			msg->cm_fields['W'] = strdup(value);
+		}
+		processed = 1;
+	}
+
+
+
 	/* Clean up and move on. */
 	free(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);
+}
+
+
+/*
+ * Convert RFC822 references format (References) to Citadel references format (Weferences)
+ */
+void convert_references_to_wefewences(char *str) {
+	int bracket_nesting = 0;
+	char *ptr = str;
+	char *moveptr = NULL;
+	char ch;
+
+	while(*ptr) {
+		ch = *ptr;
+		if (ch == '>') {
+			--bracket_nesting;
+			if (bracket_nesting < 0) bracket_nesting = 0;
+		}
+		if ((ch == '>') && (bracket_nesting == 0) && (*(ptr+1)) && (ptr>str) ) {
+			*ptr = '|';
+			++ptr;
+		}
+		else if (bracket_nesting > 0) {
+			++ptr;
+		}
+		else {
+			moveptr = ptr;
+			while (*moveptr) {
+				*moveptr = *(moveptr+1);
+				++moveptr;
+			}
+		}
+		if (ch == '<') ++bracket_nesting;
+	}
+
 }
 
 
@@ -482,6 +534,13 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	if (msg->cm_fields['T'] == NULL) {
 		snprintf(buf, sizeof buf, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdup(buf);
+	}
+
+	/* If a W (references, or rather, Wefewences) field is present, we
+	 * have to convert it from RFC822 format to Citadel format.
+	 */
+	if (msg->cm_fields['W'] != NULL) {
+		convert_references_to_wefewences(msg->cm_fields['W']);
 	}
 
 	return msg;

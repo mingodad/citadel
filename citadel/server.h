@@ -397,6 +397,6 @@ struct UseTable {
 /*               **********			Important fields		*/
 /*                         ***************	Semi-important fields		*/
 /*                                        * 	Message text (MUST be last)	*/
-#define FORDER	"IPTAFONHRDBCEJGKLQSVWXZYUM"
+#define FORDER	"IPTAFONHRDBCEWJGKLQSVXZYUM"
 
 #endif /* SERVER_H */
