@@ -919,6 +919,97 @@ void stripltlen(char *buf, int *len)
 	}
 }
 
+/**
+ * \brief detect whether this char starts an utf-8 encoded char
+ * \param Char character to inspect
+ * \returns yes or no
+ */
+inline int Ctdl_IsUtf8SequenceStart(char Char)
+{
+/** 11??.???? indicates an UTF8 Sequence. */
+	return ((Char & 0xC0) != 0);
+}
+
+/**
+ * \brief evaluate the length of an utf8 special character sequence
+ * \param Char the character to examine
+ * \returns width of utf8 chars in bytes
+ */
+inline int Ctdl_GetUtf8SequenceLength(char Char)
+{
+	int n = 1;
+        char test = (1<<7);
+	
+	while ((n < 8) && ((test & Char) != 0)) {
+		test = test << 1;
+		n ++;
+	}
+	if (n > 6)
+		n = 1;
+	return n;
+}
+
+/**
+ * \brief measure the number of glyphs in an UTF8 string...
+ * \param str string to measure
+ * \returns the length of str
+ */
+int Ctdl_Utf8StrLen(char *str)
+{
+	int n = 0;
+	int m = 0;
+	char *aptr;
+
+	if (str == NULL)
+		return n;
+	aptr = str;
+	while (*aptr != '\0') {
+		if (Ctdl_IsUtf8SequenceStart(*aptr)){
+			m = Ctdl_GetUtf8SequenceLength(*aptr);
+			while ((m-- > 0) && (*aptr++ != '\0'))
+				n ++;
+		}
+		else {
+			n++;
+			aptr++;
+		}
+			
+	}
+	return n;
+}
+
+/**
+ * \brief cuts a string after maxlen glyphs
+ * \param str string to cut to maxlen glyphs
+ * \param maxlen how long may the string become?
+ * \returns pointer to maxlen or the end of the string
+ */
+char *Ctdl_Utf8StrCut(char *str, int maxlen)
+{
+	int n, m = 0;
+	char *aptr;
+
+	if (str == NULL)
+		return NULL;
+	aptr = str;
+	while (*aptr != '\0') {
+		if (Ctdl_IsUtf8SequenceStart(*aptr)){
+			m = Ctdl_GetUtf8SequenceLength(*aptr);
+			while ((m-- > 0) && (*aptr++ != '\0'))
+				n ++;
+		}
+		else {
+			n++;
+			aptr++;
+		}
+		if (n > maxlen) {
+			*aptr = '\0';
+			return aptr;
+		}			
+	}
+	return aptr;
+}
+
 
 /*
  * Convert all whitespace characters in a supplied string to underscores
@@ -937,3 +1028,4 @@ void convert_spaces_to_underscores(char *str)
 		}
 	}
 }
+

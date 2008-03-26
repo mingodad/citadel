@@ -186,6 +186,10 @@ void ShutDownLibCitadel(void);
 
 /* tools */
 
+int Ctdl_IsUtf8SequenceStart(char Char);
+int Ctdl_GetUtf8SequenceLength(char Char);
+int Ctdl_Utf8StrLen(char *str);
+char *Ctdl_Utf8StrCut(char *str, int maxlen);
 
 
 int safestrncpy(char *dest, const char *src, size_t n);
