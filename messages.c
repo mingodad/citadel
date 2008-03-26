@@ -1381,7 +1381,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	char *ptr = NULL;
 	int num_attachments = 0;
 	struct wc_attachment *att, *aptr;
-	char m_subject[256];
+	char m_subject[1024];
 	char from[256];
 	char node[256];
 	char rfca[256];
@@ -2015,6 +2015,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	char inetaddr[128];
 	char subject[256];
 	int nummsgs;
+	int sbjlen;
 	int maxload = 0;
 
 	int num_summ_alloc = 0;
@@ -2069,8 +2070,12 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 					safestrncpy(WC->summ[nummsgs-1].subj, subject,
 						    sizeof WC->summ[nummsgs-1].subj);
 				}
-				if (strlen(WC->summ[nummsgs-1].subj) > 75) {
-					strcpy(&WC->summ[nummsgs-1].subj[72], "...");
+				sbjlen = Ctdl_Utf8StrLen(WC->summ[nummsgs-1].subj);
+				if (sbjlen > 75) {
+					char *ptr;
+					ptr = Ctdl_Utf8StrCut(WC->summ[nummsgs-1].subj, 72);
+
+					strcpy(ptr, "...");
 				}
 
 				if (!IsEmptyStr(nodename)) {
