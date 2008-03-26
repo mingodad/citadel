@@ -626,9 +626,9 @@ void CtdlThreadGC (void)
 	if(num_threads == 1)
 		CtdlThreadList->state = CTDL_THREAD_EXITED;
 	
-// #ifdef WITH_THREADLOG
+#ifdef WITH_THREADLOG
 	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
-// #endif
+#endif
 	/*
 	 * Woke up to do garbage collection
 	 */
