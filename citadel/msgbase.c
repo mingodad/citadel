@@ -1461,7 +1461,7 @@ int CtdlOutputPreLoadedMsg(
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
-	int i, k;
+	int i, j, k;
 	char buf[SIZ];
 	cit_uint8_t ch;
 	char allkeys[30];
@@ -1692,10 +1692,10 @@ int CtdlOutputPreLoadedMsg(
 				else if (i == 'W') {
 					cprintf("References: ");
 					k = num_tokens(mptr, '|');
-					for (i=0; i<k; ++i) {
-						extract_token(buf, mptr, i, '|', sizeof buf);
+					for (j=0; j<k; ++j) {
+						extract_token(buf, mptr, j, '|', sizeof buf);
 						cprintf("<%s>", buf);
-						if (i == (k-1)) {
+						if (j == (k-1)) {
 							cprintf("%s", nl);
 						}
 						else {
