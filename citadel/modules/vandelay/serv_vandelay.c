@@ -582,7 +582,7 @@ void artv_import_user(void) {
 }
 
 
-void artv_import_room(void) {
+void artv_import_room(long *iterations) {
 	char cbuf[SIZ];
 	struct ctdlroom qrbuf, *buf;
 	long msgnum;
@@ -618,8 +618,15 @@ void artv_import_room(void) {
 	 * one per line terminated by a 0.
 	 */
 	while (client_getln(cbuf, sizeof cbuf), msgnum = atol(cbuf), msgnum > 0) {
+		CtdlLogPrintf(CTDL_DEBUG, "import room message link %d\n", msgnum);
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0, NULL);
+		cprintf(".");
+		++(*iterations);
+		if ((*iterations) % 64 == 0)
+			cprintf("\n");
 		++msgcount;
+		if (CtdlThreadCheckStop())
+			break;
 	}
 	CtdlLogPrintf(CTDL_INFO, "(%d messages)\n", msgcount);
 }
@@ -738,7 +745,9 @@ void artv_do_import(void) {
 	unbuffer_output();
 	iterations = 0;
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
-
+		if (CtdlThreadCheckStop())
+			break;	// Should we break or return?
+			
 		CtdlLogPrintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);
 		if ((abuf[0] == '\0') || (strcasecmp(buf, abuf))) {
 			cprintf ("\n\nImporting datatype %s\n", buf);
@@ -747,9 +756,9 @@ void artv_do_import(void) {
 		}
 		else {
   			cprintf(".");
+			iterations ++;
 			if (iterations % 64 == 0)
 				cprintf("\n");
-			
 		}
 		
 		if (!strcasecmp(buf, "version")) {
@@ -763,12 +772,10 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "config")) artv_import_config();
 		else if (!strcasecmp(buf, "control")) artv_import_control();
 		else if (!strcasecmp(buf, "user")) artv_import_user();
-		else if (!strcasecmp(buf, "room")) artv_import_room();
+		else if (!strcasecmp(buf, "room")) artv_import_room(&iterations);
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
 		else if (!strcasecmp(buf, "message")) artv_import_message();
-		else break;
-		iterations ++;
 	}
 	CtdlLogPrintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
