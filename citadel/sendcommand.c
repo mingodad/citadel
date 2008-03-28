@@ -161,6 +161,13 @@ void sendcommand_die(void) {
 }
 
 
+void check_exit_code(int code, void *arg)
+{
+	if (code == SIGALRM)
+		fprintf(stderr, "\nWatch dog time out.\n");
+}
+
+
 /*
  * main
  */
@@ -169,6 +176,7 @@ int main(int argc, char **argv)
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
+	int watchdog = 5;
 
 	int relh=0;
 	int home=0;
@@ -178,6 +186,8 @@ int main(int argc, char **argv)
 	struct timeval tv;
 	int ret, err;
 	int server_shutting_down = 0;
+	
+	on_exit (check_exit_code, NULL);
 
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
@@ -195,6 +205,10 @@ int main(int argc, char **argv)
 							sizeof relhome);
 			home_specified = 1;
 			home=1;
+		} else if (!strncmp(argv[a], "-w", 2)) {
+			watchdog = atoi(&argv[a][2]);
+			if (watchdog<1)
+				watchdog=1;
 		} else {
 			if (!IsEmptyStr(cmd))
 				strcat(cmd, " ");
@@ -216,7 +230,7 @@ int main(int argc, char **argv)
 			ctdl_home_directory);
 	fflush(stderr);
 
-	alarm(5);
+	alarm(watchdog);
 	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
 	
 	np_attach_to_server(UDS, ctdl_home_directory);
@@ -238,7 +252,7 @@ int main(int argc, char **argv)
 	if (buf[0] == '1') {
 		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
-			alarm(5); /* Kick the watchdog timer */
+			alarm(watchdog); /* Kick the watchdog timer */
 		}
 	} else if (buf[0] == '4') {
 		do {
@@ -278,7 +292,7 @@ int main(int argc, char **argv)
 					fflush (stdout);
 				}
 			}
-			alarm(5); /* Kick the watchdog timer */
+			alarm(watchdog); /* Kick the watchdog timer */
 		} while (strcmp(buf, "000"));
 		CtdlIPC_chat_send(ipc, "\n");
 		CtdlIPC_chat_send(ipc, "000");
