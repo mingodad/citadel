@@ -683,7 +683,7 @@ void artv_import_visit(void) {
 
 
 
-void artv_import_message(void) {
+void artv_import_message(long *iterations) {
 	struct MetaData smi;
 	long msgnum;
 	long msglen;
@@ -705,6 +705,10 @@ void artv_import_message(void) {
 	snprintf(buf, sizeof buf, "%s -d >%s", file_base64, tempfile);
 	fp = popen(buf, "w");
 	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
+		cprintf(".");
+		++(*iterations);
+		if ((*iterations) % 64 == 0)
+			cprintf("\n");
 		fprintf(fp, "%s\n", buf);
 	}
 	pclose(fp);
@@ -747,6 +751,9 @@ void artv_do_import(void) {
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (CtdlThreadCheckStop())
 			break;	// Should we break or return?
+		
+		if (buf[0] == '\0')
+			continue;
 			
 		CtdlLogPrintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);
 		if ((abuf[0] == '\0') || (strcasecmp(buf, abuf))) {
@@ -775,7 +782,8 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "room")) artv_import_room(&iterations);
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
-		else if (!strcasecmp(buf, "message")) artv_import_message();
+		else if (!strcasecmp(buf, "message")) artv_import_message(&iterations);
+		else break;
 	}
 	CtdlLogPrintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
