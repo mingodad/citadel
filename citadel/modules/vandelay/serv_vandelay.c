@@ -696,10 +696,7 @@ void artv_import_message(long *iterations, char **b64buf, size_t *b64size, char 
 	struct MetaData smi;
 	long msgnum;
 	long msglen;
-	FILE *fp;
 	char buf[SIZ];
-	char tempfile[PATH_MAX];
-	char *mbuf;
 	size_t b64len = 0;
 	char *tbuf, *tbuf2;
 	size_t mlen;
@@ -746,52 +743,23 @@ void artv_import_message(long *iterations, char **b64buf, size_t *b64size, char 
 	}
 	
 	/**
+	 * FIXME: This is an ideal place for a "sub thread". What we should do is create a new thread
+	 * This new thread would be given the base64 encoded message, it would then decode it and store
+	 * it. This would allow the thread that is reading from the client to continue doing so, basically
+	 * backgrounding the decode and store operation. This would increase the speed of the import from
+	 * the users perspective.
+	 */
+	
+	/**
 	 * Decode and store the message
 	 * If this decode and store takes more than 5 seconds the sendcommand WD timer may expire.
-	 * This is the reason for outputting a dot before and after.
 	 */
 	msglen = CtdlDecodeBase64(*plain, *b64buf, b64len);
-//	cprintdot(iterations);
 	CtdlLogPrintf(CTDL_DEBUG, "msglen = %ld\n", msglen);
 	cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), *plain, msglen);
-//	cprintdot(iterations);
 	PutMetaData(&smi);
 	CtdlLogPrintf(CTDL_INFO, "Imported message %ld\n", msgnum);
 	
-/*	
-	CtdlMakeTempFileName(tempfile, sizeof tempfile);
-	snprintf(buf, sizeof buf, "%s -d >%s", file_base64, tempfile);
-	fp = popen(buf, "w");
-	while (client_getln(buf, sizeof buf) >= 0 , strcasecmp(buf, END_OF_MESSAGE)) {
-		if (CtdlThreadCheckStop())
-		{
-			pclose(fp);
-			unlink (tempfile);
-			return;
-		}
-		cprintdot(iterations);
-		fprintf(fp, "%s\n", buf);
-	}
-	pclose(fp);
-	fp = fopen(tempfile, "rb");
-	fseek(fp, 0L, SEEK_END);
-	msglen = ftell(fp);
-	fclose(fp);
-	CtdlLogPrintf(CTDL_DEBUG, "msglen = %ld\n", msglen);
-
-	mbuf = malloc(msglen);
-	fp = fopen(tempfile, "rb");
-	fread(mbuf, msglen, 1, fp);
-	fclose(fp);
-
-        cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), mbuf, msglen);
-
-	free(mbuf);
-	unlink(tempfile);
-
-	PutMetaData(&smi);
-	CtdlLogPrintf(CTDL_INFO, "Imported message %ld\n", msgnum);
-*/
 }
 
 
