@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -329,14 +330,18 @@ void CtdlThreadStopAll(void)
 	
 	begin_critical_section(S_THREAD_LIST);
 	this_thread = CtdlThreadList;
+	// Ask the GC thread to stop first so everything knows we are shutting down.
+	GC_thread->state = CTDL_THREAD_STOP_REQ;
 	while(this_thread)
 	{
 #ifdef THREADS_USESIGNALS
-		citthread_killl(this_thread->tid, SIGHUP);
+		if (!citthread_equal(this_thread->tid, GC_thread->tid))
+			citthread_kill(this_thread->tid, SIGHUP);
 #endif
 		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 		citthread_cond_signal(&this_thread->ThreadCond);
 		citthread_cond_signal(&this_thread->SleepCond);
+		this_thread->stop_ticker = time(NULL);
 		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (0x%08lx).\n",
 			this_thread->name, this_thread->tid);
 		this_thread = this_thread->next;
@@ -473,7 +478,10 @@ int CtdlThreadCheckStop(void)
 
 #ifdef THREADS_USESIGNALS
 	if (CT->signal)
+	{
 		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
+		CT->signal = 0;
+	}
 #endif
 	if(state == CTDL_THREAD_STOP_REQ)
 	{
@@ -505,11 +513,13 @@ void CtdlThreadStop(CtdlThreadNode *thread)
 	if (!(this_thread->thread_func))
 		return; 	// Don't stop garbage collector
 #ifdef THREADS_USESIGNALS
-	citthread_kill(this_thread->tid, SIGHUP);	
+	if (!citthread_equal(this_thread->tid, GC_thread->tid))
+		citthread_kill(this_thread->tid, SIGHUP);
 #endif
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 	citthread_cond_signal(&this_thread->ThreadCond);
 	citthread_cond_signal(&this_thread->SleepCond);
+	this_thread->stop_ticker = time(NULL);
 }
 
 /*
@@ -640,7 +650,7 @@ void CtdlThreadGC (void)
 		
 		if ((that_thread->state == CTDL_THREAD_STOP_REQ || that_thread->state == CTDL_THREAD_STOPPING)
 			&& (!citthread_equal(that_thread->tid, citthread_self())))
-				that_thread->stop_ticker++;
+				CtdlLogPrintf(CTDL_DEBUG, "Waiting for thread %s (0x%08lx) to exit.\n", that_thread->name, that_thread->tid);
 		else
 		{
 			/**
@@ -650,7 +660,7 @@ void CtdlThreadGC (void)
 			that_thread->stop_ticker = 0;
 		}
 		
-		if (that_thread->stop_ticker == 5)
+		if (that_thread->stop_ticker + 5 == time(NULL))
 		{
 			CtdlLogPrintf(CTDL_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate within 5 ticks. It would be cancelled now.\n", that_thread->name, that_thread->tid);
 			if ((that_thread->flags & CTDLTHREAD_WORKER) == 0)
@@ -1120,7 +1130,7 @@ void ctdl_thread_internal_check_scheduled(void)
 				if (ctdl_thread_internal_start_scheduled (that_thread))
 				{
 #ifdef WITH_THREADLOG
-					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (%ud).\n",
+					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (0x%08lx).\n",
 						that_thread->name, that_thread->tid);
 #endif
 				}
@@ -1143,10 +1153,11 @@ void ctdl_thread_internal_check_scheduled(void)
  */
 int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
 {
-	int ret;
+	int ret = 0;
 	
 	ctdl_thread_internal_change_state(CT, CTDL_THREAD_BLOCKED);
-	ret = select(n, readfds, writefds, exceptfds, timeout);
+	if (!CtdlThreadCheckStop())
+		ret = select(n, readfds, writefds, exceptfds, timeout);
 	/**
 	 * If the select returned <= 0 then it failed due to an error
 	 * or timeout so this thread could stop if asked to do so.
@@ -1168,13 +1179,19 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 		 * idle and select has given it a task to do so it must not stop
 		 * In this condition we need to force it into the running state.
 		 * CtdlThreadGC will clear its ticker for us.
+		 *
+		 * FIXME: there is still a small hole here. It is possible for the sequence of locking
+		 * to allow the state to get changed to STOP_REQ just after this code if the other thread
+		 * has decided to change the state before this lock, it there fore has to wait till the lock
+		 * completes but it will continue to change the state. We need something a bit better here.
 		 */
-		if (GC_thread->state > CTDL_THREAD_STOP_REQ)
+		citthread_mutex_lock(&CT->ThreadMutex); /* To prevent race condition of a sleeping thread */
+		if (GC_thread->state > CTDL_THREAD_STOP_REQ && CT->state <= CTDL_THREAD_STOP_REQ)
 		{
-			citthread_mutex_lock(&CT->ThreadMutex); /* To prevent race condition of a sleeping thread */
+			CtdlLogPrintf(CTDL_DEBUG, "Thread %s (0x%08lx) refused stop request.\n", CT->name, CT->tid);
 			CT->state = CTDL_THREAD_RUNNING;
-			citthread_mutex_unlock(&CT->ThreadMutex);
 		}
+		citthread_mutex_unlock(&CT->ThreadMutex);
 	}
 
 	return ret;
@@ -1299,7 +1316,11 @@ void go_threading(void)
 			CtdlThreadGC();
 		}
 		
+#ifdef THREADS_USESIGNALS
+		if (CtdlThreadGetCount() && CT->state > CTDL_THREAD_STOP_REQ)
+#else
 		if (CtdlThreadGetCount())
+#endif
 			CtdlThreadSleep(1);
 	}
 	/*

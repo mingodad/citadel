@@ -637,7 +637,7 @@ void cmd_emsg(char *mname)
 	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
 
-	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
+	while (client_getln(buf, sizeof buf) >=0 && strcmp(buf, "000")) {
 		fprintf(mfp, "%s\n", buf);
 	}
 

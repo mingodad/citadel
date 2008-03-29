@@ -342,7 +342,7 @@ void cmd_conf(char *argbuf)
 		unbuffer_output();
 		cprintf("%d Send configuration...\n", SEND_LISTING);
 		a = 0;
-		while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
 			switch (a) {
 			case 0:
 				safestrncpy(config.c_nodename, buf,

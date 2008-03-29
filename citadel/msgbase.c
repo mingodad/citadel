@@ -744,7 +744,7 @@ void cmd_msgs(char *cmdbuf)
 		template->cm_magic = CTDLMESSAGE_MAGIC;
 		template->cm_anon_type = MES_NORMAL;
 
-		while(client_getln(buf, sizeof buf), strcmp(buf,"000")) {
+		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
 			extract_token(tfield, buf, 0, '|', sizeof tfield);
 			extract_token(tvalue, buf, 1, '|', sizeof tvalue);
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {

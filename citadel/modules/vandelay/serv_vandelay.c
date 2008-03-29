@@ -56,7 +56,7 @@ char artv_tempfilename2[PATH_MAX];
 FILE *artv_global_message_list;
 
 void artv_export_users_backend(struct ctdluser *buf, void *data) {
-	cprintf("user\n");
+	client_write("user\n", 5);
 /*
 #include "artv_serialize.h"
 #include "dtds/user-defs.h"
@@ -78,13 +78,26 @@ void artv_export_users_backend(struct ctdluser *buf, void *data) {
 }
 
 void artv_dump_users_backend(struct ctdluser *buf, void *data) {
-	cprintf("user\n");
+	client_write("user\n", 5);
 
 #include "artv_dump.h"
 #include "dtds/user-defs.h"
 #include "undef_data.h"
-	cprintf("\n");
+	client_write("\n", 1);
 }
+
+
+INLINE int cprintdot (long *iterations)
+{
+	int retval = 0;
+	
+	retval += client_write(".", 1);
+	++(*iterations);
+	if ((*iterations) % 64 == 0)
+		retval += client_write("\n", 1);
+	return retval;
+}
+
 
 
 void artv_export_users(void) {
@@ -104,12 +117,12 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 void artv_dump_room_msg(long msgnum, void *userdata) {
 	cprintf(" msgnum: %ld\n", msgnum);
 	fprintf(artv_global_message_list, "%ld\n", msgnum);
-	cprintf("\n");
+	client_write("\n", 1);
 }//// TODO
 
 
 void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
-	cprintf("room\n");
+	client_write("room\n", 5);
 /*
 #include "artv_serialize.h"
 #include "dtds/room-defs.h"
@@ -143,12 +156,12 @@ void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	 */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		artv_export_room_msg, NULL);
-	cprintf("0\n");
+	client_write("0\n", 2);
 
 }
 
 void artv_dump_rooms_backend(struct ctdlroom *buf, void *data) {
-	cprintf("room\n");
+	client_write("room\n", 5);
 
 #include "artv_dump.h"
 #include "dtds/room-defs.h"
@@ -165,7 +178,7 @@ void artv_dump_rooms_backend(struct ctdlroom *buf, void *data) {
 	 */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		artv_dump_room_msg, NULL);
-	cprintf("\n\n");
+	client_write("\n\n", 2);
 
 }
 
@@ -217,7 +230,7 @@ void artv_export_floors(void) {
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
-		cprintf("floor\n");
+		client_write("floor\n", 5);
 		cprintf("%d\n", i);
                 getfloor(&qfbuf, i);
 		buf = &qfbuf;
@@ -240,7 +253,7 @@ void artv_dump_floors(void) {
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
-		cprintf("floor\n");
+		client_write("floor\n", 5);
 		cprintf("%d\n", i);
                 getfloor(&qfbuf, i);
 		buf = &qfbuf;
@@ -271,7 +284,7 @@ void artv_export_visits(void) {
 			sizeof(struct visit) : cdbv->len));
 		cdb_free(cdbv);
 
-		cprintf("visit\n");
+		client_write("visit\n", 6);
 		cprintf("%ld\n", vbuf.v_roomnum);
 		cprintf("%ld\n", vbuf.v_roomgen);
 		cprintf("%ld\n", vbuf.v_usernum);
@@ -305,7 +318,7 @@ void artv_dump_visits(void) {
 			sizeof(struct visit) : cdbv->len));
 		cdb_free(cdbv);
 
-		cprintf("---visit---\n");
+		client_write("---visit---\n", 12);
 		cprintf(" Room-Num: %ld\n", vbuf.v_roomnum);
 		cprintf(" Room-Gen%ld\n", vbuf.v_roomgen);
 		cprintf(" User-Num%ld\n", vbuf.v_usernum);
@@ -335,7 +348,7 @@ void artv_export_message(long msgnum) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
 
-	cprintf("message\n");
+	client_write("message\n", 8);
 	GetMetaData(&smi, msgnum);
 	cprintf("%ld\n", msgnum);
 	cprintf("%d\n", smi.meta_refcount);
@@ -372,7 +385,7 @@ void artv_dump_message(long msgnum) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
 
-	cprintf("message\n");
+	client_write("message\n", 8);
 	GetMetaData(&smi, msgnum);
 	cprintf(" MessageNum: %ld\n", msgnum);
 	cprintf(" MetaRefcount: %d\n", smi.meta_refcount);
@@ -452,16 +465,16 @@ void artv_do_export(void) {
 	cprintf("version\n%d\n", REV_LEVEL);
 
 	/* export the config file (this is done using x-macros) */
-	cprintf("config\n");
+	client_write("config\n", 7);
 
 #include "artv_serialize.h"
 #include "dtds/config-defs.h"
 #include "undef_data.h"
-	cprintf("\n");
+	client_write("\n", 1);
 	
 	/* Export the control file */
 	get_control();
-	cprintf("control\n");
+	client_write("control\n", 8);
 	cprintf("%ld\n", CitControl.MMhighest);
 	cprintf("%u\n", CitControl.MMflags);
 	cprintf("%ld\n", CitControl.MMnextuser);
@@ -478,7 +491,7 @@ void artv_do_export(void) {
 	if (Ctx->kill_me != 1)
 		artv_export_messages();
 
-	cprintf("000\n");
+	client_write("000\n", 4);
 }
 
 void artv_do_dump(void) {
@@ -492,7 +505,7 @@ void artv_do_dump(void) {
 	cprintf("version\n%d\n", REV_LEVEL);
 
 	/* export the config file (this is done using x-macros) */
-	cprintf("config\n");
+	client_write("config\n", 7);
 
 #include "artv_dump.h"
 #include "dtds/config-defs.h"
@@ -500,7 +513,7 @@ void artv_do_dump(void) {
 
 	/* Export the control file */
 	get_control();
-	cprintf("control\n");
+	client_write("control\n", 8);
 	cprintf(" MMhighest: %ld\n", CitControl.MMhighest);
 	cprintf(" MMflags: %u\n", CitControl.MMflags);
 	cprintf(" MMnextuser: %ld\n", CitControl.MMnextuser);
@@ -517,7 +530,7 @@ void artv_do_dump(void) {
 	if (Ctx->kill_me != 1)
 		artv_dump_messages();
 
-	cprintf("000\n");
+	client_write("000\n", 4);
 }
 
 
@@ -617,13 +630,9 @@ void artv_import_room(long *iterations) {
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	while (client_getln(cbuf, sizeof cbuf), msgnum = atol(cbuf), msgnum > 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "import room message link %d\n", msgnum);
+	while ((client_getln(cbuf, sizeof cbuf) >= 0) && (msgnum = atol(cbuf))) {
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0, NULL);
-		cprintf(".");
-		++(*iterations);
-		if ((*iterations) % 64 == 0)
-			cprintf("\n");
+		cprintdot(iterations);
 		++msgcount;
 		if (CtdlThreadCheckStop())
 			break;
@@ -683,7 +692,7 @@ void artv_import_visit(void) {
 
 
 
-void artv_import_message(long *iterations) {
+void artv_import_message(long *iterations, char **b64buf, size_t *b64size, char **plain, size_t *plain_size) {
 	struct MetaData smi;
 	long msgnum;
 	long msglen;
@@ -691,7 +700,10 @@ void artv_import_message(long *iterations) {
 	char buf[SIZ];
 	char tempfile[PATH_MAX];
 	char *mbuf;
-
+	size_t b64len = 0;
+	char *tbuf, *tbuf2;
+	size_t mlen;
+	
 	memset(&smi, 0, sizeof(struct MetaData));
 	client_getln(buf, sizeof buf);	msgnum = atol(buf);
 				smi.meta_msgnum = msgnum;
@@ -701,14 +713,63 @@ void artv_import_message(long *iterations) {
 	CtdlLogPrintf(CTDL_INFO, "message #%ld\n", msgnum);
 
 	/* decode base64 message text */
+	while (client_getln(buf, sizeof buf) >= 0 && strcasecmp(buf, END_OF_MESSAGE)) {
+		if (CtdlThreadCheckStop())
+			return;
+			
+		cprintdot(iterations);
+		
+		/**
+		 * Grow the buffers if we need to
+		 */
+		mlen = strlen (buf);
+		if (b64len + mlen > *b64size)
+		{
+			tbuf = realloc (*b64buf, *b64size + SIZ);
+			tbuf2 = realloc (*plain, *plain_size + SIZ);
+			if (tbuf && tbuf2)
+			{
+				*b64buf = tbuf;
+				*plain = tbuf2;
+				*b64size += SIZ;
+				*plain_size += SIZ;
+			}
+			else
+			{
+				CtdlLogPrintf(CTDL_DEBUG, "ARTV import: realloc() failed.\n");
+				cprintf("\nMemory allocation failure.\n");
+				return;
+			}
+		}
+		strcat (*b64buf, buf);
+		b64len += mlen;
+	}
+	
+	/**
+	 * Decode and store the message
+	 * If this decode and store takes more than 5 seconds the sendcommand WD timer may expire.
+	 * This is the reason for outputting a dot before and after.
+	 */
+	msglen = CtdlDecodeBase64(*plain, *b64buf, b64len);
+//	cprintdot(iterations);
+	CtdlLogPrintf(CTDL_DEBUG, "msglen = %ld\n", msglen);
+	cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), *plain, msglen);
+//	cprintdot(iterations);
+	PutMetaData(&smi);
+	CtdlLogPrintf(CTDL_INFO, "Imported message %ld\n", msgnum);
+	
+/*	
 	CtdlMakeTempFileName(tempfile, sizeof tempfile);
 	snprintf(buf, sizeof buf, "%s -d >%s", file_base64, tempfile);
 	fp = popen(buf, "w");
-	while (client_getln(buf, sizeof buf), strcasecmp(buf, END_OF_MESSAGE)) {
-		cprintf(".");
-		++(*iterations);
-		if ((*iterations) % 64 == 0)
-			cprintf("\n");
+	while (client_getln(buf, sizeof buf) >= 0 , strcasecmp(buf, END_OF_MESSAGE)) {
+		if (CtdlThreadCheckStop())
+		{
+			pclose(fp);
+			unlink (tempfile);
+			return;
+		}
+		cprintdot(iterations);
 		fprintf(fp, "%s\n", buf);
 	}
 	pclose(fp);
@@ -730,6 +791,7 @@ void artv_import_message(long *iterations) {
 
 	PutMetaData(&smi);
 	CtdlLogPrintf(CTDL_INFO, "Imported message %ld\n", msgnum);
+*/
 }
 
 
@@ -741,14 +803,39 @@ void artv_do_import(void) {
 	char s_version[SIZ];
 	int version;
 	long iterations;
-
+	char *b64mes = NULL;
+	char *plain = NULL;
+	size_t b64size, plain_size;
+	
 	unbuffer_output();
 
+	/* Prepare buffers for base 64 decoding of messages.
+	*/
+	b64mes = malloc(SIZ);
+	if (b64mes == NULL)
+	{
+		cprintf("%d Malloc failed in import/export.\n",
+			ERROR + RESOURCE_BUSY);
+		return;
+	}
+	b64mes[0] = 0;
+	b64size=SIZ;
+	plain = malloc(SIZ);
+	if (plain == NULL)
+	{
+		cprintf("%d Malloc failed in import/export.\n",
+			ERROR + RESOURCE_BUSY);
+		free(b64mes);
+		return;
+	}
+	plain[0] = 0;
+	plain_size = SIZ;
+	
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	abuf[0] = '\0';
 	unbuffer_output();
 	iterations = 0;
-	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
+	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
 		if (CtdlThreadCheckStop())
 			break;	// Should we break or return?
 		
@@ -762,10 +849,7 @@ void artv_do_import(void) {
 			iterations = 0;
 		}
 		else {
-  			cprintf(".");
-			iterations ++;
-			if (iterations % 64 == 0)
-				cprintf("\n");
+			cprintdot(&iterations);
 		}
 		
 		if (!strcasecmp(buf, "version")) {
@@ -782,11 +866,19 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "room")) artv_import_room(&iterations);
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
-		else if (!strcasecmp(buf, "message")) artv_import_message(&iterations);
+		else if (!strcasecmp(buf, "message"))
+		{
+			b64mes[0] = 0;
+			plain[0] = 0;
+			artv_import_message(&iterations, &b64mes, &b64size, &plain, &plain_size);
+		}
 		else break;
 	}
+	free (b64mes);
+	free (plain);
+	
 	CtdlLogPrintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
-	while (client_getln(buf, sizeof buf), strcmp(buf, "000"))  ;;
+	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000"))  ;;
 	rebuild_euid_index();
 }
 

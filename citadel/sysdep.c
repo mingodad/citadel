@@ -160,16 +160,15 @@ volatile int restart_server = 0;
 volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
-	CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
 #ifdef THREADS_USESIGNALS
 	if (CT)
-	{
-		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, signum);
 		CT->signal = signum;
-	}
 	else
 #endif
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
 		exit_signal = signum;
+	}
 }
 
 
@@ -544,7 +543,7 @@ void unbuffer_output(void) {
 /*
  * client_write()   ...    Send binary data to the client.
  */
-void client_write(char *buf, int nbytes)
+int client_write(char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
@@ -565,7 +564,7 @@ void client_write(char *buf, int nbytes)
 		memcpy(&Ctx->redirect_buffer[Ctx->redirect_len], buf, nbytes);
 		Ctx->redirect_len += nbytes;
 		Ctx->redirect_buffer[Ctx->redirect_len] = 0;
-		return;
+		return 0;
 	}
 
 #ifndef HAVE_TCP_BUFFERING
@@ -575,7 +574,7 @@ void client_write(char *buf, int nbytes)
 		Ctx->buffer_len += nbytes;
 		Ctx->output_buffer = realloc(Ctx->output_buffer, Ctx->buffer_len);
 		memcpy(&Ctx->output_buffer[old_buffer_len], buf, nbytes);
-		return;
+		return 0;
 	}
 #endif
 
@@ -584,7 +583,7 @@ void client_write(char *buf, int nbytes)
 #ifdef HAVE_OPENSSL
 	if (Ctx->redirect_ssl) {
 		client_write_ssl(buf, nbytes);
-		return;
+		return 0;
 	}
 #endif
 
@@ -601,7 +600,7 @@ void client_write(char *buf, int nbytes)
 					strerror(errno), errno);
 				cit_backtrace();
 				Ctx->kill_me = 1;
-				return;
+				return -1;
 			}
 		}
 
@@ -615,10 +614,11 @@ void client_write(char *buf, int nbytes)
 			cit_backtrace();
 			// CtdlLogPrintf(CTDL_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			Ctx->kill_me = 1;
-			return;
+			return -1;
 		}
 		bytes_written = bytes_written + retval;
 	}
+	return 0;
 }
 
 
@@ -670,6 +670,15 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 		retval = select( (fd)+1, 
 				 &rfds, NULL, NULL, &tv);
+		if (retval < 0)
+		{
+			if (errno == EINTR)
+			{
+				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select().\n");
+				CC->kill_me = 1;
+				return (-1);
+			}
+		}
 
 		if (FD_ISSET(fd, &rfds) == 0) {
 			return(0);
@@ -1162,8 +1171,9 @@ do_select:	force_purge = 0;
 			if (errno != EINTR) {
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
-			} else if (!CtdlThreadCheckStop()) {
-				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select.\n");
+			} else {
+				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+				if (CtdlThreadCheckStop()) return(NULL);
 				goto do_select;
 			}
 		}
