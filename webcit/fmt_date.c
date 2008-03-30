@@ -22,6 +22,7 @@ typedef unsigned char byte;
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 {
 
+#ifdef ENABLE_NLS
 #ifdef HAVE_USELOCALE
 	if (wc_locales[WC->selected_language] == NULL) {
 		return strftime(s, max, format, tm);
@@ -29,6 +30,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 	else { // TODO: this gives empty strings on debian.
 		return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
 	}
+#endif
 #else
 	return strftime(s, max, format, tm);
 #endif
