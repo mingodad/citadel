@@ -319,7 +319,7 @@ struct message_summary {
 	long msgnum;		/**< the message number on the citadel server */
 	char from[128];		/**< the author */
 	char to[128];		/**< the recipient */
-	char subj[128];		/**< the title / subject */
+	char subj[256];		/**< the title / subject */
 	int hasattachments;	/**< does it have atachments? */
 	int is_new;         /**< is it yet read? */
 };

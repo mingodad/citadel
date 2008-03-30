@@ -2013,7 +2013,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	char fullname[128];
 	char nodename[128];
 	char inetaddr[128];
-	char subject[256];
+	char subject[1024];
 	int nummsgs;
 	int sbjlen;
 	int maxload = 0;
