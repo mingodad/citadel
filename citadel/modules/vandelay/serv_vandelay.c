@@ -230,7 +230,7 @@ void artv_export_floors(void) {
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
-		client_write("floor\n", 5);
+		client_write("floor\n", 6);
 		cprintf("%d\n", i);
                 getfloor(&qfbuf, i);
 		buf = &qfbuf;
@@ -253,7 +253,7 @@ void artv_dump_floors(void) {
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
-		client_write("floor\n", 5);
+		client_write("floor\n", 6);
 		cprintf("%d\n", i);
                 getfloor(&qfbuf, i);
 		buf = &qfbuf;
