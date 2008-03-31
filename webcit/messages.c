@@ -51,6 +51,24 @@ iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 }
 
 
+
+inline char *FindNextEnd (char *bptr)
+{
+	char * end;
+	/* Find the next ?Q? */
+	end = strchr(bptr + 2, '?');
+	if (end == NULL) return NULL;
+	if (((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && 
+	    (*(end + 2) == '?')) {
+		/* skip on to the end of the cluster, the next ?= */
+		end = strstr(end + 3, "?=");
+	}
+	else
+		/* sort of half valid encoding, try to find an end. */
+		end = strstr(bptr, "?=");
+	return end;
+}
+
 /**
  * \brief  Handle subjects with RFC2047 encoding
  *  such as:
@@ -114,14 +132,14 @@ void utf8ify_rfc822_string(char *buf) {
 	nextend = end = NULL;
 	len = strlen(buf);
 	start = strstr(buf, "=?");
-	if (start != NULL)
-		end = strstr(start, "?=");
+	if (start != NULL) 
+		end = FindNextEnd (start);
 
 	while ((start != NULL) && (end != NULL))
 	{
 		next = strstr(end, "=?");
 		if (next != NULL)
-			nextend = strstr(next, "?=");
+			nextend = FindNextEnd(next);
 		if (nextend == NULL)
 			next = NULL;
 
@@ -161,7 +179,7 @@ void utf8ify_rfc822_string(char *buf) {
 	/** Now we handle foreign character sets properly encoded
 	 *  in RFC2047 format.
 	 */
-	while (start=strstr(buf, "=?"), end=strstr(buf, "?="),
+	while (start=strstr(buf, "=?"), end=FindNextEnd((start != NULL)? start : buf),
 		((start != NULL) && (end != NULL) && (end > start)) )
 	{
 		extract_token(charset, start, 1, '?', sizeof charset);
