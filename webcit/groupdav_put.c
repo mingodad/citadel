@@ -19,6 +19,13 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 {
 	char buf[1024];
 
+	/*
+	 * Tell the server that when we save a calendar event, we
+	 * do *not* want the server to generate invitations. 
+	 */
+	serv_puts("ICAL sgi|0");
+	serv_getln(buf, sizeof buf);
+
 	serv_puts("ICAL putics");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
