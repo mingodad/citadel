@@ -741,13 +741,17 @@ void imap_select(int num_parms, char *parms[])
 	cprintf("* OK [UIDVALIDITY %ld] UID validity status\r\n", GLOBAL_UIDVALIDITY_VALUE);
 	cprintf("* OK [UIDNEXT %ld] Predicted next UID\r\n", CitControl.MMhighest + 1);
 
-	/* Note that \Deleted is a valid flag, but not a permanent flag,
+	/* Technically, \Deleted is a valid flag, but not a permanent flag,
 	 * because we don't maintain its state across sessions.  Citadel
 	 * automatically expunges mailboxes when they are de-selected.
+	 * 
+	 * Unfortunately, omitting \Deleted as a PERMANENTFLAGS flag causes
+	 * some clients (particularly Thunderbird) to misbehave -- they simply
+	 * electing not to transmit the flag at all.  So we have to advertise
+	 * \Deleted as a PERMANENTFLAGS flag, even though it technically isn't.
 	 */
 	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");
-	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen \\Answered)] "
-		"permanent flags\r\n");
+	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen \\Answered)] permanent flags\r\n");
 
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
@@ -1329,6 +1333,7 @@ void imap_command_loop(void)
 	int num_parms;
 	struct timeval tv1, tv2;
 	suseconds_t total_time = 0;
+	int untagged_ok = 1;
 
 	gettimeofday(&tv1, NULL);
 	CC->lastcmd = time(NULL);
@@ -1382,8 +1387,24 @@ void imap_command_loop(void)
 	 * If the command just submitted does not contain a literal, we
 	 * might think about delivering some untagged stuff...
 	 */
-	if (cmdbuf[strlen(cmdbuf)-1] != '}') {
+	if (cmdbuf[strlen(cmdbuf)-1] == '}') {
+		untagged_ok = 0;
+	}
 
+	/* Grab the tag, command, and parameters. */
+	num_parms = imap_parameterize(parms, cmdbuf);
+
+	/* RFC3501 says that we cannot output untagged data during these commands */
+	if (num_parms >= 2) {
+		if (  (!strcasecmp(parms[1], "FETCH"))
+		   || (!strcasecmp(parms[1], "STORE"))
+		   || (!strcasecmp(parms[1], "SEARCH"))
+		) {
+			untagged_ok = 0;
+		}
+	}
+	
+	if (untagged_ok) {
 		imap_print_instant_messages();
 	
 		/*
@@ -1399,8 +1420,6 @@ void imap_command_loop(void)
 
 	/* Now for the command set. */
 
-	/* Grab the tag, command, and parameters.  Check syntax. */
-	num_parms = imap_parameterize(parms, cmdbuf);
 	if (num_parms < 2) {
 		cprintf("BAD syntax error\r\n");
 	}
