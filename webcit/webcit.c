@@ -29,6 +29,7 @@ void unescape_input(char *buf)
 	int a, b;
 	char hex[3];
 	long buflen;
+	long len;
 
 	buflen = strlen(buf);
 
@@ -41,14 +42,16 @@ void unescape_input(char *buf)
 	while (a < buflen) {
 		if (buf[a] == '+')
 			buf[a] = ' ';
-		if (buf[a] == '%') {
+		if ((buf[a] == '%') && (a + 2 < buflen)) {
 			hex[0] = buf[a + 1];
 			hex[1] = buf[a + 2];
 			hex[2] = 0;
 			b = 0;
 			sscanf(hex, "%02x", &b);
 			buf[a] = (char) b;
-			memmove(&buf[a + 1], &buf[a + 3], buflen - a - 2);
+			len = buflen - a - 2;
+			if (len > 0)
+				memmove(&buf[a + 1], &buf[a + 3], len);
 			
 			buflen -=2;
 		}
@@ -63,57 +66,50 @@ void unescape_input(char *buf)
  */
 void addurls(char *url)
 {
-	char *up, *ptr;
+	char *aptr, *bptr, *eptr;
+	char *up;
 	char buf[SIZ];
-	int a, b, len, n;
+	int len, n;
 	struct urlcontent *u;
 
+	eptr = buf + sizeof (buf);
 	up = url;
+	/** locate the = sign */
+	n = safestrncpy(buf, up, sizeof buf);
+	if (n < 0) /** hm, we exceeded the buffer... hmmm what todo now? */
+		n = -n;
+	up = buf;
+//	while ((up < eptr) && (*up != '?') && (*up != '&'))
+//		up++;
 	while (!IsEmptyStr(up)) {
-
-		/** locate the = sign */
-		n = safestrncpy(buf, up, sizeof buf);
-		if (n < 0) /** hm, we exceeded the buffer... hmmm what todo now? */
-			n = -n;
-		b = (-1);
-		for (a = n; a >= 0; --a)
-			if (buf[a] == '=')
-				b = a;
-		if (b < 0)
+		aptr = up;
+		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
+			aptr++;
+		if (*aptr != '=')
 			return;
-		buf[b] = 0;
-
+		*aptr = '\0';
+		aptr++;
+		bptr = aptr;
+		while ((bptr < eptr) && (*bptr != '\0') && 
+		       (*bptr != '&') && (*bptr != ' '))
+			bptr++;
+		*bptr = '\0';
 		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
 		u->next = WC->urlstrings;
 		WC->urlstrings = u;
-		safestrncpy(u->url_key, buf, sizeof u->url_key);
 
-		/** now chop that part off */
-		for (a = 0; a <= b; ++a)
-			++up;
+		if (safestrncpy(u->url_key, up, sizeof u->url_key) < 0)
+			lprintf(1, "URLkey to long! [%s]", up);
 
-		/** locate "&" and "?" delimiters */
-		ptr = up;
-		len = b = strlen(up);
-		for (a = 0; a < len; ++a) {
-			if ( (ptr[0] == '&') || (ptr[0] == '?') ) {
-				b = a;
-				break;
-			}
-			++ptr;
-		}
-		ptr = up + b;
-		*ptr = '\0';
-
-		len = b;
+		len = bptr - aptr;
 		u->url_data = malloc(len + 2);
-		safestrncpy(u->url_data, up, b + 1);
-		u->url_data[b] = 0;
+		safestrncpy(u->url_data, aptr, len + 2);
+		u->url_data[len] = 0;
 		unescape_input(u->url_data);
-		up = ptr;
+		up = bptr;
 		++up;
 
-		/* lprintf(9, "%s = %s\n", u->url_key, u->url_data); */
+		lprintf(9, "%s = %s\n", u->url_key, u->url_data); 
 	}
 }
 
