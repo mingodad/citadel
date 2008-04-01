@@ -42,18 +42,25 @@ void unescape_input(char *buf)
 	while (a < buflen) {
 		if (buf[a] == '+')
 			buf[a] = ' ';
-		if ((buf[a] == '%') && (a + 2 < buflen)) {
-			hex[0] = buf[a + 1];
-			hex[1] = buf[a + 2];
-			hex[2] = 0;
-			b = 0;
-			sscanf(hex, "%02x", &b);
-			buf[a] = (char) b;
-			len = buflen - a - 2;
-			if (len > 0)
-				memmove(&buf[a + 1], &buf[a + 3], len);
+		if (buf[a] == '%') {
+			/* don't let % chars through, rather truncate the input. */
+			if (a + 2 > buflen) {
+				buf[a] = '\0';
+				buflen = a;
+			}
+			else {			
+				hex[0] = buf[a + 1];
+				hex[1] = buf[a + 2];
+				hex[2] = 0;
+				b = 0;
+				sscanf(hex, "%02x", &b);
+				buf[a] = (char) b;
+				len = buflen - a - 2;
+				if (len > 0)
+					memmove(&buf[a + 1], &buf[a + 3], len);
 			
-			buflen -=2;
+				buflen -=2;
+			}
 		}
 		a++;
 	}
