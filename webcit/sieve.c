@@ -496,39 +496,39 @@ void parse_fields_from_rule_editor(void) {
 		strcpy(rule, "");
 
 		sprintf(fname, "active%d", i);
-		active = !strcasecmp(bstr(fname), "on") ;
+		active = !strcasecmp(BSTR(fname), "on") ;
 
 		if (active) {
 
 			sprintf(fname, "hfield%d", i);
-			safestrncpy(hfield, bstr(fname), sizeof hfield);
+			safestrncpy(hfield, BSTR(fname), sizeof hfield);
 	
 			sprintf(fname, "compare%d", i);
-			safestrncpy(compare, bstr(fname), sizeof compare);
+			safestrncpy(compare, BSTR(fname), sizeof compare);
 	
 			sprintf(fname, "htext%d", i);
-			safestrncpy(htext, bstr(fname), sizeof htext);
+			safestrncpy(htext, BSTR(fname), sizeof htext);
 	
 			sprintf(fname, "sizecomp%d", i);
-			safestrncpy(sizecomp, bstr(fname), sizeof sizecomp);
+			safestrncpy(sizecomp, BSTR(fname), sizeof sizecomp);
 	
 			sprintf(fname, "sizeval%d", i);
-			sizeval = atoi(bstr(fname));
+			sizeval = atoi(BSTR(fname));
 	
 			sprintf(fname, "action%d", i);
-			safestrncpy(action, bstr(fname), sizeof action);
+			safestrncpy(action, BSTR(fname), sizeof action);
 	
 			sprintf(fname, "fileinto%d", i);
-			safestrncpy(fileinto, bstr(fname), sizeof fileinto);
+			safestrncpy(fileinto, BSTR(fname), sizeof fileinto);
 	
 			sprintf(fname, "redirect%d", i);
-			safestrncpy(redirect, bstr(fname), sizeof redirect);
+			safestrncpy(redirect, BSTR(fname), sizeof redirect);
 	
 			sprintf(fname, "automsg%d", i);
-			safestrncpy(automsg, bstr(fname), sizeof automsg);
+			safestrncpy(automsg, BSTR(fname), sizeof automsg);
 	
 			sprintf(fname, "final%d", i);
-			safestrncpy(final, bstr(fname), sizeof final);
+			safestrncpy(final, BSTR(fname), sizeof final);
 	
 			snprintf(rule, sizeof rule, "%d|%s|%s|%s|%s|%d|%s|%s|%s|%s|%s",
 				active, hfield, compare, htext, sizecomp, sizeval, action, fileinto,
@@ -613,7 +613,7 @@ void save_sieve(void) {
 				serv_getln(buf, sizeof buf);
 				if (buf[0] == '4') {
 					snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
-					striplt(bstr(this_name));
+					striplt((char*)BSTR(this_name)); /* TODO: get rid of typecast*/
 					serv_printf("%s", bstr(this_name));
 					serv_puts("000");
 				}

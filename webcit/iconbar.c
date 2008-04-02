@@ -773,10 +773,10 @@ void commit_iconbar(void) {
 
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
 		char *Val;
-		if (!strcasecmp(bstr(boxen[i]), "yes")) {
+		if (!strcasecmp(BSTR(boxen[i]), "yes")) {
 			Val = "1";
 		}
-		else if (!strcasecmp(bstr(boxen[i]), "yeslist")) {
+		else if (!strcasecmp(BSTR(boxen[i]), "yeslist")) {
 			Val = "2";
 		}
 		else {

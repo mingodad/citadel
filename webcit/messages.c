@@ -275,39 +275,59 @@ inline void utf8ify_rfc822_string(char *a){};
  * \param	target		Target buffer.
  * \param	maxlen		Maximum size of target buffer.
  * \param	source		Source string to be encoded.
+ * \param       SourceLen       Length of the source string
+ * \returns     encoded length; -1 if non success.
  */
-void webcit_rfc2047encode(char *target, int maxlen, char *source)
+int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
 {
+	const char headerStr[] = "=?UTF-8?Q?";
 	int need_to_encode = 0;
-	int i, len;
+	int i = 0;
+	int len;
 	unsigned char ch;
 
-	if (target == NULL) return;
-	len = strlen(source);
-	for (i=0; i<len; ++i) {
-		if ((source[i] < 32) || (source[i] > 126)) {
+	if ((source == NULL) || 
+	    (target == NULL) ||
+	    (SourceLen > maxlen)) return -1;
+
+	while ((!IsEmptyStr (&source[i])) && 
+	       (need_to_encode == 0) &&
+	       (i < SourceLen) ) {
+		if (((unsigned char) source[i] < 32) || 
+		    ((unsigned char) source[i] > 126)) {
 			need_to_encode = 1;
-			i = len; ///< shortcut. won't become more than 1
 		}
+		i++;
 	}
 
 	if (!need_to_encode) {
-		safestrncpy(target, source, maxlen);
-		return;
+		memcpy (target, source, SourceLen);
+		return SourceLen;
 	}
-
-	strcpy(target, "=?UTF-8?Q?");
-	for (i=0; i<len; ++i) {
+	
+	if (sizeof (headerStr + SourceLen + 2) > maxlen)
+		return -1;
+	memcpy (target, headerStr, sizeof (headerStr));
+	len = sizeof (headerStr);
+	for (i=0; (i < SourceLen) && (len < maxlen) ; ++i) {
 		ch = (unsigned char) source[i];
 		if ((ch < 32) || (ch > 126) || (ch == 61)) {
-			sprintf(&target[strlen(target)], "=%02X", ch);
+			sprintf(&target[len], "=%02X", ch);
+			len += 3;
 		}
 		else {
-			sprintf(&target[strlen(target)], "%c", ch);
+			sprintf(&target[len], "%c", ch);
+			len ++;
 		}
 	}
 	
-	strcat(target, "?=");
+	if (len + 2 < maxlen) {
+		strcat(&target[len], "?=");
+		len +=2;
+		return len;
+	}
+	else
+		return -1;
 }
 
 
@@ -2973,40 +2993,51 @@ void post_mime_to_server(void) {
  */
 void post_message(void)
 {
+	urlcontent *u;
+	void *U;
 	char buf[1024];
-	char encoded_subject[1024];
+	char *encoded_subject;
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
-	char *display_name;
+	const char *display_name;
+	long dpLen = 0;
+	struct wcsession *WCC = WC;
 
 	if (!IsEmptyStr(bstr("force_room"))) {
 		gotoroom(bstr("force_room"));
 	}
 
-	display_name = bstr("display_name");
+	if (GetHash(WCC->urlstrings, HKEY("display_name"), &U)) {
+		u = (urlcontent*) U;
+		display_name = u->url_data;
+		dpLen = u->url_data_size;
+	}
+	else {
+		display_name="";
+	}
 	if (!strcmp(display_name, "__ANONYMOUS__")) {
 		display_name = "";
 		is_anonymous = 1;
 	}
 
-	if (WC->upload_length > 0) {
+	if (WCC->upload_length > 0) {
 
-		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WC->upload_length);
+		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WCC->upload_length);
 		/** There's an attachment.  Save it to this struct... */
 		att = malloc(sizeof(struct wc_attachment));
 		memset(att, 0, sizeof(struct wc_attachment));
-		att->length = WC->upload_length;
-		strcpy(att->content_type, WC->upload_content_type);
-		strcpy(att->filename, WC->upload_filename);
+		att->length = WCC->upload_length;
+		strcpy(att->content_type, WCC->upload_content_type);
+		strcpy(att->filename, WCC->upload_filename);
 		att->next = NULL;
 
 		/** And add it to the list. */
-		if (WC->first_attachment == NULL) {
-			WC->first_attachment = att;
+		if (WCC->first_attachment == NULL) {
+			WCC->first_attachment = att;
 		}
 		else {
-			aptr = WC->first_attachment;
+			aptr = WCC->first_attachment;
 			while (aptr->next != NULL) aptr = aptr->next;
 			aptr->next = att;
 		}
@@ -3027,44 +3058,102 @@ void post_message(void)
 		 * Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
-		att->data = WC->upload;
-		WC->upload_length = 0;
-		WC->upload = NULL;
+		att->data = WCC->upload;
+		WCC->upload_length = 0;
+		WCC->upload = NULL;
 		display_enter();
 		return;
 	}
 
 	if (!IsEmptyStr(bstr("cancel_button"))) {
-		sprintf(WC->ImportantMessage, 
+		sprintf(WCC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
 	} else if (!IsEmptyStr(bstr("attach_button"))) {
 		display_enter();
 		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
-		sprintf(WC->ImportantMessage, 
+		sprintf(WCC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		webcit_rfc2047encode(encoded_subject, sizeof encoded_subject, bstr("subject"));
-		sprintf(buf, "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s",
-			bstr("recp"),
-			is_anonymous,
-			encoded_subject,
-			display_name,
-			bstr("cc"),
-			bstr("bcc"),
-			bstr("wikipage"),
-			bstr("my_email_addr")
-		);
-		serv_puts(buf);
+		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s";
+		const char *Recp = ""; 
+		const char *Cc = "";
+		const char *Bcc = "";
+		const char *Wikipage = "";
+		const char *my_email_addr = "";
+		char *CmdBuf = NULL;;
+		long len = 0;
+
+		if (GetHash(WCC->urlstrings, HKEY("subject"), &U)) {
+			u = (urlcontent*) U;
+			/** 
+			 * make enough room for the encoded string; 
+			 * plus the QP header 
+			 */
+			len = u->url_data_size * 3 + 32;
+			encoded_subject = malloc (len);
+			len = webcit_rfc2047encode(encoded_subject, len, 
+						   u->url_data, u->url_data_size);
+			if (len < 0) {
+				free (encoded_subject);
+				return;
+			}
+		}
+		len += sizeof (CMD) + dpLen;
+
+		if (GetHash(WCC->urlstrings, HKEY("recp"), &U)) {
+			u = (urlcontent*) U;
+			Recp = u->url_data;
+			len += u->url_data_size;		}
+
+		if (GetHash(WCC->urlstrings, HKEY("cc"), &U)) {
+			u = (urlcontent*) U;
+			Cc = u->url_data;
+			len += u->url_data_size;
+		}
+
+		if (GetHash(WCC->urlstrings, HKEY("bcc"), &U)) {
+			u = (urlcontent*) U;
+			Bcc = u->url_data;
+			len += u->url_data_size;
+		}
+
+		if (GetHash(WCC->urlstrings, HKEY("wikipage"), &U)) {
+			u = (urlcontent*) U;
+			Wikipage = u->url_data;
+			len += u->url_data_size;
+		}
+
+		if (GetHash(WCC->urlstrings, HKEY("my_email_addr"), &U)) {
+			u = (urlcontent*) U;
+			my_email_addr = u->url_data;
+			len += u->url_data_size;
+		}
+
+		CmdBuf = (char*) malloc (len + 1);
+
+
+		snprintf(CmdBuf, len + 1, CMD,
+			 Recp,
+			 is_anonymous,
+			 encoded_subject,
+			 display_name,
+			 Cc,
+			 Bcc,
+			 Wikipage,
+			 my_email_addr);
+		serv_puts(CmdBuf);
 		serv_getln(buf, sizeof buf);
+		free (CmdBuf);
+		free (encoded_subject);
 		if (buf[0] == '4') {
 			post_mime_to_server();
 			if (  (!IsEmptyStr(bstr("recp")))
 			   || (!IsEmptyStr(bstr("cc"  )))
 			   || (!IsEmptyStr(bstr("bcc" )))
 			) {
-				sprintf(WC->ImportantMessage, _("Message has been sent.\n"));
+				sprintf(WCC->ImportantMessage, _("Message has been sent.\n"));
 			}
 			else {
 				sprintf(WC->ImportantMessage, _("Message has been posted.\n"));
@@ -3078,7 +3167,7 @@ void post_message(void)
 		}
 	}
 
-	free_attachments(WC);
+	free_attachments(WCC);
 
 	/**
 	 *  We may have been supplied with instructions regarding the location

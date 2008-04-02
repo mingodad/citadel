@@ -153,11 +153,11 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
 	char timestr[32];
 	int month, mday, year, hour, minute;
 
-        sprintf(vname, "%s_month", prefix);     month = atoi(bstr(vname));
-        sprintf(vname, "%s_day", prefix);       mday = atoi(bstr(vname));
-        sprintf(vname, "%s_year", prefix);      year = atoi(bstr(vname));
-        sprintf(vname, "%s_hour", prefix);      hour = atoi(bstr(vname));
-        sprintf(vname, "%s_minute", prefix);    minute = atoi(bstr(vname));
+        sprintf(vname, "%s_month", prefix);     month = atoi(BSTR(vname));
+        sprintf(vname, "%s_day", prefix);       mday = atoi(BSTR(vname));
+        sprintf(vname, "%s_year", prefix);      year = atoi(BSTR(vname));
+        sprintf(vname, "%s_hour", prefix);      hour = atoi(BSTR(vname));
+        sprintf(vname, "%s_minute", prefix);    minute = atoi(BSTR(vname));
 
 	sprintf(timestr, "%04d%02d%02dT%02d%02d00", year, month, mday, hour, minute);
         t2 = icaltime_from_string(timestr);
@@ -177,9 +177,9 @@ void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
 
 	memset(t, 0, sizeof(struct icaltimetype));
 
-        sprintf(vname, "%s_month", prefix);     t->month = atoi(bstr(vname));
-        sprintf(vname, "%s_day", prefix);       t->day = atoi(bstr(vname));
-        sprintf(vname, "%s_year", prefix);      t->year = atoi(bstr(vname));
+        sprintf(vname, "%s_month", prefix);     t->month = atoi(BSTR(vname));
+        sprintf(vname, "%s_day", prefix);       t->day = atoi(BSTR(vname));
+        sprintf(vname, "%s_year", prefix);      t->year = atoi(BSTR(vname));
 	t->is_utc = 1;
 	t->is_date = 1;
 }
