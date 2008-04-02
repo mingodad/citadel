@@ -258,7 +258,7 @@ void remove_charset_attribute(char *strbuf);
 /**
  * Citadels Hashlist Implementation
  */
-
+#define HKEY(a) a, sizeof(a) - 1
 typedef struct HashList HashList;
 
 typedef struct HashKey HashKey;
