@@ -24,7 +24,7 @@ static char *unset = "; expires=28-May-1971 18:10:00 GMT";
  * \brief remove escaped strings from i.e. the url string (like %20 for blanks)
  * \param buf the buffer to examine
  */
-void unescape_input(char *buf)
+long unescape_input(char *buf)
 {
 	int a, b;
 	char hex[3];
@@ -64,7 +64,14 @@ void unescape_input(char *buf)
 		}
 		a++;
 	}
+	return a;
+}
 
+void free_url(void *U)
+{
+	urlcontent *u = (urlcontent*) U;
+	free(u->url_data);
+	free(u);
 }
 
 /**
@@ -76,9 +83,12 @@ void addurls(char *url)
 	char *aptr, *bptr, *eptr;
 	char *up;
 	char buf[SIZ];
-	int len, n;
-	struct urlcontent *u;
+	int len, n, keylen;
+	urlcontent *u;
+	struct wcsession *WCC = WC;
 
+	if (WCC->urlstrings == NULL)
+		WCC->urlstrings = NewHash();
 	eptr = buf + sizeof (buf);
 	up = url;
 	/** locate the = sign */
@@ -101,22 +111,25 @@ void addurls(char *url)
 		       (*bptr != '&') && (*bptr != ' '))
 			bptr++;
 		*bptr = '\0';
-		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
-		u->next = WC->urlstrings;
-		WC->urlstrings = u;
+		u = (urlcontent *) malloc(sizeof(urlcontent));
 
-		if (safestrncpy(u->url_key, up, sizeof u->url_key) < 0)
+
+		keylen = safestrncpy(u->url_key, up, sizeof u->url_key);
+		if (keylen < 0){
 			lprintf(1, "URLkey to long! [%s]", up);
+			continue;
+		}
 
+		Put(WCC->urlstrings, u->url_key, keylen, u, free_url);
 		len = bptr - aptr;
 		u->url_data = malloc(len + 2);
 		safestrncpy(u->url_data, aptr, len + 2);
-		u->url_data[len] = 0;
-		unescape_input(u->url_data);
+		u->url_data_size = unescape_input(u->url_data);
+		u->url_data[u->url_data_size] = '\0';
 		up = bptr;
 		++up;
 
-		lprintf(9, "%s = %s\n", u->url_key, u->url_data); 
+		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
 	}
 }
 
@@ -125,24 +138,25 @@ void addurls(char *url)
  */
 void free_urls(void)
 {
-	struct urlcontent *u;
-
-	while (WC->urlstrings != NULL) {
-		free(WC->urlstrings->url_data);
-		u = WC->urlstrings->next;
-		free(WC->urlstrings);
-		WC->urlstrings = u;
-	}
+	DeleteHash(&WC->urlstrings);
 }
 
 /**
  * \brief Diagnostic function to display the contents of all variables
  */
+
 void dump_vars(void)
 {
-	struct urlcontent *u;
-
-	for (u = WC->urlstrings; u != NULL; u = u->next) {
+	struct wcsession *WCC = WC;
+	urlcontent *u;
+	void *U;
+	long HKLen;
+	char *HKey;
+	HashPos *Cursor;
+	
+	Cursor = GetNewHashPos ();
+	while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
+		u = (urlcontent*) U;
 		wprintf("%38s = %s\n", u->url_key, u->url_data);
 	}
 }
@@ -151,15 +165,26 @@ void dump_vars(void)
  * \brief Return the value of a variable supplied to the current web page (from the url or a form)
  * \param key The name of the variable we want
  */
-char *bstr(char *key)
+const char *BSTR(char *key)
 {
-	struct urlcontent *u;
+	void *U;
 
-	for (u = WC->urlstrings; u != NULL; u = u->next) {
-		if (!strcasecmp(u->url_key, key))
-			return (u->url_data);
-	}
-	return ("");
+	if ((WC->urlstrings != NULL) &&
+	    GetHash(WC->urlstrings, key, strlen (key), &U))
+		return ((urlcontent *)U)->url_data;
+	else	
+		return ("");
+}
+
+const char *Bstr(char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return ((urlcontent *)U)->url_data;
+	else	
+		return ("");
 }
 
 /**
@@ -988,19 +1013,24 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
 			size_t length, char *encoding, void *userdata)
 {
-	struct urlcontent *u;
+	urlcontent *u;
 
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 
+	if (WC->urlstrings == NULL)
+		WC->urlstrings = NewHash();
+
 	/* Form fields */
 	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
-		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
-		u->next = WC->urlstrings;
-		WC->urlstrings = u;
+		u = (urlcontent *) malloc(sizeof(urlcontent));
+		
 		safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = malloc(length + 1);
+		u->url_data_size = length;
 		memcpy(u->url_data, content, length);
 		u->url_data[length] = 0;
+		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
+
 		/* lprintf(9, "Key: <%s>  Data: <%s>\n", u->url_key, u->url_data); */
 	}
 

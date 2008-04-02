@@ -225,10 +225,12 @@ struct httprequest {
 /**
  * \brief	Linked list of session variables encoded in an x-www-urlencoded content type
  */
+typedef struct urlcontent urlcontent;
 struct urlcontent {
 	struct urlcontent *next;   /**< the next variable in the list */ 
 	char url_key[32];          /**< the variable name */
 	char *url_data;            /**< its value */
+	size_t url_data_size;      /**< how big is it? */
 };
 
 /**
@@ -383,7 +385,7 @@ struct wcsession {
 	int num_summ;				/**< number of messages in mailbox summary view */
 	struct message_summary *summ;		/**< array of messages for mailbox summary view */
 	int is_wap;				/**< Client is a WAP gateway */
-	struct urlcontent *urlstrings;		/**< variables passed to webcit in a URL */
+	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	struct wcsubst *vars;			/**< HTTP variable substitutions for this page */
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
@@ -501,7 +503,10 @@ void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
-char *bstr(char *key);
+const char *Bstr(char *key, size_t keylen);
+/* TODO: get rid of the non-const-typecast */
+#define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
+const char *BSTR(char *key);
 void urlescputs(char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);
@@ -731,7 +736,7 @@ long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
 void http_transmit_thing(char *thing, size_t length, const char *content_type,
 			 int is_static);
-void unescape_input(char *buf);
+long unescape_input(char *buf);
 void do_iconbar(void);
 void do_iconbar_roomlist(void);
 void do_selected_iconbar(void);
