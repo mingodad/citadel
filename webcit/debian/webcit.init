@@ -14,7 +14,7 @@
 RUNDIR=/var/run/webcit
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Citadel Groupware Webserver "
-NAME=webserver
+NAME=webcit
 DAEMON=/usr/sbin/$NAME
 DAEMON_ARGS=""
 PIDFILE=$RUNDIR/$NAME.pid

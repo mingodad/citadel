@@ -22,13 +22,13 @@ WWWDIR=@WWWDIR@
 
 # End of configuration section
 
-all: all-progs-recursive webserver setup
+all: all-progs-recursive webcit setup
 
 
 .SUFFIXES: .cpp .c .o
 
 clean:
-	rm -f *.o webcit webserver setup
+	rm -f *.o webcit webcit setup
 	rm -fr locale/*
 
 distclean: clean
@@ -40,7 +40,7 @@ setup: setup.o
 	$(CC) setup.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) $(SETUP_LIBS) -o setup
 
-webserver: webserver.o context_loop.o ical_dezonify.o \
+webcit: webserver.o context_loop.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
@@ -64,7 +64,7 @@ webserver: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o \
 	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o \
-	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
+	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webcit
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
@@ -88,7 +88,11 @@ install:  install-bin install-setupbin install-wwwdata install-tinymce install-l
 
 install-bin:
 	test -d $(DESTDIR)$(prefix) || mkdir -p $(DESTDIR)$(prefix)
-	$(INSTALL) webserver $(DESTDIR)$(prefix)/webserver
+	$(INSTALL) webcit $(DESTDIR)$(prefix)/webcit
+	if test -f $(DESTDIR)$(prefix)/webserver; then \
+		rm -f $(DESTDIR)$(prefix)/webserver; \
+		ln -s $(DESTDIR)$(prefix)/webcit $(DESTDIR)$(prefix)/webserver; \
+	fi
 
 
 install-setupbin: install-bin
