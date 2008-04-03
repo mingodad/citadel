@@ -90,11 +90,11 @@ void delete_the_old_way(void) {
 
 	strcpy(init_entry, "");
 
-	/* Determine the fully qualified path name of webserver */
-	snprintf(looking_for, sizeof looking_for, "%s/webserver ", setup_directory);
+	/* Determine the fully qualified path name of webcit */
+	snprintf(looking_for, sizeof looking_for, "%s/webcit ", setup_directory);
 
 	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
-	 * an entry is found which we believe starts webserver.
+	 * an entry is found which we believe starts webcit.
 	 */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
@@ -461,7 +461,7 @@ void install_init_scripts(void)
 			"case \"$1\" in\n"
 			"\n"
 			"start)		echo -n \"Starting WebCit... \"\n"
-			"		if   $WEBCIT_DIR/webserver "
+			"		if   $WEBCIT_DIR/webcit "
 		                                        "-D/var/run/webcit.pid "
 							"-p$HTTP_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"
@@ -471,7 +471,7 @@ void install_init_scripts(void)
 			"		fi\n");
 #ifdef HAVE_OPENSSL
 	fprintf(fp,	"		echo -n \"Starting WebCit SSL... \"\n"
-			"		if  $WEBCIT_DIR/webserver "
+			"		if  $WEBCIT_DIR/webcit "
 		                                        "-D/var/run/webcit-ssl.pid "
 							"-s -p$HTTPS_PORT $CTDL_HOSTNAME $CTDL_PORTNAME\n"
 			"		then\n"

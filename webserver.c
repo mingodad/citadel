@@ -145,7 +145,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	i = unlink(sockpath);
 	if (i != 0) if (errno != ENOENT) {
-		lprintf(1, "webserver: can't unlink %s: %s\n",
+		lprintf(1, "webcit: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
@@ -156,19 +156,19 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "webserver: Can't create a socket: %s\n",
+		lprintf(1, "webcit: Can't create a socket: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		lprintf(1, "webserver: Can't bind: %s\n",
+		lprintf(1, "webcit: Can't bind: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(1, "webserver: Can't listen: %s\n",
+		lprintf(1, "webcit: Can't listen: %s\n",
 			strerror(errno));
 		exit(WC_EXIT_BIND);
 	}
@@ -765,7 +765,7 @@ int main(int argc, char **argv)
 			is_https = 1;
 			break;
 		default:
-			fprintf(stderr, "usage: webserver "
+			fprintf(stderr, "usage: webcit "
 				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] [-f] "
 				"[-d] "

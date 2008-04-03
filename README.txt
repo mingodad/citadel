@@ -95,18 +95,18 @@ special circumstances, or if you'd prefer to configure WebCit manually, you
 may skip the setup program.  Instead, open /etc/inittab and add an entry
 something like this:
  
- wc:2345:respawn:/usr/local/webcit/webserver
+ wc:2345:respawn:/usr/local/webcit/webcit
  
  
  Several command-line options are also available.  Here's the usage for
-the "webserver" program:
+the "webcit" program:
   
- webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+ webcit [-i ip_addr] [-p http_port] [-s] [-t tracefile]
            [-c] [-f] [remotehost [remoteport]]
  
    *or*
  
- webserver [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+ webcit [-i ip_addr] [-p http_port] [-s] [-t tracefile]
            [-c] [-f] uds /your/citadel/directory
  
  Explained: 
