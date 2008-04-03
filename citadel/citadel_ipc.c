@@ -535,6 +535,8 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 					safestrncpy(mret[0]->node, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "rcpt=", 5))
 					safestrncpy(mret[0]->recipient, &aaa[5], SIZ);
+				else if (!strncasecmp(aaa, "wefw=", 5))
+					safestrncpy(mret[0]->references, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "time=", 5))
 					mret[0]->time = atol(&aaa[5]);
 
@@ -894,17 +896,24 @@ int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret)
 
 
 /* ENT0 */
-int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, int *subject_required,  const struct ctdlipcmessage *mr, char *cret)
+int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, int *subject_required,  struct ctdlipcmessage *mr, char *cret)
 {
 	register int ret;
 	char cmd[SIZ];
+	char *ptr;
 
 	if (!cret) return -2;
 	if (!mr) return -2;
 
+	if (mr->references) {
+		for (ptr=mr->references; *ptr != 0; ++ptr) {
+			if (*ptr == '|') *ptr = '!';
+		}
+	}
+
 	snprintf(cmd, sizeof cmd,
-			"ENT0 %d|%s|%d|%d|%s|%s", flag, mr->recipient,
-			mr->anonymous, mr->type, mr->subject, mr->author);
+			"ENT0 %d|%s|%d|%d|%s|%s||||||%s|", flag, mr->recipient,
+			mr->anonymous, mr->type, mr->subject, mr->author, mr->references);
 	ret = CtdlIPCGenericCommand(ipc, cmd, mr->text, strlen(mr->text), NULL,
 			NULL, cret);
 	if ((flag == 0) && (subject_required != NULL)) {

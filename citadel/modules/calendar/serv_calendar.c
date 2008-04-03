@@ -344,7 +344,8 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			"",
 			summary_string,		/* Use summary for subject */
 			NULL,
-			reply_message_text);
+			reply_message_text,
+			NULL);
 	
 		if (msg != NULL) {
 			valid = validate_recipients(organizer_string, NULL, 0);
@@ -719,7 +720,8 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 			"",
 			"",		/* no subject */
 			NULL,
-			message_text);
+			message_text,
+			NULL);
 	
 		if (msg != NULL) {
 			CIT_ICAL->avoid_sending_invitations = 1;
@@ -1792,7 +1794,8 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			"",
 			summary_string,		/* Use summary for subject */
 			NULL,
-			request_message_text);
+			request_message_text,
+			NULL);
 	
 		if (msg != NULL) {
 			valid = validate_recipients(attendees_string, NULL, 0);

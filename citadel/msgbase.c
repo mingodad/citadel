@@ -2995,7 +2995,8 @@ struct CtdlMessage *CtdlMakeMessage(
 	char *my_email,			/* which of my email addresses to use (empty is ok) */
 	char *subject,			/* Subject (optional) */
 	char *supplied_euid,		/* ...or NULL if this is irrelevant */
-	char *preformatted_text		/* ...or NULL to read text from client */
+	char *preformatted_text,	/* ...or NULL to read text from client */
+	char *references		/* Thread references */
 ) {
 	char dest_node[256];
 	char buf[1024];
@@ -3084,6 +3085,12 @@ struct CtdlMessage *CtdlMakeMessage(
 
 	if (supplied_euid != NULL) {
 		msg->cm_fields['E'] = strdup(supplied_euid);
+	}
+
+	if (references != NULL) {
+		if (!IsEmptyStr(references)) {
+			msg->cm_fields['W'] = strdup(references);
+		}
 	}
 
 	if (preformatted_text != NULL) {
@@ -3503,6 +3510,8 @@ void cmd_ent0(char *entargs)
 	int i, j;
 	char buf[256];
 	int newuseremail_ok = 0;
+	char references[SIZ];
+	char *ptr;
 
 	unbuffer_output();
 
@@ -3525,6 +3534,10 @@ void cmd_ent0(char *entargs)
 			break;
 	}
 	extract_token(newuseremail, entargs, 10, '|', sizeof newuseremail);
+	extract_token(references, entargs, 11, '|', sizeof references);
+	for (ptr=references; *ptr != 0; ++ptr) {
+		if (*ptr == '!') *ptr = '|';
+	}
 
 	/* first check to make sure the request is valid. */
 
@@ -3718,7 +3731,7 @@ void cmd_ent0(char *entargs)
 		CC->room.QRname, anonymous, format_type,
 		newusername, newuseremail, subject,
 		((!IsEmptyStr(supplied_euid)) ? supplied_euid : NULL),
-		NULL);
+		NULL, references);
 
 	/* Put together one big recipients struct containing to/cc/bcc all in
 	 * one.  This is for the envelope.

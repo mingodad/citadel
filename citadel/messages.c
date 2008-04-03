@@ -52,6 +52,7 @@
 
 char reply_to[SIZ];
 char reply_subject[SIZ];
+char reply_references[SIZ];
 
 struct cittext {
 	struct cittext *next;
@@ -404,6 +405,7 @@ int read_message(CtdlIPC *ipc,
 
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
+	strcpy(reply_references, "");
 
 	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0), 4, &message, buf);
 	if (r / 100 != 1) {
@@ -588,9 +590,20 @@ int read_message(CtdlIPC *ipc,
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
 
+
+	/* Always do msgid before references ... the latter is a concatenation! */
+	if (message->msgid != NULL) {
+		safestrncpy(reply_references, message->msgid, sizeof reply_references);
+	}
+
+	if (message->references != NULL) if (!IsEmptyStr(message->references)) {
+		int l = strlen(reply_references);
+		strcpy(&reply_references[l++], "|");
+		safestrncpy(&reply_references[l], message->references, (sizeof(reply_references) - l));
+	}
+
 	if (message->subject != NULL) {
-		safestrncpy(reply_subject, message->subject,
-						sizeof reply_subject);
+		safestrncpy(reply_subject, message->subject, sizeof reply_subject);
 		if (!IsEmptyStr(message->subject)) {
 			if (dest) {
 				fprintf(dest, "Subject: %s\n",
@@ -1090,6 +1103,7 @@ int entmsg(CtdlIPC *ipc,
 	strcpy(message.recipient, "");
 	strcpy(message.author, "");
 	strcpy(message.subject, "");
+	strcpy(message.references, "");
 	message.text = "";		/* point to "", changes later */
 	message.anonymous = 0;
 	message.type = mode;
@@ -1136,6 +1150,7 @@ int entmsg(CtdlIPC *ipc,
 	strcpy(message.recipient, buf);
 
 	if (is_reply) {
+
 		if (!IsEmptyStr(reply_subject)) {
 			if (!strncasecmp(reply_subject,
 			   "Re: ", 3)) {
@@ -1148,6 +1163,8 @@ int entmsg(CtdlIPC *ipc,
 					reply_subject);
 			}
 		}
+
+		safestrncpy(message.references, reply_references, sizeof message.references);
 	}
 
 	if (room_flags & QR_ANONOPT) {

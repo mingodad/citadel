@@ -146,6 +146,7 @@ struct ctdlipcmessage {
 	char anonymous;			/* An anonymous message */
 	char mime_chosen[SIZ];		/* Chosen MIME part to output */
 	char content_type[SIZ];		/* How would you like that? */
+	char references[SIZ];		/* Thread references */
 };
 
 
@@ -228,7 +229,7 @@ int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct ctdlroom *qret,
 int CtdlIPCGetRoomAide(CtdlIPC *ipc, char *cret);
 int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, int *subject_required, 
-					   const struct ctdlipcmessage *mr,
+					   struct ctdlipcmessage *mr,
 					   char *cret);
 int CtdlIPCRoomInfo(CtdlIPC *ipc, char **iret, char *cret);
 int CtdlIPCDeleteMessage(CtdlIPC *ipc, long msgnum, char *cret);
