@@ -778,6 +778,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char rfca[256] = "";
 	char reply_to[512] = "";
 	char reply_all[4096] = "";
+	char reply_references[1024] = "";
 	char now[64] = "";
 	int format_type = 0;
 	int nhdr = 0;
@@ -848,6 +849,17 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
 			safestrncpy(m_subject, &buf[5], sizeof m_subject);
+		}
+		if (!strncasecmp(buf, "msgn=", 5)) {
+			safestrncpy(reply_references, &buf[5], sizeof reply_references);
+		}
+		if (!strncasecmp(buf, "wefw=", 5)) {
+			int rrlen = strlen(reply_references);
+			if (rrlen > 0) {
+				strcpy(&reply_references[rrlen++], "|");
+			}
+			safestrncpy(&reply_references[rrlen], &buf[5],
+				(sizeof(reply_references) - rrlen) );
 		}
 		if (!strncasecmp(buf, "cccc=", 5)) {
 			int len;
@@ -1036,6 +1048,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
 			}
+			if (!IsEmptyStr(reply_references)) {
+				wprintf("?references=");
+				urlescputs(reply_references);
+			}
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
 		}
 
@@ -1050,6 +1066,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 					wprintf("?subject=");
 					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 					urlescputs(m_subject);
+				}
+				if (!IsEmptyStr(reply_references)) {
+					wprintf("?references=");
+					urlescputs(reply_references);
 				}
 				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
 			}
@@ -1067,6 +1087,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 				wprintf("?subject=");
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
+			}
+			if (!IsEmptyStr(reply_references)) {
+				wprintf("?references=");
+				urlescputs(reply_references);
 			}
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
 		}
@@ -1493,7 +1517,6 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 				msgescputs(rfca);
 				wprintf("&gt; ");
 			}
-	
 			if (!strncasecmp(buf, "node=", 5)) {
 				strcpy(node, &buf[5]);
 				if ( ((WC->room_flags & QR_NETWORK)
