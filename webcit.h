@@ -227,7 +227,6 @@ struct httprequest {
  */
 typedef struct urlcontent urlcontent;
 struct urlcontent {
-	struct urlcontent *next;   /**< the next variable in the list */ 
 	char url_key[32];          /**< the variable name */
 	char *url_data;            /**< its value */
 	size_t url_data_size;      /**< how big is it? */
@@ -504,9 +503,12 @@ void pullquote_fmout(void);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
 const char *Bstr(char *key, size_t keylen);
+const char *XBstr(char *key, size_t keylen, size_t *len);
 /* TODO: get rid of the non-const-typecast */
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
+#define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
 const char *BSTR(char *key);
+const char *XBSTR(char *key, size_t *len);
 void urlescputs(char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);

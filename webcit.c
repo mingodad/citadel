@@ -176,6 +176,21 @@ const char *BSTR(char *key)
 		return ("");
 }
 
+const char *XBSTR(char *key, size_t *len)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) &&
+	    GetHash(WC->urlstrings, key, strlen (key), &U)){
+		*len = ((urlcontent *)U)->url_data_size;
+		return ((urlcontent *)U)->url_data;
+	}
+	else {
+		*len = 0;
+		return ("");
+	}
+}
+
 const char *Bstr(char *key, size_t keylen)
 {
 	void *U;
@@ -185,6 +200,21 @@ const char *Bstr(char *key, size_t keylen)
 		return ((urlcontent *)U)->url_data;
 	else	
 		return ("");
+}
+
+const char *XBstr(char *key, size_t keylen, size_t *len)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U)) {
+		*len = ((urlcontent *)U)->url_data_size;
+		return ((urlcontent *)U)->url_data;
+	}
+	else {
+		*len = 0;
+		return ("");
+	}
 }
 
 /**

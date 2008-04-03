@@ -3084,6 +3084,7 @@ void post_message(void)
 		const char *my_email_addr = "";
 		char *CmdBuf = NULL;;
 		long len = 0;
+		size_t nLen;
 
 		if (GetHash(WCC->urlstrings, HKEY("subject"), &U)) {
 			u = (urlcontent*) U;
@@ -3101,38 +3102,18 @@ void post_message(void)
 			}
 		}
 		len += sizeof (CMD) + dpLen;
-
-		if (GetHash(WCC->urlstrings, HKEY("recp"), &U)) {
-			u = (urlcontent*) U;
-			Recp = u->url_data;
-			len += u->url_data_size;		}
-
-		if (GetHash(WCC->urlstrings, HKEY("cc"), &U)) {
-			u = (urlcontent*) U;
-			Cc = u->url_data;
-			len += u->url_data_size;
-		}
-
-		if (GetHash(WCC->urlstrings, HKEY("bcc"), &U)) {
-			u = (urlcontent*) U;
-			Bcc = u->url_data;
-			len += u->url_data_size;
-		}
-
-		if (GetHash(WCC->urlstrings, HKEY("wikipage"), &U)) {
-			u = (urlcontent*) U;
-			Wikipage = u->url_data;
-			len += u->url_data_size;
-		}
-
-		if (GetHash(WCC->urlstrings, HKEY("my_email_addr"), &U)) {
-			u = (urlcontent*) U;
-			my_email_addr = u->url_data;
-			len += u->url_data_size;
-		}
+		Recp = xbstr("recp", &nLen);
+		len += nLen;
+		Cc = xbstr("cc", &nLen);
+		len += nLen;
+		Bcc = xbstr("bcc", &nLen);
+		len += nLen;
+		Wikipage = xbstr("wikipage", &nLen);
+		len += nLen;
+		my_email_addr = xbstr("my_email_addr", &nLen);
+		len += nLen;
 
 		CmdBuf = (char*) malloc (len + 1);
-
 
 		snprintf(CmdBuf, len + 1, CMD,
 			 Recp,
