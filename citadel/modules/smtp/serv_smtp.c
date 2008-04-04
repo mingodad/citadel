@@ -282,17 +282,7 @@ void smtp_hello(char *argbuf, int which_command) {
  * Implement HELP command.
  */
 void smtp_help(void) {
-	cprintf("214-Commands accepted:\r\n");
-	cprintf("214-    DATA\r\n");
-	cprintf("214-    EHLO\r\n");
-	cprintf("214-    HELO\r\n");
-	cprintf("214-    HELP\r\n");
-	cprintf("214-    MAIL\r\n");
-	cprintf("214-    NOOP\r\n");
-	cprintf("214-    QUIT\r\n");
-	cprintf("214-    RCPT\r\n");
-	cprintf("214-    RSET\r\n");
-	cprintf("214     \r\n");
+	cprintf("214 RTFM http://www.ietf.org/rfc/rfc2821.txt\r\n");
 }
 
 
