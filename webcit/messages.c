@@ -3312,11 +3312,10 @@ void display_enter(void)
 		CmdBuf = (char*) malloc (len + 1);
 
 		snprintf(CmdBuf, len, CMD,
-			Recp,
-			is_anonymous,
-			display_name,
-			Cc, Bcc, Wikipage);
-		serv_puts(buf);
+			 Recp, is_anonymous,
+			 display_name,
+			 Cc, Bcc, Wikipage);
+		serv_puts(CmdBuf);
 		serv_getln(buf, sizeof buf);
 
 		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
