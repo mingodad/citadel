@@ -13,7 +13,7 @@
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
 #define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
-/**
+/*
  * Address book entry (keep it short and sweet, it's just a quickie lookup
  * which we can use to get to the real meat and bones later)
  */
@@ -26,13 +26,13 @@ struct addrbookent {
 
 #ifdef HAVE_ICONV
 
-/**
- * \brief	Wrapper around iconv_open()
- *		Our version adds aliases for non-standard Microsoft charsets
- *	      such as 'MS950', aliasing them to names like 'CP950'
+/*
+ * Wrapper around iconv_open()
+ * Our version adds aliases for non-standard Microsoft charsets
+ * such as 'MS950', aliasing them to names like 'CP950'
  *
- * \param	tocode		Target encoding
- * \param	fromcode	Source encoding
+ * tocode	Target encoding
+ * fromcode	Source encoding
  */
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 {
@@ -69,11 +69,9 @@ inline char *FindNextEnd (char *bptr)
 	return end;
 }
 
-/**
- * \brief  Handle subjects with RFC2047 encoding
- *  such as:
+/*
+ * Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
- * \param buf the stringbuffer to process
  */
 void utf8ify_rfc822_string(char *buf) {
 	char *start, *end, *next, *nextend, *ptr;
@@ -92,7 +90,7 @@ void utf8ify_rfc822_string(char *buf) {
 	int i, len, delta;
 	int illegal_non_rfc2047_encoding = 0;
 
-	/** Sometimes, badly formed messages contain strings which were simply
+	/* Sometimes, badly formed messages contain strings which were simply
 	 *  written out directly in some foreign character set instead of
 	 *  using RFC2047 encoding.  This is illegal but we will attempt to
 	 *  handle it anyway by converting from a user-specified default
@@ -176,8 +174,8 @@ void utf8ify_rfc822_string(char *buf) {
 		end = nextend;
 	}
 
-	/** Now we handle foreign character sets properly encoded
-	 *  in RFC2047 format.
+	/* Now we handle foreign character sets properly encoded
+	 * in RFC2047 format.
 	 */
 	while (start=strstr(buf, "=?"), end=FindNextEnd((start != NULL)? start : buf),
 		((start != NULL) && (end != NULL) && (end > start)) )
@@ -248,7 +246,7 @@ void utf8ify_rfc822_string(char *buf) {
 
 		free(isav);
 
-		/**
+		/*
 		 * Since spammers will go to all sorts of absurd lengths to get their
 		 * messages through, there are LOTS of corrupt headers out there.
 		 * So, prevent a really badly formed RFC2047 header from throwing
@@ -1035,7 +1033,7 @@ void read_message(long msgnum, int printable_view, char *section) {
         if (!printable_view) {
                 wprintf("<p id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
 
-		/** Reply */
+		/* Reply */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			wprintf("<a href=\"display_enter");
 			if (WC->is_mailbox) {
@@ -1055,7 +1053,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
 		}
 
-		/** ReplyQuoted */
+		/* ReplyQuoted */
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			if (!WC->is_mailbox) {
 				wprintf("<a href=\"display_enter");
@@ -1075,7 +1073,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 		}
 
-		/** ReplyAll */
+		/* ReplyAll */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter");
 			wprintf("?replyquote=%ld", msgnum);
@@ -1095,7 +1093,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
 		}
 
-		/** Forward */
+		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
@@ -1103,7 +1101,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
 		}
 
-		/** If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
+		/* If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
 		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
 			/** Move */
 			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
@@ -1117,12 +1115,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 			);
 		}
 
-		/** Headers */
+		/* Headers */
 		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
 
 
-		/** Print */
+		/* Print */
 		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
 			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
 
@@ -1147,10 +1145,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	wprintf("</div>");
 
-	/** Begin body */
+	/* Begin body */
 	wprintf("<div class=\"message_content\">");
 
-	/**
+	/*
 	 * Learn the content type
 	 */
 	strcpy(mime_content_type, "text/plain");
@@ -1190,7 +1188,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 	}
 
-	/** Set up a character set conversion if we need to (and if we can) */
+	/* Set up a character set conversion if we need to (and if we can) */
 #ifdef HAVE_ICONV
 	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
 	if ( (strcasecmp(mime_charset, "us-ascii"))
@@ -1205,12 +1203,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 	}
 #endif
 
-	/** Messages in legacy Citadel variformat get handled thusly... */
+	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
 		fmout("JUSTIFY");
 	}
 
-	/** Boring old 80-column fixed format text gets handled this way... */
+	/* Boring old 80-column fixed format text gets handled this way... */
 	else if ( (!strcasecmp(mime_content_type, "text/plain"))
 		|| (!strcasecmp(mime_content_type, "text")) ) {
 		buf [0] = '\0';
@@ -2901,8 +2899,8 @@ DONE:
 }
 
 
-/**
- * \brief Back end for post_message()
+/*
+ * Back end for post_message()
  * ... this is where the actual message gets transmitted to the server.
  */
 void post_mime_to_server(void) {
@@ -2927,24 +2925,21 @@ void post_mime_to_server(void) {
 		++seq
 	);
 
-	/** RFC2045 requires this, and some clients look for it... */
+	/* RFC2045 requires this, and some clients look for it... */
 	serv_puts("MIME-Version: 1.0");
 	serv_puts("X-Mailer: " PACKAGE_STRING);
 
-	/** If there are attachments, we have to do multipart/mixed */
+	/* If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
 		is_multipart = 1;
 	}
 
 	if (is_multipart) {
-		/** Remember, serv_printf() appends an extra newline */
-		serv_printf("Content-type: multipart/mixed; "
-			"boundary=\"%s\"\n", top_boundary);
+		/* Remember, serv_printf() appends an extra newline */
+		serv_printf("Content-type: multipart/mixed; boundary=\"%s\"\n", top_boundary);
 		serv_printf("This is a multipart message in MIME format.\n");
 		serv_printf("--%s", top_boundary);
 	}
-
-
 
 	/* Remember, serv_printf() appends an extra newline */
 	serv_printf("Content-type: multipart/alternative; "
@@ -2956,7 +2951,7 @@ void post_mime_to_server(void) {
 	serv_puts("Content-Transfer-Encoding: quoted-printable");
 	serv_puts("");
 	txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
-        text_to_server_qp(txtmail);     /** Transmit message in quoted-printable encoding */
+        text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
         free(txtmail);
 
 	serv_printf("--%s", alt_boundary);
@@ -2965,19 +2960,14 @@ void post_mime_to_server(void) {
 	serv_puts("Content-Transfer-Encoding: quoted-printable");
 	serv_puts("");
 	serv_puts("<html><body>\r\n");
-	text_to_server_qp(bstr("msgtext"));	/** Transmit message in quoted-printable encoding */
+	text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
 	serv_puts("</body></html>\r\n");
 
-
 	serv_printf("--%s--", alt_boundary);
-
-
-
-
 	
 	if (is_multipart) {
 
-		/** Add in the attachments */
+		/* Add in the attachments */
 		for (att = WC->first_attachment; att!=NULL; att=att->next) {
 
 			encoded_length = ((att->length * 150) / 100);
@@ -2987,8 +2977,7 @@ void post_mime_to_server(void) {
 
 			serv_printf("--%s", top_boundary);
 			serv_printf("Content-type: %s", att->content_type);
-			serv_printf("Content-disposition: attachment; "
-				"filename=\"%s\"", att->filename);
+			serv_printf("Content-disposition: attachment; filename=\"%s\"", att->filename);
 			serv_puts("Content-transfer-encoding: base64");
 			serv_puts("");
 			serv_write(encoded, encoded_strlen);
@@ -3003,8 +2992,8 @@ void post_mime_to_server(void) {
 }
 
 
-/**
- * \brief Post message (or don't post message)
+/*
+ * Post message (or don't post message)
  *
  * Note regarding the "dont_post" variable:
  * A random value (actually, it's just a timestamp) is inserted as a hidden
@@ -3019,13 +3008,14 @@ void post_message(void)
 	urlcontent *u;
 	void *U;
 	char buf[1024];
-	char *encoded_subject;
+	char *encoded_subject = "";
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
 	const char *display_name;
 	long dpLen = 0;
 	struct wcsession *WCC = WC;
+	char *ptr = NULL;
 
 	if (!IsEmptyStr(bstr("force_room"))) {
 		gotoroom(bstr("force_room"));
@@ -3099,7 +3089,7 @@ void post_message(void)
 			_("Automatically cancelled because you have already "
 			"saved this message."));
 	} else {
-		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s";
+		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
 		const char *Recp = ""; 
 		const char *Cc = "";
 		const char *Bcc = "";
@@ -3108,17 +3098,26 @@ void post_message(void)
 		char *CmdBuf = NULL;;
 		long len = 0;
 		size_t nLen;
+		char references[SIZ] = "";
+		size_t references_len = 0;
+
+		safestrncpy(references, bstr("references"), sizeof references);
+		lprintf(9, "Converting: %s\n", references);
+		for (ptr=references; *ptr != 0; ++ptr) {
+			if (*ptr == '|') *ptr = '!';
+			++references_len;
+		} 
+		lprintf(9, "Converted: %s\n", references);
 
 		if (GetHash(WCC->urlstrings, HKEY("subject"), &U)) {
 			u = (urlcontent*) U;
-			/** 
+			/*
 			 * make enough room for the encoded string; 
 			 * plus the QP header 
 			 */
 			len = u->url_data_size * 3 + 32;
 			encoded_subject = malloc (len);
-			len = webcit_rfc2047encode(encoded_subject, len, 
-						   u->url_data, u->url_data_size);
+			len = webcit_rfc2047encode(encoded_subject, len, u->url_data, u->url_data_size);
 			if (len < 0) {
 				free (encoded_subject);
 				return;
@@ -3135,18 +3134,21 @@ void post_message(void)
 		len += nLen;
 		my_email_addr = xbstr("my_email_addr", &nLen);
 		len += nLen;
+		len += references_len;
 
-		CmdBuf = (char*) malloc (len + 1);
+		CmdBuf = (char*) malloc (len + 11);
 
 		snprintf(CmdBuf, len + 1, CMD,
-			 Recp,
-			 is_anonymous,
-			 encoded_subject,
-			 display_name,
-			 Cc,
-			 Bcc,
-			 Wikipage,
-			 my_email_addr);
+			Recp,
+			is_anonymous,
+			encoded_subject,
+			display_name,
+			Cc,
+			Bcc,
+			Wikipage,
+			my_email_addr,
+			references);
+		lprintf(9, "%s\n", CmdBuf);
 		serv_puts(CmdBuf);
 		serv_getln(buf, sizeof buf);
 		free (CmdBuf);
@@ -3283,7 +3285,7 @@ void display_enter(void)
 	wprintf("<div id=\"content\">\n"
 		"<div class=\"fix_scrollbar_bug message \">");
 
-	/** Now check our actual recipients if there are any */
+	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
 		sprintf(buf, "ENT0 0|%s|%d|0||%s||%s|%s|%s",
 			bstr("recp"),
@@ -3308,7 +3310,7 @@ void display_enter(void)
 
 	/** If we got this far, we can display the message entry screen. */
 
-	/** begin message entry screen */
+	/* begin message entry screen */
 	wprintf("<form "
 		"enctype=\"multipart/form-data\" "
 		"method=\"POST\" "
@@ -3324,6 +3326,9 @@ void display_enter(void)
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
 	escputs(WC->wc_roomname);
+	wprintf("\">\n");
+	wprintf("<input type=\"hidden\" name=\"references\" value=\"");
+	escputs(bstr("references"));
 	wprintf("\">\n");
 
 	/** submit or cancel buttons */

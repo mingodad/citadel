@@ -107,12 +107,12 @@ void addurls(char *url)
 		*aptr = '\0';
 		aptr++;
 		bptr = aptr;
-		while ((bptr < eptr) && (*bptr != '\0') && 
-		       (*bptr != '&') && (*bptr != ' '))
+		while ((bptr < eptr) && (*bptr != '\0')
+		      && (*bptr != '&') && (*bptr != '?') && (*bptr != ' ')) {
 			bptr++;
+		}
 		*bptr = '\0';
 		u = (urlcontent *) malloc(sizeof(urlcontent));
-
 
 		keylen = safestrncpy(u->url_key, up, sizeof u->url_key);
 		if (keylen < 0){
