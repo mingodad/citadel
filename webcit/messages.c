@@ -3008,7 +3008,7 @@ void post_message(void)
 	urlcontent *u;
 	void *U;
 	char buf[1024];
-	char *encoded_subject = "";
+	char *encoded_subject = NULL;
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
@@ -3141,7 +3141,7 @@ void post_message(void)
 		snprintf(CmdBuf, len + 1, CMD,
 			Recp,
 			is_anonymous,
-			encoded_subject,
+			(encoded_subject ? encoded_subject : ""),
 			display_name,
 			Cc,
 			Bcc,
@@ -3152,7 +3152,7 @@ void post_message(void)
 		serv_puts(CmdBuf);
 		serv_getln(buf, sizeof buf);
 		free (CmdBuf);
-		free (encoded_subject);
+		if (encoded_subject) free(encoded_subject);
 		if (buf[0] == '4') {
 			post_mime_to_server();
 			if (  (!IsEmptyStr(bstr("recp")))
