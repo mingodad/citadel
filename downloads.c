@@ -99,7 +99,7 @@ void display_pictureview(void)
 	int n = 0;
 		
 
-	if (atol(bstr("frame")) == 1) {
+	if (lbstr("frame") == 1) {
 
 		output_headers(1, 1, 2, 0, 0, 0);
 		wprintf("<div id=\"banner\">\n");
@@ -158,8 +158,9 @@ void display_mime_icon(void)
 {
 	char FileBuf[SIZ];
 	const char *FileName;
+	size_t tlen;
 
-	FileName = GetIconFilename(bstr("type"), strlen(bstr("type")));
+	FileName = GetIconFilename(xbstr("type", &tlen), tlen);
 
 	if (FileName == NULL)
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");

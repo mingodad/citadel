@@ -68,7 +68,7 @@ void page_user(void)
 
 	safestrncpy(recp, bstr("recp"), sizeof recp);
 
-	if (IsEmptyStr(bstr("send_button"))) {
+	if (!havebstr("send_button")) {
 		safestrncpy(WC->ImportantMessage,
 			_("Message was not sent."),
 			sizeof WC->ImportantMessage
@@ -431,22 +431,22 @@ void chat_send(void) {
 		"<BODY onLoad=\"document.chatsendform.send_this.focus();\" >"
 	);
 
-	if (bstr("send_this") != NULL) {
+	if (havebstr("send_this")) {
 		strcpy(send_this, bstr("send_this"));
 	}
 	else {
 		strcpy(send_this, "");
 	}
 
-	if (!IsEmptyStr(bstr("help_button"))) {
+	if (havebstr("help_button")) {
 		strcpy(send_this, "/help");
 	}
 
-	if (!IsEmptyStr(bstr("list_button"))) {
+	if (havebstr("list_button")) {
 		strcpy(send_this, "/who");
 	}
 
-	if (!IsEmptyStr(bstr("exit_button"))) {
+	if (havebstr("exit_button")) {
 		strcpy(send_this, "/quit");
 	}
 

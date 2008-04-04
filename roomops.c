@@ -644,9 +644,9 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_CALENDAR:
 				case VIEW_CALBRIEF:
 					wprintf("<li class=\"addevent\"><a href=\"display_enter");
-					if (!IsEmptyStr(bstr("year" ))) wprintf("?year=%s", bstr("year"));
-					if (!IsEmptyStr(bstr("month"))) wprintf("?month=%s", bstr("month"));
-					if (!IsEmptyStr(bstr("day"  ))) wprintf("?day=%s", bstr("day"));
+					if (havebstr("year" )) wprintf("?year=%s", bstr("year"));
+					if (havebstr("month")) wprintf("?month=%s", bstr("month"));
+					if (havebstr("day"  )) wprintf("?day=%s", bstr("day"));
 					wprintf("\">"
 						"<img align=\"middle\" src=\"static/addevent_24x.gif\" "
 						"border=\"0\"><span class=\"navbar_link\">"
@@ -2031,21 +2031,21 @@ void toggle_self_service(void) {
 
 	get_roomflags (&RoomFlags);
 
-	if (!strcasecmp(bstr("QR2_SelfList"), "yes")) 
+	if (yesbstr("QR2_SelfList")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SELFLIST;
 	else 
 		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SELFLIST;
 
-	if (!strcasecmp(bstr("QR2_SMTP_PUBLIC"), "yes")) 
+	if (yesbstr("QR2_SMTP_PUBLIC")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
 	else
 		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
 
-	if (!strcasecmp(bstr("QR2_Moderated"), "yes")) 
+	if (yesbstr("QR2_Moderated")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_MODERATED;
 	else
 		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_MODERATED;
-	if (!strcasecmp(bstr("QR2_SubsOnly"), "yes")) 
+	if (yesbstr("QR2_SubsOnly")) 
 		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
 	else
 		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
@@ -2075,7 +2075,7 @@ void editroom(void)
 	int bump;
 
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_editroom();
@@ -2141,62 +2141,62 @@ void editroom(void)
 		er_flags &= ~QR_MAILBOX;
 	}
 	
-	if (!strcmp(bstr("prefonly"), "yes")) {
+	if (yesbstr("prefonly")) {
 		er_flags |= QR_PREFONLY;
 	} else {
 		er_flags &= ~QR_PREFONLY;
 	}
 
-	if (!strcmp(bstr("readonly"), "yes")) {
+	if (yesbstr("readonly")) {
 		er_flags |= QR_READONLY;
 	} else {
 		er_flags &= ~QR_READONLY;
 	}
 
 	
-	if (!strcmp(bstr("collabdel"), "yes")) {
+	if (yesbstr("collabdel")) {
 		er_flags2 |= QR2_COLLABDEL;
 	} else {
 		er_flags2 &= ~QR2_COLLABDEL;
 	}
 
-	if (!strcmp(bstr("permanent"), "yes")) {
+	if (yesbstr("permanent")) {
 		er_flags |= QR_PERMANENT;
 	} else {
 		er_flags &= ~QR_PERMANENT;
 	}
 
-	if (!strcmp(bstr("subjectreq"), "yes")) {
+	if (yesbstr("subjectreq")) {
 		er_flags2 |= QR2_SUBJECTREQ;
 	} else {
 		er_flags2 &= ~QR2_SUBJECTREQ;
 	}
 
-	if (!strcmp(bstr("network"), "yes")) {
+	if (yesbstr("network")) {
 		er_flags |= QR_NETWORK;
 	} else {
 		er_flags &= ~QR_NETWORK;
 	}
 
-	if (!strcmp(bstr("directory"), "yes")) {
+	if (yesbstr("directory")) {
 		er_flags |= QR_DIRECTORY;
 	} else {
 		er_flags &= ~QR_DIRECTORY;
 	}
 
-	if (!strcmp(bstr("ulallowed"), "yes")) {
+	if (yesbstr("ulallowed")) {
 		er_flags |= QR_UPLOAD;
 	} else {
 		er_flags &= ~QR_UPLOAD;
 	}
 
-	if (!strcmp(bstr("dlallowed"), "yes")) {
+	if (yesbstr("dlallowed")) {
 		er_flags |= QR_DOWNLOAD;
 	} else {
 		er_flags &= ~QR_DOWNLOAD;
 	}
 
-	if (!strcmp(bstr("visdir"), "yes")) {
+	if (yesbstr("visdir")) {
 		er_flags |= QR_VISDIR;
 	} else {
 		er_flags &= ~QR_VISDIR;
@@ -2214,7 +2214,7 @@ void editroom(void)
 	if (!strcmp(bstr("bump"), "yes"))
 		bump = 1;
 
-	er_floor = atoi(bstr("er_floor"));
+	er_floor = ibstr("er_floor");
 
 	sprintf(buf, "SETR %s|%s|%s|%u|%d|%d|%d|%d|%u",
 		er_name, er_password, er_dirname, er_flags, bump, er_floor,
@@ -2262,7 +2262,7 @@ void do_invt_kick(void) {
 
         strcpy(username, bstr("username"));
 
-        if (!IsEmptyStr(bstr("kick_button"))) {
+        if (havebstr("kick_button")) {
                 sprintf(buf, "KICK %s", username);
                 serv_puts(buf);
                 serv_getln(buf, sizeof buf);
@@ -2276,7 +2276,7 @@ void do_invt_kick(void) {
                 }
         }
 
-	if (!IsEmptyStr(bstr("invite_button"))) {
+	if (havebstr("invite_button")) {
                 sprintf(buf, "INVT %s", username);
                 serv_puts(buf);
                 serv_getln(buf, sizeof buf);
@@ -2568,7 +2568,7 @@ void entroom(void)
 	int er_num_type;
 	int er_view;
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  No new room was created."));
 		display_main_menu();
@@ -2577,8 +2577,8 @@ void entroom(void)
 	strcpy(er_name, bstr("er_name"));
 	strcpy(er_type, bstr("type"));
 	strcpy(er_password, bstr("er_password"));
-	er_floor = atoi(bstr("er_floor"));
-	er_view = atoi(bstr("er_view"));
+	er_floor = ibstr("er_floor");
+	er_view = ibstr("er_view");
 
 	er_num_type = 0;
 	if (!strcmp(er_type, "hidden"))
@@ -2666,7 +2666,7 @@ void goto_private(void)
 	char hold_rm[SIZ];
 	char buf[SIZ];
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		display_main_menu();
 		return;
 	}
@@ -2736,7 +2736,7 @@ void zap(void)
 	 */
 	strcpy(final_destination, WC->wc_roomname);
 
-	if (!IsEmptyStr(bstr("ok_button"))) {
+	if (havebstr("ok_button")) {
 		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -2786,8 +2786,8 @@ void netedit(void) {
 	char cmpb0[SIZ];
 	char cmpb1[SIZ];
 	int i, num_addrs;
-
-	if (!IsEmptyStr(bstr("line_pop3host"))) {
+	// TODO: do line dynamic!
+	if (havebstr("line_pop3host")) {
 		strcpy(line, bstr("prefix"));
 		strcat(line, bstr("line_pop3host"));
 		strcat(line, "|");
@@ -2795,12 +2795,12 @@ void netedit(void) {
 		strcat(line, "|");
 		strcat(line, bstr("line_pop3pass"));
 		strcat(line, "|");
-		strcat(line, atoi(bstr("line_pop3keep")) ? "1" : "0" );
+		strcat(line, ibstr("line_pop3keep") ? "1" : "0" );
 		strcat(line, "|");
-		sprintf(&line[strlen(line)],"%ld", atol(bstr("line_pop3int")));
+		sprintf(&line[strlen(line)],"%ld", lbstr("line_pop3int"));
 		strcat(line, bstr("suffix"));
 	}
-	else if (!IsEmptyStr(bstr("line"))) {
+	else if (havebstr("line")) {
 		strcpy(line, bstr("prefix"));
 		strcat(line, bstr("line"));
 		strcat(line, bstr("suffix"));
@@ -2851,7 +2851,7 @@ void netedit(void) {
 		serv_puts(buf);
 	}
 
-	if (!IsEmptyStr(bstr("add_button"))) {
+	if (havebstr("add_button")) {
 		num_addrs = num_tokens(bstr("line"), ',');
 		if (num_addrs < 2) {
 			/* just adding one node or address */
@@ -2941,7 +2941,7 @@ void do_change_view(int newview) {
 void change_view(void) {
 	int view;
 
-	view = atol(bstr("view"));
+	view = lbstr("view");
 	do_change_view(view);
 }
 
@@ -3529,7 +3529,7 @@ void knrooms(void)
 
 	/** Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
-		if (!IsEmptyStr(bstr("view"))) {
+		if (havebstr("view")) {
 			set_preference("roomlistview", bstr("view"), 1);
 		}
 	}
@@ -3597,20 +3597,20 @@ void knrooms(void)
 void set_room_policy(void) {
 	char buf[SIZ];
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_editroom();
 		return;
 	}
 
-	serv_printf("SPEX room|%d|%d", atoi(bstr("roompolicy")), atoi(bstr("roomvalue")));
+	serv_printf("SPEX room|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
 	serv_getln(buf, sizeof buf);
 	strcpy(WC->ImportantMessage, &buf[4]);
 
 	if (WC->axlevel >= 6) {
 		strcat(WC->ImportantMessage, "<br />\n");
-		serv_printf("SPEX floor|%d|%d", atoi(bstr("floorpolicy")), atoi(bstr("floorvalue")));
+		serv_printf("SPEX floor|%d|%d", ibstr("floorpolicy"), bstr("floorvalue"));
 		serv_getln(buf, sizeof buf);
 		strcat(WC->ImportantMessage, &buf[4]);
 	}

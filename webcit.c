@@ -82,7 +82,7 @@ void addurls(char *url)
 {
 	char *aptr, *bptr, *eptr;
 	char *up;
-	char buf[SIZ];
+	char buf[SIZ] = "";
 	int len, n, keylen;
 	urlcontent *u;
 	struct wcsession *WCC = WC;
@@ -165,15 +165,20 @@ void dump_vars(void)
  * \brief Return the value of a variable supplied to the current web page (from the url or a form)
  * \param key The name of the variable we want
  */
-const char *BSTR(char *key)
+
+const char *XBstr(char *key, size_t keylen, size_t *len)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U))
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U)) {
+		*len = ((urlcontent *)U)->url_data_size;
 		return ((urlcontent *)U)->url_data;
-	else	
+	}
+	else {
+		*len = 0;
 		return ("");
+	}
 }
 
 const char *XBSTR(char *key, size_t *len)
@@ -191,6 +196,18 @@ const char *XBSTR(char *key, size_t *len)
 	}
 }
 
+
+const char *BSTR(char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) &&
+	    GetHash(WC->urlstrings, key, strlen (key), &U))
+		return ((urlcontent *)U)->url_data;
+	else	
+		return ("");
+}
+
 const char *Bstr(char *key, size_t keylen)
 {
 	void *U;
@@ -202,19 +219,93 @@ const char *Bstr(char *key, size_t keylen)
 		return ("");
 }
 
-const char *XBstr(char *key, size_t keylen, size_t *len)
+long LBstr(char *key, size_t keylen)
 {
 	void *U;
 
 	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U)) {
-		*len = ((urlcontent *)U)->url_data_size;
-		return ((urlcontent *)U)->url_data;
-	}
-	else {
-		*len = 0;
-		return ("");
-	}
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return atol(((urlcontent *)U)->url_data);
+	else	
+		return (0);
+}
+
+long LBSTR(char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, strlen(key), &U))
+		return atol(((urlcontent *)U)->url_data);
+	else	
+		return (0);
+}
+
+int IBstr(char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return atoi(((urlcontent *)U)->url_data);
+	else	
+		return (0);
+}
+
+int IBSTR(char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, strlen(key), &U))
+		return atoi(((urlcontent *)U)->url_data);
+	else	
+		return (0);
+}
+
+int HaveBstr(char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return ((urlcontent *)U)->url_data_size != 0;
+	else	
+		return (0);
+}
+
+int HAVEBSTR(char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, strlen(key), &U))
+		return ((urlcontent *)U)->url_data_size != 0;
+	else	
+		return (0);
+}
+
+
+int YesBstr(char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return strcmp( ((urlcontent *)U)->url_data, "yes") == 0;
+	else	
+		return (0);
+}
+
+int YESBSTR(char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, strlen(key), &U))
+		return strcmp( ((urlcontent *)U)->url_data, "yes") == 0;
+	else	
+		return (0);
 }
 
 /**
@@ -787,7 +878,7 @@ void output_static(char *what)
 		http_transmit_thing(bigbuffer, (size_t)bytes, content_type, 1);
 		free(bigbuffer);
 	}
-	if (!strcasecmp(bstr("force_close_session"), "yes")) {
+	if (yesbstr("force_close_session")) {
 		end_webcit_session();
 	}
 }
@@ -1415,7 +1506,7 @@ void session_loop(struct httprequest *req)
 	if (strlen(bstr("nonce")) > 0) {
 		lprintf(9, "Comparing supplied nonce %s to session nonce %ld\n", 
 			bstr("nonce"), WC->nonce);
-		if (atoi(bstr("nonce")) != WC->nonce) {
+		if (ibstr("nonce") != WC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			wprintf("HTTP/1.1 404 Security check failed\r\n");
 			wprintf("Content-Type: text/plain\r\n");

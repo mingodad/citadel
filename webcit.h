@@ -502,13 +502,33 @@ void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
 void serv_printf(const char *format,...);
-const char *Bstr(char *key, size_t keylen);
-const char *XBstr(char *key, size_t keylen, size_t *len);
+
 /* TODO: get rid of the non-const-typecast */
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
-#define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
 const char *BSTR(char *key);
+const char *Bstr(char *key, size_t keylen);
+
+#define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
+const char *XBstr(char *key, size_t keylen, size_t *len);
 const char *XBSTR(char *key, size_t *len);
+
+#define lbstr(a) LBstr(a, sizeof(a) - 1)
+long LBstr(char *key, size_t keylen);
+long LBSTR(char *key);
+
+#define ibstr(a) IBstr(a, sizeof(a) - 1)
+int IBstr(char *key, size_t keylen);
+int IBSTR(char *key);
+
+#define havebstr(a) HaveBstr(a, sizeof(a) - 1)
+int HaveBstr(char *key, size_t keylen);
+int HAVEBSTR(char *key);
+
+#define yesbstr(a) YesBstr(a, sizeof(a) - 1)
+int YesBstr(char *key, size_t keylen);
+int YESBSTR(char *key);
+
+
 void urlescputs(char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);

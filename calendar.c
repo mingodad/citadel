@@ -579,7 +579,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		created_new_vtodo = 1;
 	}
 
-	if (!IsEmptyStr(bstr("save_button"))) {
+	if (havebstr("save_button")) {
 
 		/** Replace values in the component with ones from the form */
 
@@ -588,7 +588,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
-	 	if (!IsEmptyStr(bstr("summary"))) {
+	 	if (havebstr("summary")) {
 	
 		 	icalcomponent_add_property(vtodo,
 				  	icalproperty_new_summary(bstr("summary")));
@@ -683,12 +683,12 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 	/**
 	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
-	if (!IsEmptyStr(bstr("delete_button"))) {
+	if (havebstr("delete_button")) {
 		delete_existing = 1;
 	}
 
 	if ( (delete_existing) && (msgnum > 0L) ) {
-		serv_printf("DELE %ld", atol(bstr("msgnum")));
+		serv_printf("DELE %ld", lbstr("msgnum"));
 		serv_getln(buf, sizeof buf);
 	}
 
@@ -812,11 +812,11 @@ void display_edit_task(void) {
 	long msgnum = 0L;
 
 	/** Force change the room if we have to */
-	if (!IsEmptyStr(bstr("taskrm"))) {
+	if (havebstr("taskrm")) {
 		gotoroom(bstr("taskrm"));
 	}
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/** existing task */
 		display_using_handler(msgnum, 0,
@@ -835,7 +835,7 @@ void display_edit_task(void) {
 void save_task(void) {
 	long msgnum = 0L;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		display_using_handler(msgnum, 0,
 				ICAL_VTODO_COMPONENT,
@@ -852,7 +852,7 @@ void save_task(void) {
 void display_edit_event(void) {
 	long msgnum = 0L;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/* existing event */
 		display_using_handler(msgnum, 0,
@@ -871,7 +871,7 @@ void display_edit_event(void) {
 void save_event(void) {
 	long msgnum = 0L;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
 		display_using_handler(msgnum, 0,

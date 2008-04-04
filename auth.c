@@ -142,16 +142,16 @@ void do_login(void)
 {
 	char buf[SIZ];
 
-	if (!IsEmptyStr(bstr("language"))) {
+	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
 		go_selected_language();
 	}
 
-	if (!IsEmptyStr(bstr("exit_action"))) {
+	if (havebstr("exit_action")) {
 		do_logout();
 		return;
 	}
-	if (!IsEmptyStr(bstr("login_action"))) {
+	if (havebstr("login_action")) {
 		serv_printf("USER %s", bstr("name"));
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '3') {
@@ -169,8 +169,8 @@ void do_login(void)
 			return;
 		}
 	}
-	if (!IsEmptyStr(bstr("newuser_action"))) {
-		if (IsEmptyStr(bstr("pass"))) {
+	if (havebstr("newuser_action")) {
+		if (!havebstr("pass")) {
 			display_login(_("Blank passwords are not allowed."));
 			return;
 		}
@@ -349,7 +349,7 @@ void validate(void)
 	/** If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
 	if (!IsEmptyStr(buf)) {
-		if (!IsEmptyStr(bstr("axlevel"))) {
+		if (havebstr("axlevel")) {
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
@@ -521,7 +521,7 @@ void changepw(void)
 	char buf[SIZ];
 	char newpass1[32], newpass2[32];
 
-	if (IsEmptyStr(bstr("change_action"))) {
+	if (!havebstr("change_action")) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Cancelled.  Password was not changed."),
 			sizeof WC->ImportantMessage);

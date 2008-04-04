@@ -318,19 +318,19 @@ void edit_me(void)
 {
 	char buf[SIZ];
 
-	if (!IsEmptyStr(bstr("change_room_name_button"))) {
+	if (havebstr("change_room_name_button")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (!IsEmptyStr(bstr("change_host_name_button"))) {
+	} else if (havebstr("change_host_name_button")) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (!IsEmptyStr(bstr("change_user_name_button"))) {
+	} else if (havebstr("change_user_name_button")) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
 		http_redirect("who");
-	} else if (!IsEmptyStr(bstr("cancel_button"))) {
+	} else if (havebstr("cancel_button")) {
 		http_redirect("who");
 	} else {
 		output_headers(1, 1, 0, 0, 0, 0);

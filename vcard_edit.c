@@ -372,7 +372,7 @@ void edit_vcard(void) {
 	long msgnum;
 	char *partnum;
 
-	msgnum = atol(bstr("msgnum"));
+	msgnum = lbstr("msgnum");
 	partnum = bstr("partnum");
 	do_edit_vcard(msgnum, partnum, "", NULL);
 }
@@ -388,12 +388,12 @@ void submit_vcard(void) {
 	char buf[SIZ];
 	int i;
 
-	if (IsEmptyStr(bstr("ok_button"))) { 
+	if (!havebstr("ok_button")) { 
 		readloop("readnew");
 		return;
 	}
 
-	if (!IsEmptyStr(bstr("force_room"))) {
+	if (havebstr("force_room")) {
 		gotoroom(bstr("force_room"));
 	}
 

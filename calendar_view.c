@@ -157,7 +157,7 @@ void ajax_mini_calendar(void) {
 		urlformat[i+1] = 0;
 	}
 
-	embeddable_mini_calendar( atoi(bstr("year")), atoi(bstr("month")), urlformat );
+	embeddable_mini_calendar( ibstr("year"), ibstr("month"), urlformat );
 }
 
 
@@ -1346,12 +1346,12 @@ void do_calendar_view(void) {
 	day = tm.tm_mday;
 
 	/** Now see if a date was specified */
-	if (!IsEmptyStr(bstr("year"))) year = atoi(bstr("year"));
-	if (!IsEmptyStr(bstr("month"))) month = atoi(bstr("month"));
-	if (!IsEmptyStr(bstr("day"))) day = atoi(bstr("day"));
+	if (havebstr("year")) year = ibstr("year");
+	if (havebstr("month")) month = ibstr("month");
+	if (havebstr("day")) day = ibstr("day");
 
 	/** How would you like that cooked? */
-	if (!IsEmptyStr(bstr("calview"))) {
+	if (havebstr("calview")) {
 		strcpy(calview, bstr("calview"));
 	}
 	else {

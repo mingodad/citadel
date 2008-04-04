@@ -174,14 +174,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	else {
 		localtime_r(&now, &tm_now);
-		if (!IsEmptyStr(bstr("year"))) {
-			tm_now.tm_year = atoi(bstr("year")) - 1900;
-			tm_now.tm_mon = atoi(bstr("month")) - 1;
-			tm_now.tm_mday = atoi(bstr("day"));
+		if (havebstr("year")) {
+			tm_now.tm_year = ibstr("year") - 1900;
+			tm_now.tm_mon = ibstr("month") - 1;
+			tm_now.tm_mday = ibstr("day");
 		}
-		if (!IsEmptyStr(bstr("hour"))) {
-			tm_now.tm_hour = atoi(bstr("hour"));
-			tm_now.tm_min = atoi(bstr("minute"));
+		if (havebstr("hour")) {
+			tm_now.tm_hour = ibstr("hour");
+			tm_now.tm_min = ibstr("minute");
 			tm_now.tm_sec = 0;
 		}
 		else {
@@ -192,7 +192,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 		t_start = icaltime_from_timet_with_zone(
 			mktime(&tm_now),
-			((!strcasecmp(bstr("alldayevent"), "yes")) ? 1 : 0),
+			((yesbstr("alldayevent")) ? 1 : 0),
 			icaltimezone_get_utc_timezone()
 		);
 		t_start.is_utc = 1;
@@ -464,8 +464,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		created_new_vevent = 1;
 	}
 
-	if ( (!IsEmptyStr(bstr("save_button")))
-	   || (!IsEmptyStr(bstr("check_button"))) ) {
+	if ( (havebstr("save_button"))
+	   || (havebstr("check_button")) ) {
 
 		/** Replace values in the component with ones from the form */
 
@@ -475,7 +475,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			icalproperty_free(prop);
 		}
 
-	 	if (!IsEmptyStr(bstr("summary"))) {
+	 	if (havebstr("summary")) {
 	
 		 	icalcomponent_add_property(vevent,
 				  	icalproperty_new_summary(bstr("summary")));
@@ -489,7 +489,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		 	icalcomponent_remove_property(vevent, prop);
 		 	icalproperty_free(prop);
 	 	}
-	 	if (!IsEmptyStr(bstr("location"))) {
+	 	if (havebstr("location")) {
 		 	icalcomponent_add_property(vevent,
 					icalproperty_new_location(bstr("location")));
 	 	}
@@ -498,7 +498,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		 	icalcomponent_remove_property(vevent, prop);
 		 	icalproperty_free(prop);
 	 	}
-	 	if (!IsEmptyStr(bstr("description"))) {
+	 	if (havebstr("description")) {
 		 	icalcomponent_add_property(vevent,
 			  	icalproperty_new_description(bstr("description")));
 	 	}
@@ -509,7 +509,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			icalproperty_free(prop);
 		}
 
-		if (!strcmp(bstr("alldayevent"), "yes")) {
+		if (yesbstr("alldayevent")) {
 			all_day_event = 1;
 		}
 		else {
@@ -559,7 +559,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		}
 
 		/** See if transparency is indicated */
-		if (!IsEmptyStr(bstr("transp"))) {
+		if (havebstr("transp")) {
 			if (!strcasecmp(bstr("transp"), "opaque")) {
 				formtransp = ICAL_TRANSP_OPAQUE;
 			}
@@ -690,7 +690,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
 		/** If the user clicked 'Save' then save it to the server. */
-		if ( (encaps != NULL) && (!IsEmptyStr(bstr("save_button"))) ) {
+		if ( (encaps != NULL) && (havebstr("save_button")) ) {
 			serv_puts("ENT0 1|||4|||1|");
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '8') {
@@ -711,7 +711,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		}
 
 		/** Or, check attendee availability if the user asked for that. */
-		if ( (encaps != NULL) && (!IsEmptyStr(bstr("check_button"))) ) {
+		if ( (encaps != NULL) && (havebstr("check_button")) ) {
 
 			/** Call this function, which does the real work */
 			check_attendee_availability(encaps);
@@ -727,8 +727,8 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 	/**
 	 * If the user clicked 'Delete' then delete it.
 	 */
-	if ( (!IsEmptyStr(bstr("delete_button"))) && (msgnum > 0L) ) {
-		serv_printf("DELE %ld", atol(bstr("msgnum")));
+	if ( (havebstr("delete_button")) && (msgnum > 0L) ) {
+		serv_printf("DELE %ld", lbstr("msgnum"));
 		serv_getln(buf, sizeof buf);
 	}
 
@@ -737,7 +737,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 	}
 
 	/** If this was a save or delete, go back to the calendar view. */
-	if (IsEmptyStr(bstr("check_button"))) {
+	if (!havebstr("check_button")) {
 		readloop("readfwd");
 	}
 }

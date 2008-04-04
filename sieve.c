@@ -513,7 +513,7 @@ void parse_fields_from_rule_editor(void) {
 			safestrncpy(sizecomp, BSTR(fname), sizeof sizecomp);
 	
 			sprintf(fname, "sizeval%d", i);
-			sizeval = atoi(BSTR(fname));
+			sizeval = IBSTR(fname);
 	
 			sprintf(fname, "action%d", i);
 			safestrncpy(action, BSTR(fname), sizeof action);
@@ -563,7 +563,7 @@ void save_sieve(void) {
 	char this_name[64];
 	char buf[256];
 
-	if (IsEmptyStr(bstr("save_button"))) {
+	if (!havebstr("save_button")) {
 		strcpy(WC->ImportantMessage,
 			_("Cancelled.  Changes were not saved."));
 		display_main_menu();
@@ -584,7 +584,7 @@ void save_sieve(void) {
 		}
 	}
 
-	bigaction = atoi(bstr("bigaction"));
+	bigaction = ibstr("bigaction");
 
 	if (bigaction == 0) {
 		serv_puts("MSIV setactive||");

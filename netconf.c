@@ -18,7 +18,7 @@ void edit_node(void) {
 	char cnode[SIZ];
 	FILE *fp;
 
-	if (!IsEmptyStr(bstr("ok_button"))) {
+	if (havebstr("ok_button")) {
 		strcpy(node, bstr("node") );
 		fp = tmpfile();
 		if (fp != NULL) {

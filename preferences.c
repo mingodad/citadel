@@ -438,7 +438,7 @@ void set_preferences(void)
 	
 	time_format_cache = &(WC->time_format_cache);
 
-	if (IsEmptyStr(bstr("change_button"))) {
+	if (!havebstr("change_button")) {
 		safestrncpy(WC->ImportantMessage, 
 			_("Cancelled.  No settings were changed."),
 			sizeof WC->ImportantMessage);
