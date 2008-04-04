@@ -139,7 +139,7 @@ void delete_floor(void) {
 	char buf[SIZ];
 	char message[SIZ];
 
-	floornum = atoi(bstr("floornum"));
+	floornum = ibstr("floornum");
 
 	serv_printf("KFLR %d|1", floornum);
 	serv_getln(buf, sizeof buf);
@@ -185,7 +185,7 @@ void rename_floor(void) {
 	char message[SIZ];
 	char floorname[SIZ];
 
-	floornum = atoi(bstr("floornum"));
+	floornum = ibstr("floornum");
 	strcpy(floorname, bstr("floorname"));
 
 	serv_printf("EFLR %d|%s", floornum, floorname);

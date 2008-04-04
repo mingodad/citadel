@@ -72,7 +72,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 {
 	char buf[SIZ];
 
-	if (IsEmptyStr(bstr("save_button"))) {
+	if (!havebstr("save_button")) {
 		sprintf(WC->ImportantMessage,
 			_("Cancelled.  %s was not saved."),
 			description);

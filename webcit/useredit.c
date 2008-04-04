@@ -267,12 +267,12 @@ void display_edituser(char *supplied_username, int is_new) {
 	lastcall = extract_long(&buf[4], 7);
 	purgedays = extract_long(&buf[4], 8);
 
-	if (!IsEmptyStr(bstr("edit_abe_button"))) {
+	if (havebstr("edit_abe_button")) {
 		display_edit_address_book_entry(username, usernum);
 		return;
 	}
 
-	if (!IsEmptyStr(bstr("delete_button"))) {
+	if (havebstr("delete_button")) {
 		delete_user(username);
 		return;
 	}
@@ -407,24 +407,24 @@ void edituser(void) {
 	unsigned int flags = 0;
 	char *username;
 
-	is_new = atoi(bstr("is_new"));
+	is_new = ibstr("is_new");
 	safestrncpy(message, "", sizeof message);
 	username = bstr("username");
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		safestrncpy(message, _("Changes were not saved."), sizeof message);
 	}
 	
 	else {
-		flags = atoi(bstr("flags"));
-		if (!strcasecmp(bstr("inetmail"), "yes")) {
+		flags = ibstr("flags");
+		if (yesbstr("inetmail")) {
 			flags |= US_INTERNET;
 		}
 		else {
 			flags &= ~US_INTERNET ;
 		}
 
-		if (bstr("newname") != NULL) if (strcasecmp(bstr("username"), bstr("newname"))) {
+		if ((havebstr("newname")) && (strcasecmp(bstr("username"), bstr("newname")))) {
 			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
@@ -461,7 +461,7 @@ void edituser(void) {
 	 * the vCard edit screen.
 	 */
 	if (is_new) {
-		display_edit_address_book_entry(username, atol(bstr("usernum")) );
+		display_edit_address_book_entry(username, lbstr("usernum") );
 	}
 	else {
 		select_user_to_edit(message, username);

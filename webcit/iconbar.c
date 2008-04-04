@@ -764,12 +764,12 @@ void commit_iconbar(void) {
 		"ib_citadel"
 	};
 
-	if (IsEmptyStr(bstr("ok_button"))) {
+	if (!havebstr("ok_button")) {
 		display_main_menu();
 		return;
 	}
 
-	sprintf(iconbar, "ib_displayas=%d", atoi(bstr("ib_displayas")));
+	sprintf(iconbar, "ib_displayas=%d", ibstr("ib_displayas"));
 
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
 		char *Val;

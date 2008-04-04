@@ -254,7 +254,7 @@ void do_generic(void)
 	char *junk;
 	size_t len;
 
-	if (IsEmptyStr(bstr("sc_button"))) {
+	if (!havebstr("sc_button")) {
 		display_main_menu();
 		return;
 	}

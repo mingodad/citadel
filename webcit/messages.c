@@ -2320,9 +2320,9 @@ void readloop(char *oper)
 		return;
 	}
 
-	startmsg = atol(bstr("startmsg"));
-	maxmsgs = atoi(bstr("maxmsgs"));
-	is_summary = atoi(bstr("is_summary"));
+	startmsg = lbstr("startmsg");
+	maxmsgs = ibstr("maxmsgs");
+	is_summary = ibstr("is_summary");
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
 	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WCC->wc_roomname);
@@ -2408,7 +2408,7 @@ void readloop(char *oper)
 		}
 	}
 
-	is_singlecard = atoi(bstr("is_singlecard"));
+	is_singlecard = ibstr("is_singlecard");
 
 	if (WCC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
 		is_calendar = 1;
@@ -3017,7 +3017,7 @@ void post_message(void)
 	struct wcsession *WCC = WC;
 	char *ptr = NULL;
 
-	if (!IsEmptyStr(bstr("force_room"))) {
+	if (havebstr("force_room")) {
 		gotoroom(bstr("force_room"));
 	}
 
@@ -3078,13 +3078,13 @@ void post_message(void)
 		return;
 	}
 
-	if (!IsEmptyStr(bstr("cancel_button"))) {
+	if (havebstr("cancel_button")) {
 		sprintf(WCC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
-	} else if (!IsEmptyStr(bstr("attach_button"))) {
+	} else if (havebstr("attach_button")) {
 		display_enter();
 		return;
-	} else if (atol(bstr("postseq")) == dont_post) {
+	} else if (lbstr("postseq") == dont_post) {
 		sprintf(WCC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
 			"saved this message."));
@@ -3155,16 +3155,16 @@ void post_message(void)
 		if (encoded_subject) free(encoded_subject);
 		if (buf[0] == '4') {
 			post_mime_to_server();
-			if (  (!IsEmptyStr(bstr("recp")))
-			   || (!IsEmptyStr(bstr("cc"  )))
-			   || (!IsEmptyStr(bstr("bcc" )))
+			if (  (havebstr("recp"))
+			   || (havebstr("cc"  ))
+			   || (havebstr("bcc" ))
 			) {
 				sprintf(WCC->ImportantMessage, _("Message has been sent.\n"));
 			}
 			else {
 				sprintf(WC->ImportantMessage, _("Message has been posted.\n"));
 			}
-			dont_post = atol(bstr("postseq"));
+			dont_post = lbstr("postseq");
 		} else {
 			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, buf);
 			sprintf(WC->ImportantMessage, "%s", &buf[4]);
@@ -3179,13 +3179,13 @@ void post_message(void)
 	 *  We may have been supplied with instructions regarding the location
 	 *  to which we must return after posting.  If found, go there.
 	 */
-	if (!IsEmptyStr(bstr("return_to"))) {
+	if (havebstr("return_to")) {
 		http_redirect(bstr("return_to"));
 	}
 	/**
 	 *  If we were editing a page in a wiki room, go to that page now.
 	 */
-	else if (!IsEmptyStr(bstr("wikipage"))) {
+	else if (havebstr("wikipage")) {
 		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("wikipage"));
 		http_redirect(buf);
 	}
@@ -3216,16 +3216,18 @@ void display_enter(void)
 	int i;
 	int is_anonymous = 0;
 	long existing_page = (-1L);
+	size_t dplen;
 
 	now = time(NULL);
 
-	if (!IsEmptyStr(bstr("force_room"))) {
+	if (havebstr("force_room")) {
 		gotoroom(bstr("force_room"));
 	}
 
-	display_name = bstr("display_name");
+	display_name = xbstr("display_name", &dplen);
 	if (!strcmp(display_name, "__ANONYMOUS__")) {
 		display_name = "";
+		dplen = 0;
 		is_anonymous = 1;
 	}
 
@@ -3287,18 +3289,40 @@ void display_enter(void)
 
 	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
-		sprintf(buf, "ENT0 0|%s|%d|0||%s||%s|%s|%s",
-			bstr("recp"),
+		const char *Recp = ""; 
+		const char *Cc = "";
+		const char *Bcc = "";
+		const char *Wikipage = "";
+		char *CmdBuf = NULL;;
+		size_t len = 0;
+		size_t nLen;
+		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
+		
+		len = sizeof(CMD) + dplen;
+		Recp = xbstr("recp", &nLen);
+		len += nLen;
+		Cc = xbstr("cc", &nLen);
+		len += nLen;
+		Bcc = xbstr("bcc", &nLen);
+		len += nLen;
+		Wikipage = xbstr("wikipage", &nLen);
+		len += nLen;
+		
+
+		CmdBuf = (char*) malloc (len + 1);
+
+		snprintf(CmdBuf, len, CMD,
+			Recp,
 			is_anonymous,
 			display_name,
-			bstr("cc"), bstr("bcc"), bstr("wikipage"));
+			Cc, Bcc, Wikipage);
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 
 		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
-			if (!IsEmptyStr(bstr("recp")) && 
-			    !IsEmptyStr(bstr("cc"  )) && 
-			    !IsEmptyStr(bstr("bcc" ))) {
+			if (havebstr("recp") && 
+			    havebstr("cc"  ) && 
+			    havebstr("bcc" )) {
 				recipient_bad = 1;
 			}
 		}
@@ -3418,8 +3442,7 @@ void display_enter(void)
 		wprintf(_("To:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
-		ccraw = bstr("recp");
-		len = strlen(ccraw);
+		ccraw = xbstr("recp", &len);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
 		utf8ify_rfc822_string(copy);
@@ -3446,8 +3469,7 @@ void display_enter(void)
 		wprintf(_("CC:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
-		ccraw = bstr("cc");
-		len = strlen(ccraw);
+		ccraw = xbstr("cc", &len);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
 		utf8ify_rfc822_string(copy);
@@ -3461,8 +3483,7 @@ void display_enter(void)
 		wprintf(_("BCC:"));
 		wprintf("</label></th>"
 			"<td><input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
-		ccraw = bstr("bcc");
-		len = strlen(ccraw);
+		ccraw = xbstr("bcc", &len);
 		copy = (char*) malloc(len * 2 + 1);
 		memcpy(copy, ccraw, len + 1); 
 		utf8ify_rfc822_string(copy);
@@ -3502,18 +3523,18 @@ void display_enter(void)
 	msgescputs(bstr("msgtext"));
 
 	/* If we're forwarding a message, insert it here... */
-	if (atol(bstr("fwdquote")) > 0L) {
+	if (lbstr("fwdquote") > 0L) {
 		wprintf("<br><div align=center><i>");
 		wprintf(_("--- forwarded message ---"));
 		wprintf("</i></div><br>");
-		pullquote_message(atol(bstr("fwdquote")), 1, 1);
+		pullquote_message(lbstr("fwdquote"), 1, 1);
 	}
 
 	/** If we're replying quoted, insert the quote here... */
-	else if (atol(bstr("replyquote")) > 0L) {
+	else if (lbstr("replyquote") > 0L) {
 		wprintf("<br>"
 			"<blockquote>");
-		pullquote_message(atol(bstr("replyquote")), 0, 1);
+		pullquote_message(lbstr("replyquote"), 0, 1);
 		wprintf("</blockquote><br>");
 	}
 
@@ -3528,7 +3549,7 @@ void display_enter(void)
 	}
 
 	/** Insert our signature if appropriate... */
-	if ( (WC->is_mailbox) && (strcmp(bstr("sig_inserted"), "yes")) ) {
+	if ( (WC->is_mailbox) && yesbstr("sig_inserted") ) {
 		get_preference("use_sig", buf, sizeof buf);
 		if (!strcasecmp(buf, "yes")) {
 			int len;
@@ -3617,7 +3638,7 @@ void delete_msg(void)
 	long msgid;
 	char buf[SIZ];
 
-	msgid = atol(bstr("msgid"));
+	msgid = lbstr("msgid");
 
 	if (WC->wc_is_trash) {	/** Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
@@ -3641,9 +3662,9 @@ void move_msg(void)
 	long msgid;
 	char buf[SIZ];
 
-	msgid = atol(bstr("msgid"));
+	msgid = lbstr("msgid");
 
-	if (!IsEmptyStr(bstr("move_button"))) {
+	if (havebstr("move_button")) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
@@ -3668,7 +3689,7 @@ void confirm_move_msg(void)
 	char buf[SIZ];
 	char targ[SIZ];
 
-	msgid = atol(bstr("msgid"));
+	msgid = lbstr("msgid");
 
 
 	output_headers(1, 1, 2, 0, 0, 0);

@@ -66,7 +66,7 @@ void do_graphics_upload(char *filename)
 	int thisblock;
 	bytes_remaining = WC->upload_length;
 
-	if (!IsEmptyStr(bstr("cancel_button"))) {
+	if (havebstr("cancel_button")) {
 		strcpy(WC->ImportantMessage,
 			_("Graphics upload has been cancelled."));
 		display_main_menu();

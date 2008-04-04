@@ -769,14 +769,14 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_fqdn"));
 	serv_printf("%s", bstr("c_humannode"));
 	serv_printf("%s", bstr("c_phonenum"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_creataide"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_creataide") ? "1" : "0")));
 	serv_printf("%s", bstr("c_sleeping"));
 	serv_printf("%s", bstr("c_initax"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_regiscall"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_twitdetect"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_regiscall") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_twitdetect") ? "1" : "0")));
 	serv_printf("%s", bstr("c_twitroom"));
 	serv_printf("%s", bstr("c_moreprompt"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_restrict"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_restrict") ? "1" : "0")));
 	serv_printf("%s", bstr("c_bbs_city"));
 	serv_printf("%s", bstr("c_sysadm"));
 	serv_printf("%s", bstr("c_maxsessions"));
@@ -790,11 +790,11 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_max_workers"));
 	serv_printf("%s", bstr("c_pop3_port"));
 	serv_printf("%s", bstr("c_smtp_port"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_rfc822_strict_from"), "yes") ? "0" : "1"))); /* note: reverse bool */
-	serv_printf("%s", ((!strcasecmp(bstr("c_aide_zap"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_rfc822_strict_from") ? "0" : "1"))); /* note: reverse bool */
+	serv_printf("%s", ((yesbstr("c_aide_zap") ? "1" : "0")));
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_disable_newu"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_disable_newu") ? "1" : "0")));
 	serv_printf("1"); /* placeholder - this field is not in use */
 	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("%s", bstr("c_ldap_host"));
@@ -807,12 +807,12 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_imaps_port"));
 	serv_printf("%s", bstr("c_pop3s_port"));
 	serv_printf("%s", bstr("c_smtps_port"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_enable_fulltext"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_auto_cull"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_instant_expunge"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_allow_spoofing"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_journal_email"), "yes") ? "1" : "0")));
-	serv_printf("%s", ((!strcasecmp(bstr("c_journal_pubmsgs"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_enable_fulltext") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_auto_cull") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_instant_expunge") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_allow_spoofing") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_journal_email") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_journal_pubmsgs") ? "1" : "0")));
 	serv_printf("%s", bstr("c_journal_dest"));
 	serv_printf("%s", bstr("c_default_cal_zone"));
 	serv_printf("%s", bstr("c_pftcpdict_port"));
@@ -822,20 +822,20 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_funambol_port"));
 	serv_printf("%s", bstr("c_funambol_source"));
 	serv_printf("%s", bstr("c_funambol_auth"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_rbl_at_greeting"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_rbl_at_greeting") ? "1" : "0")));
 	serv_printf("%s", bstr("c_master_user"));
 	serv_printf("%s", bstr("c_master_pass"));
 	serv_printf("%s", bstr("c_pager_program"));
-	serv_printf("%s", ((!strcasecmp(bstr("c_imap_keep_from"), "yes") ? "1" : "0")));
+	serv_printf("%s", ((yesbstr("c_imap_keep_from") ? "1" : "0")));
 	serv_printf("%s", bstr("c_xmpp_c2s_port"));
 	serv_printf("%s", bstr("c_xmpp_s2s_port"));
 	serv_printf("%s", bstr("c_pop3_fetch"));
 	serv_printf("%s", bstr("c_pop3_fastest"));
 	serv_printf("000");
 
-	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
+	serv_printf("SPEX site|%d|%d", ibstr("sitepolicy"), ibstr("sitevalue"));
 	serv_getln(buf, sizeof buf);
-	serv_printf("SPEX mailboxes|%d|%d", atoi(bstr("mboxpolicy")), atoi(bstr("mboxvalue")));
+	serv_printf("SPEX mailboxes|%d|%d", ibstr("mboxpolicy"), ibstr("mboxvalue"));
 	serv_getln(buf, sizeof buf);
 
 	strcpy(serv_info.serv_default_cal_zone, bstr("c_default_cal_zone"));
