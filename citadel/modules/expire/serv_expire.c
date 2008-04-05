@@ -443,7 +443,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* User number 0, as well as any negative user number, is
 	 * also impossible.
 	 */
-	if (us->usernum < 1L) purge = 1;
+	if (us->usernum < 0L) purge = 1;
 	
 	/* If the user has no full name entry then we can't purge them
 	 * since the actual purge can't find them.
@@ -452,18 +452,21 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (IsEmptyStr(us->fullname))
 	{
-		purge=0;
-		if (users_corrupt_msg == NULL)
+		if (us->usernum > 0L)
 		{
-			users_corrupt_msg = malloc(SIZ);
-			strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
-			"Unfortunately the auto-purger is not yet able to fix this problem.\n"
-			"This problem is not considered serious since a user with no name can\n"
-			"not log in.\n");
-		}
+			purge=0;
+			if (users_corrupt_msg == NULL)
+			{
+				users_corrupt_msg = malloc(SIZ);
+				strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
+				"Unfortunately the auto-purger is not yet able to fix this problem.\n"
+				"This problem is not considered serious since a user with no name can\n"
+				"not log in.\n");
+			}
 		
-		users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+SIZ);
-		snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], SIZ, " %ld\n", us->usernum);
+			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+SIZ);
+			snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], SIZ, " %ld\n", us->usernum);
+		}
 	}
 
 
