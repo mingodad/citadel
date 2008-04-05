@@ -300,14 +300,15 @@ int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
 
 	if (!need_to_encode) {
 		memcpy (target, source, SourceLen);
+		target[SourceLen] = '\0';
 		return SourceLen;
 	}
 	
 	if (sizeof (headerStr + SourceLen + 2) > maxlen)
 		return -1;
 	memcpy (target, headerStr, sizeof (headerStr));
-	len = sizeof (headerStr);
-	for (i=0; (i < SourceLen) && (len < maxlen) ; ++i) {
+	len = sizeof (headerStr) - 1;
+	for (i=0; (i < SourceLen) && (len + 3< maxlen) ; ++i) {
 		ch = (unsigned char) source[i];
 		if ((ch < 32) || (ch > 126) || (ch == 61)) {
 			sprintf(&target[len], "=%02X", ch);
@@ -1677,7 +1678,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 			strcat(buf, "\n");
 			msgescputs(buf);
 		}
-	}
+	}//// TODO: charset? utf8?
 
 	/** Unknown weirdness ... don't know how to handle this content type */
 	else {
@@ -3109,15 +3110,17 @@ void post_message(void)
 		} 
 		lprintf(9, "Converted: %s\n", references);
 
-		if (GetHash(WCC->urlstrings, HKEY("subject"), &U)) {
-			u = (urlcontent*) U;
+		if (havebstr("subject")) {
+			char *Subj;
+			size_t SLen;
 			/*
 			 * make enough room for the encoded string; 
 			 * plus the QP header 
 			 */
-			len = u->url_data_size * 3 + 32;
+			Subj = xbstr("subject", &SLen);
+			len = SLen * 3 + 32;
 			encoded_subject = malloc (len);
-			len = webcit_rfc2047encode(encoded_subject, len, u->url_data, u->url_data_size);
+			len = webcit_rfc2047encode(encoded_subject, len, Subj, SLen);
 			if (len < 0) {
 				free (encoded_subject);
 				return;
