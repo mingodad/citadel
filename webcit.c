@@ -1152,7 +1152,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		u->url_data[length] = 0;
 		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
 
-		/* lprintf(9, "Key: <%s>  Data: <%s>\n", u->url_key, u->url_data); */
+/*		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", u->url_key, u->url_data_size, u->url_data);*/
 	}
 
 	/** Uploaded files */
