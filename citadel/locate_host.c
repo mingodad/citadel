@@ -24,6 +24,7 @@
 #include "sysdep_decls.h"
 #include "config.h"
 #include "domain.h"
+#include "ctdl_module.h"
 
 #ifdef HAVE_RESOLV_H
 #include <arpa/nameser.h>
@@ -140,6 +141,12 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	/* Make our DNS query. */
 	//res_init();
 	answer = fixedans;
+	if (CtdlThreadCheckStop())
+	{
+		if (txtbuf != NULL)
+			snprintf(txtbuf, txtbufsize, "System shutting down");
+		return (1);
+	}
 	len = res_query( domain, C_IN, T_A, answer, PACKETSZ );
 
 	/* Was there a problem? If so, the domain doesn't exist. */
@@ -164,6 +171,13 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 			return(1);
 		}
 	}
+	if (CtdlThreadCheckStop())
+	{
+		if (txtbuf != NULL)
+			snprintf(txtbuf, txtbufsize, "System shutting down");
+		if (need_to_free_answer) free(answer);
+		return (1);
+	}
 
 	result = ( char * )malloc( RESULT_SIZE );
 	result[ 0 ] = '\0';
@@ -174,6 +188,14 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	   nameserver we're using. */
 	res_init();
 	len = res_query( domain, C_IN, T_TXT, answer, PACKETSZ );
+	if (CtdlThreadCheckStop())
+	{
+		if (txtbuf != NULL)
+			snprintf(txtbuf, txtbufsize, "System shutting down");
+		if (need_to_free_answer) free(answer);
+		free(result);
+		return (1);
+	}
 
 	/* Just in case there's no TXT record... */
 	if( len == -1 )
@@ -294,12 +316,22 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 int rbl_check(char *message_to_spammer) {
 	struct sockaddr_in sin;
 	int len;	/* should be socklen_t but doesn't work on Macintosh */
+	struct timeval tv1, tv2;
+	suseconds_t total_time = 0;
 
+	gettimeofday(&tv1, NULL);
 	len = 0;
 	memset (&sin, 0, sizeof (struct sockaddr_in));
 	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, (socklen_t *)&len)) {
 		return(rbl_check_addr(&sin.sin_addr, message_to_spammer));
 	}
+	
+	gettimeofday(&tv2, NULL);
+	total_time = (tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000));
+	CtdlLogPrintf(CTDL_DEBUG, "RBL check completed in %ld.%ld seconds\n",
+		(total_time / 1000000),
+		(total_time % 1000000)
+	);
 	return(0);
 }
 

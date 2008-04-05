@@ -134,7 +134,10 @@ void smtp_greeting(int is_msa)
 	 */
 	if ( (config.c_rbl_at_greeting) && (SMTP->is_msa == 0) ) {
 		if (rbl_check(message_to_spammer)) {
-			cprintf("550 %s\r\n", message_to_spammer);
+			if (CtdlThreadCheckStop())
+				cprintf("421 %s\r\n", message_to_spammer);
+			else
+				cprintf("550 %s\r\n", message_to_spammer);
 			CC->kill_me = 1;
 			/* no need to free_recipients(valid), it's not allocated yet */
 			return;
@@ -574,7 +577,10 @@ void smtp_rcpt(char *argbuf) {
 	   && (!SMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
 		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
-				cprintf("550 %s\r\n", message_to_spammer);
+				if (CtdlThreadCheckStop())
+					cprintf("421 %s\r\n", message_to_spammer);
+				else
+					cprintf("550 %s\r\n", message_to_spammer);
 				/* no need to free_recipients(valid), it's not allocated yet */
 				return;
 			}
