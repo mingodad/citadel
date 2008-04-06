@@ -83,7 +83,7 @@ void artv_dump_users_backend(struct ctdluser *buf, void *data) {
 #include "artv_dump.h"
 #include "dtds/user-defs.h"
 #include "undef_data.h"
-	client_write("\n", 1);
+	cprintf("\n");
 }
 
 
@@ -117,7 +117,7 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 void artv_dump_room_msg(long msgnum, void *userdata) {
 	cprintf(" msgnum: %ld\n", msgnum);
 	fprintf(artv_global_message_list, "%ld\n", msgnum);
-	client_write("\n", 1);
+	cprintf("\n");
 }//// TODO
 
 
@@ -156,7 +156,7 @@ void artv_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	 */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		artv_export_room_msg, NULL);
-	client_write("0\n", 2);
+	cprintf("0\n");
 
 }
 
@@ -178,7 +178,7 @@ void artv_dump_rooms_backend(struct ctdlroom *buf, void *data) {
 	 */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		artv_dump_room_msg, NULL);
-	client_write("\n\n", 2);
+	cprintf("\n\n");
 
 }
 
