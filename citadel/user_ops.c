@@ -187,12 +187,17 @@ int rename_user(char *oldname, char *newname) {
 		}
 
 		else {		/* Sanity checks succeeded.  Now rename the user. */
-
-			CtdlLogPrintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
-			cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
-			safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
-			putuser(&usbuf);
-			retcode = RENAMEUSER_OK;
+			if (usbuf.usernum == 0)
+			{
+				CtdlLogPrintf (CTDL_DEBUG, "Can not rename user \"Citadel\".\n");
+				retcode = RENAMEUSER_NOT_FOUND;
+			} else {
+				CtdlLogPrintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
+				cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
+				safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
+				putuser(&usbuf);
+				retcode = RENAMEUSER_OK;
+			}
 		}
 	
 	}
@@ -421,6 +426,12 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	}
 
 	if (trythisname == NULL) return login_not_found;
+	
+	if (!strcasecmp(trythisname, "Citadel"))
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "System user \"Citadel\" is not allowed to log in.\n");
+		return login_not_found;
+	}
 
 	/* If a "master user" is defined, handle its authentication if specified */
 	CC->is_master = 0;

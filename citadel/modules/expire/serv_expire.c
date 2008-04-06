@@ -445,6 +445,9 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->usernum < 0L) purge = 1;
 	
+	/** Don't purge user 0. That user is there for the system */
+	if (us->usernum == 0) purge = 0;
+	
 	/* If the user has no full name entry then we can't purge them
 	 * since the actual purge can't find them.
 	 * This shouldn't happen but does somehow.

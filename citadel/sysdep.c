@@ -1051,8 +1051,6 @@ void InitializeMasterCC(void) {
 
 
 
-
-
 /*
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */

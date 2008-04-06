@@ -71,6 +71,9 @@ const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";
 
 
+extern struct CitContext masterCC;
+
+
 void go_threading(void);
 
 /*
@@ -244,6 +247,20 @@ int main(int argc, char **argv)
 	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
 	get_control();
 
+	
+/**
+ * Initialise the user 0 to have a name. It would be nice to do it in InitializeMasterCC
+ * since it is contained within the MasterCC but we can't because the DB isn't available
+ * at that time so we do it seperate.
+ */
+	/** Give user 0 a name and create them if necessary */
+	if (getuser(&masterCC.user, "Citadel"))
+	{
+		getuserbynumber(&masterCC.user, 0);
+		strcpy (masterCC.user.fullname, "Citadel");
+		putuser(&masterCC.user);
+	}
+	
 	/*
 	 * Bind the server to a Unix-domain socket.
 	 */
