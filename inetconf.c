@@ -1,16 +1,13 @@
 /* 
  * $Id$
+ *
+ * Functions which handle Internet domain configuration etc.
  */
-/**
- * \defgroup InetCfg Functions which handle Internet domain configuration etc.
- * \ingroup CitadelConfig
- */
-/*@{*/
+
 #include "webcit.h"
 
-
-/**
- * \brief display the inet config dialog 
+/*
+ * display the inet config dialog 
  */
 void display_inetconf(void)
 {
@@ -24,48 +21,45 @@ void display_inetconf(void)
 	enum {
 		ic_localhost,
 		ic_directory,
-		ic_gwdom,
 		ic_smarthost,
 		ic_rbl,
 		ic_spamass,
 		ic_masq,
 		ic_max
 	};
+
 	char *ic_spec[ic_max];
 	char *ic_misc;
 	char *ic_keyword[ic_max];
 	char *ic_boxtitle[ic_max];
 	char *ic_desc[ic_max];
 
-	/* DON'T NEVER EVER AGAIN TRANSLATE CITADEL COMMANDS! */
+	/* These are server config keywords; do not localize! */
 	ic_keyword[0] = "localhost";
 	ic_keyword[1] = "directory";
-	ic_keyword[2] = "gatewaydomain";
-	ic_keyword[3] = "smarthost";
-	ic_keyword[4] = "rbl";
-	ic_keyword[5] = "spamassassin";
-	ic_keyword[6] = "masqdomain";
-       
+	ic_keyword[2] = "smarthost";
+	ic_keyword[3] = "rbl";
+	ic_keyword[4] = "spamassassin";
+	ic_keyword[5] = "masqdomain";
 
 	ic_boxtitle[0] = _("Local host aliases");
 	ic_boxtitle[1] = _("Directory domains");
-	ic_boxtitle[2] = _("Gateway domains");
-	ic_boxtitle[3] = _("Smart hosts");
-	ic_boxtitle[4] = _("RBL hosts");
-	ic_boxtitle[5] = _("SpamAssassin hosts");
-	ic_boxtitle[6] = _("Masqueradable domains");
+	ic_boxtitle[2] = _("Smart hosts");
+	ic_boxtitle[3] = _("RBL hosts");
+	ic_boxtitle[4] = _("SpamAssassin hosts");
+	ic_boxtitle[5] = _("Masqueradable domains");
 
 	ic_desc[0] = _("(domains for which this host receives mail)");
 	ic_desc[1] = _("(domains mapped with the Global Address Book)");
-	ic_desc[2] = _("(domains whose subdomains match Citadel hosts)");
-	ic_desc[3] = _("(if present, forward all outbound mail to one of these hosts)");
-	ic_desc[4] = _("(hosts running a Realtime Blackhole List)");
-	ic_desc[5] = _("(hosts running the SpamAssassin service)");
-	ic_desc[6] = _("(Domains as which users are allowed to masquerade)");
+	ic_desc[2] = _("(if present, forward all outbound mail to one of these hosts)");
+	ic_desc[3] = _("(hosts running a Realtime Blackhole List)");
+	ic_desc[4] = _("(hosts running the SpamAssassin service)");
+	ic_desc[5] = _("(Domains as which users are allowed to masquerade)");
 
 	for (i=0; i<ic_max; ++i) {
 		ic_spec[i] = strdup("");
 	}
+
 	ic_misc = strdup("");
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
@@ -160,8 +154,8 @@ void display_inetconf(void)
 }
 
 
-/**
- * \brief save changes to the inet config
+/*
+ * save changes to the inet config
  */
 void save_inetconf(void) {
 	char *buf;
@@ -181,7 +175,7 @@ void save_inetconf(void) {
 		extract_token(ename, buf, 0, '|', SIZ);
 		extract_token(etype, buf, 1, '|', SIZ);
 		if (IsEmptyStr(buf)) {
-			/** skip blank lines */
+			/* skip blank lines */
 		}
 		else if ((!strcasecmp(ename, bstr("ename")))
 		   &&   (!strcasecmp(etype, bstr("etype")))
@@ -213,7 +207,3 @@ void save_inetconf(void) {
 	free(etype);
 	free(newconfig);
 }
-
-
-
-/*@}*/
