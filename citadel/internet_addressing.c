@@ -85,10 +85,6 @@ int CtdlHostAlias(char *fqdn) {
 		   && (!strcasecmp(fqdn, host)))
 			return(hostalias_localhost);
 
-		if ( (!strcasecmp(type, "gatewaydomain"))
-		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
-			return(hostalias_gatewaydomain);
-
 		if ( (!strcasecmp(type, "directory"))
 		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
 			return(hostalias_directory);
