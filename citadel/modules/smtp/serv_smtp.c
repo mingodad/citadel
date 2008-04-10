@@ -820,7 +820,7 @@ void smtp_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	CtdlLogPrintf(CTDL_INFO, "SMTP: %s\n", cmdbuf);
+	CtdlLogPrintf(CTDL_INFO, "SMTP server: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (SMTP->command_state == smtp_user) {
@@ -931,7 +931,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
 	/* Load the message out of the database */
@@ -1028,10 +1028,10 @@ void smtp_try(const char *key, const char *addr, int *status,
 		else {
 			strcpy(mx_port, "25");
 		}
-		CtdlLogPrintf(CTDL_DEBUG, "Trying %s : %s ...\n", mx_host, mx_port);
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port, "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
-		if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+		if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
 		if (sock < 0) {
 			if (errno > 0) {
 				snprintf(dsn, SIZ, "%s", strerror(errno));
@@ -1234,7 +1234,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	sock_write(sock, "QUIT\r\n", 6);
 	ml_sock_gets(sock, buf);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	CtdlLogPrintf(CTDL_INFO, "SMTP delivery to <%s> @ <%s> (%s) succeeded\n",
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
 		user, node, name);
 
 bail:	free(msgtext);
@@ -1521,11 +1521,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t last_attempted = 0L;
 	time_t retry = SMTP_RETRY_INTERVAL;
 
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_procmsg(%ld)\n", msgnum);
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP: tried %ld but no such message!\n", msgnum);
+		CtdlLogPrintf(CTDL_ERR, "SMTP client: tried %ld but no such message!\n", msgnum);
 		return;
 	}
 
@@ -1570,7 +1570,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Postpone delivery if we've already tried recently.
 	 */
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
-		CtdlLogPrintf(CTDL_DEBUG, "Retry time not yet reached.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Retry time not yet reached.\n");
 		free(instr);
 		return;
 	}
@@ -1580,7 +1580,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (text_msgid < 0L) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP: no 'msgid' directive found!\n");
+		CtdlLogPrintf(CTDL_ERR, "SMTP client: no 'msgid' directive found!\n");
 		free(instr);
 		return;
 	}
@@ -1610,7 +1610,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 			--i;
 			--lines;
-			CtdlLogPrintf(CTDL_DEBUG, "SMTP: Trying <%s>\n", addr);
+			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", addr);
 			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid);
 			if (status != 2) {
 				if (results == NULL) {
@@ -1618,8 +1618,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 					memset(results, 0, 1024);
 				}
 				else {
-					results = realloc(results,
-						strlen(results) + 1024);
+					results = realloc(results, strlen(results) + 1024);
 				}
 				snprintf(&results[strlen(results)], 1024,
 					"%s|%s|%d|%s\n",
@@ -1701,7 +1700,7 @@ void smtp_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	CtdlLogPrintf(CTDL_INFO, "SMTP: processing outbound queue\n");
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
 	if (getroom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
@@ -1710,7 +1709,7 @@ void smtp_do_queue(void) {
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
 		SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
-	CtdlLogPrintf(CTDL_INFO, "SMTP: queue run completed\n");
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed\n");
 	run_queue_now = 0;
 	doing_queue = 0;
 }
