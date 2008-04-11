@@ -8,10 +8,7 @@
 #include "webserver.h"
 
 /*
- * \brief verify users avaiability
- * Utility function to fetch a VFREEBUSY type of thing for
- * any specified user.
- * \param who string of the user to search
+ * Utility function to fetch a VFREEBUSY type of thing for any specified user.
  */
 icalcomponent *get_freebusy_for_user(char *who) {
 	char buf[SIZ];
@@ -38,16 +35,13 @@ icalcomponent *get_freebusy_for_user(char *who) {
 }
 
 
-/**
- * \brief Check if dates are overlapping
+/*
  * Check to see if two events overlap.  
  * (This function is used in both Citadel and WebCit.  If you change it in
- * one place, change it in the other.  Better yet, put it in a library.)
- * \param t1start date one start
- * \param t1end  date one end
- * \param t2start date one start
- * \param t2end date two end
- * \returns nonzero if they do.
+ * one place, change it in the other.  We should seriously consider moving
+ * this function upstream into libical.)
+ *
+ * Returns nonzero if they do overlap.
  */
 int ical_ctdl_is_overlap(
 			struct icaltimetype t1start,
@@ -59,7 +53,7 @@ int ical_ctdl_is_overlap(
 	if (icaltime_is_null_time(t1start)) return(0);
 	if (icaltime_is_null_time(t2start)) return(0);
 
-	/** First, check for all-day events */
+	/* First, check for all-day events */
 	if (t1start.is_date) {
 		if (!icaltime_compare_date_only(t1start, t2start)) {
 			return(1);
@@ -87,21 +81,21 @@ int ical_ctdl_is_overlap(
 		t2start.hour, t2start.minute, t2end.hour, t2end.minute);
 	*/
 
-	/** Now check for overlaps using date *and* time. */
+	/* Now check for overlaps using date *and* time. */
 
-	/** First, bail out if either event 1 or event 2 is missing end time. */
+	/* First, bail out if either event 1 or event 2 is missing end time. */
 	if (icaltime_is_null_time(t1end)) return(0);
 	if (icaltime_is_null_time(t2end)) return(0);
 
-	/** If event 1 ends before event 2 starts, we're in the clear. */
+	/* If event 1 ends before event 2 starts, we're in the clear. */
 	if (icaltime_compare(t1end, t2start) <= 0) return(0);
 	// lprintf(9, "first passed\n");
 
-	/** If event 2 ends before event 1 starts, we're also ok. */
+	/* If event 2 ends before event 1 starts, we're also ok. */
 	if (icaltime_compare(t2end, t1start) <= 0) return(0);
 	// lprintf(9, "second passed\n");
 
-	/** Otherwise, they overlap. */
+	/* Otherwise, they overlap. */
 	return(1);
 }
 

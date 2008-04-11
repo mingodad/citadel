@@ -1,16 +1,14 @@
 /*
  * $Id$
  *
- * \defgroup AjaxAutoCompletion ajax-powered autocompletion...
- * \ingroup ClientPower
+ * AJAX-powered auto-completion
  */
 
-/*@{*/
 #include "webcit.h"
 
 
-/**
- * \brief Call this right before wDumpContent() on any page which requires the address book popup
+/*
+ * Call this right before wDumpContent() on any page which requires the address book popup
  */
 void address_book_popup(void) {
 	/* Open a new div, hidden initially, for address book popups. */
@@ -23,8 +21,8 @@ void address_book_popup(void) {
 	/* The 'address_book_popup' div will be closed by wDumpContent() */
 }
 
-/**
- * \brief Address book popup window
+/*
+ * Address book popup window
  */
 void display_address_book_middle_div(void) {
 	char buf[256];
@@ -92,8 +90,8 @@ void display_address_book_middle_div(void) {
 
 
 
-/**
- * \brief Address book popup results
+/*
+ * Address book popup results
  */
 void display_address_book_inner_div() {
 	char buf[256];
@@ -184,6 +182,3 @@ void display_address_book_inner_div() {
 
 	end_ajax_response();
 }
-
-
-/** @} */

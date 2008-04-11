@@ -4,7 +4,6 @@
  */
 
 
-
 /*
  * since we reference time_t...
  */
@@ -177,10 +176,12 @@ void the_mime_parser(char *partnum,
 const char *GuessMimeType(char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);
 
-/** Run once at Programstart */
+/* Run once at Programstart */
 int LoadIconDir(const char *DirName);
-/** guess an icon to the mimetype */
+
+/* Select the icon for a given MIME type */
 const char *GetIconFilename(char *MimeType, size_t len);
+
 void ShutDownLibCitadel(void);
 
 
@@ -255,8 +256,8 @@ char *vcard_serialize(struct vCard *);
 void vcard_fn_to_n(char *vname, char *n, size_t vname_size);
 void remove_charset_attribute(char *strbuf);
 
-/**
- * Citadels Hashlist Implementation
+/*
+ * Hash list implementation for Citadel
  */
 #define HKEY(a) a, sizeof(a) - 1
 typedef struct HashList HashList;

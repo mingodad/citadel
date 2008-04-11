@@ -18,7 +18,7 @@ struct Payload {
 
 struct HashKey {
         /**
-	 * \brief Hash key element; sorted by Keye
+	 * \brief Hash key element; sorted by key
 	 */
 	long Key;         /**< Numeric Hashkey comperator for hash sorting */
 	long Position;    /**< Pointer to a Payload struct in the Payload Aray */

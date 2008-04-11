@@ -1,19 +1,13 @@
 /*
  * $Id$
- */
-/**
  *
- * \defgroup WebcitAuth WebcitAuth; Handles authentication of users to a Citadel server.
- * \ingroup CitadelConfig
+ * WebcitAuth; Handles authentication of users to a Citadel server.
  */
 
-/*@{*/
 #include "webcit.h"
 
-
-
-/**
- * \brief  user states
+/*
+ * user states
  * the plain text states of a user. filled in at \ function TODO initialize_ax_defs()
  * due to NLS
  */
@@ -32,9 +26,9 @@ void initialize_axdefs(void) {
 
 
 
-/** 
- * \brief Display the login screen
- * \param mesg The error message if last attempt failed.
+/* 
+ * Display the login screen
+ * mesg = the error message if last attempt failed.
  */
 void display_login(char *mesg)
 {
@@ -92,16 +86,17 @@ void display_login(char *mesg)
 
 
 
-/** \brief Initialize the session
+/* Initialize the session
+ *
  * This function needs to get called whenever the session changes from
  * not-logged-in to logged-in, either by an explicit login by the user or
  * by a timed-out session automatically re-establishing with a little help
  * from the browser cookie.  Either way, we need to load access controls and
  * preferences from the server.
  *
- * \param user the username
- * \param pass his password
- * \param serv_response The parameters returned from a Citadel USER or NEWU command
+ * user			the username
+ * pass			his password
+ * serv_response	The parameters returned from a Citadel USER or NEWU command
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
@@ -134,9 +129,9 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 }
 
 
-/** 
- * \brief Login Checks
- * the logics to detect invalid passwords not to get on citservers nerves
+/* 
+ * Login Checks
+ * the logic to detect invalid passwords not to get on citservers nerves
  */
 void do_login(void)
 {
@@ -197,8 +192,9 @@ void do_login(void)
 
 }
 
-/**
- * \brief display the user a welcome screen. 
+/*
+ * display the user a welcome screen.
+ *
  * if this is the first time login, and the web based setup is enabled, 
  * lead the user through the setup routines
  */
@@ -243,7 +239,7 @@ void do_welcome(void)
 	}
 #endif
 
-	/**
+	/*
 	 * Go to the user's preferred start page
 	 */
 	get_preference("startpage", buf, sizeof buf);
@@ -258,7 +254,7 @@ void do_welcome(void)
 }
 
 
-/**
+/*
  * Disconnect from the Citadel server, and end this WebCit session
  */
 void end_webcit_session(void) {
@@ -275,7 +271,7 @@ void end_webcit_session(void) {
 	/* close() of citadel socket will be done by do_housekeeping() */
 }
 
-/** 
+/* 
  * execute the logout
  */
 void do_logout(void)
@@ -327,7 +323,7 @@ void do_logout(void)
 }
 
 
-/* *
+/*
  * validate new users
  */
 void validate(void)
@@ -346,7 +342,7 @@ void validate(void)
 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
-	/** If the user just submitted a validation, process it... */
+	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
 	if (!IsEmptyStr(buf)) {
 		if (havebstr("axlevel")) {
@@ -358,7 +354,7 @@ void validate(void)
 		}
 	}
 
-	/** Now see if any more users require validation. */
+	/* Now see if any more users require validation. */
 	serv_puts("GNUR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
@@ -429,11 +425,11 @@ void validate(void)
 
 
 
-/** 
- * \brief Display form for registration.
+/*
+ * Display form for registration.
+ *
  * (Set during_login to 1 if this registration is being performed during
  * new user login and will require chaining to the proper screen.)
- * \param during_login are we just in the login phase?
  */
 void display_reg(int during_login)
 {
@@ -464,7 +460,7 @@ void display_reg(int during_login)
 
 
 
-/** 
+/*
  * display form for changing your password
  */
 void display_changepw(void)
@@ -512,8 +508,8 @@ void display_changepw(void)
 	wDumpContent(1);
 }
 
-/**
- * \brief change password
+/*
+ * change password
  * if passwords match, propagate it to citserver.
  */
 void changepw(void)
@@ -559,7 +555,3 @@ void changepw(void)
 		display_changepw();
 	}
 }
-
-
-
-/** @} */

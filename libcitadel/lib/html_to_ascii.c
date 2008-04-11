@@ -98,14 +98,11 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 			if (inbuf[i]==10) inbuf[i]=32;
 			if (inbuf[i]==13) inbuf[i]=32;
 			if (inbuf[i]==9) inbuf[i]=32;
-			/*** we like foreign characters now.
-			if ((inbuf[i]<32) || (inbuf[i]>126)) {
-				inbuf[i] = '?';
-			} */
 		    }
 		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {
-			while ((inbuf[i]==32)&&(inbuf[i+1]==32))
+			while ((inbuf[i]==32)&&(inbuf[i+1]==32)) {
 				strcpy(&inbuf[i], &inbuf[i+1]);
+			}
 		    }
 
 		    for (i=0; !IsEmptyStr(&inbuf[i]); ++i) {

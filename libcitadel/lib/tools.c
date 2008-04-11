@@ -73,12 +73,14 @@ const byte dtable[256] = {
 	128, 128, 0
 };
 
-/**
- * \brief copy a string into a buffer of a known size. abort if we exceed the limits
- * \param dest the targetbuffer
- * \param src the source string
- * \param n the size od dest
- * \returns the number of characters copied if dest is big enough, -n if not.
+/*
+ * copy a string into a buffer of a known size. abort if we exceed the limits
+ *
+ * dest	the targetbuffer
+ * src	the source string
+ * n	the size od dest
+ *
+ * returns the number of characters copied if dest is big enough, -n if not.
  */
 int safestrncpy(char *dest, const char *src, size_t n)
 {
