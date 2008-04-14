@@ -128,8 +128,9 @@ void addurls(char *url)
 		u->url_data[u->url_data_size] = '\0';
 		up = bptr;
 		++up;
-
+/*
 		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
+*/
 	}
 }
 
@@ -1135,9 +1136,9 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			size_t length, char *encoding, void *userdata)
 {
 	urlcontent *u;
-
+/*
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
-
+*/
 	if (WC->urlstrings == NULL)
 		WC->urlstrings = NewHash();
 
