@@ -27,7 +27,8 @@ all: $(TARGETS)
 
 EXEEXT=@EXEEXT@
 
-CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
+CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) 
+NOINST_TARGETS=stress$(EXEEXT)
 SERVER_TARGETS=citserver
 SERV_MODULES=crc16.o \
 	md5.o \
@@ -92,6 +93,7 @@ svn_revision.c: ${SOURCES}
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
 
+noinst: $(NOINST_TARGETS)
 client: $(CLIENT_TARGETS)
 
 server: $(SERVER_TARGETS) $(SERV_MODULES)
@@ -335,11 +337,11 @@ clean:
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.o ;\
 	done
-	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS)
+	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS)
 
 
 cleaner: clean
-	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) database_cleanup.sh *.la
+	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS) database_cleanup.sh *.la
 	rm -rf modules_upgrade.c modules_init.c modules_init.h Make_modules Make_sources
 
 distclean: cleaner
