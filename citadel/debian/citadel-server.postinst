@@ -37,6 +37,9 @@ case "$1" in
         export CREATE_INITTAB_ENTRY=no
         export NO_INIT_SCRIPTS=yes
 
+#This is not debian conformant, and uniq to the citadel.org debs.
+	export ALTER_ETC_SERVICES=yes
+#
         echo "applying your settings."
         /usr/lib/citadel-server/setup -q
 

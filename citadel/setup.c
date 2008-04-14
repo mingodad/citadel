@@ -1237,7 +1237,9 @@ NEW_INST:
 	unlink("citadel.log");
 	unlink("weekly");
 
-	check_services_entry();	/* Check /etc/services */
+	if (((setup_type == UI_SILENT) && (getenv("ALTER_ETC_SERVICES")!=NULL)) || 
+	    (setup_type != UI_SILENT))
+		check_services_entry();	/* Check /etc/services */
 #ifndef __CYGWIN__
 	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
