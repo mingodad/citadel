@@ -80,6 +80,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	$(MAKE) install-bin install-locale install-wwwdata DESTDIR=$(DESTDIR)
+	rm $(DESTDIR)/usr/share/citadel-webcit/static/prototype.js
 #	mkdir -p $(DESTDIR)/etc/citadel; cp webcit.conf $(DESTDIR)/etc/citadel/
 
 

@@ -21,7 +21,9 @@ case "$1" in
 	    ln -sf /usr/share/icons/gnome/24x24/mimetypes  /usr/share/citadel-webcit/static/icons || true
 	fi
 	#DEBHELPER#
-	
+	if test ! -L /usr/share/citadel-webcit/static/; then
+	    ln -sf /usr/share/prototypejs/prototype.js /usr/share/citadel-webcit/static/	
+	fi
 # update the webserver, if needed
 	case "$WWWTYPE" in
 	    "Apache")
