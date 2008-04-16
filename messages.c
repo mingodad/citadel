@@ -778,6 +778,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	char reply_to[512] = "";
 	char reply_all[4096] = "";
 	char reply_references[1024] = "";
+	char reply_inreplyto[256] = "";
 	char now[64] = "";
 	int format_type = 0;
 	int nhdr = 0;
@@ -850,15 +851,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 			safestrncpy(m_subject, &buf[5], sizeof m_subject);
 		}
 		if (!strncasecmp(buf, "msgn=", 5)) {
-			safestrncpy(reply_references, &buf[5], sizeof reply_references);
+			safestrncpy(reply_inreplyto, &buf[5], sizeof reply_inreplyto);
 		}
 		if (!strncasecmp(buf, "wefw=", 5)) {
-			int rrlen = strlen(reply_references);
-			if (rrlen > 0) {
-				strcpy(&reply_references[rrlen++], "|");
-			}
-			safestrncpy(&reply_references[rrlen], &buf[5],
-				(sizeof(reply_references) - rrlen) );
+			safestrncpy(reply_references, &buf[5], sizeof reply_references);
 		}
 		if (!strncasecmp(buf, "cccc=", 5)) {
 			int len;
@@ -1047,10 +1043,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
 			}
+			wprintf("?references=");
 			if (!IsEmptyStr(reply_references)) {
-				wprintf("?references=");
 				urlescputs(reply_references);
+				urlescputs("|");
 			}
+			urlescputs(reply_inreplyto);
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
 		}
 
@@ -1066,10 +1064,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 					urlescputs(m_subject);
 				}
+				wprintf("?references=");
 				if (!IsEmptyStr(reply_references)) {
-					wprintf("?references=");
 					urlescputs(reply_references);
+					urlescputs("|");
 				}
+				urlescputs(reply_inreplyto);
 				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
 			}
 		}
@@ -1087,10 +1087,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 				urlescputs(m_subject);
 			}
+			wprintf("?references=");
 			if (!IsEmptyStr(reply_references)) {
-				wprintf("?references=");
 				urlescputs(reply_references);
+				urlescputs("|");
 			}
+			urlescputs(reply_inreplyto);
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
 		}
 
