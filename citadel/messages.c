@@ -53,6 +53,7 @@
 char reply_to[SIZ];
 char reply_subject[SIZ];
 char reply_references[SIZ];
+char reply_inreplyto[SIZ];
 
 struct cittext {
 	struct cittext *next;
@@ -406,6 +407,7 @@ int read_message(CtdlIPC *ipc,
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
 	strcpy(reply_references, "");
+	strcpy(reply_inreplyto, "");
 
 	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0), 4, &message, buf);
 	if (r / 100 != 1) {
@@ -591,15 +593,12 @@ int read_message(CtdlIPC *ipc,
 	}
 
 
-	/* Always do msgid before references ... the latter is a concatenation! */
 	if (message->msgid != NULL) {
-		safestrncpy(reply_references, message->msgid, sizeof reply_references);
+		safestrncpy(reply_inreplyto, message->msgid, sizeof reply_inreplyto);
 	}
 
 	if (message->references != NULL) if (!IsEmptyStr(message->references)) {
-		int l = strlen(reply_references);
-		strcpy(&reply_references[l++], "|");
-		safestrncpy(&reply_references[l], message->references, (sizeof(reply_references) - l));
+		safestrncpy(reply_references, message->references, sizeof reply_references);
 	}
 
 	if (message->subject != NULL) {
@@ -1164,7 +1163,11 @@ int entmsg(CtdlIPC *ipc,
 			}
 		}
 
-		safestrncpy(message.references, reply_references, sizeof message.references);
+		snprintf(message.references, sizeof message.references, "%s%s%s",
+			reply_references,
+			(IsEmptyStr(reply_references) ? "" : "|"),
+			reply_inreplyto
+		);
 	}
 
 	if (room_flags & QR_ANONOPT) {
