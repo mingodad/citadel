@@ -105,6 +105,7 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/mime_parser.lo \
 	lib/tools.lo \
 	lib/vcard.lo \
+	lib/vnote.lo \
 	lib/hash.lo \
 	lib/lookup3.lo \
 	lib/xdgmime/xdgmime.lo \
@@ -123,6 +124,7 @@ lib/libcitadel.lo: lib/libcitadel.c lib/libcitadel.h
 lib/mime_parser.lo: lib/mime_parser.c lib/libcitadel.h
 lib/tools.lo: lib/tools.c lib/libcitadel.h
 lib/vcard.lo: lib/vcard.c lib/libcitadel.h
+lib/vnote.lo: lib/vnote.c lib/libcitadel.h
 lib/lookup3.lo: lib/lookup3.c lib/libcitadel.h
 lib/hash.lo: lib/hash.c lib/libcitadel.h
 lib/xdgmime/xdgmime.lo: lib/xdgmime/xdgmime.c 
