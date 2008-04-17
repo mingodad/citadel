@@ -446,7 +446,7 @@ char *rfc2047encode(char *line, long length)
 		return strdup(line);
 	}
 
-	result = (char*) malloc(strlen(UTF8_HEADER) + 4 + length * 2);
+	result = (char*) malloc(sizeof(UTF8_HEADER) + 4 + length * 2);
 	strncpy (result, UTF8_HEADER, strlen (UTF8_HEADER));
 	CtdlEncodeBase64(result + strlen(UTF8_HEADER), line, length, 0);
 	end = strlen (result);
