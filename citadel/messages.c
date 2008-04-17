@@ -1163,6 +1163,15 @@ int entmsg(CtdlIPC *ipc,
 			}
 		}
 
+		/* Trim down excessively long lists of thread references.  We eliminate the
+		 * second one in the list so that the thread root remains intact.
+		 */
+		int rrtok = num_tokens(reply_references, '|');
+		int rrlen = strlen(reply_references);
+		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+			remove_token(reply_references, 1, '|');
+		}
+
 		snprintf(message.references, sizeof message.references, "%s%s%s",
 			reply_references,
 			(IsEmptyStr(reply_references) ? "" : "|"),

@@ -997,7 +997,16 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	}
 
-	/** Generate a reply-to address */
+	/* Trim down excessively long lists of thread references.  We eliminate the
+	 * second one in the list so that the thread root remains intact.
+	 */
+	int rrtok = num_tokens(reply_references, '|');
+	int rrlen = strlen(reply_references);
+	if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+		remove_token(reply_references, 1, '|');
+	}
+
+	/* Generate a reply-to address */
 	if (!IsEmptyStr(rfca)) {
 		if (!IsEmptyStr(from)) {
 			snprintf(reply_to, sizeof(reply_to), "%s <%s>", from, rfca);
