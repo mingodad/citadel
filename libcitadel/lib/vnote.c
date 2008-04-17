@@ -34,34 +34,75 @@
 #include <libcitadel.h>
 
 
-/*
+/* move this into the header file when we're done */
+#define CTDL_VNOTE_MAGIC	0xa1fa
+struct vnote {
+	int magic;
+};
 
-This whole file is merely a placeholder.
 
-We need to be able to support some of these...
+struct vnote *vnote_new(void) {
+	struct vnote *v;
+
+	v = (struct vnote *) malloc(sizeof(struct vnote));
+	if (v) {
+		memset(v, 0, sizeof(struct vnote));
+		v->magic = CTDL_VNOTE_MAGIC;
+	}
+	return v;
+}
+
+struct vnote *vnote_new_from_str(char *s) {
+	struct vnote *v;
+
+	v = vnote_new();
+	if (!v) return NULL;
+
+	/* FIXME finish this */
+}
+
+void vnote_free(struct vnote *v) {
+	if (!v) return;
+	if (v->magic != CTDL_VNOTE_MAGIC) return;
+	
+	memset(v, 0, sizeof(struct vnote));
+	free(v);
+}
 
 
-BEGIN:vnote
-VERSION:1.1
-PRODID://Bynari Insight Connector 3.1.3-0605191//Import from Outlook//EN
-CLASS:PUBLIC
-UID:040000008200E00074C5B7101A82E0080000000000000000000000000000000000000820425CE8571864B8D141CB3FB8CAC62
-NOTE;ENCODING=QUOTED-PRINTABLE:blah blah blah=0D=0A=0D=0A
-SUMMARY:blah blah blah=0D=0A=0D=0A
-X-OUTLOOK-COLOR:#FFFF00
-X-OUTLOOK-WIDTH:200
-X-OUTLOOK-HEIGHT:166
-X-OUTLOOK-LEFT:80
-X-OUTLOOK-TOP:80
-X-OUTLOOK-CREATE-TIME:20070611T204615Z
-REV:20070611T204621Z
-END:vnote
+#ifdef VNOTE_TEST_HARNESS
 
-BEGIN:VNOTE^M
-VERSION:1.1^M
-UID:20061129111109.7chx73xdok1s at 172.16.45.2^M
-BODY:HORDE_1^M
-DCREATED:20061129T101109Z^M
-END:VNOTE^M
+char *bynari_sample =
+	"BEGIN:vnote\n"
+	"VERSION:1.1\n"
+	"PRODID://Bynari Insight Connector 3.1.3-0605191//Import from Outlook//EN\n"
+	"CLASS:PUBLIC\n"
+	"UID:040000008200E00074C5B7101A82E00800000000000000000000000000820425CE8571864B8D141CB3FB8CAC62\n"
+	"NOTE;ENCODING=QUOTED-PRINTABLE:blah blah blah=0D=0A=0D=0A\n"
+	"SUMMARY:blah blah blah=0D=0A=0D=0A\n"
+	"X-OUTLOOK-COLOR:#FFFF00\n"
+	"X-OUTLOOK-WIDTH:200\n"
+	"X-OUTLOOK-HEIGHT:166\n"
+	"X-OUTLOOK-LEFT:80\n"
+	"X-OUTLOOK-TOP:80\n"
+	"X-OUTLOOK-CREATE-TIME:20070611T204615Z\n"
+	"REV:20070611T204621Z\n"
+	"END:vnote\n"
+;
 
-*/
+char *horde_sample =
+	"BEGIN:VNOTE\n"
+	"VERSION:1.1\n"
+	"UID:20061129111109.7chx73xdok1s at 172.16.45.2\n"
+	"BODY:HORDE_1\n"
+	"DCREATED:20061129T101109Z\n"
+	"END:VNOTE\n"
+;
+
+
+main() {
+	struct vnote *v = vnote_new_from_str(bynari_sample);
+	vnote_free(v);
+	exit(0);
+}
+#endif
