@@ -1450,6 +1450,89 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	return(retcode);
 }
 
+char *qp_encode_email_addrs(char *source)
+{
+	char user[256], node[256], name[256];
+	const char headerStr[] = "=?UTF-8?Q?";
+	char *Encoded;
+	char *EncodedName;
+	char *nPtr;
+	int need_to_encode = 0;
+	long SourceLen;
+	long EncodedMaxLen;
+	long nColons = 0;
+	long *AddrPtr;
+	long nAddrPtrMax = 50;
+	long nmax;
+	int InQuotes = 0;
+	int i, n;
+
+	
+	if (source == NULL)
+		return source;
+
+	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
+	*AddrPtr = 0;
+
+	while (!IsEmptyStr (&source[i])) {
+		if (((unsigned char) source[i] < 32) || 
+		    ((unsigned char) source[i] > 126)) {
+			need_to_encode = 1;
+		}
+		if (source[i] == '"')
+			InQuotes = !InQuotes;
+		if (!InQuotes && source[i] == ',') {
+			nColons++;
+			if (nColons > nAddrPtrMax){
+				/// TODO realloc!
+			}				
+			AddrPtr[nColons] = i;
+		}
+		i++;
+	}
+	if (need_to_encode == 0) {
+		free (AddrPtr);
+		return source;
+	}
+
+	SourceLen = i;
+	EncodedMaxLen = nColons * (sizeof(headerStr) + 3) + SourceLen * 3;
+	Encoded = (char*) malloc (EncodedMaxLen);
+
+	for (i = 1; i <= nColons; i++)
+		source[AddrPtr[i]++] = '\0';
+
+	nPtr = Encoded;
+	*nPtr = '\0';
+	for (i = 0; i <= nColons && nPtr != NULL; i++) {
+		process_rfc822_addr(&source[AddrPtr[i]], 
+				    user,
+				    node,
+				    name);
+		nmax = EncodedMaxLen - (nPtr - Encoded);
+		
+		if (IsEmptyStr(name)) {
+			n = snprintf(nPtr, nmax, 
+				     (i==0)?"%s@%s" : ",%s@%s",
+				     user, node);
+		}
+		else {
+			EncodedName = rfc2047encode(name, strlen(name));			
+			n = snprintf(nPtr, nmax, 
+				     (i==0)?"%s <%s@%s>" : ",%s <%s@%s>",
+				     EncodedName, user, node);
+			free(EncodedName);
+		}
+		if (n > 0 )
+			nPtr += n;
+		else
+			nPtr = NULL;/// TODO: should we implement realloc?
+	}
+
+	for (i = 1; i <= nColons; i++)
+		source[--AddrPtr[i]] = ',';
+	return Encoded;
+}
 
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
@@ -1466,7 +1549,7 @@ int CtdlOutputPreLoadedMsg(
 	cit_uint8_t ch;
 	char allkeys[30];
 	char display_name[256];
-	char *mptr;
+	char *mptr, *mpptr;
 	char *nl;	/* newline string */
 	int suppress_f = 0;
 	int subject_found = 0;
@@ -1643,19 +1726,21 @@ int CtdlOutputPreLoadedMsg(
 	if (mode == MT_RFC822) {
 		for (i = 0; i < 256; ++i) {
 			if (TheMessage->cm_fields[i]) {
-				mptr = TheMessage->cm_fields[i];
-
+				mptr = mpptr = TheMessage->cm_fields[i];
+				
 				if (i == 'A') {
 					safestrncpy(luser, mptr, sizeof luser);
 					safestrncpy(suser, mptr, sizeof suser);
 				}
 				else if (i == 'Y') {
+					mptr = qp_encode_email_addrs(mptr);
 					cprintf("CC: %s%s", mptr, nl);
 				}
 				else if (i == 'P') {
 					cprintf("Return-Path: %s%s", mptr, nl);
 				}
 				else if (i == 'V') {
+					mptr = qp_encode_email_addrs(mptr);
 					cprintf("Envelope-To: %s%s", mptr, nl);
 				}
 				else if (i == 'U') {
@@ -1681,6 +1766,7 @@ int CtdlOutputPreLoadedMsg(
 					}
 					else
 					{
+						mptr = qp_encode_email_addrs(mptr);
 						cprintf("To: %s%s", mptr, nl);
 					}
 				}
@@ -1703,6 +1789,8 @@ int CtdlOutputPreLoadedMsg(
 						}
 					}
 				}
+				if (mptr != mpptr)
+					free (mptr);
 			}
 		}
 		if (subject_found == 0) {
