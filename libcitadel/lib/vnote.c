@@ -38,6 +38,16 @@
 #define CTDL_VNOTE_MAGIC	0xa1fa
 struct vnote {
 	int magic;
+	char *uid;
+	char *summary;
+	char *body;
+	int pos_left;
+	int pos_top;
+	int pos_width;
+	int pos_height;
+	int color_red;
+	int color_green;
+	int color_blue;
 };
 
 
@@ -48,6 +58,13 @@ struct vnote *vnote_new(void) {
 	if (v) {
 		memset(v, 0, sizeof(struct vnote));
 		v->magic = CTDL_VNOTE_MAGIC;
+		v->pos_left = rand() % 256;
+		v->pos_top = rand() % 256;
+		v->pos_width = 200;
+		v->pos_height = 150;
+		v->color_red = 0xFF;
+		v->color_green = 0xFF;
+		v->color_blue = 0x00;
 	}
 	return v;
 }
@@ -64,9 +81,41 @@ struct vnote *vnote_new_from_str(char *s) {
 void vnote_free(struct vnote *v) {
 	if (!v) return;
 	if (v->magic != CTDL_VNOTE_MAGIC) return;
+
+	if (v->uid) free(v->uid);
+	if (v->summary) free(v->summary);
+	if (v->body) free(v->body);
 	
 	memset(v, 0, sizeof(struct vnote));
 	free(v);
+}
+
+char *vnote_serialize(struct vnote *v) {
+	char *s;
+	int bytes_needed = 0;
+
+	if (!v) return NULL;
+	if (v->magic != CTDL_VNOTE_MAGIC) return NULL;
+
+	bytes_needed = 1024;
+	if (v->summary) bytes_needed += strlen(v->summary);
+	if (v->body) bytes_needed += strlen(v->body);
+	s = malloc(bytes_needed);
+	if (!s) return NULL;
+
+	strcpy(s, "BEGIN:vnote\r\n"
+		"VERSION:1.1\r\n"
+		"PRODID://Citadel//vNote handler library//EN\r\n"
+		"CLASS:PUBLIC\r\n"
+	);
+	if (v->uid) {
+		strcat(s, "UID:");
+		strcat(s, v->uid);
+		strcat(s, "\r\n");
+	}
+
+	strcat(s, "END:vnote\r\n");
+	return(s);
 }
 
 
@@ -101,8 +150,17 @@ char *horde_sample =
 
 
 main() {
-	struct vnote *v = vnote_new_from_str(bynari_sample);
+	char *s;
+	struct vnote *v;
+
+	v = vnote_new_from_str(bynari_sample);
+	s = vnote_serialize(v);
 	vnote_free(v);
+	if (s) {
+		printf("%s\n", s);
+		free(s);
+	}
+
 	exit(0);
 }
 #endif
