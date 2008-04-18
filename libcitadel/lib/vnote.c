@@ -76,6 +76,8 @@ struct vnote *vnote_new_from_str(char *s) {
 	if (!v) return NULL;
 
 	/* FIXME finish this */
+
+	return(v);
 }
 
 void vnote_free(struct vnote *v) {
@@ -90,6 +92,26 @@ void vnote_free(struct vnote *v) {
 	free(v);
 }
 
+
+/* helper function for vnote_serialize() */
+void vnote_serialize_output_field(char *append_to, char *field, char *label) {
+
+	char *mydup;
+
+	if (!append_to) return;
+	if (!field) return;
+	if (!label) return;
+
+	mydup = strdup(field);
+	if (!mydup) return;
+
+	/* FIXME  --  do quoted-printable encoding here */
+
+	sprintf(&append_to[strlen(append_to)], "%s:%s\r\n", label, mydup);
+	free(mydup);
+}
+
+
 char *vnote_serialize(struct vnote *v) {
 	char *s;
 	int bytes_needed = 0;
@@ -103,18 +125,15 @@ char *vnote_serialize(struct vnote *v) {
 	s = malloc(bytes_needed);
 	if (!s) return NULL;
 
-	strcpy(s, "BEGIN:vnote\r\n"
-		"VERSION:1.1\r\n"
-		"PRODID://Citadel//vNote handler library//EN\r\n"
-		"CLASS:PUBLIC\r\n"
-	);
-	if (v->uid) {
-		strcat(s, "UID:");
-		strcat(s, v->uid);
-		strcat(s, "\r\n");
-	}
-
-	strcat(s, "END:vnote\r\n");
+	strcpy(s, "");
+	vnote_serialize_output_field(s, "vnote", "BEGIN");
+	vnote_serialize_output_field(s, "//Citadel//vNote handler library//EN", "PRODID");
+	vnote_serialize_output_field(s, "1.1", "VERSION");
+	vnote_serialize_output_field(s, "PUBLIC", "CLASS");
+	vnote_serialize_output_field(s, v->uid, "UID");
+	vnote_serialize_output_field(s, v->body, "BODY");
+	vnote_serialize_output_field(s, v->body, "NOTE");
+	vnote_serialize_output_field(s, "vnote", "END");
 	return(s);
 }
 
@@ -153,11 +172,12 @@ main() {
 	char *s;
 	struct vnote *v;
 
+	printf("Before:\n-------------\n%s-------------\nAfter:\n-----------\n", bynari_sample);
 	v = vnote_new_from_str(bynari_sample);
 	s = vnote_serialize(v);
 	vnote_free(v);
 	if (s) {
-		printf("%s\n", s);
+		printf("%s", s);
 		free(s);
 	}
 
