@@ -1577,6 +1577,8 @@ RMSGREAD:	scr_flush();
 			quotflag = 0;
 			enable_color = hold_color;
 			process_quote();
+			e = 'r';
+			goto DONE_QUOTING;
 		}
 		if (arcflag) {
 			fclose(dest);
@@ -1619,7 +1621,7 @@ RMSGREAD:	scr_flush();
 			color(DIM_WHITE);
 			scr_printf(") ");
 
-			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top ");
+			keyopt("<B>ack <A>gain <R>eply reply<Q>uoted <N>ext <S>top ");
 			if (rc_url_cmd[0] && num_urls)
 				keyopt("<U>RLview ");
 			if (has_images > 0 && !IsEmptyStr(imagecmd))
@@ -1685,7 +1687,7 @@ RMSGREAD:	scr_flush();
 				scr_printf("Print");
 				break;
 			case 'q':
-				scr_printf("Quote");
+				scr_printf("reply Quoted");
 				break;
 			case 'b':
 				scr_printf("Back");
@@ -1720,7 +1722,7 @@ RMSGREAD:	scr_flush();
 				scr_printf("\n");
 			scr_flush();
 		}
-		switch (e) {
+DONE_QUOTING:	switch (e) {
 		case '?':
 			scr_printf("Options available here:\n"
 				" ?  Help (prints this message)\n"
@@ -1740,7 +1742,7 @@ RMSGREAD:	scr_flush();
 			if (!IsEmptyStr(printcmd))
 				scr_printf(" P  Print this message\n");
 			scr_printf(
-				" Q  Quote portions of this message for your next post\n"
+				" Q  Reply to this message, quoting portions of it\n"
 				" H  Headers (display message headers only)\n");
 			if (is_mail)
 				scr_printf(" R  Reply to this message\n");
