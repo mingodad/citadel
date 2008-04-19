@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  *
  * vNote implementation for Citadel
  *
@@ -97,17 +97,44 @@ void vnote_free(struct vnote *v) {
 void vnote_serialize_output_field(char *append_to, char *field, char *label) {
 
 	char *mydup;
+	int output_len = 0;
+	int is_qp = 0;
+	char *ptr = field;
+	unsigned char ch;
+	int pos = 0;
 
 	if (!append_to) return;
 	if (!field) return;
 	if (!label) return;
 
-	mydup = strdup(field);
+	mydup = malloc((strlen(field) * 3) + 1);
 	if (!mydup) return;
+	strcpy(mydup, "");
 
-	/* FIXME  --  do quoted-printable encoding here */
+	while (ptr[pos] != 0) {
+		ch = (unsigned char)(ptr[pos++]);
 
-	sprintf(&append_to[strlen(append_to)], "%s:%s\r\n", label, mydup);
+		if (ch == 9) {
+			mydup[output_len++] = ch;
+		}
+		else if ( (ch >= 32) && (ch <= 60) ) {
+			mydup[output_len++] = ch;
+		}
+		else if ( (ch >= 62) && (ch <= 126) ) {
+			mydup[output_len++] = ch;
+		}
+		else {
+			sprintf((char *)&mydup[output_len], "=%02X", ch);
+			output_len += 3;
+			is_qp = 1;
+		}
+	}
+	mydup[output_len] = 0;
+
+	sprintf(&append_to[strlen(append_to)], "%s%s:%s\r\n",
+		label,
+		(is_qp ? ";ENCODING=QUOTED-PRINTABLE" : ""),
+		mydup);
 	free(mydup);
 }
 
@@ -133,6 +160,12 @@ char *vnote_serialize(struct vnote *v) {
 	vnote_serialize_output_field(s, v->uid, "UID");
 	vnote_serialize_output_field(s, v->body, "BODY");
 	vnote_serialize_output_field(s, v->body, "NOTE");
+	sprintf(&s[strlen(s)], "X-OUTLOOK-COLOR:#%02X%02X%02X\r\n",
+		v->color_red, v->color_green, v->color_blue);
+	sprintf(&s[strlen(s)], "X-OUTLOOK-LEFT:%d\r\n", v->pos_left);
+	sprintf(&s[strlen(s)], "X-OUTLOOK-TOP:%d\r\n", v->pos_top);
+	sprintf(&s[strlen(s)], "X-OUTLOOK-WIDTH:%d\r\n", v->pos_width);
+	sprintf(&s[strlen(s)], "X-OUTLOOK-HEIGHT:%d\r\n", v->pos_height);
 	vnote_serialize_output_field(s, "vnote", "END");
 	return(s);
 }
@@ -184,3 +217,8 @@ main() {
 	exit(0);
 }
 #endif
+
+
+
+
+
