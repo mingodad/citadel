@@ -567,6 +567,7 @@ void start_daemon(char *pid_file)
 	
 		if (current_child < 0) {
 			perror("fork");
+			ShutDownLibCitadel ();
 			exit(errno);
 		}
 	
@@ -621,6 +622,7 @@ void start_daemon(char *pid_file)
 	if (pid_file) {
 		unlink(pid_file);
 	}
+	ShutDownLibCitadel ();
 	exit(WEXITSTATUS(status));
 }
 
@@ -924,6 +926,7 @@ int main(int argc, char **argv)
 
 	/* now the original thread becomes another worker */
 	worker_entry();
+	ShutDownLibCitadel ();
 	return 0;
 }
 
@@ -998,6 +1001,7 @@ void worker_entry(void)
 				free_zone_directory ();
 				icaltimezone_release_zone_tab ();
 				icalmemory_free_ring ();
+				ShutDownLibCitadel ();
 				lprintf(2, "master shutdown exiting!.\n");				
 				exit(0);
 			}
