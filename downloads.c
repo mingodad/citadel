@@ -158,9 +158,11 @@ void display_mime_icon(void)
 {
 	char FileBuf[SIZ];
 	const char *FileName;
+	char *MimeType;
 	size_t tlen;
 
-	FileName = GetIconFilename(xbstr("type", &tlen), tlen);
+	MimeType = xbstr("type", &tlen);
+	FileName = GetIconFilename(MimeType, tlen);
 
 	if (FileName == NULL)
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
