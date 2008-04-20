@@ -34,23 +34,6 @@
 #include <libcitadel.h>
 
 
-/* move this into the header file when we're done */
-#define CTDL_VNOTE_MAGIC	0xa1fa
-struct vnote {
-	int magic;
-	char *uid;
-	char *summary;
-	char *body;
-	int pos_left;
-	int pos_top;
-	int pos_width;
-	int pos_height;
-	int color_red;
-	int color_green;
-	int color_blue;
-};
-
-
 struct vnote *vnote_new(void) {
 	struct vnote *v;
 
@@ -113,26 +96,76 @@ struct vnote *vnote_new_from_str(char *s) {
 				*encoded_value++ = 0;
 
 				/* any qualifiers?  (look for a semicolon) */
-				is_base64 = 0;
-				is_quoted_printable = 0;
+				is_base64 = (int) bmstrcasestr(thisline, "encoding=base64");
+				is_quoted_printable = (int) bmstrcasestr(thisline,
+								"encoding=quoted-printable");
 
+				char *semicolon_pos = strchr(thisline, ';');
+				if (semicolon_pos) {
+					*semicolon_pos = 0;
+				}
 
 				decoded_value = malloc(thisline_len);
 				if (is_base64) {
+					CtdlDecodeBase64(decoded_value,
+							encoded_value,
+							strlen(encoded_value));
 				}
 				else if (is_quoted_printable) {
+					CtdlDecodeQuotedPrintable(decoded_value,
+							encoded_value,
+							strlen(encoded_value));
 				}
 				else {
-					strcpy(decoded_value, thisline_len);
+					strcpy(decoded_value, encoded_value);
 				}
 
-				if (0) {
+				if (!strcasecmp(thisline, "UID")) {
+					if (v->uid) free(v->uid);
+					v->uid = decoded_value;
+				}
+				else if (!strcasecmp(thisline, "SUMMARY")) {
+					if (v->summary) free(v->summary);
+					v->summary = decoded_value;
+				}
+				else if ( (!strcasecmp(thisline, "NOTE"))
+				     || (!strcasecmp(thisline, "BODY")) ) {
+					if (v->body) free(v->body);
+					v->body = decoded_value;
+				}
+				else if (!strcasecmp(thisline, "X-OUTLOOK-WIDTH")) {
+					v->pos_width = atoi(decoded_value);
+					free(decoded_value);
+				}
+				else if (!strcasecmp(thisline, "X-OUTLOOK-HEIGHT")) {
+					v->pos_height = atoi(decoded_value);
+					free(decoded_value);
+				}
+				else if (!strcasecmp(thisline, "X-OUTLOOK-LEFT")) {
+					v->pos_left = atoi(decoded_value);
+					free(decoded_value);
+				}
+				else if (!strcasecmp(thisline, "X-OUTLOOK-TOP")) {
+					v->pos_top = atoi(decoded_value);
+					free(decoded_value);
+				}
+				else if ( (!strcasecmp(thisline, "X-OUTLOOK-COLOR"))
+				     && (strlen(decoded_value) == 7)
+				     && (decoded_value[0] == '#') ) {
+					sscanf(&decoded_value[1], "%2x%2x%2x",
+						&v->color_red,
+						&v->color_green,
+						&v->color_blue);
+					free(decoded_value);
 				}
 				else {
 					free(decoded_value);	// throw it away
 				}
 
-
+				/* FIXME still need to handle these:
+				 * X-OUTLOOK-CREATE-TIME:20070611T204615Z
+				 * REV:20070611T204621Z
+				 */
 			}
 			free(thisline);
 		}
@@ -219,6 +252,7 @@ char *vnote_serialize(struct vnote *v) {
 	vnote_serialize_output_field(s, "1.1", "VERSION");
 	vnote_serialize_output_field(s, "PUBLIC", "CLASS");
 	vnote_serialize_output_field(s, v->uid, "UID");
+	vnote_serialize_output_field(s, v->summary, "SUMMARY");
 	vnote_serialize_output_field(s, v->body, "BODY");
 	vnote_serialize_output_field(s, v->body, "NOTE");
 	sprintf(&s[strlen(s)], "X-OUTLOOK-COLOR:#%02X%02X%02X\r\n",
@@ -230,56 +264,3 @@ char *vnote_serialize(struct vnote *v) {
 	vnote_serialize_output_field(s, "vnote", "END");
 	return(s);
 }
-
-
-#ifdef VNOTE_TEST_HARNESS
-
-char *bynari_sample =
-	"BEGIN:vnote\n"
-	"VERSION:1.1\n"
-	"PRODID://Bynari Insight Connector 3.1.3-0605191//Import from Outlook//EN\n"
-	"CLASS:PUBLIC\n"
-	"UID:040000008200E00074C5B7101A82E00800000000000000000000000000820425CE8571864B8D141CB3FB8CAC62\n"
-	"NOTE;ENCODING=QUOTED-PRINTABLE:blah blah blah=0D=0A=0D=0A\n"
-	"SUMMARY:blah blah blah=0D=0A=0D=0A\n"
-	"X-OUTLOOK-COLOR:#FFFF00\n"
-	"X-OUTLOOK-WIDTH:200\n"
-	"X-OUTLOOK-HEIGHT:166\n"
-	"X-OUTLOOK-LEFT:80\n"
-	"X-OUTLOOK-TOP:80\n"
-	"X-OUTLOOK-CREATE-TIME:20070611T204615Z\n"
-	"REV:20070611T204621Z\n"
-	"END:vnote"
-;
-
-char *horde_sample =
-	"BEGIN:VNOTE\n"
-	"VERSION:1.1\n"
-	"UID:20061129111109.7chx73xdok1s at 172.16.45.2\n"
-	"BODY:HORDE_1\n"
-	"DCREATED:20061129T101109Z\n"
-	"END:VNOTE\n"
-;
-
-
-main() {
-	char *s;
-	struct vnote *v;
-
-	printf("Before:\n-------------\n%s-------------\nAfter:\n-----------\n", bynari_sample);
-	v = vnote_new_from_str(bynari_sample);
-	s = vnote_serialize(v);
-	vnote_free(v);
-	if (s) {
-		printf("%s", s);
-		free(s);
-	}
-
-	exit(0);
-}
-#endif
-
-
-
-
-

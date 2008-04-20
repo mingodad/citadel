@@ -297,3 +297,31 @@ const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
 
 void convert_spaces_to_underscores(char *str);
+
+
+
+/* vNote implementation */
+
+#define CTDL_VNOTE_MAGIC	0xa1fa
+
+struct vnote {
+	int magic;
+	char *uid;
+	char *summary;
+	char *body;
+	int pos_left;
+	int pos_top;
+	int pos_width;
+	int pos_height;
+	int color_red;
+	int color_green;
+	int color_blue;
+};
+
+
+
+struct vnote *vnote_new(void);
+struct vnote *vnote_new_from_str(char *s);
+void vnote_free(struct vnote *v);
+char *vnote_serialize(struct vnote *v);
+void vnote_serialize_output_field(char *append_to, char *field, char *label);
