@@ -988,7 +988,7 @@ int Ctdl_Utf8StrLen(char *str)
  */
 char *Ctdl_Utf8StrCut(char *str, int maxlen)
 {
-	int n, m = 0;
+	int n = 0, m = 0;
 	char *aptr;
 
 	if (str == NULL)
