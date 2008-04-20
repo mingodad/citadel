@@ -97,10 +97,10 @@ void rss_save_item(struct rss_item *ri) {
 	else {
 		MD5Init(&md5context);
 		if (ri->title != NULL) {
-			MD5Update(&md5context, ri->title, strlen(ri->title));
+			MD5Update(&md5context, (unsigned char*)ri->title, strlen(ri->title));
 		}
 		if (ri->link != NULL) {
-			MD5Update(&md5context, ri->link, strlen(ri->link));
+			MD5Update(&md5context, (unsigned char*)ri->link, strlen(ri->link));
 		}
 		MD5Final(rawdigest, &md5context);
 		for (i=0; i<MD5_DIGEST_LEN; i++) {

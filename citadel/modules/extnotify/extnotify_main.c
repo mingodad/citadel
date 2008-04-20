@@ -115,7 +115,7 @@ void process_notify(long msgnum, void *usrdata) {
     long configMsgNum = extNotify_getConfigMessage(msg->cm_fields['W']);
     char configMsg[SIZ];
     
-    extNotify_getPrefs(configMsgNum, &configMsg);
+    extNotify_getPrefs(configMsgNum, &configMsg[0]);
     
     /* Check to see if:
      * 1. The user has configured paging / They have and disabled it
@@ -123,8 +123,10 @@ void process_notify(long msgnum, void *usrdata) {
      * 3. A Funambol server has been entered
      *
      */
-    if ((configMsgNum == -1) || (strncasecmp(configMsg, "none", 4) == 0) &&
-    IsEmptyStr(config.c_pager_program) && IsEmptyStr(config.c_funambol_host)) {
+    if ((configMsgNum == -1) || 
+	((strncasecmp(configMsg, "none", 4) == 0) &&
+	 IsEmptyStr(config.c_pager_program) && 
+	 IsEmptyStr(config.c_funambol_host))) {
         CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
         goto nuke;
     }
@@ -152,18 +154,17 @@ void process_notify(long msgnum, void *usrdata) {
 /*! \brief Checks to see what notification option the user has set
  *
  */
-char *extNotify_getPrefs(long configMsgNum, char *configMsg) {
+void extNotify_getPrefs(long configMsgNum, char *configMsg) {
     // Do a simple string search to see if 'funambol' is selected as the
     // type. This string would be at the very top of the message contents.
     if (configMsgNum == -1) {
         CtdlLogPrintf(CTDL_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
-        return "none";
+        return;
     }
     struct CtdlMessage *prefMsg;
     prefMsg = CtdlFetchMessage(configMsgNum, 1);
     strncpy(configMsg, prefMsg->cm_fields['M'], strlen(prefMsg->cm_fields['M']));
     CtdlFreeMessage(prefMsg);
-    return configMsg;
 }
 /*! \brief Get configuration message for pager/funambol system from the
  *			users "My Citadel Config" room

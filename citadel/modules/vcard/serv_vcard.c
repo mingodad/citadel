@@ -991,7 +991,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	/* If using host auth mode, we add an email address based on the login */
 	if (config.c_auth_mode == AUTHMODE_HOST) {
 		struct passwd pwd;
-		struct passwd **result;
+		struct passwd **result = NULL;
 		char pwd_buffer[SIZ];
 
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, result) == 0) {

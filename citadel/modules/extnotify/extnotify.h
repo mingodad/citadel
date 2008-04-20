@@ -17,7 +17,7 @@ extern "C" {
 
 int notify_funambol_server(char *user);
 
-char *extNotify_getPrefs(long configMsgNum, char *configMsg);
+void extNotify_getPrefs(long configMsgNum, char *configMsg);
 long extNotify_getConfigMessage(char *username);
 void process_notify(long msgnum, void *usrdata);
 
