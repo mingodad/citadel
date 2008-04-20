@@ -71,11 +71,72 @@ struct vnote *vnote_new(void) {
 
 struct vnote *vnote_new_from_str(char *s) {
 	struct vnote *v;
+	char *ptr = s;
+	char *nexteol;
+	char *thisline;
+	int thisline_len;
+	char *encoded_value;
+	char *decoded_value;
+	int is_quoted_printable;
+	int is_base64;
 
 	v = vnote_new();
 	if (!v) return NULL;
 
-	/* FIXME finish this */
+	while (*ptr) {		// keep going until we hit a null terminator
+		thisline = NULL;
+		nexteol = strchr(ptr, '\n');
+		if (nexteol) {
+			thisline = malloc((nexteol - ptr) + 2);
+			strncpy(thisline, ptr, (nexteol-ptr));
+			thisline_len = (nexteol-ptr);
+			thisline[thisline_len] = 0;
+			ptr = nexteol + 1;
+		}
+		else {
+			thisline = strdup(ptr);
+			thisline_len = strlen(thisline);
+			ptr += thisline_len;
+		}
+
+		if (thisline) {
+			if (thisline_len > 1) {
+				if (thisline[thisline_len - 1] == '\r') {
+					thisline[thisline_len - 1] = 0;
+					--thisline_len;
+				}
+			}
+
+			/* locate the colon separator */
+			encoded_value = strchr(thisline, ':');
+			if (encoded_value) {
+				*encoded_value++ = 0;
+
+				/* any qualifiers?  (look for a semicolon) */
+				is_base64 = 0;
+				is_quoted_printable = 0;
+
+
+				decoded_value = malloc(thisline_len);
+				if (is_base64) {
+				}
+				else if (is_quoted_printable) {
+				}
+				else {
+					strcpy(decoded_value, thisline_len);
+				}
+
+				if (0) {
+				}
+				else {
+					free(decoded_value);	// throw it away
+				}
+
+
+			}
+			free(thisline);
+		}
+	}
 
 	return(v);
 }
@@ -188,7 +249,7 @@ char *bynari_sample =
 	"X-OUTLOOK-TOP:80\n"
 	"X-OUTLOOK-CREATE-TIME:20070611T204615Z\n"
 	"REV:20070611T204621Z\n"
-	"END:vnote\n"
+	"END:vnote"
 ;
 
 char *horde_sample =
