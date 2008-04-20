@@ -1462,6 +1462,7 @@ char *qp_encode_email_addrs(char *source)
 	long EncodedMaxLen;
 	long nColons = 0;
 	long *AddrPtr;
+	long *AddrUtf8;
 	long nAddrPtrMax = 50;
 	long nmax;
 	int InQuotes = 0;
@@ -1472,26 +1473,39 @@ char *qp_encode_email_addrs(char *source)
 		return source;
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
+	AddrUtf8 = malloc (sizeof (long) * nAddrPtrMax);
+	memset(AddrUtf8, 0, sizeof (long) * nAddrPtrMax);
 	*AddrPtr = 0;
-
+	i = 0;
 	while (!IsEmptyStr (&source[i])) {
+		if (nColons > nAddrPtrMax){
+			long *ptr;
+
+			ptr = (long *) malloc(sizeof (long) * nAddrPtrMax * 2);
+			memcpy (ptr, AddrPtr, sizeof (long) * nAddrPtrMax);
+			free (AddrPtr), AddrPtr = ptr;
+			ptr = (long *) malloc(sizeof (long) * nAddrPtrMax * 2);
+			memset(ptr + sizeof (long) * nAddrPtrMax, 0, sizeof (long) * nAddrPtrMax - 1);
+			memcpy (ptr, AddrUtf8, sizeof (long) * nAddrPtrMax);
+			free (AddrUtf8), AddrUtf8 = ptr;
+			nAddrPtrMax *= 2;				
+		}
 		if (((unsigned char) source[i] < 32) || 
 		    ((unsigned char) source[i] > 126)) {
 			need_to_encode = 1;
+			AddrUtf8[nColons] = 1;
 		}
 		if (source[i] == '"')
 			InQuotes = !InQuotes;
 		if (!InQuotes && source[i] == ',') {
 			nColons++;
-			if (nColons > nAddrPtrMax){
-				/// TODO realloc!
-			}				
 			AddrPtr[nColons] = i;
 		}
 		i++;
 	}
 	if (need_to_encode == 0) {
-		free (AddrPtr);
+		free(AddrPtr);
+		free(AddrUtf8);
 		return source;
 	}
 
@@ -1505,32 +1519,47 @@ char *qp_encode_email_addrs(char *source)
 	nPtr = Encoded;
 	*nPtr = '\0';
 	for (i = 0; i <= nColons && nPtr != NULL; i++) {
-		process_rfc822_addr(&source[AddrPtr[i]], 
-				    user,
-				    node,
-				    name);
 		nmax = EncodedMaxLen - (nPtr - Encoded);
-		
-		if (IsEmptyStr(name)) {
-			n = snprintf(nPtr, nmax, 
-				     (i==0)?"%s@%s" : ",%s@%s",
-				     user, node);
+		if (AddrUtf8[i]) {
+			process_rfc822_addr(&source[AddrPtr[i]], 
+					    user,
+					    node,
+					    name);
+			/* TODO: libIDN here ! */
+			if (IsEmptyStr(name)) {
+				n = snprintf(nPtr, nmax, 
+					     (i==0)?"%s@%s" : ",%s@%s",
+					     user, node);
+			}
+			else {
+				EncodedName = rfc2047encode(name, strlen(name));			
+				n = snprintf(nPtr, nmax, 
+					     (i==0)?"%s <%s@%s>" : ",%s <%s@%s>",
+					     EncodedName, user, node);
+				free(EncodedName);
+			}
 		}
-		else {
-			EncodedName = rfc2047encode(name, strlen(name));			
+		else { 
 			n = snprintf(nPtr, nmax, 
-				     (i==0)?"%s <%s@%s>" : ",%s <%s@%s>",
-				     EncodedName, user, node);
-			free(EncodedName);
+				     (i==0)?"%s" : ",%s",
+				     &source[AddrPtr[i]]);
 		}
 		if (n > 0 )
 			nPtr += n;
-		else
-			nPtr = NULL;/// TODO: should we implement realloc?
+		else { 
+			char *ptr, *nnPtr;
+			ptr = (char*) malloc(EncodedMaxLen * 2);
+			memcpy(ptr, Encoded, EncodedMaxLen);
+			nnPtr = ptr + (nPtr - Encoded), nPtr = nnPtr;
+			free(Encoded), Encoded = ptr;
+			EncodedMaxLen *= 2;
+			i--; /* do it once more with properly lengthened buffer */
+		}
 	}
-
 	for (i = 1; i <= nColons; i++)
 		source[--AddrPtr[i]] = ',';
+	free(AddrUtf8);
+	free(AddrPtr);
 	return Encoded;
 }
 
