@@ -544,7 +544,7 @@ void display_mime_icon(void);
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
-void url(char *buf);
+void url(char *buf, size_t bufsize);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);

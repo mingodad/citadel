@@ -336,15 +336,19 @@ int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the Citadel session in its own window.
  */
-void url(char *buf)
+void url(char *buf, size_t bufsize)
 {
-	int len;
+	int len, UrlLen, Offset, TrailerLen, outpos;
 	char *start, *end, *pos;
 	char urlbuf[SIZ];
-	char outbuf[1024];
+	char outbuf[SIZ];
 
 	start = NULL;
 	len = strlen(buf);
+	if (len > bufsize) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
 	end = buf + len;
 	for (pos = buf; (pos < end) && (start == NULL); ++pos) {
 		if (!strncasecmp(pos, "http://", 7))
@@ -375,17 +379,33 @@ void url(char *buf)
 			end = pos;
 		}
 	}
+	
+	UrlLen = end - start;
+	if (UrlLen > sizeof(urlbuf)){
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+	memcpy(urlbuf, start, UrlLen);
+	urlbuf[UrlLen] = '\0';
 
-	strncpy(urlbuf, start, end - start);
-	urlbuf[end - start] = '\0';
+	Offset = start - buf;
+	if ((Offset != 0) && (Offset < sizeof(outbuf)))
+		memcpy(outbuf, buf, Offset);
+	outpos = snprintf(&outbuf[Offset], sizeof(outbuf) - Offset,  
+			  "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+			  LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
+	if (outpos >= sizeof(outbuf) - Offset) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
 
-	if (start != buf)
-		strncpy(outbuf, buf, start - buf );
-	sprintf(&outbuf[start-buf], "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
-		LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
-	strcat(outbuf, end);
-	if ( strlen(outbuf) < 250 )
-		strcpy(buf, outbuf);
+	TrailerLen = len - (end - start);
+	memcpy(outbuf + Offset + outpos, end, TrailerLen);
+	if ( Offset + TrailerLen + outpos > bufsize) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+	memcpy (buf, outbuf, Offset + TrailerLen + outpos);
 }
 
 
@@ -1256,7 +1276,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				bq = 0;
 			}
 			wprintf("<tt>");
-			url(buf);
+			url(buf, sizeof(buf));
 			escputs(buf);
 			wprintf("</tt><br />\n");
 		}
@@ -1675,7 +1695,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 				bq = 0;
 			}
 			wprintf("<tt>");
-			url(buf);
+			url(buf, sizeof(buf));
 			msgescputs1(buf);
 			wprintf("</tt><br />");
 		}
