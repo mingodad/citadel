@@ -1,22 +1,14 @@
 /*
  * $Id$
- */
-/**
  *
- * \defgroup Wiki Wiki; Functions pertaining to rooms with a wiki view
- * \ingroup WebcitDisplayItems
+ * Functions pertaining to rooms with a wiki view
  */
 
-/*@{*/
 #include "webcit.h"
 #include "groupdav.h"
 
-
-
-/** 
- * \brief Convert a string to something suitable as a wiki index
- *
- * \param s The string to be converted.
+/* 
+ * Convert a string to something suitable as a wiki index
  */
 void str_wiki_index(char *s)
 {
@@ -37,8 +29,8 @@ void str_wiki_index(char *s)
 	}
 }
 
-/**
- * \brief Display a specific page from a wiki room
+/*
+ * Display a specific page from a wiki room
  */
 void display_wiki_page(void)
 {
@@ -105,6 +97,3 @@ void display_wiki_page(void)
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
-
-
-/** @} */

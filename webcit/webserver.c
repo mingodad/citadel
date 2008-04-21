@@ -53,9 +53,9 @@ char  *static_dirs[]={				/* needs same sort order as the web mapping */
  * (If you add more, remember to increment 'ndirs' below)
  */
 char *static_content_dirs[] = {
-	"static",                     /** static templates */
-	"static.local",               /** site local static templates */
-	"tiny_mce"                    /** rich text editor */
+	"static",                     /* static templates */
+	"static.local",               /* site local static templates */
+	"tiny_mce"                    /* rich text editor */
 };
 
 int ndirs=3;
@@ -129,9 +129,9 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 
 /*
- * \brief Create a Unix domain socket and listen on it
- * \param sockpath file name of the unix domain socket
- * \param queue_len Number of incoming connections to allow in the queue
+ * Create a Unix domain socket and listen on it
+ * sockpath - file name of the unix domain socket
+ * queue_len - Number of incoming connections to allow in the queue
  */
 int ig_uds_server(char *sockpath, int queue_len)
 {
