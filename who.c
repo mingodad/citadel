@@ -1,13 +1,8 @@
 /*
  * $Id$
  */
-/**
- * \defgroup DislpayWho Display a list of all users currently logged on to the Citadel server.
- * \ingroup WebcitDisplayItems
- */
-/*@{*/
-#include "webcit.h"
 
+#include "webcit.h"
 
 typedef struct UserStateStruct {
 	char *UserName;
@@ -112,8 +107,8 @@ int GetWholistSection(HashList *List, time_t now)
 		return 0;
 }
 
-/**
- * \brief Display inner div of Wholist
+/*
+ * Display inner div of Wholist
  */
 void who_inner_div(void) {
 	UserStateStruct *User;
@@ -168,7 +163,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>");
 
-			/** (link to page this user) */
+			/* (link to page this user) */
 			wprintf("<td width=\"5%\"><a href=\"display_page?recp=");
 			urlescputs(User->UserName);
 			wprintf("\">"
@@ -178,7 +173,7 @@ void who_inner_div(void) {
 				" border=\"0\" /></a> ");
 			wprintf("</td>");
 
-			/** (idle flag) */
+			/* (idle flag) */
 			wprintf("<td width=\"5%\">");
 			if (User->Idle) {
 				wprintf(" "
@@ -199,7 +194,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>\n<td>");
 
-			/** username (link to user bio/photo page) */
+			/* username (link to user bio/photo page) */
 			wprintf("<a href=\"showuser?who=");
 			urlescputs(User->UserName);
 			wprintf("\">");
@@ -208,7 +203,7 @@ void who_inner_div(void) {
 				wprintf(" [%d] ", User->SessionCount);
 			wprintf("</a>");
 
-			/** room */
+			/* room */
 			wprintf("</td>\n\t<td>");
 			escputs(User->Room);
 			if (!IsEmptyStr(User->RealRoom) ) {
@@ -218,7 +213,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>\n\t<td class=\"host_col\">");
 
-			/** hostname */
+			/* hostname */
 			escputs(User->Host);
 			if (!IsEmptyStr(User->RealHost)) {
 				wprintf("<br /><i>");
@@ -235,8 +230,8 @@ void who_inner_div(void) {
 }
 
 
-/**
- * \brief who is on?
+/*
+ * Display a list of users currently logged in to the system
  */
 void who(void)
 {
@@ -282,7 +277,7 @@ void who(void)
 	);
 	wprintf("</div></div>\n");
 
-	/**
+	/*
 	 * JavaScript to make the ajax refresh happen:
 	 * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.PeriodicalUpdater
 	 * It wants: 1. The div being updated
@@ -298,8 +293,8 @@ void who(void)
 	wDumpContent(1);
 }
 
-/**
- * \brief end session \todo what??? does this belong here? 
+/*
+ * end session
  */
 void terminate_session(void)
 {
@@ -311,8 +306,8 @@ void terminate_session(void)
 }
 
 
-/**
- * \brief Change your session info (fake roomname and hostname)
+/*
+ * Change your session info (fake roomname and hostname)
  */
 void edit_me(void)
 {
@@ -391,8 +386,8 @@ void edit_me(void)
 	}
 }
 
-/**
- * \brief Wholist section
+/*
+ * Wholist section
  */
 void wholist_section(void) {
 	UserStateStruct *User;
@@ -439,7 +434,3 @@ void wholist_section(void) {
 	}
 	DeleteHash(&List);
 }
-
-
-
-/*@}*/

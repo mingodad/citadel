@@ -332,10 +332,9 @@ int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
 
 
 
-/**
- * \brief Look for URL's embedded in a buffer and make them linkable.  We use a
- * target window in order to keep the BBS session in its own window.
- * \param buf the message buffer
+/*
+ * Look for URL's embedded in a buffer and make them linkable.  We use a
+ * target window in order to keep the Citadel session in its own window.
  */
 void url(char *buf)
 {
