@@ -11,7 +11,7 @@
 
 #ifdef ENABLE_NLS
 
-#define NUM_LANGS 9 /**< how many different locales do we know? */
+#define NUM_LANGS 10 /**< how many different locales do we know? */
 #define SEARCH_LANG 20 /**< how many langs should we parse? */
 
 /** actual supported locales */
@@ -24,7 +24,8 @@ char *AvailLang[NUM_LANGS] = {
 	"en_GB",
 	"da_DK",
 	"fr_FR",
-	"nl_NL"
+	"nl_NL",
+	"pt_BR"
 };
 
 #ifdef HAVE_USELOCALE
