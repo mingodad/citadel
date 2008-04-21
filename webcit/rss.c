@@ -278,7 +278,7 @@ void display_rss(char *roomname, char *request_method)
 					wprintf("</blockquote>");
 					bq = 0;
 				}
-				url(buf);
+				url(buf, sizeof(buf));
 				escputs(buf);
 				wprintf("\n");
 			}
@@ -320,7 +320,7 @@ void display_rss(char *roomname, char *request_method)
 					bq = 0;
 				}
 				wprintf("<tt>");
-				url(buf);
+				url(buf, sizeof(buf));
 				escputs(buf);
 				wprintf("</tt><br />\n");
 			}

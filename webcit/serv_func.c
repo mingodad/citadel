@@ -136,7 +136,7 @@ void fmout(char *align)
 			strcpy(buf, &buf[2]);
 		}
 		/** Activate embedded URL's */
-		url(buf);
+		url(buf, sizeof(buf));
 
 		escputs(buf);
 		wprintf("\n");
