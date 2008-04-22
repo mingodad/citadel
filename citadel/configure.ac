@@ -13,7 +13,6 @@ else
 	ssl_dir="$prefix/keys"
 fi
 
-
 dnl Make sure we see all GNU and Solaris extensions.
 AC_GNU_SOURCE
 
