@@ -8,12 +8,12 @@ usr/lib/citadel-server/chkpwd
 usr/lib/citadel-server/chkpw
 usr/lib/citadel-server/citserver.unstripped
 usr/lib/citadel-server/migrate_aliases.sh
-usr/sbin/aidepost
+usr/lib/citadel-server/aidepost
 usr/sbin/citmail
 usr/sbin/citserver
-usr/sbin/msgform
+usr/lib/citadel-server/msgform
 usr/sbin/sendcommand
-usr/sbin/userlist
+usr/lib/citadel-server/userlist
 usr/share/doc/citadel-server/examples/database_cleanup.sh
 usr/share/doc/citadel-server/welcomemail.html
 usr/share/doc/citadel-server/welcomemail.txt

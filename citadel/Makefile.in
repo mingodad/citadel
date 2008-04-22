@@ -29,17 +29,18 @@ EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) 
 NOINST_TARGETS=stress$(EXEEXT)
-SERVER_TARGETS=citserver
+SERVER_TARGETS=citserver$(EXEEXT)
 SERV_MODULES=crc16.o \
 	md5.o \
 	ical_dezonify.o
 
 include Make_modules
 
-UTIL_TARGETS=aidepost msgform \
-	citmail userlist sendcommand getmail\
+UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
 
-UTILBIN_TARGETS= base64 setup chkpw chkpwd
+UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
+	chkpw$(EXEEXT) chkpwd$(EXEEXT) userlist$(EXEEXT) \
+	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT)
 
 prefix=@prefix@
 srcdir=@srcdir@
