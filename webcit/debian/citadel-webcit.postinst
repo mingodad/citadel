@@ -22,7 +22,11 @@ case "$1" in
 	fi
 	#DEBHELPER#
 	if test ! -L /usr/share/citadel-webcit/static/; then
-	    ln -sf /usr/share/prototypejs/prototype.js /usr/share/citadel-webcit/static/	
+	    if test -d /usr/share/prototypejs; then 
+		ln -sf /usr/share/prototypejs/prototype.js /usr/share/citadel-webcit/static/	
+	    else
+		ln -sf /usr/share/javascript/prototype/prototype.js /usr/share/citadel-webcit/static/	
+	    fi
 	fi
 # update the webserver, if needed
 	case "$WWWTYPE" in
