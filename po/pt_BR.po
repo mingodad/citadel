@@ -1,3 +1,4 @@
+# translation of pt_BR.po to
 # translation of webcit.po to
 # Copyright (C) YEAR The Citadel Project - http://www.citadel.org
 # This file is distributed under the same license as the PACKAGE package.
@@ -5,11 +6,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: webcit\n"
+"Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-03-17 11:52-0400\n"
-"PO-Revision-Date: 2008-04-21 17:25-0300\n"
-"Last-Translator: Marco Gonçalves <marky7474REMOVE@THISgmail.com>\n"
+"PO-Revision-Date: 2008-04-22 23:35-0300\n"
+"Last-Translator: Marco Gonçalves\n"
 "Language-Team:  <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -57,7 +58,7 @@ msgstr "Aide"
 #: ../auth.c:52
 #, c-format
 msgid "<ul><li><b>If you already have an account on %s</b>, enter your user name and password and click &quot;Login.&quot; <li><b>If you are a new user</b>, enter the name and password you wish to use, and click &quot;New User.&quot; <li>Please log off properly when finished. <li>You must use a browser that supports <i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your browser is configured to block pop-up windows, you will not be able to receive any instant messages.<br /></ul>"
-msgstr "<ul><li><b>Se você já tem uma conta em %s</b>, entre seu nome de usuário e senha e clique em &quot;Login.&quot; <li><b>Se você for um novo usuário</b>, digite o nome de usuário e senha desejados, e clique em &quot;Novo Usuário &quot; <li>Se possível, faça o &quot;log off &quot; quando terminar de usar o sistema. <li> Seu navegador deverá suportar <i>frames</i> ok<i>iookies</i>. <li>Se seu browser estiver configurado para bloquear <i>pop-ups</i>, você não poderá receber mensagens instantâneas.<br /></ul>"
+msgstr "<ul><li><b>Se você já tem uma conta em %s</b>, digite seu nome de usuário e senha e clique em &quot;Login.&quot; <li><b>Se você for um novo usuário</b>, digite o nome de usuário e senha desejados, e clique em &quot;Novo Usuário &quot; <li>Se possível, faça o &quot;log off &quot; quando terminar de usar o sistema. <li> Seu navegador deverá suportar <i>frames</i> e <i>cookies</i>. <li>Se seu browser estiver configurado para bloquear <i>pop-ups</i>, você não poderá receber mensagens instantâneas.<br /></ul>"
 
 #: ../auth.c:68
 #: ../useredit.c:306
@@ -102,7 +103,6 @@ msgstr "Sua senha não foi aceita"
 #: ../iconbar.c:412
 #: ../iconbar.c:421
 #: ../mainmenu.c:107
-#, fuzzy
 msgid "Log off"
 msgstr "Log off"
 
@@ -152,7 +152,7 @@ msgstr "Digite nova senha:"
 
 #: ../auth.c:499
 msgid "Enter it again to confirm:"
-msgstr "Digite novamente para confirmar: "
+msgstr "Digite novamente para confirmar:"
 
 #: ../auth.c:505
 msgid "Change password"
@@ -186,7 +186,7 @@ msgstr "Cancelar"
 
 #: ../auth.c:526
 msgid "Cancelled.  Password was not changed."
-msgstr "Cancelado. A senha não foi modificada. "
+msgstr "Cancelado.  A senha não foi modificada. "
 
 #: ../auth.c:537
 msgid "They don't match.  Password was not changed."
@@ -206,7 +206,7 @@ msgstr "OCUPADO"
 
 #: ../calendar.c:24
 msgid "<I>This message contains calendaring/scheduling information, but support for calendars is not available on this particular system.  Please ask your system administrator to install a new version of the Citadel web service with calendaring enabled.</I><br />\n"
-msgstr "<I>Essa mensagem contém informações de calendário/agenda, mas suporte para calendários não está disponível para esse sistema em particular. Pergunte para o administrador do sistema para instalar uma nova versão do serviço para web Citadel com calendários instalados.</I><br />\n"
+msgstr "<I>Essa mensagem contém informações de calendário/agenda, mas suporte para calendários não está disponível para esse sistema em particular.  Pergunte para o administrador do sistema para instalar uma nova versão do serviço para web Citadel com calendários instalados.</I><br />\n"
 
 #: ../calendar.c:38
 msgid "<i>Cannot display calendar item.  You are seeing this error because your WebCit service has not been installed with calendar support.  Please contact your system administrator.</i><br />\n"
@@ -306,7 +306,6 @@ msgid "Accept"
 msgstr "Aceitar"
 
 #: ../calendar.c:279
-#, fuzzy
 msgid "Tentative"
 msgstr "Incerto"
 
@@ -319,7 +318,6 @@ msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr "Clique em <i>Atualizar</i> para aceitar essa resposta e atualizar seu calendário."
 
 #: ../calendar.c:305
-#, fuzzy
 msgid "Update"
 msgstr "Atualizar"
 
@@ -336,7 +334,6 @@ msgid "You have accepted this meeting invitation.  It has been entered into your
 msgstr "Você aceitou esse convite para reunião. Esta foi inclusa no seu calendário."
 
 #: ../calendar.c:370
-#, fuzzy
 msgid "You have tentatively accepted this meeting invitation.  It has been 'pencilled in' to your calendar."
 msgstr "Você aceitou temporariamente esse convite para reunião. Esta foi 'rabiscada' no seu calendário."
 
@@ -365,7 +362,6 @@ msgid "Start date:"
 msgstr "Data de início:"
 
 #: ../calendar.c:552
-#, fuzzy
 msgid "Due date:"
 msgstr "Data prometida:"
 
@@ -411,7 +407,6 @@ msgid "(needs action)"
 msgstr "(necessita ação)"
 
 #: ../calendar_tools.c:221
-#, fuzzy
 msgid "(accepted)"
 msgstr "(aceitado)"
 
@@ -482,7 +477,6 @@ msgstr "Fim"
 #: ../calendar_view.c:896
 #: ../calendar_view.c:922
 #: ../event.c:211
-#, fuzzy
 msgid "All day event"
 msgstr "Evento ocupando todo o dia"
 
@@ -500,12 +494,10 @@ msgid "Date due"
 msgstr "Data prometida"
 
 #: ../calendar_view.c:1515
-#, fuzzy
 msgid "The calendar view is not available."
 msgstr "A visualização por calendário não está disponível"
 
 #: ../calendar_view.c:1522
-#, fuzzy
 msgid "The tasks view is not available."
 msgstr "A visualização por tarefa não está disponível"
 
@@ -681,10 +673,9 @@ msgstr "Você pode fazer upload de uma imagem diretamente do seu computador"
 
 #: ../graphics.c:41
 msgid "Please select a file to upload:"
-msgstr "Selecione um arquivo para fazer upload"
+msgstr "Selecione um arquivo para fazer upload:"
 
 #: ../graphics.c:49
-#, fuzzy
 msgid "Reset form"
 msgstr "Limpar campos"
 
@@ -721,7 +712,6 @@ msgid "Your summary page"
 msgstr "Sua página de resumo"
 
 #: ../iconbar.c:131
-#, fuzzy
 msgid "Go to your email inbox"
 msgstr "Ir para a caixa de entrada (inbox)"
 
@@ -758,7 +748,6 @@ msgid "Tasks"
 msgstr "Tarefas"
 
 #: ../iconbar.c:222
-#, fuzzy
 msgid "List all of your accessible rooms"
 msgstr "Listar todas as suas salas acessíveis"
 
@@ -782,7 +771,6 @@ msgid "Chat"
 msgstr "Bate-papo"
 
 #: ../iconbar.c:279
-#, fuzzy
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
 msgstr "Menu de opções avançado: Comandos avançados de sala, Informações de conta, e Bate-papo"
 
@@ -803,7 +791,7 @@ msgstr "Administração"
 #: ../iconbar.c:312
 #: ../iconbar.c:413
 msgid "Log off now?"
-msgstr "Fazer log off agora?"
+msgstr "Realizar log off agora?"
 
 #: ../iconbar.c:330
 msgid "Customize this menu"
@@ -956,16 +944,14 @@ msgid "Save changes"
 msgstr "Salvar modificações"
 
 #: ../iconbar.c:805
-#, fuzzy
 msgid "Your icon bar has been updated.  Please select any of its choices to continue."
 msgstr "Sua barra de ícones foi atualizada.  Selecione qualquer uma das opções para continuar"
 
 #: ../inetconf.c:50
 msgid "Local host aliases"
-msgstr "Nomes simbolicos do computador local"
+msgstr "Nomes simbólicos do computador local"
 
 #: ../inetconf.c:51
-#, fuzzy
 msgid "Directory domains"
 msgstr "Domínios do diretório"
 
@@ -978,17 +964,14 @@ msgid "Smart hosts"
 msgstr "Servidores inteligentes"
 
 #: ../inetconf.c:54
-#, fuzzy
 msgid "RBL hosts"
 msgstr "Computadores RBL"
 
 #: ../inetconf.c:55
-#, fuzzy
 msgid "SpamAssassin hosts"
 msgstr "Computadores SpamAssassin"
 
 #: ../inetconf.c:56
-#, fuzzy
 msgid "Masqueradable domains"
 msgstr "Domínios mascaráveis"
 
@@ -1017,7 +1000,6 @@ msgid "(hosts running the SpamAssassin service)"
 msgstr "(computadores rodando o serviço SpamAssassin)"
 
 #: ../inetconf.c:64
-#, fuzzy
 msgid "(Domains as which users are allowed to masquerade)"
 msgstr "(Domínios cujos usuários estão autorizados a mascarar)"
 
@@ -1039,7 +1021,6 @@ msgid "List subscription"
 msgstr "Inscrição da lista"
 
 #: ../listsub.c:51
-#, fuzzy
 msgid "List subscribe/unsubscribe"
 msgstr "Inscrever/desinscrever da lista"
 
@@ -1093,7 +1074,7 @@ msgstr "Desfazer 'ir'"
 #: ../mainmenu.c:52
 #, c-format
 msgid "(oops! Back to %s)"
-msgstr "(opa! Voltar para %s)"
+msgstr "(Voltar para %s)"
 
 #: ../mainmenu.c:63
 #: ../roomops.c:526
@@ -1110,21 +1091,19 @@ msgid "Read all messages"
 msgstr "Ler todas as mensagens"
 
 #: ../mainmenu.c:71
-#, fuzzy
 msgid "...old <EM>and</EM> new"
-msgstr "...velhas <EM>e</EM> novas"
+msgstr "...antigas <EM>e</EM> novas"
 
 #: ../mainmenu.c:75
 #: ../roomops.c:706
 msgid "Enter a message"
-msgstr "Coloque uma mensagem"
+msgstr "Colocar uma mensagem"
 
 #: ../mainmenu.c:77
 msgid "(post in this room)"
-msgstr "(submeter nessa sala)"
+msgstr "(fixar mensagens nessa sala)"
 
 #: ../mainmenu.c:82
-#, fuzzy
 msgid "File library"
 msgstr "Biblioteca de arquivos"
 
@@ -1165,7 +1144,6 @@ msgid "Update your contact information"
 msgstr "Atualizar suas informações para contato"
 
 #: ../mainmenu.c:125
-#, fuzzy
 msgid "Enter your 'bio'"
 msgstr "Entre sua 'bio'"
 
@@ -1180,7 +1158,6 @@ msgid "View/edit server-side mail filters"
 msgstr "Visualizar/editar filtros de correio do lado do servidor"
 
 #: ../mainmenu.c:128
-#, fuzzy
 msgid "Edit your push email settings"
 msgstr "Editar suas configurações de 'push email'"
 
@@ -1223,7 +1200,6 @@ msgid "Global Configuration"
 msgstr "Configuração Global"
 
 #: ../mainmenu.c:173
-#, fuzzy
 msgid "Edit site-wide configuration"
 msgstr "Editar configurações globais do site"
 
@@ -1257,7 +1233,6 @@ msgid "Restart Now"
 msgstr "Reiniciar agora"
 
 #: ../mainmenu.c:189
-#, fuzzy
 msgid "Restart after paging users"
 msgstr "Reiniciar após 'pagear' usuários"
 
@@ -1444,7 +1419,7 @@ msgstr "(sem nome)"
 
 #: ../messages.c:1929
 msgid "This address book is empty."
-msgstr "Esse caderno de enderços está vazio."
+msgstr "Esse caderno de endereços está vazio."
 
 #: ../messages.c:1943
 msgid "An internal error has occurred."
@@ -1478,9 +1453,8 @@ msgstr "Data"
 
 #: ../messages.c:2532
 #: ../messages.c:2703
-#, fuzzy
 msgid "Reading #"
-msgstr "Leitura #"
+msgstr "Lendo #"
 
 #: ../messages.c:2581
 #: ../messages.c:2752
@@ -1497,17 +1471,17 @@ msgstr "de %d mensagens"
 #: ../messages.c:2593
 #: ../messages.c:2764
 msgid "oldest to newest"
-msgstr "mais velhas para mais novas"
+msgstr "antigas para mais novas"
 
 #: ../messages.c:2602
 #: ../messages.c:2772
 msgid "newest to oldest"
-msgstr "mais novas para mais velhas"
+msgstr "novas para mais antigas"
 
 #: ../messages.c:3018
 #, c-format
 msgid "Cancelled.  Message was not posted."
-msgstr "Cancelado.  Mensagem não foi fixada."
+msgstr "Cancelado.  A mensagem não foi fixada."
 
 #: ../messages.c:3024
 #, c-format
@@ -1517,7 +1491,7 @@ msgstr "Cancelado automaticamente porque você já salvou essa mensagem."
 #: ../messages.c:3046
 #, c-format
 msgid "Message has been sent.\n"
-msgstr "Mensagem foi enviada.\n"
+msgstr "A mensagem foi enviada.\n"
 
 #: ../messages.c:3049
 #, c-format
@@ -1577,7 +1551,6 @@ msgid "The message was not moved."
 msgstr "A mensagem não foi movida."
 
 #: ../messages.c:3560
-#, fuzzy
 msgid "Confirm move of message"
 msgstr "Confirmar a movimentação da mensagem"
 
@@ -1617,7 +1590,6 @@ msgid "Add node"
 msgstr "Adicionar nódulo"
 
 #: ../netconf.c:114
-#, fuzzy
 msgid "Edit node configuration for "
 msgstr "Editar configuração do nódulo para"
 
@@ -1626,7 +1598,6 @@ msgid "Network configuration"
 msgstr "Configuração da rede"
 
 #: ../netconf.c:195
-#, fuzzy
 msgid "Currently configured nodes"
 msgstr "Nódulos atualmente configurados"
 
@@ -1659,7 +1630,7 @@ msgstr "Mandar mensagem instantânea"
 
 #: ../paging.c:32
 msgid "Send an instant message to: "
-msgstr "Mandar mensagem instantânea para:"
+msgstr "Mandar mensagem instantânea para: "
 
 #: ../paging.c:45
 msgid "Enter message text:"
@@ -1703,7 +1674,6 @@ msgid "Preferences and settings"
 msgstr "Preferências e configurações"
 
 #: ../preferences.c:201
-#, fuzzy
 msgid "Room list view"
 msgstr "Visualização lista de salas"
 
@@ -1712,9 +1682,8 @@ msgid "Tree (folders) view"
 msgstr "Visualização em árvore (pastas)"
 
 #: ../preferences.c:213
-#, fuzzy
 msgid "Table (rooms) view"
-msgstr "Visualização em mesa (salas)"
+msgstr "Visualização em tabela (salas)"
 
 #: ../preferences.c:223
 msgid "Time format"
@@ -1729,12 +1698,10 @@ msgid "24 hour"
 msgstr "24 horas"
 
 #: ../preferences.c:248
-#, fuzzy
 msgid "Calendar day view begins at:"
 msgstr "Dia da visualização do calendário começa em: "
 
 #: ../preferences.c:277
-#, fuzzy
 msgid "Calendar day view ends at:"
 msgstr "Dia da visualização do calendário termina em: "
 
@@ -1812,7 +1779,7 @@ msgstr "Salas esquecidas"
 
 #: ../roomops.c:265
 msgid "Click on any room to un-zap it and goto that room.\n"
-msgstr "Clique em qualquer sala para 'des-esquecê-la' e ir para ela.\n"
+msgstr "Clique em qualquer sala para 'des-esquecê-la' e entrar nela em seguida.\n"
 
 #: ../roomops.c:385
 msgid "View as:"
@@ -1820,7 +1787,7 @@ msgstr "Visualizar como:"
 
 #: ../roomops.c:424
 msgid "Search: "
-msgstr "Pesquisar:"
+msgstr "Pesquisar: "
 
 #: ../roomops.c:488
 msgid "files"
@@ -1833,7 +1800,7 @@ msgstr "arquivo"
 #: ../roomops.c:496
 #, c-format
 msgid "%d new of %d messages%s"
-msgstr "%d novas de %d mensagens%s"
+msgstr "%d mensagens novas de um total de %d%s"
 
 #: ../roomops.c:540
 msgid "View contacts"
@@ -1892,7 +1859,6 @@ msgid "Write mail"
 msgstr "Escrever mensagem"
 
 #: ../roomops.c:719
-#, fuzzy
 msgid "Leave all messages marked as unread, go to next room with unread messages"
 msgstr "Deixar todas as mensagens marcadas como não lidas, ir para a próxima sala com mensagens não lidas."
 
@@ -1993,7 +1959,7 @@ msgstr "Privado - apenas por convite"
 #: ../roomops.c:1362
 #: ../roomops.c:2489
 msgid "Personal (mailbox for you only)"
-msgstr "Pessoal (caixa de correio para você apenas)"
+msgstr "Pessoal (caixa de correio pessoal)"
 
 #: ../roomops.c:1366
 msgid "If private, cause current users to forget room"
@@ -2036,7 +2002,6 @@ msgid "Network shared room"
 msgstr "Sala compartilhada por rede"
 
 #: ../roomops.c:1431
-#, fuzzy
 msgid "Permanent (does not auto-purge)"
 msgstr "Permanente (não se auto-destrói)"
 
@@ -2074,7 +2039,6 @@ msgstr "Não compartilhado com"
 
 #: ../roomops.c:1551
 #: ../roomops.c:1594
-#, fuzzy
 msgid "Remote node name"
 msgstr "Nome do nódulo remoto"
 
@@ -2097,9 +2061,8 @@ msgid "Share"
 msgstr "Compartilhar"
 
 #: ../roomops.c:1632
-#, fuzzy
 msgid "When sharing a room, it must be shared from both ends.  Adding a node to the 'shared' list sends messages out, but in order to receive messages, the other nodes must be configured to send messages out to your system as well. <li>If the remote room name is blank, it is assumed that the room name is identical on the remote node.<li>If the remote room name is different, the remote node must also configure the name of the room here.</ul></I><br />\n"
-msgstr "Para compartilhar uma sala, a mesma deve ser compartilhada dos dois lados.  Adicionar um 'node' a lista de 'compartilhados' faz as mensagens sairem, mas para receber mensagens, outros 'nodes' também devem ser configurados para mandar mensagens fora de seus sistemas. <li>Se o nome da sala está em branco, assume-se que o nome da sala é igual ao do 'node' remoto.<li>Se o nome da sala é diferente, o 'node' remoto também deve configurar o nome da sala aqui.</ul></I><br />\n"
+msgstr "Para compartilhar uma sala, a mesma deve ser compartilhada dos dois lados.  Adicionar um 'node' a lista de 'compartilhados' faz as mensagens saírem, mas para receber mensagens, outros 'nodes' também devem ser configurados para mandar mensagens fora de seus sistemas. <li>Se o nome da sala está em branco, assume-se que o nome da sala é igual ao do 'node' remoto.<li>Se o nome da sala é diferente, o 'node' remoto também deve configurar o nome da sala aqui.</ul></I><br />\n"
 
 #: ../roomops.c:1656
 msgid "<i>The contents of this room are being mailed <b>as individual messages</b> to the following list recipients:</i><br /><br />\n"
@@ -2220,7 +2183,6 @@ msgid "Fetch the following RSS feeds and store them in this room:"
 msgstr "Obter as seguintes fontes RSS e armazená-las nessa sala:"
 
 #: ../roomops.c:1960
-#, fuzzy
 msgid "Feed URL"
 msgstr "URL do arquivo RSS"
 
@@ -2275,7 +2237,7 @@ msgstr "Usuários"
 
 #: ../roomops.c:2420
 msgid "Default view for room: "
-msgstr "Visualização padrão para sala:"
+msgstr "Visualização padrão para sala: "
 
 #: ../roomops.c:2496
 msgid "Create new room"
@@ -2291,7 +2253,7 @@ msgstr "Ir para uma sala oculta"
 
 #: ../roomops.c:2615
 msgid "If you know the name of a hidden (guess-name) or passworded room, you can enter that room by typing its name below.  Once you gain access to a private room, it will appear in your regular room listings so you don't have to keep returning here."
-msgstr "Se você souber do nome de uma sala oculta (advinhar-nome) ou com senha, você pode entrar nesta sala digitando o nome abaixo.  Uma vez que se ganha acesso à uma sala privadam ela irá apraecer na sua listagem de salas normal para que você não precise voltar aqui."
+msgstr "Se você souber do nome de uma sala oculta (adivinhar-nome) ou com senha, você pode entrar nesta sala digitando o nome abaixo.  Uma vez que se ganha acesso à uma sala privada ela irá aparecer na sua listagem de salas normal para que você não precise voltar aqui."
 
 #: ../roomops.c:2627
 msgid "Enter room name:"
@@ -2302,13 +2264,12 @@ msgid "Enter room password:"
 msgstr "Digite senha da sala:"
 
 #: ../roomops.c:2644
-#, fuzzy
 msgid "Go there"
 msgstr "Ir"
 
 #: ../roomops.c:2698
 msgid "Zap (forget/unsubscribe) the current room"
-msgstr "Esquecer ou desinscrever da sala corrente"
+msgstr "Esquecer ou se desinscrever da sala atual"
 
 #: ../roomops.c:2704
 #, c-format
@@ -2379,7 +2340,7 @@ msgstr "Adicionar novo script"
 
 #: ../sieve.c:654
 msgid "To create a new script, enter the desired script name in the box below and click 'Create'."
-msgstr "Para criar um novo script, entre o nome do script desjado na caixa abaixo e clique em 'Criar'."
+msgstr "Para criar um novo script, digite o nome do script desjado na caixa abaixo e clique em 'Criar'."
 
 #: ../sieve.c:660
 msgid "Script name: "
@@ -2403,7 +2364,6 @@ msgid "Delete scripts"
 msgstr "Excluir scripts"
 
 #: ../sieve.c:679
-#, fuzzy
 msgid "To delete an existing script, select the script name from the list and click 'Delete'."
 msgstr "Para excluir um script existente, selecione o nome do script na lista e clique em 'Excluir script'."
 
@@ -2448,22 +2408,18 @@ msgid "Reply-to"
 msgstr "Responder para (reply-to)"
 
 #: ../sieve.c:992
-#, fuzzy
 msgid "Resent-From"
 msgstr "Reenviado-De"
 
 #: ../sieve.c:993
-#, fuzzy
 msgid "Resent-To"
 msgstr "Reenviado-Para"
 
 #: ../sieve.c:994
-#, fuzzy
 msgid "Envelope From"
 msgstr "Envelope De"
 
 #: ../sieve.c:995
-#, fuzzy
 msgid "Envelope To"
 msgstr "Envelope Para"
 
@@ -2540,7 +2496,6 @@ msgid "Forward to"
 msgstr "Encaminhar para"
 
 #: ../sieve.c:1077
-#, fuzzy
 msgid "Vacation"
 msgstr "Férias"
 
@@ -2581,27 +2536,23 @@ msgid "Network"
 msgstr "Rede"
 
 #: ../siteconfig.c:62
-#, fuzzy
 msgid "Tuning"
-msgstr "Calibragem"
+msgstr "Afinação"
 
 #: ../siteconfig.c:63
 msgid "Directory"
 msgstr "Diretório"
 
 #: ../siteconfig.c:64
-#, fuzzy
 msgid "Auto-purger"
 msgstr "Excluidor automático"
 
 #: ../siteconfig.c:65
-#, fuzzy
 msgid "Indexing/Journaling"
 msgstr "Indexação/Journaling"
 
 #: ../siteconfig.c:66
 #: ../siteconfig.c:107
-#, fuzzy
 msgid "Push Email"
 msgstr "Email Push"
 
@@ -2624,11 +2575,11 @@ msgstr "Mudanças feitas nessa tela não terão efeito até você reiniciar o se
 
 #: ../siteconfig.c:84
 msgid "Advanced server fine-tuning controls"
-msgstr "Controles de afinação-fina avançados do servidor"
+msgstr "Controles de afinação-fina do servidor"
 
 #: ../siteconfig.c:88
 msgid "Configure the LDAP connector for Citadel"
-msgstr "Configrar o conector LDAP para o Citadel"
+msgstr "Configurar o conector LDAP para o Citadel"
 
 #: ../siteconfig.c:92
 msgid "NOTE: This Citadel server has been built without LDAP support.  These options will have no effect."
@@ -2648,7 +2599,7 @@ msgstr "Indexação e Journaling"
 
 #: ../siteconfig.c:104
 msgid "Warning: these facilities are resource intensive."
-msgstr "Aviso: essas funções usam mais recursos do sistema."
+msgstr "Aviso: essas funções utilizam mais recursos do sistema."
 
 #: ../siteconfig.c:113
 msgid "Change Login Logo"
@@ -2661,7 +2612,7 @@ msgstr "Mudar Logotipo de Logout"
 #: ../siteconfig.c:128
 #, c-format
 msgid "Fully qualified domain name"
-msgstr "Nome de domínio totalmente qualificado (FQDN)"
+msgstr "Nome de domínio completamente expressado (FQDN)"
 
 #: ../siteconfig.c:135
 #, c-format
@@ -2831,7 +2782,7 @@ msgstr "Senha para bind DN"
 #: ../siteconfig.c:397
 #, c-format
 msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr "Endereço IP do servidor (0.0.0.0 para 'qualquer um')"
+msgstr "Endereço IP a ser usado pelo servidor (0.0.0.0 para 'qualquer um')"
 
 #: ../siteconfig.c:404
 #, c-format
@@ -2976,19 +2927,17 @@ msgstr "Política de vencimento padrão para caixas de mensagens privadas"
 #: ../siteconfig.c:682
 #, c-format
 msgid "Same policy as public rooms"
-msgstr "Usar mesma política para salas públicas"
+msgstr "Usar a mesma política das salas públicas"
 
 #: ../siteconfig.c:822
-#, fuzzy
 msgid "Your system configuration has been updated."
 msgstr "Sua configuração do sistema foi atualizada."
 
 #: ../smtpqueue.c:183
 msgid "Message ID"
-msgstr "ID da mensagen"
+msgstr "ID da mensagem"
 
 #: ../smtpqueue.c:185
-#, fuzzy
 msgid "Date/time submitted"
 msgstr "Data/hora do envio"
 
@@ -3051,7 +3000,7 @@ msgstr "Hoje&nbsp;no&nbsp;seu&nbsp;calendário"
 
 #: ../summary.c:235
 msgid "Who's&nbsp;online&nbsp;now"
-msgstr "Quem está &nbsp;online&nbsp;agora"
+msgstr "Quem está&nbsp;online&nbsp;agora"
 
 #: ../summary.c:248
 msgid "About&nbsp;this&nbsp;server"
@@ -3060,7 +3009,7 @@ msgstr "Sobre&nbsp;esse&nbsp;servidor"
 #: ../summary.c:274
 #, c-format
 msgid "Summary page for %s"
-msgstr "Página de resumo para %s"
+msgstr "Página de resumo de %s"
 
 #: ../sysmsgs.c:40
 #, c-format
@@ -3070,7 +3019,7 @@ msgstr "Editar %s"
 #: ../sysmsgs.c:43
 #, c-format
 msgid "Enter %s below. Text is formatted to the reader's browser. A newline is forced by preceding the next line by a blank."
-msgstr "Digite %s abaixo. Texto é formatado com o browser do leitor. Uma nova linha é forçada precedendo a nova linha por uma em branco."
+msgstr "Digite %s abaixo. O texto é formatado com o browser do leitor. Uma nova linha é forçada precedendo a nova linha por uma em branco."
 
 #: ../sysmsgs.c:77
 #, c-format
@@ -3096,7 +3045,7 @@ msgstr "Para criar uma nova conta de usuário, digite o nome de usuário desejad
 
 #: ../useredit.c:48
 msgid "New user: "
-msgstr "Novo usuário:"
+msgstr "Novo usuário: "
 
 #: ../useredit.c:57
 msgid "Edit or Delete users"
@@ -3112,7 +3061,7 @@ msgstr "Editar configuração"
 
 #: ../useredit.c:85
 msgid "Edit address book entry"
-msgstr "Editar entrada no c"
+msgstr "Editar entrada"
 
 #: ../useredit.c:87
 msgid "Delete user"
@@ -3128,7 +3077,7 @@ msgstr "Um erro ocorreu na criação ou edição desta entrada no caderno de end
 
 #: ../useredit.c:283
 msgid "Edit user account: "
-msgstr "Editar conta de usuário:"
+msgstr "Editar conta de usuário: "
 
 #: ../useredit.c:320
 msgid "Permission to send Internet mail"
@@ -3168,7 +3117,6 @@ msgid "A new user has been created."
 msgstr "Um novo usuário foi criado."
 
 #: ../useredit.c:516
-#, fuzzy
 msgid "You are attempting to create a new user from within Citadel while running in host based authentication mode.  In this mode, you must create new users on the host system, not within Citadel."
 msgstr "Você está tentando criar um novo usuário no Citadel enquanto no modo de autenticação baseado em host.  Nesse modo, você deve criar novos usuários no sistema hospedeiro, não dentro do Citadel."
 
@@ -3211,7 +3159,6 @@ msgid "Click here to send an instant message to %s"
 msgstr "Clique aqui para mandar uma mensagem instantânea para %s"
 
 #: ../vcard_edit.c:190
-#, fuzzy
 msgid "Edit contact information"
 msgstr "Editar informação do contato"
 
@@ -3224,7 +3171,6 @@ msgid "First"
 msgstr "Primeiro"
 
 #: ../vcard_edit.c:211
-#, fuzzy
 msgid "Middle"
 msgstr "Meio"
 
@@ -3258,7 +3204,7 @@ msgstr "Cidade:"
 
 #: ../vcard_edit.c:279
 msgid "State:"
-msgstr "Estado"
+msgstr "Estado:"
 
 #: ../vcard_edit.c:285
 msgid "ZIP code:"
@@ -3289,7 +3235,6 @@ msgid "Primary Internet e-mail address"
 msgstr "Endereço de e-mail primário"
 
 #: ../vcard_edit.c:337
-#, fuzzy
 msgid "Internet e-mail aliases"
 msgstr "Nomes alternativos para e-mail de Internet"
 
@@ -3335,7 +3280,6 @@ msgstr "Informações da sala"
 
 #: ../webcit.c:1672
 #: ../webcit.c:1674
-#, fuzzy
 msgid "Your bio"
 msgstr "Sua bio"
 
@@ -3348,7 +3292,6 @@ msgid "the icon for this room"
 msgstr "o ícone para essa sala"
 
 #: ../webcit.c:1697
-#, fuzzy
 msgid "the Greetingpicture for the login prompt"
 msgstr "a figura de boas vindas para esse prompt de login"
 
@@ -3400,12 +3343,10 @@ msgid "Click on a name to read user info.  Click on %s to send an instant messag
 msgstr "Clique num nome para ler as informações do usuário.  Clique em %s para mandar uma mensagem instantânea para esse usuário."
 
 #: ../who.c:338
-#, fuzzy
 msgid "Edit your session display"
 msgstr "Editar a visualização de sua sessão"
 
 #: ../who.c:342
-#, fuzzy
 msgid "This screen allows you to change the way your session appears in the 'Who is online' listing. To turn off any 'fake' name you've previously set, simply click the appropriate 'change' button without typing anything in the corresponding box. "
 msgstr "Essa tela permite que você modifique a maneira que sua sessão aparece na tela 'Quem está online'. Para desligar um nome 'falso' que você configurou previamente, clique no botão 'modificar' apropriado sem digitar nada na caixa correspondente."
 
@@ -3446,5 +3387,5 @@ msgstr "Não há página de nome '%s' aqui."
 
 #: ../wiki.c:102
 msgid "Select the 'Edit this page' link in the room banner if you would like to create this page."
-msgstr "Selecione o link 'Editar essa página'  no banner da sala se você quiser criar essa página."
+msgstr "Selecione o link 'Editar essa página' no banner da sala se você quiser criar essa página."
 
