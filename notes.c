@@ -1,18 +1,16 @@
 /*
  * $Id$
+ *
  */
-/**
- * \defgroup StickyNotes Functions which handle "sticky notes"
- * \ingroup WebcitDisplayItems
- */
-/*@{*/
+
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
 
-/**
- * \brief display sticky notes
- * \param msgnum the citadel mesage number
+/*
+ * display sticky notes
+ *
+ * msgnum = Message number on the local server of the note to be displayed
  */
 void display_note(long msgnum, int unread)
 {
@@ -23,7 +21,6 @@ void display_note(long msgnum, int unread)
 	int in_text = 0;
 	int i, len;
 
-//	wprintf("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\">\n");
 	serv_printf("MSG0 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -35,7 +32,7 @@ void display_note(long msgnum, int unread)
 	strcpy(eid, "");
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-		/** Fill the buffer */
+		/* Fill the buffer */
 		if ( (in_text) && (strlen(notetext) < SIZ-256) ) {
 			strcat(notetext, buf);
 		}
@@ -49,31 +46,28 @@ void display_note(long msgnum, int unread)
 		}
 	}
 
-	/** Now sanitize the buffer */
+	/* Now sanitize the buffer */
 	len = strlen(notetext);
 	for (i=0; i<len; ++i) {
 		if (isspace(notetext[i])) notetext[i] = ' ';
 	}
 
-	/** Make it HTML-happy and print it. */
+	/* Make it HTML-happy and print it. */
 	stresc(display_notetext, SIZ, notetext, 0, 0);
-/* Lets try it as a draggable */
+
+	/* Lets try it as a draggable */
 	if (!IsEmptyStr(eid)) {
 		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%s\" alt=\"Note\" ", eid); 
 		wprintf ("class=\"notes\">\n");
 		wprintf ("<script type=\"text/javascript\">\n");
-//		wprintf ("//<![CDATA[\n");
 		wprintf ("new Draggable (\"note_%s\", {revert:true})\n", eid);
-//		wprintf ("//]]>\n");
 		wprintf ("</script>\n");
 	}
 	else {
 		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%ld\" ", msgnum); 
 		wprintf ("class=\"notes\">\n");
 		wprintf ("<script type=\"text/javascript\">\n");
-//		wprintf ("//<![CDATA[\n");
 		wprintf ("new Draggable (\"note_%ld\", {revert:true})\n", msgnum);
-//		wprintf ("//]]>\n");
 		wprintf ("</script>\n");
 	}
 	
@@ -84,7 +78,7 @@ void display_note(long msgnum, int unread)
 		wprintf("<span id=\"note%ld\">%s</span><br />\n", msgnum, display_notetext);
 	}
 
-	/** Offer in-place editing. */
+	/* Offer in-place editing. */
 	if (!IsEmptyStr(eid)) {
 		wprintf("<script type=\"text/javascript\">"
 			"new Ajax.InPlaceEditor('note%s', 'updatenote?nonce=%ld?eid=%s', {rows:5,cols:72});"
@@ -97,8 +91,8 @@ void display_note(long msgnum, int unread)
 }
 
 
-/**
- * \brief  This gets called by the Ajax.InPlaceEditor when we save a note.
+/*
+ * This gets called by the Ajax.InPlaceEditor when we save a note.
  */
 void updatenote(void)
 {
@@ -125,7 +119,7 @@ void updatenote(void)
 			strcpy(notetext, "");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		
-				/** Fill the buffer */
+				/* Fill the buffer */
 				if ( (in_text) && (strlen(notetext) < SIZ-256) ) {
 					strcat(notetext, buf);
 				}
@@ -134,13 +128,13 @@ void updatenote(void)
 					in_text = 1;
 				}
 			}
-			/** Now sanitize the buffer */
+			/* Now sanitize the buffer */
 			len = strlen(notetext);
 			for (i=0; i<len; ++i) {
 				if (isspace(notetext[i])) notetext[i] = ' ';
 			}
 		
-			/** Make it HTML-happy and print it. */
+			/* Make it HTML-happy and print it. */
 			stresc(display_notetext, SIZ, notetext, 0, 0);
 			wprintf("%s\n", display_notetext);
 		}
@@ -154,4 +148,84 @@ void updatenote(void)
 
 
 
-/*@}*/
+
+
+
+
+
+/*
+ * Display a <div> containing a rendered sticky note.
+ */
+void display_vnote_div(struct vnote *v, long msgnum) {
+
+	wprintf("<div id=\"note%ld\" ", msgnum);
+	wprintf("style=\"position: relative; ");
+	wprintf("left: %dpx; ", v->pos_left);
+	wprintf("top: %dpx; ", v->pos_top);
+	wprintf("width: %dpx; ", v->pos_width);
+	wprintf("height: %dpx; ", v->pos_height);
+	wprintf("border: 1px solid black; ");
+	wprintf("background-color: #%02X%02X%02X ", v->color_red, v->color_green, v->color_blue);
+	wprintf("\">");
+
+	escputs(v->body);
+
+	wprintf("</div>\n");
+}
+
+
+
+
+/*
+ * display sticky notes
+ *
+ * msgnum = Message number on the local server of the note to be displayed
+ */
+void display_note_NEW(long msgnum, int unread) {
+	char buf[1024];
+	char mime_partnum[256];
+	char mime_filename[256];
+	char mime_content_type[256];
+	char mime_disposition[256];
+	int mime_length;
+	char relevant_partnum[256];
+	char *relevant_source = NULL;
+
+	relevant_partnum[0] = '\0';
+	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
+	serv_puts(buf);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '1') return;
+
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (!strcasecmp(mime_content_type, "text/vnote")) {
+				strcpy(relevant_partnum, mime_partnum);
+			}
+		}
+	}
+
+	if (!IsEmptyStr(relevant_partnum)) {
+		relevant_source = load_mimepart(msgnum, relevant_partnum);
+		if (relevant_source != NULL) {
+			struct vnote *v = vnote_new_from_str(relevant_source);
+			free(relevant_source);
+			display_vnote_div(v, msgnum);
+			vnote_free(v);
+
+			/* FIXME remove these debugging messages when finished */
+			wprintf("<script type=\"text/javascript\">");
+			wprintf("document.write('L: ' + $('note%ld').style.left + '<br>');", msgnum);
+			wprintf("document.write('T: ' + $('note%ld').style.top + '<br>');", msgnum);
+			wprintf("document.write('W: ' + $('note%ld').style.width + '<br>');", msgnum);
+			wprintf("document.write('H: ' + $('note%ld').style.height + '<br>');", msgnum);
+			wprintf("</script>");
+		}
+	}
+}
