@@ -285,9 +285,9 @@ AC_SUBST(DEPEND_FLAG)
 
 AC_PROG_INSTALL
 AC_PROG_YACC
-dnl missing_dir=`cd $ac_aux_dir && pwd`
-dnl AC_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
-dnl AC_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
+missing_dir=`cd $ac_aux_dir && pwd`
+AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
 
 dnl Checks for system services.
 
