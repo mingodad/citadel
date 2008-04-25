@@ -400,12 +400,14 @@ void url(char *buf, size_t bufsize)
 	}
 
 	TrailerLen = len - (end - start);
-	memcpy(outbuf + Offset + outpos, end, TrailerLen);
-	if ( Offset + TrailerLen + outpos > bufsize) {
+	if (TrailerLen > 0)
+		memcpy(outbuf + Offset + outpos, end, TrailerLen);
+	if (Offset + outpos + TrailerLen > bufsize) {
 		lprintf(1, "URL: content longer than buffer!");
 		return;
 	}
-	memcpy (buf, outbuf, Offset + TrailerLen + outpos);
+	memcpy (buf, outbuf, Offset + outpos + TrailerLen);
+	*(buf + Offset + outpos + TrailerLen) = '\0';
 }
 
 
