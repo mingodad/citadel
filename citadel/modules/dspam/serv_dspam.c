@@ -48,10 +48,13 @@
 
 
 #ifdef HAVE_LIBDSPAM
+#define CONFIG_DEFAULT file_dpsam_conf
+#define LOGDIR file_dspam_log
 
-#undef HAVE_CONFIG_H
+
+//#define HAVE_CONFIG_H
 #include <dspam/libdspam.h>
-#define HAVE_CONFIG_H
+//#define HAVE_CONFIG_H
 
 typedef struct stringlist stringlist;
 
@@ -155,9 +158,8 @@ void dspam_do_msg(long msgnum, void *userdata)
 	{
 /* Copy to a safe place */
 
-		SIG.data = malloc (CTX->signature->length);
-		if (SIG.data != NULL)
-			memcpy (SIG.data, CTX->signature->data, CTX->signature->length);
+		msg->cm_fields['G'] = malloc (CTX->signature->length * 2);
+		CtdlEncodeBase64(msg->cm_fields['G'], CTX->signature->data, CTX->signature->length, 0);
 	}
 	free(msgtext);
 
@@ -184,18 +186,21 @@ int serv_dspam_room(struct ctdlroom *room)
 // dspam_init (cc->username, NULL, ctdl_dspam_home, DSM_PROCESS,
 	//                  DSF_SIGNATURE | DSF_NOISE);
 	/// todo: if roomname = spam / ham -> learn!
-	if (room->QRflags & QR_PRIVATE) /* Are we sending to a private mailbox? */
+	if ((room->QRflags & QR_PRIVATE) &&/* Are we sending to a private mailbox? */
+	    (strstr(room->QRname, ".Mail")!=NULL))
+
 	{
 		char User[64];
 		// maybe we should better get our realname here?
 		snprintf(User, 64, "%ld", room->QRroomaide);
-
+		extract_token(User, room->QRname, 0, '.', sizeof(User));
 		CTX = dspam_init(User, 
 				 NULL,
 				 ctdl_dspam_dir, 
 				 DSM_PROCESS, 
 				 DSF_SIGNATURE | DSF_NOISE);
 	}
+	else return 0;//// 
 	/// else -> todo: global user for public rooms etc.
 	if (CTX == NULL)
 	{

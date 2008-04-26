@@ -49,6 +49,8 @@ extern char file_crpt_file_csr[PATH_MAX];
 extern char file_crpt_file_cer[PATH_MAX];
 extern char file_chkpwd[PATH_MAX];
 extern char file_base64[PATH_MAX];
+extern char file_dpsam_conf[PATH_MAX];
+extern char file_dspam_log[PATH_MAX];
 
 extern char file_funambol_msg[PATH_MAX];
 

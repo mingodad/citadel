@@ -67,6 +67,8 @@ char file_crpt_file_cer[PATH_MAX]="";
 char file_chkpwd[PATH_MAX]="";
 char file_base64[PATH_MAX]="";
 char file_funambol_msg[PATH_MAX] = "";
+char file_dpsam_conf[PATH_MAX] = "";
+char file_dspam_log[PATH_MAX] = "";
 
 int home_specified = 0;
 
@@ -232,7 +234,15 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 		 "%sbase64",
 		 ctdl_utilbin_dir);
 
-
+	snprintf(file_dpsam_conf,
+		 sizeof file_dpsam_conf,
+		 "%sdspam.conf",
+		 ctdl_etc_dir);
+	snprintf(file_dspam_log, 
+		 sizeof file_dspam_log, 
+		 "%sdspam.log",
+		 ctdl_home_directory);
+	
 	/* 
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.
