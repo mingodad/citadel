@@ -20,6 +20,23 @@
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
+static HashList *HandlerHash = NULL;
+
+
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, int IsAjax)
+{
+	WebcitHandler *NewHandler;
+
+	if (HandlerHash == NULL)
+		HandlerHash = NewHash(1, NULL);
+	
+	NewHandler = (WebcitHandler*) malloc(sizeof(WebcitHandler));
+	NewHandler->F = F;
+	NewHandler->IsAjax = IsAjax;
+
+	Put(HandlerHash, UrlString, UrlSLen, NewHandler, NULL);
+}
+
 /**   
  * \brief remove escaped strings from i.e. the url string (like %20 for blanks)
  * \param buf the buffer to examine
@@ -88,7 +105,7 @@ void addurls(char *url)
 	struct wcsession *WCC = WC;
 
 	if (WCC->urlstrings == NULL)
-		WCC->urlstrings = NewHash();
+		WCC->urlstrings = NewHash(1, NULL);
 	eptr = buf + sizeof (buf);
 	up = url;
 	/** locate the = sign */
@@ -1140,7 +1157,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 */
 	if (WC->urlstrings == NULL)
-		WC->urlstrings = NewHash();
+		WC->urlstrings = NewHash(1, NULL);
 
 	/* Form fields */
 	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
@@ -1688,6 +1705,7 @@ void session_loop(struct httprequest *req)
 	 * Various commands...
 	 */
 
+
 	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();
 	} else if (!strcasecmp(action, "blank")) {
@@ -2027,7 +2045,7 @@ void session_loop(struct httprequest *req)
 	else {
 		display_main_menu();
 	}
-
+}
 SKIP_ALL_THIS_CRAP:
 	fflush(stdout);
 	if (content != NULL) {

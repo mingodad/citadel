@@ -49,7 +49,7 @@ void display_address_book_middle_div(void) {
 	wprintf("</option>\n");
 
 	
-	List = NewHash();
+	List = NewHash(1, NULL);
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -108,7 +108,7 @@ void display_address_book_inner_div() {
 
 	begin_ajax_response();
 
-	List = NewHash();
+	List = NewHash(1, NULL);
 	wprintf("<div align=center><form onSubmit=\"return false;\">"
 		"<select multiple name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 

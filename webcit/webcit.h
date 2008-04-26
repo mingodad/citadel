@@ -126,7 +126,7 @@ extern locale_t wc_locales[];
 #define CLIENT_ID		4
 #define CLIENT_VERSION		735		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	730		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		109		/* min required libcitadel ver */
+#define	LIBCITADEL_MIN		110		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -821,6 +821,15 @@ void end_burst(void);
 extern char *hourname[];	/**< Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);
+
+
+typedef void (*WebcitHandlerFunc)(void);
+typedef struct  _WebcitHandler{
+	WebcitHandlerFunc F;
+	int IsAjax;
+} WebcitHandler;
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, int IsAjax);
+
 
 
 /* These should be empty, but we have them for testing */

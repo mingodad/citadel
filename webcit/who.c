@@ -140,7 +140,7 @@ void who_inner_div(void) {
 		now = time(NULL);
 	}
 
-	List = NewHash();
+	List = NewHash(1, NULL);
 
 	if (GetWholistSection(List, now)) {
 		it = GetNewHashPos();
@@ -408,7 +408,7 @@ void wholist_section(void) {
 		now = time(NULL);
 	}
 
-	List = NewHash();
+	List = NewHash(1, NULL);
 
 	if (GetWholistSection(List, now)) {
 		SortByPayload(List, CompareUserStruct);
