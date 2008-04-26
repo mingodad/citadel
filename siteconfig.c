@@ -505,7 +505,7 @@ void display_siteconfig(void)
 			HashList *List;
 			HashPos  *it;
 
-			List = NewHash();
+			List = NewHash(1, NULL);
 			len = sizeof("UTC") + 1;
 			ZName = malloc(len + 1);
 			memcpy(ZName, "UTC", len + 1);
