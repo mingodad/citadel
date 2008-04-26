@@ -555,3 +555,11 @@ void changepw(void)
 		display_changepw();
 	}
 }
+
+
+
+void InitModule_AUTH(void)
+{
+	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, 0);
+	return 0;
+}

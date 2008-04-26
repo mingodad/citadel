@@ -459,6 +459,7 @@ extern int setup_wizard;
 extern char wizard_filename[];
 extern time_t if_modified_since;
 extern int follow_xff;
+extern HashList *HandlerHash;
 void do_setup_wizard(void);
 
 

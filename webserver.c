@@ -690,6 +690,7 @@ int main(int argc, char **argv)
 #endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/*< listen on a unix domain socket? */
 
+	HandlerHash = NewHash (1, NULL);
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
 		fprintf(stderr, " You are running libcitadel version %d.%02d\n",
