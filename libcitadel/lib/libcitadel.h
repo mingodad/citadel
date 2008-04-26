@@ -269,14 +269,15 @@ typedef struct HashPos HashPos;
 typedef void (*DeleteHashDataFunc)(void * Data);
 typedef const char *(*PrintHashContent)(void * Data);
 typedef int (*CompareFunc)(const void* Item1, const void*Item2);
+typedef int (*HashFunc)(const char *Str, long Len);
 
-HashList *NewHash(void);
+HashList *NewHash(int Uniq, HashFunc F);
 
 void DeleteHash(HashList **Hash);
 
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 
-void Put(HashList *Hash, char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
+void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
 
 int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
 

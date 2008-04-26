@@ -34,9 +34,11 @@ struct HashList {
 	Payload **Members;     /**< Our Payload members. This fills up linear */
 	HashKey **LookupTable; /**< Hash Lookup table. Elements point to members, and are sorted by their hashvalue */
 	char **MyKeys;         /**< this keeps the members for a call of GetHashKeys */
+	HashFunc Algorithm;    /**< should we use an alternating algorithm to calc the hash values? */
 	long nMembersUsed;     /**< how many pointers inside of the array are used? */
 	long MemberSize;       /**< how big is Members and LookupTable? */
 	long tainted;          /**< if 0, we're hashed, else s.b. else sorted us in his own way. */
+	long uniq;             /**< are the keys going to be uniq? */
 };
 
 struct HashPos {
@@ -99,7 +101,7 @@ int PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
  * \brief instanciate a new hashlist
  * \returns the newly allocated list. 
  */
-HashList *NewHash(void) 
+HashList *NewHash(int Uniq, HashFunc F)
 {
 	HashList *NewList;
 	NewList = malloc (sizeof(HashList));
@@ -113,6 +115,8 @@ HashList *NewHash(void)
 
 	NewList->MemberSize = 100;
 	NewList->tainted = 0;
+        NewList->uniq = Uniq;
+	NewList->Algorithm = F;
 
 	return NewList;
 }
@@ -168,6 +172,33 @@ void DeleteHash(HashList **Hash)
 	*Hash = NULL;
 }
 
+/**
+ * \brief Private function to increase the hash size.
+ * \param Hash the Hasharray to increase
+ */
+static void IncreaseHashSize(HashList *Hash)
+{
+	/* Ok, Our space is used up. Double the available space. */
+	Payload **NewPayloadArea;
+	HashKey **NewTable;
+	
+	/** double our payload area */
+	NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
+	memset(&NewPayloadArea[Hash->MemberSize], 0, sizeof(Payload*) * Hash->MemberSize);
+	memcpy(NewPayloadArea, Hash->Members, sizeof(Payload*) * Hash->MemberSize);
+	free(Hash->Members);
+	Hash->Members = NewPayloadArea;
+	
+	/** double our hashtable area */
+	NewTable = malloc(sizeof(HashKey*) * Hash->MemberSize * 2);
+	memset(&NewTable[Hash->MemberSize], 0, sizeof(HashKey*) * Hash->MemberSize);
+	memcpy(NewTable, Hash->LookupTable, sizeof(HashKey*) * Hash->MemberSize);
+	free(Hash->LookupTable);
+	Hash->LookupTable = NewTable;
+	
+	Hash->MemberSize *= 2;
+}
+
 
 /**
  * \brief private function to add a new item to / replace an existing in -  the hashlist
@@ -182,7 +213,7 @@ void DeleteHash(HashList **Hash)
 static void InsertHashItem(HashList *Hash, 
 			   long HashPos, 
 			   long HashBinKey, 
-			   char *HashKeyStr, 
+			   const char *HashKeyStr, 
 			   long HKLen, 
 			   void *Data,
 			   DeleteHashDataFunc Destructor)
@@ -191,27 +222,8 @@ static void InsertHashItem(HashList *Hash,
 	HashKey *NewHashKey;
 
 	if (Hash->nMembersUsed >= Hash->MemberSize)
-	{
-		/* Ok, Our space is used up. Double the available space. */
-		Payload **NewPayloadArea;
-		HashKey **NewTable;
+		IncreaseHashSize (Hash);
 
-		/** double our payload area */
-		NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
-		memset(&NewPayloadArea[Hash->MemberSize], 0, sizeof(Payload*) * Hash->MemberSize);
-		memcpy(NewPayloadArea, Hash->Members, sizeof(Payload*) * Hash->MemberSize);
-		free(Hash->Members);
-		Hash->Members = NewPayloadArea;
-
-		/** double our hashtable area */
-		NewTable = malloc(sizeof(HashKey*) * Hash->MemberSize * 2);
-		memset(&NewTable[Hash->MemberSize], 0, sizeof(HashKey*) * Hash->MemberSize);
-		memcpy(NewTable, Hash->LookupTable, sizeof(HashKey*) * Hash->MemberSize);
-		free(Hash->LookupTable);
-		Hash->LookupTable = NewTable;
-
-		Hash->MemberSize *= 2;
-	}
 	/** Arrange the payload */
 	NewPayloadItem = (Payload*) malloc (sizeof(Payload));
 	NewPayloadItem->Data = Data;
@@ -322,9 +334,12 @@ static long FindInHash(HashList *Hash, long HashBinKey)
  * \param HKLen length of HKey
  * \returns the calculated hash value
  */
-inline static long CalcHashKey (char *HKey, long HKLen)
+inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
 {
-	return hashlittle(HKey, HKLen, 9283457);
+	if (Hash->Algorithm == NULL)
+		return hashlittle(HKey, HKLen, 9283457);
+	else
+		return Hash->Algorithm(HKey, HKLen);
 }
 
 
@@ -336,32 +351,40 @@ inline static long CalcHashKey (char *HKey, long HKLen)
  * \param Data the payload you want to associate with HKey
  * \param DeleteIt if not free() should be used to delete Data set to NULL, else DeleteIt is used.
  */
-void Put(HashList *Hash, char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt)
+void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt)
 {
 	long HashBinKey;
 	long HashAt;
 
 	/** first, find out were we could fit in... */
-	HashBinKey = CalcHashKey(HKey, HKLen);
+	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
 
+	if (HashAt >= Hash->MemberSize)
+		IncreaseHashSize (Hash);
+
 	/** oh, we're brand new... */
-	if (Hash->LookupTable[HashAt] == NULL){
+	if (Hash->LookupTable[HashAt] == NULL) {
 		InsertHashItem(Hash, HashAt, HashBinKey, HKey, HKLen, Data, DeleteIt);
 	}/** Insert After? */
 	else if (Hash->LookupTable[HashAt]->Key > HashBinKey) {
 		InsertHashItem(Hash, HashAt, HashBinKey, HKey, HKLen, Data, DeleteIt);
 	}/** Insert before? */
 	else if (Hash->LookupTable[HashAt]->Key < HashBinKey) {
-		InsertHashItem(Hash, HashAt + 1, HashBinKey, HKey, HKLen, Data, DeleteIt);		
+		InsertHashItem(Hash, HashAt + 1, HashBinKey, HKey, HKLen, Data, DeleteIt);
 	}
 	else { /** Ok, we have a colision. replace it. */
-		long PayloadPos;
-
-		PayloadPos = Hash->LookupTable[HashAt]->Position;
-		DeleteHashPayload(Hash->Members[PayloadPos]);
-		Hash->Members[PayloadPos]->Data = Data;
-		Hash->Members[PayloadPos]->Destructor = DeleteIt;
+		if (Hash->uniq) {
+			long PayloadPos;
+			
+			PayloadPos = Hash->LookupTable[HashAt]->Position;
+			DeleteHashPayload(Hash->Members[PayloadPos]);
+			Hash->Members[PayloadPos]->Data = Data;
+			Hash->Members[PayloadPos]->Destructor = DeleteIt;
+		}
+		else {
+			InsertHashItem(Hash, HashAt + 1, HashBinKey, HKey, HKLen, Data, DeleteIt);
+		}
 	}
 }
 
@@ -383,7 +406,7 @@ int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 		return  0;
 	}
 	/** first, find out were we could be... */
-	HashBinKey = CalcHashKey((char*)HKey, HKLen);
+	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
 	if ((HashAt < 0) || /**< Not found at the lower edge? */
 	    (HashAt >= Hash->nMembersUsed) || /**< Not found at the upper edge? */

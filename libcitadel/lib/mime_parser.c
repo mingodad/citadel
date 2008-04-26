@@ -778,7 +778,7 @@ int LoadIconDir(const char *DirName)
 	IconName *Icon;
 
 	filedir = opendir (DirName);
-	IconHash = NewHash();
+	IconHash = NewHash(1, NULL);
 	if (filedir == NULL) {
 		return 0;
 	}
@@ -842,19 +842,21 @@ int LoadIconDir(const char *DirName)
 
 const char *GetIconFilename(char *MimeType, size_t len)
 {
+	void *vIcon;
 	IconName *Icon;
 	
 	if(IconHash == NULL)
 		return NULL;
 
-	GetHash(IconHash, MimeType, len, (void**)&Icon);
+	GetHash(IconHash, MimeType, len, &vIcon), Icon = (IconName*) vIcon;
 	/* didn't find the exact mimetype? try major only. */
 	if (Icon == NULL) {
 		char * pMinor;
 		pMinor = strchr(MimeType, '/');
 		if (pMinor != NULL) {
 			*pMinor = '\0';
-			GetHash(IconHash, MimeType, pMinor - MimeType, (void**)&Icon);
+			GetHash(IconHash, MimeType, pMinor - MimeType, &vIcon),
+				Icon = (IconName*) vIcon;
 		}
 	}
 	if (Icon == NULL) {
