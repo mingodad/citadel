@@ -1320,6 +1320,7 @@ void free_calendar_buffer(void) {
 	int i;
 	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
 		icalcomponent_free(WC->disp_cal[i].cal);
+		free(WC->disp_cal[i].from);
 	}
 	WC->num_cal = 0;
 	free(WC->disp_cal);

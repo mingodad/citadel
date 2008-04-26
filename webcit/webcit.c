@@ -20,7 +20,7 @@
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
-static HashList *HandlerHash = NULL;
+HashList *HandlerHash = NULL;
 
 
 void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, int IsAjax)
@@ -1705,6 +1705,20 @@ void session_loop(struct httprequest *req)
 	 * Various commands...
 	 */
 
+	else {
+		void *vHandler;
+		WebcitHandler *Handler;
+
+		GetHash(HandlerHash, action, strlen(action) /* TODO*/, &vHandler),
+			Handler = (WebcitHandler*) vHandler;
+		if (Handler != NULL) {
+			if (Handler->IsAjax)
+				begin_ajax_response();
+			Handler->F();
+			if (Handler->IsAjax)
+				end_ajax_response();
+		}
+		
 
 	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();
