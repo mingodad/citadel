@@ -927,7 +927,11 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char *ptr;
 	size_t msg_size;
 	int scan_done;
-
+	char *nextline;
+	char *chunk_to_send;
+	char prev_char;
+	
+	
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 
@@ -1199,7 +1203,29 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* If we reach this point, the server is expecting data */
-	sock_write(sock, msgtext, msg_size);
+	/** Need to parse each line of the message here since someone may have sent
+	 * a message containing a single dot on a line of its own. In that case we
+	 * need to escape it in accordance with RFC821.
+	 * We could do this with the tokenizer functions but num_tokens returns an
+	 * int and the message may contain more lines than that, also copying each
+	 * line would be slow.
+	 */
+	nextline = msgtext;
+	while (*nextline)
+	{
+		chunk_to_send = nextline;
+		while (*nextline != '\n')
+			nextline++;
+		nextline++;
+		prev_char = *nextline;
+		*nextline = '\0';
+		if (!strcmp(chunk_to_send, ".\r\n");
+			sock_write(sock, "..\r\n", 4);
+		else
+			sock_write(sock, chunk_to_send, (size_t)(nextline-chunk_to_send));
+		*nextline = prev_char;
+	}
+	
 	if (msgtext[msg_size-1] != 10) {
 		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
