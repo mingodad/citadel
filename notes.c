@@ -7,6 +7,17 @@
 #include "groupdav.h"
 #include "webserver.h"
 
+
+/*
+ * Uncomment this #define in order to get the new vNote-based sticky notes view.
+ * We're keeping both versions here so that I can work on the new view without breaking
+ * the existing implementation prior to completion.
+ */
+
+/* #define NEW_NOTES_VIEW */
+
+
+#ifndef NEW_NOTES_VIEW
 /*
  * display sticky notes
  *
@@ -89,6 +100,7 @@ void display_note(long msgnum, int unread)
 		);
 	}
 }
+#endif
 
 
 /*
@@ -147,26 +159,42 @@ void updatenote(void)
 }
 
 
-
-
-
-
-
+#ifdef NEW_NOTES_VIEW
 
 /*
  * Display a <div> containing a rendered sticky note.
  */
 void display_vnote_div(struct vnote *v, long msgnum) {
 
+	/* begin outer div */
+
 	wprintf("<div id=\"note%ld\" ", msgnum);
-	wprintf("style=\"position: relative; ");
+	wprintf("class=\"stickynote_outer\" ");
+	wprintf("style=\"");
 	wprintf("left: %dpx; ", v->pos_left);
 	wprintf("top: %dpx; ", v->pos_top);
 	wprintf("width: %dpx; ", v->pos_width);
 	wprintf("height: %dpx; ", v->pos_height);
-	wprintf("border: 1px solid black; ");
 	wprintf("background-color: #%02X%02X%02X ", v->color_red, v->color_green, v->color_blue);
 	wprintf("\">");
+
+	/* begin title bar */
+
+	wprintf("<div id=\"titlebar%ld\" ", msgnum);
+	wprintf("class=\"stickynote_titlebar\" ");
+	wprintf("style=\"");
+	wprintf("background-color: #%02X%02X%02X ", v->color_red/2, v->color_green/2, v->color_blue/2);
+	wprintf("\">");
+
+	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
+	wprintf("<td>&nbsp;</td>", msgnum);
+
+	wprintf("<td align=right valign=middle "
+		// "onclick=\"javascript:$('address_book_popup').style.display='none';\" "
+		"><img src=\"static/closewindow.gif\">");
+	wprintf("</td></tr></table>");
+
+	wprintf("</div>\n");
 
 	escputs(v->body);
 
@@ -181,7 +209,7 @@ void display_vnote_div(struct vnote *v, long msgnum) {
  *
  * msgnum = Message number on the local server of the note to be displayed
  */
-void display_note_NEW(long msgnum, int unread) {
+void display_note(long msgnum, int unread) {
 	char buf[1024];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -229,3 +257,5 @@ void display_note_NEW(long msgnum, int unread) {
 		}
 	}
 }
+
+#endif
