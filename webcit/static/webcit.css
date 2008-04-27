@@ -1322,3 +1322,19 @@ li.event_unread span, a.event_read_title {
 	padding: 4px;
 }
 
+.stickynote_outer {
+	position: relative;
+	width: 200px;
+	height: 200px;
+	border: 1px solid black;
+	background-color: #ffff00;
+}
+
+.stickynote_titlebar {
+	position: relative;
+	width: 100%;
+	height: 15px;
+	top: 0px;
+	left: 0px;
+	background-color: #888800;
+}
