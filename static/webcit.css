@@ -1328,6 +1328,7 @@ li.event_unread span, a.event_read_title {
 	height: 200px;
 	border: 1px solid black;
 	background-color: #ffff00;
+	overflow: hidden;
 }
 
 .stickynote_titlebar {
