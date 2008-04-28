@@ -182,6 +182,7 @@ void display_vnote_div(struct vnote *v, long msgnum) {
 
 	wprintf("<div id=\"titlebar%ld\" ", msgnum);
 	wprintf("class=\"stickynote_titlebar\" ");
+	wprintf("onMouseDown=\"NotesDragMouseDown(event,%ld)\" ", msgnum);
 	wprintf("style=\"");
 	wprintf("background-color: #%02X%02X%02X ", v->color_red/2, v->color_green/2, v->color_blue/2);
 	wprintf("\">");

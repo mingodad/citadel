@@ -422,6 +422,83 @@ function CtdlResizeMsgListMouseDown(evt) {
 
 
 
+
+
+// These functions handle moving sticky notes around the screen by dragging them
+
+var msgnum_of_note_being_dragged = 0;
+var saved_cursor_style = 'default';
+var note_was_dragged = 0;
+
+function NotesDragMouseUp(evt) {
+	document.onmouseup = null;
+	document.onmousemove = null;
+	if (document.layers) {
+		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+
+	d = $('note' + msgnum_of_note_being_dragged);
+	d.style.cursor = saved_cursor_style;
+
+	// Only submit the change if motion actually happened
+	if (note_was_dragged > 0) {
+		alert('FIXME do ajax call to move position x=' + d.style.left + ' y=' + d.style.top);
+	}
+
+	msgnum_of_note_being_dragged = 0;
+	return true;
+}
+
+function NotesDragMouseMove(evt) {
+	x = (ns6 ? evt.clientX : event.clientX);
+	x_increment = x - saved_x;
+	y = (ns6 ? evt.clientY : event.clientY);
+	y_increment = y - saved_y;
+
+	// Move the div
+	d = $('note' + msgnum_of_note_being_dragged);
+
+	divTop = parseInt(d.style.top);
+	divLeft = parseInt(d.style.left);
+
+	d.style.top = (divTop + y_increment) + 'px';
+	d.style.left = (divLeft + x_increment) + 'px';
+
+	saved_x = x;
+	saved_y = y;
+	note_was_dragged = 1;
+	return true;
+}
+
+
+function NotesDragMouseDown(evt, msgnum) {
+	saved_x = (ns6 ? evt.clientX : event.clientX);
+	saved_y = (ns6 ? evt.clientY : event.clientY);
+	document.onmouseup = NotesDragMouseUp;
+	document.onmousemove = NotesDragMouseMove;
+	if (document.layers) {
+		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+	msgnum_of_note_being_dragged = msgnum;
+	d = $('note' + msgnum_of_note_being_dragged);
+	saved_cursor_style = d.style.cursor;
+	d.style.cursor = 'move';
+	return false;		// disable the default action
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // These functions handle drag and drop message moving
 
 var mm_div = null;
