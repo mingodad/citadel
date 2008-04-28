@@ -1202,16 +1202,17 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-	/* If we reach this point, the server is expecting data */
-	/** Need to parse each line of the message here since someone may have sent
+	/* If we reach this point, the server is expecting data.
+	 * Need to parse each line of the message here since someone may have sent
 	 * a message containing a single dot on a line of its own. In that case we
 	 * need to escape it in accordance with RFC821.
 	 * We could do this with the tokenizer functions but num_tokens returns an
 	 * int and the message may contain more lines than that, also copying each
 	 * line would be slow.
 	 */
+	int bytes_written = 0;
 	nextline = msgtext;
-	while (*nextline)
+	while ( (*nextline) && (bytes_written >= 0) )
 	{
 		chunk_to_send = nextline;
 		while (*nextline != '\n')
@@ -1219,11 +1220,18 @@ void smtp_try(const char *key, const char *addr, int *status,
 		nextline++;
 		prev_char = *nextline;
 		*nextline = '\0';
-		if (!strcmp(chunk_to_send, ".\r\n");
-			sock_write(sock, "..\r\n", 4);
-		else
-			sock_write(sock, chunk_to_send, (size_t)(nextline-chunk_to_send));
+		if (!strcmp(chunk_to_send, ".\r\n")) {
+			bytes_written = sock_write(sock, "..\r\n", 4);
+		}
+		else {
+			bytes_written = sock_write(sock, chunk_to_send, (size_t)(nextline-chunk_to_send));
+		}
 		*nextline = prev_char;
+		if (bytes_written < 0) {
+			*status = 4;
+			strcpy(dsn, "Connection broken during SMTP message transmit");
+			goto bail;
+		}
 	}
 	
 	if (msgtext[msg_size-1] != 10) {
