@@ -160,34 +160,6 @@ void updatenote(void)
 
 
 /*
- * Background ajax call to receive updates from the browser when a note is moved, resized, or updated.
- */
-void ajax_update_note(void) {
-
-	begin_ajax_response();
-	wprintf("Updating.");		// Browser ignores the response, so nothing is necessary.
-	end_ajax_response();
-
-        if (!havebstr("note_uid")) {
-		lprintf(5, "Received ajax_update_note() request without a note UID.\n");
-		return;
-	}
-
-	lprintf(9, "Note UID = %s\n", bstr("note_uid"));
-        if (havebstr("top"))	lprintf(9, "Top      = %s\n", bstr("top"));
-        if (havebstr("left"))	lprintf(9, "Left     = %s\n", bstr("left"));
-        if (havebstr("height"))	lprintf(9, "Height   = %s\n", bstr("height"));
-        if (havebstr("width"))	lprintf(9, "Width    = %s\n", bstr("width"));
-
-	/* FIXME finish this */
-}
-
-
-
-
-#ifdef NEW_NOTES_VIEW
-
-/*
  * Display a <div> containing a rendered sticky note.
  */
 void display_vnote_div(struct vnote *v) {
@@ -223,20 +195,33 @@ void display_vnote_div(struct vnote *v) {
 
 	wprintf("</div>\n");
 
+	/* begin note body */
+
 	escputs(v->body);
+
+	/* begin resize handle */
+
+	wprintf("<div id=\"resize-%s\" ", v->uid);
+	wprintf("class=\"stickynote_resize\" ");
+	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\" ", v->uid);
+	wprintf("style=\"");
+	wprintf("\">");
+
+	wprintf("<img src=\"static/resizecorner.png\">");
+
+	wprintf("</div>\n");
+
+	/* end of note */
 
 	wprintf("</div>\n");
 }
 
 
 
-
 /*
- * display sticky notes
- *
- * msgnum = Message number on the local server of the note to be displayed
+ * Fetch a message from the server and extract a vNote from it
  */
-void display_note(long msgnum, int unread) {
+struct vnote *vnote_new_from_msg(long msgnum) {
 	char buf[1024];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -250,7 +235,7 @@ void display_note(long msgnum, int unread) {
 	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
+	if (buf[0] != '1') return NULL;
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "part=", 5)) {
@@ -271,19 +256,105 @@ void display_note(long msgnum, int unread) {
 		if (relevant_source != NULL) {
 			struct vnote *v = vnote_new_from_str(relevant_source);
 			free(relevant_source);
-			display_vnote_div(v);
-
-			/* uncomment these lines to see ugly debugging info 
-			wprintf("<script type=\"text/javascript\">");
-			wprintf("document.write('L: ' + $('note-%s').style.left + '; ');", v->uid);
-			wprintf("document.write('T: ' + $('note-%s').style.top + '; ');", v->uid);
-			wprintf("document.write('W: ' + $('note-%s').style.width + '; ');", v->uid);
-			wprintf("document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
-			wprintf("</script>");
-			*/
-
-			vnote_free(v);
+			return(v);
 		}
+	}
+
+	return NULL;
+}
+
+
+/*
+ * Background ajax call to receive updates from the browser when a note is moved, resized, or updated.
+ */
+void ajax_update_note(void) {
+
+	char buf[1024];
+	int msgnum;
+	struct vnote *v = NULL;
+
+	begin_ajax_response();
+	wprintf("Updating.");		// Browser ignores the response, so nothing is necessary.
+	end_ajax_response();
+
+        if (!havebstr("note_uid")) {
+		lprintf(5, "Received ajax_update_note() request without a note UID.\n");
+		return;
+	}
+
+	lprintf(9, "Note UID = %s\n", bstr("note_uid"));
+	serv_printf("EUID %s", bstr("note_uid"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') {
+		lprintf(5, "Cannot find message containing vNote with the requested uid!\n");
+		return;
+	}
+	msgnum = atol(&buf[4]);
+	v = vnote_new_from_msg(msgnum);
+	if (!v) {
+		lprintf(5, "Cannot locate a vNote within message %ld\n", msgnum);
+		return;
+	}
+
+	/* Make any requested changes */
+        if (havebstr("top")) {
+		lprintf(9, "Top      = %s\n", bstr("top"));
+		v->pos_top = atoi(bstr("top"));
+	}
+        if (havebstr("left")) {
+		lprintf(9, "Left     = %s\n", bstr("left"));
+		v->pos_left = atoi(bstr("left"));
+	}
+        if (havebstr("height")) {
+		lprintf(9, "Height   = %s\n", bstr("height"));
+		v->pos_height = atoi(bstr("height"));
+	}
+        if (havebstr("width")) {
+		lprintf(9, "Width    = %s\n", bstr("width"));
+		v->pos_width = atoi(bstr("width"));
+	}
+
+	/* Serialize it and save it to the message base.  Server will delete the old one. */
+	serv_puts("ENT0 1|||4");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '4') {
+		serv_puts("Content-type: text/vnote");
+		serv_puts("");
+		serv_puts(vnote_serialize(v));
+		serv_puts("000");
+	}
+	vnote_free(v);
+}
+
+
+
+
+
+
+#ifdef NEW_NOTES_VIEW
+
+/*
+ * display sticky notes
+ *
+ * msgnum = Message number on the local server of the note to be displayed
+ */
+void display_note(long msgnum, int unread) {
+	struct vnote *v;
+
+	v = vnote_new_from_msg(msgnum);
+	if (v) {
+		display_vnote_div(v);
+
+		/* uncomment these lines to see ugly debugging info 
+		wprintf("<script type=\"text/javascript\">");
+		wprintf("document.write('L: ' + $('note-%s').style.left + '; ');", v->uid);
+		wprintf("document.write('T: ' + $('note-%s').style.top + '; ');", v->uid);
+		wprintf("document.write('W: ' + $('note-%s').style.width + '; ');", v->uid);
+		wprintf("document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
+		wprintf("</script>");
+		*/
+
+		vnote_free(v);
 	}
 }
 

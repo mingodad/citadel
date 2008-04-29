@@ -1340,3 +1340,9 @@ li.event_unread span, a.event_read_title {
 	background-color: #888800;
         font-size: 6px;     
 }
+
+.stickynote_resize {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+}
