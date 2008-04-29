@@ -498,6 +498,90 @@ function NotesDragMouseDown(evt, uid) {
 
 
 
+// These functions handle resizing sticky notes by dragging the resize handle
+
+var uid_of_note_being_resized = 0;
+var saved_cursor_style = 'default';
+var note_was_resized = 0;
+
+function NotesResizeMouseUp(evt) {
+	document.onmouseup = null;
+	document.onmousemove = null;
+	if (document.layers) {
+		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+
+	d = $('note-' + uid_of_note_being_resized);
+	d.style.cursor = saved_cursor_style;
+
+	// If any motion actually occurred, submit an ajax http call to record it to the server
+	if (note_was_resized > 0) {
+		p = 'note_uid=' + uid_of_note_being_resized
+			+ '&width=' + d.style.width
+			+ '&height=' + d.style.height
+			+ '&r=' + CtdlRandomString();
+		new Ajax.Request(
+			'ajax_update_note',
+			{
+				method: 'post',
+				parameters: p
+			}
+		);
+	}
+
+	uid_of_note_being_resized = '';
+	return true;
+}
+
+function NotesResizeMouseMove(evt) {
+	x = (ns6 ? evt.clientX : event.clientX);
+	x_increment = x - saved_x;
+	y = (ns6 ? evt.clientY : event.clientY);
+	y_increment = y - saved_y;
+
+	// Move the div
+	d = $('note-' + uid_of_note_being_resized);
+
+	divTop = parseInt(d.style.height);
+	divLeft = parseInt(d.style.width);
+
+	d.style.height = (divTop + y_increment) + 'px';
+	d.style.width = (divLeft + x_increment) + 'px';
+
+	saved_x = x;
+	saved_y = y;
+	note_was_resized = 1;
+	return true;
+}
+
+
+function NotesResizeMouseDown(evt, uid) {
+	saved_x = (ns6 ? evt.clientX : event.clientX);
+	saved_y = (ns6 ? evt.clientY : event.clientY);
+	document.onmouseup = NotesResizeMouseUp;
+	document.onmousemove = NotesResizeMouseMove;
+	if (document.layers) {
+		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+	}
+	uid_of_note_being_resized = uid;
+	d = $('note-' + uid_of_note_being_resized);
+	saved_cursor_style = d.style.cursor;
+	d.style.cursor = 'move';
+	return false;		// disable the default action
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
