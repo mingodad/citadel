@@ -1323,7 +1323,7 @@ li.event_unread span, a.event_read_title {
 }
 
 .stickynote_outer {
-	position: relative;
+	position: absolute;
 	width: 200px;
 	height: 200px;
 	border: 1px solid black;
