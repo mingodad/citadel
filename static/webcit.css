@@ -1338,4 +1338,5 @@ li.event_unread span, a.event_read_title {
 	top: 0px;
 	left: 0px;
 	background-color: #888800;
+        font-size: 6px;     
 }
