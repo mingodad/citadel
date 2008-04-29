@@ -440,9 +440,19 @@ function NotesDragMouseUp(evt) {
 	d = $('note-' + uid_of_note_being_dragged);
 	d.style.cursor = saved_cursor_style;
 
-	// Only submit the change if motion actually happened
+	// If any motion actually occurred, submit an ajax http call to record it to the server
 	if (note_was_dragged > 0) {
-		alert('FIXME do ajax call to move position x=' + d.style.left + ' y=' + d.style.top);
+		p = 'note_uid=' + uid_of_note_being_dragged
+			+ '&left=' + d.style.left
+			+ '&top=' + d.style.top
+			+ '&r=' + CtdlRandomString();
+		new Ajax.Request(
+			'ajax_update_note',
+			{
+				method: 'post',
+				parameters: p
+			}
+		);
 	}
 
 	uid_of_note_being_dragged = '';

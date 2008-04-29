@@ -37,9 +37,8 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, NULL);
 }
 
-/**   
- * \brief remove escaped strings from i.e. the url string (like %20 for blanks)
- * \param buf the buffer to examine
+/*   
+ * remove escaped strings from i.e. the url string (like %20 for blanks)
  */
 long unescape_input(char *buf)
 {
@@ -91,9 +90,8 @@ void free_url(void *U)
 	free(u);
 }
 
-/**
- * \brief Extract variables from the URL.
- * \param url URL supplied by the HTTP parser
+/*
+ * Extract variables from the URL.
  */
 void addurls(char *url)
 {
@@ -110,11 +108,9 @@ void addurls(char *url)
 	up = url;
 	/** locate the = sign */
 	n = safestrncpy(buf, up, sizeof buf);
-	if (n < 0) /** hm, we exceeded the buffer... hmmm what todo now? */
+	if (n < 0) /* hm, we exceeded the buffer... hmmm what to do now? */
 		n = -n;
 	up = buf;
-//	while ((up < eptr) && (*up != '?') && (*up != '&'))
-//		up++;
 	while (!IsEmptyStr(up)) {
 		aptr = up;
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
@@ -145,22 +141,22 @@ void addurls(char *url)
 		u->url_data[u->url_data_size] = '\0';
 		up = bptr;
 		++up;
-/*
+/* uncomment the following line to see each parameter in the log
 		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
 */
 	}
 }
 
-/**
- * \brief free urlstring memory
+/*
+ * free urlstring memory
  */
 void free_urls(void)
 {
 	DeleteHash(&WC->urlstrings);
 }
 
-/**
- * \brief Diagnostic function to display the contents of all variables
+/*
+ * Diagnostic function to display the contents of all variables
  */
 
 void dump_vars(void)
@@ -179,9 +175,8 @@ void dump_vars(void)
 	}
 }
 
-/**
- * \brief Return the value of a variable supplied to the current web page (from the url or a form)
- * \param key The name of the variable we want
+/*
+ * Return the value of a variable supplied to the current web page (from the url or a form)
  */
 
 const char *XBstr(char *key, size_t keylen, size_t *len)
@@ -326,10 +321,8 @@ int YESBSTR(char *key)
 		return (0);
 }
 
-/**
- * \brief web-printing funcion. uses our vsnprintf wrapper
- * \param format printf format string 
- * \param ... the varargs to put into formatstring
+/*
+ * web-printing funcion. uses our vsnprintf wrapper
  */
 void wprintf(const char *format,...)
 {
@@ -344,12 +337,13 @@ void wprintf(const char *format,...)
 }
 
 
-/**
- * \brief wrap up an HTTP session, closes tags, etc.
- * \todo multiline params?
- * \param print_standard_html_footer should be set to 0 to transmit only, 1 to
- * append the main menu and closing tags, or 2 to
- * append the closing tags only.
+/*
+ * wrap up an HTTP session, closes tags, etc.
+ *
+ * print_standard_html_footer should be set to:
+ * 0 to transmit only,
+ * 1 to append the main menu and closing tags,
+ * 2 to append the closing tags only.
  */
 void wDumpContent(int print_standard_html_footer)
 {
@@ -365,12 +359,13 @@ void wDumpContent(int print_standard_html_footer)
 }
 
 
-/**
- * \brief Copy a string, escaping characters which have meaning in HTML.  
- * \param target target buffer
- * \param strbuf source buffer
- * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
- * \param nolinebreaks if set, linebreaks are removed from the string.
+/*
+ * Copy a string, escaping characters which have meaning in HTML.  
+ *
+ * target		target buffer
+ * strbuf		source buffer
+ * nbsp			If nonzero, spaces are converted to non-breaking spaces.
+ * nolinebreaks		if set, linebreaks are removed from the string.
  */
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
 {
@@ -436,12 +431,6 @@ long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
 	return (bptr - target);
 }
 
-/**
- * \brief WHAT???
- * \param strbuf what???
- * \param nbsp If nonzero, spaces are converted to non-breaking spaces.
- * \param nolinebreaks if set, linebreaks are removed from the string.
- */ 
 void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
 	char *buf;
@@ -455,9 +444,8 @@ void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 	free(buf);
 }
 
-/** 
- * \brief static wrapper for ecsputs1
- * \param strbuf buffer to print escaped to client
+/* 
+ * static wrapper for ecsputs1
  */
 void escputs(char *strbuf)
 {
@@ -465,9 +453,8 @@ void escputs(char *strbuf)
 }
 
 
-/**
- * \brief urlescape buffer and print it to the client
- * \param strbuf buffer to urlescape
+/*
+ * urlescape buffer and print it to the client
  */
 void urlescputs(char *strbuf)
 {
@@ -478,10 +465,8 @@ void urlescputs(char *strbuf)
 }
 
 
-/**
- * \brief Copy a string, escaping characters for JavaScript strings.
- * \param target output string
- * \param strbuf input string
+/*
+ * Copy a string, escaping characters for JavaScript strings.
  */
 void jsesc(char *target, size_t tlen, char *strbuf)
 {
@@ -538,9 +523,8 @@ void jsesc(char *target, size_t tlen, char *strbuf)
 	*tptr = '\0';
 }
 
-/**
- * \brief escape and print java script
- * \param strbuf the js code
+/*
+ * escape and print javascript
  */
 void jsescputs(char *strbuf)
 {
@@ -550,10 +534,8 @@ void jsescputs(char *strbuf)
 	wprintf("%s", outbuf);
 }
 
-/**
- * \brief Copy a string, escaping characters for message text hold
- * \param target target buffer
- * \param strbuf source buffer
+/*
+ * Copy a string, escaping characters for message text hold
  */
 void msgesc(char *target, size_t tlen, char *strbuf)
 {
@@ -634,20 +616,20 @@ void msgescputs(char *strbuf) {
 
 
 
-/**
- * \brief Output all that important stuff that the browser will want to see
+/*
+ * Output HTTP headers and leading HTML for a page
  */
-void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers                          */
-			int do_htmlhead,	/**< 1 = output HTML <head> section and <body> opener */
+void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers                          */
+			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
 
-			int do_room_banner,	/**< 0=no, 1=yes,                                     
-								 * 2 = I'm going to embed my own, so don't open the 
-								 *     <div id="content"> either.                   
-								 */
+			int do_room_banner,	/* 0=no, 1=yes,                                     
+						 * 2 = I'm going to embed my own, so don't open the 
+						 *     <div id="content"> either.                   
+						 */
 
-			int unset_cookies,	/**< 1 = session is terminating, so unset the cookies */
-			int suppress_check,	/**< 1 = suppress check for instant messages          */
-			int cache		/**< 1 = allow browser to cache this page             */
+			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
+			int suppress_check,	/* 1 = suppress check for instant messages          */
+			int cache		/* 1 = allow browser to cache this page             */
 ) {
 	char cookie[1024];
 	char httpnow[128];
@@ -699,11 +681,11 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 		do_template("head");
 	}
 
-	/** ICONBAR */
+	/* ICONBAR */
 	if (do_htmlhead) {
 
 
-		/** check for ImportantMessages (these display in a div overlaying the main screen) */
+		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (!IsEmptyStr(WC->ImportantMessage)) {
 			wprintf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
@@ -737,9 +719,8 @@ void output_headers(	int do_httpheaders,	/**< 1 = output HTTP headers           
 }
 
 
-/**
- * \brief Generic function to do an HTTP redirect.  Easy and fun.
- * \param whichpage target url to 302 to
+/*
+ * Generic function to do an HTTP redirect.  Easy and fun.
  */
 void http_redirect(char *whichpage) {
 	wprintf("HTTP/1.1 302 Moved Temporarily\n");
@@ -753,8 +734,8 @@ void http_redirect(char *whichpage) {
 
 
 
-/**
- * \brief Output a piece of content to the web browser
+/*
+ * Output a piece of content to the web browser using conformant HTTP and MIME semantics
  */
 void http_transmit_thing(char *thing, size_t length, const char *content_type,
 			 int is_static) {
@@ -768,7 +749,7 @@ void http_transmit_thing(char *thing, size_t length, const char *content_type,
 		PACKAGE_STRING);
 
 #ifdef HAVE_ZLIB
-	/** If we can send the data out compressed, please do so. */
+	/* If we can send the data out compressed, please do so. */
 	if (WC->gzip_ok) {
 		char *compressed_data = NULL;
 		size_t compressed_len;
@@ -792,7 +773,7 @@ void http_transmit_thing(char *thing, size_t length, const char *content_type,
 	}
 #endif
 
-	/** No compression ... just send it out as-is */
+	/* No compression ... just send it out as-is */
 	wprintf("Content-length: %ld\r\n"
 		"\r\n",
 		(long) length
@@ -2045,6 +2026,8 @@ void session_loop(struct httprequest *req)
 		wDumpContent(1);
 	} else if (!strcasecmp(action, "updatenote")) {
 		updatenote();
+	} else if (!strcasecmp(action, "ajax_update_note")) {
+		ajax_update_note();
 	} else if (!strcasecmp(action, "display_room_directory")) {
 		display_room_directory();
 	} else if (!strcasecmp(action, "display_pictureview")) {

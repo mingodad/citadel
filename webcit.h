@@ -683,6 +683,7 @@ void display_calendar(long msgnum, int unread);
 void display_task(long msgnum, int unread);
 void display_note(long msgnum, int unread);
 void updatenote(void);
+void ajax_update_note(void);
 void do_calendar_view(void);
 void do_tasks_view(void);
 void free_calendar_buffer(void);

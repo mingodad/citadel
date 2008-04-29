@@ -159,6 +159,32 @@ void updatenote(void)
 }
 
 
+/*
+ * Background ajax call to receive updates from the browser when a note is moved, resized, or updated.
+ */
+void ajax_update_note(void) {
+
+	begin_ajax_response();
+	wprintf("Updating.");		// Browser ignores the response, so nothing is necessary.
+	end_ajax_response();
+
+        if (!havebstr("note_uid")) {
+		lprintf(5, "Received ajax_update_note() request without a note UID.\n");
+		return;
+	}
+
+	lprintf(9, "Note UID = %s\n", bstr("note_uid"));
+        if (havebstr("top"))	lprintf(9, "Top      = %s\n", bstr("top"));
+        if (havebstr("left"))	lprintf(9, "Left     = %s\n", bstr("left"));
+        if (havebstr("height"))	lprintf(9, "Height   = %s\n", bstr("height"));
+        if (havebstr("width"))	lprintf(9, "Width    = %s\n", bstr("width"));
+
+	/* FIXME finish this */
+}
+
+
+
+
 #ifdef NEW_NOTES_VIEW
 
 /*
@@ -246,14 +272,16 @@ void display_note(long msgnum, int unread) {
 			struct vnote *v = vnote_new_from_str(relevant_source);
 			free(relevant_source);
 			display_vnote_div(v);
-			/* FIXME remove these debugging messages when finished */
+
+			/* uncomment these lines to see ugly debugging info 
 			wprintf("<script type=\"text/javascript\">");
-			wprintf("document.write('L: ' + $('note-%s').style.left + '<br>');", v->uid);
-			wprintf("document.write('T: ' + $('note-%s').style.top + '<br>');", v->uid);
-			wprintf("document.write('W: ' + $('note-%s').style.width + '<br>');", v->uid);
+			wprintf("document.write('L: ' + $('note-%s').style.left + '; ');", v->uid);
+			wprintf("document.write('T: ' + $('note-%s').style.top + '; ');", v->uid);
+			wprintf("document.write('W: ' + $('note-%s').style.width + '; ');", v->uid);
 			wprintf("document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
 			wprintf("</script>");
-			/* */
+			*/
+
 			vnote_free(v);
 		}
 	}
