@@ -44,19 +44,37 @@
 #include "ctdl_module.h"
 
 
+/*
+ * Callback function for serv_notes_beforesave() hunts for a vNote in the MIME structure
+ */
+void notes_extract_vnote(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, void *cbuserdata)
+{
+	struct vnote **v = (struct vnote **) cbuserdata;
+
+	if (!strcasecmp(cbtype, "text/vnote")) {
+
+		CtdlLogPrintf(CTDL_DEBUG, "Part %s contains a vNote!  Loading...\n", partnum);
+		if (*v != NULL) {
+			vnote_free(*v);
+		}
+		*v = vnote_new_from_str(content);
+	}
+}
+
 
 /*
- * If we are in a "notes" view room, and the client has sent an RFC822
- * message containing an X-KOrg-Note-Id: field (Aethera does this, as
- * do some Kolab clients) then set both the Subject and the Exclusive ID
- * of the message to that.  It's going to be a UUID so we want to replace
- * any existing message containing that UUID.
+ * Before-save hook searches for two different types of notes (legacy Kolab/Aethera notes
+ * and modern vNote format notes) and does its best to learn the subject (summary)
+ * and EUID (uid) of the note for Citadel's own nefarious purposes.
  */
 int serv_notes_beforesave(struct CtdlMessage *msg)
 {
 	char *p;
 	int a, i;
-	char uuid[SIZ];
+	char uuid[512];
+	struct vnote *v = NULL;
 
 	/* First determine if this room has the "notes" view set */
 
@@ -69,7 +87,13 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 		return(0);	/* You tried to save a non-RFC822 message! */
 	}
 	
-	/* Find the X-KOrg-Note-Id: header */
+	/*
+	 * If we are in a "notes" view room, and the client has sent an RFC822
+	 * message containing an X-KOrg-Note-Id: field (Aethera does this, as
+	 * do some Kolab clients) then set both the Subject and the Exclusive ID
+	 * of the message to that.  It's going to be a UUID so we want to replace
+	 * any existing message containing that UUID.
+	 */
 	strcpy(uuid, "");
 	p = msg->cm_fields['M'];
 	a = strlen(p);
@@ -99,6 +123,42 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 		}
 		p++;
 	}
+
+	/* Modern clients are using vNote format.  Check for one... */
+
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*notes_extract_vnote,
+		NULL, NULL,
+		&v,		/* user data ptr - put the vnote here */
+		0
+	);
+
+	if (v == NULL) return(0);	/* no vNotes were found in this message */
+
+	/* Set the message EUID to the vNote UID */
+
+	if (v->uid) if (!IsEmptyStr(v->uid)) {
+		CtdlLogPrintf(9, "UID of vNote is: %s\n", v->uid);
+		if (msg->cm_fields['E'] != NULL) {
+			free(msg->cm_fields['E']);
+		}
+		msg->cm_fields['E'] = strdup(v->uid);
+	}
+
+	/* Set the message Subject to the vNote Summary */
+
+	if (v->summary) if (!IsEmptyStr(v->summary)) {
+		if (msg->cm_fields['U'] != NULL) {
+			free(msg->cm_fields['U']);
+		}
+		msg->cm_fields['U'] = strdup(v->summary);
+		if (strlen(msg->cm_fields['U']) > 72) {
+			strcpy(&msg->cm_fields['U'][68], "...");
+		}
+	}
+
+	vnote_free(v);
 	
 	return(0);
 }

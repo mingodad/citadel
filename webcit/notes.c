@@ -164,11 +164,11 @@ void updatenote(void)
 /*
  * Display a <div> containing a rendered sticky note.
  */
-void display_vnote_div(struct vnote *v, long msgnum) {
+void display_vnote_div(struct vnote *v) {
 
 	/* begin outer div */
 
-	wprintf("<div id=\"note%ld\" ", msgnum);
+	wprintf("<div id=\"note-%s\" ", v->uid);
 	wprintf("class=\"stickynote_outer\" ");
 	wprintf("style=\"");
 	wprintf("left: %dpx; ", v->pos_left);
@@ -180,15 +180,15 @@ void display_vnote_div(struct vnote *v, long msgnum) {
 
 	/* begin title bar */
 
-	wprintf("<div id=\"titlebar%ld\" ", msgnum);
+	wprintf("<div id=\"titlebar-%s\" ", v->uid);
 	wprintf("class=\"stickynote_titlebar\" ");
-	wprintf("onMouseDown=\"NotesDragMouseDown(event,%ld)\" ", msgnum);
+	wprintf("onMouseDown=\"NotesDragMouseDown(event,'%s')\" ", v->uid);
 	wprintf("style=\"");
 	wprintf("background-color: #%02X%02X%02X ", v->color_red/2, v->color_green/2, v->color_blue/2);
 	wprintf("\">");
 
 	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
-	wprintf("<td>&nbsp;</td>", msgnum);
+	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
 
 	wprintf("<td align=right valign=middle "
 		// "onclick=\"javascript:$('address_book_popup').style.display='none';\" "
@@ -245,16 +245,16 @@ void display_note(long msgnum, int unread) {
 		if (relevant_source != NULL) {
 			struct vnote *v = vnote_new_from_str(relevant_source);
 			free(relevant_source);
-			display_vnote_div(v, msgnum);
-			vnote_free(v);
-
+			display_vnote_div(v);
 			/* FIXME remove these debugging messages when finished */
 			wprintf("<script type=\"text/javascript\">");
-			wprintf("document.write('L: ' + $('note%ld').style.left + '<br>');", msgnum);
-			wprintf("document.write('T: ' + $('note%ld').style.top + '<br>');", msgnum);
-			wprintf("document.write('W: ' + $('note%ld').style.width + '<br>');", msgnum);
-			wprintf("document.write('H: ' + $('note%ld').style.height + '<br>');", msgnum);
+			wprintf("document.write('L: ' + $('note-%s').style.left + '<br>');", v->uid);
+			wprintf("document.write('T: ' + $('note-%s').style.top + '<br>');", v->uid);
+			wprintf("document.write('W: ' + $('note-%s').style.width + '<br>');", v->uid);
+			wprintf("document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
 			wprintf("</script>");
+			/* */
+			vnote_free(v);
 		}
 	}
 }
