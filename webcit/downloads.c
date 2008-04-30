@@ -19,8 +19,8 @@ typedef struct _FileListStruct {
 
 int CompareFilelistByMime(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 
 	if (File1->IsPic != File2->IsPic)
 		return File1->IsPic > File2->IsPic;
@@ -28,8 +28,8 @@ int CompareFilelistByMime(const void *vFile1, const void *vFile2)
 }
 int CompareFilelistByMimeRev(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	if (File1->IsPic != File2->IsPic)
 		return File1->IsPic < File2->IsPic;
 	return strcasecmp(File2->MimeType, File1->MimeType);
@@ -37,8 +37,8 @@ int CompareFilelistByMimeRev(const void *vFile1, const void *vFile2)
 
 int CompareFilelistBySize(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	if (File1->FileSize == File2->FileSize)
 		return 0;
 	return (File1->FileSize > File2->FileSize);
@@ -46,8 +46,8 @@ int CompareFilelistBySize(const void *vFile1, const void *vFile2)
 
 int CompareFilelistBySizeRev(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	if (File1->FileSize == File2->FileSize)
 		return 0;
 	return (File1->FileSize < File2->FileSize);
@@ -55,21 +55,21 @@ int CompareFilelistBySizeRev(const void *vFile1, const void *vFile2)
 
 int CompareFilelistByComment(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	return strcasecmp(File1->Comment, File2->Comment);
 }
 int CompareFilelistByCommentRev(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	return strcasecmp(File2->Comment, File1->Comment);
 }
 
 int CompareFilelistBySequence(const void *vFile1, const void *vFile2)
 {
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	return (File2->Sequence >  File1->Sequence);
 }
 
@@ -225,9 +225,8 @@ void display_room_directory(void)
 		"<table class=\"downloads_background\"><tr><td>\n");
 
 
-	if (havebstr("SortOrder"))
-		Order = ibstr("SortOrder");
-	else
+	Order = ibstr("SortOrder");
+	if (!havebstr("SortOrder") || Order > 2)
 		Order = 2; /* <- Unsorted... */
 	SortRow = ibstr("SortBy");
 
@@ -253,7 +252,7 @@ void display_room_directory(void)
 			"       <img src=\"%s\" border=\"0\"></a>\n"
 			"  </th>\n",
 			RowNames[i],
-			i, Order, 
+			Order, i,
 			SortIcons[SortDirections[i]]
 			);
 
