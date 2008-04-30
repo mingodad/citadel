@@ -159,6 +159,9 @@ void updatenote(void)
 }
 
 
+
+
+
 /*
  * Display a <div> containing a rendered sticky note.
  */
@@ -197,15 +200,34 @@ void display_vnote_div(struct vnote *v) {
 
 	/* begin note body */
 
+	wprintf("<div id=\"notebody-%s\" ", v->uid);
+	wprintf("class=\"stickynote_body\"");
+	wprintf(">");
 	escputs(v->body);
+	wprintf("</div>\n");
+
+	wprintf("<script type=\"text/javascript\">");
+	wprintf(" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
+		"{rows:%d,cols:%d,highlightcolor:'#%02X%02X%02X',highlightendcolor:'#%02X%02X%02X',"
+		"okText:'%s',cancelText:'%s',clickToEditText:'%s'});",
+		v->uid,
+		v->uid,
+		(v->pos_height / 16) - 5,
+		(v->pos_width / 9) - 1,
+		v->color_red, v->color_green, v->color_blue,
+		v->color_red, v->color_green, v->color_blue,
+		_("Save"),
+		_("Cancel"),
+		_("Click on any note to edit it.")
+	);
+	wprintf("</script>\n");
 
 	/* begin resize handle */
 
 	wprintf("<div id=\"resize-%s\" ", v->uid);
 	wprintf("class=\"stickynote_resize\" ");
-	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\" ", v->uid);
-	wprintf("style=\"");
-	wprintf("\">");
+	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\"", v->uid);
+	wprintf(">");
 
 	wprintf("<img src=\"static/resizecorner.png\">");
 
@@ -273,12 +295,10 @@ void ajax_update_note(void) {
 	int msgnum;
 	struct vnote *v = NULL;
 
-	begin_ajax_response();
-	wprintf("Updating.");		// Browser ignores the response, so nothing is necessary.
-	end_ajax_response();
-
         if (!havebstr("note_uid")) {
-		lprintf(5, "Received ajax_update_note() request without a note UID.\n");
+		begin_ajax_response();
+		wprintf("Received ajax_update_note() request without a note UID.");
+		end_ajax_response();
 		return;
 	}
 
@@ -286,32 +306,36 @@ void ajax_update_note(void) {
 	serv_printf("EUID %s", bstr("note_uid"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
-		lprintf(5, "Cannot find message containing vNote with the requested uid!\n");
+		begin_ajax_response();
+		wprintf("Cannot find message containing vNote with the requested uid!");
+		end_ajax_response();
 		return;
 	}
 	msgnum = atol(&buf[4]);
 	v = vnote_new_from_msg(msgnum);
 	if (!v) {
-		lprintf(5, "Cannot locate a vNote within message %ld\n", msgnum);
+		begin_ajax_response();
+		wprintf("Cannot locate a vNote within message %ld\n", msgnum);
+		end_ajax_response();
 		return;
 	}
 
 	/* Make any requested changes */
         if (havebstr("top")) {
-		lprintf(9, "Top      = %s\n", bstr("top"));
 		v->pos_top = atoi(bstr("top"));
 	}
         if (havebstr("left")) {
-		lprintf(9, "Left     = %s\n", bstr("left"));
 		v->pos_left = atoi(bstr("left"));
 	}
         if (havebstr("height")) {
-		lprintf(9, "Height   = %s\n", bstr("height"));
 		v->pos_height = atoi(bstr("height"));
 	}
         if (havebstr("width")) {
-		lprintf(9, "Width    = %s\n", bstr("width"));
 		v->pos_width = atoi(bstr("width"));
+	}
+        if (havebstr("value")) {	// I would have preferred 'body' but InPlaceEditor hardcodes 'value'
+		if (v->body) free(v->body);
+		v->body = strdup(bstr("value"));
 	}
 
 	/* Serialize it and save it to the message base.  Server will delete the old one. */
@@ -323,6 +347,13 @@ void ajax_update_note(void) {
 		serv_puts(vnote_serialize(v));
 		serv_puts("000");
 	}
+
+	begin_ajax_response();
+	if (v->body) {
+		escputs(v->body);
+	}
+	end_ajax_response();
+
 	vnote_free(v);
 }
 
