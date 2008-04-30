@@ -9,7 +9,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
-#define LIBCITADEL_VERSION_NUMBER	110
+#define LIBCITADEL_VERSION_NUMBER	111
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -270,6 +270,8 @@ typedef void (*DeleteHashDataFunc)(void * Data);
 typedef const char *(*PrintHashContent)(void * Data);
 typedef int (*CompareFunc)(const void* Item1, const void*Item2);
 typedef int (*HashFunc)(const char *Str, long Len);
+typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
+typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
 HashList *NewHash(int Uniq, HashFunc F);
 
@@ -283,7 +285,10 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
 
 int GetHashKeys(HashList *Hash, char ***List);
 
-int PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
+int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
+
+
+int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
 
 HashPos *GetNewHashPos(void);
 
@@ -291,7 +296,7 @@ void DeleteHashPos(HashPos **DelMe);
 
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);
 
-void SortByHashKey(HashList *Hash);
+void SortByHashKey(HashList *Hash, int Order);
 void SortByHashKeyStr(HashList *Hash);
 
 const void *GetSearchPayload(const void *HashVoid);
@@ -299,7 +304,12 @@ void SortByPayload(HashList *Hash, CompareFunc SortBy);
 
 void convert_spaces_to_underscores(char *str);
 
-
+/*
+ * Convert 4 bytes char into an Integer.
+ * usefull for easy inexpensive hashing 
+ * of for char strings.
+ */
+#define CHAR4TO_INT(a) ((int) (a[0] | (a[1]<<8) | (a[2]<<16) | (a[3]<<24)))
 
 /* vNote implementation */
 

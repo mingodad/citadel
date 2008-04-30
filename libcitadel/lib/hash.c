@@ -48,6 +48,48 @@ struct HashPos {
 	long Position;
 };
 
+
+/**
+ * \brief Iterate over the hash and call PrintEntry. 
+ * \param Hash your Hashlist structure
+ * \param Trans is called so you could for example print 'A:' if the next entries are like that.
+ *        Must be aware to receive NULL in both pointers.
+ * \param PrintEntry print entry one by one
+ * \returns the number of items printed
+ */
+int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry)
+{
+	int i;
+	void *Previous;
+	void *Next;
+	const char* KeyStr;
+
+	for (i=0; i < Hash->nMembersUsed; i++) {
+		if (i==0) {
+			Previous = NULL;
+		}
+		else {
+			if (Hash->LookupTable[i - 1] == NULL)
+				Previous = NULL;
+			else
+				Previous = Hash->Members[Hash->LookupTable[i-1]->Position]->Data;
+		}
+		if (Hash->LookupTable[i] == NULL) {
+			KeyStr = "";
+			Next = NULL;
+		}
+		else {
+			Next = Hash->Members[Hash->LookupTable[i]->Position]->Data;
+			KeyStr = Hash->LookupTable[i]->HashKey;
+		}
+
+		Trans(Previous, Next, i % 2);
+		PrintEntry(KeyStr, Next, i % 2);
+	}
+	return i;
+}
+
+
 /**
  * \brief verify the contents of a hash list; here for debugging purposes.
  * \param Hash your Hashlist structure
@@ -55,7 +97,7 @@ struct HashPos {
  * \param Second Functionpointer to allow you to print your payload
  * \returns 0
  */
-int PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
+int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
 {
 	const char *foo;
 	const char *bar;
@@ -510,6 +552,20 @@ static int SortByKeys(const void *Key1, const void* Key2)
 }
 
 /**
+ * \brief sorting function for sorting the Hash alphabeticaly reverse by their strings
+ * \param Key1 first item
+ * \param Key2 second item
+ */
+static int SortByKeysRev(const void *Key1, const void* Key2)
+{
+	HashKey *HKey1, *HKey2;
+	HKey1 = *(HashKey**) Key1;
+	HKey2 = *(HashKey**) Key2;
+
+	return strcasecmp(HKey2->HashKey, HKey1->HashKey);
+}
+
+/**
  * \brief sorting function to regain hash-sequence and revert tainted status
  * \param Key1 first item
  * \param Key2 second item
@@ -529,12 +585,14 @@ static int SortByHashKeys(const void *Key1, const void* Key2)
  * Caution: This taints the hashlist, so accessing it later 
  * will be significantly slower! You can un-taint it by SortByHashKeyStr
  * \param Hash the list to sort
+ * \param Order 0/1 Forward/Backward
  */
-void SortByHashKey(HashList *Hash)
+void SortByHashKey(HashList *Hash, int Order)
 {
 	if (Hash->nMembersUsed < 2)
 		return;
-	qsort(Hash->LookupTable, Hash->nMembersUsed, sizeof(HashKey*), SortByKeys);
+	qsort(Hash->LookupTable, Hash->nMembersUsed, sizeof(HashKey*), 
+	      (Order)?SortByKeys:SortByKeysRev);
 	Hash->tainted = 1;
 }
 
