@@ -111,7 +111,7 @@ void save_preferences(void) {
 		char *Key;
 		
 		Hash = WC->hash_prefs;
-		PrintHash(Hash, PrintPref, NULL);
+		dbg_PrintHash(Hash, PrintPref, NULL);
 		HashPos = GetNewHashPos();
 		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
 		{
@@ -137,7 +137,7 @@ void get_preference(char *key, char *value, size_t value_len) {
 	void *hash_value = NULL;
 	
 	strcpy(value, "");
-	PrintHash(WC->hash_prefs, PrintPref, NULL);
+	dbg_PrintHash(WC->hash_prefs, PrintPref, NULL);
 	if (GetHash(WC->hash_prefs, key, strlen(key), &hash_value) == 0)
 		return;
 	
