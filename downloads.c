@@ -4,17 +4,213 @@
 #include "webcit.h"
 #include "webserver.h"
 
+typedef struct _FileListStruct {
+	char Filename[256];
+	int FilenameLen;
+	long FileSize;
+	char MimeType[64];
+	int MimeTypeLen;
+	char Comment[512];
+	int CommentLen;
+	int IsPic;
+	int Sequence;
+}FileListStruct;
+
+
+int CompareFilelistByMime(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+
+	if (File1->IsPic != File2->IsPic)
+		return File1->IsPic > File2->IsPic;
+	return strcasecmp(File1->MimeType, File2->MimeType);
+}
+int CompareFilelistByMimeRev(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	if (File1->IsPic != File2->IsPic)
+		return File1->IsPic < File2->IsPic;
+	return strcasecmp(File2->MimeType, File1->MimeType);
+}
+
+int CompareFilelistBySize(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	if (File1->FileSize == File2->FileSize)
+		return 0;
+	return (File1->FileSize > File2->FileSize);
+}
+
+int CompareFilelistBySizeRev(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	if (File1->FileSize == File2->FileSize)
+		return 0;
+	return (File1->FileSize < File2->FileSize);
+}
+
+int CompareFilelistByComment(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	return strcasecmp(File1->Comment, File2->Comment);
+}
+int CompareFilelistByCommentRev(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	return strcasecmp(File2->Comment, File1->Comment);
+}
+
+int CompareFilelistBySequence(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	return (File2->Sequence >  File1->Sequence);
+}
+
+HashList* LoadFileList(int *HavePic)
+{
+	FileListStruct *Entry;
+	HashList *Files;
+	int HavePics = 0;
+	int Order;
+	int sequence = 0;
+	char buf[1024];
+
+	serv_puts("RDIR");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		Files = NewHash(1, NULL);
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))
+		{
+			Entry = (FileListStruct*) malloc(sizeof (FileListStruct));
+
+			Entry->FilenameLen = extract_token(
+				Entry->Filename, buf, 0, '|', 
+				sizeof(Entry->Filename));
+			Entry->FileSize = extract_long(buf, 1);
+			Entry->MimeTypeLen = extract_token(
+				Entry->MimeType, buf, 2, '|', 
+				sizeof(Entry->MimeType));
+			Entry->CommentLen = extract_token(
+				Entry->Comment,  buf, 3, '|', 
+				sizeof(Entry->Comment));
+			
+			Entry->Sequence = sequence++;
+			Entry->IsPic = (strstr(Entry->MimeType, "image") != NULL);
+			if (!HavePics && Entry->IsPic) {
+				HavePics = 1;
+				*HavePic = 1;
+			}
+			Put(Files, Entry->Filename, 
+			    Entry->FilenameLen, 
+			    Entry, NULL);
+		}
+		Order = ibstr("SortOrder");
+		switch (ibstr("SortBy")){
+		case 1: /*NAME*/
+			SortByHashKey(Files,Order);
+			break;
+		case 2: /* SIZE*/
+			SortByPayload(Files, (Order)? 
+				      CompareFilelistBySize:
+				      CompareFilelistBySizeRev);
+			break;
+		case 3: /*MIME*/
+			SortByPayload(Files, (Order)? 
+				      CompareFilelistByMime:
+				      CompareFilelistByMimeRev);
+			break;
+		case 4: /*COMM*/
+			SortByPayload(Files, (Order)? 
+				      CompareFilelistByComment:
+				      CompareFilelistByCommentRev);
+			break;
+		default:
+			SortByPayload(Files, CompareFilelistBySequence);
+		}
+		return Files;
+	}
+	else
+		return NULL;
+}
+
+void FilePrintEntry(const char *FileName, void *vFile, int odd)
+{
+	FileListStruct *File = (FileListStruct*) vFile;
+
+	wprintf("<tr bgcolor=\"#%s\">", (odd ? "DDDDDD" : "FFFFFF"));
+	wprintf("<td>"
+		"<a href=\"download_file/");
+	urlescputs(File->Filename);
+	wprintf("\"><img src=\"display_mime_icon?type=%s\" border=0 align=middle>\n", 
+		File->MimeType);
+	escputs(File->Filename);	wprintf("</a></td>");
+	wprintf("<td>%ld</td>", File->FileSize);
+	wprintf("<td>");	escputs(File->MimeType);	wprintf("</td>");
+	wprintf("<td>");	escputs(File->Comment);	wprintf("</td>");
+	wprintf("</tr>\n");
+}
+
+void FilePrintTransition(void *vFile1, void *vFile2, int odd)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	char StartChar[2] = "\0\0";
+	char *SectionName;
+
+	switch (ibstr("SortBy")){
+	case 1: /*NAME*/
+		if ((File2 != NULL) && 
+		    ((File1 == NULL) ||
+		     (File1->Filename[0] != File2->Filename[0]))) {
+			StartChar[0] = File2->Filename[0];
+			SectionName = StartChar;
+		}
+		else return;
+		break;
+	case 2: /* SIZE*/
+		return;
+	case 3: /*MIME*/
+		return; /*TODO*/
+		break;
+	case 4: /*COMM*/
+		return;
+	default:
+		return;
+	}
+
+	wprintf("<tr bgcolor=\"#%s\"><th colspan = 4>%s</th></tr>", 
+		(odd ? "DDDDDD" : "FFFFFF"),  SectionName);
+}
+
+
 void display_room_directory(void)
 {
-	char buf[1024];
-	char filename[256];
-	char filesize[256];
-	char mimetype[64];
-	char comment[512];
-	int bg = 0;
 	char title[256];
 	int havepics = 0;
+	HashList *Files;
+	int Order;
+	int SortRow;
+	int i;
 
+	long SortDirections[5] = {2,2,2,2,2};
+	const char* SortIcons[3] = {
+		"static/up_pointer.gif",
+		"static/down_pointer.gif",
+		"static/sort_none.gif"};
+	char *RowNames[5] = {"",
+			    _("Filename"),
+			    _("Size"),
+			    _("Content"),
+			    _("Description")};
+
+	Files = LoadFileList (&havepics);
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
@@ -27,34 +223,48 @@ void display_room_directory(void)
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"downloads_background\"><tr><td>\n");
-	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
-		_("Filename"),
-		_("Size"),
-		_("Content"),
-		_("Description")
-	);
 
-	serv_puts("RDIR");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))
-	{
-		extract_token(filename, buf, 0, '|', sizeof filename);
-		extract_token(filesize, buf, 1, '|', sizeof filesize);
-		extract_token(mimetype, buf, 2, '|', sizeof mimetype);
-		extract_token(comment,  buf, 3, '|', sizeof comment);
-		bg = 1 - bg;
-		wprintf("<tr bgcolor=\"#%s\">", (bg ? "DDDDDD" : "FFFFFF"));
-		wprintf("<td>"
-			"<a href=\"download_file/");
-		urlescputs(filename);
-		wprintf("\"><img src=\"display_mime_icon?type=%s\" border=0 align=middle>\n", mimetype);
-					escputs(filename);	wprintf("</a></td>");
-		wprintf("<td>");	escputs(filesize);	wprintf("</td>");
-		wprintf("<td>");	escputs(mimetype);	wprintf("</td>");
-		wprintf("<td>");	escputs(comment);	wprintf("</td>");
-		wprintf("</tr>\n");
-		if (!havepics && (strstr(mimetype, "image") != NULL))
-			havepics = 1;
+
+	if (havebstr("SortOrder"))
+		Order = ibstr("SortOrder");
+	else
+		Order = 2; /* <- Unsorted... */
+	SortRow = ibstr("SortBy");
+
+	SortDirections[SortRow] = Order;
+
+	wprintf("<tr>\n");
+	for (i = 1; i < 5; i++) {
+		switch (SortDirections[i]) {
+		default:
+		case 0:
+			Order = 1;
+			break;
+		case 1:
+			Order = 0;
+			break;
+		case 2:
+			Order = 1;
+			break;
+		}			
+
+		wprintf("  <th>%s \n"
+			"      <a href=\"display_room_directory?SortOrder=%d&SortBy=%d\"> \n"
+			"       <img src=\"%s\" border=\"0\"></a>\n"
+			"  </th>\n",
+			RowNames[i],
+			i, Order, 
+			SortIcons[SortDirections[i]]
+			);
+
+	}
+	wprintf("</tr>\n");
+//<th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
+	//);
+
+	if (Files != NULL) {
+		PrintHash(Files, FilePrintTransition, FilePrintEntry);
+		DeleteHash(&Files);
 	}
 	wprintf("</table>\n");
 

@@ -518,7 +518,7 @@ void display_siteconfig(void)
 				memcpy(ZName, this_zone, len + 1);
 				Put(List, ZName, len, ZName, NULL);
 			}
-			SortByHashKey(List);
+			SortByHashKey(List, 0);
 			it = GetNewHashPos();
 			while (GetNextHashPos(List, it, &len, &ZName, &ZNamee)) {
 				sprintf(&general[strlen(general)], "<option %s value=\"%s\">%s</option>\n",

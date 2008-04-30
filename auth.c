@@ -561,5 +561,5 @@ void changepw(void)
 void InitModule_AUTH(void)
 {
 	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, 0);
-	return 0;
+	return ;
 }
