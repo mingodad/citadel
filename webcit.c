@@ -930,6 +930,44 @@ void output_image()
 }
 
 /**
+  * \brief Extract an embedded photo from a vCard for display on the client
+  *
+  * \param msgnum
+  */
+void display_vcard_photo_img(char *msgnum_as_string)
+{
+	long msgnum = 0L;
+	char *vcard;
+	struct vCard *v;
+	char *xferbuf;
+    char *photosrc;
+	int decoded;
+	const char *contentType;
+
+	msgnum = atol(msgnum_as_string);
+	
+	vcard = load_mimepart(msgnum,"1");
+	v = vcard_load(vcard);
+	
+	photosrc = vcard_get_prop(v, "PHOTO", 1,0,0);
+	xferbuf = malloc(strlen(photosrc));
+	if (xferbuf == NULL) {
+		lprintf(5, "xferbuf malloc failed\n");
+		return;
+	}
+	memset(xferbuf, 1, SIZ);
+	decoded = CtdlDecodeBase64(
+		xferbuf,
+		photosrc,
+		strlen(photosrc));
+	contentType = GuessMimeType(xferbuf, decoded);
+	http_transmit_thing(xferbuf, decoded, contentType, 0);
+	free(v);
+	free(photosrc);
+	free(xferbuf);
+}
+
+/**
  * \brief Generic function to output an arbitrary MIME part from an arbitrary
  *        message number on the server.
  *
@@ -1783,6 +1821,8 @@ void session_loop(struct httprequest *req)
 		print_message(index[1]);
 	} else if (!strcasecmp(action, "msgheaders")) {
 		display_headers(index[1]);
+	} else if (!strcasecmp(action, "vcardphoto")) {
+		display_vcard_photo_img(index[1]);	
 	} else if (!strcasecmp(action, "wiki")) {
 		display_wiki_page();
 	} else if (!strcasecmp(action, "display_enter")) {

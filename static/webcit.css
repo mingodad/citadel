@@ -1,3 +1,4 @@
+@import url("datepicker.css");
 @media print {
 	input#toggler, .toolbar { display: none }
 }
@@ -675,6 +676,9 @@ body, #global {
 	vertical-align: middle;
 	padding-left: 2px;
 	padding-right: 5px;
+	width: 32px;
+	height: 32px;
+	border: none;
 }
 
 #button li a {
@@ -1320,6 +1324,19 @@ li.event_unread span, a.event_read_title {
 .menudesc {
 	margin: 4px;
 	padding: 4px;
+}
+
+.roompic {
+      height: 48px;
+      width: 48px;
+      border: none;
+}
+#navbar ul li a img {
+      vertical-align: middle;
+      border: none;
+}
+.table-alt-row {
+      background-color: #DDDDDD;
 }
 
 .stickynote_outer {
