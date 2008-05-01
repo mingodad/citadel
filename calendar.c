@@ -422,9 +422,10 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 {
 	icalcomponent *vtodo;
 	icalproperty *p;
-	struct icaltimetype t;
+	struct icaltimetype IcalTime;
 	time_t now;
 	int created_new_vtodo = 0;
+	icalproperty_status todoStatus;
 
 	now = time(NULL);
 
@@ -505,9 +506,11 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(_("or"));
 	wprintf(" ");
 	if (p != NULL) {
-		t = icalproperty_get_dtstart(p);
+		IcalTime = icalproperty_get_dtstart(p);
 	}
-	display_icaltimetype_as_webform(&t, "dtstart");
+	else
+		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
+	display_icaltimetype_as_webform(&IcalTime, "dtstart");
 	wprintf("</TD></TR>\n");
 
 	wprintf("<TR><TD>");
@@ -524,12 +527,14 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(_("or"));
 	wprintf(" ");
 	if (p != NULL) {
-		t = icalproperty_get_due(p);
+		IcalTime = icalproperty_get_due(p);
 	}
-	display_icaltimetype_as_webform(&t, "due");
+	else
+		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
+	display_icaltimetype_as_webform(&IcalTime, "due");
 		
 	wprintf("</TD></TR>\n");
-	icalproperty_status todoStatus = icalcomponent_get_status(vtodo);
+	todoStatus = icalcomponent_get_status(vtodo);
 	wprintf("<TR><TD>\n");
 	wprintf(_("Completed:"));
 	wprintf("</TD><TD>");
