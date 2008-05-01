@@ -489,8 +489,9 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
  * understand in a simple two-column name/value format.
  * \param v the vCard to display
  * \param full display all items of the vcard?
+ * \param msgnum Citadel message pointer
  */
-void display_parsed_vcard(struct vCard *v, int full) {
+void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 	int i, j;
 	char buf[SIZ];
 	char *name;
@@ -659,6 +660,14 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					wprintf("</TD></TR>\n");
 				}
 			}
+			else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
+				// Only output on second pass
+				wprintf("<tr><td>");
+				wprintf(_("Photo:"));
+				wprintf("</td><td>");
+				wprintf("<img src=\"/vcardphoto/%d/\" alt=\"Contact photo\"/>",msgnum);
+				wprintf("</td></tr>\n");
+			}
 			else if (!strcasecmp(firsttoken, "version")) {
 				/* ignore */
 			}
@@ -733,8 +742,10 @@ void display_parsed_vcard(struct vCard *v, int full) {
  * \param alpha what???
  * \param full should we usse all lines?
  * \param storename where to store???
+ * \param msgnum Citadel message pointer
  */
-void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
+void display_vcard(char *vcard_source, char alpha, int full, char *storename, 
+	long msgnum) {
 	struct vCard *v;
 	char *name;
 	char buf[SIZ];
@@ -757,7 +768,7 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 			|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
 			|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) {
-		display_parsed_vcard(v, full);
+		display_parsed_vcard(v, full,msgnum);
 	}
 
 	vcard_free(v);
@@ -1336,7 +1347,7 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 			}
 
 			/** In all cases, display the full card */
-			display_vcard(part_source, 0, 1, NULL);
+			display_vcard(part_source, 0, 1, NULL,msgnum);
 		}
 	}
 
@@ -1859,7 +1870,7 @@ void display_addressbook(long msgnum, char alpha) {
 		if (vcard_source != NULL) {
 
 			/** Display the summary line */
-			display_vcard(vcard_source, alpha, 0, NULL);
+			display_vcard(vcard_source, alpha, 0, NULL,msgnum);
 
 			/** If it's my vCard I can edit it */
 			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
@@ -1950,7 +1961,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 		if (vcard_source != NULL) {
 
 			/* Grab the name off the card */
-			display_vcard(vcard_source, 0, 0, namebuf);
+			display_vcard(vcard_source, 0, 0, namebuf,msgnum);
 
 			free(vcard_source);
 		}

@@ -92,7 +92,7 @@ void do_iconbar(void) {
         if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\" target=\"aboutcit\"> "
+                "title=\"%s\"> "
                 "<img "
                 "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
                 "</div>\n",
@@ -112,7 +112,7 @@ void do_iconbar(void) {
 			">", _("Your summary page")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 				"src=\"static/summscreen_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -129,7 +129,7 @@ void do_iconbar(void) {
 			_("Go to your email inbox")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 				"src=\"static/privatemess_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -154,7 +154,7 @@ void do_iconbar(void) {
 			_("Go to your personal calendar")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/calarea_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -171,7 +171,7 @@ void do_iconbar(void) {
 			_("Go to your personal address book")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/viewcontacts_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -188,7 +188,7 @@ void do_iconbar(void) {
 			_("Go to your personal notes")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/storenotes_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -205,7 +205,7 @@ void do_iconbar(void) {
 			_("Go to your personal task list")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/taskmanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -220,7 +220,7 @@ void do_iconbar(void) {
 			_("List all of your accessible rooms")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/chatrooms_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -236,7 +236,7 @@ void do_iconbar(void) {
 			_("See who is online right now")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/usermanag_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -260,7 +260,7 @@ void do_iconbar(void) {
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/citadelchat_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -277,7 +277,7 @@ void do_iconbar(void) {
 			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -294,7 +294,7 @@ void do_iconbar(void) {
 			_("Room and system administration functions")
 		);
 		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+			wprintf("<img alt=\"\" "
 			"src=\"static/advanpage2_32x.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
@@ -311,7 +311,7 @@ void do_iconbar(void) {
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+	wprintf("<img alt=\"\" "
 		"src=\"static/logoff_32x.gif\">");
 	}
 	if (ib_displayas != IB_PICONLY) {
@@ -390,7 +390,7 @@ void do_iconbar_roomlist(void) {
         if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\" target=\"aboutcit\"> "
+                "title=\"%s\"> "
                 "<img "
                 "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
                 "</div>\n",
@@ -412,7 +412,7 @@ void do_iconbar_roomlist(void) {
 		
 	);
 	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img border=\"0\" width=\"32\" height=\"32\" "
+	wprintf("<img alt=\"\" "
 		"src=\"static/logoff_32x.gif\">");
 	}
 	if (ib_displayas != IB_PICONLY) {

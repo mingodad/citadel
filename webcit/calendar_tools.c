@@ -6,6 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "time.h"
 
 /** Hour strings */
 char *hourname[] = {
@@ -15,7 +16,7 @@ char *hourname[] = {
 	"7pm", "8pm", "9pm", "10pm", "11pm"
 };
 
-/*
+/**
  * \brief display and edit date/time
  * The display_icaltimetype_as_webform() and icaltime_from_webform() functions
  * handle the display and editing of date/time properties in web pages.  The
@@ -43,12 +44,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int this_year;
 	time_t tt;
 	struct tm tm;
-	const int span = 10;
 	int all_day_event = 0;
-	time_t monthselect_time;
-	struct tm monthselect_tm;
-	char monthselect_str[32];
 	int time_format;
+	char timebuf[32];
 	
 	time_format = get_time_format_cached ();
 
@@ -66,63 +64,35 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 		localtime_r(&tt, &tm);
 	}
 
-	wprintf(_("Month: "));
-	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
-	for (i=0; i<=11; ++i) {
-		monthselect_time = 1137997451 + (i * 2592000);
-		localtime_r(&monthselect_time, &monthselect_tm);
-		wc_strftime(monthselect_str, sizeof monthselect_str, "%B", &monthselect_tm);
-		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-			((tm.tm_mon == i) ? "SELECTED" : ""),
-			i+1,
-			monthselect_str
-		);
-	}
-	wprintf("</SELECT>\n");
-
-	wprintf(_("Day: "));
-	wprintf("<SELECT NAME=\"%s_day\" SIZE=\"1\">\n", prefix);
-	for (i=1; i<=31; ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((tm.tm_mday == i) ? "SELECTED" : ""),
-			i, i
-		);
-	}
-	wprintf("</SELECT>\n");
-
-	wprintf(_("Year: "));
-	wprintf("<SELECT NAME=\"%s_year\" SIZE=\"1\">\n", prefix);
-	if ((this_year - t->year) > span) {
-		wprintf("<OPTION SELECTED VALUE=\"%d\">%d</OPTION>\n",
-			t->year, t->year);
-	}
-	for (i=(this_year-span); i<=(this_year+span); ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((t->year == i) ? "SELECTED" : ""),
-			i, i
-		);
-	}
-	if ((t->year - this_year) > span) {
-		wprintf("<OPTION SELECTED VALUE=\"%d\">%d</OPTION>\n",
-			t->year, t->year);
-	}
-	wprintf("</SELECT>\n");
-
+	wprintf("<input type=\"text\" name=\"");
+	wprintf(prefix);
+	wprintf("\" id=\"");
+	wprintf(prefix);
+	wprintf("\" value=\"");
+	wc_strftime(timebuf, 32, "%d/%m/%Y", &tm);
+	wprintf(timebuf);
+	wprintf("\">");
+	wprintf("<script type=\"text/javascript\">\n");
+	wprintf("	var dpck = new DatePicker({\n		");
+	wprintf("relative: '");
+	wprintf(prefix);
+	wprintf("',\n	language: 'en',\n");
+	wprintf("disableFutureDate:	false\n});</script>");
 	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 
-	if (time_format == WC_TIMEFORMAT_24) {
+		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
 				((tm.tm_hour == i) ? "SELECTED" : ""),
 				i, i
-			);
+				);
 		}
 		else {
 			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
 				((tm.tm_hour == i) ? "SELECTED" : ""),
 				i, hourname[i]
-			);
+				);
 		}
 
 	}
@@ -135,7 +105,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 			wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
 				((tm.tm_min == i) ? "SELECTED" : ""),
 				i, i
-			);
+				);
 		}
 	}
 	wprintf("</SELECT>\n");
@@ -148,20 +118,29 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
  * \param prefix whats that\todo ????
  */
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
-	char vname[32];
-	struct icaltimetype t2;
-	char timestr[32];
-	int month, mday, year, hour, minute;
-
-        sprintf(vname, "%s_month", prefix);     month = atoi(BSTR(vname));
-        sprintf(vname, "%s_day", prefix);       mday = atoi(BSTR(vname));
-        sprintf(vname, "%s_year", prefix);      year = atoi(BSTR(vname));
-        sprintf(vname, "%s_hour", prefix);      hour = atoi(BSTR(vname));
-        sprintf(vname, "%s_minute", prefix);    minute = atoi(BSTR(vname));
-
-	sprintf(timestr, "%04d%02d%02dT%02d%02d00", year, month, mday, hour, minute);
-        t2 = icaltime_from_string(timestr);
-	memcpy(t, &t2, sizeof(struct icaltimetype));
+ 	char datebuf[32];
+  	char vname[32];
+ 	struct tm tm;
+ 	/* Stuff tm with some zero values */
+	tm.tm_year = 0;
+ 	tm.tm_sec = 0;
+ 	tm.tm_min = 0;
+ 	tm.tm_hour = 0;
+ 	tm.tm_mday = 0;
+ 	tm.tm_mon = 0;
+ 	int hour = 0;
+ 	int minute = 0;
+  	struct icaltimetype t2;
+ 	
+	
+ 	strptime((char*)BSTR(prefix), "%d/%m/%Y", &tm);
+ 	sprintf(vname, "%s_hour", prefix);      hour = IBSTR(vname);
+	sprintf(vname, "%s_minute", prefix);    minute = IBSTR(vname);
+ 	tm.tm_hour = hour;
+ 	tm.tm_min = minute;
+	strftime(&datebuf[0], 32, "%Y%m%dT%H%M%S", &tm);
+ 	t2 = icaltime_from_string(datebuf);
+  	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
 
 
@@ -173,15 +152,19 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  */
 
 void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
-	char vname[32];
-
-	memset(t, 0, sizeof(struct icaltimetype));
-
-        sprintf(vname, "%s_month", prefix);     t->month = atoi(BSTR(vname));
-        sprintf(vname, "%s_day", prefix);       t->day = atoi(BSTR(vname));
-        sprintf(vname, "%s_year", prefix);      t->year = atoi(BSTR(vname));
-	t->is_utc = 1;
-	t->is_date = 1;
+ 	struct tm tm;
+ 	/* Stuff tm with some zero values */
+ 	tm.tm_sec = 0;
+ 	tm.tm_min = 0;
+	tm.tm_hour = 0;
+ 	tm.tm_mday = 0;
+ 	tm.tm_mon = 0;
+ 	time_t tm_t;
+ 	struct icaltimetype t2; 	
+ 	strptime((char *)BSTR(prefix), "%d/%m/%Y", &tm);
+ 	tm_t = mktime(&tm);
+ 	t2 = icaltime_from_timet(tm_t, 1);
+ 	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
 
 
@@ -198,42 +181,42 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 	strcpy(buf, _("(status unknown)"));
 
 	partstat_param = icalproperty_get_first_parameter(
-				attendee,
-				ICAL_PARTSTAT_PARAMETER
-	);
+		attendee,
+		ICAL_PARTSTAT_PARAMETER
+		);
 	if (partstat_param == NULL) {
 		return;
 	}
 
 	partstat = icalparameter_get_partstat(partstat_param);
 	switch(partstat) {
-		case ICAL_PARTSTAT_X:
-			strcpy(buf, "(x)");
-			break;
-		case ICAL_PARTSTAT_NEEDSACTION:
-			strcpy(buf, _("(needs action)"));
-			break;
-		case ICAL_PARTSTAT_ACCEPTED:
-			strcpy(buf, _("(accepted)"));
-			break;
-		case ICAL_PARTSTAT_DECLINED:
-			strcpy(buf, _("(declined)"));
-			break;
-		case ICAL_PARTSTAT_TENTATIVE:
-			strcpy(buf, _("(tenative)"));
-			break;
-		case ICAL_PARTSTAT_DELEGATED:
-			strcpy(buf, _("(delegated)"));
-			break;
-		case ICAL_PARTSTAT_COMPLETED:
-			strcpy(buf, _("(completed)"));
-			break;
-		case ICAL_PARTSTAT_INPROCESS:
-			strcpy(buf, _("(in process)"));
-			break;
-		case ICAL_PARTSTAT_NONE:
-			strcpy(buf, _("(none)"));
-			break;
+	case ICAL_PARTSTAT_X:
+		strcpy(buf, "(x)");
+		break;
+	case ICAL_PARTSTAT_NEEDSACTION:
+		strcpy(buf, _("(needs action)"));
+		break;
+	case ICAL_PARTSTAT_ACCEPTED:
+		strcpy(buf, _("(accepted)"));
+		break;
+	case ICAL_PARTSTAT_DECLINED:
+		strcpy(buf, _("(declined)"));
+		break;
+	case ICAL_PARTSTAT_TENTATIVE:
+		strcpy(buf, _("(tenative)"));
+		break;
+	case ICAL_PARTSTAT_DELEGATED:
+		strcpy(buf, _("(delegated)"));
+		break;
+	case ICAL_PARTSTAT_COMPLETED:
+		strcpy(buf, _("(completed)"));
+		break;
+	case ICAL_PARTSTAT_INPROCESS:
+		strcpy(buf, _("(in process)"));
+		break;
+	case ICAL_PARTSTAT_NONE:
+		strcpy(buf, _("(none)"));
+		break;
 	}
 }
 

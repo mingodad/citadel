@@ -19,8 +19,8 @@
 void cal_process_object(icalcomponent *cal,
 			int recursion_level,
 			long msgnum,
-			char *cal_partnum
-) {
+			char *cal_partnum) 
+{
 	icalcomponent *c;
 	icalproperty *method = NULL;
 	icalproperty_method the_method = ICAL_METHOD_NONE;
@@ -53,16 +53,16 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("<img src=\"static/calarea_48x.gif\">");
 		wprintf("<span>");
 		switch(the_method) {
-		    case ICAL_METHOD_REQUEST:
+		case ICAL_METHOD_REQUEST:
 			title = _("Meeting invitation");
 			break;
-		    case ICAL_METHOD_REPLY:
+		case ICAL_METHOD_REPLY:
 			title = _("Attendee's reply to your invitation");
 			break;
-		    case ICAL_METHOD_PUBLISH:
+		case ICAL_METHOD_PUBLISH:
 			title = _("Published event");
 			break;
-		    default:
+		default:
 			title = _("This is an unknown type of calendar item.");
 			break;
 		}
@@ -98,7 +98,7 @@ void cal_process_object(icalcomponent *cal,
 	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
 
       		p = icalcomponent_get_first_property(cal,
-						ICAL_DTSTART_PROPERTY);
+						     ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 
@@ -145,7 +145,9 @@ void cal_process_object(icalcomponent *cal,
 	}
 
 	/** If the component has attendees, iterate through them. */
-	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
+	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
+	     (p != NULL); 
+	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
 		wprintf("<dt>");
 		wprintf(_("Attendee:"));
 		wprintf("</dt><dd>");
@@ -167,8 +169,8 @@ void cal_process_object(icalcomponent *cal,
 
 	/** If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
-	    (c != 0);
-	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+	     (c != 0);
+	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
 		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
@@ -187,19 +189,19 @@ void cal_process_object(icalcomponent *cal,
 
 				if (is_update) {
 					snprintf(conflict_message, sizeof conflict_message,
-						_("This is an update of '%s' which is already in your calendar."), conflict_name);
+						 _("This is an update of '%s' which is already in your calendar."), conflict_name);
 				}
 				else {
 					snprintf(conflict_message, sizeof conflict_message,
-						_("This event would conflict with '%s' which is already in your calendar."), conflict_name);
+						 _("This event would conflict with '%s' which is already in your calendar."), conflict_name);
 				}
 
 				wprintf("<dt>%s",
 					(is_update ?
-						_("Update:") :
-						_("CONFLICT:")
-					)
-				);
+					 _("Update:") :
+					 _("CONFLICT:")
+						)
+					);
 				wprintf("</dt><dd>");
 				escputs(conflict_message);
 				wprintf("</dd>\n");
@@ -224,7 +226,7 @@ void cal_process_object(icalcomponent *cal,
 			divname, divname, msgnum, cal_partnum, _("Accept"),
 			divname, divname, msgnum, cal_partnum, _("Tentative"),
 			divname, divname, msgnum, cal_partnum, _("Decline")
-		);
+			);
 
 	}
 
@@ -233,10 +235,10 @@ void cal_process_object(icalcomponent *cal,
 
 		/** \todo  In the future, if we want to validate this object before \
 		 * continuing, we can do it this way:
-		serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
-		serv_getln(buf, sizeof buf);
-		}
-		 ***********/
+		 serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
+		 serv_getln(buf, sizeof buf);
+		 }
+		***********/
 
 		/** Display the update buttons */
 		wprintf("<p id=\"%s_question\" >"
@@ -250,10 +252,10 @@ void cal_process_object(icalcomponent *cal,
 			_("Click <i>Update</i> to accept this reply and update your calendar."),
 			divname, divname, msgnum, cal_partnum, _("Update"),
 			divname, divname, msgnum, cal_partnum, _("Ignore")
-		);
-
+			);
+	
 	}
-
+	
 	/** Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
 		wprintf("<p>&nbsp;</p></div>\n");
@@ -269,7 +271,8 @@ void cal_process_object(icalcomponent *cal,
  * \param msgnum number of the mesage in our db
  * \param cal_partnum the number of the calendar item
  */
-void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
+void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) 
+{
 	icalcomponent *cal;
 
 	cal = icalcomponent_new_from_string(part_source);
@@ -294,7 +297,8 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
  * \brief accept/decline meeting
  * Respond to a meeting request
  */
-void respond_to_request(void) {
+void respond_to_request(void) 
+{
 	char buf[1024];
 
 	begin_ajax_response();
@@ -318,8 +322,8 @@ void respond_to_request(void) {
 			);
 		} else if (!strcasecmp(bstr("sc"), "decline")) {
 			wprintf(_("You have declined this meeting invitation.  "
-				"It has <b>not</b> been entered into your calendar.")
-			);
+				  "It has <b>not</b> been entered into your calendar.")
+				);
 		}
 		wprintf(" ");
 		wprintf(_("A reply has been sent to the meeting organizer."));
@@ -338,7 +342,8 @@ void respond_to_request(void) {
 /**
  * \brief Handle an incoming RSVP
  */
-void handle_rsvp(void) {
+void handle_rsvp(void) 
+{
 	char buf[1024];
 
 	begin_ajax_response();
@@ -356,8 +361,8 @@ void handle_rsvp(void) {
 			wprintf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
 			wprintf(_("You have chosen to ignore this RSVP. "
-				"Your calendar has <b>not</b> been updated.")
-			);
+				  "Your calendar has <b>not</b> been updated.")
+				);
 		}
 		wprintf("</span>");
 	} else {
@@ -366,7 +371,6 @@ void handle_rsvp(void) {
 	}
 
 	end_ajax_response();
-
 }
 
 
@@ -408,13 +412,14 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 
 
 
-/*
+/**
  * \brief edit a task
  * Display a task by itself (for editing)
  * \param supplied_vtodo the todo item we want to edit
  * \param msgnum number of the mesage in our db
  */
-void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread) {
+void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread) 
+{
 	icalcomponent *vtodo;
 	icalproperty *p;
 	struct icaltimetype t;
@@ -441,7 +446,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 					), 
 				msgnum,
 				from, unread
-			);
+				);
 			return;
 		}
 	}
@@ -449,26 +454,30 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		vtodo = icalcomponent_new(ICAL_VTODO_COMPONENT);
 		created_new_vtodo = 1;
 	}
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/taskmanag_48x.gif\">");
-	wprintf("<h1>");
-	wprintf(_("Edit task"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
-
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"calendar_background\"><tr><td>");
 	
+	// TODO: Can we take all this and move it into a template?	
+	output_headers(1, 1, 1, 0, 0, 0);
+	wprintf("<!-- start task edit form -->");
+	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
+	// Get summary early for title
+	wprintf("<div class=\"box\">\n");
+	wprintf("<div class=\"boxlabel\">");
+	wprintf(_("Edit task"));
+	wprintf("- ");
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
+	wprintf("</div>");
+	
+	wprintf("<div class=\"boxcontent\">\n");
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
+	wprintf("<div style=\"display: none;\">\n	");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
-
-	wprintf("<TABLE border=0>\n");
+	wprintf("</div>");
+	wprintf("<table class=\"calendar_background\"><tr><td>");
+	wprintf("<TABLE STYLE=\"border: none;\">\n");
 
 	wprintf("<TR><TD>");
 	wprintf(_("Summary:"));
@@ -485,11 +494,18 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(_("Start date:"));
 	wprintf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodtstart\" ID=\"nodtstart\" VALUE=\"NODTSTART\" ");
+	if (p == NULL) {
+		wprintf("CHECKED=\"CHECKED\"");
+	}
+	wprintf(">");
+	wprintf(_("No date"));
+	
+	wprintf(" ");
+	wprintf(_("or"));
+	wprintf(" ");
 	if (p != NULL) {
 		t = icalproperty_get_dtstart(p);
-	}
-	else {
-		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "dtstart");
 	wprintf("</TD></TR>\n");
@@ -498,41 +514,70 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(_("Due date:"));
 	wprintf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodue\" ID=\"nodue\" VALUE=\"NODUE\"");
+	if (p == NULL) {
+		wprintf("CHECKED=\"CHECKED\"");
+	}
+	wprintf(">");
+	wprintf(_("No date"));
+	wprintf(" ");
+	wprintf(_("or"));
+	wprintf(" ");
 	if (p != NULL) {
 		t = icalproperty_get_due(p);
 	}
-	else {
-		t = icaltime_from_timet(now, 0);
-	}
 	display_icaltimetype_as_webform(&t, "due");
+		
 	wprintf("</TD></TR>\n");
+	icalproperty_status todoStatus = icalcomponent_get_status(vtodo);
+	wprintf("<TR><TD>\n");
+	wprintf(_("Completed:"));
+	wprintf("</TD><TD>");
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"STATUS\" VALUE=\"COMPLETED\"");
+	if (todoStatus == ICAL_STATUS_COMPLETED) {
+		wprintf(" CHECKED=\"CHECKED\"");
+	} 
+	wprintf(" >");
+	wprintf("</TD></TR>");
+	// start category field
+	p = icalcomponent_get_first_property(vtodo, ICAL_CATEGORIES_PROPERTY);
+	wprintf("<TR><TD>");
+	wprintf(_("Category:"));
+	wprintf("</TD><TD>");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"category\" MAXLENGTH=\"32\" SIZE=\"32\" VALUE=\"");
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_categories(p));
+	}
+	wprintf("\">");
+	wprintf("</TD></TR>\n	");
+	// end category field
 	wprintf("<TR><TD>");
 	wprintf(_("Description:"));
 	wprintf("</TD><TD>");
-	wprintf("<TEXTAREA NAME=\"description\" wrap=soft "
-		"ROWS=10 COLS=80 WIDTH=80>\n"
-	);
+	wprintf("<TEXTAREA NAME=\"description\" "
+		"ROWS=\"10\" COLS=\"80\">\n"
+		);
 	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
 	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER>"
+	wprintf("<SPAN STYLE=\"text-align: center;\">"
 		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
-		"</CENTER>\n",
+		"</SPAN>\n",
 		_("Save"),
 		_("Delete"),
 		_("Cancel")
-	);
-
+		);
+	wprintf("</td></tr></table>");
 	wprintf("</FORM>\n");
-
-	wprintf("</td></tr></table></div>\n");
+	wprintf("</div></div></div>\n");
+	wprintf("<!-- end task edit form -->");
 	wDumpContent(1);
 
 	if (created_new_vtodo) {
@@ -545,7 +590,8 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
  * \param supplied_vtodo the task to save
  * \param msgnum number of the mesage in our db
  */
-void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread) {
+void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread) 
+{
 	char buf[SIZ];
 	int delete_existing = 0;
 	icalproperty *prop;
@@ -570,7 +616,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 				icalcomponent_get_first_component(
 					vtodo, ICAL_VTODO_COMPONENT), 
 				msgnum, from, unread
-			);
+				);
 			return;
 		}
 	}
@@ -584,61 +630,84 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		/** Replace values in the component with ones from the form */
 
 		while (prop = icalcomponent_get_first_property(vtodo,
-		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
+							       ICAL_SUMMARY_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
-	 	if (havebstr("summary")) {
-	
-		 	icalcomponent_add_property(vtodo,
-				  	icalproperty_new_summary(bstr("summary")));
-	 	} else {
-		 	icalcomponent_add_property(vtodo,
-					icalproperty_new_summary("Untitled Task"));
-	 	}
-	
-		while (prop = icalcomponent_get_first_property(vtodo,
-		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		icalcomponent_add_property(vtodo,
-			icalproperty_new_description(bstr("description")));
-	
-		while (prop = icalcomponent_get_first_property(vtodo,
-		      ICAL_DTSTART_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		icaltime_from_webform(&t, "dtstart");
-		icalcomponent_add_property(vtodo,
-			icalproperty_new_dtstart(t)
-		);
-	
-		while (prop = icalcomponent_get_first_property(vtodo,
-		      ICAL_DUE_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		icaltime_from_webform(&t, "due");
-		icalcomponent_add_property(vtodo,
-			icalproperty_new_due(t)
-		);
+		if (havebstr("summary")) {
 
+			icalcomponent_add_property(vtodo,
+						   icalproperty_new_summary(bstr("summary")));
+		} else {
+			icalcomponent_add_property(vtodo,
+						   icalproperty_new_summary("Untitled Task"));
+		}
+	
+		while (prop = icalcomponent_get_first_property(vtodo,
+							       ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
+		}
+		if (!IsEmptyStr(bstr("description"))) {
+			icalcomponent_add_property(vtodo,
+						   icalproperty_new_description(bstr("description")));
+		}
+	
+		while (prop = icalcomponent_get_first_property(vtodo,
+							       ICAL_DTSTART_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
+		}
+		if (IsEmptyStr(bstr("nodtstart"))) {
+			icaltime_from_webform(&t, "dtstart");
+			icalcomponent_add_property(vtodo,
+						   icalproperty_new_dtstart(t)
+				);
+		}
+		while(prop = icalcomponent_get_first_property(vtodo,
+							      ICAL_STATUS_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo,prop);
+			icalproperty_free(prop);
+		}
+		if (!IsEmptyStr(bstr("status"))) {
+			icalproperty_status taskStatus = icalproperty_string_to_status(
+				bstr("status"));
+			icalcomponent_set_status(vtodo, taskStatus);
+		}
+		while (prop = icalcomponent_get_first_property(vtodo,
+							       ICAL_CATEGORIES_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo,prop);
+			icalproperty_free(prop);
+		}
+		if (!IsEmptyStr(bstr("category"))) {
+			prop = icalproperty_new_categories(bstr("category"));
+			icalcomponent_add_property(vtodo,prop);
+		}
+		while (prop = icalcomponent_get_first_property(vtodo,
+							       ICAL_DUE_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
+		}
+		if (IsEmptyStr(bstr("nodue"))) {
+			icaltime_from_webform(&t, "due");
+			icalcomponent_add_property(vtodo,
+						   icalproperty_new_due(t)
+				);
+		}
 		/** Give this task a UID if it doesn't have one. */
 		lprintf(9, "Give this task a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vtodo,
-		   ICAL_UID_PROPERTY) == NULL) {
+						     ICAL_UID_PROPERTY) == NULL) {
 			generate_uuid(buf);
 			icalcomponent_add_property(vtodo,
-				icalproperty_new_uid(buf)
-			);
+						   icalproperty_new_uid(buf)
+				);
 		}
 
 		/** Increment the sequence ID */
 		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vtodo,
-		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
+							       ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
 			i = icalproperty_get_sequence(prop);
 			lprintf(9, "Sequence was %d\n", i);
 			if (i > sequence) sequence = i;
@@ -648,8 +717,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		++sequence;
 		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
 		icalcomponent_add_property(vtodo,
-			icalproperty_new_sequence(sequence)
-		);
+					   icalproperty_new_sequence(sequence)
+			);
 
 		/**
 		 * Encapsulate event into full VCALENDAR component.  Clone it first,
@@ -717,7 +786,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 void display_using_handler(long msgnum, int unread,
 			   icalcomponent_kind which_kind,
 			   void (*callback)(icalcomponent *, long, char*, int)
-	) {
+	) 
+{
 	char buf[1024];
 	char from[128] = "";
 	char mime_partnum[256];
@@ -744,9 +814,9 @@ void display_using_handler(long msgnum, int unread,
 			mime_length = extract_int(&buf[5], 5);
 
 			if (  (!strcasecmp(mime_content_type, "text/calendar"))
-			   || (!strcasecmp(mime_content_type, "application/ics"))
-			   || (!strcasecmp(mime_content_type, "text/vtodo"))
-			) {
+			      || (!strcasecmp(mime_content_type, "application/ics"))
+			      || (!strcasecmp(mime_content_type, "text/vtodo"))
+				) {
 				strcpy(relevant_partnum, mime_partnum);
 			}
 		}
@@ -771,10 +841,10 @@ void display_using_handler(long msgnum, int unread,
 
 				/** Subcomponents of desired type */
 				for (c = icalcomponent_get_first_component(cal,
-				    which_kind);
-	    			    (c != 0);
-	    			    c = icalcomponent_get_next_component(cal,
-				    which_kind)) {
+									   which_kind);
+				     (c != 0);
+				     c = icalcomponent_get_next_component(cal,
+									  which_kind)) {
 					callback(c, msgnum, from, unread);
 				}
 				icalcomponent_free(cal);
@@ -791,8 +861,8 @@ void display_using_handler(long msgnum, int unread,
  */
 void display_calendar(long msgnum, int unread) {
 	display_using_handler(msgnum, unread,
-				ICAL_VEVENT_COMPONENT,
-				display_individual_cal);
+			      ICAL_VEVENT_COMPONENT,
+			      display_individual_cal);
 }
 
 /**
@@ -801,8 +871,8 @@ void display_calendar(long msgnum, int unread) {
  */
 void display_task(long msgnum, int unread) {
 	display_using_handler(msgnum, unread,
-				ICAL_VTODO_COMPONENT,
-				display_individual_cal);
+			      ICAL_VTODO_COMPONENT,
+			      display_individual_cal);
 }
 
 /**
@@ -810,18 +880,18 @@ void display_task(long msgnum, int unread) {
  */
 void display_edit_task(void) {
 	long msgnum = 0L;
-
+			
 	/** Force change the room if we have to */
 	if (havebstr("taskrm")) {
-		gotoroom(bstr("taskrm"));
+		gotoroom((char *)bstr("taskrm"));
 	}
 
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/** existing task */
 		display_using_handler(msgnum, 0,
-				ICAL_VTODO_COMPONENT,
-				display_edit_individual_task);
+				      ICAL_VTODO_COMPONENT,
+				      display_edit_individual_task);
 	}
 	else {
 		/** new task */
@@ -838,8 +908,8 @@ void save_task(void) {
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		display_using_handler(msgnum, 0,
-				ICAL_VTODO_COMPONENT,
-				save_individual_task);
+				      ICAL_VTODO_COMPONENT,
+				      save_individual_task);
 	}
 	else {
 		save_individual_task(NULL, 0L, "", 0);
@@ -856,8 +926,8 @@ void display_edit_event(void) {
 	if (msgnum > 0L) {
 		/* existing event */
 		display_using_handler(msgnum, 0,
-				ICAL_VEVENT_COMPONENT,
-				display_edit_individual_event);
+				      ICAL_VEVENT_COMPONENT,
+				      display_edit_individual_event);
 	}
 	else {
 		/* new event */
@@ -875,8 +945,8 @@ void save_event(void) {
 
 	if (msgnum > 0L) {
 		display_using_handler(msgnum, 0,
-				ICAL_VEVENT_COMPONENT,
-				save_individual_event);
+				      ICAL_VEVENT_COMPONENT,
+				      save_individual_event);
 	}
 	else {
 		save_individual_event(NULL, 0L, "", 0);
@@ -905,8 +975,8 @@ void do_freebusy(char *req) {
 
 	len = strlen(who);
 	if ( (!strcasecmp(&who[len-4], ".vcf"))
-	   || (!strcasecmp(&who[len-4], ".ifb"))
-	   || (!strcasecmp(&who[len-4], ".vfb")) ) {
+	     || (!strcasecmp(&who[len-4], ".ifb"))
+	     || (!strcasecmp(&who[len-4], ".vfb")) ) {
 		who[len-4] = 0;
 	}
 
@@ -927,5 +997,4 @@ void do_freebusy(char *req) {
 	http_transmit_thing(fb, strlen(fb), "text/calendar", 0);
 	free(fb);
 }
-
 

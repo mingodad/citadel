@@ -16,8 +16,8 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 }
 
 var ns6=document.getElementById&&!document.all;
-
-
+Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
+Event.observe(window, 'load', taskViewActivate);
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
@@ -808,32 +808,6 @@ elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\
 }
 
 
-// Show info for a user, basically replaces showuser()
-// matt@comalies is to blame for this poorly coded masterpiece. 
-function CtdlShowUserInfoPopup(Element) {
-	try {
-		// hopefully no one needs to use the class attribute... could be better done 
-		// with xmlns though..
-		var user = Element.getAttribute("class");
-		var updname = "biospace_"+user;
-		if (document.getElementById(updname) == null) {
-			// insert a space for the bio
-			var pNode = Element.parentNode;
-			var newdiv = document.createElement("div");
-			newdiv.id = updname;
-			newdiv.innerHTML = "Getting user info....";
-			pNode.appendChild(newdiv);
-			CtdlLoadScreen(updname);
-			new Ajax.Updater(updname, 'showuser_ajax?who='+user, { method: 'get' } );
-		}
-	}
-	catch(err) {
-		return true;
-	}
-	return false;
-}
-
-
 
 // Pop open the address book (target_input is the INPUT field to populate)
 
@@ -893,3 +867,35 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
 	Effect.Fade(question_divname, { duration: 0.5 });
 }
 
+// TODO: Collapse into one function
+function toggleTaskDtStart(event) {
+	var checkBox = $('nodtstart');
+	if (checkBox.checked) {
+		$('dtstart').disabled = true;
+		$('dtstart').value = "";
+	} else {
+		$('dtstart').disabled = false;
+	}
+}
+function toggleTaskDue(event) {
+	var checkBox = $('nodue');
+	if (checkBox.checked) {
+		$('due').disabled = true;
+		$('due').value = "";
+	} else {
+		$('due').disabled = false;
+	}
+}
+function ToggleTaskDateOrNoDateActivate(event) {
+	var dtstart = document.getElementById("nodtstart");
+	if (dtstart != null) {
+		toggleTaskDtStart(null);
+		toggleTaskDue(null);
+		$('nodtstart').observe('click', toggleTaskDtStart);
+		$('nodue').observe('click', toggleTaskDue);
+	} 
+}
+function TaskViewGatherCategoriesFromTable() {
+	var table = $('taskview');
+	
+}
