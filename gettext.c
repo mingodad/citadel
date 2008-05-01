@@ -197,12 +197,18 @@ void httplang_to_locale(char *LocaleString)
  */
 void offer_languages(void) {
 	int i;
+#ifndef HAVE_USELOCALE
+	char *Lang = getenv("LANG");
+	
+	if (Lang == NULL)
+		Lang = "C";
+#endif
 
 	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
 	for (i=0; i < NUM_LANGS; ++i) {
 #ifndef HAVE_USELOCALE
-		if (strcmp(AvailLang[i], getenv("LANG")) == 0)
+		if (strcmp(AvailLang[i], Lang) == 0)
 #endif
 		wprintf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
