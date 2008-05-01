@@ -728,6 +728,7 @@ void display_edit_task(void);
 void save_task(void);
 void display_edit_event(void);
 void save_event(void);
+icaltimezone *get_default_icaltimezone(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 void icaltime_from_webform(struct icaltimetype *result, char *prefix);
 void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
