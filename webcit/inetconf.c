@@ -104,7 +104,7 @@ void display_inetconf(void)
 		if (which == (ic_max / 2)) {
 			wprintf("</td><td valign=top>");
 		}
-		svprintf("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
+		svput("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
 		do_template("beginbox");
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);

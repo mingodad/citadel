@@ -284,13 +284,12 @@ struct roomlisting {
 /**
  * \brief Dynamic content for variable substitution in templates
  */
-struct wcsubst {
-	struct wcsubst *next;       /**< next item in the list */  
+typedef struct _wcsubst {
 	int wcs_type;			    /**< which type of ??? */
 	char wcs_key[32];		    /**< ??? what?*/
 	void *wcs_value;		    /**< ???? what?*/
 	void (*wcs_function)(void); /**< funcion hook ???*/
-};
+} wcsubst;
 
 /**
  * \brief Values for wcs_type
@@ -385,7 +384,7 @@ struct wcsession {
 	struct message_summary *summ;		/**< array of messages for mailbox summary view */
 	int is_wap;				/**< Client is a WAP gateway */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
-	struct wcsubst *vars;			/**< HTTP variable substitutions for this page */
+	HashList *vars; 			/**< HTTP variable substitutions for this page */
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
@@ -635,9 +634,22 @@ void chat_send(void);
 void http_redirect(char *);
 void clear_substs(struct wcsession *wc);
 void clear_local_substs(void);
-void svprintf(char *keyname, int keytype, const char *format,...);
-void svcallback(char *keyname, void (*fcn_ptr)() );
+
+
+typedef void (*var_callback_fptr)();
+
+
+void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
+#define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
+void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...);
+void SVPRINTF(char *keyname, int keytype, const char *format,...);
+void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
+void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
+#define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
+
 void do_template(void *templatename);
+
+
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
 char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);

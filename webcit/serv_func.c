@@ -6,7 +6,7 @@
 #include "webserver.h"
 
 struct serv_info serv_info; /**< our connection data to the server */
-
+HashList *ServHash = NULL;//// TODO;
 /*
  * get info about the server we've connected to
  *

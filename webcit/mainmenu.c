@@ -21,7 +21,7 @@ void display_main_menu(void)
 		"<table width=\"100%%\" cellspacing=\"10px\" cellpadding=\"0\">"
 		"<tr><td colspan=\"2\" class=\"advanced\">\n");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Basic commands"));
+	svput("BOXTITLE", WCS_STRING, _("Basic commands"));
 	do_template("beginbox");
 
 	/**< start of first column */
@@ -264,7 +264,7 @@ void do_generic(void)
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Server command results"));
+	svput("BOXTITLE", WCS_STRING, _("Server command results"));
 	do_template("beginbox");
 
 	wprintf("<table border=0><tr><td>Command:</td><td><tt>");
@@ -378,7 +378,7 @@ void display_shutdown(void)
 		if ((message == NULL) || (IsEmptyStr(message)))
 		{
 			output_headers(1, 1, 1, 0, 0, 0);
-			svprintf("BOXTITLE", WCS_STRING, _("Message to your Users:"));
+			svput("BOXTITLE", WCS_STRING, _("Message to your Users:"));
 			do_template("beginbox");
 			wprintf("<form action=\"server_shutdown\">\n"
 				"<input type=\"hidden\" name=\"when\" value=\"page\">\n"

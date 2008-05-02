@@ -10,7 +10,8 @@ void display_pushemail(void) {
 	int is_pager = 0;
 	int is_funambol = 0;
 	char mobnum[20];
-	svprintf("BOXTITLE", WCS_STRING, _("Push email and SMS settings"));
+
+	svput("BOXTITLE", WCS_STRING, _("Push email and SMS settings"));
 	
 	/* Find any existing settings*/
 	if (goto_config_room() == 0) {
@@ -51,12 +52,12 @@ void display_pushemail(void) {
 		}
 		}
 	if (is_none) {
-		svprintf("PUSH_NONE", WCS_STRING, "checked=\"checked\"");
+		svput("PUSH_NONE", WCS_STRING, "checked=\"checked\"");
 	} else if (is_pager) {
-		svprintf("PUSH_TEXT", WCS_STRING, "checked=\"checked\"");
-		svprintf("SMSNUM", WCS_STRING, "value=\"%s\"", mobnum);
+		svput("PUSH_TEXT", WCS_STRING, "checked=\"checked\"");
+		svprintf(HKEY("SMSNUM"), WCS_STRING, "value=\"%s\"", mobnum);
 	} else if (is_funambol) {
-		svprintf("PUSH_FNBL", WCS_STRING, "checked=\"checked\"");
+		svput("PUSH_FNBL", WCS_STRING, "checked=\"checked\"");
 	}
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof  buf);

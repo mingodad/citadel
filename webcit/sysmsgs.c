@@ -37,7 +37,7 @@ void display_edit(char *description, char *check_cmd,
 		output_headers(1, 1, 0, 0, 0, 0);
 	}
 
-	svprintf("BOXTITLE", WCS_STRING, _("Edit %s"), description);
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Edit %s"), description);
 	do_template("beginbox");
 
 	wprintf(_("Enter %s below. Text is formatted to the reader's browser."
