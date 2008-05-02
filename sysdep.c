@@ -65,6 +65,7 @@
 
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
+pthread_key_t MyReq;				/* TSD key for MyReq() */
 
 void InitialiseSemaphores(void)
 {

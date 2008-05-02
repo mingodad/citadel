@@ -36,7 +36,7 @@ void select_user_to_edit(char *message, char *preselect)
 
 	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Add users"));
+	svput("BOXTITLE", WCS_STRING, _("Add users"));
 	do_template("beginbox");
 
 	wprintf(_("To create a new user account, enter the desired "
@@ -54,7 +54,7 @@ void select_user_to_edit(char *message, char *preselect)
 
 	wprintf("</td><td>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
+	svput("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
 	do_template("beginbox");
 
 	wprintf(_("To edit an existing user account, select the user "

@@ -256,7 +256,7 @@ void zapped_list(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
+	svput("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
 	do_template("beginbox");
 
 	listrms("LZRM -1");
@@ -491,8 +491,8 @@ void embed_room_banner(char *got, int navbar_style) {
 		strcpy (with_files, "");
 		
 	stresc(sanitized_roomname, 256, WC->wc_roomname, 1, 1);
-	svprintf("ROOMNAME", WCS_STRING, "%s", sanitized_roomname);
-	svprintf("NUMMSGS", WCS_STRING,
+	svprintf(HKEY("ROOMNAME"), WCS_STRING, "%s", sanitized_roomname);
+	svprintf(HKEY("NUMMSGS"), WCS_STRING,
 		_("%d new of %d messages%s"),
 		extract_int(&got[4], 1),
 		extract_int(&got[4], 2),
@@ -2388,7 +2388,7 @@ void display_entroom(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Create a new room"));
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Create a new room"));
 	do_template("beginbox");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
@@ -2615,7 +2615,7 @@ void display_private(char *rname, int req_pass)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Go to a hidden room"));
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Go to a hidden room"));
 	do_template("beginbox");
 
 	wprintf("<p>");
@@ -3123,7 +3123,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		if (levels == 1) {
 			/** Begin inner box */
 			stresc(boxtitle, 256, floor_name, 1, 0);
-			svprintf("BOXTITLE", WCS_STRING, boxtitle);
+			svprintf(HKEY("BOXTITLE"), WCS_STRING, boxtitle);
 			do_template("beginbox");
 		}
 

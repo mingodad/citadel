@@ -100,7 +100,6 @@ void do_housekeeping(void)
 		}
 		free_attachments(sessions_to_kill);
 		free_march_list(sessions_to_kill);
-		clear_substs(sessions_to_kill);
 		DeleteHash(&(sessions_to_kill->hash_prefs));
 		
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
@@ -476,6 +475,8 @@ void context_loop(int sock)
 		TheSession->hash_prefs = NewHash(1,NULL);	/* Get a hash table for the user preferences */
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
+		TheSession->urlstrings = NULL;
+		TheSession->vars = NULL;
 		TheSession->nonce = rand();
 		TheSession->next = SessionList;
 		SessionList = TheSession;
@@ -493,6 +494,9 @@ void context_loop(int sock)
 	 */
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
+	
+	TheSession->urlstrings = NewHash(1,NULL);
+	TheSession->vars = NewHash(1,NULL);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
@@ -506,6 +510,9 @@ void context_loop(int sock)
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
+	DeleteHash(&TheSession->urlstrings);
+	DeleteHash(&TheSession->vars);
+
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
@@ -519,5 +526,6 @@ void context_loop(int sock)
 	 * Free up any session-local substitution variables which
 	 * were set during this transaction
 	 */
-	clear_local_substs();
+	
+	
 }

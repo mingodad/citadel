@@ -14,26 +14,47 @@
 #include <unistd.h>
 
 #include "webcit.h"
+#include "webserver.h"
+
+/**
+ * \brief debugging function to print array to log
+ */
+void VarPrintTransition(void *vVar1, void *vVar2, int odd){}
+/**
+ * \brief debugging function to print array to log
+ */
+void VarPrintEntry(const char *Key, void *vSubst, int odd)
+{
+	wcsubst *ptr;
+	lprintf(1,"Subst[%s] : ", Key);
+	ptr = (wcsubst*) vSubst;
+
+	switch(ptr->wcs_type) {
+	case WCS_STRING:
+		lprintf(1, "  -> %s\n", ptr->wcs_value);
+		break;
+	case WCS_SERVCMD:
+		lprintf(1, "  -> Server [%s]\n", ptr->wcs_value);
+		break;
+	case WCS_FUNCTION:
+		lprintf(1, "  -> function at [%0xd]\n", ptr->wcs_function);
+		break;
+	default:
+		lprintf(1,"  WARNING: invalid type: [%ld]!\n", ptr->wcs_type);
+	}
+}
+
+
 
 /**
  * \brief Clear out the list of substitution variables local to this session
  */
 void clear_substs(struct wcsession *wc) {
-	struct wcsubst *ptr;
 
-	while (wc->vars != NULL) {
-		ptr = wc->vars->next;
-
-		if ((wc->vars->wcs_type == WCS_STRING)
-		   || (wc->vars->wcs_type == WCS_SERVCMD)) {
-			free(wc->vars->wcs_value);
-		}
-
-		free(wc->vars);
-		wc->vars = ptr;
+	if (wc->vars != NULL) {
+	
+		DeleteHash(&wc->vars);
 	}
-
-	wc->vars = NULL;
 }
 
 /**
@@ -43,39 +64,51 @@ void clear_local_substs(void) {
 	clear_substs (WC);
 }
 
+/**
+ * \brief destructor; kill one entry.
+ */
+void deletevar(void *data)
+{
+	wcsubst *ptr = (wcsubst*)data;
+//		if ((wc->vars->wcs_type == WCS_STRING)
+//		   || (wc->vars->wcs_type == WCS_SERVCMD)) {
+	if (ptr->wcs_type != WCS_FUNCTION)
+		free(ptr->wcs_value);
+	free(ptr);	
+}
 
-/*
- * \brief Add a substitution variable (local to this session)
+/**
+ * \brief Add a substitution variable (local to this session) (strlen version...)
  * \param keyname the replacementstring to substitute
  * \param keytype the kind of the key
  * \param format the format string ala printf
  * \param ... the arguments to substitute in the formatstring
  */
-void svprintf(char *keyname, int keytype, const char *format,...)
+void SVPRINTF(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
 	char wbuf[SIZ];
-	struct wcsubst *ptr = NULL;
-	struct wcsubst *scan;
-
+	void *vPtr;
+	wcsubst *ptr = NULL;
+	size_t keylen;
+	struct wcsession *WCC = WC;
+	
+	keylen = strlen(keyname);
 	/**
-	 * First scan through to see if we're doing a replacement of
+	 * First look if we're doing a replacement of
 	 * an existing key
 	 */
-	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
-		if (!strcasecmp(scan->wcs_key, keyname)) {
-			ptr = scan;
-			if (ptr->wcs_value != NULL)
-				free(ptr->wcs_value);
-		}
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);
 	}
-
-	/** Otherwise allocate a new one */
-	if (ptr == NULL) {
-		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
 		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		ptr->next = WC->vars;
-		WC->vars = ptr;
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
 	}
 
 	/** Format the string and save it */
@@ -90,38 +123,121 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 }
 
 /**
+ * \brief Add a substitution variable (local to this session)
+ * \param keyname the replacementstring to substitute
+ * \param keytype the kind of the key
+ * \param format the format string ala printf
+ * \param ... the arguments to substitute in the formatstring
+ */
+void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
+{
+	va_list arg_ptr;
+	char wbuf[SIZ];
+	void *vPtr;
+	wcsubst *ptr = NULL;
+	struct wcsession *WCC = WC;
+	size_t len;
+	
+	/**
+	 * First look if we're doing a replacement of
+	 * an existing key
+	 */
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);
+	}
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+	}
+
+	/** Format the string and save it */
+
+	va_start(arg_ptr, format);
+	len = vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
+	va_end(arg_ptr);
+
+	ptr->wcs_value = (char*) malloc(len + 1);
+	memcpy(ptr->wcs_value, wbuf, len + 1);
+	ptr->wcs_function = NULL;
+	ptr->wcs_type = keytype;
+}
+
+/**
+ * \brief Add a substitution variable (local to this session)
+ * \param keyname the replacementstring to substitute
+ * \param keytype the kind of the key
+ * \param format the format string ala printf
+ * \param ... the arguments to substitute in the formatstring
+ */
+void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
+{
+	void *vPtr;
+	wcsubst *ptr = NULL;
+	struct wcsession *WCC = WC;
+
+	
+	/**
+	 * First look if we're doing a replacement of
+	 * an existing key
+	 */
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);
+	}
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+	}
+
+	ptr->wcs_function = NULL;
+	ptr->wcs_type = keytype;
+	ptr->wcs_value = strdup(Data);
+}
+
+/**
  * \brief Add a substitution variable (local to this session) that does a callback
  * \param keyname the keystring to substitute
  * \param fcn_ptr the function callback to give the substitution string
  */
-void svcallback(char *keyname, void (*fcn_ptr)() )
+void SVCallback(char *keyname, size_t keylen, var_callback_fptr fcn_ptr)
 {
-	struct wcsubst *scan;
-	struct wcsubst *ptr;
+	wcsubst *ptr;
+	void *vPtr;
+	struct wcsession *WCC = WC;
 
 	/**
-	 * First scan through to see if we're doing a replacement of
+	 * First look if we're doing a replacement of
 	 * an existing key
 	 */
-	ptr = NULL;
-	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
-		if (!strcasecmp(scan->wcs_key, keyname)) {
-			ptr = scan;
-			if (ptr->wcs_value != NULL)
-				free(ptr->wcs_value);
-		}
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);
+	}
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
 	}
 
-	/** Otherwise allocate a new one */
-	if (ptr == NULL) {
-		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		ptr->next = WC->vars;
-		WC->vars = ptr;
-	}
 	ptr->wcs_value = NULL;
 	ptr->wcs_type = WCS_FUNCTION;
 	ptr->wcs_function = fcn_ptr;
+}
+inline void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr)
+{
+	SVCallback(keyname, strlen(keyname), fcn_ptr);
 }
 
 
@@ -152,22 +268,39 @@ void pvo_do_cmd(char *servcmd) {
 	}
 }
 
-
-
 /**
  * \brief Print the value of a variable
  * \param keyname get a key to print
  */
-void print_value_of(char *keyname) {
-	struct wcsubst *ptr;
+void print_value_of(char *keyname, size_t keylen) {
+	struct wcsession *WCC = WC;
+	wcsubst *ptr;
 	void *fcn();
+	void *vVar;
 
+	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (keyname[0] == '=') {
 		do_template(&keyname[1]);
 	}
-
-	if (!strcasecmp(keyname, "SERV_PID")) {
-		wprintf("%d", WC->ctdl_pid);
+	/** Page-local variables */
+	if ((WCC->vars!= NULL) && GetHash(WCC->vars, keyname, keylen, &vVar)) {
+		ptr = (wcsubst*) vVar;
+		switch(ptr->wcs_type) {
+		case WCS_STRING:
+			wprintf("%s", ptr->wcs_value);
+			break;
+		case WCS_SERVCMD:
+			pvo_do_cmd(ptr->wcs_value);
+			break;
+		case WCS_FUNCTION:
+			(*ptr->wcs_function) ();
+			break;
+		default:
+			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);
+		}
+	}
+	else if (!strcasecmp(keyname, "SERV_PID")) {
+		wprintf("%d", WCC->ctdl_pid);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_NODENAME")) {
@@ -198,27 +331,13 @@ void print_value_of(char *keyname) {
 	}
 
 	else if (!strcasecmp(keyname, "CURRENT_USER")) {
-		escputs(WC->wc_fullname);
+		escputs(WCC->wc_fullname);
 	}
 
 	else if (!strcasecmp(keyname, "CURRENT_ROOM")) {
-		escputs(WC->wc_roomname);
+		escputs(WCC->wc_roomname);
 	}
 
-	/** Page-local variables */
-	else for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
-		if (!strcasecmp(ptr->wcs_key, keyname)) {
-			if (ptr->wcs_type == WCS_STRING) {
-				wprintf("%s", ptr->wcs_value);
-			}
-			else if (ptr->wcs_type == WCS_SERVCMD) {
-				pvo_do_cmd(ptr->wcs_value);
-			}
-			else if (ptr->wcs_type == WCS_FUNCTION) {
-				(*ptr->wcs_function) ();
-			}
-		}
-	}
 }
 
 extern char *static_dirs[PATH_MAX];  /**< Disk representation */
@@ -288,7 +407,7 @@ void do_template(void *templatename) {
 				}
 				strncpy(key, &inbuf[2], pos-2);
 				key[pos-2] = 0;
-				print_value_of(key);
+				print_value_of(key, pos-2);
 				pos++;
 				memmove(inbuf, &inbuf[pos], len - pos + 1);
 				len -= pos;

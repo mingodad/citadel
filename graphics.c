@@ -24,7 +24,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Image upload"));
+	svput("BOXTITLE", WCS_STRING, _("Image upload"));
 	do_template("beginbox");
 
 	wprintf("<form enctype=\"multipart/form-data\" action=\"%s\" "

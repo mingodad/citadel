@@ -674,7 +674,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	if (do_htmlhead) {
 		begin_burst();
 		if (!access("static.local/webcit.css", R_OK)) {
-			svprintf("CSSLOCAL", WCS_STRING,
+			svprintf(HKEY("CSSLOCAL"), WCS_STRING,
 			   "<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"
 			);
 		}
@@ -794,7 +794,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 	va_list arg_list;
 	long i;
 	
-	svprintf("BOXTITLE", WCS_STRING, Title);
+	svput("BOXTITLE", WCS_STRING, Title);
 	do_template("beginbox");
 	
 	wprintf("<ul class=\"%s\">", Class);
@@ -1368,7 +1368,6 @@ void session_loop(struct httprequest *req)
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
-	WC->vars = NULL;
 	WC->is_wap = 0;
 
 	hptr = req;

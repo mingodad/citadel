@@ -648,7 +648,7 @@ void display_add_remove_scripts(char *message)
 
 	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Add a new script"));
+	svput("BOXTITLE", WCS_STRING, _("Add a new script"));
 	do_template("beginbox");
 
 	wprintf(_("To create a new script, enter the desired "
@@ -664,7 +664,7 @@ void display_add_remove_scripts(char *message)
 
 	do_template("endbox");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Edit scripts"));
+	svput("BOXTITLE", WCS_STRING, _("Edit scripts"));
 	do_template("beginbox");
 	wprintf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
 		_("Return to the script editing screen")
@@ -673,7 +673,7 @@ void display_add_remove_scripts(char *message)
 
 	wprintf("</td><td>");
 
-	svprintf("BOXTITLE", WCS_STRING, _("Delete scripts"));
+	svput("BOXTITLE", WCS_STRING, _("Delete scripts"));
 	do_template("beginbox");
 
 	wprintf(_("To delete an existing script, select the script "

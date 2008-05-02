@@ -28,7 +28,7 @@ void output_date(void) {
  * \brief Dummy section
  */
 void dummy_section(void) {
-	svprintf("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
+	svput("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
 	do_template("beginbox");
 	wprintf(_("(nothing)"));
 	do_template("endbox");

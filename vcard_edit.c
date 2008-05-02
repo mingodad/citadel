@@ -187,7 +187,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	/** Display the form */
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Edit contact information"));
+	svput("BOXTITLE", WCS_STRING, _("Edit contact information"));
 	do_template("beginbox");
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");

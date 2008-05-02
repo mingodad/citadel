@@ -39,10 +39,10 @@ void display_login(char *mesg)
 
 	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
 			stresc(buf, SIZ,  mesg, 0, 0);
-			svprintf("mesg", WCS_STRING, "%s", buf);
+			svprintf(HKEY("mesg"), WCS_STRING, "%s", buf);
 	}
 
-	svprintf("LOGIN_INSTRUCTIONS", WCS_STRING,
+	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
 		_("<ul>"
 		"<li><b>If you already have an account on %s</b>, "
 		"enter your user name and password and click &quot;Login.&quot; "
@@ -59,23 +59,23 @@ void display_login(char *mesg)
 		serv_info.serv_humannode
 	);
 
-	svprintf("USERNAME_BOX", WCS_STRING, "%s", _("User name:"));
-	svprintf("PASSWORD_BOX", WCS_STRING, "%s", _("Password:"));
-	svprintf("LANGUAGE_BOX", WCS_STRING, "%s", _("Language:"));
-	svprintf("LOGIN_BUTTON", WCS_STRING, "%s", _("Login"));
-	svprintf("NEWUSER_BUTTON", WCS_STRING, "%s", _("New User"));
-	svprintf("EXIT_BUTTON", WCS_STRING, "%s", _("Exit"));
-	svprintf("hello", WCS_SERVCMD, "MESG hello");
-	svprintf("BOXTITLE", WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
+	svput("USERNAME_BOX", WCS_STRING, _("User name:"));
+	svput("PASSWORD_BOX", WCS_STRING, _("Password:"));
+	svput("LANGUAGE_BOX", WCS_STRING, _("Language:"));
+	svput("LOGIN_BUTTON", WCS_STRING, _("Login"));
+	svput("NEWUSER_BUTTON", WCS_STRING, _("New User"));
+	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
+	svput("hello", WCS_SERVCMD, "MESG hello");
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
 		serv_info.serv_humannode);
 	svcallback("DO_LANGUAGE_BOX", offer_languages);
 	if (serv_info.serv_newuser_disabled) {
-		svprintf("NEWUSER_BUTTON_PRE", WCS_STRING, "<div style=\"display:none;\">");
-		svprintf("NEWUSER_BUTTON_POST", WCS_STRING, "</div>");
+		svput("NEWUSER_BUTTON_PRE", WCS_STRING, "<div style=\"display:none;\">");
+		svput("NEWUSER_BUTTON_POST", WCS_STRING, "</div>");
 	}
 	else {
-		svprintf("NEWUSER_BUTTON_PRE", WCS_STRING, "");
-		svprintf("NEWUSER_BUTTON_POST", WCS_STRING, "");
+		svput("NEWUSER_BUTTON_PRE", WCS_STRING, "");
+		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
 	}
 
 	do_template("login");
@@ -469,7 +469,7 @@ void display_changepw(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, _("Change your password"));
+	svput("BOXTITLE", WCS_STRING, _("Change your password"));
 	do_template("beginbox");
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {

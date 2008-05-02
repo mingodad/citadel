@@ -3065,7 +3065,7 @@ void post_message(void)
 		gotoroom(bstr("force_room"));
 	}
 
-	if (GetHash(WCC->urlstrings, HKEY("display_name"), &U)) {
+	if (GetHash(WC->urlstrings, HKEY("display_name"), &U)) {
 		u = (urlcontent*) U;
 		display_name = u->url_data;
 		dpLen = u->url_data_size;
