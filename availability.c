@@ -55,22 +55,22 @@ int ical_ctdl_is_overlap(
 
 	/* First, check for all-day events */
 	if (t1start.is_date) {
-		if (!icaltime_compare_date_only(t1start, t2start, icaltimezone_get_utc_timezone())) {
+		if (!icaltime_compare_date_only(t1start, t2start)) {
 			return(1);
 		}
 		if (!icaltime_is_null_time(t2end)) {
-			if (!icaltime_compare_date_only(t1start, t2end, icaltimezone_get_utc_timezone())) {
+			if (!icaltime_compare_date_only(t1start, t2end)) {
 				return(1);
 			}
 		}
 	}
 
 	if (t2start.is_date) {
-		if (!icaltime_compare_date_only(t2start, t1start, icaltimezone_get_utc_timezone())) {
+		if (!icaltime_compare_date_only(t2start, t1start)) {
 			return(1);
 		}
 		if (!icaltime_is_null_time(t1end)) {
-			if (!icaltime_compare_date_only(t2start, t1end, icaltimezone_get_utc_timezone())) {
+			if (!icaltime_compare_date_only(t2start, t1end)) {
 				return(1);
 			}
 		}
