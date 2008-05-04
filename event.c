@@ -78,35 +78,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<script type=\"text/javascript\">"
-		"function grey_all_day() { "
-			"if (document.EventForm.alldayevent.checked) {"
-				"document.EventForm.dtstart_hour.value='0';"
-				"document.EventForm.dtstart_hour.disabled = true;"
-				"document.EventForm.dtstart_minute.value='0';"
-				"document.EventForm.dtstart_minute.disabled = true;"
-				"document.EventForm.dtend_hour.value='0';"
-				"document.EventForm.dtend_hour.disabled = true;"
-				"document.EventForm.dtend_minute.value='0';"
-				"document.EventForm.dtend_minute.disabled = true;"
-				"document.EventForm.dtend_month.disabled = true;"
-				"document.EventForm.dtend_day.disabled = true;"
-				"document.EventForm.dtend_year.disabled = true;"
-			"}"
-			"else {"
-				"document.EventForm.dtstart_hour.disabled = false;"
-				"document.EventForm.dtstart_minute.disabled = false;"
-				"document.EventForm.dtend_hour.disabled = false;"
-				"document.EventForm.dtend_minute.disabled = false;"
-				"document.EventForm.dtend_month.disabled = false;"
-				"document.EventForm.dtend_day.disabled = false;"
-				"document.EventForm.dtend_year.disabled = false;"
-			"}"
-		"}"
-		"</script>\n"
-	);
-
-
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table  class=\"event_background\"><tr><td>\n");
 
@@ -200,10 +171,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
-	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"alldayevent\" "
-		"VALUE=\"yes\" onClick=\"grey_all_day();\""
+	wprintf("<INPUT TYPE=\"checkbox\" id=\"alldayevent\" NAME=\"alldayevent\" "
+		"VALUE=\"yes\" onclick=\"eventEditAllDay();\""
 		" %s >%s",
-		(t_start.is_date ? "CHECKED" : "" ),
+		(t_start.is_date ? "CHECKED=\"CHECKED\"" : "" ),
 		_("All day event")
 	);
 
@@ -216,7 +187,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	 */
 	wprintf("<TR><TD><B>");
 	wprintf(_("End"));
-	wprintf("</B></TD><TD>\n");
+	wprintf("</B></TD><TD id=\"dtendcell\">\n");
 	if (t_start.is_date) {
 		t_end = t_start;
 	}
@@ -407,7 +378,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	
 	wprintf("</td></tr></table></div>\n");
 	wprintf("<script type=\"text/javascript\">"
-		"grey_all_day();"
+		"eventEditAllDay();"
 		"</script>\n"
 	);
 	

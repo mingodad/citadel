@@ -866,24 +866,34 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
 	new Ajax.Updater(title_divname, 'handle_rsvp', { method: 'post', parameters: p } );
 	Effect.Fade(question_divname, { duration: 0.5 });
 }
-
+var fakeMouse = document.createEvent("MouseEvents");
+fakeMouse.initMouseEvent("click", true, true, window, 
+	0,0,0,0,0, false, false, false, false, 0, null);
 // TODO: Collapse into one function
 function toggleTaskDtStart(event) {
 	var checkBox = $('nodtstart');
+	dtStart = document.getElementById("dtstart");
 	if (checkBox.checked) {
-		$('dtstart').disabled = true;
-		$('dtstart').value = "";
+		dtStart.disabled = true;
+		dtStart.style.textDecoration = "line-through";
 	} else {
-		$('dtstart').disabled = false;
+		dtStart.disabled = false;
+		dtStart.style.textDecoration = "";
+		if (dtStart.value.length == 0)
+			dtStart.dpck._initCurrentDate();
 	}
 }
 function toggleTaskDue(event) {
 	var checkBox = $('nodue');
+	dueField = document.getElementById("due");
 	if (checkBox.checked) {
-		$('due').disabled = true;
-		$('due').value = "";
+		dueField.disabled = true;
+		dueField.style.textDecoration = "line-through";
 	} else {
-		$('due').disabled = false;
+		dueField.disabled = false;
+		dueField.style.textDecoration = "";
+		if (dueField.value.length == 0)
+			dueField.dpck._initCurrentDate();
 	}
 }
 function ToggleTaskDateOrNoDateActivate(event) {
@@ -898,4 +908,23 @@ function ToggleTaskDateOrNoDateActivate(event) {
 function TaskViewGatherCategoriesFromTable() {
 	var table = $('taskview');
 	
+}
+function attachDatePicker(relative) {
+	var dpck = new DatePicker({
+	relative: relative,
+	language: 'en', // fix please
+	disableFutureDate: false
+	});
+	document.getElementById(relative).dpck = dpck; // attach a ref to it
+}
+function eventEditAllDay() {
+	var allDayCheck = document.getElementById("alldayevent");
+	var dtend= document.getElementById("dtendcell");
+	if(allDayCheck.checked) {
+		//dtend.disabled = true;
+		dtend.style.textDecoration = "line-through";
+	} else {
+		//dtend_day.disabled = false;
+		dtend.style.textDecoration = "";
+	}
 }

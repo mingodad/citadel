@@ -194,6 +194,9 @@ DatePicker.prototype	= {
   'zh'	: '&#20851;&#32;&#38381',
   'sv'	: 'st&#228;ng'
  }),
+ _language_reset	: $H({ // FILL ME IN
+		 'en'	: 'reset'
+ }),
  /* date manipulation */
  _todayDate		: new Date(),
  _current_date		: null,
@@ -231,6 +234,9 @@ DatePicker.prototype	= {
  },
  getLocaleClose	: function () {
   return	this._language_close.get(this._language);
+ },
+ getLocaleReset : function() {
+	 return this._language_reset.get(this._language);
  },
  _initCurrentDate : function () {
   /* Create the DateFormatter */
@@ -309,13 +315,14 @@ DatePicker.prototype	= {
   this._id_datepicker_next_year	= this._id_datepicker_next+'-year';
   this._id_datepicker_hdr	= this._id_datepicker+'-header';
   this._id_datepicker_ftr	= this._id_datepicker+'-footer';
+  this._id_datepicker_rst	= this._id_datepicker+'-reset';
 
   /* build up calendar skel */
   this._div = new Element('div', { 
    id : this._id_datepicker,
    className : 'datepicker',
    style : 'display: none; z-index:'+this._zindex });
-  this._div.innerHTML = '<table><thead><tr>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_prev_year+'" style="cursor: pointer;">&nbsp;&lt;&nbsp;</th>' : '')+'<th width="10px" id="'+this._id_datepicker_prev+'" style="cursor: pointer;">&nbsp;&lt;&lt;&nbsp;</th><th id="'+this._id_datepicker_hdr+'" colspan="'+((this._enableYearBrowse) ? 3 : 5 )+'"></th><th width="10px" id="'+this._id_datepicker_next+'" style="cursor: pointer;">&nbsp;&gt;&gt;&nbsp;</th>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_next_year+'" style="cursor: pointer;">&nbsp;&gt;&nbsp;</th>' : '')+'</tr></thead><tbody id="'+this._id_datepicker+'-tbody"></tbody><tfoot><td colspan="7" id="'+this._id_datepicker_ftr+'"></td></tfoot></table>';
+  this._div.innerHTML = '<table><thead><tr>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_prev_year+'" style="cursor: pointer;">&nbsp;&lt;&nbsp;</th>' : '')+'<th width="10px" id="'+this._id_datepicker_prev+'" style="cursor: pointer;">&nbsp;&lt;&lt;&nbsp;</th><th id="'+this._id_datepicker_hdr+'" colspan="'+((this._enableYearBrowse) ? 3 : 5 )+'"></th><th width="10px" id="'+this._id_datepicker_next+'" style="cursor: pointer;">&nbsp;&gt;&gt;&nbsp;</th>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_next_year+'" style="cursor: pointer;">&nbsp;&gt;&nbsp;</th>' : '')+'</tr></thead><tbody id="'+this._id_datepicker+'-tbody"></tbody><tfoot><tr><td colspan="7" id="'+this._id_datepicker_ftr+'"></td></tr><tr><td colspan="7" id="'+this._id_datepicker_rst+'"></td></tr></tfoot></table>';
   /* finally declare the event listener on input field */
   Event.observe(this._relative, 
     this._showEvent, this.click.bindAsEventListener(this), false);
@@ -370,6 +377,7 @@ DatePicker.prototype	= {
   this._initCurrentDate();
   /* set the close locale content */
   $(this._id_datepicker_ftr).innerHTML = this.getLocaleClose();
+  $(this._id_datepicker_rst).innerHTML = this.getLocaleReset();
   /* declare the observers for UI control */
   Event.observe($(this._id_datepicker_prev), 
     'click', this.prevMonth.bindAsEventListener(this), false);
@@ -383,6 +391,8 @@ DatePicker.prototype	= {
   }
   Event.observe($(this._id_datepicker_ftr), 
     'click', this.close.bindAsEventListener(this), false);
+  Event.observe($(this._id_datepicker_rst),
+	  'click', this.reset.bindAsEventListener(this), false);
  },
  /* hack for buggy form elements layering in IE */
  _wrap_in_iframe	: function ( content ) {
@@ -474,6 +484,11 @@ DatePicker.prototype	= {
    $(this._id_datepicker).hide();
   }
   eval(this._afterClose());
+ },
+ // Reset function
+ reset: function() {
+	 $(this._relative).value = "";
+	 this._initCurrentDate();
  },
  /**
   * setDateFormat
