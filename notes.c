@@ -252,15 +252,24 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 	int mime_length;
 	char relevant_partnum[256];
 	char *relevant_source = NULL;
+	char uid_from_headers[256];
+	int in_body = 0;
+	int body_line_len = 0;
+	int body_len = 0;
+	struct vnote *vnote_from_body = NULL;
 
-	relevant_partnum[0] = '\0';
+	relevant_partnum[0] = 0;
+	uid_from_headers[0] = 0;
 	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return NULL;
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "part=", 5)) {
+		if (!strncasecmp(buf, "exti=", 5)) {
+			safestrncpy(uid_from_headers, &buf[5], sizeof uid_from_headers);
+		}
+		else if (!strncasecmp(buf, "part=", 5)) {
 			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
 			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
@@ -270,6 +279,25 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 			if (!strcasecmp(mime_content_type, "text/vnote")) {
 				strcpy(relevant_partnum, mime_partnum);
 			}
+		}
+		else if ((in_body) && (IsEmptyStr(relevant_partnum)) && (!IsEmptyStr(uid_from_headers))) {
+			// Convert an old-style note to a vNote
+			if (!vnote_from_body) {
+				vnote_from_body = vnote_new();
+				vnote_from_body->uid = strdup(uid_from_headers);
+				vnote_from_body->body = malloc(32768);
+				vnote_from_body->body[0] = 0;
+				body_len = 0;
+			}
+			body_line_len = strlen(buf);
+			if ((body_len + body_line_len + 10) < 32768) {
+				strcpy(&vnote_from_body->body[body_len++], " ");
+				strcpy(&vnote_from_body->body[body_len], buf);
+				body_len += body_line_len;
+			}
+		}
+		else if (IsEmptyStr(buf)) {
+			in_body = 1;
 		}
 	}
 
@@ -282,6 +310,9 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 		}
 	}
 
+	if (vnote_from_body) {
+		return(vnote_from_body);
+	}
 	return NULL;
 }
 
