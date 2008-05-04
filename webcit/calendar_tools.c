@@ -72,12 +72,11 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wc_strftime(timebuf, 32, "%d/%m/%Y", &tm);
 	wprintf(timebuf);
 	wprintf("\">");
-	wprintf("<script type=\"text/javascript\">\n");
-	wprintf("	var dpck = new DatePicker({\n		");
-	wprintf("relative: '");
+	wprintf("<script type=\"text/javascript\">");
+	wprintf("attachDatePicker('");
 	wprintf(prefix);
-	wprintf("',\n	language: 'en',\n");
-	wprintf("disableFutureDate:	false\n});</script>");
+	wprintf("');\n");
+	wprintf("</script>");
 	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {

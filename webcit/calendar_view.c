@@ -1488,7 +1488,7 @@ void do_tasks_view(void) {
 	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
 		wprintf("<tr><td>");
 		icalproperty_status todoStatus = icalcomponent_get_status(WC->disp_cal[i].cal);
-		wprintf("<input style=\"text-align: center;\" type=\"checkbox\" name=\"completed\" value=\"completed\" ");
+		wprintf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
 		if (todoStatus == ICAL_STATUS_COMPLETED) {
 			wprintf("checked=\"checked\" ");
 		}
