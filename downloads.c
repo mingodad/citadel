@@ -237,7 +237,7 @@ void display_room_directory(void)
 		switch (SortDirections[i]) {
 		default:
 		case 0:
-			Order = 1;
+			Order = 2;
 			break;
 		case 1:
 			Order = 0;
