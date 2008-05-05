@@ -35,7 +35,7 @@ void stuff_to_cookie(char *cookie, size_t clen, int session,
 
 	len = snprintf(buf, SIZ, "%d|%s|%s|%s|", session, user, pass, room);
 	strcpy(cookie, "");
-	for (i=0; i<len; ++i) {
+	for (i=0; (i < len) && (i * 2 < clen); ++i) {
 		snprintf(&cookie[i*2], clen - i * 2, "%02X", buf[i]);
 	}
 }
@@ -50,13 +50,18 @@ int xtoi(char *in, size_t len)
 {
 	int val = 0;
 	char c = 0;
-	while (isxdigit((byte) *in) && (len-- > 0))
+	while (!IsEmptyStr(in) && isxdigit((byte) *in) && (len-- > 0))
 	{
 		c = *in++;
 		val <<= 4;
-		val += isdigit((unsigned char)c)
-	    	? (c - '0')
-		: (tolower((unsigned char)c) - 'a' + 10);
+		if (!isdigit((unsigned char)c)) {
+			c = tolower((unsigned char) c);
+			if ((c < 'a') || (c > 'f'))
+				return 0;
+			val += c  - 'a' + 10 ;
+		}
+		else
+			val += c - '0';
 	}
 	return val;
 }
@@ -81,7 +86,7 @@ void cookie_to_stuff(char *cookie, int *session,
 	int i, len;
 
 	strcpy(buf, "");
-	len = strlen(cookie) * 2 ;
+	len = strlen(cookie) / 2;
 	for (i=0; i<len; ++i) {
 		buf[i] = xtoi(&cookie[i*2], 2);
 		buf[i+1] = 0;
