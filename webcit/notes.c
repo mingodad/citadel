@@ -163,6 +163,26 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 
 
 /*
+ * Serialize a vnote and write it to the server
+ */
+void write_vnote_to_server(struct vnote *v) 
+{
+	char buf[1024];
+
+	serv_puts("ENT0 1|||4");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '4') {
+		serv_puts("Content-type: text/vnote");
+		serv_puts("");
+		serv_puts(vnote_serialize(v));
+		serv_puts("000");
+	}
+}
+
+
+
+
+/*
  * Background ajax call to receive updates from the browser when a note is moved, resized, or updated.
  */
 void ajax_update_note(void) {
@@ -229,14 +249,7 @@ void ajax_update_note(void) {
 	}
 
 	/* Serialize it and save it to the message base.  Server will delete the old one. */
-	serv_puts("ENT0 1|||4");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
-		serv_puts("Content-type: text/vnote");
-		serv_puts("");
-		serv_puts(vnote_serialize(v));
-		serv_puts("000");
-	}
+	write_vnote_to_server(v);
 
 	begin_ajax_response();
 	if (v->body) {
@@ -275,3 +288,22 @@ void display_note(long msgnum, int unread) {
 	}
 }
 
+
+
+/*
+ * Create a new note
+ */
+void add_new_note(void) {
+	struct vnote *v;
+
+	v = vnote_new();
+	if (v) {
+		v->uid = malloc(128);
+		generate_uuid(v->uid);
+		v->body = strdup(_("Click on any note to edit it."));
+		write_vnote_to_server(v);
+		vnote_free(v);
+	}
+	
+	readloop("readfwd");
+}
