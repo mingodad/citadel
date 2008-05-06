@@ -387,7 +387,26 @@ void handle_rsvp(void)
 
 /*@{*/
 
+int Flathash(const char *str, long len)
+{
+	if (len != sizeof (int))
+		return 0;
+	else return *(int*)str;
+}
 
+
+
+/**
+ * \brief clean up ical memory
+ * todo this could get trouble with future ical versions 
+ */
+void delete_cal(void *vCal)
+{
+	disp_cal *Cal = (disp_cal*) vCal;
+	icalcomponent_free(Cal->cal);
+	free(Cal->from);
+	free(Cal);
+}
 
 /**
  * \brief get items, keep them.
@@ -398,16 +417,42 @@ void handle_rsvp(void)
  */
 void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread)
 {
-	struct wcsession *WCC = WC;	/* stack this for faster access (WC is a function) */
+	icalproperty *ps = NULL;
+	struct icaltimetype t;
+	struct wcsession *WCC = WC;
+	disp_cal *Cal;
+	size_t len;
+	
+	if (WCC->disp_cal_items == NULL)
+		WCC->disp_cal_items = NewHash(0, Flathash);
+	
+	Cal = (disp_cal*) malloc(sizeof(disp_cal));
+	memset(Cal, 0, sizeof(disp_cal));
 
-	WCC->num_cal += 1;
-	WCC->disp_cal = realloc(WC->disp_cal, (sizeof(struct disp_cal) * WCC->num_cal) );
-	WCC->disp_cal[WCC->num_cal - 1].cal = icalcomponent_new_clone(cal);
-	WCC->disp_cal[WCC->num_cal - 1].unread = unread;
-	WCC->disp_cal[WCC->num_cal - 1].from = malloc (strlen(from) + 1);
-	strcpy (WCC->disp_cal[WCC->num_cal - 1].from, from);
-	ical_dezonify(WCC->disp_cal[WCC->num_cal - 1].cal);
-	WCC->disp_cal[WCC->num_cal - 1].cal_msgnum = msgnum;
+	Cal->cal = icalcomponent_new_clone(cal);
+	Cal->unread = unread;
+	len = strlen(from);
+	Cal->from = (char*)malloc(len+ 1);
+	memcpy(Cal->from, from, len + 1);
+	ical_dezonify(Cal->cal);
+	Cal->cal_msgnum = msgnum;
+
+	//! Precalculate some Values we can use for easy comparison later.
+	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+	if (ps != NULL) {
+		t = icalproperty_get_dtstart(ps);
+		Cal->event_start = icaltime_as_timet(t);
+	}
+	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+	if (ps != NULL) { //!  Precalc the end day and end day + hour
+		t = icalproperty_get_dtstart(ps);
+		Cal->event_end = icaltime_as_timet(t);
+	}
+	Put(WCC->disp_cal_items, 
+	    (char*) &Cal->event_start,
+	    sizeof(Cal->event_start), 
+	    Cal, 
+	    delete_cal);
 }
 
 
