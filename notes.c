@@ -7,161 +7,6 @@
 #include "groupdav.h"
 #include "webserver.h"
 
-
-/*
- * Uncomment this #define in order to get the new vNote-based sticky notes view.
- * We're keeping both versions here so that I can work on the new view without breaking
- * the existing implementation prior to completion.
- */
-
-/* #define NEW_NOTES_VIEW */
-
-
-#ifndef NEW_NOTES_VIEW
-/*
- * display sticky notes
- *
- * msgnum = Message number on the local server of the note to be displayed
- */
-void display_note(long msgnum, int unread)
-{
-	char buf[SIZ];
-	char notetext[SIZ];
-	char display_notetext[SIZ];
-	char eid[128];
-	int in_text = 0;
-	int i, len;
-
-	serv_printf("MSG0 %ld", msgnum);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
-		wprintf("%s<br />\n", &buf[4]);
-		return;
-	}
-
-	strcpy(notetext, "");
-	strcpy(eid, "");
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-
-		/* Fill the buffer */
-		if ( (in_text) && (strlen(notetext) < SIZ-256) ) {
-			strcat(notetext, buf);
-		}
-
-		if ( (!in_text) && (!strncasecmp(buf, "exti=", 5)) ) {
-			safestrncpy(eid, &buf[5], sizeof eid);
-		}
-
-		if ( (!in_text) && (!strcasecmp(buf, "text")) ) {
-			in_text = 1;
-		}
-	}
-
-	/* Now sanitize the buffer */
-	len = strlen(notetext);
-	for (i=0; i<len; ++i) {
-		if (isspace(notetext[i])) notetext[i] = ' ';
-	}
-
-	/* Make it HTML-happy and print it. */
-	stresc(display_notetext, SIZ, notetext, 0, 0);
-
-	/* Lets try it as a draggable */
-	if (!IsEmptyStr(eid)) {
-		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%s\" alt=\"Note\" ", eid); 
-		wprintf ("class=\"notes\">\n");
-		wprintf ("<script type=\"text/javascript\">\n");
-		wprintf ("new Draggable (\"note_%s\", {revert:true})\n", eid);
-		wprintf ("</script>\n");
-	}
-	else {
-		wprintf ("<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"note_%ld\" ", msgnum); 
-		wprintf ("class=\"notes\">\n");
-		wprintf ("<script type=\"text/javascript\">\n");
-		wprintf ("new Draggable (\"note_%ld\", {revert:true})\n", msgnum);
-		wprintf ("</script>\n");
-	}
-	
-	if (!IsEmptyStr(eid)) {
-		wprintf("<span id=\"note%s\">%s</span><br />\n", eid, display_notetext);
-	}
-	else {
-		wprintf("<span id=\"note%ld\">%s</span><br />\n", msgnum, display_notetext);
-	}
-
-	/* Offer in-place editing. */
-	if (!IsEmptyStr(eid)) {
-		wprintf("<script type=\"text/javascript\">"
-			"new Ajax.InPlaceEditor('note%s', 'updatenote?nonce=%ld?eid=%s', {rows:5,cols:72});"
-			"</script>\n",
-			eid,
-			WC->nonce,
-			eid
-		);
-	}
-}
-#endif
-
-
-/*
- * This gets called by the Ajax.InPlaceEditor when we save a note.
- */
-void updatenote(void)
-{
-	char buf[SIZ];
-	char notetext[SIZ];
-	char display_notetext[SIZ];
-	long msgnum;
-	int in_text = 0;
-	int i, len;
-
-	serv_printf("ENT0 1||0|0||||||%s", bstr("eid"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
-		text_to_server(bstr("value"));
-		serv_puts("000");
-	}
-
-	begin_ajax_response();
-	msgnum = locate_message_by_uid(bstr("eid"));
-	if (msgnum >= 0L) {
-		serv_printf("MSG0 %ld", msgnum);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') {
-			strcpy(notetext, "");
-			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		
-				/* Fill the buffer */
-				if ( (in_text) && (strlen(notetext) < SIZ-256) ) {
-					strcat(notetext, buf);
-				}
-		
-				if ( (!in_text) && (!strcasecmp(buf, "text")) ) {
-					in_text = 1;
-				}
-			}
-			/* Now sanitize the buffer */
-			len = strlen(notetext);
-			for (i=0; i<len; ++i) {
-				if (isspace(notetext[i])) notetext[i] = ' ';
-			}
-		
-			/* Make it HTML-happy and print it. */
-			stresc(display_notetext, SIZ, notetext, 0, 0);
-			wprintf("%s\n", display_notetext);
-		}
-	}
-	else {
-		wprintf("%s", _("An error has occurred."));
-	}
-
-	end_ajax_response();
-}
-
-
-
-
-
 /*
  * Display a <div> containing a rendered sticky note.
  */
@@ -191,9 +36,9 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
 	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
 
-	wprintf("<td align=right valign=middle "
-		// "onclick=\"javascript:$('address_book_popup').style.display='none';\" "
-		"><img src=\"static/closewindow.gif\">");
+	wprintf("<td align=right valign=middle>");
+	wprintf("<img onclick=\"DeleteStickyNote(event,'%s','%s')\" ", v->uid, _("Delete this note?") );
+	wprintf("src=\"static/closewindow.gif\">");
 	wprintf("</td></tr></table>");
 
 	wprintf("</div>\n");
@@ -343,6 +188,20 @@ void ajax_update_note(void) {
 		return;
 	}
 	msgnum = atol(&buf[4]);
+
+	// Was this request a delete operation?  If so, nuke it...
+	if (havebstr("deletenote")) {
+		if (!strcasecmp(bstr("deletenote"), "yes")) {
+			serv_printf("DELE %ld", msgnum);
+			serv_getln(buf, sizeof buf);
+			begin_ajax_response();
+			wprintf("%s", buf);
+			end_ajax_response();
+			return;
+		}
+	}
+
+	// If we get to this point it's an update, not a delete
 	v = vnote_new_from_msg(msgnum);
 	if (!v) {
 		begin_ajax_response();
@@ -391,10 +250,6 @@ void ajax_update_note(void) {
 
 
 
-
-
-#ifdef NEW_NOTES_VIEW
-
 /*
  * display sticky notes
  *
@@ -420,4 +275,3 @@ void display_note(long msgnum, int unread) {
 	}
 }
 
-#endif

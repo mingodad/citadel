@@ -571,13 +571,26 @@ function NotesResizeMouseDown(evt, uid) {
 }
 
 
+function DeleteStickyNote(evt, uid, confirmation_prompt) {
+	uid_of_note_being_deleted = uid;
+	d = $('note-' + uid_of_note_being_deleted);
 
+	if (confirm(confirmation_prompt)) {
+		new Effect.Puff(d);
 
-
-
-
-
-
+		// submit an ajax http call to delete it on the server
+		p = 'note_uid=' + uid_of_note_being_deleted
+			+ '&deletenote=yes'
+			+ '&r=' + CtdlRandomString();
+		new Ajax.Request(
+			'ajax_update_note',
+			{
+				method: 'post',
+				parameters: p
+			}
+		);
+	}
+}
 
 
 
@@ -722,23 +735,6 @@ function ctdl_ts_getInnerText(el) {
 	return str;
 }
 
-
-
-// This function handles the creation of new notes in the "Notes" view.
-//
-function add_new_note() {
-
-	new_eid = CtdlRandomString();
-
-	$('new_notes_here').innerHTML = $('new_notes_here').innerHTML
-		+ '<IMG ALIGN=MIDDLE src=\"static/storenotes_48x.gif\" id=\"' + new_eid + '\" alt=\"Note\" class=\"notes\">'
-		+ '<script type=\"text/javascript\">new Draggable (\"%s\", {revert:true})</script>'
-		+ '<span id=\"note' + new_eid + '\">' + Date() + '</span><br />'
-	;
-
-	new Ajax.InPlaceEditor('note' + new_eid,
-		'updatenote?eid=' + new_eid , {rows:5,cols:72});
-}
 
 function CtdlShowRaw(msgnum) {
 var customnav = document.createElement("span");
