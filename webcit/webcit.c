@@ -2063,8 +2063,6 @@ void session_loop(struct httprequest *req)
 		dump_vars();
 		wprintf("</PRE><hr />\n");
 		wDumpContent(1);
-	} else if (!strcasecmp(action, "updatenote")) {
-		updatenote();
 	} else if (!strcasecmp(action, "ajax_update_note")) {
 		ajax_update_note();
 	} else if (!strcasecmp(action, "display_room_directory")) {
