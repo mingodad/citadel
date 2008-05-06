@@ -694,6 +694,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum, int unread);
 void display_task(long msgnum, int unread);
 void display_note(long msgnum, int unread);
+void add_new_note(void);
 void updatenote(void);
 void ajax_update_note(void);
 void do_calendar_view(void);
