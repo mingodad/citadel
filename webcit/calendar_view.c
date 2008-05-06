@@ -144,7 +144,9 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 }
 
-/* ajax embedder for the above mini calendar */
+/**
+ * \brief  ajax embedder for the above mini calendar 
+ */
 void ajax_mini_calendar(void) {
 	char urlformat[256];
 	int i, len;
@@ -167,7 +169,11 @@ void ajax_mini_calendar(void) {
  */
 void calendar_month_view_display_events(int year, int month, int day)
 {
-	int i;
+	long hklen;
+	char *HashKey;
+	void *vCal;
+	HashPos *Pos;
+	disp_cal *Cal;
 	icalproperty *p = NULL;
 	icalproperty *q = NULL;
 	struct icaltimetype t;
@@ -180,15 +186,15 @@ void calendar_month_view_display_events(int year, int month, int day)
 	int show_event = 0;
 	char buf[256];
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
-	struct disp_cal *Cal;
 	time_t tt;
 
-	if (WCC->num_cal == 0) {
+	if (GetCount(WCC->disp_cal_items) == 0) {
 		wprintf("<br /><br /><br />\n");
 		return;
 	}
 
-	/* Create an imaginary event which spans the 24 hours of today.  Any events which
+	/**
+	 * Create an imaginary event which spans the 24 hours of today.  Any events which
 	 * overlap with this one take place at least partially in this day.  We have to
 	 * convert it from a struct tm in order to make it UTC.
 	 */
@@ -210,10 +216,12 @@ void calendar_month_view_display_events(int year, int month, int day)
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
 	today_end_t.is_utc = 1;
 
-	/* Now loop through our list of events to see which ones occur today.
+	/**
+	 * Now loop through our list of events to see which ones occur today.
 	 */
-	for (i=0; i<(WCC->num_cal); ++i) {
-		Cal = &WCC->disp_cal[i];
+	Pos = GetNewHashPos();
+	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		Cal = (disp_cal*)vCal;
 		all_day_event = 0;
 		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 		if (q != NULL) {
@@ -240,7 +248,8 @@ void calendar_month_view_display_events(int year, int month, int day)
 			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
 		}
 
-		/* If we determined that this event occurs today, then display it.
+		/**
+		 * If we determined that this event occurs today, then display it.
 	 	 */
 		if (show_event) {
 			p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
@@ -257,7 +266,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 					"msgnum=%ld&calview=month&year=%d&month=%d&day=%d\""
 					" btt_tooltext=\"",
 					(Cal->unread)?"_unread":"_read",
-					WC->disp_cal[i].cal_msgnum,
+					Cal->cal_msgnum,
 					year, month, day
 					);
 
@@ -267,7 +276,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 				wprintf("<br />");
 				
 				q = icalcomponent_get_first_property(
-					WC->disp_cal[i].cal,
+					Cal->cal,
 					ICAL_LOCATION_PROPERTY);
 				if (q) {
 					wprintf("<i>%s</i> ", _("Location:"));
@@ -302,7 +311,8 @@ void calendar_month_view_display_events(int year, int month, int day)
 							wprintf("<i>%s</i> %s<br>",
 								_("Starting date/time:"), buf);
 							
-							/* Embed the 'show end date/time' loop inside here so it
+							/**
+							 * Embed the 'show end date/time' loop inside here so it
 							 * only executes if this is NOT an all day event.
 							 */
 							q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
@@ -340,6 +350,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 		
 		
 	}
+	DeleteHashPos(&Pos);
 }
 
 
@@ -348,7 +359,10 @@ void calendar_month_view_display_events(int year, int month, int day)
  * \param thetime the month we want to see 
  */
 void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
-	int i;
+	long hklen;
+	char *HashKey;
+	void *vCal;
+	HashPos *Pos;
 	time_t event_tt;
 	time_t event_tts;
 	time_t event_tte;
@@ -359,7 +373,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	icalproperty *p;
 	icalproperty *e;
 	struct icaltimetype t;
-	struct disp_cal *Cal;
+	disp_cal *Cal;
 	int month, day, year;
 	int all_day_event = 0;
 	char *timeformat;
@@ -375,8 +389,9 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	day = today_tm.tm_mday;
 	year = today_tm.tm_year + 1900;
 
-	for (i=0; i<(WC->num_cal); ++i) {
-		Cal = &WCC->disp_cal[i];
+	Pos = GetNewHashPos();
+	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		Cal = (disp_cal*)vCal;
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
@@ -402,10 +417,10 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 			char ebuf[255];
 			
 			p = icalcomponent_get_first_property(
-				WC->disp_cal[i].cal,
+				Cal->cal,
 				ICAL_SUMMARY_PROPERTY);
 			e = icalcomponent_get_first_property(
-				WC->disp_cal[i].cal, 
+				Cal->cal, 
 				ICAL_DTEND_PROPERTY);
 			if ((p != NULL) && (e != NULL)) {
 				time_t difftime;
@@ -423,7 +438,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					hours, minutes,
 					(Cal->unread)?"_unread":"_read",						
 					daycolor,
-					WC->disp_cal[i].cal_msgnum,
+					Cal->cal_msgnum,
 					bstr("year"),
 					bstr("month"),
 					bstr("day")
@@ -449,6 +464,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 			
 		}
 	}
+	DeleteHashPos(&Pos);
 }
 
 
@@ -778,7 +794,10 @@ void calendar_day_view_display_events(time_t thetime,
 	int dstart,
 	int dend)
 {
-	int i;
+	long hklen;
+	char *HashKey;
+	void *vCal;
+	HashPos *Pos;
 	icalproperty *p = NULL;
 	icalproperty *q = NULL;
 	time_t event_tt;
@@ -789,7 +808,7 @@ void calendar_day_view_display_events(time_t thetime,
 	int all_day_event = 0;
 	int ongoing_event = 0;
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
-	struct disp_cal *Cal;
+	disp_cal *Cal;
 	struct icaltimetype t;
 	struct icaltimetype end_t;
 	struct icaltimetype today_start_t;
@@ -807,7 +826,7 @@ void calendar_day_view_display_events(time_t thetime,
         struct tm d_tm;
         char d_str[32];
 
-	if (WCC->num_cal == 0) {
+	if (GetCount(WCC->disp_cal_items) == 0) {
 		/* nothing to display */
 		return;
 	}
@@ -835,8 +854,9 @@ void calendar_day_view_display_events(time_t thetime,
 
 	/* Now loop through our list of events to see which ones occur today.
 	 */
-	for (i=0; i<(WCC->num_cal); ++i) {
-		Cal = &WCC->disp_cal[i];
+	Pos = GetNewHashPos();
+	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		Cal = (disp_cal*)vCal;
 
 		all_day_event = 0;
 		ongoing_event=0;
@@ -1032,6 +1052,7 @@ void calendar_day_view_display_events(time_t thetime,
 			}
 		}
 	}
+	DeleteHashPos(&Pos);
 }
 
 /**
@@ -1253,7 +1274,11 @@ void calendar_day_view(int year, int month, int day) {
  * \brief Display today's events.
  */
 void calendar_summary_view(void) {
-	int i;
+	long hklen;
+	char *HashKey;
+	void *vCal;
+	HashPos *Pos;
+	disp_cal *Cal;
 	icalproperty *p;
 	struct icaltimetype t;
 	time_t event_tt;
@@ -1262,16 +1287,19 @@ void calendar_summary_view(void) {
 	time_t now;
 	int all_day_event = 0;
 	char timestring[SIZ];
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 
-	if (WC->num_cal == 0) {
+	if (GetCount(WC->disp_cal_items) == 0) {
 		return;
 	}
 
 	now = time(NULL);
 	localtime_r(&now, &today_tm);
 
-	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+	Pos = GetNewHashPos();
+	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		Cal = (disp_cal*)vCal;
+		p = icalcomponent_get_first_property(Cal->cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
@@ -1298,7 +1326,7 @@ void calendar_summary_view(void) {
 
 
 			p = icalcomponent_get_first_property(
-				WC->disp_cal[i].cal,
+				Cal->cal,
 				ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
 				escputs((char *)
@@ -1308,25 +1336,9 @@ void calendar_summary_view(void) {
 			}
 		}
 	}
-	free_calendar_buffer();
+	DeleteHashPos(&Pos);
+	DeleteHash(&WC->disp_cal_items);
 }
-
-
-/**
- * \brief clean up ical memory
- * \todo this could get troubel with future ical versions
- */
-void free_calendar_buffer(void) {
-	int i;
-	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
-		icalcomponent_free(WC->disp_cal[i].cal);
-		free(WC->disp_cal[i].from);
-	}
-	WC->num_cal = 0;
-	free(WC->disp_cal);
-	WC->disp_cal = NULL;
-}
-
 
 
 /**
@@ -1376,8 +1388,7 @@ void do_calendar_view(void) {
 	}
 
 	/** Free the calendar stuff */
-	free_calendar_buffer();
-
+	DeleteHash(&WC->disp_cal_items);
 }
 
 
@@ -1422,12 +1433,15 @@ time_t get_task_due_date(icalcomponent *vtodo) {
  * \param task1 first task to compare
  * \param task2 second task to compare
  */
-int task_due_cmp(const void *task1, const void *task2) {
+int task_due_cmp(const void *vtask1, const void *vtask2) {
+	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
+	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2);
+
 	time_t t1;
 	time_t t2;
 
-	t1 =  get_task_due_date(((struct disp_cal *)task1)->cal);
-	t2 =  get_task_due_date(((struct disp_cal *)task2)->cal);
+	t1 =  get_task_due_date(Task1->cal);
+	t2 =  get_task_due_date(Task2->cal);
 	if (t1 < t2) return(-1);
 	if (t1 > t2) return(1);
 	return(0);
@@ -1436,8 +1450,11 @@ int task_due_cmp(const void *task1, const void *task2) {
 /**
  * \brief qsort filter to move completed tasks to bottom of task list
  */
-int task_completed_cmp(const void *task1, const void *task2) {
-	icalproperty_status t1 = icalcomponent_get_status(((struct disp_cal *)task1)->cal);
+int task_completed_cmp(const void *vtask1, const void *vtask2) {
+	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
+//	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2);
+
+	icalproperty_status t1 = icalcomponent_get_status((Task1)->cal);
 	// icalproperty_status t2 = icalcomponent_get_status(((struct disp_cal *)task2)->cal);
 	
 	if (t1 == ICAL_STATUS_COMPLETED) 
@@ -1451,10 +1468,17 @@ int task_completed_cmp(const void *task1, const void *task2) {
  * \brief do the whole task view stuff
  */
 void do_tasks_view(void) {
-	int i;
+	long hklen;
+	char *HashKey;
+	void *vCal;
+	disp_cal *Cal;
+	HashPos *Pos;
+	int nItems;
 	time_t due;
 	char buf[SIZ];
 	icalproperty *p;
+	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n"
 		"<th>");
@@ -1468,35 +1492,33 @@ void do_tasks_view(void) {
 	wprintf(" (<select id=\"selectcategory\"><option value=\"showall\">%s</option></select>)</th></tr>\n",
 		_("Show All"));
 
-	/** Sort them if necessary */
-	if (WC->num_cal > 1) {
-		qsort(WC->disp_cal,
-			WC->num_cal,
-			sizeof(struct disp_cal),
-			task_due_cmp
-			);
-	}
+	nItems = GetCount(WC->disp_cal_items);
+	/** Sort them if necessary * /
+	if (nItems > 1) {
+		SortByPayload(WC->disp_cal_items, 
+			      task_due_cmp);
+	} // this shouldn't be neccessary, since we sort by the start time.
+	*/
 	/** And then again, by completed */
-	if (WC->num_cal > 1) {
-		qsort(WC->disp_cal,
-			WC->num_cal,
-			sizeof(struct disp_cal),
-			task_completed_cmp
-			);
+	if (nItems > 1) {
+		SortByPayload(WC->disp_cal_items, 
+			      task_completed_cmp);
 	}
 
-	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
+	Pos = GetNewHashPos();
+	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		Cal = (disp_cal*)vCal;
 		wprintf("<tr><td>");
-		icalproperty_status todoStatus = icalcomponent_get_status(WC->disp_cal[i].cal);
+		icalproperty_status todoStatus = icalcomponent_get_status(Cal->cal);
 		wprintf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
 		if (todoStatus == ICAL_STATUS_COMPLETED) {
 			wprintf("checked=\"checked\" ");
 		}
 		wprintf("disabled=\"disabled\">\n</td><td>");
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
 		wprintf("<a href=\"display_edit_task?msgnum=%ld&amp;taskrm=",
-			WC->disp_cal[i].cal_msgnum );
+			Cal->cal_msgnum );
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		/* wprintf("<img align=middle "
@@ -1507,7 +1529,7 @@ void do_tasks_view(void) {
 		wprintf("</a>\n");
 		wprintf("</td>\n");
 
-		due = get_task_due_date(WC->disp_cal[i].cal);
+		due = get_task_due_date(Cal->cal);
 		wprintf("<td><span");
 		if (due > 0) {
 			webcit_fmt_date(buf, due, 0);
@@ -1518,7 +1540,7 @@ void do_tasks_view(void) {
 		}
 		wprintf("</span></td>");
 		wprintf("<td>");
-		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
+		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_CATEGORIES_PROPERTY);
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_categories(p));
@@ -1530,7 +1552,7 @@ void do_tasks_view(void) {
 	wprintf("</tbody></table></div>\n");
 
 	/** Free the list */
-	free_calendar_buffer();
-
+	DeleteHash(&WC->disp_cal_items);
+	DeleteHashPos(&Pos);
 }
 

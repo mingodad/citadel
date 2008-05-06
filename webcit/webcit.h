@@ -338,6 +338,20 @@ struct folder {
 	int num_rooms;	/**< If this is a floor, how many rooms does it have */
 };
 
+typedef struct _disp_cal {					
+	icalcomponent *cal;		/**< cal items for display */
+	long cal_msgnum;		/**< cal msgids for display */
+	char *from;                     /**< owner of this component */
+	int unread;                     /**< already seen by the user? */
+
+	time_t event_start;
+	time_t event_end;
+
+	int multi_day_event;
+	int is_repeat;
+} disp_cal;						
+
+
 /**
  * \brief One of these is kept for each active Citadel session.
  * HTTP transactions are bound to on e at a time.
@@ -388,13 +402,7 @@ struct wcsession {
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
-	struct disp_cal {					
-		icalcomponent *cal;		/**< cal items for display */
-		long cal_msgnum;		/**< cal msgids for display */
-		char *from;                     /**< owner of this component */
-		int unread;                     /**< already seen by the user? */
-	} *disp_cal;						
-	int num_cal;				/**< number of calendar items for display */
+	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
 	struct wc_attachment *first_attachment;	/**< linked list of attachments for 'enter message' */
 	char last_chat_user[256];		/**< ??? todo */
 	char ImportantMessage[SIZ];		/**< ??? todo */
@@ -699,7 +707,6 @@ void updatenote(void);
 void ajax_update_note(void);
 void do_calendar_view(void);
 void do_tasks_view(void);
-void free_calendar_buffer(void);
 void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd, int with_headers);
 void free_attachments(struct wcsession *sess);
