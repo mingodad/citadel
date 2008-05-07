@@ -1372,3 +1372,23 @@ li.event_unread span, a.event_read_title {
 	right: 0px;
 	bottom: 0px;
 }
+
+.stickynote_palette {
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	background-color: #ffffff;
+}
+
+.stickynote_palette table {
+	margin: 0;
+	padding: 0;
+}
+
+.stickynote_palette td {
+	width: 16px;
+	height: 16px;
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+}
