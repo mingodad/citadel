@@ -163,6 +163,12 @@ HashList *NewHash(int Uniq, HashFunc F)
 	return NewList;
 }
 
+int GetCount(HashList *Hash)
+{
+	return Hash->nMembersUsed;
+}
+
+
 /**
  * \brief private destructor for one hash element.
  * \param Data an element to free using the user provided destructor, or just plain free
@@ -282,16 +288,14 @@ static void InsertHashItem(HashList *Hash,
 	/** but if we should be sorted into a specific place... */
 	if ((Hash->nMembersUsed != 0) && 
 	    (HashPos != Hash->nMembersUsed) ) {
-		long InsertAt;
 		long ItemsAfter;
 
 		ItemsAfter = Hash->nMembersUsed - HashPos;
-		InsertAt = HashPos;
 		/** make space were we can fill us in */
 		if (ItemsAfter > 0)
 		{
-			memmove(&Hash->LookupTable[InsertAt + 1],
-				&Hash->LookupTable[InsertAt],
+			memmove(&Hash->LookupTable[HashPos + 1],
+				&Hash->LookupTable[HashPos],
 				ItemsAfter * sizeof(HashKey*));
 		} 
 	}
