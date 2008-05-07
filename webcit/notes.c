@@ -7,10 +7,24 @@
 #include "groupdav.h"
 #include "webserver.h"
 
+char *pastel_palette[] = {
+	"#dfdfdf",
+	"#ffdfdf",
+	"#dfdfff",
+	"#ffffdf",
+	"#dfffdf",
+	"#ffdfff",
+	"#dfffff",
+	"#ffdfbf",
+	"#dfbfbf"
+};
+
+
 /*
  * Display a <div> containing a rendered sticky note.
  */
 void display_vnote_div(struct vnote *v) {
+	int i;
 
 	/* begin outer div */
 
@@ -36,11 +50,25 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
 
 	wprintf("<td align=left valign=middle>");
-	wprintf("<img onclick=\"alert('FIXME');\" ");
+	wprintf("<img onclick=\"$('palette-%s').style.display = 'block';\" ", v->uid);
 	wprintf("src=\"static/8paint16.gif\">");
+
+	/* embed color selector */
+	wprintf("<div id=\"palette-%s\" ", v->uid);
+	wprintf("class=\"stickynote_palette\" ");
+	wprintf("style=\"display:none;\" >");
+	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
+	for (i=0; i<9; ++i) {
+		if ((i%3)==0) wprintf("<tr>");
+		wprintf("<td bgcolor=\"%s\"> </td>", pastel_palette[i]);
+		if (((i+1)%3)==0) wprintf("</tr>");
+	}
+	wprintf("</table>");
+	wprintf("</div>");
+
 	wprintf("</td>");
 
-	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
+	wprintf("<td></td>");	// nothing in the title bar, it's just for resizing
 
 	wprintf("<td align=right valign=middle>");
 	wprintf("<img onclick=\"DeleteStickyNote(event,'%s','%s')\" ", v->uid, _("Delete this note?") );
