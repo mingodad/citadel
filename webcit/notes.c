@@ -34,6 +34,12 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("\">");
 
 	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
+
+	wprintf("<td align=left valign=middle>");
+	wprintf("<img onclick=\"alert('FIXME');\" ");
+	wprintf("src=\"static/8paint16.gif\">");
+	wprintf("</td>");
+
 	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
 
 	wprintf("<td align=right valign=middle>");
@@ -208,6 +214,7 @@ void ajax_update_note(void) {
 		return;
 	}
 	msgnum = atol(&buf[4]);
+	lprintf(9, "Note msg = %ld\n", msgnum);
 
 	// Was this request a delete operation?  If so, nuke it...
 	if (havebstr("deletenote")) {

@@ -36,6 +36,10 @@
    [http://cerca.html.it/cgi-bin/cerca.cgi?q=nifty+corners].  This component
    is licensed to you under the terms of the GNU General Public License.
 
+   One or more icons are from Milosz Wlazlo [http://miloszwl.deviantart.com]
+   whose license explicitly allows inclusion in open source projects on the
+   condition of this attribution.
+
    The Citadel logo was designed by Lisa Aurigemma.
 
  
