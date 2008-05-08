@@ -39,7 +39,7 @@ void display_login(char *mesg)
 
 	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
 			stresc(buf, SIZ,  mesg, 0, 0);
-			svprintf(HKEY("mesg"), WCS_STRING, "%s", buf);
+			svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
 	}
 
 	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
@@ -65,7 +65,7 @@ void display_login(char *mesg)
 	svput("LOGIN_BUTTON", WCS_STRING, _("Login"));
 	svput("NEWUSER_BUTTON", WCS_STRING, _("New User"));
 	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
-	svput("hello", WCS_SERVCMD, "MESG hello");
+	svput("HELLO", WCS_SERVCMD, "MESG hello");
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
 		serv_info.serv_humannode);
 	svcallback("DO_LANGUAGE_BOX", offer_languages);
