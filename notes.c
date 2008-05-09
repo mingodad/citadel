@@ -8,15 +8,15 @@
 #include "webserver.h"
 
 char *pastel_palette[] = {
-	"#dfdfdf",
-	"#ffdfdf",
-	"#dfdfff",
-	"#ffffdf",
-	"#dfffdf",
-	"#ffdfff",
-	"#dfffff",
-	"#ffdfbf",
-	"#dfbfbf"
+	"#bfbfbf",
+	"#ffbfbf",
+	"#bfbfff",
+	"#ffffbf",
+	"#bfffbf",
+	"#ffbfff",
+	"#bfffff",
+	"#ffbfbf",
+	"#bfbfbf"
 };
 
 
@@ -164,6 +164,9 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 			if (!vnote_from_body) {
 				vnote_from_body = vnote_new();
 				vnote_from_body->uid = strdup(uid_from_headers);
+				vnote_from_body->color_red = 0xFF;
+				vnote_from_body->color_green = 0xFF;	// pastel yellow
+				vnote_from_body->color_blue = 0xBF;
 				vnote_from_body->body = malloc(32768);
 				vnote_from_body->body[0] = 0;
 				body_len = 0;
@@ -335,6 +338,9 @@ void add_new_note(void) {
 	if (v) {
 		v->uid = malloc(128);
 		generate_uuid(v->uid);
+		v->color_red = 0xFF;
+		v->color_green = 0xFF;	// pastel yellow
+		v->color_blue = 0xBF;
 		v->body = strdup(_("Click on any note to edit it."));
 		write_vnote_to_server(v);
 		vnote_free(v);

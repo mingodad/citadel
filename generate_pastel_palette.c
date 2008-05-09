@@ -12,7 +12,8 @@ void rgb(int red, int green, int blue)
 
 main()
 {
-	int pastel = 223;	// try 191 if color depth is shallow
+	// int pastel = 223;
+	int pastel = 191;
 
 	rgb (pastel, pastel, pastel);			// pastel grey
 	rgb (255, pastel, pastel);			// pastel red
