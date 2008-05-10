@@ -165,6 +165,7 @@ HashList *NewHash(int Uniq, HashFunc F)
 
 int GetCount(HashList *Hash)
 {
+	if(Hash==NULL) return 0;
 	return Hash->nMembersUsed;
 }
 
