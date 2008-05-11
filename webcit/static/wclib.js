@@ -498,6 +498,29 @@ function NotesDragMouseDown(evt, uid) {
 
 
 
+function NotesClickPalette(evt, uid) {
+	uid_of_note_being_colored = uid;
+	d = $('palette-' + uid_of_note_being_colored);
+
+	if (d.style.display) {
+		if (d.style.display == 'none') {
+			d.style.display = 'block';
+		}
+		else {
+			d.style.display = 'none';
+		}
+	}
+	else {
+		d.style.display = 'block';
+	}
+
+	return true;
+}
+
+
+
+
+
 // These functions handle resizing sticky notes by dragging the resize handle
 
 var uid_of_note_being_resized = 0;
