@@ -360,6 +360,10 @@ void pop3_stat(char *argbuf) {
  */
 void pop3_retr(char *argbuf) {
 	int which_one;
+	char *msgtext;
+	char *nextline;
+	char *chunk_to_send;
+	char prev_char;
 
 	which_one = atoi(argbuf);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
@@ -373,7 +377,41 @@ void pop3_retr(char *argbuf) {
 	}
 
 	cprintf("+OK Message %d:\r\n", which_one);
-	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
+			MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+	msgtext = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
+
+	/* If we reach this point, the client is expecting data.
+	 * Need to parse each line of the message here since someone may have sent
+	 * a message containing a single dot on a line of its own. In that case we
+	 * need to escape it in accordance with RFC821.
+	 * We could do this with the tokenizer functions but num_tokens returns an
+	 * int and the message may contain more lines than that, also copying each
+	 * line would be slow.
+	 */
+	nextline = msgtext;
+	while (*nextline)
+	{
+		chunk_to_send = nextline;
+		while (*nextline != '\n')
+			nextline++;
+		nextline++;
+		prev_char = *nextline;
+		*nextline = '\0';
+		if (!strcmp(chunk_to_send, ".\r\n")) {
+			client_write("..\r\n", 4);
+		}
+		else {
+			client_write(chunk_to_send, (size_t)(nextline-chunk_to_send));
+		}
+		*nextline = prev_char;
+	}
 	cprintf(".\r\n");
 }
 
