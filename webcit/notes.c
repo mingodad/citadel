@@ -7,16 +7,16 @@
 #include "groupdav.h"
 #include "webserver.h"
 
-char *pastel_palette[] = {
-	"#808080",
-	"#ff8080",
-	"#8080ff",
-	"#ffff80",
-	"#80ff80",
-	"#ff80ff",
-	"#80ffff",
-	"#ff8080",
-	"#808080"
+int pastel_palette[9][3] = {
+	{ 0x80, 0x80, 0x80 },
+	{ 0xff, 0x80, 0x80 },
+	{ 0x80, 0x80, 0xff },
+	{ 0xff, 0xff, 0x80 },
+	{ 0x80, 0xff, 0x80 },
+	{ 0xff, 0x80, 0xff },
+	{ 0x80, 0xff, 0xff },
+	{ 0xff, 0x80, 0x80 },
+	{ 0x80, 0x80, 0x80 }
 };
 
 
@@ -59,7 +59,18 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
 	for (i=0; i<9; ++i) {
 		if ((i%3)==0) wprintf("<tr>");
-		wprintf("<td bgcolor=\"%s\"> </td>", pastel_palette[i]);
+		wprintf("<td ");
+		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d)\" ",
+			v->uid,
+			pastel_palette[i][0],
+			pastel_palette[i][1],
+			pastel_palette[i][2]
+		);
+		wprintf("bgcolor=\"#%02x%02x%02x\"> </td>",
+			pastel_palette[i][0],
+			pastel_palette[i][1],
+			pastel_palette[i][2]
+		);
 		if (((i+1)%3)==0) wprintf("</tr>");
 	}
 	wprintf("</table>");
@@ -163,9 +174,9 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 			if (!vnote_from_body) {
 				vnote_from_body = vnote_new();
 				vnote_from_body->uid = strdup(uid_from_headers);
-				vnote_from_body->color_red = 0xFF;
-				vnote_from_body->color_green = 0xff;	// pastel yellow
-				vnote_from_body->color_blue = 0x80;
+				vnote_from_body->color_red = pastel_palette[3][0];
+				vnote_from_body->color_green = pastel_palette[3][1];
+				vnote_from_body->color_blue = pastel_palette[3][2];
 				vnote_from_body->body = malloc(32768);
 				vnote_from_body->body[0] = 0;
 				body_len = 0;
@@ -337,9 +348,9 @@ void add_new_note(void) {
 	if (v) {
 		v->uid = malloc(128);
 		generate_uuid(v->uid);
-		v->color_red = 0xFF;
-		v->color_green = 0xff;	// pastel yellow
-		v->color_blue = 0x80;
+		v->color_red = pastel_palette[3][0];
+		v->color_green = pastel_palette[3][1];
+		v->color_blue = pastel_palette[3][2];
 		v->body = strdup(_("Click on any note to edit it."));
 		write_vnote_to_server(v);
 		vnote_free(v);
