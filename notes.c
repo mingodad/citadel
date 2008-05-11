@@ -8,15 +8,15 @@
 #include "webserver.h"
 
 char *pastel_palette[] = {
-	"#bfbfbf",
-	"#ffbfbf",
-	"#bfbfff",
-	"#ffffbf",
-	"#bfffbf",
-	"#ffbfff",
-	"#bfffff",
-	"#ffbfbf",
-	"#bfbfbf"
+	"#808080",
+	"#ff8080",
+	"#8080ff",
+	"#ffff80",
+	"#80ff80",
+	"#ff80ff",
+	"#80ffff",
+	"#ff8080",
+	"#808080"
 };
 
 
@@ -50,13 +50,12 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
 
 	wprintf("<td align=left valign=middle>");
-	wprintf("<img onclick=\"$('palette-%s').style.display = 'block';\" ", v->uid);
+	wprintf("<img onclick=\"NotesClickPalette(event,'%s')\" ", v->uid);
 	wprintf("src=\"static/8paint16.gif\">");
 
 	/* embed color selector */
 	wprintf("<div id=\"palette-%s\" ", v->uid);
 	wprintf("class=\"stickynote_palette\" ");
-	wprintf("style=\"display:none;\" >");
 	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
 	for (i=0; i<9; ++i) {
 		if ((i%3)==0) wprintf("<tr>");
@@ -165,8 +164,8 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 				vnote_from_body = vnote_new();
 				vnote_from_body->uid = strdup(uid_from_headers);
 				vnote_from_body->color_red = 0xFF;
-				vnote_from_body->color_green = 0xFF;	// pastel yellow
-				vnote_from_body->color_blue = 0xBF;
+				vnote_from_body->color_green = 0xff;	// pastel yellow
+				vnote_from_body->color_blue = 0x80;
 				vnote_from_body->body = malloc(32768);
 				vnote_from_body->body[0] = 0;
 				body_len = 0;
@@ -339,8 +338,8 @@ void add_new_note(void) {
 		v->uid = malloc(128);
 		generate_uuid(v->uid);
 		v->color_red = 0xFF;
-		v->color_green = 0xFF;	// pastel yellow
-		v->color_blue = 0xBF;
+		v->color_green = 0xff;	// pastel yellow
+		v->color_blue = 0x80;
 		v->body = strdup(_("Click on any note to edit it."));
 		write_vnote_to_server(v);
 		vnote_free(v);
