@@ -497,6 +497,8 @@ function NotesDragMouseDown(evt, uid) {
 }
 
 
+// Called when the user clicks on the palette icon of a sticky note to change its color.
+// It toggles the color selector visible or invisible.
 
 function NotesClickPalette(evt, uid) {
 	uid_of_note_being_colored = uid;
@@ -517,6 +519,18 @@ function NotesClickPalette(evt, uid) {
 	return true;
 }
 
+
+// Called when the user clicks on one of the colors in an open color selector.
+// Sets the desired color and then closes the color selector.
+
+function NotesClickColor(evt, uid, red, green, blue) {
+	uid_of_note_being_colored = uid;
+	d = $('palette-' + uid_of_note_being_colored);
+
+	alert('FIXME red=' + red + ' green=' + green + ' blue=' + blue);
+
+	d.style.display = 'none';
+}
 
 
 
