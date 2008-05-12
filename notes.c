@@ -54,37 +54,6 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<img onclick=\"NotesClickPalette(event,'%s')\" ", v->uid);
 	wprintf("src=\"static/8paint16.gif\">");
 
-	/* embed color selector */
-	wprintf("<div id=\"palette-%s\" ", v->uid);	// begin stickynote_palette div
-	wprintf("class=\"stickynote_palette\">");
-
-	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
-	for (i=0; i<9; ++i) {
-		if ((i%3)==0) wprintf("<tr>");
-		wprintf("<td ");
-		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d,'#%02x%02x%02x','#%02x%02x%02x')\" ",
-			v->uid,
-			pastel_palette[i][0],		// color values to pass to ajax call
-			pastel_palette[i][1],
-			pastel_palette[i][2],
-			pastel_palette[i][0],		// new color of note
-			pastel_palette[i][1],
-			pastel_palette[i][2],
-			pastel_palette[i][0] / 2,	// new color of title bar
-			pastel_palette[i][1] / 2,
-			pastel_palette[i][2] / 2
-		);
-		wprintf("bgcolor=\"#%02x%02x%02x\"> </td>",
-			pastel_palette[i][0],
-			pastel_palette[i][1],
-			pastel_palette[i][2]
-		);
-		if (((i+1)%3)==0) wprintf("</tr>");
-	}
-	wprintf("</table>");
-
-	wprintf("</div>");				// end stickynote_palette div
-
 	wprintf("</td>");
 
 	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
@@ -126,6 +95,44 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("class=\"stickynote_resize\" ");
 	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\"", v->uid);
 	wprintf("> </div>");				// end resize handle div
+
+
+
+
+	/* embed color selector - it doesn't have to be inside the title bar html because
+	 * it's a separate div placed by css
+	 */
+	wprintf("<div id=\"palette-%s\" ", v->uid);	// begin stickynote_palette div
+	wprintf("class=\"stickynote_palette\">");
+
+	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
+	for (i=0; i<9; ++i) {
+		if ((i%3)==0) wprintf("<tr>");
+		wprintf("<td ");
+		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d,'#%02x%02x%02x','#%02x%02x%02x')\" ",
+			v->uid,
+			pastel_palette[i][0],		// color values to pass to ajax call
+			pastel_palette[i][1],
+			pastel_palette[i][2],
+			pastel_palette[i][0],		// new color of note
+			pastel_palette[i][1],
+			pastel_palette[i][2],
+			pastel_palette[i][0] / 2,	// new color of title bar
+			pastel_palette[i][1] / 2,
+			pastel_palette[i][2] / 2
+		);
+		wprintf("bgcolor=\"#%02x%02x%02x\"> </td>",
+			pastel_palette[i][0],
+			pastel_palette[i][1],
+			pastel_palette[i][2]
+		);
+		if (((i+1)%3)==0) wprintf("</tr>");
+	}
+	wprintf("</table>");
+
+	wprintf("</div>");				// end stickynote_palette div
+
+
 
 
 
