@@ -26,9 +26,8 @@ int pastel_palette[9][3] = {
 void display_vnote_div(struct vnote *v) {
 	int i;
 
-	/* begin outer div */
 
-	wprintf("<div id=\"note-%s\" ", v->uid);
+	wprintf("<div id=\"note-%s\" ", v->uid);	// begin outer div
 	wprintf("class=\"stickynote_outer\" ");
 	wprintf("style=\"");
 	wprintf("left: %dpx; ", v->pos_left);
@@ -38,9 +37,11 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("background-color: #%02X%02X%02X ", v->color_red, v->color_green, v->color_blue);
 	wprintf("\">");
 
-	/* begin title bar */
 
-	wprintf("<div id=\"titlebar-%s\" ", v->uid);
+
+
+
+	wprintf("<div id=\"titlebar-%s\" ", v->uid);	// begin title bar div
 	wprintf("class=\"stickynote_titlebar\" ");
 	wprintf("onMouseDown=\"NotesDragMouseDown(event,'%s')\" ", v->uid);
 	wprintf("style=\"");
@@ -54,8 +55,9 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("src=\"static/8paint16.gif\">");
 
 	/* embed color selector */
-	wprintf("<div id=\"palette-%s\" ", v->uid);
-	wprintf("class=\"stickynote_palette\" ");
+	wprintf("<div id=\"palette-%s\" ", v->uid);	// begin stickynote_palette div
+	wprintf("class=\"stickynote_palette\">");
+
 	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
 	for (i=0; i<9; ++i) {
 		if ((i%3)==0) wprintf("<tr>");
@@ -80,7 +82,8 @@ void display_vnote_div(struct vnote *v) {
 		if (((i+1)%3)==0) wprintf("</tr>");
 	}
 	wprintf("</table>");
-	wprintf("</div>");
+
+	wprintf("</div>");				// end stickynote_palette div
 
 	wprintf("</td>");
 
@@ -91,15 +94,17 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("src=\"static/closewindow.gif\">");
 	wprintf("</td></tr></table>");
 
-	wprintf("</div>\n");
+	wprintf("</div>\n");				// end title bar div
 
-	/* begin note body */
 
-	wprintf("<div id=\"notebody-%s\" ", v->uid);
+
+
+
+	wprintf("<div id=\"notebody-%s\" ", v->uid);	// begin body div
 	wprintf("class=\"stickynote_body\"");
 	wprintf(">");
 	escputs(v->body);
-	wprintf("</div>\n");
+	wprintf("</div>\n");				// end body div
 
 	wprintf("<script type=\"text/javascript\">");
 	wprintf(" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
@@ -115,16 +120,16 @@ void display_vnote_div(struct vnote *v) {
 	);
 	wprintf("</script>\n");
 
-	/* begin resize handle */
 
-	wprintf("<div id=\"resize-%s\" ", v->uid);
+
+	wprintf("<div id=\"resize-%s\" ", v->uid);	// begin resize handle div
 	wprintf("class=\"stickynote_resize\" ");
 	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\"", v->uid);
-	wprintf("> </div>");
+	wprintf("> </div>");				// end resize handle div
 
-	/* end of note */
 
-	wprintf("</div>\n");
+
+	wprintf("</div>\n");				// end outer div
 }
 
 
@@ -245,7 +250,7 @@ void ajax_update_note(void) {
 		return;
 	}
 
-	lprintf(9, "Note UID = %s\n", bstr("note_uid"));
+	// lprintf(9, "Note UID = %s\n", bstr("note_uid"));
 	serv_printf("EUID %s", bstr("note_uid"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
@@ -255,7 +260,7 @@ void ajax_update_note(void) {
 		return;
 	}
 	msgnum = atol(&buf[4]);
-	lprintf(9, "Note msg = %ld\n", msgnum);
+	// lprintf(9, "Note msg = %ld\n", msgnum);
 
 	// Was this request a delete operation?  If so, nuke it...
 	if (havebstr("deletenote")) {
