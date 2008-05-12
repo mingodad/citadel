@@ -1346,7 +1346,6 @@ li.event_unread span, a.event_read_title {
 	border: 1px solid #333;
 	background-color: #ffff00;
 	overflow: hidden;
-	z-index: 10;
 }
 
 .stickynote_titlebar {
@@ -1361,10 +1360,6 @@ li.event_unread span, a.event_read_title {
 
 .stickynote_body {
 	position: relative;
-	//width: 100%;
-	//height: 100%;
-	//top: 0px;
-	//left: 0px;
 	font-family: "Comic Sans MS", "Verdana", "Bitstream Vera Sans", sans-serif;
 }
 
@@ -1385,7 +1380,6 @@ li.event_unread span, a.event_read_title {
 	left: 0px;
 	background-color: #ffffff;
 	border: 1px solid #333;
-	z-index: 15;
 	display: none;
 }
 
