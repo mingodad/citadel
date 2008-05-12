@@ -1370,8 +1370,8 @@ li.event_unread span, a.event_read_title {
 
 .stickynote_resize {
 	position: absolute;
-	right: 0px;
-	bottom: 0px;
+	right: -1px;
+	bottom: -5px;
 }
 
 .stickynote_palette {

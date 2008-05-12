@@ -60,11 +60,17 @@ void display_vnote_div(struct vnote *v) {
 	for (i=0; i<9; ++i) {
 		if ((i%3)==0) wprintf("<tr>");
 		wprintf("<td ");
-		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d)\" ",
+		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d,'#%02x%02x%02x','#%02x%02x%02x')\" ",
 			v->uid,
-			pastel_palette[i][0],
+			pastel_palette[i][0],		// color values to pass to ajax call
 			pastel_palette[i][1],
-			pastel_palette[i][2]
+			pastel_palette[i][2],
+			pastel_palette[i][0],		// new color of note
+			pastel_palette[i][1],
+			pastel_palette[i][2],
+			pastel_palette[i][0] / 2,	// new color of title bar
+			pastel_palette[i][1] / 2,
+			pastel_palette[i][2] / 2
 		);
 		wprintf("bgcolor=\"#%02x%02x%02x\"> </td>",
 			pastel_palette[i][0],
@@ -78,7 +84,7 @@ void display_vnote_div(struct vnote *v) {
 
 	wprintf("</td>");
 
-	wprintf("<td></td>");	// nothing in the title bar, it's just for resizing
+	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
 
 	wprintf("<td align=right valign=middle>");
 	wprintf("<img onclick=\"DeleteStickyNote(event,'%s','%s')\" ", v->uid, _("Delete this note?") );
@@ -97,14 +103,12 @@ void display_vnote_div(struct vnote *v) {
 
 	wprintf("<script type=\"text/javascript\">");
 	wprintf(" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
-		"{rows:%d,cols:%d,highlightcolor:'#%02X%02X%02X',highlightendcolor:'#%02X%02X%02X',"
+		"{rows:%d,cols:%d,"
 		"okText:'%s',cancelText:'%s',clickToEditText:'%s'});",
 		v->uid,
 		v->uid,
 		(v->pos_height / 16) - 5,
 		(v->pos_width / 9) - 1,
-		v->color_red, v->color_green, v->color_blue,
-		v->color_red, v->color_green, v->color_blue,
 		_("Save"),
 		_("Cancel"),
 		_("Click on any note to edit it.")
@@ -290,6 +294,15 @@ void ajax_update_note(void) {
 	}
         if (havebstr("width")) {
 		v->pos_width = atoi(bstr("width"));
+	}
+        if (havebstr("red")) {
+		v->color_red = atoi(bstr("red"));
+	}
+        if (havebstr("green")) {
+		v->color_green = atoi(bstr("green"));
+	}
+        if (havebstr("blue")) {
+		v->color_blue = atoi(bstr("blue"));
 	}
         if (havebstr("value")) {	// I would have preferred 'body' but InPlaceEditor hardcodes 'value'
 		if (v->body) free(v->body);

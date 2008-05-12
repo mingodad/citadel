@@ -523,13 +523,31 @@ function NotesClickPalette(evt, uid) {
 // Called when the user clicks on one of the colors in an open color selector.
 // Sets the desired color and then closes the color selector.
 
-function NotesClickColor(evt, uid, red, green, blue) {
+function NotesClickColor(evt, uid, red, green, blue, notecolor, titlecolor) {
 	uid_of_note_being_colored = uid;
-	d = $('palette-' + uid_of_note_being_colored);
+	palette_button = $('palette-' + uid_of_note_being_colored);
+	note_div = $('note-' + uid_of_note_being_colored);
+	titlebar_div = $('titlebar-' + uid_of_note_being_colored);
 
-	alert('FIXME red=' + red + ' green=' + green + ' blue=' + blue);
+	// alert('FIXME red=' + red + ' green=' + green + ' blue=' + blue);
 
-	d.style.display = 'none';
+	note_div.style.backgroundColor = notecolor;
+	titlebar_div.style.backgroundColor = titlecolor;
+	palette_button.style.display = 'none';
+
+	// submit an ajax http call to record it to the server
+	p = 'note_uid=' + uid_of_note_being_colored
+		+ '&red=' + red
+		+ '&green=' + green
+		+ '&blue=' + blue
+		+ '&r=' + CtdlRandomString();
+	new Ajax.Request(
+		'ajax_update_note',
+		{
+			method: 'post',
+			parameters: p
+		}
+	);
 }
 
 
