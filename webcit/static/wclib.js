@@ -585,7 +585,7 @@ function NotesResizeMouseUp(evt) {
 	}
 
 	uid_of_note_being_resized = '';
-	return true;
+	return false;		// disable the default action
 }
 
 function NotesResizeMouseMove(evt) {
@@ -606,7 +606,7 @@ function NotesResizeMouseMove(evt) {
 	saved_x = x;
 	saved_y = y;
 	note_was_resized = 1;
-	return true;
+	return false;		// disable the default action
 }
 
 
