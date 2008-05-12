@@ -1370,8 +1370,11 @@ li.event_unread span, a.event_read_title {
 
 .stickynote_resize {
 	position: absolute;
+	background-image: url('resizecorner.png');
+	height: 16px;
+	width: 16px;
 	right: -1px;
-	bottom: -5px;
+	bottom: -1px;
 }
 
 .stickynote_palette {

@@ -103,7 +103,7 @@ void display_vnote_div(struct vnote *v) {
 
 	wprintf("<script type=\"text/javascript\">");
 	wprintf(" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
-		"{rows:%d,cols:%d,"
+		"{rows:%d,cols:%d,onEnterHover:false,onLeaveHover:false,"
 		"okText:'%s',cancelText:'%s',clickToEditText:'%s'});",
 		v->uid,
 		v->uid,
@@ -120,11 +120,7 @@ void display_vnote_div(struct vnote *v) {
 	wprintf("<div id=\"resize-%s\" ", v->uid);
 	wprintf("class=\"stickynote_resize\" ");
 	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\"", v->uid);
-	wprintf(">");
-
-	wprintf("<img src=\"static/resizecorner.png\">");
-
-	wprintf("</div>\n");
+	wprintf("> </div>");
 
 	/* end of note */
 
