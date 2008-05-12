@@ -9,7 +9,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
-#define LIBCITADEL_VERSION_NUMBER	112
+#define LIBCITADEL_VERSION_NUMBER	113
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -274,35 +274,23 @@ typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
 typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
 HashList *NewHash(int Uniq, HashFunc F);
-
 void DeleteHash(HashList **Hash);
-
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
-
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
-
 int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
-
 int GetHashKeys(HashList *Hash, char ***List);
-
 int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
-
-
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
-
 HashPos *GetNewHashPos(void);
-
 void DeleteHashPos(HashPos **DelMe);
-
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);
-
 void SortByHashKey(HashList *Hash, int Order);
 void SortByHashKeyStr(HashList *Hash);
 int GetCount(HashList *Hash);
 const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
-
 void convert_spaces_to_underscores(char *str);
+int parse_url(char *url, char *hostname, int *port, char *identifier);
 
 /*
  * Convert 4 bytes char into an Integer.

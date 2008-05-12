@@ -331,61 +331,6 @@ void rss_xml_chardata(void *data, const XML_Char *s, int len) {
 
 
 
-/* 
- * Parse a URL into host, port number, and resource identifier.
- */
-int parse_url(char *url, char *hostname, int *port, char *identifier)
-{
-	char protocol[1024];
-	char scratch[1024];
-	char *ptr = NULL;
-	char *nptr = NULL;
-	
-	strcpy(scratch, url);
-	ptr = (char *)strchr(scratch, ':');
-	if (!ptr) {
-		return(1);	/* no protocol specified */
-	}
-
-	strcpy(ptr, "");
-	strcpy(protocol, scratch);
-	if (strcmp(protocol, "http")) {
-		return(2);	/* not HTTP */
-	}
-
-	strcpy(scratch, url);
-	ptr = (char *) strstr(scratch, "//");
-	if (!ptr) {
-		return(3);	/* no server specified */
-	}
-	ptr += 2;
-
-	strcpy(hostname, ptr);
-	nptr = (char *)strchr(ptr, ':');
-	if (!nptr) {
-		*port = 80;	/* default */
-		nptr = (char *)strchr(hostname, '/');
-	}
-	else {
-		sscanf(nptr, ":%d", port);
-		nptr = (char *)strchr(hostname, ':');
-	}
-
-	if (nptr) {
-		*nptr = '\0';
-	}
-
-	nptr = (char *)strchr(ptr, '/');
-	
-	if (!nptr) {
-		return(4);	/* no url specified */
-	}
-	
-	strcpy(identifier, nptr);
-	return(0);
-}
-
-
 /*
  * Begin a feed parse
  */
