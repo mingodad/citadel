@@ -2117,6 +2117,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	char nodename[128];
 	char inetaddr[128];
 	char subject[1024];
+	char *ptr;
 	int nummsgs;
 	int sbjlen;
 	int maxload = 0;
@@ -2161,12 +2162,6 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
 				safestrncpy(WC->summ[nummsgs-1].subj,
 					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
-				if (!IsEmptyStr(fullname)) {
-				/** Handle senders with RFC2047 encoding */
-					utf8ify_rfc822_string(fullname);
-					safestrncpy(WC->summ[nummsgs-1].from,
-						fullname, sizeof WC->summ[nummsgs-1].from);
-				}
 				if (!IsEmptyStr(subject)) {
 				/** Handle subjects with RFC2047 encoding */
 					utf8ify_rfc822_string(subject);
@@ -2175,29 +2170,33 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				}
 				sbjlen = Ctdl_Utf8StrLen(WC->summ[nummsgs-1].subj);
 				if (sbjlen > 75) {
-					char *ptr;
 					ptr = Ctdl_Utf8StrCut(WC->summ[nummsgs-1].subj, 72);
 
 					strcpy(ptr, "...");
 				}
 
-				if (!IsEmptyStr(nodename)) {
-					if ( ((WC->room_flags & QR_NETWORK)
-					   || ((strcasecmp(nodename, serv_info.serv_nodename)
-					   && (strcasecmp(nodename, serv_info.serv_fqdn)))))
-					) {
-						strcat(WC->summ[nummsgs-1].from, " @ ");
-						strcat(WC->summ[nummsgs-1].from, nodename);
-					}
+				if (!IsEmptyStr(fullname)) {
+				/** Handle senders with RFC2047 encoding */
+					utf8ify_rfc822_string(fullname);
+					safestrncpy(WC->summ[nummsgs-1].from,
+						fullname, sizeof WC->summ[nummsgs-1].from);
+				}
+				if ((!IsEmptyStr(nodename)) &&
+				    ( ((WC->room_flags & QR_NETWORK)
+				       || ((strcasecmp(nodename, serv_info.serv_nodename)
+						 && (strcasecmp(nodename, serv_info.serv_fqdn)))))))
+				{
+					strcat(WC->summ[nummsgs-1].from, " @ ");
+					strcat(WC->summ[nummsgs-1].from, nodename);
+					
+				}
+				sbjlen = Ctdl_Utf8StrLen(WC->summ[nummsgs-1].from);
+				if (sbjlen > 25) {
+					ptr = Ctdl_Utf8StrCut(WC->summ[nummsgs-1].from, 23);
+					strcpy(ptr, "...");
 				}
 
 				WC->summ[nummsgs-1].date = datestamp;
-	
-				/** Handle senders with RFC2047 encoding */
-				utf8ify_rfc822_string(WC->summ[nummsgs-1].from);
-				if (strlen(WC->summ[nummsgs-1].from) > 25) {
-					strcpy(&WC->summ[nummsgs-1].from[22], "...");
-				}
 			}
 		}
 	}
