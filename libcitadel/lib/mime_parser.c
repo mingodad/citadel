@@ -502,9 +502,13 @@ void the_mime_parser(char *partnum,
 		******/
 		
 		/* Truncate if the header told us to */
+                /* Content length headers tend to be wrong since mails
+		 * gain/loose linefeeds/QP all over their way
+		 * so, we ignore the size for now and trust our own calculation.
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
 		}
+                */
 
 		/* Sometimes the "name" field is tacked on to Content-type,
 		 * and sometimes it's tacked on to Content-disposition.  Use
