@@ -793,10 +793,16 @@ void network_spool_msg(long msgnum, void *userdata) {
 			CtdlLogPrintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
 			bang = num_tokens(msg->cm_fields['P'], '!');
 			if (bang > 1) for (i=0; i<(bang-1); ++i) {
-				extract_token(buf, msg->cm_fields['P'],
-					i, '!', sizeof buf);
+				extract_token(buf, msg->cm_fields['P'], i, '!', sizeof buf);
+				CtdlLogPrintf(CTDL_DEBUG, "Compare <%s> to <%s>\n",
+					buf, mptr->remote_nodename) ;
 				if (!strcasecmp(buf, mptr->remote_nodename)) {
 					send = 0;
+					CtdlLogPrintf(CTDL_DEBUG, "Not sending to %s\n",
+						mptr->remote_nodename);
+				}
+				else {
+					CtdlLogPrintf(CTDL_DEBUG, "Sending to %s\n", mptr->remote_nodename);
 				}
 			}
 
