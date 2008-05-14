@@ -493,22 +493,15 @@ void the_mime_parser(char *partnum,
 		}
 		part_end = content_end;
 
-		/******
-		 * I thought there was an off-by-one error here, but there isn't.
-		 * This probably means that there's an off-by-one error somewhere
-		 * else ... or maybe only in certain messages?
-		--part_end;
-		--length;
-		******/
-		
-		/* Truncate if the header told us to */
-                /* Content length headers tend to be wrong since mails
-		 * gain/loose linefeeds/QP all over their way
-		 * so, we ignore the size for now and trust our own calculation.
-		if ( (content_length > 0) && (length > content_length) ) {
-			length = content_length;
-		}
-                */
+
+		/* The following code will truncate the MIME part to the size
+		 * specified by the Content-length: header.   We have commented it
+		 * out because these headers have a tendency to be wrong.
+		 *
+		 *	if ( (content_length > 0) && (length > content_length) ) {
+		 *		length = content_length;
+		 *	}
+                 */
 
 		/* Sometimes the "name" field is tacked on to Content-type,
 		 * and sometimes it's tacked on to Content-disposition.  Use
