@@ -1385,11 +1385,11 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 
 
 
-/**
- * \brief Unadorned HTML output of an individual message, suitable
+/*
+ * Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
  *
- * \param msgnum_as_string Message number, as a string instead of as a long int
+ * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void embed_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1401,10 +1401,10 @@ void embed_message(char *msgnum_as_string) {
 }
 
 
-/**
- * \brief Printable view of a message
+/*
+ * Printable view of a message
  *
- * \param msgnum_as_string Message number, as a string instead of as a long int
+ * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void print_message(char *msgnum_as_string) {
 	long msgnum = 0L;
@@ -1418,8 +1418,9 @@ void print_message(char *msgnum_as_string) {
 		PACKAGE_STRING);
 	begin_burst();
 
-	wprintf("\r\n\r\n<html>\n"
-		"<head><title>Printable view</title></head>\n"
+	wprintf("\r\n\r\n<html>\n<head><title>");
+	escputs(WC->wc_fullname);
+	wprintf("</title></head>\n"
 		"<body onLoad=\" window.print(); window.close(); \">\n"
 	);
 	
@@ -3682,8 +3683,8 @@ void move_msg(void)
 
 
 
-/**
- * \brief Confirm move of a message
+/*
+ * Confirm move of a message
  */
 void confirm_move_msg(void)
 {
@@ -3734,6 +3735,3 @@ void confirm_move_msg(void)
 	wprintf("</CENTER>\n");
 	wDumpContent(1);
 }
-
-
-/*@}*/
