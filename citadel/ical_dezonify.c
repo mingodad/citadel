@@ -17,6 +17,7 @@
 #include <string.h>
 #include <strings.h>
 #include <ical.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"

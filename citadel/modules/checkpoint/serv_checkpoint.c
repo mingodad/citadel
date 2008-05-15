@@ -28,6 +28,8 @@
 #error Citadel requires Berkeley DB v4.1 or newer.  Please upgrade.
 #endif
 
+#include <libcitadel.h>
+
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"

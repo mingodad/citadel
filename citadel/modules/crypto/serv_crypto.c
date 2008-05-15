@@ -32,6 +32,7 @@
 #endif
 
 #include <stdio.h>
+#include <libcitadel.h>
 #include "server.h"
 #include "serv_crypto.h"
 #include "sysdep_decls.h"

@@ -64,11 +64,13 @@ cat <<EOF  >$U_FILE
 
 #include "sysdep.h"
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "modules_init.h"
 #include "sysdep_decls.h"
@@ -99,6 +101,7 @@ cat <<EOF  >$C_FILE
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <libcitadel.h>
 #include "citadel.h"
 #include "modules_init.h"
 #include "sysdep_decls.h"

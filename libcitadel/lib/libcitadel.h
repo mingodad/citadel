@@ -4,6 +4,11 @@
  */
 
 
+/* protect against double includes */
+#ifndef LIBCITADEL_H
+#define LIBCITADEL_H
+
+
 /*
  * since we reference time_t...
  */
@@ -17,6 +22,27 @@
 #ifndef SIZ
 #define SIZ	4096
 #endif
+
+
+/* Logging levels - correspond to syslog(3) */
+enum LogLevel {
+	/* When about to exit the server for an unrecoverable error */
+	 CTDL_EMERG,	/* system is unusable */
+	/* Manual intervention is required to avoid an abnormal exit */
+	 CTDL_ALERT,	/* action must be taken immediately */
+	/* The server can continue to run with degraded functionality */
+	 CTDL_CRIT,	/* critical conditions */
+	/* An error occurs but the server continues to run normally */
+	 CTDL_ERR,	/* error conditions */
+	/* An abnormal condition was detected; server will continue normally */
+	 CTDL_WARNING,	/* warning conditions */
+	/* Normal messages (login/out, activity, etc.) */
+	 CTDL_NOTICE,	/* normal but significant condition */
+	/* Unimportant progress messages, etc. */
+	 CTDL_INFO,	/* informational */
+	/* Debugging messages */
+	 CTDL_DEBUG	/* debug-level messages */
+};
 
 
 /*
@@ -324,3 +350,6 @@ struct vnote *vnote_new_from_str(char *s);
 void vnote_free(struct vnote *v);
 char *vnote_serialize(struct vnote *v);
 void vnote_serialize_output_field(char *append_to, char *field, char *label);
+
+
+#endif	// LIBCITADEL_H

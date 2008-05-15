@@ -43,6 +43,7 @@
 #endif
 
 
+#include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"

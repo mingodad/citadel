@@ -3,6 +3,7 @@
 #ifndef CTDL_MODULE_H
 #define CTDL_MODULE_H
 
+#include <libcitadel.h>
 #include "server.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"

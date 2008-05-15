@@ -40,27 +40,6 @@
 #define SIZE_T_FMT "%ld"
 #endif
 
-
-/* Logging levels - correspond to syslog(3) */
-enum LogLevel {
-	/* When about to exit the server for an unrecoverable error */
-	 CTDL_EMERG,	/* system is unusable */
-	/* Manual intervention is required to avoid an abnormal exit */
-	 CTDL_ALERT,	/* action must be taken immediately */
-	/* The server can continue to run with degraded functionality */
-	 CTDL_CRIT,	/* critical conditions */
-	/* An error occurs but the server continues to run normally */
-	 CTDL_ERR,	/* error conditions */
-	/* An abnormal condition was detected; server will continue normally */
-	 CTDL_WARNING,	/* warning conditions */
-	/* Normal messages (login/out, activity, etc.) */
-	 CTDL_NOTICE,	/* normal but significant condition */
-	/* Unimportant progress messages, etc. */
-	 CTDL_INFO,	/* informational */
-	/* Debugging messages */
-	 CTDL_DEBUG	/* debug-level messages */
-};
-
 #ifdef __GNUC__
 void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
 #else

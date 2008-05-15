@@ -8,6 +8,9 @@
  *
  */
 
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <sys/socket.h>
@@ -25,6 +28,8 @@
 #  include <time.h>
 # endif
 #endif
+
+#include <libcitadel.h>
 
 #include "threads.h"
 #include "ctdl_module.h"
