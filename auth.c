@@ -5,22 +5,22 @@
  */
 
 #include "webcit.h"
+#include "webserver.h"
 
 /*
- * user states
- * the plain text states of a user. filled in at \ function TODO initialize_ax_defs()
- * due to NLS
+ * Access level definitions.  This is initialized from a function rather than a
+ * static array so that the strings may be localized.
  */
 char *axdefs[7]; 
 
 void initialize_axdefs(void) {
-	axdefs[0] = _("Deleted");       /*!0: an erased user */
-	axdefs[1] = _("New User");      /*!1: a new user */
-	axdefs[2] = _("Problem User");  /*!2: a trouble maker */
-	axdefs[3] = _("Local User");    /*!3: user with normal privileges */
-	axdefs[4] = _("Network User");  /*!4: a user that may access network resources */
-	axdefs[5] = _("Preferred User");/*!5: a moderator */
-	axdefs[6] = _("Aide");          /*!6: chief */
+	axdefs[0] = _("Deleted");       /* an erased user */
+	axdefs[1] = _("New User");      /* a new user */
+	axdefs[2] = _("Problem User");  /* a trouble maker */
+	axdefs[3] = _("Local User");    /* user with normal privileges */
+	axdefs[4] = _("Network User");  /* a user that may access network resources */
+	axdefs[5] = _("Preferred User");/* a moderator */
+	axdefs[6] = _("Aide");          /* chief */
 }
 
 
@@ -266,6 +266,9 @@ void do_login(void)
  */
 void do_openid_login(void)
 {
+	int i;
+	char buf[4096];
+
 	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
 		go_selected_language();
@@ -277,7 +280,9 @@ void do_openid_login(void)
 	}
 	if (havebstr("login_action")) {
 
-		fetch_http(bstr("openid_url"));		// FIXME
+		i = fetch_http(bstr("openid_url"), buf, sizeof buf);
+		lprintf(9, "fetched %d bytes (FIXME do something with it)\n", i);
+
 
 	}
 	if (WC->logged_in) {

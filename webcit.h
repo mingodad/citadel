@@ -807,7 +807,7 @@ void display_wiki_page(void);
 int get_time_format_cached (void);
 int xtoi(char *in, size_t len);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
-void fetch_http(char *url);
+int fetch_http(char *url, char *target_buf, int maxbytes);
 
 
 #ifdef HAVE_ICONV
