@@ -484,6 +484,7 @@ void cookie_to_stuff(char *cookie, int *session,
 void locate_host(char *, int);
 void become_logged_in(char *, char *, char *);
 void do_login(void);
+void do_openid_login(void);
 void display_login(char *mesg);
 void display_openid_login(char *mesg);
 void do_welcome(void);
@@ -806,6 +807,7 @@ void display_wiki_page(void);
 int get_time_format_cached (void);
 int xtoi(char *in, size_t len);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
+void fetch_http(char *url);
 
 
 #ifdef HAVE_ICONV

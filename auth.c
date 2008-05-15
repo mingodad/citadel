@@ -79,8 +79,14 @@ void display_login(char *mesg)
 	}
 
 #ifdef TECH_PREVIEW
-		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING, "<a href=\"display_openid_login\">%s</a>",
-			"Click here to login with OpenID"	// FIXME localize when ready
+		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING,
+			"<div align=center>"
+			"<a href=\"display_openid_login\">"
+			"<img src=\"static/openid-small.gif\" border=0 valign=middle>"
+			"%s</a>"
+			"</div>"
+			,
+			"Log in using OpenID"
 		);
 #else
 		svput("OFFER_OPENID_LOGIN", WCS_STRING, "");
@@ -130,6 +136,15 @@ void display_openid_login(char *mesg)
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
 		serv_info.serv_humannode);
 	svcallback("DO_LANGUAGE_BOX", offer_languages);
+
+	svprintf(HKEY("OFFER_CONVENTIONAL_LOGIN"), WCS_STRING,
+		"<div align=center>"
+		"<a href=\"display_login\">"
+		"%s</a>"
+		"</div>"
+		,
+		"Log in using a user name and password"
+	);
 
 	do_template("openid_login");
 	wDumpContent(2);
@@ -182,8 +197,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 
 
 /* 
- * Login Checks
- * the logic to detect invalid passwords not to get on citservers nerves
+ * Perform authentication using a user name and password
  */
 void do_login(void)
 {
@@ -243,6 +257,47 @@ void do_login(void)
 	}
 
 }
+
+
+
+
+/* 
+ * Perform authentication using OpenID
+ */
+void do_openid_login(void)
+{
+	if (havebstr("language")) {
+		set_selected_language(bstr("language"));
+		go_selected_language();
+	}
+
+	if (havebstr("exit_action")) {
+		do_logout();
+		return;
+	}
+	if (havebstr("login_action")) {
+
+		fetch_http(bstr("openid_url"));		// FIXME
+
+	}
+	if (WC->logged_in) {
+		if (WC->need_regi) {
+			display_reg(1);
+		} else {
+			do_welcome();
+		}
+	} else {
+		display_openid_login(_("Your password was not accepted."));
+	}
+
+}
+
+
+
+
+
+
+
 
 /*
  * display the user a welcome screen.
