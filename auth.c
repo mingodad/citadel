@@ -78,8 +78,60 @@ void display_login(char *mesg)
 		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
 	}
 
+#ifdef TECH_PREVIEW
+		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING, "<a href=\"display_openid_login\">%s</a>",
+			"Click here to login with OpenID"	// FIXME localize when ready
+		);
+#else
+		svput("OFFER_OPENID_LOGIN", WCS_STRING, "");
+#endif
+
 	do_template("login");
 
+	wDumpContent(2);
+}
+
+
+
+
+/* 
+ * Display the openid-enabled login screen
+ * mesg = the error message if last attempt failed.
+ */
+void display_openid_login(char *mesg)
+{
+	char buf[SIZ];
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"login_screen\">\n");
+
+	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
+			stresc(buf, SIZ,  mesg, 0, 0);
+			svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
+	}
+
+	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
+		_("<ul>"
+		"<li>Enter your OpenID URL and click &quot;Login&quot;."
+		"<li>Please log off properly when finished. "
+		"<li>You must use a browser that supports <i>frames</i> and "
+		"<i>cookies</i>. "
+		"<li>Also keep in mind that if your browser is "
+		"configured to block pop-up windows, you will not be able "
+		"to receive any instant messages.<br />"
+		"</ul>")
+	);
+
+	svput("OPENID_BOX", WCS_STRING, _("OpenID URL:"));
+	svput("LANGUAGE_BOX", WCS_STRING, _("Language:"));
+	svput("LOGIN_BUTTON", WCS_STRING, _("Login"));
+	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
+	svput("HELLO", WCS_SERVCMD, "MESG hello");
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
+		serv_info.serv_humannode);
+	svcallback("DO_LANGUAGE_BOX", offer_languages);
+
+	do_template("openid_login");
 	wDumpContent(2);
 }
 

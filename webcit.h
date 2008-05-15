@@ -485,6 +485,7 @@ void locate_host(char *, int);
 void become_logged_in(char *, char *, char *);
 void do_login(void);
 void display_login(char *mesg);
+void display_openid_login(char *mesg);
 void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
