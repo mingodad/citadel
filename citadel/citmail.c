@@ -56,13 +56,13 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n",
+		fprintf(stderr, "citmail: Can't create socket: %s\n",
 			strerror(errno));
 		exit(3);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		fprintf(stderr, "can't connect: %s\n",
+		fprintf(stderr, "citmail: can't connect: %s\n",
 			strerror(errno));
 		close(s);
 		exit(3);
@@ -154,7 +154,7 @@ void cleanup(int exitcode) {
 	char buf[1024];
 
 	if (exitcode != 0) {
-		fprintf(stderr, "Error #%d occurred while sending mail.\n", exitcode);
+		fprintf(stderr, "citmail: error #%d occurred while sending mail.\n", exitcode);
 		fprintf(stderr, "Please check your Citadel configuration.\n");
 	}
 	serv_puts("QUIT");
@@ -209,13 +209,13 @@ int main(int argc, char **argv) {
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		fprintf(stderr, "%s\n", &buf[4]);
-		if (debug) fprintf(stderr, "Could not connect to LMTP socket.\n");
+		if (debug) fprintf(stderr, "citmail: could not connect to LMTP socket.\n");
 		cleanup(1);
 	}
 
 	sp = strchr (buf, ' ');
 	if (sp == NULL) {
-		if (debug) fprintf(stderr, "Could not calculate hostname.\n");
+		if (debug) fprintf(stderr, "citmail: ould not calculate hostname.\n");
 		cleanup(2);
 	}
 	sp ++;
