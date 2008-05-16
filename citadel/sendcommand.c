@@ -73,6 +73,8 @@ void remove_lockfile(void)
  */
 void nq_cleanup(int e)
 {
+	if (e == SIGALRM)
+		fprintf(stderr, "\nWatch dog time out.\n");
 	remove_lockfile();
 	exit(e);
 }
@@ -161,12 +163,6 @@ void sendcommand_die(void) {
 }
 
 
-void check_exit_code(int code, void *arg)
-{
-	if (code == SIGALRM)
-		fprintf(stderr, "\nWatch dog time out.\n");
-}
-
 
 /*
  * main
@@ -187,8 +183,6 @@ int main(int argc, char **argv)
 	int ret, err;
 	int server_shutting_down = 0;
 	
-	on_exit (check_exit_code, NULL);
-
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
 
 	strcpy(cmd, "");
