@@ -336,6 +336,7 @@ void extract_link(char *target_buf, int target_size, char *rel, char *source_buf
 
 /* 
  * Perform authentication using OpenID
+ * assemble the checkid_immediate request and then redirect to the user's identity provider
  */
 void do_openid_login(void)
 {
@@ -361,9 +362,6 @@ void do_openid_login(void)
 			extract_link(openid_server, sizeof openid_server, "openid.server", buf);
 			extract_link(openid_delegate, sizeof openid_delegate, "openid.delegate", buf);
 
-			lprintf(9, "  Server: %s\n", openid_server);
-			lprintf(9, "Delegate: %s\n", openid_delegate);
-
 			/* Empty delegate is legal; we just use the openid_url instead */
 			if (IsEmptyStr(openid_delegate)) {
 				safestrncpy(openid_delegate, bstr("openid_url"), sizeof openid_delegate);
@@ -371,16 +369,60 @@ void do_openid_login(void)
 
 			/* Now we know where to redirect to. */
 
-			// char redirect_string[4096];
+			char redirect_string[4096];
+			char escaped_identity[1024];
+			char escaped_return_to[1024];
+			char escaped_trust_root[1024];
 
-			lprintf(9, "identity:	%s\n", openid_delegate);
-			lprintf(9, "return_to:	%s://%s/foo\n", (is_https ? "https" : "http"), WC->http_host);
-			lprintf(9, "trust_root:	%s://%s\n", (is_https ? "https" : "http"), WC->http_host);
+			stresc(escaped_identity, sizeof escaped_identity, openid_delegate, 0, 1);
 
+			snprintf(buf, sizeof buf, "%s://%s/finish_openid_login",
+				(is_https ? "https" : "http"), WC->http_host);
+			stresc(escaped_return_to, sizeof escaped_identity, buf, 0, 1);
 
+			snprintf(buf, sizeof buf, "%s://%s",
+				(is_https ? "https" : "http"), WC->http_host);
+			stresc(escaped_trust_root, sizeof escaped_identity, buf, 0, 1);
 
+			snprintf(redirect_string, sizeof redirect_string,
+				"%s"
+				"?openid.mode=checkid_immediate"
+				"&openid_identity=%s"
+				"&openid.return_to=%s"
+				"&openid.trust_root=%s"
+				,
+				openid_server, escaped_identity, escaped_return_to, escaped_trust_root
+			);
+			http_redirect(redirect_string);
+			return;
 		}
 	}
+
+	/* If we get to this point then something failed. */
+	display_openid_login(_("Your password was not accepted."));
+}
+
+/* 
+ * Perform authentication using OpenID
+ * assemble the checkid_immediate request and then redirect to the user's identity provider
+ */
+void finish_openid_login(void)
+{
+	if (havebstr("openid.mode")) {
+		if (!strcasecmp(bstr("openid.mode"), "error")) {
+			if (havebstr("openid.error")) {
+				display_openid_login(bstr("openid.error"));
+			}
+			else {
+				display_openid_login(_("Your password was not accepted."));
+			}
+			return;
+		}
+	}
+
+
+	// FIXME finish this
+
 	if (WC->logged_in) {
 		if (WC->need_regi) {
 			display_reg(1);

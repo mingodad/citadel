@@ -1715,10 +1715,12 @@ void session_loop(struct httprequest *req)
 	 */
 	} else if ((!WC->logged_in) && (!strcasecmp(action, "login"))) {
 		do_login();
-	} else if ((!WC->logged_in) && (!strcasecmp(action, "openid_login"))) {
-		do_openid_login();
 	} else if ((!WC->logged_in) && (!strcasecmp(action, "display_openid_login"))) {
 		display_openid_login(NULL);
+	} else if ((!WC->logged_in) && (!strcasecmp(action, "openid_login"))) {
+		do_openid_login();
+	} else if ((!WC->logged_in) && (!strcasecmp(action, "finish_openid_login"))) {
+		finish_openid_login();
 	} else if (!WC->logged_in) {
 		display_login(NULL);
 	}
