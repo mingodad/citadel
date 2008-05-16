@@ -281,9 +281,66 @@ void extract_link(char *target_buf, int target_size, char *rel, char *source_buf
 {
 	char *ptr = source_buf;
 
+	if (!target_buf) return;
+	if (!rel) return;
+	if (!source_buf) return;
+
+	target_buf[0] = 0;
+
 	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
 
-	lprintf(9, "Got something\n", ptr);		// FIXME
+		char work_buffer[1024];
+		char *link_tag_start = NULL;
+		char *link_tag_end = NULL;
+
+		char rel_tag[1024];
+		char href_tag[1024];
+
+		link_tag_start = ptr;
+		link_tag_end = strchr(ptr, '>');
+		rel_tag[0] = 0;
+		href_tag[0] = 0;
+
+		if ((link_tag_end) && (link_tag_end > link_tag_start)) {
+			int len;
+			len = link_tag_end - link_tag_start;
+			if (len > sizeof work_buffer) len = sizeof work_buffer;
+			memcpy(work_buffer, link_tag_start, len);
+		
+			char *rel_start = NULL;
+			char *rel_end = NULL;
+			rel_start = bmstrcasestr(work_buffer, "rel=");
+			if (rel_start) {
+				rel_start = strchr(rel_start, '\"');
+				if (rel_start) {
+					++rel_start;
+					rel_end = strchr(rel_start, '\"');
+					if ((rel_end) && (rel_end > rel_start)) {
+						safestrncpy(rel_tag, rel_start, rel_end - rel_start + 1);
+					}
+				}
+			}
+
+			char *href_start = NULL;
+			char *href_end = NULL;
+			href_start = bmstrcasestr(work_buffer, "href=");
+			if (href_start) {
+				href_start = strchr(href_start, '\"');
+				if (href_start) {
+					++href_start;
+					href_end = strchr(href_start, '\"');
+					if ((href_end) && (href_end > href_start)) {
+						safestrncpy(href_tag, href_start, href_end - href_start + 1);
+					}
+				}
+			}
+
+			if (!strcasecmp(rel, rel_tag)) {
+				safestrncpy(target_buf, href_tag, target_size);
+				return;
+			}
+
+		}
 
 	++ptr;
 	}
