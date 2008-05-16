@@ -1955,6 +1955,8 @@ ABORTUPL:
 void network_poll_node(char *node, char *secret, char *host, char *port) {
 	int sock;
 	char buf[SIZ];
+	char err_buf[SIZ];
+	char connected_to[SIZ];
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
@@ -1972,6 +1974,14 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	/* Read the server greeting */
 	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+
+	/* Check that the remote is who we think it is and warn the Aide if not */
+	extract_token (connected_to, buf, 1, ' ', sizeof connected_to);
+	if (strcmp(connected_to, node))
+	{
+		snprintf (err_buf, sizeof(err_buf), "Connected to node \"%s\" but I was expecting to connect to node \"%s\".", connected_to, node);
+		aide_message(err_buf, "IGNet Networking error.");
+	}
 
 	/* Identify ourselves */
 	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
@@ -2188,6 +2198,7 @@ void cmd_netp(char *cmdbuf)
 
 	char secret[256];
 	char nexthop[256];
+	char err_buf[SIZ];
 
 	/* Authenticate */
 	extract_token(node, cmdbuf, 0, '|', sizeof node);
@@ -2205,15 +2216,19 @@ void cmd_netp(char *cmdbuf)
 	v = is_valid_node(nexthop, secret, node);
 
 	if (v != 0) {
-		CtdlLogPrintf(CTDL_WARNING, "Unknown node <%s>\n", node);
+		snprintf (err_buf, sizeof(err_buf), "Unknown node <%s>\n", node);
+		CtdlLogPrintf(CTDL_WARNING, err_buf);
 		cprintf("%d authentication failed\n",
 			ERROR + PASSWORD_REQUIRED);
+		aide_message(err_buf, "IGNet Networking.");
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		CtdlLogPrintf(CTDL_WARNING, "Bad password for network node <%s>", node);
+		snprintf (err_buf, sizeof(err_buf), "Bad password for network node <%s>", node);
+		CtdlLogPrintf(CTDL_WARNING, err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
+		aide_message(err_buf, "IGNet Networking.");
 		return;
 	}
 
