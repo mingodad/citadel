@@ -259,21 +259,6 @@ void do_login(void)
 }
 
 
-/*
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<html>
-<head>
-  <link rel="openid.server" href="http://uncensored.citadel.org/~ajc/MyID.config.php">
-  <link rel="openid.delegate" href="http://uncensored.citadel.org/~ajc/MyID.config.php">
-  <title>IGnatius T Foobar</title>
-</head>
-<body text="#00ff00" bgcolor="#000000" link="#ffff00">
-
-*/
-
-
-
 /* 
  * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
  */
@@ -378,7 +363,22 @@ void do_openid_login(void)
 
 			lprintf(9, "  Server: %s\n", openid_server);
 			lprintf(9, "Delegate: %s\n", openid_delegate);
-			// FIXME finish this
+
+			/* Empty delegate is legal; we just use the openid_url instead */
+			if (IsEmptyStr(openid_delegate)) {
+				safestrncpy(openid_delegate, bstr("openid_url"), sizeof openid_delegate);
+			}
+
+			/* Now we know where to redirect to. */
+
+			// char redirect_string[4096];
+
+			lprintf(9, "identity:	%s\n", openid_delegate);
+			lprintf(9, "return_to:	%s://%s/foo\n", (is_https ? "https" : "http"), WC->http_host);
+			lprintf(9, "trust_root:	%s://%s\n", (is_https ? "https" : "http"), WC->http_host);
+
+
+
 		}
 	}
 	if (WC->logged_in) {
