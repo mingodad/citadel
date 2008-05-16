@@ -332,13 +332,11 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 
 	/* First try curl */
 	snprintf(cmd, sizeof cmd, "curl -L %s </dev/null 2>/dev/null", url);
-	lprintf(9, "%s\n", cmd);
 	fp = popen(cmd, "r");
 
 	/* Then try wget */
 	if (!fp) {
 		snprintf(cmd, sizeof cmd, "wget -q -O - %s </dev/null 2>/dev/null", url);
-		lprintf(9, "%s\n", cmd);
 		fp = popen(cmd, "r");
 	}
 
@@ -350,6 +348,7 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 			}
 		}
 		pclose(fp);
+		return bytes_received;
 	}
 
 	/* Fall back to the built-in mini handler */
