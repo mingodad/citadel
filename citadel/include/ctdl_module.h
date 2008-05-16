@@ -150,4 +150,13 @@ struct CitContext *CtdlGetContextArray (int *count);
 
 
 
+/*
+ * CtdlGetCurrentMessageNumber()  -  Obtain the current highest message number in the system
+ * This provides a quick way to initialise a variable that might be used to indicate
+ * messages that should not be processed. EG. a new Sieve script will use this
+ * to record determine that messages older than this should not be processed.
+ * This function is defined in control.c
+ */
+long CtdlGetCurrentMessageNumber(void);
+
 #endif /* CTDL_MODULE_H */

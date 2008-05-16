@@ -988,6 +988,15 @@ void msiv_load(struct sdm_userdata *u) {
 }
 
 void msiv_store(struct sdm_userdata *u, int yes_write_to_disk) {
+/*
+ * Initialise the sieve configs last processed message number.
+ * We don't need to get the highest message number for the users inbox since the systems
+ * highest message number will be higher than that and loer than this scripts message number
+ * This prevents this new script from processing any old messages in the inbox.
+ * Most importantly it will prevent vacation messages being sent to lots of old messages
+ * in the inbox.
+ */
+	u->lastproc = CtdlGetCurrentMessageNumber();
 	rewrite_ctdl_sieve_config(u, yes_write_to_disk);
 }
 

@@ -214,6 +214,23 @@ long get_new_message_number(void)
 
 
 /*
+ * CtdlGetCurrentMessageNumber()  -  Obtain the current highest message number in the system
+ * This provides a quick way to initialise a variable that might be used to indicate
+ * messages that should not be processed. EG. a new Sieve script will use this
+ * to record determine that messages older than this should not be processed.
+ */
+long CtdlGetCurrentMessageNumber(void)
+{
+	long retval = 0L;
+	begin_critical_section(S_CONTROL);
+	get_control();
+	retval = CitControl.MMhighest;
+	end_critical_section(S_CONTROL);
+	return(retval);
+}
+
+
+/*
  * get_new_user_number()  -  Obtain a new, unique ID to be used for a user.
  */
 long get_new_user_number(void)
