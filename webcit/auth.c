@@ -259,6 +259,37 @@ void do_login(void)
 }
 
 
+/*
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+  <link rel="openid.server" href="http://uncensored.citadel.org/~ajc/MyID.config.php">
+  <link rel="openid.delegate" href="http://uncensored.citadel.org/~ajc/MyID.config.php">
+  <title>IGnatius T Foobar</title>
+</head>
+<body text="#00ff00" bgcolor="#000000" link="#ffff00">
+
+*/
+
+
+
+/* 
+ * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
+ */
+void extract_link(char *target_buf, int target_size, char *rel, char *source_buf)
+{
+	char *ptr = source_buf;
+
+	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
+
+	lprintf(9, "Got something\n", ptr);		// FIXME
+
+	++ptr;
+	}
+
+
+}
 
 
 /* 
@@ -279,11 +310,19 @@ void do_openid_login(void)
 		return;
 	}
 	if (havebstr("login_action")) {
+		i = fetch_http(bstr("openid_url"), buf, sizeof buf - 1);
+		buf[sizeof buf - 1] = 0;
+		if (i > 0) {
+			char openid_server[1024];
+			char openid_delegate[1024];
+			
+			extract_link(openid_server, sizeof openid_server, "openid.server", buf);
+			extract_link(openid_delegate, sizeof openid_delegate, "openid.delegate", buf);
 
-		i = fetch_http(bstr("openid_url"), buf, sizeof buf);
-		lprintf(9, "fetched %d bytes (FIXME do something with it)\n", i);
-
-
+			lprintf(9, "  Server: %s\n", openid_server);
+			lprintf(9, "Delegate: %s\n", openid_delegate);
+			// FIXME finish this
+		}
 	}
 	if (WC->logged_in) {
 		if (WC->need_regi) {
