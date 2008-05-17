@@ -408,6 +408,11 @@ void do_openid_login(void)
  */
 void finish_openid_login(void)
 {
+	if (havebstr("openid.user_setup_url")) {
+		http_redirect(bstr("openid.user_setup_url"));
+		return;
+	}
+
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "error")) {
 			if (havebstr("openid.error")) {
