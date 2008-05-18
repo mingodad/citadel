@@ -336,7 +336,7 @@ void extract_link(char *target_buf, int target_size, char *rel, char *source_buf
 
 /* 
  * Perform authentication using OpenID
- * assemble the checkid_immediate request and then redirect to the user's identity provider
+ * assemble the checkid_setup request and then redirect to the user's identity provider
  */
 void do_openid_login(void)
 {
@@ -386,13 +386,14 @@ void do_openid_login(void)
 
 			snprintf(redirect_string, sizeof redirect_string,
 				"%s"
-				"?openid.mode=checkid_immediate"
+				"?openid.mode=checkid_setup"
 				"&openid_identity=%s"
 				"&openid.return_to=%s"
 				"&openid.trust_root=%s"
 				,
 				openid_server, escaped_identity, escaped_return_to, escaped_trust_root
 			);
+			lprintf(CTDL_DEBUG, "OpenID server contacted; redirecting to %s\n", redirect_string);
 			http_redirect(redirect_string);
 			return;
 		}
@@ -403,30 +404,19 @@ void do_openid_login(void)
 }
 
 /* 
- * Perform authentication using OpenID
- * assemble the checkid_immediate request and then redirect to the user's identity provider
+ * Complete the authentication using OpenID
+ * This function handles the positive or negative assertion from the user's Identity Provider
  */
 void finish_openid_login(void)
 {
-	if (havebstr("openid.user_setup_url")) {
-		http_redirect(bstr("openid.user_setup_url"));
-		return;
-	}
-
 	if (havebstr("openid.mode")) {
-		if (!strcasecmp(bstr("openid.mode"), "error")) {
-			if (havebstr("openid.error")) {
-				display_openid_login(bstr("openid.error"));
-			}
-			else {
-				display_openid_login(_("Your password was not accepted."));
-			}
-			return;
+		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
+
+			display_openid_login("FIXME id accepted but the code isn't finished");
+			//FIXME finish this
+
 		}
 	}
-
-
-	// FIXME finish this
 
 	if (WC->logged_in) {
 		if (WC->need_regi) {

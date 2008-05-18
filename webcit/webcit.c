@@ -141,9 +141,10 @@ void addurls(char *url)
 		u->url_data[u->url_data_size] = '\0';
 		up = bptr;
 		++up;
-/* uncomment the following line to see each parameter in the log
+
+#ifdef DEBUG_URLSTRINGS
 		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
-*/
+#endif
 	}
 }
 
