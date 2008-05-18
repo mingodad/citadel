@@ -64,6 +64,9 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 	void *Next;
 	const char* KeyStr;
 
+	if (Hash == NULL)
+		return 0;
+
 	for (i=0; i < Hash->nMembersUsed; i++) {
 		if (i==0) {
 			Previous = NULL;
@@ -104,6 +107,10 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 	const char *bla = "";
 	long key;
 	long i;
+
+	if (Hash == NULL)
+		return 0;
+
 	if (Hash->MyKeys != NULL)
 		free (Hash->MyKeys);
 
@@ -231,6 +238,9 @@ static void IncreaseHashSize(HashList *Hash)
 	Payload **NewPayloadArea;
 	HashKey **NewTable;
 	
+	if (Hash == NULL)
+		return ;
+
 	/** double our payload area */
 	NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
 	memset(&NewPayloadArea[Hash->MemberSize], 0, sizeof(Payload*) * Hash->MemberSize);
@@ -269,6 +279,9 @@ static void InsertHashItem(HashList *Hash,
 {
 	Payload *NewPayloadItem;
 	HashKey *NewHashKey;
+
+	if (Hash == NULL)
+		return;
 
 	if (Hash->nMembersUsed >= Hash->MemberSize)
 		IncreaseHashSize (Hash);
@@ -317,6 +330,9 @@ static long FindInTaintedHash(HashList *Hash, long HashBinKey)
 {
 	long SearchPos;
 
+	if (Hash == NULL)
+		return 0;
+
 	for (SearchPos = 0; SearchPos < Hash->nMembersUsed; SearchPos ++) {
 		if (Hash->LookupTable[SearchPos]->Key == HashBinKey){
 			return SearchPos;
@@ -335,6 +351,9 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 {
 	long SearchPos;
 	long StepWidth;
+
+	if (Hash == NULL)
+		return 0;
 
 	if (Hash->tainted)
 		return FindInTaintedHash(Hash, HashBinKey);
@@ -383,6 +402,9 @@ static long FindInHash(HashList *Hash, long HashBinKey)
  */
 inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
 {
+	if (Hash == NULL)
+		return 0;
+
 	if (Hash->Algorithm == NULL)
 		return hashlittle(HKey, HKLen, 9283457);
 	else
@@ -402,6 +424,9 @@ void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDat
 {
 	long HashBinKey;
 	long HashAt;
+
+	if (Hash == NULL)
+		return;
 
 	/** first, find out were we could fit in... */
 	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
@@ -448,6 +473,9 @@ int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 	long HashBinKey;
 	long HashAt;
 
+	if (Hash == NULL)
+		return 0;
+
 	if (HKLen <= 0) {
 		*Data = NULL;
 		return  0;
@@ -485,6 +513,8 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 int GetHashKeys(HashList *Hash, char ***List)
 {
 	long i;
+	if (Hash == NULL)
+		return 0;
 	if (Hash->MyKeys != NULL)
 		free (Hash->MyKeys);
 
@@ -515,8 +545,11 @@ HashPos *GetNewHashPos(void)
  */
 void DeleteHashPos(HashPos **DelMe)
 {
-	free(*DelMe);
-	*DelMe = NULL;
+	if (*DelMe != NULL)
+	{
+		free(*DelMe);
+		*DelMe = NULL;
+	}
 }
 
 
@@ -532,7 +565,7 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, voi
 {
 	long PayloadPos;
 
-	if (Hash->nMembersUsed <= At->Position)
+	if ((Hash == NULL) || (Hash->nMembersUsed <= At->Position))
 		return 0;
 	*HKLen = Hash->LookupTable[At->Position]->HKLen;
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
