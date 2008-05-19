@@ -225,10 +225,13 @@ void cmd_oid1(char *argbuf) {
 		char escaped_identity[1024];
 		char escaped_return_to[1024];
 		char escaped_trust_root[1024];
+		char escaped_sreg_optional[256];
 
 		urlesc(escaped_identity, sizeof escaped_identity, openid_delegate);
 		urlesc(escaped_return_to, sizeof escaped_return_to, return_to);
 		urlesc(escaped_trust_root, sizeof escaped_trust_root, trust_root);
+		urlesc(escaped_sreg_optional, sizeof escaped_sreg_optional,
+			"nickname,email,fullname,postcode,country");
 
 		snprintf(redirect_string, sizeof redirect_string,
 			"%s"
@@ -236,8 +239,10 @@ void cmd_oid1(char *argbuf) {
 			"&openid_identity=%s"
 			"&openid.return_to=%s"
 			"&openid.trust_root=%s"
+			"&openid.sreg.optional=%s"
 			,
-			openid_server, escaped_identity, escaped_return_to, escaped_trust_root
+			openid_server, escaped_identity, escaped_return_to,
+			escaped_trust_root, escaped_sreg_optional
 		);
 		cprintf("%d %s\n", CIT_OK, redirect_string);
 		return;
