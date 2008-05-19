@@ -260,87 +260,11 @@ void do_login(void)
 
 
 /* 
- * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
- */
-void extract_link(char *target_buf, int target_size, char *rel, char *source_buf)
-{
-	char *ptr = source_buf;
-
-	if (!target_buf) return;
-	if (!rel) return;
-	if (!source_buf) return;
-
-	target_buf[0] = 0;
-
-	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
-
-		char work_buffer[1024];
-		char *link_tag_start = NULL;
-		char *link_tag_end = NULL;
-
-		char rel_tag[1024];
-		char href_tag[1024];
-
-		link_tag_start = ptr;
-		link_tag_end = strchr(ptr, '>');
-		rel_tag[0] = 0;
-		href_tag[0] = 0;
-
-		if ((link_tag_end) && (link_tag_end > link_tag_start)) {
-			int len;
-			len = link_tag_end - link_tag_start;
-			if (len > sizeof work_buffer) len = sizeof work_buffer;
-			memcpy(work_buffer, link_tag_start, len);
-		
-			char *rel_start = NULL;
-			char *rel_end = NULL;
-			rel_start = bmstrcasestr(work_buffer, "rel=");
-			if (rel_start) {
-				rel_start = strchr(rel_start, '\"');
-				if (rel_start) {
-					++rel_start;
-					rel_end = strchr(rel_start, '\"');
-					if ((rel_end) && (rel_end > rel_start)) {
-						safestrncpy(rel_tag, rel_start, rel_end - rel_start + 1);
-					}
-				}
-			}
-
-			char *href_start = NULL;
-			char *href_end = NULL;
-			href_start = bmstrcasestr(work_buffer, "href=");
-			if (href_start) {
-				href_start = strchr(href_start, '\"');
-				if (href_start) {
-					++href_start;
-					href_end = strchr(href_start, '\"');
-					if ((href_end) && (href_end > href_start)) {
-						safestrncpy(href_tag, href_start, href_end - href_start + 1);
-					}
-				}
-			}
-
-			if (!strcasecmp(rel, rel_tag)) {
-				safestrncpy(target_buf, href_tag, target_size);
-				return;
-			}
-
-		}
-
-	++ptr;
-	}
-
-
-}
-
-
-/* 
  * Perform authentication using OpenID
  * assemble the checkid_setup request and then redirect to the user's identity provider
  */
 void do_openid_login(void)
 {
-	int i;
 	char buf[4096];
 
 	if (havebstr("language")) {
@@ -353,48 +277,22 @@ void do_openid_login(void)
 		return;
 	}
 	if (havebstr("login_action")) {
-		i = fetch_http(bstr("openid_url"), buf, sizeof buf - 1);
-		buf[sizeof buf - 1] = 0;
-		if (i > 0) {
-			char openid_server[1024];
-			char openid_delegate[1024];
-			
-			extract_link(openid_server, sizeof openid_server, "openid.server", buf);
-			extract_link(openid_delegate, sizeof openid_delegate, "openid.delegate", buf);
+		snprintf(buf, sizeof buf,
+			"OID1 %s|%s://%s/finish_openid_login|%s://%s",
+			bstr("openid_url"),
+			(is_https ? "https" : "http"), WC->http_host,
+			(is_https ? "https" : "http"), WC->http_host
+		);
 
-			/* Empty delegate is legal; we just use the openid_url instead */
-			if (IsEmptyStr(openid_delegate)) {
-				safestrncpy(openid_delegate, bstr("openid_url"), sizeof openid_delegate);
-			}
-
-			/* Now we know where to redirect to. */
-
-			char redirect_string[4096];
-			char escaped_identity[1024];
-			char escaped_return_to[1024];
-			char escaped_trust_root[1024];
-
-			stresc(escaped_identity, sizeof escaped_identity, openid_delegate, 0, 1);
-
-			snprintf(buf, sizeof buf, "%s://%s/finish_openid_login",
-				(is_https ? "https" : "http"), WC->http_host);
-			stresc(escaped_return_to, sizeof escaped_identity, buf, 0, 1);
-
-			snprintf(buf, sizeof buf, "%s://%s",
-				(is_https ? "https" : "http"), WC->http_host);
-			stresc(escaped_trust_root, sizeof escaped_identity, buf, 0, 1);
-
-			snprintf(redirect_string, sizeof redirect_string,
-				"%s"
-				"?openid.mode=checkid_setup"
-				"&openid_identity=%s"
-				"&openid.return_to=%s"
-				"&openid.trust_root=%s"
-				,
-				openid_server, escaped_identity, escaped_return_to, escaped_trust_root
-			);
-			lprintf(CTDL_DEBUG, "OpenID server contacted; redirecting to %s\n", redirect_string);
-			http_redirect(redirect_string);
+		serv_puts(buf);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '2') {
+			lprintf(CTDL_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
+			http_redirect(&buf[4]);
+			return;
+		}
+		else {
+			display_openid_login(&buf[4]);
 			return;
 		}
 	}

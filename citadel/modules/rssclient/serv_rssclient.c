@@ -352,6 +352,9 @@ void rss_do_fetching(char *url, char *rooms) {
 
 	CURL *curl;
 	CURLcode res;
+	char errmsg[1024] = "";
+
+	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", url);
 
 	curl = curl_easy_init();
 	if (!curl) {
@@ -371,6 +374,8 @@ void rss_do_fetching(char *url, char *rooms) {
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, xp);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 
 	memset(&ri, 0, sizeof(struct rss_item));
 	ri.roomlist = rooms;
@@ -388,10 +393,10 @@ void rss_do_fetching(char *url, char *rooms) {
 	if (CtdlThreadCheckStop())
 		goto shutdown ;
 
-
 	res = curl_easy_perform(curl);
-	//while got bytes
-	//XML_Parse(xp, buf, got_bytes, 0);
+	if (res) {
+		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
+	}
 
 	if (CtdlThreadCheckStop())
 		goto shutdown ;
