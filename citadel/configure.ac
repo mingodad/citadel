@@ -617,6 +617,33 @@ AC_CHECK_HEADER(expat.h,
 )
 
 
+
+
+
+
+
+dnl Checks for libcurl.
+AC_CHECK_HEADER(curl/curl.h,
+	[AC_CHECK_LIB(curl, curl_easy_init,
+		[
+			SERVER_LIBS="-lcurl $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(libcurl was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(curl/curl.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+
+
+
+
+
+
 dnl Checks for the libical iCalendar library.
 AC_CHECK_HEADER(ical.h,
 	[AC_CHECK_LIB(ical, icalcomponent_new,

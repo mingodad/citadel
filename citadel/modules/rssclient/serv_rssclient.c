@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <expat.h>
+#include <curl/curl.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -332,32 +333,44 @@ void rss_xml_chardata(void *data, const XML_Char *s, int len) {
 
 
 /*
+ * Callback function for passing libcurl's output to expat for parsing
+ */
+size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	XML_Parse((XML_Parser)stream, ptr, (size * nmemb), 0);
+	return (size*nmemb);
+}
+
+
+
+/*
  * Begin a feed parse
  */
 void rss_do_fetching(char *url, char *rooms) {
-	char buf[1024];
-	char rsshost[1024];
-	int rssport = 80;
-	char rssurl[1024];
 	struct rss_item ri;
 	XML_Parser xp;
-	int sock = (-1);
-	int got_bytes = (-1);
-	int redirect_count = 0;
 
-	/* Parse the URL */
-	if (parse_url(url, rsshost, &rssport, rssurl) != 0) {
-		CtdlLogPrintf(CTDL_ALERT, "Invalid URL: %s\n", url);
-	}
-	
-	if (CtdlThreadCheckStop())
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if (!curl) {
+		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
 		return;
+	}
 
 	xp = XML_ParserCreateNS("UTF-8", ':');
 	if (!xp) {
 		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		curl_easy_cleanup(curl);
 		return;
 	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, xp);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
 
 	memset(&ri, 0, sizeof(struct rss_item));
 	ri.roomlist = rooms;
@@ -368,103 +381,26 @@ void rss_do_fetching(char *url, char *rooms) {
 	if (CtdlThreadCheckStop())
 	{
 		XML_ParserFree(xp);
+		curl_easy_cleanup(curl);
 		return;
 	}
 	
-retry:	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s>\n", rsshost);
-	sprintf(buf, "%d", rssport);
-	sock = sock_connect(rsshost, buf, "tcp");
-	if (sock >= 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+	if (CtdlThreadCheckStop())
+		goto shutdown ;
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		snprintf(buf, sizeof buf, "GET %s HTTP/1.0", rssurl);
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		sock_puts(sock, buf);
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		snprintf(buf, sizeof buf, "Host: %s", rsshost);
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		sock_puts(sock, buf);
+	res = curl_easy_perform(curl);
+	//while got bytes
+	//XML_Parse(xp, buf, got_bytes, 0);
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		snprintf(buf, sizeof buf, "User-Agent: %s", CITADEL);
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		sock_puts(sock, buf);
+	if (CtdlThreadCheckStop())
+		goto shutdown ;
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		snprintf(buf, sizeof buf, "Accept: */*");
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		sock_puts(sock, buf);
+	if (ri.done_parsing == 0) XML_Parse(xp, "", 0, 1);
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		sock_puts(sock, "");
 
-		if (CtdlThreadCheckStop())
-			goto shutdown ;
-			
-		if (sock_getln(sock, buf, sizeof buf) >= 0) {
-			CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
-			remove_token(buf, 0, ' ');
-
-			/* 200 OK */
-			if (buf[0] == '2') {
-
-				while (got_bytes = sock_getln(sock, buf, sizeof buf),
-				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
-					if (CtdlThreadCheckStop())
-						goto shutdown ;
-					/* discard headers */
-				}
-
-				while (got_bytes = sock_read(sock, buf, sizeof buf, 0),
-				      ((got_bytes>=0) && (ri.done_parsing == 0)) ) {
-					if (CtdlThreadCheckStop())
-						goto shutdown ;
-					XML_Parse(xp, buf, got_bytes, 0);
-				}
-				if (ri.done_parsing == 0) XML_Parse(xp, "", 0, 1);
-			}
-
-			/* 30X redirect */
-			else if ( (!strncmp(buf, "30", 2)) && (redirect_count < 16) ) {
-			        while (got_bytes = sock_getln(sock, buf, sizeof buf),
-				      (got_bytes >= 0 && (strcmp(buf, "")) && (strcmp(buf, "\r"))) ) {
-					if (CtdlThreadCheckStop())
-						goto shutdown ;
-					if (!strncasecmp(buf, "Location:", 9)) {
-						++redirect_count;
-						strcpy(buf, &buf[9]);
-						striplt(buf);
-						if (parse_url(buf, rsshost, &rssport, rssurl) == 0) {
-							sock_close(sock);
-							goto retry;
-						}
-						else {
-							CtdlLogPrintf(CTDL_ALERT, "Invalid URL: %s\n", buf);
-						}
-					}
-				}
-			}
-
-		}
 shutdown:
-		sock_close(sock);
-	}
-	else {
-		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
-	}
-
+	curl_easy_cleanup(curl);
 	XML_ParserFree(xp);
 
 	/* Free the feed item data structure */
