@@ -45,20 +45,27 @@ case "$1" in
 
         # we're in a fresh install, so we send the welcome message.
         if test -z "$2"; then
-            export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
-            export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
-            export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
-            export FROM=room_citadel_stats@uncensored.citadel.org
-            export TO=room_lobby
-            (
-                printf "MIME-Version: 1.0\r\nContent-Type: multipart/alternative; \r\n boundary=$SEPERATOR\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n--$SEPERATOR\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"; 
-                cat $WELCOMETXT
-                printf "\r\n\r\n--$SEPERATOR\r\nContent-Type: text/html; charset=US-ASCII\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"
-                cat $WELCOMEHTML; 
-                printf "\r\n\r\n--$SEPERATOR--\r\n\r\n") | \
-                    /usr/sbin/citmail -bm -r "$FROM" "$TO"
 	    /usr/lib/citadel-server/migrate_aliases.sh /etc/citadel/mail.aliases
-        fi
+	    i=0;
+	    while test ! -S /var/run/citadel/citadel.socket -a "$i" -lt "10"; do
+		sleep 1
+		i=$(($i + 1))
+	    done
+	    if test ! -S /var/run/citadel/citadel.socket ; then
+		export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
+		export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
+		export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
+		export FROM=room_citadel_stats@uncensored.citadel.org
+		export TO=room_lobby
+		(
+                    printf "MIME-Version: 1.0\r\nContent-Type: multipart/alternative; \r\n boundary=$SEPERATOR\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n--$SEPERATOR\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"; 
+                    cat $WELCOMETXT
+                    printf "\r\n\r\n--$SEPERATOR\r\nContent-Type: text/html; charset=US-ASCII\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"
+                    cat $WELCOMEHTML; 
+                    printf "\r\n\r\n--$SEPERATOR--\r\n\r\n") | \
+			/usr/sbin/citmail -bm -r "$FROM" "$TO"
+            fi
+	fi
 
         if test -S /var/run/citadel/citadel.socket; then 
             /usr/sbin/sendcommand "DOWN"
