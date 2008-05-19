@@ -178,6 +178,53 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 }
 
 
+/*
+ * Establish a shared secret with an OpenID Identity Provider by sending
+ * an "associate" request.
+ */
+void prepare_openid_associate_request(char *openid_server, char *openid_delegate)
+{
+	CURL *curl;
+	CURLcode res;
+	struct curl_httppost *formpost=NULL;
+	struct curl_httppost *lastptr=NULL;
+
+	curl_formadd(&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME,	"openid.mode",
+			CURLFORM_COPYCONTENTS,	"associate",
+			CURLFORM_END
+	);
+
+	curl_formadd(&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME,	"openid.session_type",
+			CURLFORM_COPYCONTENTS,	"",
+			CURLFORM_END
+	);
+
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, openid_server);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+		//curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
+		//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
+		//curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+			
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+		res = curl_easy_perform(curl);
+
+		// FIXME not finished
+
+		curl_easy_cleanup(curl);
+	}
+	curl_formfree(formpost);
+}
+
+
+
 
 
 /*
@@ -201,7 +248,6 @@ void cmd_oid1(char *argbuf) {
 
 	i = fetch_http(openid_url, buf, sizeof buf - 1);
 	buf[sizeof buf - 1] = 0;
-	CtdlLogPrintf(CTDL_DEBUG, "fetch got %d bytes:\n", i);
 	if (i > 0) {
 		char openid_server[1024];
 		char openid_delegate[1024];
@@ -219,8 +265,10 @@ void cmd_oid1(char *argbuf) {
 			safestrncpy(openid_delegate, openid_url, sizeof openid_delegate);
 		}
 
-		/* Now we know where to redirect to. */
+		/* Prepare an "associate" request */
+		prepare_openid_associate_request(openid_server, openid_delegate);
 
+		/* Now we know where to redirect to. */
 		char redirect_string[4096];
 		char escaped_identity[1024];
 		char escaped_return_to[1024];
@@ -260,6 +308,7 @@ CTDL_MODULE_INIT(openid_rp)
 {
 	if (!threading)
 	{
+		curl_global_init(CURL_GLOBAL_ALL);
 	        CtdlRegisterProtoHook(cmd_oid1, "OID1", "Begin OpenID checkid_setup operation");
 	}
 
