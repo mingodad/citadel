@@ -287,7 +287,7 @@ ssize_t client_write(const void *buf, size_t count)
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
                         FD_SET(WC->http_sock, &wset);
-                        if (select(1, NULL, &wset, NULL, NULL) == -1) {
+                        if (select(WC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
                                 lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
