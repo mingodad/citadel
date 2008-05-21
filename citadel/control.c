@@ -172,6 +172,7 @@ void get_control(void)
 	rewind(control_fp);
 	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
 	already_have_control = 1;
+	chown(file_citadel_control, config.c_ctdluid, (-1));
 }
 
 /*

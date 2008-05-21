@@ -624,7 +624,7 @@ AC_CHECK_HEADER(expat.h,
 
 dnl Checks for libcurl.
 AC_CHECK_HEADER(curl/curl.h,
-	[AC_CHECK_LIB(curl, curl_easy_init,
+	[AC_CHECK_LIB(curl, curl_version,
 		[
 			SERVER_LIBS="-lcurl $SERVER_LIBS"
 		],

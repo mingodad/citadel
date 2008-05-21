@@ -33,6 +33,16 @@
 #include "ctdl_module.h"
 
 
+struct associate_handle {
+	char claimed_id[256];
+	char assoc_type[32];
+	time_t expires_in;
+	char assoc_handle[128];
+	char mac_key[128];
+};
+
+
+
 /* 
  * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
  */
@@ -178,6 +188,36 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 }
 
 
+#define ASSOCIATE_RESPONSE_SIZE	4096
+
+/*
+ * libcurl callback function for prepare_openid_associate_request()
+ */
+size_t associate_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	char *response = (char *) stream;
+	int got_bytes = (size * nmemb);
+	int len = strlen(response);
+
+	if ((len + got_bytes + 1) < ASSOCIATE_RESPONSE_SIZE) {
+		memcpy(&response[len], ptr, got_bytes);
+		response[len+got_bytes] = 0;
+	}
+
+	return got_bytes;
+}
+
+
+/*
+ * Process the response from an "associate" request
+ */
+void process_associate_response(associate_response)
+{
+	// FIXME finish this
+}
+
+
+
 /*
  * Establish a shared secret with an OpenID Identity Provider by sending
  * an "associate" request.
@@ -188,6 +228,9 @@ void prepare_openid_associate_request(char *openid_server, char *openid_delegate
 	CURLcode res;
 	struct curl_httppost *formpost=NULL;
 	struct curl_httppost *lastptr=NULL;
+	char associate_response[ASSOCIATE_RESPONSE_SIZE];
+
+	memset(associate_response, 0, ASSOCIATE_RESPONSE_SIZE);
 
 	curl_formadd(&formpost,
 			&lastptr,
@@ -208,16 +251,13 @@ void prepare_openid_associate_request(char *openid_server, char *openid_delegate
 		curl_easy_setopt(curl, CURLOPT_URL, openid_server);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-		//curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
-		//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
-		//curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, associate_response);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, associate_callback);
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 			
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 		res = curl_easy_perform(curl);
-
-		// FIXME not finished
-
+		process_associate_response(associate_response);
 		curl_easy_cleanup(curl);
 	}
 	curl_formfree(formpost);

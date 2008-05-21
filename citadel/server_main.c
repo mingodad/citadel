@@ -214,6 +214,10 @@ int main(int argc, char **argv)
 	CtdlLogPrintf(CTDL_INFO, "Loading citadel.config\n");
 	get_config();
 	config.c_ipgm_secret = rand();
+
+	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
+	get_control();
+
 	put_config();
 
 #ifdef HAVE_RUN_DIR
@@ -244,11 +248,8 @@ int main(int argc, char **argv)
 	 */
 	master_startup();
 
-	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
-	get_control();
-
 	
-/**
+/*
  * Initialise the user 0 to have a name. It would be nice to do it in InitializeMasterCC
  * since it is contained within the MasterCC but we can't because the DB isn't available
  * at that time so we do it seperate.

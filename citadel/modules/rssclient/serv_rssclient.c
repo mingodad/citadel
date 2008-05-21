@@ -557,6 +557,7 @@ CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
+		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
 	}
 	/* return our Subversion id for the Log */
