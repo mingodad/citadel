@@ -754,6 +754,7 @@ static void DeleteIcon(void *IconNamePtr)
 	free(Icon->FileName);
 }
 
+/*
 static const char *PrintFlat(void *IconNamePtr)
 {
 	IconName *Icon = (IconName*) IconNamePtr;
@@ -764,6 +765,8 @@ static const char *PrintFile(void *IconNamePtr)
 	IconName *Icon = (IconName*) IconNamePtr;
 	return Icon->FileName;
 }
+*/
+
 #define GENSTR "x-generic"
 #define IGNORE_PREFIX_1 "gnome-mime"
 int LoadIconDir(const char *DirName)

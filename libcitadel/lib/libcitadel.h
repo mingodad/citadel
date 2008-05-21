@@ -316,7 +316,6 @@ int GetCount(HashList *Hash);
 const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
 void convert_spaces_to_underscores(char *str);
-int parse_url(char *url, char *hostname, int *port, char *identifier);
 
 /*
  * Convert 4 bytes char into an Integer.
