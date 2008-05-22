@@ -37,7 +37,7 @@ struct associate_handle {
 	char claimed_id[256];
 	char assoc_type[32];
 	time_t expiration_time;
-	char assoc_handle[512];
+	char assoc_handle[256];
 	char mac_key[128];
 };
 
@@ -58,12 +58,12 @@ void extract_link(char *target_buf, int target_size, char *rel, char *source_buf
 
 	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
 
-		char work_buffer[1024];
+		char work_buffer[2048];
 		char *link_tag_start = NULL;
 		char *link_tag_end = NULL;
 
-		char rel_tag[1024];
-		char href_tag[1024];
+		char rel_tag[2048];
+		char href_tag[2048];
 
 		link_tag_start = ptr;
 		link_tag_end = strchr(ptr, '>');
@@ -178,6 +178,9 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 	res = curl_easy_perform(curl);
+	if (res) {
+		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
+	}
 	curl_easy_cleanup(curl);
 	return fh.total_bytes_received;
 }
@@ -211,7 +214,6 @@ void delete_assoc_handle(void *data) {
 	if (data) free(data);
 }
 
-
 /*
  * Process the response from an "associate" request
  */
@@ -219,9 +221,9 @@ struct associate_handle *process_associate_response(char *claimed_id, char *asso
 {
 	struct associate_handle *h = NULL;
 	char *ptr = associate_response;
-	char thisline[1024];
-	char thiskey[512];
-	char thisdata[512];
+	char thisline[512];
+	char thiskey[256];
+	char thisdata[256];
 
 	h = (struct associate_handle *) malloc(sizeof(struct associate_handle));
 	safestrncpy(h->claimed_id, claimed_id, sizeof h->claimed_id);
@@ -358,8 +360,8 @@ void cmd_oids(char *argbuf) {
 
 		/* Assemble a URL to which the user-agent will be redirected. */
 		char redirect_string[4096];
-		char escaped_identity[1024];
-		char escaped_return_to[1024];
+		char escaped_identity[512];
+		char escaped_return_to[2048];
 		char escaped_trust_root[1024];
 		char escaped_sreg_optional[256];
 		char escaped_assoc_handle[512];
@@ -401,7 +403,7 @@ void cmd_oids(char *argbuf) {
  * Finalize an OpenID authentication
  */
 void cmd_oidf(char *argbuf) {
-	char assoc_handle[512];
+	char assoc_handle[256];
 	struct associate_handle *h = NULL;
 
 	extract_token(assoc_handle, argbuf, 0, '|', sizeof assoc_handle);
