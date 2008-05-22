@@ -211,9 +211,20 @@ size_t associate_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 /*
  * Process the response from an "associate" request
  */
-void process_associate_response(associate_response)
+struct associate_handle *process_associate_response(char *claimed_id, char *associate_response)
 {
+	struct associate_handle *h = NULL;
+
+	h = (struct associate_handle *) malloc(sizeof(struct associate_handle));
+	safestrncpy(h->claimed_id, claimed_id, sizeof h->claimed_id);
+
+
+
+
 	// FIXME finish this
+
+
+	return h;
 }
 
 
@@ -222,13 +233,15 @@ void process_associate_response(associate_response)
  * Establish a shared secret with an OpenID Identity Provider by sending
  * an "associate" request.
  */
-void prepare_openid_associate_request(char *openid_server, char *openid_delegate)
+struct associate_handle *prepare_openid_associate_request(
+		char *claimed_id, char *openid_server, char *openid_delegate)
 {
 	CURL *curl;
 	CURLcode res;
 	struct curl_httppost *formpost=NULL;
 	struct curl_httppost *lastptr=NULL;
 	char associate_response[ASSOCIATE_RESPONSE_SIZE];
+	struct associate_handle *h = NULL;
 
 	memset(associate_response, 0, ASSOCIATE_RESPONSE_SIZE);
 
@@ -257,10 +270,12 @@ void prepare_openid_associate_request(char *openid_server, char *openid_delegate
 			
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 		res = curl_easy_perform(curl);
-		process_associate_response(associate_response);
+		h = process_associate_response(claimed_id, associate_response);
 		curl_easy_cleanup(curl);
 	}
 	curl_formfree(formpost);
+
+	return h;
 }
 
 
@@ -276,6 +291,7 @@ void cmd_oid1(char *argbuf) {
 	char trust_root[1024];
 	int i;
 	char buf[SIZ];
+	struct associate_handle *h = NULL;
 
 	if (CC->logged_in) {
 		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
@@ -306,7 +322,7 @@ void cmd_oid1(char *argbuf) {
 		}
 
 		/* Prepare an "associate" request */
-		prepare_openid_associate_request(openid_server, openid_delegate);
+		h = prepare_openid_associate_request(openid_url, openid_server, openid_delegate);
 
 		/* Now we know where to redirect to. */
 		char redirect_string[4096];
