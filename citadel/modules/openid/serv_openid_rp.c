@@ -37,7 +37,7 @@ struct associate_handle {
 	char claimed_id[256];
 	char assoc_type[32];
 	time_t expiration_time;
-	char assoc_handle[128];
+	char assoc_handle[512];
 	char mac_key[128];
 };
 
@@ -219,9 +219,9 @@ struct associate_handle *process_associate_response(char *claimed_id, char *asso
 {
 	struct associate_handle *h = NULL;
 	char *ptr = associate_response;
-	char thisline[256];
-	char thiskey[256];
-	char thisdata[256];
+	char thisline[1024];
+	char thiskey[512];
+	char thisdata[512];
 
 	h = (struct associate_handle *) malloc(sizeof(struct associate_handle));
 	safestrncpy(h->claimed_id, claimed_id, sizeof h->claimed_id);
@@ -230,6 +230,8 @@ struct associate_handle *process_associate_response(char *claimed_id, char *asso
 		ptr = memreadline(ptr, thisline, sizeof thisline);
 		extract_token(thiskey, thisline, 0, ':', sizeof thiskey);
 		extract_token(thisdata, thisline, 1, ':', sizeof thisdata);
+
+		CtdlLogPrintf(CTDL_DEBUG, "Associate response: key:<%s> data:<%s>\n", thiskey, thisdata);
 
 		if (!strcasecmp(thiskey, "assoc_type")) {
 			safestrncpy(h->assoc_type, thisdata, sizeof h->assoc_type);
@@ -360,7 +362,7 @@ void cmd_oids(char *argbuf) {
 		char escaped_return_to[1024];
 		char escaped_trust_root[1024];
 		char escaped_sreg_optional[256];
-		char escaped_assoc_handle[256];
+		char escaped_assoc_handle[512];
 
 		urlesc(escaped_identity, sizeof escaped_identity, openid_delegate);
 		urlesc(escaped_assoc_handle, sizeof escaped_assoc_handle, h->assoc_handle);
@@ -399,7 +401,7 @@ void cmd_oids(char *argbuf) {
  * Finalize an OpenID authentication
  */
 void cmd_oidf(char *argbuf) {
-	char assoc_handle[256];
+	char assoc_handle[512];
 	struct associate_handle *h = NULL;
 
 	extract_token(assoc_handle, argbuf, 0, '|', sizeof assoc_handle);
