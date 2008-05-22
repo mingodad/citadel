@@ -278,7 +278,7 @@ void do_openid_login(void)
 	}
 	if (havebstr("login_action")) {
 		snprintf(buf, sizeof buf,
-			"OID1 %s|%s://%s/finish_openid_login|%s://%s",
+			"OIDS %s|%s://%s/finalize_openid_login|%s://%s",
 			bstr("openid_url"),
 			(is_https ? "https" : "http"), WC->http_host,
 			(is_https ? "https" : "http"), WC->http_host
@@ -305,13 +305,30 @@ void do_openid_login(void)
  * Complete the authentication using OpenID
  * This function handles the positive or negative assertion from the user's Identity Provider
  */
-void finish_openid_login(void)
+void finalize_openid_login(void)
 {
+	char buf[1024];
+
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
 
-			display_openid_login("FIXME id accepted but the code isn't finished");
-			//FIXME finish this
+// openid.mode = [6]  id_res
+// openid.identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
+// openid.assoc_handle = [26]  6ekac3ju181tgepk7v4h9r7ui7
+// openid.return_to = [42]  http://jemcaterers.net/finish_openid_login
+// openid.sreg.nickname = [17]  IGnatius T Foobar
+// openid.sreg.email = [26]  ajc@uncensored.citadel.org
+// openid.sreg.fullname = [10]  Art Cancro
+// openid.sreg.postcode = [5]  10549
+// openid.sreg.country = [2]  US
+// openid.signed = [102]  mode,identity,assoc_handle,return_to,sreg.nickname,sreg.email,sreg.fullname,sreg.postcode,sreg.country
+// openid.sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
+
+			// FIXME id accepted but the code isn't finished
+			serv_printf("OIDF %s", bstr("openid.assoc_handle"));
+			serv_getln(buf, sizeof buf);
+			display_openid_login(buf);
+			return;
 
 		}
 	}
