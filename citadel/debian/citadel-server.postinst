@@ -47,11 +47,11 @@ case "$1" in
         if test -z "$2"; then
 	    /usr/lib/citadel-server/migrate_aliases.sh /etc/citadel/mail.aliases
 	    i=0;
-	    while test ! -S /var/run/citadel/citadel.socket -a "$i" -lt "10"; do
+	    while test ! -S /var/run/citadel/lmtp.socket -a "$i" -lt "10"; do
 		sleep 1
 		i=$(($i + 1))
 	    done
-	    if test ! -S /var/run/citadel/citadel.socket ; then
+	    if test ! -S /var/run/citadel/lmtp.socket ; then
 		export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
 		export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
 		export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
