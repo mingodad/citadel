@@ -93,23 +93,21 @@ void free_url(void *U)
 /*
  * Extract variables from the URL.
  */
-void addurls(char *url)
+void addurls(char *url, long ulen)
 {
 	char *aptr, *bptr, *eptr;
 	char *up;
-	char buf[SIZ] = "";
-	int len, n, keylen;
+	char *buf;
+	int len, keylen;
 	urlcontent *u;
 	struct wcsession *WCC = WC;
 
 	if (WCC->urlstrings == NULL)
 		WCC->urlstrings = NewHash(1, NULL);
-	eptr = buf + sizeof (buf);
-	up = url;
-	/** locate the = sign */
-	n = safestrncpy(buf, up, sizeof buf);
-	if (n < 0) /* hm, we exceeded the buffer... hmmm what to do now? */
-		n = -n;
+	buf = (char*) malloc (ulen + 1);
+	memcpy(buf, url, ulen);
+	buf[ulen] = '\0';
+	eptr = buf + ulen;
 	up = buf;
 	while (!IsEmptyStr(up)) {
 		aptr = up;
@@ -141,7 +139,6 @@ void addurls(char *url)
 		u->url_data[u->url_data_size] = '\0';
 		up = bptr;
 		++up;
-
 #ifdef DEBUG_URLSTRINGS
 		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
 #endif
@@ -1343,7 +1340,6 @@ void session_loop(struct httprequest *req)
 	char pathname[1024];
 	int a, b, nBackDots, nEmpty;
 	int ContentLength = 0;
-	int BytesRead = 0;
 	char ContentType[512];
 	char *content = NULL;
 	char *content_end = NULL;
@@ -1459,18 +1455,21 @@ void session_loop(struct httprequest *req)
 	}
 
 	if (ContentLength > 0) {
-		content = malloc(ContentLength + SIZ);
-		memset(content, 0, ContentLength + SIZ);
-		snprintf(content,  ContentLength + SIZ, "Content-type: %s\n"
+		int BuffSize;
+
+		BuffSize = ContentLength + SIZ;
+		content = malloc(BuffSize);
+		memset(content, 0, BuffSize);
+		snprintf(content,  BuffSize, "Content-type: %s\n"
 				"Content-length: %d\n\n",
 				ContentType, ContentLength);
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */
-		client_read(WC->http_sock, &content[BytesRead+body_start], ContentLength);
+		client_read(WC->http_sock, &content[body_start], ContentLength);
 
 		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
-			addurls(&content[body_start]);
+			addurls(&content[body_start], ContentLength);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength + body_start;
 			mime_parser(content, content_end, *upload_handler, NULL, NULL, NULL, 0);
@@ -1494,7 +1493,7 @@ void session_loop(struct httprequest *req)
 					len = b - 1;
 				}
 			}
-			addurls(&cmd[a + 1]);
+			addurls(&cmd[a + 1], len - a);
 			cmd[a] = 0;
 			len = a - 1;
 		}
