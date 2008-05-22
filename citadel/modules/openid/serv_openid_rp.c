@@ -177,12 +177,7 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-
 	res = curl_easy_perform(curl);
-	if (res) {
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
-	}
-
 	curl_easy_cleanup(curl);
 	return fh.total_bytes_received;
 }
@@ -205,6 +200,15 @@ size_t associate_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 	}
 
 	return got_bytes;
+}
+
+
+/*
+ * Helper function for process_associate_response()
+ * (Delete function for hash table)
+ */
+void delete_assoc_handle(void *data) {
+	if (data) free(data);
 }
 
 
@@ -242,9 +246,10 @@ struct associate_handle *process_associate_response(char *claimed_id, char *asso
 
 	} while (*ptr);
 
-	// FIXME add this data structure into a hash table
+	/* Add this data structure into the hash table */
+	Put(HL, h->assoc_handle, strlen(h->assoc_handle), h, delete_assoc_handle);
 
-	// FIXME periodically purge the hash table of expired handles
+	/* FIXME periodically purge the hash table of expired handles */
 
 	return h;
 }
@@ -305,9 +310,9 @@ struct associate_handle *prepare_openid_associate_request(
 
 
 /*
- * Begin the first portion of an OpenID checkid_setup operation.
+ * Setup an OpenID authentication
  */
-void cmd_oid1(char *argbuf) {
+void cmd_oids(char *argbuf) {
 	char openid_url[1024];
 	char return_to[1024];
 	char trust_root[1024];
@@ -380,6 +385,7 @@ void cmd_oid1(char *argbuf) {
 			escaped_trust_root,
 			escaped_sreg_optional
 		);
+		CtdlLogPrintf(CTDL_DEBUG, "Telling client about assoc_handle <%s>\n", h->assoc_handle);
 		cprintf("%d %s\n", CIT_OK, redirect_string);
 		return;
 	}
@@ -389,13 +395,37 @@ void cmd_oid1(char *argbuf) {
 
 
 
+/*
+ * Finalize an OpenID authentication
+ */
+void cmd_oidf(char *argbuf) {
+	char assoc_handle[256];
+	struct associate_handle *h = NULL;
+
+	extract_token(assoc_handle, argbuf, 0, '|', sizeof assoc_handle);
+
+	if (GetHash(HL, assoc_handle, strlen(assoc_handle), (void *)&h)) {
+		cprintf("%d handle %s is good\n", CIT_OK, assoc_handle);
+
+		// FIXME now do something with it
+
+	}
+	else {
+		cprintf("%d handle %s not found\n", ERROR, assoc_handle);
+	}
+}
+
+
+
+
 CTDL_MODULE_INIT(openid_rp)
 {
 	if (!threading)
 	{
 		curl_global_init(CURL_GLOBAL_ALL);
 		HL = NewHash(1, NULL);
-	        CtdlRegisterProtoHook(cmd_oid1, "OID1", "Begin OpenID checkid_setup operation");
+	        CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
+	        CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 	}
 
 	/* return our Subversion id for the Log */
