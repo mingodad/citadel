@@ -647,10 +647,17 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	if (cache) {
+		char httpTomorow[128];
+
+		http_datestring(httpTomorow, sizeof httpTomorow, 
+				time(NULL) + 60 * 60 * 24 * 2);
+
 		wprintf("Pragma: public\r\n"
 			"Cache-Control: max-age=3600, must-revalidate\r\n"
-			"Last-modified: %s\r\n",
-			httpnow
+			"Last-modified: %s\r\n"
+			"Expires: %s\r\n",
+			httpnow,
+			httpTomorow
 		);
 	}
 	else {
