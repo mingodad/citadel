@@ -36,12 +36,12 @@
 struct associate_handle {
 	char claimed_id[256];
 	char assoc_type[32];
-	time_t expires_in;
+	time_t expiration_time;
 	char assoc_handle[128];
 	char mac_key[128];
 };
 
-
+HashList *HL = NULL;		// hash table of assoc_handle
 
 /* 
  * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
@@ -214,15 +214,37 @@ size_t associate_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 struct associate_handle *process_associate_response(char *claimed_id, char *associate_response)
 {
 	struct associate_handle *h = NULL;
+	char *ptr = associate_response;
+	char thisline[256];
+	char thiskey[256];
+	char thisdata[256];
 
 	h = (struct associate_handle *) malloc(sizeof(struct associate_handle));
 	safestrncpy(h->claimed_id, claimed_id, sizeof h->claimed_id);
 
+	do {
+		ptr = memreadline(ptr, thisline, sizeof thisline);
+		extract_token(thiskey, thisline, 0, ':', sizeof thiskey);
+		extract_token(thisdata, thisline, 1, ':', sizeof thisdata);
 
+		if (!strcasecmp(thiskey, "assoc_type")) {
+			safestrncpy(h->assoc_type, thisdata, sizeof h->assoc_type);
+		}
+		else if (!strcasecmp(thiskey, "expires_in")) {
+			h->expiration_time = time(NULL) + atol(thisdata);
+		}
+		else if (!strcasecmp(thiskey, "assoc_handle")) {
+			safestrncpy(h->assoc_handle, thisdata, sizeof h->assoc_handle);
+		}
+		else if (!strcasecmp(thiskey, "mac_key")) {
+			safestrncpy(h->mac_key, thisdata, sizeof h->mac_key);
+		}
 
+	} while (*ptr);
 
-	// FIXME finish this
+	// FIXME add this data structure into a hash table
 
+	// FIXME periodically purge the hash table of expired handles
 
 	return h;
 }
@@ -321,17 +343,22 @@ void cmd_oid1(char *argbuf) {
 			safestrncpy(openid_delegate, openid_url, sizeof openid_delegate);
 		}
 
-		/* Prepare an "associate" request */
+		/*
+		 * Prepare an "associate" request.  This contacts the IdP and fetches
+		 * a data structure containing an assoc_handle plus a shared secret.
+		 */
 		h = prepare_openid_associate_request(openid_url, openid_server, openid_delegate);
 
-		/* Now we know where to redirect to. */
+		/* Assemble a URL to which the user-agent will be redirected. */
 		char redirect_string[4096];
 		char escaped_identity[1024];
 		char escaped_return_to[1024];
 		char escaped_trust_root[1024];
 		char escaped_sreg_optional[256];
+		char escaped_assoc_handle[256];
 
 		urlesc(escaped_identity, sizeof escaped_identity, openid_delegate);
+		urlesc(escaped_assoc_handle, sizeof escaped_assoc_handle, h->assoc_handle);
 		urlesc(escaped_return_to, sizeof escaped_return_to, return_to);
 		urlesc(escaped_trust_root, sizeof escaped_trust_root, trust_root);
 		urlesc(escaped_sreg_optional, sizeof escaped_sreg_optional,
@@ -340,13 +367,18 @@ void cmd_oid1(char *argbuf) {
 		snprintf(redirect_string, sizeof redirect_string,
 			"%s"
 			"?openid.mode=checkid_setup"
-			"&openid_identity=%s"
+			"&openid.identity=%s"
+			"&openid.assoc_handle=%s"
 			"&openid.return_to=%s"
 			"&openid.trust_root=%s"
 			"&openid.sreg.optional=%s"
 			,
-			openid_server, escaped_identity, escaped_return_to,
-			escaped_trust_root, escaped_sreg_optional
+			openid_server,
+			escaped_identity,
+			escaped_assoc_handle,
+			escaped_return_to,
+			escaped_trust_root,
+			escaped_sreg_optional
 		);
 		cprintf("%d %s\n", CIT_OK, redirect_string);
 		return;
@@ -357,17 +389,15 @@ void cmd_oid1(char *argbuf) {
 
 
 
-
-
-/* To insert this module into the server activate the next block by changing the #if 0 to #if 1 */
 CTDL_MODULE_INIT(openid_rp)
 {
 	if (!threading)
 	{
 		curl_global_init(CURL_GLOBAL_ALL);
+		HL = NewHash(1, NULL);
 	        CtdlRegisterProtoHook(cmd_oid1, "OID1", "Begin OpenID checkid_setup operation");
 	}
 
-   /* return our Subversion id for the Log */
-   return "$Id$";
+	/* return our Subversion id for the Log */
+	return "$Id$";
 }
