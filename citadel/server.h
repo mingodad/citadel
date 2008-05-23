@@ -144,7 +144,8 @@ struct CitContext {
 	char *session_specific_data;		/* Used by individual protocol modules */
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
-	const char* ServiceName;		/**< whats our actual purpose? */
+	const char *ServiceName;		/* readable purpose of this session */
+	void *openid_data;			/* Data stored by the OpenID module */
 };
 
 typedef struct CitContext t_context;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * OpenID 1.1 "relying party" implementation
+ * This is an implementation of OpenID 1.1 Relying Party support, in stateless mode.
  *
  */
 
@@ -31,6 +31,11 @@
 #include <limits.h>
 #include <curl/curl.h>
 #include "ctdl_module.h"
+
+struct ctdl_openid {
+	char claimed_id[1024];
+	char server[1024];
+};
 
 
 /* 
@@ -180,38 +185,50 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
  * Setup an OpenID authentication
  */
 void cmd_oids(char *argbuf) {
-	char openid_url[1024];
 	char return_to[1024];
 	char trust_root[1024];
 	int i;
 	char buf[SIZ];
+	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
+	struct ctdl_openid *oiddata;
 
-	if (CC->logged_in) {
+	if (CCC->logged_in) {
 		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	}
 
-	extract_token(openid_url, argbuf, 0, '|', sizeof openid_url);
+	if (CCC->openid_data != NULL) {
+		free(CCC->openid_data);
+	}
+	oiddata = malloc(sizeof(struct ctdl_openid));
+	if (oiddata == NULL) {
+		cprintf("%d malloc failed\n", ERROR + INTERNAL_ERROR);
+		return;
+	}
+	memset(oiddata, 0, sizeof(struct ctdl_openid));
+	CCC->openid_data = (void *) oiddata;
+
+	extract_token(oiddata->claimed_id, argbuf, 0, '|', sizeof oiddata->claimed_id);
 	extract_token(return_to, argbuf, 1, '|', sizeof return_to);
 	extract_token(trust_root, argbuf, 2, '|', sizeof trust_root);
 
-	i = fetch_http(openid_url, buf, sizeof buf - 1);
+	CtdlLogPrintf(CTDL_DEBUG, "Asking %s for server and delegate\n", oiddata->claimed_id);
+	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1);
 	buf[sizeof buf - 1] = 0;
 	if (i > 0) {
-		char openid_server[1024];
 		char openid_delegate[1024];
 
-		extract_link(openid_server, sizeof openid_server, "openid.server", buf);
+		extract_link(oiddata->server, sizeof oiddata->server, "openid.server", buf);
 		extract_link(openid_delegate, sizeof openid_delegate, "openid.delegate", buf);
 
-		if (IsEmptyStr(openid_server)) {
+		if (IsEmptyStr(oiddata->server)) {
 			cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
 			return;
 		}
 
 		/* Empty delegate is legal; we just use the openid_url instead */
 		if (IsEmptyStr(openid_delegate)) {
-			safestrncpy(openid_delegate, openid_url, sizeof openid_delegate);
+			safestrncpy(openid_delegate, oiddata->claimed_id, sizeof openid_delegate);
 		}
 
 		/* Assemble a URL to which the user-agent will be redirected. */
@@ -235,7 +252,7 @@ void cmd_oids(char *argbuf) {
 			"&openid.trust_root=%s"
 			"&openid.sreg.optional=%s"
 			,
-			openid_server,
+			oiddata->server,
 			escaped_identity,
 			escaped_return_to,
 			escaped_trust_root,
@@ -251,12 +268,28 @@ void cmd_oids(char *argbuf) {
 
 
 /*
+ * Callback function to free a pointer (used below in the hash list)
+ */
+void free_oid_key(void *ptr) {
+	free(ptr);
+}
+
+
+/*
  * Finalize an OpenID authentication
  */
 void cmd_oidf(char *argbuf) {
 	char buf[2048];
 	char thiskey[1024];
 	char thisdata[1024];
+	HashList *keys = NULL;
+	HashPos *HashPos;
+
+	keys = NewHash(1, NULL);
+	if (!keys) {
+		cprintf("%d NewHash() failed\n", ERROR + INTERNAL_ERROR);
+		return;
+	}
 	
 	cprintf("%d Transmit OpenID data now\n", START_CHAT_MODE);
 
@@ -264,12 +297,81 @@ void cmd_oidf(char *argbuf) {
 		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
 		CtdlLogPrintf(CTDL_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
+		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), free_oid_key);
 	}
 
+
+	/* Now that we have all of the parameters, we have to validate the signature against the server */
+
+	CURL *curl;
+	CURLcode res;
+	struct curl_httppost *formpost = NULL;
+	struct curl_httppost *lastptr = NULL;
+	char errmsg[1024] = "";
+
+	curl_formadd(&formpost, &lastptr,
+		CURLFORM_COPYNAME,	"openid.mode",
+		CURLFORM_COPYCONTENTS,	"check_authentication",
+		CURLFORM_END);
+
+	curl = curl_easy_init();
+	// curl_easy_setopt(curl, CURLOPT_URL, FIXME );		/* FIXME need to bring this over */
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+	// curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
+	// curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
+	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	res = curl_easy_perform(curl);
+	if (res) {
+		CtdlLogPrintf(CTDL_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
+	}
+	curl_easy_cleanup(curl);
+	curl_formfree(formpost);
+
+	/* FIXME do something with the results */
+
+	/* Respond to the client */
 	cprintf("message|FIXME finish this\n");
 	cprintf("000\n");
+
+	/* Free the hash list */
+	long len;
+	void *Value;
+	char *Key;
+
+	HashPos = GetNewHashPos();
+	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
+	{
+		free(Value);
+	}
+	DeleteHashPos(&HashPos);
 }
 
+
+// mode = [6]  id_res
+// identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
+// assoc_handle = [26]  6ekac3ju181tgepk7v4h9r7ui7
+// return_to = [42]  http://jemcaterers.net/finish_openid_login
+// sreg.nickname = [17]  IGnatius T Foobar
+// sreg.email = [26]  ajc@uncensored.citadel.org
+// sreg.fullname = [10]  Art Cancro
+// sreg.postcode = [5]  10549
+// sreg.country = [2]  US
+// signed = [102]  mode,identity,assoc_handle,return_to,sreg.nickname,sreg.email,sreg.fullname,sreg.postcode,sreg.country
+// sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
+
+
+/*
+ * This cleanup function blows away the temporary memory used by this module.
+ */
+void openid_cleanup_function(void) {
+
+	if (CC->openid_data != NULL) {
+		free(CC->openid_data);
+	}
+}
 
 
 
@@ -278,8 +380,9 @@ CTDL_MODULE_INIT(openid_rp)
 	if (!threading)
 	{
 		curl_global_init(CURL_GLOBAL_ALL);
-	        CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
-	        CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
+		CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
+		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
+		CtdlRegisterSessionHook(openid_cleanup_function, EVT_STOP);
 	}
 
 	/* return our Subversion id for the Log */

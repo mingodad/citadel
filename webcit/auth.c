@@ -313,27 +313,11 @@ void finalize_openid_login(void)
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
 
-// openid.mode = [6]  id_res
-// openid.identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
-// openid.assoc_handle = [26]  6ekac3ju181tgepk7v4h9r7ui7
-// openid.return_to = [42]  http://jemcaterers.net/finish_openid_login
-// openid.sreg.nickname = [17]  IGnatius T Foobar
-// openid.sreg.email = [26]  ajc@uncensored.citadel.org
-// openid.sreg.fullname = [10]  Art Cancro
-// openid.sreg.postcode = [5]  10549
-// openid.sreg.country = [2]  US
-// openid.signed = [102]  mode,identity,assoc_handle,return_to,sreg.nickname,sreg.email,sreg.fullname,sreg.postcode,sreg.country
-// openid.sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
-
 			// FIXME id accepted but the code isn't finished
-			serv_printf("OIDF %s",
-				bstr("openid.assoc_handle")
-			);
+			serv_puts("OIDF");
 			serv_getln(buf, sizeof buf);
 
 			if (buf[0] == '8') {
-
-
 				urlcontent *u;
 				void *U;
 				long HKLen;
@@ -375,16 +359,10 @@ void finalize_openid_login(void)
 }
 
 
-
-
-
-
-
-
 /*
- * display the user a welcome screen.
+ * Display a welcome screen to the user.
  *
- * if this is the first time login, and the web based setup is enabled, 
+ * If this is the first time login, and the web based setup is enabled, 
  * lead the user through the setup routines
  */
 void do_welcome(void)
