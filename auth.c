@@ -308,6 +308,7 @@ void do_openid_login(void)
 void finalize_openid_login(void)
 {
 	char buf[1024];
+	struct wcsession *WCC = WC;
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
@@ -325,13 +326,38 @@ void finalize_openid_login(void)
 // openid.sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
 
 			// FIXME id accepted but the code isn't finished
-			serv_printf("OIDF %s|%s",
-				bstr("openid.assoc_handle"),
-				bstr("openid.invalidate_handle")
+			serv_printf("OIDF %s",
+				bstr("openid.assoc_handle")
 			);
 			serv_getln(buf, sizeof buf);
-			display_openid_login(buf);
-			return;
+
+			if (buf[0] == '8') {
+
+
+				urlcontent *u;
+				void *U;
+				long HKLen;
+				char *HKey;
+				HashPos *Cursor;
+				
+				Cursor = GetNewHashPos ();
+				while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
+					u = (urlcontent*) U;
+					if (!strncasecmp(u->url_key, "openid.", 7)) {
+						serv_printf("%s|%s", &u->url_key[7], u->url_data);
+					}
+				}
+
+				serv_puts("000");
+
+				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+					// FIXME
+				}
+			}
+			else {
+				display_openid_login(&buf[4]);
+				return;
+			}
 
 		}
 	}
