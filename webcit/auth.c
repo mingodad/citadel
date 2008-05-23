@@ -325,7 +325,10 @@ void finalize_openid_login(void)
 // openid.sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
 
 			// FIXME id accepted but the code isn't finished
-			serv_printf("OIDF %s", bstr("openid.assoc_handle"));
+			serv_printf("OIDF %s|%s",
+				bstr("openid.assoc_handle"),
+				bstr("openid.invalidate_handle")
+			);
 			serv_getln(buf, sizeof buf);
 			display_openid_login(buf);
 			return;

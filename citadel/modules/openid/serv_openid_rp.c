@@ -214,6 +214,7 @@ void delete_assoc_handle(void *data) {
 	if (data) free(data);
 }
 
+
 /*
  * Process the response from an "associate" request
  */
@@ -404,18 +405,25 @@ void cmd_oids(char *argbuf) {
  */
 void cmd_oidf(char *argbuf) {
 	char assoc_handle[256];
+	char invalidate_handle[256];
 	struct associate_handle *h = NULL;
 
 	extract_token(assoc_handle, argbuf, 0, '|', sizeof assoc_handle);
+	extract_token(invalidate_handle, argbuf, 1, '|', sizeof assoc_handle);
 
 	if (GetHash(HL, assoc_handle, strlen(assoc_handle), (void *)&h)) {
-		cprintf("%d handle %s is good\n", CIT_OK, assoc_handle);
+		cprintf("%d handle is good\n", CIT_OK);
 
 		// FIXME now do something with it
 
 	}
 	else {
-		cprintf("%d handle %s not found\n", ERROR, assoc_handle);
+		if (GetHash(HL, invalidate_handle, strlen(invalidate_handle), (void *)&h)) {
+			cprintf("%d assoc_handle not found, but invalidate_handle was found\n", ERROR);
+		}
+		else {
+			cprintf("%d neither assoc_handle nor invalidate_handle found, wtf?\n", ERROR);
+		}
 	}
 }
 
