@@ -140,11 +140,12 @@ size_t fh_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
 
 /*
- * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error)
- * We first try 'curl' or 'wget' because they have more robust HTTP handling, and also
- * support HTTPS.  If neither one works, we fall back to a built in mini HTTP client.
+ * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
+ *
+ * If 'normalize_len' is nonzero, the caller is specifying the buffer size of 'url', and is
+ * requesting that the effective (normalized) URL be copied back to it.
  */
-int fetch_http(char *url, char *target_buf, int maxbytes)
+int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 {
 	CURL *curl;
 	CURLcode res;
@@ -154,6 +155,7 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 		0,
 		maxbytes
 	};
+	char *effective_url = NULL;
 
 	if (!url) return(-1);
 	if (!target_buf) return(-1);
@@ -175,6 +177,10 @@ int fetch_http(char *url, char *target_buf, int maxbytes)
 	res = curl_easy_perform(curl);
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
+	}
+	if (normalize_len > 0) {
+		curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
+		safestrncpy(url, effective_url, normalize_len);
 	}
 	curl_easy_cleanup(curl);
 	return fh.total_bytes_received;
@@ -212,8 +218,8 @@ void cmd_oids(char *argbuf) {
 	extract_token(return_to, argbuf, 1, '|', sizeof return_to);
 	extract_token(trust_root, argbuf, 2, '|', sizeof trust_root);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Asking %s for server and delegate\n", oiddata->claimed_id);
-	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1);
+	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1, sizeof oiddata->claimed_id);
+	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", oiddata->claimed_id);
 	buf[sizeof buf - 1] = 0;
 	if (i > 0) {
 		char openid_delegate[1024];
