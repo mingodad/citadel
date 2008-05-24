@@ -13,6 +13,7 @@
  * vim: ts=4
  */
 
+#include "sysdep.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -23,7 +24,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pthread.h>
+#include <libcitadel.h>
+#include "server.h"
 #include "sysdep_decls.h"
+#include "support.h"
+#include "config.h"
+#include "citserver.h"
 #include "ecrash.h"
 
 #define NIY()	printf("%s: Not Implemented Yet!\n", __FUNCTION__)
