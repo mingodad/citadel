@@ -161,7 +161,7 @@ void rss_save_item(struct rss_item *ri) {
 			ri->link, ri->link
 		);
 
-		CtdlSubmitMsg(msg, recp, NULL);
+		CtdlSubmitMsg(msg, recp, NULL, 0);
 		CtdlFreeMessage(msg);
 
 		/* write the uidl to the use table so we don't store this item again */

@@ -521,7 +521,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	/* Now submit the message */
 	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
-	CtdlSubmitMsg(msg, valid, NULL);
+	CtdlSubmitMsg(msg, valid, NULL, 0);
 	CtdlFreeMessage(msg);
 	free_recipients(valid);
 }
@@ -568,7 +568,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	/* Now submit the message */
 	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
-	CtdlSubmitMsg(msg, valid, NULL);
+	CtdlSubmitMsg(msg, valid, NULL, 0);
 	free_recipients(valid);
 	/* Do not call CtdlFreeMessage(msg) here; the caller will free it. */
 }
@@ -670,7 +670,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 			CC->redirect_alloc = SIZ;
 
 			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
-			CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0);
+			CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
 
 			striplt(CC->redirect_buffer);
 			fprintf(sc->digestfp, "\n%s\n", CC->redirect_buffer);
@@ -736,7 +736,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					msg->cm_fields['R'] = strdup(nptr->name);
 	
 					valid = validate_recipients(nptr->name, NULL, 0);
-					CtdlSubmitMsg(msg, valid, "");
+					CtdlSubmitMsg(msg, valid, "", 0);
 					free_recipients(valid);
 				}
 			
@@ -1407,7 +1407,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	if ( (valid == NULL) && IsEmptyStr(force_room) ) {
 		strcpy(force_room, config.c_aideroom);
 	}
-	CtdlSubmitMsg(msg, valid, force_room);
+	CtdlSubmitMsg(msg, valid, force_room, 0);
 
 	/* Clean up */
 	if (valid != NULL) free_recipients(valid);
@@ -1583,7 +1583,7 @@ void network_process_buffer(char *buffer, long size) {
 	/* save the message into a room */
 	if (PerformNetprocHooks(msg, target_room) == 0) {
 		msg->cm_flags = CM_SKIP_HOOKS;
-		CtdlSubmitMsg(msg, recp, target_room);
+		CtdlSubmitMsg(msg, recp, target_room, 0);
 	}
 	CtdlFreeMessage(msg);
 	free_recipients(recp);

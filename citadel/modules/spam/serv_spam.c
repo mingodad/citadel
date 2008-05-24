@@ -101,7 +101,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
 	msgtext = CC->redirect_buffer;
 	msglen = CC->redirect_len;
 	CC->redirect_buffer = NULL;

@@ -200,7 +200,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			body = NULL;	/* yes, this should be dereferenced, NOT freed */
 	
 			/* Do Something With It (tm) */
-			msgnum = CtdlSubmitMsg(msg, NULL, roomname);
+			msgnum = CtdlSubmitMsg(msg, NULL, roomname, 0);
 			if (msgnum > 0L) {
 				/* Message has been committed to the store */
 	

@@ -159,7 +159,7 @@ void pop3_add_message(long msgnum, void *userdata) {
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
 		smi.meta_rfc822_length = CC->redirect_len;
 		free(CC->redirect_buffer);
 		CC->redirect_buffer = NULL;
@@ -381,7 +381,7 @@ void pop3_retr(char *argbuf) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
-			MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+		      MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
@@ -444,7 +444,7 @@ void pop3_top(char *argbuf) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
-			MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+		      MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;

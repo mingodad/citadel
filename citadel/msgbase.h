@@ -99,7 +99,7 @@ void cmd_opna (char *cmdbuf);
 void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
-long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *);
+long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *, int);
 void quickie_message (char *, char *, char *, char *, char *, int, char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
@@ -134,17 +134,22 @@ char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
-		int mode,		/* how would you like that message? */
-		int headers_only,	/* eschew the message body? */
-		int do_proto,		/* do Citadel protocol responses? */
-		int crlf,		/* 0=LF, 1=CRLF */
-		char *section		/* output a message/rfc822 section */
+		  int mode,		/* how would you like that message? */
+		  int headers_only,	/* eschew the message body? */
+		  int do_proto,		/* do Citadel protocol responses? */
+		  int crlf,		/* 0=LF, 1=CRLF */
+		  char *section,		/* output a message/rfc822 section */
+		  int flags		/* should the bessage be exported clean? */
 );
+
+#define QP_EADDR (1<<0)
+#define CRLF (1<<1)
 int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
-		int mode,		/* how would you like that message? */
-		int headers_only,	/* eschew the message body? */
-		int do_proto,		/* do Citadel protocol responses? */
-		int crlf		/* 0=LF, 1=CRLF */
+			   int mode,		/* how would you like that message? */
+			   int headers_only,	/* eschew the message body? */
+			   int do_proto,		/* do Citadel protocol responses? */
+			   int crlf,		/* 0=LF, 1=CRLF */
+			   int flags		/* should the bessage be exported clean? */
 );
 int CtdlCopyMsgsToRoom(long *msgnum, int num_msgs, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);

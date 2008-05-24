@@ -477,7 +477,7 @@ void imap_append(int num_parms, char *parms[]) {
 	else {
 		/* Yes ... go ahead and post! */
 		if (msg != NULL) {
-			new_msgnum = CtdlSubmitMsg(msg, NULL, "");
+			new_msgnum = CtdlSubmitMsg(msg, NULL, "", 0);
 		}
 		if (new_msgnum >= 0L) {
 			cprintf("%s OK [APPENDUID %ld %ld] APPEND completed\r\n",

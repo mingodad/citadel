@@ -116,7 +116,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 		return SIEVE2_ERROR_BADARGS;
 	}
 
-	CtdlSubmitMsg(msg, valid, NULL);
+	CtdlSubmitMsg(msg, valid, NULL, 0);
 	cs->cancel_implicit_keep = 1;
 	free_recipients(valid);
 	CtdlFreeMessage(msg);
@@ -527,7 +527,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
 	my.rfc822headers = CC->redirect_buffer;
 	headers_len = CC->redirect_len;
 	CC->redirect_buffer = NULL;

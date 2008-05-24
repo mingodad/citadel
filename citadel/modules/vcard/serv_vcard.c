@@ -1041,7 +1041,7 @@ void vcard_purge(struct ctdluser *usbuf) {
 
 	msg->cm_fields['S'] = strdup("CANCEL");
 
-	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
+	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM, QP_EADDR);
 	CtdlFreeMessage(msg);
 }
 
@@ -1482,7 +1482,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			vcard_free(v);
 
 			CtdlLogPrintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
-			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname);
+			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
 			CtdlFreeMessage(vmsg);
 		}
 	}

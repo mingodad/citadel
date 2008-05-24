@@ -644,7 +644,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 		 * creating the room if necessary.
 		 */
 		create_room(PAGELOGROOM, 4, "", 0, 1, 0, VIEW_BBS);
-		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM);
+		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM, 0);
 
 		/* Now save a copy in the global log room, if configured */
 		if (!IsEmptyStr(config.c_logpages)) {

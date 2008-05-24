@@ -175,7 +175,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CC->redirect_alloc = SIZ;
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_ONLY),
-			0, 1, NULL);
+			      0, 1, NULL, 0);
 		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
 		IMAP->cached_rfc822_data = CC->redirect_buffer;
 		IMAP->cached_rfc822_len = CC->redirect_len;
@@ -651,11 +651,11 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	}
 
 	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, 0);
 	}
 
 	else if (!strcmp(section, "")) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
 	}
 
 	/*
@@ -663,7 +663,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
 		imap_strip_headers(section);
 	}
 
@@ -671,7 +671,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * Strip it down if the client asked for everything _except_ headers.
 	 */
 	else if (!strncasecmp(section, "TEXT", 4)) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, 0);
 	}
 
 	/*
@@ -916,7 +916,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1, 0);
 		rfc822 = CC->redirect_buffer;
 		rfc822_len = CC->redirect_len;
 		CC->redirect_buffer = NULL;

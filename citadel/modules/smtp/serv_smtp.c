@@ -740,7 +740,7 @@ void smtp_data(void) {
 	}
 	
 	else {			/* Ok, we'll accept this message. */
-		msgnum = CtdlSubmitMsg(msg, valid, "");
+		msgnum = CtdlSubmitMsg(msg, valid, "", 0);
 		if (msgnum > 0L) {
 			sprintf(result, "250 Message accepted.\r\n");
 		}
@@ -942,7 +942,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
 	msgtext = CC->redirect_buffer;
 	msg_size = CC->redirect_len;
 	CC->redirect_buffer = NULL;
@@ -1437,7 +1437,7 @@ void smtp_do_bounce(char *instr) {
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
-		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL);
+		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
 		omsgtext = CC->redirect_buffer;
 		omsgsize = CC->redirect_len;
 		CC->redirect_buffer = NULL;
@@ -1469,14 +1469,14 @@ void smtp_do_bounce(char *instr) {
 		valid = validate_recipients(bounceto, smtp_get_Recipients (), 0);
 		if (valid != NULL) {
 			if (valid->num_error == 0) {
-				CtdlSubmitMsg(bmsg, valid, "");
+				CtdlSubmitMsg(bmsg, valid, "", QP_EADDR);
 				successful_bounce = 1;
 			}
 		}
 
 		/* If not, post it in the Aide> room */
 		if (successful_bounce == 0) {
-			CtdlSubmitMsg(bmsg, NULL, config.c_aideroom);
+			CtdlSubmitMsg(bmsg, NULL, config.c_aideroom, QP_EADDR);
 		}
 
 		/* Free up the memory we used */
@@ -1705,7 +1705,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"attempted|%ld\n"
 			"retry|%ld\n",
 			SPOOLMIME, instr, (long)time(NULL), (long)retry );
-		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
+		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		CtdlFreeMessage(msg);
 	}
 

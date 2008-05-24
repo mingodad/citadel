@@ -244,7 +244,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			free(jmsg->msgn);
 			
 			/* Submit journal message */
-			CtdlSubmitMsg(journal_msg, journal_recps, "");
+			CtdlSubmitMsg(journal_msg, journal_recps, "", 0);
 			CtdlFreeMessage(journal_msg);
 		}
 

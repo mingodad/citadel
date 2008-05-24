@@ -1368,11 +1368,12 @@ void extract_encapsulated_message(char *name, char *filename, char *partnum, cha
  * 
  */
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
-		int mode,		/* how would you like that message? */
-		int headers_only,	/* eschew the message body? */
-		int do_proto,		/* do Citadel protocol responses? */
-		int crlf,		/* Use CRLF newlines instead of LF? */
-		char *section		/* NULL or a message/rfc822 section */
+		  int mode,		/* how would you like that message? */
+		  int headers_only,	/* eschew the message body? */
+		  int do_proto,		/* do Citadel protocol responses? */
+		  int crlf,		/* Use CRLF newlines instead of LF? */
+		  char *section, 	/* NULL or a message/rfc822 section */
+		  int flags		/* should the bessage be exported clean? */
 ) {
 	struct CtdlMessage *TheMessage = NULL;
 	int retcode = om_no_such_msg;
@@ -1444,7 +1445,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	}
 
 	/* Ok, output the message now */
-	retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf);
+	retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -1571,7 +1572,8 @@ int CtdlOutputPreLoadedMsg(
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
-		int crlf		/* Use CRLF newlines instead of LF? */
+		int crlf,		/* Use CRLF newlines instead of LF? */
+		int flags		/* should the bessage be exported clean? */
 ) {
 	int i, j, k;
 	char buf[SIZ];
@@ -1762,14 +1764,16 @@ int CtdlOutputPreLoadedMsg(
 					safestrncpy(suser, mptr, sizeof suser);
 				}
 				else if (i == 'Y') {
-					mptr = qp_encode_email_addrs(mptr);
+					if (flags & QP_EADDR != 0) 
+						mptr = qp_encode_email_addrs(mptr);
 					cprintf("CC: %s%s", mptr, nl);
 				}
 				else if (i == 'P') {
 					cprintf("Return-Path: %s%s", mptr, nl);
 				}
 				else if (i == 'V') {
-					mptr = qp_encode_email_addrs(mptr);
+					if (flags & QP_EADDR != 0) 
+						mptr = qp_encode_email_addrs(mptr);
 					cprintf("Envelope-To: %s%s", mptr, nl);
 				}
 				else if (i == 'U') {
@@ -1795,7 +1799,8 @@ int CtdlOutputPreLoadedMsg(
 					}
 					else
 					{
-						mptr = qp_encode_email_addrs(mptr);
+						if (flags & QP_EADDR != 0) 
+							mptr = qp_encode_email_addrs(mptr);
 						cprintf("To: %s%s", mptr, nl);
 					}
 				}
@@ -2023,7 +2028,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL, 0);
 	return;
 }
 
@@ -2039,7 +2044,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL, 0);
 }
 
 
@@ -2093,7 +2098,7 @@ void cmd_msg4(char *cmdbuf)
 
 	msgid = extract_long(cmdbuf, 0);
 	extract_token(section, cmdbuf, 1, '|', sizeof section);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) );
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) , 0);
 }
 
 
@@ -2126,7 +2131,7 @@ void cmd_opna(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL, 0);
 }			
 
 
@@ -2142,7 +2147,7 @@ void cmd_dlat(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL);
+	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL, 0);
 }			
 
 
@@ -2524,8 +2529,9 @@ void ReplicationChecks(struct CtdlMessage *msg) {
  * Save a message to disk and submit it into the delivery system.
  */
 long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
-		struct recptypes *recps,	/* recipients (if mail) */
-		char *force			/* force a particular room? */
+		   struct recptypes *recps,	/* recipients (if mail) */
+		   char *force,			/* force a particular room? */
+		   int flags			/* should the bessage be exported clean? */
 ) {
 	char submit_filename[128];
 	char generated_timestamp[32];
@@ -2699,7 +2705,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	CCC->redirect_buffer = malloc(SIZ);
 	CCC->redirect_len = 0;
 	CCC->redirect_alloc = SIZ;
-	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, QP_EADDR);
 	smi.meta_rfc822_length = CCC->redirect_len;
 	saved_rfc822_version = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;
@@ -2782,7 +2788,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			   imsg->cm_fields['J'] = strdup("do not journal");
 			   imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
 			   imsg->cm_fields['W'] = strdup(recipient);
-			   CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM);
+			   CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
 			   CtdlFreeMessage(imsg);
 			}
 		}
@@ -2878,7 +2884,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['J'] = strdup("do not journal");
 		imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
-		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		CtdlFreeMessage(imsg);
 	}
 
@@ -2982,7 +2988,7 @@ void quickie_message(char *from, char *fromaddr, char *to, char *room, char *tex
 	}
 	msg->cm_fields['M'] = strdup(text);
 
-	CtdlSubmitMsg(msg, recp, room);
+	CtdlSubmitMsg(msg, recp, room, 0);
 	CtdlFreeMessage(msg);
 	if (recp != NULL) free_recipients(recp);
 }
@@ -3876,7 +3882,7 @@ void cmd_ent0(char *entargs)
 	free(all_recps);
 
 	if (msg != NULL) {
-		msgnum = CtdlSubmitMsg(msg, valid, "");
+		msgnum = CtdlSubmitMsg(msg, valid, "", QP_EADDR);
 
 		if (do_confirm) {
 			cprintf("%ld\n", msgnum);
@@ -4505,7 +4511,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		);
 	}
 	/* Now write the data */
-	CtdlSubmitMsg(msg, NULL, roomname);
+	CtdlSubmitMsg(msg, NULL, roomname, 0);
 	CtdlFreeMessage(msg);
 }
 

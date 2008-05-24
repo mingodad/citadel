@@ -120,7 +120,7 @@ void ft_index_message(long msgnum, int op) {
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_CITADEL, HEADERS_ALL, 0, 1, NULL);
+	CtdlOutputMsg(msgnum, MT_CITADEL, HEADERS_ALL, 0, 1, NULL, 0);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
