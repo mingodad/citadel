@@ -134,7 +134,7 @@ size_t fh_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 		fh->total_bytes_received += got_bytes;
 	}
 
-	return got_bytes;
+	return (size * nmemb);	/* always succeed; libcurl doesn't need to know if we truncated it */
 }
 
 
@@ -290,6 +290,7 @@ void cmd_oidf(char *argbuf) {
 	char thisdata[1024];
 	HashList *keys = NULL;
 	HashPos *HashPos;
+	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
 
 	keys = NewHash(1, NULL);
 	if (!keys) {
@@ -308,20 +309,62 @@ void cmd_oidf(char *argbuf) {
 
 
 	/* Now that we have all of the parameters, we have to validate the signature against the server */
+	CtdlLogPrintf(CTDL_DEBUG, "About to validate the signature...\n");
 
 	CURL *curl;
 	CURLcode res;
 	struct curl_httppost *formpost = NULL;
 	struct curl_httppost *lastptr = NULL;
 	char errmsg[1024] = "";
+	char *o_assoc_handle = NULL;
+	char *o_sig = NULL;
+	char *o_signed = NULL;
+	int num_signed_values;
+	int i;
+	char k_keyname[128];
+	char k_o_keyname[128];
+	char *k_value = NULL;
 
 	curl_formadd(&formpost, &lastptr,
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
 		CURLFORM_END);
 
+	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
+		curl_formadd(&formpost, &lastptr,
+			CURLFORM_COPYNAME,	"openid.assoc_handle",
+			CURLFORM_COPYCONTENTS,	o_assoc_handle,
+			CURLFORM_END);
+	}
+
+	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
+		curl_formadd(&formpost, &lastptr,
+			CURLFORM_COPYNAME,	"openid.sig",
+			CURLFORM_COPYCONTENTS,	o_sig,
+			CURLFORM_END);
+	}
+
+	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
+		curl_formadd(&formpost, &lastptr,
+			CURLFORM_COPYNAME,	"openid.signed",
+			CURLFORM_COPYCONTENTS,	o_signed,
+			CURLFORM_END);
+
+		num_signed_values = num_tokens(o_signed, ',');
+		for (i=0; i<num_signed_values; ++i) {
+			extract_token(k_keyname, o_signed, i, ',', sizeof k_keyname);
+			if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
+				snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
+				curl_formadd(&formpost, &lastptr,
+					CURLFORM_COPYNAME,	k_o_keyname,
+					CURLFORM_COPYCONTENTS,	k_value,
+					CURLFORM_END);
+			}
+		}
+	}
+
 	curl = curl_easy_init();
-	// curl_easy_setopt(curl, CURLOPT_URL, FIXME );		/* FIXME need to bring this over */
+	curl_easy_setopt(curl, CURLOPT_URL, oiddata->server);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 	// curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
