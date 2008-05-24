@@ -12,10 +12,10 @@ H_FILE="$CUR_DIR/svn_revision.h"
 
 
 # determine if this code base came from subversion.
-if [ -d .svn ] ; then
+if test -d .svn  ; then
 	echo "have subversion repository"
 	SVNVERSION=`which svnversion`
-	if [ -x $SVNVERSION ] ; then
+	if test -x $SVNVERSION  ; then
 		echo "have svnversion at $SVNVERSION"
 		BUILD=`svnversion -n .`
 		echo "This code base revision $BUILD"
@@ -23,7 +23,7 @@ if [ -d .svn ] ; then
 	fi
 fi
 
-if [ $CAN_BUILD_SVN_REVISION == "yes" ] ; then
+if test $CAN_BUILD_SVN_REVISION == "yes"  ; then
 
 cat <<EOF > $C_FILE
 /*
@@ -42,7 +42,7 @@ const char *svn_revision (void)
 }
 EOF
 
-elif [ ! -f $C_FILE ] ; then
+elif test ! -f $C_FILE  ; then
 
 cat <<EOF > $C_FILE
 /*
