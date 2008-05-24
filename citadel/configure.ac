@@ -129,6 +129,65 @@ AC_ARG_WITH(docdir,
 )
 
 
+dnl Here is the check for a libc integrated iconv
+AC_ARG_ENABLE(iconv,
+	[  --disable-iconv         do not use iconv charset conversion],
+	ok_iconv=no, ok_iconv=yes)
+
+AC_MSG_CHECKING(Checking to see if your system supports iconv)
+AC_TRY_RUN([
+ 	#include <iconv.h>
+ 	main() {
+ 		iconv_t ic = (iconv_t)(-1) ;
+ 		ic = iconv_open("UTF-8", "us-ascii");
+ 		iconv_close(ic);
+ 		exit(0);
+ 	}
+ ],
+		[
+		  ok_iconv=yes
+		  AC_MSG_RESULT([yes])
+		],
+		[ 
+		  ok_iconv=no
+		  AC_MSG_RESULT([no])
+		]
+)
+
+dnl Check for iconv in external libiconv
+if test "$ok_iconv" = no; then
+	AC_MSG_CHECKING(Checking for an external libiconv)
+	OLD_LDFLAGS="$LDFLAGS"
+	LDFLAGS="$LDFLAGS -liconv"
+	AC_TRY_RUN([
+			#include <iconv.h>
+			main() {
+				iconv_t ic = (iconv_t)(-1) ;
+				ic = iconv_open("UTF-8", "us-ascii");
+				iconv_close(ic);
+			}
+		],
+			[
+			  ok_iconv=yes
+			  AC_MSG_RESULT([yes])
+			],
+			[ 
+			  ok_iconv=no
+			  LDFLAGS="$OLD_LDFLAGS"
+			  AC_MSG_RESULT([no])
+			]
+		)
+fi	
+if test "$ok_iconv" != "no"; then
+	AC_MSG_RESULT(WebCit will be built with character set conversion.)
+	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
+else
+	AC_MSG_RESULT(WebCit will be built without character set conversion.)
+fi
+
+AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
+
+
 
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 			  disable multithreaded client])
@@ -908,6 +967,7 @@ fi
 echo ------------------------------------------------------------------------
 echo 'zlib compression:                ' $ok_zlib
 echo 'LDAP support:                    ' $ok_ldap
+echo 'Character set conversion support:' $ok_iconv
 echo 'DSpam Scanning support:          ' $ok_libdspam
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
