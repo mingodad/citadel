@@ -174,6 +174,8 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
+	// FIXME set the CURLOPT_INTERFACE
 	res = curl_easy_perform(curl);
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
@@ -370,8 +372,11 @@ void cmd_oidf(char *argbuf) {
 	// curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
 	// curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	curl_easy_setopt(curl, CURLOPT_POST, 1);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
+	// FIXME set the CURLOPT_INTERFACE
 	res = curl_easy_perform(curl);
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
