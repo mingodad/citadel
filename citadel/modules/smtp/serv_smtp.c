@@ -942,7 +942,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, ESC_DOT);
 	msgtext = CC->redirect_buffer;
 	msg_size = CC->redirect_len;
 	CC->redirect_buffer = NULL;
@@ -1202,38 +1202,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-	/* If we reach this point, the server is expecting data.
-	 * Need to parse each line of the message here since someone may have sent
-	 * a message containing a single dot on a line of its own. In that case we
-	 * need to escape it in accordance with RFC821.
-	 * We could do this with the tokenizer functions but num_tokens returns an
-	 * int and the message may contain more lines than that, also copying each
-	 * line would be slow.
-	 */
-	int bytes_written = 0;
-	nextline = msgtext;
-	while ( (*nextline) && (bytes_written >= 0) )
-	{
-		chunk_to_send = nextline;
-		while (*nextline != '\n')
-			nextline++;
-		nextline++;
-		prev_char = *nextline;
-		*nextline = '\0';
-		if (!strcmp(chunk_to_send, ".\r\n")) {
-			bytes_written = sock_write(sock, "..\r\n", 4);
-		}
-		else {
-			bytes_written = sock_write(sock, chunk_to_send, (size_t)(nextline-chunk_to_send));
-		}
-		*nextline = prev_char;
-		if (bytes_written < 0) {
-			*status = 4;
-			strcpy(dsn, "Connection broken during SMTP message transmit");
-			goto bail;
-		}
-	}
-	
+	/* If we reach this point, the server is expecting data.*/
+	sock_write(sock, msgtext, msg_size);
 	if (msgtext[msg_size-1] != 10) {
 		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",

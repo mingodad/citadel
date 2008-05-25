@@ -144,6 +144,8 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 #define QP_EADDR (1<<0)
 #define CRLF (1<<1)
+#define ESC_DOT (1<<2)
+
 int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 			   int mode,		/* how would you like that message? */
 			   int headers_only,	/* eschew the message body? */

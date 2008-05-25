@@ -1577,7 +1577,7 @@ int CtdlOutputPreLoadedMsg(
 ) {
 	int i, j, k;
 	char buf[SIZ];
-	cit_uint8_t ch;
+	cit_uint8_t ch, prev_ch;
 	char allkeys[30];
 	char display_name[256];
 	char *mptr, *mpptr;
@@ -1764,7 +1764,7 @@ int CtdlOutputPreLoadedMsg(
 					safestrncpy(suser, mptr, sizeof suser);
 				}
 				else if (i == 'Y') {
-					if (flags & QP_EADDR != 0) 
+					if ((flags & QP_EADDR) != 0) 
 						mptr = qp_encode_email_addrs(mptr);
 					cprintf("CC: %s%s", mptr, nl);
 				}
@@ -1772,7 +1772,7 @@ int CtdlOutputPreLoadedMsg(
 					cprintf("Return-Path: %s%s", mptr, nl);
 				}
 				else if (i == 'V') {
-					if (flags & QP_EADDR != 0) 
+					if ((flags & QP_EADDR) != 0) 
 						mptr = qp_encode_email_addrs(mptr);
 					cprintf("Envelope-To: %s%s", mptr, nl);
 				}
@@ -1799,7 +1799,7 @@ int CtdlOutputPreLoadedMsg(
 					}
 					else
 					{
-						if (flags & QP_EADDR != 0) 
+						if ((flags & QP_EADDR) != 0) 
 							mptr = qp_encode_email_addrs(mptr);
 						cprintf("To: %s%s", mptr, nl);
 					}
@@ -1897,6 +1897,7 @@ START_TEXT:
 			char outbuf[1024];
 			int outlen = 0;
 			int nllen = strlen(nl);
+			prev_ch = 0;
 			while (ch=*mptr, ch!=0) {
 				if (ch==13) {
 					/* do nothing */
@@ -1916,6 +1917,14 @@ START_TEXT:
 						}
 					}
 				}
+				if (flags & ESC_DOT)
+				{
+					if ((prev_ch == 10) && (ch == '.') && ((*(mptr+1) == 13) || (*(mptr+1) == 10)))
+					{
+						outbuf[outlen++] = '.';
+					}
+				}
+				prev_ch = ch;
 				++mptr;
 				if (outlen > 1000) {
 					client_write(outbuf, outlen);
