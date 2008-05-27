@@ -376,6 +376,10 @@ void rss_do_fetching(char *url, char *rooms) {
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
+	if (!IsEmptyStr(config.c_ip_addr)) {
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
+	}
 
 	memset(&ri, 0, sizeof(struct rss_item));
 	ri.roomlist = rooms;

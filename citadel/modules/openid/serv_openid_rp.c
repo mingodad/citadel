@@ -409,10 +409,10 @@ void cmd_oidf(char *argbuf) {
 
 	valbuf[fh.total_bytes_received] = 0;
 	if (bmstrcasestr(valbuf, "is_valid:true")) {
-		CtdlLogPrintf(CTDL_DEBUG, "[32mVALIDATION SUCCEEDED!!  WOWOWOWWW!![0m\n", valbuf);
+		CtdlLogPrintf(CTDL_DEBUG, "[32mAUTHENTICATION SUCCEEDED[0m\n", valbuf);
 	}
 	else {
-		CtdlLogPrintf(CTDL_DEBUG, "[31mVALIDATION FAILED.  DIACF.[0m\n", valbuf);
+		CtdlLogPrintf(CTDL_DEBUG, "[31mAUTHENTICATION FAILED[0m\n", valbuf);
 	}
 
 	/* FIXME do something with the results */
