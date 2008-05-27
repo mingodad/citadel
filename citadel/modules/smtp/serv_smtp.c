@@ -927,9 +927,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char *ptr;
 	size_t msg_size;
 	int scan_done;
-	char *nextline;
-	char *chunk_to_send;
-	char prev_char;
 	
 	
 	/* Parse out the host portion of the recipient address */
