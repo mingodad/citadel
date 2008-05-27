@@ -215,6 +215,7 @@ int main(int argc, char **argv)
 	get_config();
 	config.c_ipgm_secret = rand();
 
+	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
 	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
 	get_control();
 

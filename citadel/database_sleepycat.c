@@ -52,6 +52,7 @@
 #include "sysdep_decls.h"
 #include "threads.h"
 #include "config.h"
+#include "control.h"
 
 #include "ctdl_module.h"
 
@@ -269,11 +270,30 @@ void open_databases(void)
 	int i;
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
+	int dbversion_major, dbversion_minor, dbversion_patch;
+	int current_dbversion = 0;
 
 	CtdlLogPrintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
 	CtdlLogPrintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
 	CtdlLogPrintf(CTDL_INFO, "  Linked db: %s\n",
-		db_version(NULL, NULL, NULL));
+		db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
+
+	current_dbversion = (dbversion_major * 1000000) + (dbversion_minor * 1000) + dbversion_patch;
+
+	CtdlLogPrintf(CTDL_DEBUG, "Calculated dbversion: %d\n", current_dbversion);
+	CtdlLogPrintf(CTDL_DEBUG, "  Previous dbversion: %d\n", CitControl.MMdbversion);
+
+	if (CitControl.MMdbversion > current_dbversion) {
+		CtdlLogPrintf(CTDL_EMERG, "You are attempting to run the Citadel server using a version\n"
+					"of Berkeley DB that is older than that which last created or\n"
+					"updated the database.  Because this would probably cause data\n"
+					"corruption or loss, the server is aborting execution now.\n");
+		exit(CTDLEXIT_DB);
+	}
+
+	CitControl.MMdbversion = current_dbversion;
+	put_control();
+
 #ifdef HAVE_ZLIB
 	CtdlLogPrintf(CTDL_INFO, "Linked zlib: %s\n", zlibVersion());
 #endif

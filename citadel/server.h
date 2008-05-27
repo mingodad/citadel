@@ -185,6 +185,7 @@ struct CitControl {
 	int version;			/* Server-hosted upgrade level      */
 	int fulltext_wordbreaker;	/* ID of wordbreaker in use         */
 	long MMfulltext;		/* highest message number indexed   */
+	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
 };
 
 extern struct CitContext *ContextList;
