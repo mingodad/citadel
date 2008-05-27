@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <curl/curl.h>
 #include "ctdl_module.h"
+#include "config.h"
 
 struct ctdl_openid {
 	char claimed_id[1024];
@@ -175,7 +176,9 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	// FIXME set the CURLOPT_INTERFACE
+	if (!IsEmptyStr(config.c_ip_addr)) {
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
+	}
 	res = curl_easy_perform(curl);
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
@@ -327,16 +330,25 @@ void cmd_oidf(char *argbuf) {
 	char k_o_keyname[128];
 	char *k_value = NULL;
 
+	char valbuf[1024];
+	struct fh_data fh = {
+		valbuf,
+		0,
+		sizeof valbuf
+	};
+
 	curl_formadd(&formpost, &lastptr,
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
 		CURLFORM_END);
+	CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.mode", "check_authentication");
 
 	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
 		curl_formadd(&formpost, &lastptr,
 			CURLFORM_COPYNAME,	"openid.assoc_handle",
 			CURLFORM_COPYCONTENTS,	o_assoc_handle,
 			CURLFORM_END);
+		CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.assoc_handle", o_assoc_handle);
 	}
 
 	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
@@ -344,6 +356,7 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.sig",
 			CURLFORM_COPYCONTENTS,	o_sig,
 			CURLFORM_END);
+			CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.sig", o_sig);
 	}
 
 	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
@@ -351,16 +364,24 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.signed",
 			CURLFORM_COPYCONTENTS,	o_signed,
 			CURLFORM_END);
+		CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.signed", o_signed);
 
 		num_signed_values = num_tokens(o_signed, ',');
 		for (i=0; i<num_signed_values; ++i) {
 			extract_token(k_keyname, o_signed, i, ',', sizeof k_keyname);
-			if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
-				snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
-				curl_formadd(&formpost, &lastptr,
-					CURLFORM_COPYNAME,	k_o_keyname,
-					CURLFORM_COPYCONTENTS,	k_value,
-					CURLFORM_END);
+			if (strcasecmp(k_keyname, "mode")) {	// work around phpMyID bug
+				if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
+					snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
+					curl_formadd(&formpost, &lastptr,
+						CURLFORM_COPYNAME,	k_o_keyname,
+						CURLFORM_COPYCONTENTS,	k_value,
+						CURLFORM_END);
+					CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", k_o_keyname, k_value);
+				}
+				else {
+					CtdlLogPrintf(CTDL_INFO, "OpenID: signed field '%s' is missing\n",
+						k_keyname);
+				}
 			}
 		}
 	}
@@ -369,20 +390,30 @@ void cmd_oidf(char *argbuf) {
 	curl_easy_setopt(curl, CURLOPT_URL, oiddata->server);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	// curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
-	// curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	curl_easy_setopt(curl, CURLOPT_POST, 1);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	// FIXME set the CURLOPT_INTERFACE
+	if (!IsEmptyStr(config.c_ip_addr)) {
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
+	}
+
 	res = curl_easy_perform(curl);
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
+
+	valbuf[fh.total_bytes_received] = 0;
+	if (bmstrcasestr(valbuf, "is_valid:true")) {
+		CtdlLogPrintf(CTDL_DEBUG, "[32mVALIDATION SUCCEEDED!!  WOWOWOWWW!![0m\n", valbuf);
+	}
+	else {
+		CtdlLogPrintf(CTDL_DEBUG, "[31mVALIDATION FAILED.  DIACF.[0m\n", valbuf);
+	}
 
 	/* FIXME do something with the results */
 
