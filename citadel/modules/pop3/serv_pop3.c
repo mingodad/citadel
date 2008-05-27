@@ -360,10 +360,6 @@ void pop3_stat(char *argbuf) {
  */
 void pop3_retr(char *argbuf) {
 	int which_one;
-	char *msgtext;
-	char *nextline;
-	char *chunk_to_send;
-	char prev_char;
 
 	which_one = atoi(argbuf);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
