@@ -1726,7 +1726,7 @@ void session_loop(struct httprequest *req)
 		display_openid_login(NULL);
 	} else if ((!WC->logged_in) && (!strcasecmp(action, "openid_login"))) {
 		do_openid_login();
-	} else if ((!WC->logged_in) && (!strcasecmp(action, "finalize_openid_login"))) {
+	} else if (!strcasecmp(action, "finalize_openid_login")) {
 		finalize_openid_login();
 	} else if (!WC->logged_in) {
 		display_login(NULL);
@@ -2088,6 +2088,10 @@ void session_loop(struct httprequest *req)
 		download_file(index[1]);
 	} else if (!strcasecmp(action, "upload_file")) {
 		upload_file();
+	} else if (!strcasecmp(action, "display_openids")) {
+		display_openids();
+	} else if (!strcasecmp(action, "openid_attach")) {
+		openid_attach();
 	}
 
 	/** When all else fais, display the main menu. */

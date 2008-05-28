@@ -51,13 +51,13 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
 	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o \
 	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
-	downloads.o  addressbook_popup.o pushemail.o sysdep.o \
+	downloads.o addressbook_popup.o pushemail.o sysdep.o openid.o \
 	$(LIBOBJS)
 	$(CC) webserver.o context_loop.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	locate_host.o siteconfig.o subst.o vcard_edit.o floors.o \
-	graphics.o netconf.o preferences.o html2html.o rss.o \
+	graphics.o netconf.o preferences.o html2html.o rss.o openid.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o event.o wiki.o \
 	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
