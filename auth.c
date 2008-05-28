@@ -249,6 +249,8 @@ void do_login(void)
 	if (WC->logged_in) {
 		if (WC->need_regi) {
 			display_reg(1);
+		} else if (WC->need_vali) {
+			validate();
 		} else {
 			do_welcome();
 		}
