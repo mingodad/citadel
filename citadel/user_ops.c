@@ -670,7 +670,7 @@ void logout(void)
 	CCC->logged_in = 0;
 
 	/* Check to see if the user was deleted whilst logged in and purge them if necessary */
-	if (CCC->user.axlevel == 0)
+	if ((CCC->user.axlevel == 0) && (CCC->user.usernum))
 		purge_user(CCC->user.fullname);
 
 	/* Free any output buffers */
