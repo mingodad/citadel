@@ -2905,14 +2905,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	if (collected_addresses != NULL) {
-		begin_critical_section(S_ATBF);
 		aptr = (struct addresses_to_be_filed *)
 			malloc(sizeof(struct addresses_to_be_filed));
-		aptr->next = atbf;
 		MailboxName(actual_rm, sizeof actual_rm,
 			&CCC->user, USERCONTACTSROOM);
 		aptr->roomname = strdup(actual_rm);
 		aptr->collected_addresses = collected_addresses;
+		begin_critical_section(S_ATBF);
+		aptr->next = atbf;
 		atbf = aptr;
 		end_critical_section(S_ATBF);
 	}
