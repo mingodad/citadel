@@ -249,18 +249,21 @@ int main(int argc, char **argv)
 	 */
 	master_startup();
 
+	/*
+	 * Run any upgrade entry points
+	 */
+	CtdlLogPrintf(CTDL_INFO, "Upgrading modules.\n");
+	upgrade_modules();
 	
-/*
- * Initialise the user 0 to have a name. It would be nice to do it in InitializeMasterCC
- * since it is contained within the MasterCC but we can't because the DB isn't available
- * at that time so we do it seperate.
+/**
+ * Load the user for the masterCC or create them if they don't exist
  */
-	/** Give user 0 a name and create them if necessary */
-	if (getuser(&masterCC.user, "Citadel"))
+	if (getuser(&masterCC.user, "SYS_Citadel"))
 	{
-		getuserbynumber(&masterCC.user, 0);
-		strcpy (masterCC.user.fullname, "Citadel");
+		/** User doesn't exist. We can't use create user here as the user number needs to be 0 */
+		strcpy (masterCC.user.fullname, "SYS_Citadel") ;
 		putuser(&masterCC.user);
+		getuser(&masterCC.user, "SYS_Citadel"); /** Just to be safe */
 	}
 	
 	/*
@@ -284,11 +287,6 @@ int main(int argc, char **argv)
 				CitadelServiceTCP);
 
 				
-	/*
-	 * Run any upgrade entry points
-	 */
-	CtdlLogPrintf(CTDL_INFO, "Upgrading modules.\n");
-	upgrade_modules();
 	
 	
 	/*

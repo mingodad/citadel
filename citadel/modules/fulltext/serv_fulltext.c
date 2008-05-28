@@ -348,10 +348,8 @@ void *indexer_thread(void *arg) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
-	memset(&indexerCC, 0, sizeof(struct CitContext));
-	indexerCC.internal_pgm = 1;
-	indexerCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&indexerCC );
+	CtdlFillPrivateContext(&indexerCC, "indexer");
+	citthread_setspecific(MyConKey, (void *)&indexerCC );
 
 	while (!CtdlThreadCheckStop()) {
 		do_fulltext_indexing();

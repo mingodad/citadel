@@ -59,7 +59,7 @@ int chkpwd_read_pipe[2];
  * makeuserkey() - convert a username into the format used as a database key
  *		 (it's just the username converted into lower case)
  */
-static INLINE void makeuserkey(char *key, char *username) {
+INLINE void makeuserkey(char *key, char *username) {
 	int i, len;
 
 	len = strlen(username);
@@ -427,9 +427,9 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 
 	if (trythisname == NULL) return login_not_found;
 	
-	if (!strcasecmp(trythisname, "Citadel"))
+	if (!strncasecmp(trythisname, "SYS_", 4))
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "System user \"Citadel\" is not allowed to log in.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "System user \"%s\" is not allowed to log in.\n", trythisname);
 		return login_not_found;
 	}
 

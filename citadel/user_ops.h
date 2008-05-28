@@ -93,3 +93,4 @@ void start_chkpwd_daemon(void);
 #define RENAMEUSER_ALREADY_EXISTS	3	/* An account with the desired new name already exists */
 
 int rename_user(char *oldname, char *newname);
+INLINE void makeuserkey(char *key, char *username);

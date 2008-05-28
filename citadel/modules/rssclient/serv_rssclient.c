@@ -519,10 +519,8 @@ void *rssclient_scan(void *args) {
 	struct CitContext rssclientCC;
 
 	/* Give this thread its own private CitContext */
-	memset(&rssclientCC, 0, sizeof(struct CitContext));
-	rssclientCC.internal_pgm = 1;
-	rssclientCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&rssclientCC );
+	CtdlFillPrivateContext(&rssclientCC, "rssclient");
+	citthread_setspecific(MyConKey, (void *)&rssclientCC );
 
 	CtdlThreadAllocTSD();
 

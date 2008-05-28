@@ -115,6 +115,7 @@ struct ValidUser *ValidUserList = NULL;
 int messages_purged;
 int users_not_purged;
 char *users_corrupt_msg = NULL;
+char *users_zero_msg = NULL;
 
 struct ctdlroomref *rr = NULL;
 
@@ -462,6 +463,12 @@ void do_user_purge(struct ctdluser *us, void *data) {
 			{
 				users_corrupt_msg = malloc(SIZ);
 				strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
+				"If the user number is 0 you should report this to the Citadel development\n"
+				"team either by a bugzilla report at http://bugzilla.citadel.org or\n"
+				"posting a message in the Citadel Support room on Uncensored at\n"
+				"https://uncensored.citadel.org You should make it clear that you have seen a\n"
+				"user 0 messages in the Aide room which means a module has not named its\n"
+				"private context.\n"
 				"Unfortunately the auto-purger is not yet able to fix this problem.\n"
 				"This problem is not considered serious since a user with no name can\n"
 				"not log in.\n");
@@ -470,6 +477,26 @@ void do_user_purge(struct ctdluser *us, void *data) {
 			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+SIZ);
 			snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], SIZ, " %ld\n", us->usernum);
 		}
+		else if (us->usernum == 0L)
+		{
+			purge=0;
+			if (users_zero_msg == NULL)
+			{
+				users_zero_msg = malloc(SIZ);
+				strcpy(users_zero_msg, "The auto-purger found a user with a user number of 0 but no name.\n"
+				"This is the result of a bug where a private contaxt has been created but\n"
+				"not named.\n\n"
+				"Please report this to the Citadel development team either by a bugzilla\n"
+				"report at http://bugzilla.citadel.org or by posting a message in the\n"
+				"Citadel Support room on Uncensored at https://uncensored.citadel.org\n"
+				"You should make it clear that you have seen a user 0 messages in the\n"
+				"Aide room which means a module has not named its private context.\n\n"
+				"This problem is not considered serious since it does not constitute a\n"
+				"security risk and should not impare system operation.\n"
+				);
+			}
+		}
+
 	}
 
 
@@ -546,6 +573,12 @@ int PurgeUsers(void) {
 		users_corrupt_msg = NULL;
 	}
 	
+	if(users_zero_msg)
+	{
+		aide_message(users_zero_msg, "User Zero Message");
+		free (users_zero_msg);
+		users_zero_msg = NULL;
+	}
 		
 	CtdlLogPrintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
@@ -767,10 +800,8 @@ void *purge_databases(void *args)
 
 	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
 
-	memset(&purgerCC, 0, sizeof(struct CitContext));
-	purgerCC.internal_pgm = 1;
-	purgerCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&purgerCC );
+	CtdlFillPrivateContext(&purgerCC, "purger");
+	citthread_setspecific(MyConKey, (void *)&purgerCC );
 
         while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,

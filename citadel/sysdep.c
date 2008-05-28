@@ -71,6 +71,8 @@
 
 #include "ctdl_module.h"
 #include "threads.h"
+#include "user_ops.h"
+
 
 #ifdef DEBUG_MEMORY_LEAKS
 struct igheap {
@@ -461,6 +463,27 @@ struct CitContext *CtdlGetContextArray(int *count)
 	
 	*count = i;
 	return nptr;
+}
+
+
+
+/**
+ * This function returns a private context with the user filled in correctly
+ */
+void CtdlFillPrivateContext(struct CitContext *context, char *name)
+{
+	char sysname[USERNAME_SIZE];
+
+	memset(context, 0, sizeof(struct CitContext));
+	context->internal_pgm = 1;
+	context->cs_pid = 0;
+	strcpy (sysname, "SYS_");
+	strcat (sysname, name);
+	if (getuser(&(context->user), sysname))
+	{
+		strcpy(context->user.fullname, sysname);
+		putuser(&(context->user));
+	}
 }
 
 /*

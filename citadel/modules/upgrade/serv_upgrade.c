@@ -47,6 +47,50 @@
 #include "ctdl_module.h"
 
 
+
+/*
+ * Fix up the name for Citadel user 0 and try to remove any extra users with number 0
+ */
+void fix_sys_user_name(void)
+{
+	struct ctdluser usbuf;
+	char usernamekey[USERNAME_SIZE];
+
+	/** If we have a user called Citadel rename them to SYS_Citadel */
+	if (getuser(&usbuf, "Citadel") == 0)
+	{
+		rename_user("Citadel", "SYS_Citadel");
+	}
+
+	while (getuserbynumber(&usbuf, 0) == 0)
+	{
+		/* delete user with number 0 and no name */
+		if (IsEmptyStr(usbuf.fullname))
+			cdb_delete(CDB_USERS, "", 0);
+		else
+		{ /* temporarily set this user to -1 */
+			usbuf.usernum = -1;
+			putuser(&usbuf);
+		}
+	}
+
+	/** Make sure user SYS_* is user 0 */
+	while (getuserbynumber(&usbuf, -1) == 0)
+	{
+		if (strncmp(usbuf.fullname, "SYS_", 4))
+		{	/** Delete any user 0 that doesn't start with SYS_ */
+			makeuserkey(usernamekey, usbuf.fullname);
+			cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
+		}
+		else
+		{
+			usbuf.usernum = 0;
+			putuser(&usbuf);
+		}
+	}
+}
+
+
 /* 
  * Back end processing function for cmd_bmbx
  */
@@ -225,7 +269,9 @@ void check_server_upgrades(void) {
 	if ((CitControl.version > 000) && (CitControl.version < 659)) {
 		rebuild_euid_index();
 	}
-
+	if (CitControl.version > 734) {
+		fix_sys_user_name();
+	}
 	CitControl.version = REV_LEVEL;
 	put_control();
 }

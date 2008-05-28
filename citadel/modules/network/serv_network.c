@@ -2085,10 +2085,8 @@ void *network_do_queue(void *args) {
 	struct CitContext networkerCC;
 
 	/* Give the networker its own private CitContext */
-	memset(&networkerCC, 0, sizeof(struct CitContext));
-	networkerCC.internal_pgm = 1;
-	networkerCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&networkerCC );
+	CtdlFillPrivateContext(&networkerCC, "network");
+	citthread_setspecific(MyConKey, (void *)&networkerCC );
 
 	/*
 	 * Run the full set of processing tasks no more frequently

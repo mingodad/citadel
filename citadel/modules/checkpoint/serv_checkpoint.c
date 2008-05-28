@@ -49,10 +49,8 @@ void *checkpoint_thread(void *arg) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
 
-	memset(&checkpointCC, 0, sizeof(struct CitContext));
-	checkpointCC.internal_pgm = 1;
-	checkpointCC.cs_pid = 0;
-	pthread_setspecific(MyConKey, (void *)&checkpointCC );
+	CtdlFillPrivateContext(&checkpointCC, "checkpoint");
+	citthread_setspecific(MyConKey, (void *)&checkpointCC );
 
 	while (!CtdlThreadCheckStop()) {
 		cdb_checkpoint();
