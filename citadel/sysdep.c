@@ -422,7 +422,13 @@ struct CitContext *CreateNewContext(void) {
 		CtdlLogPrintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
 		return NULL;
 	}
-	memset(me, 0, sizeof(struct CitContext));
+
+	/* We can fill this as though its a private context but we must clear the internal_pgm flag
+	 * to keep things correct. Watch out for the cs_pid field, that gets set further down,
+	 * make sure you don't try to do it first.
+	 */
+	CtdlFillPrivateContext(me, "notauth");
+	me->internal_pgm = 0;
 
 	/* The new context will be created already in the CON_EXECUTING state
 	 * in order to prevent another thread from grabbing it while it's
@@ -468,7 +474,7 @@ struct CitContext *CtdlGetContextArray(int *count)
 
 
 /**
- * This function returns a private context with the user filled in correctly
+ * This function fille in a context and its user field correctly
  */
 void CtdlFillPrivateContext(struct CitContext *context, char *name)
 {
