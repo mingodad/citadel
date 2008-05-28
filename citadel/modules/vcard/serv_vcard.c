@@ -714,8 +714,13 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			vcard_add_to_directory(I, NULL);
 
 			/* Some sites want an Aide to be notified when a
-			 * user registers or re-registers...
+			 * user registers or re-registers
+			 * But if the user was an Aide or was edited by an Aide then we can
+			 * Assume they don't need validating.
 			 */
+			if (CC->user.axlevel >= 6)
+				return (0);
+			
 			set_mm_valid();
 
 			/* ...which also means we need to flag the user */
