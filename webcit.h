@@ -488,6 +488,8 @@ void do_openid_login(void);
 void finalize_openid_login(void);
 void display_login(char *mesg);
 void display_openid_login(char *mesg);
+void display_openids(void);
+void openid_attach(void);
 void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);

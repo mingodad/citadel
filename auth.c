@@ -311,6 +311,7 @@ void finalize_openid_login(void)
 {
 	char buf[1024];
 	struct wcsession *WCC = WC;
+	int already_logged_in = (WCC->logged_in) ;
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
@@ -340,14 +341,16 @@ void finalize_openid_login(void)
 					// FIXME
 				}
 			}
-			else {
-				display_openid_login(&buf[4]);
-				return;
-			}
-
 		}
 	}
 
+	/* If we were already logged in, this was an attempt to associate an OpenID account */
+	if (already_logged_in) {
+		display_openids();
+		return;
+	}
+
+	/* Otherwise the user is probably attempting to log in using OpenID */
 	if (WC->logged_in) {
 		if (WC->need_regi) {
 			display_reg(1);
