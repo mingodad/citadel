@@ -881,6 +881,7 @@ void imap_create(int num_parms, char *parms[])
 	int flags;
 	int newroomtype = 0;
 	int newroomview = 0;
+	char *notification_message = NULL;
 
 	if (strchr(parms[2], '\\') != NULL) {
 		cprintf("%s NO Invalid character in folder name\r\n",
@@ -924,6 +925,18 @@ void imap_create(int num_parms, char *parms[])
 		cprintf("%s NO Mailbox already exists, or create failed\r\n", parms[0]);
 	} else {
 		cprintf("%s OK CREATE completed\r\n", parms[0]);
+		/* post a message in Aide> describing the new room */
+		notification_message = malloc(1024);
+		snprintf(notification_message, 1024,
+			"A new room called \"%s\" has been created by %s%s%s%s\n",
+			roomname,
+			CC->user.fullname,
+			((ret & QR_MAILBOX) ? " [personal]" : ""),
+			((ret & QR_PRIVATE) ? " [private]" : ""),
+			((ret & QR_GUESSNAME) ? " [hidden]" : "")
+		);
+		aide_message(notification_message, "Room Creation Message");
+		free(notification_message);
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "imap_create() completed\n");
 }
