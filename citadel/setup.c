@@ -28,7 +28,7 @@
 #include "config.h"
 #include "citadel_dirs.h"
 
-#define MAXSETUP 5	/* How many setup questions to ask */
+#define MAXSETUP 6	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	2	/* Use the 'dialog' program */
@@ -42,11 +42,14 @@ int setup_type;
 char setup_directory[PATH_MAX];
 int using_web_installer = 0;
 int enable_home = 1;
+char admin_pass[SIZ];
+char admin_cmd[SIZ];
 
 char *setup_titles[] =
 {
 	"Citadel Home Directory",
 	"System Administrator",
+ 	"Administrator Password",
 	"Citadel User ID",
 	"Server IP address",
 	"Server port number",
@@ -77,6 +80,10 @@ char *setup_text[] = {
 "Enter the name of the system administrator (which is probably\n"
 "you).  When an account is created with this name, it will\n"
 "automatically be given administrator-level access.\n",
+
+"Enter a password for the system administrator. When setup\n"
+"completes it will attempt to create the administrator user\n"
+"and set the password specified here.\n",
 
 "Citadel needs to run under its own user ID.  This would\n"
 "typically be called \"citadel\", but if you are running Citadel\n"
@@ -727,6 +734,18 @@ void edit_value(int curr)
 
 	case 2:
 		if (setup_type == UI_SILENT)
+		{
+			if (getenv("SYSADMIN_PW")) {
+				strcpy(admin_pass, getenv("SYSADMIN_PW"));
+			}
+		}
+		else {
+			set_str_val(curr, admin_pass);
+		}
+		break;
+	
+	case 3:
+		if (setup_type == UI_SILENT)
 		{		
 			if (getenv("CITADEL_UID")) {
 				config.c_ctdluid = atoi(getenv("CITADEL_UID"));
@@ -758,7 +777,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 3:
+	case 4:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("IP_ADDR")) {
@@ -770,7 +789,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 4:
+	case 5:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("CITADEL_PORT")) {
@@ -783,7 +802,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 5:
+	case 6:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("ENABLE_UNIX_AUTH")) {
@@ -1298,6 +1317,8 @@ NEW_INST:
 		}
 
 		if (test_server() == 0) {
+			snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\"", ctdl_utilbin_dir, config.c_sysadm, admin_pass);
+			system(admin_cmd);
 			important_message("Setup finished",
 				"Setup of the Citadel server is complete.\n"
 				"If you will be using WebCit, please run its\n"
