@@ -52,11 +52,29 @@ struct ctdl_openid {
 
 
 /*
+ * The structure of an openid record *key* is:
+ *
+ * |--------------claimed_id-------------|
+ *     (auctual length of claimed id)
+ *
+ *
+ * The structure of an openid record *value* is:
+ *
+ * |-----user_number----|------------claimed_id---------------|
+ *    (sizeof long)          (actual length of claimed id)
+ *
+ */
+
+
+/*
  * Attach an OpenID to a Citadel account
  */
 int attach_openid(struct ctdluser *who, char *claimed_id)
 {
 	struct cdbdata *cdboi;
+	long fetched_usernum;
+	char *data;
+	int data_len;
 
 	if (!who) return(1);
 	if (!claimed_id) return(1);
@@ -66,13 +84,14 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 
 	cdboi = cdb_fetch(CDB_OPENID, claimed_id, strlen(claimed_id));
 	if (cdboi != NULL) {
-		if ( (long)*cdboi->ptr == who->usernum ) {
-			cdb_free(cdboi);
+		memcpy(&fetched_usernum, cdboi->ptr, sizeof(long));
+		cdb_free(cdboi);
+
+		if (fetched_usernum == who->usernum) {
 			CtdlLogPrintf(CTDL_INFO, "%s already associated; no action is taken\n", claimed_id);
 			return(0);
 		}
 		else {
-			cdb_free(cdboi);
 			CtdlLogPrintf(CTDL_INFO, "%s already belongs to another user\n", claimed_id);
 			return(3);
 		}
@@ -80,7 +99,15 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 
 	/* Not already in the database, so attach it now */
 
-	cdb_store(CDB_OPENID, claimed_id, strlen(claimed_id), &who->usernum, sizeof(long));
+	data_len = sizeof(long) + strlen(claimed_id) + 1;
+	data = malloc(data_len);
+
+	memcpy(data, &who->usernum, sizeof(long));
+	memcpy(&data[sizeof(long)], claimed_id, strlen(claimed_id) + 1);
+
+	cdb_store(CDB_OPENID, claimed_id, strlen(claimed_id), data, data_len);
+	free(data);
+
 	CtdlLogPrintf(CTDL_INFO, "%s has been associated with %s (%ld)\n",
 		claimed_id, who->fullname, who->usernum);
 	return(0);
@@ -107,7 +134,9 @@ void cmd_oidl(char *argbuf) {
 	cprintf("%d Associated OpenIDs:\n", LISTING_FOLLOWS);
 
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
-		cprintf("FIXME %ld\n", (long)*cdboi->ptr );
+		if (cdboi->len > sizeof(long)) {
+		cprintf("%s\n", cdboi->ptr + sizeof(long));
+		}
 	}
 	cprintf("000\n");
 }

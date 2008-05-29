@@ -11,6 +11,7 @@
 void display_openids(void)
 {
 	char buf[1024];
+	int bg = 0;
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -19,14 +20,19 @@ void display_openids(void)
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
 	do_template("beginbox");
 
+	wprintf("<table class=\"altern\">");
+
 	serv_puts("OIDL");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		bg = 1 - bg;
+		wprintf("<tr class=\"%s\">", (bg ? "even" : "odd"));
+		wprintf("<td><img src=\"static/openid-small.gif\"></td><td>");
 		escputs(buf);
-		wprintf("<br />\n");
+		wprintf("</td><td>%s</td></tr>\n", _("(delete)") );	// FIXME implement delete
 	}
 
-	wprintf("<hr>\n");
+	wprintf("</table><br />\n");
 
         wprintf("<form method=\"POST\" action=\"openid_attach\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
