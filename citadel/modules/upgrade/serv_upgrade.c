@@ -269,8 +269,11 @@ void check_server_upgrades(void) {
 	if ((CitControl.version > 000) && (CitControl.version < 659)) {
 		rebuild_euid_index();
 	}
-	if (CitControl.version > 734) {
+	if (CitControl.version < 735) {
 		fix_sys_user_name();
+	}
+	if (CitControl.version < 736) {
+		rebuild_usersbynumber();
 	}
 	CitControl.version = REV_LEVEL;
 	put_control();
@@ -280,6 +283,7 @@ void check_server_upgrades(void) {
 CTDL_MODULE_UPGRADE(upgrade)
 {
 	check_server_upgrades();
+	rebuild_usersbynumber();		// FIXME take this out
 	
 	/* return our Subversion id for the Log */
 	return "$Id$";

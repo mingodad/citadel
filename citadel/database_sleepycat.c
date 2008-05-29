@@ -145,7 +145,7 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 	for (i = 0; i < MAXCDB; i++)
 		if (cursors[i] != NULL) {
 			CtdlLogPrintf(CTDL_EMERG,
-				"cdb_*: cursor still in progress on cdb %d: %s\n",
+				"cdb_*: cursor still in progress on cdb %02x: %s\n",
 				i, msg);
 			abort();
 		}
@@ -391,7 +391,7 @@ void open_databases(void)
 				   DB_CREATE | DB_AUTO_COMMIT | DB_THREAD,
 				   0600);
 		if (ret) {
-			CtdlLogPrintf(CTDL_EMERG, "db_open[%d]: %s\n", i,
+			CtdlLogPrintf(CTDL_EMERG, "db_open[%02x]: %s\n", i,
 				db_strerror(ret));
 			exit(CTDLEXIT_DB);
 		}
@@ -454,7 +454,7 @@ void close_databases(void)
 
 	/* close the tables */
 	for (a = 0; a < MAXCDB; ++a) {
-		CtdlLogPrintf(CTDL_INFO, "Closing database %d\n", a);
+		CtdlLogPrintf(CTDL_INFO, "Closing database %02x\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
 			CtdlLogPrintf(CTDL_EMERG,

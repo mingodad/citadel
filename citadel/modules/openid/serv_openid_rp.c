@@ -39,6 +39,55 @@ struct ctdl_openid {
 };
 
 
+
+
+
+/**************************************************************************/
+/*                                                                        */
+/* Functions in this section handle Citadel internal OpenID mapping stuff */
+/*                                                                        */
+/**************************************************************************/
+
+
+/*
+ * Attach or detach an OpenID to a Citadel account
+ */
+
+enum {
+	moa_detach,
+	moa_attach
+};
+
+int modify_openid_associations(struct ctdluser *who, char *claimed_id, int operation)
+{
+	if (!who) return(1);
+	if (!claimed_id) return(1);
+	if (IsEmptyStr(claimed_id)) return(1);
+
+	return(2);		// error because we are not done yet FIXME
+}
+
+
+/*
+ * When a user is being deleted, we have to delete any OpenID associations
+ */
+void openid_purge(struct ctdluser *usbuf) {
+	/* FIXME finish this */
+}
+
+
+
+
+
+
+
+/**************************************************************************/
+/*                                                                        */
+/* Functions in this section handle OpenID protocol                       */
+/*                                                                        */
+/**************************************************************************/
+
+
 /* 
  * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
  */
@@ -203,10 +252,14 @@ void cmd_oids(char *argbuf) {
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	struct ctdl_openid *oiddata;
 
+	/* commented out because we may be attempting to attach an OpenID to
+	 * an existing account that is logged in
+	 *
 	if (CCC->logged_in) {
 		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	}
+	 */
 
 	if (CCC->openid_data != NULL) {
 		free(CCC->openid_data);
@@ -329,8 +382,8 @@ void cmd_oidf(char *argbuf) {
 	char k_keyname[128];
 	char k_o_keyname[128];
 	char *k_value = NULL;
-
 	char valbuf[1024];
+
 	struct fh_data fh = {
 		valbuf,
 		0,
@@ -408,17 +461,37 @@ void cmd_oidf(char *argbuf) {
 	curl_formfree(formpost);
 
 	valbuf[fh.total_bytes_received] = 0;
+	int success = 0;
+
 	if (bmstrcasestr(valbuf, "is_valid:true")) {
-		CtdlLogPrintf(CTDL_DEBUG, "[32mAUTHENTICATION SUCCEEDED[0m\n", valbuf);
-	}
-	else {
-		CtdlLogPrintf(CTDL_DEBUG, "[31mAUTHENTICATION FAILED[0m\n", valbuf);
+		success = 1;
 	}
 
-	/* FIXME do something with the results */
+	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (success ? "succeeded" : "failed") );
 
 	/* Respond to the client */
-	cprintf("message|FIXME finish this\n");
+
+	if (success) {
+
+		/* If we were already logged in, attach the OpenID to the user's account */
+		if (CC->logged_in) {
+			if (modify_openid_associations(&CC->user, oiddata->claimed_id, moa_attach) == 0) {
+				cprintf("attach\n");
+			}
+			else {
+				cprintf("fail\n");
+			}
+		}
+
+		/* Otherwise, a user is attempting to log in using the validated OpenID */	
+		else {
+			cprintf("fail\n");		// FIXME do the login here!!
+		}
+
+	}
+	else {
+		cprintf("fail\n");
+	}
 	cprintf("000\n");
 
 	/* Free the hash list */
@@ -448,6 +521,15 @@ void cmd_oidf(char *argbuf) {
 // sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
 
 
+
+
+/**************************************************************************/
+/*                                                                        */
+/* Functions in this section handle module initialization and shutdown    */
+/*                                                                        */
+/**************************************************************************/
+
+
 /*
  * This cleanup function blows away the temporary memory used by this module.
  */
@@ -459,7 +541,6 @@ void openid_cleanup_function(void) {
 }
 
 
-
 CTDL_MODULE_INIT(openid_rp)
 {
 	if (!threading)
@@ -468,6 +549,7 @@ CTDL_MODULE_INIT(openid_rp)
 		CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_STOP);
+		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
 
 	/* return our Subversion id for the Log */

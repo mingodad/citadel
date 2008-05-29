@@ -196,6 +196,9 @@ int rename_user(char *oldname, char *newname) {
 				cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
 				safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
 				putuser(&usbuf);
+				cdb_store(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long),
+					usbuf.fullname, strlen(usbuf.fullname)+1 );
+
 				retcode = RENAMEUSER_OK;
 			}
 		}
@@ -355,31 +358,81 @@ int is_room_aide(void)
 }
 
 /*
- * getuserbynumber()  -  get user by number
- *		       returns 0 if user was found
+ * getuserbynumber() -	get user by number
+ * 			returns 0 if user was found
  *
- * WARNING: don't use this function unless you absolutely have to.  It does
- *	  a sequential search and therefore is computationally expensive.
+ * Note: fetching a user this way requires one additional database operation.
  */
-int getuserbynumber(struct ctdluser *usbuf, long int number)
+int getuserbynumber(struct ctdluser *usbuf, long number)
 {
-	struct cdbdata *cdbus;
+	struct cdbdata *cdbun;
+	int r;
 
-	cdb_rewind(CDB_USERS);
-
-	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
-		memset(usbuf, 0, sizeof(struct ctdluser));
-		memcpy(usbuf, cdbus->ptr,
-		       ((cdbus->len > sizeof(struct ctdluser)) ?
-			sizeof(struct ctdluser) : cdbus->len));
-		cdb_free(cdbus);
-		if (usbuf->usernum == number) {
-			cdb_close_cursor(CDB_USERS);
-			return (0);
-		}
+	cdbun = cdb_fetch(CDB_USERSBYNUMBER, &number, sizeof(long));
+	if (cdbun == NULL) {
+		CtdlLogPrintf(CTDL_INFO, "User %ld not found\n", number);
+		return(-1);
 	}
-	return (-1);
+
+	CtdlLogPrintf(CTDL_INFO, "User %ld maps to %s\n", number, cdbun->ptr);
+	r = getuser(usbuf, cdbun->ptr);
+	cdb_free(cdbun);
+	return(r);
 }
+
+
+
+/*
+ * Helper function for rebuild_usersbynumber()
+ */
+void rebuild_ubn_for_user(struct ctdluser *usbuf, void *data) {
+
+	struct ubnlist {
+		struct ubnlist *next;
+		char username[USERNAME_SIZE];
+		long usernum;
+	};
+
+	static struct ubnlist *u = NULL;
+	struct ubnlist *ptr = NULL;
+
+	/* Lazy programming here.  Call this function as a ForEachUser backend
+	 * in order to queue up the room names, or call it with a null user
+	 * to make it do the processing.
+	 */
+	if (usbuf != NULL) {
+		ptr = (struct ubnlist *) malloc(sizeof (struct ubnlist));
+		if (ptr == NULL) return;
+
+		ptr->usernum = usbuf->usernum;
+		safestrncpy(ptr->username, usbuf->fullname, sizeof ptr->username);
+		ptr->next = u;
+		u = ptr;
+		return;
+	}
+
+	while (u != NULL) {
+		CtdlLogPrintf(CTDL_DEBUG, "Rebuilding usersbynumber index %10ld : %s\n",
+			u->usernum, u->username);
+		cdb_store(CDB_USERSBYNUMBER, &u->usernum, sizeof(long), u->username, strlen(u->username)+1);
+
+		ptr = u;
+		u = u->next;
+		free(ptr);
+	}
+}
+
+
+
+/*
+ * Rebuild the users-by-number index
+ */
+void rebuild_usersbynumber(void) {
+	cdb_trunc(CDB_USERSBYNUMBER);			/* delete the old indices */
+	ForEachUser(rebuild_ubn_for_user, NULL);	/* enumerate the users */
+	rebuild_ubn_for_user(NULL, NULL);		/* and index them */
+}
+
 
 
 /*
@@ -911,6 +964,9 @@ int purge_user(char pname[])
 	/* delete any existing user/room relationships */
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
 
+	/* delete the users-by-number index record */
+	cdb_delete(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long));
+
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
 
@@ -1018,8 +1074,9 @@ int create_user(char *newusername, int become_user)
 		usbuf.axlevel = 6;
 	}
 
-	/* add user to userlog */
+	/* add user to the database */
 	putuser(&usbuf);
+	cdb_store(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long), usbuf.fullname, strlen(usbuf.fullname)+1);
 
 	/*
 	 * Give the user a private mailbox and a configuration room.

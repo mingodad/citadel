@@ -7,6 +7,7 @@ void lputuser (struct ctdluser *);
 int is_aide (void);
 int is_room_aide (void);
 int getuserbynumber (struct ctdluser *usbuf, long int number);
+void rebuild_usersbynumber(void);
 void cmd_user (char *cmdbuf);
 void session_startup (void);
 void logout (void);

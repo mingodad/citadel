@@ -291,6 +291,7 @@ enum {
 	CDB_BIGMSGS,		/* larger message bodies         */
 	CDB_FULLTEXT,		/* full text search index        */
 	CDB_EUIDINDEX,		/* locate msgs by EUID           */
+	CDB_USERSBYNUMBER,	/* index of users by number      */
 	MAXCDB			/* total number of CDB's defined */
 };
 

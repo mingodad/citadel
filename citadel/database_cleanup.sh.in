@@ -99,7 +99,7 @@ case "$yesno" in
 		exit
 esac
 
-for x in 00 01 02 03 04 05 06 07 08 09 0a
+for x in 00 01 02 03 04 05 06 07 08 09 0a 0b
 do
 	filename=cdb.$x
 	echo Dumping $filename
@@ -110,7 +110,7 @@ done
 echo Removing old databases
 rm -f ./data/*
 
-for x in 00 01 02 03 04 05 06 07 08 09 0a
+for x in 00 01 02 03 04 05 06 07 08 09 0a 0b
 do
 	filename=cdb.$x
 	echo Loading $filename
