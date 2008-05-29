@@ -36,6 +36,7 @@
 struct ctdl_openid {
 	char claimed_id[1024];
 	char server[1024];
+	int validated;
 };
 
 
@@ -275,6 +276,7 @@ void cmd_oids(char *argbuf) {
 	extract_token(oiddata->claimed_id, argbuf, 0, '|', sizeof oiddata->claimed_id);
 	extract_token(return_to, argbuf, 1, '|', sizeof return_to);
 	extract_token(trust_root, argbuf, 2, '|', sizeof trust_root);
+	oiddata->validated = 0;
 
 	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1, sizeof oiddata->claimed_id);
 	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", oiddata->claimed_id);
@@ -461,17 +463,16 @@ void cmd_oidf(char *argbuf) {
 	curl_formfree(formpost);
 
 	valbuf[fh.total_bytes_received] = 0;
-	int success = 0;
 
 	if (bmstrcasestr(valbuf, "is_valid:true")) {
-		success = 1;
+		oiddata->validated = 1;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (success ? "succeeded" : "failed") );
+	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (oiddata->validated ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
-	if (success) {
+	if (oiddata->validated) {
 
 		/* If we were already logged in, attach the OpenID to the user's account */
 		if (CC->logged_in) {
