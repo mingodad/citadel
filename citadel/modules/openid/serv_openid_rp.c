@@ -32,6 +32,7 @@
 #include <curl/curl.h>
 #include "ctdl_module.h"
 #include "config.h"
+#include "citserver.h"
 
 struct ctdl_openid {
 	char claimed_id[1024];
@@ -51,21 +52,38 @@ struct ctdl_openid {
 
 
 /*
- * Attach or detach an OpenID to a Citadel account
+ * Attach an OpenID to a Citadel account
  */
-
-enum {
-	moa_detach,
-	moa_attach
-};
-
-int modify_openid_associations(struct ctdluser *who, char *claimed_id, int operation)
+int attach_openid(struct ctdluser *who, char *claimed_id)
 {
+	struct cdbdata *cdboi;
+
 	if (!who) return(1);
 	if (!claimed_id) return(1);
 	if (IsEmptyStr(claimed_id)) return(1);
 
-	return(2);		// error because we are not done yet FIXME
+	/* Check to see if this OpenID is already in the database */
+
+	cdboi = cdb_fetch(CDB_OPENID, claimed_id, strlen(claimed_id));
+	if (cdboi != NULL) {
+		if ( (long)*cdboi->ptr == who->usernum ) {
+			cdb_free(cdboi);
+			CtdlLogPrintf(CTDL_INFO, "%s already associated; no action is taken\n", claimed_id);
+			return(0);
+		}
+		else {
+			cdb_free(cdboi);
+			CtdlLogPrintf(CTDL_INFO, "%s already belongs to another user\n", claimed_id);
+			return(3);
+		}
+	}
+
+	/* Not already in the database, so attach it now */
+
+	cdb_store(CDB_OPENID, claimed_id, strlen(claimed_id), &who->usernum, sizeof(long));
+	CtdlLogPrintf(CTDL_INFO, "%s has been associated with %s (%ld)\n",
+		claimed_id, who->fullname, who->usernum);
+	return(0);
 }
 
 
@@ -78,6 +96,21 @@ void openid_purge(struct ctdluser *usbuf) {
 
 
 
+/*
+ * List the OpenIDs associated with the currently logged in account
+ */
+void cmd_oidl(char *argbuf) {
+	struct cdbdata *cdboi;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	cdb_rewind(CDB_OPENID);
+	cprintf("%d Associated OpenIDs:\n", LISTING_FOLLOWS);
+
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		cprintf("FIXME %ld\n", (long)*cdboi->ptr );
+	}
+	cprintf("000\n");
+}
 
 
 
@@ -476,7 +509,7 @@ void cmd_oidf(char *argbuf) {
 
 		/* If we were already logged in, attach the OpenID to the user's account */
 		if (CC->logged_in) {
-			if (modify_openid_associations(&CC->user, oiddata->claimed_id, moa_attach) == 0) {
+			if (attach_openid(&CC->user, oiddata->claimed_id) == 0) {
 				cprintf("attach\n");
 			}
 			else {
@@ -549,6 +582,7 @@ CTDL_MODULE_INIT(openid_rp)
 		curl_global_init(CURL_GLOBAL_ALL);
 		CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
+		CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_STOP);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
@@ -556,3 +590,6 @@ CTDL_MODULE_INIT(openid_rp)
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
+
+
+/* FIXME ... we have to add the new openid database to serv_vandelay.c */

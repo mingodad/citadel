@@ -10,6 +10,8 @@
  */
 void display_openids(void)
 {
+	char buf[1024];
+
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
@@ -17,7 +19,12 @@ void display_openids(void)
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
 	do_template("beginbox");
 
-	wprintf("FIXME -- we have to list the existing ones here");
+	serv_puts("OIDL");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		escputs(buf);
+		wprintf("<br />\n");
+	}
 
 	wprintf("<hr>\n");
 
