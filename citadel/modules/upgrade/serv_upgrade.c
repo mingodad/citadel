@@ -283,7 +283,6 @@ void check_server_upgrades(void) {
 CTDL_MODULE_UPGRADE(upgrade)
 {
 	check_server_upgrades();
-	rebuild_usersbynumber();		// FIXME take this out
 	
 	/* return our Subversion id for the Log */
 	return "$Id$";
