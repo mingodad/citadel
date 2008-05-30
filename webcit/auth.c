@@ -78,7 +78,7 @@ void display_login(char *mesg)
 		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
 	}
 
-#ifdef TECH_PREVIEW
+#if 0
 		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING,
 			"<div align=center>"
 			"<a href=\"display_openid_login\">"
@@ -96,7 +96,6 @@ void display_login(char *mesg)
 
 	wDumpContent(2);
 }
-
 
 
 

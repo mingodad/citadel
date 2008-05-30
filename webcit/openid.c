@@ -74,5 +74,3 @@ void openid_attach(void) {
 	/* If we get to this point then something failed. */
 	display_openids();
 }
-
-
