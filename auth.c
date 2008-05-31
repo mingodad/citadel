@@ -78,7 +78,7 @@ void display_login(char *mesg)
 		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
 	}
 
-#ifdef TECH_PREVIEW
+	if (1) {	// FIXME we have to check whether the server offers openid
 		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING,
 			"<div align=center>"
 			"<a href=\"display_openid_login\">"
@@ -88,9 +88,10 @@ void display_login(char *mesg)
 			,
 			"Log in using OpenID"
 		);
-#else
+	}
+	else {
 		svput("OFFER_OPENID_LOGIN", WCS_STRING, "");
-#endif
+	}
 
 	do_template("login");
 
@@ -312,6 +313,10 @@ void finalize_openid_login(void)
 	char buf[1024];
 	struct wcsession *WCC = WC;
 	int already_logged_in = (WCC->logged_in) ;
+	int linecount = 0;
+	char result[128] = "";
+	char username[128] = "";
+	char password[128] = "";
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
@@ -337,8 +342,18 @@ void finalize_openid_login(void)
 
 				serv_puts("000");
 
+				linecount = 0;
 				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-					// FIXME
+					if (linecount == 0) safestrncpy(result, buf, sizeof result);
+					if (!strcasecmp(result, "authenticate")) {
+						if (linecount == 1) {
+							safestrncpy(username, buf, sizeof username);
+						}
+						else if (linecount == 2) {
+							safestrncpy(password, buf, sizeof password);
+						}
+					}
+					++linecount;
 				}
 			}
 		}
@@ -350,7 +365,22 @@ void finalize_openid_login(void)
 		return;
 	}
 
-	/* Otherwise the user is probably attempting to log in using OpenID */
+	/* Was the claimed ID associated with an existing account?  Then log in that account now. */
+	if (!strcasecmp(result, "authenticate")) {
+		serv_printf("USER %s", username);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '3') {
+			serv_printf("PASS %s", password);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '2') {
+				become_logged_in(username, password, buf);
+			}
+		}
+	}
+
+	/* FIXME -- right here we have to put the code to log in a new user */
+
+	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {
 		if (WC->need_regi) {
 			display_reg(1);
