@@ -33,6 +33,7 @@
 #include "ctdl_module.h"
 #include "config.h"
 #include "citserver.h"
+#include "user_ops.h"
 
 struct ctdl_openid {
 	char claimed_id[1024];
@@ -141,6 +142,28 @@ void cmd_oidl(char *argbuf) {
 	cprintf("000\n");
 }
 
+
+
+/*
+ * getuserbyopenid() works the same way as getuser() and getuserbynumber().
+ * If a user account exists which is associated with the Claimed ID, it fills usbuf and returns zero.
+ * Otherwise it returns nonzero.
+ */
+int getuserbyopenid(struct ctdluser *usbuf, char *claimed_id)
+{
+	struct cdbdata *cdboi;
+	long usernum = 0;
+
+	cdboi = cdb_fetch(CDB_OPENID, claimed_id, strlen(claimed_id));
+	if (cdboi == NULL) {
+		return(-1);
+	}
+
+	memcpy(&usernum, cdboi->ptr, sizeof(long));
+	cdb_free(cdboi);
+
+	return(getuserbynumber(usbuf, usernum));
+}
 
 
 
@@ -548,9 +571,24 @@ void cmd_oidf(char *argbuf) {
 
 		/* Otherwise, a user is attempting to log in using the validated OpenID */	
 		else {
-			cprintf("fail\n");		// FIXME do the login here!!
-		}
+			struct ctdluser usbuf;
 
+			/*
+			 * Existing user who has claimed this OpenID?
+			 *
+			 * Note: if you think that sending the password back over the wire is insecure,
+			 * check your assumptions.  If someone has successfully asserted an OpenID that
+			 * is associated with the account, they already have password equivalency and can
+			 * login, so they could just as easily change the password, etc.
+			 */
+			if (getuserbyopenid(&usbuf, oiddata->claimed_id) == 0) {
+				cprintf("authenticate\n%s\n%s\n", usbuf.fullname, usbuf.password);
+			}
+
+			else {
+				cprintf("fail\n");		// FIXME do the login here!!
+			}
+		}
 	}
 	else {
 		cprintf("fail\n");
