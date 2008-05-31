@@ -1,16 +1,11 @@
 /*
  * $Id$
  */
-/**
- * \defgroup DispAdvancedMenu Displays the "advanced" (main) menu.
- * \ingroup MenuInfrastructure
- *
- */
-/*@{*/
+
 #include "webcit.h"
 
-/**
- * \brief The Main Menu
+/*
+ * The Main Menu
  */
 void display_main_menu(void)
 {
@@ -24,7 +19,7 @@ void display_main_menu(void)
 	svput("BOXTITLE", WCS_STRING, _("Basic commands"));
 	do_template("beginbox");
 
-	/**< start of first column */
+	/* start of first column */
 	wprintf("<ul class=\"adminitems col1\">");
 
 	wprintf("<li><a href=\"knrooms\">");
@@ -118,15 +113,15 @@ void display_main_menu(void)
 	wprintf("</td></tr>"
 		"<tr valign=top><td width=50%%>");
 
-	print_menu_box(_("Your info"), "adminitems", /* 8 */ 7,
+	print_menu_box(_("Your info"), "adminitems", 8,
 		       "display_preferences", _("Change your preferences and settings"),
 		       "display_reg", _("Update your contact information"),
 		       "display_changepw", _("Change your password"),
 		       "display_editbio", _("Enter your 'bio'"),
 		       "display_editpic", _("Edit your online photo"), 
 		       "display_sieve", _("View/edit server-side mail filters"),
-		       "display_pushemail", _("Edit your push email settings") /* ,
-		       "display_openids", _("Manage your OpenIDs") */
+		       "display_pushemail", _("Edit your push email settings"),
+		       "display_openids", _("Manage your OpenIDs")
 	);
 
 	wprintf("</td><td width=50%%>");
@@ -152,8 +147,8 @@ void display_main_menu(void)
 }
 
 
-/**
- * \brief System administration menu
+/*
+ * System administration menu
  */
 void display_aide_menu(void)
 {
@@ -202,8 +197,8 @@ void display_aide_menu(void)
 
 
 
-/**
- * \brief Display the screen to enter a generic server command
+/*
+ * Display the screen to enter a generic server command
  */
 void display_generic(void)
 {
@@ -246,8 +241,8 @@ void display_generic(void)
 	wDumpContent(1);
 }
 
-/**
- * \brief Interactive window to perform generic Citadel server commands.
+/*
+ * Interactive window to perform generic Citadel server commands.
  */
 void do_generic(void)
 {
@@ -310,9 +305,10 @@ void do_generic(void)
 }
 
 
-/**
- * \brief Display the menubar.  
- * \param as_single_page Set to display HTML headers and footers -- otherwise it's assumed
+/*
+ * Display the menubar.  
+ *
+ * Set 'as_single_page' to display HTML headers and footers -- otherwise it's assumed
  * that the menubar is being embedded in another page.
  */
 void display_menubar(int as_single_page) {
@@ -339,8 +335,8 @@ void display_menubar(int as_single_page) {
 }
 
 
-/**
- * \brief Display the wait / input dialog while restarting the server.
+/*
+ * Display the wait / input dialog while restarting the server.
  */
 void display_shutdown(void)
 {
@@ -413,13 +409,9 @@ void display_shutdown(void)
 	else if (!strcmp(when, "idle")) {
 		serv_printf("SCDN 3");
 		serv_getln(buf, sizeof buf);
-		if (atol(buf) == 500)
-		{ /* upsie. maybe the server is not running as daemon? */
+		if (atol(buf) == 500) {
+			/* oops ... maybe the server is not running as a daemon? */
 			wprintf("<html><head></head><body>Attention: %s</body></html>", &buf[4]);
-
 		}
 	}
 }
-
-
-/*@}*/
