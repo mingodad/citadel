@@ -41,9 +41,7 @@ struct ctdl_openid {
 };
 
 
-/* This is all disabled temporarily */
 
-#if 0
 
 
 /**************************************************************************/
@@ -625,9 +623,3 @@ CTDL_MODULE_INIT(openid_rp)
 
 /* FIXME ... we have to add the new openid database to serv_vandelay.c */
 
-
-#endif
-CTDL_MODULE_INIT(openid_rp)
-{
-	return "$Id$";
-}
