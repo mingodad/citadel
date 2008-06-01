@@ -29,7 +29,13 @@ void display_openids(void)
 		wprintf("<tr class=\"%s\">", (bg ? "even" : "odd"));
 		wprintf("<td><img src=\"static/openid-small.gif\"></td><td>");
 		escputs(buf);
-		wprintf("</td><td>%s</td></tr>\n", _("(delete)") );	// FIXME implement delete
+		wprintf("</td><td>");
+		wprintf("<a href=\"openid_detach?id_to_detach=");
+		urlescputs(buf);
+		wprintf("\" onClick=\"return confirm('%s');\">",
+			_("Do you really want to delete this OpenID?"));
+		wprintf("%s</a>", _("(delete)"));
+		wprintf("</td></tr>\n");
 	}
 
 	wprintf("</table><br />\n");
@@ -76,3 +82,19 @@ void openid_attach(void) {
 }
 
 
+/*
+ * Detach an OpenID from the currently logged-in account
+ */
+void openid_detach(void) {
+	char buf[1024];
+
+	if (havebstr("id_to_detach")) {
+		serv_printf("OIDD %s", bstr("id_to_detach"));
+		serv_getln(buf, sizeof buf);
+		if (buf[0] != '2') {
+			strcpy(WC->ImportantMessage, &buf[4]);
+		}
+	}
+
+	display_openids();
+}

@@ -574,9 +574,8 @@ void msgesc(char *target, size_t tlen, char *strbuf)
 	*tptr = '\0';
 }
 
-/**
- * \brief print a string to the client after cleaning it with msgesc() and stresc()
- * \param strbuf string to be printed
+/*
+ * print a string to the client after cleaning it with msgesc() and stresc()
  */
 void msgescputs1( char *strbuf)
 {
@@ -595,9 +594,8 @@ void msgescputs1( char *strbuf)
 	free(outbuf2);
 }
 
-/**
- * \brief print a string to the client after cleaning it with msgesc()
- * \param strbuf string to be printed
+/*
+ * print a string to the client after cleaning it with msgesc()
  */
 void msgescputs(char *strbuf) {
 	char *outbuf;
@@ -786,13 +784,13 @@ void http_transmit_thing(char *thing, size_t length, const char *content_type,
 	client_write(thing, (size_t)length);
 }
 
-/**
- * \brief print menu box like used in the floor view or admin interface.
+/*
+ * print menu box like used in the floor view or admin interface.
  * This function takes pair of strings as va_args, 
- * \param Title Title string of the box
- * \param Class CSS Class for the box
- * \param nLines How many string pairs should we print? (URL, UrlText)
- * \param ... Pairs of URL Strings and their Names
+ * Title	Title string of the box
+ * Class	CSS Class for the box
+ * nLines	How many string pairs should we print? (URL, UrlText)
+ * ...		Pairs of URL Strings and their Names
  */
 void print_menu_box(char* Title, char *Class, int nLines, ...)
 {
@@ -821,9 +819,8 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 }
 
 
-/**
- * \brief dump out static pages from disk
- * \param what the file urs to print
+/*
+ * dump out static pages from disk
  */
 void output_static(char *what)
 {
@@ -887,8 +884,8 @@ void output_static(char *what)
 	}
 }
 
-/**
- * \brief When the browser requests an image file from the Citadel server,
+/*
+ * When the browser requests an image file from the Citadel server,
  * this function is called to transmit it.
  */
 void output_image()
@@ -925,7 +922,7 @@ void output_image()
 	} 
 
 	
-	/**
+	/*
 	 * Instead of an ugly 404, send a 1x1 transparent GIF
 	 * when there's no such image on the server.
 	 */
@@ -934,11 +931,9 @@ void output_image()
 	output_static(blank_gif);
 }
 
-/**
-  * \brief Extract an embedded photo from a vCard for display on the client
-  *
-  * \param msgnum
-  */
+/*
+ * Extract an embedded photo from a vCard for display on the client
+ */
 void display_vcard_photo_img(char *msgnum_as_string)
 {
 	long msgnum = 0L;
@@ -972,14 +967,13 @@ void display_vcard_photo_img(char *msgnum_as_string)
 	free(xferbuf);
 }
 
-/**
- * \brief Generic function to output an arbitrary MIME part from an arbitrary
- *        message number on the server.
+/*
+ * Generic function to output an arbitrary MIME part from an arbitrary
+ * message number on the server.
  *
- * \param msgnum		Number of the item on the citadel server
- * \param partnum		The MIME part to be output
- * \param force_download	Nonzero to force set the Content-Type: header
- *                              to "application/octet-stream"
+ * msgnum		Number of the item on the citadel server
+ * partnum		The MIME part to be output
+ * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
  */
 void mimepart(char *msgnum, char *partnum, int force_download)
 {
@@ -1016,10 +1010,8 @@ void mimepart(char *msgnum, char *partnum, int force_download)
 }
 
 
-/**
- * \brief Read any MIME part of a message, from the server, into memory.
- * \param msgnum number of the message on the citadel server
- * \param partnum the MIME part to be loaded
+/*
+ * Read any MIME part of a message, from the server, into memory.
  */
 char *load_mimepart(long msgnum, char *partnum)
 {
@@ -1047,11 +1039,12 @@ char *load_mimepart(long msgnum, char *partnum)
 }
 
 
-/**
- * \brief Convenience functions to display a page containing only a string
- * \param titlebarcolor color of the titlebar of the frame
- * \param titlebarmsg text to display in the title bar
- * \param messagetext body of the box
+/*
+ * Convenience functions to display a page containing only a string
+ *
+ * titlebarcolor	color of the titlebar of the frame
+ * titlebarmsg		text to display in the title bar
+ * messagetext		body of the box
  */
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
@@ -1069,8 +1062,8 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 }
 
 
-/**
- * \brief Display a blank page.
+/*
+ * Display a blank page.
  */
 void blank_page(void) {
 	output_headers(1, 1, 0, 0, 0, 0);
@@ -1078,8 +1071,8 @@ void blank_page(void) {
 }
 
 
-/**
- * \brief A template has been requested
+/*
+ * A template has been requested
  */
 void url_do_template(void) {
 	do_template(bstr("template"));
@@ -1087,8 +1080,8 @@ void url_do_template(void) {
 
 
 
-/**
- * \brief Offer to make any page the user's "start page."
+/*
+ * Offer to make any page the user's "start page."
  */
 void offer_start_page(void) {
 	wprintf("<a href=\"change_start_page?startpage=");
@@ -1106,8 +1099,8 @@ void offer_start_page(void) {
 }
 
 
-/**
- * \brief Change the user's start page
+/*
+ * Change the user's start page
  */
 void change_start_page(void) {
 
@@ -1128,9 +1121,8 @@ void change_start_page(void) {
 
 
 
-/**
- * \brief convenience function to indicate success
- * \param successmessage the mesage itself
+/*
+ * convenience function to indicate success
  */
 void display_success(char *successmessage)
 {
@@ -1138,11 +1130,10 @@ void display_success(char *successmessage)
 }
 
 
-/**
- * \brief Authorization required page 
+/*
+ * Authorization required page 
  * This is probably temporary and should be revisited 
- * \param message message to put in header
-*/
+ */
 void authorization_required(const char *message)
 {
 	wprintf("HTTP/1.1 401 Authorization Required\r\n");
@@ -1156,30 +1147,30 @@ void authorization_required(const char *message)
 	wDumpContent(0);
 }
 
-/**
- * \brief This function is called by the MIME parser to handle data uploaded by
- *        the browser.  Form data, uploaded files, and the data from HTTP PUT
- *        operations (such as those found in GroupDAV) all arrive this way.
+/*
+ * This function is called by the MIME parser to handle data uploaded by
+ * the browser.  Form data, uploaded files, and the data from HTTP PUT
+ * operations (such as those found in GroupDAV) all arrive this way.
  *
- * \param name Name of the item being uploaded
- * \param filename Filename of the item being uploaded
- * \param partnum MIME part identifier (not needed)
- * \param disp MIME content disposition (not needed)
- * \param content The actual data
- * \param cbtype MIME content-type
- * \param cbcharset Character set
- * \param length Content length
- * \param encoding MIME encoding type (not needed)
- * \param userdata Not used here
+ * name		Name of the item being uploaded
+ * filename	Filename of the item being uploaded
+ * partnum	MIME part identifier (not needed)
+ * disp		MIME content disposition (not needed)
+ * content	The actual data
+ * cbtype	MIME content-type
+ * cbcharset	Character set
+ * length	Content length
+ * encoding	MIME encoding type (not needed)
+ * userdata	Not used here
  */
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
 			size_t length, char *encoding, void *userdata)
 {
 	urlcontent *u;
-/*
+#ifdef DEBUG_URLSTRINGS
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
-*/
+#endif
 	if (WC->urlstrings == NULL)
 		WC->urlstrings = NewHash(1, NULL);
 
@@ -1193,8 +1184,9 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		memcpy(u->url_data, content, length);
 		u->url_data[length] = 0;
 		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
-
-/*		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", u->url_key, u->url_data_size, u->url_data);*/
+#ifdef DEBUG_URLSTRINGS
+		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", u->url_key, u->url_data_size, u->url_data);
+#endif
 	}
 
 	/** Uploaded files */
@@ -1215,8 +1207,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 
 }
 
-/**
- * \brief Convenience functions to wrap around asynchronous ajax responses
+/*
+ * Convenience functions to wrap around asynchronous ajax responses
  */
 void begin_ajax_response(void) {
         output_headers(0, 0, 0, 0, 0, 0);
@@ -1232,16 +1224,16 @@ void begin_ajax_response(void) {
         begin_burst();
 }
 
-/**
- * \brief print ajax response footer 
+/*
+ * print ajax response footer 
  */
 void end_ajax_response(void) {
         wprintf("\r\n");
         wDumpContent(0);
 }
 
-/**
- * \brief Wraps a Citadel server command in an AJAX transaction.
+/*
+ * Wraps a Citadel server command in an AJAX transaction.
  */
 void ajax_servcmd(void)
 {
@@ -1285,7 +1277,7 @@ void ajax_servcmd(void)
 
 	end_ajax_response();
 	
-	/**
+	/*
 	 * This is kind of an ugly hack, but this is the only place it can go.
 	 * If the command was GEXP, then the instant messenger window must be
 	 * running, so reset the "last_pager_check" watchdog timer so
@@ -1297,8 +1289,8 @@ void ajax_servcmd(void)
 }
 
 
-/**
- * \brief Helper function for the asynchronous check to see if we need
+/*
+ * Helper function for the asynchronous check to see if we need
  * to open the instant messenger window.
  */
 void seconds_since_last_gexp(void)
@@ -1325,8 +1317,8 @@ void seconds_since_last_gexp(void)
 
 
 
-/**
- * \brief Entry point for WebCit transaction
+/*
+ * Entry point for WebCit transaction
  */
 void session_loop(struct httprequest *req)
 {
@@ -1350,7 +1342,7 @@ void session_loop(struct httprequest *req)
 	int is_static = 0;
 	int n_static = 0;
 	int len = 0;
-	/**
+	/*
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
@@ -1478,12 +1470,12 @@ void session_loop(struct httprequest *req)
 		content = NULL;
 	}
 
-	/** make a note of where we are in case the user wants to save it */
+	/* make a note of where we are in case the user wants to save it */
 	safestrncpy(WC->this_page, cmd, sizeof(WC->this_page));
 	remove_token(WC->this_page, 2, ' ');
 	remove_token(WC->this_page, 0, ' ');
 
-	/** If there are variables in the URL, we must grab them now */
+	/* If there are variables in the URL, we must grab them now */
 	len = strlen(cmd);
 	for (a = 0; a < len; ++a) {
 		if ((cmd[a] == '?') || (cmd[a] == '&')) {
@@ -1499,7 +1491,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	/** If it's a "force 404" situation then display the error and bail. */
+	/* If it's a "force 404" situation then display the error and bail. */
 	if (!strcmp(action, "404")) {
 		wprintf("HTTP/1.1 404 Not found\r\n");
 		wprintf("Content-Type: text/plain\r\n");
@@ -1508,7 +1500,7 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	/** Static content can be sent without connecting to Citadel. */
+	/* Static content can be sent without connecting to Citadel. */
 	is_static = 0;
 	for (a=0; a<ndirs; ++a) {
 		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location */
@@ -1559,7 +1551,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	/**
+	/*
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.
 	 */
@@ -1610,7 +1602,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	/**
+	/*
 	 * Functions which can be performed without logging in
 	 */
 	if (!strcasecmp(action, "listsub")) {
@@ -1622,7 +1614,7 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	/**
+	/*
 	 * If we're not logged in, but we have HTTP Authentication data,
 	 * try logging in to Citadel using that.
 	 */
@@ -1640,14 +1632,14 @@ void session_loop(struct httprequest *req)
 				safestrncpy(WC->httpauth_user, c_httpauth_user, sizeof WC->httpauth_user);
 				safestrncpy(WC->httpauth_pass, c_httpauth_pass, sizeof WC->httpauth_pass);
 			} else {
-				/** Should only display when password is wrong */
+				/* Should only display when password is wrong */
 				authorization_required(&buf[4]);
 				goto SKIP_ALL_THIS_CRAP;
 			}
 		}
 	}
 
-	/** This needs to run early */
+	/* This needs to run early */
 #ifdef TECH_PREVIEW
 	if (!strcasecmp(action, "rss")) {
 		display_rss(bstr("room"), request_method);
@@ -1655,7 +1647,7 @@ void session_loop(struct httprequest *req)
 	}
 #endif
 
-	/** 
+	/* 
 	 * The GroupDAV stuff relies on HTTP authentication instead of
 	 * our session's authentication.
 	 */
@@ -1669,7 +1661,7 @@ void session_loop(struct httprequest *req)
 	}
 
 
-	/**
+	/*
 	 * Automatically send requests with any method other than GET or
 	 * POST to the GroupDAV code as well.
 	 */
@@ -1682,7 +1674,7 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	/**
+	/*
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
@@ -1699,7 +1691,7 @@ void session_loop(struct httprequest *req)
 			}
 		}
 	}
-	/**
+	/*
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
@@ -2092,9 +2084,11 @@ void session_loop(struct httprequest *req)
 		display_openids();
 	} else if (!strcasecmp(action, "openid_attach")) {
 		openid_attach();
+	} else if (!strcasecmp(action, "openid_detach")) {
+		openid_detach();
 	}
 
-	/** When all else fais, display the main menu. */
+	/* When all else fais, display the main menu. */
 	else {
 		display_main_menu();
 	}
@@ -2112,9 +2106,8 @@ SKIP_ALL_THIS_CRAP:
 	}
 }
 
-/**
- * \brief Replacement for sleep() that uses select() in order to avoid SIGALRM
- * \param seconds how many seconds should we sleep?
+/*
+ * Replacement for sleep() that uses select() in order to avoid SIGALRM
  */
 void sleeeeeeeeeep(int seconds)
 {
@@ -2126,4 +2119,3 @@ void sleeeeeeeeeep(int seconds)
 }
 
 
-/*@}*/
