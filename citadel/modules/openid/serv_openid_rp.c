@@ -119,6 +119,18 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
  * When a user is being deleted, we have to delete any OpenID associations
  */
 void openid_purge(struct ctdluser *usbuf) {
+	struct cdbdata *cdboi;
+
+	cdb_rewind(CDB_OPENID);
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			if (((long)*(cdboi->ptr)) == usbuf->usernum) {
+				CtdlLogPrintf(CTDL_DEBUG, "FIXME we have to delete an openid\n");
+			}
+		}
+		cdb_free(cdboi);
+	}
+
 	/* FIXME finish this */
 }
 
@@ -140,6 +152,7 @@ void cmd_oidl(char *argbuf) {
 				cprintf("%s\n", cdboi->ptr + sizeof(long));
 			}
 		}
+		cdb_free(cdboi);
 	}
 	cprintf("000\n");
 }
@@ -167,6 +180,7 @@ void cmd_oidd(char *argbuf) {
 				this_is_mine = 1;
 			}
 		}
+		cdb_free(cdboi);
 	}
 
 	if (!this_is_mine) {
