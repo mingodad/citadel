@@ -136,10 +136,47 @@ void cmd_oidl(char *argbuf) {
 
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-		cprintf("%s\n", cdboi->ptr + sizeof(long));
+			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
+				cprintf("%s\n", cdboi->ptr + sizeof(long));
+			}
 		}
 	}
 	cprintf("000\n");
+}
+
+
+
+/*
+ * Detach an OpenID from the currently logged in account
+ */
+void cmd_oidd(char *argbuf) {
+	struct cdbdata *cdboi;
+	char id_to_detach[1024];
+	int this_is_mine = 0;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(id_to_detach, argbuf, 0, '|', sizeof id_to_detach);
+	if (IsEmptyStr(id_to_detach)) {
+		cprintf("%d An empty OpenID URL is not allowed.\n", ERROR + ILLEGAL_VALUE);
+	}
+
+	cdb_rewind(CDB_OPENID);
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
+				this_is_mine = 1;
+			}
+		}
+	}
+
+	if (!this_is_mine) {
+		cprintf("%d That OpenID was not found or not associated with your account.\n",
+			ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	cdb_delete(CDB_OPENID, id_to_detach, strlen(id_to_detach));
+	cprintf("%d %s detached from your account.\n", CIT_OK, id_to_detach);
 }
 
 
@@ -650,6 +687,7 @@ CTDL_MODULE_INIT(openid_rp)
 		CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
+		CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_STOP);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
