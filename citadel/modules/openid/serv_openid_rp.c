@@ -218,11 +218,47 @@ void cmd_oidd(char *argbuf) {
 
 
 /*
- * getuserbyopenid() works the same way as getuser() and getuserbynumber().
- * If a user account exists which is associated with the Claimed ID, it fills usbuf and returns zero.
+ * Attempt to auto-create a new Citadel account using the nickname from Simple Registration Extension
+ */
+int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
+{
+	char *desired_name = NULL;
+
+	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
+	if (config.c_disable_newu) return(2);
+	if (CC->logged_in) return(3);
+	if (!GetHash(sri_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
+
+	CtdlLogPrintf(CTDL_DEBUG, "The desired account name is <%s>\n", desired_name);
+
+	if (!getuser(&CC->user, desired_name)) {
+		CtdlLogPrintf(CTDL_DEBUG, "<%s> is already taken by another user.\n", desired_name);
+		memset(&CC->user, 0, sizeof(struct ctdluser));
+		return(5);
+	}
+
+	/* The desired account name is available.  Create the account and log it in! */
+	if (create_user(desired_name, 1)) return(6);
+
+	attach_openid(&CC->user, claimed_id);
+	return(0);
+}
+
+
+// identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
+// sreg.nickname = [17]  IGnatius T Foobar
+// sreg.email = [26]  ajc@uncensored.citadel.org
+// sreg.fullname = [10]  Art Cancro
+// sreg.postcode = [5]  10549
+// sreg.country = [2]  US
+
+
+
+/*
+ * If a user account exists which is associated with the Claimed ID, log it in and return zero.
  * Otherwise it returns nonzero.
  */
-int getuserbyopenid(struct ctdluser *usbuf, char *claimed_id)
+int login_via_openid(char *claimed_id)
 {
 	struct cdbdata *cdboi;
 	long usernum = 0;
@@ -235,20 +271,17 @@ int getuserbyopenid(struct ctdluser *usbuf, char *claimed_id)
 	memcpy(&usernum, cdboi->ptr, sizeof(long));
 	cdb_free(cdboi);
 
-	return(getuserbynumber(usbuf, usernum));
+	if (!getuserbynumber(&CC->user, usernum)) {
+		do_login();
+		return(0);
+	}
+	else {
+		memset(&CC->user, 0, sizeof(struct ctdluser));
+		return(-1);
+	}
 }
 
 
-
-int openid_create_user_via_sri(struct ctdluser *usbuf, char *claimed_id, HashList *sri_keys)
-{
-	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
-	if (config.c_disable_newu) return(2);
-
-	/* FIXME do something */
-
-	return(99);
-}
 
 
 /**************************************************************************/
@@ -648,8 +681,6 @@ void cmd_oidf(char *argbuf) {
 
 		/* Otherwise, a user is attempting to log in using the validated OpenID */	
 		else {
-			struct ctdluser usbuf;
-
 			/*
 			 * Existing user who has claimed this OpenID?
 			 *
@@ -658,15 +689,17 @@ void cmd_oidf(char *argbuf) {
 			 * is associated with the account, they already have password equivalency and can
 			 * login, so they could just as easily change the password, etc.
 			 */
-			if (getuserbyopenid(&usbuf, oiddata->claimed_id) == 0) {
-				cprintf("authenticate\n%s\n%s\n", usbuf.fullname, usbuf.password);
+			if (login_via_openid(oiddata->claimed_id) == 0) {
+				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
+				logged_in_response();
 			}
 
 			/*
 			 * New user whose OpenID is verified and Simple Registration Extension is in use?
 			 */
-			else if (openid_create_user_via_sri(&usbuf, oiddata->claimed_id, keys) == 0) {
-				cprintf("authenticate\n%s\n%s\n", usbuf.fullname, usbuf.password);
+			else if (openid_create_user_via_sri(oiddata->claimed_id, keys) == 0) {
+				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
+				logged_in_response();
 			}
 
 			/* FIXME right here we have to handle manual account creation */
@@ -697,20 +730,6 @@ void cmd_oidf(char *argbuf) {
 
 	DeleteHash(&keys);		/* This will free() all the key data for us */
 }
-
-
-// mode = [6]  id_res
-// identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
-// assoc_handle = [26]  6ekac3ju181tgepk7v4h9r7ui7
-// return_to = [42]  http://jemcaterers.net/finish_openid_login
-// sreg.nickname = [17]  IGnatius T Foobar
-// sreg.email = [26]  ajc@uncensored.citadel.org
-// sreg.fullname = [10]  Art Cancro
-// sreg.postcode = [5]  10549
-// sreg.country = [2]  US
-// signed = [102]  mode,identity,assoc_handle,return_to,sreg.nickname,sreg.email,sreg.fullname,sreg.postcode,sreg.country
-// sig = [28]  vixxxU4MAqWfxxxxCfrHv3TxxxhEw=
-
 
 
 

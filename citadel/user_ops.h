@@ -10,6 +10,7 @@ int getuserbynumber (struct ctdluser *usbuf, long int number);
 void rebuild_usersbynumber(void);
 void cmd_user (char *cmdbuf);
 void session_startup (void);
+void logged_in_response(void);
 void logout (void);
 void cmd_pass (char *buf);
 int purge_user (char *pname);
