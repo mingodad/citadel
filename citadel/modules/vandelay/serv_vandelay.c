@@ -511,7 +511,6 @@ void artv_do_export(void) {
 		artv_export_visits();
 	if (Ctx->kill_me != 1)
 		artv_export_messages();
-
 	client_write("000\n", 4);
 }
 
@@ -717,8 +716,8 @@ void artv_import_openid(void) {
 	char *data;
 	int data_len;
 
-	client_getln(buf, sizeof buf);	usernum = atol(buf);
 	client_getln(openid, sizeof openid);
+	client_getln(buf, sizeof buf);	usernum = atol(buf);
 	if (IsEmptyStr(openid)) return;
 
 	data_len = sizeof(long) + strlen(openid) + 1;
