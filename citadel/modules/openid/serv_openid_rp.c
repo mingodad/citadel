@@ -56,7 +56,7 @@ struct ctdl_openid {
  * The structure of an openid record *key* is:
  *
  * |--------------claimed_id-------------|
- *     (auctual length of claimed id)
+ *     (actual length of claimed id)
  *
  *
  * The structure of an openid record *value* is:

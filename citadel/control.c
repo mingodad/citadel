@@ -155,8 +155,8 @@ void get_control(void)
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			// Find highest room number and message number.
-			ForEachRoom(control_find_highest, NULL);
-			ForEachUser(control_find_user, NULL);
+			// ForEachRoom(control_find_highest, NULL);
+			// ForEachUser(control_find_user, NULL);
 			fwrite(&CitControl, sizeof(struct CitControl),
 			       1, control_fp);
 			rewind(control_fp);

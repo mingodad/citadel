@@ -399,6 +399,25 @@ void artv_dump_message(long msgnum) {
 
 
 
+void artv_export_openids(void) {
+	struct cdbdata *cdboi;
+	long usernum;
+
+	cdb_rewind(CDB_OPENID);
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			client_write("openid\n", 7);
+			memcpy(&usernum, cdboi->ptr, sizeof(long));
+			cprintf("%s\n", (cdboi->ptr)+sizeof(long) );
+			cprintf("%ld\n", usernum);
+		}
+		cdb_free(cdboi);
+	}
+}
+
+
+
+
 void artv_export_messages(void) {
 	char buf[SIZ];
 	long msgnum;
@@ -482,6 +501,8 @@ void artv_do_export(void) {
 	cprintf("%d\n", CitControl.version);
 	if (Ctx->kill_me != 1)
 		artv_export_users();
+	if (Ctx->kill_me != 1)
+		artv_export_openids();
 	if (Ctx->kill_me != 1)
 		artv_export_rooms();
 	if (Ctx->kill_me != 1)
@@ -665,8 +686,6 @@ void artv_import_floor(void) {
 }
 
 
-/* 
- */
 void artv_import_visit(void) {
 	struct visit vbuf;
 	char buf[SIZ];
@@ -690,6 +709,29 @@ void artv_import_visit(void) {
 		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
 }
 
+
+void artv_import_openid(void) {
+	char buf[SIZ];
+	long usernum;
+	char openid[1024];
+	char *data;
+	int data_len;
+
+	client_getln(buf, sizeof buf);	usernum = atol(buf);
+	client_getln(openid, sizeof openid);
+	if (IsEmptyStr(openid)) return;
+
+	data_len = sizeof(long) + strlen(openid) + 1;
+	data = malloc(data_len);
+
+	memcpy(data, &usernum, sizeof(long));
+	memcpy(&data[sizeof(long)], openid, strlen(openid) + 1);
+
+	cdb_store(CDB_OPENID, openid, strlen(openid), data, data_len);
+	free(data);
+
+	CtdlLogPrintf(CTDL_INFO, "Imported OpenID %s for user #%ld\n", openid, usernum);
+}
 
 
 void artv_import_message(long *iterations, char **b64buf, size_t *b64size, char **plain, size_t *plain_size) {
@@ -834,6 +876,7 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "room")) artv_import_room(&iterations);
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
+		else if (!strcasecmp(buf, "openid")) artv_import_openid();
 		else if (!strcasecmp(buf, "message"))
 		{
 			b64mes[0] = 0;
