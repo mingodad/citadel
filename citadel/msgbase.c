@@ -2566,6 +2566,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char *saved_rfc822_version = NULL;
 	int qualified_for_journaling = 0;
 	struct CitContext *CCC = CC;		/* CachedCitContext - performance boost */
+	char bounce_to[1024] = "";
 
 	CtdlLogPrintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2759,6 +2760,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	CCC->user.posted = CCC->user.posted + 1;
 	lputuser(&CCC->user);
 
+	/* Decide where bounces need to be delivered */
+	if (CCC->logged_in) {
+		snprintf(bounce_to, sizeof bounce_to, "%s@%s", CCC->user.fullname, config.c_nodename);
+	}
+	else {
+		snprintf(bounce_to, sizeof bounce_to, "%s@%s", msg->cm_fields['A'], msg->cm_fields['N']);
+	}
+
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
@@ -2783,9 +2792,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			   instr = malloc(instr_alloc);
 			   snprintf(instr, instr_alloc,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			"bounceto|%s@%s\n",
+			"bounceto|%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
-			msg->cm_fields['A'], msg->cm_fields['N']
+			bounce_to
 			);
 
 			   imsg = malloc(sizeof(struct CtdlMessage));
@@ -2870,9 +2879,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		instr = malloc(instr_alloc);
 		snprintf(instr, instr_alloc,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			"bounceto|%s@%s\n",
+			"bounceto|%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
-			msg->cm_fields['A'], msg->cm_fields['N']
+			bounce_to
 		);
 
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
