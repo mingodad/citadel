@@ -67,6 +67,7 @@ struct ctdl_openid {
  */
 
 
+
 /*
  * Attach an OpenID to a Citadel account
  */
@@ -120,18 +121,39 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
  */
 void openid_purge(struct ctdluser *usbuf) {
 	struct cdbdata *cdboi;
+	HashList *keys = NULL;
+	HashPos *HashPos;
+	char *deleteme = NULL;
+	long len;
+	void *Value;
+	char *Key;
+
+	keys = NewHash(1, NULL);
+	if (!keys) return;
+
 
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
 			if (((long)*(cdboi->ptr)) == usbuf->usernum) {
-				CtdlLogPrintf(CTDL_DEBUG, "FIXME we have to delete an openid\n");
+				deleteme = strdup(cdboi->ptr + sizeof(long)),
+				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
 			}
 		}
 		cdb_free(cdboi);
 	}
 
-	/* FIXME finish this */
+	/* Go through the hash list, deleting keys we stored in it */
+
+	HashPos = GetNewHashPos();
+	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);
+		cdb_delete(CDB_OPENID, Value, strlen(Value));
+		/* note: don't free(Value) -- deleting the hash list will handle this for us */
+	}
+	DeleteHashPos(&HashPos);
+	DeleteHash(&keys);
 }
 
 
@@ -469,12 +491,6 @@ void cmd_oids(char *argbuf) {
 
 
 
-/*
- * Callback function to free a pointer (used below in the hash list)
- */
-void free_oid_key(void *ptr) {
-	free(ptr);
-}
 
 
 /*
@@ -500,7 +516,7 @@ void cmd_oidf(char *argbuf) {
 		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
 		CtdlLogPrintf(CTDL_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
-		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), free_oid_key);
+		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), generic_free_handler);
 	}
 
 
@@ -657,6 +673,7 @@ void cmd_oidf(char *argbuf) {
 		free(Value);
 	}
 	DeleteHashPos(&HashPos);
+	DeleteHash(&keys);
 }
 
 

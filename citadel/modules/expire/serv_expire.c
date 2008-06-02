@@ -22,6 +22,11 @@
  *
  * When using Berkeley DB, there's another reason for the two-phase purge: we
  * don't want the entire thing being done as one huge transaction.
+ *
+ * You'll also notice that we build the in-memory list of records to be deleted
+ * sometimes with a linked list and sometimes with a hash table.  There is no
+ * reason for this aside from the fact that the linked list ones were written
+ * before we had the hash table library available.
  */
 
 
@@ -790,6 +795,57 @@ int PurgeEuidIndexTable(void) {
 }
 
 
+
+/*
+ * Purge OpenID assocations for missing users (theoretically this will never delete anything)
+ */
+int PurgeStaleOpenIDassociations(void) {
+	struct cdbdata *cdboi;
+	struct ctdluser usbuf;
+	HashList *keys = NULL;
+	HashPos *HashPos;
+	char *deleteme = NULL;
+	long len;
+	void *Value;
+	char *Key;
+	int num_deleted = 0;
+
+	keys = NewHash(1, NULL);
+	if (!keys) return(0);
+
+
+	cdb_rewind(CDB_OPENID);
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			long usernum;
+			usernum = ((long)*(cdboi->ptr));
+			if (getuserbynumber(&usbuf, usernum) != 0) {
+				deleteme = strdup(cdboi->ptr + sizeof(long)),
+				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
+			}
+		}
+		cdb_free(cdboi);
+	}
+
+	/* Go through the hash list, deleting keys we stored in it */
+
+	HashPos = GetNewHashPos();
+	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);
+		cdb_delete(CDB_OPENID, Value, strlen(Value));
+		/* note: don't free(Value) -- deleting the hash list will handle this for us */
+		++num_deleted;
+	}
+	DeleteHashPos(&HashPos);
+	DeleteHash(&keys);
+	return num_deleted;
+}
+
+
+
+
+
 void *purge_databases(void *args)
 {
         int retval;
@@ -852,6 +908,12 @@ void *purge_databases(void *args)
 		{
                 	retval = PurgeEuidIndexTable();
                 	CtdlLogPrintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
+		}
+
+		if (!CtdlThreadCheckStop())
+		{
+			retval = PurgeStaleOpenIDassociations();
+                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d stale OpenID associations.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
