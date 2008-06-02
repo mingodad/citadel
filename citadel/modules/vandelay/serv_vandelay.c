@@ -848,6 +848,7 @@ void artv_do_import(void) {
 	CtdlLogPrintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000"))  ;;
 	rebuild_euid_index();
+	rebuild_usersbynumber();
 }
 
 
