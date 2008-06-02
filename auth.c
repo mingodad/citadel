@@ -317,6 +317,7 @@ void finalize_openid_login(void)
 	char result[128] = "";
 	char username[128] = "";
 	char password[128] = "";
+	char logged_in_response[1024] = "";
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
@@ -351,6 +352,10 @@ void finalize_openid_login(void)
 						else if (linecount == 2) {
 							safestrncpy(password, buf, sizeof password);
 						}
+						else if (linecount == 2) {
+							safestrncpy(logged_in_response, buf,
+								sizeof logged_in_response);
+						}
 					}
 					++linecount;
 				}
@@ -364,17 +369,11 @@ void finalize_openid_login(void)
 		return;
 	}
 
-	/* Was the claimed ID associated with an existing account?  Then log in that account now. */
+	/* If this operation logged us in, either by connecting with an existing account or by
+	 * auto-creating one using Simple Registration Extension, we're already on our way.
+	 */
 	if (!strcasecmp(result, "authenticate")) {
-		serv_printf("USER %s", username);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '3') {
-			serv_printf("PASS %s", password);
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '2') {
-				become_logged_in(username, password, buf);
-			}
-		}
+		become_logged_in(username, password, logged_in_response);
 	}
 
 	/* FIXME -- right here we have to put the code to log in a new user */
