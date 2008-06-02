@@ -501,7 +501,6 @@ void cmd_oidf(char *argbuf) {
 	char thiskey[1024];
 	char thisdata[1024];
 	HashList *keys = NULL;
-	HashPos *HashPos;
 	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
 
 	keys = NewHash(1, NULL);
@@ -662,18 +661,21 @@ void cmd_oidf(char *argbuf) {
 	}
 	cprintf("000\n");
 
-	/* Free the hash list */
+	/*
+	 * We will eventually do something with the data in the hash list.
+	 *
 	long len;
 	void *Value;
 	char *Key;
-
+	HashPos *HashPos;
 	HashPos = GetNewHashPos();
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		free(Value);
 	}
 	DeleteHashPos(&HashPos);
-	DeleteHash(&keys);
+	 */
+
+	DeleteHash(&keys);		/* This will free() all the key data for us */
 }
 
 
