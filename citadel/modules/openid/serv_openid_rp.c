@@ -240,6 +240,17 @@ int getuserbyopenid(struct ctdluser *usbuf, char *claimed_id)
 
 
 
+int openid_create_user_via_sri(struct ctdluser *usbuf, char *claimed_id, HashList *sri_keys)
+{
+	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
+	if (config.c_disable_newu) return(2);
+
+	/* FIXME do something */
+
+	return(99);
+}
+
+
 /**************************************************************************/
 /*                                                                        */
 /* Functions in this section handle OpenID protocol                       */
@@ -651,8 +662,17 @@ void cmd_oidf(char *argbuf) {
 				cprintf("authenticate\n%s\n%s\n", usbuf.fullname, usbuf.password);
 			}
 
+			/*
+			 * New user whose OpenID is verified and Simple Registration Extension is in use?
+			 */
+			else if (openid_create_user_via_sri(&usbuf, oiddata->claimed_id, keys) == 0) {
+				cprintf("authenticate\n%s\n%s\n", usbuf.fullname, usbuf.password);
+			}
+
+			/* FIXME right here we have to handle manual account creation */
+
 			else {
-				cprintf("fail\n");		// FIXME do the login here!!
+				cprintf("fail\n");
 			}
 		}
 	}
