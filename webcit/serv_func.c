@@ -95,6 +95,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 22:
 			safestrncpy(serv_info.serv_svn_revision, buf, sizeof serv_info.serv_svn_revision);
 			break;
+		case 23:
+			serv_info.serv_supports_openid = atoi(buf);
+			break;
 		}
 		++a;
 	}

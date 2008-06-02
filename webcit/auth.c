@@ -78,7 +78,7 @@ void display_login(char *mesg)
 		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
 	}
 
-	if (1) {	// FIXME we have to check whether the server offers openid
+	if (serv_info.serv_supports_openid) {
 		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING,
 			"<div align=center>"
 			"<a href=\"display_openid_login\">"
@@ -321,7 +321,6 @@ void finalize_openid_login(void)
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
 
-			// FIXME id accepted but the code isn't finished
 			serv_puts("OIDF");
 			serv_getln(buf, sizeof buf);
 

@@ -309,6 +309,13 @@ void cmd_info(void) {
 	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
 	cprintf("%d\n", config.c_enable_fulltext);
 	cprintf("%s\n", svn_revision());
+
+	if (config.c_auth_mode == AUTHMODE_NATIVE) {
+		cprintf("1\n");	/* OpenID is enabled when using native auth */
+	}
+	else {
+		cprintf("0\n");	/* OpenID is disabled when using non-native auth */
+	}
 	
 	cprintf("000\n");
 }
