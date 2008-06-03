@@ -220,8 +220,7 @@ void do_login(void)
 			serv_printf("PASS %s", bstr("pass"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
-				become_logged_in(bstr("name"),
-						 bstr("pass"), buf);
+				become_logged_in(bstr("name"), bstr("pass"), buf);
 			} else {
 				display_login(&buf[4]);
 				return;
@@ -352,7 +351,7 @@ void finalize_openid_login(void)
 						else if (linecount == 2) {
 							safestrncpy(password, buf, sizeof password);
 						}
-						else if (linecount == 2) {
+						else if (linecount == 3) {
 							safestrncpy(logged_in_response, buf,
 								sizeof logged_in_response);
 						}
