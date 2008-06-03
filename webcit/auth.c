@@ -152,6 +152,38 @@ void display_openid_login(char *mesg)
 }
 
 
+void display_openid_name_request(char *claimed_id, char *username) {
+	char buf[SIZ];
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	wprintf("<div id=\"login_screen\">\n");
+
+	stresc(buf, sizeof buf, claimed_id, 0, 0);
+	svprintf(HKEY("VERIFIED"), WCS_STRING, _("Your OpenID <tt>%s</tt> was successfully verified."),
+		claimed_id);
+
+	if (!IsEmptyStr(username)) {
+		stresc(buf, sizeof buf, username, 0, 0);
+		svprintf(HKEY("REASON"), WCS_STRING,
+			_("However, the user name '%s' conflicts with an existing user."), username);
+	}
+	else {
+		svput("REASON", WCS_STRING, "");
+	}
+
+	svput("ACTION_REQUESTED", WCS_STRING, _("Please specify the user name you would like to use."));
+
+	svput("USERNAME_BOX", WCS_STRING, _("User name:"));
+	svput("NEWUSER_BUTTON", WCS_STRING, _("New User"));
+	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
+
+	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
+		serv_info.serv_humannode);
+
+	do_template("openid_manual_create");
+	wDumpContent(2);
+}
+
 
 
 /* Initialize the session
@@ -260,6 +292,44 @@ void do_login(void)
 
 }
 
+/* 
+ * Try to create an account manually after an OpenID was verified
+ */
+void openid_manual_create(void)
+{
+	if (havebstr("exit_action")) {
+		do_logout();
+		return;
+	}
+
+#if 0 
+	char buf[SIZ];
+	if (havebstr("newuser_action")) {
+		serv_printf("OIDC %s", bstr("name"));
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '2') {
+			become_logged_in(bstr("name"), bstr("pass"), buf);		// FIXME
+		} else {
+			display_openid_name_request(char *claimed_id, char *username);	// FIXME
+			return;
+		}
+	}
+#endif
+
+	if (WC->logged_in) {
+		if (WC->need_regi) {
+			display_reg(1);
+		} else if (WC->need_vali) {
+			validate();
+		} else {
+			do_welcome();
+		}
+	} else {
+		display_login(_("Your password was not accepted."));
+	}
+
+}
+
 
 /* 
  * Perform authentication using OpenID
@@ -317,6 +387,7 @@ void finalize_openid_login(void)
 	char username[128] = "";
 	char password[128] = "";
 	char logged_in_response[1024] = "";
+	char claimed_id[1024] = "";
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
@@ -356,6 +427,14 @@ void finalize_openid_login(void)
 								sizeof logged_in_response);
 						}
 					}
+					else if (!strcasecmp(result, "verify_only")) {
+						if (linecount == 1) {
+							safestrncpy(claimed_id, buf, sizeof claimed_id);
+						}
+						if (linecount == 2) {
+							safestrncpy(username, buf, sizeof username);
+						}
+					}
 					++linecount;
 				}
 			}
@@ -375,7 +454,13 @@ void finalize_openid_login(void)
 		become_logged_in(username, password, logged_in_response);
 	}
 
-	/* FIXME -- right here we have to put the code to log in a new user */
+	/* The specified OpenID was verified but the desired user name was either not specified via SRI
+	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
+	 */
+
+	else if (!strcasecmp(result, "verify_only")) {
+		display_openid_name_request(claimed_id, username);
+	}
 
 	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {

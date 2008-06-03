@@ -1,0 +1,17 @@
+<?=beginbox>
+<?HELLO>
+<div class="login_infos">
+	<img src="static/openid-small.gif"><?VERIFIED><br />
+	<?REASON><br />
+	<?ACTION_REQUESTED><br />
+</div>
+<form action="openid_manual_create" method="POST"  class="box" id="login_form">
+        <label for="uname"><?USERNAME_BOX></label>
+        <input type="text" name="name" id="uname" > <br>
+        <div class="logbuttons">
+        <input type="submit" name="newuser_action" value="<?NEWUSER_BUTTON>" class="logbutton" >
+        <input type="submit" name="exit_action" value="<?EXIT_BUTTON>"  class="logbutton">
+        <br>
+        </div>
+</form>
+<?=endbox>
