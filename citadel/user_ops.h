@@ -70,6 +70,7 @@ enum {
 
 
 int CtdlTryPassword(char *password);
+void CtdlSetPassword(char *new_pw);
 
 /*
  * Values which may be returned by CtdlTryPassword()

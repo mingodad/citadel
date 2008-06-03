@@ -223,6 +223,7 @@ void cmd_oidd(char *argbuf) {
 int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
 {
 	char *desired_name = NULL;
+	char new_password[32];
 
 	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
 	if (config.c_disable_newu) return(2);
@@ -240,10 +241,13 @@ int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
 	/* The desired account name is available.  Create the account and log it in! */
 	if (create_user(desired_name, 1)) return(6);
 
+	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
+	CtdlSetPassword(new_password);
 	attach_openid(&CC->user, claimed_id);
 	return(0);
 }
 
+// FIXME we still have to set up the vCard
 
 // identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
 // sreg.nickname = [17]  IGnatius T Foobar
@@ -272,6 +276,8 @@ int login_via_openid(char *claimed_id)
 	cdb_free(cdboi);
 
 	if (!getuserbynumber(&CC->user, usernum)) {
+		/* Now become the user we just created */
+		safestrncpy(CC->curr_user, CC->user.fullname, sizeof CC->curr_user);
 		do_login();
 		return(0);
 	}

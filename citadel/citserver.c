@@ -170,6 +170,7 @@ void master_startup(void) {
 		gettimeofday(&tv, NULL);
 		seed = tv.tv_usec;
 	}
+	srand(seed);
 	srandom(seed);
 
 	CtdlLogPrintf(CTDL_INFO, "Initializing ipgm secret\n");

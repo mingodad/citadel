@@ -618,8 +618,9 @@ void cmd_user(char *cmdbuf)
 /*
  * session startup code which is common to both cmd_pass() and cmd_newu()
  */
-void session_startup(void)
+void do_login(void)
 {
+	CC->logged_in = 1;
 	CtdlLogPrintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);
@@ -803,13 +804,6 @@ void start_chkpwd_daemon(void) {
 		abort();
 		exit(errno);
 	}
-}
-
-
-void do_login()
-{
-	(CC->logged_in) = 1;
-	session_startup();
 }
 
 
@@ -1103,7 +1097,7 @@ int create_user(char *newusername, int become_user)
 		/* Now become the user we just created */
 		memcpy(&CC->user, &usbuf, sizeof(struct ctdluser));
 		safestrncpy(CC->curr_user, username, sizeof CC->curr_user);
-		CC->logged_in = 1;
+		do_login();
 	
 		/* Check to make sure we're still who we think we are */
 		if (getuser(&CC->user, CC->curr_user)) {
@@ -1173,7 +1167,6 @@ void cmd_newu(char *cmdbuf)
 	a = create_user(username, 1);
 
 	if (a == 0) {
-		session_startup();
 		logged_in_response();
 	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n",
@@ -1189,9 +1182,21 @@ void cmd_newu(char *cmdbuf)
 }
 
 
+/*
+ * set password - back end api code
+ */
+void CtdlSetPassword(char *new_pw)
+{
+	lgetuser(&CC->user, CC->curr_user);
+	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
+	lputuser(&CC->user);
+	CtdlLogPrintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
+	PerformSessionHooks(EVT_SETPASS);
+}
+
 
 /*
- * set password
+ * set password - citadel protocol implementation
  */
 void cmd_setp(char *new_pw)
 {
@@ -1212,12 +1217,9 @@ void cmd_setp(char *new_pw)
 		cprintf("%d Password unchanged.\n", CIT_OK);
 		return;
 	}
-	lgetuser(&CC->user, CC->curr_user);
-	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
-	lputuser(&CC->user);
+
+	CtdlSetPassword(new_pw);
 	cprintf("%d Password changed.\n", CIT_OK);
-	CtdlLogPrintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
-	PerformSessionHooks(EVT_SETPASS);
 }
 
 
