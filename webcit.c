@@ -1720,6 +1720,8 @@ void session_loop(struct httprequest *req)
 		do_openid_login();
 	} else if (!strcasecmp(action, "finalize_openid_login")) {
 		finalize_openid_login();
+	} else if (!strcasecmp(action, "openid_manual_create")) {
+		openid_manual_create();
 	} else if (!WC->logged_in) {
 		display_login(NULL);
 	}

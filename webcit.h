@@ -487,6 +487,7 @@ void become_logged_in(char *, char *, char *);
 void do_login(void);
 void do_openid_login(void);
 void finalize_openid_login(void);
+void openid_manual_create(void);
 void display_login(char *mesg);
 void display_openid_login(char *mesg);
 void display_openids(void);
