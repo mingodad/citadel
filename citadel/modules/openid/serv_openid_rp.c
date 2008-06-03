@@ -38,7 +38,7 @@
 struct ctdl_openid {
 	char claimed_id[1024];
 	char server[1024];
-	int validated;
+	int verified;
 };
 
 
@@ -110,10 +110,11 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 	cdb_store(CDB_OPENID, claimed_id, strlen(claimed_id), data, data_len);
 	free(data);
 
-	CtdlLogPrintf(CTDL_INFO, "%s has been associated with %s (%ld)\n",
+	CtdlLogPrintf(CTDL_INFO, "%s has been attached to %s (%ld)\n",
 		claimed_id, who->fullname, who->usernum);
 	return(0);
 }
+
 
 
 /*
@@ -484,7 +485,7 @@ void cmd_oids(char *argbuf) {
 	extract_token(oiddata->claimed_id, argbuf, 0, '|', sizeof oiddata->claimed_id);
 	extract_token(return_to, argbuf, 1, '|', sizeof return_to);
 	extract_token(trust_root, argbuf, 2, '|', sizeof trust_root);
-	oiddata->validated = 0;
+	oiddata->verified = 0;
 
 	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1, sizeof oiddata->claimed_id);
 	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", oiddata->claimed_id);
@@ -666,14 +667,14 @@ void cmd_oidf(char *argbuf) {
 	valbuf[fh.total_bytes_received] = 0;
 
 	if (bmstrcasestr(valbuf, "is_valid:true")) {
-		oiddata->validated = 1;
+		oiddata->verified = 1;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (oiddata->validated ? "succeeded" : "failed") );
+	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (oiddata->verified ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
-	if (oiddata->validated) {
+	if (oiddata->verified) {
 
 		/* If we were already logged in, attach the OpenID to the user's account */
 		if (CC->logged_in) {
@@ -685,7 +686,7 @@ void cmd_oidf(char *argbuf) {
 			}
 		}
 
-		/* Otherwise, a user is attempting to log in using the validated OpenID */	
+		/* Otherwise, a user is attempting to log in using the verified OpenID */	
 		else {
 			/*
 			 * Existing user who has claimed this OpenID?
@@ -708,10 +709,20 @@ void cmd_oidf(char *argbuf) {
 				logged_in_response();
 			}
 
-			/* FIXME right here we have to handle manual account creation */
-
+			/*
+			 * OpenID is verified, but the desired username either was not specified or
+			 * conflicts with an existing user.  Manual account creation is required.
+			 */
 			else {
-				cprintf("fail\n");
+				char *desired_name = NULL;
+				cprintf("verify_only\n");
+				cprintf("%s\n", oiddata->claimed_id);
+				if (GetHash(keys, "sreg.nickname", 13, (void *) &desired_name)) {
+					cprintf("%s\n", desired_name);
+				}
+				else {
+					cprintf("\n");
+				}
 			}
 		}
 	}
@@ -752,6 +763,7 @@ void cmd_oidf(char *argbuf) {
 void openid_cleanup_function(void) {
 
 	if (CC->openid_data != NULL) {
+		CtdlLogPrintf(CTDL_DEBUG, "Clearing OpenID session state\n");
 		free(CC->openid_data);
 	}
 }
@@ -766,7 +778,7 @@ CTDL_MODULE_INIT(openid_rp)
 		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
 		CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
-		CtdlRegisterSessionHook(openid_cleanup_function, EVT_STOP);
+		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
 
