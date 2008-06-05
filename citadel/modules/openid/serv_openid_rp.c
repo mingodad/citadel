@@ -39,6 +39,7 @@ struct ctdl_openid {
 	char claimed_id[1024];
 	char server[1024];
 	int verified;
+	HashList *sreg_keys;
 };
 
 
@@ -182,70 +183,6 @@ void cmd_oidl(char *argbuf) {
 
 
 /*
- * Create a new user account, manually specifying the name, after successfully
- * verifying an OpenID (which will of course be attached to the account)
- */
-void cmd_oidc(char *argbuf) {
-	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
-
-	if (!oiddata->verified) {
-		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
-		return;
-	}
-
-	/* We can make the semantics of OIDC exactly the same as NEWU, simply
-	 * by _calling_ cmd_newu() and letting it run.  Very clever!
-	 */
-	cmd_newu(argbuf);
-
-	/* Now, if this logged us in, we have to attach the OpenID */
-	if (CC->logged_in) {
-		attach_openid(&CC->user, oiddata->claimed_id);
-		/* populate_vcard_from_sreg(FIXME GET THE SREG DATA IN HERE SOMEHOW); */
-	}
-
-}
-
-
-
-
-/*
- * Detach an OpenID from the currently logged in account
- */
-void cmd_oidd(char *argbuf) {
-	struct cdbdata *cdboi;
-	char id_to_detach[1024];
-	int this_is_mine = 0;
-
-	if (CtdlAccessCheck(ac_logged_in)) return;
-	extract_token(id_to_detach, argbuf, 0, '|', sizeof id_to_detach);
-	if (IsEmptyStr(id_to_detach)) {
-		cprintf("%d An empty OpenID URL is not allowed.\n", ERROR + ILLEGAL_VALUE);
-	}
-
-	cdb_rewind(CDB_OPENID);
-	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
-		if (cdboi->len > sizeof(long)) {
-			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
-				this_is_mine = 1;
-			}
-		}
-		cdb_free(cdboi);
-	}
-
-	if (!this_is_mine) {
-		cprintf("%d That OpenID was not found or not associated with your account.\n",
-			ERROR + ILLEGAL_VALUE);
-		return;
-	}
-
-	cdb_delete(CDB_OPENID, id_to_detach, strlen(id_to_detach));
-	cprintf("%d %s detached from your account.\n", CIT_OK, id_to_detach);
-}
-
-
-
-/*
  * Attempt to register (populate the vCard) the currently-logged-in user
  * using the data from Simple Registration Extension, if present.
  */
@@ -321,7 +258,6 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 		CtdlMakeTempFileName(temp, sizeof temp);
 		ser = vcard_serialize(v);
 		if (ser) {
-			CtdlLogPrintf(CTDL_DEBUG, "--- BEGIN VCARD ---\n%s\n--- END VCARD ---\n", ser);
 			fp = fopen(temp, "w");
 			if (fp) {
 				fwrite(ser, strlen(ser), 1, fp);
@@ -334,6 +270,72 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 	}
 	vcard_free(v);
 }
+
+
+/*
+ * Create a new user account, manually specifying the name, after successfully
+ * verifying an OpenID (which will of course be attached to the account)
+ */
+void cmd_oidc(char *argbuf) {
+	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
+
+	if (!oiddata->verified) {
+		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
+		return;
+	}
+
+	/* We can make the semantics of OIDC exactly the same as NEWU, simply
+	 * by _calling_ cmd_newu() and letting it run.  Very clever!
+	 */
+	cmd_newu(argbuf);
+
+	/* Now, if this logged us in, we have to attach the OpenID */
+	if (CC->logged_in) {
+		attach_openid(&CC->user, oiddata->claimed_id);
+		if (oiddata->sreg_keys != NULL) {
+			populate_vcard_from_sreg(oiddata->sreg_keys);
+		}
+	}
+
+}
+
+
+
+
+/*
+ * Detach an OpenID from the currently logged in account
+ */
+void cmd_oidd(char *argbuf) {
+	struct cdbdata *cdboi;
+	char id_to_detach[1024];
+	int this_is_mine = 0;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(id_to_detach, argbuf, 0, '|', sizeof id_to_detach);
+	if (IsEmptyStr(id_to_detach)) {
+		cprintf("%d An empty OpenID URL is not allowed.\n", ERROR + ILLEGAL_VALUE);
+	}
+
+	cdb_rewind(CDB_OPENID);
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
+				this_is_mine = 1;
+			}
+		}
+		cdb_free(cdboi);
+	}
+
+	if (!this_is_mine) {
+		cprintf("%d That OpenID was not found or not associated with your account.\n",
+			ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	cdb_delete(CDB_OPENID, id_to_detach, strlen(id_to_detach));
+	cprintf("%d %s detached from your account.\n", CIT_OK, id_to_detach);
+}
+
 
 
 /*
@@ -571,16 +573,13 @@ void cmd_oids(char *argbuf) {
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	struct ctdl_openid *oiddata;
 
-	/* commented out because we may be attempting to attach an OpenID to
-	 * an existing account that is logged in
-	 *
-	if (CCC->logged_in) {
-		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
-		return;
-	}
-	 */
+	oiddata = (struct ctdl_openid *) CCC->openid_data;
 
-	if (CCC->openid_data != NULL) {
+	if (oiddata != NULL) {
+		if (oiddata->sreg_keys != NULL) {
+			DeleteHash(&oiddata->sreg_keys);
+			oiddata->sreg_keys = NULL;
+		}
 		free(CCC->openid_data);
 	}
 	oiddata = malloc(sizeof(struct ctdl_openid));
@@ -840,7 +839,11 @@ void cmd_oidf(char *argbuf) {
 	}
 	cprintf("000\n");
 
-	DeleteHash(&keys);		/* This will free() all the key data for us */
+	if (oiddata->sreg_keys != NULL) {
+		DeleteHash(&oiddata->sreg_keys);
+		oiddata->sreg_keys = NULL;
+	}
+	oiddata->sreg_keys = keys;
 }
 
 
@@ -856,10 +859,15 @@ void cmd_oidf(char *argbuf) {
  * This cleanup function blows away the temporary memory used by this module.
  */
 void openid_cleanup_function(void) {
+	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
 
-	if (CC->openid_data != NULL) {
+	if (oiddata != NULL) {
 		CtdlLogPrintf(CTDL_DEBUG, "Clearing OpenID session state\n");
-		free(CC->openid_data);
+		if (oiddata->sreg_keys != NULL) {
+			DeleteHash(&oiddata->sreg_keys);
+			oiddata->sreg_keys = NULL;
+		}
+		free(oiddata);
 	}
 }
 
