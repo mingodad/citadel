@@ -161,6 +161,8 @@ void display_openid_name_request(char *claimed_id, char *username) {
 	stresc(buf, sizeof buf, claimed_id, 0, 0);
 	svprintf(HKEY("VERIFIED"), WCS_STRING, _("Your OpenID <tt>%s</tt> was successfully verified."),
 		claimed_id);
+	svput("CLAIMED_ID", WCS_STRING, claimed_id);
+
 
 	if (!IsEmptyStr(username)) {
 		stresc(buf, sizeof buf, username, 0, 0);
@@ -302,19 +304,17 @@ void openid_manual_create(void)
 		return;
 	}
 
-#if 0 
-	char buf[SIZ];
+	char buf[1024];
 	if (havebstr("newuser_action")) {
 		serv_printf("OIDC %s", bstr("name"));
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			become_logged_in(bstr("name"), bstr("pass"), buf);		// FIXME
-		} else {
-			display_openid_name_request(char *claimed_id, char *username);	// FIXME
-			return;
+			char gpass[1024] = "";
+			serv_puts("SETP GENERATE_RANDOM_PASSWORD");
+			serv_getln(gpass, sizeof gpass);
+			become_logged_in(bstr("name"), &gpass[4], buf);
 		}
 	}
-#endif
 
 	if (WC->logged_in) {
 		if (WC->need_regi) {
@@ -325,7 +325,7 @@ void openid_manual_create(void)
 			do_welcome();
 		}
 	} else {
-		display_login(_("Your password was not accepted."));
+		display_openid_name_request(bstr("openid_url"), bstr("name"));
 	}
 
 }

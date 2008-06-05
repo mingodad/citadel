@@ -1200,6 +1200,8 @@ void CtdlSetPassword(char *new_pw)
  */
 void cmd_setp(char *new_pw)
 {
+	int generate_random_password = 0;
+
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
 	}
@@ -1212,14 +1214,23 @@ void cmd_setp(char *new_pw)
 			ERROR + NOT_HERE);
 		return;
 	}
-	strproc(new_pw);
-	if (IsEmptyStr(new_pw)) {
-		cprintf("%d Password unchanged.\n", CIT_OK);
-		return;
-	}
 
-	CtdlSetPassword(new_pw);
-	cprintf("%d Password changed.\n", CIT_OK);
+	if (!strcasecmp(new_pw, "GENERATE_RANDOM_PASSWORD")) {
+		char random_password[17];
+		generate_random_password = 1;
+		snprintf(random_password, sizeof random_password, "%08lx%08lx", random(), random());
+		CtdlSetPassword(random_password);
+		cprintf("%d %s\n", CIT_OK, random_password);
+	}
+	else {
+		strproc(new_pw);
+		if (IsEmptyStr(new_pw)) {
+			cprintf("%d Password unchanged.\n", CIT_OK);
+			return;
+		}
+		CtdlSetPassword(new_pw);
+		cprintf("%d Password changed.\n", CIT_OK);
+	}
 }
 
 

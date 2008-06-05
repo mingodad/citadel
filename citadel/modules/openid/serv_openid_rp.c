@@ -181,6 +181,31 @@ void cmd_oidl(char *argbuf) {
 }
 
 
+/*
+ * Create a new user account, manually specifying the name, after successfully
+ * verifying an OpenID (which will of course be attached to the account)
+ */
+void cmd_oidc(char *argbuf) {
+	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
+
+	if (!oiddata->verified) {
+		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
+		return;
+	}
+
+	/* We can make the semantics of OIDC exactly the same as NEWU, simply
+	 * by _calling_ cmd_newu() and letting it run.  Very clever!
+	 */
+	cmd_newu(argbuf);
+
+	/* Now, if this logged us in, we have to attach the OpenID */
+	if (CC->logged_in) {
+		attach_openid(&CC->user, oiddata->claimed_id);
+	}
+}
+
+
+
 
 /*
  * Detach an OpenID from the currently logged in account
@@ -778,6 +803,7 @@ CTDL_MODULE_INIT(openid_rp)
 		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 		CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
 		CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
+		CtdlRegisterProtoHook(cmd_oidc, "OIDC", "Create a new user after validating an OpenID");
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
@@ -785,7 +811,3 @@ CTDL_MODULE_INIT(openid_rp)
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
-
-
-/* FIXME ... we have to add the new openid database to serv_vandelay.c */
-
