@@ -201,7 +201,9 @@ void cmd_oidc(char *argbuf) {
 	/* Now, if this logged us in, we have to attach the OpenID */
 	if (CC->logged_in) {
 		attach_openid(&CC->user, oiddata->claimed_id);
+		/* populate_vcard_from_sreg(FIXME GET THE SREG DATA IN HERE SOMEHOW); */
 	}
+
 }
 
 
@@ -244,9 +246,100 @@ void cmd_oidd(char *argbuf) {
 
 
 /*
+ * Attempt to register (populate the vCard) the currently-logged-in user
+ * using the data from Simple Registration Extension, if present.
+ */
+void populate_vcard_from_sreg(HashList *sreg_keys) {
+
+	struct vCard *v;
+	int pop = 0;			/* number of fields populated */
+	char *data = NULL;
+	char *postcode = NULL;
+	char *country = NULL;
+
+	if (!sreg_keys) return;
+	v = vcard_new();
+	if (!v) return;
+
+	if (GetHash(sreg_keys, "identity", 8, (void *) &data)) {
+		vcard_add_prop(v, "url;type=openid", data);
+		++pop;
+	}
+
+	if (GetHash(sreg_keys, "sreg.email", 10, (void *) &data)) {
+		vcard_add_prop(v, "email;internet", data);
+		++pop;
+	}
+
+	if (GetHash(sreg_keys, "sreg.nickname", 13, (void *) &data)) {
+		vcard_add_prop(v, "nickname", data);
+		++pop;
+	}
+
+	if (GetHash(sreg_keys, "sreg.fullname", 13, (void *) &data)) {
+		char n[256];
+		vcard_add_prop(v, "fn", data);
+		vcard_fn_to_n(n, data, sizeof n);
+		vcard_add_prop(v, "n", n);
+		++pop;
+	}
+
+	if (!GetHash(sreg_keys, "sreg.postcode", 13, (void *) &postcode)) {
+		postcode = NULL;
+	}
+
+	if (!GetHash(sreg_keys, "sreg.country", 12, (void *) &country)) {
+		country = NULL;
+	}
+
+	if (postcode || country) {
+		char adr[256];
+		snprintf(adr, sizeof adr, ";;;;;%s;%s",
+			(postcode ? postcode : ""),
+			(country ? country : "")
+		);
+		vcard_add_prop(v, "adr", adr);
+		++pop;
+	}
+
+	if (GetHash(sreg_keys, "sreg.dob", 8, (void *) &data)) {
+		vcard_add_prop(v, "bday", data);
+		++pop;
+	}
+
+	if (GetHash(sreg_keys, "sreg.gender", 11, (void *) &data)) {
+		vcard_add_prop(v, "x-funambol-gender", data);
+		++pop;
+	}
+
+	/* Only save the vCard if there is some useful data in it */
+	if (pop > 0) {
+		char temp[PATH_MAX];
+		FILE *fp;
+		char *ser;
+	
+		CtdlMakeTempFileName(temp, sizeof temp);
+		ser = vcard_serialize(v);
+		if (ser) {
+			CtdlLogPrintf(CTDL_DEBUG, "--- BEGIN VCARD ---\n%s\n--- END VCARD ---\n", ser);
+			fp = fopen(temp, "w");
+			if (fp) {
+				fwrite(ser, strlen(ser), 1, fp);
+				fclose(fp);
+				CtdlWriteObject(USERCONFIGROOM,	"text/x-vcard", temp, &CC->user, 0, 0, 0);
+				unlink(temp);
+			}
+			free(ser);
+		}
+	}
+	vcard_free(v);
+}
+
+
+/*
  * Attempt to auto-create a new Citadel account using the nickname from Simple Registration Extension
  */
-int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
+int openid_create_user_via_sreg(char *claimed_id, HashList *sreg_keys)
 {
 	char *desired_name = NULL;
 	char new_password[32];
@@ -254,7 +347,7 @@ int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
 	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
 	if (config.c_disable_newu) return(2);
 	if (CC->logged_in) return(3);
-	if (!GetHash(sri_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
+	if (!GetHash(sreg_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
 
 	CtdlLogPrintf(CTDL_DEBUG, "The desired account name is <%s>\n", desired_name);
 
@@ -270,18 +363,9 @@ int openid_create_user_via_sri(char *claimed_id, HashList *sri_keys)
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
 	attach_openid(&CC->user, claimed_id);
+	populate_vcard_from_sreg(sreg_keys);
 	return(0);
 }
-
-// FIXME we still have to set up the vCard
-
-// identity = [50]  http://uncensored.citadel.org/~ajc/MyID.config.php
-// sreg.nickname = [17]  IGnatius T Foobar
-// sreg.email = [26]  ajc@uncensored.citadel.org
-// sreg.fullname = [10]  Art Cancro
-// sreg.postcode = [5]  10549
-// sreg.country = [2]  US
-
 
 
 /*
@@ -542,7 +626,7 @@ void cmd_oids(char *argbuf) {
 		urlesc(escaped_return_to, sizeof escaped_return_to, return_to);
 		urlesc(escaped_trust_root, sizeof escaped_trust_root, trust_root);
 		urlesc(escaped_sreg_optional, sizeof escaped_sreg_optional,
-			"nickname,email,fullname,postcode,country");
+			"nickname,email,fullname,postcode,country,dob,gender");
 
 		snprintf(redirect_string, sizeof redirect_string,
 			"%s"
@@ -729,7 +813,7 @@ void cmd_oidf(char *argbuf) {
 			/*
 			 * New user whose OpenID is verified and Simple Registration Extension is in use?
 			 */
-			else if (openid_create_user_via_sri(oiddata->claimed_id, keys) == 0) {
+			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
 			}
@@ -755,20 +839,6 @@ void cmd_oidf(char *argbuf) {
 		cprintf("fail\n");
 	}
 	cprintf("000\n");
-
-	/*
-	 * We will eventually do something with the data in the hash list.
-	 *
-	long len;
-	void *Value;
-	char *Key;
-	HashPos *HashPos;
-	HashPos = GetNewHashPos();
-	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
-	{
-	}
-	DeleteHashPos(&HashPos);
-	 */
 
 	DeleteHash(&keys);		/* This will free() all the key data for us */
 }
