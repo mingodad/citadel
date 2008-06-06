@@ -810,6 +810,14 @@ void cmd_oidf(char *argbuf) {
 			}
 
 			/*
+			 * If this system does not allow self-service new user registration, the
+			 * remaining modes do not apply, so fail here and now.
+			 */
+			else if (config.c_disable_newu) {
+				cprintf("fail\n");
+			}
+
+			/*
 			 * New user whose OpenID is verified and Simple Registration Extension is in use?
 			 */
 			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
@@ -874,14 +882,17 @@ void openid_cleanup_function(void) {
 
 CTDL_MODULE_INIT(openid_rp)
 {
-	if (!threading)
-	{
+	if (!threading) {
 		curl_global_init(CURL_GLOBAL_ALL);
-		CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
-		CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
-		CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
-		CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
-		CtdlRegisterProtoHook(cmd_oidc, "OIDC", "Create a new user after validating an OpenID");
+
+		/* Only enable the OpenID command set when native mode authentication is in use. */
+		if (config.c_auth_mode == AUTHMODE_NATIVE) {
+			CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
+			CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
+			CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
+			CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
+			CtdlRegisterProtoHook(cmd_oidc, "OIDC", "Create new user after validating OpenID");
+		}
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 	}
