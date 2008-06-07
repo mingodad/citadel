@@ -120,6 +120,8 @@ void display_openid_login(char *mesg)
 	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
 		_("<ul>"
 		"<li>Enter your OpenID URL and click &quot;Login&quot;."
+		"<li><a href=\"http://www.citadel.org/doku.php/documentation:openid\">"
+		"Click here to learn what OpenID is and how Citadel is using it.</a>"
 		"<li>Please log off properly when finished. "
 		"<li>You must use a browser that supports <i>frames</i> and "
 		"<i>cookies</i>. "
