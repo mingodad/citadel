@@ -656,7 +656,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	/*
 	 * Look in the EUID index for a message with
 	 * the Citadel EUID set to the value we're looking for.  Since
-	 * Citadel always sets the message EUID to the vCalendar UID of
+	 * Citadel always sets the message EUID to the iCalendar UID of
 	 * the event, this will work.
 	 */
 	msgnum_being_replaced = locate_message_by_euid(uid, &CC->room);
@@ -1425,7 +1425,7 @@ void ical_getics(void)
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
 	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
 		cprintf("%d Not a calendar room\n", ERROR+NOT_HERE);
-		return;		/* Not a vCalendar-centric room */
+		return;		/* Not an iCalendar-centric room */
 	}
 
 	encaps = icalcomponent_new_vcalendar();
@@ -1477,7 +1477,7 @@ void ical_putics(void)
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
 	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
 		cprintf("%d Not a calendar room\n", ERROR+NOT_HERE);
-		return;		/* Not a vCalendar-centric room */
+		return;		/* Not an iCalendar-centric room */
 	}
 
 	if (!CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
@@ -1875,16 +1875,17 @@ void ical_saving_vevent(icalcomponent *cal) {
  * the summary of the event (becomes message subject),
  * and the start time (becomes message date/time).
  */
-void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
+void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
 		char *encoding, void *cbuserdata)
 {
 	icalcomponent *cal, *nested_event, *nested_todo, *whole_cal;
 	icalproperty *p;
-	struct icalmessagemod *imm;
-	char new_uid[SIZ];
+	char new_uid[256] = "";
+	char buf[1024] = "";
+	struct CtdlMessage *msg = (struct CtdlMessage *) cbuserdata;
 
-	imm = (struct icalmessagemod *)cbuserdata;
+	if (!msg) return;
 
 	/* We're only interested in calendar data. */
 	if (  (strcasecmp(cbtype, "text/calendar"))
@@ -1916,6 +1917,9 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 		}
 		
 		if (cal != NULL) {
+
+			/* Set the message EUID to the iCalendar UID */
+
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			if (p == NULL) {
 				/* If there's no uid we must generate one */
@@ -1924,16 +1928,44 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 				p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			}
 			if (p != NULL) {
-				strcpy(imm->uid, icalproperty_get_comment(p));
+				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
+				if (!IsEmptyStr(buf)) {
+					if (msg->cm_fields['E'] != NULL) {
+						free(msg->cm_fields['E']);
+					}
+					msg->cm_fields['E'] = strdup(buf);
+					CtdlLogPrintf(CTDL_DEBUG, "Saving calendar UID <%s>\n", buf);
+				}
 			}
+
+			/* Set the message subject to the iCalendar summary */
+
 			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
-				strcpy(imm->subject, icalproperty_get_comment(p));
+				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
+				if (!IsEmptyStr(buf)) {
+					if (msg->cm_fields['U'] != NULL) {
+						free(msg->cm_fields['U']);
+					}
+					msg->cm_fields['U'] = strdup(buf);
+				}
 			}
+
+			/* Set the message date/time to the iCalendar start time */
+
 			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
 			if (p != NULL) {
-				imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
+				time_t idtstart;
+				idtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
+				if (idtstart > 0) {
+					if (msg->cm_fields['T'] != NULL) {
+						free(msg->cm_fields['T']);
+					}
+					msg->cm_fields['T'] = strdup("000000000000000000");
+					sprintf(msg->cm_fields['T'], "%ld", idtstart);
+				}
 			}
+
 		}
 		icalcomponent_free(cal);
 		if (whole_cal != cal) {
@@ -1947,24 +1979,18 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 
 /*
  * See if we need to prevent the object from being saved (we don't allow
- * MIME types other than text/calendar in "calendar" or "tasks"  rooms).  Also,
- * when saving an event to the calendar, set the message's Citadel exclusive
- * message ID to the UID of the object.  This causes our replication checker to
- * automatically delete any existing instances of the same object.  (Isn't
- * that cool?)
+ * MIME types other than text/calendar in "calendar" or "tasks" rooms).
  *
- * We also set the message's Subject to the event summary, and the Date/time to
- * the event start time.
+ * If the message is being saved, we also set various message header fields
+ * using data found in the iCalendar object.
  */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
-	struct icalmessagemod imm;
-
 	/* First determine if this is a calendar or tasks room */
 	if (  (CC->room.QRdefaultview != VIEW_CALENDAR)
 	   && (CC->room.QRdefaultview != VIEW_TASKS)
 	) {
-		return(0);		/* Not a vCalendar-centric room */
+		return(0);		/* Not an iCalendar-centric room */
 	}
 
 	/* It must be an RFC822 message! */
@@ -1977,37 +2003,14 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 		return(1);		/* You tried to save a null message! */
 	}
 
-	memset(&imm, 0, sizeof(struct icalmessagemod));
-	
 	/* Do all of our lovely back-end parsing */
 	mime_parser(msg->cm_fields['M'],
 		NULL,
-		*ical_ctdl_set_exclusive_msgid,
+		*ical_obj_beforesave_backend,
 		NULL, NULL,
-		(void *)&imm,
+		(void *)msg,
 		0
 	);
-
-	if (!IsEmptyStr(imm.uid)) {
-		if (msg->cm_fields['E'] != NULL) {
-			free(msg->cm_fields['E']);
-		}
-		msg->cm_fields['E'] = strdup(imm.uid);
-		CtdlLogPrintf(CTDL_DEBUG, "Saving calendar UID <%s>\n", msg->cm_fields['E']);
-	}
-	if (!IsEmptyStr(imm.subject)) {
-		if (msg->cm_fields['U'] != NULL) {
-			free(msg->cm_fields['U']);
-		}
-		msg->cm_fields['U'] = strdup(imm.subject);
-	}
-	if (imm.dtstart > 0) {
-		if (msg->cm_fields['T'] != NULL) {
-			free(msg->cm_fields['T']);
-		}
-		msg->cm_fields['T'] = strdup("000000000000000000");
-		sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
-	}
 
 	return(0);
 }
@@ -2142,7 +2145,7 @@ void ical_fixed_output_backend(icalcomponent *cal,
 
 
 /*
- * Function to output vcalendar data as plain text.  Nobody uses MSG0
+ * Function to output iCalendar data as plain text.  Nobody uses MSG0
  * anymore, so really this is just so we expose the vCard data to the full
  * text indexer.
  */

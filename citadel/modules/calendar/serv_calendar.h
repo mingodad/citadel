@@ -20,14 +20,3 @@ struct cit_ical {
 };
 
 #define CIT_ICAL CC->CIT_ICAL
-
-/*
- * When saving a message containing calendar information, we keep track of
- * some components in the calendar object that need to be inserted into
- * message fields.
- */
-struct icalmessagemod {
-	char subject[SIZ];
-	char uid[SIZ];
-	time_t dtstart;
-};
