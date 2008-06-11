@@ -1451,6 +1451,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	return(retcode);
 }
 
+
 char *qp_encode_email_addrs(char *source)
 {
 	char user[256], node[256], name[256];
@@ -1469,9 +1470,8 @@ char *qp_encode_email_addrs(char *source)
 	int InQuotes = 0;
 	int i, n;
 
-	
-	if (source == NULL)
-		return source;
+	if (source == NULL) return source;
+	if (IsEmptyStr(source)) return source;
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
 	AddrUtf8 = malloc (sizeof (long) * nAddrPtrMax);
@@ -1563,6 +1563,7 @@ char *qp_encode_email_addrs(char *source)
 	free(AddrPtr);
 	return Encoded;
 }
+
 
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
