@@ -372,7 +372,7 @@ function become_logged_in($server_parms) {
 function ctdl_get_serv_info() {
 	serv_puts("INFO");
 	$reply = read_array();
-	if ((count($reply) == 22) &&
+	if ((count($reply) == 23) &&
 	    substr($reply[0], 0, 1) == "1") {
 		$server_info=array();
 		$server_info["serv_nodename"]  = $reply[1];
