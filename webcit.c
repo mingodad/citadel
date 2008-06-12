@@ -1442,7 +1442,9 @@ void session_loop(struct httprequest *req)
 		}
 		/** Only WAP gateways explicitly name this content-type */
 		else if (strstr(buf, "text/vnd.wap.wml")) {
-			WC->is_wap = 1;
+			/* since we don't have wap pages we disable this.
+			 * WC->is_wap = 1;
+			 */
 		}
 	}
 
