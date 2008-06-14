@@ -363,7 +363,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 
 
 void cmd_gnet(char *argbuf) {
-	char filename[SIZ];
+	char filename[PATH_MAX];
 	char buf[SIZ];
 	FILE *fp;
 
@@ -391,8 +391,8 @@ void cmd_gnet(char *argbuf) {
 
 
 void cmd_snet(char *argbuf) {
-	char tempfilename[SIZ];
-	char filename[SIZ];
+	char tempfilename[PATH_MAX];
+	char filename[PATH_MAX];
 	char buf[SIZ];
 	FILE *fp, *newfp;
 
@@ -589,7 +589,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	maplist *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
-	char filename[SIZ];
+	char filename[PATH_MAX];
 	char buf[SIZ];
 	int bang = 0;
 	int send = 1;
@@ -1083,7 +1083,7 @@ int is_recipient(SpoolControl *sc, const char *Name)
  */
 void network_spoolout_room(char *room_to_spool) {
 	char buf[SIZ];
-	char filename[SIZ];
+	char filename[PATH_MAX];
 	SpoolControl *sc;
 	int i;
 
@@ -1098,17 +1098,15 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 
 	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-
-	CtdlLogPrintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
 	begin_critical_section(S_NETCONFIGS);
 
 	/* Only do net processing for rooms that have netconfigs */
-
 	if (!read_spoolcontrol_file(&sc, filename))
 	{
 		end_critical_section(S_NETCONFIGS);
 		return;
 	}
+	CtdlLogPrintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
 
 	/* If there are digest recipients, we have to build a digest */
 	if (sc->digestrecps != NULL) {
@@ -1159,7 +1157,7 @@ int network_sync_to(char *target_node) {
 	char sc_type[256];
 	char sc_node[256];
 	char sc_room[256];
-	char filename[256];
+	char filename[PATH_MAX];
 	FILE *fp;
 
 	/* Grab the configuration line we're looking for */
@@ -1430,7 +1428,7 @@ void network_process_buffer(char *buffer, long size) {
 	char target_room[ROOMNAMELEN];
 	struct ser_ret sermsg;
 	char *oldpath = NULL;
-	char filename[SIZ];
+	char filename[PATH_MAX];
 	FILE *fp;
 	char nexthop[SIZ];
 	unsigned char firstbyte;
@@ -1664,7 +1662,7 @@ void network_do_spoolin(void) {
 	DIR *dp;
 	struct dirent *d;
 	struct stat statbuf;
-	char filename[256];
+	char filename[PATH_MAX];
 	static time_t last_spoolin_mtime = 0L;
 
 	/*
@@ -1706,7 +1704,7 @@ void network_do_spoolin(void) {
 void network_purge_spoolout(void) {
 	DIR *dp;
 	struct dirent *d;
-	char filename[256];
+	char filename[PATH_MAX];
 	char nexthop[256];
 	int i;
 
