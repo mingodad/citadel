@@ -1035,7 +1035,7 @@ msgstr "(Hoppla! Zurück zu %s)"
 
 #: ../mainmenu.c:63 ../roomops.c:526
 msgid "Read new messages"
-msgstr "Neue Beiträge"
+msgstr "Aktualisieren"
 
 #: ../mainmenu.c:65
 msgid "...in this room"
