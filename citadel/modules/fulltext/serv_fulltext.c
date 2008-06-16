@@ -248,7 +248,7 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	if (CitControl.MMfulltext >= CitControl.MMhighest) {
+	if ((CitControl.MMfulltext >= CitControl.MMhighest) && (CitControl.fulltext_wordbreaker == FT_WORDBREAKER_ID)) {
 		return;		/* nothing to do! */
 	}
 	
@@ -496,9 +496,11 @@ CTDL_MODULE_INIT(fulltext)
 	if (!threading)
 	{
 		initialize_ft_cache();
+		initialize_noise_words();
 		CtdlRegisterProtoHook(cmd_srch, "SRCH", "Full text search");
 		CtdlRegisterDeleteHook(ft_delete_remove);
 		CtdlRegisterSearchFuncHook(ft_search, "fulltext");
+		CtdlRegisterCleanupHook(noise_word_cleanup);
 	}
 	else
 	{

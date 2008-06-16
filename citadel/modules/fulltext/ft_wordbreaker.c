@@ -50,7 +50,10 @@
  * NOTE: if the noise word list is altered in any way, the FT_WORDBREAKER_ID
  * must also be changed, so that the index is rebuilt.
  */
-static char *noise_words[] = {
+
+noise_word *noise_words[26];
+
+static char *noise_words_init[] = {
 	"about",
 	"after",
 	"also",
@@ -114,6 +117,50 @@ static char *noise_words[] = {
 	"your"
 };
 
+
+void initialize_noise_words(void)
+{
+	int i;
+	int len;
+	int ch;
+	noise_word *next;
+	
+	memset (noise_words, 0, sizeof(noise_words));
+	
+	for (i=0; i<(sizeof(noise_words_init)/sizeof(char *)); ++i)
+	{
+		ch = noise_words_init[i][0] - 'a';
+		len = strlen(noise_words_init[i]);
+		
+		next = malloc(sizeof(noise_word));
+		next->len = len;
+		next->word = strdup(noise_words_init[i]);
+		next->next = noise_words[ch];
+		noise_words[ch] = next;
+	}
+}
+
+
+void noise_word_cleanup(void)
+{
+	int i;
+	noise_word *cur, *next;
+	
+	CtdlLogPrintf(CTDL_INFO, "Cleaning up fulltext noise words.\n");
+	
+	for (i = 0 ; i < 26 ; i++)
+	{
+		cur = noise_words[i];
+		while (cur)
+		{
+			next = cur->next;
+			free(cur->word);
+			free(cur);
+			cur = next;
+		}
+	}
+}
+
 /*
  * Compare function
  */
@@ -143,7 +190,9 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 	char word[256];
 	int i;
 	int word_crc;
-
+	noise_word *noise;
+	
+	
 	if (text == NULL) {		/* no NULL text please */
 		*num_tokens = 0;
 		*tokens = NULL;
@@ -191,11 +240,18 @@ void wordbreaker(char *text, int *num_tokens, int **tokens) {
 					word[i] = tolower(word[i]);
 				}
 				/* disqualify noise words */
-				for (i=0; i<(sizeof(noise_words)/sizeof(char *)); ++i) {
-					if (!strcmp(word, noise_words[i])) {
-						word_len = 0;
-						break;
+				noise = noise_words[(int) (word[0]-'a')];
+				while (noise)
+				{
+					if (noise->len == word_len)
+					{
+						if (!strcmp(word, noise->word)) 
+						{
+							word_len = 0;
+							break;
+						}
 					}
+					noise = noise->next;
 				}
 				if (word_len == 0)
 					continue;

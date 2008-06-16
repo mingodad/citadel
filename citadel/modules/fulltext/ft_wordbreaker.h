@@ -19,3 +19,14 @@
 
 void wordbreaker(char *text, int *num_tokens, int **tokens);
 
+void initialize_noise_words(void);
+void noise_word_cleanup(void);
+
+
+typedef struct noise_word noise_word;
+
+struct noise_word {
+	unsigned int len;
+	char *word;
+	noise_word *next;
+};
