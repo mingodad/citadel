@@ -46,7 +46,7 @@ dnl Checks for the SSLdir
 dnl this is a bit different than the rest, 
 dnl because of the citadel used to have a keys/ subdir.
 AC_ARG_WITH(ssldir, 
-		    [  --with-ssldir          directory to store the ssl certificates under],
+		    [  --with-ssldir           directory to store the ssl certificates under],
 			[ if test "x$withval" != "xno" ; then
 					      
 						  ssl_dir="$withval"
@@ -84,7 +84,7 @@ AC_ARG_WITH(sysconfdir,
 
 dnl Checks for where to put our utilities
 AC_ARG_WITH(utility-bindir, 
-			[  --with-utility-bindir       directory where to find helper binaries],
+			[  --with-utility-bindir   directory where to find helper binaries],
 			[ if test "x$withval" != "xno" ; then
 					    AC_DEFINE(HAVE_UTILBIN_DIR,[],[should we put our helper binaries to another location?])
 						AC_DEFINE_UNQUOTED(UTILBIN_DIR, "$withval", [were to put our helper programs])
@@ -368,7 +368,7 @@ AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r)
 
 dnl disable backtrace if we don't want it.
 AC_ARG_WITH(backtrace, 
-		    [  --with-backtrace          enable backtrace dumps in the syslog],
+		    [  --with-backtrace        enable backtrace dumps in the syslog],
 			[ if test "x$withval" != "xno" ; then
 			     CFLAGS="$CFLAGS  -rdynamic "
 			     LDFLAGS="$LDFLAGS  -rdynamic "
@@ -380,7 +380,7 @@ AC_ARG_WITH(backtrace,
 
 dnl disable backtrace if we don't want it.
 AC_ARG_WITH(gprof, 
-		    [  --with-gprof          enable profiling],
+		    [  --with-gprof            enable profiling],
 			[ if test "x$withval" != "xno" ; then
 			     CFLAGS="$CFLAGS  -pg "
 			     LDFLAGS="$LDFLAGS  -pg "
@@ -391,7 +391,7 @@ AC_ARG_WITH(gprof,
 
 dnl disable thread table reporting
 AC_ARG_WITH(threadlog,
-		[ --with-threadlog      enable logging of thread table],
+		[  --with-threadlog        enable logging of thread table],
 			[ if test "x$withval" != "xno" ; then
 				AC_DEFINE(WITH_THREADLOG, [], [Define if you want logging of the thread tables.])
 			  fi
