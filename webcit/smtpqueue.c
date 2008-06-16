@@ -176,7 +176,7 @@ void display_smtpqueue_inner_div(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 		if (num_msgs > 0) {
                         wprintf("<table class=\"mailbox_summary\" rules=rows "
-                        	"cellpadding=2 style=\"width:100%%;-moz-user-select:none;\">"
+                        	"cellpadding=2 style=\"width:100%%;\">"
 			);
 
 			wprintf("<tr><td><b><i>");
