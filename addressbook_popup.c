@@ -156,7 +156,7 @@ void display_address_book_inner_div() {
 		}
 		DeleteHashPos(&it);
 		DeleteHash(&List);
-		gotoroom((char*)BSTR(saved_roomname)); /* TODO: get rid of typecast */
+		gotoroom(saved_roomname);
 	}
 
 	wprintf("</select>\n");
