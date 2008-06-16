@@ -737,10 +737,8 @@ void embed_room_banner(char *got, int navbar_style) {
 }
 
 
-/**
- * \brief back end routine to take the session to a new room
- * \param gname room to go to
- *
+/*
+ * back end routine to take the session to a new room
  */
 int gotoroom(char *gname)
 {
@@ -748,7 +746,7 @@ int gotoroom(char *gname)
 	static long ls = (-1L);
 	int err = 0;
 
-	/** store ungoto information */
+	/* store ungoto information */
 	strcpy(WC->ugname, WC->wc_roomname);
 	WC->uglsn = ls;
 
