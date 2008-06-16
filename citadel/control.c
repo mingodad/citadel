@@ -83,10 +83,14 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	long *msglist;
 	int num_msgs=0;
 	int c;
-	
+	int room_fixed = 0;
+	int message_fixed = 0;
 	
 	if (qrbuf->QRnumber > CitControl.MMnextroom)
+	{
 		CitControl.MMnextroom = qrbuf->QRnumber;
+		room_fixed = 1;
+	}
 		
 	getroom (&room, qrbuf->QRname);
 	
@@ -104,10 +108,17 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 		for (c=0; c<num_msgs; c++)
 		{
 			if (msglist[c] > CitControl.MMhighest)
+			{
 				CitControl.MMhighest = msglist[c];
+				message_fixed = 1;
+			}
 		}
 	}
 	cdb_free(cdbfr);
+	if (room_fixed)
+		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed room counter\n");
+	if (message_fixed)
+		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed message count\n");
 	return;
 }
 
@@ -118,8 +129,15 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
  
 void control_find_user (struct ctdluser *EachUser, void *out_data)
 {
+	int user_fixed = 0;
+	
 	if (EachUser->usernum > CitControl.MMnextuser)
+	{
 		CitControl.MMnextuser = EachUser->usernum;
+		user_fixed = 1;
+	}
+	if(user_fixed)
+		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed user count\n");
 }
 
 
@@ -154,9 +172,6 @@ void get_control(void)
 			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
-			// Find highest room number and message number.
-			// ForEachRoom(control_find_highest, NULL);
-			// ForEachUser(control_find_user, NULL);
 			fwrite(&CitControl, sizeof(struct CitControl),
 			       1, control_fp);
 			rewind(control_fp);
@@ -188,6 +203,21 @@ void put_control(void)
 		fflush(control_fp);
 	}
 }
+
+
+/*
+ * check_control   -  check the control record has sensible values for message, user and room numbers
+ */
+void check_control(void)
+{
+	CtdlLogPrintf(CTDL_INFO, "Checking/re-building control record\n");
+	get_control();
+	// Find highest room number and message number.
+	ForEachRoom(control_find_highest, NULL);
+	ForEachUser(control_find_user, NULL);
+	put_control();
+}
+
 
 /**
  * release_control - close our fd on exit

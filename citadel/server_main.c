@@ -250,6 +250,11 @@ int main(int argc, char **argv)
 	master_startup();
 
 	/*
+	 * Check that the control record is correct and place sensible values if it isn't
+	 */
+	check_control();
+	
+	/*
 	 * Run any upgrade entry points
 	 */
 	CtdlLogPrintf(CTDL_INFO, "Upgrading modules.\n");
