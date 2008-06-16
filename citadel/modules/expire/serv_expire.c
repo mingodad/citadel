@@ -457,10 +457,16 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* If the user has no full name entry then we can't purge them
 	 * since the actual purge can't find them.
 	 * This shouldn't happen but does somehow.
-	 * So we make an Aide message to alert to it but don't add it to the purge list
 	 */
 	if (IsEmptyStr(us->fullname))
 	{
+		purge = 0;
+/*
+ ** Keeping this block of code for later referance.
+ * We don't actually want to send the user 0 messages as part of the purger cycle
+ * But we might want to use some of this code to do a user database integrity check
+ * some time in the future.
+		
 		if (us->usernum > 0L)
 		{
 			purge=0;
@@ -501,7 +507,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 				);
 			}
 		}
-
+*/
 	}
 
 
