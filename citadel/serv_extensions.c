@@ -475,7 +475,7 @@ void CtdlDestroyMessageHook(void)
 	cur = MessageHookTable; 
 	while (cur != NULL)
 	{
-		CtdlLogPrintf(CTDL_INFO, "Destroyed message function \n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed message function (type %d)\n", cur->eventtype);
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -523,7 +523,7 @@ void CtdlDestroyRoomHooks(void)
 	cur = RoomHookTable;
 	while (cur != NULL)
 	{
-		CtdlLogPrintf(CTDL_INFO, "Unregistered room function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed room function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -571,7 +571,7 @@ void CtdlDestroyNetprocHooks(void)
 	cur = NetprocHookTable;
 	while (cur != NULL)
 	{
-		CtdlLogPrintf(CTDL_INFO, "Unregistered netproc function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed netproc function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;
@@ -590,7 +590,7 @@ void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 	newfcn->h_function_pointer = handler;
 	DeleteHookTable = newfcn;
 
-	CtdlLogPrintf(CTDL_INFO, "Registered a new netproc function\n");
+	CtdlLogPrintf(CTDL_INFO, "Registered a new delete function\n");
 }
 
 
@@ -602,7 +602,7 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				handler == cur->h_function_pointer ) {
-			CtdlLogPrintf(CTDL_INFO, "Unregistered netproc function\n");
+			CtdlLogPrintf(CTDL_INFO, "Unregistered delete function\n");
 			p = cur->next;
 			if (cur == DeleteHookTable) {
 				DeleteHookTable = p;
@@ -619,7 +619,7 @@ void CtdlDestroyDeleteHooks(void)
 	cur = DeleteHookTable;
 	while (cur != NULL)
 	{
-		CtdlLogPrintf(CTDL_INFO, "Destroyed netproc function\n");
+		CtdlLogPrintf(CTDL_INFO, "Destroyed delete function\n");
 		p = cur->next;
 		free(cur);
 		cur = p;		
@@ -833,7 +833,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			} else if (tcp_port) {
 				CtdlLogPrintf(CTDL_INFO, "Closed TCP port %d\n", tcp_port);
 			} else {
-				CtdlLogPrintf(CTDL_INFO, "Unregistered unknown service\n");
+				CtdlLogPrintf(CTDL_INFO, "Unregistered service \"%s\"\n", cur->ServiceName);
 			}
 			p = cur->next;
 			if (cur == ServiceHookTable) {
@@ -859,7 +859,7 @@ void CtdlDestroyServiceHook(void)
 		} else if (cur->tcp_port) {
 			CtdlLogPrintf(CTDL_INFO, "Closed TCP port %d\n", cur->tcp_port);
 		} else {
-			CtdlLogPrintf(CTDL_INFO, "Unregistered unknown service\n");
+			CtdlLogPrintf(CTDL_INFO, "Destroyed service \"%s\"\n", cur->ServiceName);
 		}
 		p = cur->next;
 		free(cur);
