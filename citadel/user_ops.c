@@ -1648,16 +1648,13 @@ void ListThisUser(struct ctdluser *usbuf, void *data)
 		if ((CC->user.axlevel >= 6)
 		    || ((usbuf->flags & US_UNLISTED) == 0)
 		    || ((CC->internal_pgm))) {
-			cprintf("%s|%d|%ld|%ld|%ld|%ld|",
+			cprintf("%s|%d|%ld|%ld|%ld|%ld||\n",
 				usbuf->fullname,
 				usbuf->axlevel,
 				usbuf->usernum,
 				(long)usbuf->lastcall,
 				usbuf->timescalled,
 				usbuf->posted);
-			if (CC->user.axlevel >= 6)
-				cprintf("%s", usbuf->password);
-			cprintf("\n");
 		}
 	}
 }
