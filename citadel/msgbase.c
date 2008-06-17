@@ -1479,14 +1479,17 @@ char *qp_encode_email_addrs(char *source)
 	*AddrPtr = 0;
 	i = 0;
 	while (!IsEmptyStr (&source[i])) {
-		if (nColons > nAddrPtrMax){
+		if (nColons >= nAddrPtrMax){
 			long *ptr;
 
 			ptr = (long *) malloc(sizeof (long) * nAddrPtrMax * 2);
 			memcpy (ptr, AddrPtr, sizeof (long) * nAddrPtrMax);
 			free (AddrPtr), AddrPtr = ptr;
+
 			ptr = (long *) malloc(sizeof (long) * nAddrPtrMax * 2);
-			memset(ptr + sizeof (long) * nAddrPtrMax, 0, sizeof (long) * nAddrPtrMax - 1);
+			memset(&ptr[nAddrPtrMax], 0, 
+			       sizeof (long) * nAddrPtrMax);
+
 			memcpy (ptr, AddrUtf8, sizeof (long) * nAddrPtrMax);
 			free (AddrUtf8), AddrUtf8 = ptr;
 			nAddrPtrMax *= 2;				
@@ -1499,8 +1502,8 @@ char *qp_encode_email_addrs(char *source)
 		if (source[i] == '"')
 			InQuotes = !InQuotes;
 		if (!InQuotes && source[i] == ',') {
-			nColons++;
 			AddrPtr[nColons] = i;
+			nColons++;
 		}
 		i++;
 	}
