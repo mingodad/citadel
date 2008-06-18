@@ -141,13 +141,15 @@ void rss_save_item(struct rss_item *ri) {
 		msg->cm_format_type = FMT_RFC822;
 		msg->cm_fields['A'] = strdup("rss");
 		msg->cm_fields['N'] = strdup(NODENAME);
-		msg->cm_fields['U'] = html_to_ascii(ri->title, 
-						    strlen(ri->title), 
-						    512, 0);
+		if (ri->title != NULL) {
+			msg->cm_fields['U'] = html_to_ascii(ri->title, strlen(ri->title), 512, 0);
+		}
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
-		if (!IsEmptyStr(ri->channel_title)) {
-			msg->cm_fields['O'] = strdup(ri->channel_title);
+		if (ri->channel_title != NULL) {
+			if (!IsEmptyStr(ri->channel_title)) {
+				msg->cm_fields['O'] = strdup(ri->channel_title);
+			}
 		}
 
 		msglen = 1024 + strlen(ri->link) + strlen(ri->description) ;
