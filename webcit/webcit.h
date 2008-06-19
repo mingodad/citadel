@@ -126,7 +126,7 @@ extern locale_t wc_locales[];
 #define CLIENT_ID		4
 #define CLIENT_VERSION		737		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	737		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		115		/* min required libcitadel ver */
+#define	LIBCITADEL_MIN		737		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
