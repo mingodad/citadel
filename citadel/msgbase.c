@@ -1612,6 +1612,7 @@ int CtdlOutputPreLoadedMsg(
 	if (!is_valid_message(TheMessage)) {
 		CtdlLogPrintf(CTDL_ERR,
 			"ERROR: invalid preloaded message for output\n");
+		cit_backtrace ();
 	 	return(om_no_such_msg);
 	}
 
