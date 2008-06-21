@@ -60,7 +60,10 @@ case $1 in
 	fi
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn --exclude "debian/*" -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
+	if test "$2" == "dfsg"; then
+	    NONDFSG=-"-exclude static/openid-small.gif"
+	fi
+	cd ..; tar --exclude .svn --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
     *)
 	echo "Not yet implemented. we have: debian "
