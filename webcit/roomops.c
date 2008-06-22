@@ -1136,10 +1136,15 @@ void display_editroom(void)
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
-	/** print the tabbed dialog */
-	wprintf("<ul class=\"tabbed_dialog\">\n");
+	wprintf("<br />\n");
 
-	wprintf("<li class=\"tablabel ");
+	/* print the tabbed dialog */
+	wprintf("<div align=\"center\">");
+	wprintf("<table id=\"AdminTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\""
+		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
+		);
+
+	wprintf("<td class=\"");
 	if (!strcmp(tab, "admin")) {
 		wprintf(" tab_cell_label\">");
 		wprintf(_("Administration"));
@@ -1149,11 +1154,12 @@ void display_editroom(void)
 		wprintf(_("Administration"));
 		wprintf("</a>");
 	}
-	wprintf("</li>\n");
+	wprintf("</td>\n");
+	wprintf("<td>&nbsp;</td>\n");
 
 	if ( (WC->axlevel >= 6) || (WC->is_room_aide) ) {
 
-		wprintf("<li class=\"tablabel ");
+		wprintf("<td class=\"");
 		if (!strcmp(tab, "config")) {
 			wprintf(" tab_cell_label\">");
 			wprintf(_("Configuration"));
@@ -1163,9 +1169,10 @@ void display_editroom(void)
 			wprintf(_("Configuration"));
 			wprintf("</a>");
 		}
-		wprintf("</li>\n");
+		wprintf("</td>\n");
+		wprintf("<td>&nbsp;</td>\n");
 
-		wprintf("<li class=\"tablabel ");
+		wprintf("<td class=\"");
 		if (!strcmp(tab, "expire")) {
 			wprintf(" tab_cell_label\">");
 			wprintf(_("Message expire policy"));
@@ -1175,9 +1182,10 @@ void display_editroom(void)
 			wprintf(_("Message expire policy"));
 			wprintf("</a>");
 		}
-		wprintf("</li>\n");
+		wprintf("</td>\n");
+		wprintf("<td>&nbsp;</td>\n");
 	
-		wprintf("<li class=\"tablabel ");
+		wprintf("<td class=\"");
 		if (!strcmp(tab, "access")) {
 			wprintf(" tab_cell_label\">");
 			wprintf(_("Access controls"));
@@ -1187,9 +1195,10 @@ void display_editroom(void)
 			wprintf(_("Access controls"));
 			wprintf("</a>");
 		}
-		wprintf("</li>\n");
+		wprintf("</td>\n");
+		wprintf("<td>&nbsp;</td>\n");
 
-		wprintf("<li class=\"tablabel ");
+		wprintf("<td class=\"");
 		if (!strcmp(tab, "sharing")) {
 			wprintf(" tab_cell_label\">");
 			wprintf(_("Sharing"));
@@ -1199,9 +1208,10 @@ void display_editroom(void)
 			wprintf(_("Sharing"));
 			wprintf("</a>");
 		}
-		wprintf("</li>\n");
+		wprintf("</td>\n");
+		wprintf("<td>&nbsp;</td>\n");
 
-		wprintf("<li class=\"tablabel ");
+		wprintf("<td class=\"");
 		if (!strcmp(tab, "listserv")) {
 			wprintf(" tab_cell_label\">");
 			wprintf(_("Mailing list service"));
@@ -1211,11 +1221,12 @@ void display_editroom(void)
 			wprintf(_("Mailing list service"));
 			wprintf("</a>");
 		}
-		wprintf("</li>\n");
+		wprintf("</td>\n");
+		wprintf("<td>&nbsp;</td>\n");
 
 	}
 
-	wprintf("<li class=\"tablabel ");
+	wprintf("<td class=\"");
 	if (!strcmp(tab, "feeds")) {
 		wprintf(" tab_cell_label\">");
 		wprintf(_("Remote retrieval"));
@@ -1225,10 +1236,17 @@ void display_editroom(void)
 		wprintf(_("Remote retrieval"));
 		wprintf("</a>");
 	}
-	wprintf("</li>\n");
+	wprintf("</td>\n");
+	wprintf("<td>&nbsp;</td>\n");
 
-	wprintf("</ul>\n");
+	wprintf("</tr></table>\n");
+	wprintf("</div>\n");
 	/* end tabbed dialog */	
+
+	wprintf("<script type=\"text/javascript\">"
+		" Nifty(\"table#AdminTabs td\", \"small transparent top\");"
+		"</script>"
+	);
 
 	/* begin content of whatever tab is open now */
 
