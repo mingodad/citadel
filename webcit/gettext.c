@@ -1,20 +1,16 @@
 /*
  * $Id
  */
-/**
- * \defgroup LocaleHeaderParser Parse the browser http locale headers and set the NLS stuff.
- * \ingroup WebcitHttpServer 
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
 #ifdef ENABLE_NLS
 
-#define NUM_LANGS 10 /**< how many different locales do we know? */
-#define SEARCH_LANG 20 /**< how many langs should we parse? */
+#define NUM_LANGS 10		/* how many different locales do we know? */
+#define SEARCH_LANG 20		/* how many langs should we parse? */
 
-/** actual supported locales */
+/* actual supported locales */
 char *AvailLang[NUM_LANGS] = {
 	"C",
 	"en_US",
@@ -338,4 +334,3 @@ void preset_locale(void)
 #endif	/* ENABLE_NLS */
 
 
-/*@}*/

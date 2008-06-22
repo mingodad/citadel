@@ -35,6 +35,6 @@ all: ../locale/de/LC_MESSAGES/webcit.mo \
 	[ -d ../locale/nl/LC_MESSAGES ] || mkdir -p ../locale/nl/LC_MESSAGES
 	msgfmt nl.po -o ../locale/nl/LC_MESSAGES/webcit.mo
 
-../locale/pt/LC_MESSAGES/webcit.mo: pt_BR.po
+../locale/pt_BR/LC_MESSAGES/webcit.mo: pt_BR.po
 	[ -d ../locale/pt_BR/LC_MESSAGES ] || mkdir -p ../locale/pt_BR/LC_MESSAGES
 	msgfmt pt_BR.po -o ../locale/pt_BR/LC_MESSAGES/webcit.mo
