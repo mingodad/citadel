@@ -6,6 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include <ctype.h>
 
 /*
  * Access level definitions.  This is initialized from a function rather than a
@@ -671,8 +672,43 @@ void validate(void)
 			if (a == 1)
 				wprintf("#%s<br /><H1>%s</H1>",
 					buf, &cmd[4]);
-			if (a == 2)
-				wprintf("PW: %s<br />\n", buf);
+			if (a == 2) {
+				char *pch;
+				int haveChar = 0;
+				int haveNum = 0;
+				int haveOther = 0;
+				int count = 0;
+				pch = buf;
+				while (!IsEmptyStr(pch))
+				{
+					if (isdigit(*pch))
+						haveNum = 1;
+					else if (isalpha(*pch))
+						haveChar = 1;
+					else
+						haveOther = 1;
+					pch ++;
+				}
+				count = pch - buf;
+				if (count > 7)
+					count = 0;
+				switch (count){
+				case 0:
+					pch = _("verry weak");
+					break;
+				case 1:
+					pch = _("weak");
+					break;
+				case 2:
+					pch = _("ok");
+					break;
+				case 3:
+				default:
+					pch = _("strong");
+				}
+
+				wprintf("PW: %s<br />\n", pch);
+			}
 			if (a == 3)
 				wprintf("%s<br />\n", buf);
 			if (a == 4)
