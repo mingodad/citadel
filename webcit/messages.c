@@ -1296,12 +1296,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 		wprintf("</i><br />");
 	}
 
-	else /** HTML is fun, but we've got to strip it first */
-	if (!strcasecmp(mime_content_type, "text/html")) {
+	/* HTML is fun, but we've got to strip it first */
+	else if (!strcasecmp(mime_content_type, "text/html")) {
 		output_html(mime_charset, (WC->wc_view == VIEW_WIKI ? 1 : 0));
 	}
 
-	/** Unknown weirdness */
+	/* Unknown weirdness */
 	else {
 		wprintf(_("I don't know how to display %s"), mime_content_type);
 		wprintf("<br />\n", mime_content_type);
@@ -1321,7 +1321,7 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 	}
 
 
-	/** Afterwards, offer links to download attachments 'n' such */
+	/* Afterwards, offer links to download attachments 'n' such */
 	if ( (num_attach_links > 0) && (!section[0]) ) {
 		for (i=0; i<num_attach_links; ++i) {
 			if (strcasecmp(attach_links[i].partnum, msg4_partnum)) {
@@ -1330,7 +1330,7 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 		}
 	}
 
-	/** Handler for vCard parts */
+	/* Handler for vCard parts */
 	if (!IsEmptyStr(vcard_partnum)) {
 		part_source = load_mimepart(msgnum, vcard_partnum);
 		if (part_source != NULL) {
@@ -1340,23 +1340,21 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<a href=\"edit_vcard?"
-					"msgnum=%ld?partnum=%s\">",
+				wprintf("<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</a>", _("edit"));
 			}
 
-			/** In all cases, display the full card */
+			/* In all cases, display the full card */
 			display_vcard(part_source, 0, 1, NULL,msgnum);
 		}
 	}
 
-	/** Handler for calendar parts */
+	/* Handler for calendar parts */
 	if (!IsEmptyStr(cal_partnum)) {
 		part_source = load_mimepart(msgnum, cal_partnum);
 		if (part_source != NULL) {
-			cal_process_attachment(part_source,
-						msgnum, cal_partnum);
+			cal_process_attachment(part_source, msgnum, cal_partnum);
 		}
 	}
 
@@ -1367,7 +1365,7 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 
 	wprintf("</div>\n");
 
-	/** end everythingamundo table */
+	/* end everythingamundo table */
 	if (!printable_view) {
 		wprintf("</div>\n");
 	}
