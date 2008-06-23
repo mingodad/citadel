@@ -9,12 +9,12 @@
 
 
 /*
- * \brief Process a calendar object
- * ...at this point it's already been deserialized by cal_process_attachment()
- * \param cal the calendar object
- * \param recursion_level call stack depth ??????
- * \param msgnum number of the mesage in our db
- * \param cal_partnum of the calendar object ???? 
+ * Process a calendar object.  At this point it's already been deserialized by cal_process_attachment()
+ *
+ * cal:			the calendar object
+ * recursion_level:	Number of times we've recursed into this function
+ * msgnum:		Message number on the Citadel server
+ * cal_partnum:		MIME part number within that message containing the calendar object
  */
 void cal_process_object(icalcomponent *cal,
 			int recursion_level,
@@ -36,15 +36,15 @@ void cal_process_object(icalcomponent *cal,
 
 	sprintf(divname, "rsvp%04x", ++divcount);
 
-	/** Leading HTML for the display of this object */
+	/* Leading HTML for the display of this object */
 	if (recursion_level == 0) {
 		wprintf("<div class=\"mimepart\">\n");
 	}
 
-	/** Look for a method */
+	/* Look for a method */
 	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
 
-	/** See what we need to do with this */
+	/* See what we need to do with this */
 	if (method != NULL) {
 		the_method = icalproperty_get_method(method);
 		char *title;
@@ -91,14 +91,13 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</dd>\n");
 	}
 
-	/**
+	/*
 	 * Only show start/end times if we're actually looking at the VEVENT
 	 * component.  Otherwise it shows bogus dates for things like timezone.
 	 */
 	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
 
-      		p = icalcomponent_get_first_property(cal,
-						     ICAL_DTSTART_PROPERTY);
+      		p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 
@@ -144,7 +143,7 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</dd>\n");
 	}
 
-	/** If the component has attendees, iterate through them. */
+	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
 	     (p != NULL); 
 	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
@@ -167,7 +166,7 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("</dd>\n");
 	}
 
-	/** If the component has subcomponents, recurse through them. */
+	/* If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	     (c != 0);
 	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
@@ -175,7 +174,7 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
 
-	/** If this is a REQUEST, display conflicts and buttons */
+	/* If this is a REQUEST, display conflicts and buttons */
 	if (the_method == ICAL_METHOD_REQUEST) {
 
 		/* Check for conflicts */
@@ -211,7 +210,7 @@ void cal_process_object(icalcomponent *cal,
 
 		wprintf("</dl>");
 
-		/** Display the Accept/Decline buttons */
+		/* Display the Accept/Decline buttons */
 		wprintf("<p id=\"%s_question\">"
 			"%s "
 			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
@@ -230,17 +229,17 @@ void cal_process_object(icalcomponent *cal,
 
 	}
 
-	/** If this is a REPLY, display update button */
+	/* If this is a REPLY, display update button */
 	if (the_method == ICAL_METHOD_REPLY) {
 
-		/** \todo  In the future, if we want to validate this object before \
+		/* In the future, if we want to validate this object before
 		 * continuing, we can do it this way:
 		 serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
 		 serv_getln(buf, sizeof buf);
 		 }
 		***********/
 
-		/** Display the update buttons */
+		/* Display the update buttons */
 		wprintf("<p id=\"%s_question\" >"
 			"%s "
 			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
@@ -256,7 +255,7 @@ void cal_process_object(icalcomponent *cal,
 	
 	}
 	
-	/** Trailing HTML for the display of this object */
+	/* Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
 		wprintf("<p>&nbsp;</p></div>\n");
 	}
