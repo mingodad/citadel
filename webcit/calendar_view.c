@@ -392,8 +392,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	Pos = GetNewHashPos();
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
-		p = icalcomponent_get_first_property(Cal->cal,
-			ICAL_DTSTART_PROPERTY);
+		p = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
@@ -407,7 +406,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 			else {
 				localtime_r(&event_tts, &event_tms);
 			}
-			/** \todo epoch &! daymask */
+			/* \todo epoch &! daymask */
 			if ((event_tms.tm_year == today_tm.tm_year)
 				&& (event_tms.tm_mon == today_tm.tm_mon)
 			&& (event_tms.tm_mday == today_tm.tm_mday)) {
@@ -446,7 +445,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 				
 				escputs((char *)
 					icalproperty_get_comment(p));
-				/** \todo: allso ammitime format */
+				/* \todo: allso ammitime format */
 				wc_strftime(&sbuf[0], sizeof(sbuf), timeformat, &event_tms);
 				wc_strftime(&ebuf[0], sizeof(sbuf), timeformat, &event_tme);
 				
@@ -456,8 +455,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					sbuf,
 					daycolor,
 					ebuf);
-				
-			}
+				}
 			
 			}
 			
@@ -468,11 +466,8 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 }
 
 
-/**
- * \brief view one month. pretty view
- * \param year the year
- * \param month the month
- * \param day the actual day we want to see
+/*
+ * view one month. pretty view
  */
 void calendar_month_view(int year, int month, int day) {
 	struct tm starting_tm;
@@ -488,7 +483,8 @@ void calendar_month_view(int year, int month, int day) {
 	int weekstart = 0;
 	char weekstart_buf[16];
 
-	/* Determine what day to start.
+	/*
+	 * Determine what day to start
 	 */
 	get_preference("weekstart", weekstart_buf, sizeof weekstart_buf);
 	weekstart = atoi(weekstart_buf);
@@ -509,18 +505,18 @@ void calendar_month_view(int year, int month, int day) {
 		localtime_r(&thetime, &tm);
 	}
 
-	/** Determine previous and next months ... for links */
+	/* Determine previous and next months ... for links */
 	previous_month = thetime - (time_t)864000L;	/* back 10 days */
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
-	/** Now back up until we're on the user's preferred start day */
+	/* Now back up until we're on the user's preferred start day */
 	localtime_r(&thetime, &tm);
 	while (tm.tm_wday != weekstart) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
 		localtime_r(&thetime, &tm);
 	}
 
-	/** Outer table (to get the background color) */
+	/* Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar\"> \n <tr><td>"); 
 
@@ -547,7 +543,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	wprintf("</td></tr></table>\n");
 
-	/** Inner table (the real one) */
+	/* Inner table (the real one) */
 	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#204B78 id=\"inner_month\"><tr>");
 	colheader_time = thetime;
@@ -562,7 +558,7 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("</tr>\n");
 
 
-        /** Now do 35 or 42 days */
+        /* Now do 35 or 42 days */
         for (i = 0; i < 42; ++i) {
                 localtime_r(&thetime, &tm);
 
@@ -575,7 +571,7 @@ void calendar_month_view(int year, int month, int day) {
                                 chg_month = 0;
                         }
 
-			/** Before displaying Sunday, start a new row */
+			/* Before displaying the first day of the week, start a new row */
 			if ((i % 7) == 0) {
 				wprintf("<tr>");
 			}
@@ -605,21 +601,21 @@ void calendar_month_view(int year, int month, int day) {
 
 			wprintf("</td>");
 
-			/** After displaying Saturday, end the row */
+			/* After displaying the last day of the week, end the row */
 			if ((i % 7) == 6) {
 				wprintf("</tr>\n");
 			}
 
 		}
 
-		thetime += (time_t)86400;		/** ahead 24 hours */
+		thetime += (time_t)86400;		/* ahead 24 hours */
 	}
 
-	wprintf("</table>"			/** end of inner table */
-		"</td></tr></table>"		/** end of outer table */
+	wprintf("</table>"			/* end of inner table */
+		"</td></tr></table>"		/* end of outer table */
 		"</div>\n");
 
-	/**
+	/*
 	 * Initialize the bubble tooltips.
 	 *
 	 * Yes, this is as stupid as it looks.  Instead of just making the call
@@ -636,11 +632,8 @@ void calendar_month_view(int year, int month, int day) {
 	);
 }
 
-/**
- * \brief view one month. brief view
- * \param year the year
- * \param month the month
- * \param day the actual day we want to see
+/*
+ * view one month. brief view
  */
 void calendar_brief_month_view(int year, int month, int day) {
 	struct tm starting_tm;
@@ -651,7 +644,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	time_t next_month;
 	char month_label[32];
 
-	/** Determine what day to start.
+	/* Determine what day to start.
 	 * First, back up to the 1st of the month...
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
@@ -666,18 +659,18 @@ void calendar_brief_month_view(int year, int month, int day) {
 		localtime_r(&thetime, &tm);
 	}
 
-	/** Determine previous and next months ... for links */
+	/* Determine previous and next months ... for links */
 	previous_month = thetime - (time_t)864000L;	/* back 10 days */
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
-	/** Now back up until we're on a Sunday */
+	/* Now back up until we're on a Sunday */
 	localtime_r(&thetime, &tm);
 	while (tm.tm_wday != 0) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
 		localtime_r(&thetime, &tm);
 	}
 
-	/** Outer table (to get the background color) */
+	/* Outer table (to get the background color) */
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
@@ -705,13 +698,13 @@ void calendar_brief_month_view(int year, int month, int day) {
 
 	wprintf("</td></tr></table>\n");
 
-	/** Inner table (the real one) */
+	/* Inner table (the real one) */
 	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#EEEECC><TR>");
 	wprintf("</tr>\n");
 	wprintf("<tr><td colspan=\"100%\">\n");
 
-	/** Now do 35 days */
+	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {
 		char weeknumber[255];
 		char weekday_name[32];
@@ -719,7 +712,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		localtime_r(&thetime, &tm);
 
 
-		/** Before displaying Sunday, start a new CELL */
+		/* Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
 			wprintf("<table border='0' bgcolor=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
@@ -737,7 +730,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 				"FFFFFF"));
 		
-		/** Day Header */
+		/* Day Header */
 		wc_strftime(weekday_name, sizeof weekday_name, "%A", &tm);
 		wprintf("<tr><td bgcolor='%s' colspan='1' align='left'> %s,%i."
 			"</td><td bgcolor='%s' colspan='3'><hr></td></tr>\n",
@@ -745,11 +738,11 @@ void calendar_brief_month_view(int year, int month, int day) {
 			weekday_name,tm.tm_mday,
 			daycolor);
 
-		/** put the data of one day  here, stupid */
+		/* put the data of one day  here, stupid */
 		calendar_month_view_brief_events(thetime, daycolor);
 
 
-		/** After displaying Saturday, end the row */
+		/* After displaying Saturday, end the row */
 		if ((i % 7) == 6) {
 			wprintf("</td></tr></table>\n");
 		}
@@ -762,29 +755,20 @@ void calendar_brief_month_view(int year, int month, int day) {
 		"</div>\n");
 }
 
-/** 
- * \brief view one week
- * this should view just one week, but it's not here yet.
- * \todo ny implemented
- * \param year the year
- * \param month the month
- * \param day the day which we want to see the week around
+/*
+ * Calendar week view -- not implemented yet, this is a stub function
  */
 void calendar_week_view(int year, int month, int day) {
 	wprintf("<center><i>week view FIXME</i></center><br />\n");
 }
 
 
-/**
- * \brief display one day
+/*
+ * display one day
  * Display events for a particular hour of a particular day.
  * (Specify hour < 0 to show "all day" events)
- * \param year the year
- * \param month the month
- * \param day the day
- * \param hour the hour we want to start displaying
- * \param dstart daystart 
- * \param dend dayend 
+ *
+ * dstart and dend indicate which hours our "daytime" begins and end
  */
 void calendar_day_view_display_events(time_t thetime,
 	int year,
@@ -1055,11 +1039,8 @@ void calendar_day_view_display_events(time_t thetime,
 	DeleteHashPos(&Pos);
 }
 
-/**
- * \brief view one day
- * \param year the year
- * \param month the month 
- * \param day the day we want to display
+/*
+ * view one day
  */
 void calendar_day_view(int year, int month, int day) {
 	int hour;
@@ -1081,14 +1062,14 @@ void calendar_day_view(int year, int month, int day) {
 	get_preference("dayend", dayend_str, sizeof dayend_str);
 	if (!IsEmptyStr(dayend_str)) dayend = atoi(dayend_str);
 	
-	/** Today's date */
+	/* Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
 	d_tm.tm_year = year - 1900;
 	d_tm.tm_mon = month - 1;
 	d_tm.tm_mday = day;
 	today_t = mktime(&d_tm); 
 
-	/** Figure out the dates for "yesterday" and "tomorrow" links */
+	/* Figure out the dates for "yesterday" and "tomorrow" links */
 
 	memset(&today, 0, sizeof(struct icaltimetype));
 	today.year = year;
@@ -1106,14 +1087,14 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
-	/** Inner table (the real one) */
+	/* Inner table (the real one) */
 	wprintf("<table class=\"calendar\" id=\"inner_day\"><tr> \n");
 
-	/** Innermost cell (contains hours etc.) */
+	/* Innermost cell (contains hours etc.) */
 	wprintf("<td class=\"events_of_the_day\" >");
        	wprintf("<dl class=\"events\" >");
 
-	/** Now the middle of the day... */
+	/* Now the middle of the day... */
 
 	extratimeline = timeline / 3;	
 
@@ -1205,12 +1186,12 @@ void calendar_day_view(int year, int month, int day) {
        	wprintf("</dl>");
 	wprintf("</td>");			/* end of innermost table */
 
-	/** Display extra events (start/end times not present or not today) in the middle column */
+	/* Display extra events (start/end times not present or not today) in the middle column */
         wprintf("<td class=\"extra_events\">");
 
         wprintf("<ul>");
 
-        /** Display all-day events */
+        /* Display all-day events */
 	calendar_day_view_display_events(today_t, year, month, day, 1, daystart, dayend);
 
         wprintf("</ul>");
@@ -1219,12 +1200,12 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("<td width=20%% align=center valign=top>");	/** begin stuff-on-the-right */
 
-	/** Begin todays-date-with-left-and-right-arrows */
+	/* Begin todays-date-with-left-and-right-arrows */
 	wprintf("<table border=0 width=100%% "
 		"cellspacing=0 cellpadding=0 bgcolor=\"#FFFFFF\">\n");
 	wprintf("<tr>");
 
-	/** Left arrow */	
+	/* Left arrow */	
 	wprintf("<td align=center>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
@@ -1241,7 +1222,7 @@ void calendar_day_view(int year, int month, int day) {
 		);
 	wprintf("%s", d_str);
 
-	/** Right arrow */
+	/* Right arrow */
 	wprintf("<td align=center>");
 	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
@@ -1250,9 +1231,9 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</td>");
 
 	wprintf("</tr></table>\n");
-	/** End todays-date-with-left-and-right-arrows */
+	/* End todays-date-with-left-and-right-arrows */
 
-	/** Embed a mini month calendar in this space */
+	/* Embed a mini month calendar in this space */
 	wprintf("<br />\n");
 	embeddable_mini_calendar(year, month, "readfwd?calview=day&year=%d&month=%d&day=%d");
 
@@ -1270,8 +1251,8 @@ void calendar_day_view(int year, int month, int day) {
 }
 
 
-/**
- * \brief Display today's events.
+/*
+ * Display today's events.
  */
 void calendar_summary_view(void) {
 	long hklen;
@@ -1341,8 +1322,8 @@ void calendar_summary_view(void) {
 }
 
 
-/**
- * \brief do the whole calendar page
+/*
+ * do the whole calendar page
  * view any part of the calender. decide which way, etc.
  */
 void do_calendar_view(void) {
@@ -1351,19 +1332,19 @@ void do_calendar_view(void) {
 	int year, month, day;
 	char calview[SIZ];
 
-	/** In case no date was specified, go with today */
+	/* In case no date was specified, go with today */
 	now = time(NULL);
 	localtime_r(&now, &tm);
 	year = tm.tm_year + 1900;
 	month = tm.tm_mon + 1;
 	day = tm.tm_mday;
 
-	/** Now see if a date was specified */
+	/* Now see if a date was specified */
 	if (havebstr("year")) year = ibstr("year");
 	if (havebstr("month")) month = ibstr("month");
 	if (havebstr("day")) day = ibstr("day");
 
-	/** How would you like that cooked? */
+	/* How would you like that cooked? */
 	if (havebstr("calview")) {
 		strcpy(calview, bstr("calview"));
 	}
@@ -1371,7 +1352,7 @@ void do_calendar_view(void) {
 		strcpy(calview, "month");
 	}
 
-	/** Display the selected view */
+	/* Display the selected view */
 	if (!strcasecmp(calview, "day")) {
 		calendar_day_view(year, month, day);
 	}
@@ -1387,16 +1368,13 @@ void do_calendar_view(void) {
 		}
 	}
 
-	/** Free the calendar stuff */
+	/* Free the in-memory list of calendar items */
 	DeleteHash(&WC->disp_cal_items);
 }
 
 
-/**
- * \brief get task due date
- * Helper function for do_tasks_view().  
- * \param vtodo a task to get the due date
- * \return the date/time due.
+/*
+ * Helper function for do_tasks_view().  Returns the due date/time of a vtodo.
  */
 time_t get_task_due_date(icalcomponent *vtodo) {
 	icalproperty *p;
@@ -1405,7 +1383,7 @@ time_t get_task_due_date(icalcomponent *vtodo) {
 		return(0L);
 	}
 
-	/**
+	/*
 	 * If we're looking at a fully encapsulated VCALENDAR
 	 * rather than a VTODO component, recurse into the data
 	 * structure until we get a VTODO.
@@ -1428,10 +1406,8 @@ time_t get_task_due_date(icalcomponent *vtodo) {
 }
 
 
-/**
- * \brief Compare the due dates of two tasks (this is for sorting)
- * \param task1 first task to compare
- * \param task2 second task to compare
+/*
+ * Compare the due dates of two tasks (this is for sorting)
  */
 int task_due_cmp(const void *vtask1, const void *vtask2) {
 	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
@@ -1447,8 +1423,8 @@ int task_due_cmp(const void *vtask1, const void *vtask2) {
 	return(0);
 }
 
-/**
- * \brief qsort filter to move completed tasks to bottom of task list
+/*
+ * qsort filter to move completed tasks to bottom of task list
  */
 int task_completed_cmp(const void *vtask1, const void *vtask2) {
 	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
@@ -1464,8 +1440,8 @@ int task_completed_cmp(const void *vtask1, const void *vtask2) {
 
 
 
-/**
- * \brief do the whole task view stuff
+/*
+ * do the whole task view stuff
  */
 void do_tasks_view(void) {
 	long hklen;
@@ -1493,13 +1469,15 @@ void do_tasks_view(void) {
 		_("Show All"));
 
 	nItems = GetCount(WC->disp_cal_items);
-	/** Sort them if necessary * /
+
+	/* Sort them if necessary
 	if (nItems > 1) {
-		SortByPayload(WC->disp_cal_items, 
-			      task_due_cmp);
-	} // this shouldn't be neccessary, since we sort by the start time.
+		SortByPayload(WC->disp_cal_items, task_due_cmp);
+	}
+	* this shouldn't be neccessary, since we sort by the start time.
 	*/
-	/** And then again, by completed */
+
+	/* And then again, by completed */
 	if (nItems > 1) {
 		SortByPayload(WC->disp_cal_items, 
 			      task_completed_cmp);
@@ -1551,7 +1529,7 @@ void do_tasks_view(void) {
 
 	wprintf("</tbody></table></div>\n");
 
-	/** Free the list */
+	/* Free the list */
 	DeleteHash(&WC->disp_cal_items);
 	DeleteHashPos(&Pos);
 }
