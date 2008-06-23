@@ -407,12 +407,11 @@ void delete_cal(void *vCal)
 	free(Cal);
 }
 
-/**
- * \brief get items, keep them.
- * If we're reading calendar items, just store them for now.  We have to
- * sort and re-output them later when we draw the calendar.
- * \param cal Our calendar to process
- * \param msgnum number of the mesage in our db
+/*
+ * This is the meat-and-bones of the first part of our two-phase calendar display.
+ * As we encounter calendar items in messages being read from the server, we break out
+ * any iCalendar objects and store them in a hash table.  Later on, the second phase will
+ * use this hash table to render the calendar for display.
  */
 void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread)
 {
@@ -436,31 +435,42 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	ical_dezonify(Cal->cal);
 	Cal->cal_msgnum = msgnum;
 
-	//! Precalculate some Values we can use for easy comparison later.
+	/* Precalculate the starting date and time of this event, and store it in our top-level
+	 * structure.  Later, when we are rendering the calendar, we can just peek at these values
+	 * without having to break apart every calendar item.
+	 */
 	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 	if (ps != NULL) {
 		t = icalproperty_get_dtstart(ps);
 		Cal->event_start = icaltime_as_timet(t);
 	}
+
+	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
 	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
-	if (ps != NULL) { //!  Precalc the end day and end day + hour
+	if (ps != NULL) {
 		t = icalproperty_get_dtstart(ps);
 		Cal->event_end = icaltime_as_timet(t);
 	}
+
+	/* Store it in the hash list. */
 	Put(WCC->disp_cal_items, 
 	    (char*) &Cal->event_start,
 	    sizeof(Cal->event_start), 
 	    Cal, 
 	    delete_cal);
+
+	/* Right about here is probably where we want to add code to handle recurring events.
+	 * Just let libical iterate the recurrence, and keep looping back to the top of this function,
+	 * adding new hash entries that all point back to the same msgnum, until either the iteration
+	 * stops or some outer bound is reached.  The display code *should* automatically do the right
+	 * thing (but we'll have to see).
+	 */
 }
 
 
 
-/**
- * \brief edit a task
+/*
  * Display a task by itself (for editing)
- * \param supplied_vtodo the todo item we want to edit
- * \param msgnum number of the mesage in our db
  */
 void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread) 
 {
