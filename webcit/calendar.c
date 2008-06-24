@@ -592,7 +592,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf("<TR><TD>\n");
 	wprintf(_("Completed:"));
 	wprintf("</TD><TD>");
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"STATUS\" VALUE=\"COMPLETED\"");
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"status\" VALUE=\"COMPLETED\"");
 	if (todoStatus == ICAL_STATUS_COMPLETED) {
 		wprintf(" CHECKED=\"CHECKED\"");
 	} 
@@ -707,7 +707,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
-		if (!IsEmptyStr(bstr("description"))) {
+		if (havebstr("description")) {
 			icalcomponent_add_property(vtodo,
 						   icalproperty_new_description(bstr("description")));
 		}
@@ -728,7 +728,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalcomponent_remove_property(vtodo,prop);
 			icalproperty_free(prop);
 		}
-		if (!IsEmptyStr(bstr("status"))) {
+		if (havebstr("status")) {
 			icalproperty_status taskStatus = icalproperty_string_to_status(
 				bstr("status"));
 			icalcomponent_set_status(vtodo, taskStatus);

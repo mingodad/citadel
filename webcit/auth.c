@@ -694,7 +694,7 @@ void validate(void)
 					count = 0;
 				switch (count){
 				case 0:
-					pch = _("verry weak");
+					pch = _("very weak");
 					break;
 				case 1:
 					pch = _("weak");
