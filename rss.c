@@ -9,7 +9,13 @@
 #include "webcit.h"
 #include "webserver.h"
 
-
+/* Since we don't have anonymous Webcit access yet, you can 
+ * allow the feed to be produced by a special user created just for 
+ * this purpose. The Citadel Developers do not take any responsibility
+ * for the security of your system when you use this 'feature' */
+#define ALLOW_ANON_RSS 0
+#define ANON_RSS_USER ""
+#define ANON_RSS_PASS ""
 time_t if_modified_since;    /**< the last modified stamp */
 
 /**
@@ -68,10 +74,19 @@ void display_rss(char *roomname, char *request_method)
 	char msgn[256];
 	char content_type[256];
 	char charset[256];
-
+	
 	if (!WC->logged_in) {
+		#ifdef ALLOW_ANON_RSS
+		serv_printf("USER %s", ANON_RSS_USER);
+		serv_getln(buf, sizeof buf);
+		serv_printf("PASS %s", ANON_RSS_PASS);
+		serv_getln(buf, sizeof buf);
+		become_logged_in(ANON_RSS_USER, ANON_RSS_PASS, buf);
+		WC->killthis = 1;
+		#else
 		authorization_required(_("Not logged in"));
 		return;
+		#endif
 	}
 
 	if (gotoroom((char *)roomname)) {
@@ -83,7 +98,7 @@ void display_rss(char *roomname, char *request_method)
 		return;
 	}
 
-	nummsgs = load_msg_ptrs("MSGS LAST|15", 0);
+	 nummsgs = load_msg_ptrs("MSGS LAST|15", 0);
 	if (nummsgs == 0) {
 		lprintf(3, "RSS: No messages found\n");
 		wprintf("HTTP/1.1 404 Not Found\r\n");
@@ -91,7 +106,8 @@ void display_rss(char *roomname, char *request_method)
 		wprintf("\r\n");
 		wprintf(_("Error retrieving RSS feed: couldn't find messages\n"));
 		return;
-	}
+	} 
+	
 
 	/** Read time of last message immediately */
 	serv_printf("MSG4 %ld", WC->msgarr[nummsgs - 1]);
@@ -108,8 +124,8 @@ void display_rss(char *roomname, char *request_method)
 			}
 		}
 	}
-
-	if (if_modified_since > 0 && if_modified_since > now) {
+	// Commented out. Play dumb for now, also doesn't work with anonrss hack
+	/* if (if_modified_since > 0 && if_modified_since > now) {
 		lprintf(3, "RSS: Feed not updated since the last time you looked\n");
 		wprintf("HTTP/1.1 304 Not Modified\r\n");
 		wprintf("Last-Modified: %s\r\n", date);
@@ -117,10 +133,10 @@ void display_rss(char *roomname, char *request_method)
 		gmtime_r(&now, &now_tm);
 		strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", &now_tm);
 		wprintf("Date: %s\r\n", date);
-/*		if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
-		wDumpContent(0);
-		return;
-	}
+		if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
+		// wDumpContent(0);
+		// return;
+	//} 
 
 	/* Do RSS header */
 	lprintf(3, "RSS: Yum yum! This feed is tasty!\n");
@@ -128,38 +144,38 @@ void display_rss(char *roomname, char *request_method)
 	wprintf("Last-Modified: %s\r\n", date);
 /*	if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
 	wprintf("Content-Type: application/rss+xml\r\n");
-	wprintf("$erver: %s\r\n", PACKAGE_STRING);
+	wprintf("Server: %s\r\n", PACKAGE_STRING);
 	wprintf("Connection: close\r\n");
 	wprintf("\r\n");
 	if (!strcasecmp(request_method, "HEAD"))
 		return;
 
-	wprintf("<?xml version=\"1.0\"?>\n");
-	wprintf("<rss version=\"2.0\">\n");
-	wprintf("   <channel>\n");
-	wprintf("   <title>%s - %s</title>\n", WC->wc_roomname, serv_info.serv_humannode);
-	wprintf("   <link>%s://%s:%d/dotgoto?room=", (is_https ? "https" : "http"), WC->http_host, PORT_NUM);
-	escputs(roomname);
-	wprintf("</link>\n");
-	wprintf("   <description>");
+	/* <?xml.. etc confuses our subst parser, so do it here */
+	svput("XML_HEAD", WCS_STRING, "<?xml version=\"1.0\" ?>");
+	svput("XML_STYLE", WCS_STRING, "<?xml-stylesheet type=\"text/css\" href=\"/static/rss_browser.css\" ?>");
+	svput("ROOM", WCS_STRING, WC->wc_roomname);
+	svput("NODE", WCS_STRING, serv_info.serv_humannode);
+	// Fix me
+	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WC->http_host);
+	
 	/** Get room info for description */
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
+	char description[SIZ] = "";
 	if (buf[0] == '1') {
 		while (1) {
 			serv_getln(buf, sizeof buf);
 			if (!strcmp(buf, "000"))
 				break;
-			wprintf("%s\n", buf);
+			strncat(description, buf, strlen(buf));
 		}
 	}
-	wprintf("</description>\n");
+	svput("ROOM_DESCRIPTION", WCS_STRING, description);
 	if (now) {
-		wprintf("   <pubDate>%s</pubDate>\n", date);
+		svput("822_PUB_DATE", WCS_STRING, date);
 	}
-	wprintf("   <generator>%s</generator>\n", PACKAGE_STRING);
-	wprintf("   <docs>http://blogs.law.harvard.edu/tech/rss</docs>\n");
-	wprintf("   <ttl>30</ttl>\n");
+	svput("GENERATOR", WCS_STRING, PACKAGE_STRING);
+	do_template("rss_head");
 
 	/** Read all messages and output as RSS items */
 	for (a = 0; a < nummsgs; ++a) {
@@ -202,22 +218,20 @@ void display_rss(char *roomname, char *request_method)
 				strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", &now_tm);
 			}
 		}
-		wprintf("   <item>\n");
 		if (subj[0]) {
-			wprintf("      <title>%s from", subj);
+			svprintf(HKEY("SUBJ"), WCS_STRING, _("%s from"), subj);
 		} else {
-			wprintf("      <title>From");
+			svput("SUBJ", WCS_STRING, _("From"));
 		}
-		wprintf(" %s", from);
-		wprintf(" in %s", room);
+		svprintf(HKEY("IN_ROOM"), WCS_STRING, _("%s in %s"), from, room);
 		if (strcmp(hnod, serv_info.serv_humannode) && !IsEmptyStr(hnod)) {
-			wprintf(" on %s", hnod);
+			svprintf(HKEY("NODE"), WCS_STRING, _(" on %s"), hnod);
 		}
-		wprintf("</title>\n");
 		if (now) {
-			wprintf("      <pubDate>%s</pubDate>\n", date);
+			svprintf(HKEY("822_PUB_DATE"),WCS_STRING, _("%s"), date);
 		}
-		wprintf("      <guid isPermaLink=\"false\">%s</guid>\n", msgn);
+		svprintf(HKEY("GUID"), WCS_STRING,"%s", msgn);
+		do_template("rss_item");
 		/** Now the hard part, the message itself */
 		strcpy(content_type, "text/plain");
 		while (serv_getln(buf, sizeof buf), !IsEmptyStr(buf)) {
@@ -243,7 +257,7 @@ void display_rss(char *roomname, char *request_method)
 		}
 
 		/** Set up a character set conversion if we need to */
-#ifdef HAVE_ICONV
+ #ifdef HAVE_ICONV
 		if (strcasecmp(charset, "us-ascii") && strcasecmp(charset, "utf-8") && strcasecmp(charset, "") ) {
 			ic = ctdl_iconv_open("UTF-8", charset);
 			if (ic == (iconv_t)(-1)) {
@@ -252,13 +266,12 @@ void display_rss(char *roomname, char *request_method)
 				goto ENDBODY;
 			}
 		}
-#endif
+#endif 
 
 		/** Messages in legacy Citadel variformat get handled thusly... */
 		if (!strcasecmp(content_type, "text/x-citadel-variformat")) {
 			int intext = 0;
 
-			wprintf("      <description><![CDATA[");
 			while (1) {
 				serv_getln(buf, sizeof buf);
 				if (!strcmp(buf, "000")) {
@@ -283,11 +296,9 @@ void display_rss(char *roomname, char *request_method)
 				wprintf("\n");
 			}
 			display_rss_control(from, subj);
-			wprintf("]]></description>\n");
-		}
+		} 
 		/** Boring old 80-column fixed format text gets handled this way... */
 		else if (!strcasecmp(content_type, "text/plain")) {
-			wprintf("      <description><![CDATA[");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				int len;
 				len = strlen(buf);
@@ -325,17 +336,15 @@ void display_rss(char *roomname, char *request_method)
 				wprintf("</tt><br />\n");
 			}
 			display_rss_control(from, subj);
-			wprintf("]]></description>\n");
-		}
+		} 
 		/** HTML is fun, but we've got to strip it first */
 		else if (!strcasecmp(content_type, "text/html")) {
-			wprintf("      <description><![CDATA[");
-			output_html(charset, 0);
-			wprintf("]]></description>\n");
-		}
+			output_html(charset, 0); 
+		} 
 
 ENDBODY:
-		wprintf("   </item>\n");
+		//wprintf("   </item>\n");
+		do_template("rss_item_end");
 ENDITEM:
 		now = 0L;
 	}
@@ -344,6 +353,9 @@ ENDITEM:
 	wprintf("   </channel>\n");
 	wprintf("</rss>\n");
 	wDumpContent(0);
+	#ifdef ALLOW_ANON_RSS
+	end_webcit_session();
+	#endif
 }
 
 
