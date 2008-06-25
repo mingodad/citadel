@@ -109,6 +109,37 @@ void mrtg_messages(void) {
 }
 
 
+struct num_accounts {
+	long total;
+	long active;
+};
+
+/*
+ * Helper function for mrtg_accounts()
+ */
+void tally_account(struct ctdluser *EachUser, void *userdata)
+{
+	struct num_accounts *n = (struct num_accounts *) userdata;
+
+	++n->total;
+	if ( (time(NULL) - EachUser->lastcall) <= 2592000 ) ++n->active;
+}
+
+
+/*
+ * Number of accounts and active accounts
+ */
+void mrtg_accounts(void) {
+	struct num_accounts n = {
+		0,
+		0
+	};
+
+	ForEachUser(tally_account, (void *)&n );
+	mrtg_output(n.total, n.active);
+}
+
+
 /*
  * Fetch data for MRTG
  */
@@ -123,9 +154,11 @@ void cmd_mrtg(char *argbuf) {
 	else if (!strcasecmp(which, "messages")) {
 		mrtg_messages();
 	}
+	else if (!strcasecmp(which, "accounts")) {
+		mrtg_accounts();
+	}
 	else {
-		cprintf("%d Unrecognized keyword '%s'\n",
-			ERROR + ILLEGAL_VALUE, which);
+		cprintf("%d Unrecognized keyword '%s'\n", ERROR + ILLEGAL_VALUE, which);
 	}
 }
 
