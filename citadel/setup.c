@@ -597,7 +597,7 @@ void disable_other_mta(char *mta) {
 /* 
  * Check to see if our server really works.  Returns 0 on success.
  */
-int test_server(void) {
+int test_server(char *setup_directory) {
 	char cmd[256];
 	char cookie[256];
 	FILE *fp;
@@ -610,10 +610,9 @@ int test_server(void) {
 	 */
 	sprintf(cookie, "--test--%d--", getpid());
 
-	sprintf(cmd, "%s/sendcommand %s%s ECHO %s 2>&1",
+	sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
 		ctdl_sbin_dir,
-		(enable_home)?"-h":"", 
-		(enable_home)?ctdl_run_dir:"",
+		setup_directory,
 		cookie);
 
 	fp = popen(cmd, "r");
@@ -1028,15 +1027,13 @@ int main(int argc, char *argv[])
 
 	enable_home=(relh|home);
 
-	if (home) {
-		if (chdir(setup_directory) == 0) {
-			strcpy(file_citadel_config, "./citadel.config");
-		}
-		else {
-			important_message("Citadel Setup",
-			  	"The directory you specified does not exist.");
-			cleanup(errno);
-		}
+	if (chdir(setup_directory) == 0) {
+		strcpy(file_citadel_config, "./citadel.config");
+	}
+	else {
+		important_message("Citadel Setup",
+		  	"The directory you specified does not exist.");
+		cleanup(errno);
 	}
 
 	/* Determine our host name, in case we need to use it as a default */
@@ -1048,7 +1045,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Make sure Citadel is not running. */
-	if (test_server() == 0) {
+	if (test_server(setup_directory) == 0) {
 		important_message("Citadel Setup",
 			"The Citadel service is still running.\n"
 			"Please stop the service manually and run "
@@ -1315,7 +1312,7 @@ NEW_INST:
 			sleep(3);
 		}
 
-		if (test_server() == 0) {
+		if (test_server(setup_directory) == 0) {
 			snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\"", ctdl_utilbin_dir, config.c_sysadm, admin_pass);
 			system(admin_cmd);
 			important_message("Setup finished",
