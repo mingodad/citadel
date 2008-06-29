@@ -197,7 +197,6 @@ int main(int argc, char **argv)
 			else
 				safestrncpy(relhome, &argv[a][2],
 							sizeof relhome);
-			home_specified = 1;
 			home=1;
 		} else if (!strncmp(argv[a], "-w", 2)) {
 			watchdog = atoi(&argv[a][2]);

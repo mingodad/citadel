@@ -5,7 +5,6 @@
 
 
 extern char ctdl_home_directory[PATH_MAX];
-extern int home_specified;
 
 
 /* all our directories */

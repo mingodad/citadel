@@ -70,19 +70,7 @@ char file_funambol_msg[PATH_MAX] = "";
 char file_dpsam_conf[PATH_MAX] = "";
 char file_dspam_log[PATH_MAX] = "";
 
-int home_specified = 0;
 
-
-
-
-
-
-
-
-
-	/* calculate all our path on a central place */
-    /* where to keep our config */
-	
 #define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
 	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
 			 (home&!relh)?ctdl_home_directory:basedir, \

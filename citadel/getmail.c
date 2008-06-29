@@ -231,7 +231,6 @@ int main(int argc, char **argv)
 			else
 				safestrncpy(relhome, &argv[a][2],
 							sizeof relhome);
-			home_specified = 1;
 			home=1;
 		} else {
 
