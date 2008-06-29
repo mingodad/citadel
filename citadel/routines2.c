@@ -431,7 +431,7 @@ int val_user(CtdlIPC *ipc, char *user, int do_validate)
 			if (a == 1)
 				scr_printf("User #%s - %s  ", buf, cmd);
 			if (a == 2)
-				scr_printf("PW: %s\n", buf);
+				scr_printf("PW: %s\n", (IsEmptyStr(buf) ? "<NOT SET>" : "<SET>") );
 			if (a == 3)
 				scr_printf("%s\n", buf);
 			if (a == 4)
