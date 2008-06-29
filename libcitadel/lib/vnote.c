@@ -96,9 +96,8 @@ struct vnote *vnote_new_from_str(char *s) {
 				*encoded_value++ = 0;
 
 				/* any qualifiers?  (look for a semicolon) */
-				is_base64 = (int) bmstrcasestr(thisline, "encoding=base64");
-				is_quoted_printable = (int) bmstrcasestr(thisline,
-								"encoding=quoted-printable");
+				is_base64 = bmstrcasestr(thisline, "encoding=base64") ? 1 : 0;
+				is_quoted_printable = bmstrcasestr(thisline, "encoding=quoted-printable") ? 1 : 0;
 
 				char *semicolon_pos = strchr(thisline, ';');
 				if (semicolon_pos) {
