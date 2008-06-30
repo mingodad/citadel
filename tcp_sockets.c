@@ -123,21 +123,21 @@ int tcp_connectsock(char *host, char *service)
  * \param buf the buffer to get the input to
  * \param bytes the maximal number of bytes to read
  */
-void serv_read(char *buf, int bytes)
+inline void _serv_read(char *buf, int bytes, struct wcsession *WCC)
 {
 	int len, rlen;
 
 	len = 0;
 	while (len < bytes) {
-		rlen = read(WC->serv_sock, &buf[len], bytes - len);
+		rlen = read(WCC->serv_sock, &buf[len], bytes - len);
 		if (rlen < 1) {
 			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
 			wc_backtrace();
-			close(WC->serv_sock);
-			WC->serv_sock = (-1);
-			WC->connected = 0;
-			WC->logged_in = 0;
+			close(WCC->serv_sock);
+			WCC->serv_sock = (-1);
+			WCC->connected = 0;
+			WCC->logged_in = 0;
 			memset(buf, 0, bytes);
 			return;
 		}
@@ -145,19 +145,25 @@ void serv_read(char *buf, int bytes)
 	}
 }
 
+void serv_read(char *buf, int bytes)
+{
+	struct wcsession *WCC = WC;
+	_serv_read(buf, bytes, WCC);
+}
 
 /**
  * \brief input string from pipe
  */
 int serv_getln(char *strbuf, int bufsize)
 {
+	struct wcsession *WCC = WC;
 	int ch, len;
 	char buf[2];
 
 	len = 0;
 	strbuf[0] = 0;
 	do {
-		serv_read(&buf[0], 1);
+		_serv_read(&buf[0], 1, WCC);
 		ch = buf[0];
 		if ((ch != 13) && (ch != 10)) {
 			strbuf[len++] = ch;
