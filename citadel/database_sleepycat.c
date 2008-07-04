@@ -283,7 +283,8 @@ void open_databases(void)
 	CtdlLogPrintf(CTDL_DEBUG, "Calculated dbversion: %d\n", current_dbversion);
 	CtdlLogPrintf(CTDL_DEBUG, "  Previous dbversion: %d\n", CitControl.MMdbversion);
 
-	if (CitControl.MMdbversion > current_dbversion) {
+	if ( (getenv("SUPPRESS_DBVERSION_CHECK") == NULL)
+	   && (CitControl.MMdbversion > current_dbversion) ) {
 		CtdlLogPrintf(CTDL_EMERG, "You are attempting to run the Citadel server using a version\n"
 					"of Berkeley DB that is older than that which last created or\n"
 					"updated the database.  Because this would probably cause data\n"
