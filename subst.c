@@ -358,7 +358,7 @@ void do_template(void *templatename) {
 
 	strcpy(flat_filename, templatename);
 	if (WC->is_wap)
-		strcat(flat_filename, ".wml");
+		strcat(flat_filename, ".m.html");
 	else
 		strcat(flat_filename, ".html");
 	

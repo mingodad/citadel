@@ -1,0 +1,39 @@
+#button li {
+	display: inline; 
+	padding-right: 5px;
+}
+#button li img {
+	display: none;
+}
+img {
+	border: none;
+	text-decoration: none;
+}
+#message_list div {
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	background-color: gray;
+}
+.subject {
+	font-style: italic;
+}
+body[orient="portrait"] {
+	max-width: 320px;
+}
+body {
+	font-family: sans-serif;
+}
+.msgview {
+	display: none;
+	background-color: white;
+}
+#login_form label, #login_form input, #login_form select, #login_form div{
+	display: list-item;
+	text-align: center !important;
+	margin: 0px auto;
+}
+#navbar ul li {
+	display: inline;
+	padding-right: 5px;
+}
+
