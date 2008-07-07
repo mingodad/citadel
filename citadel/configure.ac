@@ -196,7 +196,7 @@ AC_ARG_ENABLE(pie, [  --enable-pie            build position-independent executa
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
-AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
+AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Berkeley DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
 AC_ARG_WITH(ssl,
 	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
 	[
@@ -603,7 +603,7 @@ if test "x$with_db" != xno; then
 
 	AC_CHECK_DB([db db-4.1 db-4 db4],
 		    [
-		     DATABASE=database_sleepycat.c
+		     DATABASE=database.c
 		    ],
 		    AC_MSG_ERROR([[Can not locate a suitable Berkeley DB
 				  library.  Use --with-db=PATH to specify

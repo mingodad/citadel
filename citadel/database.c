@@ -1,12 +1,12 @@
 /*
  * $Id$
  *
- * Sleepycat (Berkeley) DB driver for Citadel
+ * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
  */
 
 /*****************************************************************************
-       Tunable configuration parameters for the Sleepycat DB back end
+       Tunable configuration parameters for the Berkeley DB back end
  *****************************************************************************/
 
 /* Citadel will checkpoint the db at the end of every session, but only if
