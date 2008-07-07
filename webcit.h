@@ -397,7 +397,7 @@ struct wcsession {
 	long msgarr[10000];			/**< for read operations */
 	int num_summ;				/**< number of messages in mailbox summary view */
 	struct message_summary *summ;		/**< array of messages for mailbox summary view */
-	int is_wap;				/**< Client is a WAP gateway */
+	int is_mobile;			/**< Client is a handheld browser */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *vars; 			/**< HTTP variable substitutions for this page */
 	char this_page[512];			/**< URL of current page */
@@ -815,6 +815,7 @@ int xtoi(char *in, size_t len);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 
+int is_mobile_ua(char *user_agent);
 
 #ifdef HAVE_ICONV
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);

@@ -1,6 +1,5 @@
 var currentMsgDisplay = null;
 function CtdlLoadMsgMouseDown(event, msgnum) {
-	alert("CtdlLoadMsgMouseDown");
 	if (currentMsgDisplay != null) {
 		currentMsgDisplay.style.display = "none";
 	} 

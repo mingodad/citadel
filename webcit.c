@@ -1314,7 +1314,19 @@ void seconds_since_last_gexp(void)
 	end_ajax_response();
 }
 
-
+/**
+ * \brief Detects a 'mobile' user agent 
+ */
+int is_mobile_ua(char *user_agent) {
+	if (strstr(user_agent,"iPhone OS") != NULL) {
+		return 1;
+	} else if (strstr(user_agent,"Windows CE") != NULL) {
+		return 1;
+	} else if (strstr(user_agent,"SymbianOS") != NULL) {
+		return 1;
+	}
+	return 0;
+}
 
 
 /*
@@ -1364,7 +1376,7 @@ void session_loop(struct httprequest *req)
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
-	WC->is_wap = 0;
+	WC->is_mobile = 0;
 
 	hptr = req;
 	if (hptr == NULL) return;
@@ -1422,6 +1434,9 @@ void session_loop(struct httprequest *req)
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			safestrncpy(user_agent, &buf[12], sizeof user_agent);
+			if (is_mobile_ua(&buf[12])) {
+				WC->is_mobile = 1;
+			}
 		}
 		else if (!strncasecmp(buf, "X-Forwarded-Host: ", 18)) {
 			if (follow_xff) {
@@ -1439,12 +1454,6 @@ void session_loop(struct httprequest *req)
 				remove_token(browser_host, 0, ',');
 			}
 			striplt(browser_host);
-		}
-		/** Only WAP gateways explicitly name this content-type */
-		else if (strstr(buf, "text/vnd.wap.wml")) {
-			/* since we don't have wap pages we disable this.
-			 * WC->is_wap = 1;
-			 */
 		}
 	}
 
@@ -2109,6 +2118,7 @@ SKIP_ALL_THIS_CRAP:
 		WC->upload_length = 0;
 	}
 }
+
 
 /*
  * Replacement for sleep() that uses select() in order to avoid SIGALRM
