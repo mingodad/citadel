@@ -22,6 +22,7 @@ body[orient="portrait"] {
 }
 body {
 	font-family: sans-serif;
+	font-size: 11px;
 }
 .msgview {
 	display: none;

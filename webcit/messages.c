@@ -1797,7 +1797,6 @@ ENDBODY:
  */
 void display_summarized(int num) {
 	char datebuf[64];
-
 	wprintf("<tr id=\"m%ld\" style=\"font-weight:%s;\" "
 		"onMouseDown=\"CtdlMoveMsgMouseDown(event,%ld)\">",
 		WC->summ[num].msgnum,
@@ -1821,8 +1820,26 @@ void display_summarized(int num) {
 
 	wprintf("</tr>\n");
 }
-
-
+/**
+ * \brief Output a message row for the mobile view
+ * \param The row number 
+ */
+void display_mobile_summary(int num) {
+	char datebuf[64];
+	wprintf("\n<div><div id=\"m%ld\" style=\"font-weight:%s;\" "
+		"onClick=\"CtdlLoadMsgMouseDown(event,%ld)\">",
+		WC->summ[num].msgnum,
+		(WC->summ[num].is_new ? "bold" : "normal"),
+		WC->summ[num].msgnum
+	);
+		wprintf("<span>%s</span>",WC->summ[num].from);
+		wprintf("<span style=\"float: right;\">");
+		webcit_fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
+	escputs(datebuf);
+		wprintf("</span><br/><span class=\"subject\">");
+		wprintf(WC->summ[num].subj);
+		wprintf("</span></div><div id=\"m_%ld\" class=\"msgview\" onMouseDown=\"\"></div></div>",WC->summ[num].msgnum);
+}
 
 /**
  * \brief display the adressbook overview
@@ -2364,7 +2381,7 @@ void readloop(char *oper)
 
 	startmsg = lbstr("startmsg");
 	maxmsgs = ibstr("maxmsgs");
-	is_summary = ibstr("is_summary");
+	is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
 	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WCC->wc_roomname);
@@ -2406,7 +2423,7 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL");
 	}
 
-	if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
+	if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
 		is_summary = 1;
 		if (!strcmp(oper, "do_search")) {
 			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
@@ -2427,13 +2444,17 @@ void readloop(char *oper)
 		maxmsgs = 9999999;
 	}
 
-	if (is_summary) {			/**< fetch header summary */
+	if (is_summary || WCC->is_mobile) {			/**< fetch header summary */
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
 			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
 			(!strcmp(oper, "do_search") ? bstr("query") : "")
 		);
 		startmsg = 1;
 		maxmsgs = 9999999;
+	} 
+	if (WCC->is_mobile) {
+		maxmsgs = 20;
+		sortby = "rdate";
 	}
 
 	/**
@@ -2442,7 +2463,7 @@ void readloop(char *oper)
 	 * new messages.
 	 */
 	strcpy(old_msgs, "");
-	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR)){
+	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR) || WCC->is_mobile){
 		serv_puts("GTSN");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -2472,7 +2493,7 @@ void readloop(char *oper)
 		wprintf("<div id=\"new_notes_here\"></div>\n");
 	}
 
-	nummsgs = load_msg_ptrs(cmd, is_summary);
+	nummsgs = load_msg_ptrs(cmd, (is_summary || WCC->is_mobile));
 	if (nummsgs == 0) {
 
 		if ((!is_tasks) && (!is_calendar) && (!is_notes) && (!is_addressbook)) {
@@ -2490,7 +2511,7 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
-	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR)){
+	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR) || WCC->is_mobile){
 		for (a = 0; a < nummsgs; ++a) {
 			/** Are you a new message, or an old message? */
 			if (is_summary) {
@@ -2513,7 +2534,7 @@ void readloop(char *oper)
 		}
 	}
 
-	if (is_summary) {
+	if (is_summary || WCC->is_mobile) {
 		if (!strcasecmp(sortby, "subject")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_subj);
@@ -2605,14 +2626,14 @@ void readloop(char *oper)
 			_("Delete")
 		);
 		wprintf("</table></div></div>\n");
-
 		wprintf("<div id=\"message_list\">"
 
 			"<div class=\"fix_scrollbar_bug\">\n"
-
 			"<table class=\"mailbox_summary\" id=\"summary_headers\" "
 			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
 		);
+	} else if (WCC->is_mobile) {
+		wprintf("<div id=\"message_list\">");
 	}
 
 
@@ -2708,7 +2729,6 @@ void readloop(char *oper)
 		wprintf("</p></form>\n");
 		/** end bbview scroller */
 	}
-
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WCC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
@@ -2733,6 +2753,8 @@ void readloop(char *oper)
 			}
 			else if (is_notes) {
 				display_note(WCC->msgarr[a], WCC->summ[a].is_new);
+			} else if (WCC->is_mobile) {
+				display_mobile_summary(a);
 			}
 			else {
 				if (displayed_msgs == NULL) {
@@ -2771,7 +2793,7 @@ void readloop(char *oper)
 		wprintf("</table>"
 			"</div>\n");			/**< end of 'fix_scrollbar_bug' div */
 		wprintf("</div>");			/**< end of 'message_list' div */
-
+		
 		/** Here's the grab-it-to-resize-the-message-list widget */
 		wprintf("<div id=\"resize_msglist\" "
 			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
@@ -2780,6 +2802,8 @@ void readloop(char *oper)
 		);
 
 		wprintf("<div id=\"preview_pane\">");	/**< The preview pane will initially be empty */
+	} else if (WCC->is_mobile) {
+		wprintf("</div>");
 	}
 
 	/**

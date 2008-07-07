@@ -357,7 +357,7 @@ void do_template(void *templatename) {
 	struct stat mystat;
 
 	strcpy(flat_filename, templatename);
-	if (WC->is_wap)
+	if (WC->is_mobile)
 		strcat(flat_filename, ".m.html");
 	else
 		strcat(flat_filename, ".html");
