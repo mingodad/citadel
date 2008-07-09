@@ -108,6 +108,7 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/vnote.lo \
 	lib/hash.lo \
 	lib/lookup3.lo \
+	lib/stringbuf.lo \
 	lib/xdgmime/xdgmime.lo \
 	lib/xdgmime/xdgmimeglob.lo \
 	lib/xdgmime/xdgmimeint.lo \

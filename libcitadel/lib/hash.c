@@ -132,8 +132,12 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 			foo = Hash->LookupTable[i]->HashKey;
 			if (First != NULL)
 				bar = First(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+			else 
+				bar = "";
 			if (Second != NULL)
 				bla = Second(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+			else
+				bla = "";
 		}
 #ifdef DEBUG
 		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' ; %s\n", i, key, foo, bar, bla);

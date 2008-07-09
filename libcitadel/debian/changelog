@@ -1,3 +1,20 @@
+libcitadel (1.09-5) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 22 Apr 2008 19:00:00 +0002
+
+libcitadel (1.08-5) stable; urgency=low
+  
+   * minor upstream bugfixes
+  
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 17 Mar 2008 22:00:00 +0001
+
+libcitadel (1.08-4) stable; urgency=high 
+
+   * release 1.08; hashing / sorting implemented
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mo, 3 Mar 2008 22:00:00 +0001 
 libcitadel (1.07-8) stable; urgency=high
 
    * new upstream version

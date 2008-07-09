@@ -14,6 +14,7 @@
  */
 #include <time.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #define LIBCITADEL_VERSION_NUMBER	737
 
 /*
@@ -199,6 +200,36 @@ void the_mime_parser(char *partnum,
 		      int dont_decode
 );
 
+typedef struct StrBuf StrBuf;
+
+StrBuf* NewStrBuf(void);
+StrBuf* NewStrBufPlain(const char* ptr, int nChars);
+StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
+#define NewConstStrBuf(a) _NewConstStrBuf(a, sizeof(a))
+void FreeStrBuf (StrBuf **FreeMe);
+void HFreeStrBuf (void *VFreeMe);
+int FlushStrBuf(StrBuf *buf);
+
+inline const char *ChrPtr(StrBuf *Str);
+inline int StrLength(StrBuf *Str);
+
+int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error);
+
+int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
+int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars);
+unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator);
+long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator);
+int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
+inline int StrBufNum_tokens(const StrBuf *source, char tok);
+
+void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset);
+void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
+void StrBufCutLeft(StrBuf *Buf, int nChars);
+void StrBufCutRight(StrBuf *Buf, int nChars);
+void StrBufEUid_unescapize(StrBuf *target, StrBuf *source);
+
+long StrTol(StrBuf *Buf);
+
 const char *GuessMimeType(char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);
 
@@ -253,6 +284,7 @@ int is_msg_in_mset(char *mset, long msgnum);
 int pattern2(char *search, char *patn);
 void stripltlen(char *, int *);
 char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat);
+void LoadEntityList(char *FileName);
 
 
 
