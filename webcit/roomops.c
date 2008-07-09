@@ -3539,24 +3539,28 @@ void list_all_rooms_by_floor(const char *viewpref) {
  */
 void knrooms(void)
 {
-	StrBuf *ListView;
+	StrBuf *ListView = NULL;
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	/** Determine whether the user is trying to change views */
-	if (bstr("view") != NULL) {
-		if (havebstr("view")) {
-			set_preference("roomlistview", NewStrBufPlain(bstr("view"), -1), 1);
-		}
+	if (havebstr("view")) {
+		ListView = NewStrBufPlain(bstr("view"), -1);
+		set_preference("roomlistview", ListView, 1);
 	}
-
+	/** Sanitize the input so its safe */
 	if(!get_preference("roomlistview", &ListView) ||
-	   ((strcasecmp(ChrPtr(ListView), "folders"))
-	    && (strcasecmp(ChrPtr(ListView), "table")))) {
-		if (ListView == NULL)
-			ListView = NewStrBuf();
-		StrBufPrintf(ListView, "%s", "rooms");
-		set_preference("roomlistview", ListView, 0);
+	   ((strcasecmp(ChrPtr(ListView), "folders") != 0) &&
+	    (strcasecmp(ChrPtr(ListView), "table") != 0))) 
+	{
+		if (ListView == NULL) {
+			ListView = NewStrBufPlain("rooms", sizeof("rooms") - 1);
+			set_preference("roomlistview", ListView, 0);
+		}
+		else {
+			StrBufPrintf(ListView, "rooms");
+			save_preferences();
+		}
 	}
 
 	/** title bar */

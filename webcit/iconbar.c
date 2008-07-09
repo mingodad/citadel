@@ -27,7 +27,7 @@ void do_selected_iconbar(void) {
 
 void DontDeleteThis(void *Data){};
 
-#define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a), b)
+#define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a) - 1, b)
 
 long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 {
@@ -42,14 +42,14 @@ long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 static char nbuf[32];
 inline const char *PrintInt(void *Prefstr)
 {
-	snprintf(nbuf, sizeof(nbuf), "%ld", Prefstr);
+	snprintf(nbuf, sizeof(nbuf), "%ld", (long)Prefstr);
 	return nbuf;
 }
 
 void LoadIconSettings(void)
 {
 	struct wcsession *WCC = WC;
-	StrBuf *iconbar;
+	StrBuf *iconbar = NULL;
 	StrBuf *buf = NewStrBuf();;
 	StrBuf *key = NewStrBuf();
 	long val;

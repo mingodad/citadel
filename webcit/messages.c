@@ -2458,7 +2458,7 @@ void readloop(char *oper)
 	} 
 	if (WCC->is_mobile) {
 		maxmsgs = 20;
-		sortby = "rdate";
+		StrBufPrintf(sortby, "rdate");
 	}
 
 	/**
