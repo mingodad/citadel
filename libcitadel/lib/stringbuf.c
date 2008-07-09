@@ -212,7 +212,7 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
  */
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator)
 {
-	const char *s;			//* source * /
+	const char *s, *e;		//* source * /
 	int len = 0;			//* running total length of extracted string * /
 	int current_token = 0;		//* token currently being processed * /
 
@@ -220,7 +220,7 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 		return(-1);
 	}
 	s = Source->buf;
-
+	e = s + Source->BufUsed;
 	if (dest == NULL) {
 		return(-1);
 	}
@@ -230,7 +230,7 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 	dest->buf[0] = '\0';
 	dest->BufUsed = 0;
 
-	while (*s) {
+	while ((s<e) && !IsEmptyStr(s)) {
 		if (*s == separator) {
 			++current_token;
 		}
@@ -330,7 +330,7 @@ int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error)
 		FlushStrBuf(buf);
 
 	slen = len = buf->BufUsed;
-	while (buf->buf[len] != '\n') {
+	while (1) {
 		rlen = read(fd, &buf->buf[len], 1);
 		if (rlen < 1) {
 			*Error = strerror(errno);
