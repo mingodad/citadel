@@ -126,7 +126,7 @@ extern locale_t wc_locales[];
 #define CLIENT_ID		4
 #define CLIENT_VERSION		737		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	737		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		737		/* min required libcitadel ver */
+#define	LIBCITADEL_MIN		738		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -419,8 +419,9 @@ struct wcsession {
 	int cache_max_folders;			/**< ??? todo */
 	int cache_num_floors;			/**< ??? todo */
 	time_t cache_timestamp;			/**< ??? todo */
-	int current_iconbar;			/**< What is currently in the iconbar? */
-	char floordiv_expanded[32];		/**< which floordiv currently expanded */
+	HashList *IconBarSetttings;             /**< which icons should be shown / not shown? */
+	long current_iconbar;			/**< What is currently in the iconbar? */
+	StrBuf *floordiv_expanded;		/**< which floordiv currently expanded */
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	int nonce;				/**< session nonce (to prevent session riding) */
@@ -506,6 +507,7 @@ void get_serv_info(char *, char *);
 int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
+int StrBuf_ServGetln(StrBuf *buf);
 void serv_puts(char *string);
 void who(void);
 void who_inner_div(void);
@@ -554,7 +556,7 @@ void output_headers(    int do_httpheaders,
 			int unset_cookies,
 			int suppress_check,
 			int cache);
-void wprintf(const char *format,...);
+void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(char *what);
 void display_mime_icon(void);
 void print_menu_box(char* Title, char *Class, int nLines, ...);
@@ -647,7 +649,7 @@ void end_webcit_session(void);
 void page_popup(void);
 void chat_recv(void);
 void chat_send(void);
-void http_redirect(char *);
+void http_redirect(const char *);
 void clear_substs(struct wcsession *wc);
 void clear_local_substs(void);
 
@@ -686,10 +688,29 @@ void edituser(void);
 void do_change_view(int);
 void change_view(void);
 void folders(void);
+
+
 void load_preferences(void);
 void save_preferences(void);
-void get_preference(char *key, char *value, size_t value_len);
-void set_preference(char *key, char *value, int save_to_server);
+#define get_preference(a, b) get_PREFERENCE(a, sizeof(a) - 1, b)
+#define get_pref(a, b)       get_PREFERENCE(ChrPtr(a), StrLength(a), b)
+int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value);
+#define set_preference(a, b, c) set_PREFERENCE(a, sizeof(a) - 1, b, c)
+#define set_pref(a, b, c)       set_PREFERENCE(ChrPtr(a), StrLength(a), b, c)
+void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server);
+
+#define get_pref_long(a, b, c) get_PREF_LONG(a, sizeof(a) - 1, b, c)
+int get_PREF_LONG(const char *key, size_t keylen, long *value, long Default);
+#define set_pref_long(a, b, c) set_PREF_LONG(a, sizeof(a) - 1, b, c)
+void set_PREF_LONG(const char *key, size_t keylen, long value, int save_to_server);
+
+#define get_pref_yesno(a, b, c) get_PREF_YESNO(a, sizeof(a) - 1, b, c)
+int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default);
+#define set_pref_yesno(a, b, c) set_PREF_LONG(a, sizeof(a) - 1, b, c)
+void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server);
+
+
+
 void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
@@ -745,7 +766,7 @@ void end_ajax_response(void);
 void initialize_viewdefs(void);
 void initialize_axdefs(void);
 void burn_folder_cache(time_t age);
-void list_all_rooms_by_floor(char *viewpref);
+void list_all_rooms_by_floor(const char *viewpref);
 void display_room_directory(void);
 void display_picture(void);
 void display_pictureview(void);

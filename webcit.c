@@ -725,7 +725,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 /*
  * Generic function to do an HTTP redirect.  Easy and fun.
  */
-void http_redirect(char *whichpage) {
+void http_redirect(const char *whichpage) {
 	wprintf("HTTP/1.1 302 Moved Temporarily\n");
 	wprintf("Location: %s\r\n", whichpage);
 	wprintf("URI: %s\r\n", whichpage);
@@ -1112,7 +1112,7 @@ void change_start_page(void) {
 		return;
 	}
 
-	set_preference("startpage", bstr("startpage"), 1);
+	set_preference("startpage", NewStrBufPlain(bstr("startpage"), -1), 1);
 
 	output_headers(1, 1, 0, 0, 0, 0);
 	do_template("newstartpage");
@@ -1137,7 +1137,7 @@ void display_success(char *successmessage)
 void authorization_required(const char *message)
 {
 	wprintf("HTTP/1.1 401 Authorization Required\r\n");
-	wprintf("WWW-Authenticate: Basic realm=\"\"\r\n", serv_info.serv_humannode);
+	wprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", serv_info.serv_humannode);
 	wprintf("Content-Type: text/html\r\n\r\n");
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));

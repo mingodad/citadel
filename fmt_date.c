@@ -92,13 +92,13 @@ void webcit_fmt_date(char *buf, time_t thetime, int brief)
  */
 int get_time_format_cached (void)
 {
-	char calhourformat[16];
+	long calhourformat;
 	int *time_format_cache;
 	time_format_cache = &(WC->time_format_cache);
 	if (*time_format_cache == WC_TIMEFORMAT_NONE)
 	{
-		get_preference("calhourformat", calhourformat, sizeof calhourformat);
-		if (!strcasecmp(calhourformat, "24")) 
+		get_pref_long("calhourformat", &calhourformat, 24);
+		if (calhourformat == 24) 
 			*time_format_cache = WC_TIMEFORMAT_24;
 		else
 			*time_format_cache = WC_TIMEFORMAT_AMPM;

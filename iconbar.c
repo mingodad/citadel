@@ -25,61 +25,76 @@ void do_selected_iconbar(void) {
 	}
 }
 
-/**
- * \brief draw the icon bar???
- */
-void do_iconbar(void) {
-	char iconbar[SIZ];
-	char buf[SIZ];
-	char key[SIZ], value[SIZ];
-	int i;
+void DontDeleteThis(void *Data){};
 
-	WC->current_iconbar = current_iconbar_menu;
+#define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a), b)
 
+long IconbarIsENABLED(const char *key, size_t keylen, long defval)
+{
+	void *Data;
+	if (GetHash(WC->IconBarSetttings, key, keylen,
+		    &Data))
+		return (long) Data;
+	else 
+		return defval;
+}
+
+static char nbuf[32];
+inline const char *PrintInt(void *Prefstr)
+{
+	snprintf(nbuf, sizeof(nbuf), "%ld", Prefstr);
+	return nbuf;
+}
+
+void LoadIconSettings(void)
+{
+	struct wcsession *WCC = WC;
+	StrBuf *iconbar;
+	StrBuf *buf = NewStrBuf();;
+	StrBuf *key = NewStrBuf();
+	long val;
+	int i, nTokens;
+
+	WCC->current_iconbar = current_iconbar_menu;
+	if (WCC->IconBarSetttings == NULL)
+		WCC->IconBarSetttings = NewHash(1, NULL);
 	/**
 	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
-	int ib_displayas = 0;	/**< pictures and text, pictures, text */
-	int ib_logo = 0;	/**< Site logo */
-	int ib_summary = 1;	/**< Summary page icon */
-	int ib_inbox = 1;	/**< Inbox icon */
-	int ib_calendar = 1;	/**< Calendar icon */
-	int ib_contacts = 1;	/**< Contacts icon */
-	int ib_notes = 1;	/**< Notes icon */
-	int ib_tasks = 1;	/**< Tasks icon */
-	int ib_rooms = 1;	/**< Rooms icon */
-	int ib_users = 1;	/**< Users icon */
-	int ib_chat = 1;	/**< Chat icon */
-	int ib_advanced = 1;	/**< Advanced Options icon */
-	int ib_citadel = 1;	/**< 'Powered by Citadel' logo */
-	/*
-	 */
 
-	get_preference("iconbar", iconbar, sizeof iconbar);
-	for (i=0; i<num_tokens(iconbar, ','); ++i) {
-		extract_token(buf, iconbar, i, ',', sizeof buf);
-		extract_token(key, buf, 0, '=', sizeof key);
-		extract_token(value, buf, 1, '=', sizeof value);
-
-		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
-		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
-		if (!strcasecmp(key, "ib_summary")) ib_summary = atoi(value);
-		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
-		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
-		if (!strcasecmp(key, "ib_contacts")) ib_contacts = atoi(value);
-		if (!strcasecmp(key, "ib_notes")) ib_notes = atoi(value);
-		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
-		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
-		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
-		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
-		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
-		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
+	if (get_preference("iconbar", &iconbar)) {
+		nTokens = StrBufNum_tokens(iconbar, ',');
+		for (i=0; i<nTokens; ++i) {
+			StrBufExtract_token(buf, iconbar, i, ',');
+			StrBufExtract_token(key, buf, 0, '=');
+			val = StrBufExtract_long(buf, 1, '=');
+			Put(WCC->IconBarSetttings, 
+			    ChrPtr(key), StrLength(key),
+			    (void*)val, DontDeleteThis);
+		}
 	}
+	printf("-----------icon-------------------\n");
+	dbg_PrintHash(WCC->IconBarSetttings, PrintInt, NULL);
 
-        if (ib_logo) {
+	FreeStrBuf(&key);
+	FreeStrBuf(&buf);
+}
+
+
+/**
+ * \brief draw the icon bar???
+ */
+void do_iconbar(void) {
+	int ib_displayas = 0;	/**< pictures and text, pictures, text */
+
+	LoadIconSettings();
+	ib_displayas = IconbarIsEnabled("ib_displayas", 0);
+
+/** Site logo */
+	if (IconbarIsEnabled("ib_logo", 0)) {
                 if (ib_displayas != IB_TEXTONLY) {
                         wprintf("<div class=\"logo\"> <img "
                                 "src=\"image&name=hello\" alt=\"&nbsp;\"> "
@@ -89,7 +104,8 @@ void do_iconbar(void) {
                 wprintf("\n");
         }
 
-        if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+/** 'Powered by Citadel' logo */
+        if (IconbarIsEnabled("ib_citadel", 1) && (ib_displayas != IB_TEXTONLY)) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
                 "title=\"%s\"> "
@@ -106,7 +122,8 @@ void do_iconbar(void) {
 	wprintf(_("switch to room list"));
 	wprintf("</a></li>");
 
-	if (ib_summary) {
+/** Summary page icon */
+	if (IconbarIsEnabled("ib_summary", 1)) {
 		wprintf("<li><a href=\"summary\" "
 			"title=\"%s\" "
 			">", _("Your summary page")
@@ -121,7 +138,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_inbox) {
+/** Inbox icon */
+	if (IconbarIsEnabled("ib_inbox", 1)) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_MAIL_\" "
 			"title=\"%s\" "
@@ -146,7 +164,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_calendar) {
+/** Calendar icon */
+	if (IconbarIsEnabled("ib_calendar", 1)) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_CALENDAR_\" "
 			"title=\"%s\" "
@@ -163,7 +182,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_contacts) {
+/** Contacts icon */
+	if (IconbarIsEnabled("ib_contacts", 1)) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_CONTACTS_\" "
 			"title=\"%s\" "
@@ -180,7 +200,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_notes) {
+/** Notes icon */
+	if (IconbarIsEnabled("ib_notes", 1)) {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_NOTES_\" "
 			"title=\"%s\" "
@@ -197,7 +218,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_tasks)  {
+/** Tasks icon */
+	if (IconbarIsEnabled("ib_tasks", 1))  {
 		wprintf("<li>"
 			"<a href=\"dotgoto?room=_TASKS_\" "
 			"title=\"%s\" "
@@ -214,7 +236,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_rooms) {
+/** Rooms icon */
+	if (IconbarIsEnabled("ib_rooms", 1)) {
 		wprintf("<li>"
 			"<a href=\"knrooms\" title=\"%s\" >",
 			_("List all of your accessible rooms")
@@ -229,7 +252,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_users) {
+/** Users icon */
+	if (IconbarIsEnabled("ib_users", 1)) {
 		wprintf("<li>"
 			"<a href=\"who\" title=\"%s\" "
 			">",
@@ -245,13 +269,14 @@ void do_iconbar(void) {
 		 
 		wprintf("</a>\n");
 
-		if (ib_users > 1) {
+		if (IconbarIsEnabled("ib_users", 0)) {
 			wprintf("<ul id=\"wholist\">");
 			wprintf("</ul></li>\n");
 		}
 	}
 
-	if (ib_chat) {
+/** Chat icon */
+	if (IconbarIsEnabled("ib_chat", 1)) {
 		wprintf("<li>"
 			"<a href=\"#\" onClick=\"window.open('chat', "
 			"'ctdl_chat_window', "
@@ -269,7 +294,8 @@ void do_iconbar(void) {
 		wprintf("</a></li>\n");
 	}
 
-	if (ib_advanced) {
+/** Advanced Options icon */
+	if (IconbarIsEnabled("ib_advanced", 1)) {
 		wprintf("<li>"
 			"<a href=\"display_main_menu\" "
 			"title=\"%s\" "
@@ -331,14 +357,13 @@ void do_iconbar(void) {
 
 	wprintf("</ul>\n");
 
-	if (ib_users > 1) {
+	if (IconbarIsEnabled("ib_users", 0)) {
         	wprintf(
                 	"<script type=\"text/javascript\"> "
                 	" new Ajax.PeriodicalUpdater('wholist', 'wholist_section', { method: 'get', frequency: 30 } );"
-                "</script> \n"
-        	);
+			"</script> \n"
+			);
 	}
-
 }
 
 
@@ -348,11 +373,7 @@ void do_iconbar(void) {
  * we generate its innerHTML...
  */
 void do_iconbar_roomlist(void) {
-	char iconbar[SIZ];
-	char buf[SIZ];
-	char key[SIZ], value[SIZ];
-	int i;
-
+				
 	WC->current_iconbar = current_iconbar_roomlist;
 
 	/**
@@ -361,24 +382,14 @@ void do_iconbar_roomlist(void) {
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
-	int ib_displayas = 0;	/* pictures and text, pictures, text */
-	int ib_logo = 0;	/* Site logo */
-	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
-	/*
-	 */
+	int ib_displayas;
 
-	get_preference("iconbar", iconbar, sizeof iconbar);
-	for (i=0; i<num_tokens(iconbar, ','); ++i) {
-		extract_token(buf, iconbar, i, ',', sizeof buf);
-		extract_token(key, buf, 0, '=', sizeof key);
-		extract_token(value, buf, 1, '=', sizeof value);
+	LoadIconSettings();
 
-		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
-		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
-		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
-	}
+	ib_displayas = IconbarIsEnabled("ib_displayas", 0);	/* pictures and text, pictures, text */
 
-	if (ib_logo) {
+/** Site logo */
+	if (IconbarIsEnabled("ib_logo", 0)) {
 		if (ib_displayas != IB_TEXTONLY) {
                         wprintf("<div class=\"logo\"> <img "
                                 "src=\"image&name=hello\" alt=\"&nbsp;\"> "
@@ -387,7 +398,8 @@ void do_iconbar_roomlist(void) {
 		}
 	}
 
-        if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+/** 'Powered by Citadel' logo */
+        if (IconbarIsEnabled("ib_citadel", 1) && (ib_displayas != IB_TEXTONLY)) wprintf(
                 "<div class=\"logo_citadel\"> "
                 "<a href=\"http://www.citadel.org\" "
                 "title=\"%s\"> "
@@ -433,54 +445,13 @@ void do_iconbar_roomlist(void) {
  * \brief display a customized version of the iconbar
  */
 void display_customize_iconbar(void) {
-	char iconbar[SIZ];
-	char buf[SIZ];
-	char key[SIZ], value[SIZ];
 	int i;
 	int bar = 0;
+	long val;
 
-	/**
-	 * The initialized values of these variables also happen to
-	 * specify the default values for users who haven't customized
-	 * their iconbars.  These should probably be set in a master
-	 * configuration somewhere.
-	 */
-	int ib_displayas = IB_PICTEXT;	/**< pictures and text, pictures, text */
-	int ib_logo = 0;	/**< Site logo */
-	int ib_summary = 1;	/**< Summary page icon */
-	int ib_inbox = 1;	/**< Inbox icon */
-	int ib_calendar = 1;	/**< Calendar icon */
-	int ib_contacts = 1;	/**< Contacts icon */
-	int ib_notes = 1;	/**< Notes icon */
-	int ib_tasks = 1;	/**< Tasks icon */
-	int ib_rooms = 1;	/**< Rooms icon */
-	int ib_users = 1;	/**< Users icon */
-	int ib_chat = 1;	/**< Chat icon */
-	int ib_advanced = 1;	/**< Advanced Options icon */
-	int ib_citadel = 1;	/**< 'Powered by Citadel' logo */
-	/*
-	 */
+	int ib_displayas;
 
-	get_preference("iconbar", iconbar, sizeof iconbar);
-	for (i=0; i<num_tokens(iconbar, ','); ++i) {
-		extract_token(buf, iconbar, i, ',', sizeof buf);
-		extract_token(key, buf, 0, '=', sizeof key);
-		extract_token(value, buf, 1, '=', sizeof value);
-
-		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
-		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
-		if (!strcasecmp(key, "ib_summary")) ib_summary = atoi(value);
-		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
-		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
-		if (!strcasecmp(key, "ib_contacts")) ib_contacts = atoi(value);
-		if (!strcasecmp(key, "ib_notes")) ib_notes = atoi(value);
-		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
-		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
-		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
-		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
-		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
-		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
-	}
+	LoadIconSettings();
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">");
@@ -493,12 +464,13 @@ void display_customize_iconbar(void) {
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
 	wprintf("<form method=\"post\" action=\"commit_iconbar\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<table class=\"altern\" >\n");
 	wprintf("<tr><td></td><td colspan=\"2\"><b>");
 	wprintf(_("Display icons as:"));
 	wprintf("</b>");
+	ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
 	for (i=0; i<=2; ++i) {
 		wprintf("<input type=\"radio\" name=\"ib_displayas\" value=\"%d\"", i);
 		if (ib_displayas == i) wprintf(" CHECKED");
@@ -516,6 +488,7 @@ void display_customize_iconbar(void) {
 	wprintf("</td></tr>\n");
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_logo", 0);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_logo\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_logo\" value=\"no\" %s> %s <br />"
@@ -526,13 +499,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_logo ? "CHECKED" : ""),_("Yes"),
-		(!ib_logo ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Site logo"),
 		_("An icon describing this site")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_summary", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_summary\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_summary\" value=\"no\" %s> %s <br />"
@@ -543,13 +517,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_summary ? "CHECKED" : ""),_("Yes"),
-		(!ib_summary ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Summary"),
 		_("Your summary page")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_inbox", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_inbox\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_inbox\" value=\"no\" %s> %s <br />"
@@ -560,13 +535,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_inbox ? "CHECKED" : ""),_("Yes"),
-		(!ib_inbox ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Mail (inbox)"),
 		_("A shortcut to your email Inbox")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_contacts", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_contacts\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_contacts\" value=\"no\" %s> %s <br />"
@@ -577,13 +553,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_contacts ? "CHECKED" : ""),_("Yes"),
-		(!ib_contacts ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Contacts"),
 		_("Your personal address book")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_notes", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_notes\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_notes\" value=\"no\" %s> %s <br />"
@@ -594,13 +571,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_notes ? "CHECKED" : ""),_("Yes"),
-		(!ib_notes ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Notes"),
 		_("Your personal notes")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_calendar", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_calendar\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_calendar\" value=\"no\" %s> %s <br />"
@@ -611,13 +589,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_calendar ? "CHECKED" : ""),_("Yes"),
-		(!ib_calendar ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Calendar"),
 		_("A shortcut to your personal calendar")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_tasks", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_tasks\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_tasks\" value=\"no\" %s> %s <br />"
@@ -628,13 +607,14 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_tasks ? "CHECKED" : ""),_("Yes"),
-		(!ib_tasks ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Tasks"),
 		_("A shortcut to your personal task list")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_rooms", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_rooms\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_rooms\" value=\"no\" %s> %s <br />"
@@ -645,14 +625,15 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_rooms ? "CHECKED" : ""),_("Yes"),
-		(!ib_rooms ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Rooms"),
 		_("Clicking this icon displays a list of all accessible "
 		"rooms (or folders) available.")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_users", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_users\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_users\" value=\"no\" %s> %s <br />"
@@ -664,15 +645,16 @@ void display_customize_iconbar(void) {
 		"<br />%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_users ? "CHECKED" : ""),_("Yes"),
-		(!ib_users ? "CHECKED" : ""),_("No"),
-		((ib_users > 1) ? "CHECKED" : ""),_("Yes with users list"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
+		((val > 1) ? "CHECKED" : ""),_("Yes with users list"),
 		_("Who is online?"),
 		_("Clicking this icon displays a list of all users "
 		"currently logged in.")
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_chat", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_chat\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_chat\" value=\"no\" %s> %s <br />"
@@ -683,8 +665,8 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_chat ? "CHECKED" : ""),_("Yes"),
-		(!ib_chat ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Chat"),
 		_("Clicking this icon enters real-time chat mode "
 		"with other users in the same room.")
@@ -692,6 +674,7 @@ void display_customize_iconbar(void) {
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_advanced", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_advanced\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_advanced\" value=\"no\" %s> %s <br />"
@@ -702,14 +685,15 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_advanced ? "CHECKED" : ""),_("Yes"),
-		(!ib_advanced ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Advanced options"),
 		_("Access to the complete menu of Citadel functions.")
 
 	);
 
 	bar = 1 - bar;
+	val = IconbarIsEnabled("ib_citadel", 1);
 	wprintf("<tr class=\"%s\"><td>"
 		"<input type=\"radio\" name=\"ib_citadel\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
 		"<input type=\"radio\" name=\"ib_citadel\" value=\"no\" %s> %s <br />"
@@ -721,8 +705,8 @@ void display_customize_iconbar(void) {
 		"%s"
 		"</td></tr>\n",
 		(bar ? "even" : "odd"),
-		(ib_citadel ? "CHECKED" : ""),_("Yes"),
-		(!ib_citadel ? "CHECKED" : ""),_("No"),
+		(val ? "CHECKED" : ""),_("Yes"),
+		(!val ? "CHECKED" : ""),_("No"),
 		_("Citadel logo"),
 		_("Displays the 'Powered by Citadel' icon")
 	);
@@ -745,7 +729,8 @@ void display_customize_iconbar(void) {
  * \brief commit the changes of an edited iconbar ????
  */
 void commit_iconbar(void) {
-	char iconbar[SIZ];
+	StrBuf *iconbar;
+	StrBuf *buf;
 	int i;
 
 	char *boxen[] = {
@@ -769,8 +754,9 @@ void commit_iconbar(void) {
 		return;
 	}
 
-	sprintf(iconbar, "ib_displayas=%d", ibstr("ib_displayas"));
-
+	iconbar = NewStrBuf();
+	buf = NewStrBuf();
+	StrBufPrintf(iconbar, "ib_displayas=%d", ibstr("ib_displayas"));
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
 		char *Val;
 		if (!strcasecmp(BSTR(boxen[i]), "yes")) {
@@ -782,9 +768,11 @@ void commit_iconbar(void) {
 		else {
 			Val = "0";
 		}
-		sprintf(&iconbar[strlen(iconbar)], ",%s=%s", boxen[i], Val);
-	}
+		StrBufPrintf(buf, ",%s=%s", boxen[i], Val);
+		StrBufAppendBuf(iconbar, buf, 0);
 
+	}
+	FreeStrBuf(&buf);
 	set_preference("iconbar", iconbar, 1);
 
 	output_headers(1, 1, 2, 0, 0, 0);
@@ -802,6 +790,8 @@ void commit_iconbar(void) {
 		"choices to continue."));
 	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
+	printf("-----------icon-------------------\n");
+	dbg_PrintHash(WC->IconBarSetttings, PrintInt, NULL);
 }
 
 

@@ -279,7 +279,7 @@ void display_room_directory(void)
 			"name=\"upload_file_form\""
 			">\n"
 		);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 		wprintf(_("Upload a file:"));
 		wprintf("&nbsp;<input NAME=\"filename\" SIZE=16 TYPE=\"file\">&nbsp;\n");

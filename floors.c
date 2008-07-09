@@ -94,7 +94,7 @@ void display_floorconfig(char *prepend_html)
 			"<INPUT TYPE=\"text\" NAME=\"floorname\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change name"));
@@ -108,7 +108,7 @@ void display_floorconfig(char *prepend_html)
 			"<INPUT TYPE=\"text\" NAME=\"floorcss\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change CSS"));
@@ -118,7 +118,7 @@ void display_floorconfig(char *prepend_html)
 
 	wprintf("<TR><TD>&nbsp;</TD>"
 		"<TD><FORM METHOD=\"POST\" action=\"create_floor\">");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"text\" NAME=\"floorname\" "
 		"MAXLENGTH=\"250\">\n"
 		"<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "

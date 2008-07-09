@@ -113,7 +113,7 @@ void display_siteconfig(void)
 		);
 		
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	
 	sprintf(&general[strlen(general)], "<tr><td><a href=\"display_edithello\"> %s </a></td>",           _("Change Login Logo"));
 	sprintf(&general[strlen(general)],     "<td><a href=\"display_editgoodbuye\"> %s </a></td></tr>\n", _("Change Logout Logo"));

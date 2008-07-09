@@ -44,7 +44,7 @@ void display_edit(char *description, char *check_cmd,
 		" A newline is forced by preceding the next line by a blank."), description);
 
 	wprintf("<form method=\"post\" action=\"%s\">\n", save_cmd);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<textarea name=\"msgtext\" wrap=soft "
 		"rows=10 cols=80 width=80>\n");
 	serv_puts(read_cmd);

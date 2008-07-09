@@ -527,7 +527,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf("<div class=\"boxcontent\">\n");
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
 	wprintf("<div style=\"display: none;\">\n	");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
 	wprintf("</div>");

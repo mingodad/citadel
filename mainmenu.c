@@ -221,7 +221,7 @@ void display_generic(void)
 	wprintf("<br />\n");
 
 	wprintf("<form method=\"post\" action=\"do_generic\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf(_("Enter command:"));
 	wprintf("<br /><input type=\"text\" name=\"g_cmd\" size=80 maxlength=\"250\"><br />\n");

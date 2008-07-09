@@ -104,10 +104,11 @@ void utf8ify_rfc822_string(char *buf) {
 		}
 	}
 	if (illegal_non_rfc2047_encoding) {
-		char default_header_charset[128];
-		get_preference("default_header_charset", default_header_charset, sizeof default_header_charset);
-		if ( (strcasecmp(default_header_charset, "UTF-8")) && (strcasecmp(default_header_charset, "us-ascii")) ) {
-			ic = ctdl_iconv_open("UTF-8", default_header_charset);
+		StrBuf *default_header_charset;
+		get_preference("default_header_charset", &default_header_charset);
+		if ( (strcasecmp(ChrPtr(default_header_charset), "UTF-8")) && 
+		     (strcasecmp(ChrPtr(default_header_charset), "us-ascii")) ) {
+			ic = ctdl_iconv_open("UTF-8", ChrPtr(default_header_charset));
 			if (ic != (iconv_t)(-1) ) {
 				ibuf = malloc(1024);
 				isav = ibuf;
@@ -665,7 +666,7 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 				wprintf("<tr><td>");
 				wprintf(_("Photo:"));
 				wprintf("</td><td>");
-				wprintf("<img src=\"/vcardphoto/%d/\" alt=\"Contact photo\"/>",msgnum);
+				wprintf("<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
 				wprintf("</td></tr>\n");
 			}
 			else if (!strcasecmp(firsttoken, "version")) {
@@ -1081,7 +1082,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			urlescputs(reply_to);
 			if (!IsEmptyStr(m_subject)) {
 				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 				urlescputs(m_subject);
 			}
 			wprintf("?references=");
@@ -1102,7 +1103,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				urlescputs(reply_to);
 				if (!IsEmptyStr(m_subject)) {
 					wprintf("?subject=");
-					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 					urlescputs(m_subject);
 				}
 				wprintf("?references=");
@@ -1125,7 +1126,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			urlescputs(reply_all);
 			if (!IsEmptyStr(m_subject)) {
 				wprintf("?subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 				urlescputs(m_subject);
 			}
 			wprintf("?references=");
@@ -1140,7 +1141,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
-			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%20");
+			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%%20");
 			urlescputs(m_subject);
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
 		}
@@ -1304,7 +1305,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	/* Unknown weirdness */
 	else {
 		wprintf(_("I don't know how to display %s"), mime_content_type);
-		wprintf("<br />\n", mime_content_type);
+		wprintf("<br />\n");
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
 	}
 
@@ -2364,9 +2365,9 @@ void readloop(char *oper)
 	int highest_displayed = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
-	char *sortby = NULL;
-	char sortpref_name[128];
-	char sortpref_value[128];
+	StrBuf *sortby = NULL;
+	StrBuf *sortpref_name;
+	StrBuf *sortpref_value;
 	char *subjsort_button;
 	char *sendsort_button;
 	char *datesort_button;
@@ -2384,20 +2385,23 @@ void readloop(char *oper)
 	is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
-	snprintf(sortpref_name, sizeof sortpref_name, "sort %s", WCC->wc_roomname);
-	get_preference(sortpref_name, sortpref_value, sizeof sortpref_value);
+	sortpref_name = NewStrBuf ();
+	StrBufPrintf(sortpref_name, "sort %s", WCC->wc_roomname);
+	get_pref(sortpref_name, &sortpref_value);
 
-	sortby = bstr("sortby");
-	if ( (!IsEmptyStr(sortby)) && (strcasecmp(sortby, sortpref_value)) ) {
-		set_preference(sortpref_name, sortby, 1);
+	sortby = NewStrBufPlain(bstr("sortby"), -1);
+	if ( (!IsEmptyStr(ChrPtr(sortby))) && 
+	     (strcasecmp(ChrPtr(sortby), ChrPtr(sortpref_value))) ) {
+		set_pref(sortpref_name, sortby, 1);
 	}
-	if (IsEmptyStr(sortby)) sortby = sortpref_value;
+	FreeStrBuf(&sortpref_name);
+	if (IsEmptyStr(ChrPtr(sortby))) StrBufAppendBuf(sortby,  sortpref_value, 0);
 
 	/** mailbox sort */
-	if (IsEmptyStr(sortby)) sortby = "rdate";
+	if (IsEmptyStr(ChrPtr(sortby))) StrBufPrintf(sortby, "rdate");
 
 	/** message board sort */
-	if (!strcasecmp(sortby, "reverse")) {
+	if (!strcasecmp(ChrPtr(sortby), "reverse")) {
 		bbs_reverse = 1;
 	}
 	else {
@@ -2535,56 +2539,56 @@ void readloop(char *oper)
 	}
 
 	if (is_summary || WCC->is_mobile) {
-		if (!strcasecmp(sortby, "subject")) {
+		if (!strcasecmp(ChrPtr(sortby), "subject")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_subj);
 		}
-		else if (!strcasecmp(sortby, "rsubject")) {
+		else if (!strcasecmp(ChrPtr(sortby), "rsubject")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rsubj);
 		}
-		else if (!strcasecmp(sortby, "sender")) {
+		else if (!strcasecmp(ChrPtr(sortby), "sender")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_sender);
 		}
-		else if (!strcasecmp(sortby, "rsender")) {
+		else if (!strcasecmp(ChrPtr(sortby), "rsender")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rsender);
 		}
-		else if (!strcasecmp(sortby, "date")) {
+		else if (!strcasecmp(ChrPtr(sortby), "date")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_date);
 		}
-		else if (!strcasecmp(sortby, "rdate")) {
+		else if (!strcasecmp(ChrPtr(sortby), "rdate")) {
 			qsort(WCC->summ, WCC->num_summ,
 				sizeof(struct message_summary), summcmp_rdate);
 		}
 	}
 
-	if (!strcasecmp(sortby, "subject")) {
+	if (!strcasecmp(ChrPtr(sortby), "subject")) {
 		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsubject\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
-	else if (!strcasecmp(sortby, "rsubject")) {
+	else if (!strcasecmp(ChrPtr(sortby), "rsubject")) {
 		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
 		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
-	if (!strcasecmp(sortby, "sender")) {
+	if (!strcasecmp(ChrPtr(sortby), "sender")) {
 		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsender\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
-	else if (!strcasecmp(sortby, "rsender")) {
+	else if (!strcasecmp(ChrPtr(sortby), "rsender")) {
 		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
 		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
 	}
 
-	if (!strcasecmp(sortby, "date")) {
+	if (!strcasecmp(ChrPtr(sortby), "date")) {
 		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rdate\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
 	}
-	else if (!strcasecmp(sortby, "rdate")) {
+	else if (!strcasecmp(ChrPtr(sortby), "rdate")) {
 		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=date\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
 	}
 	else {
@@ -2653,7 +2657,7 @@ void readloop(char *oper)
 	if (is_bbview) {
 		/** begin bbview scroller */
 		wprintf("<form name=\"msgomatictop\" class=\"selector_top\" > \n <p>");
-		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
+		wprintf(_("Reading #"));//// TODO this isn't used, should it? : , lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
 			"OnChange=\"location.href=msgomatictop.whichones.options"
@@ -2820,7 +2824,7 @@ void readloop(char *oper)
 	if (is_bbview) {
 		/** begin bbview scroller */
 		wprintf("<form name=\"msgomatic\" class=\"selector_bottom\" > \n <p>");
-		wprintf(_("Reading #"), lowest_displayed, highest_displayed);
+		wprintf(_("Reading #")); /// TODO: this isn't used: , lowest_displayed, highest_displayed);
 
 		wprintf("<select name=\"whichones\" size=\"1\" "
 			"OnChange=\"location.href=msgomatic.whichones.options"
@@ -3232,7 +3236,7 @@ void post_message(void)
 void display_enter(void)
 {
 	char buf[SIZ];
-	char ebuf[SIZ];
+	StrBuf *ebuf;
 	long now;
 	char *display_name;
 	struct wc_attachment *att;
@@ -3372,7 +3376,7 @@ void display_enter(void)
 		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
 	}
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
 	escputs(WC->wc_roomname);
 	wprintf("\">\n");
@@ -3575,11 +3579,12 @@ void display_enter(void)
 
 	/** Insert our signature if appropriate... */
 	if ( (WC->is_mailbox) && yesbstr("sig_inserted") ) {
-		get_preference("use_sig", buf, sizeof buf);
-		if (!strcasecmp(buf, "yes")) {
+		int UseSig;
+		get_pref_yesno("use_sig", &UseSig, 0);
+		if (UseSig) {
 			int len;
-			get_preference("signature", ebuf, sizeof ebuf);
-			euid_unescapize(buf, ebuf);
+			get_preference("signature", &ebuf);
+			euid_unescapize(buf, ChrPtr(ebuf));/////TODO
 			wprintf("<br>--<br>");
 			len = strlen(buf);
 			for (i=0; i<len; ++i) {
@@ -3732,7 +3737,7 @@ void confirm_move_msg(void)
 	wprintf("<br />\n");
 
 	wprintf("<form METHOD=\"POST\" action=\"move_msg\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");

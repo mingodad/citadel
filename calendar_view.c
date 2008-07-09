@@ -19,8 +19,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 	time_t colheader_time;
 	struct tm colheader_tm;
 	char colheader_label[32];
-	int weekstart = 0;
-	char weekstart_buf[16];
+	long weekstart = 0;
 	char url[256];
 	char div_id[256];
 	char escaped_urlformat[256];
@@ -29,8 +28,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 	/* Determine what day to start.
 	*/
-	get_preference("weekstart", weekstart_buf, sizeof weekstart_buf);
-	weekstart = atoi(weekstart_buf);
+	get_pref_long("weekstart", &weekstart, 17);
 
 	/*
 	* Now back up to the 1st of the month...
@@ -480,14 +478,12 @@ void calendar_month_view(int year, int month, int day) {
 	struct tm colheader_tm;
 	char colheader_label[32];
 	int chg_month = 0;
-	int weekstart = 0;
-	char weekstart_buf[16];
+	long weekstart = 0;
 
 	/*
 	 * Determine what day to start
 	 */
-	get_preference("weekstart", weekstart_buf, sizeof weekstart_buf);
-	weekstart = atoi(weekstart_buf);
+	get_pref_long("weekstart", &weekstart, 17);
 
 	/*
 	 * Now back up to the 1st of the month...
@@ -702,7 +698,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#EEEECC><TR>");
 	wprintf("</tr>\n");
-	wprintf("<tr><td colspan=\"100%\">\n");
+	wprintf("<tr><td colspan=\"100%%\">\n");
 
 	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {
@@ -715,7 +711,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		/* Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
-			wprintf("<table border='0' bgcolor=\"#EEEECC\" width='100%'> <tr><th colspan='4'>%s %s</th></tr>"
+			wprintf("<table border='0' bgcolor=\"#EEEECC\" width='100%%'> <tr><th colspan='4'>%s %s</th></tr>"
 				"   <tr><td>%s</td><td width=70%%>%s</td><td>%s</td><td>%s</td></tr>\n",
 				_("Week"), 
 				weeknumber,
@@ -1045,9 +1041,8 @@ void calendar_day_view_display_events(time_t thetime,
 void calendar_day_view(int year, int month, int day) {
 	int hour;
 	struct icaltimetype today, yesterday, tomorrow;
-	int daystart = 8;
-	int dayend = 17;
-	char daystart_str[16], dayend_str[16];
+	long daystart;
+	long dayend;
 	struct tm d_tm;
 	char d_str[128];
 	int time_format;
@@ -1057,10 +1052,8 @@ void calendar_day_view(int year, int month, int day) {
 	int gap = 0;
 
 	time_format = get_time_format_cached ();
-	get_preference("daystart", daystart_str, sizeof daystart_str);
-	if (!IsEmptyStr(daystart_str)) daystart = atoi(daystart_str);
-	get_preference("dayend", dayend_str, sizeof dayend_str);
-	if (!IsEmptyStr(dayend_str)) dayend = atoi(dayend_str);
+	get_pref_long("daystart", &daystart, 8);
+	get_pref_long("dayend", &dayend, 17);
 	
 	/* Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
@@ -1130,7 +1123,7 @@ void calendar_day_view(int year, int month, int day) {
                 wprintf("<dt class=\"hour\"     "
                         "style=\"               "
                         "position: absolute;    "
-                        "top: %dpx; left: 0px;  "
+                        "top: %ldpx; left: 0px;  "
                         "height: %dpx;          "
                         "\" >                   "
                         "<a href=\"display_edit_event?msgnum=0&calview=day"
@@ -1158,7 +1151,7 @@ void calendar_day_view(int year, int month, int day) {
                 wprintf("<dt class=\"extrahour\"     "
                         "style=\"               "
                         "position: absolute;    "
-                        "top: %dpx; left: 0px;  "
+                        "top: %ldpx; left: 0px; "
                         "height: %dpx;          "
                         "\" >                   "
                         "<a href=\"display_edit_event?msgnum=0&calview=day"

@@ -43,7 +43,7 @@ void display_openids(void)
 		wprintf("</table><br />\n");
 	
 	        wprintf("<form method=\"POST\" action=\"openid_attach\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf(_("Add an OpenID: "));
 	        wprintf("<input type=\"text\" name=\"openid_url\" class=\"openid_urlarea\" size=\"40\">\n");
 	        wprintf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">"

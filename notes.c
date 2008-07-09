@@ -285,7 +285,7 @@ void ajax_update_note(void) {
 	v = vnote_new_from_msg(msgnum);
 	if (!v) {
 		begin_ajax_response();
-		wprintf("Cannot locate a vNote within message %ld\n", msgnum);
+		wprintf("Cannot locate a vNote within message %d\n", msgnum);
 		end_ajax_response();
 		return;
 	}
