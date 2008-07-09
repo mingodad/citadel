@@ -36,9 +36,8 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 			">",
 			i,
 			( (i==0) ? "tab_cell_label" : "tab_cell_edit" ),
-			i,
 			i
-		);
+			);
 		wprintf("%s", tabnames[i]);
 		wprintf("</td>");
 

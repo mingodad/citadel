@@ -101,7 +101,8 @@ void do_housekeeping(void)
 		free_attachments(sessions_to_kill);
 		free_march_list(sessions_to_kill);
 		DeleteHash(&(sessions_to_kill->hash_prefs));
-		
+		DeleteHash(&(sessions_to_kill->IconBarSetttings));
+
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
 		free(sessions_to_kill);

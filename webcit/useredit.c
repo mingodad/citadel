@@ -44,7 +44,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<br /><br />");
 
         wprintf("<center><form method=\"POST\" action=\"create_user\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
         wprintf(_("New user: "));
         wprintf("<input type=\"text\" name=\"username\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
@@ -63,7 +63,7 @@ void select_user_to_edit(char *message, char *preselect)
 	
         wprintf("<center>"
 		"<form method=\"POST\" action=\"display_edituser\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
         wprintf("<select name=\"username\" size=10 style=\"width:100%%\">\n");
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
@@ -296,7 +296,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("<input type=\"hidden\" name=\"is_new\" value=\"%d\">\n"
 		"<input type=\"hidden\" name=\"usernum\" value=\"%ld\">\n",
 		is_new, usernum);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<input type=\"hidden\" name=\"flags\" value=\"%d\">\n", flags);
 

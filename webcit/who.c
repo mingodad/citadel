@@ -164,7 +164,7 @@ void who_inner_div(void) {
 			wprintf("</td>");
 
 			/* (link to page this user) */
-			wprintf("<td width=\"5%\"><a href=\"display_page?recp=");
+			wprintf("<td width=\"5%%\"><a href=\"display_page?recp=");
 			urlescputs(User->UserName);
 			wprintf("\">"
 				"<img align=\"middle\" "
@@ -174,12 +174,12 @@ void who_inner_div(void) {
 			wprintf("</td>");
 
 			/* (idle flag) */
-			wprintf("<td width=\"5%\">");
+			wprintf("<td width=\"5%%\">");
 			if (User->Idle) {
 				wprintf(" "
 					"<img align=\"middle\" "
 					"src=\"static/inactiveuser_24x.gif\" "
-					"alt=\"(%s %d %s)\" border=\"0\" />",
+					"alt=\"(%s %ld %s)\" border=\"0\" />",
 					_("idle since"),
 					(now - User->LastActive) / 60,
 					_("Minutes")
@@ -345,7 +345,7 @@ void edit_me(void)
 		wprintf("<br />\n");
 
 		wprintf("<form method=\"POST\" action=\"edit_me\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 		wprintf("<table border=0 width=100%%>\n");
 

@@ -11,7 +11,7 @@
 
 inline const char *PrintPref(void *Prefstr)
 {
-	return Prefstr;
+	return ChrPtr(Prefstr);
 }
 
 /*
@@ -20,7 +20,7 @@ inline const char *PrintPref(void *Prefstr)
 void load_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
-	char key[SIZ], value[SIZ];
+	StrBuf *ReadBuf;
 	
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_getln(buf, sizeof buf);
@@ -40,16 +40,43 @@ void load_preferences(void) {
 		serv_printf("MSG0 %ld", msgnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
-			while (serv_getln(buf, sizeof buf),
-				(strcmp(buf, "text") && strcmp(buf, "000"))) {
+			ReadBuf = NewStrBuf();
+			while (StrBuf_ServGetln(ReadBuf),
+			       (strcmp(ChrPtr(ReadBuf), "text") && 
+				strcmp(ChrPtr(ReadBuf), "000"))) {
 			}
-			if (!strcmp(buf, "text")) {
-				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-					extract_token(key, buf, 0, '|', sizeof key);
-					extract_token(value, buf, 1, '|', sizeof value);
-					if (!IsEmptyStr(key))
-						Put(WC->hash_prefs, key, strlen(key), strdup(value), free);
+			if (!strcmp(ChrPtr(ReadBuf), "text")) {
+				StrBuf *Key;
+				StrBuf *Data = NULL;
+				StrBuf *LastData = NULL;
+				
+				Key = NewStrBuf();
+				while (StrBuf_ServGetln(ReadBuf), 
+				       strcmp(ChrPtr(ReadBuf), "000")) 
+				{
+					if ((ChrPtr(ReadBuf)[0] == ' ') &&
+					    (Data != NULL)) {
+						StrBufAppendBuf(Data, ReadBuf, 1);
+					}
+					else {
+						LastData = Data = NewStrBuf();
+						StrBufExtract_token(Key, ReadBuf, 0, '|');
+						StrBufExtract_token(Data, ReadBuf, 1, '|');
+						if (!IsEmptyStr(ChrPtr(Key)))
+						{
+							Put(WC->hash_prefs, 
+							    ChrPtr(Key), StrLength(Key), 
+							    Data, 
+							    HFreeStrBuf);
+						}
+						else 
+						{
+							FreeStrBuf(&Data);
+							LastData = NULL;
+						}
+					}
 				}
+				FreeStrBuf(&Key);
 			}
 		}
 	}
@@ -109,14 +136,48 @@ void save_preferences(void) {
 		HashList *Hash;
 		void *Value;
 		char *Key;
+		StrBuf *Buf;
+		StrBuf *SubBuf = NULL;
 		
 		Hash = WC->hash_prefs;
 		dbg_PrintHash(Hash, PrintPref, NULL);
 		HashPos = GetNewHashPos();
 		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
 		{
-			serv_printf("%s|%s", Key, (char*)Value);
+			size_t nchars;
+			Buf = (StrBuf*) Value;
+			nchars = StrLength(Buf);
+			if (nchars > 80){
+				int n = 0;
+				size_t offset, nchars;
+				if (SubBuf == NULL)
+					SubBuf = NewStrBuf();
+				nchars = 1;
+				offset = 0;
+				while (nchars > 0) {
+					if (n == 0)
+						nchars = 70;
+					else 
+						nchars = 80;
+
+					nchars = StrBufSub(SubBuf, Buf, offset, nchars);
+					
+					if (n == 0)
+						serv_printf("%s|%s", Key, ChrPtr(SubBuf));
+					else
+						serv_printf(" %s", Key, ChrPtr(SubBuf));
+
+					offset += nchars;
+					n++;
+				}
+				
+			}
+			else
+				serv_printf("%s|%s", Key, ChrPtr(Buf));
+			
 		}
+		if (SubBuf != NULL)
+			FreeStrBuf(&SubBuf);
 		serv_puts("");
 		serv_puts("000");
 		DeleteHashPos(&HashPos);
@@ -130,37 +191,99 @@ void save_preferences(void) {
 /**
  * \brief query the actual setting of key in the citadel database
  * \param key config key to query
- * \param value value to the key to get
- * \param value_len length of the value string
+ * \param keylen length of the key string
+ * \param value StrBuf-value to the key to get
+ * \returns found?
  */
-void get_preference(char *key, char *value, size_t value_len) {
+int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
+{
 	void *hash_value = NULL;
 	
-	strcpy(value, "");
 	dbg_PrintHash(WC->hash_prefs, PrintPref, NULL);
-	if (GetHash(WC->hash_prefs, key, strlen(key), &hash_value) == 0)
-		return;
-	
-	if(hash_value)
-		safestrncpy(value, hash_value, value_len);
+	if (GetHash(WC->hash_prefs, key, keylen, &hash_value) == 0) {
+		*value = NULL;
+		return 0;
+	}
+	else {
+		*value = NULL;
+		*value = (StrBuf*) hash_value;
+		return 1;
+	}
 }
 
 /**
  * \brief	Write a key into the webcit preferences database for this user
  *
  * \params	key		key whichs value is to be modified
+ * \param keylen length of the key string
  * \param	value		value to set
  * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
-void set_preference(char *key, char *value, int save_to_server) {
+void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server) {
 	
-	Put(WC->hash_prefs, key, strlen(key), strdup(value), free);
+	Put(WC->hash_prefs, key, keylen, value, HFreeStrBuf);
 	
 	if (save_to_server) save_preferences();
 }
 
+int get_PREF_LONG(const char *key, size_t keylen, long *value, long Default)
+{
+	int ret;
+	StrBuf *val;
+	ret = get_PREFERENCE(key, keylen, &val);
+	if (ret) {
+		*value = atol(ChrPtr(val));
+	}
+	else {
+		*value = Default;
+	}
+
+	return ret;
+}
 
 
+void set_PREF_LONG(const char *key, size_t keylen, long value, int save_to_server)
+{
+	StrBuf *val;
+	if (get_PREFERENCE(key, keylen, &val)) {
+		StrBufPrintf(val, "%ld", value);
+	}
+	else {
+		val = NewStrBuf();
+		StrBufPrintf(val, "%ld", value);
+		set_PREFERENCE(key, keylen, val, save_to_server);
+	}
+}
+
+
+
+int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default)
+{
+	int ret;
+	StrBuf *val;
+	ret = get_PREFERENCE(key, keylen, &val);
+	if (ret) {
+		*value = strcmp(ChrPtr(val), "yes") == 0;
+	}
+	else {
+		*value = Default;
+	}
+
+	return ret;
+}
+
+void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server)
+{
+	StrBuf *val;
+	if (get_PREFERENCE(key, keylen, &val)) {
+		StrBufPrintf(val, "%s", (value)?"yes":"no");
+	}
+	else {
+		val = NewStrBuf();
+		StrBufPrintf(val, "%s", (value)?"yes":"no");
+		set_PREFERENCE(key, keylen, val, save_to_server);
+	}
+}
 
 /** 
  * \brief display form for changing your preferences and settings
@@ -168,14 +291,17 @@ void set_preference(char *key, char *value, int save_to_server) {
 void display_preferences(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
-	char ebuf[300];
-	char buf[256];
+	StrBuf *ebuf = NULL;
 	int i;
+	long DayEnd, DayStart, WeekStart;
+	int UseSig, ShowEmptyFloors;
 	int time_format;
 	time_t tt;
 	struct tm tm;
 	char daylabel[32];
-	
+	StrBuf *Buf;
+	StrBuf *Signature;
+
 	time_format = get_time_format_cached ();
 
         wprintf("<div class=\"box\">\n");
@@ -188,7 +314,7 @@ void display_preferences(void)
 	/** begin form */
 	wprintf("<form name=\"prefform\" action=\"set_preferences\" "
 		"method=\"post\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	/** begin table */
         wprintf("<table class=\"altern\">\n");
@@ -196,19 +322,19 @@ void display_preferences(void)
 	/**
 	 * Room list view
 	 */
-	get_preference("roomlistview", buf, sizeof buf);
+	get_preference("roomlistview", &Buf);
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Room list view"));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"folders\"");
-	if (!strcasecmp(buf, "folders")) wprintf(" checked");
+	if (!strcasecmp(ChrPtr(Buf), "folders")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("Tree (folders) view"));
 	wprintf("</input>&nbsp;&nbsp;&nbsp;");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"rooms\"");
-	if (!strcasecmp(buf, "rooms")) wprintf(" checked");
+	if (IsEmptyStr(ChrPtr(Buf)) || !strcasecmp(ChrPtr(Buf), "rooms")) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("Table (rooms) view"));
 	wprintf("</input>\n");
@@ -242,8 +368,8 @@ void display_preferences(void)
 	/**
 	 * Calendar day view -- day start time
 	 */
-	get_preference("daystart", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "8");
+	get_pref_long("daystart", &DayStart, 8);
+
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Calendar day view begins at:"));
 	wprintf("</td><td>");
@@ -253,13 +379,13 @@ void display_preferences(void)
 
 		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<option %s value=\"%d\">%d:00</option>\n",
-				((atoi(buf) == i) ? "selected" : ""),
+				((DayStart == i) ? "selected" : ""),
 				i, i
 			);
 		}
 		else {
 			wprintf("<option %s value=\"%d\">%s</option>\n",
-				((atoi(buf) == i) ? "selected" : ""),
+				((DayStart == i) ? "selected" : ""),
 				i, hourname[i]
 			);
 		}
@@ -271,8 +397,8 @@ void display_preferences(void)
 	/**
 	 * Calendar day view -- day end time
 	 */
-	get_preference("dayend", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "17");
+	get_pref_long("dayend", &DayEnd, 17);
+
 	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Calendar day view ends at:"));
 	wprintf("</td><td>");
@@ -282,13 +408,13 @@ void display_preferences(void)
 
 		if (time_format == WC_TIMEFORMAT_24) {
 			wprintf("<option %s value=\"%d\">%d:00</option>\n",
-				((atoi(buf) == i) ? "selected" : ""),
+				((DayEnd == i) ? "selected" : ""),
 				i, i
 			);
 		}
 		else {
 			wprintf("<option %s value=\"%d\">%s</option>\n",
-				((atoi(buf) == i) ? "selected" : ""),
+				((DayEnd == i) ? "selected" : ""),
 				i, hourname[i]
 			);
 		}
@@ -300,8 +426,7 @@ void display_preferences(void)
 	/**
 	 * Day of week to begin calendar month view
 	 */
-	get_preference("weekstart", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "17");
+	get_pref_long("weekstart", &WeekStart, 17);
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Week starts on:"));
 	wprintf("</td><td>");
@@ -315,7 +440,7 @@ void display_preferences(void)
                 wc_strftime(daylabel, sizeof daylabel, "%A", &tm);
 
 		wprintf("<option %s value=\"%d\">%s</option>\n",
-			((atoi(buf) == i) ? "selected" : ""),
+			((WeekStart == i) ? "selected" : ""),
 			i, daylabel
 		);
 	}
@@ -326,8 +451,7 @@ void display_preferences(void)
 	/**
 	 * Signature
 	 */
-	get_preference("use_sig", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "no");
+	get_pref_yesno("use_sig", &UseSig, 0);
 	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Attach signature to email messages?"));
 	wprintf("</td><td>");
@@ -345,21 +469,24 @@ void display_preferences(void)
 	);
 
 	wprintf("<input type=\"radio\" id=\"no_sig\" name=\"use_sig\" VALUE=\"no\"");
-	if (!strcasecmp(buf, "no")) wprintf(" checked");
+	if (!UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("No signature"));
 	wprintf("</input>&nbsp,&nbsp;&nbsp;\n");
 
 	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
-	if (!strcasecmp(buf, "yes")) wprintf(" checked");
+	if (UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("Use this signature:"));
 	wprintf("<div id=\"signature_box\">"
 		"<br><textarea name=\"signature\" cols=\"40\" rows=\"5\">"
 	);
-	get_preference("signature", ebuf, sizeof ebuf);
-	euid_unescapize(buf, ebuf);
-	escputs(buf);
+
+	get_preference("signature", &Signature);
+	ebuf = NewStrBuf();
+	StrBufEUid_unescapize(ebuf, Signature);
+	escputs(ChrPtr(ebuf));
+	FreeStrBuf(&ebuf);
 	wprintf("</textarea>"
 		"</div>"
 	);
@@ -374,13 +501,15 @@ void display_preferences(void)
 	);
 
 	/** Character set to assume is in use for improperly encoded headers */
-	get_preference("default_header_charset", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "UTF-8");
+	if (!get_preference("default_header_charset", &Buf)) {
+		Buf = NewStrBuf();////TODO: freeme!
+		StrBufPrintf(Buf, "%s", "UTF-8");
+	}
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Default character set for email headers:"));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
-	escputs(buf);
+	escputs(ChrPtr(Buf));
 	wprintf("\">");
 	wprintf("</td></tr>");
 
@@ -388,20 +517,19 @@ void display_preferences(void)
 	 * Show empty floors?
 	 */
 
-	get_preference("emptyfloors", buf, sizeof buf);
-	if (buf[0] == 0) strcpy(buf, "no");
+	get_pref_yesno("emptyfloors", &ShowEmptyFloors, 0);
 	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Show empty floors"));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"emptyfloors\" VALUE=\"yes\"");
-	if (!strcasecmp(buf, "yes")) wprintf(" checked");
+	if (ShowEmptyFloors) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("Yes"));
 	wprintf("</input>&nbsp;&nbsp;&nbsp;");
 
 	wprintf("<input type=\"radio\" name=\"emptyfloors\" VALUE=\"no\"");
-	if (!strcasecmp(buf, "no")) wprintf(" checked");
+	if (!ShowEmptyFloors) wprintf(" checked");
 	wprintf(">");
 	wprintf(_("No"));
 	wprintf("</input>\n");
@@ -432,8 +560,8 @@ void display_preferences(void)
  */
 void set_preferences(void)
 {
-	char *fmt;
-	char ebuf[300];
+	long fmt;
+	StrBuf *ebuf;
 	int *time_format_cache;
 	
 	time_format_cache = &(WC->time_format_cache);
@@ -450,22 +578,23 @@ void set_preferences(void)
 	 * Set the last argument to 1 only for the final setting, so
 	 * we don't send the prefs file to the server repeatedly
 	 */
-	set_preference("roomlistview", bstr("roomlistview"), 0);
-	fmt = bstr("calhourformat");
-	set_preference("calhourformat", fmt, 0);
-	if (!strcasecmp(fmt, "24")) 
+	set_preference("roomlistview", NewStrBufPlain(bstr("roomlistview"), -1), 0);
+	fmt = lbstr("calhourformat");
+	set_pref_long("calhourformat", fmt, 0);
+	if (fmt == 24) 
 		*time_format_cache = WC_TIMEFORMAT_24;
 	else
 		*time_format_cache = WC_TIMEFORMAT_AMPM;
 
-	set_preference("weekstart", bstr("weekstart"), 0);
-	set_preference("use_sig", bstr("use_sig"), 0);
-	set_preference("daystart", bstr("daystart"), 0);
-	set_preference("dayend", bstr("dayend"), 0);
-	set_preference("default_header_charset", bstr("default_header_charset"), 0);
-	set_preference("emptyfloors", bstr("emptyfloors"), 0);
+	set_pref_long("weekstart", lbstr("weekstart"), 0);
+	set_pref_yesno("use_sig", yesbstr("use_sig"), 0);
+	set_pref_long("daystart", lbstr("daystart"), 0);
+	set_pref_long("dayend", lbstr("dayend"), 0);
+	set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
+	set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
 
-	euid_escapize(ebuf, bstr("signature"));
+	ebuf = NewStrBufPlain(bstr("signature"), -1);
+	/////TODOeuid_escapize(ebuf);
 	set_preference("signature", ebuf, 1);
 
 	display_main_menu();

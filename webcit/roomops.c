@@ -380,7 +380,7 @@ void embed_view_o_matic(void) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n");
-	wprintf("\t<div style=\"display: inline;\">\n\t<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("\t<div style=\"display: inline;\">\n\t<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<label for=\"view_name\">");
 	wprintf(_("View as:"));
 	wprintf("</label> "
@@ -419,7 +419,7 @@ void embed_view_o_matic(void) {
  */
 void embed_search_o_matic(void) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n");
-	wprintf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<label for=\"search_name\">");
 	wprintf(_("Search: "));
 	wprintf("</label><input ");
@@ -1291,7 +1291,7 @@ void display_editroom(void)
 			er_flags2 = extract_int(&buf[4], 7);
 	
 			wprintf("<form method=\"POST\" action=\"editroom\">\n");
-			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		
 			wprintf("<ul><li>");
 			wprintf(_("Name of room: "));
@@ -1577,7 +1577,7 @@ void display_editroom(void)
 			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
 			if (!IsEmptyStr(node)) {
 				wprintf("<form method=\"POST\" action=\"netedit\">");
-				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 				wprintf("<tr><td>%s</td>\n", node);
 
 				wprintf("<td>");
@@ -1618,7 +1618,7 @@ void display_editroom(void)
 			extract_token(node, not_shared_with, i, '\n', sizeof node);
 			if (!IsEmptyStr(node)) {
 				wprintf("<form method=\"POST\" action=\"netedit\">");
-				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+				wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 				wprintf("<tr><td>");
 				escputs(node);
 				wprintf("</td><td>"
@@ -1692,7 +1692,7 @@ void display_editroom(void)
 		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
 			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<input type=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
 		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</form>\n");
@@ -1723,7 +1723,7 @@ void display_editroom(void)
 		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
 			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<input type=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
 		wprintf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
 		wprintf("</form>\n");
@@ -1807,7 +1807,7 @@ void display_editroom(void)
 			}
 			
 			wprintf("<br /><form method=\"POST\" action=\"set_room_policy\">\n");
-			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+			wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 			wprintf("<table border=0 cellspacing=5>\n");
 			wprintf("<tr><td>");
 			wprintf(_("Message expire policy for this room"));
@@ -1950,7 +1950,7 @@ void display_editroom(void)
 			"<tr>"
 			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
 			"<input type=\"hidden\" name=\"prefix\" value=\"pop3client|\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<td>");
 		wprintf("<input type=\"text\" id=\"add_as_pop3host\" NAME=\"line_pop3host\">\n");
 		wprintf("</td>");
@@ -2017,7 +2017,7 @@ void display_editroom(void)
 			"<tr>"
 			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
 			"<input type=\"hidden\" name=\"prefix\" value=\"rssclient|\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<td>");
 		wprintf("<input type=\"text\" id=\"add_as_pop3host\" size=\"72\" "
 			"maxlength=\"256\" name=\"line_pop3host\">\n");
@@ -2335,7 +2335,7 @@ void display_whok(void)
 	wprintf("<br /><br />");
 	
         wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("<select NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
@@ -2360,7 +2360,7 @@ void display_whok(void)
 
         wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
 	wprintf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
         wprintf(_("Invite:"));
 	wprintf(" ");
         wprintf("<input type=\"text\" name=\"username\" id=\"username_id\" style=\"width:100%%\"><br />\n"
@@ -2408,7 +2408,7 @@ void display_entroom(void)
 	do_template("beginbox");
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<table class=\"altern\"> ");
 
@@ -2643,7 +2643,7 @@ void display_private(char *rname, int req_pass)
 	wprintf("</p>");
 
 	wprintf("<form method=\"post\" action=\"goto_private\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<table class=\"altern\"> "
 		"<tr class=\"even\"><td>");
@@ -2729,7 +2729,7 @@ void display_zap(void)
 		"to do?<br />\n"), WC->wc_roomname);
 
 	wprintf("<form method=\"POST\" action=\"zap\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
@@ -3189,7 +3189,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
  */
 void set_floordiv_expanded(char *which_floordiv) {
 	begin_ajax_response();
-	safestrncpy(WC->floordiv_expanded, which_floordiv, sizeof WC->floordiv_expanded);
+	StrBufPrintf(WC->floordiv_expanded, "%s", which_floordiv);
 	end_ajax_response();
 }
 
@@ -3238,7 +3238,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 				"%s</span><br>\n", floordiv_id, floordivtitle);
 			wprintf("<div id=\"%s\" style=\"display:%s\">",
 				floordiv_id,
-				(!strcasecmp(floordiv_id, WC->floordiv_expanded) ? "block" : "none")
+				(!strcasecmp(floordiv_id, ChrPtr(WC->floordiv_expanded)) ? "block" : "none")
 			);
 		}
 
@@ -3323,9 +3323,9 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	}
 
 	wprintf("num_drop_targets = %d;\n", num_drop_targets);
-	if ((WC->floordiv_expanded[0] != '\0')&&
-	    (WC->floordiv_expanded[1] != '\0')){
-		wprintf("which_div_expanded = '%s';\n", WC->floordiv_expanded);
+	if ((ChrPtr(WC->floordiv_expanded)[0] != '\0')&&
+	    (ChrPtr(WC->floordiv_expanded)[1] != '\0')){
+		wprintf("which_div_expanded = '%s';\n", ChrPtr(WC->floordiv_expanded));
 	}
 
 	wprintf("\">\n");
@@ -3360,7 +3360,7 @@ void burn_folder_cache(time_t age)
  * \param viewpref the view preferences???
  */
 
-void list_all_rooms_by_floor(char *viewpref) {
+void list_all_rooms_by_floor(const char *viewpref) {
 	char buf[SIZ];
 	int swap = 0;
 	struct folder *fold = NULL;
@@ -3370,10 +3370,10 @@ void list_all_rooms_by_floor(char *viewpref) {
 	int *floor_mapping;
 	int IDMax;
 	int i, j;
+	int ShowEmptyFloors;
 	int ra_flags = 0;
 	int flags = 0;
 	int num_floors = 1;	/** add an extra one for private folders */
-	char buf2[SIZ];
 	char buf3[SIZ];
 	
 	/** If our cached folder list is very old, burn it. */
@@ -3463,8 +3463,8 @@ void list_all_rooms_by_floor(char *viewpref) {
 	/*
 	 * Remove any floors that don't have rooms
 	 */
-	get_preference("emptyfloors", buf2, sizeof buf2);
-	if (buf2[0]==0 || (strcasecmp(buf2, "no") == 0))
+	get_pref_yesno("emptyfloors", &ShowEmptyFloors, 0);
+	if (ShowEmptyFloors)
 	{
 		for (i=0; i<num_floors; i++)
 		{
@@ -3539,35 +3539,37 @@ void list_all_rooms_by_floor(char *viewpref) {
  */
 void knrooms(void)
 {
-	char listviewpref[SIZ];
+	StrBuf *ListView;
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
 	/** Determine whether the user is trying to change views */
 	if (bstr("view") != NULL) {
 		if (havebstr("view")) {
-			set_preference("roomlistview", bstr("view"), 1);
+			set_preference("roomlistview", NewStrBufPlain(bstr("view"), -1), 1);
 		}
 	}
 
-	get_preference("roomlistview", listviewpref, sizeof listviewpref);
-
-	if ( (strcasecmp(listviewpref, "folders"))
-	   && (strcasecmp(listviewpref, "table")) ) {
-		strcpy(listviewpref, "rooms");
+	if(!get_preference("roomlistview", &ListView) ||
+	   ((strcasecmp(ChrPtr(ListView), "folders"))
+	    && (strcasecmp(ChrPtr(ListView), "table")))) {
+		if (ListView == NULL)
+			ListView = NewStrBuf();
+		StrBufPrintf(ListView, "%s", "rooms");
+		set_preference("roomlistview", ListView, 0);
 	}
 
 	/** title bar */
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<div class=\"room_banner\">");
 	wprintf("<h1>");
-	if (!strcasecmp(listviewpref, "rooms")) {
+	if (!strcasecmp(ChrPtr(ListView), "rooms")) {
 		wprintf(_("Room list"));
 	}
-	if (!strcasecmp(listviewpref, "folders")) {
+	else if (!strcasecmp(ChrPtr(ListView), "folders")) {
 		wprintf(_("Folder list"));
 	}
-	if (!strcasecmp(listviewpref, "table")) {
+	else if (!strcasecmp(ChrPtr(ListView), "table")) {
 		wprintf(_("Room list"));
 	}
 	wprintf("</h1></div>\n");
@@ -3585,13 +3587,13 @@ void knrooms(void)
 	wprintf("<option %s value=\"knrooms&view=rooms\">"
 		"View as room list"
 		"</option>\n",
-		( !strcasecmp(listviewpref, "rooms") ? "SELECTED" : "" )
+		( !strcasecmp(ChrPtr(ListView), "rooms") ? "SELECTED" : "" )
 	);
 
 	wprintf("<option %s value=\"knrooms&view=folders\">"
 		"View as folder list"
 		"</option>\n",
-		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
+		( !strcasecmp(ChrPtr(ListView), "folders") ? "SELECTED" : "" )
 	);
 
 	wprintf("</select>");
@@ -3601,7 +3603,7 @@ void knrooms(void)
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	/** Display the room list in the user's preferred format */
-	list_all_rooms_by_floor(listviewpref);
+	list_all_rooms_by_floor(ChrPtr(ListView));
 	wDumpContent(1);
 }
 

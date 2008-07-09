@@ -227,10 +227,9 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
 	}
 
-	get_preference("current_iconbar", buf, sizeof buf);
-	WC->current_iconbar = atoi(buf);
+	get_pref_long("current_iconbar", &WC->current_iconbar, current_iconbar_menu);
 
-	get_preference("floordiv_expanded", WC->floordiv_expanded, sizeof WC->floordiv_expanded);
+	get_preference("floordiv_expanded", &WC->floordiv_expanded);
 }
 
 
@@ -487,7 +486,7 @@ void finalize_openid_login(void)
  */
 void do_welcome(void)
 {
-	char buf[SIZ];
+	StrBuf *Buf;
 #ifdef XXX_NOT_FINISHED_YET_XXX
 	FILE *fp;
 	int i;
@@ -529,15 +528,15 @@ void do_welcome(void)
 	/*
 	 * Go to the user's preferred start page
 	 */
-	get_preference("startpage", buf, sizeof buf);
-	if (IsEmptyStr(buf)) {
-		safestrncpy(buf, "dotskip&room=_BASEROOM_", sizeof buf);
-		set_preference("startpage", buf, 1);
+	if (!get_preference("startpage", &Buf)) {
+		Buf = NewStrBuf ();
+		StrBufPrintf(Buf, "dotskip&room=_BASEROOM_");
+		set_preference("startpage", Buf, 1);
 	}
-	if (buf[0] == '/') {
-		strcpy(buf, &buf[1]);
+	if (ChrPtr(Buf)[0] == '/') {
+		StrBufCutLeft(Buf, 1);
 	}
-	http_redirect(buf);
+	http_redirect(ChrPtr(Buf));
 }
 
 
@@ -545,11 +544,9 @@ void do_welcome(void)
  * Disconnect from the Citadel server, and end this WebCit session
  */
 void end_webcit_session(void) {
-	char buf[256];
-
+	
 	if (WC->logged_in) {
-		sprintf(buf, "%d", WC->current_iconbar);
-		set_preference("current_iconbar", buf, 0);
+		set_pref_long("current_iconbar", WC->current_iconbar, 0);
 		set_preference("floordiv_expanded", WC->floordiv_expanded, 1);
 	}
 
@@ -733,7 +730,7 @@ void validate(void)
 	wprintf(_("Select access level for this user:"));
 	wprintf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<a href=\"validate?nonce=%ld?user=", WC->nonce);
+		wprintf("<a href=\"validate?nonce=%d?user=", WC->nonce);
 		urlescputs(user);
 		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
@@ -807,7 +804,7 @@ void display_changepw(void)
 	}
 
 	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<table class=\"altern\" ");
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Enter new password:"));

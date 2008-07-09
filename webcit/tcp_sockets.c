@@ -12,6 +12,7 @@
 #define SERV_TRACE 1
  */
 
+
 #include "webcit.h"
 #include "webserver.h"
 
@@ -176,7 +177,23 @@ int serv_getln(char *strbuf, int bufsize)
 	return len;
 }
 
+int StrBuf_ServGetln(StrBuf *buf)
+{
+	const char *ErrStr;
+	int rc;
 
+	rc = StrBufTCP_read_line(buf, WC->serv_sock, 0, &ErrStr);
+	if (rc < 0)
+	{
+		lprintf(1, "Server connection broken: %s\n",
+			ErrStr);
+		wc_backtrace();
+		WC->serv_sock = (-1);
+		WC->connected = 0;
+		WC->logged_in = 0;
+	}
+	return rc;
+}
 
 /**
  * \brief send binary to server

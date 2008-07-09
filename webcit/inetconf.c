@@ -134,7 +134,7 @@ void display_inetconf(void)
 
 		}
 		wprintf("<form method=\"post\" action=\"save_inetconf\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 		wprintf("<tr><td>"
 			"<input type=\"text\" name=\"ename\" maxlength=\"64\">"
 			"<input type=\"hidden\" name=\"etype\" VALUE=\"%s\">", ic_keyword[which]);

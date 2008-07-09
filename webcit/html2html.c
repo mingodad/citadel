@@ -268,7 +268,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	converted_alloc = content_length + 8192;
 	converted_msg = malloc(converted_alloc);
 	if (converted_msg == NULL) {
-		wprintf("Error %d: %s<br />%s:%s", errno, strerror(errno), __FILE__, __LINE__);
+		wprintf("Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
 		goto BAIL;
 	}
 

@@ -287,7 +287,7 @@ void print_value_of(char *keyname, size_t keylen) {
 		ptr = (wcsubst*) vVar;
 		switch(ptr->wcs_type) {
 		case WCS_STRING:
-			wprintf("%s", ptr->wcs_value);
+			wprintf("%s", (const char*)ptr->wcs_value);
 			break;
 		case WCS_SERVCMD:
 			pvo_do_cmd(ptr->wcs_value);
@@ -374,7 +374,7 @@ void do_template(void *templatename) {
 	if (fp == NULL) {
 		wprintf(_("ERROR: could not open template "));
 		wprintf("'%s' - %s<br />\n",
-			templatename, strerror(errno));
+			(const char*)templatename, strerror(errno));
 		return;
 	}
 

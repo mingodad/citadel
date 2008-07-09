@@ -38,7 +38,7 @@ void do_setup_wizard(void)
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<form method=\"post\" action=\"setup_wizard\">\n"
 	);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<div align=center>"
 		"This is where the setup wizard will be placed.<br>\n"

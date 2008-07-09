@@ -191,7 +191,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	do_template("beginbox");
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	if (force_room != NULL) {
 		wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
