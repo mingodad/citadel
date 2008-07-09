@@ -146,6 +146,8 @@ void save_preferences(void) {
 		{
 			size_t nchars;
 			Buf = (StrBuf*) Value;
+			if (Buf == NULL)
+				continue;
 			nchars = StrLength(Buf);
 			if (nchars > 80){
 				int n = 0;
