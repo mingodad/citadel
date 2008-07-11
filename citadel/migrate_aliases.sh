@@ -20,7 +20,7 @@ if test -f /etc/aliases; then
 	ALIAS=`head -n $i /tmp/aliases |tail -n 1`
 	ORG=`echo $ALIAS|sed "s;,.*;;"`
 	if grep "$ORG" "$CITALIAS"; then
-	    echo "Ignoring Alias $ORG as its alreday there"
+	    echo "Ignoring Alias $ORG as its already there"
 	else
 	    echo "$ALIAS" >>$CITALIAS
 	fi
