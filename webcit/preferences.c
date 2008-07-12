@@ -471,13 +471,13 @@ void display_preferences(void)
 	);
 
 	wprintf("<input type=\"radio\" id=\"no_sig\" name=\"use_sig\" VALUE=\"no\"");
-	if (UseSig) wprintf(" checked");
+	if (!UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("No signature"));
 	wprintf("</input>&nbsp,&nbsp;&nbsp;\n");
 
 	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
-	if (!UseSig) wprintf(" checked");
+	if (UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("Use this signature:"));
 	wprintf("<div id=\"signature_box\">"

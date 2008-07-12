@@ -43,7 +43,7 @@ void euid_escapize(char *target, char *source) {
 			target[++target_length] = 0;
 		}
 		else {
-			sprintf(&target[target_length], "=%02X", source[i]);
+			sprintf(&target[target_length], "=%02X", (0xFF & source[i]));
 			target_length += 3;
 		}
 	}

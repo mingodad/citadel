@@ -705,7 +705,7 @@ void set_PREF_LONG(const char *key, size_t keylen, long value, int save_to_serve
 
 #define get_pref_yesno(a, b, c) get_PREF_YESNO(a, sizeof(a) - 1, b, c)
 int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default);
-#define set_pref_yesno(a, b, c) set_PREF_LONG(a, sizeof(a) - 1, b, c)
+#define set_pref_yesno(a, b, c) set_PREF_YESNO(a, sizeof(a) - 1, b, c)
 void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server);
 
 
