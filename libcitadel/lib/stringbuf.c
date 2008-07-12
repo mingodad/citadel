@@ -382,7 +382,6 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source)
 {
 	int a, b, len;
 	char hex[3];
-	int target_length = 0;
 
 	if (target != NULL)
 		FlushStrBuf(target);
@@ -394,7 +393,7 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source)
 
 	len = source->BufUsed;
 	for (a = 0; a < len; ++a) {
-		if (target_length >= target->BufSize)
+		if (target->BufUsed >= target->BufSize)
 			IncreaseBuf(target, 1, -1);
 
 		if (source->buf[a] == '=') {
@@ -403,13 +402,13 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source)
 			hex[2] = 0;
 			b = 0;
 			sscanf(hex, "%02x", &b);
-			target->buf[target_length] = b;
-			target->buf[++target_length] = 0;
+			target->buf[target->BufUsed] = b;
+			target->buf[++target->BufUsed] = 0;
 			a += 2;
 		}
 		else {
-			target->buf[target_length] = source->buf[a];
-			target->buf[++target_length] = 0;
+			target->buf[target->BufUsed] = source->buf[a];
+			target->buf[++target->BufUsed] = 0;
 		}
 	}
 }
@@ -442,7 +441,7 @@ void StrBufEUid_escapize(StrBuf *target, StrBuf *source)
 		else {
 			sprintf(&target->buf[target->BufUsed], 
 				"=%02X", 
-				source->buf[i]);
+				(0xFF &source->buf[i]));
 			target->BufUsed += 3;
 		}
 	}
