@@ -2220,6 +2220,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	return (nummsgs);
 }
 
+
+typedef int (*QSortFunction) (const void*, const void*);
 /**
  * \brief qsort() compatible function to compare two longs in descending order.
  *
@@ -2336,6 +2338,84 @@ int summcmp_rdate(const void *s1, const void *s2) {
 }
 
 
+enum {
+	eUp,
+	eDown,
+	eNone
+};
+
+const char* SortIcons[3] = {
+	"static/up_pointer.gif",
+	"static/down_pointer.gif",
+	"static/sort_none.gif"
+};
+
+ enum  {/// SortByEnum
+	eDate,
+	eRDate,
+	eSubject,
+	eRSubject,
+	eSender,
+	eRSender,
+	eReverse,
+	eUnSet
+}; 
+
+/** SortEnum to plain string representation */
+static const char* SortByStrings[] = {
+	"date",
+	"rdate",
+	"subject", 
+	"rsubject", 
+	"sender",
+	"rsender",
+	"reverse",
+	"unset"
+};
+
+/** SortEnum to sort-Function Table */
+const QSortFunction SortFuncs[eUnSet] = {
+	summcmp_date,
+	summcmp_rdate,
+	summcmp_subj,
+	summcmp_rsubj,
+	summcmp_sender,
+	summcmp_rsender,
+	summcmp_rdate
+};
+
+/** given a SortEnum, which icon should we choose? */
+const int SortDateToIcon[eUnSet] = { eUp, eDown, eNone, eNone, eNone, eNone, eNone};
+const int SortSubjectToIcon[eUnSet] = { eNone, eNone, eUp, eDown, eNone, eNone, eNone};
+const int SortSenderToIcon[eUnSet] = { eNone, eNone, eNone, eNone, eUp, eDown, eNone};
+
+/** given a SortEnum, which would be the "opposite" search option? */
+const int DateInvertSortString[eUnSet] =  { eRDate, eDate, eDate, eDate, eDate, eDate, eDate};
+const int SubjectInvertSortString[eUnSet] =  { eSubject, eSubject, eRSubject, eUnSet, eSubject, eSubject, eSubject};
+const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender, eRSender, eUnSet, eSender};
+
+
+/**
+ * \Brief Translates sortoption String to its SortEnum representation 
+ * \param SortBy string to translate
+ * \return the enum matching the string; defaults to RDate
+ */
+//SortByEnum 
+int StrToESort (StrBuf *sortby)
+{
+	int result = eDate;
+
+	if (!IsEmptyStr(ChrPtr(sortby))) while (result < eUnSet){
+			if (!strcasecmp(ChrPtr(sortby), 
+					SortByStrings[result])) 
+				return result;
+			result ++;
+		}
+	return eRDate;
+}
+
+
+
 
 /**
  * \brief command loop for reading messages
@@ -2366,11 +2446,10 @@ void readloop(char *oper)
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	StrBuf *sortby = NULL;
+	//SortByEnum 
+	int SortBy = eRDate;
 	StrBuf *sortpref_name;
 	StrBuf *sortpref_value;
-	char *subjsort_button;
-	char *sendsort_button;
-	char *datesort_button;
 	int bbs_reverse = 0;
 	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
 
@@ -2391,17 +2470,16 @@ void readloop(char *oper)
 
 	sortby = NewStrBufPlain(bstr("sortby"), -1);
 	if ( (!IsEmptyStr(ChrPtr(sortby))) && 
-	     (strcasecmp(ChrPtr(sortby), ChrPtr(sortpref_value))) ) {
+	     (strcasecmp(ChrPtr(sortby), ChrPtr(sortpref_value)) != 0)) {
 		set_pref(sortpref_name, sortby, 1);
+		sortpref_value = NULL;
+		sortpref_value = sortby;
 	}
+	
 	FreeStrBuf(&sortpref_name);
-	if (IsEmptyStr(ChrPtr(sortby))) StrBufAppendBuf(sortby,  sortpref_value, 0);
-
-	/** mailbox sort */
-	if (IsEmptyStr(ChrPtr(sortby))) StrBufPrintf(sortby, "rdate");
-
+	SortBy = StrToESort(sortpref_value);
 	/** message board sort */
-	if (!strcasecmp(ChrPtr(sortby), "reverse")) {
+	if (SortBy == eReverse) {
 		bbs_reverse = 1;
 	}
 	else {
@@ -2458,7 +2536,7 @@ void readloop(char *oper)
 	} 
 	if (WCC->is_mobile) {
 		maxmsgs = 20;
-		StrBufPrintf(sortby, "rdate");
+		SortBy =  eRDate;
 	}
 
 	/**
@@ -2539,61 +2617,10 @@ void readloop(char *oper)
 	}
 
 	if (is_summary || WCC->is_mobile) {
-		if (!strcasecmp(ChrPtr(sortby), "subject")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_subj);
-		}
-		else if (!strcasecmp(ChrPtr(sortby), "rsubject")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_rsubj);
-		}
-		else if (!strcasecmp(ChrPtr(sortby), "sender")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_sender);
-		}
-		else if (!strcasecmp(ChrPtr(sortby), "rsender")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_rsender);
-		}
-		else if (!strcasecmp(ChrPtr(sortby), "date")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_date);
-		}
-		else if (!strcasecmp(ChrPtr(sortby), "rdate")) {
-			qsort(WCC->summ, WCC->num_summ,
-				sizeof(struct message_summary), summcmp_rdate);
-		}
+		qsort(WCC->summ, WCC->num_summ,
+		      sizeof(struct message_summary), SortFuncs[SortBy]);
 	}
 
-	if (!strcasecmp(ChrPtr(sortby), "subject")) {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsubject\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
-	}
-	else if (!strcasecmp(ChrPtr(sortby), "rsubject")) {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
-	}
-	else {
-		subjsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=subject\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
-	}
-
-	if (!strcasecmp(ChrPtr(sortby), "sender")) {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rsender\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
-	}
-	else if (!strcasecmp(ChrPtr(sortby), "rsender")) {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
-	}
-	else {
-		sendsort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=sender\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
-	}
-
-	if (!strcasecmp(ChrPtr(sortby), "date")) {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rdate\"><img border=\"0\" src=\"static/down_pointer.gif\" /></a>" ;
-	}
-	else if (!strcasecmp(ChrPtr(sortby), "rdate")) {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=date\"><img border=\"0\" src=\"static/up_pointer.gif\" /></a>" ;
-	}
-	else {
-		datesort_button = "<a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=rdate\"><img border=\"0\" src=\"static/sort_none.gif\" /></a>" ;
-	}
 
 	if (is_summary) {
 
@@ -2611,9 +2638,9 @@ void readloop(char *oper)
 			"<table cellspacing=0 style=\"width:100%%\">"
 			"<tr>"
 		);
-		wprintf("<th width=%d%%>%s %s</th>"
-			"<th width=%d%%>%s %s</th>"
-			"<th width=%d%%>%s %s"
+		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
 			"&nbsp;"
 			"<input type=\"submit\" name=\"delete_button\" id=\"delbutton\" "
 			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
@@ -2622,11 +2649,17 @@ void readloop(char *oper)
 			"</tr>\n"
 			,
 			SUBJ_COL_WIDTH_PCT,
-			_("Subject"),	subjsort_button,
+			_("Subject"),
+			SortByStrings[SubjectInvertSortString[SortBy]],
+			SortIcons[SortSubjectToIcon[SortBy]],
 			SENDER_COL_WIDTH_PCT,
-			_("Sender"),	sendsort_button,
+			_("Sender"),
+			SortByStrings[SenderInvertSortString[SortBy]],
+			SortIcons[SortSenderToIcon[SortBy]],
 			DATE_PLUS_BUTTONS_WIDTH_PCT,
-			_("Date"),	datesort_button,
+			_("Date"),
+			SortByStrings[DateInvertSortString[SortBy]],
+			SortIcons[SortDateToIcon[SortBy]],
 			_("Delete")
 		);
 		wprintf("</table></div></div>\n");
