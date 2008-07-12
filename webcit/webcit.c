@@ -109,7 +109,7 @@ void addurls(char *url, long ulen)
 	buf[ulen] = '\0';
 	eptr = buf + ulen;
 	up = buf;
-	while (!IsEmptyStr(up)) {
+	while ((up < eptr) && (!IsEmptyStr(up))) {
 		aptr = up;
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
 			aptr++;
@@ -143,6 +143,7 @@ void addurls(char *url, long ulen)
 		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
 #endif
 	}
+	free(buf);
 }
 
 /*
