@@ -3632,7 +3632,7 @@ void set_room_policy(void) {
 
 	if (WC->axlevel >= 6) {
 		strcat(WC->ImportantMessage, "<br />\n");
-		serv_printf("SPEX floor|%d|%d", ibstr("floorpolicy"), bstr("floorvalue"));
+		serv_printf("SPEX floor|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
 		serv_getln(buf, sizeof buf);
 		strcat(WC->ImportantMessage, &buf[4]);
 	}

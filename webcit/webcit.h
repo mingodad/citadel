@@ -519,7 +519,6 @@ void new_messages_section(void);
 void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
-void serv_printf(const char *format,...);
 
 /* TODO: get rid of the non-const-typecast */
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
@@ -617,7 +616,7 @@ void serv_read(char *buf, int bytes);
 void serv_gets(char *strbuf);
 void serv_write(char *buf, int nbytes);
 void serv_puts(char *string);
-void serv_printf(const char *format,...);
+void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void load_floorlist(void);
 void display_reg(int);
 void display_changepw(void);
@@ -659,8 +658,8 @@ typedef void (*var_callback_fptr)();
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
 #define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
-void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...);
-void SVPRINTF(char *keyname, int keytype, const char *format,...);
+void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
+void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
 void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)

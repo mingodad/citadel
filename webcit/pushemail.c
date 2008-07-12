@@ -27,7 +27,7 @@ void display_pushemail(void) {
 			
 		}
 		if (msgnum > 0L) {
-		serv_printf("MSG0 %ld", msgnum);
+		serv_printf("MSG0 %d", msgnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
 			while (serv_getln(buf, sizeof buf),
@@ -91,7 +91,7 @@ void save_pushemail(void) {
 	}
 
 	if (msgnum > 0L) {
-		serv_printf("DELE %ld", msgnum);
+		serv_printf("DELE %d", msgnum);
 		serv_getln(buf, sizeof buf);
 	}
 
