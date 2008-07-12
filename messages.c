@@ -3276,7 +3276,6 @@ void display_enter(void)
 	int recipient_required = 0;
 	int subject_required = 0;
 	int recipient_bad = 0;
-	int i;
 	int is_anonymous = 0;
 	long existing_page = (-1L);
 	size_t dplen;
@@ -3615,33 +3614,38 @@ void display_enter(void)
 		int UseSig;
 		get_pref_yesno("use_sig", &UseSig, 0);
 		if (UseSig) {
-			int len;
+			StrBuf *Sig;
+			const char *sig, *esig;
+
 			get_preference("signature", &ebuf);
-			euid_unescapize(buf, ChrPtr(ebuf));/////TODO
+			Sig = NewStrBuf();
+			StrBufEUid_unescapize(Sig, ebuf);
+			sig = ChrPtr(Sig);
+			esig = sig + StrLength(Sig);
 			wprintf("<br>--<br>");
-			len = strlen(buf);
-			for (i=0; i<len; ++i) {
-				if (buf[i] == '\n') {
+			while (sig <= esig) {
+				if (*sig == '\n') {
 					wprintf("<br>");
 				}
-				else if (buf[i] == '<') {
+				else if (*sig == '<') {
 					wprintf("&lt;");
 				}
-				else if (buf[i] == '>') {
+				else if (*sig == '>') {
 					wprintf("&gt;");
 				}
-				else if (buf[i] == '&') {
+				else if (*sig == '&') {
 					wprintf("&amp;");
 				}
-				else if (buf[i] == '\"') {
+				else if (*sig == '\"') {
 					wprintf("&quot;");
 				}
-				else if (buf[i] == '\'') {
+				else if (*sig == '\'') {
 					wprintf("&#39;");
 				}
-				else if (isprint(buf[i])) {
-					wprintf("%c", buf[i]);
+				else if (isprint(*sig)) {
+					wprintf("%c", *sig);
 				}
+				sig ++;
 			}
 		}
 	}

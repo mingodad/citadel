@@ -88,10 +88,10 @@ void LoadIconSettings(void)
  * \brief draw the icon bar???
  */
 void do_iconbar(void) {
-	int ib_displayas = 0;	/**< pictures and text, pictures, text */
+	int ib_displayas = IB_PICTEXT;	/**< pictures and text, pictures, text */
 
 	LoadIconSettings();
-	ib_displayas = IconbarIsEnabled("ib_displayas", 0);
+	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);
 
 /** Site logo */
 	if (IconbarIsEnabled("ib_logo", 0)) {
@@ -386,7 +386,7 @@ void do_iconbar_roomlist(void) {
 
 	LoadIconSettings();
 
-	ib_displayas = IconbarIsEnabled("ib_displayas", 0);	/* pictures and text, pictures, text */
+	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);	/* pictures and text, pictures, text */
 
 /** Site logo */
 	if (IconbarIsEnabled("ib_logo", 0)) {

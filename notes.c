@@ -272,7 +272,7 @@ void ajax_update_note(void) {
 	// Was this request a delete operation?  If so, nuke it...
 	if (havebstr("deletenote")) {
 		if (!strcasecmp(bstr("deletenote"), "yes")) {
-			serv_printf("DELE %ld", msgnum);
+			serv_printf("DELE %d", msgnum);
 			serv_getln(buf, sizeof buf);
 			begin_ajax_response();
 			wprintf("%s", buf);

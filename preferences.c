@@ -158,7 +158,7 @@ void save_preferences(void) {
 				offset = 0;
 				while (nchars > 0) {
 					if (n == 0)
-						nchars = 70;
+						nchars = 71;
 					else 
 						nchars = 80;
 
@@ -167,7 +167,7 @@ void save_preferences(void) {
 					if (n == 0)
 						serv_printf("%s|%s", Key, ChrPtr(SubBuf));
 					else
-						serv_printf(" %s", Key, ChrPtr(SubBuf));
+						serv_printf(" %s", ChrPtr(SubBuf));
 
 					offset += nchars;
 					n++;
@@ -471,13 +471,13 @@ void display_preferences(void)
 	);
 
 	wprintf("<input type=\"radio\" id=\"no_sig\" name=\"use_sig\" VALUE=\"no\"");
-	if (!UseSig) wprintf(" checked");
+	if (UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("No signature"));
 	wprintf("</input>&nbsp,&nbsp;&nbsp;\n");
 
 	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
-	if (UseSig) wprintf(" checked");
+	if (!UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
 	wprintf(_("Use this signature:"));
 	wprintf("<div id=\"signature_box\">"
@@ -487,7 +487,7 @@ void display_preferences(void)
 	get_preference("signature", &Signature);
 	ebuf = NewStrBuf();
 	StrBufEUid_unescapize(ebuf, Signature);
-	escputs(ChrPtr(ebuf));
+	escputs((char*)ChrPtr(ebuf));///TODO
 	FreeStrBuf(&ebuf);
 	wprintf("</textarea>"
 		"</div>"
@@ -511,7 +511,7 @@ void display_preferences(void)
 	wprintf(_("Default character set for email headers:"));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
-	escputs(ChrPtr(Buf));
+	escputs((char*)ChrPtr(Buf)); // here shouldn't be bad chars, so...
 	wprintf("\">");
 	wprintf("</td></tr>");
 
@@ -563,7 +563,7 @@ void display_preferences(void)
 void set_preferences(void)
 {
 	long fmt;
-	StrBuf *ebuf;
+	StrBuf *buf, *encBuf;
 	int *time_format_cache;
 	
 	time_format_cache = &(WC->time_format_cache);
@@ -595,9 +595,10 @@ void set_preferences(void)
 	set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
 	set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
 
-	ebuf = NewStrBufPlain(bstr("signature"), -1);
-	/////TODOeuid_escapize(ebuf);
-	set_preference("signature", ebuf, 1);
+	buf = NewStrBufPlain(bstr("signature"), -1);
+	encBuf = NewStrBuf();
+	StrBufEUid_escapize(encBuf, buf);
+	set_preference("signature", encBuf, 1);
 
 	display_main_menu();
 }
