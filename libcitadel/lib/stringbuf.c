@@ -1,4 +1,4 @@
-
+#include <ctype.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -147,7 +147,7 @@ void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset)
 		return;
 	if (Buf->BufSize - Offset < AppendBuf->BufUsed)
 		IncreaseBuf(Buf, (Buf->BufUsed > 0), AppendBuf->BufUsed);
-	memcpy(Buf->buf + Buf->BufUsed - 1, 
+	memcpy(Buf->buf + Buf->BufUsed, 
 	       AppendBuf->buf + Offset, 
 	       AppendBuf->BufUsed - Offset);
 	Buf->BufUsed += AppendBuf->BufUsed - Offset;
@@ -171,10 +171,10 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 	}
 	if (Offset + nChars < Source->BufUsed)
 	{
-		if (nChars < dest->BufSize)
+		if (nChars > dest->BufSize)
 			IncreaseBuf(dest, 0, nChars + 1);
 		memcpy(dest->buf, Source->buf + Offset, nChars);
-		dest->BufUsed = nChars + 1;
+		dest->BufUsed = nChars;
 		dest->buf[dest->BufUsed] = '\0';
 		return nChars;
 	}
@@ -414,3 +414,37 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source)
 	}
 }
 
+
+/*
+ * string conversion function
+ */
+void StrBufEUid_escapize(StrBuf *target, StrBuf *source) 
+{
+	int i, len;
+
+	if (target != NULL)
+		FlushStrBuf(target);
+
+	if (source == NULL ||target == NULL)
+	{
+		return;
+	}
+
+	len = source->BufUsed;
+	for (i=0; i<len; ++i) {
+		if (target->BufUsed + 4 >= target->BufSize)
+			IncreaseBuf(target, 1, -1);
+		if ( (isalnum(source->buf[i])) || 
+		     (source->buf[i]=='-') || 
+		     (source->buf[i]=='_') ) {
+			target->buf[target->BufUsed++] = source->buf[i];
+		}
+		else {
+			sprintf(&target->buf[target->BufUsed], 
+				"=%02X", 
+				source->buf[i]);
+			target->BufUsed += 3;
+		}
+	}
+	target->buf[target->BufUsed + 1] = '\0';
+}

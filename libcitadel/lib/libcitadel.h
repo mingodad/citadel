@@ -227,6 +227,7 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format_
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
 void StrBufEUid_unescapize(StrBuf *target, StrBuf *source);
+void StrBufEUid_escapize(StrBuf *target, StrBuf *source);
 
 long StrTol(StrBuf *Buf);
 
