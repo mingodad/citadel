@@ -3279,6 +3279,7 @@ void display_enter(void)
 	int is_anonymous = 0;
 	long existing_page = (-1L);
 	size_t dplen;
+	struct wcsession *WCC = WC;
 
 	now = time(NULL);
 
@@ -3301,7 +3302,7 @@ void display_enter(void)
 		recipient_required = 1;
 	}
 	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
-		sprintf(WC->ImportantMessage, "%s", &buf[4]);
+		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
 		readloop("readnew");
 		return;
 	}
@@ -3315,8 +3316,8 @@ void display_enter(void)
 	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
-	if (WC->wc_default_view == VIEW_ADDRESSBOOK) {
-		do_edit_vcard(-1, "", "", WC->wc_roomname);
+	if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
+		do_edit_vcard(-1, "", "", WCC->wc_roomname);
 		return;
 	}
 
@@ -3324,7 +3325,7 @@ void display_enter(void)
 	 * Are we perhaps in a calendar room?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
-	if (WC->wc_default_view == VIEW_CALENDAR) {
+	if (WCC->wc_default_view == VIEW_CALENDAR) {
 		display_edit_event();
 		return;
 	}
@@ -3333,7 +3334,7 @@ void display_enter(void)
 	 * Are we perhaps in a tasks view?  If so, then an "enter
 	 * message" command really means "add new task."
 	 */
-	if (WC->wc_default_view == VIEW_TASKS) {
+	if (WCC->wc_default_view == VIEW_TASKS) {
 		display_edit_task();
 		return;
 	}
@@ -3404,13 +3405,13 @@ void display_enter(void)
 		"name=\"enterform\""
 		">\n");
 	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
-	if (WC->wc_view == VIEW_WIKI) {
+	if (WCC->wc_view == VIEW_WIKI) {
 		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
 	}
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
 	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
-	escputs(WC->wc_roomname);
+	escputs(WCC->wc_roomname);
 	wprintf("\">\n");
 	wprintf("<input type=\"hidden\" name=\"references\" value=\"");
 	escputs(bstr("references"));
@@ -3462,9 +3463,9 @@ void display_enter(void)
 		}
 	}
 
-	if (WC->room_flags & QR_ANONOPT) {
+	if (WCC->room_flags & QR_ANONOPT) {
 		wprintf("<option %s value=\"__ANONYMOUS__\">%s</option>\n",
-			((!strcasecmp(bstr("__ANONYMOUS__"), WC->wc_fullname)) ? "selected" : ""),
+			((!strcasecmp(bstr("__ANONYMOUS__"), WCC->wc_fullname)) ? "selected" : ""),
 			_("Anonymous")
 		);
 	}
@@ -3491,7 +3492,7 @@ void display_enter(void)
 	}
 
 	wprintf(_(" <I>in</I> "));
-	escputs(WC->wc_roomname);
+	escputs(WCC->wc_roomname);
 
 	wprintf("</td></tr>");
 
@@ -3600,7 +3601,7 @@ void display_enter(void)
 	}
 
 	/** If we're editing a wiki page, insert the existing page here... */
-	else if (WC->wc_view == VIEW_WIKI) {
+	else if (WCC->wc_view == VIEW_WIKI) {
 		safestrncpy(buf, bstr("wikipage"), sizeof buf);
 		str_wiki_index(buf);
 		existing_page = locate_message_by_uid(buf);
@@ -3610,7 +3611,7 @@ void display_enter(void)
 	}
 
 	/** Insert our signature if appropriate... */
-	if ( (WC->is_mailbox) && yesbstr("sig_inserted") ) {
+	if ( (WCC->is_mailbox) && !yesbstr("sig_inserted") ) {
 		int UseSig;
 		get_pref_yesno("use_sig", &UseSig, 0);
 		if (UseSig) {
@@ -3642,9 +3643,9 @@ void display_enter(void)
 				else if (*sig == '\'') {
 					wprintf("&#39;");
 				}
-				else if (isprint(*sig)) {
+				else /* since we're utf 8, is this a good idea? if (isprint(*sig))*/ {
 					wprintf("%c", *sig);
-				}
+				} 
 				sig ++;
 			}
 		}
@@ -3667,7 +3668,7 @@ void display_enter(void)
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
-	for (att = WC->first_attachment; att != NULL; att = att->next) {
+	for (att = WCC->first_attachment; att != NULL; att = att->next) {
 		wprintf("<option value=\"");
 		urlescputs(att->filename);
 		wprintf("\">");
