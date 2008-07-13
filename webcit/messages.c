@@ -661,14 +661,14 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 					wprintf("</TD></TR>\n");
 				}
 			}
-			else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
+			/* else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
 				// Only output on second pass
 				wprintf("<tr><td>");
 				wprintf(_("Photo:"));
 				wprintf("</td><td>");
 				wprintf("<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
 				wprintf("</td></tr>\n");
-			}
+			} */
 			else if (!strcasecmp(firsttoken, "version")) {
 				/* ignore */
 			}
