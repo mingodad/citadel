@@ -62,6 +62,7 @@ struct CitContext {
 	int kill_me;		/* Set to nonzero to flag for termination */
 	int client_socket;
 	int cs_pid;		/* session ID */
+	int dont_term;          /* for special activities like artv so we don't get killed */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
 

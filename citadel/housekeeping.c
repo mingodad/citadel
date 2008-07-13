@@ -57,6 +57,7 @@ void terminate_idle_sessions(void) {
 	time_t now;
 	int session_to_kill;
 	int killed = 0;
+	int longrunners = 0;
 
 	now = time(NULL);
 	session_to_kill = 0;
@@ -65,13 +66,19 @@ void terminate_idle_sessions(void) {
 		if (  (ccptr!=CC)
 	   	&& (config.c_sleeping > 0)
 	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
-			ccptr->kill_me = 1;
-			++killed;
+			if (!ccptr->dont_term) {
+				ccptr->kill_me = 1;
+				++killed;
+			}
+			else 
+				longrunners ++;
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (killed > 0)
 		CtdlLogPrintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
+	if (longrunners > 0)
+		CtdlLogPrintf(CTDL_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
 }
 
 

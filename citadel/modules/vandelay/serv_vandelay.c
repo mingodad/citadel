@@ -480,7 +480,7 @@ void artv_do_export(void) {
 
 	Ctx = CC;
 	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);
-
+	Ctx->dont_term = 1;
 	cprintf("version\n%d\n", REV_LEVEL);
 
 	/* export the config file (this is done using x-macros) */
@@ -512,6 +512,7 @@ void artv_do_export(void) {
 	if (Ctx->kill_me != 1)
 		artv_export_messages();
 	client_write("000\n", 4);
+	Ctx->dont_term = 0;
 }
 
 void artv_do_dump(void) {
@@ -818,6 +819,8 @@ void artv_do_import(void) {
 	
 	unbuffer_output();
 
+	CC->dont_term = 1;
+
 	/* Prepare buffers for base 64 decoding of messages.
 	*/
 	b64mes = malloc(SIZ);
@@ -891,6 +894,7 @@ void artv_do_import(void) {
 	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000"))  ;;
 	rebuild_euid_index();
 	rebuild_usersbynumber();
+	CC->dont_term = 0;
 }
 
 
