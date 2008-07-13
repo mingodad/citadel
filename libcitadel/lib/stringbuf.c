@@ -127,6 +127,8 @@ void FreeStrBuf (StrBuf **FreeMe)
 void HFreeStrBuf (void *VFreeMe)
 {
 	StrBuf *FreeMe = (StrBuf*)VFreeMe;
+	if (FreeMe == NULL)
+		return;
 	if (!FreeMe->ConstBuf) 
 		free(FreeMe->buf);
 	free(FreeMe);
