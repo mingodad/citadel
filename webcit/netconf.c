@@ -294,5 +294,16 @@ void delete_node(void)
 	display_netconf();
 }
 
+void 
+InitModule_NETCONF
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_edit_node"), display_edit_node, 0);
 
+	WebcitAddUrlHandler(HKEY("edit_node"), edit_node, 0);
+	WebcitAddUrlHandler(HKEY("display_netconf"), display_netconf, 0);
+	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), display_confirm_delete_node, 0);
+	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
+	WebcitAddUrlHandler(HKEY("display_add_node"), display_add_node, 0);
+}
 /*@}*/

@@ -498,4 +498,15 @@ void chat_send(void) {
 	wDumpContent(0);
 }
 
+void 
+InitModule_PAGING
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_page"), display_page, 0);
+	WebcitAddUrlHandler(HKEY("page_user"), page_user, 0);
+	WebcitAddUrlHandler(HKEY("chat"), do_chat, 0);
+	WebcitAddUrlHandler(HKEY("chat_recv"), chat_recv, 0);
+	WebcitAddUrlHandler(HKEY("chat_send"), chat_send, 0);
+}
+
 /*@}*/

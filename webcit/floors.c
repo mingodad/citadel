@@ -196,5 +196,15 @@ void rename_floor(void) {
 	display_floorconfig(message);
 }
 
+void _display_floorconfig(void) {display_floorconfig(NULL);}
 
+void 
+InitModule_FLOORS
+(void)
+{
+	WebcitAddUrlHandler(HKEY("delete_floor"), delete_floor, 0);
+	WebcitAddUrlHandler(HKEY("rename_floor"), rename_floor, 0);
+	WebcitAddUrlHandler(HKEY("create_floor"), create_floor, 0);
+	WebcitAddUrlHandler(HKEY("display_floorconfig"), _display_floorconfig, 0);
+}
 /*@}*/

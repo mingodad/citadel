@@ -111,3 +111,11 @@ void save_pushemail(void) {
 	serv_getln(buf, sizeof buf);
 	http_redirect("display_pushemail");
 }
+
+void 
+InitModule_PUSHMAIL
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_pushemail"), display_pushemail, 0);
+	WebcitAddUrlHandler(HKEY("save_pushemail"), save_pushemail, 0);
+}

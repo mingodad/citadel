@@ -379,3 +379,11 @@ void add_new_note(void) {
 	
 	readloop("readfwd");
 }
+
+void 
+InitModule_NOTES
+(void)
+{
+	WebcitAddUrlHandler(HKEY("add_new_note"), add_new_note, 0);
+	WebcitAddUrlHandler(HKEY("ajax_update_note"), ajax_update_note, 0);
+}

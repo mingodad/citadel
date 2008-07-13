@@ -1057,3 +1057,18 @@ void do_freebusy(char *req) {
 	free(fb);
 }
 
+
+
+
+
+void 
+InitModule_CALENDAR
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_edit_task"), display_edit_task, 0);
+	WebcitAddUrlHandler(HKEY("save_task"), save_task, 0);
+	WebcitAddUrlHandler(HKEY("display_edit_event"), display_edit_event, 0);
+	WebcitAddUrlHandler(HKEY("save_event"), save_event, 0);
+	WebcitAddUrlHandler(HKEY("respond_to_request"), respond_to_request, 0);
+	WebcitAddUrlHandler(HKEY("handle_rsvp"), handle_rsvp, 0);
+}

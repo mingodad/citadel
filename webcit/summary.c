@@ -288,5 +288,16 @@ void summary(void) {
 	wDumpContent(1);
 }
 
+void 
+InitModule_SUMMARY
+(void)
+{
+	WebcitAddUrlHandler(HKEY("new_messages_html"), new_messages_section, AJAX);
+	WebcitAddUrlHandler(HKEY("tasks_inner_html"), tasks_section, AJAX);
+	WebcitAddUrlHandler(HKEY("calendar_inner_html"), calendar_section, AJAX);
+	WebcitAddUrlHandler(HKEY("mini_calendar"), ajax_mini_calendar, AJAX);
+	WebcitAddUrlHandler(HKEY("summary"), summary, 0);
+	WebcitAddUrlHandler(HKEY("summary_inner_div"), summary_inner_div, AJAX);
+}
 
 /*@}*/

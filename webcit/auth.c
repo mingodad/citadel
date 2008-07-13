@@ -875,10 +875,25 @@ void changepw(void)
 	}
 }
 
+void _display_openid_login(void) {display_openid_login(NULL);}
+void _display_reg(void) {display_reg(0);}
 
 
-void InitModule_AUTH(void)
+void 
+InitModule_AUTH
+(void)
 {
-	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, 0);
+	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("login"), do_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("display_openid_login"), _display_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("openid_login"), do_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("finalize_openid_login"), finalize_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("openid_manual_create"), openid_manual_create, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("do_logout"), do_logout, 0);
+	WebcitAddUrlHandler(HKEY("validate"), validate, 0);
+	WebcitAddUrlHandler(HKEY("display_reg"), _display_reg, 0);
+	WebcitAddUrlHandler(HKEY("display_changepw"), display_changepw, 0);
+	WebcitAddUrlHandler(HKEY("changepw"), changepw, 0);
+	WebcitAddUrlHandler(HKEY("termquit"), do_logout, 0);
 	return ;
 }

@@ -485,4 +485,12 @@ void submit_vcard(void) {
 
 
 
+void 
+InitModule_VCARD
+(void)
+{
+	WebcitAddUrlHandler(HKEY("edit_vcard"), edit_vcard, 0);
+	WebcitAddUrlHandler(HKEY("submit_vcard"), submit_vcard, 0);
+}
+
 /*@}*/

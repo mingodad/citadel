@@ -52,4 +52,9 @@ void do_setup_wizard(void)
 	wDumpContent(1);
 }
 
-
+void 
+InitModule_SETUP_WIZARD
+(void)
+{
+	WebcitAddUrlHandler(HKEY("setup_wizard"), do_setup_wizard, 0);
+}

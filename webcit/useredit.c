@@ -529,5 +529,17 @@ void create_user(void) {
 }
 
 
+void _select_user_to_edit(void){select_user_to_edit(NULL, NULL);}
+void _display_edituser(void) {display_edituser(NULL, 0);}
 
+void 
+InitModule_USEREDIT
+(void)
+{
+	WebcitAddUrlHandler(HKEY("select_user_to_edit"), _select_user_to_edit, 0);
+	WebcitAddUrlHandler(HKEY("display_edituser"), _display_edituser, 0);
+	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
+	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
+	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
+}
 /*@}*/

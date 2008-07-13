@@ -43,3 +43,18 @@ void recp_autocomplete(char *partial) {
 	wprintf("\r\n\r\n");
 	wDumpContent(0);
 }
+
+
+void _recp_autocomplete(void) {recp_autocomplete(bstr("recp"));}
+void _cc_autocomplete(void)   {recp_autocomplete(bstr("cc"));} 
+void _bcc_autocomplete(void)  {recp_autocomplete(bstr("bcc"));}
+
+
+void 
+InitModule_AUTO_COMPLETE
+(void)
+{
+	WebcitAddUrlHandler(HKEY("recp_autocomplete"), _recp_autocomplete, 0);
+	WebcitAddUrlHandler(HKEY("cc_autocomplete"),   _cc_autocomplete, 0);
+	WebcitAddUrlHandler(HKEY("bcc_autocomplete"),  _bcc_autocomplete, 0);
+}

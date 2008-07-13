@@ -22,8 +22,10 @@ static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
 HashList *HandlerHash = NULL;
 
-
-void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, int IsAjax)
+void WebcitAddUrlHandler(const char * UrlString, 
+			 long UrlSLen, 
+			 WebcitHandlerFunc F, 
+			 long Flags)
 {
 	WebcitHandler *NewHandler;
 
@@ -32,8 +34,7 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc
 	
 	NewHandler = (WebcitHandler*) malloc(sizeof(WebcitHandler));
 	NewHandler->F = F;
-	NewHandler->IsAjax = IsAjax;
-
+	NewHandler->Flags = Flags;
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, NULL);
 }
 
@@ -935,7 +936,7 @@ void output_image()
 /*
  * Extract an embedded photo from a vCard for display on the client
  */
-void display_vcard_photo_img(char *msgnum_as_string)
+void display_vcard_photo_img(void)
 {
 	long msgnum = 0L;
 	char *vcard;
@@ -945,7 +946,7 @@ void display_vcard_photo_img(char *msgnum_as_string)
 	int decoded;
 	const char *contentType;
 
-	msgnum = atol(msgnum_as_string);
+	msgnum = StrTol(WC->UrlFragment1);
 	
 	vcard = load_mimepart(msgnum,"1");
 	v = vcard_load(vcard);
@@ -976,7 +977,7 @@ void display_vcard_photo_img(char *msgnum_as_string)
  * partnum		The MIME part to be output
  * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
  */
-void mimepart(char *msgnum, char *partnum, int force_download)
+void mimepart(const char *msgnum, const char *partnum, int force_download)
 {
 	char buf[256];
 	off_t bytes;
@@ -1366,6 +1367,7 @@ void session_loop(struct httprequest *req)
 	char c_httpauth_user[SIZ];
 	char c_httpauth_pass[SIZ];
 	char cookie[SIZ];
+	struct wcsession *WCC = WC;
 
 	safestrncpy(c_username, "", sizeof c_username);
 	safestrncpy(c_password, "", sizeof c_password);
@@ -1375,9 +1377,9 @@ void session_loop(struct httprequest *req)
 	safestrncpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS, sizeof c_httpauth_pass);
 	strcpy(browser_host, "");
 
-	WC->upload_length = 0;
-	WC->upload = NULL;
-	WC->is_mobile = 0;
+	WCC->upload_length = 0;
+	WCC->upload = NULL;
+	WCC->is_mobile = 0;
 
 	hptr = req;
 	if (hptr == NULL) return;
@@ -1436,17 +1438,17 @@ void session_loop(struct httprequest *req)
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			safestrncpy(user_agent, &buf[12], sizeof user_agent);
 			if (is_mobile_ua(&buf[12])) {
-				WC->is_mobile = 1;
+				WCC->is_mobile = 1;
 			}
 		}
 		else if (!strncasecmp(buf, "X-Forwarded-Host: ", 18)) {
 			if (follow_xff) {
-				safestrncpy(WC->http_host, &buf[18], sizeof WC->http_host);
+				safestrncpy(WCC->http_host, &buf[18], sizeof WCC->http_host);
 			}
 		}
 		else if (!strncasecmp(buf, "Host: ", 6)) {
-			if (IsEmptyStr(WC->http_host)) {
-				safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
+			if (IsEmptyStr(WCC->http_host)) {
+				safestrncpy(WCC->http_host, &buf[6], sizeof WCC->http_host);
 			}
 		}
 		else if (!strncasecmp(buf, "X-Forwarded-For: ", 17)) {
@@ -1470,7 +1472,7 @@ void session_loop(struct httprequest *req)
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */
-		client_read(WC->http_sock, &content[body_start], ContentLength);
+		client_read(WCC->http_sock, &content[body_start], ContentLength);
 
 		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
 			addurls(&content[body_start], ContentLength);
@@ -1483,9 +1485,9 @@ void session_loop(struct httprequest *req)
 	}
 
 	/* make a note of where we are in case the user wants to save it */
-	safestrncpy(WC->this_page, cmd, sizeof(WC->this_page));
-	remove_token(WC->this_page, 2, ' ');
-	remove_token(WC->this_page, 0, ' ');
+	safestrncpy(WCC->this_page, cmd, sizeof(WCC->this_page));
+	remove_token(WCC->this_page, 2, ' ');
+	remove_token(WCC->this_page, 0, ' ');
 
 	/* If there are variables in the URL, we must grab them now */
 	len = strlen(cmd);
@@ -1552,8 +1554,8 @@ void session_loop(struct httprequest *req)
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (strlen(bstr("nonce")) > 0) {
 		lprintf(9, "Comparing supplied nonce %s to session nonce %ld\n", 
-			bstr("nonce"), WC->nonce);
-		if (ibstr("nonce") != WC->nonce) {
+			bstr("nonce"), WCC->nonce);
+		if (ibstr("nonce") != WCC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			wprintf("HTTP/1.1 404 Security check failed\r\n");
 			wprintf("Content-Type: text/plain\r\n");
@@ -1567,23 +1569,23 @@ void session_loop(struct httprequest *req)
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.
 	 */
-	if (!WC->connected) {
+	if (!WCC->connected) {
 		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
 			snprintf(buf, SIZ, "%s/citadel.socket", ctdlport);
-			WC->serv_sock = uds_connectsock(buf);
+			WCC->serv_sock = uds_connectsock(buf);
 		}
 		else {
 			/* tcp socket */
-			WC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
+			WCC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
 		}
 
-		if (WC->serv_sock < 0) {
+		if (WCC->serv_sock < 0) {
 			do_logout();
 			goto SKIP_ALL_THIS_CRAP;
 		}
 		else {
-			WC->connected = 1;
+			WCC->connected = 1;
 			serv_getln(buf, sizeof buf);	/** get the server welcome message */
 
 			/**
@@ -1593,7 +1595,7 @@ void session_loop(struct httprequest *req)
 			 * and such a header has already turned up something.
 			 */
 			if ( (!follow_xff) || (strlen(browser_host) == 0) ) {
-				locate_host(browser_host, WC->http_sock);
+				locate_host(browser_host, WCC->http_sock);
 			}
 
 			get_serv_info(browser_host, user_agent);
@@ -1630,7 +1632,7 @@ void session_loop(struct httprequest *req)
 	 * If we're not logged in, but we have HTTP Authentication data,
 	 * try logging in to Citadel using that.
 	 */
-	if ((!WC->logged_in)
+	if ((!WCC->logged_in)
 	   && (strlen(c_httpauth_user) > 0)
 	   && (strlen(c_httpauth_pass) > 0)) {
 		serv_printf("USER %s", c_httpauth_user);
@@ -1641,8 +1643,8 @@ void session_loop(struct httprequest *req)
 			if (buf[0] == '2') {
 				become_logged_in(c_httpauth_user,
 						c_httpauth_pass, buf);
-				safestrncpy(WC->httpauth_user, c_httpauth_user, sizeof WC->httpauth_user);
-				safestrncpy(WC->httpauth_pass, c_httpauth_pass, sizeof WC->httpauth_pass);
+				safestrncpy(WCC->httpauth_user, c_httpauth_user, sizeof WCC->httpauth_user);
+				safestrncpy(WCC->httpauth_pass, c_httpauth_pass, sizeof WCC->httpauth_pass);
 			} else {
 				/* Should only display when password is wrong */
 				authorization_required(&buf[4]);
@@ -1666,8 +1668,8 @@ void session_loop(struct httprequest *req)
 	if (!strncasecmp(action, "groupdav", 8)) {
 		groupdav_main(req, ContentType, /* do GroupDAV methods */
 			ContentLength, content+body_start);
-		if (!WC->logged_in) {
-			WC->killthis = 1;	/* If not logged in, don't */
+		if (!WCC->logged_in) {
+			WCC->killthis = 1;	/* If not logged in, don't */
 		}				/* keep the session active */
 		goto SKIP_ALL_THIS_CRAP;
 	}
@@ -1680,8 +1682,8 @@ void session_loop(struct httprequest *req)
 	if ((strcasecmp(request_method, "GET")) && (strcasecmp(request_method, "POST"))) {
 		groupdav_main(req, ContentType, /** do GroupDAV methods */
 			ContentLength, content+body_start);
-		if (!WC->logged_in) {
-			WC->killthis = 1;	/** If not logged in, don't */
+		if (!WCC->logged_in) {
+			WCC->killthis = 1;	/** If not logged in, don't */
 		}				/** keep the session active */
 		goto SKIP_ALL_THIS_CRAP;
 	}
@@ -1690,7 +1692,7 @@ void session_loop(struct httprequest *req)
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
-	if ((!WC->logged_in)
+	if ((!WCC->logged_in)
 	   && (!IsEmptyStr(c_username))
 	   && (!IsEmptyStr(c_password))) {
 		serv_printf("USER %s", c_username);
@@ -1707,11 +1709,11 @@ void session_loop(struct httprequest *req)
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
-	if ((IsEmptyStr(WC->wc_roomname)) && (!IsEmptyStr(c_roomname))) {
+	if ((IsEmptyStr(WCC->wc_roomname)) && (!IsEmptyStr(c_roomname))) {
 		serv_printf("GOTO %s", c_roomname);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			safestrncpy(WC->wc_roomname, c_roomname, sizeof WC->wc_roomname);
+			safestrncpy(WCC->wc_roomname, c_roomname, sizeof WCC->wc_roomname);
 		}
 	}
 
@@ -1719,392 +1721,39 @@ void session_loop(struct httprequest *req)
 		output_image();
 	} else if (!strcasecmp(action, "display_mime_icon")) {
 		display_mime_icon();
-
-	/*
-	 * All functions handled below this point ... make sure we log in
-	 * before doing anything else!
-	 */
-	} else if ((!WC->logged_in) && (!strcasecmp(action, "login"))) {
-		do_login();
-	} else if ((!WC->logged_in) && (!strcasecmp(action, "display_openid_login"))) {
-		display_openid_login(NULL);
-	} else if ((!WC->logged_in) && (!strcasecmp(action, "openid_login"))) {
-		do_openid_login();
-	} else if (!strcasecmp(action, "finalize_openid_login")) {
-		finalize_openid_login();
-	} else if (!strcasecmp(action, "openid_manual_create")) {
-		openid_manual_create();
-	} else if (!WC->logged_in) {
-		display_login(NULL);
 	}
-
-	/*
-	 * Various commands...
-	 */
-
 	else {
 		void *vHandler;
 		WebcitHandler *Handler;
-
+		
 		GetHash(HandlerHash, action, strlen(action) /* TODO*/, &vHandler),
 			Handler = (WebcitHandler*) vHandler;
 		if (Handler != NULL) {
-			if (Handler->IsAjax)
-				begin_ajax_response();
-			Handler->F();
-			if (Handler->IsAjax)
-				end_ajax_response();
+			if (!WCC->logged_in && ((Handler->Flags & ANONYMOUS) == 0)) {
+				display_login(NULL);
+			}
+			else {
+				if((Handler->Flags & NEED_URL)) {
+					if (WCC->UrlFragment1 == NULL)
+						WCC->UrlFragment1 = NewStrBuf();
+					if (WCC->UrlFragment2 == NULL)
+						WCC->UrlFragment2 = NewStrBuf();
+					StrBufPrintf(WCC->UrlFragment1, "%s", index[1]);
+					StrBufPrintf(WCC->UrlFragment2, "%s", index[2]);
+				}
+				if ((Handler->Flags & AJAX) != 0)
+					begin_ajax_response();
+				Handler->F();
+				if ((Handler->Flags & AJAX) != 0)
+					end_ajax_response();
+			}
 		}
-		
-
-	else if (!strcasecmp(action, "do_welcome")) {
-		do_welcome();
-	} else if (!strcasecmp(action, "blank")) {
-		blank_page();
-	} else if (!strcasecmp(action, "do_template")) {
-		url_do_template();
-	} else if (!strcasecmp(action, "display_aide_menu")) {
-		display_aide_menu();
-	} else if (!strcasecmp(action, "server_shutdown")) {
-		display_shutdown();
-	} else if (!strcasecmp(action, "display_main_menu")) {
-		display_main_menu();
-	} else if (!strcasecmp(action, "who")) {
-		who();
-	} else if (!strcasecmp(action, "sslg")) {
-		seconds_since_last_gexp();
-	} else if (!strcasecmp(action, "who_inner_html")) {
-		begin_ajax_response();
-		who_inner_div();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "wholist_section")) {
-		begin_ajax_response();
-		wholist_section();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "new_messages_html")) {
-		begin_ajax_response();
-		new_messages_section();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "tasks_inner_html")) {
-		begin_ajax_response();
-		tasks_section();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "calendar_inner_html")) {
-		begin_ajax_response();
-		calendar_section();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "mini_calendar")) {
-		begin_ajax_response();
-		ajax_mini_calendar();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "iconbar_ajax_menu")) {
-		begin_ajax_response();
-		do_iconbar();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "iconbar_ajax_rooms")) {
-		begin_ajax_response();
-		do_iconbar_roomlist();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "knrooms")) {
-		knrooms();
-	} else if (!strcasecmp(action, "gotonext")) {
-		slrp_highest();
-		gotonext();
-	} else if (!strcasecmp(action, "skip")) {
-		gotonext();
-	} else if (!strcasecmp(action, "ungoto")) {
-		ungoto();
-	} else if (!strcasecmp(action, "dotgoto")) {
-		if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
-			slrp_highest();
-		}
-		smart_goto(bstr("room"));
-	} else if (!strcasecmp(action, "dotskip")) {
-		smart_goto(bstr("room"));
-	} else if (!strcasecmp(action, "termquit")) {
-		do_logout();
-	} else if (!strcasecmp(action, "readnew")) {
-		readloop("readnew");
-	} else if (!strcasecmp(action, "readold")) {
-		readloop("readold");
-	} else if (!strcasecmp(action, "readfwd")) {
-		readloop("readfwd");
-	} else if (!strcasecmp(action, "headers")) {
-		readloop("headers");
-	} else if (!strcasecmp(action, "do_search")) {
-		readloop("do_search");
-	} else if (!strcasecmp(action, "msg")) {
-		embed_message(index[1]);
-	} else if (!strcasecmp(action, "printmsg")) {
-		print_message(index[1]);
-	} else if (!strcasecmp(action, "msgheaders")) {
-		display_headers(index[1]);
-	} else if (!strcasecmp(action, "vcardphoto")) {
-		display_vcard_photo_img(index[1]);	
-	} else if (!strcasecmp(action, "wiki")) {
-		display_wiki_page();
-	} else if (!strcasecmp(action, "display_enter")) {
-		display_enter();
-	} else if (!strcasecmp(action, "post")) {
-		post_message();
-	} else if (!strcasecmp(action, "move_msg")) {
-		move_msg();
-	} else if (!strcasecmp(action, "delete_msg")) {
-		delete_msg();
-	} else if (!strcasecmp(action, "userlist")) {
-		userlist();
-	} else if (!strcasecmp(action, "showuser")) {
-		showuser();
-	} else if (!strcasecmp(action, "display_page")) {
-		display_page();
-	} else if (!strcasecmp(action, "page_user")) {
-		page_user();
-	} else if (!strcasecmp(action, "chat")) {
-		do_chat();
-	} else if (!strcasecmp(action, "display_private")) {
-		display_private("", 0);
-	} else if (!strcasecmp(action, "goto_private")) {
-		goto_private();
-	} else if (!strcasecmp(action, "zapped_list")) {
-		zapped_list();
-	} else if (!strcasecmp(action, "display_zap")) {
-		display_zap();
-	} else if (!strcasecmp(action, "zap")) {
-		zap();
-	} else if (!strcasecmp(action, "display_entroom")) {
-		display_entroom();
-	} else if (!strcasecmp(action, "entroom")) {
-		entroom();
-	} else if (!strcasecmp(action, "display_whok")) {
-		display_whok();
-	} else if (!strcasecmp(action, "do_invt_kick")) {
-		do_invt_kick();
-	} else if (!strcasecmp(action, "display_editroom")) {
-		display_editroom();
-	} else if (!strcasecmp(action, "netedit")) {
-		netedit();
-	} else if (!strcasecmp(action, "editroom")) {
-		editroom();
-	} else if (!strcasecmp(action, "display_editinfo")) {
-		display_edit(_("Room info"), "EINF 0", "RINF", "editinfo", 1);
-	} else if (!strcasecmp(action, "editinfo")) {
-		save_edit(_("Room info"), "EINF 1", 1);
-	} else if (!strcasecmp(action, "display_editbio")) {
-		snprintf(buf, SIZ, "RBIO %s", WC->wc_fullname);
-		display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
-	} else if (!strcasecmp(action, "editbio")) {
-		save_edit(_("Your bio"), "EBIO", 0);
-	} else if (!strcasecmp(action, "confirm_move_msg")) {
-		confirm_move_msg();
-	} else if (!strcasecmp(action, "delete_room")) {
-		delete_room();
-	} else if (!strcasecmp(action, "validate")) {
-		validate();
-		/* The users photo display / upload facility */
-	} else if (!strcasecmp(action, "display_editpic")) {
-		display_graphics_upload(_("your photo"),
-					"_userpic_",
-					"editpic");
-	} else if (!strcasecmp(action, "editpic")) {
-		do_graphics_upload("_userpic_");
-                /* room picture dispay / upload facility */
-	} else if (!strcasecmp(action, "display_editroompic")) {
-		display_graphics_upload(_("the icon for this room"),
-					"_roompic_",
-					"editroompic");
-	} else if (!strcasecmp(action, "editroompic")) {
-		do_graphics_upload("_roompic_");
-		/* the greetingpage hello pic */
-	} else if (!strcasecmp(action, "display_edithello")) {
-		display_graphics_upload(_("the Greetingpicture for the login prompt"),
-					"hello",
-					"edithellopic");
-	} else if (!strcasecmp(action, "edithellopic")) {
-		do_graphics_upload("hello");
-		/* the logoff banner */
-	} else if (!strcasecmp(action, "display_editgoodbyepic")) {
-		display_graphics_upload(_("the Logoff banner picture"),
-					"UIMG 0|%s|goodbuye",
-					"editgoodbuyepic");
-	} else if (!strcasecmp(action, "editgoodbuyepic")) {
-		do_graphics_upload("UIMG 1|%s|goodbuye");
-
-	} else if (!strcasecmp(action, "delete_floor")) {
-		delete_floor();
-	} else if (!strcasecmp(action, "rename_floor")) {
-		rename_floor();
-	} else if (!strcasecmp(action, "create_floor")) {
-		create_floor();
-	} else if (!strcasecmp(action, "display_editfloorpic")) {
-		snprintf(buf, SIZ, "UIMG 0|_floorpic_|%s",
-			bstr("which_floor"));
-		display_graphics_upload(_("the icon for this floor"),
-					buf,
-					"editfloorpic");
-	} else if (!strcasecmp(action, "editfloorpic")) {
-		snprintf(buf, SIZ, "UIMG 1|_floorpic_|%s",
-			bstr("which_floor"));
-		do_graphics_upload(buf);
-	} else if (!strcasecmp(action, "display_reg")) {
-		display_reg(0);
-	} else if (!strcasecmp(action, "display_changepw")) {
-		display_changepw();
-	} else if (!strcasecmp(action, "changepw")) {
-		changepw();
-	} else if (!strcasecmp(action, "display_edit_node")) {
-		display_edit_node();
-	} else if (!strcasecmp(action, "edit_node")) {
-		edit_node();
-	} else if (!strcasecmp(action, "display_netconf")) {
-		display_netconf();
-	} else if (!strcasecmp(action, "display_confirm_delete_node")) {
-		display_confirm_delete_node();
-	} else if (!strcasecmp(action, "delete_node")) {
-		delete_node();
-	} else if (!strcasecmp(action, "display_add_node")) {
-		display_add_node();
-	} else if (!strcasecmp(action, "terminate_session")) {
-		slrp_highest();
-		terminate_session();
-	} else if (!strcasecmp(action, "edit_me")) {
-		edit_me();
-	} else if (!strcasecmp(action, "display_siteconfig")) {
-		display_siteconfig();
-	} else if (!strcasecmp(action, "chat_recv")) {
-		chat_recv();
-	} else if (!strcasecmp(action, "chat_send")) {
-		chat_send();
-	} else if (!strcasecmp(action, "siteconfig")) {
-		siteconfig();
-	} else if (!strcasecmp(action, "display_generic")) {
-		display_generic();
-	} else if (!strcasecmp(action, "do_generic")) {
-		do_generic();
-	} else if (!strcasecmp(action, "ajax_servcmd")) {
-		ajax_servcmd();
-	} else if (!strcasecmp(action, "display_menubar")) {
-		display_menubar(1);
-	} else if (!strcasecmp(action, "mimepart")) {
-		mimepart(index[1], index[2], 0);
-	} else if (!strcasecmp(action, "mimepart_download")) {
-		mimepart(index[1], index[2], 1);
-	} else if (!strcasecmp(action, "edit_vcard")) {
-		edit_vcard();
-	} else if (!strcasecmp(action, "submit_vcard")) {
-		submit_vcard();
-	} else if (!strcasecmp(action, "select_user_to_edit")) {
-		select_user_to_edit(NULL, NULL);
-	} else if (!strcasecmp(action, "display_edituser")) {
-		display_edituser(NULL, 0);
-	} else if (!strcasecmp(action, "edituser")) {
-		edituser();
-	} else if (!strcasecmp(action, "create_user")) {
-		create_user();
-	} else if (!strcasecmp(action, "changeview")) {
-		change_view();
-	} else if (!strcasecmp(action, "change_start_page")) {
-		change_start_page();
-	} else if (!strcasecmp(action, "display_floorconfig")) {
-		display_floorconfig(NULL);
-	} else if (!strcasecmp(action, "toggle_self_service")) {
-		toggle_self_service();
-	} else if (!strcasecmp(action, "display_edit_task")) {
-		display_edit_task();
-	} else if (!strcasecmp(action, "save_task")) {
-		save_task();
-	} else if (!strcasecmp(action, "display_edit_event")) {
-		display_edit_event();
-	} else if (!strcasecmp(action, "save_event")) {
-		save_event();
-	} else if (!strcasecmp(action, "respond_to_request")) {
-		respond_to_request();
-	} else if (!strcasecmp(action, "handle_rsvp")) {
-		handle_rsvp();
-	} else if (!strcasecmp(action, "summary")) {
-		summary();
-	} else if (!strcasecmp(action, "summary_inner_div")) {
-		begin_ajax_response();
-		summary_inner_div();
-		end_ajax_response();
-	} else if (!strcasecmp(action, "display_customize_iconbar")) {
-		display_customize_iconbar();
-	} else if (!strcasecmp(action, "commit_iconbar")) {
-		commit_iconbar();
-	} else if (!strcasecmp(action, "set_room_policy")) {
-		set_room_policy();
-	} else if (!strcasecmp(action, "display_inetconf")) {
-		display_inetconf();
-	} else if (!strcasecmp(action, "save_inetconf")) {
-		save_inetconf();
-	} else if (!strcasecmp(action, "display_smtpqueue")) {
-		display_smtpqueue();
-	} else if (!strcasecmp(action, "display_smtpqueue_inner_div")) {
-		display_smtpqueue_inner_div();
-	} else if (!strcasecmp(action, "display_sieve")) {
-		display_sieve();
-	} else if (!strcasecmp(action, "save_sieve")) {
-		save_sieve();
-	} else if (!strcasecmp(action, "display_pushemail")) {
-		display_pushemail();
-	} else if (!strcasecmp(action, "save_pushemail")) {
-		save_pushemail();
-	} else if (!strcasecmp(action, "display_add_remove_scripts")) {
-		display_add_remove_scripts(NULL);
-	} else if (!strcasecmp(action, "create_script")) {
-		create_script();
-	} else if (!strcasecmp(action, "delete_script")) {
-		delete_script();
-	} else if (!strcasecmp(action, "setup_wizard")) {
-		do_setup_wizard();
-	} else if (!strcasecmp(action, "display_preferences")) {
-		display_preferences();
-	} else if (!strcasecmp(action, "set_preferences")) {
-		set_preferences();
-	} else if (!strcasecmp(action, "recp_autocomplete")) {
-		recp_autocomplete(bstr("recp"));
-	} else if (!strcasecmp(action, "cc_autocomplete")) {
-		recp_autocomplete(bstr("cc"));
-	} else if (!strcasecmp(action, "bcc_autocomplete")) {
-		recp_autocomplete(bstr("bcc"));
-	} else if (!strcasecmp(action, "display_address_book_middle_div")) {
-		display_address_book_middle_div();
-	} else if (!strcasecmp(action, "display_address_book_inner_div")) {
-		display_address_book_inner_div();
-	} else if (!strcasecmp(action, "set_floordiv_expanded")) {
-		set_floordiv_expanded(index[1]);
-	} else if (!strcasecmp(action, "diagnostics")) {
-		output_headers(1, 1, 1, 0, 0, 0);
-		wprintf("Session: %d<hr />\n", WC->wc_session);
-		wprintf("Command: <br /><PRE>\n");
-		escputs(cmd);
-		wprintf("</PRE><hr />\n");
-		wprintf("Variables: <br /><PRE>\n");
-		dump_vars();
-		wprintf("</PRE><hr />\n");
-		wDumpContent(1);
-	} else if (!strcasecmp(action, "add_new_note")) {
-		add_new_note();
-	} else if (!strcasecmp(action, "ajax_update_note")) {
-		ajax_update_note();
-	} else if (!strcasecmp(action, "display_room_directory")) {
-		display_room_directory();
-	} else if (!strcasecmp(action, "display_pictureview")) {
-		display_pictureview();
-	} else if (!strcasecmp(action, "download_file")) {
-		download_file(index[1]);
-	} else if (!strcasecmp(action, "upload_file")) {
-		upload_file();
-	} else if (!strcasecmp(action, "display_openids")) {
-		display_openids();
-	} else if (!strcasecmp(action, "openid_attach")) {
-		openid_attach();
-	} else if (!strcasecmp(action, "openid_detach")) {
-		openid_detach();
-	}
-
 	/* When all else fais, display the main menu. */
 	else {
-		display_main_menu();
+		if (!WCC->logged_in) 
+			display_login(NULL);
+		else
+			display_main_menu();
 	}
 }
 SKIP_ALL_THIS_CRAP:
@@ -2114,9 +1763,9 @@ SKIP_ALL_THIS_CRAP:
 		content = NULL;
 	}
 	free_urls();
-	if (WC->upload_length > 0) {
-		free(WC->upload);
-		WC->upload_length = 0;
+	if (WCC->upload_length > 0) {
+		free(WCC->upload);
+		WCC->upload_length = 0;
 	}
 }
 
@@ -2133,4 +1782,45 @@ void sleeeeeeeeeep(int seconds)
 	select(0, NULL, NULL, NULL, &tv);
 }
 
+void diagnostics(void)
+{
+	output_headers(1, 1, 1, 0, 0, 0);
+	wprintf("Session: %d<hr />\n", WC->wc_session);
+	wprintf("Command: <br /><PRE>\n");
+	escputs(WC->UrlFragment1);
+	wprintf("<br />\n");
+	escputs(WC->UrlFragment2);
+	wprintf("</PRE><hr />\n");
+	wprintf("Variables: <br /><PRE>\n");
+	dump_vars();
+	wprintf("</PRE><hr />\n");
+	wDumpContent(1);
+}
 
+void view_mimepart(void) {
+	mimepart(ChrPtr(WC->UrlFragment1),
+		 ChrPtr(WC->UrlFragment2),
+		 0);
+}
+
+void download_mimepart(void) {
+	mimepart(ChrPtr(WC->UrlFragment1),
+		 ChrPtr(WC->UrlFragment2),
+		 1);
+}
+
+void 
+InitModule_WEBCIT
+(void)
+{
+	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX);
+	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
+	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
+	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
+	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
+}
