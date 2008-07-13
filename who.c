@@ -434,3 +434,19 @@ void wholist_section(void) {
 	}
 	DeleteHash(&List);
 }
+
+void _terminate_session(void) {
+	slrp_highest();
+	terminate_session();
+}
+
+void 
+InitModule_WHO
+(void)
+{
+	WebcitAddUrlHandler(HKEY("who"), who, 0);
+	WebcitAddUrlHandler(HKEY("who_inner_html"), who_inner_div, AJAX);
+	WebcitAddUrlHandler(HKEY("wholist_section"), wholist_section, AJAX);
+	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
+	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
+}

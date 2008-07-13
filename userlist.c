@@ -170,5 +170,11 @@ void showuser(void)
 	wDumpContent(1);
 }
 
-
+void 
+InitModule_USERLIST
+(void)
+{
+	WebcitAddUrlHandler(HKEY("userlist"), userlist, 0);
+	WebcitAddUrlHandler(HKEY("showuser"), showuser, 0);
+}
 /*@}*/

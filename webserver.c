@@ -13,7 +13,7 @@
 #if HAVE_BACKTRACE
 #include <execinfo.h>
 #endif
-
+#include "modules_init.h"
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
@@ -663,6 +663,8 @@ void spawn_another_worker_thread()
 	pthread_attr_destroy(&attr);
 }
 
+const char foobuf[32];
+const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 /*
  * \brief Here's where it all begins.
  * \param argc number of commandline args
@@ -690,7 +692,10 @@ int main(int argc, char **argv)
 #endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/*< listen on a unix domain socket? */
 
-	HandlerHash = NewHash (1, NULL);
+	HandlerHash = NewHash(1, NULL);
+	initialise_modules();
+	dbg_PrintHash(HandlerHash, nix, NULL);
+
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
 		fprintf(stderr, " You are running libcitadel version %d.%02d\n",

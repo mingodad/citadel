@@ -381,7 +381,7 @@ void display_mime_icon(void)
 
 }
 
-void download_file(char *filename)
+void download_file(void)
 {
 	char buf[256];
 	off_t bytes;
@@ -391,7 +391,7 @@ void download_file(char *filename)
 	/* Setting to nonzero forces a MIME type of application/octet-stream */
 	int force_download = 1;
 	
-	safestrncpy(buf, filename, sizeof buf);
+	safestrncpy(buf, ChrPtr(WC->UrlFragment1), sizeof buf);
 	unescape_input(buf);
 	serv_printf("OPEN %s", buf);
 	serv_getln(buf, sizeof buf);
@@ -461,4 +461,14 @@ void upload_file(void)
 	serv_getln(buf, sizeof buf);
 	strcpy(WCC->ImportantMessage, &buf[4]);
 	display_room_directory();
+}
+
+void 
+InitModule_DOWNLOAD
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_room_directory"), display_room_directory, 0);
+	WebcitAddUrlHandler(HKEY("display_pictureview"), display_pictureview, 0);
+	WebcitAddUrlHandler(HKEY("download_file"), download_file, NEED_URL);
+	WebcitAddUrlHandler(HKEY("upload_file"), upload_file, 0);
 }

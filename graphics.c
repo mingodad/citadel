@@ -114,3 +114,66 @@ void do_graphics_upload(char *filename)
 		return;
 	}
 }
+
+
+void edithellopic(void)    { do_graphics_upload("hello"); }
+void editpic(void)         { do_graphics_upload("_userpic_"); }
+void editgoodbuyepic(void) { do_graphics_upload("UIMG 1|%s|goodbuye"); }
+
+/* The users photo display / upload facility */
+void display_editpic(void) {
+	display_graphics_upload(_("your photo"),
+				"_userpic_",
+				"editpic");
+}
+/* room picture dispay / upload facility */
+void display_editroompic(void) {
+	display_graphics_upload(_("the icon for this room"),
+				"_roompic_",
+				"editroompic");
+}
+
+/* the greetingpage hello pic */
+void display_edithello(void) {
+	display_graphics_upload(_("the Greetingpicture for the login prompt"),
+				"hello",
+				"edithellopic");
+}
+
+/* the logoff banner */
+void display_editgoodbyepic(void) {
+	display_graphics_upload(_("the Logoff banner picture"),
+				"UIMG 0|%s|goodbuye",
+				"editgoodbuyepic");
+}
+
+void display_editfloorpic(void) {
+	char buf[SIZ];
+	snprintf(buf, SIZ, "UIMG 0|_floorpic_|%s",
+		 bstr("which_floor"));
+	display_graphics_upload(_("the icon for this floor"),
+				buf,
+				"editfloorpic");
+}
+
+void editfloorpic(void){
+	char buf[SIZ];
+	snprintf(buf, SIZ, "UIMG 1|_floorpic_|%s",
+		 bstr("which_floor"));
+	do_graphics_upload(buf);
+}
+
+void 
+InitModule_GRAPHICS
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_editpic"), display_editpic, 0);
+	WebcitAddUrlHandler(HKEY("editpic"), editpic, 0);
+	WebcitAddUrlHandler(HKEY("display_editroompic"), display_editroompic, 0);
+	WebcitAddUrlHandler(HKEY("display_edithello"), display_edithello, 0);
+	WebcitAddUrlHandler(HKEY("edithellopic"), edithellopic, 0);
+	WebcitAddUrlHandler(HKEY("display_editgoodbyepic"), display_editgoodbyepic, 0);
+	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), editgoodbuyepic, 0);
+	WebcitAddUrlHandler(HKEY("display_editfloorpic"), display_editfloorpic, 0);
+	WebcitAddUrlHandler(HKEY("editfloorpic"), editfloorpic, 0);
+}

@@ -182,3 +182,14 @@ void display_address_book_inner_div() {
 
 	end_ajax_response();
 }
+
+
+
+
+void 
+InitModule_ADDRBOOK_POPUP
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_address_book_middle_div"), display_address_book_middle_div, 0);
+	WebcitAddUrlHandler(HKEY("display_address_book_inner_div"), display_address_book_inner_div, 0);
+}

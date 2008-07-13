@@ -604,4 +604,11 @@ void set_preferences(void)
 }
 
 
+void 
+InitModule_PREFERENCES
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_preferences"), display_preferences, 0);
+	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
+}
 /*@}*/

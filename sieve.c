@@ -1155,3 +1155,16 @@ void display_rules_editor_inner_div(void) {
 
 	free(rooms);
 }
+
+void _display_add_remove_scripts(void) {display_add_remove_scripts(NULL);}
+
+void 
+InitModule_SIEVE
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_sieve"), display_sieve, 0);
+	WebcitAddUrlHandler(HKEY("save_sieve"), save_sieve, 0);
+	WebcitAddUrlHandler(HKEY("display_add_remove_scripts"), _display_add_remove_scripts, 0);
+	WebcitAddUrlHandler(HKEY("create_script"), create_script, 0);
+	WebcitAddUrlHandler(HKEY("delete_script"), delete_script, 0);
+}

@@ -101,4 +101,23 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 }
 
 
+void display_editinfo(void){ display_edit(_("Room info"), "EINF 0", "RINF", "editinfo", 1);}
+void editinfo(void) {save_edit(_("Room info"), "EINF 1", 1);}
+void display_editbio(void) {
+	char buf[SIZ];
+
+	snprintf(buf, SIZ, "RBIO %s", WC->wc_fullname);
+	display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
+}
+void editbio(void) { save_edit(_("Your bio"), "EBIO", 0); }
+
+void 
+InitModule_SYSMSG
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_editinfo"), display_editinfo, 0);
+	WebcitAddUrlHandler(HKEY("editinfo"), editinfo, 0);
+	WebcitAddUrlHandler(HKEY("display_editbio"), display_editbio, 0);
+	WebcitAddUrlHandler(HKEY("editbio"), editbio, 0);
+}
 /*@}*/

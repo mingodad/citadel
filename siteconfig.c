@@ -845,5 +845,11 @@ void siteconfig(void)
 	display_aide_menu();
 }
 
-
+void 
+InitModule_SITECONFIG
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_siteconfig"), display_siteconfig, 0);
+	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, 0);
+}
 /*@}*/

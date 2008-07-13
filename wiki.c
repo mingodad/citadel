@@ -97,3 +97,11 @@ void display_wiki_page(void)
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
+
+void 
+InitModule_WIKI
+(void)
+{
+	WebcitAddUrlHandler(HKEY("wiki"), display_wiki_page, 0);
+	return ;
+}

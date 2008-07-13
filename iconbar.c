@@ -795,5 +795,15 @@ void commit_iconbar(void) {
 }
 
 
+void 
+InitModule_ICONBAR
+(void)
+{
+	WebcitAddUrlHandler(HKEY("iconbar_ajax_menu"), do_iconbar, AJAX);
+	WebcitAddUrlHandler(HKEY("iconbar_ajax_rooms"), do_iconbar_roomlist, AJAX);
+	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
+	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
+}
+
 
 /*@}*/

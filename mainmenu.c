@@ -415,3 +415,17 @@ void display_shutdown(void)
 		}
 	}
 }
+
+void _display_menubar(void) { display_menubar(0); }
+
+void 
+InitModule_MAINMENU
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_aide_menu"), display_aide_menu, 0);
+	WebcitAddUrlHandler(HKEY("server_shutdown"), display_shutdown, 0);
+	WebcitAddUrlHandler(HKEY("display_main_menu"), display_main_menu, 0);
+	WebcitAddUrlHandler(HKEY("display_generic"), display_generic, 0);
+	WebcitAddUrlHandler(HKEY("do_generic"), do_generic, 0);
+	WebcitAddUrlHandler(HKEY("display_menubar"), _display_menubar, 0);
+}

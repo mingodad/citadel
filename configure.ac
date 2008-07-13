@@ -453,6 +453,7 @@ AC_ARG_WITH(editordir,
 )
 AC_DEFINE_UNQUOTED(EDITORDIR, "$editordir", [where to find our mail editor])
 
+./mk_module_init.sh
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile po/Makefile )
 

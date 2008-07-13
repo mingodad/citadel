@@ -106,3 +106,12 @@ void openid_detach(void) {
 
 	display_openids();
 }
+
+void 
+InitModule_OPENID
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_openids"), display_openids, 0);
+	WebcitAddUrlHandler(HKEY("openid_attach"), openid_attach, 0);
+	WebcitAddUrlHandler(HKEY("openid_detach"), openid_detach, 0);
+}

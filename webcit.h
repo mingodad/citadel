@@ -426,6 +426,8 @@ struct wcsession {
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	int nonce;				/**< session nonce (to prevent session riding) */
 	int time_format_cache;                  /**< which timeformat does our user like? */
+	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
 };
 
 /** values for WC->current_iconbar */
@@ -572,9 +574,9 @@ void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 void readloop(char *oper);
 void read_message(long msgnum, int printable_view, char *section);
-void embed_message(char *msgnum_as_string);
-void print_message(char *msgnum_as_string);
-void display_headers(char *msgnum_as_string);
+void embed_message(void);
+void print_message(void);
+void display_headers(void);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
 void display_enter(void);
@@ -769,7 +771,7 @@ void list_all_rooms_by_floor(const char *viewpref);
 void display_room_directory(void);
 void display_picture(void);
 void display_pictureview(void);
-void download_file(char *);
+void download_file(void);
 void upload_file(void);
 
 void display_edit_task(void);
@@ -818,7 +820,7 @@ void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, char *request_method);
-void set_floordiv_expanded(char *which_floordiv);
+void set_floordiv_expanded(void);
 void offer_languages(void);
 void set_selected_language(char *);
 void go_selected_language(void);
@@ -879,10 +881,13 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
 	WebcitHandlerFunc F;
-	int IsAjax;
+	long Flags;
 } WebcitHandler;
-void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, int IsAjax);
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
 
+#define AJAX (1<<0)
+#define ANONYMOUS (1<<1)
+#define NEED_URL (1<<2)
 
 
 /* These should be empty, but we have them for testing */

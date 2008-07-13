@@ -207,3 +207,11 @@ void save_inetconf(void) {
 	free(etype);
 	free(newconfig);
 }
+
+void 
+InitModule_INETCONF
+(void)
+{
+	WebcitAddUrlHandler(HKEY("display_inetconf"), display_inetconf, 0);
+	WebcitAddUrlHandler(HKEY("save_inetconf"), save_inetconf, AJAX);
+}

@@ -3187,10 +3187,14 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
  * \brief print a floor div???
  * \param which_floordiv name of the floordiv???
  */
-void set_floordiv_expanded(char *which_floordiv) {
-	begin_ajax_response();
-	StrBufPrintf(WC->floordiv_expanded, "%s", which_floordiv);
-	end_ajax_response();
+void set_floordiv_expanded(void) {
+	struct wcsession *WCC = WC;
+	
+	if (WCC->floordiv_expanded == NULL)
+		WCC->floordiv_expanded = NewStrBuf();
+	else
+		FlushStrBuf(WC->floordiv_expanded);
+	StrBufAppendBuf(WC->floordiv_expanded, WC->UrlFragment1, 0);
 }
 
 /**
@@ -3638,6 +3642,45 @@ void set_room_policy(void) {
 	}
 
 	display_editroom();
+}
+
+
+void _gotonext(void) { slrp_highest(); gotonext(); }
+void dotskip(void) {smart_goto(bstr("room"));}
+void _display_private(void) { display_private("", 0); }
+void dotgoto(void) {
+	if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
+		slrp_highest();
+	}
+	smart_goto(bstr("room"));
+}
+
+
+void 
+InitModule_ROOMOPS
+(void)
+{
+	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
+	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
+	WebcitAddUrlHandler(HKEY("skip"), gotonext, 0);
+	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, 0);
+	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, 0);
+	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, 0);
+	WebcitAddUrlHandler(HKEY("display_private"), _display_private, 0);
+	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, 0);
+	WebcitAddUrlHandler(HKEY("zapped_list"), zapped_list, 0);
+	WebcitAddUrlHandler(HKEY("display_zap"), display_zap, 0);
+	WebcitAddUrlHandler(HKEY("zap"), zap, 0);
+	WebcitAddUrlHandler(HKEY("display_entroom"), display_entroom, 0);
+	WebcitAddUrlHandler(HKEY("entroom"), entroom, 0);
+	WebcitAddUrlHandler(HKEY("display_whok"), display_whok, 0);
+	WebcitAddUrlHandler(HKEY("do_invt_kick"), do_invt_kick, 0);
+	WebcitAddUrlHandler(HKEY("display_editroom"), display_editroom, 0);
+	WebcitAddUrlHandler(HKEY("netedit"), netedit, 0);
+	WebcitAddUrlHandler(HKEY("editroom"), editroom, 0);
+	WebcitAddUrlHandler(HKEY("delete_room"), delete_room, 0);
+	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
+	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 }
 
 /*@}*/

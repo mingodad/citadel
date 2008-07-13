@@ -1390,13 +1390,11 @@ ENDBODY:	/* If there are attached submessages, display them now... */
  *
  * msgnum_as_string == Message number, as a string instead of as a long int
  */
-void embed_message(char *msgnum_as_string) {
+void embed_message(void) {
 	long msgnum = 0L;
 
-	msgnum = atol(msgnum_as_string);
-	begin_ajax_response();
+	msgnum = StrTol(WC->UrlFragment1);
 	read_message(msgnum, 0, "");
-	end_ajax_response();
 }
 
 
@@ -1405,10 +1403,10 @@ void embed_message(char *msgnum_as_string) {
  *
  * msgnum_as_string == Message number, as a string instead of as a long int
  */
-void print_message(char *msgnum_as_string) {
+void print_message(void) {
 	long msgnum = 0L;
 
-	msgnum = atol(msgnum_as_string);
+	msgnum = StrTol(WC->UrlFragment1);
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html\r\n"
@@ -1436,11 +1434,11 @@ void print_message(char *msgnum_as_string) {
  *
  * \param msgnum_as_string Message number, as a string instead of as a long int
  */
-void display_headers(char *msgnum_as_string) {
+void display_headers(void) {
 	long msgnum = 0L;
 	char buf[1024];
 
-	msgnum = atol(msgnum_as_string);
+	msgnum = StrTol(WC->UrlFragment1);
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/plain\r\n"
@@ -3799,4 +3797,30 @@ void confirm_move_msg(void)
 
 	wprintf("</CENTER>\n");
 	wDumpContent(1);
+}
+
+void readnew(void) { readloop("readnew");}
+void readold(void) { readloop("readold");}
+void readfwd(void) { readloop("readfwd");}
+void headers(void) { readloop("headers");}
+void do_search(void) { readloop("do_search");}
+
+void 
+InitModule_MSG
+(void)
+{
+	WebcitAddUrlHandler(HKEY("readnew"), readnew, 0);
+	WebcitAddUrlHandler(HKEY("readold"), readold, 0);
+	WebcitAddUrlHandler(HKEY("readfwd"), readfwd, 0);
+	WebcitAddUrlHandler(HKEY("headers"), headers, 0);
+	WebcitAddUrlHandler(HKEY("do_search"), do_search, 0);
+	WebcitAddUrlHandler(HKEY("display_enter"), display_enter, 0);
+	WebcitAddUrlHandler(HKEY("post"), post_message, 0);
+	WebcitAddUrlHandler(HKEY("move_msg"), move_msg, 0);
+	WebcitAddUrlHandler(HKEY("delete_msg"), delete_msg, 0);
+	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
+	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL|AJAX);
+	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
+	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
+	return ;
 }
