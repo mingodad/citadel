@@ -45,7 +45,7 @@ static int    gbl_backtraceDoneFlag = 0;
 static void *stack_frames[50];
 static size_t size, NThread;
 static char **strings;
-static char StrBuf[SIZ];
+static char StaticBuf[SIZ];
 
 /* 
  * Private structures for our thread list
@@ -174,8 +174,8 @@ static void outputPrintf(char *format, ...)
 
 	if (enable_syslog)
 	{
-		snprintf (StrBuf, SIZ, format, ap);
-		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+		snprintf (StaticBuf, SIZ, format, ap);
+		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
 	}
 	else
 		CtdlLogPrintf(CTDL_EMERG, format, ap);
@@ -198,8 +198,8 @@ static void createGlobalBacktrace( void )
 	if (enable_syslog)
 		for (NThread = 0; NThread < size; NThread++) 
 		{
-			snprintf (StrBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
+			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 
@@ -209,8 +209,8 @@ static void createGlobalBacktrace( void )
 		if (strings != NULL) {
 			if (enable_syslog)
 			{// vsyslogs printf compliance sucks.
-				snprintf (StrBuf, SIZ, "RAW: %p  ", strings[NThread]);
-				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+				snprintf (StaticBuf, SIZ, "RAW: %p  ", strings[NThread]);
+				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
 			}
 			else
 				CtdlLogPrintf(1, "%s\n", strings[NThread]);
@@ -224,8 +224,8 @@ static void outputRawtrace( void )
 	if (enable_syslog)
 		for (NThread = 0; NThread < size; NThread++) 
 		{
-			snprintf (StrBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StrBuf);
+			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
+			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 
