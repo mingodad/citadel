@@ -158,7 +158,7 @@ void save_preferences(void) {
 				offset = 0;
 				while (nchars > 0) {
 					if (n == 0)
-						nchars = 71;
+						nchars = 70;
 					else 
 						nchars = 80;
 
@@ -170,6 +170,7 @@ void save_preferences(void) {
 						serv_printf(" %s", ChrPtr(SubBuf));
 
 					offset += nchars;
+					nchars = StrLength(Buf) - offset;
 					n++;
 				}
 				
