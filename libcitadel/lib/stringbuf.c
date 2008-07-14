@@ -181,10 +181,10 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 		return nChars;
 	}
 	NCharsRemain = Source->BufUsed - Offset;
-	if (NCharsRemain < dest->BufSize)
+	if (NCharsRemain > dest->BufSize)
 		IncreaseBuf(dest, 0, NCharsRemain + 1);
 	memcpy(dest->buf, Source->buf + Offset, NCharsRemain);
-	dest->BufUsed = NCharsRemain + 1;
+	dest->BufUsed = NCharsRemain;
 	dest->buf[dest->BufUsed] = '\0';
 	return NCharsRemain;
 }
