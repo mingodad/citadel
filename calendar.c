@@ -459,12 +459,26 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	    Cal, 
 	    delete_cal);
 
-	/* Right about here is probably where we want to add code to handle recurring events.
+#ifdef TECH_PREVIEW
+
+	/* handle recurring events (unfinished) */
+
+	/*
 	 * Just let libical iterate the recurrence, and keep looping back to the top of this function,
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code *should* automatically do the right
 	 * thing (but we'll have to see).
+
+	icalproperty *rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
+	if (!rrule) return;
+	struct icalrecurrencetype recur = icalproperty_get_rrule(rrule);
+
+	lprintf(9, "recurrence detected -- need to handle this\n");
+
 	 */
+
+#endif /* TECH_PREVIEW */
+
 }
 
 
