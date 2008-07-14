@@ -819,8 +819,6 @@ void artv_do_import(void) {
 	
 	unbuffer_output();
 
-	CC->dont_term = 1;
-
 	/* Prepare buffers for base 64 decoding of messages.
 	*/
 	b64mes = malloc(SIZ);
@@ -843,6 +841,8 @@ void artv_do_import(void) {
 	plain[0] = 0;
 	plain_size = SIZ;
 	
+	CC->dont_term = 1;
+
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	abuf[0] = '\0';
 	unbuffer_output();
