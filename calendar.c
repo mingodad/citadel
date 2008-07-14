@@ -416,10 +416,11 @@ void delete_cal(void *vCal)
 void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread)
 {
 	icalproperty *ps = NULL;
-	struct icaltimetype t;
+	struct icaltimetype dtstart, dtend;
 	struct wcsession *WCC = WC;
 	disp_cal *Cal;
 	size_t len;
+	int num_recur = 0;
 	
 	if (WCC->disp_cal_items == NULL)
 		WCC->disp_cal_items = NewHash(0, Flathash);
@@ -441,15 +442,15 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 */
 	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 	if (ps != NULL) {
-		t = icalproperty_get_dtstart(ps);
-		Cal->event_start = icaltime_as_timet(t);
+		dtstart = icalproperty_get_dtstart(ps);
+		Cal->event_start = icaltime_as_timet(dtstart);
 	}
 
 	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
 	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
 	if (ps != NULL) {
-		t = icalproperty_get_dtstart(ps);
-		Cal->event_end = icaltime_as_timet(t);
+		dtend = icalproperty_get_dtstart(ps);
+		Cal->event_end = icaltime_as_timet(dtend);
 	}
 
 	/* Store it in the hash list. */
@@ -468,14 +469,19 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code *should* automatically do the right
 	 * thing (but we'll have to see).
+	 */
 
 	icalproperty *rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
 	if (!rrule) return;
 	struct icalrecurrencetype recur = icalproperty_get_rrule(rrule);
+	icalrecur_iterator *ritr = icalrecur_iterator_new(recur, dtstart);
+	if (!ritr) return;
 
-	lprintf(9, "recurrence detected -- need to handle this\n");
-
-	 */
+	struct icaltimetype next;
+	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
+		++num_recur;
+		lprintf(9, "* Doing a recurrence %d\n", num_recur);
+	}
 
 #endif /* TECH_PREVIEW */
 
