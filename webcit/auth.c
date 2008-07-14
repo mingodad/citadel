@@ -8,6 +8,9 @@
 #include "webserver.h"
 #include <ctype.h>
 
+
+void display_reg(int during_login);
+
 /*
  * Access level definitions.  This is initialized from a function rather than a
  * static array so that the strings may be localized.

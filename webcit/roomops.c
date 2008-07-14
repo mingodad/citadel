@@ -10,6 +10,8 @@ char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
 char *viewdefs[9]; /**< the different kinds of available views */
 
+void display_whok(void);
+
 /*
  * Initialize the viewdefs with localized strings
  */
@@ -3681,6 +3683,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("delete_room"), delete_room, 0);
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
+	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 }
 
 /*@}*/

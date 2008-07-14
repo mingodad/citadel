@@ -540,6 +540,5 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("display_edituser"), _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
 	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
-	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 }
 /*@}*/

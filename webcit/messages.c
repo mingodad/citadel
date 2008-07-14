@@ -13,6 +13,8 @@
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
 #define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
+void display_enter(void);
+
 /*
  * Address book entry (keep it short and sweet, it's just a quickie lookup
  * which we can use to get to the real meat and bones later)
