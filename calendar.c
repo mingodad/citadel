@@ -427,6 +427,9 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	icalrecur_iterator *ritr = NULL;
 	struct icaltimetype next;
 	int num_recur = 0;
+
+	dtstart = icaltime_null_time();
+	dtend = icaltime_null_time();
 	
 	if (WCC->disp_cal_items == NULL)
 		WCC->disp_cal_items = NewHash(0, Flathash);
@@ -468,7 +471,9 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 
 #ifdef TECH_PREVIEW
 
-	/* handle recurring events (unfinished) */
+	/* handle recurring events */
+
+	if (icaltime_is_null_time(dtstart)) return;	/* Can't recur without a start time */
 
 	/*
 	 * Just let libical iterate the recurrence, and keep looping back to the top of this function,
@@ -486,6 +491,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
 		++num_recur;
 		lprintf(9, "* Doing a recurrence %d\n", num_recur);
+		/* FIXME this is unfinished */
 	}
 
 #endif /* TECH_PREVIEW */
