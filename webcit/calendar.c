@@ -420,6 +420,12 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	struct wcsession *WCC = WC;
 	disp_cal *Cal;
 	size_t len;
+
+	/* recur variables */
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+	icalrecur_iterator *ritr = NULL;
+	struct icaltimetype next;
 	int num_recur = 0;
 	
 	if (WCC->disp_cal_items == NULL)
@@ -471,13 +477,12 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * thing (but we'll have to see).
 	 */
 
-	icalproperty *rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
+	rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
 	if (!rrule) return;
-	struct icalrecurrencetype recur = icalproperty_get_rrule(rrule);
-	icalrecur_iterator *ritr = icalrecur_iterator_new(recur, dtstart);
+	recur = icalproperty_get_rrule(rrule);
+	ritr = icalrecur_iterator_new(recur, dtstart);
 	if (!ritr) return;
 
-	struct icaltimetype next;
 	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
 		++num_recur;
 		lprintf(9, "* Doing a recurrence %d\n", num_recur);
@@ -850,17 +855,11 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 
 
 
-/**
- * \brief generic item handler
- * Code common to all display handlers.  Given a message number and a MIME
+/*
+ * Code common to all icalendar display handlers.  Given a message number and a MIME
  * type, we load the message and hunt for that MIME type.  If found, we load
  * the relevant part, deserialize it into a libical component, filter it for
  * the requested object type, and feed it to the specified handler.
- * \param mimetype mimetyp of our object
- * \param which_kind sort of ical type
- * \param msgnum number of the mesage in our db
- * \param callback a funcion \todo
- *
  */
 void display_using_handler(long msgnum, int unread,
 			   icalcomponent_kind which_kind,
@@ -913,17 +912,15 @@ void display_using_handler(long msgnum, int unread,
 
 				ical_dezonify(cal);
 
-				/** Simple components of desired type */
+				/* Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {
 					callback(cal, msgnum, from, unread);
 				}
 
-				/** Subcomponents of desired type */
-				for (c = icalcomponent_get_first_component(cal,
-									   which_kind);
+				/* Subcomponents of desired type */
+				for (c = icalcomponent_get_first_component(cal, which_kind);
 				     (c != 0);
-				     c = icalcomponent_get_next_component(cal,
-									  which_kind)) {
+				     c = icalcomponent_get_next_component(cal, which_kind)) {
 					callback(c, msgnum, from, unread);
 				}
 				icalcomponent_free(cal);
@@ -934,69 +931,61 @@ void display_using_handler(long msgnum, int unread,
 	icalmemory_free_ring();
 }
 
-/**
- * \brief display whole calendar
- * \param msgnum number of the mesage in our db
+/*
+ * Display a calendar item
  */
 void display_calendar(long msgnum, int unread) {
-	display_using_handler(msgnum, unread,
-			      ICAL_VEVENT_COMPONENT,
-			      display_individual_cal);
+	display_using_handler(msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal);
 }
 
-/**
- * \brief display whole taksview
- * \param msgnum number of the mesage in our db
+/*
+ * Display task view
  */
 void display_task(long msgnum, int unread) {
-	display_using_handler(msgnum, unread,
-			      ICAL_VTODO_COMPONENT,
-			      display_individual_cal);
+	display_using_handler(msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal);
 }
 
-/**
- * \brief display the editor component for a task
+/*
+ * Display the editor component for a task
  */
 void display_edit_task(void) {
 	long msgnum = 0L;
 			
-	/** Force change the room if we have to */
+	/* Force change the room if we have to */
 	if (havebstr("taskrm")) {
 		gotoroom((char *)bstr("taskrm"));
 	}
 
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
-		/** existing task */
+		/* existing task */
 		display_using_handler(msgnum, 0,
 				      ICAL_VTODO_COMPONENT,
 				      display_edit_individual_task);
 	}
 	else {
-		/** new task */
+		/* new task */
 		display_edit_individual_task(NULL, 0L, "", 0);
 	}
 }
 
-/**
- *\brief save an edited task
+/*
+ * save an edited task
  */
 void save_task(void) {
 	long msgnum = 0L;
 
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, 0,
-				      ICAL_VTODO_COMPONENT,
-				      save_individual_task);
+		display_using_handler(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task);
 	}
 	else {
 		save_individual_task(NULL, 0L, "", 0);
 	}
 }
 
-/**
- * \brief display the editor component for an event
+/*
+ * display the editor component for an event
  */
 void display_edit_event(void) {
 	long msgnum = 0L;
@@ -1004,9 +993,7 @@ void display_edit_event(void) {
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/* existing event */
-		display_using_handler(msgnum, 0,
-				      ICAL_VEVENT_COMPONENT,
-				      display_edit_individual_event);
+		display_using_handler(msgnum, 0, ICAL_VEVENT_COMPONENT, display_edit_individual_event);
 	}
 	else {
 		/* new event */
@@ -1014,8 +1001,8 @@ void display_edit_event(void) {
 	}
 }
 
-/**
- * \brief save an edited event
+/*
+ * save an edited event
  */
 void save_event(void) {
 	long msgnum = 0L;
@@ -1023,9 +1010,7 @@ void save_event(void) {
 	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, 0,
-				      ICAL_VEVENT_COMPONENT,
-				      save_individual_event);
+		display_using_handler(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event);
 	}
 	else {
 		save_individual_event(NULL, 0L, "", 0);
@@ -1036,9 +1021,8 @@ void save_event(void) {
 
 
 
-/**
- * \brief freebusy display (for client software)
- * \param req dunno. ?????
+/*
+ * Anonymous request of freebusy data for a user
  */
 void do_freebusy(char *req) {
 	char who[SIZ];
