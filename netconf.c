@@ -9,6 +9,8 @@
 /*@{*/
 #include "webcit.h"
 
+void display_netconf(void);
+
 /**
  * \brief edit a network node
  */

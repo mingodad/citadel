@@ -13,6 +13,9 @@
 #define IB_TEXTONLY	2 /**< just text */
 
 
+void do_iconbar(void);
+void do_iconbar_roomlist(void);
+
 /**
  * \brief draw the icon bar?????
  */
