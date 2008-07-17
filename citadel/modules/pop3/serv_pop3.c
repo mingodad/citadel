@@ -671,6 +671,11 @@ void pop3_command_loop(void) {
 	else if (!CC->logged_in) {
 		cprintf("-ERR Not logged in.\r\n");
 	}
+	
+	else if (CC->nologin) {
+		cprintf("-ERR System busy, try later.\r\n");
+		CC->kill_me = 1;
+	}
 
 	else if (!strncasecmp(cmdbuf, "LIST", 4)) {
 		pop3_list(&cmdbuf[5]);
